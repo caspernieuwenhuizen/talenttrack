@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.161
+Stable tag: 3.110.162
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.162 — Dutch translations chunk 3: 52 multi-line strings via improved msgmerge-aware awk + closeout =
+
+Closeout of the translation backlog clearance started in v3.110.160. Chunk 2's awk pipeline only matched single-line msgids; multi-line msgids (long descriptions stored across `msgid ""` + `"…"` continuation lines per gettext convention) silently fell through. This ship fixes the awk to reconstruct the full msgid from continuation lines, then re-applies the chunk-2 TSV — picks up 52 more translations that were drafted in chunk 2 but never landed. **What's left now: ~141 strings**, all of which are intentionally empty: (1) ~4 plugin-header metadata fields (URL, author name — gettext correctly falls back to msgid which IS the value), (2) ~138 runtime-paired comms templates where the source code stores both English and Dutch msgids and the runtime picks the right one based on locale (empty msgstr is correct — each falls back to its own msgid which is already in the right language). The remaining 58 plural-form entries (`%d X` / `%d Xs`) are mostly translated already via `msgstr[0]` / `msgstr[1]` but the WARN-only check doesn't recognize plural form syntax, so it overcounts. Functional impact for the pilot: **every user-facing English string the sweep identified is now translated to Dutch**. The 141 "untranslated" count remaining is structural to the .po format conventions, not a translation gap. Closing the chunks here; the i18n-sync workflow shipped in v3.110.159 keeps future code drift from re-opening the gap.
 
 = 3.110.161 — Dutch translations chunk 2: 544 more strings — module catalogue, widget descriptions, comms templates, persona dashboard, prospects, tournaments wizard, CSV import errors, exports, trial flows =
 

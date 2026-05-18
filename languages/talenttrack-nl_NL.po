@@ -3043,14 +3043,14 @@ msgstr "Bladeren per entiteit"
 msgid ""
 "No academy-wide KPIs registered yet. Pick an entity from the left to see its "
 "analytics."
-msgstr ""
+msgstr "Nog geen academie-brede KPI's geregistreerd. Kies een entiteit uit de lijst om de analytics te bekijken."
 
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:116
 msgid ""
 "Academy-wide KPIs. Click any card to open the explorer with that KPI loaded; "
 "from there you can pivot, group, and filter. Pick an entity from the left "
 "rail to switch to its analytics in place."
-msgstr ""
+msgstr "Academie-brede KPI's. Klik op een kaart om de explorer te openen met die KPI geladen; van daaruit kun je pivoteren, groeperen en filteren. Kies een entiteit uit de linker zijbalk om naar de analytics van die entiteit te gaan."
 
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:157
 msgid "← Academy view"
@@ -3348,7 +3348,7 @@ msgstr ""
 msgid ""
 "The dimension explorer is the first ship of #0083 Child 3. Time-series "
 "chart, drilldown to fact rows, and PDF export ship in follow-ups."
-msgstr ""
+msgstr "De dimensie-explorer is de eerste oplevering van #0083 Child 3. Tijdreeksdiagram, drill-down naar fact-rijen en PDF-export volgen later."
 
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:268
 msgid "Date after"
@@ -4585,7 +4585,7 @@ msgstr ""
 msgid ""
 "Reset every persona's permissions to the shipped defaults? This cannot be "
 "undone (except by re-editing)."
-msgstr ""
+msgstr "Permissies van elke persona resetten naar de meegeleverde standaard? Dit kan niet ongedaan worden gemaakt (behalve door opnieuw te bewerken)."
 
 #: src/Modules/Authorization/Admin/MatrixPage.php:396
 msgid "Tiles not controlled by the matrix"
@@ -4854,7 +4854,7 @@ msgid ""
 "register hooks, REST routes, admin pages, or capabilities — they're "
 "completely invisible until re-enabled. Core modules (Auth, Configuration, "
 "Authorization) cannot be disabled."
-msgstr ""
+msgstr "Elke TalentTrack-module kan hier worden uitgeschakeld. Uitgeschakelde modules registreren geen hooks, REST-routes, admin-pagina's of permissies — ze zijn volledig onzichtbaar totdat ze opnieuw worden ingeschakeld. Core-modules (Auth, Configuratie, Autorisatie) kunnen niet worden uitgeschakeld."
 
 #: src/Modules/Authorization/Admin/ModulesPage.php:50
 msgid "Module state saved. Reload any open admin tabs to see the effect."
@@ -4967,7 +4967,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/ModulesPage.php:253
 msgid ""
 "Login, role mapping, and the user-meta surface every other module reads."
-msgstr ""
+msgstr "Login, rol-mapping en het user-meta-oppervlak dat elke andere module leest."
 
 #: src/Modules/Authorization/Admin/ModulesPage.php:254
 msgid "Site-wide settings, lookups, branding, theme, rating scale."
@@ -5028,7 +5028,7 @@ msgstr "Speler-Ontwikkelplannen — het planning- en verdict-oppervlak per seizo
 #: src/Modules/Authorization/Admin/ModulesPage.php:267
 msgid ""
 "The polymorphic conversation primitive used by goals (and future surfaces)."
-msgstr ""
+msgstr "Het polymorfe gesprek-primitief dat door doelen wordt gebruikt (en toekomstige oppervlakken)."
 
 #: src/Modules/Authorization/Admin/ModulesPage.php:268
 msgid "Scheduled tasks: post-game evals, self-evals, HoD reviews."
@@ -5046,7 +5046,7 @@ msgstr "Teamchemie-bord + opstelling-suggesties."
 #: src/Modules/Documentation/HelpTopics.php:291
 msgid ""
 "Personal goals + evaluations + certifications + PDP for coaches and staff."
-msgstr ""
+msgstr "Persoonlijke doelen + evaluaties + certificeringen + POP voor coaches en staf."
 
 #: src/Modules/Authorization/Admin/ModulesPage.php:272
 msgid "Cross-team reports — progress, ratings, coach activity."
@@ -5957,7 +5957,7 @@ msgstr "over ongeveer %s"
 msgid ""
 "Next run is not scheduled yet — save settings once to schedule the cron "
 "event."
-msgstr ""
+msgstr "Volgende uitvoering is nog niet gepland — sla de instellingen één keer op om de cron-event te plannen."
 
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:166
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:288
@@ -9498,7 +9498,7 @@ msgstr "Fris licht"
 msgid ""
 "Soft mint-and-teal palette with rounded corners and a soft-shadow card "
 "style. Reads bright in daylight; works well for academies that lean modern."
-msgstr ""
+msgstr "Zacht mint-en-teal palet met afgeronde hoeken en een zachte-schaduw kaartstijl. Leest helder in daglicht; werkt goed voor academies met een moderne uitstraling."
 
 #: src/Modules/CustomCss/Templates/StarterTemplates.php:36
 msgid "Classic football"
@@ -9508,13 +9508,13 @@ msgstr "Klassiek voetbal"
 msgid ""
 "Forest green + gold + cream — the traditional academy crest palette. Sharper "
 "corners and a slightly heavier card border for a club-shop feel."
-msgstr ""
+msgstr "Bosgroen + goud + crème — het traditionele academie-wapen-palet. Scherpere hoeken en een iets zwaardere kaartrand voor een clubshop-gevoel."
 
 #: src/Modules/CustomCss/Templates/StarterTemplates.php:42
 msgid ""
 "Neutral greys with a single charcoal accent. Skips drop shadows and rounds "
 "corners only slightly. Sits behind any club brand without competing with it."
-msgstr ""
+msgstr "Neutrale grijzen met een enkele houtskool-accent. Geen slagschaduwen en hoeken slechts licht afgerond. Past achter elk clubmerk zonder ermee te concurreren."
 
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:40
 msgid "You do not have permission to manage custom widgets."
@@ -9728,7 +9728,7 @@ msgid ""
 "columns and filters, and pick a chart type. Save the widget and drop it onto "
 "any persona dashboard from the editor palette. Each widget is club-scoped "
 "and respects the viewer's read access on the underlying records."
-msgstr ""
+msgstr "Kies een gegevensbron (Spelers, Evaluaties, Doelen, Activiteiten, POP), selecteer kolommen en filters en kies een diagramtype. Sla de widget op en sleep deze op elk persona-dashboard vanuit het editor-palet. Elke widget is club-scoped en respecteert de leestoegang van de kijker op de onderliggende records."
 
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:251
 msgid "You do not have permission to clear the cache."
@@ -9937,7 +9937,7 @@ msgstr "TalentTrack-demogegevens"
 msgid ""
 "Generate a realistic Dutch-academy dataset for demos, toggle a site-wide "
 "demo mode that hides real club data, and wipe cleanly when the demo is over."
-msgstr ""
+msgstr "Genereer een realistische Nederlandse-academie-dataset voor demo's, schakel een site-brede demomodus in die echte clubgegevens verbergt en wis netjes wanneer de demo voorbij is."
 
 #. translators: 1: batch id, 2: data counts, 3: user counts
 #: src/Modules/DemoData/Admin/DemoDataPage.php:142
@@ -10258,7 +10258,7 @@ msgid ""
 "Used as the prefix for every generated team name (e.g. \"FC Groningen "
 "JO11\"). Defaults to the academy name from Configuration. Only affects this "
 "generate run — your Configuration setting is not changed."
-msgstr ""
+msgstr "Gebruikt als prefix voor elke gegenereerde teamnaam (bijv. \"FC Groningen JO11\"). Standaard is de academienaam uit Configuratie. Geldt alleen voor deze generatie-uitvoering — je Configuratie-instelling wordt niet gewijzigd."
 
 #: src/Modules/DemoData/Admin/DemoDataPage.php:458
 msgid "Demo email domain"
@@ -10379,7 +10379,7 @@ msgid ""
 "default location) is written in. Only languages the generators ship content "
 "dictionaries for are listed — add a key to GoalGenerator / ActivityGenerator "
 "constants to support a new one."
-msgstr ""
+msgstr "Taal waarin de gegenereerde inhoud (doeltitels, beschrijvingen, activiteitstitels, standaardlocatie) is geschreven. Alleen talen waarvoor de generators inhoudswoordenboeken hebben, worden weergegeven — voeg een sleutel toe aan de GoalGenerator / ActivityGenerator-constanten om een nieuwe te ondersteunen."
 
 #: src/Modules/DemoData/Admin/DemoDataPage.php:551
 msgid "Generate demo data"
@@ -10464,7 +10464,7 @@ msgstr "%1$s — %2$s (%3$d getagde rijen)"
 msgid ""
 "Pick a batch to scope the wipe to that batch only. \"All batches\" preserves "
 "the historical behaviour."
-msgstr ""
+msgstr "Kies een batch om het wissen tot die batch te beperken. \"Alle batches\" behoudt het historische gedrag."
 
 #: src/Modules/DemoData/Admin/DemoDataPage.php:676
 msgid "Categories to wipe"
@@ -11557,7 +11557,7 @@ msgstr ""
 msgid ""
 "Run a structured trial period: track templates, staff input, decision and "
 "the letter that goes to parents."
-msgstr ""
+msgstr "Voer een gestructureerde proefperiode uit: tracksjablonen, staf-input, besluit en de brief die naar ouders gaat."
 
 #: src/Modules/Documentation/HelpTopics.php:92
 msgid "Record creation wizards"
@@ -11872,7 +11872,7 @@ msgstr ""
 msgid ""
 "Visual editor and hand-rolled CSS for academy-specific theming, with "
 "sanitisation and history."
-msgstr ""
+msgstr "Visuele editor en handgeschreven CSS voor academie-specifieke thematisering, met sanitization en geschiedenis."
 
 #: src/Modules/Documentation/HelpTopics.php:269
 msgid "Demo data (Excel)"
@@ -11882,19 +11882,19 @@ msgstr "Demogegevens (Excel)"
 msgid ""
 "Generate or import a demo dataset for sales / training. Excel template with "
 "auto_key cross-sheet links."
-msgstr ""
+msgstr "Genereer of importeer een demo-dataset voor sales / training. Excel-sjabloon met auto_key-cross-sheet-links."
 
 #: src/Modules/Documentation/HelpTopics.php:276
 msgid ""
 "Per-team-per-block matrix of planned vs conducted PDP conversations. HoD / "
 "coach surface."
-msgstr ""
+msgstr "Per-team-per-blok matrix van geplande versus uitgevoerde POP-gesprekken. HoD- / coach-oppervlak."
 
 #: src/Modules/Documentation/HelpTopics.php:281
 msgid ""
 "Traffic-light status calculation: weights, thresholds, behaviour floor, "
 "behaviour + potential capture."
-msgstr ""
+msgstr "Stoplicht-statusberekening: wegingen, drempels, gedragsbodem, gedrag + potentieel-registratie."
 
 #: src/Modules/Documentation/HelpTopics.php:304
 #: src/Modules/Tournaments/Wizard/BasicsStep.php:19
@@ -12402,7 +12402,7 @@ msgstr "Speler niet gevonden of niet toegankelijk in deze club."
 msgid ""
 "comms_log rows with empty address_blob and subject reflect GDPR retention "
 "tombstoning (#0066) — the audit fact is preserved without the PII payload."
-msgstr ""
+msgstr "comms_log-rijen met lege address_blob en onderwerp weerspiegelen GDPR-retentie-tombstoning (#0066) — het audit-feit blijft behouden zonder de PII-payload."
 
 #. translators: %s = player name
 #: src/Modules/Export/Exporters/GdprSubjectAccessZipExporter.php:224
@@ -13609,7 +13609,7 @@ msgstr "Upgrade naar Pro"
 msgid ""
 "You're on Standard. Pro adds the features your scouting and trial workflows "
 "depend on."
-msgstr ""
+msgstr "Je zit op Standard. Pro voegt de features toe waar je scouting- en proefperiode-workflows op rekenen."
 
 #: src/Modules/License/Admin/AccountPage.php:588
 msgid ""
@@ -13949,7 +13949,7 @@ msgid ""
 "substitute is calling wp-cron.php. If \"Send now\" returns a WP_Error, the "
 "install can't reach the Admin Center receiver — check outbound HTTPS / DNS "
 "for www.mediamaniacs.nl."
-msgstr ""
+msgstr "Als \"Last sent\" leeg is en \"Next daily cron\" niet gepland is, is wp-cron waarschijnlijk uitgeschakeld (DISABLE_WP_CRON in wp-config.php) en roept geen system-cron-substituut wp-cron.php aan. Als \"Send now\" een WP_Error teruggeeft, kan de installatie de Admin Center-ontvanger niet bereiken — controleer uitgaande HTTPS / DNS voor www.mediamaniacs.nl."
 
 #: src/Modules/License/Admin/DevOverridePage.php:43
 msgid "TalentTrack — Developer License Override"
@@ -17403,7 +17403,7 @@ msgid ""
 "The data-source field picks the action; the card renders the action's "
 "registered label, icon, and gates on its capability — admins without the cap "
 "see no card."
-msgstr ""
+msgstr "Een primaire call-to-action-tegel (bijv. \"+ Nieuwe proefperiode\", \"+ Nieuwe evaluatie\"). Het data-source-veld kiest de actie; de kaart toont het geregistreerde label, icoon en gate-permissie van de actie — admins zonder de permissie zien geen kaart."
 
 #: src/Modules/PersonaDashboard/Widgets/AddProspectHeroWidget.php:46
 msgid "Add prospect hero"
@@ -17415,7 +17415,7 @@ msgid ""
 "glance strip — \"X logged this month · Y still active in your funnel\" — "
 "scoped to the viewer's own discovered_by_user_id, sourced directly from "
 "tt_prospects."
-msgstr ""
+msgstr "Scout-hero-kaart met één-tik CTA naar de nieuwe-prospect-wizard. Bevat een blik-strip — \"X dit maand geregistreerd · Y nog actief in je funnel\" — scoped op het eigen discovered_by_user_id van de kijker, rechtstreeks vanuit tt_prospects."
 
 # AddProspectHeroWidget — scout dashboard hero (v3.110.68; CTA renamed in v3.110.118)
 #: src/Modules/PersonaDashboard/Widgets/AddProspectHeroWidget.php:76
@@ -17462,7 +17462,7 @@ msgid ""
 "scout dashboards lean on the onboarding pipeline + recent-prospects table "
 "instead; this widget stays registered for installs that still use the "
 "explicit-assignment workflow."
-msgstr ""
+msgstr "Legacy scout-portfolio-raster met elke speler die expliciet is toegewezen aan de kijkende scout (pre-prospects-funnel). Leest `tt_scout_assignments`. Nieuwe scout-dashboards leunen op de onboarding-pijplijn + recente-prospects-tabel; deze widget blijft geregistreerd voor installaties die nog de expliciete-toewijzing-workflow gebruiken."
 
 #: src/Modules/PersonaDashboard/Widgets/AssignedPlayersGridWidget.php:46
 msgid "Scout · assigned by HoD"
@@ -17488,7 +17488,7 @@ msgid ""
 "one) plus a weekly recap card — last activity attended, latest evaluation "
 "rating, open PDP conversation. Sourced from tt_players + tt_attendance + "
 "tt_evaluations scoped to the parent's linked children."
-msgstr ""
+msgstr "Ouder-hero: kiezers tussen de gekoppelde spelers van de ouder (bij meer dan één) plus een wekelijkse recap-kaart — laatste bijgewoonde activiteit, laatste evaluatie-beoordeling, openstaand POP-gesprek. Vanuit tt_players + tt_attendance + tt_evaluations, scoped op de gekoppelde kinderen van de ouder."
 
 #: src/Modules/PersonaDashboard/Widgets/ChildSwitcherWithRecapWidget.php:52
 msgid "No children linked to this account yet."
@@ -17525,7 +17525,7 @@ msgid ""
 "trials needing decision, my recent prospects, recent audit events, etc.). "
 "Rows come from a TableRowSource implementation scoped to the viewer + their "
 "club; See-all routes to the matching full list view."
-msgstr ""
+msgstr "Compact tabel-oppervlak voor \"recente X\"-lijsten met een Toon-alle-link. Kies een van de geregistreerde presets in de data-source-dropdown (komende activiteiten, proefperiodes die beslissing nodig hebben, mijn recente prospects, recente audit-events, enz.). Rijen komen van een TableRowSource-implementatie, scoped op de kijker + zijn club; Toon-alle routeert naar de bijbehorende volledige lijst."
 
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:43
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:82
@@ -17619,7 +17619,7 @@ msgid ""
 "message ID in the data-source dropdown (coach_nudge, pending_pdp_ack, etc.). "
 "The card hides itself when its trigger condition is empty (e.g. no pending "
 "PDP), so it only shows when there's something to surface."
-msgstr ""
+msgstr "Een kleine notitie-kaart — vooraf geschreven herinneringen of seizoensberichten. Kies de bericht-ID in de data-source-dropdown (coach_nudge, pending_pdp_ack, enz.). De kaart verbergt zichzelf wanneer de trigger-conditie leeg is (bijv. geen openstaande POP), dus toont alleen wanneer er iets te tonen is."
 
 #: src/Modules/PersonaDashboard/Widgets/InfoCardWidget.php:43
 msgid "Coach nudge"
@@ -17673,7 +17673,7 @@ msgid ""
 "the KPI in the data-source dropdown — the widget calls that KPI's "
 "`compute()` and renders the live value scoped to the viewing user + their "
 "club. Unavailable values render a dash."
-msgstr ""
+msgstr "Eén KPI-tegel: hoofdgetal, trendpijl, optionele sparkline. Kies de KPI in de data-source-dropdown — de widget roept de `compute()` van die KPI aan en toont de live waarde, scoped op de kijkende gebruiker + zijn club. Niet-beschikbare waarden tonen een streepje."
 
 #: src/Modules/PersonaDashboard/Widgets/KpiStripWidget.php:23
 msgid "KPI strip"
@@ -17685,7 +17685,7 @@ msgid ""
 "source is a comma-separated list of KPI IDs. Each tile renders the same way "
 "a standalone KPI card does — headline, trend, sparkline. Use this for the "
 "HoD top-strip \"season at a glance\" placement."
-msgstr ""
+msgstr "Een horizontale rij van maximaal 6 KPI-tegels voor een hero-band-plaatsing. De data-source is een door komma's gescheiden lijst KPI-ID's. Elke tegel rendert zoals een losse KPI-kaart — hoofdgetal, trend, sparkline. Gebruik dit voor de HoD-top-strip \"seizoen in een oogopslag\"-plaatsing."
 
 #: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:51
 msgid "Mark attendance hero"
@@ -17698,7 +17698,7 @@ msgid ""
 "mark-attendance wizard with `activity_id` pre-seeded. Empty state (\"no "
 "upcoming activity\") shows a \"Pick an activity\" CTA into the wizard's "
 "activity picker. Reads upcoming activities via UpcomingActivityRepository."
-msgstr ""
+msgstr "Head-coach-landingskaart: leest de eerstvolgende onverwerkte activiteit van een team waar de coach hoofdcoach van is, toont type / team / tijd, en biedt een één-tik CTA naar de mark-attendance-wizard met `activity_id` vooraf geseed. Lege staat (\"geen aankomende activiteit\") toont een \"Kies een activiteit\"-CTA naar de activiteit-picker van de wizard. Leest aankomende activiteiten via UpcomingActivityRepository."
 
 #: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:80
 #: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:56
@@ -17729,7 +17729,7 @@ msgid ""
 "`recent_evaluations` = the last 5 players a coach evaluated). Each row is a "
 "click-target into the player profile. Use for \"what was I working on "
 "recently\" surfaces, not for browsing the full roster."
-msgstr ""
+msgstr "Korte scrollbare lijst van spelers, gekoppeld aan een preset (bijv. `recent_evaluations` = de laatste 5 spelers die een coach heeft beoordeeld). Elke rij is een klik-target naar het spelerprofiel. Gebruik voor \"waar was ik recent mee bezig\"-oppervlakken, niet voor het bladeren door de volledige spelerslijst."
 
 #: src/Modules/PersonaDashboard/Widgets/MiniPlayerListWidget.php:49
 #: src/Modules/PersonaDashboard/Widgets/MiniPlayerListWidget.php:64
@@ -17769,7 +17769,7 @@ msgid ""
 "The data-source field is the destination view's slug; the tile reuses the "
 "slug's registered icon, label, and permission gate so disabled modules and "
 "persona-aware caps are honoured automatically."
-msgstr ""
+msgstr "Een klik-target die een TalentTrack-weergave opent (Spelers, Activiteiten, enz.). Het data-source-veld is de slug van de bestemming; de tegel hergebruikt het geregistreerde icoon, label en permissie-gate van de slug zodat uitgeschakelde modules en persona-bewuste permissies automatisch worden gehonoreerd."
 
 #: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:54
 msgid ""
@@ -17778,7 +17778,7 @@ msgid ""
 "ProspectStageClassifier. Each stage shows count + an amber stale badge when "
 "any task in that stage is >30 days overdue. Scout-scoped (own discovered_by) "
 "for scouts; full-club for HoD / admin."
-msgstr ""
+msgstr "Zes-fase-tellingstrook — Prospects / Uitgenodigd / Proeftraining / Proefgroep / Teamaanbod / Toegetreden — vanuit tt_prospects en tt_workflow_tasks via ProspectStageClassifier. Elke fase toont aantal + een amber stale-badge wanneer een taak in die fase >30 dagen achterstallig is. Scout-scoped (eigen discovered_by) voor scouts; volledige club voor HoD / admin."
 
 #. translators: %d: number of stale items in this funnel stage.
 #: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:91
@@ -17834,7 +17834,7 @@ msgid ""
 "activity, + New player). The data-source is a comma-separated list of action "
 "IDs. Each entry inherits its label, icon, and capability gate from the "
 "registered action; admins without a cap see fewer entries."
-msgstr ""
+msgstr "Compacte stapel van 2–5 secundaire acties (+ Nieuwe evaluatie, + Nieuw doel, + Nieuwe activiteit, + Nieuwe speler). De data-source is een door komma's gescheiden lijst actie-ID's. Elke ingang erft zijn label, icoon en permissie-gate van de geregistreerde actie; admins zonder een permissie zien minder ingangen."
 
 #: src/Modules/PersonaDashboard/Widgets/QuickActionsPanelWidget.php:53
 msgid "Quick actions"
@@ -17849,7 +17849,7 @@ msgid ""
 "Player landing card showing the player's own rate card: 6-axis radar of "
 "latest category averages, headline overall rating, link to the full profile. "
 "Sourced from tt_evaluations + tt_eval_ratings scoped to the viewing player."
-msgstr ""
+msgstr "Speler-landingskaart die de eigen ratingkaart van de speler toont: 6-assige radar van laatste categoriegemiddelden, hoofd-totaalbeoordeling, link naar het volledige profiel. Vanuit tt_evaluations + tt_eval_ratings, scoped op de kijkende speler."
 
 #. translators: %s is the player's first name
 #: src/Modules/PersonaDashboard/Widgets/RateCardHeroWidget.php:64
@@ -17952,7 +17952,7 @@ msgstr "Mijn scoutingsplanning"
 msgid ""
 "Upcoming planned scouting visits for the current scout, with location, "
 "event, and prospects-logged count."
-msgstr ""
+msgstr "Aankomende geplande scouting-bezoeken voor de huidige scout, met locatie, evenement en aantal geregistreerde prospects."
 
 #: src/Modules/PersonaDashboard/Widgets/ScoutingPlanWidget.php:77
 msgid ""
@@ -17984,7 +17984,7 @@ msgid ""
 "tier, Spond sync status, mail-queue depth. Useful for the academy admin's "
 "\"is anything red\" glance before they dig in. Sourced from `wp_users`, "
 "`tt_migrations`, license config, and the Spond per-team sync status."
-msgstr ""
+msgstr "Admin-landingsstrook: aantal actieve gebruikers, tijdstempel laatste migratie, licentie-niveau, Spond-sync-status, diepte mail-wachtrij. Handig voor de \"is er iets rood\"-blik van de academy-admin voordat ze de diepte ingaan. Vanuit `wp_users`, `tt_migrations`, licentieconfig en de per-team Spond-sync-status."
 
 #: src/Modules/PersonaDashboard/Widgets/SystemHealthStripWidget.php:61
 msgid "System health"
@@ -18023,7 +18023,7 @@ msgid ""
 "first row layout so the panel is scannable by who the task is about. Each "
 "row links to the task detail. Sourced from tt_workflow_tasks scoped to "
 "assignee_user_id = current user."
-msgstr ""
+msgstr "De openstaande workflow-taken van de kijker (tot 5), gesorteerd op vervaldatum. Spelernaam-eerst rij-layout zodat het paneel scanbaar is op wie de taak betreft. Elke rij linkt naar de taak-detail. Vanuit tt_workflow_tasks, scoped op assignee_user_id = huidige gebruiker."
 
 #: src/Modules/PersonaDashboard/Widgets/TaskListPanelWidget.php:59
 msgid "No open tasks."
@@ -18058,7 +18058,7 @@ msgid ""
 "activity date, evaluation count in the configured window, and a concern flag "
 "(no activity in N days). Configurable via the data-source string: `days=30,"
 "sort=concern_first` orders teams with the longest silence at the front."
-msgstr ""
+msgstr "Cross-team momentopname voor de HoD: één kaart per team in de club met laatste activiteitsdatum, evaluatieaantal in het geconfigureerde venster en een zorg-vlag (geen activiteit in N dagen). Configureerbaar via het data-source-string: `days=30,sort=concern_first` plaatst teams met de langste stilte vooraan."
 
 #: src/Modules/PersonaDashboard/Widgets/TeamOverviewGridWidget.php:61
 msgid "Team overview"
@@ -18107,7 +18107,7 @@ msgid ""
 "attendance %. Pick the team via the data-source field (`team_id`). Reads "
 "tt_players + tt_attendance scoped to that team. Distinct from the multi-team "
 "team_overview_grid: this one is for a coach who runs one squad."
-msgstr ""
+msgstr "Eén-team spelerslijst: shirtnr # / speler / statuspil / laatste POP / voortschrijdend aanwezigheid %. Kies het team via het data-source-veld (`team_id`). Leest tt_players + tt_attendance, scoped op dat team. Onderscheidend van de multi-team team_overview_grid: deze is voor een coach die één team runt."
 
 #: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:64
 msgid "Team roster"
@@ -18148,7 +18148,7 @@ msgid ""
 "on the default head-coach template but kept registered so custom templates "
 "that pinned it explicitly keep working. Reads upcoming activities via "
 "UpcomingActivityRepository."
-msgstr ""
+msgstr "Pre-v3.110.70 head-coach-landings-hero: toont de wedstrijd / training van vanavond met CTA's voor Aanwezigheid + Evaluatie. Vervangen door `mark_attendance_hero` (v3.110.70) op de standaard head-coach-sjabloon maar geregistreerd gehouden zodat aangepaste sjablonen die deze expliciet hebben vastgezet blijven werken. Leest aankomende activiteiten via UpcomingActivityRepository."
 
 #: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:57
 msgid "Schedule a training or game to populate this card."
@@ -19594,7 +19594,7 @@ msgid ""
 "Override the Spond API base URL. Default is %s. Change only if Spond "
 "announces a new endpoint, or for testing against a private mock — a wrong "
 "URL will cause every sync to fail."
-msgstr ""
+msgstr "Overschrijf de Spond API-base-URL. Standaard is %s. Wijzig alleen als Spond een nieuw eindpunt aankondigt, of voor testen tegen een privé-mock — een verkeerde URL zorgt dat elke sync mislukt."
 
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:124
 msgid "API base URL"
@@ -21624,7 +21624,7 @@ msgstr "Aantal wedstrijden"
 #, php-format
 msgid ""
 "Equal-share target preview: %d minutes per player across %d squad members."
-msgstr ""
+msgstr "Voorbeeld gelijk-aandeel-doel: %d minuten per speler over %d selectieleden."
 
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:71
 msgid ""
@@ -21820,7 +21820,7 @@ msgid ""
 "Soft cap. At 100%% of this number the layer stops calling the engine and "
 "renders source text. Default %d covers most single-club deployments under "
 "DeepL's free tier (500,000 chars)."
-msgstr ""
+msgstr "Zachte limiet. Bij 100%% van dit aantal stopt de laag met de engine aanroepen en toont de bron-tekst. Standaard %d dekt de meeste single-club-installaties binnen het gratis DeepL-niveau (500.000 tekens)."
 
 #: src/Modules/Translations/Admin/TranslationsConfigTab.php:171
 msgid "Notify admin at"
@@ -21959,7 +21959,7 @@ msgid ""
 "feature in the plugin's Configuration → Translations tab. Source content is "
 "hashed and cached so repeat reads do not re-transmit. See the linked DPA for "
 "the provider's data handling commitments."
-msgstr ""
+msgstr "Wanneer automatisch vertalen is ingeschakeld, kan vrije-tekst-inhoud van gebruikers op deze site naar %s worden verzonden voor vertaling wanneer kijkers een andere locale opvragen. De aanbieder treedt op als subverwerker onder Artikel 28 AVG; de verwerkingsverantwoordelijke (deze site) autoriseert de relatie door de feature in te schakelen in het Configuratie → Vertalingen-tabblad van de plugin. Bron-inhoud wordt gehasht en gecached zodat herhaalde leesacties niet opnieuw verzenden. Zie de gekoppelde DPA voor de gegevensverwerkings-toezeggingen van de aanbieder."
 
 #: src/Modules/Translations/TranslationsModule.php:65
 msgid "TalentTrack — Auto-translation"
@@ -22655,7 +22655,7 @@ msgid ""
 "I'll rate later: activity stays available for rating from the eval wizard. "
 "No rating needed: activity is closed and won't appear in the rating picker "
 "anymore (can be re-opened from the activity detail)."
-msgstr ""
+msgstr "Ik beoordeel later: activiteit blijft beschikbaar voor beoordelen vanuit de eval-wizard. Geen beoordeling nodig: activiteit is gesloten en verschijnt niet meer in de beoordelings-picker (kan worden heropend vanuit de activiteit-details)."
 
 #: src/Modules/Wizards/MarkAttendance/RateConfirmStep.php:70
 msgid ""
@@ -25814,7 +25814,7 @@ msgstr "Pill-kleur"
 msgid ""
 "Per-locale display name. Click \"Translate\" to fill these from the "
 "configured engine — review and edit before saving."
-msgstr ""
+msgstr "Naam per locale. Klik \"Vertaal\" om deze te vullen vanuit de geconfigureerde engine — controleer en bewerk voor opslaan."
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:346
 msgid "Translate to other languages"
@@ -27495,7 +27495,7 @@ msgstr "Gerelateerde activiteit (optioneel)"
 msgid ""
 "Optional context — e.g. \"responded well to substitution\", \"leadership in "
 "warm-up\"."
-msgstr ""
+msgstr "Optionele context — bijv. \"reageerde goed op wissel\", \"leiderschap in warming-up\"."
 
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:183
 msgid "Save behaviour rating"

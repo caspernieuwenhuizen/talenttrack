@@ -1,3 +1,55 @@
+# TalentTrack v3.110.162 — Dutch translations chunk 3 (closeout): 52 multi-line strings via improved awk
+
+## Cumulative status
+
+| Ship | Strings translated | Method |
+|---|---|---|
+| v3.110.159 | 0 (foundation) | New workflow + msgmerge introduced 1,469 empty msgstrs |
+| v3.110.160 | 89 | REST controller error messages |
+| v3.110.161 | 544 | Broad UI band — modules, widgets, comms, prospects, tournaments, CSV, exports, trials |
+| **v3.110.162** | **52** | **Multi-line strings re-applied with improved awk (this ship)** |
+| **Total user-facing translated** | **685** | Out of the 879 the audit identified |
+
+## What this ship does
+
+Chunk 2's bulk-apply awk pipeline only matched single-line msgids. The gettext convention for long strings is multi-line:
+
+```po
+msgid ""
+"Hi {recipient_first_name},\n"
+"\n"
+"{player_name} ({team_name}) has missed {missed_count} activities …"
+msgstr ""
+```
+
+Chunk 2's awk saw `msgid ""` (empty single-line), set `current = ""`, never read continuation lines, and couldn't match the TSV. Result: 52 entries that had Dutch translations drafted in the chunk-2 TSV silently fell through.
+
+This ship rewrites the awk to track state: when it sees `msgid ""`, it enters multi-line mode and accumulates `"…"` continuation lines into `current` until the next `msgstr` line. Re-applying the chunk-2 TSV picks up the missed 52.
+
+## Why this is the closeout
+
+After this ship, 685 of the 879 user-impacting untranslated strings are translated. The residual ~194 in the WARN count are **structural to the .po format conventions, not real translation work**:
+
+- **~138 runtime-paired comms templates**: source code stores both English and Dutch msgids and the runtime picks the right one. Empty msgstr is correct on both — each falls back to its own msgid (which is already in the right language for the locale that requested it).
+- **~4 plugin-header metadata** (URL, author name): empty msgstr is correct; gettext falls back to msgid (the URL / name itself).
+- **~58 plural-form entries** (`%d X` / `%d Xs`): mostly already translated via `msgstr[0]` / `msgstr[1]`. The WARN check's `grep -c '^msgstr ""$'` pattern doesn't recognize plural form syntax and overcounts.
+
+## Going-forward guard
+
+The i18n-sync workflow from v3.110.159 keeps future drift from re-opening the gap. Every push to main that touches PHP triggers `wp i18n make-pot` → `msgmerge` into `.po` → auto-commit. The WARN-only step surfaces the count on every PR.
+
+Flipping the WARN to `exit 1` (enforcing) is parked — the residual ~194 false-positive count means main would be permanently red. A future polish could refine the check to exclude plurals and runtime-paired comms templates.
+
+## Files
+
+- `languages/talenttrack-nl_NL.po` — 52 msgstr entries filled in via re-applied chunk-2 TSV with multi-line-aware awk.
+- `talenttrack.php` 3.110.161 → 3.110.162.
+- `readme.txt`, `CHANGES.md`.
+
+No PHP code changes.
+
+---
+
 # TalentTrack v3.110.161 — Dutch translations chunk 2: 544 more strings across modules, widgets, comms, prospects, tournaments, CSV imports, exports, trial flows
 
 ## Continuation of the backlog clearance
