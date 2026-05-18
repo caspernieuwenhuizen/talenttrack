@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.167
+Stable tag: 3.110.168
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.168 — Scout hero "Plan bezoeken" CTA: broaden the destination's auth gate so matrix-granted scouts no longer hit a "Niet geautoriseerd" wall (#756) =
+
+Pilot: *"issue, when clicking on plan bezoeken (site is in dutch on the hero when logged in as scout I get a not authorized message."* The hero CTA — "Plan visits →" / "Plan bezoeken →" — lives on `AddProspectHeroWidget` (line 96–98) and links to `?tt_view=scouting-visits`. The widget is rendered by `GridRenderer.php:88-89` only when `user_can($user_id, $widget->capRequired())` returns true; the hero requires `tt_edit_prospects`. The destination view `FrontendScoutingPlanView` then re-gated entry on `tt_view_prospects` only (line 48, `userCanOrMatrix`). On some installs the `user_has_cap` / matrix-bridge layering surfaces one of those two caps to `user_can` but not the other — typically when `tt_authorization_active` is in a transitional state or a matrix row is missing. Pilot was in exactly that state: the widget rendered (one cap passed `user_can`), they clicked, the view denied (the OTHER cap failed both `user_can` and the LegacyCapMapper bridge). **Fix**: broaden the entry gate to accept *either* `tt_view_prospects` or `tt_edit_prospects`. Reasoning: (1) write-implies-read is the standard pattern across the app — `FrontendOnboardingPipelineView` already derives `can_edit` independently and gates entry on the read cap; we're not loosening security, just plugging a layering gap. (2) The matrix seed grants scouts `rcd[global]` on prospects — both caps should resolve true through the bridge anyway; if only one happens to surface, the user is genuinely a scout and should reach the page. (3) The page-header "+ New scouting visit" action stays gated on `tt_edit_prospects` (line 94), so write-mode is still scoped correctly. Net effect: any user who could see the "Plan bezoeken" hero CTA now reaches the scouting-visits list view; the "Niet geautoriseerd" wall closes for matrix-granted scouts whose grants surface unevenly across the auth layers.
 
 = 3.110.167 — Team overview widget: two SQL bugs in `TeamOverviewRepository` made the outer query silently fail; widget rendered "No teams with recent activity" even when 24 activities existed in the window =
 

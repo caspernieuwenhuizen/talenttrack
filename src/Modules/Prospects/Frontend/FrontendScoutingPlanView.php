@@ -45,7 +45,25 @@ class FrontendScoutingPlanView extends FrontendViewBase {
         // `FrontendOnboardingPipelineView` already uses on the same
         // resource, fixing the "not authorized" page the pilot saw
         // when clicking "Plan visits →" from the scout hero.
-        if ( ! AuthorizationService::userCanOrMatrix( $user_id, 'tt_view_prospects' ) && ! $is_admin ) {
+        //
+        // v3.110.168 (#756) — pilot reported "Plan bezoeken" → Niet
+        // geautoriseerd again. Root cause: the hero CTA in
+        // AddProspectHeroWidget is rendered by GridRenderer when
+        // user_can('tt_edit_prospects') is true, but this gate
+        // required `tt_view_prospects`. On installs where the matrix
+        // / user_has_cap layering surfaces one of those caps but not
+        // the other (some persona-matrix combinations end up there),
+        // the user could click a CTA they could see but land on
+        // "Not authorized". Broadened to accept either cap —
+        // write-implies-read is the standard pattern across the app
+        // (see e.g. FrontendOnboardingPipelineView, where can_edit is
+        // derived independently and the entry gate is the read cap).
+        // Scouts with matrix prospects.rcd[global] now reach the
+        // list view regardless of which of the two caps the user_can
+        // layer happens to surface first.
+        $can_enter = AuthorizationService::userCanOrMatrix( $user_id, 'tt_view_prospects' )
+            || AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_prospects' );
+        if ( ! $can_enter && ! $is_admin ) {
             FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
             self::renderHeader( __( 'Scouting visits', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'You do not have access to scouting visits.', 'talenttrack' ) . '</p>';
