@@ -554,10 +554,22 @@ class FrontendMyTasksView extends FrontendViewBase {
 
     public static function detailUrl( int $task_id ): string {
         $base = self::dashboardBaseUrl();
-        return add_query_arg(
+        $url = add_query_arg(
             [ 'tt_view' => 'my-tasks', 'task_id' => $task_id ],
             $base
         );
+        // v3.110.164 (#483) — append `tt_back` so the task detail
+        // view renders a contextual "Back to My tasks" pill above
+        // the breadcrumb chain (CLAUDE.md §5 two-affordance contract).
+        // Pre-fix: only the breadcrumb chain was rendering, which the
+        // pilot read as "no back button". The detail view's existing
+        // breadcrumb code calls BackLink::resolveBack() automatically
+        // when the entry URL carries the `tt_back` hint — no change
+        // needed there.
+        if ( class_exists( '\\TT\\Shared\\Frontend\\Components\\BackLink' ) ) {
+            $url = \TT\Shared\Frontend\Components\BackLink::appendTo( $url );
+        }
+        return $url;
     }
 
     private static function dashboardBaseUrl(): string {

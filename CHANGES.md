@@ -1,3 +1,84 @@
+# TalentTrack v3.110.164 — Pilot batch quick fixes: scout matrix-auth + active-player KPI demo-scope + upcoming-activities Show-all pre-filter + PDP-verdicts label + tasks back-pill
+
+Five small fixes batched from the pilot bug list. Tracked on the new "TalentTrack pilot issues" GitHub project (https://github.com/users/caspernieuwenhuizen/projects/2). Issues #475, #478, #480, #481, #483.
+
+## #475 — Scout dashboard "+ New scouting visit" page-header action invisible to matrix-granted scouts
+
+Line 86 of [`FrontendScoutingPlanView`](src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php#L86) still used `current_user_can('tt_edit_prospects')` even after v3.110.147 fixed line 40 to use `AuthorizationService::userCanOrMatrix`. Same one-line pattern; the page-header action was missed in the v3.110.147 pass.
+
+```diff
+-        if ( current_user_can( 'tt_edit_prospects' ) ) {
++        if ( AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_prospects' ) ) {
+```
+
+## #478 — Active player KPI showed 30, players list showed 29
+
+`ActivePlayersTotal::compute()` didn't apply `apply_demo_scope('p','player')` while `PlayersRestController::list_players()` does. In demo-ON mode the KPI overcounted by the number of players on disk that aren't in `tt_demo_tags`. Added the demo-scope filter to the KPI; the query also gained a `p` table alias so the scope fragment (`AND p.id IN (…)`) joins cleanly.
+
+```diff
++        $scope = QueryHelpers::apply_demo_scope( 'p', 'player' );
+-        $count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table}{$where_sql}" );
++        $count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table} p{$where_sql}{$scope}" );
+```
+
+## #480 — Upcoming activities widget vs Show-all asymmetry
+
+Widget (`UpcomingActivitiesSource`) filters to the next 30 days; Show-all (`?tt_view=activities`) had no date filter and dumped every activity in the database. Same widget-vs-list mismatch shape as v3.110.136's evaluations fix.
+
+`DataTableWidget` gains a per-preset `'see_all_params'` config option. When set, the See-all URL gets the params appended via `add_query_arg`. For the `upcoming_activities` preset, sets `filter[date_from]=today` and `filter[date_to]=today+30`. Other presets (trials, recent reports, etc.) don't set the new key — their See-all URLs are unchanged.
+
+## #481 — "PDP verdicts pending" widget — pilot asked "what should it actually do?"
+
+The KPI was correctly counting PDP files awaiting end-of-season sign-off, but the label *"PDP verdicts pending"* read like a generic counter without telling the HoD what action to take. Renamed:
+
+```diff
+-    public function label(): string { return __( 'PDP verdicts pending', 'talenttrack' ); }
++    public function label(): string { return __( 'PDP files awaiting sign-off', 'talenttrack' ); }
+```
+
+Action-oriented: the HoD reads the count and immediately knows it's the queue of end-of-season verdicts they personally need to write.
+
+## #483 — No contextual back-pill when opening a task
+
+`FrontendMyTasksView::detailUrl()` didn't append `tt_back` via `BackLink::appendTo()`, so the task detail view's existing breadcrumb code had nothing to resolve the back-pill from. The breadcrumb chain was rendering (per CLAUDE.md §5), but the pilot read the missing pill as "no back button" because that's the more visually-prominent affordance.
+
+```diff
+ public static function detailUrl( int $task_id ): string {
+     $base = self::dashboardBaseUrl();
+-    return add_query_arg(
++    $url = add_query_arg(
+         [ 'tt_view' => 'my-tasks', 'task_id' => $task_id ],
+         $base
+     );
++    if ( class_exists( '\\TT\\Shared\\Frontend\\Components\\BackLink' ) ) {
++        $url = \TT\Shared\Frontend\Components\BackLink::appendTo( $url );
++    }
++    return $url;
+ }
+```
+
+## Files
+
+- `src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php` — #475 line 86 matrix-aware auth.
+- `src/Modules/PersonaDashboard/Kpis/ActivePlayersTotal.php` — #478 apply_demo_scope filter.
+- `src/Modules/PersonaDashboard/Widgets/DataTableWidget.php` — #480 per-preset `see_all_params` + upcoming-activities defaults.
+- `src/Modules/PersonaDashboard/Kpis/PdpVerdictsPending.php` — #481 label rename.
+- `src/Modules/Workflow/Frontend/FrontendMyTasksView.php` — #483 `BackLink::appendTo()` on detail URLs.
+- `talenttrack.php` 3.110.163 → 3.110.164.
+- `readme.txt`, `CHANGES.md`.
+
+No NL i18n changes — the `i18n-sync` workflow auto-runs on the merge commit and msgmerges any new msgid ("PDP files awaiting sign-off" via #481's label rename) into the .po. The translation lands as a follow-up auto-commit.
+
+## What's not in this ship
+
+From the pilot bug list:
+
+- **#476 (MyTeamAttendancePct wire-up)** + **#477 (MyTeamAvgRating wire-up)** — real feature work, shipping as v3.110.165 next.
+- **#482 (Wizards mobile audit round 2)** — sweep, shipping as its own ship after audit findings.
+- **#479 (Team activity widget empty)** — deferred per pilot, needs DB diagnostic first.
+
+---
+
 # TalentTrack v3.110.162 — Dutch translations chunk 3 (closeout): 52 multi-line strings via improved awk
 
 ## Cumulative status

@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.163
+Stable tag: 3.110.164
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.164 — Pilot batch quick fixes: scout matrix-auth on page-header action + active-player KPI demo-scope + upcoming-activities See-all pre-filter + PDP-verdicts label clarity + tasks back-pill =
+
+Five small fixes batched from the pilot bug list (issues #475 / #478 / #480 / #481 / #483, tracked on the new "TalentTrack pilot issues" GitHub project). **#475 — Scout dashboard "+ New scouting visit" page-header action invisible to matrix-granted scouts**: line 86 of `FrontendScoutingPlanView` still used `current_user_can('tt_edit_prospects')` even after v3.110.147 fixed line 40 to use `AuthorizationService::userCanOrMatrix`. Same one-line pattern fix; matrix-granted scouts can now create scouting visits as well as view them. **#478 — Active player count drift (KPI 30 vs list 29)**: `ActivePlayersTotal::compute()` didn't apply `apply_demo_scope('p','player')` while `PlayersRestController::list_players()` does. In demo-ON mode the KPI overcounted by the number of players that exist on disk but aren't in `tt_demo_tags`. Added the demo-scope filter to the KPI; both surfaces now agree on visibility. **#480 — Upcoming activities widget vs Show-all asymmetry**: widget filtered to next 30 days, Show-all dumped every activity in the database. Added a per-preset `see_all_params` option to `DataTableWidget` that pre-fills `filter[date_from]=today` + `filter[date_to]=today+30` on the See-all URL for the `upcoming_activities` preset. Same shape as v3.110.136's widget-vs-list alignment work for evaluations. Other DataTableWidget presets unaffected — they don't set the new key. **#481 — "PDP verdicts pending" widget unclear**: pilot asked *"what should it actually do?"* The KPI was correctly counting PDP files awaiting end-of-season sign-off, but the label read like a generic counter without telling the HoD what action to take. Renamed label from *"PDP verdicts pending"* to *"PDP files awaiting sign-off"* so the queue's purpose is self-explanatory. **#483 — No contextual back-pill when opening a task**: `FrontendMyTasksView::detailUrl()` didn't append `tt_back` via `BackLink::appendTo()`, so the task detail page's existing breadcrumb code had nothing to resolve the back-pill from. Pilot read the missing pill as "no back button" even though the breadcrumb chain was rendering. One-line wrap of the URL with `BackLink::appendTo()`. Bug #476 (MyTeamAttendancePct wire-up) and #477 (MyTeamAvgRating wire-up) ship separately as feature work in v3.110.165; #482 (wizards mobile audit round 2) ships as its own audit sweep; #479 (team activity widget empty) deferred pending pilot DB diagnostic.
 
 = 3.110.163 — Player values: fix wizard lookup-type typo + rich admin surface in Configuration → Lookups + 7-string Dutch closeout =
 

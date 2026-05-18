@@ -63,6 +63,15 @@ class DataTableWidget extends AbstractWidget {
 
         $title   = $slot->persona_label !== '' ? $slot->persona_label : (string) $config['title'];
         $see_all = $ctx->viewUrl( (string) $config['see_all_view'] );
+        // v3.110.164 (#480) — per-preset URL params append to the
+        // See-all link so the destination list lands pre-filtered to
+        // the same window the widget shows. Pilot symptom: HoD
+        // upcoming-activities widget filtered to the next 30 days but
+        // See-all dumped the full unfiltered list. Same widget-vs-list
+        // mismatch shape as v3.110.136's evaluations fix.
+        if ( ! empty( $config['see_all_params'] ) && is_array( $config['see_all_params'] ) ) {
+            $see_all = add_query_arg( $config['see_all_params'], $see_all );
+        }
         $head    = $this->renderHead( $config['columns'] );
 
         $rows_html = $this->rowsHtml( $preset, $ctx->user_id, $config );
@@ -117,6 +126,17 @@ class DataTableWidget extends AbstractWidget {
                 'title'         => __( 'Upcoming activities', 'talenttrack' ),
                 'columns'       => [ __( 'Team', 'talenttrack' ), __( 'Type', 'talenttrack' ), __( 'Date & time', 'talenttrack' ), __( 'Location', 'talenttrack' ) ],
                 'see_all_view'  => 'activities',
+                // v3.110.164 (#480) — pre-filter the See-all
+                // destination to "from today, next 30 days" so the
+                // list view aligns with what the widget shows. The
+                // widget itself filters to the same window via
+                // UpcomingActivitiesSource; without these params the
+                // list dumped every activity in the database and the
+                // pilot couldn't reconcile widget vs full list.
+                'see_all_params' => [
+                    'filter[date_from]' => gmdate( 'Y-m-d' ),
+                    'filter[date_to]'   => gmdate( 'Y-m-d', time() + 30 * DAY_IN_SECONDS ),
+                ],
                 'empty_message' => __( 'No upcoming activities in this window.', 'talenttrack' ),
             ],
             // #0077 M3 — methodology coverage. Lists each principle

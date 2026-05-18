@@ -3,6 +3,7 @@ namespace TT\Modules\PersonaDashboard\Kpis;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\PersonaDashboard\Domain\AbstractKpiDataSource;
 use TT\Modules\PersonaDashboard\Domain\KpiValue;
 use TT\Modules\PersonaDashboard\Domain\PersonaContext;
@@ -35,12 +36,21 @@ class ActivePlayersTotal extends AbstractKpiDataSource {
             $table
         ) );
         $where = [];
-        if ( $col_exists !== null ) $where[] = $wpdb->prepare( 'club_id = %d', $club_id );
-        if ( $has_archived !== null ) $where[] = 'archived_at IS NULL';
-        if ( $has_status !== null )   $where[] = $wpdb->prepare( "status = %s", 'active' );
+        if ( $col_exists !== null ) $where[] = $wpdb->prepare( 'p.club_id = %d', $club_id );
+        if ( $has_archived !== null ) $where[] = 'p.archived_at IS NULL';
+        if ( $has_status !== null )   $where[] = $wpdb->prepare( "p.status = %s", 'active' );
         $where_sql = $where ? ( ' WHERE ' . implode( ' AND ', $where ) ) : '';
+        // v3.110.164 (#478) — apply demo-scope so the KPI matches the
+        // players-list view. Pre-fix: pilot in demo-ON mode saw the
+        // KPI say 30 while the list said 29. The list applies
+        // `apply_demo_scope('p','player')`; this KPI didn't. Off-by-N
+        // = the number of players that exist on disk but aren't in
+        // `tt_demo_tags`. With the demo-scope filter both surfaces
+        // agree on visibility. Table aliased as `p` so the scope
+        // fragment (`AND p.id IN (…)`) joins cleanly.
+        $scope = QueryHelpers::apply_demo_scope( 'p', 'player' );
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-        $count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table}{$where_sql}" );
+        $count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table} p{$where_sql}{$scope}" );
         return KpiValue::of( (string) $count );
     }
 }

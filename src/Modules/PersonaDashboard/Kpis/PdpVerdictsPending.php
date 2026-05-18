@@ -10,7 +10,13 @@ use TT\Modules\PersonaDashboard\Domain\RenderContext;
 
 class PdpVerdictsPending extends AbstractKpiDataSource {
     public function id(): string { return 'pdp_verdicts_pending'; }
-    public function label(): string { return __( 'PDP verdicts pending', 'talenttrack' ); }
+    // v3.110.164 (#481) — pilot asked "what does this widget actually
+    // do?" The previous label ("PDP verdicts pending") read as a
+    // generic counter without saying what the user is supposed to do
+    // with it. Renamed to "PDP files awaiting sign-off" so the HoD
+    // immediately knows the count is the queue of end-of-season
+    // verdicts they personally need to write + sign off.
+    public function label(): string { return __( 'PDP files awaiting sign-off', 'talenttrack' ); }
     public function context(): string { return PersonaContext::ACADEMY; }
 
     /**
