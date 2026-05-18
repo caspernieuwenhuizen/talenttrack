@@ -1,3 +1,84 @@
+# TalentTrack v3.110.161 — Dutch translations chunk 2: 544 more strings across modules, widgets, comms, prospects, tournaments, CSV imports, exports, trial flows
+
+## Continuation of the backlog clearance
+
+v3.110.160 cleared the 89 REST-controller error messages. This ship is **chunk 2**: the broad middle band of the remaining ~700 msgids that were still falling back to English on `nl_NL`. 544 strings translated this round.
+
+## Coverage
+
+| Area | Strings | Notes |
+|---|---|---|
+| **Configuration → Modules** | ~30 | Section labels (Core / People & teams / Optional) + each module's one-line description |
+| **DataTable widget catalogue** | ~25 | Preset titles, empty states, descriptions |
+| **Comms templates (subjects)** | ~30 | The English subject lines; Dutch subjects are separate msgids that resolve via runtime locale selection |
+| **Persona-dashboard widgets** | ~50 | Widget descriptions, empty-state copy ("No comments yet", "No open tasks"), KPI presets |
+| **Prospects + scouting visits** | ~30 | Form labels, validation, "Discovered", "Born", "Anyone", "Visit date is required", etc. |
+| **Tournaments wizard** | ~40 | "Pick an anchor team", "End date cannot be before the start date", squad / formation labels, "Add another match", etc. |
+| **Players CSV import** | ~15 | Header-row errors, column-validation errors |
+| **Export handlers** | ~30 | PDF / CSV / iCal / JSON / GDPR labels |
+| **Trial flows** | ~25 | Trial case errors, decision-letter placeholder labels |
+| **Behaviour & potential** | ~20 | Capture UI, potential bands (Recreational, Top amateur, Semi-pro, Professional elsewhere) |
+| **Seed review + Spond UI** | ~15 | Admin-side controls |
+| **Freemius / upgrade tile** | ~15 | Trial / Standard / Pro copy, caps & features descriptions |
+| **Scout-report templates** | ~10 | Style descriptions (Warm/Formal/etc.) |
+| **Short UI labels** | ~150 | Score, Activity type, Born, Discovered, Time, Date is required, Saved, etc. |
+| **Format strings with placeholders** | ~80 | `%d activity logged for this team in the period.`, `%1$s — Spelerrapport voor %2$s`, etc. |
+| **Migration runner UI** | ~10 | "Pending migrations", "%1$d applied, %2$d pending.", etc. |
+
+## Terminology decisions (cumulative)
+
+| English | Dutch | Locked since |
+|---|---|---|
+| anchor team | anker-team | v3.110.160 |
+| squad | selectie | v3.110.160 |
+| lineup | opstelling | v3.110.160 |
+| auto-plan | automatisch plannen | v3.110.160 |
+| complete a match | wedstrijd afronden | v3.110.160 |
+| PDP | POP (Persoonlijk Ontwikkelplan) | v3.110.161 |
+| trial / trial case | proefperiode / proefdossier | v3.110.161 |
+| trial player | proefspeler | v3.110.161 |
+| roster | spelerslijst | v3.110.161 |
+| behaviour & potential | gedrag & potentieel | v3.110.161 |
+| traffic-light status | stoplicht-status | v3.110.161 |
+| Forward / Midfielder / Defender / Keeper | Aanvaller / Middenvelder / Verdediger / Keeper | v3.110.161 |
+| starting XI | basisopstelling | v3.110.161 |
+| bench | reservebank | v3.110.161 |
+| kickoff | aftrap | v3.110.161 |
+| home / away | thuis / uit | v3.110.161 |
+
+## Backlog after this ship
+
+≈246 strings remain in the empty-msgstr count, split roughly:
+
+- **~4 entries that don't need translation**: `https://github.com/caspernieuwenhuizen/talenttrack`, `Casper Nieuwenhuizen` — the .pot captured plugin-header metadata fields. Empty msgstr is correct here; gettext falls back to msgid which is the literal URL / author.
+- **~150 comms-template runtime-paired strings**: the source code stores both English and Dutch templates as separate msgids and picks the right one at runtime based on locale. Both English and Dutch msgids appear with empty msgstr in the .po — that's correct, each falls back to its own msgid which is already in the right language for the locale that requested it. Showing as "untranslated" in the WARN check is a false positive for this pattern.
+- **~90 long multi-line help strings**: technical descriptions in module catalogues, dashboard editor copy, GDPR provider notice, etc. Deferred to a follow-up chunk because they need surgical multi-line msgid → msgstr edits that the bulk-apply awk pipeline doesn't handle cleanly. These are mostly help-text / explanation strings (lower user-impact than the validation errors and labels in chunks 1+2).
+
+## Method
+
+Built a TSV (`msgid<TAB>msgstr`) with all 544 translations. Applied via the same awk pattern as chunk 1: walks `msgid "…"` / `msgstr ""` lines, looks up the msgid in the TSV, replaces the empty msgstr with the Dutch value. Single-line msgids matched directly; the awk pipeline skips multi-line ones (those need different handling — see backlog).
+
+Translations consistent with:
+- Existing .po vocabulary (the 3,500 already-translated entries).
+- v3.110.160's locked tournament-domain terminology.
+- WordPress core convention for technical terms (e.g. `wp-admin`, `wp-cron`, `wp_mail` stay untranslated as proper nouns).
+
+## Files
+
+- `languages/talenttrack-nl_NL.po` — 544 msgstr entries filled in.
+- `talenttrack.php` 3.110.160 → 3.110.161.
+- `readme.txt`, `CHANGES.md`.
+
+No PHP code changes. `.mo` regeneration happens automatically via the `translations.yml` compile job on next push to main.
+
+## How to verify
+
+1. As a Dutch-locale user, hit any UI area covered by the chunk (module catalogue, prospects list, tournaments wizard, trial flow, behaviour capture, scout reports). Strings render in Dutch.
+2. The WARN-only annotation on the next PR's `Validate .po syntax` step drops from "879 untranslated" to "246 untranslated".
+3. `msgfmt --check --statistics languages/talenttrack-nl_NL.po` reports zero errors.
+
+---
+
 # TalentTrack v3.110.160 — Dutch translations chunk 1: all 89 REST controller error messages
 
 ## Context
