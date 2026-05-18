@@ -60,7 +60,7 @@ final class TeamOverviewRepository {
                          LIMIT 1
                     ) AS head_coach_name,
                     (
-                        SELECT AVG(r.value)
+                        SELECT AVG(r.rating)
                           FROM {$p}tt_eval_ratings r
                           INNER JOIN {$p}tt_evaluations e ON e.id = r.evaluation_id AND e.club_id = r.club_id
                           INNER JOIN {$p}tt_players pl ON pl.id = e.player_id AND pl.club_id = e.club_id
@@ -71,9 +71,9 @@ final class TeamOverviewRepository {
                     ) AS avg_rating,
                     (
                         SELECT
-                            CASE WHEN SUM( CASE WHEN att.status IN ('Present','Absent') THEN 1 ELSE 0 END ) > 0
-                                 THEN ROUND( SUM( CASE WHEN att.status = 'Present' THEN 1 ELSE 0 END )
-                                             / SUM( CASE WHEN att.status IN ('Present','Absent') THEN 1 ELSE 0 END ) * 100, 1 )
+                            CASE WHEN SUM( CASE WHEN LOWER(att.status) IN ('present','absent') THEN 1 ELSE 0 END ) > 0
+                                 THEN ROUND( SUM( CASE WHEN LOWER(att.status) = 'present' THEN 1 ELSE 0 END )
+                                             / SUM( CASE WHEN LOWER(att.status) IN ('present','absent') THEN 1 ELSE 0 END ) * 100, 1 )
                                  ELSE NULL
                             END
                           FROM {$p}tt_attendance att
@@ -134,9 +134,9 @@ final class TeamOverviewRepository {
                     pl.first_name, pl.last_name,
                     (
                         SELECT
-                            CASE WHEN SUM( CASE WHEN att.status IN ('Present','Absent') THEN 1 ELSE 0 END ) > 0
-                                 THEN ROUND( SUM( CASE WHEN att.status = 'Present' THEN 1 ELSE 0 END )
-                                             / SUM( CASE WHEN att.status IN ('Present','Absent') THEN 1 ELSE 0 END ) * 100, 1 )
+                            CASE WHEN SUM( CASE WHEN LOWER(att.status) IN ('present','absent') THEN 1 ELSE 0 END ) > 0
+                                 THEN ROUND( SUM( CASE WHEN LOWER(att.status) = 'present' THEN 1 ELSE 0 END )
+                                             / SUM( CASE WHEN LOWER(att.status) IN ('present','absent') THEN 1 ELSE 0 END ) * 100, 1 )
                                  ELSE NULL
                             END
                           FROM {$p}tt_attendance att
@@ -148,7 +148,7 @@ final class TeamOverviewRepository {
                            AND act.session_date <= %s
                     ) AS attendance_pct,
                     (
-                        SELECT AVG(r.value)
+                        SELECT AVG(r.rating)
                           FROM {$p}tt_eval_ratings r
                           INNER JOIN {$p}tt_evaluations e ON e.id = r.evaluation_id AND e.club_id = r.club_id
                          WHERE e.player_id = pl.id
