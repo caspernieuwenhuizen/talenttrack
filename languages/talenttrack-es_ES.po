@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-05-18T16:30:51+00:00\n"
+"POT-Creation-Date: 2026-05-18T18:38:51+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -58,7 +58,7 @@ msgstr ""
 #: src/Modules/Players/Admin/PlayersPage.php:126
 #: src/Modules/Players/Admin/PlayersPage.php:397
 #: src/Shared/Frontend/DashboardShortcode.php:1059
-#: src/Shared/Frontend/FrontendConfigurationView.php:771
+#: src/Shared/Frontend/FrontendConfigurationView.php:781
 #: src/Shared/Frontend/FrontendPeopleManageView.php:271
 #: src/Shared/Frontend/FrontendRolesView.php:83
 msgid "Parent"
@@ -105,8 +105,8 @@ msgstr ""
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:231
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:208
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:263
-#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:83
-#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:89
+#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:92
+#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:98
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:59
 #: src/Modules/Stats/Admin/PlayerCardView.php:243
 #: src/Modules/Stats/Admin/PlayerRateCardsPage.php:58
@@ -134,7 +134,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:890
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:913
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:981
-#: src/Shared/Frontend/FrontendConfigurationView.php:770
+#: src/Shared/Frontend/FrontendConfigurationView.php:780
 #: src/Shared/Frontend/FrontendEvaluationsView.php:153
 #: src/Shared/Frontend/FrontendEvaluationsView.php:167
 #: src/Shared/Frontend/FrontendEvaluationsView.php:324
@@ -162,7 +162,7 @@ msgstr "Jugador"
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:231
 #: src/Modules/People/Admin/PeoplePage.php:445
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:297
-#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:83
+#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:92
 #: src/Modules/Reports/Admin/ReportsPage.php:346
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:271
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:501
@@ -191,7 +191,7 @@ msgstr "Entrenador"
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:118
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:152
 #: src/Shared/Frontend/DashboardShortcode.php:1062
-#: src/Shared/Frontend/FrontendConfigurationView.php:765
+#: src/Shared/Frontend/FrontendConfigurationView.php:775
 #: src/Shared/Frontend/FrontendPeopleManageView.php:267
 #: src/Shared/Frontend/FrontendRolesView.php:59
 msgid "Head of Development"
@@ -225,7 +225,7 @@ msgstr "Personal"
 #: src/Modules/Teams/Admin/TeamsPage.php:114
 #: src/Shared/Frontend/Components/FrontendThreadView.php:169
 #: src/Shared/Frontend/DashboardShortcode.php:121
-#: src/Shared/Frontend/FrontendConfigurationView.php:274
+#: src/Shared/Frontend/FrontendConfigurationView.php:284
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:81
 #: src/Shared/Frontend/FrontendEvalCategoriesView.php:134
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:200
@@ -307,7 +307,7 @@ msgstr ""
 #: src/Modules/Teams/Admin/TeamsPage.php:114
 #: src/Shared/Frontend/Components/FrontendThreadView.php:168
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:133
-#: src/Shared/Frontend/FrontendConfigurationView.php:272
+#: src/Shared/Frontend/FrontendConfigurationView.php:282
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:77
 #: src/Shared/Frontend/FrontendEvalCategoriesView.php:132
 #: src/Shared/Frontend/FrontendEvaluationsView.php:260
@@ -366,7 +366,7 @@ msgstr ""
 #: src/Shared/CoreSurfaceRegistration.php:880
 #: src/Shared/Frontend/FrontendAuditLogView.php:43
 #: src/Shared/Frontend/FrontendAuditLogView.php:44
-#: src/Shared/Frontend/FrontendConfigurationView.php:556
+#: src/Shared/Frontend/FrontendConfigurationView.php:566
 msgid "Audit log"
 msgstr ""
 
@@ -587,9 +587,9 @@ msgstr "En curso"
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:137
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:782
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1006
-#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:126
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:101
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:259
+#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:146
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:109
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:267
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:215
 #: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:186
 #: src/Shared/Frontend/FrontendWizardsAdminView.php:156
@@ -604,8 +604,8 @@ msgstr "En espera"
 #: src/Infrastructure/Query/LabelTranslator.php:27
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:151
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:154
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:102
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:260
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:110
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:268
 #: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:187
 msgid "Cancelled"
 msgstr "Cancelado"
@@ -644,7 +644,7 @@ msgstr ""
 #: src/Modules/People/Admin/PeoplePage.php:301
 #: src/Modules/PersonaDashboard/TableSources/MyRecentProspectsSource.php:91
 #: src/Modules/PersonaDashboard/TableSources/RecentScoutReportsSource.php:80
-#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:126
+#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:146
 #: src/Modules/Players/Admin/PlayersPage.php:230
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:55
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:204
@@ -725,7 +725,7 @@ msgstr "Justificado"
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:265
 #: src/Modules/Teams/Admin/TeamsPage.php:51
 #: src/Modules/Wizards/Team/StaffStep.php:34
-#: src/Shared/Frontend/FrontendConfigurationView.php:766
+#: src/Shared/Frontend/FrontendConfigurationView.php:776
 #: src/Shared/Frontend/FrontendTeamsManageView.php:139
 #: src/Shared/Frontend/FrontendTeamsManageView.php:199
 msgid "Head coach"
@@ -739,7 +739,7 @@ msgstr ""
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:266
 #: src/Modules/Teams/Admin/TeamsPage.php:52
 #: src/Modules/Wizards/Team/StaffStep.php:35
-#: src/Shared/Frontend/FrontendConfigurationView.php:767
+#: src/Shared/Frontend/FrontendConfigurationView.php:777
 #: src/Shared/Frontend/FrontendPeopleManageView.php:265
 msgid "Assistant coach"
 msgstr ""
@@ -752,7 +752,7 @@ msgstr ""
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:267
 #: src/Modules/Teams/Admin/TeamsPage.php:53
 #: src/Modules/Wizards/Team/StaffStep.php:36
-#: src/Shared/Frontend/FrontendConfigurationView.php:768
+#: src/Shared/Frontend/FrontendConfigurationView.php:778
 msgid "Team manager"
 msgstr ""
 
@@ -779,12 +779,12 @@ msgstr "Fisioterapeuta"
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:237
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:214
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:269
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:156
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:164
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:148
 #: src/Modules/Reports/AudienceType.php:70
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:155
 #: src/Shared/Frontend/DashboardShortcode.php:1063
-#: src/Shared/Frontend/FrontendConfigurationView.php:769
+#: src/Shared/Frontend/FrontendConfigurationView.php:779
 #: src/Shared/Frontend/FrontendPeopleManageView.php:270
 #: src/Shared/Frontend/FrontendRolesView.php:71
 msgid "Scout"
@@ -1819,9 +1819,9 @@ msgstr "Filtrar"
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:115
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:273
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:296
-#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:89
-#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:100
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:151
+#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:98
+#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:109
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:159
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:118
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:51
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:75
@@ -1902,7 +1902,7 @@ msgstr "Título"
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:751
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:126
 #: src/Modules/Mfa/Wizards/SecretStep.php:91
-#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:118
+#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:127
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:277
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:270
 #: src/Modules/Wizards/Activity/ReviewStep.php:58
@@ -1970,15 +1970,15 @@ msgstr "Tipo"
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:298
 #: src/Modules/People/Admin/PeoplePage.php:124
 #: src/Modules/People/Admin/PeoplePage.php:298
-#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:89
-#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:100
+#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:98
+#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:109
 #: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:123
 #: src/Modules/Players/Admin/PlayersPage.php:411
 #: src/Modules/Players/Admin/PlayersPage.php:445
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:52
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:74
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:154
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:256
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:162
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:264
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:144
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:184
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:64
@@ -2081,8 +2081,8 @@ msgstr ""
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:234
 #: src/Modules/Pdp/Frontend/FrontendPdpPlanningView.php:90
 #: src/Modules/People/Admin/PeoplePage.php:335
-#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:83
-#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:118
+#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:92
+#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:127
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:116
 #: src/Modules/Players/Admin/PlayersPage.php:125
 #: src/Modules/Players/Admin/PlayersPage.php:372
@@ -2167,7 +2167,7 @@ msgstr "Equipo"
 #: src/Modules/Teams/Admin/TeamPlayersPanel.php:65
 #: src/Modules/Teams/Admin/TeamsPage.php:55
 #: src/Shared/Frontend/Components/FrontendListTable.php:144
-#: src/Shared/Frontend/FrontendConfigurationView.php:248
+#: src/Shared/Frontend/FrontendConfigurationView.php:258
 #: src/Shared/Frontend/FrontendTrialsManageView.php:212
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:121
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:326
@@ -2262,9 +2262,9 @@ msgstr ""
 #: src/Modules/Configuration/Admin/FormSlugContract.php:100
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:125
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:173
-#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:118
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:152
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:233
+#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:127
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:160
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:241
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:128
 #: src/Modules/Wizards/Activity/DetailsStep.php:54
 #: src/Modules/Wizards/Activity/ReviewStep.php:69
@@ -2297,7 +2297,7 @@ msgstr "— Todos —"
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:92
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:296
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:274
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:264
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:272
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:153
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:54
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:87
@@ -2713,7 +2713,7 @@ msgstr ""
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:36
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:41
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:42
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:155
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:163
 msgid "Prospects"
 msgstr ""
 
@@ -2831,8 +2831,8 @@ msgstr ""
 
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:152
 #: src/Modules/Pdp/Frontend/FrontendPdpPlanningView.php:318
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:104
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:258
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:112
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:266
 msgid "Planned"
 msgstr "Planificado"
 
@@ -3336,7 +3336,7 @@ msgstr ""
 #: src/Modules/Pdp/Admin/SeasonsPage.php:87
 #: src/Modules/People/Admin/PeoplePage.php:119
 #: src/Modules/People/Admin/TeamStaffPanel.php:51
-#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:100
+#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:109
 #: src/Modules/Players/Admin/PlayersPage.php:125
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:179
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:129
@@ -3349,8 +3349,8 @@ msgstr ""
 #: src/Modules/Wizards/Prospect/ReviewStep.php:45
 #: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:31
 #: src/Shared/Frontend/Components/GuestAddModal.php:85
-#: src/Shared/Frontend/FrontendConfigurationView.php:245
-#: src/Shared/Frontend/FrontendConfigurationView.php:300
+#: src/Shared/Frontend/FrontendConfigurationView.php:255
+#: src/Shared/Frontend/FrontendConfigurationView.php:310
 #: src/Shared/Frontend/FrontendMigrationsView.php:84
 #: src/Shared/Frontend/FrontendMigrationsView.php:106
 #: src/Shared/Frontend/FrontendPeopleManageView.php:98
@@ -3768,8 +3768,8 @@ msgstr "Clave"
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:248
 #: src/Shared/Frontend/CoachDashboardView.php:288
 #: src/Shared/Frontend/CoachForms.php:483
-#: src/Shared/Frontend/FrontendConfigurationView.php:246
-#: src/Shared/Frontend/FrontendConfigurationView.php:309
+#: src/Shared/Frontend/FrontendConfigurationView.php:256
+#: src/Shared/Frontend/FrontendConfigurationView.php:319
 #: src/Shared/Frontend/FrontendEvalCategoriesView.php:187
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:235
 #: src/Shared/Frontend/FrontendGoalsManageView.php:175
@@ -3969,8 +3969,8 @@ msgstr ""
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:48
 #: src/Shared/Frontend/FrontendConfigurationView.php:46
 #: src/Shared/Frontend/FrontendConfigurationView.php:70
-#: src/Shared/Frontend/FrontendConfigurationView.php:139
-#: src/Shared/Frontend/FrontendConfigurationView.php:530
+#: src/Shared/Frontend/FrontendConfigurationView.php:144
+#: src/Shared/Frontend/FrontendConfigurationView.php:540
 msgid "Rating scale"
 msgstr ""
 
@@ -4005,7 +4005,7 @@ msgstr ""
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:55
 #: src/Shared/Frontend/FrontendConfigurationView.php:100
-#: src/Shared/Frontend/FrontendConfigurationView.php:529
+#: src/Shared/Frontend/FrontendConfigurationView.php:539
 msgid "Lookups"
 msgstr ""
 
@@ -4015,12 +4015,12 @@ msgstr ""
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:871
 #: src/Shared/Frontend/FrontendConfigurationView.php:44
 #: src/Shared/Frontend/FrontendConfigurationView.php:59
-#: src/Shared/Frontend/FrontendConfigurationView.php:527
+#: src/Shared/Frontend/FrontendConfigurationView.php:537
 msgid "Branding"
 msgstr ""
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:57
-#: src/Shared/Frontend/FrontendConfigurationView.php:553
+#: src/Shared/Frontend/FrontendConfigurationView.php:563
 msgid "Feature toggles"
 msgstr ""
 
@@ -4031,8 +4031,8 @@ msgstr ""
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:286
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:718
 #: src/Modules/Translations/Admin/TranslationsConfigTab.php:44
-#: src/Shared/Frontend/FrontendConfigurationView.php:341
-#: src/Shared/Frontend/FrontendConfigurationView.php:555
+#: src/Shared/Frontend/FrontendConfigurationView.php:351
+#: src/Shared/Frontend/FrontendConfigurationView.php:565
 msgid "Translations"
 msgstr ""
 
@@ -4059,7 +4059,7 @@ msgstr "Migraciones"
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:439
 #: src/Modules/Documentation/HelpTopics.php:187
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:45
-#: src/Shared/Frontend/FrontendConfigurationView.php:557
+#: src/Shared/Frontend/FrontendConfigurationView.php:567
 msgid "Setup wizard"
 msgstr ""
 
@@ -4174,7 +4174,7 @@ msgstr "Hilos"
 #: src/Modules/Documentation/HelpTopics.php:284
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:91
 #: src/Shared/CoreSurfaceRegistration.php:1291
-#: src/Shared/Frontend/FrontendConfigurationView.php:552
+#: src/Shared/Frontend/FrontendConfigurationView.php:562
 msgid "Spond integration"
 msgstr ""
 
@@ -4248,7 +4248,7 @@ msgstr ""
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:112
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:364
 #: src/Modules/Documentation/HelpTopics.php:264
-#: src/Shared/Frontend/FrontendConfigurationView.php:551
+#: src/Shared/Frontend/FrontendConfigurationView.php:561
 msgid "Custom CSS"
 msgstr ""
 
@@ -4471,7 +4471,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/MatrixPage.php:554
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:510
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:794
-#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:112
+#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:121
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:285
 #: src/Shared/Frontend/FrontendAuditLogView.php:372
 msgid "When"
@@ -4483,7 +4483,7 @@ msgstr ""
 
 #: src/Modules/Authorization/Admin/MatrixPage.php:556
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:41
-#: src/Shared/Frontend/FrontendConfigurationView.php:814
+#: src/Shared/Frontend/FrontendConfigurationView.php:824
 msgid "Persona"
 msgstr ""
 
@@ -4664,7 +4664,7 @@ msgstr ""
 #: src/Shared/Frontend/Components/FrontendThreadView.php:170
 #: src/Shared/Frontend/Components/GuestAddModal.php:112
 #: src/Shared/Frontend/DashboardShortcode.php:119
-#: src/Shared/Frontend/FrontendConfigurationView.php:366
+#: src/Shared/Frontend/FrontendConfigurationView.php:376
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:178
 #: src/Shared/Frontend/FrontendEvalCategoriesView.php:194
 #: src/Shared/Frontend/FrontendMailComposeView.php:131
@@ -5649,7 +5649,7 @@ msgstr ""
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:61
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:63
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:320
-#: src/Shared/Frontend/FrontendConfigurationView.php:554
+#: src/Shared/Frontend/FrontendConfigurationView.php:564
 msgid "Backups"
 msgstr ""
 
@@ -6734,7 +6734,7 @@ msgstr ""
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:248
 #: src/Modules/Teams/Admin/TeamPlayersPanel.php:62
 #: src/Shared/Frontend/FrontendConfigurationView.php:133
-#: src/Shared/Frontend/FrontendConfigurationView.php:175
+#: src/Shared/Frontend/FrontendConfigurationView.php:180
 #: src/Shared/Frontend/FrontendMyProfileView.php:103
 #: src/Shared/Frontend/FrontendTeammateView.php:91
 msgid "Positions"
@@ -7213,7 +7213,7 @@ msgstr ""
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:558
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:789
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:85
-#: src/Shared/Frontend/FrontendConfigurationView.php:244
+#: src/Shared/Frontend/FrontendConfigurationView.php:254
 msgid "Order"
 msgstr "Orden"
 
@@ -7225,7 +7225,7 @@ msgstr ""
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:573
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:798
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:275
-#: src/Shared/Frontend/FrontendConfigurationView.php:259
+#: src/Shared/Frontend/FrontendConfigurationView.php:269
 msgid "Drag to reorder"
 msgstr ""
 
@@ -7335,7 +7335,7 @@ msgid "Maximum"
 msgstr "Máximo"
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:821
-#: src/Shared/Frontend/FrontendConfigurationView.php:714
+#: src/Shared/Frontend/FrontendConfigurationView.php:724
 msgid "Step"
 msgstr ""
 
@@ -7387,7 +7387,7 @@ msgid "Academy Name"
 msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:877
-#: src/Shared/Frontend/FrontendConfigurationView.php:608
+#: src/Shared/Frontend/FrontendConfigurationView.php:618
 msgid "Logo"
 msgstr "Logotipo"
 
@@ -7438,7 +7438,7 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:909
-#: src/Shared/Frontend/FrontendConfigurationView.php:739
+#: src/Shared/Frontend/FrontendConfigurationView.php:749
 msgid "Show legacy wp-admin menus"
 msgstr ""
 
@@ -7453,32 +7453,32 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:927
-#: src/Shared/Frontend/FrontendConfigurationView.php:675
+#: src/Shared/Frontend/FrontendConfigurationView.php:685
 msgid "Accent color"
 msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:928
-#: src/Shared/Frontend/FrontendConfigurationView.php:676
+#: src/Shared/Frontend/FrontendConfigurationView.php:686
 msgid "Danger color"
 msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:929
-#: src/Shared/Frontend/FrontendConfigurationView.php:677
+#: src/Shared/Frontend/FrontendConfigurationView.php:687
 msgid "Warning color"
 msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:930
-#: src/Shared/Frontend/FrontendConfigurationView.php:678
+#: src/Shared/Frontend/FrontendConfigurationView.php:688
 msgid "Success color"
 msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:931
-#: src/Shared/Frontend/FrontendConfigurationView.php:679
+#: src/Shared/Frontend/FrontendConfigurationView.php:689
 msgid "Info color"
 msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:932
-#: src/Shared/Frontend/FrontendConfigurationView.php:680
+#: src/Shared/Frontend/FrontendConfigurationView.php:690
 msgid "Focus ring color"
 msgstr ""
 
@@ -7487,7 +7487,7 @@ msgid "Theme inheritance & curated styling"
 msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:937
-#: src/Shared/Frontend/FrontendConfigurationView.php:646
+#: src/Shared/Frontend/FrontendConfigurationView.php:656
 msgid ""
 "Inheritance applies to fonts, colors, and basic links/buttons. TalentTrack’s "
 "structural design (spacing, layout, player cards) is unchanged. Pick fonts "
@@ -7500,14 +7500,14 @@ msgid "Inherit WordPress theme styles"
 msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:947
-#: src/Shared/Frontend/FrontendConfigurationView.php:652
+#: src/Shared/Frontend/FrontendConfigurationView.php:662
 msgid ""
 "Defer typography, link color, headings and plain buttons to the active WP "
 "theme."
 msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:952
-#: src/Shared/Frontend/FrontendConfigurationView.php:658
+#: src/Shared/Frontend/FrontendConfigurationView.php:668
 msgid "Display font"
 msgstr ""
 
@@ -7517,7 +7517,7 @@ msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:963
 #: src/Modules/CustomCss/DesignSystem/TokenCatalogue.php:125
-#: src/Shared/Frontend/FrontendConfigurationView.php:666
+#: src/Shared/Frontend/FrontendConfigurationView.php:676
 msgid "Body font"
 msgstr ""
 
@@ -7531,7 +7531,7 @@ msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:984
 #: src/Modules/Players/Admin/PlayersPage.php:421
-#: src/Shared/Frontend/FrontendConfigurationView.php:875
+#: src/Shared/Frontend/FrontendConfigurationView.php:885
 #: src/Shared/Frontend/FrontendPlayersManageView.php:478
 msgid "Use"
 msgstr ""
@@ -7668,7 +7668,7 @@ msgstr ""
 #: src/Modules/Methodology/Admin/FootballActionEditPage.php:64
 #: src/Modules/Methodology/Admin/InfluenceFactorEditPage.php:66
 #: src/Modules/Methodology/Admin/LearningGoalEditPage.php:98
-#: src/Shared/Frontend/FrontendConfigurationView.php:304
+#: src/Shared/Frontend/FrontendConfigurationView.php:314
 msgid "Sort order"
 msgstr "Orden de clasificación"
 
@@ -7916,7 +7916,7 @@ msgstr "Peso (kg)"
 #: src/Modules/Wizards/Player/ReviewStep.php:37
 #: src/Modules/Wizards/Player/RosterDetailsStep.php:50
 #: src/Shared/Frontend/FrontendConfigurationView.php:134
-#: src/Shared/Frontend/FrontendConfigurationView.php:176
+#: src/Shared/Frontend/FrontendConfigurationView.php:181
 #: src/Shared/Frontend/FrontendMyProfileView.php:107
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:412
 #: src/Shared/Frontend/FrontendPlayersManageView.php:309
@@ -8660,7 +8660,7 @@ msgid "Overlays"
 msgstr ""
 
 #: src/Modules/CustomCss/DesignSystem/TokenCatalogue.php:285
-#: src/Shared/Frontend/FrontendConfigurationView.php:828
+#: src/Shared/Frontend/FrontendConfigurationView.php:838
 msgid "Persona dashboard"
 msgstr ""
 
@@ -9368,7 +9368,7 @@ msgstr ""
 
 #: src/Modules/CustomWidgets/DataSources/GoalsOpen.php:27
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:924
-#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:126
+#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:146
 #: src/Modules/Wizards/Goal/LinkStep.php:71
 #: src/Modules/Wizards/Goal/LinkStep.php:106
 msgid "Principle"
@@ -9401,7 +9401,7 @@ msgstr ""
 
 # #0060 — Persona dashboard KPI labels
 #: src/Modules/CustomWidgets/DataSources/PlayersActive.php:21
-#: src/Modules/PersonaDashboard/Kpis/ActivePlayersTotal.php:12
+#: src/Modules/PersonaDashboard/Kpis/ActivePlayersTotal.php:13
 msgid "Active players"
 msgstr ""
 
@@ -12997,7 +12997,7 @@ msgstr ""
 #: src/Shared/Admin/BackNavigator.php:106 src/Shared/Admin/SchemaStatus.php:112
 #: src/Shared/CoreSurfaceRegistration.php:1052
 #: src/Shared/Frontend/Components/FrontendBreadcrumbs.php:28
-#: src/Shared/Frontend/FrontendConfigurationView.php:815
+#: src/Shared/Frontend/FrontendConfigurationView.php:825
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:106
 #: src/Shared/Frontend/FrontendReportDetailView.php:44
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:551
@@ -13132,7 +13132,7 @@ msgstr ""
 #: src/Modules/License/Admin/AccountPage.php:919
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:251
 #: src/Shared/Frontend/DashboardShortcode.php:100
-#: src/Shared/Frontend/FrontendConfigurationView.php:384
+#: src/Shared/Frontend/FrontendConfigurationView.php:394
 msgid "Error"
 msgstr ""
 
@@ -13317,9 +13317,9 @@ msgstr ""
 #: src/Modules/Methodology/Admin/PrincipleEditPage.php:173
 #: src/Modules/Methodology/Admin/SetPieceEditPage.php:121
 #: src/Modules/Methodology/Admin/VisionEditPage.php:120
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:278
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:286
 #: src/Shared/Frontend/CoachForms.php:94
-#: src/Shared/Frontend/FrontendConfigurationView.php:364
+#: src/Shared/Frontend/FrontendConfigurationView.php:374
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:457
 #: src/Shared/Frontend/FrontendWizardsAdminView.php:110
 msgid "Save changes"
@@ -14366,7 +14366,7 @@ msgstr ""
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:238
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:215
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:270
-#: src/Shared/Frontend/FrontendConfigurationView.php:764
+#: src/Shared/Frontend/FrontendConfigurationView.php:774
 msgid "Academy admin"
 msgstr ""
 
@@ -14378,7 +14378,7 @@ msgstr ""
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:239
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:216
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:271
-#: src/Shared/Frontend/FrontendConfigurationView.php:772
+#: src/Shared/Frontend/FrontendConfigurationView.php:782
 msgid "Read-only observer"
 msgstr ""
 
@@ -14598,12 +14598,12 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:117
-#: src/Shared/Frontend/FrontendConfigurationView.php:603
+#: src/Shared/Frontend/FrontendConfigurationView.php:613
 msgid "Academy name"
 msgstr ""
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:123
-#: src/Shared/Frontend/FrontendConfigurationView.php:620
+#: src/Shared/Frontend/FrontendConfigurationView.php:630
 msgid "Primary color"
 msgstr ""
 
@@ -15910,7 +15910,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:932
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:949
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:986
-#: src/Shared/Frontend/FrontendConfigurationView.php:616
+#: src/Shared/Frontend/FrontendConfigurationView.php:626
 #: src/Shared/Frontend/FrontendPlayersManageView.php:351
 #: src/Shared/Frontend/FrontendTeamsManageView.php:320
 msgid "Remove"
@@ -16313,8 +16313,8 @@ msgstr ""
 msgid "PDP planned vs conducted (this block)"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Kpis/PdpVerdictsPending.php:13
-msgid "PDP verdicts pending"
+#: src/Modules/PersonaDashboard/Kpis/PdpVerdictsPending.php:19
+msgid "PDP files awaiting sign-off"
 msgstr ""
 
 #: src/Modules/PersonaDashboard/Kpis/PlayersAtRisk.php:17
@@ -16575,7 +16575,7 @@ msgid ""
 msgstr ""
 
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:43
-#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:82
+#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:91
 msgid "Trials needing decision"
 msgstr ""
 
@@ -16584,75 +16584,75 @@ msgid "My recent scout reports"
 msgstr ""
 
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:45
-#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:99
+#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:108
 msgid "My recent prospects"
 msgstr ""
 
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:46
-#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:111
+#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:120
 msgid "Recent audit events"
 msgstr ""
 
 # v3.71.0 — round-3 bundle (#0070-followup) i18n + new strings
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:47
-#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:117
+#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:126
 #: src/Shared/Frontend/FrontendTeamDetailView.php:356
 msgid "Upcoming activities"
 msgstr ""
 
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:48
-#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:125
+#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:145
 msgid "Goals by principle"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:72
+#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:81
 msgid "See all"
 msgstr "Ver todo"
 
-#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:83
+#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:92
 #: src/Shared/Frontend/FrontendAuditLogView.php:209
 msgid "Day"
 msgstr "Día"
 
-#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:85
+#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:94
 msgid "No open trial cases."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:88
+#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:97
 msgid "My recent reports"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:91
+#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:100
 msgid "You have no scout reports yet."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:102
+#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:111
 msgid ""
 "You have not logged any prospects yet. Use the “+ New prospect” hero above "
 "to start."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:112
+#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:121
 msgid "Who"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:112
+#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:121
 msgid "What"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:114
+#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:123
 msgid "No audit events recorded yet."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:118
+#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:127
 msgid "Date & time"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:120
+#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:140
 msgid "No upcoming activities in this window."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:128
+#: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:148
 msgid "No principles configured yet."
 msgstr ""
 
@@ -17703,7 +17703,7 @@ msgstr ""
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:50
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:60
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:84
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:95
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:103
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:43
 #: src/Shared/CoreSurfaceRegistration.php:627
 msgid "Scouting visits"
@@ -17716,7 +17716,7 @@ msgstr ""
 
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:63
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:64
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:89
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:97
 msgid "New scouting visit"
 msgstr ""
 
@@ -17738,51 +17738,51 @@ msgstr ""
 msgid "Edit scouting visit"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:139
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:147
 msgid "You have not planned any scouting visits yet."
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:140
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:148
 msgid "No scouting visits planned."
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:153
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:161
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:133
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:451
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:435
 msgid "Event"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:223
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:231
 msgid "Visit date"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:228
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:236
 msgid "Time (optional)"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:234
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:242
 msgid "e.g. SC Heerenveen — sportpark Skoatterwâld"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:237
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:245
 msgid "Event description"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:238
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:246
 msgid "e.g. U13 regional tournament"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:242
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:250
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:139
 msgid "Age groups expected"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:266
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:274
 msgid "Players to watch, contacts, logistics…"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:278
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:286
 msgid "Plan visit"
 msgstr ""
 
@@ -22836,8 +22836,8 @@ msgstr ""
 #: src/Shared/Admin/DragReorder.php:149
 #: src/Shared/Frontend/DashboardShortcode.php:82
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:992
-#: src/Shared/Frontend/FrontendConfigurationView.php:385
-#: src/Shared/Frontend/FrontendConfigurationView.php:467
+#: src/Shared/Frontend/FrontendConfigurationView.php:395
+#: src/Shared/Frontend/FrontendConfigurationView.php:477
 msgid "Network error."
 msgstr ""
 
@@ -24352,23 +24352,23 @@ msgstr ""
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:45
 #: src/Shared/Frontend/FrontendConfigurationView.php:65
-#: src/Shared/Frontend/FrontendConfigurationView.php:528
+#: src/Shared/Frontend/FrontendConfigurationView.php:538
 msgid "Theme & fonts"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:75
-#: src/Shared/Frontend/FrontendConfigurationView.php:531
+#: src/Shared/Frontend/FrontendConfigurationView.php:541
 msgid "wp-admin menus"
 msgstr ""
 
 # v3.53.0 — Default-dashboard chooser
 #: src/Shared/Frontend/FrontendConfigurationView.php:80
-#: src/Shared/Frontend/FrontendConfigurationView.php:526
+#: src/Shared/Frontend/FrontendConfigurationView.php:536
 msgid "Default dashboard"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:130
-#: src/Shared/Frontend/FrontendConfigurationView.php:172
+#: src/Shared/Frontend/FrontendConfigurationView.php:177
 msgid "Evaluation types"
 msgstr ""
 
@@ -24377,7 +24377,7 @@ msgid "The evaluation templates rosters can attach to a player record."
 msgstr ""
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:131
-#: src/Shared/Frontend/FrontendConfigurationView.php:173
+#: src/Shared/Frontend/FrontendConfigurationView.php:178
 msgid "Activity types"
 msgstr ""
 
@@ -24386,7 +24386,7 @@ msgid "Training, game, tournament, meeting — colour-coded type pills."
 msgstr ""
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:132
-#: src/Shared/Frontend/FrontendConfigurationView.php:174
+#: src/Shared/Frontend/FrontendConfigurationView.php:179
 msgid "Game subtypes"
 msgstr ""
 
@@ -24403,7 +24403,7 @@ msgid "Left, right, both — used on the player edit form."
 msgstr ""
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:135
-#: src/Shared/Frontend/FrontendConfigurationView.php:177
+#: src/Shared/Frontend/FrontendConfigurationView.php:182
 msgid "Age groups"
 msgstr ""
 
@@ -24412,7 +24412,7 @@ msgid "U7, U8, … U23 — feed the team age-group dropdown and weights."
 msgstr ""
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:136
-#: src/Shared/Frontend/FrontendConfigurationView.php:178
+#: src/Shared/Frontend/FrontendConfigurationView.php:183
 msgid "Goal statuses"
 msgstr ""
 
@@ -24421,7 +24421,7 @@ msgid "Open / in progress / done / cancelled. Drives the goals KPI."
 msgstr ""
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:137
-#: src/Shared/Frontend/FrontendConfigurationView.php:179
+#: src/Shared/Frontend/FrontendConfigurationView.php:184
 msgid "Goal priorities"
 msgstr ""
 
@@ -24430,7 +24430,7 @@ msgid "Low / medium / high. Sorts the my-goals list."
 msgstr ""
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:138
-#: src/Shared/Frontend/FrontendConfigurationView.php:180
+#: src/Shared/Frontend/FrontendConfigurationView.php:185
 msgid "Attendance statuses"
 msgstr ""
 
@@ -24438,219 +24438,230 @@ msgstr ""
 msgid "Present / absent / excused / late. Drives the attendance KPI."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:139
-#: src/Shared/Frontend/FrontendConfigurationView.php:530
-msgid "Min, max and step for evaluation ratings."
+#: src/Shared/Frontend/FrontendConfigurationView.php:143
+#: src/Shared/Frontend/FrontendConfigurationView.php:190
+msgid "Player values"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:143
+msgid ""
+"Player virtues used as PDP goal links: Commitment, Coachability, Resilience, "
+"etc."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:144
+#: src/Shared/Frontend/FrontendConfigurationView.php:540
+msgid "Min, max and step for evaluation ratings."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:148
 msgid ""
 "Pick a lookup category. Values are translatable and feed every dropdown "
 "across the dashboard."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:212
+#: src/Shared/Frontend/FrontendConfigurationView.php:222
 msgid "All lookups"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:247
+#: src/Shared/Frontend/FrontendConfigurationView.php:257
 msgid "Colour"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:252
+#: src/Shared/Frontend/FrontendConfigurationView.php:262
 msgid "No items yet."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:264
+#: src/Shared/Frontend/FrontendConfigurationView.php:274
 msgid "Locked — workflow rules depend on this row."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:294
+#: src/Shared/Frontend/FrontendConfigurationView.php:304
 msgid "Edit row"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:294
+#: src/Shared/Frontend/FrontendConfigurationView.php:304
 msgid "Add new row"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:318
+#: src/Shared/Frontend/FrontendConfigurationView.php:328
 msgid "Pill colour"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:343
+#: src/Shared/Frontend/FrontendConfigurationView.php:353
 msgid ""
 "Per-locale display name. Click \"Translate\" to fill these from the "
 "configured engine — review and edit before saving."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:346
+#: src/Shared/Frontend/FrontendConfigurationView.php:356
 msgid "Translate to other languages"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:364
+#: src/Shared/Frontend/FrontendConfigurationView.php:374
 msgid "Add row"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:444
+#: src/Shared/Frontend/FrontendConfigurationView.php:454
 msgid "Enter a name first."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:445
+#: src/Shared/Frontend/FrontendConfigurationView.php:455
 msgid "Translating…"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:461
+#: src/Shared/Frontend/FrontendConfigurationView.php:471
 msgid "Translated. Review and edit before saving."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:478
+#: src/Shared/Frontend/FrontendConfigurationView.php:488
 msgid "Delete this row?"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:493
+#: src/Shared/Frontend/FrontendConfigurationView.php:503
 msgid "All configuration"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:526
+#: src/Shared/Frontend/FrontendConfigurationView.php:536
 msgid ""
 "Choose what every user sees on the dashboard root: the persona dashboard or "
 "the classic tile grid."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:527
+#: src/Shared/Frontend/FrontendConfigurationView.php:537
 msgid "Academy name, logo, primary and secondary colours."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:528
+#: src/Shared/Frontend/FrontendConfigurationView.php:538
 msgid "Theme inheritance, display + body fonts and accent colours."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:529
+#: src/Shared/Frontend/FrontendConfigurationView.php:539
 msgid ""
 "Activity types, positions, age groups, goal statuses, evaluation types — "
 "every dropdown vocabulary in one place."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:531
+#: src/Shared/Frontend/FrontendConfigurationView.php:541
 msgid "Show or hide the legacy wp-admin menu entries."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:544
+#: src/Shared/Frontend/FrontendConfigurationView.php:554
 msgid "Players CSV import"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:545
+#: src/Shared/Frontend/FrontendConfigurationView.php:555
 msgid ""
 "Bulk-import players from a spreadsheet. Map columns, choose duplicate-"
 "handling, preview before commit."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:551
+#: src/Shared/Frontend/FrontendConfigurationView.php:561
 msgid ""
 "Per-club custom styling (#0064): visual editor, code editor, file upload, "
 "starter templates, history with revert. Frontend + wp-admin surfaces."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:552
+#: src/Shared/Frontend/FrontendConfigurationView.php:562
 msgid ""
 "Per-team iCal sync status and \"Refresh now\" buttons. Lives in wp-admin."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:553
+#: src/Shared/Frontend/FrontendConfigurationView.php:563
 msgid "Per-module enable/disable toggles. Live in wp-admin."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:554
+#: src/Shared/Frontend/FrontendConfigurationView.php:564
 msgid "Manual + scheduled database backups. Lives in wp-admin."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:555
+#: src/Shared/Frontend/FrontendConfigurationView.php:565
 msgid "Per-locale string overrides and the .po/.mo refresh job."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:556
+#: src/Shared/Frontend/FrontendConfigurationView.php:566
 msgid "Settings + sensitive data change history."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:557
+#: src/Shared/Frontend/FrontendConfigurationView.php:567
 msgid "Re-run the first-run onboarding wizard."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:561
+#: src/Shared/Frontend/FrontendConfigurationView.php:571
 msgid ""
 "Pick a configuration area. Branding, theme, rating scale, and lookups are "
 "edited inline; the remaining areas open in wp-admin."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:615
+#: src/Shared/Frontend/FrontendConfigurationView.php:625
 msgid "Choose logo…"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:624
+#: src/Shared/Frontend/FrontendConfigurationView.php:634
 msgid "Secondary color"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:630
+#: src/Shared/Frontend/FrontendConfigurationView.php:640
 msgid "Save branding"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:692
+#: src/Shared/Frontend/FrontendConfigurationView.php:702
 msgid "Save theme"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:706
+#: src/Shared/Frontend/FrontendConfigurationView.php:716
 msgid "Min"
 msgstr "Mín"
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:710
+#: src/Shared/Frontend/FrontendConfigurationView.php:720
 msgid "Max"
 msgstr "Máx"
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:720
+#: src/Shared/Frontend/FrontendConfigurationView.php:730
 msgid "Save rating scale"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:733
+#: src/Shared/Frontend/FrontendConfigurationView.php:743
 msgid ""
 "TalentTrack admin tools moved to the frontend in v3.12.0. The legacy wp-"
 "admin menu entries (Players, Teams, Configuration, …) are hidden by default. "
 "Direct URLs to those pages still work as an emergency fallback."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:742
+#: src/Shared/Frontend/FrontendConfigurationView.php:752
 msgid ""
 "Re-expose the legacy menu entries in wp-admin for users who prefer them. "
 "Plugin still works on both surfaces; this just controls menu visibility."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:747
+#: src/Shared/Frontend/FrontendConfigurationView.php:757
 msgid "Save menus"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:782
+#: src/Shared/Frontend/FrontendConfigurationView.php:792
 msgid ""
 "Choose what every user sees when they open the dashboard. The persona "
 "dashboard is the configurable per-role landing built in #0060; the classic "
 "tile grid is the legacy menu of all available views."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:788
+#: src/Shared/Frontend/FrontendConfigurationView.php:798
 msgid "Persona dashboard (recommended)"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:791
+#: src/Shared/Frontend/FrontendConfigurationView.php:801
 msgid ""
 "Each user lands on a layout tailored to their persona (player, parent, "
 "coach, head of development, club admin, scout, observer). Layouts are edited "
 "under wp-admin → Configuration → Dashboard layouts."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:796
-#: src/Shared/Frontend/FrontendConfigurationView.php:829
+#: src/Shared/Frontend/FrontendConfigurationView.php:806
+#: src/Shared/Frontend/FrontendConfigurationView.php:839
 msgid "Classic tile grid"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:799
+#: src/Shared/Frontend/FrontendConfigurationView.php:809
 msgid ""
 "Falls back to the original tile grid (every user sees the same menu of "
 "tiles, filtered by capability). Use this if a customer is not yet ready to "
@@ -24658,26 +24669,26 @@ msgid ""
 msgstr ""
 
 # #0069 — HoD + tiles + docs
-#: src/Shared/Frontend/FrontendConfigurationView.php:806
+#: src/Shared/Frontend/FrontendConfigurationView.php:816
 msgid "Per-persona overrides"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:809
+#: src/Shared/Frontend/FrontendConfigurationView.php:819
 msgid ""
 "Optional. Force a specific dashboard for a single persona — useful for "
 "testing one persona at a time on a real install without flipping the whole "
 "site. \"Inherit\" follows the global default above."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:827
+#: src/Shared/Frontend/FrontendConfigurationView.php:837
 msgid "Inherit (use global default)"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:839
+#: src/Shared/Frontend/FrontendConfigurationView.php:849
 msgid "Save default dashboard"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendConfigurationView.php:874
+#: src/Shared/Frontend/FrontendConfigurationView.php:884
 msgid "Select logo"
 msgstr ""
 
