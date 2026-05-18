@@ -83,7 +83,15 @@ class FrontendScoutingPlanView extends FrontendViewBase {
 
         FrontendBreadcrumbs::fromDashboard( __( 'Scouting visits', 'talenttrack' ) );
         $page_actions = [];
-        if ( current_user_can( 'tt_edit_prospects' ) ) {
+        // v3.110.164 (#478) — was `current_user_can`, which on
+        // matrix-enabled installs rejected scouts whose
+        // `tt_edit_prospects` cap came via the matrix rather than
+        // the WP role. Same pattern fix as v3.110.147 on line 40 of
+        // this file; the page-header action ("+ New scouting visit")
+        // was missed in that pass and stayed hidden for matrix-granted
+        // scouts, so they could view the list but not create new
+        // visits — what the pilot reported.
+        if ( AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_prospects' ) ) {
             $base_url = remove_query_arg( [ 'action', 'id' ] );
             $page_actions[] = [
                 'label'   => __( 'New scouting visit', 'talenttrack' ),
