@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.160
+Stable tag: 3.110.161
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.161 — Dutch translations chunk 2: 544 more strings — module catalogue, widget descriptions, comms templates, persona dashboard, prospects, tournaments wizard, CSV import errors, exports, trial flows =
+
+Continuation of the i18n backlog clearance started in v3.110.160. This ship covers the broad middle band: every short-to-medium-length msgid that was still falling back to English on `nl_NL`. **Translated this round (544 entries)**: module descriptions in the Configuration → Modules surface (Core / People & teams / Optional sections + every module's one-line description), data-table widget presets + KPI catalogue labels, comms-template subject lines (English versions only — Dutch versions of the templates ARE the source msgid and don't need translation, see note below), persona-dashboard widget descriptions + empty-state copy, prospects + scouting-visit form labels + validation messages, tournaments wizard step prompts ("End date cannot be before the start date", "Pick an anchor team", squad / formation labels), CSV import error messages, every export-handler label (PDF / CSV / iCal / JSON-federation / GDPR ZIP), trial-flow form copy, behaviour-and-potential capture UI, players-list CSV-import error messages, seed-review export controls, Spond integration UI, Freemius / upgrade-tile copy, scout report templates' style descriptions, configuration / branding / styling tile descriptions, and 100+ smaller short labels (Score, Activity type, Born, Discovered, Anyone, Time, Date is required, etc.). **Terminology locked further**: *POP* (Persoonlijk Ontwikkelplan) for PDP, *proefperiode* / *proefdossier* / *proefspeler* for trial, *gedrag & potentieel* for behaviour & potential, *opstelling* / *selectie* / *aftrap* / *aanvaller* / *middenvelder* / *verdediger* / *keeper* for tournament-football terms, *spelerslijst* for roster, *stoplicht* for traffic-light status. Backlog after this ship: ≈246 strings — split roughly into 4 URL/author entries that genuinely don't need translation (msgid is the value), ~150 comms-template runtime-locale-paired strings where the source code stores both English and Dutch msgids and the runtime picks the right one (empty msgstr is correct — gettext falls back to msgid which is the Dutch text for the Dutch-locale variant), and ~90 long multi-line help strings (module description tooltips, technical comms-template bodies) deferred to a follow-up chunk because they need surgical multi-line edits the bulk-apply pipeline doesn't handle cleanly. The WARN-only check in `translations.yml` continues to surface the count.
 
 = 3.110.160 — Dutch translations chunk 1: all 89 REST controller error messages now translate on `nl_NL` =
 
