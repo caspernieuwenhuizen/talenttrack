@@ -1,3 +1,104 @@
+# TalentTrack v3.110.159 — i18n foundation: auto-regenerate .pot from source + msgmerge into .po + WARN-only PR check for untranslated msgstr entries
+
+## Pilot ask
+
+> "Conduct a thorough sweep of the application regarding English strings that are not translated when the site is in Dutch. I have the feeling that lately I see more and more of these. Find them and change to language dependent."
+
+## Sweep findings
+
+~570 user-visible English strings ship untranslated on the Dutch install. Almost all of them are **already wrapped in `__()` / `esc_html__()` / `_e()` / `_n()` etc. correctly in PHP** — the bug is that `talenttrack-nl_NL.po` never grew the corresponding msgids, so gettext falls back to the English source.
+
+Hotspots:
+
+| Module / area | Untranslated msgids (approx.) |
+|---|---|
+| Infrastructure / REST controllers | 153 (Tournament + Activity validation errors, Custom fields, Functional roles, Eval categories, Teams, Evaluations, …) |
+| Modules / Tournaments | ~35 (wizard validation, planner errors) |
+| Modules / Prospects | ~200 |
+| Modules / PersonaDashboard | ~180 |
+| Shared / Frontend | 30–50 |
+| **Total** | **≈570** |
+
+Root cause: `languages/talenttrack.pot` was last regenerated **2026-04-20**. Every `__()` call added in the four weeks since (the entire Tournaments module #0093, the v3.110.143+ wave of bubbled REST validation messages, the v3.110.118–.119 scout polish, the v3.110.108–.110 dashboard editor work, …) is wrapped correctly in PHP but has no entry in the .pot — so `msgmerge` never propagated the msgids to the .po, so the Dutch site has no Dutch text to fall back to.
+
+The existing `translations.yml` workflow validates `.po` syntax and compiles `.po → .mo`, but **does not regenerate `.pot`**. The drift was structural — no CI guardrail was catching it.
+
+## Fix
+
+This ship lands the foundation. The bulk translation of the ~570 entries lands in a follow-up.
+
+### (1) New workflow — `.github/workflows/i18n-sync.yml`
+
+Triggers on push to `main` when any of `src/**/*.php`, `includes/**/*.php`, or `talenttrack.php` changes — and manually via `workflow_dispatch`. Steps:
+
+```yaml
+- Setup PHP + wp-cli
+- Install gettext (for msgmerge)
+- wp i18n make-pot . languages/talenttrack.pot --slug=talenttrack --skip-audit
+- for po in languages/*.po: msgmerge --update --no-fuzzy-matching "$po" languages/talenttrack.pot
+- Commit back to main if real string changes (ignore POT-Creation-Date-only churn)
+```
+
+Same auto-commit pattern the existing `.mo` regeneration uses. The "ignore POT-Creation-Date-only churn" guard prevents a noisy auto-commit on every PR — `wp i18n make-pot` rewrites the date header on every run, but `msgmerge` doesn't touch the `.po` if no real strings changed. We diff the .pot excluding the POT-Creation-Date line and skip the commit if that's the only delta.
+
+### (2) WARN-only step in `translations.yml`
+
+Added to the validate job that runs on every PR:
+
+```yaml
+- name: Warn on untranslated msgstr entries
+  run: |
+    for po in languages/*.po; do
+      empty=$(grep -c '^msgstr ""$' "$po")
+      empty=$(( empty > 0 ? empty - 1 : 0 ))  # subtract 1 for header
+      if [ "$empty" -gt 0 ]; then
+        echo "::warning file=$po::$empty untranslated msgstr entries in $po"
+      fi
+    done
+```
+
+GitHub annotations surface the count on the PR page without blocking the merge. Once the bulk-translate ship lands and clears the backlog to zero, this step flips from `::warning::` to `exit 1` and becomes the enforcing gate — every future untranslated string is caught at PR time, can't slip into main.
+
+## What happens on first run
+
+After this PR merges:
+
+1. The `i18n-sync` workflow fires on the merge commit (PHP-touching paths matched).
+2. `wp i18n make-pot` extracts every `__()` / `_e()` / `esc_html__()` / etc. call in `src/`, `includes/`, `talenttrack.php` and writes `languages/talenttrack.pot`.
+3. `msgmerge --update --no-fuzzy-matching languages/talenttrack-nl_NL.po languages/talenttrack.pot` adds the ~570 missing msgids to the Dutch `.po` with empty `msgstr ""`.
+4. Auto-commit fires: `chore(i18n): sync .pot from PHP source + msgmerge into .po`.
+5. The existing `.mo` compile job picks up the new `.po` on its next push trigger and regenerates `talenttrack-nl_NL.mo`.
+
+**Runtime behaviour is unchanged this ship.** Gettext still falls back to English for the ~570 entries because their `msgstr` is empty. But every one of them is now visible in the .po file ready for translation.
+
+## Files
+
+- `.github/workflows/i18n-sync.yml` — new workflow.
+- `.github/workflows/translations.yml` — added WARN-only step to the validate job.
+- `talenttrack.php` 3.110.158 → 3.110.159.
+- `readme.txt`, `CHANGES.md`.
+
+No PHP code changes. No `.po` / `.pot` updates land in this PR — they're produced by the workflow on the first run after merge.
+
+## Follow-up
+
+Next ship: fill in the Dutch `msgstr` for the ~570 new empty entries. Plan:
+
+1. Batch by module / area so terminology stays consistent (e.g. *anchor team*, *auto-plan*, *lineup* — these are product-vocabulary decisions worth aligning).
+2. Lean on existing translations for common phrasing (the .po already has 14,000+ entries with established Dutch vocabulary).
+3. Flag ambiguous strings (typically: terse REST error messages where the exact Dutch idiom matters) for operator review before committing.
+4. On merge, flip the WARN-only step in `translations.yml` from `::warning::` to `exit 1` so the gate becomes enforcing — every future PR that adds a string is required to ship the Dutch translation alongside.
+
+## How to verify
+
+1. Merge this PR.
+2. Watch the Actions tab — the `i18n sync (.pot → .po)` workflow runs on the merge commit.
+3. Wait for the auto-commit (`chore(i18n): sync .pot from PHP source + msgmerge into .po`) to appear on main.
+4. `git diff HEAD^ -- languages/talenttrack-nl_NL.po` shows hundreds of new `msgid "…" / msgstr ""` blocks — these are the previously-missing entries, now visible.
+5. Open any PR — the `Validate .po syntax` step in `translations.yml` will print `::warning::` annotations with the count of untranslated entries (≈570). Not blocking, just visible.
+
+---
+
 # TalentTrack v3.110.158 — Add-guest "Column 'player_id' cannot be null" — third migration attempt + defensive code fallback
 
 ## Pilot report
