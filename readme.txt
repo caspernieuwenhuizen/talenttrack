@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.166
+Stable tag: 3.110.167
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.167 — Team overview widget: two SQL bugs in `TeamOverviewRepository` made the outer query silently fail; widget rendered "No teams with recent activity" even when 24 activities existed in the window =
+
+Issue #479 from the pilot bug list — `TeamOverviewRepository::summariesFor()` was running an outer `tt_teams` query with two correlated subqueries (rating + attendance). **Bug 1**: the rating subquery read `SELECT AVG(r.value)` but the column is `r.rating`. `r.value` doesn't exist in `tt_eval_ratings` (verified against migration 0001 schema: `rating DECIMAL(4,1) NOT NULL`). MySQL raised "Unknown column" and the **entire outer query** errored out — `$wpdb->get_results()` returned `false`, the `! is_array( $rows )` guard returned `[]`, and the widget rendered the empty state. So even though the pilot's DB had 24 activities in the 30-day window (confirmed via `SELECT COUNT(*) FROM a0ft_tt_activities WHERE session_date >= DATE_SUB(NOW(), INTERVAL 30 DAY) AND archived_at IS NULL`), the widget never received a single row to render. Fix: `AVG(r.value)` → `AVG(r.rating)` in both `summariesFor()` and `teamPlayerBreakdown()` (the secondary method had the same bug copy-pasted). **Bug 2**: the attendance subquery filtered with `att.status IN ('Present','Absent')` (capital-P) and `att.status = 'Present'`. Every other status comparison in the codebase has been case-insensitive via `LOWER(status) = …` since v3.110.3 / v3.110.78 — write paths normalise to lowercase (v3.110.4 onwards), legacy data is mixed. Capital-only comparison silently missed every row written by the post-v3.110.4 attendance flow → attendance_pct returned NULL. Fix: wrap both clauses in `LOWER(att.status)` to match the rest of the codebase. **Both fixes in `TeamOverviewRepository.php`**: one method had Bug 1 + Bug 2 (the HoD overview), the other had Bug 1 + Bug 2 (the per-team player breakdown). Pilot's "no team with recent activity" widget should populate immediately on next page load with real attendance + rating numbers across every active team.
 
 = 3.110.166 — Wizards mobile-first audit round 2: 5 critical 48px touch-target fixes across RosterStep, PrinciplesStep, RoleStep, PathStep, ActivityPickerStep =
 

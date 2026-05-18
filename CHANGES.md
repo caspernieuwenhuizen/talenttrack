@@ -1,3 +1,101 @@
+# TalentTrack v3.110.167 — Team overview widget: two SQL bugs made the outer query silently fail (closes #479)
+
+## Pilot diagnostic
+
+Pilot DB on 2026-05-18:
+
+```
+SELECT COUNT(*) FROM a0ft_tt_activities
+WHERE session_date >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+  AND archived_at IS NULL
+→ 24
+```
+
+24 activities in the last 30 days. The HoD team-overview widget rendered *"No teams with recent activity."* anyway. Empty-state was incorrect.
+
+## Root cause
+
+`TeamOverviewRepository::summariesFor()` runs an outer `tt_teams` query with two correlated subqueries (rating + attendance). Two SQL bugs in those subqueries made the **entire outer query** silently fail.
+
+### Bug 1 — `AVG(r.value)` references a column that doesn't exist
+
+```sql
+SELECT AVG(r.value)              -- ← r.value does not exist
+  FROM tt_eval_ratings r
+  INNER JOIN tt_evaluations e ON e.id = r.evaluation_id
+  …
+```
+
+Schema (migration 0001 / Activator):
+
+```sql
+CREATE TABLE tt_eval_ratings (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    evaluation_id BIGINT UNSIGNED NOT NULL,
+    category_id BIGINT UNSIGNED NOT NULL,
+    rating DECIMAL(4,1) NOT NULL,   -- ← canonical column name is `rating`
+    …
+)
+```
+
+MySQL raises *"Unknown column 'r.value' in 'field list'"*. `$wpdb->get_results()` returns `false`. The `! is_array( $rows )` guard in `summariesFor()` returns `[]`. Widget renders empty state.
+
+The same `AVG(r.value)` mistake is copy-pasted into the secondary method `teamPlayerBreakdown()` (the per-team player drill-down also silently fails when an HoD opens a team card).
+
+### Bug 2 — case-sensitive status comparison
+
+```sql
+SELECT
+    CASE WHEN SUM( CASE WHEN att.status IN ('Present','Absent') THEN 1 ELSE 0 END ) > 0
+         THEN ROUND( SUM( CASE WHEN att.status = 'Present' THEN 1 ELSE 0 END ) … )
+```
+
+Every other attendance-status comparison in the codebase has been case-insensitive (`LOWER(att.status) = 'present'`) since v3.110.3 because:
+
+- Write paths normalise to lowercase (v3.110.4 onwards: `add_guest` v3.110.143, mark-attendance v3.110.4).
+- Legacy data is mixed (the v2.x present-int → status-string migration left some capitalised rows).
+
+A capital-only check misses every lowercase row → numerator and denominator both zero → `attendance_pct` returns NULL.
+
+This subquery wouldn't have caused the outer query to fail on its own (NULL is a legal value), but Bug 1 was already taking the query down.
+
+## Fix
+
+```diff
+-                        SELECT AVG(r.value)
++                        SELECT AVG(r.rating)
+                           FROM tt_eval_ratings r
+                           INNER JOIN tt_evaluations e ON e.id = r.evaluation_id AND e.club_id = r.club_id
+                           …
+-                            CASE WHEN SUM( CASE WHEN att.status IN ('Present','Absent') THEN 1 ELSE 0 END ) > 0
+-                                 THEN ROUND( SUM( CASE WHEN att.status = 'Present' THEN 1 ELSE 0 END )
+-                                             / SUM( CASE WHEN att.status IN ('Present','Absent') THEN 1 ELSE 0 END ) * 100, 1 )
++                            CASE WHEN SUM( CASE WHEN LOWER(att.status) IN ('present','absent') THEN 1 ELSE 0 END ) > 0
++                                 THEN ROUND( SUM( CASE WHEN LOWER(att.status) = 'present' THEN 1 ELSE 0 END )
++                                             / SUM( CASE WHEN LOWER(att.status) IN ('present','absent') THEN 1 ELSE 0 END ) * 100, 1 )
+                                  ELSE NULL
+                             END
+```
+
+Both fixes applied to **both methods**: `summariesFor()` (the widget query) and `teamPlayerBreakdown()` (the per-team drill-down query that runs when the HoD clicks into a team card).
+
+## Files
+
+- `src/Modules/PersonaDashboard/Repositories/TeamOverviewRepository.php` — 2 column-name fixes (`r.value` → `r.rating`) + 2 case-sensitivity fixes on `att.status`.
+- `talenttrack.php` 3.110.166 → 3.110.167.
+- `readme.txt`, `CHANGES.md`.
+
+No view / widget / REST changes. No i18n changes. No schema changes.
+
+## How to verify
+
+1. Upgrade. Reload the HoD dashboard.
+2. The **team-overview widget** now renders a card per team in the club, each showing: head-coach name, age group, average rating (from the now-correct `AVG(rating)`), attendance % (from the now-correct LOWER comparison), player count.
+3. Click a team card → the per-team breakdown also renders correctly (same fixes applied to `teamPlayerBreakdown()`).
+4. If a team has zero evaluations in the window, `avg_rating` is NULL → card renders `—`. Same for attendance %.
+
+---
+
 # TalentTrack v3.110.166 — Wizards mobile-first audit round 2: 5 critical 48px touch-target fixes
 
 Closes issue #482 from the pilot bug list. Round-2 sweep of every wizard step file under `src/Modules/Wizards/` for CLAUDE.md §2 violations (48×48px touch-target floor, 16px input font-size).
