@@ -29,15 +29,27 @@ final class PlayerPickerStep implements WizardStepInterface {
             <?php esc_html_e( 'Pick the player you\'re evaluating. Use this for ad-hoc observations not anchored to an activity row — a tournament moment, something you noticed in passing.', 'talenttrack' ); ?>
         </p>
         <?php
+        // v3.110.193 (#809, #810) — was passing `cross_team => true`
+        // and a narrow `is_admin` (only `tt_edit_settings`). Result:
+        // head coaches saw every team in the picker, not just the ones
+        // they coach. The component already has the cascading
+        // team-then-player UX; `cross_team => true` was overriding it
+        // by forcing all teams' players into the candidate set. Drop
+        // `cross_team` and treat `tt_access_frontend_admin` as the
+        // "is admin / HoD" gate (admin + tt_club_admin + tt_head_dev
+        // all hold it). Result: head coaches see only their assigned
+        // teams via `get_teams_for_coach()`; admin / HoD keep full
+        // visibility.
+        $can_cross_team = current_user_can( 'tt_edit_settings' )
+            || current_user_can( 'tt_access_frontend_admin' );
         echo PlayerSearchPickerComponent::render( [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
             'name'             => 'player_id',
             'label'            => __( 'Which player?', 'talenttrack' ),
             'required'         => true,
             'user_id'          => get_current_user_id(),
-            'is_admin'         => current_user_can( 'tt_edit_settings' ),
+            'is_admin'         => $can_cross_team,
             'selected'         => $current,
             'show_team_filter' => true,
-            'cross_team'       => true,
         ] );
     }
 

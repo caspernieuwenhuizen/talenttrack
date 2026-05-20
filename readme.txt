@@ -4,7 +4,7 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.192
+Stable tag: 3.110.193
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,6 +12,9 @@ Frontend-first, modular youth football talent management system for a single clu
 
 == Changelog ==
 
+= 3.110.193 — New evaluation wizard: team-scope leak fixed — head coaches now see only their assigned teams in the player picker (#809, #810) =
+
+Pilot: *"A headcoach assigned only to JO13 also sees JO14 in the dropdown to select a team."* `PlayerPickerStep` was rendering `PlayerSearchPickerComponent` with `cross_team => true` and a narrow `is_admin` check (`tt_edit_settings` only). The component's existing cascading team→player UX (`show_team_filter => true`) was being overridden by `cross_team`, which short-circuits the team filter and surfaces every player in the club. **Fix**: drop `cross_team` and broaden the `is_admin` gate to include `tt_access_frontend_admin` — that cap is held by administrator + tt_club_admin + tt_head_dev but NOT tt_coach, so it cleanly distinguishes "should see all teams" from "should see own teams". Head coaches now see only the teams they're assigned via `QueryHelpers::get_teams_for_coach()` (head_coach_id OR active team-scope role assignment). Admin / Club Admin / HoD keep full cross-team visibility. **The cascading team→player picker was already there** — the team dropdown filters the player list reactively. Closing #810 alongside #809.
 = 3.110.192 — Lookup-translation leak sweep: PDP print page renders goal status / priority / attendance status in the site language; new CI lint blocks future raw-echo regressions (#804) =
 
 Pilot: *"there are still surfacing english texts even though it should be in site language. for example the print page of the POP file. status of goal is in English as well as the priority value. What is the best way to ensure these and all other exceptions on the standard are all caught and translated using the lookup value tables?"* Root cause: ~30 sites echo `tt_lookups`-backed values directly (`echo esc_html( $row->status )`, `echo $g->priority`, `ucfirst( $row->name )`) bypassing `LookupTranslator::name()` — the helper that reads `tt_translations` for the user's locale. The Dutch translation is never consulted; the English seed name renders. **Pilot's main complaint was the PDP print page** which had 5 such sites. **Two-track fix.** **Track 1 — PdpPrintRouter sweep**: route the 5 sites through `LookupTranslator::byTypeAndName( <type>, <name> )` (modern path, reads `tt_translations` first, falls back to gettext) for goal priority, goal status, attendance status. PDP file status + verdict decision aren't lookup-backed (enums), so they get local switch+`__()` helpers (`pdpFileStatusLabel` / `pdpVerdictDecisionLabel`). **Track 2 — new CI lint at `.github/workflows/lookup-translation-lint.yml`**: greps every `src/**/*.php` on PR + push-to-main for risky patterns, fails the PR if a new occurrence appears outside the CSV / JSON exporter allow-list. Without this lint, the sweep rots within ~10 ships. **Bigger sweep across PDF exporters + ~23 view files lands as follow-up ships** once the lint surfaces them on the next PR. **Deepest architectural fix** (`LookupTranslator` into the repository / SELECT layer) is tracked under #806 with the new `tech-debt` label — pursued when there's appetite. **CSV / JSON exporters intentionally allow-listed** per pilot directive (machine-readable English is by design). After this ship, opening the PDP print page on a Dutch install renders every status / priority / decision in Dutch.
