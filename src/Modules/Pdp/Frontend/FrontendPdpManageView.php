@@ -417,19 +417,29 @@ class FrontendPdpManageView extends FrontendViewBase {
         echo '<th>' . esc_html__( 'Acks', 'talenttrack' ) . '</th>';
         echo '<th></th>';
         echo '</tr></thead><tbody>';
+        // v3.110.191 — pass today + full list into derivedConvStatus()
+        // so it can compute 'to_be_planned' / 'future'.
+        $today = gmdate( 'Y-m-d' );
         foreach ( $convs as $c ) {
             $url = add_query_arg( [ 'tt_view' => 'pdp', 'id' => (int) $file->id, 'conv' => (int) $c->id ], $base_url );
-            $derived = self::derivedConvStatus( $c );
-            $badge_class = [
-                'scheduled'  => 'tt-status-scheduled',
-                'held'       => 'tt-status-in-progress',
-                'signed_off' => 'tt-status-completed',
-            ][ $derived ];
-            $badge_label = [
-                'scheduled'  => __( 'Scheduled', 'talenttrack' ),
-                'held'       => __( 'Held', 'talenttrack' ),
-                'signed_off' => __( 'Signed off', 'talenttrack' ),
-            ][ $derived ];
+            $derived = self::derivedConvStatus( $c, $convs, $today );
+            $badge_class_map = [
+                'to_be_planned' => 'tt-status-to-be-planned',
+                'scheduled'     => 'tt-status-scheduled',
+                'held'          => 'tt-status-in-progress',
+                'signed_off'    => 'tt-status-completed',
+                'future'        => 'tt-status-future',
+            ];
+            $badge_class = $badge_class_map[ $derived ] ?? 'tt-status-future';
+            $badge_label_map = [
+                'to_be_planned' => __( 'To be planned', 'talenttrack' ),
+                'scheduled'     => __( 'Scheduled', 'talenttrack' ),
+                'held'          => __( 'Held', 'talenttrack' ),
+                'signed_off'    => __( 'Signed off', 'talenttrack' ),
+                /* translators: state label for a PDP meeting that's further out in the cycle and not yet actionable */
+                'future'        => __( '—', 'talenttrack' ),
+            ];
+            $badge_label = $badge_label_map[ $derived ] ?? '—';
             echo '<tr>';
             echo '<td>' . (int) $c->sequence . '</td>';
             echo '<td>' . esc_html( self::templateLabel( (string) $c->template_key ) ) . '</td>';
@@ -1107,14 +1117,64 @@ class FrontendPdpManageView extends FrontendViewBase {
     }
 
     /**
-     * #0077 M9 — derive a per-conversation status enum from the dates
-     * already on the row. No schema change: coach_signoff_at set →
-     * 'signed_off'; conducted_at set → 'held'; otherwise 'scheduled'.
+     * v3.110.191 — derive a per-conversation status WITH CONTEXT (the
+     * file's full conversation list + today's date). Previously
+     * (#0077 M9) status was a row-local function returning 'scheduled'
+     * for every un-conducted row — flat, no signal about which meeting
+     * the coach should be acting on now.
+     *
+     * New states (in evaluation order):
+     *   - 'signed_off'    — coach_signoff_at set
+     *   - 'held'          — conducted_at set
+     *   - 'scheduled'     — scheduled_at set (on the calendar)
+     *   - 'to_be_planned' — exactly one row at a time: the next
+     *                       un-actioned conversation (lowest sequence
+     *                       among rows missing scheduled_at) AND
+     *                       either the previous row is conducted OR
+     *                       this row's planning_window_start has
+     *                       passed (today >= window start). Block 1
+     *                       is always open (no previous row).
+     *   - 'future'        — any other un-planned conversation further
+     *                       out in the cycle. Rendered muted so the
+     *                       coach focuses on the actionable row.
+     *
+     * @param list<object> $all_convs file's conversations, ordered by
+     *                                sequence ASC (the SQL ORDER BY does this).
+     * @param string $today           'YYYY-MM-DD' for the "block start
+     *                                has passed" comparison.
      */
-    private static function derivedConvStatus( object $conv ): string {
+    private static function derivedConvStatus( object $conv, array $all_convs, string $today ): string {
         if ( ! empty( $conv->coach_signoff_at ) ) return 'signed_off';
         if ( ! empty( $conv->conducted_at ) )     return 'held';
-        return 'scheduled';
+        if ( ! empty( $conv->scheduled_at ) )     return 'scheduled';
+
+        $current_seq = (int) $conv->sequence;
+        $next_to_plan_seq = null;
+        foreach ( $all_convs as $c ) {
+            if ( ! empty( $c->scheduled_at ) ) continue;
+            if ( ! empty( $c->conducted_at ) ) continue;
+            $seq = (int) $c->sequence;
+            if ( $next_to_plan_seq === null || $seq < $next_to_plan_seq ) {
+                $next_to_plan_seq = $seq;
+            }
+        }
+        if ( $next_to_plan_seq === null || $current_seq !== $next_to_plan_seq ) {
+            return 'future';
+        }
+
+        $prev_done = false;
+        foreach ( $all_convs as $c ) {
+            if ( (int) $c->sequence === $current_seq - 1 && ! empty( $c->conducted_at ) ) {
+                $prev_done = true;
+                break;
+            }
+        }
+        $window_open = ! empty( $conv->planning_window_start )
+                       && (string) $conv->planning_window_start <= $today;
+        if ( $current_seq === 1 || $prev_done || $window_open ) {
+            return 'to_be_planned';
+        }
+        return 'future';
     }
 
     private static function toDatetimeLocal( $value ): string {

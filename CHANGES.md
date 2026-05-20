@@ -1,67 +1,46 @@
-# TalentTrack v3.110.203 — Lookup editor switches to a mobile-collapsible master-detail layout (closes #830)
+# TalentTrack v3.110.204 — PDP cycle blocks configurable per season + meeting status "To be planned" / "Future" (closes #814)
 
-## Why
+## Pilot report
 
-Before this release, the Configuration → Lookups editor for a single category rendered linearly:
+Two combined asks from the 2026-05-20 pilot. They ship together because (B) keys off the block dates defined in (A).
 
-1. Table of rows at the top.
-2. Add/Edit form stacked underneath.
-3. Editing a row reloaded the page with `?edit=N` and scrolled the form into view.
+**(A) Configurable cycle blocks per season** — *"PDP Planning, the blocks/cycles should be configurable so there should be a configuration item to organize this... the blocks chosen (2 or 3 or 4) by dates should be shown visibly on a year timeline as blocks and there should be a message if there is any overlap (unwanted) or dates not assigned to a block (unwanted). the blocks should also not pass season boundaries."*
 
-On a category with ~5+ rows plus the six-locale translation block (which expands to ~12 inputs per row when `show_desc=true`), the form sat 1.5–2 screens down. An academy operator had to scroll to discover the editor existed, then scroll up to confirm a save took effect, then scroll back down to edit the next row. Pilot report (2026-05-20): *"the form is too far down to be useful when I'm working through a dozen rows."*
+**(B) Meeting status** — *"meeting should have status to be planned until the coach actually confirms that they are planned. Only the next meeting should have the to be planned status, meetings after that should have no status yet. Once the first meeting is done or the start date of the block in which the next meeting falls has passed, the status should go to to be planned."*
 
-## What changed
+## What's in this release
 
-`FrontendConfigurationView::renderLookupCategoryEditor()` is rewritten as a two-pane layout:
+The data-layer scaffolding (`tt_pdp_blocks` migration 0107, `PdpBlocksRepository`, `PdpBlocksRestController`, the `frontend-pdp-blocks.js` / `.css` assets, and the `renderPdpBlocksForm()` admin form body) landed earlier alongside v3.110.197 (#802). This release wires it up end-to-end and ships (B) on top.
 
-- **Left rail (`.tt-lookup-md-rail`)**: lists every row. Drag-handle, optional colour swatch, name, sort order, delete pill. Selected row highlighted. "+ Add new" button sticky at the top of the rail.
-- **Right pane (`.tt-lookup-md-pane`)**: the edit-or-add form. Same fields as before (name, sort_order, optional description, optional pill colour, per-locale translations block). Save / Cancel pinned to the bottom of the pane via `FormSaveButton::render()` with a `cancel_url` per CLAUDE.md § 6.
+### (A) integration
 
-Layout breakpoint: 768px. Above → two-column grid (`minmax(0, 2fr) minmax(0, 3fr)`). Below → stacked. On mobile a row tap reveals the pane and hides the rail; a `← Back to list` pill in the pane header returns to the rail. `?edit=N` deep-links also open the pane on initial load.
+- `PdpModule::boot()` registers `PdpBlocksRestController::init()`.
+- `PdpConversationsRepository::createCycle()` takes a new optional `int $season_id = 0`. When the configured block count matches `cycle_size`, conversations seed from the configured block dates via a new `createCycleFromBlocks()` helper:
+  - `scheduled_at` = block midpoint
+  - `planning_window_start` / `planning_window_end` = block start / end verbatim
+  - Otherwise falls through to the legacy even-divide.
+- `PdpFilesRestController` + `SeasonCarryover` pass `season_id` on cycle creation.
+- `FrontendConfigurationView` adds the `pdp-blocks` sub-route: breadcrumb label, dispatch, tile entry on the config grid, plus the `renderPdpBlocksForm()` body it links to. New `assets/icons/calendar.svg` (Lucide-style outline, `stroke="currentColor"`) for the tile.
 
-## Row click = in-place form populate, no page reload
+### (B) integration
 
-Each rail row carries its full payload as `data-row-*` attributes:
-
-- `data-row-name`, `data-row-sort`, `data-row-desc`, `data-row-color`, `data-row-locked`
-- `data-row-tx` — JSON blob of every translation (`locale → field → value`) for that row.
-
-A small JS handler reads those attributes on click and writes them into the form's inputs by name selector + the existing `[data-tt-tx-locale][data-tt-tx-field]` per-locale selectors. The URL is updated via `history.replaceState` so a refresh keeps the selected row, but there's no full navigation.
-
-## Translations bulk-load
-
-To make in-place populate fast and keep the page render cheap, a new private helper `loadTranslationsForLookupIds()` does **one** `SELECT entity_id, field, locale, value FROM tt_translations WHERE entity_type='lookup' AND entity_id IN (…)` per page render, regardless of how many rows are in the rail. The result is keyed `id → locale → field → value` and shared between the server-side render path (currently-editing row) and the JSON blob baked into the rail rows.
-
-This replaces N+1 calls to `TranslationsRepository::allFor()` (one per row) that would have made the new layout O(rows × locales) at render time.
-
-## Acceptance ticked
-
-- [x] Two-pane layout on ≥768px, stacked on <768px
-- [x] Row click loads form values in-place (no full page reload)
-- [x] Translation block scrolls inside the right pane (`max-height: 70vh; overflow-y: auto`), not the whole page
-- [x] Drag-reorder (`DragReorder::renderScript`) still works in the rail — same `data-tt-sortable` hook
-- [x] Save/Cancel pinned at the bottom of the right pane via `FormSaveButton::render()` with `cancel_url`
-- [x] All 18 currently-registered categories render correctly (10 original + 8 from v3.110.201) with both `show_desc=true` and `show_color=true` variants
-- [x] No regression on the Translate engine button (still calls `/translations/preview` and fills the per-locale fields)
-
-## What's unchanged
-
-- REST contract (`/lookups/<type>` POST / `/lookups/<type>/<id>` PUT / DELETE).
-- Cap gate (`tt_edit_settings`).
-- Validation, sanitisation, audit logging — all repository-side.
-- The `?edit=N` URL pattern as a deep-link entry point.
-- Drag-reorder endpoint + wp-admin caller (the same `DragReorder::renderScript` wires it up).
+- `FrontendPdpManageView::derivedConvStatus()` is no longer row-local — it takes `(object $conv, array $all_convs, string $today)` and emits a 5-state enum: `signed_off` / `held` / `scheduled` / `to_be_planned` / `future`.
+- `to_be_planned` is granted to exactly one row at a time: the lowest-`sequence` un-actioned conversation, gated on either `sequence === 1` OR previous row conducted OR `planning_window_start <= today`. The rest get `future` (rendered muted, dashed border).
+- Two new badge classes in `assets/css/public.css`: `.tt-status-to-be-planned` (amber, white) for the actionable row, `.tt-status-future` (transparent, muted, dashed) for the silent rest.
 
 ## How to test
 
-1. Open Configuration → Lookups → any category (try *Evaluation types* — 6 rows × 6 locales × 2 fields is a heavy case).
-2. ≥768px: two-pane layout. Click any row → form on the right populates immediately, no flash, no reload. URL gains `?edit=<id>`. Translation inputs show the row's per-locale values.
-3. Click "+ Add new" → form blanks; URL drops `?edit`; Save button label changes to "Add row".
-4. <768px (DevTools mobile preset, 360px): rail fills the viewport. Tap a row → rail hides, pane fills the viewport with a "← Back to list" pill. Tap Back → rail returns.
-5. Save / Cancel — Save lands; Cancel returns to the base category URL (drops `?edit`). Both pinned at the bottom of the pane footer.
-6. Drag-reorder: grab a row's `⋮⋮` handle, drop in a new position. Server save fires (same path as before); reload preserves the new order.
-7. Delete: click the row's red `×`. Confirmation prompt. On confirm, reload, row gone.
+1. Open `?tt_view=configuration` — verify "PDP cycle blocks" tile appears in the grid (calendar icon).
+2. Open the tile — verify season picker, 2/3/4 radio, date-pair rows, SVG year timeline, validation messages.
+3. Try overlapping blocks — verify error message + Save disabled.
+4. Try gap between blocks — verify warning message.
+5. Try date outside season window — verify error message + Save disabled.
+6. Save valid blocks; reload — verify hydration round-trips.
+7. Create a new PDP file for that season — verify conversation windows match the configured blocks (not even-divide).
+8. Switch to legacy academy with no blocks configured — verify even-divide still works.
+9. Open a PDP detail page with mixed conversation states — verify exactly one "To be planned" badge (or zero if all are held/scheduled), rest are "—" with dashed border.
+10. Mark first conversation as conducted — verify second conversation flips to "To be planned".
 
-## Effort
+## Player-centricity
 
-~120 lines of PHP delta, ~110 lines of inline CSS, ~80 lines of JS for the row-click / blank-form / mobile pane-toggle handlers. One new private helper. Single file touched (`FrontendConfigurationView.php`).
+Helps answer *"When is this player's next development conversation, and is it on the calendar?"* — the coach now sees at a glance which single meeting needs scheduling next instead of a flat row of "Scheduled" badges.

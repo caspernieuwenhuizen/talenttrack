@@ -44,6 +44,7 @@ class FrontendConfigurationView extends FrontendViewBase {
                 'branding'    => __( 'Branding', 'talenttrack' ),
                 'theme'       => __( 'Theme & fonts', 'talenttrack' ),
                 'rating'      => __( 'Rating scale', 'talenttrack' ),
+                'pdp-blocks'  => __( 'PDP cycle blocks', 'talenttrack' ),
             ];
             $current_sub = $sub_labels[ $sub ] ?? ucfirst( str_replace( '_', ' ', $sub ) );
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
@@ -70,6 +71,12 @@ class FrontendConfigurationView extends FrontendViewBase {
                 self::renderHeader( __( 'Rating scale', 'talenttrack' ) );
                 self::renderSubBackLink();
                 self::renderRatingForm();
+                return;
+            case 'pdp-blocks':
+                // v3.110.191 — academy-configurable PDP cycle blocks.
+                self::renderHeader( __( 'PDP cycle blocks', 'talenttrack' ) );
+                self::renderSubBackLink();
+                self::renderPdpBlocksForm();
                 return;
             case 'menus':
                 self::renderHeader( __( 'wp-admin menus', 'talenttrack' ) );
@@ -858,6 +865,7 @@ class FrontendConfigurationView extends FrontendViewBase {
             'theme'     => [ __( 'Theme & fonts', 'talenttrack' ), __( 'Theme inheritance, display + body fonts and accent colours.', 'talenttrack' ), 'settings' ],
             'lookups'   => [ __( 'Lookups', 'talenttrack' ),       __( 'Activity types, positions, age groups, goal statuses, evaluation types — every dropdown vocabulary in one place.', 'talenttrack' ), 'categories' ],
             'rating'    => [ __( 'Rating scale', 'talenttrack' ),  __( 'Min, max and step for evaluation ratings.', 'talenttrack' ), 'weights' ],
+            'pdp-blocks'=> [ __( 'PDP cycle blocks', 'talenttrack' ), __( 'Date ranges for each block in a PDP cycle, per season. Configure 2, 3 or 4 blocks with date pairs validated against the season window.', 'talenttrack' ), 'calendar' ],
             'menus'     => [ __( 'wp-admin menus', 'talenttrack' ), __( 'Show or hide the legacy wp-admin menu entries.', 'talenttrack' ), 'gear' ],
         ];
 
@@ -1083,7 +1091,7 @@ class FrontendConfigurationView extends FrontendViewBase {
     }
 
     /**
-     * v3.110.189 — academy-configurable PDP cycle blocks per season.
+     * v3.110.191 — academy-configurable PDP cycle blocks per season.
      * Form scaffolding for `frontend-pdp-blocks.js` to hydrate.
      */
     private static function renderPdpBlocksForm(): void {

@@ -76,7 +76,7 @@ class SeasonCarryover {
                 continue;
             }
 
-            $convs_repo->createCycle( $new_file_id, $cycle_size, (string) $new->start_date, (string) $new->end_date );
+            $convs_repo->createCycle( $new_file_id, $cycle_size, (string) $new->start_date, (string) $new->end_date, (int) $new->id );
             foreach ( $convs_repo->listForFile( $new_file_id ) as $c ) {
                 $writer->onConversationScheduled( (int) $c->id );
             }
