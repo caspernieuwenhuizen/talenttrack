@@ -25,6 +25,25 @@ class MyTeamAttendancePct extends AbstractKpiDataSource {
     private const WINDOW_DAYS = 28;
 
     /**
+     * v3.110.177 (#775) — second source-of-truth constant. The KPI
+     * counts attendance rows in the window; planned / draft / scheduled
+     * / cancelled activities have no business contributing because the
+     * coach hasn't run them (or won't). Both `compute()` and `linkUrl()`
+     * consume this list so the KPI's universe and the destination
+     * filter's universe are guaranteed to match.
+     *
+     * `completed` — the typical case: the session happened, attendance
+     * marked.
+     * `in_progress` — coach has begun marking attendance during the
+     * session itself. Rows already exist and reflect real presence.
+     *
+     * Excluded: `draft`, `scheduled`, `planned` (pre-attendance),
+     * `cancelled` (post-decision to not run). If any of those somehow
+     * has an attendance row attached, the KPI ignores it.
+     */
+    private const ACTIVITY_STATES_COUNTING = [ 'completed', 'in_progress' ];
+
+    /**
      * v3.110.165 (#476) — real implementation. Returns the rolling
      * 4-week present-rate across every attendance row recorded against
      * a player on a team the coach head-coaches.
@@ -44,6 +63,12 @@ class MyTeamAttendancePct extends AbstractKpiDataSource {
      *     the rolling KPI)
      *   - team_id IN (coach's teams) via the players join
      *   - 28-day window (today − 28 days through today, inclusive)
+     *   - v3.110.177 (#775): plan_state IN ('completed', 'in_progress')
+     *     — planned / draft / scheduled / cancelled activities don't
+     *     contribute (even if they somehow have an attendance row
+     *     attached, e.g. a session cancelled after attendance was
+     *     marked). Matches the pilot's mental model: "only activities
+     *     that actually happened count."
      *
      * Empty states:
      *   - Coach has no teams → unavailable (the KPI doesn't apply).
@@ -69,9 +94,10 @@ class MyTeamAttendancePct extends AbstractKpiDataSource {
         [ 'from' => $from, 'to' => $to ] = self::windowDates();
         $start = $from . ' 00:00:00';
         $end   = $to   . ' 23:59:59';
-        $placeholders = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
+        $team_placeholders  = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
+        $state_placeholders = implode( ',', array_fill( 0, count( self::ACTIVITY_STATES_COUNTING ), '%s' ) );
 
-        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared — placeholders built from int array.
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared — placeholders built from constant arrays.
         $row = $wpdb->get_row( $wpdb->prepare(
             "SELECT
                 COUNT(*) AS total,
@@ -80,10 +106,16 @@ class MyTeamAttendancePct extends AbstractKpiDataSource {
               JOIN {$act} act ON act.id = a.activity_id
               JOIN {$pl}  pl  ON pl.id  = a.player_id
              WHERE act.club_id = %d
-               AND pl.team_id IN ({$placeholders})
+               AND pl.team_id IN ({$team_placeholders})
                AND act.session_date >= %s
-               AND act.session_date <= %s",
-            array_merge( [ $club_id ], $team_ids, [ $start, $end ] )
+               AND act.session_date <= %s
+               AND act.plan_state IN ({$state_placeholders})",
+            array_merge(
+                [ $club_id ],
+                $team_ids,
+                [ $start, $end ],
+                self::ACTIVITY_STATES_COUNTING
+            )
         ) );
 
         if ( ! $row || (int) $row->total === 0 ) return KpiValue::unavailable();
@@ -122,8 +154,18 @@ class MyTeamAttendancePct extends AbstractKpiDataSource {
      */
     public function linkUrl( RenderContext $ctx ): string {
         [ 'from' => $from, 'to' => $to ] = self::windowDates();
+        // v3.110.177 (#775) — also carry the plan_state list so the
+        // destination filters to the SAME universe compute() counts
+        // against. The activities REST endpoint accepts a comma-
+        // separated value on `filter[plan_state]`.
         return add_query_arg(
-            [ 'filter' => [ 'date_from' => $from, 'date_to' => $to ] ],
+            [
+                'filter' => [
+                    'date_from'  => $from,
+                    'date_to'    => $to,
+                    'plan_state' => implode( ',', self::ACTIVITY_STATES_COUNTING ),
+                ],
+            ],
             $ctx->viewUrl( $this->linkView() )
         );
     }
