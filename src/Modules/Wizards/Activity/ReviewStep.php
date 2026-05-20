@@ -214,11 +214,11 @@ final class ReviewStep implements WizardStepInterface {
                 'id'         => $activity_id,
                 'action'     => 'edit',
                 'open_guest' => '1',
-            ], \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl() ) ];
+            ], \TT\Shared\Wizards\WizardEntryPoint::currentDashboardUrl() ) ];
         }
         return [ 'redirect_url' => add_query_arg( [
             'tt_view' => 'activities',
-        ], \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl() ) ];
+        ], \TT\Shared\Wizards\WizardEntryPoint::currentDashboardUrl() ) ];
     }
 
     private static function translateLookup( string $type, string $name ): string {

@@ -1,3 +1,91 @@
+# TalentTrack v3.110.182 — Wizard post-submit redirect 404 round 3: `currentDashboardUrl()` helper used by every wizard `submit()` handler (#782 follow-up)
+
+## Pilot report
+
+Chat 2026-05-20, after v3.110.180:
+
+> The new blueprint wizard still leads to a 404. Not sure why
+
+## Why v3.110.180 wasn't enough
+
+v3.110.180 fixed `FrontendWizardView::wizardStepUrl()` — the helper that builds the **step-to-step transition** URL. But it didn't address the wizard's own `submit()` handler, which builds its own `redirect_url` via `WizardEntryPoint::dashboardBaseUrl()` — the same brittle resolution chain v3.110.172 (#766) tried to bypass:
+
+```php
+// In NewTeamBlueprintWizard's ReviewStep::submit():
+return [ 'redirect_url' => add_query_arg(
+    [ 'tt_view' => 'team-blueprints', 'id' => $id ],
+    WizardEntryPoint::dashboardBaseUrl()    // ← still vulnerable
+) ];
+```
+
+So step 1 → step 2 worked after v3.110.180. But step 2's Create button → `submit()` → built a redirect URL via the brittle chain → 404 on the pilot install.
+
+## Same bug class, third repeat
+
+| Ship | What was fixed | What was missed |
+| --- | --- | --- |
+| v3.110.172 | `transitionOrSubmit()` redirect target | The `esc_url_raw` approach turned out to be brittle |
+| v3.110.180 | `wizardStepUrl()` rewritten to `home_url(REQUEST_URI path)` | Wizard `submit()` handlers still used `dashboardBaseUrl()` directly |
+| **v3.110.182** | All wizard `submit()` handlers use new `currentDashboardUrl()` helper | — |
+
+## The fix
+
+New helper `WizardEntryPoint::currentDashboardUrl()`:
+
+```php
+public static function currentDashboardUrl(): string {
+    $path = '/';
+    if ( isset( $_SERVER['REQUEST_URI'] ) ) {
+        $raw   = wp_unslash( (string) $_SERVER['REQUEST_URI'] );
+        $q_pos = strpos( $raw, '?' );
+        $path  = $q_pos === false ? $raw : substr( $raw, 0, $q_pos );
+        if ( $path === '' ) $path = '/';
+    }
+    return home_url( $path );
+}
+```
+
+Same robust pattern as v3.110.180's `wizardStepUrl()`. The wizard is being rendered from a page that by definition hosts the dashboard shortcode (the user just submitted a form on that page), so `home_url(REQUEST_URI path)` is guaranteed to land on a routable URL — `wp_safe_redirect`'s host whitelist passes by construction.
+
+## Files touched
+
+Nine wizard call sites updated across seven wizards:
+
+- `src/Modules/Wizards/TeamBlueprint/ReviewStep.php`
+- `src/Modules/Tournaments/Wizard/ReviewStep.php`
+- `src/Modules/Wizards/Goal/DetailsStep.php`
+- `src/Modules/Wizards/Evaluation/ReviewStep.php` (3 occurrences)
+- `src/Modules/Wizards/Activity/ReviewStep.php` (2 occurrences)
+- `src/Modules/Wizards/Activity/NewActivityWizard.php`
+- `src/Modules/Wizards/MarkAttendance/RateConfirmStep.php` (2 occurrences)
+- `src/Modules/Wizards/Team/ReviewStep.php`
+- `src/Modules/Wizards/Player/ReviewStep.php` (2 occurrences)
+
+Plus the post-submit fallback when a wizard returns no `redirect_url`:
+
+- `src/Shared/Frontend/FrontendWizardView.php` (line 419)
+
+New helper:
+
+- `src/Shared/Wizards/WizardEntryPoint.php` — `currentDashboardUrl()` method added
+
+## Why not change `dashboardBaseUrl()` itself
+
+It has legitimate non-web-request callers (REST controllers building URLs for email links, admin pages building redirect targets, scheduled-job runners) where `$_SERVER['REQUEST_URI']` either doesn't exist or doesn't point at a dashboard-hosting page. Two helpers, clearly separated:
+
+- `dashboardBaseUrl()` — outside-the-request URL building, uses the config + discovery chain
+- `currentDashboardUrl()` — inside-the-request redirects, uses REQUEST_URI path
+
+## Test plan
+
+- [ ] Click "+ New blueprint" → fill Setup → Next → Review → Create → lands on editor at `?tt_view=team-blueprints&id=N`, NOT 404
+- [ ] Click "+ New tournament" → walk all 5 steps → Create → lands on tournament detail
+- [ ] Click "+ New activity" → walk steps → Create → lands on activities list
+- [ ] Other wizards (new-player, new-team, new-goal, new-evaluation, mark-attendance) — submit redirects work
+- [ ] Wizard Cancel + Save-as-draft branches unchanged (still use `dashboardBaseUrl()`); no regression there
+
+---
+
 # TalentTrack v3.110.180 — Wizard step-to-step redirect made robust (closes #782)
 
 ## Pilot report

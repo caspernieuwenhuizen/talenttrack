@@ -90,6 +90,6 @@ final class NewActivityWizard implements WizardInterface, SupportsCancelAsDraft 
         return [ 'redirect_url' => add_query_arg( [
             'tt_view' => 'activities',
             'id'      => $activity_id,
-        ], \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl() ) ];
+        ], \TT\Shared\Wizards\WizardEntryPoint::currentDashboardUrl() ) ];
     }
 }

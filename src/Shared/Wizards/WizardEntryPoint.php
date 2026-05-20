@@ -72,4 +72,45 @@ final class WizardEntryPoint {
             $current ?: home_url( '/' )
         );
     }
+
+    /**
+     * v3.110.182 (#782 follow-up) — robust same-page redirect base URL.
+     *
+     * Use this from wizard `submit()` handlers and post-step redirects
+     * inside a web request, instead of `dashboardBaseUrl()`. The
+     * difference:
+     *
+     *   - `dashboardBaseUrl()` runs a four-stage resolution chain
+     *     (`dashboard_page_id` config → shortcode-page scan →
+     *     REQUEST_URI → `home_url('/')`) that's correct for REST /
+     *     admin / CLI callers but brittle on the pilot's Strato install
+     *     where `dashboard_page_id` config has drifted or the chain
+     *     hands back a URL that doesn't actually host the shortcode.
+     *     The user's wizard 404 on the new-team-blueprint and
+     *     new-tournament wizards (#766 / #782) was that brittleness.
+     *
+     *   - `currentDashboardUrl()` uses `home_url($path)` where `$path`
+     *     is the REQUEST_URI's path portion (no query). By definition
+     *     the path the user is currently on routes — they're already
+     *     rendering a wizard step from that URL. So the redirect base
+     *     is guaranteed to land on the same shortcode page. Falls back
+     *     to `home_url('/')` only when REQUEST_URI is missing (CLI /
+     *     proxy weirdness), which is the same final fallback the
+     *     existing chain ends with.
+     *
+     * The trade-off: this helper requires being called from inside the
+     * web request. `dashboardBaseUrl()` stays the right pick for
+     * contexts without that (REST controller building a URL for an
+     * email link, admin page building a redirect target, etc.).
+     */
+    public static function currentDashboardUrl(): string {
+        $path = '/';
+        if ( isset( $_SERVER['REQUEST_URI'] ) ) {
+            $raw   = wp_unslash( (string) $_SERVER['REQUEST_URI'] );
+            $q_pos = strpos( $raw, '?' );
+            $path  = $q_pos === false ? $raw : substr( $raw, 0, $q_pos );
+            if ( $path === '' ) $path = '/';
+        }
+        return home_url( $path );
+    }
 }

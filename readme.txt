@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.181
+Stable tag: 3.110.182
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.182 — Wizard post-submit redirect 404 (round 3): new `WizardEntryPoint::currentDashboardUrl()` helper using REQUEST_URI path + `home_url()` is now used by every wizard's submit handler — replaces brittle `dashboardBaseUrl()` resolution chain that 404'd the new-blueprint and new-tournament wizards on the pilot install after clicking Create =
+
+Pilot 2026-05-20 follow-up to v3.110.180: *"The new blueprint wizard still leads to a 404."* Diagnosis: v3.110.180 fixed `FrontendWizardView::wizardStepUrl()` (the step-to-step redirect target), but the wizard's *final* `submit()` builds its own `redirect_url` via `WizardEntryPoint::dashboardBaseUrl()` — the SAME brittle helper that started the bug chain at v3.110.172 (#766). So step 1 → step 2 worked (v3.110.180 fix), but step 2 → Create / Editor still hit the same root cause. **The structural fix**: new helper `WizardEntryPoint::currentDashboardUrl()` that uses the same robust pattern as v3.110.180's `wizardStepUrl()` — extract REQUEST_URI's path via `strpos`/`substr` on `?`, wrap with `home_url($path)`. The wizard is being rendered from a page that by definition hosts the dashboard shortcode (the form just rendered on that path), so `home_url(REQUEST_URI path)` is guaranteed to land on a routable URL — `wp_safe_redirect`'s host whitelist passes by construction. **All wizard submit handlers updated to use the new helper**: `TeamBlueprint/ReviewStep.php`, `Tournaments/Wizard/ReviewStep.php`, `Goal/DetailsStep.php`, `Evaluation/ReviewStep.php`, `Activity/ReviewStep.php`, `Activity/NewActivityWizard.php`, `MarkAttendance/RateConfirmStep.php`, `Team/ReviewStep.php`, `Player/ReviewStep.php` — nine call sites across seven wizards. Plus the post-submit fallback in `FrontendWizardView::transitionOrSubmit()` (when a wizard's submit returns no `redirect_url`). **`dashboardBaseUrl()` stays as-is** because it has legitimate non-web-request callers (REST controllers building email URLs, admin pages, etc.) that don't have a populated `$_SERVER['REQUEST_URI']` for the dashboard. The two helpers are now clearly separated: `currentDashboardUrl()` for inside-the-request redirects, `dashboardBaseUrl()` for outside-the-request URL building.
 
 = 3.110.181 — Roll back v3.110.176's WP-role bypass on scouting-visits entry — matrix is now carrying the auth correctly per the Permission Chain Debug diagnostic (closes #783) =
 

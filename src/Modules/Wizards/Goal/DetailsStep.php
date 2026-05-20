@@ -78,6 +78,10 @@ final class DetailsStep implements WizardStepInterface {
             ] );
         }
 
-        return [ 'redirect_url' => add_query_arg( [ 'tt_view' => 'goals', 'id' => $goal_id ], \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl() ) ];
+        // v3.110.182 (#782) — currentDashboardUrl over dashboardBaseUrl
+        // to avoid the post-submit 404 on installs where the dashboard-
+        // page-id config has drifted from the actual shortcode-hosting
+        // page. See WizardEntryPoint::currentDashboardUrl() docblock.
+        return [ 'redirect_url' => add_query_arg( [ 'tt_view' => 'goals', 'id' => $goal_id ], \TT\Shared\Wizards\WizardEntryPoint::currentDashboardUrl() ) ];
     }
 }
