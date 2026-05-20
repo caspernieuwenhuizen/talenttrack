@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.203
+Stable tag: 3.110.205
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.205 — InvitationStatus moves to `tt_lookups` + `tt_translations`: the four invitation status labels (Pending / Accepted / Expired / Revoked) are now operator-editable per academy and translatable per locale through the frontend lookups admin. Stored keys (`pending`, `accepted`, `expired`, `revoked`) stay sacred — they remain `InvitationStatus::*` PHP constants and the `tt_invitations.status` contract is unchanged. `InvitationStatus::label()` now delegates to `LookupTranslator::byTypeAndName()` with a switch-statement fallback for pre-migration installs. New "Invitation statuses" tile on the Lookups admin grid; migration 0110 seeds 4 lookup rows + 20 `tt_translations` rows (4 × 5 locales). First conversion from the #803 audit punch list. (closes #808, #803 partial) =
 
 = 3.110.203 — Configuration → Lookups editor now uses a mobile-collapsible master-detail layout: a left rail lists every row, a right pane holds the edit-or-add form. Above 768px the two render side by side so the form is always visible; below 768px they stack and selecting a row reveals the form with a "← Back to list" pill. Row clicks populate the form in place (no page navigation) — translations for every row are bulk-loaded in one SELECT and baked into the rail as `data-row-*` attributes. Save / Cancel via the shared `FormSaveButton::render()` helper per CLAUDE.md § 6; the footer pins to the bottom of the pane. Drag-reorder, per-locale translate engine, and the row-delete flow are unchanged. (closes #830) =
 

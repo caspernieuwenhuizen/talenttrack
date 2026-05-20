@@ -153,6 +153,11 @@ class FrontendConfigurationView extends FrontendViewBase {
             [ __( 'Potential bands',       'talenttrack' ), __( 'Far below club level … Elite potential. Drives the player potential card.',                  'talenttrack' ), 'potential_bands',            'categories' ],
             [ __( 'Journey event types',   'talenttrack' ), __( 'Trial / signing / promotion / release / graduation. Tags player timeline events.',          'talenttrack' ), 'journey_event_types',        'track' ],
             [ __( 'Competition types',     'talenttrack' ), __( 'Competition categories (league, cup, friendly, tournament, …) used by match pickers.',       'talenttrack' ), 'competition_types',          'methodology' ],
+            // v3.110.205 (#803/#808) — invitation status labels relabel /
+            // translate via the lookup admin instead of the hardcoded
+            // PHP labels they used to ship with. Stored keys
+            // (pending / accepted / expired / revoked) stay code-side.
+            [ __( 'Invitation statuses', 'talenttrack' ), __( 'Pending / accepted / expired / revoked — what the invitations list shows per row.', 'talenttrack' ), 'invitation_statuses', 'invitation' ],
             [ __( 'Rating scale',       'talenttrack' ), __( 'Min, max and step for evaluation ratings.',                         'talenttrack' ), '__rating',        'weights' ],
         ];
 
@@ -212,6 +217,12 @@ class FrontendConfigurationView extends FrontendViewBase {
             'potential_bands'            => [ 'label' => __( 'Potential bands',       'talenttrack' ), 'type' => 'potential_band',            'show_desc' => true,  'show_color' => false ],
             'journey_event_types'        => [ 'label' => __( 'Journey event types',   'talenttrack' ), 'type' => 'journey_event_type',        'show_desc' => true,  'show_color' => false ],
             'competition_types'          => [ 'label' => __( 'Competition types',     'talenttrack' ), 'type' => 'competition_type',          'show_desc' => false, 'show_color' => false ],
+            // v3.110.205 (#803/#808) — invitation statuses moved from
+            // hardcoded PHP labels in `InvitationStatus::label()` into
+            // tt_lookups; seeded by migration 0110. Description off
+            // (status names are self-explanatory); color off (the
+            // invitations list doesn't render colour pills today).
+            'invitation_statuses' => [ 'label' => __( 'Invitation statuses', 'talenttrack' ), 'type' => 'invitation_status', 'show_desc' => false, 'show_color' => false ],
         ];
         if ( ! isset( $registry[ $slug ] ) ) return null;
         $meta = $registry[ $slug ];
