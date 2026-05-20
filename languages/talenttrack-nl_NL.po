@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-05-20T18:58:08+00:00\n"
+"POT-Creation-Date: 2026-05-20T19:10:13+00:00\n"
 "PO-Revision-Date: 2026-04-25 10:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -603,7 +603,7 @@ msgstr "Eerste beeld opbouwen"
 #: src/Infrastructure/Query/LabelTranslator.php:23
 #: src/Modules/Configuration/Admin/MigrationsPage.php:122
 #: src/Modules/Invitations/InvitationStatus.php:23
-#: src/Shared/Frontend/FrontendWizardView.php:521
+#: src/Shared/Frontend/FrontendWizardView.php:531
 msgid "Pending"
 msgstr "In behandeling"
 
@@ -626,7 +626,7 @@ msgstr "In uitvoering"
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:215
 #: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:186
 #: src/Shared/Frontend/FrontendWizardsAdminView.php:156
-#: src/Shared/Frontend/FrontendWizardView.php:519
+#: src/Shared/Frontend/FrontendWizardView.php:529
 msgid "Completed"
 msgstr "Voltooid"
 
@@ -2836,7 +2836,7 @@ msgstr "Evaluatie-dekking"
 #: src/Modules/Authorization/Admin/MatrixPage.php:558
 #: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:98
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:297
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:111
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:116
 #: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:60
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:282
 #: src/Modules/Wizards/Evaluation/ActivityPickerStep.php:33
@@ -5006,7 +5006,7 @@ msgstr "Wijzigingen toepassen"
 #: src/Shared/Frontend/FrontendEvalCategoriesView.php:194
 #: src/Shared/Frontend/FrontendMailComposeView.php:131
 #: src/Shared/Frontend/FrontendViewBase.php:82
-#: src/Shared/Frontend/FrontendWizardView.php:300
+#: src/Shared/Frontend/FrontendWizardView.php:310
 msgid "Cancel"
 msgstr "Annuleren"
 
@@ -7680,7 +7680,7 @@ msgid "Resume setup wizard"
 msgstr "Installatiewizard hervatten"
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:469
-#: src/Shared/Frontend/FrontendWizardView.php:395
+#: src/Shared/Frontend/FrontendWizardView.php:405
 msgid "Start over"
 msgstr "Opnieuw beginnen"
 
@@ -9810,13 +9810,13 @@ msgid "Name and save"
 msgstr "Geef een naam en sla op"
 
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:158
-#: src/Shared/Frontend/FrontendWizardView.php:316
+#: src/Shared/Frontend/FrontendWizardView.php:326
 msgid "Next"
 msgstr "Volgende"
 
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:159
 #: src/Shared/Frontend/Components/BackLabelResolver.php:72
-#: src/Shared/Frontend/FrontendWizardView.php:308
+#: src/Shared/Frontend/FrontendWizardView.php:318
 msgid "Back"
 msgstr "Terug"
 
@@ -9825,7 +9825,7 @@ msgid "Save widget"
 msgstr "Widget opslaan"
 
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:161
-#: src/Shared/Frontend/FrontendWizardView.php:575
+#: src/Shared/Frontend/FrontendWizardView.php:585
 msgid "Saving…"
 msgstr "Opslaan…"
 
@@ -13976,7 +13976,7 @@ msgstr ""
 "hebben geen limiet."
 
 #: src/Modules/License/Admin/AccountPage.php:740
-#: src/Shared/Frontend/FrontendWizardView.php:520
+#: src/Shared/Frontend/FrontendWizardView.php:530
 msgid "Current"
 msgstr "Huidig"
 
@@ -15749,7 +15749,7 @@ msgstr "Datumnotatie"
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:196
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:244
 #: src/Shared/Frontend/FrontendDesktopPreferredBanner.php:37
-#: src/Shared/Frontend/FrontendWizardView.php:393
+#: src/Shared/Frontend/FrontendWizardView.php:403
 msgid "Continue"
 msgstr "Doorgaan"
 
@@ -17576,7 +17576,7 @@ msgstr "Morgen"
 
 #: src/Modules/PersonaDashboard/Repositories/UpcomingActivityRepository.php:96
 #: src/Modules/PersonaDashboard/Widgets/InfoCardWidget.php:67
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:79
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:84
 #: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:55
 #: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:129
 msgid "Up next"
@@ -17969,11 +17969,11 @@ msgstr ""
 "rendert zoals een losse KPI-kaart — hoofdgetal, trend, sparkline. Gebruik "
 "dit voor de HoD-top-strip \"seizoen in een oogopslag\"-plaatsing."
 
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:51
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:50
 msgid "Mark attendance hero"
 msgstr "Aanwezigheid-blok"
 
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:54
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:53
 msgid ""
 "Head-coach landing card: reads the next un-processed activity on a team the "
 "coach owns, surfaces type / team / time, and exposes a one-tap CTA into the "
@@ -17988,21 +17988,21 @@ msgstr ""
 "activiteit\"-CTA naar de activiteit-picker van de wizard. Leest aankomende "
 "activiteiten via UpcomingActivityRepository."
 
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:80
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:85
 #: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:56
 msgid "No upcoming activity"
 msgstr "Geen geplande activiteit"
 
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:81
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:86
 msgid "Schedule a training or match to populate this card."
 msgstr "Plan een training of wedstrijd om deze kaart te vullen."
 
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:88
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:123
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:93
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:128
 msgid "Select completed activity to evaluate"
 msgstr "Kies een afgeronde activiteit om te beoordelen"
 
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:136
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:141
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:73
 msgid "Edit activity"
 msgstr "Activiteit bewerken"
@@ -23015,7 +23015,7 @@ msgid "Rated"
 msgstr "Beoordeeld"
 
 #: src/Modules/Wizards/Evaluation/RateActorsStep.php:120
-#: src/Shared/Frontend/FrontendWizardView.php:521
+#: src/Shared/Frontend/FrontendWizardView.php:531
 msgid "Skipped"
 msgstr "Overgeslagen"
 
@@ -25525,7 +25525,7 @@ msgstr "Geen resultaten."
 #: src/Shared/Frontend/DashboardShortcode.php:66
 #: src/Shared/Frontend/DashboardShortcode.php:1141
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:399
-#: src/Shared/Frontend/FrontendWizardView.php:317
+#: src/Shared/Frontend/FrontendWizardView.php:327
 msgid "Loading…"
 msgstr "Bezig met laden…"
 
@@ -29365,11 +29365,11 @@ msgid ""
 msgstr ""
 "Je hebt geen toegang tot deze wizard, of de wizard staat momenteel uit."
 
-#: src/Shared/Frontend/FrontendWizardView.php:102
+#: src/Shared/Frontend/FrontendWizardView.php:112
 msgid "Wizard misconfigured (no steps)."
 msgstr "Wizard onjuist geconfigureerd (geen stappen)."
 
-#: src/Shared/Frontend/FrontendWizardView.php:122
+#: src/Shared/Frontend/FrontendWizardView.php:132
 msgid ""
 "Your session expired while this step was open. Please reload the page and "
 "try again — your edits on this step will need to be re-entered."
@@ -29378,46 +29378,46 @@ msgstr ""
 "probeer opnieuw — wijzigingen op deze stap moeten opnieuw worden ingevuld."
 
 # v3.61.0 — #0061 round 2 (new-activity wizard + matrix grouping)
-#: src/Shared/Frontend/FrontendWizardView.php:302
+#: src/Shared/Frontend/FrontendWizardView.php:312
 msgid "Save as draft"
 msgstr "Opslaan als concept"
 
-#: src/Shared/Frontend/FrontendWizardView.php:316
+#: src/Shared/Frontend/FrontendWizardView.php:326
 msgid "Create"
 msgstr "Aanmaken"
 
-#: src/Shared/Frontend/FrontendWizardView.php:317
+#: src/Shared/Frontend/FrontendWizardView.php:327
 msgid "Creating…"
 msgstr "Aanmaken…"
 
 #. translators: %s: human-readable age e.g. "2 days".
-#: src/Shared/Frontend/FrontendWizardView.php:389
+#: src/Shared/Frontend/FrontendWizardView.php:399
 #, php-format
 msgid "You started this %s ago. Continue where you left off, or start over?"
 msgstr ""
 "Je bent %s geleden begonnen. Doorgaan waar je gebleven was, of opnieuw "
 "beginnen?"
 
-#: src/Shared/Frontend/FrontendWizardView.php:487
+#: src/Shared/Frontend/FrontendWizardView.php:497
 msgid "Wizard steps"
 msgstr "Wizard-stappen"
 
 #. translators: 1: step number, 2: step label, 3: state (Completed / Current / Pending / Skipped)
-#: src/Shared/Frontend/FrontendWizardView.php:516
+#: src/Shared/Frontend/FrontendWizardView.php:526
 #, php-format
 msgid "Step %1$d: %2$s (%3$s)"
 msgstr "Stap %1$d: %2$s (%3$s)"
 
 # #0077 polish wave 1 — new strings
-#: src/Shared/Frontend/FrontendWizardView.php:535
+#: src/Shared/Frontend/FrontendWizardView.php:545
 msgid "Help for this step"
 msgstr "Hulp bij deze stap"
 
-#: src/Shared/Frontend/FrontendWizardView.php:576
+#: src/Shared/Frontend/FrontendWizardView.php:586
 msgid "Saved · "
 msgstr "Opgeslagen · "
 
-#: src/Shared/Frontend/FrontendWizardView.php:577
+#: src/Shared/Frontend/FrontendWizardView.php:587
 msgid "Save failed"
 msgstr "Opslaan mislukt"
 
