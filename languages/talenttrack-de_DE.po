@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-05-20T17:21:50+00:00\n"
+"POT-Creation-Date: 2026-05-20T17:34:17+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -137,7 +137,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendConfigurationView.php:780
 #: src/Shared/Frontend/FrontendEvaluationsView.php:153
 #: src/Shared/Frontend/FrontendEvaluationsView.php:167
-#: src/Shared/Frontend/FrontendEvaluationsView.php:328
+#: src/Shared/Frontend/FrontendEvaluationsView.php:327
 #: src/Shared/Frontend/FrontendGoalsManageView.php:153
 #: src/Shared/Frontend/FrontendGoalsManageView.php:248
 #: src/Shared/Frontend/FrontendGoalsManageView.php:273
@@ -169,7 +169,7 @@ msgstr "Spieler"
 #: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:95
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:154
 #: src/Shared/Frontend/FrontendEvaluationsView.php:155
-#: src/Shared/Frontend/FrontendEvaluationsView.php:341
+#: src/Shared/Frontend/FrontendEvaluationsView.php:340
 #: src/Shared/Frontend/FrontendPeopleManageView.php:266
 #: src/Shared/Frontend/FrontendReportDetailView.php:178
 #: src/Shared/Frontend/FrontendRolesView.php:67
@@ -1222,41 +1222,41 @@ msgstr ""
 msgid "The category could not be deleted."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:339
+#: src/Infrastructure/REST/EvaluationsRestController.php:347
 msgid "Evaluation not found."
 msgstr ""
 
 # ===== v3.7.0 — #0019 Sprint 1 (session 1): REST expansion + flash scaffold =====
-#: src/Infrastructure/REST/EvaluationsRestController.php:349
+#: src/Infrastructure/REST/EvaluationsRestController.php:357
 msgid "Player and date are required."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:353
+#: src/Infrastructure/REST/EvaluationsRestController.php:361
 msgid "You can only evaluate players in your team."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:364
+#: src/Infrastructure/REST/EvaluationsRestController.php:372
 msgid "The evaluation could not be created."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:378
+#: src/Infrastructure/REST/EvaluationsRestController.php:386
 msgid "The evaluation was saved but some ratings failed."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:396
-#: src/Infrastructure/REST/EvaluationsRestController.php:468
+#: src/Infrastructure/REST/EvaluationsRestController.php:404
+#: src/Infrastructure/REST/EvaluationsRestController.php:476
 msgid "Invalid evaluation id."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:406
+#: src/Infrastructure/REST/EvaluationsRestController.php:414
 msgid "The evaluation could not be updated."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:448
+#: src/Infrastructure/REST/EvaluationsRestController.php:456
 msgid "The evaluation was updated but some ratings failed."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:485
+#: src/Infrastructure/REST/EvaluationsRestController.php:493
 msgid "The evaluation could not be archived."
 msgstr ""
 
@@ -1920,7 +1920,7 @@ msgstr "Titel"
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:95
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:147
 #: src/Shared/Frontend/FrontendEvaluationsView.php:172
-#: src/Shared/Frontend/FrontendEvaluationsView.php:325
+#: src/Shared/Frontend/FrontendEvaluationsView.php:324
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:58
 #: src/Shared/Frontend/FrontendPeopleManageView.php:100
 #: src/Shared/Frontend/FrontendPeopleManageView.php:106
@@ -2111,7 +2111,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendComparisonView.php:339
 #: src/Shared/Frontend/FrontendEvaluationsView.php:154
 #: src/Shared/Frontend/FrontendEvaluationsView.php:162
-#: src/Shared/Frontend/FrontendEvaluationsView.php:334
+#: src/Shared/Frontend/FrontendEvaluationsView.php:333
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:285
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:293
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:322
@@ -2326,7 +2326,7 @@ msgstr "— Alle —"
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:925
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:985
 #: src/Shared/Frontend/FrontendEvaluationsView.php:157
-#: src/Shared/Frontend/FrontendEvaluationsView.php:418
+#: src/Shared/Frontend/FrontendEvaluationsView.php:417
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:68
 #: src/Shared/Frontend/FrontendPlayersCsvImportView.php:119
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:180
@@ -8183,7 +8183,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:232
 #: src/Shared/Frontend/CoachDashboardView.php:196
 #: src/Shared/Frontend/CoachForms.php:190
-#: src/Shared/Frontend/FrontendEvaluationsView.php:354
+#: src/Shared/Frontend/FrontendEvaluationsView.php:353
 msgid "Opponent"
 msgstr "Gegner"
 
@@ -11657,7 +11657,7 @@ msgstr ""
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:290
 #: src/Shared/Frontend/CoachDashboardView.php:206
 #: src/Shared/Frontend/CoachForms.php:200
-#: src/Shared/Frontend/FrontendEvaluationsView.php:358
+#: src/Shared/Frontend/FrontendEvaluationsView.php:357
 msgid "Result"
 msgstr "Ergebnis"
 
@@ -11676,7 +11676,7 @@ msgstr "Auswärts"
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:406
 #: src/Shared/Frontend/CoachDashboardView.php:208
 #: src/Shared/Frontend/CoachForms.php:202
-#: src/Shared/Frontend/FrontendEvaluationsView.php:366
+#: src/Shared/Frontend/FrontendEvaluationsView.php:365
 msgid "Minutes Played"
 msgstr ""
 
@@ -11685,7 +11685,7 @@ msgstr ""
 #: src/Modules/Reports/AudienceDefaults.php:106
 #: src/Shared/Frontend/CoachDashboardView.php:210
 #: src/Shared/Frontend/CoachForms.php:204
-#: src/Shared/Frontend/FrontendEvaluationsView.php:373
+#: src/Shared/Frontend/FrontendEvaluationsView.php:372
 #: src/Shared/Frontend/PlayerDashboardView.php:91
 msgid "Ratings"
 msgstr ""
@@ -11759,7 +11759,7 @@ msgstr ""
 #: src/Modules/Stats/Admin/PlayerComparisonPage.php:371
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:350
 #: src/Shared/Frontend/FrontendComparisonView.php:613
-#: src/Shared/Frontend/FrontendEvaluationsView.php:379
+#: src/Shared/Frontend/FrontendEvaluationsView.php:378
 msgid "Category"
 msgstr "Kategorie"
 
@@ -11767,7 +11767,7 @@ msgstr "Kategorie"
 #: src/Modules/PersonaDashboard/Widgets/TeamOverviewGridWidget.php:143
 #: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:18
 #: src/Shared/Frontend/Components/RatingInputComponent.php:35
-#: src/Shared/Frontend/FrontendEvaluationsView.php:380
+#: src/Shared/Frontend/FrontendEvaluationsView.php:379
 msgid "Rating"
 msgstr "Bewertung"
 
@@ -25109,7 +25109,7 @@ msgstr ""
 msgid "Archive this evaluation? It will be hidden but the data is preserved."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendEvaluationsView.php:375
+#: src/Shared/Frontend/FrontendEvaluationsView.php:374
 msgid "No ratings recorded for this evaluation."
 msgstr ""
 
