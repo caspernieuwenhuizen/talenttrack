@@ -433,32 +433,47 @@ class FrontendWizardView extends FrontendViewBase {
     /**
      * Build the post-step redirect URL.
      *
-     * v3.110.172 (#766) — pilot reported the Team Blueprint wizard's
-     * step-1 → step-2 transition returning 404. Trace points at
-     * `dashboardBaseUrl()` resolving to a URL that doesn't route on the
-     * install (typically `dashboard_page_id` config drift: page deleted
-     * / moved to draft, or the shortcode-discovery scan returning a
-     * stale id).
+     * v3.110.172 (#766) — initial fix used REQUEST_URI through esc_url_raw
+     * + remove_query_arg, returning a relative URL. Insufficient: pilot
+     * (#782) reported the tournament wizard's step-1 → step-2 transition
+     * still 404'ing, and the team-blueprint wizard wasn't truly fixed
+     * either on this install.
      *
-     * The form just POSTed to the current URL — by definition that URL
-     * resolves. Use it as the base for the redirect, strip routing
-     * args, re-attach the wizard's routing args. The
-     * `dashboardBaseUrl()` path stays as the fallback when REQUEST_URI
-     * isn't available (CLI runs, weird proxy configs).
+     * v3.110.180 (#782) — robust rewrite. Three changes vs. the v3.110.172
+     * shape:
+     *
+     *   1. Extract the REQUEST_URI path WITHOUT `esc_url_raw`. The URL
+     *      validation step was suspected of mangling content on the
+     *      pilot's setup (proxy / SSL termination / atypical server
+     *      configuration). Manual `strpos`/`substr` on the `?` separator
+     *      is unambiguous.
+     *
+     *   2. Wrap with `home_url($path)` so the result is a fully-qualified
+     *      URL on the site's canonical host + scheme. `wp_safe_redirect`
+     *      runs targets through `wp_validate_redirect`'s host whitelist;
+     *      a relative URL or one on a slightly-different host (e.g.
+     *      proxy SSL termination producing a scheme mismatch) silently
+     *      falls back to `admin_url()`, which on the pilot install
+     *      reads as "page not found" for non-admin users.
+     *
+     *   3. Drop the `dashboardBaseUrl()` config-chain fallback on the
+     *      happy path. The form just POSTed to the current URL, so by
+     *      definition REQUEST_URI is a path that routes; the dashboard-
+     *      config chain is only relevant when there's no REQUEST_URI
+     *      at all (CLI runs / unusual proxy configs).
      */
     private static function wizardStepUrl( string $slug ): string {
-        $current = isset( $_SERVER['REQUEST_URI'] )
-            ? esc_url_raw( wp_unslash( (string) $_SERVER['REQUEST_URI'] ) )
-            : '';
-        if ( $current !== '' ) {
-            $base = remove_query_arg(
-                [ 'tt_view', 'slug', 'team_id', 'player_id', 'eval_id', 'activity_id', 'goal_id', 'action', 'id', 'tab', 'dismiss_resume', 'restart' ],
-                $current
-            );
-        } else {
-            $base = \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl();
+        $path = '/';
+        if ( isset( $_SERVER['REQUEST_URI'] ) ) {
+            $raw   = wp_unslash( (string) $_SERVER['REQUEST_URI'] );
+            $q_pos = strpos( $raw, '?' );
+            $path  = $q_pos === false ? $raw : substr( $raw, 0, $q_pos );
+            if ( $path === '' ) $path = '/';
         }
-        return add_query_arg( [ 'tt_view' => 'wizard', 'slug' => $slug ], $base );
+        return add_query_arg(
+            [ 'tt_view' => 'wizard', 'slug' => $slug ],
+            home_url( $path )
+        );
     }
 
     private static function renderProgress( WizardInterface $wizard, string $current_slug, array $state = [] ): void {
