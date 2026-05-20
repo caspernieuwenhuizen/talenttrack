@@ -7,11 +7,19 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\PersonaDashboard\Domain\AbstractKpiDataSource;
 use TT\Modules\PersonaDashboard\Domain\KpiValue;
 use TT\Modules\PersonaDashboard\Domain\PersonaContext;
+use TT\Modules\PersonaDashboard\Domain\RenderContext;
 
 class MyTeamAvgRating extends AbstractKpiDataSource {
     public function id(): string { return 'my_team_avg_rating'; }
     public function label(): string { return __( 'My team average rating', 'talenttrack' ); }
     public function context(): string { return PersonaContext::COACH; }
+
+    /**
+     * v3.110.175 (#771) — shared window between compute() and linkUrl()
+     * so the deep-link's filter can never drift from the KPI's compute
+     * window. Same pattern as `MyTeamAttendancePct`.
+     */
+    private const WINDOW_DAYS = 90;
 
     /**
      * v3.110.165 (#477) — real implementation. Returns the average
@@ -52,7 +60,7 @@ class MyTeamAvgRating extends AbstractKpiDataSource {
         $team_ids = array_map( static fn( $t ): int => (int) $t->id, $teams );
         if ( empty( $team_ids ) ) return KpiValue::unavailable();
 
-        $cutoff = gmdate( 'Y-m-d', strtotime( '-90 days' ) );
+        [ 'from' => $cutoff ] = self::windowDates();
         $placeholders = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
 
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared — placeholders built from int array.
@@ -78,6 +86,35 @@ class MyTeamAvgRating extends AbstractKpiDataSource {
      * list is the right destination — its coach-scoping filter
      * (`(pl.team_id IN coach_teams OR e.coach_id = uid)` since
      * v3.110.126) already aligns with the KPI's compute() scope.
+     *
+     * v3.110.175 (#771): kept for back-compat; linkUrl() below is what
+     * KpiCardWidget actually calls and includes the 90-day filter.
      */
     public function linkView(): string { return 'evaluations'; }
+
+    /**
+     * v3.110.175 (#771) — deep-link carries `filter[date_from]` so the
+     * destination list scopes to the same 90-day window the KPI rolled
+     * over. The evaluations REST endpoint filters by `e.eval_date`, the
+     * same column compute() uses. `date_to` is omitted because the
+     * default destination ordering is "newest first" and there's no
+     * upper bound on the compute() window either (today inclusive).
+     */
+    public function linkUrl( RenderContext $ctx ): string {
+        [ 'from' => $from ] = self::windowDates();
+        return add_query_arg(
+            [ 'filter' => [ 'date_from' => $from ] ],
+            $ctx->viewUrl( $this->linkView() )
+        );
+    }
+
+    /**
+     * @return array{from:string,to:string} Date strings in `Y-m-d` (UTC).
+     */
+    private static function windowDates(): array {
+        return [
+            'from' => gmdate( 'Y-m-d', strtotime( '-' . self::WINDOW_DAYS . ' days' ) ),
+            'to'   => gmdate( 'Y-m-d' ),
+        ];
+    }
 }

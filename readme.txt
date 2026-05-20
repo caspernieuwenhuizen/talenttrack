@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.174
+Stable tag: 3.110.175
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.175 — Coach-dashboard KPI deep-links carry the same rolling window the KPI was computed over: clicking "My team attendance %" now lands on activities filtered to the last 28 days; clicking "My team avg rating" lands on evaluations filtered to the last 90 days (#771) =
+
+Pilot 2026-05-20: *"When I click on the attendance for my team KPI card it should show only those activities contributing to the number I see."* Root cause in `src/Modules/PersonaDashboard/Kpis/MyTeamAttendancePct.php`: `compute()` rolls over a 28-day window (`act.session_date >= today - 28 days`) but `linkView(): string { return 'activities'; }` returned just the slug. `AbstractKpiDataSource::linkUrl()`'s default rebuild dropped a bare `?tt_view=activities` URL with no filters — the destination showed every activity the coach has access to, not just the window the percentage was rolled over. Same shape on `MyTeamAvgRating` (90-day window, `?tt_view=evaluations` unfiltered). **Fix**: both KPIs now (1) declare a `private const WINDOW_DAYS` (28 for attendance, 90 for rating), (2) expose a `windowDates()` private helper that returns the `from`/`to` strings, (3) `compute()` consumes those instead of inline `strtotime` calls, (4) override `linkUrl()` to add `filter[date_from]` (+ `filter[date_to]` for attendance) against the SAME dates. Single source of truth — the window value can't drift between the KPI's number and its deep-link's filter. Same architectural principle as the v3.110.173 dispatcher refactor: collapse two co-dependent values into one. The destination REST endpoints (`activities`, `evaluations`) already accepted `filter[date_from]` + `filter[date_to]` against the matching session_date / eval_date columns; this ship just makes the KPI cards use them. Same pattern as `PdpVerdictsPending::linkUrl()` (`filter[status]=open`) shipped earlier — `linkUrl()` is the extension point for deep-links with query args; `linkView()` stays for the back-compat default.
 
 = 3.110.174 — Team chemistry "Try a lineup" sandbox: tap any slot on the chemistry board to swap the player, watch the composite score, four-part breakdown, and link-chemistry colours recompute in real time; "Save as blueprint" promotes the sandbox to a real Team Blueprint (closes #768) =
 
