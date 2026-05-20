@@ -90,6 +90,7 @@ class BackNavigator {
         'tt-roles'              => [ 'parent_page' => 'talenttrack',       'label_key' => 'Roles & Permissions' ],
         'tt-functional-roles'   => [ 'parent_page' => 'talenttrack',       'label_key' => 'Functional Roles' ],
         'tt-roles-debug'        => [ 'parent_page' => 'talenttrack',       'label_key' => 'Permission Debug' ],
+        'tt-auth-chain-debug'   => [ 'parent_page' => 'talenttrack',       'label_key' => 'Permission Chain Debug' ],
 
         // Help
         'tt-docs'               => [ 'parent_page' => 'talenttrack',       'label_key' => 'Help & Docs' ],
@@ -140,6 +141,7 @@ class BackNavigator {
             'Roles & Permissions'      => __( 'Roles & Permissions', 'talenttrack' ),
             'Functional Roles'         => __( 'Functional Roles', 'talenttrack' ),
             'Permission Debug'         => __( 'Permission Debug', 'talenttrack' ),
+            'Permission Chain Debug'   => __( 'Permission Chain Debug', 'talenttrack' ),
             'Help & Docs'              => __( 'Help & Docs', 'talenttrack' ),
         ];
     }
