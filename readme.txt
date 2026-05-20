@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.177
+Stable tag: 3.110.178
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.178 — Permission Chain Debug admin page — per-user, per-cap walk through the auth chain so the failing layer is visible when a legitimate user hits "Not authorized" (#777) =
+
+Pilot saw a scout hit "not authorized" on the scouting-visits surface across three rounds of fixes (v3.110.147 / v3.110.168 / v3.110.176), each broadening the entry gate without diagnosing the underlying matrix layering issue. The root cause is invisible from the existing surfaces: `Permission Debug` (`?page=tt-roles-debug`) shows scope assignments, `Authorization Matrix` (`?page=tt-matrix`) shows the seed, `Migration preview` (`?page=tt-matrix-preview`) shows the diff — none surface the per-cap layered chain a real `current_user_can()` call walks through. **New admin page**: `?page=tt-auth-chain-debug` — Authorization → Permission Chain Debug. Pick a WP user, see four sections. **(1) System state**: `tt_authorization_active` value (matrix bridge on/off), `user_has_cap` filter hook count, class-existence checks for `AuthorizationService` / `LegacyCapMapper` / `MatrixGate` / `PersonaResolver` / `MatrixRepository`. **(2) User summary**: WP roles, resolved personas (PersonaResolver), administrator flag — empty personas is a red flag that short-circuits MatrixGate. **(3) Per-cap resolution table**: twelve representative `tt_*` caps (prospects, players, teams, evaluations, settings, etc.) each with three checks rendered side-by-side: `user_can()` (WP layer, consults baseline role caps + matrix bridge via user_has_cap when active), `LegacyCapMapper::evaluate()` (matrix-bridge direct call), `AuthorizationService::userCanOrMatrix()` (the helper that combines both). A verdict column calls out the failing layer explicitly. **(4) Matrix grants table**: every row in `tt_authorization_matrix` whose persona matches the user's resolved personas — if a row is missing, the seed didn't plant it on this install; if rows are present but per-cap evaluation still returns false, the chain is breaking elsewhere (most likely PersonaResolver returning empty or the user_has_cap filter not surfacing the bridge). **Gated on `administrator`** so a misbehaving cap layer can't lock the operator out of the diagnostic page itself. Read-only — no state-changing actions. Wired into `AdminMenuRegistry` next to the existing Permission Debug entry; back-navigator entry added for breadcrumb parity. Once the pilot install runs this against its scout user, the verdict column will name the failing layer, and the real fix (config flip / missing seed migration / persona-resolver bug) replaces the v3.110.176 WP-role bypass at the next round.
 
 = 3.110.177 — "My team attendance %" KPI compute + deep-link now also exclude planned / cancelled / draft / scheduled activities so the number and the destination list agree exactly (closes #775) =
 

@@ -1336,6 +1336,22 @@ final class CoreSurfaceRegistration {
             'slug'         => 'tt-roles-debug',
             'callback'     => [ \TT\Modules\Authorization\Admin\DebugPage::class, 'render' ],
         ]);
+        // v3.110.178 (#777) — per-user, per-cap layered chain debug
+        // (user_can → LegacyCapMapper::evaluate → userCanOrMatrix).
+        // Complements DebugPage above which surfaces scope assignments;
+        // this one surfaces the auth chain's per-cap verdicts so the
+        // operator can see which layer is failing on installs where a
+        // legitimate user hits "Not authorized" despite holding the
+        // right WP role + matrix grant.
+        AdminMenuRegistry::register([
+            'module_class' => self::M_AUTHORIZATION,
+            'parent'       => $parent,
+            'group'        => 'access',
+            'title'        => __( 'Permission Chain Debug', 'talenttrack' ),
+            'cap'          => 'administrator',
+            'slug'         => 'tt-auth-chain-debug',
+            'callback'     => [ \TT\Modules\Authorization\Admin\AuthChainDebugPage::class, 'render' ],
+        ]);
         AdminMenuRegistry::register([
             'module_class' => self::M_AUTHORIZATION,
             'parent'       => $parent,
