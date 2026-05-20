@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-05-20T17:34:17+00:00\n"
+"POT-Creation-Date: 2026-05-20T18:13:32+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -571,7 +571,7 @@ msgstr ""
 #: src/Infrastructure/Query/LabelTranslator.php:23
 #: src/Modules/Configuration/Admin/MigrationsPage.php:122
 #: src/Modules/Invitations/InvitationStatus.php:23
-#: src/Shared/Frontend/FrontendWizardView.php:501
+#: src/Shared/Frontend/FrontendWizardView.php:516
 msgid "Pending"
 msgstr "Ausstehend"
 
@@ -594,7 +594,7 @@ msgstr "In Bearbeitung"
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:215
 #: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:186
 #: src/Shared/Frontend/FrontendWizardsAdminView.php:156
-#: src/Shared/Frontend/FrontendWizardView.php:499
+#: src/Shared/Frontend/FrontendWizardView.php:514
 msgid "Completed"
 msgstr "Abgeschlossen"
 
@@ -9327,7 +9327,7 @@ msgid "Save widget"
 msgstr ""
 
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:161
-#: src/Shared/Frontend/FrontendWizardView.php:555
+#: src/Shared/Frontend/FrontendWizardView.php:570
 msgid "Saving…"
 msgstr "Speichern…"
 
@@ -13110,7 +13110,7 @@ msgid "Caps apply only on the Free plan. Trial and Standard / Pro have no cap."
 msgstr ""
 
 #: src/Modules/License/Admin/AccountPage.php:740
-#: src/Shared/Frontend/FrontendWizardView.php:500
+#: src/Shared/Frontend/FrontendWizardView.php:515
 msgid "Current"
 msgstr ""
 
@@ -21568,7 +21568,7 @@ msgid "Rated"
 msgstr ""
 
 #: src/Modules/Wizards/Evaluation/RateActorsStep.php:120
-#: src/Shared/Frontend/FrontendWizardView.php:501
+#: src/Shared/Frontend/FrontendWizardView.php:516
 msgid "Skipped"
 msgstr ""
 
@@ -27613,26 +27613,26 @@ msgstr ""
 msgid "You started this %s ago. Continue where you left off, or start over?"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendWizardView.php:467
+#: src/Shared/Frontend/FrontendWizardView.php:482
 msgid "Wizard steps"
 msgstr ""
 
 #. translators: 1: step number, 2: step label, 3: state (Completed / Current / Pending / Skipped)
-#: src/Shared/Frontend/FrontendWizardView.php:496
+#: src/Shared/Frontend/FrontendWizardView.php:511
 #, php-format
 msgid "Step %1$d: %2$s (%3$s)"
 msgstr ""
 
 # #0077 polish wave 1 — new strings
-#: src/Shared/Frontend/FrontendWizardView.php:515
+#: src/Shared/Frontend/FrontendWizardView.php:530
 msgid "Help for this step"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendWizardView.php:556
+#: src/Shared/Frontend/FrontendWizardView.php:571
 msgid "Saved · "
 msgstr ""
 
-#: src/Shared/Frontend/FrontendWizardView.php:557
+#: src/Shared/Frontend/FrontendWizardView.php:572
 msgid "Save failed"
 msgstr ""
 
