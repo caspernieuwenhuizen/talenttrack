@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: TalentTrack 3.110.173\n"
+"Project-Id-Version: TalentTrack 3.110.175\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-20T15:58:57+00:00\n"
+"POT-Creation-Date: 2026-05-20T16:46:50+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -1521,15 +1521,16 @@ msgstr ""
 
 #: src/Infrastructure/REST/TeamsRestController.php:268
 #: src/Modules/Spond/SpondSync.php:59
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:175
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:204
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:245
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:265
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:338
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:390
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:407
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:486
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:497
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:184
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:213
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:254
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:274
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:347
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:405
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:473
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:490
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:569
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:580
 msgid "Team not found."
 msgstr ""
 
@@ -4350,7 +4351,7 @@ msgid "Change"
 msgstr ""
 
 #: src/Modules/Authorization/Admin/MatrixPage.php:561
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:484
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:525
 msgid "Note"
 msgstr ""
 
@@ -11107,7 +11108,7 @@ msgstr ""
 #: src/Modules/Reports/PlayerReportRenderer.php:40
 #: src/Modules/Stats/Admin/PlayerCardView.php:68
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:35
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:440
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:523
 #: src/Shared/Frontend/DashboardShortcode.php:619
 msgid "Player not found."
 msgstr ""
@@ -14527,6 +14528,7 @@ msgid "Single A4 only"
 msgstr ""
 
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:171
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:629
 #: src/Shared/Frontend/Components/GuestAddModal.php:48
 #: src/Shared/Frontend/DashboardShortcode.php:1138
 msgid "Close"
@@ -14906,7 +14908,7 @@ msgstr ""
 
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:273
 #: src/Modules/Reports/Frontend/FrontendScoutAccessView.php:81
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:496
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:537
 #: src/Shared/Admin/OptionSetEditor.php:135
 #: src/Shared/Frontend/DashboardShortcode.php:113
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:934
@@ -15275,11 +15277,11 @@ msgstr ""
 msgid "My rating trend"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Kpis/MyTeamAttendancePct.php:13
+#: src/Modules/PersonaDashboard/Kpis/MyTeamAttendancePct.php:14
 msgid "My team attendance %"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Kpis/MyTeamAvgRating.php:13
+#: src/Modules/PersonaDashboard/Kpis/MyTeamAvgRating.php:14
 msgid "My team average rating"
 msgstr ""
 
@@ -18547,7 +18549,7 @@ msgstr ""
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:446
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:668
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:441
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:482
 msgid "Slot"
 msgstr ""
 
@@ -18588,14 +18590,15 @@ msgid "Reopen"
 msgstr ""
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:533
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:238
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:279
 msgid "Link chemistry"
 msgstr ""
 
 #. translators: %d: 0-100 chemistry score
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:541
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:896
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:247
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:288
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:647
 #, php-format
 msgid "%d / 100"
 msgstr ""
@@ -18603,7 +18606,8 @@ msgstr ""
 #. translators: %d: scored adjacent pair count
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:551
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:894
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:257
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:298
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:645
 #, php-format
 msgid "%d scored adjacent pair on the pitch."
 msgid_plural "%d scored adjacent pairs on the pitch."
@@ -18626,7 +18630,7 @@ msgid "TRIAL"
 msgstr ""
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:666
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:438
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:479
 msgid "Depth chart"
 msgstr ""
 
@@ -18682,13 +18686,14 @@ msgid "Could not save the change. Try again."
 msgstr ""
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:893
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:556
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:592
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:634
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:639
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:675
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:717
 msgid "This blueprint is locked. Reopen it before editing."
 msgstr ""
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:895
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:646
 #, php-format
 msgid "%d scored adjacent pairs on the pitch."
 msgstr ""
@@ -18722,137 +18727,234 @@ msgid "No formation template configured. Configure one in Settings → Team deve
 msgstr ""
 
 #. translators: 1: possession 2: counter 3: press
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:196
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:197
 #, php-format
 msgid "Style: possession %1$d / counter %2$d / press %3$d"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:266
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:244
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:625
+msgid "Try a lineup"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:247
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:624
+msgid "Tap any slot on the pitch to swap the player."
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:251
+msgid "Reset to suggested XI"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:254
+msgid "Save as blueprint"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:307
 msgid "Strong (2.0–3.0)"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:270
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:311
 msgid "Workable (1.0–2.0)"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:274
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:315
 msgid "Poor (0–1.0)"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:279
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:320
 msgid "Lines connect formation-adjacent slots. Score combines coach-marked pairings, same line of play, and side-preference fit. Hover any line for the breakdown."
 msgstr ""
 
 #. translators: %s = formation name
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:301
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:342
 #, php-format
 msgid "Formation: %s"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:312
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:353
 msgid "Formation:"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:340
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:381
 msgid "Not enough evaluations to compute team chemistry yet."
 msgstr ""
 
 #. translators: 1: rated count, 2: roster size, 3: missing count
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:345
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:386
 #, php-format
 msgid "%1$d of %2$d players have at least one rated main category. Rate %3$d more players in any of technical / tactical / physical / mental to start seeing fit scores and a team composite."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:351
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:392
 msgid "The pitch below shows the suggested XI based on whatever data is available — players with \"?\" need their first evaluation; slots showing \"—\" mean the roster is smaller than this formation needs."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:371
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:412
 msgid "Switch to isometric view"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:372
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:413
 msgid "Switch to flat view"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:386
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:427
 msgid "Formation fit"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:387
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:428
 msgid "Style fit"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:388
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:429
 msgid "Depth"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:389
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:430
 msgid "Paired bonus"
 msgstr ""
 
 #. translators: %s = rating max
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:402
+#. translators: %s: rating max
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:443
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:644
 #, php-format
 msgid "Team chemistry: ? / %s"
 msgstr ""
 
 #. translators: 1: composite score, 2: rating max
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:408
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:449
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:642
 #, php-format
 msgid "Team chemistry: %1$s / %2$s"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:442
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:483
 msgid "1st choice"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:443
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:484
 msgid "2nd choice"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:444
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:485
 msgid "3rd choice"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:461
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:502
 msgid "Not enough evaluations to compute a fit score."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:477
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:518
 msgid "Coach-marked pairings"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:479
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:520
 msgid "No pairings yet. Mark \"always start these two together\" pairs to factor into the chemistry score."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:482
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:523
 msgid "Player A"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:483
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:524
 msgid "Player B"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:496
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:537
 msgid "Remove this pairing?"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:509
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:550
 msgid "— Player A —"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:515
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:556
 msgid "— Player B —"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:520
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:561
 msgid "Optional note"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:523
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:564
 msgid "Add pairing"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:626
+msgid "Stop trying a lineup"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:627
+#, php-format
+msgid "Pick a player for %s"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:628
+msgid "Leave slot empty"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:630
+#, php-format
+msgid "currently in %s"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:631
+#, php-format
+msgid "fit %s"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:632
+msgid "no fit data yet"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:633
+msgid "Could not recompute chemistry. Try again."
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:634
+msgid "Save lineup as blueprint"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:635
+msgid "Name this blueprint:"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:636
+msgid "Sandbox lineup"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:637
+msgid "Could not save the blueprint. Try again."
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:638
+msgid "Discard the sandbox lineup and restore the suggested XI?"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:639
+#, php-format
+msgid "%d slot swapped from the suggested XI."
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:640
+#, php-format
+msgid "%d slots swapped from the suggested XI."
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:648
+msgid "— / 100"
+msgstr ""
+
+#. translators: 1: pair score 0-3, 2: comma-separated reasons
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:650
+#, php-format
+msgid "Chemistry %1$s / 3 — %2$s"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:651
+#: src/Modules/TeamDevelopment/Frontend/PitchSvg.php:233
+msgid "no shared signals"
 msgstr ""
 
 #: src/Modules/TeamDevelopment/Frontend/PitchSvg.php:228
@@ -18865,24 +18967,20 @@ msgstr ""
 msgid "Chemistry %1$.1f / 3 — %2$s"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/PitchSvg.php:233
-msgid "no shared signals"
-msgstr ""
-
 #. translators: 1: player, 2: slot label, 3: score
-#: src/Modules/TeamDevelopment/Frontend/PitchSvg.php:277
+#: src/Modules/TeamDevelopment/Frontend/PitchSvg.php:284
 #, php-format
 msgid "%1$s — best fit at %2$s (%3$.2f)"
 msgstr ""
 
 #. translators: %s: slot label
-#: src/Modules/TeamDevelopment/Frontend/PitchSvg.php:297
+#: src/Modules/TeamDevelopment/Frontend/PitchSvg.php:306
 #, php-format
 msgid "No candidate for %s — roster is smaller than the formation needs."
 msgstr ""
 
 #. translators: 1: player, 2: slot label
-#: src/Modules/TeamDevelopment/Frontend/PitchSvg.php:313
+#: src/Modules/TeamDevelopment/Frontend/PitchSvg.php:324
 #, php-format
 msgid "%1$s suggested for %2$s based on roster only — not enough evaluations to compute a fit score yet."
 msgstr ""
@@ -18895,77 +18993,81 @@ msgstr ""
 msgid "Hover an entry to see the underlying rating breakdown. Computed against the team's active formation template."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:209
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:218
 msgid "formation_template_id is required."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:218
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:513
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:227
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:596
 msgid "Formation template not found."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:237
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:246
 msgid "The formation could not be saved."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:272
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:281
 msgid "Possession + counter + press must sum to 100."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:295
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:304
 msgid "The style blend could not be saved."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:355
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:364
 msgid "No formation template available. Run migrations to seed defaults."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:413
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:425
+msgid "No formation template available."
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:496
 msgid "Pick two different players."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:419
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:502
 msgid "Could not save the pairing."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:427
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:510
 msgid "Invalid pairing id."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:431
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:514
 msgid "Could not delete the pairing."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:504
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:587
 msgid "Name and formation are required."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:521
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:604
 msgid "The blueprint could not be created."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:532
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:552
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:576
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:588
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:630
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:655
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:615
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:635
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:659
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:671
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:713
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:738
 msgid "Blueprint not found."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:564
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:647
 msgid "Nothing to update."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:599
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:682
 msgid "slot_label is required."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:639
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:722
 msgid "Assignments map is required."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:661
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:744
 msgid "Status must be draft, shared, or locked."
 msgstr ""
 
