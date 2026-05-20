@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-05-20T21:24:44+00:00\n"
+"POT-Creation-Date: 2026-05-20T21:27:57+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -15756,7 +15756,7 @@ msgstr ""
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:334
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:19
 #: src/Modules/Wizards/Activity/ReviewStep.php:23
-#: src/Modules/Wizards/Evaluation/ReviewStep.php:24
+#: src/Modules/Wizards/Evaluation/ReviewStep.php:25
 #: src/Modules/Wizards/Person/ReviewStep.php:22
 #: src/Modules/Wizards/Player/ReviewStep.php:23
 #: src/Modules/Wizards/Prospect/ReviewStep.php:31
@@ -21750,33 +21750,33 @@ msgstr ""
 msgid "Skip this player (no evaluation written)"
 msgstr ""
 
-#: src/Modules/Wizards/Evaluation/ReviewStep.php:82
+#: src/Modules/Wizards/Evaluation/ReviewStep.php:83
 #, php-format
 msgid "Writing evaluation %1$d of %2$d…"
 msgstr ""
 
-#: src/Modules/Wizards/Evaluation/ReviewStep.php:83
+#: src/Modules/Wizards/Evaluation/ReviewStep.php:84
 msgid "Done — redirecting…"
 msgstr ""
 
-#: src/Modules/Wizards/Evaluation/ReviewStep.php:84
+#: src/Modules/Wizards/Evaluation/ReviewStep.php:85
 msgid "One or more rows failed. Try again or go back to fix the input."
 msgstr ""
 
 #. translators: %d: rated player count
-#: src/Modules/Wizards/Evaluation/ReviewStep.php:91
+#: src/Modules/Wizards/Evaluation/ReviewStep.php:92
 #, php-format
 msgid "%d evaluation will be created."
 msgid_plural "%d evaluations will be created."
 msgstr[0] "%d evaluatie wordt aangemaakt."
 msgstr[1] "%d evaluaties worden aangemaakt."
 
-#: src/Modules/Wizards/Evaluation/ReviewStep.php:98
+#: src/Modules/Wizards/Evaluation/ReviewStep.php:99
 msgid "Heads up:"
 msgstr ""
 
 #. translators: %d: unrated player count
-#: src/Modules/Wizards/Evaluation/ReviewStep.php:102
+#: src/Modules/Wizards/Evaluation/ReviewStep.php:103
 #, php-format
 msgid "%d player was present but not rated. Submit anyway, or go back?"
 msgid_plural ""
@@ -21786,30 +21786,46 @@ msgstr[0] ""
 msgstr[1] ""
 "%d spelers waren aanwezig maar niet beoordeeld. Toch versturen, of terug?"
 
-#: src/Modules/Wizards/Evaluation/ReviewStep.php:109
+#: src/Modules/Wizards/Evaluation/ReviewStep.php:110
 msgid "Click Submit to write the evaluations."
 msgstr ""
 
 #. translators: %s: player display name
-#: src/Modules/Wizards/Evaluation/ReviewStep.php:141
+#: src/Modules/Wizards/Evaluation/ReviewStep.php:142
 #, php-format
 msgid "One evaluation will be created for %s."
 msgstr ""
 
 #. translators: %d: number of categories rated
-#: src/Modules/Wizards/Evaluation/ReviewStep.php:147
+#: src/Modules/Wizards/Evaluation/ReviewStep.php:148
 #, php-format
 msgid "%d category rated."
 msgid_plural "%d categories rated."
 msgstr[0] "%d categorie beoordeeld."
 msgstr[1] "%d categorieën beoordeeld."
 
-#: src/Modules/Wizards/Evaluation/ReviewStep.php:151
+#: src/Modules/Wizards/Evaluation/ReviewStep.php:152
 msgid "Click Submit to write the evaluation."
 msgstr ""
 
-#: src/Modules/Wizards/Evaluation/ReviewStep.php:253
+#: src/Modules/Wizards/Evaluation/ReviewStep.php:224
+msgid ""
+"No ratings were entered. Rate at least one category for at least one player "
+"before saving."
+msgstr ""
+
+#: src/Modules/Wizards/Evaluation/ReviewStep.php:278
 msgid "No player selected."
+msgstr ""
+
+#. translators: %1$d = min rating; %2$d = max rating.
+#: src/Modules/Wizards/Evaluation/ReviewStep.php:298
+#, php-format
+msgid "Ratings must be between %1$d and %2$d."
+msgstr ""
+
+#: src/Modules/Wizards/Evaluation/ReviewStep.php:308
+msgid "Rate at least one category before saving."
 msgstr ""
 
 #: src/Modules/Wizards/Goal/DetailsStep.php:15
