@@ -191,3 +191,109 @@ body.tt-chem-picker-open { overflow: hidden; }
     from { opacity: 0; }
     to   { opacity: 1; }
 }
+
+/* =====================================================================
+ * v3.110.184 — "Save as blueprint" flavour + name modal. Replaces the
+ * back-to-back `confirm`/`prompt` shape with a single small modal so
+ * the user picks flavour and name in one screen.
+ * ===================================================================== */
+
+body.tt-chem-saveas-open {
+    overflow: hidden;
+}
+
+.tt-chem-saveas {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tt-chem-saveas-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.tt-chem-saveas-sheet {
+    position: relative;
+    background: #fff;
+    width: min(440px, 92vw);
+    max-height: 90vh;
+    overflow-y: auto;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+}
+
+.tt-chem-saveas-title {
+    margin: 0 0 14px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #1a1d21;
+}
+
+.tt-chem-saveas-flavour {
+    border: 1px solid #e5e7ea;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin: 0 0 14px;
+}
+
+.tt-chem-saveas-flavour legend {
+    font-size: 12px;
+    font-weight: 600;
+    color: #5b6e75;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0 4px;
+}
+
+.tt-chem-saveas-flavour label {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 4px;
+    cursor: pointer;
+    min-height: 36px;
+    color: #1a1d21;
+    font-size: 14px;
+    line-height: 1.35;
+}
+
+.tt-chem-saveas-name {
+    display: block;
+    margin-bottom: 16px;
+}
+.tt-chem-saveas-name span {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #5b6e75;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 4px;
+}
+.tt-chem-saveas-name input {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 16px; /* iOS no-zoom */
+    border: 1px solid #e5e7ea;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+.tt-chem-saveas-name input:focus-visible {
+    outline: 2px solid #1d7874;
+    outline-offset: 1px;
+}
+
+.tt-chem-saveas-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+.tt-chem-saveas-actions .tt-btn {
+    min-height: 40px;
+}

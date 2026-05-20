@@ -27,12 +27,21 @@
         var canManage   = editor.getAttribute('data-can-manage') === '1';
         if (!blueprintId || !canManage || locked) {
             wireStatusButtons(); // still allow status changes (reopen) when locked
+            // v3.110.184 — chemistry-hide toggle works in locked mode
+            // too (read-only viewing); register only that handler.
+            wireHideChemistryToggle(blueprintId);
             return;
         }
 
         wireDragDrop(blueprintId, editor);
         wireTouchDragDrop(blueprintId, editor); // #0068 Phase 4 — mobile fallback
         wireStatusButtons();
+
+        // v3.110.184 — tap-to-swap picker + chemistry-hide toggle + Save/Save-As.
+        wireTapToSwap(blueprintId);
+        wireHideChemistryToggle(blueprintId);
+        wireToolbarButtons(blueprintId);
+        wirePickerDismiss();
     });
 
     function wireDragDrop(blueprintId, editor) {
@@ -358,4 +367,312 @@
             });
         });
     }
+
+    // ============================================================
+    // v3.110.184 — tap-to-swap picker (three-tier "show all" layout)
+    // ============================================================
+
+    var openSheet = null;
+
+    function wireTapToSwap(blueprintId) {
+        // Tap any droptarget on the pitch → open the picker. The
+        // droptarget already carries data-slot-label + data-can-drag.
+        // Drag-and-drop stays as a power-user fallback (see wireDragDrop
+        // above) — both handlers can coexist because the picker only
+        // fires on plain `click` (not drag events).
+        document.addEventListener('click', function (e) {
+            var target = e.target.closest && e.target.closest('.tt-bp-droptarget');
+            if (!target) return;
+            if (target.getAttribute('data-can-drag') !== '1') return;
+            // Ignore clicks that originated from a chip inside the
+            // droptarget — those have their own behaviour (drag).
+            if (e.target.closest('.tt-bp-chip')) return;
+            e.preventDefault();
+            openPicker(blueprintId, target.getAttribute('data-slot-label'));
+        });
+
+        // Keyboard parity. Slots are focusable when the picker is
+        // available (toolbar adds tabindex via the editor mount).
+        document.addEventListener('keydown', function (e) {
+            if (e.key !== 'Enter' && e.key !== ' ') return;
+            var target = e.target.closest && e.target.closest('.tt-bp-droptarget');
+            if (!target) return;
+            if (target.getAttribute('data-can-drag') !== '1') return;
+            e.preventDefault();
+            openPicker(blueprintId, target.getAttribute('data-slot-label'));
+        });
+    }
+
+    function wirePickerDismiss() {
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') closePicker();
+        });
+    }
+
+    function openPicker(blueprintId, slotLabel) {
+        closePicker();
+        if (!slotLabel) return;
+        var sheet = buildSheet(slotLabel, blueprintId);
+        document.body.appendChild(sheet);
+        document.body.classList.add('tt-bp-picker-open');
+        openSheet = sheet;
+
+        // Focus the close button so Escape / Tab works out of the gate.
+        var close = sheet.querySelector('.tt-bp-picker-close');
+        if (close) close.focus();
+    }
+
+    function closePicker() {
+        if (openSheet) {
+            openSheet.parentNode.removeChild(openSheet);
+            openSheet = null;
+            document.body.classList.remove('tt-bp-picker-open');
+        }
+    }
+
+    function buildSheet(slotLabel, blueprintId) {
+        var sheet = document.createElement('div');
+        sheet.className = 'tt-bp-picker';
+        sheet.setAttribute('role', 'dialog');
+        sheet.setAttribute('aria-modal', 'true');
+
+        var titleTpl = cfg.i18n.picker_title || 'Assign players to %s';
+        var title = titleTpl.replace('%s', slotLabel);
+
+        var html = '<div class="tt-bp-picker-backdrop" data-close></div>' +
+                   '<div class="tt-bp-picker-sheet">' +
+                       '<header class="tt-bp-picker-header">' +
+                           '<h3 class="tt-bp-picker-title">' + escapeHtml(title) + '</h3>' +
+                           '<button type="button" class="tt-btn tt-btn-secondary tt-btn-sm tt-bp-picker-close" data-close>' +
+                               escapeHtml(cfg.i18n.picker_close || 'Done') +
+                           '</button>' +
+                       '</header>' +
+                       '<div class="tt-bp-picker-body">' +
+                           tierSection('primary',   cfg.i18n.tier_primary,   slotLabel) +
+                           tierSection('secondary', cfg.i18n.tier_secondary, slotLabel) +
+                           tierSection('tertiary',  cfg.i18n.tier_tertiary,  slotLabel) +
+                       '</div>' +
+                   '</div>';
+        sheet.innerHTML = html;
+
+        sheet.querySelectorAll('[data-close]').forEach(function (el) {
+            el.addEventListener('click', function () { closePicker(); });
+        });
+        sheet.querySelectorAll('.tt-bp-picker-tier-clear').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var tier = btn.getAttribute('data-tier');
+                applyTierAssignment(blueprintId, slotLabel, tier, null);
+            });
+        });
+        sheet.querySelectorAll('.tt-bp-picker-player').forEach(function (row) {
+            row.addEventListener('click', function () {
+                var tier = row.getAttribute('data-tier');
+                var pid  = parseInt(row.getAttribute('data-player-id'), 10);
+                applyTierAssignment(blueprintId, slotLabel, tier, pid);
+            });
+        });
+
+        return sheet;
+    }
+
+    /**
+     * Render one tier section: heading + current-assignment line +
+     * roster list. All three sections are shown stacked (user asked
+     * for "show all" layout — no segmented control / tabs).
+     */
+    function tierSection(tier, label, slotLabel) {
+        var current = currentPlayerFor(slotLabel, tier);
+        var currentLabel = current ? current.name : ''; // empty when not assigned
+        var clearVisible = current ? '' : ' hidden';
+
+        var rows = '';
+        (cfg.roster || []).forEach(function (p) {
+            var selectedCls = (current && current.id === p.id) ? ' is-selected' : '';
+            rows +=
+                '<li class="tt-bp-picker-player' + selectedCls + '"' +
+                    ' role="option"' +
+                    ' tabindex="0"' +
+                    ' data-tier="' + escapeAttr(tier) + '"' +
+                    ' data-player-id="' + p.id + '">' +
+                    '<span class="tt-bp-picker-player-name">' + escapeHtml(p.name) + '</span>' +
+                    ((current && current.id === p.id)
+                        ? '<span class="tt-bp-picker-player-badge">' + escapeHtml(cfg.i18n.tier_current || 'Currently assigned') + '</span>'
+                        : '') +
+                '</li>';
+        });
+
+        return '<section class="tt-bp-picker-tier" data-tier="' + escapeAttr(tier) + '">' +
+                   '<header class="tt-bp-picker-tier-head">' +
+                       '<h4 class="tt-bp-picker-tier-label">' + escapeHtml(label) + '</h4>' +
+                       '<span class="tt-bp-picker-tier-current">' + escapeHtml(currentLabel) + '</span>' +
+                       '<button type="button" class="tt-btn tt-btn-secondary tt-btn-sm tt-bp-picker-tier-clear"' +
+                            ' data-tier="' + escapeAttr(tier) + '"' + clearVisible + '>' +
+                           escapeHtml(cfg.i18n.tier_clear || 'Clear this tier') +
+                       '</button>' +
+                   '</header>' +
+                   '<ul class="tt-bp-picker-roster" role="listbox">' + rows + '</ul>' +
+               '</section>';
+    }
+
+    function currentPlayerFor(slotLabel, tier) {
+        var slotMap = (cfg.assignments || {})[slotLabel] || {};
+        var pid = slotMap[tier];
+        if (!pid) return null;
+        var found = null;
+        (cfg.roster || []).forEach(function (p) {
+            if (p.id === pid) found = { id: p.id, name: p.name };
+        });
+        return found || { id: pid, name: '#' + pid };
+    }
+
+    /**
+     * Send a single (slot, tier, player_id) change to the existing
+     * PUT /blueprints/{id}/assignment endpoint. Patch local
+     * `cfg.assignments` on success, re-render the picker tier section
+     * so the badge / clear button reflect the new state. The
+     * chemistry headline + pitch link colours don't repaint without a
+     * server recompute — for now, the user reloads to refresh those
+     * (same fallback the drag-drop path takes on its less common
+     * paths). Future iteration can wire chemistry/preview here.
+     */
+    function applyTierAssignment(blueprintId, slotLabel, tier, playerId) {
+        fetch(cfg.rest_root + '/blueprints/' + blueprintId + '/assignment', {
+            method: 'PUT',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-WP-Nonce': cfg.nonce
+            },
+            body: JSON.stringify({
+                slot_label: slotLabel,
+                tier:       tier,
+                player_id:  playerId === null ? 0 : playerId
+            })
+        })
+        .then(function (r) {
+            if (!r.ok) throw new Error('save_failed');
+            return r.json();
+        })
+        .then(function () {
+            // Patch local config so the picker re-render reflects the
+            // new state.
+            if (!cfg.assignments[slotLabel]) cfg.assignments[slotLabel] = {};
+            if (playerId === null) {
+                delete cfg.assignments[slotLabel][tier];
+            } else {
+                cfg.assignments[slotLabel][tier] = playerId;
+            }
+            // Reload to refresh the pitch (occupant names + chemistry
+            // lines). Same fallback the drag-drop path uses for full
+            // re-sync. The picker stays open via the reload's
+            // sessionStorage; we just close it before reload so it
+            // isn't a confusing dangling overlay.
+            closePicker();
+            window.location.reload();
+        })
+        .catch(function () {
+            alert(cfg.i18n.save_failed);
+        });
+    }
+
+    // ============================================================
+    // v3.110.184 — Hide-chemistry toggle (sessionStorage-persisted)
+    // ============================================================
+
+    function wireHideChemistryToggle(blueprintId) {
+        var btn = document.querySelector('.tt-bp-hide-chem-toggle');
+        if (!btn) return;
+        var storageKey = 'tt_bp_hide_chem_' + blueprintId;
+        var initial = false;
+        try { initial = sessionStorage.getItem(storageKey) === '1'; } catch (e) { /* ignore */ }
+        applyHideChem(initial, btn);
+
+        btn.addEventListener('click', function () {
+            var next = !document.body.classList.contains('tt-bp-chem-hidden');
+            applyHideChem(next, btn);
+            try { sessionStorage.setItem(storageKey, next ? '1' : '0'); } catch (e) { /* ignore */ }
+        });
+    }
+
+    function applyHideChem(hidden, btn) {
+        document.body.classList.toggle('tt-bp-chem-hidden', hidden);
+        btn.setAttribute('aria-pressed', hidden ? 'true' : 'false');
+        btn.textContent = hidden
+            ? (cfg.i18n.show_chem_label || 'Show chemistry')
+            : (cfg.i18n.hide_chem_label || 'Hide chemistry');
+    }
+
+    // ============================================================
+    // v3.110.184 — Save / Save As toolbar buttons
+    // ============================================================
+
+    function wireToolbarButtons(blueprintId) {
+        var toolbar = document.querySelector('.tt-bp-editor-toolbar');
+        if (!toolbar) return;
+        var listUrl = toolbar.getAttribute('data-list-url') || '';
+
+        var saveBtn = toolbar.querySelector('.tt-bp-save-done');
+        if (saveBtn) {
+            saveBtn.addEventListener('click', function () {
+                // Auto-save fired on every drop and every picker change.
+                // Save is "done editing" — return to the list with a
+                // toast hint that the controller can render.
+                var url = listUrl + (listUrl.indexOf('?') === -1 ? '?' : '&') + 'tt_saved=1';
+                window.location.href = url;
+            });
+        }
+
+        var saveAsBtn = toolbar.querySelector('.tt-bp-save-as');
+        if (saveAsBtn) {
+            saveAsBtn.addEventListener('click', function () {
+                var name = window.prompt(
+                    cfg.i18n.save_as_prompt || 'Name the new blueprint:',
+                    cfg.i18n.save_as_default || 'Copy of blueprint'
+                );
+                if (name === null) return;
+                name = (name || '').trim();
+                if (name === '') return;
+                saveAsBtn.disabled = true;
+                fetch(cfg.rest_root + '/blueprints/' + blueprintId + '/clone', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-WP-Nonce': cfg.nonce
+                    },
+                    body: JSON.stringify({ name: name })
+                })
+                .then(function (r) {
+                    if (!r.ok) throw new Error('clone_failed');
+                    return r.json();
+                })
+                .then(function (resp) {
+                    var newId = (resp && resp.data && resp.data.id) || (resp && resp.id);
+                    if (!newId) throw new Error('clone_failed');
+                    // Same path the user is on; just swap the id.
+                    var url = window.location.pathname + window.location.search;
+                    url = url.replace(/([?&])id=\d+/, '$1id=' + newId);
+                    if (url.indexOf('id=') === -1) {
+                        url += (url.indexOf('?') === -1 ? '?' : '&') + 'id=' + newId;
+                    }
+                    window.location.href = url;
+                })
+                .catch(function () {
+                    saveAsBtn.disabled = false;
+                    alert(cfg.i18n.save_as_failed || cfg.i18n.save_failed);
+                });
+            });
+        }
+    }
+
+    // ============================================================
+    // helpers
+    // ============================================================
+
+    function escapeHtml(s) {
+        s = String(s == null ? '' : s);
+        return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+    function escapeAttr(s) { return escapeHtml(s); }
 })();
