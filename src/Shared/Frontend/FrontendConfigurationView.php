@@ -196,22 +196,25 @@ class FrontendConfigurationView extends FrontendViewBase {
     }
 
     /**
-     * v3.74.4 — list of locales the lookup form should expose
-     * translation inputs for. Mirrors `LookupsRestController::installedTargetLocales`
-     * but evaluated on render so the form can show empty inputs even
-     * when the auto-translate button isn't available (e.g. no engine
-     * configured). Excludes the current site locale.
+     * v3.110.190 (#798) — every locale the operator might want to
+     * maintain a translation for. Returns the union of WP-installed
+     * locales + the plugin-shipped `.po` set + the site locale, minus
+     * `en_US` (which is the canonical name field above the translations
+     * block — English isn't a "translation" of itself).
+     *
+     * Was previously a narrower set scoped to `get_available_languages()`
+     * minus the current locale; that excluded both fr/de/es (the plugin
+     * ships .po files for them but WP wasn't told to install them) and
+     * the current locale itself (so a Dutch site with English canonical
+     * names had nowhere to enter the Dutch override).
      *
      * @return list<string>
      */
     private static function translationTargets(): array {
-        $current_short = substr( (string) get_locale(), 0, 2 );
-        $available = function_exists( 'get_available_languages' ) ? (array) get_available_languages() : [];
-        $targets = array_unique( array_merge( $available, [ 'nl_NL', 'en_US' ] ) );
+        $locales = \TT\Infrastructure\Query\LookupTranslator::installedLocales();
         $out = [];
-        foreach ( $targets as $loc ) {
-            $loc = (string) $loc;
-            if ( substr( $loc, 0, 2 ) === $current_short ) continue;
+        foreach ( $locales as $loc ) {
+            if ( $loc === 'en_US' ) continue; // canonical name field handles English.
             $out[] = $loc;
         }
         return array_values( array_unique( $out ) );
@@ -331,16 +334,21 @@ class FrontendConfigurationView extends FrontendViewBase {
                     <?php endif; ?>
                 </div>
                 <?php
-                // v3.74.4 — #7: auto-translate preview block. Renders
-                // a "Translate to other languages" button + a
-                // per-locale editable input for each installed locale.
-                // The admin reviews engine output before saving.
+                // v3.110.190 (#798) — load existing translations from
+                // `tt_translations` (the canonical store post-v3.110.30)
+                // instead of `meta.translations` (the pre-v3.110.30
+                // store that the renderer no longer reads — anything
+                // written there used to silently vanish from the
+                // dashboard). One row per locale × field.
                 $existing_translations = [];
-                if ( $editing ) {
-                    $existing_meta_for_tx = QueryHelpers::lookup_meta( $editing );
-                    if ( isset( $existing_meta_for_tx['translations'] ) && is_array( $existing_meta_for_tx['translations'] ) ) {
-                        foreach ( $existing_meta_for_tx['translations'] as $loc => $payload ) {
-                            $existing_translations[ (string) $loc ] = is_array( $payload ) ? (string) ( $payload['name'] ?? '' ) : (string) $payload;
+                if ( $editing && (int) ( $editing->id ?? 0 ) > 0 ) {
+                    $by_field_locale = ( new \TT\Modules\I18n\TranslationsRepository() )->allFor(
+                        \TT\Modules\I18n\TranslatableFieldRegistry::ENTITY_LOOKUP,
+                        (int) $editing->id
+                    );
+                    foreach ( $by_field_locale as $field => $by_locale ) {
+                        foreach ( $by_locale as $loc => $val ) {
+                            $existing_translations[ (string) $loc ][ (string) $field ] = (string) $val;
                         }
                     }
                 }
@@ -350,7 +358,13 @@ class FrontendConfigurationView extends FrontendViewBase {
                     <div class="tt-field" style="grid-column:1 / -1; margin-top:var(--tt-sp-3); border-top:1px solid var(--tt-line); padding-top:var(--tt-sp-3);">
                         <span class="tt-field-label"><?php esc_html_e( 'Translations', 'talenttrack' ); ?></span>
                         <p style="font-size:12px; color:var(--tt-muted); margin:0 0 var(--tt-sp-3);">
-                            <?php esc_html_e( 'Per-locale display name. Click "Translate" to fill these from the configured engine — review and edit before saving.', 'talenttrack' ); ?>
+                            <?php
+                            if ( $meta['show_desc'] ) {
+                                esc_html_e( 'Per-locale name and description. Leave blank to fall back to the canonical English values and the .po-shipped translation. Click "Translate" to pre-fill the name fields from the configured engine — review and edit before saving.', 'talenttrack' );
+                            } else {
+                                esc_html_e( 'Per-locale display name. Leave blank to fall back to the canonical English value and the .po-shipped translation. Click "Translate" to fill these from the configured engine — review and edit before saving.', 'talenttrack' );
+                            }
+                            ?>
                         </p>
                         <p style="margin:0 0 var(--tt-sp-3);">
                             <button type="button" class="tt-btn tt-btn-secondary" data-tt-lookup-translate><?php esc_html_e( 'Translate to other languages', 'talenttrack' ); ?></button>
@@ -358,12 +372,30 @@ class FrontendConfigurationView extends FrontendViewBase {
                         </p>
                         <div class="tt-grid tt-grid-2">
                             <?php foreach ( $tx_targets as $locale ) :
-                                $field_id = 'tt-lkp-tx-' . sanitize_html_class( $locale );
-                                $value    = $existing_translations[ $locale ] ?? '';
+                                $field_id_name = 'tt-lkp-tx-name-' . sanitize_html_class( $locale );
+                                $field_id_desc = 'tt-lkp-tx-desc-' . sanitize_html_class( $locale );
+                                $value_name = (string) ( $existing_translations[ $locale ]['name']        ?? '' );
+                                $value_desc = (string) ( $existing_translations[ $locale ]['description'] ?? '' );
                                 ?>
-                                <div class="tt-field">
-                                    <label class="tt-field-label" for="<?php echo esc_attr( $field_id ); ?>"><?php echo esc_html( $locale ); ?></label>
-                                    <input type="text" id="<?php echo esc_attr( $field_id ); ?>" class="tt-input" name="translations[<?php echo esc_attr( $locale ); ?>]" value="<?php echo esc_attr( $value ); ?>" data-tt-tx-locale="<?php echo esc_attr( $locale ); ?>" />
+                                <div class="tt-field" style="grid-column:1 / -1; padding:var(--tt-sp-2) 0; border-bottom:1px solid var(--tt-line-soft, #eef0f2);">
+                                    <label class="tt-field-label" for="<?php echo esc_attr( $field_id_name ); ?>" style="margin-bottom:6px; display:inline-block;"><code><?php echo esc_html( $locale ); ?></code></label>
+                                    <input type="text" id="<?php echo esc_attr( $field_id_name ); ?>"
+                                           class="tt-input"
+                                           name="translations[<?php echo esc_attr( $locale ); ?>][name]"
+                                           value="<?php echo esc_attr( $value_name ); ?>"
+                                           data-tt-tx-locale="<?php echo esc_attr( $locale ); ?>"
+                                           data-tt-tx-field="name"
+                                           placeholder="<?php esc_attr_e( 'Translated name', 'talenttrack' ); ?>" />
+                                    <?php if ( $meta['show_desc'] ) : ?>
+                                        <input type="text" id="<?php echo esc_attr( $field_id_desc ); ?>"
+                                               class="tt-input"
+                                               name="translations[<?php echo esc_attr( $locale ); ?>][description]"
+                                               value="<?php echo esc_attr( $value_desc ); ?>"
+                                               data-tt-tx-locale="<?php echo esc_attr( $locale ); ?>"
+                                               data-tt-tx-field="description"
+                                               placeholder="<?php esc_attr_e( 'Translated description', 'talenttrack' ); ?>"
+                                               style="margin-top:4px;" />
+                                    <?php endif; ?>
                                 </div>
                             <?php endforeach; ?>
                         </div>
@@ -409,19 +441,28 @@ class FrontendConfigurationView extends FrontendViewBase {
                     if (fd.get('description') !== null) body.description = String(fd.get('description') || '');
                     var meta = {};
                     if (fd.get('meta[color]')) meta.color = String(fd.get('meta[color]') || '');
+                    if (Object.keys(meta).length > 0) body.meta = meta;
 
-                    // v3.74.4 — collect per-locale translation edits
-                    // and persist into meta.translations.<locale>.name
-                    // so LookupTranslator picks them up.
+                    // v3.110.190 (#798) — collect per-locale name +
+                    // description edits and send as a top-level
+                    // `translations` field; the REST controller writes
+                    // through TranslationsRepository to the canonical
+                    // `tt_translations` table. The old meta.translations
+                    // path is gone — it was a write-only sink the
+                    // renderer didn't read.
                     var translations = {};
                     var tx_inputs = form.querySelectorAll('[data-tt-tx-locale]');
                     tx_inputs.forEach(function(inp){
-                        var loc = inp.getAttribute('data-tt-tx-locale');
-                        var val = String(inp.value || '').trim();
-                        if (loc && val !== '') translations[loc] = { name: val };
+                        var loc   = inp.getAttribute('data-tt-tx-locale');
+                        var field = inp.getAttribute('data-tt-tx-field') || 'name';
+                        var val   = String(inp.value || '').trim();
+                        if (!loc) return;
+                        if (!translations[loc]) translations[loc] = {};
+                        // Empty string sent explicitly so the controller
+                        // can drop a previously-set translation on save.
+                        translations[loc][field] = val;
                     });
-                    if (Object.keys(translations).length > 0) meta.translations = translations;
-                    if (Object.keys(meta).length > 0) body.meta = meta;
+                    if (Object.keys(translations).length > 0) body.translations = translations;
 
                     var url = rest + 'lookups/' + encodeURIComponent(type);
                     var method = 'POST';
@@ -760,6 +801,133 @@ class FrontendConfigurationView extends FrontendViewBase {
         </form>
         <?php
         self::renderConfigJs( false );
+    }
+
+    /**
+     * v3.110.189 — academy-configurable PDP cycle blocks per season.
+     * Form scaffolding for `frontend-pdp-blocks.js` to hydrate.
+     */
+    private static function renderPdpBlocksForm(): void {
+        $seasons_repo = new \TT\Modules\Pdp\Repositories\SeasonsRepository();
+        $blocks_repo  = new \TT\Modules\Pdp\Repositories\PdpBlocksRepository();
+
+        $all_seasons = $seasons_repo->all();
+        if ( empty( $all_seasons ) ) {
+            echo '<p class="tt-notice">'
+                . esc_html__( 'No seasons configured yet. Open the wp-admin Seasons page first and add a season — then come back here to set its PDP blocks.', 'talenttrack' )
+                . '</p>';
+            return;
+        }
+
+        $current = $seasons_repo->current();
+        $current_id = $current ? (int) $current->id : (int) $all_seasons[0]->id;
+
+        $payload = [ 'seasons' => [] ];
+        foreach ( $all_seasons as $s ) {
+            $payload['seasons'][] = [
+                'id'         => (int) $s->id,
+                'name'       => (string) $s->name,
+                'start_date' => (string) $s->start_date,
+                'end_date'   => (string) $s->end_date,
+                'is_current' => (int) $s->is_current === 1,
+                'blocks'     => $blocks_repo->listForSeason( (int) $s->id ),
+            ];
+        }
+        ?>
+        <p style="color:var(--tt-muted, #5b6e75); margin: 0 0 var(--tt-sp-3, 16px);">
+            <?php esc_html_e( "Configure the dates of each PDP cycle block for a season. Coaches opening a new PDP file pick how many blocks (2, 3 or 4); the file's conversation windows use the dates set here.", 'talenttrack' ); ?>
+        </p>
+
+        <form id="tt-pdp-blocks-form" class="tt-pdp-blocks" novalidate>
+            <div class="tt-panel">
+                <div class="tt-grid tt-grid-2">
+                    <div class="tt-field">
+                        <label class="tt-field-label" for="tt-pdp-blocks-season"><?php esc_html_e( 'Season', 'talenttrack' ); ?></label>
+                        <select id="tt-pdp-blocks-season" class="tt-input" data-tt-pdp-blocks-season>
+                            <?php foreach ( $all_seasons as $s ) : ?>
+                                <option value="<?php echo (int) $s->id; ?>" <?php selected( $current_id, (int) $s->id ); ?>>
+                                    <?php echo esc_html( (string) $s->name );
+                                    if ( (int) $s->is_current === 1 ) {
+                                        echo ' — ' . esc_html__( 'current', 'talenttrack' );
+                                    } ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="tt-field">
+                        <label class="tt-field-label"><?php esc_html_e( 'Number of blocks', 'talenttrack' ); ?></label>
+                        <div class="tt-pdp-blocks-size" role="radiogroup" aria-label="<?php esc_attr_e( 'Number of blocks in the cycle', 'talenttrack' ); ?>">
+                            <?php foreach ( [ 2, 3, 4 ] as $n ) : ?>
+                                <label class="tt-pdp-blocks-size-option">
+                                    <input type="radio" name="tt-pdp-blocks-size" value="<?php echo (int) $n; ?>" data-tt-pdp-blocks-size />
+                                    <span><?php echo (int) $n; ?></span>
+                                </label>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tt-panel">
+                <h3 style="margin: 0 0 var(--tt-sp-2, 12px); font-size: 0.95rem;"><?php esc_html_e( 'Block dates', 'talenttrack' ); ?></h3>
+                <div class="tt-pdp-blocks-rows" data-tt-pdp-blocks-rows></div>
+            </div>
+
+            <div class="tt-panel">
+                <h3 style="margin: 0 0 var(--tt-sp-2, 12px); font-size: 0.95rem;"><?php esc_html_e( 'Year timeline', 'talenttrack' ); ?></h3>
+                <div class="tt-pdp-blocks-timeline" data-tt-pdp-blocks-timeline></div>
+                <div class="tt-pdp-blocks-axis" data-tt-pdp-blocks-axis aria-hidden="true"></div>
+            </div>
+
+            <div class="tt-pdp-blocks-messages" data-tt-pdp-blocks-messages role="status" aria-live="polite"></div>
+
+            <div class="tt-form-actions" style="margin-top: var(--tt-sp-3, 16px);">
+                <button type="submit" class="tt-btn tt-btn-primary" data-tt-pdp-blocks-save>
+                    <?php esc_html_e( 'Save blocks', 'talenttrack' ); ?>
+                </button>
+                <span class="tt-form-msg" data-tt-pdp-blocks-msg></span>
+            </div>
+        </form>
+
+        <script type="application/json" data-tt-pdp-blocks-payload>
+            <?php echo wp_json_encode( $payload ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — JSON in script type=application/json is safe ?>
+        </script>
+        <?php
+        wp_enqueue_script(
+            'tt-pdp-blocks-config',
+            TT_PLUGIN_URL . 'assets/js/frontend-pdp-blocks.js',
+            [],
+            TT_VERSION,
+            true
+        );
+        wp_localize_script( 'tt-pdp-blocks-config', 'TT_PDP_BLOCKS', [
+            'rest_root' => esc_url_raw( rest_url( 'talenttrack/v1' ) ),
+            'nonce'     => wp_create_nonce( 'wp_rest' ),
+            'i18n'      => [
+                /* translators: %d = block number, 1-indexed */
+                'block_label'        => __( 'Block %d', 'talenttrack' ),
+                'from'               => __( 'From', 'talenttrack' ),
+                'to'                 => __( 'To', 'talenttrack' ),
+                'saving'             => __( 'Saving…', 'talenttrack' ),
+                'saved'              => __( 'Blocks saved.', 'talenttrack' ),
+                'save_failed'        => __( 'Could not save. Try again.', 'talenttrack' ),
+                /* translators: 1: block number, 2: season start, 3: season end */
+                'err_outside_season' => __( 'Block %1$d extends outside the season window (%2$s – %3$s).', 'talenttrack' ),
+                /* translators: 1: block A number, 2: block B number */
+                'err_overlap'        => __( 'Block %1$d overlaps with block %2$d.', 'talenttrack' ),
+                /* translators: 1: gap start date, 2: gap end date */
+                'err_gap'            => __( '%1$s to %2$s is not covered by any block.', 'talenttrack' ),
+                /* translators: %d = block number */
+                'err_end_before'     => __( 'Block %d ends before it starts.', 'talenttrack' ),
+                'msg_no_issues'      => __( 'All dates inside the season; no overlaps; no gaps.', 'talenttrack' ),
+            ],
+        ] );
+        wp_enqueue_style(
+            'tt-pdp-blocks-config',
+            TT_PLUGIN_URL . 'assets/css/frontend-pdp-blocks.css',
+            [],
+            TT_VERSION
+        );
     }
 
     private static function renderDashboardForm(): void {

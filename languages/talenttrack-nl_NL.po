@@ -29715,6 +29715,15 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+# v3.110.191 — frontend lookups admin translations (#798).
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Per-locale name and description. Leave blank to fall back to the canonical English values and the .po-shipped translation. Click \"Translate\" to pre-fill the name fields from the configured engine — review and edit before saving."
+msgstr "Naam en omschrijving per taal. Laat een veld leeg om terug te vallen op de Engelse standaard en de meegeleverde vertaling. Klik op \"Vertaal\" om de naamvelden vooraf in te vullen via de geconfigureerde vertaalmotor — controleer en pas aan voor je opslaat."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Per-locale display name. Leave blank to fall back to the canonical English value and the .po-shipped translation. Click \"Translate\" to fill these from the configured engine — review and edit before saving."
+msgstr "Weergavenaam per taal. Laat een veld leeg om terug te vallen op de Engelse standaard en de meegeleverde vertaling. Klik op \"Vertaal\" om deze in te vullen via de geconfigureerde vertaalmotor — controleer en pas aan voor je opslaat."
+
 #~ msgid "Name this blueprint:"
 #~ msgstr "Geef deze blueprint een naam:"
 
