@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-05-20T20:48:54+00:00\n"
+"POT-Creation-Date: 2026-05-20T20:52:23+00:00\n"
 "PO-Revision-Date: 2026-04-25 10:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -604,7 +604,7 @@ msgstr "Eerste beeld opbouwen"
 #: src/Modules/Configuration/Admin/MigrationsPage.php:122
 #: src/Modules/Invitations/InvitationStatus.php:23
 #: src/Shared/Frontend/FrontendExportsView.php:76
-#: src/Shared/Frontend/FrontendWizardView.php:531
+#: src/Shared/Frontend/FrontendWizardView.php:533
 msgid "Pending"
 msgstr "In behandeling"
 
@@ -628,7 +628,7 @@ msgstr "In uitvoering"
 #: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:186
 #: src/Shared/Frontend/FrontendExportsView.php:78
 #: src/Shared/Frontend/FrontendWizardsAdminView.php:156
-#: src/Shared/Frontend/FrontendWizardView.php:529
+#: src/Shared/Frontend/FrontendWizardView.php:531
 msgid "Completed"
 msgstr "Voltooid"
 
@@ -5017,7 +5017,7 @@ msgstr "Wijzigingen toepassen"
 #: src/Shared/Frontend/FrontendEvalCategoriesView.php:194
 #: src/Shared/Frontend/FrontendMailComposeView.php:131
 #: src/Shared/Frontend/FrontendViewBase.php:82
-#: src/Shared/Frontend/FrontendWizardView.php:310
+#: src/Shared/Frontend/FrontendWizardView.php:312
 msgid "Cancel"
 msgstr "Annuleren"
 
@@ -7692,7 +7692,7 @@ msgid "Resume setup wizard"
 msgstr "Installatiewizard hervatten"
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:469
-#: src/Shared/Frontend/FrontendWizardView.php:405
+#: src/Shared/Frontend/FrontendWizardView.php:407
 msgid "Start over"
 msgstr "Opnieuw beginnen"
 
@@ -9822,13 +9822,13 @@ msgid "Name and save"
 msgstr "Geef een naam en sla op"
 
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:158
-#: src/Shared/Frontend/FrontendWizardView.php:326
+#: src/Shared/Frontend/FrontendWizardView.php:328
 msgid "Next"
 msgstr "Volgende"
 
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:159
 #: src/Shared/Frontend/Components/BackLabelResolver.php:72
-#: src/Shared/Frontend/FrontendWizardView.php:318
+#: src/Shared/Frontend/FrontendWizardView.php:320
 msgid "Back"
 msgstr "Terug"
 
@@ -9837,7 +9837,7 @@ msgid "Save widget"
 msgstr "Widget opslaan"
 
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:161
-#: src/Shared/Frontend/FrontendWizardView.php:585
+#: src/Shared/Frontend/FrontendWizardView.php:587
 msgid "Saving…"
 msgstr "Opslaan…"
 
@@ -13992,7 +13992,7 @@ msgstr ""
 "hebben geen limiet."
 
 #: src/Modules/License/Admin/AccountPage.php:740
-#: src/Shared/Frontend/FrontendWizardView.php:530
+#: src/Shared/Frontend/FrontendWizardView.php:532
 msgid "Current"
 msgstr "Huidig"
 
@@ -15765,7 +15765,7 @@ msgstr "Datumnotatie"
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:196
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:244
 #: src/Shared/Frontend/FrontendDesktopPreferredBanner.php:37
-#: src/Shared/Frontend/FrontendWizardView.php:403
+#: src/Shared/Frontend/FrontendWizardView.php:405
 msgid "Continue"
 msgstr "Doorgaan"
 
@@ -23032,7 +23032,7 @@ msgid "Rated"
 msgstr "Beoordeeld"
 
 #: src/Modules/Wizards/Evaluation/RateActorsStep.php:120
-#: src/Shared/Frontend/FrontendWizardView.php:531
+#: src/Shared/Frontend/FrontendWizardView.php:533
 msgid "Skipped"
 msgstr "Overgeslagen"
 
@@ -25556,7 +25556,7 @@ msgstr "Geen resultaten."
 #: src/Shared/Frontend/DashboardShortcode.php:66
 #: src/Shared/Frontend/DashboardShortcode.php:1145
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:399
-#: src/Shared/Frontend/FrontendWizardView.php:327
+#: src/Shared/Frontend/FrontendWizardView.php:329
 msgid "Loading…"
 msgstr "Bezig met laden…"
 
@@ -29545,11 +29545,11 @@ msgid ""
 msgstr ""
 "Je hebt geen toegang tot deze wizard, of de wizard staat momenteel uit."
 
-#: src/Shared/Frontend/FrontendWizardView.php:112
+#: src/Shared/Frontend/FrontendWizardView.php:114
 msgid "Wizard misconfigured (no steps)."
 msgstr "Wizard onjuist geconfigureerd (geen stappen)."
 
-#: src/Shared/Frontend/FrontendWizardView.php:132
+#: src/Shared/Frontend/FrontendWizardView.php:134
 msgid ""
 "Your session expired while this step was open. Please reload the page and "
 "try again — your edits on this step will need to be re-entered."
@@ -29558,48 +29558,56 @@ msgstr ""
 "probeer opnieuw — wijzigingen op deze stap moeten opnieuw worden ingevuld."
 
 # v3.61.0 — #0061 round 2 (new-activity wizard + matrix grouping)
-#: src/Shared/Frontend/FrontendWizardView.php:312
+#: src/Shared/Frontend/FrontendWizardView.php:314
 msgid "Save as draft"
 msgstr "Opslaan als concept"
 
-#: src/Shared/Frontend/FrontendWizardView.php:326
+#: src/Shared/Frontend/FrontendWizardView.php:328
 msgid "Create"
 msgstr "Aanmaken"
 
-#: src/Shared/Frontend/FrontendWizardView.php:327
+#: src/Shared/Frontend/FrontendWizardView.php:329
 msgid "Creating…"
 msgstr "Aanmaken…"
 
 #. translators: %s: human-readable age e.g. "2 days".
-#: src/Shared/Frontend/FrontendWizardView.php:399
+#: src/Shared/Frontend/FrontendWizardView.php:401
 #, php-format
 msgid "You started this %s ago. Continue where you left off, or start over?"
 msgstr ""
 "Je bent %s geleden begonnen. Doorgaan waar je gebleven was, of opnieuw "
 "beginnen?"
 
-#: src/Shared/Frontend/FrontendWizardView.php:497
+#: src/Shared/Frontend/FrontendWizardView.php:499
 msgid "Wizard steps"
 msgstr "Wizard-stappen"
 
 #. translators: 1: step number, 2: step label, 3: state (Completed / Current / Pending / Skipped)
-#: src/Shared/Frontend/FrontendWizardView.php:526
+#: src/Shared/Frontend/FrontendWizardView.php:528
 #, php-format
 msgid "Step %1$d: %2$s (%3$s)"
 msgstr "Stap %1$d: %2$s (%3$s)"
 
 # #0077 polish wave 1 — new strings
-#: src/Shared/Frontend/FrontendWizardView.php:545
+#: src/Shared/Frontend/FrontendWizardView.php:547
 msgid "Help for this step"
 msgstr "Hulp bij deze stap"
 
-#: src/Shared/Frontend/FrontendWizardView.php:586
+#: src/Shared/Frontend/FrontendWizardView.php:588
 msgid "Saved · "
 msgstr "Opgeslagen · "
 
-#: src/Shared/Frontend/FrontendWizardView.php:587
+#: src/Shared/Frontend/FrontendWizardView.php:589
 msgid "Save failed"
 msgstr "Opslaan mislukt"
+
+#: src/Shared/Frontend/FrontendWizardView.php:611
+msgid "This field is required."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendWizardView.php:612
+msgid "Fill in every required field to continue."
+msgstr ""
 
 #: src/Shared/Frontend/PlayerDashboardView.php:39
 msgid "Progress"
