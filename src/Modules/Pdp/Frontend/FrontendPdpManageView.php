@@ -435,13 +435,35 @@ class FrontendPdpManageView extends FrontendViewBase {
             echo '<td>' . esc_html( self::templateLabel( (string) $c->template_key ) ) . '</td>';
             echo '<td>' . esc_html( self::shortDate( $c->scheduled_at ) ) . '</td>';
             echo '<td><span class="tt-status-badge ' . esc_attr( $badge_class ) . '">' . esc_html( $badge_label ) . '</span></td>';
+            // v3.110.197 (#809) — the "awaiting" state used to render as
+            // a middle-dot character (`·`) which the pilot read as a
+            // period — the conversation didn't visibly say "not done
+            // yet". Replace with the hourglass icon so the state reads
+            // at a glance: role glyph + hourglass = pending, role glyph
+            // + checkmark = signed.
             echo '<td>';
             $parent_ok = ! empty( $c->parent_ack_at );
             $player_ok = ! empty( $c->player_ack_at );
-            echo '<span title="' . esc_attr__( 'Parent ack', 'talenttrack' ) . '" style="margin-right:6px;">'
-                . ( $parent_ok ? '👤✓' : '👤·' ) . '</span>';
-            echo '<span title="' . esc_attr__( 'Player ack', 'talenttrack' ) . '">'
-                . ( $player_ok ? '⚽✓' : '⚽·' ) . '</span>';
+            $hourglass = \TT\Shared\Icons\IconRenderer::render( 'hourglass', [
+                'width'  => '12',
+                'height' => '12',
+                'class'  => 'tt-icon tt-pdp-ack-hourglass',
+                'style'  => 'vertical-align:-2px; color:#c9962a;',
+            ] );
+            echo '<span title="' . esc_attr( $parent_ok
+                    ? __( 'Parent has acknowledged', 'talenttrack' )
+                    : __( 'Parent acknowledgement pending', 'talenttrack' ) ) . '" style="margin-right:6px;">'
+                . '👤'
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — IconRenderer output is trusted SVG.
+                . ( $parent_ok ? '<span style="color:#2c8a2c;">✓</span>' : $hourglass )
+                . '</span>';
+            echo '<span title="' . esc_attr( $player_ok
+                    ? __( 'Player has acknowledged', 'talenttrack' )
+                    : __( 'Player acknowledgement pending', 'talenttrack' ) ) . '">'
+                . '⚽'
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — IconRenderer output is trusted SVG.
+                . ( $player_ok ? '<span style="color:#2c8a2c;">✓</span>' : $hourglass )
+                . '</span>';
             echo '</td>';
             echo '<td><a class="tt-btn tt-btn-secondary tt-btn-sm" href="' . esc_url( $url ) . '">'
                 . esc_html__( 'Open', 'talenttrack' ) . '</a></td>';
@@ -494,6 +516,12 @@ class FrontendPdpManageView extends FrontendViewBase {
         $base_url = remove_query_arg( [ 'action', 'conv', 'player_id' ] );
 
         $is_signed = ! empty( $conv->coach_signoff_at );
+        // v3.110.197 (#809) — any signature locks the form. Coach
+        // signoff, parent ack, OR player ack each make the conversation
+        // read-only end-to-end: form inputs disabled, Save hidden,
+        // signoff checkbox hidden, top banner explaining why.
+        $is_locked  = PdpConversationsRepository::isLocked( $conv );
+        $lock_attr  = $is_locked ? ' readonly disabled' : '';
         $rest_path = 'pdp-conversations/' . (int) $conv->id;
         // v3.92.5 — after save / sign, land back on the parent PDP file
         // so the user sees their work in context. Public.js honours
@@ -548,30 +576,65 @@ class FrontendPdpManageView extends FrontendViewBase {
 
         // Main form column (Conversation pane).
         echo '<div class="tt-pdp-conv-pane" data-tt-pdp-pane="conversation" role="tabpanel">';
+
+        // v3.110.197 (#809) — locked banner. Names the signatory chain so
+        // the coach knows why edits are blocked.
+        if ( $is_locked ) {
+            $lock_reasons = [];
+            if ( ! empty( $conv->coach_signoff_at ) ) {
+                $lock_reasons[] = sprintf(
+                    /* translators: %s = sign-off timestamp */
+                    __( 'coach signed off on %s', 'talenttrack' ),
+                    esc_html( (string) $conv->coach_signoff_at )
+                );
+            }
+            if ( ! empty( $conv->parent_ack_at ) ) {
+                $lock_reasons[] = sprintf(
+                    /* translators: %s = ack timestamp */
+                    __( 'parent acknowledged on %s', 'talenttrack' ),
+                    esc_html( (string) $conv->parent_ack_at )
+                );
+            }
+            if ( ! empty( $conv->player_ack_at ) ) {
+                $lock_reasons[] = sprintf(
+                    /* translators: %s = ack timestamp */
+                    __( 'player acknowledged on %s', 'talenttrack' ),
+                    esc_html( (string) $conv->player_ack_at )
+                );
+            }
+            echo '<div class="tt-notice tt-pdp-conv-locked" role="status" style="background:#fffbe6; border:1px solid #c9962a; border-radius:6px; padding:10px 12px; margin-bottom:12px;">';
+            echo '<strong>' . esc_html__( 'Read only.', 'talenttrack' ) . '</strong> ';
+            echo esc_html__( 'This conversation is locked because it carries a signature — ', 'talenttrack' );
+            // Reasons array contains escaped HTML (timestamps); join with comma.
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            echo implode( ', ', $lock_reasons );
+            echo '. ' . esc_html__( 'Open a new conversation if a follow-up edit is needed.', 'talenttrack' );
+            echo '</div>';
+        }
         ?>
         <form class="tt-ajax-form" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="PATCH" data-redirect-after-save-url="<?php echo esc_attr( $back_to_file_url ); ?>">
             <div class="tt-field">
                 <label class="tt-field-label" for="tt-conv-scheduled"><?php esc_html_e( 'Scheduled at', 'talenttrack' ); ?></label>
                 <input type="datetime-local" id="tt-conv-scheduled" name="scheduled_at" class="tt-input"
-                    value="<?php echo esc_attr( self::toDatetimeLocal( $conv->scheduled_at ) ); ?>" />
+                    value="<?php echo esc_attr( self::toDatetimeLocal( $conv->scheduled_at ) ); ?>"<?php echo $lock_attr; ?> />
             </div>
             <div class="tt-field">
                 <label class="tt-field-label" for="tt-conv-conducted"><?php esc_html_e( 'Conducted at', 'talenttrack' ); ?></label>
                 <input type="datetime-local" id="tt-conv-conducted" name="conducted_at" class="tt-input"
-                    value="<?php echo esc_attr( self::toDatetimeLocal( $conv->conducted_at ) ); ?>" />
+                    value="<?php echo esc_attr( self::toDatetimeLocal( $conv->conducted_at ) ); ?>"<?php echo $lock_attr; ?> />
                 <small style="color:#5b6e75;"><?php esc_html_e( 'Fill in once the conversation has happened.', 'talenttrack' ); ?></small>
             </div>
             <div class="tt-field">
                 <label class="tt-field-label" for="tt-conv-agenda"><?php esc_html_e( 'Agenda (pre-meeting)', 'talenttrack' ); ?></label>
-                <textarea id="tt-conv-agenda" name="agenda" class="tt-input" rows="3"><?php echo esc_textarea( (string) ( $conv->agenda ?? '' ) ); ?></textarea>
+                <textarea id="tt-conv-agenda" name="agenda" class="tt-input" rows="3"<?php echo $lock_attr; ?>><?php echo esc_textarea( (string) ( $conv->agenda ?? '' ) ); ?></textarea>
             </div>
             <div class="tt-field">
                 <label class="tt-field-label" for="tt-conv-notes"><?php esc_html_e( 'Notes (post-meeting)', 'talenttrack' ); ?></label>
-                <textarea id="tt-conv-notes" name="notes" class="tt-input" rows="5"><?php echo esc_textarea( (string) ( $conv->notes ?? '' ) ); ?></textarea>
+                <textarea id="tt-conv-notes" name="notes" class="tt-input" rows="5"<?php echo $lock_attr; ?>><?php echo esc_textarea( (string) ( $conv->notes ?? '' ) ); ?></textarea>
             </div>
             <div class="tt-field">
                 <label class="tt-field-label" for="tt-conv-actions"><?php esc_html_e( 'Agreed actions', 'talenttrack' ); ?></label>
-                <textarea id="tt-conv-actions" name="agreed_actions" class="tt-input" rows="3"><?php echo esc_textarea( (string) ( $conv->agreed_actions ?? '' ) ); ?></textarea>
+                <textarea id="tt-conv-actions" name="agreed_actions" class="tt-input" rows="3"<?php echo $lock_attr; ?>><?php echo esc_textarea( (string) ( $conv->agreed_actions ?? '' ) ); ?></textarea>
             </div>
 
             <?php if ( ! empty( $conv->player_reflection ) ) : ?>
@@ -581,20 +644,22 @@ class FrontendPdpManageView extends FrontendViewBase {
                 </div>
             <?php endif; ?>
 
-            <?php if ( ! $is_signed ) : ?>
+            <?php if ( $is_signed ) : ?>
+                <p class="tt-pdp-signed-off"><strong><?php esc_html_e( 'Signed off', 'talenttrack' ); ?></strong> — <?php echo esc_html( (string) $conv->coach_signoff_at ); ?></p>
+            <?php elseif ( ! $is_locked ) : ?>
                 <div class="tt-field">
                     <label class="tt-checkbox">
                         <input type="checkbox" name="coach_signoff_at" value="<?php echo esc_attr( current_time( 'mysql', true ) ); ?>" />
                         <?php esc_html_e( 'Sign off this conversation now', 'talenttrack' ); ?>
                     </label>
                 </div>
-            <?php else : ?>
-                <p class="tt-pdp-signed-off"><strong><?php esc_html_e( 'Signed off', 'talenttrack' ); ?></strong> — <?php echo esc_html( (string) $conv->coach_signoff_at ); ?></p>
             <?php endif; ?>
 
-            <div class="tt-form-actions" style="margin-top:16px;">
-                <button type="submit" class="tt-btn tt-btn-primary"><?php esc_html_e( 'Save conversation', 'talenttrack' ); ?></button>
-            </div>
+            <?php if ( ! $is_locked ) : ?>
+                <div class="tt-form-actions" style="margin-top:16px;">
+                    <button type="submit" class="tt-btn tt-btn-primary"><?php esc_html_e( 'Save conversation', 'talenttrack' ); ?></button>
+                </div>
+            <?php endif; ?>
             <div class="tt-form-msg"></div>
         </form>
         <?php

@@ -71,6 +71,38 @@ class PdpConversationsRestController {
             return RestResponse::success( [ 'id' => $id, 'unchanged' => true ] );
         }
 
+        // v3.110.197 (#809) — once ANY signature lands on the
+        // conversation (coach_signoff_at / parent_ack_at / player_ack_at),
+        // the row is read-only end-to-end. The second signatory can
+        // still ack their own column (so player + parent acks can both
+        // land), but no other field is writable — not even by an admin.
+        // Mirrors the frontend `isLocked()` predicate; this REST guard
+        // is the backstop in case the form is bypassed.
+        if ( PdpConversationsRepository::isLocked( $conv ) ) {
+            $still_writable = [];
+            // The signature columns the caller may set on a locked row
+            // are restricted to the column that's still NULL. Already-set
+            // signatures cannot be overwritten or cleared.
+            if ( empty( $conv->parent_ack_at ) )    $still_writable[] = 'parent_ack_at';
+            if ( empty( $conv->player_ack_at ) )    $still_writable[] = 'player_ack_at';
+            // Coach signoff stays locked the moment ANY signature is on
+            // the row — including a parent/player ack the coach hadn't
+            // expected. By design: pilot directive is "once anyone has
+            // signed, content cannot change", and the coach signoff
+            // counts as content (its timestamp triggers the print copy
+            // + closes the cycle).
+
+            foreach ( array_keys( $patch ) as $field ) {
+                if ( ! in_array( $field, $still_writable, true ) ) {
+                    return RestResponse::error(
+                        'conversation_locked',
+                        __( 'This conversation is read-only — it carries a signature. Open a new conversation if a follow-up edit is needed.', 'talenttrack' ),
+                        409
+                    );
+                }
+            }
+        }
+
         // v3.110.52 — gate `player_reflection` writes on the same 2-week
         // pre-meeting window the player surface (FrontendMyPdpView) uses
         // to render the form. The view-side gate hides the textarea, but

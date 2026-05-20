@@ -32,6 +32,29 @@ class PdpConversationsRepository {
         return $row ?: null;
     }
 
+    /**
+     * v3.110.197 (#809) — single predicate for "this conversation is
+     * read-only because someone has signed it." Once ANY of the three
+     * signature timestamps (`coach_signoff_at`, `parent_ack_at`,
+     * `player_ack_at`) is set, the conversation freezes — coach can
+     * no longer edit notes / agenda / dates / actions, and the second
+     * signatory can still ack their own column but cannot change the
+     * content that was put in front of them. Source of truth for the
+     * frontend form (renders fields disabled), the REST PATCH guard
+     * (rejects non-signature mutations), and any other consumer that
+     * needs the read-only signal.
+     *
+     * Accepts either a row object (with the three columns populated)
+     * or null (returns false — there's nothing to lock).
+     */
+    public static function isLocked( ?object $row ): bool {
+        if ( $row === null ) return false;
+        if ( ! empty( $row->coach_signoff_at ) ) return true;
+        if ( ! empty( $row->parent_ack_at ) )    return true;
+        if ( ! empty( $row->player_ack_at ) )    return true;
+        return false;
+    }
+
     /** @return object[] */
     public function listForFile( int $file_id ): array {
         if ( $file_id <= 0 ) return [];
