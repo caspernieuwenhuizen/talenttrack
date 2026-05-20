@@ -63,6 +63,13 @@ class MyTeamAvgRating extends AbstractKpiDataSource {
         [ 'from' => $cutoff ] = self::windowDates();
         $placeholders = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
 
+        // v3.110.182 (#781) — demo-mode scope on the evaluation row so
+        // this KPI doesn't aggregate over untagged evals when the demo
+        // toggle hides them from the list page. The widget bypassing the
+        // filter while the list applied it was the original symptom that
+        // surfaced this whole audit.
+        $scope = QueryHelpers::apply_demo_scope( 'e', 'evaluation' );
+
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared — placeholders built from int array.
         $avg = $wpdb->get_var( $wpdb->prepare(
             "SELECT AVG(rat.rating)
@@ -72,7 +79,8 @@ class MyTeamAvgRating extends AbstractKpiDataSource {
               WHERE e.club_id = %d
                 AND e.archived_at IS NULL
                 AND pl.team_id IN ({$placeholders})
-                AND e.eval_date >= %s",
+                AND e.eval_date >= %s
+                {$scope}",
             array_merge( [ $club_id ], $team_ids, [ $cutoff ] )
         ) );
 

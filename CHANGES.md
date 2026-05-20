@@ -1,3 +1,60 @@
+# TalentTrack v3.110.183 — Persona dashboard demo-mode filter — 14 surfaces now apply `apply_demo_scope` (closes #781)
+
+## Why
+
+Follow-up to v3.110.179's evaluations-list fix (#779). The pilot reported the evaluations list rendered empty while `MyTeamAvgRating` (a dashboard widget) aggregated over the same evaluations and showed a value. v3.110.179 fixed the list query (a non-existent column reference). The audit it prompted revealed a second, structural problem: most PersonaDashboard surfaces never call `QueryHelpers::apply_demo_scope`, so they bypass the install's demo-mode filter entirely.
+
+When demo mode is ON the list page filters to `id IN (SELECT entity_id FROM tt_demo_tags ...)` while a leaking widget returns everything. When demo mode is OFF the asymmetry reverses — list excludes tagged rows, widget includes them.
+
+## What
+
+Fourteen PersonaDashboard files now call `apply_demo_scope` against the relevant entity type. Pattern in each: add `$scope = QueryHelpers::apply_demo_scope( '<alias>', '<entity>' );` near the query, concatenate `{$scope}` into the WHERE (or into the LEFT-JOIN ON clause when null-row preservation matters).
+
+**Evaluations (5 files):**
+
+- `src/Modules/PersonaDashboard/Kpis/NewEvaluationsThisWeek.php`
+- `src/Modules/PersonaDashboard/Kpis/MyEvaluationsThisWeek.php`
+- `src/Modules/PersonaDashboard/Kpis/EvaluationsThisMonth.php`
+- `src/Modules/PersonaDashboard/Kpis/MyTeamAvgRating.php` — the widget that prompted #779
+- `src/Modules/PersonaDashboard/Widgets/ChildSwitcherWithRecapWidget.php`
+
+**Goals (4 files):**
+
+- `src/Modules/PersonaDashboard/Kpis/GoalsByPrincipleKpi.php`
+- `src/Modules/PersonaDashboard/Kpis/GoalCompletionPct.php`
+- `src/Modules/PersonaDashboard/TableSources/GoalsByPrincipleSource.php` — scope placed in the LEFT-JOIN ON clause so principles with zero matching goals still surface
+- `src/Modules/PersonaDashboard/Widgets/RecentCommentsWidget.php`
+
+**Activities (5 files):**
+
+- `src/Modules/PersonaDashboard/Kpis/AttendancePctRolling.php`
+- `src/Modules/PersonaDashboard/Kpis/MyTeamAttendancePct.php`
+- `src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php`
+- `src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php` — scopes the attendance JOIN's activity table
+- `src/Modules/PersonaDashboard/TableSources/UpcomingActivitiesSource.php`
+- `src/Modules/PersonaDashboard/Repositories/UpcomingActivityRepository.php` — consumed by `MarkAttendanceHeroWidget`
+
+## What stays unchanged
+
+- Schema unchanged. Zero migrations.
+- Behaviour on installs that have **no `tt_demo_tags` rows** is identical: `apply_demo_scope` returns an empty string when demo mode is "neutral" or the tags table is empty, so the new `{$scope}` interpolations collapse to nothing.
+- Coach-team scoping, capability gating, club-id filters — all unchanged. Demo-scope is a separate axis layered on top.
+
+## Out of scope
+
+- `tt_trials`, `tt_scouting_visits`, `tt_prospects`, `tt_workflow_*` — not in `DemoMode::tagIfActive`'s recognised entity types. If they ever need demo-scoping, the recognition list needs to grow first (separate design call).
+- Already-correct surfaces (`MiniPlayerListWidget`, `ActivePlayersTotal`) — untouched.
+
+## Test plan
+
+- [ ] Pilot install with demo mode ON: every KPI / widget / table source on the dashboard reads from the same demo-tagged subset the list pages display.
+- [ ] `MyTeamAvgRating` no longer aggregates over untagged real data.
+- [ ] `UpcomingActivityRepository::nextForCoach` does not surface untagged activities.
+- [ ] On a demo-OFF install with zero `tt_demo_tags` rows, every widget renders unchanged.
+- [ ] `GoalsByPrincipleSource` still surfaces principles with zero matching goals (LEFT-JOIN null preservation maintained — scope is in the ON clause, not the WHERE).
+
+---
+
 # TalentTrack v3.110.182 — Wizard post-submit redirect 404 round 3: `currentDashboardUrl()` helper used by every wizard `submit()` handler (#782 follow-up)
 
 ## Pilot report

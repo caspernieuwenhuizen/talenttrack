@@ -3,6 +3,7 @@ namespace TT\Modules\PersonaDashboard\Kpis;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\PersonaDashboard\Domain\AbstractKpiDataSource;
 use TT\Modules\PersonaDashboard\Domain\KpiValue;
 use TT\Modules\PersonaDashboard\Domain\PersonaContext;
@@ -66,6 +67,9 @@ class AttendancePctRolling extends AbstractKpiDataSource {
         global $wpdb;
         $start = gmdate( 'Y-m-d 00:00:00', strtotime( $from ) );
         $end   = $to === 'today' ? gmdate( 'Y-m-d 23:59:59' ) : gmdate( 'Y-m-d 00:00:00', strtotime( $to ) );
+        // v3.110.182 (#781) — demo-mode scope on the activity row so the
+        // rolling % matches the activities list / attendance pages.
+        $scope = QueryHelpers::apply_demo_scope( 'act', 'activity' );
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         // v3.110.3 — `LOWER(a.status)='present'` to match both the
         // seeded capitalised lookup values ('Present') and any legacy
@@ -77,7 +81,7 @@ class AttendancePctRolling extends AbstractKpiDataSource {
                 SUM(CASE WHEN LOWER(a.status) = 'present' THEN 1 ELSE 0 END) AS present
               FROM {$att_table} a
               JOIN {$act_table} act ON act.id = a.activity_id
-             WHERE act.club_id = %d AND act.session_date >= %s AND act.session_date < %s",
+             WHERE act.club_id = %d AND act.session_date >= %s AND act.session_date < %s {$scope}",
             $club_id, $start, $end
         ) );
         if ( ! $row || (int) $row->total === 0 ) return null;

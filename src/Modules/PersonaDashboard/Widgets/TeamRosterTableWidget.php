@@ -4,6 +4,7 @@ namespace TT\Modules\PersonaDashboard\Widgets;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\LookupPill;
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\PersonaDashboard\Domain\AbstractWidget;
 use TT\Modules\PersonaDashboard\Domain\PersonaContext;
@@ -216,6 +217,11 @@ class TeamRosterTableWidget extends AbstractWidget {
 
         // Attendance % per player over the window. `present + late`
         // counts as present.
+        //
+        // v3.110.182 (#781) — demo-mode scope on the activity row so
+        // the per-player % is consistent with what the activities list
+        // surfaces under the same toggle.
+        $act_scope = QueryHelpers::apply_demo_scope( 'a', 'activity' );
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $att_rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT att.player_id,
@@ -226,6 +232,7 @@ class TeamRosterTableWidget extends AbstractWidget {
               WHERE att.club_id = %d
                 AND att.player_id IN ( {$placeholders} )
                 AND a.session_date >= %s
+                {$act_scope}
               GROUP BY att.player_id",
             array_merge( [ $club_id ], $ids, [ $start ] )
         ) );

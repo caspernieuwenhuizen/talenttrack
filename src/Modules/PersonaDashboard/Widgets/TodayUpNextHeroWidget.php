@@ -82,27 +82,31 @@ class TodayUpNextHeroWidget extends AbstractWidget {
         }
         $today       = gmdate( 'Y-m-d' );
         $has_club    = self::hasClubColumn( $table );
-        $club_clause = $has_club ? ' AND club_id = ' . (int) $club_id : '';
+        $club_clause = $has_club ? ' AND a.club_id = ' . (int) $club_id : '';
+        // v3.110.182 (#781) — demo-mode scope so the coach hero matches
+        // the activities list filter.
+        $scope = QueryHelpers::apply_demo_scope( 'a', 'activity' );
 
         if ( ! empty( $team_ids ) ) {
             $team_ids = array_values( array_unique( array_map( 'intval', $team_ids ) ) );
             $placeholders = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
             // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQL.NotPrepared
             $sql = $wpdb->prepare(
-                "SELECT * FROM {$table}
-                  WHERE session_date >= %s
-                    AND team_id IN ({$placeholders})
+                "SELECT * FROM {$table} a
+                  WHERE a.session_date >= %s
+                    AND a.team_id IN ({$placeholders})
                     {$club_clause}
-                  ORDER BY session_date ASC
+                    {$scope}
+                  ORDER BY a.session_date ASC
                   LIMIT 1",
                 array_merge( [ $today ], $team_ids )
             );
             return $wpdb->get_row( $sql );
         }
         // No coached teams — fall back to any club-scoped upcoming activity.
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         return $wpdb->get_row( $wpdb->prepare(
-            "SELECT * FROM {$table} WHERE session_date >= %s {$club_clause} ORDER BY session_date ASC LIMIT 1",
+            "SELECT * FROM {$table} a WHERE a.session_date >= %s {$club_clause} {$scope} ORDER BY a.session_date ASC LIMIT 1",
             $today
         ) );
     }

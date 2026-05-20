@@ -138,8 +138,14 @@ class RecentCommentsWidget extends AbstractWidget {
         $p = $wpdb->prefix;
         switch ( $type ) {
             case 'goal':
+                // v3.110.182 (#781) — demo-mode scope so a thread for a
+                // non-demo goal doesn't leak the title into the demo
+                // dashboard. Falls back to the generic label below when
+                // the scope filters this row out.
+                $goal_scope = QueryHelpers::apply_demo_scope( 'g', 'goal' );
+                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
                 $title = (string) $wpdb->get_var( $wpdb->prepare(
-                    "SELECT title FROM {$p}tt_goals WHERE id = %d AND club_id = %d",
+                    "SELECT g.title FROM {$p}tt_goals g WHERE g.id = %d AND g.club_id = %d {$goal_scope}",
                     $id, CurrentClub::id()
                 ) );
                 if ( $title !== '' ) {

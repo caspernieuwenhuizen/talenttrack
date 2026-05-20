@@ -3,6 +3,7 @@ namespace TT\Modules\PersonaDashboard\Kpis;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\PersonaDashboard\Domain\AbstractKpiDataSource;
 use TT\Modules\PersonaDashboard\Domain\KpiValue;
 use TT\Modules\PersonaDashboard\Domain\PersonaContext;
@@ -23,9 +24,13 @@ class EvaluationsThisMonth extends AbstractKpiDataSource {
         // aggregated across every tenant on the install (returning
         // either 0 on a fresh pilot, or a misleading global total in
         // a multi-tenant test). Sparkline gets the same scope.
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        //
+        // v3.110.182 (#781) — demo-mode scope so the club-wide count
+        // matches every other evaluation surface.
+        $scope = QueryHelpers::apply_demo_scope( 'e', 'evaluation' );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $count = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$table} WHERE club_id = %d AND created_at >= %s",
+            "SELECT COUNT(*) FROM {$table} e WHERE e.club_id = %d AND e.created_at >= %s {$scope}",
             $club_id, $first
         ) );
 
@@ -35,9 +40,9 @@ class EvaluationsThisMonth extends AbstractKpiDataSource {
         for ( $w = 3; $w >= 0; $w-- ) {
             $start = gmdate( 'Y-m-d 00:00:00', strtotime( '-' . ( ( $w + 1 ) * 7 ) . ' days' ) );
             $end   = gmdate( 'Y-m-d 00:00:00', strtotime( '-' . ( $w * 7 ) . ' days' ) );
-            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
             $sparkline[] = (float) $wpdb->get_var( $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$table} WHERE club_id = %d AND created_at >= %s AND created_at < %s",
+                "SELECT COUNT(*) FROM {$table} e WHERE e.club_id = %d AND e.created_at >= %s AND e.created_at < %s {$scope}",
                 $club_id, $start, $end
             ) );
         }

@@ -3,6 +3,7 @@ namespace TT\Modules\PersonaDashboard\Kpis;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\PersonaDashboard\Domain\AbstractKpiDataSource;
 use TT\Modules\PersonaDashboard\Domain\KpiValue;
 use TT\Modules\PersonaDashboard\Domain\PersonaContext;
@@ -40,12 +41,16 @@ class GoalCompletionPct extends AbstractKpiDataSource {
         // initial schema; the table also lacks `completed_at` (only
         // `updated_at` reflects status changes). Skip the historical
         // sparkline — current snapshot only.
+        // v3.110.182 (#781) — demo-mode scope so completion % matches
+        // what the goals list filters under the same toggle.
+        $scope = QueryHelpers::apply_demo_scope( 'g', 'goal' );
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $row = $wpdb->get_row( $wpdb->prepare(
             "SELECT
                 COUNT(*) AS total,
-                SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) AS done
-              FROM {$table}
-              WHERE club_id = %d",
+                SUM(CASE WHEN g.status = 'completed' THEN 1 ELSE 0 END) AS done
+              FROM {$table} g
+              WHERE g.club_id = %d {$scope}",
             $club_id
         ) );
         if ( ! $row || (int) $row->total === 0 ) {

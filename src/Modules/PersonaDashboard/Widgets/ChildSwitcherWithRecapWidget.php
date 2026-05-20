@@ -3,6 +3,7 @@ namespace TT\Modules\PersonaDashboard\Widgets;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\PersonaDashboard\Domain\AbstractWidget;
 use TT\Modules\PersonaDashboard\Domain\PersonaContext;
 use TT\Modules\PersonaDashboard\Domain\RenderContext;
@@ -132,11 +133,15 @@ class ChildSwitcherWithRecapWidget extends AbstractWidget {
         }
         $ids = array_map( static fn( $c ): int => (int) $c->id, $children );
         $placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        // v3.110.182 (#781) — demo-mode scope so the parent recap matches
+        // what the player's evaluation list page surfaces.
+        $scope = QueryHelpers::apply_demo_scope( 'e', 'evaluation' );
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $count = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$table}
-              WHERE player_id IN ({$placeholders})
-                AND created_at > %s",
+            "SELECT COUNT(*) FROM {$table} e
+              WHERE e.player_id IN ({$placeholders})
+                AND e.created_at > %s
+                {$scope}",
             array_merge( $ids, [ $since ] )
         ) );
         return [ 'total' => $count ];
