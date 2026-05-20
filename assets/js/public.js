@@ -187,18 +187,44 @@
                     form.dispatchEvent(new CustomEvent('tt:form-saved', { bubbles: true }));
                     var redirect = form.getAttribute('data-redirect-after-save');
                     var redirectUrl = form.getAttribute('data-redirect-after-save-url');
-                    if (redirect === '1' || redirect === 'list') {
-                        // Briefly show success, then drop the form-mode query
-                        // params so the user lands back on the section's list
-                        // view. `tt_view` is preserved so they don't get
-                        // bounced to the tile grid (which was the old "1"
-                        // behaviour and meant "save & lose context").
+                    // v3.110.188 (#795) — was checking equality against
+                    // '1' and 'list' only; many forms emit compound values
+                    // like 'list:scouting-visits' or 'detail:scouting-visit:42'
+                    // which fell through to the form.reset() else-branch, so
+                    // the saved record stayed visible on the page instead of
+                    // returning the user to the list/detail. Match prefix
+                    // instead of equality and handle each compound shape.
+                    var redirectIsList   = (redirect === '1' || redirect === 'list' || (redirect && redirect.indexOf('list:') === 0));
+                    var redirectIsDetail = (redirect && redirect.indexOf('detail:') === 0);
+                    if (redirectIsList) {
                         setTimeout(function() {
                             try {
                                 var url = new URL(window.location.href);
                                 url.searchParams.delete('action');
                                 url.searchParams.delete('id');
                                 url.searchParams.delete('edit');
+                                if (redirect && redirect.indexOf('list:') === 0) {
+                                    var listSlug = redirect.substring(5);
+                                    if (listSlug) url.searchParams.set('tt_view', listSlug);
+                                }
+                                window.location.href = url.toString();
+                            } catch (e) {
+                                window.location.href = window.location.pathname;
+                            }
+                        }, 1200);
+                    } else if (redirectIsDetail) {
+                        // 'detail:<entity>:<id>' — go to the record's detail
+                        // page; mirrors PHP-side RecordLink::detailUrlFor.
+                        setTimeout(function() {
+                            try {
+                                var parts = redirect.split(':');
+                                var entity = parts[1] || '';
+                                var rid    = parseInt(parts[2] || '0', 10);
+                                var url = new URL(window.location.href);
+                                url.searchParams.delete('action');
+                                url.searchParams.delete('edit');
+                                if (entity) url.searchParams.set('tt_view', entity);
+                                if (rid > 0) url.searchParams.set('id', String(rid));
                                 window.location.href = url.toString();
                             } catch (e) {
                                 window.location.href = window.location.pathname;
