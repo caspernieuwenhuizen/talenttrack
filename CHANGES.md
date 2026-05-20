@@ -1,101 +1,209 @@
-# TalentTrack v3.110.171 — Tournaments tile routing fix (closes #764)
+# TalentTrack v3.110.173 — Sustainable fix for the recurring "Unknown section" bug class (follow-up to #764)
 
-## Pilot report
+## Pilot ask
 
-Chat 2026-05-20:
+Chat 2026-05-20, after the v3.110.171 one-line fix for tournaments:
 
-> Ok so we need to ensure the tournament functionality. At the moment, when as admin I click on the tile I get a "unknown part" message/. That is not correct
+> This bug needs to be solved permanently and in a sustainable way; propose a solution
 
-## Root cause
+I proposed three options:
 
-`src/Shared/Frontend/DashboardShortcode.php`:
+1. **Bool-returning dispatchers** — fold the per-group `$xxx_slugs` allowlist into each dispatcher's switch itself
+2. **CI test asserting switch ↔ allowlist consistency** — cheaper safety net, doesn't eliminate duplication
+3. **Central ViewRegistry** — biggest refactor, follows the existing `TileRegistry`/`WizardRegistry` pattern
 
-- **Line 665** — the `tournaments` case in `dispatchCoachingView()` is correctly wired:
-  ```php
-  case 'tournaments':
-      FrontendTournamentsManageView::render( $user_id, $is_admin );
-      break;
-  ```
-- **Line 195** — the `$coaching_slugs` allowlist that the top-level router consults at **line 350** does NOT contain `'tournaments'`:
-  ```php
-  $coaching_slugs = [ 'teams', 'players', 'players-import', 'people',
-      'functional-roles', 'evaluations', 'activities', 'goals',
-      'pdp', 'pdp-planning', /* … */, 'mail-compose' ];
-      //                              ^^^^^ no 'tournaments' here
-  ```
-- **Line 350** — the router:
-  ```php
-  } elseif ( in_array( $view, $coaching_slugs, true ) ) {
-      self::dispatchCoachingView( $view, $user_id, $is_admin );
-  } elseif ( /* … other dispatch branches … */ ) {
-      // …
-  } else {
-      echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
-  }
-  ```
+Pilot picked Option 1 and asked me to leave a note in the SaaS port repo about the eventual SaaS-side approach.
 
-So when the admin clicked the Tournaments tile and landed on `?tt_view=tournaments`:
+## Recurring bug history
 
-1. None of the slug allowlists matched (`tournaments` is in zero of `$me_slugs`, `$account_slugs`, `$coaching_slugs`, `$analytics_slugs`, `$admin_slugs`, `$workflow_slugs`, `$dev_slugs`, `$invitation_slugs`, `$report_slugs`, `$trial_slugs`, `$staff_dev_slugs`, `$wizard_slugs`, `$mfa_slugs`, `$mobile_slugs`).
-2. The router fell through to the final else branch.
-3. `Unknown section.` rendered. Dutch users saw *"Onbekend onderdeel."*
+`src/Shared/Frontend/DashboardShortcode.php` shipped the same class of bug **three times**:
 
-The `FrontendTournamentsManageView::render()` call site that *would* serve the page was never reached. The view itself was perfectly functional — it just had no inbound route from the tile.
+| When | Symptom | Fix |
+| --- | --- | --- |
+| v3.110.10 | Team planner tile → "Unknown section." | Added `'team-planner'` to `$coaching_slugs` |
+| later | Onboarding pipeline tile → "Unknown section." | Added `'onboarding-pipeline'` to `$workflow_slugs` |
+| v3.110.171 (#764) | Tournaments tile → "Unknown section." | Added `'tournaments'` to `$coaching_slugs` |
 
-## Why this slipped through
+Every fix was a one-line allowlist addition. The fundamental shape — two lists that must stay in sync — was the bug.
 
-The tournament feature shipped in two staggered ships:
+## Root architecture before this ship
 
-- **#0093 chunk 1 (v3.110.132 / v3.110.133)** — schema + REST + view + wizard. Reachable only by direct URL (`?tt_view=tournaments`), and direct URLs *also* hit the same slug-allowlist gate, so this should have caught the bug then. But the only person clicking direct URLs at the time was a developer who'd added `?tt_view=tournaments` manually — and that path goes through `dispatchCoachingView` only IF the slug is in the allowlist. The direct URL path was equally broken; nobody noticed because there was no tile to expose it.
-
-- **v3.110.152 — tile registration** (`TournamentsModule::boot()` → `TileRegistry::register` with `view_slug: 'tournaments'`). This is what exposed the bug — the academy admin now had a one-click entry from the dashboard tile grid, and clicking it surfaced the routing miss immediately.
-
-This is the **third repeat of the exact same class of bug** in this file. The block comment above `$coaching_slugs` already references the previous two:
-
-- v3.110.10 — `team-planner` had the same miss.
-- A later ship — `onboarding-pipeline` had the same miss.
-
-Both fixes were one-line allowlist additions. This fix is the same shape.
-
-## Fix
-
-One line: add `'tournaments'` to the `$coaching_slugs` array, between `'goals'` and `'pdp'` (alphabetical ordering of the Performance-group surfaces).
+The router consulted ~14 per-group `$xxx_slugs` arrays via `in_array()` to decide which dispatcher to call. Each dispatcher had a `switch ($view) { case '<slug>': render(); break; }` that also enumerated the same slugs. If a developer added a new `case` to a dispatcher and forgot to add the slug to the corresponding allowlist, the dispatcher was never reached and the slug fell through to the "Unknown section." default.
 
 ```php
-$coaching_slugs  = [ 'teams', 'players', 'players-import', 'people',
-    'functional-roles', 'evaluations', 'activities', 'goals',
-    'tournaments',  // <-- added
-    'pdp', 'pdp-planning', /* … */ ];
+// Before — two sources of truth:
+$coaching_slugs = [ 'teams', 'players', /* … */ ];  // ← slug list 1
+// …
+private static function dispatchCoachingView( ... ): void {
+    switch ( $view ) {
+        case 'teams':   FrontendTeamsManageView::render( … ); break;  // ← slug list 2
+        case 'players': FrontendPlayersManageView::render( … ); break;
+        // …
+    }
+}
 ```
 
-Plus a comment block above the array explaining the miss (matching the style of the prior two comments for team-planner and onboarding-pipeline) so the next coder reading the file knows this is a recurring pattern.
+## The refactor
 
-## Suggested follow-up (not in this ship)
+### Dispatchers return `bool`
 
-The recurring nature of this miss suggests a structural fix is worth considering for a future ship:
+Every `dispatchXxxView` method now declares `: bool`. Switch cases use `return true;` after dispatch. The default returns `false`.
 
-- **Option A** — auto-derive the allowlist from the dispatcher's `switch` cases. Reflection or a static parse on plugin boot, then cached in `wp_options` like the tile registry. A new case in `dispatchCoachingView()` would auto-update the router with no separate edit.
-- **Option B** — fold the per-group dispatchers into a single registry that takes ownership of both the allowlist AND the render callback. New view = one registration entry.
-- **Option C** — add a unit test that asserts every `case '<slug>':` in each dispatcher method appears in at least one allowlist. CI catches the next miss before it ships.
+```php
+// After — one source of truth: the switch case list itself
+private static function dispatchCoachingView( ... ): bool {
+    switch ( $view ) {
+        case 'teams':
+            FrontendTeamsManageView::render( … );
+            return true;
+        case 'players':
+            FrontendPlayersManageView::render( … );
+            return true;
+        // …
+        default:
+            return false;  // dispatcher passes; router tries the next
+    }
+}
+```
 
-Option C is the cheapest insurance and would have caught this bug at v3.110.132 push time. Worth a separate idea file. Not done in this ship — the user wants the tile to work today.
+Nested `return;` inside cap-check denial paths (e.g. `'scout-history'` denying when `tt_generate_scout_report` isn't held) becomes `return true;` — the dispatcher claimed the slug and rendered the denial, so the router should not try the next dispatcher.
+
+### Router collapses to one helper call
+
+The 80-line `if (in_array(…)) elseif (in_array(…)) elseif (…)` ladder collapses into:
+
+```php
+} elseif ( ! self::tryDispatch( $view, $user_id, $is_admin, $player ) ) {
+    FrontendBreadcrumbs::fromDashboard( __( 'Unknown section', 'talenttrack' ) );
+    echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
+}
+```
+
+Where `tryDispatch` chains every dispatcher via `||` short-circuit:
+
+```php
+private static function tryDispatch( …, ?object $player ): bool {
+    return self::dispatchMeView( $view, $player )
+        || self::dispatchAccountView( $view, $user_id )
+        || self::dispatchCoachingView( $view, $user_id, $is_admin )
+        || self::dispatchAnalyticsView( $view )
+        || self::dispatchAdminView( $view, $user_id, $is_admin )
+        || self::dispatchWorkflowView( $view, $user_id, $is_admin )
+        || self::dispatchDevView( $view )
+        || self::dispatchInvitationView( $view )
+        || self::dispatchReportView( $view, $user_id, $is_admin )
+        || self::dispatchTrialView( $view, $user_id, $is_admin )
+        || self::dispatchStaffDevelopmentView( $view, $user_id, $is_admin )
+        || self::dispatchWizardView( $view, $user_id, $is_admin )
+        || self::dispatchMfaView( $view, $user_id, $is_admin )
+        || self::dispatchMobileView( $view, $user_id, $is_admin )
+        || self::dispatchAnalyticsExploreView( $view, $user_id, $is_admin )
+        || self::dispatchAnalyticsCentralView( $view, $user_id, $is_admin )
+        || self::dispatchAnalyticsReportView( $view, $user_id, $is_admin )
+        || self::dispatchAnalyticsScheduleView( $view, $user_id, $is_admin );
+}
+```
+
+The first dispatcher to claim the slug wins; the rest are short-circuited. Order matters when slugs overlap — `dispatchMeView` runs before `dispatchAccountView` (though their slug sets don't actually overlap in practice; the order is preserved for safety).
+
+### Preconditions move inside dispatchers
+
+Previously the router did:
+
+```php
+} elseif ( in_array( $view, $me_slugs, true ) ) {
+    if ( $player ) {
+        self::dispatchMeView( $view, $player );
+    } else {
+        echo 'needs player record';
+    }
+}
+```
+
+Now `dispatchMeView` owns its precondition via a shared `requirePlayerOrDeny()` helper:
+
+```php
+case 'overview':
+    if ( ! self::requirePlayerOrDeny( $player ) ) return true;
+    FrontendOverviewView::render( $player );
+    return true;
+```
+
+Same pattern for `dispatchAccountView` and the sign-in-required check.
+
+### 7 new dispatchers wrap previously-inline single-slug routes
+
+For uniformity, every routable view now goes through a bool dispatcher — no special cases:
+
+- `dispatchWizardView` (`wizard` + `wizards-admin`)
+- `dispatchMfaView` (`mfa-prompt`)
+- `dispatchMobileView` (`mobile-settings`)
+- `dispatchAnalyticsExploreView` (`explore`)
+- `dispatchAnalyticsCentralView` (`analytics`)
+- `dispatchAnalyticsReportView` (`attendance-report-team` + `attendance-report-player`)
+- `dispatchAnalyticsScheduleView` (`scheduled-reports`)
+
+### `$xxx_slugs` arrays — all 14 deleted
+
+A comment block replaces them explaining the refactor and listing the three prior misses for future readers.
+
+## Why this kills the bug class
+
+Adding a new view used to require TWO edits:
+1. Add the `case '<slug>':` to a dispatcher's switch.
+2. Add the slug to a `$xxx_slugs` allowlist.
+
+Forgetting step 2 was the recurring bug. After this refactor, **step 2 doesn't exist**. The switch case itself is the registration. Adding the case makes the slug routable on the next request. There is no second list to forget.
+
+## Behaviour
+
+No observable change. Same surfaces dispatch to the same views with the same permission checks, the same "Not authorized" / "Sign in required" notices, the same module-disabled fallback, the same matrix gate, the same module-disabled-tile notice.
+
+Two tiny side effects worth noting:
+- `?tt_view=teammate` was previously unreachable from the router (not in `$me_slugs`) despite the case existing in `dispatchMeView`. It's now reachable. Strictly an improvement.
+- `?tt_view=my-settings` is explicitly claimed only by `dispatchAccountView` (not `dispatchMeView`) — the dead case in the old Me-dispatcher was removed and a comment explains why. Non-player personas (coach/scout/admin) reach `my-settings` correctly, same as v3.92.0 fixed.
+
+## SaaS port — this refactor is WP-plugin-specific
+
+The talenttrack-saas port uses Next.js App Router file-based routes. File existence (`app/<segment>/page.tsx`) is the registration — there's no allowlist to drift, no central dispatcher to forget to update.
+
+When porting a WP `?tt_view=foo` surface to SaaS, the natural shape is `apps/web/app/(authenticated)/foo/page.tsx`, not a `ViewRegistry` class. **Don't port this dispatcher pattern.**
+
+Noted in `talenttrack-saas/docs/decisions.md` under "Open decisions" for the eventual route-segment naming ADR (lands when the second SaaS module ports).
 
 ## Files touched
 
-- `src/Shared/Frontend/DashboardShortcode.php` — one line added to `$coaching_slugs`, comment block above it.
-- `talenttrack.php` — version 3.110.170 → 3.110.171.
+- `src/Shared/Frontend/DashboardShortcode.php` — the entire refactor lives in this one file. 11 multi-case dispatchers refactored to `bool`. 7 new tiny dispatchers wrap previously-inline routes. New `tryDispatch()` chains them all. Router elseif ladder collapses. All 14 `$xxx_slugs` arrays deleted.
+- `talenttrack.php` — 3.110.172 → 3.110.173.
 - `readme.txt` — Stable tag + changelog entry.
 - `CHANGES.md` — this file.
+- *(separately)* `talenttrack-saas/docs/decisions.md` — Open-decision entry on view routing for the SaaS side.
 
-No DB migration, no REST shape change, no new i18n strings, no auth change.
+No DB migration, no REST shape change, no new i18n strings, no auth change, no view-class change.
 
 ## Test plan
 
-On the pilot install after the release ZIP rebuilds:
+- [ ] Admin clicks the Tournaments tile → lands on tournaments list (regression check for the original #764 trigger)
+- [ ] Coach clicks Team planner tile → lands on planner (regression check for the original v3.110.10 miss)
+- [ ] Scout clicks Onboarding pipeline tile → lands on pipeline (regression check for the v3.110.x miss)
+- [ ] Player clicks any Me-tile (my-team, my-evaluations, my-goals, etc.) → renders correctly
+- [ ] Coach/scout/admin without a linked player clicks `?tt_view=my-settings` → still works (account-level slug, not Me-group)
+- [ ] Coach without a linked player clicks `?tt_view=my-team` → "This section is only available for users linked to a player record."
+- [ ] Genuinely unknown slug like `?tt_view=foobar` → "Unknown section."
+- [ ] Module disabled → "This section is currently unavailable."
+- [ ] Matrix denies → "You do not have access to this surface."
+- [ ] Admin clicks every other tile (players, teams, people, evaluations, goals, activities, PDP, etc.) → renders correctly
 
-- [ ] Log in as admin (or any user holding `tt_view_tournaments`, which in v1 means `administrator` + `tt_club_admin`).
-- [ ] On the dashboard, locate the Tournaments tile (Performance group, between Team planner and Goals).
-- [ ] Click the tile.
-- [ ] Lands on the tournaments list view (`FrontendTournamentsManageView::renderList`), not "Unknown section."
-- [ ] Whole-row click navigates to tournament detail (the row-link standard shipped in v3.110.170 still applies — Tournaments was wired up there).
-- [ ] Coach / HoD / scout / player / parent personas (without `tt_view_tournaments`): the tile is auto-hidden by `TileRegistry`'s `cap` gate, so they never see the entry point. Direct URL `?tt_view=tournaments` still routes correctly but `FrontendTournamentsManageView::render` shows the "Not authorized" notice inside the view's own permission re-check.
+## Verifying the bug class is gone
+
+Try this experiment after this ship merges: add a temporary case to `dispatchCoachingView`:
+
+```php
+case 'test-route':
+    echo 'hello world';
+    return true;
+```
+
+Visit `?tt_view=test-route`. It renders "hello world" immediately. No allowlist edit needed. Pre-refactor, that same case would have rendered "Unknown section." until the slug was also added to `$coaching_slugs`.
+
+Then remove the test case before committing.

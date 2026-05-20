@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.172
+Stable tag: 3.110.173
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.173 — Sustainable fix for the recurring "Unknown section" bug class: bool-returning dispatchers replace the per-group `$xxx_slugs` allowlists in `DashboardShortcode.php`, removing the second source of truth that drifted three times in this codebase (team-planner v3.110.10, onboarding-pipeline, tournaments v3.110.171) =
+
+Follow-up to v3.110.171 (#764). The tournaments tile bug was the third shipped repeat of the same class — slug allowlist out of sync with dispatcher switch cases. Pilot 2026-05-20: *"This bug needs to be solved permanently and in a sustainable way."* This ship eliminates the bug class structurally by collapsing two sources of truth into one. **The refactor**: every per-group `dispatchXxxView` method in `src/Shared/Frontend/DashboardShortcode.php` now returns `bool` instead of `void`. Switch cases use `return true;` instead of `break;` after rendering. The default arm returns `false`. The top-level router replaces the giant `if (in_array($view, $coaching_slugs)) … elseif (in_array(…))` ladder with a single call to a new `tryDispatch()` helper that chains every dispatcher via `||` short-circuit — the first one to claim the slug wins, every other one is skipped. **The 14+ `$xxx_slugs` arrays are gone.** The single source of truth for "which slugs route where" is now the switch case list inside each `dispatchXxxView` method. Adding a new view = adding a `case '<slug>':` to one dispatcher. The slug is routable on the next request. There is no separate edit, no separate list, no recurrence possible. **Per-precondition logic moves inside the relevant dispatchers**: `dispatchMeView` now does its own `requirePlayerOrDeny` check per case (the previous router-side `if ($player)` gate is gone); `dispatchAccountView` does its own `$user_id <= 0` sign-in check per case. **Seven new tiny bool-dispatchers** wrap previously-inline single-slug routes for uniformity: `dispatchWizardView` (wizard + wizards-admin), `dispatchMfaView`, `dispatchMobileView`, `dispatchAnalyticsExploreView`, `dispatchAnalyticsCentralView`, `dispatchAnalyticsReportView` (the two attendance-report slugs), `dispatchAnalyticsScheduleView`. Every routable view in the file now goes through the same pattern, no special cases. **No behaviour change** for the user: same surfaces dispatch to the same views, same permission checks, same "Not authorized" notices. The only observable difference is that adding a future view can't accidentally drift into the "Unknown section" wall. **SaaS port note**: this refactor is WP-plugin-specific. The talenttrack-saas port uses Next.js App Router file-based routes — file existence IS the registration, so the bug class doesn't apply there. Don't replicate this pattern; build the SaaS view tree directly under `app/<segment>/page.tsx`. Documented in `talenttrack-saas/docs/decisions.md` under "Open decisions" for the eventual route-segment-naming ADR.
 
 = 3.110.172 — Wizard step-to-step redirect: use REQUEST_URI as the base instead of `dashboardBaseUrl()`, so the post-step navigation no longer 404s on installs whose `dashboard_page_id` config has drifted (#766) =
 

@@ -174,87 +174,25 @@ class DashboardShortcode {
         // same entity (evaluations / sessions / goals).
         $view = isset( $_GET['tt_view'] ) ? sanitize_key( (string) $_GET['tt_view'] ) : '';
 
-        // v3.92.0 — `my-settings` removed from $me_slugs and routed
-        // separately below. The Me-group slugs all require a linked
-        // player record (the views render off `$player`); my-settings
-        // is account-level (display name, password) and applies to
-        // every logged-in user, not just users who happen to also be
-        // a player. Was previously rendering "only available for users
-        // linked to a player record" for coach/admin/scout users who
-        // clicked it from the user-menu dropdown.
-        $me_slugs        = [ 'overview', 'my-team', 'my-evaluations', 'my-activities', 'my-goals', 'my-pdp', 'profile', 'my-journey' ];
-        // #0086 Workstream B Child 2 — `my-sessions` lists the user's
-        // active WP session tokens with per-session + revoke-all-others
-        // affordances. Like `my-settings` it's account-level: every
-        // logged-in user manages their own.
-        $account_slugs   = [ 'my-settings', 'my-sessions' ];
-        // v3.110.3 — `team-planner` was dispatch-cased inside `dispatchWorkflowView`
-        // but never added to a slug list, so the top-level routing never reached it
-        // and the tile fell through to "Unknown section." It belongs in coaching
-        // (Performance-group surface, same tier as team-chemistry / team-blueprints).
-        // v3.110.171 (#764) — `tournaments` added. The case has lived in
-        // dispatchCoachingView() since #0093 chunk 1 + the tile registered
-        // in v3.110.152, but the slug was never added to this allowlist,
-        // so the top-level router never reached the case and every click
-        // on the Tournaments tile fell through to "Unknown section." Same
-        // recurring miss as team-planner / onboarding-pipeline above.
-        $coaching_slugs  = [ 'teams', 'players', 'players-import', 'people', 'functional-roles', 'evaluations', 'activities', 'goals', 'tournaments', 'pdp', 'pdp-planning', 'player-status-methodology', 'player-status-capture', 'team-chemistry', 'team-blueprints', 'team-planner', 'podium', 'methodology', 'player-journey', 'mail-compose' ];
-        $analytics_slugs = [ 'rate-cards', 'compare', 'reports' ];
-        // #0019 Sprint 5 — admin-tier surfaces, gated by tt_access_frontend_admin.
-        // #0021 — `audit-log` added; uses the same admin tier (cap-checked
-        // again inside FrontendAuditLogView::render).
-        $admin_slugs     = [ 'configuration', 'custom-fields', 'eval-categories', 'roles', 'migrations', 'usage-stats', 'usage-stats-details', 'audit-log', 'docs', 'cohort-transitions', 'custom-css' ];
-        // #0022 Sprint 2/5 — workflow surfaces, each cap-gated in dispatch.
-        // v3.110.x — `onboarding-pipeline` is owned by `dispatchWorkflowView`
-        // (case in switch at this method's body) but was missing from the
-        // slug allowlist, so the top-level routing never reached the case
-        // and every click on the Onboarding pipeline tile fell through to
-        // "Unknown section." Same root cause as the v3.110.10 team-planner
-        // dispatcher fix.
-        // v3.110.119 — `scouting-visits` (list/new/edit) and `scouting-visit` (singular detail)
-        // for the scouting-plan feature. Scout dashboard widget + Operations tile.
-        $workflow_slugs  = [ 'my-tasks', 'tasks-dashboard', 'workflow-config', 'onboarding-pipeline', 'prospects-overview', 'scouting-visits', 'scouting-visit' ];
-        // #0009 — Development management slugs. Each view re-checks its
-        // own capability so dispatching here is safe.
-        $dev_slugs       = [ 'submit-idea', 'ideas-board', 'ideas-refine', 'ideas-approval', 'dev-tracks' ];
-        // #0032 — Invitation flow surfaces (logged-in admin tab; the
-        // accept-invite route is handled before the login guard above).
-        $invitation_slugs = [ 'invitations-config' ];
-        // #0014 Sprints 4+5 — Reports wizard + scout flow.
-        $report_slugs = [ 'report-wizard', 'scout-access', 'scout-history', 'scout-my-players' ];
-        // #0017 — Trial player module surfaces.
-        // v3.110.113 — `test-trainings` joins the family. Distinct from
-        // trial CASES (multi-week evaluation periods, `tt_trial_cases`);
-        // test trainings (`tt_test_trainings`) are one-off sessions a
-        // prospect attends to be observed. The frontend view ships
-        // create-only — listing stays on the onboarding-pipeline.
-        $trial_slugs = [ 'trials', 'trial-case', 'trial-parent-meeting', 'trial-tracks-editor', 'trial-letter-templates-editor', 'test-trainings' ];
-        // #0039 — Staff development module surfaces.
-        $staff_dev_slugs = [ 'my-staff-pdp', 'my-staff-goals', 'my-staff-evaluations', 'my-staff-certifications', 'staff-overview' ];
-        // #0055 — Record-creation wizards. Single slug; the actual
-        // wizard is selected via &slug=… on the query string.
-        // `wizards-admin` is the configuration + analytics surface.
-        $wizard_slugs = [ 'wizard', 'wizards-admin' ];
-        // #0086 Workstream B Child 1 sprint 3 — MFA login challenge.
-        // The MfaLoginGuard middleware redirects gated logged-in users
-        // here until they complete a TOTP verification.
-        $mfa_slugs    = [ 'mfa-prompt' ];
-        // #0084 Child 1 — mobile classification surfaces.
-        $mobile_slugs = [ 'mobile-settings' ];
-        // #0083 Child 3 — analytics dimension explorer.
-        $analytics_explore_slugs = [ 'explore' ];
-        // v3.110.146 — `attendance-report-team` + `-player` standard
-        // report slugs. Their dispatch cases used to sit inside
-        // `dispatchWorkflowView` but the slugs weren't in
-        // `$workflow_slugs` so the routing never reached them, and
-        // clicking either link from the Analytics tile fell through
-        // to "Unknown section." Same root cause as the v3.110.3
-        // team-planner fix.
-        $analytics_reports_slugs = [ 'attendance-report-team', 'attendance-report-player' ];
-        // #0083 Child 5 — central analytics surface.
-        $analytics_central_slugs = [ 'analytics' ];
-        // #0083 Child 6 — scheduled reports management.
-        $analytics_schedules_slugs = [ 'scheduled-reports' ];
+        // v3.110.172 (#764 sustainable fix) — the per-group `$xxx_slugs`
+        // allowlist arrays that used to live here have been removed. The
+        // top-level router below now calls `self::tryDispatch()`, which
+        // chains every `dispatchXxxView` method in order via `||`
+        // short-circuit. Each dispatcher returns true if it recognised
+        // and rendered the slug, false otherwise. The single source of
+        // truth for which slugs route to which view is the switch case
+        // list inside each `dispatchXxxView` method itself — there is
+        // no separate list that can drift.
+        //
+        // Prior to this refactor, the file shipped the same class of
+        // bug three times:
+        //   - team-planner (v3.110.10) — slug missing from `$coaching_slugs`
+        //   - onboarding-pipeline — slug missing from `$workflow_slugs`
+        //   - tournaments (v3.110.171 / #764) — slug missing from `$coaching_slugs`
+        // Each fix was a one-line allowlist addition. The fundamental
+        // shape (two lists that must stay in sync) was the bug. Now
+        // adding a `case '<slug>':` to any dispatcher makes the slug
+        // routable on the next request — no separate edit, no recurrence.
 
         // #0084 Child 1 — desktop-only mobile gate. When the visitor is
         // a phone-class user agent, the requested view is classified
@@ -337,74 +275,9 @@ class DashboardShortcode {
             // which view class belongs to which class of users.
             FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'You do not have access to this surface.', 'talenttrack' ) . '</p>';
-        } elseif ( in_array( $view, $me_slugs, true ) ) {
-            // The `$player` check is a data prerequisite (the Me-group
-            // views render off the linked player record), not an
-            // authorisation question. Auth lives in the matrix gate above.
-            if ( $player ) {
-                self::dispatchMeView( $view, $player );
-            } else {
-                FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
-                echo '<p class="tt-notice">' . esc_html__( 'This section is only available for users linked to a player record.', 'talenttrack' ) . '</p>';
-            }
-        } elseif ( in_array( $view, $account_slugs, true ) ) {
-            // v3.92.0 — account-level surfaces. Available to every logged-
-            // in user; no player record required. The view renders the
-            // current user's WP profile (display name, password) — same
-            // questions for every persona.
-            self::dispatchAccountView( $view, $user_id );
-        } elseif ( in_array( $view, $coaching_slugs, true ) ) {
-            self::dispatchCoachingView( $view, $user_id, $is_admin );
-        } elseif ( in_array( $view, $analytics_slugs, true ) ) {
-            self::dispatchAnalyticsView( $view );
-        } elseif ( in_array( $view, $admin_slugs, true ) ) {
-            // #0019 Sprint 5 — admin-tier surfaces. The view classes
-            // each re-check the cap, so dispatching unauthenticated
-            // is safe; the early-return there shows the friendly
-            // "no permission" notice with a back button.
-            self::dispatchAdminView( $view, $user_id, $is_admin );
-        } elseif ( in_array( $view, $workflow_slugs, true ) ) {
-            // #0022 Sprint 2/5 — workflow surfaces. Each slug enforces its
-            // own cap inside dispatch (my-tasks → tt_view_own_tasks,
-            // tasks-dashboard → tt_view_tasks_dashboard, workflow-config
-            // → tt_configure_workflow_templates).
-            self::dispatchWorkflowView( $view, $user_id, $is_admin );
-        } elseif ( in_array( $view, $dev_slugs, true ) ) {
-            self::dispatchDevView( $view );
-        } elseif ( in_array( $view, $invitation_slugs, true ) ) {
-            self::dispatchInvitationView( $view );
-        } elseif ( in_array( $view, $report_slugs, true ) ) {
-            self::dispatchReportView( $view, $user_id, $is_admin );
-        } elseif ( in_array( $view, $trial_slugs, true ) ) {
-            self::dispatchTrialView( $view, $user_id, $is_admin );
-        } elseif ( in_array( $view, $staff_dev_slugs, true ) ) {
-            self::dispatchStaffDevelopmentView( $view, $user_id, $is_admin );
-        } elseif ( in_array( $view, $wizard_slugs, true ) ) {
-            if ( $view === 'wizards-admin' ) {
-                FrontendWizardsAdminView::render( $user_id, $is_admin );
-            } else {
-                FrontendWizardView::render( $user_id, $is_admin );
-            }
-        } elseif ( in_array( $view, $mfa_slugs, true ) ) {
-            \TT\Modules\Mfa\Frontend\FrontendMfaPromptView::render( $user_id, $is_admin );
-        } elseif ( in_array( $view, $mobile_slugs, true ) ) {
-            FrontendMobileSettingsView::render( $user_id, $is_admin );
-        } elseif ( in_array( $view, $analytics_explore_slugs, true ) ) {
-            \TT\Modules\Analytics\Frontend\FrontendExploreView::render( $user_id, $is_admin );
-        } elseif ( in_array( $view, $analytics_central_slugs, true ) ) {
-            \TT\Modules\Analytics\Frontend\FrontendAnalyticsView::render( $user_id, $is_admin );
-        } elseif ( in_array( $view, $analytics_reports_slugs, true ) ) {
-            // v3.110.146 — standard report dispatchers. Each view
-            // checks `tt_view_analytics` itself + renders its own
-            // breadcrumb chain.
-            if ( $view === 'attendance-report-team' ) {
-                \TT\Modules\Analytics\Frontend\FrontendAttendanceTeamReportView::render( $user_id, $is_admin );
-            } else {
-                \TT\Modules\Analytics\Frontend\FrontendAttendancePlayerReportView::render( $user_id, $is_admin );
-            }
-        } elseif ( in_array( $view, $analytics_schedules_slugs, true ) ) {
-            \TT\Modules\Analytics\Frontend\FrontendScheduledReportsView::render( $user_id, $is_admin );
-        } else {
+        } elseif ( ! self::tryDispatch( $view, $user_id, $is_admin, $player ) ) {
+            // v3.110.172 — every bool-returning dispatcher passed on the
+            // slug. No surface owns it; render the friendly fallback.
             FrontendBreadcrumbs::fromDashboard( __( 'Unknown section', 'talenttrack' ) );
             echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
         }
@@ -463,54 +336,74 @@ class DashboardShortcode {
 
     /**
      * v3.0.0 — dispatch a Me-group tile slug to its FrontendXyzView
-     * class. Called only when the user has a player record AND the
-     * view slug is a Me-group slug.
+     * class. v3.110.172 — `$player` precondition moved inside; if the
+     * slug is recognised but the user has no linked player, render the
+     * "needs player record" notice and claim the slug.
      */
-    private static function dispatchMeView( string $view, object $player ): void {
+    private static function dispatchMeView( string $view, ?object $player ): bool {
         switch ( $view ) {
             case 'overview':
+                if ( ! self::requirePlayerOrDeny( $player ) ) return true;
                 FrontendOverviewView::render( $player );
-                break;
+                return true;
             case 'my-team':
+                if ( ! self::requirePlayerOrDeny( $player ) ) return true;
                 FrontendMyTeamView::render( $player );
-                break;
+                return true;
             case 'teammate':
+                if ( ! self::requirePlayerOrDeny( $player ) ) return true;
                 $teammate_id = isset( $_GET['player_id'] ) ? absint( $_GET['player_id'] ) : 0;
                 FrontendTeammateView::render( $player, $teammate_id );
-                break;
+                return true;
             case 'my-evaluations':
+                if ( ! self::requirePlayerOrDeny( $player ) ) return true;
                 FrontendMyEvaluationsView::render( $player );
-                break;
+                return true;
             case 'my-activities':
+                if ( ! self::requirePlayerOrDeny( $player ) ) return true;
                 FrontendMyActivitiesView::render( $player );
-                break;
+                return true;
             case 'my-goals':
+                if ( ! self::requirePlayerOrDeny( $player ) ) return true;
                 FrontendMyGoalsView::render( $player );
-                break;
+                return true;
             case 'my-pdp':
+                if ( ! self::requirePlayerOrDeny( $player ) ) return true;
                 \TT\Modules\Pdp\Frontend\FrontendMyPdpView::render( $player );
-                break;
+                return true;
             case 'profile':
+                if ( ! self::requirePlayerOrDeny( $player ) ) return true;
                 // Legacy slug — folded into My card in v3.62.0. Redirect
                 // to keep bookmarks alive.
                 FrontendOverviewView::render( $player );
-                break;
-            // v3.92.0 — `my-settings` handled by dispatchAccountView()
-            // below so non-player personas (coach / scout / admin) can
-            // edit their account too. The case stays here to preserve
-            // bookmarks where a player happens to land via the Me-group
-            // dispatch path (e.g. a deep link from the persona dashboard
-            // that included the player), and routes to the same view.
-            case 'my-settings':
-                FrontendMySettingsView::render( $player );
-                break;
+                return true;
             case 'my-journey':
+                if ( ! self::requirePlayerOrDeny( $player ) ) return true;
                 \TT\Modules\Journey\Frontend\FrontendJourneyView::render( $player );
-                break;
+                return true;
+            // NOTE: `my-settings` intentionally NOT in this dispatcher —
+            // dispatchAccountView claims it so coach / scout / admin
+            // personas without a linked player can still manage their
+            // account. The bool-router calls dispatchMeView FIRST, so we
+            // mustn't claim the slug here or non-player personas would
+            // get the "needs player record" wall they used to suffer
+            // pre-v3.92.0.
             default:
-                FrontendBreadcrumbs::fromDashboard( __( 'Unknown section', 'talenttrack' ) );
-                echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
+                return false;
         }
+    }
+
+    /**
+     * v3.110.172 — shared precondition helper for Me-group dispatch.
+     * Returns true when a player is linked and rendering can proceed.
+     * Returns false after emitting the breadcrumb + notice — the caller
+     * still returns true so the dispatcher claims the slug.
+     */
+    private static function requirePlayerOrDeny( ?object $player ): bool {
+        if ( $player ) return true;
+        FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
+        echo '<p class="tt-notice">' . esc_html__( 'This section is only available for users linked to a player record.', 'talenttrack' ) . '</p>';
+        return false;
     }
 
     /**
@@ -521,27 +414,38 @@ class DashboardShortcode {
      * `$player` and returned "only available for users linked to a
      * player record" for coach / scout / admin users.
      */
-    private static function dispatchAccountView( string $view, int $user_id ): void {
-        if ( $user_id <= 0 ) {
-            FrontendBreadcrumbs::fromDashboard( __( 'Sign in required', 'talenttrack' ) );
-            echo '<p class="tt-notice">' . esc_html__( 'You need to be logged in to manage your settings.', 'talenttrack' ) . '</p>';
-            return;
-        }
+    private static function dispatchAccountView( string $view, int $user_id ): bool {
+        // v3.110.172 — the user_id pre-check stays, but moves AFTER the
+        // slug-recognition switch so a not-our-slug returns false and
+        // the next dispatcher gets a chance. Previously this lived above
+        // the switch and short-circuited regardless of view.
         switch ( $view ) {
             case 'my-settings':
+                if ( $user_id <= 0 ) return self::renderSignInRequired();
                 FrontendMySettingsView::render();
-                break;
+                return true;
             case 'my-sessions':
+                if ( $user_id <= 0 ) return self::renderSignInRequired();
                 // #0086 Workstream B Child 2 — every logged-in user
                 // can manage their own active sessions; no separate
                 // capability beyond `read`, which the matrix-dispatch
                 // gate above already enforces.
                 FrontendMySessionsView::render();
-                break;
+                return true;
             default:
-                FrontendBreadcrumbs::fromDashboard( __( 'Unknown section', 'talenttrack' ) );
-                echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
+                return false;
         }
+    }
+
+    /**
+     * v3.110.172 — shared helper for dispatchers that need a logged-in
+     * user (Account). Renders the breadcrumb + notice and returns true
+     * so the dispatcher claims the slug.
+     */
+    private static function renderSignInRequired(): bool {
+        FrontendBreadcrumbs::fromDashboard( __( 'Sign in required', 'talenttrack' ) );
+        echo '<p class="tt-notice">' . esc_html__( 'You need to be logged in to manage your settings.', 'talenttrack' ) . '</p>';
+        return true;
     }
 
     /**
@@ -549,13 +453,13 @@ class DashboardShortcode {
      * one slug (`my-tasks`); the inbox doubles as the task-detail
      * surface when `?task_id=N` is present.
      */
-    private static function dispatchWorkflowView( string $view, int $user_id, bool $is_admin = false ): void {
+    private static function dispatchWorkflowView( string $view, int $user_id, bool $is_admin = false ): bool {
         switch ( $view ) {
             case 'my-tasks':
                 if ( ! current_user_can( 'tt_view_own_tasks' ) ) {
                     FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
                     echo '<p class="tt-notice">' . esc_html__( 'Your role does not have access to tasks.', 'talenttrack' ) . '</p>';
-                    return;
+                    return true;
                 }
                 $task_id = isset( $_GET['task_id'] ) ? absint( $_GET['task_id'] ) : 0;
                 if ( $task_id > 0 ) {
@@ -567,37 +471,30 @@ class DashboardShortcode {
                     }
                     \TT\Modules\Workflow\Frontend\FrontendMyTasksView::render( $user_id );
                 }
-                break;
+                return true;
             case 'tasks-dashboard':
                 \TT\Modules\Workflow\Frontend\FrontendTasksDashboardView::render( $user_id );
-                break;
+                return true;
             case 'workflow-config':
                 \TT\Modules\Workflow\Frontend\FrontendWorkflowConfigView::render( $user_id );
-                break;
+                return true;
             // #0081 child 3 — standalone pipeline view.
             case 'onboarding-pipeline':
                 \TT\Modules\Prospects\Frontend\FrontendOnboardingPipelineView::render( $user_id );
-                break;
+                return true;
             // v3.110.99 — rich prospects list (FrontendListTable).
             case 'prospects-overview':
                 \TT\Modules\Prospects\Frontend\FrontendProspectsOverviewView::render( $user_id );
-                break;
+                return true;
             // v3.110.119 — scout's scouting-visit planner.
             case 'scouting-visits':
                 \TT\Modules\Prospects\Frontend\FrontendScoutingPlanView::render( $user_id, $is_admin );
-                break;
+                return true;
             case 'scouting-visit':
                 \TT\Modules\Prospects\Frontend\FrontendScoutingVisitDetailView::render( $user_id, $is_admin );
-                break;
-            // v3.110.146 — `attendance-report-team` + `-player` cases
-            // moved to the top-level routing under `$analytics_reports_slugs`.
-            // The dispatch cases used to live here but the slugs were
-            // never in `$workflow_slugs`, so this switch never received
-            // them — every click fell through to "Unknown section."
-            // Cleanly routed via the central-analytics elseif now.
+                return true;
             default:
-                FrontendBreadcrumbs::fromDashboard( __( 'Unknown section', 'talenttrack' ) );
-                echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
+                return false;
         }
     }
 
@@ -605,7 +502,7 @@ class DashboardShortcode {
      * v3.0.0 slice 4 — dispatch a coaching-group tile slug.
      * Only called when the user has coach or admin caps.
      */
-    private static function dispatchCoachingView( string $view, int $user_id, bool $is_admin ): void {
+    private static function dispatchCoachingView( string $view, int $user_id, bool $is_admin ): bool {
         // #0063 — when an `?id=N` is on the URL, the three master-record
         // list slugs (players / teams / people) delegate to the matching
         // detail view. Mirrors the v3.62 precedent in FrontendMyGoalsView /
@@ -625,95 +522,95 @@ class DashboardShortcode {
             case 'teams':
                 if ( $detail_id > 0 && $action !== 'edit' ) {
                     FrontendTeamDetailView::render( $detail_id, $user_id, $is_admin );
-                    break;
+                    return true;
                 }
                 FrontendTeamsManageView::render( $user_id, $is_admin );
-                break;
+                return true;
             case 'players':
                 if ( $detail_id > 0 && $action !== 'edit' ) {
                     FrontendPlayerDetailView::render( $detail_id, $user_id, $is_admin );
-                    break;
+                    return true;
                 }
                 FrontendPlayersManageView::render( $user_id, $is_admin );
-                break;
+                return true;
             case 'players-import':
                 FrontendPlayersCsvImportView::render( $user_id, $is_admin );
-                break;
+                return true;
             case 'people':
                 if ( $detail_id > 0 && $action !== 'edit' ) {
                     FrontendPersonDetailView::render( $detail_id, $user_id, $is_admin );
-                    break;
+                    return true;
                 }
                 FrontendPeopleManageView::render( $user_id, $is_admin );
-                break;
+                return true;
             case 'mail-compose':
                 FrontendMailComposeView::render( $user_id, $is_admin );
-                break;
+                return true;
             case 'player-status-capture':
                 FrontendPlayerStatusCaptureView::render( $user_id, $is_admin );
-                break;
+                return true;
             case 'functional-roles':
                 FrontendFunctionalRolesView::render( $user_id, $is_admin );
-                break;
+                return true;
             case 'evaluations':
                 FrontendEvaluationsView::render( $user_id, $is_admin );
-                break;
+                return true;
             case 'activities':
                 FrontendActivitiesManageView::render( $user_id, $is_admin );
-                break;
+                return true;
             case 'goals':
                 FrontendGoalsManageView::render( $user_id, $is_admin );
-                break;
+                return true;
             // #0093 — Tournament planner. Admin-only in v1: the view
             // itself gates on tt_view_tournaments (mapped to admin +
             // tt_club_admin only) and surfaces a "not authorized"
             // notice for everyone else.
             case 'tournaments':
                 FrontendTournamentsManageView::render( $user_id, $is_admin );
-                break;
+                return true;
             case 'pdp':
                 \TT\Modules\Pdp\Frontend\FrontendPdpManageView::render( $user_id, $is_admin );
-                break;
+                return true;
             case 'pdp-planning':
                 \TT\Modules\Pdp\Frontend\FrontendPdpPlanningView::render( $user_id, $is_admin );
-                break;
+                return true;
             case 'player-status-methodology':
                 \TT\Modules\Players\Frontend\FrontendPlayerStatusMethodologyView::render( $user_id, $is_admin );
-                break;
+                return true;
             case 'team-chemistry':
                 if ( ! current_user_can( 'tt_view_team_chemistry' ) ) {
                     FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
                     echo '<p class="tt-notice">' . esc_html__( 'Your role does not have access to team chemistry boards.', 'talenttrack' ) . '</p>';
-                    break;
+                    return true;
                 }
                 \TT\Modules\TeamDevelopment\Frontend\FrontendTeamChemistryView::render( $user_id, $is_admin );
-                break;
+                return true;
             case 'team-blueprints':
                 if ( ! current_user_can( 'tt_view_team_chemistry' ) ) {
                     FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
                     echo '<p class="tt-notice">' . esc_html__( 'Your role does not have access to team blueprints.', 'talenttrack' ) . '</p>';
-                    break;
+                    return true;
                 }
                 \TT\Modules\TeamDevelopment\Frontend\FrontendTeamBlueprintsView::render( $user_id, $is_admin );
-                break;
+                return true;
             case 'team-blueprint-share':
                 // #0068 Phase 4 — public read-only share-link. Token
                 // verification happens inside renderShared(); no cap
                 // check at the dispatch layer (the URL is the auth).
                 \TT\Modules\TeamDevelopment\Frontend\FrontendTeamBlueprintsView::renderShared();
-                break;
+                return true;
             // #0006 — team-planning calendar. Performance-group surface; the
             // view re-checks its own caps so dispatching here is safe even
             // for users who shouldn't see it.
             case 'team-planner':
                 \TT\Modules\Planning\Frontend\FrontendTeamPlannerView::render( $user_id );
-                break;
+                return true;
             case 'podium':
                 FrontendPodiumView::render( $user_id, $is_admin );
-                break;
+                return true;
             case 'methodology':
                 \TT\Modules\Methodology\Frontend\MethodologyView::render();
-                break;
+                return true;
             case 'player-journey':
                 $journey_player_id = isset( $_GET['player_id'] ) ? absint( $_GET['player_id'] ) : 0;
                 $journey_player = $journey_player_id > 0 ? QueryHelpers::get_player( $journey_player_id ) : null;
@@ -723,10 +620,9 @@ class DashboardShortcode {
                 } else {
                     \TT\Modules\Journey\Frontend\FrontendJourneyView::render( $journey_player );
                 }
-                break;
+                return true;
             default:
-                FrontendBreadcrumbs::fromDashboard( __( 'Unknown section', 'talenttrack' ) );
-                echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
+                return false;
         }
     }
 
@@ -736,26 +632,24 @@ class DashboardShortcode {
      * which the Read-Only Observer role has. This is the observer's
      * primary frontend entry point.
      */
-    private static function dispatchAnalyticsView( string $view ): void {
-        // #0063 — `?tt_view=reports` lands on the frontend reports
-        // launcher, which mirrors the wp-admin tile launcher. The
-        // three sub-reports themselves still render in wp-admin
-        // (they use admin form-submit URLs and Chart.js), so each
-        // tile opens that view in a new tab.
-        if ( $view === 'reports' ) {
-            FrontendReportsLauncherView::render( get_current_user_id(), current_user_can( 'tt_edit_settings' ) );
-            return;
-        }
+    private static function dispatchAnalyticsView( string $view ): bool {
         switch ( $view ) {
+            // #0063 — `?tt_view=reports` lands on the frontend reports
+            // launcher, which mirrors the wp-admin tile launcher. The
+            // three sub-reports themselves still render in wp-admin
+            // (they use admin form-submit URLs and Chart.js), so each
+            // tile opens that view in a new tab.
+            case 'reports':
+                FrontendReportsLauncherView::render( get_current_user_id(), current_user_can( 'tt_edit_settings' ) );
+                return true;
             case 'rate-cards':
                 FrontendRateCardView::render();
-                break;
+                return true;
             case 'compare':
                 FrontendComparisonView::render();
-                break;
+                return true;
             default:
-                FrontendBreadcrumbs::fromDashboard( __( 'Unknown section', 'talenttrack' ) );
-                echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
+                return false;
         }
     }
 
@@ -764,58 +658,62 @@ class DashboardShortcode {
      * happens inside each view so the friendly back-button + notice
      * pattern is consistent.
      */
-    private static function dispatchAdminView( string $view, int $user_id, bool $is_admin ): void {
+    private static function dispatchAdminView( string $view, int $user_id, bool $is_admin ): bool {
         switch ( $view ) {
             case 'configuration':
                 FrontendConfigurationView::render( $user_id, $is_admin );
-                break;
+                return true;
             case 'custom-fields':
                 FrontendCustomFieldsView::render( $user_id, $is_admin );
-                break;
+                return true;
             case 'eval-categories':
                 FrontendEvalCategoriesView::render( $user_id, $is_admin );
-                break;
+                return true;
             case 'roles':
                 FrontendRolesView::render( $user_id, $is_admin );
-                break;
+                return true;
             case 'migrations':
                 FrontendMigrationsView::render( $user_id, $is_admin );
-                break;
+                return true;
             case 'usage-stats':
                 FrontendUsageStatsView::render( $user_id, $is_admin );
-                break;
+                return true;
             case 'usage-stats-details':
                 FrontendUsageStatsDetailsView::render( $user_id, $is_admin );
-                break;
+                return true;
             case 'audit-log':
                 FrontendAuditLogView::render( $user_id, $is_admin );
-                break;
+                return true;
             case 'docs':
                 FrontendDocsView::render( $user_id, $is_admin );
-                break;
+                return true;
             case 'cohort-transitions':
                 \TT\Modules\Journey\Frontend\FrontendCohortTransitionsView::render( $user_id, $is_admin );
-                break;
+                return true;
             case 'custom-css':
                 \TT\Modules\CustomCss\Frontend\FrontendCustomCssView::render( $user_id, $is_admin );
-                break;
+                return true;
             default:
-                FrontendBreadcrumbs::fromDashboard( __( 'Unknown section', 'talenttrack' ) );
-                echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
+                return false;
         }
     }
 
     /**
      * #0032 — dispatch an invitation-management slug.
+     *
+     * v3.110.172 — bool-returning dispatcher pattern. Returns true if
+     * the slug was recognised + rendered (or gracefully denied), false
+     * if the dispatcher does not own this slug and the router should
+     * try the next one. The single source of truth for owned slugs is
+     * the switch case list itself — no separate allowlist to drift.
      */
-    private static function dispatchInvitationView( string $view ): void {
+    private static function dispatchInvitationView( string $view ): bool {
         switch ( $view ) {
             case 'invitations-config':
                 \TT\Modules\Invitations\Frontend\InvitationsConfigView::render();
-                break;
+                return true;
             default:
-                FrontendBreadcrumbs::fromDashboard( __( 'Unknown section', 'talenttrack' ) );
-                echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
+                return false;
         }
     }
 
@@ -824,26 +722,25 @@ class DashboardShortcode {
      * the Development module re-checks its capability and renders the
      * "no permission" back-button pattern for non-eligible roles.
      */
-    private static function dispatchDevView( string $view ): void {
+    private static function dispatchDevView( string $view ): bool {
         switch ( $view ) {
             case 'submit-idea':
                 \TT\Modules\Development\Frontend\IdeaSubmitView::render();
-                break;
+                return true;
             case 'ideas-board':
                 \TT\Modules\Development\Frontend\IdeasBoardView::render();
-                break;
+                return true;
             case 'ideas-refine':
                 \TT\Modules\Development\Frontend\IdeasRefineView::render();
-                break;
+                return true;
             case 'ideas-approval':
                 \TT\Modules\Development\Frontend\IdeasApprovalView::render();
-                break;
+                return true;
             case 'dev-tracks':
                 \TT\Modules\Development\Frontend\TracksView::render();
-                break;
+                return true;
             default:
-                FrontendBreadcrumbs::fromDashboard( __( 'Unknown section', 'talenttrack' ) );
-                echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
+                return false;
         }
     }
 
@@ -851,38 +748,37 @@ class DashboardShortcode {
      * #0014 Sprints 4+5 — Reports wizard + scout flow surfaces. Each
      * view re-checks its own capability so dispatching here is safe.
      */
-    private static function dispatchReportView( string $view, int $user_id, bool $is_admin ): void {
+    private static function dispatchReportView( string $view, int $user_id, bool $is_admin ): bool {
         switch ( $view ) {
             case 'report-wizard':
                 FrontendReportWizardView::render( $user_id, $is_admin );
-                break;
+                return true;
             case 'scout-access':
                 if ( ! current_user_can( 'tt_generate_scout_report' ) ) {
                     FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
                     echo '<p class="tt-notice">' . esc_html__( 'You need scout-management permission to view this page.', 'talenttrack' ) . '</p>';
-                    return;
+                    return true;
                 }
                 \TT\Modules\Reports\Frontend\FrontendScoutAccessView::render( $user_id, $is_admin );
-                break;
+                return true;
             case 'scout-history':
                 if ( ! current_user_can( 'tt_generate_scout_report' ) ) {
                     FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
                     echo '<p class="tt-notice">' . esc_html__( 'You need scout-management permission to view this page.', 'talenttrack' ) . '</p>';
-                    return;
+                    return true;
                 }
                 \TT\Modules\Reports\Frontend\FrontendScoutHistoryView::render( $user_id, $is_admin );
-                break;
+                return true;
             case 'scout-my-players':
                 if ( ! current_user_can( 'tt_view_scout_assignments' ) ) {
                     FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
                     echo '<p class="tt-notice">' . esc_html__( 'This area is for scout users.', 'talenttrack' ) . '</p>';
-                    return;
+                    return true;
                 }
                 \TT\Modules\Reports\Frontend\FrontendScoutMyPlayersView::render( $user_id );
-                break;
+                return true;
             default:
-                FrontendBreadcrumbs::fromDashboard( __( 'Unknown section', 'talenttrack' ) );
-                echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
+                return false;
         }
     }
 
@@ -890,59 +786,194 @@ class DashboardShortcode {
      * #0017 — Trial player module surfaces. Each view re-checks its
      * own capability so dispatching here is safe.
      */
-    private static function dispatchTrialView( string $view, int $user_id, bool $is_admin ): void {
+    private static function dispatchTrialView( string $view, int $user_id, bool $is_admin ): bool {
         switch ( $view ) {
             case 'trials':
                 FrontendTrialsManageView::render( $user_id, $is_admin );
-                break;
+                return true;
             case 'trial-case':
                 FrontendTrialCaseView::render( $user_id, $is_admin );
-                break;
+                return true;
             case 'trial-parent-meeting':
                 FrontendTrialParentMeetingView::render( $user_id, $is_admin );
-                break;
+                return true;
             case 'trial-tracks-editor':
                 FrontendTrialTracksEditorView::render( $user_id, $is_admin );
-                break;
+                return true;
             case 'trial-letter-templates-editor':
                 FrontendTrialLetterTemplatesEditorView::render( $user_id, $is_admin );
-                break;
+                return true;
             case 'test-trainings':
                 // v3.110.113 — minimal create-only frontend for
                 // `tt_test_trainings`. Reached from the HoD dashboard's
                 // `+ New test training` action card.
                 FrontendTestTrainingsView::render( $user_id, $is_admin );
-                break;
+                return true;
             default:
-                FrontendBreadcrumbs::fromDashboard( __( 'Unknown section', 'talenttrack' ) );
-                echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
+                return false;
         }
     }
 
     /**
      * #0039 — Staff development dispatch.
      */
-    private static function dispatchStaffDevelopmentView( string $view, int $user_id, bool $is_admin ): void {
+    private static function dispatchStaffDevelopmentView( string $view, int $user_id, bool $is_admin ): bool {
         switch ( $view ) {
             case 'my-staff-pdp':
                 \TT\Modules\StaffDevelopment\Frontend\FrontendMyStaffPdpView::render( $user_id, $is_admin );
-                break;
+                return true;
             case 'my-staff-goals':
                 \TT\Modules\StaffDevelopment\Frontend\FrontendMyStaffGoalsView::render( $user_id, $is_admin );
-                break;
+                return true;
             case 'my-staff-evaluations':
                 \TT\Modules\StaffDevelopment\Frontend\FrontendMyStaffEvaluationsView::render( $user_id, $is_admin );
-                break;
+                return true;
             case 'my-staff-certifications':
                 \TT\Modules\StaffDevelopment\Frontend\FrontendMyStaffCertificationsView::render( $user_id, $is_admin );
-                break;
+                return true;
             case 'staff-overview':
                 \TT\Modules\StaffDevelopment\Frontend\FrontendStaffOverviewView::render( $user_id, $is_admin );
-                break;
+                return true;
             default:
-                FrontendBreadcrumbs::fromDashboard( __( 'Unknown section', 'talenttrack' ) );
-                echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
+                return false;
         }
+    }
+
+    /**
+     * #0055 — record-creation wizards. `wizard` is the user-facing
+     * slug; `wizards-admin` is the configuration + analytics surface.
+     */
+    private static function dispatchWizardView( string $view, int $user_id, bool $is_admin ): bool {
+        switch ( $view ) {
+            case 'wizard':
+                FrontendWizardView::render( $user_id, $is_admin );
+                return true;
+            case 'wizards-admin':
+                FrontendWizardsAdminView::render( $user_id, $is_admin );
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * #0086 Workstream B Child 1 sprint 3 — MFA login challenge.
+     */
+    private static function dispatchMfaView( string $view, int $user_id, bool $is_admin ): bool {
+        switch ( $view ) {
+            case 'mfa-prompt':
+                \TT\Modules\Mfa\Frontend\FrontendMfaPromptView::render( $user_id, $is_admin );
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * #0084 Child 1 — mobile classification surfaces.
+     */
+    private static function dispatchMobileView( string $view, int $user_id, bool $is_admin ): bool {
+        switch ( $view ) {
+            case 'mobile-settings':
+                FrontendMobileSettingsView::render( $user_id, $is_admin );
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * #0083 Child 3 — analytics dimension explorer.
+     */
+    private static function dispatchAnalyticsExploreView( string $view, int $user_id, bool $is_admin ): bool {
+        switch ( $view ) {
+            case 'explore':
+                \TT\Modules\Analytics\Frontend\FrontendExploreView::render( $user_id, $is_admin );
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * #0083 Child 5 — central analytics surface.
+     */
+    private static function dispatchAnalyticsCentralView( string $view, int $user_id, bool $is_admin ): bool {
+        switch ( $view ) {
+            case 'analytics':
+                \TT\Modules\Analytics\Frontend\FrontendAnalyticsView::render( $user_id, $is_admin );
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * v3.110.146 — standard report dispatchers. Each view checks
+     * `tt_view_analytics` itself + renders its own breadcrumb chain.
+     */
+    private static function dispatchAnalyticsReportView( string $view, int $user_id, bool $is_admin ): bool {
+        switch ( $view ) {
+            case 'attendance-report-team':
+                \TT\Modules\Analytics\Frontend\FrontendAttendanceTeamReportView::render( $user_id, $is_admin );
+                return true;
+            case 'attendance-report-player':
+                \TT\Modules\Analytics\Frontend\FrontendAttendancePlayerReportView::render( $user_id, $is_admin );
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * #0083 Child 6 — scheduled reports management.
+     */
+    private static function dispatchAnalyticsScheduleView( string $view, int $user_id, bool $is_admin ): bool {
+        switch ( $view ) {
+            case 'scheduled-reports':
+                \TT\Modules\Analytics\Frontend\FrontendScheduledReportsView::render( $user_id, $is_admin );
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * v3.110.172 (#764 sustainable fix) — try each bool-returning
+     * dispatcher in order. The first one to recognise the slug returns
+     * true; the rest are short-circuited. When every dispatcher returns
+     * false, the caller renders the "Unknown section." notice.
+     *
+     * The single source of truth for which slugs route to which view is
+     * the switch case lists inside each `dispatchXxxView` method. There
+     * is no separate allowlist that can drift — adding a `case '<slug>':`
+     * to a dispatcher makes the slug routable on the next request.
+     *
+     * Order matters when slugs overlap: dispatchMeView is called before
+     * dispatchAccountView so that, e.g., `my-settings` lands on the
+     * Account dispatcher (which has the version that doesn't require a
+     * linked player record) regardless of whether the caller has a
+     * player record.
+     */
+    private static function tryDispatch( string $view, int $user_id, bool $is_admin, ?object $player ): bool {
+        return self::dispatchMeView( $view, $player )
+            || self::dispatchAccountView( $view, $user_id )
+            || self::dispatchCoachingView( $view, $user_id, $is_admin )
+            || self::dispatchAnalyticsView( $view )
+            || self::dispatchAdminView( $view, $user_id, $is_admin )
+            || self::dispatchWorkflowView( $view, $user_id, $is_admin )
+            || self::dispatchDevView( $view )
+            || self::dispatchInvitationView( $view )
+            || self::dispatchReportView( $view, $user_id, $is_admin )
+            || self::dispatchTrialView( $view, $user_id, $is_admin )
+            || self::dispatchStaffDevelopmentView( $view, $user_id, $is_admin )
+            || self::dispatchWizardView( $view, $user_id, $is_admin )
+            || self::dispatchMfaView( $view, $user_id, $is_admin )
+            || self::dispatchMobileView( $view, $user_id, $is_admin )
+            || self::dispatchAnalyticsExploreView( $view, $user_id, $is_admin )
+            || self::dispatchAnalyticsCentralView( $view, $user_id, $is_admin )
+            || self::dispatchAnalyticsReportView( $view, $user_id, $is_admin )
+            || self::dispatchAnalyticsScheduleView( $view, $user_id, $is_admin );
     }
 
     /**
