@@ -76,22 +76,111 @@ final class HybridDeepRateStep implements WizardStepInterface {
                     <td><textarea rows="3" maxlength="500" name="eval_reason" style="width:100%;"><?php echo esc_textarea( $reason_val ); ?></textarea></td>
                 </tr>
 
+                <?php
+                // v3.110.195 (#811) — Basic / Detailed toggle per main
+                // category, mirroring the flat eval form's UX
+                // (`CoachForms::renderEvalForm` v3.110.125). Basic
+                // hides sub-categories; Detailed reveals them. The
+                // wizard previously rendered main-only and had no
+                // toggle, so coaches who wanted sub-category granularity
+                // had to leave the wizard and use the flat form.
+                $cat_repo = class_exists( '\\TT\\Infrastructure\\Evaluations\\EvalCategoriesRepository' )
+                    ? new \TT\Infrastructure\Evaluations\EvalCategoriesRepository()
+                    : null;
+                $toggle_basic_label  = __( 'Basic',    'talenttrack' );
+                $toggle_detail_label = __( 'Detailed', 'talenttrack' );
+                ?>
                 <?php foreach ( (array) $cats as $cat ) :
-                    $val = (int) ( $state['ratings_self'][ (int) $cat->id ] ?? 0 );
+                    $cid = (int) $cat->id;
+                    $val = (int) ( $state['ratings_self'][ $cid ] ?? 0 );
+                    $cat_label = \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( (string) $cat->label, $cid );
+                    $sub_cats  = $cat_repo !== null ? $cat_repo->getChildren( $cid ) : [];
+                    // Auto-default: Detailed when any sub for this main
+                    // already has a stored value (state carries them).
+                    $has_sub_values = false;
+                    foreach ( (array) $sub_cats as $sub_check ) {
+                        $scid_check = (int) $sub_check->id;
+                        if ( $scid_check > 0 && ! empty( $state['ratings_self'][ $scid_check ] ) ) {
+                            $has_sub_values = true; break;
+                        }
+                    }
+                    $initial_state = $has_sub_values ? 'detailed' : 'basic';
                     ?>
                     <tr>
-                        <th style="text-align:left;font-weight:normal;"><?php echo esc_html( \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( (string) $cat->label, (int) $cat->id ) ); ?></th>
+                        <th style="text-align:left;font-weight:normal;"><?php echo esc_html( $cat_label ); ?></th>
                         <td>
                             <input type="number" min="<?php echo (int) $min; ?>" max="<?php echo (int) $max; ?>" step="1" inputmode="numeric"
-                                name="ratings_self[<?php echo (int) $cat->id; ?>]"
+                                name="ratings_self[<?php echo $cid; ?>]"
                                 value="<?php echo $val > 0 ? (int) $val : ''; ?>"
                                 style="width:60px;" />
                             <span style="color:var(--tt-muted);font-size:13px;">/ <?php echo (int) $max; ?></span>
+                            <?php if ( $cat_repo !== null && ! empty( $sub_cats ) ) : ?>
+                                <span class="tt-rate-detail-toggle" data-tt-rate-detail-toggle data-state="<?php echo esc_attr( $initial_state ); ?>" role="tablist" style="margin-left:12px;display:inline-flex;gap:2px;border:1px solid var(--tt-line, #d0d4d8);border-radius:4px;overflow:hidden;font-size:11px;">
+                                    <button type="button" data-mode="basic"    role="tab" aria-selected="<?php echo $initial_state === 'basic' ? 'true' : 'false'; ?>" style="padding:2px 8px;border:0;background:<?php echo $initial_state === 'basic' ? '#0b3d2e;color:#fff' : '#fff;color:#1a1d21'; ?>;cursor:pointer;"><?php echo esc_html( $toggle_basic_label ); ?></button>
+                                    <button type="button" data-mode="detailed" role="tab" aria-selected="<?php echo $initial_state === 'detailed' ? 'true' : 'false'; ?>" style="padding:2px 8px;border:0;background:<?php echo $initial_state === 'detailed' ? '#0b3d2e;color:#fff' : '#fff;color:#1a1d21'; ?>;cursor:pointer;"><?php echo esc_html( $toggle_detail_label ); ?></button>
+                                </span>
+                            <?php endif; ?>
                         </td>
                     </tr>
+                    <?php if ( $cat_repo !== null && ! empty( $sub_cats ) ) : ?>
+                        <?php foreach ( (array) $sub_cats as $sub ) :
+                            $scid = (int) $sub->id;
+                            if ( $scid <= 0 ) continue;
+                            $sub_val = (int) ( $state['ratings_self'][ $scid ] ?? 0 );
+                            $sub_label = \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( (string) ( $sub->label ?? $sub->name ?? '' ), $scid );
+                            ?>
+                            <tr class="tt-rate-sub-row" data-tt-rate-sub-row data-parent="<?php echo $cid; ?>" <?php echo $initial_state === 'basic' ? 'hidden' : ''; ?>>
+                                <th style="text-align:left;font-weight:normal;padding-left:20px;color:var(--tt-muted);">↳ <?php echo esc_html( $sub_label ); ?></th>
+                                <td>
+                                    <input type="number" min="<?php echo (int) $min; ?>" max="<?php echo (int) $max; ?>" step="1" inputmode="numeric"
+                                        name="ratings_self[<?php echo $scid; ?>]"
+                                        value="<?php echo $sub_val > 0 ? (int) $sub_val : ''; ?>"
+                                        style="width:60px;" />
+                                    <span style="color:var(--tt-muted);font-size:13px;">/ <?php echo (int) $max; ?></span>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 <?php endforeach; ?>
             </tbody>
         </table>
+        <script>
+        (function(){
+            // v3.110.195 (#811) — Basic/Detailed toggle JS. Click
+            // delegated on the document so every toggle row hooks up
+            // without per-element wiring. Form values inside the hidden
+            // sub rows persist across mode flips.
+            document.addEventListener('click', function (e) {
+                var btn = e.target && e.target.closest ? e.target.closest('.tt-rate-detail-toggle button') : null;
+                if (!btn) return;
+                var wrap = btn.closest('.tt-rate-detail-toggle');
+                if (!wrap) return;
+                var mode = btn.getAttribute('data-mode');
+                wrap.setAttribute('data-state', mode);
+                var btns = wrap.querySelectorAll('button');
+                btns.forEach(function (b) {
+                    var selected = (b === btn);
+                    b.setAttribute('aria-selected', selected ? 'true' : 'false');
+                    b.style.background = selected ? '#0b3d2e' : '#fff';
+                    b.style.color      = selected ? '#fff'    : '#1a1d21';
+                });
+                // Find the parent main category id from the toggle's
+                // surrounding row, then show/hide every sub row that
+                // points back at it.
+                var mainRow = wrap.closest('tr');
+                var mainInput = mainRow ? mainRow.querySelector('input[name^="ratings_self["]') : null;
+                if (!mainInput) return;
+                var nameMatch = mainInput.name.match(/ratings_self\[(\d+)\]/);
+                if (!nameMatch) return;
+                var parentId = nameMatch[1];
+                var subRows = document.querySelectorAll('[data-tt-rate-sub-row][data-parent="' + parentId + '"]');
+                subRows.forEach(function (row) {
+                    if (mode === 'detailed') row.removeAttribute('hidden');
+                    else row.setAttribute('hidden', '');
+                });
+            });
+        }());
+        </script>
         <?php
     }
 
