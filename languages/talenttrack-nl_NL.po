@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-05-20T21:11:44+00:00\n"
+"POT-Creation-Date: 2026-05-20T21:24:44+00:00\n"
 "PO-Revision-Date: 2026-04-25 10:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -23040,11 +23040,11 @@ msgstr ""
 "activiteit-koppeling — een toernooi-moment, iets dat je in het voorbijgaan "
 "opmerkte."
 
-#: src/Modules/Wizards/Evaluation/PlayerPickerStep.php:34
+#: src/Modules/Wizards/Evaluation/PlayerPickerStep.php:47
 msgid "Which player?"
 msgstr "Welke speler?"
 
-#: src/Modules/Wizards/Evaluation/PlayerPickerStep.php:46
+#: src/Modules/Wizards/Evaluation/PlayerPickerStep.php:58
 #: src/Modules/Wizards/Goal/PlayerStep.php:46
 msgid "Please pick a player."
 msgstr "Kies een speler."

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-05-20T21:11:44+00:00\n"
+"POT-Creation-Date: 2026-05-20T21:24:44+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -21684,11 +21684,11 @@ msgid ""
 "passing."
 msgstr ""
 
-#: src/Modules/Wizards/Evaluation/PlayerPickerStep.php:34
+#: src/Modules/Wizards/Evaluation/PlayerPickerStep.php:47
 msgid "Which player?"
 msgstr ""
 
-#: src/Modules/Wizards/Evaluation/PlayerPickerStep.php:46
+#: src/Modules/Wizards/Evaluation/PlayerPickerStep.php:58
 #: src/Modules/Wizards/Goal/PlayerStep.php:46
 msgid "Please pick a player."
 msgstr ""
