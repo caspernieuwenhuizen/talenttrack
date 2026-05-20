@@ -147,6 +147,8 @@ final class CoreSurfaceRegistration {
         TileRegistry::registerSlugOwnership( 'docs',               self::M_DOCUMENTATION );
         TileRegistry::registerSlugOwnership( 'wizard',             self::M_WIZARDS );
         TileRegistry::registerSlugOwnership( 'wizards-admin',      self::M_WIZARDS );
+        // v3.110.189 (#797) — central Exports surface owns its own slug.
+        TileRegistry::registerSlugOwnership( 'exports',            self::M_REPORTS );
         // #0081 child 3 — standalone onboarding-pipeline view.
         TileRegistry::registerSlugOwnership( 'onboarding-pipeline', self::M_PROSPECTS );
         // v3.110.119 — scouting visits list + detail.
@@ -721,6 +723,22 @@ final class CoreSurfaceRegistration {
             'description'  => __( 'Player progress, team rating averages, coach activity.', 'talenttrack' ),
             'icon'         => 'reports',
             'color'        => '#00a32a',
+            'cap'          => 'tt_view_reports',
+        ]);
+        // v3.110.189 (#797) — central Exports surface tile. The view
+        // itself filters cards per-cap so users without specific
+        // exporter caps still see the cards they CAN run.
+        TileRegistry::register([
+            'module_class' => self::M_REPORTS,
+            'view_slug'    => 'exports',
+            'entity'       => 'exports',
+            'group'        => $analytics_group,
+            'kind'         => 'work',
+            'order'        => 27,
+            'label'        => __( 'Exports', 'talenttrack' ),
+            'description'  => __( 'Bulk exporters in one place: players, attendance, goals, evaluations, calendar, backup.', 'talenttrack' ),
+            'icon'         => 'docs',
+            'color'        => '#0b3d2e',
             'cap'          => 'tt_view_reports',
         ]);
         TileRegistry::register([

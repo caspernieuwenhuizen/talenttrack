@@ -642,6 +642,10 @@ class DashboardShortcode {
             case 'reports':
                 FrontendReportsLauncherView::render( get_current_user_id(), current_user_can( 'tt_edit_settings' ) );
                 return true;
+            // v3.110.189 (#797) — central Exports surface.
+            case 'exports':
+                FrontendExportsView::render( get_current_user_id(), current_user_can( 'tt_edit_settings' ) );
+                return true;
             case 'rate-cards':
                 FrontendRateCardView::render();
                 return true;
