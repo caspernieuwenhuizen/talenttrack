@@ -62,7 +62,7 @@ class FrontendScoutingPlanView extends FrontendViewBase {
         // list view regardless of which of the two caps the user_can
         // layer happens to surface first.
         //
-        // v3.110.175 (#772) — pilot reported the same "not authorized"
+        // v3.110.176 (#772) — pilot reported the same "not authorized"
         // symptom even with v3.110.168's broadened either-cap check
         // shipping in v3.110.169+. Diagnosis: on this install the WP
         // `tt_scout` role (see `RolesService.php` line 302-328) does
