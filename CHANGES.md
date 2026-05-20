@@ -1,3 +1,79 @@
+# TalentTrack v3.110.186 — Mark-attendance hero + wizard cancel: two related fixes (closes #792)
+
+## Pilot report
+
+> The mark attendance hero has two problems. It seems that if there is no completed activity eligible for marking it just shows the player list but without an activity. This is wrong. It should show that there is no activity to be marked. Also, when this happens, the cancel button of the wizard triggers a session has timed out message which is wrong and it does not exit the wizard.
+
+## Bug 1 — wizard lands on roster for an upcoming, not-yet-completed activity
+
+`MarkAttendanceHeroWidget::render()` was calling `UpcomingActivityRepository::nextForCoach()`, which returns the **next upcoming** activity (`session_date >= today AND activity_status_key NOT IN ('completed','cancelled')`). The mark-attendance wizard only acts on **completed-and-rateable** activities — different universe.
+
+Flow: hero pre-seeded `activity_id=<n>` for an upcoming activity → wizard's `ActivityPickerStep::notApplicableFor()` returned true (because `_path='activity-first' && activity_id > 0`) → picker auto-skipped → wizard landed on `AttendanceStep` → rendered the player roster for a session that hadn't happened yet. CTA label was *Select completed activity to evaluate* but landed the user on a scheduled-but-not-yet-played roster.
+
+### Fix
+
+New method on `UpcomingActivityRepository`:
+
+```php
+public static function latestRateableForCoach( int $user_id, int $club_id ): ?object {
+    if ( $user_id <= 0 ) return null;
+    $rows = ActivityPickerStep::recentRateableActivities( $user_id, 90 );
+    return empty( $rows ) ? null : $rows[0];
+}
+```
+
+Same eligibility criteria as the wizard's picker — completed, in the last 90 days, not yet evaluated, rateable type, on a team the coach owns. `MarkAttendanceHeroWidget` now uses this instead of `nextForCoach()`. When null → existing empty-state UI renders ("No upcoming activity" + the "Select completed activity to evaluate" CTA that opens the wizard's picker step, where the picker's own empty-state notice does the right thing).
+
+`ActivityPickerStep::recentRateableActivities()` extended to also `SELECT a.team_id, a.location` (additive — picker ignores the new fields; the hero's `buildDetail()` needs them for the meta line).
+
+## Bug 2 — Cancel triggers "session expired" and fails to exit
+
+Hero CTAs carry `restart=1` (intentional — first entry should always be a fresh run, defeating any stale wizard draft):
+
+```php
+$primary_url = add_query_arg( [ 'restart' => 1 ], WizardEntryPoint::urlFor( 'mark-attendance', ... ) );
+```
+
+The wizard's form has no `action` attribute, so every POST returns to the same URL — still carrying `restart=1`. The wizard view's unconditional `if (!empty($_GET['restart'])) WizardState::clear()` then wiped state on every POST.
+
+Cancel POST sequence:
+
+1. POST arrives. `restart=1` still in URL.
+2. `WizardState::clear()` runs → state wiped.
+3. `WizardState::load()` returns null → `WizardState::start()` creates fresh state with `_step='activity-picker'` (first step).
+4. `$current = ActivityPickerStep`.
+5. Nonce check verifies against `tt_wizard_mark-attendance_activity-picker`. The form was rendered with nonce for the step the user was actually on (e.g. `attendance` after the auto-skip). **Mismatch.**
+6. `$error` set to "Your session expired…" → Cancel handler skipped (gated on `nonce_valid`).
+7. Auto-skip loop runs, advances to AttendanceStep again, re-renders the broken page with the error banner. User stuck.
+
+### Fix
+
+One-line guard in `FrontendWizardView::render()`:
+
+```php
+if ( ! empty( $_GET['restart'] ) && $_SERVER['REQUEST_METHOD'] === 'GET' ) {
+    WizardState::clear( $user_id, $slug );
+}
+```
+
+`restart` is a one-shot **entry** signal — first GET clears state, every POST preserves state. Affects every wizard, not just mark-attendance (the same trap was lurking anywhere a hero CTA carried `restart=1`).
+
+## Files
+
+- `src/Modules/PersonaDashboard/Repositories/UpcomingActivityRepository.php` — new `latestRateableForCoach()` method
+- `src/Modules/Wizards/Evaluation/ActivityPickerStep.php` — picker query SELECTs `a.team_id, a.location` (added to GROUP BY too)
+- `src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php` — uses `latestRateableForCoach()`, dropped unused `QueryHelpers` import
+- `src/Shared/Frontend/FrontendWizardView.php` — `restart` guard tightened to GET-only
+
+## Test plan
+
+- [ ] On a coach install with no completed-and-rateable activities: hero shows "No upcoming activity" empty state. Clicking "Select completed activity to evaluate" opens the wizard's picker; the picker shows "No activities to mark attendance for" notice — never lands on a player roster.
+- [ ] On a coach install with at least one completed-and-rateable activity: hero pre-seeds it; wizard skips picker, lands on AttendanceStep with the right roster.
+- [ ] Cancel in any wizard step entered via a `restart=1` URL: exits cleanly to the dashboard, no "session expired" notice.
+- [ ] Same flow with Next / Back / Save-as-draft: continues to work when the URL still carries `restart=1`.
+
+---
+
 # TalentTrack v3.110.184 — Team Blueprint editor enhancements + Team Chemistry "Save as blueprint" flavour picker
 
 ## Pilot asks

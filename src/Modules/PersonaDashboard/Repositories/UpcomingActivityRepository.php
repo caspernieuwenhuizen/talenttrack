@@ -102,6 +102,27 @@ final class UpcomingActivityRepository {
     }
 
     /**
+     * v3.110.186 (#792) — latest completed-and-rateable activity on a
+     * team the coach owns. Uses the SAME eligibility criteria as the
+     * mark-attendance wizard's `ActivityPickerStep::recentRateableActivities`
+     * so the hero and the wizard share one universe — no more
+     * "hero pre-seeded an upcoming activity, wizard landed on a roster
+     * with no context" mismatch (#792 bug 1).
+     *
+     * Returns null when no eligible activity exists; callers should
+     * render an empty-state CTA in that case rather than entering the
+     * wizard with no `activity_id`.
+     */
+    public static function latestRateableForCoach( int $user_id, int $club_id ): ?object {
+        if ( $user_id <= 0 ) return null;
+        $rows = \TT\Modules\Wizards\Evaluation\ActivityPickerStep::recentRateableActivities( $user_id, 90 );
+        if ( empty( $rows ) ) return null;
+        // Picker returns rows ordered by session_date DESC; first is the
+        // most recent completed-and-rateable activity.
+        return $rows[0];
+    }
+
+    /**
      * v3.110.78 — translated activity-type label (e.g. "Training" /
      * "Wedstrijd") for the type key on a `tt_activities` row. Used by
      * `MarkAttendanceHeroWidget` to show the activity TYPE as the
