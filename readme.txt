@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.180
+Stable tag: 3.110.181
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.181 — Roll back v3.110.176's WP-role bypass on scouting-visits entry — matrix is now carrying the auth correctly per the Permission Chain Debug diagnostic (closes #783) =
+
+The v3.110.178 Permission Chain Debug page (#777) ran against the pilot's scout user and showed `tt_view_prospects` + `tt_edit_prospects` returning true at every layer (`user_can`, `LegacyCapMapper::evaluate`, `userCanOrMatrix`). That means the matrix bridge has been carrying scout × prospects correctly — and v3.110.168's broadened either-cap entry check on `FrontendScoutingPlanView` was already passing scouts through without help from v3.110.176's WP-role bypass. **Why roll the bypass back**: (1) the bypass would silently mask future matrix bugs by letting `tt_scout` / `tt_head_dev` / `tt_club_admin` through even when the matrix is misconfigured — exactly the kind of anti-pattern that hid the `tt_edit_evaluations` / `tt_evaluate_players` mismatch on this same install (matrix seed `scout × evaluations = ['r', 'global']` while WP role baseline grants change + create_delete — different fix, tracked separately); (2) the matrix is the architectural source of truth, and scattering WP-role bypasses across cap-gated surfaces undoes the migration to matrix-based auth; (3) the diagnostic page now exists, so if the matrix breaks again the operator can see the failing layer in one screen and the real fix lands on the matrix seed instead of yet another bypass. **Risk acknowledged**: if the pilot install's matrix state was transient and reverts (`tt_authorization_active` flipped off, a row deleted, persona resolution stops working), the scout will hit the deny page again. That risk is observable — the diagnostic catches it in seconds and we ship the proper matrix fix in the next round. **Change shape**: drop the `$user_roles` / `$is_scout_role` lookup at the top of `FrontendScoutingPlanView::render()`. Restore the entry gate to the v3.110.168 form: `$can_enter = userCanOrMatrix(view_prospects) || userCanOrMatrix(edit_prospects)`.
 
 = 3.110.180 — Wizard step-to-step redirect made robust: wrap REQUEST_URI path through `home_url()` so `wp_safe_redirect`'s host whitelist always passes; tournament + team-blueprint wizards finally advance past step 1 on the pilot install (closes #782) =
 
