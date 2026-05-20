@@ -620,6 +620,11 @@ class FrontendTeamChemistryView extends FrontendViewBase {
             'suggested'   => self::compactSuggested( (array) ( $chem['suggested_xi'] ?? [] ) ),
             'depth'       => self::compactDepth( (array) ( $chem['depth'] ?? [] ) ),
             'roster'      => $roster,
+            // v3.110.187 — slot_label → list of eligible player_ids
+            // (master-data-positions filter). Picker uses this to
+            // hide roster players who aren't declared for the slot
+            // being filled.
+            'eligible'    => (array) ( $chem['eligible_by_slot'] ?? [] ),
             'i18n'        => [
                 'mode_on'        => __( 'Tap any slot on the pitch to swap the player.', 'talenttrack' ),
                 'mode_off'       => __( 'Try a lineup', 'talenttrack' ),

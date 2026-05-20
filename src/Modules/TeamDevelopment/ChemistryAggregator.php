@@ -84,6 +84,25 @@ class ChemistryAggregator {
             ];
         }
 
+        // v3.110.187 — pre-compute per-slot position codes so we can
+        // filter candidates by the player's master-data positions.
+        // Pilot 2026-05-20: "players should never be put in a position
+        // that is not in their master data."
+        //
+        // A player only enters $by_slot[$label] when the slot's derived
+        // position code is one of the codes the player declared on
+        // tt_players.preferred_positions. When the slot's position
+        // can't be derived (custom slot label not in the standard
+        // GK/CB/LB/RB/CDM/CM/CAM/LW/RW/ST/CF set), no filter is applied
+        // for that slot — better to fall back to showing every player
+        // than to silently hide candidates for a slot whose mapping
+        // we don't recognise.
+        $slot_positions = [];
+        foreach ( $slots as $slot ) {
+            $label = (string) $slot['label'];
+            $slot_positions[ $label ] = self::slotToPositionCode( $label );
+        }
+
         // Per (slot, player) fit — pre-computed once per player on the
         // engine's cached path. Track whether each player has any data
         // so the UI can render "?" for not-yet-evaluated players.
@@ -93,10 +112,21 @@ class ChemistryAggregator {
         }
         $rated_player_count = 0;
         foreach ( $players as $pl ) {
+            $declared = self::decodePlayerPositions( $pl );
             $all_slots  = $this->engine->allSlotsFor( (int) $pl->id, $formation_template_id );
             $player_has_data = false;
             foreach ( $all_slots as $label => $result ) {
                 if ( $result->hasData ) $player_has_data = true;
+                // v3.110.187 — master-data position gate. Players with
+                // no declared positions pass unrestricted (a brand-new
+                // player without master data shouldn't disappear from
+                // the chemistry board); players with declared positions
+                // must list this slot's position code among them.
+                $slot_pos = $slot_positions[ $label ] ?? null;
+                if ( $slot_pos !== null && ! empty( $declared )
+                     && ! in_array( $slot_pos, $declared, true ) ) {
+                    continue;
+                }
                 $by_slot[ $label ][] = [
                     'player_id'   => (int) $pl->id,
                     'player_name' => QueryHelpers::player_display_name( $pl ),
@@ -233,11 +263,87 @@ class ChemistryAggregator {
             'depth_score'      => $depth_score !== null ? round( $depth_score, 2 ) : null,
             'suggested_xi'     => $suggested,
             'depth'            => $depth,
+            // v3.110.187 — slot_label → list of eligible player_ids
+            // (players whose master-data positions allow this slot).
+            // Consumed by the chemistry board's tap-to-swap picker so
+            // it can filter the full roster down to eligible players
+            // for the tapped slot. JS-side fallback for the case where
+            // the picker shows the full roster as a "every player"
+            // list rather than the top-3 depth chart.
+            'eligible_by_slot' => self::eligibleBySlot( $by_slot ),
             'data_coverage'    => round( $data_coverage, 2 ),
             'has_enough_data'  => $has_enough,
             'roster_size'      => $roster_size,
             'slot_count'       => $slot_count,
         ];
+    }
+
+    /**
+     * v3.110.187 — derive a position-lookup code from a slot label so
+     * the master-data-positions filter can match player declarations
+     * against slot requirements.
+     *
+     * The seeded `position` lookup has these codes (migration 0001):
+     *   GK, CB, LB, RB, CDM, CM, CAM, LW, RW, ST, CF
+     *
+     * Formation slot labels variants we've seen across the seeded
+     * templates (migrations 0032 + 0065): GK, LB, LCB, RCB, RB, CDM,
+     * LCM, RCM, CM, LW, ST, RW, CB, CAM, CDM, LM, RM.
+     *
+     * Strategy: if the label IS a known position code, use it. Else
+     * try the label without its first character (handles LCB → CB,
+     * RCM → CM, etc.). Else return null — the caller treats null as
+     * "no filter for this slot" (better than blocking every player).
+     */
+    private static function slotToPositionCode( string $label ): ?string {
+        $known = [ 'GK', 'CB', 'LB', 'RB', 'CDM', 'CM', 'CAM', 'LW', 'RW', 'ST', 'CF' ];
+        if ( in_array( $label, $known, true ) ) return $label;
+        if ( strlen( $label ) >= 3 ) {
+            $stripped = substr( $label, 1 );
+            if ( in_array( $stripped, $known, true ) ) return $stripped;
+        }
+        // Side-prefixed CB / CM variants exhausted; bail out.
+        return null;
+    }
+
+    /**
+     * v3.110.187 — decode tt_players.preferred_positions (JSON
+     * array column) into a list of position codes. Returns an empty
+     * array when the column is null / empty / malformed — empty
+     * triggers "no filter" in the caller (a player without master
+     * data still appears on the chemistry board).
+     */
+    private static function decodePlayerPositions( object $pl ): array {
+        $raw = $pl->preferred_positions ?? '';
+        if ( $raw === null || $raw === '' ) return [];
+        $decoded = json_decode( (string) $raw, true );
+        if ( ! is_array( $decoded ) ) return [];
+        $out = [];
+        foreach ( $decoded as $code ) {
+            $code = trim( (string) $code );
+            if ( $code !== '' ) $out[] = $code;
+        }
+        return $out;
+    }
+
+    /**
+     * v3.110.187 — compact `slot_label => list<player_id>` map from
+     * the filtered `$by_slot`. Used to ship the eligibility list to
+     * the chemistry view's tap-to-swap picker JS.
+     *
+     * @param array<string, list<array<string,mixed>>> $by_slot
+     * @return array<string, list<int>>
+     */
+    private static function eligibleBySlot( array $by_slot ): array {
+        $out = [];
+        foreach ( $by_slot as $label => $candidates ) {
+            $ids = [];
+            foreach ( $candidates as $c ) {
+                $ids[] = (int) ( $c['player_id'] ?? 0 );
+            }
+            $out[ $label ] = array_values( array_filter( $ids ) );
+        }
+        return $out;
     }
 
     /**

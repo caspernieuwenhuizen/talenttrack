@@ -355,6 +355,15 @@
      * Candidates = (depth chart for slot) ∪ (full roster minus dupes),
      * sorted by fit score (rated first) so the picker reads like the
      * depth chart but extends to the full roster.
+     *
+     * v3.110.187 — when the server emits an eligibility map
+     * (`cfg.eligible[slotLabel]`), the roster fallback is filtered
+     * against it so the picker only shows players whose master-data
+     * positions cover this slot. Pilot ask: "players should never be
+     * put in a position that is not in their master data." When the
+     * eligibility list is missing (older payload / non-recognised
+     * slot label), no filter is applied — same fallback semantic as
+     * the server side.
      */
     function buildCandidatesFor(slotLabel, state) {
         var byId = {};
@@ -362,8 +371,16 @@
         depthRows.forEach(function (r) {
             byId[r.player_id] = { player_id: r.player_id, player_name: r.player_name, score: r.score, has_data: r.has_data };
         });
+        var eligibleList = (cfg.eligible && cfg.eligible[slotLabel]) || null;
+        var eligibleSet = null;
+        if (eligibleList && eligibleList.length) {
+            eligibleSet = {};
+            eligibleList.forEach(function (id) { eligibleSet[id] = true; });
+        }
         cfg.roster.forEach(function (p) {
-            if (!byId[p.id]) byId[p.id] = { player_id: p.id, player_name: p.name, score: 0, has_data: false };
+            if (byId[p.id]) return; // already added via depth
+            if (eligibleSet && !eligibleSet[p.id]) return; // master-data filter
+            byId[p.id] = { player_id: p.id, player_name: p.name, score: 0, has_data: false };
         });
         var rows = [];
         Object.keys(byId).forEach(function (k) { rows.push(byId[k]); });

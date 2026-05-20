@@ -1,3 +1,67 @@
+# TalentTrack v3.110.187 — Player profile drops Analytics tab; Team Chemistry enforces master-data positions
+
+## Pilot asks (chat 2026-05-20)
+
+> *** PLAYER ***
+> - the player profile shows the analysis tab, remove this from this page
+>
+> *** TEAM CHEMISTRY ***
+> - players should never be put in a position that is not in their master data.
+
+## (1) Analytics tab removed from player profile
+
+`FrontendPlayerDetailView::tabs()` registered `analytics` when `EntityAnalyticsTabRenderer` loaded. Dispatch had a matching `case 'analytics':`. Both removed; renderer class stays (still used from team profile).
+
+## (2) Team Chemistry: master-data positions enforced
+
+### Slot → position-code derivation
+
+New `slotToPositionCode()` helper. Seeded `position` lookup: `GK / CB / LB / RB / CDM / CM / CAM / LW / RW / ST / CF`. Mapping:
+
+- Direct match (`GK`, `LB`, `RB`, `LW`, `RW`, `ST`, `CDM`, `CM`, `CAM`, `CF`, `CB`) → that code
+- Side-prefixed CB / CM (`LCB`, `RCB` → `CB`; `LCM`, `RCM` → `CM`)
+- Anything else → `null` (no filter for that slot — better over-show than silently hide)
+
+### Player filter rules
+
+Skip a (player, slot) pair if the player has declared positions AND the slot's position isn't among them. Players with **no** declared positions appear unrestricted (a brand-new player without master data shouldn't vanish).
+
+### Downstream
+
+- `suggested_xi`, `depth`, `formation_fit`, `depth_score`, paired-chemistry bonus — all derive from filtered `$by_slot`. Cascade is automatic.
+- New return field `eligible_by_slot: array<string, list<int>>` — passed into `TT_TEAM_CHEM.eligible` so the picker JS filters its roster fallback.
+- Overrides targeting an ineligible player silently drop in pass 1 (no extra wiring needed).
+
+### Picker JS
+
+`buildCandidatesFor()` previously did `depth ∪ roster`. The roster union let ineligible players be picked. Now: roster fallback intersects with `cfg.eligible[slotLabel]` before assembly. Missing eligibility list → unrestricted (same server-side fallback semantic).
+
+## NOT covered
+
+- **Blueprint editor's tap-to-swap picker** (v3.110.184) — different code path. Pilot scoped this ask to chemistry; follow-up if needed.
+
+## Files touched
+
+- `src/Shared/Frontend/FrontendPlayerDetailView.php`
+- `src/Modules/TeamDevelopment/ChemistryAggregator.php`
+- `src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php`
+- `assets/js/frontend-team-chemistry.js`
+- `talenttrack.php` + `readme.txt` + `CHANGES.md`
+
+No schema, no REST break, no new i18n, no auth change.
+
+## Test plan
+
+- [ ] Player profile: no Analytics tab visible
+- [ ] Chemistry board: player with `preferred_positions=[GK]` only appears as candidate for `GK`
+- [ ] Player with `preferred_positions=[]` (no master data) still appears for every slot
+- [ ] Custom formation with un-recognisable slot label → all roster players still appear
+- [ ] Tap-to-swap picker: only eligible players in roster fallback
+- [ ] Sandbox preview recompute: eligibility stable across overrides
+- [ ] Blueprint editor (v3.110.184) unchanged
+
+---
+
 # TalentTrack v3.110.186 — Mark-attendance hero + wizard cancel: two related fixes (closes #792)
 
 ## Pilot report
