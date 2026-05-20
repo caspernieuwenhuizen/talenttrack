@@ -156,10 +156,7 @@ class FrontendWizardView extends FrontendViewBase {
                     if ( $prev !== null ) {
                         WizardState::setStep( $user_id, $slug, $prev );
                     }
-                    wp_safe_redirect( add_query_arg(
-                        [ 'tt_view' => 'wizard', 'slug' => $slug ],
-                        \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl()
-                    ) );
+                    wp_safe_redirect( self::wizardStepUrl( $slug ) );
                     exit;
 
                 case 'save-as-draft':
@@ -429,8 +426,39 @@ class FrontendWizardView extends FrontendViewBase {
         // list) keeps Back correct under conditional branching.
         WizardState::pushHistory( $user_id, $slug, $current->slug() );
         WizardState::setStep( $user_id, $slug, $next_slug );
-        wp_safe_redirect( add_query_arg( [ 'tt_view' => 'wizard', 'slug' => $slug ], \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl() ) );
+        wp_safe_redirect( self::wizardStepUrl( $slug ) );
         exit;
+    }
+
+    /**
+     * Build the post-step redirect URL.
+     *
+     * v3.110.172 (#766) — pilot reported the Team Blueprint wizard's
+     * step-1 → step-2 transition returning 404. Trace points at
+     * `dashboardBaseUrl()` resolving to a URL that doesn't route on the
+     * install (typically `dashboard_page_id` config drift: page deleted
+     * / moved to draft, or the shortcode-discovery scan returning a
+     * stale id).
+     *
+     * The form just POSTed to the current URL — by definition that URL
+     * resolves. Use it as the base for the redirect, strip routing
+     * args, re-attach the wizard's routing args. The
+     * `dashboardBaseUrl()` path stays as the fallback when REQUEST_URI
+     * isn't available (CLI runs, weird proxy configs).
+     */
+    private static function wizardStepUrl( string $slug ): string {
+        $current = isset( $_SERVER['REQUEST_URI'] )
+            ? esc_url_raw( wp_unslash( (string) $_SERVER['REQUEST_URI'] ) )
+            : '';
+        if ( $current !== '' ) {
+            $base = remove_query_arg(
+                [ 'tt_view', 'slug', 'team_id', 'player_id', 'eval_id', 'activity_id', 'goal_id', 'action', 'id', 'tab', 'dismiss_resume', 'restart' ],
+                $current
+            );
+        } else {
+            $base = \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl();
+        }
+        return add_query_arg( [ 'tt_view' => 'wizard', 'slug' => $slug ], $base );
     }
 
     private static function renderProgress( WizardInterface $wizard, string $current_slug, array $state = [] ): void {

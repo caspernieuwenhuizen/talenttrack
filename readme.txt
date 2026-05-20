@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.171
+Stable tag: 3.110.172
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.172 — Wizard step-to-step redirect: use REQUEST_URI as the base instead of `dashboardBaseUrl()`, so the post-step navigation no longer 404s on installs whose `dashboard_page_id` config has drifted (#766) =
+
+Pilot: *"the team blueprint funcitonality is not working. When going through the wizard and after step one clicking on next shows page not found 404."* Trace: when a multi-step wizard transitions from step N to step N+1, `FrontendWizardView::transitionOrSubmit()` and the Back-button handler both built the redirect target via `\TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl()` and appended `?tt_view=wizard&slug=<…>`. `dashboardBaseUrl()` resolves the URL of the page hosting the `[talenttrack_dashboard]` shortcode through a four-stage chain: (1) `dashboard_page_id` config → that page's permalink; (2) self-healing scan of published pages for the shortcode; (3) `REQUEST_URI` (cleaned of routing args); (4) `home_url('/')`. On the pilot install one of those stages returned a URL that didn't actually route to the dashboard surface — most likely the configured `dashboard_page_id` pointing at a page that was moved to draft / trash / renamed, or the install having an unusual permalink + home/siteurl split that the cleaning step didn't fully normalise — so the post-step redirect landed on a 404. **Fix**: new private helper `wizardStepUrl( string $slug )` prefers `$_SERVER['REQUEST_URI']` as the base for the redirect, stripping the wizard / detail-link routing args and re-attaching `tt_view=wizard&slug=<…>`. The form just POSTed to that URL — by definition it routes. `dashboardBaseUrl()` stays as the fallback for the rare contexts where REQUEST_URI isn't populated (CLI runs, weird proxy setups). Two call sites updated: the Back-button branch (was `line 159-163`) and the step-to-step / submit branch in `transitionOrSubmit()` (was `line 432`). No other wizard logic touched — state persistence, nonce flow, history stack, analytics all unchanged. Side benefit: the redirect URL keeps the user on the same page they were on (e.g. if the dashboard is hosted under a sub-page), rather than potentially jumping to a different dashboard-hosting page during a multi-step run.
 
 = 3.110.171 — Tournaments tile fix: clicking the Tournaments tile as admin landed on "Unknown section." — slug was missing from the router's `$coaching_slugs` allowlist (#764) =
 
