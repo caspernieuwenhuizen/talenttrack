@@ -36,9 +36,10 @@ use TT\Shared\Frontend\Components\FrontendListTable;
  * roster + staff rendering helpers, with the action affordances
  * suppressed via a $readonly flag.
  *
- * Formation placeholder: a "Coming with #0018" panel with a link to
- * the team-development idea — no functional UI, just the placeholder
- * called for in the spec.
+ * Team development links: v3.110.198 (#821) replaced the original
+ * "Coming with #0018" placeholder with two action links to the now-
+ * shipped surfaces — Team Chemistry (formation board, fit scores, depth
+ * chart) and Team Blueprints (match-day lineups, squad plans).
  */
 class FrontendTeamsManageView extends FrontendViewBase {
 
@@ -233,7 +234,7 @@ class FrontendTeamsManageView extends FrontendViewBase {
         <?php if ( $is_edit ) : ?>
             <?php self::renderRosterSection( (int) $team->id ); ?>
             <?php self::renderStaffSection( (int) $team->id ); ?>
-            <?php self::renderFormationPlaceholder(); ?>
+            <?php self::renderTeamDevelopmentLinks( (int) $team->id ); ?>
         <?php endif; ?>
         <?php
     }
@@ -435,19 +436,28 @@ class FrontendTeamsManageView extends FrontendViewBase {
         }
     }
 
-    private static function renderFormationPlaceholder(): void {
+    /**
+     * v3.110.198 (#821) — replaces the original "Coming with #0018"
+     * placeholder. The team-development surfaces (#0018) shipped a
+     * while back; the team edit form is the natural launchpad into
+     * them, so link both directly instead of dropping the operator
+     * back on the dashboard tile grid.
+     */
+    private static function renderTeamDevelopmentLinks( int $team_id ): void {
+        $base = \TT\Shared\Frontend\Components\RecordLink::dashboardUrl();
+        $chem_url = add_query_arg( [ 'tt_view' => 'team-chemistry',   'team_id' => $team_id ], $base );
+        $bp_url   = add_query_arg( [ 'tt_view' => 'team-blueprints',  'team_id' => $team_id ], $base );
         ?>
-        <h3 style="margin:24px 0 12px;"><?php esc_html_e( 'Formation', 'talenttrack' ); ?></h3>
-        <div class="tt-panel" style="background:var(--tt-bg-soft); border-style:dashed;">
-            <p style="margin:0;">
-                <?php
-                printf(
-                    /* translators: %s: link to the team-development idea */
-                    esc_html__( 'Team formation board coming with %s — team development. The placeholder lives here so the layout is ready for it.', 'talenttrack' ),
-                    '<a href="https://github.com/caspernieuwenhuizen/talenttrack/blob/main/ideas/0018-epic-team-development.md" target="_blank" rel="noopener">#0018</a>'
-                );
-                ?>
-            </p>
+        <h3 style="margin:24px 0 12px;"><?php esc_html_e( 'Team development', 'talenttrack' ); ?></h3>
+        <div class="tt-panel" style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <a class="tt-cfg-tile" href="<?php echo esc_url( $chem_url ); ?>" style="text-decoration:none;">
+                <div class="tt-cfg-tile-title"><?php esc_html_e( 'Team chemistry', 'talenttrack' ); ?></div>
+                <div class="tt-cfg-tile-desc"><?php esc_html_e( 'Formation board with auto-suggested XI, fit scores, depth chart, link chemistry, and pairings.', 'talenttrack' ); ?></div>
+            </a>
+            <a class="tt-cfg-tile" href="<?php echo esc_url( $bp_url ); ?>" style="text-decoration:none;">
+                <div class="tt-cfg-tile-title"><?php esc_html_e( 'Team blueprints', 'talenttrack' ); ?></div>
+                <div class="tt-cfg-tile-desc"><?php esc_html_e( 'Saved match-day lineups and squad plans for this team.', 'talenttrack' ); ?></div>
+            </a>
         </div>
         <?php
     }

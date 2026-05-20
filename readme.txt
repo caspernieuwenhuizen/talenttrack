@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.197
+Stable tag: 3.110.198
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.198 — Team edit form: 'Coming with #0018' placeholder replaced by direct links to the now-shipped Team Chemistry + Team Blueprints surfaces (closes #821) =
+
+Pilot 2026-05-20: *"there is a placeholder referring to spec0018. Is that spec done and can link be added? Else remove."* #0018 (team development) shipped a while back — `FrontendTeamChemistryView`, `FrontendTeamBlueprintsView`, `ChemistryAggregator`, the formation board, blueprint editor, all live. `FrontendTeamsManageView::renderFormationPlaceholder()` was still rendering a dashed-border panel saying *"Team formation board coming with #0018"* with a github link to the idea file. **Fix**: method renamed to `renderTeamDevelopmentLinks( int $team_id )`; renders two action tiles — **Team chemistry** (`?tt_view=team-chemistry&team_id=<id>`) and **Team blueprints** (`?tt_view=team-blueprints&team_id=<id>`). The team edit form is the natural launchpad for both surfaces — operator just edited the team, the next click is "see the formation" or "build a blueprint", and both lead directly there with the team pre-selected instead of dropping the operator back at the dashboard tile grid. Docblock updated to drop the placeholder mention.
 
 = 3.110.197 — PDP conversations lock end-to-end on first signature + the "awaiting" state finally reads as awaiting — hourglass icon replaces the middle-dot that the pilot kept reading as a period (closes #822) =
 
