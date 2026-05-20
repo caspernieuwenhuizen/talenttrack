@@ -29192,6 +29192,99 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+# v3.110.174 — Team chemistry "Try a lineup" sandbox (#768).
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php
+msgid "Try a lineup"
+msgstr "Probeer een opstelling"
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php
+msgid "Stop trying a lineup"
+msgstr "Stop met opstelling proberen"
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php
+msgid "Tap any slot on the pitch to swap the player."
+msgstr "Tik op een positie op het veld om de speler te wisselen."
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php
+msgid "Reset to suggested XI"
+msgstr "Terug naar voorgestelde XI"
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php
+msgid "Save as blueprint"
+msgstr "Opslaan als blueprint"
+
+#. translators: %s = slot label (RB, CM-L, etc.)
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php
+#, php-format
+msgid "Pick a player for %s"
+msgstr "Kies een speler voor %s"
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php
+msgid "Leave slot empty"
+msgstr "Laat positie leeg"
+
+#. translators: %s = slot label of the player's current pitch position
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php
+#, php-format
+msgid "currently in %s"
+msgstr "staat nu op %s"
+
+#. translators: %s = formatted fit score (e.g. 3.20)
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php
+#, php-format
+msgid "fit %s"
+msgstr "match %s"
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php
+msgid "no fit data yet"
+msgstr "nog geen match-data"
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php
+msgid "Could not recompute chemistry. Try again."
+msgstr "Kon chemie niet opnieuw berekenen. Probeer het nog eens."
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php
+msgid "Save lineup as blueprint"
+msgstr "Opstelling opslaan als blueprint"
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php
+msgid "Name this blueprint:"
+msgstr "Geef deze blueprint een naam:"
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php
+msgid "Sandbox lineup"
+msgstr "Probeer-opstelling"
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php
+msgid "Could not save the blueprint. Try again."
+msgstr "Kon de blueprint niet opslaan. Probeer het nog eens."
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php
+msgid "Discard the sandbox lineup and restore the suggested XI?"
+msgstr "Probeer-opstelling verwijderen en terug naar de voorgestelde XI?"
+
+#. translators: %d = number of slots swapped
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php
+#, php-format
+msgid "%d slot swapped from the suggested XI."
+msgstr "%d positie gewisseld ten opzichte van de voorgestelde XI."
+
+#. translators: %d = number of slots swapped
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php
+#, php-format
+msgid "%d slots swapped from the suggested XI."
+msgstr "%d posities gewisseld ten opzichte van de voorgestelde XI."
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php
+msgid "— / 100"
+msgstr "— / 100"
+
+#. translators: 1: pair score, 2: comma-separated reasons (JS path)
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php
+#, php-format
+msgid "Chemistry %1$s / 3 — %2$s"
+msgstr "Chemie %1$s / 3 — %2$s"
+
 #~ msgid "PDP verdicts pending"
 #~ msgstr "Openstaande POP-verdicten"
 

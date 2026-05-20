@@ -1,3 +1,44 @@
+# TalentTrack v3.110.174 — Team chemistry: "Try a lineup" sandbox with live recompute (closes #768)
+
+## Why
+
+The team chemistry board (`?tt_view=team-chemistry`) ships with an auto-suggested XI from `ChemistryAggregator`. Until today the board was read-only — to experiment with a different lineup ("what if our right-back plays centre-back?") a coach had to open the separate Team Blueprint editor, drag-drop a sandbox, and watch the page reload after every drop. Chemistry analysis lives on the chemistry board; the experimentation should live there too.
+
+## What
+
+A new in-place "Try a lineup" mode on the chemistry board:
+
+- Toggle above the pitch flips the board into sandbox mode. Mode + overrides live in `sessionStorage` (per-team key) so a refresh keeps the experiment.
+- Tap any pitch slot → bottom-sheet picker opens listing the full roster ranked by fit score for that slot (depth chart ∪ roster, deduped). Each row shows the fit score and a *currently in <slot>* badge when the player is already on the pitch.
+- Pick a candidate → server recompute via `POST /talenttrack/v1/teams/{id}/chemistry/preview` (new, capability-gated, zero DB writes) → JS patches the slot, the composite score, the four-part breakdown, the link-chemistry headline, every link colour, and the link tooltips in place. No page reload.
+- *Reset to suggested XI* discards every override.
+- *Save as blueprint* prompts for a name, creates a real Team Blueprint with the sandbox lineup as assignments, and redirects into the blueprint editor.
+
+## How it works
+
+- `ChemistryAggregator::teamChemistry()` gains an optional `array $overrides` parameter (`slot_label` → `player_id|null`). The XI-selection runs in two passes: overrides lock specific slots first; the existing greedy pass fills the rest.
+- New REST route `POST /teams/{id}/chemistry/preview` accepts the same body shape as a GET, plus `overrides`, and returns the same payload — pure compute, no writes.
+- `PitchSvg` now stamps every slot with `data-slot-label` + `data-player-id` and every link line with `data-link-key` so JS can patch the SVG in place.
+- New assets: `assets/js/frontend-team-chemistry.js` + `assets/css/frontend-team-chemistry.css`. Localized config in `TT_TEAM_CHEM`.
+- Mobile-first: bottom-sheet picker (not centred modal), 48px touch targets, `safe-area-inset-bottom`, `prefers-reduced-motion` respected, `body.tt-chem-picker-open` scroll-locks the page underneath.
+
+## Player-centricity
+
+Every swap is a player-attached experiment — *if this player plays at this slot, here's what changes around them*. The picker labels are player names, candidates are ranked by per-player fit, and the "Save as blueprint" handoff carries the player-by-slot map straight into the blueprint editor.
+
+## Files
+
+- `src/Modules/TeamDevelopment/ChemistryAggregator.php` — overrides parameter, two-pass selection
+- `src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php` — `preview_chemistry` handler + route
+- `src/Modules/TeamDevelopment/Frontend/PitchSvg.php` — data-attrs on slots + SVG links
+- `src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php` — sandbox markup + breakdown data-attrs + asset enqueue + localize
+- `assets/js/frontend-team-chemistry.js` (new)
+- `assets/css/frontend-team-chemistry.css` (new)
+- `docs/team-chemistry.md` + `docs/nl_NL/team-chemistry.md` — *Try a lineup* section
+- `languages/talenttrack-nl_NL.po` — Dutch translations for new strings
+
+---
+
 # TalentTrack v3.110.173 — Sustainable fix for the recurring "Unknown section" bug class (follow-up to #764)
 
 ## Pilot ask

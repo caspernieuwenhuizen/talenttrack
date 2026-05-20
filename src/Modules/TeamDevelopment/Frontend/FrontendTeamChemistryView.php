@@ -189,6 +189,7 @@ class FrontendTeamChemistryView extends FrontendViewBase {
         );
 
         self::renderTemplatePicker( (int) $team->id, $template_id, (string) ( $template->name ?? '' ) );
+        self::renderSandboxControls( (int) $team->id, $user_id );
 
         echo '<p style="color:#5b6e75; margin:0 0 8px;">'
             . esc_html( sprintf(
@@ -217,6 +218,46 @@ class FrontendTeamChemistryView extends FrontendViewBase {
         self::renderChemistryBreakdown( $chem );
         self::renderDepthChart( $chem['depth'] );
         self::renderPairings( (int) $team->id, $user_id );
+
+        // v3.110.174 — "Try a lineup" sandbox. JS + CSS only mount when
+        // the manage cap is present. Localize the depth chart + roster so
+        // the picker can render candidates without a second round-trip.
+        if ( current_user_can( 'tt_manage_team_chemistry' ) ) {
+            self::enqueueChemistrySandboxAssets( (int) $team->id, $template_id, $poss, $cntr, $prss, $chem );
+        }
+    }
+
+    /**
+     * v3.110.174 — "Try a lineup" sandbox affordances above the pitch.
+     * Renders nothing for users without the manage cap; for managers it
+     * renders a mode-toggle pill, a status banner area (filled by JS
+     * when overrides are present), and reset / save-as-blueprint buttons
+     * that the JS shows once overrides exist.
+     */
+    private static function renderSandboxControls( int $team_id, int $user_id ): void {
+        $can_manage = current_user_can( 'tt_manage_team_chemistry' );
+        if ( ! $can_manage ) return;
+        ?>
+        <div class="tt-chem-sandbox" data-team-id="<?php echo (int) $team_id; ?>" data-mode="off">
+            <div class="tt-chem-sandbox-bar">
+                <button type="button" class="tt-btn tt-btn-secondary tt-chem-sandbox-toggle" aria-pressed="false">
+                    <?php esc_html_e( 'Try a lineup', 'talenttrack' ); ?>
+                </button>
+                <span class="tt-chem-sandbox-hint" hidden>
+                    <?php esc_html_e( 'Tap any slot on the pitch to swap the player.', 'talenttrack' ); ?>
+                </span>
+                <div class="tt-chem-sandbox-actions" hidden>
+                    <button type="button" class="tt-btn tt-btn-secondary tt-btn-sm tt-chem-sandbox-reset">
+                        <?php esc_html_e( 'Reset to suggested XI', 'talenttrack' ); ?>
+                    </button>
+                    <button type="button" class="tt-btn tt-btn-primary tt-btn-sm tt-chem-sandbox-save">
+                        <?php esc_html_e( 'Save as blueprint', 'talenttrack' ); ?>
+                    </button>
+                </div>
+            </div>
+            <p class="tt-chem-sandbox-status" role="status" aria-live="polite" hidden></p>
+        </div>
+        <?php
     }
 
     /**
@@ -237,7 +278,7 @@ class FrontendTeamChemistryView extends FrontendViewBase {
                     <div style="font-size:12px; color:#5b6e75; text-transform:uppercase; letter-spacing:0.04em;">
                         <?php esc_html_e( 'Link chemistry', 'talenttrack' ); ?>
                     </div>
-                    <div style="font-size:28px; font-weight:700; line-height:1;">
+                    <div style="font-size:28px; font-weight:700; line-height:1;" data-tt-link-headline>
                         <?php
                         if ( $score === null ) {
                             echo '<span style="color:#8a9099;">— / 100</span>';
@@ -250,7 +291,7 @@ class FrontendTeamChemistryView extends FrontendViewBase {
                         }
                         ?>
                     </div>
-                    <div style="font-size:12px; color:#5b6e75; margin-top:4px;">
+                    <div style="font-size:12px; color:#5b6e75; margin-top:4px;" data-tt-link-subtitle>
                         <?php
                         echo esc_html( sprintf(
                             /* translators: %d: scored adjacent pair count */
@@ -383,10 +424,10 @@ class FrontendTeamChemistryView extends FrontendViewBase {
     private static function renderChemistryBreakdown( array $chem ): void {
         $composite = $chem['composite'] ?? null;
         $parts = [
-            [ 'label' => __( 'Formation fit', 'talenttrack' ), 'value' => $chem['formation_fit']    ?? null ],
-            [ 'label' => __( 'Style fit',     'talenttrack' ), 'value' => $chem['style_fit']        ?? null ],
-            [ 'label' => __( 'Depth',         'talenttrack' ), 'value' => $chem['depth_score']      ?? null ],
-            [ 'label' => __( 'Paired bonus',  'talenttrack' ), 'value' => $chem['paired_chemistry'] ?? 0.0 ],
+            [ 'key' => 'formation_fit',    'label' => __( 'Formation fit', 'talenttrack' ), 'value' => $chem['formation_fit']    ?? null ],
+            [ 'key' => 'style_fit',        'label' => __( 'Style fit',     'talenttrack' ), 'value' => $chem['style_fit']        ?? null ],
+            [ 'key' => 'depth_score',      'label' => __( 'Depth',         'talenttrack' ), 'value' => $chem['depth_score']      ?? null ],
+            [ 'key' => 'paired_chemistry', 'label' => __( 'Paired bonus',  'talenttrack' ), 'value' => $chem['paired_chemistry'] ?? 0.0 ],
         ];
         ?>
         <?php
@@ -394,8 +435,8 @@ class FrontendTeamChemistryView extends FrontendViewBase {
         // config so the denominator matches the active rating scale.
         $tc_rmax = (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_max', '10' );
         ?>
-        <div class="tt-card" style="background:#fff; border:1px solid #e5e7ea; border-radius:8px; padding:16px; margin-bottom:16px;">
-            <h2 style="margin:0 0 8px; font-size:18px;"><?php
+        <div class="tt-card" data-tt-chem-breakdown data-rating-max="<?php echo esc_attr( (string) $tc_rmax ); ?>" style="background:#fff; border:1px solid #e5e7ea; border-radius:8px; padding:16px; margin-bottom:16px;">
+            <h2 style="margin:0 0 8px; font-size:18px;" data-tt-chem-composite-heading><?php
                 if ( $composite === null ) {
                     echo esc_html( sprintf(
                         /* translators: %s = rating max */
@@ -415,7 +456,7 @@ class FrontendTeamChemistryView extends FrontendViewBase {
                 <?php foreach ( $parts as $part ) : ?>
                     <div style="background:#fafbfc; padding:10px; border-radius:6px;">
                         <div style="font-size:12px; color:#5b6e75;"><?php echo esc_html( (string) $part['label'] ); ?></div>
-                        <div style="font-size:18px; font-weight:600;">
+                        <div style="font-size:18px; font-weight:600;" data-tt-chem-part="<?php echo esc_attr( (string) $part['key'] ); ?>">
                             <?php
                             if ( $part['value'] === null ) {
                                 echo '<span style="color:#8a9099;">?</span>';
@@ -533,5 +574,126 @@ class FrontendTeamChemistryView extends FrontendViewBase {
             if ( (int) $t->id === $team_id ) return true;
         }
         return false;
+    }
+
+    /**
+     * v3.110.174 — enqueue the "Try a lineup" sandbox CSS + JS and
+     * localize the data the picker needs (depth chart, full roster,
+     * suggested-XI baseline, REST root + nonce, i18n strings). Only
+     * called for users with the manage cap.
+     *
+     * @param array<string,mixed> $chem
+     */
+    private static function enqueueChemistrySandboxAssets( int $team_id, int $template_id, int $poss, int $cntr, int $prss, array $chem ): void {
+        wp_enqueue_style(
+            'tt-team-chemistry',
+            TT_PLUGIN_URL . 'assets/css/frontend-team-chemistry.css',
+            [],
+            TT_VERSION
+        );
+        wp_enqueue_script(
+            'tt-team-chemistry',
+            TT_PLUGIN_URL . 'assets/js/frontend-team-chemistry.js',
+            [],
+            TT_VERSION,
+            true
+        );
+
+        // Full roster — needed so the picker can offer any player, not
+        // just the depth-chart top-3. Includes name + the side preference
+        // we already cache on `tt_players` so the picker can warn on
+        // wrong-side picks in a follow-up. v1 ships the names only.
+        $roster = [];
+        foreach ( (array) QueryHelpers::get_players( $team_id ) as $pl ) {
+            $roster[] = [
+                'id'   => (int) $pl->id,
+                'name' => QueryHelpers::player_display_name( $pl ),
+            ];
+        }
+
+        wp_localize_script( 'tt-team-chemistry', 'TT_TEAM_CHEM', [
+            'rest_root'   => esc_url_raw( rest_url( 'talenttrack/v1' ) ),
+            'nonce'       => wp_create_nonce( 'wp_rest' ),
+            'team_id'     => $team_id,
+            'template_id' => $template_id,
+            'style'       => [ 'possession' => $poss, 'counter' => $cntr, 'press' => $prss ],
+            'suggested'   => self::compactSuggested( (array) ( $chem['suggested_xi'] ?? [] ) ),
+            'depth'       => self::compactDepth( (array) ( $chem['depth'] ?? [] ) ),
+            'roster'      => $roster,
+            'i18n'        => [
+                'mode_on'        => __( 'Tap any slot on the pitch to swap the player.', 'talenttrack' ),
+                'mode_off'       => __( 'Try a lineup', 'talenttrack' ),
+                'mode_on_label'  => __( 'Stop trying a lineup', 'talenttrack' ),
+                'picker_title'   => __( 'Pick a player for %s', 'talenttrack' ),
+                'picker_empty'   => __( 'Leave slot empty', 'talenttrack' ),
+                'picker_close'   => __( 'Close', 'talenttrack' ),
+                'in_xi'          => __( 'currently in %s', 'talenttrack' ),
+                'fit'            => __( 'fit %s', 'talenttrack' ),
+                'no_fit'         => __( 'no fit data yet', 'talenttrack' ),
+                'save_failed'    => __( 'Could not recompute chemistry. Try again.', 'talenttrack' ),
+                'save_bp_title'  => __( 'Save lineup as blueprint', 'talenttrack' ),
+                'save_bp_prompt' => __( 'Name this blueprint:', 'talenttrack' ),
+                'save_bp_default'=> __( 'Sandbox lineup', 'talenttrack' ),
+                'save_bp_failed' => __( 'Could not save the blueprint. Try again.', 'talenttrack' ),
+                'reset_confirm'  => __( 'Discard the sandbox lineup and restore the suggested XI?', 'talenttrack' ),
+                'sandbox_active' => __( '%d slot swapped from the suggested XI.', 'talenttrack' ),
+                'sandbox_active_many' => __( '%d slots swapped from the suggested XI.', 'talenttrack' ),
+                /* translators: 1: composite score, 2: rating max */
+                'composite_label' => __( 'Team chemistry: %1$s / %2$s', 'talenttrack' ),
+                /* translators: %s: rating max */
+                'composite_unknown' => __( 'Team chemistry: ? / %s', 'talenttrack' ),
+                'pairs_one'      => __( '%d scored adjacent pair on the pitch.', 'talenttrack' ),
+                'pairs_many'     => __( '%d scored adjacent pairs on the pitch.', 'talenttrack' ),
+                'link_score'     => __( '%d / 100', 'talenttrack' ),
+                'link_score_unknown' => __( '— / 100', 'talenttrack' ),
+                /* translators: 1: pair score 0-3, 2: comma-separated reasons */
+                'link_tip'       => __( 'Chemistry %1$s / 3 — %2$s', 'talenttrack' ),
+                'no_signals'     => __( 'no shared signals', 'talenttrack' ),
+            ],
+        ] );
+    }
+
+    /**
+     * Strip the suggested_xi payload to the fields the picker JS needs.
+     * Keeps `wp_localize_script` from emitting roster-size × eval-data.
+     *
+     * @param array<string, array<string,mixed>> $suggested
+     * @return array<string, array{player_id:int, player_name:string, score:float, has_data:bool}>
+     */
+    private static function compactSuggested( array $suggested ): array {
+        $out = [];
+        foreach ( $suggested as $label => $entry ) {
+            $out[ (string) $label ] = [
+                'player_id'   => (int)    ( $entry['player_id']   ?? 0 ),
+                'player_name' => (string) ( $entry['player_name'] ?? '' ),
+                'score'       => (float)  ( $entry['score']       ?? 0.0 ),
+                'has_data'    => (bool)   ( $entry['has_data']    ?? false ),
+            ];
+        }
+        return $out;
+    }
+
+    /**
+     * Same shape as compactSuggested but applied to the depth chart's
+     * list-per-slot. Top-N already capped at 3 by the aggregator.
+     *
+     * @param array<string, list<array<string,mixed>>> $depth
+     * @return array<string, list<array{player_id:int, player_name:string, score:float, has_data:bool}>>
+     */
+    private static function compactDepth( array $depth ): array {
+        $out = [];
+        foreach ( $depth as $label => $rows ) {
+            $clean = [];
+            foreach ( $rows as $r ) {
+                $clean[] = [
+                    'player_id'   => (int)    ( $r['player_id']   ?? 0 ),
+                    'player_name' => (string) ( $r['player_name'] ?? '' ),
+                    'score'       => (float)  ( $r['score']       ?? 0.0 ),
+                    'has_data'    => (bool)   ( $r['has_data']    ?? false ),
+                ];
+            }
+            $out[ (string) $label ] = $clean;
+        }
+        return $out;
     }
 }

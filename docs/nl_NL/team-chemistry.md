@@ -85,6 +85,24 @@ Het bord rendert het veld nog steeds in deze leeg-staat — slots worden alleen 
 - **Stijlmix** — schuiven voor balbezit, counter en press. De drie gewichten moeten samen 100 zijn.
 - **Zijvoorkeur** — instelbaar op het spelerprofiel (links / rechts / centrum). Voegt ±0,2 toe aan fit-scores bij overeenkomst / mismatch tegen een zijgebonden slot.
 
+## Probeer een opstelling
+
+De voorgestelde XI op het bord is een vertrekpunt — geen eindoordeel. De knop **Probeer een opstelling** boven het veld zet het bord in een sandbox-modus waarin je elke speler kunt wisselen en de chemie meteen ziet herberekenen.
+
+1. Klik op **Probeer een opstelling**.
+2. Tik op een positie op het veld — er schuift een keuzelijst omhoog met elke speler in de selectie, gerangschikt op fit voor die positie. Elke regel toont de fit-score en een *staat nu op <positie>* label als de speler al op het veld staat.
+3. Kies een speler → de positie wordt bijgewerkt, het samengestelde cijfer en de vier deelscores worden opnieuw berekend, de chemielijnen verkleuren en het kopcijfer past zich aan — allemaal zonder de pagina te herladen.
+4. Kies **Laat positie leeg** om een speler weg te halen zonder vervanging; de chemieberekening houdt rekening met de lege positie.
+
+De sandbox is van jou — hij verandert niets aan de voorgestelde XI voor anderen, slaat niets op in een record en overleeft een refresh (lokaal in je browser-tabblad bewaard).
+
+Klaar?
+
+- **Terug naar voorgestelde XI** gooit elke wissel weg en zet het bord terug op het analytische uitgangspunt.
+- **Opslaan als blueprint** vraagt om een naam en promoveert je sandbox tot een echte Team Blueprint — hetzelfde scherm dat coaches gebruiken om wedstrijd­opstellingen te delen. Je springt direct in de blueprint-editor met al je wissels als opstelling.
+
+Alleen-lezen kijkers zien het bord zonder de Probeer-een-opstelling-knop. De sandbox is afgeschermd door de *Teamchemie beheren*-rechten — dezelfde rechten die ook pairings afschermen.
+
 ## Cache + herberekening
 
 Fit-scores per speler worden 24 uur gecachet. Het opslaan van een evaluatie voor een speler vernietigt die cache van de speler, zodat het bord altijd de nieuwste beoordelingen weerspiegelt binnen enkele minuten. Geen handmatige verversing nodig.
