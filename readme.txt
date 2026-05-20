@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.176
+Stable tag: 3.110.177
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.177 — "My team attendance %" KPI compute + deep-link now also exclude planned / cancelled / draft / scheduled activities so the number and the destination list agree exactly (closes #775) =
+
+Pilot follow-up to v3.110.175 (#771): *"but does it also take into account other scope context; for example only completed activities because planned and cancelled activities do not count towards the number?"* Correct catch — the v3.110.175 fix made the deep-link honour the KPI's 28-day window but left the activity-state scope unaddressed. The destination list still showed planned / cancelled / draft / scheduled activities in that 28-day window, even though those activities don't contribute to the KPI's percentage (planned has no attendance rows yet; cancelled rarely does but might in edge cases; in_progress and completed are what the coach actually marked). **Fix in `MyTeamAttendancePct.php`**: new `private const ACTIVITY_STATES_COUNTING = [ 'completed', 'in_progress' ]` constant. `compute()` now adds `AND act.plan_state IN ('completed', 'in_progress')` to the SQL — any attendance row attached to a planned / draft / scheduled / cancelled activity is excluded from the KPI's denominator (covers the cancelled-after-attendance-marked edge case). `linkUrl()` now also adds `filter[plan_state]=completed,in_progress` to the destination URL — the activities REST endpoint accepts the comma-separated value via its existing `plan_state` filter parser. Both the KPI's number AND the filtered list use literally the same constant — drift is structurally impossible. Same single-source-of-truth principle as the v3.110.173 dispatcher refactor and v3.110.175's `WINDOW_DAYS` constant. **Behaviour**: clicking the KPI card now lands the coach on a list of activities that EXACTLY matches the KPI's universe — last 28 days, the coach's teams, plan_state IN (completed, in_progress). Row count matches the KPI denominator. `MyTeamAvgRating` not affected — evaluations have no `plan_state` concept; the existing `archived_at IS NULL` filter is already the equivalent gate. No REST shape change, no UI change, no new strings, no auth change.
 
 = 3.110.176 — Scout-prospects auth: WP-role-based bypass on `FrontendScoutingPlanView` entry so matrix layering issues stop manifesting as "Not authorized" (#772) =
 

@@ -1,88 +1,79 @@
-# TalentTrack v3.110.175 — Coach-dashboard KPI deep-links honour their compute window (closes #771)
+# TalentTrack v3.110.177 — "My team attendance %" KPI excludes planned / cancelled activities from both compute + deep-link (closes #775)
 
-## Pilot report
+## Pilot follow-up
 
-Chat 2026-05-20:
+After v3.110.175 (`#771` — KPI deep-links honour their compute window):
 
-> When I click on the attendance for my team KPI card it should show only those activities contributing to the number I see
+> but does it also take into account other scope context; for example only completed activities because planned and cancelled activties do not count towards the number?
 
-## Root cause
+Sharp catch. The v3.110.175 fix made the deep-link honour the 28-day window but left activity-state scope unaddressed.
 
-`src/Modules/PersonaDashboard/Kpis/MyTeamAttendancePct.php`:
+## What was still wrong
 
-- `compute()` rolls over a **28-day window** — `act.session_date >= today - 28 days AND act.session_date <= today`. The percentage on the card is honest about its window.
-- `linkView(): string { return 'activities'; }` returns only a view slug.
-- `AbstractKpiDataSource::linkUrl()`'s default builder then rebuilds a bare `?tt_view=activities` URL with **no filters**.
-- The destination renders the activities list's default ordering — every activity the coach has access to, all-time.
+- `MyTeamAttendancePct::compute()` counts rows in `tt_attendance`. Planned activities (no attendance rows yet) didn't contribute in practice, but **cancelled-after-attendance-marked** activities could still slip into the denominator.
+- `MyTeamAttendancePct::linkUrl()` from v3.110.175 added `filter[date_from]` + `filter[date_to]` but no `plan_state` filter, so the destination activities list showed **every** activity in the 28-day window — including planned, draft, scheduled, and cancelled — even though they don't contribute to the KPI.
 
-So the card promises "28 days" and the destination shows "everything." Same shape on `MyTeamAvgRating` (90-day window for evaluations).
+The number on the card and the row count of the destination list could disagree, and the pilot's coach mental model ("only activities that actually happened count") wasn't reflected in either place.
 
-## Fix
+## Fix — symmetric on both sides
 
-Both KPIs now:
-
-1. Declare a `private const WINDOW_DAYS` (28 for attendance, 90 for rating).
-2. Expose a `private static function windowDates(): array` returning `[ 'from' => 'Y-m-d', 'to' => 'Y-m-d' ]`.
-3. `compute()` consumes those instead of inline `strtotime` calls.
-4. Override `linkUrl(RenderContext $ctx): string` to add `filter[date_from]` against the SAME `from` date (+ `filter[date_to]` for attendance; rating leaves the upper bound off because evaluation lists are "newest first" by default and there's no cap on the compute window's right edge either).
+New constant in `MyTeamAttendancePct.php`:
 
 ```php
-// MyTeamAttendancePct after the fix:
-private const WINDOW_DAYS = 28;
-
-public function compute( int $user_id, int $club_id ): KpiValue {
-    // …
-    [ 'from' => $from, 'to' => $to ] = self::windowDates();
-    $start = $from . ' 00:00:00';
-    $end   = $to   . ' 23:59:59';
-    // …query uses $start / $end as before…
-}
-
-public function linkUrl( RenderContext $ctx ): string {
-    [ 'from' => $from, 'to' => $to ] = self::windowDates();
-    return add_query_arg(
-        [ 'filter' => [ 'date_from' => $from, 'date_to' => $to ] ],
-        $ctx->viewUrl( $this->linkView() )
-    );
-}
-
-private static function windowDates(): array {
-    return [
-        'from' => gmdate( 'Y-m-d', strtotime( '-' . self::WINDOW_DAYS . ' days' ) ),
-        'to'   => gmdate( 'Y-m-d' ),
-    ];
-}
+private const ACTIVITY_STATES_COUNTING = [ 'completed', 'in_progress' ];
 ```
+
+### `compute()` adds the state predicate
+
+The SQL now also constrains `act.plan_state IN ('completed', 'in_progress')`. Any attendance row attached to a `planned` / `draft` / `scheduled` / `cancelled` activity is excluded from the KPI's denominator. Covers the cancelled-after-attendance-marked edge case.
+
+### `linkUrl()` adds the same filter to the destination
+
+The activities REST endpoint already parses comma-separated values on `filter[plan_state]` via its `$allowed = [ 'draft', 'scheduled', 'in_progress', 'completed', 'cancelled' ]` whitelist. No REST shape change needed.
 
 ## Why this is architecturally correct
 
-The `WINDOW_DAYS` constant + `windowDates()` helper is a single source of truth — the window value cannot drift between the KPI's compute result and its deep-link's filter. Same principle as the v3.110.173 dispatcher refactor: when two co-dependent values must stay in sync, collapse them into one.
+Both `compute()` and `linkUrl()` consume the SAME `ACTIVITY_STATES_COUNTING` constant — drift between the KPI's number and the filtered list is structurally impossible. Same single-source-of-truth principle as:
 
-The destination REST endpoints already accepted `filter[date_from]` + `filter[date_to]` against the matching `session_date` / `eval_date` columns. This ship just wires the KPI cards to use them. No REST change, no view change, no schema change.
+- v3.110.173 — bool-returning dispatchers (switch case IS the registration; no second allowlist to drift)
+- v3.110.175 — `WINDOW_DAYS` constant (shared between compute and linkUrl)
 
-The `linkUrl()` extension point already existed (`PdpVerdictsPending` uses it for `filter[status]=open`). The pattern is established — `linkView()` stays as the back-compat default; `linkUrl()` is the override when query args are needed.
+Now there are two shared constants in `MyTeamAttendancePct`:
 
-## Behaviour
+- `WINDOW_DAYS = 28` — the rolling window
+- `ACTIVITY_STATES_COUNTING = [ 'completed', 'in_progress' ]` — the scope
 
-- Click "My team attendance %" on the coach dashboard → `?tt_view=activities&filter[date_from]=<today-28d>&filter[date_to]=<today>`. Activities list renders with the date filter pre-filled; row count matches the KPI denominator universe.
-- Click "My team avg rating" → `?tt_view=evaluations&filter[date_from]=<today-90d>`. Evaluations list renders pre-filtered to the last 90 days.
-- No other KPI is affected. Academy-wide and player-context KPIs were already correct (most have no rolling window) or land on overviews where a filter wouldn't apply.
+Both used by both methods. The KPI's universe and the destination filter's universe are guaranteed to match.
+
+## Why `completed` AND `in_progress` (not just `completed`)
+
+The pilot said "only completed", but `in_progress` is a meaningful subset of completed-in-spirit:
+
+- `in_progress` activities have attendance rows being marked DURING the session itself. Those rows reflect real presence calls. Excluding them under-counts the recent attendance signal during a session that just happened.
+- `completed` activities are the typical case: session over, attendance finalised.
+
+Both excluded by the new gate: `draft`, `scheduled`, `planned` (pre-attendance), `cancelled` (post-decision to not run).
+
+## What's NOT affected
+
+- `MyTeamAvgRating` — evaluations have no `plan_state` concept. The existing `e.archived_at IS NULL` filter is already the equivalent gate.
+- Academy-wide KPIs (`AttendancePctRolling`, etc.) — out of scope for this fix.
 
 ## Files touched
 
-- `src/Modules/PersonaDashboard/Kpis/MyTeamAttendancePct.php` — `WINDOW_DAYS` constant, `windowDates()` helper, `linkUrl()` override.
-- `src/Modules/PersonaDashboard/Kpis/MyTeamAvgRating.php` — same pattern, 90-day window.
-- `talenttrack.php` — 3.110.174 → 3.110.175.
+- `src/Modules/PersonaDashboard/Kpis/MyTeamAttendancePct.php` — new constant, compute SQL adds `AND plan_state IN (…)`, linkUrl adds `filter[plan_state]=…`.
+- `talenttrack.php` — 3.110.176 → 3.110.177.
 - `readme.txt` — Stable tag + changelog entry.
 - `CHANGES.md` — this file.
 
-No DB migration, no REST shape change, no new i18n strings, no auth change.
+No DB migration, no REST shape change, no new i18n strings, no auth change, no UI change.
 
 ## Test plan
 
-- [ ] On coach dashboard, click "My team attendance %" KPI → lands on activities list with date range pre-set to last 28 days
-- [ ] Date-range filter dropdown shows the populated From / To values
-- [ ] Row count is in the same neighbourhood as the KPI's denominator (won't be exact — KPI counts attendance rows, list counts activities — but the universe should match)
-- [ ] On coach dashboard, click "My team avg rating" KPI → lands on evaluations list with date filter set to last 90 days
-- [ ] PdpVerdictsPending click still works (`filter[status]=open`) — regression check on the pre-existing `linkUrl()` consumer
-- [ ] Academy-wide KPIs that have a `linkView` but no `linkUrl` override still work (e.g. clicking "Active players total" → players list unfiltered, as before)
+- [ ] On the coach dashboard, "My team attendance %" KPI displays a percentage. Note it.
+- [ ] Click the KPI → activities list opens with `date_from`, `date_to`, AND `plan_state` filters all pre-set.
+- [ ] List shows ONLY activities with `plan_state` in `completed` or `in_progress`. Zero planned, draft, scheduled, or cancelled rows visible.
+- [ ] Mentally compute attendance from visible rows → matches the KPI percentage.
+- [ ] Edge case: if any cancelled activity in the 28-day window had attendance rows on it, the KPI percentage decreased after this ship (those rows are no longer in the denominator).
+- [ ] Regression check: "My team avg rating" still works as before (no plan_state filter applied).
+- [ ] Regression check: clicking other KPIs still routes correctly with their own filters.
