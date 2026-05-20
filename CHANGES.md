@@ -1,3 +1,77 @@
+# TalentTrack v3.110.191 — Frontend lookups admin: per-locale name + description fields for every shipped locale (closes #798)
+
+## Pilot report
+
+> Lookup lists still are not satisfactory. I expect to be able to enter values in all languages for which generic translations exist. However, the frontend admin does not show this properly. Example, for positions the name is in English so I would expect that there are fields to maintain the description in dutch, spanish, French, german. ... For activity types, the name is in english but I do see the dutch description in the table but I do not see the fields to maintain it in dutch.
+
+Surface: **`?tt_view=configuration&config_sub=lookups`**, the frontend lookups admin. Affects every lookup category (positions, activity types, eval types, foot options, age groups, goal statuses, goal priorities, attendance statuses, game subtypes, player values).
+
+## Three concrete bugs in the frontend form
+
+### Bug 1 — current site locale excluded from the inputs
+
+`FrontendConfigurationView::translationTargets()` filtered out the current locale by 2-letter prefix:
+
+```php
+$current_short = substr( (string) get_locale(), 0, 2 );
+if ( substr( $loc, 0, 2 ) === $current_short ) continue;
+```
+
+The assumption was that the canonical `name` field IS the current locale, so translations are alternates. But every seeded row stores the canonical name in **English**. On a Dutch site the form said "Name: Match" and offered no Dutch input.
+
+### Bug 2 — only WP-installed locales offered
+
+`get_available_languages()` returns only locales the site operator has activated via Settings → General → Site Language. The plugin ships `.po` files for `nl_NL`, `fr_FR`, `de_DE`, `es_ES`. On installs where only `nl_NL` is activated in WP, the form never exposed fields for fr/de/es even though the plugin has translations ready.
+
+### Bug 3 — write path didn't sync with renderer read path
+
+The frontend JS bundled translations into `meta.translations.<locale>.name` and POSTed them as `meta` JSON. `LookupsRestController::updateValue()` stored that straight into `tt_lookups.meta`. But the renderer — `LookupTranslator::name()` — reads from the **`tt_translations` table** (the v3.110.30 canonical store, after migration 0087 dropped the legacy in-row JSON column). The frontend form was writing to a column the renderer doesn't read — silently dropped.
+
+## Fixes
+
+### 1. Wider locale set
+
+New `LookupTranslator::shippedLocales()` scans `TT_PLUGIN_DIR/languages/talenttrack-*.po` and returns the locales the plugin actually ships, cached for the request. `LookupTranslator::installedLocales()` now returns the union of WP-installed + plugin-shipped + site locale + `en_US`. `FrontendConfigurationView::translationTargets()` returns that set minus `en_US` (the canonical column) — the current site locale is included.
+
+### 2. Per-locale name AND description fields
+
+Form was only rendering name inputs per locale. Now renders both, controlled by the existing `show_desc` flag per category. Save path carries both. Existing values read via `TranslationsRepository::allFor( ENTITY_LOOKUP, $row->id )`.
+
+### 3. Frontend write path routes to the canonical store
+
+Form JS sends a top-level `translations: { <locale>: { name, description } }` on the body. `LookupsRestController::createValue()` / `updateValue()` parse it via a new `persistTranslations()` helper that calls `TranslationsRepository::upsert()` / `delete()` per cell (empty values delete the row so the renderer falls back to the `.po`-shipped translation). A translations-only update (no name/description/meta/sort_order delta) is now a valid request.
+
+### 4. Migration 0106 — backfill fr/de/es
+
+Walks every `tt_lookups` row and, for each of `fr_FR` / `de_DE` / `es_ES`, calls `switch_to_locale($loc) → __($value, 'talenttrack') → restore_previous_locale()` and `INSERT IGNORE`s a `tt_translations` row when the translation differs from English. Mirror of migration 0086. Idempotent. Operator-edited rows preserved by the unique-index `INSERT IGNORE`. Bails per-locale when `switch_to_locale()` returns false.
+
+## Positions: same code path
+
+The "Positions" tile in the frontend Lookups admin uses the same `tab_lookup` flow as every other category, with `lookup_type='position'`. After this fix, positions get the same per-locale name/description inputs as activity types.
+
+## Out of scope (filed separately)
+
+Pilot also flagged: *"there are lists of values still hardcoded somewhere"*. That audit is a separate follow-up — this PR is purely the translation-editing surface fix.
+
+## Files
+
+- `src/Infrastructure/Query/LookupTranslator.php` — `shippedLocales()` + widen `installedLocales()`
+- `src/Shared/Frontend/FrontendConfigurationView.php` — fixed `translationTargets()`, description inputs per locale, read translations from `tt_translations`, JS sends top-level `translations` field
+- `src/Infrastructure/REST/LookupsRestController.php` — new `persistTranslations()` + `hasTranslationsPayload()`; translations-only updates accepted
+- `database/migrations/0106_backfill_lookup_translations_fr_de_es.php` (new)
+- `languages/talenttrack-nl_NL.po` — Dutch for two new help strings
+
+## Test plan
+
+- [ ] Frontend Lookups admin on a Dutch site: edit "Activity types" row → Name (English canonical) + Description (English canonical) above, then `nl_NL`, `fr_FR`, `de_DE`, `es_ES` blocks below each with Name + Description inputs.
+- [ ] Change the Dutch name on an existing row, save, reload the dashboard → list view shows the new Dutch label.
+- [ ] Run migrations on a fresh install → the four shipped locales auto-populate from the `.po` files; opening the form shows them pre-filled.
+- [ ] Translations-only edit (only change a Dutch description) → 200 response, change persists.
+- [ ] Delete a lookup row → `tt_translations` rows cascade (existing behaviour, unchanged).
+- [ ] Positions tile behaves identically to activity types.
+
+---
+
 # TalentTrack v3.110.187 — Player profile drops Analytics tab; Team Chemistry enforces master-data positions
 
 ## Pilot asks (chat 2026-05-20)

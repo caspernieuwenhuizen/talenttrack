@@ -125,10 +125,51 @@ class LookupTranslator {
     public static function installedLocales(): array {
         $available = function_exists( 'get_available_languages' ) ? (array) get_available_languages() : [];
         $site      = (string) ( function_exists( 'get_locale' ) ? get_locale() : 'en_US' );
-        $locales   = array_unique( array_filter( array_merge( [ 'en_US', $site ], $available ) ) );
+        // v3.110.191 (#798) — also include locales the PLUGIN ships .po
+        // files for, even when WordPress hasn't activated them via
+        // Settings → General → Site Language. Operators expect the
+        // lookup admin to expose fields for every language the plugin
+        // ships translations for; before this fix the locale set
+        // collapsed to just whatever WP had explicitly installed
+        // (typically one or two), hiding the rest.
+        $shipped   = self::shippedLocales();
+        $locales   = array_unique( array_filter( array_merge( [ 'en_US', $site ], $available, $shipped ) ) );
         sort( $locales );
         return $locales;
     }
+
+    /**
+     * v3.110.191 (#798) — locales the plugin ships `.po` files for,
+     * derived by scanning `TT_PLUGIN_DIR/languages/*.po`. Cached for the
+     * request lifetime so we don't restat the directory on every
+     * lookup-form render. The `talenttrack.pot` template file is
+     * excluded.
+     *
+     * @return list<string>
+     */
+    public static function shippedLocales(): array {
+        if ( self::$shipped_locales !== null ) return self::$shipped_locales;
+        $out = [];
+        if ( defined( 'TT_PLUGIN_DIR' ) ) {
+            $files = glob( TT_PLUGIN_DIR . 'languages/talenttrack-*.po' );
+            if ( is_array( $files ) ) {
+                foreach ( $files as $path ) {
+                    $base = basename( $path, '.po' );
+                    // basename is e.g. `talenttrack-nl_NL`; strip the prefix.
+                    $locale = preg_replace( '/^talenttrack-/', '', $base );
+                    if ( is_string( $locale ) && $locale !== '' ) {
+                        $out[] = $locale;
+                    }
+                }
+            }
+        }
+        sort( $out );
+        self::$shipped_locales = array_values( array_unique( $out ) );
+        return self::$shipped_locales;
+    }
+
+    /** @var list<string>|null */
+    private static ?array $shipped_locales = null;
 
     private static function currentLocale(): string {
         if ( function_exists( 'determine_locale' ) ) return (string) determine_locale();

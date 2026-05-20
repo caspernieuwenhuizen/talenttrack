@@ -205,7 +205,14 @@ final class LookupsRestController extends BaseController {
         if ( ! $ok ) {
             return RestResponse::error( 'lookup_create_failed', __( 'Could not create lookup value.', 'talenttrack' ), 500 );
         }
-        return RestResponse::success( [ 'id' => (int) $wpdb->insert_id ] + self::serialize( (object) $row ), 201 );
+        $new_id = (int) $wpdb->insert_id;
+        // v3.110.191 (#798) — persist any per-locale translations from
+        // the request body straight into the canonical `tt_translations`
+        // table. Frontend used to bundle them into `meta.translations`,
+        // which the renderer never read; this aligns the create/update
+        // path with how wp-admin already saves translations.
+        self::persistTranslations( $req, $new_id );
+        return RestResponse::success( [ 'id' => $new_id ] + self::serialize( (object) $row ), 201 );
     }
 
     public static function updateValue( WP_REST_Request $req ): \WP_REST_Response {
@@ -213,15 +220,23 @@ final class LookupsRestController extends BaseController {
         $id   = (int) $req->get_param( 'id' );
         global $wpdb;
         $row = self::buildRow( $req, false );
-        if ( empty( $row ) ) {
+        // v3.110.191 (#798) — translations are now a separate concern
+        // from the lookup row's own columns. A request that only changes
+        // translations (no name/description/meta/sort_order changes) is
+        // still a valid update — don't 400 it.
+        $has_translations = self::hasTranslationsPayload( $req );
+        if ( empty( $row ) && ! $has_translations ) {
             return RestResponse::error( 'lookup_no_changes', __( 'No fields to update.', 'talenttrack' ), 400 );
         }
-        $row['updated_at'] = current_time( 'mysql' );
-        $ok = $wpdb->update( $wpdb->prefix . 'tt_lookups', $row, [ 'id' => $id, 'lookup_type' => $type, 'club_id' => CurrentClub::id() ] );
-        if ( $ok === false ) {
-            return RestResponse::error( 'lookup_update_failed', __( 'Could not update lookup value.', 'talenttrack' ), 500 );
+        if ( ! empty( $row ) ) {
+            $row['updated_at'] = current_time( 'mysql' );
+            $ok = $wpdb->update( $wpdb->prefix . 'tt_lookups', $row, [ 'id' => $id, 'lookup_type' => $type, 'club_id' => CurrentClub::id() ] );
+            if ( $ok === false ) {
+                return RestResponse::error( 'lookup_update_failed', __( 'Could not update lookup value.', 'talenttrack' ), 500 );
+            }
         }
-        return RestResponse::success( [ 'id' => $id, 'updated' => (int) $ok ] );
+        self::persistTranslations( $req, $id );
+        return RestResponse::success( [ 'id' => $id ] );
     }
 
     public static function deleteValue( WP_REST_Request $req ): \WP_REST_Response {
@@ -239,6 +254,59 @@ final class LookupsRestController extends BaseController {
             ( new TranslationsRepository() )->deleteAllFor( TranslatableFieldRegistry::ENTITY_LOOKUP, $id );
         }
         return RestResponse::success( [ 'deleted' => (int) $ok ] );
+    }
+
+    /**
+     * v3.110.191 (#798) — does the request body carry a `translations`
+     * payload that the form would expect us to upsert / clear? Used by
+     * `updateValue()` so a translations-only edit isn't rejected as
+     * "no fields to update".
+     */
+    private static function hasTranslationsPayload( WP_REST_Request $req ): bool {
+        if ( ! $req->has_param( 'translations' ) ) return false;
+        $payload = $req->get_param( 'translations' );
+        return is_array( $payload ) && ! empty( $payload );
+    }
+
+    /**
+     * v3.110.191 (#798) — accept a `translations` payload shaped as
+     * `[ <locale> => [ 'name' => string, 'description' => string ] ]`
+     * (or the legacy `[ <locale> => string ]` shape) and reconcile
+     * each cell against `tt_translations` via `TranslationsRepository`.
+     * Empty values delete the row so the renderer falls back to the
+     * .po-shipped translation; non-empty values upsert.
+     *
+     * Restricted to the `lookup` entity type and `name` / `description`
+     * fields — matches what `TranslatableFieldRegistry` registers for
+     * this entity. Unknown locales / unknown fields are silently dropped.
+     */
+    private static function persistTranslations( WP_REST_Request $req, int $entity_id ): void {
+        if ( $entity_id <= 0 || ! self::hasTranslationsPayload( $req ) ) return;
+        $payload = $req->get_param( 'translations' );
+        $repo    = new TranslationsRepository();
+        $entity  = TranslatableFieldRegistry::ENTITY_LOOKUP;
+        $user_id = (int) get_current_user_id();
+        $allowed_fields = [ 'name', 'description' ];
+
+        foreach ( (array) $payload as $locale => $cells ) {
+            $locale = is_string( $locale ) ? sanitize_text_field( $locale ) : '';
+            if ( $locale === '' || $locale === 'en_US' ) continue; // en_US is the canonical column.
+
+            // Accept legacy flat `[locale => 'translated name']` shape too.
+            if ( ! is_array( $cells ) ) {
+                $cells = [ 'name' => (string) $cells ];
+            }
+
+            foreach ( $allowed_fields as $field ) {
+                if ( ! array_key_exists( $field, $cells ) ) continue;
+                $value = is_string( $cells[ $field ] ) ? trim( wp_kses_post( $cells[ $field ] ) ) : '';
+                if ( $value === '' ) {
+                    $repo->delete( $entity, $entity_id, $field, $locale );
+                } else {
+                    $repo->upsert( $entity, $entity_id, $field, $locale, $value, $user_id );
+                }
+            }
+        }
     }
 
     /** @return array<string,mixed> */
