@@ -416,7 +416,12 @@ class FrontendWizardView extends FrontendViewBase {
             WizardAnalytics::recordCompleted( $slug );
             WizardState::clear( $user_id, $slug );
             $redirect = (string) ( ( is_array( $result ) ? $result['redirect_url'] : '' ) ?? '' );
-            if ( $redirect === '' ) $redirect = \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl();
+            // v3.110.182 (#782) — when the wizard didn't return a
+            // redirect_url, fall back to the same robust same-page URL
+            // builder that wizardStepUrl() uses, not dashboardBaseUrl()
+            // (whose four-stage chain can resolve to a URL that doesn't
+            // route to the shortcode on certain installs).
+            if ( $redirect === '' ) $redirect = \TT\Shared\Wizards\WizardEntryPoint::currentDashboardUrl();
             wp_safe_redirect( $redirect );
             exit;
         }

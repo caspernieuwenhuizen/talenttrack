@@ -111,12 +111,12 @@ final class ReviewStep implements WizardStepInterface {
                     'created_by' => get_current_user_id(),
                 ] );
                 if ( $case_id > 0 ) {
-                    return [ 'redirect_url' => add_query_arg( [ 'tt_view' => 'trial-case', 'id' => $case_id ], \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl() ) ];
+                    return [ 'redirect_url' => add_query_arg( [ 'tt_view' => 'trial-case', 'id' => $case_id ], \TT\Shared\Wizards\WizardEntryPoint::currentDashboardUrl() ) ];
                 }
             }
         }
 
-        return [ 'redirect_url' => add_query_arg( [ 'tt_view' => 'players', 'player_id' => $player_id ], \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl() ) ];
+        return [ 'redirect_url' => add_query_arg( [ 'tt_view' => 'players', 'player_id' => $player_id ], \TT\Shared\Wizards\WizardEntryPoint::currentDashboardUrl() ) ];
     }
 
     private static function teamLabel( int $team_id ): string {

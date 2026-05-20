@@ -127,10 +127,13 @@ final class ReviewStep implements WizardStepInterface {
 
         do_action( 'tt_tournament_created', $tournament_id, $row );
 
+        // v3.110.182 (#782 follow-up) — same fix as the team-blueprint
+        // wizard's ReviewStep. Use REQUEST_URI's path via home_url()
+        // instead of the brittle dashboardBaseUrl() resolution chain.
         return [
             'redirect_url' => add_query_arg(
                 [ 'tt_view' => 'tournaments', 'id' => $tournament_id ],
-                WizardEntryPoint::dashboardBaseUrl()
+                WizardEntryPoint::currentDashboardUrl()
             ),
         ];
     }

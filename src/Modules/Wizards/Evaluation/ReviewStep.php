@@ -72,7 +72,7 @@ final class ReviewStep implements WizardStepInterface {
         $redirect_url = add_query_arg( [
             'tt_view'     => 'evaluations',
             'activity_id' => $aid,
-        ], WizardEntryPoint::dashboardBaseUrl() );
+        ], WizardEntryPoint::currentDashboardUrl() );
 
         $payload = [
             'rest_url'   => esc_url_raw( rest_url( 'talenttrack/v1/wizards/new-evaluation/insert-row' ) ),
@@ -224,7 +224,7 @@ final class ReviewStep implements WizardStepInterface {
             : add_query_arg( [
                 'tt_view'     => 'evaluations',
                 'activity_id' => $aid,
-            ], WizardEntryPoint::dashboardBaseUrl() );
+            ], WizardEntryPoint::currentDashboardUrl() );
 
         return [ 'redirect_url' => $redirect, 'created' => $created ];
     }
@@ -286,7 +286,7 @@ final class ReviewStep implements WizardStepInterface {
         $redirect = add_query_arg( [
             'tt_view' => 'evaluations',
             'player_id' => $pid,
-        ], WizardEntryPoint::dashboardBaseUrl() );
+        ], WizardEntryPoint::currentDashboardUrl() );
 
         return [ 'redirect_url' => $redirect, 'created' => 1 ];
     }

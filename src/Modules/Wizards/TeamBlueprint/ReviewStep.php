@@ -54,9 +54,16 @@ final class ReviewStep implements WizardStepInterface {
         if ( $id <= 0 ) {
             return new \WP_Error( 'db_error', __( 'Could not create the blueprint.', 'talenttrack' ) );
         }
+        // v3.110.182 (#782 follow-up) — `dashboardBaseUrl()`'s
+        // resolution chain returned a URL that doesn't host the
+        // dashboard shortcode on the pilot install, sending the user
+        // to a 404 after Create. `currentDashboardUrl()` uses
+        // REQUEST_URI's path (the page the wizard was just rendered
+        // on, which by definition hosts the shortcode) wrapped through
+        // `home_url()`. Same robust pattern as `FrontendWizardView::wizardStepUrl()`.
         return [ 'redirect_url' => add_query_arg(
             [ 'tt_view' => 'team-blueprints', 'id' => $id ],
-            WizardEntryPoint::dashboardBaseUrl()
+            WizardEntryPoint::currentDashboardUrl()
         ) ];
     }
 

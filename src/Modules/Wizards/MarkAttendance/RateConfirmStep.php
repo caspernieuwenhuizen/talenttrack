@@ -137,8 +137,8 @@ final class RateConfirmStep implements WizardStepInterface {
             return [ 'redirect_url' => $override ];
         }
         $url = $aid > 0
-            ? add_query_arg( [ 'tt_view' => 'activities', 'id' => $aid ], WizardEntryPoint::dashboardBaseUrl() )
-            : WizardEntryPoint::dashboardBaseUrl();
+            ? add_query_arg( [ 'tt_view' => 'activities', 'id' => $aid ], WizardEntryPoint::currentDashboardUrl() )
+            : WizardEntryPoint::currentDashboardUrl();
         return [ 'redirect_url' => $url ];
     }
 
