@@ -214,7 +214,7 @@ class FrontendEvaluationsView extends FrontendViewBase {
                     t.name AS team_name,
                     u.display_name AS coach_name,
                     coach_p.id AS coach_person_id,
-                    et.name AS eval_type_key, et.label AS eval_type_label, et.meta AS eval_type_meta
+                    et.id AS eval_type_lookup_id, et.name AS eval_type_key, et.meta AS eval_type_meta
                FROM {$p}tt_evaluations e
                LEFT JOIN {$p}tt_players pl ON pl.id = e.player_id
                LEFT JOIN {$p}tt_teams   t  ON t.id  = pl.team_id
@@ -304,18 +304,17 @@ class FrontendEvaluationsView extends FrontendViewBase {
                     <dt><?php esc_html_e( 'Date', 'talenttrack' ); ?></dt>
                     <dd><?php echo esc_html( (string) $eval->eval_date ); ?></dd>
                     <?php
-                    // v3.110.104 — Type row. Resolves via LookupTranslator
-                    // when the join returned a row (full lookup, with the
-                    // `label` JSON honouring the current locale).
+                    // v3.110.175 — was selecting `et.label AS eval_type_label`
+                    // but `tt_lookups` has no `label` column. The SELECT errored
+                    // silently and the Type row never rendered. Pass the
+                    // lookup id instead; `LookupTranslator::name()` resolves
+                    // via `tt_translations` when an id is given, otherwise
+                    // falls back to `__($name, 'talenttrack')`.
                     $eval_type_label = '';
                     if ( ! empty( $eval->eval_type_id ) ) {
-                        // Synthesise a lookup-shaped object so the
-                        // existing translator works without a second
-                        // query. LookupTranslator::name reads `label`
-                        // first, falls back to `name`.
                         $lookup_row = (object) [
+                            'id'    => (int)    ( $eval->eval_type_lookup_id ?? 0 ),
                             'name'  => (string) ( $eval->eval_type_key ?? '' ),
-                            'label' => (string) ( $eval->eval_type_label ?? '' ),
                             'meta'  => (string) ( $eval->eval_type_meta ?? '' ),
                         ];
                         $eval_type_label = (string) \TT\Infrastructure\Query\LookupTranslator::name( $lookup_row );

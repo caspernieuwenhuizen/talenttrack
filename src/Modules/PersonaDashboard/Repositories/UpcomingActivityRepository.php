@@ -107,8 +107,13 @@ final class UpcomingActivityRepository {
     public static function activityTypeLabel( string $type_key ): string {
         if ( $type_key === '' ) return '';
         global $wpdb;
+        // v3.110.175 — was `SELECT name, label, meta` but `tt_lookups`
+        // has no `label` column (#779), which made this query error on
+        // every call and the activity-type label disappear from the
+        // MarkAttendance hero. Select the lookup id instead so
+        // `LookupTranslator::name()` can resolve via `tt_translations`.
         $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT name, label, meta FROM {$wpdb->prefix}tt_lookups
+            "SELECT id, name, meta FROM {$wpdb->prefix}tt_lookups
               WHERE lookup_type = 'activity_type' AND name = %s
               LIMIT 1",
             $type_key
@@ -117,7 +122,7 @@ final class UpcomingActivityRepository {
         if ( class_exists( '\\TT\\Infrastructure\\Query\\LookupTranslator' ) ) {
             return (string) \TT\Infrastructure\Query\LookupTranslator::name( $row );
         }
-        return (string) ( $row->label ?: $row->name );
+        return (string) $row->name;
     }
 
     /**
