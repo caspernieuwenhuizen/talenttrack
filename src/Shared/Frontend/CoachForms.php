@@ -396,6 +396,69 @@ class CoachForms {
                     }
                 });
             }
+
+            // v3.110.196 (#813) — live recalc: when a sub-category rating
+            // changes, recompute its main category as the average of all
+            // non-empty sub-category siblings and write it back to the
+            // main input. Rounds to the configured `rating_step` and
+            // clamps to `[rmin, rmax]`. Server-side aggregation on save
+            // stays authoritative; this is the user-visible feedback
+            // while editing in Detailed mode.
+            var ratingMin  = parseFloat(<?php echo wp_json_encode( (string) $rmin ); ?>);
+            var ratingMax  = parseFloat(<?php echo wp_json_encode( (string) $rmax ); ?>);
+            var ratingStep = parseFloat(<?php echo wp_json_encode( (string) $rstep ); ?>);
+            if (!ratingStep || ratingStep <= 0) ratingStep = 1;
+
+            function roundToStep(val, step) {
+                return Math.round(val / step) * step;
+            }
+
+            function recalcMainFromSubs(subInput) {
+                var subsPanel = subInput.closest('.tt-rate-subs');
+                if (!subsPanel) return;
+                // The main rating input is the input inside the previous
+                // .tt-form-row--rating sibling that ISN'T --sub. Walk back.
+                var node = subsPanel.previousElementSibling;
+                while (node && !(node.classList && node.classList.contains('tt-form-row--rating') && !node.classList.contains('tt-form-row--sub'))) {
+                    node = node.previousElementSibling;
+                }
+                if (!node) return;
+                var mainInput = node.querySelector('input[type="number"][name^="ratings["]');
+                if (!mainInput) return;
+
+                // Collect all sub inputs in this panel that have a value.
+                var subs = subsPanel.querySelectorAll('input[type="number"][name^="ratings["]');
+                var sum = 0, count = 0;
+                subs.forEach(function (inp) {
+                    var v = parseFloat(inp.value);
+                    if (!isNaN(v) && v > 0) { sum += v; count += 1; }
+                });
+                if (count === 0) {
+                    // All subs cleared — leave the main input alone (don't
+                    // zero out a manually-entered main rating).
+                    return;
+                }
+                var avg = sum / count;
+                avg = roundToStep(avg, ratingStep);
+                if (avg < ratingMin) avg = ratingMin;
+                if (avg > ratingMax) avg = ratingMax;
+                // Format with same precision as the step (0.5 step → 1 dec
+                // place, 1.0 step → no dec, etc.)
+                var decimals = 0;
+                if (ratingStep < 1) decimals = Math.max(0, -Math.floor(Math.log10(ratingStep)));
+                mainInput.value = decimals > 0 ? avg.toFixed(decimals) : String(avg);
+                // Trigger the form's other listeners (low-rating warning).
+                mainInput.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+
+            if (form) {
+                form.addEventListener('input', function (e) {
+                    var inp = e.target;
+                    if (!inp || !inp.matches) return;
+                    if (!inp.matches('.tt-rate-subs input[type="number"][name^="ratings["]')) return;
+                    recalcMainFromSubs(inp);
+                });
+            }
         })();
         </script>
         <?php
