@@ -1,3 +1,74 @@
+# TalentTrack v3.110.180 — Wizard step-to-step redirect made robust (closes #782)
+
+## Pilot report
+
+Chat 2026-05-20:
+
+> when using the new tournament wizard I get a page not found after clicking next after entering name and dates
+
+After I pointed at the v3.110.172 fix (#766) that previously addressed the same symptom for the team-blueprint wizard:
+
+> which is actually also not fixed still
+
+Both wizards still 404'ing on step-1 → step-2 on the pilot's Strato install.
+
+## Why v3.110.172 wasn't enough
+
+`wizardStepUrl()` used `esc_url_raw( REQUEST_URI )` + `remove_query_arg`, returning a relative URL. Two latent issues on the pilot's setup:
+
+1. **`esc_url_raw` may mangle REQUEST_URI** under proxy / SSL-termination / unusual server configurations.
+2. **Relative URLs can fail `wp_safe_redirect`** under certain configurations — `wp_validate_redirect`'s host whitelist silently bounces them to `admin_url()`, which reads as "page not found" for users without wp-admin access.
+
+## Fix
+
+Three changes:
+
+1. **Drop `esc_url_raw`** — extract REQUEST_URI's path with `strpos`/`substr` on `?`. Unambiguous.
+2. **Wrap via `home_url($path)`** — fully-qualified URL on the site's canonical host + scheme; `wp_safe_redirect`'s whitelist passes by construction.
+3. **Drop `dashboardBaseUrl()` fallback on happy path** — the form just POSTed, so REQUEST_URI is by definition a path that routes.
+
+```php
+private static function wizardStepUrl( string $slug ): string {
+    $path = '/';
+    if ( isset( $_SERVER['REQUEST_URI'] ) ) {
+        $raw   = wp_unslash( (string) $_SERVER['REQUEST_URI'] );
+        $q_pos = strpos( $raw, '?' );
+        $path  = $q_pos === false ? $raw : substr( $raw, 0, $q_pos );
+        if ( $path === '' ) $path = '/';
+    }
+    return add_query_arg(
+        [ 'tt_view' => 'wizard', 'slug' => $slug ],
+        home_url( $path )
+    );
+}
+```
+
+## Why this should finally close it
+
+The redirect URL is guaranteed to be on the site's canonical host (from `home_url`), on the path the user just POSTed to (from REQUEST_URI), with the wizard's routing args. All three by construction.
+
+## Same fix applies to the Back button
+
+`wizardStepUrl()` is shared between `transitionOrSubmit()` (Next) and the Back-button branch. Both routes now equally robust.
+
+## Files touched
+
+- `src/Shared/Frontend/FrontendWizardView.php` — `wizardStepUrl()` rewritten.
+- `talenttrack.php` — 3.110.179 → 3.110.180.
+- `readme.txt` — Stable tag + changelog entry.
+- `CHANGES.md` — this file.
+
+No DB migration, no REST shape change, no view-class change, no new i18n strings, no auth change.
+
+## Test plan
+
+- [ ] Click "+ New tournament" → fill BasicsStep → Next → lands on FormationStep, NOT 404
+- [ ] Click "+ New blueprint" → step-1 → step-2 works (regression check for #766)
+- [ ] Other wizards (mark-attendance, new-evaluation, new-player, new-team, new-goal) — step transitions work
+- [ ] Back button in any multi-step wizard — no 404 on Back either
+
+---
+
 # TalentTrack v3.110.179 — Evaluations list empty while data exists — drop bad `tt_lookups.label` column reference from three SELECTs (closes #779)
 
 ## Symptom
