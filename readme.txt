@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.179
+Stable tag: 3.110.180
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.180 — Wizard step-to-step redirect made robust: wrap REQUEST_URI path through `home_url()` so `wp_safe_redirect`'s host whitelist always passes; tournament + team-blueprint wizards finally advance past step 1 on the pilot install (closes #782) =
+
+Pilot 2026-05-20: *"when using the new tournament wizard I get a page not found after clicking next after entering name and dates"* — followed by *"which is actually also not fixed still"* when I pointed at the v3.110.172 (#766) fix that previously addressed the same symptom for the team-blueprint wizard. So both wizards still 404'd on the step-1 → step-2 transition on the pilot's Strato install. v3.110.172 rebuilt `wizardStepUrl()` to use `$_SERVER['REQUEST_URI']` through `esc_url_raw` + `remove_query_arg`, returning a relative URL. Two latent issues on the pilot's setup: (1) `esc_url_raw` may have been mangling the REQUEST_URI on this particular install (proxy / SSL termination / unusual server configuration), returning empty or normalised-differently content; (2) the result was a relative URL like `/dashboard/?tt_view=wizard&slug=new-tournament` — `wp_safe_redirect` runs targets through `wp_validate_redirect`'s host whitelist, and under certain proxy configurations a relative URL can silently fail validation and fall back to `admin_url()`, which on the pilot's install reads as "page not found" for users without wp-admin access. **The robust rewrite**: extract the REQUEST_URI path manually via `strpos`/`substr` on the `?` separator (no `esc_url_raw` round-trip), then wrap via `home_url($path)` so the redirect is always a fully-qualified URL on the site's canonical host + scheme. `wp_safe_redirect`'s whitelist passes by construction; no validation edge case to trip over. Falls back to `home_url('/')` only when REQUEST_URI is genuinely missing (CLI runs, unusual proxy configs). The `dashboardBaseUrl()` config-chain fallback that v3.110.172 kept around is dropped from the happy path — the form just POSTed to the current URL, so by definition that path routes; the dashboard-config chain is only relevant when there's no current URL at all. **Result**: every wizard's step-to-step transition now uses the most-robust possible URL build. Same fix applies to the Back button (it shares `wizardStepUrl()`).
 
 = 3.110.179 — Evaluations list empty while data exists — controller's SELECT joined `tt_lookups et` and referenced `et.label`, a column that does not exist on `tt_lookups`. The list SELECT errored silently (`#1054 - Unknown column 'et.label'`) while the COUNT (no `tt_lookups` join) returned the real total, producing a `total: 12 / rows: []` REST response and an empty evaluation list page despite 12 evaluations in the database. Same bad reference removed from three call sites: `EvaluationsRestController::list_evals`, `FrontendEvaluationsView::renderDetail`, `UpcomingActivityRepository::activityTypeLabel`. Each now selects the lookup `id` instead and lets `LookupTranslator::name()` resolve the displayed label via `tt_translations` (post-v3.110.30 source of truth for lookup-row translations) with a `__()` fallback (closes #779) =
 
