@@ -192,7 +192,13 @@ class DashboardShortcode {
         // but never added to a slug list, so the top-level routing never reached it
         // and the tile fell through to "Unknown section." It belongs in coaching
         // (Performance-group surface, same tier as team-chemistry / team-blueprints).
-        $coaching_slugs  = [ 'teams', 'players', 'players-import', 'people', 'functional-roles', 'evaluations', 'activities', 'goals', 'pdp', 'pdp-planning', 'player-status-methodology', 'player-status-capture', 'team-chemistry', 'team-blueprints', 'team-planner', 'podium', 'methodology', 'player-journey', 'mail-compose' ];
+        // v3.110.171 (#764) — `tournaments` added. The case has lived in
+        // dispatchCoachingView() since #0093 chunk 1 + the tile registered
+        // in v3.110.152, but the slug was never added to this allowlist,
+        // so the top-level router never reached the case and every click
+        // on the Tournaments tile fell through to "Unknown section." Same
+        // recurring miss as team-planner / onboarding-pipeline above.
+        $coaching_slugs  = [ 'teams', 'players', 'players-import', 'people', 'functional-roles', 'evaluations', 'activities', 'goals', 'tournaments', 'pdp', 'pdp-planning', 'player-status-methodology', 'player-status-capture', 'team-chemistry', 'team-blueprints', 'team-planner', 'podium', 'methodology', 'player-journey', 'mail-compose' ];
         $analytics_slugs = [ 'rate-cards', 'compare', 'reports' ];
         // #0019 Sprint 5 — admin-tier surfaces, gated by tt_access_frontend_admin.
         // #0021 — `audit-log` added; uses the same admin tier (cap-checked

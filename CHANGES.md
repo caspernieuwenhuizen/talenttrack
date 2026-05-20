@@ -1,134 +1,101 @@
-# TalentTrack v3.110.170 — Row-link standard rolled out to 7 more list views
+# TalentTrack v3.110.171 — Tournaments tile routing fix (closes #764)
 
-## Pilot ask
+## Pilot report
 
-Chat 2026-05-18:
+Chat 2026-05-20:
 
-> it works, apply to other, similar table lists
+> Ok so we need to ensure the tournament functionality. At the moment, when as admin I click on the tile I get a "unknown part" message/. That is not correct
 
-v3.110.169 landed the row-link standard + first consumer (PDP files). Pilot validated it on the PDP list, now wants every comparable list view to pick the standard up.
+## Root cause
 
-## Audit
+`src/Shared/Frontend/DashboardShortcode.php`:
 
-Surveyed every `FrontendListTable::render([...])` call site (14 files). Each view falls into one of three buckets:
+- **Line 665** — the `tournaments` case in `dispatchCoachingView()` is correctly wired:
+  ```php
+  case 'tournaments':
+      FrontendTournamentsManageView::render( $user_id, $is_admin );
+      break;
+  ```
+- **Line 195** — the `$coaching_slugs` allowlist that the top-level router consults at **line 350** does NOT contain `'tournaments'`:
+  ```php
+  $coaching_slugs = [ 'teams', 'players', 'players-import', 'people',
+      'functional-roles', 'evaluations', 'activities', 'goals',
+      'pdp', 'pdp-planning', /* … */, 'mail-compose' ];
+      //                              ^^^^^ no 'tournaments' here
+  ```
+- **Line 350** — the router:
+  ```php
+  } elseif ( in_array( $view, $coaching_slugs, true ) ) {
+      self::dispatchCoachingView( $view, $user_id, $is_admin );
+  } elseif ( /* … other dispatch branches … */ ) {
+      // …
+  } else {
+      echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
+  }
+  ```
 
-| Bucket | Views | Action |
-| --- | --- | --- |
-| **Wired in v3.110.169** | PDP files | None |
-| **REST already emits `detail_url`** | Tournaments | View-side opt-in only |
-| **REST builds detail URL internally but doesn't expose it** | Evaluations | Add `detail_url` field + view opt-in |
-| **No detail URL anywhere yet** | Activities, My Activities, Goals, Players, Teams, People | Add `detail_url` field + view opt-in |
-| **Skip** (settings / inline-edit / out-of-scope) | Functional Roles, Custom Fields, Prospects Overview | None |
+So when the admin clicked the Tournaments tile and landed on `?tt_view=tournaments`:
 
-## Each REST controller emits `detail_url` the same way
+1. None of the slug allowlists matched (`tournaments` is in zero of `$me_slugs`, `$account_slugs`, `$coaching_slugs`, `$analytics_slugs`, `$admin_slugs`, `$workflow_slugs`, `$dev_slugs`, `$invitation_slugs`, `$report_slugs`, `$trial_slugs`, `$staff_dev_slugs`, `$wizard_slugs`, `$mfa_slugs`, `$mobile_slugs`).
+2. The router fell through to the final else branch.
+3. `Unknown section.` rendered. Dutch users saw *"Onbekend onderdeel."*
 
-The pattern is one variable extraction + one return-array key. Example from `GoalsRestController::format_row()`:
+The `FrontendTournamentsManageView::render()` call site that *would* serve the page was never reached. The view itself was perfectly functional — it just had no inbound route from the tile.
+
+## Why this slipped through
+
+The tournament feature shipped in two staggered ships:
+
+- **#0093 chunk 1 (v3.110.132 / v3.110.133)** — schema + REST + view + wizard. Reachable only by direct URL (`?tt_view=tournaments`), and direct URLs *also* hit the same slug-allowlist gate, so this should have caught the bug then. But the only person clicking direct URLs at the time was a developer who'd added `?tt_view=tournaments` manually — and that path goes through `dispatchCoachingView` only IF the slug is in the allowlist. The direct URL path was equally broken; nobody noticed because there was no tile to expose it.
+
+- **v3.110.152 — tile registration** (`TournamentsModule::boot()` → `TileRegistry::register` with `view_slug: 'tournaments'`). This is what exposed the bug — the academy admin now had a one-click entry from the dashboard tile grid, and clicking it surfaced the routing miss immediately.
+
+This is the **third repeat of the exact same class of bug** in this file. The block comment above `$coaching_slugs` already references the previous two:
+
+- v3.110.10 — `team-planner` had the same miss.
+- A later ship — `onboarding-pipeline` had the same miss.
+
+Both fixes were one-line allowlist additions. This fix is the same shape.
+
+## Fix
+
+One line: add `'tournaments'` to the `$coaching_slugs` array, between `'goals'` and `'pdp'` (alphabetical ordering of the Performance-group surfaces).
 
 ```php
-// Before
-$title_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
-    $title,
-    \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'goals', $goal_id )
-);
-
-// After
-$title_url = \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'goals', $goal_id );
-$title_link_html = \TT\Shared\Frontend\Components\RecordLink::inline( $title, $title_url );
-// …and in the returned array:
-'detail_url' => $title_url,
+$coaching_slugs  = [ 'teams', 'players', 'players-import', 'people',
+    'functional-roles', 'evaluations', 'activities', 'goals',
+    'tournaments',  // <-- added
+    'pdp', 'pdp-planning', /* … */ ];
 ```
 
-Reusing the variable keeps the URL definition single-sourced — the inline-cell link and the whole-row link always point at the same place, even when the URL builder changes.
+Plus a comment block above the array explaining the miss (matching the style of the prior two comments for team-planner and onboarding-pipeline) so the next coder reading the file knows this is a recurring pattern.
 
-Six controllers received this change:
+## Suggested follow-up (not in this ship)
 
-| REST controller | Method | Slug |
-| --- | --- | --- |
-| `ActivitiesRestController` | `format_row` | `activities` |
-| `EvaluationsRestController` | `format_row` | `evaluations` |
-| `GoalsRestController` | `format_row` | `goals` |
-| `PlayersRestController` | `fmtRow` | `players` |
-| `TeamsRestController` | `fmtTeamRow` | `teams` |
-| `PeopleRestController` | `format_row` | `people` |
+The recurring nature of this miss suggests a structural fix is worth considering for a future ship:
 
-Tournaments' REST controller (`TournamentsRestController::fmtTournamentRow`) already emitted `detail_url` since the planner-foundation ship — no change needed there.
+- **Option A** — auto-derive the allowlist from the dispatcher's `switch` cases. Reflection or a static parse on plugin boot, then cached in `wp_options` like the tile registry. A new case in `dispatchCoachingView()` would auto-update the router with no separate edit.
+- **Option B** — fold the per-group dispatchers into a single registry that takes ownership of both the allowlist AND the render callback. New view = one registration entry.
+- **Option C** — add a unit test that asserts every `case '<slug>':` in each dispatcher method appears in at least one allowlist. CI catches the next miss before it ships.
 
-## Each view declares `row_url_key`
-
-One config line in each `FrontendListTable::render()` call:
-
-```php
-'row_url_key' => 'detail_url',
-```
-
-Eight views opted in:
-
-| View | File | Slug |
-| --- | --- | --- |
-| Activities | `FrontendActivitiesManageView.php` | `activities` |
-| My Activities | `FrontendMyActivitiesView.php` | `my-activities` (REST → `activities`) |
-| Tournaments | `FrontendTournamentsManageView.php` | `tournaments` |
-| Evaluations | `FrontendEvaluationsView.php` | `evaluations` |
-| Goals | `FrontendGoalsManageView.php` | `goals` |
-| Players | `FrontendPlayersManageView.php` | `players` |
-| Teams | `FrontendTeamsManageView.php` | `teams` |
-| People | `FrontendPeopleManageView.php` | `people` |
-
-## What's skipped and why
-
-**`FrontendFunctionalRolesView`** — the assignments tab is an inline-edit list, not a "list of records with detail pages". Rows are read-only and editing happens inline on the same view; row-click navigation doesn't apply.
-
-**`FrontendCustomFieldsView`** — same shape as functional roles. Settings/admin list with edit-on-same-view via `?id=N` query param. No separate detail page.
-
-**`FrontendProspectsOverviewView`** — prospects DO have a detail page, but the REST list doesn't yet emit a navigation URL. Adding it touches the prospect data model + the scout-facing view scoping, which is tracked separately (out-of-scope for this row-link rollout).
-
-## Per-column links keep working — the standard's design holds
-
-Important: every list now has multiple click destinations from one row.
-
-On the Goals list, for example:
-- Click the **player name cell** → goes to that player's detail page
-- Click the **goal title cell** → goes to that goal's detail page
-- Click **dead space** (priority column, status pill, due date, padding) → goes to that goal's detail page
-
-The JS hydrator's `bindRowLinks()` interactive-target detection (`A`, `BUTTON`, `INPUT`, `SELECT`, `TEXTAREA`, `LABEL`, `role=button`) skips the row-link when the click target is itself a link or button. Per-column cross-entity navigation is preserved exactly as it was.
-
-On every list view the *whole row* picks the same target as the **primary identifier cell** (Title for activities/tournaments/goals, Name for players/teams/people, Date for evaluations) — that's what a user would expect.
-
-## Try it on the pilot install
-
-After upgrading to v3.110.170, every list view supports:
-- Click anywhere on row dead space → that row's detail page
-- Click a cross-entity link cell (player name on a goal row, team name on an activity row, etc.) → that entity's detail page
-- Middle-click → new tab
-- Cmd-click (Mac) / Ctrl-click (Windows) → new tab
-- Keyboard: Tab to row, Enter or Space → navigate
-
-Existing column header sorts, filters, pagination, per-page selector — all unchanged.
+Option C is the cheapest insurance and would have caught this bug at v3.110.132 push time. Worth a separate idea file. Not done in this ship — the user wants the tile to work today.
 
 ## Files touched
 
-REST controllers (6):
-- `src/Infrastructure/REST/ActivitiesRestController.php`
-- `src/Infrastructure/REST/EvaluationsRestController.php`
-- `src/Infrastructure/REST/GoalsRestController.php`
-- `src/Infrastructure/REST/PlayersRestController.php`
-- `src/Infrastructure/REST/TeamsRestController.php`
-- `src/Infrastructure/REST/PeopleRestController.php`
+- `src/Shared/Frontend/DashboardShortcode.php` — one line added to `$coaching_slugs`, comment block above it.
+- `talenttrack.php` — version 3.110.170 → 3.110.171.
+- `readme.txt` — Stable tag + changelog entry.
+- `CHANGES.md` — this file.
 
-Views (8):
-- `src/Shared/Frontend/FrontendActivitiesManageView.php`
-- `src/Shared/Frontend/FrontendMyActivitiesView.php`
-- `src/Shared/Frontend/FrontendTournamentsManageView.php`
-- `src/Shared/Frontend/FrontendEvaluationsView.php`
-- `src/Shared/Frontend/FrontendGoalsManageView.php`
-- `src/Shared/Frontend/FrontendPlayersManageView.php`
-- `src/Shared/Frontend/FrontendTeamsManageView.php`
-- `src/Shared/Frontend/FrontendPeopleManageView.php`
+No DB migration, no REST shape change, no new i18n strings, no auth change.
 
-Version + changelog:
-- `talenttrack.php` — 3.110.169 → 3.110.170
-- `readme.txt` — Stable tag + changelog entry
-- `CHANGES.md` — this file
+## Test plan
 
-No DB migration, no REST shape break (all changes are additive — `detail_url` is a new field; existing fields untouched), no new i18n strings, no auth change.
+On the pilot install after the release ZIP rebuilds:
+
+- [ ] Log in as admin (or any user holding `tt_view_tournaments`, which in v1 means `administrator` + `tt_club_admin`).
+- [ ] On the dashboard, locate the Tournaments tile (Performance group, between Team planner and Goals).
+- [ ] Click the tile.
+- [ ] Lands on the tournaments list view (`FrontendTournamentsManageView::renderList`), not "Unknown section."
+- [ ] Whole-row click navigates to tournament detail (the row-link standard shipped in v3.110.170 still applies — Tournaments was wired up there).
+- [ ] Coach / HoD / scout / player / parent personas (without `tt_view_tournaments`): the tile is auto-hidden by `TileRegistry`'s `cap` gate, so they never see the entry point. Direct URL `?tt_view=tournaments` still routes correctly but `FrontendTournamentsManageView::render` shows the "Not authorized" notice inside the view's own permission re-check.

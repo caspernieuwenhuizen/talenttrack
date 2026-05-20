@@ -1,0 +1,99 @@
+name: Mark board items as Released on tag push
+
+# When a release tag lands, find every issue closed by commits in this release
+# (parsed from `Closes #NNN` / `Fixes #NNN` / `Resolves #NNN` in commit messages)
+# and flip its TalentTrack pilot issues board Status from "Merged" → "Released".
+#
+# Two-stage Done was introduced in v3.110.169:
+#   - PR merge → board Status = Merged (PR is in `main`, not yet shipped to users)
+#   - Release tag → board Status = Released (pilot can update to a build with this fix)
+#
+# Project: caspernieuwenhuizen/projects/2 (TalentTrack pilot issues)
+# Status field: PVTSSF_lAHOEHnNVs4BYFxrzhTOAFw
+# Released option id: da029a71
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+jobs:
+  flip-status:
+    name: Flip referenced issues to Released
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Discover commits and referenced issues
+        id: discover
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -e
+          # Previous tag in tag-sorted order (semver-friendly via -V).
+          PREV=$(git tag --sort=-v:refname | grep -A1 "^${TAG}$" | tail -1 || true)
+          if [ -z "$PREV" ] || [ "$PREV" = "$TAG" ]; then
+            echo "No previous tag found; falling back to last 50 commits before ${TAG}"
+            RANGE_LOG=$(git log --pretty=format:%B -n 50 "${TAG}")
+          else
+            echo "Comparing ${PREV}..${TAG}"
+            RANGE_LOG=$(git log --pretty=format:%B "${PREV}..${TAG}")
+          fi
+          # Extract issue numbers from `Closes #NNN` / `Fixes #NNN` / `Resolves #NNN`.
+          # Case-insensitive; numbers deduplicated.
+          ISSUES=$(echo "$RANGE_LOG" \
+            | grep -ioE '(close[sd]?|fix(e[sd])?|resolve[sd]?)\s*#[0-9]+' \
+            | grep -oE '[0-9]+' \
+            | sort -un)
+          ISSUES_CSV=$(echo "$ISSUES" | tr '\n' ' ' | sed 's/ *$//')
+          echo "Found issues: ${ISSUES_CSV:-<none>}"
+          echo "issues=${ISSUES_CSV}" >> "$GITHUB_OUTPUT"
+
+      - name: Flip Status to Released
+        if: steps.discover.outputs.issues != ''
+        env:
+          # Project-V2 writes need a PAT with `project` scope; the default
+          # GITHUB_TOKEN does not have it. Repo secret `PROJECT_BOARD_TOKEN`
+          # must hold a fine-grained PAT (user account: caspernieuwenhuizen,
+          # scope: projects:read+write).
+          GH_TOKEN: ${{ secrets.PROJECT_BOARD_TOKEN }}
+          ISSUES: ${{ steps.discover.outputs.issues }}
+        run: |
+          set -e
+          PROJECT_NUMBER=2
+          OWNER="caspernieuwenhuizen"
+          PROJECT_ID="PVT_kwHOEHnNVs4BYFxr"
+          FIELD_ID="PVTSSF_lAHOEHnNVs4BYFxrzhTOAFw"
+          RELEASED_ID="da029a71"
+
+          for n in $ISSUES; do
+            echo "── #${n}"
+
+            # Locate the project item id for this issue. If the issue isn't on
+            # the board (rule was applied retroactively or someone filed it
+            # outside the workflow), skip silently — don't break the release.
+            ITEM_ID=$(gh api graphql \
+              -f query='query($owner:String!,$num:Int!){repository(owner:$owner,name:"talenttrack"){issue(number:$num){projectItems(first:5){nodes{id project{number}}}}}}' \
+              -f owner="$OWNER" -F num="$n" \
+              --jq ".data.repository.issue.projectItems.nodes[] | select(.project.number == ${PROJECT_NUMBER}) | .id" \
+              || true)
+
+            if [ -z "$ITEM_ID" ]; then
+              echo "   not on board; skipping"
+              continue
+            fi
+
+            gh project item-edit \
+              --id "$ITEM_ID" \
+              --project-id "$PROJECT_ID" \
+              --field-id "$FIELD_ID" \
+              --single-select-option-id "$RELEASED_ID" \
+              > /dev/null
+
+            echo "   flipped to Released"
+          done

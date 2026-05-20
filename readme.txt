@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.170
+Stable tag: 3.110.171
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.171 — Tournaments tile fix: clicking the Tournaments tile as admin landed on "Unknown section." — slug was missing from the router's `$coaching_slugs` allowlist (#764) =
+
+Pilot 2026-05-20: *"when as admin I click on the [tournaments] tile I get a 'unknown part' message. That is not correct."* Root cause in `src/Shared/Frontend/DashboardShortcode.php`: the `tournaments` case has lived inside `dispatchCoachingView()` (line 665) since #0093 chunk 1, and the tile registration shipped in v3.110.152 (`TournamentsModule::boot()` → `TileRegistry::register` with `view_slug: 'tournaments'`). But the slug was never added to the `$coaching_slugs` allowlist (line 195) that the top-level router (line 350) consults. So when the admin clicked the tile, the URL `?tt_view=tournaments` was checked against every slug allowlist (`$me_slugs`, `$account_slugs`, `$coaching_slugs`, `$analytics_slugs`, `$admin_slugs`, …) — none matched, the router fell through to the final else branch that emits `<p><em>Unknown section.</em></p>` (Dutch: *"Onbekend onderdeel."*). The `FrontendTournamentsManageView::render()` call site that *would* serve the page was never reached. This is the **third repeat of the same class of bug** in this file — the comment block above the array references the prior team-planner (v3.110.10) and onboarding-pipeline misses. Fix: one slug added. Tournaments tile now routes correctly for admin + tt_club_admin (the only two roles holding `tt_view_tournaments` in v1's admin-only mapping). No REST change, no view change, no cap change — the surface was always there, just unreachable from the tile.
 
 = 3.110.170 — Row-link standard rolled out to 7 more list views (activities, my-activities, tournaments, evaluations, goals, players, teams, people) — pilot validated the pattern on PDP files, now every list view supports whole-row click =
 
