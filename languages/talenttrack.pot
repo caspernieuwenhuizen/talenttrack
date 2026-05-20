@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: TalentTrack 3.110.195\n"
+"Project-Id-Version: TalentTrack 3.110.196\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-20T21:31:40+00:00\n"
+"POT-Creation-Date: 2026-05-20T21:33:47+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -124,9 +124,9 @@ msgstr ""
 #: src/Shared/Frontend/CoachDashboardView.php:283
 #: src/Shared/Frontend/CoachDashboardView.php:300
 #: src/Shared/Frontend/CoachForms.php:148
-#: src/Shared/Frontend/CoachForms.php:429
-#: src/Shared/Frontend/CoachForms.php:476
-#: src/Shared/Frontend/CoachForms.php:498
+#: src/Shared/Frontend/CoachForms.php:492
+#: src/Shared/Frontend/CoachForms.php:539
+#: src/Shared/Frontend/CoachForms.php:561
 #: src/Shared/Frontend/Components/GuestAddModal.php:68
 #: src/Shared/Frontend/Components/PlayerPickerComponent.php:33
 #: src/Shared/Frontend/Components/PlayerSearchPickerComponent.php:63
@@ -1795,7 +1795,7 @@ msgstr ""
 #: src/Shared/Frontend/CoachDashboardView.php:194
 #: src/Shared/Frontend/CoachDashboardView.php:241
 #: src/Shared/Frontend/CoachForms.php:188
-#: src/Shared/Frontend/CoachForms.php:417
+#: src/Shared/Frontend/CoachForms.php:480
 #: src/Shared/Frontend/Components/DateInputComponent.php:30
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:215
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:519
@@ -1839,8 +1839,8 @@ msgstr ""
 #: src/Modules/Wizards/Activity/ReviewStep.php:67
 #: src/Shared/Frontend/CoachDashboardView.php:240
 #: src/Shared/Frontend/CoachDashboardView.php:287
-#: src/Shared/Frontend/CoachForms.php:416
-#: src/Shared/Frontend/CoachForms.php:482
+#: src/Shared/Frontend/CoachForms.php:479
+#: src/Shared/Frontend/CoachForms.php:545
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:520
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:650
 #: src/Shared/Frontend/FrontendGoalsManageView.php:359
@@ -1958,8 +1958,8 @@ msgstr ""
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:288
 #: src/Shared/Frontend/CoachDashboardView.php:248
 #: src/Shared/Frontend/CoachDashboardView.php:301
-#: src/Shared/Frontend/CoachForms.php:429
-#: src/Shared/Frontend/CoachForms.php:499
+#: src/Shared/Frontend/CoachForms.php:492
+#: src/Shared/Frontend/CoachForms.php:562
 #: src/Shared/Frontend/DashboardShortcode.php:104
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:221
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:522
@@ -2066,7 +2066,7 @@ msgstr ""
 #: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:28
 #: src/Modules/Wizards/TeamBlueprint/SetupStep.php:37
 #: src/Shared/Frontend/CoachDashboardView.php:242
-#: src/Shared/Frontend/CoachForms.php:418
+#: src/Shared/Frontend/CoachForms.php:481
 #: src/Shared/Frontend/Components/TeamPickerComponent.php:36
 #: src/Shared/Frontend/DashboardShortcode.php:107
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:225
@@ -2235,7 +2235,7 @@ msgstr ""
 #: src/Modules/Wizards/Activity/ReviewStep.php:69
 #: src/Modules/Workflow/Forms/InviteToTestTrainingForm.php:78
 #: src/Shared/Frontend/CoachDashboardView.php:245
-#: src/Shared/Frontend/CoachForms.php:423
+#: src/Shared/Frontend/CoachForms.php:486
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:240
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:702
 #: src/Shared/Frontend/FrontendTestTrainingsView.php:70
@@ -2278,8 +2278,8 @@ msgstr ""
 #: src/Shared/Frontend/CoachDashboardView.php:246
 #: src/Shared/Frontend/CoachDashboardView.php:248
 #: src/Shared/Frontend/CoachForms.php:302
-#: src/Shared/Frontend/CoachForms.php:424
-#: src/Shared/Frontend/CoachForms.php:429
+#: src/Shared/Frontend/CoachForms.php:487
+#: src/Shared/Frontend/CoachForms.php:492
 #: src/Shared/Frontend/DashboardShortcode.php:108
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:246
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:708
@@ -2328,7 +2328,7 @@ msgstr ""
 #: src/Modules/Reports/PlayerReportRenderer.php:396
 #: src/Modules/Wizards/Evaluation/AttendanceStep.php:21
 #: src/Shared/Frontend/CoachDashboardView.php:247
-#: src/Shared/Frontend/CoachForms.php:425
+#: src/Shared/Frontend/CoachForms.php:488
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:429
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:544
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:762
@@ -2636,8 +2636,8 @@ msgstr ""
 #: src/Modules/Wizards/Goal/DetailsStep.php:18
 #: src/Shared/Frontend/CoachDashboardView.php:289
 #: src/Shared/Frontend/CoachDashboardView.php:301
-#: src/Shared/Frontend/CoachForms.php:484
-#: src/Shared/Frontend/CoachForms.php:499
+#: src/Shared/Frontend/CoachForms.php:547
+#: src/Shared/Frontend/CoachForms.php:562
 #: src/Shared/Frontend/FrontendGoalsManageView.php:167
 #: src/Shared/Frontend/FrontendGoalsManageView.php:250
 #: src/Shared/Frontend/FrontendGoalsManageView.php:283
@@ -3472,7 +3472,7 @@ msgstr ""
 #: src/Shared/Frontend/CoachDashboardView.php:284
 #: src/Shared/Frontend/CoachForms.php:183
 #: src/Shared/Frontend/CoachForms.php:194
-#: src/Shared/Frontend/CoachForms.php:477
+#: src/Shared/Frontend/CoachForms.php:540
 #: src/Shared/Frontend/Components/PlayerPickerComponent.php:35
 #: src/Shared/Frontend/Components/TeamPickerComponent.php:38
 #: src/Shared/Frontend/CustomFieldRenderer.php:131
@@ -3856,7 +3856,7 @@ msgstr ""
 #: src/Modules/Wizards/Goal/DetailsStep.php:16
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:248
 #: src/Shared/Frontend/CoachDashboardView.php:288
-#: src/Shared/Frontend/CoachForms.php:483
+#: src/Shared/Frontend/CoachForms.php:546
 #: src/Shared/Frontend/FrontendConfigurationView.php:259
 #: src/Shared/Frontend/FrontendConfigurationView.php:322
 #: src/Shared/Frontend/FrontendEvalCategoriesView.php:187
@@ -11324,7 +11324,7 @@ msgstr ""
 #: src/Modules/Threads/Adapters/GoalThreadAdapter.php:99
 #: src/Modules/Workflow/Forms/GoalSettingForm.php:47
 #: src/Shared/Frontend/CoachDashboardView.php:300
-#: src/Shared/Frontend/CoachForms.php:498
+#: src/Shared/Frontend/CoachForms.php:561
 #: src/Shared/Frontend/FrontendGoalsManageView.php:249
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:547
 msgid "Goal"
@@ -11342,8 +11342,8 @@ msgstr ""
 #: src/Modules/Goals/Admin/GoalsPage.php:112
 #: src/Shared/Frontend/CoachDashboardView.php:281
 #: src/Shared/Frontend/CoachDashboardView.php:293
-#: src/Shared/Frontend/CoachForms.php:474
-#: src/Shared/Frontend/CoachForms.php:490
+#: src/Shared/Frontend/CoachForms.php:537
+#: src/Shared/Frontend/CoachForms.php:553
 #: src/Shared/Frontend/DashboardShortcode.php:86
 msgid "Add Goal"
 msgstr ""
@@ -11358,7 +11358,7 @@ msgstr ""
 
 #: src/Modules/Goals/Admin/GoalsPage.php:146
 #: src/Shared/Frontend/CoachDashboardView.php:292
-#: src/Shared/Frontend/CoachForms.php:489
+#: src/Shared/Frontend/CoachForms.php:552
 msgid "Due Date"
 msgstr ""
 
@@ -14711,7 +14711,7 @@ msgstr ""
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:53
 #: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:204
 #: src/Shared/Frontend/CoachDashboardView.php:302
-#: src/Shared/Frontend/CoachForms.php:500
+#: src/Shared/Frontend/CoachForms.php:563
 #: src/Shared/Frontend/FrontendGoalsManageView.php:171
 #: src/Shared/Frontend/FrontendGoalsManageView.php:263
 msgid "Due"
@@ -22400,23 +22400,23 @@ msgid "Save Evaluation"
 msgstr ""
 
 #: src/Shared/Frontend/CoachDashboardView.php:238
-#: src/Shared/Frontend/CoachForms.php:414
+#: src/Shared/Frontend/CoachForms.php:477
 msgid "Record Training Activity"
 msgstr ""
 
 #: src/Shared/Frontend/CoachDashboardView.php:257
-#: src/Shared/Frontend/CoachForms.php:441
+#: src/Shared/Frontend/CoachForms.php:504
 #: src/Shared/Frontend/DashboardShortcode.php:85
 msgid "Save Activity"
 msgstr ""
 
 #: src/Shared/Frontend/CoachDashboardView.php:296
-#: src/Shared/Frontend/CoachForms.php:493
+#: src/Shared/Frontend/CoachForms.php:556
 msgid "Current Goals"
 msgstr ""
 
 #: src/Shared/Frontend/CoachDashboardView.php:297
-#: src/Shared/Frontend/CoachForms.php:495
+#: src/Shared/Frontend/CoachForms.php:558
 msgid "No goals yet."
 msgstr ""
 
@@ -22442,7 +22442,7 @@ msgstr ""
 msgid "⚠ One or more ratings are at or below %s — please add a comment explaining the low score."
 msgstr ""
 
-#: src/Shared/Frontend/CoachForms.php:427
+#: src/Shared/Frontend/CoachForms.php:490
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:765
 msgid "No players on your teams yet."
 msgstr ""
