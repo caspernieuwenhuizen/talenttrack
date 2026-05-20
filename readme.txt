@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.198
+Stable tag: 3.110.199
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.199 — Scout × prospects matrix scope: migration 0108 re-applies 0104's intent with the correct activity-enum values so upgraded installs actually flip from `self` to `global` (closes #824) =
+
+Pilot 2026-05-20: a `tt_scout` user opens `?tt_view=scouting-visits` and lands on the "no access" message. Root cause: migration 0104 (v3.110.154) was meant to upgrade `scout × prospects` matrix rows from `self` to `global` on installs that were seeded before #0081's policy change, but the UPDATE filtered `activity IN ('r', 'c', 'd')` while the column actually carries the **expanded enums** `'read'` / `'change'` / `'create_delete'` (set by `config/authorization_seed.php::$expand()`). UPDATE matched zero rows on every install, marked itself applied, and silently no-oped. `LegacyCapMapper::evaluate( 'tt_view_prospects' )` bridges to `(prospects, read)` which on those installs was still `self`, the scout role's baseline intentionally doesn't carry `tt_view_prospects` (matrix-only by design so scope can mutate per install), and `FrontendScoutingPlanView::userCanOrMatrix()` returned false on both legs. **Fix**: new migration `0108_fix_scout_prospects_scope_global.php` runs the same UPDATE 0104 intended, but with `'read', 'change', 'create_delete'` instead of `'r', 'c', 'd'`. Migration 0104 is left in place (editing it wouldn't re-run on installs that already have it marked applied in `tt_migrations`). Idempotent — zero matches on already-correct installs. Operator-edited rows preserved via the `is_default = 1` guard. **Why not bake `tt_view_prospects` into the scout role baseline as a workaround**: the matrix-only routing is intentional. A future install could legitimately want scouts back at `self` (single-academy scouting boundary, GDPR regional split). Baking the cap freezes that decision; repairing the matrix data preserves it.
 
 = 3.110.198 — Team edit form: 'Coming with #0018' placeholder replaced by direct links to the now-shipped Team Chemistry + Team Blueprints surfaces (closes #821) =
 
