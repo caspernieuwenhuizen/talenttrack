@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.186
+Stable tag: 3.110.187
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.187 — Player profile loses the inline Analytics tab; Team Chemistry now enforces master-data positions — players never get suggested for, or appear in the picker for, slots whose position isn't in their declared `preferred_positions` =
+
+Two unrelated pilot asks (2026-05-20). **(1)** *"The player profile shows the analysis tab, remove this from this page."* The Analytics tab was added in #0083 Child 4 as a discovery surface for the per-entity KPI grid, but the pilot wants the player profile to stay focused on player-development information; the dimension explorer at `?tt_view=explore` is the right entry for analytics work. Removed two lines: the `$tabs['analytics']` entry in `FrontendPlayerDetailView::tabs()` and the matching `case 'analytics':` arm in the dispatch switch. `EntityAnalyticsTabRenderer` stays in the codebase — it's also referenced from the team profile (same pattern). **(2)** *"Players should never be put in a position that is not in their master data."* `ChemistryAggregator::teamChemistry()` used to consider every player for every slot in the formation — a player with `preferred_positions = [GK]` could still be suggested for ST if their style fit was high. Now: a new master-data-position gate filters `$by_slot` at construction time. For each (player, slot) pair, the slot's position code is derived from the slot label (`LCB` → `CB`, `RCM` → `CM`, plain `GK` / `LB` / `RB` / `LW` / `RW` / `ST` / `CDM` / `CM` / `CAM` / `CF` map to themselves). If the player has declared positions AND the slot's code isn't among them, the candidate is skipped. Players with **no** declared positions still appear unrestricted (a brand-new player without master data shouldn't disappear from the chemistry board). Slots with un-recognised labels also fall through unrestricted — better to over-show than to silently hide. The filter cascades through every downstream consumer: suggested XI, depth chart, blueprint chemistry computation, AND the chemistry-board sandbox picker. The aggregator emits a new `eligible_by_slot` field (slot_label → list of player_ids); the chemistry view ships it into `TT_TEAM_CHEM.eligible` and the picker JS filters its roster fallback against it before showing candidates. No schema change — `tt_players.preferred_positions` has been a JSON-array column since the initial schema. No REST shape break — the `eligible_by_slot` field is additive. The blueprint editor's tap-to-swap picker (v3.110.184) isn't covered here — different code path, different surface; pilot scoped this to chemistry. Follow-up if/when they raise it for the blueprint editor too.
 
 = 3.110.186 — Mark-attendance hero + wizard: two related fixes — hero now surfaces the latest completed-and-rateable activity (same universe the wizard's picker uses) instead of the next upcoming activity, so the CTA no longer drops the coach on a roster page for a session that hasn't happened yet; and wizard `restart=1` is now gated to GET requests, so the form's POST back to the same URL no longer accidentally wipes wizard state mid-flight and triggers a spurious "session expired" error on Cancel (closes #792) =
 
