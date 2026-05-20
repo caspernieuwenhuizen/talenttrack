@@ -56,7 +56,17 @@ class FrontendWizardView extends FrontendViewBase {
         // implement `SupportsCancelAsDraft` and surface an explicit
         // "Save as draft" button — that path is unchanged.
 
-        if ( ! empty( $_GET['restart'] ) ) {
+        // v3.110.186 (#792) — gate `restart` to GET requests only. The
+        // hero CTAs carry `restart=1` to force a fresh wizard run on
+        // first entry; the wizard's form has no `action` attribute, so
+        // every Cancel / Next / Back POST returned to the same URL and
+        // re-triggered `WizardState::clear()` mid-flight. That wiped
+        // the step pointer just before the POST handler verified the
+        // form's nonce against the (now-reset) first-step slug —
+        // mismatch → "session expired" → cancel handler never fired.
+        // `restart` is a one-shot entry signal; once the user is inside
+        // the wizard, POSTs must preserve state.
+        if ( ! empty( $_GET['restart'] ) && $_SERVER['REQUEST_METHOD'] === 'GET' ) {
             WizardState::clear( $user_id, $slug );
         }
 

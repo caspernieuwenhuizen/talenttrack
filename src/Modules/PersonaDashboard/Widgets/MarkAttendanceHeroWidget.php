@@ -3,7 +3,6 @@ namespace TT\Modules\PersonaDashboard\Widgets;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\PersonaDashboard\Domain\AbstractWidget;
 use TT\Modules\PersonaDashboard\Domain\PersonaContext;
 use TT\Modules\PersonaDashboard\Domain\RenderContext;
@@ -71,9 +70,15 @@ class MarkAttendanceHeroWidget extends AbstractWidget {
     public function capRequired(): string { return 'tt_edit_evaluations'; }
 
     public function render( WidgetSlot $slot, RenderContext $ctx ): string {
-        $teams    = QueryHelpers::get_teams_for_coach( $ctx->user_id );
-        $team_ids = array_map( static fn( $t ): int => (int) $t->id, is_array( $teams ) ? $teams : [] );
-        $next     = UpcomingActivityRepository::nextForCoach( $team_ids, $ctx->club_id );
+        // v3.110.186 (#792) — was `nextForCoach()`, which returns the
+        // next UPCOMING activity (not yet completed). The mark-attendance
+        // wizard only acts on COMPLETED, not-yet-evaluated, rateable
+        // activities, so a hero pre-seeding an upcoming activity_id put
+        // the user on a roster page for a session that hadn't happened
+        // yet — "player list with no activity context" symptom from #792.
+        // `latestRateableForCoach` queries the same universe the wizard's
+        // picker uses, so the hero and the wizard agree.
+        $next = UpcomingActivityRepository::latestRateableForCoach( $ctx->user_id, $ctx->club_id );
 
         if ( $next === null ) {
             $eyebrow = __( 'Up next', 'talenttrack' );

@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.185
+Stable tag: 3.110.186
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.186 — Mark-attendance hero + wizard: two related fixes — hero now surfaces the latest completed-and-rateable activity (same universe the wizard's picker uses) instead of the next upcoming activity, so the CTA no longer drops the coach on a roster page for a session that hasn't happened yet; and wizard `restart=1` is now gated to GET requests, so the form's POST back to the same URL no longer accidentally wipes wizard state mid-flight and triggers a spurious "session expired" error on Cancel (closes #792) =
+
+Pilot 2026-05-20: *"The mark attendance hero has two problems. It seems that if there is no completed activity eligible for marking it just shows the player list but without an activity. ... when this happens, the cancel button of the wizard triggers a session has timed out message which is wrong and it does not exit the wizard."* **Bug 1**: `MarkAttendanceHeroWidget::render()` called `UpcomingActivityRepository::nextForCoach()`, which returns the next UPCOMING activity (`session_date >= today AND activity_status_key NOT IN ('completed','cancelled')`). The mark-attendance wizard's `ActivityPickerStep` only accepts COMPLETED-and-rateable activities — totally different universe. So when the hero pre-seeded `activity_id` for an upcoming activity, the picker auto-skipped (because `activity_id > 0`) and the wizard landed on `AttendanceStep` showing the player roster for a session that hadn't happened yet. **Fix**: new `UpcomingActivityRepository::latestRateableForCoach( int $user_id, int $club_id ): ?object` that delegates to `ActivityPickerStep::recentRateableActivities()` and returns the first row. Hero uses this instead of `nextForCoach()`. When the result is null, the existing empty-state UI ("No upcoming activity") renders correctly. `recentRateableActivities` extended to also SELECT `a.team_id, a.location` (additive — picker ignores them; hero's `buildDetail` needs them). **Bug 2**: hero CTAs carry `restart=1` (intentional — first entry should always be a fresh run). The wizard's form has no `action` attribute, so every POST returns to the same URL — including `restart=1`. The wizard view's unconditional `if (!empty($_GET['restart'])) WizardState::clear()` then wiped state on every POST. Cancel POST → state cleared → state re-initialised to step 1 → nonce verified against step-1 slug → form's nonce was for the step the user was actually on → mismatch → "session expired" error rendered → Cancel handler never fired → user stuck. **Fix**: gate the `restart` clear to `$_SERVER['REQUEST_METHOD'] === 'GET'`. `restart` is a one-shot entry signal; POSTs preserve state. One-line guard in `FrontendWizardView::render()`.
 
 = 3.110.185 — Player profile "Latest activity" header + Activities tab — stop showing future planned activities as Present (#789) =
 

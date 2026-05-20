@@ -202,8 +202,13 @@ final class ActivityPickerStep implements WizardStepInterface {
         // Coach who wants to add more ratings to an already-rated
         // activity can use the player-first eval path or the activity
         // detail page; the wizard picker is for fresh runs.
+        // v3.110.186 (#792) — also include `a.team_id, a.location` in
+        // the SELECT so the MarkAttendanceHero can reuse this method
+        // via `UpcomingActivityRepository::latestRateableForCoach()`.
+        // The picker itself ignores the new fields; the hero needs them
+        // for `buildDetail()`.
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT a.id, a.title, a.session_date, a.activity_type_key, t.name AS team_name
+            "SELECT a.id, a.title, a.session_date, a.activity_type_key, a.team_id, a.location, t.name AS team_name
                FROM {$p}tt_activities a
                INNER JOIN {$p}tt_teams t ON t.id = a.team_id AND t.club_id = a.club_id
               WHERE a.club_id = %d
@@ -225,7 +230,7 @@ final class ActivityPickerStep implements WizardStepInterface {
                      WHERE um.user_id = %d AND um.meta_key = 'wp_capabilities'
                        AND ( um.meta_value LIKE '%administrator%' OR um.meta_value LIKE '%tt_head_dev%' OR um.meta_value LIKE '%tt_club_admin%' )
                   ) )
-              GROUP BY a.id, a.title, a.session_date, a.activity_type_key, t.name
+              GROUP BY a.id, a.title, a.session_date, a.activity_type_key, a.team_id, a.location, t.name
               ORDER BY a.session_date DESC
               LIMIT 30",
             CurrentClub::id(), $days, $user_id, CurrentClub::id(), $user_id
