@@ -405,7 +405,60 @@ form, v3.110.58 onward); `FrontendPlayersManageView::renderForm`;
 
 ---
 
-## 7. Mandatory reading by task type
+## 7. Ways of working — analyst / executor split via `ready-for-dev`
+
+The user runs **multiple concurrent Claude Code sessions** during pilot
+cycles. One session acts as the **executor** (does the implementation
+work); the others act as **analysts** (investigate, design, file issues).
+The handoff signal between them is the **`ready-for-dev` label** on
+GitHub issues.
+
+### Why
+
+Parallel sessions writing the same files simultaneously caused real
+problems on this repo — file thrashing during edits, lost rollback work,
+version-bump collisions. A label-based handoff is asynchronous: the
+analyst writes to GitHub (issue bodies + comments), the executor writes
+to the filesystem. They never touch the same surface concurrently.
+
+### Convention
+
+- **Analysts** file issues with the normal `bug` / `enhancement` /
+  `tech-debt` labels, add the investigation findings to the body, but
+  do NOT add `ready-for-dev` until the issue is fully scoped AND the
+  user has confirmed it should be queued. Analysts NEVER edit
+  working-tree files for queue items — only the issue itself.
+- **Executor** drains the queue when the user says *"drain the queue"*
+  / *"ship the queue"* / *"ship what's ready"* (or equivalent). Query
+  `gh issue list --label ready-for-dev --state open --sort created`,
+  pick the oldest, ship, move on. Each item runs in an isolated git
+  worktree under `C:/Users/caspe/AppData/Local/Temp/tt-<issue>-<slug>`
+  — never edit in the main checkout while the queue is running.
+- **Skip and flag, don't pause**: ambiguous issues get a clarifying
+  question posted on the issue, then the executor moves to the next
+  item. Stopping the queue mid-run defeats the point.
+- **Smallest scope first**: smaller PRs = fewer conflict points with
+  other agents' parallel work.
+
+### The label
+
+`ready-for-dev` is a pre-existing repo label (description: *"Shaped
+spec, ready to implement"*). Reusing it as the queue signal — no new
+label needed. It survives issue close/merge and stays attached as
+audit history.
+
+### Inspection commands
+
+| Action | Command |
+| --- | --- |
+| List the queue (oldest first) | `gh issue list --repo caspernieuwenhuizen/talenttrack --label ready-for-dev --state open --sort created --json number,title,body` |
+| Add an issue to the queue | `gh issue edit <num> --add-label ready-for-dev` |
+| Pause an issue (remove from queue) | `gh issue edit <num> --remove-label ready-for-dev` |
+| Board view | https://github.com/users/caspernieuwenhuizen/projects/2 with the `ready-for-dev` label filter |
+
+---
+
+## 8. Mandatory reading by task type
 
 These are existing repo docs. Read them when the task type matches; don't
 duplicate their content here.
@@ -429,7 +482,7 @@ Claude Code invent a pattern that conflicts with one already in use.
 
 ---
 
-## 8. Definition of done — checklist for every PR
+## 9. Definition of done — checklist for every PR
 
 A PR is not ready to merge until **all** of these hold:
 
