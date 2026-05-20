@@ -50,9 +50,20 @@ class PdpConversationsRepository {
      * end. cycle_size is one of 2 / 3 / 4. Returns the count inserted
      * (0 if any guard fails).
      */
-    public function createCycle( int $file_id, int $cycle_size, string $season_start, string $season_end ): int {
+    public function createCycle( int $file_id, int $cycle_size, string $season_start, string $season_end, int $season_id = 0 ): int {
         if ( $file_id <= 0 ) return 0;
         if ( ! in_array( $cycle_size, [ 2, 3, 4 ], true ) ) return 0;
+
+        // v3.110.191 — read academy-configured blocks if present. The
+        // block count must match the file's cycle_size for the
+        // configured dates to apply; otherwise the legacy even-divide
+        // fallback runs.
+        if ( $season_id > 0 ) {
+            $configured = ( new PdpBlocksRepository() )->listForSeason( $season_id );
+            if ( count( $configured ) === $cycle_size ) {
+                return $this->createCycleFromBlocks( $file_id, $cycle_size, $configured );
+            }
+        }
 
         $start_ts = strtotime( $season_start . ' 00:00:00' );
         $end_ts   = strtotime( $season_end   . ' 23:59:59' );
@@ -114,6 +125,40 @@ class PdpConversationsRepository {
 
         $ok = $this->wpdb->update( $this->table, $clean, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
         return $ok !== false;
+    }
+
+    /**
+     * v3.110.191 — create the cycle from academy-configured blocks.
+     * `scheduled_at` is the block's midpoint (so the visible date
+     * lands roughly in the middle of the window); planning windows
+     * are copied verbatim from the block's start/end dates.
+     *
+     * @param list<array{sequence:int,start_date:string,end_date:string}> $blocks
+     */
+    private function createCycleFromBlocks( int $file_id, int $cycle_size, array $blocks ): int {
+        $template_keys = $this->templateKeysFor( $cycle_size );
+        usort( $blocks, static fn( $a, $b ): int => $a['sequence'] <=> $b['sequence'] );
+
+        $inserted = 0;
+        foreach ( $blocks as $i => $b ) {
+            $win_start = (string) $b['start_date'];
+            $win_end   = (string) $b['end_date'];
+            $mid_ts = (int) ( ( strtotime( $win_start . ' 00:00:00' ) + strtotime( $win_end . ' 23:59:59' ) ) / 2 );
+            $when   = gmdate( 'Y-m-d H:i:s', $mid_ts );
+
+            $seq = (int) $b['sequence'];
+            $ok = $this->wpdb->insert( $this->table, [
+                'club_id'               => CurrentClub::id(),
+                'pdp_file_id'           => $file_id,
+                'sequence'              => $seq,
+                'template_key'          => $template_keys[ $i ] ?? 'mid',
+                'scheduled_at'          => $when,
+                'planning_window_start' => $win_start,
+                'planning_window_end'   => $win_end,
+            ] );
+            if ( $ok ) $inserted++;
+        }
+        return $inserted;
     }
 
     /** @return list<string> */

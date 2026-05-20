@@ -317,7 +317,7 @@ class PdpFilesRestController {
         }
 
         $convs    = new PdpConversationsRepository();
-        $created  = $convs->createCycle( $file_id, $cycle_size, (string) $season->start_date, (string) $season->end_date );
+        $created  = $convs->createCycle( $file_id, $cycle_size, (string) $season->start_date, (string) $season->end_date, (int) $season->id );
         if ( $created !== $cycle_size ) {
             Logger::error( 'pdp.cycle.partial', [
                 'file_id'   => $file_id,
