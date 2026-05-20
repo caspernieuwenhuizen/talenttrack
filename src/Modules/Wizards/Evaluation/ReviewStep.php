@@ -4,6 +4,7 @@ namespace TT\Modules\Wizards\Evaluation;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Shared\Wizards\WizardEntryPoint;
 use TT\Shared\Wizards\WizardStepInterface;
 
@@ -186,6 +187,18 @@ final class ReviewStep implements WizardStepInterface {
             if ( ! empty( $skip[ $player_id ] ) ) continue;
             if ( ! is_array( $cats ) || empty( $cats ) ) continue;
 
+            // v3.110.194 (#812) — drop any rating outside the configured
+            // rating scale (defaults 5..10). Better to silently drop OOR
+            // values than reject the whole submission — the activity-
+            // first path is bulk and one bad row shouldn't kill everyone.
+            $rmin = (int) QueryHelpers::get_config( 'rating_min', '5' );
+            $rmax = (int) QueryHelpers::get_config( 'rating_max', '10' );
+            $cats = array_filter( $cats, static function ( $v ) use ( $rmin, $rmax ) {
+                $v = (int) $v;
+                return $v >= $rmin && $v <= $rmax;
+            } );
+            if ( empty( $cats ) ) continue;
+
             $any = false;
             foreach ( $cats as $v ) { if ( (int) $v > 0 ) { $any = true; break; } }
             if ( ! $any ) continue;
@@ -198,6 +211,18 @@ final class ReviewStep implements WizardStepInterface {
                 'notes'       => (string) ( $notes[ $player_id ] ?? '' ),
             ] );
             if ( ! is_wp_error( $result ) ) $created++;
+        }
+
+        // v3.110.194 (#812) — refuse to flip the activity to
+        // `completed` when zero evaluations made it through (every
+        // player was skipped, all ratings were 0 or out of range).
+        // Otherwise the activity transitions and the wizard reports
+        // "success" with no real data written.
+        if ( $created <= 0 ) {
+            return new \WP_Error(
+                'empty_evaluation',
+                __( 'No ratings were entered. Rate at least one category for at least one player before saving.', 'talenttrack' )
+            );
         }
 
         // v3.110.81 — terminal completion for the rate-and-submit
@@ -253,6 +278,37 @@ final class ReviewStep implements WizardStepInterface {
             return new \WP_Error( 'no_player', __( 'No player selected.', 'talenttrack' ) );
         }
 
+        // v3.110.194 (#812) — block empty evaluations and out-of-range
+        // ratings before the DB insert. Range comes from `rating_min` /
+        // `rating_max` config (defaults 5 / 10). `tt_eval_ratings.rating`
+        // is an integer column; rounded after clamp. Empty submissions
+        // were silently producing parent `tt_evaluations` rows with no
+        // child rating rows ("an empty evaluation that pollutes the DB").
+        $rmin = (int) QueryHelpers::get_config( 'rating_min', '5' );
+        $rmax = (int) QueryHelpers::get_config( 'rating_max', '10' );
+        $valid_ratings = [];
+        foreach ( $ratings as $cat_id => $val ) {
+            $val = (int) $val;
+            if ( $val <= 0 ) continue;
+            if ( $val < $rmin || $val > $rmax ) {
+                return new \WP_Error(
+                    'rating_out_of_range',
+                    sprintf(
+                        /* translators: %1$d = min rating; %2$d = max rating. */
+                        __( 'Ratings must be between %1$d and %2$d.', 'talenttrack' ),
+                        $rmin, $rmax
+                    )
+                );
+            }
+            $valid_ratings[ (int) $cat_id ] = $val;
+        }
+        if ( empty( $valid_ratings ) ) {
+            return new \WP_Error(
+                'empty_evaluation',
+                __( 'Rate at least one category before saving.', 'talenttrack' )
+            );
+        }
+
         $insert_payload = [
             'club_id'   => CurrentClub::id(),
             'player_id' => $pid,
@@ -271,9 +327,7 @@ final class ReviewStep implements WizardStepInterface {
             // fix in EvaluationsRestController::write_ratings +
             // EvaluationInserter::insert).
             $club_id = CurrentClub::id();
-            foreach ( $ratings as $cat_id => $val ) {
-                $val = (int) $val;
-                if ( $val <= 0 ) continue;
+            foreach ( $valid_ratings as $cat_id => $val ) {
                 $wpdb->insert( "{$p}tt_eval_ratings", [
                     'club_id'       => $club_id,
                     'evaluation_id' => $eval_id,

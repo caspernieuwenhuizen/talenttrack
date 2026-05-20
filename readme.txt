@@ -4,7 +4,7 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.193
+Stable tag: 3.110.194
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,6 +12,9 @@ Frontend-first, modular youth football talent management system for a single clu
 
 == Changelog ==
 
+= 3.110.194 — Evaluation wizard validation — block empty submissions + reject out-of-range ratings (#812) =
+
+Pilot: *"New evaluation wizard, should not allow saving without any category completed. that would be an empty evaluation and would pollute the database. It should also not allow values not within the range of rating scales (set at 5-10 at the moment)."* Two missing server-side guards in `ReviewStep::submitPlayerFirst()` and `::submitActivityFirst()`. **Player-first path**: a submission with no positive rating values would create a parent `tt_evaluations` row with zero child `tt_eval_ratings` rows — visible in the list as an "empty" evaluation that the coach has to clean up. **Activity-first path**: when every player was skipped or rated 0, the wizard reported success and flipped the activity to `completed` despite writing zero ratings. **Fix**: ReviewStep now pre-validates both paths. Player-first builds a `$valid_ratings` array (drops 0s, rejects values outside `[rating_min, rating_max]` with `WP_Error`), returns empty-evaluation error if the array is empty, then writes only the valid rows. Activity-first drops out-of-range values silently (one bad row shouldn't kill a bulk submission) and returns an empty-evaluation error if zero evaluations made it through (so the activity doesn't falsely flip to `completed`). Range comes from `rating_min` / `rating_max` config (defaults 5 / 10). Errors surface through `FrontendWizardView`'s existing notice path above the action bar. **Pairs with #796**: client-side `<input min/max>` + the `wizard-validation.js` runtime already cover the visual inline-validation case; this ship adds the authoritative server-side guard that catches bypasses + the "no rating at all" case that `required` can't express.
 = 3.110.193 — New evaluation wizard: team-scope leak fixed — head coaches now see only their assigned teams in the player picker (#809, #810) =
 
 Pilot: *"A headcoach assigned only to JO13 also sees JO14 in the dropdown to select a team."* `PlayerPickerStep` was rendering `PlayerSearchPickerComponent` with `cross_team => true` and a narrow `is_admin` check (`tt_edit_settings` only). The component's existing cascading team→player UX (`show_team_filter => true`) was being overridden by `cross_team`, which short-circuits the team filter and surfaces every player in the club. **Fix**: drop `cross_team` and broaden the `is_admin` gate to include `tt_access_frontend_admin` — that cap is held by administrator + tt_club_admin + tt_head_dev but NOT tt_coach, so it cleanly distinguishes "should see all teams" from "should see own teams". Head coaches now see only the teams they're assigned via `QueryHelpers::get_teams_for_coach()` (head_coach_id OR active team-scope role assignment). Admin / Club Admin / HoD keep full cross-team visibility. **The cascading team→player picker was already there** — the team dropdown filters the player list reactively. Closing #810 alongside #809.
