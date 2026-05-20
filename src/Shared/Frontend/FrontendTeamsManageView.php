@@ -170,16 +170,14 @@ class FrontendTeamsManageView extends FrontendViewBase {
         $rest_meth = $is_edit ? 'PUT' : 'POST';
 
         $age_groups = QueryHelpers::get_lookup_names( 'age_group' );
-
-        // Eligible head coaches: any WP user with the tt_edit_evaluations
-        // capability (matches the wp-admin team-form pattern).
-        $coach_users = get_users( [
-            'capability' => 'tt_edit_evaluations',
-            'fields'     => [ 'ID', 'display_name' ],
-            'orderby'    => 'display_name',
-            'order'      => 'ASC',
-        ] );
-
+        // v3.110.200 (#820) — legacy `head_coach_id` dropdown removed
+        // from the form. Head-coach assignment lives in the Staff
+        // section below (`tt_team_people` + role-scope). The legacy
+        // column on `tt_teams` stays in place — schema cleanup is a
+        // separate concern; the REST controller preserves whatever
+        // value the column currently holds (see TeamsRestController
+        // ::extract() — `head_coach_id` only writes when the payload
+        // carries it).
         ?>
         <form id="tt-team-form" class="tt-ajax-form" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="<?php echo esc_attr( $rest_meth ); ?>"<?php if ( ! $is_edit ) : ?> data-draft-key="team-form"<?php endif; ?>>
             <div class="tt-grid tt-grid-2">
@@ -194,17 +192,6 @@ class FrontendTeamsManageView extends FrontendViewBase {
                         <?php foreach ( $age_groups as $ag ) : ?>
                             <option value="<?php echo esc_attr( (string) $ag ); ?>" <?php selected( (string) ( $team->age_group ?? '' ), (string) $ag ); ?>>
                                 <?php echo esc_html( (string) $ag ); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div class="tt-field">
-                    <label class="tt-field-label" for="tt-team-coach"><?php esc_html_e( 'Head coach', 'talenttrack' ); ?></label>
-                    <select id="tt-team-coach" class="tt-input" name="head_coach_id">
-                        <option value="0"><?php esc_html_e( '— None —', 'talenttrack' ); ?></option>
-                        <?php foreach ( $coach_users as $u ) : ?>
-                            <option value="<?php echo (int) $u->ID; ?>" <?php selected( (int) ( $team->head_coach_id ?? 0 ), (int) $u->ID ); ?>>
-                                <?php echo esc_html( (string) $u->display_name ); ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -349,26 +336,14 @@ class FrontendTeamsManageView extends FrontendViewBase {
         $base_url = remove_query_arg( [ 'action' ] );
         $edit_url = add_query_arg( [ 'tt_view' => 'teams', 'id' => (int) $team->id, 'action' => 'edit' ], $base_url );
 
-        $coach_name = '';
-        if ( ! empty( $team->head_coach_id ) ) {
-            $u = get_userdata( (int) $team->head_coach_id );
-            if ( $u ) $coach_name = (string) $u->display_name;
-        }
+        // v3.110.200 (#820) — legacy "Head coach: <display name>" meta
+        // line removed. Head-coach attribution lives in the Staff
+        // section rendered below via `renderStaffSection()`, which
+        // reads from `tt_team_people` + role-scope assignments.
         ?>
         <div class="tt-team-detail-meta" style="display:flex; flex-wrap:wrap; gap:16px; align-items:center; margin-bottom:8px;">
             <?php if ( ! empty( $team->age_group ) ) : ?>
                 <span class="tt-pill"><?php echo esc_html( (string) $team->age_group ); ?></span>
-            <?php endif; ?>
-            <?php if ( $coach_name !== '' ) : ?>
-                <span style="color:var(--tt-muted, #6a6d66); font-size:0.95rem;">
-                    <?php
-                    printf(
-                        /* translators: %s is the head coach's display name. */
-                        esc_html__( 'Head coach: %s', 'talenttrack' ),
-                        esc_html( $coach_name )
-                    );
-                    ?>
-                </span>
             <?php endif; ?>
             <?php if ( $can_edit ) : ?>
                 <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( $edit_url ); ?>" style="margin-left:auto;">
