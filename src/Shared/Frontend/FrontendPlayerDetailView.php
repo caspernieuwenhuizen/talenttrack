@@ -318,11 +318,21 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         $p = $wpdb->prefix;
         $out = [];
 
+        // v3.110.185 (#789) — was missing both `plan_state` and
+        // session-date filters, so a future planned activity with
+        // the wizard's default-Present roster row would win the
+        // ORDER BY and surface as the player's "Latest activity"
+        // on the profile header. "Latest activity" means latest
+        // *attended* activity; tighten to completed-and-past-dated.
         $row = $wpdb->get_row( $wpdb->prepare(
             "SELECT a.id, a.title, a.session_date
                FROM {$p}tt_attendance att
                JOIN {$p}tt_activities a ON a.id = att.activity_id
-              WHERE att.player_id = %d AND att.is_guest = 0 AND a.archived_at IS NULL
+              WHERE att.player_id = %d
+                AND att.is_guest = 0
+                AND a.archived_at IS NULL
+                AND a.plan_state = 'completed'
+                AND a.session_date <= CURDATE()
               ORDER BY a.session_date DESC LIMIT 1",
             $player_id
         ) );
@@ -623,14 +633,31 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      * exist in tt_attendance for this player". */
     private static function renderActivitiesTab( int $player_id, ?object $player = null ): void {
         global $wpdb;
+        // v3.110.185 (#789) — scope expanded to include both planned
+        // and completed activities. Pilot ask: *"both planned and
+        // completed activities are shown and attendance is using
+        // the right scope."* Completed + past-dated rows render the
+        // actual attendance pill from `att.status`. Planned /
+        // scheduled rows render a neutral "Planned" placeholder
+        // (the default-Present rows that exist for some planned
+        // activities are wizard pre-fill artefacts, not coach
+        // intent — they must NOT render as Present). Once #788
+        // lands the `record_type` column, planned rows can show
+        // the per-player expected status with visual distinction.
+        // The defensive `session_date <= CURDATE()` on the
+        // completed branch catches activities marked completed
+        // before they happen.
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT a.id, a.title, a.session_date, a.activity_type_key, att.status
+            "SELECT a.id, a.title, a.session_date, a.activity_type_key, a.plan_state, att.status
                FROM {$wpdb->prefix}tt_attendance att
                JOIN {$wpdb->prefix}tt_activities a ON a.id = att.activity_id
               WHERE att.player_id = %d
                 AND att.is_guest = 0
                 AND a.archived_at IS NULL
-                AND a.plan_state = 'completed'
+                AND (
+                    ( a.plan_state = 'completed' AND a.session_date <= CURDATE() )
+                    OR a.plan_state IN ( 'planned', 'scheduled' )
+                )
               ORDER BY a.session_date DESC LIMIT 25",
             $player_id
         ) );
@@ -672,7 +699,19 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             echo '<tr>';
             echo '<td>' . ( ! empty( $a->session_date ) ? esc_html( (string) $a->session_date ) : '<span class="tt-muted">&mdash;</span>' ) . '</td>';
             echo '<td><a class="tt-record-link" href="' . esc_url( $url ) . '">' . esc_html( (string) ( $a->title ?? '—' ) ) . '</a></td>';
-            echo '<td>' . ( ! empty( $a->status ) ? LookupPill::render( 'attendance_status', (string) $a->status ) : '<span class="tt-muted">&mdash;</span>' ) . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            // v3.110.185 (#789) — planned activities render a neutral
+            // "Planned" pill instead of the row's att.status (which
+            // is the wizard's default-Present pre-fill, not coach
+            // intent). Completed rows render the actual status pill
+            // as before. After #788 lands the `record_type` column,
+            // planned rows can swap the placeholder for the
+            // per-player expected status with visual distinction.
+            $is_planned = in_array( (string) ( $a->plan_state ?? '' ), [ 'planned', 'scheduled' ], true );
+            if ( $is_planned ) {
+                echo '<td><span class="tt-pill" style="display:inline-block;padding:2px 10px;border-radius:999px;background:#e5e7ea;color:#1a1d21;font-size:11px;font-weight:600;line-height:1.6;letter-spacing:0.02em;">' . esc_html__( 'Planned', 'talenttrack' ) . '</span></td>';
+            } else {
+                echo '<td>' . ( ! empty( $a->status ) ? LookupPill::render( 'attendance_status', (string) $a->status ) : '<span class="tt-muted">&mdash;</span>' ) . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            }
             echo '</tr>';
         }
         echo '</tbody></table></div>';
