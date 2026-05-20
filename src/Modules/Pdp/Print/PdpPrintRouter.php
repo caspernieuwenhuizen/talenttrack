@@ -8,6 +8,7 @@ use TT\Modules\Pdp\Repositories\PdpConversationsRepository;
 use TT\Modules\Pdp\Repositories\PdpFilesRepository;
 use TT\Modules\Pdp\Repositories\PdpVerdictsRepository;
 use TT\Modules\Pdp\Repositories\SeasonsRepository;
+use TT\Infrastructure\Query\LookupTranslator;
 
 /**
  * PdpPrintRouter — isolated print route for a single PDP file.
@@ -181,7 +182,7 @@ class PdpPrintRouter {
         <div class="meta">
             <h1><?php echo esc_html( $name ); ?></h1>
             <p><strong><?php esc_html_e( 'Season:', 'talenttrack' ); ?></strong> <?php echo esc_html( $season ? (string) $season->name : '—' ); ?></p>
-            <p><strong><?php esc_html_e( 'Status:', 'talenttrack' ); ?></strong> <?php echo esc_html( ucfirst( (string) $file->status ) ); ?></p>
+            <p><strong><?php esc_html_e( 'Status:', 'talenttrack' ); ?></strong> <?php echo esc_html( self::pdpFileStatusLabel( (string) $file->status ) ); ?></p>
             <p><strong><?php esc_html_e( 'Cycle size:', 'talenttrack' ); ?></strong> <?php echo (int) ( $file->cycle_size ?? 0 ); ?></p>
         </div>
     </div>
@@ -199,8 +200,8 @@ class PdpPrintRouter {
                 <?php foreach ( $goals as $g ) : ?>
                     <tr>
                         <td><?php echo esc_html( (string) $g->title ); ?></td>
-                        <td><?php echo esc_html( (string) ( $g->priority ?? '' ) ); ?></td>
-                        <td><?php echo esc_html( (string) ( $g->status ?? '' ) ); ?></td>
+                        <td><?php echo esc_html( LookupTranslator::byTypeAndName( 'goal_priority', (string) ( $g->priority ?? '' ) ) ); ?></td>
+                        <td><?php echo esc_html( LookupTranslator::byTypeAndName( 'goal_status', (string) ( $g->status ?? '' ) ) ); ?></td>
                         <td><?php echo esc_html( (string) ( $g->due_date ?? '—' ) ); ?></td>
                     </tr>
                 <?php endforeach; ?>
@@ -232,7 +233,7 @@ class PdpPrintRouter {
     <?php if ( $verdict !== null ) : ?>
         <div class="verdict">
             <h3><?php esc_html_e( 'End-of-season verdict', 'talenttrack' ); ?></h3>
-            <p><strong><?php esc_html_e( 'Decision:', 'talenttrack' ); ?></strong> <?php echo esc_html( ucfirst( (string) $verdict->decision ) ); ?></p>
+            <p><strong><?php esc_html_e( 'Decision:', 'talenttrack' ); ?></strong> <?php echo esc_html( self::pdpVerdictDecisionLabel( (string) $verdict->decision ) ); ?></p>
             <?php if ( ! empty( $verdict->summary ) ) : ?>
                 <div><?php echo wp_kses_post( (string) $verdict->summary ); ?></div>
             <?php endif; ?>
@@ -300,11 +301,39 @@ class PdpPrintRouter {
             foreach ( $acts as $a ) {
                 echo '<tr><td>' . esc_html( (string) $a->session_date ) . '</td>';
                 echo '<td>' . esc_html( (string) $a->title ) . '</td>';
-                echo '<td>' . esc_html( (string) $a->status ) . '</td></tr>';
+                echo '<td>' . esc_html( LookupTranslator::byTypeAndName( 'attendance_status', (string) $a->status ) ) . '</td></tr>';
             }
             echo '</tbody></table>';
         } else {
             echo '<p><em>' . esc_html__( 'No attendance records.', 'talenttrack' ) . '</em></p>';
         }
+    }
+
+    /**
+     * v3.110.192 (#804) — translate the PDP file status enum
+     * ('open' / 'closed') for display. Not lookup-backed, so a
+     * small switch + __() does the job. Kept local rather than
+     * adding to LabelTranslator because this enum is PDP-internal.
+     */
+    private static function pdpFileStatusLabel( string $code ): string {
+        switch ( strtolower( $code ) ) {
+            case 'open':   return __( 'Open',   'talenttrack' );
+            case 'closed': return __( 'Closed', 'talenttrack' );
+        }
+        return ucfirst( $code );
+    }
+
+    /**
+     * v3.110.192 (#804) — translate the PDP verdict decision enum.
+     */
+    private static function pdpVerdictDecisionLabel( string $code ): string {
+        switch ( strtolower( $code ) ) {
+            case 'retain':  return __( 'Retain',  'talenttrack' );
+            case 'promote': return __( 'Promote', 'talenttrack' );
+            case 'release': return __( 'Release', 'talenttrack' );
+            case 'review':  return __( 'Review',  'talenttrack' );
+            case 'pending': return __( 'Pending', 'talenttrack' );
+        }
+        return ucfirst( $code );
     }
 }

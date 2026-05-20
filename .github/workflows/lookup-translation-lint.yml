@@ -1,0 +1,69 @@
+name: Lookup translation lint
+
+# Greps for raw-echo patterns that bypass LookupTranslator::name() / ::byTypeAndName().
+# Fails the PR if any new occurrence appears outside the allow-list.
+# Allow-list: CSV / JSON exporters intentionally emit machine-readable English.
+
+on:
+  pull_request:
+    paths:
+      - 'src/**/*.php'
+  push:
+    branches: [main]
+    paths:
+      - 'src/**/*.php'
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: No raw-echo of lookup-backed fields
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Scan for risky echo patterns
+        shell: bash
+        run: |
+          set -e
+          RISKY_PATTERNS=(
+            "esc_html\\(\\s*\\(string\\)\\s*\\\$[a-zA-Z_]+->status\\s*[)?]"
+            "esc_html\\(\\s*\\(string\\)\\s*\\\$[a-zA-Z_]+->priority\\s*[)?]"
+            "esc_html\\(\\s*ucfirst\\(\\s*\\(string\\)\\s*\\\$[a-zA-Z_]+->\\(status|priority|decision\\)"
+            "esc_html\\(\\s*\\\$[a-zA-Z_]+->priority\\s*\\)"
+            "esc_html\\(\\s*\\\$[a-zA-Z_]+->status\\s*\\)"
+          )
+          ALLOW_PATHS=(
+            "src/Modules/Export/Exporters/.*CsvExporter\\.php"
+            "src/Modules/Export/Exporters/.*JsonExporter\\.php"
+          )
+
+          FAIL=0
+          for pat in "${RISKY_PATTERNS[@]}"; do
+            HITS=$(grep -REn "$pat" src/ --include='*.php' || true)
+            if [ -n "$HITS" ]; then
+              FILTERED="$HITS"
+              for allow in "${ALLOW_PATHS[@]}"; do
+                FILTERED=$(echo "$FILTERED" | grep -Ev "$allow" || true)
+              done
+              if [ -n "$FILTERED" ]; then
+                echo "::error::Raw-echo of lookup-backed field (pattern: $pat)"
+                echo "$FILTERED"
+                FAIL=1
+              fi
+            fi
+          done
+
+          if [ "$FAIL" = "1" ]; then
+            echo ""
+            echo "These sites echo a lookup-backed value directly, bypassing"
+            echo "LookupTranslator::byTypeAndName(). The English seed name"
+            echo "renders on non-default locales."
+            echo ""
+            echo "Fix: route through LookupTranslator::byTypeAndName(<type>, <name>)."
+            echo "CSV / JSON exporters are allow-listed; everything else must translate."
+            echo "See #804 for context, #806 for the architectural follow-up."
+            exit 1
+          fi
+          echo "OK — no risky raw-echo patterns found."
