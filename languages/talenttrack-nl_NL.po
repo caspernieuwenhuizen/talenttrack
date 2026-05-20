@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-05-20T18:37:28+00:00\n"
+"POT-Creation-Date: 2026-05-20T18:54:41+00:00\n"
 "PO-Revision-Date: 2026-04-25 10:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -112,7 +112,7 @@ msgstr "Team Manager"
 #: src/Modules/Stats/Admin/PlayerRateCardsPage.php:58
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:269
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:502
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:447
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:458
 #: src/Modules/Wizards/Evaluation/AttendanceStep.php:333
 #: src/Modules/Wizards/Evaluation/PlayerPickerStep.php:19
 #: src/Modules/Wizards/Goal/PlayerStep.php:25
@@ -1619,16 +1619,16 @@ msgstr "Niet gevonden."
 # #0018 — team development sprint 1 (REST stubs)
 #: src/Infrastructure/REST/TeamsRestController.php:268
 #: src/Modules/Spond/SpondSync.php:59
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:184
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:213
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:254
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:274
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:347
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:405
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:473
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:490
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:569
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:580
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:194
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:223
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:264
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:284
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:357
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:415
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:483
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:500
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:579
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:590
 msgid "Team not found."
 msgstr "Team niet gevonden."
 
@@ -1850,6 +1850,7 @@ msgstr "Nieuw toevoegen"
 #: src/Modules/People/Admin/PeoplePage.php:468
 #: src/Modules/Players/Admin/PlayersPage.php:77
 #: src/Modules/Players/Frontend/FrontendPlayerStatusMethodologyView.php:46
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:997
 #: src/Modules/Teams/Admin/TeamsPage.php:40
 #: src/Shared/Frontend/DashboardShortcode.php:80
 #: src/Shared/Frontend/FrontendWizardsAdminView.php:40
@@ -2054,7 +2055,7 @@ msgstr "Type"
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:202
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:52
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:131
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:502
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:553
 #: src/Modules/Wizards/Activity/ReviewStep.php:59
 #: src/Modules/Wizards/Activity/TypeStatusStep.php:39
 #: src/Modules/Wizards/Prospect/IdentityStep.php:100
@@ -2497,6 +2498,7 @@ msgstr "Bijwerken"
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:179
 #: src/Modules/License/Admin/AccountPage.php:325
 #: src/Modules/Players/Frontend/FrontendPlayerStatusMethodologyView.php:273
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:542
 #: src/Shared/Frontend/Components/FormSaveButton.php:46
 #: src/Shared/Frontend/Components/FrontendThreadView.php:171
 #: src/Shared/Frontend/DashboardShortcode.php:87
@@ -4993,6 +4995,7 @@ msgstr "Wijzigingen toepassen"
 #: src/Modules/Development/Frontend/IdeasRefineView.php:130
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:307
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:288
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:644
 #: src/Shared/Frontend/Components/FormSaveButton.php:55
 #: src/Shared/Frontend/Components/FrontendThreadView.php:170
 #: src/Shared/Frontend/Components/GuestAddModal.php:112
@@ -7629,6 +7632,7 @@ msgstr "Eerste beheerder"
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:435
 #: src/Modules/Development/IdeaStatus.php:63
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:334
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:985
 msgid "Done"
 msgstr "Klaar"
 
@@ -8810,7 +8814,8 @@ msgstr ""
 
 # v3.73.0 / #0075 Sprint 1 PR 1 — design-system token catalogue + grouped editor
 #: src/Modules/CustomCss/DesignSystem/TokenCatalogue.php:96
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:669
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:720
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:987
 msgid "Primary"
 msgstr "Primair"
 
@@ -8819,7 +8824,7 @@ msgid "Primary — hover"
 msgstr "Primair — hover"
 
 #: src/Modules/CustomCss/DesignSystem/TokenCatalogue.php:98
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:670
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:721
 msgid "Secondary"
 msgstr "Secundair"
 
@@ -12781,7 +12786,7 @@ msgstr "Speler-evaluatierapport (PDF)"
 #: src/Modules/Reports/PlayerReportRenderer.php:40
 #: src/Modules/Stats/Admin/PlayerCardView.php:68
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:35
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:523
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:533
 #: src/Shared/Frontend/DashboardShortcode.php:619
 msgid "Player not found."
 msgstr "Speler niet gevonden."
@@ -17330,7 +17335,7 @@ msgstr "Instroompijplijn"
 
 # #0017 — Trial player module
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:194
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:576
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:627
 #: src/Shared/CoreSurfaceRegistration.php:586
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:62
 #: src/Shared/Frontend/FrontendTrialCaseView.php:39
@@ -21109,18 +21114,18 @@ msgstr "Opstelling"
 msgid "Comments"
 msgstr "Reacties"
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:272
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:283
 msgid "Available players"
 msgstr "Beschikbare spelers"
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:273
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:284
 #: src/Modules/Wizards/Team/RosterStep.php:24
 #: src/Shared/Frontend/FrontendTeamDetailView.php:236
 #: src/Shared/Frontend/FrontendTeamsManageView.php:262
 msgid "Roster"
 msgstr "Selectie"
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:277
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:288
 msgid ""
 "Drag onto a depth-chart cell below or onto a pitch slot. Drop back here to "
 "remove. Trial players carry a yellow border."
@@ -21128,7 +21133,7 @@ msgstr ""
 "Sleep naar een dieptecel hieronder of naar een veldpositie. Sleep hierheen "
 "terug om te verwijderen. Proefspelers hebben een gele rand."
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:279
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:290
 msgid ""
 "Drag a player onto a slot. Drop a player back here to remove them from the "
 "lineup."
@@ -21136,25 +21141,25 @@ msgstr ""
 "Sleep een speler op een positie. Sleep een speler hierheen terug om hem uit "
 "de opstelling te halen."
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:306
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:317
 msgid "This blueprint is locked. Reopen it to make changes."
 msgstr "Deze blauwdruk is vergrendeld. Heropen om wijzigingen te maken."
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:334
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:345
 msgid "Open share link"
 msgstr "Deelbare link openen"
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:336
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:347
 msgid ""
 "Rotate the share link? Anyone holding the previous URL will be locked out."
 msgstr ""
 "Deelbare link vernieuwen? Iedereen met de vorige URL verliest direct toegang."
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:337
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:348
 msgid "Rotate share link"
 msgstr "Deelbare link vernieuwen"
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:432
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:443
 msgid ""
 "This is a read-only share link. Comments and edits are coach-only inside "
 "TalentTrack."
@@ -21162,70 +21167,79 @@ msgstr ""
 "Dit is een alleen-lezen deelbare link. Reacties en bewerkingen zijn alleen "
 "voor coaches binnen TalentTrack."
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:446
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:668
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:457
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:719
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:482
 msgid "Slot"
 msgstr "Slot"
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:457
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:468
 msgid "— empty —"
 msgstr "— leeg —"
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:467
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:478
 msgid "Share link not valid"
 msgstr "Deelbare link niet geldig"
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:469
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:480
 msgid ""
 "This blueprint share link is no longer valid. Ask the coach for an updated "
 "link."
 msgstr ""
 "Deze blueprint-link is niet meer geldig. Vraag de coach om een nieuwe link."
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:482
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:493
 msgid "You do not have permission to rotate the share link."
 msgstr "Je hebt geen rechten om de deelbare link te vernieuwen."
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:485
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:496
 msgid "Bad blueprint id."
 msgstr "Ongeldig blueprint-id."
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:509
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:530
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:992
+msgid "Hide chemistry"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:539
+msgid "Save as…"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:560
 msgid "Share with staff"
 msgstr "Delen met staf"
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:513
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:564
 msgid "Move back to draft"
 msgstr "Terug naar concept"
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:515
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:566
 msgid "Lock"
 msgstr "Vergrendel"
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:519
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:570
 msgid "Reopen"
 msgstr "Heropenen"
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:533
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:584
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:279
 msgid "Link chemistry"
 msgstr "Lijnchemie"
 
 #. translators: %d: 0-100 chemistry score
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:541
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:896
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:592
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:982
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:288
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:647
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:654
 #, php-format
 msgid "%d / 100"
 msgstr "%d / 100"
 
 #. translators: %d: scored adjacent pair count
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:551
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:894
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:602
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:980
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:298
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:645
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:652
 #, php-format
 msgid "%d scored adjacent pair on the pitch."
 msgid_plural "%d scored adjacent pairs on the pitch."
@@ -21233,89 +21247,131 @@ msgstr[0] "%d aangrenzend duo met chemie-score."
 msgstr[1] "%d aangrenzende duo's met chemie-score."
 
 # ===== v3.0.0 slice 4 — Coaching-group frontend views =====
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:568
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:619
 #: src/Shared/Frontend/FrontendTeamsManageView.php:278
 msgid "No players on this team yet."
 msgstr "Nog geen spelers in dit team."
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:597
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:648
 #: src/Modules/Wizards/Player/PathStep.php:32
 #: src/Modules/Wizards/Player/ReviewStep.php:30
 msgid "Trial player"
 msgstr "Stage-speler"
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:597
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:648
 msgid "TRIAL"
 msgstr "PROEF"
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:666
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:717
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:479
 msgid "Depth chart"
 msgstr "Dieptestaat"
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:671
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:722
 msgid "Tertiary"
 msgstr "Tertiair"
 
 #. translators: 1: slot label, 2: primary name or em-dash, 3: depth count 0-3
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:740
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:791
 #, php-format
 msgid "%1$s — primary: %2$s — %3$d/3 tiers covered"
 msgstr "%1$s — primair: %2$s — %3$d/3 tiers gevuld"
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:759
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:810
 msgid "0 — uncovered"
 msgstr "0 — niet gedekt"
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:760
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:811
 msgid "1 — primary only"
 msgstr "1 — alleen primair"
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:761
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:812
 msgid "2 — primary + secondary"
 msgstr "2 — primair + secundair"
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:762
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:813
 msgid "3 — full depth"
 msgstr "3 — volledige diepte"
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:841
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:892
 #: src/Modules/Wizards/TeamBlueprint/SetupStep.php:53
 msgid "Squad plan"
 msgstr "Selectieplan"
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:842
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:893
 msgid "Match-day"
 msgstr "Wedstrijddag"
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:858
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:909
 msgid "Draft"
 msgstr "Concept"
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:859
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:910
 msgid "Shared"
 msgstr "Gedeeld"
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:860
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:911
 msgid "Locked"
 msgstr "Vergrendeld"
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:892
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:978
 msgid "Could not save the change. Try again."
 msgstr "Kan de wijziging niet opslaan. Probeer opnieuw."
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:893
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:639
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:675
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:717
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:979
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:649
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:710
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:752
 msgid "This blueprint is locked. Reopen it before editing."
 msgstr "Deze blauwdruk is vergrendeld. Heropen voordat je bewerkt."
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:895
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:646
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:981
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:653
 #, php-format
 msgid "%d scored adjacent pairs on the pitch."
 msgstr "%d gescoorde aangrenzende paren op het veld."
+
+#. translators: %s = slot label, e.g. "RB" or "CM".
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:984
+#, php-format
+msgid "Assign players to %s"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:986
+msgid "Leave empty"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:988
+msgid "Secondary (2nd best)"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:989
+msgid "Tertiary (3rd best)"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:990
+msgid "Currently assigned"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:991
+msgid "Clear this tier"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:993
+msgid "Show chemistry"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:994
+msgid "Name the new blueprint:"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:995
+msgid "Copy of blueprint"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:996
+msgid "Could not duplicate. Try again."
+msgstr ""
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:114
 msgid ""
@@ -21378,6 +21434,7 @@ msgid "Reset to suggested XI"
 msgstr "Terug naar voorgestelde XI"
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:254
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:635
 msgid "Save as blueprint"
 msgstr "Opslaan als blueprint"
 
@@ -21467,14 +21524,14 @@ msgstr "Koppel­bonus"
 #. translators: %s = rating max
 #. translators: %s: rating max
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:443
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:644
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:651
 #, php-format
 msgid "Team chemistry: ? / %s"
 msgstr "Team-chemie: ? / %s"
 
 #. translators: 1: composite score, 2: rating max
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:449
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:642
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:649
 #, php-format
 msgid "Team chemistry: %1$s / %2$s"
 msgstr "Team-chemie: %1$s / %2$s"
@@ -21570,10 +21627,6 @@ msgstr "Kon chemie niet opnieuw berekenen. Probeer het nog eens."
 msgid "Save lineup as blueprint"
 msgstr "Opstelling opslaan als blueprint"
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:635
-msgid "Name this blueprint:"
-msgstr "Geef deze blueprint een naam:"
-
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:636
 msgid "Sandbox lineup"
 msgstr "Probeer-opstelling"
@@ -21582,31 +21635,52 @@ msgstr "Probeer-opstelling"
 msgid "Could not save the blueprint. Try again."
 msgstr "Kon de blueprint niet opslaan. Probeer het nog eens."
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:638
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:639
+msgid "Blueprint type"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:640
+msgid "Match-day lineup — single starting XI"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:641
+msgid "Squad plan — three tiers per slot (primary / secondary / tertiary)"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:642
+#: src/Modules/Wizards/TeamBlueprint/SetupStep.php:66
+msgid "Blueprint name"
+msgstr "Naam blauwdruk"
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:643
+msgid "Save blueprint"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:645
 msgid "Discard the sandbox lineup and restore the suggested XI?"
 msgstr "Probeer-opstelling verwijderen en terug naar de voorgestelde XI?"
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:639
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:646
 #, php-format
 msgid "%d slot swapped from the suggested XI."
 msgstr "%d positie gewisseld ten opzichte van de voorgestelde XI."
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:640
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:647
 #, php-format
 msgid "%d slots swapped from the suggested XI."
 msgstr "%d posities gewisseld ten opzichte van de voorgestelde XI."
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:648
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:655
 msgid "— / 100"
 msgstr "— / 100"
 
 #. translators: 1: pair score 0-3, 2: comma-separated reasons
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:650
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:657
 #, php-format
 msgid "Chemistry %1$s / 3 — %2$s"
 msgstr "Chemie %1$s / 3 — %2$s"
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:651
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:658
 #: src/Modules/TeamDevelopment/Frontend/PitchSvg.php:233
 msgid "no shared signals"
 msgstr "geen gedeelde signalen"
@@ -21657,83 +21731,92 @@ msgstr ""
 "Houd de muis op een regel om de onderliggende beoordelings­opbouw te zien. "
 "Berekend tegen het actieve formatie­sjabloon van het team."
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:218
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:228
 msgid "formation_template_id is required."
 msgstr "formation_template_id is verplicht."
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:227
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:596
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:237
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:606
 msgid "Formation template not found."
 msgstr "Formatiesjabloon niet gevonden."
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:246
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:256
 msgid "The formation could not be saved."
 msgstr "De formatie kon niet worden opgeslagen."
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:281
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:291
 msgid "Possession + counter + press must sum to 100."
 msgstr "Balbezit + counter + press moeten samen 100 zijn."
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:304
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:314
 msgid "The style blend could not be saved."
 msgstr "De stijl­mix kon niet worden opgeslagen."
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:364
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:374
 msgid "No formation template available. Run migrations to seed defaults."
 msgstr ""
 "Geen formatie­sjabloon beschikbaar. Voer migraties uit om standaarden te "
 "zaaien."
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:425
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:435
 msgid "No formation template available."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:496
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:506
 msgid "Pick two different players."
 msgstr "Kies twee verschillende spelers."
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:502
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:512
 msgid "Could not save the pairing."
 msgstr "Kon het koppel niet opslaan."
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:510
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:520
 msgid "Invalid pairing id."
 msgstr "Ongeldig koppel-id."
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:514
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:524
 msgid "Could not delete the pairing."
 msgstr "Kon het koppel niet verwijderen."
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:587
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:597
 msgid "Name and formation are required."
 msgstr "Naam en formatie zijn verplicht."
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:604
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:614
 msgid "The blueprint could not be created."
 msgstr "De blauwdruk kon niet worden aangemaakt."
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:615
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:635
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:659
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:671
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:713
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:738
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:625
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:645
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:669
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:685
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:706
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:748
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:773
 msgid "Blueprint not found."
 msgstr "Blauwdruk niet gevonden."
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:647
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:657
 msgid "Nothing to update."
 msgstr "Niets om bij te werken."
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:682
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:690
+msgid "Give the cloned blueprint a name."
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:695
+msgid "Could not duplicate the blueprint."
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:717
 msgid "slot_label is required."
 msgstr "slot_label is verplicht."
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:722
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:757
 msgid "Assignments map is required."
 msgstr "Toewijzingsmap is verplicht."
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:744
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:779
 msgid "Status must be draft, shared, or locked."
 msgstr "Status moet draft, shared of locked zijn."
 
@@ -23499,10 +23582,6 @@ msgstr ""
 #: src/Modules/Wizards/TeamBlueprint/SetupStep.php:59
 msgid "— pick a formation —"
 msgstr "— kies een formatie —"
-
-#: src/Modules/Wizards/TeamBlueprint/SetupStep.php:66
-msgid "Blueprint name"
-msgstr "Naam blauwdruk"
 
 #: src/Modules/Wizards/TeamBlueprint/SetupStep.php:66
 msgid "e.g. Cup final starting XI"
@@ -29446,6 +29525,9 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
+
+#~ msgid "Name this blueprint:"
+#~ msgstr "Geef deze blueprint een naam:"
 
 #~ msgid "PDP verdicts pending"
 #~ msgstr "Openstaande POP-verdicten"

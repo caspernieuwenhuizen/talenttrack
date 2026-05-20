@@ -318,7 +318,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         $p = $wpdb->prefix;
         $out = [];
 
-        // v3.110.184 (#789) — was missing both `plan_state` and
+        // v3.110.185 (#789) — was missing both `plan_state` and
         // session-date filters, so a future planned activity with
         // the wizard's default-Present roster row would win the
         // ORDER BY and surface as the player's "Latest activity"
@@ -633,7 +633,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      * exist in tt_attendance for this player". */
     private static function renderActivitiesTab( int $player_id, ?object $player = null ): void {
         global $wpdb;
-        // v3.110.184 (#789) — scope expanded to include both planned
+        // v3.110.185 (#789) — scope expanded to include both planned
         // and completed activities. Pilot ask: *"both planned and
         // completed activities are shown and attendance is using
         // the right scope."* Completed + past-dated rows render the
@@ -699,7 +699,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             echo '<tr>';
             echo '<td>' . ( ! empty( $a->session_date ) ? esc_html( (string) $a->session_date ) : '<span class="tt-muted">&mdash;</span>' ) . '</td>';
             echo '<td><a class="tt-record-link" href="' . esc_url( $url ) . '">' . esc_html( (string) ( $a->title ?? '—' ) ) . '</a></td>';
-            // v3.110.184 (#789) — planned activities render a neutral
+            // v3.110.185 (#789) — planned activities render a neutral
             // "Planned" pill instead of the row's att.status (which
             // is the wizard's default-Present pre-fill, not coach
             // intent). Completed rows render the actual status pill

@@ -168,6 +168,16 @@ class TeamDevelopmentRestController {
                 'permission_callback' => [ __CLASS__, 'can_manage' ],
             ],
         ] );
+        // v3.110.184 — Save-As. Duplicates the blueprint + every
+        // assignment row to a new draft. Body: `{ "name": "..." }`.
+        // Returns `{ "id": <new_blueprint_id> }`.
+        register_rest_route( self::NS, '/blueprints/(?P<id>\d+)/clone', [
+            [
+                'methods'             => 'POST',
+                'callback'            => [ __CLASS__, 'clone_blueprint' ],
+                'permission_callback' => [ __CLASS__, 'can_manage' ],
+            ],
+        ] );
     }
 
     public static function can_view(): bool {
@@ -660,6 +670,31 @@ class TeamDevelopmentRestController {
         }
         $repo->delete( $id );
         return RestResponse::success( [ 'id' => $id, 'deleted' => true ] );
+    }
+
+    /**
+     * v3.110.184 — Save-As. Body: `{ "name": "..." }`. Duplicates
+     * the blueprint row + every assignment row to a new draft.
+     */
+    public static function clone_blueprint( \WP_REST_Request $r ): \WP_REST_Response {
+        $id = absint( $r['id'] );
+        $repo = new TeamBlueprintsRepository();
+        $existing = $repo->find( $id );
+        if ( $existing === null ) {
+            return RestResponse::error( 'bad_blueprint',
+                __( 'Blueprint not found.', 'talenttrack' ), 404 );
+        }
+        $name = isset( $r['name'] ) ? trim( sanitize_text_field( wp_unslash( (string) $r['name'] ) ) ) : '';
+        if ( $name === '' ) {
+            return RestResponse::error( 'bad_name',
+                __( 'Give the cloned blueprint a name.', 'talenttrack' ), 400 );
+        }
+        $new_id = $repo->cloneBlueprint( $id, $name, get_current_user_id() );
+        if ( $new_id <= 0 ) {
+            return RestResponse::error( 'clone_failed',
+                __( 'Could not duplicate the blueprint.', 'talenttrack' ), 500 );
+        }
+        return RestResponse::success( [ 'id' => $new_id ] );
     }
 
     public static function set_blueprint_assignment( \WP_REST_Request $r ): \WP_REST_Response {

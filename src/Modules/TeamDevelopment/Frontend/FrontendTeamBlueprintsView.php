@@ -238,6 +238,17 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
         // Status row + flavour pill + action buttons.
         self::renderStatusRow( $bp, $can_manage, $is_locked );
 
+        // v3.110.184 — editor toolbar: Save / Save As / Hide chemistry.
+        // Save: returns to the blueprints list with a toast confirming
+        // the work is persisted (every drop already auto-saved; this is
+        // "done editing" navigation). Save As: clones to a new draft
+        // with a fresh name and redirects to the new editor.
+        // Hide chemistry: CSS toggle bound by `frontend-team-blueprint.js`
+        // (sessionStorage-persisted per blueprint).
+        if ( $can_manage && ! $is_locked ) {
+            self::renderEditorToolbar( $bp, $team );
+        }
+
         // Tiered assignments. Match-day blueprints only have primary;
         // squad-plan can have primary/secondary/tertiary per slot.
         $tiered = (array) ( $bp['assignments'] ?? [] );
@@ -494,6 +505,46 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
     }
 
     /** @param array<string,mixed> $bp */
+    /**
+     * v3.110.184 — editor toolbar above the chemistry headline. Three
+     * affordances: "Hide chemistry" toggle (sessionStorage-persisted),
+     * "Save" (returns to the team-blueprints list with toast), "Save as"
+     * (clones the blueprint to a new draft via `POST /blueprints/{id}/clone`).
+     *
+     * The toggle + Save / Save-As behaviour is wired by
+     * `frontend-team-blueprint.js`; this method only emits the markup
+     * with the right data-attributes for the JS to find.
+     */
+    private static function renderEditorToolbar( array $bp, object $team ): void {
+        $base_url = remove_query_arg( [ 'id', 'team_id', 'action' ] );
+        $list_url = add_query_arg(
+            [ 'tt_view' => 'team-blueprints', 'team_id' => (int) $bp['team_id'] ],
+            $base_url
+        );
+        echo '<div class="tt-bp-editor-toolbar" data-blueprint-id="' . (int) $bp['id'] . '" data-list-url="' . esc_attr( $list_url ) . '" style="display:flex; align-items:center; gap:8px; margin-bottom:12px; flex-wrap:wrap;">';
+
+        // Hide-chemistry toggle. Bound by JS; the button reads its
+        // pressed state from sessionStorage on hydrate so a refresh
+        // keeps the preference.
+        echo '<button type="button" class="tt-btn tt-btn-secondary tt-btn-sm tt-bp-hide-chem-toggle" aria-pressed="false">'
+            . esc_html__( 'Hide chemistry', 'talenttrack' )
+            . '</button>';
+
+        // Save / Save As. Auto-save is on under the hood (every drop
+        // PUTs immediately), so "Save" is effectively "done editing,
+        // take me back to the list". Save As prompts the user for a
+        // new name and clones.
+        echo '<div style="margin-left:auto; display:inline-flex; gap:6px; flex-wrap:wrap;">';
+        echo '<button type="button" class="tt-btn tt-btn-secondary tt-btn-sm tt-bp-save-as">'
+            . esc_html__( 'Save as…', 'talenttrack' )
+            . '</button>';
+        echo '<button type="button" class="tt-btn tt-btn-primary tt-btn-sm tt-bp-save-done">'
+            . esc_html__( 'Save', 'talenttrack' )
+            . '</button>';
+        echo '</div>';
+        echo '</div>';
+    }
+
     private static function renderStatusRow( array $bp, bool $can_manage, bool $is_locked ): void {
         $status  = (string) $bp['status'];
         $flavour = (string) ( $bp['flavour'] ?? '' );
@@ -885,15 +936,65 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
             TT_VERSION,
             true
         );
+
+        // v3.110.184 — extend the localized config with the data the
+        // tap-to-swap picker needs: the team's roster (id + name +
+        // trial flag), and the i18n strings for the picker UI. The
+        // editor already emits the slot list + tier assignments on
+        // each `.tt-bp-droptarget` via data-attributes, so the JS reads
+        // those off the DOM rather than re-passing them here.
+        $blueprint_id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
+        $roster = [];
+        $team_id = 0;
+        $assignments = []; // slot_label → [tier => player_id]
+        $slot_labels = []; // list of slot labels in formation order
+        if ( $blueprint_id > 0 ) {
+            $bp = ( new TeamBlueprintsRepository() )->find( $blueprint_id );
+            if ( $bp ) {
+                $team_id = (int) $bp['team_id'];
+                foreach ( QueryHelpers::get_players( $team_id ) as $pl ) {
+                    $roster[] = [
+                        'id'   => (int) $pl->id,
+                        'name' => QueryHelpers::player_display_name( $pl ),
+                    ];
+                }
+                $assignments = (array) ( $bp['assignments'] ?? [] );
+                foreach ( (array) ( $bp['slots'] ?? [] ) as $slot ) {
+                    $label = (string) ( $slot['label'] ?? '' );
+                    if ( $label !== '' ) $slot_labels[] = $label;
+                }
+            }
+        }
+
         wp_localize_script( 'tt-team-blueprint', 'TT_BLUEPRINT', [
-            'rest_root' => esc_url_raw( rest_url( 'talenttrack/v1' ) ),
-            'nonce'     => wp_create_nonce( 'wp_rest' ),
-            'i18n'      => [
-                'save_failed' => __( 'Could not save the change. Try again.', 'talenttrack' ),
-                'locked'      => __( 'This blueprint is locked. Reopen it before editing.', 'talenttrack' ),
-                'pairs_one'   => __( '%d scored adjacent pair on the pitch.', 'talenttrack' ),
-                'pairs_many'  => __( '%d scored adjacent pairs on the pitch.', 'talenttrack' ),
-                'score_fmt'   => __( '%d / 100', 'talenttrack' ),
+            'rest_root'    => esc_url_raw( rest_url( 'talenttrack/v1' ) ),
+            'nonce'        => wp_create_nonce( 'wp_rest' ),
+            'blueprint_id' => $blueprint_id,
+            'team_id'      => $team_id,
+            'roster'       => $roster,
+            'assignments'  => $assignments,
+            'slot_labels'  => $slot_labels,
+            'i18n'         => [
+                'save_failed'      => __( 'Could not save the change. Try again.', 'talenttrack' ),
+                'locked'           => __( 'This blueprint is locked. Reopen it before editing.', 'talenttrack' ),
+                'pairs_one'        => __( '%d scored adjacent pair on the pitch.', 'talenttrack' ),
+                'pairs_many'       => __( '%d scored adjacent pairs on the pitch.', 'talenttrack' ),
+                'score_fmt'        => __( '%d / 100', 'talenttrack' ),
+                /* translators: %s = slot label, e.g. "RB" or "CM". */
+                'picker_title'     => __( 'Assign players to %s', 'talenttrack' ),
+                'picker_close'     => __( 'Done', 'talenttrack' ),
+                'picker_empty'     => __( 'Leave empty', 'talenttrack' ),
+                'tier_primary'     => __( 'Primary', 'talenttrack' ),
+                'tier_secondary'   => __( 'Secondary (2nd best)', 'talenttrack' ),
+                'tier_tertiary'    => __( 'Tertiary (3rd best)', 'talenttrack' ),
+                'tier_current'     => __( 'Currently assigned', 'talenttrack' ),
+                'tier_clear'       => __( 'Clear this tier', 'talenttrack' ),
+                'hide_chem_label'  => __( 'Hide chemistry', 'talenttrack' ),
+                'show_chem_label'  => __( 'Show chemistry', 'talenttrack' ),
+                'save_as_prompt'   => __( 'Name the new blueprint:', 'talenttrack' ),
+                'save_as_default'  => __( 'Copy of blueprint', 'talenttrack' ),
+                'save_as_failed'   => __( 'Could not duplicate. Try again.', 'talenttrack' ),
+                'save_toast'       => __( 'Saved.', 'talenttrack' ),
             ],
         ] );
     }
