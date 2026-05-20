@@ -1,3 +1,61 @@
+# TalentTrack v3.110.192 — InvitationStatus moves to `tt_lookups` (first conversion in the #803 audit)
+
+## Why
+
+Follow-up to #798 + #803. `src/Modules/Invitations/InvitationStatus.php` held the four invitation-status labels (Pending / Accepted / Expired / Revoked) as a hardcoded `switch` returning `__()` strings — translatable via the `.po` files but not editable per academy. The #803 audit identified this as a HIGH-priority candidate for the operator-extensible + translatable lookups infrastructure introduced in #798.
+
+## What
+
+The **stored keys** (`pending`, `accepted`, `expired`, `revoked`) stay as PHP constants on `InvitationStatus` — they're the contract between code (`if ($status === InvitationStatus::PENDING)`) and `tt_invitations.status`. Sacred.
+
+The **rendered labels** move to `tt_lookups` + `tt_translations`:
+
+- Lookup row `name` matches the lowercase stored value (e.g. `'pending'`) so `LookupTranslator::byTypeAndName('invitation_status', $status)` resolves directly.
+- Each row gets `tt_translations` entries for **5 locales**: en_US (canonical capitalised label "Pending") + nl_NL / fr_FR / de_DE / es_ES.
+- `InvitationStatus::label()` now delegates to `LookupTranslator::byTypeAndName()`. A switch-statement fallback covers pre-migration installs and rows whose translation got deleted.
+
+## Frontend admin
+
+New **"Invitation statuses"** tile on `?tt_view=configuration&config_sub=lookups`. Uses the same per-locale name editor shipped in v3.110.191 — the operator can relabel "Pending" to "Awaiting parent approval" (or anything else) in any of the supported locales without touching code.
+
+Color and description are off for this category (status names are self-explanatory; the invitations list doesn't render colour pills today).
+
+## Migration 0108
+
+Seeds the four lookup rows + 20 translation rows (4 statuses × 5 locales).
+
+- `INSERT IGNORE` on the unique indexes — re-runs are no-ops.
+- Operator-edited rows preserved by the unique-index `INSERT IGNORE`.
+- Single-tenant default (`club_id = 1`). Multi-tenant installs that run the Activator per tenant pick up the seed there.
+
+## Out of scope (still on #803)
+
+This ship is the first of ~7 HIGH-priority candidates. Same pattern still to land for:
+
+- `Workflow/TaskStatus` (open / in_progress / completed / overdue / skipped / cancelled)
+- `Workflow/Forms/GoalApprovalForm` decisions (approve / amend / reject)
+- `Trials/TrialCasesRepository` statuses + decisions
+- `Pdp/PdpVerdictsRepository` (promote / retain / release / transfer)
+- `Reports/AudienceType`
+- `Development/IdeaStatus`
+
+## Files
+
+- `database/migrations/0108_seed_invitation_status_lookup.php` (new)
+- `src/Modules/Invitations/InvitationStatus.php` — `label()` delegates to `LookupTranslator::byTypeAndName()`
+- `src/Shared/Frontend/FrontendConfigurationView.php` — new tile + registry entry
+- `talenttrack.php` + `readme.txt` — version bump
+
+## Test plan
+
+- [ ] Run migrations on a fresh install → four `tt_lookups` rows with `lookup_type='invitation_status'`; 20 `tt_translations` rows.
+- [ ] Open `?tt_view=configuration&config_sub=lookups` → "Invitation statuses" tile appears.
+- [ ] Click the tile → list of four rows with current English names; click Edit → per-locale name inputs for nl_NL, fr_FR, de_DE, es_ES (each pre-filled).
+- [ ] Edit "Pending" Dutch label to something custom, save → next page that renders an invitation row in Dutch shows the new label.
+- [ ] Pre-migration install (migration 0108 not yet run) still renders "Pending" / "Accepted" / "Expired" / "Revoked" via the fallback switch.
+
+---
+
 # TalentTrack v3.110.191 — Frontend lookups admin: per-locale name + description fields for every shipped locale (closes #798)
 
 ## Pilot report

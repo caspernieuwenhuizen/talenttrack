@@ -141,6 +141,11 @@ class FrontendConfigurationView extends FrontendViewBase {
             // picker that reads this vocabulary; it just had no maintenance
             // surface beyond wp-admin. Seeded with 8 starters by #0044.
             [ __( 'Player values',      'talenttrack' ), __( 'Player virtues used as PDP goal links: Commitment, Coachability, Resilience, etc.', 'talenttrack' ), 'player_values',   'lightbulb' ],
+            // v3.110.192 (#803) — invitation status labels relabel /
+            // translate via the lookup admin instead of the hardcoded
+            // PHP labels they used to ship with. Stored keys
+            // (pending / accepted / expired / revoked) stay code-side.
+            [ __( 'Invitation statuses', 'talenttrack' ), __( 'Pending / accepted / expired / revoked — what the invitations list shows per row.', 'talenttrack' ), 'invitation_statuses', 'invitation' ],
             [ __( 'Rating scale',       'talenttrack' ), __( 'Min, max and step for evaluation ratings.',                         'talenttrack' ), '__rating',        'weights' ],
         ];
 
@@ -188,6 +193,12 @@ class FrontendConfigurationView extends FrontendViewBase {
             // gloss for each value ("Commitment — turning up on time and
             // ready to train") that surfaces wherever the value is shown.
             'player_values'   => [ 'label' => __( 'Player values',       'talenttrack' ), 'type' => 'player_value',      'show_desc' => true,  'show_color' => false ],
+            // v3.110.192 (#803) — invitation statuses moved from
+            // hardcoded PHP labels in `InvitationStatus::label()` into
+            // tt_lookups; seeded by migration 0108. Description off
+            // (status names are self-explanatory); color off (the
+            // invitations list doesn't render colour pills today).
+            'invitation_statuses' => [ 'label' => __( 'Invitation statuses', 'talenttrack' ), 'type' => 'invitation_status', 'show_desc' => false, 'show_color' => false ],
         ];
         if ( ! isset( $registry[ $slug ] ) ) return null;
         $meta = $registry[ $slug ];

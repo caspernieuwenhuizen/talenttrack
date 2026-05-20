@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.191
+Stable tag: 3.110.192
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.192 — Hardcoded `InvitationStatus` labels move into `tt_lookups` so operators can relabel / translate via the frontend Lookups admin without a code change — first conversion in the #803 audit (closes first item) =
+
+Follow-up to #798 + #803. `src/Modules/Invitations/InvitationStatus.php` held the four invitation-status labels (Pending / Accepted / Expired / Revoked) as a hardcoded `switch` returning `__()` strings — translatable via the `.po` files but not editable per academy. This ship moves the *labels* to `tt_lookups` (lookup_type `invitation_status`) while leaving the *stored keys* on the constants (where they belong — they're the contract between code and `tt_invitations.status`). **Pattern**: lookup row `name` matches the lowercase stored value (e.g. `'pending'`); each row gets `tt_translations` entries for en_US (canonical capitalised label "Pending") + nl_NL / fr_FR / de_DE / es_ES. `InvitationStatus::label()` now delegates to `LookupTranslator::byTypeAndName('invitation_status', $stored_value)`, which resolves through `tt_translations` for the current locale; a switch-statement fallback covers pre-migration installs. **Frontend admin tile**: new "Invitation statuses" card on `?tt_view=configuration&config_sub=lookups` with the same per-locale name editor v3.110.191 shipped for every other lookup category. **Migration 0108** seeds the four rows + 20 translation rows (4 statuses × 5 locales). Idempotent — `INSERT IGNORE` on the unique indexes; operator-edited rows preserved. First item of the #803 audit punch list; same pattern will land for TaskStatus, TrialCase statuses, PdpVerdicts, AudienceType, etc. in follow-up ships.
 
 = 3.110.191 — Frontend lookups admin (`?tt_view=configuration&config_sub=lookups`): operator can now maintain per-locale name AND description for every lookup category — fields appear for every locale the plugin ships a `.po` file for (nl_NL, fr_FR, de_DE, es_ES), not just the locales WP has activated. Edits write through to the canonical `tt_translations` table so the dashboard surfaces them on the next render. Migration 0106 backfills fr/de/es from the shipped `.po` files for every existing lookup row (closes #798) =
 
