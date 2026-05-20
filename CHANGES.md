@@ -1,3 +1,63 @@
+# TalentTrack v3.110.179 — Evaluations list empty while data exists — drop bad `tt_lookups.label` column reference from three SELECTs (closes #779)
+
+## Symptom
+
+Pilot 2026-05-20, admin user on a demo-mode install: the evaluations list page (`?tt_view=evaluations`) renders an empty table while the `MyTeamAvgRating` dashboard widget aggregates over the same evaluations and shows a value. Twelve evaluations in the database, zero on the page.
+
+## Diagnosis
+
+The REST endpoint `/wp-json/talenttrack/v1/evaluations` returns:
+
+```json
+{ "success": true, "data": { "rows": [], "total": 12, "page": 1, "per_page": 25 }, "errors": [] }
+```
+
+`total = 12` and `rows = []` can only happen when the **list SELECT errors silently** while the **COUNT** query succeeds — `$wpdb->get_results()` returns `[]` on SQL error.
+
+Running the controller's list SELECT against the pilot DB:
+
+> `#1054 - Unknown column 'et.label' in 'SELECT'`
+
+The COUNT query doesn't join `tt_lookups`, which is why `total = 12` survives. The list SELECT joins `tt_lookups et ON et.id = e.eval_type_id` and references `et.label`. That column does not exist on `tt_lookups`.
+
+Original schema (migration 0001) defines: `id`, `lookup_type`, `name`, `description`, `meta`, `sort_order`, `created_at`, `updated_at`. No `label` column. No migration anywhere adds one.
+
+## Root cause
+
+Three files reference the non-existent `tt_lookups.label` column. All introduced in v3.110.107 / .104 / .78 and silently breaking ever since:
+
+- [`src/Infrastructure/REST/EvaluationsRestController.php:180`](src/Infrastructure/REST/EvaluationsRestController.php#L180) — `et.label AS eval_type_label` — breaks the evaluations list page.
+- [`src/Shared/Frontend/FrontendEvaluationsView.php:217`](src/Shared/Frontend/FrontendEvaluationsView.php#L217) — same — breaks the evaluation detail page's Type row.
+- [`src/Modules/PersonaDashboard/Repositories/UpcomingActivityRepository.php:111`](src/Modules/PersonaDashboard/Repositories/UpcomingActivityRepository.php#L111) — `SELECT name, label, meta` — breaks the `MarkAttendanceHeroWidget`'s activity-type label.
+
+`LookupTranslator::name()` already accepts a lookup `id` and resolves the localised label via the `tt_translations` table (the post-v3.110.30 source of truth, after migration 0087 dropped the legacy `tt_lookups.translations` JSON column). It does not need `label`.
+
+## Fix
+
+Each of the three SELECTs drops `label` and adds `id`. Each consumer passes `id` into the lookup object handed to `LookupTranslator::name()`, which:
+
+1. Reads `id` to look up a translation row in `tt_translations` for the current locale.
+2. Falls back to `__($name, 'talenttrack')` when no translation row exists.
+
+Zero schema change. Zero behaviour change for `LookupTranslator` callers. The displayed label flow is identical to what was intended — it just no longer routes through a column that doesn't exist.
+
+## Why not add `label` to `tt_lookups`
+
+v3.110.22 / v3.110.30 explicitly moved lookup-row translation data out of `tt_lookups` and into the dedicated `tt_translations` table. Migration 0087 dropped the legacy `tt_lookups.translations` JSON column. Reintroducing a `label` column to `tt_lookups` would contradict that design and re-fragment the localisation storage. Fixing the three callers is the change that aligns with the codebase's current localisation strategy.
+
+## Out of scope (filed separately)
+
+A related audit surfaced 29 PersonaDashboard widgets / KPIs / repositories that query entity tables (evaluations, goals, activities, players, teams, people) but don't apply `apply_demo_scope`. The widget that prompted #779 (`MyTeamAvgRating`) is one of them — it leaks un-tagged rows past the demo filter the list page applies. That's a different bug (visibility model, not schema mismatch) and will land in a follow-up.
+
+## Files
+
+- `src/Infrastructure/REST/EvaluationsRestController.php` — drop `et.label`, add `et.id AS eval_type_lookup_id`, pass id into translator object
+- `src/Shared/Frontend/FrontendEvaluationsView.php` — same pattern in `renderDetail()`'s eval-type Type row
+- `src/Modules/PersonaDashboard/Repositories/UpcomingActivityRepository.php` — same pattern in `activityTypeLabel()`'s lookup query
+- `talenttrack.php` + `readme.txt` — version bump
+
+---
+
 # TalentTrack v3.110.177 — "My team attendance %" KPI excludes planned / cancelled activities from both compute + deep-link (closes #775)
 
 ## Pilot follow-up

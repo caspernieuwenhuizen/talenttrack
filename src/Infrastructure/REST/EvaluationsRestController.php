@@ -176,8 +176,8 @@ class EvaluationsRestController {
                             t.name AS team_name,
                             u.display_name AS coach_name,
                             coach_p.id AS coach_person_id,
+                            et.id    AS eval_type_lookup_id,
                             et.name  AS eval_type_key,
-                            et.label AS eval_type_label,
                             et.meta  AS eval_type_meta,
                             (SELECT AVG(r.rating) FROM {$p}tt_eval_ratings r
                               WHERE r.evaluation_id = e.id AND r.club_id = e.club_id) AS avg_rating
@@ -273,9 +273,17 @@ class EvaluationsRestController {
 
         $eval_type_label = '';
         if ( ! empty( $row->eval_type_id ) ) {
+            // v3.110.175 — was selecting `et.label AS eval_type_label`,
+            // but `tt_lookups` has no `label` column. That made the
+            // entire list SELECT error with #1054 on every install,
+            // returning rows=[] while the COUNT (which doesn't join
+            // `tt_lookups`) reported the real total — exactly the
+            // shape pilot saw in #779. Drop the bad selection; pass
+            // the lookup id (which `LookupTranslator::name()` uses to
+            // hit `tt_translations`) instead.
             $eval_type_label = (string) \TT\Infrastructure\Query\LookupTranslator::name( (object) [
+                'id'    => (int)    ( $row->eval_type_lookup_id ?? 0 ),
                 'name'  => (string) ( $row->eval_type_key ?? '' ),
-                'label' => (string) ( $row->eval_type_label ?? '' ),
                 'meta'  => (string) ( $row->eval_type_meta ?? '' ),
             ] );
         }

@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.178
+Stable tag: 3.110.179
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.179 — Evaluations list empty while data exists — controller's SELECT joined `tt_lookups et` and referenced `et.label`, a column that does not exist on `tt_lookups`. The list SELECT errored silently (`#1054 - Unknown column 'et.label'`) while the COUNT (no `tt_lookups` join) returned the real total, producing a `total: 12 / rows: []` REST response and an empty evaluation list page despite 12 evaluations in the database. Same bad reference removed from three call sites: `EvaluationsRestController::list_evals`, `FrontendEvaluationsView::renderDetail`, `UpcomingActivityRepository::activityTypeLabel`. Each now selects the lookup `id` instead and lets `LookupTranslator::name()` resolve the displayed label via `tt_translations` (post-v3.110.30 source of truth for lookup-row translations) with a `__()` fallback (closes #779) =
+
+The bad column reference was introduced in v3.110.107 (`feat: evaluations list — rich filter block parity with goals page via FrontendListTable`) and has been silently failing the evaluations list SELECT on every install since. Dev installs with 0 evaluations looked "correct" because `total = 0 / rows = []` is indistinguishable from a healthy empty list. Pilots with actual evaluations saw the asymmetry: dashboard widgets that aggregate evaluations directly (e.g. `MyTeamAvgRating`) worked, while the list page that joined `tt_lookups` returned empty. **Patch shape**: each of the three offending SQL statements drops `label` from its column list and adds `id`. The Lookup→Label resolution path is unchanged; it goes through `LookupTranslator::name()` as before, which reads the lookup `id` to fetch a localised name from `tt_translations` (the design from v3.110.30 / migration 0087 onward), then falls back to `__($name, 'talenttrack')` when no translation row exists. Zero schema change. Zero behaviour change for `LookupTranslator` callers. **Why not add `label` to `tt_lookups` instead**: v3.110.22 / v3.110.30 explicitly moved lookup-row translation data out of `tt_lookups` and into the dedicated `tt_translations` table (the legacy `tt_lookups.translations` JSON column was dropped in migration 0087). Reintroducing a `label` column to `tt_lookups` would contradict that design and re-fragment the localisation storage. Better to fix the three callers that were referencing the never-existed column. **Side effect**: this fix also restores the activity-type label on `MarkAttendanceHeroWidget` (the third call site), which has been silently rendering an empty type label since v3.110.78.
 
 = 3.110.178 — Permission Chain Debug admin page — per-user, per-cap walk through the auth chain so the failing layer is visible when a legitimate user hits "Not authorized" (#777) =
 
