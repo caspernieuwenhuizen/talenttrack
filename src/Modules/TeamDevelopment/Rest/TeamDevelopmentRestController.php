@@ -78,6 +78,15 @@ class TeamDevelopmentRestController {
                 'permission_callback' => [ __CLASS__, 'can_view' ],
             ],
         ] );
+        // v3.110.174 — chemistry preview for the "Try a lineup" sandbox
+        // on the chemistry board. Pure compute, zero DB writes.
+        register_rest_route( self::NS, '/teams/(?P<id>\d+)/chemistry/preview', [
+            [
+                'methods'             => 'POST',
+                'callback'            => [ __CLASS__, 'preview_chemistry' ],
+                'permission_callback' => [ __CLASS__, 'can_view' ],
+            ],
+        ] );
         register_rest_route( self::NS, '/teams/(?P<id>\d+)/pairings', [
             [
                 'methods'             => 'GET',
@@ -380,6 +389,80 @@ class TeamDevelopmentRestController {
             'team_id'              => $team_id,
             'formation_template_id' => $template_id,
             'style'                => [ 'possession' => $poss, 'counter' => $cntr, 'press' => $prss ],
+            'blueprint_chemistry'  => $blueprint,
+        ] + $payload );
+    }
+
+    /**
+     * v3.110.174 — chemistry preview for the "Try a lineup" sandbox.
+     * Accepts an `overrides` map (slot_label → player_id|null) on top of
+     * the existing template + style config and returns the recomputed
+     * chemistry payload + link chemistry without writing anything.
+     */
+    public static function preview_chemistry( \WP_REST_Request $r ): \WP_REST_Response {
+        $team_id = absint( $r['id'] );
+        if ( $team_id <= 0 || ! QueryHelpers::get_team( $team_id ) ) {
+            return RestResponse::error( 'bad_team', __( 'Team not found.', 'talenttrack' ), 404 );
+        }
+        global $wpdb; $p = $wpdb->prefix;
+
+        // Template — defaults to the team's stored pick, then the first
+        // seeded template, matching `get_chemistry`'s fallback chain.
+        $template_id = absint( $r['template_id'] ?? 0 );
+        if ( $template_id <= 0 ) {
+            $template_id = (int) $wpdb->get_var( $wpdb->prepare(
+                "SELECT formation_template_id FROM {$p}tt_team_formations WHERE team_id = %d",
+                $team_id
+            ) );
+        }
+        if ( $template_id <= 0 ) {
+            $template_id = (int) $wpdb->get_var(
+                "SELECT id FROM {$p}tt_formation_templates WHERE is_seeded = 1 AND archived_at IS NULL ORDER BY id ASC LIMIT 1"
+            );
+        }
+        if ( $template_id <= 0 ) {
+            return RestResponse::error( 'no_template',
+                __( 'No formation template available.', 'talenttrack' ), 500 );
+        }
+
+        $style = $wpdb->get_row( $wpdb->prepare(
+            "SELECT possession_weight, counter_weight, press_weight FROM {$p}tt_team_playing_styles WHERE team_id = %d",
+            $team_id
+        ) );
+        $poss = isset( $r['possession'] ) ? max( 0, min( 100, absint( $r['possession'] ) ) ) : ( $style ? (int) $style->possession_weight : 33 );
+        $cntr = isset( $r['counter'] )    ? max( 0, min( 100, absint( $r['counter'] ) ) )    : ( $style ? (int) $style->counter_weight    : 33 );
+        $prss = isset( $r['press'] )      ? max( 0, min( 100, absint( $r['press'] ) ) )      : ( $style ? (int) $style->press_weight      : 34 );
+
+        // Override map — slot_label (string) → player_id (int) | null.
+        $overrides_raw = $r['overrides'] ?? [];
+        $overrides = [];
+        if ( is_array( $overrides_raw ) ) {
+            foreach ( $overrides_raw as $slot => $pid ) {
+                $slot = sanitize_text_field( (string) $slot );
+                if ( $slot === '' ) continue;
+                if ( $pid === null || $pid === '' || $pid === 0 || $pid === '0' ) {
+                    $overrides[ $slot ] = null;
+                } else {
+                    $overrides[ $slot ] = absint( $pid );
+                }
+            }
+        }
+
+        $aggregator = new ChemistryAggregator();
+        $payload = $aggregator->teamChemistry( $team_id, $template_id, $poss, $cntr, $prss, $overrides );
+
+        $template_row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT slots_json FROM {$p}tt_formation_templates WHERE id = %d",
+            $template_id
+        ) );
+        $slots = is_array( $decoded = json_decode( (string) ( $template_row->slots_json ?? '[]' ), true ) ) ? $decoded : [];
+        $blueprint = ( new BlueprintChemistryEngine() )->computeForSuggested( $team_id, $slots, $payload['suggested_xi'] );
+
+        return RestResponse::success( [
+            'team_id'              => $team_id,
+            'formation_template_id' => $template_id,
+            'style'                => [ 'possession' => $poss, 'counter' => $cntr, 'press' => $prss ],
+            'overrides'            => $overrides,
             'blueprint_chemistry'  => $blueprint,
         ] + $payload );
     }

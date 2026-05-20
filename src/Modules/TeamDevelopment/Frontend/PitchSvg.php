@@ -232,8 +232,15 @@ final class PitchSvg {
                     (float) $score,
                     implode( ', ', $reasons ) !== '' ? implode( ', ', $reasons ) : __( 'no shared signals', 'talenttrack' )
                 );
+            // Stable key so the "Try a lineup" JS can patch line colors
+            // + tooltips in place. Smaller-label-first matches the dedupe
+            // order in BlueprintChemistryEngine::nearestPairs().
+            $a_label = (string) ( $link['a_slot'] ?? '' );
+            $b_label = (string) ( $link['b_slot'] ?? '' );
+            $link_key = $a_label < $b_label ? $a_label . '|' . $b_label : $b_label . '|' . $a_label;
             ?>
             <line class="<?php echo esc_attr( $class ); ?>"
+                  data-link-key="<?php echo esc_attr( $link_key ); ?>"
                   x1="<?php echo esc_attr( (string) $x1 ); ?>"
                   y1="<?php echo esc_attr( (string) $y1 ); ?>"
                   x2="<?php echo esc_attr( (string) $x2 ); ?>"
@@ -267,7 +274,7 @@ final class PitchSvg {
             $first_name = $name !== '' ? explode( ' ', $name )[0] : '';
 
             if ( ! $has_data ) {
-                self::renderUnknownSlot( $label, $x, $y, $first_name, $name );
+                self::renderUnknownSlot( $label, $x, $y, $first_name, $name, (int) ( $assign['player_id'] ?? 0 ) );
                 continue;
             }
 
@@ -279,6 +286,8 @@ final class PitchSvg {
             );
             ?>
             <div class="tt-pitch-slot <?php echo esc_attr( $fit_class ); ?>"
+                 data-slot-label="<?php echo esc_attr( $label ); ?>"
+                 data-player-id="<?php echo esc_attr( (string) (int) ( $assign['player_id'] ?? 0 ) ); ?>"
                  style="left:<?php echo esc_attr( (string) ( $x * 100 ) ); ?>%; top:<?php echo esc_attr( (string) ( $y * 100 ) ); ?>%;"
                  title="<?php echo esc_attr( $tip ); ?>">
                 <strong><?php echo esc_html( $label ); ?></strong>
@@ -299,6 +308,8 @@ final class PitchSvg {
         );
         ?>
         <div class="tt-pitch-slot tt-slot-empty"
+             data-slot-label="<?php echo esc_attr( $label ); ?>"
+             data-player-id="0"
              style="left:<?php echo esc_attr( (string) ( $x * 100 ) ); ?>%; top:<?php echo esc_attr( (string) ( $y * 100 ) ); ?>%;"
              title="<?php echo esc_attr( $tip ); ?>">
             <strong><?php echo esc_html( $label ); ?></strong>
@@ -307,7 +318,7 @@ final class PitchSvg {
         <?php
     }
 
-    private static function renderUnknownSlot( string $label, float $x, float $y, string $first_name, string $full_name ): void {
+    private static function renderUnknownSlot( string $label, float $x, float $y, string $first_name, string $full_name, int $player_id = 0 ): void {
         $tip = sprintf(
             /* translators: 1: player, 2: slot label */
             __( '%1$s suggested for %2$s based on roster only — not enough evaluations to compute a fit score yet.', 'talenttrack' ),
@@ -315,6 +326,8 @@ final class PitchSvg {
         );
         ?>
         <div class="tt-pitch-slot tt-fit-unknown"
+             data-slot-label="<?php echo esc_attr( $label ); ?>"
+             data-player-id="<?php echo esc_attr( (string) $player_id ); ?>"
              style="left:<?php echo esc_attr( (string) ( $x * 100 ) ); ?>%; top:<?php echo esc_attr( (string) ( $y * 100 ) ); ?>%;"
              title="<?php echo esc_attr( $tip ); ?>">
             <strong><?php echo esc_html( $label ); ?></strong>

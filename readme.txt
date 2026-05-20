@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.173
+Stable tag: 3.110.174
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.174 — Team chemistry "Try a lineup" sandbox: tap any slot on the chemistry board to swap the player, watch the composite score, four-part breakdown, and link-chemistry colours recompute in real time; "Save as blueprint" promotes the sandbox to a real Team Blueprint (closes #768) =
+
+The chemistry board (`?tt_view=team-chemistry`) was read-only — to experiment with the suggested XI a coach had to switch into the Team Blueprint editor, drag-drop a sandbox, and watch the page reload after every drop. This release adds an in-place "Try a lineup" mode on the chemistry board. **Toggle**: button above the pitch flips the board into sandbox mode; mode + override map persist per-team in `sessionStorage` so a refresh keeps the experiment. **Picker**: tap any pitch slot → bottom-sheet picker opens with every roster player ranked by fit score for that slot (depth chart ∪ roster, deduped); each row shows the fit score plus a *currently in <slot>* badge when the player is already on the pitch. **Live recompute**: picking a candidate fires `POST /talenttrack/v1/teams/{id}/chemistry/preview` (new capability-gated endpoint, zero DB writes); JS patches the slot, composite score, four-part breakdown, link-chemistry headline, every SVG link's colour and tooltip in place — no page reload. **Backend**: `ChemistryAggregator::teamChemistry()` gains an optional `array $overrides` parameter; the XI-selection runs in two passes (overrides lock slots first; the existing greedy pass fills the rest). **Reset**: discards every override and restores the suggested XI. **Save as blueprint**: prompts for a name, creates a real Team Blueprint via the existing endpoints, redirects into the blueprint editor with all overrides preserved as assignments. **Mobile-first**: bottom-sheet (not centred modal), 48×48 touch targets, `safe-area-inset-bottom`, `prefers-reduced-motion` respected, body scroll-locked while the picker is open. Gated on the `tt_manage_team_chemistry` capability — read-only viewers see the board without the toggle.
 
 = 3.110.173 — Sustainable fix for the recurring "Unknown section" bug class: bool-returning dispatchers replace the per-group `$xxx_slugs` allowlists in `DashboardShortcode.php`, removing the second source of truth that drifted three times in this codebase (team-planner v3.110.10, onboarding-pipeline, tournaments v3.110.171) =
 

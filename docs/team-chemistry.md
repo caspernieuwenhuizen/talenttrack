@@ -85,6 +85,24 @@ The board still renders the pitch in this empty state — slots are filled by ro
 - **Style blend** — sliders for possession, counter, and press. The three weights must sum to 100.
 - **Side preference** — set on a player's profile (left / right / center). Adds ±0.2 to fit scores when matched / mismatched against a side-specific slot.
 
+## Try a lineup
+
+The board's suggested XI is a starting point — not a verdict. The **Try a lineup** button above the pitch flips the board into a sandbox where you can swap any player and watch the chemistry recompute in real time.
+
+1. Click **Try a lineup**.
+2. Tap any slot on the pitch — a picker slides up showing every player on the roster, ranked by fit for that slot. Each row shows the candidate's fit score and a *currently in <slot>* badge if they're already on the pitch.
+3. Pick a player → the slot updates, the composite score and four-part breakdown recompute, the link chemistry colours shift, and the headline score updates — all without a page reload.
+4. Pick **Leave slot empty** to remove a player without replacing them; the chemistry math takes the empty slot into account.
+
+The sandbox is yours — it doesn't change the suggested XI for anyone else, doesn't save to any record, and survives a page refresh (kept locally in your browser tab).
+
+When you're done:
+
+- **Reset to suggested XI** discards every swap and restores the board to its analysis baseline.
+- **Save as blueprint** prompts for a name, then promotes your sandbox into a real Team Blueprint — the same surface coaches use to share match-day lineups. You're redirected straight into the blueprint editor with all your swaps preserved as assignments.
+
+Read-only viewers see the board without the Try-a-lineup affordance. The sandbox is gated on the *Manage team chemistry* capability — the same capability that gates pairings.
+
 ## Cache + recompute
 
 Per-player fit scores are cached for 24 hours. Saving any evaluation for a player invalidates that player's cache, so the board always reflects the latest ratings within a few minutes. No manual refresh needed.

@@ -42,6 +42,13 @@ class ChemistryAggregator {
     private const MIN_DATA_COVERAGE = 0.40;
 
     /**
+     * @param array<string, ?int> $overrides Optional slot_label → player_id map
+     *                                       used to preview an alternate XI
+     *                                       (chemistry sandbox / "Try a lineup"
+     *                                       mode on the chemistry board).
+     *                                       `null` value empties the slot.
+     *                                       Unknown slots are ignored.
+     *
      * @return array{
      *   composite:?float,
      *   formation_fit:?float,
@@ -56,7 +63,7 @@ class ChemistryAggregator {
      *   slot_count: int,
      * }
      */
-    public function teamChemistry( int $team_id, int $formation_template_id, int $possession_w, int $counter_w, int $press_w ): array {
+    public function teamChemistry( int $team_id, int $formation_template_id, int $possession_w, int $counter_w, int $press_w, array $overrides = [] ): array {
         $players = QueryHelpers::get_players( $team_id );
         $slots = self::slotsFor( $formation_template_id );
         $slot_count = count( $slots );
@@ -111,9 +118,42 @@ class ChemistryAggregator {
         // rather than re-using a player. v1's "fall back to top scorer
         // even if used" was the source of the "same few players appear
         // repeatedly" bug when the roster was smaller than the formation.
+        //
+        // v3.110.174 — "Try a lineup" mode. The `$overrides` map locks
+        // specific slots to specific players (or to empty when the value
+        // is null). Overridden picks consume the `used[]` slot so the
+        // remaining greedy selection doesn't double-assign them.
         $suggested = [];
         $used = [];
+        $override_targets = [];
+        foreach ( $overrides as $ov_label => $ov_pid ) {
+            $override_targets[ (string) $ov_label ] = $ov_pid !== null ? (int) $ov_pid : null;
+        }
+
+        // Pass 1 — overrides. Sorted lookup against `by_slot` so we still
+        // emit an accurate fit-score for the picked player; if the player
+        // is not in `by_slot[$label]` (i.e. not on the roster), the
+        // override is silently dropped and the slot falls through to the
+        // greedy pass.
+        foreach ( $override_targets as $label => $target_pid ) {
+            if ( ! isset( $by_slot[ $label ] ) ) continue;
+            if ( $target_pid === null ) {
+                // Explicit empty — leave the slot off entirely.
+                $suggested[ $label ] = null;
+                continue;
+            }
+            foreach ( $by_slot[ $label ] as $c ) {
+                if ( (int) $c['player_id'] === $target_pid ) {
+                    $suggested[ $label ] = $c;
+                    $used[ $target_pid ] = true;
+                    break;
+                }
+            }
+        }
+
+        // Pass 2 — greedy fill for the remaining slots.
         foreach ( $by_slot as $label => $candidates ) {
+            if ( array_key_exists( $label, $suggested ) ) continue;
             usort( $candidates, static function ( $a, $b ) {
                 if ( $a['has_data'] !== $b['has_data'] ) {
                     return $b['has_data'] <=> $a['has_data'];
@@ -128,6 +168,10 @@ class ChemistryAggregator {
             }
             // No fallback — slots with no unused candidate stay empty.
         }
+
+        // Drop explicit-empty markers so downstream consumers see them
+        // the same as "no candidate found" (the existing absence semantic).
+        $suggested = array_filter( $suggested, static fn( $entry ) => $entry !== null );
         $formation_fit = self::meanScoreWithData( $suggested );
 
         // Depth: top-3 per slot. Sort rated-first so unrated candidates
