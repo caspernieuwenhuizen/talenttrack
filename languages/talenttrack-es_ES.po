@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-05-20T18:33:53+00:00\n"
+"POT-Creation-Date: 2026-05-20T18:37:28+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -1974,7 +1974,7 @@ msgstr "Tipo"
 #: src/Modules/People/Admin/PeoplePage.php:298
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:98
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:109
-#: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:123
+#: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:124
 #: src/Modules/Players/Admin/PlayersPage.php:411
 #: src/Modules/Players/Admin/PlayersPage.php:445
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:52
@@ -2359,7 +2359,7 @@ msgstr ""
 #: src/Modules/Analytics/AnalyticsModule.php:68
 #: src/Modules/License/Admin/AccountPage.php:807
 #: src/Modules/PersonaDashboard/Widgets/TeamOverviewGridWidget.php:145
-#: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:125
+#: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:126
 #: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:68
 #: src/Modules/Players/Frontend/FrontendPlayerStatusMethodologyView.php:203
 #: src/Modules/Reports/AudienceDefaults.php:109
@@ -2826,7 +2826,7 @@ msgstr "Abierto"
 
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:149
 #: src/Modules/Development/IdeaStatus.php:62
-#: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:257
+#: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:264
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:356
 #: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:184
 msgid "In progress"
@@ -5346,7 +5346,7 @@ msgid "Direct"
 msgstr ""
 
 #: src/Modules/Authorization/Admin/RolesPage.php:254
-#: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:259
+#: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:266
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:244
 #: src/Shared/Frontend/Components/FrontendListTable.php:120
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:270
@@ -7997,7 +7997,7 @@ msgstr "Añadir campo"
 #: src/Modules/Export/Exporters/PlayersListCsvExporter.php:80
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:226
 #: src/Modules/People/Admin/PeoplePage.php:250
-#: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:121
+#: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:122
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:69
 #: src/Modules/Wizards/Person/BasicsStep.php:26
 #: src/Modules/Wizards/Player/RosterDetailsStep.php:29
@@ -8019,7 +8019,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/PlayersListCsvExporter.php:81
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:230
 #: src/Modules/People/Admin/PeoplePage.php:255
-#: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:122
+#: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:123
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:68
 #: src/Modules/Wizards/Person/BasicsStep.php:30
 #: src/Modules/Wizards/Player/RosterDetailsStep.php:30
@@ -15194,7 +15194,7 @@ msgstr ""
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:73
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:121
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:196
-#: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:124
+#: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:125
 #: src/Shared/CoreSurfaceRegistration.php:497
 msgid "PDP"
 msgstr ""
@@ -15357,7 +15357,7 @@ msgstr ""
 
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:431
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:592
-#: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:256
+#: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:263
 msgid "Signed off"
 msgstr ""
 
@@ -16378,7 +16378,7 @@ msgstr ""
 msgid "Viewing as"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Kpis/AttendancePctRolling.php:12
+#: src/Modules/PersonaDashboard/Kpis/AttendancePctRolling.php:13
 msgid "Attendance % (4-week)"
 msgstr ""
 
@@ -16390,16 +16390,16 @@ msgstr ""
 msgid "Cohort distribution"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Kpis/EvaluationsThisMonth.php:12
+#: src/Modules/PersonaDashboard/Kpis/EvaluationsThisMonth.php:13
 msgid "Evaluations this month"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Kpis/GoalCompletionPct.php:12
+#: src/Modules/PersonaDashboard/Kpis/GoalCompletionPct.php:13
 #: src/Shared/Frontend/FrontendUsageStatsView.php:85
 msgid "Goal completion %"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Kpis/GoalsByPrincipleKpi.php:21
+#: src/Modules/PersonaDashboard/Kpis/GoalsByPrincipleKpi.php:22
 msgid "Goals tagged to principle (90d)"
 msgstr ""
 
@@ -16411,7 +16411,7 @@ msgstr ""
 msgid "My evaluations received"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Kpis/MyEvaluationsThisWeek.php:12
+#: src/Modules/PersonaDashboard/Kpis/MyEvaluationsThisWeek.php:13
 msgid "My evaluations this week"
 msgstr ""
 
@@ -16459,7 +16459,7 @@ msgstr ""
 msgid "My podium position"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Kpis/NewEvaluationsThisWeek.php:12
+#: src/Modules/PersonaDashboard/Kpis/NewEvaluationsThisWeek.php:13
 msgid "New evaluations this week"
 msgstr ""
 
@@ -16525,28 +16525,28 @@ msgid ""
 "Drag-and-drop editor — tune what each persona sees on their landing page."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Repositories/UpcomingActivityRepository.php:86
-#: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:122
+#: src/Modules/PersonaDashboard/Repositories/UpcomingActivityRepository.php:93
+#: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:126
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:143
 msgid "Today"
 msgstr "Hoy"
 
-#: src/Modules/PersonaDashboard/Repositories/UpcomingActivityRepository.php:87
-#: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:123
+#: src/Modules/PersonaDashboard/Repositories/UpcomingActivityRepository.php:94
+#: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:127
 msgid "Tomorrow"
 msgstr "Mañana"
 
-#: src/Modules/PersonaDashboard/Repositories/UpcomingActivityRepository.php:89
+#: src/Modules/PersonaDashboard/Repositories/UpcomingActivityRepository.php:96
 #: src/Modules/PersonaDashboard/Widgets/InfoCardWidget.php:67
 #: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:79
 #: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:55
-#: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:125
+#: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:129
 msgid "Up next"
 msgstr ""
 
 #. translators: %s is a localized date for an upcoming activity
-#: src/Modules/PersonaDashboard/Repositories/UpcomingActivityRepository.php:92
-#: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:128
+#: src/Modules/PersonaDashboard/Repositories/UpcomingActivityRepository.php:99
+#: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:132
 #, php-format
 msgid "Up next · %s"
 msgstr ""
@@ -16683,11 +16683,11 @@ msgid ""
 "to specific players. You'll see them here once they do."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Widgets/ChildSwitcherWithRecapWidget.php:25
+#: src/Modules/PersonaDashboard/Widgets/ChildSwitcherWithRecapWidget.php:26
 msgid "Child switcher with recap"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Widgets/ChildSwitcherWithRecapWidget.php:28
+#: src/Modules/PersonaDashboard/Widgets/ChildSwitcherWithRecapWidget.php:29
 msgid ""
 "Parent hero: pickers between the parent's linked players (when more than "
 "one) plus a weekly recap card — last activity attended, latest evaluation "
@@ -16695,27 +16695,27 @@ msgid ""
 "tt_evaluations scoped to the parent's linked children."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Widgets/ChildSwitcherWithRecapWidget.php:52
+#: src/Modules/PersonaDashboard/Widgets/ChildSwitcherWithRecapWidget.php:53
 msgid "No children linked to this account yet."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Widgets/ChildSwitcherWithRecapWidget.php:62
+#: src/Modules/PersonaDashboard/Widgets/ChildSwitcherWithRecapWidget.php:63
 msgid "Since you last visited"
 msgstr ""
 
 #. translators: %d is the count of new evaluations across the parent's children
-#: src/Modules/PersonaDashboard/Widgets/ChildSwitcherWithRecapWidget.php:66
+#: src/Modules/PersonaDashboard/Widgets/ChildSwitcherWithRecapWidget.php:67
 #, php-format
 msgid "%d new evaluation across your children."
 msgid_plural "%d new evaluations across your children."
 msgstr[0] "%d nieuwe evaluatie voor je kinderen."
 msgstr[1] "%d nieuwe evaluaties voor je kinderen."
 
-#: src/Modules/PersonaDashboard/Widgets/ChildSwitcherWithRecapWidget.php:74
+#: src/Modules/PersonaDashboard/Widgets/ChildSwitcherWithRecapWidget.php:75
 msgid "No new updates."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Widgets/ChildSwitcherWithRecapWidget.php:76
+#: src/Modules/PersonaDashboard/Widgets/ChildSwitcherWithRecapWidget.php:77
 msgid "My children"
 msgstr ""
 
@@ -17087,20 +17087,20 @@ msgid "— Unknown —"
 msgstr ""
 
 #. translators: %s = goal title
-#: src/Modules/PersonaDashboard/Widgets/RecentCommentsWidget.php:147
+#: src/Modules/PersonaDashboard/Widgets/RecentCommentsWidget.php:153
 #, php-format
 msgid "Goal: %s"
 msgstr ""
 
 #. translators: %s = player name
-#: src/Modules/PersonaDashboard/Widgets/RecentCommentsWidget.php:156
+#: src/Modules/PersonaDashboard/Widgets/RecentCommentsWidget.php:162
 #: src/Modules/Workflow/Forms/PostGameEvaluationForm.php:35
 #, php-format
 msgid "Player: %s"
 msgstr ""
 
 #. translators: %s = player name
-#: src/Modules/PersonaDashboard/Widgets/RecentCommentsWidget.php:171
+#: src/Modules/PersonaDashboard/Widgets/RecentCommentsWidget.php:177
 #: src/Shared/Frontend/FrontendTrialCaseView.php:81
 #: src/Shared/Frontend/FrontendTrialCaseView.php:107
 #, php-format
@@ -17108,37 +17108,37 @@ msgid "Trial: %s"
 msgstr ""
 
 #. translators: %s = player name
-#: src/Modules/PersonaDashboard/Widgets/RecentCommentsWidget.php:187
+#: src/Modules/PersonaDashboard/Widgets/RecentCommentsWidget.php:193
 #, php-format
 msgid "PDP: %s"
 msgstr ""
 
 #. translators: %s = team name
-#: src/Modules/PersonaDashboard/Widgets/RecentCommentsWidget.php:199
+#: src/Modules/PersonaDashboard/Widgets/RecentCommentsWidget.php:205
 #, php-format
 msgid "Blueprint: %s"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Widgets/RecentCommentsWidget.php:222
+#: src/Modules/PersonaDashboard/Widgets/RecentCommentsWidget.php:228
 #: src/Shared/Frontend/Components/FrontendThreadView.php:163
 msgid "just now"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Widgets/RecentCommentsWidget.php:225
+#: src/Modules/PersonaDashboard/Widgets/RecentCommentsWidget.php:231
 #, php-format
 msgid "%d min ago"
 msgid_plural "%d mins ago"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/PersonaDashboard/Widgets/RecentCommentsWidget.php:229
+#: src/Modules/PersonaDashboard/Widgets/RecentCommentsWidget.php:235
 #, php-format
 msgid "%d h ago"
 msgid_plural "%d h ago"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/PersonaDashboard/Widgets/RecentCommentsWidget.php:233
+#: src/Modules/PersonaDashboard/Widgets/RecentCommentsWidget.php:239
 #, php-format
 msgid "%d d ago"
 msgid_plural "%d d ago"
@@ -17297,11 +17297,11 @@ msgstr ""
 msgid "Loading players…"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:39
+#: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:40
 msgid "Team roster table"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:42
+#: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:43
 msgid ""
 "Single-team roster: jersey # / player / status pill / latest PDP / rolling "
 "attendance %. Pick the team via the data-source field (`team_id`). Reads "
@@ -17309,31 +17309,31 @@ msgid ""
 "team_overview_grid: this one is for a coach who runs one squad."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:64
+#: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:65
 msgid "Team roster"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:71
+#: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:72
 msgid "Pick a team in the dashboard editor (data source: `team_id=N,days=30`)."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:88
+#: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:89
 msgid "That team is no longer available, or it does not belong to your club."
 msgstr ""
 
 #. translators: 1: team name, 2: age group
-#: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:98
+#: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:99
 #, php-format
 msgid "%1$s (%2$s) roster"
 msgstr ""
 
 #. translators: %d: window in days
-#: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:107
+#: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:108
 #, php-format
 msgid "Attendance over last %d days"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:114
+#: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:115
 msgid "This team has no active players yet."
 msgstr ""
 
