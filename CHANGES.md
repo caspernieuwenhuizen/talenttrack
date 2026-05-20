@@ -1,3 +1,68 @@
+# TalentTrack v3.110.197 — PDP conversations lock on first signature + hourglass replaces middle-dot for pending acks (closes #822)
+
+## Pilot report
+
+> In the pop file details page the confirmation visually is still not clear, perhaps use a hourglass icon to the parent and player icon? The period is not clear enough to show it is not done yet.
+>
+> Once a conversation is signed by anyone it should be read only.
+
+## Bug 1 — "period" wasn't reading as awaiting
+
+`FrontendPdpManageView::renderFileDetail()` rendered each conversation's "Acks" column as `👤·` / `👤✓` (and same for player). The `·` is the middle-dot character (U+00B7); pilot kept reading it as a period — decoration, not a status signal.
+
+### Fix
+
+New `assets/icons/hourglass.svg` (Lucide-style outline, `stroke="currentColor"`). Inlined via `IconRenderer::render( 'hourglass', [...] )` next to the role glyph in amber (`color: #c9962a`) when an ack is pending. Signed state renders the existing `✓` in green (`#2c8a2c`). Hover-titles updated from `"Parent ack"` to `"Parent has acknowledged"` (signed) / `"Parent acknowledgement pending"` (awaiting) so the state reads in screenreaders too.
+
+## Bug 2 — conversations stayed editable forever
+
+`tt_pdp_conversations` carries three signature timestamps:
+
+- `coach_signoff_at`
+- `parent_ack_at`
+- `player_ack_at`
+
+Nothing in the codebase treated them as a lock. The frontend form only hid the *"Sign off this conversation now"* checkbox after the coach's own signoff; every other field stayed editable. The REST PATCH controller had a per-role column whitelist but never checked signature state. **Coach could amend `notes` / `agenda` / `agreed_actions` / `scheduled_at` after a parent or player had acked** the conversation they thought they were signing.
+
+### Fix — one predicate, three consumers
+
+**`PdpConversationsRepository::isLocked( ?object $row ): bool`** — true if any of the three timestamps is non-null. Source of truth.
+
+**Frontend form** (`FrontendPdpManageView::renderConversationForm`):
+- Banner above the form names the signatory chain: "coach signed off on …", "parent acknowledged on …", "player acknowledged on …" — coach knows immediately why edits are blocked.
+- Every input + textarea gets `readonly disabled`.
+- Save button hidden.
+- Sign-off checkbox hidden (the coach's signoff is itself a content change).
+- Open-a-new-conversation hint in the banner so the coach has somewhere to put a follow-up edit.
+
+**REST guard** (`PdpConversationsRestController::patch`):
+- When `isLocked()` returns true, the only writable fields are the **still-null** signature columns. Second signatory can complete their ack even after the first lands (parent acks after player, or vice-versa).
+- Any other field in the payload → `409 conversation_locked` with a translated message.
+- Coach + admin paths are guarded too. Lock is absolute by design — pilot directive was "once anyone has signed".
+
+## Already-signed conversations
+
+Existing rows that carry any of the three timestamps become read-only immediately on update. Pilot confirmed this is fine.
+
+## Files
+
+- `assets/icons/hourglass.svg` (new)
+- `src/Modules/Pdp/Repositories/PdpConversationsRepository.php` — `isLocked()` static
+- `src/Modules/Pdp/Frontend/FrontendPdpManageView.php` — hourglass on acks column, lock banner + readonly inputs on the conversation form
+- `src/Modules/Pdp/Rest/PdpConversationsRestController.php` — `409 conversation_locked` server-side guard
+- `talenttrack.php` + `readme.txt` — version bump
+
+## Test plan
+
+- [ ] PDP file detail page: every pending ack shows the amber hourglass next to the role glyph; signed acks show a green checkmark. Hover titles read sensibly in screenreaders.
+- [ ] Open a conversation with no signatures → form fully editable, Save visible, "Sign off this conversation now" checkbox visible.
+- [ ] Coach signs off → page reload renders the locked banner ("coach signed off on …"), all fields `readonly`, Save hidden.
+- [ ] Parent acks a different conversation via the player-side surface → coach reloading that conversation sees the locked banner ("parent acknowledged on …"), cannot save.
+- [ ] PATCH `notes` directly against a locked conversation via REST → `409 conversation_locked`.
+- [ ] PATCH a still-null signature column (`player_ack_at` when only parent has acked) → `200`, both columns populated.
+
+---
+
 # TalentTrack v3.110.191 — Frontend lookups admin: per-locale name + description fields for every shipped locale (closes #798)
 
 ## Pilot report

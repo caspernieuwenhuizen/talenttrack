@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.196
+Stable tag: 3.110.197
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.197 — PDP conversations lock end-to-end on first signature + the "awaiting" state finally reads as awaiting — hourglass icon replaces the middle-dot that the pilot kept reading as a period (closes #822) =
+
+Pilot 2026-05-20, two related asks on the PDP file detail page. **(1) Awaiting state was a middle-dot.** The "Acks" column rendered `👤·` for pending and `👤✓` for signed. The `·` (U+00B7) read as a period, not as "still awaiting". **Fix**: new `assets/icons/hourglass.svg` (Lucide-style outline, `stroke="currentColor"`), inlined via `IconRenderer::render( 'hourglass' )` next to the role glyph in amber for pending; signed state renders a green checkmark. Tooltips updated from "Parent ack" to "Parent has acknowledged" / "Parent acknowledgement pending" so the state reads in screenreaders too. **(2) Conversation was editable after signature.** `tt_pdp_conversations` carries three signature timestamps — `coach_signoff_at`, `parent_ack_at`, `player_ack_at` — but nothing in the codebase treated them as a lock. Coach could PATCH `notes` / `agenda` / `agreed_actions` / dates after a parent or player had acked the conversation they thought they were signing. **Fix**: new `PdpConversationsRepository::isLocked( ?object $row ): bool` — true if any of the three timestamps is non-null. Single source of truth. Used by the form (banner explaining which signatory froze the row, all inputs `readonly disabled`, Save + signoff checkbox hidden) AND by `PdpConversationsRestController::patch()` (returns `409 conversation_locked` for any payload field other than a still-null signature column; second signatory can still complete their ack but no content field is writable). Coach + admin paths are guarded too — the lock is by design absolute, as the pilot directed ("once anyone has signed"). **Already-signed conversations on the pilot install** become read-only immediately on update; pilot confirmed this is fine.
 
 = 3.110.196 — Edit evaluation — main category auto-recalculates on sub-category change in Detailed mode (#813) =
 
