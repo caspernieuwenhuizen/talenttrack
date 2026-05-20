@@ -370,12 +370,21 @@ class TeamsRestController {
 
     /** @return array<string, mixed> */
     private static function extract( \WP_REST_Request $r ): array {
-        return [
-            'name'          => sanitize_text_field( (string) ( $r['name'] ?? '' ) ),
-            'age_group'     => sanitize_text_field( (string) ( $r['age_group'] ?? '' ) ),
-            'head_coach_id' => absint( $r['head_coach_id'] ?? 0 ),
-            'notes'         => sanitize_textarea_field( (string) ( $r['notes'] ?? '' ) ),
+        $data = [
+            'name'      => sanitize_text_field( (string) ( $r['name'] ?? '' ) ),
+            'age_group' => sanitize_text_field( (string) ( $r['age_group'] ?? '' ) ),
+            'notes'     => sanitize_textarea_field( (string) ( $r['notes'] ?? '' ) ),
         ];
+        // v3.110.200 (#820) — `head_coach_id` is only written when the
+        // payload carries it. The frontend team form dropped the legacy
+        // dropdown — head-coach assignment is now exclusively through
+        // `tt_team_people` / role-scope assignments. Without this guard,
+        // a form save would zero the legacy column on every update and
+        // strand any coach who was still wired through it.
+        if ( $r->has_param( 'head_coach_id' ) ) {
+            $data['head_coach_id'] = absint( $r['head_coach_id'] );
+        }
+        return $data;
     }
 
     private static function clamp_per_page( $value ): int {

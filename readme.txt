@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.199
+Stable tag: 3.110.200
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.200 — Team edit form: legacy `head_coach_id` dropdown removed; head-coach attribution lives exclusively in the Staff section (tt_team_people + role-scope assignments) (closes #820) =
+
+Pilot 2026-05-20: *"editing team form has the legacy head coach field. Should be removed."* `FrontendTeamsManageView::renderForm()` rendered a `<select name="head_coach_id">` populated from "any WP user with `tt_edit_evaluations`", and the team detail page rendered a "Head coach: <display name>" meta line. Both wrote to / read from `tt_teams.head_coach_id`, the **legacy single-coach column**. The modern path is `tt_team_people` (multi-staff per team) + `tt_user_role_scopes` (team-scoped role assignments) — already rendered by the Staff section right below the form, and already the source of truth for `QueryHelpers::get_teams_for_coach()`. **Fix**: the dropdown + the `get_users()` lookup that populated it are gone from the form; the "Head coach: …" meta line is gone from the detail page. Form layout collapses from a 3-column row to 2 columns (name + age group). **REST controller updated to preserve the legacy column** — `TeamsRestController::extract()` now only includes `head_coach_id` in the payload when the request carries it, so a form save (which no longer sends it) doesn't zero the column and strand any coach still wired through it. Coaches assigned via the legacy path keep access via `get_teams_for_coach()`'s existing union of legacy + role-scope. **Out of scope**: dropping the column from `tt_teams`. Schema migration is risky and there's nothing forcing it — every reader already prefers the staff-assignment store with the legacy column as fallback. Tracked as a tech-debt follow-up.
 
 = 3.110.199 — Scout × prospects matrix scope: migration 0108 re-applies 0104's intent with the correct activity-enum values so upgraded installs actually flip from `self` to `global` (closes #824) =
 
