@@ -3,6 +3,8 @@ namespace TT\Modules\PersonaDashboard\Repositories;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\QueryHelpers;
+
 /**
  * UpcomingActivityRepository (#0092) — shared query for the next
  * upcoming activity scoped to a coach's teams.
@@ -29,7 +31,7 @@ final class UpcomingActivityRepository {
         }
         $today       = gmdate( 'Y-m-d' );
         $has_club    = self::hasClubColumn( $table );
-        $club_clause = $has_club ? ' AND club_id = ' . (int) $club_id : '';
+        $club_clause = $has_club ? ' AND a.club_id = ' . (int) $club_id : '';
 
         // v3.110.73 — filter out activities the coach has already
         // processed. An activity in `completed` or `cancelled` state is
@@ -38,19 +40,24 @@ final class UpcomingActivityRepository {
         // after marking attendance + ratings for tonight's training,
         // the hero still showed the same activity with the Mark
         // attendance CTA the next time the coach loaded the dashboard.
-        $status_clause = " AND ( activity_status_key IS NULL OR activity_status_key NOT IN ('completed','cancelled') )";
+        $status_clause = " AND ( a.activity_status_key IS NULL OR a.activity_status_key NOT IN ('completed','cancelled') )";
+
+        // v3.110.182 (#781) — demo-mode scope so the hero surfaces the
+        // same activity universe the activities list page shows.
+        $scope = QueryHelpers::apply_demo_scope( 'a', 'activity' );
 
         if ( ! empty( $team_ids ) ) {
             $team_ids = array_values( array_unique( array_map( 'intval', $team_ids ) ) );
             $placeholders = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
             // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQL.NotPrepared
             $sql = $wpdb->prepare(
-                "SELECT * FROM {$table}
-                  WHERE session_date >= %s
-                    AND team_id IN ({$placeholders})
+                "SELECT a.* FROM {$table} a
+                  WHERE a.session_date >= %s
+                    AND a.team_id IN ({$placeholders})
                     {$club_clause}
                     {$status_clause}
-                  ORDER BY session_date ASC
+                    {$scope}
+                  ORDER BY a.session_date ASC
                   LIMIT 1",
                 array_merge( [ $today ], $team_ids )
             );
@@ -58,9 +65,9 @@ final class UpcomingActivityRepository {
             return $row ?: null;
         }
         // No coached teams — fall back to any club-scoped upcoming activity.
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT * FROM {$table} WHERE session_date >= %s {$club_clause} {$status_clause} ORDER BY session_date ASC LIMIT 1",
+            "SELECT a.* FROM {$table} a WHERE a.session_date >= %s {$club_clause} {$status_clause} {$scope} ORDER BY a.session_date ASC LIMIT 1",
             $today
         ) );
         return $row ?: null;

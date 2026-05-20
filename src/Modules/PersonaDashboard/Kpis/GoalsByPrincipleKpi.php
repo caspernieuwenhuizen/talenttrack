@@ -3,6 +3,7 @@ namespace TT\Modules\PersonaDashboard\Kpis;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\PersonaDashboard\Domain\AbstractKpiDataSource;
 use TT\Modules\PersonaDashboard\Domain\KpiValue;
 use TT\Modules\PersonaDashboard\Domain\PersonaContext;
@@ -34,14 +35,19 @@ class GoalsByPrincipleKpi extends AbstractKpiDataSource {
         if ( $col === null ) return KpiValue::unavailable();
 
         $cutoff = gmdate( 'Y-m-d H:i:s', time() - 90 * DAY_IN_SECONDS );
+        // v3.110.182 (#781) — demo-mode scope so the ratio matches the
+        // goals list / detail surfaces under the same toggle.
+        $scope = QueryHelpers::apply_demo_scope( 'g', 'goal' );
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $total = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$table} WHERE club_id = %d AND created_at >= %s",
+            "SELECT COUNT(*) FROM {$table} g WHERE g.club_id = %d AND g.created_at >= %s {$scope}",
             $club_id, $cutoff
         ) );
         if ( $total === 0 ) return KpiValue::of( '0%' );
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $tagged = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$table} WHERE club_id = %d AND created_at >= %s AND linked_principle_id IS NOT NULL",
+            "SELECT COUNT(*) FROM {$table} g WHERE g.club_id = %d AND g.created_at >= %s AND g.linked_principle_id IS NOT NULL {$scope}",
             $club_id, $cutoff
         ) );
         $pct = (int) round( ( $tagged / $total ) * 100 );

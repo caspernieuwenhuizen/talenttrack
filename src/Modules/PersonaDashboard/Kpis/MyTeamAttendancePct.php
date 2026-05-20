@@ -97,6 +97,11 @@ class MyTeamAttendancePct extends AbstractKpiDataSource {
         $team_placeholders  = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
         $state_placeholders = implode( ',', array_fill( 0, count( self::ACTIVITY_STATES_COUNTING ), '%s' ) );
 
+        // v3.110.182 (#781) — demo-mode scope on the activity row so the
+        // coach's team attendance % matches the activities list under
+        // the same toggle.
+        $scope = QueryHelpers::apply_demo_scope( 'act', 'activity' );
+
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared — placeholders built from constant arrays.
         $row = $wpdb->get_row( $wpdb->prepare(
             "SELECT
@@ -109,7 +114,8 @@ class MyTeamAttendancePct extends AbstractKpiDataSource {
                AND pl.team_id IN ({$team_placeholders})
                AND act.session_date >= %s
                AND act.session_date <= %s
-               AND act.plan_state IN ({$state_placeholders})",
+               AND act.plan_state IN ({$state_placeholders})
+               {$scope}",
             array_merge(
                 [ $club_id ],
                 $team_ids,

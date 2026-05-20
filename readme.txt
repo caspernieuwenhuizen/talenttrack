@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.182
+Stable tag: 3.110.183
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.183 — Persona dashboard demo-mode filter — 14 KPIs / widgets / table sources / repositories under `src/Modules/PersonaDashboard/` now apply `QueryHelpers::apply_demo_scope` so their counts and rows match the list pages under the same toggle. Previously the dashboard widgets bypassed the demo filter entirely, leaking untagged rows past whatever filter the list view applied — symptom that surfaced this audit (closes #781) =
+
+Follow-up to v3.110.179's evaluations-list fix (#779). The pilot reported the evaluations list rendered empty but `MyTeamAvgRating` (a dashboard widget) aggregated over the same evals and showed a value. Root cause was a schema mismatch in the list query (fixed in v3.110.179) — but the audit it prompted exposed a second, structural problem: most PersonaDashboard surfaces never called `apply_demo_scope`. With demo mode ON, the list page filtered to demo-tagged-only while the widgets returned everything; with demo mode OFF the asymmetry reversed. **Patched in this release**: `NewEvaluationsThisWeek`, `MyEvaluationsThisWeek`, `EvaluationsThisMonth`, `MyTeamAvgRating`, `ChildSwitcherWithRecapWidget` (evaluation surfaces); `GoalsByPrincipleKpi`, `GoalCompletionPct`, `GoalsByPrincipleSource`, `RecentCommentsWidget` (goal surfaces); `AttendancePctRolling`, `MyTeamAttendancePct`, `TodayUpNextHeroWidget`, `TeamRosterTableWidget`, `UpcomingActivitiesSource`, `UpcomingActivityRepository` (activity surfaces). **Pattern** in each: add `$scope = QueryHelpers::apply_demo_scope( '<alias>', '<entity>' );` near the query, concatenate `{$scope}` into the WHERE (or into the LEFT-JOIN ON clause to preserve null-row behaviour, as in `GoalsByPrincipleSource`). **No schema change**, **no behaviour change on demo-OFF installs that have no `tt_demo_tags` rows** (the scope expression is empty in that case). On demo-ON installs every surface now reads from the same demo-tagged subset.
 
 = 3.110.182 — Wizard post-submit redirect 404 (round 3): new `WizardEntryPoint::currentDashboardUrl()` helper using REQUEST_URI path + `home_url()` is now used by every wizard's submit handler — replaces brittle `dashboardBaseUrl()` resolution chain that 404'd the new-blueprint and new-tournament wizards on the pilot install after clicking Create =
 

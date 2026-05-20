@@ -3,6 +3,7 @@ namespace TT\Modules\PersonaDashboard\TableSources;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\PersonaDashboard\Registry\TableRowSource;
 
@@ -40,12 +41,18 @@ final class GoalsByPrincipleSource implements TableRowSource {
         ) );
         if ( $col === null ) return [];
 
+        // v3.110.182 (#781) — demo-mode scope on the goals LEFT JOIN.
+        // Placed in the ON clause so principles with zero matching
+        // goals still surface (LEFT-JOIN NULL preservation); a WHERE
+        // filter would convert the join to an inner join.
+        $scope = QueryHelpers::apply_demo_scope( 'g', 'goal' );
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT pr.id, pr.code, pr.title_json,
                     SUM(CASE WHEN g.status NOT IN ('completed','cancelled') THEN 1 ELSE 0 END) AS active,
                     SUM(CASE WHEN g.status = 'completed' THEN 1 ELSE 0 END) AS completed
                FROM {$p}tt_principles pr
-          LEFT JOIN {$p}tt_goals g ON g.linked_principle_id = pr.id AND g.club_id = pr.club_id
+          LEFT JOIN {$p}tt_goals g ON g.linked_principle_id = pr.id AND g.club_id = pr.club_id {$scope}
               WHERE pr.club_id = %d
               GROUP BY pr.id, pr.code, pr.title_json
               ORDER BY pr.code ASC",

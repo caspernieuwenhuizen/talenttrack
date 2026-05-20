@@ -3,6 +3,7 @@ namespace TT\Modules\PersonaDashboard\TableSources;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\PersonaDashboard\Registry\TableRowSource;
 
@@ -35,6 +36,12 @@ final class UpcomingActivitiesSource implements TableRowSource {
         $from = ( new \DateTimeImmutable() )->format( 'Y-m-d H:i:s' );
         $to   = ( new \DateTimeImmutable( "+{$days} days" ) )->format( 'Y-m-d 23:59:59' );
 
+        // v3.110.182 (#781) — demo-mode scope so the upcoming-activities
+        // data table matches what the activities list page shows under
+        // the same toggle.
+        $scope = QueryHelpers::apply_demo_scope( 's', 'activity' );
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT s.id,
                     COALESCE(t.name, '') AS team_name,
@@ -51,6 +58,7 @@ final class UpcomingActivitiesSource implements TableRowSource {
                 AND s.archived_at IS NULL
                 AND CONCAT(s.session_date, ' ', COALESCE(s.start_time, '00:00:00')) >= %s
                 AND s.session_date <= %s
+                {$scope}
               ORDER BY s.session_date ASC, s.start_time ASC
               LIMIT %d",
             $club_id, $from, $to, $limit
