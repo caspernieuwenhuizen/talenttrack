@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-05-20T21:27:57+00:00\n"
+"POT-Creation-Date: 2026-05-20T21:31:40+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -8354,6 +8354,7 @@ msgid "Use club default (%s)"
 msgstr ""
 
 #: src/Modules/Configuration/Admin/UserProfileExtensions.php:58
+#: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:91
 #: src/Modules/Wizards/Evaluation/RateActorsStep.php:171
 #: src/Shared/Frontend/CoachForms.php:244
 msgid "Detailed"
@@ -9793,6 +9794,7 @@ msgid "Generate-form layout"
 msgstr ""
 
 #: src/Modules/DemoData/Admin/DemoDataPage.php:299
+#: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:90
 #: src/Modules/Wizards/Evaluation/RateActorsStep.php:170
 #: src/Shared/Frontend/CoachForms.php:243
 msgid "Basic"
