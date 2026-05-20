@@ -62,33 +62,22 @@ class FrontendScoutingPlanView extends FrontendViewBase {
         // list view regardless of which of the two caps the user_can
         // layer happens to surface first.
         //
-        // v3.110.176 (#772) — pilot reported the same "not authorized"
-        // symptom even with v3.110.168's broadened either-cap check
-        // shipping in v3.110.169+. Diagnosis: on this install the WP
-        // `tt_scout` role (see `RolesService.php` line 302-328) does
-        // not bake `tt_view_prospects` / `tt_edit_prospects` into its
-        // baseline caps — both come exclusively through the matrix
-        // bridge / `user_has_cap` filter. If `tt_authorization_active`
-        // is mid-flip, the matrix seed for scout × prospects is
-        // missing, or the filter just doesn't surface those caps in
-        // some request context, both `user_can` checks AND both
-        // `LegacyCapMapper::evaluate` fallbacks return false, and the
-        // user lands here despite being a legitimate scout.
         //
-        // Belt-and-suspenders fix: bypass the cap check entirely
-        // when the user holds a WP role that's expected to scout
-        // (`tt_scout`, `tt_head_dev`, `tt_club_admin`). The matrix
-        // says they should have prospects access; the role assertion
-        // is a static, non-filter-dependent backup. Existing path-
-        // through callers (REST writes, scope-checked list filters
-        // inside this view) still enforce the cap properly downstream,
-        // so this only widens the *entry* gate, not the actual data
-        // surface.
-        $user        = get_userdata( $user_id );
-        $user_roles  = $user instanceof \WP_User ? (array) $user->roles : [];
-        $is_scout_role = (bool) array_intersect( $user_roles, [ 'tt_scout', 'tt_head_dev', 'tt_club_admin' ] );
-        $can_enter = $is_scout_role
-            || AuthorizationService::userCanOrMatrix( $user_id, 'tt_view_prospects' )
+        // v3.110.181 (#783) — v3.110.176's WP-role bypass rolled back.
+        // The Permission Chain Debug page (#777) confirmed the matrix
+        // bridge resolves both `tt_view_prospects` and `tt_edit_prospects`
+        // to true for the pilot's scout user, so v3.110.168's broadened
+        // either-cap check above is already passing them through. The
+        // role bypass was insurance against a transient matrix-layering
+        // state that has since resolved — keeping it would obscure
+        // future matrix bugs by silently letting users through even
+        // when the matrix is misconfigured (same anti-pattern that
+        // masked the `tt_edit_evaluations` / `tt_evaluate_players`
+        // mismatch we discovered while diagnosing this). If the matrix
+        // breaks again, the diagnostic page surfaces the failing layer
+        // in one screen and the real fix lands on the matrix seed —
+        // not on yet another bypass.
+        $can_enter = AuthorizationService::userCanOrMatrix( $user_id, 'tt_view_prospects' )
             || AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_prospects' );
         if ( ! $can_enter && ! $is_admin ) {
             FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
