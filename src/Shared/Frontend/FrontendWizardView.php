@@ -45,6 +45,8 @@ class FrontendWizardView extends FrontendViewBase {
 
         self::enqueueAssets();
         self::enqueueWizardStyles();
+        // v3.110.190 (#796) — live mandatory-field validation.
+        self::enqueueValidationScript();
         // v3.110.84 — autosave runtime removed. The periodic POSTs were
         // racing with `WizardState::clear()`: a Cancel or Submit would
         // clear the transient + the `tt_wizard_drafts` row, then an
@@ -588,6 +590,30 @@ class FrontendWizardView extends FrontendViewBase {
         ] );
     }
 
+    /**
+     * v3.110.190 (#796) — enqueues the live mandatory-field validator
+     * that runs alongside the wizard form. Visual + aria layer; the
+     * authoritative `validate()` still runs server-side on Next-click.
+     * The form already carries `novalidate` (v3.110.137) to stop the
+     * browser-native popup; this script provides the user-facing
+     * layer instead.
+     */
+    private static function enqueueValidationScript(): void {
+        wp_enqueue_script(
+            'tt-wizard-validation',
+            TT_PLUGIN_URL . 'assets/js/wizard-validation.js',
+            [],
+            TT_VERSION,
+            true
+        );
+        wp_localize_script( 'tt-wizard-validation', 'TT_WizardValidation', [
+            'i18n' => [
+                'required'     => __( 'This field is required.', 'talenttrack' ),
+                'next_blocked' => __( 'Fill in every required field to continue.', 'talenttrack' ),
+            ],
+        ] );
+    }
+
     private static bool $styles_enqueued = false;
     private static function enqueueWizardStyles(): void {
         if ( self::$styles_enqueued ) return;
@@ -847,6 +873,25 @@ class FrontendWizardView extends FrontendViewBase {
                 .tt-wizard-form .tt-wizard-actions button[type="submit"] {
                     min-height: 48px;
                 }
+            }
+
+            /* v3.110.190 (#796) — live mandatory-field validation. */
+            .tt-wizard-form .tt-input-invalid,
+            .tt-wizard-form select.tt-input-invalid,
+            .tt-wizard-form textarea.tt-input-invalid {
+                border-color: #b32d2e;
+                box-shadow: 0 0 0 2px rgba( 179, 45, 46, 0.15 );
+            }
+            .tt-wizard-error-msg {
+                display: block;
+                color: #b32d2e;
+                font-size: 11px;
+                line-height: 1.4;
+                margin-top: 4px;
+            }
+            .tt-wizard-form button[data-tt-wizard-next][disabled] {
+                opacity: 0.55;
+                cursor: not-allowed;
             }
         ';
         wp_register_style( 'tt-wizard-inline', false, [], TT_VERSION );
