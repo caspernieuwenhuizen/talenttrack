@@ -136,22 +136,90 @@
         if (!btn) return;
         btn.addEventListener('click', function () {
             if (!hasOverrides(state)) return;
-            var name = window.prompt(cfg.i18n.save_bp_prompt, cfg.i18n.save_bp_default);
-            if (name === null) return;
-            name = (name || '').trim() || cfg.i18n.save_bp_default;
-            btn.disabled = true;
-            saveAsBlueprint(name, state).catch(function () {
-                window.alert(cfg.i18n.save_bp_failed);
-                btn.disabled = false;
+            // v3.110.184 — pilot ask: let the user pick the flavour
+            // (match-day vs squad-plan) instead of auto-saving as
+            // match-day. The previous default was hardcoded; now we
+            // ask. The result is the same shape (name + flavour) but
+            // collected via a small inline dialog rather than two
+            // sequential `confirm`/`prompt` calls.
+            openSaveAsDialog(function (result) {
+                if (!result) return;
+                btn.disabled = true;
+                saveAsBlueprint(result.name, result.flavour, state).catch(function () {
+                    window.alert(cfg.i18n.save_bp_failed);
+                    btn.disabled = false;
+                });
             });
         });
+    }
+
+    /**
+     * v3.110.184 — flavour + name picker. Modal dialog with a flavour
+     * radio (Match-day / Squad plan) and a name field. Resolves with
+     * `{ name, flavour }` on save, or `null` on cancel.
+     */
+    function openSaveAsDialog(onDone) {
+        var modal = document.createElement('div');
+        modal.className = 'tt-chem-saveas';
+        modal.setAttribute('role', 'dialog');
+        modal.setAttribute('aria-modal', 'true');
+        var labelMatch  = cfg.i18n.save_bp_flavour_match || 'Match-day lineup';
+        var labelSquad  = cfg.i18n.save_bp_flavour_squad || 'Squad plan (3 tiers per slot)';
+        var labelLegend = cfg.i18n.save_bp_flavour_legend || 'Blueprint type';
+        var labelName   = cfg.i18n.save_bp_name_label || 'Blueprint name';
+        var labelSave   = cfg.i18n.save_bp_save || 'Save blueprint';
+        var labelCancel = cfg.i18n.save_bp_cancel || 'Cancel';
+        modal.innerHTML =
+            '<div class="tt-chem-saveas-backdrop" data-close></div>' +
+            '<div class="tt-chem-saveas-sheet" role="document">' +
+                '<h3 class="tt-chem-saveas-title">' + escapeHtml(cfg.i18n.save_bp_prompt || 'Save as blueprint') + '</h3>' +
+                '<fieldset class="tt-chem-saveas-flavour">' +
+                    '<legend>' + escapeHtml(labelLegend) + '</legend>' +
+                    '<label><input type="radio" name="tt-saveas-flavour" value="match_day" checked> ' + escapeHtml(labelMatch) + '</label>' +
+                    '<label><input type="radio" name="tt-saveas-flavour" value="squad_plan"> ' + escapeHtml(labelSquad) + '</label>' +
+                '</fieldset>' +
+                '<label class="tt-chem-saveas-name">' +
+                    '<span>' + escapeHtml(labelName) + '</span>' +
+                    '<input type="text" name="tt-saveas-name" value="' + escapeHtml(cfg.i18n.save_bp_default || '') + '" autocomplete="off" />' +
+                '</label>' +
+                '<div class="tt-chem-saveas-actions">' +
+                    '<button type="button" class="tt-btn tt-btn-secondary" data-cancel>' + escapeHtml(labelCancel) + '</button>' +
+                    '<button type="button" class="tt-btn tt-btn-primary" data-save>' + escapeHtml(labelSave) + '</button>' +
+                '</div>' +
+            '</div>';
+        document.body.appendChild(modal);
+        document.body.classList.add('tt-chem-saveas-open');
+
+        function close(result) {
+            modal.parentNode.removeChild(modal);
+            document.body.classList.remove('tt-chem-saveas-open');
+            onDone(result);
+        }
+        modal.querySelectorAll('[data-close], [data-cancel]').forEach(function (el) {
+            el.addEventListener('click', function () { close(null); });
+        });
+        modal.querySelector('[data-save]').addEventListener('click', function () {
+            var name = modal.querySelector('input[name="tt-saveas-name"]').value.trim()
+                    || (cfg.i18n.save_bp_default || 'Blueprint');
+            var checked = modal.querySelector('input[name="tt-saveas-flavour"]:checked');
+            var flavour = checked ? checked.value : 'match_day';
+            close({ name: name, flavour: flavour });
+        });
+        document.addEventListener('keydown', function once(e) {
+            if (e.key === 'Escape') {
+                document.removeEventListener('keydown', once);
+                close(null);
+            }
+        });
+        var input = modal.querySelector('input[name="tt-saveas-name"]');
+        if (input) { input.focus(); input.select(); }
     }
 
     /**
      * Snapshot the current effective lineup (suggested XI + overrides)
      * into a new blueprint, then redirect into the blueprint editor.
      */
-    function saveAsBlueprint(name, state) {
+    function saveAsBlueprint(name, flavour, state) {
         return fetch(cfg.rest_root + '/teams/' + cfg.team_id + '/blueprints', {
             method: 'POST',
             credentials: 'same-origin',
@@ -159,7 +227,7 @@
             body: JSON.stringify({
                 name: name,
                 formation_template_id: cfg.template_id,
-                flavour: 'match_day'
+                flavour: flavour === 'squad_plan' ? 'squad_plan' : 'match_day'
             })
         }).then(function (r) {
             if (!r.ok) throw new Error('bp_create_failed');

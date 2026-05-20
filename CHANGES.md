@@ -1,3 +1,72 @@
+# TalentTrack v3.110.184 — Team Blueprint editor enhancements + Team Chemistry "Save as blueprint" flavour picker
+
+## Pilot asks
+
+Chat 2026-05-20:
+
+> The blueprint functionality should have the option to click a player in the starting 11 and switch that player with another player. Similar to the team chemistry functionality. Also, I should be able to add a player as second best option and even a third. Also, a toggle to hide the chemistry information should be available. It should also have a save and save as option.
+
+Plus:
+
+> when clicking save in team chemistry I should be able to select what type of blueprint it should save; it now auto saves as match day.
+
+Picker layout — pilot explicitly said *"show all"*: three tier sections visible at once, no segmented control.
+
+## Blueprint editor changes
+
+### 1. Tap-to-swap picker (three-tier "show all")
+
+Tap any pitch slot → bottom-sheet with three stacked sections (Primary / Secondary / Tertiary). Each section shows its current assignment + full roster + Clear-this-tier button. Tap roster row → assigns. Saves via `PUT /blueprints/{id}/assignment` and reloads. Drag-and-drop stays as a power-user alternative.
+
+### 2. Hide-chemistry toggle
+
+Button above the pitch toggles a `tt-bp-chem-hidden` body class. CSS hides the chemistry headline card + every `.tt-chem-link` SVG line. State persists in `sessionStorage` keyed by blueprint id.
+
+### 3. Save + Save As
+
+- **Save** → returns to the team's blueprints list with `?tt_saved=1` (auto-save was already on; this is "done editing" navigation).
+- **Save As…** → prompts for a new name → `POST /blueprints/{id}/clone` → redirects into the clone's editor.
+
+## Backend
+
+- **`TeamBlueprintsRepository::cloneBlueprint( int $source_id, string $new_name, int $created_by ): int`** — duplicates blueprint row + every assignment row to a fresh draft.
+- **`POST /talenttrack/v1/blueprints/{id}/clone`** — new REST route, body `{ "name": "..." }`, cap-gated on `can_manage`, returns `{ "id": <new_id> }`.
+
+## Team Chemistry "Save as blueprint" picks flavour
+
+Was: two sequential dialogs + hardcoded `flavour: 'match_day'`. Now: single modal asks **both** blueprint name AND flavour (radio: *Match-day lineup* / *Squad plan — 3 tiers per slot*). Chemistry sandbox now unblocks squad-plan creation directly — no wizard detour.
+
+## Files touched
+
+- `src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php`
+- `src/Modules/TeamDevelopment/Repositories/TeamBlueprintsRepository.php`
+- `src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php`
+- `src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php`
+- `assets/js/frontend-team-blueprint.js`
+- `assets/css/frontend-team-blueprint.css`
+- `assets/js/frontend-team-chemistry.js`
+- `assets/css/frontend-team-chemistry.css`
+- `talenttrack.php` + `readme.txt` + `CHANGES.md`
+
+## No schema / REST shape break / auth change
+
+- `tt_team_blueprint_assignments.tier` already supports primary / secondary / tertiary (this ship surfaces it on match-day blueprints, which previously showed only primary).
+- `PUT /blueprints/{id}/assignment` already takes `tier` — picker just calls it.
+- `POST /blueprints/{id}/clone` is additive.
+- All write paths gate on `tt_manage_team_chemistry`.
+
+## Test plan
+
+- [ ] Tap a pitch slot → picker opens; assign players to all three tiers
+- [ ] *Clear this tier* removes that assignment
+- [ ] Drag-drop still works (regression)
+- [ ] "Hide chemistry" toggles chemistry headline + link lines; sessionStorage persists across reload
+- [ ] "Save" returns to blueprints list with `?tt_saved=1`
+- [ ] "Save as…" prompts → clone exists in list, opens with same assignments
+- [ ] On Team Chemistry board: "Save as blueprint" → flavour radio + name input → both honoured
+
+---
+
 # TalentTrack v3.110.183 — Persona dashboard demo-mode filter — 14 surfaces now apply `apply_demo_scope` (closes #781)
 
 ## Why

@@ -140,6 +140,60 @@ class TeamBlueprintsRepository {
     }
 
     /**
+     * v3.110.184 — Save As: duplicate the blueprint row and every
+     * assignment row to a fresh `tt_team_blueprints` + paired
+     * assignments. The clone starts in `draft` status regardless of
+     * the source's status; the caller's name is used (no automatic
+     * "Copy of …" prefix — let the operator name it themselves).
+     *
+     * Returns the new blueprint id, or 0 on failure.
+     */
+    public function cloneBlueprint( int $source_id, string $new_name, int $created_by ): int {
+        $new_name = trim( $new_name );
+        if ( $source_id <= 0 || $new_name === '' ) return 0;
+
+        $club_id = CurrentClub::id();
+        $source  = $this->wpdb->get_row( $this->wpdb->prepare(
+            "SELECT * FROM {$this->blueprints} WHERE id = %d AND club_id = %d",
+            $source_id, $club_id
+        ) );
+        if ( ! $source ) return 0;
+
+        $ok = $this->wpdb->insert( $this->blueprints, [
+            'club_id'               => $club_id,
+            'uuid'                  => self::uuid(),
+            'team_id'               => (int) $source->team_id,
+            'name'                  => $new_name,
+            'flavour'               => (string) $source->flavour,
+            'formation_template_id' => (int) $source->formation_template_id,
+            'status'                => self::STATUS_DRAFT,
+            'notes'                 => (string) ( $source->notes ?? '' ),
+            'created_by'            => $created_by > 0 ? $created_by : null,
+            'updated_by'            => $created_by > 0 ? $created_by : null,
+        ] );
+        if ( ! $ok ) return 0;
+        $new_id = (int) $this->wpdb->insert_id;
+
+        // Copy every assignment row across.
+        $rows = $this->wpdb->get_results( $this->wpdb->prepare(
+            "SELECT slot_label, tier, player_id FROM {$this->assignments}
+              WHERE blueprint_id = %d AND club_id = %d",
+            $source_id, $club_id
+        ) );
+        foreach ( (array) $rows as $r ) {
+            $this->wpdb->insert( $this->assignments, [
+                'club_id'      => $club_id,
+                'blueprint_id' => $new_id,
+                'slot_label'   => (string) $r->slot_label,
+                'tier'         => (string) $r->tier,
+                'player_id'    => (int) $r->player_id,
+                'updated_at'   => current_time( 'mysql' ),
+            ] );
+        }
+        return $new_id;
+    }
+
+    /**
      * Bulk-replace the slot assignments. Match-day flavour: caller
      * passes `slot => player_id`. Squad-plan flavour: caller passes
      * `slot => [tier => player_id]` (one entry per tier present).
