@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.175
+Stable tag: 3.110.176
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.176 — Scout-prospects auth: WP-role-based bypass on `FrontendScoutingPlanView` entry so matrix layering issues stop manifesting as "Not authorized" (#772) =
+
+Pilot reported the same "not authorized" symptom on the "Plan visits →" hero CTA even after v3.110.168's broadened either-cap check shipped in v3.110.169+. Diagnosis: on this install the WP `tt_scout` role (see `RolesService.php` line 302-328) doesn't bake `tt_view_prospects` / `tt_edit_prospects` into its baseline caps — both come exclusively through the matrix bridge and the `user_has_cap` filter. If `tt_authorization_active` is mid-flip, the matrix seed for scout × prospects is missing for this user, or the filter just doesn't surface those caps in the request context, both `user_can` checks AND the `LegacyCapMapper::evaluate` fallbacks return false, and the legitimate scout lands on the deny page. **Fix**: belt-and-suspenders WP-role bypass at the entry gate. Anyone whose WP roles include `tt_scout`, `tt_head_dev`, or `tt_club_admin` passes the entry check regardless of cap-layer state. The matrix says they should have prospects access; the role assertion is a static, non-filter-dependent backup. Existing downstream gates (REST writes, scope-checked list filters inside the view) still enforce the cap properly, so this only widens the *entry* gate, not the actual data surface. Doesn't grant new access to anyone — it just prevents legitimate scouts from being locked out when their cap-layer state is in transition. Net effect: scout users with the WP role assigned can now reach the scouting-visits surface even on installs where matrix wiring is in a temporarily inconsistent state.
 
 = 3.110.175 — Coach-dashboard KPI deep-links carry the same rolling window the KPI was computed over: clicking "My team attendance %" now lands on activities filtered to the last 28 days; clicking "My team avg rating" lands on evaluations filtered to the last 90 days (#771) =
 
