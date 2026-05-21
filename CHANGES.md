@@ -1,51 +1,82 @@
-# TalentTrack v3.110.215 — Coach access fix on "My evaluations this week" KPI tile (closes #846)
+# TalentTrack v3.110.216 — Match execution surface for assistant coaches (closes #847)
 
-## Pilot report
+## Why
 
-> a user with the `tt_coach` role clicks the "My evaluations this week" KPI on their coach dashboard and lands on a "Not authorized" page.
+Pilot 2026-05-21: assistant coach asked for a live-match surface they can run from a phone on the sideline, capturing score / time / substitutions / specific-goal counters. Hard dependency on Match Prep (#838) — the prep provides the starting XI, the bench, the specific-goal players, and the half length, so the live screen renders without the assistant typing anything on a phone.
 
-## Root cause — two layers
+## What's in
 
-### Layer 1 — matrix seed gap
+### New module: `src/Modules/MatchExecution/`
 
-The KPI `my_evaluations_this_week` links to `?tt_view=my-evaluations`. Dispatch is gated by `MatrixGate::canAnyScope( $user_id, 'my_evaluations', 'read' )`. `tt_coach` resolves to persona `head_coach` (or `assistant_coach`).
+- `MatchExecutionModule` — registers the REST controller.
+- `Repositories/MatchExecutionRepository` — three-table CRUD (execution header, substitution event log, goal-event log) plus a `computeMinutes()` helper that walks the substitution log to derive per-player minutes.
+- `Rest/MatchExecutionRestController` — 9 endpoints (start-half / end-half / pause / resume / score / substitution / goal-event POST / goal-event DELETE / finish). All cap-gated on `tt_edit_activities`. Substitution + goal-event endpoints idempotent on a client-generated `event_uuid` so the offline-queue flush can replay safely.
+- `Frontend/FrontendMatchExecutionView` — mobile-first view at `?tt_view=match-execution&activity_id=N`. Refuses to launch without a Match Prep row and points the user back to the prep wizard.
 
-`config/authorization_seed.php` only granted `my_evaluations` to `player` and `parent`. No row for `head_coach` / `assistant_coach` → matrix returned false → deny.
+### Migration 0120
 
-### Layer 2 — view is player-only by design
+Three new tables — `tt_match_execution`, `tt_match_execution_substitutions`, `tt_match_execution_goal_events`. The execution table carries `uuid CHAR(36) UNIQUE` per the SaaS-ready guidance. Sub + goal-event tables also carry a `event_uuid` UNIQUE so retries from the offline queue are no-ops.
 
-`FrontendMyEvaluationsView` queried `WHERE e.player_id = %d` — it shows evaluations OF the current user as a player subject, not evaluations AUTHORED by the current user. The dispatcher additionally called `requirePlayerOrDeny()` before rendering, so a coach with no linked player record hit that deny path even after passing the matrix gate.
+Plus column adds:
+- `tt_activities.home_score TINYINT UNSIGNED` (end-of-match copy)
+- `tt_activities.away_score TINYINT UNSIGNED`
+- `tt_attendance.minutes_played SMALLINT UNSIGNED` (per-player minutes from the sub log)
 
-## Fix
+Column adds are guarded by `SHOW COLUMNS LIKE` so re-runs don't error on already-migrated installs.
 
-### Seed (`config/authorization_seed.php`)
+### Mobile layout
 
-`my_evaluations × read × self` added for both `head_coach` and `assistant_coach`. Each coach sees only their own authored evaluations.
+Fits the 360×640 phone viewport without scrolling:
 
-### Migration 0119
+- header (40px): match title + date
+- score steppers (48px): home / away with ± buttons
+- timer (44px): half label · MM:SS clock · Start/Pause toggle
+- specific goals (20 + 3×48): tap = +1, long-press = -1 (single-level undo)
+- bench (20 + 5×40): tap → opens bottom-sheet picker of on-pitch players, sub commits immediately with toast
+- sticky bottom action (60): label cycles through `Start` → `End 1st half` → `Start 2nd half` → `End match` → `Match finished`
 
-Idempotent `INSERT IGNORE` of the two seed rows on `tt_authorization_matrix` so existing installs pick up the grant without a full re-seed. Guarded by `is_default = 1` so operator-edited rows are preserved.
+### Substitution flow
 
-### Dispatcher branch
+Two taps: tap → on the bench player, pick the on-pitch player to come off in the bottom-sheet picker. Swap commits immediately; the bench list and the on-pitch list update locally before the network round-trip; the substitution log captures `(half, minute_in_half, player_off_id, player_on_id, event_uuid)`. A re-entry later in the same half is allowed.
 
-`DashboardShortcode::dispatchMeView` now branches by caller context for `case 'my-evaluations'`:
+### End-of-match auto-flow
 
-- User with `tt_edit_evaluations` and no linked player record → `FrontendMyEvaluationsView::renderForCoach(get_current_user_id())`.
-- Player path unchanged: `requirePlayerOrDeny() → render($player)`.
+Tap "End match" → POST `/finish` →
 
-### New `FrontendMyEvaluationsView::renderForCoach( int $coach_user_id )`
+1. Execution row marked `state = 'finished'`, `second_half_ended_at = now()`.
+2. `tt_activities.activity_status_key = 'completed'` AND `plan_state = 'completed'` AND the home/away score copied.
+3. Per-player minutes computed from the substitution log + starting XI walk + half lengths.
+4. For each available player from the prep snapshot: `tt_attendance` row upserted with the right `status` and the computed `minutes_played`.
 
-Queries `tt_evaluations WHERE coach_id = %d AND archived_at IS NULL AND eval_date >= last_30_days ORDER BY eval_date DESC` and renders a simple Date / Player / Type / Match table. The KPI value source filters strictly to "this week"; the view widens to the last 30 days so coaches always see *some* recent context.
+### Offline buffer
 
-## Architectural notes
+Online-first. Every action POSTs to REST immediately. Failures land in `localStorage` keyed `tt_match_exec_queue_<activity_id>`. A small "Offline — actions queued (N)" banner appears at the top when the queue is non-empty. On reconnect (or next successful response), the queue flushes in order. Endpoints are idempotent on `event_uuid` so a double-flush doesn't double-insert.
 
-- Not baking `tt_view_evaluations` into the `tt_coach` role baseline. The matrix is the gate; the matrix data was wrong; repair at that layer.
-- Not removing `requirePlayerOrDeny()` unconditionally — the player branch still legitimately depends on a linked player record.
-- KPI count source already filtered by `coach_id`; the view now matches.
+NOT full offline-first — the initial page load still requires a server. The assistant must reach the sideline with a live session loaded; once loaded, the page survives dead zones.
 
 ## How to test
 
-1. Apply migrations — confirm `0119_seed_coach_my_evaluations` in `tt_migrations`; two new rows on `tt_authorization_matrix`.
-2. Log in as `tt_coach`, click "My evaluations this week" — expect a list of evaluations the coach authored in the last 30 days. No "Not authorized" page.
-3. Log in as `tt_player`, open the same tile — expect the existing per-player evaluations view unchanged.
-4. AuthChainDebugPage shows `my_evaluations × read × self` resolving green via matrix for both coach personas.
+1. Apply migrations — confirm `0120_match_execution` in `tt_migrations`; three new tables exist; `home_score`/`away_score` on `tt_activities`; `minutes_played` on `tt_attendance`.
+2. On a match-type activity that has a Match Prep row, the "Start match" page-header action appears alongside "Plan match prep".
+3. On a match without a prep row, "Start match" still appears (since the gate is just type=match/game + cap) but the view shows a "Plan this match first" notice with a link to the wizard.
+4. Open the view on a phone (or 360×640 DevTools): everything fits without scrolling. Score steppers, timer toggle, specific-goal counters, sub flow, sticky bottom-bar all behave per the spec.
+5. Tap "End match" → activity flips to `completed`, score copied, per-player minutes populated on `tt_attendance`.
+6. Pull network connection mid-match (DevTools → Offline), tap a few subs + score changes — confirm the offline banner shows the queue count. Re-enable network — confirm the queue flushes and the banner clears.
+7. Test idempotency: with the queue holding a substitution, manually re-POST the same `event_uuid` via curl — confirm only one row in `tt_match_execution_substitutions`.
+
+## Player-centric framing
+
+Helps answer **"Who came on, who came off, when, and how many minutes did each player get?"** — the substitution log + the auto-computed `minutes_played` give the coach a clean record of every player's match contribution without anyone typing it in after the fact.
+
+## Out of scope (v1)
+
+- Per-goal records (scorer / assist / minute) — score is a running tally only.
+- Yellow / red cards.
+- Multi-device sync — single device per match in v1.
+- Stoppage / injury time tracking — the assistant keeps clicking past `half_length_minutes`.
+- Automatic substitution suggestions ("Khalid suggested for Joeri based on positional fit").
+- Voice-input shortcuts.
+- Live spectator surface (players / parents watching the score remotely).
+- Coach-side chat / annotations.
+- Video integration.
+- Post-match analyst-feedback capture (the analyst flag from #838 persists who's appointed; capturing their actual feedback is a future flow).

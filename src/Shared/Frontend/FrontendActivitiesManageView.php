@@ -152,6 +152,21 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                         'label' => __( 'Plan match prep', 'talenttrack' ),
                         'href'  => $prep_url,
                     ];
+                    // v3.110.216 (#847) — assistant coach live-match
+                    // surface. Same gate as match prep (type=match/game
+                    // + tt_edit_activities); the view re-checks that a
+                    // match prep exists, refusing to launch otherwise.
+                    $exec_url = add_query_arg(
+                        [
+                            'tt_view'     => 'match-execution',
+                            'activity_id' => (int) $session->id,
+                        ],
+                        \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+                    );
+                    $detail_actions[] = [
+                        'label' => __( 'Start match', 'talenttrack' ),
+                        'href'  => $exec_url,
+                    ];
                 }
                 // v3.110.97 — Continue rating. Only on completed
                 // activities (attendance + rating only make sense

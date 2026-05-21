@@ -1,0 +1,299 @@
+/*
+ * frontend-match-execution.css — #847 assistant coach live-match
+ * surface. Mobile-first 360×640 no-scroll budget per CLAUDE.md §2.
+ */
+
+.tt-mexec {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.tt-mexec-header {
+    padding: 6px 12px;
+    background: #fff;
+    border-bottom: 1px solid var(--tt-line, #e5e7ea);
+    min-height: 40px;
+}
+
+.tt-mexec-header h1 {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.2;
+    color: #1a1d21;
+}
+
+.tt-mexec-meta {
+    margin: 0;
+    font-size: 11px;
+    color: var(--tt-muted, #6b7280);
+}
+
+.tt-mexec-score {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 4px 12px;
+    background: #fff;
+    border-bottom: 1px solid var(--tt-line, #e5e7ea);
+}
+
+.tt-mexec-team-block {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    align-items: center;
+    flex: 1;
+}
+
+.tt-mexec-team-name {
+    font-size: 11px;
+    color: var(--tt-muted, #6b7280);
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tt-mexec-score-stepper {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.tt-mexec-step {
+    width: 32px;
+    height: 32px;
+    border-radius: 16px;
+    border: 1px solid var(--tt-line, #e5e7ea);
+    background: #fff;
+    color: #1a1d21;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.tt-mexec-step:active { transform: scale(0.95); }
+
+.tt-mexec-score-value {
+    min-width: 28px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: 700;
+    color: #1a1d21;
+}
+
+.tt-mexec-timer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 6px 12px;
+    background: #f7f8fa;
+    border-bottom: 1px solid var(--tt-line, #e5e7ea);
+    min-height: 44px;
+}
+
+.tt-mexec-timer-half {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--tt-muted, #6b7280);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.tt-mexec-timer-clock {
+    font-variant-numeric: tabular-nums;
+    font-size: 22px;
+    font-weight: 700;
+    color: #1a1d21;
+}
+
+.tt-mexec-timer-toggle {
+    padding: 6px 14px;
+    min-height: 32px;
+    border-radius: 16px;
+    border: 1px solid #1a4f9e;
+    background: #1a4f9e;
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.tt-mexec-goals,
+.tt-mexec-subs,
+.tt-mexec-onpitch {
+    padding: 4px 12px 6px;
+    background: #fff;
+    border-bottom: 1px solid var(--tt-line, #e5e7ea);
+}
+
+.tt-mexec-goals h2,
+.tt-mexec-subs h2,
+.tt-mexec-onpitch h2 {
+    margin: 4px 0;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--tt-muted, #6b7280);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.tt-mexec-goal-list,
+.tt-mexec-bench-list,
+.tt-mexec-onpitch-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.tt-mexec-goal-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 4px;
+    border-bottom: 1px solid var(--tt-line-soft, #eef0f2);
+    min-height: 48px;
+    user-select: none;
+}
+
+.tt-mexec-goal-list li:last-child { border-bottom: 0; }
+
+.tt-mexec-goal-name { font-weight: 600; }
+
+.tt-mexec-goal-count {
+    min-width: 56px;
+    min-height: 36px;
+    padding: 4px 12px;
+    border-radius: 18px;
+    border: 1px solid var(--tt-line, #e5e7ea);
+    background: #f7f8fa;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.tt-mexec-goal-count:active { background: #eef5ff; }
+
+.tt-mexec-bench-list li,
+.tt-mexec-onpitch-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px;
+    border-bottom: 1px solid var(--tt-line-soft, #eef0f2);
+    min-height: 40px;
+}
+
+.tt-mexec-bench-list li:last-child,
+.tt-mexec-onpitch-list li:last-child { border-bottom: 0; }
+
+.tt-mexec-sub-on {
+    width: 36px;
+    height: 36px;
+    border-radius: 18px;
+    border: 1px solid #2c8a2c;
+    background: #e8f5e9;
+    color: #2c8a2c;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.tt-mexec-bottom {
+    position: sticky;
+    bottom: 0;
+    padding: 6px 12px;
+    background: #fff;
+    border-top: 1px solid var(--tt-line, #e5e7ea);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: stretch;
+}
+
+.tt-mexec-primary {
+    padding: 14px;
+    min-height: 56px;
+    border-radius: 8px;
+    border: 0;
+    background: #1a4f9e;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.tt-mexec-primary[data-tt-mexec-state-action="finished"] {
+    background: #6b7280;
+}
+
+.tt-mexec-status {
+    font-size: 11px;
+    color: var(--tt-muted, #6b7280);
+    min-height: 14px;
+    text-align: center;
+}
+
+.tt-mexec-empty {
+    margin: 4px 0;
+    font-size: 12px;
+    color: var(--tt-muted, #6b7280);
+}
+
+/* Sub picker bottom sheet */
+.tt-mexec-sheet {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: #fff;
+    border-top: 1px solid var(--tt-line, #e5e7ea);
+    box-shadow: 0 -4px 16px rgba(0,0,0,0.15);
+    padding: 12px 16px 24px;
+    max-height: 70vh;
+    overflow-y: auto;
+    z-index: 9999;
+    animation: tt-mexec-slide-up 180ms ease-out;
+}
+
+@keyframes tt-mexec-slide-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+.tt-mexec-sheet-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 0 8px;
+}
+
+.tt-mexec-sheet-head h3 { margin: 0; font-size: 14px; }
+.tt-mexec-sheet-close {
+    width: 32px; height: 32px; border: 0; background: transparent;
+    font-size: 18px; cursor: pointer;
+}
+
+.tt-mexec-sheet-list { list-style: none; margin: 0; padding: 0; }
+.tt-mexec-sheet-list li {
+    padding: 10px 6px;
+    border-bottom: 1px solid var(--tt-line-soft, #eef0f2);
+    min-height: 44px;
+    cursor: pointer;
+}
+.tt-mexec-sheet-list li:hover { background: #fafbfc; }
+
+.tt-mexec-toast {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1a1d21;
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: 22px;
+    font-size: 13px;
+    z-index: 9999;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}

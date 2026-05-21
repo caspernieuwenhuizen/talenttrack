@@ -106,4 +106,8 @@ return [
     // v3.110.214 (migration 0118): wizard pre-step + per-match form +
     // landscape PDF export.
     TT\Modules\MatchPrep\MatchPrepModule::class                  => true,
+    // #847 — Match execution. Assistant coach live-match surface
+    // introduced in v3.110.216 (migration 0120). Hard-depends on
+    // MatchPrep — refuses to launch without a prep row.
+    TT\Modules\MatchExecution\MatchExecutionModule::class        => true,
 ];
