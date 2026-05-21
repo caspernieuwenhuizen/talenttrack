@@ -34,6 +34,84 @@ class MatchExecutionRepository {
         return $row ?: null;
     }
 
+    /**
+     * #879 — find the most-recently-updated live execution on one of
+     * the supplied teams. "Live" means state ∈ {first_half, half_time,
+     * second_half}. Returns null when none exists. Used by the coach
+     * hero to surface a "Resume match" CTA.
+     *
+     * Returned row is enriched with the activity's title, opponent,
+     * session_date, team_id and home/away score so the hero can render
+     * the eyebrow + title + detail without a second query.
+     *
+     * @param list<int> $team_ids
+     */
+    public function findLiveForTeams( array $team_ids ): ?object {
+        if ( $team_ids === [] ) return null;
+        $club_id = (int) CurrentClub::id();
+        $placeholders = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
+        $params = array_merge( [ $club_id ], array_map( 'intval', $team_ids ), [ $club_id ] );
+
+        $activities = $this->wpdb->prefix . 'tt_activities';
+        $sql = "SELECT e.*, a.title, a.opponent, a.session_date, a.team_id, a.location
+                  FROM {$this->t_exec} e
+                  INNER JOIN {$activities} a ON a.id = e.activity_id AND a.club_id = e.club_id
+                 WHERE e.club_id = %d
+                   AND a.team_id IN ({$placeholders})
+                   AND e.state IN ('first_half','half_time','second_half')
+                   AND a.club_id = %d
+                 ORDER BY e.updated_at DESC, e.id DESC
+                 LIMIT 1";
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        $row = $this->wpdb->get_row( $this->wpdb->prepare( $sql, ...$params ) );
+        return $row ?: null;
+    }
+
+    /**
+     * #879 — find a startable match today for one of the supplied teams.
+     * Conditions: `session_date = today`, activity_type_key ∈
+     * {'match','game'}, has a `tt_match_prep` row, and either no
+     * execution row or `state IS NULL` / `'not_started'`.
+     *
+     * Returns the earliest-kickoff row enriched with title + opponent +
+     * session_date + start_time + team_id + location. Used by the coach
+     * hero to surface a "Start match" CTA on the day of a prepped match.
+     *
+     * @param list<int> $team_ids
+     */
+    public function findStartableForTeams( array $team_ids ): ?object {
+        if ( $team_ids === [] ) return null;
+        $club_id = (int) CurrentClub::id();
+        $today   = current_time( 'Y-m-d' );
+        $placeholders = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
+
+        $activities = $this->wpdb->prefix . 'tt_activities';
+        $prep       = $this->wpdb->prefix . 'tt_match_prep';
+
+        // Params: club_id (activities), team_ids…, today, club_id (exec scope).
+        $params = array_merge( [ $club_id ], array_map( 'intval', $team_ids ), [ $today, $club_id ] );
+
+        $sql = "SELECT a.id AS activity_id, a.title, a.opponent, a.session_date,
+                       a.start_time, a.team_id, a.location, a.activity_type_key,
+                       p.id AS prep_id,
+                       e.state AS exec_state
+                  FROM {$activities} a
+                  INNER JOIN {$prep} p ON p.activity_id = a.id AND p.club_id = a.club_id
+                  LEFT JOIN  {$this->t_exec} e ON e.activity_id = a.id AND e.club_id = a.club_id
+                 WHERE a.club_id = %d
+                   AND a.team_id IN ({$placeholders})
+                   AND a.session_date = %s
+                   AND a.activity_type_key IN ('match','game')
+                   AND a.archived_at IS NULL
+                   AND ( e.state IS NULL OR e.state = 'not_started' )
+                   AND a.club_id = %d
+                 ORDER BY a.start_time ASC, a.id ASC
+                 LIMIT 1";
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        $row = $this->wpdb->get_row( $this->wpdb->prepare( $sql, ...$params ) );
+        return $row ?: null;
+    }
+
     public function ensureForActivity( int $activity_id, int $match_prep_id ): int {
         $existing = $this->findByActivity( $activity_id );
         if ( $existing ) return (int) $existing->id;
