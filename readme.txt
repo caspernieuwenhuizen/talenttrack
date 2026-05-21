@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.212
+Stable tag: 3.110.213
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.213 — MEDIUM-priority batch closes the #803 lookups audit: five small vocabularies move into `tt_lookups` + `tt_translations` in a single ship — `invitation_kind` (3 values: player / parent / staff), `idea_type` (4 values: feature / bug / epic / needs triage), `scouting_visit_status` (3 values: planned / completed / cancelled), `scheduled_report_frequency` (3 values: weekly Monday / monthly 1st / season end), and `scheduled_report_status` (3 values: active / paused / archived). All five `label()` / `statusLabel()` / `frequencyLabel()` helpers (existing on InvitationKind, IdeaType, and the new ones added to ScoutingVisitsRepository and ScheduledReportsRepository) delegate to `LookupTranslator::byTypeAndName(<type>, $value)` with switch fallbacks for pre-migration installs. View-side delegates (`FrontendScoutingPlanView::statusLabel`, `FrontendScheduledReportsView::frequencyLabel`) call the canonical repository labels — single source of truth. Stored keys (the PHP constants on each domain class) stay sacred. Five new tiles on the Lookups admin grid; migration 0117 seeds 16 lookup rows + 80 `tt_translations` rows (16 × 5 locales: en_US / nl_NL / fr_FR / de_DE / es_ES) for all five types in a single transaction (pattern mirrors 0098 / 0116). Closes the #803 audit punch list — `tt_lookups`-routed translations are now the standard for every operator-extensible vocabulary in the codebase. (closes #845, #803) =
 
 = 3.110.212 — TrialCases statuses + decisions move to `tt_lookups` + `tt_translations`: the four trial-case lifecycle statuses (open / extended / decided / archived) and six decisions (admit, deny_final, deny_encouragement, offered_team_position, declined_offered_position, continue_in_trial_group) are now operator-editable per academy and translatable per locale through the frontend Lookups admin. Heavy operator surface; trial workflow varies a lot by academy. Stored values (the `TrialCasesRepository::STATUS_*` and `DECISION_*` constants) stay sacred — they remain the contracts with `tt_trial_cases.status` and `tt_trial_cases.decision`. New `TrialCasesRepository::statusLabel()` and `::decisionLabel()` delegate to `LookupTranslator::byTypeAndName()` with switch fallbacks for pre-migration installs. Three consumer sites updated: `FrontendTrialCaseView` (the status + decision strip, which previously echoed the raw stored key — bug fix on top of conversion) and the decision-form radio array; `FrontendTrialsManageView` (the trial-cases list table, status + decision columns — same raw-echo bug fix). New "Trial statuses" + "Trial decisions" tiles on the Lookups admin grid (statuses with show_color=true for status pills; decisions with show_desc=true so academies can gloss each decision); migration 0116 seeds 10 lookup rows + 50 `tt_translations` rows (10 × 5 locales) for the two types together (pattern mirrors 0098). Seventh conversion from the #803 audit punch list. (closes #842, #803 partial) =
 
