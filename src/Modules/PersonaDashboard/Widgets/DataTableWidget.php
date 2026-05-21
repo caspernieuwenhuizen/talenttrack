@@ -46,6 +46,7 @@ class DataTableWidget extends AbstractWidget {
             'audit_log_recent'        => __( 'Recent audit events', 'talenttrack' ),
             'upcoming_activities'     => __( 'Upcoming activities', 'talenttrack' ),
             'goals_by_principle'      => __( 'Goals by principle', 'talenttrack' ),
+            'behaviour_pending'       => __( 'Behaviour pending', 'talenttrack' ),
         ];
     }
 
@@ -146,6 +147,17 @@ class DataTableWidget extends AbstractWidget {
                 'columns'       => [ __( 'Principle', 'talenttrack' ), __( 'Active', 'talenttrack' ), __( 'Completed', 'talenttrack' ), '' ],
                 'see_all_view'  => 'goals',
                 'empty_message' => __( 'No principles configured yet.', 'talenttrack' ),
+            ],
+            // #871 — behaviour-rating staleness. Players overdue for a
+            // rating (default 14 days, configurable via
+            // tt_config.behaviour_staleness_days). Coaches see only
+            // their teams; HoD + admins see the whole club.
+            'behaviour_pending' => [
+                'title'         => __( 'Behaviour pending', 'talenttrack' ),
+                'columns'       => [ __( 'Player', 'talenttrack' ), __( 'Team', 'talenttrack' ), __( 'Since', 'talenttrack' ) ],
+                'see_all_view'  => 'players',
+                'empty_message' => __( 'Up to date — all your players have a recent behaviour rating.', 'talenttrack' ),
+                'limit'         => 10,
             ],
         ];
         return $presets[ $preset ] ?? null;
