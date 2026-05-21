@@ -494,6 +494,11 @@ A PR is not ready to merge until **all** of these hold:
 - [ ] `docs/<slug>.md` AND `docs/nl_NL/<slug>.md` updated for any user-
       visible behaviour change.
 - [ ] `SEQUENCE.md` updated if the work is referenced there.
+- [ ] **Version bump follows strict SemVer** (from v4.0.0 onward, see
+      `DEVOPS.md` § "When to bump what"). **Patch** for fixes + small
+      enhancements; **minor** for new feature epics (reset patch to 0);
+      **major** only for operator-breaking changes. Don't reflex-bump
+      patch on a minor feature.
 
 **Player-centricity:**
 - [ ] Which player question does this feature help answer? (State it in
