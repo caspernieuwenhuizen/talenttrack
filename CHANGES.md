@@ -1,48 +1,106 @@
-# TalentTrack v4.0.9 — Exports page look & feel pass (closes #863)
+# TalentTrack v4.0.10 — Players / Attendance / Goals bulk exports get an XLSX option (closes #864)
 
-## Pilot report
+## Pilot ask
 
-> look and feel is terrible
+> I want to have xlsx and csv instead of only csv as option
 
-Cards on the central Exports page (#797) were cramped, mis-aligned in the grid, and inconsistently sized; the format pill collided with the title; descriptions wrapped mid-phrase at narrow widths.
-
-## Root cause
-
-The v1 from #797 was inline-styled, single-column on every viewport, with `auto-fill, minmax(320px, 1fr)` that produced too-narrow cards at common viewport widths. The format pill sat inside a flex header competing with the title; cards stretched to whatever their description + field count demanded, so the grid never visually aligned.
-
-## Fix
-
-### New stylesheet — `assets/css/frontend-exports.css`
-
-A dedicated CSS file, BEM-style class names, mobile-first.
-
-- Single column below 768px; `repeat(auto-fill, minmax(360px, 1fr))` above.
-- `.tt-export-card` is `position: relative; min-height: 260px; display: flex; flex-direction: column;` — so the grid visually aligns regardless of description length, and the footer can pin to the bottom via `margin-top: auto`.
-- Format pill absolutely positioned in the card's top-right (no longer competing with the title in the header flex row).
-- All inputs (`select`, `input[type="date"]`, `input[type="number"]`, text) are `width: 100%; min-height: 44px; font-size: 14px;` via the stylesheet — no inline gymnastics. The 44px floor keeps mobile touch targets above the CLAUDE.md §2 threshold.
-- Status dropdowns now take the full card width, so "Active only" no longer truncates to "Active o…".
-- Date inputs get `min-width: 0` so the native dd-mm-jjjj glyph row fits inside narrow cards without clipping.
-
-### `FrontendExportsView`
-
-- `enqueueAssets()` override enqueues `tt-frontend-exports` with `tt-frontend-mobile` as dependency, versioned with `TT_VERSION`.
-- `renderCard()` swaps every inline-styled `<div style=…>` for a `.tt-export-card__*` class.
-- `renderField()` swaps the inline-styled `<label>` for `.tt-export-card__field` and removes inline width / min-height on every input.
-- The inline JS error path swaps `msg.style.color = '#b32d2e'` for a `tt-export-card__msg--error` class toggle — error styling now lives in CSS, where a future dark-mode override can pick it up centrally.
+Coaches commonly want XLSX so they can pivot in Excel without re-saving, share with parents/board who prefer the format, and preserve number formatting (CSV loses leading zeros on jersey numbers; date interpretation flips with locale).
 
 ## Scope
 
-- Pure presentation. No data shape change, no REST contract change, no capability change.
-- Inline-styled v1 → class-based v2; future polish (per-exporter format options #864, missing bulk exports #865) builds on the same class set.
+Three row-oriented exporters move from CSV-only to CSV + XLSX:
+
+- `players_list`
+- `attendance_register`
+- `goals_list`
+
+Other exporters keep their single canonical format (PDFs, ICS, JSON, ZIP, multi-sheet XLSX) — they already fit their job.
+
+## Architecture choice
+
+Approach (A) per the issue body: **one exporter per data shape, multi-format**. The exporter's `collect()` output is renderer-shape-agnostic — both `CsvRenderer` and `XlsxRenderer` can consume the same `[ 'headers' => …, 'rows' => … ]` payload. Avoids the parallel-classes duplication of approach (B), and avoids the renaming churn the issue flagged.
+
+Class names stay (`PlayersListCsvExporter` etc.) — they're internal; renaming for cosmetics costs review noise without changing behaviour.
+
+## Changes
+
+### Exporters
+
+```php
+// PlayersListCsvExporter / AttendanceRegisterCsvExporter / GoalsCsvExporter
+public function label(): string { return __( 'Players list', 'talenttrack' ); }
+//                                       // ^ drops the "(CSV)" suffix
+public function supportedFormats(): array { return [ 'csv', 'xlsx' ]; }
+```
+
+`collect()` is unchanged on all three.
+
+### `XlsxRenderer::resolveSheets()`
+
+Adds a recognition path for the assoc shape returned by the CSV exporters, before falling through to the numeric-indexed shape and the existing multi-sheet shape:
+
+```php
+if ( is_array( $payload ) && isset( $payload['headers'], $payload['rows'] ) ) {
+    return [
+        'Data' => [
+            array_values( (array) $payload['headers'] ),
+            array_values( (array) $payload['rows'] ),
+        ],
+    ];
+}
+```
+
+So the same exporter output reaches both renderers without per-exporter branching.
+
+### `FrontendExportsView`
+
+- `cards()` shape: `'format' => 'CSV'` → `'formats' => [ 'csv', 'xlsx' ]`. Every card was migrated, including the single-format ones (now `'formats' => [ 'ics' ]` / `[ 'json' ]` / `[ 'zip' ]` / `[ 'xlsx' ]`).
+- New `formatLabel($slug)` helper produces the display string (CSV / XLSX / iCal / JSON / ZIP / PDF).
+- `renderCard()` branches on `count($formats) > 1`:
+    - **Multi-format**: render a chip-group with one `<label class="tt-export-card__format-chip">` per format, each containing a hidden `<input type="radio" name="format" value="…">`. First slug is `checked` by default. The chip-group sits inside the card's field stack with a "Format" label above it, matching the other field rows.
+    - **Single-format**: the static top-right badge stays; the form emits `<input type="hidden" name="format" value="…">` so the server sees the slug.
+- JS reads `body.format` (from the form's FormData) for the fallback filename extension, so a CSV→XLSX toggle changes the downloaded extension when the server's `Content-Disposition` header is missing.
+
+### CSS — `assets/css/frontend-exports.css`
+
+New chip styles. Pills are 32px tall, brand-green when selected:
+
+```css
+.tt-export-card__format-chip {
+    display: inline-flex;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: #f3f4f5;
+    cursor: pointer;
+    min-height: 32px;
+    touch-action: manipulation;
+}
+.tt-export-card__format-chip:has(input:checked) {
+    background: #0b3d2e;
+    color: #fff;
+}
+.tt-export-card__format-chip:has(input:focus-visible) {
+    outline: 2px solid #0b3d2e;
+    outline-offset: 2px;
+}
+```
+
+The hidden radio uses the standard clip-rect visually-hidden pattern so keyboard users can still Tab + arrow-key through the choices and `:focus-visible` highlights the active chip.
+
+## Out of scope
+
+- Other CSV exporters not in the three listed above (no pilot ask for those).
+- Demo-data XLSX export — already XLSX, no CSV value-add.
+- Renaming exporter class files — purely cosmetic, no consumer-facing change.
 
 ## Verification
 
-- Cards in any grid row align (same `min-height`).
-- Format pill sits top-right; title row has clean padding-right that clears the pill.
-- Dropdowns + date + number inputs all fill the card width with consistent 44px touch height.
-- At 360px the page is a single column with no horizontal scroll.
-- An error response styles the message red via the class modifier; the timer clears the class on dismissal.
+- Players list card shows two chips (CSV selected). Click XLSX → chip flips green → Export → file downloads as `.xlsx` and opens in Excel with proper column types.
+- Attendance register: same toggle, full row set roundtrips into XLSX preserving the date column.
+- Goals list: same toggle, due_date column lands as a string (preserved; no Excel re-interpretation).
+- Single-format cards (Evaluations XLSX, Team iCal, Federation JSON, Backup ZIP, Demo-data XLSX) still show their static badge top-right; their form posts the right `format` via the hidden input.
+- Keyboard test: Tab into chip-group → arrow keys flip selection → Enter on Export submits.
 
 ## Closes
 
-- #863 — Exports page look & feel
+- #864 — Exports page — offer both CSV and XLSX as format option for bulk data exports

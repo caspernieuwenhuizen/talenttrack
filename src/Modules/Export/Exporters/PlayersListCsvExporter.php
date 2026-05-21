@@ -27,9 +27,9 @@ final class PlayersListCsvExporter implements ExporterInterface {
 
     public function key(): string { return 'players_list'; }
 
-    public function label(): string { return __( 'Players list (CSV)', 'talenttrack' ); }
+    public function label(): string { return __( 'Players list', 'talenttrack' ); }
 
-    public function supportedFormats(): array { return [ 'csv' ]; }
+    public function supportedFormats(): array { return [ 'csv', 'xlsx' ]; }
 
     public function requiredCap(): string { return 'tt_view_players'; }
 

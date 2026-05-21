@@ -29,9 +29,9 @@ final class AttendanceRegisterCsvExporter implements ExporterInterface {
 
     public function key(): string { return 'attendance_register'; }
 
-    public function label(): string { return __( 'Attendance register (CSV)', 'talenttrack' ); }
+    public function label(): string { return __( 'Attendance register', 'talenttrack' ); }
 
-    public function supportedFormats(): array { return [ 'csv' ]; }
+    public function supportedFormats(): array { return [ 'csv', 'xlsx' ]; }
 
     public function requiredCap(): string { return 'tt_view_activities'; }
 

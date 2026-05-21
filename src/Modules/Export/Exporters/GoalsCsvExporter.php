@@ -27,9 +27,9 @@ final class GoalsCsvExporter implements ExporterInterface {
 
     public function key(): string { return 'goals_list'; }
 
-    public function label(): string { return __( 'Goals list (CSV)', 'talenttrack' ); }
+    public function label(): string { return __( 'Goals list', 'talenttrack' ); }
 
-    public function supportedFormats(): array { return [ 'csv' ]; }
+    public function supportedFormats(): array { return [ 'csv', 'xlsx' ]; }
 
     public function requiredCap(): string { return 'tt_view_goals'; }
 
