@@ -129,16 +129,23 @@ final class RecordLink {
             return self::permalinkOrHome( $found );
         }
 
-        // 3. Last-resort: current request URI if a [tt_dashboard]
-        //    shortcode lives on the page being viewed, else home_url('/').
+        // 3. Last-resort: REQUEST_URI's path wrapped via `home_url($path)`
+        //    so the resolved URL is always fully-qualified on the
+        //    canonical host. v4.0.1 (#860) — mirrors the v3.110.180
+        //    `wizardStepUrl()` fix. Previously this branch returned
+        //    `esc_url_raw(REQUEST_URI)` directly, which on some installs
+        //    (Strato among them) left the URL in a state that 404'd when
+        //    `add_query_arg()` appended further query parameters — every
+        //    entry link built through this helper failed. Extract the
+        //    path manually (no esc_url_raw round-trip per v3.110.180's
+        //    diagnosis) and let `home_url()` canonicalise to the right
+        //    scheme + host.
         if ( isset( $_SERVER['REQUEST_URI'] ) ) {
-            $current = esc_url_raw( (string) wp_unslash( $_SERVER['REQUEST_URI'] ) );
-            if ( $current !== '' ) {
-                return remove_query_arg(
-                    [ 'tt_view', 'player_id', 'eval_id', 'activity_id', 'goal_id', 'team_id', 'id', 'tab' ],
-                    $current
-                );
-            }
+            $raw   = wp_unslash( (string) $_SERVER['REQUEST_URI'] );
+            $q_pos = strpos( $raw, '?' );
+            $path  = $q_pos === false ? $raw : substr( $raw, 0, $q_pos );
+            if ( $path === '' ) $path = '/';
+            return home_url( $path );
         }
         return home_url( '/' );
     }
