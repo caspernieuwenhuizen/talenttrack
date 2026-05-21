@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.0.7
+Stable tag: 4.0.8
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.0.8 — Exports page no longer 403s on every Export click (closes #862). The `/talenttrack/v1/exports/{key}` REST route was registered `'methods' => 'GET'`, but the inline JS in `FrontendExportsView` submits filters as a JSON body via POST. Result: every Export button on the central Exports page (#797) returned 403 / 405. Two-part fix: (1) route now accepts both GET and POST so direct-link integrations keep working while the page's own POST goes through; (2) the run() handler now merges `get_query_params()` AND `get_json_params()` into the filter bag before passing it to the exporter, so filters carried in the POST body actually reach the export — previously only GET querystring filters were read. Cap-gating in `ExportService::run()` is unchanged. (closes #862) =
 
 = 4.0.7 — Player Compare layout + radar + trend chart fixed (closes #878). Three defects landed in one ship since they share the same view. **Layout — header column-stack**: the player-header row was column-stacking on desktop because `.tt-fcompare-cell` had no `display:flex`; the `tt-fcompare-headerplayer` child had `flex-direction: row` but no parent flex context. Added `display:flex; align-items:center` to the cell base; removed the redundant `.tt-fcompare-label` class from the header div (it inherited `display:block` from a sibling rule). **Radar — wrong player**: `renderChartScripts()` was indexing the radar dataset as `$radar_sets[0]` for every player slot — both columns rendered Player A's radar. Now reads `$radar_sets[$pid]` keyed by the actual player ID, and pulls the latest snapshot via `end($snap['datasets'])` instead of assuming `[0]`. **Trend — only main-category series, no overall**: `PlayerStatsService::getTrendSeries()` returned one line per main category; the compare view's trend was a tangle of 4-6 thin lines per player with no aggregate. Added a synthetic "Overall" series at index 0 — the per-date mean across all main-category points, computed in PHP, so the trend chart now leads with a clear aggregate line and keeps the per-category lines below. No schema change; pure presentation + service-layer aggregation. (closes #878) =
 

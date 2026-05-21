@@ -1,92 +1,52 @@
-# TalentTrack v4.0.7 — Player Compare: header layout + radar + trend chart fixed (closes #878)
+# TalentTrack v4.0.8 — Exports page no longer 403s on every Export click (closes #862)
 
 ## Pilot report
 
-> compare players, the layout has issues. the radar is the same for the two players (which is impossible). also the trend in graph is missing a line for the overall rating, only including the main categories
+> exports lead to a 403
 
-## Root causes
+Every Export button on the central Exports page (#797) returned 403. Show-stopper — no bulk export worked.
 
-Three defects in `FrontendComparisonView` (and one in the stats service it pulls from), shipped together since they share the same view.
+## Root cause
 
-### 1 — Header column-stack
+Two related defects in `ExportRestController`:
 
-The per-player header (avatar + name) was rendering vertically on desktop. `.tt-fcompare-cell` (the table-cell container) had no `display: flex`, so its child `tt-fcompare-headerplayer` — which carries `flex-direction: row` — never got a flex context. The header div also redundantly had `tt-fcompare-label` on it, which a sibling rule sets to `display: block`, undoing any row layout that did apply.
-
-### 2 — Radar shows the wrong player
-
-`renderChartScripts()` was iterating per player slot but reading `$radar_sets[0]` for every slot. Result: both columns rendered Player A's radar. The data structure from `PlayerStatsService::getRadarSnapshots()` is keyed by player ID and returns `{labels, datasets: [{label, values}]}` (associative — last entry = most recent snapshot), so the consumer needs to read `$radar_sets[$pid]` and pull the latest via `end($snap['datasets'])`.
-
-### 3 — Trend chart missing aggregate line
-
-`PlayerStatsService::getTrendSeries()` returned one line per main category (Technique, Tactics, Physical, Mental, …) but no aggregate. The compare view's trend tab was a tangle of thin lines per player with nothing to read at a glance. Pilot expected the overall trend on top, with the per-category breakdown beneath as supporting detail.
+1. **HTTP method mismatch**. The `/exports/{key}` route was registered `'methods' => 'GET'`. The page's inline JS submits via `fetch(..., { method: 'POST', body: JSON.stringify(body) })` — the filter set (team_id, date range, status, demo-table presets, …) is a JSON body, which is the right shape for that payload. POST hitting a GET-only route → 405; the nonce check tripped first on the unexpected method → 403.
+2. **Filters read from query string only**. `run()` did `$req->get_query_params()` to assemble the filter bag. Even after we unblocked POST, the filters carried in the JSON body would have been invisible to the exporter.
 
 ## Fix
 
-### CSS (`FrontendComparisonView` inline styles)
-
-```css
-.tt-fcompare-cell {
-    display: flex;
-    align-items: center;
-    /* … existing rules … */
-}
-```
-
-### Header div — drop the redundant `tt-fcompare-label`
+In `src/Modules/Export/Rest/ExportRestController.php`:
 
 ```php
-// before:
-echo '<div class="tt-fcompare-label tt-fcompare-headerplayer">' . …;
-// after:
-echo '<div class="tt-fcompare-headerplayer">' . …;
-```
-
-### Radar consumer — key by player ID, take the latest snapshot
-
-```php
-// before:
-$snap = $radar_sets[0] ?? null;
-// after:
-$snap = $radar_sets[ $pid ] ?? null;
-if ( $snap && ! empty( $snap['datasets'] ) ) {
-    $latest = end( $snap['datasets'] );
-    $values = $latest['values'] ?? [];
-}
-```
-
-### Trend — prepend an "Overall" series
-
-After populating the per-main-category series, compute the per-date mean across all points and prepend it as the first series:
-
-```php
-$overall_points = array_fill( 0, count( $labels ), null );
-foreach ( $labels as $idx => $_ ) {
-    $vals = [];
-    foreach ( $series as $ser ) {
-        $pt = $ser['points'][ $idx ] ?? null;
-        if ( $pt !== null ) $vals[] = (float) $pt;
-    }
-    if ( count( $vals ) > 0 ) {
-        $overall_points[ $idx ] = round( array_sum( $vals ) / count( $vals ), 2 );
-    }
-}
-array_unshift( $series, [
-    'main_id' => 0,
-    'label'   => __( 'Overall', 'talenttrack' ),
-    'points'  => $overall_points,
+// route — accept both GET and POST
+register_rest_route( self::NS, '/exports/(?P<key>[a-z0-9_-]+)', [
+    [
+        'methods'             => [ 'GET', 'POST' ],
+        'callback'            => [ __CLASS__, 'run' ],
+        'permission_callback' => [ __CLASS__, 'permissionCallback' ],
+    ],
 ] );
+
+// run() — merge query-string filters AND JSON-body filters
+$query   = $req->get_query_params();
+$body    = $req->get_json_params();
+$filters = array_merge(
+    is_array( $query ) ? $query : [],
+    is_array( $body )  ? $body  : []
+);
+unset( $filters['format'], $filters['entity_id'], $filters['brand'] );
 ```
 
-## Scope
-
-Pure presentation + one service-layer aggregation. No schema change, no REST contract change, no capability change. The new "Overall" series is identified by `main_id = 0` (no main category has id 0) so any other consumer of `getTrendSeries()` can ignore it or treat it as the aggregate.
+- Reserved params (`format` / `entity_id` / `brand`) are still read via `$req->get_param()`, which checks every parameter source and works for both GET and POST.
+- Cap-gating in `ExportService::run()` against each exporter's `requiredCap()` is unchanged.
+- GET path is preserved — direct-link integrations keep working.
 
 ## Verification
 
-- Compare page renders the player header row horizontally at desktop and at 360px.
-- Each player column's radar shows that player's latest snapshot (test by comparing two players with different main-category profiles).
-- Trend chart leads with an "Overall" line; per-main-category lines render beneath it.
+- Open the Exports page, click Export on any card → file downloads (no 403, no 405).
+- POST a JSON filter body → exporter sees the filters and respects them.
+- A direct `GET /talenttrack/v1/exports/<key>?team_id=N&format=csv` still works for scripted integrations.
 
 ## Closes
 
-- #878 — Player Compare: layout + radar + trend chart issues
+- #862 — Exports page — 403 on every Export click
