@@ -141,6 +141,18 @@ class FrontendConfigurationView extends FrontendViewBase {
             // picker that reads this vocabulary; it just had no maintenance
             // surface beyond wp-admin. Seeded with 8 starters by #0044.
             [ __( 'Player values',      'talenttrack' ), __( 'Player virtues used as PDP goal links: Commitment, Coachability, Resilience, etc.', 'talenttrack' ), 'player_values',   'lightbulb' ],
+            // v3.110.201 (#831) — eight lookup_types that were already in
+            // tt_lookups and read by the renderer but had no maintenance
+            // surface on the frontend. Adding them as tiles unlocks the
+            // same translate/extend UX the other categories already have.
+            [ __( 'Activity statuses',     'talenttrack' ), __( 'Draft / scheduled / conducted. Colour-coded pills on the activities list.',                  'talenttrack' ), 'activity_statuses',          'workflow' ],
+            [ __( 'Certification types',   'talenttrack' ), __( 'Staff certifications (UEFA-A/B/C, First aid, GDPR awareness, Child safeguarding, …).',       'talenttrack' ), 'cert_types',                 'rate-card' ],
+            [ __( 'Tournament formations', 'talenttrack' ), __( 'Formations selectable when configuring a tournament (4-3-3, 3-5-2, …).',                     'talenttrack' ), 'tournament_formations',      'kanban' ],
+            [ __( 'Opponent levels',       'talenttrack' ), __( 'Opponent strength buckets selectable on tournament setup.',                                  'talenttrack' ), 'tournament_opponent_levels', 'podium' ],
+            [ __( 'Behaviour ratings',     'talenttrack' ), __( 'Concerning … Exemplary. Labels for the player behaviour card and evaluation review.',         'talenttrack' ), 'behaviour_ratings',          'profile' ],
+            [ __( 'Potential bands',       'talenttrack' ), __( 'Far below club level … Elite potential. Drives the player potential card.',                  'talenttrack' ), 'potential_bands',            'categories' ],
+            [ __( 'Journey event types',   'talenttrack' ), __( 'Trial / signing / promotion / release / graduation. Tags player timeline events.',          'talenttrack' ), 'journey_event_types',        'track' ],
+            [ __( 'Competition types',     'talenttrack' ), __( 'Competition categories (league, cup, friendly, tournament, …) used by match pickers.',       'talenttrack' ), 'competition_types',          'methodology' ],
             [ __( 'Rating scale',       'talenttrack' ), __( 'Min, max and step for evaluation ratings.',                         'talenttrack' ), '__rating',        'weights' ],
         ];
 
@@ -188,6 +200,18 @@ class FrontendConfigurationView extends FrontendViewBase {
             // gloss for each value ("Commitment — turning up on time and
             // ready to train") that surfaces wherever the value is shown.
             'player_values'   => [ 'label' => __( 'Player values',       'talenttrack' ), 'type' => 'player_value',      'show_desc' => true,  'show_color' => false ],
+            // v3.110.201 (#831) — eight lookup_types previously hidden from the
+            // frontend grid. `show_desc=true` on the four where the description
+            // column is operator-meaningful (gloss for the label); `show_color`
+            // only on activity_status because its pills are colour-coded list-side.
+            'activity_statuses'          => [ 'label' => __( 'Activity statuses',     'talenttrack' ), 'type' => 'activity_status',           'show_desc' => false, 'show_color' => true  ],
+            'cert_types'                 => [ 'label' => __( 'Certification types',   'talenttrack' ), 'type' => 'cert_type',                 'show_desc' => true,  'show_color' => false ],
+            'tournament_formations'      => [ 'label' => __( 'Tournament formations', 'talenttrack' ), 'type' => 'tournament_formation',      'show_desc' => false, 'show_color' => false ],
+            'tournament_opponent_levels' => [ 'label' => __( 'Opponent levels',       'talenttrack' ), 'type' => 'tournament_opponent_level', 'show_desc' => true,  'show_color' => false ],
+            'behaviour_ratings'          => [ 'label' => __( 'Behaviour ratings',     'talenttrack' ), 'type' => 'behaviour_rating_label',    'show_desc' => true,  'show_color' => false ],
+            'potential_bands'            => [ 'label' => __( 'Potential bands',       'talenttrack' ), 'type' => 'potential_band',            'show_desc' => true,  'show_color' => false ],
+            'journey_event_types'        => [ 'label' => __( 'Journey event types',   'talenttrack' ), 'type' => 'journey_event_type',        'show_desc' => true,  'show_color' => false ],
+            'competition_types'          => [ 'label' => __( 'Competition types',     'talenttrack' ), 'type' => 'competition_type',          'show_desc' => false, 'show_color' => false ],
         ];
         if ( ! isset( $registry[ $slug ] ) ) return null;
         $meta = $registry[ $slug ];

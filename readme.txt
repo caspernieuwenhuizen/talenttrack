@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.200
+Stable tag: 3.110.201
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.201 — 8 lookup_types that already lived in `tt_lookups` (`activity_status`, `cert_type`, `tournament_formation`, `tournament_opponent_level`, `behaviour_rating_label`, `potential_band`, `journey_event_type`, `competition_type`) are now exposed as tiles in the frontend Configuration → Lookups grid. Operators can edit names, descriptions, sort_order and per-locale translations through the same UX the existing 10 categories already had. No migration; rows were already seeded by migrations 0013 / 0037 / 0042 / 0047 / 0048 / 0098. (closes #831) =
 
 = 3.110.200 — Team edit form: legacy `head_coach_id` dropdown removed; head-coach attribution lives exclusively in the Staff section (tt_team_people + role-scope assignments) (closes #820) =
 
