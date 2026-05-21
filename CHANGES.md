@@ -1,38 +1,53 @@
-# TalentTrack v4.0.2 — Quick Action widget Dutch labels render translated (closes #805)
+# TalentTrack v4.0.3 — v3.110.121 rating-scale-flip leftovers (closes #866)
 
-## Pilot report
+## Why
 
-> quick action widget has english titles for the quick actions, how can this happen?
+v3.110.121 (commit `f7c5135`) flipped the global rating scale from 1-5 to the Dutch academic 5-10 scale. The release fixed ~15 surfaces; three more were missed and surfaced in the pilot audit on 2026-05-21. The calculation core is correct (it reads `rating_max` from `tt_config` and normalises); these three spots were hardcoded literals that bypassed config.
 
-## Root cause
+All three reproduce on every install with the new scale active.
 
-The 8 action-card labels (`+ New evaluation`, `+ New goal`, `+ New activity`, `+ Add player`, `+ Add team`, `+ New scout report`, `+ New trial`, `+ New test training`) lived in a `private const ACTIONS` array keyed by id, and the render path resolved them via `__($action['label_key'], 'talenttrack')`.
+## Bugs fixed
 
-`wp i18n make-pot` does NOT extract `__()` calls with variable args. The 8 msgids never landed in `talenttrack.pot`. Over time the i18n-sync workflow marked the existing Dutch translations as **obsolete** (`#~`) in `nl_NL.po` since the bot couldn't find a live source reference for them.
+### A — Behaviour floor unreachable
 
-Result: on Dutch installs, the action-card widgets rendered the English msgid literal even though Dutch translations existed in the .po file — a structural i18n drift, not a missing-translation gap.
+`MethodologyResolver::shippedDefault()` carried `behaviour_floor_below = 3.0` (the 1-5 midpoint). Under 5-10 a behaviour avg below 3.0 is impossible, so `PlayerStatusCalculator`'s floor-veto never fired for fresh installs.
 
-## Fix
+Fix: read `rating_min` + `rating_max` from `tt_config` and use the midpoint. On the 5-10 scale that's 7.5; on a hypothetical revert to 1-5 it would be 3.0 (current behaviour preserved). The methodology config form (`FrontendPlayerStatusMethodologyView::extractConfig`) now clamps to the active range too. Help text reads "behaviour floor at the midpoint of the active rating scale" instead of the literal "3.0".
 
-Two parts:
+### B — Pitch-fit colour thresholds hardcoded 4.0 / 3.0
 
-1. **Refactor**: new static `ActionCardWidget::actionLabel( string $id )` with literal `__()` calls in a switch. The 8 msgids are now extractable on the next `wp i18n make-pot` run.
-2. **`nl_NL.po`**: un-obsolete the 7 existing entries (removed the `#~` prefix) and add `+ New test training` which was missing. Re-titled the comment block to point at the v4.0.2 / #805 context.
+`PitchSvg` rendered `score >= 4.0` as no-class (= strong/green) and `score >= 3.0` as `tt-fit-mid`. Under 5-10 that's 40% of max showing as strong; weak fits looked good on the team-development pitch view.
 
-Both `render()` and `dataSourceCatalogue()` now go through `actionLabel()` so the widget admin picker AND the rendered tile show the same translated label.
+Fix: thresholds compute as `rating_max × 0.80` (strong) / `rating_max × 0.50` (mid). On 5-10 that's 8.0 / 5.0; on 1-5 it would be 4.0 / 2.5 (close to the original intent).
 
-## Why this matters beyond cosmetics
+### C — Team-fit panel hardcoded `/ 5`
 
-Every dynamic `__($variable)` call has this exact problem — the bot's next msgmerge run marks the msgid obsolete and translations silently rot. Adjacent surfaces that follow the same anti-pattern (`__($row->name)`, `__($key)`, etc.) are vulnerable to the same drift. Worth a follow-up audit but out of scope for this ship.
+`PlayerTeamFitPanel` displayed scores as `7.8 / 5`. Numerator exceeded denominator — confusing to coaches.
+
+Fix: denominator reads `tt_config.rating_max`. The panel now shows `7.8 / 10`.
+
+## What this is NOT
+
+- Not a calculation bug. `PlayerStatusCalculator` reads `rating_max` correctly.
+- Not a migration regression. Migration 0095's data remap was correct.
+- Not a per-install data defect. Universal across installs on the new scale.
 
 ## Files touched
 
-- `src/Modules/PersonaDashboard/Widgets/ActionCardWidget.php` — added `actionLabel()` static; `render()` + `dataSourceCatalogue()` use it.
-- `languages/talenttrack-nl_NL.po` — 7 entries un-obsoleted + 1 new (`+ New test training`).
+- `src/Infrastructure/PlayerStatus/MethodologyResolver.php` — shipped default reads midpoint from config.
+- `src/Modules/Players/Frontend/FrontendPlayerStatusMethodologyView.php` — form clamps to active range; help text generic.
+- `src/Modules/TeamDevelopment/Frontend/PitchSvg.php` — thresholds as percentages of `rating_max`.
+- `src/Modules/TeamDevelopment/Frontend/PlayerTeamFitPanel.php` — denominator from config.
 - `talenttrack.php` + `readme.txt` + `CHANGES.md` — version bump.
+
+No migration. No schema change. No REST change. No translation change. Pure runtime-config reads.
 
 ## How to test
 
-1. On a Dutch install: open any coach / HoD dashboard → confirm the action-card tiles render the Dutch labels (`+ Nieuwe evaluatie`, `+ Nieuw doel`, etc.) instead of the English msgid.
-2. Wp-admin dashboard layout editor → action-card widget data-source picker → confirm the dropdown shows Dutch labels for each action id.
-3. Pre-`v4.0.2` install rolled back: same labels render in English — confirms the fix is what's making the difference.
+1. Set a player's behaviour average to 6.0 (below midpoint 7.5); their composite score is above the amber threshold; status should be downgraded green→amber via the floor veto. Pre-fix this was green.
+2. Open the team-development pitch view; players with fit scores in the 4.0–4.9 range should render in **red** (`tt-fit-low`). Pre-fix they rendered as strong/green.
+3. Open the team-fit panel for any player; denominator reads `/ 10`. Pre-fix it read `/ 5`.
+
+## Why patch (not minor)
+
+Three bug fixes, no new behaviour, no schema. Per the v4.0.0 SemVer rule: patch.

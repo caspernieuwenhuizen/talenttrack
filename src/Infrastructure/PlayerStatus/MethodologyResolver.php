@@ -27,6 +27,14 @@ final class MethodologyResolver {
      * @return array<string,mixed>
      */
     public static function shippedDefault(): array {
+        // v4.0.3 (#866) — behaviour floor reads the midpoint of the
+        // active scale. Hardcoded 3.0 was the 1-5 midpoint; on 5-10 a
+        // behaviour avg below 3.0 is impossible, so the floor veto
+        // never fired for fresh installs.
+        $rating_min = (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_min', '5' );
+        $rating_max = (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_max', '10' );
+        $midpoint   = $rating_min + ( $rating_max - $rating_min ) / 2.0;
+
         return [
             'version_id'  => 'shipped',
             'inputs'      => [
@@ -40,7 +48,7 @@ final class MethodologyResolver {
                 'red_below'   => 40,
             ],
             'floor_rules' => [
-                'behaviour_floor_below' => 3.0,
+                'behaviour_floor_below' => $midpoint,
             ],
             'trajectory_rule' => [
                 'enabled'           => false,
