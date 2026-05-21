@@ -107,6 +107,41 @@ final class ReviewStep implements WizardStepInterface {
                 <span style="color:var(--tt-muted);"><?php echo esc_html( implode( ', ', $unrated ) ); ?></span>
             </div>
         <?php endif; ?>
+
+        <?php
+        // #869 — Behaviour summary. Renders only when BehaviourStep
+        // captured at least one rating; the step itself is auto-skipped
+        // for users without `tt_rate_player_behaviour` (and on the
+        // player-first path), so absence here is expected.
+        $behaviour_ratings = (array) ( $state['behaviour_ratings'] ?? [] );
+        $behaviour_notes   = (array) ( $state['behaviour_notes'] ?? [] );
+        if ( ! empty( $behaviour_ratings ) ) :
+            // Build a quick player-id → name map from the rateable
+            // roster so the summary reads as names, not IDs.
+            $name_by_pid = [];
+            foreach ( $present_players as $pl ) {
+                $name_by_pid[ (int) $pl->id ] = trim( (string) $pl->first_name . ' ' . (string) $pl->last_name );
+            }
+            ?>
+            <p style="margin-top:16px;color:var(--tt-muted);">
+                <strong><?php esc_html_e( 'Behaviour ratings to record:', 'talenttrack' ); ?></strong>
+            </p>
+            <ul style="margin:6px 0 12px 18px;color:var(--tt-muted);font-size:13px;">
+            <?php foreach ( $behaviour_ratings as $pid => $rating ) :
+                $pid = (int) $pid;
+                $note = (string) ( $behaviour_notes[ $pid ] ?? '' );
+                $name = (string) ( $name_by_pid[ $pid ] ?? ( 'Player #' . $pid ) );
+                ?>
+                <li>
+                    <?php echo esc_html( $name ); ?> — <strong><?php echo (int) $rating; ?></strong>
+                    <?php if ( $note !== '' ) : ?>
+                        <span style="color:var(--tt-muted);">— <?php echo esc_html( $note ); ?></span>
+                    <?php endif; ?>
+                </li>
+            <?php endforeach; ?>
+            </ul>
+        <?php endif; ?>
+
         <p style="color:var(--tt-muted);font-size:13px;"><?php esc_html_e( 'Click Submit to write the evaluations.', 'talenttrack' ); ?></p>
         <div class="tt-pd-eval-progress" data-tt-eval-progress hidden>
             <progress class="tt-pd-eval-progress-bar" max="100" value="0"></progress>
@@ -236,6 +271,33 @@ final class ReviewStep implements WizardStepInterface {
         // `plan_state = 'completed'`.
         if ( $aid > 0 ) {
             AttendanceStep::completeActivityIfNotTerminal( $aid );
+        }
+
+        // #869 — Write the behaviour rows captured by BehaviourStep.
+        // Step is skippable, so this is a no-op when empty. Each row
+        // ties back to the same activity via `related_activity_id` so
+        // the player-status calculator can attribute the rating to the
+        // session it was captured alongside. The behaviour cap was
+        // already enforced by BehaviourStep::notApplicableFor() — a
+        // user without it never sees the step and never accumulates
+        // these state keys.
+        $behaviour_ratings = (array) ( $state['behaviour_ratings'] ?? [] );
+        $behaviour_notes   = (array) ( $state['behaviour_notes'] ?? [] );
+        if ( ! empty( $behaviour_ratings ) && current_user_can( 'tt_rate_player_behaviour' ) ) {
+            $repo = new \TT\Modules\Players\Repositories\PlayerBehaviourRatingsRepository();
+            foreach ( $behaviour_ratings as $bp_id => $rating ) {
+                $bp_id  = (int) $bp_id;
+                $rating = (float) $rating;
+                if ( $bp_id <= 0 || $rating <= 0 ) continue;
+                $repo->create( [
+                    'player_id'           => $bp_id,
+                    'rating'              => $rating,
+                    'rated_at'            => current_time( 'mysql' ),
+                    'rated_by'            => get_current_user_id(),
+                    'related_activity_id' => $aid > 0 ? $aid : null,
+                    'notes'               => (string) ( $behaviour_notes[ $bp_id ] ?? '' ),
+                ] );
+            }
         }
 
         // v3.110.73 — wizards can override the post-submit redirect via

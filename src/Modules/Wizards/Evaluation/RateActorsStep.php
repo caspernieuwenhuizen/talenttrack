@@ -403,7 +403,7 @@ final class RateActorsStep implements WizardStepInterface {
         return [ 'ratings' => $clean, 'notes' => $notes, 'skip' => $skip ];
     }
 
-    public function nextStep( array $state ): ?string { return 'review'; }
+    public function nextStep( array $state ): ?string { return 'behaviour'; }
     public function submit( array $state ) { return null; }
 
     /**
