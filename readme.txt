@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.211
+Stable tag: 3.110.212
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.212 — TrialCases statuses + decisions move to `tt_lookups` + `tt_translations`: the four trial-case lifecycle statuses (open / extended / decided / archived) and six decisions (admit, deny_final, deny_encouragement, offered_team_position, declined_offered_position, continue_in_trial_group) are now operator-editable per academy and translatable per locale through the frontend Lookups admin. Heavy operator surface; trial workflow varies a lot by academy. Stored values (the `TrialCasesRepository::STATUS_*` and `DECISION_*` constants) stay sacred — they remain the contracts with `tt_trial_cases.status` and `tt_trial_cases.decision`. New `TrialCasesRepository::statusLabel()` and `::decisionLabel()` delegate to `LookupTranslator::byTypeAndName()` with switch fallbacks for pre-migration installs. Three consumer sites updated: `FrontendTrialCaseView` (the status + decision strip, which previously echoed the raw stored key — bug fix on top of conversion) and the decision-form radio array; `FrontendTrialsManageView` (the trial-cases list table, status + decision columns — same raw-echo bug fix). New "Trial statuses" + "Trial decisions" tiles on the Lookups admin grid (statuses with show_color=true for status pills; decisions with show_desc=true so academies can gloss each decision); migration 0116 seeds 10 lookup rows + 50 `tt_translations` rows (10 × 5 locales) for the two types together (pattern mirrors 0098). Seventh conversion from the #803 audit punch list. (closes #842, #803 partial) =
 
 = 3.110.211 — IdeaStatus moves to `tt_lookups` + `tt_translations`: the nine internal idea-board statuses (submitted / refining / ready-for-approval / rejected / promoting / promoted / promotion-failed / in-progress / done) are now operator-editable per academy and translatable per locale through the frontend Lookups admin. Stored keys (the `IdeaStatus::*` PHP constants) stay sacred — they remain the contract with `tt_dev_ideas.status` and drive the kanban board's column structure (`boardColumns()`). `IdeaStatus::label()` delegates to `LookupTranslator::byTypeAndName()` with a switch fallback for pre-migration installs. `IdeaStatus::authorFacingLabel()` is unchanged — it's a curated 4-bucket rollup (In review / Not accepted / Accepted / Submitted) of the underlying 9 statuses, not a per-status label. New "Idea statuses" tile on the Lookups admin grid (show_color=true so the kanban columns can be colour-coded); migration 0115 seeds 9 lookup rows + 45 `tt_translations` rows (9 × 5 locales). Sixth conversion from the #803 audit punch list. (closes #840, #803 partial) =
 

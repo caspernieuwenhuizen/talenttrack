@@ -26,6 +26,49 @@ class TrialCasesRepository {
     public const DECISION_DECLINED_OFFERED_POSITION = 'declined_offered_position';
     public const DECISION_CONTINUE_IN_TRIAL_GROUP  = 'continue_in_trial_group';
 
+    /**
+     * Operator-editable label for a stored status value. Resolves
+     * through `tt_translations` for the current locale via
+     * `LookupTranslator::byTypeAndName('trial_case_status', $value)`;
+     * pre-migration installs fall back to the canonical English label.
+     * Stored values stay sacred (STATUS_* constants above).
+     */
+    public static function statusLabel( string $status ): string {
+        if ( $status === '' ) return '';
+        if ( class_exists( '\\TT\\Infrastructure\\Query\\LookupTranslator' ) ) {
+            $label = \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'trial_case_status', $status );
+            if ( $label !== '' && $label !== $status ) return $label;
+        }
+        switch ( $status ) {
+            case self::STATUS_OPEN:     return __( 'Open',     'talenttrack' );
+            case self::STATUS_EXTENDED: return __( 'Extended', 'talenttrack' );
+            case self::STATUS_DECIDED:  return __( 'Decided',  'talenttrack' );
+            case self::STATUS_ARCHIVED: return __( 'Archived', 'talenttrack' );
+        }
+        return $status;
+    }
+
+    /**
+     * Operator-editable label for a stored decision value. Same chain
+     * as statusLabel() but targets the `trial_case_decision` lookup_type.
+     */
+    public static function decisionLabel( string $decision ): string {
+        if ( $decision === '' ) return '';
+        if ( class_exists( '\\TT\\Infrastructure\\Query\\LookupTranslator' ) ) {
+            $label = \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'trial_case_decision', $decision );
+            if ( $label !== '' && $label !== $decision ) return $label;
+        }
+        switch ( $decision ) {
+            case self::DECISION_ADMIT:                     return __( 'Admit (offer a place)',                     'talenttrack' );
+            case self::DECISION_DENY_FINAL:                return __( 'Decline (final)',                            'talenttrack' );
+            case self::DECISION_DENY_ENCOURAGE:            return __( 'Decline (with encouragement to re-apply)',   'talenttrack' );
+            case self::DECISION_OFFERED_TEAM_POSITION:     return __( 'Offered team position',                      'talenttrack' );
+            case self::DECISION_DECLINED_OFFERED_POSITION: return __( 'Declined offered position',                  'talenttrack' );
+            case self::DECISION_CONTINUE_IN_TRIAL_GROUP:   return __( 'Continue in trial group',                    'talenttrack' );
+        }
+        return $decision;
+    }
+
     private \wpdb $wpdb;
     private string $table;
 

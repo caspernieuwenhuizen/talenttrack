@@ -186,6 +186,10 @@ class FrontendConfigurationView extends FrontendViewBase {
             // v3.110.211 (#803/#840) — nine internal idea statuses
             // (#0009 ideas board).
             [ __( 'Idea statuses', 'talenttrack' ), __( 'Submitted / refining / ready for approval / rejected / promoting / accepted / promotion failed / in progress / done — ideas-board status vocabulary.', 'talenttrack' ), 'idea_statuses', 'lightbulb' ],
+            // v3.110.212 (#803/#842) — trial-case statuses + decisions.
+            // Heavy operator surface; trial workflow varies by academy.
+            [ __( 'Trial statuses', 'talenttrack' ), __( 'Open / extended / decided / archived — trial-case lifecycle states.', 'talenttrack' ), 'trial_case_statuses', 'inbox' ],
+            [ __( 'Trial decisions', 'talenttrack' ), __( 'Admit / decline (final or with encouragement) / offered team position / declined / continue in trial group.', 'talenttrack' ), 'trial_case_decisions', 'approval' ],
             [ __( 'Rating scale',       'talenttrack' ), __( 'Min, max and step for evaluation ratings.',                         'talenttrack' ), '__rating',        'weights' ],
         ];
 
@@ -276,6 +280,12 @@ class FrontendConfigurationView extends FrontendViewBase {
             // show_color=true so the kanban columns get colour-coded
             // pills; show_desc=false (status names self-explanatory).
             'idea_statuses'           => [ 'label' => __( 'Idea statuses',          'talenttrack' ), 'type' => 'idea_status',            'show_desc' => false, 'show_color' => true  ],
+            // v3.110.212 (#803/#842) — trial-case statuses + decisions.
+            // Statuses get show_color (the trial list renders status
+            // pills); decisions get show_desc=true so academies can gloss
+            // what each decision means in their context.
+            'trial_case_statuses'     => [ 'label' => __( 'Trial statuses',         'talenttrack' ), 'type' => 'trial_case_status',      'show_desc' => false, 'show_color' => true  ],
+            'trial_case_decisions'    => [ 'label' => __( 'Trial decisions',        'talenttrack' ), 'type' => 'trial_case_decision',    'show_desc' => true,  'show_color' => false ],
         ];
         if ( ! isset( $registry[ $slug ] ) ) return null;
         $meta = $registry[ $slug ];
