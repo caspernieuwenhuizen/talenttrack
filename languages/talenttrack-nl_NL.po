@@ -31341,27 +31341,41 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ msgid "← Back to people"
 #~ msgstr "← Terug naar mensen"
 
-# v3.77.0 / #0073 + #0074 — HoD landing enhancements + persona dashboard visual refresh
-#~ msgid "+ New evaluation"
-#~ msgstr "+ Nieuwe evaluatie"
+# v4.0.2 (#805) — ActionCardWidget refactor moved these msgids back to
+# live `__()` literals (was a dynamic `__($action['label_key'])` that
+# `wp i18n make-pot` couldn't extract, causing the strings to render
+# in English on Dutch installs).
+#: src/Modules/PersonaDashboard/Widgets/ActionCardWidget.php
+msgid "+ New evaluation"
+msgstr "+ Nieuwe evaluatie"
 
-#~ msgid "+ New goal"
-#~ msgstr "+ Nieuw doel"
+#: src/Modules/PersonaDashboard/Widgets/ActionCardWidget.php
+msgid "+ New goal"
+msgstr "+ Nieuw doel"
 
-#~ msgid "+ New activity"
-#~ msgstr "+ Nieuwe activiteit"
+#: src/Modules/PersonaDashboard/Widgets/ActionCardWidget.php
+msgid "+ New activity"
+msgstr "+ Nieuwe activiteit"
 
-#~ msgid "+ Add player"
-#~ msgstr "+ Speler toevoegen"
+#: src/Modules/PersonaDashboard/Widgets/ActionCardWidget.php
+msgid "+ Add player"
+msgstr "+ Speler toevoegen"
 
-#~ msgid "+ Add team"
-#~ msgstr "+ Ploeg toevoegen"
+#: src/Modules/PersonaDashboard/Widgets/ActionCardWidget.php
+msgid "+ Add team"
+msgstr "+ Team toevoegen"
 
-#~ msgid "+ New scout report"
-#~ msgstr "+ Nieuw scoutrapport"
+#: src/Modules/PersonaDashboard/Widgets/ActionCardWidget.php
+msgid "+ New scout report"
+msgstr "+ Nieuw scoutrapport"
 
-#~ msgid "+ New trial"
-#~ msgstr "+ Nieuwe proeftraining"
+#: src/Modules/PersonaDashboard/Widgets/ActionCardWidget.php
+msgid "+ New trial"
+msgstr "+ Nieuwe proefperiode"
+
+#: src/Modules/PersonaDashboard/Widgets/ActionCardWidget.php
+msgid "+ New test training"
+msgstr "+ Nieuwe kennismakingstraining"
 
 # v3.78.0 / #0072 + #0073 follow-up — autosave + resume banner + per-row eval submit + table-source backfill
 #~ msgid "Autosave ready"

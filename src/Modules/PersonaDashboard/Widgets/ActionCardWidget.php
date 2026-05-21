@@ -79,10 +79,32 @@ class ActionCardWidget extends AbstractWidget {
     /** @return array<string,string> */
     public function dataSourceCatalogue(): array {
         $out = [];
-        foreach ( self::ACTIONS as $key => $action ) {
-            $out[ $key ] = __( (string) $action['label_key'], 'talenttrack' );
+        foreach ( array_keys( self::ACTIONS ) as $key ) {
+            $out[ $key ] = self::actionLabel( $key );
         }
         return $out;
+    }
+
+    /**
+     * v4.0.2 (#805) — translate by id via a static switch so the
+     * msgids land in the .pot extraction. The previous shape
+     * (`__($action['label_key'])`) passed a variable through `__()`,
+     * which `wp i18n make-pot` does not extract — every dynamic-key
+     * label ended up marked obsolete in the .po and showed in English
+     * on Dutch installs (the symptom in #805).
+     */
+    private static function actionLabel( string $id ): string {
+        switch ( $id ) {
+            case 'new_evaluation':    return __( '+ New evaluation',    'talenttrack' );
+            case 'new_goal':          return __( '+ New goal',          'talenttrack' );
+            case 'new_activity':      return __( '+ New activity',      'talenttrack' );
+            case 'new_player':        return __( '+ Add player',        'talenttrack' );
+            case 'new_team':          return __( '+ Add team',          'talenttrack' );
+            case 'scout_report':      return __( '+ New scout report',  'talenttrack' );
+            case 'new_trial':         return __( '+ New trial',         'talenttrack' );
+            case 'new_test_training': return __( '+ New test training', 'talenttrack' );
+        }
+        return $id;
     }
 
     public function defaultSize(): string { return Size::S; }
@@ -100,7 +122,7 @@ class ActionCardWidget extends AbstractWidget {
 
         $label = $slot->persona_label !== ''
             ? $slot->persona_label
-            : __( $action['label_key'], 'talenttrack' );
+            : self::actionLabel( (string) $id );
 
         // Build the URL — wizard-routed when the action has a `wizard`
         // slug registered, flat-form otherwise.
