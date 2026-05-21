@@ -165,6 +165,10 @@ class FrontendConfigurationView extends FrontendViewBase {
             // PHP labels they used to ship with. Stored keys
             // (pending / accepted / expired / revoked) stay code-side.
             [ __( 'Invitation statuses', 'talenttrack' ), __( 'Pending / accepted / expired / revoked — what the invitations list shows per row.', 'talenttrack' ), 'invitation_statuses', 'invitation' ],
+            // v3.110.207 (#803/#841) — goal approval decisions (approve /
+            // amend / reject) move from hardcoded labels in GoalApprovalForm
+            // into tt_lookups. Stored keys stay code-side.
+            [ __( 'Goal approval decisions', 'talenttrack' ), __( 'Approve / approve with amendment / reject — the three buttons on the goal-approval task.', 'talenttrack' ), 'goal_approval_decisions', 'approval' ],
             [ __( 'Rating scale',       'talenttrack' ), __( 'Min, max and step for evaluation ratings.',                         'talenttrack' ), '__rating',        'weights' ],
         ];
 
@@ -230,6 +234,10 @@ class FrontendConfigurationView extends FrontendViewBase {
             // (status names are self-explanatory); color off (the
             // invitations list doesn't render colour pills today).
             'invitation_statuses' => [ 'label' => __( 'Invitation statuses', 'talenttrack' ), 'type' => 'invitation_status', 'show_desc' => false, 'show_color' => false ],
+            // v3.110.207 (#803/#841) — three approval-form decisions; the
+            // `amend` value benefits from a description ("Approve with
+            // amendment — back to the player to revise"), so show_desc on.
+            'goal_approval_decisions' => [ 'label' => __( 'Goal approval decisions', 'talenttrack' ), 'type' => 'goal_approval_decision', 'show_desc' => true, 'show_color' => false ],
         ];
         if ( ! isset( $registry[ $slug ] ) ) return null;
         $meta = $registry[ $slug ];

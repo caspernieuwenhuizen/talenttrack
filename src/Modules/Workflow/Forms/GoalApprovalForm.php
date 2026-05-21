@@ -20,6 +20,27 @@ class GoalApprovalForm implements FormInterface {
     public const DECISION_AMEND   = 'amend';
     public const DECISION_REJECT  = 'reject';
 
+    /**
+     * Operator-editable label for a stored decision value. Resolves
+     * through `tt_translations` for the current locale via
+     * `LookupTranslator::byTypeAndName('goal_approval_decision', $value)`;
+     * pre-migration installs fall back to the canonical English label.
+     * Stored values (the constants above) are unchanged.
+     */
+    public static function label( string $decision ): string {
+        if ( $decision === '' ) return '';
+        if ( class_exists( '\\TT\\Infrastructure\\Query\\LookupTranslator' ) ) {
+            $label = \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'goal_approval_decision', $decision );
+            if ( $label !== '' ) return $label;
+        }
+        switch ( $decision ) {
+            case self::DECISION_APPROVE: return __( 'Approve', 'talenttrack' );
+            case self::DECISION_AMEND:   return __( 'Approve with amendment', 'talenttrack' );
+            case self::DECISION_REJECT:  return __( 'Reject', 'talenttrack' );
+        }
+        return $decision;
+    }
+
     public function render( array $task ): string {
         $existing = self::decodeResponse( $task );
         $existing_decisions = is_array( $existing['decisions'] ?? null ) ? $existing['decisions'] : [];
@@ -50,9 +71,9 @@ class GoalApprovalForm implements FormInterface {
                     <p style="margin: 0 0 4px; font-weight: 600;"><?php esc_html_e( 'Decision', 'talenttrack' ); ?></p>
                     <p>
                         <?php foreach ( [
-                            self::DECISION_APPROVE => __( 'Approve', 'talenttrack' ),
-                            self::DECISION_AMEND   => __( 'Approve with amendment', 'talenttrack' ),
-                            self::DECISION_REJECT  => __( 'Reject', 'talenttrack' ),
+                            self::DECISION_APPROVE => self::label( self::DECISION_APPROVE ),
+                            self::DECISION_AMEND   => self::label( self::DECISION_AMEND ),
+                            self::DECISION_REJECT  => self::label( self::DECISION_REJECT ),
                         ] as $value => $label ) : ?>
                             <label style="margin-right: 14px;">
                                 <input type="radio"

@@ -31608,3 +31608,11 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ "Vandaag toont deze pagina academy-brede KPI's en de standaardrapporten "
 #~ "hierboven. De twee-koloms entiteitskiezer-indeling (speler / team / "
 #~ "activiteit / seizoen) volgt in een vervolgrelease."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Goal approval decisions"
+msgstr "Beslissingen doelgoedkeuring"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Approve / approve with amendment / reject — the three buttons on the goal-approval task."
+msgstr "Goedkeuren / goedkeuren met aanpassing / afwijzen — de drie knoppen op de doelgoedkeuringstaak."
