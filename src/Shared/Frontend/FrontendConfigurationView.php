@@ -256,8 +256,13 @@ class FrontendConfigurationView extends FrontendViewBase {
      * the existing `LookupsRestController` endpoints, so authorisation
      * + tenancy + audit logging stay centralised.
      *
-     * Drag-reorder is intentionally deferred to v2 — sort_order is
-     * editable as a numeric field on the Edit form.
+     * v3.110.203 (#830) — rewritten as a master-detail layout: a left
+     * rail lists every row, a right pane shows the edit-or-add form.
+     * Above 768px the two render side by side; below 768px they stack
+     * and clicking a row scrolls the pane into view. Row clicks populate
+     * the form in-place (no page reload) by reading data-* attributes
+     * baked into each row at render time. Translations are bulk-loaded
+     * server-side in one SELECT so the JS round-trip is also avoided.
      *
      * @param array{label:string,type:string,show_desc:bool,show_color:bool,slug:string} $meta
      */
@@ -272,168 +277,192 @@ class FrontendConfigurationView extends FrontendViewBase {
             }
         }
 
-        $base = remove_query_arg( [ 'edit' ] );
-        ?>
-        <div class="tt-panel" data-tt-lookups-editor data-lookup-type="<?php echo esc_attr( $type ); ?>" data-show-desc="<?php echo $meta['show_desc'] ? '1' : '0'; ?>" data-show-color="<?php echo $meta['show_color'] ? '1' : '0'; ?>">
-            <table class="tt-table tt-sortable-table" style="width:100%; margin-bottom: var(--tt-sp-4);">
-                <thead><tr>
-                    <th style="width:30px;"></th>
-                    <th style="width:60px;"><?php esc_html_e( 'Order', 'talenttrack' ); ?></th>
-                    <th><?php esc_html_e( 'Name', 'talenttrack' ); ?></th>
-                    <?php if ( $meta['show_desc'] ) : ?><th><?php esc_html_e( 'Description', 'talenttrack' ); ?></th><?php endif; ?>
-                    <?php if ( $meta['show_color'] ) : ?><th style="width:80px;"><?php esc_html_e( 'Colour', 'talenttrack' ); ?></th><?php endif; ?>
-                    <th style="width:160px;"><?php esc_html_e( 'Actions', 'talenttrack' ); ?></th>
-                </tr></thead>
-                <tbody data-tt-sortable="1">
-                    <?php if ( empty( $items ) ) : ?>
-                        <tr><td colspan="<?php echo 4 + ( $meta['show_desc'] ? 1 : 0 ) + ( $meta['show_color'] ? 1 : 0 ); ?>"><em><?php esc_html_e( 'No items yet.', 'talenttrack' ); ?></em></td></tr>
-                    <?php else : foreach ( $items as $row ) :
-                        $row_meta_arr = QueryHelpers::lookup_meta( $row );
-                        $row_color    = is_string( $row_meta_arr['color'] ?? null ) ? (string) $row_meta_arr['color'] : '';
-                        $is_locked    = ! empty( $row_meta_arr['is_locked'] );
-                        ?>
-                        <tr data-id="<?php echo (int) $row->id; ?>">
-                            <td class="tt-drag-handle" title="<?php esc_attr_e( 'Drag to reorder', 'talenttrack' ); ?>">⋮⋮</td>
-                            <td class="tt-sort-order-cell"><?php echo (int) $row->sort_order; ?></td>
-                            <td>
-                                <strong><?php echo esc_html( \TT\Infrastructure\Query\LookupTranslator::name( $row ) ); ?></strong>
-                                <?php if ( $is_locked ) : ?>
-                                    <span title="<?php esc_attr_e( 'Locked — workflow rules depend on this row.', 'talenttrack' ); ?>" style="margin-left:6px; color:#888; font-size:11px;">🔒</span>
-                                <?php endif; ?>
-                            </td>
-                            <?php if ( $meta['show_desc'] ) : ?><td><?php echo esc_html( (string) ( $row->description ?? '' ) ); ?></td><?php endif; ?>
-                            <?php if ( $meta['show_color'] ) : ?>
-                                <td><?php if ( $row_color !== '' ) : ?><span style="display:inline-block; width:18px; height:18px; border-radius:3px; background:<?php echo esc_attr( $row_color ); ?>; vertical-align:middle;"></span><?php endif; ?></td>
-                            <?php endif; ?>
-                            <td>
-                                <a class="tt-btn tt-btn-secondary tt-btn-small" href="<?php echo esc_url( add_query_arg( [ 'edit' => (int) $row->id ], $base ) ); ?>"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a>
-                                <?php if ( ! $is_locked ) : ?>
-                                    <button type="button" class="tt-btn tt-btn-secondary tt-btn-small" data-tt-lookup-delete="<?php echo (int) $row->id; ?>" data-tt-lookup-name="<?php echo esc_attr( (string) $row->name ); ?>" style="color:#b32d2e;"><?php esc_html_e( 'Delete', 'talenttrack' ); ?></button>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                    <?php endforeach; endif; ?>
-                </tbody>
-            </table>
-            <?php
-            // #0080 Wave B5 — drag-reorder for the frontend lookup
-            // editor. Reuses `DragReorder::renderScript()` from
-            // wp-admin (`ConfigurationPage` lines 589/785) — the
-            // wp_ajax handler is registered globally + cap-checks
-            // `tt_edit_settings`, which the frontend cap matrix
-            // already grants to academy_admin / head_of_development.
-            // The numeric `sort_order` input on the form below stays
-            // as a keyboard-only fallback.
-            \TT\Shared\Admin\DragReorder::renderScript( 'lookup', $type );
-            ?>
+        // v3.110.203 — one bulk SELECT for translations across every
+        // row in the rail. Keyed by `lookup_id => locale => field => value`
+        // so the JS row-click handler can populate the per-locale inputs
+        // without a REST round-trip. Empty when no rows.
+        $tx_by_row = self::loadTranslationsForLookupIds(
+            array_map( fn( $r ) => (int) $r->id, $items )
+        );
+        $tx_targets = self::translationTargets();
 
-            <h3 style="margin-top:var(--tt-sp-4);">
-                <?php echo $editing ? esc_html__( 'Edit row', 'talenttrack' ) : esc_html__( 'Add new row', 'talenttrack' ); ?>
-            </h3>
-            <form data-tt-lookup-form>
-                <input type="hidden" name="id" value="<?php echo (int) ( $editing->id ?? 0 ); ?>" />
-                <div class="tt-grid tt-grid-2">
-                    <div class="tt-field">
-                        <label class="tt-field-label tt-field-required" for="tt-lkp-name"><?php esc_html_e( 'Name', 'talenttrack' ); ?></label>
-                        <input type="text" id="tt-lkp-name" class="tt-input" name="name" required value="<?php echo esc_attr( (string) ( $editing->name ?? '' ) ); ?>" />
-                    </div>
-                    <div class="tt-field">
-                        <label class="tt-field-label" for="tt-lkp-sort"><?php esc_html_e( 'Sort order', 'talenttrack' ); ?></label>
-                        <input type="number" id="tt-lkp-sort" class="tt-input" name="sort_order" inputmode="numeric" min="0" step="1" value="<?php echo esc_attr( (string) ( $editing->sort_order ?? 0 ) ); ?>" />
-                    </div>
-                    <?php if ( $meta['show_desc'] ) : ?>
-                        <div class="tt-field" style="grid-column:1 / -1;">
-                            <label class="tt-field-label" for="tt-lkp-desc"><?php esc_html_e( 'Description', 'talenttrack' ); ?></label>
-                            <input type="text" id="tt-lkp-desc" class="tt-input" name="description" value="<?php echo esc_attr( (string) ( $editing->description ?? '' ) ); ?>" />
-                        </div>
-                    <?php endif; ?>
-                    <?php if ( $meta['show_color'] ) :
-                        $existing_meta = $editing ? QueryHelpers::lookup_meta( $editing ) : [];
-                        $existing_color = is_string( $existing_meta['color'] ?? null ) ? (string) $existing_meta['color'] : '#5b6e75';
-                        ?>
-                        <div class="tt-field">
-                            <label class="tt-field-label" for="tt-lkp-color"><?php esc_html_e( 'Pill colour', 'talenttrack' ); ?></label>
-                            <input type="color" id="tt-lkp-color" name="meta[color]" value="<?php echo esc_attr( $existing_color ); ?>" />
-                        </div>
+        $base   = remove_query_arg( [ 'edit' ] );
+        $add_id = 'tt-lkp-' . sanitize_html_class( $meta['slug'] );
+
+        self::masterDetailStyles();
+        ?>
+        <div class="tt-lookup-md" data-tt-lookups-editor
+             data-lookup-type="<?php echo esc_attr( $type ); ?>"
+             data-show-desc="<?php echo $meta['show_desc'] ? '1' : '0'; ?>"
+             data-show-color="<?php echo $meta['show_color'] ? '1' : '0'; ?>"
+             data-edit-id="<?php echo (int) $edit_id; ?>">
+
+            <aside class="tt-lookup-md-rail" aria-label="<?php esc_attr_e( 'Lookup rows', 'talenttrack' ); ?>">
+                <div class="tt-lookup-md-rail-head">
+                    <button type="button" class="tt-btn tt-btn-primary tt-btn-small tt-lookup-md-new"
+                            data-tt-lookup-new>
+                        <?php esc_html_e( '+ Add new', 'talenttrack' ); ?>
+                    </button>
+                </div>
+                <div class="tt-lookup-md-rail-body">
+                    <?php if ( empty( $items ) ) : ?>
+                        <p class="tt-lookup-md-empty"><em><?php esc_html_e( 'No items yet. Use "+ Add new" to seed the first row.', 'talenttrack' ); ?></em></p>
+                    <?php else : ?>
+                        <ul class="tt-lookup-md-list tt-sortable-table" data-tt-sortable="1">
+                            <?php foreach ( $items as $row ) :
+                                $row_meta_arr = QueryHelpers::lookup_meta( $row );
+                                $row_color    = is_string( $row_meta_arr['color'] ?? null ) ? (string) $row_meta_arr['color'] : '';
+                                $is_locked    = ! empty( $row_meta_arr['is_locked'] );
+                                $row_id       = (int) $row->id;
+                                $row_tx       = $tx_by_row[ $row_id ] ?? [];
+                                $is_active    = ( $editing && (int) $editing->id === $row_id );
+                                ?>
+                                <li class="tt-lookup-md-row<?php echo $is_active ? ' is-active' : ''; ?>"
+                                    data-id="<?php echo $row_id; ?>"
+                                    data-tt-lookup-row
+                                    role="button"
+                                    tabindex="0"
+                                    data-row-name="<?php echo esc_attr( (string) $row->name ); ?>"
+                                    data-row-sort="<?php echo (int) $row->sort_order; ?>"
+                                    data-row-desc="<?php echo esc_attr( (string) ( $row->description ?? '' ) ); ?>"
+                                    data-row-color="<?php echo esc_attr( $row_color ); ?>"
+                                    data-row-locked="<?php echo $is_locked ? '1' : '0'; ?>"
+                                    data-row-tx="<?php echo esc_attr( (string) wp_json_encode( $row_tx ) ); ?>">
+                                    <span class="tt-lookup-md-row-grip tt-drag-handle"
+                                          title="<?php esc_attr_e( 'Drag to reorder', 'talenttrack' ); ?>">⋮⋮</span>
+                                    <?php if ( $meta['show_color'] && $row_color !== '' ) : ?>
+                                        <span class="tt-lookup-md-row-swatch" style="background:<?php echo esc_attr( $row_color ); ?>" aria-hidden="true"></span>
+                                    <?php endif; ?>
+                                    <span class="tt-lookup-md-row-name">
+                                        <?php echo esc_html( \TT\Infrastructure\Query\LookupTranslator::name( $row ) ); ?>
+                                        <?php if ( $is_locked ) : ?>
+                                            <span class="tt-lookup-md-row-lock" title="<?php esc_attr_e( 'Locked — workflow rules depend on this row.', 'talenttrack' ); ?>">🔒</span>
+                                        <?php endif; ?>
+                                    </span>
+                                    <span class="tt-lookup-md-row-sort tt-sort-order-cell"><?php echo (int) $row->sort_order; ?></span>
+                                    <?php if ( ! $is_locked ) : ?>
+                                        <button type="button" class="tt-lookup-md-row-delete"
+                                                data-tt-lookup-delete="<?php echo $row_id; ?>"
+                                                data-tt-lookup-name="<?php echo esc_attr( (string) $row->name ); ?>"
+                                                title="<?php esc_attr_e( 'Delete', 'talenttrack' ); ?>"
+                                                aria-label="<?php esc_attr_e( 'Delete', 'talenttrack' ); ?>">×</button>
+                                    <?php endif; ?>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
                     <?php endif; ?>
                 </div>
                 <?php
-                // v3.110.190 (#798) — load existing translations from
-                // `tt_translations` (the canonical store post-v3.110.30)
-                // instead of `meta.translations` (the pre-v3.110.30
-                // store that the renderer no longer reads — anything
-                // written there used to silently vanish from the
-                // dashboard). One row per locale × field.
-                $existing_translations = [];
-                if ( $editing && (int) ( $editing->id ?? 0 ) > 0 ) {
-                    $by_field_locale = ( new \TT\Modules\I18n\TranslationsRepository() )->allFor(
-                        \TT\Modules\I18n\TranslatableFieldRegistry::ENTITY_LOOKUP,
-                        (int) $editing->id
-                    );
-                    foreach ( $by_field_locale as $field => $by_locale ) {
-                        foreach ( $by_locale as $loc => $val ) {
-                            $existing_translations[ (string) $loc ][ (string) $field ] = (string) $val;
-                        }
-                    }
-                }
-                $tx_targets = self::translationTargets();
-                if ( ! empty( $tx_targets ) ) :
-                    ?>
-                    <div class="tt-field" style="grid-column:1 / -1; margin-top:var(--tt-sp-3); border-top:1px solid var(--tt-line); padding-top:var(--tt-sp-3);">
-                        <span class="tt-field-label"><?php esc_html_e( 'Translations', 'talenttrack' ); ?></span>
-                        <p style="font-size:12px; color:var(--tt-muted); margin:0 0 var(--tt-sp-3);">
-                            <?php
-                            if ( $meta['show_desc'] ) {
-                                esc_html_e( 'Per-locale name and description. Leave blank to fall back to the canonical English values and the .po-shipped translation. Click "Translate" to pre-fill the name fields from the configured engine — review and edit before saving.', 'talenttrack' );
-                            } else {
-                                esc_html_e( 'Per-locale display name. Leave blank to fall back to the canonical English value and the .po-shipped translation. Click "Translate" to fill these from the configured engine — review and edit before saving.', 'talenttrack' );
-                            }
-                            ?>
-                        </p>
-                        <p style="margin:0 0 var(--tt-sp-3);">
-                            <button type="button" class="tt-btn tt-btn-secondary" data-tt-lookup-translate><?php esc_html_e( 'Translate to other languages', 'talenttrack' ); ?></button>
-                            <span class="tt-form-msg" data-tt-translate-msg style="margin-left:8px;"></span>
-                        </p>
-                        <div class="tt-grid tt-grid-2">
-                            <?php foreach ( $tx_targets as $locale ) :
-                                $field_id_name = 'tt-lkp-tx-name-' . sanitize_html_class( $locale );
-                                $field_id_desc = 'tt-lkp-tx-desc-' . sanitize_html_class( $locale );
-                                $value_name = (string) ( $existing_translations[ $locale ]['name']        ?? '' );
-                                $value_desc = (string) ( $existing_translations[ $locale ]['description'] ?? '' );
-                                ?>
-                                <div class="tt-field" style="grid-column:1 / -1; padding:var(--tt-sp-2) 0; border-bottom:1px solid var(--tt-line-soft, #eef0f2);">
-                                    <label class="tt-field-label" for="<?php echo esc_attr( $field_id_name ); ?>" style="margin-bottom:6px; display:inline-block;"><code><?php echo esc_html( $locale ); ?></code></label>
-                                    <input type="text" id="<?php echo esc_attr( $field_id_name ); ?>"
-                                           class="tt-input"
-                                           name="translations[<?php echo esc_attr( $locale ); ?>][name]"
-                                           value="<?php echo esc_attr( $value_name ); ?>"
-                                           data-tt-tx-locale="<?php echo esc_attr( $locale ); ?>"
-                                           data-tt-tx-field="name"
-                                           placeholder="<?php esc_attr_e( 'Translated name', 'talenttrack' ); ?>" />
-                                    <?php if ( $meta['show_desc'] ) : ?>
-                                        <input type="text" id="<?php echo esc_attr( $field_id_desc ); ?>"
-                                               class="tt-input"
-                                               name="translations[<?php echo esc_attr( $locale ); ?>][description]"
-                                               value="<?php echo esc_attr( $value_desc ); ?>"
-                                               data-tt-tx-locale="<?php echo esc_attr( $locale ); ?>"
-                                               data-tt-tx-field="description"
-                                               placeholder="<?php esc_attr_e( 'Translated description', 'talenttrack' ); ?>"
-                                               style="margin-top:4px;" />
-                                    <?php endif; ?>
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
-                    </div>
-                <?php endif; ?>
+                // Keep drag-reorder wiring intact. Targets the same
+                // `data-tt-sortable` selector the previous table used,
+                // so the existing wp-admin endpoint keeps working
+                // unchanged.
+                \TT\Shared\Admin\DragReorder::renderScript( 'lookup', $type );
+                ?>
+            </aside>
 
-                <p style="margin-top:var(--tt-sp-3);">
-                    <button type="submit" class="tt-btn tt-btn-primary"><?php echo $editing ? esc_html__( 'Save changes', 'talenttrack' ) : esc_html__( 'Add row', 'talenttrack' ); ?></button>
-                    <?php if ( $editing ) : ?>
-                        <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( $base ); ?>" style="margin-left:8px;"><?php esc_html_e( 'Cancel', 'talenttrack' ); ?></a>
+            <section class="tt-lookup-md-pane" aria-label="<?php esc_attr_e( 'Lookup editor', 'talenttrack' ); ?>">
+                <header class="tt-lookup-md-pane-head">
+                    <h3 class="tt-lookup-md-pane-title" data-tt-lookup-pane-title>
+                        <?php echo $editing ? esc_html__( 'Edit row', 'talenttrack' ) : esc_html__( 'Add new row', 'talenttrack' ); ?>
+                    </h3>
+                    <button type="button" class="tt-lookup-md-pane-back" data-tt-lookup-pane-back
+                            aria-label="<?php esc_attr_e( 'Back to list', 'talenttrack' ); ?>">
+                        ← <?php esc_html_e( 'Back to list', 'talenttrack' ); ?>
+                    </button>
+                </header>
+                <form data-tt-lookup-form class="tt-lookup-md-pane-body">
+                    <input type="hidden" name="id" value="<?php echo (int) ( $editing->id ?? 0 ); ?>" data-tt-lookup-id />
+                    <div class="tt-grid tt-grid-2">
+                        <div class="tt-field">
+                            <label class="tt-field-label tt-field-required" for="<?php echo esc_attr( $add_id ); ?>-name"><?php esc_html_e( 'Name', 'talenttrack' ); ?></label>
+                            <input type="text" id="<?php echo esc_attr( $add_id ); ?>-name" class="tt-input" name="name" required value="<?php echo esc_attr( (string) ( $editing->name ?? '' ) ); ?>" />
+                        </div>
+                        <div class="tt-field">
+                            <label class="tt-field-label" for="<?php echo esc_attr( $add_id ); ?>-sort"><?php esc_html_e( 'Sort order', 'talenttrack' ); ?></label>
+                            <input type="number" id="<?php echo esc_attr( $add_id ); ?>-sort" class="tt-input" name="sort_order" inputmode="numeric" min="0" step="1" value="<?php echo esc_attr( (string) ( $editing->sort_order ?? 0 ) ); ?>" />
+                        </div>
+                        <?php if ( $meta['show_desc'] ) : ?>
+                            <div class="tt-field" style="grid-column:1 / -1;">
+                                <label class="tt-field-label" for="<?php echo esc_attr( $add_id ); ?>-desc"><?php esc_html_e( 'Description', 'talenttrack' ); ?></label>
+                                <input type="text" id="<?php echo esc_attr( $add_id ); ?>-desc" class="tt-input" name="description" value="<?php echo esc_attr( (string) ( $editing->description ?? '' ) ); ?>" />
+                            </div>
+                        <?php endif; ?>
+                        <?php if ( $meta['show_color'] ) :
+                            $existing_meta = $editing ? QueryHelpers::lookup_meta( $editing ) : [];
+                            $existing_color = is_string( $existing_meta['color'] ?? null ) ? (string) $existing_meta['color'] : '#5b6e75';
+                            ?>
+                            <div class="tt-field">
+                                <label class="tt-field-label" for="<?php echo esc_attr( $add_id ); ?>-color"><?php esc_html_e( 'Pill colour', 'talenttrack' ); ?></label>
+                                <input type="color" id="<?php echo esc_attr( $add_id ); ?>-color" name="meta[color]" value="<?php echo esc_attr( $existing_color ); ?>" />
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                    <?php
+                    $existing_translations = $editing ? ( $tx_by_row[ (int) $editing->id ] ?? [] ) : [];
+                    if ( ! empty( $tx_targets ) ) :
+                        ?>
+                        <div class="tt-field tt-lookup-md-tx" style="grid-column:1 / -1;">
+                            <span class="tt-field-label"><?php esc_html_e( 'Translations', 'talenttrack' ); ?></span>
+                            <p class="tt-lookup-md-tx-help">
+                                <?php
+                                if ( $meta['show_desc'] ) {
+                                    esc_html_e( 'Per-locale name and description. Leave blank to fall back to the canonical English values and the .po-shipped translation. Click "Translate" to pre-fill the name fields from the configured engine — review and edit before saving.', 'talenttrack' );
+                                } else {
+                                    esc_html_e( 'Per-locale display name. Leave blank to fall back to the canonical English value and the .po-shipped translation. Click "Translate" to fill these from the configured engine — review and edit before saving.', 'talenttrack' );
+                                }
+                                ?>
+                            </p>
+                            <p>
+                                <button type="button" class="tt-btn tt-btn-secondary" data-tt-lookup-translate><?php esc_html_e( 'Translate to other languages', 'talenttrack' ); ?></button>
+                                <span class="tt-form-msg" data-tt-translate-msg style="margin-left:8px;"></span>
+                            </p>
+                            <div class="tt-lookup-md-tx-list">
+                                <?php foreach ( $tx_targets as $locale ) :
+                                    $field_id_name = $add_id . '-tx-name-' . sanitize_html_class( $locale );
+                                    $field_id_desc = $add_id . '-tx-desc-' . sanitize_html_class( $locale );
+                                    $value_name = (string) ( $existing_translations[ $locale ]['name']        ?? '' );
+                                    $value_desc = (string) ( $existing_translations[ $locale ]['description'] ?? '' );
+                                    ?>
+                                    <div class="tt-field tt-lookup-md-tx-row">
+                                        <label class="tt-field-label" for="<?php echo esc_attr( $field_id_name ); ?>"><code><?php echo esc_html( $locale ); ?></code></label>
+                                        <input type="text" id="<?php echo esc_attr( $field_id_name ); ?>"
+                                               class="tt-input"
+                                               name="translations[<?php echo esc_attr( $locale ); ?>][name]"
+                                               value="<?php echo esc_attr( $value_name ); ?>"
+                                               data-tt-tx-locale="<?php echo esc_attr( $locale ); ?>"
+                                               data-tt-tx-field="name"
+                                               placeholder="<?php esc_attr_e( 'Translated name', 'talenttrack' ); ?>" />
+                                        <?php if ( $meta['show_desc'] ) : ?>
+                                            <input type="text" id="<?php echo esc_attr( $field_id_desc ); ?>"
+                                                   class="tt-input"
+                                                   name="translations[<?php echo esc_attr( $locale ); ?>][description]"
+                                                   value="<?php echo esc_attr( $value_desc ); ?>"
+                                                   data-tt-tx-locale="<?php echo esc_attr( $locale ); ?>"
+                                                   data-tt-tx-field="description"
+                                                   placeholder="<?php esc_attr_e( 'Translated description', 'talenttrack' ); ?>" />
+                                        <?php endif; ?>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
                     <?php endif; ?>
-                </p>
-                <div class="tt-form-msg" data-tt-lookup-msg></div>
-            </form>
+
+                    <div class="tt-lookup-md-pane-foot">
+                        <?php
+                        $save_label_idle = $editing ? __( 'Save changes', 'talenttrack' ) : __( 'Add row', 'talenttrack' );
+                        echo FormSaveButton::render( [
+                            'label'        => $save_label_idle,
+                            'label_saving' => __( 'Saving…', 'talenttrack' ),
+                            'label_saved'  => __( 'Saved', 'talenttrack' ),
+                            'cancel_url'   => $base,
+                            'cancel_label' => __( 'Cancel', 'talenttrack' ),
+                        ] );
+                        ?>
+                    </div>
+                    <div class="tt-form-msg" data-tt-lookup-msg></div>
+                </form>
+            </section>
         </div>
 
         <script>
@@ -543,10 +572,12 @@ class FrontendConfigurationView extends FrontendViewBase {
                 });
             }
 
-            // Delete (per-row buttons)
+            // Delete (per-row buttons) — keep `closest` so swatch / text
+            // clicks inside the row don't accidentally hit Delete.
             root.addEventListener('click', function(e){
                 var btn = e.target.closest && e.target.closest('[data-tt-lookup-delete]');
                 if (!btn) return;
+                e.stopPropagation(); // don't also fire the row-select handler
                 var id = parseInt(btn.getAttribute('data-tt-lookup-delete'), 10);
                 var name = btn.getAttribute('data-tt-lookup-name') || '';
                 if (!id) return;
@@ -558,6 +589,130 @@ class FrontendConfigurationView extends FrontendViewBase {
                     headers: { 'X-WP-Nonce': nonce, 'Accept': 'application/json' }
                 }).then(function(r){ if (r.ok) window.location.reload(); else { btn.disabled = false; window.alert(T_ERROR + ' ' + r.status); } });
             });
+
+            // v3.110.203 (#830) — row-click populates the form in-place
+            // (no page navigation). Rail rows carry every value they own
+            // as `data-row-*` attributes, including a JSON blob of all
+            // translations for that row. The form is rendered once
+            // server-side; we just rewrite its input values.
+            var SAVE_LABEL_ADD  = '<?php echo esc_js( __( 'Add row', 'talenttrack' ) ); ?>';
+            var SAVE_LABEL_EDIT = '<?php echo esc_js( __( 'Save changes', 'talenttrack' ) ); ?>';
+            var TITLE_ADD       = '<?php echo esc_js( __( 'Add new row', 'talenttrack' ) ); ?>';
+            var TITLE_EDIT      = '<?php echo esc_js( __( 'Edit row', 'talenttrack' ) ); ?>';
+
+            function populate(row) {
+                if (!form) return;
+                var idEl   = form.querySelector('[data-tt-lookup-id]');
+                var name   = form.querySelector('input[name="name"]');
+                var sort   = form.querySelector('input[name="sort_order"]');
+                var desc   = form.querySelector('input[name="description"]');
+                var color  = form.querySelector('input[name="meta[color]"]');
+                var title  = root.querySelector('[data-tt-lookup-pane-title]');
+                var save   = form.querySelector('.tt-save-btn');
+                var label  = save && save.querySelector('.tt-save-btn-label');
+                var msg    = root.querySelector('[data-tt-lookup-msg]');
+
+                if (msg) msg.textContent = '';
+
+                if (row === null) {
+                    if (idEl)  idEl.value  = '0';
+                    if (name)  name.value  = '';
+                    if (sort)  sort.value  = '0';
+                    if (desc)  desc.value  = '';
+                    if (color) color.value = '#5b6e75';
+                    if (title) title.textContent = TITLE_ADD;
+                    if (save)  save.setAttribute('data-label-idle', SAVE_LABEL_ADD);
+                    if (label) label.textContent = SAVE_LABEL_ADD;
+                } else {
+                    if (idEl)  idEl.value  = String(row.getAttribute('data-id') || '0');
+                    if (name)  name.value  = String(row.getAttribute('data-row-name') || '');
+                    if (sort)  sort.value  = String(row.getAttribute('data-row-sort') || '0');
+                    if (desc)  desc.value  = String(row.getAttribute('data-row-desc') || '');
+                    if (color) color.value = String(row.getAttribute('data-row-color') || '') || '#5b6e75';
+                    if (title) title.textContent = TITLE_EDIT;
+                    if (save)  save.setAttribute('data-label-idle', SAVE_LABEL_EDIT);
+                    if (label) label.textContent = SAVE_LABEL_EDIT;
+                }
+
+                // Translations: parse the JSON blob (or {} for blank).
+                var tx = {};
+                if (row !== null) {
+                    var raw = row.getAttribute('data-row-tx') || '';
+                    if (raw !== '') { try { tx = JSON.parse(raw); } catch (e) { tx = {}; } }
+                }
+                form.querySelectorAll('[data-tt-tx-locale]').forEach(function(inp){
+                    var loc   = inp.getAttribute('data-tt-tx-locale');
+                    var field = inp.getAttribute('data-tt-tx-field') || 'name';
+                    var v     = (tx && tx[loc] && tx[loc][field]) || '';
+                    inp.value = String(v);
+                });
+
+                // URL: keep ?edit=N for deep-link / refresh so the
+                // selected row survives a reload. Empty selection
+                // clears the param.
+                var id = row !== null ? parseInt(row.getAttribute('data-id'), 10) : 0;
+                var url = new URL(window.location.href);
+                if (id > 0) url.searchParams.set('edit', String(id));
+                else        url.searchParams.delete('edit');
+                window.history.replaceState({}, '', url.toString());
+
+                // Mobile: scroll the pane into view so the form is
+                // visible after a tap on the rail. No-op on desktop
+                // (the pane is already onscreen).
+                if (window.matchMedia('(max-width: 767.98px)').matches) {
+                    root.classList.add('is-pane-open');
+                    var pane = root.querySelector('.tt-lookup-md-pane');
+                    if (pane && pane.scrollIntoView) pane.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+
+                // Mark the rail row active.
+                root.querySelectorAll('[data-tt-lookup-row]').forEach(function(el){
+                    if (row !== null && el === row) el.classList.add('is-active');
+                    else el.classList.remove('is-active');
+                });
+
+                if (name) name.focus();
+            }
+
+            // Rail row click.
+            root.addEventListener('click', function(e){
+                if (e.target.closest && e.target.closest('[data-tt-lookup-delete]')) return; // handled above
+                if (e.target.closest && e.target.closest('.tt-lookup-md-row-grip'))   return; // drag-handle, ignore
+                var row = e.target.closest && e.target.closest('[data-tt-lookup-row]');
+                if (!row) return;
+                populate(row);
+            });
+
+            // Keyboard: Enter / Space on a focused row triggers the
+            // same populate() the click handler runs. Each row has
+            // role="button" tabindex="0", so it's reachable via Tab.
+            root.addEventListener('keydown', function(e){
+                if (e.key !== 'Enter' && e.key !== ' ') return;
+                var row = e.target.closest && e.target.closest('[data-tt-lookup-row]');
+                if (!row) return;
+                if (e.target.closest && e.target.closest('[data-tt-lookup-delete]')) return;
+                e.preventDefault();
+                populate(row);
+            });
+
+            // "+ Add new" button → blank form, no row selected.
+            var add_btn = root.querySelector('[data-tt-lookup-new]');
+            if (add_btn) add_btn.addEventListener('click', function(){ populate(null); });
+
+            // Mobile-only "Back to list" inside the pane header.
+            var back_btn = root.querySelector('[data-tt-lookup-pane-back]');
+            if (back_btn) back_btn.addEventListener('click', function(){
+                root.classList.remove('is-pane-open');
+                var rail = root.querySelector('.tt-lookup-md-rail');
+                if (rail && rail.scrollIntoView) rail.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+
+            // On mobile load: if we landed with ?edit=N, the pane is
+            // already populated server-side — surface it.
+            if (window.matchMedia('(max-width: 767.98px)').matches) {
+                var initial_edit = parseInt(root.getAttribute('data-edit-id') || '0', 10);
+                if (initial_edit > 0) root.classList.add('is-pane-open');
+            }
         })();
         </script>
         <?php
@@ -566,6 +721,106 @@ class FrontendConfigurationView extends FrontendViewBase {
     private static function renderSubBackLink(): void {
         $base = remove_query_arg( [ 'config_sub' ] );
         echo '<p style="margin:0 0 var(--tt-sp-3);"><a class="tt-link" href="' . esc_url( $base ) . '">&larr; ' . esc_html__( 'All configuration', 'talenttrack' ) . '</a></p>';
+    }
+
+    /**
+     * v3.110.203 (#830) — bulk-load translations for every row in the
+     * rail in one SELECT. Without this we'd either do N+1 `allFor()`
+     * calls or fetch on row-click; both are unnecessary round-trips
+     * for data already keyed by `(entity_type='lookup', entity_id)`.
+     *
+     * @param list<int> $ids
+     * @return array<int, array<string, array<string, string>>>  id => locale => field => value
+     */
+    private static function loadTranslationsForLookupIds( array $ids ): array {
+        $ids = array_values( array_unique( array_filter( array_map( 'intval', $ids ), fn( $n ) => $n > 0 ) ) );
+        if ( empty( $ids ) ) return [];
+
+        global $wpdb;
+        $table = $wpdb->prefix . 'tt_translations';
+
+        // Schema check — early installs may not have the table yet.
+        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) return [];
+
+        $club_id      = \TT\Infrastructure\Tenancy\CurrentClub::id();
+        $entity_type  = \TT\Modules\I18n\TranslatableFieldRegistry::ENTITY_LOOKUP;
+        $placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+
+        $params   = array_merge( [ $club_id, $entity_type ], $ids );
+        $sql      = $wpdb->prepare(
+            "SELECT entity_id, field, locale, value
+               FROM {$table}
+              WHERE club_id = %d AND entity_type = %s AND entity_id IN ($placeholders)",
+            ...$params
+        );
+        $rows = (array) $wpdb->get_results( $sql, ARRAY_A );
+
+        $out = [];
+        foreach ( $rows as $r ) {
+            $id    = (int) ( $r['entity_id'] ?? 0 );
+            $field = (string) ( $r['field']   ?? '' );
+            $loc   = (string) ( $r['locale']  ?? '' );
+            $val   = (string) ( $r['value']   ?? '' );
+            if ( $id <= 0 || $field === '' || $loc === '' ) continue;
+            $out[ $id ][ $loc ][ $field ] = $val;
+        }
+        return $out;
+    }
+
+    /**
+     * Inline CSS for the lookup master-detail editor.
+     * Mobile-first: stacked rail + pane below 768px; switches to a
+     * two-column grid above. Pane footer (Save / Cancel) sticks to the
+     * bottom of its column on desktop, scrolls inline on mobile.
+     */
+    private static function masterDetailStyles(): void {
+        ?>
+        <style>
+        .tt-lookup-md { display: grid; grid-template-columns: 1fr; gap: var(--tt-sp-3, 12px); }
+        .tt-lookup-md-rail,
+        .tt-lookup-md-pane { background: #fff; border: 1px solid var(--tt-line, #e5e7ea); border-radius: 8px; }
+        .tt-lookup-md-rail-head { display: flex; justify-content: flex-end; padding: var(--tt-sp-2, 8px) var(--tt-sp-3, 12px); border-bottom: 1px solid var(--tt-line, #e5e7ea); }
+        .tt-lookup-md-rail-body { padding: var(--tt-sp-2, 8px) 0; max-height: 60vh; overflow-y: auto; }
+        .tt-lookup-md-empty { padding: var(--tt-sp-3, 12px); color: var(--tt-muted, #6b7280); margin: 0; }
+        .tt-lookup-md-list { list-style: none; margin: 0; padding: 0; }
+        .tt-lookup-md-row { display: flex; align-items: center; gap: var(--tt-sp-2, 8px); padding: var(--tt-sp-2, 8px) var(--tt-sp-3, 12px); border-bottom: 1px solid var(--tt-line-soft, #eef0f2); cursor: pointer; min-height: 48px; user-select: none; }
+        .tt-lookup-md-row:last-child { border-bottom: 0; }
+        .tt-lookup-md-row:hover { background: #fafbfc; }
+        .tt-lookup-md-row.is-active { background: #eef5ff; }
+        .tt-lookup-md-row-grip { cursor: grab; color: #b6bcc2; font-size: 14px; min-width: 18px; }
+        .tt-lookup-md-row-swatch { display: inline-block; width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
+        .tt-lookup-md-row-name { flex: 1; font-weight: 500; }
+        .tt-lookup-md-row-lock { margin-left: 6px; color: #888; font-size: 11px; }
+        .tt-lookup-md-row-sort { color: var(--tt-muted, #6b7280); font-size: 12px; min-width: 24px; text-align: right; }
+        .tt-lookup-md-row-delete { background: transparent; border: 0; color: #b32d2e; font-size: 22px; line-height: 1; cursor: pointer; padding: 4px 8px; border-radius: 4px; min-width: 32px; min-height: 32px; }
+        .tt-lookup-md-row-delete:hover { background: #fde2e2; }
+        .tt-lookup-md-pane { display: flex; flex-direction: column; }
+        .tt-lookup-md-pane-head { display: flex; align-items: center; justify-content: space-between; gap: var(--tt-sp-2, 8px); padding: var(--tt-sp-2, 8px) var(--tt-sp-3, 12px); border-bottom: 1px solid var(--tt-line, #e5e7ea); }
+        .tt-lookup-md-pane-title { margin: 0; font-size: 16px; line-height: 1.3; }
+        .tt-lookup-md-pane-back { display: none; background: transparent; border: 0; color: #1a4f9e; cursor: pointer; padding: 6px 10px; font-size: 14px; }
+        .tt-lookup-md-pane-body { padding: var(--tt-sp-3, 12px); display: flex; flex-direction: column; gap: var(--tt-sp-3, 12px); overflow-y: auto; max-height: 70vh; flex: 1; }
+        .tt-lookup-md-tx { margin-top: var(--tt-sp-3, 12px); border-top: 1px solid var(--tt-line, #e5e7ea); padding-top: var(--tt-sp-3, 12px); }
+        .tt-lookup-md-tx-help { font-size: 12px; color: var(--tt-muted, #6b7280); margin: 0 0 var(--tt-sp-3, 12px); }
+        .tt-lookup-md-tx-list { display: flex; flex-direction: column; gap: var(--tt-sp-2, 8px); }
+        .tt-lookup-md-tx-row { padding: var(--tt-sp-2, 8px) 0; border-bottom: 1px solid var(--tt-line-soft, #eef0f2); display: flex; flex-direction: column; gap: 4px; }
+        .tt-lookup-md-tx-row:last-child { border-bottom: 0; }
+        .tt-lookup-md-tx-row .tt-field-label { margin-bottom: 4px; }
+        .tt-lookup-md-pane-foot { position: sticky; bottom: 0; background: #fff; padding: var(--tt-sp-3, 12px) 0 0; border-top: 1px solid var(--tt-line, #e5e7ea); margin-top: var(--tt-sp-3, 12px); }
+        /* Mobile: rail stays up top, pane hidden until a row is picked
+         * (or until ?edit=N comes in on initial load — handled in JS). */
+        @media (max-width: 767.98px) {
+            .tt-lookup-md-pane { display: none; }
+            .tt-lookup-md.is-pane-open .tt-lookup-md-pane { display: flex; }
+            .tt-lookup-md.is-pane-open .tt-lookup-md-rail { display: none; }
+            .tt-lookup-md-pane-back { display: inline-block; }
+            .tt-lookup-md-rail-body { max-height: none; }
+        }
+        @media (min-width: 768px) {
+            .tt-lookup-md { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); align-items: start; }
+            .tt-lookup-md-pane-back { display: none; }
+        }
+        </style>
+        <?php
     }
 
     /**

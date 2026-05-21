@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.202
+Stable tag: 3.110.203
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.203 — Configuration → Lookups editor now uses a mobile-collapsible master-detail layout: a left rail lists every row, a right pane holds the edit-or-add form. Above 768px the two render side by side so the form is always visible; below 768px they stack and selecting a row reveals the form with a "← Back to list" pill. Row clicks populate the form in place (no page navigation) — translations for every row are bulk-loaded in one SELECT and baked into the rail as `data-row-*` attributes. Save / Cancel via the shared `FormSaveButton::render()` helper per CLAUDE.md § 6; the footer pins to the bottom of the pane. Drag-reorder, per-locale translate engine, and the row-delete flow are unchanged. (closes #830) =
 
 = 3.110.202 — Migration 0109 re-runs the fr_FR / de_DE / es_ES backfill of `tt_translations` for every `tt_lookups` row, this time calling `unload_textdomain('talenttrack', true)` between locale switches so `__()` actually returns the just-loaded translation. 0106 silently wrote zero rows on installs where the textdomain was already cached for a previous locale. Logger output (`migration.0109.summary`) reports per-locale scan/translate/write counts so future iterations are debuggable. (closes #829) =
 
