@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.0.6
+Stable tag: 4.0.7
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.0.7 — Player Compare layout + radar + trend chart fixed (closes #878). Three defects landed in one ship since they share the same view. **Layout — header column-stack**: the player-header row was column-stacking on desktop because `.tt-fcompare-cell` had no `display:flex`; the `tt-fcompare-headerplayer` child had `flex-direction: row` but no parent flex context. Added `display:flex; align-items:center` to the cell base; removed the redundant `.tt-fcompare-label` class from the header div (it inherited `display:block` from a sibling rule). **Radar — wrong player**: `renderChartScripts()` was indexing the radar dataset as `$radar_sets[0]` for every player slot — both columns rendered Player A's radar. Now reads `$radar_sets[$pid]` keyed by the actual player ID, and pulls the latest snapshot via `end($snap['datasets'])` instead of assuming `[0]`. **Trend — only main-category series, no overall**: `PlayerStatsService::getTrendSeries()` returned one line per main category; the compare view's trend was a tangle of 4-6 thin lines per player with no aggregate. Added a synthetic "Overall" series at index 0 — the per-date mean across all main-category points, computed in PHP, so the trend chart now leads with a clear aggregate line and keeps the per-category lines below. No schema change; pure presentation + service-layer aggregation. (closes #878) =
 
 = 4.0.6 — Person detail page renders profile + teams as tables instead of lists (closes #876). Visually aligns with the established Team-detail + Player-detail pattern. The profile fields block (Role / Email / Phone / Status) was a `<dl class="tt-profile-dl">`; teams were a `<ul class="tt-stack">`. Both rebuilt as `<table class="tt-profile-table">` — same class the Player + Team detail pages use, so styling is shared. The Teams table gets a two-column layout (Team / Functional role) so the functional role gets its own column instead of a `&middot;`-separated trail. `frontend-player-detail.css` now enqueued from the Person detail view so the `.tt-profile-table` styles apply. No data-shape change; PeopleRepository unchanged. No mobile regression — the table layout is the same one Player/Team already use at 360px. (closes #876) =
 
