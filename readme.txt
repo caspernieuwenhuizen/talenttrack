@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.0.10
+Stable tag: 4.0.11
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.0.11 — Exports page gains six bulk-export use cases (closes #865). Pilot completeness audit flagged six obvious bulk exports missing entirely — added in one ship to round out the central Exports surface. **Player evaluations (flat)** — one row per evaluation with main-category averages; CSV companion to the multi-sheet evaluations workbook (`evaluations_xlsx`) for coaches who want a flat filter-in-Excel sheet. **Team roster + season stats** — one row per player on the chosen team, with date-bounded attendance count, total minutes played, and mean rating across the period. **Team activity history** — one row per activity for a team within the date range, with attendance count and average rating. **Coach / staff directory** — non-parent `tt_people` rows with email, phone, role and the comma-joined list of assigned teams. **KPI snapshot** — single-sheet XLSX with point-in-time KPIs (active players, total players, active teams, activities-in-period, evaluations-in-period, attendance rows / present / %, goals total / active / completed). For board reports. **Audit log** — admin-only CSV dump of `tt_audit_log` with date range + action contains-match + entity_type exact-match filters. All six follow the existing `ExporterInterface` pattern, register in `ExportModule::boot()`, surface as cards on `FrontendExportsView` with form-driven filters, and cap-gate per existing capability matrix. Multi-format ones (csv + xlsx) reuse the chip toggle introduced in v4.0.10. No schema migration. Brings the bulk-exports total from 8 to 14. (closes #865) =
 
 = 4.0.10 — Players list / Attendance register / Goals list bulk exports now offer XLSX in addition to CSV (closes #864). Coaches asked for XLSX so they can pivot in Excel without re-saving, share with parents/board, and preserve number formatting (CSV loses leading zeros on jersey numbers and date-scrambles depending on locale). Three exporters declare `supportedFormats() = [ 'csv', 'xlsx' ]` instead of CSV-only; their labels drop the trailing "(CSV)" since they're now multi-format. The existing `XlsxRenderer` gains a recognition path for the `[ 'headers' => …, 'rows' => … ]` payload shape returned by the CSV exporters, so the same `collect()` output feeds both renderers without per-exporter branching. The Exports page (`FrontendExportsView`) replaces the per-card `'format' => 'CSV'` shape with a `'formats' => [ 'csv', 'xlsx' ]` list; multi-format cards render a chip toggle (`.tt-export-card__format-chip`, `:has(input:checked)` for selected state, hidden radio buttons for keyboard accessibility); single-format cards keep their static badge and emit a hidden input. The JS picks `format` out of the FormData so the fallback filename extension reflects the user's choice. No schema, REST contract, or capability change. (closes #864) =
 

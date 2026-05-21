@@ -12,21 +12,27 @@ use TT\Modules\Export\Format\Renderers\JsonRenderer;
 use TT\Modules\Export\Format\Renderers\PdfRenderer;
 use TT\Modules\Export\Format\Renderers\XlsxRenderer;
 use TT\Modules\Export\Format\Renderers\ZipRenderer;
+use TT\Modules\Export\Exporters\ActivityBriefPdfExporter;
 use TT\Modules\Export\Exporters\AttendanceRegisterCsvExporter;
+use TT\Modules\Export\Exporters\AuditLogCsvExporter;
 use TT\Modules\Export\Exporters\BackupZipExporter;
 use TT\Modules\Export\Exporters\DemoDataXlsxExporter;
 use TT\Modules\Export\Exporters\EvaluationsXlsxExporter;
 use TT\Modules\Export\Exporters\FederationJsonExporter;
 use TT\Modules\Export\Exporters\GdprSubjectAccessZipExporter;
 use TT\Modules\Export\Exporters\GoalsCsvExporter;
+use TT\Modules\Export\Exporters\KpiSnapshotXlsxExporter;
 use TT\Modules\Export\Exporters\MatchDayTeamSheetPdfExporter;
 use TT\Modules\Export\Exporters\PdpPdfExporter;
 use TT\Modules\Export\Exporters\PlayerEvaluationPdfExporter;
+use TT\Modules\Export\Exporters\PlayerEvaluationsCsvExporter;
 use TT\Modules\Export\Exporters\PlayerOnePagerPdfExporter;
-use TT\Modules\Export\Exporters\ScoutingReportPdfExporter;
-use TT\Modules\Export\Exporters\ActivityBriefPdfExporter;
 use TT\Modules\Export\Exporters\PlayersListCsvExporter;
+use TT\Modules\Export\Exporters\ScoutingReportPdfExporter;
+use TT\Modules\Export\Exporters\StaffDirectoryCsvExporter;
+use TT\Modules\Export\Exporters\TeamActivitiesCsvExporter;
 use TT\Modules\Export\Exporters\TeamIcalExporter;
+use TT\Modules\Export\Exporters\TeamRosterStatsCsvExporter;
 use TT\Modules\Export\Rest\ExportRestController;
 
 /**
@@ -95,6 +101,14 @@ class ExportModule implements ModuleInterface {
         ExporterRegistry::register( new GdprSubjectAccessZipExporter() ); // use case 10 (v3.110.15)
         ExporterRegistry::register( new DemoDataXlsxExporter() );        // use case 15 (v3.110.16)
         ExporterRegistry::register( new MatchDayTeamSheetPdfExporter() ); // use case 4 (v3.110.17)
+
+        // v4.0.11 (#865) — completeness-audit additions.
+        ExporterRegistry::register( new PlayerEvaluationsCsvExporter() );
+        ExporterRegistry::register( new TeamRosterStatsCsvExporter() );
+        ExporterRegistry::register( new TeamActivitiesCsvExporter() );
+        ExporterRegistry::register( new StaffDirectoryCsvExporter() );
+        ExporterRegistry::register( new AuditLogCsvExporter() );
+        ExporterRegistry::register( new KpiSnapshotXlsxExporter() );
 
         ExportRestController::init();
     }
