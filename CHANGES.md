@@ -1,75 +1,51 @@
-# TalentTrack v3.110.214 — Match preparation surface for head coaches (closes #838)
+# TalentTrack v3.110.215 — Coach access fix on "My evaluations this week" KPI tile (closes #846)
 
-## Why
+## Pilot report
 
-Pilot 2026-05-21: head coach asked for a match-preparation form that mirrors the spreadsheet they currently use to set the starting XI, plan substitutes between halves, write the game goals, and mark which players have specific goals + an appointed video analyst. The spec was iterated through multiple rounds on the same day; this ship implements the agreed v1 (desktop-only, screenshot-for-distribution).
+> a user with the `tt_coach` role clicks the "My evaluations this week" KPI on their coach dashboard and lands on a "Not authorized" page.
 
-## What's in
+## Root cause — two layers
 
-### New module: `src/Modules/MatchPrep/`
+### Layer 1 — matrix seed gap
 
-- `MatchPrepModule` — registers the REST controller, the wizard with `WizardRegistry`, and the PDF exporter with `ExporterRegistry`.
-- `Repositories/MatchPrepRepository` — one class spanning the four prep tables.
-- `Rest/MatchPrepRestController` — `PUT /talenttrack/v1/match-prep/<activity_id>` accepting the full form payload in one shot; cap `tt_edit_activities`.
-- `Frontend/FrontendMatchPrepView` — main editing surface at `?tt_view=match-prep&activity_id=N`. Redirects to the wizard if no prep row exists.
-- `Wizards/MatchPrepWizard` + `Wizards/AvailabilityStep` — one-step wizard that collects Present/Absent + reason per roster player. Filters `Late` via `tt_lookups.meta.hide_from_prep`.
-- `Export/MatchPrepPdfExporter` — landscape A4 print sheet.
+The KPI `my_evaluations_this_week` links to `?tt_view=my-evaluations`. Dispatch is gated by `MatrixGate::canAnyScope( $user_id, 'my_evaluations', 'read' )`. `tt_coach` resolves to persona `head_coach` (or `assistant_coach`).
 
-### Migration 0118
+`config/authorization_seed.php` only granted `my_evaluations` to `player` and `parent`. No row for `head_coach` / `assistant_coach` → matrix returned false → deny.
 
-Four new tables:
+### Layer 2 — view is player-only by design
 
-- `tt_match_prep` (1:1 with the match activity) — formation, half length, the five goals fields, audit timestamps + `created_by`. Carries `uuid CHAR(36) UNIQUE` per SaaS-ready guidance.
-- `tt_match_prep_availability` (`match_prep_id × player_id`) — Present/Absent/Excused/Injured snapshot + free-text reason.
-- `tt_match_prep_lineup` (`match_prep_id × half × slot_number`) — per-half pitch assignment with both `(prep, half, slot)` and `(prep, half, player)` unique keys.
-- `tt_match_prep_player_goals` (`match_prep_id × player_id`) — attention text + `is_specific_goal` + `analyst_appointed`.
+`FrontendMyEvaluationsView` queried `WHERE e.player_id = %d` — it shows evaluations OF the current user as a player subject, not evaluations AUTHORED by the current user. The dispatcher additionally called `requirePlayerOrDeny()` before rendering, so a coach with no linked player record hit that deny path even after passing the matrix gate.
 
-All four carry `club_id BIGINT UNSIGNED DEFAULT 1`. Migration uses `CREATE TABLE IF NOT EXISTS`.
+## Fix
 
-The migration also sets `tt_lookups.meta.hide_from_prep = true` on the canonical `Late` row of `attendance_status` so the AvailabilityStep chip set hides it.
+### Seed (`config/authorization_seed.php`)
 
-### Activity detail integration
+`my_evaluations × read × self` added for both `head_coach` and `assistant_coach`. Each coach sees only their own authored evaluations.
 
-A new page-header action **"Plan match prep"** appears on the activity detail page when `activity_type_key` is `match` or `game` AND the user has `tt_edit_activities`. Targets `?tt_view=match-prep&activity_id=N`; the view redirects to the wizard if no prep row exists yet.
+### Migration 0119
 
-### REST contract
+Idempotent `INSERT IGNORE` of the two seed rows on `tt_authorization_matrix` so existing installs pick up the grant without a full re-seed. Guarded by `is_default = 1` so operator-edited rows are preserved.
 
-`PUT /talenttrack/v1/match-prep/<activity_id>` — body: `formation_template_id`, `half_length_minutes`, the five `goals_*` columns, a `lineup` object keyed by half → `{ slot: player_id }`, a `player_goals` object keyed by player_id → `{ attention_text, is_specific_goal, analyst_appointed }`, plus an optional `availability` object for the form's "Manage availability" round-trip.
+### Dispatcher branch
 
-All sub-sets are full replacements (delete + re-insert). Partial saves are allowed — only the wizard's AvailabilityStep enforces a minimum of 11 Present players.
+`DashboardShortcode::dispatchMeView` now branches by caller context for `case 'my-evaluations'`:
 
-### Frontend behaviour
+- User with `tt_edit_evaluations` and no linked player record → `FrontendMyEvaluationsView::renderForCoach(get_current_user_id())`.
+- Player path unchanged: `requirePlayerOrDeny() → render($player)`.
 
-Vanilla JS. The form recomputes minutes on every slot change, enforces slot uniqueness per half by clearing the previous occupant when a clash happens, offers a "→ Copy 1e to 2e" button that duplicates the first-half slot map, and persists via one PUT.
+### New `FrontendMyEvaluationsView::renderForCoach( int $coach_user_id )`
+
+Queries `tt_evaluations WHERE coach_id = %d AND archived_at IS NULL AND eval_date >= last_30_days ORDER BY eval_date DESC` and renders a simple Date / Player / Type / Match table. The KPI value source filters strictly to "this week"; the view widens to the last 30 days so coaches always see *some* recent context.
+
+## Architectural notes
+
+- Not baking `tt_view_evaluations` into the `tt_coach` role baseline. The matrix is the gate; the matrix data was wrong; repair at that layer.
+- Not removing `requirePlayerOrDeny()` unconditionally — the player branch still legitimately depends on a linked player record.
+- KPI count source already filtered by `coach_id`; the view now matches.
 
 ## How to test
 
-- [ ] Apply migrations — confirm `0118_match_prep` in `tt_migrations`; four new tables exist.
-- [ ] `Late` row of `attendance_status` carries `meta.hide_from_prep = true`.
-- [ ] On a match-type activity, "Plan match prep" appears in the page-header.
-- [ ] Wizard defaults all roster to Present; mark a few Absent with a reason; blocked from advancing if fewer than 11 Present.
-- [ ] Form: pick per-half slots, conflicts clear the previous occupant, minutes track live, Copy 1e→2e works.
-- [ ] Per-player attention text + Specific-goal flag + Analyst-appointed flag persist on save and round-trip on reload.
-- [ ] PDF link opens a landscape A4 sheet with the per-half slot list, bench, goals, unavailable players, and per-player attention.
-
-## Player-centric framing
-
-Helps answer **"Who's available, who's starting, what are we focused on for this match, and who's watching the video back?"** — the head coach gets a single screen instead of a side spreadsheet.
-
-## Out of scope (v1 — per pilot direction)
-
-- Pitch / formation diagram rendering in the PDF (v1 uses a list layout).
-- Mobile UX — desktop-only v1.
-- Mid-half substitutions.
-- Player-facing surfaces.
-- In-app analyst-feedback capture (the flag persists the appointment).
-- Match-prep templates.
-- History / versioning of prep edits.
-- `MatchDayTeamSheetPdfExporter` reads from prep data (deferred; the existing exporter still reads from `tt_attendance.lineup_role`).
-
-## Follow-ups worth filing
-
-- Pitch-diagram SVG in the PDF.
-- MatchDayTeamSheetPdfExporter prep integration.
-- Bottom-sheet slot-picker UX (mirrors the team-blueprints picker pattern).
-- Activity edit form gains a `half_length_minutes` column on match-type activities (currently the prep-header field overrides per-prep, defaulting to 35).
+1. Apply migrations — confirm `0119_seed_coach_my_evaluations` in `tt_migrations`; two new rows on `tt_authorization_matrix`.
+2. Log in as `tt_coach`, click "My evaluations this week" — expect a list of evaluations the coach authored in the last 30 days. No "Not authorized" page.
+3. Log in as `tt_player`, open the same tile — expect the existing per-player evaluations view unchanged.
+4. AuthChainDebugPage shows `my_evaluations × read × self` resolving green via matrix for both coach personas.

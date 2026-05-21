@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.214
+Stable tag: 3.110.215
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.215 — Coach access fix on the "My evaluations this week" KPI tile: `tt_coach` users were hitting a "Not authorized" page when clicking the tile. Two-layer defect — (1) the matrix seed only granted `my_evaluations` to player + parent personas (the KPI was added to the coach dashboard template without the matching seed grant), and (2) the destination view was structurally player-only (`requirePlayerOrDeny()` blocked coaches with no linked player record). Fix: `config/authorization_seed.php` gains `my_evaluations × read × self` for `head_coach` and `assistant_coach`; migration 0119 backfills the same two rows on upgraded installs (`INSERT IGNORE` + `is_default = 1`). Dispatcher branches by caller context: a user with `tt_edit_evaluations` and no linked player record is routed to `FrontendMyEvaluationsView::renderForCoach()` (new sibling method) which lists evaluations they authored in the last 30 days; players keep the existing `render()` path unchanged. (closes #846) =
 
 = 3.110.214 — Match preparation surface for head coaches: a new "Plan match prep" page-header action on match-type activities opens a single-step Availability wizard (Present / Absent / Excused / Injured per roster player, filtered by `tt_lookups.meta.hide_from_prep`), then redirects to `?tt_view=match-prep` — a per-half lineup grid with slot dropdowns + bench derivation + per-player attention/specific-goal/analyst columns + match goals (general / attacking / defending / set-piece × 2). Minutes computed live from slot occupancy × `half_length_minutes`. A "→ Copy 1e to 2e" button duplicates the first half's slot map. Persistence is one PUT to `/talenttrack/v1/match-prep/<activity_id>` (cap-gated on `tt_edit_activities`). Schema: migration 0118 adds `tt_match_prep`, `tt_match_prep_availability`, `tt_match_prep_lineup`, `tt_match_prep_player_goals` (all with `club_id` SaaS scaffold + `uuid` on the root entity) and flips `hide_from_prep = true` on the canonical `Late` row of `attendance_status`. Operators can flip the same flag on custom statuses via the lookup admin. Landscape A4 PDF export `match_prep_pdf` registered with the exports module — renders the per-half slot list, bench, match goals, unavailable players, and per-player attention notes (no SVG formation diagram in v1). `MatchDayTeamSheetPdfExporter` is unchanged in this ship — it will be updated to read from match-prep in a follow-up once the prep data has settled. Out of scope per pilot direction: mobile UX (desktop-only v1), mid-half subs, post-match analyst feedback capture, match-prep templates, history/versioning. (closes #838) =
 

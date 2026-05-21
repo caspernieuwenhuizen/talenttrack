@@ -201,6 +201,11 @@ return array_merge(
         'my_staff_goals'             => [ 'rc',  'self',   $mod_staff_dev ],
         'my_staff_evaluations'       => [ 'r',   'self',   $mod_staff_dev ],
         'my_staff_certifications'    => [ 'rc',  'self',   $mod_staff_dev ],
+        // v3.110.215 (#846) — coach reads their OWN authored evaluations
+        // via the My-group "evaluations this week" KPI tile. Scope `self`
+        // = filter by coach_id = current user. Distinct from `evaluations`
+        // above (broader team-scope read of any evaluation on the team).
+        'my_evaluations'             => [ 'r',   'self',   $mod_evals ],
         'persona_templates'          => [ 'r',   'global', $mod_persona_dash ],
         'push_subscriptions'         => [ 'rcd', 'self',   $mod_push ],
         'player_status'              => [ 'r',   'team',   $mod_players ],
@@ -263,6 +268,10 @@ return array_merge(
         'my_staff_goals'             => [ 'rc',  'self',   $mod_staff_dev ],
         'my_staff_evaluations'       => [ 'r',   'self',   $mod_staff_dev ],
         'my_staff_certifications'    => [ 'rc',  'self',   $mod_staff_dev ],
+        // v3.110.215 (#846) — head coach reads their OWN authored
+        // evaluations via the My-group KPI tile. Same scope as
+        // assistant_coach.
+        'my_evaluations'             => [ 'r',   'self',   $mod_evals ],
         // #0081 — Head coach reads prospects + test trainings at team
         // scope (their own age group's funnel). No write — prospects
         // are HoD/scout territory.
