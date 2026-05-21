@@ -1,42 +1,67 @@
-# TalentTrack v3.110.202 — Migration 0109 re-runs the fr/de/es backfill of `tt_translations`, this time with the textdomain actually loaded for each locale (closes #829)
+# TalentTrack v3.110.203 — Lookup editor switches to a mobile-collapsible master-detail layout (closes #830)
 
-## Pilot report
+## Why
 
-> Check the item regarding lookups and their translation. I do not see the backfill of all lookup translations.
+Before this release, the Configuration → Lookups editor for a single category rendered linearly:
 
-The fr_FR / de_DE / es_ES translation backfill shipped as migration 0106 in v3.110.191 (#798). On the pilot it ran without errors but wrote **zero rows** to `tt_translations` for those three locales. The frontend lookup admin form rendered three empty inputs per row, and every label outside the admin stayed in English.
+1. Table of rows at the top.
+2. Add/Edit form stacked underneath.
+3. Editing a row reloaded the page with `?edit=N` and scrolled the form into view.
 
-## Why 0106 produced zero rows
+On a category with ~5+ rows plus the six-locale translation block (which expands to ~12 inputs per row when `show_desc=true`), the form sat 1.5–2 screens down. An academy operator had to scroll to discover the editor existed, then scroll up to confirm a save took effect, then scroll back down to edit the next row. Pilot report (2026-05-20): *"the form is too far down to be useful when I'm working through a dozen rows."*
 
-`0106_backfill_lookup_translations_fr_de_es.php` walks `tt_lookups`, calls `switch_to_locale($locale)`, calls `load_plugin_textdomain('talenttrack', …)`, then calls `__($raw, 'talenttrack')` per row × field. When the translated string is the same as the source, it's skipped (correct — no point writing `name='Training', locale='fr_FR', value='Training'`).
+## What changed
 
-The bug is that on the pilot, **every** translation was equal to its source — not because the .po files are empty (they aren't; the plugin's `languages/talenttrack-fr_FR.po` carries hundreds of msgstr entries), but because `load_plugin_textdomain()` short-circuits when the `talenttrack` domain is already loaded for some other locale. WP's behaviour: a single textdomain has a single in-memory MO map, and the second `load_plugin_textdomain()` call is a no-op if the file with that name is already loaded. So after the first locale, all subsequent calls saw the **first locale's** gettext map — and on a system where the site locale was Dutch (0086 had already loaded nl_NL), or even where the first locale switch loaded fr_FR and the second tried de_DE, `__()` returned a cached translation that didn't match the just-switched locale, then was either the raw English (and skipped) or the wrong locale's translation (and silently mislabeled).
+`FrontendConfigurationView::renderLookupCategoryEditor()` is rewritten as a two-pane layout:
 
-## Fix — `0109_backfill_lookup_translations_fr_de_es_v2.php`
+- **Left rail (`.tt-lookup-md-rail`)**: lists every row. Drag-handle, optional colour swatch, name, sort order, delete pill. Selected row highlighted. "+ Add new" button sticky at the top of the rail.
+- **Right pane (`.tt-lookup-md-pane`)**: the edit-or-add form. Same fields as before (name, sort_order, optional description, optional pill colour, per-locale translations block). Save / Cancel pinned to the bottom of the pane via `FormSaveButton::render()` with a `cancel_url` per CLAUDE.md § 6.
 
-A new migration (so the runner actually fires it on installs where 0106 already succeeded silently). Same structure as 0106 with three changes:
+Layout breakpoint: 768px. Above → two-column grid (`minmax(0, 2fr) minmax(0, 3fr)`). Below → stacked. On mobile a row tap reveals the pane and hides the rail; a `← Back to list` pill in the pane header returns to the rail. `?edit=N` deep-links also open the pane on initial load.
 
-1. **`unload_textdomain('talenttrack', true)` before each `load_plugin_textdomain()`** so the gettext cache is reset between locales. `true` for the `reload_handler` argument makes WP forget the in-memory map fully.
-2. **Per-locale Logger output** (`migration.0109.summary` with `scanned / translated / written` counts per locale) so the operator and the developer can confirm the migration worked instead of inferring it from the visible UI.
-3. **Restoration pass at the end** — `unload_textdomain()` + `load_plugin_textdomain()` for the site locale once the loop is done, so the rest of the migration runner sees coherent gettext state.
+## Row click = in-place form populate, no page reload
 
-`INSERT IGNORE` on the unique `(club_id, entity_type, entity_id, field, locale)` index keeps this idempotent. If 0109 runs on an install where 0106 *had* worked (small install, single-locale, lucky-ordering), the existing rows are skipped and the Logger output shows `written=0` for those rows — that's the success case, not a regression.
+Each rail row carries its full payload as `data-row-*` attributes:
 
-## What this is not
+- `data-row-name`, `data-row-sort`, `data-row-desc`, `data-row-color`, `data-row-locked`
+- `data-row-tx` — JSON blob of every translation (`locale → field → value`) for that row.
 
-- Not a fix to 0106 itself. The runner skips migrations already in `tt_migrations`, so editing 0106 would have no effect on installs that have already recorded it.
-- Not a behaviour change to the runtime renderer. `LookupTranslator::name()` keeps reading from `tt_translations` first, falling back to `__()` — that fallback is what was making the dashboard look bilingual today, just with no operator override surface.
-- Not a change to which locales are in scope. fr_FR / de_DE / es_ES are the three locales the plugin ships .po files for beyond nl_NL (which 0086 already backfilled). The 8 newly-exposed lookup types from v3.110.201 (#831) are covered by the same walk because they live in the same `tt_lookups` table.
+A small JS handler reads those attributes on click and writes them into the form's inputs by name selector + the existing `[data-tt-tx-locale][data-tt-tx-field]` per-locale selectors. The URL is updated via `history.replaceState` so a refresh keeps the selected row, but there's no full navigation.
+
+## Translations bulk-load
+
+To make in-place populate fast and keep the page render cheap, a new private helper `loadTranslationsForLookupIds()` does **one** `SELECT entity_id, field, locale, value FROM tt_translations WHERE entity_type='lookup' AND entity_id IN (…)` per page render, regardless of how many rows are in the rail. The result is keyed `id → locale → field → value` and shared between the server-side render path (currently-editing row) and the JSON blob baked into the rail rows.
+
+This replaces N+1 calls to `TranslationsRepository::allFor()` (one per row) that would have made the new layout O(rows × locales) at render time.
+
+## Acceptance ticked
+
+- [x] Two-pane layout on ≥768px, stacked on <768px
+- [x] Row click loads form values in-place (no full page reload)
+- [x] Translation block scrolls inside the right pane (`max-height: 70vh; overflow-y: auto`), not the whole page
+- [x] Drag-reorder (`DragReorder::renderScript`) still works in the rail — same `data-tt-sortable` hook
+- [x] Save/Cancel pinned at the bottom of the right pane via `FormSaveButton::render()` with `cancel_url`
+- [x] All 18 currently-registered categories render correctly (10 original + 8 from v3.110.201) with both `show_desc=true` and `show_color=true` variants
+- [x] No regression on the Translate engine button (still calls `/translations/preview` and fills the per-locale fields)
+
+## What's unchanged
+
+- REST contract (`/lookups/<type>` POST / `/lookups/<type>/<id>` PUT / DELETE).
+- Cap gate (`tt_edit_settings`).
+- Validation, sanitisation, audit logging — all repository-side.
+- The `?edit=N` URL pattern as a deep-link entry point.
+- Drag-reorder endpoint + wp-admin caller (the same `DragReorder::renderScript` wires it up).
 
 ## How to test
 
-On a fresh checkout of v3.110.202:
+1. Open Configuration → Lookups → any category (try *Evaluation types* — 6 rows × 6 locales × 2 fields is a heavy case).
+2. ≥768px: two-pane layout. Click any row → form on the right populates immediately, no flash, no reload. URL gains `?edit=<id>`. Translation inputs show the row's per-locale values.
+3. Click "+ Add new" → form blanks; URL drops `?edit`; Save button label changes to "Add row".
+4. <768px (DevTools mobile preset, 360px): rail fills the viewport. Tap a row → rail hides, pane fills the viewport with a "← Back to list" pill. Tap Back → rail returns.
+5. Save / Cancel — Save lands; Cancel returns to the base category URL (drops `?edit`). Both pinned at the bottom of the pane footer.
+6. Drag-reorder: grab a row's `⋮⋮` handle, drop in a new position. Server save fires (same path as before); reload preserves the new order.
+7. Delete: click the row's red `×`. Confirmation prompt. On confirm, reload, row gone.
 
-1. Apply migrations: `wp tt migrate` (or via the wp-admin migrations page).
-2. Tail the WordPress error log / Logger sink for `migration.0109.summary`. Expect a structured payload listing fr_FR / de_DE / es_ES with non-zero `written` counts.
-3. In wp-admin, go to Tools → TalentTrack → Translations. Filter `entity_type = lookup`. Expect rows for fr_FR / de_DE / es_ES across every lookup type that has at least one .po-translated string.
-4. As an academy operator on the frontend: Configuration → Lookups → Evaluation types → Edit "Training". Confirm the per-locale translation block is pre-filled for Dutch (already there), French ("Entraînement"), German ("Training" — same as source for this one, expected null in DB), and Spanish.
+## Effort
 
-## If you've already run 0106
-
-No action needed. 0109 fires automatically alongside the runner's normal pass and is idempotent.
+~120 lines of PHP delta, ~110 lines of inline CSS, ~80 lines of JS for the row-click / blank-form / mobile pane-toggle handlers. One new private helper. Single file touched (`FrontendConfigurationView.php`).
