@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.0.4
+Stable tag: 4.0.5
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.0.5 — HoD Upcoming Activities widget shows today's activities again (closes #858). The widget used a time-inclusive `CONCAT(session_date, ' ', start_time) >= NOW()` filter that excluded any activity that had already started today, even if it hadn't ended — an HoD opening the dashboard at 09:00 on a day with an 08:00 training saw the widget empty. Pilot quote: *"the hod dashboard, the upcoming activities list does not show anything while there are multiple teams with upcoming, planned activities."* Fix: align with the coach hero's date-inclusive filter (`session_date >= today`). "Upcoming" now means "today or later", not "literally hasn't started yet this minute". `apply_demo_scope` unchanged. Sibling audit: the CONCAT pattern existed only here. (closes #858) =
 
 = 4.0.4 — HoD Team Overview widget — two bugs fixed (closes #857). **Layout overrun**: clicking a team to expand its player list bled below the widget's grid cell because the shared `.tt-pd-widget { height: 100% }` rule locked the widget to the cell, and the inline-expand body had no overflow guard. New widget-specific `.tt-pd-widget-team_overview_grid { height: auto }` override lets the widget grow with content; other widgets keep the height-locked behaviour. **Drill-down scope drift**: the widget emitted `?tt_view=players&team_id={id}` but `FrontendListTable` consumes `?filter[team_id]={id}` and the REST controller silently dropped the raw `team_id` — HoDs landed on the full club roster instead of the clicked team. Two-character URL fix. Mobile rendering unchanged. (closes #857) =
 

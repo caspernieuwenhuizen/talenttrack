@@ -1,63 +1,47 @@
-# TalentTrack v4.0.4 — HoD Team Overview widget: layout + drill-down filter bugs (closes #857)
+# TalentTrack v4.0.5 — HoD Upcoming Activities widget shows today's activities again (closes #858)
 
 ## Pilot report
 
-Two distinct defects on the HoD dashboard's Team Overview widget:
+> the hod dashboard, the upcoming activities list does not show anything while there are multiple teams with upcoming, planned activities.
 
-1. **Layout overrun**: expanding a team's player list inline bleeds below the widget into the next grid row, overlapping the widget underneath.
-2. **Drill-down scope drift**: clicking a team's "View all" link lands on the full club roster, not just that team's players.
+## Root cause
 
-## Root causes
+`UpcomingActivitiesSource` used a time-inclusive lower bound:
 
-### Defect 1 — widget height-locked while content grows
+```sql
+WHERE CONCAT(session_date, ' ', COALESCE(start_time, '00:00:00')) >= NOW()
+```
 
-`TeamOverviewGridWidget` lives in a grid cell with `row_span = 3`. The shared `.tt-pd-widget { height: 100% }` rule (`persona-dashboard.css:179`) locks the widget to the cell's calculated height. The inline-expand JS removes `hidden` from `.tt-pd-team-card-body`, the nested flex column grows vertically, and the outer widget container can't grow to match — content visually bleeds.
+That excludes any activity which has already STARTED today, even if it hasn't ended. An HoD opening the dashboard at 09:00 on a day with an 08:00 training saw the widget empty.
 
-Mobile at ≤480px sidesteps the issue because the flex-column stack at `persona-dashboard.css:126-130` doesn't use the grid constraint.
-
-### Defect 2 — URL/filter protocol mismatch
-
-`TeamOverviewGridWidget` built the drill-down URL as `?tt_view=players&team_id={id}`. But `FrontendListTable::stateFromQuery()` consumes filters via `$_GET['filter'][...]`, and `PlayersRestController` accepts `filter[team_id]=N` not raw `team_id=N`. The raw param was silently dropped → no filter applied → full club roster.
+For comparison, the coach hero (`UpcomingActivityRepository::nextForCoach`) uses a date-inclusive filter — same activity stays visible there.
 
 ## Fix
 
-Two surgical edits:
+Align the HoD widget's filter with the coach hero. "Upcoming" now means "today or later":
 
-1. **CSS** — new rule in `assets/css/persona-dashboard.css` right after the team-card body block:
+```sql
+WHERE session_date >= today
+  AND session_date <= today + N days
+```
 
-   ```css
-   .tt-pd-widget-team_overview_grid { height: auto; }
-   ```
+One source-file change. `apply_demo_scope` unchanged.
 
-   Only this widget kind is affected. Other widgets that share the height-100% rule (DataTableWidget, MiniPlayerListWidget) don't use inline expand — they have their own internal scroll and stay unchanged.
-
-2. **Widget URL** — `TeamOverviewGridWidget::renderTeamCard()`:
-
-   - Was: `'team_id' => $s->team_id`
-   - Now: `'filter[team_id]' => $s->team_id`
-
-   Matches the existing filter protocol used by `FrontendListTable`. No changes needed to the destination view or REST controller.
-
-## What this is NOT
-
-- Not a matrix scope bug. The HoD's `players` scope is `global` by design — they're allowed to see all players. The drill-down's job is to scope to the *clicked team*, not the *HoD's responsibility area*.
-- Not a per-install data defect. Reproduces universally.
+Sibling audit (`grep CONCAT.*session_date.*start_time`): the too-strict pattern existed only here. No other surfaces affected.
 
 ## Files touched
 
-- `src/Modules/PersonaDashboard/Widgets/TeamOverviewGridWidget.php` — URL fix.
-- `assets/css/persona-dashboard.css` — new `.tt-pd-widget-team_overview_grid { height: auto }` rule.
+- `src/Modules/PersonaDashboard/TableSources/UpcomingActivitiesSource.php` — `$from` date-only, query lower bound becomes `session_date >= %s`.
 - `talenttrack.php` + `readme.txt` + `CHANGES.md` — version bump.
 
-No migration. No schema. No translation. No REST contract change.
+No migration. No schema. No translation.
 
 ## How to test
 
-1. As an HoD: open the dashboard. Expand any team in the Team Overview widget. The widget grows to fit; no overlap with the row below.
-2. Click the team's "View all players" link. Land on `?tt_view=players&filter[team_id]=N`. Only that team's players in the list.
-3. Resize to 360px (mobile). Both behaviours still work — the stack layout doesn't need the override but doesn't regress.
-4. Sanity-check other widgets that share the height-100% rule (DataTableWidget, MiniPlayerListWidget): no visual change.
+1. Schedule a training for today at 08:00. Open the HoD dashboard at any time after the start time. Widget shows the activity.
+2. With multiple activities scheduled across the next 30 days, the widget renders the list ordered by `session_date ASC, start_time ASC`.
+3. Demo-mode toggle: confirm the widget continues to filter via `apply_demo_scope` (no regression — that filter is untouched).
 
 ## Why patch (not minor)
 
-Two bug fixes, no new behaviour. Per the v4.0.0 SemVer rule: patch.
+Bug fix, no new behaviour. Per the v4.0.0 SemVer rule: patch.
