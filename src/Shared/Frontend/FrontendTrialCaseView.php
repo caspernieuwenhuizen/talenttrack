@@ -200,9 +200,13 @@ class FrontendTrialCaseView extends FrontendViewBase {
         echo '<div class="tt-trial-strip">';
         echo '<div><strong>' . esc_html__( 'Track:', 'talenttrack' ) . '</strong> ' . esc_html( $track ? \TT\Infrastructure\Query\LabelTranslator::trialTrackName( (string) $track->name ) : '—' ) . '</div>';
         echo '<div><strong>' . esc_html__( 'Window:', 'talenttrack' ) . '</strong> ' . esc_html( (string) $case->start_date . ' → ' . (string) $case->end_date ) . '</div>';
-        echo '<div><strong>' . esc_html__( 'Status:', 'talenttrack' ) . '</strong> ' . esc_html( (string) $case->status ) . '</div>';
+        // v3.110.212 (#842) — status + decision render through
+        // TrialCasesRepository::statusLabel() / ::decisionLabel(),
+        // both of which delegate to LookupTranslator for the per-locale
+        // operator override.
+        echo '<div><strong>' . esc_html__( 'Status:', 'talenttrack' ) . '</strong> ' . esc_html( TrialCasesRepository::statusLabel( (string) $case->status ) ) . '</div>';
         if ( $case->decision ) {
-            echo '<div><strong>' . esc_html__( 'Decision:', 'talenttrack' ) . '</strong> ' . esc_html( (string) $case->decision ) . '</div>';
+            echo '<div><strong>' . esc_html__( 'Decision:', 'talenttrack' ) . '</strong> ' . esc_html( TrialCasesRepository::decisionLabel( (string) $case->decision ) ) . '</div>';
         }
         echo '</div>';
     }
@@ -532,9 +536,9 @@ class FrontendTrialCaseView extends FrontendViewBase {
         echo '<input type="hidden" name="tt_trial_action" value="decide">';
 
         $opts = [
-            TrialCasesRepository::DECISION_ADMIT          => __( 'Admit (offer a place)', 'talenttrack' ),
-            TrialCasesRepository::DECISION_DENY_FINAL     => __( 'Decline (final)', 'talenttrack' ),
-            TrialCasesRepository::DECISION_DENY_ENCOURAGE => __( 'Decline (with encouragement to re-apply)', 'talenttrack' ),
+            TrialCasesRepository::DECISION_ADMIT          => TrialCasesRepository::decisionLabel( TrialCasesRepository::DECISION_ADMIT ),
+            TrialCasesRepository::DECISION_DENY_FINAL     => TrialCasesRepository::decisionLabel( TrialCasesRepository::DECISION_DENY_FINAL ),
+            TrialCasesRepository::DECISION_DENY_ENCOURAGE => TrialCasesRepository::decisionLabel( TrialCasesRepository::DECISION_DENY_ENCOURAGE ),
         ];
         echo '<fieldset class="tt-decision-radios"><legend>' . esc_html__( 'Outcome', 'talenttrack' ) . '</legend>';
         foreach ( $opts as $val => $label ) {

@@ -31648,3 +31648,19 @@ msgstr "Idee-statussen"
 #: src/Shared/Frontend/FrontendConfigurationView.php
 msgid "Submitted / refining / ready for approval / rejected / promoting / accepted / promotion failed / in progress / done — ideas-board status vocabulary."
 msgstr "Ingediend / aan het verfijnen / klaar voor goedkeuring / afgewezen / bezig met bevorderen / geaccepteerd / bevorderen mislukt / in behandeling / klaar — statusvocabulaire voor het ideeën-bord."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Trial statuses"
+msgstr "Proefperiode-statussen"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Open / extended / decided / archived — trial-case lifecycle states."
+msgstr "Open / verlengd / besloten / gearchiveerd — levenscyclus van een proefperiode."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Trial decisions"
+msgstr "Proefperiode-beslissingen"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Admit / decline (final or with encouragement) / offered team position / declined / continue in trial group."
+msgstr "Toelaten / afwijzen (definitief of met aanmoediging) / teamplek aangeboden / afgewezen / doorgaan in proefgroep."

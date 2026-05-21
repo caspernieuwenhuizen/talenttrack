@@ -1,34 +1,48 @@
-# TalentTrack v3.110.211 — IdeaStatus moves to `tt_lookups` + `tt_translations` (closes #840; sixth conversion from #803)
+# TalentTrack v3.110.212 — TrialCases statuses + decisions move to `tt_lookups` + `tt_translations` (closes #842; seventh conversion from #803)
 
 ## Why
 
-Sixth conversion from the #803 audit. `src/Modules/Development/IdeaStatus.php` held nine internal idea-board status values plus a `label()` switch. Workflow may evolve per academy — operators may want different terminology for `refining`, `ready-for-approval`, or the transient `promoting` state.
+Seventh conversion from the #803 audit — the biggest one. `src/Modules/Trials/Repositories/TrialCasesRepository.php` held two related vocabularies:
+
+- **Statuses** (4): `open`, `extended`, `decided`, `archived`
+- **Decisions** (6): `admit`, `deny_final`, `deny_encouragement`, `offered_team_position`, `declined_offered_position`, `continue_in_trial_group`
+
+Heavy operator surface; trial workflow varies a lot by academy. Coaches have asked the most about this one.
+
+## Adjacent bug fixed along the way
+
+The status + decision strip in `FrontendTrialCaseView::renderOverview()` (and the same pair of columns in `FrontendTrialsManageView`'s list table) was echoing the raw stored key (`(string) $case->status`, `(string) $r->decision`) — bypassing any label or translation. So Dutch installs were seeing "open" / "extended" / "admit" / "deny_final" on the page. The conversion to lookups + the new `statusLabel()` / `decisionLabel()` helpers fixes this at the same time as exposing the operator-edit surface.
 
 ## Stored keys stay sacred
 
-All nine `IdeaStatus::*` constants remain PHP constants — they're the contract with `tt_dev_ideas.status` and drive the kanban board's column structure (`boardColumns()`).
+All 10 `STATUS_*` and `DECISION_*` constants stay PHP constants. Contracts with `tt_trial_cases.status` and `tt_trial_cases.decision`.
 
-## Labels move
+## Labels move to the repository
 
-- `IdeaStatus::label()` delegates to `LookupTranslator::byTypeAndName('idea_status', $value)` with the canonical English switch retained as a pre-migration fallback.
-- `IdeaStatus::authorFacingLabel()` is unchanged — it's a curated 4-bucket rollup (In review / Not accepted / Accepted) of the underlying 9 statuses, not a per-status label. If the operator renames `refining` to `In de revisie` via the lookup admin, `label()` returns the new Dutch text but `authorFacingLabel()` still returns "In review" (which itself goes through `__()` and lives in the .po).
+- New `TrialCasesRepository::statusLabel( string $status ): string` delegates to `LookupTranslator::byTypeAndName('trial_case_status', $value)` with the English switch as a pre-migration fallback.
+- New `TrialCasesRepository::decisionLabel( string $decision ): string` — same chain against `trial_case_decision`.
+- Three consumer sites updated to call the new helpers (two were echoing the raw key; one had an inline `__()` array for the decision-form radios).
 
-## Frontend admin tile
+## Frontend admin tiles
 
-New **"Idea statuses"** tile on Configuration → Lookups. `show_color=true` so the kanban columns can be colour-coded; `show_desc=false` (status names are self-explanatory).
+Two new tiles on Configuration → Lookups:
+- **"Trial statuses"** — `show_color=true` so the trial list can colour-code status pills; `show_desc=false` (status names are self-explanatory).
+- **"Trial decisions"** — `show_desc=true` so academies can gloss what each decision means in their context ("decline (with encouragement to re-apply) — the player can re-trial next season"); `show_color=false`.
 
-## Migration 0115
+## Migration 0116
 
-Seeds 9 lookup rows + 45 `tt_translations` rows (9 × 5 locales). Idempotent (`INSERT IGNORE`). Operator-edited rows preserved.
+Single migration that seeds both lookup_types (pattern mirrors `0098_tournament_lookups_seed.php`). 10 lookup rows + 50 `tt_translations` rows (10 × 5 locales: en_US / nl_NL / fr_FR / de_DE / es_ES). Idempotent (`INSERT IGNORE`). Operator-edited rows preserved.
 
 ## How to test
 
-1. Apply migrations — confirm `0115_seed_idea_status_lookup` in `tt_migrations`; 9 lookup rows + 45 translation rows exist.
-2. Configuration → Lookups → "Idea statuses" tile appears. Click → nine rows render with colour-swatch fields.
-3. Edit Dutch label for `refining` → ideas board renders the new label on cards in that column.
-4. Edit colour for `promoted` → kanban column pill renders with new colour.
-5. Pre-migration install renders the nine English labels via the switch fallback inside `IdeaStatus::label()`.
+1. Apply migrations — confirm `0116_seed_trial_case_lookups` in `tt_migrations`; 10 lookup rows + 50 translation rows exist.
+2. Configuration → Lookups → "Trial statuses" + "Trial decisions" tiles appear.
+3. On a Dutch install, open the trials list (`?tt_view=trials-manage`). Confirm the Status + Decision columns now render translated labels ("Open" / "Verlengd" / "Toelaten (een plek bieden)" etc.) instead of raw stored keys.
+4. Edit Dutch label for `decided` → trial list + trial detail page render the new label.
+5. Edit colour for `extended` → status pill on the list renders with the new colour.
+6. Open a trial case in `open` status, record an `admit` decision → the decision-form radio renders the per-locale label.
+7. Pre-migration install renders the 10 English labels via the switch fallbacks inside `statusLabel()` / `decisionLabel()`.
 
 ## Out of scope — still on #803
 
-#842 TrialCases (4 statuses + 6 decisions), #845 MEDIUM batch (5 lookup_types).
+#845 MEDIUM batch (InvitationKind / IdeaType / ScoutingVisits.status / ScheduledReports frequency + status) — final ship to close the audit.
