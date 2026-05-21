@@ -593,6 +593,10 @@ class DashboardShortcode {
                 }
                 \TT\Modules\TeamDevelopment\Frontend\FrontendTeamBlueprintsView::render( $user_id, $is_admin );
                 return true;
+            // v3.110.214 (#838) — head coach match preparation surface.
+            case 'match-prep':
+                \TT\Modules\MatchPrep\Frontend\FrontendMatchPrepView::render( $user_id, $is_admin );
+                return true;
             case 'team-blueprint-share':
                 // #0068 Phase 4 — public read-only share-link. Token
                 // verification happens inside renderShared(); no cap
