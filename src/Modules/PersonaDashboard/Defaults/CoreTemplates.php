@@ -135,6 +135,12 @@ final class CoreTemplates {
             'new_evaluation,new_goal,new_activity,new_player',
             Size::M, 0, 5, 1, 40
         ) );
+        // #871 — row 6: behaviour-pending widget. Surfaces players the
+        // coach hasn't rated in the last 14 days (configurable via
+        // tt_config.behaviour_staleness_days). Cap-gated via the source
+        // itself — coaches without `tt_rate_player_behaviour` get an
+        // empty row set and the widget renders the positive empty state.
+        $grid->add( new WidgetSlot( 'data_table', 'behaviour_pending', Size::XL, 0, 6, 2, 41 ) );
         // v3.110.69 (#0092) — hero is the new mark-attendance entry
         // point. Replaces `today_up_next_hero` whose "Attendance" CTA
         // dropped the coach on the activities list rather than the
@@ -180,6 +186,12 @@ final class CoreTemplates {
         // reading flow between the trials table and the navigation tile
         // grid below. Cap-gated on `tt_view_threads` — HoD has it.
         $grid->add( new WidgetSlot( 'recent_comments',    '',                            Size::M, 0, 8, 1, 14 ) );
+        // #871 — row 9: behaviour-pending widget for HoD. Same source
+        // as the coach version (`behaviour_pending`) but with global
+        // scope — HoDs hold `tt_manage_players` so the source returns
+        // every club player overdue for a rating, not just the coach's
+        // team scope. Tiles below shift from row 9 → row 10.
+        $grid->add( new WidgetSlot( 'data_table', 'behaviour_pending', Size::XL, 0, 9, 2, 15 ) );
         // Row 8+: navigation tiles. Top row carries the HoD's four
         // highest-frequency drill-downs (funnel, inbox, players, teams);
         // second row carries the cycle / record-keeping surfaces; tail
@@ -214,7 +226,9 @@ final class CoreTemplates {
             $col = ( $i % 4 ) * 3;
             // v3.110.113 — tiles shifted from y=8 to y=9 to make room
             // for the new `recent_comments` widget on row 8.
-            $row = 9 + (int) floor( $i / 4 );
+            // v4.1.2 (#871) — tiles shift again to y=11 to clear the
+            // new `behaviour_pending` widget on row 9 (height 2).
+            $row = 11 + (int) floor( $i / 4 );
             $grid->add( new WidgetSlot(
                 'navigation_tile', $slug, Size::S, $col, $row, 1, $priority, true, $label
             ) );

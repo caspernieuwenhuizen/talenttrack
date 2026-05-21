@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Modules\PersonaDashboard\Registry\TableRowSourceRegistry;
 use TT\Modules\PersonaDashboard\Registry\WidgetRegistry;
 use TT\Modules\PersonaDashboard\TableSources\AuditLogRecentSource;
+use TT\Modules\PersonaDashboard\TableSources\BehaviourPendingSource;
 use TT\Modules\PersonaDashboard\TableSources\GoalsByPrincipleSource;
 use TT\Modules\PersonaDashboard\TableSources\MyRecentProspectsSource;
 use TT\Modules\PersonaDashboard\TableSources\RecentScoutReportsSource;
@@ -104,5 +105,8 @@ final class CoreWidgets {
         TableRowSourceRegistry::register( 'audit_log_recent',        new AuditLogRecentSource() );
         // #0077 M3 — methodology coverage table for HoD.
         TableRowSourceRegistry::register( 'goals_by_principle',      new GoalsByPrincipleSource() );
+        // #871 — behaviour-discoverability sub-ship B. Coach + HoD
+        // dashboard widget surfacing players overdue for a rating.
+        TableRowSourceRegistry::register( 'behaviour_pending',       new BehaviourPendingSource() );
     }
 }

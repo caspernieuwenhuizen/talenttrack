@@ -1,84 +1,69 @@
-# TalentTrack v4.1.1 — Hero quick-record popovers (closes #870, partial #867)
+# TalentTrack v4.1.2 — Behaviour-pending dashboard widget (closes #871, partial #867)
 
 ## Pilot context
 
-Sub-ship A under epic #867. The single entry point for behaviour + potential recording (a button buried below the Identity + Academy panels on the player profile's Profile tab) is the reason pilot can't find the feature. This ship moves the affordances to the player **hero** — the area the coach already lands on — and makes them cap-aware so the silent-absence confusion (parent epic's direction E) disappears.
+Sub-ship B under epic #867. Coaches have no signal that behaviour is part of weekly hygiene — a coach who finishes the season without recording a behaviour rating produces zero data for the player-status calc's behaviour input, silently degrading the composite score to `unknown` (grey) without ever surfacing the gap.
+
+This sub-ship adds a coach + HoD dashboard widget that pulls the work to the user, instead of waiting for them to find it.
 
 ## Changes
 
-### Player profile hero — two new cap-gated buttons
+### New `behaviour_pending` preset on `DataTableWidget`
 
-Next to the lifecycle status pill, the hero now renders up to two buttons:
+Three columns: Player, Team, Since (days since last rating, or "never"). 10 rows max. Empty state is positive: *"Up to date — all your players have a recent behaviour rating."*
 
-- **Log behaviour** — visible when `tt_rate_player_behaviour`.
-- **Set potential** — visible when `tt_set_player_potential`.
+### New `BehaviourPendingSource`
 
-Coach with neither cap sees no buttons. Scout (no caps) sees the status pill alone.
+`src/Modules/PersonaDashboard/TableSources/BehaviourPendingSource.php`. Implements `TableRowSource`.
 
-### Popover UX
+- Reads `tt_config.behaviour_staleness_days` (default 14).
+- Scopes by cap:
+    - `tt_manage_players` (HoD + admin) → all active players in the club.
+    - `tt_rate_player_behaviour` only (coach) → players on teams the coach is assigned to, via `QueryHelpers::get_teams_for_coach()`.
+    - Anyone else → empty set (widget renders the positive empty state, which is fine — they wouldn't see the widget on their template anyway).
+- Correlated subquery for the latest `rated_at` per player; HAVING clause filters to `latest IS NULL OR DATEDIFF(today, latest) > N`.
+- Ordered: never-rated first, then oldest-rated first.
+- Row link points at `?tt_view=players&id=N&action=log-behaviour`. The `action` param is reserved for sub-ship #870's hero popover — once #870's JS wires up auto-open, clicking a row will drop the user into the behaviour popover on landing. Today the param is silently ignored, which is the documented pre-A behaviour from the issue spec.
 
-Click on a button opens a popover (desktop ≥ 768px) or a bottom sheet (mobile < 768px, slides up from `env(safe-area-inset-bottom)`).
+### Registered in `CoreWidgets`
 
-Behaviour popover fields:
-- Rating dropdown (5–10 from `tt_config.rating_min` / `rating_max`)
-- Related activity dropdown (the player's 20 most-recent completed activities, pre-loaded via `wp_localize_script` — no second round-trip on open)
-- Notes textarea (optional)
-- "View all behaviour ratings →" link to the existing capture view
-
-Potential popover fields:
-- Potential band dropdown (5 fixed values: `first_team`, `professional_elsewhere`, `semi_pro`, `top_amateur`, `recreational`)
-- Notes textarea (optional)
-- "View potential history →" link to the existing capture view
-
-Submit hits the existing REST endpoints — no new server code beyond the response-shape extension:
-
-```
-POST /talenttrack/v1/players/{id}/behaviour-ratings   →  { id, rating, rated_at }
-POST /talenttrack/v1/players/{id}/potential           →  { id, potential_band, set_at }
+```php
+TableRowSourceRegistry::register( 'behaviour_pending', new BehaviourPendingSource() );
 ```
 
-Success → close popover + flash a toast. 4xx → inline error under the form. 5xx → same inline error (toast was overkill).
+### Wired into the templates
 
-### Old buried button removed
+`CoreTemplates::coach()` — new slot at row 6, XL (full width), height 2:
 
-`FrontendPlayerDetailView::renderBehaviourPotentialForm()` deleted along with its call from the profile-tab render. The dedicated `FrontendPlayerStatusCaptureView` stays — it's the history-viewing + full-form fallback, linked from each popover's footer.
+```php
+$grid->add( new WidgetSlot( 'data_table', 'behaviour_pending', Size::XL, 0, 6, 2, 41 ) );
+```
 
-### Accessibility
+`CoreTemplates::headOfDevelopment()` — new slot at row 9, XL height 2. Navigation tile rows shifted from `y=9 + floor(i/4)` to `y=11 + floor(i/4)` to clear the new widget (height-2 widget consumes rows 9-10).
 
-- Focus trap inside the open dialog (Tab cycles, Shift-Tab cycles back).
-- Escape closes; click outside closes.
-- `aria-modal="true"`, `role="dialog"`, `aria-labelledby="tt-pp-title"`.
-- `prefers-reduced-motion` disables the slide-up animation.
-- 44px minimum tap targets; the bottom-sheet padding clears the iOS home indicator.
+### `DataTableWidget` catalogue + preset config
 
-## Files
+Added `behaviour_pending` to both `dataSourceCatalogue()` (so widget editors can pick it) and `presetConfig()` (so the widget knows its columns + see-all link + empty message).
 
-### New
+## Out of scope
 
-- `assets/css/frontend-player-hero-popovers.css` — popover + bottom-sheet + toast styles.
-- `assets/js/frontend-player-hero-popovers.js` — vanilla JS controller (open/close/focus/submit).
+- A separate "Potential review pending" widget for HoDs — quarterly cadence doesn't justify a 14-day staleness widget. Future enhancement if asked.
+- Bulk-rate from the widget — that's #872, sub-ship C.
+- Hero popover auto-open on `action=log-behaviour` — out of scope for B; the param is already plumbed for A to consume in a future polish.
 
-### Edited
+## Verification
 
-- `src/Shared/Frontend/FrontendPlayerDetailView.php`:
-    - `renderHero()` — adds the two cap-gated buttons next to the status pill.
-    - `renderProfile()` — drops the call to the buried button; `renderBehaviourPotentialForm()` method removed.
-    - `enqueueHeroPopovers()` — new method, only enqueues + localises when the user has at least one of the recording caps; passes recent activities, potential bands, and i18n labels.
-- `src/Infrastructure/REST/PlayerStatusRestController.php`:
-    - `createBehaviourRating()` — response includes `rating` + `rated_at`.
-    - `setPotential()` — response includes `potential_band` + `set_at`.
-
-### Out of scope
-
-- The pending-behaviour widget (#871, sub-ship B) — separate ship.
-- The bulk grid (#872, sub-ship C) — separate ship.
-- Status-pill auto-refresh on success — the player-detail hero shows the lifecycle status, not the calculated verdict; refresh is only meaningful on dashboard widgets, which will integrate via #871.
+- Coach with 4 players, 2 rated yesterday, 2 unrated for 30+ days → widget shows the 2 unrated rows.
+- HoD → widget shows all stale players across all teams in club scope.
+- Scout (no `tt_rate_player_behaviour`) → source returns empty; widget renders the positive empty state.
+- Row click → lands on the player profile (pre-#870 wiring: hero buttons visible, popover not auto-opened).
+- Mobile 360px: rows tap-targets ≥ 48px (inherited from `.tt-pd-row-link`); no horizontal scroll.
 
 ## Versioning
 
-Patch bump (4.1.0 → 4.1.1). New behaviour but part of the same epic-feature already opened with the 4.1 minor (#869). No breaking change, no schema migration.
+Patch bump (4.1.1 → 4.1.2). Still inside the `4.1.x` epic-feature series opened by #869.
 
 ## Closes
 
-- #870 — Behaviour discoverability — A: hero quick-record popovers
-- Partial: #867 — parent epic (2 sub-ships remaining: #871, #872)
+- #871 — Behaviour discoverability — B: dashboard pending widget
+- Partial: #867 — one sub-ship remaining (#872, bulk grid)
