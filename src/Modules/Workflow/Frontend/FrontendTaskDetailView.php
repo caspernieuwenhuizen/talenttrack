@@ -178,15 +178,11 @@ class FrontendTaskDetailView extends FrontendViewBase {
         }
         if ( $assignee_name === '' ) $assignee_name = __( 'unassigned', 'talenttrack' );
 
-        $status_raw = (string) ( $task['status'] ?? '' );
-        $status_map = [
-            'open'        => __( 'Open',        'talenttrack' ),
-            'in_progress' => __( 'In progress', 'talenttrack' ),
-            'overdue'     => __( 'Overdue',     'talenttrack' ),
-            'completed'   => __( 'Completed',   'talenttrack' ),
-            'cancelled'   => __( 'Cancelled',   'talenttrack' ),
-        ];
-        $status_label = $status_map[ $status_raw ] ?? $status_raw;
+        // v3.110.209 (#839) — TaskStatus::label() delegates to
+        // LookupTranslator for per-locale operator overrides.
+        $status_raw   = (string) ( $task['status'] ?? '' );
+        $status_label = \TT\Modules\Workflow\TaskStatus::label( $status_raw );
+        if ( $status_label === '' ) $status_label = $status_raw;
 
         $due_raw = (string) ( $task['due_at'] ?? '' );
         $due_label = '';

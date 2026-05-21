@@ -31624,3 +31624,11 @@ msgstr "POP-eindbeoordeling beslissingen"
 #: src/Shared/Frontend/FrontendConfigurationView.php
 msgid "Promote / retain / release / transfer — the four end-of-season verdict outcomes on a PDP file."
 msgstr "Bevorderen / behouden / vrijgeven / overdragen — de vier eindbeoordelingen op een POP-dossier aan het einde van het seizoen."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Task statuses"
+msgstr "Taakstatussen"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Open / in progress / completed / overdue / skipped / cancelled — workflow task statuses."
+msgstr "Open / in behandeling / voltooid / te laat / overgeslagen / geannuleerd — workflow-taakstatussen."
