@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.0.1
+Stable tag: 4.0.2
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.0.2 — Quick Action widget Dutch labels now render translated on Dutch installs (closes #805). Root cause was structural, not a missing .po entry: `ActionCardWidget` used `__($action['label_key'], 'talenttrack')` — a dynamic call that `wp i18n make-pot` cannot extract. The 8 labels (`+ New evaluation`, `+ New goal`, `+ New activity`, `+ Add player`, `+ Add team`, `+ New scout report`, `+ New trial`, `+ New test training`) had been marked obsolete in the .po and rendered as the English msgid. Fix: introduce a static `actionLabel($id)` switch with literal `__()` calls so msgmerge can extract the msgids; un-obsolete the existing Dutch translations in `nl_NL.po` and add `+ New test training` which was missing. (closes #805) =
 
 = 4.0.1 — Frontend entry-link URL helper now canonicalises via `home_url($path)` on the REQUEST_URI fallback (closes #860). Pilot on Strato hit 404 on `?tt_view=wizard&slug=new-team-blueprint&team_id=4` clicked from the Team Blueprints list. Root cause: `RecordLink::dashboardUrl()` returned `esc_url_raw(REQUEST_URI)` as its last-resort fallback, which on Strato's setup produced a URL that `add_query_arg` couldn't extend cleanly — every entry link built through the helper failed the same way. Fix mirrors the v3.110.180 `wizardStepUrl()` pattern: extract the path manually (no esc_url_raw round-trip), wrap via `home_url($path)`. Affects ~15+ surfaces that build entry URLs through this helper (every "+ New X" / "Edit Y" link constructed off `RecordLink::dashboardUrl()`). No regression on installs where `dashboard_page_id` is correctly configured — steps 1 and 2 of the fallback chain are unchanged. (closes #860) =
 

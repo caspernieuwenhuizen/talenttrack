@@ -1,47 +1,38 @@
-# TalentTrack v4.0.1 — RecordLink frontend entry-link URL helper canonicalises through home_url($path) on the REQUEST_URI fallback (closes #860)
+# TalentTrack v4.0.2 — Quick Action widget Dutch labels render translated (closes #805)
 
 ## Pilot report
 
-> still 404
-
-Pilot 2026-05-21 clicked **+ New blueprint** on `?tt_view=team-blueprints&team_id=4` and the wizard URL 404'd at the entry point. Same root cause as the v3.110.172 / v3.110.180 wizard-redirect bugs — but a different code path.
+> quick action widget has english titles for the quick actions, how can this happen?
 
 ## Root cause
 
-`v3.110.172` (#766) and `v3.110.180` (#782) fixed the wizard's **post-step redirect** by introducing `wizardStepUrl()` that wraps `REQUEST_URI`'s path through `home_url($path)` so `wp_safe_redirect` always gets a fully-qualified URL on the canonical host.
+The 8 action-card labels (`+ New evaluation`, `+ New goal`, `+ New activity`, `+ Add player`, `+ Add team`, `+ New scout report`, `+ New trial`, `+ New test training`) lived in a `private const ACTIONS` array keyed by id, and the render path resolved them via `__($action['label_key'], 'talenttrack')`.
 
-Those fixes did **not** touch the **initial entry-link build**. Every "+ New X" / "Edit Y" link constructed through `RecordLink::dashboardUrl()` still used the old 4-stage fallback chain:
+`wp i18n make-pot` does NOT extract `__()` calls with variable args. The 8 msgids never landed in `talenttrack.pot`. Over time the i18n-sync workflow marked the existing Dutch translations as **obsolete** (`#~`) in `nl_NL.po` since the bot couldn't find a live source reference for them.
 
-1. configured `dashboard_page_id` → permalink
-2. self-healing shortcode-page scan → permalink
-3. `esc_url_raw(REQUEST_URI)` cleaned of routing args
-4. `home_url('/')`
-
-On the Strato install one of stages 1-2 was producing a URL that didn't resolve cleanly, falling through to stage 3 which then `add_query_arg`-ed into a 404-able URL. The blast radius is large: ~15+ files construct entry URLs through this helper (every Team Blueprints "+ New blueprint", PDP edit/create, onboarding pipeline links, mark-attendance hero "Edit activity", etc.).
+Result: on Dutch installs, the action-card widgets rendered the English msgid literal even though Dutch translations existed in the .po file — a structural i18n drift, not a missing-translation gap.
 
 ## Fix
 
-Apply the `wizardStepUrl()` pattern inside `RecordLink::dashboardUrl()` itself — every caller benefits without a per-surface patch. Stage 3 now:
+Two parts:
 
-- Extracts the path from `REQUEST_URI` manually (`strpos`/`substr` on the `?` separator). No `esc_url_raw` round-trip — that's what mangled URLs on Strato per v3.110.180's diagnosis.
-- Wraps the path through `home_url($path)` so the result is always fully-qualified on the canonical host.
-- Stage 4 (`home_url('/')`) preserved for the genuinely-missing-REQUEST_URI case (CLI runs, unusual proxy configs).
+1. **Refactor**: new static `ActionCardWidget::actionLabel( string $id )` with literal `__()` calls in a switch. The 8 msgids are now extractable on the next `wp i18n make-pot` run.
+2. **`nl_NL.po`**: un-obsolete the 7 existing entries (removed the `#~` prefix) and add `+ New test training` which was missing. Re-titled the comment block to point at the v4.0.2 / #805 context.
 
-Stages 1-2 are unchanged — installs where `dashboard_page_id` is configured correctly (the majority) keep their fast path.
+Both `render()` and `dataSourceCatalogue()` now go through `actionLabel()` so the widget admin picker AND the rendered tile show the same translated label.
+
+## Why this matters beyond cosmetics
+
+Every dynamic `__($variable)` call has this exact problem — the bot's next msgmerge run marks the msgid obsolete and translations silently rot. Adjacent surfaces that follow the same anti-pattern (`__($row->name)`, `__($key)`, etc.) are vulnerable to the same drift. Worth a follow-up audit but out of scope for this ship.
 
 ## Files touched
 
-- `src/Shared/Frontend/Components/RecordLink.php` — single function fix in `dashboardUrl()` step 3.
+- `src/Modules/PersonaDashboard/Widgets/ActionCardWidget.php` — added `actionLabel()` static; `render()` + `dataSourceCatalogue()` use it.
+- `languages/talenttrack-nl_NL.po` — 7 entries un-obsoleted + 1 new (`+ New test training`).
 - `talenttrack.php` + `readme.txt` + `CHANGES.md` — version bump.
-
-No schema, no migration, no REST, no behaviour change beyond the URL resolution. No Dutch translations needed (the change is to URL building, not strings).
 
 ## How to test
 
-1. On the pilot's Strato install: navigate to `?tt_view=team-blueprints&team_id=4`. Click **+ New blueprint**. Expect: wizard loads at `?tt_view=wizard&slug=new-team-blueprint&team_id=4`. Before the fix this 404'd.
-2. Same sanity check on the other surfaces listed in #860's blast-radius section (PDP edit/create links, onboarding pipeline, mark-attendance hero "Edit activity") — they should all start working on the pilot install.
-3. No regression on a clean install where `dashboard_page_id` is correctly configured: links continue to resolve via the dashboard page permalink (step 1 short-circuits).
-
-## Why patch (not minor)
-
-Bug fix, no new behaviour. Per the v4.0.0 SemVer rule: patch.
+1. On a Dutch install: open any coach / HoD dashboard → confirm the action-card tiles render the Dutch labels (`+ Nieuwe evaluatie`, `+ Nieuw doel`, etc.) instead of the English msgid.
+2. Wp-admin dashboard layout editor → action-card widget data-source picker → confirm the dropdown shows Dutch labels for each action id.
+3. Pre-`v4.0.2` install rolled back: same labels render in English — confirms the fix is what's making the difference.
