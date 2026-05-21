@@ -67,6 +67,11 @@ class PlayerTeamFitPanel {
         usort( $rows, static fn( $a, $b ) => $b['score'] <=> $a['score'] );
         $top = array_slice( $rows, 0, 3 );
 
+        // v4.0.3 (#866) — denominator from tt_config so the panel
+        // reads "7.8 / 10" on the active 5-10 scale instead of the
+        // legacy hardcoded "/ 5".
+        $rmax_cfg = (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_max', '10' );
+
         ob_start();
         ?>
         <div class="tt-card" style="background:#fff; border:1px solid #e5e7ea; border-radius:8px; padding:14px 16px; margin-top:16px;">
@@ -75,7 +80,7 @@ class PlayerTeamFitPanel {
                 <?php foreach ( $top as $row ) : ?>
                     <li style="margin-bottom:4px;" title="<?php echo esc_attr( (string) $row['rationale'] ); ?>">
                         <strong><?php echo esc_html( (string) $row['label'] ); ?></strong>
-                        <span style="color:#5b6e75; font-size:12px;">— <?php echo esc_html( number_format_i18n( (float) $row['score'], 2 ) ); ?> / 5</span>
+                        <span style="color:#5b6e75; font-size:12px;">— <?php echo esc_html( number_format_i18n( (float) $row['score'], 2 ) ); ?> / <?php echo esc_html( number_format_i18n( $rmax_cfg, 0 ) ); ?></span>
                     </li>
                 <?php endforeach; ?>
             </ol>

@@ -278,7 +278,16 @@ final class PitchSvg {
                 continue;
             }
 
-            $fit_class = $score >= 4.0 ? '' : ( $score >= 3.0 ? 'tt-fit-mid' : 'tt-fit-low' );
+            // v4.0.3 (#866) — thresholds as percentages of active
+            // rating max so pitch-fit colours stay meaningful when
+            // the operator changes the rating scale. Hardcoded >= 4.0
+            // was 40% of max on 5-10 — weak fits showed as strong.
+            $rmax_cfg         = (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_max', '10' );
+            $strong_threshold = $rmax_cfg * 0.80;
+            $mid_threshold    = $rmax_cfg * 0.50;
+            $fit_class = $score >= $strong_threshold
+                ? ''
+                : ( $score >= $mid_threshold ? 'tt-fit-mid' : 'tt-fit-low' );
             $tip = sprintf(
                 /* translators: 1: player, 2: slot label, 3: score */
                 __( '%1$s — best fit at %2$s (%3$.2f)', 'talenttrack' ),
