@@ -40,6 +40,15 @@ final class FrontendPersonDetailView extends FrontendViewBase {
         }
 
         self::enqueueAssets();
+        // v4.0.6 (#876) — the person profile + teams blocks now render
+        // via .tt-profile-table; pull in frontend-player-detail.css
+        // which carries the canonical styling for that class.
+        wp_enqueue_style(
+            'tt-frontend-player-detail',
+            TT_PLUGIN_URL . 'assets/css/frontend-player-detail.css',
+            [ 'tt-frontend-mobile' ],
+            TT_VERSION
+        );
         $name = trim( ( (string) ( $person->first_name ?? '' ) ) . ' ' . ( (string) ( $person->last_name ?? '' ) ) );
         if ( $name === '' ) $name = __( 'Person', 'talenttrack' );
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
@@ -79,59 +88,80 @@ final class FrontendPersonDetailView extends FrontendViewBase {
         $role  = (string) ( $person->role_type ?? '' );
         ?>
         <article class="tt-person-detail">
-            <dl class="tt-profile-dl">
-                <?php if ( $role !== '' ) : ?>
-                    <dt><?php esc_html_e( 'Role', 'talenttrack' ); ?></dt>
-                    <dd><?php echo esc_html( LabelTranslator::roleType( $role ) ); ?></dd>
-                <?php endif; ?>
-                <?php if ( $email !== '' ) : ?>
-                    <dt><?php esc_html_e( 'Email', 'talenttrack' ); ?></dt>
-                    <dd>
-                        <?php
+            <table class="tt-profile-table">
+                <tbody>
+                    <?php if ( $role !== '' ) : ?>
+                        <tr>
+                            <th scope="row"><?php esc_html_e( 'Role', 'talenttrack' ); ?></th>
+                            <td><?php echo esc_html( LabelTranslator::roleType( $role ) ); ?></td>
+                        </tr>
+                    <?php endif; ?>
+                    <?php if ( $email !== '' ) :
                         $compose_url = add_query_arg(
                             [ 'tt_view' => 'mail-compose', 'person_id' => $person_id ],
                             \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
                         );
                         ?>
-                        <a class="tt-record-link" href="<?php echo esc_url( $compose_url ); ?>">
-                            <?php echo esc_html( $email ); ?>
-                        </a>
-                    </dd>
-                <?php endif; ?>
-                <?php if ( $phone !== '' ) : ?>
-                    <dt><?php esc_html_e( 'Phone', 'talenttrack' ); ?></dt>
-                    <dd><a href="tel:<?php echo esc_attr( $phone ); ?>"><?php echo esc_html( $phone ); ?></a></dd>
-                <?php endif; ?>
-                <?php if ( ! empty( $person->status ) ) : ?>
-                    <dt><?php esc_html_e( 'Status', 'talenttrack' ); ?></dt>
-                    <dd><?php echo esc_html( LabelTranslator::personStatus( (string) $person->status ) ); ?></dd>
-                <?php endif; ?>
-            </dl>
+                        <tr>
+                            <th scope="row"><?php esc_html_e( 'Email', 'talenttrack' ); ?></th>
+                            <td><a class="tt-record-link" href="<?php echo esc_url( $compose_url ); ?>"><?php echo esc_html( $email ); ?></a></td>
+                        </tr>
+                    <?php endif; ?>
+                    <?php if ( $phone !== '' ) : ?>
+                        <tr>
+                            <th scope="row"><?php esc_html_e( 'Phone', 'talenttrack' ); ?></th>
+                            <td><a href="tel:<?php echo esc_attr( $phone ); ?>"><?php echo esc_html( $phone ); ?></a></td>
+                        </tr>
+                    <?php endif; ?>
+                    <?php if ( ! empty( $person->status ) ) : ?>
+                        <tr>
+                            <th scope="row"><?php esc_html_e( 'Status', 'talenttrack' ); ?></th>
+                            <td><?php echo esc_html( LabelTranslator::personStatus( (string) $person->status ) ); ?></td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
 
-            <?php if ( ! empty( $teams ) ) : ?>
-                <section class="tt-pde-section">
-                    <h3><?php esc_html_e( 'Teams', 'talenttrack' ); ?></h3>
-                    <ul class="tt-stack">
-                        <?php foreach ( $teams as $t ) :
-                            $team_id   = (int) ( $t->team_id ?? $t->id ?? 0 );
-                            $team_name = (string) ( $t->team_name ?? $t->name ?? '' );
-                            if ( $team_id <= 0 || $team_name === '' ) continue;
-                            $url = add_query_arg(
-                                [ 'tt_view' => 'teams', 'id' => $team_id ],
-                                \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
-                            );
-                            ?>
-                            <li>
-                                <a class="tt-record-link" href="<?php echo esc_url( $url ); ?>">
-                                    <?php echo esc_html( $team_name ); ?>
-                                </a>
-                                <?php if ( ! empty( $t->functional_role_label ) ) : ?>
-                                    <span class="tt-muted"> &middot; <?php echo esc_html( (string) $t->functional_role_label ); ?></span>
-                                <?php endif; ?>
-                            </li>
-                        <?php endforeach; ?>
-                    </ul>
-                </section>
+            <?php if ( ! empty( $teams ) ) :
+                $team_rows = [];
+                foreach ( $teams as $t ) {
+                    $team_id   = (int) ( $t->team_id ?? $t->id ?? 0 );
+                    $team_name = (string) ( $t->team_name ?? $t->name ?? '' );
+                    if ( $team_id <= 0 || $team_name === '' ) continue;
+                    $team_rows[] = [
+                        'id'   => $team_id,
+                        'name' => $team_name,
+                        'role' => (string) ( $t->functional_role_label ?? '' ),
+                    ];
+                }
+                if ( ! empty( $team_rows ) ) : ?>
+                    <section class="tt-pde-section">
+                        <h3><?php esc_html_e( 'Teams', 'talenttrack' ); ?></h3>
+                        <table class="tt-profile-table">
+                            <thead>
+                                <tr>
+                                    <th scope="col"><?php esc_html_e( 'Team', 'talenttrack' ); ?></th>
+                                    <th scope="col"><?php esc_html_e( 'Functional role', 'talenttrack' ); ?></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ( $team_rows as $row ) :
+                                    $url = add_query_arg(
+                                        [ 'tt_view' => 'teams', 'id' => $row['id'] ],
+                                        \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+                                    );
+                                    ?>
+                                    <tr>
+                                        <td>
+                                            <a class="tt-record-link" href="<?php echo esc_url( $url ); ?>"><?php echo esc_html( $row['name'] ); ?></a>
+                                        </td>
+                                        <td><?php echo $row['role'] !== '' ? esc_html( $row['role'] ) : '—'; ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </section>
+                <?php endif; ?>
             <?php endif; ?>
         </article>
         <?php

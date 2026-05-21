@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.0.5
+Stable tag: 4.0.6
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.0.6 — Person detail page renders profile + teams as tables instead of lists (closes #876). Visually aligns with the established Team-detail + Player-detail pattern. The profile fields block (Role / Email / Phone / Status) was a `<dl class="tt-profile-dl">`; teams were a `<ul class="tt-stack">`. Both rebuilt as `<table class="tt-profile-table">` — same class the Player + Team detail pages use, so styling is shared. The Teams table gets a two-column layout (Team / Functional role) so the functional role gets its own column instead of a `&middot;`-separated trail. `frontend-player-detail.css` now enqueued from the Person detail view so the `.tt-profile-table` styles apply. No data-shape change; PeopleRepository unchanged. No mobile regression — the table layout is the same one Player/Team already use at 360px. (closes #876) =
 
 = 4.0.5 — HoD Upcoming Activities widget shows today's activities again (closes #858). The widget used a time-inclusive `CONCAT(session_date, ' ', start_time) >= NOW()` filter that excluded any activity that had already started today, even if it hadn't ended — an HoD opening the dashboard at 09:00 on a day with an 08:00 training saw the widget empty. Pilot quote: *"the hod dashboard, the upcoming activities list does not show anything while there are multiple teams with upcoming, planned activities."* Fix: align with the coach hero's date-inclusive filter (`session_date >= today`). "Upcoming" now means "today or later", not "literally hasn't started yet this minute". `apply_demo_scope` unchanged. Sibling audit: the CONCAT pattern existed only here. (closes #858) =
 

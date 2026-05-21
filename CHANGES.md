@@ -1,47 +1,43 @@
-# TalentTrack v4.0.5 — HoD Upcoming Activities widget shows today's activities again (closes #858)
+# TalentTrack v4.0.6 — Person detail page renders profile + teams as tables (closes #876)
 
 ## Pilot report
 
-> the hod dashboard, the upcoming activities list does not show anything while there are multiple teams with upcoming, planned activities.
+> on person page: person detail is not in a table but in bulleted list
 
 ## Root cause
 
-`UpcomingActivitiesSource` used a time-inclusive lower bound:
+`FrontendPersonDetailView` was the one detail page that hadn't been swept to the established `<table class="tt-profile-table">` pattern. Two blocks needed converting:
 
-```sql
-WHERE CONCAT(session_date, ' ', COALESCE(start_time, '00:00:00')) >= NOW()
-```
+1. **Profile fields** (Role / Email / Phone / Status) — rendered as `<dl class="tt-profile-dl">`. Stacked label-above-value, no separators, reads as a bulleted list.
+2. **Teams section** — `<ul class="tt-stack">` with explicit `<li>` bullets. The functional role hung off the team name via a `&middot;` separator.
 
-That excludes any activity which has already STARTED today, even if it hasn't ended. An HoD opening the dashboard at 09:00 on a day with an 08:00 training saw the widget empty.
+Compare:
 
-For comparison, the coach hero (`UpcomingActivityRepository::nextForCoach`) uses a date-inclusive filter — same activity stays visible there.
+- **Player detail** uses `renderProfileTable()` rendering `.tt-profile-table` since v3.110.95+.
+- **Team detail** uses inline `<table class="tt-profile-table">` since the same release.
+
+So this was a consistency gap, not a fresh design call.
 
 ## Fix
 
-Align the HoD widget's filter with the coach hero. "Upcoming" now means "today or later":
-
-```sql
-WHERE session_date >= today
-  AND session_date <= today + N days
-```
-
-One source-file change. `apply_demo_scope` unchanged.
-
-Sibling audit (`grep CONCAT.*session_date.*start_time`): the too-strict pattern existed only here. No other surfaces affected.
+1. **Profile block**: `<dl>` → `<table class="tt-profile-table">` with a `<tbody>` of `<tr>` rows. Each conditional `<dt>/<dd>` pair became `<tr><th scope="row">…</th><td>…</td></tr>`.
+2. **Teams block**: `<ul>` → `<table class="tt-profile-table">` with a `<thead>` (Team / Functional role) and a `<tbody>` row per team. The `&middot;` separator is gone — the second column does its job. Empty Teams section still hides correctly.
+3. **Stylesheet** — `frontend-player-detail.css` now enqueued from the Person view so `.tt-profile-table` styles apply. Only stylesheet in the repo defining the class.
 
 ## Files touched
 
-- `src/Modules/PersonaDashboard/TableSources/UpcomingActivitiesSource.php` — `$from` date-only, query lower bound becomes `session_date >= %s`.
+- `src/Shared/Frontend/FrontendPersonDetailView.php` — render rewrite + new `wp_enqueue_style` call.
 - `talenttrack.php` + `readme.txt` + `CHANGES.md` — version bump.
 
-No migration. No schema. No translation.
+No CSS file changes. No data-shape change. `PeopleRepository::getPersonTeams()` returns the same row shape.
 
 ## How to test
 
-1. Schedule a training for today at 08:00. Open the HoD dashboard at any time after the start time. Widget shows the activity.
-2. With multiple activities scheduled across the next 30 days, the widget renders the list ordered by `session_date ASC, start_time ASC`.
-3. Demo-mode toggle: confirm the widget continues to filter via `apply_demo_scope` (no regression — that filter is untouched).
+1. Open `?tt_view=people&id=N` for a person who has a role, email, phone, status, and at least one team. Profile fields render in a table; Teams in a 2-column table with functional-role per row.
+2. Open the same view for a person with no teams. Teams section is hidden (no empty table).
+3. Resize to 360px — table fits without horizontal scroll (same behaviour Player/Team pages already had).
+4. Visually compare with the Team detail page — identical typography.
 
 ## Why patch (not minor)
 
-Bug fix, no new behaviour. Per the v4.0.0 SemVer rule: patch.
+Visual consistency fix, no new behaviour, no schema change. Per the v4.0.0 SemVer rule: patch.
