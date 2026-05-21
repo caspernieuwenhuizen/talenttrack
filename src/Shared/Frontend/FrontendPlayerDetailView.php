@@ -47,6 +47,107 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
     }
 
     /**
+     * #870 — hero quick-record popovers (behaviour + potential).
+     *
+     * Only enqueues + localises when the current user actually has at
+     * least one of the recording caps — no payload sent to scouts /
+     * parents who can't trigger anything anyway.
+     */
+    private static function enqueueHeroPopovers( int $player_id, ?object $player ): void {
+        $can_log_behaviour = current_user_can( 'tt_rate_player_behaviour' );
+        $can_set_potential = current_user_can( 'tt_set_player_potential' );
+        if ( ! $can_log_behaviour && ! $can_set_potential ) return;
+
+        wp_enqueue_style(
+            'tt-frontend-player-hero-popovers',
+            TT_PLUGIN_URL . 'assets/css/frontend-player-hero-popovers.css',
+            [ 'tt-frontend-mobile' ],
+            TT_VERSION
+        );
+        wp_enqueue_script(
+            'tt-frontend-player-hero-popovers',
+            TT_PLUGIN_URL . 'assets/js/frontend-player-hero-popovers.js',
+            [],
+            TT_VERSION,
+            true
+        );
+
+        // Pre-fetch the player's 20 most recent completed activities so
+        // the behaviour popover doesn't need a second REST round-trip on
+        // open. Mirrors FrontendPlayerStatusCaptureView::loadRecentActivitiesForPlayer.
+        global $wpdb;
+        $p = $wpdb->prefix;
+        $recent = $can_log_behaviour ? (array) $wpdb->get_results( $wpdb->prepare(
+            "SELECT DISTINCT a.id, a.session_date, a.title
+               FROM {$p}tt_activities a
+               JOIN {$p}tt_attendance att ON att.activity_id = a.id
+              WHERE att.player_id = %d
+                AND a.activity_status_key = %s
+                AND a.archived_at IS NULL
+              ORDER BY a.session_date DESC
+              LIMIT %d",
+            $player_id, 'completed', 20
+        ) ) : [];
+        $activities = [];
+        foreach ( $recent as $a ) {
+            $activities[] = [
+                'id'    => (int) $a->id,
+                'label' => sprintf( '%s · %s', (string) $a->session_date, (string) $a->title ),
+            ];
+        }
+
+        $rmin = (int) round( (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_min', '5' ) );
+        $rmax = (int) round( (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_max', '10' ) );
+
+        $bands = [
+            [ 'key' => 'first_team',              'label' => __( 'First-team', 'talenttrack' ) ],
+            [ 'key' => 'professional_elsewhere',  'label' => __( 'Professional elsewhere', 'talenttrack' ) ],
+            [ 'key' => 'semi_pro',                'label' => __( 'Semi-pro', 'talenttrack' ) ],
+            [ 'key' => 'top_amateur',             'label' => __( 'Top amateur', 'talenttrack' ) ],
+            [ 'key' => 'recreational',            'label' => __( 'Recreational', 'talenttrack' ) ],
+        ];
+
+        $history_url = add_query_arg(
+            [ 'tt_view' => 'player-status-capture', 'player_id' => $player_id ],
+            \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+        );
+
+        wp_localize_script( 'tt-frontend-player-hero-popovers', 'TTPlayerHeroPopovers', [
+            'rest_url'                => esc_url_raw( rest_url( 'talenttrack/v1/' ) ),
+            'rest_nonce'              => wp_create_nonce( 'wp_rest' ),
+            'player_id'               => $player_id,
+            'rating_min'              => $rmin,
+            'rating_max'              => $rmax,
+            'activities'              => $activities,
+            'potential_bands'         => $bands,
+            'current_potential_band'  => isset( $player->potential_band ) ? (string) $player->potential_band : '',
+            'history_url'             => $history_url,
+            'i18n' => [
+                'close'                => __( 'Close',                       'talenttrack' ),
+                'cancel'               => __( 'Cancel',                      'talenttrack' ),
+                'log_behaviour_title'  => __( 'Log behaviour',               'talenttrack' ),
+                'set_potential_title'  => __( 'Set potential',               'talenttrack' ),
+                'rating_label'         => __( 'Rating',                      'talenttrack' ),
+                'rating_placeholder'   => __( '— pick a rating —',           'talenttrack' ),
+                'activity_label'       => __( 'Related activity (optional)', 'talenttrack' ),
+                'activity_none'        => __( '— none —',                    'talenttrack' ),
+                'notes_label'          => __( 'Notes',                       'talenttrack' ),
+                'notes_placeholder'    => __( 'Optional context',            'talenttrack' ),
+                'band_label'           => __( 'Potential band',              'talenttrack' ),
+                'band_placeholder'     => __( '— pick a band —',             'talenttrack' ),
+                'save_behaviour'       => __( 'Save rating',                 'talenttrack' ),
+                'save_potential'       => __( 'Update potential',            'talenttrack' ),
+                'view_all_behaviour'   => __( 'View all behaviour ratings →','talenttrack' ),
+                'view_all_potential'   => __( 'View potential history →',    'talenttrack' ),
+                'success_behaviour'    => __( 'Behaviour recorded',          'talenttrack' ),
+                'success_potential'    => __( 'Potential updated',           'talenttrack' ),
+                'error_generic'        => __( 'Could not save. Try again.',  'talenttrack' ),
+                'error_network'        => __( 'Network error. Try again.',   'talenttrack' ),
+            ],
+        ] );
+    }
+
+    /**
      * #0077 M8 — tabbed case page. Profile is default; other tabs swap
      * via `?tab=goals|evaluations|activities|pdp|trials`.
      *
@@ -97,6 +198,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
 
         self::enqueueAssets();
         self::enqueueDetailCss();
+        self::enqueueHeroPopovers( $player_id, $player );
         $name = QueryHelpers::player_display_name( $player );
 
         // #0077 F2 — breadcrumb chain replaces the standalone back link.
@@ -250,6 +352,28 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                         <?php echo LookupPill::render( 'player_status', (string) $player->status ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — pill returns escaped html ?>
                     <?php endif; ?>
                 </div>
+                <?php
+                // #870 — quick-record affordances next to the status pill.
+                // Cap-gated per the cap-aware rendering rule (folds in
+                // direction E of epic #867): only show what the user can do,
+                // no silent-absence confusion.
+                $can_log_behaviour = current_user_can( 'tt_rate_player_behaviour' );
+                $can_set_potential = current_user_can( 'tt_set_player_potential' );
+                if ( $can_log_behaviour || $can_set_potential ) :
+                ?>
+                <div class="tt-player-hero__actions">
+                    <?php if ( $can_log_behaviour ) : ?>
+                        <button type="button" class="tt-btn tt-btn-secondary" data-tt-popover-trigger="behaviour">
+                            <?php esc_html_e( 'Log behaviour', 'talenttrack' ); ?>
+                        </button>
+                    <?php endif; ?>
+                    <?php if ( $can_set_potential ) : ?>
+                        <button type="button" class="tt-btn tt-btn-secondary" data-tt-popover-trigger="potential">
+                            <?php esc_html_e( 'Set potential', 'talenttrack' ); ?>
+                        </button>
+                    <?php endif; ?>
+                </div>
+                <?php endif; ?>
                 <?php if ( $journey !== null ) : ?>
                     <div class="tt-player-hero__journey">
                         <?php if ( $journey['days'] !== '' ) : ?>
@@ -448,9 +572,12 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         if ( empty( $player->team_id ) && current_user_can( 'tt_edit_players' ) ) {
             self::renderAssignTeamForm( $player_id );
         }
-        if ( current_user_can( 'tt_edit_player_status' ) ) {
-            self::renderBehaviourPotentialForm( $player_id );
-        }
+        // #870 — the old "Capture behaviour and potential" button used to
+        // render here; it was the buried single-entry-point pilot flagged
+        // as undiscoverable. Replaced by hero quick-record popovers (see
+        // renderHero). The dedicated capture view at
+        // ?tt_view=player-status-capture stays — it's the history-viewing
+        // surface, linked from each popover's footer.
     }
 
     /**
@@ -839,26 +966,4 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      * Stub: registers the form skeleton; full save handler wires in
      * Sprint 3 alongside the >100% inline-warning.
      */
-    private static function renderBehaviourPotentialForm( int $player_id ): void {
-        ?>
-        <section class="tt-pde-section">
-            <h3><?php esc_html_e( 'Behaviour &amp; potential', 'talenttrack' ); ?></h3>
-            <p class="tt-muted" style="font-size:13px; margin: 0 0 8px;">
-                <?php esc_html_e( 'Quick capture for the player status calculation. Edit weights and thresholds in Configuration → Player status methodology.', 'talenttrack' ); ?>
-            </p>
-            <p>
-                <?php
-                $url = add_query_arg(
-                    [ 'tt_view' => 'player-status-capture', 'player_id' => $player_id ],
-                    \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
-                );
-                ?>
-                <a class="tt-btn tt-btn-primary" href="<?php echo esc_url( $url ); ?>">
-                    <?php esc_html_e( 'Capture behaviour and potential', 'talenttrack' ); ?>
-                </a>
-            </p>
-        </section>
-        <?php
-    }
-
 }

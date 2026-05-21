@@ -75,14 +75,20 @@ final class PlayerStatusRestController {
                 400
             );
         }
+        $rated_at = current_time( 'mysql' );
         $id = ( new PlayerBehaviourRatingsRepository() )->create( [
             'player_id'           => $player_id,
             'rating'              => $rating,
+            'rated_at'            => $rated_at,
             'context'             => isset( $r['context'] ) ? sanitize_text_field( (string) $r['context'] ) : null,
             'notes'               => isset( $r['notes'] )   ? sanitize_textarea_field( (string) $r['notes'] ) : null,
             'related_activity_id' => isset( $r['related_activity_id'] ) ? (int) $r['related_activity_id'] : null,
         ] );
-        return RestResponse::success( [ 'id' => $id ] );
+        return RestResponse::success( [
+            'id'        => $id,
+            'rating'    => $rating,
+            'rated_at'  => $rated_at,
+        ] );
     }
 
     public static function setPotential( \WP_REST_Request $r ): \WP_REST_Response {
@@ -92,12 +98,17 @@ final class PlayerStatusRestController {
         if ( $player_id <= 0 || ! in_array( $band, $valid, true ) ) {
             return RestResponse::error( 'bad_input', __( 'Player and a valid potential band are required.', 'talenttrack' ), 400, [ 'allowed' => $valid ] );
         }
+        $set_at = current_time( 'mysql' );
         $id = ( new PlayerPotentialRepository() )->create( [
             'player_id'      => $player_id,
             'potential_band' => $band,
             'notes'          => isset( $r['notes'] ) ? sanitize_textarea_field( (string) $r['notes'] ) : null,
         ] );
-        return RestResponse::success( [ 'id' => $id ] );
+        return RestResponse::success( [
+            'id'             => $id,
+            'potential_band' => $band,
+            'set_at'         => $set_at,
+        ] );
     }
 
     public static function playerStatus( \WP_REST_Request $r ): \WP_REST_Response {
