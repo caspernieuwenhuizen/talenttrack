@@ -161,16 +161,28 @@ After merging, in Claude Code:
 
   cut a release <version>
 
-where `<version>` is the new semver tag (e.g. 3.1.0). Claude Code will:
+where `<version>` is the new semver tag (e.g. 4.1.0). Claude Code will:
 
-1. Bump Version in talenttrack.php to 3.1.0
-2. Bump Stable tag in readme.txt to 3.1.0
-3. Prepend a new section to CHANGES.md for 3.1.0 summarising the merged PRs since the previous tag
-4. Commit: `chore: release v3.1.0`
+1. Bump Version in talenttrack.php to 4.1.0
+2. Bump Stable tag in readme.txt to 4.1.0
+3. Prepend a new section to CHANGES.md for 4.1.0 summarising the merged PRs since the previous tag
+4. Commit: `chore: release v4.1.0`
 5. Push to main
-6. Tag: `git tag v3.1.0 && git push origin v3.1.0`
+6. Tag: `git tag v4.1.0 && git push origin v4.1.0`
 
 **Tag format is `vX.Y.Z` (NOT `v.X.Y.Z` — the stray dot in v.2.21.0 and v.2.22.0 tags is a formatting accident that confuses some tooling. Don't repeat it.)**
+
+### When to bump what
+
+From v4.0.0 onward TalentTrack follows strict SemVer. Don't reflex-bump patch on a feature ship.
+
+| Bump | When |
+|---|---|
+| **Major** (5.0.0, …) | Breaking change to a DB column, REST contract, or capability matrix that requires operator action on upgrade. Call it out explicitly in CHANGES.md. |
+| **Minor** (4.1.0, 4.2.0, …) | New feature epic lands (e.g. "Exports rebuild shipped", "Behaviour discoverability shipped"). Reset patch to 0. |
+| **Patch** (4.0.1, 4.0.2, …) | Bug fixes + small enhancements within the current minor. |
+
+Pre-v4 the patch counter ran away (`3.110.216`) because every ship bumped patch. The reset in v4.0.0 (#877) re-anchored the scheme; future bumps follow the table.
 
 The existing GitHub Action (.github/workflows/release.yml) fires on the tag push:
 - Runs PHP syntax lint

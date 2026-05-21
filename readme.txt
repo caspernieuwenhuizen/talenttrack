@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.216
+Stable tag: 4.0.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.0.0 — Versioning reset: adopt strict SemVer. Cosmetic-only — no breaking change, no schema migration, no behaviour change. The pre-4 `3.110.x` patch counter ran away because every PR bumped patch by reflex; the reset draws a line. Going forward: **major** for operator-visible breaking changes (DB column, REST contract, capability matrix), **minor** for new feature epics (e.g. Match Execution shipping), **patch** for bug fixes + small enhancements. PUC (Plugin Update Checker) handles `4.0.0 > 3.110.216` natively via semver comparison; no operator action required on upgrade. Migration numbering continues independently (next is 0121). (closes #877) =
 
 = 3.110.216 — Match execution surface for assistant coaches: a mobile-first live-match view (`?tt_view=match-execution&activity_id=N`) that the assistant runs from a phone on the sideline. Hard-depends on Match Prep (#838) — refuses to launch without a prep row and points the user back to the prep wizard. Layout fits the 360×640 phone viewport without scrolling: header (40), inline score steppers (48), timer with start/pause (44), specific-goals counter list (48 per row, tap = +1, long-press = -1), bench list with bring-on arrows (40 per row), sticky bottom-bar action that cycles through the half/match lifecycle states (1e → half-time → 2e → finished). Substitution flow: tap →, pick the player coming off in the bottom-sheet, swap commits immediately with a 3-second toast. Schema: migration 0120 adds `tt_match_execution` (1:1 with the activity, with the SaaS-ready `club_id` + `uuid` scaffolding, two timer state fields per half, pause-seconds accumulators, and home/away score), `tt_match_execution_substitutions` (event log, append-only, soft-delete via `reversed_at`), `tt_match_execution_goal_events` (same shape). Adds `home_score` + `away_score` to `tt_activities` and `minutes_played` to `tt_attendance` for the end-of-match copy. End-of-match auto-flow: marks the activity completed, copies the score to the activity, walks the substitution log + starting XI to compute per-player minutes, and writes a `tt_attendance` row per available player (using the prep's availability snapshot for the status). 9 cap-gated REST endpoints (`/talenttrack/v1/match-execution/<id>/start-half|end-half|pause|resume|score|substitution|goal-event|finish`) all idempotent on a client-generated event_uuid. JS includes a localStorage queue keyed `tt_match_exec_queue_<activity_id>` so taps survive sideline dead zones; the queue flushes on the next successful response (no full offline-first — initial page load still requires server). Out of scope per pilot direction: per-goal records (scorer/assist), yellow/red cards, multi-device sync, stoppage time, auto-substitution suggestions. (closes #847) =
 
