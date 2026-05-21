@@ -1,55 +1,75 @@
-# TalentTrack v4.1.6 — Analytics explorer PDF export (closes #875)
+# TalentTrack v4.1.7 — Coach hero pivots to live-match CTA (closes #879)
 
-## Scope
+## Pilot ask
 
-Third + final follow-up under #0083 Child 3. With this ship, the trio of explorer follow-ups (chart in #873, drilldown in #874, PDF export here) is complete.
+> I need 2 to be done. Add it to the coach hero and only show the button when relevant
+
+Follow-up to #847 (Match Execution). The only entry to the live-match surface was Dashboard → Activities → tap the match → "Start match" page-header action — four taps deep on a phone, awkward for an assistant on the sideline mid-match. The coach hero should surface the live-match CTA when there's actually something live to do.
 
 ## Changes
 
-### New `?action=export_pdf` branch on `FrontendExploreView`
+### `MatchExecutionRepository` — two new helpers
 
-Sibling to the existing `?action=export_csv`. Same URL shape (carries KPI + filters + group-by), different action key. New "Export PDF" button rendered next to the "Export CSV" button.
+```php
+public function findLiveForTeams( array $team_ids ): ?object;
+public function findStartableForTeams( array $team_ids ): ?object;
+```
 
-### `FrontendExploreView::streamPdf()`
+- `findLiveForTeams()` joins `tt_match_execution × tt_activities`, filters `state ∈ {first_half, half_time, second_half}`, returns the most-recently-updated row enriched with title + opponent + session_date + team_id + score + location.
+- `findStartableForTeams()` joins `tt_activities × tt_match_prep`, left-joins `tt_match_execution`, filters `session_date = current_time('Y-m-d')` + `activity_type_key IN ('match','game')` + `e.state IS NULL OR 'not_started'`. Returns the earliest-kickoff row.
 
-Builds an HTML body containing:
+Both tenancy-scoped via `CurrentClub::id()`.
 
-- KPI label + ISO generation date
-- Headline panel (current measure value, formatted)
-- Filters summary line (compact)
-- Either:
-    - Grouped table (when the user picked a group-by) — dimension column + measure column
-    - OR the top-50 drilldown rows + a "first N of M" count, when ungrouped
+### `MarkAttendanceHeroWidget` — early-return pivot
 
-Hands the HTML to the shared `PdfRenderer` (from #0063, in tree since v3.110.0) along with an `ExportRequest` stub. The renderer wraps the body in its default DomPDF shell and returns an `ExportResult` carrying the bytes.
+`render()` now calls `renderMatchExecutionBranch()` first. The branch:
 
-Failure mode: if `\Dompdf\Dompdf` isn't loadable (a dev environment that skipped `composer install`), the renderer throws `ExportException('no_renderer')`; the streamer catches and returns a 500 with a plain-text install hint.
+1. Pulls the coach's teams via `QueryHelpers::get_teams_for_coach($user_id)`.
+2. Tries `findLiveForTeams()` — if non-null, renders the **Resume match** variant:
+    - Eyebrow: "Live · 1e 23'" (or "HT" during half-time)
+    - Title: `<team> · <opponent>`
+    - Detail: current score
+    - Primary CTA: "Resume match" → `?tt_view=match-execution&activity_id=N`
+    - No secondary
+3. Otherwise tries `findStartableForTeams()` — if non-null, renders the **Start match** variant:
+    - Eyebrow: "Today"
+    - Title: `<team> · <opponent>`
+    - Detail: kickoff time + location
+    - Primary CTA: "Start match"
+    - Secondary: ghost link "Edit prep" → `?tt_view=match-prep&activity_id=N`
+4. Returns `null` to fall through to the existing mark-attendance code path.
 
-### Filename
+The minute label for the live eyebrow is computed in PHP from `first_half_started_at` (or `second_half_started_at`) + the `pause_seconds` accumulator already on the execution row. UTC throughout.
 
-`<kpi-key>-<YYYY-MM-DD>.pdf` — matches the CSV pattern.
+### Persona fall-through
 
-### Footer placeholder removed
+HoDs / admins who don't actually coach a team get an empty `team_ids` list from `get_teams_for_coach()` — both repository helpers short-circuit to null, and the existing mark-attendance hero renders unchanged.
 
-All three follow-ups have landed (#873 chart, #874 drilldown, this ship). The placeholder banner is gone.
+## Files touched
+
+- `src/Modules/MatchExecution/Repositories/MatchExecutionRepository.php` — two new methods (~80 lines).
+- `src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php` — imports + `renderMatchExecutionBranch()` + `liveMinuteLabel()` / `formatMinute()` helpers (~150 lines added).
+- `talenttrack.php` + `readme.txt` + `CHANGES.md` — version bump.
 
 ## Out of scope
 
-- Chart.js canvas rasterised into the PDF — DomPDF can't run JS, and a server-side rasteriser is a much larger dependency than the analytical value justifies. The PDF carries the headline + tables which is what scheduled-reports cron will consume too.
-- Brand-kit tokens beyond DomPDF's default body styles — a follow-up hooking `tt_pdf_render_html` can add the club's letterhead.
-- XLSX export — covered by the Exports page (#864/#865) and not part of the explorer's per-view export set.
+- A dashboard tile or quick-action entry for match execution — keep the hero as the single surfacing point.
+- The "today date ≥ session date" gate on the existing page-header "Start match" action on the activity detail.
+- Resume-pill on the activity list. The hero pivot covers the "where do I resume from?" need.
+- Dutch translation strings — not added in this ship; the existing translation workflow handles new English strings in a follow-up i18n pass.
 
 ## Verification
 
-- Open `?tt_view=explore` on any KPI. Click "Export PDF" → file downloads as `<key>-2026-05-21.pdf`.
-- PDF opens; headline matches the on-screen headline; grouped table matches when a group-by is picked; drilldown rows match when ungrouped.
-- Filter the view → "Filters" line in the PDF reflects the active filters.
-- On a dev environment without DomPDF: clicking "Export PDF" returns a 500 with a plain-text install hint (no fatal).
+- Coach with a live execution row on one of their teams → hero shows "Live · …", current score, "Resume match" CTA.
+- Coach with a prepped match scheduled today and no execution started → hero shows "Today" + "Start match" + "Edit prep" secondary.
+- Coach finishes a match (state goes to `completed`) → hero falls back to the default mark-attendance flow on next dashboard load.
+- HoD without a personal team assignment → default hero, no pivot.
+- Mobile 360px: existing hero layout, no extra CSS needed.
 
 ## Versioning
 
-Patch bump (4.1.5 → 4.1.6). Same 4.1.x epic-feature series as the chart + drilldown ships. The trio of #0083 Child 3 follow-ups is now complete.
+Patch bump (4.1.6 → 4.1.7). Same `4.1.x` series.
 
 ## Closes
 
-- #875 — Analytics explorer — PDF export
+- #879 — Coach-hero match-execution surface

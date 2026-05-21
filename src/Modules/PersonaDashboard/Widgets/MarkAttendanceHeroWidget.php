@@ -3,6 +3,8 @@ namespace TT\Modules\PersonaDashboard\Widgets;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\QueryHelpers;
+use TT\Modules\MatchExecution\Repositories\MatchExecutionRepository;
 use TT\Modules\PersonaDashboard\Domain\AbstractWidget;
 use TT\Modules\PersonaDashboard\Domain\PersonaContext;
 use TT\Modules\PersonaDashboard\Domain\RenderContext;
@@ -70,6 +72,15 @@ class MarkAttendanceHeroWidget extends AbstractWidget {
     public function capRequired(): string { return 'tt_edit_evaluations'; }
 
     public function render( WidgetSlot $slot, RenderContext $ctx ): string {
+        // #879 — if a live match-execution is active OR a prepped match
+        // is scheduled today on one of the coach's teams, pivot the
+        // hero to "Resume match" / "Start match". Otherwise fall
+        // through to the existing mark-attendance flow below.
+        $exec_inner = self::renderMatchExecutionBranch( $slot, $ctx );
+        if ( $exec_inner !== null ) {
+            return $this->wrap( $slot, $exec_inner, 'hero hero-match-execution' );
+        }
+
         // v3.110.186 (#792) — was `nextForCoach()`, which returns the
         // next UPCOMING activity (not yet completed). The mark-attendance
         // wizard only acts on COMPLETED, not-yet-evaluated, rateable
@@ -160,6 +171,160 @@ class MarkAttendanceHeroWidget extends AbstractWidget {
      * hero title — otherwise the user title is the hero title and we
      * shouldn't repeat it.
      */
+    /**
+     * #879 — match-execution pivot. Returns the inner HTML for the
+     * hero when a live execution or a startable prepped match exists
+     * on one of the coach's teams; returns null to fall through to
+     * the default mark-attendance flow.
+     *
+     * Priority: live execution > startable prepped match > null.
+     *
+     * Tenancy + team scope are handled inside the repository helpers
+     * (`findLiveForTeams` / `findStartableForTeams`); both consume the
+     * coach's `team_ids` from `QueryHelpers::get_teams_for_coach()`,
+     * which returns empty for users who don't actually coach a team
+     * (HoD / admin without a personal assignment).
+     */
+    private static function renderMatchExecutionBranch( WidgetSlot $slot, RenderContext $ctx ): ?string {
+        $teams = QueryHelpers::get_teams_for_coach( $ctx->user_id );
+        if ( $teams === [] ) return null;
+        $team_ids = [];
+        foreach ( $teams as $t ) {
+            $tid = isset( $t->id ) ? (int) $t->id : 0;
+            if ( $tid > 0 ) $team_ids[] = $tid;
+        }
+        if ( $team_ids === [] ) return null;
+
+        $repo = new MatchExecutionRepository();
+
+        // 1) Live match — highest priority.
+        $live = $repo->findLiveForTeams( $team_ids );
+        if ( $live !== null ) {
+            $aid = (int) $live->activity_id;
+            $home_score = (int) ( $live->home_score ?? 0 );
+            $away_score = (int) ( $live->away_score ?? 0 );
+            $state = (string) ( $live->state ?? '' );
+            $minute_label = self::liveMinuteLabel( $live );
+            // Eyebrow: "Live · <minute_label>" (e.g. "Live · 1e 23'").
+            $eyebrow = $minute_label !== ''
+                ? sprintf(
+                    /* translators: %s = live half + minute, e.g. "1e 23'" */
+                    __( 'Live · %s', 'talenttrack' ),
+                    $minute_label
+                )
+                : __( 'Live', 'talenttrack' );
+            $team_name = UpcomingActivityRepository::teamName( (int) ( $live->team_id ?? 0 ) );
+            $opponent  = trim( (string) ( $live->opponent ?? '' ) );
+            $title = $team_name !== '' && $opponent !== ''
+                ? $team_name . ' · ' . $opponent
+                : ( $team_name !== '' ? $team_name : ( $opponent !== '' ? $opponent : __( 'Live match', 'talenttrack' ) ) );
+            $detail = sprintf( '%d — %d', $home_score, $away_score );
+
+            $resume_url = add_query_arg(
+                [ 'tt_view' => 'match-execution', 'activity_id' => $aid ],
+                $ctx->viewUrl( 'activities' )
+            );
+            return '<div class="tt-pd-hero-eyebrow">' . esc_html( $eyebrow ) . '</div>'
+                . '<div class="tt-pd-hero-title">' . esc_html( $title ) . '</div>'
+                . '<div class="tt-pd-hero-detail">' . esc_html( $detail ) . '</div>'
+                . '<div class="tt-pd-hero-cta-row">'
+                . '<a class="tt-pd-cta tt-pd-cta-primary" href="' . esc_url( $resume_url ) . '">'
+                . esc_html__( 'Resume match', 'talenttrack' )
+                . '</a>'
+                . '</div>';
+        }
+
+        // 2) Startable prepped match today.
+        $start = $repo->findStartableForTeams( $team_ids );
+        if ( $start !== null ) {
+            $aid = (int) $start->activity_id;
+            $team_name = UpcomingActivityRepository::teamName( (int) ( $start->team_id ?? 0 ) );
+            $opponent  = trim( (string) ( $start->opponent ?? '' ) );
+            $title = $team_name !== '' && $opponent !== ''
+                ? $team_name . ' · ' . $opponent
+                : ( $team_name !== '' ? $team_name : ( $opponent !== '' ? $opponent : __( "Today's match", 'talenttrack' ) ) );
+
+            $detail_bits = [];
+            $start_time = (string) ( $start->start_time ?? '' );
+            if ( $start_time !== '' ) {
+                // Trim trailing :00 seconds for a cleaner kickoff label.
+                if ( preg_match( '/^(\d{2}:\d{2})/', $start_time, $m ) ) {
+                    $start_time = $m[1];
+                }
+                $detail_bits[] = sprintf(
+                    /* translators: %s = kickoff time HH:MM */
+                    __( 'Kickoff %s', 'talenttrack' ),
+                    $start_time
+                );
+            }
+            $location = (string) ( $start->location ?? '' );
+            if ( $location !== '' ) $detail_bits[] = $location;
+
+            $start_url = add_query_arg(
+                [ 'tt_view' => 'match-execution', 'activity_id' => $aid ],
+                $ctx->viewUrl( 'activities' )
+            );
+            $prep_url = add_query_arg(
+                [ 'tt_view' => 'match-prep', 'activity_id' => $aid ],
+                $ctx->viewUrl( 'activities' )
+            );
+            $prep_url = BackLink::appendTo( $prep_url, RecordLink::dashboardUrl() );
+
+            return '<div class="tt-pd-hero-eyebrow">' . esc_html__( 'Today', 'talenttrack' ) . '</div>'
+                . '<div class="tt-pd-hero-title">' . esc_html( $title ) . '</div>'
+                . '<div class="tt-pd-hero-detail">' . esc_html( implode( ' · ', $detail_bits ) ) . '</div>'
+                . '<div class="tt-pd-hero-cta-row">'
+                . '<a class="tt-pd-cta tt-pd-cta-primary" href="' . esc_url( $start_url ) . '">'
+                . esc_html__( 'Start match', 'talenttrack' )
+                . '</a>'
+                . '<a class="tt-pd-cta tt-pd-cta-ghost" href="' . esc_url( $prep_url ) . '">'
+                . esc_html__( 'Edit prep', 'talenttrack' )
+                . '</a>'
+                . '</div>';
+        }
+
+        return null;
+    }
+
+    /**
+     * #879 — derive a "1e 23'" / "HT" / "2e 67'" label from the
+     * execution row's timer columns. Returns "" when we can't compute
+     * a minute (e.g. row exists but `state = not_started` — though
+     * that's filtered out upstream).
+     */
+    private static function liveMinuteLabel( object $row ): string {
+        $state = (string) ( $row->state ?? '' );
+        $pause_first  = (int) ( $row->first_half_pause_seconds ?? 0 );
+        $pause_second = (int) ( $row->second_half_pause_seconds ?? 0 );
+        $now_ts = current_time( 'timestamp', true ); // UTC
+
+        if ( $state === 'first_half' ) {
+            $start = strtotime( (string) ( $row->first_half_started_at ?? '' ) . ' UTC' );
+            if ( $start === false ) return '';
+            $elapsed = max( 0, $now_ts - $start - $pause_first );
+            return self::formatMinute( 1, (int) floor( $elapsed / 60 ) );
+        }
+        if ( $state === 'second_half' ) {
+            $start = strtotime( (string) ( $row->second_half_started_at ?? '' ) . ' UTC' );
+            if ( $start === false ) return '';
+            $elapsed = max( 0, $now_ts - $start - $pause_second );
+            return self::formatMinute( 2, (int) floor( $elapsed / 60 ) );
+        }
+        if ( $state === 'half_time' ) {
+            return __( 'HT', 'talenttrack' );
+        }
+        return '';
+    }
+
+    private static function formatMinute( int $half, int $minute ): string {
+        return sprintf(
+            /* translators: 1: half number (1 or 2), 2: minute */
+            __( '%1$de %2$d\'', 'talenttrack' ),
+            $half,
+            $minute
+        );
+    }
+
     private static function buildDetail( object $row, string $user_title = '' ): string {
         $bits = [];
         if ( $user_title !== '' ) $bits[] = $user_title;
