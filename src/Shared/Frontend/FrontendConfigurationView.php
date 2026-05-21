@@ -174,6 +174,11 @@ class FrontendConfigurationView extends FrontendViewBase {
             // into tt_lookups. show_color on because the verdict pills
             // are colour-coded on the player profile.
             [ __( 'PDP verdict decisions', 'talenttrack' ), __( 'Promote / retain / release / transfer — the four end-of-season verdict outcomes on a PDP file.', 'talenttrack' ), 'pdp_verdict_decisions', 'podium' ],
+            // v3.110.209 (#803/#839) — workflow task statuses (open /
+            // in_progress / completed / overdue / skipped / cancelled).
+            // Most-seen vocabulary across the dashboard; pilot has asked
+            // about Dutch translations specifically.
+            [ __( 'Task statuses', 'talenttrack' ), __( 'Open / in progress / completed / overdue / skipped / cancelled — workflow task statuses.', 'talenttrack' ), 'task_statuses', 'kanban' ],
             [ __( 'Rating scale',       'talenttrack' ), __( 'Min, max and step for evaluation ratings.',                         'talenttrack' ), '__rating',        'weights' ],
         ];
 
@@ -247,6 +252,11 @@ class FrontendConfigurationView extends FrontendViewBase {
             // on so academies can gloss what each decision means in their
             // context; show_color on for the player-profile pills.
             'pdp_verdict_decisions'   => [ 'label' => __( 'PDP verdict decisions',  'talenttrack' ), 'type' => 'pdp_verdict_decision',   'show_desc' => true, 'show_color' => true  ],
+            // v3.110.209 (#803/#839) — six workflow task statuses.
+            // show_color so the academy can colour-code the status pills
+            // on task lists; show_desc=false (status names are
+            // self-explanatory).
+            'task_statuses'           => [ 'label' => __( 'Task statuses',          'talenttrack' ), 'type' => 'task_status',            'show_desc' => false, 'show_color' => true ],
         ];
         if ( ! isset( $registry[ $slug ] ) ) return null;
         $meta = $registry[ $slug ];

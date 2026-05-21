@@ -46,4 +46,28 @@ final class TaskStatus {
             || $status === self::IN_PROGRESS
             || $status === self::OVERDUE;
     }
+
+    /**
+     * Operator-editable label for a stored status value. Resolves
+     * through `tt_translations` for the current locale via
+     * `LookupTranslator::byTypeAndName('task_status', $value)`;
+     * pre-migration installs fall back to the canonical English label.
+     * Stored values stay sacred (constants above).
+     */
+    public static function label( string $status ): string {
+        if ( $status === '' ) return '';
+        if ( class_exists( '\\TT\\Infrastructure\\Query\\LookupTranslator' ) ) {
+            $label = \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'task_status', $status );
+            if ( $label !== '' ) return $label;
+        }
+        switch ( $status ) {
+            case self::OPEN:        return __( 'Open',        'talenttrack' );
+            case self::IN_PROGRESS: return __( 'In progress', 'talenttrack' );
+            case self::COMPLETED:   return __( 'Completed',   'talenttrack' );
+            case self::OVERDUE:     return __( 'Overdue',     'talenttrack' );
+            case self::SKIPPED:     return __( 'Skipped',     'talenttrack' );
+            case self::CANCELLED:   return __( 'Cancelled',   'talenttrack' );
+        }
+        return $status;
+    }
 }

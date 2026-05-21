@@ -1,35 +1,35 @@
-# TalentTrack v3.110.208 — PdpVerdicts decisions move to `tt_lookups` + `tt_translations` (closes #843; third conversion from #803)
+# TalentTrack v3.110.209 — TaskStatus moves to `tt_lookups` + `tt_translations` (closes #839; fourth conversion from #803)
 
 ## Why
 
-Third conversion from the #803 audit. `src/Modules/Pdp/Repositories/PdpVerdictsRepository.php` held the four end-of-season verdict decision values (`promote`, `retain`, `release`, `transfer`) as a `private const ALLOWED_DECISIONS` whitelist; the rendered labels lived in two separate switch-statement helpers (`FrontendPdpManageView::decisionLabel` for the player profile pill, `PdpPrintRouter::pdpVerdictDecisionLabel` for the print page). Pilot has hinted at academy-specific terminology — *progressed* / *signed* / *released* / *moved*. Moving the labels into `tt_lookups` lets the operator rename per academy without a code change.
+Fourth conversion from the #803 audit. `src/Modules/Workflow/TaskStatus.php` held six workflow task statuses (`open`, `in_progress`, `completed`, `overdue`, `skipped`, `cancelled`) as PHP constants — already translatable via the `.po` files at every render site, but **not editable per academy**. This is the most-seen vocabulary across the dashboard (task lists, inbox, detail panels); pilot has asked specifically about Dutch translations.
 
 ## Stored keys stay sacred
 
-`ALLOWED_DECISIONS` keeps `promote / retain / release / transfer`. They're the contract with `tt_pdp_verdicts.decision`. Lookup row `name` matches the lowercase stored value so `LookupTranslator::byTypeAndName('pdp_verdict_decision', $decision)` resolves directly.
+`TaskStatus::OPEN` / `::IN_PROGRESS` / `::COMPLETED` / `::OVERDUE` / `::SKIPPED` / `::CANCELLED` remain PHP constants. They're the contract with `tt_workflow_tasks.status` and drive the state machine documented in the class docblock.
 
-## Labels move to the repository
+## Labels move to the constants class
 
-- New `PdpVerdictsRepository::label( string $decision ): string` is the canonical labeller. Delegates to `LookupTranslator::byTypeAndName()` with the English switch retained as a pre-migration fallback.
-- `FrontendPdpManageView::decisionLabel` and `PdpPrintRouter::pdpVerdictDecisionLabel` both delegate to the repository's label — single source of truth.
-- PdpPrintRouter's local switch retains the legacy `'review'` / `'pending'` codes ABOVE the delegate. Those values appear on historical rows but aren't in `ALLOWED_DECISIONS`, so the lookup table doesn't carry them and the local switch needs to handle them first.
+- New `TaskStatus::label( string $status ): string` delegates to `LookupTranslator::byTypeAndName('task_status', $value)` with the canonical English switch retained as a pre-migration fallback.
+- `FrontendTaskDetailView` swaps its inline `$status_map` array for a `TaskStatus::label()` call. Side benefit: the inline map silently omitted `skipped`, so a skipped task previously rendered the raw `skipped` key; the new delegate renders the proper translated label.
 
 ## Frontend admin tile
 
-New **"PDP verdict decisions"** tile on Configuration → Lookups. `show_desc=true` so academies can gloss the verdict in their context. `show_color=true` because the verdict pill is colour-coded on the player profile — operator picks the pill colour per row.
+New **"Task statuses"** tile on Configuration → Lookups. `show_color=true` so academies can colour-code the status pills on task lists (`overdue` could be red, `completed` green, etc.). `show_desc=false` — status names are self-explanatory.
 
-## Migration 0112
+## Migration 0113
 
-Seeds 4 lookup rows + 20 `tt_translations` rows (4 × 5 locales). Idempotent (`INSERT IGNORE`). Operator-edited rows preserved.
+Seeds 6 lookup rows + 30 `tt_translations` rows (6 × 5 locales: en_US / nl_NL / fr_FR / de_DE / es_ES). Idempotent (`INSERT IGNORE`). Operator-edited rows preserved.
 
 ## How to test
 
-1. Apply migrations — confirm `0112_seed_pdp_verdict_decision_lookup` in `tt_migrations`.
-2. Configuration → Lookups → "PDP verdict decisions" tile appears. Four rows render with description + colour-swatch fields.
-3. Edit Dutch label for `promote` ("Bevorderen" → academy preference) → player profile + PDP print page render the new label on files with a recorded verdict.
-4. Edit colour for `release` → verdict pill on the player profile shows the new colour.
-5. Pre-migration install renders the four English labels via the switch fallback inside `PdpVerdictsRepository::label()`.
+1. Apply migrations — confirm `0113_seed_task_status_lookup` in `tt_migrations`; 6 lookup rows + 30 translation rows exist.
+2. Configuration → Lookups → "Task statuses" tile appears. Click → six rows render with colour-swatch fields.
+3. Edit Dutch label for `in_progress` (default "In behandeling") → workflow task list renders the new label.
+4. Edit colour for `overdue` → task pills on the inbox / task list render with the new colour.
+5. A task with `status = 'skipped'` (rare; check `wp db query "SELECT id FROM ${prefix}tt_workflow_tasks WHERE status='skipped' LIMIT 1"` if any exist) renders a proper "Skipped" label instead of the raw key (regression fix from the inline map's missing entry).
+6. Pre-migration install renders all six English labels via the switch fallback inside `TaskStatus::label()`.
 
 ## Out of scope — still on #803
 
-#839 TaskStatus, #840 IdeaStatus, #842 TrialCases, #844 AudienceType, #845 MEDIUM batch.
+#840 IdeaStatus, #842 TrialCases, #844 AudienceType, #845 MEDIUM batch.
