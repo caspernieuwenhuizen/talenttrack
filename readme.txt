@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.201
+Stable tag: 3.110.202
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.202 — Migration 0109 re-runs the fr_FR / de_DE / es_ES backfill of `tt_translations` for every `tt_lookups` row, this time calling `unload_textdomain('talenttrack', true)` between locale switches so `__()` actually returns the just-loaded translation. 0106 silently wrote zero rows on installs where the textdomain was already cached for a previous locale. Logger output (`migration.0109.summary`) reports per-locale scan/translate/write counts so future iterations are debuggable. (closes #829) =
 
 = 3.110.201 — 8 lookup_types that already lived in `tt_lookups` (`activity_status`, `cert_type`, `tournament_formation`, `tournament_opponent_level`, `behaviour_rating_label`, `potential_band`, `journey_event_type`, `competition_type`) are now exposed as tiles in the frontend Configuration → Lookups grid. Operators can edit names, descriptions, sort_order and per-locale translations through the same UX the existing 10 categories already had. No migration; rows were already seeded by migrations 0013 / 0037 / 0042 / 0047 / 0048 / 0098. (closes #831) =
 
