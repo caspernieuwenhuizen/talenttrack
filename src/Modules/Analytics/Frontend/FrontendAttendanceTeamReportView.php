@@ -112,6 +112,7 @@ final class FrontendAttendanceTeamReportView extends FrontendViewBase {
               JOIN {$wpdb->prefix}tt_activities a ON a.team_id = t.id AND a.archived_at IS NULL
               JOIN {$wpdb->prefix}tt_attendance att ON att.activity_id = a.id AND att.is_guest = 0
              WHERE t.club_id = %d
+               AND att.record_type = 'actual'
                AND a.session_date BETWEEN %s AND %s
                AND a.plan_state = 'completed'
              GROUP BY t.id, t.name

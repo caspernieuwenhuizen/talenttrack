@@ -122,6 +122,7 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
               LEFT JOIN {$wpdb->prefix}tt_teams t ON t.id = a.team_id
              WHERE p.club_id = %d
                AND att.is_guest = 0
+               AND att.record_type = 'actual'
                AND a.session_date BETWEEN %s AND %s
                AND a.plan_state = 'completed'
                {$where_team}

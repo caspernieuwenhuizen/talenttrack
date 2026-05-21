@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.1.7
+Stable tag: 4.2.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.2.0 — Expected-vs-actual attendance — ship 1: schema + reporting sweep (partial #788). Foundation ship for the planned-attendance feature. Migration 0121 adds `record_type ENUM('expected','actual') NOT NULL DEFAULT 'actual'` to `tt_attendance` plus a covering index on `(activity_id, record_type)`. Default `'actual'` keeps every pre-migration row semantically correct — they describe what already happened. Mandatory reporting sweep in the same ship: every read surface that summarises attendance now filters `record_type = 'actual'` (and where missing, `plan_state = 'completed'`) so when ship 2 introduces `expected` rows for planned activities, no surface silently conflates the two categories. Surfaces updated: `PlayerReportRenderer::fetchAttendanceStats`, `PlayerAttendanceCalculator::scoreFor` (player-status engine), `AttendancePctRolling::pctInRange` (academy KPI), `MyTeamAttendancePct::compute` (coach KPI), `TeamOverviewRepository::summariesFor + teamPlayerBreakdown` (HoD team overview), `TeamRosterTableWidget::fetchRoster` (HoD roster table), `AttendanceRegisterCsvExporter::collect`, `FrontendAttendanceTeamReportView` + `FrontendAttendancePlayerReportView`, plus the three v4.0.11 exporters that read attendance (`TeamRosterStatsCsvExporter`, `TeamActivitiesCsvExporter`, `KpiSnapshotXlsxExporter`). Ship 2 (wizard dual-mode, carry-forward, planning surfaces) follows in a separate PR once this foundation is on staging. Minor bump (new feature behaviour even though no UI changes yet — the schema is the API change). (partial #788) =
 
 = 4.1.7 — Coach hero pivots to live-match CTA when relevant (closes #879). Follow-up to #847 (Match Execution): the only entry to the live-match surface was four taps deep on a phone, awkward for an assistant on the sideline. `MarkAttendanceHeroWidget` now checks two conditions before rendering its default mark-attendance flow. **Priority chain**: (1) **Live execution** — when `tt_match_execution` has a row in state `first_half` / `half_time` / `second_half` on one of the coach's teams, the hero pivots to "Live · 1e 23'" eyebrow + `<team> · <opponent>` title + current score + "Resume match" CTA. Minute computed from `first_half_started_at` + `pause_seconds` accumulator. (2) **Today's prepped match** — when no live row but a match-type activity (`activity_type_key IN ('match','game')`) scheduled for `current_time('Y-m-d')` has a `tt_match_prep` row + no execution started, the hero shows "Today" eyebrow + match title + kickoff time + "Start match" primary CTA and an "Edit prep" ghost secondary. (3) **Otherwise**: existing mark-attendance hero behaviour, unchanged. Two new repository helpers on `MatchExecutionRepository`: `findLiveForTeams(array $team_ids)` and `findStartableForTeams(array $team_ids)`. Both consume the coach's team list from `QueryHelpers::get_teams_for_coach($user_id)`, so HoDs / admins without a personal coaching assignment fall through to the default hero. No new REST, no migration, no new cap. (closes #879) =
 

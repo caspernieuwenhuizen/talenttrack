@@ -24,6 +24,10 @@ final class PlayerAttendanceCalculator {
      */
     public function scoreFor( int $player_id, string $from, string $to ): array {
         global $wpdb;
+        // #788 ship 1 — player status derives from real history, never
+        // from planned-attendance entries. Filter to actuals on
+        // completed activities so ship 2's expected rows can't shift
+        // the calculator.
         $row = $wpdb->get_row( $wpdb->prepare(
             "SELECT
                 COUNT(*) AS sessions,
@@ -36,6 +40,8 @@ final class PlayerAttendanceCalculator {
              WHERE att.player_id = %d
                AND att.club_id = %d
                AND att.is_guest = 0
+               AND att.record_type = 'actual'
+               AND act.plan_state = 'completed'
                AND act.session_date >= %s
                AND act.session_date <= %s",
             $player_id, CurrentClub::id(), $from, $to

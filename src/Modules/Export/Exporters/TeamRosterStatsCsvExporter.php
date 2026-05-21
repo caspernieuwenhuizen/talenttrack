@@ -75,12 +75,16 @@ final class TeamRosterStatsCsvExporter implements ExporterInterface {
                       WHERE att.player_id = pl.id
                         AND att.club_id  = pl.club_id
                         AND att.status   = 'present'
+                        AND att.record_type = 'actual'
+                        AND a.plan_state = 'completed'
                         AND a.session_date BETWEEN %s AND %s
                     ) AS attendance_count,
                     (SELECT COALESCE(SUM(att.minutes_played), 0) FROM {$p}tt_attendance att
                        INNER JOIN {$p}tt_activities a ON a.id = att.activity_id AND a.club_id = att.club_id
                       WHERE att.player_id = pl.id
                         AND att.club_id  = pl.club_id
+                        AND att.record_type = 'actual'
+                        AND a.plan_state = 'completed'
                         AND a.session_date BETWEEN %s AND %s
                     ) AS minutes_total,
                     (SELECT ROUND(AVG(er.rating), 2) FROM {$p}tt_eval_ratings er
