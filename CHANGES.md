@@ -1,35 +1,50 @@
-# TalentTrack v3.110.205 — InvitationStatus moves to `tt_lookups` + `tt_translations` (closes #808; first conversion from the #803 audit)
+# TalentTrack v3.110.206 — Mobile readiness audit follow-up: table-wrap retrofit, inputmode retrofit, wizard step nits (closes #423)
 
 ## Why
 
-Follow-up to #798 + #803. `src/Modules/Invitations/InvitationStatus.php` held the four invitation-status labels (Pending / Accepted / Expired / Revoked) as a hardcoded `switch` returning `__()` strings — translatable via the `.po` files but **not editable per academy**.
+Follow-up to v3.110.120 (AttendanceStep card UI). Three classes of mobile-readiness gaps at 360px:
 
-## Stored keys stay sacred
+1. Bare `<table class="tt-table">` elements crushed columns into unreadable cells (missing the `.tt-table-wrap` scroll container).
+2. Numeric `<input type="number">` elements missing the matching `inputmode` attribute (mobile keyboards came up alphabetic-first).
+3. Two wizard steps below the 48×48 tap floor / forcing horizontal overflow.
 
-`InvitationStatus::PENDING` / `::ACCEPTED` / `::EXPIRED` / `::REVOKED` remain PHP constants — they're the contract with `tt_invitations.status`. Every code-side comparison keeps working unchanged.
+CLAUDE.md §2 codifies the standard. This release closes the remaining offenders found by the audit.
 
-## Labels move to the lookups store
+## Wave 1 — table-wrap retrofit (17 tables across 11 surfaces)
 
-- New `lookup_type = 'invitation_status'` seeded by migration 0110.
-- Lookup row `name` matches the lowercase stored value so `LookupTranslator::byTypeAndName('invitation_status', $stored_value)` resolves directly.
-- Each row gets `tt_translations` entries for 5 locales: en_US + nl_NL / fr_FR / de_DE / es_ES.
-- `InvitationStatus::label()` delegates to `LookupTranslator::byTypeAndName()` with the original `switch` retained as a pre-migration fallback.
+`FrontendAuditLogView`, `FrontendComparisonView`, `FrontendEvaluationsView`, `FrontendFunctionalRolesView`, `FrontendMigrationsView`, `FrontendPeopleManageView`, `FrontendTeamDetailView` (5 tables), `FrontendTeamsManageView` (2), `FrontendTrialCaseView` (5), `FrontendReportDetailView` (2).
 
-## Frontend admin tile
+`.tt-table-wrap` was already defined in `public.css`. Each table now scrolls horizontally inside its own region instead of pushing the surrounding page layout.
 
-New **"Invitation statuses"** tile on Configuration → Lookups. Same per-locale name editor as every other lookup category (master-detail layout, v3.110.203). Description + colour flags off.
+**Lookups admin (`FrontendConfigurationView::renderLookupCategoryEditor`) intentionally dropped on rebase**: the master-detail layout from v3.110.203 (#830) replaced the table with a `<ul>` rail — the table-wrap retrofit no longer applies to that view.
 
-## Migration 0110
+## Wave 2 — `inputmode` retrofit (6 numeric inputs)
 
-Seeds 4 lookup rows + 20 `tt_translations` rows (4 × 5 locales). Idempotent (`INSERT IGNORE` on the unique indexes). Operator-edited rows preserved.
+| Surface | Field | inputmode |
+|---|---|---|
+| `FrontendPlayersManageView` | jersey | `numeric` |
+| `FrontendPlayersManageView` | height_cm | `numeric` |
+| `FrontendPlayersManageView` | weight_kg | `numeric` |
+| `FrontendReportWizardView` | privacy.min_rating_threshold | `decimal` |
+| `FrontendTrialCaseView` | overall_rating | `decimal` |
+| `Invitations/AcceptanceView` | jersey | `numeric` |
+| `Development/IdeasRefineView` | player_id / team_id | `numeric` |
+
+Two of these conflicted with main on rebase — resolution kept HEAD's dynamic bounds (`tt_config rating_min/rating_max`, shipped v3.110.116) and added the PR's `inputmode="decimal"`.
+
+## Wave 3 — wizard step nits
+
+- `Activity/PrinciplesStep`: multi-select gains `width:100%; min-width:0; max-width:100%; box-sizing:border-box; font-size:16px` so it fits 360px viewports without iOS auto-zoom on focus.
+- `Team/RosterStep`: checkbox-label `min-height: 48px` bumped from 32px to meet the §2 tap floor.
+
+## What's unchanged
+
+No PHP logic. No CSS file changes. No JS. No schema, no migration, no REST. Pure structural retrofit.
 
 ## How to test
 
-1. Apply migrations — confirm `0110_seed_invitation_status_lookup` in `tt_migrations`; 4 lookup rows + 20 translation rows exist.
-2. Configuration → Lookups → "Invitation statuses" tile appears. Click → list of four rows.
-3. Edit Dutch label for `pending` → invitations list renders the new label.
-4. Pre-migration install renders the four English labels via the switch fallback.
-
-## Out of scope — still on #803, now individual tickets
-
-#839 TaskStatus, #840 IdeaStatus, #841 GoalApprovalForm, #842 TrialCases, #843 PdpVerdicts, #844 AudienceType, #845 MEDIUM batch (InvitationKind / IdeaType / ScoutingVisits / ScheduledReports).
+- [ ] At 360px DevTools viewport, visit each Wave-1 view; data tables show their own horizontal scrollbar when wide, page layout stays put.
+- [ ] Tap each Wave-2 input on a real phone; numeric/decimal keyboard pops up (not full alphabetic).
+- [ ] Open new-activity wizard's Principles step at 360px — `<select multiple>` fits, focus doesn't trigger iOS auto-zoom.
+- [ ] Open new-team wizard's Roster step on phone — checkbox rows feel comfortably tappable (48px min).
+- [ ] Desktop ≥1024px smoke test: nothing visibly different.

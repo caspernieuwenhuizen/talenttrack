@@ -272,6 +272,7 @@ class FrontendTeamsManageView extends FrontendViewBase {
                 $can_invite_inline = current_user_can( 'tt_send_invitation' );
                 $here = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( (string) wp_unslash( $_SERVER['REQUEST_URI'] ) ) : home_url( '/' );
                 ?>
+                <div class="tt-table-wrap">
                 <table class="tt-table">
                     <thead><tr>
                         <th><?php esc_html_e( 'Player', 'talenttrack' ); ?></th>
@@ -315,6 +316,7 @@ class FrontendTeamsManageView extends FrontendViewBase {
                     <?php endforeach; ?>
                     </tbody>
                 </table>
+                </div>
             <?php endif; ?>
         </div>
         <?php
@@ -381,6 +383,7 @@ class FrontendTeamsManageView extends FrontendViewBase {
             echo '<p><em>' . esc_html__( 'No staff assigned to this team yet.', 'talenttrack' ) . '</em></p>';
         } else {
             $roles_repo = new FunctionalRolesRepository();
+            echo '<div class="tt-table-wrap">';
             echo '<table class="tt-table"><thead><tr>';
             echo '<th>' . esc_html__( 'Role',    'talenttrack' ) . '</th>';
             echo '<th>' . esc_html__( 'Person',  'talenttrack' ) . '</th>';
@@ -402,6 +405,7 @@ class FrontendTeamsManageView extends FrontendViewBase {
                 }
             }
             echo '</tbody></table>';
+            echo '</div>';
         }
 
         if ( current_user_can( 'tt_edit_people' ) ) {

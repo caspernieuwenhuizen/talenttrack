@@ -204,6 +204,7 @@ class FrontendAuditLogView extends FrontendViewBase {
                 <div style="display:grid; grid-template-columns: 1fr; gap: var(--tt-sp-4, 16px);">
                     <div>
                         <h3 style="margin: 0 0 var(--tt-sp-2, 8px); font-size: 16px;"><?php esc_html_e( 'Daily breakdown — last 30 days', 'talenttrack' ); ?></h3>
+                        <div class="tt-table-wrap">
                         <table class="tt-table" style="width:100%; font-size: 13px;">
                             <thead><tr>
                                 <th><?php esc_html_e( 'Day', 'talenttrack' ); ?></th>
@@ -218,11 +219,13 @@ class FrontendAuditLogView extends FrontendViewBase {
                             <?php endforeach; ?>
                             </tbody>
                         </table>
+                        </div>
                     </div>
 
                     <?php if ( ! empty( $top_users ) ) : ?>
                         <div>
                             <h3 style="margin: 0 0 var(--tt-sp-2, 8px); font-size: 16px;"><?php esc_html_e( 'Top attempted usernames', 'talenttrack' ); ?></h3>
+                            <div class="tt-table-wrap">
                             <table class="tt-table" style="width:100%; font-size: 13px;">
                                 <thead><tr>
                                     <th><?php esc_html_e( 'Username', 'talenttrack' ); ?></th>
@@ -237,12 +240,14 @@ class FrontendAuditLogView extends FrontendViewBase {
                                 <?php endforeach; ?>
                                 </tbody>
                             </table>
+                            </div>
                         </div>
                     <?php endif; ?>
 
                     <?php if ( ! empty( $top_ips ) ) : ?>
                         <div>
                             <h3 style="margin: 0 0 var(--tt-sp-2, 8px); font-size: 16px;"><?php esc_html_e( 'Top source IPs', 'talenttrack' ); ?></h3>
+                            <div class="tt-table-wrap">
                             <table class="tt-table" style="width:100%; font-size: 13px;">
                                 <thead><tr>
                                     <th><?php esc_html_e( 'IP address', 'talenttrack' ); ?></th>
@@ -257,6 +262,7 @@ class FrontendAuditLogView extends FrontendViewBase {
                                 <?php endforeach; ?>
                                 </tbody>
                             </table>
+                            </div>
                         </div>
                     <?php endif; ?>
 
