@@ -33,7 +33,14 @@ final class UpcomingActivitiesSource implements TableRowSource {
         $limit   = max( 1, min( 50, (int) ( $config['limit'] ?? 15 ) ) );
         $club_id = CurrentClub::id();
 
-        $from = ( new \DateTimeImmutable() )->format( 'Y-m-d H:i:s' );
+        // v4.0.5 (#858) — date-inclusive lower bound. The previous
+        // time-inclusive `CONCAT(session_date, start_time) >= NOW()`
+        // filter excluded any activity that had already started today,
+        // even if it hadn't ended — an HoD opening the dashboard at
+        // 09:00 on a day with an 08:00 training saw the widget empty.
+        // "Upcoming" here means "today or later", aligned with the
+        // coach hero's UpcomingActivityRepository.
+        $from = ( new \DateTimeImmutable( 'today' ) )->format( 'Y-m-d' );
         $to   = ( new \DateTimeImmutable( "+{$days} days" ) )->format( 'Y-m-d 23:59:59' );
 
         // v3.110.182 (#781) — demo-mode scope so the upcoming-activities
@@ -56,7 +63,7 @@ final class UpcomingActivitiesSource implements TableRowSource {
                                            AND at.lookup_type = 'activity_type'
               WHERE s.club_id = %d
                 AND s.archived_at IS NULL
-                AND CONCAT(s.session_date, ' ', COALESCE(s.start_time, '00:00:00')) >= %s
+                AND s.session_date >= %s
                 AND s.session_date <= %s
                 {$scope}
               ORDER BY s.session_date ASC, s.start_time ASC
