@@ -117,7 +117,7 @@ final class FrontendTeamDetailView extends FrontendViewBase {
             // #0063 — staff via tt_team_people, NOT the legacy
             // tt_teams.head_coach_id column the user explicitly flagged.
             self::renderStaff( $staff );
-            self::renderRoster( $roster );
+            self::renderRoster( $roster, $team_id );
             // #0077 M4 — surface trial players on the team page; they
             // were silently hidden behind the status='active' filter
             // in get_players. Coaches need to see who's currently on
@@ -207,7 +207,7 @@ final class FrontendTeamDetailView extends FrontendViewBase {
      *
      * @param array<int, object> $players
      */
-    private static function renderRoster( array $players ): void {
+    private static function renderRoster( array $players, int $team_id = 0 ): void {
         if ( empty( $players ) ) return;
         $can_status = class_exists( '\TT\Modules\Players\Frontend\PlayerStatusRenderer' );
         // v3.110.65 — load the player-status CSS. Without it, the
@@ -238,6 +238,24 @@ final class FrontendTeamDetailView extends FrontendViewBase {
         ?>
         <section class="tt-pde-section">
             <h3><?php esc_html_e( 'Roster', 'talenttrack' ); ?></h3>
+            <?php
+            // #872 — bulk behaviour-rating entry point on the team
+            // detail roster section. Cap-gated; users without
+            // `tt_rate_player_behaviour` don't see the button.
+            if ( $team_id > 0 && current_user_can( 'tt_rate_player_behaviour' ) ) :
+                $bulk_url = add_query_arg(
+                    [ 'tt_view' => 'team-behaviour-capture', 'team_id' => $team_id ],
+                    \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+                );
+                ?>
+                <p style="margin: 0 0 12px;">
+                    <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( $bulk_url ); ?>">
+                        <?php esc_html_e( 'Bulk-record behaviour', 'talenttrack' ); ?>
+                    </a>
+                </p>
+                <?php
+            endif;
+            ?>
             <div class="tt-table-wrap">
             <table class="tt-table">
                 <thead>

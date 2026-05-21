@@ -558,6 +558,12 @@ class DashboardShortcode {
             case 'player-status-capture':
                 FrontendPlayerStatusCaptureView::render( $user_id, $is_admin );
                 return true;
+            // #872 — bulk behaviour-rating grid for a team. Reachable
+            // via the "Bulk-record behaviour" button on the team detail
+            // page. Cap-gated inside the view.
+            case 'team-behaviour-capture':
+                FrontendTeamBehaviourCaptureView::render( $user_id, $is_admin );
+                return true;
             case 'functional-roles':
                 FrontendFunctionalRolesView::render( $user_id, $is_admin );
                 return true;
