@@ -1,39 +1,34 @@
-# TalentTrack v3.110.210 — AudienceType moves to `tt_lookups` + `tt_translations` (closes #844; fifth conversion from #803)
+# TalentTrack v3.110.211 — IdeaStatus moves to `tt_lookups` + `tt_translations` (closes #840; sixth conversion from #803)
 
 ## Why
 
-Fifth conversion from the #803 audit. `src/Modules/Reports/AudienceType.php` held eight report-audience values (`standard`, `parent_monthly`, `internal_detailed`, `player_personal`, `scout`, `trial_admittance`, `trial_denial_final`, `trial_denial_encouragement`) with the labels AND a per-audience description (the operator-facing gloss in the report wizard's audience picker). Both rendered through hardcoded `__()` switches — translatable via .po but not editable per academy.
+Sixth conversion from the #803 audit. `src/Modules/Development/IdeaStatus.php` held nine internal idea-board status values plus a `label()` switch. Workflow may evolve per academy — operators may want different terminology for `refining`, `ready-for-approval`, or the transient `promoting` state.
 
 ## Stored keys stay sacred
 
-`AudienceType::STANDARD` etc. remain PHP constants — the contract with `tt_reports.audience_type`. `isValid()`, `isTrialLetter()`, etc. keep comparing against the constants.
+All nine `IdeaStatus::*` constants remain PHP constants — they're the contract with `tt_dev_ideas.status` and drive the kanban board's column structure (`boardColumns()`).
 
-## Labels + descriptions move to the lookups store
+## Labels move
 
-- `AudienceType::label()` delegates to `LookupTranslator::byTypeAndName('audience_type', $value)`.
-- `AudienceType::describe()` delegates to a new sibling helper **`LookupTranslator::descriptionByTypeAndName()`** that returns the description translation for the matching lookup row. The helper shares the per-request row cache with `byTypeAndName()` — no extra SELECTs.
-- Both methods retain their canonical English switch as a pre-migration fallback.
-
-## New LookupTranslator helper
-
-`LookupTranslator::descriptionByTypeAndName( string $type, string $stored_name ): string`. Mirrors the `byTypeAndName()` label helper. Internally refactored both to share a `rowByTypeAndName()` private helper for the row lookup — no behaviour change for existing callers.
+- `IdeaStatus::label()` delegates to `LookupTranslator::byTypeAndName('idea_status', $value)` with the canonical English switch retained as a pre-migration fallback.
+- `IdeaStatus::authorFacingLabel()` is unchanged — it's a curated 4-bucket rollup (In review / Not accepted / Accepted) of the underlying 9 statuses, not a per-status label. If the operator renames `refining` to `In de revisie` via the lookup admin, `label()` returns the new Dutch text but `authorFacingLabel()` still returns "In review" (which itself goes through `__()` and lives in the .po).
 
 ## Frontend admin tile
 
-New **"Report audiences"** tile on Configuration → Lookups. `show_desc=true` because each audience carries a distinct operator-facing gloss; `show_color=false` (audiences aren't pilled with a colour anywhere).
+New **"Idea statuses"** tile on Configuration → Lookups. `show_color=true` so the kanban columns can be colour-coded; `show_desc=false` (status names are self-explanatory).
 
-## Migration 0114
+## Migration 0115
 
-Seeds 8 lookup rows + 40 `tt_translations` rows for the labels (8 × 5 locales) + 32 `tt_translations` rows for the descriptions (8 × 4 non-English locales — en_US is already the canonical `description` column on the lookup row). Idempotent (`INSERT IGNORE`). Operator-edited rows preserved.
+Seeds 9 lookup rows + 45 `tt_translations` rows (9 × 5 locales). Idempotent (`INSERT IGNORE`). Operator-edited rows preserved.
 
 ## How to test
 
-1. Apply migrations — confirm `0114_seed_audience_type_lookup` in `tt_migrations`; 8 lookup rows + ~72 translation rows exist.
-2. Configuration → Lookups → "Report audiences" tile appears. Click → 8 rows render with per-locale description editors.
-3. Edit Dutch label for `parent_monthly` → report wizard audience picker renders the new Dutch label.
-4. Edit Dutch description for `scout` → the wizard's audience-picker explainer text renders the new Dutch description.
-5. Pre-migration install renders the 8 English labels + descriptions via the switch fallbacks.
+1. Apply migrations — confirm `0115_seed_idea_status_lookup` in `tt_migrations`; 9 lookup rows + 45 translation rows exist.
+2. Configuration → Lookups → "Idea statuses" tile appears. Click → nine rows render with colour-swatch fields.
+3. Edit Dutch label for `refining` → ideas board renders the new label on cards in that column.
+4. Edit colour for `promoted` → kanban column pill renders with new colour.
+5. Pre-migration install renders the nine English labels via the switch fallback inside `IdeaStatus::label()`.
 
 ## Out of scope — still on #803
 
-#840 IdeaStatus, #842 TrialCases, #845 MEDIUM batch.
+#842 TrialCases (4 statuses + 6 decisions), #845 MEDIUM batch (5 lookup_types).

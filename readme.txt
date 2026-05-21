@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.210
+Stable tag: 3.110.211
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.211 — IdeaStatus moves to `tt_lookups` + `tt_translations`: the nine internal idea-board statuses (submitted / refining / ready-for-approval / rejected / promoting / promoted / promotion-failed / in-progress / done) are now operator-editable per academy and translatable per locale through the frontend Lookups admin. Stored keys (the `IdeaStatus::*` PHP constants) stay sacred — they remain the contract with `tt_dev_ideas.status` and drive the kanban board's column structure (`boardColumns()`). `IdeaStatus::label()` delegates to `LookupTranslator::byTypeAndName()` with a switch fallback for pre-migration installs. `IdeaStatus::authorFacingLabel()` is unchanged — it's a curated 4-bucket rollup (In review / Not accepted / Accepted / Submitted) of the underlying 9 statuses, not a per-status label. New "Idea statuses" tile on the Lookups admin grid (show_color=true so the kanban columns can be colour-coded); migration 0115 seeds 9 lookup rows + 45 `tt_translations` rows (9 × 5 locales). Sixth conversion from the #803 audit punch list. (closes #840, #803 partial) =
 
 = 3.110.210 — AudienceType moves to `tt_lookups` + `tt_translations`: the eight report audience templates (standard / parent monthly / internal coaches / player keepsake / scout + three trial letters) are now operator-editable per academy and translatable per locale through the frontend Lookups admin. Stored keys (the `AudienceType::*` PHP constants) stay sacred — they remain the contract with `tt_reports.audience_type`. `AudienceType::label()` and `AudienceType::describe()` now both delegate to `LookupTranslator` (a new `LookupTranslator::descriptionByTypeAndName()` sibling helper resolves the description column the same way `byTypeAndName()` resolves the label) with switch fallbacks for pre-migration installs. New "Report audiences" tile on the Lookups admin grid (show_desc=true because each audience has a distinct purpose worth glossing); migration 0114 seeds 8 lookup rows + 40 `tt_translations` rows for the labels + 32 `tt_translations` rows for the descriptions (8 × 4 non-English locales). Fifth conversion from the #803 audit punch list. (closes #844, #803 partial) =
 

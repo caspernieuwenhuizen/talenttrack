@@ -31640,3 +31640,11 @@ msgstr "Rapport-doelgroepen"
 #: src/Shared/Frontend/FrontendConfigurationView.php
 msgid "Eight report audience templates: standard, parent monthly, internal coaches, player keepsake, scout, and three trial letters."
 msgstr "Acht rapporttemplates: standaard, maandelijks oudersverslag, interne coaches, speler-herinnering, scout, en drie proefperiode-brieven."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Idea statuses"
+msgstr "Idee-statussen"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Submitted / refining / ready for approval / rejected / promoting / accepted / promotion failed / in progress / done — ideas-board status vocabulary."
+msgstr "Ingediend / aan het verfijnen / klaar voor goedkeuring / afgewezen / bezig met bevorderen / geaccepteerd / bevorderen mislukt / in behandeling / klaar — statusvocabulaire voor het ideeën-bord."

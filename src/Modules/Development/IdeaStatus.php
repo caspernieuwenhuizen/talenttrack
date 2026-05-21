@@ -50,7 +50,18 @@ final class IdeaStatus {
         ];
     }
 
+    /**
+     * Operator-editable label for a stored status value. Resolves
+     * through `tt_translations` via `LookupTranslator::byTypeAndName(
+     * 'idea_status', $value)`; pre-migration installs fall back to the
+     * canonical English label.
+     */
     public static function label( string $status ): string {
+        if ( $status === '' ) return '';
+        if ( class_exists( '\\TT\\Infrastructure\\Query\\LookupTranslator' ) ) {
+            $label = \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'idea_status', $status );
+            if ( $label !== '' && $label !== $status ) return $label;
+        }
         switch ( $status ) {
             case self::SUBMITTED:          return __( 'Submitted', 'talenttrack' );
             case self::REFINING:           return __( 'Refining', 'talenttrack' );
