@@ -31632,3 +31632,11 @@ msgstr "Taakstatussen"
 #: src/Shared/Frontend/FrontendConfigurationView.php
 msgid "Open / in progress / completed / overdue / skipped / cancelled — workflow task statuses."
 msgstr "Open / in behandeling / voltooid / te laat / overgeslagen / geannuleerd — workflow-taakstatussen."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Report audiences"
+msgstr "Rapport-doelgroepen"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Eight report audience templates: standard, parent monthly, internal coaches, player keepsake, scout, and three trial letters."
+msgstr "Acht rapporttemplates: standaard, maandelijks oudersverslag, interne coaches, speler-herinnering, scout, en drie proefperiode-brieven."

@@ -179,6 +179,10 @@ class FrontendConfigurationView extends FrontendViewBase {
             // Most-seen vocabulary across the dashboard; pilot has asked
             // about Dutch translations specifically.
             [ __( 'Task statuses', 'talenttrack' ), __( 'Open / in progress / completed / overdue / skipped / cancelled — workflow task statuses.', 'talenttrack' ), 'task_statuses', 'kanban' ],
+            // v3.110.210 (#803/#844) — eight report audience types
+            // (standard / parent monthly / internal coaches / player
+            // keepsake / scout + three trial letters).
+            [ __( 'Report audiences', 'talenttrack' ), __( 'Eight report audience templates: standard, parent monthly, internal coaches, player keepsake, scout, and three trial letters.', 'talenttrack' ), 'audience_types', 'reports' ],
             [ __( 'Rating scale',       'talenttrack' ), __( 'Min, max and step for evaluation ratings.',                         'talenttrack' ), '__rating',        'weights' ],
         ];
 
@@ -257,6 +261,12 @@ class FrontendConfigurationView extends FrontendViewBase {
             // on task lists; show_desc=false (status names are
             // self-explanatory).
             'task_statuses'           => [ 'label' => __( 'Task statuses',          'talenttrack' ), 'type' => 'task_status',            'show_desc' => false, 'show_color' => true ],
+            // v3.110.210 (#803/#844) — eight report audience types. The
+            // description column carries the operator-facing gloss for
+            // each audience ("warm parent-monthly summary…"), so
+            // show_desc=true. show_color=false; audiences aren't pilled
+            // anywhere with a colour.
+            'audience_types'          => [ 'label' => __( 'Report audiences',       'talenttrack' ), 'type' => 'audience_type',          'show_desc' => true,  'show_color' => false ],
         ];
         if ( ! isset( $registry[ $slug ] ) ) return null;
         $meta = $registry[ $slug ];

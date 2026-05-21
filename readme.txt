@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.209
+Stable tag: 3.110.210
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.210 — AudienceType moves to `tt_lookups` + `tt_translations`: the eight report audience templates (standard / parent monthly / internal coaches / player keepsake / scout + three trial letters) are now operator-editable per academy and translatable per locale through the frontend Lookups admin. Stored keys (the `AudienceType::*` PHP constants) stay sacred — they remain the contract with `tt_reports.audience_type`. `AudienceType::label()` and `AudienceType::describe()` now both delegate to `LookupTranslator` (a new `LookupTranslator::descriptionByTypeAndName()` sibling helper resolves the description column the same way `byTypeAndName()` resolves the label) with switch fallbacks for pre-migration installs. New "Report audiences" tile on the Lookups admin grid (show_desc=true because each audience has a distinct purpose worth glossing); migration 0114 seeds 8 lookup rows + 40 `tt_translations` rows for the labels + 32 `tt_translations` rows for the descriptions (8 × 4 non-English locales). Fifth conversion from the #803 audit punch list. (closes #844, #803 partial) =
 
 = 3.110.209 — TaskStatus moves to `tt_lookups` + `tt_translations`: the six workflow task statuses (open / in_progress / completed / overdue / skipped / cancelled) are now operator-editable per academy and translatable per locale through the frontend Lookups admin. Most-seen vocabulary across the dashboard; pilot has asked specifically about Dutch translations for these. Stored keys (the `TaskStatus::*` PHP constants) stay sacred — they remain the contract with `tt_workflow_tasks.status`. New `TaskStatus::label()` delegates to `LookupTranslator::byTypeAndName()` with a switch fallback for pre-migration installs; `FrontendTaskDetailView` now calls it instead of its inline `__()` map (which silently dropped `skipped` from the map — the new path renders all six statuses correctly). New "Task statuses" tile on the Lookups admin grid (show_color=true so academies can colour-code the status pills); migration 0113 seeds 6 lookup rows + 30 `tt_translations` rows (6 × 5 locales). Fourth conversion from the #803 audit punch list. (closes #839, #803 partial) =
 

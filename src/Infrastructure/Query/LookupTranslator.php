@@ -96,16 +96,9 @@ class LookupTranslator {
      * same page load share one `get_lookups()` query per lookup type.
      */
     public static function byTypeAndName( string $type, string $stored_name ): string {
-        if ( $stored_name === '' ) return '';
-        static $cache = [];
-        if ( ! isset( $cache[ $type ] ) ) {
-            $cache[ $type ] = [];
-            foreach ( QueryHelpers::get_lookups( $type ) as $row ) {
-                $cache[ $type ][ (string) $row->name ] = $row;
-            }
-        }
-        $row = $cache[ $type ][ $stored_name ] ?? null;
+        $row = self::rowByTypeAndName( $type, $stored_name );
         if ( $row === null ) {
+            if ( $stored_name === '' ) return '';
             // Stored value doesn't match any current lookup row —
             // probably renamed. Best-effort: hand it to __() so the
             // .po can still translate seeded values.
@@ -113,6 +106,33 @@ class LookupTranslator {
             return (string) __( $stored_name, 'talenttrack' );
         }
         return self::name( $row );
+    }
+
+    /**
+     * v3.110.210 (#844) — sibling of `byTypeAndName()` that returns the
+     * description translation for the matching lookup row. Empty string
+     * when the row doesn't exist or carries no description.
+     */
+    public static function descriptionByTypeAndName( string $type, string $stored_name ): string {
+        $row = self::rowByTypeAndName( $type, $stored_name );
+        if ( $row === null ) return '';
+        return self::description( $row );
+    }
+
+    /**
+     * Shared row lookup for `byTypeAndName()` + `descriptionByTypeAndName()`.
+     * Cached per-request via the same shape `byTypeAndName()` used inline.
+     */
+    private static function rowByTypeAndName( string $type, string $stored_name ): ?object {
+        if ( $stored_name === '' ) return null;
+        static $cache = [];
+        if ( ! isset( $cache[ $type ] ) ) {
+            $cache[ $type ] = [];
+            foreach ( QueryHelpers::get_lookups( $type ) as $row ) {
+                $cache[ $type ][ (string) $row->name ] = $row;
+            }
+        }
+        return $cache[ $type ][ $stored_name ] ?? null;
     }
 
     /**

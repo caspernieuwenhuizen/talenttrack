@@ -61,7 +61,18 @@ final class AudienceType {
         return in_array( $value, self::all(), true );
     }
 
+    /**
+     * Operator-editable label for a stored audience value. Resolves
+     * through `tt_translations` via `LookupTranslator::byTypeAndName(
+     * 'audience_type', $value)`; pre-migration installs fall back to
+     * the canonical English label.
+     */
     public static function label( string $value ): string {
+        if ( $value === '' ) return '';
+        if ( class_exists( '\\TT\\Infrastructure\\Query\\LookupTranslator' ) ) {
+            $label = \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'audience_type', $value );
+            if ( $label !== '' && $label !== $value ) return $label;
+        }
         switch ( $value ) {
             case self::STANDARD:          return __( 'Standard', 'talenttrack' );
             case self::PARENT_MONTHLY:    return __( 'Parent (monthly summary)', 'talenttrack' );
@@ -75,7 +86,16 @@ final class AudienceType {
         }
     }
 
+    /**
+     * Operator-editable description. Resolves through
+     * `LookupTranslator::descriptionByTypeAndName()`; pre-migration
+     * installs fall back to the canonical English description.
+     */
     public static function describe( string $value ): string {
+        if ( class_exists( '\\TT\\Infrastructure\\Query\\LookupTranslator' ) ) {
+            $desc = \TT\Infrastructure\Query\LookupTranslator::descriptionByTypeAndName( 'audience_type', $value );
+            if ( $desc !== '' ) return $desc;
+        }
         switch ( $value ) {
             case self::STANDARD:
                 return __( 'The familiar A4 report — rate card, headline numbers, breakdown, charts. Same as before.', 'talenttrack' );
