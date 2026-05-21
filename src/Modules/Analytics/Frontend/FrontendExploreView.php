@@ -96,6 +96,14 @@ class FrontendExploreView extends FrontendViewBase {
         // Headline value — measure aggregated over the filtered rows.
         $rows = FactQuery::run( $kpi->factKey, [], [ $kpi->measureKey ], $filters );
         $headline = empty( $rows ) ? null : ( $rows[0]->{ $kpi->measureKey } ?? null );
+
+        // #873 — time-series chart between the headline and the filter row.
+        // Gated on the KPI declaring a `primaryDimension`; KPIs without one
+        // (a snapshot value with no temporal axis) skip the chart entirely.
+        if ( $kpi->primaryDimension !== null && $kpi->primaryDimension !== ''
+             && $fact->dimension( $kpi->primaryDimension ) !== null ) {
+            self::renderTimeSeriesChart( $kpi, $fact, $filters, $group_by );
+        }
         echo '<div style="margin:24px 0; padding:16px 20px; background:#fafafa; border:1px solid #ddd; max-width:760px;">';
         echo '<div style="font-size:13px; color:#5b6e75; margin-bottom:6px;">' . esc_html__( 'Headline', 'talenttrack' ) . '</div>';
         echo '<div style="font-size:36px; font-weight:600; line-height:1;">' . esc_html( self::formatHeadline( $kpi, $headline ) ) . '</div>';
@@ -165,10 +173,180 @@ class FrontendExploreView extends FrontendViewBase {
         }
 
         echo '<div style="margin-top:32px; padding:12px 16px; background:#f0f6fc; border-left:4px solid #2271b1; max-width:760px; font-size:13px; color:#5b6e75;">'
-            . esc_html__( 'The dimension explorer is the first ship of #0083 Child 3. Time-series chart, drilldown to fact rows, and PDF export ship in follow-ups.', 'talenttrack' )
+            . esc_html__( 'The dimension explorer ships in slices under #0083 Child 3. Drilldown to fact rows and PDF export ship in follow-ups.', 'talenttrack' )
             . '</div>';
 
         echo '</div>';
+    }
+
+    /**
+     * #873 — render the time-series Chart.js canvas + init script.
+     *
+     * When `$group_by` is set, runs a 2-dimension query keyed by
+     * `[primaryDimension, group_by]` so each group becomes a series.
+     * Caps at 6 series; the tail is rolled into "Other" so the legend
+     * stays legible. When `$group_by` is empty, a single series.
+     */
+    private static function renderTimeSeriesChart( Kpi $kpi, $fact, array $filters, string $group_by ): void {
+        $primary = (string) $kpi->primaryDimension;
+
+        $is_grouped = $group_by !== '' && $fact->dimension( $group_by ) !== null && $group_by !== $primary;
+        $dims = $is_grouped ? [ $primary, $group_by ] : [ $primary ];
+        $rows = FactQuery::run( $kpi->factKey, $dims, [ $kpi->measureKey ], $filters );
+
+        if ( empty( $rows ) ) {
+            echo '<div class="tt-empty" style="margin:0 0 16px; padding:16px 20px; background:#fff; border:1px dashed #ddd; max-width:760px; color:#5b6e75; font-size:13px;">'
+                . esc_html__( 'No data points for the current filters. Adjust filters or pick another date range.', 'talenttrack' )
+                . '</div>';
+            return;
+        }
+
+        // Collect distinct bucket labels in chronological order, plus
+        // per-series points keyed by group label.
+        $buckets  = [];
+        $series   = []; // group_label => [ bucket_label => value ]
+        $primary_dim = $fact->dimension( $primary );
+        $group_dim   = $is_grouped ? $fact->dimension( $group_by ) : null;
+
+        foreach ( $rows as $r ) {
+            $bucket_raw = $r->{ $primary } ?? null;
+            if ( $bucket_raw === null ) continue;
+            $bucket_label = (string) DimensionValueResolver::resolve( $primary_dim, $bucket_raw );
+            $buckets[ $bucket_label ] = true;
+
+            $group_label = $is_grouped
+                ? (string) DimensionValueResolver::resolve( $group_dim, $r->{ $group_by } ?? null )
+                : (string) $kpi->label;
+            $value = $r->{ $kpi->measureKey } ?? null;
+            if ( $value === null ) continue;
+            $series[ $group_label ][ $bucket_label ] = (float) $value;
+        }
+
+        if ( empty( $buckets ) || empty( $series ) ) {
+            echo '<div class="tt-empty" style="margin:0 0 16px; padding:16px 20px; background:#fff; border:1px dashed #ddd; max-width:760px; color:#5b6e75; font-size:13px;">'
+                . esc_html__( 'No data points for the current filters. Adjust filters or pick another date range.', 'talenttrack' )
+                . '</div>';
+            return;
+        }
+
+        $bucket_labels = array_keys( $buckets );
+        sort( $bucket_labels, SORT_STRING ); // chronological by lexical key (Y-m or Y-m-d sorts naturally).
+
+        // Cap series at 6 — roll the remainder into "Other".
+        $MAX_SERIES = 6;
+        if ( count( $series ) > $MAX_SERIES ) {
+            // Sum each series across all buckets and keep the top N-1
+            // by total; collapse the rest into "Other".
+            $totals = [];
+            foreach ( $series as $label => $points ) {
+                $totals[ $label ] = array_sum( $points );
+            }
+            arsort( $totals, SORT_NUMERIC );
+            $keep   = array_slice( array_keys( $totals ), 0, $MAX_SERIES - 1 );
+            $other  = [];
+            foreach ( $series as $label => $points ) {
+                if ( in_array( $label, $keep, true ) ) continue;
+                foreach ( $points as $b => $v ) {
+                    $other[ $b ] = ( $other[ $b ] ?? 0.0 ) + (float) $v;
+                }
+            }
+            $kept = [];
+            foreach ( $keep as $label ) {
+                $kept[ $label ] = $series[ $label ];
+            }
+            $kept[ __( 'Other', 'talenttrack' ) ] = $other;
+            $series = $kept;
+        }
+
+        // Materialise series into Chart.js dataset shape — fill missing
+        // bucket points with null so the line breaks rather than zero-
+        // dipping.
+        $datasets = [];
+        $palette  = [
+            '#0b3d2e', '#2271b1', '#b32d2e', '#d97706', '#7e22ce',
+            '#0891b2', '#65a30d', '#be185d',
+        ];
+        $i = 0;
+        foreach ( $series as $label => $points ) {
+            $data = [];
+            foreach ( $bucket_labels as $b ) {
+                $data[] = isset( $points[ $b ] ) ? $points[ $b ] : null;
+            }
+            $color = $palette[ $i % count( $palette ) ];
+            $datasets[] = [
+                'label'           => $label,
+                'data'            => $data,
+                'borderColor'     => $color,
+                'backgroundColor' => $color,
+                'tension'         => 0.2,
+                'pointRadius'     => 3,
+                'spanGaps'        => true,
+            ];
+            $i++;
+        }
+
+        // Enqueue Chart.js — mirrors the FrontendComparisonView pattern.
+        wp_enqueue_script(
+            'tt-chartjs',
+            'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
+            [],
+            '4.4.0',
+            true
+        );
+
+        $cfg = [
+            'type' => 'line',
+            'data' => [
+                'labels'   => $bucket_labels,
+                'datasets' => $datasets,
+            ],
+            'options' => [
+                'responsive'          => true,
+                'maintainAspectRatio' => false,
+                'plugins'             => [
+                    'legend' => [ 'display' => count( $datasets ) > 1 ],
+                ],
+                'scales' => [
+                    'y' => [ 'beginAtZero' => true ],
+                ],
+            ],
+        ];
+
+        $canvas_id = 'tt-explore-chart-' . wp_generate_uuid4();
+        ?>
+        <div style="margin:0 0 16px; padding:12px 16px; background:#fff; border:1px solid #ddd; max-width:760px;">
+            <div style="font-size:12px; color:#5b6e75; margin-bottom:6px;">
+                <?php esc_html_e( 'Time series', 'talenttrack' ); ?>
+            </div>
+            <div style="position:relative; height:260px;">
+                <canvas id="<?php echo esc_attr( $canvas_id ); ?>" data-tt-chart="explorer-timeseries"></canvas>
+            </div>
+        </div>
+        <script type="application/json" id="<?php echo esc_attr( $canvas_id . '-cfg' ); ?>"><?php echo wp_json_encode( $cfg ); ?></script>
+        <script>
+        (function () {
+            'use strict';
+            function init() {
+                if ( typeof window.Chart === 'undefined' ) {
+                    setTimeout( init, 50 );
+                    return;
+                }
+                var cfgEl = document.getElementById('<?php echo esc_js( $canvas_id . '-cfg' ); ?>');
+                var canvas = document.getElementById('<?php echo esc_js( $canvas_id ); ?>');
+                if ( ! cfgEl || ! canvas ) return;
+                try {
+                    var cfg = JSON.parse(cfgEl.textContent || '{}');
+                    new window.Chart(canvas.getContext('2d'), cfg);
+                } catch (e) { /* swallow — empty chart is acceptable failure mode */ }
+            }
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+        }());
+        </script>
+        <?php
     }
 
     /**
