@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.1.4
+Stable tag: 4.1.5
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.1.5 — Analytics explorer — drilldown to fact rows (closes #874). Second of three follow-up ships under #0083 Child 3. When the user picks no group-by, the explorer now renders a paginated table of the underlying fact rows below the chart — the same data the chart visualises, in row form. Columns are the fact's declared dimensions, FK values resolved to labels via `DimensionValueResolver` (player names, not IDs). Each row links to its natural entity detail page derived from `Fact::entityScope` (`player` → players list, `team` → teams, `activity` → activities). 50 rows per page; pager via `&page=N` carrying every other current query param so the page deep-links the same way the chart does. Capped at the 5,000-row outer limit `FactQuery::run()` enforces. Two new methods on `FactQuery`: `rows()` and `countRows()` — both reuse the existing `applyFilters` / tenancy / time-column-join semantics from `execute()`, just without aggregation. Empty state shows a `.tt-empty` panel instead of an empty table. Placeholder text updated to drop "drilldown to fact rows" from the remaining-follow-ups list (PDF export still to ship via #875). (closes #874) =
 
 = 4.1.4 — Analytics explorer — time-series chart (closes #873). First of three follow-up ships under #0083 Child 3 (after the dimension explorer's initial ship). `FrontendExploreView` now renders a Chart.js line chart between the headline number and the filter row, for any KPI declaring a `primaryDimension`. Powered by `FactQuery::run($factKey, [$primaryDimension], [$measureKey], $filters)` — the same engine the headline + group-by table already use, just with an additional dimension to bucket by (typically `month` or `week`). **Ungrouped path**: single line. **Grouped path** (when the user picks a `group_by`): one line per group, capped at 6 series; the tail rolls into "Other" so the legend stays legible. Series totals drive the cap selection. Missing bucket points render as `null` with `spanGaps: true` so a line breaks rather than zero-dipping through a gap month. **Empty-data**: when the query returns zero buckets, a `.tt-empty` panel renders in place of an empty canvas. **URL state**: no new query params — the existing `?kpi=…&filter_…=…&group_by=…` URL fully describes the chart. **Chart library**: reuses Chart.js 4.4.0 from CDN, the same script `FrontendComparisonView` already enqueues; the explorer enqueues it on demand via `wp_enqueue_script`. No new dependency. Placeholder text updated to drop "time-series chart" from the remaining-follow-ups list (drilldown + PDF still to ship via #874, #875). (closes #873) =
 

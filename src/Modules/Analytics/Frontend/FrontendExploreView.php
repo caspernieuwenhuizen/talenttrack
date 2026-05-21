@@ -168,12 +168,14 @@ class FrontendExploreView extends FrontendViewBase {
             self::renderGroupByTable( $kpi, $fact, $group_by, $grouped_rows );
         } else {
             echo '<p style="color:#5b6e75; font-size:13px;">'
-                . esc_html__( 'Pick a dimension above to break the headline down by groups.', 'talenttrack' )
+                . esc_html__( 'Pick a dimension above to break the headline down by groups, or browse the underlying rows below.', 'talenttrack' )
                 . '</p>';
+            // #874 — drilldown to fact rows. Renders only when ungrouped.
+            self::renderDrilldownTable( $kpi, $fact, $filters );
         }
 
         echo '<div style="margin-top:32px; padding:12px 16px; background:#f0f6fc; border-left:4px solid #2271b1; max-width:760px; font-size:13px; color:#5b6e75;">'
-            . esc_html__( 'The dimension explorer ships in slices under #0083 Child 3. Drilldown to fact rows and PDF export ship in follow-ups.', 'talenttrack' )
+            . esc_html__( 'The dimension explorer ships in slices under #0083 Child 3. PDF export ships in a follow-up.', 'talenttrack' )
             . '</div>';
 
         echo '</div>';
@@ -532,5 +534,109 @@ class FrontendExploreView extends FrontendViewBase {
         // Default: integers as-is, decimals to one place.
         if ( fmod( $num, 1.0 ) === 0.0 ) return number_format_i18n( $num, 0 );
         return number_format_i18n( $num, 1 );
+    }
+
+    /**
+     * #874 — drilldown table. Renders below the chart when the user
+     * picks no group-by. Iterates the fact's dimensions as columns,
+     * resolves FK values via `DimensionValueResolver`. Pager via
+     * `&page=N` (50 rows per page). Row link routes to the natural
+     * entity detail page derived from `Fact::entityScope`.
+     */
+    private static function renderDrilldownTable( Kpi $kpi, $fact, array $filters ): void {
+        $per_page = 50;
+        $page = isset( $_GET['page'] ) ? max( 1, (int) $_GET['page'] ) : 1;
+        $offset = ( $page - 1 ) * $per_page;
+
+        $total = FactQuery::countRows( $kpi->factKey, $filters );
+        $rows  = FactQuery::rows( $kpi->factKey, $filters, $per_page, $offset );
+
+        if ( $total === 0 ) {
+            echo '<div class="tt-empty" style="margin:8px 0 0; padding:16px 20px; background:#fff; border:1px dashed #ddd; max-width:760px; color:#5b6e75; font-size:13px;">'
+                . esc_html__( 'No fact rows match the current filters.', 'talenttrack' )
+                . '</div>';
+            return;
+        }
+
+        $dims = $fact->dimensions;
+
+        // Build the entity-detail URL template for the row link. We
+        // map entityScope to the slug + the dimension key that carries
+        // the entity id on each row. Fall through gracefully when the
+        // mapping doesn't resolve — the row just won't be linked.
+        $scope_map = [
+            'player'   => [ 'slug' => 'players',    'id_key' => 'player_id' ],
+            'team'     => [ 'slug' => 'teams',      'id_key' => 'team_id' ],
+            'activity' => [ 'slug' => 'activities', 'id_key' => 'activity_id' ],
+        ];
+        $link_target = $scope_map[ (string) $fact->entityScope ] ?? null;
+
+        echo '<div style="overflow-x:auto; margin-top:8px;">';
+        echo '<table class="widefat striped" style="min-width:760px;">';
+        echo '<thead><tr>';
+        foreach ( $dims as $d ) {
+            echo '<th>' . esc_html( $d->label ) . '</th>';
+        }
+        if ( $link_target !== null ) {
+            echo '<th></th>';
+        }
+        echo '</tr></thead><tbody>';
+
+        foreach ( $rows as $r ) {
+            echo '<tr>';
+            foreach ( $dims as $d ) {
+                $raw = $r->{ $d->key } ?? null;
+                $label = DimensionValueResolver::resolve( $d, $raw );
+                echo '<td>' . esc_html( (string) $label ) . '</td>';
+            }
+            if ( $link_target !== null ) {
+                $entity_id = (int) ( $r->{ $link_target['id_key'] } ?? 0 );
+                if ( $entity_id > 0 ) {
+                    $url = \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack(
+                        $link_target['slug'],
+                        $entity_id
+                    );
+                    echo '<td><a class="tt-record-link" href="' . esc_url( $url ) . '">' . esc_html__( 'Open', 'talenttrack' ) . '</a></td>';
+                } else {
+                    echo '<td></td>';
+                }
+            }
+            echo '</tr>';
+        }
+
+        echo '</tbody></table>';
+        echo '</div>';
+
+        // Pager — `&page=N`. Carries every other current query param so
+        // filters + KPI + group_by round-trip.
+        $total_pages = (int) ceil( $total / $per_page );
+        if ( $total_pages > 1 ) {
+            $current = $_GET ?? [];
+            $current['tt_view'] = 'explore';
+            unset( $current['page'] );
+            $prev_url = $page > 1 ? add_query_arg( array_merge( $current, [ 'page' => $page - 1 ] ) ) : '';
+            $next_url = $page < $total_pages ? add_query_arg( array_merge( $current, [ 'page' => $page + 1 ] ) ) : '';
+            echo '<p style="margin:8px 0 0; font-size:13px; color:#5b6e75;">';
+            if ( $prev_url !== '' ) {
+                echo '<a href="' . esc_url( $prev_url ) . '">' . esc_html__( '← Prev', 'talenttrack' ) . '</a> ';
+            }
+            printf(
+                /* translators: 1: current page, 2: total pages, 3: total rows */
+                esc_html__( 'Page %1$d of %2$d (%3$d rows)', 'talenttrack' ),
+                $page, $total_pages, $total
+            );
+            if ( $next_url !== '' ) {
+                echo ' <a href="' . esc_url( $next_url ) . '">' . esc_html__( 'Next →', 'talenttrack' ) . '</a>';
+            }
+            echo '</p>';
+        } else {
+            echo '<p style="margin:8px 0 0; font-size:13px; color:#5b6e75;">';
+            printf(
+                /* translators: %d: total row count */
+                esc_html__( 'Showing %d row(s).', 'talenttrack' ),
+                $total
+            );
+            echo '</p>';
+        }
     }
 }
