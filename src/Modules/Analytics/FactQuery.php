@@ -75,6 +75,36 @@ final class FactQuery {
     }
 
     /**
+     * #874 — drilldown rows. Selects raw fact rows (not aggregated)
+     * with every dimension expression aliased by its key. Same WHERE /
+     * tenancy / filter semantics as `run()`; respects the outer
+     * 5000-row outer cap. Each row carries `_id` (the fact's primary
+     * key) so detail links can be built downstream.
+     *
+     * @param array<string,mixed> $filters
+     * @return array<int, \stdClass>
+     */
+    public static function rows( string $factKey, array $filters = [], int $limit = 50, int $offset = 0 ): array {
+        $fact = FactRegistry::find( $factKey );
+        if ( $fact === null ) return [];
+        $limit  = max( 1, min( 5000, $limit ) );
+        $offset = max( 0, $offset );
+        return self::executeRows( $fact, $filters, $limit, $offset );
+    }
+
+    /**
+     * #874 — count of drilldown rows matching the filter set. Used by
+     * the pager. Capped at 5000.
+     *
+     * @param array<string,mixed> $filters
+     */
+    public static function countRows( string $factKey, array $filters = [] ): int {
+        $fact = FactRegistry::find( $factKey );
+        if ( $fact === null ) return 0;
+        return self::executeCount( $fact, $filters );
+    }
+
+    /**
      * Build + run the SQL. Pulled out of `run()` so the cache wrapper
      * stays small.
      *
@@ -146,6 +176,88 @@ final class FactQuery {
 
         $rows = $wpdb->get_results( $sql );
         return is_array( $rows ) ? $rows : [];
+    }
+
+    /**
+     * #874 — execute the raw-row SQL for drilldown. Builds a SELECT
+     * that aliases each dimension's expression by its key + emits
+     * `f.id AS _id` so links can be built downstream. Reuses
+     * `applyFilters()` for parity with `execute()`.
+     *
+     * @param array<string,mixed> $filters
+     * @return array<int, \stdClass>
+     */
+    private static function executeRows( Fact $fact, array $filters, int $limit, int $offset ): array {
+        global $wpdb;
+
+        $select_parts = [ $fact->tableAlias . '.id AS _id' ];
+        foreach ( $fact->dimensions as $dim ) {
+            $expr = self::dimensionExpression( $fact, $dim );
+            $select_parts[] = $expr . ' AS ' . self::ident( $dim->key );
+        }
+
+        $from = $wpdb->prefix . self::ident( $fact->tableName ) . ' AS ' . self::ident( $fact->tableAlias );
+        $tc   = $fact->timeColumn;
+        if ( $tc->joinedTable !== null && $tc->joinKey !== null ) {
+            $from .= ' LEFT JOIN ' . $wpdb->prefix . $tc->joinedTable
+                  . ' ON ' . $fact->tableAlias . '.' . self::ident( $tc->joinKey )
+                  . ' = ' . self::tableAliasFromJoin( $tc->joinedTable ) . '.id';
+        }
+
+        $params = [];
+        $where  = [ $fact->tableAlias . '.club_id = %d' ];
+        $params[] = CurrentClub::id();
+        $filter_sql = self::applyFilters( $fact, $filters, $params );
+        if ( $filter_sql !== '' ) {
+            $where[] = $filter_sql;
+        }
+
+        $order = $tc->expression !== '' ? $tc->expression . ' DESC, ' : '';
+        $order .= $fact->tableAlias . '.id DESC';
+
+        $sql = 'SELECT ' . implode( ', ', $select_parts )
+             . ' FROM ' . $from
+             . ' WHERE ' . implode( ' AND ', $where )
+             . ' ORDER BY ' . $order
+             . ' LIMIT %d OFFSET %d';
+
+        $params[] = $limit;
+        $params[] = $offset;
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        $rows = $wpdb->get_results( $wpdb->prepare( $sql, ...$params ) );
+        return is_array( $rows ) ? $rows : [];
+    }
+
+    /**
+     * #874 — count helper for the drilldown pager. Mirrors the WHERE
+     * clause `executeRows()` builds; respects the same outer cap.
+     *
+     * @param array<string,mixed> $filters
+     */
+    private static function executeCount( Fact $fact, array $filters ): int {
+        global $wpdb;
+
+        $from = $wpdb->prefix . self::ident( $fact->tableName ) . ' AS ' . self::ident( $fact->tableAlias );
+        $tc   = $fact->timeColumn;
+        if ( $tc->joinedTable !== null && $tc->joinKey !== null ) {
+            $from .= ' LEFT JOIN ' . $wpdb->prefix . $tc->joinedTable
+                  . ' ON ' . $fact->tableAlias . '.' . self::ident( $tc->joinKey )
+                  . ' = ' . self::tableAliasFromJoin( $tc->joinedTable ) . '.id';
+        }
+
+        $params = [];
+        $where  = [ $fact->tableAlias . '.club_id = %d' ];
+        $params[] = CurrentClub::id();
+        $filter_sql = self::applyFilters( $fact, $filters, $params );
+        if ( $filter_sql !== '' ) {
+            $where[] = $filter_sql;
+        }
+
+        $sql = 'SELECT COUNT(*) FROM ' . $from . ' WHERE ' . implode( ' AND ', $where );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        $total = (int) $wpdb->get_var( $wpdb->prepare( $sql, ...$params ) );
+        return min( $total, 5000 );
     }
 
     /**
