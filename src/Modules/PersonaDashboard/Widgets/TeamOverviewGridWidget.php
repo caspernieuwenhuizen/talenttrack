@@ -122,9 +122,13 @@ class TeamOverviewGridWidget extends AbstractWidget {
             $s->player_count
         );
 
+        // v4.0.4 (#857) — drill-down must use the `filter[team_id]`
+        // protocol that FrontendListTable consumes; raw `team_id` is
+        // silently dropped by PlayersRestController, so HoDs landed on
+        // the full club roster instead of the clicked team.
         $players_url = esc_url( add_query_arg( [
-            'tt_view'   => 'players',
-            'team_id'   => $s->team_id,
+            'tt_view'           => 'players',
+            'filter[team_id]'   => $s->team_id,
         ], $ctx->base_url ) );
 
         return '<article class="tt-pd-team-card" data-tt-team-id="' . (int) $s->team_id . '" data-tt-days="' . (int) $days . '">'

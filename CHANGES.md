@@ -1,53 +1,63 @@
-# TalentTrack v4.0.3 — v3.110.121 rating-scale-flip leftovers (closes #866)
+# TalentTrack v4.0.4 — HoD Team Overview widget: layout + drill-down filter bugs (closes #857)
 
-## Why
+## Pilot report
 
-v3.110.121 (commit `f7c5135`) flipped the global rating scale from 1-5 to the Dutch academic 5-10 scale. The release fixed ~15 surfaces; three more were missed and surfaced in the pilot audit on 2026-05-21. The calculation core is correct (it reads `rating_max` from `tt_config` and normalises); these three spots were hardcoded literals that bypassed config.
+Two distinct defects on the HoD dashboard's Team Overview widget:
 
-All three reproduce on every install with the new scale active.
+1. **Layout overrun**: expanding a team's player list inline bleeds below the widget into the next grid row, overlapping the widget underneath.
+2. **Drill-down scope drift**: clicking a team's "View all" link lands on the full club roster, not just that team's players.
 
-## Bugs fixed
+## Root causes
 
-### A — Behaviour floor unreachable
+### Defect 1 — widget height-locked while content grows
 
-`MethodologyResolver::shippedDefault()` carried `behaviour_floor_below = 3.0` (the 1-5 midpoint). Under 5-10 a behaviour avg below 3.0 is impossible, so `PlayerStatusCalculator`'s floor-veto never fired for fresh installs.
+`TeamOverviewGridWidget` lives in a grid cell with `row_span = 3`. The shared `.tt-pd-widget { height: 100% }` rule (`persona-dashboard.css:179`) locks the widget to the cell's calculated height. The inline-expand JS removes `hidden` from `.tt-pd-team-card-body`, the nested flex column grows vertically, and the outer widget container can't grow to match — content visually bleeds.
 
-Fix: read `rating_min` + `rating_max` from `tt_config` and use the midpoint. On the 5-10 scale that's 7.5; on a hypothetical revert to 1-5 it would be 3.0 (current behaviour preserved). The methodology config form (`FrontendPlayerStatusMethodologyView::extractConfig`) now clamps to the active range too. Help text reads "behaviour floor at the midpoint of the active rating scale" instead of the literal "3.0".
+Mobile at ≤480px sidesteps the issue because the flex-column stack at `persona-dashboard.css:126-130` doesn't use the grid constraint.
 
-### B — Pitch-fit colour thresholds hardcoded 4.0 / 3.0
+### Defect 2 — URL/filter protocol mismatch
 
-`PitchSvg` rendered `score >= 4.0` as no-class (= strong/green) and `score >= 3.0` as `tt-fit-mid`. Under 5-10 that's 40% of max showing as strong; weak fits looked good on the team-development pitch view.
+`TeamOverviewGridWidget` built the drill-down URL as `?tt_view=players&team_id={id}`. But `FrontendListTable::stateFromQuery()` consumes filters via `$_GET['filter'][...]`, and `PlayersRestController` accepts `filter[team_id]=N` not raw `team_id=N`. The raw param was silently dropped → no filter applied → full club roster.
 
-Fix: thresholds compute as `rating_max × 0.80` (strong) / `rating_max × 0.50` (mid). On 5-10 that's 8.0 / 5.0; on 1-5 it would be 4.0 / 2.5 (close to the original intent).
+## Fix
 
-### C — Team-fit panel hardcoded `/ 5`
+Two surgical edits:
 
-`PlayerTeamFitPanel` displayed scores as `7.8 / 5`. Numerator exceeded denominator — confusing to coaches.
+1. **CSS** — new rule in `assets/css/persona-dashboard.css` right after the team-card body block:
 
-Fix: denominator reads `tt_config.rating_max`. The panel now shows `7.8 / 10`.
+   ```css
+   .tt-pd-widget-team_overview_grid { height: auto; }
+   ```
+
+   Only this widget kind is affected. Other widgets that share the height-100% rule (DataTableWidget, MiniPlayerListWidget) don't use inline expand — they have their own internal scroll and stay unchanged.
+
+2. **Widget URL** — `TeamOverviewGridWidget::renderTeamCard()`:
+
+   - Was: `'team_id' => $s->team_id`
+   - Now: `'filter[team_id]' => $s->team_id`
+
+   Matches the existing filter protocol used by `FrontendListTable`. No changes needed to the destination view or REST controller.
 
 ## What this is NOT
 
-- Not a calculation bug. `PlayerStatusCalculator` reads `rating_max` correctly.
-- Not a migration regression. Migration 0095's data remap was correct.
-- Not a per-install data defect. Universal across installs on the new scale.
+- Not a matrix scope bug. The HoD's `players` scope is `global` by design — they're allowed to see all players. The drill-down's job is to scope to the *clicked team*, not the *HoD's responsibility area*.
+- Not a per-install data defect. Reproduces universally.
 
 ## Files touched
 
-- `src/Infrastructure/PlayerStatus/MethodologyResolver.php` — shipped default reads midpoint from config.
-- `src/Modules/Players/Frontend/FrontendPlayerStatusMethodologyView.php` — form clamps to active range; help text generic.
-- `src/Modules/TeamDevelopment/Frontend/PitchSvg.php` — thresholds as percentages of `rating_max`.
-- `src/Modules/TeamDevelopment/Frontend/PlayerTeamFitPanel.php` — denominator from config.
+- `src/Modules/PersonaDashboard/Widgets/TeamOverviewGridWidget.php` — URL fix.
+- `assets/css/persona-dashboard.css` — new `.tt-pd-widget-team_overview_grid { height: auto }` rule.
 - `talenttrack.php` + `readme.txt` + `CHANGES.md` — version bump.
 
-No migration. No schema change. No REST change. No translation change. Pure runtime-config reads.
+No migration. No schema. No translation. No REST contract change.
 
 ## How to test
 
-1. Set a player's behaviour average to 6.0 (below midpoint 7.5); their composite score is above the amber threshold; status should be downgraded green→amber via the floor veto. Pre-fix this was green.
-2. Open the team-development pitch view; players with fit scores in the 4.0–4.9 range should render in **red** (`tt-fit-low`). Pre-fix they rendered as strong/green.
-3. Open the team-fit panel for any player; denominator reads `/ 10`. Pre-fix it read `/ 5`.
+1. As an HoD: open the dashboard. Expand any team in the Team Overview widget. The widget grows to fit; no overlap with the row below.
+2. Click the team's "View all players" link. Land on `?tt_view=players&filter[team_id]=N`. Only that team's players in the list.
+3. Resize to 360px (mobile). Both behaviours still work — the stack layout doesn't need the override but doesn't regress.
+4. Sanity-check other widgets that share the height-100% rule (DataTableWidget, MiniPlayerListWidget): no visual change.
 
 ## Why patch (not minor)
 
-Three bug fixes, no new behaviour, no schema. Per the v4.0.0 SemVer rule: patch.
+Two bug fixes, no new behaviour. Per the v4.0.0 SemVer rule: patch.
