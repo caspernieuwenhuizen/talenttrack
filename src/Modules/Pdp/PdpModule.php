@@ -8,6 +8,7 @@ use TT\Core\ModuleInterface;
 use TT\Modules\Pdp\Admin\SeasonsPage;
 use TT\Modules\Pdp\Carryover\SeasonCarryover;
 use TT\Modules\Pdp\Print\PdpPrintRouter;
+use TT\Modules\Pdp\Rest\PdpBlocksRestController;
 use TT\Modules\Pdp\Rest\PdpConversationsRestController;
 use TT\Modules\Pdp\Rest\PdpFilesRestController;
 use TT\Modules\Pdp\Rest\PdpVerdictsRestController;
@@ -44,6 +45,7 @@ class PdpModule implements ModuleInterface {
         add_action( 'init', [ self::class, 'ensureCapabilities' ] );
 
         SeasonsRestController::init();
+        PdpBlocksRestController::init();
         PdpFilesRestController::init();
         PdpConversationsRestController::init();
         PdpVerdictsRestController::init();

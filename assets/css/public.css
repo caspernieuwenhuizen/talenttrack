@@ -669,6 +669,11 @@ body.tt-docs-drawer-open { overflow: hidden; }
 .tt-status-badge.tt-status-scheduled  { background: var(--tt-color-info, #2271b1); }
 .tt-status-badge.tt-status-in-progress,
 .tt-status-badge.tt-status-in_progress { background: var(--tt-color-warning, #c9a227); }
+/* v3.110.191 — PDP meeting states: "To be planned" (next actionable
+ * conversation) and "Future" (later, not-yet-actionable). Amber for
+ * action item; muted dashed chip for the silent future ones. */
+.tt-status-badge.tt-status-to-be-planned { background: var(--tt-color-warning, #c9a227); color: #fff; }
+.tt-status-badge.tt-status-future { background: transparent; color: var(--tt-muted, #6b6f76); border: 1px dashed var(--tt-line, #d6d7da); font-weight: 500; letter-spacing: 0; text-transform: none; padding: 2px 8px; }
 /* PDP "You acknowledged" / "Coach signed off" notices on the conversation
  * cards. Was an inline `style="color:#2c8a2c"` — semantic class lets the
  * Theme & fonts surface re-theme it via `--tt-color-success`. */
