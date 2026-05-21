@@ -31704,3 +31704,112 @@ msgstr "Statussen van geplande rapporten"
 #: src/Shared/Frontend/FrontendConfigurationView.php
 msgid "Active / paused / archived — scheduled report lifecycle."
 msgstr "Actief / gepauzeerd / gearchiveerd — levenscyclus van een gepland rapport."
+
+#: src/Modules/MatchPrep/Wizards/MatchPrepWizard.php
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Plan match prep"
+msgstr "Wedstrijdvoorbereiding plannen"
+
+#: src/Modules/MatchPrep/Wizards/AvailabilityStep.php
+msgid "Availability"
+msgstr "Beschikbaarheid"
+
+#: src/Modules/MatchPrep/Wizards/AvailabilityStep.php
+msgid "Mark who can play. Everyone starts as Present; only flag exceptions."
+msgstr "Markeer wie kan spelen. Iedereen begint als Aanwezig; markeer alleen uitzonderingen."
+
+#: src/Modules/MatchPrep/Wizards/AvailabilityStep.php
+msgid "Optional reason"
+msgstr "Optionele reden"
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php
+msgid "Match prep"
+msgstr "Wedstrijdvoorbereiding"
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php
+msgid "Match prep is restricted to coaches and admins."
+msgstr "Wedstrijdvoorbereiding is alleen toegankelijk voor coaches en beheerders."
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php
+msgid "Match prep is only available for match-type activities."
+msgstr "Wedstrijdvoorbereiding is alleen beschikbaar voor wedstrijden."
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php
+msgid "Manage availability"
+msgstr "Beschikbaarheid beheren"
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php
+msgid "Formation"
+msgstr "Opstelling"
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php
+msgid "Half length (min)"
+msgstr "Helftduur (min)"
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php
+msgid "1e half"
+msgstr "1e helft"
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php
+msgid "2e half"
+msgstr "2e helft"
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php
+msgid "Slot · Player"
+msgstr "Plek · Speler"
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php
+msgid "Attention"
+msgstr "Aandacht"
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php
+msgid "Specific goal"
+msgstr "Specifiek doel"
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php
+msgid "Video analyst appointed"
+msgstr "Video-analist aangewezen"
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php
+msgid "→ Copy 1e to 2e"
+msgstr "→ Kopieer 1e naar 2e"
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php
+msgid "Match goals"
+msgstr "Wedstrijddoelen"
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php
+msgid "Attacking"
+msgstr "Aanvallen"
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php
+msgid "Defending"
+msgstr "Verdedigen"
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php
+msgid "Set pieces (attack)"
+msgstr "Spelhervatting (aanval)"
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php
+msgid "Set pieces (defend)"
+msgstr "Spelhervatting (verdediging)"
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php
+msgid "📄 Open print-ready PDF"
+msgstr "📄 Print-versie openen (PDF)"
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php
+msgid "Save match prep"
+msgstr "Voorbereiding opslaan"
+
+#: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php
+msgid "Match preparation (PDF)"
+msgstr "Wedstrijdvoorbereiding (PDF)"
+
+#: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php
+msgid "Per-player goals + attention"
+msgstr "Doelen + aandachtspunten per speler"
+
+#: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php
+msgid "Unavailable"
+msgstr "Niet beschikbaar"

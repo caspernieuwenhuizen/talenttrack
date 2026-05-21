@@ -102,4 +102,8 @@ return [
     // capability grant. Subsequent chunks add REST + views + wizard
     // + planner grid + minutes ticker + auto-balance.
     TT\Modules\Tournaments\TournamentsModule::class              => true,
+    // #838 — Match preparation. Head coach surface introduced in
+    // v3.110.214 (migration 0118): wizard pre-step + per-match form +
+    // landscape PDF export.
+    TT\Modules\MatchPrep\MatchPrepModule::class                  => true,
 ];

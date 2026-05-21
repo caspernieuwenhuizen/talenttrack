@@ -135,6 +135,24 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                     'primary' => true,
                     'icon'    => '✎',
                 ];
+                // v3.110.214 (#838) — match preparation surface.
+                // Only on match-type activities; jumps to the wizard if
+                // no prep row exists, or directly to the form when it
+                // does (FrontendMatchPrepView handles the redirect).
+                $type_key = strtolower( (string) ( $session->activity_type_key ?? '' ) );
+                if ( in_array( $type_key, [ 'match', 'game' ], true ) && current_user_can( 'tt_edit_activities' ) ) {
+                    $prep_url = add_query_arg(
+                        [
+                            'tt_view'     => 'match-prep',
+                            'activity_id' => (int) $session->id,
+                        ],
+                        \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+                    );
+                    $detail_actions[] = [
+                        'label' => __( 'Plan match prep', 'talenttrack' ),
+                        'href'  => $prep_url,
+                    ];
+                }
                 // v3.110.97 — Continue rating. Only on completed
                 // activities (attendance + rating only make sense
                 // after the session happened). Cap-gated on the
