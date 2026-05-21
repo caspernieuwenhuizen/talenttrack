@@ -183,6 +183,9 @@ class FrontendConfigurationView extends FrontendViewBase {
             // (standard / parent monthly / internal coaches / player
             // keepsake / scout + three trial letters).
             [ __( 'Report audiences', 'talenttrack' ), __( 'Eight report audience templates: standard, parent monthly, internal coaches, player keepsake, scout, and three trial letters.', 'talenttrack' ), 'audience_types', 'reports' ],
+            // v3.110.211 (#803/#840) — nine internal idea statuses
+            // (#0009 ideas board).
+            [ __( 'Idea statuses', 'talenttrack' ), __( 'Submitted / refining / ready for approval / rejected / promoting / accepted / promotion failed / in progress / done — ideas-board status vocabulary.', 'talenttrack' ), 'idea_statuses', 'lightbulb' ],
             [ __( 'Rating scale',       'talenttrack' ), __( 'Min, max and step for evaluation ratings.',                         'talenttrack' ), '__rating',        'weights' ],
         ];
 
@@ -267,6 +270,12 @@ class FrontendConfigurationView extends FrontendViewBase {
             // show_desc=true. show_color=false; audiences aren't pilled
             // anywhere with a colour.
             'audience_types'          => [ 'label' => __( 'Report audiences',       'talenttrack' ), 'type' => 'audience_type',          'show_desc' => true,  'show_color' => false ],
+            // v3.110.211 (#803/#840) — nine internal idea statuses. The
+            // transient `promoting` / `promotion-failed` states surface
+            // in the admin board; operators may want to relabel.
+            // show_color=true so the kanban columns get colour-coded
+            // pills; show_desc=false (status names self-explanatory).
+            'idea_statuses'           => [ 'label' => __( 'Idea statuses',          'talenttrack' ), 'type' => 'idea_status',            'show_desc' => false, 'show_color' => true  ],
         ];
         if ( ! isset( $registry[ $slug ] ) ) return null;
         $meta = $registry[ $slug ];
