@@ -325,15 +325,20 @@ class PdpPrintRouter {
 
     /**
      * v3.110.192 (#804) — translate the PDP verdict decision enum.
+     * v3.110.208 (#843) — delegate to PdpVerdictsRepository::label()
+     * which routes through LookupTranslator. Legacy `review` / `pending`
+     * codes that appear on historical rows still get a sensible label
+     * via the local switch below (they're not in ALLOWED_DECISIONS so
+     * they can't be entered via the verdict form, but old database rows
+     * may carry them).
      */
     private static function pdpVerdictDecisionLabel( string $code ): string {
-        switch ( strtolower( $code ) ) {
-            case 'retain':  return __( 'Retain',  'talenttrack' );
-            case 'promote': return __( 'Promote', 'talenttrack' );
-            case 'release': return __( 'Release', 'talenttrack' );
+        $code = strtolower( $code );
+        switch ( $code ) {
             case 'review':  return __( 'Review',  'talenttrack' );
             case 'pending': return __( 'Pending', 'talenttrack' );
         }
-        return ucfirst( $code );
+        $label = \TT\Modules\Pdp\Repositories\PdpVerdictsRepository::label( $code );
+        return $label !== '' ? $label : ucfirst( $code );
     }
 }

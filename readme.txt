@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 3.110.207
+Stable tag: 3.110.208
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 3.110.208 — PdpVerdicts decisions move to `tt_lookups` + `tt_translations`: the four end-of-season verdict decisions (promote / retain / release / transfer) shown as radios on the verdict form, as a pill on the player profile, and on the PDP print page are now operator-editable per academy and translatable per locale through the frontend Lookups admin. Stored values (`PdpVerdictsRepository::ALLOWED_DECISIONS`) stay sacred — they remain the contract with `tt_pdp_verdicts.decision`. New `PdpVerdictsRepository::label()` delegates to `LookupTranslator::byTypeAndName()` with a switch fallback for pre-migration installs; `FrontendPdpManageView::decisionLabel` and `PdpPrintRouter::pdpVerdictDecisionLabel` now both delegate to it. Legacy `review` / `pending` codes that appear on historical rows still get sensible labels via PdpPrintRouter's local switch above the delegate. New "PDP verdict decisions" tile on the Lookups admin grid (show_desc=true, show_color=true because the verdict pill is colour-coded on the player profile); migration 0112 seeds 4 lookup rows + 20 `tt_translations` rows (4 × 5 locales). Third conversion from the #803 audit punch list. (closes #843, #803 partial) =
 
 = 3.110.207 — GoalApprovalForm decisions move to `tt_lookups` + `tt_translations`: the three approval decisions (approve / amend / reject) shown as radios on the coach's goal-approval task are now operator-editable per academy and translatable per locale through the frontend Lookups admin. Stored keys (`approve`, `amend`, `reject`) stay sacred — they remain `GoalApprovalForm::DECISION_*` PHP constants and the `tt_workflow_tasks.response_json` contract is unchanged. New `GoalApprovalForm::label()` delegates to `LookupTranslator::byTypeAndName()` with a switch-statement fallback for pre-migration installs; the render method calls it instead of the previous inline `__()` array. New "Goal approval decisions" tile on the Lookups admin grid; migration 0111 seeds 3 lookup rows + 15 `tt_translations` rows (3 × 5 locales). Second conversion from the #803 audit punch list. (closes #841, #803 partial) =
 

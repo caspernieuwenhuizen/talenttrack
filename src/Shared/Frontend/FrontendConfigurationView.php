@@ -169,6 +169,11 @@ class FrontendConfigurationView extends FrontendViewBase {
             // amend / reject) move from hardcoded labels in GoalApprovalForm
             // into tt_lookups. Stored keys stay code-side.
             [ __( 'Goal approval decisions', 'talenttrack' ), __( 'Approve / approve with amendment / reject — the three buttons on the goal-approval task.', 'talenttrack' ), 'goal_approval_decisions', 'approval' ],
+            // v3.110.208 (#803/#843) — PDP verdict decisions (promote /
+            // retain / release / transfer) move from hardcoded labels
+            // into tt_lookups. show_color on because the verdict pills
+            // are colour-coded on the player profile.
+            [ __( 'PDP verdict decisions', 'talenttrack' ), __( 'Promote / retain / release / transfer — the four end-of-season verdict outcomes on a PDP file.', 'talenttrack' ), 'pdp_verdict_decisions', 'podium' ],
             [ __( 'Rating scale',       'talenttrack' ), __( 'Min, max and step for evaluation ratings.',                         'talenttrack' ), '__rating',        'weights' ],
         ];
 
@@ -238,6 +243,10 @@ class FrontendConfigurationView extends FrontendViewBase {
             // `amend` value benefits from a description ("Approve with
             // amendment — back to the player to revise"), so show_desc on.
             'goal_approval_decisions' => [ 'label' => __( 'Goal approval decisions', 'talenttrack' ), 'type' => 'goal_approval_decision', 'show_desc' => true, 'show_color' => false ],
+            // v3.110.208 (#803/#843) — PDP verdict decisions. show_desc
+            // on so academies can gloss what each decision means in their
+            // context; show_color on for the player-profile pills.
+            'pdp_verdict_decisions'   => [ 'label' => __( 'PDP verdict decisions',  'talenttrack' ), 'type' => 'pdp_verdict_decision',   'show_desc' => true, 'show_color' => true  ],
         ];
         if ( ! isset( $registry[ $slug ] ) ) return null;
         $meta = $registry[ $slug ];

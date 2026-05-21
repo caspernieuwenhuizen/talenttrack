@@ -1,34 +1,35 @@
-# TalentTrack v3.110.207 — GoalApprovalForm decisions move to `tt_lookups` + `tt_translations` (closes #841; second conversion from #803)
+# TalentTrack v3.110.208 — PdpVerdicts decisions move to `tt_lookups` + `tt_translations` (closes #843; third conversion from #803)
 
 ## Why
 
-Second conversion from the #803 audit punch list (first was InvitationStatus, shipped as v3.110.205). `src/Modules/Workflow/Forms/GoalApprovalForm.php` held three decision labels (`approve`, `amend`, `reject`) as inline `__()` calls in the render method's radio loop — translatable via the `.po` files but **not editable per academy**.
+Third conversion from the #803 audit. `src/Modules/Pdp/Repositories/PdpVerdictsRepository.php` held the four end-of-season verdict decision values (`promote`, `retain`, `release`, `transfer`) as a `private const ALLOWED_DECISIONS` whitelist; the rendered labels lived in two separate switch-statement helpers (`FrontendPdpManageView::decisionLabel` for the player profile pill, `PdpPrintRouter::pdpVerdictDecisionLabel` for the print page). Pilot has hinted at academy-specific terminology — *progressed* / *signed* / *released* / *moved*. Moving the labels into `tt_lookups` lets the operator rename per academy without a code change.
 
 ## Stored keys stay sacred
 
-`GoalApprovalForm::DECISION_APPROVE` / `::DECISION_AMEND` / `::DECISION_REJECT` remain PHP constants. They're the contract with `tt_workflow_tasks.response_json[*].decision`. `validate()` and `serializeResponse()` keep comparing against the constants — only the rendered label changes.
+`ALLOWED_DECISIONS` keeps `promote / retain / release / transfer`. They're the contract with `tt_pdp_verdicts.decision`. Lookup row `name` matches the lowercase stored value so `LookupTranslator::byTypeAndName('pdp_verdict_decision', $decision)` resolves directly.
 
-## Labels move to the lookups store
+## Labels move to the repository
 
-- New `lookup_type = 'goal_approval_decision'` seeded by migration 0111.
-- New `GoalApprovalForm::label( string $decision ): string` delegates to `LookupTranslator::byTypeAndName('goal_approval_decision', $value)` with the canonical `switch` retained as a pre-migration fallback. The render loop calls `self::label(self::DECISION_*)` instead of the previous inline `__()` array.
-- Each row gets `tt_translations` entries for 5 locales (en_US + nl_NL / fr_FR / de_DE / es_ES). All Dutch + French + German + Spanish labels match the previously-shipped `.po` strings, so the visible behaviour on a fresh install is identical.
+- New `PdpVerdictsRepository::label( string $decision ): string` is the canonical labeller. Delegates to `LookupTranslator::byTypeAndName()` with the English switch retained as a pre-migration fallback.
+- `FrontendPdpManageView::decisionLabel` and `PdpPrintRouter::pdpVerdictDecisionLabel` both delegate to the repository's label — single source of truth.
+- PdpPrintRouter's local switch retains the legacy `'review'` / `'pending'` codes ABOVE the delegate. Those values appear on historical rows but aren't in `ALLOWED_DECISIONS`, so the lookup table doesn't carry them and the local switch needs to handle them first.
 
 ## Frontend admin tile
 
-New **"Goal approval decisions"** tile on Configuration → Lookups. `show_desc=true` because *"Approve with amendment"* benefits from a gloss ("back to the player to revise") that an academy might want to phrase differently. `show_color=false`.
+New **"PDP verdict decisions"** tile on Configuration → Lookups. `show_desc=true` so academies can gloss the verdict in their context. `show_color=true` because the verdict pill is colour-coded on the player profile — operator picks the pill colour per row.
 
-## Migration 0111
+## Migration 0112
 
-Seeds 3 lookup rows + 15 `tt_translations` rows (3 × 5 locales). Idempotent (`INSERT IGNORE` on the unique indexes). Operator-edited rows preserved on re-run.
+Seeds 4 lookup rows + 20 `tt_translations` rows (4 × 5 locales). Idempotent (`INSERT IGNORE`). Operator-edited rows preserved.
 
 ## How to test
 
-1. Apply migrations — confirm `0111_seed_goal_approval_decision_lookup` in `tt_migrations`; 3 lookup rows + 15 translation rows exist.
-2. Configuration → Lookups → "Goal approval decisions" tile appears. Click → three rows render with description fields.
-3. Edit Dutch label for `amend` ("Goedkeuren met aanpassing" → academy's preferred phrasing) → goal-approval task radio renders the new label.
-4. Pre-migration install renders the three English labels via the switch fallback inside `GoalApprovalForm::label()`.
+1. Apply migrations — confirm `0112_seed_pdp_verdict_decision_lookup` in `tt_migrations`.
+2. Configuration → Lookups → "PDP verdict decisions" tile appears. Four rows render with description + colour-swatch fields.
+3. Edit Dutch label for `promote` ("Bevorderen" → academy preference) → player profile + PDP print page render the new label on files with a recorded verdict.
+4. Edit colour for `release` → verdict pill on the player profile shows the new colour.
+5. Pre-migration install renders the four English labels via the switch fallback inside `PdpVerdictsRepository::label()`.
 
 ## Out of scope — still on #803
 
-#839 TaskStatus, #840 IdeaStatus, #842 TrialCases, #843 PdpVerdicts, #844 AudienceType, #845 MEDIUM batch (InvitationKind / IdeaType / ScoutingVisits / ScheduledReports).
+#839 TaskStatus, #840 IdeaStatus, #842 TrialCases, #844 AudienceType, #845 MEDIUM batch.
