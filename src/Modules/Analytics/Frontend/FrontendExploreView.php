@@ -60,6 +60,11 @@ class FrontendExploreView extends FrontendViewBase {
             self::streamCsv( $kpi );
             return;
         }
+        // #875 — PDF export. Streams a branded one-pager via DomPDF.
+        if ( $action === 'export_pdf' && $kpi !== null ) {
+            self::streamPdf( $kpi );
+            return;
+        }
 
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
             __( 'Explore', 'talenttrack' ),
@@ -129,9 +134,17 @@ class FrontendExploreView extends FrontendViewBase {
             $export_args[ 'filter_' . $fk ] = is_array( $fv ) ? $fv : (string) $fv;
         }
         $export_url = add_query_arg( $export_args, WizardEntryPoint::dashboardBaseUrl() );
-        echo '<p style="margin:0 0 16px 0;"><a class="tt-button" href="' . esc_url( $export_url ) . '">'
+        $pdf_args = $export_args;
+        $pdf_args['action'] = 'export_pdf';
+        $pdf_url = add_query_arg( $pdf_args, WizardEntryPoint::dashboardBaseUrl() );
+        echo '<p style="margin:0 0 16px 0; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">';
+        echo '<a class="tt-button" href="' . esc_url( $export_url ) . '">'
             . esc_html__( 'Export CSV', 'talenttrack' )
-            . '</a></p>';
+            . '</a>';
+        echo '<a class="tt-button" href="' . esc_url( $pdf_url ) . '">'
+            . esc_html__( 'Export PDF', 'talenttrack' )
+            . '</a>';
+        echo '</p>';
 
         // Group-by selector.
         echo '<form method="get" action="" style="display:flex; gap:12px; align-items:center; margin:16px 0;">';
@@ -173,10 +186,6 @@ class FrontendExploreView extends FrontendViewBase {
             // #874 — drilldown to fact rows. Renders only when ungrouped.
             self::renderDrilldownTable( $kpi, $fact, $filters );
         }
-
-        echo '<div style="margin-top:32px; padding:12px 16px; background:#f0f6fc; border-left:4px solid #2271b1; max-width:760px; font-size:13px; color:#5b6e75;">'
-            . esc_html__( 'The dimension explorer ships in slices under #0083 Child 3. PDF export ships in a follow-up.', 'talenttrack' )
-            . '</div>';
 
         echo '</div>';
     }
@@ -381,6 +390,140 @@ class FrontendExploreView extends FrontendViewBase {
         header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
         header( 'Content-Length: ' . strlen( $csv ) );
         echo $csv; // phpcs:ignore WordPress.Security.EscapeOutput
+        exit;
+    }
+
+    /**
+     * #875 — stream a PDF for the current KPI + filters + group-by.
+     *
+     * Builds an HTML body matching what the on-screen explorer shows
+     * (KPI label + headline + grouped table OR drilldown rows) and
+     * hands it to the shared `PdfRenderer` from #0063. The renderer
+     * self-gates on DomPDF availability and returns a `no_renderer`
+     * 500 if the dependency isn't installed (dev environments only;
+     * composer ships it as a prod dependency).
+     *
+     * URL pattern mirrors the CSV export:
+     * `?tt_view=explore&kpi=…&filter_…=…&group_by=…&action=export_pdf`.
+     * Filename: `<kpi-key>-<YYYY-MM-DD>.pdf`.
+     *
+     * Out of scope:
+     *  - Brand-kit token application beyond the default body styles —
+     *    a follow-up that hits the same path can wire `tt_pdf_render_html`.
+     *  - Embedding the Chart.js canvas as a PDF image — DomPDF doesn't
+     *    execute JS so the chart isn't rasterised; the workbook still
+     *    carries the headline + tables which is the analytical content.
+     */
+    private static function streamPdf( Kpi $kpi ): void {
+        $fact = FactRegistry::find( $kpi->factKey );
+        if ( $fact === null ) return;
+
+        $filters  = self::filtersFromRequest( $kpi );
+        $group_by = isset( $_GET['group_by'] ) ? sanitize_key( (string) $_GET['group_by'] ) : '';
+
+        $headline_rows = FactQuery::run( $kpi->factKey, [], [ $kpi->measureKey ], $filters );
+        $headline = empty( $headline_rows ) ? null : ( $headline_rows[0]->{ $kpi->measureKey } ?? null );
+
+        $body  = '<h1>' . esc_html( $kpi->label ) . '</h1>';
+        $body .= '<p style="color:#5b6e75; font-size:10pt;">'
+              . esc_html( sprintf(
+                  /* translators: %s = ISO date */
+                  __( 'Generated %s', 'talenttrack' ),
+                  gmdate( 'Y-m-d' )
+              ) )
+              . '</p>';
+        $body .= '<div style="margin:12pt 0 16pt; padding:8pt 12pt; border:1px solid #ccc; background:#fafafa;">'
+              . '<div style="font-size:9pt; color:#5b6e75;">' . esc_html__( 'Headline', 'talenttrack' ) . '</div>'
+              . '<div style="font-size:24pt; font-weight:bold;">' . esc_html( self::formatHeadline( $kpi, $headline ) ) . '</div>'
+              . '</div>';
+
+        // Filters summary line (compact).
+        if ( ! empty( $filters ) ) {
+            $bits = [];
+            foreach ( $filters as $k => $v ) {
+                $bits[] = esc_html( $k ) . ' = ' . esc_html( is_array( $v ) ? implode( ',', $v ) : (string) $v );
+            }
+            $body .= '<p style="font-size:9pt; color:#5b6e75;"><strong>'
+                  . esc_html__( 'Filters', 'talenttrack' )
+                  . ':</strong> ' . implode( ' · ', $bits ) . '</p>';
+        }
+
+        if ( $group_by !== '' && $fact->dimension( $group_by ) !== null ) {
+            $grouped_rows = FactQuery::run( $kpi->factKey, [ $group_by ], [ $kpi->measureKey ], $filters );
+            $dim = $fact->dimension( $group_by );
+            $measure = $fact->measure( $kpi->measureKey );
+            $body .= '<h2 style="margin-top:14pt;">' . esc_html( $dim->label ) . '</h2>';
+            $body .= '<table><thead><tr>'
+                  . '<th>' . esc_html( $dim->label ) . '</th>'
+                  . '<th style="text-align:right;">' . esc_html( $measure ? $measure->label : '' ) . '</th>'
+                  . '</tr></thead><tbody>';
+            foreach ( $grouped_rows as $row ) {
+                $raw   = $row->{ $group_by } ?? null;
+                $label = DimensionValueResolver::resolve( $dim, $raw );
+                $value = $row->{ $kpi->measureKey } ?? null;
+                $body .= '<tr>'
+                      . '<td>' . esc_html( (string) $label ) . '</td>'
+                      . '<td style="text-align:right;">' . esc_html( self::formatHeadline( $kpi, $value ) ) . '</td>'
+                      . '</tr>';
+            }
+            $body .= '</tbody></table>';
+        } else {
+            // Drilldown — top 50 rows.
+            $rows = FactQuery::rows( $kpi->factKey, $filters, 50, 0 );
+            $total = FactQuery::countRows( $kpi->factKey, $filters );
+            $body .= '<h2 style="margin-top:14pt;">' . esc_html__( 'Underlying rows', 'talenttrack' )
+                  . ' <span style="font-weight:normal; font-size:9pt; color:#5b6e75;">'
+                  . esc_html( sprintf(
+                      /* translators: 1: shown rows, 2: total rows */
+                      __( '(first %1$d of %2$d)', 'talenttrack' ),
+                      count( $rows ), $total
+                  ) )
+                  . '</span></h2>';
+            $body .= '<table><thead><tr>';
+            foreach ( $fact->dimensions as $d ) {
+                $body .= '<th>' . esc_html( $d->label ) . '</th>';
+            }
+            $body .= '</tr></thead><tbody>';
+            foreach ( $rows as $r ) {
+                $body .= '<tr>';
+                foreach ( $fact->dimensions as $d ) {
+                    $raw = $r->{ $d->key } ?? null;
+                    $label = DimensionValueResolver::resolve( $d, $raw );
+                    $body .= '<td>' . esc_html( (string) $label ) . '</td>';
+                }
+                $body .= '</tr>';
+            }
+            $body .= '</tbody></table>';
+        }
+
+        $body .= '<p style="margin-top:18pt; font-size:8pt; color:#5b6e75;">'
+              . esc_html__( 'Generated by TalentTrack — analytics explorer.', 'talenttrack' )
+              . '</p>';
+
+        try {
+            $renderer = new \TT\Modules\Export\Format\Renderers\PdfRenderer();
+            $request  = new \TT\Modules\Export\Domain\ExportRequest(
+                exporterKey:      $kpi->key . '_explorer',
+                format:           'pdf',
+                clubId:           (int) \TT\Infrastructure\Tenancy\CurrentClub::id(),
+                requesterUserId:  (int) get_current_user_id(),
+            );
+            $result = $renderer->render( $request, [
+                'html'    => $body,
+                'options' => [ 'paper' => 'A4', 'orientation' => 'portrait' ],
+            ] );
+        } catch ( \Throwable $e ) {
+            status_header( 500 );
+            echo esc_html__( 'PDF rendering failed. Run `composer install` and try again.', 'talenttrack' );
+            exit;
+        }
+
+        $filename = sanitize_file_name( $kpi->key . '-' . gmdate( 'Y-m-d' ) . '.pdf' );
+        nocache_headers();
+        header( 'Content-Type: application/pdf' );
+        header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
+        header( 'Content-Length: ' . $result->size );
+        echo $result->bytes; // phpcs:ignore WordPress.Security.EscapeOutput
         exit;
     }
 

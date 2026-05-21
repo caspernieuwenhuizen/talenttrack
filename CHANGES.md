@@ -1,58 +1,55 @@
-# TalentTrack v4.1.5 — Analytics explorer drilldown to fact rows (closes #874)
+# TalentTrack v4.1.6 — Analytics explorer PDF export (closes #875)
 
 ## Scope
 
-Second of three follow-ups under #0083 Child 3. When the user picks no group-by, the explorer now renders a paginated table of the **underlying** fact rows below the chart — same data the chart visualises, in row form. Pilot users can move from headline → trend chart → individual rows in one screen.
+Third + final follow-up under #0083 Child 3. With this ship, the trio of explorer follow-ups (chart in #873, drilldown in #874, PDF export here) is complete.
 
 ## Changes
 
-### `FactQuery::rows()` + `FactQuery::countRows()` (new)
+### New `?action=export_pdf` branch on `FrontendExploreView`
 
-Two new public methods on the analytics query engine:
+Sibling to the existing `?action=export_csv`. Same URL shape (carries KPI + filters + group-by), different action key. New "Export PDF" button rendered next to the "Export CSV" button.
 
-```php
-public static function rows( string $factKey, array $filters = [], int $limit = 50, int $offset = 0 ): array
-public static function countRows( string $factKey, array $filters = [] ): int
-```
+### `FrontendExploreView::streamPdf()`
 
-Both reuse the existing `applyFilters` / tenancy / time-column-join semantics from `execute()`, just without aggregation. `rows()` SELECTs `f.id AS _id` plus every dimension's expression aliased by its key; orders by `time DESC, id DESC`. `countRows()` runs the same WHERE clause through `SELECT COUNT(*)` — capped at 5,000 to match the existing outer cap on `run()`.
+Builds an HTML body containing:
 
-### `FrontendExploreView::renderDrilldownTable()` (new)
+- KPI label + ISO generation date
+- Headline panel (current measure value, formatted)
+- Filters summary line (compact)
+- Either:
+    - Grouped table (when the user picked a group-by) — dimension column + measure column
+    - OR the top-50 drilldown rows + a "first N of M" count, when ungrouped
 
-Rendered below the "Pick a dimension above" prompt when `$group_by === ''`.
+Hands the HTML to the shared `PdfRenderer` (from #0063, in tree since v3.110.0) along with an `ExportRequest` stub. The renderer wraps the body in its default DomPDF shell and returns an `ExportResult` carrying the bytes.
 
-- Columns: one per fact dimension. FK values resolved to labels via `DimensionValueResolver` so players show as names, teams as team names, etc.
-- Row link: derived from `Fact::entityScope`:
-    - `player` → `?tt_view=players&id=…`
-    - `team` → `?tt_view=teams&id=…`
-    - `activity` → `?tt_view=activities&id=…`
-    - Built via `RecordLink::detailUrlForWithBack()` so the `tt_back` pill returns the user to the same explorer URL.
-- Pager: `&page=N`, 50 rows per page. Carries every other current query param so KPI + filters + page round-trip on share.
-- Empty state: `.tt-empty` panel when zero rows.
+Failure mode: if `\Dompdf\Dompdf` isn't loadable (a dev environment that skipped `composer install`), the renderer throws `ExportException('no_renderer')`; the streamer catches and returns a 500 with a plain-text install hint.
 
-### Placeholder
+### Filename
 
-Footer text drops "drilldown to fact rows" from the remaining-follow-ups list. One follow-up remains: PDF export (#875).
+`<kpi-key>-<YYYY-MM-DD>.pdf` — matches the CSV pattern.
+
+### Footer placeholder removed
+
+All three follow-ups have landed (#873 chart, #874 drilldown, this ship). The placeholder banner is gone.
 
 ## Out of scope
 
-- Inline row editing — always read-only; clicking the row link is the way in.
-- CSV export of the drilldown specifically — the existing `?action=export_csv` exports the aggregated rows; if a "raw drilldown CSV" is wanted, that's a follow-up (see #874 body).
-- Time-series chart (already shipped in #873).
-- PDF export (covered by sibling #875).
+- Chart.js canvas rasterised into the PDF — DomPDF can't run JS, and a server-side rasteriser is a much larger dependency than the analytical value justifies. The PDF carries the headline + tables which is what scheduled-reports cron will consume too.
+- Brand-kit tokens beyond DomPDF's default body styles — a follow-up hooking `tt_pdf_render_html` can add the club's letterhead.
+- XLSX export — covered by the Exports page (#864/#865) and not part of the explorer's per-view export set.
 
 ## Verification
 
-- Open `?tt_view=explore` on an attendance KPI with no group-by → drilldown table renders with player / team / status / month columns + a per-row link to the player profile.
-- Apply a date filter → table re-pages from row 1; total count drops.
-- Page 2 → `&page=2` in URL; back-pill returns to the page 1 view (no), but reload reproduces page 2 exactly.
-- Pick a group-by → drilldown table disappears; group-by table appears (existing behaviour).
-- Filter to a window with no rows → `.tt-empty` panel.
+- Open `?tt_view=explore` on any KPI. Click "Export PDF" → file downloads as `<key>-2026-05-21.pdf`.
+- PDF opens; headline matches the on-screen headline; grouped table matches when a group-by is picked; drilldown rows match when ungrouped.
+- Filter the view → "Filters" line in the PDF reflects the active filters.
+- On a dev environment without DomPDF: clicking "Export PDF" returns a 500 with a plain-text install hint (no fatal).
 
 ## Versioning
 
-Patch bump (4.1.4 → 4.1.5). Same epic-feature series as the chart ship (#873).
+Patch bump (4.1.5 → 4.1.6). Same 4.1.x epic-feature series as the chart + drilldown ships. The trio of #0083 Child 3 follow-ups is now complete.
 
 ## Closes
 
-- #874 — Analytics explorer — drilldown to fact rows
+- #875 — Analytics explorer — PDF export

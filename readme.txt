@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.1.5
+Stable tag: 4.1.6
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.1.6 — Analytics explorer — PDF export (closes #875). Third + final follow-up under #0083 Child 3 (after #873 chart + #874 drilldown). New `?action=export_pdf` branch on `FrontendExploreView`, sibling to the existing `?action=export_csv`. Streams a branded one-pager via the shared `PdfRenderer` from #0063 (DomPDF-backed, already in tree as of v3.110.0). PDF carries: KPI label + headline + filter summary + either the grouped table (when the user picked a group-by) or the top-50 drilldown rows. **No Chart.js rasterisation** — DomPDF can't run JS, so the embedded chart isn't rendered; the analytical content is the headline + tables which is what scheduled reports will need to consume too. **No new dependency** — the `PdfRenderer` was already registered in `ExportModule::boot()`. **Filename**: `<kpi-key>-<YYYY-MM-DD>.pdf` (matches the CSV pattern). **License gating**: not gated (Free-tier OK — same as CSV; only scheduled-reports cadence is license-gated per Child 6). **Failure mode**: if DomPDF isn't installed (a dev environment that skipped `composer install`), the renderer throws `ExportException('no_renderer')` and the view returns a 500 with a plain-text install hint. Placeholder footer in `FrontendExploreView` removed (all three follow-ups now landed — #873, #874, #875). (closes #875) =
 
 = 4.1.5 — Analytics explorer — drilldown to fact rows (closes #874). Second of three follow-up ships under #0083 Child 3. When the user picks no group-by, the explorer now renders a paginated table of the underlying fact rows below the chart — the same data the chart visualises, in row form. Columns are the fact's declared dimensions, FK values resolved to labels via `DimensionValueResolver` (player names, not IDs). Each row links to its natural entity detail page derived from `Fact::entityScope` (`player` → players list, `team` → teams, `activity` → activities). 50 rows per page; pager via `&page=N` carrying every other current query param so the page deep-links the same way the chart does. Capped at the 5,000-row outer limit `FactQuery::run()` enforces. Two new methods on `FactQuery`: `rows()` and `countRows()` — both reuse the existing `applyFilters` / tenancy / time-column-join semantics from `execute()`, just without aggregation. Empty state shows a `.tt-empty` panel instead of an empty table. Placeholder text updated to drop "drilldown to fact rows" from the remaining-follow-ups list (PDF export still to ship via #875). (closes #874) =
 
