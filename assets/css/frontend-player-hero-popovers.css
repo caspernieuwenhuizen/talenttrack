@@ -1,0 +1,185 @@
+/* Player profile hero — quick-record popovers (#870).
+ *
+ * Mobile-first per CLAUDE.md §2. Below 768px the popover renders as a
+ * bottom sheet sliding up from the safe-area floor; at 768px+ it
+ * renders as a centered modal panel. Selectors prefixed `.tt-pp-*`
+ * (player popover) so they don't collide with other popover-shaped
+ * surfaces in the codebase.
+ */
+
+.tt-player-hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.tt-player-hero__actions .tt-btn {
+    min-height: 44px;
+    padding: 8px 14px;
+    font-size: 14px;
+}
+
+/* Backdrop + container — hidden by default, JS toggles `open`. */
+.tt-pp-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 1000;
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+    overscroll-behavior: contain;
+}
+
+.tt-pp-overlay[data-open="true"] {
+    display: flex;
+}
+
+.tt-pp-panel {
+    background: #fff;
+    width: 100%;
+    max-width: 480px;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.15);
+    transform: translateY(0);
+    animation: tt-pp-slide-up 200ms ease-out;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+@keyframes tt-pp-slide-up {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tt-pp-panel { animation: none; }
+}
+
+@media (min-width: 768px) {
+    .tt-pp-overlay {
+        align-items: center;
+    }
+    .tt-pp-panel {
+        border-radius: 12px;
+        max-height: 80vh;
+        padding-bottom: 16px;
+    }
+}
+
+.tt-pp-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.tt-pp-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #1c1c1c;
+}
+
+.tt-pp-close {
+    background: transparent;
+    border: 0;
+    padding: 8px;
+    min-width: 44px;
+    min-height: 44px;
+    font-size: 22px;
+    line-height: 1;
+    color: #5b6e75;
+    cursor: pointer;
+}
+
+.tt-pp-close:focus-visible {
+    outline: 2px solid #0b3d2e;
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+.tt-pp-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 12px;
+}
+
+.tt-pp-field-label {
+    font-size: 12px;
+    color: #5b6e75;
+    line-height: 1.3;
+}
+
+.tt-pp-field .tt-input,
+.tt-pp-field select,
+.tt-pp-field input,
+.tt-pp-field textarea {
+    width: 100%;
+    min-height: 44px;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+.tt-pp-field textarea {
+    min-height: 60px;
+    padding: 8px;
+    resize: vertical;
+}
+
+.tt-pp-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-top: 12px;
+    padding-top: 8px;
+    border-top: 1px solid #e5e7ea;
+}
+
+.tt-pp-footer .tt-btn {
+    min-height: 44px;
+}
+
+.tt-pp-history-link {
+    margin-right: auto;
+    font-size: 13px;
+    color: #0b3d2e;
+}
+
+.tt-pp-error {
+    color: #b32d2e;
+    font-size: 13px;
+    margin: 8px 0 0;
+}
+
+.tt-pp-toast {
+    position: fixed;
+    left: 50%;
+    bottom: calc(20px + env(safe-area-inset-bottom));
+    transform: translateX(-50%);
+    background: #0b3d2e;
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 1100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 200ms ease-out;
+}
+
+.tt-pp-toast[data-visible="true"] {
+    opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tt-pp-toast { transition: none; }
+}
