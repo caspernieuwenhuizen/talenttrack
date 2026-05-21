@@ -51,7 +51,7 @@ final class FrontendPlayerStatusMethodologyView {
 
         echo '<section style="max-width:900px;">';
         echo '<h2 style="margin:0 0 12px;">' . esc_html__( 'Player status methodology', 'talenttrack' ) . '</h2>';
-        echo '<p style="margin:0 0 16px;color:#5b6e75;">' . esc_html__( 'Configure how the traffic-light status is calculated. The shipped default (40% ratings / 25% behaviour / 20% attendance / 15% potential, amber below 60, red below 40, behaviour floor at 3.0) applies until you save an override.', 'talenttrack' ) . '</p>';
+        echo '<p style="margin:0 0 16px;color:#5b6e75;">' . esc_html__( 'Configure how the traffic-light status is calculated. The shipped default (40% ratings / 25% behaviour / 20% attendance / 15% potential, amber below 60, red below 40, behaviour floor at the midpoint of the active rating scale) applies until you save an override.', 'talenttrack' ) . '</p>';
 
         // Render the club-wide default form, then per-age-group forms.
         $age_groups = QueryHelpers::get_lookups( 'age_group' );
@@ -148,7 +148,17 @@ final class FrontendPlayerStatusMethodologyView {
                 'red_below'   => isset( $post['threshold_red'] )   ? max( 0, min( 100, (int) $post['threshold_red'] ) )   : 40,
             ],
             'floor_rules' => [
-                'behaviour_floor_below' => isset( $post['behaviour_floor'] ) ? max( 0.0, min( 5.0, (float) $post['behaviour_floor'] ) ) : 0.0,
+                // v4.0.3 (#866) — clamp to active rating scale from
+                // tt_config, not the legacy 0.0..5.0 range.
+                'behaviour_floor_below' => isset( $post['behaviour_floor'] )
+                    ? max(
+                        (float) QueryHelpers::get_config( 'rating_min', '5' ),
+                        min(
+                            (float) QueryHelpers::get_config( 'rating_max', '10' ),
+                            (float) $post['behaviour_floor']
+                        )
+                    )
+                    : (float) QueryHelpers::get_config( 'rating_min', '5' ),
             ],
         ];
 

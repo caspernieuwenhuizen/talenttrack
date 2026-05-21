@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.0.2
+Stable tag: 4.0.3
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.0.3 — Three v3.110.121 rating-scale-flip leftovers fixed (closes #866). All three lived past the original 1-5 → 5-10 sweep because their literals weren't covered by the grep audit. **Bug A — behaviour floor unreachable**: `MethodologyResolver` shipped default carried `behaviour_floor_below = 3.0` (the old 1-5 midpoint). Under 5-10 a behaviour average below 3.0 is impossible, so the floor-veto never fired for fresh installs. Now reads the midpoint of the active scale from `tt_config.rating_min/max` (7.5 on 5-10). The methodology config form clamps to the active range too. Help text updated. **Bug B — pitch-fit colours**: `PitchSvg` rendered fit scores ≥ 4.0 as green (= 40% of max on 5-10, so weak fits showed strong). Now thresholds compute as `rating_max × 0.80` (strong) / `× 0.50` (mid). **Bug C — team-fit panel `/ 5`**: `PlayerTeamFitPanel` displayed `7.8 / 5`. Denominator now reads from `tt_config.rating_max`, so the coach sees `7.8 / 10`. No migration — all three changes are config-driven runtime reads. (closes #866) =
 
 = 4.0.2 — Quick Action widget Dutch labels now render translated on Dutch installs (closes #805). Root cause was structural, not a missing .po entry: `ActionCardWidget` used `__($action['label_key'], 'talenttrack')` — a dynamic call that `wp i18n make-pot` cannot extract. The 8 labels (`+ New evaluation`, `+ New goal`, `+ New activity`, `+ Add player`, `+ Add team`, `+ New scout report`, `+ New trial`, `+ New test training`) had been marked obsolete in the .po and rendered as the English msgid. Fix: introduce a static `actionLabel($id)` switch with literal `__()` calls so msgmerge can extract the msgids; un-obsolete the existing Dutch translations in `nl_NL.po` and add `+ New test training` which was missing. (closes #805) =
 
