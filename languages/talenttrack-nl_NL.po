@@ -31841,3 +31841,124 @@ msgstr "Type"
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php
 msgid "Match"
 msgstr "Wedstrijd"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Start match"
+msgstr "Wedstrijd starten"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Match execution"
+msgstr "Wedstrijduitvoering"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Match execution is restricted to coaches and admins."
+msgstr "Wedstrijduitvoering is alleen toegankelijk voor coaches en beheerders."
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Plan this match first before you can run it."
+msgstr "Plan deze wedstrijd eerst voor je hem kunt uitvoeren."
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Score"
+msgstr "Score"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Decrease home score"
+msgstr "Thuisscore verlagen"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Increase home score"
+msgstr "Thuisscore verhogen"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Decrease away score"
+msgstr "Uitscore verlagen"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Increase away score"
+msgstr "Uitscore verhogen"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Match timer"
+msgstr "Wedstrijdklok"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Start"
+msgstr "Starten"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Pause"
+msgstr "Pauzeren"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Resume"
+msgstr "Hervatten"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "End 1st half"
+msgstr "Einde 1e helft"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Start 2nd half"
+msgstr "Start 2e helft"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "End match"
+msgstr "Einde wedstrijd"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Match finished"
+msgstr "Wedstrijd afgelopen"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Specific goals"
+msgstr "Specifieke doelen"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "No players flagged with a specific goal in the match prep."
+msgstr "Geen spelers met een specifiek doel in de voorbereiding."
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Tap to add one (long-press to remove last)"
+msgstr "Tik om er een toe te voegen (lang indrukken om de laatste te verwijderen)"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Substitutes"
+msgstr "Wissels"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Bench"
+msgstr "Bank"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "No bench players available."
+msgstr "Geen wisselspelers beschikbaar."
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Bring on"
+msgstr "Erin brengen"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "On pitch"
+msgstr "In het veld"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Who comes off for %s?"
+msgstr "Wie gaat eruit voor %s?"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Offline — actions queued"
+msgstr "Offline — acties in wachtrij"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "Back online — syncing…"
+msgstr "Weer online — synchroniseren…"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "1e"
+msgstr "1e"
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "2e"
+msgstr "2e"
