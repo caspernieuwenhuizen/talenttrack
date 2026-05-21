@@ -48,7 +48,7 @@ final class ExportRestController {
         ] );
         register_rest_route( self::NS, '/exports/(?P<key>[a-z0-9_-]+)', [
             [
-                'methods'             => 'GET',
+                'methods'             => [ 'GET', 'POST' ],
                 'callback'            => [ __CLASS__, 'run' ],
                 'permission_callback' => [ __CLASS__, 'permissionCallback' ],
             ],
@@ -101,10 +101,18 @@ final class ExportRestController {
         $brand = $req->get_param( 'brand' );
         $brand = is_string( $brand ) && in_array( $brand, [ 'auto', 'blank', 'letterhead' ], true ) ? $brand : null;
 
-        // Everything else on the query string is treated as a filter
-        // and handed to the exporter for validation. The reserved
-        // params above are stripped first.
-        $filters = $req->get_query_params();
+        // Everything else on the query string OR in the POST JSON
+        // body is treated as a filter and handed to the exporter for
+        // validation. The reserved params above are stripped first.
+        // The FrontendExportsView JS submits filters as a JSON body
+        // via POST (#862), so reading get_query_params alone misses
+        // every filter — merge both sources.
+        $query   = $req->get_query_params();
+        $body    = $req->get_json_params();
+        $filters = array_merge(
+            is_array( $query ) ? $query : [],
+            is_array( $body )  ? $body  : []
+        );
         unset( $filters['format'], $filters['entity_id'], $filters['brand'] );
 
         $request = new ExportRequest(
