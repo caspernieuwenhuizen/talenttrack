@@ -25,6 +25,85 @@ use TT\Shared\Frontend\Components\RatingPillComponent;
  */
 class FrontendMyEvaluationsView extends FrontendViewBase {
 
+    /**
+     * v3.110.215 (#846) — coach branch. Renders evaluations AUTHORED
+     * by the current coach, filtered to "this week" + the trailing
+     * 30 days for context. The KPI tile on the coach dashboard counts
+     * `coach_id = current_user_id AND eval_date >= last Monday`; this
+     * surface shows the same scope so the KPI value and the list agree.
+     */
+    public static function renderForCoach( int $coach_user_id ): void {
+        self::enqueueAssets();
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'My evaluations', 'talenttrack' ) );
+        self::renderHeader( __( 'My evaluations', 'talenttrack' ) );
+
+        if ( $coach_user_id <= 0 ) {
+            echo '<p><em>' . esc_html__( 'Sign in to see the evaluations you authored.', 'talenttrack' ) . '</em></p>';
+            return;
+        }
+
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        // Last 30 days + everything in the current week. The KPI is
+        // strictly "this week" but the surface widens to the trailing
+        // 30 so coaches always see *some* recent context even on a
+        // quiet week.
+        $cutoff = gmdate( 'Y-m-d', strtotime( '-30 days' ) );
+
+        $evals = $wpdb->get_results( $wpdb->prepare(
+            "SELECT e.id, e.eval_date, e.opponent, e.game_result,
+                    lt.name AS type_name,
+                    pl.first_name, pl.last_name
+               FROM {$p}tt_evaluations e
+               LEFT JOIN {$p}tt_lookups lt ON e.eval_type_id = lt.id
+               LEFT JOIN {$p}tt_players pl ON e.player_id = pl.id
+              WHERE e.coach_id = %d
+                AND e.archived_at IS NULL
+                AND e.eval_date >= %s
+              ORDER BY e.eval_date DESC",
+            $coach_user_id,
+            $cutoff
+        ) );
+
+        if ( empty( $evals ) ) {
+            echo '<p><em>' . esc_html__( 'No evaluations authored in the last 30 days. New evaluations you record will appear here.', 'talenttrack' ) . '</em></p>';
+            return;
+        }
+
+        echo '<p style="margin:0 0 12px; color:#5b6e75;">'
+            . esc_html__( 'Evaluations you authored in the last 30 days, newest first.', 'talenttrack' )
+            . '</p>';
+
+        echo '<div class="tt-table-wrap"><table class="tt-table">';
+        echo '<thead><tr>'
+            . '<th>' . esc_html__( 'Date', 'talenttrack' ) . '</th>'
+            . '<th>' . esc_html__( 'Player', 'talenttrack' ) . '</th>'
+            . '<th>' . esc_html__( 'Type', 'talenttrack' ) . '</th>'
+            . '<th>' . esc_html__( 'Match', 'talenttrack' ) . '</th>'
+            . '</tr></thead><tbody>';
+        foreach ( $evals as $e ) {
+            $player_name = trim( ( (string) ( $e->first_name ?? '' ) ) . ' ' . ( (string) ( $e->last_name ?? '' ) ) );
+            if ( $player_name === '' ) $player_name = '—';
+            $detail_url = add_query_arg( [
+                'tt_view' => 'evaluations',
+                'id'      => (int) $e->id,
+            ], remove_query_arg( [ 'tt_view' ] ) );
+            $match_text = '';
+            if ( ! empty( $e->opponent ) ) {
+                $match_text = (string) $e->opponent;
+                if ( ! empty( $e->game_result ) ) $match_text .= ' (' . (string) $e->game_result . ')';
+            }
+            echo '<tr>';
+            echo '<td>' . esc_html( (string) $e->eval_date ) . '</td>';
+            echo '<td><a class="tt-link" href="' . esc_url( $detail_url ) . '">' . esc_html( $player_name ) . '</a></td>';
+            echo '<td>' . esc_html( (string) ( $e->type_name ?? '—' ) ) . '</td>';
+            echo '<td>' . esc_html( $match_text !== '' ? $match_text : '—' ) . '</td>';
+            echo '</tr>';
+        }
+        echo '</tbody></table></div>';
+    }
+
     public static function render( object $player ): void {
         self::enqueueAssets();
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'My evaluations', 'talenttrack' ) );

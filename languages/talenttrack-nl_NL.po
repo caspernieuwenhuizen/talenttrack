@@ -31813,3 +31813,31 @@ msgstr "Doelen + aandachtspunten per speler"
 #: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php
 msgid "Unavailable"
 msgstr "Niet beschikbaar"
+
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php
+msgid "Sign in to see the evaluations you authored."
+msgstr "Log in om de door jou opgestelde evaluaties te zien."
+
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php
+msgid "No evaluations authored in the last 30 days. New evaluations you record will appear here."
+msgstr "Geen evaluaties opgesteld in de afgelopen 30 dagen. Nieuwe evaluaties die je opslaat verschijnen hier."
+
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php
+msgid "Evaluations you authored in the last 30 days, newest first."
+msgstr "Door jou opgestelde evaluaties van de afgelopen 30 dagen, nieuwste eerst."
+
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php
+msgid "Date"
+msgstr "Datum"
+
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php
+msgid "Player"
+msgstr "Speler"
+
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php
+msgid "Type"
+msgstr "Type"
+
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php
+msgid "Match"
+msgstr "Wedstrijd"

@@ -356,6 +356,15 @@ class DashboardShortcode {
                 FrontendTeammateView::render( $player, $teammate_id );
                 return true;
             case 'my-evaluations':
+                // v3.110.215 (#846) — branch by caller context. A coach
+                // (anyone with `tt_edit_evaluations` who has no linked
+                // player record) sees the evaluations THEY authored; a
+                // player sees evaluations OF them. The KPI tile lands
+                // correctly on either branch.
+                if ( $player === null && current_user_can( 'tt_edit_evaluations' ) ) {
+                    FrontendMyEvaluationsView::renderForCoach( get_current_user_id() );
+                    return true;
+                }
                 if ( ! self::requirePlayerOrDeny( $player ) ) return true;
                 FrontendMyEvaluationsView::render( $player );
                 return true;
