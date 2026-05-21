@@ -48,6 +48,7 @@ final class NewEvaluationWizard implements WizardInterface {
             new ActivityPickerStep(),
             new AttendanceStep(),
             new RateActorsStep(),
+            new BehaviourStep(),
             new PlayerPickerStep(),
             new HybridDeepRateStep(),
             new ReviewStep(),
