@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.0.3
+Stable tag: 4.0.4
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.0.4 — HoD Team Overview widget — two bugs fixed (closes #857). **Layout overrun**: clicking a team to expand its player list bled below the widget's grid cell because the shared `.tt-pd-widget { height: 100% }` rule locked the widget to the cell, and the inline-expand body had no overflow guard. New widget-specific `.tt-pd-widget-team_overview_grid { height: auto }` override lets the widget grow with content; other widgets keep the height-locked behaviour. **Drill-down scope drift**: the widget emitted `?tt_view=players&team_id={id}` but `FrontendListTable` consumes `?filter[team_id]={id}` and the REST controller silently dropped the raw `team_id` — HoDs landed on the full club roster instead of the clicked team. Two-character URL fix. Mobile rendering unchanged. (closes #857) =
 
 = 4.0.3 — Three v3.110.121 rating-scale-flip leftovers fixed (closes #866). All three lived past the original 1-5 → 5-10 sweep because their literals weren't covered by the grep audit. **Bug A — behaviour floor unreachable**: `MethodologyResolver` shipped default carried `behaviour_floor_below = 3.0` (the old 1-5 midpoint). Under 5-10 a behaviour average below 3.0 is impossible, so the floor-veto never fired for fresh installs. Now reads the midpoint of the active scale from `tt_config.rating_min/max` (7.5 on 5-10). The methodology config form clamps to the active range too. Help text updated. **Bug B — pitch-fit colours**: `PitchSvg` rendered fit scores ≥ 4.0 as green (= 40% of max on 5-10, so weak fits showed strong). Now thresholds compute as `rating_max × 0.80` (strong) / `× 0.50` (mid). **Bug C — team-fit panel `/ 5`**: `PlayerTeamFitPanel` displayed `7.8 / 5`. Denominator now reads from `tt_config.rating_max`, so the coach sees `7.8 / 10`. No migration — all three changes are config-driven runtime reads. (closes #866) =
 

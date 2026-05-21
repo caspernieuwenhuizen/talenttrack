@@ -868,6 +868,11 @@
     border-top: 1px solid var(--tt-pd-divider);
     font-size: 0.8125rem;
 }
+/* v4.0.4 (#857) — team-overview widget grows to fit its expanded
+ * player list. The shared `.tt-pd-widget { height: 100% }` rule locks
+ * other widgets to the grid cell; this override lets the
+ * inline-expand pattern work without bleeding into the row below. */
+.tt-pd-widget-team_overview_grid { height: auto; }
 .tt-pd-team-card-loading {
     color: var(--tt-pd-text-muted);
     font-style: italic;
