@@ -1,0 +1,132 @@
+/* Exports page — central bulk-export surface (#797).
+ *
+ * Mobile-first per CLAUDE.md §2 — base styles target 360px; min-width
+ * media queries scale up. Replaces the inline-styled v1 from #797 that
+ * pilot flagged as cramped / inconsistent (#863).
+ */
+
+.tt-export-intro {
+    color: #5b6e75;
+    max-width: 760px;
+    margin: 0 0 20px;
+    line-height: 1.5;
+}
+
+.tt-export-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+}
+
+@media (min-width: 768px) {
+    .tt-export-grid {
+        grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    }
+}
+
+.tt-export-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border: 1px solid #e5e7ea;
+    border-radius: 8px;
+    padding: 16px 16px 14px;
+    min-height: 260px;
+}
+
+.tt-export-card__header {
+    padding-right: 64px;
+    margin-bottom: 6px;
+}
+
+.tt-export-card__title {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: #1c1c1c;
+}
+
+.tt-export-card__format {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: #0b3d2e;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    line-height: 1.4;
+    white-space: nowrap;
+}
+
+.tt-export-card__desc {
+    color: #5b6e75;
+    font-size: 12px;
+    line-height: 1.5;
+    margin: 0 0 14px;
+}
+
+.tt-export-card__form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-grow: 1;
+}
+
+.tt-export-card__field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 12px;
+    color: #5b6e75;
+}
+
+.tt-export-card__field-label {
+    line-height: 1.3;
+}
+
+.tt-export-card__field-optional {
+    color: #7c7c7c;
+}
+
+.tt-export-card__field .tt-input,
+.tt-export-card__field input,
+.tt-export-card__field select {
+    width: 100%;
+    min-height: 44px;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+/* Native date input — keep min-width small so dd-mm-jjjj fits even
+ * inside a narrow card without clipping. */
+.tt-export-card__field input[type="date"] {
+    min-width: 0;
+}
+
+.tt-export-card__footer {
+    margin-top: auto;
+    padding-top: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.tt-export-card__footer .tt-btn {
+    min-height: 44px;
+}
+
+.tt-export-card__msg {
+    font-size: 12px;
+    color: #5b6e75;
+    line-height: 1.4;
+}
+
+.tt-export-card__msg--error {
+    color: #b32d2e;
+}

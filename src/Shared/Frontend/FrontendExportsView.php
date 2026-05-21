@@ -29,6 +29,16 @@ use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
  */
 class FrontendExportsView extends FrontendViewBase {
 
+    protected static function enqueueAssets(): void {
+        parent::enqueueAssets();
+        wp_enqueue_style(
+            'tt-frontend-exports',
+            TT_PLUGIN_URL . 'assets/css/frontend-exports.css',
+            [ 'tt-frontend-mobile' ],
+            TT_VERSION
+        );
+    }
+
     /**
      * Bulk-export cards rendered on the page.
      *
@@ -162,7 +172,7 @@ class FrontendExportsView extends FrontendViewBase {
         self::enqueueAssets();
         self::renderHeader( __( 'Exports', 'talenttrack' ) );
 
-        echo '<p style="color:#5b6e75; max-width:760px; margin:0 0 20px;">';
+        echo '<p class="tt-export-intro">';
         esc_html_e( 'Bulk exporters in one place. Per-record exports (player one-pager, scouting report PDF, PDP, etc.) stay on each record\'s detail page where the relevant id is in context.', 'talenttrack' );
         echo '</p>';
 
@@ -172,7 +182,7 @@ class FrontendExportsView extends FrontendViewBase {
         // include a team picker.
         $teams = self::teamsForUser( $user_id, $is_admin );
 
-        echo '<div class="tt-export-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:16px;">';
+        echo '<div class="tt-export-grid">';
         foreach ( $visible_cards as $card ) {
             self::renderCard( $card, $teams );
         }
@@ -192,22 +202,20 @@ class FrontendExportsView extends FrontendViewBase {
         $format   = $card['format'];
         $fields   = $card['fields'];
 
-        echo '<div class="tt-card" style="background:#fff; border:1px solid #e5e7ea; border-radius:8px; padding:16px;">';
-        echo '<div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:6px;">';
-        echo '<strong style="font-size:14px;">' . esc_html( $label ) . '</strong>';
-        echo '<span class="tt-pill" style="display:inline-block; padding:2px 8px; border-radius:999px; background:#0b3d2e; color:#fff; font-size:10px; font-weight:600; letter-spacing:0.04em;">' . esc_html( $format ) . '</span>';
-        echo '</div>';
-        echo '<p style="color:#5b6e75; font-size:12px; line-height:1.4; margin:0 0 12px;">' . esc_html( $desc ) . '</p>';
+        echo '<div class="tt-export-card">';
+        echo '<span class="tt-export-card__format">' . esc_html( $format ) . '</span>';
+        echo '<div class="tt-export-card__header"><strong class="tt-export-card__title">' . esc_html( $label ) . '</strong></div>';
+        echo '<p class="tt-export-card__desc">' . esc_html( $desc ) . '</p>';
 
-        echo '<form class="tt-export-form" data-export-key="' . esc_attr( $key ) . '" data-export-format="' . esc_attr( strtolower( $format ) ) . '" data-export-label="' . esc_attr( $label ) . '">';
+        echo '<form class="tt-export-form tt-export-card__form" data-export-key="' . esc_attr( $key ) . '" data-export-format="' . esc_attr( strtolower( $format ) ) . '" data-export-label="' . esc_attr( $label ) . '">';
 
         foreach ( $fields as $f ) {
             self::renderField( $f, $teams );
         }
 
-        echo '<div style="margin-top:12px; display:flex; align-items:center; gap:10px;">';
-        echo '<button type="submit" class="tt-btn tt-btn-primary" style="min-height:44px;">' . esc_html__( 'Export', 'talenttrack' ) . '</button>';
-        echo '<span class="tt-export-msg" style="font-size:12px; color:#5b6e75;"></span>';
+        echo '<div class="tt-export-card__footer">';
+        echo '<button type="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Export', 'talenttrack' ) . '</button>';
+        echo '<span class="tt-export-msg tt-export-card__msg"></span>';
         echo '</div>';
 
         echo '</form>';
@@ -225,14 +233,14 @@ class FrontendExportsView extends FrontendViewBase {
         $optional = ! empty( $f['optional'] );
         $default  = (string) ( $f['default'] ?? '' );
 
-        echo '<label style="display:block; margin-bottom:8px; font-size:12px; color:#5b6e75;">';
-        echo '<span style="display:block; margin-bottom:4px;">' . esc_html( $label );
-        if ( $optional ) echo ' <span style="color:#7c7c7c;">(' . esc_html__( 'optional', 'talenttrack' ) . ')</span>';
+        echo '<label class="tt-export-card__field">';
+        echo '<span class="tt-export-card__field-label">' . esc_html( $label );
+        if ( $optional ) echo ' <span class="tt-export-card__field-optional">(' . esc_html__( 'optional', 'talenttrack' ) . ')</span>';
         echo '</span>';
 
         switch ( $type ) {
             case 'team':
-                echo '<select name="' . esc_attr( $name ) . '" class="tt-input" style="width:100%; min-height:44px;">';
+                echo '<select name="' . esc_attr( $name ) . '" class="tt-input">';
                 echo '<option value="">' . esc_html__( '— all teams —', 'talenttrack' ) . '</option>';
                 foreach ( $teams as $t ) {
                     echo '<option value="' . (int) $t->id . '">' . esc_html( (string) $t->name ) . '</option>';
@@ -240,7 +248,7 @@ class FrontendExportsView extends FrontendViewBase {
                 echo '</select>';
                 break;
             case 'select':
-                echo '<select name="' . esc_attr( $name ) . '" class="tt-input" style="width:100%; min-height:44px;">';
+                echo '<select name="' . esc_attr( $name ) . '" class="tt-input">';
                 foreach ( (array) ( $f['options'] ?? [] ) as $val => $lbl ) {
                     $sel = ( $default === (string) $val ) ? ' selected' : '';
                     echo '<option value="' . esc_attr( (string) $val ) . '"' . $sel . '>' . esc_html( (string) $lbl ) . '</option>';
@@ -248,15 +256,15 @@ class FrontendExportsView extends FrontendViewBase {
                 echo '</select>';
                 break;
             case 'date':
-                echo '<input type="date" name="' . esc_attr( $name ) . '" class="tt-input" style="width:100%; min-height:44px;" value="' . esc_attr( $default ) . '">';
+                echo '<input type="date" name="' . esc_attr( $name ) . '" class="tt-input" value="' . esc_attr( $default ) . '">';
                 break;
             case 'number':
                 $min = isset( $f['min'] ) ? ' min="' . esc_attr( (string) $f['min'] ) . '"' : '';
                 $max = isset( $f['max'] ) ? ' max="' . esc_attr( (string) $f['max'] ) . '"' : '';
-                echo '<input type="number" inputmode="numeric" name="' . esc_attr( $name ) . '" class="tt-input" style="width:100%; min-height:44px;"' . $min . $max . ' value="' . esc_attr( $default ) . '">';
+                echo '<input type="number" inputmode="numeric" name="' . esc_attr( $name ) . '" class="tt-input"' . $min . $max . ' value="' . esc_attr( $default ) . '">';
                 break;
             default:
-                echo '<input type="text" name="' . esc_attr( $name ) . '" class="tt-input" style="width:100%; min-height:44px;" value="' . esc_attr( $default ) . '">';
+                echo '<input type="text" name="' . esc_attr( $name ) . '" class="tt-input" value="' . esc_attr( $default ) . '">';
         }
 
         echo '</label>';
@@ -345,13 +353,13 @@ class FrontendExportsView extends FrontendViewBase {
                     });
                 }).catch(function (err) {
                     if (msg) {
-                        msg.style.color = '#b32d2e';
+                        msg.classList.add('tt-export-card__msg--error');
                         msg.textContent = err.message || '<?php echo esc_js( __( 'Network error.', 'talenttrack' ) ); ?>';
                     }
                 }).finally(function () {
                     if (btn) btn.disabled = false;
                     setTimeout(function () {
-                        if (msg) { msg.textContent = ''; msg.style.color = ''; }
+                        if (msg) { msg.textContent = ''; msg.classList.remove('tt-export-card__msg--error'); }
                     }, 4000);
                 });
             });

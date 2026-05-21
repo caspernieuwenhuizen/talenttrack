@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.0.8
+Stable tag: 4.0.9
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.0.9 — Exports page look & feel pass (closes #863). The v1 from #797 carried inline styles, no min-card-height, a format pill jammed into a tight flex header, and a 320px grid minimum that broke descriptions mid-phrase on narrow viewports. Pilot quote: *"look and feel is terrible."* Rebuild: extract the inline styles into a new dedicated stylesheet `assets/css/frontend-exports.css`, enqueued via an `enqueueAssets()` override on the view; introduce a `.tt-export-card` BEM class set (`__header`, `__title`, `__format`, `__desc`, `__form`, `__field`, `__footer`, `__msg`); position the format pill absolutely in the card's top-right so it never competes with the title; raise the desktop grid minimum to 360px and stack to a single column below 768px (mobile-first); set `min-height: 260px` on every card and `margin-top: auto` on the footer so all cards in a row visually align regardless of description length or field count. Date / select / number / text inputs all 100% width with 44px min-height, applied via the stylesheet — no inline width gymnastics. Error message styling switched from inline `style.color` to a `.tt-export-card__msg--error` modifier class so a future dark-mode pass can override centrally. (closes #863) =
 
 = 4.0.8 — Exports page no longer 403s on every Export click (closes #862). The `/talenttrack/v1/exports/{key}` REST route was registered `'methods' => 'GET'`, but the inline JS in `FrontendExportsView` submits filters as a JSON body via POST. Result: every Export button on the central Exports page (#797) returned 403 / 405. Two-part fix: (1) route now accepts both GET and POST so direct-link integrations keep working while the page's own POST goes through; (2) the run() handler now merges `get_query_params()` AND `get_json_params()` into the filter bag before passing it to the exporter, so filters carried in the POST body actually reach the export — previously only GET querystring filters were read. Cap-gating in `ExportService::run()` is unchanged. (closes #862) =
 
