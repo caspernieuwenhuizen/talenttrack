@@ -42,17 +42,23 @@ class FrontendExportsView extends FrontendViewBase {
     /**
      * Bulk-export cards rendered on the page.
      *
-     * @return list<array{key:string,label:string,desc:string,format:string,cap:string,fields:list<array<string,mixed>>}>
+     * Each card declares `formats` as a list of format slugs. When the
+     * list has more than one entry the card renders a chip-style format
+     * toggle and the picked value is submitted as `format` in the POST
+     * body. When the list has exactly one entry the card hides the
+     * toggle and submits the single format via a hidden input. (#864)
+     *
+     * @return list<array{key:string,label:string,desc:string,formats:list<string>,cap:string,fields:list<array<string,mixed>>}>
      */
     private static function cards(): array {
         return [
             [
-                'key'    => 'players_list',
-                'label'  => __( 'Players list', 'talenttrack' ),
-                'desc'   => __( 'Squad list with birthdate, parent email, jersey, positions.', 'talenttrack' ),
-                'format' => 'CSV',
-                'cap'    => 'tt_view_players',
-                'fields' => [
+                'key'     => 'players_list',
+                'label'   => __( 'Players list', 'talenttrack' ),
+                'desc'    => __( 'Squad list with birthdate, parent email, jersey, positions.', 'talenttrack' ),
+                'formats' => [ 'csv', 'xlsx' ],
+                'cap'     => 'tt_view_players',
+                'fields'  => [
                     [ 'type' => 'team', 'name' => 'team_id', 'label' => __( 'Team', 'talenttrack' ), 'optional' => true ],
                     [ 'type' => 'select', 'name' => 'status', 'label' => __( 'Status', 'talenttrack' ), 'options' => [
                         'active'   => __( 'Active only',   'talenttrack' ),
@@ -63,24 +69,24 @@ class FrontendExportsView extends FrontendViewBase {
                 ],
             ],
             [
-                'key'    => 'attendance_register',
-                'label'  => __( 'Attendance register', 'talenttrack' ),
-                'desc'   => __( 'One row per (player, activity) with attendance status. Defaults to the last 90 days.', 'talenttrack' ),
-                'format' => 'CSV',
-                'cap'    => 'tt_view_activities',
-                'fields' => [
+                'key'     => 'attendance_register',
+                'label'   => __( 'Attendance register', 'talenttrack' ),
+                'desc'    => __( 'One row per (player, activity) with attendance status. Defaults to the last 90 days.', 'talenttrack' ),
+                'formats' => [ 'csv', 'xlsx' ],
+                'cap'     => 'tt_view_activities',
+                'fields'  => [
                     [ 'type' => 'team', 'name' => 'team_id', 'label' => __( 'Team', 'talenttrack' ), 'optional' => true ],
                     [ 'type' => 'date', 'name' => 'date_from', 'label' => __( 'From date', 'talenttrack' ), 'default' => gmdate( 'Y-m-d', strtotime( '-90 days' ) ) ],
                     [ 'type' => 'date', 'name' => 'date_to',   'label' => __( 'To date',   'talenttrack' ), 'default' => gmdate( 'Y-m-d' ) ],
                 ],
             ],
             [
-                'key'    => 'goals_list',
-                'label'  => __( 'Goals list', 'talenttrack' ),
-                'desc'   => __( 'Team goals with priority, due date, owner.', 'talenttrack' ),
-                'format' => 'CSV',
-                'cap'    => 'tt_view_goals',
-                'fields' => [
+                'key'     => 'goals_list',
+                'label'   => __( 'Goals list', 'talenttrack' ),
+                'desc'    => __( 'Team goals with priority, due date, owner.', 'talenttrack' ),
+                'formats' => [ 'csv', 'xlsx' ],
+                'cap'     => 'tt_view_goals',
+                'fields'  => [
                     [ 'type' => 'team', 'name' => 'team_id', 'label' => __( 'Team', 'talenttrack' ), 'optional' => true ],
                     [ 'type' => 'select', 'name' => 'status', 'label' => __( 'Status', 'talenttrack' ), 'options' => [
                         'pending'     => __( 'Pending',     'talenttrack' ),
@@ -92,35 +98,35 @@ class FrontendExportsView extends FrontendViewBase {
                 ],
             ],
             [
-                'key'    => 'evaluations_xlsx',
-                'label'  => __( 'Evaluations export', 'talenttrack' ),
-                'desc'   => __( 'Multi-sheet workbook partitioned by season × evaluation type with main-category averages.', 'talenttrack' ),
-                'format' => 'XLSX',
-                'cap'    => 'tt_view_evaluations',
-                'fields' => [
+                'key'     => 'evaluations_xlsx',
+                'label'   => __( 'Evaluations export', 'talenttrack' ),
+                'desc'    => __( 'Multi-sheet workbook partitioned by season × evaluation type with main-category averages.', 'talenttrack' ),
+                'formats' => [ 'xlsx' ],
+                'cap'     => 'tt_view_evaluations',
+                'fields'  => [
                     [ 'type' => 'team', 'name' => 'team_id', 'label' => __( 'Team', 'talenttrack' ), 'optional' => true ],
                     [ 'type' => 'date', 'name' => 'date_from', 'label' => __( 'From date', 'talenttrack' ), 'optional' => true ],
                     [ 'type' => 'date', 'name' => 'date_to',   'label' => __( 'To date',   'talenttrack' ), 'optional' => true ],
                 ],
             ],
             [
-                'key'    => 'team_ical',
-                'label'  => __( 'Team activity calendar (iCal)', 'talenttrack' ),
-                'desc'   => __( 'All-day calendar events for team activities. Importable into Google Calendar, Outlook, Apple Calendar.', 'talenttrack' ),
-                'format' => 'iCal',
-                'cap'    => 'tt_view_activities',
-                'fields' => [
+                'key'     => 'team_ical',
+                'label'   => __( 'Team activity calendar (iCal)', 'talenttrack' ),
+                'desc'    => __( 'All-day calendar events for team activities. Importable into Google Calendar, Outlook, Apple Calendar.', 'talenttrack' ),
+                'formats' => [ 'ics' ],
+                'cap'     => 'tt_view_activities',
+                'fields'  => [
                     [ 'type' => 'number', 'name' => 'months_back',  'label' => __( 'Months back',  'talenttrack' ), 'default' => '1',  'min' => '0', 'max' => '24' ],
                     [ 'type' => 'number', 'name' => 'months_ahead', 'label' => __( 'Months ahead', 'talenttrack' ), 'default' => '12', 'min' => '0', 'max' => '36' ],
                 ],
             ],
             [
-                'key'    => 'federation_json',
-                'label'  => __( 'Federation registration (JSON)', 'talenttrack' ),
-                'desc'   => __( 'Neutral JSON envelope (club + teams + players) for federation imports. No federation-specific format.', 'talenttrack' ),
-                'format' => 'JSON',
-                'cap'    => 'tt_view_players',
-                'fields' => [
+                'key'     => 'federation_json',
+                'label'   => __( 'Federation registration (JSON)', 'talenttrack' ),
+                'desc'    => __( 'Neutral JSON envelope (club + teams + players) for federation imports. No federation-specific format.', 'talenttrack' ),
+                'formats' => [ 'json' ],
+                'cap'     => 'tt_view_players',
+                'fields'  => [
                     [ 'type' => 'team', 'name' => 'team_id', 'label' => __( 'Team', 'talenttrack' ), 'optional' => true ],
                     [ 'type' => 'select', 'name' => 'status', 'label' => __( 'Status', 'talenttrack' ), 'options' => [
                         'active'   => __( 'Active only',   'talenttrack' ),
@@ -131,12 +137,12 @@ class FrontendExportsView extends FrontendViewBase {
                 ],
             ],
             [
-                'key'    => 'backup_zip',
-                'label'  => __( 'Full club-data backup', 'talenttrack' ),
-                'desc'   => __( 'Gzipped JSON snapshot in a ZIP per selected table preset. Admin-only.', 'talenttrack' ),
-                'format' => 'ZIP',
-                'cap'    => 'tt_manage_backups',
-                'fields' => [
+                'key'     => 'backup_zip',
+                'label'   => __( 'Full club-data backup', 'talenttrack' ),
+                'desc'    => __( 'Gzipped JSON snapshot in a ZIP per selected table preset. Admin-only.', 'talenttrack' ),
+                'formats' => [ 'zip' ],
+                'cap'     => 'tt_manage_backups',
+                'fields'  => [
                     [ 'type' => 'select', 'name' => 'preset', 'label' => __( 'Preset', 'talenttrack' ), 'options' => [
                         'minimal'  => __( 'Minimal — core tables only',           'talenttrack' ),
                         'standard' => __( 'Standard — core + activity history', 'talenttrack' ),
@@ -145,14 +151,29 @@ class FrontendExportsView extends FrontendViewBase {
                 ],
             ],
             [
-                'key'    => 'demo_data_xlsx',
-                'label'  => __( 'Demo-data round-trip', 'talenttrack' ),
-                'desc'   => __( 'All club tables per SheetSchemas layout — for import round-trips. Admin-only.', 'talenttrack' ),
-                'format' => 'XLSX',
-                'cap'    => 'tt_edit_settings',
-                'fields' => [],
+                'key'     => 'demo_data_xlsx',
+                'label'   => __( 'Demo-data round-trip', 'talenttrack' ),
+                'desc'    => __( 'All club tables per SheetSchemas layout — for import round-trips. Admin-only.', 'talenttrack' ),
+                'formats' => [ 'xlsx' ],
+                'cap'     => 'tt_edit_settings',
+                'fields'  => [],
             ],
         ];
+    }
+
+    /**
+     * Display label for a format slug (badge + chip text).
+     */
+    private static function formatLabel( string $slug ): string {
+        $map = [
+            'csv'  => 'CSV',
+            'xlsx' => 'XLSX',
+            'ics'  => 'iCal',
+            'json' => 'JSON',
+            'zip'  => 'ZIP',
+            'pdf'  => 'PDF',
+        ];
+        return $map[ strtolower( $slug ) ] ?? strtoupper( $slug );
     }
 
     public static function render( int $user_id, bool $is_admin ): void {
@@ -192,25 +213,51 @@ class FrontendExportsView extends FrontendViewBase {
     }
 
     /**
-     * @param array{key:string,label:string,desc:string,format:string,cap:string,fields:list<array<string,mixed>>} $card
+     * @param array{key:string,label:string,desc:string,formats:list<string>,cap:string,fields:list<array<string,mixed>>} $card
      * @param array<int, object> $teams
      */
     private static function renderCard( array $card, array $teams ): void {
         $key      = $card['key'];
         $label    = $card['label'];
         $desc     = $card['desc'];
-        $format   = $card['format'];
+        $formats  = $card['formats'];
         $fields   = $card['fields'];
 
+        $primary  = $formats[0];
+        $multi    = count( $formats ) > 1;
+
         echo '<div class="tt-export-card">';
-        echo '<span class="tt-export-card__format">' . esc_html( $format ) . '</span>';
+
+        // Single-format cards keep the static badge top-right; multi-format
+        // cards render the chip-group inline below the description.
+        if ( ! $multi ) {
+            echo '<span class="tt-export-card__format">' . esc_html( self::formatLabel( $primary ) ) . '</span>';
+        }
+
         echo '<div class="tt-export-card__header"><strong class="tt-export-card__title">' . esc_html( $label ) . '</strong></div>';
         echo '<p class="tt-export-card__desc">' . esc_html( $desc ) . '</p>';
 
-        echo '<form class="tt-export-form tt-export-card__form" data-export-key="' . esc_attr( $key ) . '" data-export-format="' . esc_attr( strtolower( $format ) ) . '" data-export-label="' . esc_attr( $label ) . '">';
+        echo '<form class="tt-export-form tt-export-card__form" data-export-key="' . esc_attr( $key ) . '" data-export-label="' . esc_attr( $label ) . '">';
 
         foreach ( $fields as $f ) {
             self::renderField( $f, $teams );
+        }
+
+        if ( $multi ) {
+            echo '<div class="tt-export-card__field">';
+            echo '<span class="tt-export-card__field-label">' . esc_html__( 'Format', 'talenttrack' ) . '</span>';
+            echo '<div class="tt-export-card__formats" role="radiogroup" aria-label="' . esc_attr__( 'Export format', 'talenttrack' ) . '">';
+            foreach ( $formats as $i => $fmt ) {
+                $checked = $i === 0 ? ' checked' : '';
+                echo '<label class="tt-export-card__format-chip">';
+                echo '<input type="radio" name="format" value="' . esc_attr( $fmt ) . '"' . $checked . '>';
+                echo '<span>' . esc_html( self::formatLabel( $fmt ) ) . '</span>';
+                echo '</label>';
+            }
+            echo '</div>';
+            echo '</div>';
+        } else {
+            echo '<input type="hidden" name="format" value="' . esc_attr( $primary ) . '">';
         }
 
         echo '<div class="tt-export-card__footer">';
@@ -315,7 +362,6 @@ class FrontendExportsView extends FrontendViewBase {
                 e.preventDefault();
 
                 var key   = form.getAttribute('data-export-key') || '';
-                var fmt   = form.getAttribute('data-export-format') || 'bin';
                 var label = form.getAttribute('data-export-label') || key;
                 var msg   = form.querySelector('.tt-export-msg');
                 var btn   = form.querySelector('button[type="submit"]');
@@ -327,6 +373,11 @@ class FrontendExportsView extends FrontendViewBase {
                     if (v === '' || v === null) return; // skip empties so server defaults apply
                     body[k] = v;
                 });
+                // Fallback extension for the downloaded file when the server's
+                // Content-Disposition header is missing — read the selected
+                // format from the form data, since multi-format cards (#864)
+                // can switch between csv / xlsx on the fly.
+                var fmt = (body.format || 'bin').toString().toLowerCase();
 
                 if (msg) msg.textContent = '<?php echo esc_js( __( 'Generating…', 'talenttrack' ) ); ?>';
                 if (btn) btn.disabled = true;

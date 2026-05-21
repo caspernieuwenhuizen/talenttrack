@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.0.9
+Stable tag: 4.0.10
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.0.10 — Players list / Attendance register / Goals list bulk exports now offer XLSX in addition to CSV (closes #864). Coaches asked for XLSX so they can pivot in Excel without re-saving, share with parents/board, and preserve number formatting (CSV loses leading zeros on jersey numbers and date-scrambles depending on locale). Three exporters declare `supportedFormats() = [ 'csv', 'xlsx' ]` instead of CSV-only; their labels drop the trailing "(CSV)" since they're now multi-format. The existing `XlsxRenderer` gains a recognition path for the `[ 'headers' => …, 'rows' => … ]` payload shape returned by the CSV exporters, so the same `collect()` output feeds both renderers without per-exporter branching. The Exports page (`FrontendExportsView`) replaces the per-card `'format' => 'CSV'` shape with a `'formats' => [ 'csv', 'xlsx' ]` list; multi-format cards render a chip toggle (`.tt-export-card__format-chip`, `:has(input:checked)` for selected state, hidden radio buttons for keyboard accessibility); single-format cards keep their static badge and emit a hidden input. The JS picks `format` out of the FormData so the fallback filename extension reflects the user's choice. No schema, REST contract, or capability change. (closes #864) =
 
 = 4.0.9 — Exports page look & feel pass (closes #863). The v1 from #797 carried inline styles, no min-card-height, a format pill jammed into a tight flex header, and a 320px grid minimum that broke descriptions mid-phrase on narrow viewports. Pilot quote: *"look and feel is terrible."* Rebuild: extract the inline styles into a new dedicated stylesheet `assets/css/frontend-exports.css`, enqueued via an `enqueueAssets()` override on the view; introduce a `.tt-export-card` BEM class set (`__header`, `__title`, `__format`, `__desc`, `__form`, `__field`, `__footer`, `__msg`); position the format pill absolutely in the card's top-right so it never competes with the title; raise the desktop grid minimum to 360px and stack to a single column below 768px (mobile-first); set `min-height: 260px` on every card and `margin-top: auto` on the footer so all cards in a row visually align regardless of description length or field count. Date / select / number / text inputs all 100% width with 44px min-height, applied via the stylesheet — no inline width gymnastics. Error message styling switched from inline `style.color` to a `.tt-export-card__msg--error` modifier class so a future dark-mode pass can override centrally. (closes #863) =
 

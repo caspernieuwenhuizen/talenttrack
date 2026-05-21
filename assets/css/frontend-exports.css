@@ -130,3 +130,50 @@
 .tt-export-card__msg--error {
     color: #b32d2e;
 }
+
+/* Multi-format chip toggle (#864). One pill per format slug; the selected
+ * pill paints in the brand green so the choice is obvious before the user
+ * hits Export. */
+.tt-export-card__formats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.tt-export-card__format-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: #f3f4f5;
+    color: #1c1c1c;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    line-height: 1.4;
+    cursor: pointer;
+    min-height: 32px;
+    touch-action: manipulation;
+}
+
+.tt-export-card__format-chip input[type="radio"] {
+    /* Visually hidden, still focusable for keyboard users. */
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    border: 0;
+}
+
+.tt-export-card__format-chip:has(input:checked) {
+    background: #0b3d2e;
+    color: #fff;
+}
+
+.tt-export-card__format-chip:has(input:focus-visible) {
+    outline: 2px solid #0b3d2e;
+    outline-offset: 2px;
+}

@@ -101,8 +101,20 @@ final class XlsxRenderer implements FormatRendererInterface {
             }
             if ( $out !== [] ) return $out;
         }
-        // Fall back to CSV-shape `[ headers, rows ]`.
-        if ( is_array( $payload ) && count( $payload ) >= 2 ) {
+        // CSV-shape payload — `[ 'headers' => list<string>, 'rows' => list<list> ]`
+        // is the assoc form returned by `PlayersListCsvExporter` /
+        // `AttendanceRegisterCsvExporter` / `GoalsCsvExporter` (#864).
+        // Treat as a single-sheet workbook.
+        if ( is_array( $payload ) && isset( $payload['headers'], $payload['rows'] ) ) {
+            return [
+                'Data' => [
+                    array_values( (array) $payload['headers'] ),
+                    array_values( (array) $payload['rows'] ),
+                ],
+            ];
+        }
+        // Fall back to numeric-indexed shape `[ headers, rows ]`.
+        if ( is_array( $payload ) && count( $payload ) >= 2 && isset( $payload[0], $payload[1] ) ) {
             return [
                 'Data' => [
                     array_values( (array) $payload[0] ),
