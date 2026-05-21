@@ -275,6 +275,12 @@ class FrontendComparisonView extends FrontendViewBase {
                 border-top: 1px solid #f1f3f5;
                 font-size: 14px;
                 line-height: 1.35;
+                /* v4.0.7 (#878) — anchor every cell vertically so the
+                 * FIFA-card column (which sets `align-items: flex-start`
+                 * on the card cell) doesn't visually pull the left/right
+                 * comparison rows out of alignment. */
+                display: flex;
+                align-items: center;
             }
             .tt-fcompare-cell.tt-fcompare-label {
                 font-weight: 600;
@@ -316,7 +322,11 @@ class FrontendComparisonView extends FrontendViewBase {
         <h3 style="margin:24px 0 10px; font-size:15px;"><?php esc_html_e( 'Side-by-side', 'talenttrack' ); ?></h3>
         <div class="tt-fcompare-grid">
             <!-- Header row: blank label cell + N player names -->
-            <div class="tt-fcompare-cell tt-fcompare-label tt-fcompare-headerplayer">&nbsp;</div>
+            <!-- v4.0.7 (#878) — was `tt-fcompare-label tt-fcompare-headerplayer`;
+                 the two classes conflict on `background` + `font-weight`
+                 (latter wins on specificity). Drop the label class so
+                 the header anchor cell renders consistently. -->
+            <div class="tt-fcompare-cell tt-fcompare-headerplayer">&nbsp;</div>
             <?php foreach ( $players as $pl ) : ?>
                 <div class="tt-fcompare-cell tt-fcompare-headerplayer"><?php echo esc_html( QueryHelpers::player_display_name( $pl ) ); ?></div>
             <?php endforeach; ?>
@@ -403,10 +413,16 @@ class FrontendComparisonView extends FrontendViewBase {
      * @param array<int,array<int,array<string,mixed>>> $radar_sets
      */
     private static function renderChartScripts( array $players, array $trends, array $radar_sets ): void {
+        // v4.0.7 (#878) — `getRadarSnapshots()` returns an associative
+        // object `{ labels, datasets[] }`. The previous consumer
+        // indexed `$radar_sets[$pid][0]` which is a numeric lookup on
+        // an assoc array → always null → radar canvas stayed blank.
+        // Read the assoc directly and use the LAST dataset (most
+        // recent eval — `array_slice(-N)` returns oldest-to-newest).
         $radar_labels_union = [];
         foreach ( $players as $pl ) {
-            $pid = (int) $pl->id;
-            $snap = $radar_sets[ $pid ][0] ?? null;
+            $pid  = (int) $pl->id;
+            $snap = $radar_sets[ $pid ] ?? null;
             if ( $snap && ! empty( $snap['labels'] ) ) {
                 foreach ( (array) $snap['labels'] as $lbl ) {
                     $key = (string) $lbl;
@@ -416,11 +432,14 @@ class FrontendComparisonView extends FrontendViewBase {
         }
         $radar_datasets = [];
         foreach ( $players as $i => $pl ) {
-            $pid = (int) $pl->id;
-            $snap = $radar_sets[ $pid ][0] ?? null;
+            $pid  = (int) $pl->id;
+            $snap = $radar_sets[ $pid ] ?? null;
             $values = [];
-            if ( $snap && ! empty( $snap['labels'] ) && ! empty( $snap['values'] ) ) {
-                $map = array_combine( $snap['labels'], $snap['values'] );
+            $latest = is_array( $snap ) && ! empty( $snap['datasets'] )
+                ? end( $snap['datasets'] )
+                : null;
+            if ( $snap && ! empty( $snap['labels'] ) && is_array( $latest ) && ! empty( $latest['values'] ) ) {
+                $map = array_combine( $snap['labels'], $latest['values'] );
                 foreach ( $radar_labels_union as $lbl ) {
                     $values[] = isset( $map[ $lbl ] ) ? (float) $map[ $lbl ] : null;
                 }

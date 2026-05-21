@@ -363,6 +363,29 @@ class PlayerStatsService {
             }
         }
 
+        // v4.0.7 (#878) — prepend an "Overall" series as the per-date
+        // mean across all main-category points. Consumers that read
+        // $series[0] as the "overall" line (FrontendComparisonView,
+        // wp-admin PlayerComparisonPage) now get a legitimate aggregate
+        // instead of the first main category — which broke whenever
+        // that category had no data in scope.
+        $overall_points = array_fill( 0, count( $labels ), null );
+        foreach ( $labels as $idx => $_ ) {
+            $vals = [];
+            foreach ( $series as $ser ) {
+                $pt = $ser['points'][ $idx ] ?? null;
+                if ( $pt !== null ) $vals[] = (float) $pt;
+            }
+            if ( count( $vals ) > 0 ) {
+                $overall_points[ $idx ] = round( array_sum( $vals ) / count( $vals ), 2 );
+            }
+        }
+        array_unshift( $series, [
+            'main_id' => 0,
+            'label'   => __( 'Overall', 'talenttrack' ),
+            'points'  => $overall_points,
+        ] );
+
         return [ 'labels' => $labels, 'series' => $series ];
     }
 
