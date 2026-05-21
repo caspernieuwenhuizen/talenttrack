@@ -78,6 +78,7 @@ final class TeamActivitiesCsvExporter implements ExporterInterface {
                           WHERE att.activity_id = a.id
                             AND att.club_id = a.club_id
                             AND att.status = 'present'
+                            AND att.record_type = 'actual'
                        ) AS attendance_count,
                        (SELECT ROUND(AVG(er.rating), 2)
                           FROM {$p}tt_evaluations e

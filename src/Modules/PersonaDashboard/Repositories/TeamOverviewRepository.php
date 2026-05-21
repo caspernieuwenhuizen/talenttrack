@@ -81,6 +81,8 @@ final class TeamOverviewRepository {
                          WHERE act.team_id = t.id
                            AND att.club_id = t.club_id
                            AND att.is_guest = 0
+                           AND att.record_type = 'actual'
+                           AND act.plan_state = 'completed'
                            AND act.session_date >= %s
                            AND act.session_date <= %s
                     ) AS attendance_pct,
@@ -144,6 +146,8 @@ final class TeamOverviewRepository {
                          WHERE att.player_id = pl.id
                            AND att.club_id = pl.club_id
                            AND att.is_guest = 0
+                           AND att.record_type = 'actual'
+                           AND act.plan_state = 'completed'
                            AND act.session_date >= %s
                            AND act.session_date <= %s
                     ) AS attendance_pct,

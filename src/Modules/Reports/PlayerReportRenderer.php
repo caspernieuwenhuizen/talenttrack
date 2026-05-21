@@ -646,7 +646,11 @@ class PlayerReportRenderer {
         global $wpdb;
         $p = $wpdb->prefix;
 
-        $where  = [ 'a.player_id = %d', 'a.is_guest = 0' ];
+        // #788 ship 1 — reports describe what happened, never what was
+        // planned. Filter to actual rows on completed activities so
+        // expected-attendance rows (introduced by ship 2) can never
+        // double-count or appear in a printed report.
+        $where  = [ 'a.player_id = %d', 'a.is_guest = 0', "a.record_type = 'actual'", "s.plan_state = 'completed'" ];
         $params = [ $player_id ];
         if ( $filters['date_from'] !== '' ) {
             $where[]  = 's.session_date >= %s';

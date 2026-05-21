@@ -223,6 +223,9 @@ class TeamRosterTableWidget extends AbstractWidget {
         // surfaces under the same toggle.
         $act_scope = QueryHelpers::apply_demo_scope( 'a', 'activity' );
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        // #788 ship 1 — filter to actual rows on completed activities
+        // so planned-attendance rows (ship 2) don't pollute the per-
+        // player percentage.
         $att_rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT att.player_id,
                     COUNT(*) AS total,
@@ -231,6 +234,8 @@ class TeamRosterTableWidget extends AbstractWidget {
                JOIN {$p}tt_activities a ON a.id = att.activity_id AND a.club_id = att.club_id
               WHERE att.club_id = %d
                 AND att.player_id IN ( {$placeholders} )
+                AND att.record_type = 'actual'
+                AND a.plan_state = 'completed'
                 AND a.session_date >= %s
                 {$act_scope}
               GROUP BY att.player_id",

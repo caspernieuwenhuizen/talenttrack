@@ -86,13 +86,20 @@ final class KpiSnapshotXlsxExporter implements ExporterInterface {
         $attendance_total = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*) FROM {$p}tt_attendance att
                 INNER JOIN {$p}tt_activities a ON a.id = att.activity_id AND a.club_id = att.club_id
-                WHERE att.club_id = %d AND a.session_date BETWEEN %s AND %s",
+                WHERE att.club_id = %d
+                  AND att.record_type = 'actual'
+                  AND a.plan_state = 'completed'
+                  AND a.session_date BETWEEN %s AND %s",
             $club_id, $date_from, $date_to
         ) );
         $attendance_present = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*) FROM {$p}tt_attendance att
                 INNER JOIN {$p}tt_activities a ON a.id = att.activity_id AND a.club_id = att.club_id
-                WHERE att.club_id = %d AND a.session_date BETWEEN %s AND %s AND att.status = 'present'",
+                WHERE att.club_id = %d
+                  AND att.record_type = 'actual'
+                  AND a.plan_state = 'completed'
+                  AND a.session_date BETWEEN %s AND %s
+                  AND att.status = 'present'",
             $club_id, $date_from, $date_to
         ) );
         $attendance_pct = $attendance_total > 0

@@ -103,6 +103,10 @@ class MyTeamAttendancePct extends AbstractKpiDataSource {
         $scope = QueryHelpers::apply_demo_scope( 'act', 'activity' );
 
         // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared — placeholders built from constant arrays.
+        // #788 ship 1 — count actuals only; planned-attendance rows
+        // (ship 2) are not part of the coach's "what already happened"
+        // KPI. The existing plan_state filter narrows to in_progress +
+        // completed but expected rows could land on those too.
         $row = $wpdb->get_row( $wpdb->prepare(
             "SELECT
                 COUNT(*) AS total,
@@ -112,6 +116,7 @@ class MyTeamAttendancePct extends AbstractKpiDataSource {
               JOIN {$pl}  pl  ON pl.id  = a.player_id
              WHERE act.club_id = %d
                AND pl.team_id IN ({$team_placeholders})
+               AND a.record_type = 'actual'
                AND act.session_date >= %s
                AND act.session_date <= %s
                AND act.plan_state IN ({$state_placeholders})

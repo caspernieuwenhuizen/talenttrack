@@ -75,13 +75,19 @@ class AttendancePctRolling extends AbstractKpiDataSource {
         // seeded capitalised lookup values ('Present') and any legacy
         // lowercase data from the v2.x present-int → status-string
         // backfill in `Activator::installSchema`.
+        // #788 ship 1 — filter to actual rows on completed activities so
+        // expected-attendance rows (added by ship 2) don't pollute the
+        // rolling percentage. Mirrors the same fix shipped on
+        // `MyTeamAttendancePct` in v3.110.177.
         $row = $wpdb->get_row( $wpdb->prepare(
             "SELECT
                 COUNT(*) AS total,
                 SUM(CASE WHEN LOWER(a.status) = 'present' THEN 1 ELSE 0 END) AS present
               FROM {$att_table} a
               JOIN {$act_table} act ON act.id = a.activity_id
-             WHERE act.club_id = %d AND act.session_date >= %s AND act.session_date < %s {$scope}",
+             WHERE act.club_id = %d AND act.session_date >= %s AND act.session_date < %s
+               AND a.record_type = 'actual'
+               AND act.plan_state = 'completed' {$scope}",
             $club_id, $start, $end
         ) );
         if ( ! $row || (int) $row->total === 0 ) return null;

@@ -69,9 +69,16 @@ final class AttendanceRegisterCsvExporter implements ExporterInterface {
         $date_from = (string) ( $filters['date_from'] ?? '' );
         $date_to   = (string) ( $filters['date_to']   ?? '' );
 
+        // #788 ship 1 — default to actual rows on completed activities.
+        // The CSV is a "what happened" register; planned-attendance rows
+        // (ship 2) live in their own audit trail. If anyone asks for the
+        // planning audit via this exporter, a v2 query param can add an
+        // `?include=expected,actual` switch.
         $where  = [
             'a.club_id = %d',
             'a.session_date BETWEEN %s AND %s',
+            "att.record_type = 'actual'",
+            "a.plan_state = 'completed'",
         ];
         $params = [ (int) $request->clubId, $date_from, $date_to ];
 

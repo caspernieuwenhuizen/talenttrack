@@ -1,75 +1,69 @@
-# TalentTrack v4.1.7 — Coach hero pivots to live-match CTA (closes #879)
+# TalentTrack v4.2.0 — Expected-vs-actual attendance schema + reporting sweep (partial #788, ship 1)
 
 ## Pilot ask
 
-> I need 2 to be done. Add it to the coach hero and only show the button when relevant
+> investigate the option to also have expected attendance maintained for activities when they are planned … If a player is planned absent and with a specific reason that should be taken along in the initial step of attendance marking the completed activity.
 
-Follow-up to #847 (Match Execution). The only entry to the live-match surface was Dashboard → Activities → tap the match → "Start match" page-header action — four taps deep on a phone, awkward for an assistant on the sideline mid-match. The coach hero should surface the live-match CTA when there's actually something live to do.
+This is the **first** of two ships under #788. Ship 1 lays the schema + makes every read-side surface defensive **before** ship 2 introduces the wizard mode that writes `expected` rows for planned activities — the moment that write path goes live, any surface that hadn't been updated would silently conflate "planned" and "actual" rows.
 
 ## Changes
 
-### `MatchExecutionRepository` — two new helpers
+### Schema — migration 0121
 
-```php
-public function findLiveForTeams( array $team_ids ): ?object;
-public function findStartableForTeams( array $team_ids ): ?object;
+```sql
+ALTER TABLE tt_attendance
+    ADD COLUMN record_type ENUM('expected','actual') NOT NULL DEFAULT 'actual';
+ALTER TABLE tt_attendance
+    ADD INDEX idx_activity_record_type (activity_id, record_type);
 ```
 
-- `findLiveForTeams()` joins `tt_match_execution × tt_activities`, filters `state ∈ {first_half, half_time, second_half}`, returns the most-recently-updated row enriched with title + opponent + session_date + team_id + score + location.
-- `findStartableForTeams()` joins `tt_activities × tt_match_prep`, left-joins `tt_match_execution`, filters `session_date = current_time('Y-m-d')` + `activity_type_key IN ('match','game')` + `e.state IS NULL OR 'not_started'`. Returns the earliest-kickoff row.
+`DEFAULT 'actual'` keeps every existing row semantically correct — pre-migration rows describe what already happened, so they're `actual`. The covering index speeds up the new `WHERE activity_id = ? AND record_type = 'actual'` predicates added throughout the read-side sweep.
 
-Both tenancy-scoped via `CurrentClub::id()`.
+Idempotent (`SHOW COLUMNS` / `SHOW INDEX` guards).
 
-### `MarkAttendanceHeroWidget` — early-return pivot
+### Read-side sweep
 
-`render()` now calls `renderMatchExecutionBranch()` first. The branch:
+Every SELECT that summarises attendance now filters `record_type = 'actual'`, and where it didn't already, also `plan_state = 'completed'` so completed-activity views can't surface planned rows. Files touched:
 
-1. Pulls the coach's teams via `QueryHelpers::get_teams_for_coach($user_id)`.
-2. Tries `findLiveForTeams()` — if non-null, renders the **Resume match** variant:
-    - Eyebrow: "Live · 1e 23'" (or "HT" during half-time)
-    - Title: `<team> · <opponent>`
-    - Detail: current score
-    - Primary CTA: "Resume match" → `?tt_view=match-execution&activity_id=N`
-    - No secondary
-3. Otherwise tries `findStartableForTeams()` — if non-null, renders the **Start match** variant:
-    - Eyebrow: "Today"
-    - Title: `<team> · <opponent>`
-    - Detail: kickoff time + location
-    - Primary CTA: "Start match"
-    - Secondary: ghost link "Edit prep" → `?tt_view=match-prep&activity_id=N`
-4. Returns `null` to fall through to the existing mark-attendance code path.
+| File | Description |
+|---|---|
+| `src/Modules/Reports/PlayerReportRenderer.php` | Player report's attendance section — full filter. |
+| `src/Infrastructure/PlayerStatus/PlayerAttendanceCalculator.php` | Player-status engine attendance score. |
+| `src/Modules/PersonaDashboard/Kpis/AttendancePctRolling.php` | Academy-wide rolling attendance %. |
+| `src/Modules/PersonaDashboard/Kpis/MyTeamAttendancePct.php` | Coach dashboard KPI. |
+| `src/Modules/PersonaDashboard/Repositories/TeamOverviewRepository.php` | HoD team-overview (both `summariesFor` and `teamPlayerBreakdown`). |
+| `src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php` | HoD roster attendance % column. |
+| `src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php` | Bulk CSV register. |
+| `src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php` | Team attendance report. |
+| `src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php` | Player attendance report. |
+| `src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php` | v4.0.11 exporter — attendance + minutes subqueries. |
+| `src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php` | v4.0.11 exporter — per-activity attendance count. |
+| `src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php` | v4.0.11 exporter — attendance KPIs. |
 
-The minute label for the live eyebrow is computed in PHP from `first_half_started_at` (or `second_half_started_at`) + the `pause_seconds` accumulator already on the execution row. UTC throughout.
+All edits are surgical — one or two added clauses per query. Mechanical to review.
 
-### Persona fall-through
+### Surfaces deferred to ship 2
 
-HoDs / admins who don't actually coach a team get an empty `team_ids` list from `get_teams_for_coach()` — both repository helpers short-circuit to null, and the existing mark-attendance hero renders unchanged.
+- `MarkAttendanceWizard` dual-mode (planned vs completed entry).
+- `AttendanceStep` carry-forward (pre-fill `actual` from existing `expected` rows when entering completed-mode).
+- New planning surfaces: hero variant, page-header action, expected-absent pill on the activity list.
+- `FrontendPlayerDetailView::renderActivitiesTab` expected-vs-actual visual cue.
+- `FrontendActivitiesManageView::renderAttendanceSummary` mode-by-plan-state.
 
-## Files touched
+### Notifications / write paths
 
-- `src/Modules/MatchExecution/Repositories/MatchExecutionRepository.php` — two new methods (~80 lines).
-- `src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php` — imports + `renderMatchExecutionBranch()` + `liveMinuteLabel()` / `formatMinute()` helpers (~150 lines added).
-- `talenttrack.php` + `readme.txt` + `CHANGES.md` — version bump.
-
-## Out of scope
-
-- A dashboard tile or quick-action entry for match execution — keep the hero as the single surfacing point.
-- The "today date ≥ session date" gate on the existing page-header "Start match" action on the activity detail.
-- Resume-pill on the activity list. The hero pivot covers the "where do I resume from?" need.
-- Dutch translation strings — not added in this ship; the existing translation workflow handles new English strings in a follow-up i18n pass.
-
-## Verification
-
-- Coach with a live execution row on one of their teams → hero shows "Live · …", current score, "Resume match" CTA.
-- Coach with a prepped match scheduled today and no execution started → hero shows "Today" + "Start match" + "Edit prep" secondary.
-- Coach finishes a match (state goes to `completed`) → hero falls back to the default mark-attendance flow on next dashboard load.
-- HoD without a personal team assignment → default hero, no pivot.
-- Mobile 360px: existing hero layout, no extra CSS needed.
+- `AttendanceFlagTemplate` and the write-side wizards (`MarkAttendanceWizard`, `RateConfirmStep`, `Evaluation\AttendanceStep`) are unchanged in ship 1 — they only write `record_type = 'actual'` today (the column default), which is still correct because no `expected` rows exist yet.
 
 ## Versioning
 
-Patch bump (4.1.6 → 4.1.7). Same `4.1.x` series.
+Minor bump (4.1.7 → 4.2.0). New feature epic — the planned-attendance behaviour. Even though no UI changes yet, the schema is the platform-level API change that ship 2 builds on.
+
+## Verification
+
+- After migration: existing data + every surface returns the same numbers as before (every pre-existing row is `record_type = 'actual'` by default).
+- Insert a synthetic `record_type = 'expected'` row by hand: it should NOT appear in any of the swept surfaces (player report, KPIs, exports, etc.).
+- Drop a synthetic `expected` row on a `plan_state = 'scheduled'` activity: every summary surface still reports zero attendance for that activity (ship 2 will surface them in their own views).
 
 ## Closes
 
-- #879 — Coach-hero match-execution surface
+- Partial: #788 — Expected attendance on planned activities. Ship 1 of two; ship 2 (wizard + planning surfaces) follows in a separate PR.
