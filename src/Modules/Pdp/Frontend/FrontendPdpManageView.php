@@ -1102,13 +1102,10 @@ class FrontendPdpManageView extends FrontendViewBase {
     }
 
     private static function decisionLabel( string $decision ): string {
-        switch ( $decision ) {
-            case 'promote':  return __( 'Promote', 'talenttrack' );
-            case 'retain':   return __( 'Retain', 'talenttrack' );
-            case 'release':  return __( 'Release', 'talenttrack' );
-            case 'transfer': return __( 'Transfer', 'talenttrack' );
-        }
-        return $decision;
+        // v3.110.208 (#843) — delegate to PdpVerdictsRepository::label()
+        // which routes through LookupTranslator for the per-locale
+        // override stored in tt_translations.
+        return \TT\Modules\Pdp\Repositories\PdpVerdictsRepository::label( $decision );
     }
 
     private static function shortDate( $value ): string {

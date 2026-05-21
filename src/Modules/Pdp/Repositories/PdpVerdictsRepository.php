@@ -16,6 +16,28 @@ class PdpVerdictsRepository {
 
     private const ALLOWED_DECISIONS = [ 'promote', 'retain', 'release', 'transfer' ];
 
+    /**
+     * Operator-editable label for a stored decision value. Resolves
+     * through `tt_translations` for the current locale via
+     * `LookupTranslator::byTypeAndName('pdp_verdict_decision', $value)`;
+     * pre-migration installs fall back to the canonical English label.
+     * Stored values stay sacred (see ALLOWED_DECISIONS).
+     */
+    public static function label( string $decision ): string {
+        if ( $decision === '' ) return '';
+        if ( class_exists( '\\TT\\Infrastructure\\Query\\LookupTranslator' ) ) {
+            $label = \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'pdp_verdict_decision', $decision );
+            if ( $label !== '' ) return $label;
+        }
+        switch ( $decision ) {
+            case 'promote':  return __( 'Promote',  'talenttrack' );
+            case 'retain':   return __( 'Retain',   'talenttrack' );
+            case 'release':  return __( 'Release',  'talenttrack' );
+            case 'transfer': return __( 'Transfer', 'talenttrack' );
+        }
+        return $decision;
+    }
+
     private \wpdb $wpdb;
     private string $table;
 

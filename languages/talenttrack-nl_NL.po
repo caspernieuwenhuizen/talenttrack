@@ -31616,3 +31616,11 @@ msgstr "Beslissingen doelgoedkeuring"
 #: src/Shared/Frontend/FrontendConfigurationView.php
 msgid "Approve / approve with amendment / reject — the three buttons on the goal-approval task."
 msgstr "Goedkeuren / goedkeuren met aanpassing / afwijzen — de drie knoppen op de doelgoedkeuringstaak."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "PDP verdict decisions"
+msgstr "POP-eindbeoordeling beslissingen"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Promote / retain / release / transfer — the four end-of-season verdict outcomes on a PDP file."
+msgstr "Bevorderen / behouden / vrijgeven / overdragen — de vier eindbeoordelingen op een POP-dossier aan het einde van het seizoen."
