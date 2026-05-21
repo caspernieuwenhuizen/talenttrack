@@ -22,7 +22,17 @@ final class IdeaType {
         return [ self::FEAT, self::BUG, self::EPIC, self::NEEDS_TRIAGE ];
     }
 
+    /**
+     * Operator-editable label. Resolves through `tt_translations` via
+     * `LookupTranslator::byTypeAndName('idea_type', $value)`;
+     * pre-migration installs fall back to the canonical English label.
+     */
     public static function label( string $type ): string {
+        if ( $type === '' ) return '';
+        if ( class_exists( '\\TT\\Infrastructure\\Query\\LookupTranslator' ) ) {
+            $label = \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'idea_type', $type );
+            if ( $label !== '' && $label !== $type ) return $label;
+        }
         switch ( $type ) {
             case self::FEAT:         return __( 'Feature', 'talenttrack' );
             case self::BUG:          return __( 'Bug', 'talenttrack' );

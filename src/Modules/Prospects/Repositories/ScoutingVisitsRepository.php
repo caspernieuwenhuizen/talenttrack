@@ -18,6 +18,26 @@ class ScoutingVisitsRepository {
     public const STATUS_COMPLETED = 'completed';
     public const STATUS_CANCELLED = 'cancelled';
 
+    /**
+     * Operator-editable label for a stored visit status. Resolves
+     * through `tt_translations` via `LookupTranslator::byTypeAndName(
+     * 'scouting_visit_status', $value)`; pre-migration installs fall
+     * back to the canonical English label.
+     */
+    public static function statusLabel( string $status ): string {
+        if ( $status === '' ) $status = self::STATUS_PLANNED;
+        if ( class_exists( '\\TT\\Infrastructure\\Query\\LookupTranslator' ) ) {
+            $label = \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'scouting_visit_status', $status );
+            if ( $label !== '' && $label !== $status ) return $label;
+        }
+        switch ( $status ) {
+            case self::STATUS_PLANNED:   return __( 'Planned',   'talenttrack' );
+            case self::STATUS_COMPLETED: return __( 'Completed', 'talenttrack' );
+            case self::STATUS_CANCELLED: return __( 'Cancelled', 'talenttrack' );
+        }
+        return $status;
+    }
+
     private \wpdb $wpdb;
     private string $table;
 

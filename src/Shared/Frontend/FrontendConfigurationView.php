@@ -190,6 +190,14 @@ class FrontendConfigurationView extends FrontendViewBase {
             // Heavy operator surface; trial workflow varies by academy.
             [ __( 'Trial statuses', 'talenttrack' ), __( 'Open / extended / decided / archived — trial-case lifecycle states.', 'talenttrack' ), 'trial_case_statuses', 'inbox' ],
             [ __( 'Trial decisions', 'talenttrack' ), __( 'Admit / decline (final or with encouragement) / offered team position / declined / continue in trial group.', 'talenttrack' ), 'trial_case_decisions', 'approval' ],
+            // v3.110.213 (#803/#845) — final batch: invitation kind,
+            // idea type, scouting visit status, scheduled report
+            // frequency + status. Closes the #803 audit.
+            [ __( 'Invitation kinds', 'talenttrack' ), __( 'Player / parent / staff — role variants of the invitation flow.', 'talenttrack' ), 'invitation_kinds', 'invitation' ],
+            [ __( 'Idea types', 'talenttrack' ), __( 'Feature / bug / epic / needs triage — ideas-board type tag.', 'talenttrack' ), 'idea_types', 'lightbulb' ],
+            [ __( 'Scouting visit statuses', 'talenttrack' ), __( 'Planned / completed / cancelled — scouting visit lifecycle.', 'talenttrack' ), 'scouting_visit_statuses', 'compare' ],
+            [ __( 'Scheduled report frequencies', 'talenttrack' ), __( 'Weekly (Monday) / monthly (1st) / season end — cadence for scheduled CSV exports.', 'talenttrack' ), 'scheduled_report_frequencies', 'reports' ],
+            [ __( 'Scheduled report statuses', 'talenttrack' ), __( 'Active / paused / archived — scheduled report lifecycle.', 'talenttrack' ), 'scheduled_report_statuses', 'audit-log' ],
             [ __( 'Rating scale',       'talenttrack' ), __( 'Min, max and step for evaluation ratings.',                         'talenttrack' ), '__rating',        'weights' ],
         ];
 
@@ -286,6 +294,14 @@ class FrontendConfigurationView extends FrontendViewBase {
             // what each decision means in their context.
             'trial_case_statuses'     => [ 'label' => __( 'Trial statuses',         'talenttrack' ), 'type' => 'trial_case_status',      'show_desc' => false, 'show_color' => true  ],
             'trial_case_decisions'    => [ 'label' => __( 'Trial decisions',        'talenttrack' ), 'type' => 'trial_case_decision',    'show_desc' => true,  'show_color' => false ],
+            // v3.110.213 (#803/#845) — final batch. All simple-label
+            // vocabularies; show_desc=false, show_color=false except
+            // scheduled_report_status (lifecycle pill colour-coded).
+            'invitation_kinds'             => [ 'label' => __( 'Invitation kinds',             'talenttrack' ), 'type' => 'invitation_kind',            'show_desc' => false, 'show_color' => false ],
+            'idea_types'                   => [ 'label' => __( 'Idea types',                   'talenttrack' ), 'type' => 'idea_type',                  'show_desc' => false, 'show_color' => false ],
+            'scouting_visit_statuses'      => [ 'label' => __( 'Scouting visit statuses',      'talenttrack' ), 'type' => 'scouting_visit_status',      'show_desc' => false, 'show_color' => true  ],
+            'scheduled_report_frequencies' => [ 'label' => __( 'Scheduled report frequencies', 'talenttrack' ), 'type' => 'scheduled_report_frequency', 'show_desc' => false, 'show_color' => false ],
+            'scheduled_report_statuses'    => [ 'label' => __( 'Scheduled report statuses',    'talenttrack' ), 'type' => 'scheduled_report_status',    'show_desc' => false, 'show_color' => true  ],
         ];
         if ( ! isset( $registry[ $slug ] ) ) return null;
         $meta = $registry[ $slug ];

@@ -183,11 +183,10 @@ class FrontendScheduledReportsView extends FrontendViewBase {
     }
 
     private static function frequencyLabel( string $frequency ): string {
-        switch ( $frequency ) {
-            case ScheduledReportsRepository::FREQUENCY_WEEKLY_MONDAY: return __( 'Weekly (Monday)', 'talenttrack' );
-            case ScheduledReportsRepository::FREQUENCY_MONTHLY_FIRST: return __( 'Monthly (1st)', 'talenttrack' );
-            case ScheduledReportsRepository::FREQUENCY_SEASON_END:    return __( 'Season end', 'talenttrack' );
-        }
-        return $frequency;
+        // v3.110.213 (#845) — delegate to the repository's canonical
+        // label which routes through LookupTranslator. Keeps the
+        // pre-migration English fallback intact for installs that
+        // haven't applied migration 0117 yet.
+        return ScheduledReportsRepository::frequencyLabel( $frequency );
     }
 }

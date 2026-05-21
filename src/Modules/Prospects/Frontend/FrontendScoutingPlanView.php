@@ -139,12 +139,10 @@ class FrontendScoutingPlanView extends FrontendViewBase {
     }
 
     public static function statusLabel( string $key ): string {
-        switch ( $key ) {
-            case 'completed': return __( 'Completed', 'talenttrack' );
-            case 'cancelled': return __( 'Cancelled', 'talenttrack' );
-            case 'planned':
-            default:          return __( 'Planned', 'talenttrack' );
-        }
+        // v3.110.213 (#845) — delegate to the repository's canonical
+        // label() which routes through LookupTranslator. The repository
+        // also keeps an English fallback for pre-migration installs.
+        return \TT\Modules\Prospects\Repositories\ScoutingVisitsRepository::statusLabel( $key );
     }
 
     public static function statusPillHtml( string $key, string $label ): string {

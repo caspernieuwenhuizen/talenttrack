@@ -21,7 +21,17 @@ final class InvitationKind {
         return in_array( $kind, self::all(), true );
     }
 
+    /**
+     * Operator-editable label. Resolves through `tt_translations` via
+     * `LookupTranslator::byTypeAndName('invitation_kind', $value)`;
+     * pre-migration installs fall back to the canonical English label.
+     */
     public static function label( string $kind ): string {
+        if ( $kind === '' ) return '';
+        if ( class_exists( '\\TT\\Infrastructure\\Query\\LookupTranslator' ) ) {
+            $label = \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'invitation_kind', $kind );
+            if ( $label !== '' && $label !== $kind ) return $label;
+        }
         switch ( $kind ) {
             case self::PLAYER: return __( 'Player', 'talenttrack' );
             case self::PARENT: return __( 'Parent', 'talenttrack' );

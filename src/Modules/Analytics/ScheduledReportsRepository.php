@@ -32,6 +32,43 @@ final class ScheduledReportsRepository {
     public const STATUS_PAUSED   = 'paused';
     public const STATUS_ARCHIVED = 'archived';
 
+    /**
+     * Operator-editable label for a stored frequency value. Resolves
+     * through `tt_translations` via `LookupTranslator::byTypeAndName(
+     * 'scheduled_report_frequency', $value)`; pre-migration installs
+     * fall back to the canonical English label.
+     */
+    public static function frequencyLabel( string $frequency ): string {
+        if ( $frequency === '' ) return '';
+        if ( class_exists( '\\TT\\Infrastructure\\Query\\LookupTranslator' ) ) {
+            $label = \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'scheduled_report_frequency', $frequency );
+            if ( $label !== '' && $label !== $frequency ) return $label;
+        }
+        switch ( $frequency ) {
+            case self::FREQUENCY_WEEKLY_MONDAY: return __( 'Weekly (Monday)', 'talenttrack' );
+            case self::FREQUENCY_MONTHLY_FIRST: return __( 'Monthly (1st)',   'talenttrack' );
+            case self::FREQUENCY_SEASON_END:    return __( 'Season end',      'talenttrack' );
+        }
+        return $frequency;
+    }
+
+    /**
+     * Operator-editable label for a stored status value.
+     */
+    public static function statusLabel( string $status ): string {
+        if ( $status === '' ) return '';
+        if ( class_exists( '\\TT\\Infrastructure\\Query\\LookupTranslator' ) ) {
+            $label = \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'scheduled_report_status', $status );
+            if ( $label !== '' && $label !== $status ) return $label;
+        }
+        switch ( $status ) {
+            case self::STATUS_ACTIVE:   return __( 'Active',   'talenttrack' );
+            case self::STATUS_PAUSED:   return __( 'Paused',   'talenttrack' );
+            case self::STATUS_ARCHIVED: return __( 'Archived', 'talenttrack' );
+        }
+        return $status;
+    }
+
     private function table(): string {
         global $wpdb;
         return $wpdb->prefix . 'tt_scheduled_reports';

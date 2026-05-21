@@ -31664,3 +31664,43 @@ msgstr "Proefperiode-beslissingen"
 #: src/Shared/Frontend/FrontendConfigurationView.php
 msgid "Admit / decline (final or with encouragement) / offered team position / declined / continue in trial group."
 msgstr "Toelaten / afwijzen (definitief of met aanmoediging) / teamplek aangeboden / afgewezen / doorgaan in proefgroep."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Invitation kinds"
+msgstr "Uitnodigingstypen"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Player / parent / staff — role variants of the invitation flow."
+msgstr "Speler / ouder / staf — rolvarianten van de uitnodigingsflow."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Idea types"
+msgstr "Idee-types"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Feature / bug / epic / needs triage — ideas-board type tag."
+msgstr "Functie / bug / epic / triage vereist — type-tag op het ideeën-bord."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Scouting visit statuses"
+msgstr "Scoutbezoek-statussen"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Planned / completed / cancelled — scouting visit lifecycle."
+msgstr "Gepland / voltooid / geannuleerd — levenscyclus van een scoutbezoek."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Scheduled report frequencies"
+msgstr "Frequenties van geplande rapporten"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Weekly (Monday) / monthly (1st) / season end — cadence for scheduled CSV exports."
+msgstr "Wekelijks (maandag) / maandelijks (1e) / einde seizoen — frequentie voor geplande CSV-exports."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Scheduled report statuses"
+msgstr "Statussen van geplande rapporten"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Active / paused / archived — scheduled report lifecycle."
+msgstr "Actief / gepauzeerd / gearchiveerd — levenscyclus van een gepland rapport."
