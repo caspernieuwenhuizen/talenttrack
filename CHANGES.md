@@ -1,47 +1,47 @@
-# TalentTrack v4.0.0 — Versioning reset, adopt strict SemVer (closes #877)
+# TalentTrack v4.0.1 — RecordLink frontend entry-link URL helper canonicalises through home_url($path) on the REQUEST_URI fallback (closes #860)
 
-## Why
+## Pilot report
 
-Pre-4 versions ran as `3.110.x` because every PR bumped the patch counter by reflex. By the time the pilot was running v3.110.216, the version string told the operator nothing about what changed between releases — `.110` had been the "minor" for months without ever rolling over, and `.216` patches into it was a runaway number.
+> still 404
 
-Reset to `4.0.0` and adopt strict SemVer from here.
+Pilot 2026-05-21 clicked **+ New blueprint** on `?tt_view=team-blueprints&team_id=4` and the wizard URL 404'd at the entry point. Same root cause as the v3.110.172 / v3.110.180 wizard-redirect bugs — but a different code path.
 
-## What this release IS NOT
+## Root cause
 
-- **Not** a breaking change. No DB migration. No schema change. No REST contract change. No capability matrix change. No operator action required on upgrade.
-- **Not** a feature ship. The diff is the version string in two files plus this CHANGES entry plus a small doc update.
+`v3.110.172` (#766) and `v3.110.180` (#782) fixed the wizard's **post-step redirect** by introducing `wizardStepUrl()` that wraps `REQUEST_URI`'s path through `home_url($path)` so `wp_safe_redirect` always gets a fully-qualified URL on the canonical host.
 
-This is a cosmetic reset done once. Future major bumps (5.0.0, …) will gate on operator-visible breaking changes and be called out explicitly in CHANGES.md.
+Those fixes did **not** touch the **initial entry-link build**. Every "+ New X" / "Edit Y" link constructed through `RecordLink::dashboardUrl()` still used the old 4-stage fallback chain:
 
-## SemVer rule going forward
+1. configured `dashboard_page_id` → permalink
+2. self-healing shortcode-page scan → permalink
+3. `esc_url_raw(REQUEST_URI)` cleaned of routing args
+4. `home_url('/')`
 
-| Bump | When |
-|---|---|
-| **Major** (5.0.0, …) | Breaking change to a DB column, REST contract, or capability matrix that requires operator action on upgrade. Called out explicitly in CHANGES.md. |
-| **Minor** (4.1.0, 4.2.0, …) | New feature epic lands (e.g. "Exports rebuild shipped", "Behaviour discoverability shipped"). Reset patch to 0. |
-| **Patch** (4.0.1, 4.0.2, …) | Bug fixes + small enhancements within the current minor. |
+On the Strato install one of stages 1-2 was producing a URL that didn't resolve cleanly, falling through to stage 3 which then `add_query_arg`-ed into a 404-able URL. The blast radius is large: ~15+ files construct entry URLs through this helper (every Team Blueprints "+ New blueprint", PDP edit/create, onboarding pipeline links, mark-attendance hero "Edit activity", etc.).
 
-`v4.0.0` itself is the reset. The next ship after this one is `v4.0.1` (a patch).
+## Fix
 
-## What stays the same
+Apply the `wizardStepUrl()` pattern inside `RecordLink::dashboardUrl()` itself — every caller benefits without a per-surface patch. Stage 3 now:
 
-- **GitHub release flow** — `git tag v4.0.0 && git push origin v4.0.0` triggers `release.yml` unchanged.
-- **PUC (Plugin Update Checker)** — semver comparison handles `4.0.0 > 3.110.216` correctly.
-- **Migration numbering** — `database/migrations/0NNN_*.php` is independent of plugin version; next migration is `0121_*.php`.
-- **Translation workflow** — `i18n-sync.yml` runs unchanged.
+- Extracts the path from `REQUEST_URI` manually (`strpos`/`substr` on the `?` separator). No `esc_url_raw` round-trip — that's what mangled URLs on Strato per v3.110.180's diagnosis.
+- Wraps the path through `home_url($path)` so the result is always fully-qualified on the canonical host.
+- Stage 4 (`home_url('/')`) preserved for the genuinely-missing-REQUEST_URI case (CLI runs, unusual proxy configs).
+
+Stages 1-2 are unchanged — installs where `dashboard_page_id` is configured correctly (the majority) keep their fast path.
 
 ## Files touched
 
-- `talenttrack.php` — `Version:` header + `TT_VERSION` constant.
-- `readme.txt` — `Stable tag` + this changelog entry.
-- `CHANGES.md` — this file.
-- `DEVOPS.md` — Release section gets the bump-rule table + a v4.x example.
-- `CLAUDE.md` — Definition-of-done checklist gains a SemVer-discipline line.
-- `docs/versioning.md` + `docs/nl_NL/versioning.md` — new operator-facing one-paragraph explanation.
+- `src/Shared/Frontend/Components/RecordLink.php` — single function fix in `dashboardUrl()` step 3.
+- `talenttrack.php` + `readme.txt` + `CHANGES.md` — version bump.
+
+No schema, no migration, no REST, no behaviour change beyond the URL resolution. No Dutch translations needed (the change is to URL building, not strings).
 
 ## How to test
 
-1. `wp plugin info talenttrack` (or wp-admin Plugins page) reports version `4.0.0`.
-2. `Stable tag: 4.0.0` in `readme.txt`.
-3. PUC notifies installs on `3.110.216` to upgrade to `4.0.0`.
-4. No DB migration runs on activation (because none added in this release).
+1. On the pilot's Strato install: navigate to `?tt_view=team-blueprints&team_id=4`. Click **+ New blueprint**. Expect: wizard loads at `?tt_view=wizard&slug=new-team-blueprint&team_id=4`. Before the fix this 404'd.
+2. Same sanity check on the other surfaces listed in #860's blast-radius section (PDP edit/create links, onboarding pipeline, mark-attendance hero "Edit activity") — they should all start working on the pilot install.
+3. No regression on a clean install where `dashboard_page_id` is correctly configured: links continue to resolve via the dashboard page permalink (step 1 short-circuits).
+
+## Why patch (not minor)
+
+Bug fix, no new behaviour. Per the v4.0.0 SemVer rule: patch.
