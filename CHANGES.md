@@ -1,106 +1,89 @@
-# TalentTrack v4.0.10 — Players / Attendance / Goals bulk exports get an XLSX option (closes #864)
+# TalentTrack v4.0.11 — Exports page gains six bulk-export use cases (closes #865)
 
 ## Pilot ask
 
-> I want to have xlsx and csv instead of only csv as option
+> I also believe that not all export use cases are present?
 
-Coaches commonly want XLSX so they can pivot in Excel without re-saving, share with parents/board who prefer the format, and preserve number formatting (CSV loses leading zeros on jersey numbers; date interpretation flips with locale).
+Pilot completeness audit confirmed: 8 bulk exporters were registered on the Exports page, and 6 obvious data shapes were missing. Shipped together to round out the surface in one go.
 
-## Scope
+## New exporters
 
-Three row-oriented exporters move from CSV-only to CSV + XLSX:
+All six follow the existing `ExporterInterface` pattern (`key()`, `label()`, `supportedFormats()`, `requiredCap()`, `validateFilters()`, `collect()`), register in `ExportModule::boot()`, and surface as cards on `FrontendExportsView` with form-driven filters.
 
-- `players_list`
-- `attendance_register`
-- `goals_list`
+| Key | Class | Formats | Cap |
+|---|---|---|---|
+| `player_evaluations` | `PlayerEvaluationsCsvExporter` | csv, xlsx | `tt_view_evaluations` |
+| `team_roster_stats`  | `TeamRosterStatsCsvExporter`   | csv, xlsx | `tt_view_players` |
+| `team_activities`    | `TeamActivitiesCsvExporter`    | csv, xlsx | `tt_view_activities` |
+| `staff_directory`    | `StaffDirectoryCsvExporter`    | csv, xlsx | `tt_view_people` |
+| `kpi_snapshot`       | `KpiSnapshotXlsxExporter`      | xlsx      | `tt_view_reports` |
+| `audit_log`          | `AuditLogCsvExporter`          | csv       | `tt_manage_settings` |
 
-Other exporters keep their single canonical format (PDFs, ICS, JSON, ZIP, multi-sheet XLSX) — they already fit their job.
+### Player evaluations (flat)
 
-## Architecture choice
+Flat CSV companion to the existing multi-sheet `evaluations_xlsx`. One row per evaluation; one column per main `tt_eval_categories` with the average across that evaluation's sub-category ratings.
 
-Approach (A) per the issue body: **one exporter per data shape, multi-format**. The exporter's `collect()` output is renderer-shape-agnostic — both `CsvRenderer` and `XlsxRenderer` can consume the same `[ 'headers' => …, 'rows' => … ]` payload. Avoids the parallel-classes duplication of approach (B), and avoids the renaming churn the issue flagged.
+Filters: `team_id` (optional), `date_from` / `date_to` (optional).
 
-Class names stay (`PlayersListCsvExporter` etc.) — they're internal; renaming for cosmetics costs review noise without changing behaviour.
+### Team roster + season stats
 
-## Changes
+One row per player on the chosen team. Pulls roster fields (`tt_players`) plus three subquery-computed metrics across the date range:
 
-### Exporters
+- attendance count (`tt_attendance.status = 'present'`)
+- total minutes played (`tt_attendance.minutes_played`)
+- average rating (`AVG(tt_eval_ratings.rating)` across the player's evaluations)
 
-```php
-// PlayersListCsvExporter / AttendanceRegisterCsvExporter / GoalsCsvExporter
-public function label(): string { return __( 'Players list', 'talenttrack' ); }
-//                                       // ^ drops the "(CSV)" suffix
-public function supportedFormats(): array { return [ 'csv', 'xlsx' ]; }
-```
+Filters: `team_id` (required), `date_from` (default 1 year ago) / `date_to` (default today).
 
-`collect()` is unchanged on all three.
+### Team activity history
 
-### `XlsxRenderer::resolveSheets()`
+One row per activity within the date range. Subquery-computed attendance count and average rating (the rating average joins evaluations on `eval_date = session_date` for the team — close-enough for match-day evaluation rollups).
 
-Adds a recognition path for the assoc shape returned by the CSV exporters, before falling through to the numeric-indexed shape and the existing multi-sheet shape:
+Filters: `team_id` (optional), `date_from` (default 1 year ago) / `date_to` (default today).
 
-```php
-if ( is_array( $payload ) && isset( $payload['headers'], $payload['rows'] ) ) {
-    return [
-        'Data' => [
-            array_values( (array) $payload['headers'] ),
-            array_values( (array) $payload['rows'] ),
-        ],
-    ];
-}
-```
+### Coach / staff directory
 
-So the same exporter output reaches both renderers without per-exporter branching.
+Non-parent `tt_people` rows with email, phone, role and a `GROUP_CONCAT` of the team names they're assigned to via `tt_team_people`. Filterable by role type.
 
-### `FrontendExportsView`
+Filters: `role_type` (allowlist: all / coach / scout / staff / other).
 
-- `cards()` shape: `'format' => 'CSV'` → `'formats' => [ 'csv', 'xlsx' ]`. Every card was migrated, including the single-format ones (now `'formats' => [ 'ics' ]` / `[ 'json' ]` / `[ 'zip' ]` / `[ 'xlsx' ]`).
-- New `formatLabel($slug)` helper produces the display string (CSV / XLSX / iCal / JSON / ZIP / PDF).
-- `renderCard()` branches on `count($formats) > 1`:
-    - **Multi-format**: render a chip-group with one `<label class="tt-export-card__format-chip">` per format, each containing a hidden `<input type="radio" name="format" value="…">`. First slug is `checked` by default. The chip-group sits inside the card's field stack with a "Format" label above it, matching the other field rows.
-    - **Single-format**: the static top-right badge stays; the form emits `<input type="hidden" name="format" value="…">` so the server sees the slug.
-- JS reads `body.format` (from the form's FormData) for the fallback filename extension, so a CSV→XLSX toggle changes the downloaded extension when the server's `Content-Disposition` header is missing.
+### KPI snapshot
 
-### CSS — `assets/css/frontend-exports.css`
+Single-sheet XLSX with point-in-time KPIs for board reports:
 
-New chip styles. Pills are 32px tall, brand-green when selected:
+- Snapshot range from / to / generated-at
+- Active players / total players / active teams
+- Activities in period / evaluations in period
+- Attendance rows / present / present %
+- Goals — total / active / completed
 
-```css
-.tt-export-card__format-chip {
-    display: inline-flex;
-    padding: 6px 12px;
-    border-radius: 999px;
-    background: #f3f4f5;
-    cursor: pointer;
-    min-height: 32px;
-    touch-action: manipulation;
-}
-.tt-export-card__format-chip:has(input:checked) {
-    background: #0b3d2e;
-    color: #fff;
-}
-.tt-export-card__format-chip:has(input:focus-visible) {
-    outline: 2px solid #0b3d2e;
-    outline-offset: 2px;
-}
-```
+Filters: `date_from` (default first-of-month) / `date_to` (default today).
 
-The hidden radio uses the standard clip-rect visually-hidden pattern so keyboard users can still Tab + arrow-key through the choices and `:focus-visible` highlights the active chip.
+### Audit log
+
+Admin-only dump of `tt_audit_log` for compliance / GDPR review. Guards on `SHOW TABLES LIKE` so a fresh install before migrations doesn't crash.
+
+Filters: `date_from` (default 30 days ago) / `date_to` (default today), `action` (LIKE contains), `entity_type` (exact match).
+
+## Implementation notes
+
+- Every exporter scopes by `club_id` (matrix tenancy scaffold) — no cross-tenant leak even when SaaS multi-tenancy lands.
+- Every exporter cap-gates on its existing capability — no new caps introduced.
+- Multi-format exporters (csv + xlsx) leverage the `XlsxRenderer` recognition path for the `[ 'headers' => …, 'rows' => … ]` payload shape added in v4.0.10 — same `collect()` feeds both renderers.
+- `FrontendExportsView::cards()` was extended with one card per new exporter, all using the existing `formats[]` shape + chip toggle / hidden badge logic.
 
 ## Out of scope
 
-- Other CSV exporters not in the three listed above (no pilot ask for those).
-- Demo-data XLSX export — already XLSX, no CSV value-add.
-- Renaming exporter class files — purely cosmetic, no consumer-facing change.
+- Per-record exports stay on detail pages (unchanged).
+- The audit log lacks server-side retention; for very large logs the date range is the main control. An async runner ships when a real install hits the size ceiling.
 
 ## Verification
 
-- Players list card shows two chips (CSV selected). Click XLSX → chip flips green → Export → file downloads as `.xlsx` and opens in Excel with proper column types.
-- Attendance register: same toggle, full row set roundtrips into XLSX preserving the date column.
-- Goals list: same toggle, due_date column lands as a string (preserved; no Excel re-interpretation).
-- Single-format cards (Evaluations XLSX, Team iCal, Federation JSON, Backup ZIP, Demo-data XLSX) still show their static badge top-right; their form posts the right `format` via the hidden input.
-- Keyboard test: Tab into chip-group → arrow keys flip selection → Enter on Export submits.
+- All 14 bulk-export cards render on the Exports page; each respects its cap-gating.
+- A coach without `tt_view_reports` sees the page minus the KPI snapshot.
+- An admin downloads the KPI snapshot — numbers cross-check against the dashboard widgets for the same date range.
+- Audit log on a fresh install returns an empty file rather than a 500.
 
 ## Closes
 
-- #864 — Exports page — offer both CSV and XLSX as format option for bulk data exports
+- #865 — Exports completeness audit — 6 missing bulk-export use cases
