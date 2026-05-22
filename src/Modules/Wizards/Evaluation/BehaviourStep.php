@@ -57,7 +57,7 @@ final class BehaviourStep implements WizardStepInterface {
         $existing_notes   = (array) ( $state['behaviour_notes'] ?? [] );
         ?>
         <p style="color:var(--tt-muted);max-width:60ch;">
-            <?php esc_html_e( 'Optional — record a quick behaviour rating for this session. Skip any player you do not want to rate today. Players left blank get no behaviour row.', 'talenttrack' ); ?>
+            <?php esc_html_e( 'Optional — record a quick behaviour rating for this activity. Skip any player you do not want to rate today. Players left blank get no behaviour row.', 'talenttrack' ); ?>
         </p>
 
         <div class="tt-rate-roster">
