@@ -1,3 +1,4 @@
+<!-- audience: admin -->
 # Versies — hoe lees ik het versienummer van de plug-in?
 
 **Doelgroep:** academiebeheerders die het wp-admin "Plug-in-updates"-paneel bekijken.

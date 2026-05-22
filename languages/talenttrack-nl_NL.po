@@ -16591,11 +16591,6 @@ msgstr "Voetbalhandeling"
 msgid "Value"
 msgstr "Waarde"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1086
-msgctxt "PDP file status"
-msgid "Open"
-msgstr "Open"
-
 #: src/Modules/Pdp/Frontend/FrontendPdpPlanningView.php:29
 msgid "You do not have permission to view PDP planning."
 msgstr "Je hebt geen rechten om de POP-planning te bekijken."
@@ -25412,13 +25407,6 @@ msgstr "Spelerdetail"
 msgid "No teams assigned."
 msgstr "Geen teams toegewezen."
 
-# ===== v2.16.0 — Tier-by-position + Print report + Mobile =====
-#: src/Shared/Frontend/CoachDashboardView.php:90
-#: src/Shared/Frontend/FrontendPlayersManageView.php:551
-#: src/Shared/Frontend/PlayerDashboardView.php:62
-msgid "🖨 Print report"
-msgstr "🖨 Rapport printen"
-
 #: src/Shared/Frontend/CoachDashboardView.php:107
 msgid "Select a player from the roster."
 msgstr "Selecteer een speler uit de selectie."
@@ -31672,10 +31660,6 @@ msgid "Open / extended / decided / archived — trial-case lifecycle states."
 msgstr "Open / verlengd / besloten / gearchiveerd — levenscyclus van een proefperiode."
 
 #: src/Shared/Frontend/FrontendConfigurationView.php
-msgid "Trial decisions"
-msgstr "Proefperiode-beslissingen"
-
-#: src/Shared/Frontend/FrontendConfigurationView.php
 msgid "Admit / decline (final or with encouragement) / offered team position / declined / continue in trial group."
 msgstr "Toelaten / afwijzen (definitief of met aanmoediging) / teamplek aangeboden / afgewezen / doorgaan in proefgroep."
 
@@ -31751,10 +31735,6 @@ msgstr "Wedstrijdvoorbereiding is alleen beschikbaar voor wedstrijden."
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php
 msgid "Manage availability"
 msgstr "Beschikbaarheid beheren"
-
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php
-msgid "Formation"
-msgstr "Opstelling"
 
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php
 msgid "Half length (min)"
@@ -31840,22 +31820,6 @@ msgstr "Geen evaluaties opgesteld in de afgelopen 30 dagen. Nieuwe evaluaties di
 msgid "Evaluations you authored in the last 30 days, newest first."
 msgstr "Door jou opgestelde evaluaties van de afgelopen 30 dagen, nieuwste eerst."
 
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php
-msgid "Date"
-msgstr "Datum"
-
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php
-msgid "Player"
-msgstr "Speler"
-
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php
-msgid "Type"
-msgstr "Type"
-
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php
-msgid "Match"
-msgstr "Wedstrijd"
-
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
 #: src/Shared/Frontend/FrontendActivitiesManageView.php
 msgid "Start match"
@@ -31872,10 +31836,6 @@ msgstr "Wedstrijduitvoering is alleen toegankelijk voor coaches en beheerders."
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
 msgid "Plan this match first before you can run it."
 msgstr "Plan deze wedstrijd eerst voor je hem kunt uitvoeren."
-
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
-msgid "Score"
-msgstr "Score"
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
 msgid "Decrease home score"
@@ -31896,18 +31856,6 @@ msgstr "Uitscore verhogen"
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
 msgid "Match timer"
 msgstr "Wedstrijdklok"
-
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
-msgid "Start"
-msgstr "Starten"
-
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
-msgid "Pause"
-msgstr "Pauzeren"
-
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
-msgid "Resume"
-msgstr "Hervatten"
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
 msgid "End 1st half"
@@ -31942,10 +31890,6 @@ msgid "Substitutes"
 msgstr "Wissels"
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
-msgid "Bench"
-msgstr "Bank"
-
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
 msgid "No bench players available."
 msgstr "Geen wisselspelers beschikbaar."
 
@@ -31976,3 +31920,5 @@ msgstr "1e"
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
 msgid "2e"
 msgstr "2e"
+
+

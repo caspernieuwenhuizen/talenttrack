@@ -1,3 +1,4 @@
+<!-- audience: admin -->
 # Versioning — how to read the plugin version number
 
 **Audience:** club admins reading the wp-admin "Plugin Updates" panel.

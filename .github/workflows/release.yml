@@ -130,6 +130,14 @@ jobs:
             -e 'src/Modules/Activities/ActivitiesModule.php'
             -e 'src/Modules/Activities/Admin/ActivitiesPage.php'
             -e '.github/workflows/release.yml'
+            # v4.2.0 — `competition_type` is now a legitimate user-
+            # editable `tt_lookups` row type (Cup / League / Friendly /
+            # …) registered in `FrontendConfigurationView`. The token's
+            # original meaning under #0035 was the OLD competition_type
+            # column on the renamed sessions table, long gone. The
+            # lookup-type name shares the spelling but is a distinct
+            # concept — exclude the only file that references it.
+            -e 'src/Shared/Frontend/FrontendConfigurationView.php'
           )
           fail=0
           for tok in "${forbidden[@]}"; do
