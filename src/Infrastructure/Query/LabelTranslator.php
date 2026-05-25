@@ -259,6 +259,94 @@ class LabelTranslator {
     }
 
     /**
+     * #0095 VCT — exercise category translations. Wraps canonical
+     * English in `__()` so the .pot extractor picks them up (the
+     * companion to migration 0124's direct tt_translations writes; see
+     * memory `feedback_lookup_seed_translations`). Unknown codes fall
+     * back to humanise().
+     */
+    public static function vctExerciseCategory( string $code ): string {
+        switch ( strtolower( $code ) ) {
+            case 'warmup':       return __( 'Warm-up',     'talenttrack' );
+            case 'technical':    return __( 'Technical',   'talenttrack' );
+            case 'sided_game':   return __( 'Sided game',  'talenttrack' );
+            case 'conditioning': return __( 'Conditioning','talenttrack' );
+            case 'finishing':    return __( 'Finishing',   'talenttrack' );
+            case 'cool_down':    return __( 'Cool-down',   'talenttrack' );
+            default:             return self::humanise( $code );
+        }
+    }
+
+    /**
+     * #0095 VCT — tactical theme translations.
+     */
+    public static function vctTacticalTheme( string $code ): string {
+        switch ( strtolower( $code ) ) {
+            case 'build_up':    return __( 'Build-up',       'talenttrack' );
+            case 'pressing':    return __( 'Pressing',       'talenttrack' );
+            case 'transition':  return __( 'Transition',     'talenttrack' );
+            case 'counter':     return __( 'Counter-attack', 'talenttrack' );
+            case 'defending':   return __( 'Defending',      'talenttrack' );
+            case 'finishing':   return __( 'Finishing',      'talenttrack' );
+            case 'set_pieces':  return __( 'Set pieces',     'talenttrack' );
+            case '1v1_duels':   return __( '1v1 duels',      'talenttrack' );
+            case 'possession':  return __( 'Possession',     'talenttrack' );
+            case 'mixed':       return __( 'Mixed',          'talenttrack' );
+            default:            return self::humanise( $code );
+        }
+    }
+
+    /**
+     * #0095 VCT — match-day context translations. Most codes are
+     * universal football abbreviations (MD-N / MD+N) that stay the
+     * same in every locale; the bare `MD` token and the `NONE`
+     * sentinel get longer translations.
+     */
+    public static function vctMdContext( string $code ): string {
+        switch ( $code ) {
+            case 'MD-4':
+            case 'MD-3':
+            case 'MD-2':
+            case 'MD-1':
+            case 'MD+1':
+            case 'MD+2':
+                return $code;
+            case 'MD':   return __( 'Match day',           'talenttrack' );
+            case 'NONE': return __( 'No match context',    'talenttrack' );
+            default:     return self::humanise( $code );
+        }
+    }
+
+    /**
+     * #0095 VCT — intensity band labels. Numeric value (1–10) stays
+     * the same in every locale; the prefix is localised.
+     */
+    public static function vctIntensityBand( string $code ): string {
+        if ( preg_match( '/^band_(\d{1,2})$/', strtolower( $code ), $m ) ) {
+            $n = (int) $m[1];
+            if ( $n >= 1 && $n <= 10 ) {
+                /* translators: %d is the band number (1-10). */
+                return sprintf( __( 'Intensity band %d', 'talenttrack' ), $n );
+            }
+        }
+        return self::humanise( $code );
+    }
+
+    /**
+     * #0095 VCT — VCT-session lifecycle status. Values match the ENUM
+     * on tt_vct_sessions.status (migration 0122).
+     */
+    public static function vctStatus( string $code ): string {
+        switch ( strtolower( $code ) ) {
+            case 'draft':     return __( 'Draft',     'talenttrack' );
+            case 'published': return __( 'Published', 'talenttrack' );
+            case 'completed': return __( 'Completed', 'talenttrack' );
+            case 'archived':  return __( 'Archived',  'talenttrack' );
+            default:          return self::humanise( $code );
+        }
+    }
+
+    /**
      * Fallback: "in_progress" → "In Progress".
      */
     private static function humanise( string $code ): string {
