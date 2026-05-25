@@ -112,6 +112,10 @@ final class MatrixEntityCatalog {
             'custom_widgets'                => __( 'Custom widgets', 'talenttrack' ),
             // #0090 Phase 1 — data-row translations.
             'translations'                  => __( 'Translations', 'talenttrack' ),
+            // #0095 — VCT (Voetbal Conditionele Training) module.
+            'vct'                           => __( 'VCT sessions', 'talenttrack' ),
+            'vct_library'                   => __( 'VCT exercise library', 'talenttrack' ),
+            'vct_workload'                  => __( 'VCT workload aggregates', 'talenttrack' ),
         ];
     }
 

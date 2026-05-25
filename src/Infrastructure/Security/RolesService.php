@@ -193,6 +193,30 @@ class RolesService {
         'tt_edit_tournaments',
     ];
 
+    /**
+     * #0095 — VCT (Voetbal Conditionele Training) module caps.
+     * Matrix-only by design (scout/prospects #824 lesson) — NOT added
+     * to any role definition's `caps` array. Coverage flows exclusively
+     * through the authorization matrix bridge.
+     *
+     * `tt_vct_plan` — plan/generate/edit/publish sessions; manage own
+     *   team schedule + PHV flags. Granted to coaches at team scope,
+     *   HoD/admin at global scope via the matrix.
+     * `tt_vct_admin_library` — CRUD on shared exercise catalogue + age
+     *   profiles + macro-blocks. HoD/admin only, global scope.
+     * `tt_vct_view_load` — read workload aggregates. HoD/admin only,
+     *   global scope.
+     *
+     * Bridged to matrix entities `vct`, `vct_library`, `vct_workload`
+     * via LegacyCapMapper. Per-endpoint scope checks (VCT-6) layer on
+     * top of the cap check.
+     */
+    public const VCT_CAPS = [
+        'tt_vct_plan',
+        'tt_vct_admin_library',
+        'tt_vct_view_load',
+    ];
+
     /** @return array<string, array<string, string|array<string,bool>>> */
     public function roleDefinitions(): array {
         return [
@@ -406,6 +430,7 @@ class RolesService {
             self::IMPERSONATION_CAPS,
             self::PLAYER_NOTES_CAPS,
             self::TOURNAMENTS_CAPS,
+            self::VCT_CAPS,
             [ 'tt_view_reports', 'tt_access_frontend_admin' ]
         );
 
