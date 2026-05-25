@@ -1,69 +1,79 @@
-# TalentTrack v4.2.0 — Expected-vs-actual attendance schema + reporting sweep (partial #788, ship 1)
+# TalentTrack v4.2.1 — Wizard URL query var rename: `slug` → `tt_wizard` (closes #901)
 
-## Pilot ask
+## Pilot report
 
-> investigate the option to also have expected attendance maintained for activities when they are planned … If a player is planned absent and with a specific reason that should be taken along in the initial step of attendance marking the completed activity.
+After v4.0.1 shipped (#860, `RecordLink::dashboardUrl()` canonicalisation), the pilot reported:
 
-This is the **first** of two ships under #788. Ship 1 lays the schema + makes every read-side surface defensive **before** ship 2 introduces the wizard mode that writes `expected` rows for planned activities — the moment that write path goes live, any surface that hadn't been updated would silently conflate "planned" and "actual" rows.
+> "Tournament wizard still reaches a 404 — same for blueprint wizard"
 
-## Changes
+Both `?tt_view=wizard&slug=new-team-blueprint&team_id=4` and `?tt_view=wizard&slug=new-tournament&…` returned a document-level 404 on the pilot's Strato install. Same symptom we'd chased through three prior fixes (#766 v3.110.172, #782 v3.110.180 + v3.110.182, #860 v4.0.1). All three landed correct fixes for real URL-construction bugs — none of them touched the query-var name, which turned out to be the actual root cause.
 
-### Schema — migration 0121
+## Diagnostic that confirmed the hypothesis
 
-```sql
-ALTER TABLE tt_attendance
-    ADD COLUMN record_type ENUM('expected','actual') NOT NULL DEFAULT 'actual';
-ALTER TABLE tt_attendance
-    ADD INDEX idx_activity_record_type (activity_id, record_type);
-```
+Two URLs on the same install:
 
-`DEFAULT 'actual'` keeps every existing row semantically correct — pre-migration rows describe what already happened, so they're `actual`. The covering index speeds up the new `WHERE activity_id = ? AND record_type = 'actual'` predicates added throughout the read-side sweep.
-
-Idempotent (`SHOW COLUMNS` / `SHOW INDEX` guards).
-
-### Read-side sweep
-
-Every SELECT that summarises attendance now filters `record_type = 'actual'`, and where it didn't already, also `plan_state = 'completed'` so completed-activity views can't surface planned rows. Files touched:
-
-| File | Description |
+| URL | Result |
 |---|---|
-| `src/Modules/Reports/PlayerReportRenderer.php` | Player report's attendance section — full filter. |
-| `src/Infrastructure/PlayerStatus/PlayerAttendanceCalculator.php` | Player-status engine attendance score. |
-| `src/Modules/PersonaDashboard/Kpis/AttendancePctRolling.php` | Academy-wide rolling attendance %. |
-| `src/Modules/PersonaDashboard/Kpis/MyTeamAttendancePct.php` | Coach dashboard KPI. |
-| `src/Modules/PersonaDashboard/Repositories/TeamOverviewRepository.php` | HoD team-overview (both `summariesFor` and `teamPlayerBreakdown`). |
-| `src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php` | HoD roster attendance % column. |
-| `src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php` | Bulk CSV register. |
-| `src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php` | Team attendance report. |
-| `src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php` | Player attendance report. |
-| `src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php` | v4.0.11 exporter — attendance + minutes subqueries. |
-| `src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php` | v4.0.11 exporter — per-activity attendance count. |
-| `src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php` | v4.0.11 exporter — attendance KPIs. |
+| `http://jg4it.mediamaniacs.nl/?tt_view=team-blueprints&team_id=4` | Works — dashboard renders the team blueprints list. |
+| `http://jg4it.mediamaniacs.nl/?tt_view=wizard&slug=new-team-blueprint&team_id=4` | **404** at document level. |
+| `http://jg4it.mediamaniacs.nl/?tt_view=wizard&zzz=new-team-blueprint&team_id=4` | Works — dashboard renders, wizard view fires its "Unknown wizard" notice (because `zzz` isn't read). |
 
-All edits are surgical — one or two added clauses per query. Mechanical to review.
+Only difference between the broken URL and the working one is the query-var name. WordPress is rejecting `?slug=…` at the routing layer, before the `[talenttrack_dashboard]` shortcode ever runs.
 
-### Surfaces deferred to ship 2
+## Diagnosis
 
-- `MarkAttendanceWizard` dual-mode (planned vs completed entry).
-- `AttendanceStep` carry-forward (pre-fill `actual` from existing `expected` rows when entering completed-mode).
-- New planning surfaces: hero variant, page-header action, expected-absent pill on the activity list.
-- `FrontendPlayerDetailView::renderActivitiesTab` expected-vs-actual visual cue.
-- `FrontendActivitiesManageView::renderAttendanceSummary` mode-by-plan-state.
+`slug` is not a TalentTrack-namespaced query var. WordPress core doesn't use `slug` as a public query var by default — `name` is the canonical "find post by slug" var — but **plugins routinely register `slug` as public via the `query_vars` filter**. Yoast SEO is the most common; several caching and redirect plugins do it too. On installs running such a plugin, `WP_Query::parse_query()` treats `?slug=new-team-blueprint` as a request to resolve a post with that slug, sets `is_singular = true`, finds no matching post, sets `is_404 = true`, and the response is a 404 page *before* the dashboard shortcode runs.
 
-### Notifications / write paths
+This matches every observed symptom:
 
-- `AttendanceFlagTemplate` and the write-side wizards (`MarkAttendanceWizard`, `RateConfirmStep`, `Evaluation\AttendanceStep`) are unchanged in ship 1 — they only write `record_type = 'actual'` today (the column default), which is still correct because no `expected` rows exist yet.
+- 404 at document level, not at shortcode-render level.
+- Hits **both** the blueprint and tournament wizards equally (both used `slug=`).
+- Manifests only on installs with the offending plugin active — dev / staging installs without it worked fine, which is why all three prior fixes appeared to work locally but the pilot kept seeing 404s.
+- Every other dashboard view (`team-blueprints`, `tournaments`, `players`, etc.) keeps working — they carry no `slug` arg.
 
-## Versioning
+Every other TalentTrack query var is prefixed (`tt_view`, `tt_back`, `tt_mfa_required`). The wizard's `slug` was the lone unnamespaced one.
 
-Minor bump (4.1.7 → 4.2.0). New feature epic — the planned-attendance behaviour. Even though no UI changes yet, the schema is the platform-level API change that ship 2 builds on.
+## Fix
 
-## Verification
+The query var is renamed to `tt_wizard` (matches the existing `tt_view` / `tt_back` convention; cannot collide with any third-party plugin's query var). Touched files:
 
-- After migration: existing data + every surface returns the same numbers as before (every pre-existing row is `record_type = 'actual'` by default).
-- Insert a synthetic `record_type = 'expected'` row by hand: it should NOT appear in any of the swept surfaces (player report, KPIs, exports, etc.).
-- Drop a synthetic `expected` row on a `plan_state = 'scheduled'` activity: every summary surface still reports zero attendance for that activity (ship 2 will surface them in their own views).
+### Write sites — emit `tt_wizard` instead of `slug`
 
-## Closes
+- `src/Shared/Wizards/WizardEntryPoint.php::urlFor` — every "+ New …" button across the dashboard.
+- `src/Shared/Frontend/FrontendWizardView.php::wizardStepUrl` — step-to-step redirect during wizard navigation.
+- `src/Modules/Mfa/Auth/MfaLoginGuard.php::handle` — the MFA enrollment forced-redirect.
 
-- Partial: #788 — Expected attendance on planned activities. Ship 1 of two; ship 2 (wizard + planning surfaces) follows in a separate PR.
+### Read sites — read `tt_wizard` first, fall back to legacy `slug`
+
+- `src/Shared/Frontend/FrontendWizardView.php::render` — main dispatch.
+- `src/Modules/Mfa/Auth/MfaLoginGuard.php::handle` — the guard's "are we already on the MFA enrollment wizard" check.
+
+The back-compat fallback keeps any bookmarked or shared pre-v4.2.1 `?slug=…` URL working for one release. Removal of the fallback is a candidate for the next minor.
+
+### Strip-list updates
+
+- `WizardEntryPoint::dashboardBaseUrl()` strips `tt_wizard` alongside the existing `slug` from the base URL before adding fresh wizard args, so an in-flight wizard URL never leaks its previous slug into a fresh wizard link.
+
+### Untouched on purpose
+
+- `WizardDraftRestController` — route is `/wizards/(?P<slug>[a-z0-9_-]+)/draft`, a path pattern not a query var. REST routing doesn't go through `WP_Query`; this endpoint was never affected.
+- All other `'slug' =>` occurrences across `src/` — unrelated (admin menu slugs, methodology lookup slugs, etc.).
+
+## Why prior fixes didn't help
+
+- **#766 (v3.110.172)** fixed the wizard's post-step redirect — `wp_safe_redirect` was rejecting non-canonical hosts. Correct fix, different bug.
+- **#782 (v3.110.180)** refined the redirect via `home_url($path)` to bypass `esc_url_raw` mangling. Correct, different bug.
+- **#782 follow-up (v3.110.182)** added `currentDashboardUrl()` for in-request submit handlers. Correct, different bug.
+- **#860 (v4.0.1)** fixed `RecordLink::dashboardUrl()` to canonicalise the REQUEST_URI fallback. Correct, different bug.
+
+All four corrected real bugs in URL construction. The entry URL has been correctly built all along — it just landed on a `slug=` value that WP refused to route past on installs running a plugin that claimed `slug` as a public query var.
+
+## What pilots and operators should know
+
+- Pilot install (jg4it.mediamaniacs.nl) — every wizard entry should now work.
+- Other installs — no behavioural change visible; both wizards were already working there.
+- Bookmarked old-format URLs (`?tt_view=wizard&slug=…`) continue to resolve for one release via the back-compat shim. Re-bookmark after testing; the legacy fallback is a removal candidate in the next minor.
+
+## Bumped
+
+`talenttrack.php` Version + `TT_VERSION` constant + `readme.txt` Stable tag: `4.2.0` → `4.2.1`. Patch bump — bug fix within the current minor, no behavioural change visible to working installs, back-compat shim covers old URLs.

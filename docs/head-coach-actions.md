@@ -62,7 +62,7 @@ Each action lists:
   ideally in under 60 seconds, with a one-tap-per-player flow
 - **Surface today:** `?tt_view=activities` → activity detail → attendance roster
 - **Surface after #0092:** dashboard **Mark Attendance** hero → wizard
-  (`?tt_view=wizard&slug=mark-attendance`) → attendance roster → rate fork →
+  (`?tt_view=wizard&tt_wizard=mark-attendance`) → attendance roster → rate fork →
   optional roster-style rating. Activity edit form survives as the
   post-hoc edit surface.
 - **Player-centric framing:** *where now* (presence, engagement signal feeding rating + minutes)
@@ -716,7 +716,7 @@ test:* …` format.
      1024px+.
   6. Quick actions panel shows **4 cards** — New evaluation,
      New goal, New activity, New player. Each opens the
-     corresponding wizard (URL contains `tt_view=wizard&slug=…`).
+     corresponding wizard (URL contains `tt_view=wizard&tt_wizard=…`).
 
 - **v3.110.107** — evaluation list page rich filter block (Group 4
   / final group of the evaluation flow pass). The hand-rolled

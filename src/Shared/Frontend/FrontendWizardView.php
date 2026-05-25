@@ -28,7 +28,15 @@ use TT\Shared\Wizards\WizardStepInterface;
 class FrontendWizardView extends FrontendViewBase {
 
     public static function render( int $user_id, bool $is_admin ): void {
-        $slug = isset( $_GET['slug'] ) ? sanitize_key( (string) $_GET['slug'] ) : '';
+        // #901 — primary query var is `tt_wizard`. Back-compat: also
+        // accept legacy `slug=` URLs (bookmarks, shared links) for one
+        // release. Removal candidate in the next minor — by then any
+        // surviving bookmark predates v4.x and an operator should
+        // re-bookmark.
+        $slug = isset( $_GET['tt_wizard'] ) ? sanitize_key( (string) $_GET['tt_wizard'] ) : '';
+        if ( $slug === '' && isset( $_GET['slug'] ) ) {
+            $slug = sanitize_key( (string) $_GET['slug'] );
+        }
         $wizard = WizardRegistry::find( $slug );
         if ( ! $wizard ) {
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Wizard not found', 'talenttrack' ) );
@@ -488,7 +496,7 @@ class FrontendWizardView extends FrontendViewBase {
             if ( $path === '' ) $path = '/';
         }
         return add_query_arg(
-            [ 'tt_view' => 'wizard', 'slug' => $slug ],
+            [ 'tt_view' => 'wizard', 'tt_wizard' => $slug ],
             home_url( $path )
         );
     }

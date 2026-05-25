@@ -122,7 +122,13 @@ final class MfaLoginGuard {
         }
 
         $tt_view = isset( $_GET['tt_view'] ) ? sanitize_key( (string) $_GET['tt_view'] ) : '';
-        $slug    = isset( $_GET['slug'] )    ? sanitize_key( (string) $_GET['slug'] )    : '';
+        // #901 — primary query var is `tt_wizard`. Back-compat: also
+        // accept legacy `slug=` so a mid-flight MFA enrollment redirect
+        // from a pre-v4.2.1 link still resolves.
+        $slug = isset( $_GET['tt_wizard'] ) ? sanitize_key( (string) $_GET['tt_wizard'] ) : '';
+        if ( $slug === '' && isset( $_GET['slug'] ) ) {
+            $slug = sanitize_key( (string) $_GET['slug'] );
+        }
 
         if ( $pending && $tt_view === 'mfa-prompt' ) return;
         if ( $enroll  && $tt_view === 'wizard' && $slug === MfaEnrollmentWizard::SLUG ) return;
@@ -132,7 +138,7 @@ final class MfaLoginGuard {
             $target = add_query_arg( [ 'tt_view' => 'mfa-prompt' ], $base );
         } else {
             $target = add_query_arg(
-                [ 'tt_view' => 'wizard', 'slug' => MfaEnrollmentWizard::SLUG, 'tt_mfa_required' => '1' ],
+                [ 'tt_view' => 'wizard', 'tt_wizard' => MfaEnrollmentWizard::SLUG, 'tt_mfa_required' => '1' ],
                 $base
             );
         }
