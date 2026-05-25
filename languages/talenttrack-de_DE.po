@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-05-22T11:35:07+00:00\n"
+"POT-Creation-Date: 2026-05-25T19:09:34+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -582,7 +582,7 @@ msgstr ""
 #: src/Modules/Invitations/InvitationStatus.php:44
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:339
 #: src/Shared/Frontend/FrontendExportsView.php:92
-#: src/Shared/Frontend/FrontendWizardView.php:533
+#: src/Shared/Frontend/FrontendWizardView.php:541
 msgid "Pending"
 msgstr "Ausstehend"
 
@@ -606,7 +606,7 @@ msgstr "In Bearbeitung"
 #: src/Modules/Workflow/TaskStatus.php:66
 #: src/Shared/Frontend/FrontendExportsView.php:94
 #: src/Shared/Frontend/FrontendWizardsAdminView.php:156
-#: src/Shared/Frontend/FrontendWizardView.php:531
+#: src/Shared/Frontend/FrontendWizardView.php:539
 msgid "Completed"
 msgstr "Abgeschlossen"
 
@@ -4981,7 +4981,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:127
 #: src/Shared/Frontend/FrontendTeamBehaviourCaptureView.php:185
 #: src/Shared/Frontend/FrontendViewBase.php:82
-#: src/Shared/Frontend/FrontendWizardView.php:312
+#: src/Shared/Frontend/FrontendWizardView.php:320
 msgid "Cancel"
 msgstr "Abbrechen"
 
@@ -7469,7 +7469,7 @@ msgid "Resume setup wizard"
 msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:469
-#: src/Shared/Frontend/FrontendWizardView.php:407
+#: src/Shared/Frontend/FrontendWizardView.php:415
 msgid "Start over"
 msgstr ""
 
@@ -9493,13 +9493,13 @@ msgid "Name and save"
 msgstr ""
 
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:158
-#: src/Shared/Frontend/FrontendWizardView.php:328
+#: src/Shared/Frontend/FrontendWizardView.php:336
 msgid "Next"
 msgstr "Weiter"
 
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:159
 #: src/Shared/Frontend/Components/BackLabelResolver.php:72
-#: src/Shared/Frontend/FrontendWizardView.php:320
+#: src/Shared/Frontend/FrontendWizardView.php:328
 msgid "Back"
 msgstr "Zurück"
 
@@ -9512,7 +9512,7 @@ msgstr ""
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:284
 #: src/Shared/Frontend/FrontendConfigurationView.php:546
 #: src/Shared/Frontend/FrontendConfigurationView.php:1281
-#: src/Shared/Frontend/FrontendWizardView.php:587
+#: src/Shared/Frontend/FrontendWizardView.php:595
 msgid "Saving…"
 msgstr "Speichern…"
 
@@ -13434,7 +13434,7 @@ msgid "Caps apply only on the Free plan. Trial and Standard / Pro have no cap."
 msgstr ""
 
 #: src/Modules/License/Admin/AccountPage.php:740
-#: src/Shared/Frontend/FrontendWizardView.php:532
+#: src/Shared/Frontend/FrontendWizardView.php:540
 msgid "Current"
 msgstr ""
 
@@ -15500,7 +15500,7 @@ msgstr ""
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:196
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:244
 #: src/Shared/Frontend/FrontendDesktopPreferredBanner.php:37
-#: src/Shared/Frontend/FrontendWizardView.php:405
+#: src/Shared/Frontend/FrontendWizardView.php:413
 msgid "Continue"
 msgstr "Fortfahren"
 
@@ -22601,7 +22601,7 @@ msgstr ""
 
 #: src/Modules/Wizards/Evaluation/RateActorsStep.php:120
 #: src/Modules/Workflow/TaskStatus.php:68
-#: src/Shared/Frontend/FrontendWizardView.php:533
+#: src/Shared/Frontend/FrontendWizardView.php:541
 msgid "Skipped"
 msgstr ""
 
@@ -24987,7 +24987,7 @@ msgstr ""
 #: src/Shared/Frontend/DashboardShortcode.php:66
 #: src/Shared/Frontend/DashboardShortcode.php:1168
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:399
-#: src/Shared/Frontend/FrontendWizardView.php:329
+#: src/Shared/Frontend/FrontendWizardView.php:337
 msgid "Loading…"
 msgstr "Lädt…"
 
@@ -29249,77 +29249,77 @@ msgstr ""
 msgid "Most-skipped step"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendWizardView.php:34
-#: src/Shared/Frontend/FrontendWizardView.php:35
+#: src/Shared/Frontend/FrontendWizardView.php:42
+#: src/Shared/Frontend/FrontendWizardView.php:43
 msgid "Wizard not found"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendWizardView.php:36
+#: src/Shared/Frontend/FrontendWizardView.php:44
 msgid "Unknown wizard."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendWizardView.php:42
+#: src/Shared/Frontend/FrontendWizardView.php:50
 msgid ""
 "You do not have permission to use this wizard, or it is currently disabled."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendWizardView.php:114
+#: src/Shared/Frontend/FrontendWizardView.php:122
 msgid "Wizard misconfigured (no steps)."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendWizardView.php:134
+#: src/Shared/Frontend/FrontendWizardView.php:142
 msgid ""
 "Your session expired while this step was open. Please reload the page and "
 "try again — your edits on this step will need to be re-entered."
 msgstr ""
 
 # v3.61.0 — #0061 round 2 (new-activity wizard + matrix grouping)
-#: src/Shared/Frontend/FrontendWizardView.php:314
+#: src/Shared/Frontend/FrontendWizardView.php:322
 msgid "Save as draft"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendWizardView.php:328
+#: src/Shared/Frontend/FrontendWizardView.php:336
 msgid "Create"
 msgstr "Erstellen"
 
-#: src/Shared/Frontend/FrontendWizardView.php:329
+#: src/Shared/Frontend/FrontendWizardView.php:337
 msgid "Creating…"
 msgstr ""
 
 #. translators: %s: human-readable age e.g. "2 days".
-#: src/Shared/Frontend/FrontendWizardView.php:401
+#: src/Shared/Frontend/FrontendWizardView.php:409
 #, php-format
 msgid "You started this %s ago. Continue where you left off, or start over?"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendWizardView.php:499
+#: src/Shared/Frontend/FrontendWizardView.php:507
 msgid "Wizard steps"
 msgstr ""
 
 #. translators: 1: step number, 2: step label, 3: state (Completed / Current / Pending / Skipped)
-#: src/Shared/Frontend/FrontendWizardView.php:528
+#: src/Shared/Frontend/FrontendWizardView.php:536
 #, php-format
 msgid "Step %1$d: %2$s (%3$s)"
 msgstr ""
 
 # #0077 polish wave 1 — new strings
-#: src/Shared/Frontend/FrontendWizardView.php:547
+#: src/Shared/Frontend/FrontendWizardView.php:555
 msgid "Help for this step"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendWizardView.php:588
+#: src/Shared/Frontend/FrontendWizardView.php:596
 msgid "Saved · "
 msgstr ""
 
-#: src/Shared/Frontend/FrontendWizardView.php:589
+#: src/Shared/Frontend/FrontendWizardView.php:597
 msgid "Save failed"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendWizardView.php:611
+#: src/Shared/Frontend/FrontendWizardView.php:619
 msgid "This field is required."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendWizardView.php:612
+#: src/Shared/Frontend/FrontendWizardView.php:620
 msgid "Fill in every required field to continue."
 msgstr ""
 
