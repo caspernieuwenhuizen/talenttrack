@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-05-25T19:09:34+00:00\n"
+"POT-Creation-Date: 2026-05-25T19:21:14+00:00\n"
 "PO-Revision-Date: 2026-04-25 10:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -379,7 +379,7 @@ msgstr "Score"
 #: src/Shared/Frontend/FrontendAuditLogView.php:43
 #: src/Shared/Frontend/FrontendAuditLogView.php:44
 #: src/Shared/Frontend/FrontendConfigurationView.php:977
-#: src/Shared/Frontend/FrontendExportsView.php:177
+#: src/Shared/Frontend/FrontendExportsView.php:188
 msgid "Audit log"
 msgstr "Audit-log"
 
@@ -613,7 +613,7 @@ msgstr "Eerste beeld opbouwen"
 #: src/Modules/Configuration/Admin/MigrationsPage.php:122
 #: src/Modules/Invitations/InvitationStatus.php:44
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:339
-#: src/Shared/Frontend/FrontendExportsView.php:92
+#: src/Shared/Frontend/FrontendExportsView.php:103
 #: src/Shared/Frontend/FrontendWizardView.php:541
 msgid "Pending"
 msgstr "In behandeling"
@@ -636,7 +636,7 @@ msgstr "In uitvoering"
 #: src/Modules/Prospects/Repositories/ScoutingVisitsRepository.php:35
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:215
 #: src/Modules/Workflow/TaskStatus.php:66
-#: src/Shared/Frontend/FrontendExportsView.php:94
+#: src/Shared/Frontend/FrontendExportsView.php:105
 #: src/Shared/Frontend/FrontendWizardsAdminView.php:156
 #: src/Shared/Frontend/FrontendWizardView.php:539
 msgid "Completed"
@@ -846,7 +846,7 @@ msgstr "Scout"
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:312
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:503
 #: src/Modules/Stats/Admin/UsageStatsPage.php:146
-#: src/Shared/Frontend/FrontendExportsView.php:171
+#: src/Shared/Frontend/FrontendExportsView.php:182
 #: src/Shared/Frontend/FrontendPeopleManageView.php:276
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:297
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:532
@@ -872,7 +872,7 @@ msgstr "Overig"
 #: src/Modules/Teams/Admin/TeamsPage.php:107
 #: src/Modules/Trials/Repositories/TrialCasesRepository.php:46
 #: src/Shared/Admin/BulkActionsHelper.php:99
-#: src/Shared/Frontend/FrontendExportsView.php:95
+#: src/Shared/Frontend/FrontendExportsView.php:106
 #: src/Shared/Frontend/FrontendPeopleManageView.php:119
 #: src/Shared/Frontend/FrontendPlayersManageView.php:212
 #: src/Shared/Frontend/FrontendTeamsManageView.php:154
@@ -2113,9 +2113,9 @@ msgstr "Type"
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:926
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:955
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1017
-#: src/Shared/Frontend/FrontendExportsView.php:63
-#: src/Shared/Frontend/FrontendExportsView.php:91
-#: src/Shared/Frontend/FrontendExportsView.php:207
+#: src/Shared/Frontend/FrontendExportsView.php:74
+#: src/Shared/Frontend/FrontendExportsView.php:102
+#: src/Shared/Frontend/FrontendExportsView.php:218
 #: src/Shared/Frontend/FrontendGoalsManageView.php:163
 #: src/Shared/Frontend/FrontendGoalsManageView.php:252
 #: src/Shared/Frontend/FrontendGoalsManageView.php:278
@@ -2225,14 +2225,14 @@ msgstr "Bron"
 #: src/Shared/Frontend/FrontendEvaluationsView.php:154
 #: src/Shared/Frontend/FrontendEvaluationsView.php:162
 #: src/Shared/Frontend/FrontendEvaluationsView.php:333
-#: src/Shared/Frontend/FrontendExportsView.php:62
-#: src/Shared/Frontend/FrontendExportsView.php:78
-#: src/Shared/Frontend/FrontendExportsView.php:90
-#: src/Shared/Frontend/FrontendExportsView.php:107
-#: src/Shared/Frontend/FrontendExportsView.php:119
-#: src/Shared/Frontend/FrontendExportsView.php:131
-#: src/Shared/Frontend/FrontendExportsView.php:143
-#: src/Shared/Frontend/FrontendExportsView.php:206
+#: src/Shared/Frontend/FrontendExportsView.php:73
+#: src/Shared/Frontend/FrontendExportsView.php:89
+#: src/Shared/Frontend/FrontendExportsView.php:101
+#: src/Shared/Frontend/FrontendExportsView.php:118
+#: src/Shared/Frontend/FrontendExportsView.php:130
+#: src/Shared/Frontend/FrontendExportsView.php:142
+#: src/Shared/Frontend/FrontendExportsView.php:154
+#: src/Shared/Frontend/FrontendExportsView.php:217
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:287
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:295
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:324
@@ -2976,7 +2976,7 @@ msgstr "Openen"
 #: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:269
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:356
 #: src/Modules/Workflow/TaskStatus.php:65
-#: src/Shared/Frontend/FrontendExportsView.php:93
+#: src/Shared/Frontend/FrontendExportsView.php:104
 msgid "In progress"
 msgstr "In uitvoering"
 
@@ -6302,7 +6302,7 @@ msgstr ""
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:166
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:288
 #: src/Modules/DemoData/Admin/DemoDataPage.php:423
-#: src/Shared/Frontend/FrontendExportsView.php:222
+#: src/Shared/Frontend/FrontendExportsView.php:233
 msgid "Preset"
 msgstr "Preset"
 
@@ -7847,7 +7847,7 @@ msgstr "Actie (bijv. player.saved)"
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:502
 #: src/Modules/DemoData/Admin/DemoDataPage.php:239
 #: src/Modules/Export/Exporters/AuditLogCsvExporter.php:97
-#: src/Shared/Frontend/FrontendExportsView.php:185
+#: src/Shared/Frontend/FrontendExportsView.php:196
 msgid "Entity type"
 msgstr "Entiteitstype"
 
@@ -8734,7 +8734,7 @@ msgstr "WordPress-gebruiker"
 
 #: src/Modules/Configuration/Admin/FormSlugContract.php:77
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:74
-#: src/Shared/Frontend/FrontendExportsView.php:166
+#: src/Shared/Frontend/FrontendExportsView.php:177
 msgid "Role type"
 msgstr "Roltype"
 
@@ -12762,7 +12762,7 @@ msgid "Jersey"
 msgstr "Rugnummer"
 
 #: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:32
-#: src/Shared/Frontend/FrontendExportsView.php:73
+#: src/Shared/Frontend/FrontendExportsView.php:84
 msgid "Attendance register"
 msgstr ""
 
@@ -12861,7 +12861,7 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:30
-#: src/Shared/Frontend/FrontendExportsView.php:85
+#: src/Shared/Frontend/FrontendExportsView.php:96
 msgid "Goals list"
 msgstr ""
 
@@ -12874,7 +12874,7 @@ msgid "Owner"
 msgstr "Eigenaar"
 
 #: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:34
-#: src/Shared/Frontend/FrontendExportsView.php:150
+#: src/Shared/Frontend/FrontendExportsView.php:161
 msgid "KPI snapshot"
 msgstr ""
 
@@ -13061,7 +13061,7 @@ msgid "Player not found."
 msgstr "Speler niet gevonden."
 
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:32
-#: src/Shared/Frontend/FrontendExportsView.php:114
+#: src/Shared/Frontend/FrontendExportsView.php:125
 msgid "Player evaluations (flat)"
 msgstr ""
 
@@ -13084,7 +13084,7 @@ msgid "Contracted"
 msgstr "Onder contract"
 
 #: src/Modules/Export/Exporters/PlayersListCsvExporter.php:30
-#: src/Shared/Frontend/FrontendExportsView.php:57
+#: src/Shared/Frontend/FrontendExportsView.php:68
 msgid "Players list"
 msgstr ""
 
@@ -13093,7 +13093,7 @@ msgid "Scouting report (PDF)"
 msgstr "Scoutingrapport (PDF)"
 
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:30
-#: src/Shared/Frontend/FrontendExportsView.php:161
+#: src/Shared/Frontend/FrontendExportsView.php:172
 msgid "Coach / staff directory"
 msgstr ""
 
@@ -13102,7 +13102,7 @@ msgid "Person ID"
 msgstr ""
 
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:30
-#: src/Shared/Frontend/FrontendExportsView.php:138
+#: src/Shared/Frontend/FrontendExportsView.php:149
 msgid "Team activity history"
 msgstr ""
 
@@ -13116,7 +13116,7 @@ msgid "Average rating"
 msgstr ""
 
 #: src/Modules/Export/Exporters/TeamIcalExporter.php:36
-#: src/Shared/Frontend/FrontendExportsView.php:190
+#: src/Shared/Frontend/FrontendExportsView.php:201
 msgid "Team activity calendar (iCal)"
 msgstr "Team-activiteitenkalender (iCal)"
 
@@ -13132,7 +13132,7 @@ msgid "TalentTrack activities"
 msgstr "TalentTrack-activiteiten"
 
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:30
-#: src/Shared/Frontend/FrontendExportsView.php:126
+#: src/Shared/Frontend/FrontendExportsView.php:137
 msgid "Team roster + season stats"
 msgstr ""
 
@@ -13413,10 +13413,10 @@ msgstr "Filter:"
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:342
 #: src/Shared/Admin/BulkActionsHelper.php:100
 #: src/Shared/Frontend/Components/FrontendListTable.php:247
-#: src/Shared/Frontend/FrontendExportsView.php:67
-#: src/Shared/Frontend/FrontendExportsView.php:96
-#: src/Shared/Frontend/FrontendExportsView.php:167
-#: src/Shared/Frontend/FrontendExportsView.php:211
+#: src/Shared/Frontend/FrontendExportsView.php:78
+#: src/Shared/Frontend/FrontendExportsView.php:107
+#: src/Shared/Frontend/FrontendExportsView.php:178
+#: src/Shared/Frontend/FrontendExportsView.php:222
 #: src/Shared/Frontend/FrontendTrialsManageView.php:169
 #: src/Shared/Frontend/FrontendTrialsManageView.php:177
 msgid "All"
@@ -21875,7 +21875,6 @@ msgstr ""
 "afdrukdialoogvenster van je browser met \"Opslaan als PDF\"."
 
 #: src/Modules/Stats/PrintRouter.php:240
-#: src/Shared/Frontend/FrontendExportsView.php:458
 msgid "Generating…"
 msgstr "Bezig met genereren…"
 
@@ -25613,7 +25612,6 @@ msgstr "Opslaan mislukt."
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1027
 #: src/Shared/Frontend/FrontendConfigurationView.php:570
 #: src/Shared/Frontend/FrontendConfigurationView.php:661
-#: src/Shared/Frontend/FrontendExportsView.php:484
 msgid "Network error."
 msgstr "Netwerkfout."
 
@@ -25999,9 +25997,9 @@ msgid "Player progress, team rating averages, coach activity."
 msgstr "Spelersvoortgang, team-beoordelingsgemiddelden, coachactiviteit."
 
 #: src/Shared/CoreSurfaceRegistration.php:738
-#: src/Shared/Frontend/FrontendExportsView.php:256
-#: src/Shared/Frontend/FrontendExportsView.php:264
-#: src/Shared/Frontend/FrontendExportsView.php:270
+#: src/Shared/Frontend/FrontendExportsView.php:277
+#: src/Shared/Frontend/FrontendExportsView.php:285
+#: src/Shared/Frontend/FrontendExportsView.php:291
 msgid "Exports"
 msgstr ""
 
@@ -28074,211 +28072,215 @@ msgstr ""
 msgid "No ratings recorded for this evaluation."
 msgstr "Geen beoordelingen geregistreerd voor deze evaluatie."
 
-#: src/Shared/Frontend/FrontendExportsView.php:58
+#: src/Shared/Frontend/FrontendExportsView.php:69
 msgid "Squad list with birthdate, parent email, jersey, positions."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:64
-#: src/Shared/Frontend/FrontendExportsView.php:208
+#: src/Shared/Frontend/FrontendExportsView.php:75
+#: src/Shared/Frontend/FrontendExportsView.php:219
 msgid "Active only"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:65
-#: src/Shared/Frontend/FrontendExportsView.php:209
+#: src/Shared/Frontend/FrontendExportsView.php:76
+#: src/Shared/Frontend/FrontendExportsView.php:220
 msgid "Trial only"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:66
-#: src/Shared/Frontend/FrontendExportsView.php:210
+#: src/Shared/Frontend/FrontendExportsView.php:77
+#: src/Shared/Frontend/FrontendExportsView.php:221
 msgid "Archived only"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:74
+#: src/Shared/Frontend/FrontendExportsView.php:85
 msgid ""
 "One row per (player, activity) with attendance status. Defaults to the last "
 "90 days."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:79
-#: src/Shared/Frontend/FrontendExportsView.php:108
-#: src/Shared/Frontend/FrontendExportsView.php:120
-#: src/Shared/Frontend/FrontendExportsView.php:132
-#: src/Shared/Frontend/FrontendExportsView.php:144
+#: src/Shared/Frontend/FrontendExportsView.php:90
+#: src/Shared/Frontend/FrontendExportsView.php:119
+#: src/Shared/Frontend/FrontendExportsView.php:131
+#: src/Shared/Frontend/FrontendExportsView.php:143
 #: src/Shared/Frontend/FrontendExportsView.php:155
-#: src/Shared/Frontend/FrontendExportsView.php:182
+#: src/Shared/Frontend/FrontendExportsView.php:166
+#: src/Shared/Frontend/FrontendExportsView.php:193
 msgid "From date"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:80
-#: src/Shared/Frontend/FrontendExportsView.php:109
-#: src/Shared/Frontend/FrontendExportsView.php:121
-#: src/Shared/Frontend/FrontendExportsView.php:133
-#: src/Shared/Frontend/FrontendExportsView.php:145
+#: src/Shared/Frontend/FrontendExportsView.php:91
+#: src/Shared/Frontend/FrontendExportsView.php:120
+#: src/Shared/Frontend/FrontendExportsView.php:132
+#: src/Shared/Frontend/FrontendExportsView.php:144
 #: src/Shared/Frontend/FrontendExportsView.php:156
-#: src/Shared/Frontend/FrontendExportsView.php:183
+#: src/Shared/Frontend/FrontendExportsView.php:167
+#: src/Shared/Frontend/FrontendExportsView.php:194
 msgid "To date"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:86
+#: src/Shared/Frontend/FrontendExportsView.php:97
 msgid "Team goals with priority, due date, owner."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:102
+#: src/Shared/Frontend/FrontendExportsView.php:113
 msgid "Evaluations export"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:103
+#: src/Shared/Frontend/FrontendExportsView.php:114
 msgid ""
 "Multi-sheet workbook partitioned by season × evaluation type with main-"
 "category averages."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:115
+#: src/Shared/Frontend/FrontendExportsView.php:126
 msgid ""
 "One row per evaluation with main-category averages. Flat-CSV companion to "
 "the multi-sheet evaluations workbook."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:127
+#: src/Shared/Frontend/FrontendExportsView.php:138
 msgid ""
 "One row per player on the chosen team — roster fields plus attendance count, "
 "minutes played, and average rating across the date range."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:139
+#: src/Shared/Frontend/FrontendExportsView.php:150
 msgid ""
 "One row per activity — date, title, attendance count, average rating. Date-"
 "bounded."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:151
+#: src/Shared/Frontend/FrontendExportsView.php:162
 msgid ""
 "Point-in-time KPIs — active players, teams, activities, attendance %, goal "
 "counts. For board reports."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:162
+#: src/Shared/Frontend/FrontendExportsView.php:173
 msgid ""
 "Contact list of coaches, scouts and staff with role, team assignments, email "
 "and phone."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:168
+#: src/Shared/Frontend/FrontendExportsView.php:179
 msgid "Coach only"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:169
+#: src/Shared/Frontend/FrontendExportsView.php:180
 msgid "Scout only"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:170
+#: src/Shared/Frontend/FrontendExportsView.php:181
 msgid "Staff only"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:178
+#: src/Shared/Frontend/FrontendExportsView.php:189
 msgid ""
 "Compliance / GDPR — who changed what, when. Admin-only. Defaults to the last "
 "30 days."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:184
+#: src/Shared/Frontend/FrontendExportsView.php:195
 msgid "Action (contains)"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:191
+#: src/Shared/Frontend/FrontendExportsView.php:202
 msgid ""
 "All-day calendar events for team activities. Importable into Google "
 "Calendar, Outlook, Apple Calendar."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:195
+#: src/Shared/Frontend/FrontendExportsView.php:206
 msgid "Months back"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:196
+#: src/Shared/Frontend/FrontendExportsView.php:207
 msgid "Months ahead"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:201
+#: src/Shared/Frontend/FrontendExportsView.php:212
 msgid "Federation registration (JSON)"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:202
+#: src/Shared/Frontend/FrontendExportsView.php:213
 msgid ""
 "Neutral JSON envelope (club + teams + players) for federation imports. No "
 "federation-specific format."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:217
+#: src/Shared/Frontend/FrontendExportsView.php:228
 msgid "Full club-data backup"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:218
+#: src/Shared/Frontend/FrontendExportsView.php:229
 msgid "Gzipped JSON snapshot in a ZIP per selected table preset. Admin-only."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:223
+#: src/Shared/Frontend/FrontendExportsView.php:234
 msgid "Minimal — core tables only"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:224
+#: src/Shared/Frontend/FrontendExportsView.php:235
 msgid "Standard — core + activity history"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:225
+#: src/Shared/Frontend/FrontendExportsView.php:236
 msgid "Thorough — every TalentTrack table"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:231
+#: src/Shared/Frontend/FrontendExportsView.php:242
 msgid "Demo-data round-trip"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:232
+#: src/Shared/Frontend/FrontendExportsView.php:243
 msgid ""
 "All club tables per SheetSchemas layout — for import round-trips. Admin-only."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:265
+#: src/Shared/Frontend/FrontendExportsView.php:286
 msgid ""
 "You do not have access to any bulk exporters. Per-record exports (player one-"
 "pager, evaluation PDF, etc.) are still available from each record's detail "
 "page."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:273
+#: src/Shared/Frontend/FrontendExportsView.php:294
 msgid ""
 "Bulk exporters in one place. Per-record exports (player one-pager, scouting "
 "report PDF, PDP, etc.) stay on each record's detail page where the relevant "
 "id is in context."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:324
+#: src/Shared/Frontend/FrontendExportsView.php:335
+msgid ""
+"Export request failed: session expired. Please reload the page and try again."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendExportsView.php:341
+msgid "Export request failed: missing exporter key."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendExportsView.php:347
+msgid "Export request failed: no exporter registered for that key."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendExportsView.php:440
 msgid "Format"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:325
+#: src/Shared/Frontend/FrontendExportsView.php:441
 msgid "Export format"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:340
+#: src/Shared/Frontend/FrontendExportsView.php:456
 msgid "Export"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:361
+#: src/Shared/Frontend/FrontendExportsView.php:477
 msgid "optional"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:367
+#: src/Shared/Frontend/FrontendExportsView.php:483
 msgid "— all teams —"
-msgstr ""
-
-#: src/Shared/Frontend/FrontendExportsView.php:470
-#: src/Shared/Frontend/FrontendExportsView.php:473
-msgid "Export failed"
-msgstr ""
-
-#: src/Shared/Frontend/FrontendExportsView.php:479
-msgid "Downloaded."
 msgstr ""
 
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:67
