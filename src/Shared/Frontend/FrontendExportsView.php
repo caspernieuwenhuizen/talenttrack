@@ -4,16 +4,20 @@ namespace TT\Shared\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Export\Domain\ExportRequest;
+use TT\Modules\Export\ExporterRegistry;
+use TT\Modules\Export\ExportException;
+use TT\Modules\Export\ExportService;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 
 /**
  * FrontendExportsView — central exports surface (#797).
  *
- * Backed by the `/wp-json/talenttrack/v1/exports/<key>` REST endpoint
- * that's been live since the Export module shipped. Every bulk exporter
- * gets a card with its filter form here; per-record exports (PDFs,
- * one-pagers, scout reports, etc.) stay on their respective detail
- * pages where the relevant `id` is naturally in context.
+ * Every bulk exporter gets a card with its filter form here; per-record
+ * exports (PDFs, one-pagers, scout reports, etc.) stay on their
+ * respective detail pages where the relevant `id` is naturally in
+ * context.
  *
  * The page entry gates on "any bulk-export cap" — anyone with at least
  * one exporter's cap can reach the page. Individual cards then re-check
@@ -21,13 +25,20 @@ use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
  * sees the players-list card and nothing else (rather than a permission
  * wall on the whole page).
  *
- * JS submits each card's form via `fetch()` to the REST endpoint with
- * the right `X-WP-Nonce`, reads the response as a `Blob`, and triggers
- * a browser download via an object URL + temporary `<a download>`. The
- * filename comes from the response's `Content-Disposition` header; the
- * existing exporters already set that.
+ * v4.2.2 (#903) — submission flipped from REST `fetch()` to standard
+ * form POST against `?tt_view=exports`. The server-side handler verifies
+ * the `tt_export` nonce, runs the exporter via `ExportService`, and
+ * streams the file. The REST route at
+ * `/wp-json/talenttrack/v1/exports/<key>` stays registered for
+ * direct-link / API integrations, but the in-page Export click no
+ * longer depends on the REST cookie-auth pipeline. Restores exports on
+ * installs where REST cookie auth is broken (host REST hardening,
+ * certain WAFs, etc.) and brings the surface in line with every other
+ * TalentTrack form which also uses form POST + nonce.
  */
 class FrontendExportsView extends FrontendViewBase {
+
+    private static ?string $post_error = null;
 
     protected static function enqueueAssets(): void {
         parent::enqueueAssets();
@@ -253,6 +264,16 @@ class FrontendExportsView extends FrontendViewBase {
     }
 
     public static function render( int $user_id, bool $is_admin ): void {
+        // v4.2.2 (#903) — form-POST handler. On success the handler
+        // streams the file and `exit`s; on auth/validation failure
+        // self::$post_error is set and the page falls through to render
+        // normally with an error notice surfaced above the grid. Runs
+        // BEFORE breadcrumbs/headers so download headers can fire
+        // without the template chrome being half-flushed first.
+        if ( ( $_SERVER['REQUEST_METHOD'] ?? '' ) === 'POST' && isset( $_POST['tt_export_key'] ) ) {
+            self::handleExportPost( $user_id );
+        }
+
         FrontendBreadcrumbs::fromDashboard( __( 'Exports', 'talenttrack' ) );
 
         $all_cards = self::cards();
@@ -273,6 +294,12 @@ class FrontendExportsView extends FrontendViewBase {
         esc_html_e( 'Bulk exporters in one place. Per-record exports (player one-pager, scouting report PDF, PDP, etc.) stay on each record\'s detail page where the relevant id is in context.', 'talenttrack' );
         echo '</p>';
 
+        if ( self::$post_error !== null ) {
+            echo '<div class="tt-notice tt-notice--error" style="background:#fdecea; border-left:4px solid #d63638; padding:12px 16px; margin:8px 0 16px;">';
+            echo esc_html( self::$post_error );
+            echo '</div>';
+        }
+
         // Pre-fetch teams the user can pick from (used by every card that
         // has a `team` field). Coaches see only their teams; admins +
         // HoDs see all. Skipped when the cards visible to the user don't
@@ -284,8 +311,95 @@ class FrontendExportsView extends FrontendViewBase {
             self::renderCard( $card, $teams );
         }
         echo '</div>';
+    }
 
-        self::renderJs();
+    /**
+     * v4.2.2 (#903) — handle a form POST submission. Verifies nonce,
+     * builds an ExportRequest from sanitised POST data, runs the
+     * service, and streams the file. On success: emits headers, echoes
+     * bytes, and `exit`s — control never returns. On failure: sets
+     * self::$post_error and returns; the page render continues and
+     * surfaces the error notice above the export grid.
+     *
+     * Reserved POST fields stripped from the filter map: `_tt_export_nonce`,
+     * `tt_export_key`, `format`, `entity_id`, `brand`, plus WordPress'
+     * `_wpnonce` / `_wp_http_referer` which slip in via the form chrome.
+     * Everything else is treated as a filter and handed to the exporter
+     * for validation — same contract the REST controller honours.
+     */
+    private static function handleExportPost( int $user_id ): void {
+        $nonce = isset( $_POST['_tt_export_nonce'] )
+            ? sanitize_text_field( wp_unslash( (string) $_POST['_tt_export_nonce'] ) )
+            : '';
+        if ( ! wp_verify_nonce( $nonce, 'tt_export' ) ) {
+            self::$post_error = __( 'Export request failed: session expired. Please reload the page and try again.', 'talenttrack' );
+            return;
+        }
+
+        $key = sanitize_key( (string) ( $_POST['tt_export_key'] ?? '' ) );
+        if ( $key === '' ) {
+            self::$post_error = __( 'Export request failed: missing exporter key.', 'talenttrack' );
+            return;
+        }
+
+        $exporter = ExporterRegistry::get( $key );
+        if ( $exporter === null ) {
+            self::$post_error = __( 'Export request failed: no exporter registered for that key.', 'talenttrack' );
+            return;
+        }
+
+        $format = (string) ( $_POST['format'] ?? '' );
+        if ( $format === '' ) {
+            $supported = $exporter->supportedFormats();
+            $format    = $supported[0] ?? 'csv';
+        }
+        $format = sanitize_key( $format );
+
+        $entity_id_raw = $_POST['entity_id'] ?? null;
+        $entity_id     = $entity_id_raw !== null ? absint( $entity_id_raw ) : null;
+
+        $brand_raw = $_POST['brand'] ?? null;
+        $brand     = is_string( $brand_raw ) && in_array( $brand_raw, [ 'auto', 'blank', 'letterhead' ], true ) ? $brand_raw : null;
+
+        $reserved = [ '_tt_export_nonce', 'tt_export_key', 'format', 'entity_id', 'brand', '_wpnonce', '_wp_http_referer' ];
+        $filters  = [];
+        foreach ( $_POST as $k => $v ) {
+            $k = (string) $k;
+            if ( in_array( $k, $reserved, true ) ) continue;
+            if ( is_array( $v ) ) {
+                $filters[ $k ] = array_map( static function ( $vv ) {
+                    return is_scalar( $vv ) ? sanitize_text_field( wp_unslash( (string) $vv ) ) : '';
+                }, $v );
+            } elseif ( is_scalar( $v ) ) {
+                $val = sanitize_text_field( wp_unslash( (string) $v ) );
+                if ( $val !== '' ) $filters[ $k ] = $val;
+            }
+        }
+
+        $request = new ExportRequest(
+            $key,
+            $format,
+            (int) CurrentClub::id(),
+            $user_id,
+            $entity_id !== null && $entity_id > 0 ? $entity_id : null,
+            $filters,
+            $brand,
+            null
+        );
+
+        try {
+            $result = ( new ExportService() )->run( $request );
+        } catch ( ExportException $e ) {
+            self::$post_error = $e->getMessage();
+            return;
+        }
+
+        nocache_headers();
+        header( 'Content-Type: ' . $result->mime );
+        header( 'Content-Length: ' . $result->size );
+        header( 'Content-Disposition: attachment; filename="' . str_replace( '"', '', $result->filename ) . '"' );
+        echo $result->bytes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- binary download.
+        exit;
     }
 
     /**
@@ -313,7 +427,9 @@ class FrontendExportsView extends FrontendViewBase {
         echo '<div class="tt-export-card__header"><strong class="tt-export-card__title">' . esc_html( $label ) . '</strong></div>';
         echo '<p class="tt-export-card__desc">' . esc_html( $desc ) . '</p>';
 
-        echo '<form class="tt-export-form tt-export-card__form" data-export-key="' . esc_attr( $key ) . '" data-export-label="' . esc_attr( $label ) . '">';
+        echo '<form class="tt-export-form tt-export-card__form" method="POST" action="" data-export-key="' . esc_attr( $key ) . '" data-export-label="' . esc_attr( $label ) . '">';
+        wp_nonce_field( 'tt_export', '_tt_export_nonce' );
+        echo '<input type="hidden" name="tt_export_key" value="' . esc_attr( $key ) . '">';
 
         foreach ( $fields as $f ) {
             self::renderField( $f, $teams );
@@ -407,91 +523,4 @@ class FrontendExportsView extends FrontendViewBase {
         return is_array( $teams ) ? $teams : [];
     }
 
-    private static function renderJs(): void {
-        ?>
-        <script>
-        (function () {
-            'use strict';
-            var nonce = (window.TT && window.TT.rest_nonce) || (window.wpApiSettings && window.wpApiSettings.nonce) || '';
-            var rest  = ((window.TT && window.TT.rest_url) || '/wp-json/talenttrack/v1/').replace(/\/+$/, '/');
-
-            function filenameFromHeaders(headers, fallback) {
-                var cd = headers.get('Content-Disposition') || '';
-                var m = cd.match(/filename\*?=(?:UTF-8'')?["']?([^"';]+)/i);
-                return m ? decodeURIComponent(m[1]) : fallback;
-            }
-
-            function triggerDownload(blob, filename) {
-                var url = URL.createObjectURL(blob);
-                var a = document.createElement('a');
-                a.href = url;
-                a.download = filename;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
-            }
-
-            document.addEventListener('submit', function (e) {
-                var form = e.target.closest && e.target.closest('.tt-export-form');
-                if (!form) return;
-                e.preventDefault();
-
-                var key   = form.getAttribute('data-export-key') || '';
-                var label = form.getAttribute('data-export-label') || key;
-                var msg   = form.querySelector('.tt-export-msg');
-                var btn   = form.querySelector('button[type="submit"]');
-                if (!key) return;
-
-                var body = {};
-                var fd = new FormData(form);
-                fd.forEach(function (v, k) {
-                    if (v === '' || v === null) return; // skip empties so server defaults apply
-                    body[k] = v;
-                });
-                // Fallback extension for the downloaded file when the server's
-                // Content-Disposition header is missing — read the selected
-                // format from the form data, since multi-format cards (#864)
-                // can switch between csv / xlsx on the fly.
-                var fmt = (body.format || 'bin').toString().toLowerCase();
-
-                if (msg) msg.textContent = '<?php echo esc_js( __( 'Generating…', 'talenttrack' ) ); ?>';
-                if (btn) btn.disabled = true;
-
-                fetch(rest + 'exports/' + encodeURIComponent(key), {
-                    method: 'POST',
-                    credentials: 'same-origin',
-                    headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': nonce, 'Accept': '*/*' },
-                    body: JSON.stringify(body)
-                }).then(function (r) {
-                    if (!r.ok) {
-                        return r.json().then(function (j) {
-                            var first = j && j.errors && j.errors[0] && j.errors[0].message;
-                            throw new Error(first || '<?php echo esc_js( __( 'Export failed', 'talenttrack' ) ); ?> (' + r.status + ')');
-                        }).catch(function (e) {
-                            if (e instanceof Error) throw e;
-                            throw new Error('<?php echo esc_js( __( 'Export failed', 'talenttrack' ) ); ?> (' + r.status + ')');
-                        });
-                    }
-                    var fname = filenameFromHeaders(r.headers, label.replace(/\s+/g, '_').toLowerCase() + '.' + fmt);
-                    return r.blob().then(function (blob) {
-                        triggerDownload(blob, fname);
-                        if (msg) msg.textContent = '<?php echo esc_js( __( 'Downloaded.', 'talenttrack' ) ); ?>';
-                    });
-                }).catch(function (err) {
-                    if (msg) {
-                        msg.classList.add('tt-export-card__msg--error');
-                        msg.textContent = err.message || '<?php echo esc_js( __( 'Network error.', 'talenttrack' ) ); ?>';
-                    }
-                }).finally(function () {
-                    if (btn) btn.disabled = false;
-                    setTimeout(function () {
-                        if (msg) { msg.textContent = ''; msg.classList.remove('tt-export-card__msg--error'); }
-                    }, 4000);
-                });
-            });
-        }());
-        </script>
-        <?php
-    }
 }
