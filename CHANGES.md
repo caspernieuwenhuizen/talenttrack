@@ -1,82 +1,78 @@
-# TalentTrack v4.3.1 — VCT module ship 2: capabilities + matrix seed + LegacyCapMapper bridges (closes #907, partial epic #905)
+# TalentTrack v4.3.2 — VCT module ship 3: lookup categories with direct translations (closes #908, partial epic #905)
 
 ## Context
 
-Ship 2 of the VCT epic. VCT-1 (v4.3.0) landed the schema; this ship adds the cap layer + matrix seed + LegacyCapMapper bridges. No REST endpoints, no UI — pure authorization foundation that VCT-3 through VCT-7 build on.
+Ship 3 of the VCT epic. VCT-1 (v4.3.0) landed the schema; VCT-2 (v4.3.1) landed the caps + matrix seed; this ship adds the five lookup categories the engine consumes for slot composition, with translated values for every locale on day one.
+
+No UI, no REST, no engine yet — pure vocabulary that VCT-4 (seed defaults), VCT-5 (rules engine), VCT-6 (REST), VCT-7 (nightly task) all build on.
 
 ## What changed
 
-### Three new caps (matrix-only)
+### Five new lookup categories
 
-Registered in `src/Infrastructure/Security/RolesService.php` as a new `VCT_CAPS` constant + included in the `ensureCapabilities()` merge so `administrator` gets them on next `admin_init`:
+Seeded into `tt_lookups` via new migration `0124_vct_seed_lookups.php`:
 
-| Cap | Purpose |
-|---|---|
-| `tt_vct_plan` | Plan / generate / edit / publish VCT sessions; manage own team's schedule + PHV flags |
-| `tt_vct_admin_library` | CRUD on shared exercise catalogue + age profiles + macro-blocks |
-| `tt_vct_view_load` | Read workload aggregates |
+| Lookup type | Values | Where it's consumed |
+|---|---|---|
+| `vct_exercise_category` | warmup, technical, sided_game, conditioning, finishing, cool_down (6) | `tt_vct_exercises.category` + slot composition in VCT-5 |
+| `vct_tactical_theme` | build_up, pressing, transition, counter, defending, finishing, set_pieces, 1v1_duels, possession, mixed (10) | `tt_vct_exercises.tactical_theme` + the wizard's theme picker (VCT-6) |
+| `vct_md_context` | MD-4, MD-3, MD-2, MD-1, MD, MD+1, MD+2, NONE (8) | `tt_vct_sessions.md_context` + `tt_vct_session_templates.md_context` |
+| `vct_intensity_band` | band_1 … band_10 (10) | Aligns with the `TINYINT` `intensity_band` column on `tt_vct_exercises` / `tt_vct_session_blocks` / `tt_vct_age_profiles.intensity_band_max` |
+| `vct_session_status` | draft, published, completed, archived (4) | Matches the ENUM on `tt_vct_sessions.status` from migration 0122 |
 
-**Matrix-only by design** — NOT added to any role definition's `caps` array (`roleDefinitions()`). Coverage flows exclusively through the authorization matrix bridge. This honours the scout/prospects #824 lesson: caps that need per-install scope mutability must not freeze at role-baseline time.
+### Translations for all five locales — written directly
 
-### LegacyCapMapper bridges
+Every value gets `tt_translations` rows for nl_NL / fr_FR / de_DE / es_ES — written from a PHP label map inside the migration. **No `.po` backfill**, no `switch_to_locale($loc); __($name)` round-trip. This is the explicit fix for the gap landed as #902 (`feedback_lookup_seed_translations` memory): the backfill pattern silently writes nothing when the `.po` lacks the string, leaving Dutch installs showing raw English. Direct writes guarantee every value lands in every locale on day one.
 
-Three new entries in `src/Modules/Authorization/LegacyCapMapper.php::MAPPING`:
+Example translations:
 
-- `tt_vct_plan` → `(vct, read)`
-- `tt_vct_admin_library` → `(vct_library, read)`
-- `tt_vct_view_load` → `(vct_workload, read)`
+- `pressing` → NL "Drukzetten" / FR "Pressing" / DE "Pressing" / ES "Presión"
+- `transition` → NL "Omschakeling" / FR "Transition" / DE "Umschalten" / ES "Transición"
+- `build_up` → NL "Opbouw" / FR "Construction" / DE "Spielaufbau" / ES "Construcción"
+- `set_pieces` → NL "Standaardsituaties" / FR "Coups de pied arrêtés" / DE "Standardsituationen" / ES "Balones parados"
 
-**Activity letter is `read` for all three**, intentionally — the coarsest "does this user participate in this entity at all?" check. The LegacyCapMapper schema is one cap → one (entity, activity) tuple, so the granular activity letters (`r/c/d/p`) live in the matrix seed instead. Per-endpoint scope checks shipping in VCT-6 enforce the specific activity required by each route as the second layer (cap + scope per the spec's two-layer `permission_callback`).
+Operators can override any per-locale label post-install via the Lookups admin.
 
-### Matrix seed — four personas
+### LabelTranslator companion methods
 
-Appended to `config/authorization_seed.php`:
+`src/Infrastructure/Query/LabelTranslator.php` gains five new methods so the `.pot` extractor picks up every canonical English value on next regeneration:
 
-| Persona | Entity | Activities | Scope |
-|---|---|---|---|
-| `head_coach` | `vct` | `rcd` | `team` |
-| `assistant_coach` | `vct` | `rcd` | `team` |
-| `head_of_development` | `vct` | `rcd` | `global` |
-| `head_of_development` | `vct_library` | `rcd` | `global` |
-| `head_of_development` | `vct_workload` | `r` | `global` |
-| `academy_admin` | `vct` | `rcd` | `global` |
-| `academy_admin` | `vct_library` | `rcd` | `global` |
-| `academy_admin` | `vct_workload` | `r` | `global` |
+- `vctExerciseCategory()` — 6 cases + humanise fallback
+- `vctTacticalTheme()` — 10 cases + humanise fallback
+- `vctMdContext()` — special-cases the MD-N / MD+N abbreviations (universal football vocabulary, identical in every locale); expands the bare `MD` token to "Match day" and the `NONE` sentinel to "No match context"
+- `vctIntensityBand()` — uses `sprintf( __('Intensity band %d', …) )` so the numeric value (1–10) stays identical across locales while the prefix is localised
+- `vctStatus()` — 4 lifecycle states
 
-### Spec letter → codebase activity mapping
+This is the "extractor companion" pattern from #902: direct `tt_translations` writes give the operator the right values immediately; `__()` wrappers ensure future `.pot` regenerations also pick up the strings so the `.po`/`.mo` workflow stays in sync.
 
-The spec's design-review-locked activity letters are `r`=read, `c`=create, `d`=delete, `p`=publish. The codebase's activity vocabulary is `read`, `change`, `create_delete` (three verbs). The mapping:
+### Idempotency
 
-- spec `r` → codebase `read`
-- spec `c` (create) + spec `d` (delete) → codebase `create_delete` (one verb covering both)
-- spec `p` (publish) → codebase `change` (publishing IS a state mutation)
+- `tt_lookups` rows: existence-check on `(club_id, lookup_type, name)` before insert.
+- `tt_translations` rows: `INSERT IGNORE` on the unique key.
+- Re-running the migration on an install where the operator has edited values via the Lookups admin leaves their edits untouched.
 
-So the spec's `rcdp` for the `vct` entity expands to codebase activities {read, change, create_delete} = codebase shorthand `rcd`. The spec's `rcd` for `vct_library` similarly expands to codebase `rcd`. The spec's `r` for `vct_workload` is `r` unchanged.
+Mirrors the pattern from `0116_seed_trial_case_lookups.php`.
 
-### Top-up migration for existing installs
+## Out of scope
 
-`database/migrations/0123_vct_authorization_seed_topup.php` walks the seed file and `INSERT IGNORE`s every row whose entity is `vct`, `vct_library`, or `vct_workload`. Migration 0026's `seedIfEmpty()` only seeds on fresh install or via the operator's "Reset to defaults" button, so without this top-up the new matrix grants would never reach existing installs. Same pattern as migration 0069 for player_notes. Matrix cache cleared at the end so grants take effect on the next request.
-
-### Matrix admin labels
-
-`MatrixEntityCatalog::labelMap()` gets three new human labels so the matrix admin UI doesn't display raw slugs: "VCT sessions", "VCT exercise library", "VCT workload aggregates".
-
-### Module class fallback
-
-`config/authorization_seed.php` adds `$mod_vct` with a `class_exists()` fallback to `$mod_authorization` — the `VctModule` class ships in VCT-5 (#910) onwards; until then the seed gracefully falls back, matching the existing pattern used for `$mod_trials` / `$mod_journey` / `$mod_persona_dash`.
+- Age profiles, session templates, phase profiles — VCT-4 (#909).
+- Exercise catalogue — separate VCT-8 issue (gated on pilot-coach review per the spec).
+- Rules engine + repositories — VCT-5 (#910).
+- REST + UI — VCT-6 (#911).
+- Workload aggregation task — VCT-7 (#912).
 
 ## Validation
 
-- `grep "tt_vct_" src/Infrastructure/Security/RolesService.php` shows the three caps only in the `VCT_CAPS` constant and the `ensureCapabilities()` merge — NOT in any `roleDefinitions()` entry.
-- `LegacyCapMapper::isKnown('tt_vct_plan')` returns `true`; `::tupleFor('tt_vct_plan')` returns `['vct', 'read']`.
-- After the top-up migration runs, `SELECT COUNT(*) FROM wp_tt_authorization_matrix WHERE entity LIKE 'vct%'` returns 8 (1 head_coach + 1 assistant_coach + 3 HoD + 3 admin).
-- `AuthChainDebugPage` (`?page=tt-auth-chain-debug&user_id=N`) shows `tt_vct_plan` resolving green via the matrix path for a head_coach assigned to one team within that team's scope; red outside scope.
-- Migration is idempotent: re-running it leaves the 8-row count unchanged (UNIQUE key suppresses duplicates).
+- After migration runs: `SELECT lookup_type, COUNT(*) FROM wp_tt_lookups WHERE club_id = 1 GROUP BY lookup_type` shows the five new types with the right row counts (6 / 10 / 8 / 10 / 4 = 38 new rows).
+- `SELECT COUNT(*) FROM wp_tt_translations WHERE entity_type = 'lookup' AND locale = 'nl_NL'` increases by 38; same for fr_FR / de_DE / es_ES.
+- `?tt_view=configuration&config_sub=lookups` shows each of the five new types with the NL + fr/de/es translations populated per row.
+- Switch site locale to French → frontend renders the French msgstr for each lookup value (via `LookupTranslator::byTypeAndName()` resolution).
+- Re-running the migration: counts unchanged.
 
 ## Why this is `patch`, not `minor`
 
-Small enhancement within the current 4.3 minor that opened with VCT-1's schema foundation. No new feature epic; just the cap layer that VCT-1's tables need. Patch bump per `DEVOPS.md` § "When to bump what" — same pattern as ship-2/3 of an epic following its ship-1 minor.
+Seed data within the 4.3 minor that VCT-1 opened. No new feature epic; just the vocabulary VCT-4 onwards consume. Patch bump per `DEVOPS.md` § "When to bump what".
 
 ## Bumped
 
-`talenttrack.php` Version + `TT_VERSION` + `readme.txt` Stable tag: `4.3.0` → `4.3.1`.
+`talenttrack.php` Version + `TT_VERSION` + `readme.txt` Stable tag: `4.3.1` → `4.3.2`.
