@@ -177,14 +177,21 @@ return new class extends Migration {
             ) {$charset};";
         }
 
-        // tt_vct_session_blocks — filled slots per session. No DB CASCADE;
-        // VctSessionsRepository::delete() does child cleanup in a transaction.
+        // tt_vct_session_blocks — filled slots per VCT session. No DB
+        // CASCADE; VctSessionsRepository::delete() does child cleanup
+        // in a transaction.
+        //
+        // FK column is `vct_session_id` (disambiguated from the legacy
+        // training-session FK token banned under the #0035 no-regression
+        // linter rule, and from WP login sessions). The spec text uses
+        // the bare token for brevity; the implementation prepends `vct_`
+        // for both linter compliance and self-documentation.
         $t = $p . 'tt_vct_session_blocks';
         if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $t ) ) !== $t ) {
             $tables[] = "CREATE TABLE {$t} (
                 id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
                 club_id INT UNSIGNED NOT NULL DEFAULT 1,
-                session_id BIGINT UNSIGNED NOT NULL,
+                vct_session_id BIGINT UNSIGNED NOT NULL,
                 sequence TINYINT UNSIGNED NOT NULL,
                 slot_category VARCHAR(32) NOT NULL,
                 exercise_id BIGINT UNSIGNED NULL,
@@ -193,8 +200,8 @@ return new class extends Migration {
                 intensity_band TINYINT UNSIGNED NOT NULL,
                 coaching_point_override_codes LONGTEXT NULL,
                 PRIMARY KEY (id),
-                UNIQUE KEY uniq_session_sequence (session_id, sequence),
-                KEY idx_club_session (club_id, session_id)
+                UNIQUE KEY uniq_vct_session_sequence (vct_session_id, sequence),
+                KEY idx_club_vct_session (club_id, vct_session_id)
             ) {$charset};";
         }
 
