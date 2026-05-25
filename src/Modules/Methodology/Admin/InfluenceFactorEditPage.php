@@ -64,7 +64,7 @@ final class InfluenceFactorEditPage {
                     </tr>
                     <tr>
                         <th><label><?php esc_html_e( 'Sort order', 'talenttrack' ); ?></label></th>
-                        <td><input type="number" name="sort_order" value="<?php echo (int) ( $row->sort_order ?? 0 ); ?>" /></td>
+                        <td><input type="number" inputmode="numeric" name="sort_order" value="<?php echo (int) ( $row->sort_order ?? 0 ); ?>" /></td>
                     </tr>
                     <tr>
                         <th><label><?php esc_html_e( 'Title (NL)', 'talenttrack' ); ?></label></th>

@@ -403,7 +403,7 @@ class EvaluationsPage {
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_EVALUATION, $eid, 'game_result' ); ?>
                     <tr><th><?php esc_html_e( 'Home/Away', 'talenttrack' ); ?></th><td><select name="home_away"><option value="">—</option><option value="home" <?php selected( $eval->home_away ?? '', 'home' ); ?>><?php esc_html_e( 'Home', 'talenttrack' ); ?></option><option value="away" <?php selected( $eval->home_away ?? '', 'away' ); ?>><?php esc_html_e( 'Away', 'talenttrack' ); ?></option></select></td></tr>
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_EVALUATION, $eid, 'home_away' ); ?>
-                    <tr><th><?php esc_html_e( 'Minutes Played', 'talenttrack' ); ?></th><td><input type="number" name="minutes_played" value="<?php echo esc_attr( $eval->minutes_played ?? '' ); ?>" min="0" max="120" /></td></tr>
+                    <tr><th><?php esc_html_e( 'Minutes Played', 'talenttrack' ); ?></th><td><input type="number" inputmode="numeric" name="minutes_played" value="<?php echo esc_attr( $eval->minutes_played ?? '' ); ?>" min="0" max="120" /></td></tr>
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_EVALUATION, $eid, 'minutes_played' ); ?>
                 </table>
 
@@ -455,7 +455,7 @@ class EvaluationsPage {
                             <!-- Direct mode -->
                             <div class="tt-mode-direct" style="<?php echo $mode_default === 'direct' ? '' : 'display:none;'; ?>">
                                 <label>
-                                    <input type="number"
+                                    <input type="number" inputmode="decimal"
                                            name="ratings[<?php echo $main_id; ?>]"
                                            value="<?php echo esc_attr( $direct_val ); ?>"
                                            min="<?php echo esc_attr( (string) $rmin ); ?>"
@@ -488,7 +488,7 @@ class EvaluationsPage {
                                                     <?php echo esc_html( EvalCategoriesRepository::displayLabel( (string) $sub->label, $sub_id ) ); ?>
                                                 </td>
                                                 <td style="padding:4px 0;">
-                                                    <input type="number"
+                                                    <input type="number" inputmode="decimal"
                                                            name="ratings[<?php echo $sub_id; ?>]"
                                                            value="<?php echo esc_attr( $sub_val ); ?>"
                                                            min="<?php echo esc_attr( (string) $rmin ); ?>"

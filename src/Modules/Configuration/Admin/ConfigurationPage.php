@@ -500,7 +500,7 @@ class ConfigurationPage {
             <input type="hidden" name="tab"  value="audit" />
             <input type="text" name="f_action"      value="<?php echo esc_attr( $filters['action'] ?? '' ); ?>" placeholder="<?php esc_attr_e( 'Action (e.g. player.saved)', 'talenttrack' ); ?>" style="width:220px" />
             <input type="text" name="f_entity_type" value="<?php echo esc_attr( $filters['entity_type'] ?? '' ); ?>" placeholder="<?php esc_attr_e( 'Entity type', 'talenttrack' ); ?>" style="width:140px" />
-            <input type="number" name="f_user_id"   value="<?php echo esc_attr( (string) ( $filters['user_id'] ?? '' ) ); ?>" placeholder="<?php esc_attr_e( 'User ID', 'talenttrack' ); ?>" style="width:100px" />
+            <input type="number" inputmode="numeric" name="f_user_id"   value="<?php echo esc_attr( (string) ( $filters['user_id'] ?? '' ) ); ?>" placeholder="<?php esc_attr_e( 'User ID', 'talenttrack' ); ?>" style="width:100px" />
             <?php submit_button( __( 'Filter', 'talenttrack' ), 'secondary', 'submit', false ); ?>
             <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-config&tab=audit' ) ); ?>" class="button"><?php esc_html_e( 'Clear', 'talenttrack' ); ?></a>
         </form>
@@ -608,7 +608,7 @@ class ConfigurationPage {
             <table class="form-table">
                 <tr><th><?php esc_html_e( 'Name', 'talenttrack' ); ?> *</th><td><input type="text" name="name" value="<?php echo esc_attr( $item->name ?? '' ); ?>" class="regular-text" required /></td></tr>
                 <?php if ( $show_desc ) : ?><tr><th><?php esc_html_e( 'Description', 'talenttrack' ); ?></th><td><input type="text" name="description" value="<?php echo esc_attr( $item->description ?? '' ); ?>" class="large-text" /></td></tr><?php endif; ?>
-                <?php if ( $show_sort ) : ?><tr><th><?php esc_html_e( 'Sort Order', 'talenttrack' ); ?></th><td><input type="number" name="sort_order" value="<?php echo (int) ( $item->sort_order ?? 0 ); ?>" min="0" /></td></tr><?php endif; ?>
+                <?php if ( $show_sort ) : ?><tr><th><?php esc_html_e( 'Sort Order', 'talenttrack' ); ?></th><td><input type="number" inputmode="numeric" name="sort_order" value="<?php echo (int) ( $item->sort_order ?? 0 ); ?>" min="0" /></td></tr><?php endif; ?>
                 <?php if ( $type === 'activity_type' ) : self::renderActivityTypeWorkflowField( $meta_row ); self::renderActivityTypeRateableField( $meta_row ); endif; ?>
             </table>
 
@@ -769,7 +769,7 @@ class ConfigurationPage {
                     <tr><th><?php esc_html_e( 'Name', 'talenttrack' ); ?> *</th><td><input type="text" name="name" value="<?php echo esc_attr( $item->name ?? '' ); ?>" class="regular-text" required /></td></tr>
                     <tr><th><?php esc_html_e( 'Description', 'talenttrack' ); ?></th><td><input type="text" name="description" value="<?php echo esc_attr( $item->description ?? '' ); ?>" class="large-text" /></td></tr>
                     <tr><th><?php esc_html_e( 'Requires Match Details', 'talenttrack' ); ?></th><td><label><input type="checkbox" name="requires_match_details" value="1" <?php checked( ! empty( $meta['requires_match_details'] ) ); ?> /> <?php esc_html_e( 'Prompts for opponent, competition, result, home/away, minutes played', 'talenttrack' ); ?></label></td></tr>
-                    <tr><th><?php esc_html_e( 'Sort Order', 'talenttrack' ); ?></th><td><input type="number" name="sort_order" value="<?php echo (int) ( $item->sort_order ?? 0 ); ?>" min="0" /></td></tr>
+                    <tr><th><?php esc_html_e( 'Sort Order', 'talenttrack' ); ?></th><td><input type="number" inputmode="numeric" name="sort_order" value="<?php echo (int) ( $item->sort_order ?? 0 ); ?>" min="0" /></td></tr>
                 </table>
                 <?php submit_button( $item ? __( 'Update', 'talenttrack' ) : __( 'Add', 'talenttrack' ) ); ?>
             </form>
@@ -816,9 +816,9 @@ class ConfigurationPage {
             <?php wp_nonce_field( 'tt_save_config', 'tt_nonce' ); ?>
             <input type="hidden" name="action" value="tt_save_config" /><input type="hidden" name="tab" value="rating" />
             <table class="form-table">
-                <tr><th><?php esc_html_e( 'Minimum', 'talenttrack' ); ?></th><td><input type="number" name="cfg[rating_min]" value="<?php echo esc_attr( QueryHelpers::get_config( 'rating_min', '5' ) ); ?>" min="0" max="10" step="0.5" /></td></tr>
-                <tr><th><?php esc_html_e( 'Maximum', 'talenttrack' ); ?></th><td><input type="number" name="cfg[rating_max]" value="<?php echo esc_attr( QueryHelpers::get_config( 'rating_max', '10' ) ); ?>" min="1" max="100" step="0.5" /></td></tr>
-                <tr><th><?php esc_html_e( 'Step', 'talenttrack' ); ?></th><td><input type="number" name="cfg[rating_step]" value="<?php echo esc_attr( QueryHelpers::get_config( 'rating_step', '0.5' ) ); ?>" min="0.1" max="1" step="0.1" /></td></tr>
+                <tr><th><?php esc_html_e( 'Minimum', 'talenttrack' ); ?></th><td><input type="number" inputmode="decimal" name="cfg[rating_min]" value="<?php echo esc_attr( QueryHelpers::get_config( 'rating_min', '5' ) ); ?>" min="0" max="10" step="0.5" /></td></tr>
+                <tr><th><?php esc_html_e( 'Maximum', 'talenttrack' ); ?></th><td><input type="number" inputmode="decimal" name="cfg[rating_max]" value="<?php echo esc_attr( QueryHelpers::get_config( 'rating_max', '10' ) ); ?>" min="1" max="100" step="0.5" /></td></tr>
+                <tr><th><?php esc_html_e( 'Step', 'talenttrack' ); ?></th><td><input type="number" inputmode="decimal" name="cfg[rating_step]" value="<?php echo esc_attr( QueryHelpers::get_config( 'rating_step', '0.5' ) ); ?>" min="0.1" max="1" step="0.1" /></td></tr>
                 <tr>
                     <th><?php esc_html_e( 'Evaluation display', 'talenttrack' ); ?></th>
                     <td>
@@ -843,7 +843,7 @@ class ConfigurationPage {
                         <?php $low_required  = QueryHelpers::get_config( 'eval_low_rating_require_comment', 'soft' ); ?>
                         <label>
                             <?php esc_html_e( 'Threshold:', 'talenttrack' ); ?>
-                            <input type="number" name="cfg[eval_low_rating_threshold]" value="<?php echo esc_attr( (string) $low_threshold ); ?>" min="0" max="10" step="0.5" style="width:80px;" />
+                            <input type="number" inputmode="decimal" name="cfg[eval_low_rating_threshold]" value="<?php echo esc_attr( (string) $low_threshold ); ?>" min="0" max="10" step="0.5" style="width:80px;" />
                         </label>
                         <p class="description" style="margin:6px 0;">
                             <?php esc_html_e( 'Ratings at or below this value trigger a "consider adding a comment" prompt.', 'talenttrack' ); ?>
@@ -891,7 +891,7 @@ class ConfigurationPage {
                 <tr><th><?php esc_html_e( 'Secondary Color', 'talenttrack' ); ?></th><td><input type="color" name="cfg[secondary_color]" value="<?php echo esc_attr( QueryHelpers::get_config( 'secondary_color', '#e8b624' ) ); ?>" /></td></tr>
                 <?php $tile_scale = (int) QueryHelpers::get_config( 'tile_scale', '100' ); ?>
                 <tr><th><?php esc_html_e( 'Tile size', 'talenttrack' ); ?></th><td>
-                    <input type="number" name="cfg[tile_scale]" value="<?php echo esc_attr( (string) $tile_scale ); ?>" min="50" max="150" step="5" style="width:80px;" /> %
+                    <input type="number" inputmode="numeric" name="cfg[tile_scale]" value="<?php echo esc_attr( (string) $tile_scale ); ?>" min="50" max="150" step="5" style="width:80px;" /> %
                     <p class="description"><?php esc_html_e( 'Scales padding, icons, and typography of the dashboard tiles. 50–150%, default 100%.', 'talenttrack' ); ?></p>
                 </td></tr>
             </table>

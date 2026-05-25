@@ -1,54 +1,70 @@
-# TalentTrack v4.2.3 — localStorage draft prompt stripped from flat forms (closes #904)
+# TalentTrack v4.2.4 — inputmode retrofit sweep (closes #913)
 
 ## Pilot context
 
-A coach opened `?tt_view=activities&action=new`, typed a single character, navigated away, then came back to the same URL. They were prompted:
+The v3.50.0 retrofit (#0056) made `inputmode` mandatory on every numeric input so mobile keyboards open in the right mode. Several surfaces drifted off the rule over time. On Android Chrome a missing `inputmode` pops the alphabetical keyboard first; coaches type a digit then have to flip — documented pilot friction.
 
-> "You have unsaved changes from an earlier session — restore?"
+The acceptance criterion is the literal grep:
 
-They expected this not to happen. As far as the pilot was concerned, wizard autosave was retired in v3.110.86 (#385). Getting an "earlier session" prompt on a flat form they'd barely touched looked like the same autosave behaviour returning under a different name.
+```
+grep -rn '<input type="number"' src/ | grep -v 'inputmode='
+```
 
-## Two mechanisms, one mental model
-
-The pilot's confusion is reasonable. The plugin had two unrelated "remember what you were typing" mechanisms and v3.110.86 only retired one of them:
-
-- **Server-side wizard drafts** (`tt_wizard_drafts` table). Resurrected wizard state after Cancel/Submit. **Retired in v3.110.86 / #385.** Correct fix, narrow scope.
-- **Client-side localStorage drafts** (`assets/js/drafts.js`, shipped in #0019 Sprint 1 v3.x). Any form opts in by emitting a `data-draft-key="…"` attribute; the script debounce-saves field values to `localStorage` and offers to restore on next visit.
-
-The new-activity flat form still opted in to the second mechanism, so the prompt still fired even though the wizard side was clean. Two different mechanisms, identical surface confusion to the user.
+Pre-ship: 38 hits. Post-ship: zero.
 
 ## What changed
 
-Stripped `data-draft-key` from every production form in `src/`. The eight call sites:
+Added `inputmode` to every offending site. Decision rule:
 
-- **`src/Shared/Frontend/FrontendActivitiesManageView.php:637`** — `$draft_key = $is_edit ? '' : 'activity-form'` (variable + attribute emission removed).
-- **`src/Shared/Frontend/FrontendPlayersManageView.php:252`** — same shape (`player-form`).
-- **`src/Shared/Frontend/FrontendPeopleManageView.php:137`** — same shape (`person-form`).
-- **`src/Shared/Frontend/FrontendGoalsManageView.php:314`** — same shape (`goal-form`).
-- **`src/Shared/Frontend/FrontendTeamsManageView.php:182`** — `data-draft-key="team-form"` on the create path.
-- **`src/Shared/Frontend/CoachForms.php:108`** — eval form, both create and edit branches (`eval-form` / `eval-form-edit-N`).
-- **`src/Shared/Frontend/CoachForms.php:478`** — legacy `renderActivityForm` reached via `CoachDashboardView`.
-- **`src/Shared/Frontend/CoachForms.php:538`** — legacy `renderGoalForm` reached via `CoachDashboardView`.
+- **`inputmode="decimal"`** for ratings and measurements that allow non-integers — rating min/max/step config, rating inputs themselves, low-rating-threshold, the shared `RatingInputComponent`.
+- **`inputmode="numeric"`** for whole-number positive counters — jersey number, sort/display order, retention days, minutes played, user IDs, monthly char cap, age, height/weight in the WP-admin player form (no explicit `step`).
 
-`grep -r data-draft-key src/` returns zero hits after this ship.
+### Sites touched
 
-## What didn't change
+Frontend coach-facing surfaces (the pilot impact):
 
-- **`assets/js/drafts.js` stays.** ~140 LOC, opt-in by attribute, zero cost when no form opts in. We may want explicit "Save as draft" affordances on long forms in the future (PDP conversation drafts, scout report drafts) — keeping the mechanism dormant is cheaper than reintroducing it later. The file's docblock gains a note recording that no production form opts in as of v4.2.3 so a future re-opt-in lands on documented ground.
-- **No localStorage cleanup.** `drafts.js` line 29 (`MAX_AGE_MS = 14 * 24 * 60 * 60 * 1000`) auto-expires saved drafts after 14 days. Worst case a coach with a stale draft gets one final prompt within the next two weeks; after that the entries are gone. Forcing a cleanup is not worth the migration complexity.
-- **No copy tweak.** Renaming the prompt to "Restore your local browser draft?" (the option-2 path in the pilot triage) would still surface unexpected autosave to a coach who isn't asking for it. The pilot's confusion isn't about the copy — it's about the behaviour existing at all on a flat form they didn't opt into. Strip the opt-in, not the wording.
+- `src/Shared/Frontend/CoachForms.php:202,264,293` — minutes_played + two rating inputs.
+- `src/Shared/Frontend/CoachDashboardView.php:208,213` — same pattern in the legacy dashboard form.
+- `src/Shared/Frontend/Components/GuestAddModal.php:91` — anon-guest age (6–19).
+- `src/Shared/Frontend/Components/RatingInputComponent.php:58` — shared rating renderer (cascades across every consumer).
+- `src/Modules/Wizards/Evaluation/RateActorsStep.php:145,195` — eval wizard. `inputmode="numeric"` already existed on a later line; moved onto the `type="number"` line so the literal acceptance grep passes too.
 
-## Validation
+Workflow forms:
 
-- Coach opens `?tt_view=activities&action=new` with localStorage manually cleared: no prompt, form is blank.
-- Coach types one character, navigates away, comes back: no prompt, form is blank (the localStorage save never fires because the attribute is gone).
-- Submit + save flow on every touched form still works (regression check — `drafts.js` was passive; stripping the attribute can't affect REST submission, but verified the create paths still POST correctly).
-- The eval edit path (`CoachForms::renderEvalForm` with `$is_edit = true`) still loads the existing row's values from the server, as it always did — `data-draft-key` was unrelated to that flow.
+- `src/Modules/Workflow/Forms/PostGameEvaluationForm.php:52` — overall_rating (decimal).
+- `src/Modules/Workflow/Forms/PlayerSelfEvaluationForm.php:45` — overall_rating (decimal).
+
+WP-admin methodology pages:
+
+- `src/Modules/Methodology/Admin/PositionEditPage.php:85` — jersey_number.
+- `src/Modules/Methodology/Admin/PhaseEditPage.php:65` — phase_number.
+- `src/Modules/Methodology/Admin/FootballActionEditPage.php:65` — sort_order.
+- `src/Modules/Methodology/Admin/InfluenceFactorEditPage.php:67` — sort_order.
+- `src/Modules/Methodology/Admin/LearningGoalEditPage.php:99` — sort_order.
+
+WP-admin configuration + content pages:
+
+- `src/Modules/Configuration/Admin/ConfigurationPage.php:503,611,772,819-821,846,894` — f_user_id, sort_order (×2), rating_min/max/step (decimal), eval_low_rating_threshold (decimal), tile_scale.
+- `src/Modules/Configuration/Admin/CustomFieldsPage.php:264` — sort_order.
+- `src/Modules/Evaluations/Admin/CategoryWeightsPage.php:100` — weight.
+- `src/Modules/Evaluations/Admin/EvalCategoriesPage.php:287` — display_order.
+- `src/Modules/Evaluations/Admin/EvaluationsPage.php:406,458,491` — minutes_played + two rating inputs.
+- `src/Modules/Players/Admin/PlayersPage.php:359,361,370` — height_cm, weight_kg, jersey_number.
+- `src/Modules/Backup/Admin/BackupSettingsPage.php:202` — retention.
+- `src/Modules/DemoData/Admin/DemoDataPage.php:523` — seed.
+- `src/Modules/Translations/Admin/TranslationsConfigTab.php:160,173` — monthly_cap, threshold_pct.
+
+The admin pages aren't the pilot's immediate friction, but the acceptance grep is global and the cost of adding the attribute is zero. Future admin work on mobile inherits the right keyboard.
+
+## Out of scope
+
+- The modern `type="text" + inputmode` pattern that avoids browser-native spinner UI. The #0056 retrofit is additive only; spinner-removal is a separate audit.
+- Renaming or re-typing any input — purely an attribute addition.
 
 ## Why this is `patch`, not `minor`
 
-UX cleanup completing a previously-shipped retirement (#385). No new behaviour, no new contract, no schema change, no REST change. The user-visible diff is "one annoying prompt stops appearing." Patch bump matches the SemVer table in `DEVOPS.md` § "When to bump what".
+UX cleanup enforcing an existing standard (#0056). No new behaviour, no contract change, no schema change. The user-visible diff is "the right keyboard pops up on Android." Patch bump matches the SemVer table in `DEVOPS.md` § "When to bump what".
 
 ## Bumped
 
-`talenttrack.php` Version + `TT_VERSION` + `readme.txt` Stable tag: `4.2.2` → `4.2.3`.
+`talenttrack.php` Version + `TT_VERSION` + `readme.txt` Stable tag: `4.2.3` → `4.2.4`.

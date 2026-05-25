@@ -520,7 +520,7 @@ class DemoDataPage {
                     <tr>
                         <th scope="row"><label for="tt_demo_seed"><?php esc_html_e( 'Seed', 'talenttrack' ); ?></label></th>
                         <td>
-                            <input type="number" id="tt_demo_seed" name="seed" value="20260504" class="small-text" />
+                            <input type="number" inputmode="numeric" id="tt_demo_seed" name="seed" value="20260504" class="small-text" />
                             <p class="description"><?php esc_html_e( 'Fixed default 20260504 — produces the same roster every run. Change for a different roster.', 'talenttrack' ); ?></p>
                         </td>
                     </tr>

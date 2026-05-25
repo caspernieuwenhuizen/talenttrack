@@ -157,7 +157,7 @@ final class TranslationsConfigTab {
                 <tr>
                     <th><?php esc_html_e( 'Monthly character cap', 'talenttrack' ); ?></th>
                     <td>
-                        <input type="number" name="monthly_cap" min="1000" step="1000" value="<?php echo (int) $cap; ?>" />
+                        <input type="number" inputmode="numeric" name="monthly_cap" min="1000" step="1000" value="<?php echo (int) $cap; ?>" />
                         <p class="description"><?php
                             printf(
                                 /* translators: %d is the configured cap. */
@@ -170,7 +170,7 @@ final class TranslationsConfigTab {
                 <tr>
                     <th><?php esc_html_e( 'Notify admin at', 'talenttrack' ); ?></th>
                     <td>
-                        <input type="number" name="threshold_pct" min="1" max="100" value="<?php echo (int) $threshold; ?>" />%
+                        <input type="number" inputmode="numeric" name="threshold_pct" min="1" max="100" value="<?php echo (int) $threshold; ?>" />%
                         <p class="description"><?php esc_html_e( 'A persistent dashboard notice appears the first time you cross this percentage in a given month.', 'talenttrack' ); ?></p>
                     </td>
                 </tr>

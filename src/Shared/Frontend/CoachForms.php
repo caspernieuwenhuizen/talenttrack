@@ -199,7 +199,7 @@ class CoachForms {
                 </div>
                 <div class="tt-form-row"><label><?php esc_html_e( 'Result', 'talenttrack' ); ?></label><input type="text" name="game_result" placeholder="2-1" style="width:80px" value="<?php echo esc_attr( $cur_result ); ?>" /></div>
                 <div class="tt-form-row"><label><?php esc_html_e( 'Home/Away', 'talenttrack' ); ?></label><select name="home_away"><option value="">—</option><option value="home" <?php selected( $cur_home_away, 'home' ); ?>><?php esc_html_e( 'Home', 'talenttrack' ); ?></option><option value="away" <?php selected( $cur_home_away, 'away' ); ?>><?php esc_html_e( 'Away', 'talenttrack' ); ?></option></select></div>
-                <div class="tt-form-row"><label><?php esc_html_e( 'Minutes Played', 'talenttrack' ); ?></label><input type="number" name="minutes_played" min="0" max="120" value="<?php echo esc_attr( $cur_minutes ); ?>" /></div>
+                <div class="tt-form-row"><label><?php esc_html_e( 'Minutes Played', 'talenttrack' ); ?></label><input type="number" inputmode="numeric" name="minutes_played" min="0" max="120" value="<?php echo esc_attr( $cur_minutes ); ?>" /></div>
             </div>
             <h4><?php esc_html_e( 'Ratings', 'talenttrack' ); ?></h4>
             <?php
@@ -261,7 +261,7 @@ class CoachForms {
                 $initial_state = $has_sub_values ? 'detailed' : 'basic';
                 ?>
                 <div class="tt-form-row tt-form-row--rating"><label><?php echo esc_html( $cat_label ); ?><?php echo $is_edit ? '' : ' *'; ?></label>
-                    <input type="number" class="tt-rating-num" name="ratings[<?php echo $cid; ?>]" min="<?php echo esc_attr( $rmin ); ?>" max="<?php echo esc_attr( $rmax ); ?>" step="<?php echo esc_attr( $rstep ); ?>" <?php echo $rating_required; ?> value="<?php echo esc_attr( $cur_rating ); ?>" />
+                    <input type="number" inputmode="decimal" class="tt-rating-num" name="ratings[<?php echo $cid; ?>]" min="<?php echo esc_attr( $rmin ); ?>" max="<?php echo esc_attr( $rmax ); ?>" step="<?php echo esc_attr( $rstep ); ?>" <?php echo $rating_required; ?> value="<?php echo esc_attr( $cur_rating ); ?>" />
                     <span class="tt-range-hint">(<?php echo esc_html( $rmin ); ?>–<?php echo esc_html( $rmax ); ?>)</span></div>
                 <?php
                 if ( $cat_repo === null || empty( $sub_cats ) ) continue;
@@ -290,7 +290,7 @@ class CoachForms {
                     ?>
                     <div class="tt-form-row tt-form-row--rating tt-form-row--sub">
                         <label>↳ <?php echo esc_html( $sub_label ); ?></label>
-                        <input type="number" class="tt-rating-num" name="ratings[<?php echo $scid; ?>]" min="<?php echo esc_attr( $rmin ); ?>" max="<?php echo esc_attr( $rmax ); ?>" step="<?php echo esc_attr( $rstep ); ?>" value="<?php echo esc_attr( $sub_rating ); ?>" />
+                        <input type="number" inputmode="decimal" class="tt-rating-num" name="ratings[<?php echo $scid; ?>]" min="<?php echo esc_attr( $rmin ); ?>" max="<?php echo esc_attr( $rmax ); ?>" step="<?php echo esc_attr( $rstep ); ?>" value="<?php echo esc_attr( $sub_rating ); ?>" />
                         <span class="tt-range-hint">(<?php echo esc_html( $rmin ); ?>–<?php echo esc_html( $rmax ); ?>)</span>
                     </div>
                 <?php

@@ -142,9 +142,8 @@ final class RateActorsStep implements WizardStepInterface {
                         <div class="tt-rate-row">
                             <label class="tt-rate-label" for="<?php echo esc_attr( $iid ); ?>"><?php echo esc_html( $label ); ?></label>
                             <div class="tt-rate-control">
-                                <input type="number" min="<?php echo (int) $min; ?>" max="<?php echo (int) $max; ?>"
+                                <input type="number" inputmode="numeric" min="<?php echo (int) $min; ?>" max="<?php echo (int) $max; ?>"
                                        step="1"
-                                       inputmode="numeric"
                                        id="<?php echo esc_attr( $iid ); ?>"
                                        class="tt-rate-input"
                                        name="ratings[<?php echo $pid; ?>][<?php echo $cid; ?>]"
@@ -192,9 +191,8 @@ final class RateActorsStep implements WizardStepInterface {
                                     <div class="tt-rate-row tt-rate-row--sub">
                                         <label class="tt-rate-label" for="<?php echo esc_attr( $siid ); ?>">↳ <?php echo esc_html( $slabel ); ?></label>
                                         <div class="tt-rate-control">
-                                            <input type="number" min="<?php echo (int) $min; ?>" max="<?php echo (int) $max; ?>"
+                                            <input type="number" inputmode="numeric" min="<?php echo (int) $min; ?>" max="<?php echo (int) $max; ?>"
                                                    step="1"
-                                                   inputmode="numeric"
                                                    id="<?php echo esc_attr( $siid ); ?>"
                                                    class="tt-rate-input"
                                                    name="ratings[<?php echo $pid; ?>][<?php echo $scid; ?>]"
