@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-05-25T21:59:58+00:00\n"
+"POT-Creation-Date: 2026-05-25T22:10:39+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -591,6 +591,7 @@ msgid "In Progress"
 msgstr "En curso"
 
 #: src/Infrastructure/Query/LabelTranslator.php:25
+#: src/Infrastructure/Query/LabelTranslator.php:343
 #: src/Modules/Analytics/AnalyticsModule.php:140
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:150
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:153
@@ -822,6 +823,7 @@ msgid "Other"
 msgstr "Otro"
 
 #: src/Infrastructure/Query/LabelTranslator.php:97
+#: src/Infrastructure/Query/LabelTranslator.php:344
 #: src/Modules/Activities/Admin/ActivitiesPage.php:127
 #: src/Modules/Analytics/ScheduledReportsRepository.php:67
 #: src/Modules/CustomWidgets/DataSources/GoalsOpen.php:37
@@ -1011,6 +1013,92 @@ msgstr ""
 
 #: src/Infrastructure/Query/LabelTranslator.php:256
 msgid "Centre forward"
+msgstr ""
+
+#: src/Infrastructure/Query/LabelTranslator.php:270
+msgid "Warm-up"
+msgstr ""
+
+#: src/Infrastructure/Query/LabelTranslator.php:271
+msgid "Technical"
+msgstr ""
+
+#: src/Infrastructure/Query/LabelTranslator.php:272
+msgid "Sided game"
+msgstr ""
+
+#: src/Infrastructure/Query/LabelTranslator.php:273
+msgid "Conditioning"
+msgstr ""
+
+#: src/Infrastructure/Query/LabelTranslator.php:274
+#: src/Infrastructure/Query/LabelTranslator.php:290
+msgid "Finishing"
+msgstr ""
+
+#: src/Infrastructure/Query/LabelTranslator.php:275
+msgid "Cool-down"
+msgstr ""
+
+#: src/Infrastructure/Query/LabelTranslator.php:285
+msgid "Build-up"
+msgstr ""
+
+#: src/Infrastructure/Query/LabelTranslator.php:286
+msgid "Pressing"
+msgstr ""
+
+#: src/Infrastructure/Query/LabelTranslator.php:287
+msgid "Transition"
+msgstr ""
+
+#: src/Infrastructure/Query/LabelTranslator.php:288
+msgid "Counter-attack"
+msgstr ""
+
+#: src/Infrastructure/Query/LabelTranslator.php:289
+#: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php:234
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:221
+msgid "Defending"
+msgstr ""
+
+#: src/Infrastructure/Query/LabelTranslator.php:291
+msgid "Set pieces"
+msgstr ""
+
+#: src/Infrastructure/Query/LabelTranslator.php:292
+msgid "1v1 duels"
+msgstr ""
+
+#: src/Infrastructure/Query/LabelTranslator.php:293
+msgid "Possession"
+msgstr ""
+
+#: src/Infrastructure/Query/LabelTranslator.php:294
+msgid "Mixed"
+msgstr ""
+
+#: src/Infrastructure/Query/LabelTranslator.php:314
+msgid "Match day"
+msgstr ""
+
+#: src/Infrastructure/Query/LabelTranslator.php:315
+msgid "No match context"
+msgstr ""
+
+#. translators: %d is the band number (1-10).
+#: src/Infrastructure/Query/LabelTranslator.php:329
+#, php-format
+msgid "Intensity band %d"
+msgstr ""
+
+#: src/Infrastructure/Query/LabelTranslator.php:341
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:909
+msgid "Draft"
+msgstr "Borrador"
+
+#: src/Infrastructure/Query/LabelTranslator.php:342
+msgid "Published"
 msgstr ""
 
 #: src/Infrastructure/Query/QueryHelpers.php:493
@@ -13972,11 +14060,6 @@ msgstr ""
 msgid "Attacking"
 msgstr ""
 
-#: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php:234
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:221
-msgid "Defending"
-msgstr ""
-
 #: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php:235
 msgid "Set pieces (atk)"
 msgstr ""
@@ -20977,10 +21060,6 @@ msgstr ""
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:893
 msgid "Match-day"
 msgstr ""
-
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:909
-msgid "Draft"
-msgstr "Borrador"
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:910
 msgid "Shared"
