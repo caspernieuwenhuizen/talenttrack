@@ -284,7 +284,7 @@ class EvalCategoriesPage {
                     <tr>
                         <th><label for="tt_evc_order"><?php esc_html_e( 'Display order', 'talenttrack' ); ?></label></th>
                         <td>
-                            <input type="number" name="display_order" id="tt_evc_order" class="small-text"
+                            <input type="number" inputmode="numeric" name="display_order" id="tt_evc_order" class="small-text"
                                    value="<?php echo (int) $display_order; ?>" min="0" step="1" />
                             <p class="description">
                                 <?php esc_html_e( 'Lower numbers render first. Convention: increments of 10 so you have room to insert between items later.', 'talenttrack' ); ?>

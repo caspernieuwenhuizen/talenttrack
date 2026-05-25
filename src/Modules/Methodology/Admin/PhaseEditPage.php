@@ -62,7 +62,7 @@ final class PhaseEditPage {
                     </tr>
                     <tr>
                         <th><label><?php esc_html_e( 'Phase number (1–4)', 'talenttrack' ); ?></label></th>
-                        <td><input type="number" name="phase_number" min="1" max="4" required value="<?php echo (int) ( $row->phase_number ?? 1 ); ?>" /></td>
+                        <td><input type="number" inputmode="numeric" name="phase_number" min="1" max="4" required value="<?php echo (int) ( $row->phase_number ?? 1 ); ?>" /></td>
                     </tr>
                     <tr>
                         <th><label><?php esc_html_e( 'Title (NL)', 'talenttrack' ); ?></label></th>

@@ -42,7 +42,7 @@ class PlayerSelfEvaluationForm implements FormInterface {
                 </label>
             </p>
             <p>
-                <input type="number" id="tt-self-rating" name="overall_rating"
+                <input type="number" inputmode="decimal" id="tt-self-rating" name="overall_rating"
                        step="0.5"
                        min="<?php echo esc_attr( (string) $rating_min ); ?>"
                        max="<?php echo esc_attr( (string) $rating_max ); ?>"

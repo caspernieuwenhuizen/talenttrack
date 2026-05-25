@@ -55,7 +55,7 @@ class RatingInputComponent {
         $out .= esc_html( $label );
         $out .= '</label>';
         $out .= '<div class="tt-rating">';
-        $out .= '<input type="number" id="' . esc_attr( $input_id ) . '" name="' . esc_attr( $name ) . '"';
+        $out .= '<input type="number" inputmode="decimal" id="' . esc_attr( $input_id ) . '" name="' . esc_attr( $name ) . '"';
         $out .= ' class="tt-input" min="' . esc_attr( (string) $min ) . '" max="' . esc_attr( (string) $max ) . '"';
         $out .= ' step="' . esc_attr( (string) $step ) . '" value="' . esc_attr( $value ) . '"';
         if ( $required ) $out .= ' required';

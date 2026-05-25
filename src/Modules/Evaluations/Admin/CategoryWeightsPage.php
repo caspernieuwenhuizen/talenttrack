@@ -97,7 +97,7 @@ class CategoryWeightsPage {
                                         </label>
                                     </th>
                                     <td>
-                                        <input type="number"
+                                        <input type="number" inputmode="numeric"
                                                id="tt_w_<?php echo $ag_id; ?>_<?php echo $main_id; ?>"
                                                name="weights[<?php echo $main_id; ?>]"
                                                value="<?php echo (int) $val; ?>"

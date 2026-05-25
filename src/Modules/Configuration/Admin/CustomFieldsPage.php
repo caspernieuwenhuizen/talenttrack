@@ -261,7 +261,7 @@ class CustomFieldsPage {
                     <tr>
                         <th><label for="tt_cf_sort"><?php esc_html_e( 'Sort order', 'talenttrack' ); ?></label></th>
                         <td>
-                            <input type="number" name="sort_order" id="tt_cf_sort" class="small-text"
+                            <input type="number" inputmode="numeric" name="sort_order" id="tt_cf_sort" class="small-text"
                                    value="<?php echo (int) ( $field->sort_order ?? 10 ); ?>" step="1" min="0" />
                             <p class="description">
                                 <?php esc_html_e( 'When multiple custom fields share the same "Insert after" slug, lower sort order renders first.', 'talenttrack' ); ?>

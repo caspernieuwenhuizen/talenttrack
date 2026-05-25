@@ -356,9 +356,9 @@ class PlayersPage {
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'date_of_birth' ); ?>
                     <tr><th><?php esc_html_e( 'Nationality', 'talenttrack' ); ?></th><td><input type="text" name="nationality" value="<?php echo esc_attr( $player->nationality ?? '' ); ?>" class="regular-text" /></td></tr>
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'nationality' ); ?>
-                    <tr><th><?php esc_html_e( 'Height (cm)', 'talenttrack' ); ?></th><td><input type="number" name="height_cm" value="<?php echo esc_attr( $player->height_cm ?? '' ); ?>" min="50" max="250" /></td></tr>
+                    <tr><th><?php esc_html_e( 'Height (cm)', 'talenttrack' ); ?></th><td><input type="number" inputmode="numeric" name="height_cm" value="<?php echo esc_attr( $player->height_cm ?? '' ); ?>" min="50" max="250" /></td></tr>
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'height_cm' ); ?>
-                    <tr><th><?php esc_html_e( 'Weight (kg)', 'talenttrack' ); ?></th><td><input type="number" name="weight_kg" value="<?php echo esc_attr( $player->weight_kg ?? '' ); ?>" min="20" max="200" /></td></tr>
+                    <tr><th><?php esc_html_e( 'Weight (kg)', 'talenttrack' ); ?></th><td><input type="number" inputmode="numeric" name="weight_kg" value="<?php echo esc_attr( $player->weight_kg ?? '' ); ?>" min="20" max="200" /></td></tr>
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'weight_kg' ); ?>
                     <tr><th><?php esc_html_e( 'Preferred Foot', 'talenttrack' ); ?></th><td><select name="preferred_foot"><option value=""><?php esc_html_e( '— Select —', 'talenttrack' ); ?></option>
                         <?php foreach ( $foot_opts as $stored => $label ) : ?><option value="<?php echo esc_attr( $stored ); ?>" <?php selected( $player->preferred_foot ?? '', $stored ); ?>><?php echo esc_html( $label ); ?></option><?php endforeach; ?></select></td></tr>
@@ -367,7 +367,7 @@ class PlayersPage {
                         <?php foreach ( $positions as $pos ) : ?><label style="display:inline-block;margin-right:12px;"><input type="checkbox" name="preferred_positions[]" value="<?php echo esc_attr( $pos ); ?>" <?php echo in_array( $pos, $sel_pos ) ? 'checked' : ''; ?> /> <?php echo esc_html( $pos ); ?></label><?php endforeach; ?>
                     </td></tr>
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'preferred_positions' ); ?>
-                    <tr><th><?php esc_html_e( 'Jersey Number', 'talenttrack' ); ?></th><td><input type="number" name="jersey_number" value="<?php echo esc_attr( $player->jersey_number ?? '' ); ?>" min="1" max="99" /></td></tr>
+                    <tr><th><?php esc_html_e( 'Jersey Number', 'talenttrack' ); ?></th><td><input type="number" inputmode="numeric" name="jersey_number" value="<?php echo esc_attr( $player->jersey_number ?? '' ); ?>" min="1" max="99" /></td></tr>
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'jersey_number' ); ?>
                     <tr><th><?php esc_html_e( 'Team', 'talenttrack' ); ?></th><td><select name="team_id"><option value="0"><?php esc_html_e( '— No Team —', 'talenttrack' ); ?></option>
                         <?php foreach ( $teams as $t ) : ?><option value="<?php echo (int) $t->id; ?>" <?php selected( $player->team_id ?? 0, $t->id ); ?>><?php echo esc_html( (string) $t->name ); ?></option><?php endforeach; ?></select></td></tr>

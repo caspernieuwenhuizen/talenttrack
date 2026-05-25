@@ -88,7 +88,7 @@ final class GuestAddModal {
                         <div class="tt-grid tt-grid-2">
                             <div class="tt-field">
                                 <label class="tt-field-label" for="tt-guest-anon-age"><?php esc_html_e( 'Age', 'talenttrack' ); ?></label>
-                                <input type="number" id="tt-guest-anon-age" class="tt-input" min="6" max="19" />
+                                <input type="number" inputmode="numeric" id="tt-guest-anon-age" class="tt-input" min="6" max="19" />
                             </div>
                             <div class="tt-field">
                                 <label class="tt-field-label" for="tt-guest-anon-position"><?php esc_html_e( 'Position', 'talenttrack' ); ?></label>

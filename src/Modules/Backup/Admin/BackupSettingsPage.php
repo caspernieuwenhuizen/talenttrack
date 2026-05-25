@@ -199,7 +199,7 @@ class BackupSettingsPage {
                 <tr>
                     <th scope="row"><label for="tt_bk_retention"><?php esc_html_e( 'Retention', 'talenttrack' ); ?></label></th>
                     <td>
-                        <input type="number" id="tt_bk_retention" name="retention" min="1" max="365" value="<?php echo esc_attr( (string) $retention ); ?>" />
+                        <input type="number" inputmode="numeric" id="tt_bk_retention" name="retention" min="1" max="365" value="<?php echo esc_attr( (string) $retention ); ?>" />
                         <p class="description">
                             <?php esc_html_e( 'Keep this many local backups before purging the oldest.', 'talenttrack' ); ?>
                         </p>

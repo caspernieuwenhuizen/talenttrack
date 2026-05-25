@@ -82,7 +82,7 @@ class PositionEditPage {
                     </tr>
                     <tr>
                         <th><label for="tt_pos_jersey"><?php esc_html_e( 'Jersey number', 'talenttrack' ); ?></label></th>
-                        <td><input type="number" id="tt_pos_jersey" name="jersey_number" min="1" max="11" required value="<?php echo esc_attr( (string) ( $row->jersey_number ?? 1 ) ); ?>" /></td>
+                        <td><input type="number" inputmode="numeric" id="tt_pos_jersey" name="jersey_number" min="1" max="11" required value="<?php echo esc_attr( (string) ( $row->jersey_number ?? 1 ) ); ?>" /></td>
                     </tr>
                     <tr>
                         <th><label><?php esc_html_e( 'Short name (NL)', 'talenttrack' ); ?></label></th>
