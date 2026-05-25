@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: TalentTrack 4.3.0\n"
+"Project-Id-Version: TalentTrack 4.3.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-25T21:42:38+00:00\n"
+"POT-Creation-Date: 2026-05-25T21:59:58+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -46,7 +46,7 @@ msgstr ""
 #: database/migrations/0025_invitations.php:129
 #: src/Infrastructure/Query/LabelTranslator.php:83
 #: src/Infrastructure/Query/LabelTranslator.php:132
-#: src/Infrastructure/Security/RolesService.php:358
+#: src/Infrastructure/Security/RolesService.php:382
 #: src/Modules/Authorization/Admin/MatrixPage.php:587
 #: src/Modules/Authorization/Admin/RolesPage.php:439
 #: src/Modules/Documentation/AudienceResolver.php:48
@@ -73,7 +73,7 @@ msgid "Team Manager"
 msgstr ""
 
 #: includes/Activator.php:178
-#: src/Infrastructure/Security/RolesService.php:354
+#: src/Infrastructure/Security/RolesService.php:378
 #: src/Modules/Activities/Admin/ActivitiesPage.php:378
 #: src/Modules/Analytics/AnalyticsModule.php:71
 #: src/Modules/Analytics/AnalyticsModule.php:114
@@ -166,7 +166,7 @@ msgstr ""
 
 #: includes/Activator.php:179
 #: src/Infrastructure/Query/LabelTranslator.php:70
-#: src/Infrastructure/Security/RolesService.php:269
+#: src/Infrastructure/Security/RolesService.php:293
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:149
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:231
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:132
@@ -193,7 +193,7 @@ msgstr ""
 #: src/Infrastructure/Query/LabelTranslator.php:79
 #: src/Infrastructure/Query/LabelTranslator.php:125
 #: src/Infrastructure/Query/LabelTranslator.php:163
-#: src/Infrastructure/Security/RolesService.php:200
+#: src/Infrastructure/Security/RolesService.php:224
 #: src/Modules/Authorization/Admin/RolesPage.php:432
 #: src/Modules/People/Admin/PeoplePage.php:449
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:236
@@ -210,7 +210,7 @@ msgstr ""
 
 #: includes/Activator.php:186
 #: src/Infrastructure/Query/LabelTranslator.php:80
-#: src/Infrastructure/Security/RolesService.php:330
+#: src/Infrastructure/Security/RolesService.php:354
 #: src/Modules/Invitations/InvitationKind.php:38
 #: src/Modules/People/Admin/PeoplePage.php:450
 #: src/Modules/People/Admin/TeamStaffPanel.php:40
@@ -761,7 +761,7 @@ msgstr ""
 #: src/Infrastructure/Query/LabelTranslator.php:82
 #: src/Infrastructure/Query/LabelTranslator.php:131
 #: src/Infrastructure/Query/LabelTranslator.php:215
-#: src/Infrastructure/Security/RolesService.php:303
+#: src/Infrastructure/Security/RolesService.php:327
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:235
 #: src/Modules/Authorization/Admin/MatrixPage.php:591
 #: src/Modules/Authorization/Admin/RolesPage.php:438
@@ -828,7 +828,7 @@ msgid "Archived"
 msgstr ""
 
 #: src/Infrastructure/Query/LabelTranslator.php:124
-#: src/Infrastructure/Security/RolesService.php:243
+#: src/Infrastructure/Security/RolesService.php:267
 #: src/Modules/Authorization/Admin/RolesPage.php:431
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:153
 #: src/Shared/Frontend/FrontendRolesView.php:63
@@ -1685,7 +1685,7 @@ msgstr ""
 msgid "The vision provider could not read this photo. Use the manual flow instead."
 msgstr ""
 
-#: src/Infrastructure/Security/RolesService.php:363
+#: src/Infrastructure/Security/RolesService.php:387
 #: src/Shared/Frontend/FrontendRolesView.php:52
 msgid "Read-Only Observer"
 msgstr ""
@@ -4473,6 +4473,18 @@ msgstr ""
 #: src/Modules/CustomWidgets/CustomWidgetsModule.php:81
 #: src/Modules/CustomWidgets/CustomWidgetsModule.php:121
 msgid "Custom widgets"
+msgstr ""
+
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:116
+msgid "VCT sessions"
+msgstr ""
+
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:117
+msgid "VCT exercise library"
+msgstr ""
+
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:118
+msgid "VCT workload aggregates"
 msgstr ""
 
 #: src/Modules/Authorization/Admin/MatrixPage.php:47
