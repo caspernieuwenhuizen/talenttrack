@@ -73,6 +73,11 @@ $mod_translations     = class_exists( '\TT\Modules\Translations\TranslationsModu
 $mod_prospects        = class_exists( '\TT\Modules\Prospects\ProspectsModule' )       ? \TT\Modules\Prospects\ProspectsModule::class     : $mod_authorization;
 $mod_custom_widgets   = class_exists( '\TT\Modules\CustomWidgets\CustomWidgetsModule' ) ? \TT\Modules\CustomWidgets\CustomWidgetsModule::class : $mod_authorization;
 $mod_i18n             = class_exists( '\TT\Modules\I18n\I18nModule' )                     ? \TT\Modules\I18n\I18nModule::class                     : $mod_authorization;
+// #0095 — VCT module class shortcut. The module ships later in the
+// epic (VCT-5 onwards introduces VctModule); until then the class
+// doesn't exist, so the seed falls back to $mod_authorization. Mirrors
+// the trials/journey/scout/persona-dashboard fallback pattern above.
+$mod_vct              = class_exists( '\TT\Modules\Vct\VctModule' )                       ? \TT\Modules\Vct\VctModule::class                       : $mod_authorization;
 
 /**
  * Helper: build a rows[] array from a compact spec.
@@ -228,6 +233,10 @@ return array_merge(
         'pdp_panel'                  => [ 'r',   'team',   $mod_pdp ],
         // #0085 — player notes (staff-only running log on the player file).
         'player_notes'               => [ 'rc',  'team',   $mod_threads ],
+        // #0095 — VCT module. Assistant coach plans/edits/publishes
+        // VCT sessions on their team scope (same as head coach — both
+        // share the team scope). Matrix-only cap.
+        'vct'                        => [ 'rcd', 'team',   $mod_vct ],
     ] ),
 
     // ─── HEAD COACH ─────────────────────────────────────────────────
@@ -304,6 +313,12 @@ return array_merge(
         'pdp_panel'                  => [ 'r',   'team',   $mod_pdp ],
         // #0085 — player notes (staff-only running log on the player file).
         'player_notes'               => [ 'rc',  'team',   $mod_threads ],
+        // #0095 — VCT module. Head coach plans/edits/publishes VCT
+        // sessions on their team scope. Spec letter mapping: rcdp
+        // (read/create/delete/publish) → codebase rcd (read + change
+        // for publish + create_delete for c+d). Matrix-only cap;
+        // bridged via LegacyCapMapper as tt_vct_plan → (vct, read).
+        'vct'                        => [ 'rcd', 'team',   $mod_vct ],
     ] ),
 
     // ─── TEAM MANAGER ───────────────────────────────────────────────
@@ -548,6 +563,13 @@ return array_merge(
         'pdp_panel'                     => [ 'r',   'global', $mod_pdp ],
         // #0085 — HoD reads + writes + deletes notes across the academy.
         'player_notes'                  => [ 'rcd', 'global', $mod_threads ],
+        // #0095 — VCT module. HoD owns the academy-wide VCT lens:
+        // plans/edits/publishes any session, curates the shared
+        // exercise catalogue + age profiles + macro-blocks, reads
+        // workload aggregates. All matrix-only caps.
+        'vct'                           => [ 'rcd', 'global', $mod_vct ],
+        'vct_library'                   => [ 'rcd', 'global', $mod_vct ],
+        'vct_workload'                  => [ 'r',   'global', $mod_vct ],
     ] ),
 
     // ─── ACADEMY ADMIN ──────────────────────────────────────────────
@@ -671,5 +693,11 @@ return array_merge(
         'test_trainings'                => [ 'rcd', 'global', $mod_prospects ],
         // #0085 — Admin reads + writes + deletes notes across the academy.
         'player_notes'                  => [ 'rcd', 'global', $mod_threads ],
+        // #0095 — VCT module. Admin parity with HoD on VCT surfaces:
+        // full session participation, library admin, workload read.
+        // All matrix-only caps.
+        'vct'                           => [ 'rcd', 'global', $mod_vct ],
+        'vct_library'                   => [ 'rcd', 'global', $mod_vct ],
+        'vct_workload'                  => [ 'r',   'global', $mod_vct ],
     ] )
 );

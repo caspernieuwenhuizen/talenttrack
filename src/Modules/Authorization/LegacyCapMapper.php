@@ -204,6 +204,22 @@ final class LegacyCapMapper {
         // introducing a parallel matrix entity.
         'tt_view_plan'                   => [ 'activities',           'read' ],
         'tt_manage_plan'                 => [ 'activities',           'change' ],
+
+        // #0095 — VCT (Voetbal Conditionele Training) module.
+        // Each cap bridges to its entity at `read` activity — the
+        // coarsest "does this user participate in this entity at all?"
+        // check. The spec describes per-cap activities `rcdp` (read /
+        // create / delete / publish), but LegacyCapMapper's schema is
+        // one cap → one (entity, activity) tuple, so the activity
+        // letters live in the matrix seed instead: coaches + HoD +
+        // admin all get `r` on the entity (via the rcd seed grants for
+        // `vct` / `vct_library`, and `r`-only for `vct_workload`), so
+        // they all pass the cap-layer check. VCT-6's per-endpoint
+        // permission_callback enforces the granular activity required
+        // by each route as the second layer (cap + scope).
+        'tt_vct_plan'                    => [ 'vct',                  'read' ],
+        'tt_vct_admin_library'           => [ 'vct_library',          'read' ],
+        'tt_vct_view_load'               => [ 'vct_workload',         'read' ],
     ];
 
     public static function isKnown( string $cap ): bool {
