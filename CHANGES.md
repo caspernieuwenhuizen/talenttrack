@@ -1,79 +1,55 @@
-# TalentTrack v4.2.1 — Wizard URL query var rename: `slug` → `tt_wizard` (closes #901)
+# TalentTrack v4.2.2 — Exports page form POST architecture (closes #903)
 
-## Pilot report
+## Pilot context
 
-After v4.0.1 shipped (#860, `RecordLink::dashboardUrl()` canonicalisation), the pilot reported:
+Pilot environment `jg4it.mediamaniacs.nl` (only TalentTrack active, no other plugins) hit a 403 on every Export card. Diagnosis:
 
-> "Tournament wizard still reaches a 404 — same for blueprint wizard"
+- POST `/wp-json/talenttrack/v1/exports/attendance_register` → `403 rest_cookie_invalid_nonce`
+- GET `/wp-json/wp/v2/users/me` (any cookie-authed REST endpoint) → `401 rest_not_logged_in`
+- wp-admin pages work; the user IS logged in (visible auth cookie in the request)
+- Every TalentTrack wizard works — they submit via standard form POST
 
-Both `?tt_view=wizard&slug=new-team-blueprint&team_id=4` and `?tt_view=wizard&slug=new-tournament&…` returned a document-level 404 on the pilot's Strato install. Same symptom we'd chased through three prior fixes (#766 v3.110.172, #782 v3.110.180 + v3.110.182, #860 v4.0.1). All three landed correct fixes for real URL-construction bugs — none of them touched the query-var name, which turned out to be the actual root cause.
+REST cookie auth was broken at the host layer (htaccess / wp-config / hosting WAF — outside the plugin's control), but every non-REST surface in TalentTrack worked. The Exports page was the only outlier that required REST auth.
 
-## Diagnostic that confirmed the hypothesis
+## Architectural pivot
 
-Two URLs on the same install:
+Exports were originally implemented in #797 as `fetch()` POST against `/wp-json/talenttrack/v1/exports/{key}` with `X-WP-Nonce`. That path:
 
-| URL | Result |
-|---|---|
-| `http://jg4it.mediamaniacs.nl/?tt_view=team-blueprints&team_id=4` | Works — dashboard renders the team blueprints list. |
-| `http://jg4it.mediamaniacs.nl/?tt_view=wizard&slug=new-team-blueprint&team_id=4` | **404** at document level. |
-| `http://jg4it.mediamaniacs.nl/?tt_view=wizard&zzz=new-team-blueprint&team_id=4` | Works — dashboard renders, wizard view fires its "Unknown wizard" notice (because `zzz` isn't read). |
+- Required the WP REST cookie pipeline to be functioning.
+- Broke the moment a host added REST hardening (Wordfence "REST API protection", iThemes Security "Restrict REST API", certain managed-WP defaults).
+- Was the ONLY TalentTrack surface with that dependency.
 
-Only difference between the broken URL and the working one is the query-var name. WordPress is rejecting `?slug=…` at the routing layer, before the `[talenttrack_dashboard]` shortcode ever runs.
+A file download is exactly the shape server-side form POST handles natively: form submits → PHP validates nonce + cap → headers + bytes → done. No JS needed, no REST cookie pipeline.
 
-## Diagnosis
+## What changed
 
-`slug` is not a TalentTrack-namespaced query var. WordPress core doesn't use `slug` as a public query var by default — `name` is the canonical "find post by slug" var — but **plugins routinely register `slug` as public via the `query_vars` filter**. Yoast SEO is the most common; several caching and redirect plugins do it too. On installs running such a plugin, `WP_Query::parse_query()` treats `?slug=new-team-blueprint` as a request to resolve a post with that slug, sets `is_singular = true`, finds no matching post, sets `is_404 = true`, and the response is a 404 page *before* the dashboard shortcode runs.
+### `src/Shared/Frontend/FrontendExportsView.php`
 
-This matches every observed symptom:
+1. **`render()`** — top of method now checks `REQUEST_METHOD === 'POST'` + `tt_export_key` presence and routes to `handleExportPost($user_id)`. The handler runs before breadcrumbs / headers so raw download headers can fire without the template chrome being half-flushed.
+2. **`handleExportPost()`** (new private static) — verifies `_tt_export_nonce` against the `tt_export` action, sanitises POST data into an `ExportRequest`, runs `ExportService::run()`, streams the file via `Content-Disposition: attachment` + `echo` + `exit`. On any failure (nonce, cap, unsupported format, bad filters, no renderer) `self::$post_error` is set and the page falls through to render normally with an error notice surfaced above the grid.
+3. **`renderCard()`** — form opens with `method="POST" action=""` (same URL re-entry), `wp_nonce_field('tt_export', '_tt_export_nonce')` immediately after, plus a hidden `tt_export_key` carrying the exporter key. Filter fields and multi-format chip selector unchanged.
+4. **`renderJs()` deleted** — 84 lines of REST-fetch + blob + temporary `<a download>` gone. The form's native submission handles the download via the browser's standard download flow; no JS required for the happy path. The empty `<span class="tt-export-msg">` placeholder stays in markup — harmless without JS, available for future progressive-enhancement work if appetite returns.
 
-- 404 at document level, not at shortcode-render level.
-- Hits **both** the blueprint and tournament wizards equally (both used `slug=`).
-- Manifests only on installs with the offending plugin active — dev / staging installs without it worked fine, which is why all three prior fixes appeared to work locally but the pilot kept seeing 404s.
-- Every other dashboard view (`team-blueprints`, `tournaments`, `players`, etc.) keeps working — they carry no `slug` arg.
+### What didn't change
 
-Every other TalentTrack query var is prefixed (`tt_view`, `tt_back`, `tt_mfa_required`). The wizard's `slug` was the lone unnamespaced one.
+- **`src/Modules/Export/Rest/ExportRestController.php`** — REST route at `/wp-json/talenttrack/v1/exports/<key>` stays registered. Direct-link integrations and the future SaaS client keep working through the REST path; only the in-page Export click stops needing it.
+- **`src/Modules/Export/ExportService.php`** — orchestrator unchanged. Both the form-POST handler and the REST controller call the same `ExportService::run()`; no duplicated logic.
+- **The 14 registered exporters** — no `requiredCap()` changes, no payload shape changes.
+- **Multi-format chip toggle (#864)** — still works. The picked `format` value submits via the form's radio input under its existing `name="format"`.
 
-## Fix
+## Why this is `tech-debt`, not a `bug`
 
-The query var is renamed to `tt_wizard` (matches the existing `tt_view` / `tt_back` convention; cannot collide with any third-party plugin's query var). Touched files:
+The 403 on `jg4it.mediamaniacs.nl` is an install-environment problem, not a TalentTrack code bug. But the install's failure exposed that exports were the only surface in the plugin requiring REST cookie auth. Other surfaces use form POST and never hit this class of failure. Bringing exports into line with the rest of the plugin is the right architectural call regardless of whether the pilot's host ever fixes its REST hardening. Future installs with REST-hardened hosting (corporate WordPress VIP, Pantheon, certain SiteGround configs) all benefit.
 
-### Write sites — emit `tt_wizard` instead of `slug`
+## Validation
 
-- `src/Shared/Wizards/WizardEntryPoint.php::urlFor` — every "+ New …" button across the dashboard.
-- `src/Shared/Frontend/FrontendWizardView.php::wizardStepUrl` — step-to-step redirect during wizard navigation.
-- `src/Modules/Mfa/Auth/MfaLoginGuard.php::handle` — the MFA enrollment forced-redirect.
-
-### Read sites — read `tt_wizard` first, fall back to legacy `slug`
-
-- `src/Shared/Frontend/FrontendWizardView.php::render` — main dispatch.
-- `src/Modules/Mfa/Auth/MfaLoginGuard.php::handle` — the guard's "are we already on the MFA enrollment wizard" check.
-
-The back-compat fallback keeps any bookmarked or shared pre-v4.2.1 `?slug=…` URL working for one release. Removal of the fallback is a candidate for the next minor.
-
-### Strip-list updates
-
-- `WizardEntryPoint::dashboardBaseUrl()` strips `tt_wizard` alongside the existing `slug` from the base URL before adding fresh wizard args, so an in-flight wizard URL never leaks its previous slug into a fresh wizard link.
-
-### Untouched on purpose
-
-- `WizardDraftRestController` — route is `/wizards/(?P<slug>[a-z0-9_-]+)/draft`, a path pattern not a query var. REST routing doesn't go through `WP_Query`; this endpoint was never affected.
-- All other `'slug' =>` occurrences across `src/` — unrelated (admin menu slugs, methodology lookup slugs, etc.).
-
-## Why prior fixes didn't help
-
-- **#766 (v3.110.172)** fixed the wizard's post-step redirect — `wp_safe_redirect` was rejecting non-canonical hosts. Correct fix, different bug.
-- **#782 (v3.110.180)** refined the redirect via `home_url($path)` to bypass `esc_url_raw` mangling. Correct, different bug.
-- **#782 follow-up (v3.110.182)** added `currentDashboardUrl()` for in-request submit handlers. Correct, different bug.
-- **#860 (v4.0.1)** fixed `RecordLink::dashboardUrl()` to canonicalise the REQUEST_URI fallback. Correct, different bug.
-
-All four corrected real bugs in URL construction. The entry URL has been correctly built all along — it just landed on a `slug=` value that WP refused to route past on installs running a plugin that claimed `slug` as a public query var.
-
-## What pilots and operators should know
-
-- Pilot install (jg4it.mediamaniacs.nl) — every wizard entry should now work.
-- Other installs — no behavioural change visible; both wizards were already working there.
-- Bookmarked old-format URLs (`?tt_view=wizard&slug=…`) continue to resolve for one release via the back-compat shim. Re-bookmark after testing; the legacy fallback is a removal candidate in the next minor.
+- Pilot install: every Export card click now triggers a file download via standard form POST. No `fetch()` to `/wp-json/` on the happy path.
+- Dev / staging: file downloads continue to work; the diff is invisible to the end user.
+- Direct REST consumer: `curl -H 'X-WP-Nonce: …' -X POST https://…/wp-json/talenttrack/v1/exports/<key>` still returns the file (regression check for the un-deprecated REST path).
+- JS disabled: form submits; file downloads. (Test: disable JS in browser dev tools, click any Export button.)
+- Nonce expiry: leave the page open for >24h, click Export → red notice "Export request failed: session expired. Please reload the page and try again." surfaces above the grid (no silent failure).
+- Bad cap (use a coach account that lacks `tt_export_evaluations` and try the evaluations exporter via crafted POST): ExportService throws `forbidden`, the error message surfaces in the notice block.
 
 ## Bumped
 
-`talenttrack.php` Version + `TT_VERSION` constant + `readme.txt` Stable tag: `4.2.0` → `4.2.1`. Patch bump — bug fix within the current minor, no behavioural change visible to working installs, back-compat shim covers old URLs.
+`talenttrack.php` Version + `TT_VERSION` + `readme.txt` Stable tag: `4.2.1` → `4.2.2`. Patch bump — no architectural break (REST endpoint stays), no behavioural change visible on healthy installs, restores function on REST-hardened installs.
