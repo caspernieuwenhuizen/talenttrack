@@ -179,7 +179,7 @@ class FrontendTeamsManageView extends FrontendViewBase {
         // ::extract() — `head_coach_id` only writes when the payload
         // carries it).
         ?>
-        <form id="tt-team-form" class="tt-ajax-form" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="<?php echo esc_attr( $rest_meth ); ?>"<?php if ( ! $is_edit ) : ?> data-draft-key="team-form"<?php endif; ?>>
+        <form id="tt-team-form" class="tt-ajax-form" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="<?php echo esc_attr( $rest_meth ); ?>">
             <div class="tt-grid tt-grid-2">
                 <div class="tt-field">
                     <label class="tt-field-label tt-field-required" for="tt-team-name"><?php esc_html_e( 'Team name', 'talenttrack' ); ?></label>
