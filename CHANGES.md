@@ -1,55 +1,54 @@
-# TalentTrack v4.2.2 — Exports page form POST architecture (closes #903)
+# TalentTrack v4.2.3 — localStorage draft prompt stripped from flat forms (closes #904)
 
 ## Pilot context
 
-Pilot environment `jg4it.mediamaniacs.nl` (only TalentTrack active, no other plugins) hit a 403 on every Export card. Diagnosis:
+A coach opened `?tt_view=activities&action=new`, typed a single character, navigated away, then came back to the same URL. They were prompted:
 
-- POST `/wp-json/talenttrack/v1/exports/attendance_register` → `403 rest_cookie_invalid_nonce`
-- GET `/wp-json/wp/v2/users/me` (any cookie-authed REST endpoint) → `401 rest_not_logged_in`
-- wp-admin pages work; the user IS logged in (visible auth cookie in the request)
-- Every TalentTrack wizard works — they submit via standard form POST
+> "You have unsaved changes from an earlier session — restore?"
 
-REST cookie auth was broken at the host layer (htaccess / wp-config / hosting WAF — outside the plugin's control), but every non-REST surface in TalentTrack worked. The Exports page was the only outlier that required REST auth.
+They expected this not to happen. As far as the pilot was concerned, wizard autosave was retired in v3.110.86 (#385). Getting an "earlier session" prompt on a flat form they'd barely touched looked like the same autosave behaviour returning under a different name.
 
-## Architectural pivot
+## Two mechanisms, one mental model
 
-Exports were originally implemented in #797 as `fetch()` POST against `/wp-json/talenttrack/v1/exports/{key}` with `X-WP-Nonce`. That path:
+The pilot's confusion is reasonable. The plugin had two unrelated "remember what you were typing" mechanisms and v3.110.86 only retired one of them:
 
-- Required the WP REST cookie pipeline to be functioning.
-- Broke the moment a host added REST hardening (Wordfence "REST API protection", iThemes Security "Restrict REST API", certain managed-WP defaults).
-- Was the ONLY TalentTrack surface with that dependency.
+- **Server-side wizard drafts** (`tt_wizard_drafts` table). Resurrected wizard state after Cancel/Submit. **Retired in v3.110.86 / #385.** Correct fix, narrow scope.
+- **Client-side localStorage drafts** (`assets/js/drafts.js`, shipped in #0019 Sprint 1 v3.x). Any form opts in by emitting a `data-draft-key="…"` attribute; the script debounce-saves field values to `localStorage` and offers to restore on next visit.
 
-A file download is exactly the shape server-side form POST handles natively: form submits → PHP validates nonce + cap → headers + bytes → done. No JS needed, no REST cookie pipeline.
+The new-activity flat form still opted in to the second mechanism, so the prompt still fired even though the wizard side was clean. Two different mechanisms, identical surface confusion to the user.
 
 ## What changed
 
-### `src/Shared/Frontend/FrontendExportsView.php`
+Stripped `data-draft-key` from every production form in `src/`. The eight call sites:
 
-1. **`render()`** — top of method now checks `REQUEST_METHOD === 'POST'` + `tt_export_key` presence and routes to `handleExportPost($user_id)`. The handler runs before breadcrumbs / headers so raw download headers can fire without the template chrome being half-flushed.
-2. **`handleExportPost()`** (new private static) — verifies `_tt_export_nonce` against the `tt_export` action, sanitises POST data into an `ExportRequest`, runs `ExportService::run()`, streams the file via `Content-Disposition: attachment` + `echo` + `exit`. On any failure (nonce, cap, unsupported format, bad filters, no renderer) `self::$post_error` is set and the page falls through to render normally with an error notice surfaced above the grid.
-3. **`renderCard()`** — form opens with `method="POST" action=""` (same URL re-entry), `wp_nonce_field('tt_export', '_tt_export_nonce')` immediately after, plus a hidden `tt_export_key` carrying the exporter key. Filter fields and multi-format chip selector unchanged.
-4. **`renderJs()` deleted** — 84 lines of REST-fetch + blob + temporary `<a download>` gone. The form's native submission handles the download via the browser's standard download flow; no JS required for the happy path. The empty `<span class="tt-export-msg">` placeholder stays in markup — harmless without JS, available for future progressive-enhancement work if appetite returns.
+- **`src/Shared/Frontend/FrontendActivitiesManageView.php:637`** — `$draft_key = $is_edit ? '' : 'activity-form'` (variable + attribute emission removed).
+- **`src/Shared/Frontend/FrontendPlayersManageView.php:252`** — same shape (`player-form`).
+- **`src/Shared/Frontend/FrontendPeopleManageView.php:137`** — same shape (`person-form`).
+- **`src/Shared/Frontend/FrontendGoalsManageView.php:314`** — same shape (`goal-form`).
+- **`src/Shared/Frontend/FrontendTeamsManageView.php:182`** — `data-draft-key="team-form"` on the create path.
+- **`src/Shared/Frontend/CoachForms.php:108`** — eval form, both create and edit branches (`eval-form` / `eval-form-edit-N`).
+- **`src/Shared/Frontend/CoachForms.php:478`** — legacy `renderActivityForm` reached via `CoachDashboardView`.
+- **`src/Shared/Frontend/CoachForms.php:538`** — legacy `renderGoalForm` reached via `CoachDashboardView`.
 
-### What didn't change
+`grep -r data-draft-key src/` returns zero hits after this ship.
 
-- **`src/Modules/Export/Rest/ExportRestController.php`** — REST route at `/wp-json/talenttrack/v1/exports/<key>` stays registered. Direct-link integrations and the future SaaS client keep working through the REST path; only the in-page Export click stops needing it.
-- **`src/Modules/Export/ExportService.php`** — orchestrator unchanged. Both the form-POST handler and the REST controller call the same `ExportService::run()`; no duplicated logic.
-- **The 14 registered exporters** — no `requiredCap()` changes, no payload shape changes.
-- **Multi-format chip toggle (#864)** — still works. The picked `format` value submits via the form's radio input under its existing `name="format"`.
+## What didn't change
 
-## Why this is `tech-debt`, not a `bug`
-
-The 403 on `jg4it.mediamaniacs.nl` is an install-environment problem, not a TalentTrack code bug. But the install's failure exposed that exports were the only surface in the plugin requiring REST cookie auth. Other surfaces use form POST and never hit this class of failure. Bringing exports into line with the rest of the plugin is the right architectural call regardless of whether the pilot's host ever fixes its REST hardening. Future installs with REST-hardened hosting (corporate WordPress VIP, Pantheon, certain SiteGround configs) all benefit.
+- **`assets/js/drafts.js` stays.** ~140 LOC, opt-in by attribute, zero cost when no form opts in. We may want explicit "Save as draft" affordances on long forms in the future (PDP conversation drafts, scout report drafts) — keeping the mechanism dormant is cheaper than reintroducing it later. The file's docblock gains a note recording that no production form opts in as of v4.2.3 so a future re-opt-in lands on documented ground.
+- **No localStorage cleanup.** `drafts.js` line 29 (`MAX_AGE_MS = 14 * 24 * 60 * 60 * 1000`) auto-expires saved drafts after 14 days. Worst case a coach with a stale draft gets one final prompt within the next two weeks; after that the entries are gone. Forcing a cleanup is not worth the migration complexity.
+- **No copy tweak.** Renaming the prompt to "Restore your local browser draft?" (the option-2 path in the pilot triage) would still surface unexpected autosave to a coach who isn't asking for it. The pilot's confusion isn't about the copy — it's about the behaviour existing at all on a flat form they didn't opt into. Strip the opt-in, not the wording.
 
 ## Validation
 
-- Pilot install: every Export card click now triggers a file download via standard form POST. No `fetch()` to `/wp-json/` on the happy path.
-- Dev / staging: file downloads continue to work; the diff is invisible to the end user.
-- Direct REST consumer: `curl -H 'X-WP-Nonce: …' -X POST https://…/wp-json/talenttrack/v1/exports/<key>` still returns the file (regression check for the un-deprecated REST path).
-- JS disabled: form submits; file downloads. (Test: disable JS in browser dev tools, click any Export button.)
-- Nonce expiry: leave the page open for >24h, click Export → red notice "Export request failed: session expired. Please reload the page and try again." surfaces above the grid (no silent failure).
-- Bad cap (use a coach account that lacks `tt_export_evaluations` and try the evaluations exporter via crafted POST): ExportService throws `forbidden`, the error message surfaces in the notice block.
+- Coach opens `?tt_view=activities&action=new` with localStorage manually cleared: no prompt, form is blank.
+- Coach types one character, navigates away, comes back: no prompt, form is blank (the localStorage save never fires because the attribute is gone).
+- Submit + save flow on every touched form still works (regression check — `drafts.js` was passive; stripping the attribute can't affect REST submission, but verified the create paths still POST correctly).
+- The eval edit path (`CoachForms::renderEvalForm` with `$is_edit = true`) still loads the existing row's values from the server, as it always did — `data-draft-key` was unrelated to that flow.
+
+## Why this is `patch`, not `minor`
+
+UX cleanup completing a previously-shipped retirement (#385). No new behaviour, no new contract, no schema change, no REST change. The user-visible diff is "one annoying prompt stops appearing." Patch bump matches the SemVer table in `DEVOPS.md` § "When to bump what".
 
 ## Bumped
 
-`talenttrack.php` Version + `TT_VERSION` + `readme.txt` Stable tag: `4.2.1` → `4.2.2`. Patch bump — no architectural break (REST endpoint stays), no behavioural change visible on healthy installs, restores function on REST-hardened installs.
+`talenttrack.php` Version + `TT_VERSION` + `readme.txt` Stable tag: `4.2.2` → `4.2.3`.

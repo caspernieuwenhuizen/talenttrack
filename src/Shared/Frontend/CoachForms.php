@@ -105,7 +105,7 @@ class CoachForms {
         }
         ?>
         <h3><?php echo esc_html( $title_text ); ?></h3>
-        <form id="tt-eval-form" class="tt-ajax-form" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="<?php echo esc_attr( $rest_method ); ?>" data-draft-key="<?php echo esc_attr( $is_edit ? 'eval-form-edit-' . (int) $existing_eval->id : 'eval-form' ); ?>" data-redirect-after-save="1">
+        <form id="tt-eval-form" class="tt-ajax-form" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="<?php echo esc_attr( $rest_method ); ?>" data-redirect-after-save="1">
             <?php if ( $hide_pickers ) :
                 $hidden_player_id = $is_edit ? $existing_player : $preset_player_id;
                 $hidden_player    = $is_edit ? QueryHelpers::get_player( $existing_player ) : $preset_player;
@@ -475,7 +475,7 @@ class CoachForms {
         }
         ?>
         <h3><?php esc_html_e( 'Record Training Activity', 'talenttrack' ); ?></h3>
-        <form id="tt-activity-form" class="tt-ajax-form" data-rest-path="activities" data-rest-method="POST" data-draft-key="activity-form">
+        <form id="tt-activity-form" class="tt-ajax-form" data-rest-path="activities" data-rest-method="POST">
             <div class="tt-form-row"><label><?php esc_html_e( 'Title', 'talenttrack' ); ?> *</label><input type="text" name="title" required /></div>
             <div class="tt-form-row"><label><?php esc_html_e( 'Date', 'talenttrack' ); ?> *</label><input type="date" name="session_date" value="<?php echo esc_attr( current_time( 'Y-m-d' ) ); ?>" required /></div>
             <div class="tt-form-row"><label><?php esc_html_e( 'Team', 'talenttrack' ); ?></label><select name="team_id">
@@ -535,7 +535,7 @@ class CoachForms {
         }
         ?>
         <h3><?php esc_html_e( 'Add Goal', 'talenttrack' ); ?></h3>
-        <form id="tt-goal-form" class="tt-ajax-form" data-rest-path="goals" data-rest-method="POST" data-draft-key="goal-form">
+        <form id="tt-goal-form" class="tt-ajax-form" data-rest-path="goals" data-rest-method="POST">
             <div class="tt-form-row"><label><?php esc_html_e( 'Player', 'talenttrack' ); ?> *</label><select name="player_id" required>
                 <option value=""><?php esc_html_e( '— Select —', 'talenttrack' ); ?></option>
                 <?php foreach ( $players as $pl ) : ?>

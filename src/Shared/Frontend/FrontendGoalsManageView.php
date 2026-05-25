@@ -311,7 +311,6 @@ class FrontendGoalsManageView extends FrontendViewBase {
         $rest_path = $is_edit ? 'goals/' . (int) $goal->id : 'goals';
         $rest_meth = $is_edit ? 'PUT' : 'POST';
         $form_id   = 'tt-goal-form';
-        $draft_key = $is_edit ? '' : 'goal-form';
 
         // v3.110.3 — when the form was launched from a player profile
         // ("Add first goal" CTA on the empty Goals tab), `?player_id=N`
@@ -325,7 +324,7 @@ class FrontendGoalsManageView extends FrontendViewBase {
         $hide_player_picker = ! $is_edit && $preset_player_id > 0;
 
         ?>
-        <form id="<?php echo esc_attr( $form_id ); ?>" class="tt-ajax-form" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="<?php echo esc_attr( $rest_meth ); ?>" data-redirect-after-save="list"<?php if ( $draft_key !== '' ) : ?> data-draft-key="<?php echo esc_attr( $draft_key ); ?>"<?php endif; ?>>
+        <form id="<?php echo esc_attr( $form_id ); ?>" class="tt-ajax-form" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="<?php echo esc_attr( $rest_meth ); ?>" data-redirect-after-save="list">
             <div class="tt-grid tt-grid-2">
                 <?php if ( $hide_player_picker ) : ?>
                     <input type="hidden" name="player_id" value="<?php echo esc_attr( (string) $preset_player_id ); ?>" />

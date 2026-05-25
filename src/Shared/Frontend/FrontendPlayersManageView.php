@@ -249,7 +249,6 @@ class FrontendPlayersManageView extends FrontendViewBase {
         $rest_path = $is_edit ? 'players/' . (int) $player->id : 'players';
         $rest_meth = $is_edit ? 'PUT' : 'POST';
         $form_id   = 'tt-player-form';
-        $draft_key = $is_edit ? '' : 'player-form';
 
         $teams      = $is_admin ? QueryHelpers::get_teams() : QueryHelpers::get_teams_for_coach( $user_id );
         $positions  = QueryHelpers::get_lookup_names( 'position' );
@@ -262,7 +261,7 @@ class FrontendPlayersManageView extends FrontendViewBase {
             : '';
 
         ?>
-        <form id="<?php echo esc_attr( $form_id ); ?>" class="tt-ajax-form" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="<?php echo esc_attr( $rest_meth ); ?>" data-redirect-after-save="list"<?php if ( $draft_key !== '' ) : ?> data-draft-key="<?php echo esc_attr( $draft_key ); ?>"<?php endif; ?>>
+        <form id="<?php echo esc_attr( $form_id ); ?>" class="tt-ajax-form" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="<?php echo esc_attr( $rest_meth ); ?>" data-redirect-after-save="list">
             <?php if ( $is_edit ) : ?>
                 <p style="margin:0 0 var(--tt-sp-3, 12px);">
                     <a class="tt-btn tt-btn-secondary" href="<?php echo $rate_card_url; ?>"><?php esc_html_e( 'View rate card', 'talenttrack' ); ?></a>

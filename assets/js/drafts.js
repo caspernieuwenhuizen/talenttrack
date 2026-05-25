@@ -20,6 +20,11 @@
  *   - This is NOT a sync story; it's purely local rescue for dropped
  *     connections. Sprint 7 PWA layer will reuse this as its offline
  *     base but sync is deferred.
+ *
+ * Opt-in only. No production form opts in as of v4.2.3 (#904 — the
+ * companion strip-out for the post-#385 wizard-no-autosave story).
+ * Retained dormant for any future explicit-draft-rescue surface
+ * (e.g. long-form PDP conversation or scout report drafts).
  */
 (function(){
     'use strict';

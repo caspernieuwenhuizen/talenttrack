@@ -634,7 +634,6 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         $rest_path = $is_edit ? 'activities/' . (int) $session->id : 'activities';
         $rest_meth = $is_edit ? 'PUT' : 'POST';
         $form_id   = 'tt-activity-form';
-        $draft_key = $is_edit ? '' : 'activity-form'; // edit forms don't draft — the row is the source of truth
 
         // v3.110.51 — when the form was reached via a link that captured
         // the originating page (e.g. the team planner's "+ Schedule
@@ -654,7 +653,6 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             else :
                 ?> data-redirect-after-save="list"<?php
             endif;
-            if ( $draft_key !== '' ) : ?> data-draft-key="<?php echo esc_attr( $draft_key ); ?>"<?php endif;
         ?>>
             <div class="tt-grid tt-grid-2">
                 <div class="tt-field">
