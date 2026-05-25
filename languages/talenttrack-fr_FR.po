@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-05-25T20:20:10+00:00\n"
+"POT-Creation-Date: 2026-05-25T20:36:31+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -2363,7 +2363,7 @@ msgstr "— Tous —"
 #: src/Modules/Wizards/Activity/DetailsStep.php:56
 #: src/Modules/Wizards/Activity/ReviewStep.php:71
 #: src/Modules/Wizards/Evaluation/BehaviourStep.php:92
-#: src/Modules/Wizards/Evaluation/RateActorsStep.php:213
+#: src/Modules/Wizards/Evaluation/RateActorsStep.php:211
 #: src/Modules/Wizards/Prospect/ReviewStep.php:49
 #: src/Modules/Wizards/Team/BasicsStep.php:40
 #: src/Modules/Workflow/Forms/AwaitTeamOfferDecisionForm.php:61
@@ -8510,7 +8510,7 @@ msgstr ""
 
 #: src/Modules/Configuration/Admin/UserProfileExtensions.php:58
 #: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:91
-#: src/Modules/Wizards/Evaluation/RateActorsStep.php:171
+#: src/Modules/Wizards/Evaluation/RateActorsStep.php:170
 #: src/Shared/Frontend/CoachForms.php:244
 msgid "Detailed"
 msgstr ""
@@ -9944,7 +9944,7 @@ msgstr ""
 
 #: src/Modules/DemoData/Admin/DemoDataPage.php:299
 #: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:90
-#: src/Modules/Wizards/Evaluation/RateActorsStep.php:170
+#: src/Modules/Wizards/Evaluation/RateActorsStep.php:169
 #: src/Shared/Frontend/CoachForms.php:243
 msgid "Basic"
 msgstr ""
@@ -22605,13 +22605,13 @@ msgid "Skipped"
 msgstr ""
 
 #. translators: %s: main category label
-#: src/Modules/Wizards/Evaluation/RateActorsStep.php:179
+#: src/Modules/Wizards/Evaluation/RateActorsStep.php:178
 #: src/Shared/Frontend/CoachForms.php:276
 #, php-format
 msgid "%s detail mode"
 msgstr ""
 
-#: src/Modules/Wizards/Evaluation/RateActorsStep.php:226
+#: src/Modules/Wizards/Evaluation/RateActorsStep.php:224
 msgid "Skip this player (no evaluation written)"
 msgstr ""
 
