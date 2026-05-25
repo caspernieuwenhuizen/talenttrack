@@ -16,7 +16,15 @@ final class WizardEntryPoint {
 
     public static function urlFor( string $wizard_slug, string $fallback_url ): string {
         if ( ! WizardRegistry::isAvailable( $wizard_slug ) ) return $fallback_url;
-        return add_query_arg( [ 'tt_view' => 'wizard', 'slug' => $wizard_slug ], self::dashboardBaseUrl() );
+        // #901 — query var is `tt_wizard`, not `slug`. The previous
+        // `slug` name collided with public query vars registered by
+        // third-party plugins (Yoast SEO and several caching plugins
+        // register `slug` via the `query_vars` filter), causing
+        // `WP_Query::parse_query()` to mark the request `is_singular`
+        // and 404 because no post matched the wizard's slug. All TT
+        // query vars are now namespaced (`tt_view`, `tt_back`,
+        // `tt_wizard`).
+        return add_query_arg( [ 'tt_view' => 'wizard', 'tt_wizard' => $wizard_slug ], self::dashboardBaseUrl() );
     }
 
     /**
@@ -57,7 +65,7 @@ final class WizardEntryPoint {
             // a fresh wizard link — without this strip, the new
             // URL inherits the old `slug=`.
             return remove_query_arg(
-                [ 'tt_view', 'player_id', 'eval_id', 'activity_id', 'goal_id', 'team_id', 'tab', 'slug', 'restart', 'action', 'id', 'dismiss_resume' ],
+                [ 'tt_view', 'player_id', 'eval_id', 'activity_id', 'goal_id', 'team_id', 'tab', 'slug', 'tt_wizard', 'restart', 'action', 'id', 'dismiss_resume' ],
                 $base
             );
         }
@@ -68,7 +76,7 @@ final class WizardEntryPoint {
             $current = esc_url_raw( (string) wp_unslash( $_SERVER['REQUEST_URI'] ) );
         }
         return remove_query_arg(
-            [ 'tt_view', 'player_id', 'eval_id', 'activity_id', 'goal_id', 'team_id', 'tab', 'slug', 'restart', 'action', 'id', 'dismiss_resume' ],
+            [ 'tt_view', 'player_id', 'eval_id', 'activity_id', 'goal_id', 'team_id', 'tab', 'slug', 'tt_wizard', 'restart', 'action', 'id', 'dismiss_resume' ],
             $current ?: home_url( '/' )
         );
     }

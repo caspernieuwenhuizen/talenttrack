@@ -59,7 +59,7 @@ Ordered by raw frequency (most-used first). Each action lists:
   discovery context (which match, what they saw), parent contact, and
   consent — in under two minutes, on a phone, with the wizard catching
   duplicates before the prospect is created
-- **Surface today:** `?tt_view=wizard&slug=new-prospect` (4-step wizard
+- **Surface today:** `?tt_view=wizard&tt_wizard=new-prospect` (4-step wizard
   Identity / Discovery / Parent / Review — v3.110.59); from the scout
   persona dashboard the wizard launches from the `+ New prospect`
   hero tile (v3.110.68)
@@ -87,7 +87,7 @@ Ordered by raw frequency (most-used first). Each action lists:
     to `discovered_by_user_id`.
     *How to test:* log in as a user with persona=scout, land on the
     dashboard. Hero is the launch tile. Click `+ New prospect` →
-    wizard opens at `?tt_view=wizard&slug=new-prospect`. Detail line
+    wizard opens at `?tt_view=wizard&tt_wizard=new-prospect`. Detail line
     counts match your portfolio (logged this calendar month and
     active non-terminal prospects). On a fresh account with zero
     prospects the line reads "0 logged this month · 0 still active
