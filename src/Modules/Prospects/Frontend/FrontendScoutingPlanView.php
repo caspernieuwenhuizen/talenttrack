@@ -162,20 +162,21 @@ class FrontendScoutingPlanView extends FrontendViewBase {
     }
 
     private static function canEdit( object $visit, int $user_id, bool $is_admin ): bool {
-        if ( $is_admin || current_user_can( 'tt_manage_prospects' ) ) return true;
-        if ( ! current_user_can( 'tt_edit_prospects' ) ) return false;
+        if ( $is_admin || AuthorizationService::userCanOrMatrix( $user_id, 'tt_manage_prospects' ) ) return true;
+        if ( ! AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_prospects' ) ) return false;
         return (int) ( $visit->scout_user_id ?? 0 ) === $user_id;
     }
 
     private static function renderList( int $user_id, bool $is_admin ): void {
         $filters = [];
-        if ( ! $is_admin && ! current_user_can( 'tt_manage_prospects' ) ) {
+        $is_scope_admin = $is_admin || AuthorizationService::userCanOrMatrix( $user_id, 'tt_manage_prospects' );
+        if ( ! $is_scope_admin ) {
             $filters['scout_user_id'] = $user_id;
         }
         $rows = ( new ScoutingVisitsRepository() )->search( $filters );
 
         if ( empty( $rows ) ) {
-            $msg = ( ! $is_admin && ! current_user_can( 'tt_manage_prospects' ) )
+            $msg = ! $is_scope_admin
                 ? __( 'You have not planned any scouting visits yet.', 'talenttrack' )
                 : __( 'No scouting visits planned.', 'talenttrack' );
             echo '<p class="tt-empty">' . esc_html( $msg ) . '</p>';

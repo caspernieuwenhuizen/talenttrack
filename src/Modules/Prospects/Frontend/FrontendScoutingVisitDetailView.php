@@ -3,6 +3,7 @@ namespace TT\Modules\Prospects\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Prospects\Repositories\ScoutingVisitsRepository;
 use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
@@ -27,7 +28,7 @@ use TT\Shared\Wizards\WizardEntryPoint;
 class FrontendScoutingVisitDetailView extends FrontendViewBase {
 
     public static function render( int $user_id, bool $is_admin ): void {
-        if ( ! current_user_can( 'tt_view_prospects' ) && ! $is_admin ) {
+        if ( ! AuthorizationService::userCanOrMatrix( $user_id, 'tt_view_prospects' ) && ! $is_admin ) {
             FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
             self::renderHeader( __( 'Scouting visit', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'You do not have access to scouting visits.', 'talenttrack' ) . '</p>';
@@ -51,7 +52,7 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
 
         // Scope: a scout sees only their own; everyone else with cap sees all.
         $is_owner = (int) $visit->scout_user_id === $user_id;
-        $is_scope_admin = current_user_can( 'tt_manage_prospects' ) || $is_admin;
+        $is_scope_admin = AuthorizationService::userCanOrMatrix( $user_id, 'tt_manage_prospects' ) || $is_admin;
         if ( ! $is_owner && ! $is_scope_admin ) {
             FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ), $parent_crumb );
             self::renderHeader( __( 'Scouting visit', 'talenttrack' ) );
@@ -80,7 +81,7 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
                 'icon'  => '✎',
             ];
         }
-        if ( current_user_can( 'tt_edit_prospects' ) ) {
+        if ( AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_prospects' ) ) {
             $wizard_url = WizardEntryPoint::urlFor(
                 'new-prospect',
                 add_query_arg( [ 'tt_view' => 'scouting-visit', 'id' => (int) $visit->id ], $base_url )

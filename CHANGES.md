@@ -1,70 +1,73 @@
-# TalentTrack v4.2.4 — inputmode retrofit sweep (closes #913)
+# TalentTrack v4.2.5 — Prospects + Scouting matrix-bypass cluster (closes #914)
 
 ## Pilot context
 
-The v3.50.0 retrofit (#0056) made `inputmode` mandatory on every numeric input so mobile keyboards open in the right mode. Several surfaces drifted off the rule over time. On Android Chrome a missing `inputmode` pops the alphabetical keyboard first; coaches type a digit then have to flip — documented pilot friction.
+Scouts whose access is granted via the authorization matrix (rather than via a WP role that bakes `tt_view_prospects` / `tt_edit_prospects` into its baseline caps) hit "Not authorized" when they tried to:
 
-The acceptance criterion is the literal grep:
+- Open the scouting-visit detail page (`?tt_view=scouting-visit&id=N`).
+- Create / update / archive a scouting visit via REST.
+- See the right "scope-clamped to my prospects" subset on the kanban (`?tt_view=onboarding-pipeline`).
 
-```
-grep -rn '<input type="number"' src/ | grep -v 'inputmode='
-```
+CLAUDE.md §4 ("The cap layer is portable; the cookie layer is not") locks the codebase into checking caps via `current_user_can()` + the `AuthorizationService` matrix bridge — but four call sites in `Prospects` were on the bare cap path, and three sites used `in_array( 'tt_scout', $roles )` role-string compares, both of which bypass the matrix layer entirely.
 
-Pre-ship: 38 hits. Post-ship: zero.
+## The mismatch in one sentence
+
+`tt_scout` doesn't carry the prospects caps in its WP role baseline; they come exclusively through `LegacyCapMapper` + the `user_has_cap` filter. `current_user_can( 'tt_view_prospects' )` returns `false` for a matrix-only scout. `AuthorizationService::userCanOrMatrix( $uid, 'tt_view_prospects' )` returns `true` for the same user because it falls back to `LegacyCapMapper::evaluate()` when the WP cap layer says no. The fix is mechanical: route every Prospects-module cap decision through the canonical helper.
 
 ## What changed
 
-Added `inputmode` to every offending site. Decision rule:
+### Matrix bypass — bare `current_user_can` → `userCanOrMatrix`
 
-- **`inputmode="decimal"`** for ratings and measurements that allow non-integers — rating min/max/step config, rating inputs themselves, low-rating-threshold, the shared `RatingInputComponent`.
-- **`inputmode="numeric"`** for whole-number positive counters — jersey number, sort/display order, retention days, minutes played, user IDs, monthly char cap, age, height/weight in the WP-admin player form (no explicit `step`).
+- **`src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:52-56`** — `can_edit()` (POST `/scouting-visits`, POST/DELETE `/scouting-visits/{id}`). Three cap checks all migrated.
+- **`src/Modules/Prospects/Rest/ScoutingVisitsRestController.php:178-184`** — `canEditRow()` (per-row scope check inside update / archive handlers). Two cap checks migrated.
+- **`src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:30`** — entry cap on the detail render. Picks up matrix-only scouts.
+- **`src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:54`** — row-level scope check (`tt_manage_prospects`).
+- **`src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:84`** — "Log scouting find" page-action cap gate.
+- **`src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:165-178`** — `canEdit()` row-level scope + `renderList()` filter clamp + empty-list copy decision.
+- **`src/Modules/Prospects/Rest/TestTrainingsRestController.php:45-48`** — `can_edit()` for the HoD `+ New test training` REST POST.
 
-### Sites touched
+Acceptance grep:
 
-Frontend coach-facing surfaces (the pilot impact):
+```
+grep -rn "current_user_can( 'tt_" src/Modules/Prospects/
+```
 
-- `src/Shared/Frontend/CoachForms.php:202,264,293` — minutes_played + two rating inputs.
-- `src/Shared/Frontend/CoachDashboardView.php:208,213` — same pattern in the legacy dashboard form.
-- `src/Shared/Frontend/Components/GuestAddModal.php:91` — anon-guest age (6–19).
-- `src/Shared/Frontend/Components/RatingInputComponent.php:58` — shared rating renderer (cascades across every consumer).
-- `src/Modules/Wizards/Evaluation/RateActorsStep.php:145,195` — eval wizard. `inputmode="numeric"` already existed on a later line; moved onto the `type="number"` line so the literal acceptance grep passes too.
+Zero hits after this ship.
 
-Workflow forms:
+### Role-string compare → capability-based
 
-- `src/Modules/Workflow/Forms/PostGameEvaluationForm.php:52` — overall_rating (decimal).
-- `src/Modules/Workflow/Forms/PlayerSelfEvaluationForm.php:45` — overall_rating (decimal).
+- **`src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:367-376`** — `isScoutOnly()` rewritten. Old shape: `in_array( 'tt_scout', $roles ) && ! in_array( 'tt_head_dev'/'tt_club_admin'/'administrator', $roles )`. New shape: `userCanOrMatrix( $uid, 'tt_view_prospects' ) && ! userCanOrMatrix( $uid, 'tt_manage_prospects' )`. Captures the same intent — "user has prospect access but not the admin tier" — and works for matrix-only scouts.
 
-WP-admin methodology pages:
+### Dead code removed
 
-- `src/Modules/Methodology/Admin/PositionEditPage.php:85` — jersey_number.
-- `src/Modules/Methodology/Admin/PhaseEditPage.php:65` — phase_number.
-- `src/Modules/Methodology/Admin/FootballActionEditPage.php:65` — sort_order.
-- `src/Modules/Methodology/Admin/InfluenceFactorEditPage.php:67` — sort_order.
-- `src/Modules/Methodology/Admin/LearningGoalEditPage.php:99` — sort_order.
+- **`src/Modules/Prospects/Rest/ProspectsRestController.php:188-197`** — `isScoutOnly()` was `private static`, no internal call sites since the v3.110.154 scout-scope clamp removal. The class-level comment at line 116 saying "retained for any other call site" was incorrect — a `private static` method can't be reached from outside. Removed. The stale comment is rewritten to drop the dead-helper reference.
 
-WP-admin configuration + content pages:
+Acceptance grep:
 
-- `src/Modules/Configuration/Admin/ConfigurationPage.php:503,611,772,819-821,846,894` — f_user_id, sort_order (×2), rating_min/max/step (decimal), eval_low_rating_threshold (decimal), tile_scale.
-- `src/Modules/Configuration/Admin/CustomFieldsPage.php:264` — sort_order.
-- `src/Modules/Evaluations/Admin/CategoryWeightsPage.php:100` — weight.
-- `src/Modules/Evaluations/Admin/EvalCategoriesPage.php:287` — display_order.
-- `src/Modules/Evaluations/Admin/EvaluationsPage.php:406,458,491` — minutes_played + two rating inputs.
-- `src/Modules/Players/Admin/PlayersPage.php:359,361,370` — height_cm, weight_kg, jersey_number.
-- `src/Modules/Backup/Admin/BackupSettingsPage.php:202` — retention.
-- `src/Modules/DemoData/Admin/DemoDataPage.php:523` — seed.
-- `src/Modules/Translations/Admin/TranslationsConfigTab.php:160,173` — monthly_cap, threshold_pct.
+```
+grep -rn "in_array.*tt_scout\|in_array.*tt_coach\|in_array.*tt_head" src/Modules/Prospects/
+```
 
-The admin pages aren't the pilot's immediate friction, but the acceptance grep is global and the cost of adding the attribute is zero. Future admin work on mobile inherits the right keyboard.
+Zero hits after this ship.
 
-## Out of scope
+## What's deliberately not in this PR
 
-- The modern `type="text" + inputmode` pattern that avoids browser-native spinner UI. The #0056 retrofit is additive only; spinner-removal is a separate audit.
-- Renaming or re-typing any input — purely an attribute addition.
+- **`Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget::isScoutOnly()` (line 239)** has the identical role-string-compare bug pattern. It's outside this issue's Prospects-only scope. Flagged as a follow-up — same mechanical migration to `userCanOrMatrix()`. Filing a separate issue.
 
-## Why this is `patch`, not `minor`
+## Validation
 
-UX cleanup enforcing an existing standard (#0056). No new behaviour, no contract change, no schema change. The user-visible diff is "the right keyboard pops up on Android." Patch bump matches the SemVer table in `DEVOPS.md` § "When to bump what".
+- A scout granted via the matrix (`tt_edit_prospects = self`, `tt_view_prospects = global`, no `tt_scout` WP role) can:
+  - Open `?tt_view=scouting-visit&id=N` (was blocked → now allowed).
+  - POST `/wp-json/talenttrack/v1/scouting-visits` (was 403 → now 200).
+  - Update / archive their own visit (was 403 → now 200).
+  - See the kanban scope-clamped to their own prospects.
+- A scout whose grant is revoked still gets "Not authorized" cleanly — both layers say no.
+- No regression for scouts who hold caps via WP role baseline — `userCanOrMatrix` tries `user_can()` first, only falls through to the matrix when WP says no, so legacy users take the same path they always did.
+
+## Why this is `patch`, not `major`
+
+Bug-fix cluster. No cap matrix change (the caps were already in the matrix). No REST contract change (the endpoints, request/response shapes, and authorization semantics intended all along are now what's actually enforced). No schema change. The user-visible diff is "the access the matrix already grants now actually works." Patch bump per the SemVer table in `DEVOPS.md`. CLAUDE.md §9 DoD: auth is checked via capabilities, not role-string compare ✓.
 
 ## Bumped
 
-`talenttrack.php` Version + `TT_VERSION` + `readme.txt` Stable tag: `4.2.3` → `4.2.4`.
+`talenttrack.php` Version + `TT_VERSION` + `readme.txt` Stable tag: `4.2.4` → `4.2.5`.

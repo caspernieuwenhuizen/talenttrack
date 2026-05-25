@@ -111,14 +111,11 @@ class ProspectsRestController {
         // collaboration). Personal-funnel views (MyRecentProspectsSource,
         // MyProspects* KPIs, AddProspectHeroWidget) still scope to
         // `discovered_by_user_id = $user_id` at the query level and
-        // aren't affected.
-        //
-        // The `isScoutOnly()` helper was retained for any other call
-        // site that might still want the discriminator, but the REST
-        // list deliberately leaves the filter untouched so an explicit
+        // aren't affected. An explicit
         // `?filter[discovered_by_user_id]=N` from the client (e.g. a
-        // "show only my prospects" toggle on the overview page)
-        // still works.
+        // "show only my prospects" toggle on the overview page) still
+        // works because the list deliberately leaves the filter
+        // untouched.
 
         $repo  = new ProspectsRepository();
         $rows  = $repo->search( $search_args );
@@ -183,17 +180,6 @@ class ProspectsRestController {
             case 'archived': return __( 'Archived', 'talenttrack' );
         }
         return $status;
-    }
-
-    private static function isScoutOnly( int $user_id ): bool {
-        if ( $user_id <= 0 ) return false;
-        $u = get_userdata( $user_id );
-        if ( ! $u ) return false;
-        $roles = (array) ( $u->roles ?? [] );
-        if ( in_array( 'tt_head_dev',   $roles, true ) ) return false;
-        if ( in_array( 'tt_club_admin', $roles, true ) ) return false;
-        if ( in_array( 'administrator', $roles, true ) ) return false;
-        return in_array( 'tt_scout', $roles, true );
     }
 
     private static function clamp_per_page( $value ): int {

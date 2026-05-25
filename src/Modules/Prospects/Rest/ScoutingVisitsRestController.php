@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\REST\RestResponse;
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Prospects\Repositories\ScoutingVisitsRepository;
 
 /**
@@ -50,9 +51,10 @@ class ScoutingVisitsRestController {
     }
 
     public static function can_edit(): bool {
-        return current_user_can( 'tt_edit_prospects' )
-            || current_user_can( 'tt_manage_prospects' )
-            || current_user_can( 'tt_edit_settings' );
+        $uid = get_current_user_id();
+        return AuthorizationService::userCanOrMatrix( $uid, 'tt_edit_prospects' )
+            || AuthorizationService::userCanOrMatrix( $uid, 'tt_manage_prospects' )
+            || AuthorizationService::userCanOrMatrix( $uid, 'tt_edit_settings' );
     }
 
     public static function create( \WP_REST_Request $r ): \WP_REST_Response {
@@ -176,10 +178,12 @@ class ScoutingVisitsRestController {
     }
 
     private static function canEditRow( object $row ): bool {
-        if ( current_user_can( 'tt_manage_prospects' ) || current_user_can( 'tt_edit_settings' ) ) {
+        $uid = get_current_user_id();
+        if ( AuthorizationService::userCanOrMatrix( $uid, 'tt_manage_prospects' )
+            || AuthorizationService::userCanOrMatrix( $uid, 'tt_edit_settings' ) ) {
             return true;
         }
-        return (int) ( $row->scout_user_id ?? 0 ) === get_current_user_id();
+        return (int) ( $row->scout_user_id ?? 0 ) === $uid;
     }
 
     private static function normaliseTime( $raw ): ?string {
