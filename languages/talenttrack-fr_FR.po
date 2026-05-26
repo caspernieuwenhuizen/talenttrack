@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-05-26T04:55:39+00:00\n"
+"POT-Creation-Date: 2026-05-26T05:40:50+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -1372,6 +1372,7 @@ msgid "The evaluation could not be archived."
 msgstr ""
 
 #: src/Infrastructure/REST/ExercisesRestController.php:95
+#: src/Modules/Vct/Rest/VctExercisesRestController.php:93
 msgid "Exercise not found."
 msgstr ""
 
@@ -16569,6 +16570,8 @@ msgstr ""
 
 #: src/Modules/Pdp/Rest/PdpBlocksRestController.php:59
 #: src/Modules/Pdp/Rest/PdpBlocksRestController.php:72
+#: src/Modules/Vct/Rest/VctTeamSchedulesRestController.php:62
+#: src/Modules/Vct/Rest/VctTeamSchedulesRestController.php:77
 msgid "season_id is required."
 msgstr ""
 
@@ -22385,6 +22388,58 @@ msgstr ""
 #: src/Modules/Trials/TrialGroupTeam.php:38
 #, php-format
 msgid "Trial group %s"
+msgstr ""
+
+#: src/Modules/Vct/Rest/VctAgeProfilesRestController.php:74
+msgid "The age profile could not be saved."
+msgstr ""
+
+#: src/Modules/Vct/Rest/VctExercisesRestController.php:82
+msgid "age + category are required."
+msgstr ""
+
+#: src/Modules/Vct/Rest/VctExercisesRestController.php:100
+msgid "Catalogue write endpoints land in a follow-up ship (VCT-8)."
+msgstr ""
+
+#: src/Modules/Vct/Rest/VctPhvFlagsRestController.php:51
+msgid "Invalid player id."
+msgstr ""
+
+#: src/Modules/Vct/Rest/VctPhvFlagsRestController.php:59
+msgid "The PHV flag could not be saved."
+msgstr ""
+
+#: src/Modules/Vct/Rest/VctTeamSchedulesRestController.php:81
+msgid "weekdays_bitmask must be 0-127."
+msgstr ""
+
+#: src/Modules/Vct/Rest/VctTeamSchedulesRestController.php:85
+msgid "default_start_time must be HH:MM."
+msgstr ""
+
+#: src/Modules/Vct/Rest/VctTeamSchedulesRestController.php:98
+msgid "The schedule could not be saved."
+msgstr ""
+
+#: src/Modules/Vct/Rest/VctTrainingsRestController.php:154
+#: src/Modules/Vct/Rest/VctTrainingsRestController.php:198
+#: src/Modules/Vct/Rest/VctTrainingsRestController.php:234
+msgid "VCT training not found."
+msgstr ""
+
+#: src/Modules/Vct/Rest/VctTrainingsRestController.php:237
+msgid "Only draft trainings can be published."
+msgstr ""
+
+#: src/Modules/Vct/Rest/VctTrainingsRestController.php:255
+msgid "Could not create the bound Activity."
+msgstr ""
+
+#. translators: 1: age group, 2: md context label
+#: src/Modules/Vct/Rest/VctTrainingsRestController.php:363
+#, php-format
+msgid "VCT training — %1$s (%2$s)"
 msgstr ""
 
 #: src/Modules/Wizards/Activity/DetailsStep.php:51
