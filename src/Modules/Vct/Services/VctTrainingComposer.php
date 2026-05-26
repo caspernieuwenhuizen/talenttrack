@@ -11,7 +11,7 @@ use TT\Modules\Vct\Rules\SessionPlanContext;
 /**
  * VctTrainingComposer — high-level entry for POST /vct/sessions/generate.
  *
- * Spec calls this the "session generator"; the class name is prefixed
+ * Spec calls this the VCT generator role; the class name is prefixed
  * with `Vct` and avoids the legacy `Session…Generator` token (banned
  * under the #0035 no-regression linter, where it was the name of a
  * deleted class from the renamed-away training-session entity). VCT's
