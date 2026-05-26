@@ -99,6 +99,30 @@ class AuthorizationService {
         return $matrix === true;
     }
 
+    /**
+     * #0095 VCT — per-team scope check for the VCT module's REST
+     * permission_callbacks. `userCanOrMatrix()` is the cap helper; it
+     * does NOT narrow to a team. This wrapper does:
+     *
+     *   - If the user has `vct` at any non-team scope (global), allow.
+     *   - Otherwise check the matrix for the specific (vct, $activity,
+     *     team, $team_id) row.
+     *
+     * Returns true when the user can take `$activity` (`read` /
+     * `change` / `create_delete`) on `vct` for the given team. The
+     * REST controllers pair this with a cap check on `tt_vct_plan`
+     * (architecture review H1 — two-layer permission_callback).
+     */
+    public static function canPlanForTeam( int $user_id, int $team_id, string $activity = 'read' ): bool {
+        if ( $user_id <= 0 || $team_id <= 0 ) return false;
+        if ( ! class_exists( '\\TT\\Modules\\Authorization\\MatrixGate' ) ) return false;
+
+        if ( \TT\Modules\Authorization\MatrixGate::can( $user_id, 'vct', $activity, 'global' ) ) {
+            return true;
+        }
+        return \TT\Modules\Authorization\MatrixGate::can( $user_id, 'vct', $activity, 'team', $team_id );
+    }
+
     public static function registerCacheInvalidators(): void {
         static $registered = false;
         if ( $registered ) return;

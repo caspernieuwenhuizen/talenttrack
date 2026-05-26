@@ -183,7 +183,15 @@ jobs:
           # "session"/"sessions" in user-visible strings (these are
           # WordPress login sessions, a distinct concept from the OLD
           # training-session entity). All copy is translated in the .po.
-          allow_files='src/Modules/DemoData/|src/Shared/Admin/BackNavigator\.php|src/Modules/Reports/ReportConfig\.php|src/Modules/Reports/PlayerReportRenderer\.php|src/Shared/Frontend/FrontendActivitiesManageView\.php|src/Infrastructure/REST/ActivitiesRestController\.php|src/Infrastructure/PlayerStatus/PlayerAttendanceCalculator\.php|src/Modules/Authorization/Impersonation/|src/Shared/Admin/MySessionsActionHandlers\.php|src/Shared/Frontend/FrontendMySessionsView\.php'
+          # v4.3.6 (#0095 / #911) — `src/Modules/Vct/` legitimately uses
+          # "session" throughout as the spec-defined VCT-session entity
+          # name (tt_vct_sessions table). Distinct from the renamed-away
+          # tt_sessions entity. The i18n regex over-matches across PHP
+          # quote boundaries (e.g. `$session['k']` adjacent to another
+          # `$session['k2']` falsely matches as a session-string),
+          # which makes per-line carve-outs impractical. Whole-folder
+          # allow-list matches the Impersonation/ convention above.
+          allow_files='src/Modules/DemoData/|src/Shared/Admin/BackNavigator\.php|src/Modules/Reports/ReportConfig\.php|src/Modules/Reports/PlayerReportRenderer\.php|src/Shared/Frontend/FrontendActivitiesManageView\.php|src/Infrastructure/REST/ActivitiesRestController\.php|src/Infrastructure/PlayerStatus/PlayerAttendanceCalculator\.php|src/Modules/Authorization/Impersonation/|src/Shared/Admin/MySessionsActionHandlers\.php|src/Shared/Frontend/FrontendMySessionsView\.php|src/Modules/Vct/'
           # Phrase-level excludes:
           # `'my-sessions'` (slug literal) and `My sessions` (user-menu
           # label) are part of v3.109.3's WP-login-session feature; the

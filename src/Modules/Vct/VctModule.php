@@ -5,6 +5,14 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
+use TT\Modules\Vct\Repositories\VctSessionsRepository;
+use TT\Modules\Vct\Rest\VctAgeProfilesRestController;
+use TT\Modules\Vct\Rest\VctExercisesRestController;
+use TT\Modules\Vct\Rest\VctMacroBlocksRestController;
+use TT\Modules\Vct\Rest\VctPhvFlagsRestController;
+use TT\Modules\Vct\Rest\VctTeamSchedulesRestController;
+use TT\Modules\Vct\Rest\VctTrainingsRestController;
+use TT\Modules\Vct\Rest\VctWorkloadRestController;
 
 /**
  * VctModule — Voetbal Conditionele Training (#0095, epic #905).
@@ -51,11 +59,41 @@ class VctModule implements ModuleInterface {
     }
 
     public function boot( Container $container ): void {
-        // Intentionally empty in this ship. VCT-6 (#911) adds:
-        //   - REST controller registration via `rest_api_init`
-        //   - Wizard registration via WizardRegistry
-        //   - `tt_activity_deleted` action handler for session-binding cleanup
-        //
+        // #911 — REST controller registration. Each controller hooks
+        // `rest_api_init` itself; calling init() here just registers
+        // the hook. Wizard registration + the new-VCT-session wizard
+        // ship in a later UI-focused issue (VCT-9).
+        VctTrainingsRestController::init();
+        VctExercisesRestController::init();
+        VctTeamSchedulesRestController::init();
+        VctMacroBlocksRestController::init();
+        VctAgeProfilesRestController::init();
+        VctWorkloadRestController::init();
+        VctPhvFlagsRestController::init();
+
+        // #911 — When an Activity is deleted, null out the bound
+        // session's activity_id and revert it to draft. Per spec
+        // § Integration with Activities — the session is preserved;
+        // the coach can re-publish or archive it.
+        add_action( 'tt_activity_deleted', [ self::class, 'onActivityDeleted' ], 10, 1 );
+
         // VCT-7 (#912) registers the workflow cron trigger here.
+    }
+
+    /**
+     * Hook handler for `tt_activity_deleted`. The Activities module
+     * fires this action with the deleted activity_id; VCT looks up any
+     * session bound to that activity and reverts it.
+     */
+    public static function onActivityDeleted( int $activity_id ): void {
+        if ( $activity_id <= 0 ) return;
+        global $wpdb;
+        $sessions = $wpdb->prefix . 'tt_vct_sessions';
+        $bound = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT id FROM {$sessions} WHERE activity_id = %d LIMIT 1",
+            $activity_id
+        ) );
+        if ( $bound <= 0 ) return;
+        ( new VctSessionsRepository() )->updateStatus( $bound, 'draft', 0 );
     }
 }
