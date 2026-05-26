@@ -3,6 +3,7 @@ namespace TT\Modules\PersonaDashboard\Widgets;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\PersonaDashboard\Domain\AbstractWidget;
 use TT\Modules\PersonaDashboard\Domain\PersonaContext;
 use TT\Modules\PersonaDashboard\Domain\RenderContext;
@@ -238,12 +239,7 @@ class OnboardingPipelineWidget extends AbstractWidget {
 
     private static function isScoutOnly( int $user_id ): bool {
         if ( $user_id <= 0 ) return false;
-        $user = get_userdata( $user_id );
-        if ( ! $user ) return false;
-        $roles = (array) ( $user->roles ?? [] );
-        if ( in_array( 'tt_head_dev', $roles, true ) ) return false;
-        if ( in_array( 'tt_club_admin', $roles, true ) ) return false;
-        if ( in_array( 'administrator', $roles, true ) ) return false;
-        return in_array( 'tt_scout', $roles, true );
+        if ( AuthorizationService::userCanOrMatrix( $user_id, 'tt_manage_prospects' ) ) return false;
+        return AuthorizationService::userCanOrMatrix( $user_id, 'tt_view_prospects' );
     }
 }
