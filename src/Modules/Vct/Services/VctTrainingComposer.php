@@ -13,8 +13,8 @@ use TT\Modules\Vct\Rules\SessionPlanContext;
  *
  * Spec calls this the "session generator"; the class name is prefixed
  * with `Vct` and avoids the legacy `Session…Generator` token (banned
- * under the #0035 no-regression linter, where it was the name of the
- * deleted generator from the renamed-away `tt_sessions` entity). VCT's
+ * under the #0035 no-regression linter, where it was the name of a
+ * deleted class from the renamed-away training-session entity). VCT's
  * equivalent is functionally the same role — orchestrates context build
  * + RulesEngine::compose() + persistence — just under a name that
  * doesn't collide.
