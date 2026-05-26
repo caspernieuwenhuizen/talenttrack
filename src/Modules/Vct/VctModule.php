@@ -13,6 +13,8 @@ use TT\Modules\Vct\Rest\VctPhvFlagsRestController;
 use TT\Modules\Vct\Rest\VctTeamSchedulesRestController;
 use TT\Modules\Vct\Rest\VctTrainingsRestController;
 use TT\Modules\Vct\Rest\VctWorkloadRestController;
+use TT\Modules\Vct\Workflow\VctWorkloadAggregationTaskTemplate;
+use TT\Modules\Workflow\WorkflowModule;
 
 /**
  * VctModule — Voetbal Conditionele Training (#0095, epic #905).
@@ -77,7 +79,25 @@ class VctModule implements ModuleInterface {
         // the coach can re-publish or archive it.
         add_action( 'tt_activity_deleted', [ self::class, 'onActivityDeleted' ], 10, 1 );
 
-        // VCT-7 (#912) registers the workflow cron trigger here.
+        // #912 — Register the nightly workload-aggregation task with
+        // the Workflow module's template registry. The matching cron
+        // trigger row lands via migration 0127. CronDispatcher's
+        // hourly tick walks enabled cron triggers and fires
+        // `dispatch()` on the registered template when the cron
+        // expression resolves to "fire now or earlier". Idempotent;
+        // re-registration on every request is safe.
+        add_action( 'init', [ self::class, 'registerWorkflowTemplates' ], 5 );
+    }
+
+    /**
+     * #912 — Register the workload-aggregation task template with the
+     * Workflow registry. Same priority pattern as PdpModule (priority
+     * 5 on init) so dispatchers at priority 20 see the template
+     * already registered.
+     */
+    public static function registerWorkflowTemplates(): void {
+        if ( ! class_exists( WorkflowModule::class ) ) return;
+        WorkflowModule::registry()->register( new VctWorkloadAggregationTaskTemplate() );
     }
 
     /**
