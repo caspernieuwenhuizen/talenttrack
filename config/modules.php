@@ -110,4 +110,10 @@ return [
     // introduced in v3.110.216 (migration 0120). Hard-depends on
     // MatchPrep — refuses to launch without a prep row.
     TT\Modules\MatchExecution\MatchExecutionModule::class        => true,
+    // #0095 / epic #905 — VCT (Voetbal Conditionele Training) module.
+    // U10-U14 age-aware conditioning-training planner. Phase 1 foundation
+    // ships across v4.3.0 (schema) → v4.3.5: caps, lookups, seeds, rules
+    // engine. VCT-6 (#911) adds REST + UI; VCT-7 (#912) adds the nightly
+    // workload aggregation task.
+    TT\Modules\Vct\VctModule::class                              => true,
 ];
