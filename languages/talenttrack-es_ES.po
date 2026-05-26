@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-05-26T05:40:50+00:00\n"
+"POT-Creation-Date: 2026-05-26T05:50:17+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -22440,6 +22440,17 @@ msgstr ""
 #: src/Modules/Vct/Rest/VctTrainingsRestController.php:363
 #, php-format
 msgid "VCT training — %1$s (%2$s)"
+msgstr ""
+
+#: src/Modules/Vct/Workflow/VctWorkloadAggregationTaskTemplate.php:60
+msgid "VCT workload aggregation"
+msgstr ""
+
+#: src/Modules/Vct/Workflow/VctWorkloadAggregationTaskTemplate.php:64
+msgid ""
+"Nightly server-side job that aggregates per-player VCT workload from "
+"completed VCT trainings over the trailing 28 days. Writes one snapshot per "
+"(player, date) into tt_vct_workload_snapshots. Creates no user tasks."
 msgstr ""
 
 #: src/Modules/Wizards/Activity/DetailsStep.php:51
