@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *
  * Fields fall into three buckets:
  *
- *   1. Input — set by the SessionGenerator before the pipeline runs:
+ *   1. Input — set by the VctTrainingComposer before the pipeline runs:
  *      team_id, season_id, age_group, session_date, tactical_theme,
  *      roster_player_ids, requested_duration_minutes (optional).
  *

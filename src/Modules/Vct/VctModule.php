@@ -24,7 +24,7 @@ use TT\Core\ModuleInterface;
  *                    (POST /vct/sessions/generate uses this)
  *       validate() — passes 1-5 + 7-8 only; skips selection (PATCH uses this
  *                    so a coach's manual swap is validated but not overwritten)
- *   - SessionGenerator service: context build → compose → persist
+ *   - VctTrainingComposer service: context build → compose → persist
  *   - WorkloadCalculator (pure function: session → total load)
  *   - MdContextResolver (date + team schedule + match calendar → MD label)
  *   - Provider interfaces: ActivitiesReader, RecentPicksProvider, VctPhvFlagsProvider
@@ -45,7 +45,7 @@ class VctModule implements ModuleInterface {
     public function register( Container $container ): void {
         // Repositories + services are lazily instantiated by callers
         // for now (REST controllers in VCT-6 will instantiate the
-        // SessionGenerator they need). No DI bindings required at
+        // VctTrainingComposer they need). No DI bindings required at
         // boot time; keeps the module dormant until something else
         // wakes it.
     }

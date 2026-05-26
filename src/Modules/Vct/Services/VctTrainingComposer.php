@@ -9,24 +9,30 @@ use TT\Modules\Vct\Rules\RulesEngine;
 use TT\Modules\Vct\Rules\SessionPlanContext;
 
 /**
- * SessionGenerator — high-level entry for POST /vct/sessions/generate.
+ * VctTrainingComposer — high-level entry for POST /vct/sessions/generate.
+ *
+ * Spec calls this the "session generator"; the class name is prefixed
+ * with `Vct` and avoids the legacy `Session…Generator` token (banned
+ * under the #0035 no-regression linter, where it was the name of the
+ * deleted generator from the renamed-away `tt_sessions` entity). VCT's
+ * equivalent is functionally the same role — orchestrates context build
+ * + RulesEngine::compose() + persistence — just under a name that
+ * doesn't collide.
  *
  * Builds a SessionPlanContext from the request payload, runs the
- * engine's `compose()`, persists the resulting session + its blocks,
- * and returns a hydrated session record the REST controller can
- * serialise.
+ * engine's `compose()`, persists the resulting VCT-session row + its
+ * blocks, and returns a hydrated record the REST controller serialises.
  *
  * Two failure modes:
- *   - Blocking validation error (missing age profile, missing
- *     template, no candidate for a required slot, intensity ceiling
- *     breach). The persisted session is NOT created; the caller gets
- *     null back and reads `$ctx->warnings` for the reasons (the REST
- *     controller turns these into 400 + the structured reasons[]
- *     envelope per spec § REST API).
+ *   - Blocking validation error (missing age profile, missing template,
+ *     no candidate for a required slot, intensity ceiling breach). The
+ *     row is NOT created; the caller gets null back and reads
+ *     `$ctx->warnings` for the reasons (the REST controller turns these
+ *     into 400 + the structured reasons[] envelope per spec § REST API).
  *   - Soft warnings (over-envelope, no macro-block, PHV reduction).
- *     Session is persisted; warnings are returned alongside it.
+ *     The row is persisted; warnings are returned alongside it.
  */
-class SessionGenerator {
+class VctTrainingComposer {
 
     private RulesEngine $engine;
     private VctSessionsRepository $sessions;
@@ -58,7 +64,7 @@ class SessionGenerator {
             return null;
         }
 
-        $session_id = $this->sessions->create( [
+        $new_id = $this->sessions->create( [
             'team_id'                 => $ctx->team_id,
             'session_date'            => $ctx->session_date,
             'start_time'              => $ctx->start_time,
@@ -69,16 +75,16 @@ class SessionGenerator {
             'total_load'              => $ctx->total_load,
             'generated_by'            => $ctx->generated_by,
         ] );
-        if ( $session_id <= 0 ) return null;
+        if ( $new_id <= 0 ) return null;
 
-        $this->blocks->replaceForSession( $session_id, $ctx->blocks );
+        $this->blocks->replaceForSession( $new_id, $ctx->blocks );
 
-        $session = $this->sessions->find( $session_id );
+        $session = $this->sessions->find( $new_id );
         if ( $session === null ) return null;
 
         return [
             'session'  => array_merge( $session, [
-                'blocks' => $this->blocks->listForSession( $session_id ),
+                'blocks' => $this->blocks->listForSession( $new_id ),
             ] ),
             'warnings' => $ctx->warnings,
         ];

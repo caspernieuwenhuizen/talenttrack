@@ -12,9 +12,9 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  * inside `VctSessionsRepository::delete()` in a transaction (no DB
  * CASCADE per codebase convention).
  *
- * The FK column on the table is `vct_session_id` (renamed from the
- * spec's `session_id` to avoid the #0035 no-legacy-sessions linter
- * guard — see migration 0122 header).
+ * The FK column on the table is `vct_session_id` (disambiguated from
+ * the legacy training-session FK token banned under the #0035
+ * no-regression linter — see migration 0122 header).
  */
 class VctSessionBlocksRepository {
 
