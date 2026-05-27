@@ -30,7 +30,7 @@ jobs:
           RISKY_PATTERNS=(
             "esc_html\\(\\s*\\(string\\)\\s*\\\$[a-zA-Z_]+->status\\s*[)?]"
             "esc_html\\(\\s*\\(string\\)\\s*\\\$[a-zA-Z_]+->priority\\s*[)?]"
-            "esc_html\\(\\s*ucfirst\\(\\s*\\(string\\)\\s*\\\$[a-zA-Z_]+->\\(status|priority|decision\\)"
+            "esc_html\\(\\s*ucfirst\\(\\s*\\(string\\)\\s*\\\$[a-zA-Z_]+->(status|priority|decision)"
             "esc_html\\(\\s*\\\$[a-zA-Z_]+->priority\\s*\\)"
             "esc_html\\(\\s*\\\$[a-zA-Z_]+->status\\s*\\)"
           )

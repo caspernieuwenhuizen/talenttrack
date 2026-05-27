@@ -35,9 +35,22 @@ The issue body recommended option (a): a new `LabelTranslator::pdpFileStatus()` 
 
 Net result: zero new helper methods, zero new translatable strings, zero schema changes.
 
+## Workflow regex bug fix (also in this ship)
+
+While verifying the post-fix state, the CI gate's pattern #3 still flagged false positives across the entire codebase even after every legitimate site was clean. Root cause: a regex bug in `.github/workflows/lookup-translation-lint.yml` itself —
+
+```diff
+- "esc_html\\(\\s*ucfirst\\(\\s*\\(string\\)\\s*\\\$[a-zA-Z_]+->\\(status|priority|decision\\)"
++ "esc_html\\(\\s*ucfirst\\(\\s*\\(string\\)\\s*\\\$[a-zA-Z_]+->(status|priority|decision)"
+```
+
+The escaped `\(` `\)` around the alternation were literal parens (per ERE), so `|` became top-level alternation between three alternatives: `esc_html…->\(status`, the bare word `priority`, and `decision\)`. Alternative #2 matched the word "priority" anywhere — comments, SQL strings, variable names — explaining why the gate had been red on `main` for months even when none of the actual `esc_html()` sites bypassed the translator. Unescaped to make the alternation a proper group, and the pattern now matches its documented intent.
+
+This fix is the second necessary piece of the lint-gate restoration: without it, even a perfectly clean codebase would have failed pattern #3 on every install.
+
 ## Validation
 
-Locally ran the workflow's exact regex set against the post-fix tree:
+Locally ran the workflow's exact regex set (with the patched pattern #3) against the post-fix tree:
 
 ```
 RISKY=(
