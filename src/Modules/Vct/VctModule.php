@@ -13,8 +13,10 @@ use TT\Modules\Vct\Rest\VctPhvFlagsRestController;
 use TT\Modules\Vct\Rest\VctTeamSchedulesRestController;
 use TT\Modules\Vct\Rest\VctTrainingsRestController;
 use TT\Modules\Vct\Rest\VctWorkloadRestController;
+use TT\Modules\Vct\Wizard\NewVctSessionWizard;
 use TT\Modules\Vct\Workflow\VctWorkloadAggregationTaskTemplate;
 use TT\Modules\Workflow\WorkflowModule;
+use TT\Shared\Wizards\WizardRegistry;
 
 /**
  * VctModule — Voetbal Conditionele Training (#0095, epic #905).
@@ -87,6 +89,13 @@ class VctModule implements ModuleInterface {
         // expression resolves to "fire now or earlier". Idempotent;
         // re-registration on every request is safe.
         add_action( 'init', [ self::class, 'registerWorkflowTemplates' ], 5 );
+
+        // #944 (VCT-9) — Register the new-VCT-training wizard with
+        // the wizards framework. Reachable via
+        // `?tt_view=wizard&slug=new-vct-session`.
+        if ( class_exists( WizardRegistry::class ) ) {
+            WizardRegistry::register( new NewVctSessionWizard() );
+        }
     }
 
     /**
