@@ -55,7 +55,7 @@
         timerBtn:   root.querySelector('[data-tt-mexec-timer-toggle]'),
         stateBtn:   root.querySelector('[data-tt-mexec-state-action]'),
         status:     root.querySelector('[data-tt-mexec-status]'),
-        benchList:  root.querySelector('.tt-mexec-bench-list'),
+        benchList:  root.querySelector('.tt-mexec-bench .tt-mexec-player-list'),
         onPitchSection: root.querySelector('[data-tt-mexec-onpitch-section]'),
         onPitchList: root.querySelector('[data-tt-mexec-onpitch-list]')
     };
@@ -97,30 +97,36 @@
             }
             state.running = true;
             state.clock_start_ms = Date.now();
-            els.timerBtn.textContent = i18n.pause || 'Pause';
             state.timer_interval = setInterval(renderClock, 1000);
+            // renderStateButton() also (re)syncs the timer btn label +
+            // data-action so #956's colour coding stays in sync.
+            renderStateButton(); renderHalfLabel();
         } else {
             // Pause: snapshot elapsed; tell server we paused.
             state.elapsed_ms_before_pause += Date.now() - state.clock_start_ms;
             state.running = false;
             clearInterval(state.timer_interval);
-            els.timerBtn.textContent = i18n.resume || 'Resume';
             api('pause', { half: state.half });
+            renderStateButton(); renderHalfLabel();
         }
     });
 
     // --- Sticky bottom action (half transitions) ---
     els.stateBtn.addEventListener('click', function () {
-        if (state.state === 'first_half') {
+        if (state.state === 'not_started') {
+            // Footer CTA shortcut for "Start match" — same effect as the
+            // timer Start button. v4.3.19 (#956) maps this footer state
+            // explicitly per the spec table.
+            els.timerBtn.click();
+        } else if (state.state === 'first_half') {
             api('end-half', { half: 1 });
             state.state = 'half_time';
             state.running = false;
             clearInterval(state.timer_interval);
-            els.timerBtn.textContent = i18n.start || 'Start';
             renderStateButton(); renderHalfLabel();
         } else if (state.state === 'half_time') {
-            // Pressing "Start 2nd half" via the bottom bar is a shortcut
-            // for hitting the timer toggle.
+            // Footer CTA shortcut for "Start second half" — same effect
+            // as the timer Start button.
             els.timerBtn.click();
         } else if (state.state === 'second_half') {
             api('end-half', { half: 2 });
@@ -128,8 +134,12 @@
             state.running = false;
             clearInterval(state.timer_interval);
             api('finish', {});
-            renderStateButton();
-            els.status.textContent = i18n.match_finished || 'Match finished';
+            renderStateButton(); renderHalfLabel();
+        } else if (state.state === 'finished') {
+            // v4.3.19 (#956) — "Return to dashboard" CTA on a finished
+            // match navigates the coach back to the activity's detail
+            // page (or the dashboard root if no referrer is available).
+            window.location.href = document.referrer || (window.location.pathname || '/');
         }
     });
 
@@ -140,16 +150,22 @@
         var row = btn.closest('[data-tt-mexec-goal-row]');
         var pid = parseInt(row.getAttribute('data-player-id'), 10);
 
+        // #956 — count chip renders inside `.tt-mexec-goal-chip > strong`
+        // (was inline on the button label). Button text stays "+ action".
+        var chipCountEl = row.querySelector('[data-tt-mexec-goal-count]');
+        function renderChip() {
+            if (chipCountEl) chipCountEl.textContent = String(state.goal_counts[pid] || 0);
+        }
+
         btn.addEventListener('pointerdown', function () {
             longPressed = false;
             pressTimer = setTimeout(function () {
                 longPressed = true;
-                // Undo: pop the most recent un-reversed goal event for this player.
                 var pending = (state.recent_goals && state.recent_goals[pid]) || [];
                 var last = pending.pop();
                 if (last) {
                     state.goal_counts[pid] = Math.max(0, (state.goal_counts[pid] || 0) - 1);
-                    btn.textContent = (state.goal_counts[pid] || 0) + '×';
+                    renderChip();
                     apiDelete('goal-event/' + last);
                 }
             }, 600);
@@ -157,10 +173,9 @@
         btn.addEventListener('pointerup', function () {
             clearTimeout(pressTimer);
             if (longPressed) return;
-            // +1
             var uuid = uuidv4();
             state.goal_counts[pid] = (state.goal_counts[pid] || 0) + 1;
-            btn.textContent = state.goal_counts[pid] + '×';
+            renderChip();
             state.recent_goals = state.recent_goals || {};
             state.recent_goals[pid] = state.recent_goals[pid] || [];
             state.recent_goals[pid].push(uuid);
@@ -184,31 +199,39 @@
         });
     });
 
+    // #956 — inline sub-target reveal (replaces the v4.1.7 modal sheet).
+    // Populates the .tt-mexec-sub-target section below the bench with
+    // the full on-pitch XI; coach taps a row to complete the swap.
+    var pendingSubOn = null;
+    var subBannerEl = root.querySelector('[data-tt-mexec-sub-banner]');
+    var subCancelEl = root.querySelector('[data-tt-mexec-sub-cancel]');
+
     function openSubSheet(pid_on) {
         var pl_on = state.players_by_id[pid_on];
         if (!pl_on) return;
-        var sheet = document.createElement('div');
-        sheet.className = 'tt-mexec-sheet';
-        var title = (i18n.sub_label_format || 'Who comes off for %s?').replace('%s', pl_on.name);
-        sheet.innerHTML = '<div class="tt-mexec-sheet-head"><h3>' + escapeHtml(title) + '</h3>' +
-            '<button type="button" class="tt-mexec-sheet-close" aria-label="Close">✕</button></div>' +
-            '<ul class="tt-mexec-sheet-list"></ul>';
-        var list = sheet.querySelector('.tt-mexec-sheet-list');
-        state.on_pitch.forEach(function (pid_off) {
-            var pl_off = state.players_by_id[pid_off];
-            if (!pl_off) return;
-            var li = document.createElement('li');
-            li.textContent = pl_off.name;
-            li.addEventListener('click', function () {
-                commitSub(pid_on, pid_off);
-                document.body.removeChild(sheet);
-            });
-            list.appendChild(li);
-        });
-        sheet.querySelector('.tt-mexec-sheet-close').addEventListener('click', function () {
-            if (sheet.parentNode) sheet.parentNode.removeChild(sheet);
-        });
-        document.body.appendChild(sheet);
+        pendingSubOn = pid_on;
+        if (subBannerEl) {
+            subBannerEl.textContent = (i18n.sub_label_format || 'Tap a player to swap in %s')
+                .replace('%s', pl_on.name);
+        }
+        renderOnPitchList();
+        root.setAttribute('data-swap-mode', 'true');
+        // Bring the sub-target into view (the bench is above it on the
+        // page; the coach just tapped a bench → on button so the bench
+        // is in view; scrolling reveals the sub-target below).
+        var target = root.querySelector('.tt-mexec-sub-target');
+        if (target && typeof target.scrollIntoView === 'function') {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }
+
+    function closeSubSheet() {
+        pendingSubOn = null;
+        root.setAttribute('data-swap-mode', 'false');
+    }
+
+    if (subCancelEl) {
+        subCancelEl.addEventListener('click', closeSubSheet);
     }
 
     function commitSub(pid_on, pid_off) {
@@ -241,13 +264,23 @@
     }
     function renderHalfLabel() {
         if (!els.halfLabel) return;
-        if (state.state === 'first_half' || state.state === 'half_time') {
-            els.halfLabel.textContent = i18n.half_label_first || '1e';
-        } else if (state.state === 'second_half' || state.state === 'finished') {
-            els.halfLabel.textContent = i18n.half_label_second || '2e';
+        var label;
+        var status = '';
+        if (state.state === 'first_half') {
+            label = i18n.half_label_first || 'First half';
+            status = state.running ? 'live' : '';
+        } else if (state.state === 'half_time') {
+            label = i18n.half_label_break || 'Half time';
+        } else if (state.state === 'second_half') {
+            label = i18n.half_label_second || 'Second half';
+            status = state.running ? 'live' : '';
+        } else if (state.state === 'finished') {
+            label = i18n.half_label_final || 'Final';
         } else {
-            els.halfLabel.textContent = '—';
+            label = i18n.half_label_pending || 'Kickoff pending';
         }
+        els.halfLabel.textContent = label;
+        els.halfLabel.setAttribute('data-status', status);
     }
     function renderClock() {
         if (!els.clock) return;
@@ -260,35 +293,65 @@
     }
     function renderStateButton() {
         if (!els.stateBtn) return;
+        // #956 — state→CTA mapping per the spec table. data-action also
+        // drives the CSS colour-coding on the footer CTA.
         if (state.state === 'first_half') {
-            els.stateBtn.textContent = i18n.end_first_half || 'End 1st half';
+            els.stateBtn.textContent = i18n.end_first_half || 'End first half';
+            els.stateBtn.setAttribute('data-action', 'end-first-half');
+            els.stateBtn.disabled = false;
         } else if (state.state === 'half_time') {
-            els.stateBtn.textContent = i18n.start_second_half || 'Start 2nd half';
+            els.stateBtn.textContent = i18n.start_second_half || 'Start second half';
+            els.stateBtn.setAttribute('data-action', 'start-second-half');
+            els.stateBtn.disabled = false;
         } else if (state.state === 'second_half') {
             els.stateBtn.textContent = i18n.end_match || 'End match';
+            els.stateBtn.setAttribute('data-action', 'end-match');
+            els.stateBtn.disabled = false;
         } else if (state.state === 'finished') {
-            els.stateBtn.textContent = i18n.match_finished || 'Match finished';
-            els.stateBtn.setAttribute('data-tt-mexec-state-action', 'finished');
-            els.stateBtn.disabled = true;
+            els.stateBtn.textContent = i18n.match_finished || 'Return to dashboard';
+            els.stateBtn.setAttribute('data-action', 'done');
+            els.stateBtn.disabled = false;
         } else {
-            els.stateBtn.textContent = i18n.start || 'Start';
+            els.stateBtn.textContent = i18n.start_match || 'Start match';
+            els.stateBtn.setAttribute('data-action', 'start-match');
+            els.stateBtn.disabled = false;
         }
+        // Also sync the parent <div class="tt-mexec"> data-state attr so
+        // CSS state-driven visibility rules apply.
+        root.setAttribute('data-state', state.state);
         if (els.timerBtn) {
-            els.timerBtn.textContent = state.running ? (i18n.pause || 'Pause') : (state.state === 'half_time' ? (i18n.start_second_half || 'Start 2nd half') : (i18n.start || 'Start'));
+            // Timer button label + data-action drive its colour.
+            if (state.state === 'not_started') {
+                els.timerBtn.textContent = i18n.start || 'Start';
+                els.timerBtn.setAttribute('data-action', 'start');
+            } else if (state.running) {
+                els.timerBtn.textContent = i18n.pause || 'Pause';
+                els.timerBtn.setAttribute('data-action', 'pause');
+            } else {
+                els.timerBtn.textContent = i18n.resume || 'Resume';
+                els.timerBtn.setAttribute('data-action', 'resume');
+            }
         }
     }
     function renderBenchAndOnPitch() {
-        // Rebuild bench list.
         if (els.benchList) {
             els.benchList.innerHTML = '';
             state.bench.forEach(function (pid) {
                 var pl = state.players_by_id[pid];
                 if (!pl) return;
                 var li = document.createElement('li');
+                li.className = 'tt-mexec-player';
                 li.setAttribute('data-tt-mexec-bench', '');
                 li.setAttribute('data-player-id', String(pid));
-                li.innerHTML = '<span>' + escapeHtml(pl.name) + '</span>' +
-                    '<button type="button" class="tt-mexec-sub-on" data-tt-mexec-sub-on aria-label="Bring on">→</button>';
+                var jersey = pl.jersey != null ? String(pl.jersey) : '';
+                li.innerHTML =
+                    '<span class="tt-mexec-player-number">' + escapeHtml(jersey) + '</span>' +
+                    '<span class="tt-mexec-player-name">' + escapeHtml(pl.name) + '</span>' +
+                    '<div class="tt-mexec-player-actions">' +
+                        '<button type="button" class="tt-mexec-action-btn tt-mexec-action-btn--sub-on" data-tt-mexec-sub-on aria-label="Bring on">' +
+                            escapeHtml('→ on') +
+                        '</button>' +
+                    '</div>';
                 li.querySelector('[data-tt-mexec-sub-on]').addEventListener('click', function () {
                     openSubSheet(pid);
                 });
@@ -300,14 +363,25 @@
     function renderOnPitchList() {
         if (!els.onPitchList) return;
         els.onPitchList.innerHTML = '';
-        state.on_pitch.forEach(function (pid) {
-            var pl = state.players_by_id[pid];
+        state.on_pitch.forEach(function (pid_off) {
+            var pl = state.players_by_id[pid_off];
             if (!pl) return;
             var li = document.createElement('li');
-            li.textContent = pl.name;
+            li.className = 'tt-mexec-player';
+            li.setAttribute('data-player-id', String(pid_off));
+            var jersey = pl.jersey != null ? String(pl.jersey) : '';
+            li.innerHTML =
+                '<span class="tt-mexec-player-number">' + escapeHtml(jersey) + '</span>' +
+                '<span class="tt-mexec-player-name">' + escapeHtml(pl.name) + '</span>';
+            li.addEventListener('click', function () {
+                if (pendingSubOn != null) {
+                    var pid_on = pendingSubOn;
+                    closeSubSheet();
+                    commitSub(pid_on, pid_off);
+                }
+            });
             els.onPitchList.appendChild(li);
         });
-        if (els.onPitchSection) els.onPitchSection.hidden = state.on_pitch.length === 0;
     }
 
     // --- Network with offline queue ---
@@ -368,11 +442,14 @@
     }
     function updateConnectionStatus(ok, pending) {
         if (!els.status) return;
+        var textEl = els.status.querySelector('[data-tt-mexec-status-text]') || els.status;
         if (ok) {
-            els.status.textContent = '';
+            els.status.setAttribute('data-state', 'online');
+            textEl.textContent = i18n.connection_back || 'Synced';
         } else {
+            els.status.setAttribute('data-state', 'offline');
             var n = pending != null ? pending : 1;
-            els.status.textContent = (i18n.queue_pending || 'Offline — actions queued') + ' (' + n + ')';
+            textEl.textContent = (i18n.queue_pending || 'Offline — actions queued') + ' (' + n + ')';
         }
     }
 
