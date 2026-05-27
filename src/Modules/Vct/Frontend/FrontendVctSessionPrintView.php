@@ -22,8 +22,8 @@ use TT\Modules\Vct\Repositories\VctSessionsRepository;
  */
 class FrontendVctSessionPrintView {
 
-    public static function render( int $session_id, int $user_id, bool $is_admin ): void {
-        $session = ( new VctSessionsRepository() )->find( $session_id );
+    public static function render( int $id, int $user_id, bool $is_admin ): void {
+        $session = ( new VctSessionsRepository() )->find( $id );
         if ( $session === null ) {
             echo '<p>' . esc_html__( 'VCT training not found.', 'talenttrack' ) . '</p>';
             return;
@@ -34,7 +34,7 @@ class FrontendVctSessionPrintView {
             return;
         }
 
-        $blocks         = ( new VctSessionBlocksRepository() )->listForSession( $session_id );
+        $blocks         = ( new VctSessionBlocksRepository() )->listForSession( $id );
         $exercises_repo = new VctExercisesRepository();
         $coaching_repo  = new VctCoachingPointsRepository();
         $locale         = get_user_locale();

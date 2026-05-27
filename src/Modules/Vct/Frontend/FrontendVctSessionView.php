@@ -40,7 +40,7 @@ class FrontendVctSessionView extends FrontendViewBase {
         // Print sub-render path.
         $print = isset( $_GET['print'] ) ? sanitize_key( (string) $_GET['print'] ) : '';
         if ( $print === 'a4' && $id > 0 ) {
-            FrontendVctSessionPrintView::render( $id, $user_id, $is_admin );
+            FrontendVctSessionPrintView::render( (int) $id, $user_id, $is_admin );
             return;
         }
 
