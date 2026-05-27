@@ -85,8 +85,58 @@ class FrontendTeamPlannerView extends FrontendViewBase {
         $can_manage = AuthorizationService::userCanOrMatrix( $user_id, 'tt_manage_plan' );
 
         echo self::renderToolbar( $teams, $team, $range, $range_start, $weeks_count, $season, $can_manage );
+        echo self::renderExportActions( $team_id, $range_start, $range_end );
         echo self::renderRangeGrid( $range_start, $weeks_count, $activities, $principle_map, $team_id, $can_manage );
         echo self::renderPrincipleCoverage( $team_id );
+    }
+
+    /**
+     * #947 — Export PDF + XLSX buttons. Two side-by-side form POSTs
+     * targeting admin-post.php (`action=tt_export`), one per format.
+     * Buttons stack vertically below 480px so both stay ≥ 48px tap
+     * targets on phones.
+     *
+     * PDF → `team_planning` exporter (new in this ship).
+     * XLSX → `team_activities` exporter (existing CSV exporter that
+     * already supports `xlsx` format).
+     */
+    private static function renderExportActions( int $team_id, string $date_from, string $date_to ): string {
+        if ( $team_id <= 0 ) return '';
+        $exports_url = add_query_arg( 'tt_view', 'exports', \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl() );
+        $self_url    = remove_query_arg( [ 'tt_export_error' ] );
+
+        ob_start();
+        ?>
+        <div class="tt-planner-actions" style="display:flex; gap:8px; flex-wrap:wrap; margin: 4px 0 12px;">
+            <form method="POST" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="tt-export-form" style="margin:0;">
+                <?php wp_nonce_field( 'tt_export', '_tt_export_nonce' ); ?>
+                <input type="hidden" name="action"               value="tt_export">
+                <input type="hidden" name="tt_export_key"        value="team_planning">
+                <input type="hidden" name="format"               value="pdf">
+                <input type="hidden" name="team_id"              value="<?php echo (int) $team_id; ?>">
+                <input type="hidden" name="date_from"            value="<?php echo esc_attr( $date_from ); ?>">
+                <input type="hidden" name="date_to"              value="<?php echo esc_attr( $date_to ); ?>">
+                <input type="hidden" name="tt_export_return_url" value="<?php echo esc_attr( $self_url ); ?>">
+                <button type="submit" class="tt-btn tt-btn-secondary" style="min-height:48px;">
+                    <?php esc_html_e( 'Export PDF', 'talenttrack' ); ?>
+                </button>
+            </form>
+            <form method="POST" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="tt-export-form" style="margin:0;">
+                <?php wp_nonce_field( 'tt_export', '_tt_export_nonce' ); ?>
+                <input type="hidden" name="action"               value="tt_export">
+                <input type="hidden" name="tt_export_key"        value="team_activities">
+                <input type="hidden" name="format"               value="xlsx">
+                <input type="hidden" name="team_id"              value="<?php echo (int) $team_id; ?>">
+                <input type="hidden" name="date_from"            value="<?php echo esc_attr( $date_from ); ?>">
+                <input type="hidden" name="date_to"              value="<?php echo esc_attr( $date_to ); ?>">
+                <input type="hidden" name="tt_export_return_url" value="<?php echo esc_attr( $self_url ); ?>">
+                <button type="submit" class="tt-btn tt-btn-secondary" style="min-height:48px;">
+                    <?php esc_html_e( 'Export XLSX', 'talenttrack' ); ?>
+                </button>
+            </form>
+        </div>
+        <?php
+        return (string) ob_get_clean();
     }
 
     private static function renderToolbar( array $teams, object $team, string $range, string $range_start, int $weeks_count, ?object $season, bool $can_manage ): string {
