@@ -1,86 +1,82 @@
-# TalentTrack v4.3.18 — Team planner Export PDF + XLSX buttons (closes #947)
+# TalentTrack v4.3.19 — Match Execution sideline UX redesign per mockup (closes #956)
 
 ## What changed
 
-New action row at the top of `?tt_view=team-planner` carries two side-by-side form-POST buttons that download a printable schedule for the currently-picked team over the planner's currently-visible date range. Coach picks the team + range once in the planner; the buttons pre-fill those values into the export request.
+Ports `.local-mockups/match-execution/index.html` (the design-of-record) to the production `?tt_view=match-execution` surface. **Backend unchanged**: same `MatchExecutionRepository`, same REST routes, same state machine, same `tt_edit_activities` cap.
 
-## Building blocks — what's free vs. what's new
+## Surface-by-surface
 
-| Piece | Status |
+### Header
+Single-line condensed: `<team A> vs <team B> · <date time>`. Ellipsis fallback when team names overflow 360px.
+
+### Score
+Two side-by-side columns. Each column has a 3-letter team abbreviation above its own stepper (`[− 2 +]`). 48px stepper buttons + 44px number slot, glove-friendly. Both fit at 360px viewport width.
+
+### Timer
+- Half label (`Kickoff pending` / `First half` / `Half time` / `Second half` / `Final`) with pulsing green live dot when running.
+- Clock (MM:SS) in tabular-nums.
+- State-aware Start / Pause / Resume button (green / orange / green).
+- **Planned-time sub-label removed** per pilot direction.
+
+### Tracked Players (was "Specific goals")
+- Renders ONLY players with `is_specific_goal = 1` from match prep.
+- Each row shows the jersey number circle, name + flagged-action label (`flagged: crosses`), an inline goal-chip with the action + count, and a `+ action` button that increments the count via the existing `goal-event` REST endpoint.
+- Long-press to undo (pops the most recent un-reversed event) is preserved.
+- **Section is stable** — never modified by the sub flow.
+
+### Bench
+- Row carries a `→ on` button (green sub-on styling).
+- Tap reveals the inline sub-target section below (replaces the v4.1.7 modal sheet).
+
+### Sub-target (new section — replaces the modal)
+- Dedicated `<section class="tt-mexec-sub-target">` below the bench.
+- Accent-coloured banner: `Tap a player to swap in <name>` + Cancel button.
+- Lists the full on-pitch XI as tappable rows.
+- Auto-scrolls into view on activation via `scrollIntoView({ behavior: 'smooth' })`.
+- Tapping any row completes the swap (existing `substitution` REST endpoint) and exits swap mode.
+- Tracked Players section above stays untouched throughout.
+
+### Sticky footer — state→CTA mapping
+
+| State | CTA label | Colour |
+|---|---|---|
+| `not_started` | Start match | green |
+| `first_half`  | End first half | orange |
+| `half_time`   | Start second half | green |
+| `second_half` | End match | red |
+| `finished`    | Return to dashboard | ink |
+
+Full-width 52px button. Connection-state indicator (`Synced` / `Offline — queued`) sits below as a dot + label.
+
+## Files touched
+
+| File | Change |
 |---|---|
-| `TeamActivitiesCsvExporter` — XLSX format | **Already shipped** (`supportedFormats = ['csv', 'xlsx']`). Reused as-is for the XLSX button. |
-| `XlsxRenderer` (PhpSpreadsheet) | Already shipped (v3.110.0). |
-| `PdfRenderer` (DomPDF) | Already shipped. |
-| `TeamPlanningPdfExporter` | **NEW**. |
-| Buttons on the planner | **NEW** — two form-POST `<form>`s in a new `renderExportActions()` helper. |
+| `src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php` | HTML structure rewritten per the mockup; same data attributes (`data-tt-mexec-*`) so the JS bindings stay intact. New `abbreviate()` helper for the team-label chip. |
+| `assets/css/frontend-match-execution.css` | Replaced with a port of the mockup's CSS. Design tokens scoped to `--tt-mexec-*`. State-driven visibility rules under `.tt-mexec[data-state="…"]` and the sub-target reveal under `.tt-mexec[data-swap-mode="true"]`. |
+| `assets/js/frontend-match-execution.js` | `openSubSheet()` rewritten to use the inline sub-target section instead of a modal sheet. `renderHalfLabel()` extended to set `data-status="live"` when state is live + running. `renderStateButton()` extended to map state → footer-CTA `data-action` value for CSS colour coding. New "Start match" footer handler (shortcuts the timer Start) + "Return to dashboard" handler (navigates back). Bench list re-render uses the new `tt-mexec-player` classes. Goal-chip count renders inside `.tt-mexec-goal-chip > strong` via `data-tt-mexec-goal-count`. |
 
-## New exporter — `TeamPlanningPdfExporter`
+## Form-POST coordination with #940 / #939
 
-`src/Modules/Export/Exporters/TeamPlanningPdfExporter.php`. Implements `ExporterInterface`:
-
-- `key()` = `'team_planning'`
-- `supportedFormats()` = `['pdf']`
-- `requiredCap()` = `'tt_view_activities'` (matches the CSV/XLSX exporter)
-- `validateFilters()` — `team_id` required (> 0), `date_from` / `date_to` default to today → +28 days
-- `collect()` — one row per `tt_activities` row in (club_id, team_id, date range), ordered by date + kickoff_time. Returns `['html' => …, 'options' => ['paper' => 'A4', 'orientation' => 'portrait']]`. The `PdfRenderer` generates the filename + mime from the exporter key + ISO date.
-
-PDF layout (single page if the range fits, multi-page otherwise):
-
-- Title block: team name + ISO date range.
-- Single table: Date · Day · Time · Type · Title · Opponent · Location.
-- Footer: generated-at timestamp.
-
-Registered in `ExportModule::boot()` alongside the existing exporters.
-
-## Planner UI — `renderExportActions()`
-
-`src/Modules/Planning/Frontend/FrontendTeamPlannerView.php` — new private static method called from `render()` after the toolbar, before the range grid. Two side-by-side forms targeting `admin-post.php?action=tt_export` (the form-POST architecture from #939):
-
-```html
-<div class="tt-planner-actions" style="display:flex; gap:8px; flex-wrap:wrap;">
-  <form method="POST" action="<admin-post.php>">
-    <!-- wp_nonce_field('tt_export', '_tt_export_nonce') -->
-    <input type="hidden" name="action"               value="tt_export">
-    <input type="hidden" name="tt_export_key"        value="team_planning">
-    <input type="hidden" name="format"               value="pdf">
-    <input type="hidden" name="team_id"              value="<id>">
-    <input type="hidden" name="date_from"            value="<yyyy-mm-dd>">
-    <input type="hidden" name="date_to"              value="<yyyy-mm-dd>">
-    <input type="hidden" name="tt_export_return_url" value="<planner-url>">
-    <button type="submit" class="tt-btn tt-btn-secondary">Export PDF</button>
-  </form>
-
-  <form method="POST" action="<admin-post.php>">
-    <!-- same shape, tt_export_key=team_activities, format=xlsx -->
-    <button type="submit" class="tt-btn tt-btn-secondary">Export XLSX</button>
-  </form>
-</div>
-```
-
-Buttons wrap to a vertical stack below ~480px via the parent flex container's `flex-wrap`; each at 48px min-height so they meet the mobile-first tap-target floor.
+The match-execution surface does NOT use form POSTs — every mutation goes through the REST API via `fetch()`. The #940 / #939 admin-post.php architecture coordination question is moot here. The form-POST audit only matters for surfaces that emit `<form method="POST">`.
 
 ## CI gate compatibility
 
-- #940 Scan A — every new hidden-field name (`action`, `tt_export_key`, `format`, `team_id`, `date_from`, `date_to`, `tt_export_return_url`) is outside the WP-reserved-public-query-var set. Pass.
-- #940 Scan B — no `add_query_arg(['tt_view' => 'wizard', …])` introduced; the buttons go to `admin_url('admin-post.php')`. Pass.
+- #940 Scan A: no `<input|select|textarea>` fields anywhere on this surface — the redesign is a read-only-shaped view with REST-backed mutations. Pass.
+- #940 Scan B: no `add_query_arg(['tt_view' => 'wizard', …])` introduced. Pass.
 
-## Permissions
+## Out of scope (per spec)
 
-- View access to the planner is already gated on `tt_view_plan` at `render()` entry.
-- Both exporters declare `requiredCap = 'tt_view_activities'`. `ExportService` (the dispatcher invoked by the admin-post handler) re-checks the cap before running, so the page-level guard and the exporter-level guard line up.
-
-## Out of scope
-
-- iCal subscription model (explicitly excluded — coaches handle phone-calendar sync separately).
-- Custom date-range picker on the planner (uses the planner's currently-visible range).
-- Multi-team "all my teams' planning" — that's the bulk exporter on the central Exports page.
-- Async export pipeline — sync is fine at the data volumes a team's schedule represents (max ~100 rows over a season).
-- Per-export branding picker (uses the install's default brand-kit tokens).
+- Backend state-machine changes.
+- New goal types / flagged-action vocabulary changes.
+- Half-length manual correction UI (notes.md item 3 — server-side fix).
+- Server-side pause-state durability (notes.md item 4).
+- Desktop-specific extra zones (the redesign keeps the same mobile shape on desktop within a wider centred frame).
 
 ## Why patch
 
-Enhancement on an existing surface within the 4.3 minor. The team planner was the minor epic; adding two export buttons stays patch — consistent with how the VCT module's per-tile additions (v4.3.11/12/13) all bumped patch within the 4.3 minor. No new cap, no new schema, no new contract.
+UX redesign of an existing surface within the 4.3 minor. The Match Execution module shipped at v3.110.216 (the minor epic landed then); this is a redesign on top. Consistent with how the v4.3.11 VCT-session mobile + print redesign also went patch within the VCT minor.
 
 ## Bumped
 
-`talenttrack.php` Version + `TT_VERSION` + `readme.txt` Stable tag: `4.3.17` → `4.3.18`.
+`talenttrack.php` Version + `TT_VERSION` + `readme.txt` Stable tag: `4.3.18` → `4.3.19`.
