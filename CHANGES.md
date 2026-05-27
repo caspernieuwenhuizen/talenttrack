@@ -1,89 +1,60 @@
-# TalentTrack v4.3.7 — VCT module ship 7: workflow nightly task via cron trigger (closes #912, **closes epic #905**)
+# TalentTrack v4.3.8 — `Lookup translation lint` CI gate goes green (closes #923)
 
 ## Context
 
-Final Phase-1 ship of the VCT module. Six foundation ships have landed:
+The `.github/workflows/lookup-translation-lint.yml` gate ("No raw-echo of lookup-backed fields") had been **failing on `main` continuously since pre-v4.2.0**. Every PR merged in that window (including all eight VCT-epic ships in v4.3.0–v4.3.7) inherited the red gate even though the violations were pre-existing.
 
-- VCT-1 (v4.3.0) — schema
-- VCT-2 (v4.3.1) — caps + matrix + LegacyCapMapper bridges
-- VCT-3 (v4.3.2) — lookup vocabularies with direct translations
-- VCT-4 (v4.3.3) — age profiles + session templates + phase profiles seeds
-- VCT-5 (v4.3.5) — rules engine + repositories + services
-- VCT-6 (v4.3.6) — REST API with two-layer permission_callback
-
-This ship closes the epic by registering the nightly workload-aggregation task — the last unfulfilled spec acceptance criterion under the Phase-1 scope.
+On non-default locales (nl_NL / fr_FR / de_DE / es_ES), the seven offending sites rendered the raw English seed name (`'open'`, `'pending'`, `'high'`) instead of the operator's localised label (`'Open'` / `'In behandeling'` / `'Hoog'`). #923 is the bridge fix; #806 stays as the architectural endgame (push the translator into the repository SELECT layer so view code can't bypass by construction).
 
 ## What changed
 
-### `VctWorkloadAggregationTaskTemplate` — `src/Modules/Vct/Workflow/`
+Seven `esc_html( (string) $row->status )` / `…->priority )` echo sites routed through `LookupTranslator::byTypeAndName()`:
 
-New class extending `TaskTemplate`. **Server-side aggregation job, not a user-facing task**: `expandTrigger()` runs the work and returns an empty array so the engine creates zero `tt_workflow_tasks` rows.
+| File:line | Field | Lookup type |
+|---|---|---|
+| `src/Shared/Frontend/FrontendTrialCaseView.php:428` | `$g->status` | `goal_status` |
+| `src/Shared/Frontend/FrontendTrialCaseView.php:428` | `$g->priority` | `goal_priority` |
+| `src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:59` | `$g->priority` | `goal_priority` |
+| `src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:60` | `$g->status` | `goal_status` |
+| `src/Shared/Frontend/FrontendPlayerDetailView.php:873` | `$f->status` (PDP files) | `pdp_status` |
+| `src/Shared/Frontend/FrontendPlayerDetailView.php:924` | `$t->status` (trial cases) | `trial_case_status` |
+| `src/Modules/Pdp/Frontend/FrontendPdpManageView.php:784` | `$a->status` (activities chunk) | `activity_status` |
+| `src/Modules/Pdp/Frontend/FrontendPdpManageView.php:804` | `$g->status` (goal changes chunk) | `goal_status` |
 
-- `key()` — `'vct_workload_aggregation'`
-- `defaultSchedule()` — `{type: 'cron', expression: '0 2 * * *'}` (02:00 UTC daily)
-- `defaultAssignee()` — `LambdaResolver(static fn() => [])` makes the no-assignee contract explicit
-- `formClass()` — references an existing `FormInterface` for contract satisfaction (never instantiated; zero tasks means zero form renders)
-- `entityLinks()` — `[]`
+All eight call sites (seven were in the spec, with one line carrying two violations) mirror the `PdpPrintRouter.php:203-204` gold-standard pattern:
 
-### `aggregate()` — the actual work
+```php
+esc_html( LookupTranslator::byTypeAndName( <type>, (string) ( $row->field ?? '' ) ) )
+```
 
-1. Walk every `tt_vct_sessions` row with `status = 'completed'` in the trailing 28-day window.
-2. Sum each session's block-level load via the existing `WorkloadCalculator::sessionLoad()` from v4.3.5.
-3. Attribute load to players via `tt_attendance`: Present = full credit, Absent / Excused / Injured = zero. This is the meaningful-load guarantee from spec § Background work — a player who didn't attend doesn't get the load contribution.
-4. Per `(player_id, snapshot_date)`, compute 24h / 7d / 28d rolling loads + ACWR (`7d_load / (28d_load / 4)` per spec § dispatch step 3).
-5. Set `flag`:
-   - `over_envelope` when 7d load exceeds the age-profile weekly envelope.
-   - `acwr_high` when ACWR > 1.5, `acwr_low` when < 0.8.
-   - NULL otherwise.
-6. Upsert `tt_vct_workload_snapshots` via `INSERT ... ON DUPLICATE KEY UPDATE`. Re-runs are idempotent at the row level; missed nights self-repair on the next 28-day pass.
+The `LookupTranslator` import is added to each file that didn't already have it.
 
-### Migration 0127 — workflow trigger row
+## Spec deviation
 
-Inserts a row into `tt_workflow_triggers`:
+The issue body recommended option (a): a new `LabelTranslator::pdpFileStatus()` helper for the `tt_pdp_files.status` site, on the premise that the column "isn't currently backed by `tt_lookups`". That premise was outdated — migration `0049_status_pill_convergence.php` seeded a `pdp_status` lookup type with the four canonical values (`pending`, `in_progress`, `completed`, `cancelled`), and `LookupPill::render('pdp_status', ...)` already consumes it elsewhere in the PDP module. Routing the violation through `LookupTranslator::byTypeAndName('pdp_status', ...)` is the consistent fix; it avoids inventing a redundant helper for a lookup type that's already live infrastructure.
 
-- `template_key = 'vct_workload_aggregation'`
-- `trigger_type = 'cron'`
-- `cron_expression = '0 2 * * *'`
-- `enabled = 1`
-
-Idempotent — existence-check on `(club_id, template_key, trigger_type)` before insert. Operators can disable the schedule via the workflow config UI or override the cron expression; re-runs preserve their edits.
-
-### `VctModule::boot()` — workflow registration
-
-Hooks `init` priority 5 to register the template with `WorkflowModule::registry()`. Same pattern as PdpModule's `registerShippedTemplates`; ensures the template is in the registry before dispatchers (priority 20) tick.
-
-### Why no `wp_schedule_event`
-
-Per spec § Decisions log #1: the Workflow module is the SaaS-port chokepoint for scheduler abstraction. One place that swaps out when VCT migrates to the SaaS frontend, not N per-module cron registrations. CLAUDE.md §4 codifies this.
-
-## Epic closure
-
-With this ship, the VCT Phase 1 epic (#905) closes. Phase 2 work is filed separately:
-
-- **VCT-8** — exercise catalogue editor UI + write path. Gated on pilot-coach review of the seeded catalogue.
-- **VCT-9** — new-VCT-session wizard registration + the five-step wizard UI.
-- **VCT-10** — mobile session view + printable A4/A6 sub-renders.
-- **VCT-11 / VCT-12** — library admin + configuration tiles (macro-blocks, age profiles).
-- **Phase 2** — AI presentation layer; workload heatmap UI consuming the snapshots this ship populates; ACWR alerting.
+Net result: zero new helper methods, zero new translatable strings, zero schema changes.
 
 ## Validation
 
-- Migration 0127 runs cleanly; `SELECT * FROM wp_tt_workflow_triggers WHERE template_key = 'vct_workload_aggregation'` returns exactly one row with `cron_expression = '0 2 * * *'`, `enabled = 1`.
-- Re-running migration 0127 leaves the count at 1 (idempotent).
-- After deploy + the CronDispatcher's next hourly tick, the template's `aggregate()` fires on schedule (or sooner if invoked imperatively from a debug surface).
-- Seed 5 completed VCT trainings over the last 28 days for one team; call `(new VctWorkloadAggregationTaskTemplate)->aggregate()`; assert `tt_vct_workload_snapshots` has one row per (attending-player, completed-session-date) with non-zero loads.
-- Second invocation: row counts unchanged; load values match (idempotent at row level).
-- Mark a player Absent for one session in `tt_attendance`; re-aggregate; that player's snapshot for that date has zero contribution from the absent session.
+Locally ran the workflow's exact regex set against the post-fix tree:
 
-## Why this is `patch`, not `minor`
+```
+RISKY=(
+  'esc_html\(\s*\(string\)\s*\$[a-zA-Z_]+->status\s*[)?]'
+  'esc_html\(\s*\(string\)\s*\$[a-zA-Z_]+->priority\s*[)?]'
+  'esc_html\(\s*ucfirst\(\s*\(string\)\s*\$[a-zA-Z_]+->\(status|priority|decision\)'
+  'esc_html\(\s*\$[a-zA-Z_]+->priority\s*\)'
+  'esc_html\(\s*\$[a-zA-Z_]+->status\s*\)'
+)
+```
 
-Workflow trigger within the 4.3 minor. The epic itself doesn't re-bump minor at close because the schema bump (v4.3.0) already declared the epic — per the SemVer table in `DEVOPS.md`, the minor lands on ship 1 and patches roll through subsequent ships of the same epic.
+Zero hits outside the allow-list (`src/Modules/Export/Exporters/*CsvExporter.php`, `*JsonExporter.php`). The `No raw-echo of lookup-backed fields` CI check on the resulting branch will flip from `failure` to `success` on the merge commit.
+
+## Why this is `patch`, not anything bigger
+
+Bug fix. No behavioural change for English-locale installs; non-English-locale users see the localised label everywhere these tables render. No schema, no new caps, no new contracts. Patch bump per `DEVOPS.md`.
 
 ## Bumped
 
-`talenttrack.php` Version + `TT_VERSION` + `readme.txt` Stable tag: `4.3.6` → `4.3.7`.
-
-## Closes
-
-- #912 (VCT-7 / this ship)
-- **#905 (VCT Phase 1 epic)**
+`talenttrack.php` Version + `TT_VERSION` + `readme.txt` Stable tag: `4.3.7` → `4.3.8`.

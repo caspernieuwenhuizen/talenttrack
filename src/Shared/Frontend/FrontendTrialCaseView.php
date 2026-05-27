@@ -3,6 +3,7 @@ namespace TT\Shared\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Stats\PlayerStatsService;
 use TT\Infrastructure\Tenancy\CurrentClub;
@@ -425,7 +426,7 @@ class FrontendTrialCaseView extends FrontendViewBase {
             echo '<div class="tt-table-wrap">';
             echo '<table class="tt-table"><thead><tr><th>' . esc_html__( 'Title', 'talenttrack' ) . '</th><th>' . esc_html__( 'Status', 'talenttrack' ) . '</th><th>' . esc_html__( 'Priority', 'talenttrack' ) . '</th><th>' . esc_html__( 'Updated', 'talenttrack' ) . '</th></tr></thead><tbody>';
             foreach ( $goals as $g ) {
-                echo '<tr><td>' . esc_html( (string) $g->title ) . '</td><td>' . esc_html( (string) $g->status ) . '</td><td>' . esc_html( (string) $g->priority ) . '</td><td>' . esc_html( (string) $g->updated_at ) . '</td></tr>';
+                echo '<tr><td>' . esc_html( (string) $g->title ) . '</td><td>' . esc_html( LookupTranslator::byTypeAndName( 'goal_status', (string) ( $g->status ?? '' ) ) ) . '</td><td>' . esc_html( LookupTranslator::byTypeAndName( 'goal_priority', (string) ( $g->priority ?? '' ) ) ) . '</td><td>' . esc_html( (string) $g->updated_at ) . '</td></tr>';
             }
             echo '</tbody></table>';
             echo '</div>';

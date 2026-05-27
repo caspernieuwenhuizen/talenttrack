@@ -3,6 +3,7 @@ namespace TT\Modules\Pdp\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Pdp\Repositories\PdpConversationsRepository;
 use TT\Modules\Pdp\Repositories\PdpFilesRepository;
@@ -781,7 +782,7 @@ class FrontendPdpManageView extends FrontendViewBase {
             foreach ( $acts as $a ) {
                 echo '<li>' . esc_html( (string) $a->session_date ) . ' — '
                     . esc_html( (string) $a->title ) . ' ('
-                    . esc_html( (string) $a->status ) . ')</li>';
+                    . esc_html( LookupTranslator::byTypeAndName( 'activity_status', (string) ( $a->status ?? '' ) ) ) . ')</li>';
             }
             echo '</ul>';
         } else {
@@ -801,7 +802,7 @@ class FrontendPdpManageView extends FrontendViewBase {
             echo '<ul style="margin:0; padding-left:18px; font-size:12px;">';
             foreach ( $goals as $g ) {
                 echo '<li>' . esc_html( (string) $g->title ) . ' — '
-                    . esc_html( (string) $g->status ) . '</li>';
+                    . esc_html( LookupTranslator::byTypeAndName( 'goal_status', (string) ( $g->status ?? '' ) ) ) . '</li>';
             }
             echo '</ul>';
         } else {
