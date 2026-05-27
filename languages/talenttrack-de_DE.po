@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-05-27T18:31:34+00:00\n"
+"POT-Creation-Date: 2026-05-27T18:48:29+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -57,7 +57,7 @@ msgstr ""
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:264
 #: src/Modules/Players/Admin/PlayersPage.php:126
 #: src/Modules/Players/Admin/PlayersPage.php:397
-#: src/Shared/Frontend/DashboardShortcode.php:1123
+#: src/Shared/Frontend/DashboardShortcode.php:1128
 #: src/Shared/Frontend/FrontendConfigurationView.php:1319
 #: src/Shared/Frontend/FrontendPeopleManageView.php:274
 #: src/Shared/Frontend/FrontendRolesView.php:83
@@ -66,7 +66,7 @@ msgstr "Elternteil"
 
 #: database/migrations/0030_authorization_sprint_7_roles.php:54
 #: src/Modules/Authorization/Admin/MatrixPage.php:592
-#: src/Shared/Frontend/DashboardShortcode.php:1128
+#: src/Shared/Frontend/DashboardShortcode.php:1133
 msgid "Team Manager"
 msgstr ""
 
@@ -132,7 +132,7 @@ msgstr ""
 #: src/Shared/Frontend/Components/PlayerPickerComponent.php:33
 #: src/Shared/Frontend/Components/PlayerSearchPickerComponent.php:63
 #: src/Shared/Frontend/DashboardShortcode.php:105
-#: src/Shared/Frontend/DashboardShortcode.php:1122
+#: src/Shared/Frontend/DashboardShortcode.php:1127
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:817
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:828
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:923
@@ -196,7 +196,7 @@ msgstr "Trainer"
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:268
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:118
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:152
-#: src/Shared/Frontend/DashboardShortcode.php:1126
+#: src/Shared/Frontend/DashboardShortcode.php:1131
 #: src/Shared/Frontend/FrontendConfigurationView.php:1313
 #: src/Shared/Frontend/FrontendPeopleManageView.php:270
 #: src/Shared/Frontend/FrontendRolesView.php:59
@@ -797,7 +797,7 @@ msgstr "Physiotherapeut"
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:149
 #: src/Modules/Reports/AudienceType.php:81
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:155
-#: src/Shared/Frontend/DashboardShortcode.php:1127
+#: src/Shared/Frontend/DashboardShortcode.php:1132
 #: src/Shared/Frontend/FrontendConfigurationView.php:1317
 #: src/Shared/Frontend/FrontendPeopleManageView.php:273
 #: src/Shared/Frontend/FrontendRolesView.php:71
@@ -865,7 +865,7 @@ msgstr "Vereins-Admin"
 #: src/Modules/Authorization/Admin/MatrixPage.php:589
 #: src/Modules/Authorization/Admin/RolesPage.php:433
 #: src/Modules/Teams/Admin/TeamsPage.php:149
-#: src/Shared/Frontend/DashboardShortcode.php:1125
+#: src/Shared/Frontend/DashboardShortcode.php:1130
 msgid "Head Coach"
 msgstr "Cheftrainer"
 
@@ -875,7 +875,7 @@ msgstr "Cheftrainer"
 #: src/Modules/Authorization/Admin/FunctionalRolesPage.php:318
 #: src/Modules/Authorization/Admin/MatrixPage.php:588
 #: src/Modules/Authorization/Admin/RolesPage.php:434
-#: src/Shared/Frontend/DashboardShortcode.php:1124
+#: src/Shared/Frontend/DashboardShortcode.php:1129
 msgid "Assistant Coach"
 msgstr "Co-Trainer"
 
@@ -2118,6 +2118,7 @@ msgstr "Typ"
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:53
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:131
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:553
+#: src/Modules/Vct/Frontend/FrontendVctSessionView.php:116
 #: src/Modules/Wizards/Activity/ReviewStep.php:59
 #: src/Modules/Wizards/Activity/TypeStatusStep.php:39
 #: src/Modules/Wizards/Prospect/IdentityStep.php:100
@@ -3060,16 +3061,17 @@ msgstr ""
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:23
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffPdpView.php:24
 #: src/Modules/StaffDevelopment/Frontend/FrontendStaffOverviewView.php:26
+#: src/Modules/Vct/Frontend/FrontendVctSessionView.php:62
 #: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:29
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:36
 #: src/Shared/Frontend/DashboardShortcode.php:276
 #: src/Shared/Frontend/DashboardShortcode.php:413
 #: src/Shared/Frontend/DashboardShortcode.php:469
-#: src/Shared/Frontend/DashboardShortcode.php:597
-#: src/Shared/Frontend/DashboardShortcode.php:605
-#: src/Shared/Frontend/DashboardShortcode.php:785
-#: src/Shared/Frontend/DashboardShortcode.php:793
-#: src/Shared/Frontend/DashboardShortcode.php:801
+#: src/Shared/Frontend/DashboardShortcode.php:602
+#: src/Shared/Frontend/DashboardShortcode.php:610
+#: src/Shared/Frontend/DashboardShortcode.php:790
+#: src/Shared/Frontend/DashboardShortcode.php:798
+#: src/Shared/Frontend/DashboardShortcode.php:806
 #: src/Shared/Frontend/FrontendAuditLogView.php:37
 #: src/Shared/Frontend/FrontendConfigurationView.php:29
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:22
@@ -4916,7 +4918,7 @@ msgid "Head of Dev"
 msgstr ""
 
 #: src/Modules/Authorization/Admin/MatrixPage.php:593
-#: src/Shared/Frontend/DashboardShortcode.php:1129
+#: src/Shared/Frontend/DashboardShortcode.php:1134
 msgid "Academy Admin"
 msgstr ""
 
@@ -9850,6 +9852,7 @@ msgid "Active players"
 msgstr ""
 
 #: src/Modules/CustomWidgets/DataSources/PlayersActive.php:36
+#: src/Modules/Vct/Frontend/FrontendVctSessionView.php:112
 #: src/Modules/Vct/Wizard/ReviewStep.php:52
 #: src/Shared/Frontend/Components/GuestAddModal.php:90
 msgid "Age"
@@ -11244,7 +11247,7 @@ msgstr ""
 #: src/Shared/CoreSurfaceRegistration.php:1417
 #: src/Shared/CoreSurfaceRegistration.php:1603
 #: src/Shared/Frontend/CoachDashboardView.php:37
-#: src/Shared/Frontend/DashboardShortcode.php:1163
+#: src/Shared/Frontend/DashboardShortcode.php:1168
 #: src/Shared/Frontend/FrontendDocsView.php:103
 #: src/Shared/Frontend/PlayerDashboardView.php:40
 msgid "Help"
@@ -12398,7 +12401,7 @@ msgstr ""
 #: src/Modules/Stats/Admin/PlayerCardView.php:68
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:35
 #: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:533
-#: src/Shared/Frontend/DashboardShortcode.php:642
+#: src/Shared/Frontend/DashboardShortcode.php:647
 msgid "Player not found."
 msgstr ""
 
@@ -13730,6 +13733,7 @@ msgid "Error"
 msgstr ""
 
 #: src/Modules/License/Admin/AccountPage.php:921
+#: src/Modules/Vct/Frontend/FrontendVctSessionView.php:114
 #: src/Modules/Vct/Wizard/DurationStep.php:19
 #: src/Modules/Vct/Wizard/ReviewStep.php:55
 msgid "Duration"
@@ -16511,7 +16515,7 @@ msgstr ""
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:172
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:634
 #: src/Shared/Frontend/Components/GuestAddModal.php:48
-#: src/Shared/Frontend/DashboardShortcode.php:1165
+#: src/Shared/Frontend/DashboardShortcode.php:1170
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:127
 msgid "Close"
 msgstr "Schließen"
@@ -17252,8 +17256,8 @@ msgstr ""
 
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:334
 #: src/Shared/Frontend/Components/HelpDrawer.php:22
-#: src/Shared/Frontend/DashboardShortcode.php:1081
-#: src/Shared/Frontend/DashboardShortcode.php:1082
+#: src/Shared/Frontend/DashboardShortcode.php:1086
+#: src/Shared/Frontend/DashboardShortcode.php:1087
 msgid "Help & docs"
 msgstr ""
 
@@ -19359,8 +19363,8 @@ msgstr ""
 
 #: src/Modules/Reports/Frontend/FrontendScoutAccessView.php:30
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:35
-#: src/Shared/Frontend/DashboardShortcode.php:786
-#: src/Shared/Frontend/DashboardShortcode.php:794
+#: src/Shared/Frontend/DashboardShortcode.php:791
+#: src/Shared/Frontend/DashboardShortcode.php:799
 msgid "You need scout-management permission to view this page."
 msgstr ""
 
@@ -22404,6 +22408,137 @@ msgstr ""
 msgid "Trial group %s"
 msgstr ""
 
+#: src/Modules/Vct/Frontend/FrontendVctSessionPrintView.php:28
+#: src/Modules/Vct/Rest/VctTrainingsRestController.php:154
+#: src/Modules/Vct/Rest/VctTrainingsRestController.php:198
+#: src/Modules/Vct/Rest/VctTrainingsRestController.php:234
+msgid "VCT training not found."
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctSessionPrintView.php:33
+msgid "Not authorised to view this VCT training."
+msgstr ""
+
+#. translators: 1: age group, 2: md context label, 3: localised date
+#. translators: 1: age group, 2: localised MD context label, 3: localised date
+#: src/Modules/Vct/Frontend/FrontendVctSessionPrintView.php:48
+#: src/Modules/Vct/Frontend/FrontendVctSessionView.php:78
+#, php-format
+msgid "VCT training — %1$s · %2$s · %3$s"
+msgstr ""
+
+#. translators: 1: total minutes, 2: total load
+#: src/Modules/Vct/Frontend/FrontendVctSessionPrintView.php:57
+#, php-format
+msgid "%1$d minutes · load %2$d"
+msgstr ""
+
+#. translators: 1: minutes, 2: intensity band
+#: src/Modules/Vct/Frontend/FrontendVctSessionPrintView.php:90
+#: src/Modules/Vct/Frontend/FrontendVctSessionView.php:163
+#, php-format
+msgid "%1$d min · band %2$d"
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctSessionPrintView.php:108
+msgid "TalentTrack — VCT planner"
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctSessionView.php:50
+msgid "VCT planner"
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctSessionView.php:53
+#: src/Modules/Vct/Frontend/FrontendVctSessionView.php:54
+msgid "VCT training not found"
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctSessionView.php:55
+msgid "This VCT training does not exist or you do not have access."
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctSessionView.php:63
+msgid "VCT training"
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctSessionView.php:64
+msgid "You do not have access to this VCT training."
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctSessionView.php:90
+msgid "Print A4"
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctSessionView.php:113
+#: src/Modules/Vct/Wizard/ReviewStep.php:53
+msgid "MD"
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctSessionView.php:114
+#: src/Modules/Vct/Wizard/ReviewStep.php:55
+msgid "min"
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctSessionView.php:115
+msgid "Load"
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctSessionView.php:119
+#: src/Modules/Vct/Wizard/ReviewStep.php:54
+#: src/Modules/Vct/Wizard/ThemeStep.php:20
+msgid "Theme"
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctSessionView.php:134
+msgid "No blocks composed for this VCT training."
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctSessionView.php:185
+msgid ""
+"Publish this draft to bind it to a team Activity (creates a new Activity, or "
+"binds to an existing one at the same slot if you confirm)."
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctSessionView.php:188
+msgid "Publish VCT training"
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctSessionView.php:196
+msgid "This VCT training is published and bound to a team Activity."
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctSessionView.php:210
+msgid ""
+"Publish action failed: session expired. Please reload the page and try again."
+msgstr ""
+
+#. translators: 1: existing activity id, 2: existing activity title
+#: src/Modules/Vct/Frontend/FrontendVctSessionView.php:223
+#, php-format
+msgid ""
+"An Activity already exists at this slot (#%1$d: %2$s). Bind this VCT "
+"training to it?"
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctSessionView.php:229
+msgid "Bind to existing Activity"
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctSessionView.php:236
+msgid "Could not create or bind the Activity. Try again."
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctSessionView.php:242
+msgid "Published. Bound Activity created."
+msgstr ""
+
+#. translators: 1: age group, 2: md context label
+#: src/Modules/Vct/Frontend/FrontendVctSessionView.php:282
+#: src/Modules/Vct/Rest/VctTrainingsRestController.php:363
+#, php-format
+msgid "VCT training — %1$s (%2$s)"
+msgstr ""
+
 #: src/Modules/Vct/Rest/VctAgeProfilesRestController.php:74
 msgid "The age profile could not be saved."
 msgstr ""
@@ -22436,24 +22571,12 @@ msgstr ""
 msgid "The schedule could not be saved."
 msgstr ""
 
-#: src/Modules/Vct/Rest/VctTrainingsRestController.php:154
-#: src/Modules/Vct/Rest/VctTrainingsRestController.php:198
-#: src/Modules/Vct/Rest/VctTrainingsRestController.php:234
-msgid "VCT training not found."
-msgstr ""
-
 #: src/Modules/Vct/Rest/VctTrainingsRestController.php:237
 msgid "Only draft trainings can be published."
 msgstr ""
 
 #: src/Modules/Vct/Rest/VctTrainingsRestController.php:255
 msgid "Could not create the bound Activity."
-msgstr ""
-
-#. translators: 1: age group, 2: md context label
-#: src/Modules/Vct/Rest/VctTrainingsRestController.php:363
-#, php-format
-msgid "VCT training — %1$s (%2$s)"
 msgstr ""
 
 #. translators: 1: age group, 2: minutes ceiling
@@ -22513,19 +22636,6 @@ msgstr ""
 #: src/Modules/Vct/Wizard/ReviewStep.php:48
 msgid ""
 "Save this VCT training as a draft. You can publish it from the detail page."
-msgstr ""
-
-#: src/Modules/Vct/Wizard/ReviewStep.php:53
-msgid "MD"
-msgstr ""
-
-#: src/Modules/Vct/Wizard/ReviewStep.php:54
-#: src/Modules/Vct/Wizard/ThemeStep.php:20
-msgid "Theme"
-msgstr ""
-
-#: src/Modules/Vct/Wizard/ReviewStep.php:55
-msgid "min"
 msgstr ""
 
 #: src/Modules/Vct/Wizard/ReviewStep.php:95
@@ -25267,7 +25377,7 @@ msgstr ""
 
 #: src/Shared/Frontend/Components/FrontendListTable.php:114
 #: src/Shared/Frontend/DashboardShortcode.php:66
-#: src/Shared/Frontend/DashboardShortcode.php:1168
+#: src/Shared/Frontend/DashboardShortcode.php:1173
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:399
 #: src/Shared/Frontend/FrontendWizardView.php:337
 msgid "Loading…"
@@ -25568,15 +25678,15 @@ msgstr ""
 msgid "Your role does not have access to tasks."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:598
+#: src/Shared/Frontend/DashboardShortcode.php:603
 msgid "Your role does not have access to team chemistry boards."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:606
+#: src/Shared/Frontend/DashboardShortcode.php:611
 msgid "Your role does not have access to team blueprints."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:641
+#: src/Shared/Frontend/DashboardShortcode.php:646
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:192
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:195
 #: src/Shared/Frontend/FrontendPlayersManageView.php:66
@@ -25584,73 +25694,73 @@ msgstr ""
 msgid "Player not found"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:802
+#: src/Shared/Frontend/DashboardShortcode.php:807
 msgid "This area is for scout users."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1013
+#: src/Shared/Frontend/DashboardShortcode.php:1018
 msgid "Section unavailable"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1016
+#: src/Shared/Frontend/DashboardShortcode.php:1021
 msgid "This section is currently unavailable."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1019
+#: src/Shared/Frontend/DashboardShortcode.php:1024
 msgid ""
 "The administrator has temporarily turned off this part of TalentTrack. "
 "Please check back later, or ask your administrator if you need access."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1042
+#: src/Shared/Frontend/DashboardShortcode.php:1047
 msgid ""
 "TalentTrack is running in demo mode. Real club records are hidden until demo "
 "mode is turned off."
 msgstr ""
 
 # #0036 — dashboard polish (helper button + DEMO pill + logo toggle + tile scale)
-#: src/Shared/Frontend/DashboardShortcode.php:1069
+#: src/Shared/Frontend/DashboardShortcode.php:1074
 msgid "DEMO"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1097
+#: src/Shared/Frontend/DashboardShortcode.php:1102
 #: src/Shared/Frontend/FrontendMySettingsView.php:38
 #: src/Shared/Frontend/FrontendMySettingsView.php:39
 msgid "My settings"
 msgstr ""
 
 # v3.110.1 — #0086 Workstream B Child 2: session management UI
-#: src/Shared/Frontend/DashboardShortcode.php:1104
+#: src/Shared/Frontend/DashboardShortcode.php:1109
 #: src/Shared/Frontend/FrontendMySessionsView.php:26
 #: src/Shared/Frontend/FrontendMySessionsView.php:27
 msgid "My sessions"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1116
+#: src/Shared/Frontend/DashboardShortcode.php:1121
 msgid "View as"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1119
+#: src/Shared/Frontend/DashboardShortcode.php:1124
 msgid "All personas (default)"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1143
+#: src/Shared/Frontend/DashboardShortcode.php:1148
 msgid "Go to Admin"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1147
+#: src/Shared/Frontend/DashboardShortcode.php:1152
 msgid "Log out"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1164
+#: src/Shared/Frontend/DashboardShortcode.php:1169
 msgid "Open full Help & Docs"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1232
+#: src/Shared/Frontend/DashboardShortcode.php:1237
 msgid "You are viewing as"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1233
+#: src/Shared/Frontend/DashboardShortcode.php:1238
 msgid "Switch back to all personas"
 msgstr ""
 
