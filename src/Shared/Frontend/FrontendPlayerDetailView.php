@@ -4,6 +4,7 @@ namespace TT\Shared\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\LookupPill;
+use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Query\PlayerFileCounts;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Authorization\AgeTier;
@@ -870,7 +871,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         echo '</tr></thead><tbody>';
         foreach ( $files as $f ) {
             echo '<tr>';
-            echo '<td>' . esc_html( (string) $f->status ) . '</td>';
+            echo '<td>' . esc_html( LookupTranslator::byTypeAndName( 'pdp_status', (string) ( $f->status ?? '' ) ) ) . '</td>';
             echo '<td>' . esc_html( (string) $f->created_at ) . '</td>';
             echo '</tr>';
         }
@@ -921,7 +922,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         foreach ( $rows as $t ) {
             $url = add_query_arg( [ 'tt_view' => 'trial-case', 'id' => (int) $t->id ], RecordLink::dashboardUrl() );
             echo '<tr>';
-            echo '<td><a class="tt-record-link" href="' . esc_url( $url ) . '">' . esc_html( (string) $t->status ) . '</a></td>';
+            echo '<td><a class="tt-record-link" href="' . esc_url( $url ) . '">' . esc_html( LookupTranslator::byTypeAndName( 'trial_case_status', (string) ( $t->status ?? '' ) ) ) . '</a></td>';
             echo '<td>' . ( ! empty( $t->start_date ) ? esc_html( (string) $t->start_date ) : '<span class="tt-muted">&mdash;</span>' ) . '</td>';
             echo '<td>' . ( ! empty( $t->end_date )   ? esc_html( (string) $t->end_date )   : '<span class="tt-muted">&mdash;</span>' ) . '</td>';
             echo '</tr>';

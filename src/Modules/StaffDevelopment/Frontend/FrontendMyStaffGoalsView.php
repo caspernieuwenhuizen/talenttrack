@@ -3,6 +3,7 @@ namespace TT\Modules\StaffDevelopment\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\StaffDevelopment\Repositories\StaffGoalsRepository;
 use TT\Shared\Frontend\FrontendViewBase;
@@ -56,8 +57,8 @@ class FrontendMyStaffGoalsView extends FrontendViewBase {
             foreach ( $goals as $g ) {
                 echo '<tr>';
                 echo '<td>' . esc_html( (string) $g->title ) . '</td>';
-                echo '<td>' . esc_html( (string) $g->priority ) . '</td>';
-                echo '<td>' . esc_html( (string) $g->status ) . '</td>';
+                echo '<td>' . esc_html( LookupTranslator::byTypeAndName( 'goal_priority', (string) ( $g->priority ?? '' ) ) ) . '</td>';
+                echo '<td>' . esc_html( LookupTranslator::byTypeAndName( 'goal_status', (string) ( $g->status ?? '' ) ) ) . '</td>';
                 echo '<td>' . esc_html( (string) ( $g->due_date ?? '—' ) ) . '</td>';
                 echo '<td>' . esc_html( (string) ( $cert_by_id[ (int) $g->cert_type_lookup_id ] ?? '—' ) ) . '</td>';
                 echo '</tr>';
