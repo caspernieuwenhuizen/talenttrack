@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: TalentTrack 4.3.9\n"
+"Project-Id-Version: TalentTrack 4.3.10\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-27T18:20:29+00:00\n"
+"POT-Creation-Date: 2026-05-27T18:31:34+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -1907,6 +1907,8 @@ msgstr ""
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:119
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:51
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:75
+#: src/Modules/Vct/Wizard/ReviewStep.php:51
+#: src/Modules/Vct/Wizard/WhenStep.php:43
 #: src/Modules/Wizards/Activity/DetailsStep.php:33
 #: src/Modules/Wizards/Activity/ReviewStep.php:68
 #: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:59
@@ -2185,6 +2187,8 @@ msgstr ""
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:199
 #: src/Modules/Stats/Admin/PlayerComparisonPage.php:247
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:31
+#: src/Modules/Vct/Wizard/ReviewStep.php:50
+#: src/Modules/Vct/Wizard/WhenStep.php:33
 #: src/Modules/Wizards/Activity/ReviewStep.php:57
 #: src/Modules/Wizards/Activity/TeamStep.php:19
 #: src/Modules/Wizards/Activity/TeamStep.php:30
@@ -4718,6 +4722,7 @@ msgstr ""
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:510
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:794
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:122
+#: src/Modules/Vct/Wizard/WhenStep.php:21
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:285
 #: src/Shared/Frontend/FrontendAuditLogView.php:378
 msgid "When"
@@ -9092,6 +9097,7 @@ msgid "Choose chart type"
 msgstr ""
 
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:156
+#: src/Modules/Vct/Wizard/PreviewStep.php:43
 #: src/Shared/Frontend/FrontendPlayersCsvImportView.php:100
 #: src/Shared/Frontend/FrontendReportWizardView.php:311
 msgid "Preview"
@@ -9345,6 +9351,7 @@ msgid "Active players"
 msgstr ""
 
 #: src/Modules/CustomWidgets/DataSources/PlayersActive.php:36
+#: src/Modules/Vct/Wizard/ReviewStep.php:52
 #: src/Shared/Frontend/Components/GuestAddModal.php:90
 msgid "Age"
 msgstr ""
@@ -12842,6 +12849,8 @@ msgid "Error"
 msgstr ""
 
 #: src/Modules/License/Admin/AccountPage.php:921
+#: src/Modules/Vct/Wizard/DurationStep.php:19
+#: src/Modules/Vct/Wizard/ReviewStep.php:55
 msgid "Duration"
 msgstr ""
 
@@ -15546,6 +15555,7 @@ msgstr ""
 
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:338
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:19
+#: src/Modules/Vct/Wizard/ReviewStep.php:41
 #: src/Modules/Wizards/Activity/ReviewStep.php:23
 #: src/Modules/Wizards/Evaluation/ReviewStep.php:25
 #: src/Modules/Wizards/Person/ReviewStep.php:22
@@ -18900,6 +18910,7 @@ msgid "Targets a certification (optional)"
 msgstr ""
 
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:90
+#: src/Modules/Vct/Wizard/ReviewStep.php:54
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:134
 #: src/Shared/Frontend/FrontendTeamBehaviourCaptureView.php:132
 msgid "— none —"
@@ -19669,6 +19680,7 @@ msgstr ""
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:457
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:719
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:482
+#: src/Modules/Vct/Wizard/PreviewStep.php:76
 msgid "Slot"
 msgstr ""
 
@@ -20437,6 +20449,7 @@ msgid "Anchor team"
 msgstr ""
 
 #: src/Modules/Tournaments/Wizard/BasicsStep.php:32
+#: src/Modules/Vct/Wizard/WhenStep.php:34
 #: src/Modules/Wizards/Activity/TeamStep.php:31
 #: src/Modules/Wizards/Player/RosterDetailsStep.php:34
 #: src/Modules/Wizards/Player/TrialDetailsStep.php:50
@@ -20513,6 +20526,7 @@ msgid "— use default —"
 msgstr ""
 
 #: src/Modules/Tournaments/Wizard/MatchesStep.php:181
+#: src/Modules/Vct/Wizard/DurationStep.php:42
 msgid "Duration (minutes)"
 msgstr ""
 
@@ -21098,6 +21112,120 @@ msgstr ""
 msgid "VCT training — %1$s (%2$s)"
 msgstr ""
 
+#. translators: 1: age group, 2: minutes ceiling
+#: src/Modules/Vct/Wizard/DurationStep.php:36
+#, php-format
+msgid "How long should this VCT training be? Age %1$s caps at %2$d minutes."
+msgstr ""
+
+#: src/Modules/Vct/Wizard/DurationStep.php:39
+msgid "How long should this VCT training be? Pick a value within the age profile ceiling."
+msgstr ""
+
+#: src/Modules/Vct/Wizard/DurationStep.php:48
+msgid "Duration must be at least 20 minutes."
+msgstr ""
+
+#. translators: 1: requested minutes, 2: age max
+#: src/Modules/Vct/Wizard/DurationStep.php:60
+#, php-format
+msgid "Requested duration %1$d exceeds the age profile ceiling of %2$d minutes."
+msgstr ""
+
+#: src/Modules/Vct/Wizard/NewVctSessionWizard.php:28
+msgid "New VCT training"
+msgstr ""
+
+#: src/Modules/Vct/Wizard/PreviewStep.php:57
+msgid "Cannot compose this VCT training:"
+msgstr ""
+
+#. translators: 1: age group, 2: MD context label, 3: total minutes, 4: total load
+#: src/Modules/Vct/Wizard/PreviewStep.php:70
+#, php-format
+msgid "%1$s · %2$s · %3$d min · load %4$d"
+msgstr ""
+
+#: src/Modules/Vct/Wizard/PreviewStep.php:77
+msgid "Exercise"
+msgstr ""
+
+#: src/Modules/Vct/Wizard/PreviewStep.php:78
+#: src/Shared/Frontend/FrontendConfigurationView.php:1127
+msgid "Min"
+msgstr ""
+
+#: src/Modules/Vct/Wizard/PreviewStep.php:79
+msgid "Band"
+msgstr ""
+
+#: src/Modules/Vct/Wizard/PreviewStep.php:103
+msgid "Notes from the engine:"
+msgstr ""
+
+#: src/Modules/Vct/Wizard/ReviewStep.php:48
+msgid "Save this VCT training as a draft. You can publish it from the detail page."
+msgstr ""
+
+#: src/Modules/Vct/Wizard/ReviewStep.php:53
+msgid "MD"
+msgstr ""
+
+#: src/Modules/Vct/Wizard/ReviewStep.php:54
+#: src/Modules/Vct/Wizard/ThemeStep.php:20
+msgid "Theme"
+msgstr ""
+
+#: src/Modules/Vct/Wizard/ReviewStep.php:55
+msgid "min"
+msgstr ""
+
+#: src/Modules/Vct/Wizard/ReviewStep.php:95
+msgid "The VCT training could not be composed. Pick another date or check the team configuration."
+msgstr ""
+
+#: src/Modules/Vct/Wizard/ReviewStep.php:101
+msgid "The VCT training was composed but not persisted."
+msgstr ""
+
+#: src/Modules/Vct/Wizard/ThemeStep.php:26
+msgid "Pick a tactical theme, or skip for a balanced session."
+msgstr ""
+
+#: src/Modules/Vct/Wizard/ThemeStep.php:27
+msgid "Tactical theme"
+msgstr ""
+
+#: src/Modules/Vct/Wizard/ThemeStep.php:28
+msgid "— no specific theme —"
+msgstr ""
+
+#: src/Modules/Vct/Wizard/ThemeStep.php:42
+msgid "That tactical theme is not in the vocabulary."
+msgstr ""
+
+#: src/Modules/Vct/Wizard/WhenStep.php:32
+msgid "Which team and date is this VCT training for?"
+msgstr ""
+
+#: src/Modules/Vct/Wizard/WhenStep.php:46
+msgid "Age group + match-day context are resolved automatically on the next step."
+msgstr ""
+
+#: src/Modules/Vct/Wizard/WhenStep.php:52
+#: src/Modules/Wizards/Activity/TeamStep.php:43
+msgid "Please pick a team."
+msgstr ""
+
+#: src/Modules/Vct/Wizard/WhenStep.php:54
+#: src/Modules/Wizards/Activity/DetailsStep.php:66
+msgid "Please pick a valid date."
+msgstr ""
+
+#: src/Modules/Vct/Wizard/WhenStep.php:57
+msgid "You do not have permission to plan VCT for this team."
+msgstr ""
+
 #: src/Modules/Vct/Workflow/VctWorkloadAggregationTaskTemplate.php:60
 msgid "VCT workload aggregation"
 msgstr ""
@@ -21113,10 +21241,6 @@ msgstr ""
 
 #: src/Modules/Wizards/Activity/DetailsStep.php:64
 msgid "Please give the activity a title."
-msgstr ""
-
-#: src/Modules/Wizards/Activity/DetailsStep.php:66
-msgid "Please pick a valid date."
 msgstr ""
 
 #: src/Modules/Wizards/Activity/DetailsStep.php:86
@@ -21176,10 +21300,6 @@ msgstr ""
 
 #: src/Modules/Wizards/Activity/TeamStep.php:29
 msgid "Which team is this activity for?"
-msgstr ""
-
-#: src/Modules/Wizards/Activity/TeamStep.php:43
-msgid "Please pick a team."
 msgstr ""
 
 #: src/Modules/Wizards/Activity/TypeStatusStep.php:52
@@ -24687,10 +24807,6 @@ msgstr ""
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:1113
 msgid "Save theme"
-msgstr ""
-
-#: src/Shared/Frontend/FrontendConfigurationView.php:1127
-msgid "Min"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:1131
