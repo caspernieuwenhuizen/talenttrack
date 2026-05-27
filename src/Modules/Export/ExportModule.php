@@ -34,6 +34,7 @@ use TT\Modules\Export\Exporters\TeamActivitiesCsvExporter;
 use TT\Modules\Export\Exporters\TeamIcalExporter;
 use TT\Modules\Export\Exporters\TeamRosterStatsCsvExporter;
 use TT\Modules\Export\Rest\ExportRestController;
+use TT\Shared\Frontend\FrontendExportsView;
 
 /**
  * ExportModule (#0063) — central authority for outbound data artefacts.
@@ -111,5 +112,13 @@ class ExportModule implements ModuleInterface {
         ExporterRegistry::register( new KpiSnapshotXlsxExporter() );
 
         ExportRestController::init();
+
+        // #939 — central exports surface form POSTs target admin-post.php
+        // to dodge the shortcode-context theme-chrome corruption. The
+        // pre-#939 handler ran inside `[talenttrack_dashboard]` after
+        // wp_head() had already flushed the page header; binary downloads
+        // were corrupted and CSV downloads were HTML-prefixed.
+        // admin-post.php bypasses the theme entirely.
+        add_action( 'admin_post_tt_export', [ FrontendExportsView::class, 'handleAdminPostExport' ] );
     }
 }
