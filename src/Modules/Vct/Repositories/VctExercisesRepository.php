@@ -81,6 +81,123 @@ class VctExercisesRepository {
         return array_map( [ $this, 'hydrate' ], $rows );
     }
 
+    /**
+     * List all exercises (optionally filtered by category / archived
+     * state). Used by the library editor (#950) for the catalogue
+     * browse view.
+     *
+     * @return list<array<string,mixed>>
+     */
+    public function listAll( ?string $category = null, bool $include_archived = false ): array {
+        $sql = "SELECT * FROM {$this->table} WHERE club_id = %d";
+        $params = [ CurrentClub::id() ];
+        if ( ! $include_archived ) $sql .= " AND archived_at IS NULL";
+        if ( $category !== null && $category !== '' ) {
+            $sql .= " AND category = %s";
+            $params[] = $category;
+        }
+        $sql .= " ORDER BY category ASC, intensity_band ASC, name_canonical ASC";
+        $rows = $this->wpdb->get_results( $this->wpdb->prepare( $sql, $params ) );
+        if ( ! is_array( $rows ) ) return [];
+        return array_map( [ $this, 'hydrate' ], $rows );
+    }
+
+    /**
+     * Create a new exercise. Returns the new id or 0 on failure.
+     *
+     * @param array<string,mixed> $data
+     */
+    public function create( array $data ): int {
+        $row = $this->normalisePayload( $data );
+        $row['club_id']       = CurrentClub::id();
+        $row['uuid']          = wp_generate_uuid4();
+        $row['seed_revision'] = 0;
+        $ok = $this->wpdb->insert( $this->table, $row );
+        return $ok === false ? 0 : (int) $this->wpdb->insert_id;
+    }
+
+    /**
+     * Partial update of an exercise. Returns true on success.
+     *
+     * @param array<string,mixed> $patch
+     */
+    public function update( int $id, array $patch ): bool {
+        if ( $id <= 0 ) return false;
+        $clean = $this->normalisePayload( $patch, true );
+        if ( ! $clean ) return true;
+        $ok = $this->wpdb->update(
+            $this->table,
+            $clean,
+            [ 'id' => $id, 'club_id' => CurrentClub::id() ]
+        );
+        return $ok !== false;
+    }
+
+    /**
+     * Soft-delete an exercise. The engine's findCandidates() already
+     * filters `archived_at IS NULL`, so archiving removes the exercise
+     * from selection without losing history. Returns true on success.
+     */
+    public function archive( int $id ): bool {
+        if ( $id <= 0 ) return false;
+        $ok = $this->wpdb->update(
+            $this->table,
+            [ 'archived_at' => current_time( 'mysql', true ) ],
+            [ 'id' => $id, 'club_id' => CurrentClub::id() ]
+        );
+        return $ok !== false;
+    }
+
+    /**
+     * Normalise + filter the create/update payload. When
+     * $partial = true, missing keys are skipped (PATCH semantics);
+     * when false, missing required keys default to safe values
+     * (POST semantics).
+     *
+     * @param array<string,mixed> $data
+     * @return array<string,mixed>
+     */
+    private function normalisePayload( array $data, bool $partial = false ): array {
+        $out = [];
+        $map_str  = [ 'code', 'name_canonical', 'category', 'sided_size', 'verheijen_classification' ];
+        $map_int  = [ 'intensity_band', 'duration_minutes_min', 'duration_minutes_max', 'players_min', 'players_max', 'age_min', 'age_max' ];
+        $map_md   = [ 'md_minus_4', 'md_minus_3', 'md_minus_2', 'md_minus_1', 'md_zero', 'md_plus_1', 'md_plus_2', 'md_none' ];
+        $nullable = [ 'tactical_theme', 'sided_size', 'verheijen_classification', 'diagram_url' ];
+
+        foreach ( $map_str as $k ) {
+            if ( array_key_exists( $k, $data ) ) {
+                $v = $data[ $k ];
+                $out[ $k ] = $v === null ? null : (string) $v;
+                if ( in_array( $k, $nullable, true ) && $out[ $k ] === '' ) $out[ $k ] = null;
+            } elseif ( ! $partial ) {
+                if ( in_array( $k, $nullable, true ) ) {
+                    $out[ $k ] = null;
+                } elseif ( $k === 'code' || $k === 'name_canonical' || $k === 'category' ) {
+                    // required for POST — caller must supply.
+                }
+            }
+        }
+        if ( array_key_exists( 'tactical_theme', $data ) ) {
+            $tv = $data['tactical_theme'];
+            $out['tactical_theme'] = ( $tv === null || $tv === '' ) ? null : (string) $tv;
+        }
+        if ( array_key_exists( 'diagram_url', $data ) ) {
+            $dv = $data['diagram_url'];
+            $out['diagram_url'] = ( $dv === null || $dv === '' ) ? null : (string) $dv;
+        }
+        if ( array_key_exists( 'equipment_json', $data ) ) {
+            $ev = $data['equipment_json'];
+            $out['equipment_json'] = is_array( $ev ) ? wp_json_encode( $ev ) : (string) $ev;
+        }
+        foreach ( $map_int as $k ) {
+            if ( array_key_exists( $k, $data ) ) $out[ $k ] = (int) $data[ $k ];
+        }
+        foreach ( $map_md as $k ) {
+            if ( array_key_exists( $k, $data ) ) $out[ $k ] = ! empty( $data[ $k ] ) ? 1 : 0;
+        }
+        return $out;
+    }
+
     /** @return array<string,mixed>|null */
     public function find( int $id ): ?array {
         if ( $id <= 0 ) return null;

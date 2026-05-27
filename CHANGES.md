@@ -1,55 +1,76 @@
-# TalentTrack v4.3.11 — VCT coach session detail view + A4 print sub-render (closes #948)
+# TalentTrack v4.3.12 — VCT exercise library editor + wire REST CRUD (closes #950)
 
 ## Context
 
-The wizard from v4.3.10 redirects to `?tt_view=vct-session&id=N` on submit. That URL 404'd until this ship. v4.3.11 makes the wizard's output viewable, publishable, and printable.
+The v4.3.9 starter catalogue ships methodology-unreviewed. The spec's safety gate says HoD should audit before broader rollout. v4.3.12 gives them the surface to do that — plus closes the loop on the three `VctExercisesRestController` endpoints stubbed as `501 not_implemented` in v4.3.6.
 
 ## What changed
 
-### Coach mobile session view — `?tt_view=vct-session&id=N`
+### Library editor — `?tt_view=vct-library`
 
-`src/Modules/Vct/Frontend/FrontendVctSessionView.php`. Renders:
+`src/Modules/Vct/Frontend/FrontendVctLibraryView.php`:
 
-- **Header chips** (mobile-first horizontal flex): age group, MD context label, total minutes, total load, status, optional tactical theme.
-- **One card per block** at 360px width: sequence number, slot category (translated via `vct_exercise_category` lookup), picked exercise name, Dutch coaching points (resolved via `VctCoachingPointsRepository::listForExercise()` per the user's locale), duration, intensity band.
-- **Publish CTA** (for draft sessions; cap-gated): inline form POST with nonce. Routes through the same path as `POST /vct/sessions/{id}/publish` — looks for an existing Activity at the same slot, falls back to `409 conflict_existing_activity` UI flow (re-renders with a "bind to existing?" confirm form, re-posts with `bind_existing=1`).
-- **Status notice** for published / completed / archived sessions.
+- **Filter chip row** — category chips (one per `vct_exercise_category` lookup value) + "Show archived" toggle.
+- **Inline "Add exercise" form** (collapsible `<details>` summary). Full create payload: code (slug), name, category, theme, intensity band, age range, duration min/max, players min/max, MD context bit-flags.
+- **Table** — name + code slug, category, theme, intensity band, age range, status (active / archived), inline Archive button (with `confirm()`).
+- **POST handler** in the same view (form submits back to itself) — calls the repo directly. Nonce-guarded per action.
 
-Cap layer: `tt_vct_plan` via `AuthorizationService::userCanOrMatrix()`. Scope layer: `canPlanForTeam()` against the session's `team_id`. Standard breadcrumbs + `tt_back` pill per CLAUDE.md §5.
+Permission split:
 
-### A4 print sub-render — `?tt_view=vct-session&id=N&print=a4`
+- Read on `tt_vct_plan` — coaches can browse.
+- Write on `tt_vct_admin_library` — HoD/admin only. Write buttons only render for users with the cap.
 
-`src/Modules/Vct/Frontend/FrontendVctSessionPrintView.php`. Coach-clipboard layout:
+Save+Cancel exempt per CLAUDE.md §6 (b): inline lookup-editor pattern; the list itself is the cancel target.
 
-- No breadcrumbs, no dashboard chrome (per spec § UI surfaces: *"sub-renders of the session view emit no breadcrumbs of their own"*).
-- One block per `<li>` with `page-break-inside: avoid` so the browser doesn't split a block mid-page.
-- Print-media CSS hides the dashboard chrome (`@page { size: A4 portrait; margin: 15mm }`).
-- Same cap + scope check as the main view.
+### REST CRUD — closing the v4.3.6 stubs
 
-A6 pocket-card print deferred to Phase 2 polish.
+`VctExercisesRestController` replaces the three 501-stub handlers with real implementations:
+
+| Endpoint | Cap | Handler |
+|---|---|---|
+| `POST /vct/exercises` | `tt_vct_admin_library` | `create()` |
+| `PATCH /vct/exercises/{id}` | `tt_vct_admin_library` | `patch()` |
+| `DELETE /vct/exercises/{id}` | `tt_vct_admin_library` | `archive()` (soft-delete) |
+
+Validates required fields (`code`, `name_canonical`, `category`) and range checks (`intensity_band` 1–10, `age_min` ≤ `age_max`). Sanitises every string field via `sanitize_text_field` / `sanitize_key`; MD flags coerced to 0/1; equipment accepted as array or JSON string.
+
+### Repository extensions
+
+`VctExercisesRepository` gains:
+
+- `listAll($category?, $include_archived)` — for the library table view.
+- `create($data)` — auto-generates `uuid`, sets `seed_revision = 0` (distinct from the starter seed's `seed_revision = 1` so a future canonical-catalogue migration can `UPDATE WHERE seed_revision < N AND archived_at IS NULL` without overwriting operator-created rows).
+- `update($id, $patch)` — partial update; club-scoped WHERE.
+- `archive($id)` — sets `archived_at = now`; engine's `findCandidates()` already filters NULL.
+
+All `club_id = CurrentClub::id()` scoped per the tenancy guarantee.
 
 ### Dispatcher wiring
 
-`DashboardShortcode.php` gets a new `case 'vct-session'` alongside the existing `scouting-visit` cases. The print sub-render is reached via the same slug + `?print=a4` (the main view delegates internally).
+New `case 'vct-library'` in `DashboardShortcode.php` alongside the v4.3.11 `vct-session` case.
 
 ## Out of scope
 
-- A6 pocket-card print — separate polish ship.
-- Hover-to-swap exercise affordance — Phase 2.
-- Per-block edit UI in the detail view — PATCH endpoint exists; full inline editing lands in a polish ship.
+- **Coaching-points editor** — HoD edits cues via the existing Lookups + translations admin in MVP (separate ship if there's appetite).
+- **Diagram upload** — needs object-storage integration (Phase 2; spec § File / asset uploads).
+- **Bulk import / export** of the catalogue (Phase 2).
+- **Per-row inline edit form** — the table renders a read-only row; edits go through the inline Add form (which can take the same `code` to overwrite — actually no, code is UNIQUE so editing requires PATCH via REST or inline edit form). For now, HoD archives the bad one + adds a replacement. A proper edit-in-row form lands in a polish ship.
 
 ## Validation
 
-- Wizard submit → land on `?tt_view=vct-session&id=N` → view renders.
-- Each block card shows the picked exercise from the v4.3.9 starter catalogue + its Dutch coaching cues.
-- Publish button creates an Activity and rebinds; second click on a conflict surface bind-confirm.
-- `?print=a4` → coach-clipboard layout; `Ctrl+P` produces a clean single-A4 sheet with dashboard chrome hidden.
-- Cap denial: a coach from team T' visiting `?tt_view=vct-session&id=N` where the session belongs to team T → "Not authorised" notice.
+- Visit `?tt_view=vct-library` as HoD/admin — view renders, table shows 25 starter exercises.
+- Filter by category — URL updates, table filters.
+- Toggle "Show archived" — archived rows surface (initially empty; archive one to verify).
+- Add exercise — POST succeeds; new row appears in the table.
+- Archive exercise — confirm prompt; row drops from default view; surfaces under "Show archived".
+- Run `POST /wp-json/talenttrack/v1/vct/exercises` directly with curl — returns 200 + new row (was 501 before).
+- Run with missing `code` — returns 400 + structured error.
+- Run as a coach (no `tt_vct_admin_library`) — returns 403.
 
 ## Why this is `patch`, not `minor`
 
-UI surface within the 4.3 minor. No schema, no caps, no REST. Patch bump per `DEVOPS.md`.
+UI + REST completion within the 4.3 minor. No schema change, no new caps, no new contract. Patch bump per `DEVOPS.md`.
 
 ## Bumped
 
-`talenttrack.php` Version + `TT_VERSION` + `readme.txt` Stable tag: `4.3.10` → `4.3.11`.
+`talenttrack.php` Version + `TT_VERSION` + `readme.txt` Stable tag: `4.3.11` → `4.3.12`.

@@ -507,6 +507,10 @@ class DashboardShortcode {
             case 'vct-session':
                 \TT\Modules\Vct\Frontend\FrontendVctSessionView::render( $user_id, $is_admin );
                 return true;
+            // #0095 VCT-11 (#950) — HoD exercise library editor.
+            case 'vct-library':
+                \TT\Modules\Vct\Frontend\FrontendVctLibraryView::render( $user_id, $is_admin );
+                return true;
             default:
                 return false;
         }
