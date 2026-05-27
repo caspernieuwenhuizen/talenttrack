@@ -99,7 +99,8 @@ class FrontendMatchPrepView extends FrontendViewBase {
             [ 'label' => __( 'Activities', 'talenttrack' ), 'href' => add_query_arg( [ 'tt_view' => 'activities' ], remove_query_arg( [ 'tt_view', 'activity_id' ] ) ) ],
         ] );
 
-        self::enqueueAssets();
+        parent::enqueueAssets();
+        self::enqueueViewAssets();
 
         ?>
         <h1 class="tt-fview-title" style="margin: 6px 0 18px; font-size: 22px;"><?php echo esc_html( $title ); ?></h1>
@@ -263,7 +264,7 @@ class FrontendMatchPrepView extends FrontendViewBase {
      * Enqueue the form's scoped CSS + JS. Stable handle names so the
      * page can also unenqueue them on cleanup.
      */
-    private static function enqueueAssets(): void {
+    private static function enqueueViewAssets(): void {
         wp_enqueue_style(
             'tt-match-prep',
             TT_PLUGIN_URL . 'assets/css/frontend-match-prep.css',
