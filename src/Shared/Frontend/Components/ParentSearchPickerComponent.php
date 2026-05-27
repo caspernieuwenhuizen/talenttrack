@@ -73,9 +73,9 @@ class ParentSearchPickerComponent {
 
         $create_url = '';
         if ( $show_create ) {
-            $create_args = [ 'tt_view' => 'wizard', 'slug' => 'new-person', 'role_hint' => 'parent' ];
+            $create_args = [ 'role_hint' => 'parent' ];
             if ( $return_to !== '' ) $create_args['return_to'] = $return_to;
-            $create_url = (string) add_query_arg( $create_args, RecordLink::dashboardUrl() );
+            $create_url = \TT\Shared\Wizards\WizardEntryPoint::buildUrl( 'new-person', $create_args );
         }
 
         ob_start();

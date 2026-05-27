@@ -1,0 +1,120 @@
+name: Wizard form lint
+
+# #940 — guard the two classes of bug that 404'd the wizard repeatedly
+# on the pilot install:
+#
+#   Scan A — Wizard step input fields cannot use WP-reserved public
+#   query var names. WP::parse_request() reads public query vars from
+#   $_POST before $_GET, so a wizard field named `name` (or any of ~25
+#   other reserved names) caused the wizard's step transition POST to
+#   404 before [talenttrack_dashboard] ran.
+#
+#   Scan B — Wizard URLs must go through WizardEntryPoint::urlFor() /
+#   ::buildUrl(). Hand-rolled `add_query_arg(['tt_view'=>'wizard',
+#   'slug'=>…])` re-introduced the legacy `slug` query var that
+#   collided with third-party plugin registrations of the same name
+#   (Yoast SEO + several caching plugins), 404'ing the entry URL.
+
+on:
+  pull_request:
+    paths:
+      - 'src/**/*.php'
+      - '.github/workflows/wizard-form-lint.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'src/**/*.php'
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Wizard form-field + URL safety
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Scan A — reserved-name fields in wizard steps
+        shell: bash
+        run: |
+          set -e
+          # WP public query vars (from wp-includes/class-wp.php — every
+          # name WP::parse_request() reads from $_POST before $_GET).
+          RESERVED='m|p|posts|w|cat|withcomments|withoutcomments|s|search|exact|sentence|calendar|page|paged|more|tb|pb|author|order|orderby|name|feed|tag|taxonomy|term|cpage|attachment|attachment_id|year|monthnum|day|hour|minute|second|comments_popup|custom'
+
+          # Wizard step files live under three known roots; future
+          # additions should be added here. The lint runs on every
+          # *Step.php anywhere under src/Modules/Wizards/, the
+          # tournaments wizard folder, the MatchPrep wizards folder,
+          # and the VCT wizard folder.
+          WIZARD_GLOBS=(
+            "src/Modules/Wizards"
+            "src/Modules/Tournaments/Wizard"
+            "src/Modules/MatchPrep/Wizards"
+            "src/Modules/Vct/Wizard"
+          )
+
+          FAIL=0
+          for root in "${WIZARD_GLOBS[@]}"; do
+            if [ ! -d "$root" ]; then continue; fi
+            # Match <input/select/textarea name="<reserved>"> in any
+            # quote style. Allow <button name="…"> since buttons don't
+            # populate query vars in the same way (and the wizard's
+            # action buttons all carry name="tt_wizard_action").
+            HITS=$(grep -REn "<(input|select|textarea)[^>]*\\sname=[\"']($RESERVED)[\"']" "$root" --include='*Step.php' || true)
+            if [ -n "$HITS" ]; then
+              echo "::error::Wizard step field uses a WP-reserved public query var name (would 404 the step POST)."
+              echo "$HITS"
+              FAIL=1
+            fi
+          done
+
+          if [ "$FAIL" = "1" ]; then
+            echo ""
+            echo "These wizard step files declare an input / select / textarea"
+            echo "named after a WP-reserved public query var. WP::parse_request()"
+            echo "reads these from \$_POST before \$_GET, marks the request"
+            echo "is_singular, and 404s before [talenttrack_dashboard] runs."
+            echo ""
+            echo "Fix: rename the field. The wizard state key can stay; only"
+            echo "the HTML \`name=\` needs to change."
+            echo "See #940 for the architectural background."
+            exit 1
+          fi
+          echo "OK — no reserved-name wizard fields found."
+
+      - name: Scan B — wizard URLs via add_query_arg outside the helper
+        shell: bash
+        run: |
+          set -e
+          # Pattern matches `add_query_arg([..., 'tt_view' => 'wizard', ...])`
+          # or the canonical reverse order. Captures the legacy `slug=`
+          # writes the spec is closing.
+          PATTERN="add_query_arg\\(\\s*\\[[^\\]]*['\"]tt_view['\"]\\s*=>\\s*['\"]wizard['\"]"
+
+          ALLOW_PATHS=(
+            "src/Shared/Wizards/WizardEntryPoint\\.php"
+            "src/Shared/Frontend/FrontendWizardView\\.php"
+            "src/Modules/Mfa/Auth/MfaLoginGuard\\.php"
+          )
+
+          HITS=$(grep -REn "$PATTERN" src/ --include='*.php' || true)
+          if [ -n "$HITS" ]; then
+            FILTERED="$HITS"
+            for allow in "${ALLOW_PATHS[@]}"; do
+              FILTERED=$(echo "$FILTERED" | grep -Ev "$allow" || true)
+            done
+            if [ -n "$FILTERED" ]; then
+              echo "::error::Wizard URL built with add_query_arg outside the central helper (would re-introduce the slug= query-var collision)."
+              echo "$FILTERED"
+              echo ""
+              echo "Fix: use WizardEntryPoint::buildUrl(\$wizard_slug, \$extra_args)"
+              echo "(or ::urlFor with a fallback). The helper namespaces every"
+              echo "query var (tt_view + tt_wizard) so future WP public-query-var"
+              echo "registrations can't collide."
+              echo "See #940 + #901 for the architectural background."
+              exit 1
+            fi
+          fi
+          echo "OK — no hand-rolled wizard URLs found outside the helper."

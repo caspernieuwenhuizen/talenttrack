@@ -11,6 +11,7 @@ use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\FrontendThreadView;
 use TT\Shared\Frontend\Components\RecordLink;
 use TT\Shared\Frontend\FrontendViewBase;
+use TT\Shared\Wizards\WizardEntryPoint;
 
 /**
  * FrontendTeamBlueprintsView — coach-authored, persisted lineups
@@ -109,11 +110,7 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
         $base_url   = remove_query_arg( [ 'team_id', 'id', 'action' ] );
 
         if ( $can_manage ) {
-            $new_url = add_query_arg( [
-                'tt_view' => 'wizard',
-                'slug'    => 'new-team-blueprint',
-                'team_id' => (int) $team->id,
-            ], RecordLink::dashboardUrl() );
+            $new_url = WizardEntryPoint::buildUrl( 'new-team-blueprint', [ 'team_id' => (int) $team->id ] );
             echo '<p style="margin:0 0 16px;">';
             echo '<a class="tt-btn tt-btn-primary" href="' . esc_url( $new_url ) . '">'
                 . esc_html__( '+ New blueprint', 'talenttrack' ) . '</a>';
