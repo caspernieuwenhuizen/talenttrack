@@ -1,73 +1,67 @@
-# TalentTrack v4.3.8 — `Lookup translation lint` CI gate goes green (closes #923)
+# TalentTrack v4.3.9 — VCT slim starter exercise catalogue — 25 exercises, NL + EN canonical, methodology unreviewed (closes #941)
 
 ## Context
 
-The `.github/workflows/lookup-translation-lint.yml` gate ("No raw-echo of lookup-backed fields") had been **failing on `main` continuously since pre-v4.2.0**. Every PR merged in that window (including all eight VCT-epic ships in v4.3.0–v4.3.7) inherited the red gate even though the violations were pre-existing.
+The VCT Phase 1 epic (#905) closed at v4.3.7 with the data + engine + REST layer complete, but `tt_vct_exercises` shipped empty: `POST /vct/sessions/generate` returned sessions with `exercise_id = null` on every slot because there were no candidates to select.
 
-On non-default locales (nl_NL / fr_FR / de_DE / es_ES), the seven offending sites rendered the raw English seed name (`'open'`, `'pending'`, `'high'`) instead of the operator's localised label (`'Open'` / `'In behandeling'` / `'Hoog'`). #923 is the bridge fix; #806 stays as the architectural endgame (push the translator into the repository SELECT layer so view code can't bypass by construction).
+This ship populates a **slim starter catalogue** (25 exercises) so the wizard becomes usable end-to-end today. The spec's safety gate ("HoD/pilot-coach review of all 80 exercises before catalogue migration ships") is **explicitly deferred** for this starter; a pilot-coach audit before broader rollout is strongly recommended.
 
 ## What changed
 
-Seven `esc_html( (string) $row->status )` / `…->priority )` echo sites routed through `LookupTranslator::byTypeAndName()`:
+Migration `0128_vct_seed_exercises_starter.php` inserts 25 rows into `tt_vct_exercises` plus 2-3 coaching points per exercise in `tt_vct_coaching_points` with Dutch text in `tt_translations`.
 
-| File:line | Field | Lookup type |
-|---|---|---|
-| `src/Shared/Frontend/FrontendTrialCaseView.php:428` | `$g->status` | `goal_status` |
-| `src/Shared/Frontend/FrontendTrialCaseView.php:428` | `$g->priority` | `goal_priority` |
-| `src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:59` | `$g->priority` | `goal_priority` |
-| `src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:60` | `$g->status` | `goal_status` |
-| `src/Shared/Frontend/FrontendPlayerDetailView.php:873` | `$f->status` (PDP files) | `pdp_status` |
-| `src/Shared/Frontend/FrontendPlayerDetailView.php:924` | `$t->status` (trial cases) | `trial_case_status` |
-| `src/Modules/Pdp/Frontend/FrontendPdpManageView.php:784` | `$a->status` (activities chunk) | `activity_status` |
-| `src/Modules/Pdp/Frontend/FrontendPdpManageView.php:804` | `$g->status` (goal changes chunk) | `goal_status` |
+### Distribution
 
-All eight call sites (seven were in the spec, with one line carrying two violations) mirror the `PdpPrintRouter.php:203-204` gold-standard pattern:
+| Category | Count |
+|---|---|
+| warmup | 5 |
+| technical | 5 |
+| sided_game | 7 |
+| conditioning | 4 |
+| finishing | 2 |
+| cool_down | 2 |
+| **Total** | **25** |
 
-```php
-esc_html( LookupTranslator::byTypeAndName( <type>, (string) ( $row->field ?? '' ) ) )
-```
+### Coverage
 
-The `LookupTranslator` import is added to each file that didn't already have it.
+- **Age range:** warmup + cool-down range U10-U14; technical + sided_game lean U11-U14; conditioning + finishing U12-U14 (no U10 conditioning per Appendix A's pre-puberty restriction).
+- **MD context:** most exercises tagged for `MD-4` / `MD-3` / `MD-2` / `MD-1` / `NONE`; recovery-focused exercises (low-intensity conditioning + cool-down) tagged for `MD+1` / `MD+2`.
+- **Theme:** technical/sided_game exercises carry theme tags (`build_up`, `pressing`, `transition`, `counter`, `defending`, `possession`, `1v1_duels`, `mixed`, `finishing`) so `TacticalThemeRule` can filter when the coach picks a theme; warmup + cool-down stay theme-agnostic.
+- **Verheijen classification:** conditioning exercises tagged with `football_endurance` so `ExerciseSelectionPass` can score them correctly.
 
-## Spec deviation
+### Bilingual handling
 
-The issue body recommended option (a): a new `LabelTranslator::pdpFileStatus()` helper for the `tt_pdp_files.status` site, on the premise that the column "isn't currently backed by `tt_lookups`". That premise was outdated — migration `0049_status_pill_convergence.php` seeded a `pdp_status` lookup type with the four canonical values (`pending`, `in_progress`, `completed`, `cancelled`), and `LookupPill::render('pdp_status', ...)` already consumes it elsewhere in the PDP module. Routing the violation through `LookupTranslator::byTypeAndName('pdp_status', ...)` is the consistent fix; it avoids inventing a redundant helper for a lookup type that's already live infrastructure.
+Each coaching point row has a `code` slug (e.g. `'first_touch_away'`) and a Dutch text row in `tt_translations`. English canonical text comes from the `COALESCE(t.value, cp.code)` fallback in `VctCoachingPointsRepository::listForExercise()` — so on English-locale installs the coach sees the slug as the fallback (clearly readable: e.g. `"first touch away"`). For a polished EN canonical, the operator can add `locale='en_US'` rows via the Lookups admin; for the starter ship we rely on the slug fallback to keep the migration manageable. FR / DE / ES translations are deferred; those locales fall through to the English slug fallback as well, per the existing translation pattern.
 
-Net result: zero new helper methods, zero new translatable strings, zero schema changes.
+## Caveats — please read before broader rollout
 
-## Workflow regex bug fix (also in this ship)
+This is **not** the canonical 80-exercise expert-curated catalogue the spec describes. The starter exercises:
 
-While verifying the post-fix state, the CI gate's pattern #3 still flagged false positives across the entire codebase even after every legitimate site was clean. Root cause: a regex bug in `.github/workflows/lookup-translation-lint.yml` itself —
+1. Were authored without HoD or pilot-coach review.
+2. Have generic coaching cues, not Verheijen-flavoured precision phrasings.
+3. May include intensity attributions, age ranges, or MD-context tags that don't match your academy's methodology.
 
-```diff
-- "esc_html\\(\\s*ucfirst\\(\\s*\\(string\\)\\s*\\\$[a-zA-Z_]+->\\(status|priority|decision\\)"
-+ "esc_html\\(\\s*ucfirst\\(\\s*\\(string\\)\\s*\\\$[a-zA-Z_]+->(status|priority|decision)"
-```
+The spec's § Risks + mitigations is explicit: *"Mitigation: HoD/pilot-coach review of all 80 exercises before catalogue migration ships"*. The starter ship trades that gate for time-to-usable-wizard; the eventual canonical VCT-8 ship will replace or expand this set after coach review.
 
-The escaped `\(` `\)` around the alternation were literal parens (per ERE), so `|` became top-level alternation between three alternatives: `esc_html…->\(status`, the bare word `priority`, and `decision\)`. Alternative #2 matched the word "priority" anywhere — comments, SQL strings, variable names — explaining why the gate had been red on `main` for months even when none of the actual `esc_html()` sites bypassed the translator. Unescaped to make the alternation a proper group, and the pattern now matches its documented intent.
+**Recommended audit workflow once the library editor (VCT-11) ships:**
 
-This fix is the second necessary piece of the lint-gate restoration: without it, even a perfectly clean codebase would have failed pattern #3 on every install.
+1. Walk through the 25 exercises with the HoD.
+2. Flag any that don't match the academy's methodology.
+3. Replace via the library editor inline; or archive the bad ones (`archived_at`) and add fresh ones.
+4. When the canonical 80-exercise catalogue lands, the migration's `seed_revision = 1` lets a future migration use `UPDATE … WHERE seed_revision < N AND archived_at IS NULL` to bring uncustomised installs current without overwriting operator edits.
 
 ## Validation
 
-Locally ran the workflow's exact regex set (with the patched pattern #3) against the post-fix tree:
+- After migration: `SELECT category, COUNT(*) FROM wp_tt_vct_exercises WHERE club_id = 1 GROUP BY category` returns 25 rows in the documented distribution.
+- `SELECT COUNT(*) FROM wp_tt_vct_coaching_points WHERE club_id = 1` returns 50-75 rows (2-3 per exercise).
+- `SELECT COUNT(*) FROM wp_tt_translations WHERE entity_type = 'vct_coaching_point' AND locale = 'nl_NL'` matches the coaching-point row count.
+- `POST /wp-json/talenttrack/v1/vct/sessions/generate` for U13 / theme=pressing returns a session whose blocks have non-null `exercise_id` for most slots.
+- Re-running the migration: row counts unchanged (existence-check on `(club_id, code)` per row).
 
-```
-RISKY=(
-  'esc_html\(\s*\(string\)\s*\$[a-zA-Z_]+->status\s*[)?]'
-  'esc_html\(\s*\(string\)\s*\$[a-zA-Z_]+->priority\s*[)?]'
-  'esc_html\(\s*ucfirst\(\s*\(string\)\s*\$[a-zA-Z_]+->\(status|priority|decision\)'
-  'esc_html\(\s*\$[a-zA-Z_]+->priority\s*\)'
-  'esc_html\(\s*\$[a-zA-Z_]+->status\s*\)'
-)
-```
+## Why this is `patch`, not `minor`
 
-Zero hits outside the allow-list (`src/Modules/Export/Exporters/*CsvExporter.php`, `*JsonExporter.php`). The `No raw-echo of lookup-backed fields` CI check on the resulting branch will flip from `failure` to `success` on the merge commit.
-
-## Why this is `patch`, not anything bigger
-
-Bug fix. No behavioural change for English-locale installs; non-English-locale users see the localised label everywhere these tables render. No schema, no new caps, no new contracts. Patch bump per `DEVOPS.md`.
+Seed data within the 4.3 minor; no schema change, no contract change. Patch bump per `DEVOPS.md`.
 
 ## Bumped
 
-`talenttrack.php` Version + `TT_VERSION` + `readme.txt` Stable tag: `4.3.7` → `4.3.8`.
+`talenttrack.php` Version + `TT_VERSION` + `readme.txt` Stable tag: `4.3.8` → `4.3.9`.
