@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  */
 final class WizardEntryPoint {
 
-    public static function urlFor( string $wizard_slug, string $fallback_url ): string {
+    public static function urlFor( string $wizard_slug, string $fallback_url, array $extra_args = [] ): string {
         if ( ! WizardRegistry::isAvailable( $wizard_slug ) ) return $fallback_url;
         // #901 — query var is `tt_wizard`, not `slug`. The previous
         // `slug` name collided with public query vars registered by
@@ -24,7 +24,24 @@ final class WizardEntryPoint {
         // and 404 because no post matched the wizard's slug. All TT
         // query vars are now namespaced (`tt_view`, `tt_back`,
         // `tt_wizard`).
-        return add_query_arg( [ 'tt_view' => 'wizard', 'tt_wizard' => $wizard_slug ], self::dashboardBaseUrl() );
+        $args = array_merge(
+            [ 'tt_view' => 'wizard', 'tt_wizard' => $wizard_slug ],
+            $extra_args
+        );
+        // Defensive: strip the legacy `slug` if a caller still passes it
+        // during migration. The current contract is `tt_wizard`.
+        unset( $args['slug'] );
+        return add_query_arg( $args, self::dashboardBaseUrl() );
+    }
+
+    /**
+     * #940 — caller-friendly variant. Same as `urlFor()` but assumes
+     * an empty string fallback (most callers can't sensibly build a
+     * non-wizard alternate URL for their flow). Use when the manage-
+     * view caller doesn't have a flat-form URL to hand.
+     */
+    public static function buildUrl( string $wizard_slug, array $extra_args = [] ): string {
+        return self::urlFor( $wizard_slug, '', $extra_args );
     }
 
     /**

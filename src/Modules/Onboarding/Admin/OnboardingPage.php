@@ -164,7 +164,7 @@ class OnboardingPage {
         </p>
         <?php if ( class_exists( '\\TT\\Shared\\Wizards\\WizardRegistry' ) && \TT\Shared\Wizards\WizardRegistry::isAvailable( 'new-team' ) ) : ?>
             <p style="max-width:680px;">
-                <a class="button" href="<?php echo esc_url( add_query_arg( [ 'tt_view' => 'wizard', 'slug' => 'new-team' ], home_url( '/' ) ) ); ?>" target="_blank" rel="noopener">
+                <a class="button" href="<?php echo esc_url( \TT\Shared\Wizards\WizardEntryPoint::buildUrl( 'new-team' ) ); ?>" target="_blank" rel="noopener">
                     <?php esc_html_e( 'Use the new-team wizard instead', 'talenttrack' ); ?>
                 </a>
                 <span class="description"> &mdash; <?php esc_html_e( 'opens the frontend wizard with staff assignment built in. Come back here when done.', 'talenttrack' ); ?></span>

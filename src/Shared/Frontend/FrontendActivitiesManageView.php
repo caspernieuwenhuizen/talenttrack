@@ -174,14 +174,12 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 // mark-attendance wizard's `tt_edit_evaluations`.
                 $is_completed = ( (string) ( $session->activity_status_key ?? '' ) === 'completed' );
                 if ( $is_completed && current_user_can( 'tt_edit_evaluations' ) ) {
-                    $rate_url = add_query_arg(
+                    $rate_url = \TT\Shared\Wizards\WizardEntryPoint::buildUrl(
+                        'mark-attendance',
                         [
-                            'tt_view'     => 'wizard',
-                            'slug'        => 'mark-attendance',
                             'activity_id' => (int) $session->id,
                             'restart'     => 1,
-                        ],
-                        \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+                        ]
                     );
                     $detail_actions[] = [
                         'label' => __( 'Continue rating', 'talenttrack' ),

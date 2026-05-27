@@ -26,7 +26,7 @@ final class BasicsStep implements WizardStepInterface {
             'age_group', CurrentClub::id()
         ) );
 
-        echo '<label><span>' . esc_html__( 'Team name', 'talenttrack' ) . ' *</span><input type="text" name="name" required value="' . esc_attr( (string) ( $state['name'] ?? '' ) ) . '"></label>';
+        echo '<label><span>' . esc_html__( 'Team name', 'talenttrack' ) . ' *</span><input type="text" name="team_name" required value="' . esc_attr( (string) ( $state['name'] ?? '' ) ) . '"></label>';
 
         echo '<label><span>' . esc_html__( 'Age group', 'talenttrack' ) . '</span><select name="age_group">';
         echo '<option value="">' . esc_html__( '— pick an age group —', 'talenttrack' ) . '</option>';
@@ -41,7 +41,7 @@ final class BasicsStep implements WizardStepInterface {
     }
 
     public function validate( array $post, array $state ) {
-        $name = isset( $post['name'] ) ? sanitize_text_field( wp_unslash( (string) $post['name'] ) ) : '';
+        $name = isset( $post['team_name'] ) ? sanitize_text_field( wp_unslash( (string) $post['team_name'] ) ) : '';
         if ( $name === '' ) return new \WP_Error( 'name_required', __( 'Team name is required.', 'talenttrack' ) );
         return [
             'name'      => $name,

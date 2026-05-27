@@ -15,6 +15,7 @@ use TT\Modules\Wizards\Player\NewPlayerWizard;
 use TT\Modules\Wizards\Prospect\NewProspectWizard;
 use TT\Modules\Wizards\Team\NewTeamWizard;
 use TT\Modules\Wizards\TeamBlueprint\NewTeamBlueprintWizard;
+use TT\Shared\Frontend\FrontendWizardView;
 use TT\Shared\Wizards\WizardDraftRestController;
 use TT\Shared\Wizards\WizardRegistry;
 
@@ -63,5 +64,11 @@ class WizardsModule implements ModuleInterface {
         // #0072 follow-up — per-row evaluation insert endpoint, drives the
         // Review-step progress bar.
         EvaluationRowRestController::init();
+
+        // #940 — wizard step POSTs route through admin-post.php to dodge
+        // the WP public-query-var collision (notably `name=` 404'ing
+        // every step transition on tournament / team / blueprint wizards).
+        // No `admin_post_nopriv` handler — every wizard requires login.
+        add_action( 'admin_post_tt_wizard_step', [ FrontendWizardView::class, 'handleAdminPostStep' ] );
     }
 }

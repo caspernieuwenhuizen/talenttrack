@@ -63,13 +63,13 @@ final class SetupStep implements WizardStepInterface {
         }
         echo '</select></label>';
 
-        echo '<label><span>' . esc_html__( 'Blueprint name', 'talenttrack' ) . ' *</span><input type="text" name="name" required maxlength="120" placeholder="' . esc_attr__( 'e.g. Cup final starting XI', 'talenttrack' ) . '" value="' . esc_attr( $current_name ) . '"></label>';
+        echo '<label><span>' . esc_html__( 'Blueprint name', 'talenttrack' ) . ' *</span><input type="text" name="blueprint_name" required maxlength="120" placeholder="' . esc_attr__( 'e.g. Cup final starting XI', 'talenttrack' ) . '" value="' . esc_attr( $current_name ) . '"></label>';
     }
 
     public function validate( array $post, array $state ) {
         $team_id     = isset( $post['team_id'] ) ? absint( $post['team_id'] ) : 0;
         $template_id = isset( $post['formation_template_id'] ) ? absint( $post['formation_template_id'] ) : 0;
-        $name        = isset( $post['name'] ) ? trim( sanitize_text_field( wp_unslash( (string) $post['name'] ) ) ) : '';
+        $name        = isset( $post['blueprint_name'] ) ? trim( sanitize_text_field( wp_unslash( (string) $post['blueprint_name'] ) ) ) : '';
         $flavour     = isset( $post['flavour'] ) ? sanitize_key( (string) $post['flavour'] ) : TeamBlueprintsRepository::FLAVOUR_MATCH_DAY;
         if ( ! in_array( $flavour, [ TeamBlueprintsRepository::FLAVOUR_MATCH_DAY, TeamBlueprintsRepository::FLAVOUR_SQUAD_PLAN ], true ) ) {
             $flavour = TeamBlueprintsRepository::FLAVOUR_MATCH_DAY;

@@ -10,6 +10,7 @@ use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
 use TT\Shared\Frontend\Components\FormSaveButton;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\FrontendViewBase;
+use TT\Shared\Wizards\WizardEntryPoint;
 
 /**
  * FrontendMatchPrepView (#838) — main editing surface for a match
@@ -53,11 +54,7 @@ class FrontendMatchPrepView extends FrontendViewBase {
         if ( ! $prep ) {
             // Send back to the wizard so AvailabilityStep can collect
             // the roster first.
-            $wizard_url = add_query_arg( [
-                'tt_view'     => 'wizard',
-                'slug'        => 'match-prep',
-                'activity_id' => $activity_id,
-            ], remove_query_arg( [ 'tt_view', 'activity_id' ] ) );
+            $wizard_url = WizardEntryPoint::buildUrl( 'match-prep', [ 'activity_id' => $activity_id ] );
             wp_safe_redirect( $wizard_url );
             exit;
         }

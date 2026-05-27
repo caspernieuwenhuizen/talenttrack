@@ -123,99 +123,23 @@ class FrontendWizardView extends FrontendViewBase {
             return;
         }
 
+        // #940 — render() is now GET-only. All POST handling lives in
+        // `handleAdminPostStep()`, registered as `admin_post_tt_wizard_step`.
+        // The handler verifies nonce, dispatches the action, persists state,
+        // and redirects back to the wizard URL captured in
+        // `tt_wizard_return_url`. The only remaining error case here is
+        // a nonce mismatch detected by the handler before redirecting back
+        // with `?tt_wizard_error=expired`.
         $error = null;
-        // v3.110.156 — surface nonce failure instead of falling
-        // through silently. Pilot symptom (mark-attendance wizard):
-        // "Next button does not seem to do anything." Root cause is
-        // typically nonce expiration after a long-idle session — the
-        // POST handler below was guarded by both the request method
-        // AND the nonce check, and a failed nonce slipped through
-        // both into the GET render path with no visible feedback.
-        // Now: log the failure + surface a "session expired" notice
-        // so the operator knows to reload.
-        $nonce_present = isset( $_POST['tt_wizard_nonce'] );
-        $nonce_valid   = $nonce_present && wp_verify_nonce(
-            sanitize_text_field( wp_unslash( (string) $_POST['tt_wizard_nonce'] ) ),
-            'tt_wizard_' . $slug . '_' . $current->slug()
-        );
-        if ( $_SERVER['REQUEST_METHOD'] === 'POST' && $nonce_present && ! $nonce_valid ) {
+        $error_key = isset( $_GET['tt_wizard_error'] ) ? sanitize_key( (string) wp_unslash( $_GET['tt_wizard_error'] ) ) : '';
+        if ( $error_key === 'expired' ) {
             $error = __( 'Your session expired while this step was open. Please reload the page and try again — your edits on this step will need to be re-entered.', 'talenttrack' );
-        }
-
-        if ( $_SERVER['REQUEST_METHOD'] === 'POST' && $nonce_valid ) {
-            $action = isset( $_POST['tt_wizard_action'] ) ? sanitize_key( (string) $_POST['tt_wizard_action'] ) : 'next';
-            switch ( $action ) {
-                case 'cancel':
-                    // v3.70.1 hotfix — Cancel returns to the page the user
-                    // came from (carried as _cancel_url hidden field) rather
-                    // than dropping them on the dashboard, so cancelling an
-                    // edit-flow wizard lands back on the list / detail they
-                    // were viewing. Falls back to dashboard when no
-                    // referrer was preserved (e.g. direct entry to the
-                    // wizard URL).
-                    WizardState::clear( $user_id, $slug );
-                    $cancel_redirect = isset( $_POST['_cancel_url'] )
-                        ? esc_url_raw( wp_unslash( (string) $_POST['_cancel_url'] ) )
-                        : '';
-                    if ( $cancel_redirect === '' ) {
-                        $cancel_redirect = \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl();
-                    }
-                    wp_safe_redirect( $cancel_redirect );
-                    exit;
-
-                case 'back':
-                    // #0063 — every wizard renders a Back button on
-                    // step ≥ 2. Pop the visited-step history so
-                    // conditional branches (e.g. NewPlayer's trial
-                    // path) round-trip correctly. Fall through to a
-                    // re-render at the popped step. Form input on the
-                    // current step is intentionally NOT persisted —
-                    // Back is "discard this step's edits, return to
-                    // the previous one"; persist would happen on Next.
-                    $prev = WizardState::popHistory( $user_id, $slug );
-                    if ( $prev !== null ) {
-                        WizardState::setStep( $user_id, $slug, $prev );
-                    }
-                    wp_safe_redirect( self::wizardStepUrl( $slug ) );
-                    exit;
-
-                case 'save-as-draft':
-                    if ( $wizard instanceof SupportsCancelAsDraft ) {
-                        $result = $wizard->cancelAsDraft( $state );
-                        if ( is_wp_error( $result ) ) {
-                            $error = $result->get_error_message();
-                            break;
-                        }
-                        WizardState::clear( $user_id, $slug );
-                        $redirect = (string) ( $result['redirect_url'] ?? \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl() );
-                        wp_safe_redirect( $redirect );
-                        exit;
-                    }
-                    // Wizard doesn't support drafts — fall through to a
-                    // plain cancel rather than silently doing nothing.
-                    WizardState::clear( $user_id, $slug );
-                    wp_safe_redirect( \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl() );
-                    exit;
-
-                case 'skip':
-                    WizardState::recordSkip( $user_id, $slug, $current->slug() );
-                    WizardAnalytics::recordSkipped( $slug, $current->slug() );
-                    $next_slug = $current->nextStep( $state );
-                    self::transitionOrSubmit( $wizard, $current, $next_slug, $state, $user_id );
-                    return;
-
-                case 'next':
-                default:
-                    $post = self::sanitisePost( $_POST );
-                    $result = $current->validate( $post, $state );
-                    if ( is_wp_error( $result ) ) {
-                        $error = $result->get_error_message();
-                        break;
-                    }
-                    $state = WizardState::merge( $user_id, $slug, (array) $result );
-                    $next_slug = $current->nextStep( $state );
-                    self::transitionOrSubmit( $wizard, $current, $next_slug, $state, $user_id );
-                    return;
+        } elseif ( in_array( $error_key, [ 'validation', 'submit', 'draft_failed' ], true ) ) {
+            $transient_key = 'tt_wizard_err_' . $user_id . '_' . $slug;
+            $stashed = get_transient( $transient_key );
+            if ( $stashed !== false ) {
+                $error = (string) $stashed;
+                delete_transient( $transient_key );
             }
         }
 
@@ -295,7 +219,25 @@ class FrontendWizardView extends FrontendViewBase {
         //     carry `formnovalidate`; only Next lacked it, and that's
         //     the only path that triggered the bug. Adding `novalidate`
         //     on the form is the global fix.
-        echo '<form method="post" class="tt-wizard-form" novalidate>';
+        // #940 — wizard form POSTs target admin-post.php instead of the
+        // current dashboard URL. Reason: WP::parse_request() reads public
+        // query vars from $_POST before $_GET, so any form field whose
+        // name happens to match a WP-reserved public query var (notably
+        // `name`, but the class extends to ~25 others) caused
+        // `is_singular = true → 404` before the [talenttrack_dashboard]
+        // shortcode ever ran. admin-post.php loads wp-load.php but does
+        // NOT call wp() / WP::main() / WP::parse_request() for the
+        // front-end template path, so the public-query-var resolution
+        // that 404'd the wizard doesn't run there. Forward-compatible
+        // against future WP-reserved-name collisions (no field rename
+        // can outlive a future plugin registering a new public query
+        // var); battle-tested by the WP ecosystem for 15+ years; security
+        // plugins / hosting WAFs whitelist admin-post.php out of the box.
+        echo '<form method="post" class="tt-wizard-form" novalidate action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
+        echo '<input type="hidden" name="action" value="tt_wizard_step">';
+        echo '<input type="hidden" name="tt_wizard_slug" value="' . esc_attr( $slug ) . '">';
+        echo '<input type="hidden" name="tt_wizard_step" value="' . esc_attr( $current->slug() ) . '">';
+        echo '<input type="hidden" name="tt_wizard_return_url" value="' . esc_attr( self::wizardStepUrl( $slug ) ) . '">';
         wp_nonce_field( 'tt_wizard_' . $slug . '_' . $current->slug(), 'tt_wizard_nonce' );
 
         echo '<h2 class="tt-wizard-step-title">' . esc_html( $current->label() ) . '</h2>';
@@ -367,6 +309,167 @@ class FrontendWizardView extends FrontendViewBase {
         })();
         </script>
         <?php
+    }
+
+    /**
+     * #940 — admin-post.php handler for every wizard step POST.
+     *
+     * Why: WordPress's `WP::parse_request()` reads public query vars
+     * from `$_POST` BEFORE `$_GET`. If a wizard form field's `name=`
+     * collides with any of ~25 WP-reserved public query vars (`name`,
+     * `m`, `p`, `cat`, `s`, `tag`, `feed`, …), every POST 404s before
+     * the `[talenttrack_dashboard]` shortcode runs. `admin-post.php`
+     * is a separate PHP entry point that loads `wp-load.php` but does
+     * not invoke `WP::main()` for the front-end template path, so the
+     * public-query-var resolution doesn't run there. Forward-compatible
+     * against any future plugin registering a new public query var.
+     *
+     * The handler mirrors the legacy POST branch from `render()`:
+     * verify nonce → dispatch on `tt_wizard_action` → persist state /
+     * redirect. On any failure, redirect back to the wizard URL
+     * carried in `tt_wizard_return_url` with `?tt_wizard_error=…` so
+     * `render()` can surface a visible notice on the next GET.
+     */
+    public static function handleAdminPostStep(): void {
+        $user_id = get_current_user_id();
+        if ( $user_id <= 0 ) {
+            wp_safe_redirect( wp_login_url() );
+            exit;
+        }
+
+        $slug = isset( $_POST['tt_wizard_slug'] ) ? sanitize_key( (string) wp_unslash( $_POST['tt_wizard_slug'] ) ) : '';
+        $wizard = WizardRegistry::find( $slug );
+        if ( ! $wizard || ! WizardRegistry::isAvailable( $slug, $user_id ) ) {
+            wp_safe_redirect( \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl() );
+            exit;
+        }
+
+        $return_url = isset( $_POST['tt_wizard_return_url'] )
+            ? esc_url_raw( wp_unslash( (string) $_POST['tt_wizard_return_url'] ) )
+            : '';
+        if ( $return_url === '' ) {
+            $return_url = \TT\Shared\Wizards\WizardEntryPoint::buildUrl( $slug );
+        }
+
+        $step_slug = isset( $_POST['tt_wizard_step'] ) ? sanitize_key( (string) wp_unslash( $_POST['tt_wizard_step'] ) ) : '';
+        $current = self::stepFor( $wizard, $step_slug ) ?: self::stepFor( $wizard, $wizard->firstStepSlug() );
+        if ( ! $current ) {
+            wp_safe_redirect( $return_url );
+            exit;
+        }
+
+        $nonce_present = isset( $_POST['tt_wizard_nonce'] );
+        $nonce_valid   = $nonce_present && wp_verify_nonce(
+            sanitize_text_field( wp_unslash( (string) $_POST['tt_wizard_nonce'] ) ),
+            'tt_wizard_' . $slug . '_' . $current->slug()
+        );
+        if ( ! $nonce_valid ) {
+            wp_safe_redirect( add_query_arg( 'tt_wizard_error', 'expired', $return_url ) );
+            exit;
+        }
+
+        $state = WizardState::load( $user_id, $slug );
+        if ( ! $state ) {
+            $state = WizardState::start( $user_id, $slug, $wizard->firstStepSlug() );
+        }
+
+        $action = isset( $_POST['tt_wizard_action'] ) ? sanitize_key( (string) $_POST['tt_wizard_action'] ) : 'next';
+
+        switch ( $action ) {
+            case 'cancel':
+                WizardState::clear( $user_id, $slug );
+                $cancel_redirect = isset( $_POST['_cancel_url'] )
+                    ? esc_url_raw( wp_unslash( (string) $_POST['_cancel_url'] ) )
+                    : '';
+                if ( $cancel_redirect === '' ) {
+                    $cancel_redirect = \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl();
+                }
+                wp_safe_redirect( $cancel_redirect );
+                exit;
+
+            case 'back':
+                $prev = WizardState::popHistory( $user_id, $slug );
+                if ( $prev !== null ) {
+                    WizardState::setStep( $user_id, $slug, $prev );
+                }
+                wp_safe_redirect( $return_url );
+                exit;
+
+            case 'save-as-draft':
+                if ( $wizard instanceof SupportsCancelAsDraft ) {
+                    $result = $wizard->cancelAsDraft( $state );
+                    if ( is_wp_error( $result ) ) {
+                        wp_safe_redirect( add_query_arg( 'tt_wizard_error', 'draft_failed', $return_url ) );
+                        exit;
+                    }
+                    WizardState::clear( $user_id, $slug );
+                    $redirect = (string) ( $result['redirect_url'] ?? \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl() );
+                    wp_safe_redirect( $redirect );
+                    exit;
+                }
+                WizardState::clear( $user_id, $slug );
+                wp_safe_redirect( \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl() );
+                exit;
+
+            case 'skip':
+                WizardState::recordSkip( $user_id, $slug, $current->slug() );
+                WizardAnalytics::recordSkipped( $slug, $current->slug() );
+                $next_slug = $current->nextStep( $state );
+                self::redirectTransitionOrSubmit( $wizard, $current, $next_slug, $state, $user_id, $return_url );
+                exit;
+
+            case 'next':
+            default:
+                $post = self::sanitisePost( $_POST );
+                $result = $current->validate( $post, $state );
+                if ( is_wp_error( $result ) ) {
+                    // Carry the validation error in a transient so the
+                    // next GET can surface it. Per-user, short TTL.
+                    set_transient(
+                        'tt_wizard_err_' . $user_id . '_' . $slug,
+                        $result->get_error_message(),
+                        60
+                    );
+                    wp_safe_redirect( add_query_arg( 'tt_wizard_error', 'validation', $return_url ) );
+                    exit;
+                }
+                $state = WizardState::merge( $user_id, $slug, (array) $result );
+                $next_slug = $current->nextStep( $state );
+                self::redirectTransitionOrSubmit( $wizard, $current, $next_slug, $state, $user_id, $return_url );
+                exit;
+        }
+    }
+
+    /**
+     * #940 — admin-post variant of transitionOrSubmit. The legacy
+     * helper assumed it was running inside `render()` and could `echo`
+     * an error page; the handler instead carries every error back via
+     * the return URL so `render()` surfaces it on the next GET.
+     */
+    private static function redirectTransitionOrSubmit( WizardInterface $wizard, WizardStepInterface $current, ?string $next_slug, array $state, int $user_id, string $return_url ): void {
+        $slug = $wizard->slug();
+        if ( $next_slug === null ) {
+            $result = $current->submit( $state );
+            if ( is_wp_error( $result ) ) {
+                set_transient(
+                    'tt_wizard_err_' . $user_id . '_' . $slug,
+                    $result->get_error_message(),
+                    60
+                );
+                wp_safe_redirect( add_query_arg( 'tt_wizard_error', 'submit', $return_url ) );
+                exit;
+            }
+            WizardAnalytics::recordCompleted( $slug );
+            WizardState::clear( $user_id, $slug );
+            $redirect = (string) ( ( is_array( $result ) ? $result['redirect_url'] : '' ) ?? '' );
+            if ( $redirect === '' ) $redirect = \TT\Shared\Wizards\WizardEntryPoint::currentDashboardUrl();
+            wp_safe_redirect( $redirect );
+            exit;
+        }
+        WizardState::pushHistory( $user_id, $slug, $current->slug() );
+        WizardState::setStep( $user_id, $slug, $next_slug );
+        wp_safe_redirect( $return_url );
+        exit;
     }
 
     /**

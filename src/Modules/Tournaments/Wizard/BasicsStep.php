@@ -26,7 +26,7 @@ final class BasicsStep implements WizardStepInterface {
         ) );
 
         echo '<label><span>' . esc_html__( 'Tournament name', 'talenttrack' ) . ' *</span>';
-        echo '<input type="text" name="name" required value="' . esc_attr( (string) ( $state['name'] ?? '' ) ) . '"></label>';
+        echo '<input type="text" name="tournament_name" required value="' . esc_attr( (string) ( $state['name'] ?? '' ) ) . '"></label>';
 
         echo '<label><span>' . esc_html__( 'Anchor team', 'talenttrack' ) . ' *</span><select name="team_id" required>';
         echo '<option value="0">' . esc_html__( '— pick a team —', 'talenttrack' ) . '</option>';
@@ -45,7 +45,7 @@ final class BasicsStep implements WizardStepInterface {
     }
 
     public function validate( array $post, array $state ) {
-        $name = isset( $post['name'] ) ? sanitize_text_field( wp_unslash( (string) $post['name'] ) ) : '';
+        $name = isset( $post['tournament_name'] ) ? sanitize_text_field( wp_unslash( (string) $post['tournament_name'] ) ) : '';
         if ( $name === '' ) {
             return new \WP_Error( 'name_required', __( 'Tournament name is required.', 'talenttrack' ) );
         }
