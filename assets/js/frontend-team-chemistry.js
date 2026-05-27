@@ -235,18 +235,23 @@
         }).then(function (resp) {
             var bpId = (resp && resp.data && resp.data.id) || (resp && resp.id);
             if (!bpId) throw new Error('bp_create_failed');
-            // Assemble the full lineup (suggested XI ∪ overrides).
+            // Assemble the full lineup as a slot → ref-object map.
+            // #953 — in-repo callers send the canonical `ref` shape.
+            // The REST controller still accepts the legacy flat
+            // `player_id` for documented external API consumers.
             var lineup = {};
             Object.keys(cfg.suggested).forEach(function (label) {
                 var entry = cfg.suggested[label];
-                if (entry && entry.player_id) lineup[label] = entry.player_id;
+                if (entry && entry.player_id) {
+                    lineup[label] = { kind: 'player', player_id: entry.player_id };
+                }
             });
             Object.keys(state.overrides).forEach(function (label) {
                 var pid = state.overrides[label];
                 if (pid === null) {
                     delete lineup[label];
                 } else {
-                    lineup[label] = pid;
+                    lineup[label] = { kind: 'player', player_id: pid };
                 }
             });
             return fetch(cfg.rest_root + '/blueprints/' + bpId + '/assignments', {

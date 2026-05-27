@@ -1,0 +1,897 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>TalentTrack — Blueprint working prototype</title>
+<style>
+  :root {
+    --pitch-grass:    #4ea35f;
+    --pitch-grass-2:  #3c8a4d;
+    --pitch-line:     rgba(255,255,255,0.85);
+    --tier1:          #1d7874;
+    --tier2:          #c9962a;
+    --tier3:          #8a9099;
+    --bg:             #f6f7f7;
+    --ink:            #1a1d21;
+    --muted:          #5b6e75;
+    --panel:          #ffffff;
+    --line:           #e3e6ea;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    padding: 20px;
+    line-height: 1.4;
+    font-size: 14px;
+  }
+  header { margin-bottom: 16px; }
+  header h1 { margin: 0 0 4px; font-size: 20px; }
+  header .lede { color: var(--muted); margin: 0; max-width: 800px; font-size: 13px; }
+
+  .toolbar {
+    display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+    padding: 10px 14px; margin-bottom: 14px;
+  }
+  .toolbar label { font-size: 12px; color: var(--muted); }
+  .toolbar select, .toolbar button {
+    font: inherit; font-size: 13px;
+    padding: 6px 10px; border: 1px solid var(--line); border-radius: 6px;
+    background: #fff; color: var(--ink);
+  }
+  .toolbar button { cursor: pointer; }
+  .toolbar button.primary { background: var(--tier1); color: #fff; border-color: var(--tier1); }
+  .toolbar .spacer { flex: 1 1 auto; }
+  .toolbar .note { font-size: 12px; color: var(--muted); }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 16px;
+    align-items: start;
+  }
+  @media (max-width: 820px) {
+    .layout { grid-template-columns: 1fr; }
+  }
+
+  /* ============ Roster panel (left) ============ */
+  .roster {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px;
+    position: sticky; top: 12px;
+  }
+  .roster h2 {
+    margin: 0 0 4px; font-size: 14px;
+  }
+  .roster .sub {
+    color: var(--muted); font-size: 12px; margin: 0 0 10px;
+  }
+  .roster ul { list-style: none; margin: 0; padding: 0; max-height: 60vh; overflow: auto; }
+  .roster li {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 8px; border-radius: 6px;
+    border: 1px solid transparent;
+    cursor: grab;
+    font-size: 13px;
+  }
+  .roster li:hover { background: #f3f5f7; }
+  .roster li.dragging { opacity: 0.4; }
+  .roster .pick-count {
+    margin-left: 4px;
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 18px; height: 18px; padding: 0 5px;
+    border-radius: 9px;
+    background: var(--tier1); color: #fff;
+    font-size: 10.5px; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .roster .pick-count[hidden] { display: none; }
+  .roster .av {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: #d3d7dc; color: #fff; font-weight: 700; font-size: 11px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .roster .av.team-a   { background: #5b8bd1; }
+  .roster .av.team-b   { background: #d18b5b; }
+  .roster .av.team-c   { background: #8b5bd1; }
+  .roster .av.guest    { background: #8a9099; }
+  .roster .av.custom   { background: #c9962a; }
+  .roster .who { flex: 1; min-width: 0; }
+  .roster .who .name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+  .roster .who .meta {
+    font-size: 10.5px; color: var(--muted);
+  }
+  .roster .add-btn {
+    width: 100%; margin-top: 10px;
+    background: #fff; border: 1px dashed var(--tier1); color: var(--tier1);
+    border-radius: 8px; padding: 8px; cursor: pointer; font: inherit; font-size: 13px;
+  }
+  .roster .add-btn:hover { background: #e7f1f0; }
+
+  /* ============ Guest add inline form ============ */
+  .add-form {
+    margin-top: 10px; border: 1px solid var(--line); border-radius: 8px; padding: 10px;
+    background: #fafbfc;
+  }
+  .add-form .tabs { display: flex; gap: 4px; margin-bottom: 8px; }
+  .add-form .tab {
+    flex: 1; padding: 5px 6px; font-size: 11.5px;
+    border: 1px solid var(--line); background: #fff;
+    border-radius: 6px; cursor: pointer; text-align: center;
+  }
+  .add-form .tab.active { background: var(--tier1); color: #fff; border-color: var(--tier1); }
+  .add-form .pane { display: none; }
+  .add-form .pane.active { display: block; }
+  .add-form input, .add-form select {
+    width: 100%; padding: 6px 8px; font: inherit; font-size: 13px;
+    border: 1px solid var(--line); border-radius: 6px; margin-bottom: 6px;
+  }
+  .add-form .row-btns { display: flex; gap: 6px; }
+  .add-form button {
+    flex: 1; padding: 6px 8px; border-radius: 6px; cursor: pointer; font: inherit; font-size: 12.5px;
+    border: 1px solid var(--line); background: #fff;
+  }
+  .add-form button.go { background: var(--tier1); color: #fff; border-color: var(--tier1); }
+
+  /* ============ Pitch (right) ============ */
+  .pitch-card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px;
+  }
+  .pitch-wrap {
+    width: 100%;
+    max-width: 720px;
+    margin: 0 auto;
+    aspect-ratio: 68 / 105;
+    position: relative;
+    border-radius: 12px;
+    overflow: visible;
+    background: linear-gradient(180deg, var(--pitch-grass) 0%, var(--pitch-grass-2) 100%);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+  }
+  .pitch-wrap > svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .pitch-line {
+    fill: none; stroke: var(--pitch-line); stroke-width: 3;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .pos {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    display: flex; flex-direction: column; align-items: center;
+    width: 112px;
+  }
+  .pos .circle {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: #fff; border: 2px solid var(--ink);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; line-height: 1.05;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.22);
+    color: var(--ink);
+  }
+  .pos .circle .num { font-size: 14px; font-weight: 800; line-height: 1; }
+  .pos .circle .abbr { font-size: 9px; color: var(--muted); margin-top: 1px; letter-spacing: .04em; }
+
+  .stack {
+    margin-top: 4px;
+    background: rgba(255,255,255,0.92);
+    border: 1px solid rgba(0,0,0,0.12);
+    border-radius: 8px;
+    padding: 4px;
+    display: flex; flex-direction: column; gap: 3px;
+    width: 100%;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.16);
+  }
+  .slot {
+    height: 22px; border-radius: 5px;
+    background: #f6f7f7;
+    border: 1px dashed #c9ced3;
+    font-size: 12px;
+    color: var(--muted);
+    display: flex; align-items: center;
+    padding: 0 6px;
+    cursor: pointer;
+    white-space: nowrap; overflow: hidden;
+    position: relative;
+  }
+  .slot:hover { background: #eef3f6; border-style: solid; border-color: var(--tier1); }
+  .slot.drag-over { background: #d6eae7; border-style: solid; border-color: var(--tier1); }
+  .slot .tier-mark {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    font-size: 10px; font-weight: 800;
+    color: #fff;
+    text-align: center; line-height: 14px;
+    margin-right: 6px;
+    flex-shrink: 0;
+  }
+  .slot[data-tier="1"] .tier-mark { background: var(--tier1); }
+  .slot[data-tier="2"] .tier-mark { background: var(--tier2); }
+  .slot[data-tier="3"] .tier-mark { background: var(--tier3); }
+
+  .slot.filled { background: #fff; border-style: solid; color: var(--ink); }
+  .slot.filled[data-tier="1"] { border-color: var(--tier1); }
+  .slot.filled[data-tier="2"] { border-color: var(--tier2); }
+  .slot.filled[data-tier="3"] { border-color: var(--tier3); }
+  .slot.filled .who-name { flex: 1; overflow: hidden; text-overflow: ellipsis; }
+  .slot .x {
+    display: none; margin-left: 4px;
+    background: transparent; border: none; cursor: pointer;
+    color: var(--muted); font-size: 13px; line-height: 1; padding: 0 2px;
+  }
+  .slot.filled .x { display: inline-block; }
+  .slot .x:hover { color: #b32d2e; }
+
+  /* dropdown menu */
+  .dropdown {
+    position: absolute;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 4px;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+    z-index: 30;
+    min-width: 200px;
+    max-height: 280px;
+    overflow: auto;
+  }
+  .dropdown .ddhead {
+    font-size: 11px; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .04em;
+    padding: 6px 8px 4px;
+  }
+  .dropdown .ditem {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 8px; border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .dropdown .ditem:hover { background: #eef3f6; }
+  .dropdown .ditem .av {
+    width: 22px; height: 22px; border-radius: 50%;
+    color: #fff; font-size: 10px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    background: #d3d7dc;
+  }
+  .dropdown .ditem .av.team-a   { background: #5b8bd1; }
+  .dropdown .ditem .av.team-b   { background: #d18b5b; }
+  .dropdown .ditem .av.team-c   { background: #8b5bd1; }
+  .dropdown .ditem .av.guest    { background: #8a9099; }
+  .dropdown .ditem .av.custom   { background: #c9962a; }
+  .dropdown .ditem .sub { color: var(--muted); font-size: 10.5px; }
+  .dropdown input.search {
+    width: 100%; padding: 6px 8px; font: inherit; font-size: 12.5px;
+    border: 1px solid var(--line); border-radius: 6px;
+    margin-bottom: 4px;
+  }
+  .dropdown .clear-row {
+    border-top: 1px solid var(--line); margin-top: 4px; padding-top: 4px;
+    font-size: 12px; color: #b32d2e; cursor: pointer;
+    padding-bottom: 6px;
+  }
+  .dropdown .empty {
+    padding: 8px; color: var(--muted); font-size: 12px; font-style: italic;
+  }
+
+  /* mobile sizing */
+  @media (max-width: 720px) {
+    .pos { width: 86px; }
+    .pos .circle { width: 34px; height: 34px; }
+    .pos .circle .num { font-size: 12px; }
+    .pos .circle .abbr { font-size: 8px; }
+    .slot { height: 20px; font-size: 11px; }
+    .slot .tier-mark { width: 12px; height: 12px; line-height: 12px; font-size: 9px; }
+  }
+
+  .hint {
+    margin-top: 12px; font-size: 12px; color: var(--muted);
+    background: #fafbfc; border: 1px dashed var(--line); border-radius: 8px;
+    padding: 8px 10px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Blueprint — interactive prototype</h1>
+  <p class="lede">
+    Each position has a numbered circle and three depth slots below it. Click a slot to pick a player from the roster on the left, or drag a player onto a slot. Tier&nbsp;1/2/3 are visually distinct via the coloured pill on the left of each slot. A player can be picked at any number of slots — the ×N badge next to their name in the roster shows how many times they have been placed. The roster reflects the team selection and can be expanded with guests, cross-team picks, or custom names.
+  </p>
+</header>
+
+<div class="toolbar">
+  <label>Team</label>
+  <select id="teamSelect">
+    <option value="A">Ajax U17</option>
+    <option value="B">Ajax U16</option>
+    <option value="C">Ajax U15</option>
+  </select>
+  <label>Formation</label>
+  <select id="formationSelect">
+    <option value="433">4-3-3</option>
+    <option value="442">4-4-2</option>
+    <option value="352">3-5-2</option>
+  </select>
+  <div class="spacer"></div>
+  <button class="primary" id="resetBtn">Clear all slots</button>
+  <span class="note">Mockup — click slots to pick, or drag players from the roster.</span>
+</div>
+
+<div class="layout">
+
+  <!-- ============== ROSTER (left) ============== -->
+  <section class="roster">
+    <h2 id="rosterTitle">Roster</h2>
+    <p class="sub" id="rosterSub">Players for the selected team. Drag onto a slot, or click a slot to pick.</p>
+    <ul id="rosterList"></ul>
+    <button class="add-btn" id="showAddBtn">+ Add guest / custom name</button>
+    <div class="add-form" id="addForm" style="display:none;">
+      <div class="tabs">
+        <div class="tab active" data-tab="crossteam">Other team</div>
+        <div class="tab" data-tab="guest">Guest</div>
+        <div class="tab" data-tab="custom">Custom</div>
+      </div>
+
+      <div class="pane active" data-pane="crossteam">
+        <select id="ctTeam">
+          <option value="">— pick a team —</option>
+          <option value="A">Ajax U17</option>
+          <option value="B">Ajax U16</option>
+          <option value="C">Ajax U15</option>
+        </select>
+        <select id="ctPlayer">
+          <option value="">— pick a player —</option>
+        </select>
+        <div class="row-btns">
+          <button class="go" id="ctAdd">Add to roster</button>
+          <button class="cancel">Cancel</button>
+        </div>
+      </div>
+
+      <div class="pane" data-pane="guest">
+        <input type="text" id="guestName" placeholder="Guest name (e.g. visiting trialist)">
+        <input type="text" id="guestPos" placeholder="Position (optional, e.g. ST)">
+        <div class="row-btns">
+          <button class="go" id="guestAdd">Add guest</button>
+          <button class="cancel">Cancel</button>
+        </div>
+      </div>
+
+      <div class="pane" data-pane="custom">
+        <input type="text" id="customName" placeholder="Custom label (e.g. 'Scout target #4')">
+        <div class="row-btns">
+          <button class="go" id="customAdd">Add custom</button>
+          <button class="cancel">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== PITCH (right) ============== -->
+  <section class="pitch-card">
+    <div class="pitch-wrap" id="pitchWrap">
+      <svg viewBox="0 0 680 1050" preserveAspectRatio="none" aria-hidden="true">
+        <rect class="pitch-line" x="20" y="20" width="640" height="1010"/>
+        <rect class="pitch-line" x="138.4" y="20" width="403.2" height="165"/>
+        <rect class="pitch-line" x="248.4" y="20" width="183.2" height="55"/>
+        <circle class="pitch-line" cx="340" cy="130" r="3" fill="rgba(255,255,255,0.85)" stroke="none"/>
+        <path class="pitch-line" d="M 266.82 185 A 91.5 91.5 0 0 0 413.18 185"/>
+        <line class="pitch-line" x1="20" y1="525" x2="660" y2="525"/>
+        <circle class="pitch-line" cx="340" cy="525" r="91.5"/>
+        <rect class="pitch-line" x="138.4" y="865" width="403.2" height="165"/>
+        <rect class="pitch-line" x="248.4" y="975" width="183.2" height="55"/>
+        <path class="pitch-line" d="M 266.82 865 A 91.5 91.5 0 0 1 413.18 865"/>
+      </svg>
+      <!-- Positions render here -->
+    </div>
+    <p class="hint">Slot pill colours: <b style="color:var(--tier1)">&#9679; tier 1</b> &nbsp; <b style="color:var(--tier2)">&#9679; tier 2</b> &nbsp; <b style="color:var(--tier3)">&#9679; tier 3</b>. The ×N badge next to a roster name shows how many slots that player has been picked for.</p>
+  </section>
+
+</div>
+
+<!-- dropdown placeholder, repositioned on click -->
+<div class="dropdown" id="dropdown" style="display:none;"></div>
+
+<script>
+(function () {
+  'use strict';
+
+  // ============= demo data =============
+  const TEAMS = {
+    A: {
+      name: 'Ajax U17',
+      avClass: 'team-a',
+      players: [
+        { id: 'a1',  name: 'Jansen',    pos: 'ST', age: 16 },
+        { id: 'a2',  name: 'De Vries',  pos: 'ST', age: 15 },
+        { id: 'a3',  name: 'Bakker',    pos: 'LW', age: 16 },
+        { id: 'a4',  name: 'El Amrani', pos: 'LW', age: 16 },
+        { id: 'a5',  name: 'Visser',    pos: 'RW', age: 17 },
+        { id: 'a6',  name: 'Smit',      pos: 'RW', age: 16 },
+        { id: 'a7',  name: 'Mulder',    pos: 'CM', age: 17 },
+        { id: 'a8',  name: 'Hendriks',  pos: 'CM', age: 16 },
+        { id: 'a9',  name: 'Dijkstra',  pos: 'CM', age: 16 },
+        { id: 'a10', name: 'Maas',      pos: 'CB', age: 17 },
+        { id: 'a11', name: 'Koster',    pos: 'CB', age: 16 },
+        { id: 'a12', name: 'Beek',      pos: 'CB', age: 17 },
+        { id: 'a13', name: 'Pieters',   pos: 'LB', age: 16 },
+        { id: 'a14', name: 'Berg',      pos: 'RB', age: 17 },
+        { id: 'a15', name: 'Hoekstra',  pos: 'GK', age: 16 },
+        { id: 'a16', name: 'De Boer',   pos: 'GK', age: 17 },
+      ],
+    },
+    B: {
+      name: 'Ajax U16',
+      avClass: 'team-b',
+      players: [
+        { id: 'b1', name: 'Van Dijk', pos: 'CB', age: 15 },
+        { id: 'b2', name: 'Klaassen', pos: 'CM', age: 15 },
+        { id: 'b3', name: 'Tadic',    pos: 'LW', age: 15 },
+        { id: 'b4', name: 'Brobbey',  pos: 'ST', age: 14 },
+        { id: 'b5', name: 'Gravenberch', pos: 'CM', age: 15 },
+      ],
+    },
+    C: {
+      name: 'Ajax U15',
+      avClass: 'team-c',
+      players: [
+        { id: 'c1', name: 'Pasveer',  pos: 'GK', age: 14 },
+        { id: 'c2', name: 'Wijndal',  pos: 'LB', age: 13 },
+        { id: 'c3', name: 'Rensch',   pos: 'RB', age: 14 },
+        { id: 'c4', name: 'Bergwijn', pos: 'RW', age: 13 },
+      ],
+    },
+  };
+
+  const FORMATIONS = {
+    '433': [
+      { id: 'gk',  num: 1,  abbr: 'GK', x: 50, y: 92 },
+      { id: 'lb',  num: 3,  abbr: 'LB', x: 16, y: 75 },
+      { id: 'lcb', num: 4,  abbr: 'CB', x: 36, y: 76 },
+      { id: 'rcb', num: 5,  abbr: 'CB', x: 64, y: 76 },
+      { id: 'rb',  num: 2,  abbr: 'RB', x: 84, y: 75 },
+      { id: 'lcm', num: 8,  abbr: 'CM', x: 30, y: 53 },
+      { id: 'cm',  num: 6,  abbr: 'CM', x: 50, y: 56 },
+      { id: 'rcm', num: 10, abbr: 'CM', x: 70, y: 53 },
+      { id: 'lw',  num: 11, abbr: 'LW', x: 18, y: 28 },
+      { id: 'st',  num: 9,  abbr: 'ST', x: 50, y: 22 },
+      { id: 'rw',  num: 7,  abbr: 'RW', x: 82, y: 28 },
+    ],
+    '442': [
+      { id: 'gk',  num: 1,  abbr: 'GK', x: 50, y: 92 },
+      { id: 'lb',  num: 3,  abbr: 'LB', x: 16, y: 75 },
+      { id: 'lcb', num: 4,  abbr: 'CB', x: 36, y: 76 },
+      { id: 'rcb', num: 5,  abbr: 'CB', x: 64, y: 76 },
+      { id: 'rb',  num: 2,  abbr: 'RB', x: 84, y: 75 },
+      { id: 'lm',  num: 11, abbr: 'LM', x: 16, y: 52 },
+      { id: 'lcm', num: 8,  abbr: 'CM', x: 38, y: 55 },
+      { id: 'rcm', num: 6,  abbr: 'CM', x: 62, y: 55 },
+      { id: 'rm',  num: 7,  abbr: 'RM', x: 84, y: 52 },
+      { id: 'lst', num: 9,  abbr: 'ST', x: 36, y: 22 },
+      { id: 'rst', num: 10, abbr: 'ST', x: 64, y: 22 },
+    ],
+    '352': [
+      { id: 'gk',  num: 1,  abbr: 'GK', x: 50, y: 92 },
+      { id: 'lcb', num: 4,  abbr: 'CB', x: 24, y: 75 },
+      { id: 'cb',  num: 5,  abbr: 'CB', x: 50, y: 78 },
+      { id: 'rcb', num: 3,  abbr: 'CB', x: 76, y: 75 },
+      { id: 'lwb', num: 11, abbr: 'WB', x: 12, y: 52 },
+      { id: 'lcm', num: 8,  abbr: 'CM', x: 34, y: 55 },
+      { id: 'cm',  num: 6,  abbr: 'CM', x: 50, y: 58 },
+      { id: 'rcm', num: 10, abbr: 'CM', x: 66, y: 55 },
+      { id: 'rwb', num: 7,  abbr: 'WB', x: 88, y: 52 },
+      { id: 'lst', num: 9,  abbr: 'ST', x: 38, y: 22 },
+      { id: 'rst', num: 14, abbr: 'ST', x: 62, y: 22 },
+    ],
+  };
+
+  // ============= state =============
+  let currentTeam = 'A';
+  let currentFormation = '433';
+  // roster is a copy that can be augmented with guests/custom/cross-team
+  let roster = []; // [{id, name, pos, age, kind:'team'|'crossteam'|'guest'|'custom', avClass, teamLabel}]
+  // assignments: { positionId: { 1: playerId|null, 2: ..., 3: ... } }
+  let assignments = {};
+
+  const $ = (sel) => document.querySelector(sel);
+  const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+
+  function initRosterFromTeam(teamKey) {
+    const team = TEAMS[teamKey];
+    roster = team.players.map((p) => ({
+      ...p,
+      kind: 'team',
+      avClass: team.avClass,
+      teamLabel: team.name,
+    }));
+  }
+
+  function resetAssignments() {
+    assignments = {};
+    ensureAssignmentSlots();
+  }
+
+  // Make sure every position in the current formation has an entry. Does
+  // not touch existing entries — switching formation preserves what was
+  // already placed (and even keeps stale entries for positions in the
+  // previous formation so a round-trip switch restores them).
+  function ensureAssignmentSlots() {
+    FORMATIONS[currentFormation].forEach((p) => {
+      if (!assignments[p.id]) assignments[p.id] = { 1: null, 2: null, 3: null };
+    });
+  }
+
+  // Count placements visible in the CURRENT formation only. Stale entries
+  // from a prior formation don't inflate the badge — they only come back
+  // if the user switches back to that formation.
+  function currentFormationPosIds() {
+    return FORMATIONS[currentFormation].map((p) => p.id);
+  }
+
+  // ============= render =============
+  function initials(name) {
+    return name.split(/\s+/).map((w) => w[0]).slice(0, 2).join('').toUpperCase();
+  }
+
+  function findPlayer(id) {
+    return roster.find((p) => p.id === id) || null;
+  }
+
+  function placementCount(playerId) {
+    let n = 0;
+    currentFormationPosIds().forEach((posId) => {
+      if (!assignments[posId]) return;
+      for (const tier of [1, 2, 3]) {
+        if (assignments[posId][tier] === playerId) n++;
+      }
+    });
+    return n;
+  }
+
+  function renderRoster() {
+    const ul = $('#rosterList');
+    ul.innerHTML = '';
+    if (!roster.length) {
+      ul.innerHTML = '<li style="color:var(--muted); font-style:italic; cursor:default;">No players yet.</li>';
+      return;
+    }
+    roster.forEach((p) => {
+      const count = placementCount(p.id);
+      const li = document.createElement('li');
+      li.draggable = true;
+      li.dataset.playerId = p.id;
+      li.innerHTML =
+        '<span class="av ' + p.avClass + '">' + initials(p.name) + '</span>' +
+        '<span class="who">' +
+          '<span class="name">' + escapeHtml(p.name) +
+            '<span class="pick-count"' + (count === 0 ? ' hidden' : '') + ' title="Picked on this blueprint">×' + count + '</span>' +
+          '</span>' +
+          '<span class="meta">' +
+            escapeHtml(p.pos || '—') +
+            (p.age ? ' · age ' + p.age : '') +
+            (p.kind === 'team'      ? '' : (' · ' + p.kind)) +
+          '</span>' +
+        '</span>';
+      li.addEventListener('dragstart', (e) => {
+        li.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', p.id);
+      });
+      li.addEventListener('dragend', () => li.classList.remove('dragging'));
+      ul.appendChild(li);
+    });
+    $('#rosterTitle').textContent = TEAMS[currentTeam].name + ' — roster (' + roster.length + ')';
+  }
+
+  function renderPitch() {
+    const wrap = $('#pitchWrap');
+    // remove old positions
+    $$('#pitchWrap .pos').forEach((el) => el.remove());
+
+    FORMATIONS[currentFormation].forEach((pos) => {
+      const wrapDiv = document.createElement('div');
+      wrapDiv.className = 'pos';
+      wrapDiv.style.left = pos.x + '%';
+      wrapDiv.style.top  = pos.y + '%';
+      wrapDiv.innerHTML =
+        '<div class="circle">' +
+          '<span class="num">' + pos.num + '</span>' +
+          '<span class="abbr">' + pos.abbr + '</span>' +
+        '</div>' +
+        '<div class="stack">' +
+          renderSlot(pos.id, 1) +
+          renderSlot(pos.id, 2) +
+          renderSlot(pos.id, 3) +
+        '</div>';
+      wrap.appendChild(wrapDiv);
+    });
+
+    // wire slot interactions
+    $$('#pitchWrap .slot').forEach((slot) => {
+      slot.addEventListener('click', onSlotClick);
+      slot.addEventListener('dragover', (e) => { e.preventDefault(); slot.classList.add('drag-over'); });
+      slot.addEventListener('dragleave', () => slot.classList.remove('drag-over'));
+      slot.addEventListener('drop', (e) => {
+        e.preventDefault();
+        slot.classList.remove('drag-over');
+        const pid = e.dataTransfer.getData('text/plain');
+        if (!pid) return;
+        const posId = slot.dataset.pos;
+        const tier  = parseInt(slot.dataset.tier, 10);
+        assign(posId, tier, pid);
+      });
+    });
+    $$('#pitchWrap .slot .x').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const slot = btn.closest('.slot');
+        assign(slot.dataset.pos, parseInt(slot.dataset.tier, 10), null);
+      });
+    });
+  }
+
+  function renderSlot(posId, tier) {
+    const playerId = (assignments[posId] && assignments[posId][tier]) || null;
+    const p = playerId ? findPlayer(playerId) : null;
+    const filled = p ? ' filled' : '';
+    return (
+      '<div class="slot' + filled + '" data-pos="' + posId + '" data-tier="' + tier + '">' +
+        '<span class="tier-mark">' + tier + '</span>' +
+        '<span class="who-name">' + (p ? escapeHtml(p.name) : '—') + '</span>' +
+        '<button class="x" title="Clear">×</button>' +
+      '</div>'
+    );
+  }
+
+  // ============= slot click → dropdown =============
+  let currentDropdownAnchor = null;
+
+  function onSlotClick(e) {
+    if (e.target.classList.contains('x')) return; // handled separately
+    const slot = e.currentTarget;
+    openDropdown(slot);
+  }
+
+  function openDropdown(anchor) {
+    const dd = $('#dropdown');
+    currentDropdownAnchor = anchor;
+    const posId = anchor.dataset.pos;
+    const tier  = parseInt(anchor.dataset.tier, 10);
+
+    dd.innerHTML =
+      '<div class="ddhead">Pick a player for tier ' + tier + '</div>' +
+      '<input type="text" class="search" placeholder="Search…" autofocus>' +
+      '<div class="results"></div>' +
+      (anchor.classList.contains('filled') ? '<div class="clear-row">Clear this slot</div>' : '');
+
+    renderDropdownResults(dd, '');
+
+    dd.querySelector('input.search').addEventListener('input', (e) => {
+      renderDropdownResults(dd, e.target.value);
+    });
+    const clear = dd.querySelector('.clear-row');
+    if (clear) {
+      clear.addEventListener('click', () => {
+        assign(posId, tier, null);
+        closeDropdown();
+      });
+    }
+
+    // position dropdown next to anchor
+    dd.style.display = 'block';
+    const ar = anchor.getBoundingClientRect();
+    const dRect = dd.getBoundingClientRect();
+    let left = ar.right + window.scrollX + 6;
+    let top  = ar.top + window.scrollY;
+    if (left + dRect.width > window.innerWidth - 12) {
+      left = ar.left + window.scrollX - dRect.width - 6;
+    }
+    if (top + dRect.height > window.innerHeight + window.scrollY - 12) {
+      top = window.innerHeight + window.scrollY - dRect.height - 12;
+    }
+    dd.style.left = Math.max(8, left) + 'px';
+    dd.style.top  = Math.max(8, top) + 'px';
+
+    setTimeout(() => {
+      document.addEventListener('click', maybeCloseDropdown);
+    }, 0);
+    dd.querySelector('input.search').focus();
+  }
+
+  function renderDropdownResults(dd, query) {
+    const results = dd.querySelector('.results');
+    const posId = currentDropdownAnchor.dataset.pos;
+    const tier  = parseInt(currentDropdownAnchor.dataset.tier, 10);
+    const q = query.trim().toLowerCase();
+    const matches = roster
+      .filter((p) => !q || p.name.toLowerCase().indexOf(q) >= 0 || (p.pos || '').toLowerCase().indexOf(q) >= 0)
+      .filter((p) => {
+        // hide players already in this slot's same position+tier — they ARE this slot already
+        return assignments[posId][tier] !== p.id;
+      });
+    if (!matches.length) {
+      results.innerHTML = '<div class="empty">No players match.</div>';
+      return;
+    }
+    results.innerHTML = matches.map((p) => {
+      const placed = placementCount(p.id);
+      const sub = (p.pos || '—') +
+                  (p.age ? ' · age ' + p.age : '') +
+                  (p.kind === 'team' ? '' : ' · ' + p.kind) +
+                  (placed ? ' · ×' + placed + ' on pitch' : '');
+      return (
+        '<div class="ditem" data-pid="' + p.id + '">' +
+          '<span class="av ' + p.avClass + '">' + initials(p.name) + '</span>' +
+          '<span class="who">' +
+            '<span class="name">' + escapeHtml(p.name) + '</span><br>' +
+            '<span class="sub">' + escapeHtml(sub) + '</span>' +
+          '</span>' +
+        '</div>'
+      );
+    }).join('');
+    results.querySelectorAll('.ditem').forEach((row) => {
+      row.addEventListener('click', () => {
+        const pid = row.dataset.pid;
+        assign(posId, tier, pid);
+        closeDropdown();
+      });
+    });
+  }
+
+  function maybeCloseDropdown(e) {
+    const dd = $('#dropdown');
+    if (dd.contains(e.target)) return;
+    if (currentDropdownAnchor && currentDropdownAnchor.contains(e.target)) return;
+    closeDropdown();
+  }
+
+  function closeDropdown() {
+    const dd = $('#dropdown');
+    dd.style.display = 'none';
+    dd.innerHTML = '';
+    currentDropdownAnchor = null;
+    document.removeEventListener('click', maybeCloseDropdown);
+  }
+
+  // ============= assignment ops =============
+  function assign(posId, tier, playerId) {
+    // Same player can appear in multiple slots and at multiple tiers; we
+    // don't pull them out of other slots. The pick count next to their
+    // name in the roster reflects how many slots reference them.
+    assignments[posId][tier] = playerId;
+    renderPitch();
+    renderRoster();
+  }
+
+  // ============= add-form (guest / cross-team / custom) =============
+  function setupAddForm() {
+    $('#showAddBtn').addEventListener('click', () => {
+      const f = $('#addForm');
+      f.style.display = f.style.display === 'none' ? 'block' : 'none';
+    });
+    $$('#addForm .tab').forEach((tab) => {
+      tab.addEventListener('click', () => {
+        $$('#addForm .tab').forEach((t) => t.classList.remove('active'));
+        $$('#addForm .pane').forEach((p) => p.classList.remove('active'));
+        tab.classList.add('active');
+        $('#addForm .pane[data-pane="' + tab.dataset.tab + '"]').classList.add('active');
+      });
+    });
+    $$('#addForm button.cancel').forEach((b) => {
+      b.addEventListener('click', () => { $('#addForm').style.display = 'none'; });
+    });
+
+    // cross-team flow
+    $('#ctTeam').addEventListener('change', () => {
+      const sel = $('#ctTeam').value;
+      const playerSel = $('#ctPlayer');
+      playerSel.innerHTML = '<option value="">— pick a player —</option>';
+      if (!sel || !TEAMS[sel]) return;
+      TEAMS[sel].players.forEach((p) => {
+        const o = document.createElement('option');
+        o.value = p.id;
+        o.textContent = p.name + ' (' + p.pos + ', age ' + p.age + ')';
+        playerSel.appendChild(o);
+      });
+    });
+    $('#ctAdd').addEventListener('click', () => {
+      const teamKey = $('#ctTeam').value;
+      const pid = $('#ctPlayer').value;
+      if (!teamKey || !pid) return alert('Pick a team and a player.');
+      if (teamKey === currentTeam) return alert('That player is already on the current team.');
+      const src = TEAMS[teamKey].players.find((p) => p.id === pid);
+      if (!src) return;
+      if (roster.find((p) => p.id === pid)) return alert('Already on the roster.');
+      roster.push({
+        ...src,
+        kind: 'crossteam',
+        avClass: TEAMS[teamKey].avClass,
+        teamLabel: TEAMS[teamKey].name,
+        pos: src.pos + ' · from ' + TEAMS[teamKey].name,
+      });
+      renderRoster();
+      $('#addForm').style.display = 'none';
+    });
+
+    $('#guestAdd').addEventListener('click', () => {
+      const name = $('#guestName').value.trim();
+      if (!name) return alert('Name is required.');
+      const pos  = $('#guestPos').value.trim();
+      roster.push({
+        id: 'g' + Date.now(),
+        name: name,
+        pos: pos || '—',
+        kind: 'guest',
+        avClass: 'guest',
+        teamLabel: 'Guest',
+      });
+      $('#guestName').value = '';
+      $('#guestPos').value = '';
+      renderRoster();
+      $('#addForm').style.display = 'none';
+    });
+
+    $('#customAdd').addEventListener('click', () => {
+      const name = $('#customName').value.trim();
+      if (!name) return alert('Custom label is required.');
+      roster.push({
+        id: 'c' + Date.now(),
+        name: name,
+        pos: '—',
+        kind: 'custom',
+        avClass: 'custom',
+        teamLabel: 'Custom',
+      });
+      $('#customName').value = '';
+      renderRoster();
+      $('#addForm').style.display = 'none';
+    });
+  }
+
+  // ============= util =============
+  function escapeHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+  }
+
+  // ============= wiring =============
+  $('#teamSelect').addEventListener('change', (e) => {
+    currentTeam = e.target.value;
+    initRosterFromTeam(currentTeam);
+    resetAssignments();
+    renderRoster();
+    renderPitch();
+  });
+  $('#formationSelect').addEventListener('change', (e) => {
+    currentFormation = e.target.value;
+    ensureAssignmentSlots();
+    renderRoster();
+    renderPitch();
+  });
+  $('#resetBtn').addEventListener('click', () => {
+    resetAssignments();
+    renderRoster();
+    renderPitch();
+  });
+
+  // init
+  initRosterFromTeam(currentTeam);
+  resetAssignments();
+  setupAddForm();
+  renderRoster();
+  renderPitch();
+})();
+</script>
+</body>
+</html>

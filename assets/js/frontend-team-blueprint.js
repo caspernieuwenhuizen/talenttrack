@@ -135,8 +135,14 @@
     }
 
     function saveAssignment(blueprintId, slotLabel, tier, playerId) {
+        // #953 — in-repo callers send the canonical `ref` shape. The
+        // REST controller's coerceAssignmentRef() shim still accepts
+        // the legacy flat `player_id` for documented external API
+        // consumers (sunset v5.0.0 per docs/rest-api.md).
         var body = { slot_label: slotLabel, tier: tier || 'primary' };
-        if (playerId > 0) body.player_id = playerId;
+        body.ref = playerId > 0
+            ? { kind: 'player', player_id: playerId }
+            : null;
 
         fetch(cfg.rest_root + '/blueprints/' + blueprintId + '/assignment', {
             method: 'PUT',
@@ -546,7 +552,10 @@
             body: JSON.stringify({
                 slot_label: slotLabel,
                 tier:       tier,
-                player_id:  playerId === null ? 0 : playerId
+                // #953 — `ref` shape; null/0 player_id clears the cell.
+                ref: ( playerId === null || playerId === 0 )
+                    ? null
+                    : { kind: 'player', player_id: playerId }
             })
         })
         .then(function (r) {
