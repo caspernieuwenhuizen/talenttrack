@@ -15115,7 +15115,7 @@ msgstr "Wedstrijdvoorbereiding"
 
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:36
 msgid "Open Match prep from a match activity's detail page."
-msgstr ""
+msgstr "Open Wedstrijdvoorbereiding vanaf de detailpagina van een wedstrijd."
 
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:48
 msgid "Match prep is only available for match-type activities."
@@ -15125,7 +15125,7 @@ msgstr "Wedstrijdvoorbereiding is alleen beschikbaar voor wedstrijden."
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:85
 #, php-format
 msgid "Match prep — %1$s · %2$s"
-msgstr ""
+msgstr "Wedstrijdvoorbereiding — %1$s · %2$s"
 
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:116
 msgid "1-4-3-3"
@@ -15141,15 +15141,15 @@ msgstr "Beschikbaarheid beheren"
 
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:134
 msgid "min 1e"
-msgstr ""
+msgstr "min 1e"
 
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:135
 msgid "min 2e"
-msgstr ""
+msgstr "min 2e"
 
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:136
 msgid "tot"
-msgstr ""
+msgstr "tot"
 
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:139
 msgid "Attention"
@@ -15171,15 +15171,15 @@ msgstr "Plek · Speler"
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:167
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:175
 msgid "— Bench —"
-msgstr ""
+msgstr "— Bank —"
 
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:182
 msgid "Coach notes…"
-msgstr ""
+msgstr "Coachnotities…"
 
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:195
 msgid "Totals"
-msgstr ""
+msgstr "Totalen"
 
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:201
 msgid "→ Copy 1e to 2e"
@@ -33710,3 +33710,165 @@ msgstr "Alle posities op deze blauwdruk leegmaken? Dit kan niet ongedaan worden 
 #~ "Vandaag toont deze pagina academy-brede KPI's en de standaardrapporten "
 #~ "hierboven. De twee-koloms entiteitskiezer-indeling (speler / team / "
 #~ "activiteit / seizoen) volgt in een vervolgrelease."
+
+# v4.5.0 (#965) — Match prep 3-column rework + roles & set-piece takers.
+# These entries cover the strings introduced in the rewrite. A future
+# `chore(i18n): sync .pot from PHP source + msgmerge into .po` pass will
+# re-anchor the file:line references; the msgstr values survive msgmerge.
+
+msgid "Captain"
+msgstr "Aanvoerder"
+
+msgid "Corner left"
+msgstr "Hoekschop links"
+
+msgid "Corner right"
+msgstr "Hoekschop rechts"
+
+msgid "Free kick left (cross)"
+msgstr "Vrije trap links (voorzet)"
+
+msgid "Free kick right (cross)"
+msgstr "Vrije trap rechts (voorzet)"
+
+msgid "Penalty"
+msgstr "Strafschop"
+
+msgid "Roles & set pieces"
+msgstr "Rollen & standaardsituaties"
+
+msgid "Player focus"
+msgstr "Doen per speler"
+
+msgid "Selection · minutes"
+msgstr "Selectie · minuten"
+
+msgid "Match prep toolbar"
+msgstr "Werkbalk wedstrijdvoorbereiding"
+
+msgid "Formation"
+msgstr "Formatie"
+
+msgid "— Select —"
+msgstr "— Kies —"
+
+msgid "Half length"
+msgstr "Helftduur"
+
+msgid "min"
+msgstr "min"
+
+msgid "Availability"
+msgstr "Beschikbaarheid"
+
+msgid "PDF (landscape A4)"
+msgstr "PDF (liggend A4)"
+
+msgid "All changes saved."
+msgstr "Alle wijzigingen opgeslagen."
+
+msgid "Unsaved changes…"
+msgstr "Niet-opgeslagen wijzigingen…"
+
+msgid "Saving…"
+msgstr "Opslaan…"
+
+msgid "min"
+msgstr "min"
+
+msgid "First half lineup"
+msgstr "Opstelling 1e helft"
+
+msgid "Second half lineup"
+msgstr "Opstelling 2e helft"
+
+msgid "Copy 1st half lineup to 2nd half"
+msgstr "Kopieer opstelling 1e helft naar 2e helft"
+
+msgid "Match goals"
+msgstr "Wedstrijddoelen"
+
+msgid "Set pieces"
+msgstr "Spelhervattingen"
+
+#. translators: %d: line number 1..4
+#, php-format
+msgid "Goal %d…"
+msgstr "Doelstelling %d…"
+
+msgid "…"
+msgstr "…"
+
+msgid "Search player…"
+msgstr "Zoek speler…"
+
+msgid "No available players found."
+msgstr "Geen beschikbare spelers gevonden."
+
+msgid "Clear"
+msgstr "Leegmaken"
+
+msgid "on pitch"
+msgstr "op veld"
+
+#. translators: 1: slot number, 2: 1st or 2nd
+#, php-format
+msgid "Slot %1$s — %2$s half"
+msgstr "Plek %1$s — %2$s helft"
+
+msgid "1st"
+msgstr "1e"
+
+msgid "2nd"
+msgstr "2e"
+
+msgid "Present"
+msgstr "Aanwezig"
+
+msgid "Absent (excused)"
+msgstr "Afwezig (excused)"
+
+msgid "Injured"
+msgstr "Geblesseerd"
+
+msgid "Reason (optional)…"
+msgstr "Reden (optioneel)…"
+
+msgid "— Pick player —"
+msgstr "— Kies speler —"
+
+msgid "Pick player for role"
+msgstr "Kies speler voor rol"
+
+msgid "Open availability"
+msgstr "Beschikbaarheid openen"
+
+msgid "No availability captured yet."
+msgstr "Nog geen beschikbaarheid ingevuld."
+
+msgid "Mark all present"
+msgstr "Iedereen aanwezig"
+
+msgid "Done"
+msgstr "Klaar"
+
+msgid "Close"
+msgstr "Sluiten"
+
+msgid "Clear role"
+msgstr "Rol leegmaken"
+
+msgid "Attention text"
+msgstr "Aandachtspunt"
+
+msgid "Unknown role key."
+msgstr "Onbekende rol-sleutel."
+
+msgid "A player must be selected."
+msgstr "Een speler moet geselecteerd zijn."
+
+msgid "Invalid match prep id."
+msgstr "Ongeldig wedstrijdvoorbereidings-id."
+
+msgid "Could not save the role assignment."
+msgstr "Roltoewijzing kon niet worden opgeslagen."
