@@ -9,6 +9,19 @@ use TT\Modules\TeamDevelopment\Repositories\PairingsRepository;
  * BlueprintChemistryEngine — FIFA-Ultimate-Team-style pair chemistry on
  * a coach-authored lineup.
  *
+ * Tier contract (#953): chemistry is computed against the **primary
+ * tier only**. Tier-secondary and tier-tertiary entries are depth-chart
+ * signal — they do not contribute to the team score, nor do they draw
+ * pitch link lines. The repository's `loadPrimaryLineup()` is the
+ * canonical input source; it returns a flat `slot_label → player_id`
+ * map filtered to `ref_kind = 'player'` AND `tier = 'primary'`.
+ *
+ * Non-player refs (guest / custom) are skipped by construction — there
+ * is no `tt_players.id` to look up coach-pairings or side preferences
+ * against. The engine treats a guest- or custom-occupied cell as
+ * empty for scoring purposes (renders the neutral lattice link, no
+ * score, no contribution to the team total).
+ *
  * The classic FIFA model (≤ FIFA 22) draws coloured links between
  * formation-adjacent players and scores each link on shared traits
  * (club / league / nation). A youth football academy has none of those,

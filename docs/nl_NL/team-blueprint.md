@@ -22,16 +22,36 @@ Klik op **Aanmaken** en je komt direct in de editor met lege posities, klaar om 
 
 Drie regio's:
 
-- **Selectiebalk** — elke actieve speler in het team, als versleepbare chip. Spelers die al in de opstelling staan worden uitgegrijsd.
-- **Veld** — de posities van de formatie. Lege posities tonen een streepje `—`.
-- **Lijnchemie-kop** — `0 / 100` totdat je spelers begint te plaatsen, daarna ververst hij na elke drop.
+- **Selectiebalk** — elke actieve speler in het team, als versleepbare rij met avatar + naam + meta-regel. Een `×N`-badge verschijnt naast de naam zodra die speler op één of meer posities in de huidige formatie staat. Klik **+ Toevoegen ander team / gast / aangepast** voor een inline 3-tab-formulier (hieronder beschreven).
+- **Veld** — de posities van de formatie. Elke positie toont een genummerde cirkel (bv. `9 ST`) en een drielagige stack eronder: **primair / secundair / tertiair** diepte. De tier wordt twee keer gecodeerd — door het cijfer links van elke rij EN door de randkleur — zodat het diepteschema leesbaar blijft zonder kleur.
+- **Lijnchemie-kop** — `0 / 100` totdat je spelers begint te plaatsen, daarna ververst hij na elke wijziging.
 
-### Drag-drop-regels
+### Speler kiezen
 
-- Sleep een chip op een positie om die speler daar te plaatsen.
-- Sleep een chip van de ene positie naar de andere om te wisselen.
-- Sleep een chip terug naar de selectiebalk om uit de opstelling te halen.
-- Elke drop slaat direct op. Er is geen "Opslaan"-knop — de editor is de bron van waarheid.
+Twee manieren om een positie te vullen:
+
+- **Klik op een positie** → een kleine dropdown verschijnt met een zoekveld en de selectie. Filter op naam / positie, klik een rij om te plaatsen. Als een positie al iemand heeft, verschijnt onderin de dropdown een *Maak deze positie leeg*-regel.
+- **Sleep een selectierij** op een willekeurige positie. De positie accepteert de drop; de vorige bezetter van die tier wordt vervangen. Drag-drop en de dropdown gebruiken hetzelfde save-endpoint.
+
+Dezelfde speler kan op meerdere posities én op meerdere tiers staan — er is geen automatische dedupe. De `×N`-badge in de selectie laat zien hoeveel plekken ze innemen op de huidige formatie (oude toewijzingen uit een andere formatie tellen niet mee). Tier-1-plekken voeden de chemiescore; tier-2 en tier-3 zijn pure diepteschema-signalen en tellen niet mee voor chemie.
+
+### + Toevoegen ander team / gast / aangepast
+
+Drie tabs op het inline-toevoegformulier:
+
+- **Ander team** — kies een ander team in de club, dan een speler uit dat team. Voegt ze toe aan de selectie als ander-team-pick. Het thuisteam van de speler verschijnt in de meta-regel. Andere-team-spelers worden precies opgeslagen als thuisteam-spelers (`ref_kind=player`) — wat ze "ander-team" maakt is alleen het verschil in thuisteam.
+- **Gast** — typ een naam (bv. *"proefspeler op bezoek"*) en optioneel een positie. Voegt een gastrij toe aan de selectie.
+- **Aangepast** — typ een vrij label (bv. *"Scoutdoel #4"*). Voegt een aangepaste placeholder toe aan de selectie.
+
+Gast- en aangepaste toevoegingen zijn **alleen sessie-gebonden tot ze geplaatst worden**. Ze leven in de lokale selectie van de editor en worden pas opgeslagen wanneer ze daadwerkelijk in een tier-positie worden gezet — sluit je de editor zonder ze te plaatsen, dan zijn ze effectief weg. Eenmaal geplaatst draagt de toewijzing de ref en blijft de entry een reload overleven.
+
+### Formatie wisselen
+
+Een andere formatie kiezen uit de **Formatie**-dropdown boven het veld werkt de sjabloon van de blauwdruk bij. Positie-labels die in beide formaties bestaan behouden hun toewijzingen; nieuwe posities komen leeg binnen; verdwenen posities blijven stil in de database (zodat een heen-en-weer-wissel ze terugbrengt).
+
+### Opslaan
+
+Elke keuze slaat direct op via het assignments-endpoint. Er is geen "Opslaan"-batchknop — de editor is de bron van waarheid.
 
 ### Chemiescore
 
@@ -77,17 +97,9 @@ De variant ligt vast bij aanmaken.
 
 ### Diepteschema met tiers
 
-Op een selectieplan-blauwdruk verschijnt een diepteschema-tabel onder het veld:
+Wedstrijdopstelling en selectieplan **delen nu hetzelfde editor-oppervlak** (#953) — elke positie op het veld draagt de primaire / secundaire / tertiaire stack inline. Selectieplan-blauwdrukken leunen zwaarder op het diepteschema, maar een wedstrijdcoach mag prima tier 2 / 3 invullen (handig voor "als A geblesseerd raakt, komt B").
 
-| Positie | Primair | Secundair | Tertiair |
-| --- | --- | --- | --- |
-| GK | Lucas | Jonas | — |
-| LB | Eve | Mira | Jamal |
-| LCB | Sam | — | — |
-
-Elke cel is een drop-doel. Sleep een chip uit de selectiebalk naar een cel om die tier te vullen. Sleep een chip uit het diepteschema terug naar de selectiebalk om te verwijderen. De veldposities boven blijven ook drops accepteren — die richten op de **primaire** tier.
-
-Dezelfde speler kan niet op twee posities of tiers tegelijk staan in één blauwdruk. Sleep je Lucas van `GK / Primair` naar `LB / Secundair`, dan komt zijn GK-positie automatisch leeg.
+Dezelfde speler KAN op twee posities of tiers tegelijk staan — handig voor een veelzijdige speler die primair op één positie staat en secundaire cover op een andere. De `×N`-badge in de selectie houdt het beeld eerlijk.
 
 ### Proefspeler-overlay
 
@@ -106,7 +118,9 @@ Elke positie toont `N/3` zodat je in één oogopslag ziet waar de gaten zitten. 
 
 ### Chemie op een selectieplan-blauwdruk
 
-Chemie scoort alleen de **basiself** — de primaire tier. Tier 2 en 3 zijn dieptesignalen, geen opstellingssignalen. De kop weerspiegelt de primaire opstelling; lijnen lopen tussen de primaire spelers.
+Chemie scoort alleen de **basiself** — de primaire tier. Tier 2 en 3 zijn dieptesignalen, geen opstellingssignalen. De kop weerspiegelt de primaire opstelling; lijnen lopen tussen de primaire spelers. Cellen met gast- of aangepaste invulling worden door de engine overgeslagen omdat er geen `tt_players.id` is om coach-duo's of voorkeursbenen tegen op te zoeken.
+
+Als een positie tier-2 of tier-3 entries heeft maar **geen** tier-1 bezetting, verschijnt boven het veld een waarschuwingsstrip met de betreffende posities — chemie negeert die cellen stilletjes, dus de strip maakt het scoreverlies zichtbaar. Vul tier-1 om ze weer mee te laten tellen.
 
 ## Reacties (#0068 Fase 3)
 

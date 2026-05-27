@@ -28421,3 +28421,122 @@ msgstr ""
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr ""
+
+# v4.4.0 — Blueprint editor depth-chart UI (#953)
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php
+msgid "Blueprint saved."
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php
+#, php-format
+msgid "Tier-1 unassigned on: %s — chemistry score skips these slots."
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php
+#, php-format
+msgid "%s — roster"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php
+msgid "Drag a player onto a slot, or click a slot to pick from the list."
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php
+msgid "+ Add cross-team / guest / custom"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php
+msgid "Other team"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php
+msgid "— pick a player —"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php
+msgid "Add to roster"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php
+msgid "Add custom"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php
+msgid "Guest name"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php
+msgid "Guest name (e.g. visiting trialist)"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php
+msgid "Position (optional, e.g. ST)"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php
+msgid "Custom label"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php
+msgid "Custom label (e.g. \"Scout target #4\")"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php
+msgid "Pitch"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php
+msgid "Clear all slots"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php
+msgid "cross-team"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php
+msgid "guest"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php
+msgid "custom"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php
+msgid "player"
+msgstr ""
+
+#. translators: %s = tier number 1/2/3
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php
+#, php-format
+msgid "Pick a player for tier %s"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php
+msgid "No players match."
+msgstr ""
+
+#. translators: %d = placement count for that player
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php
+#, php-format
+msgid "×%d on pitch"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php
+msgid "Pick a team and a player."
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php
+msgid "That player is already on the roster."
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php
+msgid "Name is required."
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php
+msgid "Custom label is required."
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php
+msgid "Clear every slot on this blueprint? This cannot be undone."
+msgstr ""

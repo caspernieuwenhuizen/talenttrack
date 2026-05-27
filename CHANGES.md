@@ -1,76 +1,67 @@
-# TalentTrack v4.3.22 — Wizard `submit()` post-create redirect fix (#940 follow-up)
+# TalentTrack v4.4.0 — Blueprint editor depth-chart UI (closes #953)
 
-## Symptom
+UI follow-up to the v4.3.21 foundation ship. Replaces the single-slot pitch overlay with a three-tier depth-chart stack per pitch position and adds cross-team / guest / custom roster augmentation. Matches the in-tree prototype at `.local-mockups/blueprint-editor/index.html` as the design-of-record.
 
-Clicking **Create** on the new-team-blueprint wizard sent the coach to:
+This ship closes #953. The schema, repository ref-shape, REST shim and chemistry-engine transparency landed in v4.3.21; this PR ports the editor UI on top.
 
-```
-http://jg4it.mediamaniacs.nl/wp-admin/admin-post.php?tt_view=team-blueprints&id=2
-```
+## What changes
 
-instead of the expected dashboard URL with the same query args.
+### Editor surface — `FrontendTeamBlueprintsView::renderEditor`
 
-## Root cause — admin-post.php is the request context during submit
+- Each pitch position now renders a numbered circle + a three-row stack (`primary` / `secondary` / `tertiary`) directly underneath. The previous single-player-overlay layout is gone. Both flavours (match-day and squad-plan) share the same surface.
+- Tier is encoded twice per row — by the digit on the left pill AND by the row's border colour (`var(--tt-chem-green-token)` / `var(--tt-chem-amber-token)` / neutral grey) — so the depth chart stays readable without colour.
+- Clicking a slot opens a dropdown picker over the roster with a search input. The picker re-uses the JS-side roster augmentation, so cross-team / guest / custom entries appear in the list as soon as they're added.
+- Drag-drop still works; the drop target is now the individual tier row rather than the single circle.
+- Roster sidebar gains an `×N` badge on each player that reflects the number of placements in the **current formation only** (stale entries from previous formations don't inflate the badge).
+- A new **+ Add cross-team / guest / custom** button opens an inline three-tab form (Other team / Guest / Custom). Cross-team adds a sibling-club player to the roster as `ref_kind=player`; Guest adds a name + optional position; Custom adds a free-text label. Augmentations are session-only — they only persist when actually placed in a slot.
+- Formation switch dropdown above the pitch lets the coach swap the blueprint's formation template; assignments keyed on slot_label survive the switch (slots in the new formation rehydrate from existing rows; slots that drop out stay in the database silently so a round-trip switch restores them).
+- "Clear all slots" toolbar button calls the bulk-replace endpoint with an empty map.
 
-Direct consequence of the v4.3.16 / #940 admin-post.php switch. The wizard step `submit()` handlers build their post-create `redirect_url` via `WizardEntryPoint::currentDashboardUrl()`, which reads `$_SERVER['REQUEST_URI']`. During admin-post.php processing the request URI is `/wp-admin/admin-post.php` — the helper returned that path as the dashboard base, and `add_query_arg()` appended the wizard's `tt_view=team-blueprints&id=N` onto it.
+### REST — `GET /blueprints/{id}` hydration
 
-`Modules/Wizards/TeamBlueprint/ReviewStep::submit()`:
+GET responses now include `blueprint.assignment_refs` — the same per-slot/per-tier ref map the repository's `loadAssignmentRefs()` returns, but with display fields denormalised: `display_name` on every kind, plus `team_id` and `team_name` on player refs. The plain `assignments` map stays as the legacy `slot → tier → player_id` shape for callers that only need the primary-tier-player lineup (chemistry, share-link view).
 
-```php
-return [ 'redirect_url' => add_query_arg(
-    [ 'tt_view' => 'team-blueprints', 'id' => $id ],
-    WizardEntryPoint::currentDashboardUrl()   // ← /wp-admin/admin-post.php during admin-post
-) ];
-```
+### Chemistry engine — `BlueprintChemistryEngine` docblock
 
-The same defect affects every wizard whose `submit()` returns a dashboard-relative `redirect_url` (the new-tournament wizard was on the same code path).
+Top-of-class docblock now spells out the contract explicitly: chemistry is computed against the **primary tier only**, and non-player refs (guest / custom) are skipped by construction because there's no `tt_players.id` to look up coach-pairings or side preferences against. The behaviour was already correct (driven by `loadPrimaryLineup()` filtering to `ref_kind='player'`); the docblock makes the contract visible to future readers.
 
-## Fix — per-process dashboard URL override
+### Warning strip — slots missing tier-1
 
-`WizardEntryPoint::currentDashboardUrl()` now consults a static override before falling back to `REQUEST_URI`. The admin-post handler installs the override (the return URL stripped of wizard-specific query args) before invoking any step methods.
+When a blueprint has tier-2 or tier-3 entries but no tier-1, a warning strip appears above the pitch listing the affected slots: *"Tier-1 unassigned on: ST, CM — chemistry score skips these slots."* Surfaces the silent score-drop the chemistry-only-scores-primary contract would otherwise hide.
 
-**`WizardEntryPoint.php`** — new override slot:
+### New asset files
 
-```php
-public static function setRequestContextOverride( ?string $url ): void { ... }
-private static ?string $request_context_override = null;
+- `assets/css/frontend-blueprint-editor.css` — mobile-first per CLAUDE.md §2. Base CSS targets ~360px; `min-width` breakpoints at 480 / 768 / 1024 scale up. All interactive targets ≥ 48px tap area (slot rows are 22px visually but bumped to 48px hit target via a hit-overlay pseudo). No hover-only functionality.
+- `assets/js/components/blueprint-editor.js` — pure vanilla JS, no framework. Drives roster render, pitch render, dropdown picker, drag-drop, the inline add-form, and the formation switch.
 
-public static function currentDashboardUrl(): string {
-    if ( self::$request_context_override !== null ) {
-        return self::$request_context_override;
-    }
-    // … existing REQUEST_URI fallback
-}
-```
+### Localised config
 
-**`FrontendWizardView::handleAdminPostStep()`** — install the override:
+The view localises a new `TT_BLUEPRINT_EDITOR` config object (separate from the legacy `TT_BLUEPRINT` so neither contract depends on the other). Carries the slot list, hydrated assignment refs, team roster, sibling teams (for the cross-team picker), and i18n strings.
 
-```php
-WizardEntryPoint::setRequestContextOverride(
-    self::dashboardOnly( $return_url )
-);
-```
+## Files touched
 
-New `dashboardOnly()` helper strips wizard-specific query args (`tt_view`, `tt_wizard`, `slug`, `restart`, `dismiss_resume`, `return_to`, `tt_back`) so step handlers see a clean dashboard base.
+- `talenttrack.php` — version bump 4.3.21 → 4.4.0.
+- `readme.txt` — Stable tag 4.3.21 → 4.4.0.
+- `src/Modules/TeamDevelopment/BlueprintChemistryEngine.php` — docblock only.
+- `src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php` — `get_blueprint` adds `assignment_refs` hydration.
+- `src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php` — `renderEditor()` rewrite; new `renderBlueprintEditor()`, `renderEditorToolbarFormation()`, `localiseBlueprintEditor()`, `hydrateAssignmentRefsForEditor()`. Old `renderRosterChips`/`overlaySlotDropTargets`/`renderDepthChart` remain in the file as unused legacy helpers (deferred removal — the heatmap path could still call them; safer to ship without dead-code-deletion churn).
+- `assets/css/frontend-blueprint-editor.css` — new file.
+- `assets/js/components/blueprint-editor.js` — new file.
+- `docs/team-blueprint.md` + `docs/nl_NL/team-blueprint.md` — editor section rewritten.
+- `languages/talenttrack.pot` + `languages/talenttrack-nl_NL.po` — new msgids with Dutch translations.
+- `CHANGES.md` — this file.
 
-## What this restores
+## Why minor
 
-| Wizard | Before | After |
-|---|---|---|
-| new-team-blueprint Create | `/wp-admin/admin-post.php?tt_view=team-blueprints&id=N` | `<dashboard>/?tt_view=team-blueprints&id=N` |
-| new-tournament Create | same defect | same fix |
-| Any future wizard `submit()` returning a dashboard-relative `redirect_url` | bogus base | correct base |
+New behaviour epic (depth-chart layout, cross-team / guest / custom refs, formation switch, hydrated REST). Patch reset to 0 per SemVer.
 
 ## Validation
 
-- Pilot install: complete the new-team-blueprint wizard → Create → lands on the dashboard's blueprint editor at `?tt_view=team-blueprints&id=N`.
-- No regression on wizard step transitions (already-shipped admin-post path).
-- No regression on wizards that return absolute `redirect_url` from `submit()` (the override doesn't affect callers that bypass `currentDashboardUrl()`).
-
-## Why patch
-
-Bug fix completing the #940 admin-post switch within the 4.3 minor.
-
-## Bumped
-
-`talenttrack.php` Version + `TT_VERSION` + `readme.txt` Stable tag: `4.3.21` → `4.3.22`.
+- Existing blueprints with only tier-1 player refs render correctly: same chemistry score, same lines.
+- Switching formation from 4-3-3 → 4-4-2 → 4-3-3 round-trips assignments cleanly (slot labels match, rows survive).
+- Click-slot dropdown picker filters by name + position + team name.
+- `+ Add → Other team` adds a sibling player to the roster; placing them sends a `ref={kind:player,player_id:N}` body that the repository persists with the same `ref_kind='player'` discriminator.
+- `+ Add → Guest` and `Custom` augmentations stay session-only until placed; placement persists via the new ref-aware columns from migration `0129`.
+- Roster `×N` badge updates after every placement.
+- "Clear all slots" toolbar button wipes every assignment row via the bulk endpoint.
+- Chemistry warning strip appears when any slot has tier-2/3 without tier-1.

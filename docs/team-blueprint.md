@@ -22,16 +22,36 @@ Click **Create** and you land on the editor with empty slots, ready to fill.
 
 Three regions:
 
-- **Roster sidebar** — every active player on the team, as a draggable chip. Players already in the lineup show greyed out.
-- **Pitch** — the formation slots. Empty slots show a dashed `—`.
-- **Link chemistry headline** — `0 / 100` until you start placing players, then updates after every drop.
+- **Roster sidebar** — every active player on the team, as a draggable row with avatar + name + meta line. An `×N` badge appears next to the name as soon as that player sits in one or more slots on the current formation. Hitting **+ Add cross-team / guest / custom** opens an inline 3-tab form (more on that below).
+- **Pitch** — the formation slots. Each position renders a numbered circle (e.g. `9 ST`) and a three-row stack underneath: **primary / secondary / tertiary** depth. The tier is encoded twice — by the digit on the left of each row AND by the row's border colour — so the depth chart stays readable without colour.
+- **Link chemistry headline** — `0 / 100` until you start placing players, then updates after every change.
 
-### Drag-drop rules
+### Picking a player
 
-- Drag a chip onto a slot to assign that player there.
-- Drag a chip from one slot onto another to move them.
-- Drag a chip back onto the roster sidebar to remove from the lineup.
-- Each drop saves immediately. There's no "Save" button — the editor is the source of truth.
+Two ways to fill a slot:
+
+- **Click a slot** → a small dropdown opens with a search box and the team roster. Filter by name / position, click a row to place. When a slot already has someone, a *Clear this slot* row appears at the bottom of the dropdown.
+- **Drag a roster row** onto any slot. The slot accepts the drop; previous occupant of the target tier is replaced. Drag-drop and the dropdown both call the same save endpoint.
+
+The same player can sit in multiple slots and at multiple tiers — there's no automatic dedupe. The `×N` badge in the roster reflects how many placements they hold on the current formation (stale assignments from a previous formation don't count). Tier-1 placements feed the chemistry score; tier-2 and tier-3 are pure depth-chart signal and don't contribute to chemistry.
+
+### + Add cross-team / guest / custom
+
+Three tabs on the inline add form:
+
+- **Other team** — pick a sibling team in the club, then a player from that team. Adds them to the roster as a cross-team pick. The player's home team appears in their roster meta line. Cross-team players are stored exactly like home-team players (`ref_kind=player`) — what makes them "cross-team" is just the home-team mismatch.
+- **Guest** — type a name (e.g. *"visiting trialist"*) and an optional position. Adds a guest row to the roster.
+- **Custom** — type a free-text label (e.g. *"Scout target #4"*). Adds a custom placeholder to the roster.
+
+Guest and custom additions are **session-only until placed**. They live in the editor's local roster and are only persisted when actually dropped into a tier slot — so closing the editor without placing them effectively erases them. Once placed, the placement row carries the ref and the entry survives a reload.
+
+### Formation switch
+
+Picking a different formation from the **Formation** dropdown above the pitch updates the blueprint's template. Slot labels that exist in both formations keep their assignments; new slots come in empty; slots that disappear from the new formation are kept in the database silently (so a round-trip switch restores them).
+
+### Saving
+
+Each pick saves immediately to the assignments endpoint. There's no batch "Save" — the editor is the source of truth.
 
 ### Chemistry score
 
@@ -77,17 +97,9 @@ The flavour is locked at create time.
 
 ### Tiered depth chart
 
-On a squad-plan blueprint, a depth-chart table appears below the pitch:
+The match-day and squad-plan flavours **share the same editor surface** now (#953) — every position on the pitch carries the primary / secondary / tertiary stack inline. Squad-plan blueprints rely on the depth chart more heavily, but a match-day coach is free to fill tier 2 / 3 too (handy for "if A gets injured, B comes in").
 
-| Slot | Primary | Secondary | Tertiary |
-| --- | --- | --- | --- |
-| GK | Lucas | Jonas | — |
-| LB | Eve | Mira | Jamal |
-| LCB | Sam | — | — |
-
-Each cell is a drop target. Drag any roster chip onto any cell to fill that tier. Drag a depth-chart chip back to the roster panel to remove. The pitch slots above keep accepting drops too — they target the **primary** tier.
-
-The same player can't sit in two slots or tiers on one blueprint. If you drag Lucas from `GK / Primary` onto `LB / Secondary`, his GK slot empties automatically.
+The same player CAN sit in two slots or tiers on one blueprint — useful for a versatile player who's the primary at one slot and the secondary cover at another. The roster's `×N` badge keeps the picture honest.
 
 ### Trial overlay
 
@@ -106,7 +118,9 @@ Each slot shows `N/3` so you can read the page at a glance: where are the gaps? 
 
 ### Chemistry on a squad-plan blueprint
 
-Chemistry only scores the **starting XI** — i.e. the primary tier. Tier 2 and 3 are depth signal, not lineup signal. The headline number reflects the primary lineup; lines render between the primary players.
+Chemistry only scores the **starting XI** — i.e. the primary tier. Tier 2 and 3 are depth signal, not lineup signal. The headline number reflects the primary lineup; lines render between the primary players. Guest- and custom-occupied cells are skipped by the engine because they have no `tt_players.id` to look up coach-pairings or side preferences against.
+
+If a slot has tier-2 or tier-3 entries but **no** tier-1 occupant, a warning strip lists the affected slots above the pitch — chemistry silently ignores those cells, so the strip makes the score drop visible. Fill tier-1 to bring them back into the score.
 
 ## Comments (#0068 Phase 3)
 
