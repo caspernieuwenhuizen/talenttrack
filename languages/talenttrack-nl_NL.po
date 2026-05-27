@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-05-27T20:33:54+00:00\n"
+"POT-Creation-Date: 2026-05-27T20:43:37+00:00\n"
 "PO-Revision-Date: 2026-04-25 10:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -135,9 +135,9 @@ msgstr "Team Manager"
 #: src/Shared/Frontend/DashboardShortcode.php:1136
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:815
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:826
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:921
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:944
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1012
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:927
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:950
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1005
 #: src/Shared/Frontend/FrontendConfigurationView.php:1318
 #: src/Shared/Frontend/FrontendEvaluationsView.php:153
 #: src/Shared/Frontend/FrontendEvaluationsView.php:167
@@ -2213,9 +2213,9 @@ msgstr "Type"
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:665
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:816
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:829
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:922
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:951
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1013
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:928
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:957
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1006
 #: src/Shared/Frontend/FrontendExportsView.php:74
 #: src/Shared/Frontend/FrontendExportsView.php:102
 #: src/Shared/Frontend/FrontendExportsView.php:218
@@ -2560,9 +2560,9 @@ msgstr "— Alle —"
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:737
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:817
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:836
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:923
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:954
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1014
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:929
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:960
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1007
 #: src/Shared/Frontend/FrontendEvaluationsView.php:157
 #: src/Shared/Frontend/FrontendEvaluationsView.php:419
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:135
@@ -2629,12 +2629,12 @@ msgstr "Gast-aanwezigen"
 
 #: src/Modules/Activities/Admin/ActivitiesPage.php:396
 #: src/Modules/Activities/Admin/ActivitiesPage.php:407
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:936
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:939
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:946
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1010
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1025
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1026
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:942
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:945
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:952
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1003
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1022
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1023
 msgid "Guest"
 msgstr "Gast"
 
@@ -5278,6 +5278,7 @@ msgstr "Wijzigingen toepassen"
 #: src/Shared/Frontend/Components/FrontendThreadView.php:170
 #: src/Shared/Frontend/Components/GuestAddModal.php:112
 #: src/Shared/Frontend/DashboardShortcode.php:119
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1015
 #: src/Shared/Frontend/FrontendConfigurationView.php:549
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:178
 #: src/Shared/Frontend/FrontendEvalCategoriesView.php:194
@@ -18140,9 +18141,9 @@ msgstr "KPI toevoegen"
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:537
 #: src/Shared/Admin/OptionSetEditor.php:135
 #: src/Shared/Frontend/DashboardShortcode.php:113
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:963
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:980
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1017
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:974
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1008
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1014
 #: src/Shared/Frontend/FrontendConfigurationView.php:1037
 #: src/Shared/Frontend/FrontendPlayersManageView.php:352
 #: src/Shared/Frontend/FrontendTeamsManageView.php:311
@@ -26469,7 +26470,7 @@ msgstr "Opslaan mislukt."
 
 #: src/Shared/Admin/DragReorder.php:149
 #: src/Shared/Frontend/DashboardShortcode.php:82
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1023
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1020
 #: src/Shared/Frontend/FrontendConfigurationView.php:570
 #: src/Shared/Frontend/FrontendConfigurationView.php:661
 msgid "Network error."
@@ -27442,7 +27443,7 @@ msgid "Edit window has expired."
 msgstr "Bewerkvenster is verlopen."
 
 #: src/Shared/Frontend/Components/GuestAddModal.php:47
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:991
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:984
 msgid "Add guest"
 msgstr "Gast toevoegen"
 
@@ -27464,11 +27465,9 @@ msgstr ""
 
 #: src/Shared/Frontend/Components/GuestAddModal.php:82
 msgid ""
-"No TalentTrack record needed. Fill in the basics; you can promote this guest "
-"to a real player later."
+"No TalentTrack record needed. Fill in the basics; the guest is recorded "
+"against this activity only."
 msgstr ""
-"Geen TalentTrack-record nodig. Vul de basisgegevens in; je kunt deze gast "
-"later promoveren naar een echte speler."
 
 #: src/Shared/Frontend/Components/MultiSelectTagComponent.php:33
 msgid "Select"
@@ -27853,47 +27852,41 @@ msgid "Players from outside the squad. Guests do not count toward team stats."
 msgstr ""
 "Spelers van buiten de selectie. Gasten tellen niet mee in teamstatistieken."
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:929
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:935
 msgid "No guests added yet."
 msgstr "Nog geen gasten toegevoegd."
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:940
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1011
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:946
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1004
 msgid "(unaffiliated)"
 msgstr "(geen team)"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:961
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1015
-msgid "Evaluate"
-msgstr "Beoordelen"
-
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:976
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1024
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:971
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1021
 msgid "Notes…"
 msgstr "Notities…"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:978
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1016
-msgid "Add as player"
-msgstr "Promoveer naar speler"
-
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1018
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1012
 msgid "Remove this guest?"
 msgstr "Deze gast verwijderen?"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1019
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1013
+msgid "Remove guest"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1016
 msgid "Pick a player."
 msgstr "Kies een speler."
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1020
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1017
 msgid "Name is required."
 msgstr "Naam is verplicht."
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1021
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1018
 msgid "Could not add guest."
 msgstr "Gast toevoegen is niet gelukt."
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1022
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1019
 msgid "Saving activity first…"
 msgstr "Activiteit wordt eerst opgeslagen…"
 
@@ -32022,6 +32015,19 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
+
+#~ msgid ""
+#~ "No TalentTrack record needed. Fill in the basics; you can promote this "
+#~ "guest to a real player later."
+#~ msgstr ""
+#~ "Geen TalentTrack-record nodig. Vul de basisgegevens in; je kunt deze gast "
+#~ "later promoveren naar een echte speler."
+
+#~ msgid "Evaluate"
+#~ msgstr "Beoordelen"
+
+#~ msgid "Add as player"
+#~ msgstr "Promoveer naar speler"
 
 #~ msgid "Specific goals"
 #~ msgstr "Specifieke doelen"
