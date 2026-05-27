@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-05-27T20:02:43+00:00\n"
+"POT-Creation-Date: 2026-05-27T20:10:45+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -25259,9 +25259,9 @@ msgid "Player progress, team rating averages, coach activity."
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:738
-#: src/Shared/Frontend/FrontendExportsView.php:277
-#: src/Shared/Frontend/FrontendExportsView.php:285
-#: src/Shared/Frontend/FrontendExportsView.php:291
+#: src/Shared/Frontend/FrontendExportsView.php:287
+#: src/Shared/Frontend/FrontendExportsView.php:295
+#: src/Shared/Frontend/FrontendExportsView.php:301
 msgid "Exports"
 msgstr ""
 
@@ -27395,50 +27395,54 @@ msgid ""
 "All club tables per SheetSchemas layout — for import round-trips. Admin-only."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:286
+#: src/Shared/Frontend/FrontendExportsView.php:296
 msgid ""
 "You do not have access to any bulk exporters. Per-record exports (player one-"
 "pager, evaluation PDF, etc.) are still available from each record's detail "
 "page."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:294
+#: src/Shared/Frontend/FrontendExportsView.php:304
 msgid ""
 "Bulk exporters in one place. Per-record exports (player one-pager, scouting "
 "report PDF, PDP, etc.) stay on each record's detail page where the relevant "
 "id is in context."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:335
+#: src/Shared/Frontend/FrontendExportsView.php:446
 msgid ""
 "Export request failed: session expired. Please reload the page and try again."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:341
+#: src/Shared/Frontend/FrontendExportsView.php:448
 msgid "Export request failed: missing exporter key."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:347
+#: src/Shared/Frontend/FrontendExportsView.php:450
 msgid "Export request failed: no exporter registered for that key."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:440
+#: src/Shared/Frontend/FrontendExportsView.php:459
+msgid "Export request failed."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendExportsView.php:506
 msgid "Format"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:441
+#: src/Shared/Frontend/FrontendExportsView.php:507
 msgid "Export format"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:456
+#: src/Shared/Frontend/FrontendExportsView.php:522
 msgid "Export"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:477
+#: src/Shared/Frontend/FrontendExportsView.php:543
 msgid "optional"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendExportsView.php:483
+#: src/Shared/Frontend/FrontendExportsView.php:549
 msgid "— all teams —"
 msgstr ""
 
