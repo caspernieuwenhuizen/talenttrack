@@ -264,14 +264,24 @@ class FrontendExportsView extends FrontendViewBase {
     }
 
     public static function render( int $user_id, bool $is_admin ): void {
-        // v4.2.2 (#903) — form-POST handler. On success the handler
-        // streams the file and `exit`s; on auth/validation failure
-        // self::$post_error is set and the page falls through to render
-        // normally with an error notice surfaced above the grid. Runs
-        // BEFORE breadcrumbs/headers so download headers can fire
-        // without the template chrome being half-flushed first.
-        if ( ( $_SERVER['REQUEST_METHOD'] ?? '' ) === 'POST' && isset( $_POST['tt_export_key'] ) ) {
-            self::handleExportPost( $user_id );
+        // #939 — Exports surface is GET-only. The download path used to
+        // live in this method via `handleExportPost()`, but it ran
+        // INSIDE the `[talenttrack_dashboard]` shortcode — i.e. after
+        // `wp_head()`, after the theme had streamed `<!DOCTYPE html>`
+        // + header + nav, and inside the shortcode's own `ob_start()`.
+        // Result: `header('Content-Type: ...')` silently failed
+        // (headers already sent), and the binary/CSV bytes echoed into
+        // the OB buffer appended AFTER the page HTML. Browser saved
+        // the whole HTML-plus-binary blob with the requested filename
+        // and Content-Type text/html → corrupt XLSX, HTML-prefixed CSV.
+        //
+        // Form POSTs now target admin-post.php (`action=tt_export`)
+        // handled by `handleAdminPostExport()`, registered via
+        // `ExportModule::boot()`. admin-post.php doesn't bootstrap the
+        // theme, so headers are clean and binary content uncorrupted.
+        // Mirrors the wizard-form switch in #940.
+        if ( isset( $_GET['tt_export_error'] ) ) {
+            self::$post_error = self::messageForExportError( sanitize_key( (string) wp_unslash( (string) $_GET['tt_export_error'] ) ) );
         }
 
         FrontendBreadcrumbs::fromDashboard( __( 'Exports', 'talenttrack' ) );
@@ -314,38 +324,51 @@ class FrontendExportsView extends FrontendViewBase {
     }
 
     /**
-     * v4.2.2 (#903) — handle a form POST submission. Verifies nonce,
-     * builds an ExportRequest from sanitised POST data, runs the
-     * service, and streams the file. On success: emits headers, echoes
-     * bytes, and `exit`s — control never returns. On failure: sets
-     * self::$post_error and returns; the page render continues and
-     * surfaces the error notice above the export grid.
+     * #939 — admin-post.php handler for an export form POST.
      *
-     * Reserved POST fields stripped from the filter map: `_tt_export_nonce`,
-     * `tt_export_key`, `format`, `entity_id`, `brand`, plus WordPress'
-     * `_wpnonce` / `_wp_http_referer` which slip in via the form chrome.
-     * Everything else is treated as a filter and handed to the exporter
-     * for validation — same contract the REST controller honours.
+     * Why: the prior in-shortcode handler ran AFTER `wp_head()` had
+     * already flushed the theme chrome; `header('Content-Type: …')`
+     * silently failed and binary bytes appended after `</html>`. CSV
+     * downloads contained the dashboard HTML; XLSX downloads were
+     * corrupt (ZIP signature not at byte 0). admin-post.php loads
+     * `wp-load.php` but doesn't bootstrap the theme, so download
+     * headers fire cleanly and bytes go straight onto the wire.
+     *
+     * On success: emits headers, echoes bytes, `exit`s. On failure:
+     * redirects back to `?tt_view=exports&tt_export_error=<key>` and
+     * carries the error message via the same transient mechanism as
+     * the wizard handler (#940), so the next GET surfaces a visible
+     * notice above the export grid.
      */
-    private static function handleExportPost( int $user_id ): void {
+    public static function handleAdminPostExport(): void {
+        $user_id = get_current_user_id();
+        if ( $user_id <= 0 ) {
+            wp_safe_redirect( wp_login_url() );
+            exit;
+        }
+
+        $return_url = isset( $_POST['tt_export_return_url'] )
+            ? esc_url_raw( wp_unslash( (string) $_POST['tt_export_return_url'] ) )
+            : '';
+        if ( $return_url === '' ) {
+            $return_url = add_query_arg( 'tt_view', 'exports', \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl() );
+        }
+
         $nonce = isset( $_POST['_tt_export_nonce'] )
             ? sanitize_text_field( wp_unslash( (string) $_POST['_tt_export_nonce'] ) )
             : '';
         if ( ! wp_verify_nonce( $nonce, 'tt_export' ) ) {
-            self::$post_error = __( 'Export request failed: session expired. Please reload the page and try again.', 'talenttrack' );
-            return;
+            self::redirectWithExportError( $return_url, 'nonce' );
         }
 
         $key = sanitize_key( (string) ( $_POST['tt_export_key'] ?? '' ) );
         if ( $key === '' ) {
-            self::$post_error = __( 'Export request failed: missing exporter key.', 'talenttrack' );
-            return;
+            self::redirectWithExportError( $return_url, 'missing_key' );
         }
 
         $exporter = ExporterRegistry::get( $key );
         if ( $exporter === null ) {
-            self::$post_error = __( 'Export request failed: no exporter registered for that key.', 'talenttrack' );
-            return;
+            self::redirectWithExportError( $return_url, 'unknown_key' );
         }
 
         $format = (string) ( $_POST['format'] ?? '' );
@@ -361,7 +384,7 @@ class FrontendExportsView extends FrontendViewBase {
         $brand_raw = $_POST['brand'] ?? null;
         $brand     = is_string( $brand_raw ) && in_array( $brand_raw, [ 'auto', 'blank', 'letterhead' ], true ) ? $brand_raw : null;
 
-        $reserved = [ '_tt_export_nonce', 'tt_export_key', 'format', 'entity_id', 'brand', '_wpnonce', '_wp_http_referer' ];
+        $reserved = [ 'action', '_tt_export_nonce', 'tt_export_key', 'tt_export_return_url', 'format', 'entity_id', 'brand', '_wpnonce', '_wp_http_referer' ];
         $filters  = [];
         foreach ( $_POST as $k => $v ) {
             $k = (string) $k;
@@ -390,8 +413,8 @@ class FrontendExportsView extends FrontendViewBase {
         try {
             $result = ( new ExportService() )->run( $request );
         } catch ( ExportException $e ) {
-            self::$post_error = $e->getMessage();
-            return;
+            set_transient( 'tt_export_err_' . $user_id, $e->getMessage(), 60 );
+            self::redirectWithExportError( $return_url, 'service' );
         }
 
         nocache_headers();
@@ -400,6 +423,42 @@ class FrontendExportsView extends FrontendViewBase {
         header( 'Content-Disposition: attachment; filename="' . str_replace( '"', '', $result->filename ) . '"' );
         echo $result->bytes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- binary download.
         exit;
+    }
+
+    /**
+     * Redirect back to the exports page with a coded error key. The
+     * `service` error code additionally consumes a transient set by
+     * the caller carrying the human-readable message.
+     */
+    private static function redirectWithExportError( string $return_url, string $code ): void {
+        wp_safe_redirect( add_query_arg( 'tt_export_error', $code, $return_url ) );
+        exit;
+    }
+
+    /**
+     * Resolve a coded error key from the query string into a
+     * human-readable notice shown above the export grid. The `service`
+     * code consumes the per-user transient set by the handler.
+     */
+    private static function messageForExportError( string $code ): ?string {
+        switch ( $code ) {
+            case 'nonce':
+                return __( 'Export request failed: session expired. Please reload the page and try again.', 'talenttrack' );
+            case 'missing_key':
+                return __( 'Export request failed: missing exporter key.', 'talenttrack' );
+            case 'unknown_key':
+                return __( 'Export request failed: no exporter registered for that key.', 'talenttrack' );
+            case 'service':
+                $user_id = get_current_user_id();
+                $key     = 'tt_export_err_' . $user_id;
+                $msg     = get_transient( $key );
+                if ( $msg !== false ) {
+                    delete_transient( $key );
+                    return (string) $msg;
+                }
+                return __( 'Export request failed.', 'talenttrack' );
+        }
+        return null;
     }
 
     /**
@@ -427,9 +486,16 @@ class FrontendExportsView extends FrontendViewBase {
         echo '<div class="tt-export-card__header"><strong class="tt-export-card__title">' . esc_html( $label ) . '</strong></div>';
         echo '<p class="tt-export-card__desc">' . esc_html( $desc ) . '</p>';
 
-        echo '<form class="tt-export-form tt-export-card__form" method="POST" action="" data-export-key="' . esc_attr( $key ) . '" data-export-label="' . esc_attr( $label ) . '">';
+        // #939 — POST target is admin-post.php (`action=tt_export`),
+        // not the current page URL. Reason: the in-shortcode handler
+        // ran AFTER wp_head() flushed the theme chrome, corrupting
+        // every binary download and prefixing CSVs with the page HTML.
+        // admin-post.php bypasses the theme entirely.
+        echo '<form class="tt-export-form tt-export-card__form" method="POST" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" data-export-key="' . esc_attr( $key ) . '" data-export-label="' . esc_attr( $label ) . '">';
         wp_nonce_field( 'tt_export', '_tt_export_nonce' );
+        echo '<input type="hidden" name="action" value="tt_export">';
         echo '<input type="hidden" name="tt_export_key" value="' . esc_attr( $key ) . '">';
+        echo '<input type="hidden" name="tt_export_return_url" value="' . esc_attr( add_query_arg( 'tt_view', 'exports', \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl() ) ) . '">';
 
         foreach ( $fields as $f ) {
             self::renderField( $f, $teams );
