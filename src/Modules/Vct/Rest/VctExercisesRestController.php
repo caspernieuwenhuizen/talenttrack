@@ -37,7 +37,7 @@ class VctExercisesRestController {
             ],
             [
                 'methods'             => 'POST',
-                'callback'            => [ __CLASS__, 'notImplemented' ],
+                'callback'            => [ __CLASS__, 'create' ],
                 'permission_callback' => [ __CLASS__, 'can_admin' ],
             ],
         ] );
@@ -50,12 +50,12 @@ class VctExercisesRestController {
             ],
             [
                 'methods'             => 'PATCH',
-                'callback'            => [ __CLASS__, 'notImplemented' ],
+                'callback'            => [ __CLASS__, 'patch' ],
                 'permission_callback' => [ __CLASS__, 'can_admin' ],
             ],
             [
                 'methods'             => 'DELETE',
-                'callback'            => [ __CLASS__, 'notImplemented' ],
+                'callback'            => [ __CLASS__, 'archive' ],
                 'permission_callback' => [ __CLASS__, 'can_admin' ],
             ],
         ] );
@@ -94,11 +94,91 @@ class VctExercisesRestController {
         return RestResponse::success( [ 'exercise' => $row ] );
     }
 
-    public static function notImplemented(): \WP_REST_Response {
-        return RestResponse::error(
-            'not_implemented',
-            __( 'Catalogue write endpoints land in a follow-up ship (VCT-8).', 'talenttrack' ),
-            501
-        );
+    public static function create( \WP_REST_Request $r ): \WP_REST_Response {
+        $payload = self::extractWritePayload( $r );
+        $err = self::validateCreatePayload( $payload );
+        if ( $err !== null ) return $err;
+
+        $id = ( new VctExercisesRepository() )->create( $payload );
+        if ( $id <= 0 ) {
+            return RestResponse::error( 'db_error', __( 'The exercise could not be saved.', 'talenttrack' ), 500 );
+        }
+        $row = ( new VctExercisesRepository() )->find( $id );
+        return RestResponse::success( [ 'exercise' => $row ] );
+    }
+
+    public static function patch( \WP_REST_Request $r ): \WP_REST_Response {
+        $id = (int) $r->get_param( 'id' );
+        $existing = ( new VctExercisesRepository() )->find( $id );
+        if ( $existing === null ) return RestResponse::error( 'not_found', __( 'Exercise not found.', 'talenttrack' ), 404 );
+
+        $payload = self::extractWritePayload( $r );
+        $ok = ( new VctExercisesRepository() )->update( $id, $payload );
+        if ( ! $ok ) {
+            return RestResponse::error( 'db_error', __( 'The exercise could not be updated.', 'talenttrack' ), 500 );
+        }
+        return RestResponse::success( [ 'exercise' => ( new VctExercisesRepository() )->find( $id ) ] );
+    }
+
+    public static function archive( \WP_REST_Request $r ): \WP_REST_Response {
+        $id = (int) $r->get_param( 'id' );
+        $existing = ( new VctExercisesRepository() )->find( $id );
+        if ( $existing === null ) return RestResponse::error( 'not_found', __( 'Exercise not found.', 'talenttrack' ), 404 );
+
+        $ok = ( new VctExercisesRepository() )->archive( $id );
+        if ( ! $ok ) {
+            return RestResponse::error( 'db_error', __( 'The exercise could not be archived.', 'talenttrack' ), 500 );
+        }
+        return RestResponse::success( [ 'id' => $id, 'archived' => true ] );
+    }
+
+    /**
+     * Extract + sanitise the writable fields from a REST request.
+     *
+     * @return array<string,mixed>
+     */
+    private static function extractWritePayload( \WP_REST_Request $r ): array {
+        $out = [];
+        foreach ( [ 'code', 'name_canonical', 'category', 'tactical_theme', 'sided_size', 'verheijen_classification', 'diagram_url' ] as $k ) {
+            $v = $r->get_param( $k );
+            if ( $v !== null ) $out[ $k ] = sanitize_text_field( (string) $v );
+        }
+        foreach ( [ 'intensity_band', 'duration_minutes_min', 'duration_minutes_max', 'players_min', 'players_max', 'age_min', 'age_max' ] as $k ) {
+            $v = $r->get_param( $k );
+            if ( $v !== null && $v !== '' ) $out[ $k ] = (int) $v;
+        }
+        foreach ( [ 'md_minus_4', 'md_minus_3', 'md_minus_2', 'md_minus_1', 'md_zero', 'md_plus_1', 'md_plus_2', 'md_none' ] as $k ) {
+            $v = $r->get_param( $k );
+            if ( $v !== null ) $out[ $k ] = ! empty( $v ) ? 1 : 0;
+        }
+        $eq = $r->get_param( 'equipment_json' );
+        if ( $eq !== null ) {
+            $out['equipment_json'] = is_array( $eq ) ? $eq : (string) $eq;
+        }
+        return $out;
+    }
+
+    /** @param array<string,mixed> $p */
+    private static function validateCreatePayload( array $p ): ?\WP_REST_Response {
+        foreach ( [ 'code', 'name_canonical', 'category' ] as $required ) {
+            if ( empty( $p[ $required ] ) ) {
+                return RestResponse::error(
+                    'missing_field',
+                    sprintf(
+                        /* translators: %s is the required field name. */
+                        __( 'Field "%s" is required.', 'talenttrack' ),
+                        $required
+                    ),
+                    400
+                );
+            }
+        }
+        if ( isset( $p['intensity_band'] ) && ( $p['intensity_band'] < 1 || $p['intensity_band'] > 10 ) ) {
+            return RestResponse::error( 'bad_intensity', __( 'intensity_band must be 1-10.', 'talenttrack' ), 400 );
+        }
+        if ( isset( $p['age_min'], $p['age_max'] ) && $p['age_min'] > $p['age_max'] ) {
+            return RestResponse::error( 'bad_age_range', __( 'age_min cannot exceed age_max.', 'talenttrack' ), 400 );
+        }
+        return null;
     }
 }
