@@ -442,12 +442,27 @@ final class RateActorsStep implements WizardStepInterface {
         // creates fresh eval rows for the un-rated set instead of
         // duplicating evals for everyone. No-op on first runs (no
         // eval rows yet).
+        //
+        // v4.3.20 (#943) — linked guests (is_guest=1, guest_player_id
+        // points at a real tt_players row) also surface in the rate
+        // roster. They resolve through the same player record as a
+        // roster player; the join switches from `att.player_id` to
+        // `COALESCE(att.guest_player_id, att.player_id)` so a single
+        // SELECT covers both shapes. Anonymous guests
+        // (guest_player_id IS NULL) stay excluded — no tt_players row
+        // to evaluate against; their notes input on the activity form
+        // is the existing capture mechanism. DISTINCT guards against
+        // a player appearing as both a roster row and a linked-guest
+        // row for the same activity (rare but possible).
         return (array) $wpdb->get_results( $wpdb->prepare(
-            "SELECT pl.id, pl.first_name, pl.last_name
+            "SELECT DISTINCT pl.id, pl.first_name, pl.last_name
                FROM {$p}tt_attendance att
-               INNER JOIN {$p}tt_players pl ON pl.id = att.player_id AND pl.club_id = att.club_id
+               INNER JOIN {$p}tt_players pl
+                   ON pl.id = COALESCE( att.guest_player_id, att.player_id )
+                   AND pl.club_id = att.club_id
               WHERE att.activity_id = %d AND att.club_id = %d
                 AND LOWER(att.status) IN ( 'present', 'late' )
+                AND ( att.is_guest = 0 OR att.guest_player_id IS NOT NULL )
                 AND NOT EXISTS (
                     SELECT 1 FROM {$p}tt_evaluations e
                      WHERE e.activity_id = att.activity_id

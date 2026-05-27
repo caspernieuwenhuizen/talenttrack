@@ -79,7 +79,7 @@ final class GuestAddModal {
                     <!-- Anonymous tab -->
                     <div data-tt-guest-pane="anonymous" hidden>
                         <p class="tt-help-text" style="margin:0 0 8px; font-size:12px; color:#5b6470;">
-                            <?php esc_html_e( 'No TalentTrack record needed. Fill in the basics; you can promote this guest to a real player later.', 'talenttrack' ); ?>
+                            <?php esc_html_e( 'No TalentTrack record needed. Fill in the basics; the guest is recorded against this activity only.', 'talenttrack' ); ?>
                         </p>
                         <div class="tt-field">
                             <label class="tt-field-label tt-field-required" for="tt-guest-anon-name"><?php esc_html_e( 'Name', 'talenttrack' ); ?></label>

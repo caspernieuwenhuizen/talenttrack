@@ -916,7 +916,13 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             <?php esc_html_e( 'Players from outside the squad. Guests do not count toward team stats.', 'talenttrack' ); ?>
         </p>
         <div class="tt-attendance" data-tt-guest-session-id="<?php echo (int) $activity_id; ?>">
-            <table class="tt-table tt-attendance-table" data-tt-guest-table>
+            <table class="tt-table tt-attendance-table tt-guest-table" data-tt-guest-table>
+                <?php // #943 — column widths: 35ch Player / 10ch Status / rest Notes (mobile stacks via data-label) ?>
+                <colgroup>
+                    <col style="width: 35ch;">
+                    <col style="width: 10ch;">
+                    <col style="width: auto;">
+                </colgroup>
                 <thead><tr>
                     <th><?php esc_html_e( 'Player', 'talenttrack' ); ?></th>
                     <th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th>
@@ -952,35 +958,22 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                             <?php echo esc_html( LabelTranslator::attendanceStatus( (string) ( $g->status ?? 'Present' ) ) ); ?>
                         </td>
                         <td data-label="<?php esc_attr_e( 'Notes', 'talenttrack' ); ?>">
-                            <?php if ( $is_linked ) :
-                                $eval_url = add_query_arg(
-                                    [ 'tt_view' => 'evaluation_form', 'player_id' => (int) $g->guest_player_id ],
-                                    remove_query_arg( [ 'action', 'id' ] )
-                                );
-                                ?>
-                                <a href="<?php echo esc_url( $eval_url ); ?>"><?php esc_html_e( 'Evaluate', 'talenttrack' ); ?></a>
-                                <button type="button" class="tt-btn-link" data-tt-guest-remove="<?php echo (int) $g->id; ?>" style="margin-left:8px; color:#b32d2e;">
+                            <?php // #943 — Evaluate shortcut removed for linked guests; they surface in
+                                //  the existing "Continue rating" wizard flow via RateActorsStep alongside
+                                //  roster players (per the shaping delta on #943).
+                                //  "Add as player" promote shortcut removed for anon guests; promotion
+                                //  is a broader process (trial → assess → assign team → permissions)
+                                //  that doesn't belong on a single activity row. ?>
+                            <input type="text" class="tt-input tt-guest-notes-input"
+                                   data-tt-guest-notes-id="<?php echo (int) $g->id; ?>"
+                                   data-initial="<?php echo esc_attr( (string) ( $g->guest_notes ?? '' ) ); ?>"
+                                   value="<?php echo esc_attr( (string) ( $g->guest_notes ?? '' ) ); ?>"
+                                   placeholder="<?php esc_attr_e( 'Notes…', 'talenttrack' ); ?>" />
+                            <div class="tt-guest-row-actions" style="margin-top:6px; font-size:12px;">
+                                <button type="button" class="tt-btn-link" data-tt-guest-remove="<?php echo (int) $g->id; ?>" style="color:#b32d2e;">
                                     <?php esc_html_e( 'Remove', 'talenttrack' ); ?>
                                 </button>
-                            <?php else :
-                                $promote_url = add_query_arg( [
-                                    'page'               => 'tt-players',
-                                    'action'             => 'new',
-                                    'from_attendance_id' => (int) $g->id,
-                                ], admin_url( 'admin.php' ) );
-                                ?>
-                                <input type="text" class="tt-input tt-guest-notes-input"
-                                       data-tt-guest-notes-id="<?php echo (int) $g->id; ?>"
-                                       data-initial="<?php echo esc_attr( (string) ( $g->guest_notes ?? '' ) ); ?>"
-                                       value="<?php echo esc_attr( (string) ( $g->guest_notes ?? '' ) ); ?>"
-                                       placeholder="<?php esc_attr_e( 'Notes…', 'talenttrack' ); ?>" />
-                                <div class="tt-guest-row-actions" style="margin-top:6px; font-size:12px;">
-                                    <a href="<?php echo esc_url( $promote_url ); ?>"><?php esc_html_e( 'Add as player', 'talenttrack' ); ?></a> ·
-                                    <button type="button" class="tt-btn-link" data-tt-guest-remove="<?php echo (int) $g->id; ?>" style="color:#b32d2e;">
-                                        <?php esc_html_e( 'Remove', 'talenttrack' ); ?>
-                                    </button>
-                                </div>
-                            <?php endif; ?>
+                            </div>
                         </td>
                     </tr>
                 <?php endforeach; endif; ?>
@@ -1012,10 +1005,14 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 'player'          => __( 'Player',         'talenttrack' ),
                 'status'          => __( 'Status',         'talenttrack' ),
                 'notes'           => __( 'Notes',          'talenttrack' ),
-                'evaluate'        => __( 'Evaluate',       'talenttrack' ),
-                'promote'         => __( 'Add as player',  'talenttrack' ),
                 'remove'          => __( 'Remove',         'talenttrack' ),
-                'confirmRemove'   => __( 'Remove this guest?',          'talenttrack' ),
+                // #943 — confirmRemove now drives the app dialog modal's
+                // body; companion title + confirm strings keep the
+                // standard ok/cancel triple.
+                'confirmRemove'        => __( 'Remove this guest?',            'talenttrack' ),
+                'confirmRemoveTitle'   => __( 'Remove guest',                  'talenttrack' ),
+                'confirmRemoveConfirm' => __( 'Remove',                        'talenttrack' ),
+                'confirmRemoveCancel'  => __( 'Cancel',                        'talenttrack' ),
                 'linkedRequired'  => __( 'Pick a player.',              'talenttrack' ),
                 'nameRequired'    => __( 'Name is required.',           'talenttrack' ),
                 'saveFailed'      => __( 'Could not add guest.',        'talenttrack' ),
