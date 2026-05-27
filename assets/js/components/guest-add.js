@@ -138,24 +138,17 @@
 
         var notesTd = document.createElement( 'td' );
         notesTd.setAttribute( 'data-label', STR.notes || 'Notes' );
-        if ( guest.guest_player_id ) {
-            notesTd.innerHTML =
-                '<a href="#" data-tt-guest-eval="' + guest.guest_player_id + '">' +
-                escapeHtml( STR.evaluate || 'Evaluate' ) + '</a>' +
-                '  <button type="button" class="tt-btn-link" data-tt-guest-remove="' + guest.id + '">' +
-                escapeHtml( STR.remove || 'Remove' ) + '</button>';
-        } else {
-            notesTd.innerHTML =
-                '<input type="text" class="tt-input tt-guest-notes-input" ' +
-                ' data-tt-guest-notes-id="' + guest.id + '" placeholder="' +
-                escapeHtml( STR.notesPlaceholder || 'Notes…' ) + '" />' +
-                '<div class="tt-guest-row-actions">' +
-                '<a href="#" data-tt-guest-promote="' + guest.id + '">' +
-                escapeHtml( STR.promote || 'Add as player' ) + '</a> · ' +
-                '<button type="button" class="tt-btn-link" data-tt-guest-remove="' + guest.id + '">' +
-                escapeHtml( STR.remove || 'Remove' ) + '</button>' +
-                '</div>';
-        }
+        // #943 — Evaluate + Promote shortcuts removed from guest rows;
+        //  guests surface in the existing "Continue rating" wizard via
+        //  RateActorsStep. Notes input + Remove button only.
+        notesTd.innerHTML =
+            '<input type="text" class="tt-input tt-guest-notes-input" ' +
+            ' data-tt-guest-notes-id="' + guest.id + '" placeholder="' +
+            escapeHtml( STR.notesPlaceholder || 'Notes…' ) + '" />' +
+            '<div class="tt-guest-row-actions">' +
+            '<button type="button" class="tt-btn-link" data-tt-guest-remove="' + guest.id + '">' +
+            escapeHtml( STR.remove || 'Remove' ) + '</button>' +
+            '</div>';
         tr.appendChild( notesTd );
         tbody.appendChild( tr );
     }
@@ -331,8 +324,15 @@
                     showMsg( modalEl, msg || ( STR.saveFailed || 'Could not add guest.' ), true );
                     return;
                 }
-                appendGuestRow( document.querySelector( '[data-tt-guest-table]' ), resp.body );
+                // #943 item 1 — reload the page after a successful guest
+                // POST so the rendered row matches what server-side
+                // decorates with player_name + home_team. Cheaper than
+                // maintaining client/server payload-shape parity, and
+                // guarantees the row is exactly what a fresh GET would
+                // produce. The modal close → reload lag is acceptable
+                // here (sub-second on the pilot host).
                 closeModal( modalEl );
+                window.location.reload();
             } ).catch( function () {
                 submitBtn.disabled = false;
                 showMsg( modalEl, STR.networkError || 'Network error.', true );
@@ -340,21 +340,70 @@
             return;
         }
 
-        // Remove guest
+        // Remove guest — #943 item 4. Replaces window.confirm() with a
+        // <dialog>-backed app modal mirroring the v3.110.104
+        // frontend-archive-button pattern. Strings localised via
+        // TT_GuestAdd.strings.confirmRemove{,Title,Confirm,Cancel}.
         var removeBtn = target.closest && target.closest( '[data-tt-guest-remove]' );
         if ( removeBtn ) {
             e.preventDefault();
-            if ( ! window.confirm( STR.confirmRemove || 'Remove this guest?' ) ) return;
             var rid = parseInt( removeBtn.getAttribute( 'data-tt-guest-remove' ), 10 );
-            deleteAttendance( rid ).then( function ( r ) {
-                if ( r.ok ) {
-                    var row = removeBtn.closest( 'tr' );
-                    if ( row ) row.parentNode.removeChild( row );
-                }
+            promptRemove( STR.confirmRemove || 'Remove this guest?', function ( ok ) {
+                if ( ! ok ) return;
+                deleteAttendance( rid ).then( function ( r ) {
+                    if ( r.ok ) {
+                        var row = removeBtn.closest( 'tr' );
+                        if ( row ) row.parentNode.removeChild( row );
+                    }
+                } );
             } );
             return;
         }
     } );
+
+    /**
+     * #943 — <dialog>-backed remove-guest confirm. Same shape as
+     * frontend-archive-button.js's promptArchive(); injected once per
+     * page and reused for every remove click. Falls back to
+     * window.confirm() on runtimes without HTMLDialogElement (every
+     * supported browser has it; the fallback is purely defensive).
+     */
+    var REMOVE_DIALOG_ID = 'tt-guest-remove-dialog';
+    function ensureRemoveDialog() {
+        var existing = document.getElementById( REMOVE_DIALOG_ID );
+        if ( existing ) return existing;
+        if ( typeof HTMLDialogElement === 'undefined' ) return null;
+        var dialog = document.createElement( 'dialog' );
+        dialog.id = REMOVE_DIALOG_ID;
+        dialog.className = 'tt-modal tt-modal--guest-remove';
+        dialog.innerHTML =
+            '<form method="dialog" class="tt-modal-form">' +
+                '<h2 class="tt-modal-title">' + escapeHtml( STR.confirmRemoveTitle || 'Remove guest' ) + '</h2>' +
+                '<p class="tt-modal-message" data-tt-guest-modal-msg></p>' +
+                '<div class="tt-modal-actions">' +
+                    '<button type="submit" value="cancel" class="tt-btn tt-btn-secondary">' + escapeHtml( STR.confirmRemoveCancel || 'Cancel' ) + '</button>' +
+                    '<button type="submit" value="confirm" class="tt-btn tt-btn-danger">' + escapeHtml( STR.confirmRemoveConfirm || 'Remove' ) + '</button>' +
+                '</div>' +
+            '</form>';
+        document.body.appendChild( dialog );
+        return dialog;
+    }
+    function promptRemove( msg, onResult ) {
+        var dialog = ensureRemoveDialog();
+        if ( ! dialog ) {
+            onResult( window.confirm( msg ) );
+            return;
+        }
+        dialog.querySelector( '[data-tt-guest-modal-msg]' ).textContent = msg;
+        var closeHandler = function () {
+            dialog.removeEventListener( 'close', closeHandler );
+            onResult( dialog.returnValue === 'confirm' );
+        };
+        dialog.addEventListener( 'close', closeHandler );
+        dialog.showModal();
+        var cancelBtn = dialog.querySelector( 'button[value="cancel"]' );
+        if ( cancelBtn ) cancelBtn.focus();
+    }
 
     // Inline notes save on blur for anonymous guests.
     document.addEventListener( 'blur', function ( e ) {

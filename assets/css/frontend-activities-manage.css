@@ -38,6 +38,17 @@
     width: 100%;
 }
 
+/* #943 — guest table column widths: 35ch Player / 10ch Status / rest Notes
+ * on >= 480px viewports. Below 480px the existing .tt-attendance-row
+ * stacked layout kicks in via data-label (frontend-admin.css), so the
+ * <colgroup> widths only matter on tablet/desktop. */
+@media (min-width: 480px) {
+    .tt-dashboard .tt-guest-table col:nth-child(1) { width: 35ch; }
+    .tt-dashboard .tt-guest-table col:nth-child(2) { width: 10ch; }
+    .tt-dashboard .tt-guest-table col:nth-child(3) { width: auto; }
+    .tt-dashboard .tt-guest-table .tt-guest-notes-input { width: 100%; }
+}
+
 .tt-dashboard .tt-attendance-row.is-mobile-hidden {
     display: none;
 }

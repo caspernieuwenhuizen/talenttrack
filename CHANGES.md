@@ -1,82 +1,61 @@
-# TalentTrack v4.3.19 — Match Execution sideline UX redesign per mockup (closes #956)
+# TalentTrack v4.3.20 — Activity guest UX defect bundle (closes #943)
 
-## What changed
+Four cleanups on the activity edit form's "+ Add guest" surface (`?tt_view=activities&id=N`). All concentrated in the same handful of files, so they ship as one PR.
 
-Ports `.local-mockups/match-execution/index.html` (the design-of-record) to the production `?tt_view=match-execution` surface. **Backend unchanged**: same `MatchExecutionRepository`, same REST routes, same state machine, same `tt_edit_activities` cap.
+## (1) Adding a guest now visibly reflects on the form without manual reload
 
-## Surface-by-surface
+Coach adds a guest via the modal → modal closes → activity form shows the new guest row immediately.
 
-### Header
-Single-line condensed: `<team A> vs <team B> · <date time>`. Ellipsis fallback when team names overflow 360px.
+**Fix**: `assets/js/components/guest-add.js` triggers a `window.location.reload()` on successful POST. Per the spec's recommendation — cheaper than maintaining client/server payload-shape parity, and guarantees the row is exactly what a fresh GET would produce.
 
-### Score
-Two side-by-side columns. Each column has a 3-letter team abbreviation above its own stepper (`[− 2 +]`). 48px stepper buttons + 44px number slot, glove-friendly. Both fit at 360px viewport width.
+## (2a) "Add as player" promote-to-player shortcut removed
 
-### Timer
-- Half label (`Kickoff pending` / `First half` / `Half time` / `Second half` / `Final`) with pulsing green live dot when running.
-- Clock (MM:SS) in tabular-nums.
-- State-aware Start / Pause / Resume button (green / orange / green).
-- **Planned-time sub-label removed** per pilot direction.
+Promoting a guest to a roster player is a broader process (trial → assess → assign team → permissions). Doesn't belong on a single activity row.
 
-### Tracked Players (was "Specific goals")
-- Renders ONLY players with `is_specific_goal = 1` from match prep.
-- Each row shows the jersey number circle, name + flagged-action label (`flagged: crosses`), an inline goal-chip with the action + count, and a `+ action` button that increments the count via the existing `goal-event` REST endpoint.
-- Long-press to undo (pops the most recent un-reversed event) is preserved.
-- **Section is stable** — never modified by the sub flow.
+**Removed**:
+- `FrontendActivitiesManageView.php` — the `$promote_url` block + the "Add as player" anchor on the anon-guest row.
+- `guest-add.js` — the matching JS append on dynamically-inserted rows.
+- `TT_GuestAdd.strings.promote` localisation key.
 
-### Bench
-- Row carries a `→ on` button (green sub-on styling).
-- Tap reveals the inline sub-target section below (replaces the v4.1.7 modal sheet).
+## (2b) Guests table columns sized 35ch Player / 10ch Status / rest Notes
 
-### Sub-target (new section — replaces the modal)
-- Dedicated `<section class="tt-mexec-sub-target">` below the bench.
-- Accent-coloured banner: `Tap a player to swap in <name>` + Cancel button.
-- Lists the full on-pitch XI as tappable rows.
-- Auto-scrolls into view on activation via `scrollIntoView({ behavior: 'smooth' })`.
-- Tapping any row completes the swap (existing `substitution` REST endpoint) and exits swap mode.
-- Tracked Players section above stays untouched throughout.
+Per CLAUDE.md mobile-first, uses `ch` widths via a `<colgroup>` on `data-tt-guest-table` + a `@media (min-width: 480px)` rule in `frontend-activities-manage.css`. Below 480px the existing `.tt-attendance-row` stacked layout via `data-label` kicks in, so the widths only matter on tablet / desktop.
 
-### Sticky footer — state→CTA mapping
+## (3) "Evaluate" shortcut removed from linked-guest rows; guests surface in the rating wizard alongside roster players
 
-| State | CTA label | Colour |
-|---|---|---|
-| `not_started` | Start match | green |
-| `first_half`  | End first half | orange |
-| `half_time`   | Start second half | green |
-| `second_half` | End match | red |
-| `finished`    | Return to dashboard | ink |
+**Removed**:
+- `FrontendActivitiesManageView.php` — the `$eval_url` block + the "Evaluate" anchor on linked-guest rows.
+- `guest-add.js` — the matching JS append.
+- `TT_GuestAdd.strings.evaluate` localisation key.
 
-Full-width 52px button. Connection-state indicator (`Synced` / `Offline — queued`) sits below as a dot + label.
+**Wired** (per the shaping delta on #943):
+- `RateActorsStep::ratablePlayersForActivity()` extended to include attendance rows where `is_guest = 1 AND guest_player_id IS NOT NULL`. The join switches from `att.player_id` to `COALESCE(att.guest_player_id, att.player_id)`; `DISTINCT` guards against a player appearing both as a roster row and a linked-guest row for the same activity.
+- Anonymous guests (`guest_player_id IS NULL`) remain excluded — no `tt_players` row to evaluate against; their notes input on the activity form stays as the capture mechanism.
+
+## (4) Remove-guest prompt uses the app's `<dialog>` modal
+
+`window.confirm()` replaced with a `<dialog>`-backed app modal mirroring the v3.110.104 `frontend-archive-button.js` pattern.
+
+- New `promptRemove()` + `ensureRemoveDialog()` helpers in `guest-add.js`; injected once per page, reused for every remove click.
+- Strings localised via `TT_GuestAdd.strings.confirmRemove{,Title,Confirm,Cancel}` — the triple matches the archive-button shape.
+- Falls back to `window.confirm()` only on runtimes without `HTMLDialogElement` (defensive — every supported browser has it).
+
+`GuestAddModal.php` help text reworded to drop the promote reference (`No TalentTrack record needed. Fill in the basics; the guest is recorded against this activity only.`).
 
 ## Files touched
 
 | File | Change |
 |---|---|
-| `src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php` | HTML structure rewritten per the mockup; same data attributes (`data-tt-mexec-*`) so the JS bindings stay intact. New `abbreviate()` helper for the team-label chip. |
-| `assets/css/frontend-match-execution.css` | Replaced with a port of the mockup's CSS. Design tokens scoped to `--tt-mexec-*`. State-driven visibility rules under `.tt-mexec[data-state="…"]` and the sub-target reveal under `.tt-mexec[data-swap-mode="true"]`. |
-| `assets/js/frontend-match-execution.js` | `openSubSheet()` rewritten to use the inline sub-target section instead of a modal sheet. `renderHalfLabel()` extended to set `data-status="live"` when state is live + running. `renderStateButton()` extended to map state → footer-CTA `data-action` value for CSS colour coding. New "Start match" footer handler (shortcuts the timer Start) + "Return to dashboard" handler (navigates back). Bench list re-render uses the new `tt-mexec-player` classes. Goal-chip count renders inside `.tt-mexec-goal-chip > strong` via `data-tt-mexec-goal-count`. |
-
-## Form-POST coordination with #940 / #939
-
-The match-execution surface does NOT use form POSTs — every mutation goes through the REST API via `fetch()`. The #940 / #939 admin-post.php architecture coordination question is moot here. The form-POST audit only matters for surfaces that emit `<form method="POST">`.
-
-## CI gate compatibility
-
-- #940 Scan A: no `<input|select|textarea>` fields anywhere on this surface — the redesign is a read-only-shaped view with REST-backed mutations. Pass.
-- #940 Scan B: no `add_query_arg(['tt_view' => 'wizard', …])` introduced. Pass.
-
-## Out of scope (per spec)
-
-- Backend state-machine changes.
-- New goal types / flagged-action vocabulary changes.
-- Half-length manual correction UI (notes.md item 3 — server-side fix).
-- Server-side pause-state durability (notes.md item 4).
-- Desktop-specific extra zones (the redesign keeps the same mobile shape on desktop within a wider centred frame).
+| `src/Shared/Frontend/FrontendActivitiesManageView.php` | Notes-cell rebuilt: no Evaluate / Promote anchors; just notes input + Remove. `<colgroup>` added to the guest table. Localisation keys updated. |
+| `src/Shared/Frontend/Components/GuestAddModal.php` | Anonymous-tab help text reworded. |
+| `src/Modules/Wizards/Evaluation/RateActorsStep.php` | `ratablePlayersForActivity()` join uses `COALESCE(att.guest_player_id, att.player_id)`; `DISTINCT`. |
+| `assets/js/components/guest-add.js` | Reload on successful POST. `appendGuestRow()` simplified (kept as a fallback; no more Evaluate / Promote anchors). `window.confirm` → `<dialog>` modal via new `promptRemove()` helper. |
+| `assets/css/frontend-activities-manage.css` | Column widths for `.tt-guest-table`. |
 
 ## Why patch
 
-UX redesign of an existing surface within the 4.3 minor. The Match Execution module shipped at v3.110.216 (the minor epic landed then); this is a redesign on top. Consistent with how the v4.3.11 VCT-session mobile + print redesign also went patch within the VCT minor.
+UX refinements on an existing surface within the 4.3 minor. No schema change, no migration, no REST contract change.
 
 ## Bumped
 
-`talenttrack.php` Version + `TT_VERSION` + `readme.txt` Stable tag: `4.3.18` → `4.3.19`.
+`talenttrack.php` Version + `TT_VERSION` + `readme.txt` Stable tag: `4.3.19` → `4.3.20`.
