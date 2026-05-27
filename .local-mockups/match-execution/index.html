@@ -1,0 +1,789 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1a1d21">
+<title>Match Execution — mockup</title>
+<style>
+/* ---------------------------------------------------------------------------
+   Design tokens — mirror what TT production uses so the port is mechanical.
+   --------------------------------------------------------------------------- */
+:root {
+    --tt-ink:        #1a1d21;
+    --tt-ink-soft:   #5b6e75;
+    --tt-paper:      #ffffff;
+    --tt-bg:         #f5f7f6;
+    --tt-line:       #d6dadd;
+    --tt-accent:     #2271b1;
+    --tt-success:    #2e7d4f;
+    --tt-warn:       #c75c1f;
+    --tt-danger:     #d63638;
+    --tt-mute:       #f0f3f2;
+
+    --tap-min:       48px;
+    --gap:           12px;
+    --gap-lg:        16px;
+    --radius:        10px;
+    --radius-lg:     16px;
+    --font:          'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+    font-family: var(--font);
+    color: var(--tt-ink);
+    background: var(--tt-bg);
+    font-size: 16px;
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+    padding-bottom: 96px; /* leave room for the sticky footer */
+}
+
+/* ---------------------------------------------------------------------------
+   Mockup-only chrome — strip when porting to production.
+   --------------------------------------------------------------------------- */
+.mockup-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: #222;
+    color: #eee;
+    font-size: 12px;
+    padding: 8px 12px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+    border-bottom: 2px solid #000;
+}
+.mockup-bar strong { color: #ffd; margin-right: 4px; }
+.mockup-bar button {
+    background: #444; color: #eee; border: 1px solid #666;
+    padding: 4px 10px; border-radius: 4px; font: inherit; cursor: pointer;
+    font-size: 11px;
+}
+.mockup-bar button[aria-pressed="true"] { background: #6c4; color: #000; border-color: #4a3; font-weight: 600; }
+
+/* ---------------------------------------------------------------------------
+   Frame — fixed 360 viewport so the mockup mirrors a sideline phone.
+   --------------------------------------------------------------------------- */
+.frame {
+    max-width: 360px;
+    margin: 0 auto;
+    background: var(--tt-bg);
+    min-height: 100vh;
+    position: relative;
+}
+
+/* ---------------------------------------------------------------------------
+   Header — compact, no chrome above it. Single row of context.
+   --------------------------------------------------------------------------- */
+.header {
+    padding: var(--gap) var(--gap-lg);
+    background: var(--tt-paper);
+    border-bottom: 1px solid var(--tt-line);
+}
+.header__meta {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--tt-ink);
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.header__meta .vs   { color: var(--tt-ink-soft); font-weight: 500; margin: 0 4px; }
+.header__meta .sep  { color: var(--tt-ink-soft); font-weight: 400; margin: 0 6px; }
+.header__meta .when { color: var(--tt-ink-soft); font-weight: 400; }
+
+/* ---------------------------------------------------------------------------
+   Score block — two columns side by side. Team abbreviation on top of each
+   stepper, so the label belongs visibly to the score below it.
+   --------------------------------------------------------------------------- */
+.score {
+    padding: var(--gap-lg);
+    background: var(--tt-paper);
+    border-bottom: 1px solid var(--tt-line);
+}
+.score__line {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--gap);
+    align-items: end;
+}
+.score__col { text-align: center; }
+.score__team-label {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    color: var(--tt-ink-soft);
+    margin: 0 0 6px;
+}
+.score__stepper {
+    display: grid;
+    grid-template-columns: var(--tap-min) 44px var(--tap-min);
+    align-items: center;
+    justify-content: center;
+}
+.score__btn {
+    height: var(--tap-min);
+    width: var(--tap-min);
+    border: 1px solid var(--tt-line);
+    background: var(--tt-mute);
+    font-size: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    color: var(--tt-ink);
+    touch-action: manipulation;
+    transition: background 80ms;
+    padding: 0;
+}
+.score__btn:active { background: var(--tt-line); }
+.score__btn--minus { border-radius: var(--radius) 0 0 var(--radius); }
+.score__btn--plus  { border-radius: 0 var(--radius) var(--radius) 0; background: var(--tt-accent); color: white; border-color: var(--tt-accent); }
+.score__btn--plus:active { background: #1a5d96; }
+.score__num {
+    text-align: center;
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1;
+    background: var(--tt-paper);
+    border-top: 1px solid var(--tt-line);
+    border-bottom: 1px solid var(--tt-line);
+    height: var(--tap-min);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ---------------------------------------------------------------------------
+   Timer — half label, MM:SS, planned-vs-actual, pause/start.
+   --------------------------------------------------------------------------- */
+.timer {
+    padding: var(--gap-lg);
+    background: var(--tt-paper);
+    border-bottom: 1px solid var(--tt-line);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: var(--gap);
+    align-items: center;
+}
+.timer__main { min-width: 0; }
+.timer__half {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--tt-ink-soft);
+    margin: 0 0 2px;
+}
+.timer__half[data-status="live"] {
+    color: var(--tt-success);
+}
+.timer__half[data-status="live"]::before {
+    content: '●';
+    color: var(--tt-success);
+    margin-right: 4px;
+    animation: pulse 1.4s ease-in-out infinite;
+}
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+.timer__clock {
+    font-size: 28px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+    color: var(--tt-ink);
+    margin: 0;
+}
+.timer__btn {
+    min-height: var(--tap-min);
+    min-width: 80px;
+    border: 1px solid var(--tt-line);
+    background: var(--tt-mute);
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: var(--radius);
+    color: var(--tt-ink);
+    cursor: pointer;
+    touch-action: manipulation;
+    padding: 0 var(--gap);
+}
+.timer__btn:active { background: var(--tt-line); }
+.timer__btn[data-action="start"]  { background: var(--tt-success); color: white; border-color: var(--tt-success); }
+.timer__btn[data-action="pause"]  { background: var(--tt-warn); color: white; border-color: var(--tt-warn); }
+.timer__btn[data-action="resume"] { background: var(--tt-success); color: white; border-color: var(--tt-success); }
+
+/* ---------------------------------------------------------------------------
+   Section header — repeated for On Pitch / Bench.
+   --------------------------------------------------------------------------- */
+.section {
+    background: var(--tt-paper);
+    border-bottom: 1px solid var(--tt-line);
+}
+.section__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: var(--gap) var(--gap-lg) 4px;
+}
+.section__title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--tt-ink-soft);
+    margin: 0;
+}
+.section__count {
+    font-size: 12px;
+    color: var(--tt-ink-soft);
+    font-variant-numeric: tabular-nums;
+}
+
+/* ---------------------------------------------------------------------------
+   Player rows — used both for on-pitch and bench.
+   --------------------------------------------------------------------------- */
+.player-list { margin: 0; padding: 0; list-style: none; }
+.player {
+    display: grid;
+    grid-template-columns: 36px 1fr auto;
+    align-items: center;
+    gap: var(--gap);
+    padding: 8px var(--gap-lg);
+    min-height: var(--tap-min);
+    border-bottom: 1px solid var(--tt-mute);
+    transition: background 100ms;
+}
+.player:last-child { border-bottom: none; }
+.player[data-flagged="true"] { background: #fff8e8; }
+.player__number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: var(--tt-mute);
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 14px;
+    font-variant-numeric: tabular-nums;
+    color: var(--tt-ink);
+}
+.player__name {
+    font-size: 15px;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.player__name small {
+    display: block;
+    font-size: 11px;
+    color: var(--tt-ink-soft);
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+.player__actions {
+    display: flex;
+    gap: 6px;
+}
+.action-btn {
+    min-height: var(--tap-min);
+    padding: 0 12px;
+    border: 1px solid var(--tt-line);
+    background: var(--tt-paper);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: var(--radius);
+    cursor: pointer;
+    touch-action: manipulation;
+    color: var(--tt-ink);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.action-btn:active { background: var(--tt-mute); }
+.action-btn--goal {
+    background: #fff8e8;
+    border-color: #e8b933;
+    color: #8a5e0a;
+    min-width: 64px;
+    justify-content: center;
+}
+.action-btn--goal:active { background: #ffe7a3; }
+.action-btn--sub-on  { background: var(--tt-success); border-color: var(--tt-success); color: white; min-width: 52px; justify-content: center; }
+.action-btn--sub-off { background: var(--tt-mute); color: var(--tt-ink-soft); min-width: 52px; justify-content: center; }
+
+/* Tracked Players section ALWAYS shows flagged-only — swap-mode does NOT
+   touch this section. The substitution picker is a separate section that
+   reveals below the bench. */
+.on-pitch .player:not([data-flagged="true"]) { display: none; }
+
+/* ---------------------------------------------------------------------------
+   Sub-target — dedicated section that appears below the bench when the
+   coach taps "→ on" on a bench player. Lists the full on-pitch XI so the
+   coach can pick who comes off. Hidden by default; revealed in swap mode.
+   Visually separated from Tracked Players (which is untouched) by a
+   distinct accent border + accent-tinted background.
+   --------------------------------------------------------------------------- */
+.sub-target {
+    display: none;
+    background: var(--tt-paper);
+    border-top: 3px solid var(--tt-accent);
+    border-bottom: 1px solid var(--tt-line);
+}
+body[data-swap-mode="true"] .sub-target { display: block; }
+.sub-target__banner {
+    background: var(--tt-accent);
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px var(--gap-lg);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--gap);
+}
+.sub-target__banner button {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.4);
+    color: white;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+    min-height: 32px;
+}
+.sub-target .player {
+    cursor: pointer;
+}
+.sub-target .player:active { background: #eef5fb; }
+
+/* ---------------------------------------------------------------------------
+   Specific-goal summary — small chip showing per-player flagged action counts.
+   Tucked into the bottom of the on-pitch row so context stays attached.
+   --------------------------------------------------------------------------- */
+.player__goals {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 6px;
+    padding-top: 4px;
+    flex-wrap: wrap;
+}
+.goal-chip {
+    font-size: 11px;
+    background: #fff8e8;
+    border: 1px solid #e8b933;
+    color: #8a5e0a;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+.goal-chip strong { font-weight: 800; }
+
+/* ---------------------------------------------------------------------------
+   Sticky footer — state-aware CTA + sync indicator. Always visible.
+   --------------------------------------------------------------------------- */
+.footer {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    background: var(--tt-paper);
+    border-top: 1px solid var(--tt-line);
+    padding: 10px var(--gap-lg) calc(10px + env(safe-area-inset-bottom));
+    box-shadow: 0 -4px 12px rgba(0,0,0,0.06);
+    z-index: 50;
+}
+.footer__inner {
+    max-width: 360px;
+    margin: 0 auto;
+}
+.footer__cta {
+    width: 100%;
+    min-height: 52px;
+    border: none;
+    background: var(--tt-ink);
+    color: white;
+    font-size: 15px;
+    font-weight: 700;
+    border-radius: var(--radius);
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.footer__cta:active { background: #000; }
+.footer__cta[data-action="start-match"] { background: var(--tt-success); }
+.footer__cta[data-action="end-half"]    { background: var(--tt-warn); }
+.footer__cta[data-action="start-2nd"]   { background: var(--tt-success); }
+.footer__cta[data-action="end-match"]   { background: var(--tt-danger); }
+.footer__cta[data-action="done"]        { background: var(--tt-ink); }
+.footer__sub {
+    font-size: 11px;
+    color: var(--tt-ink-soft);
+    text-align: center;
+    margin: 6px 0 0;
+}
+.footer__sub .dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--tt-success);
+    margin-right: 5px;
+    vertical-align: middle;
+}
+.footer__sub[data-state="offline"] .dot { background: var(--tt-danger); }
+
+/* ---------------------------------------------------------------------------
+   Finished state — read-only; everything except the action buttons stays visible.
+   --------------------------------------------------------------------------- */
+body[data-state="finished"] .score__btn,
+body[data-state="finished"] .player__actions,
+body[data-state="finished"] .timer__btn {
+    visibility: hidden;
+}
+body[data-state="finished"] .timer__half { color: var(--tt-ink-soft); }
+body[data-state="finished"] .timer__half::before { display: none; }
+body[data-state="finished"] .swap-banner { display: none !important; }
+
+/* On-pitch only visible from first_half onwards — hidden in not_started */
+body[data-state="not_started"] .on-pitch { display: none; }
+
+/* Bench hidden in finished state too — match is over, no subs */
+body[data-state="finished"] .bench { display: none; }
+body[data-state="not_started"] .bench { display: none; }
+
+/* not_started: score is 0-0 and not editable; timer says "Tap start"; CTA is "Start match" */
+body[data-state="not_started"] .score__btn { visibility: hidden; }
+body[data-state="not_started"] .timer__btn[data-action="pause"],
+body[data-state="not_started"] .timer__btn[data-action="resume"] { display: none; }
+body[data-state="half_time"]  .timer__btn[data-action="start"],
+body[data-state="half_time"]  .timer__btn[data-action="pause"] { display: none; }
+body[data-state="first_half"] .timer__btn[data-action="start"],
+body[data-state="first_half"] .timer__btn[data-action="resume"] { display: none; }
+body[data-state="second_half"] .timer__btn[data-action="start"],
+body[data-state="second_half"] .timer__btn[data-action="resume"] { display: none; }
+body[data-state="finished"] .timer__btn { display: none; }
+
+/* Footer CTA toggling — only one visible per state */
+.footer__cta { display: none; }
+body[data-state="not_started"] .footer__cta[data-action="start-match"] { display: block; }
+body[data-state="first_half"]  .footer__cta[data-action="end-half"]    { display: block; }
+body[data-state="half_time"]   .footer__cta[data-action="start-2nd"]   { display: block; }
+body[data-state="second_half"] .footer__cta[data-action="end-match"]   { display: block; }
+body[data-state="finished"]    .footer__cta[data-action="done"]        { display: block; }
+</style>
+</head>
+<body data-state="first_half">
+
+<!-- ============================================================
+     STATE PICKER — mockup-only chrome. Remove when porting.
+     ============================================================ -->
+<div class="mockup-bar" role="region" aria-label="Mockup state picker">
+    <strong>State:</strong>
+    <button type="button" data-pick="not_started">Not started</button>
+    <button type="button" data-pick="first_half" aria-pressed="true">First half (live)</button>
+    <button type="button" data-pick="half_time">Half time</button>
+    <button type="button" data-pick="second_half">Second half</button>
+    <button type="button" data-pick="finished">Finished</button>
+    <button type="button" data-pick-swap>Toggle sub-mode</button>
+</div>
+
+<div class="frame">
+
+    <!-- ============================================================
+         Header — single line, condensed. Teams + when in one row.
+         ============================================================ -->
+    <header class="header">
+        <p class="header__meta">Hedel JO13<span class="vs">vs</span>Den Helder<span class="sep">·</span><span class="when">6 Jun 14:00</span></p>
+    </header>
+
+    <!-- ============================================================
+         Score — two columns. Team abbreviation labels above each stepper.
+         48px stepper buttons + 44px number slot, glove-friendly.
+         ============================================================ -->
+    <section class="score" aria-label="Score">
+        <div class="score__line">
+            <div class="score__col">
+                <p class="score__team-label">HED</p>
+                <div class="score__stepper" aria-label="HED score">
+                    <button type="button" class="score__btn score__btn--minus" aria-label="Decrease HED">−</button>
+                    <output class="score__num">2</output>
+                    <button type="button" class="score__btn score__btn--plus" aria-label="Increase HED">+</button>
+                </div>
+            </div>
+            <div class="score__col">
+                <p class="score__team-label">DEN</p>
+                <div class="score__stepper" aria-label="DEN score">
+                    <button type="button" class="score__btn score__btn--minus" aria-label="Decrease DEN">−</button>
+                    <output class="score__num">1</output>
+                    <button type="button" class="score__btn score__btn--plus" aria-label="Increase DEN">+</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         Timer — half label + clock + planned-vs-actual + state-aware button.
+         Coach reads at arm's length; state pill is the dominant signal.
+         ============================================================ -->
+    <section class="timer" aria-label="Timer">
+        <div class="timer__main">
+            <p class="timer__half" data-status="live">
+                <span data-show-state="not_started">Kickoff pending</span>
+                <span data-show-state="first_half">First half</span>
+                <span data-show-state="half_time">Half time</span>
+                <span data-show-state="second_half">Second half</span>
+                <span data-show-state="finished">Final</span>
+            </p>
+            <p class="timer__clock">23:14</p>
+        </div>
+        <div>
+            <button type="button" class="timer__btn" data-action="start">Start</button>
+            <button type="button" class="timer__btn" data-action="pause">Pause</button>
+            <button type="button" class="timer__btn" data-action="resume">Resume</button>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         Tracked Players — ONLY flagged players (those with specific
+         actions to count). Stable zone, never modified by sub flow.
+         Unflagged starters are implicit (recorded in match-prep) and
+         appear only in the sub-target section when a sub is in flight.
+         ============================================================ -->
+    <section class="section on-pitch" aria-label="On pitch">
+        <div class="section__head">
+            <h2 class="section__title">Tracked players</h2>
+            <span class="section__count">2 flagged</span>
+        </div>
+        <ul class="player-list">
+            <li class="player" data-flagged="true">
+                <span class="player__number">7</span>
+                <span class="player__name">Lucas de Vries <small>RW · flagged: crosses, 1v1</small></span>
+                <div class="player__actions">
+                    <button type="button" class="action-btn action-btn--goal" aria-label="Log goal action for Lucas">+ action</button>
+                </div>
+                <div class="player__goals">
+                    <span class="goal-chip">crosses <strong>3</strong></span>
+                    <span class="goal-chip">1v1 <strong>2</strong></span>
+                </div>
+            </li>
+            <li class="player">
+                <span class="player__number">9</span>
+                <span class="player__name">Daan Visser <small>ST · captain</small></span>
+            </li>
+            <li class="player" data-flagged="true">
+                <span class="player__number">4</span>
+                <span class="player__name">Bram Hendriks <small>CB · flagged: clearances</small></span>
+                <div class="player__actions">
+                    <button type="button" class="action-btn action-btn--goal">+ action</button>
+                </div>
+                <div class="player__goals">
+                    <span class="goal-chip">clearances <strong>5</strong></span>
+                </div>
+            </li>
+            <li class="player">
+                <span class="player__number">1</span>
+                <span class="player__name">Jelle van Dijk <small>GK</small></span>
+            </li>
+            <li class="player">
+                <span class="player__number">10</span>
+                <span class="player__name">Thijs Mulder <small>CAM</small></span>
+            </li>
+        </ul>
+    </section>
+
+    <!-- ============================================================
+         Bench — quick-tap to enter swap mode.
+         ============================================================ -->
+    <section class="section bench" aria-label="Bench">
+        <div class="section__head">
+            <h2 class="section__title">Bench</h2>
+            <span class="section__count">4 available</span>
+        </div>
+        <ul class="player-list">
+            <li class="player">
+                <span class="player__number">14</span>
+                <span class="player__name">Sem Janssen <small>MID</small></span>
+                <div class="player__actions">
+                    <button type="button" class="action-btn action-btn--sub-on" data-pick-swap>→ on</button>
+                </div>
+            </li>
+            <li class="player">
+                <span class="player__number">15</span>
+                <span class="player__name">Ruben de Boer <small>FWD</small></span>
+                <div class="player__actions">
+                    <button type="button" class="action-btn action-btn--sub-on">→ on</button>
+                </div>
+            </li>
+            <li class="player">
+                <span class="player__number">16</span>
+                <span class="player__name">Niels Bakker <small>DEF</small></span>
+                <div class="player__actions">
+                    <button type="button" class="action-btn action-btn--sub-on">→ on</button>
+                </div>
+            </li>
+            <li class="player">
+                <span class="player__number">17</span>
+                <span class="player__name">Pim Smits <small>MID</small></span>
+                <div class="player__actions">
+                    <button type="button" class="action-btn action-btn--sub-on">→ on</button>
+                </div>
+            </li>
+        </ul>
+    </section>
+
+    <!-- ============================================================
+         Sub-target — appears below bench in swap-mode. Lists the full
+         on-pitch XI so the coach can pick who comes off. The "Tracked
+         Players" section above stays untouched throughout.
+         ============================================================ -->
+    <section class="section sub-target" aria-label="Choose who comes off">
+        <div class="sub-target__banner" role="status">
+            <span>Tap a player to swap in <strong>#14 Sem</strong></span>
+            <button type="button" data-pick-swap>Cancel</button>
+        </div>
+        <ul class="player-list">
+            <li class="player">
+                <span class="player__number">1</span>
+                <span class="player__name">Jelle van Dijk <small>GK</small></span>
+            </li>
+            <li class="player">
+                <span class="player__number">2</span>
+                <span class="player__name">Tim van der Berg <small>RB</small></span>
+            </li>
+            <li class="player">
+                <span class="player__number">3</span>
+                <span class="player__name">Joep Verhoeven <small>LB</small></span>
+            </li>
+            <li class="player" data-flagged="true">
+                <span class="player__number">4</span>
+                <span class="player__name">Bram Hendriks <small>CB · flagged</small></span>
+            </li>
+            <li class="player">
+                <span class="player__number">5</span>
+                <span class="player__name">Stijn de Wit <small>CB</small></span>
+            </li>
+            <li class="player">
+                <span class="player__number">6</span>
+                <span class="player__name">Finn Klaassen <small>CDM</small></span>
+            </li>
+            <li class="player" data-flagged="true">
+                <span class="player__number">7</span>
+                <span class="player__name">Lucas de Vries <small>RW · flagged</small></span>
+            </li>
+            <li class="player">
+                <span class="player__number">8</span>
+                <span class="player__name">Mees Peters <small>CM</small></span>
+            </li>
+            <li class="player">
+                <span class="player__number">9</span>
+                <span class="player__name">Daan Visser <small>ST · captain</small></span>
+            </li>
+            <li class="player">
+                <span class="player__number">10</span>
+                <span class="player__name">Thijs Mulder <small>CAM</small></span>
+            </li>
+            <li class="player">
+                <span class="player__number">11</span>
+                <span class="player__name">Sander Brouwer <small>LW</small></span>
+            </li>
+        </ul>
+    </section>
+
+    <!-- ============================================================
+         Sticky footer — state-aware primary CTA + connection state.
+         ============================================================ -->
+    <footer class="footer">
+        <div class="footer__inner">
+            <button type="button" class="footer__cta" data-action="start-match">Start match</button>
+            <button type="button" class="footer__cta" data-action="end-half">End first half</button>
+            <button type="button" class="footer__cta" data-action="start-2nd">Start second half</button>
+            <button type="button" class="footer__cta" data-action="end-match">End match</button>
+            <button type="button" class="footer__cta" data-action="done">Return to dashboard</button>
+            <p class="footer__sub"><span class="dot"></span>Synced 2s ago</p>
+        </div>
+    </footer>
+
+</div>
+
+<script>
+// State picker — toggles body[data-state] and arias-pressed.
+document.querySelectorAll('[data-pick]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        var state = btn.getAttribute('data-pick');
+        document.body.setAttribute('data-state', state);
+        document.querySelectorAll('[data-pick]').forEach(function (b) {
+            b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
+        });
+        // Hide all timer half labels, show the one matching state
+        document.querySelectorAll('[data-show-state]').forEach(function (el) {
+            el.style.display = el.getAttribute('data-show-state') === state ? '' : 'none';
+        });
+        // Reset swap mode when state changes
+        document.body.setAttribute('data-swap-mode', 'false');
+    });
+});
+
+// Initialise the half-label visibility
+(function () {
+    var current = document.body.getAttribute('data-state');
+    document.querySelectorAll('[data-show-state]').forEach(function (el) {
+        el.style.display = el.getAttribute('data-show-state') === current ? '' : 'none';
+    });
+})();
+
+// Sub-mode toggle (mock-only — production would track which bench player
+// was selected). When entering swap mode, scroll the sub-target section
+// into view so the coach doesn't miss the reveal below the fold.
+document.querySelectorAll('[data-pick-swap]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        var on = document.body.getAttribute('data-swap-mode') === 'true';
+        document.body.setAttribute('data-swap-mode', on ? 'false' : 'true');
+        if ( ! on ) {
+            // Just entered swap mode — bring the sub-target section into view.
+            var target = document.querySelector('.sub-target');
+            if ( target ) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+    });
+});
+
+// Sub-target row click — completes the swap. Mock behavior: exit swap mode.
+document.querySelectorAll('.sub-target .player').forEach(function (row) {
+    row.addEventListener('click', function () {
+        document.body.setAttribute('data-swap-mode', 'false');
+    });
+});
+
+// Score steppers (mock — increments the output)
+document.querySelectorAll('.score__btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        var out = btn.parentElement.querySelector('.score__num');
+        var n = parseInt(out.textContent, 10) || 0;
+        if (btn.classList.contains('score__btn--plus')) n++;
+        else if (n > 0) n--;
+        out.textContent = n;
+    });
+});
+
+// Goal chips (mock — increments most recent flagged action count)
+document.querySelectorAll('.action-btn--goal').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        var goals = btn.closest('.player').querySelector('.player__goals');
+        if (!goals) return;
+        var first = goals.querySelector('.goal-chip strong');
+        if (first) first.textContent = (parseInt(first.textContent, 10) || 0) + 1;
+    });
+});
+</script>
+</body>
+</html>
