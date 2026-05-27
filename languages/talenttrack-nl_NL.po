@@ -4879,15 +4879,17 @@ msgid "VCT workload aggregates"
 msgstr ""
 
 #: src/Modules/Authorization/Admin/MatrixPage.php:47
+msgctxt "matrix column abbreviation for Read"
 msgid "R"
 msgstr "L"
 
 #: src/Modules/Authorization/Admin/MatrixPage.php:48
+msgctxt "matrix column abbreviation for Change"
 msgid "C"
 msgstr "A"
 
 #: src/Modules/Authorization/Admin/MatrixPage.php:49
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:222
+msgctxt "matrix column abbreviation for Delete"
 msgid "D"
 msgstr "V"
 

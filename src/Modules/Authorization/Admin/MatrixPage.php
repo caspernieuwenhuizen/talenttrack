@@ -44,9 +44,9 @@ class MatrixPage {
         $grid = $repo->asGrid();
 
         $activities = [
-            'read'          => __( 'R', 'talenttrack' ),
-            'change'        => __( 'C', 'talenttrack' ),
-            'create_delete' => __( 'D', 'talenttrack' ),
+            'read'          => _x( 'R', 'matrix column abbreviation for Read', 'talenttrack' ),
+            'change'        => _x( 'C', 'matrix column abbreviation for Change', 'talenttrack' ),
+            'create_delete' => _x( 'D', 'matrix column abbreviation for Delete', 'talenttrack' ),
         ];
         $scope_kinds = [ 'global', 'team', 'player', 'self' ];
 
