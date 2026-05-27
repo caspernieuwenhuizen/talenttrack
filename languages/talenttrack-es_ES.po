@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-05-27T20:43:37+00:00\n"
+"POT-Creation-Date: 2026-05-27T20:56:48+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -21214,7 +21214,7 @@ msgstr ""
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:976
 #: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:649
 #: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:710
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:752
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:800
 msgid "This blueprint is locked. Reopen it before editing."
 msgstr ""
 
@@ -21657,8 +21657,8 @@ msgstr ""
 #: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:669
 #: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:685
 #: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:706
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:748
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:773
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:796
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:836
 msgid "Blueprint not found."
 msgstr ""
 
@@ -21674,15 +21674,15 @@ msgstr ""
 msgid "Could not duplicate the blueprint."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:717
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:716
 msgid "slot_label is required."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:757
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:805
 msgid "Assignments map is required."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:779
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:842
 msgid "Status must be draft, shared, or locked."
 msgstr ""
 
