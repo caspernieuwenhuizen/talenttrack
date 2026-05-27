@@ -1,61 +1,87 @@
-# TalentTrack v4.3.20 — Activity guest UX defect bundle (closes #943)
+# TalentTrack v4.3.21 — Blueprint editor depth-chart foundation (partial #953)
 
-Four cleanups on the activity edit form's "+ Add guest" surface (`?tt_view=activities&id=N`). All concentrated in the same handful of files, so they ship as one PR.
+Foundational architecture for the depth-chart rework specced in #953. The full UI port per the reference prototype is **deferred to a follow-up issue**; #953 stays open with the `ready-for-dev` label after this ship.
 
-## (1) Adding a guest now visibly reflects on the form without manual reload
+This split is deliberate: shipping the schema + repository + REST shim + chemistry transparency as a foundation **first** lets the editor UI rewrite (the larger half of the work) land in a separate PR without back-pressure on the data model. Existing rows keep `ref_kind='player'` so the v1 editor continues to work end-to-end against the new schema.
 
-Coach adds a guest via the modal → modal closes → activity form shows the new guest row immediately.
+## What this ship lands
 
-**Fix**: `assets/js/components/guest-add.js` triggers a `window.location.reload()` on successful POST. Per the spec's recommendation — cheaper than maintaining client/server payload-shape parity, and guarantees the row is exactly what a fresh GET would produce.
+### Schema — migration `0129_blueprint_assignment_refs.php`
 
-## (2a) "Add as player" promote-to-player shortcut removed
+Adds discriminated-reference columns to `tt_team_blueprint_assignments`:
 
-Promoting a guest to a roster player is a broader process (trial → assess → assign team → permissions). Doesn't belong on a single activity row.
+```sql
+ALTER TABLE {prefix}tt_team_blueprint_assignments
+  ADD COLUMN ref_kind       VARCHAR(20)  NOT NULL DEFAULT 'player' AFTER tier,
+  ADD COLUMN guest_name     VARCHAR(120) DEFAULT NULL              AFTER ref_kind,
+  ADD COLUMN guest_position VARCHAR(60)  DEFAULT NULL              AFTER guest_name,
+  ADD COLUMN custom_label   VARCHAR(120) DEFAULT NULL              AFTER guest_position;
+```
 
-**Removed**:
-- `FrontendActivitiesManageView.php` — the `$promote_url` block + the "Add as player" anchor on the anon-guest row.
-- `guest-add.js` — the matching JS append on dynamically-inserted rows.
-- `TT_GuestAdd.strings.promote` localisation key.
+`ref_kind` discriminator: `player` (default, requires `player_id`), `guest` (requires `guest_name`, optional `guest_position`), `custom` (requires `custom_label`). Cross-team picks are still `kind=player` — the linked player's `tt_players.id` is canonical; what makes it "cross-team" is the player's `team_id` ≠ blueprint's `team_id`. Idempotent via dbDelta.
 
-## (2b) Guests table columns sized 35ch Player / 10ch Status / rest Notes
+### Repository — `TeamBlueprintsRepository`
 
-Per CLAUDE.md mobile-first, uses `ch` widths via a `<colgroup>` on `data-tt-guest-table` + a `@media (min-width: 480px)` rule in `frontend-activities-manage.css`. Below 480px the existing `.tt-attendance-row` stacked layout via `data-label` kicks in, so the widths only matter on tablet / desktop.
+- `setAssignment()` + `replaceAssignments()` accept the new ref-object shape via `normaliseRef()` (also handles legacy flat-int).
+- Cross-slot player dedupe block **removed** — a player can legally occupy multiple slots / tiers per the depth-chart contract. Cross-cell uniqueness (one entry per `(slot, tier)`) stays as the UNIQUE KEY.
+- New `loadAssignmentRefs()` parallels `loadAssignments()`: returns the full ref shape per cell.
+- New `slotsMissingPrimary()` surfaces slots with tier-2/3 entries but no tier-primary — consumed by the editor for warning chips (delta #2 in the shaping comment on #953).
 
-## (3) "Evaluate" shortcut removed from linked-guest rows; guests surface in the rating wizard alongside roster players
+### REST controller — `TeamDevelopmentRestController`
 
-**Removed**:
-- `FrontendActivitiesManageView.php` — the `$eval_url` block + the "Evaluate" anchor on linked-guest rows.
-- `guest-add.js` — the matching JS append.
-- `TT_GuestAdd.strings.evaluate` localisation key.
+- New `coerceAssignmentRef()` shim accepts both canonical `ref` object **and** the legacy flat `player_id` shape.
+- Sunset entry in `docs/rest-api.md`: *"Legacy flat `player_id` deprecated v4.3.21 (#953); shim removed in v5.0.0."*
+- Applies to `PUT /blueprints/{id}/assignment` (single) and `PUT /blueprints/{id}/assignments` (bulk).
 
-**Wired** (per the shaping delta on #943):
-- `RateActorsStep::ratablePlayersForActivity()` extended to include attendance rows where `is_guest = 1 AND guest_player_id IS NOT NULL`. The join switches from `att.player_id` to `COALESCE(att.guest_player_id, att.player_id)`; `DISTINCT` guards against a player appearing both as a roster row and a linked-guest row for the same activity.
-- Anonymous guests (`guest_player_id IS NULL`) remain excluded — no `tt_players` row to evaluate against; their notes input on the activity form stays as the capture mechanism.
+### In-repo callers migrated to the canonical `ref` shape
 
-## (4) Remove-guest prompt uses the app's `<dialog>` modal
+Per the shaping delta — internal traffic uses the new shape uniformly; the shim handles only documented external API consumers.
 
-`window.confirm()` replaced with a `<dialog>`-backed app modal mirroring the v3.110.104 `frontend-archive-button.js` pattern.
-
-- New `promptRemove()` + `ensureRemoveDialog()` helpers in `guest-add.js`; injected once per page, reused for every remove click.
-- Strings localised via `TT_GuestAdd.strings.confirmRemove{,Title,Confirm,Cancel}` — the triple matches the archive-button shape.
-- Falls back to `window.confirm()` only on runtimes without `HTMLDialogElement` (defensive — every supported browser has it).
-
-`GuestAddModal.php` help text reworded to drop the promote reference (`No TalentTrack record needed. Fill in the basics; the guest is recorded against this activity only.`).
-
-## Files touched
-
-| File | Change |
+| Caller | Change |
 |---|---|
-| `src/Shared/Frontend/FrontendActivitiesManageView.php` | Notes-cell rebuilt: no Evaluate / Promote anchors; just notes input + Remove. `<colgroup>` added to the guest table. Localisation keys updated. |
-| `src/Shared/Frontend/Components/GuestAddModal.php` | Anonymous-tab help text reworded. |
-| `src/Modules/Wizards/Evaluation/RateActorsStep.php` | `ratablePlayersForActivity()` join uses `COALESCE(att.guest_player_id, att.player_id)`; `DISTINCT`. |
-| `assets/js/components/guest-add.js` | Reload on successful POST. `appendGuestRow()` simplified (kept as a fallback; no more Evaluate / Promote anchors). `window.confirm` → `<dialog>` modal via new `promptRemove()` helper. |
-| `assets/css/frontend-activities-manage.css` | Column widths for `.tt-guest-table`. |
+| `assets/js/frontend-team-blueprint.js:137` (drag-drop save) | `body.ref = { kind: 'player', player_id: ... }` instead of flat `body.player_id` |
+| `assets/js/frontend-team-blueprint.js:544` (tier picker tap-to-swap) | Same shape change |
+| `assets/js/frontend-team-chemistry.js:240` (chemistry sandbox "Save as blueprint") | Lineup values are now `{ kind: 'player', player_id: N }` ref objects |
+
+### Chemistry-engine transparency
+
+`loadPrimaryLineup()` docblock documents the primary-only scoring contract; guest / custom cells are skipped for chemistry (no `tt_players.id` to look up). `slotsMissingPrimary()` is the editor's data source for warning chips on positions that have only tier-2/3 entries — addresses the silent score-drop concern from the shaping delta.
+
+The companion `docs/team-blueprints.md` "How chemistry is calculated" subsection ships with the UI follow-up so the docs land alongside the warning-chip visuals.
+
+### Prototype moved into the repo
+
+`C:/Users/caspe/AppData/Local/Temp/tt-blueprint-mockups.html` → `.local-mockups/blueprint-editor/index.html`. Mirrors the existing `.local-mockups/match-execution/` convention. Future iterations diff against it.
+
+## What's deferred (UI follow-up)
+
+The editor-view rewrite is the larger half. Deferred:
+
+- Numbered-circle + 3-slot tier stack per pitch position (replaces the single-player overlay).
+- Click-slot dropdown picker with search + "Clear this slot".
+- Drag-drop onto tier slots.
+- Roster `×N` placement badge.
+- "+ Add" 3-tab form (cross-team / guest / custom).
+- Formation switch preservation.
+- Mobile-first CSS sheet (`frontend-blueprint-editor.css`).
+- New JS behaviour file (`blueprint-editor.js`).
+- Per-mobile/desktop layout per the prototype.
+
+The existing `FrontendTeamBlueprintsView::renderEditor()` continues to work unchanged because every existing assignment row keeps `ref_kind='player'`.
+
+## Validation
+
+- Existing blueprint pages render unchanged (back-compat preserved by default `ref_kind='player'`).
+- `PUT /blueprints/{id}/assignment` accepts both shapes:
+  - `{ slot_label, tier, ref: { kind: 'player', player_id: N } }` ← new
+  - `{ slot_label, tier, player_id: N }` ← legacy (shim)
+- Chemistry-engine: `loadPrimaryLineup()` continues to drive `computeForLineup()` with the same `slot → player_id` map.
+- `slotsMissingPrimary()` returns the right list on a blueprint with mixed-tier assignments.
 
 ## Why patch
 
-UX refinements on an existing surface within the 4.3 minor. No schema change, no migration, no REST contract change.
+Foundation only; no operator-visible UI change. The follow-up issue carries the UI bump.
 
 ## Bumped
 
-`talenttrack.php` Version + `TT_VERSION` + `readme.txt` Stable tag: `4.3.19` → `4.3.20`.
+`talenttrack.php` Version + `TT_VERSION` + `readme.txt` Stable tag: `4.3.20` → `4.3.21`.

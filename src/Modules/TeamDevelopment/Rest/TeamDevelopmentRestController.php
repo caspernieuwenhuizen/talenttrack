@@ -709,9 +709,8 @@ class TeamDevelopmentRestController {
             return RestResponse::error( 'locked',
                 __( 'This blueprint is locked. Reopen it before editing.', 'talenttrack' ), 409 );
         }
-        $slot      = trim( (string) ( $r['slot_label'] ?? '' ) );
-        $tier      = (string) ( $r['tier'] ?? TeamBlueprintsRepository::TIER_PRIMARY );
-        $player_id = isset( $r['player_id'] ) ? absint( $r['player_id'] ) : 0;
+        $slot = trim( (string) ( $r['slot_label'] ?? '' ) );
+        $tier = (string) ( $r['tier'] ?? TeamBlueprintsRepository::TIER_PRIMARY );
         if ( $slot === '' ) {
             return RestResponse::error( 'missing_slot',
                 __( 'slot_label is required.', 'talenttrack' ), 400 );
@@ -719,7 +718,13 @@ class TeamDevelopmentRestController {
         if ( ! in_array( $tier, TeamBlueprintsRepository::TIERS, true ) ) {
             $tier = TeamBlueprintsRepository::TIER_PRIMARY;
         }
-        $repo->setAssignment( $id, $slot, $player_id > 0 ? $player_id : null, $tier );
+
+        // #953 — accept either the new `ref` object or the legacy flat
+        // `player_id` shape. Documented in docs/rest-api.md; the shim
+        // stays at the REST boundary so the in-repo callers + storage
+        // layer use the new ref shape uniformly.
+        $ref = self::coerceAssignmentRef( $r );
+        $repo->setAssignment( $id, $slot, $ref, $tier );
 
         // Recompute chemistry on the new primary lineup so the editor
         // can refresh the score + lines without round-tripping the get.
@@ -734,9 +739,52 @@ class TeamDevelopmentRestController {
             'id'                  => $id,
             'slot_label'          => $slot,
             'tier'                => $tier,
-            'player_id'           => $player_id > 0 ? $player_id : null,
+            'ref'                 => $ref,
             'blueprint_chemistry' => $blueprint_chemistry,
         ] );
+    }
+
+    /**
+     * #953 — REST boundary shim. Accepts the new `ref` object payload
+     * or the legacy flat `player_id` shape (sunset v5.0.0 per
+     * docs/rest-api.md).
+     *
+     *   { ref: { kind: 'player', player_id: 123 } }
+     *   { ref: { kind: 'guest',  name: '…', position: '…' } }
+     *   { ref: { kind: 'custom', label: '…' } }
+     *   { player_id: 123 }                  — legacy
+     *   { player_id: null }                 — legacy clear
+     *
+     * @return array<string,mixed>|null
+     */
+    private static function coerceAssignmentRef( \WP_REST_Request $r ): ?array {
+        $ref = $r['ref'] ?? null;
+        if ( is_array( $ref ) && isset( $ref['kind'] ) ) {
+            $kind = (string) $ref['kind'];
+            if ( $kind === 'player' ) {
+                $pid = isset( $ref['player_id'] ) ? absint( $ref['player_id'] ) : 0;
+                return $pid > 0 ? [ 'kind' => 'player', 'player_id' => $pid ] : null;
+            }
+            if ( $kind === 'guest' ) {
+                $name = trim( (string) ( $ref['name'] ?? '' ) );
+                if ( $name === '' ) return null;
+                return [
+                    'kind'     => 'guest',
+                    'name'     => $name,
+                    'position' => isset( $ref['position'] ) ? trim( (string) $ref['position'] ) : null,
+                ];
+            }
+            if ( $kind === 'custom' ) {
+                $label = trim( (string) ( $ref['label'] ?? '' ) );
+                return $label !== '' ? [ 'kind' => 'custom', 'label' => $label ] : null;
+            }
+            return null;
+        }
+        // Legacy flat shape — `player_id: N` or `player_id: null`.
+        if ( ! isset( $r['player_id'] ) ) return null;
+        if ( $r['player_id'] === null ) return null;
+        $pid = absint( $r['player_id'] );
+        return $pid > 0 ? [ 'kind' => 'player', 'player_id' => $pid ] : null;
     }
 
     public static function replace_blueprint_assignments( \WP_REST_Request $r ): \WP_REST_Response {
@@ -756,9 +804,24 @@ class TeamDevelopmentRestController {
             return RestResponse::error( 'bad_payload',
                 __( 'Assignments map is required.', 'talenttrack' ), 400 );
         }
+        // #953 — accept three shapes per slot:
+        //   1. flat int / null    (legacy `player_id` for primary tier)
+        //   2. tier→int map       (legacy multi-tier)
+        //   3. tier→ref map       (new — `{ kind: ..., ... }` per tier)
+        // The repository's normaliseRef() handles all three uniformly.
         $clean = [];
-        foreach ( $assignments as $slot => $pid ) {
-            $clean[ (string) $slot ] = $pid !== null && $pid !== '' ? absint( $pid ) : null;
+        foreach ( $assignments as $slot => $value ) {
+            $slot_key = (string) $slot;
+            if ( $value === null || $value === '' ) {
+                $clean[ $slot_key ] = null;
+                continue;
+            }
+            if ( is_array( $value ) && ! isset( $value['kind'] ) ) {
+                // Per-tier map; pass through to the repo's tier loop.
+                $clean[ $slot_key ] = $value;
+                continue;
+            }
+            $clean[ $slot_key ] = $value;
         }
         $repo->replaceAssignments( $id, $clean );
         return RestResponse::success( [ 'id' => $id ] );

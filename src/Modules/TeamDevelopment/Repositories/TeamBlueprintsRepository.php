@@ -208,34 +208,31 @@ class TeamBlueprintsRepository {
             'blueprint_id' => $blueprint_id,
             'club_id'      => $club_id,
         ] );
+        // #953 — value can be a flat int (legacy `player_id`) or an
+        // array. When array, inner value can itself be:
+        //   - int  (legacy `player_id` for that tier)
+        //   - ref-object [ 'kind' => 'player'|'guest'|'custom', … ]
+        // No de-duplication across slots — same player legally occupies
+        // multiple slots / tiers per the depth-chart contract.
         foreach ( $slot_to_player as $slot => $value ) {
             $slot_label = (string) $slot;
             if ( $slot_label === '' ) continue;
-            if ( is_array( $value ) ) {
-                foreach ( $value as $tier => $pid ) {
+            if ( is_array( $value ) && self::isRef( $value ) ) {
+                // Single-tier ref object at the top level (callers that
+                // pass `{ kind:..., player_id:... }` per slot).
+                $row = self::buildAssignmentRow( $blueprint_id, $club_id, $slot_label, self::TIER_PRIMARY, $value );
+                if ( $row !== null ) $this->wpdb->insert( $this->assignments, $row );
+            } elseif ( is_array( $value ) ) {
+                foreach ( $value as $tier => $entry ) {
                     $tier_clean = self::cleanTier( (string) $tier );
-                    $player_id  = $pid !== null ? (int) $pid : 0;
-                    if ( $player_id <= 0 ) continue;
-                    $this->wpdb->insert( $this->assignments, [
-                        'club_id'      => $club_id,
-                        'blueprint_id' => $blueprint_id,
-                        'slot_label'   => $slot_label,
-                        'tier'         => $tier_clean,
-                        'player_id'    => $player_id,
-                        'updated_at'   => current_time( 'mysql' ),
-                    ] );
+                    $ref = self::normaliseRef( $entry );
+                    $row = self::buildAssignmentRow( $blueprint_id, $club_id, $slot_label, $tier_clean, $ref );
+                    if ( $row !== null ) $this->wpdb->insert( $this->assignments, $row );
                 }
             } else {
-                $player_id = $value !== null ? (int) $value : 0;
-                if ( $player_id <= 0 ) continue;
-                $this->wpdb->insert( $this->assignments, [
-                    'club_id'      => $club_id,
-                    'blueprint_id' => $blueprint_id,
-                    'slot_label'   => $slot_label,
-                    'tier'         => self::TIER_PRIMARY,
-                    'player_id'    => $player_id,
-                    'updated_at'   => current_time( 'mysql' ),
-                ] );
+                $ref = self::normaliseRef( $value );
+                $row = self::buildAssignmentRow( $blueprint_id, $club_id, $slot_label, self::TIER_PRIMARY, $ref );
+                if ( $row !== null ) $this->wpdb->insert( $this->assignments, $row );
             }
         }
         $this->wpdb->update( $this->blueprints, [
@@ -245,15 +242,99 @@ class TeamBlueprintsRepository {
     }
 
     /**
+     * #953 — coerce a caller payload into the canonical ref shape.
+     * Accepts:
+     *   - int (legacy player_id)
+     *   - null
+     *   - [ 'kind' => 'player', 'player_id' => N ]
+     *   - [ 'kind' => 'guest', 'name' => '…', 'position' => '…' ]
+     *   - [ 'kind' => 'custom', 'label' => '…' ]
+     * Returns null when the input is null or cannot be coerced.
+     *
+     * @return array<string,mixed>|null
+     */
+    private static function normaliseRef( $value ): ?array {
+        if ( $value === null ) return null;
+        if ( is_int( $value ) || ctype_digit( (string) $value ) ) {
+            $pid = (int) $value;
+            return $pid > 0 ? [ 'kind' => 'player', 'player_id' => $pid ] : null;
+        }
+        if ( is_array( $value ) && self::isRef( $value ) ) return $value;
+        return null;
+    }
+
+    private static function isRef( array $value ): bool {
+        return isset( $value['kind'] ) && in_array( (string) $value['kind'], [ 'player', 'guest', 'custom' ], true );
+    }
+
+    /**
+     * Builds the row payload for an INSERT into `tt_team_blueprint_assignments`
+     * given a normalised ref. Returns null for invalid refs (missing
+     * required field for the kind).
+     *
+     * @param array<string,mixed>|null $ref
+     * @return array<string,mixed>|null
+     */
+    private static function buildAssignmentRow( int $blueprint_id, int $club_id, string $slot_label, string $tier, ?array $ref ): ?array {
+        if ( $ref === null ) return null;
+        $kind = (string) ( $ref['kind'] ?? 'player' );
+        $row  = [
+            'club_id'        => $club_id,
+            'blueprint_id'   => $blueprint_id,
+            'slot_label'     => $slot_label,
+            'tier'           => $tier,
+            'ref_kind'       => $kind,
+            'player_id'      => null,
+            'guest_name'     => null,
+            'guest_position' => null,
+            'custom_label'   => null,
+            'updated_at'     => current_time( 'mysql' ),
+        ];
+        if ( $kind === 'player' ) {
+            $pid = isset( $ref['player_id'] ) ? (int) $ref['player_id'] : 0;
+            if ( $pid <= 0 ) return null;
+            $row['player_id'] = $pid;
+        } elseif ( $kind === 'guest' ) {
+            $name = trim( (string) ( $ref['name'] ?? '' ) );
+            if ( $name === '' ) return null;
+            $row['guest_name']     = $name;
+            $row['guest_position'] = isset( $ref['position'] ) ? trim( (string) $ref['position'] ) : null;
+        } elseif ( $kind === 'custom' ) {
+            $label = trim( (string) ( $ref['label'] ?? '' ) );
+            if ( $label === '' ) return null;
+            $row['custom_label'] = $label;
+        } else {
+            return null;
+        }
+        return $row;
+    }
+
+    /**
      * Update one (slot, tier) assignment in place. Tier defaults to
      * `primary` so match-day callers don't need to pass it.
+     *
+     * v4.3.21 (#953) — accepts the new ref shape as the third arg:
+     *
+     *   setAssignment( id, slot, [ 'kind' => 'player', 'player_id' => N ], tier? )
+     *   setAssignment( id, slot, [ 'kind' => 'guest',  'name' => '…' ],     tier? )
+     *   setAssignment( id, slot, [ 'kind' => 'custom', 'label' => '…' ],    tier? )
+     *
+     * Legacy callers passing a bare int (or null to clear) still work
+     * via `normaliseRef()`. The cross-slot player dedupe is dropped —
+     * a player can legally occupy multiple slots / tiers on one
+     * blueprint per the depth-chart contract. Cross-cell uniqueness
+     * (one entry per (slot, tier)) stays as the UNIQUE KEY.
+     *
+     * @param array<string,mixed>|int|null $ref
      */
-    public function setAssignment( int $blueprint_id, string $slot_label, ?int $player_id, string $tier = self::TIER_PRIMARY ): bool {
+    public function setAssignment( int $blueprint_id, string $slot_label, $ref, string $tier = self::TIER_PRIMARY ): bool {
         if ( $blueprint_id <= 0 || $slot_label === '' ) return false;
         $tier    = self::cleanTier( $tier );
         $club_id = CurrentClub::id();
 
-        if ( $player_id === null || $player_id <= 0 ) {
+        $normalised = self::normaliseRef( $ref );
+        if ( $normalised === null ) {
+            // Null / invalid → delete the cell.
             $this->wpdb->delete( $this->assignments, [
                 'club_id'      => $club_id,
                 'blueprint_id' => $blueprint_id,
@@ -261,32 +342,18 @@ class TeamBlueprintsRepository {
                 'tier'         => $tier,
             ] );
         } else {
-            // Same player can't sit in two slots/tiers on one blueprint
-            // — strip any prior assignment for this player first so a
-            // drag from one slot to another doesn't double-book.
-            $this->wpdb->delete( $this->assignments, [
-                'club_id'      => $club_id,
-                'blueprint_id' => $blueprint_id,
-                'player_id'    => (int) $player_id,
-            ] );
+            $row = self::buildAssignmentRow( $blueprint_id, $club_id, $slot_label, $tier, $normalised );
+            if ( $row === null ) return false;
 
             $existing = (int) $this->wpdb->get_var( $this->wpdb->prepare(
                 "SELECT id FROM {$this->assignments}
                   WHERE blueprint_id = %d AND club_id = %d AND slot_label = %s AND tier = %s",
                 $blueprint_id, $club_id, $slot_label, $tier
             ) );
-            $payload = [
-                'club_id'      => $club_id,
-                'blueprint_id' => $blueprint_id,
-                'slot_label'   => $slot_label,
-                'tier'         => $tier,
-                'player_id'    => (int) $player_id,
-                'updated_at'   => current_time( 'mysql' ),
-            ];
             if ( $existing > 0 ) {
-                $this->wpdb->update( $this->assignments, $payload, [ 'id' => $existing ] );
+                $this->wpdb->update( $this->assignments, $row, [ 'id' => $existing ] );
             } else {
-                $this->wpdb->insert( $this->assignments, $payload );
+                $this->wpdb->insert( $this->assignments, $row );
             }
         }
         $this->wpdb->update( $this->blueprints, [
@@ -299,12 +366,22 @@ class TeamBlueprintsRepository {
      * @return array<string, array{primary?:int, secondary?:int, tertiary?:int}>
      *   One outer key per slot; inner keys are tiers that have a
      *   player. Slots with no assignment are absent.
+     *
+     * v4.3.21 (#953) — back-compat shape preserved for legacy callers:
+     *   the inner value is still an int (player_id) when the row's
+     *   `ref_kind = 'player'`. Guest and custom rows are surfaced via
+     *   the parallel `loadAssignmentRefs()` method below (returns the
+     *   full ref shape per cell). Existing callers (chemistry engine,
+     *   share-link view) consume this shape unchanged — they only
+     *   care about player IDs for chemistry scoring.
      */
     public function loadAssignments( int $blueprint_id ): array {
         if ( $blueprint_id <= 0 ) return [];
         $rows = $this->wpdb->get_results( $this->wpdb->prepare(
-            "SELECT slot_label, tier, player_id FROM {$this->assignments}
-              WHERE blueprint_id = %d AND club_id = %d AND player_id IS NOT NULL",
+            "SELECT slot_label, tier, ref_kind, player_id
+               FROM {$this->assignments}
+              WHERE blueprint_id = %d AND club_id = %d
+                AND ref_kind = 'player' AND player_id IS NOT NULL",
             $blueprint_id, CurrentClub::id()
         ) );
         $out = [];
@@ -318,10 +395,75 @@ class TeamBlueprintsRepository {
     }
 
     /**
+     * v4.3.21 (#953) — load every assignment as a normalised ref so the
+     * editor view can render player / guest / custom cells uniformly.
+     *
+     * @return array<string, array<string, array<string,mixed>>>
+     *   `slot_label => tier => [ 'kind' => 'player'|'guest'|'custom', … ]`
+     */
+    public function loadAssignmentRefs( int $blueprint_id ): array {
+        if ( $blueprint_id <= 0 ) return [];
+        $rows = $this->wpdb->get_results( $this->wpdb->prepare(
+            "SELECT slot_label, tier, ref_kind, player_id, guest_name, guest_position, custom_label
+               FROM {$this->assignments}
+              WHERE blueprint_id = %d AND club_id = %d",
+            $blueprint_id, CurrentClub::id()
+        ) );
+        $out = [];
+        foreach ( (array) $rows as $r ) {
+            $slot = (string) $r->slot_label;
+            $tier = self::cleanTier( (string) $r->tier );
+            $kind = (string) ( $r->ref_kind ?? 'player' );
+            if ( $kind === 'player' && (int) $r->player_id > 0 ) {
+                $ref = [ 'kind' => 'player', 'player_id' => (int) $r->player_id ];
+            } elseif ( $kind === 'guest' && (string) ( $r->guest_name ?? '' ) !== '' ) {
+                $ref = [
+                    'kind'     => 'guest',
+                    'name'     => (string) $r->guest_name,
+                    'position' => $r->guest_position !== null ? (string) $r->guest_position : null,
+                ];
+            } elseif ( $kind === 'custom' && (string) ( $r->custom_label ?? '' ) !== '' ) {
+                $ref = [ 'kind' => 'custom', 'label' => (string) $r->custom_label ];
+            } else {
+                continue; // Skip malformed rows defensively.
+            }
+            if ( ! isset( $out[ $slot ] ) ) $out[ $slot ] = [];
+            $out[ $slot ][ $tier ] = $ref;
+        }
+        return $out;
+    }
+
+    /**
+     * v4.3.21 (#953) — slots where tier 2/3 has an entry but tier=primary
+     * does not. Surfaces in the editor UI as "tier-1 unassigned" warning
+     * chips so the chemistry-score's primary-only contract is visible
+     * to the coach (otherwise the score-drop from previous releases
+     * would be a silent semantic change). See docs/team-blueprints.md
+     * "How chemistry is calculated".
+     *
+     * @return list<string>  slot_labels missing a primary-tier entry
+     */
+    public function slotsMissingPrimary( int $blueprint_id ): array {
+        $refs = $this->loadAssignmentRefs( $blueprint_id );
+        $out  = [];
+        foreach ( $refs as $slot => $tiers ) {
+            if ( ! isset( $tiers[ self::TIER_PRIMARY ] ) && ( isset( $tiers[ self::TIER_SECONDARY ] ) || isset( $tiers[ self::TIER_TERTIARY ] ) ) ) {
+                $out[] = (string) $slot;
+            }
+        }
+        return $out;
+    }
+
+    /**
      * Match-day-shaped lineup (slot → player_id) — primary tier only.
      * Used by `BlueprintChemistryEngine` whether the blueprint flavour
      * is match_day (one tier) or squad_plan (multi-tier; chemistry only
      * scores the starting XI).
+     *
+     * v4.3.21 (#953) — guest and custom refs are NOT included in the
+     * lineup map by construction (loadAssignments() filters
+     * `ref_kind = 'player'`). The chemistry engine consequently treats
+     * cells holding guest / custom entries as empty for scoring.
      *
      * @return array<string, int>
      */
