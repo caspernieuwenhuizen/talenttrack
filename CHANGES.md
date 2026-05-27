@@ -1,71 +1,94 @@
-# TalentTrack v4.3.12 — VCT exercise library editor + wire REST CRUD (closes #950)
+# TalentTrack v4.3.13 — VCT configuration tile (HoD-only) — completes the VCT MVP UI (closes #952)
 
 ## Context
 
-The v4.3.9 starter catalogue ships methodology-unreviewed. The spec's safety gate says HoD should audit before broader rollout. v4.3.12 gives them the surface to do that — plus closes the loop on the three `VctExercisesRestController` endpoints stubbed as `501 not_implemented` in v4.3.6.
+Final UI ship of the VCT MVP slate. With this in place:
+
+- **Coach flow**: wizard (v4.3.10) → detail view + publish (v4.3.11).
+- **HoD curation**: library editor (v4.3.12) → **configuration tile (this ship)**.
+
+The configuration tile gives HoDs the operator-tuning surface the spec calls for (macro-blocks calendar, age profiles, team schedules). Without it, the engine's reference data was set in stone at seed time + only editable via SQL.
 
 ## What changed
 
-### Library editor — `?tt_view=vct-library`
+### Routable view — `?tt_view=vct-config`
 
-`src/Modules/Vct/Frontend/FrontendVctLibraryView.php`:
+`src/Modules/Vct/Frontend/FrontendVctConfigView.php` — single view with `?tab=` switcher. Three tabs:
 
-- **Filter chip row** — category chips (one per `vct_exercise_category` lookup value) + "Show archived" toggle.
-- **Inline "Add exercise" form** (collapsible `<details>` summary). Full create payload: code (slug), name, category, theme, intensity band, age range, duration min/max, players min/max, MD context bit-flags.
-- **Table** — name + code slug, category, theme, intensity band, age range, status (active / archived), inline Archive button (with `confirm()`).
-- **POST handler** in the same view (form submits back to itself) — calls the repo directly. Nonce-guarded per action.
+#### Tab 1: Macro-blocks (`?tab=blocks`)
 
-Permission split:
+- Season + team picker (`team_id=0` = club-wide default; non-zero = per-team override).
+- Reference phase profiles (the two seeded in migration 0126) listed for HoD reference + paste-as-template.
+- Current block list table for the picked (team, season).
+- Bulk-replace via JSON textarea in a `<details>` summary (v1 power-user form; richer per-week multiplier UI is Phase 2 polish).
 
-- Read on `tt_vct_plan` — coaches can browse.
-- Write on `tt_vct_admin_library` — HoD/admin only. Write buttons only render for users with the cap.
+#### Tab 2: Age profiles (`?tab=age-profiles`)
 
-Save+Cancel exempt per CLAUDE.md §6 (b): inline lookup-editor pattern; the list itself is the cancel target.
+- Five collapsible cards (U10-U14).
+- Inline PATCH form per row: `session_minutes_max`, `intensity_band_max` (1-10), MD logic enabled checkbox, `min_recovery_hours_between_high`, `growth_spurt_load_reduction_pct`, `weekly_load_envelope`, `match_load_multiplier_per_minute` (decimal).
+- Numeric inputs declare `inputmode` per CLAUDE.md §2.
 
-### REST CRUD — closing the v4.3.6 stubs
+#### Tab 3: Team schedules (`?tab=schedules`)
 
-`VctExercisesRestController` replaces the three 501-stub handlers with real implementations:
+- Season picker.
+- One collapsible per team.
+- Weekday bitmask via 7 checkboxes (Mon-Sun, bit 0 = Monday).
+- `default_start_time` (`type="time"`) + `default_duration_minutes` (`type="number" inputmode="numeric"`).
 
-| Endpoint | Cap | Handler |
-|---|---|---|
-| `POST /vct/exercises` | `tt_vct_admin_library` | `create()` |
-| `PATCH /vct/exercises/{id}` | `tt_vct_admin_library` | `patch()` |
-| `DELETE /vct/exercises/{id}` | `tt_vct_admin_library` | `archive()` (soft-delete) |
+### `PUT /vct/macro-blocks` — wired
 
-Validates required fields (`code`, `name_canonical`, `category`) and range checks (`intensity_band` 1–10, `age_min` ≤ `age_max`). Sanitises every string field via `sanitize_text_field` / `sanitize_key`; MD flags coerced to 0/1; equipment accepted as array or JSON string.
+`VctMacroBlocksRestController` was read-only in v4.3.6. This ship adds the PUT endpoint with the validation suite the spec asks for, mirroring `PdpBlocksRestController::validate()`:
 
-### Repository extensions
+- Contiguous sequences 1..N.
+- Valid YYYY-MM-DD on every block.
+- `end_date >= start_date`.
+- No overlaps between blocks.
 
-`VctExercisesRepository` gains:
+Returns the spec's `{error: {code: 'invalid_blocks', ...}}` 400 envelope on failure.
 
-- `listAll($category?, $include_archived)` — for the library table view.
-- `create($data)` — auto-generates `uuid`, sets `seed_revision = 0` (distinct from the starter seed's `seed_revision = 1` so a future canonical-catalogue migration can `UPDATE WHERE seed_revision < N AND archived_at IS NULL` without overwriting operator-created rows).
-- `update($id, $patch)` — partial update; club-scoped WHERE.
-- `archive($id)` — sets `archived_at = now`; engine's `findCandidates()` already filters NULL.
+### `VctMacroBlocksRepository::replaceForSeason()`
 
-All `club_id = CurrentClub::id()` scoped per the tenancy guarantee.
+Wipes the existing `(team_id, season_id)` rows + inserts the new set. UUID per row. Preserves the `season_id = 0` reference templates (they're not in the (team_id, season_id) tuple being replaced).
+
+### Reused existing REST
+
+- Age-profile tab POST → `PATCH /vct/age-profiles/{id}` (wired in v4.3.6).
+- Team-schedule tab POST → `PUT /vct/teams/{id}/schedule` (wired in v4.3.6).
+
+The view's POST handler routes inline through the repositories directly (same path as the REST handler logic); no HTTP round-trip needed for the form submit.
+
+### Permission
+
+Single cap guard at view entry: `tt_vct_admin_library` (HoD/admin only). Save+Cancel exempt per CLAUDE.md §6 (a) — settings sub-form with multiple independent forms on one page.
 
 ### Dispatcher wiring
 
-New `case 'vct-library'` in `DashboardShortcode.php` alongside the v4.3.11 `vct-session` case.
+New `case 'vct-config'` in `DashboardShortcode.php` alongside the existing `vct-session` (v4.3.11) and `vct-library` (v4.3.12) cases.
+
+## VCT MVP UI — complete
+
+| Flow | Where | Ship |
+|---|---|---|
+| Coach generates a training | Wizard at `?tt_view=wizard&slug=new-vct-session` | v4.3.10 |
+| Coach reviews + publishes | `?tt_view=vct-session&id=N` (mobile + A4 print) | v4.3.11 |
+| HoD curates the exercise library | `?tt_view=vct-library` | v4.3.12 |
+| HoD tunes engine reference data | `?tt_view=vct-config` | **v4.3.13** |
 
 ## Out of scope
 
-- **Coaching-points editor** — HoD edits cues via the existing Lookups + translations admin in MVP (separate ship if there's appetite).
-- **Diagram upload** — needs object-storage integration (Phase 2; spec § File / asset uploads).
-- **Bulk import / export** of the catalogue (Phase 2).
-- **Per-row inline edit form** — the table renders a read-only row; edits go through the inline Add form (which can take the same `code` to overwrite — actually no, code is UNIQUE so editing requires PATCH via REST or inline edit form). For now, HoD archives the bad one + adds a replacement. A proper edit-in-row form lands in a polish ship.
+- **Per-week multiplier UI** for macro-blocks — v1 ships a JSON textarea; richer per-block per-week multiplier editor is Phase 2 polish.
+- **SVG year timeline** for the season's macro-blocks — Phase 2 polish (the spec mentions it under § UI surfaces; deferred without prejudice).
+- **Multi-locale label overrides** on age profiles — already handled by the Lookups admin for the per-locale `tt_vct_age_*` labels.
 
 ## Validation
 
-- Visit `?tt_view=vct-library` as HoD/admin — view renders, table shows 25 starter exercises.
-- Filter by category — URL updates, table filters.
-- Toggle "Show archived" — archived rows surface (initially empty; archive one to verify).
-- Add exercise — POST succeeds; new row appears in the table.
-- Archive exercise — confirm prompt; row drops from default view; surfaces under "Show archived".
-- Run `POST /wp-json/talenttrack/v1/vct/exercises` directly with curl — returns 200 + new row (was 501 before).
-- Run with missing `code` — returns 400 + structured error.
-- Run as a coach (no `tt_vct_admin_library`) — returns 403.
+- HoD visits `?tt_view=vct-config` → tab bar shows three tabs, default tab is `blocks`.
+- Macro-blocks tab: pick a season, paste a JSON array of blocks → server validates → rows persisted.
+- Bad JSON → "Save failed: blocks_json is not valid JSON." inline notice.
+- Overlapping blocks → 400 + descriptive error from the server-side validator.
+- Age profiles tab: edit a row's `intensity_band_max`, save → row updated; reload shows the new value.
+- Team schedules tab: pick a season, tick Tue + Thu on a team, set 18:30 / 75 min, save → upserts; reload shows the chips ticked.
+- Coach (no `tt_vct_admin_library`) → "Not authorised" notice on view entry.
 
 ## Why this is `patch`, not `minor`
 
@@ -73,4 +96,4 @@ UI + REST completion within the 4.3 minor. No schema change, no new caps, no new
 
 ## Bumped
 
-`talenttrack.php` Version + `TT_VERSION` + `readme.txt` Stable tag: `4.3.11` → `4.3.12`.
+`talenttrack.php` Version + `TT_VERSION` + `readme.txt` Stable tag: `4.3.12` → `4.3.13`.

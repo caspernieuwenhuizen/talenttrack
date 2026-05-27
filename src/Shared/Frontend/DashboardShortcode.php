@@ -511,6 +511,11 @@ class DashboardShortcode {
             case 'vct-library':
                 \TT\Modules\Vct\Frontend\FrontendVctLibraryView::render( $user_id, $is_admin );
                 return true;
+            // #0095 VCT-12 (#952) — HoD configuration tile
+            // (macro-blocks + age-profiles + team-schedules tabs).
+            case 'vct-config':
+                \TT\Modules\Vct\Frontend\FrontendVctConfigView::render( $user_id, $is_admin );
+                return true;
             default:
                 return false;
         }

@@ -79,6 +79,44 @@ class VctMacroBlocksRepository {
         return array_map( [ $this, 'hydrate' ], $rows );
     }
 
+    /**
+     * Replace the full block set for (team_id, season_id). Used by
+     * `PUT /vct/macro-blocks` after server-side overlap/gap/season-
+     * boundary validation. Pattern mirrors `PdpBlocksRepository::
+     * replaceForSeason()`.
+     *
+     * @param list<array<string,mixed>> $blocks
+     */
+    public function replaceForSeason( int $team_id, int $season_id, array $blocks ): bool {
+        if ( $season_id <= 0 ) return false;
+        $club_id = CurrentClub::id();
+
+        // Wipe existing (preserves reference templates at season_id=0).
+        $this->wpdb->delete( $this->table, [
+            'club_id'   => $club_id,
+            'team_id'   => $team_id,
+            'season_id' => $season_id,
+        ] );
+
+        foreach ( $blocks as $b ) {
+            $ok = $this->wpdb->insert( $this->table, [
+                'club_id'            => $club_id,
+                'uuid'               => wp_generate_uuid4(),
+                'season_id'          => $season_id,
+                'team_id'            => $team_id,
+                'sequence'           => (int)    ( $b['sequence']   ?? 0 ),
+                'label'              => (string) ( $b['label']      ?? '' ),
+                'start_date'         => (string) ( $b['start_date'] ?? '' ),
+                'end_date'           => (string) ( $b['end_date']   ?? '' ),
+                'phase_profile_json' => isset( $b['phase_profile'] )
+                    ? wp_json_encode( (array) $b['phase_profile'] )
+                    : ( $b['phase_profile_json'] ?? null ),
+            ] );
+            if ( $ok === false ) return false;
+        }
+        return true;
+    }
+
     /** @return list<array<string,mixed>> The two reference templates. */
     public function listReferenceTemplates(): array {
         $rows = $this->wpdb->get_results( $this->wpdb->prepare(
