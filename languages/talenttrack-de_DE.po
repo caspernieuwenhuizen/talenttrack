@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-05-26T05:50:17+00:00\n"
+"POT-Creation-Date: 2026-05-27T17:59:37+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -102,9 +102,9 @@ msgstr ""
 #: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php:204
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:135
 #: src/Modules/Mfa/Settings/MfaSettings.php:109
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:144
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:160
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:249
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:145
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:161
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:250
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:231
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:208
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:263
@@ -320,7 +320,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:199
 #: src/Shared/Frontend/FrontendGoalsManageView.php:92
 #: src/Shared/Frontend/FrontendPersonDetailView.php:68
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:231
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:232
 #: src/Shared/Frontend/FrontendTeamDetailView.php:63
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:177
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:233
@@ -597,9 +597,9 @@ msgstr "In Bearbeitung"
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:153
 #: src/Modules/CustomWidgets/DataSources/GoalsOpen.php:36
 #: src/Modules/CustomWidgets/DataSources/PdpFiles.php:35
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:137
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:863
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1087
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:138
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:864
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1088
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:147
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:300
 #: src/Modules/Prospects/Repositories/ScoutingVisitsRepository.php:35
@@ -653,7 +653,7 @@ msgstr ""
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:117
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:157
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:198
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:862
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:863
 #: src/Modules/People/Admin/PeoplePage.php:101
 #: src/Modules/People/Admin/PeoplePage.php:181
 #: src/Modules/People/Admin/PeoplePage.php:301
@@ -672,7 +672,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendPlayersManageView.php:211
 #: src/Shared/Frontend/FrontendTeamsManageView.php:153
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:201
-#: src/Shared/Frontend/FrontendTrialCaseView.php:609
+#: src/Shared/Frontend/FrontendTrialCaseView.php:610
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:89
 msgid "Active"
 msgstr "Aktiv"
@@ -831,8 +831,8 @@ msgstr "Andere"
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:164
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:199
 #: src/Modules/Goals/Admin/GoalsPage.php:83
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:138
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1088
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:139
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1089
 #: src/Modules/People/Admin/PeoplePage.php:149
 #: src/Modules/PersonaDashboard/TableSources/MyRecentProspectsSource.php:80
 #: src/Modules/Players/Admin/PlayersPage.php:147
@@ -1826,7 +1826,7 @@ msgstr ""
 #: src/Infrastructure/Stats/PlayerStatsService.php:385
 #: src/Modules/CustomWidgets/DataSources/EvaluationsRecent.php:26
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:150
-#: src/Shared/Frontend/FrontendTrialCaseView.php:479
+#: src/Shared/Frontend/FrontendTrialCaseView.php:480
 msgid "Overall"
 msgstr ""
 
@@ -1850,7 +1850,7 @@ msgstr ""
 #: src/Modules/Documentation/HelpTopics.php:57
 #: src/Modules/License/Admin/AccountPage.php:805
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:99
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:778
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:779
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:72
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:116
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:209
@@ -1868,8 +1868,8 @@ msgstr ""
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:74
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:77
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:226
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:161
-#: src/Shared/Frontend/FrontendTrialCaseView.php:373
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:162
+#: src/Shared/Frontend/FrontendTrialCaseView.php:374
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:556
 msgid "Activities"
 msgstr "Aktivitäten"
@@ -1965,12 +1965,12 @@ msgstr "Filter"
 #: src/Shared/Frontend/FrontendEvaluationsView.php:304
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:56
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:80
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:736
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:815
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:737
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:816
 #: src/Shared/Frontend/FrontendTeamDetailView.php:385
 #: src/Shared/Frontend/FrontendTestTrainingsView.php:65
-#: src/Shared/Frontend/FrontendTrialCaseView.php:378
-#: src/Shared/Frontend/FrontendTrialCaseView.php:399
+#: src/Shared/Frontend/FrontendTrialCaseView.php:379
+#: src/Shared/Frontend/FrontendTrialCaseView.php:400
 #: src/Shared/Frontend/PlayerDashboardView.php:88
 #: src/Shared/Frontend/PlayerDashboardView.php:144
 msgid "Date"
@@ -1996,8 +1996,8 @@ msgstr "Datum"
 #: src/Modules/Methodology/Admin/MethodologyPage.php:686
 #: src/Modules/Methodology/Admin/PrincipleEditPage.php:133
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:194
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:50
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:72
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:51
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:73
 #: src/Modules/Wizards/Activity/DetailsStep.php:35
 #: src/Modules/Wizards/Activity/ReviewStep.php:67
 #: src/Shared/Frontend/CoachDashboardView.php:240
@@ -2009,7 +2009,7 @@ msgstr "Datum"
 #: src/Shared/Frontend/FrontendGoalsManageView.php:358
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:57
 #: src/Shared/Frontend/FrontendTeamDetailView.php:386
-#: src/Shared/Frontend/FrontendTrialCaseView.php:426
+#: src/Shared/Frontend/FrontendTrialCaseView.php:427
 msgid "Title"
 msgstr "Titel"
 
@@ -2052,7 +2052,7 @@ msgstr "Titel"
 #: src/Shared/Frontend/FrontendPeopleManageView.php:106
 #: src/Shared/Frontend/FrontendPeopleManageView.php:173
 #: src/Shared/Frontend/FrontendTeamDetailView.php:387
-#: src/Shared/Frontend/FrontendTrialCaseView.php:378
+#: src/Shared/Frontend/FrontendTrialCaseView.php:379
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:259
 #: src/Shared/Frontend/PlayerDashboardView.php:89
 msgid "Type"
@@ -2093,9 +2093,9 @@ msgstr "Typ"
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:96
 #: src/Modules/Journey/Workflow/InjuryRecoveryConfirmForm.php:40
 #: src/Modules/License/Admin/AccountPage.php:742
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:146
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:165
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:416
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:147
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:166
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:417
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:196
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:299
 #: src/Modules/People/Admin/PeoplePage.php:124
@@ -2113,7 +2113,7 @@ msgstr "Typ"
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:185
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:64
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:202
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:52
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:53
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:131
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:553
 #: src/Modules/Wizards/Activity/ReviewStep.php:59
@@ -2145,10 +2145,10 @@ msgstr "Typ"
 #: src/Shared/Frontend/FrontendMigrationsView.php:67
 #: src/Shared/Frontend/FrontendPeopleManageView.php:116
 #: src/Shared/Frontend/FrontendPersonDetailView.php:118
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:547
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:675
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:868
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:917
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:548
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:676
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:869
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:918
 #: src/Shared/Frontend/FrontendPlayersCsvImportView.php:115
 #: src/Shared/Frontend/FrontendPlayersManageView.php:209
 #: src/Shared/Frontend/FrontendTeamDetailView.php:266
@@ -2156,8 +2156,8 @@ msgstr "Typ"
 #: src/Shared/Frontend/FrontendTeamDetailView.php:388
 #: src/Shared/Frontend/FrontendTeamsManageView.php:151
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:199
-#: src/Shared/Frontend/FrontendTrialCaseView.php:426
-#: src/Shared/Frontend/FrontendTrialCaseView.php:607
+#: src/Shared/Frontend/FrontendTrialCaseView.php:427
+#: src/Shared/Frontend/FrontendTrialCaseView.php:608
 #: src/Shared/Frontend/FrontendTrialsManageView.php:168
 #: src/Shared/Frontend/FrontendTrialsManageView.php:209
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:86
@@ -2212,9 +2212,9 @@ msgstr ""
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:115
 #: src/Modules/Methodology/Admin/MethodologyPage.php:244
 #: src/Modules/Methodology/Frontend/MethodologyView.php:349
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:145
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:155
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:240
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:146
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:156
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:241
 #: src/Modules/Pdp/Frontend/FrontendPdpPlanningView.php:90
 #: src/Modules/People/Admin/PeoplePage.php:335
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:93
@@ -2264,9 +2264,9 @@ msgstr ""
 #: src/Shared/Frontend/FrontendPeopleManageView.php:111
 #: src/Shared/Frontend/FrontendPeopleManageView.php:240
 #: src/Shared/Frontend/FrontendPersonDetailView.php:143
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:552
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:555
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:607
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:553
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:556
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:608
 #: src/Shared/Frontend/FrontendPlayersCsvImportView.php:118
 #: src/Shared/Frontend/FrontendPlayersManageView.php:182
 #: src/Shared/Frontend/FrontendPlayersManageView.php:189
@@ -2442,7 +2442,7 @@ msgstr "— Alle —"
 #: src/Modules/Methodology/Admin/MethodologyPage.php:497
 #: src/Modules/Methodology/Frontend/MethodologyView.php:525
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:92
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:302
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:303
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:275
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:305
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:154
@@ -2473,8 +2473,8 @@ msgstr "— Alle —"
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1016
 #: src/Shared/Frontend/FrontendEvaluationsView.php:157
 #: src/Shared/Frontend/FrontendEvaluationsView.php:419
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:134
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:169
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:135
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:170
 #: src/Shared/Frontend/FrontendPlayersCsvImportView.php:119
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:180
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:250
@@ -2482,8 +2482,8 @@ msgstr "— Alle —"
 #: src/Shared/Frontend/FrontendTeamsManageView.php:202
 #: src/Shared/Frontend/FrontendTestTrainingsView.php:86
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:454
-#: src/Shared/Frontend/FrontendTrialCaseView.php:482
-#: src/Shared/Frontend/FrontendTrialCaseView.php:517
+#: src/Shared/Frontend/FrontendTrialCaseView.php:483
+#: src/Shared/Frontend/FrontendTrialCaseView.php:518
 #: src/Shared/Frontend/FrontendTrialsManageView.php:290
 #: src/Shared/Frontend/PlayerDashboardView.php:147
 msgid "Notes"
@@ -2519,8 +2519,8 @@ msgstr ""
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:462
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:577
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:793
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:817
-#: src/Shared/Frontend/FrontendTrialCaseView.php:378
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:818
+#: src/Shared/Frontend/FrontendTrialCaseView.php:379
 #: src/Shared/Frontend/PlayerDashboardView.php:38
 msgid "Attendance"
 msgstr ""
@@ -2748,7 +2748,7 @@ msgstr ""
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:95
 #: src/Modules/License/Admin/AccountPage.php:636
 #: src/Modules/License/Admin/AccountPage.php:804
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:759
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:760
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:71
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:117
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:207
@@ -2767,10 +2767,10 @@ msgstr ""
 #: src/Shared/Frontend/FrontendEvaluationsView.php:115
 #: src/Shared/Frontend/FrontendEvaluationsView.php:232
 #: src/Shared/Frontend/FrontendEvaluationsView.php:244
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:160
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:161
 #: src/Shared/Frontend/FrontendReportDetailView.php:98
 #: src/Shared/Frontend/FrontendReportDetailView.php:180
-#: src/Shared/Frontend/FrontendTrialCaseView.php:394
+#: src/Shared/Frontend/FrontendTrialCaseView.php:395
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:555
 #: src/Shared/Frontend/PlayerDashboardView.php:36
 msgid "Evaluations"
@@ -2779,7 +2779,7 @@ msgstr "Bewertungen"
 #: src/Modules/Analytics/AnalyticsModule.php:115
 #: src/Modules/Analytics/AnalyticsModule.php:209
 #: src/Modules/CustomWidgets/DataSources/EvaluationsRecent.php:25
-#: src/Shared/Frontend/FrontendTrialCaseView.php:399
+#: src/Shared/Frontend/FrontendTrialCaseView.php:400
 msgid "Evaluator"
 msgstr ""
 
@@ -2806,8 +2806,8 @@ msgstr ""
 #: src/Shared/Frontend/FrontendGoalsManageView.php:50
 #: src/Shared/Frontend/FrontendGoalsManageView.php:53
 #: src/Shared/Frontend/FrontendGoalsManageView.php:131
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:159
-#: src/Shared/Frontend/FrontendTrialCaseView.php:421
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:160
+#: src/Shared/Frontend/FrontendTrialCaseView.php:422
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:557
 #: src/Shared/Frontend/PlayerDashboardView.php:37
 msgid "Goals"
@@ -2818,8 +2818,8 @@ msgstr "Ziele"
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:85
 #: src/Modules/Goals/Admin/GoalsPage.php:140
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:195
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:51
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:76
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:52
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:77
 #: src/Modules/Wizards/Goal/DetailsStep.php:18
 #: src/Shared/Frontend/CoachDashboardView.php:289
 #: src/Shared/Frontend/CoachDashboardView.php:301
@@ -2829,7 +2829,7 @@ msgstr "Ziele"
 #: src/Shared/Frontend/FrontendGoalsManageView.php:250
 #: src/Shared/Frontend/FrontendGoalsManageView.php:283
 #: src/Shared/Frontend/FrontendGoalsManageView.php:362
-#: src/Shared/Frontend/FrontendTrialCaseView.php:426
+#: src/Shared/Frontend/FrontendTrialCaseView.php:427
 msgid "Priority"
 msgstr "Priorität"
 
@@ -2845,11 +2845,11 @@ msgid "Trial decisions"
 msgstr ""
 
 #: src/Modules/Analytics/AnalyticsModule.php:154
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:706
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:707
 #: src/Modules/Workflow/Forms/GoalApprovalForm.php:71
-#: src/Shared/Frontend/FrontendTrialCaseView.php:150
-#: src/Shared/Frontend/FrontendTrialCaseView.php:184
-#: src/Shared/Frontend/FrontendTrialCaseView.php:222
+#: src/Shared/Frontend/FrontendTrialCaseView.php:151
+#: src/Shared/Frontend/FrontendTrialCaseView.php:185
+#: src/Shared/Frontend/FrontendTrialCaseView.php:223
 #: src/Shared/Frontend/FrontendTrialsManageView.php:184
 #: src/Shared/Frontend/FrontendTrialsManageView.php:210
 msgid "Decision"
@@ -2913,7 +2913,7 @@ msgstr ""
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:282
 #: src/Modules/Wizards/Evaluation/ActivityPickerStep.php:33
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:115
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:816
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:817
 #: src/Shared/Frontend/PlayerDashboardView.php:145
 msgid "Activity"
 msgstr "Aktivität"
@@ -2963,8 +2963,8 @@ msgstr ""
 
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:148
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:742
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:136
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:479
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:137
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:480
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:320
 #: src/Modules/PersonaDashboard/TableSources/MyRecentProspectsSource.php:73
 #: src/Modules/PersonaDashboard/TableSources/RecentScoutReportsSource.php:66
@@ -2992,7 +2992,7 @@ msgstr ""
 #: src/Modules/Pdp/Frontend/FrontendPdpPlanningView.php:318
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:299
 #: src/Modules/Prospects/Repositories/ScoutingVisitsRepository.php:34
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:833
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:834
 msgid "Planned"
 msgstr "Geplant"
 
@@ -3053,7 +3053,7 @@ msgstr ""
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:57
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:23
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:26
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:22
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:23
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffPdpView.php:24
 #: src/Modules/StaffDevelopment/Frontend/FrontendStaffOverviewView.php:26
 #: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:29
@@ -3075,7 +3075,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendMigrationsView.php:23
 #: src/Shared/Frontend/FrontendMobileSettingsView.php:31
 #: src/Shared/Frontend/FrontendPersonDetailView.php:23
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:182
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:183
 #: src/Shared/Frontend/FrontendPlayersCsvImportView.php:34
 #: src/Shared/Frontend/FrontendReportDetailView.php:29
 #: src/Shared/Frontend/FrontendReportsLauncherView.php:24
@@ -3086,7 +3086,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:82
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:95
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:107
-#: src/Shared/Frontend/FrontendTrialCaseView.php:61
+#: src/Shared/Frontend/FrontendTrialCaseView.php:62
 #: src/Shared/Frontend/FrontendTrialsManageView.php:30
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:32
 #: src/Shared/Frontend/FrontendUsageStatsView.php:29
@@ -3165,8 +3165,8 @@ msgstr ""
 #: src/Shared/CoreSurfaceRegistration.php:390
 #: src/Shared/CoreSurfaceRegistration.php:1107
 #: src/Shared/CoreSurfaceRegistration.php:1453
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:192
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:208
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:193
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:209
 #: src/Shared/Frontend/FrontendPlayersCsvImportView.php:41
 #: src/Shared/Frontend/FrontendPlayersManageView.php:54
 #: src/Shared/Frontend/FrontendPlayersManageView.php:541
@@ -3298,7 +3298,7 @@ msgid "Injured %"
 msgstr ""
 
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:164
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:242
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:243
 #: src/Shared/Frontend/Components/PlayerSearchPickerComponent.php:118
 #: src/Shared/Frontend/FrontendRateCardView.php:109
 msgid "All teams"
@@ -3666,7 +3666,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendEvaluationsView.php:270
 #: src/Shared/Frontend/FrontendGoalsManageView.php:98
 #: src/Shared/Frontend/FrontendPersonDetailView.php:74
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:252
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:253
 #: src/Shared/Frontend/FrontendTeamDetailView.php:69
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:118
 #: src/Shared/Frontend/FrontendViewBase.php:83
@@ -3885,7 +3885,7 @@ msgid "userCanOrMatrix()"
 msgstr ""
 
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:242
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:687
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:688
 msgid "Verdict"
 msgstr ""
 
@@ -4185,7 +4185,7 @@ msgstr "Schlüssel"
 #: src/Modules/Goals/Admin/GoalsPage.php:138
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:59
 #: src/Modules/Methodology/Admin/MethodologyPage.php:687
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:95
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:96
 #: src/Modules/Wizards/Goal/DetailsStep.php:16
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:248
 #: src/Shared/Frontend/CoachDashboardView.php:288
@@ -4557,7 +4557,7 @@ msgstr ""
 #: src/Modules/Documentation/HelpTopics.php:87
 #: src/Modules/License/Admin/AccountPage.php:823
 #: src/Shared/CoreSurfaceRegistration.php:596
-#: src/Shared/Frontend/FrontendTrialCaseView.php:49
+#: src/Shared/Frontend/FrontendTrialCaseView.php:50
 #: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:33
 #: src/Shared/Frontend/FrontendTrialParentMeetingView.php:35
 #: src/Shared/Frontend/FrontendTrialsManageView.php:46
@@ -4638,7 +4638,7 @@ msgstr ""
 
 #. translators: %s = player name
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:95
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:341
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:342
 msgid "PDP file"
 msgstr ""
 
@@ -5068,7 +5068,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/MatrixPage.php:921
 #: src/Modules/Development/Frontend/IdeasRefineView.php:130
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:254
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:307
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:308
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:288
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:649
 #: src/Shared/Frontend/Components/FormSaveButton.php:55
@@ -5079,7 +5079,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:178
 #: src/Shared/Frontend/FrontendEvalCategoriesView.php:194
 #: src/Shared/Frontend/FrontendMailComposeView.php:131
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:127
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:128
 #: src/Shared/Frontend/FrontendTeamBehaviourCaptureView.php:185
 #: src/Shared/Frontend/FrontendViewBase.php:82
 #: src/Shared/Frontend/FrontendWizardView.php:320
@@ -5599,7 +5599,7 @@ msgstr ""
 
 #. translators: state label for a PDP meeting that's further out in the cycle and not yet actionable
 #: src/Modules/Authorization/Admin/RolesPage.php:254
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:440
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:441
 #: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:271
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:244
 #: src/Shared/Frontend/Components/FrontendListTable.php:120
@@ -6227,7 +6227,7 @@ msgstr ""
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:94
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:268
 #: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:66
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:869
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:870
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:257
 msgid "Created"
 msgstr "Erstellt"
@@ -7219,7 +7219,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:148
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:229
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:138
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1007
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1008
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:183
 #: src/Modules/Wizards/Goal/LinkStep.php:73
 #: src/Modules/Wizards/Goal/LinkStep.php:108
@@ -8317,7 +8317,7 @@ msgstr ""
 #: src/Modules/Wizards/Prospect/ReviewStep.php:46
 #: src/Modules/Workflow/Forms/LogProspectForm.php:66
 #: src/Shared/Frontend/FrontendMyProfileView.php:121
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:535
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:536
 #: src/Shared/Frontend/FrontendPlayersCsvImportView.php:117
 #: src/Shared/Frontend/FrontendPlayersManageView.php:282
 #: src/Shared/Frontend/FrontendTrialsManageView.php:261
@@ -8351,7 +8351,7 @@ msgstr "Gewicht (kg)"
 #: src/Shared/Frontend/FrontendConfigurationView.php:141
 #: src/Shared/Frontend/FrontendConfigurationView.php:238
 #: src/Shared/Frontend/FrontendMyProfileView.php:107
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:541
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:542
 #: src/Shared/Frontend/FrontendPlayersManageView.php:310
 #: src/Shared/Frontend/FrontendTeammateView.php:99
 msgid "Preferred foot"
@@ -8371,14 +8371,14 @@ msgstr ""
 #: src/Modules/Methodology/Admin/PositionEditPage.php:84
 #: src/Modules/Wizards/Player/ReviewStep.php:36
 #: src/Modules/Wizards/Player/RosterDetailsStep.php:42
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:544
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:545
 #: src/Shared/Frontend/FrontendPlayersManageView.php:306
 msgid "Jersey number"
 msgstr ""
 
 #: src/Modules/Configuration/Admin/FormSlugContract.php:61
 #: src/Modules/Export/Exporters/PlayersListCsvExporter.php:91
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:563
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:564
 msgid "Date joined"
 msgstr ""
 
@@ -8439,7 +8439,7 @@ msgstr ""
 #: src/Modules/Configuration/Admin/FormSlugContract.php:113
 #: src/Modules/CustomWidgets/DataSources/GoalsOpen.php:26
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:86
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:83
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:84
 #: src/Modules/Wizards/Goal/DetailsStep.php:25
 #: src/Shared/Frontend/FrontendGoalsManageView.php:353
 msgid "Due date"
@@ -8617,7 +8617,7 @@ msgid "Detailed"
 msgstr ""
 
 #: src/Modules/Configuration/Admin/UserProfileExtensions.php:59
-#: src/Shared/Frontend/FrontendTrialCaseView.php:265
+#: src/Shared/Frontend/FrontendTrialCaseView.php:266
 msgid "Summary"
 msgstr "Zusammenfassung"
 
@@ -9530,9 +9530,9 @@ msgstr ""
 
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:75
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:93
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:150
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:151
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:132
-#: src/Shared/Frontend/FrontendTrialCaseView.php:426
+#: src/Shared/Frontend/FrontendTrialCaseView.php:427
 msgid "Updated"
 msgstr "Aktualisiert"
 
@@ -9804,7 +9804,7 @@ msgid "Open goals"
 msgstr ""
 
 #: src/Modules/CustomWidgets/DataSources/GoalsOpen.php:27
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1005
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1006
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:147
 #: src/Modules/Wizards/Goal/LinkStep.php:71
 #: src/Modules/Wizards/Goal/LinkStep.php:106
@@ -9820,7 +9820,7 @@ msgid "Distinct players"
 msgstr ""
 
 #: src/Modules/CustomWidgets/DataSources/PdpFiles.php:15
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:864
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:865
 msgid "PDP files"
 msgstr ""
 
@@ -12049,7 +12049,7 @@ msgstr "Kategorie"
 #: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:18
 #: src/Shared/Frontend/Components/RatingInputComponent.php:35
 #: src/Shared/Frontend/FrontendEvaluationsView.php:380
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:130
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:131
 #: src/Shared/Frontend/FrontendTeamBehaviourCaptureView.php:161
 msgid "Rating"
 msgstr "Bewertung"
@@ -12219,7 +12219,7 @@ msgid "Metric"
 msgstr ""
 
 #: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:124
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1008
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1009
 #: src/Modules/Wizards/Goal/LinkStep.php:74
 #: src/Modules/Wizards/Goal/LinkStep.php:109
 #: src/Shared/Admin/OptionSetEditor.php:47
@@ -12235,7 +12235,7 @@ msgid "Snapshot range to"
 msgstr ""
 
 #: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:130
-#: src/Shared/Frontend/FrontendTrialCaseView.php:607
+#: src/Shared/Frontend/FrontendTrialCaseView.php:608
 msgid "Generated at"
 msgstr ""
 
@@ -12373,7 +12373,7 @@ msgid "PDP file not found."
 msgstr ""
 
 #: src/Modules/Export/Exporters/PdpPdfExporter.php:77
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:67
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:68
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:47
 #: src/Modules/Pdp/Rest/PdpFilesRestController.php:356
 msgid "You do not have access to this PDP file."
@@ -12486,7 +12486,7 @@ msgstr ""
 #: src/Shared/Frontend/CoachDashboardView.php:300
 #: src/Shared/Frontend/CoachForms.php:561
 #: src/Shared/Frontend/FrontendGoalsManageView.php:249
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:674
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:675
 msgid "Goal"
 msgstr "Ziel"
 
@@ -12725,7 +12725,7 @@ msgstr ""
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:76
 #: src/Modules/Methodology/Admin/MethodologyPage.php:134
 #: src/Modules/Methodology/Admin/MethodologyPage.php:143
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:864
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:865
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:155
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:54
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:342
@@ -12925,7 +12925,7 @@ msgstr ""
 #: src/Modules/Invitations/InvitationStatus.php:47
 #: src/Modules/PersonaDashboard/TableSources/RecentScoutReportsSource.php:73
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:112
-#: src/Shared/Frontend/FrontendTrialCaseView.php:609
+#: src/Shared/Frontend/FrontendTrialCaseView.php:610
 msgid "Revoked"
 msgstr ""
 
@@ -13030,7 +13030,7 @@ msgid "Show full history"
 msgstr ""
 
 #: src/Modules/Journey/Frontend/FrontendJourneyView.php:177
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:860
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:861
 msgid "Show:"
 msgstr ""
 
@@ -13584,7 +13584,7 @@ msgstr ""
 #: src/Shared/CoreSurfaceRegistration.php:1070
 #: src/Shared/Frontend/Components/FrontendBreadcrumbs.php:28
 #: src/Shared/Frontend/FrontendConfigurationView.php:1364
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:207
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:208
 #: src/Shared/Frontend/FrontendReportDetailView.php:44
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:551
 msgid "Dashboard"
@@ -13909,7 +13909,7 @@ msgstr ""
 #: src/Modules/Pdp/Admin/SeasonsPage.php:50
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:290
 #: src/Shared/Frontend/FrontendPeopleManageView.php:242
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:918
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:919
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:187
 msgid "Start"
 msgstr "Start"
@@ -14385,7 +14385,7 @@ msgstr ""
 #: src/Modules/Methodology/Admin/FrameworkPrimerEditPage.php:58
 #: src/Modules/Wizards/Prospect/IdentityStep.php:21
 #: src/Modules/Workflow/Forms/LogProspectForm.php:45
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:567
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:568
 msgid "Identity"
 msgstr ""
 
@@ -15774,7 +15774,7 @@ msgstr ""
 
 #: src/Modules/Pdp/Admin/SeasonsPage.php:51
 #: src/Shared/Frontend/FrontendPeopleManageView.php:243
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:919
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:920
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:188
 msgid "End"
 msgstr "Ende"
@@ -15862,7 +15862,7 @@ msgstr ""
 
 #. translators: %1$d sequence, %2$s template
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:64
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:520
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:521
 #, php-format
 msgid "Conversation %1$d (%2$s)"
 msgstr ""
@@ -15880,7 +15880,7 @@ msgid "Conducted %s"
 msgstr ""
 
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:96
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:646
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:647
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:214
 msgid "Agreed actions"
 msgstr ""
@@ -15925,48 +15925,48 @@ msgid "A parent acknowledged this conversation."
 msgstr ""
 
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:181
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:489
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:490
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:235
 msgid "End-of-season verdict"
 msgstr ""
 
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:182
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:491
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:492
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:236
-#: src/Shared/Frontend/FrontendTrialCaseView.php:209
+#: src/Shared/Frontend/FrontendTrialCaseView.php:210
 msgid "Decision:"
 msgstr ""
 
 #. translators: %s = signoff timestamp
 #. translators: %s = signed-off timestamp
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:190
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:501
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:502
 #, php-format
 msgid "Signed off on %s"
 msgstr ""
 
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:232
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1095
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1096
 msgid "Start of season"
 msgstr ""
 
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:233
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1096
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1097
 msgid "Mid season"
 msgstr ""
 
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:234
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1097
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1098
 msgid "Mid-season A"
 msgstr ""
 
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:235
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1098
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1099
 msgid "Mid-season B"
 msgstr ""
 
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:236
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1099
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1100
 msgid "End of season"
 msgstr ""
 
@@ -15990,7 +15990,7 @@ msgstr ""
 msgid "Transfer"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:38
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:39
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:73
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:121
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:208
@@ -15999,23 +15999,23 @@ msgstr ""
 msgid "PDP"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:41
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:42
 msgid "New PDP file"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:46
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:47
 msgid "PDP file detail"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:61
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:62
 msgid "PDP file not found"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:62
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:63
 msgid "That PDP file no longer exists."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:66
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:67
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:64
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:167
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:94
@@ -16023,116 +16023,116 @@ msgstr ""
 msgid "Access denied"
 msgstr "Zugriff verweigert"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:89
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:112
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:90
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:113
 msgid "Player Development Plans"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:90
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:91
 msgid ""
 "No current season is set. Configure a season under Configuration → Seasons "
 "before creating PDP files."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:106
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:182
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:107
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:183
 msgid "Open new PDP file"
 msgstr ""
 
 #. translators: %s = season name
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:116
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:117
 #, php-format
 msgid "Showing PDP files for the current season (%s)."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:147
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:148
 msgid "Cycle"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:148
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:149
 #: src/Modules/Pdp/Rest/PdpFilesRestController.php:232
 msgid "Parent confirmation"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:149
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:150
 #: src/Modules/Pdp/Rest/PdpFilesRestController.php:233
 msgid "Player confirmation"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:169
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:170
 msgid "Search player…"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:171
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:172
 msgid "No PDP files match your filters."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:186
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:187
 msgid "No current season is set. Configure one before opening a PDP file."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:195
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:196
 msgid ""
 "No players available. Coaches can only open PDP files for players on their "
 "own teams."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:251
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:252
 msgid "— Select a player —"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:293
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:294
 msgid "Conversations this season"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:295
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:296
 msgid "Use club / team default"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:306
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:307
 msgid "Open file"
 msgstr ""
 
 #. translators: %s = player name
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:340
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:341
 #, php-format
 msgid "PDP file — %s"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:356
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:357
 msgid "Print / PDF"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:359
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:360
 msgid "Record verdict"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:383
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:384
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:185
-#: src/Shared/Frontend/FrontendTrialCaseView.php:207
+#: src/Shared/Frontend/FrontendTrialCaseView.php:208
 msgid "Status:"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:388
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:389
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:186
 msgid "Cycle size:"
 msgstr ""
 
 #. translators: 1: signed-off count, 2: cycle size
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:394
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:395
 #, php-format
 msgid "(%1$d of %2$d signed off)"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:402
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:403
 msgid "Notes:"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:410
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:411
 msgid "Conversations"
 msgstr "Unterhaltungen"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:414
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:415
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:340
 #: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:65
 #: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:125
@@ -16142,59 +16142,59 @@ msgstr "Unterhaltungen"
 msgid "Template"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:415
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:436
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:416
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:437
 msgid "Scheduled"
 msgstr "Geplant"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:417
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:418
 msgid "Acks"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:435
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:436
 msgid "To be planned"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:437
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:438
 msgid "Held"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:438
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:658
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:439
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:659
 #: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:268
 msgid "Signed off"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:464
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:465
 msgid "Parent has acknowledged"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:465
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:466
 msgid "Parent acknowledgement pending"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:471
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:472
 msgid "Player has acknowledged"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:472
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:473
 msgid "Player acknowledgement pending"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:513
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:514
 msgid "Conversation not found"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:514
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:515
 msgid "That conversation no longer exists."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:550
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:551
 msgid "Conversation sections"
 msgstr ""
 
 # #0028 — Conversational goals (thread primitive + goal adapter)
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:554
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:555
 #: src/Shared/Frontend/Components/FrontendThreadView.php:52
 #: src/Shared/Frontend/FrontendGoalsManageView.php:186
 #: src/Shared/Frontend/FrontendGoalsManageView.php:469
@@ -16202,170 +16202,170 @@ msgstr ""
 msgid "Conversation"
 msgstr "Unterhaltung"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:558
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:742
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:559
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:743
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:251
 msgid "Evidence"
 msgstr ""
 
 #. translators: %s = sign-off timestamp
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:597
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:598
 #, php-format
 msgid "coach signed off on %s"
 msgstr ""
 
 #. translators: %s = ack timestamp
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:604
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:605
 #, php-format
 msgid "parent acknowledged on %s"
 msgstr ""
 
 #. translators: %s = ack timestamp
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:611
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:612
 #, php-format
 msgid "player acknowledged on %s"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:616
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:617
 msgid "Read only."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:617
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:618
 msgid "This conversation is locked because it carries a signature — "
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:621
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:622
 msgid "Open a new conversation if a follow-up edit is needed."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:627
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:628
 msgid "Scheduled at"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:632
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:633
 msgid "Conducted at"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:635
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:636
 msgid "Fill in once the conversation has happened."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:638
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:639
 msgid "Agenda (pre-meeting)"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:642
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:643
 msgid "Notes (post-meeting)"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:652
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:653
 msgid "Player self-reflection"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:663
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:664
 msgid "Sign off this conversation now"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:670
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:671
 msgid "Save conversation"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:688
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:689
 msgid "Only head of academy or head coach roles can record a verdict."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:692
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:693
 msgid "Edit end-of-season verdict"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:692
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:693
 msgid "Record end-of-season verdict"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:698
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:699
 msgid "Promote to next age group"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:699
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:700
 msgid "Retain in current group"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:700
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:701
 msgid "Release from academy"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:701
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:702
 msgid "Transfer to another team / club"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:708
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:709
 msgid "— Select decision —"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:715
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:716
 msgid "Summary / rationale"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:721
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:722
 msgid "Sign off this verdict now"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:725
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:726
 msgid "Save verdict"
 msgstr ""
 
 #. translators: %s = date
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:747
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:748
 #, php-format
 msgid "Since %s"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:767
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:768
 #: src/Shared/Frontend/FrontendUsageStatsView.php:224
 msgid "No evaluations in this window."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:788
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:789
 msgid "No activities in this window."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:799
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:800
 msgid "Goal changes"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:808
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:809
 msgid "No goal changes in this window."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:848
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:849
 msgid "Linked goals"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:869
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:870
 msgid "No goals match this filter."
 msgstr ""
 
 #. translators: %s = date
 #. translators: %s: due date in YYYY-MM-DD
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:917
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:918
 #: src/Shared/Frontend/FrontendMyProfileView.php:210
 #, php-format
 msgid "Due %s"
 msgstr ""
 
 #. translators: %s = date
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:936
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:937
 #, php-format
 msgid "Last mentioned in conversation on %s"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1006
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1007
 #: src/Modules/Wizards/Goal/LinkStep.php:72
 #: src/Modules/Wizards/Goal/LinkStep.php:107
 msgid "Football action"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1086
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1087
 msgctxt "PDP file status"
 msgid "Open"
 msgstr ""
@@ -16503,7 +16503,7 @@ msgstr ""
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:634
 #: src/Shared/Frontend/Components/GuestAddModal.php:48
 #: src/Shared/Frontend/DashboardShortcode.php:1165
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:126
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:127
 msgid "Close"
 msgstr "Schließen"
 
@@ -16512,7 +16512,7 @@ msgid "Current goals"
 msgstr ""
 
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:197
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:53
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:54
 #: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:200
 #: src/Shared/Frontend/CoachDashboardView.php:302
 #: src/Shared/Frontend/CoachForms.php:563
@@ -16872,7 +16872,7 @@ msgstr ""
 
 #: src/Modules/People/Admin/TeamStaffPanel.php:167
 #: src/Modules/Reports/Frontend/FrontendScoutAccessView.php:100
-#: src/Shared/Frontend/FrontendTrialCaseView.php:327
+#: src/Shared/Frontend/FrontendTrialCaseView.php:328
 msgid "Assign"
 msgstr ""
 
@@ -16913,7 +16913,7 @@ msgid "Reset to default"
 msgstr ""
 
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:63
-#: src/Shared/Frontend/FrontendTrialCaseView.php:519
+#: src/Shared/Frontend/FrontendTrialCaseView.php:520
 msgid "Save draft"
 msgstr ""
 
@@ -17135,9 +17135,9 @@ msgid "My activities"
 msgstr ""
 
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:47
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:23
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:30
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:38
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:24
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:31
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:39
 #: src/Shared/CoreSurfaceRegistration.php:253
 #: src/Shared/Frontend/FrontendMyGoalsView.php:30
 #: src/Shared/Frontend/FrontendMyGoalsView.php:37
@@ -17205,8 +17205,8 @@ msgstr ""
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:206
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:627
 #: src/Shared/CoreSurfaceRegistration.php:588
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:163
-#: src/Shared/Frontend/FrontendTrialCaseView.php:39
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:164
+#: src/Shared/Frontend/FrontendTrialCaseView.php:40
 #: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:25
 #: src/Shared/Frontend/FrontendTrialParentMeetingView.php:26
 #: src/Shared/Frontend/FrontendTrialsManageView.php:27
@@ -18112,8 +18112,8 @@ msgstr ""
 
 #. translators: %s = player name
 #: src/Modules/PersonaDashboard/Widgets/RecentCommentsWidget.php:177
-#: src/Shared/Frontend/FrontendTrialCaseView.php:81
-#: src/Shared/Frontend/FrontendTrialCaseView.php:107
+#: src/Shared/Frontend/FrontendTrialCaseView.php:82
+#: src/Shared/Frontend/FrontendTrialCaseView.php:108
 #, php-format
 msgid "Trial: %s"
 msgstr ""
@@ -18487,7 +18487,7 @@ msgstr ""
 #: src/Modules/Players/Admin/PlayersPage.php:441
 #: src/Modules/Stats/Admin/PlayerComparisonPage.php:254
 #: src/Shared/Frontend/FrontendComparisonView.php:351
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:538
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:539
 msgid "Position(s)"
 msgstr ""
 
@@ -19268,7 +19268,7 @@ msgstr ""
 
 #: src/Modules/Reports/AudienceDefaults.php:105
 #: src/Shared/Frontend/FrontendMySettingsView.php:67
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:158
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:159
 msgid "Profile"
 msgstr "Profil"
 
@@ -19406,7 +19406,7 @@ msgid "Recipient"
 msgstr "Empfänger"
 
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:61
-#: src/Shared/Frontend/FrontendTrialCaseView.php:607
+#: src/Shared/Frontend/FrontendTrialCaseView.php:608
 msgid "Audience"
 msgstr ""
 
@@ -20002,7 +20002,7 @@ msgstr ""
 
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:25
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:28
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:24
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:25
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffPdpView.php:26
 #: src/Modules/StaffDevelopment/Frontend/FrontendStaffOverviewView.php:28
 msgid "You do not have access to this section."
@@ -20010,7 +20010,7 @@ msgstr ""
 
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:32
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:35
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:31
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:32
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffPdpView.php:33
 msgid ""
 "This section is only available for staff members linked to a People record."
@@ -20103,34 +20103,34 @@ msgstr ""
 msgid "Save evaluation"
 msgstr ""
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:19
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:20
 #: src/Shared/CoreSurfaceRegistration.php:972
 msgid "My staff goals"
 msgstr ""
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:47
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:48
 msgid "No goals yet. Add one below."
 msgstr ""
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:54
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:55
 msgid "Targets cert"
 msgstr ""
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:68
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:69
 msgid "Add a goal"
 msgstr ""
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:87
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:88
 msgid "Targets a certification (optional)"
 msgstr ""
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:89
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:133
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:90
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:134
 #: src/Shared/Frontend/FrontendTeamBehaviourCaptureView.php:132
 msgid "— none —"
 msgstr ""
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:98
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:99
 #: src/Shared/Frontend/FrontendGoalsManageView.php:457
 msgid "Add goal"
 msgstr ""
@@ -22906,7 +22906,7 @@ msgstr ""
 #: src/Shared/Frontend/Components/GuestAddModal.php:75
 #: src/Shared/Frontend/Components/PlayerSearchPickerComponent.php:65
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:53
-#: src/Shared/Frontend/FrontendTrialCaseView.php:324
+#: src/Shared/Frontend/FrontendTrialCaseView.php:325
 #: src/Shared/Frontend/FrontendTrialsManageView.php:283
 msgid "Type a name to search…"
 msgstr ""
@@ -23521,7 +23521,7 @@ msgstr ""
 #. translators: 1: min rating, 2: max rating
 #. translators: 1: rating min, 2: rating max
 #: src/Modules/Workflow/Forms/PostGameEvaluationForm.php:44
-#: src/Shared/Frontend/FrontendTrialCaseView.php:512
+#: src/Shared/Frontend/FrontendTrialCaseView.php:513
 #, php-format
 msgid "Overall rating (%1$s–%2$s)"
 msgstr ""
@@ -24330,9 +24330,9 @@ msgid "Re-enable legacy menus (wp-admin Configuration)"
 msgstr ""
 
 #: src/Shared/Admin/Menu.php:463
-#: src/Shared/Frontend/FrontendTrialCaseView.php:137
-#: src/Shared/Frontend/FrontendTrialCaseView.php:179
-#: src/Shared/Frontend/FrontendTrialCaseView.php:217
+#: src/Shared/Frontend/FrontendTrialCaseView.php:138
+#: src/Shared/Frontend/FrontendTrialCaseView.php:180
+#: src/Shared/Frontend/FrontendTrialCaseView.php:218
 #: src/Shared/Frontend/PlayerDashboardView.php:34
 msgid "Overview"
 msgstr "Übersicht"
@@ -25303,7 +25303,7 @@ msgid "Overall rating: %1$s out of %2$s"
 msgstr ""
 
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:51
-#: src/Shared/Frontend/FrontendTrialCaseView.php:322
+#: src/Shared/Frontend/FrontendTrialCaseView.php:323
 msgid "Staff member"
 msgstr ""
 
@@ -25450,8 +25450,8 @@ msgid "Your role does not have access to team blueprints."
 msgstr ""
 
 #: src/Shared/Frontend/DashboardShortcode.php:641
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:191
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:194
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:192
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:195
 #: src/Shared/Frontend/FrontendPlayersManageView.php:66
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:57
 msgid "Player not found"
@@ -26369,7 +26369,7 @@ msgid "Blocks saved."
 msgstr ""
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:1283
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:144
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:145
 msgid "Could not save. Try again."
 msgstr ""
 
@@ -27610,282 +27610,282 @@ msgstr ""
 msgid "Archive this person? They can be restored later by a site admin."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:103
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:104
 msgid "First-team"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:104
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:105
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:237
 msgid "Professional elsewhere"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:105
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:106
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:238
 msgid "Semi-pro"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:106
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:107
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:239
 msgid "Top amateur"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:107
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:108
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:240
 msgid "Recreational"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:128
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:367
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:129
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:368
 msgid "Log behaviour"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:129
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:372
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:130
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:373
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:227
 msgid "Set potential"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:131
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:132
 msgid "— pick a rating —"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:132
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:133
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:168
 msgid "Related activity (optional)"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:135
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:136
 msgid "Optional context"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:136
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:137
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:232
 msgid "Potential band"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:137
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:138
 msgid "— pick a band —"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:138
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:139
 msgid "Save rating"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:139
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:140
 msgid "Update potential"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:140
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:141
 msgid "View all behaviour ratings →"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:141
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:142
 msgid "View potential history →"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:142
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:143
 msgid "Behaviour recorded"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:143
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:144
 msgid "Potential updated"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:145
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:146
 msgid "Network error. Try again."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:162
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:163
 msgid "PDP cycle"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:183
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:184
 msgid "You do not have permission to view player details."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:195
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:196
 msgid "That player is no longer available, or you do not have access."
 msgstr ""
 
 #. translators: %s: player display name
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:216
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:217
 #, php-format
 msgid "Player file of %s"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:246
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:614
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:247
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:615
 msgid "Assign to team"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:256
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:257
 msgid "Archive this player? They can be restored later by a site admin."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:280
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:281
 msgid "Player sections"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:419
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:420
 msgid "Joined recently"
 msgstr ""
 
 #. translators: %d: number of days
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:423
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:424
 #, php-format
 msgid "%d day in academy"
 msgid_plural "%d days in academy"
 msgstr[0] "%d dag in de academie"
 msgstr[1] "%d dagen in de academie"
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:426
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:427
 #, php-format
 msgid "Joined %s"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:462
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:463
 msgid "Latest activity:"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:476
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:477
 msgid "Latest evaluation:"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:490
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:491
 msgid "Latest goal:"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:556
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:557
 #: src/Shared/Frontend/FrontendUsageStatsView.php:366
 msgid "Unassigned"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:560
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:561
 msgid "Age tier"
 msgstr ""
 
 # v3.92.6 — #0082 player file UX redesign
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:568
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:569
 msgid "Academy"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:599
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:600
 msgid "Assign this player to a team"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:602
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:603
 msgid ""
 "This player has no team yet — typical after a trial admission. Pick a team "
 "to place them on the roster."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:659
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:660
 msgid "No goals yet for this player"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:660
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:661
 msgid ""
 "Goals capture what the player is working on this season — start with one."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:661
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:662
 msgid "Add first goal"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:676
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:677
 msgid "Deadline"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:713
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:714
 msgid "No evaluations yet for this player"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:714
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:715
 msgid ""
 "Evaluations track how the player is developing across your rating "
 "categories. Record one after a training or match."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:715
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:716
 msgid "Record first evaluation"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:791
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:803
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:792
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:804
 msgid "No attended activities yet"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:792
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:793
 msgid ""
 "Activities are recorded at the team level. Schedule one for the player's "
 "team and the player will appear in the roster."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:793
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:794
 msgid "Plan a team activity"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:804
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:805
 msgid ""
 "Activities are recorded at the team level. Assign this player to a team "
 "first; activities planned for that team will then surface here."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:853
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:854
 msgid "No PDP cycle yet for this player"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:854
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:855
 msgid ""
 "A Personal Development Plan documents what the player is focusing on, agreed "
 "with parents and the coach. Open one to start the cycle."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:855
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:856
 msgid "Start PDP cycle"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:898
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:899
 msgid "No trial history for this player"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:900
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:901
 msgid ""
 "A trial case tracks the prospect from first training through to the academy "
 "decision. Open one when you want to evaluate this player formally."
 msgstr ""
 
 # v3.104.2 — pilot batch new copy
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:901
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:902
 msgid ""
 "This player is not currently on trial, so there is no trial history to show."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:904
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:905
 msgid "Open trial case"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:942
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:943
 msgid "Notes are staff-only"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:943
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:944
 msgid ""
 "A running log of staff observations about this player. You don't have access "
 "— talk to your academy admin if you should."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:951
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:952
 msgid "Not in scope for this player"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:952
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:953
 msgid ""
 "You have notes access in general, but not for this player's team. Talk to "
 "your academy admin if you should."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:958
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:959
 msgid ""
 "A running log staff use to share observations about this player. Notes are "
 "visible to staff only — never to the player or their parents."
@@ -28758,263 +28758,263 @@ msgstr ""
 msgid "Create tournament"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:47
 #: src/Shared/Frontend/FrontendTrialCaseView.php:48
-#: src/Shared/Frontend/FrontendTrialCaseView.php:62
+#: src/Shared/Frontend/FrontendTrialCaseView.php:49
+#: src/Shared/Frontend/FrontendTrialCaseView.php:63
 msgid "Trial case"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:55
 #: src/Shared/Frontend/FrontendTrialCaseView.php:56
-#: src/Shared/Frontend/FrontendTrialCaseView.php:73
+#: src/Shared/Frontend/FrontendTrialCaseView.php:57
 #: src/Shared/Frontend/FrontendTrialCaseView.php:74
+#: src/Shared/Frontend/FrontendTrialCaseView.php:75
 msgid "Trial case not found"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:63
+#: src/Shared/Frontend/FrontendTrialCaseView.php:64
 msgid "You are not assigned to this case."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:95
-#: src/Shared/Frontend/FrontendTrialCaseView.php:533
+#: src/Shared/Frontend/FrontendTrialCaseView.php:96
+#: src/Shared/Frontend/FrontendTrialCaseView.php:534
 msgid "Record decision"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:101
-#: src/Shared/Frontend/FrontendTrialCaseView.php:311
+#: src/Shared/Frontend/FrontendTrialCaseView.php:102
+#: src/Shared/Frontend/FrontendTrialCaseView.php:312
 msgid "Archive case"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:141
-#: src/Shared/Frontend/FrontendTrialCaseView.php:180
-#: src/Shared/Frontend/FrontendTrialCaseView.php:218
+#: src/Shared/Frontend/FrontendTrialCaseView.php:142
+#: src/Shared/Frontend/FrontendTrialCaseView.php:181
+#: src/Shared/Frontend/FrontendTrialCaseView.php:219
 msgid "Execution"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:145
-#: src/Shared/Frontend/FrontendTrialCaseView.php:181
-#: src/Shared/Frontend/FrontendTrialCaseView.php:219
+#: src/Shared/Frontend/FrontendTrialCaseView.php:146
+#: src/Shared/Frontend/FrontendTrialCaseView.php:182
+#: src/Shared/Frontend/FrontendTrialCaseView.php:220
 msgid "Staff inputs"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:154
-#: src/Shared/Frontend/FrontendTrialCaseView.php:185
-#: src/Shared/Frontend/FrontendTrialCaseView.php:223
-#: src/Shared/Frontend/FrontendTrialCaseView.php:590
+#: src/Shared/Frontend/FrontendTrialCaseView.php:155
+#: src/Shared/Frontend/FrontendTrialCaseView.php:186
+#: src/Shared/Frontend/FrontendTrialCaseView.php:224
+#: src/Shared/Frontend/FrontendTrialCaseView.php:591
 msgid "Letter"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:159
-#: src/Shared/Frontend/FrontendTrialCaseView.php:187
-#: src/Shared/Frontend/FrontendTrialCaseView.php:225
+#: src/Shared/Frontend/FrontendTrialCaseView.php:160
+#: src/Shared/Frontend/FrontendTrialCaseView.php:188
+#: src/Shared/Frontend/FrontendTrialCaseView.php:226
 #: src/Shared/Frontend/FrontendTrialParentMeetingView.php:27
 msgid "Parent meeting"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:190
+#: src/Shared/Frontend/FrontendTrialCaseView.php:191
 msgid "Trial sections"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:201
+#: src/Shared/Frontend/FrontendTrialCaseView.php:202
 msgid "Track:"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:202
+#: src/Shared/Frontend/FrontendTrialCaseView.php:203
 msgid "Window:"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:243
-#: src/Shared/Frontend/FrontendTrialCaseView.php:246
-#: src/Shared/Frontend/FrontendTrialCaseView.php:249
+#: src/Shared/Frontend/FrontendTrialCaseView.php:244
+#: src/Shared/Frontend/FrontendTrialCaseView.php:247
+#: src/Shared/Frontend/FrontendTrialCaseView.php:250
 msgid "Manager only."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:269
+#: src/Shared/Frontend/FrontendTrialCaseView.php:270
 msgid "Assigned staff"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:271
+#: src/Shared/Frontend/FrontendTrialCaseView.php:272
 msgid "No staff assigned yet."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:287
+#: src/Shared/Frontend/FrontendTrialCaseView.php:288
 msgid "Extension history"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:289
+#: src/Shared/Frontend/FrontendTrialCaseView.php:290
 msgid "No extensions yet."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:292
+#: src/Shared/Frontend/FrontendTrialCaseView.php:293
 msgid "Extended at"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:292
+#: src/Shared/Frontend/FrontendTrialCaseView.php:293
 msgid "Previous end"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:292
+#: src/Shared/Frontend/FrontendTrialCaseView.php:293
 msgid "New end"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:292
-#: src/Shared/Frontend/FrontendTrialCaseView.php:563
+#: src/Shared/Frontend/FrontendTrialCaseView.php:293
+#: src/Shared/Frontend/FrontendTrialCaseView.php:564
 msgid "Justification"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:311
+#: src/Shared/Frontend/FrontendTrialCaseView.php:312
 msgid "Archive this case?"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:326
+#: src/Shared/Frontend/FrontendTrialCaseView.php:327
 #: src/Shared/Frontend/FrontendTrialsManageView.php:285
 msgid "Role label (optional)"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:336
+#: src/Shared/Frontend/FrontendTrialCaseView.php:337
 msgid "New end date"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:337
+#: src/Shared/Frontend/FrontendTrialCaseView.php:338
 msgid "Justification (required)"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:338
+#: src/Shared/Frontend/FrontendTrialCaseView.php:339
 msgid "Extend trial"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:350
+#: src/Shared/Frontend/FrontendTrialCaseView.php:351
 msgid "Synthesis"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:354
+#: src/Shared/Frontend/FrontendTrialCaseView.php:355
 msgid "No evaluations during the trial window yet."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:357
+#: src/Shared/Frontend/FrontendTrialCaseView.php:358
 msgid "Rolling rating"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:358
+#: src/Shared/Frontend/FrontendTrialCaseView.php:359
 msgid "Evaluations in window"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:375
+#: src/Shared/Frontend/FrontendTrialCaseView.php:376
 msgid "No activities yet during this trial period."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:396
+#: src/Shared/Frontend/FrontendTrialCaseView.php:397
 msgid "No evaluations yet during this trial period."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:423
+#: src/Shared/Frontend/FrontendTrialCaseView.php:424
 msgid "No goals yet during this trial period."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:452
+#: src/Shared/Frontend/FrontendTrialCaseView.php:453
 msgid "Submitted inputs"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:457
+#: src/Shared/Frontend/FrontendTrialCaseView.php:458
 #, php-format
 msgid "%1$d of %2$d assigned staff have submitted."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:462
+#: src/Shared/Frontend/FrontendTrialCaseView.php:463
 msgid "Release submitted inputs to assigned staff"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:464
+#: src/Shared/Frontend/FrontendTrialCaseView.php:465
 msgid "Inputs released on:"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:469
+#: src/Shared/Frontend/FrontendTrialCaseView.php:470
 msgid "No submitted inputs visible to you yet."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:494
+#: src/Shared/Frontend/FrontendTrialCaseView.php:495
 msgid "Your input"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:496
+#: src/Shared/Frontend/FrontendTrialCaseView.php:497
 msgid "You submitted on:"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:497
+#: src/Shared/Frontend/FrontendTrialCaseView.php:498
 msgid "To edit after submit, ask the head of development."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:520
+#: src/Shared/Frontend/FrontendTrialCaseView.php:521
 msgid "Submit input"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:543
-#: src/Shared/Frontend/FrontendTrialCaseView.php:560
+#: src/Shared/Frontend/FrontendTrialCaseView.php:544
+#: src/Shared/Frontend/FrontendTrialCaseView.php:561
 msgid "Outcome"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:549
+#: src/Shared/Frontend/FrontendTrialCaseView.php:550
 msgid "Justification (internal record, ≥ 30 characters)"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:550
+#: src/Shared/Frontend/FrontendTrialCaseView.php:551
 msgid "Strengths (used in the encouragement letter)"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:551
+#: src/Shared/Frontend/FrontendTrialCaseView.php:552
 msgid "Growth areas (used in the encouragement letter)"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:553
+#: src/Shared/Frontend/FrontendTrialCaseView.php:554
 msgid "Record decision and generate letter"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:558
+#: src/Shared/Frontend/FrontendTrialCaseView.php:559
 msgid "Decision recorded"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:561
+#: src/Shared/Frontend/FrontendTrialCaseView.php:562
 msgid "Recorded at"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:569
+#: src/Shared/Frontend/FrontendTrialCaseView.php:570
 msgid "Acceptance slip received on:"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:573
+#: src/Shared/Frontend/FrontendTrialCaseView.php:574
 msgid "Mark acceptance slip as received"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:579
+#: src/Shared/Frontend/FrontendTrialCaseView.php:580
 msgid "Regenerate letter"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:593
+#: src/Shared/Frontend/FrontendTrialCaseView.php:594
 msgid ""
 "No letter generated yet. Record a decision on the Decision tab to produce "
 "one."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:596
+#: src/Shared/Frontend/FrontendTrialCaseView.php:597
 msgid "Open print-ready view"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:605
+#: src/Shared/Frontend/FrontendTrialCaseView.php:606
 msgid "Letter history"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:621
+#: src/Shared/Frontend/FrontendTrialCaseView.php:622
 msgid "Parent meeting mode"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:622
+#: src/Shared/Frontend/FrontendTrialCaseView.php:623
 msgid ""
 "A sanitized fullscreen view for the conversation with the parents. No "
 "internal data is shown — only the decision, the player photo and basics, and "
 "the letter."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialCaseView.php:623
+#: src/Shared/Frontend/FrontendTrialCaseView.php:624
 msgid "Open meeting view"
 msgstr ""
 
