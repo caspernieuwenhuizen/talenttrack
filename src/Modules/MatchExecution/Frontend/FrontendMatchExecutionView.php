@@ -99,7 +99,8 @@ class FrontendMatchExecutionView extends FrontendViewBase {
         }
 
         FrontendBreadcrumbs::fromDashboard( __( 'Match execution', 'talenttrack' ) );
-        self::enqueueAssets( $activity_id, $execution );
+        parent::enqueueAssets();
+        self::enqueueViewAssets( $activity_id, $execution );
 
         $home_label = ( ( $activity->home_away ?? '' ) === 'home' ) ? __( 'Home', 'talenttrack' ) : ( (string) ( $activity->team_name ?? '' ) );
         $away_label = (string) ( $activity->opponent ?? '—' );
@@ -211,7 +212,7 @@ class FrontendMatchExecutionView extends FrontendViewBase {
         <?php
     }
 
-    private static function enqueueAssets( int $activity_id, ?object $execution ): void {
+    private static function enqueueViewAssets( int $activity_id, ?object $execution ): void {
         wp_enqueue_style(
             'tt-match-execution',
             TT_PLUGIN_URL . 'assets/css/frontend-match-execution.css',
