@@ -502,6 +502,11 @@ class DashboardShortcode {
             case 'scouting-visit':
                 \TT\Modules\Prospects\Frontend\FrontendScoutingVisitDetailView::render( $user_id, $is_admin );
                 return true;
+            // #0095 VCT-10 (#948) — coach mobile session view + A4
+            // print sub-render (via ?print=a4 on the same slug).
+            case 'vct-session':
+                \TT\Modules\Vct\Frontend\FrontendVctSessionView::render( $user_id, $is_admin );
+                return true;
             default:
                 return false;
         }

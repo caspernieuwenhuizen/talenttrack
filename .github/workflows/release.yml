@@ -205,7 +205,7 @@ jobs:
           # module's planned-conditioning-training entity (tt_vct_sessions
           # table). Distinct from the renamed-away tt_sessions entity;
           # the prefix `VCT ` disambiguates in every user-visible string.
-          allow_phrases="earlier session|active sessions|browser session|session expired|possession|Possession|migrated from sessions|Activities \(Sessions\)|Sessions referencing|FrontendListTable\.php|sprintf|^\s*\*|impersonation session|My sessions\" tile destination|tt-report-sessions|sessions\.(view|manage)|session\.[a-z_]+|'sessions'\s+=>|'session'\s+=>|, +'sessions' \],?\$|'my-sessions'|My sessions|VCT session|VCT sessions"
+          allow_phrases="earlier session|active sessions|browser session|session expired|possession|Possession|migrated from sessions|Activities \(Sessions\)|Sessions referencing|FrontendListTable\.php|sprintf|^\s*\*|impersonation session|My sessions\" tile destination|tt-report-sessions|sessions\.(view|manage)|session\.[a-z_]+|'sessions'\s+=>|'session'\s+=>|, +'sessions' \],?\$|'my-sessions'|My sessions|VCT session|VCT sessions|'vct-session'|vct-sessions"
           i18n_hits=$(grep -rnE "$i18n_pattern" --include='*.php' src/ 2>/dev/null \
             | grep -vE "$allow_files" \
             | grep -vE "$allow_phrases" \
