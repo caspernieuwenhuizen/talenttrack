@@ -209,8 +209,8 @@ class FrontendTeamPlannerView extends FrontendViewBase {
                 echo esc_html( sprintf(
                     /* translators: 1: first day of the week, 2: last day. */
                     __( 'Week of %1$s — %2$s', 'talenttrack' ),
-                    wp_date( __( 'M j', 'talenttrack' ), strtotime( $week_start ) ),
-                    wp_date( __( 'M j', 'talenttrack' ), strtotime( $end_of_week ) )
+                    wp_date( 'M j', strtotime( $week_start ) ),
+                    wp_date( 'M j', strtotime( $end_of_week ) )
                 ) );
                 ?>
             </h3>
@@ -219,8 +219,8 @@ class FrontendTeamPlannerView extends FrontendViewBase {
             <?php for ( $i = 0; $i < 7; $i++ ) :
                 $day        = gmdate( 'Y-m-d', strtotime( $week_start . " +{$i} days" ) );
                 $is_today   = $day === $today_str;
-                $day_label  = wp_date( __( 'D', 'talenttrack' ), strtotime( $day ) );
-                $date_label = wp_date( __( 'M j', 'talenttrack' ), strtotime( $day ) );
+                $day_label  = wp_date( 'D', strtotime( $day ) );
+                $date_label = wp_date( 'M j', strtotime( $day ) );
                 $items      = $by_day[ $day ] ?? [];
                 ?>
                 <div class="tt-planner-day <?php echo $is_today ? 'tt-planner-day-today' : ''; ?>" role="listitem">
