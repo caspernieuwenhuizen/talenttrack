@@ -1,70 +1,86 @@
-# TalentTrack v4.3.17 — Exports XLSX/CSV corruption fix (closes #939)
+# TalentTrack v4.3.18 — Team planner Export PDF + XLSX buttons (closes #947)
 
-## Symptom
+## What changed
 
-From the central Exports surface (`?tt_view=exports`):
+New action row at the top of `?tt_view=team-planner` carries two side-by-side form-POST buttons that download a printable schedule for the currently-picked team over the planner's currently-visible date range. Coach picks the team + range once in the planner; the buttons pre-fill those values into the export request.
 
-- **XLSX**: Excel refused to open the file ("not a valid file" / corrupt). Affected every XLSX exporter.
-- **CSV**: the file contained the dashboard page HTML (theme chrome, header, nav) rather than CSV data.
-- **JSON / ZIP / iCal**: same defect class — anything served via the in-page POST handler.
+## Building blocks — what's free vs. what's new
 
-Regression introduced in v4.2.2 / #903 when the surface flipped from REST `fetch()` to form POST.
+| Piece | Status |
+|---|---|
+| `TeamActivitiesCsvExporter` — XLSX format | **Already shipped** (`supportedFormats = ['csv', 'xlsx']`). Reused as-is for the XLSX button. |
+| `XlsxRenderer` (PhpSpreadsheet) | Already shipped (v3.110.0). |
+| `PdfRenderer` (DomPDF) | Already shipped. |
+| `TeamPlanningPdfExporter` | **NEW**. |
+| Buttons on the planner | **NEW** — two form-POST `<form>`s in a new `renderExportActions()` helper. |
 
-## Root cause — shortcode runs after `wp_head()`
+## New exporter — `TeamPlanningPdfExporter`
 
-`FrontendExportsView::handleExportPost()` was called from `FrontendExportsView::render()`, called from the `[talenttrack_dashboard]` shortcode. By the time the shortcode runs:
+`src/Modules/Export/Exporters/TeamPlanningPdfExporter.php`. Implements `ExporterInterface`:
 
-1. The theme has already emitted `<!DOCTYPE html>`, `<head>`, `wp_head()`, opening `<body>`, header / nav, everything up to `the_content()`.
-2. WordPress has already sent the response headers (Content-Type: text/html).
-3. The shortcode wraps its work in `ob_start()`.
+- `key()` = `'team_planning'`
+- `supportedFormats()` = `['pdf']`
+- `requiredCap()` = `'tt_view_activities'` (matches the CSV/XLSX exporter)
+- `validateFilters()` — `team_id` required (> 0), `date_from` / `date_to` default to today → +28 days
+- `collect()` — one row per `tt_activities` row in (club_id, team_id, date range), ordered by date + kickoff_time. Returns `['html' => …, 'options' => ['paper' => 'A4', 'orientation' => 'portrait']]`. The `PdfRenderer` generates the filename + mime from the exporter key + ISO date.
 
-So when `handleExportPost()` runs:
+PDF layout (single page if the range fits, multi-page otherwise):
 
-- `header('Content-Type: …')` silently fails — headers already sent.
-- `echo $result->bytes` writes into the shortcode's OB buffer, appended AFTER the page chrome the theme has already streamed.
-- `exit` flushes the buffer, dumping the binary/CSV bytes onto the wire AFTER the HTML.
-- Browser saves the whole HTML-plus-binary blob with the requested filename, Content-Type `text/html`.
+- Title block: team name + ISO date range.
+- Single table: Date · Day · Time · Type · Title · Opponent · Location.
+- Footer: generated-at timestamp.
 
-XLSX is corrupt because the ZIP signature isn't at byte 0 — HTML is. CSV is HTML because the actual CSV bytes come after `</html>`.
+Registered in `ExportModule::boot()` alongside the existing exporters.
 
-## Fix — switch to admin-post.php (same pattern as #940)
+## Planner UI — `renderExportActions()`
 
-`FrontendExportsView::render()` is now GET-only. New static `handleAdminPostExport()` mirrors the legacy handler's logic, hooked in `ExportModule::boot()`:
-
-```php
-add_action( 'admin_post_tt_export', [ FrontendExportsView::class, 'handleAdminPostExport' ] );
-```
-
-`admin-post.php` loads `wp-load.php` but does NOT bootstrap the theme, so download headers fire cleanly and bytes go straight onto the wire.
-
-Each export-card form now carries three hidden fields:
+`src/Modules/Planning/Frontend/FrontendTeamPlannerView.php` — new private static method called from `render()` after the toolbar, before the range grid. Two side-by-side forms targeting `admin-post.php?action=tt_export` (the form-POST architecture from #939):
 
 ```html
-<form method="POST" action="<admin-post.php>">
-  <input type="hidden" name="action" value="tt_export">
-  <input type="hidden" name="tt_export_key" value="<key>">
-  <input type="hidden" name="tt_export_return_url" value="<exports-url>">
+<div class="tt-planner-actions" style="display:flex; gap:8px; flex-wrap:wrap;">
+  <form method="POST" action="<admin-post.php>">
+    <!-- wp_nonce_field('tt_export', '_tt_export_nonce') -->
+    <input type="hidden" name="action"               value="tt_export">
+    <input type="hidden" name="tt_export_key"        value="team_planning">
+    <input type="hidden" name="format"               value="pdf">
+    <input type="hidden" name="team_id"              value="<id>">
+    <input type="hidden" name="date_from"            value="<yyyy-mm-dd>">
+    <input type="hidden" name="date_to"              value="<yyyy-mm-dd>">
+    <input type="hidden" name="tt_export_return_url" value="<planner-url>">
+    <button type="submit" class="tt-btn tt-btn-secondary">Export PDF</button>
+  </form>
+
+  <form method="POST" action="<admin-post.php>">
+    <!-- same shape, tt_export_key=team_activities, format=xlsx -->
+    <button type="submit" class="tt-btn tt-btn-secondary">Export XLSX</button>
+  </form>
+</div>
 ```
 
-Errors transit back to the view via a coded query param (`?tt_export_error=nonce|missing_key|unknown_key|service`) plus a short-TTL transient (`tt_export_err_<uid>`) carrying the human-readable service-error message. The next GET resolves the code and surfaces the same `tt-notice tt-notice--error` it always did above the export grid.
+Buttons wrap to a vertical stack below ~480px via the parent flex container's `flex-wrap`; each at 48px min-height so they meet the mobile-first tap-target floor.
 
-## What this restores
+## CI gate compatibility
 
-| Format | Before | After |
-|---|---|---|
-| XLSX | Corrupt (HTML preamble) | Valid ZIP from byte 0 |
-| CSV | HTML-prefixed | Plain CSV from byte 0 |
-| JSON / ZIP / iCal | HTML-prefixed | Correct format |
+- #940 Scan A — every new hidden-field name (`action`, `tt_export_key`, `format`, `team_id`, `date_from`, `date_to`, `tt_export_return_url`) is outside the WP-reserved-public-query-var set. Pass.
+- #940 Scan B — no `add_query_arg(['tt_view' => 'wizard', …])` introduced; the buttons go to `admin_url('admin-post.php')`. Pass.
 
-## Unaffected paths
+## Permissions
 
-- `ExportRestController` at `/wp-json/talenttrack/v1/exports/<key>` was always working — it bypasses the theme entirely. Stays registered for direct-link / API integrations.
-- `ScheduledReportsRunner` calls `ExportService::run()` directly server-side, no HTTP layer. Unaffected.
+- View access to the planner is already gated on `tt_view_plan` at `render()` entry.
+- Both exporters declare `requiredCap = 'tt_view_activities'`. `ExportService` (the dispatcher invoked by the admin-post handler) re-checks the cap before running, so the page-level guard and the exporter-level guard line up.
+
+## Out of scope
+
+- iCal subscription model (explicitly excluded — coaches handle phone-calendar sync separately).
+- Custom date-range picker on the planner (uses the planner's currently-visible range).
+- Multi-team "all my teams' planning" — that's the bulk exporter on the central Exports page.
+- Async export pipeline — sync is fine at the data volumes a team's schedule represents (max ~100 rows over a season).
+- Per-export branding picker (uses the install's default brand-kit tokens).
 
 ## Why patch
 
-Bug fix restoring every broken exporter format within the 4.3 minor. No schema, no migration, no REST contract change.
+Enhancement on an existing surface within the 4.3 minor. The team planner was the minor epic; adding two export buttons stays patch — consistent with how the VCT module's per-tile additions (v4.3.11/12/13) all bumped patch within the 4.3 minor. No new cap, no new schema, no new contract.
 
 ## Bumped
 
-`talenttrack.php` Version + `TT_VERSION` + `readme.txt` Stable tag: `4.3.16` → `4.3.17`.
+`talenttrack.php` Version + `TT_VERSION` + `readme.txt` Stable tag: `4.3.17` → `4.3.18`.

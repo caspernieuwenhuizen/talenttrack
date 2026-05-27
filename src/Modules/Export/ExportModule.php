@@ -32,6 +32,7 @@ use TT\Modules\Export\Exporters\ScoutingReportPdfExporter;
 use TT\Modules\Export\Exporters\StaffDirectoryCsvExporter;
 use TT\Modules\Export\Exporters\TeamActivitiesCsvExporter;
 use TT\Modules\Export\Exporters\TeamIcalExporter;
+use TT\Modules\Export\Exporters\TeamPlanningPdfExporter;
 use TT\Modules\Export\Exporters\TeamRosterStatsCsvExporter;
 use TT\Modules\Export\Rest\ExportRestController;
 use TT\Shared\Frontend\FrontendExportsView;
@@ -110,6 +111,10 @@ class ExportModule implements ModuleInterface {
         ExporterRegistry::register( new StaffDirectoryCsvExporter() );
         ExporterRegistry::register( new AuditLogCsvExporter() );
         ExporterRegistry::register( new KpiSnapshotXlsxExporter() );
+
+        // v4.3.18 (#947) — per-team planning PDF, consumed by the team
+        // planner's Export PDF button.
+        ExporterRegistry::register( new TeamPlanningPdfExporter() );
 
         ExportRestController::init();
 
