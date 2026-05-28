@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-05-28T04:59:54+00:00\n"
+"POT-Creation-Date: 2026-05-28T06:00:31+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -100,7 +100,6 @@ msgstr ""
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:114
 #: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php:179
 #: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php:204
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:133
 #: src/Modules/Mfa/Settings/MfaSettings.php:109
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:145
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:161
@@ -116,7 +115,8 @@ msgstr ""
 #: src/Modules/Stats/Admin/PlayerRateCardsPage.php:58
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:269
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:502
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:455
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:359
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:578
 #: src/Modules/Wizards/Evaluation/AttendanceStep.php:333
 #: src/Modules/Wizards/Evaluation/PlayerPickerStep.php:19
 #: src/Modules/Wizards/Goal/PlayerStep.php:25
@@ -707,6 +707,7 @@ msgstr ""
 #: src/Infrastructure/Query/LabelTranslator.php:54
 #: src/Modules/Analytics/AnalyticsModule.php:78
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:144
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:666
 #: src/Modules/Wizards/Evaluation/AttendanceStep.php:137
 msgid "Present"
 msgstr "Presente"
@@ -724,6 +725,7 @@ msgid "Late"
 msgstr "Tarde"
 
 #: src/Infrastructure/Query/LabelTranslator.php:57
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:668
 msgid "Injured"
 msgstr "Lesionado"
 
@@ -1060,11 +1062,12 @@ msgstr ""
 
 #: src/Infrastructure/Query/LabelTranslator.php:289
 #: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php:234
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:219
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:418
 msgid "Defending"
 msgstr ""
 
 #: src/Infrastructure/Query/LabelTranslator.php:291
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:469
 msgid "Set pieces"
 msgstr ""
 
@@ -1095,7 +1098,7 @@ msgid "Intensity band %d"
 msgstr ""
 
 #: src/Infrastructure/Query/LabelTranslator.php:341
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:906
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1029
 msgid "Draft"
 msgstr "Borrador"
 
@@ -1134,7 +1137,7 @@ msgstr ""
 #: src/Infrastructure/REST/ActivitiesRestController.php:871
 #: src/Infrastructure/REST/ActivitiesRestController.php:986
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:296
-#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:46
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:71
 msgid "Invalid activity id."
 msgstr ""
 
@@ -1159,7 +1162,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:70
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:53
 #: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php:63
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:43
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:161
 msgid "Activity not found."
 msgstr ""
 
@@ -1855,7 +1858,7 @@ msgstr ""
 #: src/Modules/DemoData/Admin/DemoDataPage.php:710
 #: src/Modules/Documentation/HelpTopics.php:57
 #: src/Modules/License/Admin/AccountPage.php:805
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:96
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:238
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:779
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:72
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:116
@@ -1909,7 +1912,7 @@ msgstr "Añadir"
 #: src/Modules/People/Admin/PeoplePage.php:468
 #: src/Modules/Players/Admin/PlayersPage.php:77
 #: src/Modules/Players/Frontend/FrontendPlayerStatusMethodologyView.php:46
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:994
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1138
 #: src/Modules/Teams/Admin/TeamsPage.php:40
 #: src/Shared/Frontend/DashboardShortcode.php:80
 #: src/Shared/Frontend/FrontendWizardsAdminView.php:40
@@ -2126,7 +2129,7 @@ msgstr "Tipo"
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:202
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:53
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:128
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:550
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:673
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:161
 #: src/Modules/Vct/Frontend/FrontendVctSessionView.php:116
 #: src/Modules/Wizards/Activity/ReviewStep.php:59
@@ -2240,6 +2243,7 @@ msgstr ""
 #: src/Modules/Reports/Admin/ReportsPage.php:248
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:199
 #: src/Modules/Stats/Admin/PlayerComparisonPage.php:247
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:355
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:31
 #: src/Modules/Vct/Wizard/ReviewStep.php:50
 #: src/Modules/Vct/Wizard/WhenStep.php:33
@@ -2552,6 +2556,7 @@ msgstr ""
 
 #: src/Modules/Activities/Admin/ActivitiesPage.php:396
 #: src/Modules/Activities/Admin/ActivitiesPage.php:407
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:351
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:942
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:945
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:952
@@ -2584,7 +2589,7 @@ msgstr "Actualizar"
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:179
 #: src/Modules/License/Admin/AccountPage.php:325
 #: src/Modules/Players/Frontend/FrontendPlayerStatusMethodologyView.php:283
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:539
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:662
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:190
 #: src/Shared/Frontend/Components/FormSaveButton.php:46
 #: src/Shared/Frontend/Components/FrontendThreadView.php:171
@@ -3060,7 +3065,7 @@ msgstr ""
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:34
 #: src/Modules/Journey/Frontend/FrontendJourneyView.php:45
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:38
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:28
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:146
 #: src/Modules/Methodology/Frontend/MethodologyView.php:42
 #: src/Modules/Players/Frontend/FrontendPlayerStatusMethodologyView.php:34
 #: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:46
@@ -3781,6 +3786,7 @@ msgstr ""
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:377
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:392
 #: src/Modules/Goals/Admin/GoalsPage.php:133
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:266
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:187
 #: src/Modules/People/Admin/TeamStaffPanel.php:133
 #: src/Modules/Players/Admin/PlayersPage.php:363
@@ -5100,9 +5106,11 @@ msgstr ""
 #: src/Modules/Authorization/Admin/MatrixPage.php:921
 #: src/Modules/Development/Frontend/IdeasRefineView.php:130
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:254
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:252
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:308
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:288
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:365
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:375
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:383
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:649
 #: src/Shared/Frontend/Components/FormSaveButton.php:55
 #: src/Shared/Frontend/Components/FrontendThreadView.php:170
@@ -6575,6 +6583,7 @@ msgid "Thorough"
 msgstr ""
 
 #: src/Modules/Backup/PresetRegistry.php:80
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:352
 msgid "Custom"
 msgstr "Personalizado"
 
@@ -7255,6 +7264,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:138
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1008
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:183
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:371
 #: src/Modules/Wizards/Goal/LinkStep.php:73
 #: src/Modules/Wizards/Goal/LinkStep.php:108
 #: src/Shared/Frontend/Components/GuestAddModal.php:94
@@ -7562,8 +7572,9 @@ msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:435
 #: src/Modules/Development/IdeaStatus.php:74
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:595
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:334
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:982
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1126
 msgid "Done"
 msgstr "Hecho"
 
@@ -7632,6 +7643,7 @@ msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:505
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:135
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:661
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:290
 #: src/Modules/Translations/Admin/TranslationsConfigTab.php:137
 #: src/Shared/Frontend/FrontendAuditLogView.php:343
@@ -8686,8 +8698,8 @@ msgstr ""
 
 # v3.73.0 / #0075 Sprint 1 PR 1 — design-system token catalogue + grouped editor
 #: src/Modules/CustomCss/DesignSystem/TokenCatalogue.php:96
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:717
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:984
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:840
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1128
 msgid "Primary"
 msgstr ""
 
@@ -8696,7 +8708,7 @@ msgid "Primary — hover"
 msgstr ""
 
 #: src/Modules/CustomCss/DesignSystem/TokenCatalogue.php:98
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:718
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:841
 msgid "Secondary"
 msgstr ""
 
@@ -9646,8 +9658,7 @@ msgid "Save widget"
 msgstr ""
 
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:161
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:249
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:282
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:655
 #: src/Shared/Frontend/FrontendConfigurationView.php:546
 #: src/Shared/Frontend/FrontendConfigurationView.php:1281
 #: src/Shared/Frontend/FrontendWizardView.php:722
@@ -12344,10 +12355,11 @@ msgid "Kickoff"
 msgstr ""
 
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:174
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:115
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:264
 #: src/Modules/Methodology/Admin/PositionEditPage.php:72
 #: src/Modules/Methodology/Admin/VisionEditPage.php:71
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:127
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:427
 #: src/Modules/Tournaments/Wizard/FormationStep.php:17
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:33
 #: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:30
@@ -14174,7 +14186,6 @@ msgid "vs %1$s · %2$s · KO %3$s · %4$s"
 msgstr ""
 
 #: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php:177
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:137
 msgid "1e half"
 msgstr ""
 
@@ -14184,22 +14195,21 @@ msgid "Bench:"
 msgstr ""
 
 #: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php:202
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:138
 msgid "2e half"
 msgstr ""
 
 #: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php:230
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:208
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:412
 msgid "Match goals"
 msgstr ""
 
 #: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php:232
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:210
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:416
 msgid "General"
 msgstr ""
 
 #: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php:233
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:215
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:417
 msgid "Attacking"
 msgstr ""
 
@@ -14219,135 +14229,254 @@ msgstr ""
 msgid "Per-player goals + attention"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:29
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:135
+msgid "Captain"
+msgstr ""
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:136
+msgid "Corner left"
+msgstr ""
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:137
+msgid "Corner right"
+msgstr ""
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:138
+msgid "Free kick left (cross)"
+msgstr ""
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:139
+msgid "Free kick right (cross)"
+msgstr ""
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:140
+#: src/Modules/Methodology/MethodologyEnums.php:79
+msgid "Penalty"
+msgstr ""
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:147
 msgid "Match prep is restricted to coaches and admins."
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:35
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:42
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:47
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:95
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:153
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:160
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:165
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:237
 msgid "Match prep"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:36
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:154
 msgid "Open Match prep from a match activity's detail page."
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:48
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:166
 msgid "Match prep is only available for match-type activities."
 msgstr ""
 
 #. translators: 1: activity title, 2: session date
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:85
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:227
 #, php-format
 msgid "Match prep — %1$s · %2$s"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:116
-msgid "1-4-3-3"
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:262
+msgid "Match prep toolbar"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:119
-msgid "Half length (min)"
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:281
+msgid "Half length"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:125
-msgid "Manage availability"
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:289
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:311
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:312
+#: src/Modules/Vct/Frontend/FrontendVctSessionView.php:114
+#: src/Modules/Vct/Wizard/ReviewStep.php:55
+msgid "min"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:134
-msgid "min 1e"
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:292
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:589
+#: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:23
+msgid "Availability"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:135
-msgid "min 2e"
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:295
+msgid "PDF (landscape A4)"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:136
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:298
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:656
+msgid "All changes saved."
+msgstr ""
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:305
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:306
+msgid "Selection · minutes"
+msgstr ""
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:313
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:362
 msgid "tot"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:139
-msgid "Attention"
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:319
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:502
+msgid "No availability captured yet."
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:140
-msgid "Specific goal"
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:320
+msgid "Open availability"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:141
-msgid "Video analyst appointed"
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:377
+msgid "First half lineup"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:144
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:145
-msgid "Slot · Player"
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:392
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:393
+msgid "Copy 1st half lineup to 2nd half"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:167
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:175
-msgid "— Bench —"
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:399
+msgid "Second half lineup"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:182
-msgid "Coach notes…"
-msgstr ""
-
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:195
-msgid "Totals"
-msgstr ""
-
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:201
-msgid "→ Copy 1e to 2e"
-msgstr ""
-
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:223
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:419
 msgid "Set pieces (attack)"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:227
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:420
 msgid "Set pieces (defend)"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:242
-msgid "📄 Open print-ready PDF"
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:440
+#, php-format
+msgid "Goal %d…"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:248
-msgid "Save match prep"
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:457
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:476
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:521
+msgid "…"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:250
-#: src/Shared/Frontend/Components/FormSaveButton.php:48
-#: src/Shared/Frontend/FrontendConfigurationView.php:547
-msgid "Saved"
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:488
+msgid "Player focus"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:283
-msgid "Match prep saved."
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:494
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:528
+msgid "Specific goal"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:284
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:495
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:534
+msgid "Video analyst appointed"
+msgstr ""
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:516
+msgid "Attention text"
+msgstr ""
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:547
+msgid "Roles & set pieces"
+msgstr ""
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:565
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:670
+msgid "— Pick player —"
+msgstr ""
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:570
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:571
+msgid "Clear role"
+msgstr ""
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:590
+#: src/Modules/Pdp/Print/PdpPrintRouter.php:172
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:634
+#: src/Shared/Frontend/Components/GuestAddModal.php:48
+#: src/Shared/Frontend/DashboardShortcode.php:1179
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:127
+msgid "Close"
+msgstr "Cerrar"
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:594
+#: src/Modules/Wizards/Evaluation/AttendanceStep.php:108
+#: src/Modules/Wizards/Evaluation/AttendanceStep.php:307
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:808
+msgid "Mark all present"
+msgstr ""
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:657
+msgid "Unsaved changes…"
+msgstr ""
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:658
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:293
 msgid "Save failed. Try again."
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:285
-msgid "11 players required on each half."
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:659
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:170
+msgid "Search player…"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:286
-msgid "That slot is taken — pick a different number."
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:660
+msgid "No available players found."
 msgstr ""
 
-#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:52
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:662
+msgid "on pitch"
+msgstr ""
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:663
+#, php-format
+msgid "Slot %1$s — %2$s half"
+msgstr ""
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:664
+msgid "1st"
+msgstr ""
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:665
+msgid "2nd"
+msgstr ""
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:667
+msgid "Absent (excused)"
+msgstr ""
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:669
+msgid "Reason (optional)…"
+msgstr ""
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:671
+msgid "Pick player for role"
+msgstr ""
+
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:77
 #: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:134
 msgid "Match prep could not be created."
 msgstr ""
 
-#: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:23
-msgid "Availability"
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:169
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:214
+msgid "Invalid match prep id."
+msgstr ""
+
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:179
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:217
+msgid "Unknown role key."
+msgstr ""
+
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:182
+msgid "A player must be selected."
+msgstr ""
+
+#: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:188
+msgid "Could not save the role assignment."
 msgstr ""
 
 #: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:31
@@ -15319,10 +15448,6 @@ msgstr ""
 msgid "Vrije trap (voorzet)"
 msgstr ""
 
-#: src/Modules/Methodology/MethodologyEnums.php:79
-msgid "Penalty"
-msgstr ""
-
 #: src/Modules/Methodology/MethodologyEnums.php:80
 msgid "Inworp"
 msgstr ""
@@ -16160,7 +16285,7 @@ msgstr ""
 
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:67
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:65
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:164
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:170
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:94
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:97
 msgid "Access denied"
@@ -16200,10 +16325,6 @@ msgstr ""
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:150
 #: src/Modules/Pdp/Rest/PdpFilesRestController.php:233
 msgid "Player confirmation"
-msgstr ""
-
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:170
-msgid "Search player…"
 msgstr ""
 
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:172
@@ -16641,14 +16762,6 @@ msgstr ""
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:157
 msgid "Single A4 only"
 msgstr ""
-
-#: src/Modules/Pdp/Print/PdpPrintRouter.php:172
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:634
-#: src/Shared/Frontend/Components/GuestAddModal.php:48
-#: src/Shared/Frontend/DashboardShortcode.php:1179
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:127
-msgid "Close"
-msgstr "Cerrar"
 
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:190
 msgid "Current goals"
@@ -17352,7 +17465,7 @@ msgstr ""
 
 # #0017 — Trial player module
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:206
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:624
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:747
 #: src/Shared/CoreSurfaceRegistration.php:588
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:164
 #: src/Shared/Frontend/FrontendTrialCaseView.php:40
@@ -20894,19 +21007,19 @@ msgid "PDF generation failed. Try the Print button instead."
 msgstr ""
 
 # v3.96.0 — #0068 follow-up: blueprint pair-chemistry lines on the pitch
-#: src/Modules/TeamDevelopment/BlueprintChemistryEngine.php:133
+#: src/Modules/TeamDevelopment/BlueprintChemistryEngine.php:146
 msgid "Coach-marked pairing"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/BlueprintChemistryEngine.php:138
+#: src/Modules/TeamDevelopment/BlueprintChemistryEngine.php:151
 msgid "Same line of play"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/BlueprintChemistryEngine.php:145
+#: src/Modules/TeamDevelopment/BlueprintChemistryEngine.php:158
 msgid "Side mismatch"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/BlueprintChemistryEngine.php:148
+#: src/Modules/TeamDevelopment/BlueprintChemistryEngine.php:161
 msgid "Side preferences fit slots"
 msgstr ""
 
@@ -20923,13 +21036,13 @@ msgstr ""
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:74
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:75
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:99
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:177
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:183
 #: src/Shared/CoreSurfaceRegistration.php:554
 msgid "Team blueprint"
 msgstr ""
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:60
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:159
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:165
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:84
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:87
 #: src/Shared/Frontend/FrontendTeamBehaviourCaptureView.php:80
@@ -20941,7 +21054,7 @@ msgid "Team not found"
 msgstr ""
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:66
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:165
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:171
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:98
 msgid "You do not coach this team."
 msgstr ""
@@ -20963,7 +21076,7 @@ msgstr ""
 
 #. translators: %s = team name
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:98
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:180
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:186
 #, php-format
 msgid "%s — blueprints"
 msgstr ""
@@ -20984,148 +21097,218 @@ msgid ""
 msgstr ""
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:153
+msgid "Blueprint saved."
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:159
 msgid "Blueprint not found"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:154
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:160
 msgid "That blueprint no longer exists."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:160
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:166
 msgid "The team for this blueprint no longer exists."
 msgstr ""
 
 #. translators: 1 = blueprint name, 2 = team name
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:187
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:193
 #, php-format
 msgid "%1$s · %2$s"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:204
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:210
 msgid "Show lineup view"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:205
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:211
 msgid "Show coverage heatmap"
 msgstr ""
 
 # v3.110.9 — #0068 Phases 3 + 4: blueprint discussion thread + share-link
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:219
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:225
 msgid "Lineup"
 msgstr "Alineación"
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:221
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:227
 msgid "Comments"
 msgstr "Comentarios"
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:280
-msgid "Available players"
+#. translators: %s = comma-separated slot labels e.g. "ST, CM"
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:285
+#, php-format
+msgid "Tier-1 unassigned on: %s — chemistry score skips these slots."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:281
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:295
+msgid "This blueprint is locked. Reopen it to make changes."
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:334
 #: src/Modules/Wizards/Team/RosterStep.php:24
 #: src/Shared/Frontend/FrontendTeamDetailView.php:240
 #: src/Shared/Frontend/FrontendTeamsManageView.php:250
 msgid "Roster"
 msgstr "Plantilla"
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:285
-msgid ""
-"Drag onto a depth-chart cell below or onto a pitch slot. Drop back here to "
-"remove. Trial players carry a yellow border."
+#. translators: %s = team name
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:337
+#, php-format
+msgid "%s — roster"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:287
-msgid ""
-"Drag a player onto a slot. Drop a player back here to remove them from the "
-"lineup."
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:341
+msgid "Drag a player onto a slot, or click a slot to pick from the list."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:314
-msgid "This blueprint is locked. Reopen it to make changes."
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:346
+msgid "+ Add cross-team / guest / custom"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:342
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:350
+msgid "Other team"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:357
+#: src/Modules/Tournaments/Wizard/BasicsStep.php:32
+#: src/Modules/Vct/Wizard/WhenStep.php:34
+#: src/Modules/Wizards/Activity/TeamStep.php:31
+#: src/Modules/Wizards/Player/RosterDetailsStep.php:34
+#: src/Modules/Wizards/Player/TrialDetailsStep.php:50
+#: src/Modules/Wizards/TeamBlueprint/SetupStep.php:38
+msgid "— pick a team —"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:361
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1258
+msgid "— pick a player —"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:364
+msgid "Add to roster"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:369
+msgid "Guest name"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:370
+msgid "Guest name (e.g. visiting trialist)"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:372
+msgid "Position (optional, e.g. ST)"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:374
+#: src/Shared/Frontend/Components/GuestAddModal.php:47
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:984
+msgid "Add guest"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:379
+msgid "Custom label"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:380
+msgid "Custom label (e.g. \"Scout target #4\")"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:382
+msgid "Add custom"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:390
+msgid "Pitch"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:437
+msgid "Clear all slots"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:465
 msgid "Open share link"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:344
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:467
 msgid ""
 "Rotate the share link? Anyone holding the previous URL will be locked out."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:345
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:468
 msgid "Rotate share link"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:440
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:563
 msgid ""
 "This is a read-only share link. Comments and edits are coach-only inside "
 "TalentTrack."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:454
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:716
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:577
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:839
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:482
 #: src/Modules/Vct/Wizard/PreviewStep.php:76
 msgid "Slot"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:465
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:588
 msgid "— empty —"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:475
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:598
 msgid "Share link not valid"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:477
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:600
 msgid ""
 "This blueprint share link is no longer valid. Ask the coach for an updated "
 "link."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:490
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:613
 msgid "You do not have permission to rotate the share link."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:493
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:616
 msgid "Bad blueprint id."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:527
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:989
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:650
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1133
 msgid "Hide chemistry"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:536
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:659
 msgid "Save as…"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:557
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:680
 msgid "Share with staff"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:561
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:684
 msgid "Move back to draft"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:563
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:686
 msgid "Lock"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:567
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:690
 msgid "Reopen"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:581
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:704
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:279
 msgid "Link chemistry"
 msgstr ""
 
 #. translators: %d: 0-100 chemistry score
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:589
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:979
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:712
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1123
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1265
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:288
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:659
 #, php-format
@@ -21133,8 +21316,9 @@ msgid "%d / 100"
 msgstr ""
 
 #. translators: %d: scored adjacent pair count
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:599
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:977
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:722
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1121
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1266
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:298
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:657
 #, php-format
@@ -21144,126 +21328,192 @@ msgstr[0] "%d aangrenzend duo met chemie-score."
 msgstr[1] "%d aangrenzende duo's met chemie-score."
 
 # ===== v3.0.0 slice 4 — Coaching-group frontend views =====
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:616
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:739
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1246
 #: src/Shared/Frontend/FrontendTeamsManageView.php:266
 msgid "No players on this team yet."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:645
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:768
 #: src/Modules/Wizards/Player/PathStep.php:32
 #: src/Modules/Wizards/Player/ReviewStep.php:30
 msgid "Trial player"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:645
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:768
 msgid "TRIAL"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:714
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:837
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:479
 msgid "Depth chart"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:719
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:842
 msgid "Tertiary"
 msgstr ""
 
 #. translators: 1: slot label, 2: primary name or em-dash, 3: depth count 0-3
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:788
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:911
 #, php-format
 msgid "%1$s — primary: %2$s — %3$d/3 tiers covered"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:807
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:930
 msgid "0 — uncovered"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:808
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:931
 msgid "1 — primary only"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:809
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:932
 msgid "2 — primary + secondary"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:810
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:933
 msgid "3 — full depth"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:889
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1012
 #: src/Modules/Wizards/TeamBlueprint/SetupStep.php:53
 msgid "Squad plan"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:890
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1013
 msgid "Match-day"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:907
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1030
 msgid "Shared"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:908
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1031
 msgid "Locked"
 msgstr "Bloqueado"
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:975
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1119
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1264
 msgid "Could not save the change. Try again."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:976
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:649
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:710
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:800
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1120
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:725
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:786
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:876
 msgid "This blueprint is locked. Reopen it before editing."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:978
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1122
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1267
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:658
 #, php-format
 msgid "%d scored adjacent pairs on the pitch."
 msgstr ""
 
 #. translators: %s = slot label, e.g. "RB" or "CM".
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:981
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1125
 #, php-format
 msgid "Assign players to %s"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:983
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1127
 msgid "Leave empty"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:985
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1129
 msgid "Secondary (2nd best)"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:986
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1130
 msgid "Tertiary (3rd best)"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:987
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1131
 msgid "Currently assigned"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:988
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1132
 msgid "Clear this tier"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:990
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1134
 msgid "Show chemistry"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:991
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1135
 msgid "Name the new blueprint:"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:992
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1136
 msgid "Copy of blueprint"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:993
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1137
 msgid "Could not duplicate. Try again."
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1247
+msgid "cross-team"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1248
+msgid "guest"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1249
+msgid "custom"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1250
+msgid "player"
+msgstr ""
+
+#. translators: %s = tier number 1/2/3
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1252
+#, php-format
+msgid "Pick a player for tier %s"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1253
+#: src/Shared/Frontend/Components/FrontendListTable.php:137
+msgid "Search…"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1254
+#: src/Shared/Frontend/Components/ComparisonSlotPicker.php:85
+msgid "Clear this slot"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1255
+msgid "No players match."
+msgstr ""
+
+#. translators: %d = placement count for that player
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1257
+#, php-format
+msgid "×%d on pitch"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1259
+msgid "Pick a team and a player."
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1260
+msgid "That player is already on the roster."
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1261
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1017
+msgid "Name is required."
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1262
+msgid "Custom label is required."
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1263
+msgid "Clear every slot on this blueprint? This cannot be undone."
 msgstr ""
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:114
@@ -21653,36 +21903,36 @@ msgid "The blueprint could not be created."
 msgstr ""
 
 #: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:625
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:645
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:669
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:685
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:706
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:796
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:836
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:721
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:745
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:761
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:782
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:872
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:912
 msgid "Blueprint not found."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:657
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:733
 msgid "Nothing to update."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:690
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:766
 msgid "Give the cloned blueprint a name."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:695
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:771
 msgid "Could not duplicate the blueprint."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:716
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:792
 msgid "slot_label is required."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:805
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:881
 msgid "Assignments map is required."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:842
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:918
 msgid "Status must be draft, shared, or locked."
 msgstr ""
 
@@ -21871,15 +22121,6 @@ msgstr ""
 #: src/Modules/Tournaments/Wizard/BasicsStep.php:31
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:425
 msgid "Anchor team"
-msgstr ""
-
-#: src/Modules/Tournaments/Wizard/BasicsStep.php:32
-#: src/Modules/Vct/Wizard/WhenStep.php:34
-#: src/Modules/Wizards/Activity/TeamStep.php:31
-#: src/Modules/Wizards/Player/RosterDetailsStep.php:34
-#: src/Modules/Wizards/Player/TrialDetailsStep.php:50
-#: src/Modules/Wizards/TeamBlueprint/SetupStep.php:38
-msgid "— pick a team —"
 msgstr ""
 
 #: src/Modules/Tournaments/Wizard/BasicsStep.php:43
@@ -22926,11 +23167,6 @@ msgstr ""
 msgid "MD"
 msgstr ""
 
-#: src/Modules/Vct/Frontend/FrontendVctSessionView.php:114
-#: src/Modules/Vct/Wizard/ReviewStep.php:55
-msgid "min"
-msgstr ""
-
 #: src/Modules/Vct/Frontend/FrontendVctSessionView.php:134
 msgid "No blocks composed for this VCT training."
 msgstr ""
@@ -23281,12 +23517,6 @@ msgstr ""
 msgid ""
 "Mark each player's attendance. Present is the default — tap a card only if "
 "it differs. Only present + late players appear in the rating step."
-msgstr ""
-
-#: src/Modules/Wizards/Evaluation/AttendanceStep.php:108
-#: src/Modules/Wizards/Evaluation/AttendanceStep.php:307
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:808
-msgid "Mark all present"
 msgstr ""
 
 #: src/Modules/Wizards/Evaluation/AttendanceStep.php:130
@@ -25828,13 +26058,14 @@ msgstr ""
 msgid "Search players in this team…"
 msgstr ""
 
-#: src/Shared/Frontend/Components/ComparisonSlotPicker.php:85
-msgid "Clear this slot"
-msgstr ""
-
 #: src/Shared/Frontend/Components/FormSaveButton.php:47
 #: src/Shared/Frontend/DashboardShortcode.php:79
 msgid "Saving..."
+msgstr ""
+
+#: src/Shared/Frontend/Components/FormSaveButton.php:48
+#: src/Shared/Frontend/FrontendConfigurationView.php:547
+msgid "Saved"
 msgstr ""
 
 #: src/Shared/Frontend/Components/FrontendListTable.php:74
@@ -25868,10 +26099,6 @@ msgstr ""
 #: src/Shared/Frontend/Components/FrontendListTable.php:119
 #: src/Shared/Frontend/Components/FrontendListTable.php:164
 msgid "Per page"
-msgstr ""
-
-#: src/Shared/Frontend/Components/FrontendListTable.php:137
-msgid "Search…"
 msgstr ""
 
 #: src/Shared/Frontend/Components/FrontendThreadView.php:60
@@ -25926,11 +26153,6 @@ msgstr ""
 
 #: src/Shared/Frontend/Components/FrontendThreadView.php:173
 msgid "Edit window has expired."
-msgstr ""
-
-#: src/Shared/Frontend/Components/GuestAddModal.php:47
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:984
-msgid "Add guest"
 msgstr ""
 
 #: src/Shared/Frontend/Components/GuestAddModal.php:53
@@ -26346,10 +26568,6 @@ msgstr ""
 
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1016
 msgid "Pick a player."
-msgstr ""
-
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1017
-msgid "Name is required."
 msgstr ""
 
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1018
