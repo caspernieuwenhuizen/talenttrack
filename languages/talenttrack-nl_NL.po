@@ -33743,9 +33743,6 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ msgid "Invitation in progress"
 #~ msgstr "Uitnodiging in behandeling"
 
-#~ msgid "age %d"
-#~ msgstr "leeftijd %d"
-
 #~ msgid "← Back to blueprints"
 #~ msgstr "← Terug naar blauwdrukken"
 
