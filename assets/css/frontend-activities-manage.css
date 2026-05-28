@@ -1,32 +1,310 @@
 /*
- * frontend-activities-manage.css — pilot mobile-first stylesheet (#0056).
+ * frontend-activities-manage.css — Activities surface mobile-first stylesheet.
  *
- * Owns the responsive layout for the Activities surface (list + form +
- * attendance table). Replaces the previous activity-specific rules in
- * frontend-admin.css (lines ~543-579, the .tt-attendance-table @media
- * (max-width: 639px) block + the is-mobile-hidden / show-all helpers).
+ * Owns the responsive layout for the activities list (v4.7.0 redesign,
+ * #973) AND the attendance editor table that lives on the edit form
+ * (the legacy rules from #0056). The list-redesign tokens at the top
+ * mirror the mockup at .local-mockups/activity-list/index.html so any
+ * future redesign-of-record diff is mechanical.
  *
  * Authoring rule (CLAUDE.md § 2): mobile-first. Base = 360px viewport;
- * breakpoints scale UP via `min-width`. No `max-width` queries here.
+ * breakpoints scale UP via `min-width`. No `max-width` queries.
  *
- * Class contract — these classes are owned by FrontendActivitiesManageView
- * and the attendance.js hydrator. Other views must not depend on them
- * for layout.
+ * Class contract — owned by FrontendActivitiesManageView:
  *
- *   .tt-activity-form                 — top-level form wrapper
- *   .tt-attendance-table              — attendance editor table
- *   .tt-attendance-row                — one row per player
- *   .tt-attendance-row.is-mobile-hidden — hidden until "Show all" tapped on phone
- *   .tt-attendance-show-all           — phone-only "show remaining N" link
- *   .tt-attendance-toolbar            — mark-all + show-all toolbar
- *   .tt-attendance-summary            — "12 of 18 present" caption
+ *   List redesign (v4.7.0):
+ *     .tt-act-surface              — top-level wrapper around filter + lists
+ *     .tt-act-filters              — 2-column filter row (Team + Type)
+ *     .tt-act-filters__field       — label + select stack
+ *     .tt-act-filters__label       — small caps field label
+ *     .tt-act-filters__select      — 48px-tall <select>
+ *     .tt-act-empty                — no-activities empty state
+ *     .tt-act-past-toggle          — pinned-top "N past activities … Show ▼" link
+ *     .tt-act-past-toggle__count   — leading count text
+ *     .tt-act-past-toggle__label   — trailing "hidden · Show" / "shown · Hide"
+ *     .tt-act-past-toggle__chev    — chevron (rotates 180° via data-past-state)
+ *     .tt-act-list                 — <ul> wrapping a bucket's cards
+ *     .tt-act-list--past           — past block variant
+ *     .tt-act-bucket-head          — bucket header row (rendered inside <li>)
+ *     .tt-act-bucket-head--attention — orange variant for Needs attention
+ *     .tt-act-bucket-head__count   — small-text count on the right
+ *     .tt-act-card                 — one activity card (whole row is a link)
+ *     .tt-act-card__link           — anchor wrapping the date+body+chev grid
+ *     .tt-act-card__body           — title + meta column (centre of grid)
+ *     .tt-act-card__title          — primary text
+ *     .tt-act-card__meta           — pills + tail line
+ *     .tt-act-card__tail           — team / time / location tail text
+ *     .tt-act-card__chev           — chevron on the right
+ *     .tt-act-date                 — 44px date badge (default mute)
+ *     .tt-act-date--today          — blue badge for Today
+ *     .tt-act-date--overdue        — orange badge for Needs attention
+ *     .tt-act-date__m              — month abbreviation (top)
+ *     .tt-act-date__d              — day number (bottom)
+ *     .tt-act-pill                 — coloured chip (data-type / data-status)
  *
- * Guest-attendance styling (.tt-attendance-row--guest, .tt-guest-badge,
- * .tt-guest-modal etc.) stays in frontend-admin.css — those rules are
- * stylistic, not responsive, and apply wherever attendance is shown.
+ *   Edit-form attendance (legacy, preserved):
+ *     .tt-activity-form, .tt-attendance-table, .tt-attendance-row, etc.
+ *
+ * Token map (v4.7.0 list redesign) — production already exposes the
+ * --tt-* tokens via frontend-mobile.css; the redesign uses them so the
+ * activities surface inherits theme colour swaps for free.
  */
 
-/* ===== Base (360px+) — single column, generous tap targets ===== */
+/* =============================================================
+   v4.7.0 LIST REDESIGN — date-bucketed card list (#973)
+   ============================================================= */
+
+/* Frame — mobile-first single column. Wider on tablet+ so the cards
+ * have breathing room on desktop without changing per-card content.
+ * Matches the mockup's 360 / 720 / 880 frame steps. */
+.tt-dashboard .tt-act-surface {
+    max-width: 360px;
+    margin: 0 auto;
+    padding: 0;
+}
+@media (min-width: 768px) {
+    .tt-dashboard .tt-act-surface { max-width: 720px; }
+}
+@media (min-width: 1100px) {
+    .tt-dashboard .tt-act-surface { max-width: 880px; }
+}
+
+/* ---- Filter row -------------------------------------------- */
+.tt-dashboard .tt-act-filters {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding: 12px 16px;
+    background: #fff;
+    border-bottom: 1px solid var(--tt-line, #d6dadd);
+    margin: 0;
+}
+.tt-dashboard .tt-act-filters__field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 0;
+}
+.tt-dashboard .tt-act-filters__label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--tt-ink-soft, #5b6e75);
+}
+.tt-dashboard .tt-act-filters__select {
+    min-height: 48px;
+    border: 1px solid var(--tt-line, #d6dadd);
+    border-radius: 10px;
+    background: #fff;
+    font: inherit;
+    font-size: 16px;          /* iOS auto-zoom floor per CLAUDE.md §2 */
+    padding: 0 12px;
+    color: var(--tt-ink, #1a1d21);
+    touch-action: manipulation;
+}
+
+/* ---- Empty state ------------------------------------------- */
+.tt-dashboard .tt-act-empty {
+    padding: 48px 16px;
+    text-align: center;
+    color: var(--tt-ink-soft, #5b6e75);
+}
+.tt-dashboard .tt-act-empty h3 {
+    margin: 0 0 8px;
+    color: var(--tt-ink, #1a1d21);
+    font-size: 18px;
+}
+.tt-dashboard .tt-act-empty p { margin: 0; font-size: 14px; }
+
+/* ---- Past toggle ------------------------------------------- */
+.tt-dashboard .tt-act-past-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 16px;
+    background: #fff;
+    border-top: 1px solid var(--tt-line, #d6dadd);
+    border-bottom: 1px solid var(--tt-line, #d6dadd);
+    color: var(--tt-accent, #2271b1);
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    touch-action: manipulation;
+    box-sizing: border-box;
+}
+.tt-dashboard .tt-act-past-toggle:active {
+    background: var(--tt-mute, #f0f3f2);
+}
+.tt-dashboard .tt-act-past-toggle__count {
+    color: var(--tt-ink-soft, #5b6e75);
+    font-weight: 400;
+    margin-right: 4px;
+}
+.tt-dashboard .tt-act-past-toggle__chev {
+    display: inline-block;
+    transition: transform 120ms;
+    margin-left: 4px;
+}
+.tt-dashboard .tt-act-past-toggle[data-past-state="expanded"] .tt-act-past-toggle__chev {
+    transform: rotate(180deg);
+}
+
+/* ---- Bucket list + headers --------------------------------- */
+.tt-dashboard .tt-act-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.tt-dashboard .tt-act-bucket-head {
+    padding: 14px 16px 6px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--tt-ink-soft, #5b6e75);
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+}
+.tt-dashboard .tt-act-bucket-head--attention {
+    color: var(--tt-warn, #c75c1f);
+}
+.tt-dashboard .tt-act-bucket-head__count {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--tt-ink-soft, #5b6e75);
+    font-variant-numeric: tabular-nums;
+}
+
+/* ---- Activity card ----------------------------------------- */
+.tt-dashboard .tt-act-card {
+    background: #fff;
+    border-top: 1px solid var(--tt-mute, #f0f3f2);
+    border-bottom: 1px solid var(--tt-mute, #f0f3f2);
+    margin-bottom: -1px;       /* collapse adjacent borders */
+    padding: 0;
+}
+.tt-dashboard .tt-act-card__link {
+    display: grid;
+    grid-template-columns: 44px 1fr auto;
+    gap: 12px;
+    align-items: center;
+    padding: 12px 16px;
+    text-decoration: none;
+    color: inherit;
+    min-height: 48px;
+    touch-action: manipulation;
+}
+.tt-dashboard .tt-act-card__link:active {
+    background: var(--tt-mute, #f0f3f2);
+}
+.tt-dashboard .tt-act-card__link:focus-visible {
+    outline: 2px solid var(--tt-accent, #2271b1);
+    outline-offset: -2px;
+}
+
+/* Date badge — 44px square, mute background by default. */
+.tt-dashboard .tt-act-date {
+    text-align: center;
+    background: var(--tt-mute, #f0f3f2);
+    border-radius: 10px;
+    padding: 6px 0;
+    line-height: 1;
+    min-width: 44px;
+    color: var(--tt-ink, #1a1d21);
+}
+.tt-dashboard .tt-act-date--today {
+    background: var(--tt-accent, #2271b1);
+    color: #fff;
+}
+.tt-dashboard .tt-act-date--overdue {
+    background: var(--tt-warn, #c75c1f);
+    color: #fff;
+}
+.tt-dashboard .tt-act-date__m {
+    display: block;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    font-weight: 600;
+    margin-bottom: 2px;
+    opacity: 0.85;
+}
+.tt-dashboard .tt-act-date__d {
+    display: block;
+    font-size: 18px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    margin-top: 2px;
+}
+
+/* Card body — title + meta. */
+.tt-dashboard .tt-act-card__body {
+    min-width: 0;
+    margin: 0;
+}
+.tt-dashboard .tt-act-card__title {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0;
+    color: var(--tt-ink, #1a1d21);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.tt-dashboard .tt-act-card__meta {
+    font-size: 12px;
+    color: var(--tt-ink-soft, #5b6e75);
+    margin: 2px 0 0;
+    line-height: 1.5;
+}
+.tt-dashboard .tt-act-card__tail {
+    display: inline;
+    color: var(--tt-ink-soft, #5b6e75);
+}
+.tt-dashboard .tt-act-meta__attn {
+    font-style: italic;
+    color: var(--tt-warn, #c75c1f);
+}
+
+/* Chevron on the right. */
+.tt-dashboard .tt-act-card__chev {
+    color: var(--tt-line, #d6dadd);
+    font-size: 18px;
+    font-weight: 700;
+}
+
+/* ---- Pills — colour-coded per type / status ---------------- */
+.tt-dashboard .tt-act-pill {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-right: 4px;
+    vertical-align: middle;
+    background: var(--tt-mute, #f0f3f2);
+    color: var(--tt-ink-soft, #5b6e75);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+.tt-dashboard .tt-act-pill[data-type="training"] { background: #e1eef5; color: #0d4a7a; }
+.tt-dashboard .tt-act-pill[data-type="match"]    { background: #fde6e2; color: #8a2a26; }
+.tt-dashboard .tt-act-pill[data-type="friendly"] { background: #fff3d9; color: #8a5e0a; }
+.tt-dashboard .tt-act-pill[data-type="other"]    { background: var(--tt-mute, #f0f3f2); color: var(--tt-ink-soft, #5b6e75); }
+.tt-dashboard .tt-act-pill[data-status="completed"] { background: #e0efe5; color: #2e7d4f; }
+.tt-dashboard .tt-act-pill[data-status="cancelled"] { background: #ffe0e0; color: #8a2a26; }
+
+/* =============================================================
+   LEGACY — attendance editor (#0056 pilot mobile-first sheet)
+   ============================================================= */
 
 .tt-dashboard .tt-activity-form .tt-grid {
     /* Stack form pairs vertically on phones. */

@@ -32219,6 +32219,77 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ msgid "Tertiary"
 #~ msgstr "Tertiair"
 
+# v4.7.0 (#973) — activities list date-bucket redesign.
+# (Apply, Next week, %d activity, %1$s · %2$s reuse existing msgids
+#  elsewhere in this catalogue — no entries added for them.)
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "— all types —"
+msgstr "— alle types —"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "No activities to show"
+msgstr "Geen activiteiten om te tonen"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Try changing the team or type filter, or create a new activity to get started."
+msgstr "Pas het team- of type-filter aan, of maak een nieuwe activiteit aan om te beginnen."
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Past activities"
+msgstr "Voorbije activiteiten"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Past"
+msgstr "Voorbij"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "⚠ Needs attention"
+msgstr "⚠ Vereist aandacht"
+
+#. translators: %d: count of past planned activities
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+#, php-format
+msgid "%d past, still planned"
+msgid_plural "%d past, still planned"
+msgstr[0] "%d voorbij, nog gepland"
+msgstr[1] "%d voorbij, nog gepland"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "This week"
+msgstr "Deze week"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Later this month"
+msgstr "Later deze maand"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Later"
+msgstr "Later"
+
+#. translators: %d: count of past activities
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+#, php-format
+msgid "%d past activity"
+msgid_plural "%d past activities"
+msgstr[0] "%d voorbije activiteit"
+msgstr[1] "%d voorbije activiteiten"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "hidden · Show"
+msgstr "verborgen · Toon"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "shown · Hide"
+msgstr "zichtbaar · Verberg"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "still planned"
+msgstr "nog gepland"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "(untitled activity)"
+msgstr "(activiteit zonder titel)"
+
 #~ msgid "Half length (min)"
 #~ msgstr "Helftduur (min)"
 

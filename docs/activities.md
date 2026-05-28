@@ -4,6 +4,36 @@
 
 An **activity** is anything on the calendar — a training, a game, or any other event (team-building day, club meeting, …). Each activity records who attended.
 
+## The activities list (v4.7.0)
+
+The **Activities** tile opens a date-bucketed card list. The buckets read top to bottom:
+
+- **⚠ Needs attention** — past activities that are still marked Planned. They never got flipped to Completed or Cancelled, so the coach lost track of them. Surfaced in orange so they stand out.
+- **Today** — what's on for today.
+- **This week** — the rest of this calendar week (up to and including Sunday).
+- **Next week** — Monday → Sunday of the upcoming week.
+- **Later this month** — anything beyond next week, up to the end of the current month.
+- **Later** — anything beyond the end of the month.
+
+Empty buckets don't render their header at all — if there's nothing on for next week, the "Next week" header simply doesn't appear.
+
+Each row is a card: a date badge on the left (month + day, painted blue for today and orange for Needs-attention rows), the activity title in the middle with a colour-coded type pill (Training blue, Match red, Friendly yellow, Other grey), and a chevron on the right. Tap anywhere on the card to open the activity detail page.
+
+### Past activities
+
+Past activities (Completed or Cancelled) are pinned to the **top** of the list as a single button — `N past activities hidden · Show ▼`. Tap to expand; tap again to collapse. The state is preserved in the URL as `?include_past=1`, so a shared link reflects the same view the sender saw.
+
+Past **planned** activities (not closed off) are NOT in this collapsed bucket — they appear in the **Needs attention** bucket above Today, since they are signals that the coach still needs to act on.
+
+### Filters
+
+Two filters sit above the list:
+
+- **Team** — narrow to one team. Defaults to all teams the coach has access to.
+- **Type** — narrow to one activity type (Training / Game / Friendly / Other / any custom type your academy added).
+
+Both filters survive in the URL (`?team_id=N&activity_type_key=match`), so deep-links from the dashboard land on the same scoped view.
+
 ## Creating an activity
 
 1. Open the **Activities** tile.

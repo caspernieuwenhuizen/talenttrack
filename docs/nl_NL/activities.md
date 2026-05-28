@@ -4,6 +4,36 @@
 
 Een **activiteit** is alles wat in de agenda staat — een training, een wedstrijd of een ander evenement (team-buildingdag, clubvergadering, …). Bij elke activiteit registreer je wie er aanwezig was.
 
+## Het activiteitenoverzicht (v4.7.0)
+
+De tegel **Activiteiten** opent een lijst die per datum is gegroepeerd. De groepen lopen van boven naar beneden:
+
+- **⚠ Vereist aandacht** — voorbije activiteiten die nog op Gepland staan. Ze zijn nooit op Voltooid of Geannuleerd gezet, dus de coach is ze uit het oog verloren. Oranje gemarkeerd zodat ze opvallen.
+- **Vandaag** — wat er voor vandaag op de planning staat.
+- **Deze week** — de rest van deze kalenderweek (tot en met zondag).
+- **Volgende week** — maandag → zondag van de week erna.
+- **Later deze maand** — alles na volgende week, tot en met het einde van de huidige maand.
+- **Later** — alles na het einde van de maand.
+
+Lege groepen tonen geen kop — als er volgende week niets gepland staat, verschijnt de kop "Volgende week" simpelweg niet.
+
+Elke rij is een kaart: een datumbadge links (maand + dag, blauw voor vandaag en oranje voor "Vereist aandacht"), de titel van de activiteit in het midden met een kleurgecodeerde type-pill (Training blauw, Wedstrijd rood, Oefen geel, Overig grijs) en een chevron rechts. Tik ergens op de kaart om de detailpagina te openen.
+
+### Voorbije activiteiten
+
+Voorbije activiteiten (Voltooid of Geannuleerd) zijn boven aan de lijst vastgepind als één knop — `N voorbije activiteiten verborgen · Toon ▼`. Tik om uit te klappen; tik nogmaals om in te klappen. De stand wordt bewaard in de URL als `?include_past=1`, zodat een gedeelde link dezelfde weergave toont als degene die hem deelde.
+
+Voorbije **geplande** activiteiten (nog niet afgerond) staan NIET in deze ingeklapte groep — die verschijnen in de groep **Vereist aandacht** boven Vandaag, omdat ze een signaal zijn waarop de coach nog moet handelen.
+
+### Filters
+
+Boven de lijst staan twee filters:
+
+- **Team** — beperk tot één team. Standaard staan alle teams aan waar de coach toegang toe heeft.
+- **Type** — beperk tot één activiteittype (Training / Wedstrijd / Oefen / Overig / elk eigen type dat je academie heeft toegevoegd).
+
+Beide filters blijven bewaard in de URL (`?team_id=N&activity_type_key=match`), zodat deep-links vanaf het dashboard op dezelfde gefilterde weergave landen.
+
 ## Een activiteit aanmaken
 
 1. Open de tegel **Activiteiten**.

@@ -4,11 +4,13 @@ namespace TT\Shared\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\LabelTranslator;
+use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Shared\Frontend\Components\DateInputComponent;
 use TT\Shared\Frontend\Components\FormSaveButton;
-use TT\Shared\Frontend\Components\FrontendListTable;
 use TT\Shared\Frontend\Components\GuestAddModal;
+use TT\Shared\Frontend\Components\RecordLink;
 use TT\Shared\Frontend\Components\TeamPickerComponent;
 
 /**
@@ -529,64 +531,601 @@ class FrontendActivitiesManageView extends FrontendViewBase {
     }
 
     /**
-     * List view — FrontendListTable.
+     * List view — date-bucketed card list (v4.7.0, #973).
      *
-     * v3.110.53 — `+ New activity` moved to the page-header actions
-     * slot rendered by render(). Row Edit / Delete dropped — the
-     * clickable activity title is the only row affordance; Edit /
-     * Archive live on the activity detail page.
+     * Port of `.local-mockups/activity-list/index.html` to PHP-rendered
+     * output. Replaces the v4.6.x `FrontendListTable` render (Date /
+     * Title / Type / Status / Source / Team / Att.% table) with a
+     * Today / This week / Next week / Later-this-month / Later card
+     * stack plus a pinned-top Past toggle and a "Needs attention"
+     * pseudo-bucket for past-planned activities the coach forgot to
+     * close.
+     *
+     * Backend untouched: this method reads `tt_activities` directly via
+     * a query that mirrors `ActivitiesRestController::list_sessions`'s
+     * WHERE / scope rules (club_id, demo scope, head-coach team scope
+     * for non-global-readers, archived filter, team_id filter). The
+     * REST endpoint stays the canonical contract for non-WordPress
+     * consumers per CLAUDE.md §4.
+     *
+     * URL state:
+     *   ?team_id=N            — filter to one team (carries forward
+     *                            existing dashboard-widget / team-detail
+     *                            link targets).
+     *   ?activity_type_key=X  — filter to one lookup-backed type.
+     *   ?include_past=1       — expand the past block.
      */
     private static function renderList( int $user_id, bool $is_admin ): void {
-        $base_url = remove_query_arg( [ 'action', 'id' ] );
+        // URL-state -> sanitized filters.
+        $team_filter = isset( $_GET['team_id'] ) ? absint( (string) $_GET['team_id'] ) : 0;
+        $type_filter = isset( $_GET['activity_type_key'] ) ? sanitize_key( (string) $_GET['activity_type_key'] ) : '';
+        $include_past = ! empty( $_GET['include_past'] );
 
-        $row_actions = [];
+        // Lookup-backed type options for the Type filter.
+        $type_rows = QueryHelpers::get_lookups( 'activity_type' );
 
-        echo FrontendListTable::render( [
-            'rest_path' => 'activities',
-            'columns' => [
-                // #0063 — Title moves to second column + RecordLink-wrapped.
-                // Status pill colour now driven by lookup `meta.color`
-                // (planned re-coloured to yellow via migration 0049).
-                'session_date'        => [ 'label' => __( 'Date',   'talenttrack' ), 'sortable' => true ],
-                'title'               => [ 'label' => __( 'Title',  'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'title_link_html' ],
-                'activity_type_key'   => [ 'label' => __( 'Type',   'talenttrack' ), 'sortable' => false, 'render' => 'html', 'value_key' => 'activity_type_pill_html' ],
-                'activity_status_key' => [ 'label' => __( 'Status', 'talenttrack' ), 'sortable' => false, 'render' => 'html', 'value_key' => 'activity_status_pill_html' ],
-                // v3.71.0 — Source column (manual / spond / generated)
-                // surfaces the lookup that was seeded but never displayed.
-                'activity_source_key' => [ 'label' => __( 'Source', 'talenttrack' ), 'sortable' => false, 'render' => 'html', 'value_key' => 'activity_source_pill_html' ],
-                'team_name'           => [ 'label' => __( 'Team',   'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'team_link_html' ],
-                'attendance'          => [ 'label' => __( 'Att. %', 'talenttrack' ), 'sortable' => true, 'render' => 'percent', 'value_key' => 'attendance_pct' ],
-            ],
-            'filters' => [
-                'team_id' => [
-                    'type'    => 'select',
-                    'label'   => __( 'Team', 'talenttrack' ),
-                    'options' => TeamPickerComponent::filterOptions( $user_id, $is_admin ),
-                ],
-                'date' => [
-                    'type'       => 'date_range',
-                    'param_from' => 'date_from',
-                    'param_to'   => 'date_to',
-                    'label_from' => __( 'From', 'talenttrack' ),
-                    'label_to'   => __( 'To', 'talenttrack' ),
-                ],
-                'attendance' => [
-                    'type'    => 'select',
-                    'label'   => __( 'Attendance', 'talenttrack' ),
-                    'options' => [
-                        'complete' => __( 'Complete', 'talenttrack' ),
-                        'partial'  => __( 'Partial',  'talenttrack' ),
-                        'none'     => __( 'None',     'talenttrack' ),
-                    ],
-                ],
-            ],
-            'row_actions'  => $row_actions,
-            'search'       => [ 'placeholder' => __( 'Search title, location, team…', 'talenttrack' ) ],
-            'default_sort' => [ 'orderby' => 'session_date', 'order' => 'desc' ],
-            'empty_state'  => __( 'No activities match your filters.', 'talenttrack' ),
-            // v3.110.170 — row-link standard.
-            'row_url_key'  => 'detail_url',
-        ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — render() returns escaped HTML.
+        // Team options — same source as the legacy filter, so dashboard
+        // / team-detail links continue to land on the same scoped view.
+        $team_options = TeamPickerComponent::filterOptions( $user_id, $is_admin );
+
+        // Pull the row set for THIS list — server-side query mirroring
+        // the REST WHERE/scope so other surfaces (dashboard widgets,
+        // team detail) reading the same rows stay consistent.
+        $rows = self::loadActivitiesForList( $team_filter, $type_filter );
+
+        // Today (site timezone, GMT-stored value converted via
+        // wp_timezone() per `current_time('Y-m-d', true)`).
+        $today_str = current_time( 'Y-m-d', true );
+
+        // Bucket the rows.
+        $buckets = self::bucketize( $rows, $today_str );
+
+        $past_total = count( $buckets['past'] );
+
+        // ---- HEADER + FILTERS ---------------------------------------
+        echo '<div class="tt-act-surface" data-tt-act-surface>';
+
+        // Filter row — Team + Type. GET form so query state survives in URL.
+        echo '<form method="get" class="tt-act-filters" data-tt-act-filters>';
+        // Preserve `tt_view=activities` + any back-target on submit.
+        echo '<input type="hidden" name="tt_view" value="activities" />';
+        if ( ! empty( $_GET['tt_back'] ) ) {
+            echo '<input type="hidden" name="tt_back" value="' . esc_attr( (string) $_GET['tt_back'] ) . '" />';
+        }
+        if ( $include_past ) {
+            echo '<input type="hidden" name="include_past" value="1" />';
+        }
+
+        echo '<label class="tt-act-filters__field">';
+        echo '<span class="tt-act-filters__label">' . esc_html__( 'Team', 'talenttrack' ) . '</span>';
+        echo '<select class="tt-act-filters__select" name="team_id" onchange="this.form.submit()">';
+        echo '<option value="">' . esc_html__( '— all teams —', 'talenttrack' ) . '</option>';
+        foreach ( $team_options as $tid => $tname ) {
+            echo '<option value="' . esc_attr( (string) (int) $tid ) . '"' . selected( $team_filter, (int) $tid, false ) . '>' . esc_html( (string) $tname ) . '</option>';
+        }
+        echo '</select>';
+        echo '</label>';
+
+        echo '<label class="tt-act-filters__field">';
+        echo '<span class="tt-act-filters__label">' . esc_html__( 'Type', 'talenttrack' ) . '</span>';
+        echo '<select class="tt-act-filters__select" name="activity_type_key" onchange="this.form.submit()">';
+        echo '<option value="">' . esc_html__( '— all types —', 'talenttrack' ) . '</option>';
+        foreach ( $type_rows as $tr ) {
+            $name  = (string) ( $tr->name ?? '' );
+            $label = LookupTranslator::name( $tr );
+            echo '<option value="' . esc_attr( $name ) . '"' . selected( $type_filter, $name, false ) . '>' . esc_html( $label ) . '</option>';
+        }
+        echo '</select>';
+        echo '</label>';
+        echo '<noscript><button type="submit" class="tt-btn tt-btn-secondary">' . esc_html__( 'Apply', 'talenttrack' ) . '</button></noscript>';
+        echo '</form>';
+
+        // ---- EMPTY STATE --------------------------------------------
+        $forward_total = $buckets['attention_count']
+            + count( $buckets['today'] )
+            + count( $buckets['this_week'] )
+            + count( $buckets['next_week'] )
+            + count( $buckets['later_this_month'] )
+            + count( $buckets['later'] );
+
+        if ( $forward_total === 0 && $past_total === 0 ) {
+            echo '<div class="tt-act-empty">';
+            echo '<h3>' . esc_html__( 'No activities to show', 'talenttrack' ) . '</h3>';
+            echo '<p>' . esc_html__( 'Try changing the team or type filter, or create a new activity to get started.', 'talenttrack' ) . '</p>';
+            echo '</div>';
+            echo '</div>'; // .tt-act-surface
+            return;
+        }
+
+        // ---- PAST TOGGLE --------------------------------------------
+        if ( $past_total > 0 ) {
+            self::renderPastToggle( $past_total, $include_past );
+        }
+
+        // ---- PAST BLOCK (when expanded) -----------------------------
+        if ( $include_past && $past_total > 0 ) {
+            echo '<ul class="tt-act-list tt-act-list--past" aria-label="' . esc_attr__( 'Past activities', 'talenttrack' ) . '">';
+            echo '<li><div class="tt-act-bucket-head"><span>' . esc_html__( 'Past', 'talenttrack' ) . '</span>';
+            echo '<span class="tt-act-bucket-head__count">' . esc_html( sprintf(
+                /* translators: %d: count of past activities */
+                _n( '%d activity', '%d activities', $past_total, 'talenttrack' ),
+                $past_total
+            ) ) . '</span></div></li>';
+            foreach ( $buckets['past'] as $row ) {
+                echo self::renderActivityCard( $row, 'past' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped within helper.
+            }
+            echo '</ul>';
+        }
+
+        // ---- FORWARD BUCKETS ----------------------------------------
+        echo '<ul class="tt-act-list">';
+
+        if ( $buckets['attention_count'] > 0 ) {
+            self::renderBucket(
+                'attention',
+                __( '⚠ Needs attention', 'talenttrack' ),
+                $buckets['attention'],
+                sprintf(
+                    /* translators: %d: count of past planned activities */
+                    _n( '%d past, still planned', '%d past, still planned', $buckets['attention_count'], 'talenttrack' ),
+                    $buckets['attention_count']
+                )
+            );
+        }
+
+        if ( $buckets['today'] ) {
+            // Header: "Today · Wed 28 May" — day-of-week + date.
+            $today_label = self::formatTodayHeader( $today_str );
+            self::renderBucket(
+                'today',
+                $today_label,
+                $buckets['today'],
+                sprintf(
+                    /* translators: %d: count of activities today */
+                    _n( '%d activity', '%d activities', count( $buckets['today'] ), 'talenttrack' ),
+                    count( $buckets['today'] )
+                )
+            );
+        }
+
+        if ( $buckets['this_week'] ) {
+            self::renderBucket(
+                'this-week',
+                __( 'This week', 'talenttrack' ),
+                $buckets['this_week'],
+                sprintf(
+                    /* translators: %d: count of activities */
+                    _n( '%d activity', '%d activities', count( $buckets['this_week'] ), 'talenttrack' ),
+                    count( $buckets['this_week'] )
+                )
+            );
+        }
+
+        if ( $buckets['next_week'] ) {
+            self::renderBucket(
+                'next-week',
+                __( 'Next week', 'talenttrack' ),
+                $buckets['next_week'],
+                sprintf(
+                    /* translators: %d: count of activities */
+                    _n( '%d activity', '%d activities', count( $buckets['next_week'] ), 'talenttrack' ),
+                    count( $buckets['next_week'] )
+                )
+            );
+        }
+
+        if ( $buckets['later_this_month'] ) {
+            self::renderBucket(
+                'later-this-month',
+                __( 'Later this month', 'talenttrack' ),
+                $buckets['later_this_month'],
+                sprintf(
+                    /* translators: %d: count of activities */
+                    _n( '%d activity', '%d activities', count( $buckets['later_this_month'] ), 'talenttrack' ),
+                    count( $buckets['later_this_month'] )
+                )
+            );
+        }
+
+        if ( $buckets['later'] ) {
+            self::renderBucket(
+                'later',
+                __( 'Later', 'talenttrack' ),
+                $buckets['later'],
+                sprintf(
+                    /* translators: %d: count of activities */
+                    _n( '%d activity', '%d activities', count( $buckets['later'] ), 'talenttrack' ),
+                    count( $buckets['later'] )
+                )
+            );
+        }
+
+        echo '</ul>';
+
+        echo '</div>'; // .tt-act-surface
+    }
+
+    /**
+     * Render a non-past bucket — header + cards.
+     *
+     * @param array<int,object> $rows
+     */
+    private static function renderBucket( string $bucket_key, string $title, array $rows, string $count_label ): void {
+        $attention = $bucket_key === 'attention';
+        $today     = $bucket_key === 'today';
+
+        $cls = 'tt-act-bucket-head';
+        if ( $attention ) $cls .= ' tt-act-bucket-head--attention';
+
+        echo '<li><div class="' . esc_attr( $cls ) . '" data-bucket="' . esc_attr( $bucket_key ) . '">';
+        echo '<span>' . esc_html( $title ) . '</span>';
+        echo '<span class="tt-act-bucket-head__count">' . esc_html( $count_label ) . '</span>';
+        echo '</div></li>';
+
+        $row_mode = $attention ? 'attention' : ( $today ? 'today' : 'future' );
+        foreach ( $rows as $row ) {
+            echo self::renderActivityCard( $row, $row_mode ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped within helper.
+        }
+    }
+
+    /**
+     * Render the past-toggle button. The form is a GET that flips
+     * `include_past` between absent and `1`, preserving every other
+     * existing query param.
+     */
+    private static function renderPastToggle( int $past_count, bool $include_past ): void {
+        // Build the toggle URL — same query string, toggled include_past.
+        $toggle_url = $include_past
+            ? remove_query_arg( 'include_past' )
+            : add_query_arg( 'include_past', '1' );
+
+        // Carry the click via <a> so it's noscript-resilient and a
+        // proper 48px tap target.
+        $count_text = esc_html( sprintf(
+            /* translators: %d: count of past activities */
+            _n( '%d past activity', '%d past activities', $past_count, 'talenttrack' ),
+            $past_count
+        ) );
+        $label = $include_past
+            ? esc_html__( 'shown · Hide', 'talenttrack' )
+            : esc_html__( 'hidden · Show', 'talenttrack' );
+
+        echo '<a class="tt-act-past-toggle" href="' . esc_url( $toggle_url ) . '" data-past-state="' . ( $include_past ? 'expanded' : 'collapsed' ) . '">';
+        echo '<span class="tt-act-past-toggle__count">' . $count_text . '</span> '; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- _n esc'd above.
+        echo '<span class="tt-act-past-toggle__label">' . $label . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+        echo '<span class="tt-act-past-toggle__chev" aria-hidden="true">▼</span>';
+        echo '</a>';
+    }
+
+    /**
+     * Render one activity card.
+     *
+     * @param object $row activity row from loadActivitiesForList()
+     * @param string $mode 'past' | 'attention' | 'today' | 'future'
+     */
+    private static function renderActivityCard( object $row, string $mode ): string {
+        $id = (int) ( $row->id ?? 0 );
+        if ( $id <= 0 ) return '';
+
+        $session_date = (string) ( $row->session_date ?? '' );
+        $title        = (string) ( $row->title ?? '' );
+        $team_name    = (string) ( $row->team_name ?? '' );
+        $type_key     = (string) ( $row->activity_type_key ?? '' );
+        $status_key   = (string) ( $row->activity_status_key ?? '' );
+        $location     = (string) ( $row->location ?? '' );
+        $start_time   = (string) ( $row->start_time ?? '' );
+
+        $detail_url = RecordLink::detailUrlForWithBack( 'activities', $id );
+
+        // Date badge — "May / 28" stacked.
+        $month_short = '';
+        $day_num     = '';
+        if ( preg_match( '/^(\d{4})-(\d{2})-(\d{2})/', $session_date, $m ) ) {
+            $ts = strtotime( $session_date );
+            if ( $ts ) {
+                // Localised abbreviated month name.
+                $month_short = wp_date( 'M', (int) $ts );
+                $day_num     = (int) $m[3];
+            }
+        }
+        if ( $day_num === '' ) {
+            $month_short = '—';
+            $day_num     = '';
+        }
+
+        $date_cls = 'tt-act-date';
+        if ( $mode === 'today' )      $date_cls .= ' tt-act-date--today';
+        if ( $mode === 'attention' )  $date_cls .= ' tt-act-date--overdue';
+
+        $type_pill_key = self::typeKeyForPill( $type_key );
+        $type_label    = self::lookupLabelByName( 'activity_type', $type_key );
+        $status_label  = self::lookupLabelByName( 'activity_status', $status_key );
+
+        // Build meta line: type pill | (optional status pill for past) | team + time + location.
+        $meta_bits = [];
+        $meta_bits[] = '<span class="tt-act-pill" data-type="' . esc_attr( $type_pill_key ) . '">' . esc_html( $type_label !== '' ? $type_label : ucfirst( $type_key ) ) . '</span>';
+
+        if ( $mode === 'past' && in_array( $status_key, [ 'completed', 'cancelled' ], true ) ) {
+            $meta_bits[] = '<span class="tt-act-pill" data-status="' . esc_attr( $status_key ) . '">' . esc_html( $status_label !== '' ? $status_label : ucfirst( $status_key ) ) . '</span>';
+        }
+
+        // Team / time / "still planned" tail (plain text).
+        $tail = [];
+        if ( $team_name !== '' ) $tail[] = esc_html( $team_name );
+        if ( $start_time !== '' ) {
+            // Truncate seconds; show HH:MM.
+            $tail[] = esc_html( substr( $start_time, 0, 5 ) );
+        }
+        if ( $mode === 'attention' ) {
+            $tail[] = '<em class="tt-act-meta__attn">' . esc_html__( 'still planned', 'talenttrack' ) . '</em>';
+        }
+        if ( $location !== '' && $mode !== 'past' ) {
+            $tail[] = esc_html( $location );
+        }
+
+        $card  = '<li class="tt-act-card" data-type="' . esc_attr( $type_pill_key ) . '">';
+        $card .= '<a class="tt-act-card__link" href="' . esc_url( $detail_url ) . '">';
+        $card .= '<div class="' . esc_attr( $date_cls ) . '">';
+        $card .= '<span class="tt-act-date__m">' . esc_html( $month_short ) . '</span>';
+        $card .= '<span class="tt-act-date__d">' . esc_html( (string) $day_num ) . '</span>';
+        $card .= '</div>';
+        $card .= '<div class="tt-act-card__body">';
+        $card .= '<p class="tt-act-card__title">' . esc_html( $title !== '' ? $title : __( '(untitled activity)', 'talenttrack' ) ) . '</p>';
+        $card .= '<p class="tt-act-card__meta">' . implode( ' ', $meta_bits );
+        if ( $tail !== [] ) {
+            $card .= ' <span class="tt-act-card__tail">' . implode( ' · ', $tail ) . '</span>';
+        }
+        $card .= '</p>';
+        $card .= '</div>';
+        $card .= '<span class="tt-act-card__chev" aria-hidden="true">›</span>';
+        $card .= '</a>';
+        $card .= '</li>';
+        return $card;
+    }
+
+    /**
+     * Normalize a stored `activity_type_key` to one of the four pill
+     * colour buckets the mockup defines: training / match / friendly /
+     * other. The seeded keys ('training', 'game', 'tournament',
+     * 'meeting', 'other') and any operator-renamed keys all collapse
+     * down to these four. 'game' → 'match' (same red), 'tournament' →
+     * 'match' (also competitive). Everything else falls through to
+     * 'other'.
+     */
+    private static function typeKeyForPill( string $type_key ): string {
+        $k = strtolower( trim( $type_key ) );
+        if ( $k === '' ) return 'other';
+        if ( strpos( $k, 'train' ) !== false )                  return 'training';
+        if ( in_array( $k, [ 'match', 'game', 'tournament' ], true ) ) return 'match';
+        if ( strpos( $k, 'friend' ) !== false )                 return 'friendly';
+        return 'other';
+    }
+
+    /**
+     * Resolve the localised label for a lookup-backed key. Returns ''
+     * when the lookup isn't found.
+     */
+    private static function lookupLabelByName( string $type, string $name ): string {
+        if ( $name === '' ) return '';
+        static $cache = [];
+        if ( ! isset( $cache[ $type ] ) ) {
+            $cache[ $type ] = [];
+            foreach ( QueryHelpers::get_lookups( $type ) as $r ) {
+                $cache[ $type ][ (string) $r->name ] = $r;
+            }
+        }
+        $row = $cache[ $type ][ $name ] ?? null;
+        return $row ? LookupTranslator::name( $row ) : '';
+    }
+
+    /**
+     * Format the Today bucket header "Today · Wed 28 May".
+     */
+    private static function formatTodayHeader( string $today_str ): string {
+        $ts = strtotime( $today_str );
+        if ( ! $ts ) return __( 'Today', 'talenttrack' );
+        return sprintf(
+            /* translators: 1: localised "Today", 2: day-of-week + date (e.g. "Wed 28 May") */
+            __( '%1$s · %2$s', 'talenttrack' ),
+            __( 'Today', 'talenttrack' ),
+            wp_date( 'D j M', (int) $ts )
+        );
+    }
+
+    /**
+     * Bucketize a list of activity rows by `session_date` relative to
+     * `$today_str`. Past = `plan_state IN ('completed','cancelled')` AND
+     * `session_date < today`. Past-planned (still planned) lands in
+     * "attention" instead.
+     *
+     * Buckets:
+     *  - past             — past + completed/cancelled (pinned-top block)
+     *  - attention        — past + planned (Needs attention pseudo-bucket)
+     *  - today            — session_date == today
+     *  - this_week        — today < session_date <= upcoming Sunday
+     *  - next_week        — next Mon → next Sun
+     *  - later_this_month — beyond next_week, <= end-of-month
+     *  - later            — > end-of-month
+     *
+     * @param array<int,object> $rows
+     * @return array{
+     *     past: array<int,object>,
+     *     attention: array<int,object>,
+     *     attention_count: int,
+     *     today: array<int,object>,
+     *     this_week: array<int,object>,
+     *     next_week: array<int,object>,
+     *     later_this_month: array<int,object>,
+     *     later: array<int,object>
+     * }
+     */
+    private static function bucketize( array $rows, string $today_str ): array {
+        $tz = wp_timezone();
+        try {
+            $today_dt = new \DateTimeImmutable( $today_str, $tz );
+        } catch ( \Exception $e ) {
+            $today_dt = new \DateTimeImmutable( 'today', $tz );
+        }
+
+        // "this week" ends on the upcoming Sunday (inclusive). PHP's
+        // 'sunday this week' anchors to the current week's Sunday;
+        // 'next sunday' if today IS Sunday rolls forward 7 days. Use
+        // 'sunday this week' which yields today's date when today is
+        // Sunday (so This Week becomes empty, which is the correct
+        // semantic — no remaining days in this week).
+        $end_of_this_week = $today_dt->modify( 'sunday this week' );
+        $next_week_start  = $end_of_this_week->modify( '+1 day' );
+        $next_week_end    = $next_week_start->modify( '+6 days' );
+        $end_of_month     = $today_dt->modify( 'last day of this month' );
+
+        $today_ymd          = $today_dt->format( 'Y-m-d' );
+        $end_of_this_week_y = $end_of_this_week->format( 'Y-m-d' );
+        $next_week_start_y  = $next_week_start->format( 'Y-m-d' );
+        $next_week_end_y    = $next_week_end->format( 'Y-m-d' );
+        $end_of_month_y     = $end_of_month->format( 'Y-m-d' );
+
+        $past             = [];
+        $attention        = [];
+        $today            = [];
+        $this_week        = [];
+        $next_week        = [];
+        $later_this_month = [];
+        $later            = [];
+
+        foreach ( $rows as $row ) {
+            $sd = (string) ( $row->session_date ?? '' );
+            if ( $sd === '' ) continue;
+
+            $plan_state = strtolower( (string) ( $row->plan_state ?? '' ) );
+            $status     = strtolower( (string) ( $row->activity_status_key ?? '' ) );
+
+            // The "closed" predicate accepts EITHER the plan_state
+            // taxonomy (completed/cancelled) OR the older
+            // activity_status_key taxonomy. Belt-and-braces because
+            // pilot installs have a mix of both on legacy rows.
+            $is_closed = in_array( $plan_state, [ 'completed', 'cancelled' ], true )
+                      || in_array( $status,     [ 'completed', 'cancelled' ], true );
+
+            if ( $sd < $today_ymd ) {
+                if ( $is_closed ) {
+                    $past[] = $row;
+                } else {
+                    $attention[] = $row;
+                }
+                continue;
+            }
+            if ( $sd === $today_ymd ) {
+                $today[] = $row;
+                continue;
+            }
+            // future
+            if ( $sd <= $end_of_this_week_y ) {
+                $this_week[] = $row;
+                continue;
+            }
+            if ( $sd >= $next_week_start_y && $sd <= $next_week_end_y ) {
+                $next_week[] = $row;
+                continue;
+            }
+            if ( $sd <= $end_of_month_y ) {
+                $later_this_month[] = $row;
+                continue;
+            }
+            $later[] = $row;
+        }
+
+        // Sort each forward bucket ascending so the next-upcoming row
+        // sits at the top. Past sorts descending — most-recent first.
+        $asc = static function ( $a, $b ) {
+            return strcmp( (string) ( $a->session_date ?? '' ), (string) ( $b->session_date ?? '' ) );
+        };
+        $desc = static function ( $a, $b ) {
+            return strcmp( (string) ( $b->session_date ?? '' ), (string) ( $a->session_date ?? '' ) );
+        };
+        usort( $today,            $asc );
+        usort( $this_week,        $asc );
+        usort( $next_week,        $asc );
+        usort( $later_this_month, $asc );
+        usort( $later,            $asc );
+        usort( $attention,        $asc );
+        usort( $past,             $desc );
+
+        return [
+            'past'             => $past,
+            'attention'        => $attention,
+            'attention_count'  => count( $attention ),
+            'today'            => $today,
+            'this_week'        => $this_week,
+            'next_week'        => $next_week,
+            'later_this_month' => $later_this_month,
+            'later'            => $later,
+        ];
+    }
+
+    /**
+     * Server-side activity query for the redesigned list view (v4.7.0,
+     * #973). Mirrors `ActivitiesRestController::list_sessions`'s WHERE
+     * and scope rules so the rendered list shows the same set the REST
+     * endpoint would return for an equivalent filter — just without
+     * pagination (bucketing is a presentation concern over the whole
+     * matched set).
+     *
+     * The REST controller continues to be the canonical contract for
+     * non-WordPress consumers (CLAUDE.md §4); this is the PHP-render
+     * sibling, not a divergence.
+     *
+     * @return array<int,object> raw `tt_activities` rows + team_name.
+     */
+    private static function loadActivitiesForList( int $team_filter, string $type_filter ): array {
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $where  = [ 's.club_id = %d', 's.archived_at IS NULL' ];
+        $params = [ CurrentClub::id() ];
+
+        // Demo-mode scope predicate (e.g. demo-only activities).
+        $scope = QueryHelpers::apply_demo_scope( 's', 'activity' );
+
+        // Coach-scope guard — mirrors REST list_sessions. Personas with
+        // matrix `activities:r[global]` (scout, head_of_development,
+        // academy_admin) bypass; everyone else is restricted to teams
+        // they head-coach.
+        $uid = get_current_user_id();
+        if ( ! QueryHelpers::user_has_global_entity_read( $uid, 'activities' ) ) {
+            $coach_teams = QueryHelpers::get_teams_for_coach( $uid );
+            if ( ! $coach_teams ) {
+                // No accessible teams → empty list.
+                return [];
+            }
+            $team_ids = array_map( static function ( $t ) { return (int) $t->id; }, $coach_teams );
+            $placeholders = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
+            $where[] = "s.team_id IN ($placeholders)";
+            $params = array_merge( $params, $team_ids );
+        }
+
+        if ( $team_filter > 0 ) {
+            $where[]  = 's.team_id = %d';
+            $params[] = $team_filter;
+        }
+        if ( $type_filter !== '' ) {
+            $where[]  = 's.activity_type_key = %s';
+            $params[] = $type_filter;
+        }
+
+        $where_sql = implode( ' AND ', $where ) . ' ' . $scope;
+
+        // No LIMIT — the activities surface deliberately renders the
+        // full filtered set so the buckets reflect reality. Pilot
+        // volumes are tractable (low hundreds); the past-pagination
+        // follow-up sits in the issue's "Out of scope" list.
+        $sql = "SELECT s.*, t.name AS team_name
+                FROM {$p}tt_activities s
+                LEFT JOIN {$p}tt_teams t ON t.id = s.team_id AND t.club_id = s.club_id
+                WHERE {$where_sql}
+                ORDER BY s.session_date ASC, s.id ASC";
+
+        $rows = $wpdb->get_results( $wpdb->prepare( $sql, ...$params ) );
+        return is_array( $rows ) ? $rows : [];
     }
 
     /**

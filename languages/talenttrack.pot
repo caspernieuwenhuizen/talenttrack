@@ -28609,3 +28609,71 @@ msgstr ""
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr ""
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "— all types —"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "No activities to show"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Try changing the team or type filter, or create a new activity to get started."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Past activities"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Past"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "⚠ Needs attention"
+msgstr ""
+
+#. translators: %d: count of past planned activities
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+#, php-format
+msgid "%d past, still planned"
+msgid_plural "%d past, still planned"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "This week"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Later this month"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Later"
+msgstr ""
+
+#. translators: %d: count of past activities
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+#, php-format
+msgid "%d past activity"
+msgid_plural "%d past activities"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "hidden · Show"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "shown · Hide"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "still planned"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "(untitled activity)"
+msgstr ""
