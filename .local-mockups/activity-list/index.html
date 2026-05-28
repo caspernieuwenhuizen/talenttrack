@@ -66,13 +66,21 @@ body {
 .mockup-bar button[aria-pressed="true"] { background: #6c4; color: #000; border-color: #4a3; font-weight: 600; }
 
 /* ---------------------------------------------------------------------------
-   Frame — fixed 360px so the mockup mirrors the mobile target.
+   Frame — 360px on mobile (the original target), wider on tablet+ so the
+   list has breathing room on desktop without changing the layout or
+   per-card content. Single column throughout — just more horizontal room.
    --------------------------------------------------------------------------- */
 .frame {
     max-width: 360px;
     margin: 0 auto;
     background: var(--tt-bg);
     min-height: 100vh;
+}
+@media (min-width: 768px) {
+    .frame { max-width: 720px; }
+}
+@media (min-width: 1100px) {
+    .frame { max-width: 880px; }
 }
 
 /* ---------------------------------------------------------------------------
