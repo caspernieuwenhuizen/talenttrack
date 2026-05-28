@@ -1,0 +1,1119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Player profile — mockup</title>
+<style>
+/* ---------------------------------------------------------------------------
+   Design tokens — mirror TT production.
+   --------------------------------------------------------------------------- */
+:root {
+    --tt-ink:        #1a1d21;
+    --tt-ink-soft:   #5b6e75;
+    --tt-paper:      #ffffff;
+    --tt-bg:         #f5f7f6;
+    --tt-line:       #d6dadd;
+    --tt-mute:       #f0f3f2;
+    --tt-accent:     #2271b1;
+    --tt-accent-soft:#e1eef5;
+    --tt-success:    #2e7d4f;
+    --tt-warn:       #c75c1f;
+    --tt-danger:     #d63638;
+    --tt-gold:       #b8860b;
+
+    --tap-min:       48px;
+    --gap:           12px;
+    --gap-lg:        16px;
+    --radius:        10px;
+    --radius-lg:     16px;
+    --shadow:        0 1px 2px rgba(0,0,0,.04), 0 4px 12px rgba(0,0,0,.05);
+    --font:          'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+    font-family: var(--font);
+    color: var(--tt-ink);
+    background: var(--tt-bg);
+    font-size: 16px;
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* ---------------------------------------------------------------------------
+   Mockup-only chrome.
+   --------------------------------------------------------------------------- */
+.mockup-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: #222;
+    color: #eee;
+    font-size: 12px;
+    padding: 8px 12px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+    border-bottom: 2px solid #000;
+}
+.mockup-bar strong { color: #ffd; margin-right: 4px; }
+.mockup-bar button {
+    background: #444; color: #eee; border: 1px solid #666;
+    padding: 4px 10px; border-radius: 4px; font: inherit; cursor: pointer;
+    font-size: 11px;
+}
+.mockup-bar button[aria-pressed="true"] { background: #6c4; color: #000; border-color: #4a3; font-weight: 600; }
+
+/* ---------------------------------------------------------------------------
+   Frame — responsive. Mobile-first: 360px column. ≥720px: 720px content
+   width; ≥1024px: two-column with left rail for facts/glance/tabs.
+   --------------------------------------------------------------------------- */
+.frame {
+    max-width: 360px;
+    margin: 0 auto;
+    background: var(--tt-bg);
+    min-height: 100vh;
+    padding-bottom: 48px;
+}
+@media (min-width: 720px) {
+    .frame { max-width: 720px; }
+}
+/* Mobile/tablet: the .rail and .main-col wrappers are transparent — their
+   children participate in .frame's normal block flow as if the wrappers
+   weren't there. Desktop activates them as real flex columns. */
+.rail, .main-col { display: contents; }
+
+@media (min-width: 1024px) {
+    .frame {
+        max-width: 1024px;
+        display: grid;
+        grid-template-columns: 320px 1fr;
+        column-gap: 24px;
+        padding: 0 24px 48px;
+        align-items: start;
+    }
+    /* Top zone spans both columns. */
+    .crumbs,
+    .back-pill,
+    .hero,
+    .actions     { grid-column: 1 / -1; }
+    .back-pill   { margin-left: 0; }
+
+    /* Each column is its own vertical flex stack — row heights are
+       independent. Facts/glance stack down the left; tabs + active pane
+       stack down the right. The columns no longer share grid rows, so
+       a tall left rail can't push the right pane down. */
+    .rail {
+        display: flex;
+        flex-direction: column;
+        gap: var(--gap);
+        grid-column: 1;
+    }
+    .main-col {
+        display: flex;
+        flex-direction: column;
+        gap: var(--gap);
+        grid-column: 2;
+    }
+    .tab-pane { padding: 0; }
+}
+
+/* ---------------------------------------------------------------------------
+   Back pill — §5 nav contract.
+   --------------------------------------------------------------------------- */
+.back-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    color: var(--tt-accent);
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    margin: var(--gap-lg) var(--gap-lg) 0;
+    min-height: 36px;
+}
+
+/* ---------------------------------------------------------------------------
+   Breadcrumb — §5 nav contract.
+   --------------------------------------------------------------------------- */
+.crumbs {
+    padding: 8px var(--gap-lg) 0;
+    font-size: 11px;
+    color: var(--tt-ink-soft);
+}
+.crumbs a { color: var(--tt-accent); text-decoration: none; }
+
+/* ---------------------------------------------------------------------------
+   Hero — clean paper background, no colored band. The visual signal moves
+   to the avatar: a 4px status-colored ring around the initials circle, plus
+   the jersey number as a small badge tucked into the avatar's bottom-right.
+   Subtle bottom shadow gives the block lift without using chromatic color.
+   --------------------------------------------------------------------------- */
+.hero {
+    background: var(--tt-paper);
+    padding: var(--gap-lg) var(--gap-lg) var(--gap);
+    border-bottom: 1px solid var(--tt-line);
+    box-shadow: 0 1px 0 rgba(0,0,0,.02), 0 4px 16px rgba(0,0,0,.03);
+    position: relative;
+}
+.hero__row {
+    display: grid;
+    grid-template-columns: 72px 1fr;
+    gap: var(--gap-lg);
+    align-items: center;
+}
+.hero__avatar {
+    position: relative;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: var(--tt-ink);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    border: 4px solid var(--tt-line);  /* default; status-driven below */
+    flex-shrink: 0;
+}
+.hero__avatar[data-status="active"]   { border-color: var(--tt-success); }
+.hero__avatar[data-status="trial"]    { border-color: var(--tt-gold); }
+.hero__avatar[data-status="released"] { border-color: var(--tt-danger); }
+.hero__avatar[data-status="inactive"] { border-color: var(--tt-line); }
+
+/* Jersey number lives ON the avatar — small badge nestled in the bottom-
+   right, sitting half-on-half-off the ring. No more absolute-positioning
+   relative to the hero block. */
+.hero__jersey {
+    position: absolute;
+    bottom: -4px;
+    right: -4px;
+    background: var(--tt-ink);
+    color: white;
+    font-size: 11px;
+    font-weight: 800;
+    min-width: 24px;
+    height: 24px;
+    padding: 0 6px;
+    border-radius: 999px;
+    border: 2px solid var(--tt-paper);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-variant-numeric: tabular-nums;
+}
+.hero__main { min-width: 0; padding-bottom: 4px; }
+.hero__name {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1.1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+@media (min-width: 720px) {
+    .hero { padding: 24px 24px 20px; border-radius: 0 0 var(--radius-lg) var(--radius-lg); }
+    .hero__row { grid-template-columns: 96px 1fr; gap: 24px; }
+    .hero__avatar { width: 96px; height: 96px; font-size: 34px; border-width: 5px; }
+    .hero__name { font-size: 28px; }
+    .hero__jersey { min-width: 28px; height: 28px; font-size: 12px; bottom: -2px; right: -2px; }
+}
+.hero__sub {
+    margin: 4px 0 0;
+    font-size: 13px;
+    color: var(--tt-ink-soft);
+}
+.hero__sub a { color: var(--tt-accent); text-decoration: none; font-weight: 500; }
+
+/* Pill row immediately under the name — status + position. */
+.hero__pills {
+    margin: 10px 0 0;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+.pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    background: var(--tt-mute);
+    color: var(--tt-ink-soft);
+}
+.pill[data-status="active"]   { background: #e0efe5; color: var(--tt-success); }
+.pill[data-status="trial"]    { background: #fff3d9; color: var(--tt-gold); }
+.pill[data-status="released"] { background: #ffe0e0; color: var(--tt-danger); }
+.pill[data-status="inactive"] { background: var(--tt-mute); color: var(--tt-ink-soft); }
+.pill--pos { background: var(--tt-accent-soft); color: var(--tt-accent); }
+
+/* ---------------------------------------------------------------------------
+   Action row — Log behaviour / Set potential / Edit / ⋯ overflow.
+   Cap-gated buttons hide via body[data-cap] selectors.
+   --------------------------------------------------------------------------- */
+.actions {
+    padding: var(--gap) var(--gap-lg);
+    background: var(--tt-paper);
+    border-bottom: 1px solid var(--tt-line);
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.actions::-webkit-scrollbar { display: none; }
+@media (min-width: 720px) {
+    .actions { overflow-x: visible; padding: var(--gap) 24px; }
+}
+@media (min-width: 1024px) {
+    .actions { border-radius: 0 0 var(--radius-lg) var(--radius-lg); border-bottom: none; }
+}
+.action-btn {
+    min-height: var(--tap-min);
+    padding: 0 14px;
+    border: 1px solid var(--tt-line);
+    background: var(--tt-paper);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: var(--radius);
+    cursor: pointer;
+    touch-action: manipulation;
+    color: var(--tt-ink);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+}
+.action-btn:active { background: var(--tt-mute); }
+.action-btn--primary { background: var(--tt-ink); color: white; border-color: var(--tt-ink); }
+.action-btn--more {
+    width: var(--tap-min);
+    padding: 0;
+    justify-content: center;
+    font-size: 18px;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+body[data-cap="parent"] .action-btn--coach,
+body[data-cap="scout"]  .action-btn--coach,
+body[data-cap="scout"]  .action-btn--edit { display: none; }
+
+/* ---------------------------------------------------------------------------
+   Key facts — surfaced above the fold so coach doesn't need to open Profile.
+   3-up grid on mobile.
+   --------------------------------------------------------------------------- */
+.facts {
+    background: var(--tt-paper);
+    border-bottom: 1px solid var(--tt-line);
+    padding: var(--gap-lg);
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+}
+@media (min-width: 1024px) {
+    .facts {
+        grid-template-columns: 1fr;
+        border-bottom: none;
+        border-radius: var(--radius-lg);
+        margin-top: var(--gap);
+    }
+    .fact { padding: 14px 8px; text-align: left; }
+    .fact__label { font-size: 11px; }
+    .fact__value { font-size: 17px; margin-top: 6px; }
+}
+.fact {
+    text-align: center;
+    padding: 8px 4px;
+    border-radius: var(--radius);
+    background: var(--tt-bg);
+}
+.fact__label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--tt-ink-soft);
+    font-weight: 600;
+    display: block;
+}
+.fact__value {
+    font-size: 15px;
+    font-weight: 700;
+    margin: 4px 0 0;
+}
+.fact__hint {
+    font-size: 11px;
+    color: var(--tt-ink-soft);
+    margin: 1px 0 0;
+}
+
+/* ---------------------------------------------------------------------------
+   At a glance — KPI strip. 3 living signals replacing the loose chip stack.
+   --------------------------------------------------------------------------- */
+.glance {
+    background: var(--tt-paper);
+    border-bottom: 1px solid var(--tt-line);
+    padding: var(--gap) var(--gap-lg);
+}
+.glance__title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--tt-ink-soft);
+    margin: 0 0 8px;
+}
+.glance__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+}
+@media (min-width: 1024px) {
+    .glance {
+        border-bottom: none;
+        border-radius: var(--radius-lg);
+        background: var(--tt-paper);
+        margin-top: var(--gap);
+    }
+    .glance__grid { grid-template-columns: 1fr; }
+    .kpi { padding: 12px; }
+    .kpi__num { font-size: 24px; }
+}
+.kpi {
+    background: var(--tt-bg);
+    border-radius: var(--radius);
+    padding: 10px 8px;
+    text-align: left;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    border: 1px solid transparent;
+    transition: border-color 100ms;
+}
+.kpi:active { border-color: var(--tt-accent); }
+.kpi__label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    font-weight: 600;
+    color: var(--tt-ink-soft);
+}
+.kpi__num {
+    font-size: 20px;
+    font-weight: 800;
+    margin-top: 4px;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+.kpi__num small {
+    font-size: 11px;
+    color: var(--tt-ink-soft);
+    font-weight: 600;
+    margin-left: 2px;
+}
+.kpi__hint {
+    font-size: 10px;
+    margin-top: 4px;
+    color: var(--tt-ink-soft);
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+.kpi__trend--up   { color: var(--tt-success); }
+.kpi__trend--down { color: var(--tt-danger); }
+
+/* ---------------------------------------------------------------------------
+   Tab bar — horizontally scrolling chips, each with optional count badge.
+   --------------------------------------------------------------------------- */
+.tabs {
+    background: var(--tt-paper);
+    padding: var(--gap) var(--gap-lg);
+    border-bottom: 1px solid var(--tt-line);
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    position: sticky;
+    top: 31px; /* mockup-bar height; in production this is 0 */
+    z-index: 10;
+}
+.tabs::-webkit-scrollbar { display: none; }
+@media (min-width: 720px) {
+    .tabs {
+        flex-wrap: wrap;
+        overflow-x: visible;
+        padding: var(--gap) 0;
+        background: transparent;
+        border-bottom: none;
+        position: static;
+        align-items: flex-start;   /* prevent chips stretching tall */
+    }
+    .tab { flex: 0 0 auto; }       /* chips size to content, never grow */
+}
+@media (min-width: 1024px) {
+    .tabs { padding: 0; margin-top: 8px; }
+}
+.tab {
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    color: var(--tt-ink-soft);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    min-height: 36px;
+}
+.tab:active { background: var(--tt-mute); }
+.tab[aria-current="true"] {
+    background: var(--tt-ink);
+    color: white;
+    border-color: var(--tt-ink);
+}
+.tab__count {
+    font-size: 11px;
+    background: var(--tt-mute);
+    color: var(--tt-ink-soft);
+    padding: 1px 6px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+.tab[aria-current="true"] .tab__count { background: rgba(255,255,255,.2); color: white; }
+
+body[data-cap="parent"] .tab--cap-notes,
+body[data-cap="scout"]  .tab--cap-notes { display: none; }
+
+/* ---------------------------------------------------------------------------
+   Tab content — scroll area below the tab bar.
+   --------------------------------------------------------------------------- */
+.tab-pane { padding: var(--gap-lg); display: none; }
+@media (min-width: 720px) {
+    /* Profile cards become a 2-up grid on tablet/desktop; other panes stay
+       single-column lists so per-row scanning still reads left-to-right. */
+    body[data-tab="profile"] .tab-pane[data-pane="profile"] {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--gap);
+        align-items: start;
+    }
+    .tab-pane .card { margin-bottom: 0; }
+}
+body[data-tab="profile"]     .tab-pane[data-pane="profile"]     { display: block; }
+body[data-tab="goals"]       .tab-pane[data-pane="goals"]       { display: block; }
+body[data-tab="evals"]       .tab-pane[data-pane="evals"]       { display: block; }
+body[data-tab="activities"]  .tab-pane[data-pane="activities"]  { display: block; }
+body[data-tab="pdp"]         .tab-pane[data-pane="pdp"]         { display: block; }
+body[data-tab="trials"]      .tab-pane[data-pane="trials"]      { display: block; }
+body[data-tab="notes"]       .tab-pane[data-pane="notes"]       { display: block; }
+
+/* ---------------------------------------------------------------------------
+   Cards used inside tab panes.
+   --------------------------------------------------------------------------- */
+.card {
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--gap);
+    overflow: hidden;
+}
+.card__head {
+    padding: var(--gap) var(--gap-lg) 4px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+}
+.card__title {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--tt-ink-soft);
+}
+.card__cta {
+    font-size: 12px;
+    color: var(--tt-accent);
+    font-weight: 600;
+    text-decoration: none;
+}
+.card__body { padding: 8px var(--gap-lg) var(--gap-lg); }
+
+/* Profile-table rows */
+.kv {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    padding: 6px 0;
+    font-size: 14px;
+    border-bottom: 1px solid var(--tt-mute);
+}
+.kv:last-child { border-bottom: none; }
+.kv__k { color: var(--tt-ink-soft); font-weight: 500; }
+.kv__v { font-weight: 600; word-break: break-word; }
+.kv__v a { color: var(--tt-accent); text-decoration: none; }
+
+/* List rows used in Goals / Evals / Activities / PDP / Trials. */
+.list { list-style: none; margin: 0; padding: 0; }
+.row {
+    display: grid;
+    grid-template-columns: 44px 1fr auto;
+    gap: var(--gap);
+    align-items: center;
+    padding: 10px var(--gap-lg);
+    border-top: 1px solid var(--tt-mute);
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+}
+.row:first-child { border-top: none; }
+.row:active { background: var(--tt-mute); }
+.row__date {
+    text-align: center;
+    background: var(--tt-mute);
+    border-radius: var(--radius);
+    padding: 6px 0;
+    line-height: 1;
+}
+.row__date-d { font-size: 17px; font-weight: 800; display: block; font-variant-numeric: tabular-nums; margin-top: 2px; }
+.row__date-m { font-size: 10px; text-transform: uppercase; letter-spacing: 0.4px; font-weight: 600; opacity: 0.8; display: block; margin-bottom: 2px; }
+.row__body { min-width: 0; }
+.row__title { font-size: 14px; font-weight: 600; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.row__meta { font-size: 12px; color: var(--tt-ink-soft); margin: 2px 0 0; }
+.row__chev { color: var(--tt-line); font-size: 18px; font-weight: 700; }
+.row__rating {
+    background: var(--tt-accent);
+    color: white;
+    border-radius: var(--radius);
+    padding: 6px 8px;
+    font-weight: 800;
+    font-size: 16px;
+    text-align: center;
+    min-width: 44px;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Empty states. */
+.empty {
+    text-align: center;
+    padding: 32px var(--gap-lg);
+    color: var(--tt-ink-soft);
+    font-size: 13px;
+}
+.empty__icon {
+    font-size: 28px;
+    display: block;
+    margin-bottom: 8px;
+    opacity: 0.4;
+}
+.empty__cta {
+    display: inline-block;
+    margin-top: var(--gap);
+    padding: 10px 16px;
+    background: var(--tt-accent);
+    color: white;
+    border-radius: var(--radius);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 13px;
+    min-height: var(--tap-min);
+    line-height: 28px;
+}
+
+/* Status pills inside list rows */
+.row__pill {
+    font-size: 11px;
+    background: var(--tt-mute);
+    color: var(--tt-ink-soft);
+    padding: 1px 8px;
+    border-radius: 999px;
+    font-weight: 600;
+}
+.row__pill[data-status="completed"] { background: #e0efe5; color: var(--tt-success); }
+.row__pill[data-status="in_progress"]    { background: var(--tt-accent-soft); color: var(--tt-accent); }
+.row__pill[data-status="planned"]   { background: var(--tt-mute); color: var(--tt-ink-soft); }
+.row__pill[data-status="cancelled"] { background: #ffe0e0; color: var(--tt-danger); }
+.row__pill[data-status="present"]   { background: #e0efe5; color: var(--tt-success); }
+.row__pill[data-status="absent"]    { background: #ffe0e0; color: var(--tt-danger); }
+.row__pill[data-status="late"]      { background: #fff3d9; color: var(--tt-gold); }
+.row__pill[data-priority="high"]    { background: #ffe0e0; color: var(--tt-danger); }
+.row__pill[data-priority="medium"]  { background: #fff3d9; color: var(--tt-gold); }
+.row__pill[data-priority="low"]     { background: var(--tt-mute); color: var(--tt-ink-soft); }
+
+/* PDP progress visualiser. */
+.pdp-progress {
+    display: flex;
+    gap: 4px;
+    margin-top: 8px;
+}
+.pdp-step {
+    flex: 1;
+    height: 6px;
+    background: var(--tt-mute);
+    border-radius: 3px;
+}
+.pdp-step--done { background: var(--tt-success); }
+.pdp-step--current { background: var(--tt-accent); }
+
+/* Notes thread placeholder. */
+.thread {
+    padding: var(--gap);
+    background: var(--tt-bg);
+    border-radius: var(--radius);
+    margin-bottom: 8px;
+    border-left: 3px solid var(--tt-accent);
+}
+.thread__head {
+    font-size: 12px;
+    color: var(--tt-ink-soft);
+    margin-bottom: 4px;
+}
+.thread__head strong { color: var(--tt-ink); font-weight: 700; }
+.thread__body { font-size: 14px; }
+
+</style>
+</head>
+<body data-tab="profile" data-cap="coach">
+
+<!-- ============================================================
+     STATE PICKER — mockup-only chrome.
+     ============================================================ -->
+<div class="mockup-bar" role="region">
+    <strong>Tab:</strong>
+    <button type="button" data-set="tab:profile" aria-pressed="true">Profile</button>
+    <button type="button" data-set="tab:goals">Goals</button>
+    <button type="button" data-set="tab:evals">Evals</button>
+    <button type="button" data-set="tab:activities">Activities</button>
+    <button type="button" data-set="tab:pdp">PDP</button>
+    <button type="button" data-set="tab:trials">Trials</button>
+    <button type="button" data-set="tab:notes">Notes</button>
+    &nbsp;&nbsp;
+    <strong>Cap:</strong>
+    <button type="button" data-set="cap:coach" aria-pressed="true">Coach</button>
+    <button type="button" data-set="cap:hod">HoD</button>
+    <button type="button" data-set="cap:parent">Parent</button>
+    <button type="button" data-set="cap:scout">Scout</button>
+</div>
+
+<div class="frame">
+
+    <!-- Back pill + breadcrumb (§5 nav contract — both always present) -->
+    <p class="crumbs"><a href="#">Dashboard</a> &rsaquo; <a href="#">Players</a> &rsaquo; Lucas de Vries</p>
+    <a class="back-pill" href="#">← Back to Hedel JO13</a>
+
+    <!-- ============================================================
+         Hero — clean white surface. Avatar carries the status signal via
+         a colored ring; jersey badge sits in the avatar's bottom-right.
+         ============================================================ -->
+    <section class="hero" aria-label="Player">
+        <div class="hero__row">
+            <div class="hero__avatar" data-status="active" aria-hidden="true">
+                LV
+                <span class="hero__jersey">#7</span>
+            </div>
+            <div class="hero__main">
+                <h1 class="hero__name">Lucas de Vries</h1>
+                <p class="hero__sub">
+                    <a href="#">Hedel JO13</a> · U13
+                </p>
+                <p class="hero__pills">
+                    <span class="pill" data-status="active">● Active · 2 yrs</span>
+                    <span class="pill pill--pos">RW</span>
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         Action row — horizontal scroll on mobile. Cap-gated visibility.
+         ============================================================ -->
+    <div class="actions" aria-label="Actions">
+        <button type="button" class="action-btn action-btn--primary action-btn--coach">＋ Log behaviour</button>
+        <button type="button" class="action-btn action-btn--coach">Set potential</button>
+        <button type="button" class="action-btn action-btn--edit">Edit</button>
+        <button type="button" class="action-btn action-btn--more" aria-label="More actions">⋯</button>
+    </div>
+
+    <!-- Wrapper for the desktop left rail (display:contents on mobile). -->
+    <div class="rail">
+
+    <!-- ============================================================
+         Key facts — pulled out of Profile tab so they're above the fold.
+         3-up grid. Tappable target if a fact has a related action (e.g.
+         status → status history).
+         ============================================================ -->
+    <section class="facts" aria-label="Key facts">
+        <div class="fact">
+            <span class="fact__label">DOB</span>
+            <p class="fact__value">12 Mar '13</p>
+            <p class="fact__hint">13 yrs</p>
+        </div>
+        <div class="fact">
+            <span class="fact__label">Foot</span>
+            <p class="fact__value">Right</p>
+            <p class="fact__hint">RW / RB</p>
+        </div>
+        <div class="fact">
+            <span class="fact__label">Joined</span>
+            <p class="fact__value">Aug '24</p>
+            <p class="fact__hint">2 yrs in</p>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         At a glance — three KPIs that replace the loose chip stack.
+         ============================================================ -->
+    <section class="glance" aria-label="At a glance">
+        <p class="glance__title">At a glance</p>
+        <div class="glance__grid">
+            <a class="kpi" href="#">
+                <div class="kpi__label">Avg rating</div>
+                <div class="kpi__num">7.8 <small>/10</small></div>
+                <div class="kpi__hint kpi__trend--up">▲ 0.3</div>
+            </a>
+            <a class="kpi" href="#">
+                <div class="kpi__label">Attendance</div>
+                <div class="kpi__num">92<small>%</small></div>
+                <div class="kpi__hint">last 30 d</div>
+            </a>
+            <a class="kpi" href="#">
+                <div class="kpi__label">Goals</div>
+                <div class="kpi__num">3</div>
+                <div class="kpi__hint kpi__trend--down">1 due Fri</div>
+            </a>
+        </div>
+    </section>
+
+    </div><!-- /.rail -->
+
+    <!-- Wrapper for the desktop right column (display:contents on mobile). -->
+    <div class="main-col">
+
+    <!-- ============================================================
+         Tab bar — horizontal scrolling chips. Each carries a count badge.
+         ============================================================ -->
+    <nav class="tabs" aria-label="Tabs">
+        <button type="button" class="tab" data-set="tab:profile" aria-current="true">Profile</button>
+        <button type="button" class="tab" data-set="tab:goals">Goals <span class="tab__count">3</span></button>
+        <button type="button" class="tab" data-set="tab:evals">Evaluations <span class="tab__count">12</span></button>
+        <button type="button" class="tab" data-set="tab:activities">Activities <span class="tab__count">47</span></button>
+        <button type="button" class="tab" data-set="tab:pdp">PDP <span class="tab__count">2</span></button>
+        <button type="button" class="tab" data-set="tab:trials">Trials</button>
+        <button type="button" class="tab tab--cap-notes" data-set="tab:notes">Notes <span class="tab__count">5</span></button>
+    </nav>
+
+    <!-- ============================================================
+         PROFILE TAB — Identity + Academy + linked Parents + Scouts.
+         ============================================================ -->
+    <div class="tab-pane" data-pane="profile">
+
+        <div class="card">
+            <div class="card__head">
+                <h3 class="card__title">Identity</h3>
+            </div>
+            <div class="card__body">
+                <div class="kv"><div class="kv__k">Date of birth</div><div class="kv__v">12 March 2013</div></div>
+                <div class="kv"><div class="kv__k">Position(s)</div><div class="kv__v">RW · RB</div></div>
+                <div class="kv"><div class="kv__k">Preferred foot</div><div class="kv__v">Right</div></div>
+                <div class="kv"><div class="kv__k">Jersey number</div><div class="kv__v">7</div></div>
+                <div class="kv"><div class="kv__k">Status</div><div class="kv__v">Active · <a href="#">history</a></div></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card__head">
+                <h3 class="card__title">Academy</h3>
+            </div>
+            <div class="card__body">
+                <div class="kv"><div class="kv__k">Team</div><div class="kv__v"><a href="#">Hedel JO13</a></div></div>
+                <div class="kv"><div class="kv__k">Age tier</div><div class="kv__v">U13</div></div>
+                <div class="kv"><div class="kv__k">Date joined</div><div class="kv__v">15 August 2024</div></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card__head">
+                <h3 class="card__title">Parents · Guardians</h3>
+            </div>
+            <div class="card__body">
+                <div class="kv"><div class="kv__k">Sander de Vries</div><div class="kv__v">father · <a href="tel:0612345678">+31 6 12345678</a></div></div>
+                <div class="kv"><div class="kv__k">Maartje de Vries</div><div class="kv__v">mother · <a href="mailto:m@example.nl">m@example.nl</a></div></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card__head">
+                <h3 class="card__title">Discovery</h3>
+            </div>
+            <div class="card__body">
+                <div class="kv"><div class="kv__k">Logged by</div><div class="kv__v"><a href="#">Bert Jacobs</a> (scout)</div></div>
+                <div class="kv"><div class="kv__k">At</div><div class="kv__v">Hedel JO12 vs Brakel · 5 May 2024</div></div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ============================================================
+         GOALS TAB.
+         ============================================================ -->
+    <div class="tab-pane" data-pane="goals">
+        <div class="card">
+            <div class="card__head">
+                <h3 class="card__title">Active goals · 3</h3>
+                <a class="card__cta" href="#">＋ Add goal</a>
+            </div>
+            <ul class="list">
+                <li>
+                    <a class="row" href="#">
+                        <div class="row__date" style="background:#fde6e2; color:#8a2a26;">
+                            <span class="row__date-m">Due</span>
+                            <span class="row__date-d">Fri</span>
+                        </div>
+                        <div class="row__body">
+                            <p class="row__title">Win 60% of 1v1 duels (R-side)</p>
+                            <p class="row__meta"><span class="row__pill" data-priority="high">High</span> <span class="row__pill" data-status="in_progress">In progress</span></p>
+                        </div>
+                        <span class="row__chev">›</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="row" href="#">
+                        <div class="row__date">
+                            <span class="row__date-m">Due</span>
+                            <span class="row__date-d">15<small>Jun</small></span>
+                        </div>
+                        <div class="row__body">
+                            <p class="row__title">Improve weak foot crossing</p>
+                            <p class="row__meta"><span class="row__pill" data-priority="medium">Medium</span> <span class="row__pill" data-status="in_progress">In progress</span></p>
+                        </div>
+                        <span class="row__chev">›</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="row" href="#">
+                        <div class="row__date">
+                            <span class="row__date-m">Due</span>
+                            <span class="row__date-d">31<small>Jul</small></span>
+                        </div>
+                        <div class="row__body">
+                            <p class="row__title">Set-piece delivery consistency</p>
+                            <p class="row__meta"><span class="row__pill" data-priority="low">Low</span> <span class="row__pill" data-status="planned">Planned</span></p>
+                        </div>
+                        <span class="row__chev">›</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         EVALUATIONS TAB.
+         ============================================================ -->
+    <div class="tab-pane" data-pane="evals">
+        <div class="card">
+            <div class="card__head">
+                <h3 class="card__title">Recent · 12</h3>
+                <a class="card__cta" href="#">＋ New evaluation</a>
+            </div>
+            <ul class="list">
+                <li><a class="row" href="#">
+                    <div class="row__date"><span class="row__date-m">May</span><span class="row__date-d">22</span></div>
+                    <div class="row__body">
+                        <p class="row__title">Coach's eval — training</p>
+                        <p class="row__meta">vs Brakel away · Bert Jacobs</p>
+                    </div>
+                    <div class="row__rating">8.0</div>
+                </a></li>
+                <li><a class="row" href="#">
+                    <div class="row__date"><span class="row__date-m">May</span><span class="row__date-d">17</span></div>
+                    <div class="row__body">
+                        <p class="row__title">Match performance</p>
+                        <p class="row__meta">vs Tiel away · 4-2 win · Coach Hans</p>
+                    </div>
+                    <div class="row__rating">7.5</div>
+                </a></li>
+                <li><a class="row" href="#">
+                    <div class="row__date"><span class="row__date-m">May</span><span class="row__date-d">10</span></div>
+                    <div class="row__body">
+                        <p class="row__title">Periodic — mid-cycle</p>
+                        <p class="row__meta">PDP cycle 2 · Bert Jacobs</p>
+                    </div>
+                    <div class="row__rating">7.8</div>
+                </a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         ACTIVITIES TAB.
+         ============================================================ -->
+    <div class="tab-pane" data-pane="activities">
+        <div class="card">
+            <div class="card__head">
+                <h3 class="card__title">Recent · 47</h3>
+                <a class="card__cta" href="#">View all</a>
+            </div>
+            <ul class="list">
+                <li><a class="row" href="#">
+                    <div class="row__date" style="background:var(--tt-accent); color:white;">
+                        <span class="row__date-m">May</span><span class="row__date-d">28</span>
+                    </div>
+                    <div class="row__body">
+                        <p class="row__title">Training — set pieces</p>
+                        <p class="row__meta">Hedel JO13 · today 18:30</p>
+                    </div>
+                    <span class="row__pill" data-status="planned">Planned</span>
+                </a></li>
+                <li><a class="row" href="#">
+                    <div class="row__date"><span class="row__date-m">May</span><span class="row__date-d">26</span></div>
+                    <div class="row__body">
+                        <p class="row__title">Training — endurance circuit</p>
+                        <p class="row__meta">Hedel JO13</p>
+                    </div>
+                    <span class="row__pill" data-status="present">Present</span>
+                </a></li>
+                <li><a class="row" href="#">
+                    <div class="row__date"><span class="row__date-m">May</span><span class="row__date-d">17</span></div>
+                    <div class="row__body">
+                        <p class="row__title">vs Tiel — away</p>
+                        <p class="row__meta">Hedel JO13 · 4-2 win</p>
+                    </div>
+                    <span class="row__pill" data-status="present">Present</span>
+                </a></li>
+                <li><a class="row" href="#">
+                    <div class="row__date"><span class="row__date-m">May</span><span class="row__date-d">10</span></div>
+                    <div class="row__body">
+                        <p class="row__title">Training — possession</p>
+                        <p class="row__meta">Hedel JO13</p>
+                    </div>
+                    <span class="row__pill" data-status="late">Late</span>
+                </a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         PDP TAB.
+         ============================================================ -->
+    <div class="tab-pane" data-pane="pdp">
+        <div class="card">
+            <div class="card__head">
+                <h3 class="card__title">Active cycle · 2026/27</h3>
+                <a class="card__cta" href="#">Open file</a>
+            </div>
+            <div class="card__body">
+                <p class="kv__v" style="margin:0;">Conversation 2 of 4 · player + coach signed</p>
+                <div class="pdp-progress" aria-label="PDP progress">
+                    <div class="pdp-step pdp-step--done" title="Cycle kickoff"></div>
+                    <div class="pdp-step pdp-step--done" title="Mid-cycle review"></div>
+                    <div class="pdp-step pdp-step--current" title="End-of-cycle"></div>
+                    <div class="pdp-step" title="Signoff"></div>
+                </div>
+                <p class="row__meta" style="margin-top:8px;">Next conversation: end-of-cycle, scheduled 12 Jun.</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card__head">
+                <h3 class="card__title">Past cycles · 1</h3>
+            </div>
+            <ul class="list">
+                <li><a class="row" href="#">
+                    <div class="row__date"><span class="row__date-m">'25</span><span class="row__date-d">26</span></div>
+                    <div class="row__body">
+                        <p class="row__title">2025/26 cycle</p>
+                        <p class="row__meta">closed 15 Jul 2025</p>
+                    </div>
+                    <span class="row__pill" data-status="completed">Closed</span>
+                </a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         TRIALS TAB — empty state.
+         ============================================================ -->
+    <div class="tab-pane" data-pane="trials">
+        <div class="card">
+            <div class="card__body">
+                <div class="empty">
+                    <span class="empty__icon">📋</span>
+                    <p>This player is not currently on trial, so there is no trial history to show.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         NOTES TAB — cap-gated thread.
+         ============================================================ -->
+    <div class="tab-pane" data-pane="notes">
+        <div class="card">
+            <div class="card__head">
+                <h3 class="card__title">Staff notes · 5</h3>
+                <a class="card__cta" href="#">＋ Add</a>
+            </div>
+            <div class="card__body">
+                <div class="thread">
+                    <p class="thread__head"><strong>Bert Jacobs</strong> · scout · 2 days ago</p>
+                    <p class="thread__body">Showed real composure in the 1v1 finish vs Tiel. Continue surface-focus on weak-foot crosses; we shaped a goal around it.</p>
+                </div>
+                <div class="thread">
+                    <p class="thread__head"><strong>Coach Hans</strong> · 5 days ago</p>
+                    <p class="thread__body">Mid-cycle PDP scheduled for Thu. Mum confirmed she'll attend.</p>
+                </div>
+                <div class="thread">
+                    <p class="thread__head"><strong>Bert Jacobs</strong> · 12 days ago</p>
+                    <p class="thread__body">Parent contact via Maartje for early-summer touch-base. Re behaviour-on-bench during away matches.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </div><!-- /.main-col -->
+
+</div>
+
+<script>
+// Picker → body[data-*] driver
+document.querySelectorAll('[data-set]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        var parts = btn.getAttribute('data-set').split(':');
+        var key = parts[0], val = parts[1];
+        document.body.setAttribute('data-' + key, val);
+
+        document.querySelectorAll('[data-set^="' + key + ':"]').forEach(function (b) {
+            var match = b.getAttribute('data-set') === btn.getAttribute('data-set');
+            b.setAttribute('aria-pressed', match ? 'true' : 'false');
+        });
+
+        // Tabs in the page also reflect current tab via aria-current.
+        if ( key === 'tab' ) {
+            document.querySelectorAll('.tab').forEach(function (t) {
+                t.setAttribute('aria-current',
+                    t.getAttribute('data-set') === 'tab:' + val ? 'true' : 'false'
+                );
+            });
+        }
+    });
+});
+</script>
+</body>
+</html>
