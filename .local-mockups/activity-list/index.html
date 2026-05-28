@@ -1,0 +1,763 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Activities list — mockup</title>
+<style>
+/* ---------------------------------------------------------------------------
+   Design tokens — mirror TT production.
+   --------------------------------------------------------------------------- */
+:root {
+    --tt-ink:        #1a1d21;
+    --tt-ink-soft:   #5b6e75;
+    --tt-paper:      #ffffff;
+    --tt-bg:         #f5f7f6;
+    --tt-line:       #d6dadd;
+    --tt-accent:     #2271b1;
+    --tt-success:    #2e7d4f;
+    --tt-warn:       #c75c1f;
+    --tt-danger:     #d63638;
+    --tt-mute:       #f0f3f2;
+
+    --tap-min:       48px;
+    --gap:           12px;
+    --gap-lg:        16px;
+    --radius:        10px;
+    --radius-lg:     16px;
+    --font:          'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+    font-family: var(--font);
+    color: var(--tt-ink);
+    background: var(--tt-bg);
+    font-size: 16px;
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* ---------------------------------------------------------------------------
+   Mockup-only chrome.
+   --------------------------------------------------------------------------- */
+.mockup-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: #222;
+    color: #eee;
+    font-size: 12px;
+    padding: 8px 12px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+    border-bottom: 2px solid #000;
+}
+.mockup-bar strong { color: #ffd; margin-right: 4px; }
+.mockup-bar button {
+    background: #444; color: #eee; border: 1px solid #666;
+    padding: 4px 10px; border-radius: 4px; font: inherit; cursor: pointer;
+    font-size: 11px;
+}
+.mockup-bar button[aria-pressed="true"] { background: #6c4; color: #000; border-color: #4a3; font-weight: 600; }
+
+/* ---------------------------------------------------------------------------
+   Frame — fixed 360px so the mockup mirrors the mobile target.
+   --------------------------------------------------------------------------- */
+.frame {
+    max-width: 360px;
+    margin: 0 auto;
+    background: var(--tt-bg);
+    min-height: 100vh;
+}
+
+/* ---------------------------------------------------------------------------
+   Header — breadcrumbs + page title.
+   --------------------------------------------------------------------------- */
+.page-head {
+    padding: var(--gap-lg) var(--gap-lg) var(--gap);
+    background: var(--tt-paper);
+    border-bottom: 1px solid var(--tt-line);
+}
+.crumb {
+    font-size: 12px;
+    color: var(--tt-ink-soft);
+    margin: 0 0 6px;
+}
+.crumb a { color: var(--tt-accent); text-decoration: none; }
+.page-head__title {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1.2;
+}
+.page-head__sub {
+    margin: 4px 0 0;
+    font-size: 13px;
+    color: var(--tt-ink-soft);
+}
+
+/* ---------------------------------------------------------------------------
+   Filter row — Team + Type + (optional Status). Single row on mobile via
+   side-by-side small selects; the labels stack above each.
+   --------------------------------------------------------------------------- */
+.filters {
+    padding: var(--gap) var(--gap-lg);
+    background: var(--tt-paper);
+    border-bottom: 1px solid var(--tt-line);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--gap);
+}
+.filters__field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.filters__label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--tt-ink-soft);
+}
+.filters__select {
+    height: var(--tap-min);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--radius);
+    background: var(--tt-paper);
+    font: inherit;
+    font-size: 14px;
+    padding: 0 var(--gap);
+    color: var(--tt-ink);
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, var(--tt-ink-soft) 50%),
+                      linear-gradient(135deg, var(--tt-ink-soft) 50%, transparent 50%);
+    background-position: calc(100% - 16px) 50%, calc(100% - 11px) 50%;
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
+    padding-right: 30px;
+}
+
+/* ---------------------------------------------------------------------------
+   Primary CTA — "+ New activity".
+   --------------------------------------------------------------------------- */
+.cta-row {
+    padding: var(--gap) var(--gap-lg);
+    background: var(--tt-paper);
+    border-bottom: 1px solid var(--tt-line);
+}
+.cta-row .btn {
+    width: 100%;
+    min-height: 44px;
+    border: none;
+    background: var(--tt-accent);
+    color: white;
+    font-size: 14px;
+    font-weight: 700;
+    border-radius: var(--radius);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+/* ---------------------------------------------------------------------------
+   Bucket header — temporal label between groups of activity cards.
+   --------------------------------------------------------------------------- */
+.bucket-head {
+    padding: 14px var(--gap-lg) 6px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--tt-ink-soft);
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+}
+.bucket-head__count {
+    font-size: 11px;
+    color: var(--tt-ink-soft);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+}
+.bucket-head--attention {
+    color: var(--tt-warn);
+}
+
+/* ---------------------------------------------------------------------------
+   Activity card — one per row. Date column on the left, content on the right.
+   --------------------------------------------------------------------------- */
+.activity-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.activity {
+    background: var(--tt-paper);
+    border-top: 1px solid var(--tt-mute);
+    border-bottom: 1px solid var(--tt-mute);
+    padding: var(--gap) var(--gap-lg);
+    display: grid;
+    grid-template-columns: 44px 1fr auto;
+    gap: var(--gap);
+    align-items: center;
+    cursor: pointer;
+    margin-bottom: -1px; /* collapse the double border between adjacent cards */
+}
+.activity:active { background: var(--tt-mute); }
+.activity__date {
+    text-align: center;
+    background: var(--tt-mute);
+    border-radius: var(--radius);
+    padding: 6px 0;
+    line-height: 1;
+}
+.activity__date--today {
+    background: var(--tt-accent);
+    color: white;
+}
+.activity__date--past-overdue {
+    background: var(--tt-warn);
+    color: white;
+}
+.activity__date-d {
+    display: block;
+    font-size: 18px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    margin-top: 2px;
+}
+.activity__date-m {
+    display: block;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    font-weight: 600;
+    margin-bottom: 2px;
+    opacity: 0.85;
+}
+.activity__body { min-width: 0; }
+.activity__title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--tt-ink);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin: 0;
+}
+.activity__meta {
+    font-size: 12px;
+    color: var(--tt-ink-soft);
+    margin: 2px 0 0;
+}
+.activity__meta .pill {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-right: 4px;
+    vertical-align: middle;
+    background: var(--tt-mute);
+    color: var(--tt-ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+.activity__meta .pill[data-type="training"] { background: #e1eef5; color: #0d4a7a; }
+.activity__meta .pill[data-type="match"]    { background: #fde6e2; color: #8a2a26; }
+.activity__meta .pill[data-type="game"]     { background: #fde6e2; color: #8a2a26; }
+.activity__meta .pill[data-type="friendly"] { background: #fff3d9; color: #8a5e0a; }
+.activity__meta .pill[data-type="other"]    { background: var(--tt-mute); }
+.activity__meta .pill[data-status="cancelled"] { background: #ffe0e0; color: #8a2a26; }
+.activity__meta .pill[data-status="completed"] { background: #e0efe5; color: var(--tt-success); }
+.activity__chev {
+    color: var(--tt-line);
+    font-size: 18px;
+    font-weight: 700;
+}
+
+/* ---------------------------------------------------------------------------
+   Past — pinned to the TOP of the activity list. Persistent toggle button
+   sits above the "Needs attention" bucket; expanding it reveals the past
+   activities below the toggle, before the rest of the list. The toggle
+   itself stays visible in both states with its label switching between
+   "Show" and "Hide".
+   --------------------------------------------------------------------------- */
+.past-toggle {
+    width: 100%;
+    border: none;
+    background: var(--tt-paper);
+    border-top: 1px solid var(--tt-line);
+    border-bottom: 1px solid var(--tt-line);
+    padding: var(--gap) var(--gap-lg);
+    font: inherit;
+    font-size: 13px;
+    color: var(--tt-accent);
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    min-height: var(--tap-min);
+    touch-action: manipulation;
+}
+.past-toggle__count {
+    color: var(--tt-ink-soft);
+    font-weight: 400;
+    margin-right: 4px;
+}
+.past-toggle:active { background: var(--tt-mute); }
+.past-toggle__chev {
+    display: inline-block;
+    transition: transform 120ms;
+    margin-left: 4px;
+}
+body[data-past="expanded"] .past-toggle__chev { transform: rotate(180deg); }
+
+/* Label switching — show only the label that matches the current state. */
+body:not([data-past="expanded"]) .past-toggle__label--expand   { display: inline; }
+body:not([data-past="expanded"]) .past-toggle__label--collapse { display: none; }
+body[data-past="expanded"]       .past-toggle__label--expand   { display: none; }
+body[data-past="expanded"]       .past-toggle__label--collapse { display: inline; }
+
+/* ---------------------------------------------------------------------------
+   State-driven visibility — controlled by data-* on body.
+   --------------------------------------------------------------------------- */
+body:not([data-past="expanded"]) .past-list { display: none; }
+
+/* Type filter — hides activities whose type doesn't match.
+   The select's value drives a class on body: .filter-type-<key> */
+body[data-type="match"]    .activity:not([data-type="match"]):not([data-type="game"]):not([data-type="friendly"]) { display: none; }
+body[data-type="match"]    .bucket-head[data-bucket="training-only"] { display: none; }
+body[data-type="training"] .activity:not([data-type="training"]) { display: none; }
+body[data-type="training"] .bucket-head[data-bucket="match-only"] { display: none; }
+
+/* Empty-bucket demo — flips off the "this week" bucket entirely */
+body[data-demo="empty-week"] .bucket--this-week { display: none; }
+
+/* No-attention demo — coaches whose past activities all closed cleanly */
+body[data-demo="empty-week"] .bucket--attention { display: none; }
+
+/* Empty-state demo — show only the empty-state, hide everything else */
+.empty-state {
+    display: none;
+    padding: 48px var(--gap-lg);
+    text-align: center;
+    color: var(--tt-ink-soft);
+}
+.empty-state h3 { margin: 0 0 8px; color: var(--tt-ink); font-size: 18px; }
+.empty-state p  { margin: 0; font-size: 14px; }
+body[data-demo="empty"] .activity-list,
+body[data-demo="empty"] .past-toggle,
+body[data-demo="empty"] .bucket-head { display: none; }
+body[data-demo="empty"] .empty-state { display: block; }
+
+</style>
+</head>
+<body data-past="collapsed" data-type="all" data-demo="default">
+
+<!-- ============================================================
+     STATE PICKER — mockup-only chrome.
+     ============================================================ -->
+<div class="mockup-bar" role="region" aria-label="Mockup state picker">
+    <strong>Past:</strong>
+    <button type="button" data-set="past:collapsed" aria-pressed="true">Collapsed</button>
+    <button type="button" data-set="past:expanded">Expanded</button>
+    &nbsp;&nbsp;
+    <strong>Type:</strong>
+    <button type="button" data-set="type:all" aria-pressed="true">All</button>
+    <button type="button" data-set="type:training">Training</button>
+    <button type="button" data-set="type:match">Match</button>
+    &nbsp;&nbsp;
+    <strong>Demo:</strong>
+    <button type="button" data-set="demo:default" aria-pressed="true">Default</button>
+    <button type="button" data-set="demo:empty-week">Empty week</button>
+    <button type="button" data-set="demo:empty">No activities</button>
+</div>
+
+<div class="frame">
+
+    <!-- ============================================================
+         Header
+         ============================================================ -->
+    <header class="page-head">
+        <p class="crumb"><a href="#">Dashboard</a> &rsaquo; Activities</p>
+        <h1 class="page-head__title">Activities</h1>
+        <p class="page-head__sub">Trainings, matches, friendlies for your teams.</p>
+    </header>
+
+    <!-- ============================================================
+         Filters — Team + Type (new). Status omitted from v1 — the date
+         buckets + plan_state colour-coding already encode most of it.
+         ============================================================ -->
+    <section class="filters" aria-label="Filters">
+        <label class="filters__field">
+            <span class="filters__label">Team</span>
+            <select class="filters__select" name="team_id">
+                <option value="">— all teams —</option>
+                <option selected>Hedel JO13</option>
+                <option>Hedel JO11-1</option>
+                <option>Hedel JO15-1</option>
+            </select>
+        </label>
+        <label class="filters__field">
+            <span class="filters__label">Type</span>
+            <select class="filters__select" name="activity_type_key" data-mockup-type-driver>
+                <option value="all" selected>— all types —</option>
+                <option value="training">Training</option>
+                <option value="match">Match</option>
+                <option value="friendly">Friendly</option>
+                <option value="other">Other</option>
+            </select>
+        </label>
+    </section>
+
+    <!-- ============================================================
+         CTA
+         ============================================================ -->
+    <div class="cta-row">
+        <a href="#" class="btn">+ New activity</a>
+    </div>
+
+    <!-- ============================================================
+         Empty state — shown when demo=empty.
+         ============================================================ -->
+    <div class="empty-state">
+        <h3>No activities to show</h3>
+        <p>Try changing the team or type filter, or create a new activity to get started.</p>
+    </div>
+
+    <!-- ============================================================
+         Past — persistent toggle pinned to the top. Tap to expand;
+         the past activities render in their own block below the toggle.
+         The Needs attention / Today / This week / etc. groups follow.
+         ============================================================ -->
+    <button type="button" class="past-toggle" data-toggle-past>
+        <span class="past-toggle__count">23 past activities</span>
+        <span class="past-toggle__label--expand">hidden · Show</span>
+        <span class="past-toggle__label--collapse">shown · Hide</span>
+        <span class="past-toggle__chev">▼</span>
+    </button>
+
+    <ul class="activity-list past-list" aria-label="Past activities">
+        <li>
+            <div class="bucket-head">
+                <span>Past</span>
+                <span class="bucket-head__count">3 of 23 shown</span>
+            </div>
+        </li>
+        <li class="activity" data-type="training">
+            <div class="activity__date">
+                <span class="activity__date-m">May</span>
+                <span class="activity__date-d">26</span>
+            </div>
+            <div class="activity__body">
+                <p class="activity__title">Training — endurance circuit</p>
+                <p class="activity__meta">
+                    <span class="pill" data-type="training">Training</span>
+                    <span class="pill" data-status="completed">Completed</span>
+                    Hedel JO13
+                </p>
+            </div>
+            <span class="activity__chev">›</span>
+        </li>
+        <li class="activity" data-type="match">
+            <div class="activity__date">
+                <span class="activity__date-m">May</span>
+                <span class="activity__date-d">17</span>
+            </div>
+            <div class="activity__body">
+                <p class="activity__title">vs Tiel — away</p>
+                <p class="activity__meta">
+                    <span class="pill" data-type="match">Match</span>
+                    <span class="pill" data-status="completed">Completed</span>
+                    4-2 win
+                </p>
+            </div>
+            <span class="activity__chev">›</span>
+        </li>
+        <li class="activity" data-type="training">
+            <div class="activity__date">
+                <span class="activity__date-m">May</span>
+                <span class="activity__date-d">15</span>
+            </div>
+            <div class="activity__body">
+                <p class="activity__title">Training — cancelled (rain)</p>
+                <p class="activity__meta">
+                    <span class="pill" data-type="training">Training</span>
+                    <span class="pill" data-status="cancelled">Cancelled</span>
+                </p>
+            </div>
+            <span class="activity__chev">›</span>
+        </li>
+    </ul>
+
+    <!-- ============================================================
+         Activity list — bucketed by date (forward-looking + needs-attention).
+         ============================================================ -->
+    <ul class="activity-list">
+
+        <!-- BUCKET: Needs attention (past planned, not closed) -->
+        <li>
+            <div class="bucket-head bucket-head--attention bucket--attention">
+                <span>⚠ Needs attention</span>
+                <span class="bucket-head__count">2 past, still planned</span>
+            </div>
+        </li>
+        <li class="activity" data-type="training">
+            <div class="activity__date activity__date--past-overdue">
+                <span class="activity__date-m">May</span>
+                <span class="activity__date-d">22</span>
+            </div>
+            <div class="activity__body">
+                <p class="activity__title">Training — defenders focus</p>
+                <p class="activity__meta">
+                    <span class="pill" data-type="training">Training</span>
+                    Hedel JO13 · 18:00 · still planned
+                </p>
+            </div>
+            <span class="activity__chev">›</span>
+        </li>
+        <li class="activity" data-type="match">
+            <div class="activity__date activity__date--past-overdue">
+                <span class="activity__date-m">May</span>
+                <span class="activity__date-d">24</span>
+            </div>
+            <div class="activity__body">
+                <p class="activity__title">vs Brakel — competition</p>
+                <p class="activity__meta">
+                    <span class="pill" data-type="match">Match</span>
+                    Hedel JO13 · 14:00 · still planned
+                </p>
+            </div>
+            <span class="activity__chev">›</span>
+        </li>
+
+        <!-- BUCKET: Today -->
+        <li>
+            <div class="bucket-head">
+                <span>Today · Wed 28 May</span>
+                <span class="bucket-head__count">1 activity</span>
+            </div>
+        </li>
+        <li class="activity" data-type="training">
+            <div class="activity__date activity__date--today">
+                <span class="activity__date-m">May</span>
+                <span class="activity__date-d">28</span>
+            </div>
+            <div class="activity__body">
+                <p class="activity__title">Training — set pieces</p>
+                <p class="activity__meta">
+                    <span class="pill" data-type="training">Training</span>
+                    Hedel JO13 · 18:30 · Sportpark Oost
+                </p>
+            </div>
+            <span class="activity__chev">›</span>
+        </li>
+
+        <!-- BUCKET: This week (Thu-Sun) -->
+        <li>
+            <div class="bucket-head bucket--this-week">
+                <span>This week</span>
+                <span class="bucket-head__count">2 activities</span>
+            </div>
+        </li>
+        <li class="activity bucket--this-week" data-type="training">
+            <div class="activity__date">
+                <span class="activity__date-m">May</span>
+                <span class="activity__date-d">30</span>
+            </div>
+            <div class="activity__body">
+                <p class="activity__title">Training — passing rondos</p>
+                <p class="activity__meta">
+                    <span class="pill" data-type="training">Training</span>
+                    Hedel JO13 · 18:30
+                </p>
+            </div>
+            <span class="activity__chev">›</span>
+        </li>
+        <li class="activity bucket--this-week" data-type="match">
+            <div class="activity__date">
+                <span class="activity__date-m">May</span>
+                <span class="activity__date-d">31</span>
+            </div>
+            <div class="activity__body">
+                <p class="activity__title">vs Den Helder — home</p>
+                <p class="activity__meta">
+                    <span class="pill" data-type="match">Match</span>
+                    Hedel JO13 · 14:00 · Home
+                </p>
+            </div>
+            <span class="activity__chev">›</span>
+        </li>
+
+        <!-- BUCKET: Next week -->
+        <li>
+            <div class="bucket-head">
+                <span>Next week</span>
+                <span class="bucket-head__count">3 activities</span>
+            </div>
+        </li>
+        <li class="activity" data-type="training">
+            <div class="activity__date">
+                <span class="activity__date-m">Jun</span>
+                <span class="activity__date-d">03</span>
+            </div>
+            <div class="activity__body">
+                <p class="activity__title">Training — finishing</p>
+                <p class="activity__meta">
+                    <span class="pill" data-type="training">Training</span>
+                    Hedel JO13 · 18:30
+                </p>
+            </div>
+            <span class="activity__chev">›</span>
+        </li>
+        <li class="activity" data-type="training">
+            <div class="activity__date">
+                <span class="activity__date-m">Jun</span>
+                <span class="activity__date-d">05</span>
+            </div>
+            <div class="activity__body">
+                <p class="activity__title">Training — pressing</p>
+                <p class="activity__meta">
+                    <span class="pill" data-type="training">Training</span>
+                    Hedel JO13 · 18:30
+                </p>
+            </div>
+            <span class="activity__chev">›</span>
+        </li>
+        <li class="activity" data-type="match">
+            <div class="activity__date">
+                <span class="activity__date-m">Jun</span>
+                <span class="activity__date-d">07</span>
+            </div>
+            <div class="activity__body">
+                <p class="activity__title">vs Velsen — away</p>
+                <p class="activity__meta">
+                    <span class="pill" data-type="match">Match</span>
+                    Hedel JO13 · 11:00 · Away
+                </p>
+            </div>
+            <span class="activity__chev">›</span>
+        </li>
+
+        <!-- BUCKET: This month (rest of) -->
+        <li>
+            <div class="bucket-head">
+                <span>Later this month</span>
+                <span class="bucket-head__count">2 activities</span>
+            </div>
+        </li>
+        <li class="activity" data-type="friendly">
+            <div class="activity__date">
+                <span class="activity__date-m">Jun</span>
+                <span class="activity__date-d">15</span>
+            </div>
+            <div class="activity__body">
+                <p class="activity__title">Pre-tournament friendly vs Buren</p>
+                <p class="activity__meta">
+                    <span class="pill" data-type="friendly">Friendly</span>
+                    Hedel JO13 · 13:00
+                </p>
+            </div>
+            <span class="activity__chev">›</span>
+        </li>
+        <li class="activity" data-type="match">
+            <div class="activity__date">
+                <span class="activity__date-m">Jun</span>
+                <span class="activity__date-d">21</span>
+            </div>
+            <div class="activity__body">
+                <p class="activity__title">Den Helder tournament — group stage</p>
+                <p class="activity__meta">
+                    <span class="pill" data-type="match">Match</span>
+                    Hedel JO13 · 09:00
+                </p>
+            </div>
+            <span class="activity__chev">›</span>
+        </li>
+
+        <!-- BUCKET: Later -->
+        <li>
+            <div class="bucket-head">
+                <span>Later</span>
+                <span class="bucket-head__count">1 activity</span>
+            </div>
+        </li>
+        <li class="activity" data-type="other">
+            <div class="activity__date">
+                <span class="activity__date-m">Jul</span>
+                <span class="activity__date-d">05</span>
+            </div>
+            <div class="activity__body">
+                <p class="activity__title">End-of-season team day</p>
+                <p class="activity__meta">
+                    <span class="pill" data-type="other">Other</span>
+                    Hedel JO13 · 10:00
+                </p>
+            </div>
+            <span class="activity__chev">›</span>
+        </li>
+
+    </ul>
+
+</div>
+
+<script>
+// State picker — flips data-* attributes on body and aria-pressed on the
+// matching pair of buttons.
+document.querySelectorAll('[data-set]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        var parts = btn.getAttribute('data-set').split(':');
+        var key = parts[0], val = parts[1];
+        document.body.setAttribute('data-' + key, val);
+
+        // Toggle aria-pressed within this dimension.
+        document.querySelectorAll('[data-set^="' + key + ':"]').forEach(function (b) {
+            b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
+        });
+    });
+});
+
+// "Show" button — toggles the past expansion.
+document.querySelector('[data-toggle-past]').addEventListener('click', function () {
+    document.body.setAttribute('data-past',
+        document.body.getAttribute('data-past') === 'expanded' ? 'collapsed' : 'expanded'
+    );
+    // Sync the picker button states too.
+    document.querySelectorAll('[data-set^="past:"]').forEach(function (b) {
+        var v = b.getAttribute('data-set').split(':')[1];
+        b.setAttribute('aria-pressed', v === document.body.getAttribute('data-past') ? 'true' : 'false');
+    });
+});
+
+// Bind the in-page Type select to the same body[data-type] driver
+// the picker uses, so the real filter and the picker stay in sync.
+var typeSel = document.querySelector('[data-mockup-type-driver]');
+typeSel.addEventListener('change', function () {
+    document.body.setAttribute('data-type', typeSel.value);
+    document.querySelectorAll('[data-set^="type:"]').forEach(function (b) {
+        var v = b.getAttribute('data-set').split(':')[1];
+        b.setAttribute('aria-pressed', v === typeSel.value ? 'true' : 'false');
+    });
+});
+
+// And the reverse — picker change should update the select.
+document.querySelectorAll('[data-set^="type:"]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        var v = btn.getAttribute('data-set').split(':')[1];
+        typeSel.value = v;
+    });
+});
+</script>
+</body>
+</html>
