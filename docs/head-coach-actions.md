@@ -661,6 +661,63 @@ Ships that affect the head-coach's daily flow but aren't tied to a
 single numbered action. Same `**vX.Y.Z** — what changed. *How to
 test:* …` format.
 
+- **v4.8.0** — player profile redesign (closes #977). The
+  `?tt_view=players&id=N` surface is rebuilt as a port of
+  `.local-mockups/player-profile/index.html`. Paper-background hero
+  with a status-coloured avatar ring (green / gold / red / grey for
+  active / trial / released / inactive) and jersey badge tucked into
+  the avatar's bottom-right corner. Action row collapses Log
+  behaviour (primary) · Set potential · Edit · `⋯` overflow
+  (Archive + conditional Assign-to-team); cap-gating identical to
+  v4.7.x. New 3-up **Key facts** strip surfaces DOB / Foot / Joined
+  above the tabs so coaches stop having to open Profile for basic
+  identity. New 3-up **At a glance** KPI strip replaces the loose
+  latest-record chips with Avg rating (trend arrow), Attendance %
+  (last 30 d), and active Goals count (with `N due soon` hint
+  when applicable) — each card taps through to the relevant tab.
+  Tabs become pill chips with count badges via `PlayerFileCounts`.
+  Profile tab keeps Identity + Academy and adds Parents · Guardians
+  + Discovery cards. Listing tabs (Goals / Evals / Activities /
+  PDP / Trials / Notes) get a unified card-row pattern; PDP tab
+  additionally renders a 4-step progress bar on the active cycle.
+  Desktop (≥1024px) splits into a 320px left rail (Key facts +
+  At a glance) and a right column (tabs + active pane). Backend
+  untouched — same data, same caps, same URL.
+  *How to test:*
+  1. Open `?tt_view=players&id=N` for any player. Hero shows the
+     avatar with a coloured ring matching the player's status
+     (green for Active). Jersey badge sits in the avatar's
+     bottom-right when the player has a jersey number.
+  2. Action row shows **+ Log behaviour** (primary), **Set
+     potential**, **Edit**, **⋯**. Tap **⋯** — Archive (red) and
+     (if no team) Assign to team appear in the popover.
+  3. Key facts strip below the actions reads **DOB · Foot ·
+     Joined** with hint lines (age, alternate position, years in
+     academy). At-a-glance strip shows three KPI cards — tap any
+     and the page jumps to the matching tab.
+  4. Tabs render as pill chips. Each non-Profile tab carries its
+     count badge when > 0. Mobile (360px) horizontally scrolls;
+     tablet (768px) wraps to a single row.
+  5. Profile tab shows four cards: Identity, Academy, Parents ·
+     Guardians (with phone / email contacts), Discovery (with
+     scout + event). At ≥720px the cards arrange in a 2-up grid.
+  6. Goals tab: each row is a card with a date badge (red for due
+     in 7 days). Evaluations tab: rating chip on the right
+     (green ≥75% of scale, blue mid, orange <50%). Activities
+     tab: today's row painted accent blue, planned rows show a
+     neutral Planned pill.
+  7. PDP tab: active-cycle card shows a 4-step progress bar
+     (kickoff → mid-cycle → end-of-cycle → signoff). Past cycles
+     list in a separate card.
+  8. At ≥1024px the layout becomes two columns: 320px left rail
+     pins Key facts + At a glance vertically; right column holds
+     tabs + active pane. Scrolling the right pane doesn't move
+     the rail (independent row heights).
+  9. As a Parent / Scout cap profile: the **+ Log behaviour** and
+     **Set potential** buttons disappear (Parent and Scout); the
+     **Edit** button disappears (Scout). Notes tab disappears for
+     anyone without `tt_view_player_notes`.
+
 - **v3.110.108** — head-coach dashboard polish round 1 — six
   pilot-surfaced issues fixed in one ship.
   **(1) Persona label.** `PersonaResolver::resolveCoachPersona()`

@@ -1,116 +1,111 @@
-# TalentTrack v4.7.1 — Surface "Evaluation Categories" tile on the frontend Configuration → Lookups grid (closes #982)
+# TalentTrack v4.8.0 — Player profile redesign (closes #977)
 
-## Friction this fixes
-
-Admins navigating to `?tt_view=configuration` to edit evaluation subcategories couldn't find a tile for them. The Lookups grid only enumerates `tt_lookups`-backed vocabularies, but evaluation categories (and their child subcategories) live in `tt_eval_categories` — a hierarchical table with a `parent_id` chain (`parent_id IS NULL` → main category; `parent_id = N` → subcategory). The dedicated tree editor at `?tt_view=eval-categories` (`FrontendEvalCategoriesView`) is the right tool; it just had no entry point from where operators actually look.
-
-The wp-admin Configuration page (`src/Modules/Configuration/Admin/ConfigurationPage.php:269-271`) already carries an "Evaluation Categories" tile in the "Lookups & vocabularies" group linking to the wp-admin tree editor. The frontend Configuration grid was missing the parallel tile.
-
-## Architecture call: navigation, not data-model rework
-
-Evaluation subcategories are a tree, not a flat list. They can't be migrated into `tt_lookups` without losing the parent/child semantics that the radar chart, evaluation templates, and category weights all depend on. The fix is purely additive at the navigation layer — surface the existing editor from where operators look for it.
-
-## The fix (single-file edit)
-
-`src/Shared/Frontend/FrontendConfigurationView.php` — one new entry appended to the `renderLookupsIndex()` `$cards` array, plus one new `elseif` branch in the surrounding `foreach` loop. The slug `__eval_categories` mirrors the existing `__rating` pattern (rating scale also lives outside `tt_lookups` — it's in `tt_config`), so the tile sits in the lookups grid alongside its siblings but click-throughs to the standalone tree editor at `?tt_view=eval-categories` instead of the per-category `tt_lookups` CRUD surface.
-
-```php
-[ __( 'Evaluation Categories', 'talenttrack' ),
-  __( 'Hierarchy of evaluation categories (Technical, Tactical, …).', 'talenttrack' ),
-  '__eval_categories', 'evaluations' ],
-```
-
-URL branch:
-
-```php
-} elseif ( $slug === '__eval_categories' ) {
-    $url = add_query_arg( [ 'tt_view' => 'eval-categories' ], home_url( '/' ) );
-}
-```
-
-## Label / description / icon choices
-
-- **Label**: "Evaluation Categories" — verbatim copy of the wp-admin tile (`ConfigurationPage.php:269`). Same vocabulary on both surfaces. Existing translation in `talenttrack-nl_NL.po` ("Evaluatie-categorieën").
-- **Description**: "Hierarchy of evaluation categories (Technical, Tactical, …)." — verbatim copy of the wp-admin tile (`ConfigurationPage.php:270`). Existing translation in `talenttrack-nl_NL.po`. **No new msgids introduced** — duplicate-msgid CI gate passes.
-- **Icon**: `evaluations` SVG (existing in `IconRenderer`). Matches the icon used by the "Evaluation types" tile two rows above so the visual grouping reads as expected.
-
-## What's untouched
-
-- No schema change. `tt_eval_categories` continues to back the editor unchanged.
-- No REST contract change. The existing `?tt_view=eval-categories` route is the same one wp-admin links to; it carries its own capability gate.
-- No new view, no new form, no new wizard. The fix is one tile + one URL branch.
-- The other 30+ tiles on the Lookups grid are unchanged.
-
-## Capability gate
-
-The Configuration view requires `tt_access_frontend_admin` for the surrounding page (`FrontendConfigurationView::render()` line 28); the eval-categories tree editor enforces its own gate when reached. Operators without permission see neither surface.
-
-## Version: 4.7.1
-
-Patch bump. Single-file discoverability fix within the 4.7 minor — no operator-breaking change, no new feature, no new vocabulary, no new translations required.
-
----
-
-# TalentTrack v4.7.0 — Activities list date-bucket redesign (closes #973)
-
-Rewrites the `?tt_view=activities` list surface end-to-end as a faithful port of the design-of-record mockup committed to `.local-mockups/activity-list/`. Backend is untouched — the same `tt_activities` rows, the same `tt_view_activities` capability gate, the same entry-point URL — but the visual contract goes from a generic `FrontendListTable` with two filters to a date-bucketed card list with a Type filter and a persistent past-toggle.
+Rewrites the `?tt_view=players&id=N` surface end-to-end as a faithful port of the design-of-record mockup committed to `.local-mockups/player-profile/`. Backend is untouched — the same `tt_players` row, the same `tt_view_players` capability gate, the same `PlayerFileCounts::for()` badge counts — but the visual contract goes from a single-column hero-plus-tabs page to a responsive surface that surfaces basic identity and a 3-up KPI strip above the tabs, and re-skins every listing tab as a card-row list.
 
 ## Friction the redesign addresses
 
-| # | Friction in v4.6.x baseline | Redesign response |
+| # | Friction in v4.7.x baseline | Redesign response |
 |---|---|---|
-| 1 | Flat list scrolls past months of training; coaches scan dates to find "what's tomorrow" | Date buckets make temporal context instant. |
-| 2 | No type filter — coaches looking for the next match scroll past trainings | Type picker in the filter row, lookup-backed via `QueryHelpers::get_lookups('activity_type')`. |
-| 3 | Cancelled / completed past activities create scroll noise | Past pinned to top, collapsed by default, one-tap reveal. |
-| 4 | Past PLANNED (never marked completed/cancelled) is a TODO signal that gets buried | "Needs attention" pseudo-bucket above Today; date badges painted `--tt-warn`. |
+| 1 | "I can't find X" — basic identity (DOB, foot, jersey) was buried inside the Profile tab | **Key facts strip** above the fold (DOB / Foot / Joined). |
+| 2 | Loose "latest activity / eval / goal" chips didn't convey trend or context | **At-a-glance KPI strip** (avg rating with trend arrow, attendance %, active goals). Each KPI taps through to its tab. |
+| 3 | Parent contacts + scout discovery data existed but weren't surfaced on this page | **Parents · Guardians** and **Discovery** cards on the Profile tab, both cap-gated and empty-state-friendly. |
+| 4 | Tab content density was inconsistent across the 6 listing tabs | **Card-row pattern** unified across Goals / Evals / Activities / PDP / Trials / Notes. |
+| 5 | HoD reviewing a player on desktop kept scrolling back to the hero for context | **Two-column desktop layout** (≥1024px): 320px left rail pins Key facts + At-a-glance; right column scrolls tabs + active pane. |
 
-## Layout
+## Hero
 
-- **Filter row** — Team picker beside the new Type picker, side-by-side 2-column grid at every viewport (the mockup keeps both on one row at 360px too). Both honour the existing `tt-input` 48px floor; the Type select is built from `tt_lookups` so renamed / added activity types appear without code changes.
-- **Past toggle** — single button pinned above the bucket list. Label switches `N past activities hidden · Show ▼` ⇄ `N past activities shown · Hide ▼`. URL state `?include_past=1` persists across refresh / shared links. Chevron rotates 180° via CSS transform when expanded.
-- **Buckets, top→bottom** (empty buckets collapse to nothing):
-  - ⚠ **Needs attention** — `session_date < today AND plan_state = 'planned'`. Header rendered in `--tt-warn`; each row's 44px date badge painted the same orange.
-  - **Today** — `session_date = today`. Header carries day-of-week + date (e.g. "Today · Wed 28 May"); badge in `--tt-accent` blue.
-  - **This week** — `today < session_date <= upcoming Sunday`.
-  - **Next week** — next Mon → next Sun.
-  - **Later this month** — beyond next week, up to end-of-month.
-  - **Later** — beyond end-of-month.
-- **Activity cards** — `grid-template-columns: 44px 1fr auto`: date badge | title + meta line (type pill, optional status pill, team + time) | chevron. The whole card is a link to the activity detail page.
+- Paper background, soft bottom shadow for lift (no more blue gradient strip).
+- Avatar carries the status signal via a 4px coloured ring — green for `active`, gold for `trial`, red for `released`, neutral for `inactive`. Jersey number renders as a small badge tucked into the avatar's bottom-right corner with a paper-coloured outline.
+- Name + team link + status pill (with journey "X yrs in academy" inline) + first position pill.
 
-## Bucket math
+## Action row
 
-"Today" comes from `current_time('Y-m-d', true)` so the GMT-stored value is converted via `wp_timezone()`. Week bucket boundaries are computed in PHP with `DateTimeImmutable` anchored to `wp_timezone()`: end-of-this-week = the upcoming Sunday (`'this week'`'s definition in PHP starts on Monday by ISO-8601), next-week range = `(end-of-this-week + 1 day)` through `(end-of-this-week + 7 days)`, end-of-this-month from `'last day of this month'`. Buckets sort their rows by `session_date ASC` so the next-upcoming row sits at the top of each.
+`+ Log behaviour` (primary, ink-on-white inverted as the only filled button) · `Set potential` · `Edit` · `⋯` overflow holding Archive and conditional `Assign to team` (when the player has no `team_id`). Cap-gating unchanged from v4.7.x: `tt_rate_player_behaviour` for Log behaviour, `tt_set_player_potential` for Set potential, `tt_edit_players` for Edit + the overflow items.
 
-## Type / status pills
+## Key facts strip
 
-Colour-coded per the mockup:
+Three cards (`DOB / Foot / Joined`) each with a small hint line (age, alt position, years-in-academy). 3-up grid on mobile + tablet; reflows to a vertical 1-up stack on desktop where the strip moves into the left rail.
 
-| Type/status | Background | Text |
-|---|---|---|
-| Training | `#e1eef5` | `#0d4a7a` |
-| Match / Game | `#fde6e2` | `#8a2a26` |
-| Friendly | `#fff3d9` | `#8a5e0a` |
-| Other | `--tt-mute` | `--tt-ink-soft` |
-| Status: Completed | `#e0efe5` | `--tt-success` |
-| Status: Cancelled | `#ffe0e0` | `#8a2a26` |
+## At-a-glance KPI strip
 
-Future-bucket rows show only the type pill — the bucket position already conveys "planned". Past-bucket rows additionally carry a Completed / Cancelled status pill.
+Three KPI cards, each a `<a>` jumping to the relevant tab:
 
-## What's untouched
+- **Avg rating** — mean of `tt_evaluations.rating` (archived excluded); trend arrow compares the most recent rating against the rolling mean (`▲ 0.3` / `▼ 0.4`); scale (`/10`) sourced from the `rating_max` config.
+- **Attendance** — present rows / total completed-activity attendance rows in the last 30 days, expressed as `%`. Empty when the player has no completed activity history.
+- **Goals** — count of non-archived, non-completed, non-cancelled goals. Optional hint `N due soon` (`tt-player-kpi__trend--down`) when any have a due date within the next 7 days.
 
-- **Schema** — `tt_activities` is unchanged. No migration.
-- **REST** — `/talenttrack/v1/activities` and `/activities/{id}` keep the same shape; this view does NOT consume them. The view now reads `tt_activities` directly via a dedicated server-side query that mirrors `ActivitiesRestController::list_sessions`'s WHERE / scope rules (club_id, demo scope, head-coach team scope, archived filter, team filter). The REST endpoint remains the contract for non-WordPress consumers per CLAUDE.md §4.
-- **Capability gate** — `tt_view_activities` continues to gate the surface. Cross-entity links from the dashboard widget, team detail, and the activity detail page keep their existing URLs (`?tt_view=activities`, `?tt_view=activities&id=N`).
-- **Other modes of the view** — `?action=new`, `?action=edit`, and the read-only detail (`?id=N` without `action`) render the same forms / detail pages as before. Only the default list mode is rewritten.
+Each card honours the 48px tap-target floor.
 
-## Files touched
+## Tabs
 
-- `src/Shared/Frontend/FrontendActivitiesManageView.php` — `renderList()` rewritten; new `bucketize()`, `renderBucket()`, `renderActivityCard()`, `renderPastToggle()`, `loadActivitiesForList()`, `typeKeyForPill()` helpers; the existing `render()`, `renderDetail()`, `renderForm()`, and attendance / guest helpers are untouched.
-- `assets/css/frontend-activities-manage.css` — mockup tokens + selectors added (`.tt-act-list`, `.tt-act-filters`, `.tt-act-past-toggle`, `.tt-act-bucket-head`, `.tt-act-card`, `.tt-act-date`, `.tt-act-meta`, etc.). The legacy attendance-table rules (still used by the edit form) are preserved at the bottom of the file.
-- `talenttrack.php` Version + `TT_VERSION` + `readme.txt` Stable tag: `4.6.0` → `4.7.0`.
-- `docs/activities.md` + `docs/nl_NL/activities.md` updated for the new list shape.
-- `languages/talenttrack.pot` + `languages/talenttrack-nl_NL.po` updated for the new strings (no duplicate msgids).
+Pill chips replacing the underlined nav. Each tab carries a count badge (via `PlayerFileCounts::for()`) when the count is > 0. Mobile horizontally scrolls (`scrollbar-width: none`); tablet+ wraps to a single visible row. Notes tab disappears entirely for users without `tt_view_player_notes` — the visibility logic is unchanged from v4.7.x.
 
-## Why minor
+## Profile tab
 
-New feature epic. Surface behaviour visible to every coach changes (new filter, new bucket grouping, new past-pinned toggle), but no operator-breaking removal: the URL, the cap, the data model are unchanged.
+Identity + Academy cards are preserved (same fields, now in card-with-`kv-row` chrome instead of the legacy `<table>`). Two new cards land:
+
+- **Parents · Guardians** — walks `tt_player_parents` (idempotent table-exists guard), resolves each `parent_user_id` via `get_userdata()`, surfaces name + primary-flag + phone (`user_meta.phone` fallback) + email (`mailto:`). Empty state when no parent is linked.
+- **Discovery** — finds the `tt_prospects` row promoted to this player (table-exists guard), surfaces `discovered_by_user_id` (display name) + the event / club / date. Empty state when no discovery record exists.
+
+The inline "Assign to team" form still renders below the cards when the player has no team and the viewer has `tt_edit_players`. The action row's overflow `Assign to team` jumps to it via `#tt-player-assign-team`.
+
+## Listing tabs (Goals / Evaluations / Activities / PDP / Trials / Notes)
+
+Each list row is now a 56px-tall card-shaped block: `grid-template-columns: 44px 1fr auto` — date badge | title + meta line | chevron or right-side chip.
+
+- **Goals** — date badge in `Due / dM` shape, painted `--tt-warn`-tinted when due within 7 days. Meta line carries priority + status pills. Sort by upcoming due date (NULLs at the end), then created_at desc.
+- **Evaluations** — date badge in `Mon / d` shape. Right-side colour-coded rating chip (accent blue default, green for ≥75% of scale, warn-orange for <50%). Type label comes from the `evaluation_type` lookup.
+- **Activities** — date badge tinted `--tt-accent` for today. Right-side attendance pill (Present / Absent / Late / Planned). Same scope as v4.7.x: completed + past-dated, or planned/scheduled rows. Planned rows render the neutral "Planned" pill instead of the wizard's default-Present pre-fill.
+- **PDP** — active cycle as a card with a 4-step progress bar (kickoff → mid-cycle → end-of-cycle → signoff); past cycles as a separate card with the card-row list.
+- **Trials** — card-row list with the trial status as the row title; meta line carries the start → end date range. Empty state is unchanged: contextual based on whether the player is currently on trial.
+- **Notes** — staff-only, threaded items render via the existing Threads module, now wrapped in the new card chrome. Cap + scope behaviour unchanged.
+
+## Responsive shape
+
+Verified at three breakpoints:
+
+| Viewport | Layout |
+|---|---|
+| Mobile (≤719px) | 360px column. Vertical stack: crumbs → back-pill → hero → actions → key facts (3-up) → at-a-glance (3-up) → tabs (sticky, h-scroll) → tab content. Profile cards stacked. |
+| Tablet (720-1023px) | 720px max. Tabs flow to a single row. Hero gains breathing room (96px avatar). Profile cards 2-up. |
+| Desktop (≥1024px) | 1024px max-width, 2-column grid: 320px left rail (key facts vertical + at-a-glance vertical) + flex right column (tabs + active pane). Hero + actions span both. |
+
+The `.tt-player-detail__rail` and `.tt-player-detail__main` wrappers use `display: contents` below 1024px so they're invisible to layout; on desktop they become real flex columns with independent row heights — a tall left rail can't push the right pane down.
+
+## Mobile-first per CLAUDE.md §2
+
+Base CSS targets the 360px viewport; `min-width` queries scale up. Every interactive target is ≥ 48px tall. No hover-only paths — the avatar status colour reads at-rest, the action overflow opens on tap/keyboard. Semantic HTML (`<nav>`, `<button>`, `<a>`, `<header>`). The action row uses `touch-action: manipulation` to kill the 300ms tap delay on Android.
+
+## Files
+
+- `src/Shared/Frontend/FrontendPlayerDetailView.php` — `render()` + per-tab helpers rewritten to emit the mockup's HTML structure. Same entry point, same caps, same data fetch.
+- `assets/css/frontend-player-detail.css` — replaced with mockup tokens + selectors. Mobile-first base, breakpoints at 720px and 1024px.
+- `PlayerFileCounts::for()` — unchanged this ship; `notes` key was already present from v3.110.187's removal of the Analytics tab.
+
+## What is preserved
+
+All 7 tabs (Profile / Goals / Evaluations / Activities / PDP / Trials / Notes). Tab badges. Notes cap-gating (`tt_view_player_notes`). All Profile-tab fields. Hero quick-record popovers for behaviour + potential (cap-gated). Inline "Assign to team" form when the player has no team. "View status history" link from #870. The status-pill colour vocabulary. The same `?tt_view=players&id=N` entry URL.
+
+## What is NOT re-added
+
+- Analytics tab — removed v3.110.187 by pilot ask; stays removed (operators reach the dimension explorer via `?tt_view=explore`).
+- Inline row-level archive/delete on Evaluations — removed v3.110.148; destructive actions only on the detail surface.
+
+## Out of scope
+
+- Threads / Notes component redesign (the surface stays; only its card chrome changed — internal rendering is preserved).
+- Photo upload UX (mockup uses initials avatar; photo upload affordance can land later without rework).
+- Bulk-action affordances across players (this is the per-player view).
+- Compare-with-another-player surface (`?tt_view=compare` is its own surface).
+- Backend / repository / schema / REST changes.
+- Right-rail sidebar at very wide viewports (≥1280px) — design centers in 1024px; revisit if pilot asks for more horizontal density.
+
+## Definition of done
+
+- Renders at 360px without horizontal scroll.
+- All interactive targets ≥ 48px and spaced ≥ 8px apart.
+- Inputs (action overflow trigger) keyboard-navigable; `aria-expanded` toggles on Enter/Space.
+- Cap profiles (Coach / HoD / Parent / Scout) gate the action row + Notes tab + cards identically to v4.7.x.
+- `docs/players.md` + `docs/nl_NL/players.md` updated.
+- `languages/talenttrack.pot` + `languages/talenttrack-nl_NL.po` updated for new strings (no duplicate msgids).
+- Minor bump because the player profile is the primary working surface for every persona using TalentTrack — the change is visible to every coach, HoD, parent, and scout on first load after upgrade.
