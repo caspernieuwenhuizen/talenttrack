@@ -1,0 +1,1236 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>New tournament wizard — mockup</title>
+<style>
+:root {
+    --tt-ink:        #1a1d21;
+    --tt-ink-soft:   #5b6e75;
+    --tt-paper:      #ffffff;
+    --tt-bg:         #f5f7f6;
+    --tt-line:       #d6dadd;
+    --tt-line-soft:  #e9ecef;
+    --tt-accent:     #2271b1;
+    --tt-accent-15:  rgba(34, 113, 177, 0.15);
+    --tt-success:    #2e7d4f;
+    --tt-warn:       #c75c1f;
+    --tt-danger:     #d63638;
+    --tt-mute:       #f0f3f2;
+    --radius:        10px;
+    --radius-sm:     6px;
+    --tap-min:       44px;
+    --font:          'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+    font-family: var(--font);
+    color: var(--tt-ink);
+    background: var(--tt-bg);
+    font-size: 15px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ---------------------------------------------------------------------------
+   Mockup-only chrome — strip when porting.
+   --------------------------------------------------------------------------- */
+.mockup-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: #222;
+    color: #eee;
+    font-size: 12px;
+    padding: 8px 16px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+    border-bottom: 2px solid #000;
+}
+.mockup-bar strong { color: #ffd; margin-right: 4px; }
+.mockup-bar button {
+    background: #444; color: #eee; border: 1px solid #666;
+    padding: 4px 10px; border-radius: 4px; font: inherit;
+    cursor: pointer; font-size: 11px;
+}
+.mockup-bar button[aria-pressed="true"] { background: #6c4; color: #000; border-color: #4a3; font-weight: 600; }
+.mockup-bar .group { display: inline-flex; gap: 4px; margin-right: 10px; }
+
+/* ---------------------------------------------------------------------------
+   Frame
+   --------------------------------------------------------------------------- */
+.frame {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 24px 24px 64px;
+}
+
+/* Breadcrumb */
+.crumbs { font-size: 13px; color: var(--tt-ink-soft); margin: 0 0 6px; }
+.crumbs a { color: var(--tt-accent); text-decoration: none; }
+.crumbs a:hover { text-decoration: underline; }
+
+h1.title {
+    font-size: 22px;
+    font-weight: 700;
+    margin: 0 0 18px;
+}
+
+/* ---------------------------------------------------------------------------
+   Progress strip — 5 dots, condensed
+   --------------------------------------------------------------------------- */
+.progress {
+    list-style: none;
+    margin: 0 0 24px;
+    padding: 14px 16px;
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--radius);
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+}
+.progress li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    color: var(--tt-ink-soft);
+    background: var(--tt-mute);
+    font-weight: 500;
+    transition: background-color 120ms ease, color 120ms ease;
+}
+.progress li .num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.7);
+    font-weight: 700;
+    font-size: 12px;
+    flex: 0 0 22px;
+}
+.progress li.is-current {
+    background: var(--tt-accent);
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 0 0 2px var(--tt-accent-15);
+}
+.progress li.is-current .num { background: rgba(255,255,255,0.95); color: var(--tt-accent); }
+.progress li.is-done {
+    background: var(--tt-success);
+    color: white;
+}
+.progress li.is-done .num::before { content: '✓'; }
+.progress li.is-done .num { background: rgba(255,255,255,0.95); color: var(--tt-success); font-size: 14px; }
+.progress li.is-done .num span { display: none; }
+
+/* ---------------------------------------------------------------------------
+   Step container
+   --------------------------------------------------------------------------- */
+.step { display: none; }
+body[data-step="basics"]    .step--basics    { display: block; }
+body[data-step="formation"] .step--formation { display: block; }
+body[data-step="squad"]     .step--squad     { display: block; }
+body[data-step="matches"]   .step--matches   { display: block; }
+body[data-step="review"]    .step--review    { display: block; }
+body[data-step="add-match"] .step--add-match { display: block; }
+/* When showing the Add-match standalone surface, hide the wizard chrome */
+body[data-step="add-match"] .progress, body[data-step="add-match"] h1.title { display: none; }
+
+.step h2.step-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0 0 6px;
+}
+.step p.step-desc {
+    margin: 0 0 18px;
+    color: var(--tt-ink-soft);
+    font-size: 14px;
+}
+
+/* Card */
+.card {
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--radius);
+    padding: 22px;
+    margin-bottom: 16px;
+}
+.card-title {
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--tt-ink-soft);
+    margin: 0 0 12px;
+}
+
+/* Field grid */
+.field-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 18px;
+}
+.field-grid .field--full { grid-column: 1 / -1; }
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+.field label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--tt-ink);
+}
+.field label .req { color: var(--tt-danger); font-weight: 700; margin-left: 2px; }
+.field .hint { font-size: 12px; color: var(--tt-ink-soft); }
+.field input[type="text"],
+.field input[type="date"],
+.field input[type="number"],
+.field select {
+    font: inherit;
+    font-size: 14px;
+    padding: 10px 12px;
+    border: 1px solid var(--tt-line);
+    border-radius: var(--radius-sm);
+    background: var(--tt-paper);
+    color: var(--tt-ink);
+    min-height: var(--tap-min);
+    width: 100%;
+}
+.field input:focus,
+.field select:focus {
+    outline: 2px solid var(--tt-accent);
+    outline-offset: 1px;
+    border-color: var(--tt-accent);
+}
+.field .error {
+    color: var(--tt-danger);
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 2px;
+}
+.field--invalid input,
+.field--invalid select { border-color: var(--tt-danger); box-shadow: 0 0 0 2px rgba(214,54,56,0.12); }
+
+/* ---------------------------------------------------------------------------
+   Formation radio-card grid
+   --------------------------------------------------------------------------- */
+.formation-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+}
+.formation-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 8px;
+    padding: 14px 10px 12px;
+    border: 2px solid var(--tt-line);
+    border-radius: var(--radius);
+    cursor: pointer;
+    background: var(--tt-paper);
+    transition: border-color 120ms ease, background 120ms ease;
+}
+.formation-card input { position: absolute; opacity: 0; pointer-events: none; }
+.formation-card .pitch {
+    width: 64px;
+    height: 80px;
+    background: linear-gradient(to bottom, #c8e6c9 0%, #a5d6a7 100%);
+    border: 1px solid #6b9970;
+    border-radius: 6px;
+    position: relative;
+    flex: 0 0 80px;
+}
+.formation-card .pitch::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 4px; right: 4px;
+    height: 1px;
+    background: rgba(255,255,255,0.7);
+}
+.formation-card .pitch .dot {
+    position: absolute;
+    width: 6px; height: 6px;
+    background: var(--tt-paper);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+}
+.formation-card .label-row { font-weight: 600; font-size: 14px; }
+.formation-card.is-checked {
+    border-color: var(--tt-accent);
+    background: var(--tt-accent-15);
+}
+.formation-card .none-glyph {
+    font-size: 28px;
+    color: var(--tt-ink-soft);
+    line-height: 1;
+    margin: 10px 0;
+}
+
+/* ---------------------------------------------------------------------------
+   Squad picker
+   --------------------------------------------------------------------------- */
+.squad-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+.squad-toolbar .search {
+    flex: 1 1 240px;
+    min-width: 200px;
+}
+.squad-toolbar .search input {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid var(--tt-line);
+    border-radius: var(--radius-sm);
+    font: inherit;
+    font-size: 14px;
+}
+.squad-toolbar .count {
+    font-size: 13px;
+    color: var(--tt-ink-soft);
+    font-weight: 600;
+}
+.squad-toolbar .count strong { color: var(--tt-accent); }
+
+.squad-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border: 1px solid var(--tt-line);
+    border-radius: var(--radius);
+    background: var(--tt-paper);
+    overflow: hidden;
+}
+.squad-row {
+    display: grid;
+    grid-template-columns: 40px 1fr auto;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--tt-line-soft);
+}
+.squad-row:last-child { border-bottom: none; }
+.squad-row .pick {
+    width: 22px; height: 22px;
+    accent-color: var(--tt-accent);
+    cursor: pointer;
+}
+.squad-row .name-block { min-width: 0; }
+.squad-row .name { font-weight: 600; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.squad-row .meta { font-size: 12px; color: var(--tt-ink-soft); }
+.squad-row .positions {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+.pos-chip {
+    border: 1px solid var(--tt-line);
+    background: var(--tt-paper);
+    color: var(--tt-ink-soft);
+    border-radius: 14px;
+    padding: 5px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+    line-height: 1;
+    min-height: 26px;
+    display: inline-flex;
+    align-items: center;
+}
+.pos-chip.is-active {
+    background: var(--tt-accent);
+    border-color: var(--tt-accent);
+    color: white;
+}
+.squad-row.is-out { opacity: 0.5; }
+.squad-row.is-out .positions { pointer-events: none; }
+
+/* ---------------------------------------------------------------------------
+   Matches step — repeating match card with chip editor
+   --------------------------------------------------------------------------- */
+.match-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+.match-card {
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--radius);
+    padding: 18px;
+}
+.match-card__head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+.match-card__head .seq {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--tt-accent);
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
+    flex: 0 0 28px;
+}
+.match-card__head .headline {
+    font-weight: 600;
+    font-size: 15px;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.match-card__head .headline.is-empty { color: var(--tt-ink-soft); font-style: italic; font-weight: 400; }
+.match-card__head .remove {
+    border: 0;
+    background: transparent;
+    color: var(--tt-danger);
+    cursor: pointer;
+    font: inherit;
+    font-size: 13px;
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+}
+.match-card__head .remove:hover { background: rgba(214,54,56,0.08); }
+
+/* Chip editor for substitution windows */
+.chip-editor {
+    border: 1px solid var(--tt-line);
+    border-radius: var(--radius-sm);
+    padding: 6px 8px;
+    background: var(--tt-paper);
+    min-height: var(--tap-min);
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+.chip-editor:focus-within {
+    border-color: var(--tt-accent);
+    box-shadow: 0 0 0 2px var(--tt-accent-15);
+}
+.chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--tt-accent-15);
+    color: var(--tt-accent);
+    border: 1px solid var(--tt-accent);
+    border-radius: 14px;
+    padding: 3px 6px 3px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+}
+.chip .x {
+    border: 0;
+    background: transparent;
+    color: var(--tt-accent);
+    cursor: pointer;
+    font: inherit;
+    font-size: 14px;
+    padding: 0 4px;
+    line-height: 1;
+}
+.chip .x:hover { color: var(--tt-danger); }
+.chip-editor input {
+    border: 0;
+    outline: none;
+    background: transparent;
+    padding: 4px 0;
+    flex: 1 1 60px;
+    min-width: 60px;
+    font: inherit;
+    font-size: 14px;
+}
+.chip-editor .hint { font-size: 11px; color: var(--tt-ink-soft); flex-basis: 100%; padding: 2px 4px 0; }
+
+.match-add {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 14px;
+    margin-top: 4px;
+    border: 1px dashed var(--tt-line);
+    background: var(--tt-paper);
+    border-radius: var(--radius);
+    cursor: pointer;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--tt-accent);
+}
+.match-add:hover { border-color: var(--tt-accent); background: var(--tt-accent-15); }
+
+/* ---------------------------------------------------------------------------
+   Review step
+   --------------------------------------------------------------------------- */
+.review-card { position: relative; }
+.review-card .edit-link {
+    position: absolute;
+    top: 16px; right: 18px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--tt-accent);
+    text-decoration: none;
+}
+.review-card .edit-link:hover { text-decoration: underline; }
+.facts { margin: 0; padding: 0; display: grid; grid-template-columns: 140px 1fr; gap: 4px 16px; font-size: 14px; }
+.facts dt { color: var(--tt-ink-soft); font-weight: 500; }
+.facts dd { margin: 0; font-weight: 600; }
+.facts dd .pill {
+    display: inline-block; font-size: 11px; padding: 2px 6px;
+    background: var(--tt-mute); border-radius: 10px; margin-left: 4px;
+    font-weight: 600; color: var(--tt-ink-soft);
+}
+
+.review-matches { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.review-matches li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border: 1px solid var(--tt-line-soft);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+}
+.review-matches .seq { width: 22px; height: 22px; border-radius: 50%; background: var(--tt-mute); color: var(--tt-ink-soft); display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; flex: 0 0 22px; }
+.review-matches .name { flex: 1; font-weight: 600; }
+.review-matches .meta { color: var(--tt-ink-soft); font-size: 12px; }
+
+/* ---------------------------------------------------------------------------
+   Sticky action bar
+   --------------------------------------------------------------------------- */
+.actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 14px 18px;
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--radius);
+    margin-top: 24px;
+}
+.actions .left, .actions .right { display: flex; gap: 8px; align-items: center; }
+.btn {
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 10px 16px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    border: 1px solid var(--tt-line);
+    background: var(--tt-paper);
+    color: var(--tt-ink);
+    min-height: var(--tap-min);
+}
+.btn:hover { background: var(--tt-mute); }
+.btn--primary {
+    background: var(--tt-accent);
+    border-color: var(--tt-accent);
+    color: white;
+}
+.btn--primary:hover { background: #1c5d96; }
+.btn--ghost { background: transparent; border-color: transparent; color: var(--tt-ink-soft); }
+.btn--ghost:hover { background: var(--tt-mute); color: var(--tt-ink); }
+.btn--danger-ghost { background: transparent; border-color: transparent; color: var(--tt-danger); }
+.btn--danger-ghost:hover { background: rgba(214,54,56,0.08); }
+
+/* ---------------------------------------------------------------------------
+   Mobile compress
+   --------------------------------------------------------------------------- */
+@media (max-width: 640px) {
+    .frame { padding: 16px 16px 48px; }
+    .progress { grid-template-columns: 1fr 1fr; }
+    .field-grid { grid-template-columns: 1fr; }
+    .actions { flex-direction: column; }
+    .actions .left, .actions .right { width: 100%; justify-content: space-between; }
+    .formation-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
+    .squad-row { grid-template-columns: 32px 1fr; row-gap: 6px; }
+    .squad-row .positions { grid-column: 2; }
+    .review-card .edit-link { position: static; display: inline-block; margin-bottom: 8px; }
+    .facts { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body data-step="basics">
+
+<div class="mockup-bar" role="region" aria-label="Mockup state picker">
+    <strong>Step:</strong>
+    <span class="group">
+        <button type="button" data-pick-step="basics"    aria-pressed="true">1 · Basics</button>
+        <button type="button" data-pick-step="formation">2 · Formation</button>
+        <button type="button" data-pick-step="squad">3 · Squad</button>
+        <button type="button" data-pick-step="matches">4 · Matches</button>
+        <button type="button" data-pick-step="review">5 · Review</button>
+    </span>
+    <strong style="margin-left:14px;">Variant:</strong>
+    <button type="button" data-pick-step="add-match">Add match (post-creation)</button>
+</div>
+
+<div class="frame">
+
+    <p class="crumbs"><a href="#">Dashboard</a> / <a href="#">Tournaments</a> / New tournament</p>
+    <h1 class="title">New tournament</h1>
+
+    <!-- ============================================================
+         Progress strip
+         ============================================================ -->
+    <ol class="progress" data-progress aria-label="Wizard progress">
+        <li data-progress-step="basics"    class="is-current"><span class="num"><span>1</span></span> Basics</li>
+        <li data-progress-step="formation"><span class="num"><span>2</span></span> Formation</li>
+        <li data-progress-step="squad"><span class="num"><span>3</span></span> Squad</li>
+        <li data-progress-step="matches"><span class="num"><span>4</span></span> Matches</li>
+        <li data-progress-step="review"><span class="num"><span>5</span></span> Review</li>
+    </ol>
+
+    <!-- ============================================================
+         STEP 1 — Basics
+         ============================================================ -->
+    <section class="step step--basics" aria-label="Step 1: Basics">
+        <h2 class="step-title">Basics</h2>
+        <p class="step-desc">The headline information about the tournament. Anchor team is the club's team that's playing — all other matches are vs. opponents.</p>
+
+        <div class="card">
+            <div class="field-grid">
+                <div class="field field--full">
+                    <label for="t-name">Tournament name <span class="req">*</span></label>
+                    <input type="text" id="t-name" placeholder="e.g. Den Helder Spring Cup" value="Hedel JO13 Toernooi">
+                    <span class="hint">Shows on the planner page and on every match's title.</span>
+                </div>
+
+                <div class="field">
+                    <label for="t-team">Anchor team <span class="req">*</span></label>
+                    <select id="t-team">
+                        <option>— pick a team —</option>
+                        <option selected>Hedel JO13</option>
+                        <option>Hedel JO14</option>
+                        <option>Hedel JO15</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Format</label>
+                    <select>
+                        <option selected>7v7</option>
+                        <option>9v9</option>
+                        <option>11v11</option>
+                    </select>
+                    <span class="hint">Determines available formations on the next step.</span>
+                </div>
+
+                <div class="field">
+                    <label for="t-start">Start date <span class="req">*</span></label>
+                    <input type="date" id="t-start" value="2026-06-06">
+                </div>
+                <div class="field">
+                    <label for="t-end">End date</label>
+                    <input type="date" id="t-end">
+                    <span class="hint">Leave blank for a single-day tournament.</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         STEP 2 — Formation
+         ============================================================ -->
+    <section class="step step--formation" aria-label="Step 2: Formation">
+        <h2 class="step-title">Default formation</h2>
+        <p class="step-desc">Pick the default formation for the tournament. You can override per match in the next step.</p>
+
+        <div class="card">
+            <div class="formation-grid">
+                <label class="formation-card">
+                    <input type="radio" name="formation" value="">
+                    <div class="none-glyph">—</div>
+                    <span class="label-row">No default</span>
+                </label>
+                <label class="formation-card is-checked">
+                    <input type="radio" name="formation" value="2-3-1" checked>
+                    <span class="pitch">
+                        <span class="dot" style="top:88%;left:50%;"></span>
+                        <span class="dot" style="top:65%;left:25%;"></span><span class="dot" style="top:60%;left:50%;"></span><span class="dot" style="top:65%;left:75%;"></span>
+                        <span class="dot" style="top:35%;left:30%;"></span><span class="dot" style="top:35%;left:50%;"></span><span class="dot" style="top:35%;left:70%;"></span>
+                        <span class="dot" style="top:12%;left:50%;"></span>
+                    </span>
+                    <span class="label-row">2-3-1</span>
+                </label>
+                <label class="formation-card">
+                    <input type="radio" name="formation" value="3-2-1">
+                    <span class="pitch">
+                        <span class="dot" style="top:88%;left:50%;"></span>
+                        <span class="dot" style="top:65%;left:25%;"></span><span class="dot" style="top:65%;left:50%;"></span><span class="dot" style="top:65%;left:75%;"></span>
+                        <span class="dot" style="top:38%;left:35%;"></span><span class="dot" style="top:38%;left:65%;"></span>
+                        <span class="dot" style="top:12%;left:50%;"></span>
+                    </span>
+                    <span class="label-row">3-2-1</span>
+                </label>
+                <label class="formation-card">
+                    <input type="radio" name="formation" value="2-2-2">
+                    <span class="pitch">
+                        <span class="dot" style="top:88%;left:50%;"></span>
+                        <span class="dot" style="top:65%;left:30%;"></span><span class="dot" style="top:65%;left:70%;"></span>
+                        <span class="dot" style="top:40%;left:30%;"></span><span class="dot" style="top:40%;left:70%;"></span>
+                        <span class="dot" style="top:14%;left:30%;"></span><span class="dot" style="top:14%;left:70%;"></span>
+                    </span>
+                    <span class="label-row">2-2-2</span>
+                </label>
+                <label class="formation-card">
+                    <input type="radio" name="formation" value="1-3-2">
+                    <span class="pitch">
+                        <span class="dot" style="top:88%;left:50%;"></span>
+                        <span class="dot" style="top:65%;left:50%;"></span>
+                        <span class="dot" style="top:38%;left:25%;"></span><span class="dot" style="top:38%;left:50%;"></span><span class="dot" style="top:38%;left:75%;"></span>
+                        <span class="dot" style="top:14%;left:38%;"></span><span class="dot" style="top:14%;left:62%;"></span>
+                    </span>
+                    <span class="label-row">1-3-2</span>
+                </label>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         STEP 3 — Squad
+         ============================================================ -->
+    <section class="step step--squad" aria-label="Step 3: Squad">
+        <h2 class="step-title">Squad</h2>
+        <p class="step-desc">Tick the players in the squad. For each, mark which position types they can play — these chips drive auto-balance during the planner phase.</p>
+
+        <div class="card">
+            <div class="squad-toolbar">
+                <div class="search"><input type="text" placeholder="Filter by name…"></div>
+                <span class="count"><strong>9</strong> of 14 selected</span>
+            </div>
+
+            <ul class="squad-list" id="squad-list">
+                <li class="squad-row">
+                    <input type="checkbox" class="pick" checked>
+                    <div class="name-block">
+                        <div class="name">#1 Jelle van Dijk</div>
+                        <div class="meta">U13 · joined Aug 2024</div>
+                    </div>
+                    <div class="positions">
+                        <span class="pos-chip is-active">GK</span><span class="pos-chip">DEF</span><span class="pos-chip">MID</span><span class="pos-chip">FWD</span>
+                    </div>
+                </li>
+                <li class="squad-row">
+                    <input type="checkbox" class="pick" checked>
+                    <div class="name-block">
+                        <div class="name">#4 Bram Hendriks</div>
+                        <div class="meta">U13 · captain</div>
+                    </div>
+                    <div class="positions">
+                        <span class="pos-chip">GK</span><span class="pos-chip is-active">DEF</span><span class="pos-chip is-active">MID</span><span class="pos-chip">FWD</span>
+                    </div>
+                </li>
+                <li class="squad-row">
+                    <input type="checkbox" class="pick" checked>
+                    <div class="name-block">
+                        <div class="name">#7 Lucas de Vries</div>
+                        <div class="meta">U13 · winger</div>
+                    </div>
+                    <div class="positions">
+                        <span class="pos-chip">GK</span><span class="pos-chip">DEF</span><span class="pos-chip is-active">MID</span><span class="pos-chip is-active">FWD</span>
+                    </div>
+                </li>
+                <li class="squad-row">
+                    <input type="checkbox" class="pick" checked>
+                    <div class="name-block">
+                        <div class="name">#9 Daan Visser</div>
+                        <div class="meta">U13 · striker</div>
+                    </div>
+                    <div class="positions">
+                        <span class="pos-chip">GK</span><span class="pos-chip">DEF</span><span class="pos-chip">MID</span><span class="pos-chip is-active">FWD</span>
+                    </div>
+                </li>
+                <li class="squad-row is-out">
+                    <input type="checkbox" class="pick">
+                    <div class="name-block">
+                        <div class="name">#11 Sander Brouwer</div>
+                        <div class="meta">U13 · trial</div>
+                    </div>
+                    <div class="positions">
+                        <span class="pos-chip">GK</span><span class="pos-chip">DEF</span><span class="pos-chip">MID</span><span class="pos-chip">FWD</span>
+                    </div>
+                </li>
+                <li class="squad-row">
+                    <input type="checkbox" class="pick" checked>
+                    <div class="name-block">
+                        <div class="name">#14 Sem Janssen</div>
+                        <div class="meta">U13</div>
+                    </div>
+                    <div class="positions">
+                        <span class="pos-chip">GK</span><span class="pos-chip">DEF</span><span class="pos-chip is-active">MID</span><span class="pos-chip">FWD</span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         STEP 4 — Matches  (the focus of this redesign)
+         ============================================================ -->
+    <section class="step step--matches" aria-label="Step 4: Matches">
+        <h2 class="step-title">Matches</h2>
+        <p class="step-desc">Add at least one match. Each card is a separate match — leave a card blank to skip it. You can add more matches from the planner after the tournament is created.</p>
+
+        <ol class="match-list" id="match-list">
+            <li class="match-card">
+                <div class="match-card__head">
+                    <span class="seq">1</span>
+                    <span class="headline">vs Den Helder JO13</span>
+                    <button type="button" class="remove" data-match-remove>Remove</button>
+                </div>
+                <div class="field-grid">
+                    <div class="field">
+                        <label>Label (optional)</label>
+                        <input type="text" placeholder="e.g. Final, Round 1, Pool A …">
+                        <span class="hint">Used as the headline when set; otherwise we show <em>vs &lt;opponent&gt;</em>.</span>
+                    </div>
+                    <div class="field">
+                        <label>Opponent <span class="req">*</span></label>
+                        <input type="text" placeholder="Den Helder JO13" value="Den Helder JO13">
+                    </div>
+                    <div class="field">
+                        <label>Opponent level</label>
+                        <select>
+                            <option>— pick one —</option>
+                            <option>Below</option>
+                            <option selected>Equal</option>
+                            <option>Above</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>Formation override</label>
+                        <select>
+                            <option selected>— use default (2-3-1) —</option>
+                            <option>2-3-1</option>
+                            <option>3-2-1</option>
+                            <option>2-2-2</option>
+                            <option>1-3-2</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="m1-dur">Duration (minutes) <span class="req">*</span></label>
+                        <input type="number" id="m1-dur" min="1" max="240" value="20" inputmode="numeric">
+                    </div>
+                    <div class="field">
+                        <label>Substitution windows (minutes from kickoff)</label>
+                        <div class="chip-editor" data-chip-editor>
+                            <span class="chip">10' <button type="button" class="x" aria-label="Remove 10">×</button></span>
+                            <input type="text" placeholder="Add a minute and press Enter" inputmode="numeric">
+                            <span class="hint">Press Enter or comma to add. Values must be 1–<span data-dur-max>19</span>.</span>
+                        </div>
+                    </div>
+                </div>
+            </li>
+
+            <li class="match-card">
+                <div class="match-card__head">
+                    <span class="seq">2</span>
+                    <span class="headline">vs Texel JO13</span>
+                    <button type="button" class="remove" data-match-remove>Remove</button>
+                </div>
+                <div class="field-grid">
+                    <div class="field">
+                        <label>Label (optional)</label>
+                        <input type="text">
+                    </div>
+                    <div class="field">
+                        <label>Opponent <span class="req">*</span></label>
+                        <input type="text" value="Texel JO13">
+                    </div>
+                    <div class="field">
+                        <label>Opponent level</label>
+                        <select>
+                            <option>— pick one —</option>
+                            <option>Below</option>
+                            <option selected>Equal</option>
+                            <option>Above</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>Formation override</label>
+                        <select>
+                            <option selected>— use default (2-3-1) —</option>
+                            <option>2-3-1</option>
+                            <option>3-2-1</option>
+                            <option>2-2-2</option>
+                            <option>1-3-2</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>Duration (minutes) <span class="req">*</span></label>
+                        <input type="number" min="1" max="240" value="20" inputmode="numeric">
+                    </div>
+                    <div class="field">
+                        <label>Substitution windows</label>
+                        <div class="chip-editor" data-chip-editor>
+                            <span class="chip">7' <button type="button" class="x" aria-label="Remove 7">×</button></span>
+                            <span class="chip">14' <button type="button" class="x" aria-label="Remove 14">×</button></span>
+                            <input type="text" placeholder="Add a minute and press Enter" inputmode="numeric">
+                        </div>
+                    </div>
+                </div>
+            </li>
+
+            <li class="match-card">
+                <div class="match-card__head">
+                    <span class="seq">3</span>
+                    <span class="headline is-empty">New match — fill in opponent below</span>
+                    <button type="button" class="remove" data-match-remove>Remove</button>
+                </div>
+                <div class="field-grid">
+                    <div class="field">
+                        <label>Label (optional)</label>
+                        <input type="text">
+                    </div>
+                    <div class="field field--invalid">
+                        <label>Opponent <span class="req">*</span></label>
+                        <input type="text">
+                        <span class="error">Either a label or an opponent name is required.</span>
+                    </div>
+                    <div class="field">
+                        <label>Opponent level</label>
+                        <select>
+                            <option selected>— pick one —</option>
+                            <option>Below</option>
+                            <option>Equal</option>
+                            <option>Above</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>Formation override</label>
+                        <select>
+                            <option selected>— use default (2-3-1) —</option>
+                            <option>2-3-1</option>
+                            <option>3-2-1</option>
+                            <option>2-2-2</option>
+                            <option>1-3-2</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>Duration (minutes) <span class="req">*</span></label>
+                        <input type="number" min="1" max="240" value="20" inputmode="numeric">
+                    </div>
+                    <div class="field">
+                        <label>Substitution windows</label>
+                        <div class="chip-editor" data-chip-editor>
+                            <input type="text" placeholder="Add a minute and press Enter" inputmode="numeric">
+                        </div>
+                    </div>
+                </div>
+            </li>
+        </ol>
+
+        <button type="button" class="match-add" id="match-add">+ Add another match</button>
+    </section>
+
+    <!-- ============================================================
+         STEP 5 — Review
+         ============================================================ -->
+    <section class="step step--review" aria-label="Step 5: Review">
+        <h2 class="step-title">Review &amp; create</h2>
+        <p class="step-desc">Check the details below. You can jump back to any step via the Edit links.</p>
+
+        <div class="card review-card">
+            <a href="#" class="edit-link" data-jump="basics">Edit</a>
+            <h3 class="card-title">Basics</h3>
+            <dl class="facts">
+                <dt>Name</dt><dd>Hedel JO13 Toernooi</dd>
+                <dt>Anchor team</dt><dd>Hedel JO13 <span class="pill">7v7</span></dd>
+                <dt>Start date</dt><dd>2026-06-06</dd>
+                <dt>End date</dt><dd>—</dd>
+            </dl>
+        </div>
+
+        <div class="card review-card">
+            <a href="#" class="edit-link" data-jump="formation">Edit</a>
+            <h3 class="card-title">Default formation</h3>
+            <dl class="facts">
+                <dt>Formation</dt><dd>2-3-1</dd>
+            </dl>
+        </div>
+
+        <div class="card review-card">
+            <a href="#" class="edit-link" data-jump="squad">Edit</a>
+            <h3 class="card-title">Squad <span class="pill" style="margin-left:6px;">9 players</span></h3>
+            <dl class="facts">
+                <dt>GK</dt><dd>1× Jelle van Dijk</dd>
+                <dt>DEF</dt><dd>3× Bram Hendriks, Stijn de Wit, Tim van der Berg</dd>
+                <dt>MID</dt><dd>3× Mees Peters, Sem Janssen, Bram Hendriks</dd>
+                <dt>FWD</dt><dd>2× Daan Visser, Lucas de Vries</dd>
+            </dl>
+        </div>
+
+        <div class="card review-card">
+            <a href="#" class="edit-link" data-jump="matches">Edit</a>
+            <h3 class="card-title">Matches <span class="pill" style="margin-left:6px;">2</span></h3>
+            <ol class="review-matches">
+                <li><span class="seq">1</span><span class="name">vs Den Helder JO13</span><span class="meta">20' · subs at 10' · Equal</span></li>
+                <li><span class="seq">2</span><span class="name">vs Texel JO13</span><span class="meta">20' · subs at 7', 14' · Equal</span></li>
+            </ol>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         VARIANT — Add a match post-creation (separate surface)
+         ============================================================ -->
+    <section class="step step--add-match" aria-label="Add a match (post-creation)">
+        <p class="crumbs"><a href="#">Dashboard</a> / <a href="#">Tournaments</a> / <a href="#">Hedel JO13 Toernooi</a> / Add match</p>
+        <h1 class="title" style="display:block;">Add match</h1>
+        <p class="step-desc">Add a new match to <strong>Hedel JO13 Toernooi</strong>. The squad and default formation are inherited from the tournament; override per-match below if needed.</p>
+
+        <div class="card">
+            <h3 class="card-title">Match details</h3>
+            <div class="field-grid">
+                <div class="field">
+                    <label>Label (optional)</label>
+                    <input type="text" placeholder="e.g. Final, Round 1 …">
+                </div>
+                <div class="field">
+                    <label>Opponent <span class="req">*</span></label>
+                    <input type="text">
+                </div>
+                <div class="field">
+                    <label>Opponent level</label>
+                    <select>
+                        <option selected>— pick one —</option>
+                        <option>Below</option>
+                        <option>Equal</option>
+                        <option>Above</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Formation override</label>
+                    <select>
+                        <option selected>— use tournament default (2-3-1) —</option>
+                        <option>2-3-1</option>
+                        <option>3-2-1</option>
+                        <option>2-2-2</option>
+                        <option>1-3-2</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Duration (minutes) <span class="req">*</span></label>
+                    <input type="number" min="1" max="240" value="20" inputmode="numeric">
+                </div>
+                <div class="field">
+                    <label>Substitution windows</label>
+                    <div class="chip-editor" data-chip-editor>
+                        <input type="text" placeholder="Add a minute and press Enter" inputmode="numeric">
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Position in sequence</label>
+                    <select>
+                        <option>Insert at end (Match 3)</option>
+                        <option>Insert before Match 1</option>
+                        <option>Insert between Match 1 and Match 2</option>
+                        <option>Insert between Match 2 and Match 3</option>
+                    </select>
+                    <span class="hint">Drag-to-reorder also available on the planner.</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         Action bar (shared across steps)
+         ============================================================ -->
+    <div class="actions">
+        <div class="left">
+            <button type="button" class="btn btm--ghost" data-action="cancel">Cancel</button>
+        </div>
+        <div class="right">
+            <button type="button" class="btn" data-action="back">← Back</button>
+            <button type="button" class="btn btn--primary" data-action="next">Next →</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// State picker — toggle body[data-step] and the progress strip.
+var STEPS = ['basics','formation','squad','matches','review'];
+
+function setStep(step) {
+    document.body.setAttribute('data-step', step);
+    document.querySelectorAll('[data-pick-step]').forEach(function (b) {
+        b.setAttribute('aria-pressed', b.getAttribute('data-pick-step') === step ? 'true' : 'false');
+    });
+    // Update progress strip
+    var idx = STEPS.indexOf(step);
+    document.querySelectorAll('[data-progress-step]').forEach(function (li, i) {
+        li.classList.remove('is-current', 'is-done');
+        if (STEPS.indexOf(li.getAttribute('data-progress-step')) < idx) li.classList.add('is-done');
+        else if (li.getAttribute('data-progress-step') === step) li.classList.add('is-current');
+    });
+    // Update Next button label on Review
+    var nextBtn = document.querySelector('[data-action="next"]');
+    if (nextBtn) {
+        if (step === 'review') {
+            nextBtn.textContent = 'Create tournament';
+        } else if (step === 'add-match') {
+            nextBtn.textContent = 'Add match';
+        } else {
+            nextBtn.textContent = 'Next →';
+        }
+    }
+    // Back button hidden on first step
+    var backBtn = document.querySelector('[data-action="back"]');
+    if (backBtn) backBtn.style.visibility = (step === 'basics' || step === 'add-match') ? 'hidden' : '';
+}
+
+document.querySelectorAll('[data-pick-step]').forEach(function (btn) {
+    btn.addEventListener('click', function () { setStep(btn.getAttribute('data-pick-step')); });
+});
+
+// Wizard Next/Back walk forward/back along STEPS
+document.querySelector('[data-action="next"]').addEventListener('click', function () {
+    var cur = document.body.getAttribute('data-step');
+    var i = STEPS.indexOf(cur);
+    if (i >= 0 && i < STEPS.length - 1) setStep(STEPS[i + 1]);
+});
+document.querySelector('[data-action="back"]').addEventListener('click', function () {
+    var cur = document.body.getAttribute('data-step');
+    var i = STEPS.indexOf(cur);
+    if (i > 0) setStep(STEPS[i - 1]);
+});
+
+// Jump from review's Edit links
+document.querySelectorAll('[data-jump]').forEach(function (a) {
+    a.addEventListener('click', function (e) { e.preventDefault(); setStep(a.getAttribute('data-jump')); });
+});
+
+// Formation radio cards — toggle .is-checked on the parent label
+document.querySelectorAll('.formation-card input[type=radio]').forEach(function (r) {
+    r.addEventListener('change', function () {
+        document.querySelectorAll('.formation-card').forEach(function (c) { c.classList.remove('is-checked'); });
+        if (r.checked) r.closest('.formation-card').classList.add('is-checked');
+    });
+});
+
+// Squad row pick → grey out un-picked rows + toggle position chip pointer events
+document.querySelectorAll('.squad-row .pick').forEach(function (chk) {
+    chk.addEventListener('change', function () {
+        var row = chk.closest('.squad-row');
+        row.classList.toggle('is-out', !chk.checked);
+    });
+});
+
+// Position chips — toggle .is-active
+document.querySelectorAll('.pos-chip').forEach(function (chip) {
+    chip.addEventListener('click', function () {
+        chip.classList.toggle('is-active');
+    });
+});
+
+// Chip editor (sub windows)
+document.querySelectorAll('[data-chip-editor]').forEach(function (editor) {
+    var input = editor.querySelector('input');
+    if (!input) return;
+    input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ',') {
+            e.preventDefault();
+            var v = (input.value || '').trim().replace(/[^0-9]/g, '');
+            if (!v) return;
+            var chip = document.createElement('span');
+            chip.className = 'chip';
+            chip.innerHTML = v + "' <button type='button' class='x' aria-label='Remove " + v + "'>×</button>";
+            editor.insertBefore(chip, input);
+            input.value = '';
+        } else if (e.key === 'Backspace' && !input.value) {
+            // Pop last chip on backspace from empty input
+            var last = editor.querySelectorAll('.chip');
+            if (last.length) last[last.length - 1].remove();
+        }
+    });
+    editor.addEventListener('click', function (e) {
+        if (e.target.classList && e.target.classList.contains('x')) {
+            e.target.closest('.chip').remove();
+        } else if (e.target === editor || e.target.classList.contains('hint')) {
+            input.focus();
+        }
+    });
+});
+
+// Match remove — drop the card with sequence renumber
+document.addEventListener('click', function (e) {
+    if (e.target && e.target.matches('[data-match-remove]')) {
+        e.target.closest('.match-card').remove();
+        renumberMatches();
+    }
+});
+function renumberMatches() {
+    document.querySelectorAll('#match-list .match-card').forEach(function (card, i) {
+        var seq = card.querySelector('.seq');
+        if (seq) seq.textContent = String(i + 1);
+    });
+}
+
+// Add another match — clone the structure of the 3rd card (blank)
+document.getElementById('match-add').addEventListener('click', function () {
+    var template = document.querySelectorAll('#match-list .match-card');
+    var fresh = template[template.length - 1].cloneNode(true);
+    // Blank inputs
+    fresh.querySelectorAll('input').forEach(function (i) { i.value = ''; });
+    fresh.querySelectorAll('select').forEach(function (s) { s.selectedIndex = 0; });
+    fresh.querySelectorAll('.chip').forEach(function (c) { c.remove(); });
+    fresh.classList.remove('field--invalid');
+    fresh.querySelectorAll('.error').forEach(function (e) { e.remove(); });
+    fresh.querySelectorAll('.field--invalid').forEach(function (f) { f.classList.remove('field--invalid'); });
+    fresh.querySelector('.headline').classList.add('is-empty');
+    fresh.querySelector('.headline').textContent = 'New match — fill in opponent below';
+    document.getElementById('match-list').appendChild(fresh);
+    renumberMatches();
+    // Rewire the new card's chip editor
+    var editor = fresh.querySelector('[data-chip-editor]');
+    if (editor) {
+        var input = editor.querySelector('input');
+        if (input) {
+            input.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' || e.key === ',') {
+                    e.preventDefault();
+                    var v = (input.value || '').trim().replace(/[^0-9]/g, '');
+                    if (!v) return;
+                    var chip = document.createElement('span');
+                    chip.className = 'chip';
+                    chip.innerHTML = v + "' <button type='button' class='x' aria-label='Remove " + v + "'>×</button>";
+                    editor.insertBefore(chip, input);
+                    input.value = '';
+                }
+            });
+        }
+    }
+});
+</script>
+</body>
+</html>
