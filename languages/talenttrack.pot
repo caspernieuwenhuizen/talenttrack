@@ -19906,7 +19906,7 @@ msgid "Drag a player onto a slot, or click a slot to pick from the list."
 msgstr ""
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:346
-msgid "+ Add cross-team / guest / custom"
+msgid "+ Add guest / custom name"
 msgstr ""
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:350
@@ -20206,10 +20206,26 @@ msgstr ""
 msgid "player"
 msgstr ""
 
-#. translators: %s = tier number 1/2/3
+#. translators: %d = tier number 1/2/3
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1252
 #, php-format
-msgid "Pick a player for tier %s"
+msgid "Pick a player for tier %d"
+msgstr ""
+
+#. translators: %d = age in years
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1262
+#, php-format
+msgid "age %d"
+msgstr ""
+
+#. translators: %1$s = team name, %2$d = roster size
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1244
+#, php-format
+msgid "%1$s — roster (%2$d)"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:395
+msgid "Pill colours: <b class=\"tt-bpe-tier-1\">&#9679; tier 1</b> &nbsp; <b class=\"tt-bpe-tier-2\">&#9679; tier 2</b> &nbsp; <b class=\"tt-bpe-tier-3\">&#9679; tier 3</b>. The &times;N badge next to a roster name shows how many slots reference that player."
 msgstr ""
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1253

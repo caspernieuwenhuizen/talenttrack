@@ -22397,8 +22397,8 @@ msgstr ""
 "kiezen."
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:346
-msgid "+ Add cross-team / guest / custom"
-msgstr "+ Toevoegen ander team / gast / aangepast"
+msgid "+ Add guest / custom name"
+msgstr "+ Voeg gast / aangepaste naam toe"
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:350
 msgid "Other team"
@@ -22707,11 +22707,27 @@ msgstr "aangepast"
 msgid "player"
 msgstr "speler"
 
-#. translators: %s = tier number 1/2/3
+#. translators: %d = tier number 1/2/3
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1252
 #, php-format
-msgid "Pick a player for tier %s"
-msgstr "Kies een speler voor tier %s"
+msgid "Pick a player for tier %d"
+msgstr "Kies een speler voor tier %d"
+
+#. translators: %d = age in years
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1262
+#, php-format
+msgid "age %d"
+msgstr "%d jaar"
+
+#. translators: %1$s = team name, %2$d = roster size
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1244
+#, php-format
+msgid "%1$s — roster (%2$d)"
+msgstr "%1$s — selectie (%2$d)"
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:395
+msgid "Pill colours: <b class=\"tt-bpe-tier-1\">&#9679; tier 1</b> &nbsp; <b class=\"tt-bpe-tier-2\">&#9679; tier 2</b> &nbsp; <b class=\"tt-bpe-tier-3\">&#9679; tier 3</b>. The &times;N badge next to a roster name shows how many slots reference that player."
+msgstr "Tier-kleuren: <b class=\"tt-bpe-tier-1\">&#9679; tier 1</b> &nbsp; <b class=\"tt-bpe-tier-2\">&#9679; tier 2</b> &nbsp; <b class=\"tt-bpe-tier-3\">&#9679; tier 3</b>. De &times;N-badge naast een naam in de selectie toont op hoeveel posities die speler staat."
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1253
 #: src/Shared/Frontend/Components/FrontendListTable.php:137

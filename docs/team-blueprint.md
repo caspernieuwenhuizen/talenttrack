@@ -20,38 +20,51 @@ Click **Create** and you land on the editor with empty slots, ready to fill.
 
 ## The editor
 
-Three regions:
+Rebuilt v4.6.0 (#972) — clean port of the in-tree prototype at `.local-mockups/blueprint-editor/index.html`. Four regions:
 
-- **Roster sidebar** — every active player on the team, as a draggable row with avatar + name + meta line. An `×N` badge appears next to the name as soon as that player sits in one or more slots on the current formation. Hitting **+ Add cross-team / guest / custom** opens an inline 3-tab form (more on that below).
-- **Pitch** — the formation slots. Each position renders a numbered circle (e.g. `9 ST`) and a three-row stack underneath: **primary / secondary / tertiary** depth. The tier is encoded twice — by the digit on the left of each row AND by the row's border colour — so the depth chart stays readable without colour.
-- **Link chemistry headline** — `0 / 100` until you start placing players, then updates after every change.
+- **Toolbar** above the layout — read-only team display, **Formation** dropdown (every active template from `tt_formation_templates`), **Clear all slots** button, and a save-state hint that flashes "Saving…" between writes.
+- **Roster sidebar** — title `<Team> — roster (<N>)`, then every active player on the team as a draggable row: avatar with initials + name + a meta line (position, age, kind for non-team entries). An `×N` badge appears next to the name as soon as that player sits in one or more slots on the current formation. Below the list, a **+ Add guest / custom name** button opens an inline 3-tab form (Other team / Guest / Custom — more on that below).
+- **Pitch** — the formation slots. Each position renders a numbered circle (e.g. `9` / `ST`) and a three-row stack directly underneath: **primary / secondary / tertiary** depth. The tier is encoded twice — by the digit on the left of each row AND by the row's border colour (teal / amber / grey) — so the depth chart stays readable without colour.
+- **Link chemistry headline** — `— / 100` until you start placing players, then updates after every change.
 
 ### Picking a player
 
 Two ways to fill a slot:
 
-- **Click a slot** → a small dropdown opens with a search box and the team roster. Filter by name / position, click a row to place. When a slot already has someone, a *Clear this slot* row appears at the bottom of the dropdown.
-- **Drag a roster row** onto any slot. The slot accepts the drop; previous occupant of the target tier is replaced. Drag-drop and the dropdown both call the same save endpoint.
+- **Click a tier slot row** → an anchored dropdown picker opens beside it with a search box and the full roster. Filter by name / position; click a row to place. When a slot already has someone, a *Clear this slot* row appears at the bottom of the picker.
+- **Drag a roster row** onto any tier slot. The slot accepts the drop; previous occupant of the target tier is replaced (the displaced player stays in every other slot they occupy — drops do NOT pull them from elsewhere). Drag-drop and the picker both call the same save endpoint.
 
-The same player can sit in multiple slots and at multiple tiers — there's no automatic dedupe. The `×N` badge in the roster reflects how many placements they hold on the current formation (stale assignments from a previous formation don't count). Tier-1 placements feed the chemistry score; tier-2 and tier-3 are pure depth-chart signal and don't contribute to chemistry.
+The same player can sit in any number of slots and at any number of tiers — no automatic dedupe. The `×N` badge in the roster reflects how many placements they hold on the **current** formation (stale assignments from a previous formation don't count toward the badge, but they do survive in the database). Tier-1 placements feed the chemistry score; tier-2 and tier-3 are pure depth-chart signal and don't contribute to chemistry.
 
-### + Add cross-team / guest / custom
+The **`×` clear button** on every filled slot empties just that tier in just that slot.
+
+After every successful save the editor reloads so the chemistry headline, occupant names and any server-side state come back authoritative.
+
+### + Add guest / custom name
 
 Three tabs on the inline add form:
 
-- **Other team** — pick a sibling team in the club, then a player from that team. Adds them to the roster as a cross-team pick. The player's home team appears in their roster meta line. Cross-team players are stored exactly like home-team players (`ref_kind=player`) — what makes them "cross-team" is just the home-team mismatch.
+- **Other team** — pick a sibling team in the club, then a player from that team. Adds them to the roster as a cross-team pick (the player's home team appears in the meta line). Cross-team players are stored exactly like home-team players (`ref_kind=player`) — what makes them "cross-team" is just the home-team mismatch.
 - **Guest** — type a name (e.g. *"visiting trialist"*) and an optional position. Adds a guest row to the roster.
 - **Custom** — type a free-text label (e.g. *"Scout target #4"*). Adds a custom placeholder to the roster.
 
-Guest and custom additions are **session-only until placed**. They live in the editor's local roster and are only persisted when actually dropped into a tier slot — so closing the editor without placing them effectively erases them. Once placed, the placement row carries the ref and the entry survives a reload.
+Guest and custom additions are **session-only until placed**. They live in the editor's in-memory roster and are only persisted when actually dropped into a tier slot — so closing the editor without placing them effectively erases them. Once placed, the assignment row carries the ref (`ref_kind=guest` or `ref_kind=custom`) and the entry survives a reload.
 
 ### Formation switch
 
-Picking a different formation from the **Formation** dropdown above the pitch updates the blueprint's template. Slot labels that exist in both formations keep their assignments; new slots come in empty; slots that disappear from the new formation are kept in the database silently (so a round-trip switch restores them).
+Picking a different formation from the **Formation** dropdown updates the blueprint's template (via `PUT /blueprints/{id}` with the new `formation_template_id`) and reloads the editor. Assignments survive by **slot label** — every slot whose label exists in both the old and new formation keeps its tier-1/2/3 picks. New slots come in empty. Slots dropped from the new formation are kept in the database silently, so a round-trip switch restores them. (The `×N` placement badge counts only what's visible on the current formation.)
+
+### Clear all slots
+
+The **Clear all slots** button in the toolbar wipes every assignment for the current blueprint after a confirmation prompt. There's no undo — use it when starting fresh from an existing blueprint via *Save As*.
 
 ### Saving
 
-Each pick saves immediately to the assignments endpoint. There's no batch "Save" — the editor is the source of truth.
+Each pick / clear / formation change saves immediately. There's no batch save. The **Save** button on the status row is "done editing, take me back to the list" — it navigates to the team's blueprint list with a confirmation toast. **Save As** prompts for a new name and clones the current blueprint (including every assignment row) to a fresh draft, then opens that draft's editor.
+
+### Hide chemistry
+
+The **Hide chemistry** toggle in the status row hides the chemistry headline card AND every chemistry link line on the pitch. The state persists in `sessionStorage` keyed by blueprint id, so a refresh keeps the preference. Useful when reviewing the depth chart without the chemistry noise.
 
 ### Chemistry score
 
