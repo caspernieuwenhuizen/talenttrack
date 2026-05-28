@@ -684,16 +684,22 @@ class FrontendMatchPrepView extends FrontendViewBase {
         return $row ?: null;
     }
 
-    /** @return array<int, object> id => player */
+    /**
+     * @return array<int, object> id => player
+     *
+     * v4.5.1 — query `tt_players.team_id` directly. The pre-fix
+     * query joined through a non-existent `tt_team_players` junction
+     * table; `tt_players.team_id` is the canonical FK across the
+     * codebase. Same defect class as AvailabilityStep::rosterForActivity().
+     */
     private static function loadTeamRosterById( int $team_id ): array {
         if ( $team_id <= 0 ) return [];
         global $wpdb;
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT pl.*
-               FROM {$wpdb->prefix}tt_team_players tp
-               JOIN {$wpdb->prefix}tt_players pl ON pl.id = tp.player_id
-              WHERE tp.team_id = %d AND tp.club_id = %d AND pl.club_id = %d",
-            $team_id, CurrentClub::id(), CurrentClub::id()
+               FROM {$wpdb->prefix}tt_players pl
+              WHERE pl.team_id = %d AND pl.club_id = %d AND pl.archived_at IS NULL",
+            $team_id, CurrentClub::id()
         ) );
         $out = [];
         foreach ( (array) $rows as $r ) {

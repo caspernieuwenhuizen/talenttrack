@@ -141,7 +141,20 @@ final class AvailabilityStep implements WizardStepInterface {
         ], \TT\Shared\Wizards\WizardEntryPoint::currentDashboardUrl() ) ];
     }
 
-    /** @return object[] */
+    /**
+     * @return object[]
+     *
+     * v4.5.1 — query `tt_players.team_id` directly. The pre-fix
+     * query joined through a `tt_team_players` junction table that
+     * doesn't exist in the schema. The canonical FK is
+     * `tt_players.team_id` (verified across 8+ call sites in
+     * Infrastructure/Stats, Infrastructure/Security, REST controllers).
+     * Result was an empty roster regardless of how many players the
+     * team has → the wizard fell into the "No players on this team
+     * yet" early-return branch and the `activity_id` hidden input
+     * never got emitted, breaking the subsequent submit with a
+     * "Missing activity_id" error.
+     */
     private static function rosterForActivity( int $activity_id ): array {
         global $wpdb;
         $p   = $wpdb->prefix;
@@ -155,11 +168,10 @@ final class AvailabilityStep implements WizardStepInterface {
 
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT pl.*
-               FROM {$p}tt_team_players tp
-               JOIN {$p}tt_players pl ON pl.id = tp.player_id
-              WHERE tp.team_id = %d AND tp.club_id = %d AND pl.club_id = %d
+               FROM {$p}tt_players pl
+              WHERE pl.team_id = %d AND pl.club_id = %d AND pl.archived_at IS NULL
               ORDER BY pl.last_name ASC, pl.first_name ASC",
-            $team_id, CurrentClub::id(), CurrentClub::id()
+            $team_id, CurrentClub::id()
         ) );
         return is_array( $rows ) ? $rows : [];
     }
