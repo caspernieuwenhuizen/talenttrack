@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lookup admin — list-first mockup</title>
+<style>
+:root {
+    --tt-ink:        #1a1d21;
+    --tt-ink-soft:   #5b6e75;
+    --tt-paper:      #ffffff;
+    --tt-bg:         #f5f7f6;
+    --tt-line:       #d6dadd;
+    --tt-line-soft:  #e9ecef;
+    --tt-accent:     #2271b1;
+    --tt-accent-15:  rgba(34,113,177,0.15);
+    --tt-success:    #2e7d4f;
+    --tt-warn:       #c75c1f;
+    --tt-danger:     #d63638;
+    --tt-mute:       #f0f3f2;
+    --radius:        10px;
+    --radius-sm:     6px;
+    --tap-min:       44px;
+    --font:          'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+    font-family: var(--font);
+    color: var(--tt-ink);
+    background: var(--tt-bg);
+    font-size: 15px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* mockup-only chrome */
+.mockup-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: #222;
+    color: #eee;
+    font-size: 12px;
+    padding: 8px 16px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+    border-bottom: 2px solid #000;
+}
+.mockup-bar strong { color: #ffd; margin-right: 4px; }
+.mockup-bar button {
+    background: #444; color: #eee; border: 1px solid #666;
+    padding: 4px 10px; border-radius: 4px; font: inherit;
+    cursor: pointer; font-size: 11px;
+}
+.mockup-bar button[aria-pressed="true"] { background: #6c4; color: #000; border-color: #4a3; font-weight: 600; }
+
+.frame {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 24px 24px 64px;
+}
+.crumbs { font-size: 13px; color: var(--tt-ink-soft); margin: 0 0 6px; }
+.crumbs a { color: var(--tt-accent); text-decoration: none; }
+.crumbs a:hover { text-decoration: underline; }
+h1.title { font-size: 22px; font-weight: 700; margin: 0 0 18px; }
+.card {
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--radius);
+    padding: 22px;
+    margin-bottom: 16px;
+}
+.card-title {
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--tt-ink-soft);
+    margin: 0 0 12px;
+}
+
+/* state toggle */
+.view { display: none; }
+body[data-view="list"]    .view--list    { display: block; }
+body[data-view="add"]     .view--add     { display: block; }
+body[data-view="edit"]    .view--edit    { display: block; }
+
+/* list header + + button */
+.list-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    gap: 10px;
+}
+.list-header .meta { color: var(--tt-ink-soft); font-size: 13px; }
+.btn {
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 9px 16px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    border: 1px solid var(--tt-line);
+    background: var(--tt-paper);
+    color: var(--tt-ink);
+    min-height: var(--tap-min);
+}
+.btn:hover { background: var(--tt-mute); }
+.btn--primary { background: var(--tt-accent); border-color: var(--tt-accent); color: white; }
+.btn--primary:hover { background: #1c5d96; }
+.btn--ghost { background: transparent; border-color: transparent; color: var(--tt-ink-soft); }
+.btn--ghost:hover { background: var(--tt-mute); color: var(--tt-ink); }
+.btn--danger-ghost { background: transparent; border-color: transparent; color: var(--tt-danger); }
+.btn--danger-ghost:hover { background: rgba(214,54,56,0.08); }
+.btn-add {
+    display: inline-flex; align-items: center; gap: 6px;
+}
+
+/* lookup list */
+.lookup-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border: 1px solid var(--tt-line);
+    border-radius: var(--radius);
+    background: var(--tt-paper);
+    overflow: hidden;
+}
+.lookup-list li {
+    display: grid;
+    grid-template-columns: 18px 22px 1fr auto 60px 32px;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--tt-line-soft);
+    cursor: pointer;
+    transition: background-color 80ms;
+}
+.lookup-list li:last-child { border-bottom: none; }
+.lookup-list li:hover { background: var(--tt-accent-15); }
+.lookup-list .grip {
+    color: var(--tt-ink-soft);
+    font-size: 14px;
+    cursor: grab;
+    user-select: none;
+    line-height: 1;
+}
+.lookup-list .swatch {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,0,0,0.1);
+}
+.lookup-list .label {
+    font-weight: 600;
+    font-size: 14px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.lookup-list .label .key {
+    color: var(--tt-ink-soft);
+    font-weight: 400;
+    font-size: 12px;
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    margin-left: 8px;
+}
+.lookup-list .tx-coverage {
+    display: inline-flex;
+    gap: 3px;
+    align-items: center;
+}
+.lookup-list .tx-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--tt-line);
+}
+.lookup-list .tx-dot.is-set { background: var(--tt-success); }
+.lookup-list .tx-dot.is-missing { background: var(--tt-warn); }
+.lookup-list .sort {
+    color: var(--tt-ink-soft);
+    font-variant-numeric: tabular-nums;
+    font-size: 13px;
+    text-align: right;
+}
+.lookup-list .delete {
+    border: 0;
+    background: transparent;
+    color: var(--tt-danger);
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    line-height: 1;
+}
+.lookup-list .delete:hover { background: rgba(214,54,56,0.08); }
+.lookup-list .lock {
+    color: var(--tt-ink-soft);
+    font-size: 12px;
+    padding: 4px 8px;
+}
+
+/* edit/add form */
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+.field label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--tt-ink);
+}
+.field label .req { color: var(--tt-danger); font-weight: 700; margin-left: 2px; }
+.field .hint { font-size: 12px; color: var(--tt-ink-soft); }
+.field input[type="text"],
+.field input[type="number"],
+.field select {
+    font: inherit;
+    font-size: 14px;
+    padding: 10px 12px;
+    border: 1px solid var(--tt-line);
+    border-radius: var(--radius-sm);
+    background: var(--tt-paper);
+    color: var(--tt-ink);
+    min-height: var(--tap-min);
+    width: 100%;
+}
+.field input:focus, .field select:focus {
+    outline: 2px solid var(--tt-accent);
+    outline-offset: 1px;
+    border-color: var(--tt-accent);
+}
+.field-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 18px;
+}
+.field-grid .field--full { grid-column: 1 / -1; }
+
+/* translations card */
+.tx-card-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px; gap: 10px;
+}
+.tx-card-head .tx-card-title {
+    font-size: 14px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.4px;
+    color: var(--tt-ink-soft);
+    margin: 0;
+}
+.tx-card-head .tx-translate-btn {
+    font-size: 13px; padding: 6px 12px; min-height: 32px;
+}
+.tx-grid {
+    display: grid;
+    grid-template-columns: 60px 1fr 1fr;
+    gap: 10px 12px;
+    align-items: start;
+}
+.tx-grid .tx-locale-cell {
+    display: inline-flex; align-items: center; gap: 6px;
+    min-height: 40px;
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--tt-ink-soft);
+    padding: 0 6px;
+    background: var(--tt-mute);
+    border-radius: var(--radius-sm);
+    justify-content: center;
+}
+.tx-grid .tx-locale-cell.is-site {
+    background: var(--tt-accent-15);
+    color: var(--tt-accent);
+}
+.tx-grid input[type="text"] {
+    font-size: 14px;
+    padding: 8px 10px;
+    border: 1px solid var(--tt-line);
+    border-radius: var(--radius-sm);
+    min-height: 40px;
+    width: 100%;
+}
+.tx-grid .tx-row {
+    display: contents;
+}
+.tx-grid .tx-row-headers {
+    grid-column: 2 / -1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    font-size: 12px;
+    color: var(--tt-ink-soft);
+    margin-bottom: -4px;
+}
+.tx-empty-state {
+    background: var(--tt-mute);
+    border: 1px dashed var(--tt-line);
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    color: var(--tt-ink-soft);
+    font-size: 13px;
+}
+
+/* form footer */
+.form-foot {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid var(--tt-line-soft);
+}
+.form-foot .left { display: flex; gap: 8px; }
+.form-foot .right { display: flex; gap: 8px; }
+
+@media (max-width: 640px) {
+    .frame { padding: 16px 16px 48px; }
+    .field-grid { grid-template-columns: 1fr; }
+    .form-foot { flex-direction: column; }
+    .form-foot .left, .form-foot .right { width: 100%; justify-content: space-between; }
+    .lookup-list li { grid-template-columns: 18px 22px 1fr 32px; }
+    .lookup-list .tx-coverage, .lookup-list .sort { display: none; }
+    .tx-grid { grid-template-columns: 60px 1fr; }
+    .tx-grid .tx-row-headers { grid-column: 2 / -1; grid-template-columns: 1fr; }
+    .tx-grid .tx-desc-input { grid-column: 2 / -1; }
+}
+</style>
+</head>
+<body data-view="list">
+
+<div class="mockup-bar" role="region" aria-label="Mockup state picker">
+    <strong>View:</strong>
+    <button type="button" data-pick-view="list" aria-pressed="true">List (default after opening tile)</button>
+    <button type="button" data-pick-view="add">Add new row</button>
+    <button type="button" data-pick-view="edit">Edit row (with translations)</button>
+</div>
+
+<div class="frame">
+
+    <p class="crumbs"><a href="#">Dashboard</a> / <a href="#">Configuration</a> / Activity types</p>
+    <h1 class="title">Activity types</h1>
+
+    <!-- ============================================================
+         VIEW 1 — LIST (default after opening a tile)
+         No "add new" form open. Just the list + a + button.
+         ============================================================ -->
+    <section class="view view--list" aria-label="List view">
+        <div class="card">
+            <div class="list-header">
+                <p class="meta">
+                    <strong>9</strong> values · click a row to edit · drag <span aria-hidden="true">⋮⋮</span> to reorder
+                </p>
+                <button type="button" class="btn btn--primary btn-add" data-pick-view="add">+ Add value</button>
+            </div>
+            <ul class="lookup-list" id="lookup-list">
+                <li data-pick-view="edit">
+                    <span class="grip">⋮⋮</span>
+                    <span class="swatch" style="background:#2271b1;"></span>
+                    <span class="label">Training <span class="key">training</span></span>
+                    <span class="tx-coverage" title="Translation coverage: 5 locales">
+                        <span class="tx-dot is-set" title="en"></span>
+                        <span class="tx-dot is-set" title="nl"></span>
+                        <span class="tx-dot is-set" title="de"></span>
+                        <span class="tx-dot is-set" title="es"></span>
+                        <span class="tx-dot is-set" title="fr"></span>
+                    </span>
+                    <span class="sort">10</span>
+                    <button type="button" class="delete" aria-label="Delete">×</button>
+                </li>
+                <li data-pick-view="edit">
+                    <span class="grip">⋮⋮</span>
+                    <span class="swatch" style="background:#2e7d4f;"></span>
+                    <span class="label">Match <span class="key">match</span></span>
+                    <span class="tx-coverage">
+                        <span class="tx-dot is-set" title="en"></span>
+                        <span class="tx-dot is-set" title="nl"></span>
+                        <span class="tx-dot is-missing" title="de — missing"></span>
+                        <span class="tx-dot is-missing" title="es — missing"></span>
+                        <span class="tx-dot is-missing" title="fr — missing"></span>
+                    </span>
+                    <span class="sort">20</span>
+                    <button type="button" class="delete" aria-label="Delete">×</button>
+                </li>
+                <li data-pick-view="edit">
+                    <span class="grip">⋮⋮</span>
+                    <span class="swatch" style="background:#c75c1f;"></span>
+                    <span class="label">Tournament <span class="key">tournament</span></span>
+                    <span class="tx-coverage">
+                        <span class="tx-dot is-set"></span>
+                        <span class="tx-dot is-set"></span>
+                        <span class="tx-dot is-missing"></span>
+                        <span class="tx-dot is-missing"></span>
+                        <span class="tx-dot is-missing"></span>
+                    </span>
+                    <span class="sort">30</span>
+                    <button type="button" class="delete" aria-label="Delete">×</button>
+                </li>
+                <li data-pick-view="edit">
+                    <span class="grip">⋮⋮</span>
+                    <span class="swatch" style="background:#5b6e75;"></span>
+                    <span class="label">Meeting <span class="key">meeting</span></span>
+                    <span class="tx-coverage">
+                        <span class="tx-dot is-set"></span>
+                        <span class="tx-dot is-missing"></span>
+                        <span class="tx-dot is-missing"></span>
+                        <span class="tx-dot is-missing"></span>
+                        <span class="tx-dot is-missing"></span>
+                    </span>
+                    <span class="sort">40</span>
+                    <span class="lock" title="Locked — workflow rules depend on this row">🔒</span>
+                </li>
+                <li data-pick-view="edit">
+                    <span class="grip">⋮⋮</span>
+                    <span class="swatch" style="background:#d63638;"></span>
+                    <span class="label">Scouting visit <span class="key">scouting_visit</span></span>
+                    <span class="tx-coverage">
+                        <span class="tx-dot is-set"></span>
+                        <span class="tx-dot is-set"></span>
+                        <span class="tx-dot is-missing"></span>
+                        <span class="tx-dot is-missing"></span>
+                        <span class="tx-dot is-missing"></span>
+                    </span>
+                    <span class="sort">50</span>
+                    <button type="button" class="delete" aria-label="Delete">×</button>
+                </li>
+            </ul>
+        </div>
+        <p class="meta" style="margin: 0 0 0 6px;">
+            The dots after each row show translation coverage in the 5 supported locales
+            (EN&nbsp;·&nbsp;NL&nbsp;·&nbsp;DE&nbsp;·&nbsp;ES&nbsp;·&nbsp;FR). Filled = set, hollow-warn = missing.
+        </p>
+    </section>
+
+    <!-- ============================================================
+         VIEW 2 — ADD NEW (only when + is clicked)
+         Clean empty form + 5 locale boxes (EN visible too)
+         ============================================================ -->
+    <section class="view view--add" aria-label="Add new row">
+        <div class="card">
+            <h2 class="card-title" style="margin-top:0;">Add new value</h2>
+            <div class="field-grid">
+                <div class="field">
+                    <label>Internal key <span class="req">*</span></label>
+                    <input type="text" placeholder="e.g. scouting_visit">
+                    <span class="hint">Lowercase ASCII, no spaces. Used as the database identifier.</span>
+                </div>
+                <div class="field">
+                    <label>Sort order</label>
+                    <input type="number" value="60" min="0" step="10" inputmode="numeric">
+                </div>
+                <div class="field">
+                    <label>Pill colour</label>
+                    <input type="text" value="#5b6e75">
+                    <span class="hint">Used wherever this value renders as a colour-coded pill.</span>
+                </div>
+                <div class="field"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="tx-card-head">
+                <h2 class="tx-card-title">Translations</h2>
+                <button type="button" class="btn tx-translate-btn">Translate all from English →</button>
+            </div>
+            <p class="meta" style="margin: 0 0 10px;">
+                Fill in the value in every supported locale.
+                Leave blank to fall back to English. The site's current locale is highlighted.
+            </p>
+            <div class="tx-grid">
+                <span></span>
+                <div class="tx-row-headers"><span>Label</span><span>Description (optional)</span></div>
+
+                <span class="tx-locale-cell">en</span>
+                <input type="text" placeholder="English label">
+                <input type="text" placeholder="English description">
+
+                <span class="tx-locale-cell is-site">nl</span>
+                <input type="text" placeholder="Dutch label">
+                <input type="text" placeholder="Dutch description">
+
+                <span class="tx-locale-cell">de</span>
+                <input type="text" placeholder="German label">
+                <input type="text" placeholder="German description">
+
+                <span class="tx-locale-cell">es</span>
+                <input type="text" placeholder="Spanish label">
+                <input type="text" placeholder="Spanish description">
+
+                <span class="tx-locale-cell">fr</span>
+                <input type="text" placeholder="French label">
+                <input type="text" placeholder="French description">
+            </div>
+        </div>
+
+        <div class="form-foot">
+            <div class="left">
+                <button type="button" class="btn btn--ghost" data-pick-view="list">← Back to list</button>
+            </div>
+            <div class="right">
+                <button type="button" class="btn" data-pick-view="list">Cancel</button>
+                <button type="button" class="btn btn--primary">Add value</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         VIEW 3 — EDIT ROW (only when a row is clicked)
+         Same shape as Add but populated; EN appears alongside NL/DE/ES/FR.
+         ============================================================ -->
+    <section class="view view--edit" aria-label="Edit row">
+        <div class="card">
+            <h2 class="card-title" style="margin-top:0;">Edit value</h2>
+            <div class="field-grid">
+                <div class="field">
+                    <label>Internal key <span class="req">*</span></label>
+                    <input type="text" value="match">
+                    <span class="hint">Lowercase ASCII, no spaces. Used as the database identifier. Changing the key may break references.</span>
+                </div>
+                <div class="field">
+                    <label>Sort order</label>
+                    <input type="number" value="20" min="0" step="10" inputmode="numeric">
+                </div>
+                <div class="field">
+                    <label>Pill colour</label>
+                    <input type="text" value="#2e7d4f">
+                </div>
+                <div class="field"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="tx-card-head">
+                <h2 class="tx-card-title">Translations · 5 locales</h2>
+                <button type="button" class="btn tx-translate-btn">Translate missing from English →</button>
+            </div>
+            <p class="meta" style="margin: 0 0 10px;">
+                Every supported locale has a slot — including English, so the canonical value lives next to its translations.
+                Site locale is highlighted; missing translations show a warning chip on the list.
+            </p>
+            <div class="tx-grid">
+                <span></span>
+                <div class="tx-row-headers"><span>Label</span><span>Description (optional)</span></div>
+
+                <span class="tx-locale-cell">en</span>
+                <input type="text" value="Match">
+                <input type="text" value="Friendlies, league or cup fixtures">
+
+                <span class="tx-locale-cell is-site">nl</span>
+                <input type="text" value="Wedstrijd">
+                <input type="text" value="Vriendschappelijke, competitie- of bekerwedstrijden">
+
+                <span class="tx-locale-cell">de</span>
+                <input type="text" value="" placeholder="(missing)">
+                <input type="text" placeholder="">
+
+                <span class="tx-locale-cell">es</span>
+                <input type="text" placeholder="">
+                <input type="text" placeholder="">
+
+                <span class="tx-locale-cell">fr</span>
+                <input type="text" placeholder="">
+                <input type="text" placeholder="">
+            </div>
+        </div>
+
+        <div class="form-foot">
+            <div class="left">
+                <button type="button" class="btn btn--ghost" data-pick-view="list">← Back to list</button>
+                <button type="button" class="btn btn--danger-ghost">Delete</button>
+            </div>
+            <div class="right">
+                <button type="button" class="btn" data-pick-view="list">Cancel</button>
+                <button type="button" class="btn btn--primary">Save changes</button>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+function setView(v) {
+    document.body.setAttribute('data-view', v);
+    document.querySelectorAll('[data-pick-view]').forEach(function (b) {
+        if (b.tagName === 'BUTTON' && b.parentNode && b.parentNode.classList && b.parentNode.classList.contains('mockup-bar') === false) return;
+        b.setAttribute('aria-pressed', b.getAttribute('data-pick-view') === v ? 'true' : 'false');
+    });
+    document.querySelectorAll('.mockup-bar [data-pick-view]').forEach(function (b) {
+        b.setAttribute('aria-pressed', b.getAttribute('data-pick-view') === v ? 'true' : 'false');
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+document.querySelectorAll('[data-pick-view]').forEach(function (el) {
+    el.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        setView(el.getAttribute('data-pick-view'));
+    });
+});
+</script>
+</body>
+</html>
