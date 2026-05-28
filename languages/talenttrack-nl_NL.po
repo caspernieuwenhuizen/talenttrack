@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-05-27T20:56:48+00:00\n"
+"POT-Creation-Date: 2026-05-28T04:59:54+00:00\n"
 "PO-Revision-Date: 2026-04-25 10:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -614,7 +614,7 @@ msgstr "Eerste beeld opbouwen"
 #: src/Modules/Invitations/InvitationStatus.php:44
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:339
 #: src/Shared/Frontend/FrontendExportsView.php:103
-#: src/Shared/Frontend/FrontendWizardView.php:644
+#: src/Shared/Frontend/FrontendWizardView.php:668
 msgid "Pending"
 msgstr "In behandeling"
 
@@ -639,7 +639,7 @@ msgstr "In uitvoering"
 #: src/Modules/Workflow/TaskStatus.php:66
 #: src/Shared/Frontend/FrontendExportsView.php:105
 #: src/Shared/Frontend/FrontendWizardsAdminView.php:156
-#: src/Shared/Frontend/FrontendWizardView.php:642
+#: src/Shared/Frontend/FrontendWizardView.php:666
 msgid "Completed"
 msgstr "Voltooid"
 
@@ -7964,7 +7964,7 @@ msgid "Resume setup wizard"
 msgstr "Installatiewizard hervatten"
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:469
-#: src/Shared/Frontend/FrontendWizardView.php:518
+#: src/Shared/Frontend/FrontendWizardView.php:528
 msgid "Start over"
 msgstr "Opnieuw beginnen"
 
@@ -10140,7 +10140,7 @@ msgstr "Widget opslaan"
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:282
 #: src/Shared/Frontend/FrontendConfigurationView.php:546
 #: src/Shared/Frontend/FrontendConfigurationView.php:1281
-#: src/Shared/Frontend/FrontendWizardView.php:698
+#: src/Shared/Frontend/FrontendWizardView.php:722
 msgid "Saving…"
 msgstr "Opslaan…"
 
@@ -14465,7 +14465,7 @@ msgstr ""
 "hebben geen limiet."
 
 #: src/Modules/License/Admin/AccountPage.php:740
-#: src/Shared/Frontend/FrontendWizardView.php:643
+#: src/Shared/Frontend/FrontendWizardView.php:667
 msgid "Current"
 msgstr "Huidig"
 
@@ -16695,7 +16695,7 @@ msgstr "Datumnotatie"
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:196
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:244
 #: src/Shared/Frontend/FrontendDesktopPreferredBanner.php:37
-#: src/Shared/Frontend/FrontendWizardView.php:516
+#: src/Shared/Frontend/FrontendWizardView.php:526
 msgid "Continue"
 msgstr "Doorgaan"
 
@@ -24826,7 +24826,7 @@ msgstr "Beoordeeld"
 
 #: src/Modules/Wizards/Evaluation/RateActorsStep.php:120
 #: src/Modules/Workflow/TaskStatus.php:68
-#: src/Shared/Frontend/FrontendWizardView.php:644
+#: src/Shared/Frontend/FrontendWizardView.php:668
 msgid "Skipped"
 msgstr "Overgeslagen"
 
@@ -31872,41 +31872,41 @@ msgid "Creating…"
 msgstr "Aanmaken…"
 
 #. translators: %s: human-readable age e.g. "2 days".
-#: src/Shared/Frontend/FrontendWizardView.php:512
+#: src/Shared/Frontend/FrontendWizardView.php:522
 #, php-format
 msgid "You started this %s ago. Continue where you left off, or start over?"
 msgstr ""
 "Je bent %s geleden begonnen. Doorgaan waar je gebleven was, of opnieuw "
 "beginnen?"
 
-#: src/Shared/Frontend/FrontendWizardView.php:610
+#: src/Shared/Frontend/FrontendWizardView.php:634
 msgid "Wizard steps"
 msgstr "Wizard-stappen"
 
 #. translators: 1: step number, 2: step label, 3: state (Completed / Current / Pending / Skipped)
-#: src/Shared/Frontend/FrontendWizardView.php:639
+#: src/Shared/Frontend/FrontendWizardView.php:663
 #, php-format
 msgid "Step %1$d: %2$s (%3$s)"
 msgstr "Stap %1$d: %2$s (%3$s)"
 
 # #0077 polish wave 1 — new strings
-#: src/Shared/Frontend/FrontendWizardView.php:658
+#: src/Shared/Frontend/FrontendWizardView.php:682
 msgid "Help for this step"
 msgstr "Hulp bij deze stap"
 
-#: src/Shared/Frontend/FrontendWizardView.php:699
+#: src/Shared/Frontend/FrontendWizardView.php:723
 msgid "Saved · "
 msgstr "Opgeslagen · "
 
-#: src/Shared/Frontend/FrontendWizardView.php:700
+#: src/Shared/Frontend/FrontendWizardView.php:724
 msgid "Save failed"
 msgstr "Opslaan mislukt"
 
-#: src/Shared/Frontend/FrontendWizardView.php:722
+#: src/Shared/Frontend/FrontendWizardView.php:746
 msgid "This field is required."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendWizardView.php:723
+#: src/Shared/Frontend/FrontendWizardView.php:747
 msgid "Fill in every required field to continue."
 msgstr ""
 
