@@ -33731,9 +33731,6 @@ msgstr "Vrije trap links (voorzet)"
 msgid "Free kick right (cross)"
 msgstr "Vrije trap rechts (voorzet)"
 
-msgid "Penalty"
-msgstr "Strafschop"
-
 msgid "Roles & set pieces"
 msgstr "Rollen & standaardsituaties"
 
@@ -33746,20 +33743,8 @@ msgstr "Selectie · minuten"
 msgid "Match prep toolbar"
 msgstr "Werkbalk wedstrijdvoorbereiding"
 
-msgid "Formation"
-msgstr "Formatie"
-
-msgid "— Select —"
-msgstr "— Kies —"
-
 msgid "Half length"
 msgstr "Helftduur"
-
-msgid "min"
-msgstr "min"
-
-msgid "Availability"
-msgstr "Beschikbaarheid"
 
 msgid "PDF (landscape A4)"
 msgstr "PDF (liggend A4)"
@@ -33770,12 +33755,6 @@ msgstr "Alle wijzigingen opgeslagen."
 msgid "Unsaved changes…"
 msgstr "Niet-opgeslagen wijzigingen…"
 
-msgid "Saving…"
-msgstr "Opslaan…"
-
-msgid "min"
-msgstr "min"
-
 msgid "First half lineup"
 msgstr "Opstelling 1e helft"
 
@@ -33785,12 +33764,6 @@ msgstr "Opstelling 2e helft"
 msgid "Copy 1st half lineup to 2nd half"
 msgstr "Kopieer opstelling 1e helft naar 2e helft"
 
-msgid "Match goals"
-msgstr "Wedstrijddoelen"
-
-msgid "Set pieces"
-msgstr "Spelhervattingen"
-
 #. translators: %d: line number 1..4
 #, php-format
 msgid "Goal %d…"
@@ -33799,14 +33772,8 @@ msgstr "Doelstelling %d…"
 msgid "…"
 msgstr "…"
 
-msgid "Search player…"
-msgstr "Zoek speler…"
-
 msgid "No available players found."
 msgstr "Geen beschikbare spelers gevonden."
-
-msgid "Clear"
-msgstr "Leegmaken"
 
 msgid "on pitch"
 msgstr "op veld"
@@ -33822,14 +33789,8 @@ msgstr "1e"
 msgid "2nd"
 msgstr "2e"
 
-msgid "Present"
-msgstr "Aanwezig"
-
 msgid "Absent (excused)"
 msgstr "Afwezig (excused)"
-
-msgid "Injured"
-msgstr "Geblesseerd"
 
 msgid "Reason (optional)…"
 msgstr "Reden (optioneel)…"
@@ -33845,15 +33806,6 @@ msgstr "Beschikbaarheid openen"
 
 msgid "No availability captured yet."
 msgstr "Nog geen beschikbaarheid ingevuld."
-
-msgid "Mark all present"
-msgstr "Iedereen aanwezig"
-
-msgid "Done"
-msgstr "Klaar"
-
-msgid "Close"
-msgstr "Sluiten"
 
 msgid "Clear role"
 msgstr "Rol leegmaken"
