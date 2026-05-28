@@ -32067,9 +32067,6 @@ msgstr "Veld"
 msgid "Clear all slots"
 msgstr "Maak alle posities leeg"
 
-msgid "No players on this team yet."
-msgstr "Nog geen spelers in dit team."
-
 msgid "cross-team"
 msgstr "ander team"
 
@@ -32098,9 +32095,6 @@ msgstr "Kies een team en een speler."
 
 msgid "That player is already on the roster."
 msgstr "Die speler staat al in de selectie."
-
-msgid "Name is required."
-msgstr "Naam is verplicht."
 
 msgid "Custom label is required."
 msgstr "Aangepast label is verplicht."
@@ -33142,9 +33136,6 @@ msgstr "Alle posities op deze blauwdruk leegmaken? Dit kan niet ongedaan worden 
 
 #~ msgid "Please pick a player, a track, and start/end dates."
 #~ msgstr "Kies een speler, een traject en start- en einddatum."
-
-#~ msgid "— pick a player —"
-#~ msgstr "— kies een speler —"
 
 #~ msgid "— pick a staff member —"
 #~ msgstr "— kies een staflid —"
