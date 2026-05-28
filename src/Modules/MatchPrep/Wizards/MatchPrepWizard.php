@@ -29,4 +29,21 @@ final class MatchPrepWizard implements WizardInterface {
     public function steps(): array {
         return [ new AvailabilityStep() ];
     }
+
+    /**
+     * #0092 opt-in seed hook (v4.5.1 — follow-up to #940). On first
+     * hit the wizard framework passes `$_GET` here so the wizard can
+     * stash URL params in state. Necessary now that wizard POSTs go
+     * through admin-post.php and don't see the original entry URL's
+     * query string. Without this, `activity_id` was read from `$_GET`
+     * inside AvailabilityStep::render() but never persisted to state,
+     * so validate() / submit() saw a missing activity_id after POST.
+     *
+     * @param array<string,mixed> $get
+     * @return array<string,mixed>
+     */
+    public function initialState( array $get ): array {
+        $activity_id = isset( $get['activity_id'] ) ? (int) $get['activity_id'] : 0;
+        return $activity_id > 0 ? [ 'activity_id' => $activity_id ] : [];
+    }
 }
