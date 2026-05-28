@@ -129,6 +129,21 @@ final class WizardEntryPoint {
      * email link, admin page building a redirect target, etc.).
      */
     public static function currentDashboardUrl(): string {
+        // #940 follow-up — when the wizard's POST is being processed
+        // via admin-post.php, REQUEST_URI is `/wp-admin/admin-post.php`,
+        // not the dashboard URL. Wizard step `submit()` handlers building
+        // redirect URLs through this helper would land the user on a
+        // bogus admin-post URL (pilot symptom: clicking Create on the
+        // new-team-blueprint wizard sent the coach to
+        // `/wp-admin/admin-post.php?tt_view=team-blueprints&id=2`).
+        // `FrontendWizardView::handleAdminPostStep()` stashes the real
+        // dashboard URL (carried in the `tt_wizard_return_url` hidden
+        // field) here before invoking step methods; we consume it first
+        // when present.
+        if ( self::$request_context_override !== null ) {
+            return self::$request_context_override;
+        }
+
         $path = '/';
         if ( isset( $_SERVER['REQUEST_URI'] ) ) {
             $raw   = wp_unslash( (string) $_SERVER['REQUEST_URI'] );
@@ -138,4 +153,21 @@ final class WizardEntryPoint {
         }
         return home_url( $path );
     }
+
+    /**
+     * #940 follow-up — let an outer caller (notably the admin-post
+     * wizard handler) install a dashboard URL override. While set,
+     * `currentDashboardUrl()` returns this string verbatim. Pass null
+     * to clear.
+     *
+     * Per-process static; applies for the duration of the current
+     * request only. The handler sets it before invoking step
+     * `submit()` and the call chain `exit`s via `wp_safe_redirect()`,
+     * so an explicit clear isn't strictly needed — kept for tests.
+     */
+    public static function setRequestContextOverride( ?string $url ): void {
+        self::$request_context_override = $url !== null ? trim( $url ) : null;
+    }
+
+    private static ?string $request_context_override = null;
 }

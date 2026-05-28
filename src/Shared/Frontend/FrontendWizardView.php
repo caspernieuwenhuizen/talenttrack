@@ -351,6 +351,16 @@ class FrontendWizardView extends FrontendViewBase {
             $return_url = \TT\Shared\Wizards\WizardEntryPoint::buildUrl( $slug );
         }
 
+        // #940 follow-up — the wizard's POST is being processed via
+        // admin-post.php; REQUEST_URI is `/wp-admin/admin-post.php`.
+        // Step `submit()` handlers that use
+        // `WizardEntryPoint::currentDashboardUrl()` to build redirects
+        // would otherwise land the user on a bogus admin-post URL.
+        // Install the dashboard URL override before invoking step
+        // methods. `dashboardOnly()` strips the wizard query args from
+        // the return URL so step handlers see a clean dashboard base.
+        \TT\Shared\Wizards\WizardEntryPoint::setRequestContextOverride( self::dashboardOnly( $return_url ) );
+
         $step_slug = isset( $_POST['tt_wizard_step'] ) ? sanitize_key( (string) wp_unslash( $_POST['tt_wizard_step'] ) ) : '';
         $current = self::stepFor( $wizard, $step_slug ) ?: self::stepFor( $wizard, $wizard->firstStepSlug() );
         if ( ! $current ) {
@@ -517,6 +527,20 @@ class FrontendWizardView extends FrontendViewBase {
         echo ' <a class="tt-button tt-button-secondary" href="' . esc_url( $restart_url ) . '">'
             . esc_html__( 'Start over', 'talenttrack' ) . '</a>';
         echo '</div>';
+    }
+
+    /**
+     * #940 follow-up — strip wizard-specific query args from a
+     * wizard-step URL so step `submit()` handlers see a clean
+     * dashboard base when calling `WizardEntryPoint::currentDashboardUrl()`.
+     * Returns the URL with `tt_view`, `tt_wizard`, `slug`, `restart`,
+     * `dismiss_resume`, `return_to`, and `tt_back` query args removed.
+     */
+    private static function dashboardOnly( string $wizard_step_url ): string {
+        return remove_query_arg(
+            [ 'tt_view', 'tt_wizard', 'slug', 'restart', 'dismiss_resume', 'return_to', 'tt_back' ],
+            $wizard_step_url
+        );
     }
 
     private static function stepFor( WizardInterface $wizard, string $slug ): ?WizardStepInterface {
