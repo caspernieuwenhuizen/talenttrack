@@ -20,38 +20,51 @@ Klik op **Aanmaken** en je komt direct in de editor met lege posities, klaar om 
 
 ## De editor
 
-Drie regio's:
+Herbouwd in v4.6.0 (#972) — schone port van het in-tree prototype `.local-mockups/blueprint-editor/index.html`. Vier regio's:
 
-- **Selectiebalk** — elke actieve speler in het team, als versleepbare rij met avatar + naam + meta-regel. Een `×N`-badge verschijnt naast de naam zodra die speler op één of meer posities in de huidige formatie staat. Klik **+ Toevoegen ander team / gast / aangepast** voor een inline 3-tab-formulier (hieronder beschreven).
-- **Veld** — de posities van de formatie. Elke positie toont een genummerde cirkel (bv. `9 ST`) en een drielagige stack eronder: **primair / secundair / tertiair** diepte. De tier wordt twee keer gecodeerd — door het cijfer links van elke rij EN door de randkleur — zodat het diepteschema leesbaar blijft zonder kleur.
-- **Lijnchemie-kop** — `0 / 100` totdat je spelers begint te plaatsen, daarna ververst hij na elke wijziging.
+- **Toolbar** boven de lay-out — alleen-lezen team-naam, **Formatie**-dropdown (elke actieve sjabloon uit `tt_formation_templates`), **Wis alle posities**-knop en een opslag-hint die "Opslaan…" toont tussen schrijfacties.
+- **Selectiebalk** — titel `<Team> — selectie (<N>)`, daarna elke actieve speler als versleepbare rij: avatar met initialen + naam + meta-regel (positie, leeftijd, soort voor niet-team-entries). Een `×N`-badge verschijnt naast de naam zodra die speler op één of meer posities in de huidige formatie staat. Onder de lijst opent de knop **+ Voeg gast / aangepaste naam toe** een inline 3-tab-formulier (Ander team / Gast / Aangepast — hieronder beschreven).
+- **Veld** — de posities van de formatie. Elke positie toont een genummerde cirkel (bv. `9` / `ST`) en een drielagige stack er direct onder: **primair / secundair / tertiair** diepte. De tier wordt twee keer gecodeerd — door het cijfer links van elke rij EN door de randkleur (turquoise / amber / grijs) — zodat het diepteschema leesbaar blijft zonder kleur.
+- **Lijnchemie-kop** — `— / 100` totdat je spelers begint te plaatsen, daarna ververst hij na elke wijziging.
 
 ### Speler kiezen
 
 Twee manieren om een positie te vullen:
 
-- **Klik op een positie** → een kleine dropdown verschijnt met een zoekveld en de selectie. Filter op naam / positie, klik een rij om te plaatsen. Als een positie al iemand heeft, verschijnt onderin de dropdown een *Maak deze positie leeg*-regel.
-- **Sleep een selectierij** op een willekeurige positie. De positie accepteert de drop; de vorige bezetter van die tier wordt vervangen. Drag-drop en de dropdown gebruiken hetzelfde save-endpoint.
+- **Klik op een tier-rij** → er verschijnt een dropdown-picker naast de rij met een zoekveld en de volledige selectie. Filter op naam / positie; klik een rij om te plaatsen. Als de positie al iemand heeft, verschijnt onderin de picker een *Maak deze positie leeg*-regel.
+- **Sleep een selectierij** op een willekeurige tier-positie. De positie accepteert de drop; de vorige bezetter van die tier wordt vervangen (de verdrongen speler blijft op elke andere positie waarop hij staat — een drop trekt hem nergens anders weg). Drag-drop en de picker gebruiken hetzelfde save-endpoint.
 
-Dezelfde speler kan op meerdere posities én op meerdere tiers staan — er is geen automatische dedupe. De `×N`-badge in de selectie laat zien hoeveel plekken ze innemen op de huidige formatie (oude toewijzingen uit een andere formatie tellen niet mee). Tier-1-plekken voeden de chemiescore; tier-2 en tier-3 zijn pure diepteschema-signalen en tellen niet mee voor chemie.
+Dezelfde speler kan op een willekeurig aantal posities én tiers staan — er is geen automatische dedupe. De `×N`-badge in de selectie laat zien hoeveel plekken ze innemen op de **huidige** formatie (stale toewijzingen uit een andere formatie tellen niet mee voor de badge, maar overleven wel in de database). Tier-1-plekken voeden de chemiescore; tier-2 en tier-3 zijn pure diepteschema-signalen en tellen niet mee voor chemie.
 
-### + Toevoegen ander team / gast / aangepast
+De **`×`-wisknop** op elke gevulde rij maakt alleen die tier in die positie leeg.
+
+Na elke succesvolle opslag herlaadt de editor zodat de chemie-kop, namen op het veld en eventuele server-side state gezaghebbend terugkomen.
+
+### + Voeg gast / aangepaste naam toe
 
 Drie tabs op het inline-toevoegformulier:
 
-- **Ander team** — kies een ander team in de club, dan een speler uit dat team. Voegt ze toe aan de selectie als ander-team-pick. Het thuisteam van de speler verschijnt in de meta-regel. Andere-team-spelers worden precies opgeslagen als thuisteam-spelers (`ref_kind=player`) — wat ze "ander-team" maakt is alleen het verschil in thuisteam.
+- **Ander team** — kies een ander team in de club, dan een speler uit dat team. Voegt ze toe aan de selectie als ander-team-pick (het thuisteam verschijnt in de meta-regel). Ander-team-spelers worden precies opgeslagen als thuisteam-spelers (`ref_kind=player`) — wat ze "ander-team" maakt is alleen het verschil in thuisteam.
 - **Gast** — typ een naam (bv. *"proefspeler op bezoek"*) en optioneel een positie. Voegt een gastrij toe aan de selectie.
 - **Aangepast** — typ een vrij label (bv. *"Scoutdoel #4"*). Voegt een aangepaste placeholder toe aan de selectie.
 
-Gast- en aangepaste toevoegingen zijn **alleen sessie-gebonden tot ze geplaatst worden**. Ze leven in de lokale selectie van de editor en worden pas opgeslagen wanneer ze daadwerkelijk in een tier-positie worden gezet — sluit je de editor zonder ze te plaatsen, dan zijn ze effectief weg. Eenmaal geplaatst draagt de toewijzing de ref en blijft de entry een reload overleven.
+Gast- en aangepaste toevoegingen zijn **alleen sessie-gebonden tot ze geplaatst worden**. Ze leven in de in-memory selectie van de editor en worden pas opgeslagen wanneer ze daadwerkelijk in een tier-positie worden gezet — sluit je de editor zonder ze te plaatsen, dan zijn ze effectief weg. Eenmaal geplaatst draagt de toewijzing de ref (`ref_kind=guest` of `ref_kind=custom`) en blijft de entry een reload overleven.
 
 ### Formatie wisselen
 
-Een andere formatie kiezen uit de **Formatie**-dropdown boven het veld werkt de sjabloon van de blauwdruk bij. Positie-labels die in beide formaties bestaan behouden hun toewijzingen; nieuwe posities komen leeg binnen; verdwenen posities blijven stil in de database (zodat een heen-en-weer-wissel ze terugbrengt).
+Een andere formatie kiezen uit de **Formatie**-dropdown werkt de sjabloon van de blauwdruk bij (via `PUT /blueprints/{id}` met de nieuwe `formation_template_id`) en herlaadt de editor. Toewijzingen overleven op **positie-label** — elke positie waarvan het label in zowel de oude als de nieuwe formatie bestaat behoudt zijn tier-1/2/3-keuzes. Nieuwe posities komen leeg binnen. Verdwenen posities blijven stil in de database, dus een heen-en-weer-wissel brengt ze terug. (De `×N`-badge telt alleen wat zichtbaar is op de huidige formatie.)
+
+### Wis alle posities
+
+De knop **Wis alle posities** in de toolbar verwijdert alle toewijzingen van de huidige blauwdruk na een bevestiging. Er is geen undo — gebruik 'm bij een verse start vanaf een bestaande blauwdruk via *Opslaan als*.
 
 ### Opslaan
 
-Elke keuze slaat direct op via het assignments-endpoint. Er is geen "Opslaan"-batchknop — de editor is de bron van waarheid.
+Elke keuze / leegmaak / formatie-wisseling slaat direct op. Er is geen batch-opslag. De **Opslaan**-knop in de statusrij betekent "klaar met bewerken, breng me terug naar de lijst" — hij navigeert naar de blauwdrukkenlijst van het team met een bevestigings-toast. **Opslaan als** vraagt om een nieuwe naam en kloont de huidige blauwdruk (inclusief elke toewijzingsrij) naar een nieuw concept en opent dat concept.
+
+### Chemie verbergen
+
+De knop **Chemie verbergen** in de statusrij verbergt de chemie-koptekst EN elke chemie-lijn op het veld. De staat blijft staan in `sessionStorage` per blauwdruk-id, dus een refresh onthoudt de voorkeur. Handig wanneer je het diepteschema rustig wilt lezen zonder chemie-ruis.
 
 ### Chemiescore
 

@@ -1,20 +1,34 @@
 /**
- * TalentTrack — Blueprint editor (#953).
+ * TalentTrack — Blueprint editor.
  *
- * Rebuilt depth-chart editor matching the in-tree prototype at
- * `.local-mockups/blueprint-editor/index.html`. Each pitch position
- * carries a numbered circle plus a three-row stack underneath
- * (primary / secondary / tertiary). Players can sit in any number of
- * slots and tiers; the roster sidebar shows an `xN` placement badge.
+ * Clean port of `.local-mockups/blueprint-editor/index.html`. Each
+ * pitch position renders a numbered circle plus a three-row tier stack
+ * (1 / 2 / 3) directly below it. The roster sidebar shows a draggable
+ * list of players, each row carrying an `xN` placement badge that
+ * counts how many slots reference that player in the CURRENT formation.
  *
- * The roster sidebar augments with cross-team / guest / custom entries
- * via the "+ Add" inline form. Augmentations are session-only — they
- * only persist on placement (the assignment row carries the ref).
+ * Interactions:
+ *   - Click a tier slot   -> picker opens beside it; search filters in
+ *                            real time; pick a player to assign, or
+ *                            click "Clear this slot" if filled.
+ *   - Drag a roster row   -> drop onto a tier slot to assign.
+ *   - Drop on a filled    -> replaces the previous occupant (does NOT
+ *     slot                  pull them from other slots).
+ *   - Add guest / custom  -> inline 3-tab form (Other team / Guest /
+ *     / cross-team          Custom); persists on placement only.
+ *   - Switch formation    -> assignments survive by slot label; slots
+ *                            dropped from the previous formation are
+ *                            hidden but their data is preserved so a
+ *                            round-trip switch restores them.
+ *   - Clear all slots     -> confirms then removes every assignment.
  *
- * Drag-drop, formation switch and the dropdown picker are wired here.
- * The chemistry recompute happens server-side; this file reloads the
- * page after a save so the authoritative pitch + chemistry headline
- * come back from PHP.
+ * The chemistry headline + status / save / save-as / hide-chem
+ * toolbars are PHP-rendered; this file lifts the handlers for them
+ * (previously in `frontend-team-blueprint.js`, retired in v4.6.0).
+ *
+ * Every successful assignment / clear / formation change posts to REST
+ * and then reloads the page, so the chemistry score, pitch occupants
+ * and any server-side state always come back authoritative.
  */
 (function () {
     'use strict';
@@ -22,640 +36,934 @@
     if (typeof window.TT_BLUEPRINT_EDITOR === 'undefined') return;
     var cfg = window.TT_BLUEPRINT_EDITOR;
 
-    // -------------------- state ---------------------------------------
-    // Session-augmented roster. The PHP-rendered team roster is the
-    // seed; cross-team / guest / custom entries the user adds live here
-    // until they are placed in a slot (at which point the placement
-    // persists via the assignments table).
+    // -------- state ---------------------------------------------------
+    // Roster is the team's players (kind = 'player') plus any
+    // session-only guest / custom / cross-team entries the user has
+    // added during this session. Items in `assignment_refs` for kinds
+    // other than 'player' are re-seeded into the roster on load so a
+    // returning user sees their picks.
     var roster = (cfg.roster || []).slice();
 
-    // assignments: slot_label -> { 1|2|3: ref|null }
-    // tiers are stored as numeric keys 1/2/3 in memory and translated
-    // to 'primary'/'secondary'/'tertiary' on the wire.
-    var assignments = {};
+    // assignment_refs is { slot_label: { tier: ref } } where ref is one of:
+    //   { kind: 'player', player_id, display_name, team_id, team_name }
+    //   { kind: 'guest',  name, position, display_name }
+    //   { kind: 'custom', label, display_name }
+    var refs = deepClone(cfg.assignment_refs || {});
 
-    var currentFormation = cfg.formation || {};
-    var blueprintId = cfg.blueprint_id | 0;
-    var locked = !!cfg.locked;
-    var canManage = !!cfg.can_manage;
+    // The active formation template id (server-side authoritative on
+    // first render, mutated by the dropdown switch).
+    var currentFormationId = (cfg.formation && cfg.formation.template_id) || 0;
 
-    var TIER_NAME = { 1: 'primary', 2: 'secondary', 3: 'tertiary' };
-    var TIER_NUM  = { 'primary': 1, 'secondary': 2, 'tertiary': 3 };
+    // Roster ids of session-only entries (kind != 'player') so we can
+    // assign synthetic roster_ids that don't collide with player IDs.
+    var nextSessionId = 1;
 
-    // -------------------- bootstrap -----------------------------------
+    // Surface the session-only refs from `refs` (guests/customs the
+    // user placed previously) back into the roster list on first
+    // render so they show with an x1+ badge.
+    seedSessionOnlyRosterFromRefs();
+
+    // -------- DOM hooks -----------------------------------------------
     document.addEventListener('DOMContentLoaded', function () {
-        var editor = document.querySelector('.tt-bpe-editor');
-        if (!editor) return;
-        ingestAssignments(cfg.assignment_refs || {});
+        var root = document.querySelector('.tt-bpe-editor');
+        if (!root) return;
+
         renderRoster();
         renderPitch();
-        wireToolbar();
-        wireAddForm();
-        wireDocumentClose();
+        wireToolbar(root);
+        wireAddForm(root);
+        wireDocClicks();
+
+        // Pre-existing toolbar (Save / Save As / Hide chemistry) and
+        // status row (Share / Lock / Reopen / Move back to draft) sit
+        // OUTSIDE `.tt-bpe-editor` — they were rendered by the view's
+        // `renderEditorToolbar()` + `renderStatusRow()`. Wire them
+        // unconditionally so they work even when the editor is
+        // locked / read-only.
+        wireHideChemistryToggle();
+        wireSaveToolbar();
+        wireStatusButtons();
     });
 
-    // -------------------- model helpers -------------------------------
-
-    function ingestAssignments(refs) {
-        Object.keys(refs || {}).forEach(function (slot) {
-            assignments[slot] = { 1: null, 2: null, 3: null };
-            Object.keys(refs[slot] || {}).forEach(function (tier) {
-                var n = TIER_NUM[tier] || 0;
-                if (!n) return;
-                assignments[slot][n] = refs[slot][tier];
-                // Augment roster with player refs we don't already have
-                // (cross-team picks already in storage land here too).
-                addRefToRosterIfMissing(refs[slot][tier]);
-            });
-        });
-        // Ensure every formation slot has an entry.
-        (currentFormation.slots || []).forEach(function (s) {
-            if (!assignments[s.label]) assignments[s.label] = { 1: null, 2: null, 3: null };
-        });
-    }
-
-    function addRefToRosterIfMissing(ref) {
-        if (!ref) return;
-        var id = refRosterId(ref);
-        if (!id) return;
-        for (var i = 0; i < roster.length; i++) {
-            if (roster[i].roster_id === id) return;
-        }
-        roster.push(refToRosterRow(ref));
-    }
-
-    // Build a stable, unique roster row key for any ref.
-    function refRosterId(ref) {
-        if (!ref) return '';
-        if (ref.kind === 'player') return 'p:' + ref.player_id;
-        if (ref.kind === 'guest')  return 'g:' + (ref.name || '');
-        if (ref.kind === 'custom') return 'c:' + (ref.label || '');
-        return '';
-    }
-
-    function refToRosterRow(ref) {
-        if (ref.kind === 'player') {
-            return {
-                roster_id: 'p:' + ref.player_id,
-                kind: 'player',
-                player_id: ref.player_id,
-                name: ref.display_name || ('#' + ref.player_id),
-                team_id: ref.team_id || null,
-                team_name: ref.team_name || '',
-                is_crossteam: cfg.team_id && ref.team_id && cfg.team_id !== ref.team_id
-            };
-        }
-        if (ref.kind === 'guest') {
-            return {
-                roster_id: 'g:' + ref.name,
-                kind: 'guest',
-                name: ref.display_name || ref.name || '',
-                position: ref.position || ''
-            };
-        }
-        return {
-            roster_id: 'c:' + ref.label,
-            kind: 'custom',
-            name: ref.display_name || ref.label || ''
-        };
-    }
-
-    function refForRosterRow(row) {
-        if (!row) return null;
-        if (row.kind === 'player') {
-            return { kind: 'player', player_id: row.player_id };
-        }
-        if (row.kind === 'guest') {
-            return { kind: 'guest', name: row.name, position: row.position || null };
-        }
-        return { kind: 'custom', label: row.name };
-    }
-
-    function placementCount(rosterId) {
-        var n = 0;
-        (currentFormation.slots || []).forEach(function (s) {
-            var cells = assignments[s.label];
-            if (!cells) return;
-            [1, 2, 3].forEach(function (t) {
-                if (cells[t] && refRosterId(cells[t]) === rosterId) n++;
-            });
-        });
-        return n;
-    }
-
-    // -------------------- rendering -----------------------------------
-
-    function escapeHtml(s) {
-        return String(s == null ? '' : s)
-            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-    }
-
-    function initials(name) {
-        return (name || '').split(/\s+/).map(function (w) { return w[0] || ''; }).slice(0, 2).join('').toUpperCase();
-    }
-
-    function rowClass(row) {
-        if (row.kind === 'player')   return row.is_crossteam ? 'tt-bpe-av-crossteam' : 'tt-bpe-av-team';
-        if (row.kind === 'guest')    return 'tt-bpe-av-guest';
-        return 'tt-bpe-av-custom';
-    }
+    // ==================== rendering ====================================
 
     function renderRoster() {
         var ul = document.querySelector('.tt-bpe-roster-list');
         if (!ul) return;
         ul.innerHTML = '';
         if (!roster.length) {
-            ul.innerHTML = '<li class="tt-bpe-roster-empty">' + escapeHtml(cfg.i18n.roster_empty) + '</li>';
+            var li = document.createElement('li');
+            li.className = 'tt-bpe-roster-empty';
+            li.textContent = (cfg.i18n && cfg.i18n.roster_empty) || 'No players on this team yet.';
+            ul.appendChild(li);
             return;
         }
-        roster.forEach(function (row) {
-            var count = placementCount(row.roster_id);
-            var li = document.createElement('li');
-            li.className = 'tt-bpe-roster-row';
-            li.setAttribute('data-roster-id', row.roster_id);
-            li.draggable = canManage && !locked;
-            var meta = '';
-            if (row.kind === 'player') {
-                meta = (row.team_name || '') + (row.is_crossteam ? ' · ' + cfg.i18n.kind_crossteam : '');
-            } else if (row.kind === 'guest') {
-                meta = (row.position ? row.position + ' · ' : '') + cfg.i18n.kind_guest;
-            } else {
-                meta = cfg.i18n.kind_custom;
-            }
-            li.innerHTML =
-                '<span class="tt-bpe-av ' + rowClass(row) + '">' + escapeHtml(initials(row.name)) + '</span>' +
-                '<span class="tt-bpe-who">' +
-                    '<span class="tt-bpe-who-name">' + escapeHtml(row.name) +
-                        '<span class="tt-bpe-pick-count"' + (count === 0 ? ' hidden' : '') + '>×' + count + '</span>' +
-                    '</span>' +
-                    '<span class="tt-bpe-who-meta">' + escapeHtml(meta) + '</span>' +
-                '</span>';
-            ul.appendChild(li);
+        roster.forEach(function (p) {
+            ul.appendChild(buildRosterRow(p));
         });
-        wireRosterDrag();
+        var titleEl = document.querySelector('.tt-bpe-roster-count');
+        if (titleEl) {
+            titleEl.textContent = '(' + roster.length + ')';
+        }
+    }
+
+    function buildRosterRow(p) {
+        var li = document.createElement('li');
+        li.className = 'tt-bpe-roster-row';
+        li.dataset.rosterId = p.roster_id;
+        var canDrag = cfg.can_manage && !cfg.locked;
+        li.draggable = !!canDrag;
+        if (canDrag) {
+            li.addEventListener('dragstart', function (e) {
+                li.classList.add('is-dragging');
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', p.roster_id);
+            });
+            li.addEventListener('dragend', function () {
+                li.classList.remove('is-dragging');
+            });
+        }
+
+        var av = document.createElement('span');
+        av.className = 'tt-bpe-av tt-bpe-av-' + (p.kind || 'player');
+        av.textContent = initials(p.name || '');
+
+        var who = document.createElement('span');
+        who.className = 'tt-bpe-who';
+
+        var nameLine = document.createElement('span');
+        nameLine.className = 'tt-bpe-who-name';
+        nameLine.appendChild(document.createTextNode(p.name || ''));
+        var count = placementCount(p);
+        if (count > 0) {
+            var badge = document.createElement('span');
+            badge.className = 'tt-bpe-pick-count';
+            badge.textContent = 'x' + count;
+            badge.setAttribute('aria-label', 'placed ' + count + ' times');
+            nameLine.appendChild(badge);
+        }
+
+        var metaLine = document.createElement('span');
+        metaLine.className = 'tt-bpe-who-meta';
+        metaLine.textContent = metaSuffix(p);
+
+        who.appendChild(nameLine);
+        who.appendChild(metaLine);
+
+        li.appendChild(av);
+        li.appendChild(who);
+
+        // Click anywhere on the row opens the picker for the next
+        // empty slot? No — that's too magical. The mockup leaves
+        // click as a no-op on the roster (drag is the only action).
+        return li;
+    }
+
+    function metaSuffix(p) {
+        var bits = [];
+        bits.push(p.pos || '-');
+        if (p.age && p.age > 0) {
+            var ageFmt = (cfg.i18n && cfg.i18n.age_fmt) || 'age %d';
+            bits.push(ageFmt.replace('%d', String(p.age)));
+        }
+        if (p.kind && p.kind !== 'player') {
+            var kindLabel = (cfg.i18n && cfg.i18n['kind_' + p.kind]) || p.kind;
+            bits.push(kindLabel);
+        }
+        return bits.join(' . ');
+    }
+
+    function placementCount(p) {
+        var n = 0;
+        var slots = activeSlotLabels();
+        for (var i = 0; i < slots.length; i++) {
+            var slotRefs = refs[slots[i]] || {};
+            ['primary', 'secondary', 'tertiary'].forEach(function (tier) {
+                if (rosterIdForRef(slotRefs[tier]) === p.roster_id) n++;
+            });
+        }
+        return n;
     }
 
     function renderPitch() {
-        var pitch = document.querySelector('.tt-bpe-pitch');
-        if (!pitch) return;
-        // Drop any pre-existing position cards.
-        Array.prototype.forEach.call(pitch.querySelectorAll('.tt-bpe-pos'), function (el) { el.remove(); });
+        var wrap = document.querySelector('.tt-bpe-pitch-wrap');
+        if (!wrap) return;
+        // Wipe previous position cards.
+        Array.prototype.slice.call(wrap.querySelectorAll('.tt-bpe-pos'))
+            .forEach(function (el) { el.parentNode.removeChild(el); });
 
-        var slots = currentFormation.slots || [];
+        var slots = activeSlots();
         slots.forEach(function (slot) {
-            var card = document.createElement('div');
-            card.className = 'tt-bpe-pos';
-            card.style.left = (slot.x * 100) + '%';
-            card.style.top  = (slot.y * 100) + '%';
-            card.setAttribute('data-slot-label', slot.label);
-            card.innerHTML =
-                '<div class="tt-bpe-circle" aria-hidden="true">' +
-                    (slot.num ? '<span class="tt-bpe-circle-num">' + escapeHtml(String(slot.num)) + '</span>' : '') +
-                    '<span class="tt-bpe-circle-abbr">' + escapeHtml(slot.label) + '</span>' +
-                '</div>' +
-                '<div class="tt-bpe-stack" role="group" aria-label="' + escapeHtml(slot.label) + '">' +
-                    slotMarkup(slot.label, 1) +
-                    slotMarkup(slot.label, 2) +
-                    slotMarkup(slot.label, 3) +
-                '</div>';
-            pitch.appendChild(card);
+            wrap.appendChild(buildPositionCard(slot));
         });
-        wireSlots();
     }
 
-    function slotMarkup(slotLabel, tier) {
-        var ref = (assignments[slotLabel] && assignments[slotLabel][tier]) || null;
-        var rowName = '';
-        if (ref) {
-            var row = roster.filter(function (r) { return r.roster_id === refRosterId(ref); })[0];
-            rowName = row ? row.name : (ref.display_name || '');
-        }
-        var filled = ref ? ' is-filled' : '';
-        return (
-            '<button type="button" class="tt-bpe-slot' + filled + '"' +
-                ' data-slot-label="' + escapeHtml(slotLabel) + '"' +
-                ' data-tier="' + tier + '"' +
-                ' aria-label="' + escapeHtml(slotLabel + ' tier ' + tier) + '">' +
-                '<span class="tt-bpe-tier-mark" data-tier="' + tier + '" aria-hidden="true">' + tier + '</span>' +
-                '<span class="tt-bpe-slot-name">' + (ref ? escapeHtml(rowName) : '—') + '</span>' +
-                (ref ? '<span class="tt-bpe-slot-clear" data-clear="1" aria-label="' + escapeHtml(cfg.i18n.clear_slot) + '">×</span>' : '') +
-            '</button>'
-        );
+    function buildPositionCard(slot) {
+        var card = document.createElement('div');
+        card.className = 'tt-bpe-pos';
+        card.style.left = (slot.x * 100) + '%';
+        card.style.top  = (slot.y * 100) + '%';
+        card.dataset.slotLabel = slot.label;
+
+        var circle = document.createElement('div');
+        circle.className = 'tt-bpe-circle';
+        var numEl = document.createElement('span');
+        numEl.className = 'tt-bpe-circle-num';
+        numEl.textContent = slot.num != null && slot.num > 0 ? String(slot.num) : '';
+        var abbrEl = document.createElement('span');
+        abbrEl.className = 'tt-bpe-circle-abbr';
+        abbrEl.textContent = slot.abbr || slot.label || '';
+        circle.appendChild(numEl);
+        circle.appendChild(abbrEl);
+
+        var stack = document.createElement('div');
+        stack.className = 'tt-bpe-stack';
+        [1, 2, 3].forEach(function (tierNum) {
+            stack.appendChild(buildSlotRow(slot.label, tierNum));
+        });
+
+        card.appendChild(circle);
+        card.appendChild(stack);
+        return card;
     }
 
-    // -------------------- interactions --------------------------------
+    function buildSlotRow(slotLabel, tierNum) {
+        var tierKey = tierKeyFromNum(tierNum);
+        var ref = (refs[slotLabel] || {})[tierKey] || null;
+        var row = document.createElement('div');
+        row.className = 'tt-bpe-slot' + (ref ? ' is-filled' : '');
+        row.dataset.slotLabel = slotLabel;
+        row.dataset.tier = tierKey;
+        row.dataset.tierNum = String(tierNum);
+        row.setAttribute('role', 'button');
+        row.setAttribute('tabindex', cfg.can_manage && !cfg.locked ? '0' : '-1');
+        var aria = 'Slot ' + slotLabel + ' tier ' + tierNum;
+        if (ref) aria += ' filled with ' + (ref.display_name || '');
+        row.setAttribute('aria-label', aria);
 
-    function wireSlots() {
-        var slots = document.querySelectorAll('.tt-bpe-slot');
-        Array.prototype.forEach.call(slots, function (btn) {
-            btn.addEventListener('click', function (e) {
-                if (!canManage || locked) return;
-                if (e.target && e.target.getAttribute('data-clear') === '1') {
-                    e.stopPropagation();
-                    saveAssignment(btn.getAttribute('data-slot-label'), parseInt(btn.getAttribute('data-tier'), 10), null);
-                    return;
+        var mark = document.createElement('span');
+        mark.className = 'tt-bpe-tier-mark';
+        mark.textContent = String(tierNum);
+        row.appendChild(mark);
+
+        var name = document.createElement('span');
+        name.className = 'tt-bpe-slot-name';
+        name.textContent = ref ? (ref.display_name || '') : '-';
+        row.appendChild(name);
+
+        var clearBtn = document.createElement('button');
+        clearBtn.type = 'button';
+        clearBtn.className = 'tt-bpe-slot-x';
+        clearBtn.setAttribute('aria-label', 'Clear');
+        clearBtn.textContent = 'x';
+        clearBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            if (!cfg.can_manage || cfg.locked) return;
+            saveAssignment(slotLabel, tierKey, null);
+        });
+        row.appendChild(clearBtn);
+
+        if (cfg.can_manage && !cfg.locked) {
+            row.addEventListener('click', function (e) {
+                if (e.target === clearBtn) return;
+                openPicker(row);
+            });
+            row.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    openPicker(row);
                 }
-                openDropdown(btn);
             });
-            btn.addEventListener('dragover', function (e) {
-                if (!canManage || locked) return;
+            row.addEventListener('dragover', function (e) {
                 e.preventDefault();
-                btn.classList.add('is-drag-over');
+                e.dataTransfer.dropEffect = 'move';
+                row.classList.add('is-drag-over');
             });
-            btn.addEventListener('dragleave', function () { btn.classList.remove('is-drag-over'); });
-            btn.addEventListener('drop', function (e) {
-                if (!canManage || locked) return;
+            row.addEventListener('dragleave', function () {
+                row.classList.remove('is-drag-over');
+            });
+            row.addEventListener('drop', function (e) {
                 e.preventDefault();
-                btn.classList.remove('is-drag-over');
+                row.classList.remove('is-drag-over');
                 var rosterId = e.dataTransfer.getData('text/plain');
                 if (!rosterId) return;
-                var row = roster.filter(function (r) { return r.roster_id === rosterId; })[0];
-                if (!row) return;
-                saveAssignment(btn.getAttribute('data-slot-label'), parseInt(btn.getAttribute('data-tier'), 10), refForRosterRow(row));
-            });
-        });
-    }
-
-    function wireRosterDrag() {
-        if (!canManage || locked) return;
-        var rows = document.querySelectorAll('.tt-bpe-roster-row');
-        Array.prototype.forEach.call(rows, function (li) {
-            li.addEventListener('dragstart', function (e) {
-                e.dataTransfer.effectAllowed = 'move';
-                e.dataTransfer.setData('text/plain', li.getAttribute('data-roster-id'));
-                li.classList.add('is-dragging');
-            });
-            li.addEventListener('dragend', function () { li.classList.remove('is-dragging'); });
-        });
-    }
-
-    // -------------------- dropdown picker -----------------------------
-
-    var currentDropdown = null;
-    var currentAnchor = null;
-
-    function openDropdown(anchor) {
-        closeDropdown();
-        currentAnchor = anchor;
-        var slotLabel = anchor.getAttribute('data-slot-label');
-        var tier = parseInt(anchor.getAttribute('data-tier'), 10);
-
-        var dd = document.createElement('div');
-        dd.className = 'tt-bpe-dropdown';
-        dd.setAttribute('role', 'listbox');
-        dd.innerHTML =
-            '<div class="tt-bpe-dd-head">' +
-                escapeHtml(cfg.i18n.picker_head.replace('%s', String(tier))) +
-            '</div>' +
-            '<input type="text" class="tt-bpe-dd-search" inputmode="search" placeholder="' + escapeHtml(cfg.i18n.search_placeholder) + '" autocomplete="off">' +
-            '<div class="tt-bpe-dd-results"></div>' +
-            (anchor.classList.contains('is-filled')
-                ? '<div class="tt-bpe-dd-clear" role="button" tabindex="0">' + escapeHtml(cfg.i18n.clear_slot) + '</div>'
-                : '');
-        document.body.appendChild(dd);
-        currentDropdown = dd;
-
-        renderDropdownResults(dd, '', slotLabel, tier);
-        var search = dd.querySelector('.tt-bpe-dd-search');
-        search.addEventListener('input', function () {
-            renderDropdownResults(dd, search.value, slotLabel, tier);
-        });
-        var clear = dd.querySelector('.tt-bpe-dd-clear');
-        if (clear) {
-            clear.addEventListener('click', function () {
-                saveAssignment(slotLabel, tier, null);
+                var p = findRosterEntry(rosterId);
+                if (!p) return;
+                saveAssignment(slotLabel, tierKey, refForRosterEntry(p));
             });
         }
+        return row;
+    }
 
-        positionDropdown(dd, anchor);
+    // ==================== picker (anchored dropdown) ===================
+
+    var openPickerEl = null;
+    var pickerAnchor = null;
+
+    function openPicker(anchorSlot) {
+        closePicker();
+        pickerAnchor = anchorSlot;
+        var slotLabel = anchorSlot.dataset.slotLabel;
+        var tierKey = anchorSlot.dataset.tier;
+        var tierNum = parseInt(anchorSlot.dataset.tierNum, 10);
+        var currentRef = (refs[slotLabel] || {})[tierKey] || null;
+
+        var dd = document.createElement('div');
+        dd.className = 'tt-bpe-picker';
+        dd.setAttribute('role', 'dialog');
+        dd.setAttribute('aria-modal', 'false');
+
+        var head = document.createElement('div');
+        head.className = 'tt-bpe-picker-head';
+        var headFmt = (cfg.i18n && cfg.i18n.picker_head) || 'Pick a player for tier %d';
+        head.textContent = headFmt.replace('%d', String(tierNum));
+        dd.appendChild(head);
+
+        var search = document.createElement('input');
+        search.type = 'search';
+        search.className = 'tt-bpe-picker-search';
+        search.placeholder = (cfg.i18n && cfg.i18n.search_placeholder) || 'Search...';
+        search.setAttribute('inputmode', 'search');
+        search.setAttribute('autocomplete', 'off');
+        dd.appendChild(search);
+
+        var results = document.createElement('div');
+        results.className = 'tt-bpe-picker-results';
+        dd.appendChild(results);
+
+        if (currentRef) {
+            var clearRow = document.createElement('button');
+            clearRow.type = 'button';
+            clearRow.className = 'tt-bpe-picker-clear';
+            clearRow.textContent = (cfg.i18n && cfg.i18n.clear_slot) || 'Clear this slot';
+            clearRow.addEventListener('click', function () {
+                saveAssignment(slotLabel, tierKey, null);
+            });
+            dd.appendChild(clearRow);
+        }
+
+        document.body.appendChild(dd);
+        openPickerEl = dd;
+
+        renderPickerResults(results, '', slotLabel, tierKey);
+        search.addEventListener('input', function () {
+            renderPickerResults(results, search.value, slotLabel, tierKey);
+        });
+
+        positionPicker(dd, anchorSlot);
+
+        // Focus the search box on next tick so iOS doesn't blur it.
         setTimeout(function () { search.focus(); }, 0);
     }
 
-    function positionDropdown(dd, anchor) {
-        // The body picker uses fixed positioning relative to the
-        // viewport — viewport-edge clamps keep it on screen on small
-        // phones where the slot sits near the right edge of the pitch.
-        var rect = anchor.getBoundingClientRect();
-        dd.style.position = 'fixed';
-        dd.style.visibility = 'hidden';
-        dd.style.left = '0px';
-        dd.style.top = '0px';
-        var ddRect = dd.getBoundingClientRect();
-        var left = rect.right + 6;
-        var top  = rect.top;
-        if (left + ddRect.width > window.innerWidth - 12) {
-            left = Math.max(8, rect.left - ddRect.width - 6);
-        }
-        if (top + ddRect.height > window.innerHeight - 12) {
-            top = Math.max(8, window.innerHeight - ddRect.height - 12);
-        }
-        dd.style.left = left + 'px';
-        dd.style.top = top + 'px';
-        dd.style.visibility = 'visible';
-    }
-
-    function renderDropdownResults(dd, query, slotLabel, tier) {
-        var results = dd.querySelector('.tt-bpe-dd-results');
+    function renderPickerResults(container, query, slotLabel, tierKey) {
         var q = (query || '').trim().toLowerCase();
-        var currentRef = assignments[slotLabel] && assignments[slotLabel][tier];
-        var currentId = currentRef ? refRosterId(currentRef) : null;
-
-        var matches = roster.filter(function (row) {
-            if (currentId && row.roster_id === currentId) return false;
+        var slotRefs = refs[slotLabel] || {};
+        var occupantRosterId = rosterIdForRef(slotRefs[tierKey]);
+        var matches = roster.filter(function (p) {
+            // Skip the row already in this exact slot+tier (it IS this slot).
+            if (p.roster_id === occupantRosterId) return false;
             if (!q) return true;
-            var hay = (row.name + ' ' + (row.team_name || '') + ' ' + (row.position || '')).toLowerCase();
-            return hay.indexOf(q) >= 0;
+            var hay = ((p.name || '') + ' ' + (p.pos || '')).toLowerCase();
+            return hay.indexOf(q) !== -1;
         });
+
+        container.innerHTML = '';
         if (!matches.length) {
-            results.innerHTML = '<div class="tt-bpe-dd-empty">' + escapeHtml(cfg.i18n.no_matches) + '</div>';
+            var empty = document.createElement('div');
+            empty.className = 'tt-bpe-picker-empty';
+            empty.textContent = (cfg.i18n && cfg.i18n.no_matches) || 'No players match.';
+            container.appendChild(empty);
             return;
         }
-        results.innerHTML = matches.map(function (row) {
-            var placed = placementCount(row.roster_id);
-            var meta = (row.team_name || row.position || cfg.i18n['kind_' + row.kind] || '');
-            if (placed > 0) {
-                meta += (meta ? ' · ' : '') + cfg.i18n.placed_n.replace('%d', String(placed));
+
+        matches.forEach(function (p) {
+            var row = document.createElement('button');
+            row.type = 'button';
+            row.className = 'tt-bpe-picker-row';
+            row.dataset.rosterId = p.roster_id;
+
+            var av = document.createElement('span');
+            av.className = 'tt-bpe-av tt-bpe-av-' + (p.kind || 'player');
+            av.textContent = initials(p.name || '');
+            row.appendChild(av);
+
+            var info = document.createElement('span');
+            info.className = 'tt-bpe-picker-info';
+            var name = document.createElement('span');
+            name.className = 'tt-bpe-picker-row-name';
+            name.textContent = p.name || '';
+            var sub = document.createElement('span');
+            sub.className = 'tt-bpe-picker-row-sub';
+            var subBits = [p.pos || '-'];
+            if (p.age && p.age > 0) {
+                var ageFmt = (cfg.i18n && cfg.i18n.age_fmt) || 'age %d';
+                subBits.push(ageFmt.replace('%d', String(p.age)));
             }
-            return '<div class="tt-bpe-dd-row" role="option" tabindex="0" data-roster-id="' + escapeHtml(row.roster_id) + '">' +
-                       '<span class="tt-bpe-av tt-bpe-av-sm ' + rowClass(row) + '">' + escapeHtml(initials(row.name)) + '</span>' +
-                       '<span class="tt-bpe-dd-who">' +
-                           '<span class="tt-bpe-dd-name">' + escapeHtml(row.name) + '</span>' +
-                           '<span class="tt-bpe-dd-meta">' + escapeHtml(meta) + '</span>' +
-                       '</span>' +
-                   '</div>';
-        }).join('');
-        Array.prototype.forEach.call(results.querySelectorAll('.tt-bpe-dd-row'), function (el) {
-            el.addEventListener('click', function () {
-                var rosterId = el.getAttribute('data-roster-id');
-                var row = roster.filter(function (r) { return r.roster_id === rosterId; })[0];
-                if (!row) return;
-                saveAssignment(slotLabel, tier, refForRosterRow(row));
+            if (p.kind && p.kind !== 'player') {
+                subBits.push((cfg.i18n && cfg.i18n['kind_' + p.kind]) || p.kind);
+            }
+            var placed = placementCount(p);
+            if (placed > 0) {
+                var placedFmt = (cfg.i18n && cfg.i18n.placed_n) || 'x%d on pitch';
+                subBits.push(placedFmt.replace('%d', String(placed)));
+            }
+            sub.textContent = subBits.join(' . ');
+            info.appendChild(name);
+            info.appendChild(sub);
+            row.appendChild(info);
+
+            row.addEventListener('click', function () {
+                saveAssignment(slotLabel, tierKey, refForRosterEntry(p));
             });
-            el.addEventListener('keydown', function (e) {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    el.click();
-                }
-            });
+            container.appendChild(row);
         });
     }
 
-    function closeDropdown() {
-        if (currentDropdown && currentDropdown.parentNode) {
-            currentDropdown.parentNode.removeChild(currentDropdown);
+    function positionPicker(dd, anchor) {
+        // Default: anchored to the right of the slot. Flip / clamp if
+        // it would overflow the viewport.
+        var ar = anchor.getBoundingClientRect();
+        // Force layout to measure dd.
+        dd.style.left = '0px';
+        dd.style.top  = '0px';
+        var dr = dd.getBoundingClientRect();
+        var left = ar.right + window.scrollX + 6;
+        var top  = ar.top + window.scrollY;
+        if (left + dr.width > window.scrollX + document.documentElement.clientWidth - 12) {
+            left = ar.left + window.scrollX - dr.width - 6;
         }
-        currentDropdown = null;
-        currentAnchor = null;
+        if (left < window.scrollX + 8) {
+            left = window.scrollX + 8;
+        }
+        if (top + dr.height > window.scrollY + document.documentElement.clientHeight - 12) {
+            top = window.scrollY + document.documentElement.clientHeight - dr.height - 12;
+        }
+        dd.style.left = Math.max(8, left) + 'px';
+        dd.style.top  = Math.max(8, top) + 'px';
     }
 
-    function wireDocumentClose() {
+    function closePicker() {
+        if (openPickerEl && openPickerEl.parentNode) {
+            openPickerEl.parentNode.removeChild(openPickerEl);
+        }
+        openPickerEl = null;
+        pickerAnchor = null;
+    }
+
+    function wireDocClicks() {
         document.addEventListener('click', function (e) {
-            if (!currentDropdown) return;
-            if (currentDropdown.contains(e.target)) return;
-            if (currentAnchor && currentAnchor.contains(e.target)) return;
-            closeDropdown();
+            if (!openPickerEl) return;
+            if (openPickerEl.contains(e.target)) return;
+            if (pickerAnchor && pickerAnchor.contains(e.target)) return;
+            closePicker();
         });
         document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape') closeDropdown();
+            if (e.key === 'Escape') closePicker();
         });
     }
 
-    // -------------------- toolbar + formation switch -------------------
+    // ==================== add-form (3-tab inline) ======================
 
-    function wireToolbar() {
-        var formationSel = document.querySelector('.tt-bpe-formation-select');
-        if (formationSel) {
-            formationSel.addEventListener('change', function () {
-                var tid = parseInt(formationSel.value, 10);
-                if (!tid || tid === currentFormation.template_id) return;
-                switchFormation(tid);
-            });
-        }
+    function wireAddForm(root) {
+        var toggle = root.querySelector('.tt-bpe-add-toggle');
+        var form = root.querySelector('.tt-bpe-add-form');
+        if (!toggle || !form) return;
 
-        var clearBtn = document.querySelector('.tt-bpe-clear-all');
-        if (clearBtn) {
-            clearBtn.addEventListener('click', function () {
-                if (!canManage || locked) return;
-                if (!window.confirm(cfg.i18n.confirm_clear_all)) return;
-                bulkReplace({});
-            });
-        }
-    }
-
-    function switchFormation(templateId) {
-        // Persist the formation switch on the blueprint, then refetch
-        // the blueprint to read back the new slot list. Assignment rows
-        // survive because they key on slot_label; slots that don't
-        // appear in the new template still sit in storage and pop back
-        // if the user switches back.
-        fetch(cfg.rest_root + '/blueprints/' + blueprintId, {
-            method: 'PUT',
-            credentials: 'same-origin',
-            headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': cfg.nonce },
-            body: JSON.stringify({ formation_template_id: templateId })
-        })
-        .then(function (r) { if (!r.ok) throw new Error('switch_failed'); return r.json(); })
-        .then(function () { window.location.reload(); })
-        .catch(function () { window.alert(cfg.i18n.save_failed); });
-    }
-
-    function bulkReplace(map) {
-        fetch(cfg.rest_root + '/blueprints/' + blueprintId + '/assignments', {
-            method: 'PUT',
-            credentials: 'same-origin',
-            headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': cfg.nonce },
-            body: JSON.stringify({ assignments: map })
-        })
-        .then(function (r) { if (!r.ok) throw new Error('bulk_failed'); return r.json(); })
-        .then(function () { window.location.reload(); })
-        .catch(function () { window.alert(cfg.i18n.save_failed); });
-    }
-
-    // -------------------- save (single slot/tier) ----------------------
-
-    function saveAssignment(slotLabel, tier, ref) {
-        var tierName = TIER_NAME[tier];
-        if (!tierName) return;
-        var body = { slot_label: slotLabel, tier: tierName, ref: ref };
-        fetch(cfg.rest_root + '/blueprints/' + blueprintId + '/assignment', {
-            method: 'PUT',
-            credentials: 'same-origin',
-            headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': cfg.nonce },
-            body: JSON.stringify(body)
-        })
-        .then(function (r) { if (!r.ok) throw new Error('save_failed'); return r.json(); })
-        .then(function () {
-            // Patch local state for optimistic re-render, then close
-            // the dropdown. Skip the full reload — the chemistry
-            // headline + lines still come from PHP-rendered markup that
-            // doesn't change between drops, so a local re-render keeps
-            // the editor responsive.
-            if (!assignments[slotLabel]) assignments[slotLabel] = { 1: null, 2: null, 3: null };
-            assignments[slotLabel][tier] = ref;
-            if (ref) addRefToRosterIfMissing(ref);
-            closeDropdown();
-            renderRoster();
-            renderPitch();
-            refreshChemistry();
-        })
-        .catch(function () { window.alert(cfg.i18n.save_failed); });
-    }
-
-    function refreshChemistry() {
-        // Pull recomputed chemistry headline + lines from the get
-        // endpoint. The full re-fetch keeps PHP authoritative without
-        // double-fetching the assignments we already locally know.
-        fetch(cfg.rest_root + '/blueprints/' + blueprintId, {
-            credentials: 'same-origin',
-            headers: { 'X-WP-Nonce': cfg.nonce }
-        })
-        .then(function (r) { return r.ok ? r.json() : null; })
-        .then(function (resp) {
-            if (!resp || !resp.data) return;
-            var chem = resp.data.blueprint_chemistry || {};
-            var valEl = document.querySelector('#tt-bp-chem-value');
-            if (valEl) {
-                if (chem.team_score === null || chem.team_score === undefined) {
-                    valEl.innerHTML = '<span style="color:#8a9099;">— / 100</span>';
-                } else {
-                    valEl.textContent = cfg.i18n.score_fmt.replace('%d', String(chem.team_score));
-                }
-            }
-            var pairsEl = document.querySelector('#tt-bp-chem-pairs');
-            if (pairsEl) {
-                var scored = chem.scored_pair_count | 0;
-                pairsEl.textContent = (scored === 1 ? cfg.i18n.pairs_one : cfg.i18n.pairs_many).replace('%d', String(scored));
-            }
-        })
-        .catch(function () { /* non-fatal */ });
-    }
-
-    // -------------------- add-form (cross-team / guest / custom) ------
-
-    function wireAddForm() {
-        var showBtn = document.querySelector('.tt-bpe-add-toggle');
-        var form = document.querySelector('.tt-bpe-add-form');
-        if (!showBtn || !form) return;
-
-        showBtn.addEventListener('click', function () {
-            var open = form.hasAttribute('hidden') ? false : !form.classList.contains('is-collapsed');
-            if (open) {
-                form.setAttribute('hidden', '');
-            } else {
+        toggle.addEventListener('click', function () {
+            var hidden = form.hasAttribute('hidden');
+            if (hidden) {
                 form.removeAttribute('hidden');
+            } else {
+                form.setAttribute('hidden', '');
             }
         });
 
-        var tabs = form.querySelectorAll('.tt-bpe-add-tab');
-        Array.prototype.forEach.call(tabs, function (tab) {
+        // Tabs.
+        Array.prototype.forEach.call(form.querySelectorAll('.tt-bpe-add-tab'), function (tab) {
             tab.addEventListener('click', function () {
-                Array.prototype.forEach.call(tabs, function (t) { t.classList.remove('is-active'); });
-                tab.classList.add('is-active');
-                var key = tab.getAttribute('data-tab');
-                Array.prototype.forEach.call(form.querySelectorAll('.tt-bpe-add-pane'), function (p) {
-                    p.classList.toggle('is-active', p.getAttribute('data-pane') === key);
+                Array.prototype.forEach.call(form.querySelectorAll('.tt-bpe-add-tab'), function (t) {
+                    t.classList.remove('is-active');
                 });
+                Array.prototype.forEach.call(form.querySelectorAll('.tt-bpe-add-pane'), function (p) {
+                    p.classList.remove('is-active');
+                });
+                tab.classList.add('is-active');
+                var pane = form.querySelector('.tt-bpe-add-pane[data-pane="' + tab.dataset.tab + '"]');
+                if (pane) pane.classList.add('is-active');
             });
         });
 
-        // Cross-team picker — chained team-select / player-select.
+        // Cancel buttons close the form.
+        Array.prototype.forEach.call(form.querySelectorAll('.tt-bpe-add-cancel'), function (b) {
+            b.addEventListener('click', function () {
+                form.setAttribute('hidden', '');
+            });
+        });
+
+        // Other-team flow.
         var ctTeam = form.querySelector('.tt-bpe-ct-team');
         var ctPlayer = form.querySelector('.tt-bpe-ct-player');
-        // Populate the team select from the localised sibling-team list.
-        if (ctTeam) {
+        if (ctTeam && ctPlayer) {
+            // Populate team dropdown from cfg.other_teams.
             (cfg.other_teams || []).forEach(function (t) {
                 var opt = document.createElement('option');
                 opt.value = String(t.id);
                 opt.textContent = t.name;
                 ctTeam.appendChild(opt);
             });
-        }
-        if (ctTeam) {
             ctTeam.addEventListener('change', function () {
-                var teamId = parseInt(ctTeam.value, 10);
-                ctPlayer.innerHTML = '<option value="">' + escapeHtml(cfg.i18n.pick_a_player) + '</option>';
-                if (!teamId) return;
-                var teamObj = (cfg.other_teams || []).filter(function (t) { return t.id === teamId; })[0];
-                if (!teamObj) return;
-                (teamObj.players || []).forEach(function (p) {
-                    var opt = document.createElement('option');
-                    opt.value = String(p.id);
-                    opt.textContent = p.name;
-                    ctPlayer.appendChild(opt);
+                while (ctPlayer.options.length > 1) ctPlayer.remove(1);
+                var sel = ctTeam.value;
+                if (!sel) return;
+                var team = (cfg.other_teams || []).filter(function (t) {
+                    return String(t.id) === sel;
+                })[0];
+                if (!team) return;
+                (team.players || []).forEach(function (p) {
+                    var o = document.createElement('option');
+                    o.value = String(p.id);
+                    o.textContent = p.name + (p.pos ? ' (' + p.pos + ')' : '');
+                    o.dataset.pos = p.pos || '';
+                    o.dataset.age = String(p.age || 0);
+                    ctPlayer.appendChild(o);
                 });
             });
         }
         var ctAdd = form.querySelector('.tt-bpe-ct-add');
         if (ctAdd) {
             ctAdd.addEventListener('click', function () {
-                var teamId = parseInt(ctTeam.value, 10);
-                var pid = parseInt(ctPlayer.value, 10);
-                if (!teamId || !pid) { window.alert(cfg.i18n.pick_team_and_player); return; }
-                var teamObj = (cfg.other_teams || []).filter(function (t) { return t.id === teamId; })[0];
-                var pObj = teamObj && (teamObj.players || []).filter(function (p) { return p.id === pid; })[0];
-                if (!pObj) return;
-                if (roster.filter(function (r) { return r.roster_id === 'p:' + pid; })[0]) {
-                    window.alert(cfg.i18n.already_in_roster);
+                var teamId = ctTeam && ctTeam.value;
+                var playerId = ctPlayer && ctPlayer.value;
+                if (!teamId || !playerId) {
+                    alert((cfg.i18n && cfg.i18n.pick_team_and_player) || 'Pick a team and a player.');
+                    return;
+                }
+                var team = (cfg.other_teams || []).filter(function (t) {
+                    return String(t.id) === teamId;
+                })[0];
+                if (!team) return;
+                var src = (team.players || []).filter(function (p) {
+                    return String(p.id) === playerId;
+                })[0];
+                if (!src) return;
+                var rosterId = 'p:' + src.id;
+                if (findRosterEntry(rosterId)) {
+                    alert((cfg.i18n && cfg.i18n.already_in_roster) || 'That player is already on the roster.');
                     return;
                 }
                 roster.push({
-                    roster_id: 'p:' + pid,
-                    kind: 'player',
-                    player_id: pid,
-                    name: pObj.name,
-                    team_id: teamId,
-                    team_name: teamObj.name,
-                    is_crossteam: true
+                    roster_id: rosterId,
+                    kind: 'crossteam',
+                    player_id: parseInt(src.id, 10),
+                    name: src.name,
+                    pos: src.pos || '',
+                    age: src.age || 0,
+                    team_id: team.id,
+                    team_name: team.name
                 });
-                form.setAttribute('hidden', '');
                 renderRoster();
+                form.setAttribute('hidden', '');
             });
         }
 
-        // Guest add.
+        // Guest tab.
         var guestAdd = form.querySelector('.tt-bpe-guest-add');
         if (guestAdd) {
             guestAdd.addEventListener('click', function () {
                 var nameEl = form.querySelector('.tt-bpe-guest-name');
                 var posEl  = form.querySelector('.tt-bpe-guest-pos');
-                var name = (nameEl.value || '').trim();
-                if (!name) { window.alert(cfg.i18n.name_required); return; }
-                var pos = (posEl.value || '').trim();
+                var name = (nameEl && nameEl.value || '').trim();
+                if (!name) {
+                    alert((cfg.i18n && cfg.i18n.name_required) || 'Name is required.');
+                    return;
+                }
                 roster.push({
-                    roster_id: 'g:' + name,
+                    roster_id: 'g:' + (nextSessionId++),
                     kind: 'guest',
                     name: name,
-                    position: pos
+                    pos: (posEl && posEl.value || '').trim() || '',
+                    age: 0
                 });
-                nameEl.value = '';
-                posEl.value = '';
-                form.setAttribute('hidden', '');
+                if (nameEl) nameEl.value = '';
+                if (posEl) posEl.value = '';
                 renderRoster();
+                form.setAttribute('hidden', '');
             });
         }
 
-        // Custom add.
+        // Custom tab.
         var customAdd = form.querySelector('.tt-bpe-custom-add');
         if (customAdd) {
             customAdd.addEventListener('click', function () {
                 var nameEl = form.querySelector('.tt-bpe-custom-name');
-                var name = (nameEl.value || '').trim();
-                if (!name) { window.alert(cfg.i18n.label_required); return; }
+                var name = (nameEl && nameEl.value || '').trim();
+                if (!name) {
+                    alert((cfg.i18n && cfg.i18n.label_required) || 'Custom label is required.');
+                    return;
+                }
                 roster.push({
-                    roster_id: 'c:' + name,
+                    roster_id: 'c:' + (nextSessionId++),
                     kind: 'custom',
-                    name: name
+                    name: name,
+                    pos: '',
+                    age: 0
                 });
-                nameEl.value = '';
-                form.setAttribute('hidden', '');
+                if (nameEl) nameEl.value = '';
                 renderRoster();
+                form.setAttribute('hidden', '');
+            });
+        }
+    }
+
+    // ==================== formation toolbar ============================
+
+    function wireToolbar(root) {
+        var sel = root.querySelector('.tt-bpe-formation-select');
+        if (sel) {
+            sel.addEventListener('change', function () {
+                var newId = parseInt(sel.value, 10);
+                if (!newId || newId === currentFormationId) return;
+                if (!cfg.can_manage || cfg.locked) {
+                    sel.value = String(currentFormationId);
+                    return;
+                }
+                saveHint((cfg.i18n && cfg.i18n.saving) || 'Saving...');
+                fetch(cfg.rest_root + '/blueprints/' + cfg.blueprint_id, {
+                    method: 'PUT',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-WP-Nonce': cfg.nonce
+                    },
+                    body: JSON.stringify({ formation_template_id: newId })
+                })
+                .then(function (r) {
+                    if (!r.ok) throw new Error('save_failed');
+                    return r.json();
+                })
+                .then(function () {
+                    // Reload — the server-side rendering of the slot
+                    // list (and the chemistry headline that depends
+                    // on the new slot set) is the source of truth.
+                    window.location.reload();
+                })
+                .catch(function () {
+                    alert((cfg.i18n && cfg.i18n.save_failed) || 'Could not save the change. Try again.');
+                    sel.value = String(currentFormationId);
+                    saveHint('');
+                });
             });
         }
 
-        // Cancel buttons close the form.
-        Array.prototype.forEach.call(form.querySelectorAll('.tt-bpe-add-cancel'), function (btn) {
-            btn.addEventListener('click', function () { form.setAttribute('hidden', ''); });
+        var clearBtn = root.querySelector('.tt-bpe-clear-all');
+        if (clearBtn) {
+            clearBtn.addEventListener('click', function () {
+                if (!cfg.can_manage || cfg.locked) return;
+                var msg = (cfg.i18n && cfg.i18n.confirm_clear_all)
+                    || 'Clear every slot on this blueprint? This cannot be undone.';
+                if (!window.confirm(msg)) return;
+                saveHint((cfg.i18n && cfg.i18n.saving) || 'Saving...');
+                fetch(cfg.rest_root + '/blueprints/' + cfg.blueprint_id + '/assignments', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-WP-Nonce': cfg.nonce
+                    },
+                    body: JSON.stringify({ assignments: {} })
+                })
+                .then(function (r) {
+                    if (!r.ok) throw new Error('save_failed');
+                    window.location.reload();
+                })
+                .catch(function () {
+                    alert((cfg.i18n && cfg.i18n.save_failed) || 'Could not save the change. Try again.');
+                    saveHint('');
+                });
+            });
+        }
+    }
+
+    // ==================== save / save-as / hide-chem toolbar ===========
+
+    function wireSaveToolbar() {
+        var toolbar = document.querySelector('.tt-bp-editor-toolbar');
+        if (!toolbar) return;
+        var listUrl = toolbar.getAttribute('data-list-url') || (cfg.list_url || '');
+
+        var saveBtn = toolbar.querySelector('.tt-bp-save-done');
+        if (saveBtn) {
+            saveBtn.addEventListener('click', function () {
+                // Auto-save fires on every placement; Save is the
+                // "done editing, take me back to the list" cue.
+                var url = listUrl + (listUrl.indexOf('?') === -1 ? '?' : '&') + 'tt_saved=1';
+                window.location.href = url;
+            });
+        }
+
+        var saveAsBtn = toolbar.querySelector('.tt-bp-save-as');
+        if (saveAsBtn) {
+            saveAsBtn.addEventListener('click', function () {
+                var promptMsg = (cfg.i18n && cfg.i18n.save_as_prompt) || 'Name the new blueprint:';
+                var defName = (cfg.i18n && cfg.i18n.save_as_default) || 'Copy of blueprint';
+                var name = window.prompt(promptMsg, defName);
+                if (name === null) return;
+                name = (name || '').trim();
+                if (name === '') return;
+                saveAsBtn.disabled = true;
+                fetch(cfg.rest_root + '/blueprints/' + cfg.blueprint_id + '/clone', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-WP-Nonce': cfg.nonce
+                    },
+                    body: JSON.stringify({ name: name })
+                })
+                .then(function (r) {
+                    if (!r.ok) throw new Error('clone_failed');
+                    return r.json();
+                })
+                .then(function (resp) {
+                    var newId = (resp && resp.data && resp.data.id) || (resp && resp.id);
+                    if (!newId) throw new Error('clone_failed');
+                    var url = window.location.pathname + window.location.search;
+                    url = url.replace(/([?&])id=\d+/, '$1id=' + newId);
+                    if (url.indexOf('id=') === -1) {
+                        url += (url.indexOf('?') === -1 ? '?' : '&') + 'id=' + newId;
+                    }
+                    window.location.href = url;
+                })
+                .catch(function () {
+                    saveAsBtn.disabled = false;
+                    alert((cfg.i18n && (cfg.i18n.save_as_failed || cfg.i18n.save_failed)) || 'Could not duplicate.');
+                });
+            });
+        }
+    }
+
+    function wireHideChemistryToggle() {
+        var btn = document.querySelector('.tt-bp-hide-chem-toggle');
+        if (!btn) return;
+        var key = 'tt_bp_hide_chem_' + cfg.blueprint_id;
+        var initial = false;
+        try { initial = sessionStorage.getItem(key) === '1'; } catch (e) { /* ignore */ }
+        applyHide(initial);
+
+        btn.addEventListener('click', function () {
+            var next = !document.body.classList.contains('tt-bp-chem-hidden');
+            applyHide(next);
+            try { sessionStorage.setItem(key, next ? '1' : '0'); } catch (e) { /* ignore */ }
+        });
+
+        function applyHide(hidden) {
+            document.body.classList.toggle('tt-bp-chem-hidden', hidden);
+            btn.setAttribute('aria-pressed', hidden ? 'true' : 'false');
+            btn.textContent = hidden
+                ? ((cfg.i18n && cfg.i18n.show_chem_label) || 'Show chemistry')
+                : ((cfg.i18n && cfg.i18n.hide_chem_label) || 'Hide chemistry');
+        }
+    }
+
+    function wireStatusButtons() {
+        var buttons = document.querySelectorAll('.tt-bp-status-btn');
+        Array.prototype.forEach.call(buttons, function (b) {
+            b.addEventListener('click', function () {
+                var holder = b.closest('.tt-bp-status-actions');
+                if (!holder) return;
+                var bpId = parseInt(holder.getAttribute('data-blueprint-id'), 10);
+                var target = b.getAttribute('data-target-status');
+                if (!bpId || !target) return;
+                b.disabled = true;
+                fetch(cfg.rest_root + '/blueprints/' + bpId + '/status', {
+                    method: 'PUT',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-WP-Nonce': cfg.nonce
+                    },
+                    body: JSON.stringify({ status: target })
+                })
+                .then(function (r) {
+                    if (!r.ok) throw new Error('status_failed');
+                    window.location.reload();
+                })
+                .catch(function () {
+                    alert((cfg.i18n && cfg.i18n.save_failed) || 'Could not save the change. Try again.');
+                    b.disabled = false;
+                });
+            });
         });
     }
+
+    // ==================== persistence ==================================
+
+    function saveAssignment(slotLabel, tierKey, ref) {
+        if (!cfg.can_manage || cfg.locked) return;
+        closePicker();
+        saveHint((cfg.i18n && cfg.i18n.saving) || 'Saving...');
+        var body = { slot_label: slotLabel, tier: tierKey };
+        body.ref = ref;
+        fetch(cfg.rest_root + '/blueprints/' + cfg.blueprint_id + '/assignment', {
+            method: 'PUT',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-WP-Nonce': cfg.nonce
+            },
+            body: JSON.stringify(body)
+        })
+        .then(function (r) {
+            if (!r.ok) throw new Error('save_failed');
+            return r.json();
+        })
+        .then(function () {
+            // Reload to refresh chemistry + occupant names from the
+            // server. Cheaper than re-implementing chemistry locally.
+            window.location.reload();
+        })
+        .catch(function () {
+            alert((cfg.i18n && cfg.i18n.save_failed) || 'Could not save the change. Try again.');
+            saveHint('');
+        });
+    }
+
+    function saveHint(text) {
+        var el = document.querySelector('[data-tt-bpe-savehint]');
+        if (!el) return;
+        el.textContent = text || '';
+    }
+
+    // ==================== ref / roster utilities =======================
+
+    function refForRosterEntry(p) {
+        if (!p) return null;
+        if (p.kind === 'player' || p.kind === 'crossteam') {
+            return { kind: 'player', player_id: parseInt(p.player_id, 10) };
+        }
+        if (p.kind === 'guest') {
+            return { kind: 'guest', name: p.name, position: p.pos || null };
+        }
+        if (p.kind === 'custom') {
+            return { kind: 'custom', label: p.name };
+        }
+        return null;
+    }
+
+    function rosterIdForRef(ref) {
+        if (!ref) return null;
+        if (ref.kind === 'player') return 'p:' + (parseInt(ref.player_id, 10) || 0);
+        if (ref.kind === 'guest')  return 'g-name:' + (ref.name || ref.display_name || '');
+        if (ref.kind === 'custom') return 'c-name:' + (ref.label || ref.display_name || '');
+        return null;
+    }
+
+    function findRosterEntry(rosterId) {
+        if (!rosterId) return null;
+        for (var i = 0; i < roster.length; i++) {
+            if (roster[i].roster_id === rosterId) return roster[i];
+        }
+        return null;
+    }
+
+    function seedSessionOnlyRosterFromRefs() {
+        // Walk `refs` and add any guest / custom / cross-team ref to
+        // the roster (deduped by display key) so a returning user
+        // sees their previously-placed session items in the sidebar.
+        var seenP = {};
+        roster.forEach(function (p) { seenP[p.roster_id] = true; });
+
+        Object.keys(refs).forEach(function (slotLabel) {
+            var tiers = refs[slotLabel] || {};
+            Object.keys(tiers).forEach(function (tier) {
+                var ref = tiers[tier];
+                if (!ref) return;
+                if (ref.kind === 'player') {
+                    // Cross-team: a player ref whose team_id != cfg.team_id.
+                    if (ref.team_id && parseInt(ref.team_id, 10) !== parseInt(cfg.team_id, 10)) {
+                        var rid = 'p:' + parseInt(ref.player_id, 10);
+                        if (!seenP[rid]) {
+                            roster.push({
+                                roster_id: rid,
+                                kind: 'crossteam',
+                                player_id: parseInt(ref.player_id, 10),
+                                name: ref.display_name || '',
+                                pos: '',
+                                age: 0,
+                                team_id: ref.team_id,
+                                team_name: ref.team_name || ''
+                            });
+                            seenP[rid] = true;
+                        }
+                    }
+                } else if (ref.kind === 'guest') {
+                    var gid = 'g-name:' + (ref.name || ref.display_name || '');
+                    if (!seenP[gid]) {
+                        roster.push({
+                            roster_id: gid,
+                            kind: 'guest',
+                            name: ref.name || ref.display_name || '',
+                            pos: ref.position || '',
+                            age: 0
+                        });
+                        seenP[gid] = true;
+                    }
+                } else if (ref.kind === 'custom') {
+                    var cid = 'c-name:' + (ref.label || ref.display_name || '');
+                    if (!seenP[cid]) {
+                        roster.push({
+                            roster_id: cid,
+                            kind: 'custom',
+                            name: ref.label || ref.display_name || '',
+                            pos: '',
+                            age: 0
+                        });
+                        seenP[cid] = true;
+                    }
+                }
+            });
+        });
+    }
+
+    // ==================== slot / formation utilities ===================
+
+    function activeSlots() {
+        var tpl = currentTemplate();
+        return (tpl && tpl.slots) ? tpl.slots : (cfg.formation && cfg.formation.slots) || [];
+    }
+
+    function activeSlotLabels() {
+        return activeSlots().map(function (s) { return s.label; });
+    }
+
+    function currentTemplate() {
+        var list = cfg.formation_templates || [];
+        for (var i = 0; i < list.length; i++) {
+            if (list[i].id === currentFormationId) return list[i];
+        }
+        return null;
+    }
+
+    // ==================== misc utils ===================================
+
+    function tierKeyFromNum(n) {
+        if (n === 1) return 'primary';
+        if (n === 2) return 'secondary';
+        if (n === 3) return 'tertiary';
+        return 'primary';
+    }
+
+    function initials(name) {
+        var s = String(name || '').trim();
+        if (!s) return '?';
+        var parts = s.split(/\s+/);
+        if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+        return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+    }
+
+    function deepClone(o) {
+        try { return JSON.parse(JSON.stringify(o)); } catch (e) { return {}; }
+    }
+
 })();

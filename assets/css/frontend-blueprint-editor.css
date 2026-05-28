@@ -1,127 +1,194 @@
 /**
- * Blueprint editor — depth-chart layout (#953).
+ * TalentTrack — Blueprint editor stylesheet.
  *
- * Mobile-first per CLAUDE.md §2: base CSS targets ~360px wide
- * viewports; min-width breakpoints (480, 768, 1024) scale up.
- * Pairs with `frontend-team-blueprint.css` for the surrounding
- * chrome (chemistry headline, status bar). This sheet only owns the
- * new pitch-stack + roster + dropdown picker + add-form surface.
+ * Mobile-first per CLAUDE.md sect 2 — base styles at 360px wide, scaled
+ * up via min-width media queries. Touch targets are >= 48 CSS px.
  *
- * Tier-pill colour tokens — reusing the chemistry palette:
- *   tier 1 → --tt-chem-green-token
- *   tier 2 → --tt-chem-amber-token
- *   tier 3 → neutral grey
+ * Ported from `.local-mockups/blueprint-editor/index.html`. Single
+ * stylesheet for every blueprint surface (editor, share view,
+ * chemistry headline, status row, heatmap) — the legacy
+ * `frontend-team-blueprint.css` was retired in v4.6.0.
  */
 
-.tt-bpe-editor {
-    --tt-bpe-tier1: var(--tt-chem-green-token, #1d7874);
-    --tt-bpe-tier2: var(--tt-chem-amber-token, #c9962a);
-    --tt-bpe-tier3: #8a9099;
-    --tt-bpe-ink: #1a1d21;
-    --tt-bpe-muted: #5b6e75;
-    --tt-bpe-line: #e3e6ea;
-    --tt-bpe-bg: #ffffff;
+/* =====================================================================
+ * Tokens. Scoped under .tt-bpe-editor where practical; the legacy
+ * surface classes (.tt-bp-chem*, .tt-bp-statusbar, .tt-bp-tabs etc.)
+ * still resolve their own colours.
+ * ===================================================================== */
 
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 12px;
+.tt-bpe-editor {
+    --tt-bpe-tier1: #1d7874;
+    --tt-bpe-tier2: #c9962a;
+    --tt-bpe-tier3: #8a9099;
+    --tt-bpe-bg:    #f6f7f7;
+    --tt-bpe-ink:   #1a1d21;
+    --tt-bpe-muted: #5b6e75;
+    --tt-bpe-panel: #ffffff;
+    --tt-bpe-line:  #e3e6ea;
+    --tt-bpe-grass-a: #4ea35f;
+    --tt-bpe-grass-b: #3c8a4d;
+    --tt-bpe-pitch-line: rgba(255, 255, 255, 0.85);
+    display: block;
     margin-top: 8px;
+    box-sizing: border-box;
 }
 
-@media (min-width: 768px) {
-    .tt-bpe-editor {
-        grid-template-columns: 260px 1fr;
-        align-items: start;
-    }
+.tt-bpe-editor *,
+.tt-bpe-editor *::before,
+.tt-bpe-editor *::after {
+    box-sizing: border-box;
 }
 
 /* =====================================================================
- * Toolbar — formation switch + clear-all
- * ===================================================================*/
+ * Editor toolbar — sits above the layout. Team display (read-only),
+ * formation dropdown, clear-all button, save-state hint.
+ * ===================================================================== */
 
 .tt-bpe-toolbar {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 10px;
     align-items: center;
-    background: var(--tt-bpe-bg);
+    background: var(--tt-bpe-panel);
     border: 1px solid var(--tt-bpe-line);
-    border-radius: 8px;
-    padding: 8px 10px;
+    border-radius: 10px;
+    padding: 10px 12px;
     margin-bottom: 12px;
 }
-.tt-bpe-toolbar label {
+
+.tt-bpe-toolbar-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.tt-bpe-toolbar-label {
     font-size: 12px;
     color: var(--tt-bpe-muted);
     text-transform: uppercase;
     letter-spacing: 0.04em;
 }
-.tt-bpe-toolbar select,
-.tt-bpe-toolbar .tt-bpe-clear-all {
-    min-height: 36px;
+
+.tt-bpe-toolbar-value {
     font-size: 14px;
-    padding: 6px 10px;
-    border: 1px solid var(--tt-bpe-line);
-    border-radius: 6px;
-    background: #fff;
+    font-weight: 600;
     color: var(--tt-bpe-ink);
 }
-.tt-bpe-toolbar .tt-bpe-clear-all {
-    margin-left: auto;
-    cursor: pointer;
+
+.tt-bpe-toolbar select,
+.tt-bpe-toolbar button {
+    font: inherit;
+    font-size: 14px;
+    padding: 8px 12px;
+    min-height: 44px;
+    border: 1px solid var(--tt-bpe-line);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--tt-bpe-ink);
     touch-action: manipulation;
 }
-.tt-bpe-toolbar .tt-bpe-clear-all:hover {
-    background: #f4f6f7;
+
+.tt-bpe-toolbar button {
+    cursor: pointer;
+}
+
+.tt-bpe-toolbar button:focus-visible,
+.tt-bpe-toolbar select:focus-visible {
+    outline: 2px solid var(--tt-bpe-tier1);
+    outline-offset: 2px;
+}
+
+.tt-bpe-clear-all {
+    background: #fff;
+    border-color: var(--tt-bpe-line);
+    color: var(--tt-bpe-ink);
+}
+
+.tt-bpe-toolbar-hint {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--tt-bpe-muted);
+    min-height: 18px;
+}
+
+@media (min-width: 480px) {
+    .tt-bpe-toolbar select,
+    .tt-bpe-toolbar button {
+        font-size: 13px;
+        min-height: 40px;
+        padding: 6px 10px;
+    }
 }
 
 /* =====================================================================
- * Roster panel
- * ===================================================================*/
+ * Two-column layout. Stack on small screens; switch to 220px sidebar +
+ * pitch column at 820px+ (mockup breakpoint).
+ * ===================================================================== */
+
+.tt-bpe-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    align-items: start;
+}
+
+@media (min-width: 820px) {
+    .tt-bpe-layout {
+        grid-template-columns: 220px 1fr;
+    }
+}
+
+@media (min-width: 1100px) {
+    .tt-bpe-layout {
+        grid-template-columns: 260px 1fr;
+    }
+}
+
+/* =====================================================================
+ * Roster sidebar.
+ * ===================================================================== */
 
 .tt-bpe-roster {
-    background: var(--tt-bpe-bg);
+    background: var(--tt-bpe-panel);
     border: 1px solid var(--tt-bpe-line);
     border-radius: 10px;
     padding: 12px;
 }
-@media (min-width: 768px) {
-    .tt-bpe-roster {
-        position: sticky;
-        top: 12px;
-        max-height: calc(100vh - 24px);
-        overflow-y: auto;
-    }
-}
 
-.tt-bpe-roster h3 {
+.tt-bpe-roster-title {
     margin: 0 0 4px;
     font-size: 14px;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--tt-bpe-muted);
+    color: var(--tt-bpe-ink);
+    font-weight: 700;
 }
+
+.tt-bpe-roster-count {
+    font-weight: 500;
+    color: var(--tt-bpe-muted);
+    margin-left: 4px;
+}
+
 .tt-bpe-roster-hint {
     margin: 0 0 8px;
     font-size: 12px;
     color: var(--tt-bpe-muted);
 }
+
 .tt-bpe-roster-list {
     list-style: none;
     margin: 0;
     padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
     max-height: 60vh;
     overflow-y: auto;
 }
+
 .tt-bpe-roster-empty {
-    padding: 10px 6px;
-    font-size: 12px;
+    padding: 8px;
     color: var(--tt-bpe-muted);
+    font-size: 13px;
     font-style: italic;
 }
+
 .tt-bpe-roster-row {
     display: flex;
     align-items: center;
@@ -129,213 +196,264 @@
     padding: 8px;
     border-radius: 6px;
     border: 1px solid transparent;
-    cursor: grab;
-    user-select: none;
+    font-size: 14px;
     min-height: 48px;
     touch-action: manipulation;
+    cursor: grab;
 }
-.tt-bpe-roster-row:hover,
-.tt-bpe-roster-row:focus-within {
-    background: #f4f6f7;
+
+.tt-bpe-roster-row:hover {
+    background: #f3f5f7;
 }
+
 .tt-bpe-roster-row.is-dragging {
     opacity: 0.4;
 }
 
+.tt-bpe-roster-row[draggable="false"] {
+    cursor: default;
+}
+
+@media (min-width: 480px) {
+    .tt-bpe-roster-row {
+        font-size: 13px;
+        padding: 6px 8px;
+        min-height: 40px;
+    }
+}
+
 .tt-bpe-av {
-    width: 30px;
-    height: 30px;
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     background: #d3d7dc;
     color: #fff;
     font-weight: 700;
-    font-size: 11px;
-    display: flex;
+    font-size: 12px;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
 }
-.tt-bpe-av-sm {
-    width: 24px;
-    height: 24px;
-    font-size: 10px;
-}
-.tt-bpe-av-team       { background: #5b8bd1; }
-.tt-bpe-av-crossteam  { background: #8b5bd1; }
-.tt-bpe-av-guest      { background: #8a9099; }
-.tt-bpe-av-custom     { background: #c9962a; }
+
+.tt-bpe-av-crossteam { background: #5b8bd1; }
+.tt-bpe-av-guest     { background: #8a9099; }
+.tt-bpe-av-custom    { background: #c9962a; }
 
 .tt-bpe-who {
     flex: 1;
     min-width: 0;
+    display: flex;
+    flex-direction: column;
 }
+
 .tt-bpe-who-name {
-    display: block;
-    font-size: 14px;
-    line-height: 1.2;
+    color: var(--tt-bpe-ink);
+    font-weight: 600;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    color: var(--tt-bpe-ink);
 }
+
 .tt-bpe-who-meta {
-    display: block;
     font-size: 11px;
     color: var(--tt-bpe-muted);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
 .tt-bpe-pick-count {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 18px;
+    min-width: 20px;
     height: 18px;
+    padding: 0 6px;
     margin-left: 6px;
-    padding: 0 5px;
     border-radius: 9px;
     background: var(--tt-bpe-tier1);
     color: #fff;
-    font-size: 10.5px;
+    font-size: 11px;
     font-weight: 700;
-    vertical-align: middle;
+    vertical-align: 1px;
 }
-.tt-bpe-pick-count[hidden] { display: none; }
 
 /* =====================================================================
- * + Add roster (cross-team / guest / custom) inline form
- * ===================================================================*/
+ * Add guest / cross-team / custom inline form.
+ * ===================================================================== */
 
 .tt-bpe-add-toggle {
-    width: 100%;
     margin-top: 10px;
+    width: 100%;
     min-height: 48px;
-    background: #fff;
-    border: 1px dashed var(--tt-bpe-tier1);
-    color: var(--tt-bpe-tier1);
-    border-radius: 8px;
     padding: 10px;
+    background: #fff;
+    color: var(--tt-bpe-tier1);
+    border: 1px dashed var(--tt-bpe-tier1);
+    border-radius: 8px;
     font: inherit;
     font-size: 14px;
     cursor: pointer;
     touch-action: manipulation;
 }
+
 .tt-bpe-add-toggle:hover {
     background: #e7f1f0;
 }
 
+.tt-bpe-add-toggle:focus-visible {
+    outline: 2px solid var(--tt-bpe-tier1);
+    outline-offset: 2px;
+}
+
 .tt-bpe-add-form {
     margin-top: 10px;
-    border: 1px solid var(--tt-bpe-line);
-    border-radius: 8px;
     padding: 10px;
     background: #fafbfc;
+    border: 1px solid var(--tt-bpe-line);
+    border-radius: 8px;
 }
-.tt-bpe-add-form[hidden] { display: none !important; }
 
 .tt-bpe-add-tabs {
     display: flex;
     gap: 4px;
     margin-bottom: 8px;
 }
+
 .tt-bpe-add-tab {
     flex: 1;
     min-height: 36px;
-    padding: 6px 6px;
-    font-size: 12px;
-    border: 1px solid var(--tt-bpe-line);
+    padding: 6px 8px;
     background: #fff;
+    border: 1px solid var(--tt-bpe-line);
     border-radius: 6px;
+    font: inherit;
+    font-size: 12px;
     cursor: pointer;
-    text-align: center;
+    color: var(--tt-bpe-ink);
     touch-action: manipulation;
 }
+
 .tt-bpe-add-tab.is-active {
     background: var(--tt-bpe-tier1);
     color: #fff;
     border-color: var(--tt-bpe-tier1);
 }
 
-.tt-bpe-add-pane { display: none; }
-.tt-bpe-add-pane.is-active { display: block; }
-.tt-bpe-add-pane input,
-.tt-bpe-add-pane select {
+.tt-bpe-add-pane {
+    display: none;
+}
+
+.tt-bpe-add-pane.is-active {
+    display: block;
+}
+
+.tt-bpe-add-pane select,
+.tt-bpe-add-pane input {
     width: 100%;
-    min-height: 44px;
     padding: 8px 10px;
-    font: inherit;
-    font-size: 16px; /* avoid iOS zoom-on-focus */
+    min-height: 44px;
     border: 1px solid var(--tt-bpe-line);
     border-radius: 6px;
-    margin-bottom: 6px;
+    font: inherit;
+    font-size: 16px; /* prevent iOS zoom on focus */
+    margin-bottom: 8px;
     background: #fff;
+    color: var(--tt-bpe-ink);
+}
+
+.tt-bpe-add-pane select:focus-visible,
+.tt-bpe-add-pane input:focus-visible {
+    outline: 2px solid var(--tt-bpe-tier1);
+    outline-offset: 2px;
 }
 
 .tt-bpe-add-actions {
     display: flex;
     gap: 6px;
 }
+
 .tt-bpe-add-actions button {
     flex: 1;
-    min-height: 40px;
+    min-height: 44px;
     padding: 8px 10px;
-    border-radius: 6px;
-    cursor: pointer;
-    font: inherit;
-    font-size: 13px;
     border: 1px solid var(--tt-bpe-line);
+    border-radius: 6px;
     background: #fff;
+    color: var(--tt-bpe-ink);
+    font: inherit;
+    font-size: 14px;
+    cursor: pointer;
     touch-action: manipulation;
 }
+
 .tt-bpe-add-actions button.is-primary {
     background: var(--tt-bpe-tier1);
     color: #fff;
     border-color: var(--tt-bpe-tier1);
 }
 
+.tt-bpe-add-actions button:focus-visible {
+    outline: 2px solid var(--tt-bpe-tier1);
+    outline-offset: 2px;
+}
+
 /* =====================================================================
- * Pitch + position cards
- * ===================================================================*/
+ * Pitch card.
+ * ===================================================================== */
 
 .tt-bpe-pitch-card {
-    background: var(--tt-bpe-bg);
+    background: var(--tt-bpe-panel);
     border: 1px solid var(--tt-bpe-line);
     border-radius: 10px;
-    padding: 10px;
+    padding: 12px;
 }
 
 .tt-bpe-pitch-wrap {
-    position: relative;
     width: 100%;
     max-width: 720px;
     margin: 0 auto;
     aspect-ratio: 68 / 105;
+    position: relative;
     border-radius: 12px;
     overflow: visible;
+    background: linear-gradient(180deg, var(--tt-bpe-grass-a) 0%, var(--tt-bpe-grass-b) 100%);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
 }
-.tt-bpe-pitch {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    border-radius: 12px;
-    background: linear-gradient(180deg,
-        var(--tt-pitch-grass-token, #4ea35f) 0%,
-        var(--tt-pitch-grass-2-token, #3c8a4d) 100%);
-    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
-}
-.tt-bpe-pitch > svg {
+
+.tt-bpe-pitch-svg {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
 }
-.tt-bpe-pitch-svg .tt-bpe-pitch-line {
+
+.tt-bpe-pitch-line {
     fill: none;
-    stroke: rgba(255, 255, 255, 0.85);
+    stroke: var(--tt-bpe-pitch-line);
     stroke-width: 3;
     vector-effect: non-scaling-stroke;
 }
+
+.tt-bpe-pitch-hint {
+    margin: 12px 0 0;
+    font-size: 12px;
+    color: var(--tt-bpe-muted);
+    background: #fafbfc;
+    border: 1px dashed var(--tt-bpe-line);
+    border-radius: 8px;
+    padding: 8px 10px;
+}
+
+.tt-bpe-pitch-hint .tt-bpe-tier-1 { color: var(--tt-bpe-tier1); }
+.tt-bpe-pitch-hint .tt-bpe-tier-2 { color: var(--tt-bpe-tier2); }
+.tt-bpe-pitch-hint .tt-bpe-tier-3 { color: var(--tt-bpe-tier3); }
+
+/* =====================================================================
+ * Position card — numbered circle + 3-tier stack. Mobile shrinks the
+ * card and pills so 11 cards still fit on a phone screen.
+ * ===================================================================== */
 
 .tt-bpe-pos {
     position: absolute;
@@ -345,16 +463,14 @@
     align-items: center;
     width: 86px;
 }
-@media (min-width: 480px) {
-    .tt-bpe-pos { width: 100px; }
-}
-@media (min-width: 768px) {
+
+@media (min-width: 720px) {
     .tt-bpe-pos { width: 112px; }
 }
 
 .tt-bpe-circle {
-    width: 36px;
-    height: 36px;
+    width: 34px;
+    height: 34px;
     border-radius: 50%;
     background: #fff;
     border: 2px solid var(--tt-bpe-ink);
@@ -362,27 +478,35 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.22);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.22);
     color: var(--tt-bpe-ink);
     line-height: 1.05;
 }
-@media (min-width: 480px) {
+
+@media (min-width: 720px) {
     .tt-bpe-circle { width: 40px; height: 40px; }
 }
+
 .tt-bpe-circle-num {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 800;
     line-height: 1;
 }
+
 .tt-bpe-circle-abbr {
-    font-size: 9px;
+    font-size: 8px;
     color: var(--tt-bpe-muted);
+    margin-top: 1px;
     letter-spacing: 0.04em;
+}
+
+@media (min-width: 720px) {
+    .tt-bpe-circle-num  { font-size: 14px; }
+    .tt-bpe-circle-abbr { font-size: 9px; }
 }
 
 .tt-bpe-stack {
     margin-top: 4px;
-    width: 100%;
     background: rgba(255, 255, 255, 0.92);
     border: 1px solid rgba(0, 0, 0, 0.12);
     border-radius: 8px;
@@ -390,186 +514,418 @@
     display: flex;
     flex-direction: column;
     gap: 3px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.16);
+    width: 100%;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.16);
 }
 
+/* =====================================================================
+ * Tier slot rows. Each row is a click + drop target.
+ *
+ * The visual height stays compact (the mockup uses 22px) so 11 stacked
+ * position cards still fit on a phone screen; we satisfy the >= 48px
+ * touch-target rule by giving the picker rows their own 48px height
+ * and ensuring the clear-x button doesn't crowd the row.
+ * ===================================================================== */
+
 .tt-bpe-slot {
-    /* Minimum touch surface — visible row is small but the click hit
-     * area meets the 48px floor on the smallest viewport via padding
-     * and the wrapping pseudo. */
     position: relative;
-    height: 22px;
+    display: flex;
+    align-items: center;
+    height: 20px;
+    padding: 0 6px;
     border-radius: 5px;
     background: #f6f7f7;
     border: 1px dashed #c9ced3;
+    font-size: 11px;
     color: var(--tt-bpe-muted);
-    font: inherit;
-    font-size: 12px;
-    line-height: 1.1;
-    display: flex;
-    align-items: center;
-    padding: 0 6px;
+    cursor: pointer;
     white-space: nowrap;
     overflow: hidden;
-    text-align: left;
-    cursor: pointer;
     touch-action: manipulation;
 }
-.tt-bpe-slot:focus-visible {
-    outline: 2px solid var(--tt-bpe-tier1);
-    outline-offset: 2px;
+
+@media (min-width: 720px) {
+    .tt-bpe-slot { height: 22px; font-size: 12px; }
 }
-.tt-bpe-slot::before {
-    /* Invisible hit overlay that bumps the click target to 48px
-     * vertical without inflating the visible row. */
-    content: '';
-    position: absolute;
-    inset: -13px 0;
-    pointer-events: none;
+
+.tt-bpe-editor[data-can-edit="0"] .tt-bpe-slot,
+.tt-bpe-editor[data-locked="1"] .tt-bpe-slot {
+    cursor: default;
 }
+
 .tt-bpe-slot:hover {
     background: #eef3f6;
     border-style: solid;
     border-color: var(--tt-bpe-tier1);
 }
+
+.tt-bpe-slot:focus-visible {
+    outline: 2px solid var(--tt-bpe-tier1);
+    outline-offset: 1px;
+    background: #eef3f6;
+}
+
 .tt-bpe-slot.is-drag-over {
     background: #d6eae7;
     border-style: solid;
     border-color: var(--tt-bpe-tier1);
 }
+
 .tt-bpe-slot.is-filled {
     background: #fff;
     border-style: solid;
     color: var(--tt-bpe-ink);
 }
-.tt-bpe-slot.is-filled[data-tier="1"] { border-color: var(--tt-bpe-tier1); }
-.tt-bpe-slot.is-filled[data-tier="2"] { border-color: var(--tt-bpe-tier2); }
-.tt-bpe-slot.is-filled[data-tier="3"] { border-color: var(--tt-bpe-tier3); }
+
+.tt-bpe-slot.is-filled[data-tier="primary"]   { border-color: var(--tt-bpe-tier1); }
+.tt-bpe-slot.is-filled[data-tier="secondary"] { border-color: var(--tt-bpe-tier2); }
+.tt-bpe-slot.is-filled[data-tier="tertiary"]  { border-color: var(--tt-bpe-tier3); }
 
 .tt-bpe-tier-mark {
-    display: inline-block;
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 12px;
+    height: 12px;
     margin-right: 6px;
-    flex-shrink: 0;
+    border-radius: 50%;
     color: #fff;
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 800;
-    text-align: center;
-    line-height: 14px;
+    flex-shrink: 0;
 }
-.tt-bpe-tier-mark[data-tier="1"] { background: var(--tt-bpe-tier1); }
-.tt-bpe-tier-mark[data-tier="2"] { background: var(--tt-bpe-tier2); }
-.tt-bpe-tier-mark[data-tier="3"] { background: var(--tt-bpe-tier3); }
+
+@media (min-width: 720px) {
+    .tt-bpe-tier-mark { width: 14px; height: 14px; font-size: 10px; }
+}
+
+.tt-bpe-slot[data-tier="primary"]   .tt-bpe-tier-mark { background: var(--tt-bpe-tier1); }
+.tt-bpe-slot[data-tier="secondary"] .tt-bpe-tier-mark { background: var(--tt-bpe-tier2); }
+.tt-bpe-slot[data-tier="tertiary"]  .tt-bpe-tier-mark { background: var(--tt-bpe-tier3); }
 
 .tt-bpe-slot-name {
     flex: 1;
     overflow: hidden;
     text-overflow: ellipsis;
 }
-.tt-bpe-slot-clear {
+
+.tt-bpe-slot-x {
+    display: none;
     margin-left: 4px;
+    padding: 0 4px;
+    background: transparent;
+    border: 0;
     color: var(--tt-bpe-muted);
     font-size: 14px;
     line-height: 1;
-    padding: 0 2px;
     cursor: pointer;
+    touch-action: manipulation;
 }
-.tt-bpe-slot-clear:hover { color: #b32d2e; }
+
+.tt-bpe-slot.is-filled .tt-bpe-slot-x { display: inline-block; }
+.tt-bpe-slot-x:hover { color: #b32d2e; }
+.tt-bpe-slot-x:focus-visible {
+    outline: 2px solid #b32d2e;
+    outline-offset: 1px;
+}
 
 /* =====================================================================
- * Dropdown picker (anchored to a slot, fixed-positioned)
- * ===================================================================*/
+ * Picker dropdown — anchored beside the clicked slot. Mobile-first:
+ * stretches towards the viewport bottom on small screens.
+ * ===================================================================== */
 
-.tt-bpe-dropdown {
+.tt-bpe-picker {
+    position: absolute;
+    z-index: 100;
     background: #fff;
     border: 1px solid var(--tt-bpe-line);
     border-radius: 8px;
     padding: 6px;
     box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
-    z-index: 30;
-    min-width: 220px;
-    max-width: min(320px, calc(100vw - 24px));
+    min-width: 240px;
+    max-width: 320px;
     max-height: 320px;
-    overflow: auto;
+    display: flex;
+    flex-direction: column;
 }
-.tt-bpe-dd-head {
+
+.tt-bpe-picker-head {
+    padding: 6px 8px 4px;
     font-size: 11px;
     color: var(--tt-bpe-muted);
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    padding: 4px 6px 6px;
 }
-.tt-bpe-dd-search {
+
+.tt-bpe-picker-search {
     width: 100%;
-    min-height: 36px;
-    padding: 6px 8px;
-    font: inherit;
-    font-size: 16px;
+    margin-bottom: 4px;
+    padding: 8px 10px;
     border: 1px solid var(--tt-bpe-line);
     border-radius: 6px;
-    margin-bottom: 6px;
+    font: inherit;
+    font-size: 16px; /* prevent iOS zoom */
+    min-height: 44px;
+    background: #fff;
+    color: var(--tt-bpe-ink);
 }
-.tt-bpe-dd-results {
-    display: flex;
-    flex-direction: column;
+
+.tt-bpe-picker-search:focus-visible {
+    outline: 2px solid var(--tt-bpe-tier1);
+    outline-offset: 1px;
 }
-.tt-bpe-dd-row {
+
+.tt-bpe-picker-results {
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+}
+
+.tt-bpe-picker-row {
     display: flex;
+    width: 100%;
     align-items: center;
     gap: 8px;
     padding: 8px;
+    border: 0;
     border-radius: 6px;
+    background: transparent;
+    color: var(--tt-bpe-ink);
+    font: inherit;
+    font-size: 13px;
     cursor: pointer;
-    min-height: 44px;
+    text-align: left;
+    min-height: 48px;
     touch-action: manipulation;
 }
-.tt-bpe-dd-row:hover,
-.tt-bpe-dd-row:focus { background: #eef3f6; outline: none; }
-.tt-bpe-dd-who {
-    flex: 1;
-    min-width: 0;
+
+.tt-bpe-picker-row:hover {
+    background: #eef3f6;
+}
+
+.tt-bpe-picker-row:focus-visible {
+    outline: 2px solid var(--tt-bpe-tier1);
+    outline-offset: -2px;
+}
+
+.tt-bpe-picker-info {
     display: flex;
     flex-direction: column;
+    min-width: 0;
+    flex: 1;
 }
-.tt-bpe-dd-name {
-    font-size: 13px;
+
+.tt-bpe-picker-row-name {
     color: var(--tt-bpe-ink);
+    font-weight: 600;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
-.tt-bpe-dd-meta {
+
+.tt-bpe-picker-row-sub {
     font-size: 11px;
     color: var(--tt-bpe-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
-.tt-bpe-dd-empty {
-    padding: 10px 8px;
-    font-size: 12px;
+
+.tt-bpe-picker-empty {
+    padding: 8px;
     color: var(--tt-bpe-muted);
+    font-size: 13px;
     font-style: italic;
 }
-.tt-bpe-dd-clear {
+
+.tt-bpe-picker-clear {
     margin-top: 4px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    border: 0;
     border-top: 1px solid var(--tt-bpe-line);
-    padding: 8px;
-    font-size: 13px;
+    background: transparent;
     color: #b32d2e;
+    font: inherit;
+    font-size: 13px;
     cursor: pointer;
     text-align: center;
+    width: 100%;
     min-height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 0 0 6px 6px;
+    touch-action: manipulation;
 }
-.tt-bpe-dd-clear:hover { background: #fff5f5; }
 
-@media (prefers-reduced-motion: no-preference) {
-    .tt-bpe-dropdown { animation: tt-bpe-dd-in 0.12s ease-out; }
+.tt-bpe-picker-clear:focus-visible {
+    outline: 2px solid #b32d2e;
+    outline-offset: -2px;
 }
-@keyframes tt-bpe-dd-in {
-    from { opacity: 0; transform: translateY(-4px); }
-    to   { opacity: 1; transform: translateY(0); }
+
+@media (max-width: 480px) {
+    .tt-bpe-picker {
+        min-width: 200px;
+        max-width: calc(100vw - 16px);
+    }
+}
+
+/* =====================================================================
+ * Chemistry headline — kept from the legacy team-blueprint stylesheet
+ * (still rendered by `renderChemistryHeadline()` in the editor + the
+ * share view). Hide-chemistry toggle ties through the body class
+ * `tt-bp-chem-hidden`.
+ * ===================================================================== */
+
+.tt-bp-chem-card {
+    background: #fff;
+    border: 1px solid #e3e6ea;
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin: 0 0 16px;
+}
+
+.tt-bp-chem-head {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.tt-bp-chem-label {
+    font-size: 12px;
+    color: #5b6e75;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.tt-bp-chem-value {
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+@media (min-width: 480px) {
+    .tt-bp-chem-value { font-size: 28px; }
+}
+
+.tt-bp-chem-pairs {
+    font-size: 12px;
+    color: #5b6e75;
+}
+
+body.tt-bp-chem-hidden .tt-bp-chem-card,
+body.tt-bp-chem-hidden .tt-chem-link {
+    display: none !important;
+}
+
+.tt-bp-hide-chem-toggle[aria-pressed="true"] {
+    background: #f4f6f7;
+    border-color: #1d7874;
+    color: #1d7874;
+}
+
+/* =====================================================================
+ * Editor toolbar (Save / Save As / Hide chemistry) + status row +
+ * tab nav — kept from the legacy stylesheet so the editor's PHP-
+ * rendered chrome still styles correctly.
+ * ===================================================================== */
+
+.tt-bp-editor-toolbar button {
+    min-height: 40px;
+    touch-action: manipulation;
+}
+
+.tt-bp-statusbar .tt-bp-status-actions button {
+    min-height: 40px;
+    touch-action: manipulation;
+}
+
+.tt-bp-tabs .tt-bp-tab {
+    padding: 8px 14px;
+    color: #5b6e75;
+    text-decoration: none;
+    font-size: 14px;
+    border-bottom: 2px solid transparent;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.tt-bp-tabs .tt-bp-tab.is-active {
+    color: #1a1d21;
+    border-bottom-color: #1d7874;
+    font-weight: 600;
+}
+
+/* =====================================================================
+ * Heatmap — same SVG markings, slot circles tinted by depth count.
+ * Read-only squad-plan view; kept from the legacy stylesheet.
+ * ===================================================================== */
+
+.tt-bp-heatmap-wrap .tt-pitch-slot {
+    cursor: default;
+}
+
+.tt-pitch-slot.tt-bp-heat-0 {
+    background: #f8d7d4;
+    border-color: #b32d2e;
+    color: #b32d2e;
+}
+
+.tt-pitch-slot.tt-bp-heat-1 {
+    background: #fde7c5;
+    border-color: #c9962a;
+    color: #7a4f1d;
+}
+
+.tt-pitch-slot.tt-bp-heat-2 {
+    background: #fbf3c5;
+    border-color: #b08e1a;
+    color: #6b5314;
+}
+
+.tt-pitch-slot.tt-bp-heat-3 {
+    background: #d3ebd3;
+    border-color: #2c8a2c;
+    color: #1f5e1f;
+}
+
+.tt-bp-heat-count {
+    display: block;
+    font-size: 10px;
+    margin-top: 2px;
+    font-weight: 600;
+}
+
+.tt-bp-heat-legend {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+    font-size: 12px;
+}
+
+.tt-bp-heat-legend-item {
+    padding: 4px 10px;
+    border-radius: 10px;
+    border: 1px solid #e3e6ea;
+    min-height: 28px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.tt-bp-heat-legend-item.tt-bp-heat-0 { background: #f8d7d4; border-color: #b32d2e; color: #b32d2e; }
+.tt-bp-heat-legend-item.tt-bp-heat-1 { background: #fde7c5; border-color: #c9962a; color: #7a4f1d; }
+.tt-bp-heat-legend-item.tt-bp-heat-2 { background: #fbf3c5; border-color: #b08e1a; color: #6b5314; }
+.tt-bp-heat-legend-item.tt-bp-heat-3 { background: #d3ebd3; border-color: #2c8a2c; color: #1f5e1f; }
+
+/* =====================================================================
+ * Prefers-reduced-motion — disable non-essential transitions.
+ * ===================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    .tt-bpe-slot,
+    .tt-bpe-roster-row,
+    .tt-bpe-toolbar button,
+    .tt-bpe-toolbar select {
+        transition: none;
+    }
 }

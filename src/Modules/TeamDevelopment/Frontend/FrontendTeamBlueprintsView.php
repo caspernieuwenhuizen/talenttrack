@@ -288,7 +288,7 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
                 . '</p>';
         }
 
-        self::renderBlueprintEditor( $bp, $repo, $can_manage && ! $is_locked );
+        self::renderBlueprintEditor( $bp, $can_manage && ! $is_locked );
 
         if ( $is_locked ) {
             echo '<p class="tt-notice" style="margin-top:16px;">'
@@ -298,99 +298,92 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
     }
 
     /**
-     * #953 — new depth-chart editor surface. Matches the in-tree
-     * prototype at `.local-mockups/blueprint-editor/index.html`.
+     * Depth-chart editor surface — matches the prototype at
+     * `.local-mockups/blueprint-editor/index.html`.
      *
-     * Pitch markings are rendered server-side here so the page renders
-     * correctly before JS hydrates; positions + stacks are populated by
-     * `assets/js/components/blueprint-editor.js` against the localised
-     * `TT_BLUEPRINT_EDITOR` config.
+     * Pitch markings + the formation toolbar are rendered server-side
+     * so the page is meaningful before JS hydrates. Position cards,
+     * tier-stack pills, drag-drop, picker and the add-form interactions
+     * are populated by `assets/js/components/blueprint-editor.js` from
+     * the localised `TT_BLUEPRINT_EDITOR` config.
      *
      * @param array<string,mixed> $bp
      */
-    private static function renderBlueprintEditor( array $bp, TeamBlueprintsRepository $repo, bool $can_edit ): void {
+    private static function renderBlueprintEditor( array $bp, bool $can_edit ): void {
         $team_id   = (int) $bp['team_id'];
         $team      = QueryHelpers::get_team( $team_id );
         $team_name = $team ? (string) $team->name : '';
         $is_locked = $bp['status'] === TeamBlueprintsRepository::STATUS_LOCKED;
-        $can_manage = current_user_can( 'tt_manage_team_chemistry' );
         ?>
-        <div class="tt-bp-editor"
-             data-blueprint-id="<?php echo (int) $bp['id']; ?>"
-             data-team-id="<?php echo (int) $bp['team_id']; ?>"
-             data-flavour="<?php echo esc_attr( (string) ( $bp['flavour'] ?? '' ) ); ?>"
-             data-locked="<?php echo $is_locked ? '1' : '0'; ?>"
-             data-can-manage="<?php echo $can_manage ? '1' : '0'; ?>"
-             aria-hidden="true"
-             style="position:absolute; width:0; height:0; overflow:hidden; pointer-events:none;">
-            <!-- Hidden anchor for the legacy frontend-team-blueprint.js
-                 (toolbar Save/Save-As/Hide-chem + status buttons key off
-                 `.tt-bp-editor` + its data-attrs). The visible editor
-                 lives inside `.tt-bpe-editor` below. -->
-        </div>
         <div class="tt-bpe-editor"
              data-blueprint-id="<?php echo (int) $bp['id']; ?>"
+             data-team-id="<?php echo (int) $bp['team_id']; ?>"
+             data-locked="<?php echo $is_locked ? '1' : '0'; ?>"
              data-can-edit="<?php echo $can_edit ? '1' : '0'; ?>">
-            <aside class="tt-bpe-roster" aria-label="<?php esc_attr_e( 'Roster', 'talenttrack' ); ?>">
-                <h3><?php echo esc_html( sprintf(
-                    /* translators: %s = team name */
-                    __( '%s — roster', 'talenttrack' ),
-                    $team_name
-                ) ); ?></h3>
-                <p class="tt-bpe-roster-hint">
-                    <?php esc_html_e( 'Drag a player onto a slot, or click a slot to pick from the list.', 'talenttrack' ); ?>
-                </p>
-                <ul class="tt-bpe-roster-list" role="list"></ul>
-                <?php if ( $can_edit ) : ?>
-                    <button type="button" class="tt-bpe-add-toggle">
-                        <?php esc_html_e( '+ Add cross-team / guest / custom', 'talenttrack' ); ?>
-                    </button>
-                    <div class="tt-bpe-add-form" hidden>
-                        <div class="tt-bpe-add-tabs" role="tablist">
-                            <button type="button" class="tt-bpe-add-tab is-active" data-tab="crossteam" role="tab"><?php esc_html_e( 'Other team', 'talenttrack' ); ?></button>
-                            <button type="button" class="tt-bpe-add-tab" data-tab="guest" role="tab"><?php esc_html_e( 'Guest', 'talenttrack' ); ?></button>
-                            <button type="button" class="tt-bpe-add-tab" data-tab="custom" role="tab"><?php esc_html_e( 'Custom', 'talenttrack' ); ?></button>
-                        </div>
-                        <div class="tt-bpe-add-pane is-active" data-pane="crossteam" role="tabpanel">
-                            <label class="screen-reader-text" for="tt-bpe-ct-team"><?php esc_html_e( 'Team', 'talenttrack' ); ?></label>
-                            <select id="tt-bpe-ct-team" class="tt-bpe-ct-team">
-                                <option value=""><?php esc_html_e( '— pick a team —', 'talenttrack' ); ?></option>
-                            </select>
-                            <label class="screen-reader-text" for="tt-bpe-ct-player"><?php esc_html_e( 'Player', 'talenttrack' ); ?></label>
-                            <select id="tt-bpe-ct-player" class="tt-bpe-ct-player">
-                                <option value=""><?php esc_html_e( '— pick a player —', 'talenttrack' ); ?></option>
-                            </select>
-                            <div class="tt-bpe-add-actions">
-                                <button type="button" class="tt-bpe-ct-add is-primary"><?php esc_html_e( 'Add to roster', 'talenttrack' ); ?></button>
-                                <button type="button" class="tt-bpe-add-cancel"><?php esc_html_e( 'Cancel', 'talenttrack' ); ?></button>
-                            </div>
-                        </div>
-                        <div class="tt-bpe-add-pane" data-pane="guest" role="tabpanel">
-                            <label class="screen-reader-text" for="tt-bpe-guest-name"><?php esc_html_e( 'Guest name', 'talenttrack' ); ?></label>
-                            <input id="tt-bpe-guest-name" type="text" class="tt-bpe-guest-name" placeholder="<?php esc_attr_e( 'Guest name (e.g. visiting trialist)', 'talenttrack' ); ?>" inputmode="text" autocomplete="off">
-                            <label class="screen-reader-text" for="tt-bpe-guest-pos"><?php esc_html_e( 'Position', 'talenttrack' ); ?></label>
-                            <input id="tt-bpe-guest-pos" type="text" class="tt-bpe-guest-pos" placeholder="<?php esc_attr_e( 'Position (optional, e.g. ST)', 'talenttrack' ); ?>" inputmode="text" autocomplete="off">
-                            <div class="tt-bpe-add-actions">
-                                <button type="button" class="tt-bpe-guest-add is-primary"><?php esc_html_e( 'Add guest', 'talenttrack' ); ?></button>
-                                <button type="button" class="tt-bpe-add-cancel"><?php esc_html_e( 'Cancel', 'talenttrack' ); ?></button>
-                            </div>
-                        </div>
-                        <div class="tt-bpe-add-pane" data-pane="custom" role="tabpanel">
-                            <label class="screen-reader-text" for="tt-bpe-custom-name"><?php esc_html_e( 'Custom label', 'talenttrack' ); ?></label>
-                            <input id="tt-bpe-custom-name" type="text" class="tt-bpe-custom-name" placeholder="<?php esc_attr_e( 'Custom label (e.g. "Scout target #4")', 'talenttrack' ); ?>" inputmode="text" autocomplete="off">
-                            <div class="tt-bpe-add-actions">
-                                <button type="button" class="tt-bpe-custom-add is-primary"><?php esc_html_e( 'Add custom', 'talenttrack' ); ?></button>
-                                <button type="button" class="tt-bpe-add-cancel"><?php esc_html_e( 'Cancel', 'talenttrack' ); ?></button>
-                            </div>
-                        </div>
-                    </div>
-                <?php endif; ?>
-            </aside>
 
-            <section class="tt-bpe-pitch-card" aria-label="<?php esc_attr_e( 'Pitch', 'talenttrack' ); ?>">
-                <?php self::renderEditorToolbarFormation( $bp, $can_edit ); ?>
-                <div class="tt-bpe-pitch-wrap">
-                    <div class="tt-bpe-pitch">
+            <?php self::renderEditorToolbarFormation( $bp, $team_name, $can_edit ); ?>
+
+            <div class="tt-bpe-layout">
+                <aside class="tt-bpe-roster" aria-label="<?php esc_attr_e( 'Roster', 'talenttrack' ); ?>">
+                    <h3 class="tt-bpe-roster-title">
+                        <?php
+                        /* translators: %s = team name */
+                        echo esc_html( sprintf( __( '%s — roster', 'talenttrack' ), $team_name ) );
+                        ?>
+                        <span class="tt-bpe-roster-count" aria-hidden="true"></span>
+                    </h3>
+                    <p class="tt-bpe-roster-hint">
+                        <?php esc_html_e( 'Drag a player onto a slot, or click a slot to pick from the list.', 'talenttrack' ); ?>
+                    </p>
+                    <ul class="tt-bpe-roster-list" role="list"></ul>
+                    <?php if ( $can_edit ) : ?>
+                        <button type="button" class="tt-bpe-add-toggle">
+                            <?php esc_html_e( '+ Add guest / custom name', 'talenttrack' ); ?>
+                        </button>
+                        <div class="tt-bpe-add-form" hidden>
+                            <div class="tt-bpe-add-tabs" role="tablist">
+                                <button type="button" class="tt-bpe-add-tab is-active" data-tab="crossteam" role="tab"><?php esc_html_e( 'Other team', 'talenttrack' ); ?></button>
+                                <button type="button" class="tt-bpe-add-tab" data-tab="guest" role="tab"><?php esc_html_e( 'Guest', 'talenttrack' ); ?></button>
+                                <button type="button" class="tt-bpe-add-tab" data-tab="custom" role="tab"><?php esc_html_e( 'Custom', 'talenttrack' ); ?></button>
+                            </div>
+                            <div class="tt-bpe-add-pane is-active" data-pane="crossteam" role="tabpanel">
+                                <label class="screen-reader-text" for="tt-bpe-ct-team"><?php esc_html_e( 'Team', 'talenttrack' ); ?></label>
+                                <select id="tt-bpe-ct-team" class="tt-bpe-ct-team">
+                                    <option value=""><?php esc_html_e( '— pick a team —', 'talenttrack' ); ?></option>
+                                </select>
+                                <label class="screen-reader-text" for="tt-bpe-ct-player"><?php esc_html_e( 'Player', 'talenttrack' ); ?></label>
+                                <select id="tt-bpe-ct-player" class="tt-bpe-ct-player">
+                                    <option value=""><?php esc_html_e( '— pick a player —', 'talenttrack' ); ?></option>
+                                </select>
+                                <div class="tt-bpe-add-actions">
+                                    <button type="button" class="tt-bpe-ct-add is-primary"><?php esc_html_e( 'Add to roster', 'talenttrack' ); ?></button>
+                                    <button type="button" class="tt-bpe-add-cancel"><?php esc_html_e( 'Cancel', 'talenttrack' ); ?></button>
+                                </div>
+                            </div>
+                            <div class="tt-bpe-add-pane" data-pane="guest" role="tabpanel">
+                                <label class="screen-reader-text" for="tt-bpe-guest-name"><?php esc_html_e( 'Guest name', 'talenttrack' ); ?></label>
+                                <input id="tt-bpe-guest-name" type="text" class="tt-bpe-guest-name" placeholder="<?php esc_attr_e( 'Guest name (e.g. visiting trialist)', 'talenttrack' ); ?>" inputmode="text" autocomplete="off">
+                                <label class="screen-reader-text" for="tt-bpe-guest-pos"><?php esc_html_e( 'Position', 'talenttrack' ); ?></label>
+                                <input id="tt-bpe-guest-pos" type="text" class="tt-bpe-guest-pos" placeholder="<?php esc_attr_e( 'Position (optional, e.g. ST)', 'talenttrack' ); ?>" inputmode="text" autocomplete="off">
+                                <div class="tt-bpe-add-actions">
+                                    <button type="button" class="tt-bpe-guest-add is-primary"><?php esc_html_e( 'Add guest', 'talenttrack' ); ?></button>
+                                    <button type="button" class="tt-bpe-add-cancel"><?php esc_html_e( 'Cancel', 'talenttrack' ); ?></button>
+                                </div>
+                            </div>
+                            <div class="tt-bpe-add-pane" data-pane="custom" role="tabpanel">
+                                <label class="screen-reader-text" for="tt-bpe-custom-name"><?php esc_html_e( 'Custom label', 'talenttrack' ); ?></label>
+                                <input id="tt-bpe-custom-name" type="text" class="tt-bpe-custom-name" placeholder="<?php esc_attr_e( 'Custom label (e.g. "Scout target #4")', 'talenttrack' ); ?>" inputmode="text" autocomplete="off">
+                                <div class="tt-bpe-add-actions">
+                                    <button type="button" class="tt-bpe-custom-add is-primary"><?php esc_html_e( 'Add custom', 'talenttrack' ); ?></button>
+                                    <button type="button" class="tt-bpe-add-cancel"><?php esc_html_e( 'Cancel', 'talenttrack' ); ?></button>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                </aside>
+
+                <section class="tt-bpe-pitch-card" aria-label="<?php esc_attr_e( 'Pitch', 'talenttrack' ); ?>">
+                    <div class="tt-bpe-pitch-wrap">
                         <svg class="tt-bpe-pitch-svg" viewBox="0 0 680 1050" preserveAspectRatio="none" aria-hidden="true">
                             <rect class="tt-bpe-pitch-line" x="20" y="20" width="640" height="1010"/>
                             <rect class="tt-bpe-pitch-line" x="138.4" y="20" width="403.2" height="165"/>
@@ -403,20 +396,27 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
                             <path class="tt-bpe-pitch-line" d="M 266.82 865 A 91.5 91.5 0 0 1 413.18 865"/>
                         </svg>
                     </div>
-                </div>
-            </section>
+                    <p class="tt-bpe-pitch-hint">
+                        <?php
+                        echo wp_kses(
+                            __( 'Pill colours: <b class="tt-bpe-tier-1">&#9679; tier 1</b> &nbsp; <b class="tt-bpe-tier-2">&#9679; tier 2</b> &nbsp; <b class="tt-bpe-tier-3">&#9679; tier 3</b>. The &times;N badge next to a roster name shows how many slots reference that player.', 'talenttrack' ),
+                            [ 'b' => [ 'class' => [] ] ]
+                        );
+                        ?>
+                    </p>
+                </section>
+            </div>
         </div>
         <?php
     }
 
     /**
-     * Formation switch dropdown + clear-all button. Sits above the
-     * pitch SVG so the toolbar visually anchors to the pitch surface
-     * (the chemistry headline already sits above this block).
+     * Toolbar above the layout — team display (read-only), formation
+     * dropdown, clear-all button and a save-state hint.
      *
      * @param array<string,mixed> $bp
      */
-    private static function renderEditorToolbarFormation( array $bp, bool $can_edit ): void {
+    private static function renderEditorToolbarFormation( array $bp, string $team_name, bool $can_edit ): void {
         global $wpdb; $p = $wpdb->prefix;
         $templates = $wpdb->get_results(
             "SELECT id, name, formation_shape FROM {$p}tt_formation_templates
@@ -424,7 +424,12 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
         );
         $current_template_id = (int) ( $bp['formation_template_id'] ?? 0 );
         echo '<div class="tt-bpe-toolbar">';
-        echo '<label for="tt-bpe-formation">' . esc_html__( 'Formation', 'talenttrack' ) . '</label>';
+        echo '<div class="tt-bpe-toolbar-group">';
+        echo '<span class="tt-bpe-toolbar-label">' . esc_html__( 'Team', 'talenttrack' ) . '</span>';
+        echo '<span class="tt-bpe-toolbar-value">' . esc_html( $team_name ) . '</span>';
+        echo '</div>';
+        echo '<div class="tt-bpe-toolbar-group">';
+        echo '<label class="tt-bpe-toolbar-label" for="tt-bpe-formation">' . esc_html__( 'Formation', 'talenttrack' ) . '</label>';
         echo '<select id="tt-bpe-formation" class="tt-bpe-formation-select"' . ( $can_edit ? '' : ' disabled' ) . '>';
         foreach ( (array) $templates as $tpl ) {
             $sel = ( (int) $tpl->id === $current_template_id ) ? ' selected' : '';
@@ -433,9 +438,11 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
             echo '<option value="' . (int) $tpl->id . '"' . $sel . '>' . esc_html( $label ) . '</option>';
         }
         echo '</select>';
+        echo '</div>';
         if ( $can_edit ) {
             echo '<button type="button" class="tt-bpe-clear-all">' . esc_html__( 'Clear all slots', 'talenttrack' ) . '</button>';
         }
+        echo '<span class="tt-bpe-toolbar-hint" aria-live="polite" data-tt-bpe-savehint></span>';
         echo '</div>';
     }
 
@@ -730,145 +737,6 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
     }
 
     /**
-     * @param array<int, true> $assigned_ids set of player IDs already on the blueprint (any tier)
-     */
-    private static function renderRosterChips( int $team_id, array $assigned_ids, bool $can_drag, bool $include_trials ): void {
-        $players = QueryHelpers::get_players( $team_id );
-        $trials  = $include_trials ? self::loadTrialPlayers( $team_id ) : [];
-        if ( empty( $players ) && empty( $trials ) ) {
-            echo '<p style="color:#5b6e75;"><em>' . esc_html__( 'No players on this team yet.', 'talenttrack' ) . '</em></p>';
-            return;
-        }
-        foreach ( $players as $pl ) {
-            self::renderRosterChip( (int) $pl->id, QueryHelpers::player_display_name( $pl ), false, isset( $assigned_ids[ (int) $pl->id ] ), $can_drag );
-        }
-        if ( ! empty( $trials ) ) {
-            echo '<div class="tt-bp-roster-divider" aria-hidden="true"></div>';
-            echo '<p class="tt-bp-roster-section-label">' . esc_html__( 'Trials', 'talenttrack' ) . '</p>';
-            foreach ( $trials as $row ) {
-                $tid = (int) $row->id;
-                $name = (string) $row->first_name . ' ' . (string) $row->last_name;
-                self::renderRosterChip( $tid, $name, true, isset( $assigned_ids[ $tid ] ), $can_drag );
-            }
-        }
-    }
-
-    private static function renderRosterChip( int $pid, string $name, bool $is_trial, bool $is_assigned, bool $can_drag ): void {
-        $classes = 'tt-bp-chip';
-        if ( $is_trial )    $classes .= ' tt-bp-chip-trial';
-        if ( $is_assigned ) $classes .= ' tt-bp-chip-assigned';
-        $draggable = $can_drag && ! $is_assigned ? 'true' : 'false';
-        echo '<div class="' . esc_attr( $classes ) . '"'
-            . ' draggable="' . esc_attr( $draggable ) . '"'
-            . ' data-player-id="' . (int) $pid . '"'
-            . ' data-is-trial="' . ( $is_trial ? '1' : '0' ) . '"'
-            . ' data-player-name="' . esc_attr( $name ) . '">'
-            . esc_html( $name );
-        if ( $is_trial ) {
-            echo '<span class="tt-bp-trial-badge" aria-label="' . esc_attr__( 'Trial player', 'talenttrack' ) . '">' . esc_html__( 'TRIAL', 'talenttrack' ) . '</span>';
-        }
-        echo '</div>';
-    }
-
-    /**
-     * Active trial players for this team — the locked decision is "only
-     * trials assigned to this team", which we resolve to
-     * `tt_players.status = 'trial'` rows on this team's roster.
-     *
-     * @return list<object>
-     */
-    private static function loadTrialPlayers( int $team_id ): array {
-        if ( $team_id <= 0 ) return [];
-        global $wpdb; $p = $wpdb->prefix;
-        $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, first_name, last_name FROM {$p}tt_players
-              WHERE team_id = %d AND status = 'trial' AND club_id = %d
-              ORDER BY last_name ASC, first_name ASC",
-            $team_id, \TT\Infrastructure\Tenancy\CurrentClub::id()
-        ) );
-        return is_array( $rows ) ? $rows : [];
-    }
-
-    /**
-     * Slot droptarget overlay — positioned absolutely on top of the
-     * pitch so JS can attach drop handlers without rebuilding the
-     * pitch SVG. Pitch slots target the primary tier (squad-plan
-     * uses the depth chart below for secondary / tertiary tiers).
-     *
-     * @param list<array<string,mixed>> $slots
-     * @param array<string,int>         $lineup_for_tier slot → player_id at this tier
-     */
-    private static function overlaySlotDropTargets( array $slots, array $lineup_for_tier, bool $can_drag, string $tier ): void {
-        echo '<div class="tt-bp-droptargets" aria-hidden="true">';
-        foreach ( $slots as $slot ) {
-            $label = (string) ( $slot['label'] ?? '' );
-            if ( $label === '' ) continue;
-            $x = (float) ( $slot['pos']['x'] ?? 0.5 );
-            $y = (float) ( $slot['pos']['y'] ?? 0.5 );
-            $pid = isset( $lineup_for_tier[ $label ] ) ? (int) $lineup_for_tier[ $label ] : 0;
-            echo '<div class="tt-bp-droptarget"'
-                . ' data-slot-label="' . esc_attr( $label ) . '"'
-                . ' data-tier="' . esc_attr( $tier ) . '"'
-                . ' data-player-id="' . (int) $pid . '"'
-                . ' data-can-drag="' . ( $can_drag ? '1' : '0' ) . '"'
-                . ' style="left:' . esc_attr( (string) ( $x * 100 ) ) . '%; top:' . esc_attr( (string) ( $y * 100 ) ) . '%;"></div>';
-        }
-        echo '</div>';
-    }
-
-    /**
-     * Squad-plan depth chart — one row per slot, three columns
-     * (primary / secondary / tertiary), each cell a drop target.
-     *
-     * @param list<array<string,mixed>>                                              $slots
-     * @param array<string, array{primary?:int, secondary?:int, tertiary?:int}>      $tiered
-     */
-    private static function renderDepthChart( array $slots, array $tiered, bool $can_drag ): void {
-        if ( empty( $slots ) ) return;
-
-        $all_pids = [];
-        foreach ( $tiered as $tiers ) {
-            foreach ( (array) $tiers as $pid ) {
-                $all_pids[ (int) $pid ] = true;
-            }
-        }
-        $names = self::playerNames( array_keys( $all_pids ) );
-
-        echo '<h3 class="tt-bp-depth-heading">' . esc_html__( 'Depth chart', 'talenttrack' ) . '</h3>';
-        echo '<table class="tt-bp-depth-table" data-can-drag="' . ( $can_drag ? '1' : '0' ) . '"><thead><tr>';
-        echo '<th>' . esc_html__( 'Slot', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Primary', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Secondary', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Tertiary', 'talenttrack' ) . '</th>';
-        echo '</tr></thead><tbody>';
-        foreach ( $slots as $slot ) {
-            $label = (string) ( $slot['label'] ?? '' );
-            if ( $label === '' ) continue;
-            $tiers_for_slot = (array) ( $tiered[ $label ] ?? [] );
-            echo '<tr>';
-            echo '<td class="tt-bp-depth-slot"><strong>' . esc_html( $label ) . '</strong></td>';
-            foreach ( TeamBlueprintsRepository::TIERS as $tier ) {
-                $pid  = isset( $tiers_for_slot[ $tier ] ) ? (int) $tiers_for_slot[ $tier ] : 0;
-                $name = $pid > 0 ? ( $names[ $pid ] ?? '' ) : '';
-                echo '<td class="tt-bp-depth-cell tt-bp-droptarget-cell"'
-                    . ' data-slot-label="' . esc_attr( $label ) . '"'
-                    . ' data-tier="' . esc_attr( $tier ) . '"'
-                    . ' data-player-id="' . (int) $pid . '"'
-                    . ' data-can-drag="' . ( $can_drag ? '1' : '0' ) . '">';
-                if ( $pid > 0 ) {
-                    echo '<span class="tt-bp-depth-chip" data-player-id="' . (int) $pid . '" data-player-name="' . esc_attr( $name ) . '" draggable="' . ( $can_drag ? 'true' : 'false' ) . '">'
-                        . esc_html( $name ) . '</span>';
-                } else {
-                    echo '<span class="tt-bp-depth-empty">—</span>';
-                }
-                echo '</td>';
-            }
-            echo '</tr>';
-        }
-        echo '</tbody></table>';
-    }
-
-    /**
      * Heatmap pitch — same SVG markings, but each slot is tinted by
      * how many tiers are filled (0=red, 1=orange, 2=yellow, 3=green).
      * Read-only; clicking a slot returns to the lineup view via the
@@ -1043,32 +911,16 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
     }
 
     private static function enqueueBlueprintAssets(): void {
-        wp_enqueue_style(
-            'tt-team-blueprint',
-            TT_PLUGIN_URL . 'assets/css/frontend-team-blueprint.css',
-            [],
-            TT_VERSION
-        );
-        // #953 — new depth-chart editor stylesheet, mobile-first.
+        // Single editor stylesheet (mobile-first). The legacy
+        // `frontend-team-blueprint.css` + `frontend-team-blueprint.js`
+        // were retired in v4.6.0 (#972) — every editor / share / status
+        // surface now reads styles + behaviour from this one pair.
         wp_enqueue_style(
             'tt-blueprint-editor',
             TT_PLUGIN_URL . 'assets/css/frontend-blueprint-editor.css',
-            [ 'tt-team-blueprint' ],
+            [],
             TT_VERSION
         );
-        wp_enqueue_script(
-            'tt-team-blueprint',
-            TT_PLUGIN_URL . 'assets/js/frontend-team-blueprint.js',
-            [],
-            TT_VERSION,
-            true
-        );
-        // #953 — new depth-chart editor behaviour. Drives the
-        // 3-tier-stack picker + drag-drop + roster augmentation. Reads
-        // config from `TT_BLUEPRINT_EDITOR` (separate from
-        // `TT_BLUEPRINT` so neither file's contract depends on the
-        // other; #953 will fully sunset `TT_BLUEPRINT` when the legacy
-        // tap-to-swap picker is retired).
         wp_enqueue_script(
             'tt-blueprint-editor',
             TT_PLUGIN_URL . 'assets/js/components/blueprint-editor.js',
@@ -1077,67 +929,6 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
             true
         );
         self::localiseBlueprintEditor();
-
-        // v3.110.184 — extend the localized config with the data the
-        // tap-to-swap picker needs: the team's roster (id + name +
-        // trial flag), and the i18n strings for the picker UI. The
-        // editor already emits the slot list + tier assignments on
-        // each `.tt-bp-droptarget` via data-attributes, so the JS reads
-        // those off the DOM rather than re-passing them here.
-        $blueprint_id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
-        $roster = [];
-        $team_id = 0;
-        $assignments = []; // slot_label → [tier => player_id]
-        $slot_labels = []; // list of slot labels in formation order
-        if ( $blueprint_id > 0 ) {
-            $bp = ( new TeamBlueprintsRepository() )->find( $blueprint_id );
-            if ( $bp ) {
-                $team_id = (int) $bp['team_id'];
-                foreach ( QueryHelpers::get_players( $team_id ) as $pl ) {
-                    $roster[] = [
-                        'id'   => (int) $pl->id,
-                        'name' => QueryHelpers::player_display_name( $pl ),
-                    ];
-                }
-                $assignments = (array) ( $bp['assignments'] ?? [] );
-                foreach ( (array) ( $bp['slots'] ?? [] ) as $slot ) {
-                    $label = (string) ( $slot['label'] ?? '' );
-                    if ( $label !== '' ) $slot_labels[] = $label;
-                }
-            }
-        }
-
-        wp_localize_script( 'tt-team-blueprint', 'TT_BLUEPRINT', [
-            'rest_root'    => esc_url_raw( rest_url( 'talenttrack/v1' ) ),
-            'nonce'        => wp_create_nonce( 'wp_rest' ),
-            'blueprint_id' => $blueprint_id,
-            'team_id'      => $team_id,
-            'roster'       => $roster,
-            'assignments'  => $assignments,
-            'slot_labels'  => $slot_labels,
-            'i18n'         => [
-                'save_failed'      => __( 'Could not save the change. Try again.', 'talenttrack' ),
-                'locked'           => __( 'This blueprint is locked. Reopen it before editing.', 'talenttrack' ),
-                'pairs_one'        => __( '%d scored adjacent pair on the pitch.', 'talenttrack' ),
-                'pairs_many'       => __( '%d scored adjacent pairs on the pitch.', 'talenttrack' ),
-                'score_fmt'        => __( '%d / 100', 'talenttrack' ),
-                /* translators: %s = slot label, e.g. "RB" or "CM". */
-                'picker_title'     => __( 'Assign players to %s', 'talenttrack' ),
-                'picker_close'     => __( 'Done', 'talenttrack' ),
-                'picker_empty'     => __( 'Leave empty', 'talenttrack' ),
-                'tier_primary'     => __( 'Primary', 'talenttrack' ),
-                'tier_secondary'   => __( 'Secondary (2nd best)', 'talenttrack' ),
-                'tier_tertiary'    => __( 'Tertiary (3rd best)', 'talenttrack' ),
-                'tier_current'     => __( 'Currently assigned', 'talenttrack' ),
-                'tier_clear'       => __( 'Clear this tier', 'talenttrack' ),
-                'hide_chem_label'  => __( 'Hide chemistry', 'talenttrack' ),
-                'show_chem_label'  => __( 'Show chemistry', 'talenttrack' ),
-                'save_as_prompt'   => __( 'Name the new blueprint:', 'talenttrack' ),
-                'save_as_default'  => __( 'Copy of blueprint', 'talenttrack' ),
-                'save_as_failed'   => __( 'Could not duplicate. Try again.', 'talenttrack' ),
-                'save_toast'       => __( 'Saved.', 'talenttrack' ),
-            ],
-        ] );
     }
 
     /**
@@ -1191,13 +982,14 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
         $roster = [];
         foreach ( QueryHelpers::get_players( $team_id ) as $pl ) {
             $roster[] = [
-                'roster_id'    => 'p:' . (int) $pl->id,
-                'kind'         => 'player',
-                'player_id'    => (int) $pl->id,
-                'name'         => QueryHelpers::player_display_name( $pl ),
-                'team_id'      => $team_id,
-                'team_name'    => '',
-                'is_crossteam' => false,
+                'roster_id' => 'p:' . (int) $pl->id,
+                'kind'      => 'player',
+                'player_id' => (int) $pl->id,
+                'name'      => QueryHelpers::player_display_name( $pl ),
+                'pos'       => self::firstPreferredPosition( $pl ),
+                'age'       => self::ageFromDob( (string) ( $pl->date_of_birth ?? '' ) ),
+                'team_id'   => $team_id,
+                'team_name' => '',
             ];
         }
 
@@ -1214,6 +1006,8 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
                 $players[] = [
                     'id'   => (int) $pl->id,
                     'name' => QueryHelpers::player_display_name( $pl ),
+                    'pos'  => self::firstPreferredPosition( $pl ),
+                    'age'  => self::ageFromDob( (string) ( $pl->date_of_birth ?? '' ) ),
                 ];
             }
             $other_teams[] = [
@@ -1223,50 +1017,128 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
             ];
         }
 
+        // Formation templates list (id, name, shape, slots) so the JS
+        // can swap the on-pitch position cards client-side without a
+        // REST round-trip on every formation switch. Slots dropped
+        // from the previous formation stay in `assignment_refs` —
+        // round-tripping back to the old formation restores them.
+        global $wpdb; $p = $wpdb->prefix;
+        $tpl_rows = $wpdb->get_results(
+            "SELECT id, name, formation_shape, slots_json FROM {$p}tt_formation_templates
+              WHERE archived_at IS NULL ORDER BY is_seeded DESC, name ASC"
+        );
+        $formation_templates = [];
+        foreach ( (array) $tpl_rows as $row ) {
+            $decoded = json_decode( (string) ( $row->slots_json ?? '[]' ), true );
+            if ( ! is_array( $decoded ) ) $decoded = [];
+            $tpl_slots = [];
+            foreach ( $decoded as $s ) {
+                $label = (string) ( $s['label'] ?? '' );
+                if ( $label === '' ) continue;
+                $tpl_slots[] = [
+                    'label' => $label,
+                    'num'   => isset( $s['num'] ) ? (int) $s['num'] : null,
+                    'abbr'  => isset( $s['abbr'] ) ? (string) $s['abbr'] : $label,
+                    'x'     => (float) ( $s['pos']['x'] ?? 0.5 ),
+                    'y'     => (float) ( $s['pos']['y'] ?? 0.5 ),
+                ];
+            }
+            $formation_templates[] = [
+                'id'    => (int) $row->id,
+                'name'  => (string) $row->name,
+                'shape' => isset( $row->formation_shape ) ? (string) $row->formation_shape : '',
+                'slots' => $tpl_slots,
+            ];
+        }
+
         // Hydrate the stored ref shape with display_name + team_id /
         // team_name so the JS doesn't have to lookup names from the
         // roster list on first paint.
         $hydrated_refs = self::hydrateAssignmentRefsForEditor( $repo->loadAssignmentRefs( $blueprint_id ) );
 
+        // List URL for the "Save" button (returns to the team's blueprint
+        // list with a confirmation toast).
+        $list_url = add_query_arg(
+            [ 'tt_view' => 'team-blueprints', 'team_id' => $team_id ],
+            remove_query_arg( [ 'id', 'action' ] )
+        );
+
         wp_localize_script( 'tt-blueprint-editor', 'TT_BLUEPRINT_EDITOR', [
-            'rest_root'       => esc_url_raw( rest_url( 'talenttrack/v1' ) ),
-            'nonce'           => wp_create_nonce( 'wp_rest' ),
-            'blueprint_id'    => (int) $bp['id'],
-            'team_id'         => $team_id,
-            'locked'          => $bp['status'] === TeamBlueprintsRepository::STATUS_LOCKED,
-            'can_manage'      => current_user_can( 'tt_manage_team_chemistry' ),
-            'formation'       => [
+            'rest_root'           => esc_url_raw( rest_url( 'talenttrack/v1' ) ),
+            'nonce'               => wp_create_nonce( 'wp_rest' ),
+            'blueprint_id'        => (int) $bp['id'],
+            'team_id'             => $team_id,
+            'list_url'            => $list_url,
+            'locked'              => $bp['status'] === TeamBlueprintsRepository::STATUS_LOCKED,
+            'can_manage'          => current_user_can( 'tt_manage_team_chemistry' ),
+            'formation'           => [
                 'template_id' => (int) ( $bp['formation_template_id'] ?? 0 ),
                 'slots'       => $slots,
             ],
-            'roster'          => $roster,
-            'other_teams'     => $other_teams,
-            'assignment_refs' => $hydrated_refs,
-            'i18n'            => [
+            'formation_templates' => $formation_templates,
+            'roster'              => $roster,
+            'other_teams'         => $other_teams,
+            'assignment_refs'     => $hydrated_refs,
+            'i18n'                => [
                 'roster_empty'          => __( 'No players on this team yet.', 'talenttrack' ),
+                /* translators: %1$s = team name, %2$d = roster size */
+                'roster_title_fmt'      => __( '%1$s — roster (%2$d)', 'talenttrack' ),
                 'kind_crossteam'        => __( 'cross-team', 'talenttrack' ),
                 'kind_guest'            => __( 'guest', 'talenttrack' ),
                 'kind_custom'           => __( 'custom', 'talenttrack' ),
                 'kind_player'           => __( 'player', 'talenttrack' ),
-                /* translators: %s = tier number 1/2/3 */
-                'picker_head'           => __( 'Pick a player for tier %s', 'talenttrack' ),
+                /* translators: %d = tier number 1/2/3 */
+                'picker_head'           => __( 'Pick a player for tier %d', 'talenttrack' ),
                 'search_placeholder'    => __( 'Search…', 'talenttrack' ),
                 'clear_slot'            => __( 'Clear this slot', 'talenttrack' ),
                 'no_matches'            => __( 'No players match.', 'talenttrack' ),
                 /* translators: %d = placement count for that player */
                 'placed_n'              => __( '×%d on pitch', 'talenttrack' ),
-                'pick_a_player'         => __( '— pick a player —', 'talenttrack' ),
                 'pick_team_and_player'  => __( 'Pick a team and a player.', 'talenttrack' ),
                 'already_in_roster'     => __( 'That player is already on the roster.', 'talenttrack' ),
                 'name_required'         => __( 'Name is required.', 'talenttrack' ),
                 'label_required'        => __( 'Custom label is required.', 'talenttrack' ),
                 'confirm_clear_all'     => __( 'Clear every slot on this blueprint? This cannot be undone.', 'talenttrack' ),
                 'save_failed'           => __( 'Could not save the change. Try again.', 'talenttrack' ),
-                'score_fmt'             => __( '%d / 100', 'talenttrack' ),
-                'pairs_one'             => __( '%d scored adjacent pair on the pitch.', 'talenttrack' ),
-                'pairs_many'            => __( '%d scored adjacent pairs on the pitch.', 'talenttrack' ),
+                /* translators: %d = age in years */
+                'age_fmt'               => __( 'age %d', 'talenttrack' ),
+                'hide_chem_label'       => __( 'Hide chemistry', 'talenttrack' ),
+                'show_chem_label'       => __( 'Show chemistry', 'talenttrack' ),
+                'save_as_prompt'        => __( 'Name the new blueprint:', 'talenttrack' ),
+                'save_as_default'       => __( 'Copy of blueprint', 'talenttrack' ),
+                'save_as_failed'        => __( 'Could not duplicate. Try again.', 'talenttrack' ),
+                'saving'                => __( 'Saving…', 'talenttrack' ),
+                'saved'                 => __( 'Saved.', 'talenttrack' ),
             ],
         ] );
+    }
+
+    /**
+     * Best-effort age in whole years from a `YYYY-MM-DD` DOB. Returns
+     * 0 if the DOB is empty / unparseable — JS treats 0 as "unknown"
+     * and hides the "age N" suffix on roster rows.
+     */
+    private static function ageFromDob( string $dob ): int {
+        if ( $dob === '' || strlen( $dob ) < 10 ) return 0;
+        try {
+            $birth = new \DateTimeImmutable( $dob );
+            $now   = new \DateTimeImmutable( 'now' );
+            return (int) $birth->diff( $now )->y;
+        } catch ( \Throwable $e ) {
+            return 0;
+        }
+    }
+
+    /**
+     * First preferred-position label (the `preferred_positions` column
+     * is a comma-separated list of abbreviations like `ST,LW`). Used
+     * for the roster row's meta line.
+     */
+    private static function firstPreferredPosition( object $player ): string {
+        $raw = isset( $player->preferred_positions ) ? (string) $player->preferred_positions : '';
+        if ( $raw === '' ) return '';
+        $parts = array_filter( array_map( 'trim', explode( ',', $raw ) ) );
+        return $parts ? (string) reset( $parts ) : '';
     }
 
     /**
