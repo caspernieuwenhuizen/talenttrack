@@ -1,0 +1,1339 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Match preparation — mockup</title>
+<style>
+/* ----------------------------------------------------------------------------
+   TT design tokens.
+   ---------------------------------------------------------------------------- */
+:root {
+  --tt-ink:        #1a1d21;
+  --tt-ink-soft:   #5b6e75;
+  --tt-paper:      #ffffff;
+  --tt-bg:         #f5f7f6;
+  --tt-line:       #c8ccd0;
+  --tt-line-soft:  #e3e6ea;
+  --tt-accent:     #2271b1;
+  --tt-success:    #2e7d4f;
+  --tt-warn:       #c75c1f;
+  --tt-danger:     #d63638;
+  --tt-mute:       #f0f3f2;
+  --tt-pitch-1e:   #d7e6f4;     /* blue tint, matches spec "1e blue" */
+  --tt-pitch-1e-d: #b9d2ea;
+  --tt-pitch-2e:   #fbe2d2;     /* orange tint, matches spec "2e orange" */
+  --tt-pitch-2e-d: #e9c2a4;
+
+  --radius:        6px;
+  --gap:           10px;
+  --font:          -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--font);
+  color: var(--tt-ink);
+  background: var(--tt-bg);
+  font-size: 13px;
+  line-height: 1.35;
+  padding-bottom: 80px;
+}
+
+/* Mockup chrome ------------------------------------------------------------- */
+.mockup-bar {
+  position: sticky; top: 0; z-index: 100;
+  background: #222; color: #eee;
+  font-size: 12px; padding: 8px 14px;
+  display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+  border-bottom: 2px solid #000;
+}
+.mockup-bar strong { color: #ffd; margin-right: 4px; }
+.mockup-bar button {
+  background: #444; color: #eee; border: 1px solid #666;
+  padding: 4px 10px; border-radius: 4px; font: inherit; cursor: pointer;
+  font-size: 11px;
+}
+.mockup-bar button[aria-pressed="true"] {
+  background: #6c4; color: #000; border-color: #4a3; font-weight: 600;
+}
+.mockup-bar .spacer { flex: 1; }
+
+.page {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 18px 24px;
+}
+
+.page-head h1 { margin: 0 0 2px; font-size: 18px; }
+.page-head .sub {
+  color: var(--tt-ink-soft); font-size: 12.5px; margin: 0 0 14px;
+}
+
+.toolbar {
+  display: flex; gap: 14px; align-items: center; flex-wrap: wrap;
+  padding: 10px 12px;
+  background: var(--tt-paper); border: 1px solid var(--tt-line); border-radius: var(--radius);
+  margin-bottom: 14px;
+}
+.toolbar .field { display: flex; gap: 6px; align-items: center; }
+.toolbar label { font-size: 11px; color: var(--tt-ink-soft); text-transform: uppercase; letter-spacing: .04em; font-weight: 600; }
+.toolbar input, .toolbar select {
+  padding: 5px 8px; font: inherit; font-size: 13px;
+  border: 1px solid var(--tt-line); border-radius: 4px; background: #fff;
+}
+.toolbar input[type=number] { width: 64px; }
+.toolbar .spacer { flex: 1; }
+.toolbar .btn {
+  padding: 6px 12px; font: inherit; font-size: 12.5px; font-weight: 600;
+  border: 1px solid var(--tt-line); background: #fff; color: var(--tt-ink);
+  border-radius: 4px; cursor: pointer;
+}
+.toolbar .btn:hover { background: var(--tt-mute); }
+.toolbar .btn.primary { background: var(--tt-accent); color: #fff; border-color: var(--tt-accent); }
+.toolbar .btn.primary[disabled] { opacity: .5; cursor: not-allowed; }
+
+/* ---------------------------------------------------------------------------
+   THE 3-COLUMN LAYOUT — matches the pilot's spreadsheet
+   --------------------------------------------------------------------------- */
+.grid3 {
+  display: grid;
+  grid-template-columns: 200px 1fr 320px;
+  gap: 14px;
+  align-items: start;
+}
+@media (max-width: 1099px) {
+  .grid3 { grid-template-columns: 1fr; }
+}
+
+/* ===== LEFT panel — roster + min counters ===== */
+.panel {
+  background: var(--tt-paper);
+  border: 1px solid var(--tt-line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.panel-head {
+  padding: 8px 10px;
+  background: var(--tt-mute);
+  border-bottom: 1px solid var(--tt-line);
+  font-size: 11.5px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .04em;
+  color: var(--tt-ink-soft);
+}
+
+.roster-table {
+  width: 100%; border-collapse: collapse;
+  font-size: 12.5px;
+}
+.roster-table thead th {
+  background: var(--tt-mute);
+  border-bottom: 1px solid var(--tt-line);
+  padding: 5px 4px; font-size: 11px; font-weight: 600;
+  color: var(--tt-ink-soft); text-align: center;
+}
+.roster-table thead th.col-name { text-align: left; padding-left: 10px; }
+.roster-table tbody td {
+  border-bottom: 1px solid var(--tt-line-soft);
+  padding: 5px 4px;
+  vertical-align: middle;
+}
+.roster-table tbody td.col-name {
+  padding-left: 10px; font-weight: 600;
+  cursor: grab;
+}
+.roster-table tbody tr:hover { background: #fafbfc; }
+.roster-table tbody tr.dragging { opacity: .45; }
+.roster-table tbody tr.assigned td.col-name { color: var(--tt-ink); }
+.roster-table tbody tr.unassigned td.col-name { color: var(--tt-ink-soft); }
+.roster-table tbody td.col-min,
+.roster-table tbody td.col-tot {
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  width: 36px;
+}
+.roster-table tbody td.col-min.on,
+.roster-table tbody td.col-tot.on { background: #eaf3ec; color: var(--tt-success); font-weight: 600; }
+.roster-table tbody td.col-min.off,
+.roster-table tbody td.col-tot.off { color: var(--tt-line); }
+
+.roster-table tfoot { border-top: 2px solid var(--tt-line); }
+.roster-table tfoot td {
+  padding: 5px 4px; text-align: center; font-weight: 700;
+  font-variant-numeric: tabular-nums; font-size: 12px;
+  background: var(--tt-mute);
+}
+.roster-table tfoot tr.half-marker td {
+  background: var(--tt-paper);
+  padding: 3px 4px;
+  font-size: 10.5px; font-weight: 600; color: var(--tt-ink-soft);
+}
+.roster-table tfoot tr.half-marker .pill-1e { background: var(--tt-pitch-1e); color: var(--tt-ink); padding: 1px 8px; border-radius: 10px; }
+.roster-table tfoot tr.half-marker .pill-2e { background: var(--tt-pitch-2e); color: var(--tt-ink); padding: 1px 8px; border-radius: 10px; }
+.roster-table tfoot td.foot-blank { background: var(--tt-paper); }
+
+/* ===== MIDDLE panel — pitches + tactical goals ===== */
+.pitches-row {
+  display: grid;
+  grid-template-columns: 1fr 36px 1fr;
+  gap: 4px;
+  align-items: stretch;
+}
+.pitch {
+  position: relative;
+  aspect-ratio: 68 / 75;        /* truncated half-pitch — wider than a full pitch */
+  border-radius: var(--radius);
+  border: 1px solid var(--tt-line);
+  overflow: hidden;
+}
+.pitch.is-1e { background: var(--tt-pitch-1e); border-color: var(--tt-pitch-1e-d); }
+.pitch.is-2e { background: var(--tt-pitch-2e); border-color: var(--tt-pitch-2e-d); }
+.pitch-label {
+  position: absolute; top: 6px; left: 0; right: 0;
+  text-align: center;
+  font-size: 14px; font-weight: 700; color: rgba(0,0,0,0.5);
+  letter-spacing: .08em;
+}
+.pitch-svg {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  pointer-events: none;
+}
+.pitch-svg .ln { fill: none; stroke: rgba(255,255,255,0.8); stroke-width: 2; vector-effect: non-scaling-stroke; }
+
+.slot {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 64px;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  cursor: pointer;
+  user-select: none;
+}
+.slot .num {
+  font-size: 13px; font-weight: 700; color: var(--tt-ink);
+  background: rgba(255,255,255,0.6);
+  border-radius: 8px; padding: 0 6px;
+  min-width: 22px; text-align: center;
+}
+.slot .name {
+  font-size: 11.5px; font-weight: 600; color: var(--tt-ink);
+  text-align: center;
+  background: rgba(255,255,255,0.92);
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 4px;
+  padding: 2px 6px;
+  min-width: 50px;
+  max-width: 90px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+}
+.slot.empty .name {
+  color: var(--tt-ink-soft); font-style: italic;
+  border-style: dashed; background: rgba(255,255,255,0.5);
+}
+.slot:hover .name { box-shadow: 0 2px 6px rgba(0,0,0,0.18); }
+.slot.drag-over .name { background: var(--tt-accent); color: #fff; }
+
+.copy-col {
+  display: flex; align-items: center; justify-content: center;
+}
+.copy-btn {
+  width: 36px; height: 48px; border-radius: 8px;
+  border: 1px solid var(--tt-line); background: #fff;
+  color: var(--tt-accent);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background .12s, border-color .12s, color .12s, transform .12s;
+}
+.copy-btn:hover {
+  background: var(--tt-accent); color: #fff; border-color: var(--tt-accent);
+}
+.copy-btn:active { transform: scale(.95); }
+.copy-btn svg { width: 20px; height: 20px; }
+
+/* Tactical goals (Wedstrijddoelen) */
+.goals {
+  margin-top: 16px;
+  background: var(--tt-paper);
+  border: 1px solid var(--tt-line);
+  border-radius: var(--radius);
+  padding: 14px;
+}
+.goals h2 {
+  margin: 0 0 12px;
+  font-size: 14px; font-weight: 700;
+}
+.goal-box {
+  background: #fff;
+  border: 1px solid var(--tt-line);
+  border-radius: var(--radius);
+  margin-bottom: 10px;
+}
+.goal-box .gbox-title {
+  background: var(--tt-mute);
+  border-bottom: 1px solid var(--tt-line);
+  padding: 6px 12px;
+  font-weight: 700; font-size: 12.5px;
+  text-align: center;
+}
+.goal-box .gbox-lines {
+  padding: 6px 10px;
+}
+.goal-box .gbox-lines input {
+  width: 100%;
+  border: none; border-bottom: 1px solid var(--tt-line-soft);
+  padding: 5px 2px;
+  font: inherit; font-size: 12.5px;
+  background: transparent;
+}
+.goal-box .gbox-lines input:last-child { border-bottom: none; }
+.goal-box .gbox-lines input:focus { outline: none; background: #f7faff; border-bottom-color: var(--tt-accent); }
+.goal-box.algemeen .gbox-lines { padding-top: 8px; padding-bottom: 8px; }
+.goal-box.algemeen .gbox-lines input { font-size: 13px; padding: 7px 4px; }
+.goal-row {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+}
+
+/* ===== RIGHT panel — Doen per speler + ! ===== */
+.dps-table {
+  width: 100%; border-collapse: collapse;
+  font-size: 12.5px;
+}
+.dps-table thead th {
+  background: var(--tt-mute);
+  border-bottom: 1px solid var(--tt-line);
+  padding: 5px 8px; font-size: 11px; font-weight: 600;
+  color: var(--tt-ink-soft);
+}
+.dps-table thead th.col-text { text-align: left; }
+.dps-table thead th.col-spec { width: 22px; text-align: center; }
+.dps-table tbody td {
+  border-bottom: 1px solid var(--tt-line-soft);
+  padding: 4px 6px;
+  vertical-align: middle;
+}
+.dps-table tbody tr:hover { background: #fafbfc; }
+.dps-table tbody td.col-name { padding-left: 10px; font-weight: 600; width: 70px; white-space: nowrap; }
+.dps-table tbody td.col-text input {
+  width: 100%; padding: 4px 6px; font: inherit; font-size: 12.5px;
+  border: none; border-bottom: 1px solid transparent; background: transparent;
+}
+.dps-table tbody td.col-text input:focus { outline: none; background: #f7faff; border-bottom-color: var(--tt-accent); }
+.dps-table tbody td.col-text input:not(:placeholder-shown) { border-bottom-color: var(--tt-line-soft); }
+.dps-table tbody td.col-spec {
+  text-align: center; width: 24px; cursor: pointer;
+  font-size: 14px; font-weight: 700; color: var(--tt-line);
+  user-select: none;
+}
+.dps-table tbody td.col-spec:hover { color: var(--tt-warn); }
+.dps-table tbody td.col-spec.on { color: var(--tt-warn); }
+
+.dps-table thead th.col-cam,
+.dps-table tbody td.col-cam {
+  text-align: center; width: 28px; cursor: pointer;
+  user-select: none;
+}
+.dps-table thead th.col-cam svg,
+.dps-table tbody td.col-cam svg {
+  width: 18px; height: 18px;
+  vertical-align: middle;
+  display: inline-block;
+}
+.dps-table tbody td.col-cam {
+  color: var(--tt-line);            /* default: grey */
+  transition: color .12s;
+}
+.dps-table tbody td.col-cam:hover { color: var(--tt-ink-soft); }
+.dps-table tbody td.col-cam.on    { color: var(--tt-success); } /* clicked: green */
+
+/* Right column = two stacked panels */
+.right-col { display: flex; flex-direction: column; gap: 14px; }
+
+/* ===== Set-piece takers panel ===== */
+.sp-list { list-style: none; margin: 0; padding: 0; }
+.sp-row {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--tt-line-soft);
+  cursor: pointer;
+  font-size: 12.5px;
+  min-height: 36px;
+}
+.sp-row:last-child { border-bottom: none; }
+.sp-row:hover { background: #fafbfc; }
+.sp-label { font-weight: 600; }
+.sp-pick {
+  display: inline-flex; align-items: center; gap: 6px;
+  color: var(--tt-ink-soft); font-style: italic;
+  padding: 3px 8px; border-radius: 11px;
+  border: 1px dashed var(--tt-line);
+  background: #fff;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.sp-pick.filled {
+  color: var(--tt-ink); font-style: normal; font-weight: 600;
+  border-style: solid; border-color: var(--tt-accent);
+  background: #eaf3f9;
+}
+.sp-pick .clear {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--tt-ink-soft); color: #fff;
+  font-size: 11px; line-height: 1; font-weight: 700;
+  margin-left: 2px;
+}
+.sp-pick.filled .clear:hover { background: var(--tt-danger); }
+
+/* ---------------------------------------------------------------------------
+   Picker (bottom sheet over the pitch)
+   --------------------------------------------------------------------------- */
+.picker-backdrop {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.32);
+  z-index: 150; opacity: 0; pointer-events: none;
+  transition: opacity .15s ease;
+}
+.picker-backdrop.open { opacity: 1; pointer-events: auto; }
+.picker {
+  position: fixed;
+  background: var(--tt-paper);
+  border: 1px solid var(--tt-line);
+  border-radius: 10px;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.20);
+  z-index: 160; padding: 8px;
+  min-width: 240px; max-width: 320px;
+  max-height: 60vh; overflow: auto;
+  display: none;
+}
+.picker.open { display: block; }
+.picker-head {
+  padding: 4px 8px 8px;
+  font-size: 11.5px; color: var(--tt-ink-soft);
+  text-transform: uppercase; letter-spacing: .04em; font-weight: 600;
+}
+.picker-search {
+  width: 100%; padding: 6px 8px; margin-bottom: 6px;
+  border: 1px solid var(--tt-line); border-radius: 4px; font: inherit; font-size: 13px;
+}
+.picker-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 8px; border-radius: 6px;
+  cursor: pointer; font-size: 13px;
+}
+.picker-row:hover { background: var(--tt-mute); }
+.picker-row .av {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: #d3d7dc; color: #fff; font-size: 10px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.picker-row .meta { color: var(--tt-ink-soft); font-size: 11px; }
+.picker-row.placed { background: #eef3f6; }
+.picker-row.placed .meta { color: var(--tt-accent); font-weight: 600; }
+.picker-foot {
+  border-top: 1px solid var(--tt-line); margin-top: 4px; padding-top: 6px;
+  font-size: 12px; color: var(--tt-danger); padding-left: 8px; padding-bottom: 4px;
+  cursor: pointer;
+}
+.picker-foot:hover { background: #fdecea; border-radius: 4px; }
+
+/* ---------------------------------------------------------------------------
+   Availability drawer (re-opens from "Beschikbaarheid")
+   --------------------------------------------------------------------------- */
+.drawer-backdrop {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.32);
+  z-index: 140; opacity: 0; pointer-events: none;
+  transition: opacity .2s ease;
+}
+.drawer-backdrop.open { opacity: 1; pointer-events: auto; }
+.drawer {
+  position: fixed; top: 0; right: 0; height: 100vh; width: 420px;
+  background: var(--tt-paper);
+  border-left: 1px solid var(--tt-line);
+  box-shadow: -8px 0 24px rgba(0,0,0,0.12);
+  display: flex; flex-direction: column;
+  transform: translateX(100%);
+  transition: transform .22s ease;
+  z-index: 150;
+}
+.drawer.open { transform: translateX(0); }
+.drawer-head { padding: 14px 18px; border-bottom: 1px solid var(--tt-line); display: flex; align-items: center; justify-content: space-between; }
+.drawer-head h3 { margin: 0; font-size: 15px; }
+.drawer-head .x { background: none; border: none; font-size: 22px; cursor: pointer; color: var(--tt-ink-soft); }
+.drawer-body { flex: 1; overflow: auto; padding: 8px 18px; }
+.drawer-row {
+  display: grid; grid-template-columns: 1fr auto auto; gap: 8px;
+  padding: 8px 4px; border-bottom: 1px solid var(--tt-line-soft);
+  align-items: center;
+}
+.drawer-row .name { font-weight: 600; }
+.drawer-row .reason {
+  grid-column: 1 / -1; padding-top: 0;
+  font-size: 12px;
+}
+.drawer-row .reason input { width: 100%; padding: 4px 6px; font: inherit; font-size: 12.5px; border: 1px solid var(--tt-line-soft); border-radius: 4px; }
+.chips {
+  display: flex; gap: 4px;
+}
+.chip {
+  border: 1px solid var(--tt-line); background: #fff;
+  padding: 4px 9px; font: inherit; font-size: 11.5px;
+  border-radius: 11px; cursor: pointer;
+}
+.chip.active { background: var(--tt-accent); color: #fff; border-color: var(--tt-accent); }
+.chip.active.absent { background: var(--tt-danger); border-color: var(--tt-danger); }
+.chip.active.absent.excused { background: var(--tt-warn); border-color: var(--tt-warn); }
+.chip.active.absent.injured { background: #8b1f1f; border-color: #8b1f1f; }
+.drawer-foot { padding: 12px 18px; border-top: 1px solid var(--tt-line); display: flex; gap: 8px; }
+.drawer-foot button { flex: 1; padding: 8px 12px; font: inherit; font-size: 13px; font-weight: 600; border: 1px solid var(--tt-line); background: #fff; border-radius: 4px; cursor: pointer; }
+.drawer-foot button.primary { background: var(--tt-accent); color: #fff; border-color: var(--tt-accent); }
+
+.savebar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: #fff; border-top: 1px solid var(--tt-line);
+  padding: 10px 24px;
+  display: flex; gap: 10px; align-items: center;
+  z-index: 80;
+  box-shadow: 0 -4px 12px rgba(0,0,0,0.04);
+}
+.savebar .info { flex: 1; font-size: 12.5px; color: var(--tt-ink-soft); }
+.savebar .info.dirty { color: var(--tt-warn); }
+</style>
+</head>
+<body>
+
+<div class="mockup-bar">
+  <strong>Mockup state:</strong>
+  <button data-state="empty"   aria-pressed="false">Empty</button>
+  <button data-state="partial" aria-pressed="true">1e gevuld</button>
+  <button data-state="full"    aria-pressed="false">Beide helften gevuld</button>
+  <span class="spacer"></span>
+  <span>Match prep — head coach · desktop · #838</span>
+  <button id="resetBtn">Reset</button>
+</div>
+
+<main class="page">
+  <div class="page-head">
+    <h1>Match prep — Ajax JO13 vs Feyenoord JO13</h1>
+    <p class="sub">zaterdag 24 mei 2026 · thuis · aftrap 14:00</p>
+  </div>
+
+  <div class="toolbar">
+    <div class="field">
+      <label for="formation">Formatie</label>
+      <select id="formation">
+        <option value="4-2-3-1" selected>4-2-3-1</option>
+        <option value="4-3-3">4-3-3</option>
+        <option value="4-4-2">4-4-2</option>
+        <option value="3-5-2">3-5-2</option>
+        <option value="3-4-3">3-4-3</option>
+        <option value="4-1-4-1">4-1-4-1</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="halflen">Helft-lengte</label>
+      <input type="number" id="halflen" value="35" min="1" max="60" inputmode="numeric">
+      <span style="font-size:11.5px;color:var(--tt-ink-soft);">min</span>
+    </div>
+    <button class="btn" id="manageAvailBtn">Beschikbaarheid</button>
+    <button class="btn" id="exportPdfBtn">PDF (liggend A4)</button>
+    <div class="spacer"></div>
+    <span id="saveInfo" style="font-size:12.5px; color:var(--tt-ink-soft);">Opgeslagen · zojuist</span>
+    <button class="btn primary" id="saveBtn" disabled>Opslaan</button>
+  </div>
+
+  <div class="grid3">
+
+    <!-- ============ LEFT ============ -->
+    <section class="panel">
+      <div class="panel-head">Selectie · minuten</div>
+      <table class="roster-table">
+        <thead>
+          <tr>
+            <th class="col-name"></th>
+            <th>min<br>1e</th>
+            <th>min<br>2e</th>
+            <th>tot</th>
+          </tr>
+        </thead>
+        <tbody id="rosterBody"></tbody>
+        <tfoot id="rosterFoot">
+          <tr>
+            <td class="foot-blank"></td>
+            <td data-foot="count1">0</td>
+            <td data-foot="count2">0</td>
+            <td class="foot-blank"></td>
+          </tr>
+          <tr>
+            <td class="foot-blank"></td>
+            <td data-foot="min1">0</td>
+            <td data-foot="min2">0</td>
+            <td data-foot="mintot">0</td>
+          </tr>
+          <tr class="half-marker">
+            <td class="foot-blank"></td>
+            <td><span class="pill-1e">1e</span></td>
+            <td><span class="pill-2e">2e</span></td>
+            <td>tot</td>
+          </tr>
+          <tr>
+            <td class="foot-blank"></td>
+            <td data-foot="hl1">35</td>
+            <td data-foot="hl2">35</td>
+            <td data-foot="hltot">70</td>
+          </tr>
+        </tfoot>
+      </table>
+    </section>
+
+    <!-- ============ MIDDLE ============ -->
+    <section>
+      <div class="pitches-row">
+        <div class="pitch is-1e" data-half="1">
+          <div class="pitch-label">1e</div>
+          <svg class="pitch-svg" viewBox="0 0 680 750" preserveAspectRatio="none" aria-hidden="true">
+            <!-- outer + half lines for a half-pitch feel -->
+            <rect class="ln" x="20" y="20" width="640" height="710"/>
+            <line class="ln" x1="20" y1="375" x2="660" y2="375"/>
+            <circle class="ln" cx="340" cy="375" r="78"/>
+            <rect class="ln" x="138.4" y="565" width="403.2" height="165"/>
+            <rect class="ln" x="248.4" y="675" width="183.2" height="55"/>
+          </svg>
+          <!-- slots rendered by JS -->
+        </div>
+        <div class="copy-col">
+          <button class="copy-btn" id="copyBtn" title="Kopieer opstelling 1e naar 2e" aria-label="Kopieer opstelling 1e naar 2e">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 12h14M13 5l7 7-7 7"/>
+            </svg>
+          </button>
+        </div>
+        <div class="pitch is-2e" data-half="2">
+          <div class="pitch-label">2e</div>
+          <svg class="pitch-svg" viewBox="0 0 680 750" preserveAspectRatio="none" aria-hidden="true">
+            <rect class="ln" x="20" y="20" width="640" height="710"/>
+            <line class="ln" x1="20" y1="375" x2="660" y2="375"/>
+            <circle class="ln" cx="340" cy="375" r="78"/>
+            <rect class="ln" x="138.4" y="565" width="403.2" height="165"/>
+            <rect class="ln" x="248.4" y="675" width="183.2" height="55"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="goals">
+        <h2>Wedstrijddoelen</h2>
+
+        <div class="goal-box algemeen">
+          <div class="gbox-title">Algemeen</div>
+          <div class="gbox-lines">
+            <input type="text" placeholder="Doelstelling 1…" value="Hoog druk zetten op hun opbouw, compact blijven tussen de linies.">
+            <input type="text" placeholder="Doelstelling 2…" value="Snelle combinaties via de flanken.">
+            <input type="text" placeholder="Doelstelling 3…">
+            <input type="text" placeholder="Doelstelling 4…">
+          </div>
+        </div>
+
+        <div class="goal-row">
+          <div class="goal-box">
+            <div class="gbox-title">Aanvallen</div>
+            <div class="gbox-lines">
+              <input type="text" placeholder="…" value="Wisselen via de 6.">
+              <input type="text" placeholder="…" value="Vleugels breed houden tot de voorzet.">
+              <input type="text" placeholder="…">
+              <input type="text" placeholder="…">
+            </div>
+          </div>
+          <div class="goal-box">
+            <div class="gbox-title">Verdedigen</div>
+            <div class="gbox-lines">
+              <input type="text" placeholder="…" value="Middenveld dwingen naar hun rechts.">
+              <input type="text" placeholder="…" value="Niet uit elkaar zakken na balverlies.">
+              <input type="text" placeholder="…">
+              <input type="text" placeholder="…">
+            </div>
+          </div>
+        </div>
+
+        <div class="goal-row">
+          <div class="goal-box">
+            <div class="gbox-title">Spelhervattingen</div>
+            <div class="gbox-lines">
+              <input type="text" placeholder="…" value="Hoek: korte hoek aanstaan.">
+              <input type="text" placeholder="…" value="VK: #9 op verste paal.">
+              <input type="text" placeholder="…">
+              <input type="text" placeholder="…">
+            </div>
+          </div>
+          <div class="goal-box">
+            <div class="gbox-title">Spelhervattingen</div>
+            <div class="gbox-lines">
+              <input type="text" placeholder="…" value="Zonaal bij corners.">
+              <input type="text" placeholder="…" value="#4 + #5 in de gevaarzone.">
+              <input type="text" placeholder="…">
+              <input type="text" placeholder="…">
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ RIGHT ============ -->
+    <section class="right-col">
+      <div class="panel">
+        <div class="panel-head">Doen per speler</div>
+        <table class="dps-table">
+          <thead>
+            <tr>
+              <th></th>
+              <th class="col-text"></th>
+              <th class="col-spec" title="Specifiek doel">!</th>
+              <th class="col-cam"  title="Video-analist toegewezen">
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="opacity:.6"><path d="M4 6h11a2 2 0 0 1 2 2v2.2l4-2.4v12.4l-4-2.4V18a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"/></svg>
+              </th>
+            </tr>
+          </thead>
+          <tbody id="dpsBody"></tbody>
+        </table>
+      </div>
+      <div class="panel">
+        <div class="panel-head">Rollen &amp; standaardsituaties</div>
+        <ul class="sp-list" id="spList"></ul>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<!-- ===== Slot picker ===== -->
+<div class="picker-backdrop" id="pickerBackdrop"></div>
+<div class="picker" id="picker"></div>
+
+<!-- ===== Availability drawer ===== -->
+<div class="drawer-backdrop" id="drawerBackdrop"></div>
+<aside class="drawer" id="drawer" aria-hidden="true">
+  <header class="drawer-head">
+    <h3>Beschikbaarheid</h3>
+    <button class="x" id="drawerClose" aria-label="Sluiten">×</button>
+  </header>
+  <div class="drawer-body" id="drawerBody"></div>
+  <footer class="drawer-foot">
+    <button id="markAllPresent">Iedereen aanwezig</button>
+    <button class="primary" id="drawerDone">Klaar</button>
+  </footer>
+</aside>
+
+<!-- ===== Sticky save bar ===== -->
+<div class="savebar">
+  <div class="info" id="savebarInfo">Geen niet-opgeslagen wijzigingen.</div>
+  <button class="btn" id="cancelBtn">Annuleren</button>
+  <button class="btn primary" id="saveBtn2" disabled>Opslaan</button>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // ============= demo data =============
+  // Order matches the screenshot.
+  const ALL_PLAYERS = [
+    { id:  1, name: 'Joeri'    },
+    { id:  2, name: 'Senna'    },
+    { id:  3, name: 'Javi'     },
+    { id:  4, name: 'Luuk N'   },
+    { id:  5, name: 'Jens'     },
+    { id:  6, name: 'Morris'   },
+    { id:  7, name: 'Jesse'    },
+    { id:  8, name: 'Daan'     },
+    { id:  9, name: 'Jason'    },
+    { id: 10, name: 'Duco'     },
+    { id: 11, name: 'Samuel'   },
+    { id: 12, name: 'Milan'    },
+    { id: 13, name: 'Cataleya' },
+    { id: 14, name: 'Nine'     },
+    { id: 15, name: 'Khalid'   },
+    { id: 16, name: 'Amin'     },
+    { id: 17, name: 'Kenan'    },
+    { id: 18, name: 'Luuk'     },
+    { id: 19, name: 'Siem'     },
+  ];
+
+  // 1-4-3-3 ish formation (the diagram in the screenshot — top: 9; mid: 11/10/7;
+  // deeper mid: 8/6; defence: 5/4/3/2; GK: 1).
+  const SLOT_POSITIONS = [
+    { num:  9, label: 'ST',  x: 50, y: 12 },
+    { num: 11, label: 'LW',  x: 18, y: 28 },
+    { num: 10, label: 'AM',  x: 50, y: 28 },
+    { num:  7, label: 'RW',  x: 82, y: 28 },
+    { num:  8, label: 'LCM', x: 36, y: 45 },
+    { num:  6, label: 'RCM', x: 64, y: 45 },
+    { num:  5, label: 'LB',  x: 16, y: 64 },
+    { num:  4, label: 'LCB', x: 38, y: 64 },
+    { num:  3, label: 'RCB', x: 62, y: 64 },
+    { num:  2, label: 'RB',  x: 84, y: 64 },
+    { num:  1, label: 'GK',  x: 50, y: 88 },
+  ];
+
+  // The roles & set-piece takers shown in the right-side "Rollen" pane.
+  const ROLE_KEYS = [
+    { key: 'captain',  label: 'Aanvoerder'                  },
+    { key: 'cornerL',  label: 'Hoekschop links'             },
+    { key: 'cornerR',  label: 'Hoekschop rechts'            },
+    { key: 'fkL',      label: 'Vrije trap links (voorzet)'  },
+    { key: 'fkR',      label: 'Vrije trap rechts (voorzet)' },
+    { key: 'penalty',  label: 'Strafschop'                  },
+  ];
+
+  // ============= state =============
+  // availability: Map<id, { status, reason }>  status in {'Present','Absent'}
+  //                                            with substatus for absences via 'Excused' | 'Injured'
+  // lineup1/2: Map<slotNum, playerId>
+  // attention: Map<id, string>
+  // specific: Map<id, bool>
+  // analyst:  Map<id, bool>
+  // roles:    Map<roleKey, playerId>
+  // halfLen: number
+  let state = freshState();
+
+  function freshState() {
+    return {
+      availability: new Map(),
+      lineup1: new Map(),
+      lineup2: new Map(),
+      attention: new Map(),
+      specific: new Map(),
+      analyst: new Map(),
+      roles: new Map(),
+      halfLen: 35,
+      dirty: false,
+    };
+  }
+
+  function applyDemoState(which) {
+    state = freshState();
+    if (which === 'empty') return;
+
+    // Mark 14 present (everyone except yellow + 4 extras).
+    const presentIds = [1,2,3,4,5,6,7,8,9,10,11,12,13,14];
+    presentIds.forEach((id) => state.availability.set(id, { status: 'Present', reason: '' }));
+    // Absent (with sub-statuses to demonstrate)
+    state.availability.set(15, { status: 'Absent', sub: 'Injured',  reason: 'Enkelblessure' });
+    state.availability.set(16, { status: 'Absent', sub: 'Excused',  reason: 'Familieverplichting' });
+    state.availability.set(18, { status: 'Absent', sub: 'Excused',  reason: '' });
+    state.availability.set(19, { status: 'Absent', sub: 'Injured',  reason: 'Hamstring' });
+
+    if (which === 'partial' || which === 'full') {
+      // 1e half — fill matching the screenshot positions
+      state.lineup1.set(9,  10);  // 9   -> Duco
+      state.lineup1.set(11, 11);  // 11  -> Samuel  (was no name in shot — pick from roster)
+      state.lineup1.set(10, 8);   // 10  -> Daan
+      state.lineup1.set(7,  7);   // 7   -> Jesse
+      state.lineup1.set(8,  9);   // 8   -> Jason (was unset in shot)
+      state.lineup1.set(6,  6);   // 6   -> Morris
+      state.lineup1.set(5,  5);   // 5   -> Jens
+      state.lineup1.set(4,  4);   // 4   -> Luuk N
+      state.lineup1.set(3,  3);   // 3   -> Javi
+      state.lineup1.set(2,  2);   // 2   -> Senna
+      state.lineup1.set(1,  1);   // 1   -> Joeri (GK)
+
+      state.attention.set(1, 'Wedstrijdtempo opbouwen, niet vroeg lange ballen.');
+      state.attention.set(2, 'Druk verder mee naar voren bij hoge press.');
+      state.attention.set(6, 'Posities bewaken, niet meelopen op de flank.');
+      state.specific.set(1, true);
+      state.specific.set(2, true);
+      state.specific.set(3, true);
+      // Two analysts appointed in the partial demo
+      state.analyst.set(1, true);
+      state.analyst.set(6, true);
+      // Sample role / set-piece assignments
+      state.roles.set('captain', 4);  // Luuk N
+      state.roles.set('cornerL', 8);  // Daan
+      state.roles.set('cornerR', 7);  // Jesse
+      state.roles.set('fkL',     8);  // Daan
+      state.roles.set('penalty', 10); // Duco
+    }
+
+    if (which === 'full') {
+      // Copy with two changes (subs)
+      state.lineup1.forEach((pid, slot) => state.lineup2.set(slot, pid));
+      // Two changes: bring on Cataleya for Jason at #8; Nine for Samuel at #11.
+      state.lineup2.set(8, 13);   // Cataleya at 8
+      state.lineup2.set(11, 14);  // Nine at 11
+    }
+
+    state.dirty = false;
+  }
+
+  // ============= helpers =============
+  const $  = (s, r) => (r || document).querySelector(s);
+  const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+
+  function playerById(id) {
+    return ALL_PLAYERS.find((p) => p.id === id) || null;
+  }
+  function availablePlayers() {
+    return ALL_PLAYERS.filter((p) => {
+      const a = state.availability.get(p.id);
+      return a && a.status === 'Present';
+    });
+  }
+  function isOnPitch(half, pid) {
+    const map = half === 1 ? state.lineup1 : state.lineup2;
+    for (const v of map.values()) if (v === pid) return true;
+    return false;
+  }
+  function placedCount(pid) {
+    let n = 0;
+    if (isOnPitch(1, pid)) n++;
+    if (isOnPitch(2, pid)) n++;
+    return n;
+  }
+  function escapeHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+  }
+
+  // ============= rendering =============
+  function renderAll() {
+    renderRoster();
+    renderPitches();
+    renderDps();
+    renderRoles();
+    renderFoot();
+    renderSaveState();
+  }
+
+  function renderRoles() {
+    const ul = $('#spList');
+    ul.innerHTML = ROLE_KEYS.map((r) => {
+      const pid = state.roles.get(r.key);
+      const p = pid ? playerById(pid) : null;
+      const filled = !!p;
+      const value = filled
+        ? escapeHtml(p.name) + '<span class="clear" data-clear-role="' + r.key + '" title="Leegmaken">×</span>'
+        : '— kies speler —';
+      return (
+        '<li class="sp-row" data-role="' + r.key + '">' +
+          '<span class="sp-label">' + escapeHtml(r.label) + '</span>' +
+          '<span class="sp-pick ' + (filled ? 'filled' : '') + '">' + value + '</span>' +
+        '</li>'
+      );
+    }).join('');
+    ul.querySelectorAll('.sp-row').forEach((li) => {
+      li.addEventListener('click', (e) => {
+        if (e.target.matches('.clear')) {
+          e.stopPropagation();
+          state.roles.delete(e.target.dataset.clearRole);
+          markDirty();
+          renderRoles();
+          return;
+        }
+        e.stopPropagation();
+        openPicker(li, { kind: 'role', role: li.dataset.role });
+      });
+    });
+  }
+
+  function renderRoster() {
+    const tbody = $('#rosterBody');
+    const avail = availablePlayers();
+    if (!avail.length) {
+      tbody.innerHTML = '<tr><td colspan="4" style="padding:18px; text-align:center; color:var(--tt-ink-soft); font-style:italic;">Nog geen beschikbaarheid ingevuld.<br><a href="#" id="emptyAvailLink" style="color:var(--tt-accent);">Beschikbaarheid openen</a></td></tr>';
+      $('#emptyAvailLink')?.addEventListener('click', (e) => { e.preventDefault(); openDrawer(); });
+      return;
+    }
+    tbody.innerHTML = avail.map((p) => {
+      const on1   = isOnPitch(1, p.id);
+      const on2   = isOnPitch(2, p.id);
+      const min1  = on1 ? state.halfLen : 0;
+      const min2  = on2 ? state.halfLen : 0;
+      const total = min1 + min2;
+      const cls   = (on1 || on2) ? 'assigned' : 'unassigned';
+      return (
+        '<tr data-pid="' + p.id + '" class="' + cls + '" draggable="true">' +
+          '<td class="col-name">' + escapeHtml(p.name) + '</td>' +
+          '<td class="col-min ' + (on1 ? 'on' : 'off') + '">' + min1 + '</td>' +
+          '<td class="col-min ' + (on2 ? 'on' : 'off') + '">' + min2 + '</td>' +
+          '<td class="col-tot ' + (total ? 'on' : 'off') + '">' + total + '</td>' +
+        '</tr>'
+      );
+    }).join('');
+
+    // Drag source — drag a roster player onto a pitch slot
+    $$('#rosterBody tr[draggable=true]').forEach((tr) => {
+      tr.addEventListener('dragstart', (e) => {
+        tr.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', String(tr.dataset.pid));
+      });
+      tr.addEventListener('dragend', () => tr.classList.remove('dragging'));
+    });
+  }
+
+  function renderPitches() {
+    [1, 2].forEach((half) => {
+      const pitch = document.querySelector('.pitch.is-' + (half === 1 ? '1e' : '2e'));
+      // remove old slot DOM
+      $$('.slot', pitch).forEach((el) => el.remove());
+
+      const map = half === 1 ? state.lineup1 : state.lineup2;
+      SLOT_POSITIONS.forEach((pos) => {
+        const pid = map.get(pos.num) || null;
+        const p   = pid ? playerById(pid) : null;
+        const div = document.createElement('div');
+        div.className = 'slot' + (p ? '' : ' empty');
+        div.dataset.half = String(half);
+        div.dataset.slot = String(pos.num);
+        div.style.left = pos.x + '%';
+        div.style.top  = pos.y + '%';
+        div.innerHTML =
+          '<span class="num">' + pos.num + '</span>' +
+          '<span class="name">' + (p ? escapeHtml(p.name) : '–') + '</span>';
+
+        // click to pick
+        div.addEventListener('click', (e) => {
+          e.stopPropagation();
+          openPicker(div, { kind: 'slot', half: half, slot: pos.num });
+        });
+        // drop-target for roster drag
+        div.addEventListener('dragover', (e) => { e.preventDefault(); div.classList.add('drag-over'); });
+        div.addEventListener('dragleave', () => div.classList.remove('drag-over'));
+        div.addEventListener('drop', (e) => {
+          e.preventDefault();
+          div.classList.remove('drag-over');
+          const dragPid = parseInt(e.dataTransfer.getData('text/plain'), 10);
+          if (!dragPid) return;
+          assignSlot(half, pos.num, dragPid);
+        });
+
+        pitch.appendChild(div);
+      });
+    });
+  }
+
+  function renderDps() {
+    const tbody = $('#dpsBody');
+    const avail = availablePlayers();
+    if (!avail.length) { tbody.innerHTML = ''; return; }
+    tbody.innerHTML = avail.map((p) => {
+      const text = state.attention.get(p.id) || '';
+      const spec = !!state.specific.get(p.id);
+      const cam  = !!state.analyst.get(p.id);
+      return (
+        '<tr data-pid="' + p.id + '">' +
+          '<td class="col-name">' + escapeHtml(p.name) + '</td>' +
+          '<td class="col-text"><input type="text" data-att="' + p.id + '" value="' + escapeHtml(text) + '" placeholder="…"></td>' +
+          '<td class="col-spec ' + (spec ? 'on' : '') + '" data-spec="' + p.id + '" title="Specifiek doel">!</td>' +
+          '<td class="col-cam '  + (cam  ? 'on' : '') + '" data-cam="'  + p.id + '" title="Video-analist toegewezen">' +
+            '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 6h11a2 2 0 0 1 2 2v2.2l4-2.4v12.4l-4-2.4V18a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"/></svg>' +
+          '</td>' +
+        '</tr>'
+      );
+    }).join('');
+
+    $$('#dpsBody input[data-att]').forEach((inp) => {
+      inp.addEventListener('input', (e) => {
+        state.attention.set(parseInt(e.target.dataset.att, 10), e.target.value);
+        markDirty();
+      });
+    });
+    $$('#dpsBody td[data-spec]').forEach((td) => {
+      td.addEventListener('click', () => {
+        const pid = parseInt(td.dataset.spec, 10);
+        state.specific.set(pid, !state.specific.get(pid));
+        td.classList.toggle('on');
+        markDirty();
+      });
+    });
+    $$('#dpsBody td[data-cam]').forEach((td) => {
+      td.addEventListener('click', () => {
+        const pid = parseInt(td.dataset.cam, 10);
+        state.analyst.set(pid, !state.analyst.get(pid));
+        td.classList.toggle('on');
+        markDirty();
+      });
+    });
+  }
+
+  function renderFoot() {
+    const c1 = state.lineup1.size;
+    const c2 = state.lineup2.size;
+    document.querySelector('[data-foot=count1]').textContent = c1 + ' / 11';
+    document.querySelector('[data-foot=count2]').textContent = c2 + ' / 11';
+    document.querySelector('[data-foot=count1]').style.color = (c1 === 11) ? 'var(--tt-success)' : 'var(--tt-warn)';
+    document.querySelector('[data-foot=count2]').style.color = (c2 === 11) ? 'var(--tt-success)' : 'var(--tt-warn)';
+    const m1 = c1 * state.halfLen;
+    const m2 = c2 * state.halfLen;
+    document.querySelector('[data-foot=min1]').textContent = m1;
+    document.querySelector('[data-foot=min2]').textContent = m2;
+    document.querySelector('[data-foot=mintot]').textContent = m1 + m2;
+    document.querySelector('[data-foot=hl1]').textContent = state.halfLen;
+    document.querySelector('[data-foot=hl2]').textContent = state.halfLen;
+    document.querySelector('[data-foot=hltot]').textContent = state.halfLen * 2;
+  }
+
+  function renderSaveState() {
+    const info = $('#saveInfo');
+    const info2 = $('#savebarInfo');
+    if (state.dirty) {
+      info.textContent  = 'Niet-opgeslagen wijzigingen';
+      info.style.color  = 'var(--tt-warn)';
+      info2.textContent = 'Niet-opgeslagen wijzigingen.';
+      info2.classList.add('dirty');
+      $('#saveBtn').disabled = false;
+      $('#saveBtn2').disabled = false;
+    } else {
+      info.textContent  = 'Opgeslagen · zojuist';
+      info.style.color  = 'var(--tt-success)';
+      info2.textContent = 'Geen niet-opgeslagen wijzigingen.';
+      info2.classList.remove('dirty');
+      $('#saveBtn').disabled = true;
+      $('#saveBtn2').disabled = true;
+    }
+  }
+
+  function markDirty() { state.dirty = true; renderSaveState(); }
+
+  // ============= picker (used by slots AND roles/set-pieces) =============
+  let pickerCtx = null;
+  function openPicker(anchorEl, ctx) {
+    pickerCtx = ctx;  // { kind: 'slot', half, slot } | { kind: 'role', role }
+    const picker = $('#picker');
+    const backdrop = $('#pickerBackdrop');
+
+    let title, currentPid;
+    if (ctx.kind === 'slot') {
+      title = 'Slot ' + ctx.slot + ' — ' + (ctx.half === 1 ? '1e helft' : '2e helft');
+      currentPid = (ctx.half === 1 ? state.lineup1 : state.lineup2).get(ctx.slot) || null;
+    } else {
+      const r = ROLE_KEYS.find((x) => x.key === ctx.role);
+      title = r ? r.label : ctx.role;
+      currentPid = state.roles.get(ctx.role) || null;
+    }
+
+    picker.innerHTML =
+      '<div class="picker-head">' + escapeHtml(title) + '</div>' +
+      '<input type="text" class="picker-search" placeholder="Zoek speler…">' +
+      '<div class="picker-list"></div>' +
+      (currentPid ? '<div class="picker-foot">Leegmaken</div>' : '');
+
+    renderPickerList('');
+    picker.querySelector('.picker-search').addEventListener('input', (e) => renderPickerList(e.target.value));
+    const foot = picker.querySelector('.picker-foot');
+    if (foot) foot.addEventListener('click', () => { assignFromPicker(null); closePicker(); });
+
+    // position picker
+    picker.classList.add('open');
+    backdrop.classList.add('open');
+    const r = anchorEl.getBoundingClientRect();
+    const pr = picker.getBoundingClientRect();
+    let left = r.right + window.scrollX + 8;
+    let top  = r.top + window.scrollY;
+    if (left + pr.width > window.innerWidth - 8) left = r.left + window.scrollX - pr.width - 8;
+    if (left < 8) left = 8;
+    if (top + pr.height > window.innerHeight + window.scrollY - 8) top = window.innerHeight + window.scrollY - pr.height - 8;
+    picker.style.left = left + 'px';
+    picker.style.top  = top  + 'px';
+
+    setTimeout(() => picker.querySelector('.picker-search').focus(), 30);
+  }
+  function renderPickerList(q) {
+    const picker = $('#picker');
+    const list = picker.querySelector('.picker-list');
+    q = q.trim().toLowerCase();
+    const matches = availablePlayers().filter((p) => !q || p.name.toLowerCase().indexOf(q) >= 0);
+    if (!matches.length) {
+      list.innerHTML = '<div style="padding:8px; color:var(--tt-ink-soft); font-style:italic;">Geen beschikbare spelers gevonden.</div>';
+      return;
+    }
+    list.innerHTML = matches.map((p) => {
+      const placed = placedCount(p.id);
+      const initial = p.name[0];
+      const meta = pickerCtx && pickerCtx.kind === 'slot'
+        ? (placed ? '<span class="meta">×' + placed + ' op veld</span>' : '')
+        : '';
+      return (
+        '<div class="picker-row ' + (placed ? 'placed' : '') + '" data-pid="' + p.id + '">' +
+          '<span class="av">' + initial + '</span>' +
+          '<span>' + escapeHtml(p.name) + '</span>' +
+          meta +
+        '</div>'
+      );
+    }).join('');
+    list.querySelectorAll('.picker-row').forEach((row) => {
+      row.addEventListener('click', () => {
+        const pid = parseInt(row.dataset.pid, 10);
+        assignFromPicker(pid);
+        closePicker();
+      });
+    });
+  }
+  function assignFromPicker(pid) {
+    if (!pickerCtx) return;
+    if (pickerCtx.kind === 'slot') {
+      assignSlot(pickerCtx.half, pickerCtx.slot, pid);
+    } else if (pickerCtx.kind === 'role') {
+      if (pid === null) state.roles.delete(pickerCtx.role);
+      else              state.roles.set(pickerCtx.role, pid);
+      markDirty();
+      renderRoles();
+    }
+  }
+  function closePicker() {
+    $('#picker').classList.remove('open');
+    $('#pickerBackdrop').classList.remove('open');
+    pickerCtx = null;
+  }
+  document.addEventListener('click', (e) => {
+    // close picker if click outside
+    if (!pickerCtx) return;
+    const picker = $('#picker');
+    if (picker.contains(e.target)) return;
+    if (e.target.closest('.slot')) return;
+    if (e.target.closest('.sp-row')) return;
+    closePicker();
+  });
+  $('#pickerBackdrop').addEventListener('click', closePicker);
+
+  // ============= assignment =============
+  function assignSlot(half, slot, pid) {
+    const map = half === 1 ? state.lineup1 : state.lineup2;
+    // displace previous occupant of this slot back to bench
+    map.delete(slot);
+    if (pid) {
+      // remove this pid from any other slot in the same half — one player per half max
+      for (const [s, otherPid] of map.entries()) {
+        if (otherPid === pid) map.delete(s);
+      }
+      map.set(slot, pid);
+    }
+    markDirty();
+    renderRoster();
+    renderPitches();
+    renderFoot();
+  }
+
+  // copy 1e → 2e (no confirmation per spec)
+  $('#copyBtn').addEventListener('click', () => {
+    state.lineup2.clear();
+    state.lineup1.forEach((pid, slot) => state.lineup2.set(slot, pid));
+    markDirty();
+    renderAll();
+  });
+
+  // ============= availability drawer =============
+  function openDrawer() {
+    renderDrawer();
+    $('#drawer').classList.add('open'); $('#drawer').setAttribute('aria-hidden', 'false');
+    $('#drawerBackdrop').classList.add('open');
+  }
+  function closeDrawer() {
+    $('#drawer').classList.remove('open'); $('#drawer').setAttribute('aria-hidden', 'true');
+    $('#drawerBackdrop').classList.remove('open');
+  }
+  function renderDrawer() {
+    const body = $('#drawerBody');
+    body.innerHTML = ALL_PLAYERS.map((p) => {
+      const a = state.availability.get(p.id) || { status: '', sub: '', reason: '' };
+      const isPresent = a.status === 'Present';
+      const isAbsent  = a.status === 'Absent';
+      return (
+        '<div class="drawer-row" data-pid="' + p.id + '">' +
+          '<div class="name">' + escapeHtml(p.name) + '</div>' +
+          '<div class="chips">' +
+            '<button class="chip ' + (isPresent ? 'active' : '') + '" data-set="Present">Aanwezig</button>' +
+            '<button class="chip absent excused ' + (isAbsent && a.sub === 'Excused' ? 'active absent excused' : '') + '" data-set="Absent" data-sub="Excused">Afwezig (excused)</button>' +
+            '<button class="chip absent injured ' + (isAbsent && a.sub === 'Injured' ? 'active absent injured' : '') + '" data-set="Absent" data-sub="Injured">Geblesseerd</button>' +
+          '</div>' +
+          '<div></div>' +
+          (isAbsent ? ('<div class="reason"><input type="text" data-reason="' + p.id + '" value="' + escapeHtml(a.reason || '') + '" placeholder="Reden (optioneel)…"></div>') : '') +
+        '</div>'
+      );
+    }).join('');
+    body.querySelectorAll('.chip').forEach((c) => {
+      c.addEventListener('click', () => {
+        const row = c.closest('.drawer-row');
+        const pid = parseInt(row.dataset.pid, 10);
+        const set = c.dataset.set;
+        const sub = c.dataset.sub || '';
+        const cur = state.availability.get(pid) || {};
+        if (cur.status === set && (cur.sub || '') === sub) {
+          state.availability.delete(pid);
+        } else {
+          state.availability.set(pid, { status: set, sub, reason: cur.reason || '' });
+        }
+        if (set === 'Absent') {
+          // pull out of any lineup
+          for (const [s, p] of state.lineup1.entries()) if (p === pid) state.lineup1.delete(s);
+          for (const [s, p] of state.lineup2.entries()) if (p === pid) state.lineup2.delete(s);
+        }
+        markDirty();
+        renderDrawer();
+        renderAll();
+      });
+    });
+    body.querySelectorAll('input[data-reason]').forEach((inp) => {
+      inp.addEventListener('input', (e) => {
+        const pid = parseInt(e.target.dataset.reason, 10);
+        const cur = state.availability.get(pid) || {};
+        state.availability.set(pid, { ...cur, reason: e.target.value });
+        markDirty();
+      });
+    });
+  }
+
+  // ============= wiring =============
+  document.addEventListener('DOMContentLoaded', () => {
+    $$('.mockup-bar button[data-state]').forEach((b) => {
+      b.addEventListener('click', () => {
+        $$('.mockup-bar button[data-state]').forEach((x) => x.setAttribute('aria-pressed', 'false'));
+        b.setAttribute('aria-pressed', 'true');
+        applyDemoState(b.dataset.state);
+        renderAll();
+      });
+    });
+    $('#resetBtn').addEventListener('click', () => {
+      applyDemoState('partial'); renderAll();
+    });
+
+    $('#halflen').addEventListener('input', (e) => {
+      state.halfLen = parseInt(e.target.value, 10) || 0;
+      markDirty(); renderRoster(); renderFoot();
+    });
+    $('#formation').addEventListener('input', markDirty);
+    $$('.goals input').forEach((inp) => inp.addEventListener('input', markDirty));
+
+    $('#manageAvailBtn').addEventListener('click', openDrawer);
+    $('#drawerClose').addEventListener('click', closeDrawer);
+    $('#drawerBackdrop').addEventListener('click', closeDrawer);
+    $('#drawerDone').addEventListener('click', closeDrawer);
+    $('#markAllPresent').addEventListener('click', () => {
+      ALL_PLAYERS.forEach((p) => state.availability.set(p.id, { status: 'Present', reason: '' }));
+      markDirty(); renderDrawer(); renderAll();
+    });
+
+    [ '#saveBtn', '#saveBtn2' ].forEach((s) => {
+      $(s).addEventListener('click', () => {
+        state.dirty = false;
+        renderSaveState();
+        const info = $('#savebarInfo');
+        info.textContent = 'Opgeslagen.'; info.style.color = 'var(--tt-success)';
+        setTimeout(renderSaveState, 1200);
+      });
+    });
+    $('#cancelBtn').addEventListener('click', () => {
+      const active = $$('.mockup-bar button[data-state][aria-pressed="true"]')[0];
+      applyDemoState(active ? active.dataset.state : 'partial');
+      renderAll();
+    });
+    $('#exportPdfBtn').addEventListener('click', () => alert('(Mockup) Een liggend-A4 PDF zou hier worden geëxporteerd via MatchPrepPdfExporter (#838).'));
+
+    applyDemoState('partial');
+    renderAll();
+  });
+})();
+</script>
+</body>
+</html>
