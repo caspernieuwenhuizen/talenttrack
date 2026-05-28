@@ -306,7 +306,28 @@ body[data-step="add-match"] .progress, body[data-step="add-match"] h1.title { di
     color: var(--tt-ink-soft);
     font-weight: 600;
 }
-.squad-toolbar .count strong { color: var(--tt-accent); }
+.squad-toolbar .count strong { color: var(--tt-ink); }
+.squad-toolbar .count .out-tally { color: var(--tt-warn); }
+.squad-toolbar .actions-inline {
+    margin-left: auto;
+    display: inline-flex;
+    gap: 6px;
+}
+.btn-mini {
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border: 1px solid var(--tt-line);
+    background: var(--tt-paper);
+    color: var(--tt-ink);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    min-height: 34px;
+}
+.btn-mini:hover { background: var(--tt-mute); }
+.btn-mini--ghost { background: transparent; border-color: transparent; color: var(--tt-accent); }
+.btn-mini--ghost:hover { background: var(--tt-accent-15); }
 
 .squad-list {
     list-style: none;
@@ -319,38 +340,85 @@ body[data-step="add-match"] .progress, body[data-step="add-match"] h1.title { di
 }
 .squad-row {
     display: grid;
-    grid-template-columns: 40px 1fr auto;
-    align-items: center;
+    grid-template-columns: 1fr auto;
+    align-items: start;
     gap: 12px;
     padding: 10px 14px;
     border-bottom: 1px solid var(--tt-line-soft);
 }
 .squad-row:last-child { border-bottom: none; }
-.squad-row .pick {
-    width: 22px; height: 22px;
-    accent-color: var(--tt-accent);
-    cursor: pointer;
-}
-.squad-row .name-block { min-width: 0; }
+.squad-row .name-block { min-width: 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .squad-row .name { font-weight: 600; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.squad-row .meta { font-size: 12px; color: var(--tt-ink-soft); }
-.squad-row .positions {
+.squad-row .meta { font-size: 12px; color: var(--tt-ink-soft); display: block; flex-basis: 100%; margin-top: 2px; }
+.squad-row .guest-badge {
+    display: inline-block;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    background: var(--tt-warn);
+    color: white;
+    border-radius: 10px;
+    padding: 2px 8px;
+    font-weight: 700;
+}
+
+/* Right column — attendance chips + position chips stack */
+.squad-row .right-block {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+}
+
+/* Attendance chip set (mirrors mark-attendance card pattern) */
+.att-chips {
+    display: inline-flex;
+    border: 1px solid var(--tt-line);
+    border-radius: 999px;
+    padding: 2px;
+    background: var(--tt-mute);
+    overflow: hidden;
+    font-size: 12px;
+}
+.att-chip {
+    border: 0;
+    background: transparent;
+    color: var(--tt-ink-soft);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 999px;
+    cursor: pointer;
+    line-height: 1;
+    min-height: 28px;
+}
+.att-chip:hover { color: var(--tt-ink); }
+.att-chip.is-active { background: var(--tt-paper); color: var(--tt-ink); box-shadow: 0 1px 2px rgba(0,0,0,0.08); }
+.att-chip.is-active[data-status="present"] { color: var(--tt-success); }
+.att-chip.is-active[data-status="absent"]  { color: var(--tt-danger); }
+.att-chip.is-active[data-status="injured"] { color: var(--tt-warn); }
+.att-chip.is-active[data-status="excused"] { color: var(--tt-ink-soft); }
+
+/* Position-eligibility chips (smaller secondary row) */
+.positions {
     display: flex;
     gap: 6px;
     flex-wrap: wrap;
+    justify-content: flex-end;
 }
 .pos-chip {
     border: 1px solid var(--tt-line);
     background: var(--tt-paper);
     color: var(--tt-ink-soft);
     border-radius: 14px;
-    padding: 5px 10px;
-    font-size: 12px;
-    font-weight: 600;
+    padding: 4px 9px;
+    font-size: 11px;
+    font-weight: 700;
     cursor: pointer;
     user-select: none;
     line-height: 1;
-    min-height: 26px;
+    min-height: 24px;
     display: inline-flex;
     align-items: center;
 }
@@ -359,8 +427,125 @@ body[data-step="add-match"] .progress, body[data-step="add-match"] h1.title { di
     border-color: var(--tt-accent);
     color: white;
 }
-.squad-row.is-out { opacity: 0.5; }
+.squad-row.is-out { opacity: 0.55; }
 .squad-row.is-out .positions { pointer-events: none; }
+.squad-row.is-out .name { text-decoration: line-through; }
+
+/* Add-guest row sits below the team roster */
+.add-guest-row {
+    display: flex;
+    justify-content: center;
+    margin-top: 14px;
+}
+.add-guest-row .btn {
+    border-style: dashed;
+    color: var(--tt-accent);
+}
+.add-guest-row .btn:hover { background: var(--tt-accent-15); border-color: var(--tt-accent); }
+
+/* ---------------------------------------------------------------------------
+   Guest-add modal — overlay + dialog
+   --------------------------------------------------------------------------- */
+.guest-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(26, 29, 33, 0.45);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    padding: 16px;
+}
+.guest-modal-backdrop.is-open { display: flex; }
+.guest-modal {
+    background: var(--tt-paper);
+    border-radius: var(--radius);
+    width: 100%;
+    max-width: 520px;
+    max-height: calc(100vh - 32px);
+    overflow: auto;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+    display: flex;
+    flex-direction: column;
+}
+.guest-modal__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--tt-line);
+}
+.guest-modal__head h3 { margin: 0; font-size: 16px; font-weight: 700; }
+.guest-modal__head .close {
+    border: 0;
+    background: transparent;
+    font-size: 20px;
+    color: var(--tt-ink-soft);
+    cursor: pointer;
+    line-height: 1;
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+}
+.guest-modal__head .close:hover { background: var(--tt-mute); color: var(--tt-ink); }
+
+.guest-tabs {
+    display: flex;
+    gap: 2px;
+    padding: 12px 20px 0;
+    border-bottom: 1px solid var(--tt-line);
+}
+.guest-tab {
+    border: 0;
+    background: transparent;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--tt-ink-soft);
+    padding: 10px 14px;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    margin-bottom: -1px;
+}
+.guest-tab.is-active {
+    color: var(--tt-accent);
+    border-bottom-color: var(--tt-accent);
+}
+
+.guest-modal__body { padding: 18px 20px; }
+.guest-pane { display: none; }
+.guest-pane.is-active { display: block; }
+
+.guest-modal__foot {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 14px 20px;
+    border-top: 1px solid var(--tt-line);
+    background: var(--tt-bg);
+}
+
+/* Linked-guest player picker — simple search-result list */
+.guest-search-results {
+    list-style: none;
+    margin: 8px 0 0;
+    padding: 0;
+    max-height: 220px;
+    overflow: auto;
+    border: 1px solid var(--tt-line);
+    border-radius: var(--radius-sm);
+}
+.guest-search-results li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--tt-line-soft);
+    cursor: pointer;
+}
+.guest-search-results li:last-child { border-bottom: none; }
+.guest-search-results li:hover { background: var(--tt-accent-15); }
+.guest-search-results .pname { font-weight: 600; font-size: 14px; flex: 1; }
+.guest-search-results .pteam { font-size: 12px; color: var(--tt-ink-soft); }
 
 /* ---------------------------------------------------------------------------
    Matches step — repeating match card with chip editor
@@ -574,8 +759,9 @@ body[data-step="add-match"] .progress, body[data-step="add-match"] h1.title { di
     .actions { flex-direction: column; }
     .actions .left, .actions .right { width: 100%; justify-content: space-between; }
     .formation-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
-    .squad-row { grid-template-columns: 32px 1fr; row-gap: 6px; }
-    .squad-row .positions { grid-column: 2; }
+    .squad-row { grid-template-columns: 1fr; row-gap: 8px; }
+    .squad-row .right-block { align-items: flex-start; }
+    .squad-row .positions { justify-content: flex-start; }
     .review-card .edit-link { position: static; display: inline-block; margin-bottom: 8px; }
     .facts { grid-template-columns: 1fr; }
 }
@@ -719,81 +905,278 @@ body[data-step="add-match"] .progress, body[data-step="add-match"] h1.title { di
 
     <!-- ============================================================
          STEP 3 — Squad
+         Everyone's IN the squad by default. Coach toggles individuals
+         absent / injured / excused via the chip strip (same pattern as
+         the mark-attendance wizard). Position-eligibility chips below
+         the attendance chips drive auto-balance on the planner.
+         "+ Add guest" appends external players via a modal mirroring
+         the activity guest-add flow (linked from another team's roster,
+         or anonymous name + position).
          ============================================================ -->
     <section class="step step--squad" aria-label="Step 3: Squad">
         <h2 class="step-title">Squad</h2>
-        <p class="step-desc">Tick the players in the squad. For each, mark which position types they can play — these chips drive auto-balance during the planner phase.</p>
+        <p class="step-desc">
+            Everyone's in the squad by default. Tap a player's status chip if they can't make it
+            (absent / injured / excused). Mark which position types each can play —
+            those drive auto-balance during the planner phase.
+        </p>
 
         <div class="card">
             <div class="squad-toolbar">
                 <div class="search"><input type="text" placeholder="Filter by name…"></div>
-                <span class="count"><strong>9</strong> of 14 selected</span>
+                <span class="count">
+                    <strong>11</strong> in squad · <span class="out-tally">2 out</span>
+                </span>
+                <span class="actions-inline">
+                    <button type="button" class="btn-mini btn-mini--ghost" data-mark-all-present>Mark all present</button>
+                </span>
             </div>
 
             <ul class="squad-list" id="squad-list">
-                <li class="squad-row">
-                    <input type="checkbox" class="pick" checked>
+                <!-- Default state: all team players Present. -->
+                <li class="squad-row" data-status="present">
                     <div class="name-block">
-                        <div class="name">#1 Jelle van Dijk</div>
-                        <div class="meta">U13 · joined Aug 2024</div>
+                        <span class="name">#1 Jelle van Dijk</span>
+                        <small class="meta">U13 · keeper</small>
                     </div>
-                    <div class="positions">
-                        <span class="pos-chip is-active">GK</span><span class="pos-chip">DEF</span><span class="pos-chip">MID</span><span class="pos-chip">FWD</span>
+                    <div class="right-block">
+                        <div class="att-chips" data-att-set>
+                            <button type="button" class="att-chip is-active" data-status="present">Present</button>
+                            <button type="button" class="att-chip" data-status="absent">Absent</button>
+                            <button type="button" class="att-chip" data-status="injured">Injured</button>
+                            <button type="button" class="att-chip" data-status="excused">Excused</button>
+                        </div>
+                        <div class="positions">
+                            <span class="pos-chip is-active">GK</span><span class="pos-chip">DEF</span><span class="pos-chip">MID</span><span class="pos-chip">FWD</span>
+                        </div>
                     </div>
                 </li>
-                <li class="squad-row">
-                    <input type="checkbox" class="pick" checked>
+
+                <li class="squad-row" data-status="present">
                     <div class="name-block">
-                        <div class="name">#4 Bram Hendriks</div>
-                        <div class="meta">U13 · captain</div>
+                        <span class="name">#4 Bram Hendriks</span>
+                        <small class="meta">U13 · captain</small>
                     </div>
-                    <div class="positions">
-                        <span class="pos-chip">GK</span><span class="pos-chip is-active">DEF</span><span class="pos-chip is-active">MID</span><span class="pos-chip">FWD</span>
+                    <div class="right-block">
+                        <div class="att-chips" data-att-set>
+                            <button type="button" class="att-chip is-active" data-status="present">Present</button>
+                            <button type="button" class="att-chip" data-status="absent">Absent</button>
+                            <button type="button" class="att-chip" data-status="injured">Injured</button>
+                            <button type="button" class="att-chip" data-status="excused">Excused</button>
+                        </div>
+                        <div class="positions">
+                            <span class="pos-chip">GK</span><span class="pos-chip is-active">DEF</span><span class="pos-chip is-active">MID</span><span class="pos-chip">FWD</span>
+                        </div>
                     </div>
                 </li>
-                <li class="squad-row">
-                    <input type="checkbox" class="pick" checked>
+
+                <li class="squad-row" data-status="present">
                     <div class="name-block">
-                        <div class="name">#7 Lucas de Vries</div>
-                        <div class="meta">U13 · winger</div>
+                        <span class="name">#7 Lucas de Vries</span>
+                        <small class="meta">U13 · winger</small>
                     </div>
-                    <div class="positions">
-                        <span class="pos-chip">GK</span><span class="pos-chip">DEF</span><span class="pos-chip is-active">MID</span><span class="pos-chip is-active">FWD</span>
+                    <div class="right-block">
+                        <div class="att-chips" data-att-set>
+                            <button type="button" class="att-chip is-active" data-status="present">Present</button>
+                            <button type="button" class="att-chip" data-status="absent">Absent</button>
+                            <button type="button" class="att-chip" data-status="injured">Injured</button>
+                            <button type="button" class="att-chip" data-status="excused">Excused</button>
+                        </div>
+                        <div class="positions">
+                            <span class="pos-chip">GK</span><span class="pos-chip">DEF</span><span class="pos-chip is-active">MID</span><span class="pos-chip is-active">FWD</span>
+                        </div>
                     </div>
                 </li>
-                <li class="squad-row">
-                    <input type="checkbox" class="pick" checked>
+
+                <!-- Example of an Injured player: row dimmed, position chips disabled. -->
+                <li class="squad-row is-out" data-status="injured">
                     <div class="name-block">
-                        <div class="name">#9 Daan Visser</div>
-                        <div class="meta">U13 · striker</div>
+                        <span class="name">#9 Daan Visser</span>
+                        <small class="meta">U13 · striker — knee, available May 30</small>
                     </div>
-                    <div class="positions">
-                        <span class="pos-chip">GK</span><span class="pos-chip">DEF</span><span class="pos-chip">MID</span><span class="pos-chip is-active">FWD</span>
+                    <div class="right-block">
+                        <div class="att-chips" data-att-set>
+                            <button type="button" class="att-chip" data-status="present">Present</button>
+                            <button type="button" class="att-chip" data-status="absent">Absent</button>
+                            <button type="button" class="att-chip is-active" data-status="injured">Injured</button>
+                            <button type="button" class="att-chip" data-status="excused">Excused</button>
+                        </div>
+                        <div class="positions">
+                            <span class="pos-chip">GK</span><span class="pos-chip">DEF</span><span class="pos-chip">MID</span><span class="pos-chip is-active">FWD</span>
+                        </div>
                     </div>
                 </li>
-                <li class="squad-row is-out">
-                    <input type="checkbox" class="pick">
+
+                <li class="squad-row" data-status="present">
                     <div class="name-block">
-                        <div class="name">#11 Sander Brouwer</div>
-                        <div class="meta">U13 · trial</div>
+                        <span class="name">#10 Thijs Mulder</span>
+                        <small class="meta">U13 · attacking mid</small>
                     </div>
-                    <div class="positions">
-                        <span class="pos-chip">GK</span><span class="pos-chip">DEF</span><span class="pos-chip">MID</span><span class="pos-chip">FWD</span>
+                    <div class="right-block">
+                        <div class="att-chips" data-att-set>
+                            <button type="button" class="att-chip is-active" data-status="present">Present</button>
+                            <button type="button" class="att-chip" data-status="absent">Absent</button>
+                            <button type="button" class="att-chip" data-status="injured">Injured</button>
+                            <button type="button" class="att-chip" data-status="excused">Excused</button>
+                        </div>
+                        <div class="positions">
+                            <span class="pos-chip">GK</span><span class="pos-chip">DEF</span><span class="pos-chip is-active">MID</span><span class="pos-chip is-active">FWD</span>
+                        </div>
                     </div>
                 </li>
-                <li class="squad-row">
-                    <input type="checkbox" class="pick" checked>
+
+                <!-- Example of an Excused player. -->
+                <li class="squad-row is-out" data-status="excused">
                     <div class="name-block">
-                        <div class="name">#14 Sem Janssen</div>
-                        <div class="meta">U13</div>
+                        <span class="name">#11 Sander Brouwer</span>
+                        <small class="meta">U13 · trial — family commitment</small>
                     </div>
-                    <div class="positions">
-                        <span class="pos-chip">GK</span><span class="pos-chip">DEF</span><span class="pos-chip is-active">MID</span><span class="pos-chip">FWD</span>
+                    <div class="right-block">
+                        <div class="att-chips" data-att-set>
+                            <button type="button" class="att-chip" data-status="present">Present</button>
+                            <button type="button" class="att-chip" data-status="absent">Absent</button>
+                            <button type="button" class="att-chip" data-status="injured">Injured</button>
+                            <button type="button" class="att-chip is-active" data-status="excused">Excused</button>
+                        </div>
+                        <div class="positions">
+                            <span class="pos-chip">GK</span><span class="pos-chip">DEF</span><span class="pos-chip is-active">MID</span><span class="pos-chip">FWD</span>
+                        </div>
+                    </div>
+                </li>
+
+                <li class="squad-row" data-status="present">
+                    <div class="name-block">
+                        <span class="name">#14 Sem Janssen</span>
+                        <small class="meta">U13</small>
+                    </div>
+                    <div class="right-block">
+                        <div class="att-chips" data-att-set>
+                            <button type="button" class="att-chip is-active" data-status="present">Present</button>
+                            <button type="button" class="att-chip" data-status="absent">Absent</button>
+                            <button type="button" class="att-chip" data-status="injured">Injured</button>
+                            <button type="button" class="att-chip" data-status="excused">Excused</button>
+                        </div>
+                        <div class="positions">
+                            <span class="pos-chip">GK</span><span class="pos-chip">DEF</span><span class="pos-chip is-active">MID</span><span class="pos-chip">FWD</span>
+                        </div>
+                    </div>
+                </li>
+
+                <!-- Guest from another team (linked player from neighbour club). -->
+                <li class="squad-row" data-status="present" data-guest="linked">
+                    <div class="name-block">
+                        <span class="name">#22 Milan ten Have</span>
+                        <span class="guest-badge">Guest</span>
+                        <small class="meta">Texel JO13 · cross-team pick</small>
+                    </div>
+                    <div class="right-block">
+                        <div class="att-chips" data-att-set>
+                            <button type="button" class="att-chip is-active" data-status="present">Present</button>
+                            <button type="button" class="att-chip" data-status="absent">Absent</button>
+                            <button type="button" class="att-chip" data-status="injured">Injured</button>
+                            <button type="button" class="att-chip" data-status="excused">Excused</button>
+                        </div>
+                        <div class="positions">
+                            <span class="pos-chip">GK</span><span class="pos-chip is-active">DEF</span><span class="pos-chip">MID</span><span class="pos-chip">FWD</span>
+                        </div>
+                    </div>
+                </li>
+
+                <!-- Anonymous guest (no linked player record). -->
+                <li class="squad-row" data-status="present" data-guest="anon">
+                    <div class="name-block">
+                        <span class="name">Visiting trialist</span>
+                        <span class="guest-badge">Guest</span>
+                        <small class="meta">Anonymous · cousin of #9</small>
+                    </div>
+                    <div class="right-block">
+                        <div class="att-chips" data-att-set>
+                            <button type="button" class="att-chip is-active" data-status="present">Present</button>
+                            <button type="button" class="att-chip" data-status="absent">Absent</button>
+                            <button type="button" class="att-chip" data-status="injured">Injured</button>
+                            <button type="button" class="att-chip" data-status="excused">Excused</button>
+                        </div>
+                        <div class="positions">
+                            <span class="pos-chip">GK</span><span class="pos-chip">DEF</span><span class="pos-chip is-active">MID</span><span class="pos-chip">FWD</span>
+                        </div>
                     </div>
                 </li>
             </ul>
+
+            <div class="add-guest-row">
+                <button type="button" class="btn" data-open-guest-modal>+ Add guest</button>
+            </div>
         </div>
     </section>
+
+    <!-- ============================================================
+         Guest-add modal — mirrors the activity guest-add modal flow
+         (linked guest from another team OR anonymous guest with name)
+         restyled to the wizard's card+chip pattern.
+         ============================================================ -->
+    <div class="guest-modal-backdrop" id="guest-modal" role="dialog" aria-modal="true" aria-labelledby="guest-modal-title">
+        <div class="guest-modal">
+            <header class="guest-modal__head">
+                <h3 id="guest-modal-title">Add guest player</h3>
+                <button type="button" class="close" data-close-guest-modal aria-label="Close">×</button>
+            </header>
+
+            <div class="guest-tabs" role="tablist">
+                <button type="button" class="guest-tab is-active" data-guest-tab="linked" role="tab" aria-selected="true">From another team</button>
+                <button type="button" class="guest-tab" data-guest-tab="anon" role="tab" aria-selected="false">Anonymous</button>
+            </div>
+
+            <div class="guest-modal__body">
+                <!-- Linked-guest pane: search the club's other-team players. -->
+                <div class="guest-pane is-active" data-guest-pane="linked">
+                    <div class="field">
+                        <label>Search player</label>
+                        <input type="text" placeholder="Type a name…">
+                        <span class="hint">Players from teams other than the anchor team. Pick to add.</span>
+                    </div>
+                    <ul class="guest-search-results">
+                        <li><span class="pname">Milan ten Have</span><span class="pteam">Texel JO13</span></li>
+                        <li><span class="pname">Joep Verhoeven</span><span class="pteam">Hedel JO14</span></li>
+                        <li><span class="pname">Niels Bakker</span><span class="pteam">Hedel JO14</span></li>
+                        <li><span class="pname">Pim Smits</span><span class="pteam">Den Helder JO13</span></li>
+                    </ul>
+                    <div class="field" style="margin-top:14px;">
+                        <label>Eligible positions</label>
+                        <div class="positions" style="justify-content:flex-start;">
+                            <span class="pos-chip">GK</span><span class="pos-chip is-active">DEF</span><span class="pos-chip">MID</span><span class="pos-chip">FWD</span>
+                        </div>
+                        <span class="hint">Tap to toggle. Drives auto-balance on the planner.</span>
+                    </div>
+                </div>
+
+                <!-- Anonymous pane: bare name + position chips. -->
+                <div class="guest-pane" data-guest-pane="anon">
+                    <div class="field-grid">
+                        <div class="field field--full">
+                            <label>Name <span class="req">*</span></label>
+                            <input type="text" placeholder="e.g. Visiting trialist">
+                            <span class="hint">No TalentTrack record needed. The guest is recorded against this tournament only.</span>
+                        </div>
+                        <div class="field field--full">
+                            <label>Eligible positions</label>
+                            <div class="positions" style="justify-content:flex-start;">
+                                <span class="pos-chip">GK</span><span class="pos-chip">DEF</span><span class="pos-chip is-active">MID</span><span class="pos-chip">FWD</span>
+                            </div>
+                        </div>
+                        <div class="field field--full">
+                            <label>Notes (optional)</label>
+                            <input type="text" placeholder="e.g. cousin of #9">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <footer class="guest-modal__foot">
+                <button type="button" class="btn" data-close-guest-modal>Cancel</button>
+                <button type="button" class="btn btn--primary">Add to squad</button>
+            </footer>
+        </div>
+    </div>
 
     <!-- ============================================================
          STEP 4 — Matches  (the focus of this redesign)
@@ -982,12 +1365,12 @@ body[data-step="add-match"] .progress, body[data-step="add-match"] h1.title { di
 
         <div class="card review-card">
             <a href="#" class="edit-link" data-jump="squad">Edit</a>
-            <h3 class="card-title">Squad <span class="pill" style="margin-left:6px;">9 players</span></h3>
+            <h3 class="card-title">Squad <span class="pill" style="margin-left:6px;">7 in · 2 out</span></h3>
             <dl class="facts">
-                <dt>GK</dt><dd>1× Jelle van Dijk</dd>
-                <dt>DEF</dt><dd>3× Bram Hendriks, Stijn de Wit, Tim van der Berg</dd>
-                <dt>MID</dt><dd>3× Mees Peters, Sem Janssen, Bram Hendriks</dd>
-                <dt>FWD</dt><dd>2× Daan Visser, Lucas de Vries</dd>
+                <dt>Roster (in)</dt><dd>5× Jelle van Dijk, Bram Hendriks, Lucas de Vries, Thijs Mulder, Sem Janssen</dd>
+                <dt>Guests (in)</dt><dd>2× Milan ten Have <span class="pill">Texel JO13</span>, Visiting trialist <span class="pill">anon</span></dd>
+                <dt>Out</dt><dd>2× Daan Visser <span class="pill">injured</span>, Sander Brouwer <span class="pill">excused</span></dd>
+                <dt>By position</dt><dd>GK 1 · DEF 2 · MID 3 · FWD 1 (only Present players counted)</dd>
             </dl>
         </div>
 
@@ -1138,11 +1521,94 @@ document.querySelectorAll('.formation-card input[type=radio]').forEach(function 
     });
 });
 
-// Squad row pick → grey out un-picked rows + toggle position chip pointer events
-document.querySelectorAll('.squad-row .pick').forEach(function (chk) {
-    chk.addEventListener('change', function () {
-        var row = chk.closest('.squad-row');
-        row.classList.toggle('is-out', !chk.checked);
+// Squad attendance chips — pick the new status on click, dim the row
+// when status is anything other than Present. Mirrors the
+// mark-attendance card pattern.
+document.querySelectorAll('[data-att-set]').forEach(function (set) {
+    set.addEventListener('click', function (e) {
+        var chip = e.target.closest('.att-chip');
+        if (!chip) return;
+        var newStatus = chip.getAttribute('data-status');
+        set.querySelectorAll('.att-chip').forEach(function (c) {
+            c.classList.toggle('is-active', c === chip);
+        });
+        var row = chip.closest('.squad-row');
+        if (row) {
+            row.setAttribute('data-status', newStatus);
+            row.classList.toggle('is-out', newStatus !== 'present');
+        }
+        recountSquad();
+    });
+});
+
+// "Mark all present" bulk action
+var markAllBtn = document.querySelector('[data-mark-all-present]');
+if (markAllBtn) {
+    markAllBtn.addEventListener('click', function () {
+        document.querySelectorAll('[data-att-set]').forEach(function (set) {
+            set.querySelectorAll('.att-chip').forEach(function (c) {
+                c.classList.toggle('is-active', c.getAttribute('data-status') === 'present');
+            });
+            var row = set.closest('.squad-row');
+            if (row) {
+                row.setAttribute('data-status', 'present');
+                row.classList.remove('is-out');
+            }
+        });
+        recountSquad();
+    });
+}
+
+// Live count: "X in squad · Y out"
+function recountSquad() {
+    var rows = document.querySelectorAll('#squad-list .squad-row');
+    var inCount = 0, outCount = 0;
+    rows.forEach(function (r) {
+        if (r.getAttribute('data-status') === 'present') inCount++;
+        else outCount++;
+    });
+    var countEl = document.querySelector('.squad-toolbar .count');
+    if (countEl) {
+        countEl.innerHTML = '<strong>' + inCount + '</strong> in squad · <span class="out-tally">' + outCount + ' out</span>';
+    }
+}
+
+// Guest-add modal
+var guestModal = document.getElementById('guest-modal');
+document.querySelectorAll('[data-open-guest-modal]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        if (guestModal) guestModal.classList.add('is-open');
+    });
+});
+document.querySelectorAll('[data-close-guest-modal]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        if (guestModal) guestModal.classList.remove('is-open');
+    });
+});
+// Backdrop click closes
+if (guestModal) {
+    guestModal.addEventListener('click', function (e) {
+        if (e.target === guestModal) guestModal.classList.remove('is-open');
+    });
+}
+// Tab toggle
+document.querySelectorAll('[data-guest-tab]').forEach(function (tab) {
+    tab.addEventListener('click', function () {
+        var target = tab.getAttribute('data-guest-tab');
+        document.querySelectorAll('[data-guest-tab]').forEach(function (t) {
+            var on = t === tab;
+            t.classList.toggle('is-active', on);
+            t.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+        document.querySelectorAll('[data-guest-pane]').forEach(function (p) {
+            p.classList.toggle('is-active', p.getAttribute('data-guest-pane') === target);
+        });
+    });
+});
+// Linked-guest result click — close the modal (real impl appends the row to the list)
+document.querySelectorAll('.guest-search-results li').forEach(function (li) {
+    li.addEventListener('click', function () {
+        if (guestModal) guestModal.classList.remove('is-open');
     });
 });
 
