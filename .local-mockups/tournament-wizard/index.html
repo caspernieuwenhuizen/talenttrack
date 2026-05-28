@@ -1127,19 +1127,35 @@ body[data-step="add-match"] .progress, body[data-step="add-match"] h1.title { di
             </div>
 
             <div class="guest-modal__body">
-                <!-- Linked-guest pane: search the club's other-team players. -->
+                <!-- Linked-guest pane: pick a team first, then search by name. -->
                 <div class="guest-pane is-active" data-guest-pane="linked">
-                    <div class="field">
-                        <label>Search player</label>
-                        <input type="text" placeholder="Type a name…">
-                        <span class="hint">Players from teams other than the anchor team. Pick to add.</span>
+                    <div class="field-grid">
+                        <div class="field">
+                            <label>Team</label>
+                            <select id="guest-team-filter">
+                                <option value="" selected>All other teams</option>
+                                <option value="hedel-jo14">Hedel JO14</option>
+                                <option value="hedel-jo15">Hedel JO15</option>
+                                <option value="texel-jo13">Texel JO13</option>
+                                <option value="denhelder-jo13">Den Helder JO13</option>
+                            </select>
+                            <span class="hint">Anchor team (Hedel JO13) is excluded automatically.</span>
+                        </div>
+                        <div class="field">
+                            <label for="guest-search">Search player</label>
+                            <input type="text" id="guest-search" placeholder="Type a name…">
+                            <span class="hint">Pick a result to add.</span>
+                        </div>
                     </div>
-                    <ul class="guest-search-results">
-                        <li><span class="pname">Milan ten Have</span><span class="pteam">Texel JO13</span></li>
-                        <li><span class="pname">Joep Verhoeven</span><span class="pteam">Hedel JO14</span></li>
-                        <li><span class="pname">Niels Bakker</span><span class="pteam">Hedel JO14</span></li>
-                        <li><span class="pname">Pim Smits</span><span class="pteam">Den Helder JO13</span></li>
+                    <ul class="guest-search-results" id="guest-results">
+                        <li data-team="texel-jo13"><span class="pname">Milan ten Have</span><span class="pteam">Texel JO13</span></li>
+                        <li data-team="hedel-jo14"><span class="pname">Joep Verhoeven</span><span class="pteam">Hedel JO14</span></li>
+                        <li data-team="hedel-jo14"><span class="pname">Niels Bakker</span><span class="pteam">Hedel JO14</span></li>
+                        <li data-team="denhelder-jo13"><span class="pname">Pim Smits</span><span class="pteam">Den Helder JO13</span></li>
+                        <li data-team="hedel-jo15"><span class="pname">Ruben de Boer</span><span class="pteam">Hedel JO15</span></li>
+                        <li data-team="hedel-jo15"><span class="pname">Finn Klaassen</span><span class="pteam">Hedel JO15</span></li>
                     </ul>
+                    <p class="hint" style="margin:6px 0 0;" data-guest-empty hidden>No players match. Try a different team or clear the search.</p>
                     <div class="field" style="margin-top:14px;">
                         <label>Eligible positions</label>
                         <div class="positions" style="justify-content:flex-start;">
@@ -1611,6 +1627,32 @@ document.querySelectorAll('.guest-search-results li').forEach(function (li) {
         if (guestModal) guestModal.classList.remove('is-open');
     });
 });
+
+// Linked-guest filter — team dropdown + name search both narrow the result list
+(function () {
+    var teamSel  = document.getElementById('guest-team-filter');
+    var nameInp  = document.getElementById('guest-search');
+    var results  = document.getElementById('guest-results');
+    var emptyMsg = document.querySelector('[data-guest-empty]');
+    if (!teamSel || !nameInp || !results) return;
+
+    function filter() {
+        var team = teamSel.value;
+        var q    = nameInp.value.trim().toLowerCase();
+        var shown = 0;
+        results.querySelectorAll('li').forEach(function (li) {
+            var teamMatch = !team || li.getAttribute('data-team') === team;
+            var nameMatch = !q || (li.querySelector('.pname').textContent || '').toLowerCase().indexOf(q) >= 0;
+            var visible = teamMatch && nameMatch;
+            li.style.display = visible ? '' : 'none';
+            if (visible) shown++;
+        });
+        if (emptyMsg) emptyMsg.hidden = shown > 0;
+    }
+
+    teamSel.addEventListener('change', filter);
+    nameInp.addEventListener('input', filter);
+})();
 
 // Position chips — toggle .is-active
 document.querySelectorAll('.pos-chip').forEach(function (chip) {
