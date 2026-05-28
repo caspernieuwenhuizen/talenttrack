@@ -630,10 +630,86 @@ class TeamDevelopmentRestController {
             (array) ( $bp['slots'] ?? [] ),
             $primary_lineup
         );
+
+        // #953 — surface the full ref shape (player / guest / custom) on
+        // the GET payload so a future SaaS front end can render every
+        // tier cell without a second round-trip. Plain `assignments`
+        // stays as the legacy `slot → tier → player_id` map for callers
+        // that only need the primary-tier-player lineup (chemistry,
+        // share-link view).
+        $bp['assignment_refs'] = self::hydrateAssignmentRefs( $repo->loadAssignmentRefs( $id ) );
+
         return RestResponse::success( [
             'blueprint'           => $bp,
             'blueprint_chemistry' => $blueprint_chemistry,
         ] );
+    }
+
+    /**
+     * #953 — denormalise repository-shaped assignment refs into a
+     * display-ready map for the front end. Adds `display_name`,
+     * `team_id`, `team_name` to player refs; passes guest / custom
+     * through with `display_name` resolved from the on-row fields.
+     *
+     * @param array<string, array<string, array<string,mixed>>> $refs
+     *   `slot_label → tier → ref` from `loadAssignmentRefs()`.
+     *
+     * @return array<string, array<string, array<string,mixed>>>
+     *   Same shape; each ref grows `display_name` (+ `team_id` / `team_name`
+     *   on player kinds).
+     */
+    private static function hydrateAssignmentRefs( array $refs ): array {
+        if ( empty( $refs ) ) return $refs;
+
+        // Collect every player_id across all cells so we can do one
+        // bulk lookup for name + team rather than N small ones.
+        $player_ids = [];
+        foreach ( $refs as $tiers ) {
+            foreach ( $tiers as $ref ) {
+                if ( ( $ref['kind'] ?? '' ) === 'player' && (int) ( $ref['player_id'] ?? 0 ) > 0 ) {
+                    $player_ids[ (int) $ref['player_id'] ] = true;
+                }
+            }
+        }
+
+        $player_meta = [];
+        if ( ! empty( $player_ids ) ) {
+            global $wpdb; $p = $wpdb->prefix;
+            $in = implode( ',', array_map( 'intval', array_keys( $player_ids ) ) );
+            $rows = $wpdb->get_results(
+                "SELECT p.id, p.first_name, p.last_name, p.team_id, t.name AS team_name
+                   FROM {$p}tt_players p
+                   LEFT JOIN {$p}tt_teams t ON t.id = p.team_id
+                  WHERE p.id IN ($in)"
+            );
+            foreach ( (array) $rows as $row ) {
+                $player_meta[ (int) $row->id ] = [
+                    'display_name' => trim( (string) $row->first_name . ' ' . (string) $row->last_name ),
+                    'team_id'      => $row->team_id !== null ? (int) $row->team_id : null,
+                    'team_name'    => $row->team_name !== null ? (string) $row->team_name : null,
+                ];
+            }
+        }
+
+        $out = [];
+        foreach ( $refs as $slot_label => $tiers ) {
+            foreach ( $tiers as $tier => $ref ) {
+                $kind = (string) ( $ref['kind'] ?? '' );
+                if ( $kind === 'player' ) {
+                    $pid  = (int) ( $ref['player_id'] ?? 0 );
+                    $meta = $player_meta[ $pid ] ?? null;
+                    $ref['display_name'] = $meta['display_name'] ?? '';
+                    $ref['team_id']      = $meta['team_id']      ?? null;
+                    $ref['team_name']    = $meta['team_name']    ?? null;
+                } elseif ( $kind === 'guest' ) {
+                    $ref['display_name'] = (string) ( $ref['name'] ?? '' );
+                } elseif ( $kind === 'custom' ) {
+                    $ref['display_name'] = (string) ( $ref['label'] ?? '' );
+                }
+                $out[ (string) $slot_label ][ (string) $tier ] = $ref;
+            }
+        }
+        return $out;
     }
 
     public static function update_blueprint( \WP_REST_Request $r ): \WP_REST_Response {

@@ -32016,6 +32016,92 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+# v4.4.0 — Blueprint editor depth-chart UI (#953)
+msgid "Blueprint saved."
+msgstr "Blauwdruk opgeslagen."
+
+#, php-format
+msgid "Tier-1 unassigned on: %s — chemistry score skips these slots."
+msgstr "Tier-1 niet ingevuld op: %s — chemiescore slaat deze posities over."
+
+#, php-format
+msgid "%s — roster"
+msgstr "%s — selectie"
+
+msgid "Drag a player onto a slot, or click a slot to pick from the list."
+msgstr "Sleep een speler op een positie, of klik een positie om uit de lijst te kiezen."
+
+msgid "+ Add cross-team / guest / custom"
+msgstr "+ Toevoegen ander team / gast / aangepast"
+
+msgid "Other team"
+msgstr "Ander team"
+
+msgid "— pick a player —"
+msgstr "— kies een speler —"
+
+msgid "Add to roster"
+msgstr "Toevoegen aan selectie"
+
+msgid "Add custom"
+msgstr "Aangepast toevoegen"
+
+msgid "Guest name"
+msgstr "Naam gast"
+
+msgid "Guest name (e.g. visiting trialist)"
+msgstr "Naam gast (bv. proefspeler op bezoek)"
+
+msgid "Position (optional, e.g. ST)"
+msgstr "Positie (optioneel, bv. ST)"
+
+msgid "Custom label"
+msgstr "Aangepast label"
+
+msgid "Custom label (e.g. \"Scout target #4\")"
+msgstr "Aangepast label (bv. \"Scoutdoel #4\")"
+
+msgid "Pitch"
+msgstr "Veld"
+
+msgid "Clear all slots"
+msgstr "Maak alle posities leeg"
+
+msgid "cross-team"
+msgstr "ander team"
+
+msgid "guest"
+msgstr "gast"
+
+msgid "custom"
+msgstr "aangepast"
+
+msgid "player"
+msgstr "speler"
+
+#, php-format
+msgid "Pick a player for tier %s"
+msgstr "Kies een speler voor tier %s"
+
+msgid "No players match."
+msgstr "Geen spelers gevonden."
+
+#, php-format
+msgid "×%d on pitch"
+msgstr "×%d op het veld"
+
+msgid "Pick a team and a player."
+msgstr "Kies een team en een speler."
+
+msgid "That player is already on the roster."
+msgstr "Die speler staat al in de selectie."
+
+msgid "Custom label is required."
+msgstr "Aangepast label is verplicht."
+
+msgid "Clear every slot on this blueprint? This cannot be undone."
+msgstr "Alle posities op deze blauwdruk leegmaken? Dit kan niet ongedaan worden gemaakt."
+
 #~ msgid ""
 #~ "No TalentTrack record needed. Fill in the basics; you can promote this "
 #~ "guest to a real player later."
@@ -33050,9 +33136,6 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Please pick a player, a track, and start/end dates."
 #~ msgstr "Kies een speler, een traject en start- en einddatum."
-
-#~ msgid "— pick a player —"
-#~ msgstr "— kies een speler —"
 
 #~ msgid "— pick a staff member —"
 #~ msgstr "— kies een staflid —"
