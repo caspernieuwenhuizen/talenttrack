@@ -32,14 +32,14 @@ final class BasicsStep implements WizardStepInterface {
         ) );
 
         echo '<div class="tt-tournament-wizard">';
-        echo '<p class="ttw-step-desc">' . esc_html__( 'The headline information about the tournament. Anchor team is the club's team that's playing — all other matches are vs. opponents.', 'talenttrack' ) . '</p>';
+        echo '<p class="ttw-step-desc">' . esc_html__( 'The headline information about the tournament. Anchor team is the club team that is playing — all other matches are vs. opponents.', 'talenttrack' ) . '</p>';
         echo '<div class="ttw-card">';
         echo '<div class="ttw-field-grid">';
 
         echo '<div class="ttw-field ttw-field--full">';
         echo '<label for="ttw-tour-name">' . esc_html__( 'Tournament name', 'talenttrack' ) . ' <span class="ttw-req">*</span></label>';
         echo '<input type="text" id="ttw-tour-name" name="tournament_name" required value="' . esc_attr( (string) ( $state['name'] ?? '' ) ) . '">';
-        echo '<span class="ttw-hint">' . esc_html__( 'Shows on the planner page and on every match's title.', 'talenttrack' ) . '</span>';
+        echo '<span class="ttw-hint">' . esc_html__( 'Shows on the planner page and on every match title.', 'talenttrack' ) . '</span>';
         echo '</div>';
 
         echo '<div class="ttw-field">';
@@ -52,7 +52,7 @@ final class BasicsStep implements WizardStepInterface {
             echo '<option value="' . esc_attr( (string) $t->id ) . '" ' . $sel . '>' . esc_html( (string) $t->name ) . '</option>';
         }
         echo '</select>';
-        echo '<span class="ttw-hint">' . esc_html__( 'Format (7v7 / 9v9 / 11v11) is inferred from the team's age group.', 'talenttrack' ) . '</span>';
+        echo '<span class="ttw-hint">' . esc_html__( 'Format (7v7 / 9v9 / 11v11) is inferred from the team age group.', 'talenttrack' ) . '</span>';
         echo '</div>';
 
         echo '<div class="ttw-field">';

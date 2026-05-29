@@ -83,7 +83,7 @@ final class SquadStep implements WizardStepInterface {
         $position_codes = self::positionCodes();
 
         echo '<div class="tt-tournament-wizard">';
-        echo '<p class="ttw-step-desc">' . esc_html__( 'Tick the players in the squad and mark which specific positions each can play. Trial players are unchecked by default — tick them only if they're joining.', 'talenttrack' ) . '</p>';
+        echo '<p class="ttw-step-desc">' . esc_html__( 'Tick the players in the squad and mark which specific positions each can play. Trial players are unchecked by default — tick them only if they are joining.', 'talenttrack' ) . '</p>';
         echo '<div class="ttw-card" data-ttw-squad>';
 
         // Toolbar — search + count + Mark-all-present.
