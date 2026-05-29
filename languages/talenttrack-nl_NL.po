@@ -33831,8 +33831,7 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid ""
 #~ "Enrollment is a 4-step wizard (intro, scan QR, verify a first code, save "
-#~ "bnl_NL: applied=21 missed=0
-ackup codes). The wizard ships in v3.98.3 — until then this tab is "
+#~ "backup codes). The wizard ships in v3.98.3 — until then this tab is "
 #~ "informational only."
 #~ msgstr ""
 #~ "Aanmelden is een wizard met 4 stappen (intro, QR scannen, eerste code "
