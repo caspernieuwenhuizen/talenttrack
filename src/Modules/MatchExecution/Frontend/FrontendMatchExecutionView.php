@@ -3,6 +3,7 @@ namespace TT\Modules\MatchExecution\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Enums\MatchExecutionState;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\MatchExecution\Repositories\MatchExecutionRepository;
@@ -125,7 +126,7 @@ class FrontendMatchExecutionView extends FrontendViewBase {
 
         $home_score = $execution ? (int) $execution->home_score : 0;
         $away_score = $execution ? (int) $execution->away_score : 0;
-        $state      = $execution ? (string) $execution->state : 'not_started';
+        $state      = $execution ? (string) $execution->state : MatchExecutionState::NOT_STARTED;
 
         $session_date = (string) ( $activity->session_date ?? '' );
         $kickoff      = (string) ( $activity->kickoff_time ?? '' );

@@ -1,48 +1,46 @@
-# TalentTrack v4.12.5 — Vocabulary constants for reports + journey + scouting (PR-set 5 of #988)
+# TalentTrack v4.12.6 — Vocabulary constants for tournament + match + MatchExecutionState (PR-set 6 of #988)
 
-Fifth of eight PR-sets in the umbrella migration of #988 (~131 hardcoded vocabulary string literals -> typed constants under `TT\Domain\Vocabularies\*`). PR-set 1 (attendance + activity) shipped in v4.11.1; PR-set 2 (goals + tasks) in v4.12.3; this ship covers the report / journey / scouting vocabularies. Same architectural pattern, same backward-compat allowlist, same patch-bump rhythm.
+Sixth of eight PR-sets in the umbrella migration of #988 (~131 hardcoded vocabulary string literals -> typed constants under `TT\Domain\Vocabularies\*`). PR-set 1 (attendance + activity) shipped in v4.11.1; PR-set 2 (goals + tasks) shipped in v4.12.3; this ship covers the tournament-side lookup vocabularies AND consolidates the match-execution state values into the first `Vocabularies\Enums\*` class per the umbrella's locked architectural split. Same architectural pattern, same backward-compat allowlist, same patch-bump rhythm.
 
 ## What ships
 
-**PHP - new vocabulary classes**
+**PHP - new vocabulary classes (Lookups)**
 
-- `src/Domain/Vocabularies/Lookups/JourneyEventType.php` (new) — fifteen lowercase snake_case constants for `tt_player_events.event_type` per the migration 0037 seed (fourteen v1 canonical types: `JOINED_ACADEMY`, `TRIAL_STARTED`, `TRIAL_ENDED`, `SIGNED`, `RELEASED`, `GRADUATED`, `TEAM_CHANGED`, `AGE_GROUP_PROMOTED`, `POSITION_CHANGED`, `INJURY_STARTED`, `INJURY_ENDED`, `EVALUATION_COMPLETED`, `PDP_VERDICT_RECORDED`, `NOTE_ADDED`) plus `GOAL_SET` (emitted by `JourneyEventSubscriber::on_goal_saved` via the `tt_goal_saved` hook). Mirrors the PR-set 1 file shape (`const ALL` + static `isValid()`).
-- `src/Domain/Vocabularies/Lookups/ScoutingVisitStatus.php` (new) — three lowercase constants for `tt_scouting_plan_visits.status`: `PLANNED`, `COMPLETED`, `CANCELLED`.
-- `src/Domain/Vocabularies/Lookups/ScheduledReportFrequency.php` (new) — three lowercase constants for `tt_scheduled_reports.frequency`: `WEEKLY_MONDAY`, `MONTHLY_FIRST`, `SEASON_END`. Strings (rather than integers) so a future per-club calendar can extend without a schema migration; migration 0075 documents the three v1 values.
-- `src/Domain/Vocabularies/Lookups/ScheduledReportStatus.php` (new) — three lowercase constants for `tt_scheduled_reports.status`: `ACTIVE`, `PAUSED`, `ARCHIVED`.
-- `src/Domain/Vocabularies/Lookups/ReportAudienceType.php` (new) — eight lowercase constants for `tt_player_reports.audience`: `STANDARD`, `PARENT_MONTHLY`, `INTERNAL_DETAILED`, `PLAYER_PERSONAL`, `SCOUT`, `TRIAL_ADMITTANCE`, `TRIAL_DENIAL_FINAL`, `TRIAL_DENIAL_ENCOURAGEMENT`. Mirrors the eight values already centralised in `Modules\Reports\AudienceType` as the cross-module canonical reference.
+- `src/Domain/Vocabularies/Lookups/TournamentFormation.php` (new) — eight constants for `tt_tournaments.default_formation` and `tt_tournament_matches.formation`. Backs the `tournament_formation` lookup seeded by migration 0098 in canonical hyphen-numeric form: `F_4_3_3` (`1-4-3-3`), `F_4_4_2` (`1-4-4-2`), `F_3_4_3` (`1-3-4-3`), `F_3_5_2` (`1-3-5-2`), `F_4_2_3_1` (`1-4-2-3-1`), `F_2_3_2` (`1-2-3-2`), `F_2_3_1` (`1-2-3-1`), `F_1_3_1` (`1-1-3-1`). Mirrors the PR-set 1 file shape (`const ALL` + static `isValid()`).
+- `src/Domain/Vocabularies/Lookups/TournamentOpponentLevel.php` (new) — four constants for `tt_tournament_matches.opponent_level` in lowercase snake_case: `WEAKER`, `EQUAL`, `STRONGER`, `MUCH_STRONGER`. Each row's meta colour drives the visible pill on the match card.
+- `src/Domain/Vocabularies/Lookups/CompetitionType.php` (new) — five constants for the `competition_type` lookup seeded by migration 0013 (`League`, `Cup`) and extended via `LookupCanonicalSeeds` (`Tournament`, `Friendly`, `Indoor`). Stored as TitleCase per the original `competition-type` lookup convention.
 
-**PHP - literal -> constant replacements**
+**PHP - new vocabulary class (Enums) — first of the code-only sub-namespace**
 
-- `src/Infrastructure/Journey/JourneyEventSubscriber.php` — every `EventEmitter::emit()` positional second-arg literal across `on_evaluation_saved` / `on_goal_saved` / `on_pdp_verdict_signed_off` / `on_player_created` / `on_player_save_diff` / `on_trial_started` / `on_trial_decision_recorded` / `emitStatusTransition` / `emitTeamChange` flows now binds through the new `JourneyEventType::*` constants. Stored event-type values are byte-identical to the previous release.
-- `src/Infrastructure/Journey/JourneyBackfillService.php` — the same flows from the rebuild service (`backfillEvaluations` / `backfillPdpVerdicts` / `backfillGoals` / `backfillPlayersJoined` / `backfillTrials`) bind through the new constants.
-- `src/Infrastructure/Journey/InjuryRepository.php` — the `injury_started` + `injury_ended` emits bind through the new constants.
-- `src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php` — pill colour map keys, the list-row status-key default, and the form-mode status default bind through `ScoutingVisitStatus::PLANNED|COMPLETED|CANCELLED`.
-- `src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php` — the detail-row status default binds through `ScoutingVisitStatus::PLANNED`.
+- `src/Domain/Vocabularies/Enums/MatchExecutionState.php` (new) — five constants for the live-match state machine stored in `tt_match_execution.state`: `NOT_STARTED`, `FIRST_HALF`, `HALF_TIME`, `SECOND_HALF`, `FINISHED`. Adds a `LIVE` subset constant (`FIRST_HALF`, `HALF_TIME`, `SECOND_HALF`) and an `isLive()` helper for the coach-hero "Resume match" lookup. This is the first class in `Vocabularies\Enums\*` (code-only; not operator-editable via the lookups admin) per the umbrella's locked sub-namespace split.
 
-**PHP - backward-compat aliases**
+**PHP - MatchExecutionState consolidation per #988's locked decisions**
 
-- `src/Modules/Prospects/Repositories/ScoutingVisitsRepository.php` — `STATUS_PLANNED` / `STATUS_COMPLETED` / `STATUS_CANCELLED` alias the new vocabulary constants. Every existing internal caller (`ProspectsModule`, `ScoutingVisitsRestController`, `FrontendScoutingPlanView`, etc.) continues to compile and produce the same stored value.
-- `src/Modules/Analytics/ScheduledReportsRepository.php` — `FREQUENCY_WEEKLY_MONDAY` / `FREQUENCY_MONTHLY_FIRST` / `FREQUENCY_SEASON_END` and `STATUS_ACTIVE` / `STATUS_PAUSED` / `STATUS_ARCHIVED` alias the new vocabulary constants. `FrontendScheduledReportsView` and `ScheduledReportsActionHandlers` continue to call the repository constants unchanged.
-- `src/Modules/Reports/AudienceType.php` — eight constants alias the new `ReportAudienceType::*` constants. `PlayerReportRenderer`, `AudienceDefaults`, `ScoutDelivery`, `ReportConfig`, `ScoutReportsRepository`, and `FrontendScoutMyPlayersView` continue to call `AudienceType::*` unchanged. The Reports-module-local label / describe / `trialLetters` helpers stay in place.
+- `src/Modules/MatchExecution/Repositories/MatchExecutionRepository.php` — introduces five deprecated `STATE_*` constants (`STATE_NOT_STARTED`, `STATE_FIRST_HALF`, `STATE_HALF_TIME`, `STATE_SECOND_HALF`, `STATE_FINISHED`) that alias `MatchExecutionState::*`. Per the umbrella's locked plan, the aliases stay one release as a backward-compatibility shim and are removed in the next minor. Existing internal callers that reference the literal continue to work; new code should reference `MatchExecutionState::*` directly. Also replaces the `'not_started'` literal in `ensureForActivity()` with the constant.
+- `src/Modules/MatchExecution/Rest/MatchExecutionRestController.php` — replaces the four `'first_half'` / `'second_half'` / `'half_time'` / `'finished'` literals on the half-lifecycle transitions (`start_half`, `end_half`, `finish`) with the new `MatchExecutionState::*` constants. REST endpoint payload values remain byte-identical.
+- `src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php` — replaces the `'not_started'` literal in the fallback-state expression with `MatchExecutionState::NOT_STARTED`.
+- `src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php` — replaces the three `'first_half'` / `'second_half'` / `'half_time'` literals in `liveMinuteLabel()` with `MatchExecutionState::*` constants.
 
 **Out of scope for this PR-set**
 
-- SQL string literals, migration data, .po / .pot files, test fixtures, and JavaScript stay as literals per the umbrella's locked plan.
-- The Reports module's `AudienceType` carries the canonical label / describe helpers; those stay there because they bind to Reports-side gettext strings and the lookup-translator path, not to the vocabulary surface.
+- The two SQL string literal call sites in `MatchExecutionRepository` (`AND e.state IN ('first_half','half_time','second_half')` and `AND ( e.state IS NULL OR e.state = 'not_started' )`) stay as literals per the umbrella's locked plan — DB is the source of truth.
+- The tournament lookups are pure data-driven (loaded via `QueryHelpers::get_lookup_names()` for the wizard + match-add form); the new constants classes document the canonical English seeded vocabulary for code-side comparisons without altering the operator-editable surface.
+- `tt_lookups` seed values, migrations, .po / .pot files, test fixtures, and JavaScript stay as literals per the spec.
 
 ## Why patch
 
-PR-set 5 of 8 in a refactor umbrella. No new feature, no behaviour change, no schema migration. The constants are byte-equivalent to the literals they replace; the REST endpoints continue to accept BOTH the raw literal AND the new constant for one release (per #988's backward-compat allowlist) so external integrations do not break. The PHPStan rule (#988 PR-set 8) that will forbid raw literals is deferred until the allowlist drops in a subsequent minor.
+PR-set 6 of 8 in a refactor umbrella. No new feature, no behaviour change, no schema migration. The constants are byte-equivalent to the literals they replace; the REST endpoints continue to accept BOTH the raw literal AND the new constant for one release (per #988's backward-compat allowlist) so external integrations do not break. The deprecated `STATE_*` aliases on `MatchExecutionRepository` keep any internal callers green while the next minor performs the removal. The PHPStan rule (#988 PR-set 8) that will forbid raw literals is deferred until the allowlist drops in a subsequent minor.
 
 ## Test plan
 
-- Save an evaluation, save a goal, sign off a PDP verdict, create a player, change a player's team / position / age-group / status, start a trial, record a trial decision — each path emits the correct `tt_player_events.event_type` byte-for-byte unchanged from v4.12.4.
-- Trigger `JourneyBackfillService::rebuildAll()` from the demo-data admin — the rebuilt event types match the migration-0037 seed values.
-- Log an injury via `InjuryRepository::create()`; set `actual_return` — `injury_started` then `injury_ended` rows appear with byte-identical event-type values.
-- Open `?tt_view=scouting-visits`: list rows show the planned/completed/cancelled status pills coloured blue/green/red as before; the form's default visit status is `planned`. Open `?tt_view=scouting-visit&id=N`: the detail view's status pill renders the stored value.
-- Open `?tt_view=scheduled-reports`: the frequency dropdown lists `Weekly (Monday morning)` / `Monthly (first day)` / `Season end (1 July)` with the same `weekly_monday` / `monthly_first` / `season_end` `<option value>` attributes; pause / resume / archive flips a schedule between `active` / `paused` / `archived` correctly; the cron picks up `active` schedules whose `next_run_at` is past.
-- Render a report at each of the eight audience values via `PlayerReportRenderer::render( $player_id, AudienceType::SCOUT )` etc. — every path keeps its canonical English label + description + (for the trial-letter audiences) `trialLetters()` membership check.
+- Coach starts a half (1 or 2) from the live-match surface: execution row stores `state = 'first_half'` or `'second_half'`; REST response carries the same value as before.
+- Coach ends a half: state moves to `'half_time'` (half 1) or `'finished'` (half 2); same byte values as previous release.
+- Coach finishes the match via the explicit Finish endpoint: state moves to `'finished'`; activity row flips to `activity_status_key = 'completed'`.
+- Coach-hero "Resume match" CTA on the dashboard: `findLiveForTeams()` query returns the same rows as before (`state IN ('first_half','half_time','second_half')` literal SQL stays unchanged).
+- Coach-hero "Start match" CTA: `findStartableForTeams()` query returns the same rows as before (`state IS NULL OR state = 'not_started'` literal SQL stays unchanged).
+- New live-match row insert via `ensureForActivity()`: stores `state = 'not_started'`.
+- Live-minute label on the coach hero: `'1e 23\''` / `'HT'` / `'2e 67\''` render exactly as before.
+- Pre-existing callers (if any) using the new deprecated `MatchExecutionRepository::STATE_*` aliases compile and produce the same stored value as the literal they replaced.
 
 ---
 

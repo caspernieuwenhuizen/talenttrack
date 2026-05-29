@@ -3,6 +3,7 @@ namespace TT\Modules\PersonaDashboard\Widgets;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Enums\MatchExecutionState;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\MatchExecution\Repositories\MatchExecutionRepository;
 use TT\Modules\PersonaDashboard\Domain\AbstractWidget;
@@ -298,19 +299,19 @@ class MarkAttendanceHeroWidget extends AbstractWidget {
         $pause_second = (int) ( $row->second_half_pause_seconds ?? 0 );
         $now_ts = current_time( 'timestamp', true ); // UTC
 
-        if ( $state === 'first_half' ) {
+        if ( $state === MatchExecutionState::FIRST_HALF ) {
             $start = strtotime( (string) ( $row->first_half_started_at ?? '' ) . ' UTC' );
             if ( $start === false ) return '';
             $elapsed = max( 0, $now_ts - $start - $pause_first );
             return self::formatMinute( 1, (int) floor( $elapsed / 60 ) );
         }
-        if ( $state === 'second_half' ) {
+        if ( $state === MatchExecutionState::SECOND_HALF ) {
             $start = strtotime( (string) ( $row->second_half_started_at ?? '' ) . ' UTC' );
             if ( $start === false ) return '';
             $elapsed = max( 0, $now_ts - $start - $pause_second );
             return self::formatMinute( 2, (int) floor( $elapsed / 60 ) );
         }
-        if ( $state === 'half_time' ) {
+        if ( $state === MatchExecutionState::HALF_TIME ) {
             return __( 'HT', 'talenttrack' );
         }
         return '';
