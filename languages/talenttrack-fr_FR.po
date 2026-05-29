@@ -26833,106 +26833,121 @@ msgstr ""
 #: src/Shared/Frontend/FrontendConfigurationView.php:150
 #: src/Shared/Frontend/FrontendConfigurationView.php:247
 msgid "Player values"
-msgstr ""
+msgstr "Valeurs du joueur"
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:150
 msgid ""
 "Player virtues used as PDP goal links: Commitment, Coachability, Resilience, "
 "etc."
 msgstr ""
+"Vertus du joueur utilisées comme liens d'objectifs de PDI : Engagement, "
+"Réceptivité au coaching, Résilience, etc."
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:155
 #: src/Shared/Frontend/FrontendConfigurationView.php:252
 msgid "Activity statuses"
-msgstr ""
+msgstr "Statuts d'activité"
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:155
 msgid ""
 "Draft / scheduled / conducted. Colour-coded pills on the activities list."
 msgstr ""
+"Brouillon / planifiée / menée. Pastilles colorées sur la liste des activités."
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:156
 #: src/Shared/Frontend/FrontendConfigurationView.php:253
 msgid "Certification types"
-msgstr ""
+msgstr "Types de certification"
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:156
 msgid ""
 "Staff certifications (UEFA-A/B/C, First aid, GDPR awareness, Child "
 "safeguarding, …)."
 msgstr ""
+"Certifications du personnel (UEFA-A/B/C, Premiers secours, Sensibilisation "
+"RGPD, Protection de l'enfance, …)."
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:157
 #: src/Shared/Frontend/FrontendConfigurationView.php:254
 msgid "Tournament formations"
-msgstr ""
+msgstr "Formations de tournoi"
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:157
 msgid "Formations selectable when configuring a tournament (4-3-3, 3-5-2, …)."
-msgstr ""
+msgstr "Formations sélectionnables lors de la configuration d'un tournoi (4-3-3, 3-5-2, …)."
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:158
 #: src/Shared/Frontend/FrontendConfigurationView.php:255
 msgid "Opponent levels"
-msgstr ""
+msgstr "Niveaux d'adversaire"
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:158
 msgid "Opponent strength buckets selectable on tournament setup."
-msgstr ""
+msgstr "Catégories de force d'adversaire sélectionnables lors de la configuration du tournoi."
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:159
 #: src/Shared/Frontend/FrontendConfigurationView.php:256
 msgid "Behaviour ratings"
-msgstr ""
+msgstr "Notes de comportement"
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:159
 msgid ""
 "Concerning … Exemplary. Labels for the player behaviour card and evaluation "
 "review."
 msgstr ""
+"Préoccupant … Exemplaire. Étiquettes pour la fiche de comportement du "
+"joueur et l'examen d'évaluation."
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:160
 #: src/Shared/Frontend/FrontendConfigurationView.php:257
 msgid "Potential bands"
-msgstr ""
+msgstr "Bandes de potentiel"
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:160
 msgid ""
 "Far below club level … Elite potential. Drives the player potential card."
 msgstr ""
+"Très en dessous du niveau du club … Potentiel élite. Alimente la fiche de "
+"potentiel du joueur."
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:161
 #: src/Shared/Frontend/FrontendConfigurationView.php:258
 msgid "Journey event types"
-msgstr ""
+msgstr "Types d'événement du parcours"
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:161
 msgid ""
 "Trial / signing / promotion / release / graduation. Tags player timeline "
 "events."
 msgstr ""
+"Essai / signature / promotion / libération / fin de formation. Marque les "
+"événements de la chronologie du joueur."
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:162
 #: src/Shared/Frontend/FrontendConfigurationView.php:259
 msgid "Competition types"
-msgstr ""
+msgstr "Types de compétition"
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:162
 msgid ""
 "Competition categories (league, cup, friendly, tournament, …) used by match "
 "pickers."
 msgstr ""
+"Catégories de compétition (championnat, coupe, amical, tournoi, …) "
+"utilisées par les sélecteurs de match."
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:167
 #: src/Shared/Frontend/FrontendConfigurationView.php:265
 msgid "Invitation statuses"
-msgstr ""
+msgstr "Statuts d'invitation"
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:167
 msgid ""
 "Pending / accepted / expired / revoked — what the invitations list shows per "
 "row."
 msgstr ""
+"En attente / acceptée / expirée / révoquée — ce que la liste des "
+"invitations affiche par ligne."
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:171
 #: src/Shared/Frontend/FrontendConfigurationView.php:269
@@ -27062,6 +27077,8 @@ msgid ""
 "Pick a lookup category. Values are translatable and feed every dropdown "
 "across the dashboard."
 msgstr ""
+"Choisissez une catégorie de recherche. Les valeurs sont traduisibles et "
+"alimentent chaque menu déroulant du tableau de bord."
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:339
 msgid "All lookups"
