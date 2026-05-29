@@ -313,9 +313,9 @@ body {
     aspect-ratio: 3 / 4;
     margin: 0 auto;
     width: 100%;
-    max-width: 600px;
+    max-width: 880px;
     border: 2px solid var(--pitch-line);
-    overflow: hidden;
+    overflow: visible; /* lets the click-picker dropdown overflow the pitch */
 }
 .pitch::before, .pitch::after {
     content: '';
@@ -422,6 +422,98 @@ body {
     display: none;
 }
 .slot:hover .clear-x { display: inline-flex; align-items: center; justify-content: center; }
+
+/* ---------------------------------------------------------------------------
+   Player picker — opens when a slot is tapped. Mirrors the blueprint
+   editor's dropdown. Filtered to position-eligible players only.
+   --------------------------------------------------------------------------- */
+.picker {
+    position: absolute;
+    z-index: 50;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.22);
+    width: 240px;
+    max-height: 320px;
+    padding: 6px;
+    display: none;
+    flex-direction: column;
+}
+.picker.is-open { display: flex; }
+.picker__head {
+    padding: 6px 8px 4px;
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 4px;
+}
+.picker__search {
+    width: 100%;
+    margin-bottom: 4px;
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font: inherit;
+    font-size: 14px;
+    min-height: 36px;
+}
+.picker__results {
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+}
+.picker__row {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--ink);
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    text-align: left;
+}
+.picker__row:hover { background: #eef3f6; }
+.picker__row .av-mini {
+    flex-shrink: 0;
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: var(--tier1); color: white;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 10px;
+}
+.picker__row-info { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.picker__row-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.picker__row-sub { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.picker__row-fit {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 9px;
+    background: #cfe7da;
+    color: var(--tt-success);
+}
+.picker__clear {
+    width: 100%;
+    text-align: left;
+    padding: 7px 10px;
+    border: 0;
+    background: transparent;
+    color: var(--tt-danger);
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    border-top: 1px solid var(--line);
+    margin-top: 4px;
+}
+.picker__clear:hover { background: rgba(214,54,56,0.08); }
 
 /* ---------------------------------------------------------------------------
    Pairings panel (right)
@@ -532,7 +624,7 @@ body[data-modal="save-bp"] .modal-back { display: flex; }
             Tap a slot to pick an alternative — the picker filters to players eligible for that position type. Score recomputes live.
         </p>
     </header>
-    <section class="toolbar" aria-label="Formation and style controls">
+    <section class="toolbar" aria-label="Formation, style, mode, save">
         <label for="formation-sel">Formation</label>
         <select id="formation-sel">
             <option selected>4-3-3</option>
@@ -547,6 +639,14 @@ body[data-modal="save-bp"] .modal-back { display: flex; }
             <option>High press</option>
             <option>Direct</option>
         </select>
+
+        <div class="seg" role="tablist" aria-label="Mode">
+            <button type="button" data-pick-mode="suggested" aria-pressed="true" class="is-active">Suggested</button>
+            <button type="button" data-pick-mode="override" aria-pressed="false">Override</button>
+        </div>
+
+        <button type="button" class="btn" data-pick-mode="suggested" title="Discard overrides">Reset</button>
+        <button type="button" class="btn primary" data-pick-modal="save-bp">Save as blueprint</button>
     </section>
 </div>
 
@@ -581,21 +681,7 @@ body[data-modal="save-bp"] .modal-back { display: flex; }
     </div>
 </section>
 
-<!-- ============================================================
-     MODE TOOLBAR — Suggested / Override toggle + Reset + Save
-     (Formation + style live in .page-head above with the title.)
-     ============================================================ -->
-<section class="toolbar" aria-label="Mode and save actions">
-    <div class="seg" role="tablist" aria-label="Mode">
-        <button type="button" data-pick-mode="suggested" aria-pressed="true" class="is-active">Suggested</button>
-        <button type="button" data-pick-mode="override" aria-pressed="false">Override</button>
-    </div>
-
-    <span class="spacer"></span>
-
-    <button type="button" class="btn" data-pick-mode="suggested" title="Discard overrides">Reset to suggested</button>
-    <button type="button" class="btn primary" data-pick-modal="save-bp">Save as blueprint</button>
-</section>
+<!-- (Mode toolbar consolidated into .page-head above.) -->
 
 <div class="override-banner" role="status">
     <span><strong>Override mode active.</strong> Tap a slot to open the picker; only position-eligible players appear. Slots showing <span style="color:var(--tt-accent);font-weight:700;">↺</span> are your overrides; everything else is the engine's pick.</span>
@@ -703,29 +789,42 @@ body[data-modal="save-bp"] .modal-back { display: flex; }
             </div>
         </div>
         <div class="pitch">
-            <!-- Chemistry links between paired slots (SVG behind the slots). -->
-            <svg class="links-svg" viewBox="0 0 100 130" preserveAspectRatio="none">
-                <!-- GK-CB pair (strong) -->
-                <line x1="50" y1="118" x2="35" y2="92" stroke="var(--chem-strong)" stroke-width="0.6" />
-                <line x1="50" y1="118" x2="65" y2="92" stroke="var(--chem-strong)" stroke-width="0.6" />
-                <!-- CB-CB (strong) -->
-                <line x1="35" y1="92" x2="65" y2="92" stroke="var(--chem-strong)" stroke-width="0.6" />
-                <!-- LB-CB / RB-CB -->
-                <line x1="14" y1="88" x2="35" y2="92" stroke="var(--chem-neutral)" stroke-width="0.55" />
-                <line x1="86" y1="88" x2="65" y2="92" stroke="var(--chem-neutral)" stroke-width="0.55" />
-                <!-- LB-CB long → mismatch example -->
-                <line x1="14" y1="88" x2="50" y2="62" stroke="var(--chem-mismatch)" stroke-width="0.55" />
-                <!-- CDM-CB pair (strong) -->
-                <line x1="50" y1="62" x2="35" y2="92" stroke="var(--chem-strong)" stroke-width="0.6" />
-                <line x1="50" y1="62" x2="65" y2="92" stroke="var(--chem-strong)" stroke-width="0.6" />
-                <!-- CDM-CM pair -->
-                <line x1="50" y1="62" x2="32" y2="50" stroke="var(--chem-strong)" stroke-width="0.6" />
-                <line x1="50" y1="62" x2="68" y2="50" stroke="var(--chem-neutral)" stroke-width="0.55" />
-                <!-- Forwards -->
-                <line x1="32" y1="50" x2="20" y2="22" stroke="var(--chem-strong)" stroke-width="0.6" />
-                <line x1="68" y1="50" x2="80" y2="22" stroke="var(--chem-strong)" stroke-width="0.6" />
-                <line x1="32" y1="50" x2="50" y2="14" stroke="var(--chem-neutral)" stroke-width="0.55" />
-                <line x1="68" y1="50" x2="50" y2="14" stroke="var(--chem-neutral)" stroke-width="0.55" />
+            <!-- Chemistry links between paired slots.
+                 viewBox 0-100 in both axes matches the slot `left/top`
+                 percentage positioning so lines anchor on slot centres. -->
+            <svg class="links-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <!-- Defensive line — GK to back four -->
+                <line x1="50" y1="90" x2="35" y2="71" stroke="var(--chem-strong)"   stroke-width="0.45" />
+                <line x1="50" y1="90" x2="65" y2="71" stroke="var(--chem-strong)"   stroke-width="0.45" />
+                <line x1="50" y1="90" x2="14" y2="68" stroke="var(--chem-neutral)"  stroke-width="0.4" />
+                <line x1="50" y1="90" x2="86" y2="68" stroke="var(--chem-neutral)"  stroke-width="0.4" />
+                <!-- Back four -->
+                <line x1="35" y1="71" x2="65" y2="71" stroke="var(--chem-strong)"   stroke-width="0.45" />
+                <line x1="14" y1="68" x2="35" y2="71" stroke="var(--chem-neutral)"  stroke-width="0.4" />
+                <line x1="86" y1="68" x2="65" y2="71" stroke="var(--chem-neutral)"  stroke-width="0.4" />
+                <!-- One mismatch example: LB → opposite CB cross-pitch -->
+                <line x1="14" y1="68" x2="65" y2="71" stroke="var(--chem-mismatch)" stroke-width="0.4" />
+                <!-- Full-backs up the channel to wingers -->
+                <line x1="14" y1="68" x2="20" y2="16" stroke="var(--chem-neutral)"  stroke-width="0.4" />
+                <line x1="86" y1="68" x2="80" y2="16" stroke="var(--chem-strong)"   stroke-width="0.45" />
+                <!-- Defensive midfielder ties — CDM to back-four + midfield -->
+                <line x1="50" y1="48" x2="35" y2="71" stroke="var(--chem-strong)"   stroke-width="0.45" />
+                <line x1="50" y1="48" x2="65" y2="71" stroke="var(--chem-strong)"   stroke-width="0.45" />
+                <line x1="50" y1="48" x2="14" y2="68" stroke="var(--chem-neutral)"  stroke-width="0.4" />
+                <line x1="50" y1="48" x2="86" y2="68" stroke="var(--chem-neutral)"  stroke-width="0.4" />
+                <line x1="50" y1="48" x2="32" y2="38" stroke="var(--chem-strong)"   stroke-width="0.45" />
+                <line x1="50" y1="48" x2="68" y2="38" stroke="var(--chem-neutral)"  stroke-width="0.4" />
+                <!-- Midfield three line -->
+                <line x1="32" y1="38" x2="68" y2="38" stroke="var(--chem-neutral)"  stroke-width="0.4" />
+                <!-- Midfield to front three -->
+                <line x1="32" y1="38" x2="20" y2="16" stroke="var(--chem-strong)"   stroke-width="0.45" />
+                <line x1="68" y1="38" x2="80" y2="16" stroke="var(--chem-strong)"   stroke-width="0.45" />
+                <line x1="32" y1="38" x2="50" y2="10" stroke="var(--chem-neutral)"  stroke-width="0.4" />
+                <line x1="68" y1="38" x2="50" y2="10" stroke="var(--chem-strong)"   stroke-width="0.45" />
+                <!-- Front-three triangle -->
+                <line x1="20" y1="16" x2="50" y2="10" stroke="var(--chem-neutral)"  stroke-width="0.4" />
+                <line x1="80" y1="16" x2="50" y2="10" stroke="var(--chem-strong)"   stroke-width="0.45" />
+                <line x1="20" y1="16" x2="80" y2="16" stroke="var(--chem-neutral)"  stroke-width="0.35" />
             </svg>
 
             <!-- GK -->
@@ -807,6 +906,49 @@ body[data-modal="save-bp"] .modal-back { display: flex; }
                 <div class="pos-badge">7</div>
                 <div class="pos-label">RW</div>
                 <div class="player-pill"><span class="av-mini">LDV</span>Lucas</div>
+            </div>
+
+            <!-- Player picker — anchored to a slot when opened. Mirrors
+                 the blueprint editor's picker. Position-eligible players
+                 only; click "Clear slot" to empty the cell. -->
+            <div class="picker" id="player-picker" role="dialog" aria-label="Pick player">
+                <div class="picker__head">Position: CAM · 4 eligible players</div>
+                <input type="text" class="picker__search" placeholder="Search eligible players…">
+                <div class="picker__results">
+                    <button type="button" class="picker__row">
+                        <span class="av-mini">TM</span>
+                        <span class="picker__row-info">
+                            <span class="picker__row-name">Thijs Mulder</span>
+                            <span class="picker__row-sub">#10 · CAM · fit 2.7</span>
+                        </span>
+                        <span class="picker__row-fit">2.7</span>
+                    </button>
+                    <button type="button" class="picker__row">
+                        <span class="av-mini">MP</span>
+                        <span class="picker__row-info">
+                            <span class="picker__row-name">Mees Peters</span>
+                            <span class="picker__row-sub">#8 · CM/CAM</span>
+                        </span>
+                        <span class="picker__row-fit" style="background:#eef0f2;color:var(--muted);">2.0</span>
+                    </button>
+                    <button type="button" class="picker__row">
+                        <span class="av-mini">FK</span>
+                        <span class="picker__row-info">
+                            <span class="picker__row-name">Finn Klaassen</span>
+                            <span class="picker__row-sub">#6 · CDM/CAM</span>
+                        </span>
+                        <span class="picker__row-fit">2.5</span>
+                    </button>
+                    <button type="button" class="picker__row">
+                        <span class="av-mini">SJ</span>
+                        <span class="picker__row-info">
+                            <span class="picker__row-name">Sem Janssen</span>
+                            <span class="picker__row-sub">#14 · MID</span>
+                        </span>
+                        <span class="picker__row-fit" style="background:#fbe5e6;color:var(--tt-danger);">1.5</span>
+                    </button>
+                </div>
+                <button type="button" class="picker__clear">× Clear this slot</button>
             </div>
         </div>
     </section>
@@ -892,6 +1034,61 @@ document.querySelectorAll('[data-pick-modal]').forEach(function (el) {
 document.querySelector('.modal-back').addEventListener('click', function (e) {
     if (e.target === e.currentTarget) setModal('');
 });
+
+// Player picker — opens when a slot is tapped; anchored to the slot's
+// position. Mirrors the blueprint editor's dropdown.
+(function () {
+    var picker = document.getElementById('player-picker');
+    var pitch  = document.querySelector('.pitch');
+    if (!picker || !pitch) return;
+
+    function openPickerForSlot(slot) {
+        // Anchor under the slot's right edge so the dropdown doesn't
+        // obscure the slot itself.
+        var slotRect  = slot.getBoundingClientRect();
+        var pitchRect = pitch.getBoundingClientRect();
+        var left = slotRect.right - pitchRect.left + 6;
+        var top  = slotRect.top   - pitchRect.top;
+        // Keep within pitch horizontally
+        var maxLeft = pitchRect.width - 250;
+        if (left > maxLeft) left = slotRect.left - pitchRect.left - 246;
+        picker.style.left = left + 'px';
+        picker.style.top  = top  + 'px';
+        picker.classList.add('is-open');
+        var search = picker.querySelector('.picker__search');
+        if (search) setTimeout(function () { search.focus(); }, 50);
+    }
+
+    document.querySelectorAll('.slot').forEach(function (slot) {
+        var pill = slot.querySelector('.player-pill');
+        if (!pill) return;
+        pill.addEventListener('click', function (e) {
+            e.stopPropagation();
+            if (picker.classList.contains('is-open')) {
+                picker.classList.remove('is-open');
+                return;
+            }
+            openPickerForSlot(slot);
+        });
+    });
+
+    // Picker row click → close (real impl would write the selection)
+    picker.querySelectorAll('.picker__row, .picker__clear').forEach(function (b) {
+        b.addEventListener('click', function () { picker.classList.remove('is-open'); });
+    });
+
+    // Outside click closes
+    document.addEventListener('click', function (e) {
+        if (!picker.contains(e.target) && !e.target.closest('.slot')) {
+            picker.classList.remove('is-open');
+        }
+    });
+
+    // Escape closes
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') picker.classList.remove('is-open');
+    });
+})();
 </script>
 </body>
 </html>
