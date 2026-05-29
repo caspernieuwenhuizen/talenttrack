@@ -1,66 +1,78 @@
-# TalentTrack v4.11.0 — Lookup admin rework (closes #985)
+# TalentTrack v4.12.0 — Lookup canonical-language drift audit + admin review tool (closes #987)
 
-Bundles four related pilot fixes on the Configuration → lookup-category admin surface into one ship because they all touch the same files. Faithful port of `.local-mockups/lookup-admin/index.html`. The umbrella issue's six open questions were locked 2026-05-29 — this ship implements those decisions, not the questions in the original body.
+Follow-up data fix to v4.11.0's lookup admin rework. The new 5-locale translation grid that shipped in #985 only renders correctly when `tt_lookups.name` carries the stable English internal key and `tt_translations` carries the per-locale display label. On pilot installs the `name` column has drifted into a mixed-language vocabulary (some rows in Dutch, some in lowercase English, some canonical), because earlier operator workflows let admins type anything into `name` and never populated `tt_translations`. This ship is the data fix: the architecture is fine, the data needs to be normalised.
 
-## Friction the rework addresses
+## Pilot symptom
 
-| # | Friction in v4.10.x baseline | Redesign response |
-|---|---|---|
-| 1 | Most lookup rows have no `tt_translations` entries for the supported locales; operator opens a row and sees only the canonical English value with empty translation fields | Migration 0131 backfills `tt_translations` for every existing row across en_US + nl_NL + de_DE + es_ES + fr_FR (en_US from the canonical `name` column; other locales from the loaded .po) |
-| 2 | Save button on the lookup edit form did not trigger a network request, did not show an error, did not reload | The inline IIFE has been extracted into `assets/js/components/lookup-admin.js`; the new module owns the submit listener, POSTs on add and PUTs on edit, surfaces server errors in `[data-tt-lkp-msg]` |
-| 3 | Opening a tile dropped the operator straight into a half-rendered Add-new form on the right pane; they wanted to scan the list first | List-first layout: the default view is a clean list of values, `+ Add value` opens an empty form, clicking a row opens the form populated with that row's data and translations |
-| 4 | On a Dutch install ~half the Configuration tile labels still rendered English because the msgids existed but msgstrs were empty in `nl_NL.po` | Separate `chore(i18n)` commit backfills the missing msgstrs for the ~12 tile labels added in v3.110.201 + v3.110.205-213; same backfill for de_DE / es_ES / fr_FR |
+Opening any lookup category in the Configuration admin shows a vocabulary that is half Dutch, half English: some `name` values were entered as `Aanwezig` / `Wedstrijd` / `K`, others as `present` / `match` / `GK`. Looks unprofessional and inconsistent. The new 5-locale grid from v4.11.0 needs the column to be canonical English for the display layer to work as designed.
 
-## Locked decisions (open questions 2026-05-29)
+## Why this is a data fix, not a schema fix
 
-| # | Question | Decision |
-|---|---|---|
-| 1 | Mobile coverage dots | Shrink to a smaller pill; do not hide |
-| 2 | Coverage dot order | Site-locale first, remaining locales follow |
-| 3 | `/translations/preview` shape | Single bulk call returning all locales in one response (existing endpoint already does this) |
-| 4 | Internal-key edit on existing rows | Disable entirely — once a row is created its `name` is immutable from the admin UI |
-| 5 | Coverage dot meaning | "Name set" only — description is optional and does not gate the dot |
-| 6 | Locked rows | Hide delete only; keep edit click-through |
+The architecture already supports the right contract:
+
+- `tt_lookups.name` is the stable English internal key.
+- `tt_translations` carries per-row, per-locale display labels.
+- `LookupTranslator::name($row)` resolves through translations -> gettext -> raw name.
+
+No schema change is needed. The data drifted; v4.12.0 normalises it under operator control, then v4.11.0's display layer is consistent everywhere.
 
 ## What ships
 
-**PHP** — `src/Shared/Frontend/FrontendConfigurationView.php`
+**PHP** - `src/Modules/Configuration/LookupCanonicalSeeds.php` (new)
 
-- `renderLookupCategoryEditor()` rewritten end-to-end. The old master-detail markup, the inline IIFE, and the inline `masterDetailStyles()` block are deleted. The new function enqueues `assets/css/frontend-lookup-admin.css` + `assets/js/components/lookup-admin.js`, builds a JS config blob (rest_base, nonce, locales, i18n), and delegates rendering to three new helpers: `renderLookupListView()`, `renderLookupFormViews()`, `renderLookupForm()`. The form views are still emitted server-side so a `?edit=N` deep-link still works.
-- `translationTargets()` now returns all five locales **including `en_US`**. Order: site locale first per Q2, then `en_US`, then the remaining installed locales in stable order. The historical `en_US` skip is gone — the `name` column is now framed as an immutable internal key, the canonical English display value lives in `tt_translations`.
+Single source of truth for the canonical English values per `lookup_type`. The map is assembled from every seed migration that has shipped (0001, 0027, 0033, 0037, 0042, 0047, 0048, 0051, 0058, 0060, 0091, 0093, 0098, 0110-0117, 0124). Three callable surfaces:
 
-**PHP** — `src/Infrastructure/REST/LookupsRestController.php`
+- `canonicalFor( $lookup_type )` returns the allowed values list — used by the migration to decide if a row is canonical and by the REST controller to defensively reject typos at accept time.
+- `suggestCanonicalFor( $lookup_type, $current_name )` runs the heuristic chain: direct hit on the Dutch -> English reverse map (built from migration 0060's seed pairs), then case-insensitive match against the canonical list, then whitespace / punctuation forgiveness for drifts like `gk` -> `GK`.
+- `detectLocaleForValue( $lookup_type, $current_name )` picks a plausible source locale for the drifted value: nl_NL for a hit in the reverse map, the site locale for a value containing non-ASCII letters in the Latin Extended-A range, en_US for lowercase-only ASCII drifts.
 
-- `persistTranslations()` accepts `en_US` in the request body. Same `TranslationsRepository::upsert()` chokepoint, same field allowlist, same cap gate.
+**Schema audit** - `database/migrations/0132_lookup_canonical_normalisation.php` (new)
 
-**Schema** — `database/migrations/0131_lookup_translation_seeds.php`
+Walks every row in `tt_lookups`, cross-checks `name` against the canonical map. For every drifted row, writes an entry to `tt_audit_log` with `action = lookup.needs_review`, `entity_type = lookup`, `entity_id = <row id>` and a JSON payload carrying the lookup_type, the current value, the suggested canonical, the detected source locale, and the full canonical option list for the operator to choose from. Idempotent: re-running the migration on an already-audited install skips rows whose entity_id already has an open review entry (no double-logging). The migration never auto-renames anything — every accepted rewrite goes through the human-in-the-loop admin tool. Rows whose `lookup_type` is not in the canonical map are intentionally not flagged (we would rather under-flag than spam operators with rows we cannot suggest a fix for; future migrations can extend the seed map).
 
-- Idempotent. Backfills `tt_translations` rows for every existing `tt_lookups` row x every supported locale via `INSERT IGNORE` against the unique `(club_id, entity_type, entity_id, field, locale)` index.
-- en_US is seeded from `tt_lookups.name` (and `.description` where present). Other locales follow migration 0109's per-locale unload + reload pattern to read `__( $name )` against the right loaded textdomain.
+**Frontend view** - `src/Shared/Frontend/FrontendLookupNormalisationView.php` (new)
 
-**CSS** — `assets/css/frontend-lookup-admin.css` (new)
+Reachable via `?tt_view=lookup-normalisation`. Cap gate `tt_access_frontend_admin` — mirrors `FrontendConfigurationView`'s own gate. Server-rendered queue of pending review rows (filtered via a NOT EXISTS join so resolved rows do not surface). Each card shows the current value, a dropdown of canonical options pre-selected to the migration's suggestion, and a locale dropdown defaulting to the heuristic-detected source. Footer carries Skip + Accept buttons. Mobile-first per CLAUDE.md §2: 360px base, 640px breakpoint, all interactive targets >= 48px tall.
 
-- Mobile-first per CLAUDE.md §2. Scoped to `.tt-lkp-admin` so the rules never leak. Base styles target 360px; 480px and 640px breakpoints scale up.
-- Coverage-dot pill shrinks but stays visible on mobile (Q1). Every interactive target ≥ 48×48 with 8px spacing between adjacent targets. Honours `prefers-reduced-motion`.
+The view's vanilla-JS handler is inline (small enough to inline; the view is admin-rare). On click, posts to the REST controller, swaps the row's class to `is-applied` / `is-skipped` / `is-error`, surfaces the message in a `role="status" aria-live="polite"` slot for screen readers. No JS framework dependency.
 
-**JS** — `assets/js/components/lookup-admin.js` (new)
+**REST** - `src/Infrastructure/REST/LookupNormalisationRestController.php` (new)
 
-- Vanilla JS, no framework. Reads its config from `data-tt-lkp-config` (a JSON blob written by the PHP renderer) so there is no globals leak.
-- Owns view switching, row population, save, delete, translate-from-source, and live coverage-dot repainting.
-- Internal-key input is forced `readonly disabled` on edit per Q4 — no confirm modal needed because the affordance is gone.
+Two endpoints under the existing `talenttrack/v1` namespace:
 
-**i18n** — `languages/talenttrack-{nl_NL,de_DE,es_ES,fr_FR}.po`
+- `POST /lookup-normalisation/{audit_id}/accept` — rewrites `tt_lookups.name` to the chosen canonical (defaults to the migration's suggestion; operator may override via `canonical` body param), and upserts the drifted value as a `tt_translations` entry for the detected or operator-chosen locale (`locale` body param). Defensively rejects canonical values that are not in the per-`lookup_type` allowlist — operator cannot typo a fresh drift back into the column. Writes a follow-up `lookup.normalisation.applied` audit entry.
+- `POST /lookup-normalisation/{audit_id}/skip` — leaves the row as-is. Writes a follow-up `lookup.normalisation.skipped` audit entry.
 
-- Separate `chore(i18n)` commit (per CLAUDE.md ship-along rule). ~12 Configuration tile labels added in v3.110.201 + v3.110.205-213 had empty msgstrs in `nl_NL.po`; backfilled with Dutch translations consistent with the existing vocabulary. The de_DE / es_ES / fr_FR files receive parallel backfills.
+Both endpoints check `current_user_can( 'tt_access_frontend_admin' )` and refuse to act on rows that have already been resolved (idempotent under double-click / replay).
 
-## Backend untouched
+**Configuration tile** - `src/Shared/Frontend/FrontendConfigurationView.php`
 
-Same `LookupsRestController` endpoints + same routes + same cap gates. Same `tt_lookups` schema. Same `tt_translations` schema. Same `DragReorder` wp-admin endpoint for sort-order persistence. Same `?tt_view=configuration&config_sub=lookups&category=<slug>` URL contract; existing deep-links still resolve.
+New "Lookup canonical-language review" tile in the Configuration grid, gated on `tt_access_frontend_admin` AND conditionally rendered only while the pending-count is > 0. Description carries the count via `_n()` so it reads `1 lookup row drifted...` or `12 lookup rows drifted...`. Tile disappears the moment the queue empties.
 
-## Mobile-first per CLAUDE.md §2
+New private helper `pendingLookupDriftCount()` runs the same NOT EXISTS query the view uses, scoped to `CurrentClub::id()`.
 
-Base CSS at 360px viewport. 480px and 640px breakpoints scale up to the desktop list+form layout. Coverage-dot pill shrinks on mobile but stays visible (Q1). Tap targets ≥ 48×48; numeric inputs carry `inputmode`; no hover-only functionality. The new JS module respects keyboard navigation (Enter / Space on a focused row triggers edit, Tab order leads Cancel → Save).
+**Wiring**
 
-Minor bump — operator-visible surface rework + new schema seed migration.
+- `src/Shared/Frontend/DashboardShortcode.php` — `dispatchAdminView()` learns the `lookup-normalisation` slug.
+- `src/Modules/Configuration/ConfigurationModule.php` — registers the new REST controller alongside the existing lookup + audit-log controllers.
 
-Closes #985.
+## What is not in scope
+
+- Hardcoded string literals across the codebase (e.g. `WHERE status = 'pending'`) — that is issue B, filed separately.
+- Renaming integer FK columns — the architecture is fine.
+- Retrofitting v3.x record-creation flows to the wizard pattern (separate forward-only policy per CLAUDE.md §3).
+
+## Version + i18n
+
+- `talenttrack.php`: TT_VERSION 4.7.0 -> 4.12.0; plugin header Version: 4.12.0. (Reconciles the on-disk version constant with the actual ship cadence — v4.11.0's PR landed without bumping the constant.)
+- `readme.txt`: Stable tag 4.7.0 -> 4.12.0; Changelog stanza prepended.
+- `languages/talenttrack-nl_NL.po`: 8 new msgids covering the view's labels + the tile description. No duplicate msgids.
+
+## Definition of done
+
+- Migration runs cleanly on a fresh install (no `tt_lookups` rows -> no-op) and on the pilot install (writes audit rows for every drifted value).
+- Cleanup tool surfaces every flagged row; operator can review + accept or skip.
+- After every accept, the production `tt_lookups.name` is canonical English; the drifted value lives in `tt_translations` for the chosen locale; dashboards render the locale label via the unchanged translator chain.
+- Cap gate honoured: non-admin users get the "not authorized" early-return.
+- Mobile-first: view renders at 360px without horizontal scroll; all interactive targets >= 48px.
+- No schema change beyond audit-log writes.

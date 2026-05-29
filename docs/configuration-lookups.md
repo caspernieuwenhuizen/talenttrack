@@ -78,3 +78,30 @@ The Internal key field on a locked row is also disabled — the same Q4 protecti
 ## REST surface
 
 Every action in this view goes through `/wp-json/talenttrack/v1/lookups/{type}` (POST / PUT / DELETE) with the existing `tt_edit_settings` capability gate. The view is rendered server-side; the JS module composes the network payload and reloads on success. No new REST endpoints; the `/translations/preview` endpoint returns every other installed locale in one bulk response.
+
+## Canonical-language contract (v4.12.0)
+
+The going-forward rule: **`tt_lookups.name` is the stable English internal key**. It is never a translated user-visible string. Operator-visible labels live in `tt_translations` and are rendered through `LookupTranslator::name()` (which falls back to `name` only when no translation is registered).
+
+Practical consequences:
+
+- New rows added via the admin grid: the Internal key field is required; type a lowercase ASCII string with no spaces (e.g. `match`, `training`, `in_progress`).
+- Existing rows: the Internal key field is read-only. To change it, a code migration is required so every `WHERE name = ...` reference across the codebase is updated atomically.
+- Dashboards never read `tt_lookups.name` directly. They go through `LookupTranslator::name($row)`, which resolves via `tt_translations` for the current locale, then the gettext domain, and only as the last-resort backstop returns the raw `name`.
+
+## Drift review tool (v4.12.0)
+
+Pilot installs that pre-date v4.11.0 may carry mixed-language values in `tt_lookups.name` (some Dutch, some English, some lowercase) because earlier admin workflows let operators type anything into that column. v4.12.0 ships a one-shot review tool to normalise the column without breaking the dashboard.
+
+**Migration 0132** walks every `tt_lookups` row, cross-checks `name` against the canonical seed map in `LookupCanonicalSeeds`, and writes a `lookup.needs_review` entry to `tt_audit_log` for every drifted row (carrying the current value, the suggested canonical, and the detected source locale). The migration never auto-renames anything — every accepted rewrite is operator-driven.
+
+**Reaching the tool:** Configuration -> "Lookup canonical-language review" tile (only appears while there are pending rows). The tile description carries the count.
+
+**Per-row actions:**
+
+- **Accept** rewrites `tt_lookups.name` to the chosen canonical (default: the migration's suggestion; you can override with another value from the canonical list) AND preserves the previous drifted value as a `tt_translations` entry in the locale you select. Result: the column is now canonical English; dashboards still show the Dutch / English / etc. label your team is used to seeing.
+- **Skip** leaves the row untouched and records the deliberate decision so the queue stops surfacing it. Use Skip when the drifted value is acceptable as the canonical (e.g. a custom domain term your academy invented that has no English equivalent).
+
+Both actions are append-only writes to `tt_audit_log`; the original `lookup.needs_review` entry is preserved for traceability.
+
+**Where to look for follow-up:** the History line at the bottom of the tool shows total counts of applied + skipped resolutions. The `Audit log` tile in Configuration filters on `entity_type = lookup` for full forensic detail.
