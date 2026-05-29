@@ -33,6 +33,18 @@ final class TeamActivitiesCsvExporter implements ExporterInterface {
 
     public function requiredCap(): string { return 'tt_view_activities'; }
 
+    public function availableColumns(): array {
+        return [
+            'activity_id'      => __( 'Activity ID',    'talenttrack' ),
+            'date'             => __( 'Date',           'talenttrack' ),
+            'title'            => __( 'Title',          'talenttrack' ),
+            'team'             => __( 'Team',           'talenttrack' ),
+            'location'         => __( 'Location',       'talenttrack' ),
+            'attendance'       => __( 'Attendance',     'talenttrack' ),
+            'average_rating'   => __( 'Average rating', 'talenttrack' ),
+        ];
+    }
+
     public function validateFilters( array $raw ): ?array {
         $team_id = isset( $raw['team_id'] ) ? (int) $raw['team_id'] : 0;
         if ( $team_id < 0 ) $team_id = 0;

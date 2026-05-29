@@ -60,6 +60,9 @@ final class BackupZipExporter implements ExporterInterface {
 
     public function requiredCap(): string { return 'tt_manage_backups'; }
 
+    /** Non-tabular exporter — opts out of the column picker (#986). */
+    public function availableColumns(): array { return []; }
+
     public function validateFilters( array $raw ): ?array {
         $preset = isset( $raw['preset'] ) ? (string) $raw['preset'] : PresetRegistry::STANDARD;
         if ( ! in_array( $preset, self::ALLOWED_PRESETS, true ) ) {

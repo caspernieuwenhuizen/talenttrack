@@ -48,6 +48,24 @@ class FrontendExportsView extends FrontendViewBase {
             [ 'tt-frontend-mobile' ],
             TT_VERSION
         );
+        // #986 — column picker JS. Enqueued from a static asset rather
+        // than inlined per CLAUDE.md §2 "Never inline `<script>`".
+        wp_enqueue_script(
+            'tt-frontend-exports',
+            TT_PLUGIN_URL . 'assets/js/frontend-exports.js',
+            [],
+            TT_VERSION,
+            true
+        );
+        wp_localize_script(
+            'tt-frontend-exports',
+            'TT_EXPORTS_I18N',
+            [
+                'allSelected' => __( 'all selected', 'talenttrack' ),
+                /* translators: %1$d kept columns, %2$d total — "3 of 6 selected". */
+                'partial'     => __( '%1$d of %2$d selected', 'talenttrack' ),
+            ]
+        );
     }
 
     /**
@@ -399,6 +417,17 @@ class FrontendExportsView extends FrontendViewBase {
             }
         }
 
+        // #986 — the column picker POSTs `columns[]`; the export pipeline
+        // looks for `selected_columns` (see `ExportService::run()` and
+        // `Format\ColumnFilter`). Translate here and drop the original
+        // so per-exporter validators never see it.
+        if ( isset( $filters['columns'] ) ) {
+            if ( is_array( $filters['columns'] ) && $filters['columns'] !== [] ) {
+                $filters['selected_columns'] = array_values( array_map( 'strval', $filters['columns'] ) );
+            }
+            unset( $filters['columns'] );
+        }
+
         $request = new ExportRequest(
             $key,
             $format,
@@ -501,6 +530,14 @@ class FrontendExportsView extends FrontendViewBase {
             self::renderField( $f, $teams );
         }
 
+        // #986 — column picker for tabular (CSV / XLSX) exporters.
+        // Resolves the exporter live to read its `availableColumns()`;
+        // empty map → no picker (PDF / JSON / iCal / ZIP / multi-sheet
+        // XLSX exporters opt out by returning an empty map). The
+        // `assets/js/frontend-exports.js` enqueue handles summary
+        // counts + show/hide when the format chip changes.
+        self::maybeRenderColumnsPicker( $key, $formats );
+
         if ( $multi ) {
             echo '<div class="tt-export-card__field">';
             echo '<span class="tt-export-card__field-label">' . esc_html__( 'Format', 'talenttrack' ) . '</span>';
@@ -525,6 +562,52 @@ class FrontendExportsView extends FrontendViewBase {
 
         echo '</form>';
         echo '</div>';
+    }
+
+    /**
+     * #986 — render the per-card column picker for tabular CSV / XLSX
+     * exporters. Resolves the exporter from the registry to read its
+     * `availableColumns()`; opts out silently when the map is empty.
+     *
+     * Default state: every column checked, summary reads
+     * "Columns · all selected". `assets/js/frontend-exports.js`
+     * updates the summary count live, wires the All / None
+     * quick-toggles, and hides the whole block when the card's
+     * format chip moves to a non-tabular slug.
+     *
+     * `data-tabular-formats` carries the comma-separated list of
+     * tabular formats this card supports (`csv,xlsx`) so the JS
+     * knows when to show / hide the picker on chip change.
+     *
+     * @param list<string> $formats
+     */
+    private static function maybeRenderColumnsPicker( string $key, array $formats ): void {
+        $tabular_formats = array_values( array_intersect( $formats, [ 'csv', 'xlsx' ] ) );
+        if ( $tabular_formats === [] ) return;
+
+        $exporter = ExporterRegistry::get( $key );
+        if ( $exporter === null ) return;
+        $columns = $exporter->availableColumns();
+        if ( $columns === [] ) return;
+
+        $total = count( $columns );
+        // Hide for single-format cards whose only format is non-tabular
+        // (defensive — `$tabular_formats` already filters that case).
+        echo '<details class="tt-export-card__columns" data-tt-export-columns data-tabular-formats="' . esc_attr( implode( ',', $tabular_formats ) ) . '" data-total="' . (int) $total . '">';
+        echo '<summary class="tt-export-card__columns-summary"><span class="tt-export-card__columns-label">' . esc_html__( 'Columns', 'talenttrack' ) . '</span> <span class="tt-export-card__columns-count" data-tt-columns-summary>' . esc_html__( 'all selected', 'talenttrack' ) . '</span></summary>';
+        echo '<div class="tt-export-card__columns-actions">';
+        echo '<button type="button" class="tt-btn tt-btn-secondary tt-export-card__columns-action" data-tt-columns-all>' . esc_html__( 'All', 'talenttrack' ) . '</button>';
+        echo '<button type="button" class="tt-btn tt-btn-secondary tt-export-card__columns-action" data-tt-columns-none>' . esc_html__( 'None', 'talenttrack' ) . '</button>';
+        echo '</div>';
+        echo '<div class="tt-export-card__columns-list">';
+        foreach ( $columns as $col_key => $label ) {
+            echo '<label class="tt-export-card__columns-item">';
+            echo '<input type="checkbox" name="columns[]" value="' . esc_attr( (string) $col_key ) . '" checked> ';
+            echo '<span>' . esc_html( (string) $label ) . '</span>';
+            echo '</label>';
+        }
+        echo '</div>';
+        echo '</details>';
     }
 
     /**

@@ -66,4 +66,24 @@ interface ExporterInterface {
      * @return array<string,mixed>
      */
     public function collect( ExportRequest $request ): array;
+
+    /**
+     * Columns the user can toggle from the central Exports page
+     * column picker (#986). Returns an ordered
+     * `column_key => translatable_label` map whose position matches
+     * the position of the column in the payload's `headers` / `rows`.
+     *
+     * Tabular CSV / XLSX exporters declare their column set here;
+     * non-tabular exporters (PDF / JSON / iCal / ZIP / multi-sheet
+     * XLSX) return an empty array to opt out of the picker entirely
+     * — `FrontendExportsView` only renders the picker when this
+     * method returns a non-empty map.
+     *
+     * Default = all selected: when the request omits a `columns`
+     * filter the renderer keeps every column, preserving today's
+     * behaviour for anyone who doesn't open the picker.
+     *
+     * @return array<string,string>
+     */
+    public function availableColumns(): array;
 }

@@ -37,6 +37,15 @@ final class KpiSnapshotXlsxExporter implements ExporterInterface {
 
     public function requiredCap(): string { return 'tt_view_reports'; }
 
+    /**
+     * Metric × value rows — toggling either column makes no sense,
+     * so this exporter opts out of the column picker by returning
+     * an empty map (#986).
+     */
+    public function availableColumns(): array {
+        return [];
+    }
+
     public function validateFilters( array $raw ): ?array {
         $date_from = isset( $raw['date_from'] ) ? (string) $raw['date_from'] : '';
         $date_to   = isset( $raw['date_to'] )   ? (string) $raw['date_to']   : '';

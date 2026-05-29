@@ -35,6 +35,28 @@ final class PlayerEvaluationsCsvExporter implements ExporterInterface {
 
     public function requiredCap(): string { return 'tt_view_evaluations'; }
 
+    /**
+     * Static head columns only — the dynamic main-category column tail
+     * (one column per `tt_eval_categories` root row) and the trailing
+     * Notes column always render because they sit beyond the declared
+     * range. See `Format\ColumnFilter::apply()`.
+     */
+    public function availableColumns(): array {
+        return [
+            'evaluation_id'  => __( 'Evaluation ID',  'talenttrack' ),
+            'date'           => __( 'Date',           'talenttrack' ),
+            'player_id'      => __( 'Player ID',      'talenttrack' ),
+            'first_name'     => __( 'First name',     'talenttrack' ),
+            'last_name'      => __( 'Last name',      'talenttrack' ),
+            'team'           => __( 'Team',           'talenttrack' ),
+            'coach'          => __( 'Coach',          'talenttrack' ),
+            'opponent'       => __( 'Opponent',       'talenttrack' ),
+            'competition'    => __( 'Competition',    'talenttrack' ),
+            'result'         => __( 'Result',         'talenttrack' ),
+            'minutes_played' => __( 'Minutes played', 'talenttrack' ),
+        ];
+    }
+
     public function validateFilters( array $raw ): ?array {
         $team_id = isset( $raw['team_id'] ) ? (int) $raw['team_id'] : 0;
         if ( $team_id < 0 ) $team_id = 0;
