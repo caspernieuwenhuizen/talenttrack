@@ -3,6 +3,7 @@ namespace TT\Infrastructure\Journey;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\JourneyEventType;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
@@ -166,7 +167,7 @@ final class InjuryRepository {
 
         EventEmitter::emit(
             (int) $row['player_id'],
-            'injury_started',
+            JourneyEventType::INJURY_STARTED,
             (string) $row['started_on'] . ' 00:00:00',
             $body_part !== '' ? sprintf( 'Injury: %s', $body_part ) : 'Injury started',
             [
@@ -194,7 +195,7 @@ final class InjuryRepository {
 
         EventEmitter::emit(
             (int) $row['player_id'],
-            'injury_ended',
+            JourneyEventType::INJURY_ENDED,
             (string) $row['actual_return'] . ' 00:00:00',
             'Injury recovered',
             [

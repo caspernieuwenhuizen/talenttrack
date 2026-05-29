@@ -3,6 +3,7 @@ namespace TT\Modules\Prospects\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\ScoutingVisitStatus;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Prospects\Repositories\ScoutingVisitsRepository;
 use TT\Shared\Frontend\Components\BackLink;
@@ -101,7 +102,7 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
     }
 
     private static function renderFacts( object $visit ): void {
-        $status_key   = (string) ( $visit->status ?? 'planned' );
+        $status_key   = (string) ( $visit->status ?? ScoutingVisitStatus::PLANNED );
         $status_label = FrontendScoutingPlanView::statusLabel( $status_key );
         $age_groups   = (string) ( $visit->age_groups_csv ?? '' );
         $event        = (string) ( $visit->event_description ?? '' );

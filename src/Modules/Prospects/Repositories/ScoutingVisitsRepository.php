@@ -3,6 +3,7 @@ namespace TT\Modules\Prospects\Repositories;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\ScoutingVisitStatus;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
@@ -14,9 +15,9 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  */
 class ScoutingVisitsRepository {
 
-    public const STATUS_PLANNED   = 'planned';
-    public const STATUS_COMPLETED = 'completed';
-    public const STATUS_CANCELLED = 'cancelled';
+    public const STATUS_PLANNED   = ScoutingVisitStatus::PLANNED;
+    public const STATUS_COMPLETED = ScoutingVisitStatus::COMPLETED;
+    public const STATUS_CANCELLED = ScoutingVisitStatus::CANCELLED;
 
     /**
      * Operator-editable label for a stored visit status. Resolves

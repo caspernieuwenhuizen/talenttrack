@@ -3,6 +3,7 @@ namespace TT\Infrastructure\Journey;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\JourneyEventType;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
@@ -84,7 +85,7 @@ final class JourneyBackfillService {
             $eval_date = self::dateOnly( $r->eval_date ) . ' 00:00:00';
             EventEmitter::emit(
                 (int) $r->player_id,
-                'evaluation_completed',
+                JourneyEventType::EVALUATION_COMPLETED,
                 $eval_date,
                 sprintf( __( 'Evaluation on %s', 'talenttrack' ), substr( $eval_date, 0, 10 ) ),
                 [
@@ -117,7 +118,7 @@ final class JourneyBackfillService {
         foreach ( (array) $rows as $r ) {
             EventEmitter::emit(
                 (int) $r->player_id,
-                'pdp_verdict_recorded',
+                JourneyEventType::PDP_VERDICT_RECORDED,
                 (string) $r->signed_off_at,
                 sprintf( __( 'PDP verdict: %s', 'talenttrack' ), (string) $r->decision ),
                 [ 'pdp_file_id' => (int) $r->pdp_file_id, 'decision' => (string) $r->decision ],
@@ -144,7 +145,7 @@ final class JourneyBackfillService {
             $title = (string) $r->title;
             EventEmitter::emit(
                 (int) $r->player_id,
-                'goal_set',
+                JourneyEventType::GOAL_SET,
                 (string) $r->created_at,
                 $title !== '' ? sprintf( __( 'Goal set: %s', 'talenttrack' ), $title ) : __( 'Goal set', 'talenttrack' ),
                 [ 'goal_id' => (int) $r->id ],
@@ -171,7 +172,7 @@ final class JourneyBackfillService {
             $event_date = self::dateOnly( $r->date_joined ) . ' 00:00:00';
             EventEmitter::emit(
                 (int) $r->id,
-                'joined_academy',
+                JourneyEventType::JOINED_ACADEMY,
                 $event_date,
                 __( 'Joined the academy', 'talenttrack' ),
                 [],
@@ -204,7 +205,7 @@ final class JourneyBackfillService {
         foreach ( (array) $rows as $r ) {
             EventEmitter::emit(
                 (int) $r->player_id,
-                'trial_started',
+                JourneyEventType::TRIAL_STARTED,
                 self::dateOnly( $r->start_date ) . ' 00:00:00',
                 __( 'Trial started', 'talenttrack' ),
                 [ 'trial_case_id' => (int) $r->id ],
@@ -216,7 +217,7 @@ final class JourneyBackfillService {
             if ( ! empty( $r->decision ) && ! empty( $r->decision_made_at ) ) {
                 EventEmitter::emit(
                     (int) $r->player_id,
-                    'trial_ended',
+                    JourneyEventType::TRIAL_ENDED,
                     (string) $r->decision_made_at,
                     sprintf( __( 'Trial ended: %s', 'talenttrack' ), (string) $r->decision ),
                     [
