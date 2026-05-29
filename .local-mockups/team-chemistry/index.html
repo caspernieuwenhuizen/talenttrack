@@ -84,49 +84,52 @@ body {
 }
 
 /* ---------------------------------------------------------------------------
-   Top headline strip — composite + sub-scores
-   Slim inline cards: label | value | trend on a single row, ~36px tall.
+   KPI cards — now a vertical stack in the right column (next to pitch).
    --------------------------------------------------------------------------- */
 .scoreboard {
-    display: grid;
-    grid-template-columns: 1.4fr repeat(4, 1fr);
-    gap: 8px;
-    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
 .score-card {
     background: var(--panel);
     border: 1px solid var(--line);
     border-radius: 8px;
     padding: 8px 12px;
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+        "label value"
+        "trend value";
+    column-gap: 8px;
     align-items: center;
-    gap: 8px;
-    min-height: 40px;
+    min-height: 44px;
 }
 .score-card .label {
+    grid-area: label;
     font-size: 10px;
     text-transform: uppercase;
     letter-spacing: 0.4px;
     color: var(--muted);
     margin: 0;
     font-weight: 700;
-    flex: 0 0 auto;
 }
 .score-card .value {
-    font-size: 16px;
+    grid-area: value;
+    font-size: 18px;
     font-weight: 800;
     font-variant-numeric: tabular-nums;
     line-height: 1;
     color: var(--ink);
-    margin-left: auto;
+    text-align: right;
 }
 .score-card .value sup { font-size: 10px; color: var(--muted); font-weight: 600; vertical-align: top; margin-left: 1px; }
 .score-card .trend {
+    grid-area: trend;
     font-size: 10px;
     color: var(--muted);
     font-weight: 500;
     line-height: 1;
-    flex: 0 0 auto;
 }
 .score-card .trend.is-up    { color: var(--tt-success); }
 .score-card .trend.is-down  { color: var(--tt-danger); }
@@ -134,6 +137,7 @@ body {
     background: linear-gradient(135deg, var(--tier1), #2a9d97);
     color: white;
     border-color: var(--tier1);
+    min-height: 60px;
 }
 .score-card.is-headline .label,
 .score-card.is-headline .value,
@@ -141,7 +145,7 @@ body {
 .score-card.is-headline .trend { color: white; }
 .score-card.is-headline .trend.is-up { color: #cfe7da; }
 .score-card.is-headline .trend.is-down { color: #f6c3c4; }
-.score-card.is-headline .value { font-size: 20px; }
+.score-card.is-headline .value { font-size: 28px; }
 
 /* ---------------------------------------------------------------------------
    Toolbar (formation / style / suggested-or-current toggle)
@@ -198,12 +202,26 @@ body {
    --------------------------------------------------------------------------- */
 .layout {
     display: grid;
-    grid-template-columns: 280px 1fr 260px;
+    grid-template-columns: 240px 1fr 300px;
     gap: 16px;
     align-items: start;
 }
-@media (max-width: 1080px) { .layout { grid-template-columns: 240px 1fr; } .layout > .pairings { grid-column: 1 / -1; } }
-@media (max-width: 820px)  { .layout { grid-template-columns: 1fr; } .layout > .roster { position: static; } }
+.layout .right-col {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    position: sticky;
+    top: 12px;
+}
+@media (max-width: 1180px) {
+    .layout { grid-template-columns: 220px 1fr; }
+    .layout .right-col { grid-column: 1 / -1; position: static; flex-direction: row; flex-wrap: wrap; align-items: flex-start; }
+    .layout .right-col > * { flex: 1 1 240px; }
+}
+@media (max-width: 820px) {
+    .layout { grid-template-columns: 1fr; }
+    .layout > .roster { position: static; }
+}
 
 /* ---------------------------------------------------------------------------
    Roster panel (left)
@@ -313,7 +331,7 @@ body {
     aspect-ratio: 3 / 4;
     margin: 0 auto;
     width: 100%;
-    max-width: 880px;
+    max-width: 100%;
     border: 2px solid var(--pitch-line);
     overflow: visible; /* lets the click-picker dropdown overflow the pitch */
 }
@@ -337,9 +355,10 @@ body {
     position: absolute;
     inset: 0;
     width: 100%; height: 100%;
-    pointer-events: none;
     z-index: 1;
 }
+.pitch .links-svg line { pointer-events: stroke; cursor: pointer; }
+.pitch .links-svg line:hover { stroke-width: 1.0; }
 
 /* Slot card — single tier only (chemistry uses only primary). */
 .slot {
@@ -515,6 +534,40 @@ body {
 }
 .picker__clear:hover { background: rgba(214,54,56,0.08); }
 
+/* Picker section headers — Eligible / Not in master data */
+.picker__section {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--muted);
+    font-weight: 700;
+    margin: 8px 8px 4px;
+    padding-top: 4px;
+}
+.picker__section:first-child { margin-top: 0; padding-top: 0; }
+.picker__section.is-warn { color: var(--tt-warn); border-top: 1px solid var(--line); padding-top: 8px; }
+.picker__section-help {
+    display: block;
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: 500;
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 2px;
+}
+.picker__row.is-noteligible {
+    background: rgba(199, 92, 31, 0.06);
+}
+.picker__row.is-noteligible:hover { background: rgba(199, 92, 31, 0.14); }
+.picker__row-penalty {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 9px;
+    background: rgba(199, 92, 31, 0.18);
+    color: var(--tt-warn);
+}
+
 /* ---------------------------------------------------------------------------
    Pairings panel (right)
    --------------------------------------------------------------------------- */
@@ -523,8 +576,71 @@ body {
     border: 1px solid var(--line);
     border-radius: 10px;
     padding: 14px;
-    position: sticky; top: 12px;
 }
+
+/* ---------------------------------------------------------------------------
+   Reasoning panel — dynamic content, swaps based on selection on the pitch.
+   --------------------------------------------------------------------------- */
+.reasoning {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px;
+}
+.reasoning .head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; gap: 8px; }
+.reasoning h2 { margin: 0; font-size: 14px; }
+.reasoning .clear-sel {
+    border: 0; background: transparent; color: var(--muted); font: inherit; font-size: 12px; cursor: pointer; padding: 2px 6px; border-radius: 4px;
+}
+.reasoning .clear-sel:hover { background: rgba(0,0,0,0.04); color: var(--ink); }
+.reasoning .context {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--muted);
+    font-weight: 700;
+    margin: 0 0 8px;
+}
+.reasoning .headline {
+    font-size: 13px;
+    font-weight: 600;
+    margin: 0 0 8px;
+}
+.reasoning .factors {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.reasoning .factors li {
+    display: grid;
+    grid-template-columns: 20px 1fr auto;
+    gap: 8px;
+    padding: 6px 0;
+    border-top: 1px solid var(--line);
+    font-size: 12px;
+    align-items: center;
+}
+.reasoning .factors li:first-child { border-top: 0; }
+.reasoning .factors .icon { font-size: 14px; text-align: center; line-height: 1; }
+.reasoning .factors .text { color: var(--ink); line-height: 1.35; }
+.reasoning .factors .delta {
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    font-size: 12px;
+}
+.reasoning .factors .delta.is-up    { color: var(--tt-success); }
+.reasoning .factors .delta.is-down  { color: var(--tt-danger); }
+.reasoning .factors .delta.is-flat  { color: var(--muted); }
+
+/* Each panel-state is hidden / shown via body[data-sel="…"] */
+.reasoning .panel-state { display: none; }
+body[data-sel="default"] .reasoning .panel-state[data-state="default"] { display: block; }
+body[data-sel="slot"]    .reasoning .panel-state[data-state="slot"]    { display: block; }
+body[data-sel="link"]    .reasoning .panel-state[data-state="link"]    { display: block; }
+
+/* Selection highlights on the pitch */
+.slot.is-selected .player-pill { box-shadow: 0 0 0 2px var(--tt-accent); }
+.links-svg line.is-selected { stroke-width: 1.2 !important; }
 .pairings .head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
 .pairings h2 { margin: 0; font-size: 14px; }
 .pairings .sub { color: var(--muted); font-size: 11px; margin: 0 0 10px; }
@@ -604,17 +720,23 @@ body[data-modal="save-bp"] .modal-back { display: flex; }
 }
 </style>
 </head>
-<body data-mode="suggested" data-modal="">
+<body data-mode="suggested" data-modal="" data-sel="default">
 
 <div class="mockup-bar" role="region" aria-label="Mockup state picker">
     <strong>Mode:</strong>
     <span class="group">
-        <button type="button" data-pick-mode="suggested" aria-pressed="true">Suggested XI (default)</button>
-        <button type="button" data-pick-mode="override">Override (try a lineup)</button>
+        <button type="button" data-pick-mode="suggested" aria-pressed="true">Suggested</button>
+        <button type="button" data-pick-mode="override">Override</button>
+    </span>
+    <strong>Reasoning:</strong>
+    <span class="group">
+        <button type="button" data-pick-sel="default" aria-pressed="true">Default</button>
+        <button type="button" data-pick-sel="slot">Slot selected</button>
+        <button type="button" data-pick-sel="link">Link selected</button>
     </span>
     <strong>Modal:</strong>
-    <button type="button" data-pick-modal="save-bp">Save as blueprint</button>
-    <button type="button" data-pick-modal="">Close modal</button>
+    <button type="button" data-pick-modal="save-bp">Save as bp</button>
+    <button type="button" data-pick-modal="">Close</button>
 </div>
 
 <div class="page-head">
@@ -650,38 +772,8 @@ body[data-modal="save-bp"] .modal-back { display: flex; }
     </section>
 </div>
 
-<!-- ============================================================
-     SCOREBOARD — composite + sub-scores (slim inline cards)
-     ============================================================ -->
-<section class="scoreboard" aria-label="Chemistry scoreboard">
-    <div class="score-card is-headline">
-        <span class="label">Team chemistry</span>
-        <span class="trend is-up">▲ +0.12 vs last save</span>
-        <span class="value">2.34<sup>/3</sup></span>
-    </div>
-    <div class="score-card">
-        <span class="label">Formation fit</span>
-        <span class="trend">87% filled</span>
-        <span class="value">2.61<sup>/3</sup></span>
-    </div>
-    <div class="score-card">
-        <span class="label">Style fit</span>
-        <span class="trend">possession</span>
-        <span class="value">2.18<sup>/3</sup></span>
-    </div>
-    <div class="score-card">
-        <span class="label">Depth</span>
-        <span class="trend">3 thin pos.</span>
-        <span class="value">1.92<sup>/3</sup></span>
-    </div>
-    <div class="score-card">
-        <span class="label">Coverage</span>
-        <span class="trend">5 to eval</span>
-        <span class="value">68<sup>%</sup></span>
-    </div>
-</section>
-
-<!-- (Mode toolbar consolidated into .page-head above.) -->
+<!-- (Mode toolbar consolidated into .page-head above. Scoreboard
+     moved into the right column next to the pitch.) -->
 
 <div class="override-banner" role="status">
     <span><strong>Override mode active.</strong> Tap a slot to open the picker; only position-eligible players appear. Slots showing <span style="color:var(--tt-accent);font-weight:700;">↺</span> are your overrides; everything else is the engine's pick.</span>
@@ -912,9 +1004,11 @@ body[data-modal="save-bp"] .modal-back { display: flex; }
                  the blueprint editor's picker. Position-eligible players
                  only; click "Clear slot" to empty the cell. -->
             <div class="picker" id="player-picker" role="dialog" aria-label="Pick player">
-                <div class="picker__head">Position: CAM · 4 eligible players</div>
-                <input type="text" class="picker__search" placeholder="Search eligible players…">
+                <div class="picker__head">Position: CAM · 4 eligible · 9 not eligible</div>
+                <input type="text" class="picker__search" placeholder="Search all players…">
                 <div class="picker__results">
+                    <!-- Eligible section -->
+                    <p class="picker__section">Eligible for CAM</p>
                     <button type="button" class="picker__row">
                         <span class="av-mini">TM</span>
                         <span class="picker__row-info">
@@ -947,34 +1041,138 @@ body[data-modal="save-bp"] .modal-back { display: flex; }
                         </span>
                         <span class="picker__row-fit" style="background:#fbe5e6;color:var(--tt-danger);">1.5</span>
                     </button>
+
+                    <!-- Not-eligible section — picking penalises chemistry. -->
+                    <p class="picker__section is-warn">
+                        Not in master data
+                        <span class="picker__section-help">Picking here applies a chemistry penalty.</span>
+                    </p>
+                    <button type="button" class="picker__row is-noteligible">
+                        <span class="av-mini">DV</span>
+                        <span class="picker__row-info">
+                            <span class="picker__row-name">Daan Visser</span>
+                            <span class="picker__row-sub">#9 · ST · &minus;0.30 penalty</span>
+                        </span>
+                        <span class="picker__row-penalty">−0.30</span>
+                    </button>
+                    <button type="button" class="picker__row is-noteligible">
+                        <span class="av-mini">LDV</span>
+                        <span class="picker__row-info">
+                            <span class="picker__row-name">Lucas de Vries</span>
+                            <span class="picker__row-sub">#7 · RW · &minus;0.30 penalty</span>
+                        </span>
+                        <span class="picker__row-penalty">−0.30</span>
+                    </button>
+                    <button type="button" class="picker__row is-noteligible">
+                        <span class="av-mini">BH</span>
+                        <span class="picker__row-info">
+                            <span class="picker__row-name">Bram Hendriks</span>
+                            <span class="picker__row-sub">#4 · CB · &minus;0.40 cross-line</span>
+                        </span>
+                        <span class="picker__row-penalty">−0.40</span>
+                    </button>
                 </div>
                 <button type="button" class="picker__clear">× Clear this slot</button>
             </div>
         </div>
     </section>
 
-    <!-- Pairings panel right -->
-    <aside class="pairings" aria-label="Coach-marked pairings">
-        <div class="head">
-            <h2>Coach pairings</h2>
-            <span class="sub">3</span>
-        </div>
-        <p class="sub">Players that work well together. Boosts chemistry when paired in adjacent slots.</p>
-        <ul>
-            <li>
-                <span class="names">Bram H. · Stijn</span>
-                <button type="button" class="x" aria-label="Remove pairing">×</button>
-            </li>
-            <li>
-                <span class="names">Lucas · Daan</span>
-                <button type="button" class="x" aria-label="Remove pairing">×</button>
-            </li>
-            <li>
-                <span class="names">Finn · Bram H.</span>
-                <button type="button" class="x" aria-label="Remove pairing">×</button>
-            </li>
-        </ul>
-        <button type="button" class="add-pair">+ Mark a pairing</button>
+    <!-- Right column: KPI cards + reasoning panel + coach pairings -->
+    <aside class="right-col" aria-label="Chemistry insights">
+
+        <!-- KPI cards (vertical stack) -->
+        <section class="scoreboard" aria-label="Chemistry scores">
+            <div class="score-card is-headline">
+                <span class="label">Team chemistry</span>
+                <span class="trend is-up">▲ +0.12 vs last save</span>
+                <span class="value">2.34<sup>/3</sup></span>
+            </div>
+            <div class="score-card">
+                <span class="label">Formation fit</span>
+                <span class="trend">87% filled</span>
+                <span class="value">2.61<sup>/3</sup></span>
+            </div>
+            <div class="score-card">
+                <span class="label">Style fit</span>
+                <span class="trend">possession</span>
+                <span class="value">2.18<sup>/3</sup></span>
+            </div>
+            <div class="score-card">
+                <span class="label">Depth</span>
+                <span class="trend">3 thin pos.</span>
+                <span class="value">1.92<sup>/3</sup></span>
+            </div>
+            <div class="score-card">
+                <span class="label">Coverage</span>
+                <span class="trend">5 to eval</span>
+                <span class="value">68<sup>%</sup></span>
+            </div>
+        </section>
+
+        <!-- Reasoning panel — dynamic content based on selection. -->
+        <section class="reasoning" aria-label="Reasoning">
+            <div class="head">
+                <h2>Why?</h2>
+                <button type="button" class="clear-sel" data-clear-sel>Clear selection</button>
+            </div>
+
+            <!-- Default state: explains the overall team chemistry score. -->
+            <div class="panel-state" data-state="default">
+                <p class="context">Overall · 2.34/3</p>
+                <p class="headline">Possession-oriented XI with strong defensive ties; two midfield channels under-developed.</p>
+                <ul class="factors">
+                    <li><span class="icon">●</span><span class="text">Back four + CDM are coach-marked + same-line — locks down the defensive third.</span><span class="delta is-up">+0.52</span></li>
+                    <li><span class="icon">●</span><span class="text">Front-three triangle has 2 of 3 strong links (Lucas ↔ Daan coach-marked).</span><span class="delta is-up">+0.31</span></li>
+                    <li><span class="icon">●</span><span class="text">Joep at LB is left-footed but the slot prefers a right-foot inverted fullback for possession style.</span><span class="delta is-down">−0.14</span></li>
+                    <li><span class="icon">●</span><span class="text">No data on Sander Brouwer (LW) — fit estimate, not a measurement.</span><span class="delta is-flat">±0.00</span></li>
+                </ul>
+                <p style="margin: 10px 0 0; font-size: 11px; color: var(--muted);">
+                    Tap a slot or a chemistry link on the pitch to see per-element reasoning.
+                </p>
+            </div>
+
+            <!-- Slot selected: a player's fit at this position. -->
+            <div class="panel-state" data-state="slot">
+                <p class="context">Selected · CAM (#10)</p>
+                <p class="headline">Thijs Mulder · individual fit 2.7 · override</p>
+                <ul class="factors">
+                    <li><span class="icon">✓</span><span class="text">CAM is in his master-data eligible positions.</span><span class="delta is-up">+0.40</span></li>
+                    <li><span class="icon">✓</span><span class="text">Right-footed; CAM slot prefers right-footed in 4-3-3 possession.</span><span class="delta is-up">+0.20</span></li>
+                    <li><span class="icon">●</span><span class="text">No coach-marked pairing with adjacent slots (Finn / Mees / Daan).</span><span class="delta is-flat">±0.00</span></li>
+                    <li><span class="icon">!</span><span class="text">3 recent evaluations available — high data coverage.</span><span class="delta is-up">+0.10</span></li>
+                </ul>
+            </div>
+
+            <!-- Link selected: why a chemistry pair is the color it is. -->
+            <div class="panel-state" data-state="link">
+                <p class="context">Selected link · LB ↔ CB (opposite)</p>
+                <p class="headline" style="color: var(--chem-mismatch);">Mismatch — cross-pitch pairing</p>
+                <ul class="factors">
+                    <li><span class="icon">✕</span><span class="text">Not on the same line of play.</span><span class="delta is-down">−0.30</span></li>
+                    <li><span class="icon">✕</span><span class="text">Joep (LB, left-foot) and Stijn (CB-right) pair across the pitch — passing-lane mismatch in possession style.</span><span class="delta is-down">−0.20</span></li>
+                    <li><span class="icon">●</span><span class="text">No coach-marked pairing on file.</span><span class="delta is-flat">±0.00</span></li>
+                    <li><span class="icon">✓</span><span class="text">Both rostered as starters; data coverage adequate.</span><span class="delta is-up">+0.10</span></li>
+                </ul>
+                <p style="margin: 10px 0 0; font-size: 11px; color: var(--muted);">
+                    <strong>Why red?</strong> Score &lt; 1.0 after deductions. Same-line + adjacent slots = strong (green); same-line OR coach-marked = neutral (grey); cross-line with no pairing = mismatch (red).
+                </p>
+            </div>
+        </section>
+
+        <!-- Coach-marked pairings -->
+        <section class="pairings" aria-label="Coach-marked pairings">
+            <div class="head">
+                <h2>Coach pairings</h2>
+                <span class="sub">3</span>
+            </div>
+            <p class="sub">Players that work well together. Boosts chemistry when paired in adjacent slots.</p>
+            <ul>
+                <li><span class="names">Bram H. · Stijn</span><button type="button" class="x" aria-label="Remove pairing">×</button></li>
+                <li><span class="names">Lucas · Daan</span><button type="button" class="x" aria-label="Remove pairing">×</button></li>
+                <li><span class="names">Finn · Bram H.</span><button type="button" class="x" aria-label="Remove pairing">×</button></li>
+            </ul>
+            <button type="button" class="add-pair">+ Mark a pairing</button>
+        </section>
     </aside>
 </div>
 
@@ -1033,6 +1231,49 @@ document.querySelectorAll('[data-pick-modal]').forEach(function (el) {
 // Backdrop click closes modal
 document.querySelector('.modal-back').addEventListener('click', function (e) {
     if (e.target === e.currentTarget) setModal('');
+});
+
+// Reasoning panel — body[data-sel] drives which state is visible.
+function setSel(s) {
+    document.body.setAttribute('data-sel', s);
+    document.querySelectorAll('[data-pick-sel]').forEach(function (b) {
+        b.setAttribute('aria-pressed', b.getAttribute('data-pick-sel') === s ? 'true' : 'false');
+    });
+    // Clear selection highlights on the pitch when going to default
+    if (s === 'default') {
+        document.querySelectorAll('.slot.is-selected').forEach(function (el) { el.classList.remove('is-selected'); });
+        document.querySelectorAll('.links-svg line.is-selected').forEach(function (el) { el.classList.remove('is-selected'); });
+    }
+}
+document.querySelectorAll('[data-pick-sel]').forEach(function (el) {
+    el.addEventListener('click', function (e) { e.preventDefault(); setSel(el.getAttribute('data-pick-sel')); });
+});
+var clearSelBtn = document.querySelector('[data-clear-sel]');
+if (clearSelBtn) clearSelBtn.addEventListener('click', function () { setSel('default'); });
+
+// Slot click (on the position-badge, not the pill — pill opens picker)
+// flips reasoning to "slot" state.
+document.querySelectorAll('.slot .pos-badge').forEach(function (badge) {
+    badge.addEventListener('click', function (e) {
+        e.stopPropagation();
+        document.querySelectorAll('.slot.is-selected').forEach(function (el) { el.classList.remove('is-selected'); });
+        document.querySelectorAll('.links-svg line.is-selected').forEach(function (el) { el.classList.remove('is-selected'); });
+        badge.closest('.slot').classList.add('is-selected');
+        setSel('slot');
+    });
+});
+
+// SVG link click flips reasoning to "link" state.
+document.querySelectorAll('.links-svg line').forEach(function (line) {
+    line.style.pointerEvents = 'stroke';
+    line.style.cursor = 'pointer';
+    line.addEventListener('click', function (e) {
+        e.stopPropagation();
+        document.querySelectorAll('.slot.is-selected').forEach(function (el) { el.classList.remove('is-selected'); });
+        document.querySelectorAll('.links-svg line.is-selected').forEach(function (el) { el.classList.remove('is-selected'); });
+        line.classList.add('is-selected');
+        setSel('link');
+    });
 });
 
 // Player picker — opens when a slot is tapped; anchored to the slot's
