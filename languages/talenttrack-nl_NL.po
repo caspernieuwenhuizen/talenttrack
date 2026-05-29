@@ -33071,6 +33071,15 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ msgid "Deadline"
 #~ msgstr "Deadline"
 
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php
+msgid "Remove from roster"
+msgstr "Verwijderen uit selectie"
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php
+#. translators: %s = entry display name (guest/custom/cross-team)
+msgid "Remove %s from the roster? Any slots holding this entry will be cleared."
+msgstr "%s uit de selectie verwijderen? Alle slots die deze speler bevatten worden leeggemaakt."
+
 #~ msgid "Att. %"
 #~ msgstr "Aanw. %"
 
