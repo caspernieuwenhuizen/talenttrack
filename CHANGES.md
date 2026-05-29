@@ -1,3 +1,21 @@
+# TalentTrack v4.12.1 — PlayerAttendanceCalculator uses canonical lowercase status values (closes #996)
+
+`src/Infrastructure/PlayerStatus/PlayerAttendanceCalculator.php` was querying `tt_attendance` with TitleCase literals `'Present'` / `'Absent'` / `'Excused'`, but every install stores the canonical lowercase values per the contract codified in `TT\Domain\Vocabularies\Lookups\AttendanceStatus` (v4.11.1, #988 PR-set 1). The SQL CASE expressions silently never matched, so the calculator returned zero presents / zero absents / zero excused on every call, with `sessions` counting the row population only. Attendance % was either `0.0` (when there were countable rows) or `null` (when excused inflation collapsed the denominator), and `low_confidence` was almost always true because the present / absent / excused buckets were all empty.
+
+## What ships
+
+`src/Infrastructure/PlayerStatus/PlayerAttendanceCalculator.php` — three SQL CASE comparisons now bind through `$wpdb->prepare(... %s ...)` with `AttendanceStatus::PRESENT`, `::ABSENT`, `::EXCUSED` as parameters; `use TT\Domain\Vocabularies\Lookups\AttendanceStatus;` added at the top of the file. Same calling convention, same return shape — the calculator now actually finds the rows it has been failing to match.
+
+## No data normalisation migration
+
+`tt_attendance.status` is created by `Activator.php` with `DEFAULT 'present'` (lowercase) at install time, and the legacy back-fill from the old boolean `present` column also writes lowercase (`'present'` / `'absent'`). No code path in the codebase has ever written TitleCase rows into the column, so there are no legacy rows to normalise — patching the calculator is sufficient.
+
+## Out of scope
+
+The other TitleCase call sites surfaced by the same grep (`EvidencePacket.php`, `ActivitiesRestController.php`, `LabelTranslator.php`, `MatchExecutionRestController.php`, `FrontendMatchExecutionView.php`, `LookupCanonicalSeeds.php`, `DemoData\Generators\ActivityGenerator.php`, `Excel\ExcelImporter.php`, migration 0093's seed colours) — those are part of the #988 umbrella's planned PR-sets and stay out of scope for this targeted bug fix.
+
+---
+
 # TalentTrack v4.12.0 — Lookup canonical-language drift audit + admin review tool (closes #987)
 
 Follow-up data fix to v4.11.0's lookup admin rework. The new 5-locale translation grid that shipped in #985 only renders correctly when `tt_lookups.name` carries the stable English internal key and `tt_translations` carries the per-locale display label. On pilot installs the `name` column has drifted into a mixed-language vocabulary (some rows in Dutch, some in lowercase English, some canonical), because earlier operator workflows let admins type anything into `name` and never populated `tt_translations`. This ship is the data fix: the architecture is fine, the data needs to be normalised.

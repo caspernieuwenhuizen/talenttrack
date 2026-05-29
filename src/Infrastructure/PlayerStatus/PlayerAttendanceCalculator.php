@@ -3,6 +3,7 @@ namespace TT\Infrastructure\PlayerStatus;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\AttendanceStatus;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
@@ -28,12 +29,16 @@ final class PlayerAttendanceCalculator {
         // from planned-attendance entries. Filter to actuals on
         // completed activities so ship 2's expected rows can't shift
         // the calculator.
+        //
+        // #996 — `tt_attendance.status` stores the canonical lowercase
+        // values per the contract in AttendanceStatus. The pre-fix
+        // TitleCase literals here silently missed every row.
         $row = $wpdb->get_row( $wpdb->prepare(
             "SELECT
                 COUNT(*) AS sessions,
-                SUM(CASE WHEN att.status = 'Present' THEN 1 ELSE 0 END) AS present,
-                SUM(CASE WHEN att.status = 'Absent'  THEN 1 ELSE 0 END) AS absent,
-                SUM(CASE WHEN att.status = 'Excused' THEN 1 ELSE 0 END) AS excused
+                SUM(CASE WHEN att.status = %s THEN 1 ELSE 0 END) AS present,
+                SUM(CASE WHEN att.status = %s THEN 1 ELSE 0 END) AS absent,
+                SUM(CASE WHEN att.status = %s THEN 1 ELSE 0 END) AS excused
               FROM {$wpdb->prefix}tt_attendance att
               JOIN {$wpdb->prefix}tt_activities act
                 ON act.id = att.activity_id AND act.club_id = att.club_id
@@ -44,6 +49,9 @@ final class PlayerAttendanceCalculator {
                AND act.plan_state = 'completed'
                AND act.session_date >= %s
                AND act.session_date <= %s",
+            AttendanceStatus::PRESENT,
+            AttendanceStatus::ABSENT,
+            AttendanceStatus::EXCUSED,
             $player_id, CurrentClub::id(), $from, $to
         ), ARRAY_A );
 
