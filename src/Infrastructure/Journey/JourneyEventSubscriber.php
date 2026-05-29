@@ -3,11 +3,8 @@ namespace TT\Infrastructure\Journey;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-<<<<<<< HEAD
 use TT\Domain\Vocabularies\Lookups\JourneyEventType;
-=======
 use TT\Domain\Vocabularies\Lookups\TrialCaseDecision;
->>>>>>> 2305cd9 (refactor(v4.12.5): vocabulary constants — PDP + trial (PR-set 3 of #988))
 use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
