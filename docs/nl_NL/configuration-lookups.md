@@ -1,3 +1,5 @@
+<!-- audience: admin -->
+
 # Configuratie — Lookups
 
 **Doelgroep:** academy-administrator.

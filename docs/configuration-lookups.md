@@ -1,3 +1,5 @@
+<!-- audience: admin -->
+
 # Configuration — Lookups
 
 **Audience:** academy administrator.
