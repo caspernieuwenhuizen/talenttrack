@@ -26,9 +26,11 @@ From v4.12.7 the same pattern extends to the PDP-cycle and trial-case vocabulari
 
 From v4.12.8 the same pattern extends to the player-side roster vocabularies: `PlayerStatus`, `PreferredFoot`. The `POST/PUT /players`, `PATCH /players/{id}` endpoints continue to accept BOTH the raw literal (e.g. `'active'`, `'trial'`, `'released'`, `'graduated'`, `'inactive'`, `'left'`, `'right'`, `'both'`) AND the corresponding typed constant for one release.
 
-Per the same shape as the v4.3.21 #953 blueprint-assignment deprecation and the #903 sunset, the allowlist drops in the next minor (v4.11.0 for PR-set 1; future minor for PR-sets 2 + 3 + 4 + 5 + 6): payloads carrying literals that don't match any value in the corresponding `::ALL` array will return `400 bad_value` instead of silently falling back to the seeded default. The matching PHPStan rule (issue #988 PR-set 8) lands at the same time.
+From v4.12.9 the same pattern extends to the auth, ideas, invitations, and behaviour vocabularies: `IdeaStatus`, `IdeaType`, `InvitationStatus`, `InvitationKind`, `BehaviourRating`, `PotentialBand`, plus the first code-only enum on the auth side (`ImpersonationEndReason`). The `POST /players/{id}/potential` (potential_band field), the dev-ideas write surface, and the invitations REST endpoints continue to accept BOTH the raw literal (e.g. `'first_team'`, `'submitted'`, `'feat'`, `'pending'`, `'player'`) AND the corresponding typed constant for one release. Additionally, per the locked decisions on #988, `TT\Modules\Development\IdeaStatus::*`, `TT\Modules\Development\IdeaType::*`, `TT\Modules\Invitations\InvitationStatus::*`, and `TT\Modules\Invitations\InvitationKind::*` constants are now deprecated aliases that point at the corresponding `TT\Domain\Vocabularies\Lookups\*` values — the aliases stay for one release and are removed in the next minor.
 
-Other vocabularies (team, auth) follow the same pattern in subsequent #988 PR-sets.
+Per the same shape as the v4.3.21 #953 blueprint-assignment deprecation and the #903 sunset, the allowlist drops in the next minor (v4.11.0 for PR-set 1; future minor for PR-sets 2 + 3 + 4 + 5 + 6 + 7): payloads carrying literals that don't match any value in the corresponding `::ALL` array will return `400 bad_value` instead of silently falling back to the seeded default. The matching PHPStan rule (issue #988 PR-set 8) lands at the same time.
+
+PR-set 8 (the PHPStan rule that gates all literal -> constant migration enforcement) is the only remaining #988 PR-set after this ship.
 
 ## Resources
 

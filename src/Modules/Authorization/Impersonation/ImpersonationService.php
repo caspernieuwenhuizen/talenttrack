@@ -3,6 +3,7 @@ namespace TT\Modules\Authorization\Impersonation;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Enums\ImpersonationEndReason;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
@@ -85,7 +86,7 @@ final class ImpersonationService {
     /**
      * @return \WP_Error|null  null on success (no-op when not impersonating)
      */
-    public static function end( string $end_reason = 'manual' ): ?\WP_Error {
+    public static function end( string $end_reason = ImpersonationEndReason::MANUAL ): ?\WP_Error {
         $actor_id = ImpersonationContext::actorIdFromCookie();
         if ( $actor_id <= 0 ) {
             return null; // not impersonating

@@ -4,6 +4,7 @@ namespace TT\Shared\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Domain\Vocabularies\Lookups\PlayerStatus;
+use TT\Domain\Vocabularies\Lookups\PotentialBand;
 use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Query\PlayerFileCounts;
 use TT\Infrastructure\Query\QueryHelpers;
@@ -95,11 +96,11 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         $rmax = (int) round( (float) \TT\Infrastructure\Query\QueryHelpers::get_config( 'rating_max', '10' ) );
 
         $bands = [
-            [ 'key' => 'first_team',              'label' => __( 'First-team', 'talenttrack' ) ],
-            [ 'key' => 'professional_elsewhere',  'label' => __( 'Professional elsewhere', 'talenttrack' ) ],
-            [ 'key' => 'semi_pro',                'label' => __( 'Semi-pro', 'talenttrack' ) ],
-            [ 'key' => 'top_amateur',             'label' => __( 'Top amateur', 'talenttrack' ) ],
-            [ 'key' => 'recreational',            'label' => __( 'Recreational', 'talenttrack' ) ],
+            [ 'key' => PotentialBand::FIRST_TEAM,             'label' => __( 'First-team', 'talenttrack' ) ],
+            [ 'key' => PotentialBand::PROFESSIONAL_ELSEWHERE, 'label' => __( 'Professional elsewhere', 'talenttrack' ) ],
+            [ 'key' => PotentialBand::SEMI_PRO,               'label' => __( 'Semi-pro', 'talenttrack' ) ],
+            [ 'key' => PotentialBand::TOP_AMATEUR,            'label' => __( 'Top amateur', 'talenttrack' ) ],
+            [ 'key' => PotentialBand::RECREATIONAL,           'label' => __( 'Recreational', 'talenttrack' ) ],
         ];
 
         $history_url = add_query_arg(

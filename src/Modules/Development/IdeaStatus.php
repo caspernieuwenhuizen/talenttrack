@@ -3,6 +3,8 @@ namespace TT\Modules\Development;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\IdeaStatus as CanonicalIdeaStatus;
+
 /**
  * IdeaStatus — the state machine for `tt_dev_ideas.status`.
  *
@@ -10,18 +12,44 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * `promoting` and `promotion-failed` states. Player-facing labels
  * collapse those down to four buckets per the locked decisions on
  * #0009: "In review", "Accepted", "Not accepted", and "Submitted".
+ *
+ * v4.12.9 (#988 PR-set 7) — the canonical idea status values moved
+ * into `TT\Domain\Vocabularies\Lookups\IdeaStatus`. The constants
+ * below alias the new vocabulary for one release per #988's locked
+ * plan, and will be removed in the next minor; new code should
+ * reference `TT\Domain\Vocabularies\Lookups\IdeaStatus::*` directly.
+ * The module-local `label()` / `authorFacingLabel()` / `boardColumns()`
+ * helpers stay in place — they encode rendering rules that aren't
+ * part of the vocabulary contract.
  */
 final class IdeaStatus {
 
-    public const SUBMITTED         = 'submitted';
-    public const REFINING          = 'refining';
-    public const READY_FOR_APPROVAL = 'ready-for-approval';
-    public const REJECTED          = 'rejected';
-    public const PROMOTING         = 'promoting';
-    public const PROMOTED          = 'promoted';
-    public const PROMOTION_FAILED  = 'promotion-failed';
-    public const IN_PROGRESS       = 'in-progress';
-    public const DONE              = 'done';
+    /** @deprecated since v4.12.9 — use {@see CanonicalIdeaStatus::SUBMITTED}; removed in next minor. */
+    public const SUBMITTED          = CanonicalIdeaStatus::SUBMITTED;
+
+    /** @deprecated since v4.12.9 — use {@see CanonicalIdeaStatus::REFINING}; removed in next minor. */
+    public const REFINING           = CanonicalIdeaStatus::REFINING;
+
+    /** @deprecated since v4.12.9 — use {@see CanonicalIdeaStatus::READY_FOR_APPROVAL}; removed in next minor. */
+    public const READY_FOR_APPROVAL = CanonicalIdeaStatus::READY_FOR_APPROVAL;
+
+    /** @deprecated since v4.12.9 — use {@see CanonicalIdeaStatus::REJECTED}; removed in next minor. */
+    public const REJECTED           = CanonicalIdeaStatus::REJECTED;
+
+    /** @deprecated since v4.12.9 — use {@see CanonicalIdeaStatus::PROMOTING}; removed in next minor. */
+    public const PROMOTING          = CanonicalIdeaStatus::PROMOTING;
+
+    /** @deprecated since v4.12.9 — use {@see CanonicalIdeaStatus::PROMOTED}; removed in next minor. */
+    public const PROMOTED           = CanonicalIdeaStatus::PROMOTED;
+
+    /** @deprecated since v4.12.9 — use {@see CanonicalIdeaStatus::PROMOTION_FAILED}; removed in next minor. */
+    public const PROMOTION_FAILED   = CanonicalIdeaStatus::PROMOTION_FAILED;
+
+    /** @deprecated since v4.12.9 — use {@see CanonicalIdeaStatus::IN_PROGRESS}; removed in next minor. */
+    public const IN_PROGRESS        = CanonicalIdeaStatus::IN_PROGRESS;
+
+    /** @deprecated since v4.12.9 — use {@see CanonicalIdeaStatus::DONE}; removed in next minor. */
+    public const DONE               = CanonicalIdeaStatus::DONE;
 
     /** @return list<string> */
     public static function all(): array {
