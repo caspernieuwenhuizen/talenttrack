@@ -78,3 +78,30 @@ Het veld Interne sleutel op een vergrendelde rij is ook uitgeschakeld — dezelf
 ## REST-oppervlak
 
 Elke actie in deze weergave gaat via `/wp-json/talenttrack/v1/lookups/{type}` (POST / PUT / DELETE) met de bestaande `tt_edit_settings` capability-poort. De weergave wordt server-side gerenderd; de JS-module stelt de netwerk-payload samen en herlaadt bij succes. Geen nieuwe REST-endpoints; het `/translations/preview` endpoint retourneert elke andere geïnstalleerde locale in één bulk-respons.
+
+## Canoniek-taal contract (v4.12.0)
+
+De vooruitgaande regel: **`tt_lookups.name` is de stabiele Engelse interne sleutel**. Het is nooit een vertaalde, voor de gebruiker zichtbare tekst. Voor de gebruiker zichtbare labels staan in `tt_translations` en worden weergegeven via `LookupTranslator::name()` (die alleen op `name` terugvalt wanneer er geen vertaling is geregistreerd).
+
+Praktische gevolgen:
+
+- Nieuwe rijen toegevoegd via het admin-grid: het Interne sleutel-veld is verplicht; typ een ASCII-tekst in kleine letters zonder spaties (bijv. `match`, `training`, `in_progress`).
+- Bestaande rijen: het Interne sleutel-veld is alleen-lezen. Om het te wijzigen is een code-migratie nodig, zodat elke `WHERE name = ...` verwijzing in de codebase atomair wordt bijgewerkt.
+- Dashboards lezen `tt_lookups.name` nooit rechtstreeks. Ze gaan via `LookupTranslator::name($row)`, die oplost via `tt_translations` voor de huidige locale, dan via het gettext-domein, en pas als laatste redmiddel de ruwe `name` retourneert.
+
+## Drift-revisietool (v4.12.0)
+
+Pilot-installaties van vóór v4.11.0 kunnen waarden in `tt_lookups.name` bevatten in gemengde talen (sommige in het Nederlands, sommige in het Engels, sommige in kleine letters) omdat eerdere admin-workflows toestonden dat operators alles in die kolom typten. v4.12.0 levert een eenmalige revisietool om de kolom te normaliseren zonder het dashboard te breken.
+
+**Migratie 0132** loopt elke `tt_lookups`-rij door, vergelijkt `name` met de canonieke seed-map in `LookupCanonicalSeeds` en schrijft een `lookup.needs_review`-entry naar `tt_audit_log` voor elke afgedreven rij (met de huidige waarde, de voorgestelde canonieke waarde en de gedetecteerde brontaal). De migratie hernoemt nooit automatisch — elke geaccepteerde herschrijving is door de operator aangestuurd.
+
+**De tool bereiken:** Configuratie -> tegel "Lookup canonical-language review" (verschijnt alleen wanneer er openstaande rijen zijn). De tegel-beschrijving toont het aantal.
+
+**Per-rij acties:**
+
+- **Accepteren** herschrijft `tt_lookups.name` naar de gekozen canonieke waarde (standaard: het migratie-voorstel; je kunt overschrijven met een andere waarde uit de canonieke lijst) EN behoudt de eerdere afgedreven waarde als een `tt_translations`-entry in de geselecteerde locale. Resultaat: de kolom is nu canoniek Engels; dashboards blijven het Nederlandse / Engelse / etc. label tonen waar je team aan gewend is.
+- **Overslaan** laat de rij ongemoeid en legt de bewuste beslissing vast, zodat de wachtrij de rij niet meer toont. Gebruik Overslaan wanneer de afgedreven waarde aanvaardbaar is als canonieke waarde (bijv. een domeinterm die je academie heeft bedacht en die geen Engels equivalent heeft).
+
+Beide acties zijn append-only schrijfacties op `tt_audit_log`; de oorspronkelijke `lookup.needs_review`-entry blijft bewaard voor traceerbaarheid.
+
+**Waar te kijken voor follow-up:** de Geschiedenis-regel onderaan de tool toont totalen van toegepaste + overgeslagen resoluties. De tegel `Auditlog` in Configuratie filtert op `entity_type = lookup` voor volledige forensische details.

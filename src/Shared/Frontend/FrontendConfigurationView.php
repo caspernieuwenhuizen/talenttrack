@@ -1420,6 +1420,15 @@ class FrontendConfigurationView extends FrontendViewBase {
             ? add_query_arg( [ 'tt_view' => 'players-import' ], remove_query_arg( [ 'tt_view', 'config_sub' ] ) )
             : null;
 
+        // #987 v4.12.0 — drift-review tile for canonical-language
+        // cleanup. Surfaced for admin-only users; the underlying view
+        // re-checks `tt_access_frontend_admin` on every request. Tile
+        // hides when no drift rows are flagged for review.
+        $lookup_normalisation_url = current_user_can( 'tt_access_frontend_admin' )
+            ? add_query_arg( [ 'tt_view' => 'lookup-normalisation' ], remove_query_arg( [ 'tt_view', 'config_sub' ] ) )
+            : null;
+        $lookup_normalisation_pending = $lookup_normalisation_url !== null ? self::pendingLookupDriftCount() : 0;
+
         $admin_tiles = [];
         if ( $players_import_url !== null ) {
             $admin_tiles[] = [
@@ -1427,6 +1436,23 @@ class FrontendConfigurationView extends FrontendViewBase {
                 __( 'Bulk-import players from a spreadsheet. Map columns, choose duplicate-handling, preview before commit.', 'talenttrack' ),
                 $players_import_url,
                 'import',
+            ];
+        }
+        if ( $lookup_normalisation_url !== null && $lookup_normalisation_pending > 0 ) {
+            $admin_tiles[] = [
+                __( 'Lookup canonical-language review', 'talenttrack' ),
+                sprintf(
+                    /* translators: %d is the number of lookup rows pending canonical-language review. */
+                    _n(
+                        '%d lookup row drifted from its canonical English internal key. Review the suggestion and accept the rewrite, or skip.',
+                        '%d lookup rows drifted from their canonical English internal key. Review each suggestion and accept the rewrite, or skip.',
+                        $lookup_normalisation_pending,
+                        'talenttrack'
+                    ),
+                    $lookup_normalisation_pending
+                ),
+                $lookup_normalisation_url,
+                'docs',
             ];
         }
         $admin_tiles = array_merge( $admin_tiles, [
@@ -1473,6 +1499,34 @@ class FrontendConfigurationView extends FrontendViewBase {
             echo '</a>';
         }
         echo '</div>';
+    }
+
+    /**
+     * #987 v4.12.0 — count `tt_audit_log` rows flagged for
+     * canonical-language review that have not yet been resolved
+     * (accepted or skipped). Drives the conditional rendering of
+     * the drift-review tile.
+     */
+    private static function pendingLookupDriftCount(): int {
+        global $wpdb;
+        $table = $wpdb->prefix . 'tt_audit_log';
+        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) return 0;
+        $club_id = \TT\Infrastructure\Tenancy\CurrentClub::id();
+        $count = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$table} n
+              WHERE n.action     = %s
+                AND n.entity_type = 'lookup'
+                AND n.club_id     = %d
+                AND NOT EXISTS (
+                    SELECT 1 FROM {$table} r
+                     WHERE r.entity_type = 'lookup'
+                       AND r.entity_id   = n.entity_id
+                       AND r.club_id     = n.club_id
+                       AND r.action IN ('lookup.normalisation.applied', 'lookup.normalisation.skipped')
+                )",
+            'lookup.needs_review', $club_id
+        ) );
+        return $count;
     }
 
     private static function renderBrandingForm(): void {

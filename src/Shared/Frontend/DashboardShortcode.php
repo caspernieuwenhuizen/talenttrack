@@ -731,6 +731,10 @@ class DashboardShortcode {
             case 'audit-log':
                 FrontendAuditLogView::render( $user_id, $is_admin );
                 return true;
+            case 'lookup-normalisation':
+                // #987 v4.12.0 — canonical-language drift review tool.
+                FrontendLookupNormalisationView::render( $user_id, $is_admin );
+                return true;
             case 'docs':
                 FrontendDocsView::render( $user_id, $is_admin );
                 return true;

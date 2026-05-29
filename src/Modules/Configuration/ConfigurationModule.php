@@ -8,6 +8,7 @@ use TT\Core\ModuleInterface;
 use TT\Infrastructure\REST\AuditLogRestController;
 use TT\Infrastructure\REST\ConfigRestController;
 use TT\Infrastructure\REST\CustomFieldsRestController;
+use TT\Infrastructure\REST\LookupNormalisationRestController;
 use TT\Infrastructure\REST\LookupsRestController;
 
 class ConfigurationModule implements ModuleInterface {
@@ -24,5 +25,8 @@ class ConfigurationModule implements ModuleInterface {
         // their own query layer.
         LookupsRestController::init();
         AuditLogRestController::init();
+        // #987 v4.12.0 — accept/skip actions for the canonical-language
+        // drift review tool. Surface lives at `?tt_view=lookup-normalisation`.
+        LookupNormalisationRestController::init();
     }
 }

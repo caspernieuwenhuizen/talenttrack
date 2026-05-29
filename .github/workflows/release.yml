@@ -138,6 +138,12 @@ jobs:
             # lookup-type name shares the spelling but is a distinct
             # concept — exclude the only file that references it.
             -e 'src/Shared/Frontend/FrontendConfigurationView.php'
+            # v4.12.0 (#987) — `LookupCanonicalSeeds` is the source-of-
+            # truth map for canonical English values per lookup_type,
+            # including the legitimate `competition_type` lookup type.
+            # Same rationale as the FrontendConfigurationView exclusion
+            # above.
+            -e 'src/Modules/Configuration/LookupCanonicalSeeds.php'
           )
           fail=0
           for tok in "${forbidden[@]}"; do
