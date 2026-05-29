@@ -3,6 +3,7 @@ namespace TT\Modules\Workflow\Forms;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\GoalApprovalDecision;
 use TT\Modules\Workflow\Contracts\FormInterface;
 use TT\Modules\Workflow\Repositories\TasksRepository;
 
@@ -13,12 +14,17 @@ use TT\Modules\Workflow\Repositories\TasksRepository;
  *
  * Reads the parent task's response_json via parent_task_id; that's the
  * source of truth for the goals being reviewed.
+ *
+ * The `DECISION_*` constants below alias `GoalApprovalDecision::*` for
+ * backward compatibility. New code should reference the Vocabulary class
+ * directly per #988's PR-set 2 — these aliases stay one release before
+ * the umbrella's PHPStan rule lands (PR-set 8).
  */
 class GoalApprovalForm implements FormInterface {
 
-    public const DECISION_APPROVE = 'approve';
-    public const DECISION_AMEND   = 'amend';
-    public const DECISION_REJECT  = 'reject';
+    public const DECISION_APPROVE = GoalApprovalDecision::APPROVE;
+    public const DECISION_AMEND   = GoalApprovalDecision::AMEND;
+    public const DECISION_REJECT  = GoalApprovalDecision::REJECT;
 
     /**
      * Operator-editable label for a stored decision value. Resolves

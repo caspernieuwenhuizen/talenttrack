@@ -18,9 +18,11 @@ This policy is **codified but not yet exercised** — every change to v1 so far 
 
 From v4.10.1 the activities + attendance vocabularies have typed PHP constants in `TT\Domain\Vocabularies\Lookups\*` (`AttendanceStatus`, `ActivityTypeKey`, `ActivityStatusKey`, `GameSubtype`). The REST endpoints that read these fields — `POST/PUT /sessions`, `POST/PATCH /sessions/{id}/guests`, `PATCH /attendance/{id}`, `POST /tournaments/{id}/matches` — **continue to accept the raw string literals AND the new typed constants** for one release.
 
-Per the same shape as the v4.3.21 #953 blueprint-assignment deprecation and the #903 sunset, the allowlist drops in the next minor (v4.11.0): payloads carrying literals that don't match any value in the corresponding `::ALL` array will return `400 bad_value` instead of silently falling back to the seeded default. The matching PHPStan rule (issue #988 PR-set 8) lands at the same time.
+From v4.12.1 the same pattern extends to the goal-side vocabularies: `GoalStatus`, `GoalPriority`, `GoalApprovalDecision`. The `POST /goals`, `PATCH /goals/{id}/status` endpoints continue to accept BOTH the raw literal (e.g. `'pending'`, `'pending_approval'`, `'medium'`) AND the corresponding typed constant for one release.
 
-Other vocabularies (goals, PDP, trial, player, team, reports, tournaments, auth) follow the same pattern in subsequent #988 PR-sets.
+Per the same shape as the v4.3.21 #953 blueprint-assignment deprecation and the #903 sunset, the allowlist drops in the next minor (v4.11.0 for PR-set 1; future minor for PR-set 2): payloads carrying literals that don't match any value in the corresponding `::ALL` array will return `400 bad_value` instead of silently falling back to the seeded default. The matching PHPStan rule (issue #988 PR-set 8) lands at the same time.
+
+Other vocabularies (PDP, trial, player, team, reports, tournaments, auth) follow the same pattern in subsequent #988 PR-sets.
 
 ## Resources
 

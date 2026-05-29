@@ -1,96 +1,36 @@
-# TalentTrack v4.12.1 — PlayerAttendanceCalculator uses canonical lowercase status values (closes #996)
+# TalentTrack v4.12.3 — Vocabulary constants for goals + tasks (PR-set 2 of #988)
 
-`src/Infrastructure/PlayerStatus/PlayerAttendanceCalculator.php` was querying `tt_attendance` with TitleCase literals `'Present'` / `'Absent'` / `'Excused'`, but every install stores the canonical lowercase values per the contract codified in `TT\Domain\Vocabularies\Lookups\AttendanceStatus` (v4.11.1, #988 PR-set 1). The SQL CASE expressions silently never matched, so the calculator returned zero presents / zero absents / zero excused on every call, with `sessions` counting the row population only. Attendance % was either `0.0` (when there were countable rows) or `null` (when excused inflation collapsed the denominator), and `low_confidence` was almost always true because the present / absent / excused buckets were all empty.
-
-## What ships
-
-`src/Infrastructure/PlayerStatus/PlayerAttendanceCalculator.php` — three SQL CASE comparisons now bind through `$wpdb->prepare(... %s ...)` with `AttendanceStatus::PRESENT`, `::ABSENT`, `::EXCUSED` as parameters; `use TT\Domain\Vocabularies\Lookups\AttendanceStatus;` added at the top of the file. Same calling convention, same return shape — the calculator now actually finds the rows it has been failing to match.
-
-## No data normalisation migration
-
-`tt_attendance.status` is created by `Activator.php` with `DEFAULT 'present'` (lowercase) at install time, and the legacy back-fill from the old boolean `present` column also writes lowercase (`'present'` / `'absent'`). No code path in the codebase has ever written TitleCase rows into the column, so there are no legacy rows to normalise — patching the calculator is sufficient.
-
-## Out of scope
-
-The other TitleCase call sites surfaced by the same grep (`EvidencePacket.php`, `ActivitiesRestController.php`, `LabelTranslator.php`, `MatchExecutionRestController.php`, `FrontendMatchExecutionView.php`, `LookupCanonicalSeeds.php`, `DemoData\Generators\ActivityGenerator.php`, `Excel\ExcelImporter.php`, migration 0093's seed colours) — those are part of the #988 umbrella's planned PR-sets and stay out of scope for this targeted bug fix.
-
----
-
-# TalentTrack v4.12.0 — Lookup canonical-language drift audit + admin review tool (closes #987)
-
-Follow-up data fix to v4.11.0's lookup admin rework. The new 5-locale translation grid that shipped in #985 only renders correctly when `tt_lookups.name` carries the stable English internal key and `tt_translations` carries the per-locale display label. On pilot installs the `name` column has drifted into a mixed-language vocabulary (some rows in Dutch, some in lowercase English, some canonical), because earlier operator workflows let admins type anything into `name` and never populated `tt_translations`. This ship is the data fix: the architecture is fine, the data needs to be normalised.
-
-## Pilot symptom
-
-Opening any lookup category in the Configuration admin shows a vocabulary that is half Dutch, half English: some `name` values were entered as `Aanwezig` / `Wedstrijd` / `K`, others as `present` / `match` / `GK`. Looks unprofessional and inconsistent. The new 5-locale grid from v4.11.0 needs the column to be canonical English for the display layer to work as designed.
-
-## Why this is a data fix, not a schema fix
-
-The architecture already supports the right contract:
-
-- `tt_lookups.name` is the stable English internal key.
-- `tt_translations` carries per-row, per-locale display labels.
-- `LookupTranslator::name($row)` resolves through translations -> gettext -> raw name.
-
-No schema change is needed. The data drifted; v4.12.0 normalises it under operator control, then v4.11.0's display layer is consistent everywhere.
+Second of eight PR-sets in the umbrella migration of #988 (~131 hardcoded vocabulary string literals -> typed constants under `TT\Domain\Vocabularies\*`). PR-set 1 (attendance + activity) shipped in v4.11.1; this ship covers the goal-side workflow vocabularies. Same architectural pattern, same backward-compat allowlist, same patch-bump rhythm.
 
 ## What ships
 
-**PHP** - `src/Modules/Configuration/LookupCanonicalSeeds.php` (new)
+**PHP - new vocabulary classes**
 
-Single source of truth for the canonical English values per `lookup_type`. The map is assembled from every seed migration that has shipped (0001, 0027, 0033, 0037, 0042, 0047, 0048, 0051, 0058, 0060, 0091, 0093, 0098, 0110-0117, 0124). Three callable surfaces:
+- `src/Domain/Vocabularies/Lookups/GoalStatus.php` (new) — six lowercase snake_case constants for `tt_goals.status`: `PENDING`, `PENDING_APPROVAL`, `IN_PROGRESS`, `COMPLETED`, `ON_HOLD`, `CANCELLED`. Mirrors the PR-set 1 file shape (`const ALL` + static `isValid()`). The lowercase snake_case form is the canonical stored value per `LabelTranslator::goalStatus()` and the REST controller's defaults; the `goal_status` lookup row `name` column carries the TitleCase display label, but the table is the operator-facing surface and unaffected here.
+- `src/Domain/Vocabularies/Lookups/GoalPriority.php` (new) — three lowercase constants for `tt_goals.priority`: `LOW`, `MEDIUM`, `HIGH`.
+- `src/Domain/Vocabularies/Lookups/GoalApprovalDecision.php` (new) — three constants for the approval-form decisions stored in `tt_workflow_tasks.response_json`: `APPROVE`, `AMEND`, `REJECT`. Backs the `goal_approval_decision` lookup seeded by migration 0111.
 
-- `canonicalFor( $lookup_type )` returns the allowed values list — used by the migration to decide if a row is canonical and by the REST controller to defensively reject typos at accept time.
-- `suggestCanonicalFor( $lookup_type, $current_name )` runs the heuristic chain: direct hit on the Dutch -> English reverse map (built from migration 0060's seed pairs), then case-insensitive match against the canonical list, then whitespace / punctuation forgiveness for drifts like `gk` -> `GK`.
-- `detectLocaleForValue( $lookup_type, $current_name )` picks a plausible source locale for the drifted value: nl_NL for a hit in the reverse map, the site locale for a value containing non-ASCII letters in the Latin Extended-A range, en_US for lowercase-only ASCII drifts.
+**PHP - literal -> constant replacements**
 
-**Schema audit** - `database/migrations/0132_lookup_canonical_normalisation.php` (new)
+- `src/Infrastructure/REST/GoalsRestController.php` — replaces the five raw `'pending_approval'` / `'pending'` literals (default status on create, force-approve gate for player-self-create, status update authorization check) and the `'medium'` priority default with the new `GoalStatus::*` / `GoalPriority::*` constants. REST endpoint payload-side behaviour is unchanged; the stored values are byte-identical to the previous release.
+- `src/Modules/Goals/Admin/GoalsPage.php` — replaces the `'pending'` and `'medium'` form-default literals (status / priority dropdown `selected()` calls + the `handle_save` `$_POST` fallback) with the new constants.
+- `src/Modules/Development/Notifications/GoalSpawner.php` — the idea-promotion goal materialisation hands `'pending'` / `'medium'` to `wpdb::insert(tt_goals)`; switched to the constants.
+- `src/Modules/Workflow/Forms/GoalApprovalForm.php` — `DECISION_APPROVE` / `DECISION_AMEND` / `DECISION_REJECT` class constants now alias `GoalApprovalDecision::APPROVE` / `::AMEND` / `::REJECT` rather than carrying duplicate raw strings. Backward compatible: every existing internal caller continues to compile and produce the same stored decision value. The aliases stay one release before the umbrella's PR-set 8 PHPStan rule lands.
 
-Walks every row in `tt_lookups`, cross-checks `name` against the canonical map. For every drifted row, writes an entry to `tt_audit_log` with `action = lookup.needs_review`, `entity_type = lookup`, `entity_id = <row id>` and a JSON payload carrying the lookup_type, the current value, the suggested canonical, the detected source locale, and the full canonical option list for the operator to choose from. Idempotent: re-running the migration on an already-audited install skips rows whose entity_id already has an open review entry (no double-logging). The migration never auto-renames anything — every accepted rewrite goes through the human-in-the-loop admin tool. Rows whose `lookup_type` is not in the canonical map are intentionally not flagged (we would rather under-flag than spam operators with rows we cannot suggest a fix for; future migrations can extend the seed map).
+**Out of scope for this PR-set**
 
-**Frontend view** - `src/Shared/Frontend/FrontendLookupNormalisationView.php` (new)
+- `TT\Modules\Workflow\TaskStatus` already follows the constants-shaped pattern from the original v3.x ship; it carries the canonical six values (`open`, `in_progress`, `completed`, `overdue`, `skipped`, `cancelled`) plus helpers `isActionable()` and `label()`. Consolidating it into `Vocabularies\Lookups\TaskStatus` is a mechanical lift but pulls in two more touch points (`TasksRepository`, `FrontendMyTasksView`, `FrontendTaskDetailView`); deferred to keep this PR-set focused on the *new* constants classes. The existing class continues to be the source of truth for the task-status vocabulary in the meantime.
+- SQL string literals, `tt_lookups` seed values, .po / .pot files, test fixtures, and JavaScript stay as literals per the umbrella's locked plan.
 
-Reachable via `?tt_view=lookup-normalisation`. Cap gate `tt_access_frontend_admin` — mirrors `FrontendConfigurationView`'s own gate. Server-rendered queue of pending review rows (filtered via a NOT EXISTS join so resolved rows do not surface). Each card shows the current value, a dropdown of canonical options pre-selected to the migration's suggestion, and a locale dropdown defaulting to the heuristic-detected source. Footer carries Skip + Accept buttons. Mobile-first per CLAUDE.md §2: 360px base, 640px breakpoint, all interactive targets >= 48px tall.
+## Why patch
 
-The view's vanilla-JS handler is inline (small enough to inline; the view is admin-rare). On click, posts to the REST controller, swaps the row's class to `is-applied` / `is-skipped` / `is-error`, surfaces the message in a `role="status" aria-live="polite"` slot for screen readers. No JS framework dependency.
+PR-set 2 of 8 in a refactor umbrella. No new feature, no behaviour change, no schema migration. The constants are byte-equivalent to the literals they replace; the REST endpoints continue to accept BOTH the raw literal AND the new constant for one release (per #988's backward-compat allowlist) so external integrations do not break. The PHPStan rule (#988 PR-set 8) that will forbid raw literals is deferred until the allowlist drops in a subsequent minor.
 
-**REST** - `src/Infrastructure/REST/LookupNormalisationRestController.php` (new)
+## Test plan
 
-Two endpoints under the existing `talenttrack/v1` namespace:
+- Coach creates a goal via the goals admin: defaults to `priority=medium`, `status=pending`. (Both stored as the lowercase form, unchanged from previous behaviour.)
+- Player creates a goal via the player-self-create flow: stored with `status=pending_approval` regardless of payload override.
+- Coach approves a pending-approval goal via the inline status dropdown: head-coach-only gate fires; status moves to `pending`.
+- Coach uses the workflow goal-approval form: each `approve` / `amend` / `reject` decision serializes to the same byte value as before.
+- Idea promoted to in-progress: spawns a `tt_goals` row with `status=pending`, `priority=medium`.
 
-- `POST /lookup-normalisation/{audit_id}/accept` — rewrites `tt_lookups.name` to the chosen canonical (defaults to the migration's suggestion; operator may override via `canonical` body param), and upserts the drifted value as a `tt_translations` entry for the detected or operator-chosen locale (`locale` body param). Defensively rejects canonical values that are not in the per-`lookup_type` allowlist — operator cannot typo a fresh drift back into the column. Writes a follow-up `lookup.normalisation.applied` audit entry.
-- `POST /lookup-normalisation/{audit_id}/skip` — leaves the row as-is. Writes a follow-up `lookup.normalisation.skipped` audit entry.
-
-Both endpoints check `current_user_can( 'tt_access_frontend_admin' )` and refuse to act on rows that have already been resolved (idempotent under double-click / replay).
-
-**Configuration tile** - `src/Shared/Frontend/FrontendConfigurationView.php`
-
-New "Lookup canonical-language review" tile in the Configuration grid, gated on `tt_access_frontend_admin` AND conditionally rendered only while the pending-count is > 0. Description carries the count via `_n()` so it reads `1 lookup row drifted...` or `12 lookup rows drifted...`. Tile disappears the moment the queue empties.
-
-New private helper `pendingLookupDriftCount()` runs the same NOT EXISTS query the view uses, scoped to `CurrentClub::id()`.
-
-**Wiring**
-
-- `src/Shared/Frontend/DashboardShortcode.php` — `dispatchAdminView()` learns the `lookup-normalisation` slug.
-- `src/Modules/Configuration/ConfigurationModule.php` — registers the new REST controller alongside the existing lookup + audit-log controllers.
-
-## What is not in scope
-
-- Hardcoded string literals across the codebase (e.g. `WHERE status = 'pending'`) — that is issue B, filed separately.
-- Renaming integer FK columns — the architecture is fine.
-- Retrofitting v3.x record-creation flows to the wizard pattern (separate forward-only policy per CLAUDE.md §3).
-
-## Version + i18n
-
-- `talenttrack.php`: TT_VERSION 4.7.0 -> 4.12.0; plugin header Version: 4.12.0. (Reconciles the on-disk version constant with the actual ship cadence — v4.11.0's PR landed without bumping the constant.)
-- `readme.txt`: Stable tag 4.7.0 -> 4.12.0; Changelog stanza prepended.
-- `languages/talenttrack-nl_NL.po`: 8 new msgids covering the view's labels + the tile description. No duplicate msgids.
-
-## Definition of done
-
-- Migration runs cleanly on a fresh install (no `tt_lookups` rows -> no-op) and on the pilot install (writes audit rows for every drifted value).
-- Cleanup tool surfaces every flagged row; operator can review + accept or skip.
-- After every accept, the production `tt_lookups.name` is canonical English; the drifted value lives in `tt_translations` for the chosen locale; dashboards render the locale label via the unchanged translator chain.
-- Cap gate honoured: non-admin users get the "not authorized" early-return.
-- Mobile-first: view renders at 360px without horizontal scroll; all interactive targets >= 48px.
-- No schema change beyond audit-log writes.

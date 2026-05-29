@@ -3,6 +3,8 @@ namespace TT\Infrastructure\REST;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\GoalPriority;
+use TT\Domain\Vocabularies\Lookups\GoalStatus;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
@@ -272,7 +274,7 @@ class GoalsRestController {
         // themselves — coach-created goals follow the existing default.
         $current_user = wp_get_current_user();
         $is_player    = $current_user && in_array( 'tt_player', (array) $current_user->roles, true );
-        $default_status = $is_player ? 'pending_approval' : 'pending';
+        $default_status = $is_player ? GoalStatus::PENDING_APPROVAL : GoalStatus::PENDING;
 
         $data = [
             'club_id'             => CurrentClub::id(),
@@ -280,7 +282,7 @@ class GoalsRestController {
             'title'               => sanitize_text_field( (string) ( $r['title'] ?? '' ) ),
             'description'         => sanitize_textarea_field( (string) ( $r['description'] ?? '' ) ),
             'status'              => sanitize_text_field( (string) ( $r['status'] ?? $default_status ) ),
-            'priority'            => sanitize_text_field( (string) ( $r['priority'] ?? 'medium' ) ),
+            'priority'            => sanitize_text_field( (string) ( $r['priority'] ?? GoalPriority::MEDIUM ) ),
             'due_date'            => ! empty( $r['due_date'] ) ? sanitize_text_field( (string) $r['due_date'] ) : null,
             'linked_principle_id' => ( ! empty( $r['linked_principle_id'] ) && (int) $r['linked_principle_id'] > 0 )
                 ? (int) $r['linked_principle_id'] : null,
@@ -292,7 +294,7 @@ class GoalsRestController {
         // bypassing the form default), enforce pending_approval for
         // player-self-created goals. Approval gate must be airtight.
         if ( $is_player ) {
-            $data['status'] = 'pending_approval';
+            $data['status'] = GoalStatus::PENDING_APPROVAL;
         }
 
         if ( $data['player_id'] <= 0 || $data['title'] === '' ) {
@@ -439,8 +441,8 @@ class GoalsRestController {
             "SELECT player_id, status FROM {$wpdb->prefix}tt_goals WHERE id = %d AND club_id = %d",
             $goal_id, CurrentClub::id()
         ) );
-        if ( $existing && (string) $existing->status === 'pending_approval'
-             && $status !== 'pending_approval'
+        if ( $existing && (string) $existing->status === GoalStatus::PENDING_APPROVAL
+             && $status !== GoalStatus::PENDING_APPROVAL
              && ! current_user_can( 'manage_options' )
              && ! \TT\Infrastructure\Security\AuthorizationService::isHeadCoachOfPlayer( get_current_user_id(), (int) $existing->player_id )
         ) {

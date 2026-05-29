@@ -3,6 +3,8 @@ namespace TT\Modules\Goals\Admin;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\GoalPriority;
+use TT\Domain\Vocabularies\Lookups\GoalStatus;
 use TT\Infrastructure\CustomFields\CustomFieldsRepository;
 use TT\Infrastructure\CustomFields\CustomFieldsSlot;
 use TT\Infrastructure\Logging\Logger;
@@ -138,10 +140,10 @@ class GoalsPage {
                     <tr><th><?php esc_html_e( 'Description', 'talenttrack' ); ?></th><td><textarea name="description" rows="3" class="large-text"><?php echo esc_textarea( $goal->description ?? '' ); ?></textarea></td></tr>
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_GOAL, (int) ( $goal->id ?? 0 ), 'description' ); ?>
                     <tr><th><?php esc_html_e( 'Priority', 'talenttrack' ); ?></th><td><select name="priority">
-                        <?php foreach ( $priorities as $pr ) : ?><option value="<?php echo esc_attr( strtolower( $pr ) ); ?>" <?php selected( $goal->priority ?? 'medium', strtolower( $pr ) ); ?>><?php echo esc_html( $pr ); ?></option><?php endforeach; ?></select></td></tr>
+                        <?php foreach ( $priorities as $pr ) : ?><option value="<?php echo esc_attr( strtolower( $pr ) ); ?>" <?php selected( $goal->priority ?? GoalPriority::MEDIUM, strtolower( $pr ) ); ?>><?php echo esc_html( $pr ); ?></option><?php endforeach; ?></select></td></tr>
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_GOAL, (int) ( $goal->id ?? 0 ), 'priority' ); ?>
                     <tr><th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th><td><select name="status">
-                        <?php foreach ( $statuses as $st ) : $v = strtolower( str_replace( ' ', '_', $st ) ); ?><option value="<?php echo esc_attr( $v ); ?>" <?php selected( $goal->status ?? 'pending', $v ); ?>><?php echo esc_html( $st ); ?></option><?php endforeach; ?></select></td></tr>
+                        <?php foreach ( $statuses as $st ) : $v = strtolower( str_replace( ' ', '_', $st ) ); ?><option value="<?php echo esc_attr( $v ); ?>" <?php selected( $goal->status ?? GoalStatus::PENDING, $v ); ?>><?php echo esc_html( $st ); ?></option><?php endforeach; ?></select></td></tr>
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_GOAL, (int) ( $goal->id ?? 0 ), 'status' ); ?>
                     <tr><th><?php esc_html_e( 'Due Date', 'talenttrack' ); ?></th><td><input type="date" name="due_date" value="<?php echo esc_attr( $goal->due_date ?? '' ); ?>" /></td></tr>
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_GOAL, (int) ( $goal->id ?? 0 ), 'due_date' ); ?>
@@ -217,8 +219,8 @@ class GoalsPage {
             'player_id' => isset( $_POST['player_id'] ) ? absint( $_POST['player_id'] ) : 0,
             'title' => isset( $_POST['title'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['title'] ) ) : '',
             'description' => isset( $_POST['description'] ) ? sanitize_textarea_field( wp_unslash( (string) $_POST['description'] ) ) : '',
-            'status' => isset( $_POST['status'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['status'] ) ) : 'pending',
-            'priority' => isset( $_POST['priority'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['priority'] ) ) : 'medium',
+            'status' => isset( $_POST['status'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['status'] ) ) : GoalStatus::PENDING,
+            'priority' => isset( $_POST['priority'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['priority'] ) ) : GoalPriority::MEDIUM,
             'due_date' => ! empty( $_POST['due_date'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['due_date'] ) ) : null,
             'linked_principle_id' => isset( $_POST['linked_principle_id'] ) && (int) $_POST['linked_principle_id'] > 0
                 ? (int) $_POST['linked_principle_id']
