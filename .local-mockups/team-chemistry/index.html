@@ -1,0 +1,873 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Team chemistry — mockup</title>
+<style>
+:root {
+    --pitch-grass:   #4ea35f;
+    --pitch-grass-2: #3c8a4d;
+    --pitch-line:    rgba(255,255,255,0.85);
+    --tier1:         #1d7874;
+    --bg:            #f6f7f7;
+    --ink:           #1a1d21;
+    --muted:         #5b6e75;
+    --panel:         #ffffff;
+    --line:          #e3e6ea;
+    --tt-accent:     #2271b1;
+    --tt-accent-15:  rgba(34,113,177,0.15);
+    --tt-success:    #2e7d4f;
+    --tt-warn:       #c75c1f;
+    --tt-danger:     #d63638;
+
+    --chem-strong: #2e7d4f;   /* solid green link */
+    --chem-neutral:#9aa3a8;   /* grey neutral link */
+    --chem-mismatch:#d63638;  /* red mismatch link */
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    padding: 20px;
+    line-height: 1.4;
+    font-size: 14px;
+}
+
+/* ---------------------------------------------------------------------------
+   Mockup-only state-picker chrome — strip on port.
+   --------------------------------------------------------------------------- */
+.mockup-bar {
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    background: #222;
+    color: #eee;
+    margin: -20px -20px 16px;
+    padding: 8px 14px;
+    font-size: 12px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+    border-bottom: 2px solid #000;
+}
+.mockup-bar strong { color: #ffd; margin-right: 6px; }
+.mockup-bar button {
+    background: #444; color: #eee; border: 1px solid #666;
+    padding: 4px 10px; border-radius: 4px; font: inherit; font-size: 11px;
+    cursor: pointer;
+}
+.mockup-bar button[aria-pressed="true"] { background: #6c4; color: #000; border-color: #4a3; font-weight: 600; }
+.mockup-bar .group { display: inline-flex; gap: 4px; margin-right: 12px; }
+
+/* ---------------------------------------------------------------------------
+   Page header
+   --------------------------------------------------------------------------- */
+header { margin-bottom: 16px; }
+header h1 { margin: 0 0 4px; font-size: 22px; }
+header .lede { color: var(--muted); margin: 0; max-width: 720px; font-size: 13px; }
+
+/* ---------------------------------------------------------------------------
+   Top headline strip — composite + sub-scores
+   --------------------------------------------------------------------------- */
+.scoreboard {
+    display: grid;
+    grid-template-columns: 1.4fr repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 14px;
+}
+.score-card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 16px;
+}
+.score-card .label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+    margin: 0 0 4px;
+}
+.score-card .value {
+    font-size: 28px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    color: var(--ink);
+}
+.score-card .value sup { font-size: 13px; color: var(--muted); font-weight: 600; vertical-align: top; margin-left: 3px; }
+.score-card.is-headline {
+    background: linear-gradient(135deg, var(--tier1), #2a9d97);
+    color: white;
+    border-color: var(--tier1);
+}
+.score-card.is-headline .label,
+.score-card.is-headline .value,
+.score-card.is-headline .value sup,
+.score-card.is-headline .trend { color: white; }
+.score-card .trend {
+    font-size: 12px;
+    margin-top: 6px;
+    color: var(--muted);
+    font-weight: 500;
+}
+.score-card .trend.is-up    { color: var(--tt-success); }
+.score-card .trend.is-down  { color: var(--tt-danger); }
+.score-card.is-headline .trend.is-up { color: #cfe7da; }
+.score-card.is-headline .trend.is-down { color: #f6c3c4; }
+.score-card.is-headline .value { font-size: 36px; }
+
+/* ---------------------------------------------------------------------------
+   Toolbar (formation / style / suggested-or-current toggle)
+   --------------------------------------------------------------------------- */
+.toolbar {
+    display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+    padding: 10px 14px; margin-bottom: 14px;
+}
+.toolbar label { font-size: 12px; color: var(--muted); }
+.toolbar select, .toolbar button {
+    font: inherit; font-size: 13px;
+    padding: 7px 12px; border: 1px solid var(--line); border-radius: 6px;
+    background: #fff; color: var(--ink);
+    min-height: 36px;
+}
+.toolbar button { cursor: pointer; }
+.toolbar .spacer { flex: 1 1 auto; }
+.toolbar .note { font-size: 12px; color: var(--muted); }
+
+.btn { font: inherit; font-size: 13px; padding: 7px 12px; border: 1px solid var(--line); border-radius: 6px; background: #fff; color: var(--ink); cursor: pointer; min-height: 36px; }
+.btn:hover { background: #f3f5f7; }
+.btn.primary { background: var(--tier1); border-color: var(--tier1); color: white; }
+.btn.primary:hover { background: #19625f; }
+.btn.danger-ghost { background: transparent; border-color: transparent; color: var(--tt-danger); }
+.btn.danger-ghost:hover { background: rgba(214,54,56,0.08); }
+
+/* Segmented "Suggested / Override" toggle */
+.seg {
+    display: inline-flex;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    overflow: hidden;
+    background: #fff;
+}
+.seg button {
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 7px 14px;
+    cursor: pointer;
+    min-height: 36px;
+}
+.seg button.is-active {
+    background: var(--tier1);
+    color: white;
+}
+
+/* ---------------------------------------------------------------------------
+   Layout
+   --------------------------------------------------------------------------- */
+.layout {
+    display: grid;
+    grid-template-columns: 280px 1fr 260px;
+    gap: 16px;
+    align-items: start;
+}
+@media (max-width: 1080px) { .layout { grid-template-columns: 240px 1fr; } .layout > .pairings { grid-column: 1 / -1; } }
+@media (max-width: 820px)  { .layout { grid-template-columns: 1fr; } .layout > .roster { position: static; } }
+
+/* ---------------------------------------------------------------------------
+   Roster panel (left)
+   --------------------------------------------------------------------------- */
+.roster {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px;
+    position: sticky; top: 12px;
+}
+.roster .head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.roster h2 { margin: 0; font-size: 14px; }
+.roster .sub { color: var(--muted); font-size: 11px; }
+.roster .filter {
+    width: 100%;
+    padding: 7px 10px;
+    border: 1px solid var(--line); border-radius: 6px;
+    font: inherit; font-size: 13px;
+    margin-bottom: 10px;
+}
+.roster ul { list-style: none; margin: 0; padding: 0; max-height: 60vh; overflow: auto; }
+.roster li {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 8px; border-radius: 6px;
+    cursor: grab;
+    font-size: 13px;
+}
+.roster li:hover { background: #f3f5f7; }
+.roster .av {
+    flex-shrink: 0;
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #d3d7dc; color: #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 11px;
+}
+.roster .av.is-crossteam { background: #5b8bd1; }
+.roster .av.is-guest     { background: #8a9099; }
+.roster .av.is-custom    { background: #c9962a; }
+.roster .who { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.roster .name { font-weight: 600; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.roster .meta { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.roster .fit-score {
+    margin-left: auto;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 9px;
+    font-variant-numeric: tabular-nums;
+    background: #eef0f2;
+    color: var(--muted);
+}
+.roster .fit-score.is-strong { background: #cfe7da; color: var(--tt-success); }
+.roster .fit-score.is-weak   { background: #fbe5e6; color: var(--tt-danger); }
+.roster .x-remove {
+    border: 0; background: transparent;
+    color: var(--tt-danger);
+    cursor: pointer;
+    font-size: 14px;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+.roster .x-remove:hover { background: rgba(214,54,56,0.08); }
+.roster .add-guest {
+    margin-top: 10px;
+    display: block;
+    width: 100%;
+    padding: 8px;
+    text-align: center;
+    border: 1px dashed var(--line);
+    border-radius: 6px;
+    color: var(--tier1);
+    background: transparent;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.roster .add-guest:hover { background: var(--tt-accent-15); border-color: var(--tier1); }
+
+/* ---------------------------------------------------------------------------
+   Pitch (center)
+   --------------------------------------------------------------------------- */
+.pitch-wrap {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 16px;
+}
+.pitch-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px; gap: 10px;
+}
+.pitch-head h2 { margin: 0; font-size: 15px; }
+.pitch-head .legend {
+    display: inline-flex; gap: 10px; font-size: 11px; color: var(--muted);
+    align-items: center;
+}
+.pitch-head .legend .swatch {
+    display: inline-block; width: 16px; height: 3px; vertical-align: middle; margin-right: 4px; border-radius: 2px;
+}
+
+.pitch {
+    position: relative;
+    background:
+        repeating-linear-gradient(90deg, var(--pitch-grass) 0, var(--pitch-grass) 28px, var(--pitch-grass-2) 28px, var(--pitch-grass-2) 56px);
+    border-radius: 10px;
+    aspect-ratio: 3 / 4;
+    max-height: 640px;
+    margin: 0 auto;
+    width: 100%;
+    border: 2px solid var(--pitch-line);
+    overflow: hidden;
+}
+.pitch::before, .pitch::after {
+    content: '';
+    position: absolute;
+    border: 2px solid var(--pitch-line);
+}
+.pitch::before {
+    top: 50%; left: 0; right: 0; height: 0;
+    border: 0; border-top: 2px solid var(--pitch-line);
+}
+.pitch::after {
+    top: 50%; left: 50%;
+    width: 70px; height: 70px; border-radius: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* Lines layer (SVG) sits above grass, below slots */
+.pitch .links-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Slot card — single tier only (chemistry uses only primary). */
+.slot {
+    position: absolute;
+    z-index: 2;
+    transform: translate(-50%, -50%);
+    background: rgba(255,255,255,0.95);
+    border-radius: 10px;
+    padding: 6px 8px 8px;
+    width: 120px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+    text-align: center;
+}
+.slot .pos-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: var(--tier1);
+    color: white;
+    font-weight: 700;
+    font-size: 12px;
+    margin-bottom: 4px;
+}
+.slot .pos-label {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+}
+.slot .player-pill {
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+    padding: 4px 6px;
+    background: #f3f5f7;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    min-height: 28px;
+    cursor: pointer;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.slot .player-pill.is-empty {
+    color: var(--muted);
+    font-style: italic;
+    font-weight: 400;
+    background: rgba(255,255,255,0.6);
+    border: 1px dashed var(--line);
+}
+.slot .player-pill .av-mini {
+    flex-shrink: 0;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--tier1); color: white;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 9px;
+}
+.slot .player-pill .av-mini.is-crossteam { background: #5b8bd1; }
+.slot .player-pill .av-mini.is-guest     { background: #8a9099; }
+.slot .player-pill .av-mini.is-custom    { background: #c9962a; }
+.slot .player-pill.is-override {
+    border-color: var(--tt-accent);
+    background: var(--tt-accent-15);
+    color: var(--tt-accent);
+}
+.slot .player-pill.is-override::after { content: ' ↺'; font-weight: 700; }
+.slot .clear-x {
+    position: absolute;
+    top: -6px; right: -6px;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--tt-danger);
+    color: white;
+    border: 0;
+    font-size: 12px;
+    line-height: 1;
+    cursor: pointer;
+    display: none;
+}
+.slot:hover .clear-x { display: inline-flex; align-items: center; justify-content: center; }
+
+/* ---------------------------------------------------------------------------
+   Pairings panel (right)
+   --------------------------------------------------------------------------- */
+.pairings {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px;
+    position: sticky; top: 12px;
+}
+.pairings .head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.pairings h2 { margin: 0; font-size: 14px; }
+.pairings .sub { color: var(--muted); font-size: 11px; margin: 0 0 10px; }
+.pairings ul { list-style: none; margin: 0 0 10px; padding: 0; }
+.pairings li {
+    display: flex; align-items: center; gap: 6px;
+    padding: 7px 8px;
+    border: 1px solid var(--line); border-radius: 6px;
+    margin-bottom: 6px;
+    font-size: 13px;
+}
+.pairings li .names { flex: 1; min-width: 0; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pairings li .x {
+    border: 0; background: transparent; color: var(--muted); font-size: 14px; cursor: pointer; padding: 2px 6px; border-radius: 4px;
+}
+.pairings li .x:hover { background: rgba(214,54,56,0.08); color: var(--tt-danger); }
+.pairings .add-pair {
+    width: 100%;
+    padding: 8px;
+    text-align: center;
+    border: 1px dashed var(--line);
+    border-radius: 6px;
+    color: var(--tier1);
+    background: transparent;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* ---------------------------------------------------------------------------
+   Override banner — visible only when override mode is engaged
+   --------------------------------------------------------------------------- */
+.override-banner {
+    background: var(--tt-accent-15);
+    border: 1px solid var(--tt-accent);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 12px;
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 13px;
+}
+body[data-mode="override"] .override-banner { display: flex; }
+body[data-mode="override"] .seg button[data-mode="suggested"] { background: transparent; color: var(--muted); }
+body[data-mode="override"] .seg button[data-mode="override"] { background: var(--tt-accent); color: white; }
+.override-banner strong { color: var(--tt-accent); }
+
+/* ---------------------------------------------------------------------------
+   Save-as-blueprint modal
+   --------------------------------------------------------------------------- */
+.modal-back {
+    position: fixed; inset: 0;
+    background: rgba(26,29,33,0.45);
+    display: none;
+    align-items: center; justify-content: center;
+    z-index: 300; padding: 16px;
+}
+body[data-modal="save-bp"] .modal-back { display: flex; }
+.modal {
+    background: var(--panel);
+    border-radius: 10px;
+    width: 100%; max-width: 480px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+.modal-head, .modal-foot { padding: 14px 18px; }
+.modal-head { border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; }
+.modal-foot { border-top: 1px solid var(--line); background: var(--bg); display: flex; gap: 8px; justify-content: flex-end; }
+.modal-head h3 { margin: 0; font-size: 15px; font-weight: 700; }
+.modal-head .close { border: 0; background: transparent; font-size: 20px; cursor: pointer; color: var(--muted); }
+.modal-body { padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+.modal-body label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; }
+.modal-body input[type="text"], .modal-body select {
+    width: 100%; padding: 9px 12px; border: 1px solid var(--line); border-radius: 6px; font: inherit; font-size: 14px; min-height: 40px;
+}
+</style>
+</head>
+<body data-mode="suggested" data-modal="">
+
+<div class="mockup-bar" role="region" aria-label="Mockup state picker">
+    <strong>Mode:</strong>
+    <span class="group">
+        <button type="button" data-pick-mode="suggested" aria-pressed="true">Suggested XI (default)</button>
+        <button type="button" data-pick-mode="override">Override (try a lineup)</button>
+    </span>
+    <strong>Modal:</strong>
+    <button type="button" data-pick-modal="save-bp">Save as blueprint</button>
+    <button type="button" data-pick-modal="">Close modal</button>
+</div>
+
+<header>
+    <h1>Team chemistry — Hedel JO13</h1>
+    <p class="lede">
+        The engine's recommended starting XI based on formation fit, style fit, position preferences, and coach-marked pairings.
+        Drag a player onto a slot to try an alternative — the score recomputes live.
+    </p>
+</header>
+
+<!-- ============================================================
+     SCOREBOARD — composite + sub-scores
+     ============================================================ -->
+<section class="scoreboard" aria-label="Chemistry scoreboard">
+    <div class="score-card is-headline">
+        <p class="label">Team chemistry</p>
+        <p class="value">2.34<sup>/3</sup></p>
+        <p class="trend is-up">▲ +0.12 vs last save</p>
+    </div>
+    <div class="score-card">
+        <p class="label">Formation fit</p>
+        <p class="value">2.61<sup>/3</sup></p>
+        <p class="trend">87% slots filled</p>
+    </div>
+    <div class="score-card">
+        <p class="label">Style fit</p>
+        <p class="value">2.18<sup>/3</sup></p>
+        <p class="trend">possession-oriented</p>
+    </div>
+    <div class="score-card">
+        <p class="label">Depth score</p>
+        <p class="value">1.92<sup>/3</sup></p>
+        <p class="trend">3 thin positions</p>
+    </div>
+    <div class="score-card">
+        <p class="label">Data coverage</p>
+        <p class="value">68<sup>%</sup></p>
+        <p class="trend">5 players need eval</p>
+    </div>
+</section>
+
+<!-- ============================================================
+     TOOLBAR — formation / style / mode toggle / save-as
+     ============================================================ -->
+<section class="toolbar" aria-label="Controls">
+    <label for="formation-sel">Formation</label>
+    <select id="formation-sel">
+        <option selected>4-3-3</option>
+        <option>4-4-2</option>
+        <option>3-5-2</option>
+        <option>4-2-3-1</option>
+    </select>
+    <label for="style-sel">Play style</label>
+    <select id="style-sel">
+        <option selected>Possession</option>
+        <option>Counter-attack</option>
+        <option>High press</option>
+        <option>Direct</option>
+    </select>
+
+    <div class="seg" role="tablist" aria-label="Mode">
+        <button type="button" data-pick-mode="suggested" aria-pressed="true" class="is-active">Suggested</button>
+        <button type="button" data-pick-mode="override" aria-pressed="false">Override</button>
+    </div>
+
+    <span class="spacer"></span>
+
+    <button type="button" class="btn" data-pick-mode="suggested" title="Discard overrides">Reset to suggested</button>
+    <button type="button" class="btn primary" data-pick-modal="save-bp">Save as blueprint</button>
+</section>
+
+<div class="override-banner" role="status">
+    <span><strong>Override mode active.</strong> Drag a player onto any slot to swap. Slots showing <span style="color:var(--tt-accent);font-weight:700;">↺</span> are your overrides; everything else is the engine's pick.</span>
+    <button type="button" class="btn" data-pick-mode="suggested">Exit override mode</button>
+</div>
+
+<!-- ============================================================
+     LAYOUT — roster (L) + pitch (center) + pairings (R)
+     ============================================================ -->
+<div class="layout">
+
+    <!-- Roster sidebar -->
+    <aside class="roster" aria-label="Available players">
+        <div class="head">
+            <h2>Available players</h2>
+            <span class="sub">14</span>
+        </div>
+        <input type="text" class="filter" placeholder="Search…">
+        <ul>
+            <li>
+                <span class="av">JV</span>
+                <div class="who"><span class="name">Jelle van Dijk</span><span class="meta">#1 · GK</span></div>
+                <span class="fit-score is-strong" title="High team-fit">2.8</span>
+            </li>
+            <li>
+                <span class="av">BH</span>
+                <div class="who"><span class="name">Bram Hendriks</span><span class="meta">#4 · CB · captain</span></div>
+                <span class="fit-score is-strong">2.6</span>
+            </li>
+            <li>
+                <span class="av">SDW</span>
+                <div class="who"><span class="name">Stijn de Wit</span><span class="meta">#5 · CB</span></div>
+                <span class="fit-score">2.1</span>
+            </li>
+            <li>
+                <span class="av">FK</span>
+                <div class="who"><span class="name">Finn Klaassen</span><span class="meta">#6 · CDM</span></div>
+                <span class="fit-score is-strong">2.5</span>
+            </li>
+            <li>
+                <span class="av">MP">
+                </span>
+                <div class="who"><span class="name">Mees Peters</span><span class="meta">#8 · CM</span></div>
+                <span class="fit-score">2.0</span>
+            </li>
+            <li>
+                <span class="av">TM</span>
+                <div class="who"><span class="name">Thijs Mulder</span><span class="meta">#10 · CAM</span></div>
+                <span class="fit-score is-strong">2.7</span>
+            </li>
+            <li>
+                <span class="av">LDV</span>
+                <div class="who"><span class="name">Lucas de Vries</span><span class="meta">#7 · RW</span></div>
+                <span class="fit-score is-strong">2.9</span>
+            </li>
+            <li>
+                <span class="av">DV</span>
+                <div class="who"><span class="name">Daan Visser</span><span class="meta">#9 · ST · captain</span></div>
+                <span class="fit-score is-strong">2.8</span>
+            </li>
+            <li>
+                <span class="av">SB</span>
+                <div class="who"><span class="name">Sander Brouwer</span><span class="meta">#11 · LW</span></div>
+                <span class="fit-score">1.9</span>
+            </li>
+            <li>
+                <span class="av">TVDB</span>
+                <div class="who"><span class="name">Tim van der Berg</span><span class="meta">#2 · RB</span></div>
+                <span class="fit-score">2.2</span>
+            </li>
+            <li>
+                <span class="av">JOEP</span>
+                <div class="who"><span class="name">Joep Verhoeven</span><span class="meta">#3 · LB</span></div>
+                <span class="fit-score">2.0</span>
+            </li>
+            <li>
+                <span class="av">SJ</span>
+                <div class="who"><span class="name">Sem Janssen</span><span class="meta">#14 · MID</span></div>
+                <span class="fit-score is-weak">1.5</span>
+            </li>
+            <li>
+                <span class="av is-crossteam">MTH</span>
+                <div class="who"><span class="name">Milan ten Have</span><span class="meta">Texel JO13 · DEF · guest</span></div>
+                <span class="fit-score">1.8</span>
+                <button type="button" class="x-remove" aria-label="Remove guest">×</button>
+            </li>
+            <li>
+                <span class="av is-guest">VG</span>
+                <div class="who"><span class="name">Visiting trialist</span><span class="meta">anon · MID · guest</span></div>
+                <span class="fit-score">—</span>
+                <button type="button" class="x-remove" aria-label="Remove guest">×</button>
+            </li>
+        </ul>
+        <button type="button" class="add-guest">+ Add cross-team / guest / custom</button>
+    </aside>
+
+    <!-- Pitch in the middle — single tier per slot (no secondary/tertiary) -->
+    <section class="pitch-wrap" aria-label="Pitch">
+        <div class="pitch-head">
+            <h2>Starting XI</h2>
+            <div class="legend">
+                <span><span class="swatch" style="background:var(--chem-strong);"></span>Strong</span>
+                <span><span class="swatch" style="background:var(--chem-neutral);"></span>Neutral</span>
+                <span><span class="swatch" style="background:var(--chem-mismatch);"></span>Mismatch</span>
+            </div>
+        </div>
+        <div class="pitch">
+            <!-- Chemistry links between paired slots (SVG behind the slots). -->
+            <svg class="links-svg" viewBox="0 0 100 130" preserveAspectRatio="none">
+                <!-- GK-CB pair (strong) -->
+                <line x1="50" y1="118" x2="35" y2="92" stroke="var(--chem-strong)" stroke-width="0.6" />
+                <line x1="50" y1="118" x2="65" y2="92" stroke="var(--chem-strong)" stroke-width="0.6" />
+                <!-- CB-CB (strong) -->
+                <line x1="35" y1="92" x2="65" y2="92" stroke="var(--chem-strong)" stroke-width="0.6" />
+                <!-- LB-CB / RB-CB -->
+                <line x1="14" y1="88" x2="35" y2="92" stroke="var(--chem-neutral)" stroke-width="0.55" />
+                <line x1="86" y1="88" x2="65" y2="92" stroke="var(--chem-neutral)" stroke-width="0.55" />
+                <!-- LB-CB long → mismatch example -->
+                <line x1="14" y1="88" x2="50" y2="62" stroke="var(--chem-mismatch)" stroke-width="0.55" />
+                <!-- CDM-CB pair (strong) -->
+                <line x1="50" y1="62" x2="35" y2="92" stroke="var(--chem-strong)" stroke-width="0.6" />
+                <line x1="50" y1="62" x2="65" y2="92" stroke="var(--chem-strong)" stroke-width="0.6" />
+                <!-- CDM-CM pair -->
+                <line x1="50" y1="62" x2="32" y2="50" stroke="var(--chem-strong)" stroke-width="0.6" />
+                <line x1="50" y1="62" x2="68" y2="50" stroke="var(--chem-neutral)" stroke-width="0.55" />
+                <!-- Forwards -->
+                <line x1="32" y1="50" x2="20" y2="22" stroke="var(--chem-strong)" stroke-width="0.6" />
+                <line x1="68" y1="50" x2="80" y2="22" stroke="var(--chem-strong)" stroke-width="0.6" />
+                <line x1="32" y1="50" x2="50" y2="14" stroke="var(--chem-neutral)" stroke-width="0.55" />
+                <line x1="68" y1="50" x2="50" y2="14" stroke="var(--chem-neutral)" stroke-width="0.55" />
+            </svg>
+
+            <!-- GK -->
+            <div class="slot" style="left:50%;top:90%;">
+                <button type="button" class="clear-x" aria-label="Clear slot">×</button>
+                <div class="pos-badge">1</div>
+                <div class="pos-label">GK</div>
+                <div class="player-pill"><span class="av-mini">JV</span>Jelle</div>
+            </div>
+
+            <!-- LB -->
+            <div class="slot" style="left:14%;top:68%;">
+                <button type="button" class="clear-x" aria-label="Clear slot">×</button>
+                <div class="pos-badge">3</div>
+                <div class="pos-label">LB</div>
+                <div class="player-pill"><span class="av-mini">JO</span>Joep</div>
+            </div>
+            <!-- CB1 -->
+            <div class="slot" style="left:35%;top:71%;">
+                <button type="button" class="clear-x" aria-label="Clear slot">×</button>
+                <div class="pos-badge">4</div>
+                <div class="pos-label">CB</div>
+                <div class="player-pill"><span class="av-mini">BH</span>Bram H.</div>
+            </div>
+            <!-- CB2 -->
+            <div class="slot" style="left:65%;top:71%;">
+                <button type="button" class="clear-x" aria-label="Clear slot">×</button>
+                <div class="pos-badge">5</div>
+                <div class="pos-label">CB</div>
+                <div class="player-pill"><span class="av-mini">SDW</span>Stijn</div>
+            </div>
+            <!-- RB -->
+            <div class="slot" style="left:86%;top:68%;">
+                <button type="button" class="clear-x" aria-label="Clear slot">×</button>
+                <div class="pos-badge">2</div>
+                <div class="pos-label">RB</div>
+                <div class="player-pill"><span class="av-mini">TVD</span>Tim</div>
+            </div>
+
+            <!-- CDM -->
+            <div class="slot" style="left:50%;top:48%;">
+                <button type="button" class="clear-x" aria-label="Clear slot">×</button>
+                <div class="pos-badge">6</div>
+                <div class="pos-label">CDM</div>
+                <div class="player-pill"><span class="av-mini">FK</span>Finn</div>
+            </div>
+            <!-- CM L -->
+            <div class="slot" style="left:32%;top:38%;">
+                <button type="button" class="clear-x" aria-label="Clear slot">×</button>
+                <div class="pos-badge">8</div>
+                <div class="pos-label">CM</div>
+                <div class="player-pill"><span class="av-mini">MP</span>Mees</div>
+            </div>
+            <!-- CM R -->
+            <div class="slot" style="left:68%;top:38%;">
+                <button type="button" class="clear-x" aria-label="Clear slot">×</button>
+                <div class="pos-badge">10</div>
+                <div class="pos-label">CAM</div>
+                <div class="player-pill is-override"><span class="av-mini">TM</span>Thijs</div>
+            </div>
+
+            <!-- LW -->
+            <div class="slot" style="left:20%;top:16%;">
+                <button type="button" class="clear-x" aria-label="Clear slot">×</button>
+                <div class="pos-badge">11</div>
+                <div class="pos-label">LW</div>
+                <div class="player-pill"><span class="av-mini">SB</span>Sander</div>
+            </div>
+            <!-- ST -->
+            <div class="slot" style="left:50%;top:10%;">
+                <button type="button" class="clear-x" aria-label="Clear slot">×</button>
+                <div class="pos-badge">9</div>
+                <div class="pos-label">ST</div>
+                <div class="player-pill"><span class="av-mini">DV</span>Daan</div>
+            </div>
+            <!-- RW -->
+            <div class="slot" style="left:80%;top:16%;">
+                <button type="button" class="clear-x" aria-label="Clear slot">×</button>
+                <div class="pos-badge">7</div>
+                <div class="pos-label">RW</div>
+                <div class="player-pill"><span class="av-mini">LDV</span>Lucas</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pairings panel right -->
+    <aside class="pairings" aria-label="Coach-marked pairings">
+        <div class="head">
+            <h2>Coach pairings</h2>
+            <span class="sub">3</span>
+        </div>
+        <p class="sub">Players that work well together. Boosts chemistry when paired in adjacent slots.</p>
+        <ul>
+            <li>
+                <span class="names">Bram H. · Stijn</span>
+                <button type="button" class="x" aria-label="Remove pairing">×</button>
+            </li>
+            <li>
+                <span class="names">Lucas · Daan</span>
+                <button type="button" class="x" aria-label="Remove pairing">×</button>
+            </li>
+            <li>
+                <span class="names">Finn · Bram H.</span>
+                <button type="button" class="x" aria-label="Remove pairing">×</button>
+            </li>
+        </ul>
+        <button type="button" class="add-pair">+ Mark a pairing</button>
+    </aside>
+</div>
+
+<!-- ============================================================
+     Save-as-blueprint modal (state-pickable)
+     ============================================================ -->
+<div class="modal-back" role="dialog" aria-modal="true" aria-labelledby="save-bp-title">
+    <div class="modal">
+        <header class="modal-head">
+            <h3 id="save-bp-title">Save as blueprint</h3>
+            <button type="button" class="close" data-pick-modal="" aria-label="Close">×</button>
+        </header>
+        <div class="modal-body">
+            <p style="margin:0;color:var(--muted);font-size:13px;">
+                Persist the current XI as a blueprint. Future loads of the team-chemistry page can pull this back via the blueprint editor.
+            </p>
+            <div>
+                <label for="bp-name">Blueprint name</label>
+                <input type="text" id="bp-name" value="Possession 4-3-3 — Lucas / Daan front line">
+            </div>
+            <div>
+                <label for="bp-flavour">Flavour</label>
+                <select id="bp-flavour">
+                    <option value="match_day" selected>Match day (starting XI only)</option>
+                    <option value="squad_plan">Squad plan (multi-tier depth chart)</option>
+                </select>
+            </div>
+        </div>
+        <footer class="modal-foot">
+            <button type="button" class="btn" data-pick-modal="">Cancel</button>
+            <button type="button" class="btn primary">Save blueprint</button>
+        </footer>
+    </div>
+</div>
+
+<script>
+function setMode(m) {
+    document.body.setAttribute('data-mode', m);
+    document.querySelectorAll('[data-pick-mode]').forEach(function (b) {
+        if (b.tagName !== 'BUTTON') return;
+        b.setAttribute('aria-pressed', b.getAttribute('data-pick-mode') === m ? 'true' : 'false');
+        if (b.classList.contains('seg') || b.parentNode.classList.contains('seg')) {
+            b.classList.toggle('is-active', b.getAttribute('data-pick-mode') === m);
+        }
+    });
+}
+function setModal(m) {
+    document.body.setAttribute('data-modal', m);
+}
+document.querySelectorAll('[data-pick-mode]').forEach(function (el) {
+    el.addEventListener('click', function (e) { e.preventDefault(); setMode(el.getAttribute('data-pick-mode')); });
+});
+document.querySelectorAll('[data-pick-modal]').forEach(function (el) {
+    el.addEventListener('click', function (e) { e.preventDefault(); setModal(el.getAttribute('data-pick-modal') || ''); });
+});
+// Backdrop click closes modal
+document.querySelector('.modal-back').addEventListener('click', function (e) {
+    if (e.target === e.currentTarget) setModal('');
+});
+</script>
+</body>
+</html>
