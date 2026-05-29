@@ -3,6 +3,7 @@ namespace TT\Infrastructure\REST;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\PotentialBand;
 use TT\Infrastructure\PlayerStatus\PlayerStatusCalculator;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
@@ -94,7 +95,7 @@ final class PlayerStatusRestController {
     public static function setPotential( \WP_REST_Request $r ): \WP_REST_Response {
         $player_id = (int) $r['id'];
         $band      = isset( $r['potential_band'] ) ? sanitize_key( (string) $r['potential_band'] ) : '';
-        $valid     = [ 'first_team', 'professional_elsewhere', 'semi_pro', 'top_amateur', 'recreational' ];
+        $valid     = PotentialBand::ALL;
         if ( $player_id <= 0 || ! in_array( $band, $valid, true ) ) {
             return RestResponse::error( 'bad_input', __( 'Player and a valid potential band are required.', 'talenttrack' ), 400, [ 'allowed' => $valid ] );
         }

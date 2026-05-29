@@ -3,6 +3,8 @@ namespace TT\Modules\Authorization\Impersonation;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Enums\ImpersonationEndReason;
+
 /**
  * ImpersonationAdminPost (#0071 child 5) — admin-post handlers for
  * starting and ending an impersonation session via plain GET/POST.
@@ -44,7 +46,7 @@ final class ImpersonationAdminPost {
 
     public static function end(): void {
         check_admin_referer( 'tt_impersonation_end', '_tt_impersonation_nonce' );
-        ImpersonationService::end( 'manual' );
+        ImpersonationService::end( ImpersonationEndReason::MANUAL );
 
         $redirect = isset( $_GET['return_to'] )
             ? wp_unslash( (string) $_GET['return_to'] )

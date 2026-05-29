@@ -3,6 +3,7 @@ namespace TT\Shared\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\PotentialBand;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Players\Repositories\PlayerBehaviourRatingsRepository;
 use TT\Modules\Players\Repositories\PlayerPotentialRepository;
@@ -95,7 +96,7 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
             } elseif ( $kind === 'potential' && current_user_can( 'tt_set_player_potential' ) ) {
                 $band  = isset( $_POST['potential_band'] ) ? sanitize_key( (string) $_POST['potential_band'] ) : '';
                 $notes = isset( $_POST['notes'] )          ? sanitize_textarea_field( wp_unslash( (string) $_POST['notes'] ) ) : '';
-                $valid = [ 'first_team', 'professional_elsewhere', 'semi_pro', 'top_amateur', 'recreational' ];
+                $valid = PotentialBand::ALL;
                 if ( in_array( $band, $valid, true ) ) {
                     ( new PlayerPotentialRepository() )->create( [
                         'player_id'      => $player_id,
@@ -233,11 +234,11 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
                         <select id="tt-pot-band" name="potential_band" required class="tt-input">
                             <?php
                             $bands = [
-                                'first_team'             => __( 'First team', 'talenttrack' ),
-                                'professional_elsewhere' => __( 'Professional elsewhere', 'talenttrack' ),
-                                'semi_pro'               => __( 'Semi-pro', 'talenttrack' ),
-                                'top_amateur'            => __( 'Top amateur', 'talenttrack' ),
-                                'recreational'           => __( 'Recreational', 'talenttrack' ),
+                                PotentialBand::FIRST_TEAM             => __( 'First team', 'talenttrack' ),
+                                PotentialBand::PROFESSIONAL_ELSEWHERE => __( 'Professional elsewhere', 'talenttrack' ),
+                                PotentialBand::SEMI_PRO               => __( 'Semi-pro', 'talenttrack' ),
+                                PotentialBand::TOP_AMATEUR            => __( 'Top amateur', 'talenttrack' ),
+                                PotentialBand::RECREATIONAL           => __( 'Recreational', 'talenttrack' ),
                             ];
                             $current_band = $latest_potential ? (string) $latest_potential->potential_band : '';
                             foreach ( $bands as $code => $label ) :

@@ -4,7 +4,7 @@ namespace TT\Modules\PersonaDashboard\Widgets;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Core\ModuleRegistry;
-use TT\Modules\Invitations\InvitationStatus;
+use TT\Domain\Vocabularies\Lookups\InvitationStatus;
 use TT\Modules\PersonaDashboard\Domain\AbstractWidget;
 use TT\Modules\PersonaDashboard\Domain\RenderContext;
 use TT\Modules\PersonaDashboard\Domain\Size;
@@ -103,7 +103,7 @@ class SystemHealthStripWidget extends AbstractWidget {
         if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
             return 0;
         }
-        $status = class_exists( InvitationStatus::class ) ? InvitationStatus::PENDING : 'pending';
+        $status = InvitationStatus::PENDING;
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
         return (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*) FROM {$table} WHERE status = %s AND club_id = %d",

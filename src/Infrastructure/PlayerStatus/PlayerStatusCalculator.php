@@ -3,6 +3,7 @@ namespace TT\Infrastructure\PlayerStatus;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\PotentialBand;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Players\Repositories\PlayerBehaviourRatingsRepository;
@@ -37,11 +38,11 @@ use TT\Modules\Players\Repositories\PlayerPotentialRepository;
 final class PlayerStatusCalculator {
 
     private const POTENTIAL_BAND_SCORES = [
-        'first_team'             => 100,
-        'professional_elsewhere' => 80,
-        'semi_pro'               => 60,
-        'top_amateur'             => 40,
-        'recreational'           => 20,
+        PotentialBand::FIRST_TEAM             => 100,
+        PotentialBand::PROFESSIONAL_ELSEWHERE => 80,
+        PotentialBand::SEMI_PRO               => 60,
+        PotentialBand::TOP_AMATEUR            => 40,
+        PotentialBand::RECREATIONAL           => 20,
     ];
 
     private PlayerBehaviourRatingsRepository $behaviourRepo;

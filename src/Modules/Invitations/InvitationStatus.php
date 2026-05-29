@@ -3,6 +3,8 @@ namespace TT\Modules\Invitations;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\InvitationStatus as CanonicalInvitationStatus;
+
 /**
  * InvitationStatus — string constants for `tt_invitations.status`.
  *
@@ -18,13 +20,28 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * via the frontend Lookups admin (`?tt_view=configuration
  * &config_sub=lookups&category=invitation_statuses`); the constants
  * above stay sacred for code-side comparisons.
+ *
+ * v4.12.9 (#988 PR-set 7) — the canonical invitation status values
+ * moved into `TT\Domain\Vocabularies\Lookups\InvitationStatus`. The
+ * constants below alias the new vocabulary for one release per #988's
+ * locked plan, and will be removed in the next minor; new code should
+ * reference `TT\Domain\Vocabularies\Lookups\InvitationStatus::*`
+ * directly. The module-local `label()` helper stays in place — it
+ * encodes rendering rules that aren't part of the vocabulary contract.
  */
 final class InvitationStatus {
 
-    public const PENDING  = 'pending';
-    public const ACCEPTED = 'accepted';
-    public const EXPIRED  = 'expired';
-    public const REVOKED  = 'revoked';
+    /** @deprecated since v4.12.9 — use {@see CanonicalInvitationStatus::PENDING}; removed in next minor. */
+    public const PENDING  = CanonicalInvitationStatus::PENDING;
+
+    /** @deprecated since v4.12.9 — use {@see CanonicalInvitationStatus::ACCEPTED}; removed in next minor. */
+    public const ACCEPTED = CanonicalInvitationStatus::ACCEPTED;
+
+    /** @deprecated since v4.12.9 — use {@see CanonicalInvitationStatus::EXPIRED}; removed in next minor. */
+    public const EXPIRED  = CanonicalInvitationStatus::EXPIRED;
+
+    /** @deprecated since v4.12.9 — use {@see CanonicalInvitationStatus::REVOKED}; removed in next minor. */
+    public const REVOKED  = CanonicalInvitationStatus::REVOKED;
 
     /** @return list<string> */
     public static function all(): array {
