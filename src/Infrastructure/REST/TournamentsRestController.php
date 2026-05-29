@@ -3,6 +3,8 @@ namespace TT\Infrastructure\REST;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\ActivityStatusKey;
+use TT\Domain\Vocabularies\Lookups\AttendanceStatus;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
@@ -641,8 +643,11 @@ class TournamentsRestController {
                 __( 'Tournament match — %s', 'talenttrack' ),
                 (string) $tournament->name
             ),
+            // Note: 'match' is a legacy synonym for ActivityTypeKey::GAME;
+            // tournament-created activities preserve the original label
+            // until a coordinated rename — see #988 follow-up.
             'activity_type_key'   => 'match',
-            'activity_status_key' => 'planned',
+            'activity_status_key' => ActivityStatusKey::PLANNED,
             'activity_source_key' => 'tournament',
             'coach_id'            => get_current_user_id(),
             'opponent'            => (string) ( $match['opponent_name'] ?? '' ),
@@ -760,7 +765,7 @@ class TournamentsRestController {
                 'club_id'         => CurrentClub::id(),
                 'activity_id'     => $activity_id,
                 'player_id'       => $pid,
-                'status'          => 'present',
+                'status'          => AttendanceStatus::PRESENT,
                 'lineup_role'     => $row['started'] ? 'start' : 'bench',
                 'position_played' => $row['position_played'],
             ] );

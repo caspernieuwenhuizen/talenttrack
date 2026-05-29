@@ -14,6 +14,14 @@ Breaking changes to a `talenttrack/v1` endpoint shape bump the namespace to `tal
 
 This policy is **codified but not yet exercised** — every change to v1 so far has been backwards-compatible.
 
+## Vocabulary constants — backward-compat allowlist (#988)
+
+From v4.10.1 the activities + attendance vocabularies have typed PHP constants in `TT\Domain\Vocabularies\Lookups\*` (`AttendanceStatus`, `ActivityTypeKey`, `ActivityStatusKey`, `GameSubtype`). The REST endpoints that read these fields — `POST/PUT /sessions`, `POST/PATCH /sessions/{id}/guests`, `PATCH /attendance/{id}`, `POST /tournaments/{id}/matches` — **continue to accept the raw string literals AND the new typed constants** for one release.
+
+Per the same shape as the v4.3.21 #953 blueprint-assignment deprecation and the #903 sunset, the allowlist drops in the next minor (v4.11.0): payloads carrying literals that don't match any value in the corresponding `::ALL` array will return `400 bad_value` instead of silently falling back to the seeded default. The matching PHPStan rule (issue #988 PR-set 8) lands at the same time.
+
+Other vocabularies (goals, PDP, trial, player, team, reports, tournaments, auth) follow the same pattern in subsequent #988 PR-sets.
+
 ## Resources
 
 | Resource         | Routes                                                                                        | Source                                                  |

@@ -3,6 +3,8 @@ namespace TT\Modules\Activities\Admin;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\ActivityStatusKey;
+use TT\Domain\Vocabularies\Lookups\ActivityTypeKey;
 use TT\Infrastructure\CustomFields\CustomFieldsRepository;
 use TT\Infrastructure\CustomFields\CustomFieldsSlot;
 use TT\Infrastructure\Logging\Logger;
@@ -192,17 +194,17 @@ class ActivitiesPage {
      * than replacing it.
      */
     private static function renderTypePill( object $row ): string {
-        $type = (string) ( $row->activity_type_key ?? 'training' );
+        $type = (string) ( $row->activity_type_key ?? ActivityTypeKey::TRAINING );
         $pill = LookupPill::render( 'activity_type', $type );
 
-        if ( $type === 'game' ) {
+        if ( $type === ActivityTypeKey::GAME ) {
             $sub = (string) ( $row->game_subtype_key ?? '' );
             if ( $sub !== '' ) {
                 return $pill . ' <span style="color:#5b6e75;font-size:11px;">·&nbsp;'
                     . esc_html( $sub ) . '</span>';
             }
         }
-        if ( $type === 'other' ) {
+        if ( $type === ActivityTypeKey::OTHER ) {
             $label = (string) ( $row->other_label ?? '' );
             if ( $label !== '' ) {
                 return $pill . ' <span style="color:#5b6e75;font-size:11px;">·&nbsp;'
@@ -256,8 +258,8 @@ class ActivitiesPage {
         $team_id = (int) ( $activity->team_id ?? 0 );
         $players = $team_id ? QueryHelpers::get_players( $team_id ) : QueryHelpers::get_players();
         $state = self::popFormState();
-        $current_type    = (string) ( $activity->activity_type_key ?? 'training' );
-        $current_status  = (string) ( $activity->activity_status_key ?? 'planned' );
+        $current_type    = (string) ( $activity->activity_type_key ?? ActivityTypeKey::TRAINING );
+        $current_status  = (string) ( $activity->activity_status_key ?? ActivityStatusKey::PLANNED );
         $current_subtype = (string) ( $activity->game_subtype_key ?? '' );
         $current_other   = (string) ( $activity->other_label ?? '' );
         ?>
@@ -468,16 +470,16 @@ class ActivitiesPage {
         global $wpdb; $p = $wpdb->prefix;
         $id = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
 
-        $type = isset( $_POST['activity_type_key'] ) ? sanitize_text_field( (string) wp_unslash( $_POST['activity_type_key'] ) ) : 'training';
+        $type = isset( $_POST['activity_type_key'] ) ? sanitize_text_field( (string) wp_unslash( $_POST['activity_type_key'] ) ) : ActivityTypeKey::TRAINING;
         // #0050 — validate against the live lookup; unknown values fall
-        // back to 'training' silently (wp-admin path stays lenient; REST
-        // path returns 400 for the same case).
+        // back to ActivityTypeKey::TRAINING silently (wp-admin path stays
+        // lenient; REST path returns 400 for the same case).
         $valid_types = QueryHelpers::get_lookup_names( 'activity_type' );
-        if ( ! in_array( $type, $valid_types, true ) ) $type = 'training';
+        if ( ! in_array( $type, $valid_types, true ) ) $type = ActivityTypeKey::TRAINING;
 
-        $status        = isset( $_POST['activity_status_key'] ) ? sanitize_text_field( (string) wp_unslash( $_POST['activity_status_key'] ) ) : 'planned';
+        $status        = isset( $_POST['activity_status_key'] ) ? sanitize_text_field( (string) wp_unslash( $_POST['activity_status_key'] ) ) : ActivityStatusKey::PLANNED;
         $valid_statuses = QueryHelpers::get_lookup_names( 'activity_status' );
-        if ( ! in_array( $status, $valid_statuses, true ) ) $status = 'planned';
+        if ( ! in_array( $status, $valid_statuses, true ) ) $status = ActivityStatusKey::PLANNED;
 
         $data = [
             'title' => isset( $_POST['title'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['title'] ) ) : '',
@@ -488,10 +490,10 @@ class ActivitiesPage {
             'notes' => isset( $_POST['notes'] ) ? sanitize_textarea_field( wp_unslash( (string) $_POST['notes'] ) ) : '',
             'activity_type_key'   => $type,
             'activity_status_key' => $status,
-            'game_subtype_key'  => $type === 'game' && ! empty( $_POST['game_subtype_key'] )
+            'game_subtype_key'  => $type === ActivityTypeKey::GAME && ! empty( $_POST['game_subtype_key'] )
                 ? sanitize_text_field( wp_unslash( (string) $_POST['game_subtype_key'] ) )
                 : null,
-            'other_label'       => $type === 'other' && ! empty( $_POST['other_label'] )
+            'other_label'       => $type === ActivityTypeKey::OTHER && ! empty( $_POST['other_label'] )
                 ? sanitize_text_field( wp_unslash( (string) $_POST['other_label'] ) )
                 : null,
         ];

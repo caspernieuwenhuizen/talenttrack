@@ -3,6 +3,8 @@ namespace TT\Modules\Wizards\Activity;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\ActivityStatusKey;
+use TT\Domain\Vocabularies\Lookups\ActivityTypeKey;
 use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Shared\Wizards\WizardStepInterface;
@@ -25,8 +27,8 @@ final class TypeStatusStep implements WizardStepInterface {
         $type_rows   = QueryHelpers::get_lookups( 'activity_type' );
         $status_rows = QueryHelpers::get_lookups( 'activity_status' );
 
-        $current_type   = (string) ( $state['activity_type_key'] ?? 'training' );
-        $current_status = (string) ( $state['activity_status_key'] ?? 'planned' );
+        $current_type   = (string) ( $state['activity_type_key'] ?? ActivityTypeKey::TRAINING );
+        $current_status = (string) ( $state['activity_status_key'] ?? ActivityStatusKey::PLANNED );
 
         echo '<label><span>' . esc_html__( 'Activity type', 'talenttrack' ) . ' *</span><select name="activity_type_key" required>';
         foreach ( $type_rows as $row ) {
@@ -53,13 +55,13 @@ final class TypeStatusStep implements WizardStepInterface {
     }
 
     public function validate( array $post, array $state ) {
-        $type   = isset( $post['activity_type_key'] )   ? sanitize_text_field( wp_unslash( (string) $post['activity_type_key'] ) )   : 'training';
-        $status = isset( $post['activity_status_key'] ) ? sanitize_text_field( wp_unslash( (string) $post['activity_status_key'] ) ) : 'planned';
+        $type   = isset( $post['activity_type_key'] )   ? sanitize_text_field( wp_unslash( (string) $post['activity_type_key'] ) )   : ActivityTypeKey::TRAINING;
+        $status = isset( $post['activity_status_key'] ) ? sanitize_text_field( wp_unslash( (string) $post['activity_status_key'] ) ) : ActivityStatusKey::PLANNED;
 
         $valid_types    = QueryHelpers::get_lookup_names( 'activity_type' );
         $valid_statuses = QueryHelpers::get_lookup_names( 'activity_status' );
-        if ( ! in_array( $type,   $valid_types,    true ) ) $type   = 'training';
-        if ( ! in_array( $status, $valid_statuses, true ) ) $status = 'planned';
+        if ( ! in_array( $type,   $valid_types,    true ) ) $type   = ActivityTypeKey::TRAINING;
+        if ( ! in_array( $status, $valid_statuses, true ) ) $status = ActivityStatusKey::PLANNED;
 
         return [
             'activity_type_key'   => $type,

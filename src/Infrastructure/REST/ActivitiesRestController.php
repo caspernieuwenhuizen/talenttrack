@@ -3,6 +3,9 @@ namespace TT\Infrastructure\REST;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\ActivityStatusKey;
+use TT\Domain\Vocabularies\Lookups\ActivityTypeKey;
+use TT\Domain\Vocabularies\Lookups\AttendanceStatus;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
@@ -479,7 +482,7 @@ class ActivitiesRestController {
             if ( $attendance_pct > 100 ) $attendance_pct = 100;
         }
 
-        $type_key = (string) ( $row->activity_type_key ?? 'training' );
+        $type_key = (string) ( $row->activity_type_key ?? ActivityTypeKey::TRAINING );
 
         // #0063 — pre-render the title + team as RecordLink HTML so the
         // generic FrontendListTable can display them as clickable cells
@@ -744,13 +747,13 @@ class ActivitiesRestController {
         // falls back to the seeded 'training'; an unknown value is the
         // caller's responsibility to reject (see validateActivityType).
         $type    = sanitize_text_field( (string) ( $r['activity_type_key'] ?? '' ) );
-        if ( $type === '' ) $type = 'training';
+        if ( $type === '' ) $type = ActivityTypeKey::TRAINING;
         $subtype = sanitize_text_field( (string) ( $r['game_subtype_key'] ?? '' ) );
         $other   = sanitize_text_field( (string) ( $r['other_label'] ?? '' ) );
 
         $status = sanitize_text_field( (string) ( $r['activity_status_key'] ?? '' ) );
         $valid_statuses = QueryHelpers::get_lookup_names( 'activity_status' );
-        if ( $status === '' || ! in_array( $status, $valid_statuses, true ) ) $status = 'planned';
+        if ( $status === '' || ! in_array( $status, $valid_statuses, true ) ) $status = ActivityStatusKey::PLANNED;
 
         // #0006 — plan-state is optional on REST. The legacy logging
         // flow leaves it null and the column default ('completed') wins,
@@ -768,8 +771,8 @@ class ActivitiesRestController {
             'notes'               => sanitize_textarea_field( (string) ( $r['notes'] ?? '' ) ),
             'activity_type_key'   => $type,
             'activity_status_key' => $status,
-            'game_subtype_key'    => $type === 'game' && $subtype !== '' ? $subtype : null,
-            'other_label'         => $type === 'other' && $other !== ''   ? $other   : null,
+            'game_subtype_key'    => $type === ActivityTypeKey::GAME && $subtype !== '' ? $subtype : null,
+            'other_label'         => $type === ActivityTypeKey::OTHER && $other !== ''   ? $other   : null,
         ];
         if ( in_array( $plan_state, $allowed_plan_states, true ) ) {
             $payload['plan_state'] = $plan_state;
@@ -887,7 +890,7 @@ class ActivitiesRestController {
         // and downstream reads use `LOWER(status) IN (…)` since
         // v3.110.78. Send the lowercase canonical value so the row
         // matches the picker / widget queries without surprises.
-        $status    = sanitize_text_field( (string) ( $r['status'] ?? 'present' ) );
+        $status    = sanitize_text_field( (string) ( $r['status'] ?? AttendanceStatus::PRESENT ) );
         if ( $status !== '' ) {
             $status = strtolower( $status );
         }

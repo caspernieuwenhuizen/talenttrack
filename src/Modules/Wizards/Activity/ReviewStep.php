@@ -3,6 +3,8 @@ namespace TT\Modules\Wizards\Activity;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\ActivityStatusKey;
+use TT\Domain\Vocabularies\Lookups\ActivityTypeKey;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
@@ -23,8 +25,8 @@ final class ReviewStep implements WizardStepInterface {
     public function label(): string { return __( 'Review', 'talenttrack' ); }
 
     public function render( array $state ): void {
-        $type   = (string) ( $state['activity_type_key'] ?? 'training' );
-        $status = (string) ( $state['activity_status_key'] ?? 'planned' );
+        $type   = (string) ( $state['activity_type_key'] ?? ActivityTypeKey::TRAINING );
+        $status = (string) ( $state['activity_status_key'] ?? ActivityStatusKey::PLANNED );
         $continue_to_guests = ! empty( $state['continue_to_guests'] );
 
         echo '<p>' . esc_html__( 'Looks good? Create the activity to start logging attendance.', 'talenttrack' ) . '</p>';
@@ -58,10 +60,10 @@ final class ReviewStep implements WizardStepInterface {
             [ __( 'Type',   'talenttrack' ), self::translateLookup( 'activity_type',   $type   ), false ],
             [ __( 'Status', 'talenttrack' ), self::translateLookup( 'activity_status', $status ), false ],
         ];
-        if ( $type === 'game' && ! empty( $state['game_subtype_key'] ) ) {
+        if ( $type === ActivityTypeKey::GAME && ! empty( $state['game_subtype_key'] ) ) {
             $rows[] = [ __( 'Game subtype', 'talenttrack' ), (string) $state['game_subtype_key'], false ];
         }
-        if ( $type === 'other' && ! empty( $state['other_label'] ) ) {
+        if ( $type === ActivityTypeKey::OTHER && ! empty( $state['other_label'] ) ) {
             $rows[] = [ __( 'Other label', 'talenttrack' ), (string) $state['other_label'], false ];
         }
         $rows[] = [ __( 'Title',    'talenttrack' ), (string) ( $state['title'] ?? '' ),       false ];
@@ -136,12 +138,12 @@ final class ReviewStep implements WizardStepInterface {
             return new \WP_Error( 'incomplete', __( 'The activity is missing required fields.', 'talenttrack' ) );
         }
 
-        $type           = (string) ( $state['activity_type_key'] ?? 'training' );
-        $status         = (string) ( $state['activity_status_key'] ?? 'planned' );
+        $type           = (string) ( $state['activity_type_key'] ?? ActivityTypeKey::TRAINING );
+        $status         = (string) ( $state['activity_status_key'] ?? ActivityStatusKey::PLANNED );
         $valid_types    = QueryHelpers::get_lookup_names( 'activity_type' );
         $valid_statuses = QueryHelpers::get_lookup_names( 'activity_status' );
-        if ( ! in_array( $type,   $valid_types,    true ) ) $type   = 'training';
-        if ( ! in_array( $status, $valid_statuses, true ) ) $status = 'planned';
+        if ( ! in_array( $type,   $valid_types,    true ) ) $type   = ActivityTypeKey::TRAINING;
+        if ( ! in_array( $status, $valid_statuses, true ) ) $status = ActivityStatusKey::PLANNED;
 
         $row = [
             'club_id'             => CurrentClub::id(),
@@ -154,8 +156,8 @@ final class ReviewStep implements WizardStepInterface {
             'activity_type_key'   => $type,
             'activity_status_key' => $status,
             'activity_source_key' => 'manual',
-            'game_subtype_key'    => $type === 'game'  && ! empty( $state['game_subtype_key'] ) ? (string) $state['game_subtype_key'] : null,
-            'other_label'         => $type === 'other' && ! empty( $state['other_label'] )       ? (string) $state['other_label']    : null,
+            'game_subtype_key'    => $type === ActivityTypeKey::GAME  && ! empty( $state['game_subtype_key'] ) ? (string) $state['game_subtype_key'] : null,
+            'other_label'         => $type === ActivityTypeKey::OTHER && ! empty( $state['other_label'] )       ? (string) $state['other_label']    : null,
         ];
 
         $ok = $wpdb->insert( $wpdb->prefix . 'tt_activities', $row );
