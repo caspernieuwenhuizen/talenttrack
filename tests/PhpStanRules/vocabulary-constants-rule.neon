@@ -1,0 +1,27 @@
+# Opt-in PHPStan overlay for the vocabulary-constants rule (umbrella issue
+# #988, PR-set 8). NOT included from `phpstan.neon` by default — the
+# backwards-compat allowlist (#988's locked decisions, 2026-05-28) keeps
+# raw string-literal comparisons against vocabulary values legal for one
+# release window. The rule lands as infrastructure now; it gets wired into
+# the default analyse run when the allowlist sunsets.
+#
+# To enable the rule in your local analyse run today, include this file
+# from your own `phpstan.neon` overlay (or pass `--configuration` on the
+# CLI). The rule will then report one error per comparison against a known
+# `TT\Domain\Vocabularies\*::*` value.
+#
+# Example overlay (`phpstan.local.neon`):
+#
+#     includes:
+#         - phpstan.neon
+#         - tests/PhpStanRules/vocabulary-constants-rule.neon
+#
+# Then: `vendor/bin/phpstan analyse -c phpstan.local.neon`.
+
+services:
+    -
+        class: TT\Tests\PhpStanRules\VocabularyConstantsRule
+        arguments:
+            projectRoot: %currentWorkingDirectory%
+        tags:
+            - phpstan.rules.rule

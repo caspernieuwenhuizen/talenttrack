@@ -28,6 +28,11 @@
             "TT\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "TT\\Tests\\PhpStanRules\\": "tests/PhpStanRules/"
+        }
+    },
     "scripts": {
         "lint": "find src -name '*.php' -print0 | xargs -0 -n1 php -l",
         "analyse": "phpstan analyse --memory-limit=1G"
