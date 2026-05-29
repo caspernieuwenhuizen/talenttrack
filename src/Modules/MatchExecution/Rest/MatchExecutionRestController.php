@@ -3,6 +3,7 @@ namespace TT\Modules\MatchExecution\Rest;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Enums\MatchExecutionState;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\REST\RestResponse;
 use TT\Infrastructure\Tenancy\CurrentClub;
@@ -74,11 +75,12 @@ class MatchExecutionRestController {
 
         $repo = new MatchExecutionRepository();
         $col  = $half === 1 ? 'first_half_started_at' : 'second_half_started_at';
+        $next_state = $half === 1 ? MatchExecutionState::FIRST_HALF : MatchExecutionState::SECOND_HALF;
         $repo->update( $exec_id, [
-            'state' => $half === 1 ? 'first_half' : 'second_half',
+            'state' => $next_state,
             $col    => current_time( 'mysql', true ),
         ] );
-        return RestResponse::success( [ 'execution_id' => $exec_id, 'state' => $half === 1 ? 'first_half' : 'second_half' ] );
+        return RestResponse::success( [ 'execution_id' => $exec_id, 'state' => $next_state ] );
     }
 
     public static function route_end_half( \WP_REST_Request $r ): \WP_REST_Response {
@@ -90,7 +92,7 @@ class MatchExecutionRestController {
         $repo = new MatchExecutionRepository();
         $col  = $half === 1 ? 'first_half_ended_at' : 'second_half_ended_at';
         $repo->update( $exec_id, [
-            'state' => $half === 1 ? 'half_time' : 'finished',
+            'state' => $half === 1 ? MatchExecutionState::HALF_TIME : MatchExecutionState::FINISHED,
             $col    => current_time( 'mysql', true ),
         ] );
         return RestResponse::success( [ 'execution_id' => $exec_id ] );
@@ -202,7 +204,7 @@ class MatchExecutionRestController {
 
         // 1. Mark execution finished + capture second-half end.
         $repo->update( $exec_id, [
-            'state'                => 'finished',
+            'state'                => MatchExecutionState::FINISHED,
             'second_half_ended_at' => current_time( 'mysql', true ),
         ] );
 
@@ -280,7 +282,7 @@ class MatchExecutionRestController {
         return RestResponse::success( [
             'execution_id' => $exec_id,
             'activity_id'  => $activity_id,
-            'state'        => 'finished',
+            'state'        => MatchExecutionState::FINISHED,
         ] );
     }
 

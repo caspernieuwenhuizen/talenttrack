@@ -3,14 +3,36 @@ namespace TT\Modules\MatchExecution\Repositories;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Enums\MatchExecutionState;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
  * MatchExecutionRepository — single class spanning the three live-
  * match tables. Substitution + goal-event tables are append-only;
  * `reversed_at` is the soft-delete for undo.
+ *
+ * v4.12.5 (#988 PR-set 6) — the canonical match-execution state values
+ * moved into `TT\Domain\Vocabularies\Enums\MatchExecutionState`. The
+ * `STATE_*` constants below alias the new enum for one release per
+ * #988's locked plan, and will be removed in the next minor; new code
+ * should reference `MatchExecutionState::*` directly.
  */
 class MatchExecutionRepository {
+
+    /** @deprecated since v4.12.5 — use {@see MatchExecutionState::NOT_STARTED}; removed in next minor. */
+    public const STATE_NOT_STARTED = MatchExecutionState::NOT_STARTED;
+
+    /** @deprecated since v4.12.5 — use {@see MatchExecutionState::FIRST_HALF}; removed in next minor. */
+    public const STATE_FIRST_HALF  = MatchExecutionState::FIRST_HALF;
+
+    /** @deprecated since v4.12.5 — use {@see MatchExecutionState::HALF_TIME}; removed in next minor. */
+    public const STATE_HALF_TIME   = MatchExecutionState::HALF_TIME;
+
+    /** @deprecated since v4.12.5 — use {@see MatchExecutionState::SECOND_HALF}; removed in next minor. */
+    public const STATE_SECOND_HALF = MatchExecutionState::SECOND_HALF;
+
+    /** @deprecated since v4.12.5 — use {@see MatchExecutionState::FINISHED}; removed in next minor. */
+    public const STATE_FINISHED    = MatchExecutionState::FINISHED;
 
     private \wpdb $wpdb;
     private string $t_exec;
@@ -121,7 +143,7 @@ class MatchExecutionRepository {
             'club_id'       => CurrentClub::id(),
             'activity_id'   => $activity_id,
             'match_prep_id' => $match_prep_id,
-            'state'         => 'not_started',
+            'state'         => MatchExecutionState::NOT_STARTED,
             'created_by'    => get_current_user_id(),
         ] );
         return (int) $this->wpdb->insert_id;

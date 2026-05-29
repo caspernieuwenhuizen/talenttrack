@@ -144,6 +144,12 @@ jobs:
             # Same rationale as the FrontendConfigurationView exclusion
             # above.
             -e 'src/Modules/Configuration/LookupCanonicalSeeds.php'
+            # v4.12.5 (#988 PR-set 6) — `CompetitionType` is the typed
+            # constants class backing the legitimate `competition_type`
+            # lookup. Same rationale as `LookupCanonicalSeeds`: the
+            # underscore form names the lookup_type vocabulary, not the
+            # renamed-away column on the sessions table.
+            -e 'src/Domain/Vocabularies/Lookups/CompetitionType.php'
           )
           fail=0
           for tok in "${forbidden[@]}"; do
