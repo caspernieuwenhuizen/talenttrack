@@ -22,6 +22,7 @@ The pitch shows ~13 chemistry links via SVG between paired slots — green (stro
 | 4 | No way to add cross-team / guest / custom on the v1 chemistry page | "+ Add cross-team / guest / custom" button on the roster sidebar; mirrors the blueprint editor flow. Useful for "what if we bring in a trial player". |
 | 5 | Score is buried mid-page | **Headline scoreboard** at the top — composite chemistry as the dominant card, with formation-fit / style-fit / depth / data-coverage as sub-cards. Each shows the value out of 3 and a trend hint vs last save. |
 | 6 | Override commit model is fuzzy on v1 ("did my edit save?") | Explicit **Suggested / Override** segmented toggle in the toolbar + accent banner when in override mode + per-slot `↺` glyph on overridden slots. Reset-to-suggested button discards overrides. Save-as-blueprint is the only persistence path. |
+| 7 | Coach can drop a player into a position they can't actually play | **Position-eligibility is a hard constraint** (refined 2026-05-29). Master data on `tt_players` carries the eligible-positions list per player; the picker for a given slot filters to players whose eligible-positions intersect the slot's position type. The engine's Suggested XI honours the same constraint. If no eligible player exists for a slot, the slot renders empty + a `no_eligible_player` warning chip surfaces on the slot card. This is the hardest rule on the surface — both engine and override flow must respect it. |
 
 ## Design decisions
 
@@ -32,15 +33,22 @@ The pitch shows ~13 chemistry links via SVG between paired slots — green (stro
 - **Override visual contract**: `is-override` class flips the player pill's border + background to accent and appends a `↺` glyph. Makes coach-edits visible at a glance.
 - **Roster fit-score** as a chip on each row, colour-coded (green ≥ 2.5, neutral 2.0-2.4, red < 2.0). Lets the coach scan for the strongest available pick at the relevant position type.
 
-## Open questions for refinement
+## Open questions — refined 2026-05-29
 
-1. **Default view on entry** — Suggested XI pre-populated (mockup default) vs empty pitch coach builds from scratch. Recommend keep pre-populated; matches v3.96.0 behaviour.
-2. **Override commit model** — session-only state (mockup default; survives page interactions, lost on reload) vs transient `tt_team_chemistry_sandbox` row that persists across reloads. Recommend session-only — simpler, no schema, matches the "try a lineup" mental model.
-3. **Roster sidebar position** — left (mockup default, matches blueprint editor) vs right. Recommend left.
-4. **Coach-marked pairings editor** — inline right panel (mockup default) vs tab behind the pitch vs separate modal. Recommend inline panel.
-5. **Save-as-blueprint flow** — modal (mockup default, name + flavour) vs auto-name + open detail page. Recommend modal — explicit naming reduces "what blueprint is this?" confusion later.
-6. **What's actually broken on v1** — executor inspects during port. If the breakage is unrelated to layout (e.g. REST endpoint regression), file as a separate bug rather than fold into the rework.
-7. **Link rendering precision** — the mockup uses fixed SVG coordinates per slot. Production needs slot positions computed from the formation template's `slots_json` (same source the blueprint editor uses). Confirm: drive both surfaces from the same `slots_json` parser, or duplicate?
+All seven settled. Locked decisions:
+
+1. **Default view on entry** — **Suggested XI pre-populated**. Hard rule from refinement: a player can **never** be put in a position not in their master-data eligible-positions list. The picker filters per slot; the engine's Suggested XI honours the same constraint. If no eligible player exists for a slot, the slot renders empty and the engine emits a `no_eligible_player` warning chip on the slot card.
+2. **Override commit model** — **session-only**. No transient sandbox table; the **Save as blueprint** modal is the persistence path. Reload loses overrides.
+3. **Roster sidebar position** — **left** (matches blueprint editor).
+4. **Coach-marked pairings editor** — **inline right panel** (current mockup setup is fine).
+5. **Save-as-blueprint flow** — **modal** with name + flavour fields (current mockup setup).
+6. **What's broken on v1** — **separate bug**, filed as #1007 with `ready-for-dev`. Executor diagnoses during that ship; this rework (#1002) is independent and lays the new surface on top of the restored v1.
+7. **Slot positions** — **same** `slots_json` parser as the blueprint editor. No duplication; both surfaces consume the formation template's slot definitions identically.
+
+### Additional refinements (same review)
+
+- **No drag-drop.** Mockup updated to remove drag affordances (`cursor: grab` removed; copy updated to "tap a slot"). Single interaction: tap slot → picker → pick a position-eligible player. Mirrors the blueprint editor's tap-to-swap path.
+- **Pitch aspect ratio fixed.** Previous mockup had the pitch stretching to fill the centre column horizontally, producing an unnaturally wide pitch. Now: `max-width: 480px` + `aspect-ratio: 3/4` keeps the pitch in portrait at any column width.
 
 ## Out of scope
 
