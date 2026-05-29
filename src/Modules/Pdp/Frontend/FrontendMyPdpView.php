@@ -3,6 +3,7 @@ namespace TT\Modules\Pdp\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\PdpVerdictDecision;
 use TT\Modules\Pdp\Repositories\PdpConversationsRepository;
 use TT\Modules\Pdp\Repositories\PdpFilesRepository;
 use TT\Modules\Pdp\Repositories\PdpVerdictsRepository;
@@ -240,10 +241,10 @@ class FrontendMyPdpView extends FrontendViewBase {
 
     private static function decisionLabel( string $decision ): string {
         switch ( $decision ) {
-            case 'promote':  return __( 'Promote', 'talenttrack' );
-            case 'retain':   return __( 'Retain', 'talenttrack' );
-            case 'release':  return __( 'Release', 'talenttrack' );
-            case 'transfer': return __( 'Transfer', 'talenttrack' );
+            case PdpVerdictDecision::PROMOTE:  return __( 'Promote', 'talenttrack' );
+            case PdpVerdictDecision::RETAIN:   return __( 'Retain', 'talenttrack' );
+            case PdpVerdictDecision::RELEASE:  return __( 'Release', 'talenttrack' );
+            case PdpVerdictDecision::TRANSFER: return __( 'Transfer', 'talenttrack' );
         }
         return $decision;
     }

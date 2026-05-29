@@ -20,11 +20,17 @@ From v4.10.1 the activities + attendance vocabularies have typed PHP constants i
 
 From v4.12.1 the same pattern extends to the goal-side vocabularies: `GoalStatus`, `GoalPriority`, `GoalApprovalDecision`. The `POST /goals`, `PATCH /goals/{id}/status` endpoints continue to accept BOTH the raw literal (e.g. `'pending'`, `'pending_approval'`, `'medium'`) AND the corresponding typed constant for one release.
 
+<<<<<<< HEAD
 From v4.12.5 the same pattern extends to the tournament-side lookups (`TournamentFormation`, `TournamentOpponentLevel`, `CompetitionType`) and the first code-only enum (`MatchExecutionState`). The `POST/PUT /tournaments`, `POST/PUT /tournaments/{id}/matches`, and `POST /match-execution/{activity_id}/{start-half|end-half|finish}` endpoints continue to accept BOTH the raw literal AND the corresponding typed constant for one release. Additionally, per the locked decisions on #988, `TT\Modules\MatchExecution\Repositories\MatchExecutionRepository::STATE_*` constants are now deprecated aliases that point at `TT\Domain\Vocabularies\Enums\MatchExecutionState::*` — the aliases stay for one release and are removed in the next minor.
 
 Per the same shape as the v4.3.21 #953 blueprint-assignment deprecation and the #903 sunset, the allowlist drops in the next minor (v4.11.0 for PR-set 1; future minor for PR-set 2): payloads carrying literals that don't match any value in the corresponding `::ALL` array will return `400 bad_value` instead of silently falling back to the seeded default. The matching PHPStan rule (issue #988 PR-set 8) lands at the same time.
+=======
+From v4.12.5 the same pattern extends to the PDP-cycle and trial-case vocabularies: `PdpStatus`, `PdpVerdictDecision`, `TrialCaseStatus`, `TrialCaseDecision`. The `PATCH /pdp-files/{id}` (status field), `PUT /pdp-files/{id}/verdict` (decision field), and the trial-cases endpoints under `/trial-cases/*` (status + decision fields) continue to accept BOTH the raw literal (e.g. `'open'`, `'promote'`, `'extended'`, `'admit'`, `'continue_in_trial_group'`) AND the corresponding typed constant for one release.
+>>>>>>> bab908c (refactor(v4.12.7): vocabulary constants — PDP + trial (PR-set 3 of #988))
 
-Other vocabularies (PDP, trial, player, team, reports, tournaments, auth) follow the same pattern in subsequent #988 PR-sets.
+Per the same shape as the v4.3.21 #953 blueprint-assignment deprecation and the #903 sunset, the allowlist drops in the next minor (v4.11.0 for PR-set 1; future minor for PR-set 2; future minor for PR-set 3): payloads carrying literals that don't match any value in the corresponding `::ALL` array will return `400 bad_value` instead of silently falling back to the seeded default. The matching PHPStan rule (issue #988 PR-set 8) lands at the same time.
+
+Other vocabularies (player, team, reports, tournaments, auth) follow the same pattern in subsequent #988 PR-sets.
 
 ## Resources
 

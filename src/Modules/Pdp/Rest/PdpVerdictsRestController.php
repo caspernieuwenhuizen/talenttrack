@@ -3,6 +3,7 @@ namespace TT\Modules\Pdp\Rest;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\PdpVerdictDecision;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\REST\RestResponse;
@@ -20,7 +21,6 @@ use TT\Modules\Pdp\Repositories\PdpVerdictsRepository;
 class PdpVerdictsRestController {
 
     private const NS = 'talenttrack/v1';
-    private const ALLOWED_DECISIONS = [ 'promote', 'retain', 'release', 'transfer' ];
 
     public static function init(): void {
         add_action( 'rest_api_init', [ __CLASS__, 'register' ] );
@@ -103,10 +103,10 @@ class PdpVerdictsRestController {
         }
 
         $decision = sanitize_text_field( (string) ( $r['decision'] ?? '' ) );
-        if ( ! in_array( $decision, self::ALLOWED_DECISIONS, true ) ) {
+        if ( ! PdpVerdictDecision::isValid( $decision ) ) {
             return RestResponse::error( 'bad_decision',
                 __( 'Decision must be one of promote, retain, release, transfer.', 'talenttrack' ),
-                400, [ 'allowed' => self::ALLOWED_DECISIONS ] );
+                400, [ 'allowed' => PdpVerdictDecision::ALL ] );
         }
 
         $payload = [

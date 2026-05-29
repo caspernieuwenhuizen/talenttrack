@@ -3,6 +3,7 @@ namespace TT\Modules\PersonaDashboard\Kpis;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\TrialCaseDecision;
 use TT\Modules\PersonaDashboard\Domain\AbstractKpiDataSource;
 use TT\Modules\PersonaDashboard\Domain\KpiValue;
 use TT\Modules\PersonaDashboard\Domain\PersonaContext;
@@ -26,7 +27,7 @@ class TrialGroupActiveCount extends AbstractKpiDataSource {
         $count = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(DISTINCT player_id) FROM {$table}
               WHERE club_id = %d AND archived_at IS NULL AND decision = %s",
-            $club_id, 'continue_in_trial_group'
+            $club_id, TrialCaseDecision::CONTINUE_IN_TRIAL_GROUP
         ) );
         return KpiValue::of( (string) $count );
     }

@@ -3,6 +3,8 @@ namespace TT\Modules\Pdp\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\PdpStatus;
+use TT\Domain\Vocabularies\Lookups\PdpVerdictDecision;
 use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Pdp\Repositories\PdpConversationsRepository;
@@ -134,9 +136,9 @@ class FrontendPdpManageView extends FrontendViewBase {
             }
         }
         $status_options = [
-            'open'      => __( 'Open',      'talenttrack' ),
-            'completed' => __( 'Completed', 'talenttrack' ),
-            'archived'  => __( 'Archived',  'talenttrack' ),
+            PdpStatus::OPEN      => __( 'Open',      'talenttrack' ),
+            PdpStatus::COMPLETED => __( 'Completed', 'talenttrack' ),
+            PdpStatus::ARCHIVED  => __( 'Archived',  'talenttrack' ),
         ];
 
         echo FrontendListTable::render( [
@@ -696,10 +698,10 @@ class FrontendPdpManageView extends FrontendViewBase {
         $base_url  = remove_query_arg( [ 'action', 'conv', 'player_id' ] );
         $rest_path = 'pdp-files/' . (int) $file->id . '/verdict';
         $decisions = [
-            'promote'  => __( 'Promote to next age group', 'talenttrack' ),
-            'retain'   => __( 'Retain in current group', 'talenttrack' ),
-            'release'  => __( 'Release from academy', 'talenttrack' ),
-            'transfer' => __( 'Transfer to another team / club', 'talenttrack' ),
+            PdpVerdictDecision::PROMOTE  => __( 'Promote to next age group', 'talenttrack' ),
+            PdpVerdictDecision::RETAIN   => __( 'Retain in current group', 'talenttrack' ),
+            PdpVerdictDecision::RELEASE  => __( 'Release from academy', 'talenttrack' ),
+            PdpVerdictDecision::TRANSFER => __( 'Transfer to another team / club', 'talenttrack' ),
         ];
         ?>
         <form class="tt-ajax-form" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="PUT">
@@ -1084,9 +1086,9 @@ class FrontendPdpManageView extends FrontendViewBase {
         // _x() — the noun "Open" (status), distinct from the verb "Open"
         // (action) that already lives in the .po as "Openen".
         switch ( $status ) {
-            case 'open':      return _x( 'Open', 'PDP file status', 'talenttrack' );
-            case 'completed': return __( 'Completed', 'talenttrack' );
-            case 'archived':  return __( 'Archived', 'talenttrack' );
+            case PdpStatus::OPEN:      return _x( 'Open', 'PDP file status', 'talenttrack' );
+            case PdpStatus::COMPLETED: return __( 'Completed', 'talenttrack' );
+            case PdpStatus::ARCHIVED:  return __( 'Archived', 'talenttrack' );
         }
         return $status;
     }

@@ -3,6 +3,7 @@ namespace TT\Modules\Pdp\Repositories;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\PdpStatus;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
@@ -94,14 +95,14 @@ class PdpFilesRepository {
             'season_id'      => $season_id,
             'owner_coach_id' => isset( $data['owner_coach_id'] ) ? (int) $data['owner_coach_id'] : null,
             'cycle_size'     => isset( $data['cycle_size'] ) ? (int) $data['cycle_size'] : null,
-            'status'         => 'open',
+            'status'         => PdpStatus::OPEN,
             'notes'          => isset( $data['notes'] ) ? (string) $data['notes'] : null,
         ] );
         return $ok ? (int) $this->wpdb->insert_id : 0;
     }
 
     public function setStatus( int $file_id, string $status ): bool {
-        if ( $file_id <= 0 || ! in_array( $status, [ 'open', 'completed', 'archived' ], true ) ) return false;
+        if ( $file_id <= 0 || ! PdpStatus::isValid( $status ) ) return false;
         $ok = $this->wpdb->update(
             $this->table,
             [ 'status' => $status ],
