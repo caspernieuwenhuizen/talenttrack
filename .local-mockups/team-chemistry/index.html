@@ -64,42 +64,72 @@ body {
 .mockup-bar .group { display: inline-flex; gap: 4px; margin-right: 12px; }
 
 /* ---------------------------------------------------------------------------
-   Page header
+   Page header — title + lede on the left, controls (formation / style) on
+   the right. Stacks on narrow viewports.
    --------------------------------------------------------------------------- */
-header { margin-bottom: 16px; }
-header h1 { margin: 0 0 4px; font-size: 22px; }
-header .lede { color: var(--muted); margin: 0; max-width: 720px; font-size: 13px; }
+.page-head {
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+.page-head header { flex: 1 1 auto; min-width: 320px; }
+.page-head header h1 { margin: 0 0 4px; font-size: 22px; }
+.page-head header .lede { color: var(--muted); margin: 0; max-width: 720px; font-size: 13px; }
+.page-head .toolbar { flex: 0 0 auto; margin: 0; }
+@media (max-width: 820px) {
+    .page-head { align-items: stretch; }
+    .page-head .toolbar { width: 100%; }
+}
 
 /* ---------------------------------------------------------------------------
    Top headline strip — composite + sub-scores
+   Slim inline cards: label | value | trend on a single row, ~36px tall.
    --------------------------------------------------------------------------- */
 .scoreboard {
     display: grid;
     grid-template-columns: 1.4fr repeat(4, 1fr);
-    gap: 10px;
-    margin-bottom: 14px;
+    gap: 8px;
+    margin-bottom: 12px;
 }
 .score-card {
     background: var(--panel);
     border: 1px solid var(--line);
-    border-radius: 10px;
-    padding: 14px 16px;
+    border-radius: 8px;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
 }
 .score-card .label {
-    font-size: 11px;
+    font-size: 10px;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.4px;
     color: var(--muted);
-    margin: 0 0 4px;
+    margin: 0;
+    font-weight: 700;
+    flex: 0 0 auto;
 }
 .score-card .value {
-    font-size: 28px;
+    font-size: 16px;
     font-weight: 800;
     font-variant-numeric: tabular-nums;
     line-height: 1;
     color: var(--ink);
+    margin-left: auto;
 }
-.score-card .value sup { font-size: 13px; color: var(--muted); font-weight: 600; vertical-align: top; margin-left: 3px; }
+.score-card .value sup { font-size: 10px; color: var(--muted); font-weight: 600; vertical-align: top; margin-left: 1px; }
+.score-card .trend {
+    font-size: 10px;
+    color: var(--muted);
+    font-weight: 500;
+    line-height: 1;
+    flex: 0 0 auto;
+}
+.score-card .trend.is-up    { color: var(--tt-success); }
+.score-card .trend.is-down  { color: var(--tt-danger); }
 .score-card.is-headline {
     background: linear-gradient(135deg, var(--tier1), #2a9d97);
     color: white;
@@ -109,17 +139,9 @@ header .lede { color: var(--muted); margin: 0; max-width: 720px; font-size: 13px
 .score-card.is-headline .value,
 .score-card.is-headline .value sup,
 .score-card.is-headline .trend { color: white; }
-.score-card .trend {
-    font-size: 12px;
-    margin-top: 6px;
-    color: var(--muted);
-    font-weight: 500;
-}
-.score-card .trend.is-up    { color: var(--tt-success); }
-.score-card .trend.is-down  { color: var(--tt-danger); }
 .score-card.is-headline .trend.is-up { color: #cfe7da; }
 .score-card.is-headline .trend.is-down { color: #f6c3c4; }
-.score-card.is-headline .value { font-size: 36px; }
+.score-card.is-headline .value { font-size: 20px; }
 
 /* ---------------------------------------------------------------------------
    Toolbar (formation / style / suggested-or-current toggle)
@@ -291,7 +313,7 @@ header .lede { color: var(--muted); margin: 0; max-width: 720px; font-size: 13px
     aspect-ratio: 3 / 4;
     margin: 0 auto;
     width: 100%;
-    max-width: 480px;
+    max-width: 600px;
     border: 2px solid var(--pitch-line);
     overflow: hidden;
 }
@@ -503,64 +525,67 @@ body[data-modal="save-bp"] .modal-back { display: flex; }
     <button type="button" data-pick-modal="">Close modal</button>
 </div>
 
-<header>
-    <h1>Team chemistry — Hedel JO13</h1>
-    <p class="lede">
-        The engine's recommended starting XI based on formation fit, style fit, position preferences, and coach-marked pairings.
-        Tap a slot to pick an alternative — the picker filters to players eligible for that position type. Score recomputes live.
-    </p>
-</header>
+<div class="page-head">
+    <header>
+        <h1>Team chemistry — Hedel JO13</h1>
+        <p class="lede">
+            Tap a slot to pick an alternative — the picker filters to players eligible for that position type. Score recomputes live.
+        </p>
+    </header>
+    <section class="toolbar" aria-label="Formation and style controls">
+        <label for="formation-sel">Formation</label>
+        <select id="formation-sel">
+            <option selected>4-3-3</option>
+            <option>4-4-2</option>
+            <option>3-5-2</option>
+            <option>4-2-3-1</option>
+        </select>
+        <label for="style-sel">Play style</label>
+        <select id="style-sel">
+            <option selected>Possession</option>
+            <option>Counter-attack</option>
+            <option>High press</option>
+            <option>Direct</option>
+        </select>
+    </section>
+</div>
 
 <!-- ============================================================
-     SCOREBOARD — composite + sub-scores
+     SCOREBOARD — composite + sub-scores (slim inline cards)
      ============================================================ -->
 <section class="scoreboard" aria-label="Chemistry scoreboard">
     <div class="score-card is-headline">
-        <p class="label">Team chemistry</p>
-        <p class="value">2.34<sup>/3</sup></p>
-        <p class="trend is-up">▲ +0.12 vs last save</p>
+        <span class="label">Team chemistry</span>
+        <span class="trend is-up">▲ +0.12 vs last save</span>
+        <span class="value">2.34<sup>/3</sup></span>
     </div>
     <div class="score-card">
-        <p class="label">Formation fit</p>
-        <p class="value">2.61<sup>/3</sup></p>
-        <p class="trend">87% slots filled</p>
+        <span class="label">Formation fit</span>
+        <span class="trend">87% filled</span>
+        <span class="value">2.61<sup>/3</sup></span>
     </div>
     <div class="score-card">
-        <p class="label">Style fit</p>
-        <p class="value">2.18<sup>/3</sup></p>
-        <p class="trend">possession-oriented</p>
+        <span class="label">Style fit</span>
+        <span class="trend">possession</span>
+        <span class="value">2.18<sup>/3</sup></span>
     </div>
     <div class="score-card">
-        <p class="label">Depth score</p>
-        <p class="value">1.92<sup>/3</sup></p>
-        <p class="trend">3 thin positions</p>
+        <span class="label">Depth</span>
+        <span class="trend">3 thin pos.</span>
+        <span class="value">1.92<sup>/3</sup></span>
     </div>
     <div class="score-card">
-        <p class="label">Data coverage</p>
-        <p class="value">68<sup>%</sup></p>
-        <p class="trend">5 players need eval</p>
+        <span class="label">Coverage</span>
+        <span class="trend">5 to eval</span>
+        <span class="value">68<sup>%</sup></span>
     </div>
 </section>
 
 <!-- ============================================================
-     TOOLBAR — formation / style / mode toggle / save-as
+     MODE TOOLBAR — Suggested / Override toggle + Reset + Save
+     (Formation + style live in .page-head above with the title.)
      ============================================================ -->
-<section class="toolbar" aria-label="Controls">
-    <label for="formation-sel">Formation</label>
-    <select id="formation-sel">
-        <option selected>4-3-3</option>
-        <option>4-4-2</option>
-        <option>3-5-2</option>
-        <option>4-2-3-1</option>
-    </select>
-    <label for="style-sel">Play style</label>
-    <select id="style-sel">
-        <option selected>Possession</option>
-        <option>Counter-attack</option>
-        <option>High press</option>
-        <option>Direct</option>
-    </select>
-
+<section class="toolbar" aria-label="Mode and save actions">
     <div class="seg" role="tablist" aria-label="Mode">
         <button type="button" data-pick-mode="suggested" aria-pressed="true" class="is-active">Suggested</button>
         <button type="button" data-pick-mode="override" aria-pressed="false">Override</button>
