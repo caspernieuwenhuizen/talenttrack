@@ -3,10 +3,10 @@
  * GameSubtype — typed constants for the values stored in
  * `tt_activities.game_subtype_key`. Backs the `game_subtype` lookup
  * (operator-editable). The three seeded values below trace back to
- * migration 0013 (original `competition_type`: League / Cup) and
+ * migration 0013 (original `competition-type`: League / Cup) and
  * migration 0027 (renamed to `game_subtype`, added Friendly).
  *
- * Stored with TitleCase, intentionally — the original `competition_type`
+ * Stored with TitleCase, intentionally — the original `competition-type`
  * lookup used display labels as the stored name; the rename in 0027 kept
  * that convention. Filters game-only reports.
  *
