@@ -3,6 +3,7 @@ namespace TT\Modules\Wizards\Evaluation;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\AttendanceStatus;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Shared\Wizards\WizardStepInterface;
 
@@ -115,9 +116,9 @@ final class AttendanceStep implements WizardStepInterface {
                 $stored = strtolower( (string) (
                     $state['attendance'][ $pid ]
                     ?? $existing_by_player[ $pid ]
-                    ?? 'present'
+                    ?? AttendanceStatus::PRESENT
                 ) );
-                if ( ! in_array( $stored, $canonical, true ) ) $stored = 'present';
+                if ( ! in_array( $stored, $canonical, true ) ) $stored = AttendanceStatus::PRESENT;
                 $jersey = (int) ( $pl->jersey_number ?? 0 );
                 $name   = trim( (string) $pl->first_name . ' ' . (string) $pl->last_name );
                 ?>
@@ -127,33 +128,33 @@ final class AttendanceStep implements WizardStepInterface {
                             <span class="tt-att-jersey">#<?php echo $jersey; ?></span>
                         <?php endif; ?>
                         <span class="tt-att-name"><?php echo esc_html( $name ); ?></span>
-                        <span class="tt-att-badge tt-att-badge-late"     <?php if ( $stored !== 'late' )    echo 'hidden'; ?>><?php esc_html_e( '⏰ LATE', 'talenttrack' ); ?></span>
-                        <span class="tt-att-badge tt-att-badge-absent"   <?php if ( $stored !== 'absent' )  echo 'hidden'; ?>><?php esc_html_e( '✕ ABSENT', 'talenttrack' ); ?></span>
-                        <span class="tt-att-badge tt-att-badge-excused"  <?php if ( $stored !== 'excused' ) echo 'hidden'; ?>><?php esc_html_e( '🛡 EXCUSED', 'talenttrack' ); ?></span>
-                        <span class="tt-att-badge tt-att-badge-injured"  <?php if ( $stored !== 'injured' ) echo 'hidden'; ?>><?php esc_html_e( '🩹 INJURED', 'talenttrack' ); ?></span>
+                        <span class="tt-att-badge tt-att-badge-late"     <?php if ( $stored !== AttendanceStatus::LATE )    echo 'hidden'; ?>><?php esc_html_e( '⏰ LATE', 'talenttrack' ); ?></span>
+                        <span class="tt-att-badge tt-att-badge-absent"   <?php if ( $stored !== AttendanceStatus::ABSENT )  echo 'hidden'; ?>><?php esc_html_e( '✕ ABSENT', 'talenttrack' ); ?></span>
+                        <span class="tt-att-badge tt-att-badge-excused"  <?php if ( $stored !== AttendanceStatus::EXCUSED ) echo 'hidden'; ?>><?php esc_html_e( '🛡 EXCUSED', 'talenttrack' ); ?></span>
+                        <span class="tt-att-badge tt-att-badge-injured"  <?php if ( $stored !== AttendanceStatus::INJURED ) echo 'hidden'; ?>><?php esc_html_e( '🩹 INJURED', 'talenttrack' ); ?></span>
                     </header>
 
                     <div class="tt-att-toggle" role="group" aria-label="<?php echo esc_attr( sprintf( /* translators: %s: player name */ __( 'Attendance for %s', 'talenttrack' ), $name ) ); ?>">
-                        <button type="button" class="tt-att-toggle-btn<?php echo in_array( $stored, [ 'present', 'late' ], true ) ? ' is-active' : ''; ?>" data-tt-att-toggle="present"><?php esc_html_e( 'Present', 'talenttrack' ); ?></button>
-                        <button type="button" class="tt-att-toggle-btn<?php echo in_array( $stored, [ 'absent', 'excused', 'injured' ], true ) ? ' is-active' : ''; ?>" data-tt-att-toggle="absent"><?php esc_html_e( 'Absent', 'talenttrack' ); ?></button>
+                        <button type="button" class="tt-att-toggle-btn<?php echo in_array( $stored, [ AttendanceStatus::PRESENT, AttendanceStatus::LATE ], true ) ? ' is-active' : ''; ?>" data-tt-att-toggle="present"><?php esc_html_e( 'Present', 'talenttrack' ); ?></button>
+                        <button type="button" class="tt-att-toggle-btn<?php echo in_array( $stored, [ AttendanceStatus::ABSENT, AttendanceStatus::EXCUSED, AttendanceStatus::INJURED ], true ) ? ' is-active' : ''; ?>" data-tt-att-toggle="absent"><?php esc_html_e( 'Absent', 'talenttrack' ); ?></button>
                     </div>
 
                     <?php if ( $has_late ) : ?>
-                        <div class="tt-att-late-row" <?php if ( ! in_array( $stored, [ 'present', 'late' ], true ) ) echo 'hidden'; ?>>
-                            <button type="button" class="tt-att-late-btn"    data-tt-att-late        <?php if ( $stored === 'late' ) echo 'hidden'; ?>><?php esc_html_e( '+ Mark late', 'talenttrack' ); ?></button>
-                            <button type="button" class="tt-att-late-chip"   data-tt-att-late-on     <?php if ( $stored !== 'late' ) echo 'hidden'; ?>><?php esc_html_e( '✓ Late', 'talenttrack' ); ?></button>
-                            <button type="button" class="tt-att-late-revert" data-tt-att-late-revert <?php if ( $stored !== 'late' ) echo 'hidden'; ?>><?php esc_html_e( '× Revert to on-time', 'talenttrack' ); ?></button>
+                        <div class="tt-att-late-row" <?php if ( ! in_array( $stored, [ AttendanceStatus::PRESENT, AttendanceStatus::LATE ], true ) ) echo 'hidden'; ?>>
+                            <button type="button" class="tt-att-late-btn"    data-tt-att-late        <?php if ( $stored === AttendanceStatus::LATE ) echo 'hidden'; ?>><?php esc_html_e( '+ Mark late', 'talenttrack' ); ?></button>
+                            <button type="button" class="tt-att-late-chip"   data-tt-att-late-on     <?php if ( $stored !== AttendanceStatus::LATE ) echo 'hidden'; ?>><?php esc_html_e( '✓ Late', 'talenttrack' ); ?></button>
+                            <button type="button" class="tt-att-late-revert" data-tt-att-late-revert <?php if ( $stored !== AttendanceStatus::LATE ) echo 'hidden'; ?>><?php esc_html_e( '× Revert to on-time', 'talenttrack' ); ?></button>
                         </div>
                     <?php endif; ?>
 
                     <?php if ( $has_excused || $has_injured ) : ?>
-                        <div class="tt-att-reason-row" <?php if ( ! in_array( $stored, [ 'absent', 'excused', 'injured' ], true ) ) echo 'hidden'; ?>>
+                        <div class="tt-att-reason-row" <?php if ( ! in_array( $stored, [ AttendanceStatus::ABSENT, AttendanceStatus::EXCUSED, AttendanceStatus::INJURED ], true ) ) echo 'hidden'; ?>>
                             <span class="tt-att-reason-label"><?php esc_html_e( 'Reason (optional):', 'talenttrack' ); ?></span>
                             <?php if ( $has_excused ) : ?>
-                                <button type="button" class="tt-att-reason-btn<?php echo $stored === 'excused' ? ' is-active' : ''; ?>" data-tt-att-reason="excused"><?php esc_html_e( '🛡 Excused', 'talenttrack' ); ?></button>
+                                <button type="button" class="tt-att-reason-btn<?php echo $stored === AttendanceStatus::EXCUSED ? ' is-active' : ''; ?>" data-tt-att-reason="excused"><?php esc_html_e( '🛡 Excused', 'talenttrack' ); ?></button>
                             <?php endif; ?>
                             <?php if ( $has_injured ) : ?>
-                                <button type="button" class="tt-att-reason-btn<?php echo $stored === 'injured' ? ' is-active' : ''; ?>" data-tt-att-reason="injured"><?php esc_html_e( '🩹 Injured', 'talenttrack' ); ?></button>
+                                <button type="button" class="tt-att-reason-btn<?php echo $stored === AttendanceStatus::INJURED ? ' is-active' : ''; ?>" data-tt-att-reason="injured"><?php esc_html_e( '🩹 Injured', 'talenttrack' ); ?></button>
                             <?php endif; ?>
                         </div>
                     <?php endif; ?>

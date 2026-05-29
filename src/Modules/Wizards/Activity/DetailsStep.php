@@ -3,6 +3,7 @@ namespace TT\Modules\Wizards\Activity;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\ActivityTypeKey;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Shared\Wizards\WizardStepInterface;
 
@@ -22,7 +23,7 @@ final class DetailsStep implements WizardStepInterface {
     public function label(): string { return __( 'Details', 'talenttrack' ); }
 
     public function render( array $state ): void {
-        $type     = (string) ( $state['activity_type_key'] ?? 'training' );
+        $type     = (string) ( $state['activity_type_key'] ?? ActivityTypeKey::TRAINING );
         $title    = (string) ( $state['title'] ?? '' );
         $date     = (string) ( $state['session_date'] ?? current_time( 'Y-m-d' ) );
         $location = (string) ( $state['location'] ?? '' );
@@ -34,7 +35,7 @@ final class DetailsStep implements WizardStepInterface {
 
         echo '<label><span>' . esc_html__( 'Title', 'talenttrack' ) . ' *</span><input type="text" name="title" required maxlength="200" value="' . esc_attr( $title ) . '" /></label>';
 
-        if ( $type === 'game' ) {
+        if ( $type === ActivityTypeKey::GAME ) {
             $subtype_rows = QueryHelpers::get_lookups( 'game_subtype' );
             echo '<label><span>' . esc_html__( 'Game subtype', 'talenttrack' ) . '</span><select name="game_subtype_key">';
             echo '<option value="">' . esc_html__( '— Choose —', 'talenttrack' ) . '</option>';
@@ -47,7 +48,7 @@ final class DetailsStep implements WizardStepInterface {
             echo '</select></label>';
         }
 
-        if ( $type === 'other' ) {
+        if ( $type === ActivityTypeKey::OTHER ) {
             echo '<label><span>' . esc_html__( 'Other label', 'talenttrack' ) . ' *</span><input type="text" name="other_label" required maxlength="120" value="' . esc_attr( $other ) . '" placeholder="' . esc_attr__( 'e.g. Team-building day', 'talenttrack' ) . '" /></label>';
         }
 
@@ -57,7 +58,7 @@ final class DetailsStep implements WizardStepInterface {
     }
 
     public function validate( array $post, array $state ) {
-        $type  = (string) ( $state['activity_type_key'] ?? 'training' );
+        $type  = (string) ( $state['activity_type_key'] ?? ActivityTypeKey::TRAINING );
         $title = isset( $post['title'] )        ? sanitize_text_field( wp_unslash( (string) $post['title'] ) )        : '';
         $date  = isset( $post['session_date'] ) ? sanitize_text_field( wp_unslash( (string) $post['session_date'] ) ) : '';
 
@@ -76,12 +77,12 @@ final class DetailsStep implements WizardStepInterface {
             'notes'        => $notes,
         ];
 
-        if ( $type === 'game' ) {
+        if ( $type === ActivityTypeKey::GAME ) {
             $sub      = isset( $post['game_subtype_key'] ) ? sanitize_text_field( wp_unslash( (string) $post['game_subtype_key'] ) ) : '';
             $valid    = QueryHelpers::get_lookup_names( 'game_subtype' );
             $out['game_subtype_key'] = ( $sub !== '' && in_array( $sub, $valid, true ) ) ? $sub : null;
             $out['other_label']      = null;
-        } elseif ( $type === 'other' ) {
+        } elseif ( $type === ActivityTypeKey::OTHER ) {
             $other = isset( $post['other_label'] ) ? sanitize_text_field( wp_unslash( (string) $post['other_label'] ) ) : '';
             if ( $other === '' ) return new \WP_Error( 'no_other_label', __( 'Please describe what kind of activity this is.', 'talenttrack' ) );
             $out['other_label']      = $other;

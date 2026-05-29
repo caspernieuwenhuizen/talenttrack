@@ -3,6 +3,7 @@ namespace TT\Shared\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\AttendanceStatus;
 use TT\Infrastructure\CustomFields\CustomFieldsRepository;
 use TT\Infrastructure\CustomFields\CustomValuesRepository;
 use TT\Infrastructure\Evaluations\EvalCategoriesRepository;
@@ -148,7 +149,7 @@ class PlayerDashboardView {
                 . '</tr></thead><tbody>';
             foreach ( $att as $a ) {
                 $status_lower = strtolower( (string) $a->status );
-                $cls = $status_lower === 'present' ? 'tt-att-present' : ( $status_lower === 'absent' ? 'tt-att-absent' : 'tt-att-other' );
+                $cls = $status_lower === AttendanceStatus::PRESENT ? 'tt-att-present' : ( $status_lower === AttendanceStatus::ABSENT ? 'tt-att-absent' : 'tt-att-other' );
                 $is_guest_visit = ! empty( $a->is_guest );
                 $session_label  = (string) $a->session_title;
                 if ( $is_guest_visit ) {

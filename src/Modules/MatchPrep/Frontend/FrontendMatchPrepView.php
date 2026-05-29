@@ -3,6 +3,7 @@ namespace TT\Modules\MatchPrep\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\ActivityTypeKey;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
@@ -161,7 +162,9 @@ class FrontendMatchPrepView extends FrontendViewBase {
             echo '<p class="tt-notice">' . esc_html__( 'Activity not found.', 'talenttrack' ) . '</p>';
             return;
         }
-        if ( ( $activity->activity_type_key ?? '' ) !== 'game' && ( $activity->activity_type_key ?? '' ) !== 'match' ) {
+        // Note: 'match' is a legacy synonym for ActivityTypeKey::GAME kept
+        // for back-compat — see #988 follow-up.
+        if ( ( $activity->activity_type_key ?? '' ) !== ActivityTypeKey::GAME && ( $activity->activity_type_key ?? '' ) !== 'match' ) {
             FrontendBreadcrumbs::fromDashboard( __( 'Match prep', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'Match prep is only available for match-type activities.', 'talenttrack' ) . '</p>';
             return;

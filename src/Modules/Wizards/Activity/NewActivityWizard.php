@@ -3,6 +3,7 @@ namespace TT\Modules\Wizards\Activity;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\ActivityTypeKey;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Shared\Wizards\SupportsCancelAsDraft;
@@ -64,7 +65,7 @@ final class NewActivityWizard implements WizardInterface, SupportsCancelAsDraft 
             return new \WP_Error( 'nothing_to_draft', __( 'Pick a team before saving as draft.', 'talenttrack' ) );
         }
 
-        $type = (string) ( $state['activity_type_key'] ?? 'training' );
+        $type = (string) ( $state['activity_type_key'] ?? ActivityTypeKey::TRAINING );
         $row  = [
             'club_id'             => CurrentClub::id(),
             'team_id'             => $tid,
@@ -76,8 +77,8 @@ final class NewActivityWizard implements WizardInterface, SupportsCancelAsDraft 
             'activity_type_key'   => $type,
             'activity_status_key' => 'draft',
             'activity_source_key' => 'manual',
-            'game_subtype_key'    => $type === 'game'  && ! empty( $state['game_subtype_key'] ) ? (string) $state['game_subtype_key'] : null,
-            'other_label'         => $type === 'other' && ! empty( $state['other_label'] )       ? (string) $state['other_label']    : null,
+            'game_subtype_key'    => $type === ActivityTypeKey::GAME  && ! empty( $state['game_subtype_key'] ) ? (string) $state['game_subtype_key'] : null,
+            'other_label'         => $type === ActivityTypeKey::OTHER && ! empty( $state['other_label'] )       ? (string) $state['other_label']    : null,
         ];
 
         $ok = $wpdb->insert( $wpdb->prefix . 'tt_activities', $row );

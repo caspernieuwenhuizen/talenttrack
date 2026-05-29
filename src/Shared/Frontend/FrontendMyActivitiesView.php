@@ -3,6 +3,7 @@ namespace TT\Shared\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\AttendanceStatus;
 use TT\Infrastructure\Query\LabelTranslator;
 
 /**
@@ -129,9 +130,9 @@ class FrontendMyActivitiesView extends FrontendViewBase {
         $att_notes    = $att && ! empty( $att->notes ) ? (string) $att->notes : '';
         $type_key     = (string) ( $row->activity_type_key ?? '' );
         $att_status_lower = strtolower( $att_status );
-        $att_status_class = $att_status_lower === 'present'
+        $att_status_class = $att_status_lower === AttendanceStatus::PRESENT
             ? 'tt-status-completed'
-            : ( $att_status_lower === 'absent' ? 'tt-status-pending' : '' );
+            : ( $att_status_lower === AttendanceStatus::ABSENT ? 'tt-status-pending' : '' );
         ?>
         <article class="tt-activity-detail">
             <p class="tt-activity-detail-meta">

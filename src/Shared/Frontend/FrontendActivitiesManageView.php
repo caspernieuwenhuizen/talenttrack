@@ -3,6 +3,8 @@ namespace TT\Shared\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\ActivityStatusKey;
+use TT\Domain\Vocabularies\Lookups\ActivityTypeKey;
 use TT\Infrastructure\Query\LabelTranslator;
 use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
@@ -142,7 +144,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 // no prep row exists, or directly to the form when it
                 // does (FrontendMatchPrepView handles the redirect).
                 $type_key = strtolower( (string) ( $session->activity_type_key ?? '' ) );
-                if ( in_array( $type_key, [ 'match', 'game' ], true ) && current_user_can( 'tt_edit_activities' ) ) {
+                if ( in_array( $type_key, [ 'match', ActivityTypeKey::GAME ], true ) && current_user_can( 'tt_edit_activities' ) ) {
                     $prep_url = add_query_arg(
                         [
                             'tt_view'     => 'match-prep',
@@ -174,7 +176,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 // activities (attendance + rating only make sense
                 // after the session happened). Cap-gated on the
                 // mark-attendance wizard's `tt_edit_evaluations`.
-                $is_completed = ( (string) ( $session->activity_status_key ?? '' ) === 'completed' );
+                $is_completed = ( (string) ( $session->activity_status_key ?? '' ) === ActivityStatusKey::COMPLETED );
                 if ( $is_completed && current_user_can( 'tt_edit_evaluations' ) ) {
                     $rate_url = \TT\Shared\Wizards\WizardEntryPoint::buildUrl(
                         'mark-attendance',
@@ -238,8 +240,8 @@ class FrontendActivitiesManageView extends FrontendViewBase {
     private static function renderDetail( object $session, bool $is_admin ): void {
         $team_id   = (int) ( $session->team_id ?? 0 );
         $team_name = (string) ( $session->team_name ?? '' );
-        $type_key  = (string) ( $session->activity_type_key ?? 'training' );
-        $status_key = (string) ( $session->activity_status_key ?? 'planned' );
+        $type_key  = (string) ( $session->activity_type_key ?? ActivityTypeKey::TRAINING );
+        $status_key = (string) ( $session->activity_status_key ?? ActivityStatusKey::PLANNED );
 
         echo '<div class="tt-record-detail" style="display:grid; gap:12px;">';
 
@@ -364,8 +366,8 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         // attendance list with marks — exactly what the user asked
         // for. Visible only on completed activities, since planned
         // / cancelled rows have no meaningful attendance.
-        $status_key_for_att = (string) ( $session->activity_status_key ?? 'planned' );
-        if ( $status_key_for_att === 'completed' ) {
+        $status_key_for_att = (string) ( $session->activity_status_key ?? ActivityStatusKey::PLANNED );
+        if ( $status_key_for_att === ActivityStatusKey::COMPLETED ) {
             self::renderAttendanceSummary( $session );
         }
 
@@ -845,7 +847,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         $meta_bits = [];
         $meta_bits[] = '<span class="tt-act-pill" data-type="' . esc_attr( $type_pill_key ) . '">' . esc_html( $type_label !== '' ? $type_label : ucfirst( $type_key ) ) . '</span>';
 
-        if ( $mode === 'past' && in_array( $status_key, [ 'completed', 'cancelled' ], true ) ) {
+        if ( $mode === 'past' && in_array( $status_key, [ ActivityStatusKey::COMPLETED, ActivityStatusKey::CANCELLED ], true ) ) {
             $meta_bits[] = '<span class="tt-act-pill" data-status="' . esc_attr( $status_key ) . '">' . esc_html( $status_label !== '' ? $status_label : ucfirst( $status_key ) ) . '</span>';
         }
 
@@ -896,7 +898,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         $k = strtolower( trim( $type_key ) );
         if ( $k === '' ) return 'other';
         if ( strpos( $k, 'train' ) !== false )                  return 'training';
-        if ( in_array( $k, [ 'match', 'game', 'tournament' ], true ) ) return 'match';
+        if ( in_array( $k, [ 'match', ActivityTypeKey::GAME, ActivityTypeKey::TOURNAMENT ], true ) ) return 'match';
         if ( strpos( $k, 'friend' ) !== false )                 return 'friendly';
         return 'other';
     }
@@ -1003,8 +1005,8 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             // taxonomy (completed/cancelled) OR the older
             // activity_status_key taxonomy. Belt-and-braces because
             // pilot installs have a mix of both on legacy rows.
-            $is_closed = in_array( $plan_state, [ 'completed', 'cancelled' ], true )
-                      || in_array( $status,     [ 'completed', 'cancelled' ], true );
+            $is_closed = in_array( $plan_state, [ ActivityStatusKey::COMPLETED, ActivityStatusKey::CANCELLED ], true )
+                      || in_array( $status,     [ ActivityStatusKey::COMPLETED, ActivityStatusKey::CANCELLED ], true );
 
             if ( $sd < $today_ymd ) {
                 if ( $is_closed ) {
@@ -1161,8 +1163,8 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         $activity_type_rows   = QueryHelpers::get_lookups( 'activity_type' );
         $activity_status_rows = QueryHelpers::get_lookups( 'activity_status' );
 
-        $current_type    = (string) ( $session->activity_type_key ?? 'training' );
-        $current_status  = (string) ( $session->activity_status_key ?? 'planned' );
+        $current_type    = (string) ( $session->activity_type_key ?? ActivityTypeKey::TRAINING );
+        $current_status  = (string) ( $session->activity_status_key ?? ActivityStatusKey::PLANNED );
         $current_subtype = (string) ( $session->game_subtype_key ?? '' );
         $current_other   = (string) ( $session->other_label ?? '' );
 
@@ -1218,7 +1220,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                     <label class="tt-field-label tt-field-required" for="tt-activity-title"><?php esc_html_e( 'Title', 'talenttrack' ); ?></label>
                     <input type="text" id="tt-activity-title" class="tt-input" name="title" required value="<?php echo esc_attr( (string) ( $session->title ?? '' ) ); ?>" />
                 </div>
-                <div class="tt-field" id="tt-activity-subtype-row" style="<?php echo $current_type === 'game' ? '' : 'display:none;'; ?>">
+                <div class="tt-field" id="tt-activity-subtype-row" style="<?php echo $current_type === ActivityTypeKey::GAME ? '' : 'display:none;'; ?>">
                     <label class="tt-field-label" for="tt-activity-subtype"><?php esc_html_e( 'Game subtype', 'talenttrack' ); ?></label>
                     <select id="tt-activity-subtype" class="tt-input" name="game_subtype_key">
                         <option value=""><?php esc_html_e( '— Choose —', 'talenttrack' ); ?></option>
@@ -1227,7 +1229,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                         <?php endforeach; ?>
                     </select>
                 </div>
-                <div class="tt-field" id="tt-activity-other-row" style="<?php echo $current_type === 'other' ? '' : 'display:none;'; ?>">
+                <div class="tt-field" id="tt-activity-other-row" style="<?php echo $current_type === ActivityTypeKey::OTHER ? '' : 'display:none;'; ?>">
                     <label class="tt-field-label tt-field-required" for="tt-activity-other-label"><?php esc_html_e( 'Other label', 'talenttrack' ); ?></label>
                     <input type="text" id="tt-activity-other-label" class="tt-input" name="other_label" maxlength="120" value="<?php echo esc_attr( $current_other ); ?>" placeholder="<?php esc_attr_e( 'e.g. Team-building day', 'talenttrack' ); ?>" />
                 </div>
@@ -1324,7 +1326,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             // happened (status = completed). Planned + cancelled don't get
             // attendance rows. The wrapper carries data-tt-attendance-section
             // so the status `<select>` JS below can toggle it without a reload.
-            $attendance_visible = ( $current_status === 'completed' );
+            $attendance_visible = ( $current_status === ActivityStatusKey::COMPLETED );
             ?>
             <div data-tt-attendance-section data-tt-attendance-allowed-status="completed"<?php echo $attendance_visible ? '' : ' hidden'; ?>>
             <h3 style="margin:24px 0 12px;"><?php esc_html_e( 'Attendance', 'talenttrack' ); ?></h3>
