@@ -3,6 +3,7 @@ namespace TT\Infrastructure\Journey;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\JourneyEventType;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
@@ -39,7 +40,7 @@ final class JourneyEventSubscriber {
 
         EventEmitter::emit(
             $player_id,
-            'evaluation_completed',
+            JourneyEventType::EVALUATION_COMPLETED,
             $eval_date,
             sprintf( __( 'Evaluation on %s', 'talenttrack' ), substr( $eval_date, 0, 10 ) ),
             [
@@ -59,7 +60,7 @@ final class JourneyEventSubscriber {
         $title = (string) ( $data['title'] ?? '' );
         EventEmitter::emit(
             $player_id,
-            'goal_set',
+            JourneyEventType::GOAL_SET,
             current_time( 'mysql' ),
             $title !== '' ? sprintf( __( 'Goal set: %s', 'talenttrack' ), $title ) : __( 'Goal set', 'talenttrack' ),
             [ 'goal_id' => $goal_id ],
@@ -82,7 +83,7 @@ final class JourneyEventSubscriber {
 
         EventEmitter::emit(
             (int) $row->player_id,
-            'pdp_verdict_recorded',
+            JourneyEventType::PDP_VERDICT_RECORDED,
             (string) ( $row->signed_off_at ?: current_time( 'mysql' ) ),
             sprintf( __( 'PDP verdict: %s', 'talenttrack' ), (string) $row->decision ),
             [
@@ -105,7 +106,7 @@ final class JourneyEventSubscriber {
 
         EventEmitter::emit(
             $player_id,
-            'joined_academy',
+            JourneyEventType::JOINED_ACADEMY,
             $date_joined,
             __( 'Joined the academy', 'talenttrack' ),
             [],
@@ -145,7 +146,7 @@ final class JourneyEventSubscriber {
             $synthetic_id = (int) ( ( $player_id * 1000 ) + ( crc32( $new_pos ) % 1000 ) );
             EventEmitter::emit(
                 $player_id,
-                'position_changed',
+                JourneyEventType::POSITION_CHANGED,
                 current_time( 'mysql' ),
                 sprintf( __( 'Position: %1$s → %2$s', 'talenttrack' ), $old_pos !== '' ? $old_pos : __( 'unset', 'talenttrack' ), $new_pos ),
                 [ 'from' => $old_pos, 'to' => $new_pos ],
@@ -159,7 +160,7 @@ final class JourneyEventSubscriber {
     public static function on_trial_started( int $case_id, int $player_id ): void {
         EventEmitter::emit(
             $player_id,
-            'trial_started',
+            JourneyEventType::TRIAL_STARTED,
             current_time( 'mysql' ),
             __( 'Trial started', 'talenttrack' ),
             [ 'trial_case_id' => $case_id ],
@@ -172,7 +173,7 @@ final class JourneyEventSubscriber {
     public static function on_trial_decision_recorded( int $case_id, int $player_id, string $decision, string $decided_at ): void {
         EventEmitter::emit(
             $player_id,
-            'trial_ended',
+            JourneyEventType::TRIAL_ENDED,
             $decided_at !== '' ? $decided_at : current_time( 'mysql' ),
             sprintf( __( 'Trial ended: %s', 'talenttrack' ), $decision ),
             [
@@ -188,7 +189,7 @@ final class JourneyEventSubscriber {
         if ( $decision === 'admit' ) {
             EventEmitter::emit(
                 $player_id,
-                'signed',
+                JourneyEventType::SIGNED,
                 $decided_at !== '' ? $decided_at : current_time( 'mysql' ),
                 __( 'Signed after trial', 'talenttrack' ),
                 [],
@@ -199,7 +200,7 @@ final class JourneyEventSubscriber {
         } elseif ( $decision === 'deny_final' ) {
             EventEmitter::emit(
                 $player_id,
-                'released',
+                JourneyEventType::RELEASED,
                 $decided_at !== '' ? $decided_at : current_time( 'mysql' ),
                 __( 'Released after trial', 'talenttrack' ),
                 [ 'context' => 'post_trial' ],
@@ -216,11 +217,11 @@ final class JourneyEventSubscriber {
         $now = current_time( 'mysql' );
 
         if ( $new === 'active' && $old === 'trial' ) {
-            EventEmitter::emit( $player_id, 'signed', $now, __( 'Signed', 'talenttrack' ), [], 'Players', 'status_signed', $synthetic_id );
+            EventEmitter::emit( $player_id, JourneyEventType::SIGNED, $now, __( 'Signed', 'talenttrack' ), [], 'Players', 'status_signed', $synthetic_id );
         } elseif ( $new === 'released' ) {
-            EventEmitter::emit( $player_id, 'released', $now, __( 'Released', 'talenttrack' ), [ 'context' => 'mid_season' ], 'Players', 'status_released', $synthetic_id );
+            EventEmitter::emit( $player_id, JourneyEventType::RELEASED, $now, __( 'Released', 'talenttrack' ), [ 'context' => 'mid_season' ], 'Players', 'status_released', $synthetic_id );
         } elseif ( $new === 'graduated' ) {
-            EventEmitter::emit( $player_id, 'graduated', $now, __( 'Graduated', 'talenttrack' ), [], 'Players', 'status_graduated', $synthetic_id );
+            EventEmitter::emit( $player_id, JourneyEventType::GRADUATED, $now, __( 'Graduated', 'talenttrack' ), [], 'Players', 'status_graduated', $synthetic_id );
         }
     }
 
@@ -244,7 +245,7 @@ final class JourneyEventSubscriber {
 
         EventEmitter::emit(
             $player_id,
-            'team_changed',
+            JourneyEventType::TEAM_CHANGED,
             current_time( 'mysql' ),
             sprintf( __( 'Team: %1$s → %2$s', 'talenttrack' ), $old_name !== '' ? $old_name : __( 'unset', 'talenttrack' ), $new_name ),
             [
@@ -261,7 +262,7 @@ final class JourneyEventSubscriber {
         if ( $old_age_group !== $new_age_group && $new_age_group !== '' ) {
             EventEmitter::emit(
                 $player_id,
-                'age_group_promoted',
+                JourneyEventType::AGE_GROUP_PROMOTED,
                 current_time( 'mysql' ),
                 sprintf( __( 'Age group: %1$s → %2$s', 'talenttrack' ), $old_age_group !== '' ? $old_age_group : __( 'unset', 'talenttrack' ), $new_age_group ),
                 [

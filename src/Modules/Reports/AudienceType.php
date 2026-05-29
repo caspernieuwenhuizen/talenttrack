@@ -3,24 +3,34 @@ namespace TT\Modules\Reports;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\ReportAudienceType;
+
 /**
  * AudienceType — string-backed enum for report audience.
  *
  * Sprint 3 (#0014). Class-based pseudo-enum because the plugin's
  * minimum PHP is 7.4 (native enums are 8.1+). String constants live
  * here as the canonical form; helpers translate to/from strings.
+ *
+ * The eight stored values are mirrored under
+ * `TT\Domain\Vocabularies\Lookups\ReportAudienceType` per #988 PR-set 5
+ * as the cross-module canonical reference. The constants in this class
+ * alias the vocabulary constants to keep existing internal callers
+ * (`PlayerReportRenderer`, `AudienceDefaults`, `ScoutDelivery`, etc.)
+ * green and to keep the Reports-module-local description / label
+ * helpers in one place.
  */
 final class AudienceType {
 
-    public const STANDARD          = 'standard';
-    public const PARENT_MONTHLY    = 'parent_monthly';
-    public const INTERNAL_DETAILED = 'internal_detailed';
-    public const PLAYER_PERSONAL   = 'player_personal';
-    public const SCOUT             = 'scout';
+    public const STANDARD          = ReportAudienceType::STANDARD;
+    public const PARENT_MONTHLY    = ReportAudienceType::PARENT_MONTHLY;
+    public const INTERNAL_DETAILED = ReportAudienceType::INTERNAL_DETAILED;
+    public const PLAYER_PERSONAL   = ReportAudienceType::PLAYER_PERSONAL;
+    public const SCOUT             = ReportAudienceType::SCOUT;
 
-    public const TRIAL_ADMITTANCE          = 'trial_admittance';
-    public const TRIAL_DENIAL_FINAL        = 'trial_denial_final';
-    public const TRIAL_DENIAL_ENCOURAGE    = 'trial_denial_encouragement';
+    public const TRIAL_ADMITTANCE          = ReportAudienceType::TRIAL_ADMITTANCE;
+    public const TRIAL_DENIAL_FINAL        = ReportAudienceType::TRIAL_DENIAL_FINAL;
+    public const TRIAL_DENIAL_ENCOURAGE    = ReportAudienceType::TRIAL_DENIAL_ENCOURAGEMENT;
 
     /**
      * @return string[]

@@ -3,6 +3,7 @@ namespace TT\Modules\Prospects\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\ScoutingVisitStatus;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Prospects\Repositories\ScoutingVisitsRepository;
@@ -149,9 +150,9 @@ class FrontendScoutingPlanView extends FrontendViewBase {
         // Mirrors LookupPill's inline-style approach so we don't need
         // to seed a tt_lookups vocabulary just for a 3-value status.
         $colors = [
-            'planned'   => '#0284c7', // blue
-            'completed' => '#16a34a', // green
-            'cancelled' => '#dc2626', // red
+            ScoutingVisitStatus::PLANNED   => '#0284c7', // blue
+            ScoutingVisitStatus::COMPLETED => '#16a34a', // green
+            ScoutingVisitStatus::CANCELLED => '#dc2626', // red
         ];
         $color = $colors[ $key ] ?? '#5b6e75';
         return sprintf(
@@ -212,7 +213,7 @@ class FrontendScoutingPlanView extends FrontendViewBase {
                     $scout_name = '';
                     $scout      = get_userdata( (int) ( $row->scout_user_id ?? 0 ) );
                     if ( $scout ) $scout_name = (string) $scout->display_name;
-                    $status_key   = (string) ( $row->status ?? 'planned' );
+                    $status_key   = (string) ( $row->status ?? ScoutingVisitStatus::PLANNED );
                     $status_label = self::statusLabel( $status_key );
                     $status_html  = self::statusPillHtml( $status_key, $status_label );
                     ?>
@@ -249,7 +250,7 @@ class FrontendScoutingPlanView extends FrontendViewBase {
         $event_description = $is_edit ? (string) ( $visit->event_description ?? '' ) : '';
         $age_groups_csv    = $is_edit ? (string) ( $visit->age_groups_csv ?? '' ) : '';
         $notes             = $is_edit ? (string) ( $visit->notes ?? '' ) : '';
-        $status            = $is_edit ? (string) ( $visit->status ?? 'planned' ) : 'planned';
+        $status            = $is_edit ? (string) ( $visit->status ?? ScoutingVisitStatus::PLANNED ) : ScoutingVisitStatus::PLANNED;
 
         $age_groups = [];
         foreach ( QueryHelpers::get_lookup_names( 'age_group' ) as $ag ) {

@@ -3,6 +3,8 @@ namespace TT\Modules\Analytics;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\ScheduledReportFrequency;
+use TT\Domain\Vocabularies\Lookups\ScheduledReportStatus;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
@@ -24,13 +26,13 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  */
 final class ScheduledReportsRepository {
 
-    public const FREQUENCY_WEEKLY_MONDAY  = 'weekly_monday';
-    public const FREQUENCY_MONTHLY_FIRST  = 'monthly_first';
-    public const FREQUENCY_SEASON_END     = 'season_end';
+    public const FREQUENCY_WEEKLY_MONDAY  = ScheduledReportFrequency::WEEKLY_MONDAY;
+    public const FREQUENCY_MONTHLY_FIRST  = ScheduledReportFrequency::MONTHLY_FIRST;
+    public const FREQUENCY_SEASON_END     = ScheduledReportFrequency::SEASON_END;
 
-    public const STATUS_ACTIVE   = 'active';
-    public const STATUS_PAUSED   = 'paused';
-    public const STATUS_ARCHIVED = 'archived';
+    public const STATUS_ACTIVE   = ScheduledReportStatus::ACTIVE;
+    public const STATUS_PAUSED   = ScheduledReportStatus::PAUSED;
+    public const STATUS_ARCHIVED = ScheduledReportStatus::ARCHIVED;
 
     /**
      * Operator-editable label for a stored frequency value. Resolves
