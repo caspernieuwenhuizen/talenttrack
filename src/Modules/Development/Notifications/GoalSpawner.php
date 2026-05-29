@@ -3,6 +3,8 @@ namespace TT\Modules\Development\Notifications;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\GoalPriority;
+use TT\Domain\Vocabularies\Lookups\GoalStatus;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Development\IdeaRepository;
 use TT\Modules\Development\IdeaStatus;
@@ -41,8 +43,8 @@ class GoalSpawner {
             'player_id'   => $playerId,
             'title'       => (string) $idea->title,
             'description' => (string) ( $idea->body ?? '' ),
-            'status'      => 'pending',
-            'priority'    => 'medium',
+            'status'      => GoalStatus::PENDING,
+            'priority'    => GoalPriority::MEDIUM,
             'created_by'  => get_current_user_id(),
         ] );
         if ( $ok === false ) return;
