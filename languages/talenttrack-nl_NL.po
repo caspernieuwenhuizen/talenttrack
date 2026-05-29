@@ -32292,6 +32292,133 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ msgid "No activities match your filters."
 #~ msgstr "Geen activiteiten passen bij je filters."
 
+# v4.8.0 — Player profile redesign (#977)
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Key facts"
+msgstr "Kerngegevens"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "At a glance"
+msgstr "In één oogopslag"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Avg rating"
+msgstr "Gem. beoordeling"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "last 30 d"
+msgstr "laatste 30 d"
+
+#. translators: %d: number of goals due in the next 7 days
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+#, php-format
+msgid "%d due soon"
+msgid_plural "%d due soon"
+msgstr[0] "%d binnenkort verlopen"
+msgstr[1] "%d binnenkort verlopen"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Parents · Guardians"
+msgstr "Ouders · Voogden"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "No linked parent or guardian yet."
+msgstr "Nog geen ouder of voogd gekoppeld."
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Logged by"
+msgstr "Vastgelegd door"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "At"
+msgstr "Bij"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "No discovery record for this player."
+msgstr "Geen ontdekkingsregistratie voor deze speler."
+
+#. translators: %d: number of active goals
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+#, php-format
+msgid "Active goals · %d"
+msgstr "Actieve doelen · %d"
+
+#. translators: %d: number of recent items in a list
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+#, php-format
+msgid "Recent · %d"
+msgstr "Recent · %d"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "View all"
+msgstr "Alles bekijken"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Active cycle"
+msgstr "Actieve cyclus"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "PDP progress"
+msgstr "PDP-voortgang"
+
+#. translators: %s: ISO date the PDP cycle was created
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+#, php-format
+msgid "Created %s"
+msgstr "Aangemaakt %s"
+
+#. translators: %d: number of past PDP cycles
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+#, php-format
+msgid "Past cycles · %d"
+msgstr "Eerdere cycli · %d"
+
+#. translators: %d: number of trial cases
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+#, php-format
+msgid "Trial cases · %d"
+msgstr "Proefdossiers · %d"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Staff notes"
+msgstr "Stafnotities"
+
+#. translators: %d: number of years
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+#, php-format
+msgid "%d yr in academy"
+msgid_plural "%d yrs in academy"
+msgstr[0] "%d jr in de academie"
+msgstr[1] "%d jr in de academie"
+
+#. translators: %d: number of years
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+#, php-format
+msgid "%d yr"
+msgid_plural "%d yrs"
+msgstr[0] "%d jr"
+msgstr[1] "%d jr"
+
+#. translators: %d: number of years
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+#, php-format
+msgid "%d yr in"
+msgid_plural "%d yrs in"
+msgstr[0] "%d jr lid"
+msgstr[1] "%d jr lid"
+
+#. translators: %d: number of months
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+#, php-format
+msgid "%d mo in"
+msgid_plural "%d mos in"
+msgstr[0] "%d mnd lid"
+msgstr[1] "%d mnd lid"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "new"
+msgstr "nieuw"
+
 #~ msgid "TRIAL"
 #~ msgstr "PROEF"
 

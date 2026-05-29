@@ -63,6 +63,21 @@ The player file got a hero-card redesign and per-tab empty-state CTAs.
 - **Tab count badges.** Each non-Profile tab shows a small badge with its record count (Goals 12, Evaluations 4, Activities 38, etc.). Tabs with zero records render in a muted colour so an operator can scan the row and pick the populated tabs without clicking through every empty one.
 - **Profile tab two-column layout.** At ≥ 768px the Profile tab now splits into Identity (DOB, position, foot, jersey, status) on the left and Academy (team, age tier, date joined) on the right. Single column on mobile.
 
+## Player file UX redesign (v4.8.0 — #977)
+
+The player file is rebuilt as a port of `.local-mockups/player-profile/index.html`. Backend unchanged — same `tt_players` row, same `tt_view_players` capability gate, same `?tt_view=players&id=N` URL — but the visual contract changes substantially.
+
+- **Hero.** Paper background with a soft bottom shadow (no more blue gradient strip). The status signal moves to a 4px coloured border on the avatar — green for `active`, gold for `trial`, red for `released`, neutral grey for `inactive`. Jersey number renders as a small badge tucked into the avatar's bottom-right corner with a paper-coloured outline. Below: name + team link + status pill (carrying inline "X yrs in academy") + first position pill.
+- **Action row.** `+ Log behaviour` (primary inverted) · `Set potential` · `Edit` · `⋯` overflow holding **Archive** and (when the player has no team) **Assign to team**. Cap-gating unchanged: `tt_rate_player_behaviour`, `tt_set_player_potential`, `tt_edit_players`.
+- **Key facts strip.** Three cards (DOB / Foot / Joined) each with a small hint (age, alternate position, years-in-academy). 3-up grid on mobile + tablet; reflows to a vertical 1-up stack on desktop where the strip moves into the left rail.
+- **At-a-glance KPI strip.** Three KPI cards — Avg rating (with `▲`/`▼` trend arrow vs the rolling mean), Attendance % (over the last 30 days), Goals (active count with optional `N due soon` hint when any have a due date within 7 days). Each card is a link jumping to the relevant tab.
+- **Tabs.** Pill chips replacing the underlined nav. Each tab carries a count badge from `PlayerFileCounts::for()` when the count is > 0. Mobile horizontally scrolls; tablet+ wraps to a single visible row. Notes tab disappears entirely for users without `tt_view_player_notes`.
+- **Profile tab.** Identity + Academy cards are preserved (same fields, now in card-with-kv-row chrome). Two new cards land: **Parents · Guardians** (surfaces linked `tt_player_parents` rows with name + primary flag + phone + email) and **Discovery** (surfaces the `tt_prospects` row promoted to this player, with scout + event + date). Empty states are friendly when no linked record exists.
+- **Listing tabs.** Goals / Evaluations / Activities / PDP / Trials / Notes all switch to a unified card-row pattern: 44px date badge | title + meta | chevron or right-side chip. Date badges paint red-tinted for due-in-7-days goals and accent-blue for today's activities. Evaluations carry a colour-coded rating chip (green for ≥75% of scale, orange for <50%). Activities planned rows show a neutral "Planned" pill instead of the wizard's default-Present pre-fill.
+- **PDP tab.** Active cycle renders a 4-step progress bar (kickoff → mid-cycle → end-of-cycle → signoff). Past cycles render as a card-row list.
+- **Three responsive shapes.** Mobile (≤719px) — single column, sticky horizontal tab scroll. Tablet (720-1023px) — single column at 720px max, tabs flow, Profile cards 2-up, 96px avatar. Desktop (≥1024px) — two-column grid: 320px left rail (Key facts + At a glance vertically) + flex right column (tabs + active pane). Hero + actions span both columns. The `.tt-player-detail__rail` and `.tt-player-detail__main` wrappers use `display: contents` below 1024px so column row heights stay independent on desktop.
+- **What stays out.** Analytics tab (removed v3.110.187) is not re-added. Inline row-level archive/delete on Evaluations (removed v3.110.148) stays out — destructive actions live on the evaluation detail page.
+
 ## Team detail — trial roster (v3.79.0)
 
 The team detail page now shows current trial players under their own **Trial players** subsection. They were previously hidden behind the active-status filter on the team roster.
