@@ -4,6 +4,7 @@ namespace TT\Modules\Players\Admin;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Core\Kernel;
+use TT\Domain\Vocabularies\Lookups\PlayerStatus;
 use TT\Infrastructure\CustomFields\CustomFieldsRepository;
 use TT\Infrastructure\CustomFields\CustomFieldsSlot;
 use TT\Infrastructure\CustomFields\CustomValuesRepository;
@@ -227,10 +228,10 @@ class PlayersPage {
         $state = self::popFormState();
 
         $status_options = [
-            'active'   => __( 'Active', 'talenttrack' ),
-            'inactive' => __( 'Inactive', 'talenttrack' ),
-            'trial'    => __( 'Trial', 'talenttrack' ),
-            'released' => __( 'Released', 'talenttrack' ),
+            PlayerStatus::ACTIVE   => __( 'Active', 'talenttrack' ),
+            PlayerStatus::INACTIVE => __( 'Inactive', 'talenttrack' ),
+            PlayerStatus::TRIAL    => __( 'Trial', 'talenttrack' ),
+            PlayerStatus::RELEASED => __( 'Released', 'talenttrack' ),
         ];
 
         // Note: custom field values are loaded on-demand by CustomFieldsSlot
@@ -410,7 +411,7 @@ class PlayersPage {
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'wp_user_id' ); ?>
                     <tr><th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th><td><select name="status">
                         <?php foreach ( $status_options as $k => $l ) : ?>
-                            <option value="<?php echo esc_attr( $k ); ?>" <?php selected( $player->status ?? 'active', $k ); ?>><?php echo esc_html( $l ); ?></option><?php endforeach; ?></select></td></tr>
+                            <option value="<?php echo esc_attr( $k ); ?>" <?php selected( $player->status ?? PlayerStatus::ACTIVE, $k ); ?>><?php echo esc_html( $l ); ?></option><?php endforeach; ?></select></td></tr>
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ), 'status' ); ?>
                     <?php CustomFieldsSlot::renderAppend( CustomFieldsRepository::ENTITY_PLAYER, (int) ( $player->id ?? 0 ) ); ?>
                 </table>
@@ -533,7 +534,7 @@ class PlayersPage {
                 ? (int) $_POST['parent_person_id']
                 : null,
             'wp_user_id' => isset( $_POST['wp_user_id'] ) ? absint( $_POST['wp_user_id'] ) : 0,
-            'status' => isset( $_POST['status'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['status'] ) ) : 'active',
+            'status' => isset( $_POST['status'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['status'] ) ) : PlayerStatus::ACTIVE,
         ];
         $id = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
 
@@ -629,7 +630,7 @@ class PlayersPage {
         $stub->preferred_positions = ! empty( $row->guest_position )
             ? wp_json_encode( [ (string) $row->guest_position ] )
             : '[]';
-        $stub->status        = 'active';
+        $stub->status        = PlayerStatus::ACTIVE;
         return $stub;
     }
 

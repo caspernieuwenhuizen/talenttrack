@@ -3,6 +3,7 @@ namespace TT\Modules\Workflow\Forms;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\PlayerStatus;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Prospects\Repositories\ProspectsRepository;
 use TT\Modules\Trials\Repositories\TrialCasesRepository;
@@ -126,7 +127,7 @@ class AwaitTeamOfferDecisionForm implements FormInterface {
             global $wpdb;
             $wpdb->update(
                 $wpdb->prefix . 'tt_players',
-                [ 'status' => 'active' ],
+                [ 'status' => PlayerStatus::ACTIVE ],
                 [ 'id' => $player_id, 'club_id' => CurrentClub::id() ]
             );
         } elseif ( $outcome === 'declined' && $prospect_id > 0 ) {

@@ -3,6 +3,7 @@ namespace TT\Modules\Wizards\Player;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\PreferredFoot;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Shared\Wizards\WizardStepInterface;
 
@@ -66,7 +67,7 @@ final class RosterDetailsStep implements WizardStepInterface {
         $team = isset( $post['team_id'] ) ? absint( $post['team_id'] ) : 0;
         $jersey_raw = $post['jersey_number'] ?? '';
         $foot = isset( $post['preferred_foot'] ) ? sanitize_key( (string) $post['preferred_foot'] ) : '';
-        if ( ! in_array( $foot, [ '', 'left', 'right', 'both' ], true ) ) $foot = '';
+        if ( ! in_array( $foot, [ '', PreferredFoot::LEFT, PreferredFoot::RIGHT, PreferredFoot::BOTH ], true ) ) $foot = '';
 
         return [
             'first_name'     => $first,

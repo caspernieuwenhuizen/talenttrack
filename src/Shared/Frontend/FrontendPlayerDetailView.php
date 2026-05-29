@@ -3,6 +3,7 @@ namespace TT\Shared\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\PlayerStatus;
 use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Query\PlayerFileCounts;
 use TT\Infrastructure\Query\QueryHelpers;
@@ -1369,7 +1370,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             $player_id
         ) );
         if ( empty( $rows ) ) {
-            $is_trial_player = $player && isset( $player->status ) && (string) $player->status === 'trial';
+            $is_trial_player = $player && isset( $player->status ) && (string) $player->status === PlayerStatus::TRIAL;
             $card = [
                 'icon'      => 'trials',
                 'headline'  => __( 'No trial history for this player', 'talenttrack' ),

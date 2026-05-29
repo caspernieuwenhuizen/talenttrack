@@ -3,6 +3,7 @@ namespace TT\Modules\Workflow\Forms;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\PlayerStatus;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Prospects\Repositories\ProspectsRepository;
 use TT\Modules\Trials\Repositories\TrialCasesRepository;
@@ -173,7 +174,7 @@ class RecordTestTrainingOutcomeForm implements FormInterface {
             'last_name'     => (string) $prospect->last_name,
             'date_of_birth' => $prospect->date_of_birth,
             'date_joined'   => gmdate( 'Y-m-d' ),
-            'status'        => 'trial',
+            'status'        => PlayerStatus::TRIAL,
             'uuid'          => wp_generate_uuid4(),
         ] );
         $player_id = (int) $wpdb->insert_id;
