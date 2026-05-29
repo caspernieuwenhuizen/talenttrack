@@ -3,7 +3,11 @@ namespace TT\Infrastructure\Journey;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+<<<<<<< HEAD
 use TT\Domain\Vocabularies\Lookups\JourneyEventType;
+=======
+use TT\Domain\Vocabularies\Lookups\TrialCaseDecision;
+>>>>>>> 2305cd9 (refactor(v4.12.5): vocabulary constants — PDP + trial (PR-set 3 of #988))
 use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
@@ -186,7 +190,7 @@ final class JourneyEventSubscriber {
             $case_id
         );
 
-        if ( $decision === 'admit' ) {
+        if ( $decision === TrialCaseDecision::ADMIT ) {
             EventEmitter::emit(
                 $player_id,
                 JourneyEventType::SIGNED,
@@ -197,7 +201,7 @@ final class JourneyEventSubscriber {
                 'trial_signed',
                 $case_id
             );
-        } elseif ( $decision === 'deny_final' ) {
+        } elseif ( $decision === TrialCaseDecision::DENY_FINAL ) {
             EventEmitter::emit(
                 $player_id,
                 JourneyEventType::RELEASED,

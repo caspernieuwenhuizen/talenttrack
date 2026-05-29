@@ -1,46 +1,49 @@
-# TalentTrack v4.12.6 — Vocabulary constants for tournament + match + MatchExecutionState (PR-set 6 of #988)
+# TalentTrack v4.12.7 — Vocabulary constants for PDP + trial (PR-set 3 of #988)
 
-Sixth of eight PR-sets in the umbrella migration of #988 (~131 hardcoded vocabulary string literals -> typed constants under `TT\Domain\Vocabularies\*`). PR-set 1 (attendance + activity) shipped in v4.11.1; PR-set 2 (goals + tasks) shipped in v4.12.3; this ship covers the tournament-side lookup vocabularies AND consolidates the match-execution state values into the first `Vocabularies\Enums\*` class per the umbrella's locked architectural split. Same architectural pattern, same backward-compat allowlist, same patch-bump rhythm.
+Third of eight PR-sets in the umbrella migration of #988 (~131 hardcoded vocabulary string literals -> typed constants under `TT\Domain\Vocabularies\*`). PR-set 1 (attendance + activity) shipped in v4.11.1; PR-set 2 (goals + tasks) shipped in v4.12.3; this ship covers the PDP-cycle and trial-case vocabularies. Same architectural pattern, same backward-compat allowlist, same patch-bump rhythm.
 
 ## What ships
 
-**PHP - new vocabulary classes (Lookups)**
+**PHP - new vocabulary classes**
 
-- `src/Domain/Vocabularies/Lookups/TournamentFormation.php` (new) — eight constants for `tt_tournaments.default_formation` and `tt_tournament_matches.formation`. Backs the `tournament_formation` lookup seeded by migration 0098 in canonical hyphen-numeric form: `F_4_3_3` (`1-4-3-3`), `F_4_4_2` (`1-4-4-2`), `F_3_4_3` (`1-3-4-3`), `F_3_5_2` (`1-3-5-2`), `F_4_2_3_1` (`1-4-2-3-1`), `F_2_3_2` (`1-2-3-2`), `F_2_3_1` (`1-2-3-1`), `F_1_3_1` (`1-1-3-1`). Mirrors the PR-set 1 file shape (`const ALL` + static `isValid()`).
-- `src/Domain/Vocabularies/Lookups/TournamentOpponentLevel.php` (new) — four constants for `tt_tournament_matches.opponent_level` in lowercase snake_case: `WEAKER`, `EQUAL`, `STRONGER`, `MUCH_STRONGER`. Each row's meta colour drives the visible pill on the match card.
-- `src/Domain/Vocabularies/Lookups/CompetitionType.php` (new) — five constants for the `competition_type` lookup seeded by migration 0013 (`League`, `Cup`) and extended via `LookupCanonicalSeeds` (`Tournament`, `Friendly`, `Indoor`). Stored as TitleCase per the original `competition-type` lookup convention.
+- `src/Domain/Vocabularies/Lookups/PdpStatus.php` (new) — three lowercase constants for `tt_pdp_files.status`: `OPEN`, `COMPLETED`, `ARCHIVED`. Mirrors the PR-set 1 / 2 file shape (`const ALL` + static `isValid()`). The column is VARCHAR(20) with `DEFAULT 'open'` per migration 0031; `PdpFilesRepository::setStatus()` is the gate that rejects any value outside the three.
+- `src/Domain/Vocabularies/Lookups/PdpVerdictDecision.php` (new) — four constants for `tt_pdp_verdicts.decision`: `PROMOTE`, `RETAIN`, `RELEASE`, `TRANSFER`. Backs the `pdp_verdict_decision` lookup seeded by migration 0112 with per-locale translations through `tt_translations`. `PdpVerdictsRepository::upsertForFile()` is the gate.
+- `src/Domain/Vocabularies/Lookups/TrialCaseStatus.php` (new) — four constants for `tt_trial_cases.status`: `OPEN`, `EXTENDED`, `DECIDED`, `ARCHIVED`. Backs the `trial_case_status` lookup seeded by migration 0116.
+- `src/Domain/Vocabularies/Lookups/TrialCaseDecision.php` (new) — six constants for `tt_trial_cases.decision`: `ADMIT`, `DENY_FINAL`, `DENY_ENCOURAGEMENT`, `OFFERED_TEAM_POSITION`, `DECLINED_OFFERED_POSITION`, `CONTINUE_IN_TRIAL_GROUP`. Backs the `trial_case_decision` lookup seeded by migration 0116. The three rolling-membership decisions (#0081 child 4) sit alongside the classic admit / decline triad — single vocabulary, one canonical list.
 
-**PHP - new vocabulary class (Enums) — first of the code-only sub-namespace**
+**PHP - literal -> constant replacements**
 
-- `src/Domain/Vocabularies/Enums/MatchExecutionState.php` (new) — five constants for the live-match state machine stored in `tt_match_execution.state`: `NOT_STARTED`, `FIRST_HALF`, `HALF_TIME`, `SECOND_HALF`, `FINISHED`. Adds a `LIVE` subset constant (`FIRST_HALF`, `HALF_TIME`, `SECOND_HALF`) and an `isLive()` helper for the coach-hero "Resume match" lookup. This is the first class in `Vocabularies\Enums\*` (code-only; not operator-editable via the lookups admin) per the umbrella's locked sub-namespace split.
-
-**PHP - MatchExecutionState consolidation per #988's locked decisions**
-
-- `src/Modules/MatchExecution/Repositories/MatchExecutionRepository.php` — introduces five deprecated `STATE_*` constants (`STATE_NOT_STARTED`, `STATE_FIRST_HALF`, `STATE_HALF_TIME`, `STATE_SECOND_HALF`, `STATE_FINISHED`) that alias `MatchExecutionState::*`. Per the umbrella's locked plan, the aliases stay one release as a backward-compatibility shim and are removed in the next minor. Existing internal callers that reference the literal continue to work; new code should reference `MatchExecutionState::*` directly. Also replaces the `'not_started'` literal in `ensureForActivity()` with the constant.
-- `src/Modules/MatchExecution/Rest/MatchExecutionRestController.php` — replaces the four `'first_half'` / `'second_half'` / `'half_time'` / `'finished'` literals on the half-lifecycle transitions (`start_half`, `end_half`, `finish`) with the new `MatchExecutionState::*` constants. REST endpoint payload values remain byte-identical.
-- `src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php` — replaces the `'not_started'` literal in the fallback-state expression with `MatchExecutionState::NOT_STARTED`.
-- `src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php` — replaces the three `'first_half'` / `'second_half'` / `'half_time'` literals in `liveMinuteLabel()` with `MatchExecutionState::*` constants.
+- `src/Modules/Pdp/Repositories/PdpFilesRepository.php` — insert default for new files moves from `'open'` to `PdpStatus::OPEN`; the `setStatus()` allowlist `in_array( $status, [ 'open', 'completed', 'archived' ], true )` becomes `PdpStatus::isValid( $status )`.
+- `src/Modules/Pdp/Repositories/PdpVerdictsRepository.php` — drops the private `ALLOWED_DECISIONS` literal array; the `upsertForFile()` gate switches to `PdpVerdictDecision::isValid()`. The `label()` switch cases reference `PdpVerdictDecision::*` constants.
+- `src/Modules/Pdp/Rest/PdpVerdictsRestController.php` — drops the private `ALLOWED_DECISIONS` literal array; the PUT-handler validation switches to `PdpVerdictDecision::isValid()`; the error payload's `allowed` key uses `PdpVerdictDecision::ALL`.
+- `src/Modules/Pdp/Frontend/FrontendPdpManageView.php` — the list-filter `$status_options` keys, the verdict-form `$decisions` keys, and the private `statusLabel()` switch cases all reference the new constants.
+- `src/Modules/Pdp/Frontend/FrontendMyPdpView.php` — the read-only verdict `decisionLabel()` switch cases reference `PdpVerdictDecision::*`.
+- `src/Modules/Trials/Repositories/TrialCasesRepository.php` — the `STATUS_*` and `DECISION_*` class constants now alias `TrialCaseStatus::*` and `TrialCaseDecision::*` rather than carrying duplicate raw strings. Backward compatible: every existing internal caller compiles and produces the same stored value. The `recordDecision()` allowlist switches from the self-constant triad to the `TrialCaseDecision::ADMIT|DENY_FINAL|DENY_ENCOURAGEMENT` triad; the status / decision label switches reference the new constants directly.
+- `src/Infrastructure/Journey/JourneyEventSubscriber.php` — the post-trial-decision branches (signed / released journey events) switch from `'admit'` / `'deny_final'` literals to `TrialCaseDecision::ADMIT` / `TrialCaseDecision::DENY_FINAL`.
+- `src/Modules/Trials/TrialGroupTeam.php` — the two `wpdb->prepare()` bindings for the trial-group active-member queries switch from the `'continue_in_trial_group'` literal to `TrialCaseDecision::CONTINUE_IN_TRIAL_GROUP`.
+- `src/Modules/PersonaDashboard/Kpis/TrialGroupActiveCount.php` — the KPI's active-trial-group-member query binding switches to `TrialCaseDecision::CONTINUE_IN_TRIAL_GROUP`.
+- `src/Modules/Workflow/Templates/ReviewTrialGroupMembershipTemplate.php` — the chain-step gate for the `continue_in_trial_group` branch switches to `TrialCaseDecision::CONTINUE_IN_TRIAL_GROUP`.
 
 **Out of scope for this PR-set**
 
-- The two SQL string literal call sites in `MatchExecutionRepository` (`AND e.state IN ('first_half','half_time','second_half')` and `AND ( e.state IS NULL OR e.state = 'not_started' )`) stay as literals per the umbrella's locked plan — DB is the source of truth.
-- The tournament lookups are pure data-driven (loaded via `QueryHelpers::get_lookup_names()` for the wizard + match-add form); the new constants classes document the canonical English seeded vocabulary for code-side comparisons without altering the operator-editable surface.
-- `tt_lookups` seed values, migrations, .po / .pot files, test fixtures, and JavaScript stay as literals per the spec.
+- SQL string literals (`status IN ('open','extended')` in `TrialCasesRepository::findOpenForPlayer` and `listEndingBetween`, `status NOT IN ('completed','archived')` in `SeasonCarryover::copyOpenGoals`) stay as literals — DB is the source of truth, not the PHP layer.
+- Form-internal radio-button values in `ReviewTrialGroupMembershipForm` (`offer_team_position`, `decline_final`) stay as form-input literals — they're transient HTML radio values mapped to canonical `TrialCaseDecision::*` values inside `serializeResponse()`, not themselves stored. Replacing them would conflate two vocabularies.
+- The local `pdpFileStatusLabel()` switch in `PdpPrintRouter` translates an `'open'`/`'closed'` enum that is separate from the `tt_pdp_files.status` vocabulary — kept local per the existing comment.
+- `LookupCanonicalSeeds.php` has stale / drift-prone entries for `pdp_verdict_decision` and `trial_case_status` ("On track / Behind / Ahead / At risk / Released" and "Open / In progress / Decision pending / Accepted / Rejected") that don't match the canonical pools. That's a #987 cleanup item, out of scope for #988.
+- Migrations, `tt_lookups` seed values, .po / .pot files, test fixtures, and JavaScript stay as literals per the umbrella's locked plan.
 
 ## Why patch
 
-PR-set 6 of 8 in a refactor umbrella. No new feature, no behaviour change, no schema migration. The constants are byte-equivalent to the literals they replace; the REST endpoints continue to accept BOTH the raw literal AND the new constant for one release (per #988's backward-compat allowlist) so external integrations do not break. The deprecated `STATE_*` aliases on `MatchExecutionRepository` keep any internal callers green while the next minor performs the removal. The PHPStan rule (#988 PR-set 8) that will forbid raw literals is deferred until the allowlist drops in a subsequent minor.
+PR-set 3 of 8 in a refactor umbrella. No new feature, no behaviour change, no schema migration. The constants are byte-equivalent to the literals they replace; the REST endpoints continue to accept BOTH the raw literal AND the new constant for one release (per #988's backward-compat allowlist) so external integrations do not break. The PHPStan rule (#988 PR-set 8) that will forbid raw literals is deferred until the allowlist drops in a subsequent minor.
 
 ## Test plan
 
-- Coach starts a half (1 or 2) from the live-match surface: execution row stores `state = 'first_half'` or `'second_half'`; REST response carries the same value as before.
-- Coach ends a half: state moves to `'half_time'` (half 1) or `'finished'` (half 2); same byte values as previous release.
-- Coach finishes the match via the explicit Finish endpoint: state moves to `'finished'`; activity row flips to `activity_status_key = 'completed'`.
-- Coach-hero "Resume match" CTA on the dashboard: `findLiveForTeams()` query returns the same rows as before (`state IN ('first_half','half_time','second_half')` literal SQL stays unchanged).
-- Coach-hero "Start match" CTA: `findStartableForTeams()` query returns the same rows as before (`state IS NULL OR state = 'not_started'` literal SQL stays unchanged).
-- New live-match row insert via `ensureForActivity()`: stores `state = 'not_started'`.
-- Live-minute label on the coach hero: `'1e 23\''` / `'HT'` / `'2e 67\''` render exactly as before.
-- Pre-existing callers (if any) using the new deprecated `MatchExecutionRepository::STATE_*` aliases compile and produce the same stored value as the literal they replaced.
+- Coach opens the PDP manage list at `?tt_view=pdp`: the status filter dropdown still shows Open / Completed / Archived; selecting one filters the file list as before.
+- Coach opens a PDP file: the verdict-form dropdown still offers the four `promote` / `retain` / `release` / `transfer` decisions with the academy-progression labels; submitting still upserts the verdict.
+- Coach records a trial decision via `TrialCasesRepository::recordDecision()` with `admit` / `deny_final` / `deny_encouragement`: stored as before; the journey subscriber emits the signed / released events on `admit` / `deny_final`.
+- HoD landing's "Players in trial group" KPI counts trial cases with `decision = 'continue_in_trial_group'` (byte-identical to prior).
+- ReviewTrialGroupMembershipTemplate chain-step gates the re-spawn on `decision === 'continue_in_trial_group'` (byte-identical to prior).
+- Player / parent opens the read-only PDP at `?tt_view=my-pdp`: the verdict-decision label resolves through `PdpVerdictDecision::*` or the operator-edited `tt_translations` value, identical to prior behaviour.
 
 ---
 

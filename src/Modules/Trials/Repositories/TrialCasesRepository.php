@@ -3,28 +3,37 @@ namespace TT\Modules\Trials\Repositories;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\TrialCaseDecision;
+use TT\Domain\Vocabularies\Lookups\TrialCaseStatus;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
+/**
+ * The `STATUS_*` and `DECISION_*` constants below alias the
+ * `Vocabularies\Lookups\TrialCaseStatus` + `TrialCaseDecision` constants
+ * for backward compatibility. New code should reference the Vocabulary
+ * classes directly per #988's PR-set 3 — these aliases stay one release
+ * before the umbrella's PHPStan rule lands (PR-set 8).
+ */
 class TrialCasesRepository {
 
-    public const STATUS_OPEN     = 'open';
-    public const STATUS_EXTENDED = 'extended';
-    public const STATUS_DECIDED  = 'decided';
-    public const STATUS_ARCHIVED = 'archived';
+    public const STATUS_OPEN     = TrialCaseStatus::OPEN;
+    public const STATUS_EXTENDED = TrialCaseStatus::EXTENDED;
+    public const STATUS_DECIDED  = TrialCaseStatus::DECIDED;
+    public const STATUS_ARCHIVED = TrialCaseStatus::ARCHIVED;
 
-    public const DECISION_ADMIT         = 'admit';
-    public const DECISION_DENY_FINAL    = 'deny_final';
-    public const DECISION_DENY_ENCOURAGE = 'deny_encouragement';
+    public const DECISION_ADMIT          = TrialCaseDecision::ADMIT;
+    public const DECISION_DENY_FINAL     = TrialCaseDecision::DENY_FINAL;
+    public const DECISION_DENY_ENCOURAGE = TrialCaseDecision::DENY_ENCOURAGEMENT;
 
     // #0081 child 4 — rolling-membership decisions for the
-    // trial-group review chain. `offered_team_position` →
+    // trial-group review chain. `offered_team_position` ->
     // AwaitTeamOfferDecisionTemplate spawned. `continue_in_trial_group`
-    // → trial case stays open, ReviewTrialGroupMembershipTemplate
+    // -> trial case stays open, ReviewTrialGroupMembershipTemplate
     // re-spawns in 90 days, `continued_until` bumps. `declined_offered_position`
-    // → terminal (the parent + player declined the offer).
-    public const DECISION_OFFERED_TEAM_POSITION    = 'offered_team_position';
-    public const DECISION_DECLINED_OFFERED_POSITION = 'declined_offered_position';
-    public const DECISION_CONTINUE_IN_TRIAL_GROUP  = 'continue_in_trial_group';
+    // -> terminal (the parent + player declined the offer).
+    public const DECISION_OFFERED_TEAM_POSITION     = TrialCaseDecision::OFFERED_TEAM_POSITION;
+    public const DECISION_DECLINED_OFFERED_POSITION = TrialCaseDecision::DECLINED_OFFERED_POSITION;
+    public const DECISION_CONTINUE_IN_TRIAL_GROUP   = TrialCaseDecision::CONTINUE_IN_TRIAL_GROUP;
 
     /**
      * Operator-editable label for a stored status value. Resolves
@@ -40,10 +49,10 @@ class TrialCasesRepository {
             if ( $label !== '' && $label !== $status ) return $label;
         }
         switch ( $status ) {
-            case self::STATUS_OPEN:     return __( 'Open',     'talenttrack' );
-            case self::STATUS_EXTENDED: return __( 'Extended', 'talenttrack' );
-            case self::STATUS_DECIDED:  return __( 'Decided',  'talenttrack' );
-            case self::STATUS_ARCHIVED: return __( 'Archived', 'talenttrack' );
+            case TrialCaseStatus::OPEN:     return __( 'Open',     'talenttrack' );
+            case TrialCaseStatus::EXTENDED: return __( 'Extended', 'talenttrack' );
+            case TrialCaseStatus::DECIDED:  return __( 'Decided',  'talenttrack' );
+            case TrialCaseStatus::ARCHIVED: return __( 'Archived', 'talenttrack' );
         }
         return $status;
     }
@@ -59,12 +68,12 @@ class TrialCasesRepository {
             if ( $label !== '' && $label !== $decision ) return $label;
         }
         switch ( $decision ) {
-            case self::DECISION_ADMIT:                     return __( 'Admit (offer a place)',                     'talenttrack' );
-            case self::DECISION_DENY_FINAL:                return __( 'Decline (final)',                            'talenttrack' );
-            case self::DECISION_DENY_ENCOURAGE:            return __( 'Decline (with encouragement to re-apply)',   'talenttrack' );
-            case self::DECISION_OFFERED_TEAM_POSITION:     return __( 'Offered team position',                      'talenttrack' );
-            case self::DECISION_DECLINED_OFFERED_POSITION: return __( 'Declined offered position',                  'talenttrack' );
-            case self::DECISION_CONTINUE_IN_TRIAL_GROUP:   return __( 'Continue in trial group',                    'talenttrack' );
+            case TrialCaseDecision::ADMIT:                     return __( 'Admit (offer a place)',                     'talenttrack' );
+            case TrialCaseDecision::DENY_FINAL:                return __( 'Decline (final)',                            'talenttrack' );
+            case TrialCaseDecision::DENY_ENCOURAGEMENT:        return __( 'Decline (with encouragement to re-apply)',   'talenttrack' );
+            case TrialCaseDecision::OFFERED_TEAM_POSITION:     return __( 'Offered team position',                      'talenttrack' );
+            case TrialCaseDecision::DECLINED_OFFERED_POSITION: return __( 'Declined offered position',                  'talenttrack' );
+            case TrialCaseDecision::CONTINUE_IN_TRIAL_GROUP:   return __( 'Continue in trial group',                    'talenttrack' );
         }
         return $decision;
     }
@@ -191,7 +200,7 @@ class TrialCasesRepository {
     }
 
     public function recordDecision( int $id, string $decision, int $user_id, string $notes, ?string $strengths = null, ?string $growth = null ): bool {
-        if ( ! in_array( $decision, [ self::DECISION_ADMIT, self::DECISION_DENY_FINAL, self::DECISION_DENY_ENCOURAGE ], true ) ) {
+        if ( ! in_array( $decision, [ TrialCaseDecision::ADMIT, TrialCaseDecision::DENY_FINAL, TrialCaseDecision::DENY_ENCOURAGEMENT ], true ) ) {
             return false;
         }
         return $this->update( $id, [

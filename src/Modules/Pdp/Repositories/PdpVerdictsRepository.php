@@ -3,6 +3,7 @@ namespace TT\Modules\Pdp\Repositories;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\PdpVerdictDecision;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
@@ -14,14 +15,13 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  */
 class PdpVerdictsRepository {
 
-    private const ALLOWED_DECISIONS = [ 'promote', 'retain', 'release', 'transfer' ];
-
     /**
      * Operator-editable label for a stored decision value. Resolves
      * through `tt_translations` for the current locale via
      * `LookupTranslator::byTypeAndName('pdp_verdict_decision', $value)`;
      * pre-migration installs fall back to the canonical English label.
-     * Stored values stay sacred (see ALLOWED_DECISIONS).
+     * Stored values stay sacred — gated against
+     * `PdpVerdictDecision::isValid()` on every upsert.
      */
     public static function label( string $decision ): string {
         if ( $decision === '' ) return '';
@@ -30,10 +30,10 @@ class PdpVerdictsRepository {
             if ( $label !== '' ) return $label;
         }
         switch ( $decision ) {
-            case 'promote':  return __( 'Promote',  'talenttrack' );
-            case 'retain':   return __( 'Retain',   'talenttrack' );
-            case 'release':  return __( 'Release',  'talenttrack' );
-            case 'transfer': return __( 'Transfer', 'talenttrack' );
+            case PdpVerdictDecision::PROMOTE:  return __( 'Promote',  'talenttrack' );
+            case PdpVerdictDecision::RETAIN:   return __( 'Retain',   'talenttrack' );
+            case PdpVerdictDecision::RELEASE:  return __( 'Release',  'talenttrack' );
+            case PdpVerdictDecision::TRANSFER: return __( 'Transfer', 'talenttrack' );
         }
         return $decision;
     }
@@ -66,7 +66,7 @@ class PdpVerdictsRepository {
     public function upsertForFile( int $file_id, array $data ): bool {
         if ( $file_id <= 0 ) return false;
         $decision = (string) ( $data['decision'] ?? '' );
-        if ( ! in_array( $decision, self::ALLOWED_DECISIONS, true ) ) return false;
+        if ( ! PdpVerdictDecision::isValid( $decision ) ) return false;
 
         $payload = [
             'club_id'                   => CurrentClub::id(),

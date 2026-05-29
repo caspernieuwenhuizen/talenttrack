@@ -3,6 +3,7 @@ namespace TT\Modules\Workflow\Templates;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\TrialCaseDecision;
 use TT\Modules\Prospects\Repositories\ProspectsRepository;
 use TT\Modules\Trials\Repositories\TrialCasesRepository;
 use TT\Modules\Workflow\Chain\ChainStep;
@@ -112,7 +113,7 @@ class ReviewTrialGroupMembershipTemplate extends TaskTemplate {
                 'continue_review',
                 self::KEY,
                 static function ( array $task, array $response ): bool {
-                    return ( (string) ( $response['decision'] ?? '' ) ) === 'continue_in_trial_group';
+                    return ( (string) ( $response['decision'] ?? '' ) ) === TrialCaseDecision::CONTINUE_IN_TRIAL_GROUP;
                 },
                 static function ( array $task, array $response ): TaskContext {
                     return new TaskContext(

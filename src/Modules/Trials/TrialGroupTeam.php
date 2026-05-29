@@ -3,6 +3,7 @@ namespace TT\Modules\Trials;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\TrialCaseDecision;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
@@ -75,7 +76,7 @@ final class TrialGroupTeam {
                     AND tc.archived_at IS NULL
                     AND tc.decision = %s
                     AND COALESCE(t.age_group, '') = %s",
-                $club_id, 'continue_in_trial_group', $age_group
+                $club_id, TrialCaseDecision::CONTINUE_IN_TRIAL_GROUP, $age_group
             );
         } else {
             $sql = $wpdb->prepare(
@@ -84,7 +85,7 @@ final class TrialGroupTeam {
                   WHERE tc.club_id = %d
                     AND tc.archived_at IS NULL
                     AND tc.decision = %s",
-                $club_id, 'continue_in_trial_group'
+                $club_id, TrialCaseDecision::CONTINUE_IN_TRIAL_GROUP
             );
         }
         return (int) $wpdb->get_var( $sql );
