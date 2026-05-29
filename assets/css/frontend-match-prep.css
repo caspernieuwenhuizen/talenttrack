@@ -39,6 +39,20 @@
     line-height: 1.4;
 }
 
+/* -------------------------------------------------------------------
+ * Widen the dashboard frame when a match-prep surface is mounted.
+ * The shared .tt-dashboard wrapper caps at 1100px; the match-prep
+ * 3-column spreadsheet needs ~1320px to give the left + right rails
+ * breathing room on a typical 1280–1440px laptop screen. We do this
+ * with :has() so the override only fires on the match-prep route and
+ * leaves every other dashboard view untouched. Browsers without :has()
+ * (Firefox < 121) fall back to the legacy 1100px frame — readable,
+ * just tighter.
+ * ------------------------------------------------------------------- */
+.tt-dashboard:has(.tt-match-prep) {
+    max-width: 1320px;
+}
+
 .tt-match-prep-title {
     margin: 0.375rem 0 1rem;
     font-size: 1.25rem;
@@ -91,6 +105,20 @@
 .tt-mp-toolbar .tt-mp-save-state {
     font-size: 0.8125rem;
     color: var(--tt-mp-ink-soft);
+    /*
+     * Reserve one line of vertical space so the indicator's box stays
+     * stable while its text toggles between dirty / saving / saved /
+     * empty. Without this, the textContent flip from "Unsaved changes…"
+     * to "" to "All changes saved." collapses the box to 0px and reflows
+     * the toolbar height every keystroke — coaches lose their cursor /
+     * scroll position mid-edit. Min-width keeps the longest state's
+     * pixel width reserved so the surrounding flex items don't shift
+     * horizontally either.
+     */
+    min-height: 1.4em;
+    min-width: 12ch;
+    display: inline-flex;
+    align-items: center;
 }
 .tt-mp-toolbar .tt-mp-save-state.tt-mp-state-dirty { color: var(--tt-mp-warn); }
 .tt-mp-toolbar .tt-mp-save-state.tt-mp-state-saving { color: var(--tt-mp-accent); }
@@ -752,9 +780,131 @@
 
 /* -------------------------------------------------------------------
  * ≥ 1100px — desktop spreadsheet layout. 3 columns.
+ *
+ * Rails widened in v4.12.1 (#998) — left holds the player list without
+ * truncating long names, right holds the Player focus / Roles columns
+ * without wrapping the chips. The dashboard wrapper's max-width is
+ * lifted to 1320px in the .tt-dashboard:has(.tt-match-prep) override
+ * above so the wider grid actually fills the available screen.
  * ------------------------------------------------------------------- */
 @media (min-width: 68.75em) {
     .tt-mp-grid {
-        grid-template-columns: 12.5rem minmax(0, 1fr) 20rem;
+        grid-template-columns: 14rem minmax(0, 1fr) 22rem;
+    }
+}
+
+/* -------------------------------------------------------------------
+ * Print — landscape A4 for sideline printing (#998).
+ *
+ * The page-rule sets the paper. The @media print block drops every
+ * piece of dashboard chrome (header, breadcrumbs, back-pill, save-bar,
+ * toolbar buttons) so only the spreadsheet renders on paper. Selectors
+ * verified against the live markup emitted by FrontendMatchPrepView ::
+ * render() — .tt-dashboard wrapper, .tt-breadcrumbs / .tt-back-link-wrap
+ * chrome from FrontendBreadcrumbs / BackLink, .tt-mp-toolbar in-view,
+ * .tt-mp-picker* / .tt-mp-drawer* overlays. The 3-column grid is forced
+ * on regardless of viewport width — printing from a narrow window must
+ * still emit the spreadsheet layout.
+ * ------------------------------------------------------------------- */
+@page {
+    size: A4 landscape;
+    margin: 8mm;
+}
+
+@media print {
+    /* Drop everything the coach does not need on paper. */
+    .tt-breadcrumbs,
+    .tt-back-link-wrap,
+    .tt-back-link,
+    .tt-page-head .tt-page-actions,
+    .tt-mp-toolbar,
+    .tt-mp-picker,
+    .tt-mp-picker-backdrop,
+    .tt-mp-drawer,
+    .tt-mp-drawer-backdrop {
+        display: none !important;
+    }
+
+    /* Force the dashboard frame to fill the paper instead of centering
+       the legacy 1100px column. */
+    body,
+    .tt-dashboard,
+    .tt-dashboard:has(.tt-match-prep) {
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #fff !important;
+    }
+
+    .tt-match-prep {
+        margin: 0 !important;
+        font-size: 10pt;
+        line-height: 1.25;
+    }
+    .tt-match-prep-title {
+        margin: 0 0 6mm;
+        font-size: 13pt;
+    }
+
+    /* Keep the 3-column grid even on narrower print viewports. */
+    .tt-mp-grid {
+        display: grid !important;
+        grid-template-columns: 50mm minmax(0, 1fr) 70mm !important;
+        gap: 4mm !important;
+    }
+
+    /* Spreadsheet density on paper. */
+    .tt-mp-roster,
+    .tt-mp-dps {
+        font-size: 9pt;
+    }
+    .tt-mp-roster tbody td,
+    .tt-mp-dps tbody td {
+        padding: 1mm 1mm;
+        min-height: 0;
+    }
+    .tt-mp-dps tbody td.tt-mp-col-text input,
+    .tt-mp-gbox-lines input {
+        font-size: 9pt;
+        padding: 0.5mm 1mm;
+        min-height: 0;
+        border-bottom: 1px solid var(--tt-mp-line-soft);
+        background: transparent;
+    }
+
+    /* Don't split a player row across two pages. */
+    .tt-mp-roster tbody tr,
+    .tt-mp-dps tbody tr,
+    .tt-mp-gbox,
+    .tt-mp-sp-row {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    /* Keep the pitch tints visible on paper (browsers default to
+       suppressing background colours when "Background graphics" is off,
+       but landscape match-prep is unreadable without the tints). */
+    .tt-mp-pitch,
+    .tt-mp-pill-1e,
+    .tt-mp-pill-2e,
+    .tt-mp-roster tbody td.tt-mp-on,
+    .tt-mp-panel-head,
+    .tt-mp-roster thead th,
+    .tt-mp-dps thead th,
+    .tt-mp-gbox-title,
+    .tt-mp-roster tfoot td {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        color-adjust: exact;
+    }
+
+    /* Picker/drawer hide above. Strip every leftover button/CTA. */
+    .tt-mp-copy-col,
+    .tt-mp-sp-clear,
+    .tt-mp-page-actions,
+    .tt-page-actions,
+    .tt-page-head .tt-btn,
+    button {
+        display: none !important;
     }
 }

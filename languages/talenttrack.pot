@@ -13527,8 +13527,8 @@ msgstr ""
 msgid "Availability"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:298
-msgid "PDF (landscape A4)"
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:292
+msgid "Print (landscape A4)"
 msgstr ""
 
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:301

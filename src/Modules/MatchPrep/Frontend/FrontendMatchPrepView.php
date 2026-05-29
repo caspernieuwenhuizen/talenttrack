@@ -244,12 +244,6 @@ class FrontendMatchPrepView extends FrontendViewBase {
         parent::enqueueAssets();
         self::enqueueViewAssets( $prep_id, $activity_id );
 
-        $pdf_url = add_query_arg( [
-            'tt_view'     => 'exports',
-            'exporter'    => 'match_prep_pdf',
-            'activity_id' => $activity_id,
-        ], remove_query_arg( [ 'tt_view', 'activity_id' ] ) );
-
         $half_length = (int) ( $prep->half_length_minutes ?? 35 );
         ?>
         <h1 class="tt-fview-title tt-match-prep-title"><?php echo esc_html( $title ); ?></h1>
@@ -261,7 +255,7 @@ class FrontendMatchPrepView extends FrontendViewBase {
                  data-half-length="<?php echo (int) $half_length; ?>"
                  data-cancel-url="<?php echo esc_url( $back_to_activity ); ?>">
 
-            <!-- Toolbar: formation / half length / availability / PDF / save state -->
+            <!-- Toolbar: formation / half length / availability / print / save state -->
             <div class="tt-mp-toolbar" role="toolbar" aria-label="<?php esc_attr_e( 'Match prep toolbar', 'talenttrack' ); ?>">
                 <div class="tt-mp-field">
                     <label for="tt-mp-formation"><?php esc_html_e( 'Formation', 'talenttrack' ); ?></label>
@@ -294,9 +288,9 @@ class FrontendMatchPrepView extends FrontendViewBase {
                 <button type="button" class="tt-btn tt-btn-secondary" data-tt-mp-open-availability>
                     <?php esc_html_e( 'Availability', 'talenttrack' ); ?>
                 </button>
-                <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( $pdf_url ); ?>" target="_blank" rel="noopener">
-                    <?php esc_html_e( 'PDF (landscape A4)', 'talenttrack' ); ?>
-                </a>
+                <button type="button" class="tt-btn tt-btn-secondary" data-tt-mp-print>
+                    <?php esc_html_e( 'Print (landscape A4)', 'talenttrack' ); ?>
+                </button>
                 <span class="tt-mp-spacer"></span>
                 <span class="tt-mp-save-state" data-tt-mp-save-state aria-live="polite"><?php esc_html_e( 'All changes saved.', 'talenttrack' ); ?></span>
             </div>

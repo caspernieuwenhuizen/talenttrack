@@ -649,6 +649,20 @@
     if (pickerBackdrop) pickerBackdrop.addEventListener('click', closePicker);
 
     // ---------------------------------------------------------------------
+    // Print (landscape A4) — #998. In-place window.print(); the print
+    // CSS in frontend-match-prep.css drops the dashboard chrome and
+    // forces the 3-column grid onto the paper. Replaces the v4.5.0 PDF
+    // anchor that routed to ?tt_view=exports (two clicks + a context
+    // switch); browsers' own "Save as PDF" inside the print dialog
+    // covers the file-output case for free.
+    // ---------------------------------------------------------------------
+
+    var printBtn = $('[data-tt-mp-print]');
+    if (printBtn) {
+        printBtn.addEventListener('click', function () { window.print(); });
+    }
+
+    // ---------------------------------------------------------------------
     // Copy 1e → 2e
     // ---------------------------------------------------------------------
 

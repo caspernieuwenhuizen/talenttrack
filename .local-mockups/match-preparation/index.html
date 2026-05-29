@@ -61,7 +61,7 @@ body {
 .mockup-bar .spacer { flex: 1; }
 
 .page {
-  max-width: 1280px;
+  max-width: 1320px;
   margin: 0 auto;
   padding: 18px 24px;
 }
@@ -99,7 +99,7 @@ body {
    --------------------------------------------------------------------------- */
 .grid3 {
   display: grid;
-  grid-template-columns: 200px 1fr 320px;
+  grid-template-columns: 224px 1fr 352px;
   gap: 14px;
   align-items: start;
 }
@@ -500,6 +500,69 @@ body {
 }
 .savebar .info { flex: 1; font-size: 12.5px; color: var(--tt-ink-soft); }
 .savebar .info.dirty { color: var(--tt-warn); }
+
+/* Save-indicator layout-shift guard — reserve one line of vertical
+   space (and a min-width) so the indicator's box stays stable while
+   its text toggles between dirty / empty / saved. Mirrors the live
+   `.tt-mp-save-state` rule in assets/css/frontend-match-prep.css. */
+.savebar .info {
+  min-height: 1.4em;
+  min-width: 12ch;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Print — landscape A4 for sideline printing (#998). */
+@page {
+  size: A4 landscape;
+  margin: 8mm;
+}
+
+@media print {
+  .mockup-bar,
+  .toolbar,
+  .savebar,
+  .picker, .picker-backdrop,
+  .drawer, .drawer-backdrop {
+    display: none !important;
+  }
+  body { background: #fff; padding-bottom: 0; }
+  .page { max-width: none; padding: 0; }
+  .page-head h1 { font-size: 13pt; margin: 0 0 4mm; }
+  .page-head .sub { font-size: 9pt; }
+  .grid3 {
+    display: grid !important;
+    grid-template-columns: 50mm minmax(0, 1fr) 70mm !important;
+    gap: 4mm !important;
+  }
+  .roster-table, .dps-table { font-size: 9pt; }
+  .roster-table tbody td,
+  .dps-table tbody td { padding: 1mm 1mm; }
+  .roster-table tbody tr,
+  .dps-table tbody tr,
+  .goal-box,
+  .sp-row {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .pitch,
+  .pill-1e, .pill-2e,
+  .panel-head,
+  .goal-box .gbox-title,
+  .roster-table thead th,
+  .roster-table tfoot td,
+  .dps-table thead th,
+  .roster-table tbody td.on,
+  .roster-table tbody td.col-tot.on {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    color-adjust: exact;
+  }
+  .copy-col,
+  button {
+    display: none !important;
+  }
+}
 </style>
 </head>
 <body>
@@ -538,7 +601,7 @@ body {
       <span style="font-size:11.5px;color:var(--tt-ink-soft);">min</span>
     </div>
     <button class="btn" id="manageAvailBtn">Beschikbaarheid</button>
-    <button class="btn" id="exportPdfBtn">PDF (liggend A4)</button>
+    <button class="btn" id="exportPdfBtn" onclick="window.print()">Afdrukken (liggend A4)</button>
     <div class="spacer"></div>
     <span id="saveInfo" style="font-size:12.5px; color:var(--tt-ink-soft);">Opgeslagen · zojuist</span>
     <button class="btn primary" id="saveBtn" disabled>Opslaan</button>
