@@ -199,6 +199,14 @@ class FrontendConfigurationView extends FrontendViewBase {
             [ __( 'Scheduled report frequencies', 'talenttrack' ), __( 'Weekly (Monday) / monthly (1st) / season end — cadence for scheduled CSV exports.', 'talenttrack' ), 'scheduled_report_frequencies', 'reports' ],
             [ __( 'Scheduled report statuses', 'talenttrack' ), __( 'Active / paused / archived — scheduled report lifecycle.', 'talenttrack' ), 'scheduled_report_statuses', 'audit-log' ],
             [ __( 'Rating scale',       'talenttrack' ), __( 'Min, max and step for evaluation ratings.',                         'talenttrack' ), '__rating',        'weights' ],
+            // #982 — surface the hierarchical eval-categories tree editor
+            // from the lookups grid. Categories don't live in `tt_lookups`
+            // (parent/child hierarchy doesn't fit the flat shape), so this
+            // tile bypasses the per-category lookup editor and links
+            // straight to `?tt_view=eval-categories`. Label + description
+            // mirror the wp-admin Configuration → Evaluation Categories
+            // tile so operators see the same vocabulary across surfaces.
+            [ __( 'Evaluation Categories', 'talenttrack' ), __( 'Hierarchy of evaluation categories (Technical, Tactical, …).', 'talenttrack' ), '__eval_categories', 'evaluations' ],
         ];
 
         echo '<p style="margin-bottom:var(--tt-sp-4); color:var(--tt-muted);">';
@@ -210,6 +218,11 @@ class FrontendConfigurationView extends FrontendViewBase {
             list( $title, $desc, $slug, $icon ) = $row;
             if ( $slug === '__rating' ) {
                 $url = $rating_url;
+            } elseif ( $slug === '__eval_categories' ) {
+                // #982 — link out to the standalone tree editor; the
+                // hierarchy doesn't fit the `tt_lookups` per-category
+                // editor that the other tiles share.
+                $url = add_query_arg( [ 'tt_view' => 'eval-categories' ], home_url( '/' ) );
             } else {
                 $url = add_query_arg( [ 'config_sub' => 'lookups', 'category' => $slug ], $base );
             }

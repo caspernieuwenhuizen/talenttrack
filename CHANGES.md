@@ -1,3 +1,56 @@
+# TalentTrack v4.7.1 — Surface "Evaluation Categories" tile on the frontend Configuration → Lookups grid (closes #982)
+
+## Friction this fixes
+
+Admins navigating to `?tt_view=configuration` to edit evaluation subcategories couldn't find a tile for them. The Lookups grid only enumerates `tt_lookups`-backed vocabularies, but evaluation categories (and their child subcategories) live in `tt_eval_categories` — a hierarchical table with a `parent_id` chain (`parent_id IS NULL` → main category; `parent_id = N` → subcategory). The dedicated tree editor at `?tt_view=eval-categories` (`FrontendEvalCategoriesView`) is the right tool; it just had no entry point from where operators actually look.
+
+The wp-admin Configuration page (`src/Modules/Configuration/Admin/ConfigurationPage.php:269-271`) already carries an "Evaluation Categories" tile in the "Lookups & vocabularies" group linking to the wp-admin tree editor. The frontend Configuration grid was missing the parallel tile.
+
+## Architecture call: navigation, not data-model rework
+
+Evaluation subcategories are a tree, not a flat list. They can't be migrated into `tt_lookups` without losing the parent/child semantics that the radar chart, evaluation templates, and category weights all depend on. The fix is purely additive at the navigation layer — surface the existing editor from where operators look for it.
+
+## The fix (single-file edit)
+
+`src/Shared/Frontend/FrontendConfigurationView.php` — one new entry appended to the `renderLookupsIndex()` `$cards` array, plus one new `elseif` branch in the surrounding `foreach` loop. The slug `__eval_categories` mirrors the existing `__rating` pattern (rating scale also lives outside `tt_lookups` — it's in `tt_config`), so the tile sits in the lookups grid alongside its siblings but click-throughs to the standalone tree editor at `?tt_view=eval-categories` instead of the per-category `tt_lookups` CRUD surface.
+
+```php
+[ __( 'Evaluation Categories', 'talenttrack' ),
+  __( 'Hierarchy of evaluation categories (Technical, Tactical, …).', 'talenttrack' ),
+  '__eval_categories', 'evaluations' ],
+```
+
+URL branch:
+
+```php
+} elseif ( $slug === '__eval_categories' ) {
+    $url = add_query_arg( [ 'tt_view' => 'eval-categories' ], home_url( '/' ) );
+}
+```
+
+## Label / description / icon choices
+
+- **Label**: "Evaluation Categories" — verbatim copy of the wp-admin tile (`ConfigurationPage.php:269`). Same vocabulary on both surfaces. Existing translation in `talenttrack-nl_NL.po` ("Evaluatie-categorieën").
+- **Description**: "Hierarchy of evaluation categories (Technical, Tactical, …)." — verbatim copy of the wp-admin tile (`ConfigurationPage.php:270`). Existing translation in `talenttrack-nl_NL.po`. **No new msgids introduced** — duplicate-msgid CI gate passes.
+- **Icon**: `evaluations` SVG (existing in `IconRenderer`). Matches the icon used by the "Evaluation types" tile two rows above so the visual grouping reads as expected.
+
+## What's untouched
+
+- No schema change. `tt_eval_categories` continues to back the editor unchanged.
+- No REST contract change. The existing `?tt_view=eval-categories` route is the same one wp-admin links to; it carries its own capability gate.
+- No new view, no new form, no new wizard. The fix is one tile + one URL branch.
+- The other 30+ tiles on the Lookups grid are unchanged.
+
+## Capability gate
+
+The Configuration view requires `tt_access_frontend_admin` for the surrounding page (`FrontendConfigurationView::render()` line 28); the eval-categories tree editor enforces its own gate when reached. Operators without permission see neither surface.
+
+## Version: 4.7.1
+
+Patch bump. Single-file discoverability fix within the 4.7 minor — no operator-breaking change, no new feature, no new vocabulary, no new translations required.
+
+---
+
 # TalentTrack v4.7.0 — Activities list date-bucket redesign (closes #973)
 
 Rewrites the `?tt_view=activities` list surface end-to-end as a faithful port of the design-of-record mockup committed to `.local-mockups/activity-list/`. Backend is untouched — the same `tt_activities` rows, the same `tt_view_activities` capability gate, the same entry-point URL — but the visual contract goes from a generic `FrontendListTable` with two filters to a date-bucketed card list with a Type filter and a persistent past-toggle.
