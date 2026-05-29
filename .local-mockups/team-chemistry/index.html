@@ -207,7 +207,6 @@ header .lede { color: var(--muted); margin: 0; max-width: 720px; font-size: 13px
 .roster li {
     display: flex; align-items: center; gap: 8px;
     padding: 6px 8px; border-radius: 6px;
-    cursor: grab;
     font-size: 13px;
 }
 .roster li:hover { background: #f3f5f7; }
@@ -290,9 +289,9 @@ header .lede { color: var(--muted); margin: 0; max-width: 720px; font-size: 13px
         repeating-linear-gradient(90deg, var(--pitch-grass) 0, var(--pitch-grass) 28px, var(--pitch-grass-2) 28px, var(--pitch-grass-2) 56px);
     border-radius: 10px;
     aspect-ratio: 3 / 4;
-    max-height: 640px;
     margin: 0 auto;
     width: 100%;
+    max-width: 480px;
     border: 2px solid var(--pitch-line);
     overflow: hidden;
 }
@@ -508,7 +507,7 @@ body[data-modal="save-bp"] .modal-back { display: flex; }
     <h1>Team chemistry — Hedel JO13</h1>
     <p class="lede">
         The engine's recommended starting XI based on formation fit, style fit, position preferences, and coach-marked pairings.
-        Drag a player onto a slot to try an alternative — the score recomputes live.
+        Tap a slot to pick an alternative — the picker filters to players eligible for that position type. Score recomputes live.
     </p>
 </header>
 
@@ -574,7 +573,7 @@ body[data-modal="save-bp"] .modal-back { display: flex; }
 </section>
 
 <div class="override-banner" role="status">
-    <span><strong>Override mode active.</strong> Drag a player onto any slot to swap. Slots showing <span style="color:var(--tt-accent);font-weight:700;">↺</span> are your overrides; everything else is the engine's pick.</span>
+    <span><strong>Override mode active.</strong> Tap a slot to open the picker; only position-eligible players appear. Slots showing <span style="color:var(--tt-accent);font-weight:700;">↺</span> are your overrides; everything else is the engine's pick.</span>
     <button type="button" class="btn" data-pick-mode="suggested">Exit override mode</button>
 </div>
 
