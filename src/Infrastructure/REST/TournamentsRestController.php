@@ -882,12 +882,13 @@ class TournamentsRestController {
                 $candidates = [];
                 foreach ( $state as $pid => $s ) {
                     if ( in_array( $pid, $assigned_this_period, true ) ) continue;
-                    if ( ! in_array( $slot['type'], $s['eligible_positions'], true ) && $slot['type'] !== 'GK' ) {
-                        // GK is special — only GK-eligible players play GK,
-                        // and a GK-only player has type GK. Filter strictly.
-                        continue;
-                    }
+                    // v4.8.0 (#975) — eligible_positions are specific
+                    // codes (GK/CB/LB/RB/DM/CM/AM/LW/RW/ST). The slot
+                    // type bucket (GK/DEF/MID/FWD) is matched against
+                    // the player's set via `positionTypeBucket()`. GK
+                    // stays strict — the player must list 'GK'.
                     if ( $slot['type'] === 'GK' && ! in_array( 'GK', $s['eligible_positions'], true ) ) continue;
+                    if ( $slot['type'] !== 'GK' && ! self::playerCoversBucket( $s['eligible_positions'], $slot['type'] ) ) continue;
                     $candidates[] = $pid;
                 }
                 if ( ! $candidates ) {
@@ -980,6 +981,32 @@ class TournamentsRestController {
         if ( $line_idx === $line_count - 1 ) return 'FWD';
         if ( $line_idx === 1 ) return 'DEF';
         return 'MID';
+    }
+
+    /**
+     * Map the v4.8.0 specific position codes onto the four formation-
+     * line buckets used by the auto-planner.
+     *
+     *   GK   → GK
+     *   CB / LB / RB                     → DEF
+     *   DM / CM / AM                     → MID
+     *   LW / RW / ST                     → FWD
+     *
+     * Legacy bucket tokens (GK/DEF/MID/FWD) saved before #975 also
+     * satisfy the matching check verbatim.
+     */
+    private static function playerCoversBucket( array $eligible_positions, string $bucket ): bool {
+        $map = [
+            'GK' => 'GK',
+            'CB' => 'DEF', 'LB' => 'DEF', 'RB' => 'DEF', 'DEF' => 'DEF',
+            'DM' => 'MID', 'CM' => 'MID', 'AM' => 'MID', 'MID' => 'MID',
+            'LW' => 'FWD', 'RW' => 'FWD', 'ST' => 'FWD', 'FWD' => 'FWD',
+        ];
+        foreach ( $eligible_positions as $code ) {
+            $code = strtoupper( (string) $code );
+            if ( isset( $map[ $code ] ) && $map[ $code ] === $bucket ) return true;
+        }
+        return false;
     }
 
     /**
@@ -1292,7 +1319,11 @@ class TournamentsRestController {
 
     /**
      * Normalise the eligible_positions payload to a JSON array of
-     * position-type strings (GK/DEF/MID/FWD). Unknown tokens drop.
+     * position-code strings. v4.8.0 (#975) expands the allowed set from
+     * the four position TYPES (GK/DEF/MID/FWD) to the ten specific
+     * codes used by the blueprint editor (GK/CB/LB/RB/DM/CM/AM/LW/RW/ST),
+     * with back-compat coercion of the legacy types: DEF → CB, MID → CM,
+     * FWD → ST. Unknown tokens drop.
      */
     private static function normalisePositionsJson( $raw ): string {
         if ( is_string( $raw ) ) {
@@ -1300,12 +1331,21 @@ class TournamentsRestController {
             if ( is_array( $decoded ) ) $raw = $decoded;
         }
         if ( ! is_array( $raw ) ) return wp_json_encode( [] );
-        $allowed = [ 'GK', 'DEF', 'MID', 'FWD' ];
-        $positions = array_values( array_intersect(
-            $allowed,
-            array_map( static function ( $v ) { return strtoupper( sanitize_key( (string) $v ) ); }, $raw )
-        ) );
-        return wp_json_encode( $positions );
+        $allowed = [ 'GK', 'CB', 'LB', 'RB', 'DM', 'CM', 'AM', 'LW', 'RW', 'ST' ];
+        // Back-compat: legacy GK/DEF/MID/FWD payloads from v4.7.x and
+        // earlier coerce to a representative specific code so existing
+        // tt_tournament_squad rows + in-flight wizard state survive the
+        // bump.
+        $coerce  = [ 'DEF' => 'CB', 'MID' => 'CM', 'FWD' => 'ST' ];
+        $out = [];
+        foreach ( $raw as $v ) {
+            $code = strtoupper( sanitize_key( (string) $v ) );
+            if ( isset( $coerce[ $code ] ) ) $code = $coerce[ $code ];
+            if ( in_array( $code, $allowed, true ) && ! in_array( $code, $out, true ) ) {
+                $out[] = $code;
+            }
+        }
+        return wp_json_encode( $out );
     }
 
     private static function insertMatch( int $tournament_id, array $payload, int $sequence ): int {

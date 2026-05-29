@@ -32280,24 +32280,225 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
-#: src/Shared/Frontend/FrontendExportsView.php
-msgid "None"
-msgstr "Geen"
+# --- v4.8.0 (#975) tournament wizard rework strings ---
 
-#: src/Shared/Frontend/FrontendExportsView.php
-msgid "all selected"
-msgstr "alle geselecteerd"
+#: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php
+#: src/Shared/Frontend/FrontendTournamentsManageView.php
+msgid "Add match"
+msgstr "Wedstrijd toevoegen"
 
-#. translators: %1$d kept columns, %2$d total — "3 of 6 selected".
-#: src/Shared/Frontend/FrontendExportsView.php
-msgid "%1$d of %2$d selected"
-msgstr "%1$d van %2$d geselecteerd"
+#: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php
+msgid "Match details"
+msgstr "Wedstrijdgegevens"
+
+#: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php
+msgid "Position in sequence"
+msgstr "Positie in volgorde"
+
+#: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php
+#, php-format
+msgid "Add a new match to %s. The squad and default formation are inherited from the tournament; override per-match below if needed."
+msgstr "Voeg een nieuwe wedstrijd toe aan %s. De selectie en standaardformatie worden overgenomen van het toernooi; pas hieronder per wedstrijd aan indien nodig."
+
+#: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php
+#, php-format
+msgid "Insert at end (Match %d)"
+msgstr "Invoegen aan het einde (Wedstrijd %d)"
+
+#: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php
+#, php-format
+msgid "Insert before %1$s (becomes Match %2$d)"
+msgstr "Invoegen voor %1$s (wordt wedstrijd %2$d)"
+
+#: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php
+msgid "Drag-to-reorder is also available on the planner after creation."
+msgstr "Slepen om te herordenen kan ook op de planner na aanmaken."
+
+#: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php
+msgid "Your role cannot add matches to a tournament."
+msgstr "Jouw rol kan geen wedstrijden aan een toernooi toevoegen."
+
+#: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php
+msgid "e.g. Final, Round 1…"
+msgstr "bijv. Finale, Ronde 1…"
+
+#: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php
+msgid "— use tournament default —"
+msgstr "— gebruik toernooistandaard —"
+
+#: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php
+#, php-format
+msgid "— use tournament default (%s) —"
+msgstr "— gebruik toernooistandaard (%s) —"
+
+#: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php
+msgid "Either a label or an opponent name is required."
+msgstr "Een label of een tegenstandernaam is verplicht."
+
+#: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php
+msgid "Missing tournament ID."
+msgstr "Toernooi-ID ontbreekt."
+
+#: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php
+msgid "Security check failed. Please reload and try again."
+msgstr "Beveiligingscontrole mislukt. Herlaad de pagina en probeer opnieuw."
+
+#: src/Modules/Tournaments/Wizard/BasicsStep.php
+msgid "The headline information about the tournament. Anchor team is the club's team that's playing — all other matches are vs. opponents."
+msgstr "De kerngegevens over het toernooi. Het anker-team is het team van de club dat speelt — alle andere wedstrijden zijn tegen tegenstanders."
+
+#: src/Modules/Tournaments/Wizard/BasicsStep.php
+msgid "Shows on the planner page and on every match's title."
+msgstr "Verschijnt op de planner en in de titel van elke wedstrijd."
+
+#: src/Modules/Tournaments/Wizard/BasicsStep.php
+msgid "Format (7v7 / 9v9 / 11v11) is inferred from the team's age group."
+msgstr "Het formaat (7v7 / 9v9 / 11v11) wordt afgeleid uit de leeftijdsgroep van het team."
+
+#: src/Modules/Tournaments/Wizard/FormationStep.php
+msgid "Pick the default formation for the tournament. You can override it per match in the next step."
+msgstr "Kies de standaardformatie voor het toernooi. Per wedstrijd kun je deze in de volgende stap overschrijven."
+
+#: src/Modules/Tournaments/Wizard/FormationStep.php
+msgid "No default"
+msgstr "Geen standaard"
+
+#: src/Modules/Tournaments/Wizard/SquadStep.php
+msgid "Defensive mid"
+msgstr "Verdedigende middenvelder"
+
+#: src/Modules/Tournaments/Wizard/SquadStep.php
+msgid "Centre mid"
+msgstr "Centrale middenvelder"
+
+#: src/Modules/Tournaments/Wizard/SquadStep.php
+msgid "Attacking mid"
+msgstr "Aanvallende middenvelder"
+
+#: src/Modules/Tournaments/Wizard/SquadStep.php
+msgid "Left wing"
+msgstr "Linkerbuitenspeler"
+
+#: src/Modules/Tournaments/Wizard/SquadStep.php
+msgid "Right wing"
+msgstr "Rechterbuitenspeler"
+
+#: src/Modules/Tournaments/Wizard/SquadStep.php
+msgid "Tick the players in the squad and mark which specific positions each can play. Trial players are unchecked by default — tick them only if they're joining."
+msgstr "Vink de spelers in de selectie aan en markeer welke specifieke posities elk kan spelen. Stagespelers zijn standaard niet aangevinkt — vink ze alleen aan als ze meedoen."
+
+#: src/Modules/Tournaments/Wizard/SquadStep.php
+msgid "Filter by name…"
+msgstr "Filter op naam…"
+
+#: src/Modules/Tournaments/Wizard/SquadStep.php
+msgid "Filter by name"
+msgstr "Filter op naam"
+
+#: src/Modules/Tournaments/Wizard/SquadStep.php
+msgid "Eligible positions"
+msgstr "Mogelijke posities"
+
+#: src/Modules/Tournaments/Wizard/MatchesStep.php
+#: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php
+msgid "Add at least one match. Each card is a separate match — leave a card blank to skip it. You can add more matches from the planner after the tournament is created."
+msgstr "Voeg minstens één wedstrijd toe. Elke kaart is een aparte wedstrijd — laat een kaart leeg om hem over te slaan. Je kunt extra wedstrijden toevoegen vanaf de planner nadat het toernooi is aangemaakt."
+
+#: src/Modules/Tournaments/Wizard/MatchesStep.php
+msgid "Used as the headline when set; otherwise shows \"vs <opponent>\"."
+msgstr "Wordt als kopregel gebruikt indien ingevuld; anders wordt \"vs <tegenstander>\" getoond."
+
+#: src/Modules/Tournaments/Wizard/MatchesStep.php
+msgid "Substitution windows (minutes from kickoff)"
+msgstr "Wisselmomenten (minuten na aftrap)"
+
+#: src/Modules/Tournaments/Wizard/MatchesStep.php
+#: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php
+msgid "Add a minute and press Enter"
+msgstr "Voeg een minuut toe en druk op Enter"
+
+#: src/Modules/Tournaments/Wizard/MatchesStep.php
+#: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php
+msgid "Press Enter or comma to add. Values must be 1–"
+msgstr "Druk op Enter of komma om toe te voegen. Waarden moeten 1–"
+
+#: src/Modules/Tournaments/Wizard/MatchesStep.php
+msgid "New match — fill in opponent below"
+msgstr "Nieuwe wedstrijd — vul de tegenstander hieronder in"
+
+#: src/Modules/Tournaments/Wizard/MatchesStep.php
+msgid "Formation override"
+msgstr "Formatie-override"
+
+#: src/Modules/Tournaments/Wizard/MatchesStep.php
+#, php-format
+msgid "— use default (%s) —"
+msgstr "— gebruik standaard (%s) —"
+
+#: src/Modules/Tournaments/Wizard/MatchesStep.php
+msgid "e.g. Final, Round 1, Pool A…"
+msgstr "bijv. Finale, Ronde 1, Poule A…"
+
+#: src/Modules/Tournaments/Wizard/MatchesStep.php
+#: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php
+#, php-format
+msgid "Remove %d"
+msgstr "%d verwijderen"
+
+#: assets/js/components/tournament-wizard.js
+#, php-format
+msgid "Remove %s"
+msgstr "%s verwijderen"
+
+#: assets/js/components/tournament-wizard.js
+#, php-format
+msgid "%d in squad"
+msgstr "%d in selectie"
+
+#: assets/js/components/tournament-wizard.js
+#, php-format
+msgid "%d not picked"
+msgstr "%d niet gekozen"
+
+#: src/Modules/Tournaments/Wizard/ReviewStep.php
+msgid "Check the details below. You can jump back to any step via the Edit links."
+msgstr "Controleer de details hieronder. Je kunt via de Bewerk-links terugspringen naar elke stap."
+
+#: src/Modules/Tournaments/Wizard/ReviewStep.php
+#, php-format
+msgid "%d picked"
+msgstr "%d gekozen"
+
+#: src/Modules/Tournaments/Wizard/ReviewStep.php
+msgid "By position"
+msgstr "Per positie"
+
+#: src/Modules/Tournaments/Wizard/ReviewStep.php
+msgid "(none picked)"
+msgstr "(geen gekozen)"
+
+#: src/Modules/Tournaments/Wizard/ReviewStep.php
+#, php-format
+msgid "+%d more"
+msgstr "+%d meer"
+
+#: src/Modules/Tournaments/Wizard/ReviewStep.php
+#, php-format
+msgid "Equal-share target preview: %1$d minutes per player across %2$d squad members."
+msgstr "Voorvertoning gelijke verdeling: %1$d minuten per speler verdeeld over %2$d selectiespelers."
+
+#: src/Modules/Tournaments/Wizard/ReviewStep.php
+msgid "No matches added yet."
+msgstr "Nog geen wedstrijden toegevoegd."
 
 #~ msgid "Att. %"
 #~ msgstr "Aanw. %"
 
 #~ msgid "Complete"
 #~ msgstr "Voltooien"
+
+#~ msgid "None"
+#~ msgstr "Geen"
 
 #~ msgid "No activities match your filters."
 #~ msgstr "Geen activiteiten passen bij je filters."

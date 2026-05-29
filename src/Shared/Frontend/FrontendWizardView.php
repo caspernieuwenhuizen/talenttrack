@@ -398,9 +398,22 @@ class FrontendWizardView extends FrontendViewBase {
                 exit;
 
             case 'back':
-                $prev = WizardState::popHistory( $user_id, $slug );
-                if ( $prev !== null ) {
-                    WizardState::setStep( $user_id, $slug, $prev );
+                // v4.8.0 (#975) — tournament wizard's Review-step Edit
+                // links submit `tt_wizard_jump_to=<slug>` so the user
+                // lands directly on the named step, not whichever step
+                // sits on top of the history stack. Validated against
+                // the wizard's declared steps; unknown / malicious
+                // values fall back to the default Back behaviour.
+                $jump_to = isset( $_POST['tt_wizard_jump_to'] )
+                    ? sanitize_key( (string) wp_unslash( $_POST['tt_wizard_jump_to'] ) )
+                    : '';
+                if ( $jump_to !== '' && self::stepFor( $wizard, $jump_to ) ) {
+                    WizardState::setStep( $user_id, $slug, $jump_to );
+                } else {
+                    $prev = WizardState::popHistory( $user_id, $slug );
+                    if ( $prev !== null ) {
+                        WizardState::setStep( $user_id, $slug, $prev );
+                    }
                 }
                 wp_safe_redirect( $return_url );
                 exit;
