@@ -42,6 +42,9 @@ final class PdpPdfExporter implements ExporterInterface {
 
     public function requiredCap(): string { return 'tt_view_pdp'; }
 
+    /** Non-tabular exporter — opts out of the column picker (#986). */
+    public function availableColumns(): array { return []; }
+
     public function validateFilters( array $raw ): ?array {
         $file_id = isset( $raw['file_id'] ) ? (int) $raw['file_id'] : 0;
         if ( $file_id <= 0 ) return null;

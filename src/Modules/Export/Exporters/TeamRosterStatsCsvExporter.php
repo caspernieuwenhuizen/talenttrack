@@ -33,6 +33,23 @@ final class TeamRosterStatsCsvExporter implements ExporterInterface {
 
     public function requiredCap(): string { return 'tt_view_players'; }
 
+    public function availableColumns(): array {
+        return [
+            'player_id'           => __( 'Player ID',           'talenttrack' ),
+            'first_name'          => __( 'First name',          'talenttrack' ),
+            'last_name'           => __( 'Last name',           'talenttrack' ),
+            'date_of_birth'       => __( 'Date of birth',       'talenttrack' ),
+            'jersey_number'       => __( 'Jersey number',       'talenttrack' ),
+            'preferred_foot'      => __( 'Preferred foot',      'talenttrack' ),
+            'preferred_positions' => __( 'Preferred positions', 'talenttrack' ),
+            'team'                => __( 'Team',                'talenttrack' ),
+            'status'              => __( 'Status',              'talenttrack' ),
+            'attendance_count'    => __( 'Attendance count',    'talenttrack' ),
+            'minutes_played'      => __( 'Minutes played',      'talenttrack' ),
+            'average_rating'      => __( 'Average rating',      'talenttrack' ),
+        ];
+    }
+
     public function validateFilters( array $raw ): ?array {
         $team_id = isset( $raw['team_id'] ) ? (int) $raw['team_id'] : 0;
         if ( $team_id <= 0 ) return null;  // team is required.

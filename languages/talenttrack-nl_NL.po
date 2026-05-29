@@ -32280,14 +32280,24 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/Frontend/FrontendExportsView.php
+msgid "None"
+msgstr "Geen"
+
+#: src/Shared/Frontend/FrontendExportsView.php
+msgid "all selected"
+msgstr "alle geselecteerd"
+
+#. translators: %1$d kept columns, %2$d total — "3 of 6 selected".
+#: src/Shared/Frontend/FrontendExportsView.php
+msgid "%1$d of %2$d selected"
+msgstr "%1$d van %2$d geselecteerd"
+
 #~ msgid "Att. %"
 #~ msgstr "Aanw. %"
 
 #~ msgid "Complete"
 #~ msgstr "Voltooien"
-
-#~ msgid "None"
-#~ msgstr "Geen"
 
 #~ msgid "No activities match your filters."
 #~ msgstr "Geen activiteiten passen bij je filters."

@@ -177,3 +177,100 @@
     outline: 2px solid #0b3d2e;
     outline-offset: 2px;
 }
+
+/* Column picker (#986). Collapsed `<details>` block inside each
+ * tabular export card. Summary tap area is full-width (48px min via
+ * line-height + padding) so it's reachable with a thumb. The picker
+ * itself is a vertical checkbox stack; on tablet+ the list wraps
+ * into 2 columns so long pickers (eg. 13-column players list) don't
+ * push the card to "scroll-only" height. */
+.tt-export-card__columns {
+    margin: 4px 0 4px;
+    border: 1px solid #e5e7ea;
+    border-radius: 6px;
+    background: #fafbfc;
+}
+
+.tt-export-card__columns-summary {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    padding: 12px 12px;
+    font-size: 12px;
+    color: #1c1c1c;
+    line-height: 1.4;
+    min-height: 48px;
+    box-sizing: border-box;
+    touch-action: manipulation;
+    list-style: none;
+}
+
+.tt-export-card__columns-summary::-webkit-details-marker {
+    display: none;
+}
+
+.tt-export-card__columns-summary::before {
+    content: '▸';
+    display: inline-block;
+    color: #5b6e75;
+    transition: transform 120ms ease;
+    width: 12px;
+    text-align: center;
+}
+
+.tt-export-card__columns[open] > .tt-export-card__columns-summary::before {
+    transform: rotate(90deg);
+}
+
+.tt-export-card__columns-label {
+    font-weight: 600;
+}
+
+.tt-export-card__columns-count {
+    color: #5b6e75;
+}
+
+.tt-export-card__columns-actions {
+    display: flex;
+    gap: 6px;
+    padding: 0 12px 8px;
+}
+
+.tt-export-card__columns-action {
+    min-height: 32px;
+    font-size: 11px;
+    padding: 4px 10px;
+}
+
+.tt-export-card__columns-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 4px;
+    padding: 0 12px 12px;
+}
+
+@media (min-width: 480px) {
+    .tt-export-card__columns-list {
+        grid-template-columns: 1fr 1fr;
+        column-gap: 12px;
+    }
+}
+
+.tt-export-card__columns-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 32px;
+    font-size: 12px;
+    color: #1c1c1c;
+    cursor: pointer;
+    line-height: 1.4;
+}
+
+.tt-export-card__columns-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    flex: 0 0 auto;
+}

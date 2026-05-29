@@ -58,6 +58,9 @@ final class FederationJsonExporter implements ExporterInterface {
 
     public function requiredCap(): string { return 'tt_view_players'; }
 
+    /** Non-tabular exporter — opts out of the column picker (#986). */
+    public function availableColumns(): array { return []; }
+
     public function validateFilters( array $raw ): ?array {
         $team_id = isset( $raw['team_id'] ) ? (int) $raw['team_id'] : 0;
         if ( $team_id < 0 ) $team_id = 0;

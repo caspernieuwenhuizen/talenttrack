@@ -33,6 +33,24 @@ final class GoalsCsvExporter implements ExporterInterface {
 
     public function requiredCap(): string { return 'tt_view_goals'; }
 
+    public function availableColumns(): array {
+        return [
+            'goal_id'     => __( 'Goal ID',     'talenttrack' ),
+            'title'       => __( 'Title',       'talenttrack' ),
+            'description' => __( 'Description', 'talenttrack' ),
+            'status'      => __( 'Status',      'talenttrack' ),
+            'priority'    => __( 'Priority',    'talenttrack' ),
+            'due_date'    => __( 'Due date',    'talenttrack' ),
+            'player_id'   => __( 'Player ID',   'talenttrack' ),
+            'first_name'  => __( 'First name',  'talenttrack' ),
+            'last_name'   => __( 'Last name',   'talenttrack' ),
+            'team'        => __( 'Team',        'talenttrack' ),
+            'owner'       => __( 'Owner',       'talenttrack' ),
+            'created'     => __( 'Created',     'talenttrack' ),
+            'updated'     => __( 'Updated',     'talenttrack' ),
+        ];
+    }
+
     public function validateFilters( array $raw ): ?array {
         $team_id = isset( $raw['team_id'] ) ? (int) $raw['team_id'] : 0;
         if ( $team_id < 0 ) $team_id = 0;

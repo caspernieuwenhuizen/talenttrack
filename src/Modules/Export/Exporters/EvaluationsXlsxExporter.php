@@ -48,6 +48,15 @@ final class EvaluationsXlsxExporter implements ExporterInterface {
 
     public function requiredCap(): string { return 'tt_view_evaluations'; }
 
+    /**
+     * Multi-sheet workbook (one sheet per season × evaluation type) —
+     * the column picker is single-sheet only, so this exporter opts
+     * out by returning an empty map (#986).
+     */
+    public function availableColumns(): array {
+        return [];
+    }
+
     public function validateFilters( array $raw ): ?array {
         $team_id = isset( $raw['team_id'] ) ? (int) $raw['team_id'] : 0;
         if ( $team_id < 0 ) $team_id = 0;

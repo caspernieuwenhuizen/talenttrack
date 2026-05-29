@@ -35,6 +35,19 @@ final class AttendanceRegisterCsvExporter implements ExporterInterface {
 
     public function requiredCap(): string { return 'tt_view_activities'; }
 
+    public function availableColumns(): array {
+        return [
+            'date'        => __( 'Date',       'talenttrack' ),
+            'activity'    => __( 'Activity',   'talenttrack' ),
+            'team'        => __( 'Team',       'talenttrack' ),
+            'player_id'   => __( 'Player ID',  'talenttrack' ),
+            'first_name'  => __( 'First name', 'talenttrack' ),
+            'last_name'   => __( 'Last name',  'talenttrack' ),
+            'status'      => __( 'Status',     'talenttrack' ),
+            'notes'       => __( 'Notes',      'talenttrack' ),
+        ];
+    }
+
     public function validateFilters( array $raw ): ?array {
         $team_id = isset( $raw['team_id'] ) ? (int) $raw['team_id'] : 0;
         if ( $team_id < 0 ) $team_id = 0;

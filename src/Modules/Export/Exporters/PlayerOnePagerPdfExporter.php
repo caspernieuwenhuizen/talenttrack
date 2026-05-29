@@ -45,6 +45,9 @@ final class PlayerOnePagerPdfExporter implements ExporterInterface {
 
     public function requiredCap(): string { return 'tt_view_players'; }
 
+    /** Non-tabular exporter — opts out of the column picker (#986). */
+    public function availableColumns(): array { return []; }
+
     public function validateFilters( array $raw ): ?array {
         $player_id = isset( $raw['player_id'] ) ? (int) $raw['player_id'] : 0;
         if ( $player_id <= 0 ) return null;

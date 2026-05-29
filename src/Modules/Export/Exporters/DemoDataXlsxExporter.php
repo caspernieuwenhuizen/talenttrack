@@ -50,6 +50,14 @@ final class DemoDataXlsxExporter implements ExporterInterface {
 
     public function requiredCap(): string { return 'tt_edit_settings'; }
 
+    /**
+     * Multi-sheet round-trip workbook — the column picker is
+     * single-sheet only, so this exporter opts out (#986).
+     */
+    public function availableColumns(): array {
+        return [];
+    }
+
     public function validateFilters( array $raw ): ?array {
         // No filters at v1 — the export is "everything in the current club".
         return [];

@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Audit\AuditService;
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\Domain\ExportResult;
+use TT\Modules\Export\Format\ColumnFilter;
 use TT\Modules\Export\Format\FormatRendererRegistry;
 
 /**
@@ -58,9 +59,21 @@ final class ExportService {
             ) );
         }
 
-        $clean = $exporter->validateFilters( $request->filters );
+        // #986 — `selected_columns` is a cross-cutting concern handled by
+        // `ColumnFilter` after `collect()`. Strip it before the per-exporter
+        // validator runs so existing validators (which reject unknown keys
+        // by ignoring them or by returning a strict sanitised array) don't
+        // need to learn about column selection.
+        $raw_filters = $request->filters;
+        $selected_raw = $raw_filters['selected_columns'] ?? null;
+        unset( $raw_filters['selected_columns'] );
+
+        $clean = $exporter->validateFilters( $raw_filters );
         if ( $clean === null ) {
             throw new ExportException( 'bad_filters', 'Invalid filters for this exporter.' );
+        }
+        if ( $selected_raw !== null ) {
+            $clean['selected_columns'] = $selected_raw;
         }
 
         $renderer = FormatRendererRegistry::get( $request->format );
@@ -85,6 +98,19 @@ final class ExportService {
         );
 
         $payload = $exporter->collect( $effective );
+
+        // #986 — column picker. Drop deselected columns before rendering.
+        // CSV + XLSX only; multi-sheet payloads and non-tabular exporters
+        // pass through untouched (`ColumnFilter::apply` is a no-op when
+        // the exporter's `availableColumns()` is empty or when no
+        // selection was supplied).
+        $available = $exporter->availableColumns();
+        if ( $available !== [] && in_array( $request->format, [ 'csv', 'xlsx' ], true ) ) {
+            $selected_raw = $effective->filters['selected_columns'] ?? null;
+            $selected     = ColumnFilter::sanitiseSelection( $selected_raw, $available );
+            $payload      = ColumnFilter::apply( $payload, $available, $selected );
+        }
+
         $result  = $renderer->render( $effective, $payload );
 
         self::audit( $effective, $result );

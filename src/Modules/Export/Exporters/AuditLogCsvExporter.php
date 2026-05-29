@@ -30,6 +30,20 @@ final class AuditLogCsvExporter implements ExporterInterface {
 
     public function requiredCap(): string { return 'tt_manage_settings'; }
 
+    public function availableColumns(): array {
+        return [
+            'audit_id'    => __( 'Audit ID',    'talenttrack' ),
+            'timestamp'   => __( 'Timestamp',   'talenttrack' ),
+            'user_id'     => __( 'User ID',     'talenttrack' ),
+            'user_name'   => __( 'User name',   'talenttrack' ),
+            'action'      => __( 'Action',      'talenttrack' ),
+            'entity_type' => __( 'Entity type', 'talenttrack' ),
+            'entity_id'   => __( 'Entity ID',   'talenttrack' ),
+            'ip_address'  => __( 'IP address',  'talenttrack' ),
+            'payload'     => __( 'Payload',     'talenttrack' ),
+        ];
+    }
+
     public function validateFilters( array $raw ): ?array {
         $date_from = isset( $raw['date_from'] ) ? (string) $raw['date_from'] : '';
         $date_to   = isset( $raw['date_to'] )   ? (string) $raw['date_to']   : '';

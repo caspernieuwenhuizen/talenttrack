@@ -33,6 +33,19 @@ final class StaffDirectoryCsvExporter implements ExporterInterface {
 
     public function requiredCap(): string { return 'tt_view_people'; }
 
+    public function availableColumns(): array {
+        return [
+            'person_id'  => __( 'Person ID',  'talenttrack' ),
+            'first_name' => __( 'First name', 'talenttrack' ),
+            'last_name'  => __( 'Last name',  'talenttrack' ),
+            'email'      => __( 'Email',      'talenttrack' ),
+            'phone'      => __( 'Phone',      'talenttrack' ),
+            'role_type'  => __( 'Role type',  'talenttrack' ),
+            'status'     => __( 'Status',     'talenttrack' ),
+            'teams'      => __( 'Teams',      'talenttrack' ),
+        ];
+    }
+
     public function validateFilters( array $raw ): ?array {
         $role = isset( $raw['role_type'] ) ? (string) $raw['role_type'] : 'all';
         if ( ! in_array( $role, self::ALLOWED_ROLES, true ) ) $role = 'all';

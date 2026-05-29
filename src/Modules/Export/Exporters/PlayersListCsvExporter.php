@@ -33,6 +33,24 @@ final class PlayersListCsvExporter implements ExporterInterface {
 
     public function requiredCap(): string { return 'tt_view_players'; }
 
+    public function availableColumns(): array {
+        return [
+            'player_id'           => __( 'Player ID',           'talenttrack' ),
+            'first_name'          => __( 'First name',          'talenttrack' ),
+            'last_name'           => __( 'Last name',           'talenttrack' ),
+            'date_of_birth'       => __( 'Date of birth',       'talenttrack' ),
+            'jersey_number'       => __( 'Jersey number',       'talenttrack' ),
+            'preferred_foot'      => __( 'Preferred foot',      'talenttrack' ),
+            'preferred_positions' => __( 'Preferred positions', 'talenttrack' ),
+            'team'                => __( 'Team',                'talenttrack' ),
+            'guardian_name'       => __( 'Guardian name',       'talenttrack' ),
+            'guardian_email'      => __( 'Guardian email',      'talenttrack' ),
+            'guardian_phone'      => __( 'Guardian phone',      'talenttrack' ),
+            'status'              => __( 'Status',              'talenttrack' ),
+            'date_joined'         => __( 'Date joined',         'talenttrack' ),
+        ];
+    }
+
     public function validateFilters( array $raw ): ?array {
         $team_id = isset( $raw['team_id'] ) ? (int) $raw['team_id'] : 0;
         if ( $team_id < 0 ) $team_id = 0;

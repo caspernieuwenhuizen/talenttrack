@@ -115,6 +115,17 @@ final class ExportRestController {
         );
         unset( $filters['format'], $filters['entity_id'], $filters['brand'] );
 
+        // #986 — accept either `columns` (mirrors the Exports page form
+        // name) or the canonical `selected_columns` key. Either lands
+        // in the request as `selected_columns` which `ExportService`
+        // hands to `ColumnFilter::apply()`.
+        if ( isset( $filters['columns'] ) ) {
+            if ( is_array( $filters['columns'] ) && $filters['columns'] !== [] ) {
+                $filters['selected_columns'] = array_values( array_map( 'strval', $filters['columns'] ) );
+            }
+            unset( $filters['columns'] );
+        }
+
         $request = new ExportRequest(
             $key,
             $format,
