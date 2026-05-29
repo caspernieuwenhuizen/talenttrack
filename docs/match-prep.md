@@ -82,12 +82,25 @@ The toolbar's right side shows the current save state ("All changes
 saved.", "Unsaved changes…", "Saving…", "Save failed. Try again.").
 If a save fails, retry the edit; the network may have hiccuped.
 
-## Print to PDF
+## Print to paper (or PDF)
 
-The **PDF (landscape A4)** button opens a printer-ready PDF that
-ships the lineup + per-player attention + tactical goals to the
-sideline whiteboard. The role pane is on the screen surface only for
-now — a follow-up release will add it to the PDF too.
+The **Print (landscape A4)** button in the toolbar opens the browser's
+own print dialog on the current page — one click, no page reload. The
+page's print stylesheet drops the dashboard chrome (header, breadcrumbs,
+back-pill, toolbar) so only the lineup + per-player attention +
+tactical goals end up on paper. Confirm the print, take the sheet to
+the sideline.
+
+Need a PDF instead of a printout? The browser's print dialog has a
+**Save as PDF** option in its destination dropdown — picking it
+produces a usable PDF file with the same layout, no separate exporter
+needed. The role pane is on the screen surface only for now; a
+follow-up release will add it to the printed sheet too.
+
+The central `?tt_view=exports` page still carries a match-prep PDF
+exporter for users who want to drive the same export from there; the
+toolbar button is just the in-place shortcut for "print this lineup
+now".
 
 ## What you can't do here
 

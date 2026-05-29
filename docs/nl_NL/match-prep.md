@@ -88,12 +88,24 @@ opslaanknop. De rechterkant van de werkbalk toont de huidige status
 "Opslaan…", "Opslaan mislukt. Probeer opnieuw."). Mislukt een save
 dan kun je de wijziging opnieuw doen; het netwerk kan kuren hebben.
 
-## Print naar PDF
+## Afdrukken (of opslaan als PDF)
 
-De knop **PDF (liggend A4)** opent een printklare PDF die de
-opstelling + aandachtspunten + wedstrijddoelen naar het kleedkamerbord
-brengt. Het rollenpaneel staat voorlopig alleen op het scherm — een
-volgende release voegt het ook aan de PDF toe.
+De knop **Afdrukken (liggend A4)** in de werkbalk opent de
+afdrukdialoog van je browser direct op de huidige pagina — één klik,
+geen herlaadbeurt. De afdrukstijl verbergt het dashboard-frame
+(header, breadcrumbs, terugknop, werkbalk) zodat alleen de opstelling
++ aandachtspunten + wedstrijddoelen op het papier verschijnen.
+Bevestig de afdruk en neem het vel mee naar de lijn.
+
+Liever een PDF in plaats van een papieren afdruk? De afdrukdialoog
+heeft een **Opslaan als PDF**-keuze in de bestemmingslijst — die
+maakt een bruikbare PDF met dezelfde indeling, zonder aparte
+exporter. Het rollenpaneel staat voorlopig alleen op het scherm; een
+volgende release voegt het ook aan de afdruk toe.
+
+De centrale `?tt_view=exports`-pagina heeft nog steeds een match-prep
+PDF-exporter voor wie liever vandaaruit werkt; de knop in de
+werkbalk is de directe sneltoets voor "deze opstelling nu printen".
 
 ## Wat hier niet kan
 
