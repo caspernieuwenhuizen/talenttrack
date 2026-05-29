@@ -597,6 +597,12 @@ class DashboardShortcode {
             case 'tournaments':
                 FrontendTournamentsManageView::render( $user_id, $is_admin );
                 return true;
+            // v4.8.0 (#975) — post-creation Add-match surface. Reuses
+            // the wizard's matches-step chip editor; submits via
+            // admin-post.php and redirects back to the planner.
+            case 'tournament-match':
+                \TT\Modules\Tournaments\Frontend\FrontendTournamentMatchAddView::render( $user_id, $is_admin );
+                return true;
             case 'pdp':
                 \TT\Modules\Pdp\Frontend\FrontendPdpManageView::render( $user_id, $is_admin );
                 return true;

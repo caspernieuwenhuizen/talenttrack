@@ -12,6 +12,10 @@ use TT\Shared\Wizards\WizardStepInterface;
  * Anchor team is required per the spec shaping decision (single-team
  * tournament, with cross-team adds via the squad step's "from another
  * team" affordance).
+ *
+ * No explicit Format field — the tournament's age tier derives from
+ * the anchor team's age_group server-side (decision locked in #975
+ * 2026-05-28). Coach picks the team; the system picks the rest.
  */
 final class BasicsStep implements WizardStepInterface {
 
@@ -19,29 +23,52 @@ final class BasicsStep implements WizardStepInterface {
     public function label(): string { return __( 'Basics', 'talenttrack' ); }
 
     public function render( array $state ): void {
+        WizardAssets::enqueue();
+
         global $wpdb;
         $teams = $wpdb->get_results( $wpdb->prepare(
             "SELECT id, name FROM {$wpdb->prefix}tt_teams WHERE club_id = %d AND archived_at IS NULL ORDER BY name ASC LIMIT 200",
             CurrentClub::id()
         ) );
 
-        echo '<label><span>' . esc_html__( 'Tournament name', 'talenttrack' ) . ' *</span>';
-        echo '<input type="text" name="tournament_name" required value="' . esc_attr( (string) ( $state['name'] ?? '' ) ) . '"></label>';
+        echo '<div class="tt-tournament-wizard">';
+        echo '<p class="ttw-step-desc">' . esc_html__( 'The headline information about the tournament. Anchor team is the club team that is playing — all other matches are vs. opponents.', 'talenttrack' ) . '</p>';
+        echo '<div class="ttw-card">';
+        echo '<div class="ttw-field-grid">';
 
-        echo '<label><span>' . esc_html__( 'Anchor team', 'talenttrack' ) . ' *</span><select name="team_id" required>';
+        echo '<div class="ttw-field ttw-field--full">';
+        echo '<label for="ttw-tour-name">' . esc_html__( 'Tournament name', 'talenttrack' ) . ' <span class="ttw-req">*</span></label>';
+        echo '<input type="text" id="ttw-tour-name" name="tournament_name" required value="' . esc_attr( (string) ( $state['name'] ?? '' ) ) . '">';
+        echo '<span class="ttw-hint">' . esc_html__( 'Shows on the planner page and on every match title.', 'talenttrack' ) . '</span>';
+        echo '</div>';
+
+        echo '<div class="ttw-field">';
+        echo '<label for="ttw-tour-team">' . esc_html__( 'Anchor team', 'talenttrack' ) . ' <span class="ttw-req">*</span></label>';
+        echo '<select id="ttw-tour-team" name="team_id" required>';
         echo '<option value="0">' . esc_html__( '— pick a team —', 'talenttrack' ) . '</option>';
         $current_team = (int) ( $state['team_id'] ?? 0 );
         foreach ( $teams as $t ) {
             $sel = selected( $current_team, (int) $t->id, false );
             echo '<option value="' . esc_attr( (string) $t->id ) . '" ' . $sel . '>' . esc_html( (string) $t->name ) . '</option>';
         }
-        echo '</select></label>';
+        echo '</select>';
+        echo '<span class="ttw-hint">' . esc_html__( 'Format (7v7 / 9v9 / 11v11) is inferred from the team age group.', 'talenttrack' ) . '</span>';
+        echo '</div>';
 
-        echo '<label><span>' . esc_html__( 'Start date', 'talenttrack' ) . ' *</span>';
-        echo '<input type="date" name="start_date" required value="' . esc_attr( (string) ( $state['start_date'] ?? '' ) ) . '"></label>';
+        echo '<div class="ttw-field">';
+        echo '<label for="ttw-tour-start">' . esc_html__( 'Start date', 'talenttrack' ) . ' <span class="ttw-req">*</span></label>';
+        echo '<input type="date" id="ttw-tour-start" name="start_date" required value="' . esc_attr( (string) ( $state['start_date'] ?? '' ) ) . '">';
+        echo '</div>';
 
-        echo '<label><span>' . esc_html__( 'End date (optional, for multi-day tournaments)', 'talenttrack' ) . '</span>';
-        echo '<input type="date" name="end_date" value="' . esc_attr( (string) ( $state['end_date'] ?? '' ) ) . '"></label>';
+        echo '<div class="ttw-field">';
+        echo '<label for="ttw-tour-end">' . esc_html__( 'End date', 'talenttrack' ) . '</label>';
+        echo '<input type="date" id="ttw-tour-end" name="end_date" value="' . esc_attr( (string) ( $state['end_date'] ?? '' ) ) . '">';
+        echo '<span class="ttw-hint">' . esc_html__( 'Leave blank for a single-day tournament.', 'talenttrack' ) . '</span>';
+        echo '</div>';
+
+        echo '</div>'; // field-grid
+        echo '</div>'; // card
+        echo '</div>'; // tournament-wizard
     }
 
     public function validate( array $post, array $state ) {

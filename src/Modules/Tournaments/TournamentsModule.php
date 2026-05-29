@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
 use TT\Infrastructure\REST\TournamentsRestController;
+use TT\Modules\Tournaments\Frontend\FrontendTournamentMatchAddView;
 use TT\Modules\Tournaments\Wizard\NewTournamentWizard;
 use TT\Shared\Tiles\TileRegistry;
 use TT\Shared\Wizards\WizardRegistry;
@@ -53,6 +54,11 @@ class TournamentsModule implements ModuleInterface {
         // tt_view_tournaments / tt_edit_tournaments, which are
         // admin-only in v1.
         TournamentsRestController::init();
+
+        // v4.8.0 (#975) — admin-post.php handler for the post-creation
+        // Add-match surface (?tt_view=tournament-match&action=new). The
+        // dispatch case for the GET view lives in DashboardShortcode.
+        FrontendTournamentMatchAddView::init();
 
         // #0093 chunk 4 — new-tournament wizard. Five steps: basics →
         // formation → squad → matches → review. Gated on

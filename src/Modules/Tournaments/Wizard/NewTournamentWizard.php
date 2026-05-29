@@ -12,19 +12,23 @@ use TT\Shared\Wizards\WizardInterface;
  * "the planner is open with matches + squad pre-loaded":
  *
  *   1. BasicsStep      — name, anchor team, start_date, end_date.
- *   2. FormationStep   — pick the default formation (per-match
- *                        override happens later in the matches step
- *                        or after-the-fact).
+ *                        Tournament age tier is derived from the
+ *                        anchor team's age group (#975 decision).
+ *   2. FormationStep   — radio-card grid with hand-drawn dot glyphs
+ *                        per the #975 mockup; per-match override
+ *                        happens later in the matches step or after.
  *   3. SquadStep       — multi-pick players from the anchor team's
- *                        roster + per-player eligible positions
- *                        (position TYPES: GK/DEF/MID/FWD per spec
- *                        shaping decision).
- *   4. MatchesStep     — repeatable mini-form: label, opponent name,
- *                        opponent level, duration, substitution
- *                        windows.
- *   5. ReviewStep      — summary + submit. Inserts the tournament +
- *                        squad rows + match rows in one wpdb session
- *                        and redirects to the planner detail view.
+ *                        roster + per-player eligible positions. The
+ *                        specific position vocabulary is GK / CB / LB
+ *                        / RB / DM / CM / AM / LW / RW / ST (#975
+ *                        decision; matches the blueprint editor).
+ *   4. MatchesStep     — repeatable card stack with live-updating
+ *                        headline, per-card Remove button, and a
+ *                        chip editor for substitution windows.
+ *   5. ReviewStep      — card-per-step summary with Edit jump links
+ *                        + Create. Inserts the tournament + squad +
+ *                        match rows in one wpdb session and redirects
+ *                        to the planner detail view.
  *
  * Cap gate: `tt_edit_tournaments` — admin-only in v1 by virtue of
  * which roles hold the cap.

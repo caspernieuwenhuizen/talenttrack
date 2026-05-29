@@ -7,13 +7,23 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Shared\Wizards\WizardStepInterface;
 
 /**
- * Step 4 — Matches. Repeatable mini-form. The coach fills as many
- * match cards as they need; empty cards drop on validate.
+ * Step 4 — Matches. One card per match. Each carries:
  *
- * Substitution windows render as a comma-separated input ("10" /
- * "20, 40, 60") rather than a chip editor — keeps the v1 wizard
- * lightweight. The planner detail page (chunk 5+) will expose a
- * richer chip-style editor for post-creation tweaks.
+ *   - Sequence circle + live-updating headline ("vs <opponent>" / label).
+ *   - Per-row Remove button.
+ *   - Two-column field grid: Label, Opponent, Opponent level,
+ *     Formation override, Duration, Substitution windows.
+ *   - Chip-editor for substitution windows (Enter / comma to add,
+ *     Backspace pops, × removes). Max-value hint live-updates from
+ *     duration_min.
+ *
+ * Empty cards drop silently on submit (#975 spec preservation). A card
+ * with a missing headline (neither label nor opponent) but other
+ * fields set still raises an inline error per the v1 contract.
+ *
+ * Substitution windows still POST as a comma-separated CSV in a
+ * hidden field — the JS keeps the visible chip set in sync. Server
+ * parser is unchanged from v1.
  */
 final class MatchesStep implements WizardStepInterface {
 
@@ -21,60 +31,29 @@ final class MatchesStep implements WizardStepInterface {
     public function label(): string { return __( 'Matches', 'talenttrack' ); }
 
     public function render( array $state ): void {
+        WizardAssets::enqueue();
+
         $matches = is_array( $state['matches'] ?? null ) ? $state['matches'] : [];
-        // Show at least 3 rows on first visit; otherwise show as many
-        // as the state has, plus one extra empty row.
         $rows = $matches;
         if ( ! $rows ) {
-            $rows = [
-                self::blankRow(),
-                self::blankRow(),
-                self::blankRow(),
-            ];
-        } else {
-            $rows[] = self::blankRow();
+            $rows = [ self::blankRow(), self::blankRow(), self::blankRow() ];
         }
 
-        $levels = QueryHelpers::get_lookup_names( 'tournament_opponent_level' );
+        $levels     = QueryHelpers::get_lookup_names( 'tournament_opponent_level' );
         $formations = QueryHelpers::get_lookup_names( 'tournament_formation' );
+        $default_formation = (string) ( $state['default_formation'] ?? '' );
 
-        echo '<p>' . esc_html__( 'Add at least one match. Leave a row blank to skip it. You can add more matches from the planner after creating the tournament.', 'talenttrack' ) . '</p>';
+        echo '<div class="tt-tournament-wizard">';
+        echo '<p class="ttw-step-desc">' . esc_html__( 'Add at least one match. Each card is a separate match — leave a card blank to skip it. You can add more matches from the planner after the tournament is created.', 'talenttrack' ) . '</p>';
 
-        echo '<ol class="tt-wizard-match-list" style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:12px;" data-tt-match-list="1">';
+        echo '<ol class="ttw-match-list" data-ttw-match-list>';
         foreach ( $rows as $i => $m ) {
-            self::renderRow( $i, $m, $levels, $formations );
+            self::renderRow( (int) $i, (array) $m, $levels, $formations, $default_formation );
         }
         echo '</ol>';
 
-        echo '<p style="margin-top:10px;"><button type="button" class="tt-button tt-button-secondary" data-tt-match-add="1">+ ' . esc_html__( 'Add another match', 'talenttrack' ) . '</button></p>';
-
-        // Tiny inline JS: clone the LAST .tt-wizard-match-row, increment
-        // its data-row index, append. The framework will validate every
-        // row at submit time and drop the empties.
-        ?>
-        <script>
-        (function () {
-            var list = document.querySelector('[data-tt-match-list="1"]');
-            var add  = document.querySelector('[data-tt-match-add="1"]');
-            if (!list || !add) return;
-            add.addEventListener('click', function () {
-                var rows = list.querySelectorAll('.tt-wizard-match-row');
-                if (!rows.length) return;
-                var last = rows[rows.length - 1];
-                var clone = last.cloneNode(true);
-                var newIdx = rows.length;
-                clone.querySelectorAll('input,select,textarea').forEach(function (el) {
-                    if (el.name) {
-                        el.name = el.name.replace(/matches\[\d+\]/, 'matches[' + newIdx + ']');
-                    }
-                    if (el.type !== 'button') el.value = '';
-                });
-                clone.setAttribute('data-row', String(newIdx));
-                list.appendChild(clone);
-            });
-        })();
-        </script>
-        <?php
+        echo '<button type="button" class="ttw-match-add" data-ttw-match-add>+ ' . esc_html__( 'Add another match', 'talenttrack' ) . '</button>';
+        echo '</div>';
     }
 
     public function validate( array $post, array $state ) {
@@ -89,14 +68,9 @@ final class MatchesStep implements WizardStepInterface {
             $windows_raw = isset( $row['substitution_windows'] ) ? (string) $row['substitution_windows'] : '';
             $formation = isset( $row['formation'] ) ? sanitize_text_field( wp_unslash( (string) $row['formation'] ) ) : '';
 
-            // Skip wholly-empty rows.
             if ( $label === '' && $opp === '' && $duration === 0 && $windows_raw === '' && $formation === '' && $level === '' ) {
                 continue;
             }
-
-            // At least one of (label, opponent_name) must be set so a row
-            // has a headline. duration_min defaults to 20 when left blank
-            // on an otherwise-filled row.
             if ( $label === '' && $opp === '' ) {
                 return new \WP_Error(
                     'match_headline_required',
@@ -105,7 +79,6 @@ final class MatchesStep implements WizardStepInterface {
             }
             if ( $duration === 0 ) $duration = 20;
 
-            // Parse "10" / "10, 20" / "10 20" — all valid.
             $windows = [];
             foreach ( preg_split( '/[\s,]+/', $windows_raw ) as $token ) {
                 $w = (int) trim( $token );
@@ -146,44 +119,84 @@ final class MatchesStep implements WizardStepInterface {
     }
 
     /**
+     * Render a single match card.
+     *
      * @param array<int,string> $levels
      * @param array<int,string> $formations
      */
-    private static function renderRow( int $i, array $m, array $levels, array $formations ): void {
-        $windows_str = '';
-        if ( ! empty( $m['substitution_windows'] ) && is_array( $m['substitution_windows'] ) ) {
-            $windows_str = implode( ', ', array_map( 'intval', $m['substitution_windows'] ) );
-        }
+    private static function renderRow( int $i, array $m, array $levels, array $formations, string $default_formation ): void {
+        $label_val = (string) ( $m['label'] ?? '' );
+        $opp_val   = (string) ( $m['opponent_name'] ?? '' );
+        $level_val = (string) ( $m['opponent_level'] ?? '' );
+        $form_val  = (string) ( $m['formation'] ?? '' );
+        $dur_val   = (int) ( $m['duration_min'] ?? 0 );
+        if ( $dur_val <= 0 ) $dur_val = 20;
+        $windows = is_array( $m['substitution_windows'] ?? null ) ? $m['substitution_windows'] : [];
+        $windows_csv = implode( ',', array_map( 'intval', $windows ) );
+
+        $headline = $label_val !== ''
+            ? $label_val
+            : ( $opp_val !== '' ? sprintf( __( 'vs %s', 'talenttrack' ), $opp_val ) : '' );
+        $head_empty_cls = $headline === '' ? ' is-empty' : '';
+        $head_text      = $headline === '' ? __( 'New match — fill in opponent below', 'talenttrack' ) : $headline;
+
+        $default_form_label = $default_formation !== ''
+            ? sprintf( __( '— use default (%s) —', 'talenttrack' ), $default_formation )
+            : __( '— use default —', 'talenttrack' );
+
+        $dur_max = max( 0, $dur_val - 1 );
+
         ?>
-        <li class="tt-wizard-match-row" data-row="<?php echo (int) $i; ?>" style="padding:10px;border:1px solid var(--tt-line, #e2e8f0);border-radius:6px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;">
-            <label><span><?php esc_html_e( 'Label (optional)', 'talenttrack' ); ?></span>
-                <input type="text" name="matches[<?php echo (int) $i; ?>][label]" value="<?php echo esc_attr( (string) $m['label'] ); ?>">
-            </label>
-            <label><span><?php esc_html_e( 'Opponent name', 'talenttrack' ); ?></span>
-                <input type="text" name="matches[<?php echo (int) $i; ?>][opponent_name]" value="<?php echo esc_attr( (string) $m['opponent_name'] ); ?>">
-            </label>
-            <label><span><?php esc_html_e( 'Opponent level', 'talenttrack' ); ?></span>
-                <select name="matches[<?php echo (int) $i; ?>][opponent_level]">
-                    <option value=""><?php esc_html_e( '— pick one —', 'talenttrack' ); ?></option>
-                    <?php foreach ( $levels as $lv ) : ?>
-                        <option value="<?php echo esc_attr( (string) $lv ); ?>" <?php selected( (string) $m['opponent_level'], (string) $lv ); ?>><?php echo esc_html( (string) $lv ); ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </label>
-            <label><span><?php esc_html_e( 'Formation override (optional)', 'talenttrack' ); ?></span>
-                <select name="matches[<?php echo (int) $i; ?>][formation]">
-                    <option value=""><?php esc_html_e( '— use default —', 'talenttrack' ); ?></option>
-                    <?php foreach ( $formations as $f ) : ?>
-                        <option value="<?php echo esc_attr( (string) $f ); ?>" <?php selected( (string) $m['formation'], (string) $f ); ?>><?php echo esc_html( (string) $f ); ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </label>
-            <label><span><?php esc_html_e( 'Duration (minutes)', 'talenttrack' ); ?></span>
-                <input type="number" inputmode="numeric" min="1" max="240" name="matches[<?php echo (int) $i; ?>][duration_min]" value="<?php echo esc_attr( (string) ( $m['duration_min'] ?: 20 ) ); ?>">
-            </label>
-            <label><span><?php esc_html_e( 'Substitution windows (e.g. "10" or "20, 40, 60")', 'talenttrack' ); ?></span>
-                <input type="text" inputmode="numeric" name="matches[<?php echo (int) $i; ?>][substitution_windows]" placeholder="10" value="<?php echo esc_attr( $windows_str ); ?>">
-            </label>
+        <li class="ttw-match-card" data-row="<?php echo (int) $i; ?>">
+            <div class="ttw-match-head">
+                <span class="ttw-seq" aria-hidden="true"><?php echo (int) $i + 1; ?></span>
+                <span class="ttw-headline<?php echo esc_attr( $head_empty_cls ); ?>" data-ttw-headline><?php echo esc_html( $head_text ); ?></span>
+                <button type="button" class="ttw-remove" data-ttw-match-remove><?php esc_html_e( 'Remove', 'talenttrack' ); ?></button>
+            </div>
+            <div class="ttw-field-grid">
+                <div class="ttw-field">
+                    <label for="ttw-m-<?php echo (int) $i; ?>-label"><?php esc_html_e( 'Label (optional)', 'talenttrack' ); ?></label>
+                    <input type="text" id="ttw-m-<?php echo (int) $i; ?>-label" data-ttw-field="label" name="matches[<?php echo (int) $i; ?>][label]" value="<?php echo esc_attr( $label_val ); ?>" placeholder="<?php esc_attr_e( 'e.g. Final, Round 1, Pool A…', 'talenttrack' ); ?>">
+                    <span class="ttw-hint"><?php esc_html_e( 'Used as the headline when set; otherwise shows "vs <opponent>".', 'talenttrack' ); ?></span>
+                </div>
+                <div class="ttw-field">
+                    <label for="ttw-m-<?php echo (int) $i; ?>-opp"><?php esc_html_e( 'Opponent', 'talenttrack' ); ?> <span class="ttw-req">*</span></label>
+                    <input type="text" id="ttw-m-<?php echo (int) $i; ?>-opp" data-ttw-field="opponent_name" name="matches[<?php echo (int) $i; ?>][opponent_name]" value="<?php echo esc_attr( $opp_val ); ?>">
+                </div>
+                <div class="ttw-field">
+                    <label for="ttw-m-<?php echo (int) $i; ?>-level"><?php esc_html_e( 'Opponent level', 'talenttrack' ); ?></label>
+                    <select id="ttw-m-<?php echo (int) $i; ?>-level" data-ttw-field="opponent_level" name="matches[<?php echo (int) $i; ?>][opponent_level]">
+                        <option value=""><?php esc_html_e( '— pick one —', 'talenttrack' ); ?></option>
+                        <?php foreach ( $levels as $lv ) : ?>
+                            <option value="<?php echo esc_attr( (string) $lv ); ?>" <?php selected( $level_val, (string) $lv ); ?>><?php echo esc_html( (string) $lv ); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="ttw-field">
+                    <label for="ttw-m-<?php echo (int) $i; ?>-form"><?php esc_html_e( 'Formation override', 'talenttrack' ); ?></label>
+                    <select id="ttw-m-<?php echo (int) $i; ?>-form" data-ttw-field="formation" name="matches[<?php echo (int) $i; ?>][formation]">
+                        <option value=""><?php echo esc_html( $default_form_label ); ?></option>
+                        <?php foreach ( $formations as $f ) : ?>
+                            <option value="<?php echo esc_attr( (string) $f ); ?>" <?php selected( $form_val, (string) $f ); ?>><?php echo esc_html( (string) $f ); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="ttw-field">
+                    <label for="ttw-m-<?php echo (int) $i; ?>-dur"><?php esc_html_e( 'Duration (minutes)', 'talenttrack' ); ?> <span class="ttw-req">*</span></label>
+                    <input type="number" id="ttw-m-<?php echo (int) $i; ?>-dur" data-ttw-field="duration_min" name="matches[<?php echo (int) $i; ?>][duration_min]" min="1" max="240" inputmode="numeric" value="<?php echo esc_attr( (string) $dur_val ); ?>">
+                </div>
+                <div class="ttw-field">
+                    <label><?php esc_html_e( 'Substitution windows (minutes from kickoff)', 'talenttrack' ); ?></label>
+                    <div class="ttw-chip-editor" data-ttw-chip-editor>
+                        <?php foreach ( $windows as $w ) : $w = (int) $w; if ( $w <= 0 ) continue; ?>
+                            <span class="ttw-chip" data-value="<?php echo (int) $w; ?>"><?php echo (int) $w; ?>' <button type="button" class="ttw-chip-x" aria-label="<?php echo esc_attr( sprintf( __( 'Remove %d', 'talenttrack' ), $w ) ); ?>">&times;</button></span>
+                        <?php endforeach; ?>
+                        <input type="text" placeholder="<?php esc_attr_e( 'Add a minute and press Enter', 'talenttrack' ); ?>" inputmode="numeric" data-max="<?php echo esc_attr( (string) $dur_max ); ?>">
+                        <input type="hidden" name="matches[<?php echo (int) $i; ?>][substitution_windows]" value="<?php echo esc_attr( $windows_csv ); ?>">
+                        <span class="ttw-hint"><?php echo esc_html__( 'Press Enter or comma to add. Values must be 1–', 'talenttrack' ); ?><span data-ttw-dur-max><?php echo (int) $dur_max; ?></span>.</span>
+                    </div>
+                </div>
+            </div>
         </li>
         <?php
     }

@@ -8,31 +8,59 @@ use TT\Shared\Wizards\WizardStepInterface;
 
 /**
  * Step 3 — Squad. Multi-pick of players from the anchor team's
- * active roster, with a per-player eligible-positions multi-select.
+ * active + trial roster, with a per-player eligible-positions chip
+ * row driving auto-balance on the planner.
  *
- * Eligibility uses position TYPES (GK/DEF/MID/FWD), not slot codes,
- * per the spec shaping decision — keeps the picker to 4 chips per
- * player rather than 11 slot codes.
+ * Specific position codes (#975 decision 2026-05-28): the chip strip
+ * is `GK · CB · LB · RB · DM · CM · AM · LW · RW · ST` — matches the
+ * blueprint editor vocabulary. The auto-balance algorithm reads the
+ * code's first letter to bucket into formation slots.
+ *
+ * Trial players appear in the list with a `Trial` badge, unchecked by
+ * default; the coach has to actively tick them.
  *
  * Cross-team adds are a follow-up affordance; v1 wizard scope is the
- * anchor team's roster + an explicit cross-team picker would belong
- * here when added.
+ * anchor team's roster (active + trial).
  */
 final class SquadStep implements WizardStepInterface {
 
     public function slug(): string { return 'squad'; }
     public function label(): string { return __( 'Squad', 'talenttrack' ); }
 
+    /**
+     * Specific position codes (locked-in decision #975). Mirrors the
+     * blueprint editor's vocabulary so coaches see the same chip set
+     * across surfaces.
+     *
+     * @return array<string,string>
+     */
+    public static function positionCodes(): array {
+        return [
+            'GK' => __( 'Goalkeeper', 'talenttrack' ),
+            'CB' => __( 'Centre back', 'talenttrack' ),
+            'LB' => __( 'Left back', 'talenttrack' ),
+            'RB' => __( 'Right back', 'talenttrack' ),
+            'DM' => __( 'Defensive mid', 'talenttrack' ),
+            'CM' => __( 'Centre mid', 'talenttrack' ),
+            'AM' => __( 'Attacking mid', 'talenttrack' ),
+            'LW' => __( 'Left wing', 'talenttrack' ),
+            'RW' => __( 'Right wing', 'talenttrack' ),
+            'ST' => __( 'Striker', 'talenttrack' ),
+        ];
+    }
+
     public function render( array $state ): void {
+        WizardAssets::enqueue();
+
         $team_id = (int) ( $state['team_id'] ?? 0 );
         if ( $team_id <= 0 ) {
-            echo '<p class="tt-notice">' . esc_html__( 'No anchor team picked. Go back to the Basics step.', 'talenttrack' ) . '</p>';
+            echo '<div class="tt-tournament-wizard"><p class="tt-notice">' . esc_html__( 'No anchor team picked. Go back to the Basics step.', 'talenttrack' ) . '</p></div>';
             return;
         }
 
         global $wpdb; $p = $wpdb->prefix;
         $players = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, first_name, last_name, preferred_positions
+            "SELECT id, first_name, last_name, preferred_positions, status
                FROM {$p}tt_players
               WHERE team_id = %d AND club_id = %d AND archived_at IS NULL
            ORDER BY last_name ASC, first_name ASC",
@@ -40,51 +68,77 @@ final class SquadStep implements WizardStepInterface {
         ) ) ?: [];
 
         if ( ! $players ) {
-            echo '<p class="tt-notice">' . esc_html__( 'The chosen team has no active players. Add players to the team first.', 'talenttrack' ) . '</p>';
+            echo '<div class="tt-tournament-wizard"><p class="tt-notice">' . esc_html__( 'The chosen team has no active players. Add players to the team first.', 'talenttrack' ) . '</p></div>';
             return;
         }
 
         $squad_state = is_array( $state['squad'] ?? null ) ? $state['squad'] : [];
-        // Index existing state by player_id for quick lookup.
+        $is_first_visit = empty( $squad_state );
         $by_id = [];
         foreach ( $squad_state as $row ) {
             $pid = (int) ( $row['player_id'] ?? 0 );
             if ( $pid > 0 ) $by_id[ $pid ] = $row;
         }
 
-        $position_types = [
-            'GK'  => __( 'Goalkeeper', 'talenttrack' ),
-            'DEF' => __( 'Defender',   'talenttrack' ),
-            'MID' => __( 'Midfielder', 'talenttrack' ),
-            'FWD' => __( 'Forward',    'talenttrack' ),
-        ];
+        $position_codes = self::positionCodes();
 
-        echo '<p>' . esc_html__( 'Tick the players in the squad and mark which position types each can play.', 'talenttrack' ) . '</p>';
-        echo '<ul class="tt-wizard-squad-list" style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px;">';
+        echo '<div class="tt-tournament-wizard">';
+        echo '<p class="ttw-step-desc">' . esc_html__( 'Tick the players in the squad and mark which specific positions each can play. Trial players are unchecked by default — tick them only if they are joining.', 'talenttrack' ) . '</p>';
+        echo '<div class="ttw-card" data-ttw-squad>';
+
+        // Toolbar — search + count + Mark-all-present.
+        echo '<div class="ttw-squad-toolbar">';
+        echo '<div class="ttw-search">';
+        echo '<label class="screen-reader-text" for="ttw-squad-search">' . esc_html__( 'Filter by name', 'talenttrack' ) . '</label>';
+        echo '<input type="text" id="ttw-squad-search" data-ttw-squad-search placeholder="' . esc_attr__( 'Filter by name…', 'talenttrack' ) . '" inputmode="search">';
+        echo '</div>';
+        echo '<span class="ttw-count" data-ttw-squad-count><strong>0</strong> ' . esc_html__( 'in squad', 'talenttrack' ) . '</span>';
+        echo '<button type="button" class="tt-button tt-button-secondary" data-ttw-mark-all>' . esc_html__( 'Mark all present', 'talenttrack' ) . '</button>';
+        echo '</div>';
+
+        echo '<ul class="ttw-squad-list">';
         foreach ( $players as $pl ) {
             $pid   = (int) $pl->id;
             $name  = trim( ( (string) $pl->first_name ) . ' ' . ( (string) $pl->last_name ) );
             $row   = $by_id[ $pid ] ?? null;
-            $checked = $row !== null;
-            $positions = is_array( $row['eligible_positions'] ?? null ) ? $row['eligible_positions'] : self::defaultsFor( (string) $pl->preferred_positions );
+            $is_trial = ( (string) $pl->status === 'trial' );
+            // First-visit default: active players checked, trial unchecked.
+            $checked = $row !== null
+                ? true
+                : ( $is_first_visit && ! $is_trial );
+            $positions = is_array( $row['eligible_positions'] ?? null )
+                ? $row['eligible_positions']
+                : self::defaultsFor( (string) $pl->preferred_positions );
 
-            echo '<li class="tt-wizard-squad-row" style="padding:8px;border:1px solid var(--tt-line, #e2e8f0);border-radius:6px;">';
-            echo '<label style="display:flex;align-items:center;gap:8px;font-weight:600;">';
-            echo '<input type="checkbox" name="squad_in[]" value="' . esc_attr( (string) $pid ) . '" ' . checked( $checked, true, false ) . '> ';
-            echo esc_html( $name );
-            echo '</label>';
-            echo '<div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:10px;font-size:13px;">';
-            foreach ( $position_types as $code => $label ) {
-                $is_pos = in_array( $code, $positions, true );
-                echo '<label style="display:inline-flex;align-items:center;gap:4px;">';
-                echo '<input type="checkbox" name="squad_positions[' . esc_attr( (string) $pid ) . '][]" value="' . esc_attr( $code ) . '" ' . checked( $is_pos, true, false ) . '> ';
-                echo esc_html( $label );
-                echo '</label>';
+            $name_for_filter = esc_attr( $name );
+            $trial_attr = $is_trial ? ' data-trial="1"' : '';
+            echo '<li class="ttw-squad-row" data-name="' . $name_for_filter . '"' . $trial_attr . '>';
+
+            echo '<span class="ttw-row-check">';
+            echo '<input type="checkbox" id="ttw-squad-in-' . esc_attr( (string) $pid ) . '" name="squad_in[]" value="' . esc_attr( (string) $pid ) . '" ' . checked( $checked, true, false ) . '>';
+            echo '</span>';
+
+            echo '<div class="ttw-name-block">';
+            echo '<label class="ttw-name" for="ttw-squad-in-' . esc_attr( (string) $pid ) . '">' . esc_html( $name ) . '</label>';
+            if ( $is_trial ) {
+                echo ' <span class="ttw-trial-badge">' . esc_html__( 'Trial', 'talenttrack' ) . '</span>';
             }
             echo '</div>';
+
+            echo '<div class="ttw-positions" role="group" aria-label="' . esc_attr__( 'Eligible positions', 'talenttrack' ) . '">';
+            foreach ( $position_codes as $code => $code_label ) {
+                $is_pos = in_array( $code, $positions, true );
+                $cb_id  = 'ttw-squad-pos-' . $pid . '-' . strtolower( $code );
+                echo '<input type="checkbox" id="' . esc_attr( $cb_id ) . '" name="squad_positions[' . esc_attr( (string) $pid ) . '][]" value="' . esc_attr( $code ) . '" ' . checked( $is_pos, true, false ) . ' hidden>';
+                echo '<span class="ttw-pos-chip" data-target="' . esc_attr( $cb_id ) . '" title="' . esc_attr( $code_label ) . '">' . esc_html( $code ) . '</span>';
+            }
+            echo '</div>';
+
             echo '</li>';
         }
         echo '</ul>';
+        echo '</div>'; // card
+        echo '</div>'; // tournament-wizard
     }
 
     public function validate( array $post, array $state ) {
@@ -98,7 +152,7 @@ final class SquadStep implements WizardStepInterface {
             ? $post['squad_positions']
             : [];
 
-        $allowed = [ 'GK', 'DEF', 'MID', 'FWD' ];
+        $allowed = array_keys( self::positionCodes() );
         $squad = [];
         foreach ( $picked as $pid ) {
             if ( $pid <= 0 ) continue;
@@ -123,27 +177,33 @@ final class SquadStep implements WizardStepInterface {
     public function submit( array $state ) { return null; }
 
     /**
-     * Derive default eligible-position TYPES from the player's
-     * `preferred_positions` JSON column. Heuristic mapping; a coach
-     * can always trim or expand in the checkbox grid.
+     * Derive default eligible positions from the player's
+     * `preferred_positions` JSON column. Maps loose codes (CDM → DM,
+     * CAM → AM, LWB → LB, etc.) to the canonical set so the chip row
+     * starts with sensible defaults the coach can tweak.
+     *
+     * @return array<int,string>
      */
     private static function defaultsFor( string $preferred_positions_json ): array {
         $decoded = json_decode( $preferred_positions_json, true );
         if ( ! is_array( $decoded ) ) return [];
         $map = [
             'GK' => 'GK',
-            'CB' => 'DEF', 'RB' => 'DEF', 'LB' => 'DEF', 'RCB' => 'DEF', 'LCB' => 'DEF', 'RWB' => 'DEF', 'LWB' => 'DEF',
-            'CM' => 'MID', 'CDM' => 'MID', 'DM' => 'MID', 'CAM' => 'MID', 'AM' => 'MID',
-            'RCM' => 'MID', 'LCM' => 'MID', 'RDM' => 'MID', 'LDM' => 'MID', 'RAM' => 'MID', 'LAM' => 'MID',
-            'RM' => 'MID', 'LM' => 'MID',
-            'ST' => 'FWD', 'RST' => 'FWD', 'LST' => 'FWD', 'CF' => 'FWD',
-            'RW' => 'FWD', 'LW' => 'FWD',
+            'CB' => 'CB', 'RCB' => 'CB', 'LCB' => 'CB',
+            'RB' => 'RB', 'RWB' => 'RB',
+            'LB' => 'LB', 'LWB' => 'LB',
+            'CDM' => 'DM', 'DM' => 'DM',
+            'CM' => 'CM', 'RCM' => 'CM', 'LCM' => 'CM',
+            'CAM' => 'AM', 'AM' => 'AM',
+            'LM' => 'LW', 'LW' => 'LW',
+            'RM' => 'RW', 'RW' => 'RW',
+            'ST' => 'ST', 'CF' => 'ST', 'RST' => 'ST', 'LST' => 'ST',
         ];
         $out = [];
         foreach ( $decoded as $pos ) {
             $up = strtoupper( (string) $pos );
-            $type = $map[ $up ] ?? '';
-            if ( $type !== '' && ! in_array( $type, $out, true ) ) $out[] = $type;
+            $mapped = $map[ $up ] ?? '';
+            if ( $mapped !== '' && ! in_array( $mapped, $out, true ) ) $out[] = $mapped;
         }
         return $out;
     }

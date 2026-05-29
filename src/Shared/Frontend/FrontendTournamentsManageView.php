@@ -229,6 +229,22 @@ class FrontendTournamentsManageView extends FrontendViewBase {
 
         $page_actions = [];
         if ( current_user_can( 'tt_edit_tournaments' ) ) {
+            // v4.8.0 (#975) — post-creation Add-match surface.
+            // BackLink::appendTo() captures the planner page as the
+            // Cancel target, so the user lands back here on cancel.
+            $add_match_url = add_query_arg(
+                [ 'tt_view' => 'tournament-match', 'action' => 'new', 'tournament_id' => (int) $tournament->id ],
+                $base_url
+            );
+            if ( class_exists( '\\TT\\Shared\\Frontend\\Components\\BackLink' ) ) {
+                $add_match_url = \TT\Shared\Frontend\Components\BackLink::appendTo( $add_match_url );
+            }
+            $page_actions[] = [
+                'label'   => __( 'Add match', 'talenttrack' ),
+                'href'    => $add_match_url,
+                'primary' => true,
+                'icon'    => '+',
+            ];
             $page_actions[] = [
                 'label' => __( 'Edit', 'talenttrack' ),
                 'href'  => $edit_url,

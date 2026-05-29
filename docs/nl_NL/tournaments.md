@@ -12,12 +12,16 @@ Toernooien zijn in v1 alleen beschikbaar voor de Academy Admin. Coaches en Head 
 
 1. Open de tegel **Toernooien** en tik op **+ Nieuw toernooi**.
 2. De wizard begeleidt je door vijf stappen:
-   - **Basis** — naam, anker-team, startdatum, optionele einddatum.
-   - **Formatie** — kies een standaardformatie (bijv. `1-3-4-3`). Per wedstrijd later overschrijven kan.
-   - **Selectie** — vink de spelers uit het anker-team aan, en kies per speler welke **positietypen** hij/zij kan spelen (Keeper, Verdediger, Middenvelder, Aanvaller). Voorkeuren van de speler vormen het startpunt.
-   - **Wedstrijden** — voeg minstens één wedstrijd toe. Per wedstrijd: label of tegenstandernaam, niveau tegenstander, duur in minuten, en de wisselmomenten ("`10`" voor één wissel halverwege, "`20, 40, 60`" voor een 80-min wedstrijd met drie wissels).
-   - **Bevestigen** — controleer het overzicht en **Aanmaken**.
+   - **Basis** — naam, anker-team, startdatum, optionele einddatum. Het formaat van het toernooi (7v7 / 9v9 / 11v11) wordt automatisch afgeleid uit de leeftijdsgroep van het anker-team; geen handmatige formaat-keuze.
+   - **Formatie** — kies een standaardformatie (bijv. `1-3-4-3`) uit een raster van radiokaarten. Elke kaart toont een klein dotglyph van de formatievorm. Per wedstrijd later overschrijven kan.
+   - **Selectie** — vink de spelers uit het anker-team aan, en tik per speler chips voor de **specifieke posities** die hij/zij kan spelen: KP · CV · LV · RV · DM · CM · AM · LB · RB · SP. Voorkeuren van de speler vormen het startpunt. Stagespelers verschijnen in de lijst met een `Trial`-label maar zijn standaard niet aangevinkt — tik op hun regel om ze toe te voegen. Een live teller boven de lijst leest "X in selectie · Y niet gekozen".
+   - **Wedstrijden** — elke wedstrijd is een eigen kaart met een volgnummercirkel en een live kopregel ("vs Den Helder JO13", "Finale", "Nieuwe wedstrijd — vul de tegenstander hieronder in"). Velden: label, tegenstander, niveau, formatie-override, duur, wisselmomenten. Wissels gebruiken een chip-editor: typ een minuut en druk op Enter of komma om een chip toe te voegen; Backspace vanuit een leeg veld verwijdert de laatste chip; tik × om er één te verwijderen. De hint "Waarden moeten 1–N zijn" werkt live mee terwijl je de duur verandert. Tik **+ Voeg nog een wedstrijd toe** om een lege kaart toe te voegen; **Verwijderen** laat de kaart vallen en hernummert de rest.
+   - **Bevestigen** — één kaart per voorgaande stap met een **Bewerk**-link rechtsboven die je terugbrengt naar die stap (alles wat je hebt ingevuld blijft bewaard). Tik daarna **Toernooi aanmaken**.
 3. Je komt op de detailpagina van het toernooi terecht.
+
+### Een wedstrijd toevoegen na aanmaken
+
+De detailpagina toont een **+ Wedstrijd toevoegen**-knop naast **Bewerk**. Die opent een los formulier (hetzelfde raster en dezelfde chip-editor als de Wedstrijden-stap van de wizard) met één extra keuzemenu: **Positie in volgorde**. Kies "Invoegen aan het einde" of een "Invoegen voor wedstrijd N"-optie om de nieuwe wedstrijd op de juiste plek in te schuiven; bestaande wedstrijden schuiven hun `sequence` op.
 
 ## Wisselmomenten — wat ze betekenen
 
