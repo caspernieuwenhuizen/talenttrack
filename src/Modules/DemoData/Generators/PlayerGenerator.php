@@ -3,6 +3,7 @@ namespace TT\Modules\DemoData\Generators;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\PlayerStatus;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\DemoData\DemoBatchRegistry;
@@ -144,7 +145,7 @@ class PlayerGenerator {
                     'team_id'             => (int) $team->id,
                     'date_joined'         => $date_joined,
                     'wp_user_id'          => $wp_user_id,
-                    'status'              => 'active',
+                    'status'              => PlayerStatus::ACTIVE,
                 ] );
                 $player_id = (int) $wpdb->insert_id;
 
@@ -156,7 +157,7 @@ class PlayerGenerator {
                     do_action( 'tt_player_created', $player_id, [
                         'date_joined' => $date_joined,
                         'team_id'     => (int) $team->id,
-                        'status'      => 'active',
+                        'status'      => PlayerStatus::ACTIVE,
                     ] );
                 }
 

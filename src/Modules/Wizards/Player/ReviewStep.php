@@ -3,6 +3,7 @@ namespace TT\Modules\Wizards\Player;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\PlayerStatus;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Shared\Wizards\WizardStepInterface;
 
@@ -78,7 +79,7 @@ final class ReviewStep implements WizardStepInterface {
             'last_name'     => $last,
             'date_of_birth' => $state['date_of_birth'] ?? null,
             'team_id'       => (int) ( $state['team_id'] ?? 0 ),
-            'status'        => $path === 'trial' ? 'trial' : 'active',
+            'status'        => $path === 'trial' ? PlayerStatus::TRIAL : PlayerStatus::ACTIVE,
         ];
         if ( $path === 'roster' ) {
             $insert['jersey_number']  = $state['jersey_number'] ?? null;

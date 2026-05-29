@@ -3,6 +3,7 @@ namespace TT\Shared\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\PlayerStatus;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Trials\Repositories\TrialCasesRepository;
@@ -90,7 +91,7 @@ class FrontendTrialsManageView extends FrontendViewBase {
                     'first_name'    => $new_first,
                     'last_name'     => $new_last,
                     'date_of_birth' => $new_dob,
-                    'status'        => 'trial',
+                    'status'        => PlayerStatus::TRIAL,
                     'created_at'    => current_time( 'mysql' ),
                     'updated_at'    => current_time( 'mysql' ),
                 ] );
@@ -126,7 +127,7 @@ class FrontendTrialsManageView extends FrontendViewBase {
 
         // Mark player as trial.
         global $wpdb;
-        $wpdb->update( $wpdb->prefix . 'tt_players', [ 'status' => 'trial' ], [ 'id' => $player_id, 'club_id' => CurrentClub::id() ] );
+        $wpdb->update( $wpdb->prefix . 'tt_players', [ 'status' => PlayerStatus::TRIAL ], [ 'id' => $player_id, 'club_id' => CurrentClub::id() ] );
 
         // Initial staff assignments (parallel arrays).
         $staff_ids   = isset( $_POST['staff_user_id'] )    ? (array) $_POST['staff_user_id']    : [];

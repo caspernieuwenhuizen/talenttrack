@@ -4,6 +4,7 @@ namespace TT\Infrastructure\Journey;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Domain\Vocabularies\Lookups\JourneyEventType;
+use TT\Domain\Vocabularies\Lookups\PlayerStatus;
 use TT\Domain\Vocabularies\Lookups\TrialCaseDecision;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
@@ -217,11 +218,11 @@ final class JourneyEventSubscriber {
         $synthetic_id = (int) ( ( $player_id * 100 ) + crc32( $new ) % 100 );
         $now = current_time( 'mysql' );
 
-        if ( $new === 'active' && $old === 'trial' ) {
+        if ( $new === PlayerStatus::ACTIVE && $old === PlayerStatus::TRIAL ) {
             EventEmitter::emit( $player_id, JourneyEventType::SIGNED, $now, __( 'Signed', 'talenttrack' ), [], 'Players', 'status_signed', $synthetic_id );
-        } elseif ( $new === 'released' ) {
+        } elseif ( $new === PlayerStatus::RELEASED ) {
             EventEmitter::emit( $player_id, JourneyEventType::RELEASED, $now, __( 'Released', 'talenttrack' ), [ 'context' => 'mid_season' ], 'Players', 'status_released', $synthetic_id );
-        } elseif ( $new === 'graduated' ) {
+        } elseif ( $new === PlayerStatus::GRADUATED ) {
             EventEmitter::emit( $player_id, JourneyEventType::GRADUATED, $now, __( 'Graduated', 'talenttrack' ), [], 'Players', 'status_graduated', $synthetic_id );
         }
     }

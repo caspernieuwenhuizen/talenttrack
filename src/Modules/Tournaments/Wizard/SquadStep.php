@@ -3,6 +3,7 @@ namespace TT\Modules\Tournaments\Wizard;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\PlayerStatus;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Shared\Wizards\WizardStepInterface;
 
@@ -101,7 +102,7 @@ final class SquadStep implements WizardStepInterface {
             $pid   = (int) $pl->id;
             $name  = trim( ( (string) $pl->first_name ) . ' ' . ( (string) $pl->last_name ) );
             $row   = $by_id[ $pid ] ?? null;
-            $is_trial = ( (string) $pl->status === 'trial' );
+            $is_trial = ( (string) $pl->status === PlayerStatus::TRIAL );
             // First-visit default: active players checked, trial unchecked.
             $checked = $row !== null
                 ? true

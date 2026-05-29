@@ -3,6 +3,7 @@ namespace TT\Infrastructure\Query;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\PlayerStatus;
 use TT\Modules\I18n\TranslatableFieldRegistry;
 use TT\Modules\I18n\TranslationsRepository;
 
@@ -40,12 +41,13 @@ class LabelTranslator {
 
     public static function playerStatus( string $code ): string {
         switch ( $code ) {
-            case 'active':   return __( 'Active', 'talenttrack' );
-            case 'inactive': return __( 'Inactive', 'talenttrack' );
-            case 'trial':    return __( 'Trial', 'talenttrack' );
-            case 'released': return __( 'Released', 'talenttrack' );
-            case 'deleted':  return __( 'Deleted', 'talenttrack' );
-            default:         return self::humanise( $code );
+            case PlayerStatus::ACTIVE:    return __( 'Active', 'talenttrack' );
+            case PlayerStatus::INACTIVE:  return __( 'Inactive', 'talenttrack' );
+            case PlayerStatus::TRIAL:     return __( 'Trial', 'talenttrack' );
+            case PlayerStatus::RELEASED:  return __( 'Released', 'talenttrack' );
+            case PlayerStatus::GRADUATED: return __( 'Graduated', 'talenttrack' );
+            case 'deleted':               return __( 'Deleted', 'talenttrack' );
+            default:                      return self::humanise( $code );
         }
     }
 

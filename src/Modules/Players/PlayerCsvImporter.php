@@ -3,6 +3,7 @@ namespace TT\Modules\Players;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\PlayerStatus;
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
@@ -376,7 +377,7 @@ class PlayerCsvImporter {
             'guardian_name'       => sanitize_text_field( (string) ( $row['guardian_name'] ?? '' ) ),
             'guardian_email'      => sanitize_email( (string) ( $row['guardian_email'] ?? '' ) ),
             'guardian_phone'      => sanitize_text_field( (string) ( $row['guardian_phone'] ?? '' ) ),
-            'status'              => sanitize_text_field( (string) ( $row['status'] ?? 'active' ) ),
+            'status'              => sanitize_text_field( (string) ( $row['status'] ?? PlayerStatus::ACTIVE ) ),
         ];
     }
 
