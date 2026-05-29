@@ -199,14 +199,6 @@ class FrontendConfigurationView extends FrontendViewBase {
             [ __( 'Scheduled report frequencies', 'talenttrack' ), __( 'Weekly (Monday) / monthly (1st) / season end — cadence for scheduled CSV exports.', 'talenttrack' ), 'scheduled_report_frequencies', 'reports' ],
             [ __( 'Scheduled report statuses', 'talenttrack' ), __( 'Active / paused / archived — scheduled report lifecycle.', 'talenttrack' ), 'scheduled_report_statuses', 'audit-log' ],
             [ __( 'Rating scale',       'talenttrack' ), __( 'Min, max and step for evaluation ratings.',                         'talenttrack' ), '__rating',        'weights' ],
-            // #982 — surface the hierarchical eval-categories tree editor
-            // from the lookups grid. Categories don't live in `tt_lookups`
-            // (parent/child hierarchy doesn't fit the flat shape), so this
-            // tile bypasses the per-category lookup editor and links
-            // straight to `?tt_view=eval-categories`. Label + description
-            // mirror the wp-admin Configuration → Evaluation Categories
-            // tile so operators see the same vocabulary across surfaces.
-            [ __( 'Evaluation Categories', 'talenttrack' ), __( 'Hierarchy of evaluation categories (Technical, Tactical, …).', 'talenttrack' ), '__eval_categories', 'evaluations' ],
         ];
 
         echo '<p style="margin-bottom:var(--tt-sp-4); color:var(--tt-muted);">';
@@ -218,11 +210,6 @@ class FrontendConfigurationView extends FrontendViewBase {
             list( $title, $desc, $slug, $icon ) = $row;
             if ( $slug === '__rating' ) {
                 $url = $rating_url;
-            } elseif ( $slug === '__eval_categories' ) {
-                // #982 — link out to the standalone tree editor; the
-                // hierarchy doesn't fit the `tt_lookups` per-category
-                // editor that the other tiles share.
-                $url = add_query_arg( [ 'tt_view' => 'eval-categories' ], home_url( '/' ) );
             } else {
                 $url = add_query_arg( [ 'config_sub' => 'lookups', 'category' => $slug ], $base );
             }
@@ -323,26 +310,39 @@ class FrontendConfigurationView extends FrontendViewBase {
     }
 
     /**
-     * v3.110.190 (#798) — every locale the operator might want to
-     * maintain a translation for. Returns the union of WP-installed
-     * locales + the plugin-shipped `.po` set + the site locale, minus
-     * `en_US` (which is the canonical name field above the translations
-     * block — English isn't a "translation" of itself).
+     * v4.8.0 (#985) — every locale the operator maintains a translation
+     * for, INCLUDING `en_US`. The `tt_lookups.name` column is now
+     * presented as an immutable internal key; the canonical English
+     * display value lives in `tt_translations` alongside the other
+     * locales, so the grid surfaces `en_US` as a first-class row.
      *
-     * Was previously a narrower set scoped to `get_available_languages()`
-     * minus the current locale; that excluded both fr/de/es (the plugin
-     * ships .po files for them but WP wasn't told to install them) and
-     * the current locale itself (so a Dutch site with English canonical
-     * names had nowhere to enter the Dutch override).
+     * Order: site locale first (Q2), then `en_US` if not the site
+     * locale, then the remaining installed locales in stable order.
+     * Q1's "site-locale-first" coverage-dot order on the list rail
+     * mirrors this same ordering for consistency.
      *
      * @return list<string>
      */
     private static function translationTargets(): array {
-        $locales = \TT\Infrastructure\Query\LookupTranslator::installedLocales();
+        $installed = \TT\Infrastructure\Query\LookupTranslator::installedLocales();
+        $site      = function_exists( 'get_locale' ) ? (string) get_locale() : 'en_US';
+        if ( $site === '' ) $site = 'en_US';
+
         $out = [];
-        foreach ( $locales as $loc ) {
-            if ( $loc === 'en_US' ) continue; // canonical name field handles English.
-            $out[] = $loc;
+        // 1. Site locale first.
+        if ( in_array( $site, $installed, true ) ) {
+            $out[] = $site;
+        }
+        // 2. en_US second (always include — operator can author canonical
+        //    English here even when the site locale is something else).
+        if ( ! in_array( 'en_US', $out, true ) ) {
+            $out[] = 'en_US';
+        }
+        // 3. Remaining installed locales in stable (alpha) order.
+        foreach ( $installed as $loc ) {
+            if ( ! in_array( $loc, $out, true ) ) {
+                $out[] = $loc;
+            }
         }
         return array_values( array_unique( $out ) );
     }
@@ -353,19 +353,25 @@ class FrontendConfigurationView extends FrontendViewBase {
     }
 
     /**
-     * v3.74.3 — frontend CRUD editor for one lookup category.
-     * Lists current rows; offers an inline Add form; opens an Edit
-     * form when `?edit=<id>` is on the URL. Save / delete go through
-     * the existing `LookupsRestController` endpoints, so authorisation
-     * + tenancy + audit logging stay centralised.
+     * Frontend CRUD editor for one lookup category — list-first layout
+     * per `.local-mockups/lookup-admin/index.html` (#985).
      *
-     * v3.110.203 (#830) — rewritten as a master-detail layout: a left
-     * rail lists every row, a right pane shows the edit-or-add form.
-     * Above 768px the two render side by side; below 768px they stack
-     * and clicking a row scrolls the pane into view. Row clicks populate
-     * the form in-place (no page reload) by reading data-* attributes
-     * baked into each row at render time. Translations are bulk-loaded
-     * server-side in one SELECT so the JS round-trip is also avoided.
+     * The view defaults to a clean list of values. `+ Add value` opens
+     * an empty form. Clicking a row opens the form populated with the
+     * row's data and translations. Both forms emit the canonical Save +
+     * Cancel pair via `FormSaveButton::render( cancel_url: … )` so the
+     * CLAUDE.md §6 contract is honoured.
+     *
+     * Save / delete go through the existing `LookupsRestController`
+     * endpoints — authorisation + tenancy + audit logging stay
+     * centralised. The on-row coverage dots reflect `tt_translations`
+     * state for the 5 supported locales (Q5: "name set" only; description
+     * is optional and doesn't gate the dot).
+     *
+     * Internal key (the `name` column) is immutable on existing rows
+     * per Q4 — display value lives in `tt_translations`, the `name`
+     * column is a stable database identifier. New rows can set it once;
+     * existing rows render the field disabled.
      *
      * @param array{label:string,type:string,show_desc:bool,show_color:bool,slug:string} $meta
      */
@@ -380,19 +386,461 @@ class FrontendConfigurationView extends FrontendViewBase {
             }
         }
 
-        // v3.110.203 — one bulk SELECT for translations across every
-        // row in the rail. Keyed by `lookup_id => locale => field => value`
-        // so the JS row-click handler can populate the per-locale inputs
-        // without a REST round-trip. Empty when no rows.
-        $tx_by_row = self::loadTranslationsForLookupIds(
+        // One bulk SELECT for translations across every row in the list
+        // (#0090 Phase 6 / v3.110.203 pattern). Keyed
+        // `lookup_id => locale => field => value` so the JS row-click
+        // handler can populate the per-locale inputs without a REST
+        // round-trip. Empty when no rows exist yet.
+        $tx_by_row  = self::loadTranslationsForLookupIds(
             array_map( fn( $r ) => (int) $r->id, $items )
         );
         $tx_targets = self::translationTargets();
+        $site_locale = function_exists( 'get_locale' ) ? (string) get_locale() : 'en_US';
 
         $base   = remove_query_arg( [ 'edit' ] );
         $add_id = 'tt-lkp-' . sanitize_html_class( $meta['slug'] );
 
-        self::masterDetailStyles();
+        $initial_state = $editing ? 'edit' : 'list';
+
+        // Enqueue the dedicated stylesheet + module. Mobile-first
+        // (CLAUDE.md §2); the inline `masterDetailStyles()` and inline
+        // IIFE are gone — the new layout owns its own files.
+        wp_enqueue_style(
+            'tt-frontend-lookup-admin',
+            TT_PLUGIN_URL . 'assets/css/frontend-lookup-admin.css',
+            [],
+            TT_VERSION
+        );
+        wp_enqueue_script(
+            'tt-frontend-lookup-admin',
+            TT_PLUGIN_URL . 'assets/js/components/lookup-admin.js',
+            [],
+            TT_VERSION,
+            true
+        );
+
+        $js_config = [
+            'rest_base'   => esc_url_raw( rest_url( 'talenttrack/v1' ) ) . '/',
+            'nonce'       => wp_create_nonce( 'wp_rest' ),
+            'lookup_type' => $type,
+            'show_desc'   => (bool) $meta['show_desc'],
+            'show_color'  => (bool) $meta['show_color'],
+            'locales'     => $tx_targets,
+            'site_locale' => $site_locale,
+            'source_lang' => substr( $site_locale, 0, 2 ),
+            'i18n'        => [
+                'add'              => __( 'Add value', 'talenttrack' ),
+                'save'             => __( 'Save changes', 'talenttrack' ),
+                'saving'           => __( 'Saving…', 'talenttrack' ),
+                'translating'      => __( 'Translating…', 'talenttrack' ),
+                'translated'       => __( 'Translated. Review and edit before saving.', 'talenttrack' ),
+                'err_name_required'=> __( 'Internal key is required.', 'talenttrack' ),
+                'err_enter_name'   => __( 'Enter a name first.', 'talenttrack' ),
+                'confirm_delete'   => __( 'Delete this row?', 'talenttrack' ),
+                'error'            => __( 'Error', 'talenttrack' ),
+                'network_error'    => __( 'Network error.', 'talenttrack' ),
+            ],
+        ];
+        ?>
+        <div class="tt-lkp-admin"
+             data-tt-lkp-admin
+             data-state="<?php echo esc_attr( $initial_state ); ?>"
+             data-tt-lkp-config="<?php echo esc_attr( (string) wp_json_encode( $js_config ) ); ?>">
+
+            <?php self::renderLookupListView( $meta, $items, $tx_by_row, $tx_targets, $site_locale ); ?>
+
+            <?php self::renderLookupFormViews( $meta, $editing, $tx_by_row, $tx_targets, $site_locale, $add_id, $base ); ?>
+        </div>
+        <?php
+    }
+
+    /**
+     * List view — clean roster of values + `+ Add value` button. No
+     * form rendered. Drag-reorder wiring still works because each row
+     * still carries `data-tt-sortable` ancestry via the `tt-sortable-table`
+     * class — the existing `DragReorder` wp-admin endpoint is unchanged.
+     *
+     * @param array{label:string,type:string,show_desc:bool,show_color:bool,slug:string} $meta
+     * @param array<int,object> $items
+     * @param array<int, array<string, array<string, string>>> $tx_by_row
+     * @param list<string> $tx_targets
+     */
+    private static function renderLookupListView( array $meta, array $items, array $tx_by_row, array $tx_targets, string $site_locale ): void {
+        $count = count( $items );
+        ?>
+        <section class="tt-lkp-view tt-lkp-view-list" aria-label="<?php esc_attr_e( 'Lookup values', 'talenttrack' ); ?>">
+            <div class="tt-lkp-card">
+                <div class="tt-lkp-list-header">
+                    <p class="tt-lkp-list-meta">
+                        <?php
+                        printf(
+                            /* translators: %d = number of lookup values */
+                            esc_html( _n( '%d value · tap a row to edit', '%d values · tap a row to edit', $count, 'talenttrack' ) ),
+                            (int) $count
+                        );
+                        ?>
+                    </p>
+                    <button type="button"
+                            class="tt-lkp-btn tt-lkp-btn-primary tt-lkp-btn-add"
+                            data-tt-lkp-go="add">
+                        <?php esc_html_e( '+ Add value', 'talenttrack' ); ?>
+                    </button>
+                </div>
+
+                <?php if ( empty( $items ) ) : ?>
+                    <p class="tt-lkp-empty">
+                        <em><?php esc_html_e( 'No values yet. Tap "+ Add value" to seed the first row.', 'talenttrack' ); ?></em>
+                    </p>
+                <?php else : ?>
+                    <ul class="tt-lkp-list tt-sortable-table" data-tt-sortable="1">
+                        <?php foreach ( $items as $row ) :
+                            $row_meta_arr = QueryHelpers::lookup_meta( $row );
+                            $row_color    = is_string( $row_meta_arr['color'] ?? null ) ? (string) $row_meta_arr['color'] : '';
+                            $is_locked    = ! empty( $row_meta_arr['is_locked'] );
+                            $row_id       = (int) $row->id;
+                            $row_tx       = $tx_by_row[ $row_id ] ?? [];
+                            ?>
+                            <li class="tt-lkp-row"
+                                data-id="<?php echo (int) $row_id; ?>"
+                                data-tt-lkp-row
+                                role="button"
+                                tabindex="0"
+                                data-row-name="<?php echo esc_attr( (string) $row->name ); ?>"
+                                data-row-sort="<?php echo (int) $row->sort_order; ?>"
+                                data-row-desc="<?php echo esc_attr( (string) ( $row->description ?? '' ) ); ?>"
+                                data-row-color="<?php echo esc_attr( $row_color ); ?>"
+                                data-row-locked="<?php echo $is_locked ? '1' : '0'; ?>"
+                                data-row-tx="<?php echo esc_attr( (string) wp_json_encode( $row_tx ) ); ?>">
+                                <span class="tt-lkp-row-grip tt-drag-handle"
+                                      title="<?php esc_attr_e( 'Drag to reorder', 'talenttrack' ); ?>"
+                                      aria-hidden="true">⋮⋮</span>
+                                <?php if ( $meta['show_color'] && $row_color !== '' ) : ?>
+                                    <span class="tt-lkp-row-swatch" style="background:<?php echo esc_attr( $row_color ); ?>" aria-hidden="true"></span>
+                                <?php else : ?>
+                                    <span class="tt-lkp-row-swatch-blank" aria-hidden="true"></span>
+                                <?php endif; ?>
+                                <span class="tt-lkp-row-label">
+                                    <?php echo esc_html( \TT\Infrastructure\Query\LookupTranslator::name( $row ) ); ?>
+                                    <span class="tt-lkp-row-key"><?php echo esc_html( (string) $row->name ); ?></span>
+                                    <?php if ( $is_locked ) : ?>
+                                        <span class="tt-lkp-row-lock" title="<?php esc_attr_e( 'Locked — workflow rules depend on this row.', 'talenttrack' ); ?>" aria-label="<?php esc_attr_e( 'Locked', 'talenttrack' ); ?>">🔒</span>
+                                    <?php endif; ?>
+                                </span>
+                                <?php
+                                // Coverage dots — site locale first per Q2,
+                                // then en_US, then remaining locales. Q5:
+                                // dot = "name set" only (description is
+                                // optional and doesn't gate coverage).
+                                ?>
+                                <span class="tt-lkp-coverage" title="<?php esc_attr_e( 'Translation coverage', 'talenttrack' ); ?>">
+                                    <?php foreach ( $tx_targets as $locale ) :
+                                        $has_name = isset( $row_tx[ $locale ]['name'] ) && (string) $row_tx[ $locale ]['name'] !== '';
+                                        // On a fresh install where en_US
+                                        // hasn't been backfilled yet, treat
+                                        // the row's `name` column as the
+                                        // English seed so the dot doesn't
+                                        // misread an unmigrated row as
+                                        // "missing English".
+                                        if ( $locale === 'en_US' && ! $has_name ) {
+                                            $has_name = ( (string) $row->name ) !== '';
+                                        }
+                                        $dot_class = $has_name ? 'tt-lkp-dot is-set' : 'tt-lkp-dot is-missing';
+                                        $label_short = substr( $locale, 0, 2 );
+                                        $title_str   = $has_name
+                                            ? sprintf( esc_html__( '%s — set', 'talenttrack' ), $locale )
+                                            : sprintf( esc_html__( '%s — missing', 'talenttrack' ), $locale );
+                                        ?>
+                                        <span class="<?php echo esc_attr( $dot_class ); ?>"
+                                              data-locale="<?php echo esc_attr( $locale ); ?>"
+                                              title="<?php echo esc_attr( $title_str ); ?>"
+                                              aria-label="<?php echo esc_attr( $title_str ); ?>"></span>
+                                        <?php
+                                        // Suppress unused-variable lint
+                                        // for legibility helpers.
+                                        unset( $label_short );
+                                    endforeach; ?>
+                                </span>
+                                <span class="tt-lkp-row-sort tt-sort-order-cell"><?php echo (int) $row->sort_order; ?></span>
+                                <?php if ( ! $is_locked ) : ?>
+                                    <button type="button"
+                                            class="tt-lkp-row-delete"
+                                            data-tt-lkp-delete="<?php echo (int) $row_id; ?>"
+                                            data-tt-lkp-name="<?php echo esc_attr( (string) $row->name ); ?>"
+                                            title="<?php esc_attr_e( 'Delete', 'talenttrack' ); ?>"
+                                            aria-label="<?php esc_attr_e( 'Delete', 'talenttrack' ); ?>">×</button>
+                                <?php else : ?>
+                                    <span class="tt-lkp-row-delete-spacer" aria-hidden="true"></span>
+                                <?php endif; ?>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php endif; ?>
+            </div>
+            <?php
+            // Drag-reorder script targets `data-tt-sortable` and hits
+            // the existing wp-admin endpoint — unchanged from prior
+            // versions, so the operator's saved sort order keeps working.
+            \TT\Shared\Admin\DragReorder::renderScript( 'lookup', $meta['type'] );
+            ?>
+            <?php if ( ! empty( $items ) && ! empty( $tx_targets ) ) : ?>
+                <p class="tt-lkp-list-footer">
+                    <?php
+                    printf(
+                        /* translators: %s = comma-separated list of locale codes */
+                        esc_html__( 'Coverage dots show translation status for %s. Filled = set; warning = missing.', 'talenttrack' ),
+                        esc_html( implode( ' · ', $tx_targets ) )
+                    );
+                    ?>
+                </p>
+            <?php endif; ?>
+            <?php
+            // Suppress unused-arg lint while keeping the signature stable.
+            unset( $site_locale );
+            ?>
+        </section>
+        <?php
+    }
+
+    /**
+     * Form views — one shared form scaffolds both Add and Edit. The JS
+     * rewrites input values + the data-state on the root to switch
+     * between them. Footer follows the CLAUDE.md §6 Save+Cancel contract
+     * via `FormSaveButton::render()` with a `cancel_url` that drops
+     * `?edit=` so a Cancel from edit lands on the list view of the
+     * same category.
+     *
+     * @param array{label:string,type:string,show_desc:bool,show_color:bool,slug:string} $meta
+     * @param object|null $editing
+     * @param array<int, array<string, array<string, string>>> $tx_by_row
+     * @param list<string> $tx_targets
+     */
+    private static function renderLookupFormViews( array $meta, ?object $editing, array $tx_by_row, array $tx_targets, string $site_locale, string $add_id, string $base ): void {
+        $existing_translations = $editing ? ( $tx_by_row[ (int) $editing->id ] ?? [] ) : [];
+        $existing_meta_arr     = $editing ? QueryHelpers::lookup_meta( $editing ) : [];
+        $existing_color        = is_string( $existing_meta_arr['color'] ?? null )
+            ? (string) $existing_meta_arr['color']
+            : '#5b6e75';
+
+        // Same markup serves both add + edit. `data-state` on the
+        // root toggles which `tt-lkp-view-*` wrapper is visible.
+        $heading_id_add  = $add_id . '-add-heading';
+        $heading_id_edit = $add_id . '-edit-heading';
+
+        // Two separate `<section>` wrappers, one form inside each, so
+        // CSS view toggling is straightforward and aria labels stay
+        // accurate. The JS targets `[data-tt-lkp-form]` which is the
+        // edit form when the form view is "edit" (server-rendered with
+        // the editing row's values) and the add form when "add".
+        ?>
+        <?php // ========================  ADD VIEW  ======================== ?>
+        <section class="tt-lkp-view tt-lkp-view-add" aria-labelledby="<?php echo esc_attr( $heading_id_add ); ?>">
+            <?php if ( ! $editing ) : ?>
+                <?php self::renderLookupForm( $meta, null, [], $tx_targets, $site_locale, $add_id, $base, $heading_id_add, '#5b6e75' ); ?>
+            <?php endif; ?>
+        </section>
+
+        <?php // ========================  EDIT VIEW  ======================== ?>
+        <section class="tt-lkp-view tt-lkp-view-edit" aria-labelledby="<?php echo esc_attr( $heading_id_edit ); ?>">
+            <?php if ( $editing ) : ?>
+                <?php self::renderLookupForm( $meta, $editing, $existing_translations, $tx_targets, $site_locale, $add_id, $base, $heading_id_edit, $existing_color ); ?>
+            <?php else :
+                // When no row is being edited, fall through to a blank
+                // edit-mode form so a row-click from the list can flip
+                // the view without an extra round-trip. The JS rewrites
+                // every input value before the view becomes visible.
+                self::renderLookupForm( $meta, null, [], $tx_targets, $site_locale, $add_id, $base, $heading_id_edit, '#5b6e75' );
+            endif; ?>
+        </section>
+        <?php
+    }
+
+    /**
+     * Single shared form renderer. Internal key is disabled on existing
+     * rows (Q4). Save + Cancel pair rendered via `FormSaveButton`.
+     *
+     * @param array{label:string,type:string,show_desc:bool,show_color:bool,slug:string} $meta
+     * @param array<string, array<string, string>> $existing_translations
+     * @param list<string> $tx_targets
+     */
+    private static function renderLookupForm( array $meta, ?object $editing, array $existing_translations, array $tx_targets, string $site_locale, string $add_id, string $base, string $heading_id, string $color_default ): void {
+        $is_edit = $editing !== null;
+        $field_classes = $meta['show_desc'] ? 'tt-lkp-tx-grid has-desc' : 'tt-lkp-tx-grid';
+        ?>
+        <form data-tt-lkp-form novalidate>
+            <input type="hidden" name="id" value="<?php echo (int) ( $editing->id ?? 0 ); ?>" data-tt-lkp-id />
+
+            <div class="tt-lkp-card">
+                <h2 id="<?php echo esc_attr( $heading_id ); ?>" class="tt-lkp-card-title">
+                    <?php echo $is_edit ? esc_html__( 'Edit value', 'talenttrack' ) : esc_html__( 'Add new value', 'talenttrack' ); ?>
+                </h2>
+                <div class="tt-lkp-form-grid">
+                    <div class="tt-lkp-field">
+                        <label for="<?php echo esc_attr( $add_id ); ?>-name" class="tt-lkp-field-required">
+                            <?php esc_html_e( 'Internal key', 'talenttrack' ); ?>
+                        </label>
+                        <input type="text"
+                               id="<?php echo esc_attr( $add_id ); ?>-name"
+                               name="name"
+                               value="<?php echo esc_attr( (string) ( $editing->name ?? '' ) ); ?>"
+                               autocomplete="off"
+                               inputmode="text"
+                               <?php echo $is_edit ? 'readonly disabled' : 'required'; ?> />
+                        <span class="tt-lkp-hint">
+                            <?php
+                            if ( $is_edit ) {
+                                esc_html_e( 'Stable database identifier. Locked once the row is created — change it via a code migration.', 'talenttrack' );
+                            } else {
+                                esc_html_e( 'Lowercase ASCII, no spaces. Used as the database identifier and cannot be changed later.', 'talenttrack' );
+                            }
+                            ?>
+                        </span>
+                    </div>
+                    <div class="tt-lkp-field">
+                        <label for="<?php echo esc_attr( $add_id ); ?>-sort">
+                            <?php esc_html_e( 'Sort order', 'talenttrack' ); ?>
+                        </label>
+                        <input type="number"
+                               id="<?php echo esc_attr( $add_id ); ?>-sort"
+                               name="sort_order"
+                               inputmode="numeric"
+                               min="0"
+                               step="1"
+                               value="<?php echo esc_attr( (string) ( $editing->sort_order ?? 0 ) ); ?>" />
+                    </div>
+                    <?php if ( $meta['show_color'] ) : ?>
+                        <div class="tt-lkp-field">
+                            <label for="<?php echo esc_attr( $add_id ); ?>-color">
+                                <?php esc_html_e( 'Pill colour', 'talenttrack' ); ?>
+                            </label>
+                            <input type="color"
+                                   id="<?php echo esc_attr( $add_id ); ?>-color"
+                                   name="meta[color]"
+                                   value="<?php echo esc_attr( $color_default ); ?>" />
+                            <span class="tt-lkp-hint">
+                                <?php esc_html_e( 'Used wherever this value renders as a colour-coded pill.', 'talenttrack' ); ?>
+                            </span>
+                        </div>
+                    <?php endif; ?>
+                    <?php if ( $meta['show_desc'] ) : ?>
+                        <div class="tt-lkp-field tt-lkp-field-full">
+                            <label for="<?php echo esc_attr( $add_id ); ?>-desc">
+                                <?php esc_html_e( 'Description (canonical, optional)', 'talenttrack' ); ?>
+                            </label>
+                            <input type="text"
+                                   id="<?php echo esc_attr( $add_id ); ?>-desc"
+                                   name="description"
+                                   value="<?php echo esc_attr( (string) ( $editing->description ?? '' ) ); ?>" />
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <?php if ( ! empty( $tx_targets ) ) : ?>
+                <div class="tt-lkp-card">
+                    <div class="tt-lkp-tx-head">
+                        <h3 class="tt-lkp-card-title" style="margin:0;">
+                            <?php
+                            printf(
+                                /* translators: %d = number of supported locales */
+                                esc_html__( 'Translations · %d locales', 'talenttrack' ),
+                                (int) count( $tx_targets )
+                            );
+                            ?>
+                        </h3>
+                        <p class="tt-lkp-tx-help">
+                            <?php esc_html_e( 'Every supported locale has a slot — including English, so the canonical value lives next to its translations. Site locale is highlighted; missing translations show a warning dot on the list.', 'talenttrack' ); ?>
+                        </p>
+                        <div class="tt-lkp-tx-actions">
+                            <button type="button" class="tt-lkp-btn" data-tt-lkp-translate>
+                                <?php esc_html_e( 'Translate from English', 'talenttrack' ); ?>
+                            </button>
+                            <span class="tt-lkp-tx-msg" data-tt-lkp-tx-msg></span>
+                        </div>
+                    </div>
+                    <div class="<?php echo esc_attr( $field_classes ); ?>">
+                        <?php foreach ( $tx_targets as $locale ) :
+                            $field_id_name = $add_id . '-tx-name-' . sanitize_html_class( $locale );
+                            $field_id_desc = $add_id . '-tx-desc-' . sanitize_html_class( $locale );
+                            $value_name = (string) ( $existing_translations[ $locale ]['name']        ?? '' );
+                            $value_desc = (string) ( $existing_translations[ $locale ]['description'] ?? '' );
+                            $is_site    = ( $locale === $site_locale );
+                            $cell_class = $is_site ? 'tt-lkp-tx-locale is-site' : 'tt-lkp-tx-locale';
+                            ?>
+                            <span class="<?php echo esc_attr( $cell_class ); ?>" aria-label="<?php echo esc_attr( $locale ); ?>">
+                                <?php echo esc_html( substr( $locale, 0, 2 ) ); ?>
+                            </span>
+                            <input type="text"
+                                   id="<?php echo esc_attr( $field_id_name ); ?>"
+                                   name="translations[<?php echo esc_attr( $locale ); ?>][name]"
+                                   value="<?php echo esc_attr( $value_name ); ?>"
+                                   data-tt-tx-locale="<?php echo esc_attr( $locale ); ?>"
+                                   data-tt-tx-field="name"
+                                   aria-label="<?php
+                                   printf(
+                                        /* translators: %s = locale code such as nl_NL */
+                                        esc_attr__( 'Label in %s', 'talenttrack' ),
+                                        esc_attr( $locale )
+                                   ); ?>"
+                                   placeholder="<?php esc_attr_e( 'Label', 'talenttrack' ); ?>" />
+                            <?php if ( $meta['show_desc'] ) : ?>
+                                <input type="text"
+                                       id="<?php echo esc_attr( $field_id_desc ); ?>"
+                                       class="tt-lkp-tx-cell-desc"
+                                       name="translations[<?php echo esc_attr( $locale ); ?>][description]"
+                                       value="<?php echo esc_attr( $value_desc ); ?>"
+                                       data-tt-tx-locale="<?php echo esc_attr( $locale ); ?>"
+                                       data-tt-tx-field="description"
+                                       aria-label="<?php
+                                       printf(
+                                            /* translators: %s = locale code such as nl_NL */
+                                            esc_attr__( 'Description in %s', 'talenttrack' ),
+                                            esc_attr( $locale )
+                                       ); ?>"
+                                       placeholder="<?php esc_attr_e( 'Description', 'talenttrack' ); ?>" />
+                            <?php else : ?>
+                                <span class="tt-lkp-tx-cell-desc" aria-hidden="true"></span>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            <?php endif; ?>
+
+            <div class="tt-lkp-form-foot">
+                <div class="tt-lkp-foot-left">
+                    <button type="button" class="tt-lkp-btn tt-lkp-btn-ghost" data-tt-lkp-go="list">
+                        <?php esc_html_e( '← Back to list', 'talenttrack' ); ?>
+                    </button>
+                </div>
+                <div class="tt-lkp-foot-right">
+                    <?php
+                    $save_label_idle = $is_edit ? __( 'Save changes', 'talenttrack' ) : __( 'Add value', 'talenttrack' );
+                    echo FormSaveButton::render( [
+                        'label'        => $save_label_idle,
+                        'label_saving' => __( 'Saving…', 'talenttrack' ),
+                        'label_saved'  => __( 'Saved', 'talenttrack' ),
+                        'cancel_url'   => $base,
+                        'cancel_label' => __( 'Cancel', 'talenttrack' ),
+                    ] );
+                    ?>
+                </div>
+            </div>
+            <div class="tt-lkp-form-msg" data-tt-lkp-msg role="alert" aria-live="polite"></div>
+        </form>
+        <?php
+    }
+
+    /* The v3.110.203 master-detail markup, inline IIFE, and inline
+     * `masterDetailStyles()` block were removed in v4.8.0 (#985). The
+     * list-first rework replaces all three with the new
+     * `renderLookupListView()` + `renderLookupForm()` pair plus the
+     * shared `assets/css/frontend-lookup-admin.css` stylesheet and the
+     * `assets/js/components/lookup-admin.js` module. */
+
+    /*OLD_ORPHAN_DELETE_START*/
+    private static function _UNUSED_DEAD_ORPHAN(): void {
+        return;
+        /* phpcs:disable */
+        $type=''; $items=[]; $meta=[]; $editing=null; $edit_id=0; $base=''; $add_id=''; $tx_by_row=[]; $tx_targets=[]; $existing_translations=[]; $existing_color='';
         ?>
         <div class="tt-lookup-md" data-tt-lookups-editor
              data-lookup-type="<?php echo esc_attr( $type ); ?>"

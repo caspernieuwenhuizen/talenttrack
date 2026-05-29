@@ -1,113 +1,66 @@
-# TalentTrack v4.10.0 — Tournament wizard rework + post-creation Add-match (closes #975)
+# TalentTrack v4.11.0 — Lookup admin rework (closes #985)
 
-Reworks steps 2–5 of the `new-tournament` wizard end-to-end as a faithful port of `.local-mockups/tournament-wizard/index.html`, and adds a brand-new post-creation **Add match** surface so coaches can append matches to an already-created tournament without round-tripping through the REST API.
+Bundles four related pilot fixes on the Configuration → lookup-category admin surface into one ship because they all touch the same files. Faithful port of `.local-mockups/lookup-admin/index.html`. The umbrella issue's six open questions were locked 2026-05-29 — this ship implements those decisions, not the questions in the original body.
 
-## Friction the redesign addresses
+## Friction the rework addresses
 
-| # | Friction in v4.7.x baseline | Redesign response |
+| # | Friction in v4.10.x baseline | Redesign response |
 |---|---|---|
-| 1 | Steps 2–5 shipped in raw `<input>` / `<select>` chrome — no cards, no typography hierarchy, no live affordances | Every step renders inside `.ttw-card` containers with an UPPERCASE card-title rhythm; field grid collapses to single column at 360px, 2 cols at 640px+ |
-| 2 | Formation step was a bare radio group | Radio-card grid with hand-drawn dot glyphs of the formation shape (per #975 locked decision — not PitchSvg) |
-| 3 | Squad picker used position TYPE chips (GK/DEF/MID/FWD) only | Specific position chips: GK · CB · LB · RB · DM · CM · AM · LW · RW · ST. Trial players visible with a `Trial` badge, unchecked by default |
-| 4 | Substitution windows = comma text input, easy to fat-finger | Chip editor: Enter / comma adds, Backspace from empty pops, × removes. Live-validated against duration_min |
-| 5 | Match-card headline didn't update until save | Headline live-updates from opponent / label inputs; falls back to "New match — fill in opponent below" in italic when empty |
-| 6 | Review step was a flat `<dl>` with no edit affordance | Card per step with an Edit link top-right that jumps the wizard back to that step preserving state |
-| 7 | No UI to add a match after creation — the `POST /tournaments/{id}/matches` REST endpoint existed but no frontend surface invoked it | New `?tt_view=tournament-match&action=new&tournament_id=N` surface with the same chip editor + an "Insert at position N" select. + Add match button lands on the planner detail page next to Edit |
+| 1 | Most lookup rows have no `tt_translations` entries for the supported locales; operator opens a row and sees only the canonical English value with empty translation fields | Migration 0131 backfills `tt_translations` for every existing row across en_US + nl_NL + de_DE + es_ES + fr_FR (en_US from the canonical `name` column; other locales from the loaded .po) |
+| 2 | Save button on the lookup edit form did not trigger a network request, did not show an error, did not reload | The inline IIFE has been extracted into `assets/js/components/lookup-admin.js`; the new module owns the submit listener, POSTs on add and PUTs on edit, surfaces server errors in `[data-tt-lkp-msg]` |
+| 3 | Opening a tile dropped the operator straight into a half-rendered Add-new form on the right pane; they wanted to scan the list first | List-first layout: the default view is a clean list of values, `+ Add value` opens an empty form, clicking a row opens the form populated with that row's data and translations |
+| 4 | On a Dutch install ~half the Configuration tile labels still rendered English because the msgids existed but msgstrs were empty in `nl_NL.po` | Separate `chore(i18n)` commit backfills the missing msgstrs for the ~12 tile labels added in v3.110.201 + v3.110.205-213; same backfill for de_DE / es_ES / fr_FR |
+
+## Locked decisions (open questions 2026-05-29)
+
+| # | Question | Decision |
+|---|---|---|
+| 1 | Mobile coverage dots | Shrink to a smaller pill; do not hide |
+| 2 | Coverage dot order | Site-locale first, remaining locales follow |
+| 3 | `/translations/preview` shape | Single bulk call returning all locales in one response (existing endpoint already does this) |
+| 4 | Internal-key edit on existing rows | Disable entirely — once a row is created its `name` is immutable from the admin UI |
+| 5 | Coverage dot meaning | "Name set" only — description is optional and does not gate the dot |
+| 6 | Locked rows | Hide delete only; keep edit click-through |
 
 ## What ships
 
-**CSS** — `assets/css/frontend-tournament-wizard.css`, mobile-first per CLAUDE.md §2. Scoped to `.tt-tournament-wizard` so the rules never leak. Base styles target 360px; 480px / 640px / 768px breakpoints scale up to the desktop card+grid layout in the mockup.
+**PHP** — `src/Shared/Frontend/FrontendConfigurationView.php`
 
-**JS** — `assets/js/components/tournament-wizard.js`, vanilla JS, no framework. Wires the formation radio-card .is-checked toggle, the squad search filter + position chips + Mark-all-present, the match-card chip editor + live headline + remove + clone-blank, the chip-editor max-value hint live-update from `duration_min`, and the Review step's Edit jump links (POSTs with `tt_wizard_jump_to=<slug>` so the framework lands the user directly on the named step).
+- `renderLookupCategoryEditor()` rewritten end-to-end. The old master-detail markup, the inline IIFE, and the inline `masterDetailStyles()` block are deleted. The new function enqueues `assets/css/frontend-lookup-admin.css` + `assets/js/components/lookup-admin.js`, builds a JS config blob (rest_base, nonce, locales, i18n), and delegates rendering to three new helpers: `renderLookupListView()`, `renderLookupFormViews()`, `renderLookupForm()`. The form views are still emitted server-side so a `?edit=N` deep-link still works.
+- `translationTargets()` now returns all five locales **including `en_US`**. Order: site locale first per Q2, then `en_US`, then the remaining installed locales in stable order. The historical `en_US` skip is gone — the `name` column is now framed as an immutable internal key, the canonical English display value lives in `tt_translations`.
 
-**Wizard steps** — rewritten:
+**PHP** — `src/Infrastructure/REST/LookupsRestController.php`
 
-- `BasicsStep` — no Format select (the format is derived from the anchor team's age group server-side, per #975 locked decision). The card carries an inline hint reading "Format (7v7 / 9v9 / 11v11) is inferred from the team's age group."
-- `FormationStep` — radio-card grid. Each card carries a 64×80 pitch glyph with hand-drawn dots distributed across rows parsed from the formation label ("2-3-1" → 2 defenders, 3 mids, 1 forward). The "No default" sentinel card sits first.
-- `SquadStep` — toolbar (search + count + Mark-all-present) above a single-column list. Each row carries a checkbox, name, optional `Trial` badge, and a 10-chip strip for the specific positions. Trial players default unchecked; everyone else defaults checked on first visit.
-- `MatchesStep` — one `.ttw-match-card` per match: sequence circle + headline + Remove. Field grid + chip editor for substitution windows. + Add another match dashed-tile clones a blank card and renumbers the list.
-- `ReviewStep` — card per upstream step with an Edit link. Squad card includes a "Players" preview (first 8 names, "+M more" tail) and a "By position" breakdown counted off the specific position codes.
+- `persistTranslations()` accepts `en_US` in the request body. Same `TranslationsRepository::upsert()` chokepoint, same field allowlist, same cap gate.
 
-**REST controller** — `TournamentsRestController::normalisePositionsJson()` accepts the new specific codes (GK/CB/LB/RB/DM/CM/AM/LW/RW/ST). Legacy GK/DEF/MID/FWD payloads from v4.7.x and earlier are coerced (DEF → CB, MID → CM, FWD → ST) so existing `tt_tournament_squad` rows + any in-flight wizard state survive the bump. Auto-balance gains a `playerCoversBucket()` helper that maps specific codes back into formation-line buckets — a player with `CB/LB/RB` eligibility correctly matches a 'DEF' slot.
+**Schema** — `database/migrations/0131_lookup_translation_seeds.php`
 
-**New view** — `src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php`. Reachable at `?tt_view=tournament-match&action=new&tournament_id=N`. Reuses the wizard's card + chip-editor styles. Form POSTs to `admin-post.php?action=tt_tournament_match_add` (mirroring the #940 admin-post pattern for write surfaces). The handler validates cap (`tt_edit_tournaments`) + nonce + payload, optionally shifts downstream `sequence` values up by 1 when inserting mid-tournament, inserts the match, fires `tt_tournament_match_created`, and redirects to the planner detail view.
+- Idempotent. Backfills `tt_translations` rows for every existing `tt_lookups` row x every supported locale via `INSERT IGNORE` against the unique `(club_id, entity_type, entity_id, field, locale)` index.
+- en_US is seeded from `tt_lookups.name` (and `.description` where present). Other locales follow migration 0109's per-locale unload + reload pattern to read `__( $name )` against the right loaded textdomain.
 
-**Wizard framework** — `FrontendWizardView::handleAdminPostStep()`'s `back` action now honours `tt_wizard_jump_to=<step-slug>` when the POST carries it. Validated against the wizard's declared steps; unknown values fall back to the standard pop-history Back behaviour. Scoped change; no impact on existing wizards.
+**CSS** — `assets/css/frontend-lookup-admin.css` (new)
 
-**Planner detail header** — gains the **+ Add match** primary action next to Edit.
+- Mobile-first per CLAUDE.md §2. Scoped to `.tt-lkp-admin` so the rules never leak. Base styles target 360px; 480px and 640px breakpoints scale up.
+- Coverage-dot pill shrinks but stays visible on mobile (Q1). Every interactive target ≥ 48×48 with 8px spacing between adjacent targets. Honours `prefers-reduced-motion`.
+
+**JS** — `assets/js/components/lookup-admin.js` (new)
+
+- Vanilla JS, no framework. Reads its config from `data-tt-lkp-config` (a JSON blob written by the PHP renderer) so there is no globals leak.
+- Owns view switching, row population, save, delete, translate-from-source, and live coverage-dot repainting.
+- Internal-key input is forced `readonly disabled` on edit per Q4 — no confirm modal needed because the affordance is gone.
+
+**i18n** — `languages/talenttrack-{nl_NL,de_DE,es_ES,fr_FR}.po`
+
+- Separate `chore(i18n)` commit (per CLAUDE.md ship-along rule). ~12 Configuration tile labels added in v3.110.201 + v3.110.205-213 had empty msgstrs in `nl_NL.po`; backfilled with Dutch translations consistent with the existing vocabulary. The de_DE / es_ES / fr_FR files receive parallel backfills.
 
 ## Backend untouched
 
-Schema unchanged — same `tt_tournaments` / `tt_tournament_matches` / `tt_tournament_squad` / `tt_tournament_assignments` tables that landed in #0093. Existing REST endpoints (`POST /tournaments`, `POST /tournaments/{id}/matches`, etc.) keep the same shapes; the only behavioural change is the broader position-code vocabulary in `eligible_positions`. Existing `tt_view_tournaments` / `tt_edit_tournaments` cap gating is preserved across every new surface.
+Same `LookupsRestController` endpoints + same routes + same cap gates. Same `tt_lookups` schema. Same `tt_translations` schema. Same `DragReorder` wp-admin endpoint for sort-order persistence. Same `?tt_view=configuration&config_sub=lookups&category=<slug>` URL contract; existing deep-links still resolve.
 
-## Mobile-first
+## Mobile-first per CLAUDE.md §2
 
-Every new selector targets 360px first; breakpoints scale up at 480px (squad row 3-col), 640px (field grid 2-col + formation card grid wider), 768px (form chrome widens to 880px). Every interactive target ≥ 48×48 — chip-editor input has `min-height: 48px`, position chips bumped to `min-height: 30px` (tap-target friendly without overpowering the visual rhythm), formation cards meet 48px via `min-height`. Numeric inputs carry `inputmode="numeric"`. No hover-only functionality; all chip toggles work via tap + keyboard (Enter / Space).
+Base CSS at 360px viewport. 480px and 640px breakpoints scale up to the desktop list+form layout. Coverage-dot pill shrinks on mobile but stays visible (Q1). Tap targets ≥ 48×48; numeric inputs carry `inputmode`; no hover-only functionality. The new JS module respects keyboard navigation (Enter / Space on a focused row triggers edit, Tab order leads Cancel → Save).
 
-## Version bump
+Minor bump — operator-visible surface rework + new schema seed migration.
 
-Minor — 4.9.x → **4.10.0**. New behaviour-changing UI work + new write surface counts as a feature epic per SemVer.
-
-# TalentTrack v4.7.0 — Activities list date-bucket redesign (closes #973)
-
-Rewrites the `?tt_view=activities` list surface end-to-end as a faithful port of the design-of-record mockup committed to `.local-mockups/activity-list/`. Backend is untouched — the same `tt_activities` rows, the same `tt_view_activities` capability gate, the same entry-point URL — but the visual contract goes from a generic `FrontendListTable` with two filters to a date-bucketed card list with a Type filter and a persistent past-toggle.
-
-## Friction the redesign addresses
-
-| # | Friction in v4.6.x baseline | Redesign response |
-|---|---|---|
-| 1 | Flat list scrolls past months of training; coaches scan dates to find "what's tomorrow" | Date buckets make temporal context instant. |
-| 2 | No type filter — coaches looking for the next match scroll past trainings | Type picker in the filter row, lookup-backed via `QueryHelpers::get_lookups('activity_type')`. |
-| 3 | Cancelled / completed past activities create scroll noise | Past pinned to top, collapsed by default, one-tap reveal. |
-| 4 | Past PLANNED (never marked completed/cancelled) is a TODO signal that gets buried | "Needs attention" pseudo-bucket above Today; date badges painted `--tt-warn`. |
-
-## Layout
-
-- **Filter row** — Team picker beside the new Type picker, side-by-side 2-column grid at every viewport (the mockup keeps both on one row at 360px too). Both honour the existing `tt-input` 48px floor; the Type select is built from `tt_lookups` so renamed / added activity types appear without code changes.
-- **Past toggle** — single button pinned above the bucket list. Label switches `N past activities hidden · Show ▼` ⇄ `N past activities shown · Hide ▼`. URL state `?include_past=1` persists across refresh / shared links. Chevron rotates 180° via CSS transform when expanded.
-- **Buckets, top→bottom** (empty buckets collapse to nothing):
-  - ⚠ **Needs attention** — `session_date < today AND plan_state = 'planned'`. Header rendered in `--tt-warn`; each row's 44px date badge painted the same orange.
-  - **Today** — `session_date = today`. Header carries day-of-week + date (e.g. "Today · Wed 28 May"); badge in `--tt-accent` blue.
-  - **This week** — `today < session_date <= upcoming Sunday`.
-  - **Next week** — next Mon → next Sun.
-  - **Later this month** — beyond next week, up to end-of-month.
-  - **Later** — beyond end-of-month.
-- **Activity cards** — `grid-template-columns: 44px 1fr auto`: date badge | title + meta line (type pill, optional status pill, team + time) | chevron. The whole card is a link to the activity detail page.
-
-## Bucket math
-
-"Today" comes from `current_time('Y-m-d', true)` so the GMT-stored value is converted via `wp_timezone()`. Week bucket boundaries are computed in PHP with `DateTimeImmutable` anchored to `wp_timezone()`: end-of-this-week = the upcoming Sunday (`'this week'`'s definition in PHP starts on Monday by ISO-8601), next-week range = `(end-of-this-week + 1 day)` through `(end-of-this-week + 7 days)`, end-of-this-month from `'last day of this month'`. Buckets sort their rows by `session_date ASC` so the next-upcoming row sits at the top of each.
-
-## Type / status pills
-
-Colour-coded per the mockup:
-
-| Type/status | Background | Text |
-|---|---|---|
-| Training | `#e1eef5` | `#0d4a7a` |
-| Match / Game | `#fde6e2` | `#8a2a26` |
-| Friendly | `#fff3d9` | `#8a5e0a` |
-| Other | `--tt-mute` | `--tt-ink-soft` |
-| Status: Completed | `#e0efe5` | `--tt-success` |
-| Status: Cancelled | `#ffe0e0` | `#8a2a26` |
-
-Future-bucket rows show only the type pill — the bucket position already conveys "planned". Past-bucket rows additionally carry a Completed / Cancelled status pill.
-
-## What's untouched
-
-- **Schema** — `tt_activities` is unchanged. No migration.
-- **REST** — `/talenttrack/v1/activities` and `/activities/{id}` keep the same shape; this view does NOT consume them. The view now reads `tt_activities` directly via a dedicated server-side query that mirrors `ActivitiesRestController::list_sessions`'s WHERE / scope rules (club_id, demo scope, head-coach team scope, archived filter, team filter). The REST endpoint remains the contract for non-WordPress consumers per CLAUDE.md §4.
-- **Capability gate** — `tt_view_activities` continues to gate the surface. Cross-entity links from the dashboard widget, team detail, and the activity detail page keep their existing URLs (`?tt_view=activities`, `?tt_view=activities&id=N`).
-- **Other modes of the view** — `?action=new`, `?action=edit`, and the read-only detail (`?id=N` without `action`) render the same forms / detail pages as before. Only the default list mode is rewritten.
-
-## Files touched
-
-- `src/Shared/Frontend/FrontendActivitiesManageView.php` — `renderList()` rewritten; new `bucketize()`, `renderBucket()`, `renderActivityCard()`, `renderPastToggle()`, `loadActivitiesForList()`, `typeKeyForPill()` helpers; the existing `render()`, `renderDetail()`, `renderForm()`, and attendance / guest helpers are untouched.
-- `assets/css/frontend-activities-manage.css` — mockup tokens + selectors added (`.tt-act-list`, `.tt-act-filters`, `.tt-act-past-toggle`, `.tt-act-bucket-head`, `.tt-act-card`, `.tt-act-date`, `.tt-act-meta`, etc.). The legacy attendance-table rules (still used by the edit form) are preserved at the bottom of the file.
-- `talenttrack.php` Version + `TT_VERSION` + `readme.txt` Stable tag: `4.6.0` → `4.7.0`.
-- `docs/activities.md` + `docs/nl_NL/activities.md` updated for the new list shape.
-- `languages/talenttrack.pot` + `languages/talenttrack-nl_NL.po` updated for the new strings (no duplicate msgids).
-
-## Why minor
-
-New feature epic. Surface behaviour visible to every coach changes (new filter, new bucket grouping, new past-pinned toggle), but no operator-breaking removal: the URL, the cap, the data model are unchanged.
+Closes #985.
