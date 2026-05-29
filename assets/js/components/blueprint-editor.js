@@ -153,10 +153,83 @@
         li.appendChild(av);
         li.appendChild(who);
 
+        // Guest / custom / cross-team rows are session-only — the user
+        // who added them gets a small `x` button to drop them back out
+        // of the roster (and clear any cell currently holding them).
+        // Real club-roster `player` rows have no remove button; they
+        // belong to the team membership, not this blueprint session.
+        if (canDrag && p.kind && p.kind !== 'player') {
+            var removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'tt-bpe-roster-remove';
+            var removeLabel = (cfg.i18n && cfg.i18n.remove_from_roster) || 'Remove from roster';
+            removeBtn.setAttribute('aria-label', removeLabel);
+            removeBtn.title = removeLabel;
+            removeBtn.textContent = '×';
+            // Prevent the row's dragstart from firing if the user
+            // mousedown-clicks the remove button.
+            removeBtn.addEventListener('mousedown', function (e) { e.stopPropagation(); });
+            removeBtn.addEventListener('dragstart', function (e) { e.preventDefault(); });
+            removeBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                removeRosterEntry(p);
+            });
+            li.appendChild(removeBtn);
+        }
+
         // Click anywhere on the row opens the picker for the next
         // empty slot? No — that's too magical. The mockup leaves
         // click as a no-op on the roster (drag is the only action).
         return li;
+    }
+
+    function removeRosterEntry(p) {
+        if (!p || !p.roster_id) return;
+        if (!cfg.can_manage || cfg.locked) return;
+        // Confirm — destructive, since any cell currently holding
+        // this entry is unbound. Pattern mirrors activity guest-remove.
+        var fmt = (cfg.i18n && cfg.i18n.confirm_remove_roster)
+            || 'Remove %s from the roster? Any slots holding this entry will be cleared.';
+        if (!window.confirm(fmt.replace('%s', p.name || ''))) return;
+
+        // Build the next-state ref map: copy everything EXCEPT cells
+        // currently pointing at this roster entry.
+        var nextRefs = {};
+        Object.keys(refs).forEach(function (slotLabel) {
+            var tiers = refs[slotLabel] || {};
+            var keep = {};
+            ['primary', 'secondary', 'tertiary'].forEach(function (tier) {
+                var ref = tiers[tier];
+                if (!ref) return;
+                if (rosterIdForRef(ref) === p.roster_id) return; // drop
+                keep[tier] = ref;
+            });
+            if (Object.keys(keep).length > 0) {
+                nextRefs[slotLabel] = keep;
+            }
+        });
+
+        saveHint((cfg.i18n && cfg.i18n.saving) || 'Saving...');
+        fetch(cfg.rest_root + '/blueprints/' + cfg.blueprint_id + '/assignments', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-WP-Nonce': cfg.nonce
+            },
+            body: JSON.stringify({ assignments: nextRefs })
+        })
+        .then(function (r) {
+            if (!r.ok) throw new Error('save_failed');
+            // Reload so the server-side roster seed + chemistry come
+            // back authoritative. The session-only entry will not be
+            // re-seeded because no ref references it any more.
+            window.location.reload();
+        })
+        .catch(function () {
+            alert((cfg.i18n && cfg.i18n.save_failed) || 'Could not save the change. Try again.');
+            saveHint('');
+        });
     }
 
     function metaSuffix(p) {
@@ -240,6 +313,9 @@
         var aria = 'Slot ' + slotLabel + ' tier ' + tierNum;
         if (ref) aria += ' filled with ' + (ref.display_name || '');
         row.setAttribute('aria-label', aria);
+        if (ref && ref.display_name) {
+            row.title = ref.display_name;
+        }
 
         var mark = document.createElement('span');
         mark.className = 'tt-bpe-tier-mark';
@@ -248,7 +324,16 @@
 
         var name = document.createElement('span');
         name.className = 'tt-bpe-slot-name';
-        name.textContent = ref ? (ref.display_name || '') : '-';
+        if (ref) {
+            var shortName = shortNameForRef(ref);
+            name.textContent = shortName;
+            // Full display name as tooltip for disambiguation.
+            if (ref.display_name && ref.display_name !== shortName) {
+                name.title = ref.display_name;
+            }
+        } else {
+            name.textContent = '-';
+        }
         row.appendChild(name);
 
         var clearBtn = document.createElement('button');
@@ -857,6 +942,36 @@
         if (ref.kind === 'guest')  return 'g-name:' + (ref.name || ref.display_name || '');
         if (ref.kind === 'custom') return 'c-name:' + (ref.label || ref.display_name || '');
         return null;
+    }
+
+    // Returns the short display name for a slot occupant. First name
+    // only by default ("Lucas", "Daan"). When two or more active-roster
+    // entries share the same first name (case-insensitive), the
+    // colliding entries get a "First L." suffix to disambiguate
+    // ("Bram H.", "Bram J."). Falls back to display_name when no
+    // first name can be extracted (custom labels, single-token names).
+    function shortNameForRef(ref) {
+        if (!ref) return '';
+        var full = ref.display_name || '';
+        var parts = String(full).trim().split(/\s+/).filter(Boolean);
+        if (parts.length === 0) return '';
+        if (parts.length === 1) return parts[0]; // single token — show as-is
+        var first = parts[0];
+        var firstLc = first.toLowerCase();
+        // Count first-name collisions across the active roster.
+        var collisions = 0;
+        for (var i = 0; i < roster.length; i++) {
+            var entryName = String(roster[i].name || '').trim();
+            if (!entryName) continue;
+            var entryFirst = entryName.split(/\s+/)[0] || '';
+            if (entryFirst.toLowerCase() === firstLc) collisions++;
+        }
+        if (collisions <= 1) return first;
+        // Use the LAST token's initial as the surname hint — handles
+        // multi-word surnames ("van Dijk" -> "V"). Add a period.
+        var last = parts[parts.length - 1];
+        var initial = last.charAt(0).toUpperCase();
+        return first + ' ' + initial + '.';
     }
 
     function findRosterEntry(rosterId) {

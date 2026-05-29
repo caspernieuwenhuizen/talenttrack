@@ -279,6 +279,42 @@
     vertical-align: 1px;
 }
 
+/* Roster-row remove button — appears on guest / custom / cross-team
+ * rows only (real club-roster rows have no remove). The visible glyph
+ * stays compact so the roster row height doesn't grow; the hit area
+ * is the whole 28x28 circle.
+ */
+.tt-bpe-roster-remove {
+    flex-shrink: 0;
+    margin-left: 4px;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 50%;
+    color: var(--tt-bpe-muted);
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    touch-action: manipulation;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tt-bpe-roster-remove:hover,
+.tt-bpe-roster-remove:focus-visible {
+    color: #b32d2e;
+    border-color: #b32d2e;
+    background: #fdecec;
+}
+
+.tt-bpe-roster-remove:focus-visible {
+    outline: 2px solid #b32d2e;
+    outline-offset: 1px;
+}
+
 /* =====================================================================
  * Add guest / cross-team / custom inline form.
  * ===================================================================== */
@@ -461,11 +497,13 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 86px;
+    /* v4.12.2 — widened from 86px so a typical 10-char first name
+     * ("Christopher", "Alexander") fits without ellipsis. */
+    width: 104px;
 }
 
 @media (min-width: 720px) {
-    .tt-bpe-pos { width: 112px; }
+    .tt-bpe-pos { width: 128px; }
 }
 
 .tt-bpe-circle {
@@ -605,6 +643,7 @@
 
 .tt-bpe-slot-name {
     flex: 1;
+    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
 }
@@ -642,11 +681,16 @@
     border-radius: 8px;
     padding: 6px;
     box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
-    min-width: 240px;
-    max-width: 320px;
+    /* v4.12.2 — bumped from 240px so first+last names fit without
+     * truncation. The picker is appended to <body> (outside the
+     * scoped .tt-bpe-editor) so we re-declare the ink colour here
+     * to survive themes that set `color: inherit` on body. */
+    min-width: 280px;
+    max-width: 340px;
     max-height: 320px;
     display: flex;
     flex-direction: column;
+    color: #1a1d21;
 }
 
 .tt-bpe-picker-head {
@@ -690,7 +734,9 @@
     border: 0;
     border-radius: 6px;
     background: transparent;
-    color: var(--tt-bpe-ink);
+    /* Hard-coded ink — see .tt-bpe-picker comment; the row is a button
+     * so user-agent styles + theme styles both fight for `color`. */
+    color: #1a1d21;
     font: inherit;
     font-size: 13px;
     cursor: pointer;
@@ -713,10 +759,16 @@
     flex-direction: column;
     min-width: 0;
     flex: 1;
+    /* Explicit colour so a parent .tt-bpe-editor token chain isn't
+     * required — the picker is portalled to <body>. */
+    color: #1a1d21;
 }
 
 .tt-bpe-picker-row-name {
-    color: var(--tt-bpe-ink);
+    /* Hard-coded ink (not a var) — picker lives outside .tt-bpe-editor
+     * scope so the --tt-bpe-ink token isn't available, and themes
+     * that set body { color: inherit } would otherwise nuke contrast. */
+    color: #1a1d21;
     font-weight: 600;
     white-space: nowrap;
     overflow: hidden;
@@ -725,7 +777,7 @@
 
 .tt-bpe-picker-row-sub {
     font-size: 11px;
-    color: var(--tt-bpe-muted);
+    color: #5b6e75;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -762,7 +814,9 @@
 
 @media (max-width: 480px) {
     .tt-bpe-picker {
-        min-width: 200px;
+        /* On small phones we still stretch towards the viewport
+         * edge; max-width clamp keeps it from overflowing. */
+        min-width: 240px;
         max-width: calc(100vw - 16px);
     }
 }

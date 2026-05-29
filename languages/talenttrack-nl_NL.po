@@ -32423,6 +32423,15 @@ msgstr "De lookup-rij bestaat niet meer."
 msgid "Lookup type changed since this drift was flagged."
 msgstr "Het lookup-type is gewijzigd sinds deze afwijking werd gemarkeerd."
 
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php
+msgid "Remove from roster"
+msgstr "Verwijderen uit selectie"
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php
+#. translators: %s = entry display name (guest/custom/cross-team)
+msgid "Remove %s from the roster? Any slots holding this entry will be cleared."
+msgstr "%s uit de selectie verwijderen? Alle slots die deze speler bevatten worden leeggemaakt."
+
 #~ msgid "Att. %"
 #~ msgstr "Aanw. %"
 

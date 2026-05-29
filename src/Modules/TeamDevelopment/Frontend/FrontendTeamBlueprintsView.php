@@ -1109,6 +1109,9 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
                 'save_as_failed'        => __( 'Could not duplicate. Try again.', 'talenttrack' ),
                 'saving'                => __( 'Saving…', 'talenttrack' ),
                 'saved'                 => __( 'Saved.', 'talenttrack' ),
+                'remove_from_roster'    => __( 'Remove from roster', 'talenttrack' ),
+                /* translators: %s = entry display name (guest/custom/cross-team) */
+                'confirm_remove_roster' => __( 'Remove %s from the roster? Any slots holding this entry will be cleared.', 'talenttrack' ),
             ],
         ] );
     }
