@@ -290,7 +290,12 @@ final class LookupsRestController extends BaseController {
 
         foreach ( (array) $payload as $locale => $cells ) {
             $locale = is_string( $locale ) ? sanitize_text_field( $locale ) : '';
-            if ( $locale === '' || $locale === 'en_US' ) continue; // en_US is the canonical column.
+            if ( $locale === '' ) continue;
+            // #985 — en_US is now an operator-editable display value
+            // stored in `tt_translations` alongside the other locales.
+            // The `name` column on `tt_lookups` is the immutable internal
+            // key; the canonical English label lives in tt_translations
+            // (entity_type='lookup', field='name', locale='en_US').
 
             // Accept legacy flat `[locale => 'translated name']` shape too.
             if ( ! is_array( $cells ) ) {
