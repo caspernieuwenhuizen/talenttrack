@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-05-29T20:42:34+00:00\n"
+"POT-Creation-Date: 2026-05-29T20:52:53+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -94,8 +94,8 @@ msgstr ""
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:157
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:239
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:231
-#: src/Modules/Goals/Admin/GoalsPage.php:54
-#: src/Modules/Goals/Admin/GoalsPage.php:132
+#: src/Modules/Goals/Admin/GoalsPage.php:56
+#: src/Modules/Goals/Admin/GoalsPage.php:134
 #: src/Modules/Invitations/InvitationKind.php:36
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:114
 #: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php:182
@@ -228,7 +228,7 @@ msgstr "Personal"
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:803
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:822
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:243
-#: src/Modules/Goals/Admin/GoalsPage.php:92
+#: src/Modules/Goals/Admin/GoalsPage.php:94
 #: src/Modules/Players/Admin/PlayersPage.php:183
 #: src/Modules/Teams/Admin/TeamsPage.php:114
 #: src/Shared/Frontend/Components/FrontendThreadView.php:169
@@ -301,7 +301,7 @@ msgstr ""
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:123
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:163
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:242
-#: src/Modules/Goals/Admin/GoalsPage.php:92
+#: src/Modules/Goals/Admin/GoalsPage.php:94
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:75
 #: src/Modules/Methodology/Admin/MethodologyPage.php:192
 #: src/Modules/Methodology/Admin/MethodologyPage.php:287
@@ -842,7 +842,7 @@ msgstr "Otro"
 #: src/Modules/CustomWidgets/DataSources/PdpFiles.php:36
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:164
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:202
-#: src/Modules/Goals/Admin/GoalsPage.php:83
+#: src/Modules/Goals/Admin/GoalsPage.php:85
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:139
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1089
 #: src/Modules/People/Admin/PeoplePage.php:149
@@ -1126,7 +1126,7 @@ msgstr ""
 
 #: src/Infrastructure/REST/ActivitiesRestController.php:193
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:265
-#: src/Infrastructure/REST/GoalsRestController.php:111
+#: src/Infrastructure/REST/GoalsRestController.php:113
 #: src/Infrastructure/REST/PeopleRestController.php:85
 #: src/Infrastructure/REST/PlayersRestController.php:136
 #: src/Infrastructure/REST/TeamsRestController.php:123
@@ -1232,7 +1232,7 @@ msgstr ""
 
 #: src/Infrastructure/REST/ActivityExercisesRestController.php:127
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:165
-#: src/Infrastructure/REST/GoalsRestController.php:392
+#: src/Infrastructure/REST/GoalsRestController.php:394
 #: src/Infrastructure/REST/LookupsRestController.php:229
 #: src/Modules/Trials/Rest/TrialsRestController.php:190
 msgid "No fields to update."
@@ -1479,37 +1479,37 @@ msgstr ""
 msgid "The assignment could not be removed."
 msgstr ""
 
-#: src/Infrastructure/REST/GoalsRestController.php:299
+#: src/Infrastructure/REST/GoalsRestController.php:301
 msgid "Player and title are required."
 msgstr ""
 
-#: src/Infrastructure/REST/GoalsRestController.php:308
+#: src/Infrastructure/REST/GoalsRestController.php:310
 msgid "The goal could not be saved. The database rejected the operation."
 msgstr ""
 
-#: src/Infrastructure/REST/GoalsRestController.php:367
-#: src/Infrastructure/REST/GoalsRestController.php:428
-#: src/Infrastructure/REST/GoalsRestController.php:475
+#: src/Infrastructure/REST/GoalsRestController.php:369
+#: src/Infrastructure/REST/GoalsRestController.php:430
+#: src/Infrastructure/REST/GoalsRestController.php:477
 msgid "Invalid goal id."
 msgstr ""
 
-#: src/Infrastructure/REST/GoalsRestController.php:401
+#: src/Infrastructure/REST/GoalsRestController.php:403
 msgid "The goal could not be updated."
 msgstr ""
 
-#: src/Infrastructure/REST/GoalsRestController.php:432
+#: src/Infrastructure/REST/GoalsRestController.php:434
 msgid "Status is required."
 msgstr ""
 
-#: src/Infrastructure/REST/GoalsRestController.php:449
+#: src/Infrastructure/REST/GoalsRestController.php:451
 msgid "Only the player's head coach can approve or reject this goal."
 msgstr ""
 
-#: src/Infrastructure/REST/GoalsRestController.php:460
+#: src/Infrastructure/REST/GoalsRestController.php:462
 msgid "Status update failed."
 msgstr ""
 
-#: src/Infrastructure/REST/GoalsRestController.php:483
+#: src/Infrastructure/REST/GoalsRestController.php:485
 msgid "Goal delete failed."
 msgstr ""
 
@@ -1929,7 +1929,7 @@ msgstr "Actividades"
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:73
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:47
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:95
-#: src/Modules/Goals/Admin/GoalsPage.php:44
+#: src/Modules/Goals/Admin/GoalsPage.php:46
 #: src/Modules/People/Admin/PeoplePage.php:88
 #: src/Modules/Players/Admin/PlayersPage.php:76
 #: src/Modules/Teams/Admin/TeamsPage.php:39
@@ -1944,7 +1944,7 @@ msgstr "Añadir"
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:565
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:443
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:96
-#: src/Modules/Goals/Admin/GoalsPage.php:45
+#: src/Modules/Goals/Admin/GoalsPage.php:47
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:116
 #: src/Modules/Methodology/Admin/MethodologyPage.php:769
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:375
@@ -2042,7 +2042,7 @@ msgstr "Fecha"
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:40
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:114
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:131
-#: src/Modules/Goals/Admin/GoalsPage.php:136
+#: src/Modules/Goals/Admin/GoalsPage.php:138
 #: src/Modules/Methodology/Admin/FrameworkPrimerEditPage.php:61
 #: src/Modules/Methodology/Admin/MethodologyPage.php:170
 #: src/Modules/Methodology/Admin/MethodologyPage.php:423
@@ -2148,8 +2148,8 @@ msgstr "Tipo"
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:88
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:46
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:133
-#: src/Modules/Goals/Admin/GoalsPage.php:54
-#: src/Modules/Goals/Admin/GoalsPage.php:143
+#: src/Modules/Goals/Admin/GoalsPage.php:56
+#: src/Modules/Goals/Admin/GoalsPage.php:145
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:96
 #: src/Modules/Journey/Workflow/InjuryRecoveryConfirmForm.php:40
 #: src/Modules/License/Admin/AccountPage.php:742
@@ -2360,7 +2360,7 @@ msgstr "Equipo"
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:76
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:88
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:151
-#: src/Modules/Goals/Admin/GoalsPage.php:54
+#: src/Modules/Goals/Admin/GoalsPage.php:56
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:97
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:61
 #: src/Modules/Methodology/Admin/MethodologyPage.php:174
@@ -2625,7 +2625,7 @@ msgstr ""
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:617
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:774
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:533
-#: src/Modules/Goals/Admin/GoalsPage.php:205
+#: src/Modules/Goals/Admin/GoalsPage.php:207
 msgid "Update"
 msgstr "Actualizar"
 
@@ -2690,8 +2690,8 @@ msgstr "Guardar"
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:404
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:856
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:985
-#: src/Modules/Goals/Admin/GoalsPage.php:212
-#: src/Modules/Goals/Admin/GoalsPage.php:275
+#: src/Modules/Goals/Admin/GoalsPage.php:214
+#: src/Modules/Goals/Admin/GoalsPage.php:277
 #: src/Modules/License/Admin/AccountPage.php:59
 #: src/Modules/License/Admin/AccountPage.php:71
 #: src/Modules/License/Admin/AccountPage.php:943
@@ -2758,7 +2758,7 @@ msgstr "No autorizado"
 
 #: src/Modules/Activities/Admin/ActivitiesPage.php:525
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:887
-#: src/Modules/Goals/Admin/GoalsPage.php:249
+#: src/Modules/Goals/Admin/GoalsPage.php:251
 #: src/Modules/Players/Admin/PlayersPage.php:555
 msgid "Unknown database error."
 msgstr ""
@@ -2860,7 +2860,7 @@ msgstr ""
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:473
 #: src/Modules/DemoData/Admin/DemoDataPage.php:724
 #: src/Modules/Documentation/HelpTopics.php:62
-#: src/Modules/Goals/Admin/GoalsPage.php:44
+#: src/Modules/Goals/Admin/GoalsPage.php:46
 #: src/Modules/License/Admin/AccountPage.php:806
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:118
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:212
@@ -2889,7 +2889,7 @@ msgstr "Objetivos"
 #: src/Modules/Configuration/Admin/FormSlugContract.php:112
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:42
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:103
-#: src/Modules/Goals/Admin/GoalsPage.php:140
+#: src/Modules/Goals/Admin/GoalsPage.php:142
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:195
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:52
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:77
@@ -2919,7 +2919,7 @@ msgstr ""
 
 #: src/Modules/Analytics/AnalyticsModule.php:154
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:707
-#: src/Modules/Workflow/Forms/GoalApprovalForm.php:71
+#: src/Modules/Workflow/Forms/GoalApprovalForm.php:77
 #: src/Shared/Frontend/FrontendTrialCaseView.php:151
 #: src/Shared/Frontend/FrontendTrialCaseView.php:185
 #: src/Shared/Frontend/FrontendTrialCaseView.php:223
@@ -3485,8 +3485,8 @@ msgid "Group by:"
 msgstr ""
 
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:166
-#: src/Modules/Goals/Admin/GoalsPage.php:158
-#: src/Modules/Goals/Admin/GoalsPage.php:182
+#: src/Modules/Goals/Admin/GoalsPage.php:160
+#: src/Modules/Goals/Admin/GoalsPage.php:184
 #: src/Modules/Methodology/Admin/LearningGoalEditPage.php:74
 #: src/Modules/Methodology/Admin/PrincipleEditPage.php:124
 #: src/Modules/Methodology/Admin/SetPieceEditPage.php:94
@@ -3839,7 +3839,7 @@ msgstr ""
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:373
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:377
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:392
-#: src/Modules/Goals/Admin/GoalsPage.php:133
+#: src/Modules/Goals/Admin/GoalsPage.php:135
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:269
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:187
 #: src/Modules/People/Admin/TeamStaffPanel.php:133
@@ -4269,7 +4269,7 @@ msgstr "Clave"
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:276
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:40
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:101
-#: src/Modules/Goals/Admin/GoalsPage.php:138
+#: src/Modules/Goals/Admin/GoalsPage.php:140
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:59
 #: src/Modules/Methodology/Admin/MethodologyPage.php:687
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:96
@@ -7772,7 +7772,7 @@ msgstr ""
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:585
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:803
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:243
-#: src/Modules/Goals/Admin/GoalsPage.php:92
+#: src/Modules/Goals/Admin/GoalsPage.php:94
 #: src/Modules/Players/Admin/PlayersPage.php:183
 #: src/Modules/Teams/Admin/TeamsPage.php:114
 msgid "Delete?"
@@ -7782,7 +7782,7 @@ msgstr ""
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:617
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:760
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:774
-#: src/Modules/Goals/Admin/GoalsPage.php:205
+#: src/Modules/Goals/Admin/GoalsPage.php:207
 #: src/Modules/Methodology/Admin/MediaPicker.php:44
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:291
 #: src/Shared/Frontend/Components/GuestAddModal.php:115
@@ -10990,7 +10990,7 @@ msgid "Tell the author why"
 msgstr ""
 
 #: src/Modules/Development/Frontend/IdeasApprovalView.php:124
-#: src/Modules/Workflow/Forms/GoalApprovalForm.php:39
+#: src/Modules/Workflow/Forms/GoalApprovalForm.php:45
 msgid "Reject"
 msgstr ""
 
@@ -12687,7 +12687,7 @@ msgstr ""
 msgid "No such export."
 msgstr ""
 
-#: src/Modules/Goals/Admin/GoalsPage.php:54
+#: src/Modules/Goals/Admin/GoalsPage.php:56
 #: src/Modules/Methodology/Admin/MethodologyPage.php:613
 #: src/Modules/Threads/Adapters/GoalThreadAdapter.php:99
 #: src/Modules/Workflow/Forms/GoalSettingForm.php:47
@@ -12697,16 +12697,16 @@ msgstr ""
 msgid "Goal"
 msgstr "Objetivo"
 
-#: src/Modules/Goals/Admin/GoalsPage.php:55
+#: src/Modules/Goals/Admin/GoalsPage.php:57
 msgid "No goals."
 msgstr ""
 
-#: src/Modules/Goals/Admin/GoalsPage.php:112
+#: src/Modules/Goals/Admin/GoalsPage.php:114
 #: src/Shared/Admin/BackNavigator.php:127
 msgid "Edit Goal"
 msgstr ""
 
-#: src/Modules/Goals/Admin/GoalsPage.php:112
+#: src/Modules/Goals/Admin/GoalsPage.php:114
 #: src/Shared/Frontend/CoachDashboardView.php:281
 #: src/Shared/Frontend/CoachDashboardView.php:293
 #: src/Shared/Frontend/CoachForms.php:537
@@ -12715,37 +12715,37 @@ msgstr ""
 msgid "Add Goal"
 msgstr "Añadir objetivo"
 
-#: src/Modules/Goals/Admin/GoalsPage.php:116
+#: src/Modules/Goals/Admin/GoalsPage.php:118
 msgid ""
 "The goal was saved, but one or more custom fields had invalid values and "
 "were not updated."
 msgstr ""
 
-#: src/Modules/Goals/Admin/GoalsPage.php:122
+#: src/Modules/Goals/Admin/GoalsPage.php:124
 msgid "The database rejected the save. No goal was created."
 msgstr ""
 
-#: src/Modules/Goals/Admin/GoalsPage.php:146
+#: src/Modules/Goals/Admin/GoalsPage.php:148
 #: src/Shared/Frontend/CoachDashboardView.php:292
 #: src/Shared/Frontend/CoachForms.php:552
 msgid "Due Date"
 msgstr "Fecha de vencimiento"
 
-#: src/Modules/Goals/Admin/GoalsPage.php:155
+#: src/Modules/Goals/Admin/GoalsPage.php:157
 #: src/Shared/Frontend/FrontendGoalsManageView.php:404
 msgid "Linked principle"
 msgstr ""
 
-#: src/Modules/Goals/Admin/GoalsPage.php:167
+#: src/Modules/Goals/Admin/GoalsPage.php:169
 msgid "Optional. Links this goal to a methodology principle."
 msgstr ""
 
-#: src/Modules/Goals/Admin/GoalsPage.php:179
+#: src/Modules/Goals/Admin/GoalsPage.php:181
 #: src/Shared/Frontend/FrontendGoalsManageView.php:426
 msgid "Linked football action"
 msgstr ""
 
-#: src/Modules/Goals/Admin/GoalsPage.php:199
+#: src/Modules/Goals/Admin/GoalsPage.php:201
 msgid ""
 "Optional. Links this goal to a single football action (voetbalhandeling)."
 msgstr ""
@@ -21619,6 +21619,17 @@ msgstr ""
 msgid "Could not duplicate. Try again."
 msgstr ""
 
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1112
+msgid "Remove from roster"
+msgstr ""
+
+#. translators: %s = entry display name (guest/custom/cross-team)
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1114
+#, php-format
+msgid ""
+"Remove %s from the roster? Any slots holding this entry will be cleared."
+msgstr ""
+
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:114
 msgid ""
 "No teams to show. Coaches see chemistry boards for teams they head-coach."
@@ -24677,34 +24688,34 @@ msgstr ""
 msgid "No response — mark no-show"
 msgstr ""
 
-#: src/Modules/Workflow/Forms/GoalApprovalForm.php:37
+#: src/Modules/Workflow/Forms/GoalApprovalForm.php:43
 msgid "Approve"
 msgstr ""
 
-#: src/Modules/Workflow/Forms/GoalApprovalForm.php:38
+#: src/Modules/Workflow/Forms/GoalApprovalForm.php:44
 msgid "Approve with amendment"
 msgstr ""
 
-#: src/Modules/Workflow/Forms/GoalApprovalForm.php:53
+#: src/Modules/Workflow/Forms/GoalApprovalForm.php:59
 msgid "No goals were submitted in the parent task."
 msgstr ""
 
 #. translators: %d: goal index (1, 2, 3)
-#: src/Modules/Workflow/Forms/GoalApprovalForm.php:60
+#: src/Modules/Workflow/Forms/GoalApprovalForm.php:66
 #: src/Modules/Workflow/Forms/GoalSettingForm.php:40
 #, php-format
 msgid "Goal %d"
 msgstr ""
 
-#: src/Modules/Workflow/Forms/GoalApprovalForm.php:91
+#: src/Modules/Workflow/Forms/GoalApprovalForm.php:97
 msgid "Note (optional)"
 msgstr ""
 
-#: src/Modules/Workflow/Forms/GoalApprovalForm.php:116
+#: src/Modules/Workflow/Forms/GoalApprovalForm.php:122
 msgid "Pick a decision for every goal."
 msgstr ""
 
-#: src/Modules/Workflow/Forms/GoalApprovalForm.php:120
+#: src/Modules/Workflow/Forms/GoalApprovalForm.php:126
 msgid "Invalid decision value."
 msgstr ""
 
