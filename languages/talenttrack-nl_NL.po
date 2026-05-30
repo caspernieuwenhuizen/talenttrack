@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-05-30T05:42:44+00:00\n"
+"POT-Creation-Date: 2026-05-30T05:45:25+00:00\n"
 "PO-Revision-Date: 2026-04-25 10:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -2062,7 +2062,7 @@ msgstr "Filteren"
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:149
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:39
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:113
-#: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:127
+#: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:257
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:115
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:274
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:297
@@ -2110,7 +2110,7 @@ msgstr "Datum"
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:100
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:40
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:114
-#: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:131
+#: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:261
 #: src/Modules/Goals/Admin/GoalsPage.php:138
 #: src/Modules/Methodology/Admin/FrameworkPrimerEditPage.php:61
 #: src/Modules/Methodology/Admin/MethodologyPage.php:170
@@ -2151,7 +2151,7 @@ msgstr "Titel"
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:376
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:751
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:129
-#: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:130
+#: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:260
 #: src/Modules/Mfa/Wizards/SecretStep.php:91
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:128
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:277
@@ -2552,7 +2552,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:176
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:42
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:116
-#: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:133
+#: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:263
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:128
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:194
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:275
@@ -3623,7 +3623,7 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:431
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:174
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:164
-#: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:160
+#: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:285
 #, php-format
 msgid "Generated %s"
 msgstr "Gegenereerd %s"
@@ -9028,7 +9028,7 @@ msgstr "Evaluatiedatum"
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:241
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:53
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:155
-#: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:132
+#: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:262
 #: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php:119
 #: src/Modules/Tournaments/Wizard/MatchesStep.php:163
 #: src/Shared/Frontend/CoachDashboardView.php:196
@@ -13412,31 +13412,31 @@ msgstr "%s — TalentTrack-activiteiten"
 msgid "TalentTrack activities"
 msgstr "TalentTrack-activiteiten"
 
-#: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:31
+#: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:76
 msgid "Team planning (PDF)"
 msgstr ""
 
-#: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:115
+#: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:201
 msgid "Team planning"
 msgstr ""
 
 #. translators: 1: from-date, 2: to-date
-#: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:118
+#: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:204
 #, php-format
 msgid "Schedule: %1$s – %2$s"
 msgstr ""
 
-#: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:124
+#: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:210
 msgid "No activities scheduled in this range."
 msgstr ""
 
-#: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:128
+#: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:258
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:93
 #: src/Shared/Frontend/FrontendAuditLogView.php:210
 msgid "Day"
 msgstr "Dag"
 
-#: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:129
+#: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:259
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:125
 msgid "Time"
 msgstr "Tijd"
