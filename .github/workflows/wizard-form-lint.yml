@@ -14,6 +14,14 @@ name: Wizard form lint
 #   'slug'=>…])` re-introduced the legacy `slug` query var that
 #   collided with third-party plugin registrations of the same name
 #   (Yoast SEO + several caching plugins), 404'ing the entry URL.
+#
+# #1006 — third scan locks the auto-restart contract:
+#
+#   Scan C — Any hand-rolled wizard URL that mentions a `tt_wizard`
+#   slug MUST also carry `restart=1`, or it inherits the
+#   state-resurrection bug that #1006 fixed at the helper layer. The
+#   helper itself now sets `restart=1` by default; this scan catches
+#   any future code that bypasses the helper.
 
 on:
   pull_request:
@@ -118,3 +126,62 @@ jobs:
             fi
           fi
           echo "OK — no hand-rolled wizard URLs found outside the helper."
+
+      - name: Scan C — wizard URLs without restart=1 (auto-restart contract)
+        shell: bash
+        run: |
+          set -e
+          # #1006 — the helper now defaults `restart=1` on every wizard
+          # URL it builds. Any file that hand-rolls a `tt_wizard` query
+          # var via `add_query_arg()` MUST carry `restart=1` (or `'1'` /
+          # `"1"`) on the same call so it inherits the same fresh-start
+          # guarantee. The whole-line check is loose by design — most
+          # hand-rolled wizard URLs build the array literal across
+          # multiple lines, so we run the scan in multi-line mode by
+          # collapsing each PHP file's whitespace before grepping.
+          PATTERN="['\"]tt_wizard['\"]\\s*=>\\s*['\"][a-z][a-z0-9_-]+['\"]"
+
+          ALLOW_PATHS=(
+            "src/Shared/Wizards/WizardEntryPoint\\.php"
+            "src/Shared/Frontend/FrontendWizardView\\.php"
+            "src/Modules/Mfa/Auth/MfaLoginGuard\\.php"
+          )
+
+          FAIL=0
+          # Find every file that mentions a `tt_wizard => '<slug>'`
+          # literal. The helper is allowlisted; everything else must
+          # also carry `restart=1` in the same add_query_arg() call.
+          FILES=$(grep -RlE "$PATTERN" src/ --include='*.php' || true)
+          for f in $FILES; do
+            SKIP=0
+            for allow in "${ALLOW_PATHS[@]}"; do
+              if echo "$f" | grep -Eq "$allow"; then SKIP=1; fi
+            done
+            if [ "$SKIP" = "1" ]; then continue; fi
+
+            # Collapse the file's whitespace so multi-line array literals
+            # show up as single lines for the contains-restart check.
+            COLLAPSED=$(tr '\n' ' ' < "$f")
+            # Extract every add_query_arg(...) call that mentions tt_wizard.
+            # If any such call does NOT also carry a restart key, fail.
+            CHUNKS=$(echo "$COLLAPSED" | grep -oE "add_query_arg\\(\\s*\\[[^]]*['\"]tt_wizard['\"]\\s*=>\\s*['\"][a-z][a-z0-9_-]+['\"][^]]*\\]" || true)
+            if [ -z "$CHUNKS" ]; then continue; fi
+            BAD=$(echo "$CHUNKS" | grep -Ev "['\"]restart['\"]\\s*=>\\s*[1'\"]" || true)
+            if [ -n "$BAD" ]; then
+              echo "::error file=$f::Hand-rolled wizard URL omits restart=1 (would resurrect stale wizard state on next entry — #1006)."
+              echo "$BAD"
+              FAIL=1
+            fi
+          done
+
+          if [ "$FAIL" = "1" ]; then
+            echo ""
+            echo "Fix: route through WizardEntryPoint::urlFor() / ::buildUrl()."
+            echo "Both helpers default to restart=1 since #1006, so callers"
+            echo "inherit fresh-start semantics for free. If you genuinely"
+            echo "need to land mid-flight (rare), pass ['restart' => '']"
+            echo "in the helper's extra_args."
+            echo "See #1006 for the architectural background."
+            exit 1
+          fi
+          echo "OK — every hand-rolled wizard URL carries restart=1."

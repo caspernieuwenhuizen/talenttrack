@@ -24,13 +24,40 @@ final class WizardEntryPoint {
         // and 404 because no post matched the wizard's slug. All TT
         // query vars are now namespaced (`tt_view`, `tt_back`,
         // `tt_wizard`).
+        //
+        // #1006 — `restart=1` is part of the default arg set. Every
+        // entry link this helper builds (manage-view "+ New X" buttons,
+        // dashboard quick-actions, hero CTAs) is semantically a fresh
+        // start; resuming an in-flight wizard happens through the
+        // wizard's own Back/Next chrome, never through these helpers.
+        // Without the default, `WizardState`'s hour-long transient TTL
+        // resurrected stale state on the next login → next entry-click
+        // ("New evaluation seems to remember something from a past
+        // session" — the pilot symptom that filed this issue). A
+        // caller that genuinely wants to land mid-flight (rare, e.g. a
+        // future internal "resume from email" link) can opt out by
+        // passing `'restart' => ''` in `$extra_args`, which the merge
+        // below allows because `$extra_args` overrides the defaults.
+        // `FrontendWizardView::render()` honours `restart=1` on GET
+        // only — it's a one-shot entry signal and is safe to set even
+        // when the wizard run already finished, so adding it
+        // unconditionally has no negative side effects on the happy
+        // path.
         $args = array_merge(
-            [ 'tt_view' => 'wizard', 'tt_wizard' => $wizard_slug ],
+            [ 'tt_view' => 'wizard', 'tt_wizard' => $wizard_slug, 'restart' => 1 ],
             $extra_args
         );
         // Defensive: strip the legacy `slug` if a caller still passes it
         // during migration. The current contract is `tt_wizard`.
         unset( $args['slug'] );
+        // #1006 — let the caller suppress `restart` entirely by passing
+        // an empty value. `add_query_arg()` would otherwise emit
+        // `&restart=` which `FrontendWizardView::render()`'s `!empty()`
+        // gate already treats as "no restart", but explicit unset is
+        // cleaner in the produced URL.
+        if ( isset( $args['restart'] ) && ( $args['restart'] === '' || $args['restart'] === null ) ) {
+            unset( $args['restart'] );
+        }
         return add_query_arg( $args, self::dashboardBaseUrl() );
     }
 
