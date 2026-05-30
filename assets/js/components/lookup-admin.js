@@ -93,6 +93,8 @@
         var sort = form.querySelector( 'input[name="sort_order"]' );
         var desc = form.querySelector( 'input[name="description"]' );
         var color = form.querySelector( 'input[name="meta[color]"]' );
+        var title = form.querySelector( '[data-tt-lkp-form-title]' );
+        var hint = form.querySelector( '[data-tt-lkp-name-hint]' );
 
         if ( id ) id.value = '0';
         if ( name ) {
@@ -103,6 +105,8 @@
         if ( sort ) sort.value = '0';
         if ( desc ) desc.value = '';
         if ( color ) color.value = '#5b6e75';
+        if ( title ) title.textContent = i18n.title_add || 'Add new value';
+        if ( hint ) hint.textContent = i18n.hint_add || '';
 
         form.querySelectorAll( '[data-tt-tx-locale]' ).forEach( function ( inp ) {
             inp.value = '';
@@ -125,6 +129,8 @@
         var sort = form.querySelector( 'input[name="sort_order"]' );
         var desc = form.querySelector( 'input[name="description"]' );
         var color = form.querySelector( 'input[name="meta[color]"]' );
+        var title = form.querySelector( '[data-tt-lkp-form-title]' );
+        var hint = form.querySelector( '[data-tt-lkp-name-hint]' );
 
         if ( id ) id.value = String( row.getAttribute( 'data-id' ) || '0' );
         if ( name ) {
@@ -139,6 +145,8 @@
         if ( sort ) sort.value = String( row.getAttribute( 'data-row-sort' ) || '0' );
         if ( desc ) desc.value = String( row.getAttribute( 'data-row-desc' ) || '' );
         if ( color ) color.value = String( row.getAttribute( 'data-row-color' ) || '' ) || '#5b6e75';
+        if ( title ) title.textContent = i18n.title_edit || 'Edit value';
+        if ( hint ) hint.textContent = i18n.hint_edit || '';
 
         // Translations: parse the JSON blob baked onto the row server-side.
         var tx = {};

@@ -439,6 +439,10 @@ class FrontendConfigurationView extends FrontendViewBase {
                 'confirm_delete'   => __( 'Delete this row?', 'talenttrack' ),
                 'error'            => __( 'Error', 'talenttrack' ),
                 'network_error'    => __( 'Network error.', 'talenttrack' ),
+                'title_add'        => __( 'Add new value', 'talenttrack' ),
+                'title_edit'       => __( 'Edit value', 'talenttrack' ),
+                'hint_add'         => __( 'Lowercase ASCII, no spaces. Used as the database identifier and cannot be changed later.', 'talenttrack' ),
+                'hint_edit'        => __( 'Stable database identifier. Locked once the row is created — change it via a code migration.', 'talenttrack' ),
             ],
         ];
         ?>
@@ -621,35 +625,10 @@ class FrontendConfigurationView extends FrontendViewBase {
             ? (string) $existing_meta_arr['color']
             : '#5b6e75';
 
-        // Same markup serves both add + edit. `data-state` on the
-        // root toggles which `tt-lkp-view-*` wrapper is visible.
-        $heading_id_add  = $add_id . '-add-heading';
-        $heading_id_edit = $add_id . '-edit-heading';
-
-        // Two separate `<section>` wrappers, one form inside each, so
-        // CSS view toggling is straightforward and aria labels stay
-        // accurate. The JS targets `[data-tt-lkp-form]` which is the
-        // edit form when the form view is "edit" (server-rendered with
-        // the editing row's values) and the add form when "add".
+        $heading_id = $add_id . '-form-heading';
         ?>
-        <?php // ========================  ADD VIEW  ======================== ?>
-        <section class="tt-lkp-view tt-lkp-view-add" aria-labelledby="<?php echo esc_attr( $heading_id_add ); ?>">
-            <?php if ( ! $editing ) : ?>
-                <?php self::renderLookupForm( $meta, null, [], $tx_targets, $site_locale, $add_id, $base, $heading_id_add, '#5b6e75' ); ?>
-            <?php endif; ?>
-        </section>
-
-        <?php // ========================  EDIT VIEW  ======================== ?>
-        <section class="tt-lkp-view tt-lkp-view-edit" aria-labelledby="<?php echo esc_attr( $heading_id_edit ); ?>">
-            <?php if ( $editing ) : ?>
-                <?php self::renderLookupForm( $meta, $editing, $existing_translations, $tx_targets, $site_locale, $add_id, $base, $heading_id_edit, $existing_color ); ?>
-            <?php else :
-                // When no row is being edited, fall through to a blank
-                // edit-mode form so a row-click from the list can flip
-                // the view without an extra round-trip. The JS rewrites
-                // every input value before the view becomes visible.
-                self::renderLookupForm( $meta, null, [], $tx_targets, $site_locale, $add_id, $base, $heading_id_edit, '#5b6e75' );
-            endif; ?>
+        <section class="tt-lkp-view tt-lkp-view-form" aria-labelledby="<?php echo esc_attr( $heading_id ); ?>">
+            <?php self::renderLookupForm( $meta, $editing, $existing_translations, $tx_targets, $site_locale, $add_id, $base, $heading_id, $existing_color ); ?>
         </section>
         <?php
     }
@@ -670,7 +649,7 @@ class FrontendConfigurationView extends FrontendViewBase {
             <input type="hidden" name="id" value="<?php echo (int) ( $editing->id ?? 0 ); ?>" data-tt-lkp-id />
 
             <div class="tt-lkp-card">
-                <h2 id="<?php echo esc_attr( $heading_id ); ?>" class="tt-lkp-card-title">
+                <h2 id="<?php echo esc_attr( $heading_id ); ?>" class="tt-lkp-card-title" data-tt-lkp-form-title>
                     <?php echo $is_edit ? esc_html__( 'Edit value', 'talenttrack' ) : esc_html__( 'Add new value', 'talenttrack' ); ?>
                 </h2>
                 <div class="tt-lkp-form-grid">
@@ -685,7 +664,7 @@ class FrontendConfigurationView extends FrontendViewBase {
                                autocomplete="off"
                                inputmode="text"
                                <?php echo $is_edit ? 'readonly disabled' : 'required'; ?> />
-                        <span class="tt-lkp-hint">
+                        <span class="tt-lkp-hint" data-tt-lkp-name-hint>
                             <?php
                             if ( $is_edit ) {
                                 esc_html_e( 'Stable database identifier. Locked once the row is created — change it via a code migration.', 'talenttrack' );
@@ -797,8 +776,6 @@ class FrontendConfigurationView extends FrontendViewBase {
                                             esc_attr( $locale )
                                        ); ?>"
                                        placeholder="<?php esc_attr_e( 'Description', 'talenttrack' ); ?>" />
-                            <?php else : ?>
-                                <span class="tt-lkp-tx-cell-desc" aria-hidden="true"></span>
                             <?php endif; ?>
                         <?php endforeach; ?>
                     </div>
