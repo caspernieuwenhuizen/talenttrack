@@ -19,13 +19,15 @@
     color: var(--tt-ink, #1a1d21);
 }
 
-/* view switch — list shown by default; add / edit when the JS flips
- * the data-state on the root. Server-side initial state honours
- * ?edit=N (edit mode) so deep-links survive a refresh. */
+/* view switch — list shown by default; the single form view appears
+ * when JS flips data-state to "add" or "edit". Server-side initial
+ * state honours ?edit=N (edit mode) so deep-links survive a refresh.
+ * One form, one section — see #1037 for why the two-view shape was
+ * collapsed (the duplicate <form> hid the populate target from JS). */
 .tt-lkp-admin .tt-lkp-view { display: none; }
 .tt-lkp-admin[data-state="list"]    .tt-lkp-view-list,
-.tt-lkp-admin[data-state="add"]     .tt-lkp-view-add,
-.tt-lkp-admin[data-state="edit"]    .tt-lkp-view-edit { display: block; }
+.tt-lkp-admin[data-state="add"]     .tt-lkp-view-form,
+.tt-lkp-admin[data-state="edit"]    .tt-lkp-view-form { display: block; }
 
 /* shared card chrome */
 .tt-lkp-admin .tt-lkp-card {
@@ -417,18 +419,12 @@
     .tt-lkp-admin .tt-lkp-field-full {
         grid-column: 1 / -1;
     }
-    .tt-lkp-admin .tt-lkp-tx-grid {
-        grid-template-columns: 60px minmax(0, 1fr) minmax(0, 1fr);
-    }
-    .tt-lkp-admin .tt-lkp-tx-grid.has-desc {
-        grid-template-columns: 60px minmax(0, 1fr) minmax(0, 1fr);
-    }
-    .tt-lkp-admin .tt-lkp-tx-cell-desc {
-        grid-column: auto;
-    }
-    .tt-lkp-admin .tt-lkp-tx-grid:not(.has-desc) .tt-lkp-tx-cell-desc {
-        display: none;
-    }
+    /* #1038 — locales stay 2-column at every viewport. The desktop
+     * 3-column variant + display:none-on-spacer trick broke grid
+     * auto-flow when show_desc=false, jamming locale badges into the
+     * wrong column. With one column per locale + the description
+     * spanning columns 2/-1 on its own row, the layout is predictable
+     * and the empty-spacer span is no longer emitted (see PHP). */
 }
 
 /* Reduced motion — honour the OS preference per CLAUDE.md §2. */
