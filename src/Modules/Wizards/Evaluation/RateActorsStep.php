@@ -4,6 +4,8 @@ namespace TT\Modules\Wizards\Evaluation;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\MatchExecution\Repositories\MatchExecutionRepository;
+use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
 use TT\Shared\Wizards\WizardStepInterface;
 
 /**
@@ -126,6 +128,12 @@ final class RateActorsStep implements WizardStepInterface {
             <details class="tt-rate-player" data-tt-rate-player data-pid="<?php echo $pid; ?>">
                 <summary class="tt-rate-player-summary">
                     <span class="tt-rate-player-name"><?php echo esc_html( $name ); ?></span>
+                    <?php if ( ! empty( $pl->is_guest ) ) : ?>
+                        <span class="tt-rate-player-guest"
+                              title="<?php esc_attr_e( 'On loan from another team for this match.', 'talenttrack' ); ?>">
+                            <?php esc_html_e( 'Guest', 'talenttrack' ); ?>
+                        </span>
+                    <?php endif; ?>
                     <span class="tt-rate-player-status tt-rate-player-status--empty" data-tt-rate-status>
                         <?php esc_html_e( 'Not rated', 'talenttrack' ); ?>
                     </span>
@@ -405,13 +413,26 @@ final class RateActorsStep implements WizardStepInterface {
     public function submit( array $state ) { return null; }
 
     /**
-     * Players present/late on the activity. The previous fallback to
-     * the team's full roster (when no attendance was recorded) is
-     * gone — the user surfaced that as confusing: a coach who skipped
-     * the attendance step would see the entire roster as rateable,
-     * misrepresenting who actually participated. Without the fallback
-     * the rate step refuses to start until someone has been marked
-     * present/late on the activity.
+     * Players who should appear in the rate roster for the activity.
+     *
+     * v4.13.3 (#1032) — for match-type activities (`activity_type_key`
+     * IN ('match','game')), the source of truth is the actual on-pitch
+     * set (lineup + subs-on log), NOT `tt_attendance`. The attendance
+     * table is a derived snapshot the match-finish endpoint writes for
+     * every available player including bench (minutes_played = 0); it
+     * is the wrong source for rating because:
+     *   - bench / unused subs surface (zero minutes)
+     *   - players from other teams with stale attendance rows surface
+     *     (no team-scoping)
+     *   - the finish endpoint INSERTs but doesn't reconcile orphans
+     *
+     * For training and any non-match activity the attendance query
+     * stays: there is no lineup or sub log to derive from.
+     *
+     * The earlier fallback to the team's full roster (when no
+     * attendance was recorded) was removed — a coach who skipped the
+     * attendance step previously saw the entire roster as rateable,
+     * misrepresenting who actually participated.
      *
      * @return list<object>
      */
@@ -419,11 +440,116 @@ final class RateActorsStep implements WizardStepInterface {
         global $wpdb;
         $p = $wpdb->prefix;
 
-        $team_id = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT team_id FROM {$p}tt_activities WHERE id = %d AND club_id = %d",
+        $activity = $wpdb->get_row( $wpdb->prepare(
+            "SELECT id, team_id, activity_type_key
+               FROM {$p}tt_activities
+              WHERE id = %d AND club_id = %d",
             $activity_id, CurrentClub::id()
         ) );
+        if ( ! $activity ) return [];
+        $team_id = (int) ( $activity->team_id ?? 0 );
         if ( $team_id <= 0 ) return [];
+
+        // #1032 — branch by activity type. The legacy 'game' key and the
+        // post-#988 'match' key both denote match activities (see
+        // PostGameEvaluationTemplate's mixed-key filter).
+        $type_key = strtolower( (string) ( $activity->activity_type_key ?? '' ) );
+        if ( $type_key === 'match' || $type_key === 'game' ) {
+            return self::ratablePlayersForMatch( $activity_id, $team_id );
+        }
+
+        return self::ratablePlayersFromAttendance( $activity_id );
+    }
+
+    /**
+     * Match-activity source: starting XI from `tt_match_prep_lineup`
+     * (both halves) UNION players who came on via
+     * `tt_match_execution_substitutions` (subs-on, excluding reversed
+     * events). The set is exactly the players who got onto the pitch
+     * in either half — bench-only players are excluded by construction.
+     *
+     * `is_guest` is derived by comparing the player's home `team_id`
+     * against the activity's `team_id`; players whose home team differs
+     * (or who carry `team_id = 0`) are flagged so the rate-step row can
+     * show a `Guest` pill — answers the "why is this other-team player
+     * here?" surprise. The lineup / subs tables themselves don't carry
+     * a guest column (#1032).
+     *
+     * Already-rated guard mirrors the attendance variant.
+     *
+     * @return list<object>
+     */
+    private static function ratablePlayersForMatch( int $activity_id, int $team_id ): array {
+        global $wpdb;
+        $p = $wpdb->prefix;
+        $club_id = CurrentClub::id();
+
+        $prep = ( new MatchPrepRepository() )->findByActivity( $activity_id );
+        if ( ! $prep ) return [];
+        $prep_id = (int) $prep->id;
+
+        $exec = ( new MatchExecutionRepository() )->findByActivity( $activity_id );
+        $exec_id = $exec ? (int) $exec->id : 0;
+
+        // Build the on-pitch player_id set in PHP (one round-trip each)
+        // rather than a multi-CTE UNION which gets fiddly with wpdb's
+        // placeholder counting. Two small index-driven lookups.
+        $on_pitch = [];
+        $lineup_rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT DISTINCT player_id FROM {$p}tt_match_prep_lineup
+              WHERE match_prep_id = %d AND club_id = %d",
+            $prep_id, $club_id
+        ) );
+        foreach ( (array) $lineup_rows as $r ) {
+            $pid = (int) $r->player_id;
+            if ( $pid > 0 ) $on_pitch[ $pid ] = true;
+        }
+        if ( $exec_id > 0 ) {
+            $sub_rows = $wpdb->get_results( $wpdb->prepare(
+                "SELECT DISTINCT player_on_id FROM {$p}tt_match_execution_substitutions
+                  WHERE execution_id = %d AND club_id = %d AND reversed_at IS NULL",
+                $exec_id, $club_id
+            ) );
+            foreach ( (array) $sub_rows as $r ) {
+                $pid = (int) $r->player_on_id;
+                if ( $pid > 0 ) $on_pitch[ $pid ] = true;
+            }
+        }
+        if ( empty( $on_pitch ) ) return [];
+
+        $ids = array_keys( $on_pitch );
+        $in  = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+
+        // Placeholder order: team_id (CASE in SELECT), ids... (IN clause),
+        // club_id (pl scope), activity_id + club_id (already-rated guard).
+        $sql = "SELECT pl.id, pl.first_name, pl.last_name,
+                       CASE WHEN pl.team_id = %d THEN 0 ELSE 1 END AS is_guest
+                  FROM {$p}tt_players pl
+                 WHERE pl.id IN ($in)
+                   AND pl.club_id = %d
+                   AND NOT EXISTS (
+                       SELECT 1 FROM {$p}tt_evaluations e
+                        WHERE e.activity_id = %d
+                          AND e.player_id   = pl.id
+                          AND e.club_id     = %d
+                   )
+                 ORDER BY pl.last_name, pl.first_name";
+        $params = array_merge( [ $team_id ], $ids, [ $club_id, $activity_id, $club_id ] );
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        return (array) $wpdb->get_results( $wpdb->prepare( $sql, ...$params ) );
+    }
+
+    /**
+     * Non-match attendance-based source — pre-#1032 logic preserved
+     * unchanged for training / other activity types where lineup data
+     * doesn't exist.
+     *
+     * @return list<object>
+     */
+    private static function ratablePlayersFromAttendance( int $activity_id ): array {
+        global $wpdb;
+        $p = $wpdb->prefix;
 
         // v3.110.78 — `LOWER(att.status)` so the query matches
         // regardless of whether existing rows wrote the status

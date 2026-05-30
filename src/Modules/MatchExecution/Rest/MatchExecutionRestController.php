@@ -243,6 +243,31 @@ class MatchExecutionRestController {
                 (int) $prep->half_length_minutes
             );
 
+            // #1032 — reconcile stale attendance rows. If mark-attendance
+            // ran separately on this activity before match-execution
+            // finished, or if the prep's availability changed between
+            // runs, orphaned `tt_attendance` rows survive and surface in
+            // the rate-step roster as ghost entries (often from other
+            // teams). The prep's availability list IS the source of
+            // truth at match-finish, so drop any attendance row whose
+            // player isn't in it.
+            $avail_pids = [];
+            foreach ( $avail as $a ) {
+                $pid = (int) $a->player_id;
+                if ( $pid > 0 ) $avail_pids[] = $pid;
+            }
+            if ( ! empty( $avail_pids ) ) {
+                $in = implode( ',', array_fill( 0, count( $avail_pids ), '%d' ) );
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+                $wpdb->query( $wpdb->prepare(
+                    "DELETE FROM {$p}tt_attendance
+                      WHERE activity_id = %d
+                        AND club_id     = %d
+                        AND player_id NOT IN ($in)",
+                    array_merge( [ $activity_id, CurrentClub::id() ], $avail_pids )
+                ) );
+            }
+
             foreach ( $avail as $a ) {
                 $pid    = (int) $a->player_id;
                 $status = (string) $a->status;

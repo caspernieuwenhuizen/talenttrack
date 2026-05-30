@@ -911,6 +911,22 @@ class FrontendWizardView extends FrontendViewBase {
             .tt-rate-player-status--partial  { background: #fff4d4; color: #92651b; }
             .tt-rate-player-status--complete { background: #cfe7da; color: #137333; }
             .tt-rate-player-status--skipped  { background: #e8e8e8; color: #8a8a8a; text-decoration: line-through; }
+            /* #1032 — Guest pill on rows where the player\'s home team
+             * differs from the activity\'s team (i.e. on loan for this
+             * match). Sits between name + status so it reads as a
+             * subordinate qualifier on the player\'s identity. */
+            .tt-rate-player-guest {
+                flex: 0 0 auto;
+                font-size: .7rem;
+                font-weight: 600;
+                letter-spacing: .02em;
+                padding: 3px 8px;
+                border-radius: 999px;
+                text-transform: uppercase;
+                background: #fff4d4;
+                color: #92651b;
+                white-space: nowrap;
+            }
             .tt-rate-grid { display: grid; gap: 12px; margin-top: var(--tt-sp-2, 12px); }
             /* v3.110.125 — was a 2-row grid on mobile (label / control)
              * where the control\'s flex-wrap+full-bleed input made the
