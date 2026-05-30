@@ -80,6 +80,25 @@ gebruikte vorm van de pilot. Een andere formatie kiezen hervormt de
 posities op de velden; toewijzingen die op een doorlopende positie
 blijven gaan mee, de rest valt terug op de bank.
 
+## Spelernamen — korte vorm
+
+Elke spelernaam op het scherm — selectielijst, posities op de velden,
+Doen per speler, Rollen-paneel, beschikbaarheidsmodal — wordt
+weergegeven als de **voornaam** van de speler (`Daan`, `Senna`,
+`Javi`). De volledige naam blijft voor het spelersprofiel en de
+teampagina.
+
+Hebben twee spelers in hetzelfde team dezelfde voornaam, dan worden
+beiden weergegeven als `<voornaam> <achternaaminitiaal>` (`Daan P`,
+`Daan A`) zodat de coach ze in één oogopslag uit elkaar kan houden.
+Een derde `Daan` in een ander team heeft geen invloed op de labels
+van dit team. Dezelfde speler verschijnt overal op het match-prep
+scherm met dezelfde korte vorm.
+
+Heeft een speler geen voornaam in het systeem, dan wordt de
+achternaam getoond; ontbreken beide dan toont het scherm `—` tot het
+recordprobleem is verholpen.
+
 ## Opslaan
 
 Iedere wijziging wordt live opgeslagen via REST — er is geen
@@ -93,9 +112,17 @@ dan kun je de wijziging opnieuw doen; het netwerk kan kuren hebben.
 De knop **Afdrukken (liggend A4)** in de werkbalk opent de
 afdrukdialoog van je browser direct op de huidige pagina — één klik,
 geen herlaadbeurt. De afdrukstijl verbergt het dashboard-frame
-(header, breadcrumbs, terugknop, werkbalk) zodat alleen de opstelling
-+ aandachtspunten + wedstrijddoelen op het papier verschijnen.
-Bevestig de afdruk en neem het vel mee naar de lijn.
+(merkbanner, DEMO-strip, gebruikersmenu, breadcrumbs, terugknop,
+werkbalk) zodat alleen de opstelling + aandachtspunten +
+wedstrijddoelen op het papier verschijnen. De eerste zichtbare regel
+op het papier is `Wedstrijdvoorbereiding — <wedstrijd> · <datum>` op
+12pt vetgedrukt. De positie-nummers, spelernamen, het `!`-icoon
+(rood) en het camera-icoon (groen) behouden hun kleuren op papier.
+Lege regels in de wedstrijddoelen worden afgedrukt als nette
+horizontale lijntjes zonder placeholder-tekst, zodat de coach er nog
+op kan schrijven. Het hele formulier past op **één liggende
+A4-pagina** op 100% printschaal; bevestig de afdruk en neem het vel
+mee naar de lijn.
 
 Liever een PDF in plaats van een papieren afdruk? De afdrukdialoog
 heeft een **Opslaan als PDF**-keuze in de bestemmingslijst — die

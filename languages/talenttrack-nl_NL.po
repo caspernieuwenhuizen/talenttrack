@@ -15289,7 +15289,7 @@ msgstr "Wedstrijdvoorbereiding is alleen beschikbaar voor wedstrijden."
 #. translators: 1: activity title, 2: session date
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:230
 #, php-format
-msgid "Match prep — %1$s · %2$s"
+msgid "Match preparation — %1$s · %2$s"
 msgstr "Wedstrijdvoorbereiding — %1$s · %2$s"
 
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:259

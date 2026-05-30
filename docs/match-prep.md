@@ -75,6 +75,25 @@ most common shape. Changing the formation reshapes the slot positions
 on the pitches; player assignments transfer to the slots that survive
 the rename, the rest fall back to the bench.
 
+## Player names — short form
+
+Every player label on the match-prep surface — roster column, pitch
+slot labels, Doen per speler column, Rollen pane, availability drawer
+— renders as the player's **first name only** (`Daan`, `Senna`,
+`Javi`). The full name is reserved for the player's own profile and
+the team roster pages.
+
+When two players on the same team share a first name, both render
+as `<firstName> <lastInitial>` (`Daan P`, `Daan A`) so the coach can
+tell them apart at a glance. The disambiguation triggers per team —
+a third `Daan` on a different team has no effect on this team's
+labels. The same player's short form is identical across every
+sub-surface of the match-prep page.
+
+If a player has no first name on file, the surface falls back to the
+last name; if neither is on file, it shows `—` until the record is
+fixed.
+
 ## Save behaviour
 
 Every edit live-saves over REST — there is no Save button to press.
@@ -86,10 +105,16 @@ If a save fails, retry the edit; the network may have hiccuped.
 
 The **Print (landscape A4)** button in the toolbar opens the browser's
 own print dialog on the current page — one click, no page reload. The
-page's print stylesheet drops the dashboard chrome (header, breadcrumbs,
-back-pill, toolbar) so only the lineup + per-player attention +
-tactical goals end up on paper. Confirm the print, take the sheet to
-the sideline.
+page's print stylesheet drops the dashboard chrome (brand banner,
+DEMO strip, user menu, breadcrumbs, back-pill, toolbar) so only the
+lineup + per-player attention + tactical goals end up on paper. The
+first visible printed line is `Wedstrijdvoorbereiding — <activity> ·
+<date>` at 12pt bold. The slot numbers, player names, the `!` icon
+(red) and the camera icon (green) all keep their colours on paper.
+Empty goal lines print as clean horizontal rules with no placeholder
+text, leaving the coach room to write. The whole spreadsheet fits on
+**one landscape-A4 page** at 100% print scale; confirm the print,
+take the sheet to the sideline.
 
 Need a PDF instead of a printout? The browser's print dialog has a
 **Save as PDF** option in its destination dropdown — picking it

@@ -519,6 +519,10 @@ body {
 }
 
 @media print {
+  /* (#1023.1) Drop the mockup chrome AND the dashboard brand banner
+     equivalents — the production print CSS hides .tt-dash-header /
+     .tt-user-menu / breadcrumbs / back-pill; the mockup has no
+     equivalents but the rule mirrors the intent. */
   .mockup-bar,
   .toolbar,
   .savebar,
@@ -528,16 +532,17 @@ body {
   }
   body { background: #fff; padding-bottom: 0; }
   .page { max-width: none; padding: 0; }
-  .page-head h1 { font-size: 13pt; margin: 0 0 4mm; }
-  .page-head .sub { font-size: 9pt; }
+  /* (#1023.2) Page title — 12pt bold, first visible line, no top margin. */
+  .page-head h1 { font-size: 12pt; margin: 0 0 3mm; font-weight: 700; }
+  .page-head .sub { font-size: 8pt; margin: 0 0 2mm; }
   .grid3 {
     display: grid !important;
-    grid-template-columns: 50mm minmax(0, 1fr) 70mm !important;
-    gap: 4mm !important;
+    grid-template-columns: 48mm minmax(0, 1fr) 64mm !important;
+    gap: 3mm !important;
   }
-  .roster-table, .dps-table { font-size: 9pt; }
+  .roster-table, .dps-table { font-size: 8pt; }
   .roster-table tbody td,
-  .dps-table tbody td { padding: 1mm 1mm; }
+  .dps-table tbody td { padding: 0.5mm 1mm; }
   .roster-table tbody tr,
   .dps-table tbody tr,
   .goal-box,
@@ -545,6 +550,20 @@ body {
     break-inside: avoid;
     page-break-inside: avoid;
   }
+  /* (#1023.3) Restore pitch slot labels on print. */
+  .slot,
+  .slot .slot-num,
+  .slot .slot-name {
+    color: var(--tt-ink) !important;
+    background: #fff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    color-adjust: exact;
+  }
+  .slot .slot-name { font-size: 7pt; max-width: none; padding: 0.25mm 1mm; }
+  /* (#1023.4) Restore the ! (red) + camera (green) icon colours. */
+  .dps-table tbody td.col-spec.on { color: var(--tt-danger) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; color-adjust: exact; }
+  .dps-table tbody td.col-cam.on  { color: var(--tt-success) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; color-adjust: exact; }
   .pitch,
   .pill-1e, .pill-2e,
   .panel-head,
@@ -558,6 +577,17 @@ body {
     print-color-adjust: exact;
     color-adjust: exact;
   }
+  /* (#1023.5) Compact Wedstrijddoelen so the page fits on one A4 landscape. */
+  .goals { margin-top: 3mm; padding: 2mm 3mm 1mm; }
+  .goals-title { margin: 0 0 1mm; font-size: 9pt; }
+  .goal-box { margin-bottom: 1.5mm; }
+  .goal-box .gbox-title { padding: 0.5mm 2mm; font-size: 7.5pt; }
+  .goal-box .gbox-lines { padding: 0.5mm 2mm; }
+  .goals-row { gap: 2mm; grid-template-columns: 1fr 1fr !important; }
+  .goal-box .gbox-lines input { font-size: 8pt; padding: 0.25mm 1mm; min-height: 0; }
+  /* (#1023.6) Empty goal lines print as a clean rule — no placeholder dots. */
+  .goal-box .gbox-lines input::placeholder { color: transparent !important; opacity: 0 !important; }
+  .dps-table tbody td.col-text input::placeholder { color: transparent !important; opacity: 0 !important; }
   .copy-col,
   button {
     display: none !important;
