@@ -1,0 +1,704 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1a1d21">
+<title>Match Executions — mockup</title>
+<style>
+/* ---------------------------------------------------------------------------
+   Design tokens — mirror what TT production uses so the port is mechanical.
+   --------------------------------------------------------------------------- */
+:root {
+    --tt-ink:        #1a1d21;
+    --tt-ink-soft:   #5b6e75;
+    --tt-paper:      #ffffff;
+    --tt-bg:         #f5f7f6;
+    --tt-line:       #d6dadd;
+    --tt-accent:     #2271b1;
+    --tt-success:    #2e7d4f;
+    --tt-warn:       #c75c1f;
+    --tt-danger:     #d63638;
+    --tt-mute:       #f0f3f2;
+
+    --tap-min:       48px;
+    --gap:           12px;
+    --gap-lg:        16px;
+    --radius:        10px;
+    --radius-lg:     16px;
+    --font:          'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+    font-family: var(--font);
+    color: var(--tt-ink);
+    background: var(--tt-bg);
+    font-size: 16px;
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* ---------------------------------------------------------------------------
+   Mockup-only chrome.
+   --------------------------------------------------------------------------- */
+.mockup-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: #222;
+    color: #eee;
+    font-size: 12px;
+    padding: 8px 12px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+    border-bottom: 2px solid #000;
+}
+.mockup-bar strong { color: #ffd; margin-right: 4px; }
+.mockup-bar button {
+    background: #444; color: #eee; border: 1px solid #666;
+    padding: 4px 10px; border-radius: 4px; font: inherit; cursor: pointer;
+    font-size: 11px;
+}
+.mockup-bar button[aria-pressed="true"] { background: #6c4; color: #000; border-color: #4a3; font-weight: 600; }
+
+/* ---------------------------------------------------------------------------
+   Frame — mobile-first 360px, broadens on tablet/desktop. Single column.
+   --------------------------------------------------------------------------- */
+.frame {
+    max-width: 360px;
+    margin: 0 auto;
+    background: var(--tt-bg);
+    min-height: 100vh;
+}
+@media (min-width: 768px) { .frame { max-width: 720px; } }
+@media (min-width: 1100px) { .frame { max-width: 880px; } }
+
+/* ---------------------------------------------------------------------------
+   Page head — breadcrumbs + page title.
+   --------------------------------------------------------------------------- */
+.page-head {
+    padding: var(--gap-lg) var(--gap-lg) var(--gap);
+    background: var(--tt-paper);
+    border-bottom: 1px solid var(--tt-line);
+}
+.crumb {
+    font-size: 12px;
+    color: var(--tt-ink-soft);
+    margin: 0 0 6px;
+}
+.crumb a { color: var(--tt-accent); text-decoration: none; }
+.page-head__title {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1.2;
+}
+.page-head__sub {
+    margin: 4px 0 0;
+    font-size: 13px;
+    color: var(--tt-ink-soft);
+}
+
+/* ---------------------------------------------------------------------------
+   Demo selector — switches between the LIST surface and the HERO WIDGET
+   preview. Both live in the same mockup so the design conversation can hold
+   them side-by-side.
+   --------------------------------------------------------------------------- */
+.demo-mode { display: none; }
+body[data-demo="list"]   .demo-mode--list   { display: block; }
+body[data-demo="widget"] .demo-mode--widget { display: block; }
+
+/* ---------------------------------------------------------------------------
+   Filters — Team + State. Mobile: stacked side-by-side selects.
+   --------------------------------------------------------------------------- */
+.filters {
+    padding: var(--gap) var(--gap-lg);
+    background: var(--tt-paper);
+    border-bottom: 1px solid var(--tt-line);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--gap);
+}
+.filters__field { display: flex; flex-direction: column; gap: 4px; }
+.filters__label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--tt-ink-soft);
+}
+.filters__select {
+    height: var(--tap-min);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--radius);
+    background: var(--tt-paper);
+    font: inherit;
+    font-size: 14px;
+    padding: 0 var(--gap);
+    color: var(--tt-ink);
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, var(--tt-ink-soft) 50%),
+                      linear-gradient(135deg, var(--tt-ink-soft) 50%, transparent 50%);
+    background-position: calc(100% - 16px) 50%, calc(100% - 11px) 50%;
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
+    padding-right: 30px;
+}
+
+/* ---------------------------------------------------------------------------
+   Bucket header — "Needs review" gets the warn accent; "Finalized" is neutral.
+   --------------------------------------------------------------------------- */
+.bucket-head {
+    padding: 14px var(--gap-lg) 6px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--tt-ink-soft);
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+}
+.bucket-head__count {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--tt-ink-soft);
+    font-variant-numeric: tabular-nums;
+}
+.bucket-head--review {
+    color: var(--tt-warn);
+}
+
+/* ---------------------------------------------------------------------------
+   Execution card — one per row. Date column on the left, opponent + score in
+   the middle, state pill on the right.
+   --------------------------------------------------------------------------- */
+.exec-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.exec {
+    background: var(--tt-paper);
+    border-top: 1px solid var(--tt-mute);
+    border-bottom: 1px solid var(--tt-mute);
+    padding: var(--gap) var(--gap-lg);
+    display: grid;
+    grid-template-columns: 44px 1fr auto;
+    gap: var(--gap);
+    align-items: center;
+    cursor: pointer;
+    margin-bottom: -1px;
+    text-decoration: none;
+    color: inherit;
+}
+.exec:active { background: var(--tt-mute); }
+.exec[data-state="pending_review"] { border-left: 3px solid var(--tt-warn); }
+.exec__date {
+    text-align: center;
+    background: var(--tt-mute);
+    border-radius: var(--radius);
+    padding: 6px 0;
+    line-height: 1;
+}
+.exec__date-d {
+    display: block;
+    font-size: 18px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    margin-top: 2px;
+}
+.exec__date-m {
+    display: block;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    font-weight: 600;
+    margin-bottom: 2px;
+    opacity: 0.85;
+}
+.exec__body { min-width: 0; }
+.exec__title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--tt-ink);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin: 0;
+}
+.exec__meta {
+    font-size: 12px;
+    color: var(--tt-ink-soft);
+    margin: 2px 0 0;
+    font-variant-numeric: tabular-nums;
+}
+.exec__meta strong {
+    color: var(--tt-ink);
+    font-weight: 700;
+    font-size: 13px;
+}
+.exec__meta .sep { margin: 0 6px; color: var(--tt-line); }
+
+/* State pill — pending_review = orange chip, finalized = grey chip. */
+.state-pill {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    padding: 3px 8px;
+    border-radius: 10px;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+.state-pill[data-state="pending_review"] {
+    background: #fff3d9;
+    color: #8a5e0a;
+    border: 1px solid #e8b933;
+}
+.state-pill[data-state="pending_review"]::before {
+    content: '●';
+    color: var(--tt-warn);
+}
+.state-pill[data-state="finalized"] {
+    background: var(--tt-mute);
+    color: var(--tt-ink-soft);
+    border: 1px solid var(--tt-line);
+}
+
+/* ---------------------------------------------------------------------------
+   Empty state — surface only renders when no executions are visible.
+   --------------------------------------------------------------------------- */
+.empty-state {
+    display: none;
+    padding: 48px var(--gap-lg);
+    text-align: center;
+    color: var(--tt-ink-soft);
+}
+.empty-state h3 { margin: 0 0 8px; color: var(--tt-ink); font-size: 18px; }
+.empty-state p  { margin: 0; font-size: 14px; }
+body[data-content="empty"] .exec-list,
+body[data-content="empty"] .bucket-head { display: none; }
+body[data-content="empty"] .empty-state { display: block; }
+
+/* Filter pin — when state filter is "pending_review", hide finalized rows
+   + their bucket; vice versa. */
+body[data-filter="pending"] .exec[data-state="finalized"],
+body[data-filter="pending"] .bucket-head[data-bucket="finalized"] { display: none; }
+body[data-filter="finalized"] .exec[data-state="pending_review"],
+body[data-filter="finalized"] .bucket-head[data-bucket="review"] { display: none; }
+
+/* ---------------------------------------------------------------------------
+   Hero widget preview — what the coach dashboard tile looks like.
+   Wrapped in a faux dashboard frame so the visual context reads right.
+   --------------------------------------------------------------------------- */
+.dashboard {
+    padding: var(--gap-lg);
+    background: var(--tt-bg);
+}
+.dashboard__greeting {
+    font-size: 13px;
+    color: var(--tt-ink-soft);
+    margin: 0 0 4px;
+}
+.dashboard__greeting strong { color: var(--tt-ink); font-weight: 700; }
+.dashboard__hero-title {
+    font-size: 20px;
+    font-weight: 800;
+    margin: 0 0 var(--gap);
+    line-height: 1.2;
+}
+
+/* Widget card — orange accent because pending-review is a "do this now" item */
+.widget {
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.widget__head {
+    background: #fff3d9;
+    border-bottom: 1px solid #e8b933;
+    padding: 10px var(--gap-lg);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--gap);
+}
+.widget__head-title {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: #8a5e0a;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.widget__head-title::before { content: '●'; color: var(--tt-warn); }
+.widget__head-count {
+    background: var(--tt-warn);
+    color: white;
+    font-size: 12px;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-variant-numeric: tabular-nums;
+}
+.widget__body { padding: 0; }
+.widget__hint {
+    padding: 10px var(--gap-lg);
+    font-size: 12px;
+    color: var(--tt-ink-soft);
+    border-bottom: 1px solid var(--tt-mute);
+    line-height: 1.4;
+}
+.widget__list { list-style: none; margin: 0; padding: 0; }
+.widget__row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: var(--gap);
+    padding: var(--gap) var(--gap-lg);
+    min-height: var(--tap-min);
+    border-bottom: 1px solid var(--tt-mute);
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+}
+.widget__row:last-child { border-bottom: none; }
+.widget__row:active { background: var(--tt-mute); }
+.widget__row-main { min-width: 0; }
+.widget__row-title {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.widget__row-meta {
+    margin: 2px 0 0;
+    font-size: 12px;
+    color: var(--tt-ink-soft);
+    font-variant-numeric: tabular-nums;
+}
+.widget__row-cta {
+    min-height: 40px;
+    padding: 0 var(--gap);
+    background: var(--tt-warn);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.widget__foot {
+    padding: 10px var(--gap-lg);
+    text-align: center;
+    background: var(--tt-paper);
+}
+.widget__foot a {
+    font-size: 13px;
+    color: var(--tt-accent);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+/* Widget — empty variant (no pending review) — mockable via demo control. */
+body[data-widget="empty"] .widget__head { background: var(--tt-mute); border-bottom-color: var(--tt-line); }
+body[data-widget="empty"] .widget__head-title { color: var(--tt-ink-soft); }
+body[data-widget="empty"] .widget__head-title::before { color: var(--tt-success); }
+body[data-widget="empty"] .widget__head-count { display: none; }
+body[data-widget="empty"] .widget__list,
+body[data-widget="empty"] .widget__hint { display: none; }
+body[data-widget="empty"] .widget__empty { display: block; }
+.widget__empty {
+    display: none;
+    padding: var(--gap-lg);
+    text-align: center;
+    color: var(--tt-ink-soft);
+    font-size: 13px;
+    line-height: 1.45;
+}
+</style>
+</head>
+<body data-demo="list" data-filter="all" data-content="default" data-widget="default">
+
+<!-- ============================================================
+     STATE PICKER — mockup-only chrome. Strip in production.
+     ============================================================ -->
+<div class="mockup-bar" role="region" aria-label="Mockup state picker">
+    <strong>Surface:</strong>
+    <button type="button" data-set="demo:list" aria-pressed="true">List view</button>
+    <button type="button" data-set="demo:widget">Hero widget</button>
+    &nbsp;&nbsp;
+    <strong>List filter:</strong>
+    <button type="button" data-set="filter:all" aria-pressed="true">All</button>
+    <button type="button" data-set="filter:pending">Pending review</button>
+    <button type="button" data-set="filter:finalized">Finalized</button>
+    &nbsp;&nbsp;
+    <strong>Content:</strong>
+    <button type="button" data-set="content:default" aria-pressed="true">Default</button>
+    <button type="button" data-set="content:empty">Empty</button>
+    &nbsp;&nbsp;
+    <strong>Widget:</strong>
+    <button type="button" data-set="widget:default" aria-pressed="true">Has pending</button>
+    <button type="button" data-set="widget:empty">All clear</button>
+</div>
+
+<div class="frame">
+
+    <!-- ============================================================
+         LIST SURFACE — ?tt_view=match-executions
+         ============================================================ -->
+    <div class="demo-mode demo-mode--list">
+
+        <header class="page-head">
+            <p class="crumb"><a href="#">Dashboard</a> &rsaquo; Match executions</p>
+            <h1 class="page-head__title">Match executions</h1>
+            <p class="page-head__sub">Past matches you can review, edit, or open as a recap.</p>
+        </header>
+
+        <section class="filters" aria-label="Filters">
+            <label class="filters__field">
+                <span class="filters__label">Team</span>
+                <select class="filters__select" name="team_id">
+                    <option value="">— all teams —</option>
+                    <option selected>Hedel JO13</option>
+                    <option>Hedel JO11-1</option>
+                    <option>Hedel JO15-1</option>
+                </select>
+            </label>
+            <label class="filters__field">
+                <span class="filters__label">State</span>
+                <select class="filters__select" name="state" data-mockup-filter-driver>
+                    <option value="all" selected>— all —</option>
+                    <option value="pending">Pending review</option>
+                    <option value="finalized">Finalized</option>
+                </select>
+            </label>
+        </section>
+
+        <ul class="exec-list" aria-label="Match executions">
+
+            <!-- Needs review bucket — orange accent, pinned to top -->
+            <li>
+                <div class="bucket-head bucket-head--review" data-bucket="review">
+                    <span>Needs review</span>
+                    <span class="bucket-head__count">2 matches</span>
+                </div>
+            </li>
+
+            <li>
+                <a href="#" class="exec" data-state="pending_review">
+                    <div class="exec__date">
+                        <span class="exec__date-m">Jun</span>
+                        <span class="exec__date-d">6</span>
+                    </div>
+                    <div class="exec__body">
+                        <p class="exec__title">vs Den Helder · home · friendly</p>
+                        <p class="exec__meta">Hedel JO13<span class="sep">·</span><strong>2 – 1</strong><span class="sep">·</span>finished 15:38</p>
+                    </div>
+                    <span class="state-pill" data-state="pending_review">Pending review</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="#" class="exec" data-state="pending_review">
+                    <div class="exec__date">
+                        <span class="exec__date-m">May</span>
+                        <span class="exec__date-d">30</span>
+                    </div>
+                    <div class="exec__body">
+                        <p class="exec__title">vs Ajax U13 · away · league</p>
+                        <p class="exec__meta">Hedel JO13<span class="sep">·</span><strong>1 – 3</strong><span class="sep">·</span>finished 17:02</p>
+                    </div>
+                    <span class="state-pill" data-state="pending_review">Pending review</span>
+                </a>
+            </li>
+
+            <!-- Finalized bucket — neutral, chronological -->
+            <li>
+                <div class="bucket-head" data-bucket="finalized">
+                    <span>Finalized</span>
+                    <span class="bucket-head__count">5 of 18 shown</span>
+                </div>
+            </li>
+
+            <li>
+                <a href="#" class="exec" data-state="finalized">
+                    <div class="exec__date">
+                        <span class="exec__date-m">May</span>
+                        <span class="exec__date-d">24</span>
+                    </div>
+                    <div class="exec__body">
+                        <p class="exec__title">vs Tiel · home · league</p>
+                        <p class="exec__meta">Hedel JO13<span class="sep">·</span><strong>4 – 2</strong><span class="sep">·</span>win</p>
+                    </div>
+                    <span class="state-pill" data-state="finalized">Finalized</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="#" class="exec" data-state="finalized">
+                    <div class="exec__date">
+                        <span class="exec__date-m">May</span>
+                        <span class="exec__date-d">17</span>
+                    </div>
+                    <div class="exec__body">
+                        <p class="exec__title">vs Feyenoord U13 · away · friendly</p>
+                        <p class="exec__meta">Hedel JO13<span class="sep">·</span><strong>0 – 2</strong><span class="sep">·</span>loss</p>
+                    </div>
+                    <span class="state-pill" data-state="finalized">Finalized</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="#" class="exec" data-state="finalized">
+                    <div class="exec__date">
+                        <span class="exec__date-m">May</span>
+                        <span class="exec__date-d">10</span>
+                    </div>
+                    <div class="exec__body">
+                        <p class="exec__title">vs Sparta · home · league</p>
+                        <p class="exec__meta">Hedel JO13<span class="sep">·</span><strong>3 – 3</strong><span class="sep">·</span>draw</p>
+                    </div>
+                    <span class="state-pill" data-state="finalized">Finalized</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="#" class="exec" data-state="finalized">
+                    <div class="exec__date">
+                        <span class="exec__date-m">May</span>
+                        <span class="exec__date-d">3</span>
+                    </div>
+                    <div class="exec__body">
+                        <p class="exec__title">vs AZ U13 · away · cup</p>
+                        <p class="exec__meta">Hedel JO13<span class="sep">·</span><strong>1 – 0</strong><span class="sep">·</span>win</p>
+                    </div>
+                    <span class="state-pill" data-state="finalized">Finalized</span>
+                </a>
+            </li>
+
+            <li>
+                <a href="#" class="exec" data-state="finalized">
+                    <div class="exec__date">
+                        <span class="exec__date-m">Apr</span>
+                        <span class="exec__date-d">26</span>
+                    </div>
+                    <div class="exec__body">
+                        <p class="exec__title">vs PSV U13 · home · league</p>
+                        <p class="exec__meta">Hedel JO13<span class="sep">·</span><strong>2 – 2</strong><span class="sep">·</span>draw</p>
+                    </div>
+                    <span class="state-pill" data-state="finalized">Finalized</span>
+                </a>
+            </li>
+
+        </ul>
+
+        <div class="empty-state">
+            <h3>No match executions yet</h3>
+            <p>When you start a match from an activity, it'll show up here when it ends.</p>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         HERO WIDGET PREVIEW — what the coach dashboard tile looks like.
+         ============================================================ -->
+    <div class="demo-mode demo-mode--widget">
+        <div class="dashboard">
+            <p class="dashboard__greeting">Good evening, <strong>Casper</strong></p>
+            <h1 class="dashboard__hero-title">Your coaching today</h1>
+
+            <div class="widget" role="region" aria-label="Matches needing review">
+                <div class="widget__head">
+                    <h2 class="widget__head-title">Matches needing review</h2>
+                    <span class="widget__head-count">2</span>
+                </div>
+
+                <div class="widget__body">
+                    <p class="widget__hint">You ended these matches on the sideline but haven't finalised them yet. Tap a row to review and lock it in.</p>
+
+                    <p class="widget__empty">All your match executions are finalised. Nice — chemistry analytics are up to date.</p>
+
+                    <ul class="widget__list">
+                        <li>
+                            <a href="#" class="widget__row">
+                                <div class="widget__row-main">
+                                    <p class="widget__row-title">vs Den Helder · 6 Jun</p>
+                                    <p class="widget__row-meta">Hedel JO13 · 2 – 1 · 4 hrs ago</p>
+                                </div>
+                                <span class="widget__row-cta">Review</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="widget__row">
+                                <div class="widget__row-main">
+                                    <p class="widget__row-title">vs Ajax U13 · 30 May</p>
+                                    <p class="widget__row-meta">Hedel JO13 · 1 – 3 · 7 days ago</p>
+                                </div>
+                                <span class="widget__row-cta">Review</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="widget__foot">
+                    <a href="#">All match executions ›</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+// Generic body-attr setter for the picker chips.
+document.querySelectorAll('[data-set]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        var pair = btn.getAttribute('data-set').split(':');
+        var key  = pair[0];
+        var val  = pair[1];
+        document.body.setAttribute('data-' + key, val);
+        // Toggle aria-pressed within the same key group.
+        document.querySelectorAll('[data-set^="' + key + ':"]').forEach(function (other) {
+            other.setAttribute('aria-pressed', other === btn ? 'true' : 'false');
+        });
+    });
+});
+
+// Wire the State select to the demo filter, so picking from the actual
+// dropdown also flips the layout — gives the design conversation a single
+// source of truth.
+var filterSelect = document.querySelector('[data-mockup-filter-driver]');
+if (filterSelect) {
+    filterSelect.addEventListener('change', function () {
+        var map = { all: 'all', pending: 'pending', finalized: 'finalized' };
+        document.body.setAttribute('data-filter', map[filterSelect.value] || 'all');
+        document.querySelectorAll('[data-set^="filter:"]').forEach(function (chip) {
+            var val = chip.getAttribute('data-set').split(':')[1];
+            chip.setAttribute('aria-pressed', val === (map[filterSelect.value] || 'all') ? 'true' : 'false');
+        });
+    });
+}
+</script>
+</body>
+</html>

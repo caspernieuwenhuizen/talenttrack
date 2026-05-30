@@ -78,6 +78,31 @@ body {
     position: relative;
 }
 
+/* Pending review and finalized are at-home review surfaces — coach is at a
+   desk, not on the sideline. Allow the frame to breathe on tablet/desktop.
+   Live-match states stay locked at 360px (gloves-on-phone budget). */
+body[data-state="pending_review"] .frame,
+body[data-state="finalized"]      .frame {
+    max-width: 360px;
+}
+@media (min-width: 768px) {
+    body[data-state="pending_review"] .frame,
+    body[data-state="finalized"]      .frame { max-width: 720px; }
+}
+@media (min-width: 1100px) {
+    body[data-state="pending_review"] .frame,
+    body[data-state="finalized"]      .frame { max-width: 880px; }
+}
+
+/* When the frame widens, keep the live-style blocks (score, timer) at
+   their phone-size width so they don't get awkwardly stretched. */
+body[data-state="pending_review"] .score__line,
+body[data-state="pending_review"] .timer {
+    max-width: 360px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 /* ---------------------------------------------------------------------------
    Header — compact, no chrome above it. Single row of context.
    --------------------------------------------------------------------------- */
@@ -310,14 +335,6 @@ body {
     gap: 4px;
 }
 .action-btn:active { background: var(--tt-mute); }
-.action-btn--goal {
-    background: #fff8e8;
-    border-color: #e8b933;
-    color: #8a5e0a;
-    min-width: 64px;
-    justify-content: center;
-}
-.action-btn--goal:active { background: #ffe7a3; }
 .action-btn--sub-on  { background: var(--tt-success); border-color: var(--tt-success); color: white; min-width: 52px; justify-content: center; }
 .action-btn--sub-off { background: var(--tt-mute); color: var(--tt-ink-soft); min-width: 52px; justify-content: center; }
 
@@ -368,27 +385,59 @@ body[data-swap-mode="true"] .sub-target { display: block; }
 .sub-target .player:active { background: #eef5fb; }
 
 /* ---------------------------------------------------------------------------
-   Specific-goal summary — small chip showing per-player flagged action counts.
-   Tucked into the bottom of the on-pitch row so context stays attached.
+   Flagged-action stepper — one chip per flagged player, inline in the right
+   column of the player row (same line as the name). One flagged action per
+   player by design — the action label lives in the player subtitle so the
+   chip itself is just − count +. Glove-friendly: 48px tall to match the
+   row's min-height, 44px wide on each button. − disables at 0.
    --------------------------------------------------------------------------- */
-.player__goals {
-    grid-column: 1 / -1;
-    display: flex;
-    gap: 6px;
-    padding-top: 4px;
-    flex-wrap: wrap;
-}
 .goal-chip {
-    font-size: 11px;
+    display: inline-flex;
+    align-items: stretch;
+    height: var(--tap-min);
     background: #fff8e8;
     border: 1px solid #e8b933;
+    border-radius: 24px;
+    overflow: hidden;
+}
+.goal-chip__btn {
+    width: 44px;
+    border: none;
+    background: transparent;
+    font: inherit;
+    font-size: 18px;
+    font-weight: 800;
     color: #8a5e0a;
-    padding: 2px 8px;
-    border-radius: 12px;
-    font-weight: 600;
+    cursor: pointer;
+    touch-action: manipulation;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.goal-chip__btn:active { background: #ffe7a3; }
+.goal-chip__btn--minus { border-right: 1px solid #e8b933; }
+.goal-chip__btn--plus  {
+    border-left: 1px solid #e8b933;
+    background: rgba(232, 185, 51, 0.18);
+}
+.goal-chip__btn--plus:active { background: #ffd56b; }
+.goal-chip__btn[disabled],
+.goal-chip__btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+.goal-chip__count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    padding: 0 6px;
+    font-size: 16px;
+    font-weight: 800;
+    color: #8a5e0a;
     font-variant-numeric: tabular-nums;
 }
-.goal-chip strong { font-weight: 800; }
 
 /* ---------------------------------------------------------------------------
    Sticky footer — state-aware CTA + sync indicator. Always visible.
@@ -442,7 +491,527 @@ body[data-swap-mode="true"] .sub-target { display: block; }
 .footer__sub[data-state="offline"] .dot { background: var(--tt-danger); }
 
 /* ---------------------------------------------------------------------------
-   Finished state — read-only; everything except the action buttons stays visible.
+   Pending review banner — surfaces under the header in pending_review state.
+   Tells the coach the match is over but still editable, with a hint that
+   Finalize will lock it. Hidden in every other state.
+   --------------------------------------------------------------------------- */
+.review-banner {
+    display: none;
+    background: #fff3d9;
+    border-bottom: 1px solid #e8b933;
+    padding: 10px var(--gap-lg);
+    color: #8a5e0a;
+    font-size: 13px;
+    line-height: 1.35;
+}
+.review-banner__title {
+    font-weight: 700;
+    margin: 0 0 2px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.review-banner__title::before {
+    content: '●';
+    color: var(--tt-warn);
+}
+.review-banner__sub {
+    margin: 0;
+    font-size: 12px;
+    color: #8a5e0a;
+    opacity: 0.9;
+}
+body[data-state="pending_review"] .review-banner { display: block; }
+
+/* ---------------------------------------------------------------------------
+   Late-event affordance — visible only in pending_review. Sits under the
+   bench section and lets the coach add a retroactive goal / sub with a
+   minute picker, in case something was missed during the live action.
+   --------------------------------------------------------------------------- */
+.late-event {
+    display: none;
+    background: var(--tt-paper);
+    border-top: 3px dashed var(--tt-warn);
+    border-bottom: 1px solid var(--tt-line);
+    padding: var(--gap) var(--gap-lg) var(--gap-lg);
+}
+body[data-state="pending_review"] .late-event { display: block; }
+.late-event__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+.late-event__title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--tt-warn);
+    margin: 0;
+}
+.late-event__hint {
+    font-size: 11px;
+    color: var(--tt-ink-soft);
+}
+.late-event__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--gap);
+    margin-top: 6px;
+}
+.late-event__btn {
+    min-height: var(--tap-min);
+    border: 1px solid var(--tt-warn);
+    background: #fff8e8;
+    color: #8a5e0a;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: var(--radius);
+    cursor: pointer;
+    touch-action: manipulation;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+.late-event__btn:active { background: #ffe7a3; }
+.late-event__form {
+    display: none;
+    margin-top: var(--gap);
+    padding: var(--gap);
+    background: var(--tt-mute);
+    border-radius: var(--radius);
+}
+.late-event[data-form-open="true"] .late-event__form { display: block; }
+.late-event__field { margin-bottom: 10px; }
+.late-event__field:last-child { margin-bottom: 0; }
+.late-event__label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--tt-ink-soft);
+    margin-bottom: 4px;
+}
+.late-event__select,
+.late-event__minute {
+    width: 100%;
+    height: var(--tap-min);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--radius);
+    background: var(--tt-paper);
+    font: inherit;
+    font-size: 16px;
+    padding: 0 var(--gap);
+    color: var(--tt-ink);
+}
+.late-event__minute-wrap {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 6px;
+    align-items: center;
+}
+.late-event__half-pill {
+    display: inline-flex;
+    align-items: center;
+    height: var(--tap-min);
+    padding: 0 var(--gap);
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--radius);
+    font-size: 13px;
+    color: var(--tt-ink-soft);
+    font-weight: 600;
+}
+.late-event__actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--gap);
+    margin-top: 12px;
+}
+.late-event__save {
+    min-height: var(--tap-min);
+    background: var(--tt-warn);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.late-event__cancel {
+    min-height: var(--tap-min);
+    background: var(--tt-paper);
+    color: var(--tt-ink);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--radius);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+/* ---------------------------------------------------------------------------
+   Subs recorded — editable list of every sub that already happened during
+   the live match. Only visible in pending_review. Each row has a number
+   input for the minute, an auto-derived half pill, the on→off pair, and
+   a delete affordance. Mobile-first row stack; on tablet+ the row inlines
+   so the coach can scrub a season's worth of edits quickly at a desk.
+   --------------------------------------------------------------------------- */
+.subs-edit {
+    display: none;
+    background: var(--tt-paper);
+    border-bottom: 1px solid var(--tt-line);
+}
+body[data-state="pending_review"] .subs-edit { display: block; }
+
+.subs-edit__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: var(--gap) var(--gap-lg) 4px;
+}
+.subs-edit__title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--tt-ink-soft);
+    margin: 0;
+}
+.subs-edit__count {
+    font-size: 12px;
+    color: var(--tt-ink-soft);
+    font-variant-numeric: tabular-nums;
+}
+.subs-edit__hint {
+    padding: 0 var(--gap-lg) var(--gap);
+    font-size: 12px;
+    color: var(--tt-ink-soft);
+    line-height: 1.4;
+}
+
+.subs-edit__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.sub-row {
+    display: grid;
+    grid-template-columns: auto auto 1fr auto;
+    grid-template-areas: "minute half pair delete";
+    gap: 10px;
+    align-items: center;
+    padding: 10px var(--gap-lg);
+    border-bottom: 1px solid var(--tt-mute);
+}
+.sub-row:last-child { border-bottom: none; }
+.sub-row__minute-wrap {
+    grid-area: minute;
+    display: inline-flex;
+    align-items: center;
+    background: var(--tt-mute);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    height: var(--tap-min);
+}
+.sub-row__minute-wrap:focus-within {
+    border-color: var(--tt-accent);
+    background: #eef5fb;
+}
+.sub-row__minute {
+    width: 56px;
+    height: 100%;
+    border: none;
+    background: transparent;
+    font: inherit;
+    font-size: 16px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+    color: var(--tt-ink);
+    padding: 0;
+    -moz-appearance: textfield;
+}
+.sub-row__minute::-webkit-outer-spin-button,
+.sub-row__minute::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.sub-row__minute-suffix {
+    padding-right: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--tt-ink-soft);
+}
+.sub-row__half {
+    grid-area: half;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    padding: 3px 8px;
+    border-radius: 10px;
+    background: var(--tt-mute);
+    color: var(--tt-ink-soft);
+    white-space: nowrap;
+}
+.sub-row__half[data-half="2"] {
+    background: #e1eef5;
+    color: #0d4a7a;
+}
+.sub-row__pair {
+    grid-area: pair;
+    font-size: 14px;
+    color: var(--tt-ink);
+    min-width: 0;
+}
+.sub-row__pair .on {
+    font-weight: 700;
+    color: var(--tt-success);
+}
+.sub-row__pair .arrow {
+    color: var(--tt-line);
+    margin: 0 6px;
+    font-weight: 700;
+}
+.sub-row__pair .off {
+    font-weight: 600;
+    color: var(--tt-ink-soft);
+    text-decoration: line-through;
+    text-decoration-color: var(--tt-line);
+}
+.sub-row__pair small {
+    display: block;
+    font-size: 11px;
+    color: var(--tt-ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-top: 2px;
+}
+.sub-row__delete {
+    grid-area: delete;
+    min-height: var(--tap-min);
+    min-width: var(--tap-min);
+    border: 1px solid var(--tt-line);
+    background: var(--tt-paper);
+    color: var(--tt-danger);
+    font: inherit;
+    font-size: 18px;
+    line-height: 1;
+    font-weight: 700;
+    border-radius: var(--radius);
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.sub-row__delete:active { background: #fdecec; }
+
+/* Edited cue — when the minute is changed, the input wrap turns warn-orange
+   so the coach sees what's unsaved at a glance. Cleared on finalise. */
+.sub-row[data-edited="true"] .sub-row__minute-wrap {
+    border-color: var(--tt-warn);
+    background: #fff8e8;
+}
+.sub-row[data-edited="true"] .sub-row__minute-suffix {
+    color: var(--tt-warn);
+}
+
+/* On tablet+: the section gets some side padding and the row gets a max
+   width so the controls cluster together on a single readable line. */
+@media (min-width: 768px) {
+    .subs-edit { padding: 0 var(--gap-lg) var(--gap); }
+    .subs-edit__head, .subs-edit__hint { padding-left: 0; padding-right: 0; }
+    .sub-row { padding-left: 0; padding-right: 0; }
+}
+
+/* ---------------------------------------------------------------------------
+   Finalize confirm dialog — visible only when explicitly opened from the
+   sticky footer's Finalize CTA. Modal lookalike (no real backdrop in mock).
+   --------------------------------------------------------------------------- */
+.confirm {
+    display: none;
+    position: fixed;
+    left: 0; right: 0; top: 0; bottom: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 60;
+    align-items: center;
+    justify-content: center;
+    padding: var(--gap-lg);
+}
+body[data-confirm="true"] .confirm { display: flex; }
+.confirm__card {
+    background: var(--tt-paper);
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 320px;
+    padding: var(--gap-lg);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+}
+.confirm__title {
+    margin: 0 0 8px;
+    font-size: 17px;
+    font-weight: 800;
+}
+.confirm__body {
+    margin: 0 0 14px;
+    font-size: 14px;
+    color: var(--tt-ink-soft);
+    line-height: 1.45;
+}
+.confirm__actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+.confirm__btn {
+    min-height: var(--tap-min);
+    border-radius: var(--radius);
+    border: 1px solid var(--tt-line);
+    background: var(--tt-paper);
+    color: var(--tt-ink);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.confirm__btn--danger {
+    background: var(--tt-danger);
+    color: white;
+    border-color: var(--tt-danger);
+    font-weight: 700;
+}
+
+/* ---------------------------------------------------------------------------
+   Finalized summary — read-only card layout shown in finalized state. Replaces
+   the live editing zones (score steppers, timer with controls, on-pitch with
+   actions, bench, late-event). Pure recap.
+   --------------------------------------------------------------------------- */
+.summary {
+    display: none;
+    background: var(--tt-paper);
+    border-bottom: 1px solid var(--tt-line);
+    padding: var(--gap-lg);
+}
+body[data-state="finalized"] .summary { display: block; }
+.summary__score {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: var(--gap);
+    align-items: center;
+    padding: var(--gap) 0 var(--gap-lg);
+    border-bottom: 1px solid var(--tt-line);
+    margin-bottom: var(--gap-lg);
+}
+.summary__team {
+    text-align: center;
+}
+.summary__team-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--tt-ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin: 0 0 4px;
+}
+.summary__team-score {
+    font-size: 44px;
+    font-weight: 900;
+    line-height: 1;
+    color: var(--tt-ink);
+    font-variant-numeric: tabular-nums;
+}
+.summary__dash {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--tt-line);
+}
+.summary__result {
+    text-align: center;
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--tt-success);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    grid-column: 1 / -1;
+}
+.summary__row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: var(--gap);
+    padding: 8px 0;
+    font-size: 13px;
+}
+.summary__row + .summary__row { border-top: 1px solid var(--tt-mute); }
+.summary__row-label {
+    color: var(--tt-ink-soft);
+    font-weight: 500;
+}
+.summary__row-value {
+    font-weight: 700;
+    color: var(--tt-ink);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+}
+.summary__section {
+    margin-top: var(--gap-lg);
+}
+.summary__section-title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--tt-ink-soft);
+    margin: 0 0 8px;
+}
+.summary__event {
+    display: grid;
+    grid-template-columns: 36px 1fr auto;
+    gap: 10px;
+    align-items: center;
+    padding: 6px 0;
+    font-size: 13px;
+}
+.summary__event + .summary__event { border-top: 1px solid var(--tt-mute); }
+.summary__event-min {
+    text-align: center;
+    background: var(--tt-mute);
+    border-radius: 12px;
+    padding: 2px 0;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--tt-ink-soft);
+    font-size: 12px;
+}
+.summary__event-name {
+    font-weight: 600;
+    color: var(--tt-ink);
+}
+.summary__event-name small {
+    display: block;
+    font-size: 11px;
+    color: var(--tt-ink-soft);
+    font-weight: 400;
+}
+.summary__event-kind {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    padding: 3px 8px;
+    border-radius: 10px;
+}
+.summary__event-kind[data-kind="goal"] { background: #fff8e8; color: #8a5e0a; }
+.summary__event-kind[data-kind="sub"]  { background: #e1eef5; color: #0d4a7a; }
+
+/* ---------------------------------------------------------------------------
+   Finished (legacy demo) + finalized — read-only; controls hidden.
    --------------------------------------------------------------------------- */
 body[data-state="finished"] .score__btn,
 body[data-state="finished"] .player__actions,
@@ -453,10 +1022,25 @@ body[data-state="finished"] .timer__half { color: var(--tt-ink-soft); }
 body[data-state="finished"] .timer__half::before { display: none; }
 body[data-state="finished"] .swap-banner { display: none !important; }
 
+/* Pending review — controls remain ENABLED but the timer chrome freezes.
+   Timer half label loses its live pulse, no start/pause/resume buttons. */
+body[data-state="pending_review"] .timer__btn { display: none; }
+body[data-state="pending_review"] .timer__half { color: var(--tt-ink-soft); }
+body[data-state="pending_review"] .timer__half::before { display: none; }
+
+/* Finalized — replace everything with the summary card. Hide the live editing
+   surfaces entirely; the summary covers the whole story. */
+body[data-state="finalized"] .score,
+body[data-state="finalized"] .timer,
+body[data-state="finalized"] .on-pitch,
+body[data-state="finalized"] .bench,
+body[data-state="finalized"] .sub-target,
+body[data-state="finalized"] .late-event { display: none; }
+
 /* On-pitch only visible from first_half onwards — hidden in not_started */
 body[data-state="not_started"] .on-pitch { display: none; }
 
-/* Bench hidden in finished state too — match is over, no subs */
+/* Bench hidden in finished/finalized — match is over, no subs */
 body[data-state="finished"] .bench { display: none; }
 body[data-state="not_started"] .bench { display: none; }
 
@@ -474,11 +1058,14 @@ body[data-state="finished"] .timer__btn { display: none; }
 
 /* Footer CTA toggling — only one visible per state */
 .footer__cta { display: none; }
-body[data-state="not_started"] .footer__cta[data-action="start-match"] { display: block; }
-body[data-state="first_half"]  .footer__cta[data-action="end-half"]    { display: block; }
-body[data-state="half_time"]   .footer__cta[data-action="start-2nd"]   { display: block; }
-body[data-state="second_half"] .footer__cta[data-action="end-match"]   { display: block; }
-body[data-state="finished"]    .footer__cta[data-action="done"]        { display: block; }
+body[data-state="not_started"]    .footer__cta[data-action="start-match"]   { display: block; }
+body[data-state="first_half"]     .footer__cta[data-action="end-half"]      { display: block; }
+body[data-state="half_time"]      .footer__cta[data-action="start-2nd"]     { display: block; }
+body[data-state="second_half"]    .footer__cta[data-action="end-match"]     { display: block; }
+body[data-state="finished"]       .footer__cta[data-action="done"]          { display: block; }
+body[data-state="pending_review"] .footer__cta[data-action="finalize"]      { display: block; }
+body[data-state="finalized"]      .footer__cta[data-action="back-to-list"]  { display: block; }
+body[data-state="finalized"]      .footer__sub { display: none; }
 </style>
 </head>
 <body data-state="first_half">
@@ -492,7 +1079,8 @@ body[data-state="finished"]    .footer__cta[data-action="done"]        { display
     <button type="button" data-pick="first_half" aria-pressed="true">First half (live)</button>
     <button type="button" data-pick="half_time">Half time</button>
     <button type="button" data-pick="second_half">Second half</button>
-    <button type="button" data-pick="finished">Finished</button>
+    <button type="button" data-pick="pending_review">Pending review</button>
+    <button type="button" data-pick="finalized">Finalized</button>
     <button type="button" data-pick-swap>Toggle sub-mode</button>
 </div>
 
@@ -504,6 +1092,85 @@ body[data-state="finished"]    .footer__cta[data-action="done"]        { display
     <header class="header">
         <p class="header__meta">Hedel JO13<span class="vs">vs</span>Den Helder<span class="sep">·</span><span class="when">6 Jun 14:00</span></p>
     </header>
+
+    <!-- ============================================================
+         Pending-review banner — shown when state="pending_review".
+         Tells the coach the match is over but still editable, and that
+         "Finalize" in the footer locks it.
+         ============================================================ -->
+    <div class="review-banner" role="status">
+        <p class="review-banner__title">Match ended · pending review</p>
+        <p class="review-banner__sub">Finished 6 Jun · 15:38. You can still fix the score, add late goals or correct subs. Tap Finalize when you're done.</p>
+    </div>
+
+    <!-- ============================================================
+         Finalized summary — pure read-only recap, replaces the live
+         editing surfaces in state="finalized".
+         ============================================================ -->
+    <section class="summary" aria-label="Match summary">
+        <div class="summary__score">
+            <div class="summary__team">
+                <p class="summary__team-name">HED</p>
+                <p class="summary__team-score">2</p>
+            </div>
+            <span class="summary__dash">–</span>
+            <div class="summary__team">
+                <p class="summary__team-name">DEN</p>
+                <p class="summary__team-score">1</p>
+            </div>
+            <p class="summary__result">Win · home · friendly</p>
+        </div>
+
+        <div class="summary__row">
+            <span class="summary__row-label">Kickoff</span>
+            <span class="summary__row-value">6 Jun · 14:00</span>
+        </div>
+        <div class="summary__row">
+            <span class="summary__row-label">Final whistle</span>
+            <span class="summary__row-value">15:38</span>
+        </div>
+        <div class="summary__row">
+            <span class="summary__row-label">Finalised by</span>
+            <span class="summary__row-value">Casper · 6 Jun 16:42</span>
+        </div>
+        <div class="summary__row">
+            <span class="summary__row-label">Players · attendance</span>
+            <span class="summary__row-value">14 of 15</span>
+        </div>
+
+        <div class="summary__section">
+            <h2 class="summary__section-title">Goals (3)</h2>
+            <div class="summary__event">
+                <span class="summary__event-min">12'</span>
+                <span class="summary__event-name">Daan Visser <small>HED · open play</small></span>
+                <span class="summary__event-kind" data-kind="goal">Goal</span>
+            </div>
+            <div class="summary__event">
+                <span class="summary__event-min">31'</span>
+                <span class="summary__event-name">Lucas de Vries <small>HED · cross</small></span>
+                <span class="summary__event-kind" data-kind="goal">Goal</span>
+            </div>
+            <div class="summary__event">
+                <span class="summary__event-min">58'</span>
+                <span class="summary__event-name">#9 Den Helder <small>DEN · penalty</small></span>
+                <span class="summary__event-kind" data-kind="goal">Goal</span>
+            </div>
+        </div>
+
+        <div class="summary__section">
+            <h2 class="summary__section-title">Substitutions (2)</h2>
+            <div class="summary__event">
+                <span class="summary__event-min">38'</span>
+                <span class="summary__event-name">Sem → Mees <small>MID</small></span>
+                <span class="summary__event-kind" data-kind="sub">Sub</span>
+            </div>
+            <div class="summary__event">
+                <span class="summary__event-min">66'</span>
+                <span class="summary__event-name">Ruben → Daan <small>ST</small></span>
+                <span class="summary__event-kind" data-kind="sub">Sub</span>
+            </div>
+        </div>
+    </section>
 
     <!-- ============================================================
          Score — two columns. Team abbreviation labels above each stepper.
@@ -542,6 +1209,8 @@ body[data-state="finished"]    .footer__cta[data-action="done"]        { display
                 <span data-show-state="half_time">Half time</span>
                 <span data-show-state="second_half">Second half</span>
                 <span data-show-state="finished">Final</span>
+                <span data-show-state="pending_review">Full time · 80'</span>
+                <span data-show-state="finalized">Full time · locked</span>
             </p>
             <p class="timer__clock">23:14</p>
         </div>
@@ -566,14 +1235,12 @@ body[data-state="finished"]    .footer__cta[data-action="done"]        { display
         <ul class="player-list">
             <li class="player" data-flagged="true">
                 <span class="player__number">7</span>
-                <span class="player__name">Lucas de Vries <small>RW · flagged: crosses, 1v1</small></span>
-                <div class="player__actions">
-                    <button type="button" class="action-btn action-btn--goal" aria-label="Log goal action for Lucas">+ action</button>
-                </div>
-                <div class="player__goals">
-                    <span class="goal-chip">crosses <strong>3</strong></span>
-                    <span class="goal-chip">1v1 <strong>2</strong></span>
-                </div>
+                <span class="player__name">Lucas de Vries <small>RW · crosses</small></span>
+                <span class="goal-chip">
+                    <button type="button" class="goal-chip__btn goal-chip__btn--minus" aria-label="Decrement crosses for Lucas">−</button>
+                    <span class="goal-chip__count">3</span>
+                    <button type="button" class="goal-chip__btn goal-chip__btn--plus" aria-label="Increment crosses for Lucas">+</button>
+                </span>
             </li>
             <li class="player">
                 <span class="player__number">9</span>
@@ -581,13 +1248,12 @@ body[data-state="finished"]    .footer__cta[data-action="done"]        { display
             </li>
             <li class="player" data-flagged="true">
                 <span class="player__number">4</span>
-                <span class="player__name">Bram Hendriks <small>CB · flagged: clearances</small></span>
-                <div class="player__actions">
-                    <button type="button" class="action-btn action-btn--goal">+ action</button>
-                </div>
-                <div class="player__goals">
-                    <span class="goal-chip">clearances <strong>5</strong></span>
-                </div>
+                <span class="player__name">Bram Hendriks <small>CB · clearances</small></span>
+                <span class="goal-chip">
+                    <button type="button" class="goal-chip__btn goal-chip__btn--minus" aria-label="Decrement clearances for Bram">−</button>
+                    <span class="goal-chip__count">5</span>
+                    <button type="button" class="goal-chip__btn goal-chip__btn--plus" aria-label="Increment clearances for Bram">+</button>
+                </span>
             </li>
             <li class="player">
                 <span class="player__number">1</span>
@@ -636,6 +1302,91 @@ body[data-state="finished"]    .footer__cta[data-action="done"]        { display
                 <div class="player__actions">
                     <button type="button" class="action-btn action-btn--sub-on">→ on</button>
                 </div>
+            </li>
+        </ul>
+    </section>
+
+    <!-- ============================================================
+         Late event — only visible in pending_review. Coach can add a
+         goal/sub that happened during the match but wasn't recorded.
+         Minute-picker lets them backdate it to the right half/minute.
+         Tap a button → form expands inline with the chosen kind.
+         ============================================================ -->
+    <section class="late-event" aria-label="Add a late event">
+        <div class="late-event__head">
+            <h2 class="late-event__title">Add late event</h2>
+            <span class="late-event__hint">Forgot something live?</span>
+        </div>
+        <div class="late-event__row">
+            <button type="button" class="late-event__btn" data-open-late="goal">+ Late goal</button>
+            <button type="button" class="late-event__btn" data-open-late="sub">+ Late sub</button>
+        </div>
+
+        <div class="late-event__form" aria-label="Late event form">
+            <div class="late-event__field">
+                <label class="late-event__label" for="late-player">Player</label>
+                <select class="late-event__select" id="late-player">
+                    <option>#7 Lucas de Vries · RW</option>
+                    <option>#9 Daan Visser · ST</option>
+                    <option>#4 Bram Hendriks · CB</option>
+                    <option>#10 Thijs Mulder · CAM</option>
+                    <option>#1 Jelle van Dijk · GK</option>
+                </select>
+            </div>
+            <div class="late-event__field">
+                <label class="late-event__label" for="late-minute">When did it happen?</label>
+                <div class="late-event__minute-wrap">
+                    <input class="late-event__minute" id="late-minute" type="number" inputmode="numeric" min="0" max="120" value="34" aria-label="Minute">
+                    <span class="late-event__half-pill">2nd half</span>
+                </div>
+            </div>
+            <div class="late-event__actions">
+                <button type="button" class="late-event__cancel" data-close-late>Cancel</button>
+                <button type="button" class="late-event__save" data-close-late>Save event</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================
+         Subs recorded — only visible in pending_review. Lists every sub
+         that already happened during the live match, with the minute
+         editable inline. Coach who realises "Sem actually came on at 35'
+         not 38'" can scrub it before finalising. The half pill is derived
+         from the minute (≤45 → 1st half, >45 → 2nd half). The delete
+         button removes a sub entirely (mock: row vanishes; production
+         needs a confirm dialog).
+         ============================================================ -->
+    <section class="subs-edit" aria-label="Subs recorded">
+        <div class="subs-edit__head">
+            <h2 class="subs-edit__title">Subs recorded</h2>
+            <span class="subs-edit__count">2 subs</span>
+        </div>
+        <p class="subs-edit__hint">Change the minute if a sub was logged late or early. Tap × to remove a sub that didn't actually happen.</p>
+        <ul class="subs-edit__list">
+            <li class="sub-row">
+                <span class="sub-row__minute-wrap">
+                    <input class="sub-row__minute" type="number" inputmode="numeric" min="0" max="120" value="38" aria-label="Minute for Sem ↔ Mees">
+                    <span class="sub-row__minute-suffix">'</span>
+                </span>
+                <span class="sub-row__half" data-half="1">1st half</span>
+                <span class="sub-row__pair">
+                    <span class="on">Sem Janssen</span><span class="arrow">↔</span><span class="off">Mees Peters</span>
+                    <small>MID · #14 on, #8 off</small>
+                </span>
+                <button type="button" class="sub-row__delete" aria-label="Remove sub: Sem in, Mees out">×</button>
+            </li>
+
+            <li class="sub-row">
+                <span class="sub-row__minute-wrap">
+                    <input class="sub-row__minute" type="number" inputmode="numeric" min="0" max="120" value="66" aria-label="Minute for Ruben ↔ Daan">
+                    <span class="sub-row__minute-suffix">'</span>
+                </span>
+                <span class="sub-row__half" data-half="2">2nd half</span>
+                <span class="sub-row__pair">
+                    <span class="on">Ruben de Boer</span><span class="arrow">↔</span><span class="off">Daan Visser</span>
+                    <small>ST · #15 on, #9 off (captain)</small>
+                </span>
+                <button type="button" class="sub-row__delete" aria-label="Remove sub: Ruben in, Daan out">×</button>
             </li>
         </ul>
     </section>
@@ -708,9 +1459,26 @@ body[data-state="finished"]    .footer__cta[data-action="done"]        { display
             <button type="button" class="footer__cta" data-action="start-2nd">Start second half</button>
             <button type="button" class="footer__cta" data-action="end-match">End match</button>
             <button type="button" class="footer__cta" data-action="done">Return to dashboard</button>
+            <button type="button" class="footer__cta" data-action="finalize" data-open-confirm>Finalize match</button>
+            <button type="button" class="footer__cta" data-action="back-to-list">Back to match executions</button>
             <p class="footer__sub"><span class="dot"></span>Synced 2s ago</p>
         </div>
     </footer>
+
+    <!-- ============================================================
+         Finalize confirm dialog — only renders when body[data-confirm="true"].
+         Opened by the sticky Finalize CTA in pending_review state.
+         ============================================================ -->
+    <div class="confirm" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+        <div class="confirm__card">
+            <h2 class="confirm__title" id="confirm-title">Finalize this match?</h2>
+            <p class="confirm__body">Once finalised you can't change the score, goals or substitutions. This match will count in chemistry analytics.</p>
+            <div class="confirm__actions">
+                <button type="button" class="confirm__btn" data-close-confirm>Cancel</button>
+                <button type="button" class="confirm__btn confirm__btn--danger" data-close-confirm>Finalize</button>
+            </div>
+        </div>
+    </div>
 
 </div>
 
@@ -775,13 +1543,90 @@ document.querySelectorAll('.score__btn').forEach(function (btn) {
     });
 });
 
-// Goal chips (mock — increments most recent flagged action count)
-document.querySelectorAll('.action-btn--goal').forEach(function (btn) {
+// Goal chip steppers — each chip is an independent + / − stepper. Coach can
+// log an action or undo a miscount on any flagged action, per player. The −
+// button disables when the count hits 0 so the count never goes negative.
+function ttSyncChipState(chip) {
+    var count = chip.querySelector('.goal-chip__count');
+    var minus = chip.querySelector('.goal-chip__btn--minus');
+    if (!count || !minus) return;
+    var n = parseInt(count.textContent, 10) || 0;
+    minus.disabled = (n === 0);
+}
+document.querySelectorAll('.goal-chip__btn').forEach(function (btn) {
     btn.addEventListener('click', function () {
-        var goals = btn.closest('.player').querySelector('.player__goals');
-        if (!goals) return;
-        var first = goals.querySelector('.goal-chip strong');
-        if (first) first.textContent = (parseInt(first.textContent, 10) || 0) + 1;
+        var chip = btn.closest('.goal-chip');
+        if (!chip) return;
+        var count = chip.querySelector('.goal-chip__count');
+        if (!count) return;
+        var n = parseInt(count.textContent, 10) || 0;
+        if (btn.classList.contains('goal-chip__btn--plus'))      n++;
+        else if (btn.classList.contains('goal-chip__btn--minus') && n > 0) n--;
+        count.textContent = n;
+        ttSyncChipState(chip);
+    });
+});
+// Initial sync — disables − on any chip that loaded at 0.
+document.querySelectorAll('.goal-chip').forEach(ttSyncChipState);
+
+// Late-event form open/close (pending_review only). Opens inline beneath the
+// kind buttons so the coach doesn't lose context of the bench.
+document.querySelectorAll('[data-open-late]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        var section = btn.closest('.late-event');
+        if (section) section.setAttribute('data-form-open', 'true');
+    });
+});
+document.querySelectorAll('[data-close-late]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        var section = btn.closest('.late-event');
+        if (section) section.setAttribute('data-form-open', 'false');
+    });
+});
+
+// Subs-edit: typing in a minute input flags the row as edited and updates
+// the half pill (≤45 → 1st, >45 → 2nd). Mock-only; production saves to the
+// recompute pipeline on blur or via a Save button.
+document.querySelectorAll('.sub-row__minute').forEach(function (input) {
+    input.addEventListener('input', function () {
+        var row = input.closest('.sub-row');
+        if (!row) return;
+        row.setAttribute('data-edited', 'true');
+        var pill = row.querySelector('.sub-row__half');
+        var minute = parseInt(input.value, 10) || 0;
+        if (pill) {
+            if (minute > 45) { pill.setAttribute('data-half', '2'); pill.textContent = '2nd half'; }
+            else             { pill.setAttribute('data-half', '1'); pill.textContent = '1st half'; }
+        }
+    });
+});
+
+// Subs-edit: delete a row (mock — production needs a confirm dialog and
+// triggers attendance recomputation server-side).
+document.querySelectorAll('.sub-row__delete').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        var row = btn.closest('.sub-row');
+        if (!row) return;
+        if (confirm('Remove this sub? Attendance will recompute when you finalise.')) {
+            row.parentElement.removeChild(row);
+            var head = document.querySelector('.subs-edit__count');
+            if (head) {
+                var n = document.querySelectorAll('.sub-row').length;
+                head.textContent = n + (n === 1 ? ' sub' : ' subs');
+            }
+        }
+    });
+});
+
+// Finalize confirm dialog open/close.
+document.querySelectorAll('[data-open-confirm]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        document.body.setAttribute('data-confirm', 'true');
+    });
+});
+document.querySelectorAll('[data-close-confirm]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        document.body.setAttribute('data-confirm', 'false');
     });
 });
 </script>
