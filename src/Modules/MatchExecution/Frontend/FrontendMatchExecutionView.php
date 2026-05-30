@@ -8,6 +8,7 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\MatchExecution\Repositories\MatchExecutionRepository;
 use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
+use TT\Shared\Club\ClubIdentity;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\FrontendViewBase;
 
@@ -118,11 +119,28 @@ class FrontendMatchExecutionView extends FrontendViewBase {
         parent::enqueueAssets();
         self::enqueueViewAssets( $activity_id, $execution );
 
-        $home_label = ( ( $activity->home_away ?? '' ) === 'home' ) ? (string) ( $activity->team_name ?? __( 'Home', 'talenttrack' ) ) : (string) ( $activity->team_name ?? '' );
-        $away_label = (string) ( $activity->opponent ?? '—' );
+        // v4.12.11 (#1024) — score-box labels:
+        //   - Home abbreviation is the club code (`tt_config['club_short_code']`),
+        //     not the per-team name. The home team in the score box represents
+        //     the club; "Hedel JO14-1" and "Hedel JO15-1" both render as
+        //     `HED`.
+        //   - Away label uses `$activity->opponent` when set; falls back to
+        //     a localised `OPP` placeholder so the score box never shows the
+        //     unreadable em-dash mid-match.
+        //   - Header line drops the `vs —` pair when no opponent is set;
+        //     the row reads `<Team> · <Date>` instead.
+        $home_team_name = (string) ( $activity->team_name ?? '' );
+        $home_label = ( ( $activity->home_away ?? '' ) === 'home' )
+            ? ( $home_team_name !== '' ? $home_team_name : __( 'Home', 'talenttrack' ) )
+            : $home_team_name;
+        $opponent_raw = trim( (string) ( $activity->opponent ?? '' ) );
+        $has_opponent = $opponent_raw !== '';
+        $away_label = $has_opponent ? $opponent_raw : '';
 
-        $home_abbr = self::abbreviate( $home_label );
-        $away_abbr = self::abbreviate( $away_label );
+        $home_abbr = ClubIdentity::shortCode();
+        $away_abbr = $has_opponent
+            ? self::abbreviate( $opponent_raw )
+            : __( 'OPP', 'talenttrack' );
 
         $home_score = $execution ? (int) $execution->home_score : 0;
         $away_score = $execution ? (int) $execution->away_score : 0;
@@ -137,8 +155,10 @@ class FrontendMatchExecutionView extends FrontendViewBase {
             <header class="tt-mexec-header">
                 <p class="tt-mexec-header-meta">
                     <span class="tt-mexec-team-name"><?php echo esc_html( $home_label ); ?></span>
-                    <span class="tt-mexec-vs"><?php esc_html_e( 'vs', 'talenttrack' ); ?></span>
-                    <span class="tt-mexec-team-name"><?php echo esc_html( $away_label ); ?></span>
+                    <?php if ( $has_opponent ) : ?>
+                        <span class="tt-mexec-vs"><?php esc_html_e( 'vs', 'talenttrack' ); ?></span>
+                        <span class="tt-mexec-team-name"><?php echo esc_html( $away_label ); ?></span>
+                    <?php endif; ?>
                     <?php if ( $when !== '' ) : ?>
                         <span class="tt-mexec-sep">·</span>
                         <span class="tt-mexec-when"><?php echo esc_html( $when ); ?></span>
@@ -365,19 +385,51 @@ class FrontendMatchExecutionView extends FrontendViewBase {
     }
 
     /**
-     * Three-letter uppercase abbreviation for the team-name label above
-     * each score stepper. Falls back to first 3 chars of the name if no
-     * spaces; "—" when name is empty.
+     * Three-letter uppercase abbreviation for the opponent label above
+     * the away score stepper. v4.12.11 (#1024): home label now reads
+     * from `ClubIdentity::shortCode()`; this helper only services the
+     * away column.
+     *
+     * Strips common age-group / team-number suffixes (`JO13`, `U14`,
+     * `-1`) before deriving so `Den Helder JO13` → `DEN`, not `DEN13`.
+     * Falls back to a localised `OPP` placeholder when the name is
+     * empty — the score-box never renders the unreadable em-dash.
      */
     private static function abbreviate( string $name ): string {
         $name = trim( $name );
-        if ( $name === '' || $name === '—' ) return '—';
+        if ( $name === '' ) {
+            return __( 'OPP', 'talenttrack' );
+        }
+        // Strip age-group / team-number suffixes (JO13, U14, O19, MO14, -1, etc.)
+        // so `Den Helder JO13` derives from `Den Helder`, not the suffix.
+        $name = preg_replace( '/\s*(?:JO|MO|O|U|-)\s*\d+\s*$/iu', '', $name );
+        $name = (string) preg_replace( '/-\d+$/u', '', (string) $name );
+        $name = trim( (string) $name );
+        if ( $name === '' ) {
+            return __( 'OPP', 'talenttrack' );
+        }
         // Strip punctuation, split on whitespace.
         $clean = preg_replace( '/[^\p{L}\p{N}\s]/u', '', $name );
         $parts = preg_split( '/\s+/', (string) $clean, -1, PREG_SPLIT_NO_EMPTY );
-        if ( count( $parts ) >= 2 ) {
-            return strtoupper( substr( $parts[0], 0, 1 ) . substr( $parts[1], 0, 1 ) . substr( $parts[ count( $parts ) - 1 ] !== $parts[1] ? $parts[ count( $parts ) - 1 ] : '', 0, 1 ) );
+        if ( ! is_array( $parts ) || count( $parts ) === 0 ) {
+            return __( 'OPP', 'talenttrack' );
         }
-        return strtoupper( substr( $clean, 0, 3 ) );
+        if ( count( $parts ) === 1 ) {
+            return mb_strtoupper( mb_substr( $parts[0], 0, 3 ) );
+        }
+        // Two or more parts: take the first letter of each of the first
+        // three significant parts (or pad from the last word's letters).
+        $abbr = '';
+        foreach ( $parts as $part ) {
+            $abbr .= mb_substr( $part, 0, 1 );
+            if ( mb_strlen( $abbr ) >= 3 ) break;
+        }
+        if ( mb_strlen( $abbr ) < 3 ) {
+            // Pad from the last word so two-word names like "Den Helder"
+            // come out as `DEH` rather than `DE`.
+            $last = $parts[ count( $parts ) - 1 ];
+            $abbr .= mb_substr( $last, 1, 3 - mb_strlen( $abbr ) );
+        }
+        return mb_strtoupper( $abbr );
     }
 }
