@@ -467,6 +467,11 @@ class FrontendAnalyticsView extends FrontendViewBase {
                 'description' => __( 'Same attendance percentages broken down per player, optionally narrowed to a single team.', 'talenttrack' ),
                 'url'         => add_query_arg( [ 'tt_view' => 'attendance-report-player' ], $base ),
             ],
+            [
+                'label'       => __( 'Minutes played per team', 'talenttrack' ),
+                'description' => __( 'Per-player minutes for a team\'s matches in a window, split by match type (League / Cup / Friendly) with starts / subs / % available.', 'talenttrack' ),
+                'url'         => add_query_arg( [ 'tt_view' => 'minutes-report-team' ], $base ),
+            ],
         ];
 
         echo '<h2 style="margin-top:32px;">' . esc_html__( 'Standard reports', 'talenttrack' ) . '</h2>';

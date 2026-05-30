@@ -971,6 +971,9 @@ class DashboardShortcode {
             case 'attendance-report-player':
                 \TT\Modules\Analytics\Frontend\FrontendAttendancePlayerReportView::render( $user_id, $is_admin );
                 return true;
+            case 'minutes-report-team':
+                \TT\Modules\Analytics\Frontend\FrontendMinutesTeamReportView::render( $user_id, $is_admin );
+                return true;
             default:
                 return false;
         }
