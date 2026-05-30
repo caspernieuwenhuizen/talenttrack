@@ -17,6 +17,16 @@ Coaches and head-of-academy users see a **Team chemistry** tile in the *Performa
 
 A second surface is per-player: every player profile has a **Best fit positions** card listing the player's top three positions in the team's current formation, again with hoverable rationale.
 
+## Layout (v4.13.0)
+
+The board is laid out in three columns on desktop, stacking on tablet and phone:
+
+- **Left — roster sidebar.** Every player on the team, sorted by best team-fit score across the formation's slots. A search box filters by name or position. The fit pill on each row is colour-coded (green ≥ 80% of the rating scale, red ≤ 40%).
+- **Centre — pitch.** The proportional pitch + chemistry-link SVG, with the formation's slots positioned on top. The legend above the pitch summarises the link colour scale.
+- **Right — insights column.** A stacked KPI scoreboard (Link chemistry headline + Composite / Formation fit / Style fit / Depth / Coverage sub-cards), followed by the coach-marked pairings panel with an inline "Mark a pairing" form.
+
+The mode toolbar at the top carries the formation picker, the play-style summary, the *Suggested XI* / *Try a lineup* segmented toggle, and the *Save as blueprint* action (managers only).
+
 ## What's on the board
 
 ### Pitch
@@ -61,9 +71,9 @@ Below the pitch, the composite chemistry score is shown with a four-part breakdo
 - **Depth** (15%) — soft floor for slots without two capable backups
 - **Paired bonus** (additive, capped at +0.5) — coach-marked pairings where both players are in the suggested XI
 
-### Depth chart
+### Depth (per-slot picker)
 
-A row per slot showing the top three candidates with their scores. Useful for "who plays if our starter is unavailable" questions.
+The full depth chart (every roster player ranked for every slot) is reachable from the *Try a lineup* picker — tap any slot in override mode to see the ranked candidates with their fit scores. The standalone "1st / 2nd / 3rd choice" table from earlier versions is gone; the data flows through the picker now.
 
 ### Pairings
 

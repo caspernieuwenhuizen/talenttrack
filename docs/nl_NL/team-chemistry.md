@@ -17,6 +17,16 @@ Coaches en hoofd-academie zien een **Teamchemie**-tegel in de *Performance*-groe
 
 Een tweede oppervlak is per speler: elk spelerprofiel heeft een **Beste posities**-kaart die de top drie posities van de speler in de huidige formatie van het team toont, opnieuw met onderbouwing bij hoveren.
 
+## Opmaak (v4.13.0)
+
+Het bord staat op desktop in drie kolommen en stapelt op tablet en telefoon:
+
+- **Links — selectie-zijbalk.** Elke speler in de selectie, gesorteerd op beste team-fit-score over de formatie-slots. Een zoekvak filtert op naam of positie. De fit-pil per rij is gekleurd (groen ≥ 80% van de schaal, rood ≤ 40%).
+- **Midden — veld.** Het proportionele veld met de chemie-lijnen-SVG en de slots van de formatie erop. De legenda boven het veld licht de lijnkleurschaal toe.
+- **Rechts — inzichten-kolom.** Een verticale stapel scorekaarten (kop met *Lijnchemie* + samengesteld / formatiefit / stijlfit / diepte / dekking) en daaronder het paneel met coach-gemarkeerde koppels en een inline "Markeer een koppel"-formulier.
+
+De toolbar bovenaan draagt de formatie-picker, de speelstijl-samenvatting, de segmented toggle *Voorgestelde XI* / *Probeer een opstelling* en de actie *Opslaan als blueprint* (alleen voor beheerders).
+
 ## Wat staat er op het bord
 
 ### Veld
@@ -61,9 +71,9 @@ Onder het veld staat de samengestelde chemiescore met een vierdelige opbouw:
 - **Diepte** (15%) — zachte ondergrens voor slots zonder twee capabele backups
 - **Koppel­bonus** (additief, gemaximeerd op +0,5) — coach-gemarkeerde koppels waarbij beide spelers in de voorgestelde basiself staan
 
-### Dieptestaat
+### Diepte (kiezer per slot)
 
-Een rij per slot met de top drie kandidaten en hun scores. Nuttig voor vragen als "wie speelt als onze basisspeler niet beschikbaar is".
+De volledige dieptestaat (elke selectie­speler gerangschikt voor elke slot) is bereikbaar via de *Probeer een opstelling*-kiezer — tik op een slot in override-modus om de gerangschikte kandidaten met hun fit-scores te zien. De vroegere losse "1e / 2e / 3e keuze"-tabel is weg; de data loopt nu via de kiezer.
 
 ### Koppelingen
 
