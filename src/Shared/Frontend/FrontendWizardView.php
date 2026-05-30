@@ -170,6 +170,11 @@ class FrontendWizardView extends FrontendViewBase {
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $wizard->label() );
         self::renderHeader( $wizard->label() );
         self::renderResumeBanner( $user_id, $slug, $state );
+
+        // #1036 — V3 chrome wraps the rail + form area in a 2-col grid
+        // on desktop. The grid's parent owns data-rail-open which the
+        // mobile rail-toggle JS flips.
+        echo '<div class="tt-wizard-layout" data-rail-open="false">';
         self::renderProgress( $wizard, $current_slug, $state );
         if ( $error ) {
             echo '<div class="tt-notice tt-notice-error" role="alert">' . esc_html( $error ) . '</div>';
@@ -249,39 +254,42 @@ class FrontendWizardView extends FrontendViewBase {
         // runtime. Wizards that want a manual "Save as draft" button
         // implement `SupportsCancelAsDraft`; the action bar below
         // renders the button when present.
+        // #1036 — V3 actions layout: Cancel on the left, [Save + Back] in
+        // a middle group (collapsed via `display: contents` on mobile
+        // so they participate in the parent grid directly), Next on the
+        // right. Each button carries `data-role` so the mobile button
+        // grid can reorder via `grid-template-areas` regardless of DOM
+        // order.
         echo '<div class="tt-wizard-actions">';
         // #0069 — Cancel must discard the run regardless of unfilled
         // required fields. Save-as-draft and Back already carry
         // formnovalidate; Cancel was the outlier and was tripping
         // browser-side required-field validation when the user wanted
         // to bail out of the wizard.
-        // v3.70.1 hotfix — Cancel renders as a regular secondary button
-        // (was `tt-button-link` which made it visually disappear into
-        // the surrounding text). Still `formnovalidate` so it ignores
-        // unfilled required fields per #0069.
-        echo '<button type="submit" name="tt_wizard_action" value="cancel" class="tt-button tt-button-secondary" formnovalidate>' . esc_html__( 'Cancel', 'talenttrack' ) . '</button>';
+        echo '<button type="submit" name="tt_wizard_action" value="cancel" class="tt-button tt-wizard-btn-cancel" formnovalidate data-role="cancel">' . esc_html__( 'Cancel', 'talenttrack' ) . '</button>';
+        echo '<div class="tt-wizard-actions-middle">';
         if ( $wizard instanceof SupportsCancelAsDraft ) {
-            echo '<button type="submit" name="tt_wizard_action" value="save-as-draft" class="tt-button" formnovalidate>' . esc_html__( 'Save as draft', 'talenttrack' ) . '</button>';
+            echo '<button type="submit" name="tt_wizard_action" value="save-as-draft" class="tt-button tt-wizard-btn-text" formnovalidate data-role="save">' . esc_html__( 'Save as draft', 'talenttrack' ) . '</button>';
         }
         // #0063 — Back button on every step where there's prior history.
         // formnovalidate so a half-filled required field doesn't trap
         // the user; Back discards uncommitted edits by design.
         if ( WizardState::hasHistory( $user_id, $slug ) ) {
-            echo '<button type="submit" name="tt_wizard_action" value="back" class="tt-button" formnovalidate>' . esc_html__( 'Back', 'talenttrack' ) . '</button>';
+            echo '<button type="submit" name="tt_wizard_action" value="back" class="tt-button tt-wizard-btn-text" formnovalidate data-role="back">' . esc_html__( 'Back', 'talenttrack' ) . '</button>';
         }
+        echo '</div>';
         // v3.85.2 — "Skip step" removed per operator feedback. Steps that
         // are genuinely optional should declare `notApplicableFor()`
-        // returning true and be auto-skipped by the wizard runner; a
-        // user-clickable Skip button just produced half-filled records
-        // without a clear contract for what got persisted.
+        // returning true and be auto-skipped by the wizard runner.
         $is_last = $current->nextStep( $state ) === null;
         $label   = $is_last ? __( 'Create', 'talenttrack' ) : __( 'Next', 'talenttrack' );
         $loading_label = $is_last ? __( 'Creating…', 'talenttrack' ) : __( 'Loading…', 'talenttrack' );
-        echo '<button type="submit" name="tt_wizard_action" value="next" class="tt-button tt-button-primary" data-tt-wizard-next data-loading-label="' . esc_attr( $loading_label ) . '">' . esc_html( $label ) . '</button>';
+        echo '<button type="submit" name="tt_wizard_action" value="next" class="tt-button tt-wizard-btn-primary" data-role="next" data-tt-wizard-next data-loading-label="' . esc_attr( $loading_label ) . '">' . esc_html( $label ) . ' <span class="tt-wizard-btn-chev" aria-hidden="true">›</span></button>';
         echo '</div>';
 
         echo '<input type="hidden" name="_cancel_url" value="' . esc_attr( $cancel_url ) . '">';
         echo '</form>';
+        echo '</div>'; // #1036 — close .tt-wizard-layout
 
         // v3.110.156 — visible click feedback on Next. When the
         // operator clicks, the button disables and swaps label to
@@ -293,19 +301,30 @@ class FrontendWizardView extends FrontendViewBase {
         <script>
         (function () {
             var form = document.querySelector( '.tt-wizard-form' );
-            if ( ! form ) return;
-            var next = form.querySelector( '[data-tt-wizard-next]' );
-            if ( ! next ) return;
-            form.addEventListener( 'submit', function ( e ) {
-                // Only intercept when Next was the submitter (browser
-                // sets `e.submitter` per the modern spec; falls back
-                // to document.activeElement on older browsers).
-                var submitter = e.submitter || document.activeElement;
-                if ( ! submitter || submitter !== next ) return;
-                var label = next.getAttribute( 'data-loading-label' ) || 'Loading…';
-                next.disabled = true;
-                next.textContent = label;
-            } );
+            if ( form ) {
+                var next = form.querySelector( '[data-tt-wizard-next]' );
+                if ( next ) {
+                    form.addEventListener( 'submit', function ( e ) {
+                        var submitter = e.submitter || document.activeElement;
+                        if ( ! submitter || submitter !== next ) return;
+                        var label = next.getAttribute( 'data-loading-label' ) || 'Loading…';
+                        next.disabled = true;
+                        next.textContent = label;
+                    } );
+                }
+            }
+
+            // #1036 — mobile rail toggle. Flip data-rail-open on the
+            // wizard layout container + aria-expanded on the button.
+            var layout = document.querySelector( '.tt-wizard-layout' );
+            var toggle = layout && layout.querySelector( '[data-tt-wizard-rail-toggle]' );
+            if ( layout && toggle ) {
+                toggle.addEventListener( 'click', function () {
+                    var open = layout.getAttribute( 'data-rail-open' ) === 'true';
+                    layout.setAttribute( 'data-rail-open', open ? 'false' : 'true' );
+                    toggle.setAttribute( 'aria-expanded', open ? 'false' : 'true' );
+                } );
+            }
         })();
         </script>
         <?php
@@ -641,51 +660,108 @@ class FrontendWizardView extends FrontendViewBase {
         );
     }
 
+    /**
+     * #1036 — V3 vertical sidebar rail. Replaces the flat horizontal
+     * progress pill row. Desktop (≥720px): rail on the left of the
+     * form. Mobile (≤719px): rail collapses to a single disclosure
+     * button (`Step X of Y · {current label} ▾`) that expands to show
+     * the rail beneath.
+     *
+     * State classes are preserved from the prior implementation
+     * (`is-done`, `is-current`, `is-pending`, `is-na`) — only the
+     * markup + CSS structure change. Each step renders as a list
+     * item with a dot (left), a label and an optional caption (right).
+     * Vertical line between adjacent dots fills teal between two
+     * `is-done` steps.
+     *
+     * The "Edit" link on completed steps (mockup convention) is
+     * intentionally NOT emitted — `WizardState` is single-step-back
+     * only, so a functional Edit jump-back needs a separate change
+     * (out of scope per the issue).
+     */
     private static function renderProgress( WizardInterface $wizard, string $current_slug, array $state = [] ): void {
         $steps = $wizard->steps();
         if ( count( $steps ) <= 1 ) return;
-        echo '<ol class="tt-wizard-progress" aria-label="' . esc_attr__( 'Wizard steps', 'talenttrack' ) . '">';
+
+        // Pre-pass: resolve state for each step so we can compute the
+        // "Step X of Y" label for the mobile toggle without re-walking.
+        $resolved = [];
         $found_current = false;
+        $current_idx = 0;
+        $current_label = '';
         foreach ( $steps as $i => $step ) {
             $is_current = $step->slug() === $current_slug;
-            if ( $is_current ) $found_current = true;
-            // #0063 — a step can opt-in to a `notApplicableFor( state )`
-            // method. NewPlayer's TrialDetailsStep returns true when
-            // path != 'trial' so the progress bar greys it out instead
-            // of showing a future step the user will never visit.
+            if ( $is_current ) {
+                $found_current = true;
+                $current_idx = $i;
+                $current_label = (string) $step->label();
+            }
             $not_applicable = method_exists( $step, 'notApplicableFor' )
                 ? (bool) $step->notApplicableFor( $state )
                 : false;
-
             if ( $not_applicable && ! $is_current ) {
-                $cls = 'tt-wizard-progress-na';
+                $cls = 'is-na';
             } else {
-                $cls = $is_current ? 'tt-wizard-progress-current' : ( ! $found_current ? 'tt-wizard-progress-done' : 'tt-wizard-progress-pending' );
+                $cls = $is_current ? 'is-current' : ( ! $found_current ? 'is-done' : 'is-pending' );
             }
-            // v3.110.102 — done steps render a `✓` instead of the
-            // number. Combined with the v3.110.102 CSS tightening
-            // (stronger contrast on `--current`, more obvious dim on
-            // `--pending`) this makes the at-a-glance state read
-            // without having to compare colour codes. Aria-label still
-            // includes the index so screen readers announce step
-            // number + label normally.
-            $is_done = ( $cls === 'tt-wizard-progress-done' );
-            $marker  = $is_done ? '✓' : (string) ( $i + 1 );
-            $aria    = sprintf(
-                /* translators: 1: step number, 2: step label, 3: state (Completed / Current / Pending / Skipped) */
-                __( 'Step %1$d: %2$s (%3$s)', 'talenttrack' ),
-                (int) ( $i + 1 ),
-                (string) $step->label(),
-                $is_done    ? __( 'Completed', 'talenttrack' )
-                : ( $is_current ? __( 'Current',  'talenttrack' )
-                : ( $not_applicable ? __( 'Skipped', 'talenttrack' ) : __( 'Pending', 'talenttrack' ) ) )
-            );
-            echo '<li class="' . esc_attr( $cls ) . '" aria-label="' . esc_attr( $aria ) . '">'
-                . '<span class="tt-wizard-progress-num" aria-hidden="true">' . esc_html( $marker ) . '</span> '
-                . esc_html( $step->label() )
-                . '</li>';
+            $resolved[] = [
+                'step'  => $step,
+                'cls'   => $cls,
+                'na'    => $not_applicable,
+                'i'     => $i,
+            ];
         }
-        echo '</ol>';
+
+        $total = count( $steps );
+
+        ?>
+        <aside class="tt-wizard-rail-region" aria-label="<?php esc_attr_e( 'Wizard steps', 'talenttrack' ); ?>">
+            <button type="button"
+                    class="tt-wizard-rail-toggle"
+                    data-tt-wizard-rail-toggle
+                    aria-expanded="false"
+                    aria-controls="tt-wizard-rail">
+                <span class="tt-wizard-rail-toggle-meta">
+                    <?php
+                    printf(
+                        /* translators: 1: current step number, 2: total step count */
+                        esc_html__( 'Step %1$d of %2$d', 'talenttrack' ),
+                        (int) ( $current_idx + 1 ),
+                        (int) $total
+                    );
+                    ?>
+                </span>
+                <span class="tt-wizard-rail-toggle-label"><?php echo esc_html( $current_label ); ?></span>
+                <span class="tt-wizard-rail-toggle-chev" aria-hidden="true">▾</span>
+            </button>
+            <ol class="tt-wizard-rail" id="tt-wizard-rail">
+                <?php foreach ( $resolved as $r ) :
+                    $is_done    = $r['cls'] === 'is-done';
+                    $is_current = $r['cls'] === 'is-current';
+                    $is_na      = $r['cls'] === 'is-na';
+                    $aria = sprintf(
+                        /* translators: 1: step number, 2: step label, 3: state */
+                        __( 'Step %1$d: %2$s (%3$s)', 'talenttrack' ),
+                        (int) ( $r['i'] + 1 ),
+                        (string) $r['step']->label(),
+                        $is_done    ? __( 'Completed', 'talenttrack' )
+                        : ( $is_current ? __( 'Current',  'talenttrack' )
+                        : ( $is_na ? __( 'Not applicable', 'talenttrack' ) : __( 'Pending', 'talenttrack' ) ) )
+                    );
+                    ?>
+                    <li class="<?php echo esc_attr( $r['cls'] ); ?>" aria-label="<?php echo esc_attr( $aria ); ?>">
+                        <span class="tt-wizard-rail-dot" aria-hidden="true"></span>
+                        <span class="tt-wizard-rail-label"><?php echo esc_html( $r['step']->label() ); ?></span>
+                        <?php if ( $is_current ) : ?>
+                            <span class="tt-wizard-rail-caption"><?php esc_html_e( 'You are here', 'talenttrack' ); ?></span>
+                        <?php elseif ( $is_na ) : ?>
+                            <span class="tt-wizard-rail-caption"><?php esc_html_e( 'Not applicable', 'talenttrack' ); ?></span>
+                        <?php endif; ?>
+                    </li>
+                <?php endforeach; ?>
+            </ol>
+        </aside>
+        <?php
     }
 
     private static function renderHelpSidebar( WizardInterface $wizard, WizardStepInterface $step ): void {
@@ -768,64 +844,159 @@ class FrontendWizardView extends FrontendViewBase {
         self::$styles_enqueued = true;
         $css = '
             .tt-wizard-form { max-width: 640px; margin: 0 auto; }
-            .tt-wizard-progress { display: flex; gap: 8px; padding: 0; margin: 0 0 24px; list-style: none; flex-wrap: wrap; }
-            /* v3.110.102 — progress-step contrast pass. Done = solid
-               green + checkmark; Current = primary teal with a 2px
-               outer ring so it pops; Pending = noticeably dimmer; NA
-               keeps its line-through. The marker circle is filled with
-               more contrast (rgba 0.85 white) so the digit / checkmark
-               reads on every state. */
-            .tt-wizard-progress li {
-                flex: 1 1 auto;
-                padding: 8px 12px;
-                border-radius: 6px;
-                background: #eef0f2;
-                color: #6b7280;
-                font-size: .9rem;
-                font-weight: 500;
-                transition: background-color 120ms ease, color 120ms ease, box-shadow 120ms ease;
+
+            /* #1036 — V3 chrome: 2-column layout, rail left + form right.
+               Mobile-first: single column with the rail collapsed into
+               a disclosure button. Desktop (≥720px) splits into a 220px
+               rail + 1fr form area. */
+            .tt-wizard-layout {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 24px;
+                margin: 0 0 24px;
             }
-            .tt-wizard-progress-current {
-                background: #1d7874;
-                color: #fff;
-                font-weight: 700;
-                box-shadow: 0 0 0 2px rgba(29, 120, 116, 0.30);
+            @media (min-width: 720px) {
+                .tt-wizard-layout {
+                    grid-template-columns: 220px 1fr;
+                    align-items: start;
+                }
+                .tt-wizard-layout .tt-wizard-form { margin: 0; }
             }
-            .tt-wizard-progress-done {
-                background: #137333;
-                color: #fff;
+            .tt-wizard-rail-region { min-width: 0; }
+
+            /* Mobile-collapsed rail header. Tap expands the rail
+               beneath. Hidden on desktop (rail is always visible). */
+            .tt-wizard-rail-toggle {
+                display: flex;
+                width: 100%;
+                padding: 12px 14px;
+                background: rgba(29, 120, 116, 0.08);
+                border: 1px solid #c8dcdb;
+                border-radius: 8px;
+                font: inherit;
                 font-weight: 600;
+                color: #155c5a;
+                text-align: left;
+                cursor: pointer;
+                align-items: center;
+                gap: 10px;
             }
-            .tt-wizard-progress-pending {
-                background: #eef0f2;
-                color: #9ca3af;
-            }
-            .tt-wizard-progress-na {
-                background: #f6f7f8;
-                color: #b0b3b6;
-                opacity: 0.55;
-                text-decoration: line-through;
-            }
-            .tt-wizard-progress-num {
-                display: inline-block;
-                width: 22px;
-                height: 22px;
-                line-height: 22px;
-                border-radius: 50%;
-                background: rgba(255, 255, 255, 0.85);
-                color: inherit;
-                text-align: center;
-                margin-right: 6px;
+            .tt-wizard-rail-toggle-meta {
+                font-size: 11px;
+                text-transform: uppercase;
+                letter-spacing: 0.4px;
+                color: #5b6e75;
                 font-weight: 700;
             }
-            .tt-wizard-progress-done .tt-wizard-progress-num,
-            .tt-wizard-progress-current .tt-wizard-progress-num {
-                color: #1a1a1a;
+            .tt-wizard-rail-toggle-label { flex: 1; }
+            .tt-wizard-rail-toggle-chev {
+                color: #1d7874;
+                font-size: 14px;
+                transition: transform 120ms;
             }
-            .tt-wizard-progress-pending .tt-wizard-progress-num {
-                background: rgba(255, 255, 255, 0.65);
-                color: #9ca3af;
+            .tt-wizard-rail-toggle[aria-expanded="true"] .tt-wizard-rail-toggle-chev {
+                transform: rotate(180deg);
             }
+            @media (min-width: 720px) {
+                .tt-wizard-rail-toggle { display: none; }
+            }
+
+            /* Vertical rail */
+            .tt-wizard-rail {
+                list-style: none;
+                margin: 12px 0 0;
+                padding: 0;
+                position: relative;
+            }
+            @media (max-width: 719px) {
+                .tt-wizard-rail { display: none; }
+                .tt-wizard-layout[data-rail-open="true"] .tt-wizard-rail {
+                    display: block;
+                    margin-bottom: 4px;
+                }
+            }
+            @media (min-width: 720px) {
+                .tt-wizard-rail { margin-top: 0; }
+            }
+            .tt-wizard-rail li {
+                position: relative;
+                padding: 10px 0 10px 30px;
+                font-size: 13px;
+                line-height: 1.3;
+            }
+            /* Vertical line connecting the dots */
+            .tt-wizard-rail li::before {
+                content: "";
+                position: absolute;
+                left: 9px;
+                top: 24px;
+                bottom: -2px;
+                width: 2px;
+                background: #d6dadd;
+                z-index: 1;
+            }
+            .tt-wizard-rail li:last-child::before { display: none; }
+            .tt-wizard-rail li.is-done::before { background: #1d7874; }
+
+            /* The dot */
+            .tt-wizard-rail-dot {
+                position: absolute;
+                left: 0;
+                top: 10px;
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                background: #fff;
+                border: 2px solid #d6dadd;
+                z-index: 2;
+            }
+            .tt-wizard-rail li.is-done .tt-wizard-rail-dot {
+                background: #1d7874;
+                border-color: #1d7874;
+            }
+            .tt-wizard-rail li.is-done .tt-wizard-rail-dot::after {
+                content: "✓";
+                position: absolute;
+                inset: 0;
+                color: #fff;
+                font-size: 11px;
+                font-weight: 700;
+                text-align: center;
+                line-height: 16px;
+            }
+            .tt-wizard-rail li.is-current .tt-wizard-rail-dot {
+                border-color: #1d7874;
+                background: #fff;
+                box-shadow: 0 0 0 4px rgba(29, 120, 116, 0.15);
+            }
+            .tt-wizard-rail li.is-current .tt-wizard-rail-dot::after {
+                content: "";
+                position: absolute;
+                inset: 4px;
+                background: #1d7874;
+                border-radius: 50%;
+            }
+            .tt-wizard-rail li.is-na .tt-wizard-rail-dot {
+                border-style: dashed;
+                background: #f0f3f2;
+            }
+
+            .tt-wizard-rail-label {
+                display: inline-block;
+                font-weight: 500;
+                color: #5b6e75;
+            }
+            .tt-wizard-rail li.is-done .tt-wizard-rail-label    { color: #1a1d21; }
+            .tt-wizard-rail li.is-current .tt-wizard-rail-label { color: #155c5a; font-weight: 700; font-size: 14px; }
+            .tt-wizard-rail li.is-na .tt-wizard-rail-label      { color: #b0b3b6; text-decoration: line-through; }
+            .tt-wizard-rail-caption {
+                display: block;
+                margin-top: 2px;
+                font-size: 11px;
+                color: #5b6e75;
+                font-weight: 400;
+            }
+
             .tt-wizard-step-title { font-size: 1.4rem; margin: 0 0 16px; }
             .tt-wizard-form label { display: block; margin-bottom: 14px; }
             .tt-wizard-form label span { display: block; font-weight: 600; margin-bottom: 4px; }
@@ -833,9 +1004,149 @@ class FrontendWizardView extends FrontendViewBase {
             .tt-wizard-form textarea { min-height: 96px; }
             .tt-wizard-form fieldset { border: 1px solid #e0e0e0; border-radius: 8px; padding: 14px; margin-bottom: 14px; }
             .tt-wizard-form legend { font-weight: 600; padding: 0 6px; }
-            .tt-wizard-actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: flex-end; padding-top: 12px; border-top: 1px solid #e0e0e0; margin-top: 20px; }
-            .tt-wizard-actions .tt-button { min-height: 48px; padding: 12px 20px; font-size: 1rem; }
-            .tt-wizard-actions .tt-button-link { background: transparent; border: none; color: #5f6368; padding: 12px; }
+            /* #1036 — V3 actions. Desktop: Cancel left, [Save + Back]
+               middle, Next far right, all inside a tinted container.
+               Mobile: a 3-row grid (next / back / save · cancel) via
+               grid-template-areas so DOM order doesn\'t matter; the
+               middle wrapper goes display:contents so its children
+               participate in the parent grid directly. */
+            .tt-wizard-actions {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                flex-wrap: wrap;
+                padding: 14px 16px;
+                background: #f6f7f7;
+                border: 1px solid #e3e6ea;
+                border-radius: 8px;
+                margin-top: 24px;
+            }
+            .tt-wizard-actions-middle { display: flex; gap: 4px; margin-left: auto; }
+            .tt-wizard-btn-cancel {
+                background: #fff;
+                border: 1.5px solid #d6dadd;
+                color: #5b6e75;
+                font: inherit;
+                font-size: 14px;
+                font-weight: 600;
+                padding: 0 16px;
+                min-height: 48px;
+                border-radius: 8px;
+                cursor: pointer;
+            }
+            .tt-wizard-btn-cancel:hover { border-color: #d63638; color: #d63638; }
+            .tt-wizard-btn-text {
+                background: transparent;
+                border: none;
+                color: #5b6e75;
+                font: inherit;
+                font-size: 13px;
+                font-weight: 600;
+                padding: 0 14px;
+                min-height: 48px;
+                border-radius: 8px;
+                cursor: pointer;
+            }
+            .tt-wizard-btn-text:hover { color: #1d7874; background: rgba(29, 120, 116, 0.08); }
+            .tt-wizard-btn-primary {
+                min-height: 48px;
+                padding: 0 26px;
+                border-radius: 999px;
+                font: inherit;
+                font-size: 15px;
+                font-weight: 700;
+                cursor: pointer;
+                background: #1d7874;
+                color: #fff;
+                border: 1.5px solid #1d7874;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                line-height: 1;
+                transition: background 120ms, transform 120ms;
+            }
+            .tt-wizard-btn-primary:hover { background: #155c5a; }
+            .tt-wizard-btn-primary:active { transform: translateY(1px); }
+            .tt-wizard-btn-chev { display: inline-block; transition: transform 120ms; }
+            .tt-wizard-btn-primary:hover .tt-wizard-btn-chev { transform: translateX(2px); }
+            @media (prefers-reduced-motion: reduce) {
+                .tt-wizard-btn-primary, .tt-wizard-btn-primary:active,
+                .tt-wizard-btn-primary:hover .tt-wizard-btn-chev { transition: none; transform: none; }
+            }
+
+            /* Mobile button grid — unified per mockup. Below 720px the
+               row becomes a 3-row grid: Next full-width on top (thumb
+               spot), Back full-width below (subordinate), Save + Cancel
+               as text-link row at the bottom. data-role attrs map to
+               grid-areas, so DOM order doesn\'t matter. */
+            @media (max-width: 719px) {
+                .tt-wizard-actions {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    grid-template-areas:
+                        "next   next"
+                        "back   back"
+                        "save   cancel";
+                    gap: 8px;
+                    align-items: stretch;
+                    background: transparent;
+                    border: none;
+                    padding: 14px 0 0;
+                    border-top: 1px solid #e3e6ea;
+                    border-radius: 0;
+                }
+                .tt-wizard-actions-middle { display: contents; }
+                .tt-wizard-actions [data-role="next"] {
+                    grid-area: next;
+                    width: 100%;
+                    justify-content: center;
+                }
+                .tt-wizard-actions [data-role="back"] {
+                    grid-area: back;
+                    width: 100%;
+                    justify-content: center;
+                    background: #fff;
+                    border: 1.5px solid #d6dadd;
+                    color: #1a1d21;
+                    font-size: 15px;
+                    font-weight: 600;
+                    border-radius: 8px;
+                    padding: 0 18px;
+                    min-height: 48px;
+                }
+                .tt-wizard-actions [data-role="save"] {
+                    grid-area: save;
+                    background: transparent;
+                    border: none;
+                    color: #5b6e75;
+                    font-size: 14px;
+                    font-weight: 600;
+                    padding: 12px 8px;
+                    text-align: center;
+                    min-height: 48px;
+                    border-radius: 8px;
+                }
+                .tt-wizard-actions [data-role="save"]:hover {
+                    color: #1d7874;
+                    background: rgba(29, 120, 116, 0.08);
+                }
+                .tt-wizard-actions [data-role="cancel"] {
+                    grid-area: cancel;
+                    background: transparent;
+                    border: none;
+                    color: #5b6e75;
+                    font-size: 14px;
+                    font-weight: 600;
+                    padding: 12px 8px;
+                    text-align: center;
+                    min-height: 48px;
+                    border-radius: 8px;
+                }
+                .tt-wizard-actions [data-role="cancel"]:hover {
+                    color: #d63638;
+                    background: #fdecec;
+                }
+            }
             .tt-wizard-help { margin: 20px 0; padding: 12px; background: #f8f9fa; border-left: 3px solid #1d7874; border-radius: 4px; }
             .tt-wizard-help-link { color: #1d7874; text-decoration: none; }
             .tt-wizard-autosave-status { font-size: .8125rem; color: #5f6368; margin-top: 8px; min-height: 1.25em; text-align: right; }
