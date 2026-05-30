@@ -7,6 +7,7 @@ use TT\Core\Container;
 use TT\Core\ModuleInterface;
 use TT\Modules\Export\ExporterRegistry;
 use TT\Modules\MatchPrep\Export\MatchPrepPdfExporter;
+use TT\Modules\MatchPrep\Print\MatchPrepPrintRouter;
 use TT\Modules\MatchPrep\Rest\MatchPrepRestController;
 use TT\Modules\MatchPrep\Wizards\MatchPrepWizard;
 use TT\Shared\Wizards\WizardRegistry;
@@ -29,6 +30,10 @@ class MatchPrepModule implements ModuleInterface {
 
     public function boot( Container $container ): void {
         MatchPrepRestController::init();
+
+        // #1031 — standalone print route so the WP admin bar + theme
+        // chrome stay off the printed sheet.
+        MatchPrepPrintRouter::init();
 
         // Wizard registration — pre-form availability step.
         if ( class_exists( WizardRegistry::class ) ) {

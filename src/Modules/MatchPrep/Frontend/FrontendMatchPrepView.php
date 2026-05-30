@@ -296,9 +296,21 @@ class FrontendMatchPrepView extends FrontendViewBase {
                 <button type="button" class="tt-btn tt-btn-secondary" data-tt-mp-open-availability>
                     <?php esc_html_e( 'Availability', 'talenttrack' ); ?>
                 </button>
-                <button type="button" class="tt-btn tt-btn-secondary" data-tt-mp-print>
+                <?php
+                // #1031 — Print opens the dedicated print route in a new tab.
+                // The standalone document skips the theme + WP admin bar
+                // entirely, so the printed sheet is clean.
+                $print_url = add_query_arg(
+                    [ 'tt_match_prep_print' => '1', 'activity_id' => $activity_id ],
+                    home_url( '/' )
+                );
+                ?>
+                <a class="tt-btn tt-btn-secondary"
+                   href="<?php echo esc_url( $print_url ); ?>"
+                   target="_blank"
+                   rel="noopener">
                     <?php esc_html_e( 'Print (landscape A4)', 'talenttrack' ); ?>
-                </button>
+                </a>
                 <span class="tt-mp-spacer"></span>
                 <span class="tt-mp-save-state" data-tt-mp-save-state aria-live="polite"><?php esc_html_e( 'All changes saved.', 'talenttrack' ); ?></span>
             </div>

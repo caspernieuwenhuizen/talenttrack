@@ -657,10 +657,11 @@
     // covers the file-output case for free.
     // ---------------------------------------------------------------------
 
-    var printBtn = $('[data-tt-mp-print]');
-    if (printBtn) {
-        printBtn.addEventListener('click', function () { window.print(); });
-    }
+    // #1031 — Print became a target="_blank" anchor pointing at the
+    // dedicated print route (?tt_match_prep_print=1&activity_id=N) so
+    // the WP admin bar + theme chrome stay off paper. No JS hookup
+    // needed; the previous window.print() handler was the symptom of
+    // the bug it tried to work around.
 
     // ---------------------------------------------------------------------
     // Copy 1e → 2e
