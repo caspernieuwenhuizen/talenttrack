@@ -812,10 +812,28 @@
 }
 
 @media print {
-    /* Drop everything the coach does not need on paper. */
+    /* -------------------------------------------------------------------
+     * (#1023.1) Drop the dashboard brand banner / DEMO strip / breadcrumbs
+     * so the page title becomes the very first visible line on paper.
+     * The shared dashboard chrome lives in `DashboardShortcode::render()`:
+     *   .tt-dash-header   — JG4IT brand row + tagline + user menu
+     *   .tt-dash-brand    — logo + club name
+     *   .tt-dash-actions  — DEMO pill + help icon + user menu
+     *   .tt-dash-demo-pill / .tt-user-menu — leftovers if the wrapper
+     *                                        ever flattens
+     * Belt + braces: hide every known emitter so a theme that re-wraps
+     * still gets a clean print.
+     * ------------------------------------------------------------------- */
+    .tt-dash-header,
+    .tt-dash-brand,
+    .tt-dash-actions,
+    .tt-dash-demo-pill,
+    .tt-dash-help,
+    .tt-user-menu,
     .tt-breadcrumbs,
     .tt-back-link-wrap,
     .tt-back-link,
+    .tt-back-pill,
     .tt-page-head .tt-page-actions,
     .tt-mp-toolbar,
     .tt-mp-picker,
@@ -838,35 +856,39 @@
 
     .tt-match-prep {
         margin: 0 !important;
-        font-size: 10pt;
-        line-height: 1.25;
+        font-size: 9pt;
+        line-height: 1.2;
     }
+    /* (#1023.2) Page title is the first visible line on paper:
+       16px (12pt) bold, no top margin. */
     .tt-match-prep-title {
-        margin: 0 0 6mm;
-        font-size: 13pt;
+        margin: 0 0 3mm !important;
+        font-size: 12pt !important;
+        font-weight: 700 !important;
+        line-height: 1.2 !important;
     }
 
     /* Keep the 3-column grid even on narrower print viewports. */
     .tt-mp-grid {
         display: grid !important;
-        grid-template-columns: 50mm minmax(0, 1fr) 70mm !important;
-        gap: 4mm !important;
+        grid-template-columns: 48mm minmax(0, 1fr) 64mm !important;
+        gap: 3mm !important;
     }
 
     /* Spreadsheet density on paper. */
     .tt-mp-roster,
     .tt-mp-dps {
-        font-size: 9pt;
+        font-size: 8pt;
     }
     .tt-mp-roster tbody td,
     .tt-mp-dps tbody td {
-        padding: 1mm 1mm;
+        padding: 0.5mm 1mm;
         min-height: 0;
     }
     .tt-mp-dps tbody td.tt-mp-col-text input,
     .tt-mp-gbox-lines input {
-        font-size: 9pt;
-        padding: 0.5mm 1mm;
+        font-size: 8pt;
+        padding: 0.25mm 1mm;
         min-height: 0;
         border-bottom: 1px solid var(--tt-mp-line-soft);
         background: transparent;
@@ -879,6 +901,64 @@
     .tt-mp-sp-row {
         break-inside: avoid;
         page-break-inside: avoid;
+    }
+
+    /* (#1023.3) Pitch slot labels — the slot number circle AND the
+       player-name label must remain visible on paper. The on-screen
+       layer uses inline styles for positioning + a class. The label
+       background is a translucent white that prints as grey shading
+       on some printers and disappears on others; force opaque-white
+       inside the print block and force the dark text colour so neither
+       the number nor the name gets stripped. */
+    .tt-mp-pitch {
+        aspect-ratio: 68 / 75;
+    }
+    .tt-mp-slot {
+        display: flex !important;
+        visibility: visible !important;
+    }
+    .tt-mp-slot .tt-mp-slot-num,
+    .tt-mp-slot .tt-mp-slot-name {
+        color: var(--tt-mp-ink) !important;
+        background: #fff !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        color-adjust: exact;
+        font-size: 7pt;
+    }
+    .tt-mp-slot .tt-mp-slot-name {
+        max-width: none;
+        min-width: 8mm;
+        padding: 0.25mm 1mm;
+        min-height: 0;
+        border: 1px solid rgba(0,0,0,0.25);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .tt-mp-slot.tt-mp-slot-empty .tt-mp-slot-name {
+        color: var(--tt-mp-ink-soft) !important;
+    }
+
+    /* (#1023.4) Restore icon colours on print — the on-screen ! (red /
+       warn) and camera (green / success) flags inherit colour from
+       `currentColor`, which most print stylesheets reset to black.
+       Force the bright colours back AND ask the browser to print them
+       even when "Background graphics" is off. */
+    .tt-mp-dps tbody td.tt-mp-col-spec.tt-mp-on {
+        color: var(--tt-mp-danger) !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        color-adjust: exact;
+    }
+    .tt-mp-dps tbody td.tt-mp-col-cam.tt-mp-on {
+        color: var(--tt-mp-success) !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        color-adjust: exact;
+    }
+    .tt-mp-dps tbody td.tt-mp-col-cam.tt-mp-on svg {
+        fill: var(--tt-mp-success) !important;
     }
 
     /* Keep the pitch tints visible on paper (browsers default to
@@ -896,6 +976,47 @@
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
         color-adjust: exact;
+    }
+
+    /* (#1023.5) Wedstrijddoelen — compact so the whole page fits on
+       one landscape A4. Halve padding, shrink font, tighten gap. */
+    .tt-mp-goals {
+        margin-top: 3mm;
+        padding: 2mm 3mm 1mm;
+    }
+    .tt-mp-goals-title {
+        margin: 0 0 1mm;
+        font-size: 9pt;
+    }
+    .tt-mp-gbox {
+        margin-bottom: 1.5mm;
+    }
+    .tt-mp-gbox-title {
+        padding: 0.5mm 2mm;
+        font-size: 7.5pt;
+    }
+    .tt-mp-gbox-lines {
+        padding: 0.5mm 2mm;
+    }
+    .tt-mp-goals-row {
+        gap: 2mm;
+        grid-template-columns: 1fr 1fr !important;
+    }
+
+    /* (#1023.6) Empty goal lines print as a clean horizontal rule with
+       no placeholder dots. On screen the inputs show `…` as a hint; on
+       paper that hint is noise. Hide the placeholder and any :empty
+       pseudo content so the underline alone communicates "write here". */
+    .tt-mp-gbox-lines input::placeholder {
+        color: transparent !important;
+        opacity: 0 !important;
+    }
+    .tt-mp-gbox-lines input::-webkit-input-placeholder { color: transparent !important; }
+    .tt-mp-gbox-lines input::-moz-placeholder { color: transparent !important; opacity: 0 !important; }
+    .tt-mp-gbox-lines input:empty::before { content: none !important; }
+    .tt-mp-dps tbody td.tt-mp-col-text input::placeholder {
+        color: transparent !important;
+        opacity: 0 !important;
     }
 
     /* Picker/drawer hide above. Strip every leftover button/CTA. */

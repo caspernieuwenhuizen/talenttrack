@@ -9,6 +9,7 @@ use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\FrontendViewBase;
+use TT\Shared\Util\PlayerShortName;
 
 /**
  * FrontendMatchPrepView (#965) — head-coach match preparation surface.
@@ -194,6 +195,13 @@ class FrontendMatchPrepView extends FrontendViewBase {
         $players_by_id = self::loadTeamRosterById( (int) $activity->team_id );
         $roster_list   = self::sortRoster( $players_by_id );
 
+        // Short-name map (#1023) — first name only, disambiguated to
+        // "<first> <last-initial>" when two players on the team share a
+        // first name. Computed against the whole team roster (not just
+        // present players) so the same player renders identically on every
+        // sub-surface even when availability flips during the session.
+        $short_names = PlayerShortName::resolve( $roster_list );
+
         $availability_by_pid = [];
         $available_ids       = [];
         foreach ( $availability as $a ) {
@@ -227,7 +235,7 @@ class FrontendMatchPrepView extends FrontendViewBase {
 
         $title = sprintf(
             /* translators: 1: activity title, 2: session date */
-            __( 'Match prep — %1$s · %2$s', 'talenttrack' ),
+            __( 'Match preparation — %1$s · %2$s', 'talenttrack' ),
             (string) ( $activity->title ?? '—' ),
             (string) ( $activity->session_date ?? '' )
         );
@@ -320,7 +328,7 @@ class FrontendMatchPrepView extends FrontendViewBase {
                             foreach ( $available_ids as $pid ) :
                                 if ( ! isset( $players_by_id[ $pid ] ) ) continue;
                                 $pl    = $players_by_id[ $pid ];
-                                $name  = QueryHelpers::player_display_name( $pl );
+                                $name  = $short_names[ $pid ] ?? QueryHelpers::player_display_name( $pl );
                                 $on1   = in_array( $pid, $lineup_by_half[1], true );
                                 $on2   = in_array( $pid, $lineup_by_half[2], true );
                                 $min1  = $on1 ? $half_length : 0;
@@ -501,7 +509,7 @@ class FrontendMatchPrepView extends FrontendViewBase {
                                 foreach ( $available_ids as $pid ) :
                                     if ( ! isset( $players_by_id[ $pid ] ) ) continue;
                                     $pl   = $players_by_id[ $pid ];
-                                    $name = QueryHelpers::player_display_name( $pl );
+                                    $name = $short_names[ $pid ] ?? QueryHelpers::player_display_name( $pl );
                                     $g    = $pgoals_by_pid[ $pid ] ?? null;
                                     $att  = (string) ( $g->attention_text ?? '' );
                                     $spec = ! empty( $g->is_specific_goal );
@@ -548,7 +556,7 @@ class FrontendMatchPrepView extends FrontendViewBase {
                                 $label = (string) $role['label'];
                                 $rpid  = (int) ( $roles_by_key[ $key ] ?? 0 );
                                 $rname = $rpid > 0 && isset( $players_by_id[ $rpid ] )
-                                    ? QueryHelpers::player_display_name( $players_by_id[ $rpid ] )
+                                    ? ( $short_names[ $rpid ] ?? QueryHelpers::player_display_name( $players_by_id[ $rpid ] ) )
                                     : '';
                                 $filled = $rpid > 0;
                                 ?>
@@ -605,10 +613,15 @@ class FrontendMatchPrepView extends FrontendViewBase {
             'roles'          => array_map( static function( array $r ): array {
                 return [ 'key' => $r['key'], 'label' => $r['label'] ];
             }, self::roleDefinitions() ),
-            'players'        => array_map( static function( $p ): array {
+            'players'        => array_map( static function( $p ) use ( $short_names ): array {
+                $pid = (int) ( $p->id ?? 0 );
                 return [
-                    'id'   => (int) ( $p->id ?? 0 ),
-                    'name' => QueryHelpers::player_display_name( $p ),
+                    'id'    => $pid,
+                    'name'  => $short_names[ $pid ] ?? QueryHelpers::player_display_name( $p ),
+                    // Full name kept on the payload so the availability
+                    // drawer can show the long form if a future variant
+                    // wants it; current renderers use `name`.
+                    'full'  => QueryHelpers::player_display_name( $p ),
                 ];
             }, $roster_list ),
             'availability'   => (object) $availability_by_pid,
