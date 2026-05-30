@@ -40,7 +40,12 @@ class MatchExecutionRestController {
     public static function register(): void {
         $base = '/match-execution/(?P<activity_id>\d+)';
 
-        foreach ( [ 'start-half', 'end-half', 'pause', 'resume', 'score', 'substitution', 'goal-event', 'finish' ] as $action ) {
+        // #1033 — `finalize` is the new explicit transition from
+        // PENDING_REVIEW to the terminal FINALIZED state. `finish`
+        // stays on the URL surface (it's the live-tap "End match"
+        // route) but now lands in PENDING_REVIEW so the coach can
+        // still edit goals / subs / score post-match.
+        foreach ( [ 'start-half', 'end-half', 'pause', 'resume', 'score', 'substitution', 'goal-event', 'finish', 'finalize' ] as $action ) {
             register_rest_route( self::NS, $base . '/' . $action, [
                 [
                     'methods'             => 'POST',
@@ -91,8 +96,11 @@ class MatchExecutionRestController {
 
         $repo = new MatchExecutionRepository();
         $col  = $half === 1 ? 'first_half_ended_at' : 'second_half_ended_at';
+        // #1033 — ending the second half lands in PENDING_REVIEW (was
+        // FINISHED). The coach reviews goals / subs / score post-match
+        // and then Finalize locks it.
         $repo->update( $exec_id, [
-            'state' => $half === 1 ? MatchExecutionState::HALF_TIME : MatchExecutionState::FINISHED,
+            'state' => $half === 1 ? MatchExecutionState::HALF_TIME : MatchExecutionState::PENDING_REVIEW,
             $col    => current_time( 'mysql', true ),
         ] );
         return RestResponse::success( [ 'execution_id' => $exec_id ] );
@@ -127,6 +135,8 @@ class MatchExecutionRestController {
     public static function route_score( \WP_REST_Request $r ): \WP_REST_Response {
         [ $exec_id, $err ] = self::ensureExecution( $r );
         if ( $err ) return $err;
+        $finalized_err = self::assertEditable( $exec_id );
+        if ( $finalized_err ) return $finalized_err;
         $body = $r->get_json_params();
         $home = max( 0, min( 99, (int) ( $body['home'] ?? 0 ) ) );
         $away = max( 0, min( 99, (int) ( $body['away'] ?? 0 ) ) );
@@ -144,6 +154,8 @@ class MatchExecutionRestController {
     public static function route_substitution( \WP_REST_Request $r ): \WP_REST_Response {
         [ $exec_id, $err ] = self::ensureExecution( $r );
         if ( $err ) return $err;
+        $finalized_err = self::assertEditable( $exec_id );
+        if ( $finalized_err ) return $finalized_err;
         $body = $r->get_json_params();
         $event_uuid    = (string) ( $body['event_uuid'] ?? '' );
         $half          = (int) ( $body['half'] ?? 0 );
@@ -161,6 +173,8 @@ class MatchExecutionRestController {
     public static function route_goal_event( \WP_REST_Request $r ): \WP_REST_Response {
         [ $exec_id, $err ] = self::ensureExecution( $r );
         if ( $err ) return $err;
+        $finalized_err = self::assertEditable( $exec_id );
+        if ( $finalized_err ) return $finalized_err;
         $body = $r->get_json_params();
         $event_uuid = (string) ( $body['event_uuid'] ?? '' );
         $player_id  = (int) ( $body['player_id'] ?? 0 );
@@ -177,6 +191,8 @@ class MatchExecutionRestController {
     public static function route_goal_event_delete( \WP_REST_Request $r ): \WP_REST_Response {
         [ $exec_id, $err ] = self::ensureExecution( $r );
         if ( $err ) return $err;
+        $finalized_err = self::assertEditable( $exec_id );
+        if ( $finalized_err ) return $finalized_err;
         $event_uuid = (string) $r['event_uuid'];
         ( new MatchExecutionRepository() )->reverseGoalEvent( $event_uuid );
         return RestResponse::success( [ 'execution_id' => $exec_id, 'event_uuid' => $event_uuid ] );
@@ -202,9 +218,11 @@ class MatchExecutionRestController {
 
         $activity_id = (int) $exec->activity_id;
 
-        // 1. Mark execution finished + capture second-half end.
+        // #1033 — End-match now lands in PENDING_REVIEW (was FINISHED).
+        // Goals / subs / score remain editable post-match; the coach
+        // taps Finalize (route_finalize below) when ready to lock.
         $repo->update( $exec_id, [
-            'state'                => MatchExecutionState::FINISHED,
+            'state'                => MatchExecutionState::PENDING_REVIEW,
             'second_half_ended_at' => current_time( 'mysql', true ),
         ] );
 
@@ -307,8 +325,95 @@ class MatchExecutionRestController {
         return RestResponse::success( [
             'execution_id' => $exec_id,
             'activity_id'  => $activity_id,
-            'state'        => MatchExecutionState::FINISHED,
+            'state'        => MatchExecutionState::PENDING_REVIEW,
         ] );
+    }
+
+    /**
+     * #1033 — explicit "Finalize" transition. Moves a PENDING_REVIEW
+     * execution to the terminal FINALIZED state. Read-only thereafter
+     * (score, goal-event, substitution endpoints refuse writes once
+     * the execution is FINALIZED — see `assertEditable()`).
+     *
+     * No-op (returns 409) if the execution is already FINALIZED or
+     * not yet in PENDING_REVIEW. Attendance + minutes were already
+     * written on the End-match tap (route_finish); finalize only
+     * flips the state.
+     */
+    public static function route_finalize( \WP_REST_Request $r ): \WP_REST_Response {
+        [ $exec_id, $err ] = self::ensureExecution( $r );
+        if ( $err ) return $err;
+
+        global $wpdb;
+        $p = $wpdb->prefix;
+        $exec = $wpdb->get_row( $wpdb->prepare(
+            "SELECT id, state, activity_id FROM {$p}tt_match_execution WHERE id = %d AND club_id = %d",
+            $exec_id, CurrentClub::id()
+        ) );
+        if ( ! $exec ) return RestResponse::error( 'not_found', __( 'Execution not found.', 'talenttrack' ), 404 );
+
+        $current = (string) ( $exec->state ?? '' );
+        if ( $current === MatchExecutionState::FINALIZED ) {
+            return RestResponse::success( [
+                'execution_id' => $exec_id,
+                'state'        => MatchExecutionState::FINALIZED,
+                'note'         => 'already_finalized',
+            ] );
+        }
+        if ( $current !== MatchExecutionState::PENDING_REVIEW ) {
+            return RestResponse::error(
+                'bad_state',
+                __( 'Match must end (state pending_review) before it can be finalized.', 'talenttrack' ),
+                409
+            );
+        }
+
+        ( new MatchExecutionRepository() )->update( $exec_id, [
+            'state' => MatchExecutionState::FINALIZED,
+        ] );
+
+        Logger::info( 'match_execution.finalize', [
+            'execution_id' => $exec_id,
+            'activity_id'  => (int) $exec->activity_id,
+        ] );
+
+        return RestResponse::success( [
+            'execution_id' => $exec_id,
+            'activity_id'  => (int) $exec->activity_id,
+            'state'        => MatchExecutionState::FINALIZED,
+        ] );
+    }
+
+    /**
+     * #1033 — guard for the write endpoints (score / substitution /
+     * goal-event). The endpoints accept writes only when the execution
+     * is in a `MatchExecutionState::EDITABLE` state — the live trio +
+     * PENDING_REVIEW. FINALIZED refuses with HTTP 409.
+     *
+     * Returns null on success, or an error WP_REST_Response on refusal.
+     * NOT_STARTED is implicitly tolerated — start-half hasn't happened
+     * yet but the offline-queue replay path may fire a goal-event
+     * before the half-start it batched against; the existing endpoints
+     * accept those today and #1033 doesn't change that.
+     */
+    private static function assertEditable( int $exec_id ): ?\WP_REST_Response {
+        global $wpdb;
+        $p = $wpdb->prefix;
+        $state = (string) $wpdb->get_var( $wpdb->prepare(
+            "SELECT state FROM {$p}tt_match_execution WHERE id = %d AND club_id = %d",
+            $exec_id, CurrentClub::id()
+        ) );
+        if ( $state === '' || $state === MatchExecutionState::NOT_STARTED ) {
+            return null; // pre-kickoff queue replay tolerated
+        }
+        if ( MatchExecutionState::isEditable( $state ) ) {
+            return null;
+        }
+        return RestResponse::error(
+            'finalized',
+            __( 'This match is finalized and no longer accepts edits.', 'talenttrack' ),
+            409
+        );
     }
 
     /**

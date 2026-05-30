@@ -36,11 +36,31 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 final class MatchExecutionState {
 
-    public const NOT_STARTED  = 'not_started';
-    public const FIRST_HALF   = 'first_half';
-    public const HALF_TIME    = 'half_time';
-    public const SECOND_HALF  = 'second_half';
-    public const FINISHED     = 'finished';
+    public const NOT_STARTED    = 'not_started';
+    public const FIRST_HALF     = 'first_half';
+    public const HALF_TIME      = 'half_time';
+    public const SECOND_HALF    = 'second_half';
+    /**
+     * #1033 — replaces the prior terminal `FINISHED`. After the coach
+     * taps "End match", the execution lands in PENDING_REVIEW: goals,
+     * subs, and the score remain editable; the timer is frozen.
+     */
+    public const PENDING_REVIEW = 'pending_review';
+    /**
+     * #1033 — new terminal state. Reached via an explicit Finalize
+     * action from PENDING_REVIEW. Read-only thereafter.
+     */
+    public const FINALIZED      = 'finalized';
+
+    /**
+     * @deprecated since v4.15.0 (#1033) — the post-match state split
+     *             into PENDING_REVIEW (editable) and FINALIZED
+     *             (terminal). Kept for one release as a back-compat
+     *             alias; the migration in 0NNN_match_execution_state
+     *             backfills existing DB rows so the legacy literal
+     *             `'finished'` shouldn't appear in storage anymore.
+     */
+    public const FINISHED       = 'finished';
 
     /** @var list<string> */
     public const ALL = [
@@ -48,13 +68,14 @@ final class MatchExecutionState {
         self::FIRST_HALF,
         self::HALF_TIME,
         self::SECOND_HALF,
-        self::FINISHED,
+        self::PENDING_REVIEW,
+        self::FINALIZED,
     ];
 
     /**
      * States in which the match is mid-play. Used by the coach-hero
      * "Resume match" lookup and any UI that needs to distinguish a
-     * live execution from a startable / finished one.
+     * live execution from a startable / post-match one.
      *
      * @var list<string>
      */
@@ -64,11 +85,30 @@ final class MatchExecutionState {
         self::SECOND_HALF,
     ];
 
+    /**
+     * #1033 — states in which the score, goal-event, and substitution
+     * endpoints accept writes. Live states stay editable as they
+     * always were; PENDING_REVIEW unlocks the same controls for the
+     * post-match review window. FINALIZED is read-only.
+     *
+     * @var list<string>
+     */
+    public const EDITABLE = [
+        self::FIRST_HALF,
+        self::HALF_TIME,
+        self::SECOND_HALF,
+        self::PENDING_REVIEW,
+    ];
+
     public static function isValid( string $value ): bool {
         return in_array( $value, self::ALL, true );
     }
 
     public static function isLive( string $value ): bool {
         return in_array( $value, self::LIVE, true );
+    }
+
+    public static function isEditable( string $value ): bool {
+        return in_array( $value, self::EDITABLE, true );
     }
 }

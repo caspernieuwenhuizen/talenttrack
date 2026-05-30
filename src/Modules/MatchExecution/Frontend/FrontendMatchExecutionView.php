@@ -277,6 +277,35 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                 <ul class="tt-mexec-player-list" data-tt-mexec-onpitch-list></ul>
             </section>
 
+            <?php // #1033 — post-match status bar. PENDING_REVIEW shows
+                  // a visible "ended · pending review" pill + an explicit
+                  // Finalize CTA. FINALIZED shows only the locked pill —
+                  // score / goal / sub endpoints already refuse writes
+                  // server-side via assertEditable(), but the visible
+                  // affordances stay so the operator understands why.
+                  ?>
+            <?php if ( $state === MatchExecutionState::PENDING_REVIEW || $state === MatchExecutionState::FINALIZED ) : ?>
+                <section class="tt-mexec-post-match" aria-label="<?php esc_attr_e( 'Post-match status', 'talenttrack' ); ?>">
+                    <p class="tt-mexec-state-pill tt-mexec-state-pill--<?php echo esc_attr( $state ); ?>">
+                        <?php
+                        if ( $state === MatchExecutionState::PENDING_REVIEW ) {
+                            esc_html_e( 'Match ended · pending review', 'talenttrack' );
+                        } else {
+                            esc_html_e( 'Finalized — read-only', 'talenttrack' );
+                        }
+                        ?>
+                    </p>
+                    <?php if ( $state === MatchExecutionState::PENDING_REVIEW ) : ?>
+                        <button type="button" class="tt-mexec-finalize-btn" data-tt-mexec-finalize>
+                            <?php esc_html_e( 'Finalize match', 'talenttrack' ); ?>
+                        </button>
+                        <p class="tt-mexec-finalize-help">
+                            <?php esc_html_e( 'Locks the match. Goals, subs, and score cannot be edited after.', 'talenttrack' ); ?>
+                        </p>
+                    <?php endif; ?>
+                </section>
+            <?php endif; ?>
+
             <footer class="tt-mexec-footer">
                 <div class="tt-mexec-footer-inner">
                     <button type="button" class="tt-mexec-footer-cta" data-tt-mexec-state-action data-action="start-match"><?php esc_html_e( 'Start match', 'talenttrack' ); ?></button>
@@ -307,6 +336,92 @@ class FrontendMatchExecutionView extends FrontendViewBase {
         ];
         ?>
         <script type="application/json" id="tt-mexec-bootstrap"><?php echo wp_json_encode( $bootstrap ); ?></script>
+        <style>
+            /* #1033 — post-match status pill + Finalize CTA. Mobile-first
+             * 48px touch target on the button; visible warning colour on
+             * the pending pill so it doesn\'t get missed in the coach\'s
+             * scroll past the score / timer. */
+            .tt-mexec-post-match {
+                margin: 12px 0;
+                padding: 12px 14px;
+                border: 1px solid #e3e6ea;
+                border-radius: 8px;
+                background: #fff;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                align-items: stretch;
+            }
+            .tt-mexec-state-pill {
+                margin: 0;
+                display: inline-block;
+                align-self: flex-start;
+                padding: 4px 10px;
+                border-radius: 999px;
+                font-size: 12px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.4px;
+            }
+            .tt-mexec-state-pill--pending_review { background: #fff4d4; color: #92651b; }
+            .tt-mexec-state-pill--finalized     { background: #e6e9ed; color: #5b6e75; }
+            .tt-mexec-finalize-btn {
+                display: block;
+                width: 100%;
+                min-height: 48px;
+                padding: 12px 16px;
+                border-radius: 8px;
+                border: 1.5px solid #d63638;
+                background: #d63638;
+                color: #fff;
+                font: inherit;
+                font-size: 15px;
+                font-weight: 700;
+                cursor: pointer;
+            }
+            .tt-mexec-finalize-btn:hover { background: #b32a2c; border-color: #b32a2c; }
+            .tt-mexec-finalize-btn:disabled { background: #b0b3b6; border-color: #b0b3b6; cursor: not-allowed; }
+            .tt-mexec-finalize-help {
+                margin: 0;
+                font-size: 12px;
+                color: #5b6e75;
+                line-height: 1.4;
+            }
+        </style>
+        <script>
+        (function () {
+            var btn = document.querySelector( '[data-tt-mexec-finalize]' );
+            if ( ! btn ) return;
+            var cfg = window.TT_MATCH_EXECUTION || {};
+            var confirmMsg = <?php echo wp_json_encode( __( 'Finalize this match? Goals, subs, and score cannot be edited after.', 'talenttrack' ) ); ?>;
+            var errPrefix = <?php echo wp_json_encode( __( 'Could not finalize:', 'talenttrack' ) ); ?>;
+            btn.addEventListener( 'click', function () {
+                if ( ! window.confirm( confirmMsg ) ) return;
+                btn.disabled = true;
+                fetch( cfg.rest_url + 'finalize', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-WP-Nonce': cfg.rest_nonce
+                    },
+                    body: '{}'
+                } )
+                    .then( function ( r ) {
+                        if ( r.ok ) { window.location.reload(); return; }
+                        return r.json().then( function ( j ) {
+                            btn.disabled = false;
+                            var msg = ( j && j.errors && j.errors[0] && j.errors[0].message ) || ( errPrefix + ' ' + r.status );
+                            window.alert( msg );
+                        } );
+                    } )
+                    .catch( function () {
+                        btn.disabled = false;
+                        window.alert( errPrefix + ' network error.' );
+                    } );
+            } );
+        })();
+        </script>
         <?php
     }
 
