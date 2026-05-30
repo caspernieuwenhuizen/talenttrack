@@ -1,33 +1,48 @@
 /**
- * TalentTrack — Team chemistry "Try a lineup" sandbox (#0768, v3.110.174).
+ * TalentTrack — Team chemistry interaction layer.
  *
- * Adds an in-place sandbox mode to the chemistry board: tap a pitch slot
- * → bottom-sheet picker → live recompute. State (mode + overrides) lives
- * in sessionStorage keyed by team id, so a refresh keeps the experiment.
+ * v4.13.0 (#1002) — selectors retargeted to the new mockup-port layout
+ * (`tt-tc-*` class family). Behaviour is unchanged from the v3.110.174
+ * sandbox + v3.110.184 save-as-blueprint model:
  *
- * No framework. Pure addEventListener + fetch. The board PHP renders the
- * authoritative baseline; this script only mutates DOM after a server
- * recompute confirms the new state.
+ *   - Suggested / Override segmented toggle in the toolbar.
+ *   - Tap a pitch slot in override mode -> bottom-sheet picker.
+ *   - Override persists in sessionStorage keyed by team id.
+ *   - Save-as-blueprint hands the lineup to the blueprint REST endpoints.
+ *
+ * Additional v4.13.0 plumbing:
+ *   - Roster filter input — live filter on the sidebar.
+ *   - Formation-picker auto-submit on change (replaces inline onchange).
+ *   - Reset button confirmation re-uses the existing `reset_confirm` string.
+ *
+ * No framework. Pure addEventListener + fetch.
  */
 (function () {
     'use strict';
+
+    // Always wire the unguarded pieces — roster filter + formation
+    // auto-submit are present even for read-only viewers.
+    document.addEventListener('DOMContentLoaded', function () {
+        wireRosterFilter();
+        wireFormationAutosubmit();
+    });
+
     if (typeof window.TT_TEAM_CHEM === 'undefined') return;
 
     var cfg = window.TT_TEAM_CHEM;
     var STORAGE_KEY = 'tt_chem_sandbox_' + cfg.team_id;
 
     document.addEventListener('DOMContentLoaded', function () {
-        var sandbox = document.querySelector('.tt-chem-sandbox');
+        var sandbox = document.querySelector('.tt-tc-sandbox');
         if (!sandbox) return;
 
         var state = loadState();
-        wireToggle(sandbox, state);
+        wireSegmentedToggle(sandbox, state);
         wireReset(sandbox, state);
         wireSave(sandbox, state);
         wireSlotTaps(state);
         wireSheetDismiss();
 
-        // Restore sandbox mode + any saved overrides from a prior visit.
         if (state.mode === 'on' || hasOverrides(state)) {
             applyMode(sandbox, 'on');
             if (hasOverrides(state)) {
@@ -38,6 +53,43 @@
         }
     });
 
+    // -----------------------------------------------------------------
+    // Roster filter — case-insensitive substring match on name + pos.
+    // -----------------------------------------------------------------
+    function wireRosterFilter() {
+        var input = document.getElementById('tt-tc-roster-filter');
+        if (!input) return;
+        var rows = document.querySelectorAll('.tt-tc-roster-row');
+        input.addEventListener('input', function () {
+            var q = String(input.value || '').trim().toLowerCase();
+            rows.forEach(function (row) {
+                if (q === '') {
+                    row.classList.remove('is-hidden');
+                    return;
+                }
+                var hay = row.getAttribute('data-search') || '';
+                if (hay.indexOf(q) === -1) row.classList.add('is-hidden');
+                else row.classList.remove('is-hidden');
+            });
+        });
+    }
+
+    // -----------------------------------------------------------------
+    // Formation picker — auto-submits on change. Replaces the v1 inline
+    // `onchange="this.form.submit()"` so CSP-strict installs work.
+    // -----------------------------------------------------------------
+    function wireFormationAutosubmit() {
+        document.querySelectorAll('[data-tt-tc-autosubmit]').forEach(function (sel) {
+            sel.addEventListener('change', function () {
+                var form = sel.closest('form');
+                if (form) form.submit();
+            });
+        });
+    }
+
+    // -----------------------------------------------------------------
+    // Sandbox state
+    // -----------------------------------------------------------------
     function loadState() {
         try {
             var raw = sessionStorage.getItem(STORAGE_KEY);
@@ -62,16 +114,21 @@
 
     function applyMode(sandbox, mode) {
         sandbox.setAttribute('data-mode', mode);
-        var toggle = sandbox.querySelector('.tt-chem-sandbox-toggle');
-        var hint   = sandbox.querySelector('.tt-chem-sandbox-hint');
         document.body.classList.toggle('tt-chem-sandbox-on', mode === 'on');
-        if (toggle) {
-            toggle.setAttribute('aria-pressed', mode === 'on' ? 'true' : 'false');
-            toggle.textContent = mode === 'on' ? cfg.i18n.mode_on_label : cfg.i18n.mode_off;
+
+        // Segmented toggle visual state.
+        var segOn  = sandbox.querySelector('.tt-tc-sandbox-toggle');
+        var segOff = sandbox.querySelector('.tt-tc-sandbox-mode-suggested');
+        if (segOn)  { segOn.setAttribute('aria-pressed',  mode === 'on'  ? 'true' : 'false'); segOn.classList.toggle('is-active',  mode === 'on'); }
+        if (segOff) { segOff.setAttribute('aria-pressed', mode === 'off' ? 'true' : 'false'); segOff.classList.toggle('is-active', mode === 'off'); }
+
+        // Override banner — toggled by mode.
+        var banner = document.querySelector('.tt-tc-override-banner');
+        if (banner) {
+            if (mode === 'on') banner.removeAttribute('hidden');
+            else banner.setAttribute('hidden', '');
         }
-        if (hint) {
-            if (mode === 'on') hint.removeAttribute('hidden'); else hint.setAttribute('hidden', '');
-        }
+
         // Make slots focusable while in sandbox mode so the picker is
         // reachable from the keyboard.
         var slots = document.querySelectorAll('.tt-pitch-slot[data-slot-label]');
@@ -89,59 +146,57 @@
     }
 
     function renderStatus(sandbox, state) {
-        var status  = sandbox.querySelector('.tt-chem-sandbox-status');
-        var actions = sandbox.querySelector('.tt-chem-sandbox-actions');
-        if (!status || !actions) return;
+        var reset = sandbox.querySelector('.tt-tc-sandbox-reset');
+        var save  = sandbox.querySelector('.tt-tc-sandbox-save');
         var count = Object.keys(state.overrides).length;
         if (count === 0) {
-            status.setAttribute('hidden', '');
-            status.textContent = '';
-            actions.setAttribute('hidden', '');
+            if (reset) reset.setAttribute('hidden', '');
+            if (save)  save.setAttribute('hidden', '');
             return;
         }
-        var tpl = count === 1 ? cfg.i18n.sandbox_active : cfg.i18n.sandbox_active_many;
-        status.textContent = tpl.replace('%d', String(count));
-        status.removeAttribute('hidden');
-        actions.removeAttribute('hidden');
+        if (reset) reset.removeAttribute('hidden');
+        if (save)  save.removeAttribute('hidden');
     }
 
-    function wireToggle(sandbox, state) {
-        var btn = sandbox.querySelector('.tt-chem-sandbox-toggle');
-        if (!btn) return;
-        btn.addEventListener('click', function () {
-            var next = sandbox.getAttribute('data-mode') === 'on' ? 'off' : 'on';
-            applyMode(sandbox, next);
-            state.mode = next;
-            saveState(state);
-            renderStatus(sandbox, state);
-        });
+    function wireSegmentedToggle(sandbox, state) {
+        var on  = sandbox.querySelector('.tt-tc-sandbox-toggle');
+        var off = sandbox.querySelector('.tt-tc-sandbox-mode-suggested');
+        if (on) {
+            on.addEventListener('click', function () {
+                applyMode(sandbox, 'on');
+                state.mode = 'on';
+                saveState(state);
+                renderStatus(sandbox, state);
+            });
+        }
+        if (off) {
+            off.addEventListener('click', function () {
+                applyMode(sandbox, 'off');
+                state.mode = 'off';
+                saveState(state);
+                renderStatus(sandbox, state);
+            });
+        }
     }
 
     function wireReset(sandbox, state) {
-        var btn = sandbox.querySelector('.tt-chem-sandbox-reset');
+        var btn = sandbox.querySelector('.tt-tc-sandbox-reset');
         if (!btn) return;
         btn.addEventListener('click', function () {
             if (!window.confirm(cfg.i18n.reset_confirm)) return;
             state.overrides = {};
             saveState(state);
             renderStatus(sandbox, state);
-            // Reload to restore the server-rendered suggested XI. Cheap +
-            // avoids re-implementing the full pitch+links render in JS.
+            // Reload to restore the server-rendered suggested XI.
             window.location.reload();
         });
     }
 
     function wireSave(sandbox, state) {
-        var btn = sandbox.querySelector('.tt-chem-sandbox-save');
+        var btn = sandbox.querySelector('.tt-tc-sandbox-save');
         if (!btn) return;
         btn.addEventListener('click', function () {
             if (!hasOverrides(state)) return;
-            // v3.110.184 — pilot ask: let the user pick the flavour
-            // (match-day vs squad-plan) instead of auto-saving as
-            // match-day. The previous default was hardcoded; now we
-            // ask. The result is the same shape (name + flavour) but
-            // collected via a small inline dialog rather than two
-            // sequential `confirm`/`prompt` calls.
             openSaveAsDialog(function (result) {
                 if (!result) return;
                 btn.disabled = true;
@@ -153,11 +208,6 @@
         });
     }
 
-    /**
-     * v3.110.184 — flavour + name picker. Modal dialog with a flavour
-     * radio (Match-day / Squad plan) and a name field. Resolves with
-     * `{ name, flavour }` on save, or `null` on cancel.
-     */
     function openSaveAsDialog(onDone) {
         var modal = document.createElement('div');
         modal.className = 'tt-chem-saveas';
@@ -215,10 +265,6 @@
         if (input) { input.focus(); input.select(); }
     }
 
-    /**
-     * Snapshot the current effective lineup (suggested XI + overrides)
-     * into a new blueprint, then redirect into the blueprint editor.
-     */
     function saveAsBlueprint(name, flavour, state) {
         return fetch(cfg.rest_root + '/teams/' + cfg.team_id + '/blueprints', {
             method: 'POST',
@@ -235,10 +281,6 @@
         }).then(function (resp) {
             var bpId = (resp && resp.data && resp.data.id) || (resp && resp.id);
             if (!bpId) throw new Error('bp_create_failed');
-            // Assemble the full lineup as a slot → ref-object map.
-            // #953 — in-repo callers send the canonical `ref` shape.
-            // The REST controller still accepts the legacy flat
-            // `player_id` for documented external API consumers.
             var lineup = {};
             Object.keys(cfg.suggested).forEach(function (label) {
                 var entry = cfg.suggested[label];
@@ -261,7 +303,6 @@
                 body: JSON.stringify({ assignments: lineup })
             }).then(function (r2) {
                 if (!r2.ok) throw new Error('bp_assign_failed');
-                // Clear sandbox; user has graduated it into a real blueprint.
                 sessionStorage.removeItem(STORAGE_KEY);
                 window.location.href = window.location.pathname
                     + '?tt_view=team-blueprints&team_id=' + cfg.team_id
@@ -339,7 +380,6 @@
         candidates.forEach(function (c) {
             list.appendChild(renderCandidate(c, slotLabel, state));
         });
-        // "Leave slot empty" pinned to the bottom.
         var emptyLi = document.createElement('li');
         emptyLi.className = 'tt-chem-picker-row tt-chem-picker-row--empty';
         emptyLi.setAttribute('role', 'option');
@@ -351,25 +391,10 @@
         });
         list.appendChild(emptyLi);
 
-        // Focus first candidate so the keyboard can drive immediately.
         var first = list.querySelector('.tt-chem-picker-row');
         if (first) first.focus();
     }
 
-    /**
-     * Candidates = (depth chart for slot) ∪ (full roster minus dupes),
-     * sorted by fit score (rated first) so the picker reads like the
-     * depth chart but extends to the full roster.
-     *
-     * v3.110.187 — when the server emits an eligibility map
-     * (`cfg.eligible[slotLabel]`), the roster fallback is filtered
-     * against it so the picker only shows players whose master-data
-     * positions cover this slot. Pilot ask: "players should never be
-     * put in a position that is not in their master data." When the
-     * eligibility list is missing (older payload / non-recognised
-     * slot label), no filter is applied — same fallback semantic as
-     * the server side.
-     */
     function buildCandidatesFor(slotLabel, state) {
         var byId = {};
         var depthRows = cfg.depth[slotLabel] || [];
@@ -383,8 +408,8 @@
             eligibleList.forEach(function (id) { eligibleSet[id] = true; });
         }
         cfg.roster.forEach(function (p) {
-            if (byId[p.id]) return; // already added via depth
-            if (eligibleSet && !eligibleSet[p.id]) return; // master-data filter
+            if (byId[p.id]) return;
+            if (eligibleSet && !eligibleSet[p.id]) return;
             byId[p.id] = { player_id: p.id, player_name: p.name, score: 0, has_data: false };
         });
         var rows = [];
@@ -395,7 +420,6 @@
             return b.score - a.score;
         });
 
-        // Annotate "currently in <slot>" so the coach sees swaps at a glance.
         var slotByPlayer = currentLineupReverse(state);
         rows.forEach(function (r) {
             var cur = slotByPlayer[r.player_id];
@@ -405,7 +429,6 @@
         return rows;
     }
 
-    /** Effective lineup as { player_id: slot_label }, with overrides applied. */
     function currentLineupReverse(state) {
         var map = {};
         Object.keys(cfg.suggested).forEach(function (label) {
@@ -413,7 +436,6 @@
             if (entry && entry.player_id) map[entry.player_id] = label;
         });
         Object.keys(state.overrides).forEach(function (label) {
-            // Remove the suggested occupant of this slot from the map.
             Object.keys(map).forEach(function (pid) {
                 if (map[pid] === label) delete map[pid];
             });
@@ -445,14 +467,7 @@
         return li;
     }
 
-    /**
-     * Stash the override, fire preview POST, patch DOM on response.
-     * No optimistic update — the server is authoritative on what the
-     * resulting chemistry numbers are.
-     */
     function applyOverride(slotLabel, playerId, state) {
-        // Edge case: picking the player who is *already* in this slot
-        // is a no-op. Drop any override entry to keep the map clean.
         var suggested = cfg.suggested[slotLabel];
         if (playerId !== null && suggested && suggested.player_id === playerId
             && !state.overrides.hasOwnProperty(slotLabel)) {
@@ -460,21 +475,16 @@
             return;
         }
 
-        // If the picked player is currently in a different slot, the
-        // server's pass-1 + pass-2 will resolve the other slot to its
-        // next best candidate. We don't pre-fill that for the user —
-        // the recompute returns the authoritative new XI.
         if (playerId === null) {
             state.overrides[slotLabel] = null;
         } else if (suggested && suggested.player_id === playerId) {
-            // Picking the originally-suggested player is the same as resetting this slot.
             delete state.overrides[slotLabel];
         } else {
             state.overrides[slotLabel] = playerId;
         }
         saveState(state);
         closePicker();
-        refreshFromServer(state, document.querySelector('.tt-chem-sandbox'));
+        refreshFromServer(state, document.querySelector('.tt-tc-sandbox'));
     }
 
     function refreshFromServer(state, sandbox) {
@@ -504,9 +514,6 @@
     }
 
     function patchBoard(payload) {
-        // Keep cfg.suggested in sync with the server's effective XI so
-        // the picker's "currently in X" badges stay accurate after a
-        // swap that displaced another slot's occupant.
         if (payload.suggested_xi) {
             cfg.suggested = {};
             Object.keys(payload.suggested_xi).forEach(function (label) {
@@ -530,7 +537,6 @@
         slots.forEach(function (slot) {
             var label = slot.getAttribute('data-slot-label');
             var entry = suggested[label];
-            // Reset all fit classes; we'll re-apply the right one below.
             slot.classList.remove('tt-fit-mid', 'tt-fit-low', 'tt-fit-unknown', 'tt-slot-empty');
             if (!entry || !entry.player_id) {
                 slot.classList.add('tt-slot-empty');
@@ -565,22 +571,19 @@
         var rmax = parseFloat(card.getAttribute('data-rating-max') || '10');
         var heading = card.querySelector('[data-tt-chem-composite-heading]');
         if (heading) {
-            var label;
             if (payload.composite === null || typeof payload.composite === 'undefined') {
-                label = cfg.i18n.composite_unknown.replace('%s', rmax.toFixed(0));
+                heading.innerHTML = '— <sup>/' + escapeHtml(rmax.toFixed(0)) + '</sup>';
             } else {
-                label = cfg.i18n.composite_label
-                    .replace('%1$s', Number(payload.composite).toFixed(2))
-                    .replace('%2$s', rmax.toFixed(0));
+                heading.innerHTML = escapeHtml(Number(payload.composite).toFixed(2))
+                    + ' <sup>/' + escapeHtml(rmax.toFixed(0)) + '</sup>';
             }
-            heading.textContent = label;
         }
         ['formation_fit', 'style_fit', 'depth_score', 'paired_chemistry'].forEach(function (key) {
             var el = card.querySelector('[data-tt-chem-part="' + key + '"]');
             if (!el) return;
             var v = payload[key];
             if (v === null || typeof v === 'undefined') {
-                el.innerHTML = '<span style="color:#8a9099;">?</span>';
+                el.textContent = '—';
             } else {
                 el.textContent = Number(v).toFixed(2);
             }
@@ -621,15 +624,13 @@
         var subtitle = document.querySelector('[data-tt-link-subtitle]');
         if (headline) {
             if (bp.team_score === null || typeof bp.team_score === 'undefined') {
-                headline.innerHTML = '<span style="color:#8a9099;">' + escapeHtml(cfg.i18n.link_score_unknown) + '</span>';
+                headline.innerHTML = '— <sup>/100</sup>';
             } else {
-                headline.textContent = cfg.i18n.link_score.replace('%d', String(bp.team_score));
+                headline.innerHTML = escapeHtml(String(Math.round(bp.team_score))) + '<sup>/100</sup>';
             }
         }
         if (subtitle) {
             var n = bp.scored_pair_count || 0;
-            // Simple n/1 split — PHP uses _n() with a fuller plural table,
-            // and JS only has the two i18n strings we shipped.
             var tpl = n === 1 ? cfg.i18n.pairs_one : cfg.i18n.pairs_many;
             subtitle.textContent = tpl.replace('%d', String(n));
         }

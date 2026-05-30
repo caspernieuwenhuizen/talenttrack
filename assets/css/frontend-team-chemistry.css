@@ -1,54 +1,596 @@
 /*
- * Team chemistry — "Try a lineup" sandbox (#0768, v3.110.174).
+ * Team chemistry — v4.13.0 surface rework (#1002).
  *
- * Mobile-first. The picker is a bottom-sheet that slides up from below
- * with safe-area-inset support on iOS; targets ≥ 48px; no hover gating.
- * Respects prefers-reduced-motion.
+ * Mobile-first. Ports the visual + interaction contract from
+ * `.local-mockups/team-chemistry/index.html`. Three-column desktop
+ * layout (roster sidebar / pitch / right column with KPI cards +
+ * coach pairings); stacks on tablet, single column on phone.
+ *
+ * Tokens mirror the mockup so the live surface and the design-of-record
+ * stay visually identical. Don't introduce new colour primitives without
+ * a matching mockup change.
+ *
+ * Keeps the bottom-sheet picker + sandbox-save modal from v3.110.174;
+ * those JS surfaces are still hit by tt-team-chemistry.js.
  */
 
-/* Sandbox toggle bar above the pitch. */
-.tt-chem-sandbox {
-    margin: 0 0 12px;
+:root {
+    --tt-tc-bg:        #f6f7f7;
+    --tt-tc-panel:     #ffffff;
+    --tt-tc-line:      #e3e6ea;
+    --tt-tc-ink:       #1a1d21;
+    --tt-tc-muted:     #5b6e75;
+    --tt-tc-accent:    #1d7874;
+    --tt-tc-accent-2:  #2a9d97;
+    --tt-tc-accent-15: rgba(34, 113, 177, 0.15);
+    --tt-tc-link:      #2271b1;
+    --tt-tc-success:   #2e7d4f;
+    --tt-tc-warn:      #c75c1f;
+    --tt-tc-danger:    #d63638;
+    --tt-tc-strong:    #cfe7da;
+    --tt-tc-weak:      #fbe5e6;
 }
-.tt-chem-sandbox-bar {
+
+/* ---------------------------------------------------------------------
+   Team picker (entry without team_id)
+   --------------------------------------------------------------------- */
+.tt-tc-lede {
+    color: var(--tt-tc-muted);
+    margin: 0 0 14px;
+    max-width: 720px;
+    font-size: 14px;
+}
+.tt-tc-picker-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+@media (min-width: 480px) {
+    .tt-tc-picker-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+}
+.tt-tc-picker-card {
+    background: var(--tt-tc-panel);
+    border: 1px solid var(--tt-tc-line);
+    border-radius: 8px;
+    padding: 14px 16px;
+    text-decoration: none;
+    color: var(--tt-tc-ink);
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    gap: 4px;
+    min-height: 64px;
+    touch-action: manipulation;
+}
+.tt-tc-picker-card:hover,
+.tt-tc-picker-card:focus-visible {
+    border-color: var(--tt-tc-accent);
+    outline: none;
+    box-shadow: 0 2px 8px rgba(29, 120, 116, 0.12);
+}
+.tt-tc-picker-card strong { font-size: 15px; }
+.tt-tc-picker-card span   { color: var(--tt-tc-muted); font-size: 13px; }
+
+/* ---------------------------------------------------------------------
+   Toolbar — formation picker / style summary / sandbox actions
+   --------------------------------------------------------------------- */
+.tt-tc-toolbar {
+    display: flex;
     flex-wrap: wrap;
     gap: 12px;
-    min-height: 48px;
+    align-items: center;
+    background: var(--tt-tc-panel);
+    border: 1px solid var(--tt-tc-line);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin: 0 0 14px;
 }
-.tt-chem-sandbox-toggle {
-    min-height: 44px;
-    min-width: 140px;
+.tt-tc-toolbar-form {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
 }
-.tt-chem-sandbox[data-mode="on"] .tt-chem-sandbox-toggle {
-    background: #1d7874;
-    color: #fff;
-    border-color: #1d7874;
+.tt-tc-toolbar-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
 }
-.tt-chem-sandbox-hint {
-    color: #5b6e75;
+.tt-tc-toolbar-label {
+    font-size: 12px;
+    color: var(--tt-tc-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-weight: 600;
+}
+.tt-tc-toolbar-value {
     font-size: 13px;
+    color: var(--tt-tc-ink);
+    font-weight: 500;
 }
-.tt-chem-sandbox-actions {
-    display: flex;
+.tt-tc-toolbar-select {
+    font: inherit;
+    font-size: 14px;
+    padding: 8px 12px;
+    border: 1px solid var(--tt-tc-line);
+    border-radius: 6px;
+    background: #fff;
+    color: var(--tt-tc-ink);
+    min-height: 40px;
+}
+.tt-tc-toolbar-actions {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
     gap: 8px;
     margin-left: auto;
 }
-.tt-chem-sandbox-actions .tt-btn {
-    min-height: 44px;
-}
-.tt-chem-sandbox-status {
-    margin: 8px 0 0;
-    padding: 8px 12px;
-    background: #fffbe6;
-    border: 1px solid #c9962a;
+.tt-tc-toolbar-actions .tt-btn { min-height: 44px; }
+
+/* Segmented Suggested / Override toggle */
+.tt-tc-seg {
+    display: inline-flex;
+    border: 1px solid var(--tt-tc-line);
     border-radius: 6px;
-    color: #5b4400;
+    overflow: hidden;
+    background: #fff;
+}
+.tt-tc-seg-btn {
+    border: 0;
+    background: transparent;
+    color: var(--tt-tc-muted);
+    font: inherit;
     font-size: 13px;
+    font-weight: 600;
+    padding: 8px 14px;
+    cursor: pointer;
+    min-height: 40px;
+    touch-action: manipulation;
+}
+.tt-tc-seg-btn.is-active {
+    background: var(--tt-tc-accent);
+    color: #fff;
 }
 
-/* Sandbox-on: slots become tappable, with a clearer affordance. */
+/* Override banner — visible only while sandbox mode is on. */
+.tt-tc-override-banner {
+    background: var(--tt-tc-accent-15);
+    border: 1px solid var(--tt-tc-link);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin: 0 0 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 14px;
+    flex-wrap: wrap;
+}
+.tt-tc-override-banner strong { color: var(--tt-tc-link); }
+.tt-tc-override-hint { color: var(--tt-tc-muted); }
+
+/* Coverage banner */
+.tt-tc-empty-banner {
+    background: #fffbe6;
+    border: 1px solid #c9962a;
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin: 0 0 14px;
+}
+.tt-tc-empty-banner p { margin: 6px 0 0; }
+.tt-tc-empty-banner-hint { color: var(--tt-tc-muted); font-size: 13px; }
+
+/* ---------------------------------------------------------------------
+   Three-column layout
+   --------------------------------------------------------------------- */
+.tt-tc-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    align-items: start;
+}
+@media (min-width: 768px) {
+    .tt-tc-layout {
+        grid-template-columns: 240px 1fr;
+    }
+    .tt-tc-rightcol {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+}
+@media (min-width: 1180px) {
+    .tt-tc-layout {
+        grid-template-columns: 240px 1fr 300px;
+    }
+    .tt-tc-rightcol {
+        grid-column: auto;
+        grid-template-columns: 1fr;
+        position: sticky;
+        top: 12px;
+    }
+}
+
+/* ---------------------------------------------------------------------
+   Roster sidebar
+   --------------------------------------------------------------------- */
+.tt-tc-roster {
+    background: var(--tt-tc-panel);
+    border: 1px solid var(--tt-tc-line);
+    border-radius: 10px;
+    padding: 14px;
+}
+.tt-tc-roster-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+.tt-tc-roster-head h2 {
+    margin: 0;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--tt-tc-muted);
+}
+.tt-tc-roster-count {
+    color: var(--tt-tc-muted);
+    font-size: 12px;
+    background: var(--tt-tc-bg);
+    border-radius: 10px;
+    padding: 2px 8px;
+}
+.tt-tc-roster-filter {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid var(--tt-tc-line);
+    border-radius: 6px;
+    font: inherit;
+    font-size: 16px; /* iOS no-zoom */
+    margin-bottom: 10px;
+    box-sizing: border-box;
+    min-height: 44px;
+}
+.tt-tc-roster-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 60vh;
+    overflow: auto;
+    overscroll-behavior: contain;
+}
+.tt-tc-roster-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    border-radius: 6px;
+    font-size: 14px;
+    min-height: 48px;
+}
+.tt-tc-roster-row + .tt-tc-roster-row {
+    border-top: 1px solid #f1f3f5;
+    border-radius: 0;
+}
+.tt-tc-roster-row.is-hidden { display: none; }
+.tt-tc-roster-empty { color: var(--tt-tc-muted); padding: 8px; }
+.tt-tc-av {
+    flex-shrink: 0;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: #d3d7dc;
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 11px;
+}
+.tt-tc-who {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex: 1;
+}
+.tt-tc-name {
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.tt-tc-meta {
+    font-size: 12px;
+    color: var(--tt-tc-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.tt-tc-fit {
+    margin-left: auto;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 10px;
+    background: var(--tt-tc-bg);
+    color: var(--tt-tc-muted);
+    font-variant-numeric: tabular-nums;
+}
+.tt-tc-fit.is-strong { background: var(--tt-tc-strong); color: var(--tt-tc-success); }
+.tt-tc-fit.is-weak   { background: var(--tt-tc-weak);   color: var(--tt-tc-danger); }
+
+/* ---------------------------------------------------------------------
+   Pitch card
+   --------------------------------------------------------------------- */
+.tt-tc-pitch-card {
+    background: var(--tt-tc-panel);
+    border: 1px solid var(--tt-tc-line);
+    border-radius: 10px;
+    padding: 14px;
+}
+.tt-tc-pitch-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+.tt-tc-pitch-head h2 {
+    margin: 0;
+    font-size: 15px;
+}
+.tt-tc-legend {
+    display: inline-flex;
+    gap: 10px;
+    font-size: 12px;
+    color: var(--tt-tc-muted);
+    align-items: center;
+    flex-wrap: wrap;
+}
+.tt-tc-swatch {
+    display: inline-block;
+    width: 16px;
+    height: 4px;
+    vertical-align: middle;
+    margin-right: 4px;
+    border-radius: 2px;
+}
+.tt-tc-swatch.is-strong   { background: var(--tt-tc-success); }
+.tt-tc-swatch.is-workable { background: #c9962a; }
+.tt-tc-swatch.is-poor     { background: var(--tt-tc-danger); }
+.tt-tc-pitch-hint {
+    color: var(--tt-tc-muted);
+    font-size: 12px;
+    margin: 10px 0 0;
+}
+
+/* ---------------------------------------------------------------------
+   Right column — KPI scoreboard + pairings
+   --------------------------------------------------------------------- */
+.tt-tc-rightcol {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.tt-tc-scoreboard {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.tt-tc-score-card {
+    background: var(--tt-tc-panel);
+    border: 1px solid var(--tt-tc-line);
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+        "label value"
+        "trend value";
+    column-gap: 8px;
+    align-items: center;
+    min-height: 48px;
+}
+.tt-tc-score-label {
+    grid-area: label;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--tt-tc-muted);
+    font-weight: 700;
+}
+.tt-tc-score-value {
+    grid-area: value;
+    font-size: 20px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    color: var(--tt-tc-ink);
+    text-align: right;
+}
+.tt-tc-score-value sup {
+    font-size: 11px;
+    color: var(--tt-tc-muted);
+    font-weight: 600;
+    vertical-align: top;
+    margin-left: 1px;
+}
+.tt-tc-score-trend {
+    grid-area: trend;
+    font-size: 11px;
+    color: var(--tt-tc-muted);
+    font-weight: 500;
+    line-height: 1.2;
+}
+
+/* Headline card uses the chemistry-engine green so it reads as the
+ * primary number, mirroring the mockup. */
+.tt-tc-score-card.is-headline {
+    background: linear-gradient(135deg, var(--tt-tc-accent), var(--tt-tc-accent-2));
+    color: #fff;
+    border-color: var(--tt-tc-accent);
+    min-height: 64px;
+}
+.tt-tc-score-card.is-headline .tt-tc-score-label,
+.tt-tc-score-card.is-headline .tt-tc-score-value,
+.tt-tc-score-card.is-headline .tt-tc-score-value sup,
+.tt-tc-score-card.is-headline .tt-tc-score-trend { color: #fff; }
+.tt-tc-score-card.is-headline .tt-tc-score-value { font-size: 30px; }
+
+/* Pairings panel */
+.tt-tc-pairings {
+    background: var(--tt-tc-panel);
+    border: 1px solid var(--tt-tc-line);
+    border-radius: 10px;
+    padding: 14px;
+}
+.tt-tc-pairings-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+}
+.tt-tc-pairings-head h2 {
+    margin: 0;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--tt-tc-muted);
+}
+.tt-tc-pairings-count {
+    color: var(--tt-tc-muted);
+    font-size: 12px;
+    background: var(--tt-tc-bg);
+    border-radius: 10px;
+    padding: 2px 8px;
+}
+.tt-tc-pairings-sub {
+    color: var(--tt-tc-muted);
+    font-size: 12px;
+    margin: 0 0 10px;
+}
+.tt-tc-pairings-empty { color: var(--tt-tc-muted); }
+.tt-tc-pairings-list {
+    list-style: none;
+    margin: 0 0 10px;
+    padding: 0;
+}
+.tt-tc-pairing-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 10px;
+    border: 1px solid var(--tt-tc-line);
+    border-radius: 6px;
+    margin-bottom: 6px;
+    font-size: 13px;
+    min-height: 44px;
+}
+.tt-tc-pairing-names {
+    flex: 1;
+    min-width: 0;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.tt-tc-pairing-x {
+    border: 0;
+    background: transparent;
+    color: var(--tt-tc-muted);
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px 10px;
+    border-radius: 4px;
+    min-width: 36px;
+    min-height: 36px;
+    touch-action: manipulation;
+}
+.tt-tc-pairing-x:hover,
+.tt-tc-pairing-x:focus-visible {
+    background: rgba(214, 54, 56, 0.08);
+    color: var(--tt-tc-danger);
+    outline: none;
+}
+.tt-tc-pairing-add {
+    margin-top: 4px;
+}
+.tt-tc-pairing-add-toggle {
+    display: block;
+    width: 100%;
+    padding: 9px 12px;
+    text-align: center;
+    border: 1px dashed var(--tt-tc-line);
+    border-radius: 6px;
+    color: var(--tt-tc-accent);
+    background: transparent;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    list-style: none;
+    min-height: 44px;
+    touch-action: manipulation;
+}
+.tt-tc-pairing-add-toggle::-webkit-details-marker { display: none; }
+.tt-tc-pairing-add[open] .tt-tc-pairing-add-toggle {
+    background: var(--tt-tc-accent-15);
+    border-color: var(--tt-tc-accent);
+}
+.tt-tc-pairing-form {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-top: 10px;
+}
+.tt-tc-pairing-form .tt-input {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid var(--tt-tc-line);
+    border-radius: 6px;
+    font: inherit;
+    font-size: 16px; /* iOS no-zoom */
+    box-sizing: border-box;
+    min-height: 44px;
+}
+.tt-tc-pairing-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+/* ---------------------------------------------------------------------
+   Help row
+   --------------------------------------------------------------------- */
+.tt-tc-help-row {
+    margin: 16px 0 0;
+}
+
+/* ---------------------------------------------------------------------
+   Empty-state for no-templates / no-roster cases
+   --------------------------------------------------------------------- */
+.tt-tc-emptystate {
+    background: var(--tt-tc-panel);
+    border: 1px solid var(--tt-tc-line);
+    border-radius: 10px;
+    padding: 24px;
+    text-align: center;
+}
+.tt-tc-emptystate h2 { margin: 0 0 8px; font-size: 16px; }
+.tt-tc-emptystate p { color: var(--tt-tc-muted); margin: 0; }
+
+/* ---------------------------------------------------------------------
+   Sandbox-on visual cues — slots become tappable + highlighted.
+   --------------------------------------------------------------------- */
+.tt-tc-sandbox[data-mode="on"] .tt-tc-seg-btn.tt-tc-sandbox-toggle {
+    background: var(--tt-tc-accent);
+    color: #fff;
+}
+.tt-tc-sandbox[data-mode="on"] .tt-tc-seg-btn.tt-tc-sandbox-mode-suggested {
+    background: transparent;
+    color: var(--tt-tc-muted);
+}
+
 body.tt-chem-sandbox-on .tt-pitch-slot {
     cursor: pointer;
     transition: transform 120ms ease, box-shadow 120ms ease;
@@ -57,14 +599,16 @@ body.tt-chem-sandbox-on .tt-pitch-slot:hover,
 body.tt-chem-sandbox-on .tt-pitch-slot:focus-visible {
     transform: translate(-50%, -50%) scale(1.06);
     box-shadow: 0 6px 14px rgba(29, 120, 116, 0.35);
-    outline: 2px solid #1d7874;
+    outline: 2px solid var(--tt-tc-accent);
     outline-offset: 2px;
 }
 body.tt-chem-sandbox-on .tt-pitch-slot:active {
     transform: translate(-50%, -50%) scale(0.96);
 }
 
-/* Bottom-sheet picker. */
+/* ---------------------------------------------------------------------
+   Bottom-sheet picker (kept from v3.110.174)
+   --------------------------------------------------------------------- */
 .tt-chem-picker {
     position: fixed;
     inset: 0;
@@ -105,9 +649,7 @@ body.tt-chem-sandbox-on .tt-pitch-slot:active {
     font-size: 16px;
     font-weight: 600;
 }
-.tt-chem-picker-close {
-    min-height: 40px;
-}
+.tt-chem-picker-close { min-height: 44px; }
 .tt-chem-picker-list {
     list-style: none;
     margin: 0;
@@ -134,21 +676,21 @@ body.tt-chem-sandbox-on .tt-pitch-slot:active {
     outline: none;
 }
 .tt-chem-picker-row:focus-visible {
-    box-shadow: inset 0 0 0 2px #1d7874;
+    box-shadow: inset 0 0 0 2px var(--tt-tc-accent);
 }
 .tt-chem-picker-name {
     font-weight: 500;
-    color: #1a1d21;
+    color: var(--tt-tc-ink);
     flex: 1 1 auto;
 }
 .tt-chem-picker-meta {
-    color: #5b6e75;
+    color: var(--tt-tc-muted);
     font-size: 13px;
     white-space: nowrap;
 }
 .tt-chem-picker-badge {
     background: #e6efef;
-    color: #1d7874;
+    color: var(--tt-tc-accent);
     border-radius: 10px;
     padding: 2px 8px;
     font-size: 11px;
@@ -156,7 +698,7 @@ body.tt-chem-sandbox-on .tt-pitch-slot:active {
 }
 .tt-chem-picker-row--empty {
     margin-top: 8px;
-    color: #5b6e75;
+    color: var(--tt-tc-muted);
     font-style: italic;
     border-top: 1px solid #eef0f2;
 }
@@ -164,9 +706,7 @@ body.tt-chem-sandbox-on .tt-pitch-slot:active {
 body.tt-chem-picker-open { overflow: hidden; }
 
 @media (min-width: 720px) {
-    .tt-chem-picker {
-        align-items: center;
-    }
+    .tt-chem-picker { align-items: center; }
     .tt-chem-picker-sheet {
         border-radius: 14px;
         max-height: 72vh;
@@ -192,86 +732,72 @@ body.tt-chem-picker-open { overflow: hidden; }
     to   { opacity: 1; }
 }
 
-/* =====================================================================
- * v3.110.184 — "Save as blueprint" flavour + name modal. Replaces the
- * back-to-back `confirm`/`prompt` shape with a single small modal so
- * the user picks flavour and name in one screen.
- * ===================================================================== */
-
-body.tt-chem-saveas-open {
-    overflow: hidden;
-}
+/* ---------------------------------------------------------------------
+   "Save as blueprint" modal (kept from v3.110.184)
+   --------------------------------------------------------------------- */
+body.tt-chem-saveas-open { overflow: hidden; }
 
 .tt-chem-saveas {
     position: fixed;
     inset: 0;
-    z-index: 1000;
+    z-index: 9100;
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 16px;
 }
-
 .tt-chem-saveas-backdrop {
     position: absolute;
     inset: 0;
     background: rgba(0, 0, 0, 0.5);
 }
-
 .tt-chem-saveas-sheet {
     position: relative;
     background: #fff;
-    width: min(440px, 92vw);
+    width: min(440px, 100%);
     max-height: 90vh;
     overflow-y: auto;
     border-radius: 12px;
     padding: 20px;
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
 }
-
 .tt-chem-saveas-title {
     margin: 0 0 14px;
     font-size: 18px;
     font-weight: 600;
-    color: #1a1d21;
+    color: var(--tt-tc-ink);
 }
-
 .tt-chem-saveas-flavour {
-    border: 1px solid #e5e7ea;
+    border: 1px solid var(--tt-tc-line);
     border-radius: 8px;
     padding: 10px 12px;
     margin: 0 0 14px;
 }
-
 .tt-chem-saveas-flavour legend {
     font-size: 12px;
     font-weight: 600;
-    color: #5b6e75;
+    color: var(--tt-tc-muted);
     text-transform: uppercase;
     letter-spacing: 0.04em;
     padding: 0 4px;
 }
-
 .tt-chem-saveas-flavour label {
     display: flex;
     align-items: flex-start;
     gap: 8px;
     padding: 8px 4px;
     cursor: pointer;
-    min-height: 36px;
-    color: #1a1d21;
+    min-height: 44px;
+    color: var(--tt-tc-ink);
     font-size: 14px;
     line-height: 1.35;
 }
-
-.tt-chem-saveas-name {
-    display: block;
-    margin-bottom: 16px;
-}
+.tt-chem-saveas-name { display: block; margin-bottom: 16px; }
 .tt-chem-saveas-name span {
     display: block;
     font-size: 12px;
     font-weight: 600;
-    color: #5b6e75;
+    color: var(--tt-tc-muted);
     text-transform: uppercase;
     letter-spacing: 0.04em;
     margin-bottom: 4px;
@@ -280,20 +806,18 @@ body.tt-chem-saveas-open {
     width: 100%;
     padding: 10px 12px;
     font-size: 16px; /* iOS no-zoom */
-    border: 1px solid #e5e7ea;
+    border: 1px solid var(--tt-tc-line);
     border-radius: 6px;
     box-sizing: border-box;
+    min-height: 44px;
 }
 .tt-chem-saveas-name input:focus-visible {
-    outline: 2px solid #1d7874;
+    outline: 2px solid var(--tt-tc-accent);
     outline-offset: 1px;
 }
-
 .tt-chem-saveas-actions {
     display: flex;
     justify-content: flex-end;
     gap: 8px;
 }
-.tt-chem-saveas-actions .tt-btn {
-    min-height: 40px;
-}
+.tt-chem-saveas-actions .tt-btn { min-height: 44px; }
