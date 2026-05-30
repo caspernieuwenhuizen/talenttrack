@@ -32,6 +32,10 @@ class ConfigRestController {
     private const ALLOWED_KEYS = [
         // Branding (existing)
         'academy_name',
+        // v4.12.11 (#1024) — 3-letter club code; drives the home-team
+        // abbreviation on the match-execution score box via
+        // `ClubIdentity::shortCode()`.
+        'club_short_code',
         'logo_url',
         'primary_color',
         'secondary_color',
@@ -73,6 +77,7 @@ class ConfigRestController {
      */
     private const KEY_AREA_MAP = [
         'academy_name'      => 'branding',
+        'club_short_code'   => 'branding',
         'logo_url'          => 'branding',
         'primary_color'     => 'branding',
         'secondary_color'   => 'branding',

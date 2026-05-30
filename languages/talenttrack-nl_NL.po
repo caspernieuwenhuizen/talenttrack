@@ -16929,6 +16929,26 @@ msgstr ""
 msgid "Academy name"
 msgstr "Naam academie"
 
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Club short code"
+msgstr "Korte clubcode"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid ""
+"Three-letter club abbreviation shown on the match scoreboard (e.g. HED for "
+"vv Hedel). Leave empty to derive from the academy name."
+msgstr ""
+"Driedelige clubafkorting die op het wedstrijdscorebord wordt getoond (bv. "
+"HED voor vv Hedel). Laat leeg om af te leiden van de naam van de academie."
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php
+msgid "OPP"
+msgstr "TEG"
+
+#: src/Shared/Club/ClubIdentity.php
+msgid "HOM"
+msgstr "THU"
+
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:123
 #: src/Shared/Frontend/FrontendConfigurationView.php:1556
 msgid "Primary color"

@@ -1531,6 +1531,11 @@ class FrontendConfigurationView extends FrontendViewBase {
 
     private static function renderBrandingForm(): void {
         $logo = QueryHelpers::get_config( 'logo_url', '' );
+        // v4.12.11 (#1024) — club short code drives the home-team
+        // abbreviation on the match-execution score box. When empty, a
+        // derivation from the academy name is used at render time
+        // (`ClubIdentity::shortCode()`); operator can override here.
+        $club_short_code = QueryHelpers::get_config( 'club_short_code', '' );
         ?>
         <form id="tt-config-form" data-tt-config-form="1" data-tt-config-sub="branding">
             <div class="tt-panel">
@@ -1538,6 +1543,12 @@ class FrontendConfigurationView extends FrontendViewBase {
                     <div class="tt-field">
                         <label class="tt-field-label" for="tt-cfg-academy-name"><?php esc_html_e( 'Academy name', 'talenttrack' ); ?></label>
                         <input type="text" id="tt-cfg-academy-name" class="tt-input" name="config[academy_name]" value="<?php echo esc_attr( QueryHelpers::get_config( 'academy_name', '' ) ); ?>" />
+                    </div>
+
+                    <div class="tt-field">
+                        <label class="tt-field-label" for="tt-cfg-club-short-code"><?php esc_html_e( 'Club short code', 'talenttrack' ); ?></label>
+                        <input type="text" id="tt-cfg-club-short-code" class="tt-input" name="config[club_short_code]" maxlength="3" value="<?php echo esc_attr( $club_short_code ); ?>" inputmode="text" autocomplete="off" />
+                        <p class="tt-field-hint" style="margin-top:6px; color:var(--tt-muted);"><?php esc_html_e( 'Three-letter club abbreviation shown on the match scoreboard (e.g. HED for vv Hedel). Leave empty to derive from the academy name.', 'talenttrack' ); ?></p>
                     </div>
 
                     <div class="tt-field">
