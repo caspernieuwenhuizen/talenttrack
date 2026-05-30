@@ -19,15 +19,85 @@
     color: var(--tt-ink, #1a1d21);
 }
 
-/* view switch — list shown by default; the single form view appears
- * when JS flips data-state to "add" or "edit". Server-side initial
- * state honours ?edit=N (edit mode) so deep-links survive a refresh.
- * One form, one section — see #1037 for why the two-view shape was
- * collapsed (the duplicate <form> hid the populate target from JS). */
-.tt-lkp-admin .tt-lkp-view { display: none; }
-.tt-lkp-admin[data-state="list"]    .tt-lkp-view-list,
-.tt-lkp-admin[data-state="add"]     .tt-lkp-view-form,
-.tt-lkp-admin[data-state="edit"]    .tt-lkp-view-form { display: block; }
+/* #1039 — master-detail grid. List on the left, sticky panel on the
+ * right (desktop). Single-column on mobile; in that mode the panel
+ * slides over the list when a row is clicked (see state map below). */
+.tt-lkp-admin .tt-lkp-md {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--tt-lkp-gap);
+    align-items: start;
+}
+
+/* view switch — the list section always renders (controlled by
+ * data-state on mobile only). The panel hosts either the empty-state
+ * or the single form. Server-side initial state honours ?edit=N (edit
+ * mode) so deep-links survive a refresh. One form, one section —
+ * see #1037 for why the two-view shape was collapsed. */
+.tt-lkp-admin .tt-lkp-view-form,
+.tt-lkp-admin .tt-lkp-panel-empty { display: none; }
+.tt-lkp-admin[data-state="list"]  .tt-lkp-panel-empty,
+.tt-lkp-admin[data-state="add"]   .tt-lkp-view-form,
+.tt-lkp-admin[data-state="edit"]  .tt-lkp-view-form { display: block; }
+
+/* Mobile: when a row is clicked (state=add|edit), the list collapses
+ * out of view so the panel uses the full viewport width. Back-to-list
+ * pill sits above the panel content. Desktop keeps both in view. */
+.tt-lkp-admin .tt-lkp-back-to-list { display: none; }
+@media (max-width: 879px) {
+    .tt-lkp-admin[data-state="add"]  .tt-lkp-view-list,
+    .tt-lkp-admin[data-state="edit"] .tt-lkp-view-list { display: none; }
+    .tt-lkp-admin[data-state="list"] .tt-lkp-panel { display: none; }
+    .tt-lkp-admin[data-state="add"]  .tt-lkp-back-to-list,
+    .tt-lkp-admin[data-state="edit"] .tt-lkp-back-to-list {
+        display: inline-flex;
+        margin-bottom: 10px;
+    }
+}
+
+@media (min-width: 880px) {
+    .tt-lkp-admin .tt-lkp-md {
+        grid-template-columns: minmax(0, 420px) minmax(0, 1fr);
+    }
+    .tt-lkp-admin .tt-lkp-panel {
+        position: sticky;
+        top: 16px;
+    }
+}
+
+/* Panel chrome */
+.tt-lkp-admin .tt-lkp-panel {
+    min-width: 0;
+}
+.tt-lkp-admin .tt-lkp-panel-empty {
+    background: #fff;
+    border: 1px dashed var(--tt-line, #e3e1d8);
+    border-radius: var(--tt-lkp-radius);
+    padding: 32px 24px;
+    text-align: center;
+    color: var(--tt-muted, #6a6d66);
+}
+.tt-lkp-admin .tt-lkp-panel-empty-icon {
+    font-size: 28px;
+    color: var(--tt-line, #d6dadd);
+    margin-bottom: 8px;
+    line-height: 1;
+}
+.tt-lkp-admin .tt-lkp-panel-empty p {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+.tt-lkp-admin .tt-lkp-panel-empty strong {
+    color: var(--tt-ink, #1a1d21);
+}
+
+/* "+ Add value" sits right-aligned beneath the list card. */
+.tt-lkp-admin .tt-lkp-list-foot-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 8px;
+}
 
 /* shared card chrome */
 .tt-lkp-admin .tt-lkp-card {

@@ -451,9 +451,12 @@ class FrontendConfigurationView extends FrontendViewBase {
              data-state="<?php echo esc_attr( $initial_state ); ?>"
              data-tt-lkp-config="<?php echo esc_attr( (string) wp_json_encode( $js_config ) ); ?>">
 
-            <?php self::renderLookupListView( $meta, $items, $tx_by_row, $tx_targets, $site_locale ); ?>
+            <?php // #1039 — master-detail grid: list left, panel right ?>
+            <div class="tt-lkp-md">
+                <?php self::renderLookupListView( $meta, $items, $tx_by_row, $tx_targets, $site_locale ); ?>
 
-            <?php self::renderLookupFormViews( $meta, $editing, $tx_by_row, $tx_targets, $site_locale, $add_id, $base ); ?>
+                <?php self::renderLookupFormViews( $meta, $editing, $tx_by_row, $tx_targets, $site_locale, $add_id, $base ); ?>
+            </div>
         </div>
         <?php
     }
@@ -484,11 +487,6 @@ class FrontendConfigurationView extends FrontendViewBase {
                         );
                         ?>
                     </p>
-                    <button type="button"
-                            class="tt-lkp-btn tt-lkp-btn-primary tt-lkp-btn-add"
-                            data-tt-lkp-go="add">
-                        <?php esc_html_e( '+ Add value', 'talenttrack' ); ?>
-                    </button>
                 </div>
 
                 <?php if ( empty( $items ) ) : ?>
@@ -597,6 +595,15 @@ class FrontendConfigurationView extends FrontendViewBase {
                     ?>
                 </p>
             <?php endif; ?>
+
+            <?php // #1039 — "+ Add value" sits under the list, right-aligned. ?>
+            <div class="tt-lkp-list-foot-actions">
+                <button type="button"
+                        class="tt-lkp-btn tt-lkp-btn-primary tt-lkp-btn-add"
+                        data-tt-lkp-go="add">
+                    <?php esc_html_e( '+ Add value', 'talenttrack' ); ?>
+                </button>
+            </div>
             <?php
             // Suppress unused-arg lint while keeping the signature stable.
             unset( $site_locale );
@@ -627,9 +634,29 @@ class FrontendConfigurationView extends FrontendViewBase {
 
         $heading_id = $add_id . '-form-heading';
         ?>
-        <section class="tt-lkp-view tt-lkp-view-form" aria-labelledby="<?php echo esc_attr( $heading_id ); ?>">
-            <?php self::renderLookupForm( $meta, $editing, $existing_translations, $tx_targets, $site_locale, $add_id, $base, $heading_id, $existing_color ); ?>
-        </section>
+        <?php // #1039 — right-column panel. Sticky on desktop; slides over
+              // the list on mobile when a row is clicked (back-pill returns). ?>
+        <aside class="tt-lkp-panel" aria-label="<?php esc_attr_e( 'Edit lookup value', 'talenttrack' ); ?>">
+
+            <button type="button"
+                    class="tt-lkp-btn tt-lkp-btn-ghost tt-lkp-back-to-list"
+                    data-tt-lkp-go="list">
+                <?php esc_html_e( '← Back to list', 'talenttrack' ); ?>
+            </button>
+
+            <div class="tt-lkp-panel-empty">
+                <div class="tt-lkp-panel-empty-icon" aria-hidden="true">✎</div>
+                <p>
+                    <strong><?php esc_html_e( 'Tap a row to edit', 'talenttrack' ); ?></strong>
+                    <br>
+                    <?php esc_html_e( 'or click + Add value to seed a new one.', 'talenttrack' ); ?>
+                </p>
+            </div>
+
+            <section class="tt-lkp-view tt-lkp-view-form" aria-labelledby="<?php echo esc_attr( $heading_id ); ?>">
+                <?php self::renderLookupForm( $meta, $editing, $existing_translations, $tx_targets, $site_locale, $add_id, $base, $heading_id, $existing_color ); ?>
+            </section>
+        </aside>
         <?php
     }
 
