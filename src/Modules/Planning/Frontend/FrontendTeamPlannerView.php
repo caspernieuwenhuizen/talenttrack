@@ -317,12 +317,16 @@ class FrontendTeamPlannerView extends FrontendViewBase {
         // pill the activities list uses, so the two surfaces agree.
         $status_key  = (string) ( $a->activity_status_key ?? 'planned' );
         $state_class = 'tt-planner-state-' . sanitize_html_class( $status_key );
-        // BackLink::appendTo so the post-save redirect on the activities
-        // form returns the user to the planner page they came from
-        // (v3.110.58).
+        // Land on the activity's display view, not the edit form —
+        // display-first matches the rest of the app (player / goal /
+        // evaluation / tournament list rows). Coaches with
+        // `tt_edit_activities` see an Edit button on the detail view;
+        // glancing at the activity no longer drops the coach into a
+        // mutable form (and no longer risks accidental edits on mobile).
+        // BackLink::appendTo so the detail view's own back-pill returns
+        // the user to the planner page they came from.
         $url = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [
             'tt_view' => 'activities',
-            'action'  => 'edit',
             'id'      => (int) $a->id,
         ], RecordLink::dashboardUrl() ) );
 

@@ -1,3 +1,33 @@
+# TalentTrack v4.12.11 — Team planner card click opens display view, not edit (closes #999)
+
+On the team planner (`?tt_view=team-planner`), the activity-card anchor carried `action=edit` in the query string, so clicking any card dropped the coach straight into the activity edit form. Every other list-row click in the app (player, goal, evaluation, tournament) opens the display / detail view first — the planner was the odd one out. One-click-to-edit on the planner's 48×48 mobile tap targets also made accidental edits too easy.
+
+## What ships
+
+**PHP - URL change**
+
+- `src/Modules/Planning/Frontend/FrontendTeamPlannerView.php` — `renderActivityCard()`. Drops the `'action' => 'edit'` entry from the `add_query_arg()` call that builds the card's `href`. The anchor now points at `?tt_view=activities&id=N` (plus the `tt_back` hint via `BackLink::appendTo()` so the detail view's back-pill returns the user to the planner page they came from). The accompanying docblock comment is rewritten to explain the display-first contract.
+
+## Why patch
+
+UX defect fix on a single anchor URL. No schema, no migration, no REST, no behaviour change beyond the click destination. The activity detail view at `?tt_view=activities&id=N` was already in place and already surfaces an Edit button for users carrying `tt_edit_activities`, so display-first works end-to-end with no other code touched.
+
+## Test plan
+
+- Land on `?tt_view=team-planner` as a coach with `tt_edit_activities`.
+- Click any activity card on the grid.
+- Verify the URL is `?tt_view=activities&id=N&tt_back=...` (no `action=edit`).
+- Verify the page that loads is the activity's display view (date / opponent / location / status surfaced) with an Edit button visible.
+- Click the Edit button — verify it opens the edit form.
+- Verify clicking the breadcrumb / back-pill returns to the planner page in the same range / week.
+- Verify the planner's empty-day `+ Add` affordance still routes to the new-activity wizard with `action=new` (unchanged by this PR).
+
+## Closes
+
+`#999`.
+
+---
+
 # TalentTrack v4.12.10 — PHPStan rule enforcing vocabulary constants (PR-set 8 of 8 — closes #988 umbrella)
 
 Final PR-set in the #988 umbrella migration. Lands the custom PHPStan rule that flags raw string-literal comparisons against any value already enumerated under `TT\Domain\Vocabularies\Lookups\*` or `TT\Domain\Vocabularies\Enums\*` — the regression gate that prevents PR-sets 1-7's work from silently un-doing itself as new code lands.
