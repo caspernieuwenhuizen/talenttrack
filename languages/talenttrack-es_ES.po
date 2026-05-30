@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-05-30T21:48:53+00:00\n"
+"POT-Creation-Date: 2026-05-30T21:56:24+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -1153,7 +1153,7 @@ msgstr ""
 #: src/Infrastructure/REST/ActivitiesRestController.php:723
 #: src/Infrastructure/REST/ActivitiesRestController.php:874
 #: src/Infrastructure/REST/ActivitiesRestController.php:989
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:298
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:323
 #: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:71
 msgid "Invalid activity id."
 msgstr ""
@@ -2526,7 +2526,7 @@ msgstr "— Todos —"
 #: src/Modules/Wizards/Activity/DetailsStep.php:57
 #: src/Modules/Wizards/Activity/ReviewStep.php:73
 #: src/Modules/Wizards/Evaluation/BehaviourStep.php:92
-#: src/Modules/Wizards/Evaluation/RateActorsStep.php:211
+#: src/Modules/Wizards/Evaluation/RateActorsStep.php:219
 #: src/Modules/Wizards/Prospect/ReviewStep.php:49
 #: src/Modules/Wizards/Team/BasicsStep.php:40
 #: src/Modules/Workflow/Forms/AwaitTeamOfferDecisionForm.php:62
@@ -2611,6 +2611,7 @@ msgstr ""
 #: src/Modules/Activities/Admin/ActivitiesPage.php:398
 #: src/Modules/Activities/Admin/ActivitiesPage.php:409
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:346
+#: src/Modules/Wizards/Evaluation/RateActorsStep.php:134
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1483
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1486
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1493
@@ -8766,7 +8767,7 @@ msgstr ""
 
 #: src/Modules/Configuration/Admin/UserProfileExtensions.php:58
 #: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:91
-#: src/Modules/Wizards/Evaluation/RateActorsStep.php:170
+#: src/Modules/Wizards/Evaluation/RateActorsStep.php:178
 #: src/Shared/Frontend/CoachForms.php:244
 msgid "Detailed"
 msgstr ""
@@ -10203,7 +10204,7 @@ msgstr ""
 
 #: src/Modules/DemoData/Admin/DemoDataPage.php:299
 #: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:90
-#: src/Modules/Wizards/Evaluation/RateActorsStep.php:169
+#: src/Modules/Wizards/Evaluation/RateActorsStep.php:177
 #: src/Shared/Frontend/CoachForms.php:243
 msgid "Basic"
 msgstr ""
@@ -14303,11 +14304,11 @@ msgstr ""
 msgid "Execution not found."
 msgstr ""
 
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:302
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:327
 msgid "Plan this match first before running execution."
 msgstr ""
 
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:306
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:331
 msgid "Could not create the execution row."
 msgstr ""
 
@@ -24051,8 +24052,8 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Wizards/Evaluation/BehaviourStep.php:76
-#: src/Modules/Wizards/Evaluation/RateActorsStep.php:117
-#: src/Modules/Wizards/Evaluation/RateActorsStep.php:130
+#: src/Modules/Wizards/Evaluation/RateActorsStep.php:119
+#: src/Modules/Wizards/Evaluation/RateActorsStep.php:138
 msgid "Not rated"
 msgstr ""
 
@@ -24117,16 +24118,16 @@ msgstr ""
 msgid "Please pick a player."
 msgstr ""
 
-#: src/Modules/Wizards/Evaluation/RateActorsStep.php:26
+#: src/Modules/Wizards/Evaluation/RateActorsStep.php:28
 msgid "Rate players"
 msgstr ""
 
-#: src/Modules/Wizards/Evaluation/RateActorsStep.php:77
+#: src/Modules/Wizards/Evaluation/RateActorsStep.php:79
 msgid "No players to rate. Mark attendance first or pick another activity."
 msgstr ""
 
 #. translators: %d: player count
-#: src/Modules/Wizards/Evaluation/RateActorsStep.php:85
+#: src/Modules/Wizards/Evaluation/RateActorsStep.php:87
 #, php-format
 msgid ""
 "%d player ready to rate. Tap a player to expand and rate; tap again to "
@@ -24139,34 +24140,38 @@ msgstr[1] ""
 
 #. translators: %1$d = number of players done (rated or skipped), %2$d = total players to rate.
 #. translators: %1$d = 0, %2$d = total. Initial server-rendered state before JS updates it.
-#: src/Modules/Wizards/Evaluation/RateActorsStep.php:100
-#: src/Modules/Wizards/Evaluation/RateActorsStep.php:109
+#: src/Modules/Wizards/Evaluation/RateActorsStep.php:102
+#: src/Modules/Wizards/Evaluation/RateActorsStep.php:111
 #, php-format
 msgid "%1$d of %2$d players rated"
 msgstr ""
 
-#: src/Modules/Wizards/Evaluation/RateActorsStep.php:118
+#: src/Modules/Wizards/Evaluation/RateActorsStep.php:120
 msgid "Rating…"
 msgstr ""
 
-#: src/Modules/Wizards/Evaluation/RateActorsStep.php:119
+#: src/Modules/Wizards/Evaluation/RateActorsStep.php:121
 msgid "Rated"
 msgstr ""
 
-#: src/Modules/Wizards/Evaluation/RateActorsStep.php:120
+#: src/Modules/Wizards/Evaluation/RateActorsStep.php:122
 #: src/Modules/Workflow/TaskStatus.php:68
 #: src/Shared/Frontend/FrontendWizardView.php:681
 msgid "Skipped"
 msgstr ""
 
+#: src/Modules/Wizards/Evaluation/RateActorsStep.php:133
+msgid "On loan from another team for this match."
+msgstr ""
+
 #. translators: %s: main category label
-#: src/Modules/Wizards/Evaluation/RateActorsStep.php:178
+#: src/Modules/Wizards/Evaluation/RateActorsStep.php:186
 #: src/Shared/Frontend/CoachForms.php:276
 #, php-format
 msgid "%s detail mode"
 msgstr ""
 
-#: src/Modules/Wizards/Evaluation/RateActorsStep.php:224
+#: src/Modules/Wizards/Evaluation/RateActorsStep.php:232
 msgid "Skip this player (no evaluation written)"
 msgstr ""
 
