@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-05-30T22:16:39+00:00\n"
+"POT-Creation-Date: 2026-05-30T22:25:38+00:00\n"
 "PO-Revision-Date: 2026-04-25 10:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -1194,7 +1194,7 @@ msgstr ""
 #: src/Infrastructure/REST/ActivitiesRestController.php:723
 #: src/Infrastructure/REST/ActivitiesRestController.php:874
 #: src/Infrastructure/REST/ActivitiesRestController.php:989
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:323
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:428
 #: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:71
 msgid "Invalid activity id."
 msgstr "Ongeldig activiteit-id."
@@ -3921,12 +3921,12 @@ msgid "Next run"
 msgstr "Volgende uitvoer"
 
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:173
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:333
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:448
 msgid "Pause"
 msgstr "Pauzeren"
 
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:175
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:334
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:449
 msgid "Resume"
 msgstr "Hervatten"
 
@@ -15077,9 +15077,9 @@ msgid "Plan match prep"
 msgstr "Wedstrijdvoorbereiding plannen"
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:143
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:401
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:409
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:415
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:516
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:524
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:530
 msgid "OPP"
 msgstr "TEG"
 
@@ -15114,7 +15114,7 @@ msgid "Match timer"
 msgstr "Wedstrijdklok"
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:195
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:332
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:447
 #: src/Modules/Pdp/Admin/SeasonsPage.php:50
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:131
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:290
@@ -15186,98 +15186,135 @@ msgstr ""
 msgid "Tap a player to swap"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:282
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:335
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:288
+msgid "Post-match status"
+msgstr ""
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:292
+msgid "Match ended · pending review"
+msgstr ""
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:294
+msgid "Finalized — read-only"
+msgstr ""
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:300
+msgid "Finalize match"
+msgstr ""
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:303
+msgid "Locks the match. Goals, subs, and score cannot be edited after."
+msgstr ""
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:311
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:450
 #: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:279
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:171
 msgid "Start match"
 msgstr "Wedstrijd starten"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:285
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:314
 msgid "Synced"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:336
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:396
+msgid "Finalize this match? Goals, subs, and score cannot be edited after."
+msgstr ""
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:397
+msgid "Could not finalize:"
+msgstr ""
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:451
 msgid "End first half"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:337
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:452
 msgid "Start second half"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:338
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:453
 msgid "End match"
 msgstr "Einde wedstrijd"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:339
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:454
 msgid "Return to dashboard"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:340
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:455
 #, php-format
 msgid "Tap a player to swap in %s"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:341
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:456
 #, php-format
 msgid "✓ %1$s on for %2$s · %3$s'"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:342
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:457
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:54
 msgid "Undo"
 msgstr "Ongedaan maken"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:343
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:458
 msgid "Offline — actions queued"
 msgstr "Offline — acties in wachtrij"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:344
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:459
 msgid "Back online — syncing…"
 msgstr "Weer online — synchroniseren…"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:345
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:460
 msgid "First half"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:346
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:461
 msgid "Second half"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:347
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:462
 msgid "Half time"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:348
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:463
 msgid "Kickoff pending"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:349
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:464
 msgid "Final"
 msgstr ""
 
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:74
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:90
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:79
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:95
 msgid "Half must be 1 or 2."
 msgstr ""
 
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:155
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:167
 msgid "Substitution payload missing required fields."
 msgstr ""
 
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:171
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:185
 msgid "Goal-event payload missing required fields."
 msgstr ""
 
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:201
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:217
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:353
 msgid "Execution not found."
 msgstr ""
 
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:327
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:366
+msgid "Match must end (state pending_review) before it can be finalized."
+msgstr ""
+
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:414
+msgid "This match is finalized and no longer accepts edits."
+msgstr ""
+
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:432
 msgid "Plan this match first before running execution."
 msgstr ""
 
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:331
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:436
 msgid "Could not create the execution row."
 msgstr ""
 
