@@ -1,34 +1,44 @@
-# TalentTrack v4.12.12 — Team planner PDF: landscape orientation + no-wrap auto-shrink (closes #1000)
+# TalentTrack v4.12.13 — Wizards auto-start fresh via restart=1 default in WizardEntryPoint (closes #1006)
 
-Pilot defect on the team-planner PDF export shipped in v4.3.18 / #947. The PDF rendered as A4 portrait; cells with longer values (long opponent names, multi-word titles, free-text locations) wrapped inside the column, breaking each row into two or three visual lines and turning the schedule into a wall of text instead of a one-row-per-activity ledger.
+Closes the state-resurrection bug class at the convention layer. Pilot symptom: "the new evaluation wizard seems broken. Even though I just logged in and clicked it, it does not start with a new evaluation but seems to remember something from the past." Same defect class as the v3.110.84 mark-attendance fix, but rooted in the entry-link convention rather than the autosave runtime.
+
+## Root cause recap
+
+`WizardState` stores in-progress wizard state as a WP transient keyed `tt_wizard_<user_id>_<wizard_slug>` with a one-hour TTL. The transient survives tab close, browser close, logout, and login — logging out doesn't expire it because it's user-scoped, not session-scoped. The only mechanism that clears the transient before TTL is `?restart=1` on a GET request, handled in `FrontendWizardView::render()`. The contract was therefore: "+ New X" entry links MUST carry `restart=1` to guarantee a fresh start. The codebase honoured this contract inconsistently — the v3.110.84 mark-attendance fix and the v4.5.x "Continue rating" CTA passed `restart=1` explicitly; the "+ New evaluation" / "+ New goal" / "+ New prospect" / "+ New team-blueprint" / "Log scouting find" / "+ New activity" entry points (and every future wizard's entry button) did not. Patching the three known broken sites would fix today's symptom but wouldn't prevent the next wizard's "+ New X" button from being added without `restart=1` and silently inheriting the same bug.
 
 ## What ships
 
-**PHP — `TeamPlanningPdfExporter`**
+**PHP — `WizardEntryPoint::urlFor()` and `::buildUrl()`**
 
-- `collect()` now returns `'orientation' => 'landscape'`. The `@page` rule in the embedded stylesheet flips to `size: A4 landscape; margin: 14mm;` so the wider 270mm content area absorbs the variable-width columns (Title, Opponent, Location) without crowding the fixed-width ones (Date, Day, Time, Type).
-- New `COL_WIDTHS_MM` constant assigns an explicit per-column width budget — `date: 22mm`, `day: 12mm`, `time: 16mm`, `type: 26mm`, `title: 60mm`, `opponent: 60mm`, `location: 80mm`. Sum is 276mm, fits inside the 14mm-margin print frame on every printer driver the pilot install hits. Rendered as an explicit `<colgroup><col style="width:...mm">` block so `table-layout: fixed` honours the budget exactly.
-- CSS adds `table-layout: fixed` + `white-space: nowrap` + `overflow: hidden` + `text-overflow: ellipsis` on every `<th>` and `<td>`. Combined with the colgroup, that locks every row to a single visual line — at worst the cell truncates with an ellipsis instead of wrapping to a second line.
-- Per-column font-size shrink algorithm. `renderHtml()` pre-renders each row into a value map, computes the longest character-count per column across the dataset, then resolves a font-size per column via `fontSizeFor()` — scaled proportionally from 11pt against the column's usable width budget (column width minus 6mm of horizontal padding), using a calibrated 1.7mm-per-glyph advance for DejaVu Sans at 11pt. Result clamps between 11pt ceiling (no upscaling beyond the original body size) and 7pt floor (matches the DoD's "if a value can't fit at 7pt, truncate with …" rule); rounded to one decimal so the inline `style="font-size:Npt"` stays compact. Date / Day / Time columns hit the 11pt ceiling in every realistic dataset because their formats are fixed-width — the algorithm runs uniformly across all seven columns but only the three free-text columns (Title, Opponent, Location) actually shrink.
-- Header cells (Date / Day / Time / Type / Title / Opponent / Location) keep the original 10pt via the CSS rule — only the data rows shrink, so the column labels stay readable even when the data underneath collapses to 7pt.
-- Defensive `print-color-adjust: exact` (with `-webkit-print-color-adjust: exact` for cross-engine safety) on `body` so the zebra-stripe `#fafbfc` band and the `#f4f4f4` header background survive any future colour-coded cell additions. DomPDF respects background colours by default so this is belt-and-braces today, but it documents intent for the next iteration that adds type-based colour coding (the v1 exporter ships monochrome).
+- `src/Shared/Wizards/WizardEntryPoint.php` — the default argument set in `urlFor()` now includes `'restart' => 1`. The two-line addition: `$args = array_merge( [ 'tt_view' => 'wizard', 'tt_wizard' => $wizard_slug, 'restart' => 1 ], $extra_args );` plus a defensive `unset` block that drops `restart` from the produced URL entirely when a caller explicitly passes `'restart' => ''` (i.e. opts out — rare, e.g. a future "resume from email" deep link). `add_query_arg()`'s array-merge semantics already let `$extra_args` override the default `restart => 1`; the unset cleanup keeps the produced URL tidy when the opt-out fires.
+
+  `buildUrl()` is unchanged in source — it delegates to `urlFor()` and therefore inherits the new default for free. Every existing helper call site at `MarkAttendanceHeroWidget` (hero CTA, both empty-state + populated-state branches), `AddProspectHeroWidget` (Log scouting find CTA), `ActionCardWidget` (dashboard "+ New evaluation" / "+ New goal" / "+ New player" quick-action tiles), `FrontendActivitiesManageView` ("+ New activity" page-header button + "Continue rating" detail action), `FrontendOnboardingPipelineView` ("+ New prospect" pipeline CTA), `FrontendScoutingVisitDetailView` ("Log scouting find" page action), `FrontendTeamBlueprintsView` ("+ New blueprint" team-detail CTA), `ParentSearchPickerComponent` (inline "Create new parent" picker shortcut), `FrontendMatchExecutionView` ("Plan match prep" empty-state CTA), and `NewEvaluationWizard` (the evaluation wizard's own self-reference link in docblock) inherit the new default without source change.
+
+- The five call sites that explicitly passed `'restart' => 1` in `$extra_args` before this ship — `MarkAttendanceHeroWidget` (two of them: hero empty-state CTA + populated-state CTA, both wrapped via `add_query_arg(['restart' => 1], WizardEntryPoint::urlFor(...))`) and `FrontendActivitiesManageView::renderDetail()` ("Continue rating" detail action, passed via the `buildUrl()` `$extra_args`) — keep their explicit `restart=1`. The wrapper or extra-arg pass is now redundant (the helper would default to the same value), but `add_query_arg`'s overwrite semantics make a duplicate `restart=1` idempotent, and keeping the explicit calls preserves the audit trail of those v3.110.84 + v4.5.x fixes. No call site opted out of the new default — verified by code search; no caller passes `'restart' => ''`.
+
+**CI — Scan C added to `wizard-form-lint.yml`**
+
+- `.github/workflows/wizard-form-lint.yml` — gains a third scan step alongside the existing Scan A (reserved-name fields in wizard steps) and Scan B (wizard URLs via `add_query_arg` outside the central helper). Scan C catches any hand-rolled `add_query_arg([..., 'tt_wizard' => '<slug>', ...])` call that doesn't also carry `'restart' => 1` (or `'1'` / `"1"`) on the same call. The scan collapses each PHP file's whitespace before grepping so multi-line array literals are evaluated as a single chunk; the per-file extract isolates each `add_query_arg(...)` call that mentions `tt_wizard` and runs the contains-restart check on that chunk only (so two unrelated `add_query_arg` calls in the same file can't accidentally satisfy each other's check). Allowlist mirrors Scan B: `WizardEntryPoint.php` itself (which is the canonical implementation of the auto-default), `FrontendWizardView.php` (wizard internal step transitions), `MfaLoginGuard.php` (MFA-enforcement redirect to the enrollment wizard — a code-paths-permitting allowance, not a "+ New X" button). Future regressions trip the gate at PR time; the bug class is structurally closed.
+
+**Docs + i18n**
+
+- `CHANGES.md` (this stanza) + `readme.txt` Changelog stanza. No new user-facing strings; no `.po` / `.pot` churn beyond the existing nightly i18n sync.
 
 ## Why patch
 
-Single-file bug fix on a shipped exporter. No new feature, no schema change, no REST contract change, no UI surface added, no new capability. The exporter's key (`team_planning`), label, supported formats, required capability, validate-filters signature, and payload shape (`['html' => ..., 'options' => [...]]`) are all unchanged — the only externally-visible behaviour change is the orientation flag and the resulting paper layout.
+Bug fix at the convention layer. No new feature, no schema migration, no REST change, no UI change, no behaviour change on the happy path (a fresh wizard run with no stale state is unaffected by `restart=1`). The fix surfaces only for users who started a wizard run, abandoned it within the hour, and clicked the entry link again — that path now starts fresh instead of resurrecting the abandoned state. Patch bump per `DEVOPS.md` § "When to bump what" (bug fix, no operator-breaking change).
 
 ## Test plan
 
-- Open the team planner dashboard for a team with at least one scheduled activity that has a long opponent name and a long free-text location (the pilot's U17 vs. "Koninklijke HFC Haarlem" / "Sportpark De Vondellaan, Haarlemmermeer" reproduces the original wordwrap on portrait).
-- Click Export PDF. The downloaded file opens as A4 landscape.
-- Every row of the schedule renders on one visual line; long opponent / location values shrink to ≥ 7pt to fit; if even 7pt overflows, the cell truncates with an ellipsis instead of wrapping.
-- Header row (Date / Day / Time / Type / Title / Opponent / Location) stays at 10pt regardless of how small the data rows shrink.
-- The zebra-stripe `#fafbfc` band on alternating rows survives in the printed file (regression check on the `print-color-adjust: exact` declaration).
-- Re-run with the empty-range case (`date_from`/`date_to` resolves to a window with zero activities): the "No activities scheduled in this range." copy still renders, landscape orientation is honoured.
+- Start the new-evaluation wizard, fill in step 1, navigate away (close tab or log out) without cancelling or submitting. Log back in within an hour, click "+ New evaluation" — the wizard opens at step 1 with empty state, not at the abandoned step.
+- Repeat the same flow for the new-goal wizard, the new-prospect wizard, the new-team-blueprint wizard, the "+ New activity" wizard, and the dashboard quick-action tiles — every entry link starts fresh.
+- Confirm the mark-attendance hero CTAs (both empty-state and populated-state) still start fresh — the existing explicit `restart=1` is now redundant but idempotent.
+- Confirm the wizard's own Back / Next / Cancel chrome inside an active run still preserves state — the auto-`restart=1` only applies to URLs the helper builds, not to wizard step transitions which go through `admin-post.php` per the v4.3.16 (#940) architecture.
+- Confirm Scan C in the CI lint catches a synthetic regression: introduce a hand-rolled `add_query_arg([..., 'tt_wizard' => 'new-player'])` in any non-allowlisted file and watch the wizard-form-lint job fail with the Scan C error message.
 
 ## Closes
 
-#1000.
+\#1006.
 
 ---
 
