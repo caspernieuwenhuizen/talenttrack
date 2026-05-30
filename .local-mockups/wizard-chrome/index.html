@@ -1,0 +1,1165 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1d7874">
+<title>Wizard chrome — 3 variants — mockup</title>
+<style>
+/* ---------------------------------------------------------------------------
+   Tokens — mirror TT production palette + the wizard's existing teal accent.
+   --------------------------------------------------------------------------- */
+:root {
+    --tt-ink:        #1a1d21;
+    --tt-ink-soft:   #5b6e75;
+    --tt-paper:      #ffffff;
+    --tt-bg:         #f5f7f6;
+    --tt-line:       #d6dadd;
+    --tt-mute:       #f0f3f2;
+
+    --tt-teal:       #1d7874;       /* primary accent — current step / primary button */
+    --tt-teal-soft:  #e3eeed;       /* tinted background for soft states */
+    --tt-teal-deep:  #155a57;
+    --tt-success:    #137333;       /* legacy completed-pill colour */
+    --tt-warn:       #c75c1f;
+    --tt-danger:     #b32d2e;
+
+    --tap-min:       48px;
+    --gap:           12px;
+    --gap-lg:        16px;
+    --radius:        10px;
+    --radius-lg:     16px;
+    --font:          'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+    font-family: var(--font);
+    color: var(--tt-ink);
+    background: var(--tt-bg);
+    font-size: 16px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* ---------------------------------------------------------------------------
+   Mockup-only chrome.
+   --------------------------------------------------------------------------- */
+.mockup-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: #222;
+    color: #eee;
+    font-size: 12px;
+    padding: 8px 12px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+    border-bottom: 2px solid #000;
+}
+.mockup-bar strong { color: #ffd; margin-right: 4px; }
+.mockup-bar button {
+    background: #444; color: #eee; border: 1px solid #666;
+    padding: 4px 10px; border-radius: 4px; font: inherit; cursor: pointer;
+    font-size: 11px;
+}
+.mockup-bar button[aria-pressed="true"] { background: #6c4; color: #000; border-color: #4a3; font-weight: 600; }
+
+/* ---------------------------------------------------------------------------
+   Side-by-side stage — each variant in its own card so the user can compare.
+   Stacks on mobile, sits 3-up on desktop.
+   --------------------------------------------------------------------------- */
+.stage {
+    display: grid;
+    gap: 24px;
+    padding: 24px 16px 96px;
+    grid-template-columns: 1fr;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+@media (min-width: 1100px) {
+    body[data-layout="compare"] .stage { grid-template-columns: repeat(3, 1fr); }
+}
+.stage h2.variant-name {
+    font-size: 13px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--tt-ink-soft);
+    margin: 0 0 8px;
+}
+.stage .variant-tagline {
+    font-size: 12px;
+    color: var(--tt-ink-soft);
+    margin: 0 0 12px;
+}
+
+.wizard-frame {
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.wizard-frame__head {
+    padding: 16px 20px;
+    background: var(--tt-paper);
+    border-bottom: 1px solid var(--tt-line);
+}
+.wizard-frame__title {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--tt-ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+.wizard-frame__body {
+    padding: 16px 20px;
+}
+.wizard-frame__form-title {
+    margin: 0 0 4px;
+    font-size: 22px;
+    font-weight: 800;
+}
+.wizard-frame__form-help {
+    margin: 0 0 16px;
+    font-size: 13px;
+    color: var(--tt-ink-soft);
+}
+
+/* Placeholder form fields — content is illustrative, focus is on chrome. */
+.field {
+    display: block;
+    margin: 0 0 14px;
+}
+.field span {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 4px;
+    font-size: 14px;
+}
+.field input,
+.field select,
+.field textarea {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 12px;
+    font-size: 16px;
+    border: 1px solid #c4c7c5;
+    border-radius: 8px;
+    box-sizing: border-box;
+    background: var(--tt-paper);
+}
+.field--row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.field--row .field { margin: 0; }
+
+/* ---------------------------------------------------------------------------
+   Shared baseline — kept for reference. Hidden by the picker by default.
+   --------------------------------------------------------------------------- */
+.variant { display: none; }
+body[data-variant="baseline"] .variant--baseline,
+body[data-variant="v1"]       .variant--v1,
+body[data-variant="v2"]       .variant--v2,
+body[data-variant="v3"]       .variant--v3,
+body[data-variant="compare"]  .variant { display: block; }
+
+body[data-variant="compare"] .stage { padding-top: 16px; }
+
+/* ============================================================================
+   BASELINE — what ships today (v3.110.102). For reference / diffing only.
+   Solid green pill with ✓ for done; teal pill with ring for current.
+   ============================================================================ */
+.legacy-progress {
+    display: flex;
+    gap: 8px;
+    padding: 0;
+    margin: 0 0 24px;
+    list-style: none;
+    flex-wrap: wrap;
+}
+.legacy-progress li {
+    flex: 1 1 auto;
+    padding: 8px 12px;
+    border-radius: 6px;
+    background: #eef0f2;
+    color: #6b7280;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+.legacy-progress li.is-current {
+    background: #1d7874;
+    color: #fff;
+    font-weight: 700;
+    box-shadow: 0 0 0 2px rgba(29, 120, 116, 0.30);
+}
+.legacy-progress li.is-done {
+    background: #137333;
+    color: #fff;
+    font-weight: 600;
+}
+.legacy-progress li.is-na {
+    background: #f6f7f8;
+    color: #b0b3b6;
+    opacity: 0.55;
+    text-decoration: line-through;
+}
+.legacy-progress__num {
+    display: inline-block;
+    width: 22px;
+    height: 22px;
+    line-height: 22px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.85);
+    color: #1a1a1a;
+    text-align: center;
+    margin-right: 6px;
+    font-weight: 700;
+}
+.legacy-progress li:not(.is-done):not(.is-current) .legacy-progress__num {
+    background: rgba(255,255,255,0.65);
+    color: #9ca3af;
+}
+
+.legacy-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    padding-top: 12px;
+    border-top: 1px solid #e0e0e0;
+    margin-top: 20px;
+}
+.legacy-actions .tt-button {
+    min-height: 48px;
+    padding: 12px 20px;
+    font-size: 1rem;
+    border-radius: 4px;
+    border: 1px solid #c4c7c5;
+    background: #fff;
+    color: #1a1a1a;
+    cursor: pointer;
+}
+.legacy-actions .tt-button-primary {
+    background: #1d7874;
+    color: #fff;
+    border-color: #1d7874;
+}
+.legacy-actions .tt-button-secondary {
+    background: #fff;
+    color: #b32d2e;
+    border-color: #b32d2e;
+}
+
+/* ============================================================================
+   VARIANT 1 — "Connected stepper rail"
+   ----------------------------------------------------------------------------
+   Numbered circles connected by a hairline. Completed = filled teal with
+   small check icon (subtle, not shouting). Current = filled teal + soft ring +
+   bold label. Pending = outlined circle, muted label. Labels sit BELOW the
+   circles. The connecting line fills with brand color up to the current step.
+   Visually classy — Stripe / Linear style. Compact vertically.
+
+   Buttons: Cancel as a quiet text button on the far left. Back + Save-draft
+   in the middle as outline-buttons. Next is a solid primary on the right
+   with subtle shadow + a rightward arrow. Better visual hierarchy than the
+   legacy "everything is a button" row.
+   ============================================================================ */
+.v1-stepper {
+    list-style: none;
+    margin: 0 0 28px;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0;
+    position: relative;
+}
+.v1-stepper li {
+    position: relative;
+    text-align: center;
+    padding: 0;
+    min-width: 0;
+}
+.v1-stepper__dot {
+    position: relative;
+    z-index: 2;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    margin: 0 auto 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    background: var(--tt-paper);
+    border: 2px solid var(--tt-line);
+    color: var(--tt-ink-soft);
+    transition: background 120ms, border-color 120ms, color 120ms;
+}
+.v1-stepper__label {
+    display: block;
+    font-size: 12px;
+    color: var(--tt-ink-soft);
+    line-height: 1.3;
+    padding: 0 2px;
+    word-break: break-word;
+}
+
+/* The connecting line — sits behind the dots, drawn between adjacent items. */
+.v1-stepper li::before {
+    content: '';
+    position: absolute;
+    top: 15px;
+    left: -50%;
+    right: 50%;
+    height: 2px;
+    background: var(--tt-line);
+    z-index: 1;
+}
+.v1-stepper li:first-child::before { display: none; }
+
+/* Done — filled teal dot with check, line BEFORE this dot is brand-coloured. */
+.v1-stepper li.is-done .v1-stepper__dot {
+    background: var(--tt-teal);
+    border-color: var(--tt-teal);
+    color: var(--tt-paper);
+    font-size: 0; /* hide number, show check pseudo */
+}
+.v1-stepper li.is-done .v1-stepper__dot::after {
+    content: '✓';
+    font-size: 16px;
+    line-height: 1;
+    font-weight: 700;
+}
+.v1-stepper li.is-done .v1-stepper__label {
+    color: var(--tt-ink);
+}
+.v1-stepper li.is-done::before {
+    background: var(--tt-teal);
+}
+
+/* Current — solid teal dot with number + 4px soft ring; label bold + teal. */
+.v1-stepper li.is-current .v1-stepper__dot {
+    background: var(--tt-teal);
+    border-color: var(--tt-teal);
+    color: var(--tt-paper);
+    box-shadow: 0 0 0 4px rgba(29, 120, 116, 0.18);
+}
+.v1-stepper li.is-current .v1-stepper__label {
+    color: var(--tt-teal);
+    font-weight: 700;
+}
+/* Line LEADING UP to current is filled — its predecessor's "after"-line. */
+.v1-stepper li.is-current::before {
+    background: var(--tt-teal);
+}
+
+/* NA — dashed outline circle, line-through label, no brand colour. */
+.v1-stepper li.is-na .v1-stepper__dot {
+    border-style: dashed;
+    background: var(--tt-paper);
+    color: #b0b3b6;
+}
+.v1-stepper li.is-na .v1-stepper__label {
+    text-decoration: line-through;
+    color: #b0b3b6;
+}
+
+/* Pending — outlined circle, muted label (default styling already covers it) */
+
+/* Buttons — v1 */
+.v1-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding-top: 16px;
+    border-top: 1px solid var(--tt-line);
+    margin-top: 20px;
+}
+.v1-actions__cancel {
+    background: transparent;
+    border: none;
+    color: var(--tt-ink-soft);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 12px 8px;
+    cursor: pointer;
+    min-height: var(--tap-min);
+    border-radius: var(--radius);
+    margin-right: auto;
+}
+.v1-actions__cancel:hover { color: var(--tt-danger); }
+.v1-btn {
+    min-height: var(--tap-min);
+    padding: 0 18px;
+    border-radius: var(--radius);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    touch-action: manipulation;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    line-height: 1;
+}
+.v1-btn--outline {
+    background: var(--tt-paper);
+    border: 1.5px solid var(--tt-line);
+    color: var(--tt-ink);
+}
+.v1-btn--outline:hover { border-color: var(--tt-teal); color: var(--tt-teal); }
+.v1-btn--primary {
+    background: var(--tt-teal);
+    border: 1.5px solid var(--tt-teal);
+    color: var(--tt-paper);
+    font-weight: 700;
+    box-shadow: 0 2px 4px rgba(29, 120, 116, 0.25);
+    padding: 0 22px;
+}
+.v1-btn--primary:hover { background: var(--tt-teal-deep); border-color: var(--tt-teal-deep); }
+.v1-btn--primary:active { box-shadow: none; transform: translateY(1px); }
+.v1-btn__arrow { font-size: 16px; line-height: 1; }
+
+/* ============================================================================
+   VARIANT 2 — "Compact pill stack + progress bar"
+   ----------------------------------------------------------------------------
+   Above the form: a thin segmented progress bar (one segment per step). The
+   segments fill brand-teal up to and including the current step. Below the
+   bar: a single line of context — "Step 4 of 6 · Contact" — and an optional
+   "Jump to step" menu. Skipped steps render as a dashed segment.
+
+   Massive screen-real-estate win on mobile — no 6-pill row eating 60px of
+   vertical space. The "where am I" cue lives in the % filled + the line below.
+
+   Buttons: a clear primary/secondary split. Cancel as a quiet pill far-left.
+   Save-as-draft + Back grouped centrally as text-buttons. Next as a wide,
+   tall primary button on the right with a subtle inset top-light gradient.
+   ============================================================================ */
+.v2-progress {
+    margin: 0 0 18px;
+}
+.v2-progress__meta {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    gap: 8px;
+}
+.v2-progress__title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--tt-ink);
+    margin: 0;
+}
+.v2-progress__title small {
+    font-size: 12px;
+    color: var(--tt-ink-soft);
+    font-weight: 500;
+    margin-right: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+.v2-progress__jump {
+    font-size: 12px;
+    color: var(--tt-teal);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+}
+.v2-progress__jump:hover { text-decoration: underline; }
+.v2-progress__bar {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 3px;
+    height: 8px;
+    border-radius: 999px;
+    overflow: hidden;
+    background: transparent;
+}
+.v2-progress__seg {
+    background: var(--tt-mute);
+    border-radius: 999px;
+    height: 100%;
+    transition: background 200ms;
+}
+.v2-progress__seg.is-done    { background: var(--tt-teal); }
+.v2-progress__seg.is-current { background: var(--tt-teal); box-shadow: inset 0 0 0 2px rgba(255,255,255,0.4); }
+.v2-progress__seg.is-na      {
+    background: repeating-linear-gradient(
+        45deg,
+        var(--tt-mute),
+        var(--tt-mute) 4px,
+        transparent 4px,
+        transparent 8px
+    );
+}
+
+/* Buttons — v2 */
+.v2-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding-top: 16px;
+    border-top: 1px solid var(--tt-line);
+    margin-top: 20px;
+}
+.v2-actions__cancel {
+    background: transparent;
+    border: 1.5px solid transparent;
+    color: var(--tt-ink-soft);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 0 14px;
+    min-height: var(--tap-min);
+    border-radius: 999px;
+    cursor: pointer;
+}
+.v2-actions__cancel:hover { background: #fdecec; color: var(--tt-danger); border-color: transparent; }
+.v2-actions__middle {
+    display: flex;
+    gap: 4px;
+    margin: 0 auto;
+}
+.v2-btn-text {
+    background: transparent;
+    border: none;
+    color: var(--tt-ink-soft);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 0 12px;
+    min-height: var(--tap-min);
+    border-radius: var(--radius);
+    cursor: pointer;
+}
+.v2-btn-text:hover { color: var(--tt-teal); background: var(--tt-teal-soft); }
+.v2-btn-primary {
+    min-height: var(--tap-min);
+    padding: 0 28px;
+    border-radius: var(--radius);
+    font: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    background: linear-gradient(180deg, #2a8d89 0%, var(--tt-teal) 100%);
+    color: var(--tt-paper);
+    border: 1px solid var(--tt-teal-deep);
+    box-shadow: 0 2px 0 rgba(21, 90, 87, 0.35), 0 1px 2px rgba(0,0,0,0.08);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    line-height: 1;
+}
+.v2-btn-primary:active {
+    box-shadow: 0 1px 0 rgba(21, 90, 87, 0.35), 0 0 0 rgba(0,0,0,0);
+    transform: translateY(1px);
+}
+
+/* ============================================================================
+   VARIANT 3 — "Sidebar timeline (desktop) / collapsed dropdown (mobile)"
+   ----------------------------------------------------------------------------
+   Desktop: a vertical timeline on the left rail listing every step. Each
+   entry: dot + label + tiny "Edit" link on completed steps. Current step has
+   a thicker dot + bold label + a left accent bar. Skipped steps show as
+   greyed entries with a "Not applicable" caption.
+
+   Mobile: collapses to a single "Step 4 of 6: Contact ▾" disclosure that
+   expands the timeline below. Saves vertical room on phones, keeps the rich
+   timeline on desktop where there's space for it.
+
+   Buttons: a sticky-feeling bottom bar with clear roles. Cancel as a
+   left-aligned ghost button, Back + Save-draft as text-buttons, Next as a
+   prominent solid pill with an animated chevron.
+   ============================================================================ */
+.v3-layout {
+    display: grid;
+    gap: 24px;
+    grid-template-columns: 1fr;
+}
+@media (min-width: 720px) {
+    body[data-variant="v3"] .v3-layout { grid-template-columns: 220px 1fr; }
+}
+/* Mobile-collapsed header */
+.v3-rail-toggle {
+    display: block;
+    width: 100%;
+    padding: 12px 14px;
+    background: var(--tt-teal-soft);
+    border: 1px solid #c8dcdb;
+    border-radius: var(--radius);
+    font: inherit;
+    font-weight: 600;
+    color: var(--tt-teal-deep);
+    text-align: left;
+    cursor: pointer;
+    margin: 0 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.v3-rail-toggle small {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--tt-ink-soft);
+    margin-right: 8px;
+    font-weight: 700;
+}
+.v3-rail-toggle::after {
+    content: '▾';
+    color: var(--tt-teal);
+    font-size: 14px;
+}
+@media (min-width: 720px) {
+    body[data-variant="v3"] .v3-rail-toggle { display: none; }
+}
+
+/* The vertical rail itself */
+.v3-rail {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    position: relative;
+}
+@media (max-width: 719px) {
+    body[data-variant="v3"] .v3-rail { display: none; }
+    body[data-variant="v3"][data-v3-open="true"] .v3-rail { display: block; margin-bottom: 16px; }
+}
+.v3-rail li {
+    position: relative;
+    padding: 10px 0 10px 28px;
+}
+/* The vertical line connecting the dots */
+.v3-rail li::before {
+    content: '';
+    position: absolute;
+    left: 9px;
+    top: 24px;
+    bottom: -2px;
+    width: 2px;
+    background: var(--tt-line);
+    z-index: 1;
+}
+.v3-rail li:last-child::before { display: none; }
+.v3-rail li.is-done::before { background: var(--tt-teal); }
+
+/* The dot */
+.v3-rail__dot {
+    position: absolute;
+    left: 0;
+    top: 12px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--tt-paper);
+    border: 2px solid var(--tt-line);
+    z-index: 2;
+}
+.v3-rail li.is-done .v3-rail__dot {
+    background: var(--tt-teal);
+    border-color: var(--tt-teal);
+}
+.v3-rail li.is-done .v3-rail__dot::after {
+    content: '✓';
+    position: absolute;
+    inset: 0;
+    color: var(--tt-paper);
+    font-size: 11px;
+    font-weight: 700;
+    text-align: center;
+    line-height: 16px;
+}
+.v3-rail li.is-current .v3-rail__dot {
+    border-color: var(--tt-teal);
+    background: var(--tt-paper);
+    box-shadow: 0 0 0 4px rgba(29, 120, 116, 0.15);
+}
+.v3-rail li.is-current .v3-rail__dot::after {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    background: var(--tt-teal);
+    border-radius: 50%;
+}
+.v3-rail li.is-na .v3-rail__dot {
+    border-style: dashed;
+    background: var(--tt-mute);
+}
+
+.v3-rail__label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--tt-ink-soft);
+    line-height: 1.3;
+}
+.v3-rail li.is-done .v3-rail__label    { color: var(--tt-ink); }
+.v3-rail li.is-current .v3-rail__label { color: var(--tt-teal-deep); font-weight: 700; font-size: 14px; }
+.v3-rail li.is-na .v3-rail__label      { color: #b0b3b6; text-decoration: line-through; }
+
+.v3-rail__caption {
+    display: block;
+    margin-top: 2px;
+    font-size: 11px;
+    color: var(--tt-ink-soft);
+    font-weight: 400;
+    text-decoration: none;
+}
+.v3-rail li.is-done .v3-rail__edit {
+    display: inline-block;
+    margin-top: 2px;
+    font-size: 11px;
+    color: var(--tt-teal);
+    text-decoration: none;
+    font-weight: 600;
+}
+.v3-rail li.is-done .v3-rail__edit:hover { text-decoration: underline; }
+
+/* Buttons — v3 */
+.v3-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 14px 16px;
+    background: var(--tt-bg);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--radius);
+    margin-top: 24px;
+}
+.v3-actions__cancel {
+    background: var(--tt-paper);
+    border: 1.5px solid var(--tt-line);
+    color: var(--tt-ink-soft);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 0 16px;
+    min-height: var(--tap-min);
+    border-radius: var(--radius);
+    cursor: pointer;
+}
+.v3-actions__cancel:hover { border-color: var(--tt-danger); color: var(--tt-danger); }
+.v3-actions__middle { display: flex; gap: 4px; margin-left: auto; }
+.v3-btn-text {
+    background: transparent;
+    border: none;
+    color: var(--tt-ink-soft);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 0 14px;
+    min-height: var(--tap-min);
+    border-radius: var(--radius);
+    cursor: pointer;
+}
+.v3-btn-text:hover { color: var(--tt-teal); background: var(--tt-teal-soft); }
+.v3-btn-primary {
+    min-height: var(--tap-min);
+    padding: 0 26px;
+    border-radius: 999px;
+    font: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    background: var(--tt-teal);
+    color: var(--tt-paper);
+    border: 1.5px solid var(--tt-teal);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    line-height: 1;
+    transition: background 120ms, transform 120ms;
+}
+.v3-btn-primary:hover { background: var(--tt-teal-deep); }
+.v3-btn-primary:active { transform: translateY(1px); }
+.v3-btn-primary__chev {
+    display: inline-block;
+    transition: transform 120ms;
+}
+.v3-btn-primary:hover .v3-btn-primary__chev { transform: translateX(2px); }
+
+/* ---------------------------------------------------------------------------
+   Mobile button layout — unified across V1 / V2 / V3.
+   ---------------------------------------------------------------------------
+   On a phone, the desktop "Cancel left, secondaries middle, Next right"
+   pattern devolves into wrapped chaos: 3-4 ~120px pills don't fit a 360px
+   row, flex-wrap drops them onto multiple lines, and the visual hierarchy
+   disappears.
+
+   The mobile pattern instead reads top-to-bottom in priority order:
+
+     ┌─────────────────────────────┐
+     │       [   Next ›   ]        │  full-width primary
+     ├─────────────────────────────┤
+     │       [   ‹ Back   ]        │  full-width outline
+     ├─────────────────────────────┤
+     │   Save as draft  ·  Cancel  │  text-link row
+     └─────────────────────────────┘
+
+   Why this order: thumb lands at the bottom of the screen as the user
+   finishes scrolling through the form. Next is the next action they want
+   in 90% of cases — give it the dominant position. Back is the
+   second-most-likely action, full-width but visually subordinate. Save
+   as draft + Cancel are escape hatches — small, side-by-side, separated
+   from the navigation actions.
+   --------------------------------------------------------------------------- */
+@media (max-width: 719px) {
+    .v1-actions,
+    .v2-actions,
+    .v3-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas:
+            "next   next"
+            "back   back"
+            "save   cancel";
+        gap: 8px;
+        align-items: stretch;
+    }
+
+    /* Primary Next — full-width, justified centre, gets the thumb spot */
+    .v1-actions [data-role="next"],
+    .v2-actions [data-role="next"],
+    .v3-actions [data-role="next"] {
+        grid-area: next;
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Back — full-width, outline-button look, consistent across variants
+       (some variants render Back as a thin text button on desktop; that
+       reads weak at full-width on mobile, so promote to a proper outline). */
+    .v1-actions [data-role="back"],
+    .v2-actions [data-role="back"],
+    .v3-actions [data-role="back"] {
+        grid-area: back;
+        width: 100%;
+        justify-content: center;
+        background: var(--tt-paper);
+        border: 1.5px solid var(--tt-line);
+        color: var(--tt-ink);
+        font-size: 15px;
+        font-weight: 600;
+        border-radius: var(--radius);
+        padding: 0 18px;
+        min-height: var(--tap-min);
+    }
+
+    /* Save as draft + Cancel — text-link row at the bottom. Override the
+       desktop button chrome so they read as quiet escape actions. */
+    .v1-actions [data-role="save"],
+    .v2-actions [data-role="save"],
+    .v3-actions [data-role="save"] {
+        grid-area: save;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        color: var(--tt-ink-soft);
+        font-size: 14px;
+        font-weight: 600;
+        padding: 12px 8px;
+        text-align: center;
+        min-height: var(--tap-min);
+        border-radius: var(--radius);
+    }
+    .v1-actions [data-role="save"]:hover,
+    .v2-actions [data-role="save"]:hover,
+    .v3-actions [data-role="save"]:hover {
+        color: var(--tt-teal);
+        background: var(--tt-teal-soft);
+    }
+    .v1-actions [data-role="cancel"],
+    .v2-actions [data-role="cancel"],
+    .v3-actions [data-role="cancel"] {
+        grid-area: cancel;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        color: var(--tt-ink-soft);
+        font-size: 14px;
+        font-weight: 600;
+        padding: 12px 8px;
+        text-align: center;
+        min-height: var(--tap-min);
+        margin-right: 0;
+        border-radius: var(--radius);
+    }
+    .v1-actions [data-role="cancel"]:hover,
+    .v2-actions [data-role="cancel"]:hover,
+    .v3-actions [data-role="cancel"]:hover {
+        color: var(--tt-danger);
+        background: #fdecec;
+    }
+
+    /* V3's tinted container styling needs unpinning on mobile so the grid
+       doesn't sit inside a chunky outline. */
+    .v3-actions {
+        background: transparent;
+        border: none;
+        padding: 14px 0 0;
+        border-top: 1px solid var(--tt-line);
+        border-radius: 0;
+    }
+
+    /* V2's + V3's middle wrappers — collapse to contents so their child
+       buttons participate in the parent grid directly (otherwise the
+       wrapper takes one cell and the children don't reach the grid). */
+    .v2-actions__middle,
+    .v3-actions__middle {
+        display: contents;
+    }
+}
+
+/* ---------------------------------------------------------------------------
+   Compare mode — shrink each card a touch so all three fit on desktop.
+   --------------------------------------------------------------------------- */
+body[data-variant="compare"] .wizard-frame__form-help { display: none; }
+body[data-variant="compare"] .wizard-frame__form-title { font-size: 18px; }
+body[data-variant="compare"] .field { margin-bottom: 10px; }
+body[data-variant="compare"] .field span { font-size: 13px; }
+body[data-variant="compare"] .v1-stepper__label,
+body[data-variant="compare"] .v2-progress__title small {
+    font-size: 11px;
+}
+body[data-variant="compare"] .stage { gap: 16px; padding: 16px; }
+</style>
+</head>
+<body data-variant="compare" data-v3-open="false">
+
+<!-- ============================================================
+     STATE PICKER — mockup-only.
+     ============================================================ -->
+<div class="mockup-bar" role="region" aria-label="Mockup state picker">
+    <strong>View:</strong>
+    <button type="button" data-pick="compare" aria-pressed="true">Compare all 3</button>
+    <button type="button" data-pick="baseline">Baseline (today)</button>
+    <button type="button" data-pick="v1">V1 · Stepper rail</button>
+    <button type="button" data-pick="v2">V2 · Progress bar</button>
+    <button type="button" data-pick="v3">V3 · Sidebar timeline</button>
+    &nbsp;
+    <span style="opacity:.6">Resize wide to see all three side-by-side; narrow to compare in a single-column phone layout.</span>
+</div>
+
+<div class="stage">
+
+    <!-- ============================================================
+         BASELINE — what ships today, for reference / diffing.
+         ============================================================ -->
+    <article class="variant variant--baseline">
+        <h2 class="variant-name">Baseline · today</h2>
+        <p class="variant-tagline">Solid green pill with ✓ for done, teal pill with ring for current. Buttons all share the same weight on the right.</p>
+        <div class="wizard-frame">
+            <div class="wizard-frame__head">
+                <p class="wizard-frame__title">New player</p>
+            </div>
+            <div class="wizard-frame__body">
+                <ol class="legacy-progress" aria-label="Wizard steps">
+                    <li class="is-done"><span class="legacy-progress__num">✓</span>Basic info</li>
+                    <li class="is-done"><span class="legacy-progress__num">✓</span>Team &amp; position</li>
+                    <li class="is-na"><span class="legacy-progress__num">3</span>Trial details</li>
+                    <li class="is-current"><span class="legacy-progress__num">4</span>Contact</li>
+                    <li><span class="legacy-progress__num">5</span>Documents</li>
+                    <li><span class="legacy-progress__num">6</span>Review &amp; create</li>
+                </ol>
+
+                <h2 class="wizard-frame__form-title">Contact</h2>
+                <p class="wizard-frame__form-help">Who do we talk to about this player?</p>
+
+                <label class="field"><span>Parent / guardian email</span><input type="email" inputmode="email" placeholder="ouder@voorbeeld.nl"></label>
+                <label class="field"><span>Phone</span><input type="tel" inputmode="tel" placeholder="06 12 34 56 78"></label>
+
+                <div class="legacy-actions">
+                    <button type="button" class="tt-button tt-button-secondary">Cancel</button>
+                    <button type="button" class="tt-button">Save as draft</button>
+                    <button type="button" class="tt-button">Back</button>
+                    <button type="button" class="tt-button tt-button-primary">Next</button>
+                </div>
+            </div>
+        </div>
+    </article>
+
+    <!-- ============================================================
+         VARIANT 1 — Connected stepper rail
+         ============================================================ -->
+    <article class="variant variant--v1">
+        <h2 class="variant-name">V1 · Connected stepper rail</h2>
+        <p class="variant-tagline">Numbered dots connected by a hairline. Done = filled teal + ✓. Current = filled teal + soft ring. Labels under the dots. Buttons: quiet Cancel far-left, primary Next with arrow far-right.</p>
+        <div class="wizard-frame">
+            <div class="wizard-frame__head">
+                <p class="wizard-frame__title">New player</p>
+            </div>
+            <div class="wizard-frame__body">
+                <ol class="v1-stepper" aria-label="Wizard steps">
+                    <li class="is-done"><span class="v1-stepper__dot">1</span><span class="v1-stepper__label">Basic info</span></li>
+                    <li class="is-done"><span class="v1-stepper__dot">2</span><span class="v1-stepper__label">Team &amp; position</span></li>
+                    <li class="is-na"><span class="v1-stepper__dot">3</span><span class="v1-stepper__label">Trial details</span></li>
+                    <li class="is-current"><span class="v1-stepper__dot">4</span><span class="v1-stepper__label">Contact</span></li>
+                    <li><span class="v1-stepper__dot">5</span><span class="v1-stepper__label">Documents</span></li>
+                    <li><span class="v1-stepper__dot">6</span><span class="v1-stepper__label">Review &amp; create</span></li>
+                </ol>
+
+                <h2 class="wizard-frame__form-title">Contact</h2>
+                <p class="wizard-frame__form-help">Who do we talk to about this player?</p>
+
+                <label class="field"><span>Parent / guardian email</span><input type="email" inputmode="email" placeholder="ouder@voorbeeld.nl"></label>
+                <label class="field"><span>Phone</span><input type="tel" inputmode="tel" placeholder="06 12 34 56 78"></label>
+
+                <div class="v1-actions">
+                    <button type="button" class="v1-actions__cancel" data-role="cancel">Cancel</button>
+                    <button type="button" class="v1-btn v1-btn--outline" data-role="save">Save as draft</button>
+                    <button type="button" class="v1-btn v1-btn--outline" data-role="back">‹ Back</button>
+                    <button type="button" class="v1-btn v1-btn--primary" data-role="next">Next <span class="v1-btn__arrow">›</span></button>
+                </div>
+            </div>
+        </div>
+    </article>
+
+    <!-- ============================================================
+         VARIANT 2 — Compact pill stack + progress bar
+         ============================================================ -->
+    <article class="variant variant--v2">
+        <h2 class="variant-name">V2 · Compact progress bar</h2>
+        <p class="variant-tagline">Thin segmented bar at top; one-line context below ("Step 4 of 6 · Contact"). Skipped step = dashed segment. Buttons: clean text-button middle group, weighty 3D primary Next on the right.</p>
+        <div class="wizard-frame">
+            <div class="wizard-frame__head">
+                <p class="wizard-frame__title">New player</p>
+            </div>
+            <div class="wizard-frame__body">
+                <div class="v2-progress" aria-label="Wizard progress">
+                    <div class="v2-progress__meta">
+                        <p class="v2-progress__title"><small>Step 4 of 6</small>Contact</p>
+                        <button type="button" class="v2-progress__jump">Jump to step ›</button>
+                    </div>
+                    <div class="v2-progress__bar" role="presentation">
+                        <span class="v2-progress__seg is-done"    title="1 · Basic info — done"></span>
+                        <span class="v2-progress__seg is-done"    title="2 · Team &amp; position — done"></span>
+                        <span class="v2-progress__seg is-na"      title="3 · Trial details — skipped"></span>
+                        <span class="v2-progress__seg is-current" title="4 · Contact — current"></span>
+                        <span class="v2-progress__seg"            title="5 · Documents — pending"></span>
+                        <span class="v2-progress__seg"            title="6 · Review &amp; create — pending"></span>
+                    </div>
+                </div>
+
+                <h2 class="wizard-frame__form-title">Contact</h2>
+                <p class="wizard-frame__form-help">Who do we talk to about this player?</p>
+
+                <label class="field"><span>Parent / guardian email</span><input type="email" inputmode="email" placeholder="ouder@voorbeeld.nl"></label>
+                <label class="field"><span>Phone</span><input type="tel" inputmode="tel" placeholder="06 12 34 56 78"></label>
+
+                <div class="v2-actions">
+                    <button type="button" class="v2-actions__cancel" data-role="cancel">Cancel</button>
+                    <div class="v2-actions__middle">
+                        <button type="button" class="v2-btn-text" data-role="save">Save as draft</button>
+                        <button type="button" class="v2-btn-text" data-role="back">‹ Back</button>
+                    </div>
+                    <button type="button" class="v2-btn-primary" data-role="next">Next ›</button>
+                </div>
+            </div>
+        </div>
+    </article>
+
+    <!-- ============================================================
+         VARIANT 3 — Sidebar timeline / collapsed dropdown on mobile
+         ============================================================ -->
+    <article class="variant variant--v3">
+        <h2 class="variant-name">V3 · Sidebar timeline</h2>
+        <p class="variant-tagline">Vertical rail on desktop with per-step "Edit" links on completed steps; collapses to a single tap-to-expand line on mobile. Buttons: ghost Cancel left, text Back/Save center, pill primary Next right.</p>
+        <div class="wizard-frame">
+            <div class="wizard-frame__head">
+                <p class="wizard-frame__title">New player</p>
+            </div>
+            <div class="wizard-frame__body">
+
+                <button type="button" class="v3-rail-toggle" data-v3-toggle>
+                    <span><small>Step 4 of 6</small>Contact</span>
+                </button>
+
+                <div class="v3-layout">
+                    <ol class="v3-rail" aria-label="Wizard steps">
+                        <li class="is-done">
+                            <span class="v3-rail__dot"></span>
+                            <span class="v3-rail__label">Basic info</span>
+                            <a href="#" class="v3-rail__edit">Edit</a>
+                        </li>
+                        <li class="is-done">
+                            <span class="v3-rail__dot"></span>
+                            <span class="v3-rail__label">Team &amp; position</span>
+                            <a href="#" class="v3-rail__edit">Edit</a>
+                        </li>
+                        <li class="is-na">
+                            <span class="v3-rail__dot"></span>
+                            <span class="v3-rail__label">Trial details</span>
+                            <span class="v3-rail__caption">Not applicable for this player</span>
+                        </li>
+                        <li class="is-current">
+                            <span class="v3-rail__dot"></span>
+                            <span class="v3-rail__label">Contact</span>
+                            <span class="v3-rail__caption">You are here</span>
+                        </li>
+                        <li>
+                            <span class="v3-rail__dot"></span>
+                            <span class="v3-rail__label">Documents</span>
+                        </li>
+                        <li>
+                            <span class="v3-rail__dot"></span>
+                            <span class="v3-rail__label">Review &amp; create</span>
+                        </li>
+                    </ol>
+
+                    <div>
+                        <h2 class="wizard-frame__form-title">Contact</h2>
+                        <p class="wizard-frame__form-help">Who do we talk to about this player?</p>
+
+                        <label class="field"><span>Parent / guardian email</span><input type="email" inputmode="email" placeholder="ouder@voorbeeld.nl"></label>
+                        <label class="field"><span>Phone</span><input type="tel" inputmode="tel" placeholder="06 12 34 56 78"></label>
+
+                        <div class="v3-actions">
+                            <button type="button" class="v3-actions__cancel" data-role="cancel">Cancel</button>
+                            <div class="v3-actions__middle">
+                                <button type="button" class="v3-btn-text" data-role="save">Save as draft</button>
+                                <button type="button" class="v3-btn-text" data-role="back">‹ Back</button>
+                            </div>
+                            <button type="button" class="v3-btn-primary" data-role="next">Next <span class="v3-btn-primary__chev">›</span></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </article>
+
+</div>
+
+<script>
+// Picker — toggles body[data-variant]
+document.querySelectorAll('[data-pick]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        var v = btn.getAttribute('data-pick');
+        document.body.setAttribute('data-variant', v);
+        document.querySelectorAll('[data-pick]').forEach(function (b) {
+            b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
+        });
+    });
+});
+
+// V3 mobile-collapsed rail toggle
+document.querySelectorAll('[data-v3-toggle]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        var open = document.body.getAttribute('data-v3-open') === 'true';
+        document.body.setAttribute('data-v3-open', open ? 'false' : 'true');
+    });
+});
+</script>
+</body>
+</html>

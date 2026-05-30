@@ -32,6 +32,7 @@ Plain HTML + CSS prototypes for surfaces where a visual design pass before filin
 
 - `match-execution/` — live-match sideline view (mobile-first, 360×640 budget). State picker at top toggles between not_started / first_half / half_time / second_half / pending_review / finalized (legacy `finished` still selectable for diffing).
 - `match-executions-list/` — dedicated listing surface at `?tt_view=match-executions` PLUS the `MatchesNeedingReviewWidget` hero-widget preview (toggle via the picker). Surfaces the orange "pending review" pills and grey "finalized" pills that the list view + execution view share.
+- `wizard-chrome/` — three visual alternatives for the wizard step indicator + action button row, alongside the v3.110.102 baseline for diffing. Toggle via the picker; "Compare all 3" lays the variants side-by-side at ≥1100px. Brief in `notes.md` covers tradeoffs + a recommendation.
 
 ## Not yet mocked (high-value candidates)
 
