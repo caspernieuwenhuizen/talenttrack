@@ -1,30 +1,34 @@
-# TalentTrack v4.12.11 — Team planner card click opens display view, not edit (closes #999)
+# TalentTrack v4.12.12 — Team planner PDF: landscape orientation + no-wrap auto-shrink (closes #1000)
 
-On the team planner (`?tt_view=team-planner`), the activity-card anchor carried `action=edit` in the query string, so clicking any card dropped the coach straight into the activity edit form. Every other list-row click in the app (player, goal, evaluation, tournament) opens the display / detail view first — the planner was the odd one out. One-click-to-edit on the planner's 48×48 mobile tap targets also made accidental edits too easy.
+Pilot defect on the team-planner PDF export shipped in v4.3.18 / #947. The PDF rendered as A4 portrait; cells with longer values (long opponent names, multi-word titles, free-text locations) wrapped inside the column, breaking each row into two or three visual lines and turning the schedule into a wall of text instead of a one-row-per-activity ledger.
 
 ## What ships
 
-**PHP - URL change**
+**PHP — `TeamPlanningPdfExporter`**
 
-- `src/Modules/Planning/Frontend/FrontendTeamPlannerView.php` — `renderActivityCard()`. Drops the `'action' => 'edit'` entry from the `add_query_arg()` call that builds the card's `href`. The anchor now points at `?tt_view=activities&id=N` (plus the `tt_back` hint via `BackLink::appendTo()` so the detail view's back-pill returns the user to the planner page they came from). The accompanying docblock comment is rewritten to explain the display-first contract.
+- `collect()` now returns `'orientation' => 'landscape'`. The `@page` rule in the embedded stylesheet flips to `size: A4 landscape; margin: 14mm;` so the wider 270mm content area absorbs the variable-width columns (Title, Opponent, Location) without crowding the fixed-width ones (Date, Day, Time, Type).
+- New `COL_WIDTHS_MM` constant assigns an explicit per-column width budget — `date: 22mm`, `day: 12mm`, `time: 16mm`, `type: 26mm`, `title: 60mm`, `opponent: 60mm`, `location: 80mm`. Sum is 276mm, fits inside the 14mm-margin print frame on every printer driver the pilot install hits. Rendered as an explicit `<colgroup><col style="width:...mm">` block so `table-layout: fixed` honours the budget exactly.
+- CSS adds `table-layout: fixed` + `white-space: nowrap` + `overflow: hidden` + `text-overflow: ellipsis` on every `<th>` and `<td>`. Combined with the colgroup, that locks every row to a single visual line — at worst the cell truncates with an ellipsis instead of wrapping to a second line.
+- Per-column font-size shrink algorithm. `renderHtml()` pre-renders each row into a value map, computes the longest character-count per column across the dataset, then resolves a font-size per column via `fontSizeFor()` — scaled proportionally from 11pt against the column's usable width budget (column width minus 6mm of horizontal padding), using a calibrated 1.7mm-per-glyph advance for DejaVu Sans at 11pt. Result clamps between 11pt ceiling (no upscaling beyond the original body size) and 7pt floor (matches the DoD's "if a value can't fit at 7pt, truncate with …" rule); rounded to one decimal so the inline `style="font-size:Npt"` stays compact. Date / Day / Time columns hit the 11pt ceiling in every realistic dataset because their formats are fixed-width — the algorithm runs uniformly across all seven columns but only the three free-text columns (Title, Opponent, Location) actually shrink.
+- Header cells (Date / Day / Time / Type / Title / Opponent / Location) keep the original 10pt via the CSS rule — only the data rows shrink, so the column labels stay readable even when the data underneath collapses to 7pt.
+- Defensive `print-color-adjust: exact` (with `-webkit-print-color-adjust: exact` for cross-engine safety) on `body` so the zebra-stripe `#fafbfc` band and the `#f4f4f4` header background survive any future colour-coded cell additions. DomPDF respects background colours by default so this is belt-and-braces today, but it documents intent for the next iteration that adds type-based colour coding (the v1 exporter ships monochrome).
 
 ## Why patch
 
-UX defect fix on a single anchor URL. No schema, no migration, no REST, no behaviour change beyond the click destination. The activity detail view at `?tt_view=activities&id=N` was already in place and already surfaces an Edit button for users carrying `tt_edit_activities`, so display-first works end-to-end with no other code touched.
+Single-file bug fix on a shipped exporter. No new feature, no schema change, no REST contract change, no UI surface added, no new capability. The exporter's key (`team_planning`), label, supported formats, required capability, validate-filters signature, and payload shape (`['html' => ..., 'options' => [...]]`) are all unchanged — the only externally-visible behaviour change is the orientation flag and the resulting paper layout.
 
 ## Test plan
 
-- Land on `?tt_view=team-planner` as a coach with `tt_edit_activities`.
-- Click any activity card on the grid.
-- Verify the URL is `?tt_view=activities&id=N&tt_back=...` (no `action=edit`).
-- Verify the page that loads is the activity's display view (date / opponent / location / status surfaced) with an Edit button visible.
-- Click the Edit button — verify it opens the edit form.
-- Verify clicking the breadcrumb / back-pill returns to the planner page in the same range / week.
-- Verify the planner's empty-day `+ Add` affordance still routes to the new-activity wizard with `action=new` (unchanged by this PR).
+- Open the team planner dashboard for a team with at least one scheduled activity that has a long opponent name and a long free-text location (the pilot's U17 vs. "Koninklijke HFC Haarlem" / "Sportpark De Vondellaan, Haarlemmermeer" reproduces the original wordwrap on portrait).
+- Click Export PDF. The downloaded file opens as A4 landscape.
+- Every row of the schedule renders on one visual line; long opponent / location values shrink to ≥ 7pt to fit; if even 7pt overflows, the cell truncates with an ellipsis instead of wrapping.
+- Header row (Date / Day / Time / Type / Title / Opponent / Location) stays at 10pt regardless of how small the data rows shrink.
+- The zebra-stripe `#fafbfc` band on alternating rows survives in the printed file (regression check on the `print-color-adjust: exact` declaration).
+- Re-run with the empty-range case (`date_from`/`date_to` resolves to a window with zero activities): the "No activities scheduled in this range." copy still renders, landscape orientation is honoured.
 
 ## Closes
 
-`#999`.
+#1000.
 
 ---
 
