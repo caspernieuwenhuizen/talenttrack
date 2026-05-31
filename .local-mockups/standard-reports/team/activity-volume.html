@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PRESET · Activity volume per team</title>
+<link rel="stylesheet" href="../_preset_shell.css">
+</head>
+<body>
+<div class="mockup-bar"><strong>PRESET (team):</strong> Activity volume, grouped by activity type, scoped to team + date range.</div>
+<div class="frame">
+    <div class="url-strip">/?tt_view=<strong>explore</strong>&amp;kpi=activity_volume&amp;filters[team_id]=7&amp;group=activity_type_key&amp;date_from=2025-08-01&amp;date_to=2026-05-31</div>
+    <section class="explorer">
+        <div class="explorer__head"><h1 class="explorer__title">Activiteitsvolume — Hedel JO13-1</h1><span class="explorer__hint">Explorer · KPI: activity_volume</span></div>
+        <div class="exp-filters">
+            <span class="exp-filter"><strong>Team</strong>Hedel JO13-1</span>
+            <span class="exp-filter"><strong>Datum</strong>aug 2025 – mei 2026</span>
+            <span class="exp-grouping">Groep: type</span>
+        </div>
+        <table class="exp-table">
+            <thead><tr><th>Type</th><th class="num">Aantal</th><th class="num">Gem. aanwezigheid</th></tr></thead>
+            <tbody>
+                <tr><td>Training</td><td class="num">126</td><td class="num">88%</td></tr>
+                <tr><td>Wedstrijd · competitie</td><td class="num">22</td><td class="num">92%</td></tr>
+                <tr><td>Wedstrijd · beker</td><td class="num">3</td><td class="num">90%</td></tr>
+                <tr><td>Vriendschappelijk</td><td class="num">5</td><td class="num">85%</td></tr>
+                <tr><td>Toernooi</td><td class="num">2</td><td class="num">93%</td></tr>
+                <tr><td>VCT-sessie</td><td class="num">8</td><td class="num">82%</td></tr>
+            </tbody>
+        </table>
+    </section>
+    <div class="preset-howto"><strong>Hoe deze preset werkt:</strong> explorer met fact <code>activity_volume</code>, gefilterd op team + datumrange, gegroepeerd op type. Bereikt vanaf team-detail "Reports" knop.</div>
+</div>
+</body>
+</html>

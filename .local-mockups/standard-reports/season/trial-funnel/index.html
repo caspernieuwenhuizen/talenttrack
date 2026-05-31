@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trial funnel — seizoen 2025/26</title>
+<link rel="stylesheet" href="../../_shared.css">
+</head>
+<body>
+<div class="mockup-bar"><strong>CURATED · Trial funnel:</strong> discovered → trialled → decided (signed / released / pending), per scout, per period.</div>
+
+<div class="frame">
+    <header class="page-head">
+        <p class="crumb"><a href="#">Dashboard</a> &rsaquo; Reports &rsaquo; Season &rsaquo; Trial funnel</p>
+        <h1>Trial funnel — seizoen 2025/26</h1>
+        <p class="page-head__sub">42 prospects → 28 trials → 18 beslissingen</p>
+        <div class="page-head__actions"><a href="#" class="btn-secondary">Explore →</a><a href="#" class="btn-secondary">Exporteer (CSV)</a></div>
+    </header>
+
+    <section class="tt-rep-filters">
+        <label class="tt-rep-filter"><span class="tt-rep-filter__label">Seizoen</span><select><option>2025/26</option></select></label>
+        <label class="tt-rep-filter"><span class="tt-rep-filter__label">Scout</span><select><option>— alle scouts —</option><option>Pieter de Jong</option><option>Marieke van Dam</option></select></label>
+        <label class="tt-rep-filter"><span class="tt-rep-filter__label">Leeftijdsband</span><select><option>— alle —</option><option>JO8-JO10</option><option>JO11-JO13</option><option>JO15-JO17</option></select></label>
+        <label class="tt-rep-filter"><span class="tt-rep-filter__label">Periode</span><input type="text" value="hele seizoen"></label>
+    </section>
+
+    <div class="kpi-row">
+        <div class="kpi"><div class="kpi__num">42</div><div class="kpi__label">Ontdekt</div></div>
+        <div class="kpi"><div class="kpi__num">28</div><div class="kpi__label">Op proef</div><div class="kpi__sub">67% conversie</div></div>
+        <div class="kpi"><div class="kpi__num">12</div><div class="kpi__label">Getekend</div><div class="kpi__sub">43% van trial</div></div>
+        <div class="kpi"><div class="kpi__num">6</div><div class="kpi__label">Vrijgegeven</div><div class="kpi__sub">14% van ontdekt</div></div>
+    </div>
+
+    <section class="tt-rep-section">
+        <h2 class="tt-rep-section__title" style="margin-bottom:8px;">Funnel visualisatie</h2>
+        <div class="funnel">
+            <div class="funnel__stage" data-stage="1"><span>Ontdekt — totaal</span><span class="funnel__num">42</span></div>
+            <div class="funnel__stage" data-stage="2"><span>Op proef</span><span class="funnel__num">28</span></div>
+            <div class="funnel__stage" data-stage="3a"><span>Getekend</span><span class="funnel__num">12</span></div>
+            <div class="funnel__stage" data-stage="3b"><span>Vrijgegeven</span><span class="funnel__num">6</span></div>
+            <div class="funnel__stage" data-stage="3a" style="background: #fff3d9; color: #8a5e0a;"><span>Lopend</span><span class="funnel__num">10</span></div>
+        </div>
+    </section>
+
+    <section class="tt-rep-section">
+        <h2 class="tt-rep-section__title" style="margin-bottom:8px;">Per scout</h2>
+        <table class="tt-rep-table">
+            <thead><tr><th>Scout</th><th class="num">Ontdekt</th><th class="num">Op proef</th><th class="num">Getekend</th><th class="num">Conversie</th></tr></thead>
+            <tbody>
+                <tr><td class="anchor">Pieter de Jong</td><td class="num">19</td><td class="num">14</td><td class="num">7</td><td class="num">37%</td></tr>
+                <tr><td class="anchor">Marieke van Dam</td><td class="num">15</td><td class="num">10</td><td class="num">4</td><td class="num">27%</td></tr>
+                <tr><td class="anchor">Tom Bakker</td><td class="num">8</td><td class="num">4</td><td class="num">1</td><td class="num">13%</td></tr>
+            </tbody>
+        </table>
+    </section>
+</div>
+</body>
+</html>

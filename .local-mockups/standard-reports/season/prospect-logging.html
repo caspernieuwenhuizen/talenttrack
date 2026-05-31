@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PRESET · Prospect logging per scout</title>
+<link rel="stylesheet" href="../_preset_shell.css">
+</head>
+<body>
+<div class="mockup-bar"><strong>PRESET (season):</strong> Prospect logging, grouped by discovered_by_user_id over the season window.</div>
+<div class="frame">
+    <div class="url-strip">/?tt_view=<strong>explore</strong>&amp;kpi=prospects_logged&amp;group=discovered_by_user_id&amp;date_from=2025-08-01&amp;date_to=2026-05-31</div>
+    <section class="explorer">
+        <div class="explorer__head"><h1 class="explorer__title">Prospects gelogd per scout — seizoen 2025/26</h1><span class="explorer__hint">Explorer · KPI: prospects_logged</span></div>
+        <div class="exp-filters">
+            <span class="exp-filter"><strong>Datum</strong>aug 2025 – mei 2026</span>
+            <span class="exp-grouping">Groep: scout (discovered_by)</span>
+        </div>
+        <table class="exp-table">
+            <thead><tr><th>Scout</th><th class="num">Aantal</th><th class="num">Conversie naar trial</th><th class="num">Conversie naar tekenen</th></tr></thead>
+            <tbody>
+                <tr><td>Pieter de Jong</td><td class="num">19</td><td class="num">74%</td><td class="num">37%</td></tr>
+                <tr><td>Marieke van Dam</td><td class="num">15</td><td class="num">67%</td><td class="num">27%</td></tr>
+                <tr><td>Tom Bakker</td><td class="num">8</td><td class="num">50%</td><td class="num">13%</td></tr>
+                <tr><td><em>Onbekend</em></td><td class="num">3</td><td class="num">33%</td><td class="num">0%</td></tr>
+            </tbody>
+        </table>
+    </section>
+    <div class="preset-howto"><strong>Hoe deze preset werkt:</strong> opent vanaf de Season-summary view → "Prospect activity per scout". Vergelijkt scouts op volume + conversie.</div>
+</div>
+</body>
+</html>
