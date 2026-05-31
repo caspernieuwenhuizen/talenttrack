@@ -209,7 +209,14 @@ abstract class FrontendViewBase {
             $inner .= '<span class="tt-page-actions__label">' . esc_html( $label ) . '</span>';
 
             if ( $href !== '' ) {
-                $html .= '<a href="' . esc_url( $href ) . '" class="' . esc_attr( $cls ) . '"' . $attr_html . '>' . $inner . '</a>';
+                // #1064 — optional `target` (typically `_blank` for
+                // print routes that open a standalone document so the
+                // user doesn't lose the originating view).
+                $target_attr = '';
+                if ( ! empty( $a['target'] ) ) {
+                    $target_attr = ' target="' . esc_attr( (string) $a['target'] ) . '" rel="noopener"';
+                }
+                $html .= '<a href="' . esc_url( $href ) . '" class="' . esc_attr( $cls ) . '"' . $target_attr . $attr_html . '>' . $inner . '</a>';
             } else {
                 $html .= '<button type="button" class="' . esc_attr( $cls ) . '"' . $attr_html . '>' . $inner . '</button>';
             }

@@ -46,7 +46,21 @@ class MethodologyView extends FrontendViewBase {
 
         self::enqueueAssets();
         FrontendBreadcrumbs::fromDashboard( __( 'Methodology', 'talenttrack' ) );
-        self::renderHeader( __( 'Methodology', 'talenttrack' ) );
+        // #1064 — printable methodology reference card. Opens a
+        // standalone document in a new tab; defaults include all
+        // three sections.
+        $print_url = add_query_arg(
+            [ 'tt_methodology_ref_print' => '1', 'sections' => 'principles,actions,leerdoelen' ],
+            home_url( '/' )
+        );
+        $print_actions = [
+            [
+                'label'  => __( 'Print referentiekaart', 'talenttrack' ),
+                'href'   => $print_url,
+                'target' => '_blank',
+            ],
+        ];
+        self::renderHeader( __( 'Methodology', 'talenttrack' ), self::pageActionsHtml( $print_actions ) );
         self::renderInlineStyles();
 
         $tab = isset( $_GET['mtab'] ) ? sanitize_key( (string) $_GET['mtab'] ) : 'framework';

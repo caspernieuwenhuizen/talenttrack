@@ -13,5 +13,8 @@ class GoalsModule implements ModuleInterface {
     public function boot( Container $container ): void {
         if ( is_admin() ) Admin\GoalsPage::init();
         GoalsRestController::init();
+        // #1064 — printable season-start goal-setting intake (per-player
+        // and per-team batch). Routes `?tt_goal_intake_print=1&...`.
+        Print\PlayerGoalIntakePrintRouter::init();
     }
 }

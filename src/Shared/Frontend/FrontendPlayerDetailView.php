@@ -359,6 +359,17 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                     <?php esc_html_e( 'Edit', 'talenttrack' ); ?>
                 </a>
             <?php endif; ?>
+            <?php if ( current_user_can( 'tt_edit_goals' ) ) :
+                // #1064 — printable season-start goal-setting intake.
+                $intake_url = add_query_arg(
+                    [ 'tt_goal_intake_print' => '1', 'player_id' => $player_id ],
+                    home_url( '/' )
+                );
+                ?>
+                <a class="tt-player-action" href="<?php echo esc_url( $intake_url ); ?>" target="_blank" rel="noopener">
+                    <?php esc_html_e( 'Print doelenintake', 'talenttrack' ); ?>
+                </a>
+            <?php endif; ?>
             <?php if ( $has_overflow ) : ?>
                 <div class="tt-player-action tt-player-action--more"
                      role="button"

@@ -75,6 +75,20 @@ final class FrontendTeamDetailView extends FrontendViewBase {
                 ],
             ];
         }
+        // #1064 — team-batch print: one 3-page intake per active
+        // roster player, concatenated into a single PDF when the
+        // operator picks "Save as PDF" in the browser print dialog.
+        if ( current_user_can( 'tt_edit_goals' ) ) {
+            $intake_batch_url = add_query_arg(
+                [ 'tt_goal_intake_print' => '1', 'team_id' => $team_id ],
+                home_url( '/' )
+            );
+            $actions[] = [
+                'label'  => __( 'Print seizoens-intakes', 'talenttrack' ),
+                'href'   => $intake_batch_url,
+                'target' => '_blank',
+            ];
+        }
         self::renderHeader( (string) $team->name, self::pageActionsHtml( $actions ) );
 
         $roster = QueryHelpers::get_players( $team_id );
