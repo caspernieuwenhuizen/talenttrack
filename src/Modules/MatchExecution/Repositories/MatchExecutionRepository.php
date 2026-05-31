@@ -4,7 +4,9 @@ namespace TT\Modules\MatchExecution\Repositories;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Domain\Vocabularies\Enums\MatchExecutionState;
+use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
 
 /**
  * MatchExecutionRepository — single class spanning the three live-
@@ -267,5 +269,119 @@ class MatchExecutionRepository {
         }
 
         return $minutes;
+    }
+
+    /**
+     * #1048 — recompute attendance + minutes from the prep snapshot +
+     * the current substitution log, and write the result to
+     * `tt_attendance`. Extracted from the inline block in the original
+     * `route_finish` (v4.15.0) so the same logic can fire on
+     * PENDING_REVIEW edits and on Finalize.
+     *
+     * Idempotent: same prep + same sub log → same attendance rows. On
+     * subsequent invocations the existing rows are UPDATEd in place;
+     * orphans (attendance rows for players no longer in the
+     * availability list — the v3 sweep added in #1032) are DELETEd.
+     *
+     * The user's #1048 decision (2026-05-30): on recompute failure
+     * (DB error mid-write), this method swallows the error, logs it
+     * at warn level, and returns false. The caller's primary action
+     * (the edit) has already succeeded; aborting the edit because a
+     * side-effect failed would be hostile, and the recompute will
+     * fire again on the next edit or on finalize.
+     *
+     * @return bool true on success, false on caught exception.
+     */
+    public function recomputeAttendanceAndMinutes( int $execution_id ): bool {
+        try {
+            $exec = $this->wpdb->get_row( $this->wpdb->prepare(
+                "SELECT id, activity_id FROM {$this->t_exec} WHERE id = %d AND club_id = %d",
+                $execution_id, CurrentClub::id()
+            ) );
+            if ( ! $exec ) return false;
+            $activity_id = (int) $exec->activity_id;
+
+            $prep_repo = new MatchPrepRepository();
+            $prep      = $prep_repo->findByActivity( $activity_id );
+            if ( ! $prep ) return false;
+
+            $prep_id = (int) $prep->id;
+            $avail   = $prep_repo->listAvailability( $prep_id );
+            $lineup  = $prep_repo->listLineup( $prep_id );
+
+            $start1 = [];
+            $start2 = [];
+            foreach ( $lineup as $l ) {
+                if ( (int) $l->half === 1 ) $start1[] = (int) $l->player_id;
+                if ( (int) $l->half === 2 ) $start2[] = (int) $l->player_id;
+            }
+
+            $minutes_map = $this->computeMinutes(
+                $execution_id,
+                $start1,
+                $start2,
+                (int) $prep->half_length_minutes,
+                (int) $prep->half_length_minutes
+            );
+
+            global $wpdb;
+            $p = $wpdb->prefix;
+
+            // #1032 — reconcile stale attendance rows before re-writing.
+            $avail_pids = [];
+            foreach ( $avail as $a ) {
+                $pid = (int) $a->player_id;
+                if ( $pid > 0 ) $avail_pids[] = $pid;
+            }
+            if ( ! empty( $avail_pids ) ) {
+                $in = implode( ',', array_fill( 0, count( $avail_pids ), '%d' ) );
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+                $wpdb->query( $wpdb->prepare(
+                    "DELETE FROM {$p}tt_attendance
+                      WHERE activity_id = %d
+                        AND club_id     = %d
+                        AND player_id NOT IN ($in)",
+                    array_merge( [ $activity_id, CurrentClub::id() ], $avail_pids )
+                ) );
+            }
+
+            foreach ( $avail as $a ) {
+                $pid    = (int) $a->player_id;
+                $status = (string) $a->status;
+                if ( strcasecmp( $status, 'Present' ) === 0 ) {
+                    $status = 'Present';
+                }
+                $minutes = $minutes_map[ $pid ] ?? 0;
+                $existing = $wpdb->get_var( $wpdb->prepare(
+                    "SELECT id FROM {$p}tt_attendance
+                      WHERE activity_id = %d AND player_id = %d AND club_id = %d LIMIT 1",
+                    $activity_id, $pid, CurrentClub::id()
+                ) );
+                if ( $existing ) {
+                    $wpdb->update( "{$p}tt_attendance", [
+                        'status'         => $status,
+                        'minutes_played' => $minutes,
+                    ], [ 'id' => (int) $existing ] );
+                } else {
+                    $wpdb->insert( "{$p}tt_attendance", [
+                        'club_id'        => CurrentClub::id(),
+                        'activity_id'    => $activity_id,
+                        'player_id'      => $pid,
+                        'status'         => $status,
+                        'minutes_played' => $minutes,
+                    ] );
+                }
+            }
+            return true;
+        } catch ( \Throwable $e ) {
+            // #1048 — swallow + log; the caller's edit succeeded, the
+            // recompute is a side effect that will re-fire on the
+            // next edit / finalize.
+            Logger::warn( 'match_execution.recompute_failed', [
+                'execution_id' => $execution_id,
+                'message'      => $e->getMessage(),
+            ] );
+            return false;
+        }
     }
 }
