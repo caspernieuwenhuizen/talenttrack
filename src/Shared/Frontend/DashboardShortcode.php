@@ -636,6 +636,10 @@ class DashboardShortcode {
             case 'match-execution':
                 \TT\Modules\MatchExecution\Frontend\FrontendMatchExecutionView::render( $user_id, $is_admin );
                 return true;
+            // #1047 — listing surface for past match executions.
+            case 'match-executions':
+                \TT\Modules\MatchExecution\Frontend\FrontendMatchExecutionsListView::render( $user_id, $is_admin );
+                return true;
             case 'team-blueprint-share':
                 // #0068 Phase 4 — public read-only share-link. Token
                 // verification happens inside renderShared(); no cap
