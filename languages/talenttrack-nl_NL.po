@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-05-31T21:01:40+00:00\n"
+"POT-Creation-Date: 2026-05-31T21:26:56+00:00\n"
 "PO-Revision-Date: 2026-04-25 10:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -2091,7 +2091,7 @@ msgstr "Filteren"
 #: src/Modules/Vct/Wizard/WhenStep.php:43
 #: src/Modules/Wizards/Activity/DetailsStep.php:34
 #: src/Modules/Wizards/Activity/ReviewStep.php:70
-#: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:59
+#: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:74
 #: src/Shared/Frontend/CoachDashboardView.php:194
 #: src/Shared/Frontend/CoachDashboardView.php:241
 #: src/Shared/Frontend/CoachForms.php:188
@@ -2173,7 +2173,7 @@ msgstr "Titel"
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:270
 #: src/Modules/Wizards/Activity/ReviewStep.php:60
 #: src/Modules/Wizards/Activity/TypeStatusStep.php:24
-#: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:62
+#: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:77
 #: src/Modules/Wizards/Player/ReviewStep.php:31
 #: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:29
 #: src/Shared/Frontend/CoachDashboardView.php:188
@@ -2788,6 +2788,8 @@ msgstr "Opslaan"
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:36
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:343
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:404
+#: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:43
+#: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:108
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:856
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:985
 #: src/Modules/Goals/Admin/GoalsPage.php:214
@@ -9308,7 +9310,7 @@ msgid "Use club default (%s)"
 msgstr "Clubstandaard gebruiken (%s)"
 
 #: src/Modules/Configuration/Admin/UserProfileExtensions.php:58
-#: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:91
+#: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:106
 #: src/Modules/Wizards/Evaluation/RateActorsStep.php:178
 #: src/Shared/Frontend/CoachForms.php:244
 msgid "Detailed"
@@ -10825,7 +10827,7 @@ msgid "Generate-form layout"
 msgstr "Indeling genereerformulier"
 
 #: src/Modules/DemoData/Admin/DemoDataPage.php:299
-#: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:90
+#: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:105
 #: src/Modules/Wizards/Evaluation/RateActorsStep.php:177
 #: src/Shared/Frontend/CoachForms.php:243
 msgid "Basic"
@@ -12888,6 +12890,27 @@ msgstr "Categorie toevoegen"
 msgid "That key is already used by another category. Pick a different one."
 msgstr ""
 "Die sleutel is al in gebruik door een andere categorie. Kies een andere."
+
+#: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:33
+#: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:34
+#: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:56
+msgid "Eval Type Categories"
+msgstr ""
+
+#: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:58
+msgid ""
+"Per evaluatietype: vink de categorieën die in het rating-formulier moeten "
+"verschijnen. Niets aanvinken voor een type = alle actieve categorieën tonen "
+"(terugval-gedrag, gelijk aan vóór #819)."
+msgstr ""
+
+#: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:62
+msgid "Mapping opgeslagen."
+msgstr ""
+
+#: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:98
+msgid "Opslaan"
+msgstr ""
 
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:112
 #: src/Modules/Methodology/Admin/MethodologyPage.php:158
@@ -26144,7 +26167,7 @@ msgstr "Geen speler-id meegegeven."
 msgid "Could not write evaluation row."
 msgstr "Kon evaluatie-rij niet wegschrijven."
 
-#: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:54
+#: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:69
 msgid ""
 "Add the activity context this evaluation is anchored to, then rate the "
 "categories that matter."
@@ -26152,11 +26175,11 @@ msgstr ""
 "Voeg de activiteit-context toe waar deze evaluatie aan vastzit, en beoordeel "
 "dan de categorieën die ertoe doen."
 
-#: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:65
+#: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:80
 msgid "— pick a type —"
 msgstr "— kies een type —"
 
-#: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:75
+#: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:90
 msgid "Context"
 msgstr "Toelichting"
 
@@ -26324,12 +26347,18 @@ msgid "No player selected."
 msgstr "Geen speler geselecteerd."
 
 #. translators: %1$d = min rating; %2$d = max rating.
-#: src/Modules/Wizards/Evaluation/ReviewStep.php:360
+#: src/Modules/Wizards/Evaluation/ReviewStep.php:374
 #, php-format
 msgid "Ratings must be between %1$d and %2$d."
 msgstr ""
 
-#: src/Modules/Wizards/Evaluation/ReviewStep.php:370
+#: src/Modules/Wizards/Evaluation/ReviewStep.php:382
+msgid ""
+"One of the rated categories is not allowed for the selected evaluation type. "
+"Refresh the form and try again."
+msgstr ""
+
+#: src/Modules/Wizards/Evaluation/ReviewStep.php:390
 msgid "Rate at least one category before saving."
 msgstr ""
 
