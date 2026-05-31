@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>VCT coach view — mockup</title>
+<style>
+:root {
+    --tt-ink:#1a1d21; --tt-ink-soft:#5b6e75; --tt-paper:#fff; --tt-bg:#f5f7f6;
+    --tt-line:#d6dadd; --tt-mute:#f0f3f2; --tt-accent:#1d7874;
+    --tap-min:48px; --gap:12px; --gap-lg:16px;
+    --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body { font-family: var(--font); color: var(--tt-ink); background: var(--tt-bg); font-size: 16px; line-height: 1.4; }
+.mockup-bar { position: sticky; top: 0; z-index: 100; background: #222; color: #eee; font-size: 12px; padding: 8px 12px; display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+.mockup-bar strong { color: #ffd; margin-right: 4px; }
+.mockup-bar button { background:#444; color:#eee; border:1px solid #666; padding:4px 10px; border-radius:4px; font:inherit; cursor:pointer; font-size:11px; }
+.mockup-bar button[aria-pressed="true"] { background:#6c4; color:#000; border-color:#4a3; font-weight:600; }
+
+/* Surface picker — on-screen sideline OR printable A4. */
+.surface { display: none; }
+body[data-surface="screen"] .surface--screen { display: block; }
+body[data-surface="print"] .surface--print { display: block; }
+
+/* ============ ON-SCREEN (sideline) ============ */
+.frame { max-width: 360px; margin: 0 auto; background: var(--tt-paper); min-height: 100vh; }
+@media (min-width: 768px) { .frame { max-width: 720px; } }
+
+.head { padding: var(--gap-lg); border-bottom: 1px solid var(--tt-line); background: var(--tt-paper); }
+.head__date { font-size: 13px; color: var(--tt-ink-soft); margin: 0 0 4px; }
+.head h1 { margin: 0 0 4px; font-size: 20px; font-weight: 800; }
+.head__sub { margin: 0; font-size: 13px; color: var(--tt-ink-soft); }
+
+.md-strip { background: #e3eeed; padding: var(--gap) var(--gap-lg); display: flex; align-items: center; gap: var(--gap); border-bottom: 1px solid #c8dcdb; }
+.md-strip__badge { background: var(--tt-accent); color: white; padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 13px; }
+.md-strip__text { font-size: 13px; color: #155a57; }
+
+.timer { padding: var(--gap-lg); background: var(--tt-paper); border-bottom: 1px solid var(--tt-line); display: grid; grid-template-columns: 1fr auto; align-items: center; gap: var(--gap); }
+.timer__label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; color: var(--tt-ink-soft); margin: 0; font-weight: 700; }
+.timer__clock { font-size: 32px; font-weight: 800; font-variant-numeric: tabular-nums; margin: 0; }
+.timer__btn { min-height: var(--tap-min); min-width: 80px; background: var(--tt-accent); color: white; border: none; border-radius: 8px; font: inherit; font-weight: 700; font-size: 15px; cursor: pointer; }
+
+/* Block stack */
+.block { background: var(--tt-paper); border-bottom: 1px solid var(--tt-line); padding: var(--gap-lg); }
+.block.is-current { background: #f6fbfa; border-left: 4px solid var(--tt-accent); }
+.block__head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; }
+.block__name { margin: 0; font-size: 16px; font-weight: 700; }
+.block__time { font-size: 12px; color: var(--tt-ink-soft); font-variant-numeric: tabular-nums; }
+.block__rule { height: 3px; border-radius: 2px; margin-bottom: var(--gap); }
+.block__rule[data-band="1"] { background: #c8dcdb; }
+.block__rule[data-band="2"] { background: #9bc2bd; }
+.block__rule[data-band="3"] { background: #6ba39c; }
+.block__rule[data-band="4"] { background: #3b8580; }
+.block__rule[data-band="5"] { background: #c75c1f; }
+
+.exercise { padding: 8px 0; border-bottom: 1px solid var(--tt-mute); font-size: 14px; }
+.exercise:last-child { border-bottom: none; }
+.exercise__title { font-weight: 600; }
+.exercise__meta { font-size: 12px; color: var(--tt-ink-soft); margin-top: 2px; }
+.exercise__notes { font-size: 12px; color: var(--tt-ink); background: var(--tt-mute); padding: 6px 10px; border-radius: 6px; margin-top: 6px; font-style: italic; }
+
+.phv-banner { background: #fff3d9; border-left: 3px solid #c75c1f; padding: 10px var(--gap-lg); font-size: 13px; color: #8a5e0a; }
+.phv-banner strong { color: #c75c1f; }
+
+.print-link-row { padding: var(--gap-lg); background: var(--tt-paper); text-align: center; }
+.print-link-row a { color: var(--tt-accent); text-decoration: none; font-weight: 600; font-size: 13px; }
+
+/* ============ PRINT A4 ============ */
+@page { size: A4 portrait; margin: 0; }
+.paper { width: 210mm; min-height: 297mm; background: white; margin: 24px auto; padding: 16mm 14mm; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+@media print { body { background: #fff; } .mockup-bar { display: none !important; } .paper { margin: 0; box-shadow: none; } }
+.paper h1 { margin: 0 0 4px; font-size: 18pt; }
+.paper .meta { font-size: 10pt; color: var(--tt-ink-soft); margin: 0 0 8mm; }
+.paper .pblock { border: 1px solid var(--tt-line); border-radius: 2mm; padding: 4mm; margin-bottom: 4mm; page-break-inside: avoid; }
+.paper .pblock h2 { margin: 0 0 2mm; font-size: 12pt; }
+.paper .pblock__time { font-size: 9pt; color: var(--tt-ink-soft); float: right; }
+.paper .pblock__rule { height: 2mm; border-radius: 1mm; margin-bottom: 3mm; }
+.paper .pblock__rule[data-band="1"]{background:#c8dcdb}.paper .pblock__rule[data-band="2"]{background:#9bc2bd}.paper .pblock__rule[data-band="3"]{background:#6ba39c}.paper .pblock__rule[data-band="4"]{background:#3b8580}.paper .pblock__rule[data-band="5"]{background:#c75c1f}
+.paper ul { margin: 0; padding-left: 5mm; font-size: 10pt; }
+.paper li { margin-bottom: 1mm; }
+</style>
+</head>
+<body data-surface="screen">
+
+<div class="mockup-bar">
+    <strong>VCT-10 · Coach view:</strong>
+    <button type="button" onclick="document.body.setAttribute('data-surface','screen')" aria-pressed="true">On-screen (sideline)</button>
+    <button type="button" onclick="document.body.setAttribute('data-surface','print')">Print A4</button>
+</div>
+
+<!-- ============ ON-SCREEN ============ -->
+<div class="surface surface--screen">
+    <div class="frame">
+        <header class="head">
+            <p class="head__date">Maandag 9 jun · 18:30</p>
+            <h1>Tussentraining vóór de wedstrijd</h1>
+            <p class="head__sub">Hedel JO13-1 · 75 min · 3 blokken · 6 oefeningen</p>
+        </header>
+
+        <div class="md-strip">
+            <span class="md-strip__badge">MD-2</span>
+            <span class="md-strip__text">vs Den Helder · zaterdag 12 jun · home · friendly</span>
+        </div>
+
+        <div class="timer">
+            <div>
+                <p class="timer__label">Hoofddeel · positiespel</p>
+                <p class="timer__clock">04:38 / 38:00</p>
+            </div>
+            <button type="button" class="timer__btn">Pauze</button>
+        </div>
+
+        <section class="block">
+            <div class="block__head"><p class="block__name">1 · Warming-up</p><span class="block__time">0–12 min · Intensity 2</span></div>
+            <div class="block__rule" data-band="2"></div>
+            <div class="exercise"><div class="exercise__title">PH-001 · Mobility ladder</div><div class="exercise__meta">6 min · groep</div></div>
+            <div class="exercise"><div class="exercise__title">TQ-009 · Voorzet-blok — links + rechts</div><div class="exercise__meta">6 min · 4 spelers</div></div>
+        </section>
+
+        <section class="block is-current">
+            <div class="block__head"><p class="block__name">2 · Hoofddeel — positiespel</p><span class="block__time">12–50 min · Intensity 3 → 4</span></div>
+            <div class="block__rule" data-band="4"></div>
+            <div class="exercise">
+                <div class="exercise__title">RO-003 · Rondo 4 vs 2 — twee-touch</div>
+                <div class="exercise__meta">14 min · 6 spelers</div>
+                <div class="exercise__notes">Coach-notitie: focus op tempowissel na breaklijn, niet op aantal raken.</div>
+            </div>
+            <div class="exercise">
+                <div class="exercise__title">OM-012 · 8 vs 8 met counter-trigger</div>
+                <div class="exercise__meta">24 min · 16 spelers</div>
+            </div>
+        </section>
+
+        <section class="block">
+            <div class="block__head"><p class="block__name">3 · Cooldown</p><span class="block__time">65–75 min · Intensity 1</span></div>
+            <div class="block__rule" data-band="1"></div>
+            <div class="exercise"><div class="exercise__title">PH-001 · Mobility 6 min</div><div class="exercise__meta">6 min · groep</div></div>
+        </section>
+
+        <div class="phv-banner">
+            <strong>PHV-uitsluitingen:</strong> Lucas (knie) en Sem (astma) zijn uitgesloten van blok 2 (Intensity 4) — plan een vervangende activiteit voor hen.
+        </div>
+
+        <div class="print-link-row">
+            <a href="#" onclick="document.body.setAttribute('data-surface','print');return false;">🖨 Print kaart A4 (laminaten)</a>
+        </div>
+    </div>
+</div>
+
+<!-- ============ PRINT A4 ============ -->
+<div class="surface surface--print">
+    <article class="paper">
+        <h1>VCT · Hedel JO13-1 · 9 jun · 18:30</h1>
+        <p class="meta">75 min · 3 blokken · MD-2 · vs Den Helder zat 12 jun · home · friendly</p>
+
+        <section class="pblock">
+            <span class="pblock__time">0–12 min</span>
+            <h2>1 · Warming-up</h2>
+            <div class="pblock__rule" data-band="2"></div>
+            <ul>
+                <li>PH-001 — Mobility ladder · 6 min</li>
+                <li>TQ-009 — Voorzet-blok links + rechts · 6 min</li>
+            </ul>
+        </section>
+
+        <section class="pblock">
+            <span class="pblock__time">12–50 min</span>
+            <h2>2 · Hoofddeel — positiespel</h2>
+            <div class="pblock__rule" data-band="4"></div>
+            <ul>
+                <li>RO-003 — Rondo 4v2 twee-touch · 14 min · <em>focus op tempowissel na breaklijn</em></li>
+                <li>OM-012 — 8 vs 8 met counter-trigger · 24 min</li>
+            </ul>
+        </section>
+
+        <section class="pblock">
+            <span class="pblock__time">65–75 min</span>
+            <h2>3 · Cooldown</h2>
+            <div class="pblock__rule" data-band="1"></div>
+            <ul><li>PH-001 — Mobility 6 min</li></ul>
+        </section>
+
+        <p style="font-size:9pt;color:var(--tt-ink-soft);margin-top:8mm;border-top:1px solid var(--tt-line);padding-top:3mm;">
+            <strong>PHV-uitsluitingen:</strong> Lucas (knie) · Sem (astma) — vervangende activiteit in blok 2.
+        </p>
+    </article>
+</div>
+
+</body>
+</html>

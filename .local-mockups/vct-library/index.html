@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VCT library — mockup</title>
+<style>
+:root {
+    --tt-ink: #1a1d21; --tt-ink-soft: #5b6e75; --tt-paper: #ffffff;
+    --tt-bg: #f5f7f6; --tt-line: #d6dadd; --tt-mute: #f0f3f2;
+    --tt-accent: #1d7874; --tt-warn: #c75c1f;
+    --tap-min: 48px; --gap: 12px; --gap-lg: 16px;
+    --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body { font-family: var(--font); color: var(--tt-ink); background: var(--tt-bg); font-size: 16px; line-height: 1.4; }
+
+.mockup-bar { position: sticky; top: 0; z-index: 100; background: #222; color: #eee; font-size: 12px; padding: 8px 12px; }
+.mockup-bar strong { color: #ffd; margin-right: 4px; }
+
+.frame { max-width: 360px; margin: 0 auto; background: var(--tt-bg); min-height: 100vh; }
+@media (min-width: 768px) { .frame { max-width: 720px; } }
+@media (min-width: 1024px) { .frame { max-width: 1100px; } }
+
+.page-head { padding: var(--gap-lg); background: var(--tt-paper); border-bottom: 1px solid var(--tt-line); }
+.crumb { font-size: 12px; color: var(--tt-ink-soft); margin: 0 0 6px; }
+.crumb a { color: var(--tt-accent); text-decoration: none; }
+h1 { margin: 0 0 4px; font-size: 22px; font-weight: 800; }
+.page-head__sub { margin: 0; font-size: 13px; color: var(--tt-ink-soft); }
+
+.toolbar { padding: var(--gap) var(--gap-lg); background: var(--tt-paper); border-bottom: 1px solid var(--tt-line); display: grid; gap: var(--gap); grid-template-columns: 1fr; }
+@media (min-width: 768px) { .toolbar { grid-template-columns: 1fr auto auto; align-items: end; } }
+.toolbar__search { display: flex; flex-direction: column; gap: 4px; }
+.toolbar__label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: var(--tt-ink-soft); }
+.toolbar input, .toolbar select { height: var(--tap-min); padding: 0 var(--gap); border: 1px solid var(--tt-line); border-radius: 8px; font: inherit; font-size: 16px; }
+.btn { min-height: var(--tap-min); padding: 0 18px; border-radius: 8px; border: none; background: var(--tt-accent); color: white; font: inherit; font-weight: 700; cursor: pointer; }
+.btn:hover { background: #155a57; }
+
+.exercise-list { list-style: none; margin: 0; padding: 0; }
+.exercise { background: var(--tt-paper); border-bottom: 1px solid var(--tt-mute); padding: var(--gap) var(--gap-lg); display: grid; grid-template-columns: 4px 1fr auto; gap: var(--gap); align-items: center; cursor: pointer; }
+.exercise:hover { background: var(--tt-mute); }
+.exercise__intensity { width: 4px; height: 100%; min-height: 36px; border-radius: 2px; }
+.exercise__intensity[data-band="1"] { background: #c8dcdb; }
+.exercise__intensity[data-band="2"] { background: #9bc2bd; }
+.exercise__intensity[data-band="3"] { background: #6ba39c; }
+.exercise__intensity[data-band="4"] { background: #3b8580; }
+.exercise__intensity[data-band="5"] { background: var(--tt-warn); }
+.exercise__body { min-width: 0; }
+.exercise__title { margin: 0; font-size: 15px; font-weight: 600; }
+.exercise__meta { margin: 2px 0 0; font-size: 12px; color: var(--tt-ink-soft); }
+.exercise__meta .cat { display: inline-block; padding: 1px 8px; border-radius: 8px; background: var(--tt-mute); margin-right: 4px; font-size: 11px; font-weight: 600; }
+.exercise__edit { background: transparent; border: 1px solid var(--tt-line); color: var(--tt-ink-soft); min-height: 36px; padding: 0 12px; border-radius: 6px; font-size: 13px; cursor: pointer; }
+.exercise__edit:hover { color: var(--tt-accent); border-color: var(--tt-accent); }
+
+/* Inline edit form — opens below the row when "Edit" is clicked. */
+.edit-form { display: none; padding: var(--gap-lg); background: var(--tt-mute); border-bottom: 1px solid var(--tt-line); }
+.exercise[data-editing="true"] + .edit-form { display: block; }
+.edit-form__grid { display: grid; gap: var(--gap); grid-template-columns: 1fr; }
+@media (min-width: 768px) { .edit-form__grid { grid-template-columns: 1fr 1fr; } }
+.edit-form label { display: flex; flex-direction: column; gap: 4px; }
+.edit-form label span { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: var(--tt-ink-soft); }
+.edit-form input, .edit-form select, .edit-form textarea { height: var(--tap-min); padding: 0 var(--gap); border: 1px solid var(--tt-line); border-radius: 8px; font: inherit; font-size: 16px; background: var(--tt-paper); }
+.edit-form textarea { height: auto; padding: var(--gap); min-height: 80px; }
+.edit-form__actions { display: flex; gap: var(--gap); justify-content: flex-end; margin-top: var(--gap); }
+.btn-secondary { background: transparent; border: 1.5px solid var(--tt-line); color: var(--tt-ink-soft); }
+.btn-secondary:hover { color: var(--tt-accent); border-color: var(--tt-accent); }
+
+/* New-exercise inline form — appears under "+ Nieuwe oefening" CTA. */
+.new-form { display: none; padding: var(--gap-lg); background: var(--tt-paper); border-bottom: 2px solid var(--tt-accent); }
+body[data-new-open="true"] .new-form { display: block; }
+
+.cta-row { padding: var(--gap) var(--gap-lg); background: var(--tt-paper); border-bottom: 1px solid var(--tt-line); }
+</style>
+</head>
+<body>
+
+<div class="mockup-bar">
+    <strong>VCT-11 · Library:</strong>
+    HoD inline-form CRUD per § exemption (b) in CLAUDE.md §3 — lookup/vocabulary editor.
+    Click any row's Edit to inline-edit; click + Nieuwe oefening to add.
+</div>
+
+<div class="frame">
+
+    <header class="page-head">
+        <p class="crumb"><a href="#">Dashboard</a> &rsaquo; VCT &rsaquo; Library</p>
+        <h1>VCT oefeningenbibliotheek</h1>
+        <p class="page-head__sub">Bewerk de oefeningen die in de sessie-wizard verschijnen. Wijzigingen zijn direct van kracht.</p>
+    </header>
+
+    <section class="toolbar">
+        <label class="toolbar__search">
+            <span class="toolbar__label">Zoek op naam, code of trefwoord</span>
+            <input type="search" placeholder="bijv. 4 vs 2, rondo, kopduel…">
+        </label>
+        <label class="toolbar__search">
+            <span class="toolbar__label">Categorie</span>
+            <select>
+                <option>— alle —</option>
+                <option>◇ Techniek</option>
+                <option>◯ Positiespel</option>
+                <option>⇄ Omschakeling</option>
+                <option>⇈ Druk geven</option>
+                <option>△ Standaardsituatie</option>
+                <option>◈ PHV / fysiek</option>
+            </select>
+        </label>
+        <button type="button" class="btn" onclick="document.body.setAttribute('data-new-open', document.body.getAttribute('data-new-open')==='true'?'false':'true')">+ Nieuwe oefening</button>
+    </section>
+
+    <!-- New exercise inline form -->
+    <section class="new-form" aria-label="Nieuwe oefening">
+        <div class="edit-form__grid">
+            <label><span>Naam</span><input type="text" placeholder="bijv. Kopduel 4v2 in zone"></label>
+            <label><span>Code</span><input type="text" placeholder="bijv. TQ-014" pattern="[A-Z]{2}-\d+"></label>
+            <label><span>Categorie</span><select><option>◇ Techniek</option><option>◯ Positiespel</option><option>⇄ Omschakeling</option><option>⇈ Druk geven</option><option>△ Standaardsituatie</option><option>◈ PHV / fysiek</option></select></label>
+            <label><span>Intensiteit (1-5)</span><select><option>1 · Recovery</option><option>2 · Low</option><option>3 · Moderate</option><option selected>4 · High</option><option>5 · Maximum</option></select></label>
+            <label style="grid-column:1/-1;"><span>Beschrijving (kort, max 200 tekens)</span><textarea placeholder="Een à twee zinnen over opzet, doel en accenten."></textarea></label>
+        </div>
+        <div class="edit-form__actions">
+            <button type="button" class="btn btn-secondary" onclick="document.body.setAttribute('data-new-open','false')">Annuleren</button>
+            <button type="button" class="btn">Opslaan</button>
+        </div>
+    </section>
+
+    <!-- Exercise list -->
+    <ul class="exercise-list" aria-label="VCT oefeningen">
+        <li class="exercise" onclick="this.setAttribute('data-editing', this.getAttribute('data-editing')==='true'?'false':'true')">
+            <span class="exercise__intensity" data-band="3"></span>
+            <div class="exercise__body">
+                <p class="exercise__title">Rondo 4 vs 2 — twee-touch</p>
+                <p class="exercise__meta"><span class="cat">◯ Positiespel</span> RO-003 · 12 min · 6 spelers · Intensiteit 3</p>
+            </div>
+            <button type="button" class="exercise__edit">Edit</button>
+        </li>
+        <div class="edit-form">
+            <div class="edit-form__grid">
+                <label><span>Naam</span><input type="text" value="Rondo 4 vs 2 — twee-touch"></label>
+                <label><span>Code</span><input type="text" value="RO-003"></label>
+                <label><span>Categorie</span><select><option selected>◯ Positiespel</option><option>◇ Techniek</option></select></label>
+                <label><span>Intensiteit (1-5)</span><select><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select></label>
+                <label style="grid-column:1/-1;"><span>Beschrijving</span><textarea>Klassieke 4-tegen-2 op een 8×8 grid. Twee balcontacten max. Focus op tempowissels en breaklijnen.</textarea></label>
+            </div>
+            <div class="edit-form__actions">
+                <button type="button" class="btn btn-secondary">Annuleren</button>
+                <button type="button" class="btn">Opslaan</button>
+            </div>
+        </div>
+
+        <li class="exercise" onclick="this.setAttribute('data-editing', this.getAttribute('data-editing')==='true'?'false':'true')">
+            <span class="exercise__intensity" data-band="5"></span>
+            <div class="exercise__body">
+                <p class="exercise__title">Sprint-shuttle 6×30m</p>
+                <p class="exercise__meta"><span class="cat">◈ PHV / fysiek</span> PH-007 · 8 min · individueel · Intensiteit 5</p>
+            </div>
+            <button type="button" class="exercise__edit">Edit</button>
+        </li>
+        <div class="edit-form"></div>
+
+        <li class="exercise" onclick="this.setAttribute('data-editing', this.getAttribute('data-editing')==='true'?'false':'true')">
+            <span class="exercise__intensity" data-band="4"></span>
+            <div class="exercise__body">
+                <p class="exercise__title">8 vs 8 met counter-trigger</p>
+                <p class="exercise__meta"><span class="cat">⇄ Omschakeling</span> OM-012 · 20 min · 16 spelers · Intensiteit 4</p>
+            </div>
+            <button type="button" class="exercise__edit">Edit</button>
+        </li>
+        <div class="edit-form"></div>
+
+        <li class="exercise" onclick="this.setAttribute('data-editing', this.getAttribute('data-editing')==='true'?'false':'true')">
+            <span class="exercise__intensity" data-band="2"></span>
+            <div class="exercise__body">
+                <p class="exercise__title">Voorzet-blokje — links + rechts</p>
+                <p class="exercise__meta"><span class="cat">◇ Techniek</span> TQ-009 · 10 min · 4 spelers · Intensiteit 2</p>
+            </div>
+            <button type="button" class="exercise__edit">Edit</button>
+        </li>
+        <div class="edit-form"></div>
+
+        <li class="exercise" onclick="this.setAttribute('data-editing', this.getAttribute('data-editing')==='true'?'false':'true')">
+            <span class="exercise__intensity" data-band="1"></span>
+            <div class="exercise__body">
+                <p class="exercise__title">Cooldown — mobiliteit 6 min</p>
+                <p class="exercise__meta"><span class="cat">◈ PHV / fysiek</span> PH-001 · 6 min · groep · Intensiteit 1</p>
+            </div>
+            <button type="button" class="exercise__edit">Edit</button>
+        </li>
+        <div class="edit-form"></div>
+    </ul>
+
+</div>
+
+</body>
+</html>
