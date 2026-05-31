@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VCT PHV flag — mockup</title>
+<style>
+:root { --tt-ink:#1a1d21; --tt-ink-soft:#5b6e75; --tt-paper:#fff; --tt-bg:#f5f7f6; --tt-line:#d6dadd; --tt-mute:#f0f3f2; --tt-accent:#1d7874; --tt-warn:#c75c1f; --font: 'Inter', sans-serif; --tap-min: 48px; }
+* { box-sizing: border-box; }
+body { font-family: var(--font); color: var(--tt-ink); background: var(--tt-bg); margin: 0; font-size: 16px; line-height: 1.4; }
+.mockup-bar { position: sticky; top: 0; z-index: 100; background: #222; color: #eee; font-size: 12px; padding: 8px 12px; }
+.mockup-bar strong { color: #ffd; }
+
+.frame { max-width: 720px; margin: 0 auto; padding: 16px; }
+
+/* Player hero */
+.hero { background: var(--tt-paper); border: 1px solid var(--tt-line); border-radius: 12px; padding: 16px; display: grid; grid-template-columns: 80px 1fr; gap: 16px; align-items: center; margin-bottom: 16px; }
+.hero__avatar { width: 80px; height: 80px; border-radius: 50%; background: var(--tt-mute); display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 800; color: var(--tt-ink-soft); }
+.hero__name { margin: 0 0 4px; font-size: 22px; font-weight: 800; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.hero__name .phv-pill { background: var(--tt-warn); color: white; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 10px; text-transform: uppercase; letter-spacing: 0.4px; }
+.hero__sub { margin: 0; font-size: 13px; color: var(--tt-ink-soft); }
+
+/* Tabs */
+.tabs { display: flex; gap: 6px; border-bottom: 1px solid var(--tt-line); margin-bottom: 16px; overflow-x: auto; }
+.tab { padding: 10px 16px; border: none; background: transparent; font: inherit; font-size: 14px; color: var(--tt-ink-soft); cursor: pointer; border-bottom: 3px solid transparent; }
+.tab.is-active { color: var(--tt-accent); border-bottom-color: var(--tt-accent); font-weight: 700; }
+
+/* PHV panel (lives on Profile tab) */
+.panel { background: var(--tt-paper); border: 1px solid var(--tt-line); border-radius: 12px; padding: 20px; }
+.panel__head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--tt-mute); }
+.panel__title { margin: 0; font-size: 14px; font-weight: 800; color: var(--tt-warn); text-transform: uppercase; letter-spacing: 0.4px; }
+
+/* Checkbox + toggle */
+.phv-toggle { display: flex; align-items: center; gap: 12px; padding: 12px 0; cursor: pointer; }
+.phv-toggle input { width: 22px; height: 22px; accent-color: var(--tt-warn); cursor: pointer; }
+.phv-toggle__label { font-weight: 600; }
+.phv-toggle__sub { display: block; font-size: 12px; color: var(--tt-ink-soft); font-weight: 400; margin-top: 2px; }
+
+/* Reason picker (revealed when checked) */
+.reason-row { margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--tt-line); }
+.reason-row label { display: block; font-weight: 600; font-size: 13px; margin-bottom: 6px; }
+.reason-row select, .reason-row textarea { width: 100%; min-height: var(--tap-min); padding: 10px 12px; border: 1.5px solid var(--tt-line); border-radius: 8px; font: inherit; font-size: 16px; }
+.reason-row textarea { min-height: 70px; }
+.reason-row__hint { font-size: 11px; color: var(--tt-ink-soft); margin: 4px 0 0; font-style: italic; }
+
+/* Where the flag surfaces (cross-reference list) */
+.surfaces { background: var(--tt-mute); padding: 12px; border-radius: 8px; margin-top: 12px; font-size: 13px; }
+.surfaces strong { display: block; margin-bottom: 6px; color: var(--tt-ink); }
+.surfaces ul { margin: 0; padding-left: 18px; color: var(--tt-ink-soft); }
+.surfaces li { margin-bottom: 3px; }
+</style>
+</head>
+<body>
+
+<div class="mockup-bar">
+    <strong>VCT-14 · PHV flag:</strong>
+    Per-player checkbox on the Profile tab + visible pill on the hero. The wizard's workload check (VCT-9 step 4) consumes this to exclude flagged players from high-intensity blocks.
+</div>
+
+<div class="frame">
+
+    <article class="hero">
+        <div class="hero__avatar">LV</div>
+        <div>
+            <h1 class="hero__name">Lucas de Vries <span class="phv-pill">PHV</span></h1>
+            <p class="hero__sub">Hedel JO13-1 · Rechtsbuiten · 13 jaar · #7</p>
+        </div>
+    </article>
+
+    <nav class="tabs" aria-label="Player tabs">
+        <button class="tab is-active">Profile</button>
+        <button class="tab">Activities</button>
+        <button class="tab">Notes</button>
+    </nav>
+
+    <section class="panel">
+        <div class="panel__head">
+            <div>
+                <h2 class="panel__title">PHV — Fysiek / health / vitality</h2>
+            </div>
+        </div>
+
+        <label class="phv-toggle">
+            <input type="checkbox" checked>
+            <span class="phv-toggle__label">
+                Speler heeft een PHV-vlag
+                <span class="phv-toggle__sub">Wordt automatisch uitgesloten van VCT-blokken boven het ingestelde intensiteitsplafond.</span>
+            </span>
+        </label>
+
+        <div class="reason-row">
+            <label for="phv-reason">Reden (kort, voor de trainer)</label>
+            <select id="phv-reason">
+                <option>Blessure — knie</option>
+                <option>Blessure — enkel</option>
+                <option>Astma</option>
+                <option>Hartconditie</option>
+                <option>Andere medische reden</option>
+                <option>Tijdelijke vermoeidheid</option>
+            </select>
+            <p class="reason-row__hint">Zichtbaar voor staf op de coach-view; niet zichtbaar voor andere ouders.</p>
+        </div>
+
+        <div class="reason-row">
+            <label for="phv-ceiling">Intensiteitsplafond (max intensity-band)</label>
+            <select id="phv-ceiling">
+                <option>1 — alleen recovery</option>
+                <option>2 — laag</option>
+                <option selected>3 — gemiddeld</option>
+                <option>4 — hoog</option>
+            </select>
+        </div>
+
+        <div class="reason-row">
+            <label for="phv-notes">Toelichting (optioneel)</label>
+            <textarea id="phv-notes" placeholder="bijv. Mag vanaf 1 juli weer op niveau 4 — fysio gecheckt."></textarea>
+        </div>
+
+        <div class="surfaces">
+            <strong>De PHV-vlag verschijnt op:</strong>
+            <ul>
+                <li>Player hero (boven dit paneel) — oranje pill naast de naam.</li>
+                <li>VCT session wizard step 4 (workload check) — speler oplicht in de uitsluitingslijst.</li>
+                <li>VCT coach-view sideline — bottom-banner met de huidige sessie-uitsluitingen.</li>
+                <li>Match prep "Doen per speler" — als de coach er een aandachtspunt aan koppelt.</li>
+            </ul>
+        </div>
+    </section>
+
+</div>
+
+</body>
+</html>

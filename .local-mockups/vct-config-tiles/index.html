@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VCT config tiles — mockup</title>
+<style>
+:root { --tt-ink:#1a1d21; --tt-ink-soft:#5b6e75; --tt-paper:#fff; --tt-bg:#f5f7f6; --tt-line:#d6dadd; --tt-mute:#f0f3f2; --tt-accent:#1d7874; --font: 'Inter', sans-serif; }
+* { box-sizing: border-box; }
+body { font-family: var(--font); color: var(--tt-ink); background: var(--tt-bg); margin: 0; font-size: 16px; line-height: 1.4; }
+.mockup-bar { position: sticky; top: 0; z-index: 100; background: #222; color: #eee; font-size: 12px; padding: 8px 12px; }
+.mockup-bar strong { color: #ffd; }
+.frame { max-width: 1024px; margin: 0 auto; padding: 16px; }
+.page-head { padding: 16px 0; }
+h1 { margin: 0; font-size: 22px; font-weight: 800; }
+
+.tile-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+@media (min-width: 600px) { .tile-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1024px) { .tile-grid { grid-template-columns: 1fr 1fr 1fr; } }
+.tile { background: var(--tt-paper); border: 1px solid var(--tt-line); border-radius: 12px; padding: 16px; cursor: pointer; transition: box-shadow 120ms, border-color 120ms; }
+.tile:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.06); border-color: var(--tt-accent); }
+.tile.is-vct { border-color: var(--tt-accent); position: relative; }
+.tile.is-vct::before { content: 'NIEUW'; position: absolute; top: 8px; right: 8px; background: var(--tt-accent); color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 800; letter-spacing: 0.5px; }
+.tile__icon { font-size: 28px; margin-bottom: 8px; display: block; }
+.tile__title { margin: 0 0 4px; font-size: 16px; font-weight: 700; }
+.tile__sub { margin: 0; font-size: 13px; color: var(--tt-ink-soft); }
+.tile__count { margin-top: 8px; font-size: 11px; color: var(--tt-accent); font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; }
+</style>
+</head>
+<body>
+
+<div class="mockup-bar">
+    <strong>VCT-12 · Config tiles:</strong>
+    Two new tiles added to the Configuration grid — Macro-blocks + Age-profiles. Pattern lifted from the existing PDP-blocks tile.
+</div>
+
+<div class="frame">
+    <div class="page-head"><h1>Configuration</h1></div>
+
+    <div class="tile-grid">
+        <article class="tile">
+            <span class="tile__icon">⚙</span>
+            <h2 class="tile__title">General</h2>
+            <p class="tile__sub">Site name, locale, season anchor.</p>
+        </article>
+        <article class="tile">
+            <span class="tile__icon">👤</span>
+            <h2 class="tile__title">People</h2>
+            <p class="tile__sub">Roles, staff, invitations.</p>
+        </article>
+        <article class="tile">
+            <span class="tile__icon">📋</span>
+            <h2 class="tile__title">Lookups</h2>
+            <p class="tile__sub">Positions, statuses, evaluation types.</p>
+        </article>
+        <article class="tile">
+            <span class="tile__icon">🎯</span>
+            <h2 class="tile__title">PDP blocks</h2>
+            <p class="tile__sub">Editable categories for the PDP planning wizard.</p>
+            <p class="tile__count">3 actief</p>
+        </article>
+
+        <article class="tile is-vct">
+            <span class="tile__icon">🧱</span>
+            <h2 class="tile__title">VCT macro-blocks</h2>
+            <p class="tile__sub">Block templates the session wizard uses (warming-up, hoofddeel, cooldown, theme-blocks). Edit names + default duration + default intensity.</p>
+            <p class="tile__count">5 actief · 2 archief</p>
+        </article>
+
+        <article class="tile is-vct">
+            <span class="tile__icon">📊</span>
+            <h2 class="tile__title">VCT age-profiles</h2>
+            <p class="tile__sub">Per age band (JO8 → JO19) the workload-cap, max intensity per MD-day, max session length. Drives the wizard's workload check.</p>
+            <p class="tile__count">7 leeftijdsbanden</p>
+        </article>
+
+        <article class="tile">
+            <span class="tile__icon">🛡</span>
+            <h2 class="tile__title">Authorization</h2>
+            <p class="tile__sub">Capability matrix.</p>
+        </article>
+        <article class="tile">
+            <span class="tile__icon">📥</span>
+            <h2 class="tile__title">Imports</h2>
+            <p class="tile__sub">CSV imports.</p>
+        </article>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VCT session wizard — mockup</title>
+<style>
+:root {
+    --tt-ink:#1a1d21; --tt-ink-soft:#5b6e75; --tt-paper:#fff; --tt-bg:#f5f7f6;
+    --tt-line:#d6dadd; --tt-mute:#f0f3f2; --tt-accent:#1d7874; --tt-accent-deep:#155a57;
+    --tap-min:48px; --gap:12px; --gap-lg:16px;
+    --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body { font-family: var(--font); color: var(--tt-ink); background: var(--tt-bg); font-size: 16px; line-height: 1.4; }
+
+.mockup-bar { position: sticky; top: 0; z-index: 100; background: #222; color: #eee; font-size: 12px; padding: 8px 12px; display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.mockup-bar strong { color: #ffd; margin-right: 4px; }
+.mockup-bar button { background:#444; color:#eee; border:1px solid #666; padding:4px 10px; border-radius:4px; font:inherit; cursor:pointer; font-size:11px; }
+.mockup-bar button[aria-pressed="true"] { background:#6c4; color:#000; border-color:#4a3; font-weight:600; }
+
+.frame { max-width: 360px; margin: 0 auto; background: var(--tt-paper); min-height: 100vh; }
+@media (min-width: 768px) { .frame { max-width: 800px; display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; } }
+
+/* V3 sidebar timeline — matches the wizard chrome shipped via #1036. */
+.rail { display: none; padding: var(--gap-lg); border-right: 1px solid var(--tt-line); background: var(--tt-bg); }
+@media (min-width: 768px) { .rail { display: block; } }
+.rail h2 { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px; color: var(--tt-ink-soft); margin: 0 0 var(--gap); }
+.rail ol { list-style: none; margin: 0; padding: 0; position: relative; }
+.rail li { position: relative; padding: 10px 0 10px 28px; font-size: 13px; color: var(--tt-ink-soft); }
+.rail li::before { content: ''; position: absolute; left: 9px; top: 24px; bottom: -2px; width: 2px; background: var(--tt-line); }
+.rail li:last-child::before { display: none; }
+.rail li.is-done::before { background: var(--tt-accent); }
+.rail__dot { position: absolute; left: 0; top: 12px; width: 20px; height: 20px; border-radius: 50%; background: var(--tt-paper); border: 2px solid var(--tt-line); }
+.rail li.is-done .rail__dot { background: var(--tt-accent); border-color: var(--tt-accent); }
+.rail li.is-done .rail__dot::after { content: '✓'; position: absolute; inset: 0; color: white; font-size: 11px; font-weight: 700; text-align: center; line-height: 16px; }
+.rail li.is-current .rail__dot { border-color: var(--tt-accent); box-shadow: 0 0 0 4px rgba(29,120,116,0.15); }
+.rail li.is-current .rail__dot::after { content: ''; position: absolute; inset: 4px; background: var(--tt-accent); border-radius: 50%; }
+.rail li.is-done { color: var(--tt-ink); }
+.rail li.is-current { color: var(--tt-accent-deep); font-weight: 700; }
+
+.mobile-step { display: block; padding: var(--gap) var(--gap-lg); background: #e3eeed; border-bottom: 1px solid #c8dcdb; font-size: 13px; color: var(--tt-accent-deep); font-weight: 600; }
+.mobile-step small { font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; color: var(--tt-ink-soft); margin-right: 6px; font-weight: 700; }
+@media (min-width: 768px) { .mobile-step { display: none; } }
+
+.body { padding: var(--gap-lg); }
+.body h1 { margin: 0 0 4px; font-size: 22px; font-weight: 800; }
+.body__help { margin: 0 0 var(--gap-lg); font-size: 13px; color: var(--tt-ink-soft); }
+
+/* Step content area. */
+.step { display: none; }
+body[data-step="1"] .step--1, body[data-step="2"] .step--2, body[data-step="3"] .step--3, body[data-step="4"] .step--4, body[data-step="5"] .step--5 { display: block; }
+
+label.field { display: block; margin-bottom: var(--gap); }
+label.field > span { display: block; font-weight: 600; font-size: 13px; margin-bottom: 4px; }
+input, select, textarea { width: 100%; min-height: var(--tap-min); padding: 10px 12px; font-size: 16px; border: 1px solid var(--tt-line); border-radius: 8px; box-sizing: border-box; }
+textarea { min-height: 80px; }
+
+/* Step 2: MD context bar */
+.md-bar { display: flex; gap: 4px; margin-bottom: var(--gap-lg); flex-wrap: wrap; }
+.md-day { padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; background: var(--tt-mute); color: var(--tt-ink-soft); cursor: pointer; border: 1.5px solid transparent; }
+.md-day[data-md="MD-5"], .md-day[data-md="MD-4"], .md-day[data-md="MD-3"], .md-day[data-md="MD-2"], .md-day[data-md="MD-1"] { background: #e1eef5; color: #0d4a7a; }
+.md-day[data-md="MD"] { background: var(--tt-accent); color: white; }
+.md-day[data-md="MD+1"], .md-day[data-md="MD+2"] { background: #fff3d9; color: #8a5e0a; }
+.md-day.is-selected { border-color: var(--tt-accent); box-shadow: 0 0 0 3px rgba(29,120,116,0.2); }
+
+/* Step 3: macro-block builder */
+.block { background: var(--tt-mute); border-left: 4px solid var(--tt-accent); padding: var(--gap); border-radius: 6px; margin-bottom: var(--gap); }
+.block__head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; }
+.block__name { font-weight: 700; font-size: 14px; }
+.block__time { font-size: 12px; color: var(--tt-ink-soft); font-variant-numeric: tabular-nums; }
+.block__exercises { list-style: none; margin: 0; padding: 0; }
+.block__exercise { display: flex; gap: 8px; padding: 6px 0; border-bottom: 1px solid #e0e6e5; font-size: 13px; }
+.block__exercise:last-child { border-bottom: none; }
+.block__exercise small { color: var(--tt-ink-soft); margin-left: auto; }
+.add-exercise { width: 100%; padding: 10px; border: 2px dashed var(--tt-line); border-radius: 6px; background: transparent; color: var(--tt-ink-soft); cursor: pointer; font: inherit; }
+
+/* Step 4: workload preview */
+.workload { background: var(--tt-mute); border-radius: 8px; padding: var(--gap); margin-bottom: var(--gap); display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--gap); }
+.workload__cell { text-align: center; }
+.workload__num { font-size: 22px; font-weight: 800; color: var(--tt-accent); font-variant-numeric: tabular-nums; }
+.workload__label { font-size: 11px; color: var(--tt-ink-soft); text-transform: uppercase; letter-spacing: 0.3px; margin-top: 2px; }
+.workload-warn { background: #fff3d9; border-left: 3px solid var(--tt-accent); padding: 10px; border-radius: 6px; font-size: 13px; color: #8a5e0a; margin-bottom: var(--gap); }
+
+/* Actions per #1036 wizard chrome */
+.actions { display: grid; grid-template-columns: 1fr 1fr; grid-template-areas: "next next" "back back" "cancel cancel"; gap: 8px; margin-top: var(--gap-lg); padding-top: var(--gap-lg); border-top: 1px solid var(--tt-line); }
+@media (min-width: 768px) { .actions { grid-template-columns: auto auto 1fr auto; grid-template-areas: "cancel save . next-row"; } .actions__back { display: inline-block; } }
+.btn { min-height: var(--tap-min); padding: 0 18px; border-radius: 8px; border: none; font: inherit; font-weight: 600; cursor: pointer; }
+.btn-primary { background: var(--tt-accent); color: white; grid-area: next; }
+.btn-back { background: var(--tt-paper); border: 1.5px solid var(--tt-line); color: var(--tt-ink); grid-area: back; }
+.btn-cancel { background: transparent; border: none; color: var(--tt-ink-soft); grid-area: cancel; font-size: 14px; }
+</style>
+</head>
+<body data-step="1">
+
+<div class="mockup-bar">
+    <strong>VCT-9 · Session wizard:</strong>
+    <button type="button" onclick="document.body.setAttribute('data-step','1')" aria-pressed="true">1 · Basis</button>
+    <button type="button" onclick="document.body.setAttribute('data-step','2')">2 · MD context</button>
+    <button type="button" onclick="document.body.setAttribute('data-step','3')">3 · Macro-blokken</button>
+    <button type="button" onclick="document.body.setAttribute('data-step','4')">4 · Workload check</button>
+    <button type="button" onclick="document.body.setAttribute('data-step','5')">5 · Review &amp; publish</button>
+</div>
+
+<div class="frame">
+
+    <nav class="rail" aria-label="Wizard stappen">
+        <h2>Nieuwe VCT-sessie</h2>
+        <ol>
+            <li class="is-done"><span class="rail__dot"></span>1 · Basis</li>
+            <li class="is-done"><span class="rail__dot"></span>2 · MD context</li>
+            <li class="is-current"><span class="rail__dot"></span>3 · Macro-blokken</li>
+            <li><span class="rail__dot"></span>4 · Workload check</li>
+            <li><span class="rail__dot"></span>5 · Review &amp; publish</li>
+        </ol>
+    </nav>
+
+    <main>
+        <div class="mobile-step"><small>Stap 3 van 5</small>Macro-blokken</div>
+
+        <div class="body">
+
+            <section class="step step--1">
+                <h1>Basis</h1>
+                <p class="body__help">Voor welk team, op welke dag, hoe lang.</p>
+                <label class="field"><span>Team</span><select><option>Hedel JO13-1</option><option>Hedel JO11-1</option></select></label>
+                <label class="field"><span>Datum</span><input type="date" value="2026-06-09"></label>
+                <label class="field"><span>Begintijd</span><input type="time" value="18:30"></label>
+                <label class="field"><span>Duur (min)</span><input type="number" value="75" inputmode="numeric" min="30" max="180"></label>
+                <label class="field"><span>Sessietitel (optioneel)</span><input type="text" placeholder="bijv. Tussentraining vóór de wedstrijd"></label>
+            </section>
+
+            <section class="step step--2">
+                <h1>MD context</h1>
+                <p class="body__help">Op welk moment in de matchweek valt deze sessie? De engine past intensiteit en accent automatisch aan.</p>
+                <div class="md-bar" role="radiogroup" aria-label="Match-day">
+                    <span class="md-day" data-md="MD-5">MD-5</span>
+                    <span class="md-day" data-md="MD-4">MD-4</span>
+                    <span class="md-day" data-md="MD-3">MD-3</span>
+                    <span class="md-day is-selected" data-md="MD-2">MD-2</span>
+                    <span class="md-day" data-md="MD-1">MD-1</span>
+                    <span class="md-day" data-md="MD">MD</span>
+                    <span class="md-day" data-md="MD+1">MD+1</span>
+                    <span class="md-day" data-md="MD+2">MD+2</span>
+                </div>
+                <label class="field"><span>Match (optioneel — koppelt MD context aan een activiteit)</span><select><option>— geen match —</option><option>vs Den Helder · 6 jun · home · friendly</option></select></label>
+            </section>
+
+            <section class="step step--3">
+                <h1>Macro-blokken</h1>
+                <p class="body__help">3 blokken voorgesteld op basis van MD-2. Voeg of vervang oefeningen uit de library.</p>
+
+                <article class="block">
+                    <div class="block__head">
+                        <span class="block__name">Warming-up</span>
+                        <span class="block__time">0 – 12 min · Intensity 2</span>
+                    </div>
+                    <ul class="block__exercises">
+                        <li class="block__exercise">PH-001 · Mobility ladder <small>6 min</small></li>
+                        <li class="block__exercise">TQ-009 · Voorzet-blok <small>6 min</small></li>
+                    </ul>
+                </article>
+
+                <article class="block">
+                    <div class="block__head">
+                        <span class="block__name">Hoofddeel — positiespel</span>
+                        <span class="block__time">12 – 50 min · Intensity 3 → 4</span>
+                    </div>
+                    <ul class="block__exercises">
+                        <li class="block__exercise">RO-003 · Rondo 4v2 — twee-touch <small>14 min</small></li>
+                        <li class="block__exercise">OM-012 · 8 vs 8 met counter-trigger <small>24 min</small></li>
+                    </ul>
+                    <button type="button" class="add-exercise">+ Voeg oefening toe</button>
+                </article>
+
+                <article class="block">
+                    <div class="block__head">
+                        <span class="block__name">Cooldown</span>
+                        <span class="block__time">65 – 75 min · Intensity 1</span>
+                    </div>
+                    <ul class="block__exercises">
+                        <li class="block__exercise">PH-001 · Mobility 6 min <small>6 min</small></li>
+                    </ul>
+                </article>
+            </section>
+
+            <section class="step step--4">
+                <h1>Workload check</h1>
+                <p class="body__help">Berekend op basis van leeftijdsprofiel JO13. Klik door als alles binnen de norm valt.</p>
+
+                <div class="workload">
+                    <div class="workload__cell">
+                        <p class="workload__num">75</p>
+                        <p class="workload__label">Totaal min</p>
+                    </div>
+                    <div class="workload__cell">
+                        <p class="workload__num">3.1</p>
+                        <p class="workload__label">Gem. intensiteit</p>
+                    </div>
+                    <div class="workload__cell">
+                        <p class="workload__num">231</p>
+                        <p class="workload__label">Load-score</p>
+                    </div>
+                </div>
+
+                <div class="workload-warn">
+                    ⚠ Spelers met PHV-vlag uitgesloten van blok 2 (Intensity 4). Toon overzicht in stap 5.
+                </div>
+            </section>
+
+            <section class="step step--5">
+                <h1>Review &amp; publish</h1>
+                <p class="body__help">Laatste check. Eenmaal gepubliceerd ontvangen team + coaches een notificatie.</p>
+                <p>Team: <strong>Hedel JO13-1</strong></p>
+                <p>Datum: <strong>9 jun · 18:30 · 75 min</strong></p>
+                <p>MD context: <strong>MD-2 · vs Den Helder (12 jun, home, friendly)</strong></p>
+                <p>Blokken: <strong>3</strong> · oefeningen: <strong>6</strong></p>
+                <p>PHV-uitsluitingen: <strong>2 spelers (Lucas — knie · Sem — astma)</strong></p>
+            </section>
+
+            <div class="actions">
+                <button type="button" class="btn btn-cancel">Annuleren</button>
+                <button type="button" class="btn btn-back">‹ Vorige</button>
+                <button type="button" class="btn btn-primary">Volgende ›</button>
+            </div>
+
+        </div>
+    </main>
+
+</div>
+
+</body>
+</html>
