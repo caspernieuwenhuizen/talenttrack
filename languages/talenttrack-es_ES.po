@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-05-30T22:25:38+00:00\n"
+"POT-Creation-Date: 2026-05-31T10:42:43+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -1154,7 +1154,7 @@ msgstr ""
 #: src/Infrastructure/REST/ActivitiesRestController.php:723
 #: src/Infrastructure/REST/ActivitiesRestController.php:874
 #: src/Infrastructure/REST/ActivitiesRestController.php:989
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:428
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:406
 #: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:71
 msgid "Invalid activity id."
 msgstr ""
@@ -14407,32 +14407,32 @@ msgstr ""
 msgid "Half must be 1 or 2."
 msgstr ""
 
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:167
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:174
 msgid "Substitution payload missing required fields."
 msgstr ""
 
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:185
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:198
 msgid "Goal-event payload missing required fields."
 msgstr ""
 
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:217
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:353
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:239
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:304
 msgid "Execution not found."
 msgstr ""
 
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:366
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:317
 msgid "Match must end (state pending_review) before it can be finalized."
 msgstr ""
 
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:414
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:392
 msgid "This match is finalized and no longer accepts edits."
 msgstr ""
 
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:432
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:410
 msgid "Plan this match first before running execution."
 msgstr ""
 
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:436
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:414
 msgid "Could not create the execution row."
 msgstr ""
 
