@@ -16341,6 +16341,10 @@ msgstr "Aanvallend"
 msgid "Verdedigend"
 msgstr "Verdedigend"
 
+#: src/Modules/Methodology/MethodologyEnums.php:90
+msgid "Omschakelen"
+msgstr "Omschakelen"
+
 #: src/Modules/Methodology/Admin/MethodologyPage.php:408
 msgid "No set pieces authored yet."
 msgstr "Nog geen standaardsituaties opgesteld."
