@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-05-31T21:26:56+00:00\n"
+"POT-Creation-Date: 2026-05-31T21:32:55+00:00\n"
 "PO-Revision-Date: 2026-04-25 10:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -1412,43 +1412,43 @@ msgstr "De categorie kon niet worden verwijderd."
 msgid "You can only request your own evaluations."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:427
+#: src/Infrastructure/REST/EvaluationsRestController.php:432
 msgid "Evaluation not found."
 msgstr "Evaluatie niet gevonden."
 
 # ===== v3.7.0 — #0019 Sprint 1 (session 1): REST expansion + flash scaffold =====
-#: src/Infrastructure/REST/EvaluationsRestController.php:437
+#: src/Infrastructure/REST/EvaluationsRestController.php:442
 msgid "Player and date are required."
 msgstr "Speler en datum zijn verplicht."
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:441
+#: src/Infrastructure/REST/EvaluationsRestController.php:446
 msgid "You can only evaluate players in your team."
 msgstr "U kunt alleen spelers in uw eigen team evalueren."
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:452
+#: src/Infrastructure/REST/EvaluationsRestController.php:457
 msgid "The evaluation could not be created."
 msgstr "De evaluatie kon niet worden aangemaakt."
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:466
+#: src/Infrastructure/REST/EvaluationsRestController.php:471
 msgid "The evaluation was saved but some ratings failed."
 msgstr "De evaluatie is opgeslagen, maar sommige beoordelingen zijn mislukt."
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:484
-#: src/Infrastructure/REST/EvaluationsRestController.php:556
+#: src/Infrastructure/REST/EvaluationsRestController.php:489
+#: src/Infrastructure/REST/EvaluationsRestController.php:561
 msgid "Invalid evaluation id."
 msgstr "Ongeldig evaluatie-id."
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:494
+#: src/Infrastructure/REST/EvaluationsRestController.php:499
 msgid "The evaluation could not be updated."
 msgstr "De evaluatie kon niet worden bijgewerkt."
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:536
+#: src/Infrastructure/REST/EvaluationsRestController.php:541
 msgid "The evaluation was updated but some ratings failed."
 msgstr ""
 "De evaluatie is bijgewerkt, maar sommige beoordelingen konden niet worden "
 "opgeslagen."
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:573
+#: src/Infrastructure/REST/EvaluationsRestController.php:578
 msgid "The evaluation could not be archived."
 msgstr "De evaluatie kon niet worden gearchiveerd."
 
@@ -13365,7 +13365,7 @@ msgstr ""
 #. translators: 1: opponent name, 2: home or away label
 #. translators: 1: opponent name, 2: match result
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:159
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:189
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:193
 #, php-format
 msgid "vs %1$s (%2$s)"
 msgstr "vs %1$s (%2$s)"
@@ -19282,8 +19282,8 @@ msgstr "Mijn team"
 #: src/Shared/CoreSurfaceRegistration.php:227
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:37
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:38
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:93
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:94
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:97
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:98
 msgid "My evaluations"
 msgstr "Mijn evaluaties"
 
@@ -31349,7 +31349,7 @@ msgstr ""
 "Door jou opgestelde evaluaties van de afgelopen 30 dagen, nieuwste eerst."
 
 # ===== v3.0.0 slice 3 — Me-group frontend views =====
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:110
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:114
 msgid ""
 "No evaluations yet. Your coaches will record them here as training and "
 "matches progress."
@@ -31357,25 +31357,25 @@ msgstr ""
 "Nog geen evaluaties. Je coaches noteren ze hier naarmate trainingen en "
 "wedstrijden vorderen."
 
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:119
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:123
 msgid "Evaluations, newest first"
 msgstr "Evaluaties, nieuwste eerst"
 
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:166
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:170
 msgid "No overall rating yet"
 msgstr "Nog geen totaalbeoordeling"
 
 #. translators: %s is the coach's display name
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:175
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:179
 #, php-format
 msgid "by %s"
 msgstr "door %s"
 
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:207
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:211
 msgid "Show detail"
 msgstr "Details tonen"
 
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:208
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:212
 msgid "Hide detail"
 msgstr "Details verbergen"
 

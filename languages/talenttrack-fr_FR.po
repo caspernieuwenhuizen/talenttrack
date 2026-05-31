@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-05-31T21:26:56+00:00\n"
+"POT-Creation-Date: 2026-05-31T21:32:55+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -1363,41 +1363,41 @@ msgstr ""
 msgid "You can only request your own evaluations."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:427
+#: src/Infrastructure/REST/EvaluationsRestController.php:432
 msgid "Evaluation not found."
 msgstr ""
 
 # ===== v3.7.0 — #0019 Sprint 1 (session 1): REST expansion + flash scaffold =====
-#: src/Infrastructure/REST/EvaluationsRestController.php:437
+#: src/Infrastructure/REST/EvaluationsRestController.php:442
 msgid "Player and date are required."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:441
+#: src/Infrastructure/REST/EvaluationsRestController.php:446
 msgid "You can only evaluate players in your team."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:452
+#: src/Infrastructure/REST/EvaluationsRestController.php:457
 msgid "The evaluation could not be created."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:466
+#: src/Infrastructure/REST/EvaluationsRestController.php:471
 msgid "The evaluation was saved but some ratings failed."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:484
-#: src/Infrastructure/REST/EvaluationsRestController.php:556
+#: src/Infrastructure/REST/EvaluationsRestController.php:489
+#: src/Infrastructure/REST/EvaluationsRestController.php:561
 msgid "Invalid evaluation id."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:494
+#: src/Infrastructure/REST/EvaluationsRestController.php:499
 msgid "The evaluation could not be updated."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:536
+#: src/Infrastructure/REST/EvaluationsRestController.php:541
 msgid "The evaluation was updated but some ratings failed."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:573
+#: src/Infrastructure/REST/EvaluationsRestController.php:578
 msgid "The evaluation could not be archived."
 msgstr ""
 
@@ -12598,7 +12598,7 @@ msgstr ""
 #. translators: 1: opponent name, 2: home or away label
 #. translators: 1: opponent name, 2: match result
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:159
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:189
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:193
 #, php-format
 msgid "vs %1$s (%2$s)"
 msgstr ""
@@ -18245,8 +18245,8 @@ msgstr "Mon équipe"
 #: src/Shared/CoreSurfaceRegistration.php:227
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:37
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:38
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:93
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:94
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:97
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:98
 msgid "My evaluations"
 msgstr ""
 
@@ -29703,31 +29703,31 @@ msgid "Evaluations you authored in the last 30 days, newest first."
 msgstr ""
 
 # ===== v3.0.0 slice 3 — Me-group frontend views =====
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:110
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:114
 msgid ""
 "No evaluations yet. Your coaches will record them here as training and "
 "matches progress."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:119
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:123
 msgid "Evaluations, newest first"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:166
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:170
 msgid "No overall rating yet"
 msgstr ""
 
 #. translators: %s is the coach's display name
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:175
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:179
 #, php-format
 msgid "by %s"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:207
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:211
 msgid "Show detail"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:208
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:212
 msgid "Hide detail"
 msgstr ""
 
