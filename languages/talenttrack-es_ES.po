@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-05-31T18:47:53+00:00\n"
+"POT-Creation-Date: 2026-05-31T19:03:17+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -150,7 +150,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendGoalsManageView.php:248
 #: src/Shared/Frontend/FrontendGoalsManageView.php:273
 #: src/Shared/Frontend/FrontendGoalsManageView.php:342
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:81
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:65
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:273
 #: src/Shared/Frontend/FrontendPlayersCsvImportView.php:116
 #: src/Shared/Frontend/FrontendRateCardView.php:116
@@ -922,7 +922,7 @@ msgid "Training"
 msgstr "Entrenamiento"
 
 #: src/Infrastructure/Query/LabelTranslator.php:195
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:83
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:67
 msgid "Match"
 msgstr "Partido"
 
@@ -1359,41 +1359,45 @@ msgstr ""
 msgid "The category could not be deleted."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:347
+#: src/Infrastructure/REST/EvaluationsRestController.php:87
+msgid "You can only request your own evaluations."
+msgstr ""
+
+#: src/Infrastructure/REST/EvaluationsRestController.php:427
 msgid "Evaluation not found."
 msgstr ""
 
 # ===== v3.7.0 — #0019 Sprint 1 (session 1): REST expansion + flash scaffold =====
-#: src/Infrastructure/REST/EvaluationsRestController.php:357
+#: src/Infrastructure/REST/EvaluationsRestController.php:437
 msgid "Player and date are required."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:361
+#: src/Infrastructure/REST/EvaluationsRestController.php:441
 msgid "You can only evaluate players in your team."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:372
+#: src/Infrastructure/REST/EvaluationsRestController.php:452
 msgid "The evaluation could not be created."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:386
+#: src/Infrastructure/REST/EvaluationsRestController.php:466
 msgid "The evaluation was saved but some ratings failed."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:404
-#: src/Infrastructure/REST/EvaluationsRestController.php:476
+#: src/Infrastructure/REST/EvaluationsRestController.php:484
+#: src/Infrastructure/REST/EvaluationsRestController.php:556
 msgid "Invalid evaluation id."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:414
+#: src/Infrastructure/REST/EvaluationsRestController.php:494
 msgid "The evaluation could not be updated."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:456
+#: src/Infrastructure/REST/EvaluationsRestController.php:536
 msgid "The evaluation was updated but some ratings failed."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:493
+#: src/Infrastructure/REST/EvaluationsRestController.php:573
 msgid "The evaluation could not be archived."
 msgstr ""
 
@@ -2029,7 +2033,7 @@ msgstr "Filtrar"
 #: src/Shared/Frontend/FrontendEvaluationsView.php:152
 #: src/Shared/Frontend/FrontendEvaluationsView.php:304
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:57
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:80
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:64
 #: src/Shared/Frontend/FrontendTeamDetailView.php:385
 #: src/Shared/Frontend/FrontendTestTrainingsView.php:65
 #: src/Shared/Frontend/FrontendTrialCaseView.php:379
@@ -2113,7 +2117,7 @@ msgstr "Título"
 #: src/Shared/Frontend/FrontendEvaluationsView.php:172
 #: src/Shared/Frontend/FrontendEvaluationsView.php:324
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:59
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:82
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:66
 #: src/Shared/Frontend/FrontendPeopleManageView.php:100
 #: src/Shared/Frontend/FrontendPeopleManageView.php:106
 #: src/Shared/Frontend/FrontendPeopleManageView.php:173
@@ -12568,7 +12572,7 @@ msgstr ""
 #. translators: 1: opponent name, 2: home or away label
 #. translators: 1: opponent name, 2: match result
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:159
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:205
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:189
 #, php-format
 msgid "vs %1$s (%2$s)"
 msgstr ""
@@ -17813,8 +17817,8 @@ msgstr "Mi equipo"
 #: src/Shared/CoreSurfaceRegistration.php:227
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:37
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:38
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:109
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:110
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:93
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:94
 msgid "My evaluations"
 msgstr ""
 
@@ -29253,42 +29257,42 @@ msgstr ""
 msgid "Sign in to see the evaluations you authored."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:70
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:54
 msgid ""
 "No evaluations authored in the last 30 days. New evaluations you record will "
 "appear here."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:75
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:59
 msgid "Evaluations you authored in the last 30 days, newest first."
 msgstr ""
 
 # ===== v3.0.0 slice 3 — Me-group frontend views =====
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:126
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:110
 msgid ""
 "No evaluations yet. Your coaches will record them here as training and "
 "matches progress."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:135
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:119
 msgid "Evaluations, newest first"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:182
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:166
 msgid "No overall rating yet"
 msgstr ""
 
 #. translators: %s is the coach's display name
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:191
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:175
 #, php-format
 msgid "by %s"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:223
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:207
 msgid "Show detail"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:224
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:208
 msgid "Hide detail"
 msgstr ""
 
