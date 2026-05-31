@@ -30,6 +30,16 @@ class PlayerDashboardView {
             TT_VERSION
         );
 
+        // #916 — dedicated mobile-first stylesheet for the overview grid.
+        // Replaces the inline desktop-first `<style>` + non-standard 820px
+        // breakpoint that used to live in the render body.
+        wp_enqueue_style(
+            'tt-frontend-player-dashboard',
+            TT_PLUGIN_URL . 'assets/css/frontend-player-dashboard.css',
+            [],
+            TT_VERSION
+        );
+
         echo '<div class="tt-tabs">';
         foreach ( [
             'overview'    => __( 'Overview', 'talenttrack' ),
@@ -44,10 +54,12 @@ class PlayerDashboardView {
         }
         echo '</div>';
 
-        // Overview — v2.15.0 layout: existing info on the left, FIFA-style
-        // card on the right. On narrow screens the card drops below.
+        // Overview — info column + FIFA-style card. Mobile-first layout
+        // lives in `assets/css/frontend-player-dashboard.css` (#916). Base
+        // CSS stacks single-column on phones; `min-width: 768px` upgrades
+        // to the two-column grid with card on the right.
         echo '<div class="tt-tab-content' . ( $view === 'overview' ? ' tt-tab-content-active' : '' ) . '" data-tab="overview">';
-        echo '<div class="tt-overview-grid" style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:30px;align-items:start;">';
+        echo '<div class="tt-overview-grid">';
         echo '<div class="tt-overview-main">';
         $this->renderPlayerCard( $player );
         $this->renderCustomFields( (int) $player->id );
@@ -56,17 +68,16 @@ class PlayerDashboardView {
             echo '<div class="tt-radar-wrap">' . QueryHelpers::radar_chart_svg( $radar['labels'], $radar['datasets'], (float) $max ) . '</div>';
         }
         echo '</div>';
-        echo '<div class="tt-overview-card" style="flex-shrink:0;">';
+        echo '<div class="tt-overview-card">';
         $_print_url_self = esc_url( add_query_arg( [ 'tt_print' => (int) $player->id ], remove_query_arg( [ 'tt_view' ] ) ) );
-        echo '<div style="text-align:right;margin-bottom:8px;">';
-        echo '<a href="' . $_print_url_self . '" target="_blank" rel="noopener" style="display:inline-block;padding:6px 12px;border:1px solid #c3c4c7;border-radius:4px;background:#fff;color:#1a1d21;font-size:12px;text-decoration:none;">';
+        echo '<div class="tt-overview-print-row">';
+        echo '<a href="' . $_print_url_self . '" target="_blank" rel="noopener" class="tt-overview-print-link">';
         echo esc_html__( '🖨 Print report', 'talenttrack' );
         echo '</a>';
         echo '</div>';
         \TT\Modules\Stats\Admin\PlayerCardView::renderCard( (int) $player->id, 'md', true );
         echo '</div>';
         echo '</div>';
-        echo '<style>@media (max-width:820px){.tt-overview-grid{grid-template-columns:minmax(0,1fr) !important;}.tt-overview-card{display:flex;justify-content:center;}}</style>';
         echo '</div>';
 
         // Mijn team — player's own card centered, plus roster of teammates

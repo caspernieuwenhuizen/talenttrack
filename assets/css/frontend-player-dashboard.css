@@ -1,0 +1,63 @@
+/* ---------------------------------------------------------------------------
+ * Player dashboard (frontend) — mobile-first overview layout.
+ *
+ * #916 — replaces the inline desktop-first `<style>` + non-standard 820px
+ * breakpoint that lived in PlayerDashboardView::render(). Base CSS targets
+ * ~360px (single column, card below player info). At ≥768px the layout
+ * upgrades to two columns (info left, FIFA card right) — the canonical
+ * tablet+ breakpoint per CLAUDE.md §2.
+ * --------------------------------------------------------------------------- */
+
+/* Single-column stack on phones (the base). */
+.tt-overview-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+    align-items: start;
+}
+
+.tt-overview-main {
+    min-width: 0;
+}
+
+/* The FIFA-style card centres itself on phones (no flex-shrink needed when
+ * it's stacked below); on desktop it sits to the right of the info column. */
+.tt-overview-card {
+    display: flex;
+    justify-content: center;
+}
+
+/* Print-report link — small text button above the FIFA card. Lives in a
+ * dedicated row so the link doesn't crash into the card or the info column. */
+.tt-overview-print-row {
+    text-align: right;
+    margin-bottom: 8px;
+}
+.tt-overview-print-link {
+    display: inline-block;
+    padding: 6px 12px;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    background: #fff;
+    color: #1a1d21;
+    font-size: 12px;
+    text-decoration: none;
+}
+.tt-overview-print-link:hover { background: #f5f6f7; }
+.tt-overview-print-link:focus-visible {
+    outline: 2px solid #1d7874;
+    outline-offset: 2px;
+}
+
+/* Tablet + desktop upgrade to two-column layout. 768px is the canonical
+ * breakpoint per CLAUDE.md §2 — replaces the legacy 820px max-width patch. */
+@media (min-width: 768px) {
+    .tt-overview-grid {
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 30px;
+    }
+    .tt-overview-card {
+        justify-content: flex-end;
+        flex-shrink: 0;
+    }
+}

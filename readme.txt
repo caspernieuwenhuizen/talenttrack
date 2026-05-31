@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.15.8
+Stable tag: 4.15.9
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.15.9 — Player dashboard: mobile-first CSS extraction (closes #916). Per CLAUDE.md §2 (mobile-first by default) — the player dashboard's overview tab was rendering with an inline desktop-first `<style>` block that started at the 2-column layout and patched downward via `@media (max-width: 820px)`. Two violations: (a) `max-width` downward patch instead of `min-width` upward scale, (b) `820px` is a non-standard breakpoint (canonical set is 480 / 768 / 1024). **What ships.** New stylesheet `assets/css/frontend-player-dashboard.css` enqueued via `wp_enqueue_style( 'tt-frontend-player-dashboard', … )` parallel to the existing `tt-frontend-mobile` enqueue. Base CSS targets ~360px (single column, FIFA card stacked below info), `@media (min-width: 768px)` upgrades to the two-column grid with the card on the right. The 820px breakpoint is gone; rounded to the canonical 768px. Inline `style=""` attributes on `.tt-overview-grid`, `.tt-overview-card`, the print-row container, and the print-link `<a>` all extracted into the stylesheet (`.tt-overview-print-row` + `.tt-overview-print-link` classes added). The render path stays the same shape — just emits class names instead of inline declarations. **Pilot impact.** Overview at 360px (player landing on a phone) no longer renders with desktop-first proportions. Tap targets and content order match the mobile-first contract every other surface follows. Patch bump. (closes #916) =
 
 = 4.15.8 — Methodology: bare back-links removed from principle + set-piece detail views (closes #919). Per CLAUDE.md §5 (two nav affordances per view, no more, no less), the bare `← Back to principles` / `← Back to set pieces` paragraph-links rendered above the title on `MethodologyView::renderPrincipleDetail()` + `renderSetPieceDetail()` are a third back affordance that duplicates the intent of the breadcrumb chain + `tt_back` pill. Removed both. The breadcrumb chain (`Dashboard › Methodology`) is already rendered via `FrontendBreadcrumbs::fromDashboard()` at the top of `MethodologyView::render()`, and the `tt_back` pill auto-renders above the chain when the URL carries a back-target (set by the index list's row links). To return to the list, the user clicks the appropriate tab — same pattern as every other view in TalentTrack. The wizard-absence half of the issue stays as documentation only (the methodology catalogue is editorial; no frontend "+ New" button exists yet — when one ships, it must be wizard-first per §3). Patch bump. (closes #919) =
 
