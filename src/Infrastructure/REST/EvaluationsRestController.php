@@ -41,6 +41,86 @@ class EvaluationsRestController {
             [ 'methods' => 'PUT',    'callback' => [ __CLASS__, 'update_eval' ], 'permission_callback' => function () { return current_user_can( 'tt_edit_evaluations' ); } ],
             [ 'methods' => 'DELETE', 'callback' => [ __CLASS__, 'delete_eval' ], 'permission_callback' => function () { return current_user_can( 'tt_edit_evaluations' ); } ],
         ]);
+
+        // #920 — "My evaluations" feed. Mirrors what
+        // FrontendMyEvaluationsView::renderForCoach renders. Defaults
+        // coach_id to the current user; an explicit coach_id query
+        // param is allowed only when the requester also holds
+        // tt_view_all_teams (so an HoD can audit their staff). Days
+        // capped to 90 to keep the query bounded. Gates on the
+        // `my_evaluations` matrix entity at self scope per #1060 — AC
+        // keeps this entity even though they lost the broader
+        // `evaluations` entity, so the self-scoped "what did I author?"
+        // feed remains operational for assistant coaches.
+        register_rest_route( self::NS, '/evaluations/recent', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'recent_for_coach' ],
+                'permission_callback' => function () {
+                    $uid = get_current_user_id();
+                    if ( $uid <= 0 ) return false;
+                    return \TT\Modules\Authorization\MatrixGate::can(
+                        $uid,
+                        'my_evaluations',
+                        'read',
+                        \TT\Modules\Authorization\MatrixGate::SCOPE_SELF
+                    );
+                },
+            ],
+        ]);
+    }
+
+    /**
+     * GET /evaluations/recent — coach's own-authored evaluations in a
+     * trailing window. Defaults: coach_id = current user, days = 30.
+     * Override coach_id only when the requester has tt_view_all_teams
+     * (HoD / academy admin audit path).
+     */
+    public static function recent_for_coach( \WP_REST_Request $r ): \WP_REST_Response {
+        $current_uid = get_current_user_id();
+        $requested   = isset( $r['coach_id'] ) ? absint( $r['coach_id'] ) : 0;
+        $coach_uid   = $current_uid;
+        if ( $requested > 0 && $requested !== $current_uid ) {
+            if ( ! current_user_can( 'tt_view_all_teams' ) ) {
+                return new \WP_REST_Response( [
+                    'code'    => 'forbidden_coach_override',
+                    'message' => __( 'You can only request your own evaluations.', 'talenttrack' ),
+                ], 403 );
+            }
+            $coach_uid = $requested;
+        }
+
+        $days = isset( $r['days'] ) ? absint( $r['days'] ) : 30;
+        if ( $days <= 0 )  $days = 30;
+        if ( $days > 90 )  $days = 90;
+
+        $rows = ( new \TT\Infrastructure\Evaluations\EvaluationsRepository() )
+            ->recentForCoach( $coach_uid, $days );
+
+        $out = [];
+        foreach ( $rows as $e ) {
+            $first = (string) ( $e->first_name ?? '' );
+            $last  = (string) ( $e->last_name  ?? '' );
+            $name  = trim( $first . ' ' . $last );
+            $out[] = [
+                'id'          => (int) $e->id,
+                'eval_date'   => (string) $e->eval_date,
+                'opponent'    => (string) ( $e->opponent ?? '' ),
+                'game_result' => (string) ( $e->game_result ?? '' ),
+                'type_name'   => (string) ( $e->type_name ?? '' ),
+                'player'      => [
+                    'first_name' => $first,
+                    'last_name'  => $last,
+                    'display'    => $name !== '' ? $name : '—',
+                ],
+            ];
+        }
+        return new \WP_REST_Response( [
+            'coach_id' => $coach_uid,
+            'days'     => $days,
+            'count'    => count( $out ),
+            'rows'     => $out,
+        ], 200 );
     }
 
     /** Whitelist of columns the `orderby` query param accepts (v3.110.106). */
