@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PRESET · Evaluations received per player</title>
+<link rel="stylesheet" href="../_preset_shell.css">
+</head>
+<body>
+<div class="mockup-bar"><strong>PRESET (player):</strong> Evaluations received, grouped by month.</div>
+<div class="frame">
+    <div class="url-strip">/?tt_view=<strong>explore</strong>&amp;kpi=evaluations_received&amp;filters[player_id]=42&amp;group=month&amp;date_from=2025-08-01&amp;date_to=2026-05-31</div>
+    <section class="explorer">
+        <div class="explorer__head"><h1 class="explorer__title">Evaluaties ontvangen — Lucas de Vries</h1><span class="explorer__hint">Explorer · KPI: evaluations_received</span></div>
+        <div class="exp-filters">
+            <span class="exp-filter"><strong>Speler</strong>Lucas de Vries</span>
+            <span class="exp-filter"><strong>Datum</strong>aug 2025 – mei 2026</span>
+            <span class="exp-grouping">Groep: maand</span>
+        </div>
+        <table class="exp-table">
+            <thead><tr><th>Maand</th><th class="num">Aantal</th><th>Coaches</th></tr></thead>
+            <tbody>
+                <tr><td>Sep 2025</td><td class="num">1</td><td>Casper</td></tr>
+                <tr><td>Okt 2025</td><td class="num">2</td><td>Casper, Pieter</td></tr>
+                <tr><td>Nov 2025</td><td class="num">1</td><td>Casper</td></tr>
+                <tr><td>Jan 2026</td><td class="num">1</td><td>Casper</td></tr>
+                <tr><td>Feb 2026</td><td class="num">1</td><td>Pieter</td></tr>
+                <tr><td>Mei 2026</td><td class="num">2</td><td>Casper, Marieke</td></tr>
+            </tbody>
+        </table>
+    </section>
+    <div class="preset-howto"><strong>Hoe deze preset werkt:</strong> de explorer opent met fact <code>evaluations_received</code>, gegroepeerd per maand, gefilterd op de huidige speler. Coach klikt vanaf player-detail "Evaluations" tab → "Explorer →" → landt hier.</div>
+</div>
+</body>
+</html>

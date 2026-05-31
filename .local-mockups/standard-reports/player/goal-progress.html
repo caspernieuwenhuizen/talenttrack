@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PRESET · Goal progress per player</title>
+<link rel="stylesheet" href="../_preset_shell.css">
+</head>
+<body>
+<div class="mockup-bar"><strong>PRESET (player):</strong> Goal progress, grouped by status, scoped to active priorities.</div>
+<div class="frame">
+    <div class="url-strip">/?tt_view=<strong>explore</strong>&amp;kpi=goal_progress&amp;filters[player_id]=42&amp;filters[priority]=high,medium&amp;group=status</div>
+    <section class="explorer">
+        <div class="explorer__head"><h1 class="explorer__title">Doelvoortgang — Lucas de Vries</h1><span class="explorer__hint">Explorer · KPI: goal_progress</span></div>
+        <div class="exp-filters">
+            <span class="exp-filter"><strong>Speler</strong>Lucas de Vries</span>
+            <span class="exp-filter"><strong>Prioriteit</strong>hoog, gemiddeld</span>
+            <span class="exp-grouping">Groep: status</span>
+        </div>
+        <table class="exp-table">
+            <thead><tr><th>Status</th><th class="num">Aantal</th><th>Voorbeelden</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Behaald</strong></td><td class="num">3</td><td>Voorzetnauwkeurigheid · 1 goal/wedstr.</td></tr>
+                <tr><td>In uitvoering</td><td class="num">2</td><td>Defensieve herstelacties · Heading</td></tr>
+                <tr><td>Niet gestart</td><td class="num">1</td><td>Communicatie op teamniveau</td></tr>
+                <tr><td>Vervallen</td><td class="num">0</td><td>—</td></tr>
+            </tbody>
+        </table>
+    </section>
+    <div class="preset-howto"><strong>Hoe deze preset werkt:</strong> explorer met fact <code>goal_progress</code>, gefilterd op huidige speler én priority ∈ {high, medium}, gegroepeerd op status. Bereikt vanaf player-detail "Goals" tab.</div>
+</div>
+</body>
+</html>
