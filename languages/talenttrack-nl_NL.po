@@ -23170,6 +23170,10 @@ msgstr ""
 msgid "Could not save the change. Try again."
 msgstr "Kan de wijziging niet opslaan. Probeer opnieuw."
 
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1103
+msgid "Could not identify the player. Try again or pick a different row."
+msgstr "Kon de speler niet identificeren. Probeer opnieuw of kies een andere rij."
+
 #. translators: %d = age in years
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1104
 #, php-format

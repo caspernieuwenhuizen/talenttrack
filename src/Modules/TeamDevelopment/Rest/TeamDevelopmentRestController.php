@@ -799,8 +799,31 @@ class TeamDevelopmentRestController {
         // `player_id` shape. Documented in docs/rest-api.md; the shim
         // stays at the REST boundary so the in-repo callers + storage
         // layer use the new ref shape uniformly.
-        $ref = self::coerceAssignmentRef( $r );
-        $repo->setAssignment( $id, $slot, $ref, $tier );
+        //
+        // #1054 — coerceAssignmentRef now throws on a malformed player
+        // ref (caller meant to set a player but supplied no valid id).
+        // Previously the malformed input was silently coerced to null
+        // → setAssignment deleted the slot → endpoint returned 200 OK
+        // → JS reloaded → slot stayed empty. Now we 400 instead so the
+        // client gets a real error.
+        try {
+            $ref = self::coerceAssignmentRef( $r );
+        } catch ( \InvalidArgumentException $e ) {
+            return RestResponse::error( 'bad_ref', $e->getMessage(), 400 );
+        }
+        $saved = $repo->setAssignment( $id, $slot, $ref, $tier );
+        if ( ! $saved ) {
+            // #1054 — setAssignment now reports DB-layer failures (insert
+            // / update / delete returning false). Surface as 500 instead
+            // of silently lying to the client. The last_error helps the
+            // operator diagnose the underlying SQL issue.
+            $hint = $repo->lastError();
+            return RestResponse::error(
+                'save_failed',
+                $hint !== '' ? $hint : __( 'Failed to save the assignment.', 'talenttrack' ),
+                500
+            );
+        }
 
         // Recompute chemistry on the new primary lineup so the editor
         // can refresh the score + lines without round-tripping the get.
@@ -828,8 +851,15 @@ class TeamDevelopmentRestController {
      *   { ref: { kind: 'player', player_id: 123 } }
      *   { ref: { kind: 'guest',  name: '…', position: '…' } }
      *   { ref: { kind: 'custom', label: '…' } }
-     *   { player_id: 123 }                  — legacy
+     *   { ref: null }                       — intentional clear
+     *   { player_id: 123 }                  — legacy set
      *   { player_id: null }                 — legacy clear
+     *
+     * #1054 — throws \InvalidArgumentException when the caller meant to
+     * set a record (sent `kind`) but supplied no usable identifier. The
+     * controller turns that into a 400 instead of silently coercing to
+     * a clear (which previously presented as "I picked a player but it
+     * vanished").
      *
      * @return array<string,mixed>|null
      */
@@ -838,12 +868,26 @@ class TeamDevelopmentRestController {
         if ( is_array( $ref ) && isset( $ref['kind'] ) ) {
             $kind = (string) $ref['kind'];
             if ( $kind === 'player' ) {
-                $pid = isset( $ref['player_id'] ) ? absint( $ref['player_id'] ) : 0;
-                return $pid > 0 ? [ 'kind' => 'player', 'player_id' => $pid ] : null;
+                if ( ! isset( $ref['player_id'] ) || $ref['player_id'] === null || ! is_numeric( $ref['player_id'] ) ) {
+                    throw new \InvalidArgumentException(
+                        __( 'ref.player_id is missing or non-numeric for a player assignment.', 'talenttrack' )
+                    );
+                }
+                $pid = absint( $ref['player_id'] );
+                if ( $pid <= 0 ) {
+                    throw new \InvalidArgumentException(
+                        __( 'ref.player_id must be a positive integer for a player assignment.', 'talenttrack' )
+                    );
+                }
+                return [ 'kind' => 'player', 'player_id' => $pid ];
             }
             if ( $kind === 'guest' ) {
                 $name = trim( (string) ( $ref['name'] ?? '' ) );
-                if ( $name === '' ) return null;
+                if ( $name === '' ) {
+                    throw new \InvalidArgumentException(
+                        __( 'ref.name is required for a guest assignment.', 'talenttrack' )
+                    );
+                }
                 return [
                     'kind'     => 'guest',
                     'name'     => $name,
@@ -852,9 +896,20 @@ class TeamDevelopmentRestController {
             }
             if ( $kind === 'custom' ) {
                 $label = trim( (string) ( $ref['label'] ?? '' ) );
-                return $label !== '' ? [ 'kind' => 'custom', 'label' => $label ] : null;
+                if ( $label === '' ) {
+                    throw new \InvalidArgumentException(
+                        __( 'ref.label is required for a custom assignment.', 'talenttrack' )
+                    );
+                }
+                return [ 'kind' => 'custom', 'label' => $label ];
             }
-            return null;
+            throw new \InvalidArgumentException(
+                sprintf(
+                    /* translators: %s = unknown ref kind */
+                    __( 'Unknown ref.kind: %s', 'talenttrack' ),
+                    $kind
+                )
+            );
         }
         // Legacy flat shape — `player_id: N` or `player_id: null`.
         if ( ! isset( $r['player_id'] ) ) return null;
