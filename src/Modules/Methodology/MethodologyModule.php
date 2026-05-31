@@ -44,6 +44,11 @@ class MethodologyModule implements ModuleInterface {
             Admin\FootballActionsPage::init();
             Admin\FootballActionEditPage::init();
         }
+
+        // #1064 — printable methodology reference card. Coach prints
+        // once per season, laminates, brings to every 1:1. Up to 3
+        // pages with selectable inclusion via the `sections` query.
+        Print\MethodologyReferencePrintRouter::init();
     }
 
     /**
