@@ -283,8 +283,8 @@ class MatchPrepPrintRouter {
                 <tr><th><?php esc_html_e( 'General', 'talenttrack' ); ?></th><td><?php echo esc_html( (string) ( $prep->goals_general ?? '' ) ); ?></td></tr>
                 <tr><th><?php esc_html_e( 'Attacking', 'talenttrack' ); ?></th><td><?php echo esc_html( (string) ( $prep->goals_attack ?? '' ) ); ?></td></tr>
                 <tr><th><?php esc_html_e( 'Defending', 'talenttrack' ); ?></th><td><?php echo esc_html( (string) ( $prep->goals_defend ?? '' ) ); ?></td></tr>
-                <tr><th><?php esc_html_e( 'Set pieces (atk)', 'talenttrack' ); ?></th><td><?php echo esc_html( (string) ( $prep->goals_attack_setpiece ?? '' ) ); ?></td></tr>
-                <tr><th><?php esc_html_e( 'Set pieces (def)', 'talenttrack' ); ?></th><td><?php echo esc_html( (string) ( $prep->goals_defend_setpiece ?? '' ) ); ?></td></tr>
+                <tr><th><?php esc_html_e( 'Set pieces (attack)', 'talenttrack' ); ?></th><td><?php echo esc_html( (string) ( $prep->goals_attack_setpiece ?? '' ) ); ?></td></tr>
+                <tr><th><?php esc_html_e( 'Set pieces (defend)', 'talenttrack' ); ?></th><td><?php echo esc_html( (string) ( $prep->goals_defend_setpiece ?? '' ) ); ?></td></tr>
             </table>
             <?php if ( ! empty( $absent ) ) : ?>
                 <h2><?php esc_html_e( 'Unavailable', 'talenttrack' ); ?></h2>
