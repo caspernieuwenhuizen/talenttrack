@@ -216,6 +216,16 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         // v3.110.53 — header-actions slot for + New activity.
         $list_base_url = remove_query_arg( [ 'action', 'id' ] );
         $page_actions = [];
+        if ( current_user_can( 'tt_view_activities' ) ) {
+            // #1047 — entry point to the dedicated match-executions
+            // listing surface. Sits left of the primary "+ New
+            // activity" CTA so the retrospective surface is reachable
+            // without diving into individual activity-detail pages.
+            $page_actions[] = [
+                'label' => __( 'Match executions', 'talenttrack' ),
+                'href'  => add_query_arg( [ 'tt_view' => 'match-executions' ], $list_base_url ),
+            ];
+        }
         if ( current_user_can( 'tt_edit_activities' ) ) {
             $flat_url = add_query_arg( [ 'tt_view' => 'activities', 'action' => 'new' ], $list_base_url );
             $page_actions[] = [

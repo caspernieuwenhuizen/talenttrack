@@ -53,6 +53,7 @@ final class BackLabelResolver {
             case 'attendance-report-team':    return __( 'Back to Team attendance', 'talenttrack' );
             case 'attendance-report-player':  return __( 'Back to Player attendance', 'talenttrack' );
             case 'minutes-report-team':       return __( 'Back to Minutes played', 'talenttrack' );
+            case 'match-executions':          return __( 'Back to Match executions', 'talenttrack' );
             case 'people':          return __( 'Back to People', 'talenttrack' );
             case 'activities':      return __( 'Back to Activities', 'talenttrack' );
             case 'goals':           return __( 'Back to Goals', 'talenttrack' );
