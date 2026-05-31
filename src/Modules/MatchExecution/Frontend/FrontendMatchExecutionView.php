@@ -306,6 +306,117 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                 </section>
             <?php endif; ?>
 
+            <?php // #1049 — late-event affordances. Two collapsible
+                  // panels in PENDING_REVIEW for adding the goal or
+                  // sub the coach forgot to tap during the live match.
+                  // Existing endpoints accept the writes; this is
+                  // purely the view affordance + minute validator.
+                  ?>
+            <?php if ( $state === MatchExecutionState::PENDING_REVIEW ) :
+                $half_length    = (int) $prep->half_length_minutes;
+                $minute_max     = $half_length + 10; // stoppage allowance per locked default.
+                $picker_players = $players_by_id;
+                ksort( $picker_players );
+                ?>
+                <section class="tt-mexec-late-event" aria-label="<?php esc_attr_e( 'Add late events', 'talenttrack' ); ?>">
+                    <header class="tt-mexec-late-event-head">
+                        <h2 class="tt-mexec-late-event-title">
+                            <?php esc_html_e( 'Add late events', 'talenttrack' ); ?>
+                        </h2>
+                        <span class="tt-mexec-late-event-hint">
+                            <?php
+                            printf(
+                                /* translators: %d = max minute accepted (half length + 10 stoppage) */
+                                esc_html__( 'Minute 0–%d', 'talenttrack' ),
+                                (int) $minute_max
+                            );
+                            ?>
+                        </span>
+                    </header>
+
+                    <details class="tt-mexec-late-event-panel">
+                        <summary class="tt-mexec-late-event-summary">
+                            <?php esc_html_e( '+ Add late goal', 'talenttrack' ); ?>
+                        </summary>
+                        <form class="tt-mexec-late-event-form" data-tt-mexec-late-goal-form>
+                            <label class="tt-mexec-late-event-field">
+                                <span><?php esc_html_e( 'Player', 'talenttrack' ); ?></span>
+                                <select name="player_id" required>
+                                    <option value=""><?php esc_html_e( '— pick player —', 'talenttrack' ); ?></option>
+                                    <?php foreach ( $picker_players as $pid => $pl ) : ?>
+                                        <option value="<?php echo (int) $pid; ?>">
+                                            <?php echo esc_html( QueryHelpers::player_display_name( $pl ) ); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </label>
+                            <label class="tt-mexec-late-event-field">
+                                <span><?php esc_html_e( 'Half', 'talenttrack' ); ?></span>
+                                <select name="half" required>
+                                    <option value="1"><?php esc_html_e( '1st half', 'talenttrack' ); ?></option>
+                                    <option value="2"><?php esc_html_e( '2nd half', 'talenttrack' ); ?></option>
+                                </select>
+                            </label>
+                            <label class="tt-mexec-late-event-field">
+                                <span><?php esc_html_e( 'Minute', 'talenttrack' ); ?></span>
+                                <input type="number" inputmode="numeric" name="minute"
+                                       min="0" max="<?php echo (int) $minute_max; ?>"
+                                       placeholder="<?php echo esc_attr( (string) $minute_max ); ?>" required />
+                            </label>
+                            <button type="submit" class="tt-mexec-late-event-submit">
+                                <?php esc_html_e( 'Log goal', 'talenttrack' ); ?>
+                            </button>
+                        </form>
+                    </details>
+
+                    <details class="tt-mexec-late-event-panel">
+                        <summary class="tt-mexec-late-event-summary">
+                            <?php esc_html_e( '+ Add late substitution', 'talenttrack' ); ?>
+                        </summary>
+                        <form class="tt-mexec-late-event-form" data-tt-mexec-late-sub-form>
+                            <label class="tt-mexec-late-event-field">
+                                <span><?php esc_html_e( 'Off (came off)', 'talenttrack' ); ?></span>
+                                <select name="player_off" required>
+                                    <option value=""><?php esc_html_e( '— pick player —', 'talenttrack' ); ?></option>
+                                    <?php foreach ( $picker_players as $pid => $pl ) : ?>
+                                        <option value="<?php echo (int) $pid; ?>">
+                                            <?php echo esc_html( QueryHelpers::player_display_name( $pl ) ); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </label>
+                            <label class="tt-mexec-late-event-field">
+                                <span><?php esc_html_e( 'On (came on)', 'talenttrack' ); ?></span>
+                                <select name="player_on" required>
+                                    <option value=""><?php esc_html_e( '— pick player —', 'talenttrack' ); ?></option>
+                                    <?php foreach ( $picker_players as $pid => $pl ) : ?>
+                                        <option value="<?php echo (int) $pid; ?>">
+                                            <?php echo esc_html( QueryHelpers::player_display_name( $pl ) ); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </label>
+                            <label class="tt-mexec-late-event-field">
+                                <span><?php esc_html_e( 'Half', 'talenttrack' ); ?></span>
+                                <select name="half" required>
+                                    <option value="1"><?php esc_html_e( '1st half', 'talenttrack' ); ?></option>
+                                    <option value="2"><?php esc_html_e( '2nd half', 'talenttrack' ); ?></option>
+                                </select>
+                            </label>
+                            <label class="tt-mexec-late-event-field">
+                                <span><?php esc_html_e( 'Minute', 'talenttrack' ); ?></span>
+                                <input type="number" inputmode="numeric" name="minute"
+                                       min="0" max="<?php echo (int) $minute_max; ?>"
+                                       placeholder="<?php echo esc_attr( (string) $minute_max ); ?>" required />
+                            </label>
+                            <button type="submit" class="tt-mexec-late-event-submit">
+                                <?php esc_html_e( 'Log substitution', 'talenttrack' ); ?>
+                            </button>
+                        </form>
+                    </details>
+                </section>
+            <?php endif; ?>
+
             <footer class="tt-mexec-footer">
                 <div class="tt-mexec-footer-inner">
                     <button type="button" class="tt-mexec-footer-cta" data-tt-mexec-state-action data-action="start-match"><?php esc_html_e( 'Start match', 'talenttrack' ); ?></button>
@@ -387,39 +498,205 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                 color: #5b6e75;
                 line-height: 1.4;
             }
+            /* #1049 — late-event affordances. Two collapsible panels
+             * for adding retroactive goals/subs the coach forgot to
+             * tap live. Dashed warn-border so it reads as a corrective
+             * surface, not a primary action. */
+            .tt-mexec-late-event {
+                margin: 12px 0;
+                padding: 12px 14px;
+                border: 2px dashed #c75c1f;
+                border-radius: 8px;
+                background: #fff;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            .tt-mexec-late-event-head {
+                display: flex;
+                align-items: baseline;
+                justify-content: space-between;
+                gap: 8px;
+            }
+            .tt-mexec-late-event-title {
+                margin: 0;
+                font-size: 13px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.4px;
+                color: #c75c1f;
+            }
+            .tt-mexec-late-event-hint {
+                font-size: 11px;
+                color: #5b6e75;
+            }
+            .tt-mexec-late-event-panel {
+                border: 1px solid #f5dba0;
+                background: #fff8e1;
+                border-radius: 6px;
+                padding: 0;
+            }
+            .tt-mexec-late-event-summary {
+                padding: 12px 14px;
+                cursor: pointer;
+                font-weight: 600;
+                color: #8a5e0a;
+                min-height: 48px;
+                display: flex;
+                align-items: center;
+                list-style: none;
+            }
+            .tt-mexec-late-event-summary::-webkit-details-marker { display: none; }
+            .tt-mexec-late-event-panel[open] .tt-mexec-late-event-summary {
+                border-bottom: 1px solid #f5dba0;
+            }
+            .tt-mexec-late-event-form {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                padding: 12px 14px;
+            }
+            .tt-mexec-late-event-field {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+            }
+            .tt-mexec-late-event-field > span {
+                font-size: 11px;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 0.4px;
+                color: #5b6e75;
+            }
+            .tt-mexec-late-event-field select,
+            .tt-mexec-late-event-field input[type="number"] {
+                font: inherit;
+                font-size: 16px;
+                padding: 10px 12px;
+                border: 1px solid #d6dadd;
+                border-radius: 6px;
+                background: #fff;
+                color: #1a1d21;
+                min-height: 48px;
+                width: 100%;
+            }
+            .tt-mexec-late-event-submit {
+                margin-top: 4px;
+                min-height: 48px;
+                padding: 12px 16px;
+                border-radius: 6px;
+                border: 1.5px solid #8a5e0a;
+                background: #8a5e0a;
+                color: #fff;
+                font: inherit;
+                font-size: 14px;
+                font-weight: 700;
+                cursor: pointer;
+            }
+            .tt-mexec-late-event-submit:hover { background: #6e4a08; border-color: #6e4a08; }
+            .tt-mexec-late-event-submit:disabled { background: #b0b3b6; border-color: #b0b3b6; cursor: not-allowed; }
         </style>
         <script>
         (function () {
-            var btn = document.querySelector( '[data-tt-mexec-finalize]' );
-            if ( ! btn ) return;
             var cfg = window.TT_MATCH_EXECUTION || {};
-            var confirmMsg = <?php echo wp_json_encode( __( 'Finalize this match? Goals, subs, and score cannot be edited after.', 'talenttrack' ) ); ?>;
-            var errPrefix = <?php echo wp_json_encode( __( 'Could not finalize:', 'talenttrack' ) ); ?>;
-            btn.addEventListener( 'click', function () {
-                if ( ! window.confirm( confirmMsg ) ) return;
-                btn.disabled = true;
-                fetch( cfg.rest_url + 'finalize', {
-                    method: 'POST',
-                    credentials: 'same-origin',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-WP-Nonce': cfg.rest_nonce
-                    },
-                    body: '{}'
-                } )
-                    .then( function ( r ) {
-                        if ( r.ok ) { window.location.reload(); return; }
-                        return r.json().then( function ( j ) {
-                            btn.disabled = false;
-                            var msg = ( j && j.errors && j.errors[0] && j.errors[0].message ) || ( errPrefix + ' ' + r.status );
-                            window.alert( msg );
-                        } );
+            var errPrefix = <?php echo wp_json_encode( __( 'Could not save:', 'talenttrack' ) ); ?>;
+
+            // Finalize button.
+            var finalizeBtn = document.querySelector( '[data-tt-mexec-finalize]' );
+            if ( finalizeBtn ) {
+                var confirmMsg = <?php echo wp_json_encode( __( 'Finalize this match? Goals, subs, and score cannot be edited after.', 'talenttrack' ) ); ?>;
+                var finErrPrefix = <?php echo wp_json_encode( __( 'Could not finalize:', 'talenttrack' ) ); ?>;
+                finalizeBtn.addEventListener( 'click', function () {
+                    if ( ! window.confirm( confirmMsg ) ) return;
+                    finalizeBtn.disabled = true;
+                    fetch( cfg.rest_url + 'finalize', {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': cfg.rest_nonce },
+                        body: '{}'
                     } )
-                    .catch( function () {
-                        btn.disabled = false;
-                        window.alert( errPrefix + ' network error.' );
-                    } );
-            } );
+                        .then( function ( r ) {
+                            if ( r.ok ) { window.location.reload(); return; }
+                            return r.json().then( function ( j ) {
+                                finalizeBtn.disabled = false;
+                                var msg = ( j && j.errors && j.errors[0] && j.errors[0].message ) || ( finErrPrefix + ' ' + r.status );
+                                window.alert( msg );
+                            } );
+                        } )
+                        .catch( function () {
+                            finalizeBtn.disabled = false;
+                            window.alert( finErrPrefix + ' network error.' );
+                        } );
+                } );
+            }
+
+            // #1049 — late-event UUIDs are client-generated so the
+            // existing offline-queue replay path doesn't double-insert.
+            function uuid() {
+                if ( window.crypto && crypto.randomUUID ) return crypto.randomUUID();
+                return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace( /[xy]/g, function ( c ) {
+                    var r = ( Math.random() * 16 ) | 0;
+                    var v = c === 'x' ? r : ( r & 0x3 ) | 0x8;
+                    return v.toString( 16 );
+                } );
+            }
+
+            function wireLateForm( form, endpoint, build ) {
+                if ( ! form ) return;
+                form.addEventListener( 'submit', function ( e ) {
+                    e.preventDefault();
+                    var body = build( form );
+                    if ( ! body ) return;
+                    var btn = form.querySelector( '.tt-mexec-late-event-submit' );
+                    if ( btn ) btn.disabled = true;
+                    fetch( cfg.rest_url + endpoint, {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': cfg.rest_nonce },
+                        body: JSON.stringify( body )
+                    } )
+                        .then( function ( r ) {
+                            if ( r.ok ) { window.location.reload(); return; }
+                            return r.json().then( function ( j ) {
+                                if ( btn ) btn.disabled = false;
+                                var msg = ( j && j.errors && j.errors[0] && j.errors[0].message ) || ( errPrefix + ' ' + r.status );
+                                window.alert( msg );
+                            } );
+                        } )
+                        .catch( function () {
+                            if ( btn ) btn.disabled = false;
+                            window.alert( errPrefix + ' network error.' );
+                        } );
+                } );
+            }
+
+            wireLateForm(
+                document.querySelector( '[data-tt-mexec-late-goal-form]' ),
+                'goal-event',
+                function ( f ) {
+                    var pid = parseInt( f.querySelector( '[name="player_id"]' ).value, 10 ) || 0;
+                    var half = parseInt( f.querySelector( '[name="half"]' ).value, 10 ) || 0;
+                    var minute = parseInt( f.querySelector( '[name="minute"]' ).value, 10 );
+                    if ( pid <= 0 || ( half !== 1 && half !== 2 ) ) return null;
+                    if ( isNaN( minute ) || minute < 0 ) return null;
+                    return { event_uuid: uuid(), player_id: pid, half: half, minute: minute };
+                }
+            );
+
+            wireLateForm(
+                document.querySelector( '[data-tt-mexec-late-sub-form]' ),
+                'substitution',
+                function ( f ) {
+                    var off = parseInt( f.querySelector( '[name="player_off"]' ).value, 10 ) || 0;
+                    var on  = parseInt( f.querySelector( '[name="player_on"]' ).value, 10 ) || 0;
+                    var half = parseInt( f.querySelector( '[name="half"]' ).value, 10 ) || 0;
+                    var minute = parseInt( f.querySelector( '[name="minute"]' ).value, 10 );
+                    if ( off <= 0 || on <= 0 || off === on ) return null;
+                    if ( half !== 1 && half !== 2 ) return null;
+                    if ( isNaN( minute ) || minute < 0 ) return null;
+                    return { event_uuid: uuid(), half: half, minute: minute, player_off: off, player_on: on };
+                }
+            );
         })();
         </script>
         <?php
