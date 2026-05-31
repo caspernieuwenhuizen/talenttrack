@@ -34,8 +34,9 @@ final class MethodologyEnums {
     public const SET_PIECE_PENALTY          = 'penalty';
     public const SET_PIECE_THROW_IN         = 'throw_in';
 
-    public const SIDE_ATTACKING = 'attacking';
-    public const SIDE_DEFENDING = 'defending';
+    public const SIDE_ATTACKING  = 'attacking';
+    public const SIDE_DEFENDING  = 'defending';
+    public const SIDE_TRANSITION = 'transition';
 
     public const STYLE_AANVALLEND_POSITIESPEL  = 'aanvallend_positiespel';
     public const STYLE_DOMINANT_BALBEZIT       = 'dominant_balbezit';
@@ -84,8 +85,9 @@ final class MethodologyEnums {
     /** @return array<string,string> */
     public static function sides(): array {
         return [
-            self::SIDE_ATTACKING => __( 'Aanvallend', 'talenttrack' ),
-            self::SIDE_DEFENDING => __( 'Verdedigend', 'talenttrack' ),
+            self::SIDE_ATTACKING  => __( 'Aanvallend',  'talenttrack' ),
+            self::SIDE_DEFENDING  => __( 'Verdedigend', 'talenttrack' ),
+            self::SIDE_TRANSITION => __( 'Omschakelen', 'talenttrack' ),
         ];
     }
 
