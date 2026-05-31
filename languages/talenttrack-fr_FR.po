@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-05-31T10:56:23+00:00\n"
+"POT-Creation-Date: 2026-05-31T18:45:09+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -1962,7 +1962,7 @@ msgstr "Ajouter"
 #: src/Modules/People/Admin/PeoplePage.php:468
 #: src/Modules/Players/Admin/PlayersPage.php:78
 #: src/Modules/Players/Frontend/FrontendPlayerStatusMethodologyView.php:46
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1111
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1112
 #: src/Modules/Teams/Admin/TeamsPage.php:40
 #: src/Shared/Frontend/DashboardShortcode.php:80
 #: src/Shared/Frontend/FrontendWizardsAdminView.php:40
@@ -2288,7 +2288,7 @@ msgstr ""
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:84
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:231
 #: src/Modules/Methodology/Admin/MethodologyPage.php:244
-#: src/Modules/Methodology/Frontend/MethodologyView.php:349
+#: src/Modules/Methodology/Frontend/MethodologyView.php:353
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:148
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:158
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:243
@@ -2523,7 +2523,7 @@ msgstr "— Tous —"
 #: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:124
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:163
 #: src/Modules/Methodology/Admin/MethodologyPage.php:497
-#: src/Modules/Methodology/Frontend/MethodologyView.php:525
+#: src/Modules/Methodology/Frontend/MethodologyView.php:533
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:93
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:305
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:275
@@ -4224,7 +4224,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:137
 #: src/Modules/Authorization/Admin/RolesPage.php:80
 #: src/Modules/Methodology/Admin/MethodologyPage.php:356
-#: src/Modules/Methodology/Frontend/MethodologyView.php:393
+#: src/Modules/Methodology/Frontend/MethodologyView.php:397
 #: src/Modules/People/Admin/PeoplePage.php:120
 #: src/Modules/People/Admin/PeoplePage.php:336
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:120
@@ -9866,7 +9866,7 @@ msgstr ""
 
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:161
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:677
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1110
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1111
 #: src/Shared/Frontend/FrontendConfigurationView.php:434
 #: src/Shared/Frontend/FrontendConfigurationView.php:823
 #: src/Shared/Frontend/FrontendConfigurationView.php:1011
@@ -14651,7 +14651,7 @@ msgid "Free kick right (cross)"
 msgstr ""
 
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:142
-#: src/Modules/Methodology/MethodologyEnums.php:79
+#: src/Modules/Methodology/MethodologyEnums.php:80
 msgid "Penalty"
 msgstr ""
 
@@ -15373,22 +15373,21 @@ msgid "Principle not found."
 msgstr ""
 
 #: src/Modules/Methodology/Admin/MethodologyPage.php:220
-#: src/Modules/Methodology/Frontend/MethodologyView.php:332
 msgid "Back to principles"
 msgstr ""
 
 #: src/Modules/Methodology/Admin/MethodologyPage.php:225
-#: src/Modules/Methodology/Frontend/MethodologyView.php:335
+#: src/Modules/Methodology/Frontend/MethodologyView.php:339
 msgid "(untitled)"
 msgstr ""
 
 #: src/Modules/Methodology/Admin/MethodologyPage.php:239
-#: src/Modules/Methodology/Frontend/MethodologyView.php:345
+#: src/Modules/Methodology/Frontend/MethodologyView.php:349
 msgid "Toelichting"
 msgstr ""
 
 #: src/Modules/Methodology/Admin/MethodologyPage.php:251
-#: src/Modules/Methodology/Frontend/MethodologyView.php:355
+#: src/Modules/Methodology/Frontend/MethodologyView.php:359
 msgid "Per linie"
 msgstr ""
 
@@ -15427,14 +15426,14 @@ msgid "#"
 msgstr ""
 
 #: src/Modules/Methodology/Admin/MethodologyPage.php:385
-#: src/Modules/Methodology/Frontend/MethodologyView.php:414
-#: src/Modules/Methodology/MethodologyEnums.php:87
+#: src/Modules/Methodology/Frontend/MethodologyView.php:418
+#: src/Modules/Methodology/MethodologyEnums.php:88
 msgid "Aanvallend"
 msgstr ""
 
 #: src/Modules/Methodology/Admin/MethodologyPage.php:389
-#: src/Modules/Methodology/Frontend/MethodologyView.php:418
-#: src/Modules/Methodology/MethodologyEnums.php:88
+#: src/Modules/Methodology/Frontend/MethodologyView.php:422
+#: src/Modules/Methodology/MethodologyEnums.php:89
 msgid "Verdedigend"
 msgstr ""
 
@@ -15456,22 +15455,22 @@ msgid "Define vision"
 msgstr ""
 
 #: src/Modules/Methodology/Admin/MethodologyPage.php:479
-#: src/Modules/Methodology/Frontend/MethodologyView.php:515
+#: src/Modules/Methodology/Frontend/MethodologyView.php:523
 msgid "Speelwijze"
 msgstr ""
 
 #: src/Modules/Methodology/Admin/MethodologyPage.php:480
-#: src/Modules/Methodology/Frontend/MethodologyView.php:516
+#: src/Modules/Methodology/Frontend/MethodologyView.php:524
 msgid "(not yet articulated)"
 msgstr ""
 
 #: src/Modules/Methodology/Admin/MethodologyPage.php:484
-#: src/Modules/Methodology/Frontend/MethodologyView.php:518
+#: src/Modules/Methodology/Frontend/MethodologyView.php:526
 msgid "Style of play:"
 msgstr ""
 
 #: src/Modules/Methodology/Admin/MethodologyPage.php:490
-#: src/Modules/Methodology/Frontend/MethodologyView.php:521
+#: src/Modules/Methodology/Frontend/MethodologyView.php:529
 msgid "Belangrijke eigenschappen"
 msgstr ""
 
@@ -15714,7 +15713,6 @@ msgid "Add set piece"
 msgstr ""
 
 #: src/Modules/Methodology/Admin/SetPieceEditPage.php:60
-#: src/Modules/Methodology/Frontend/MethodologyView.php:480
 msgid "Back to set pieces"
 msgstr ""
 
@@ -15797,119 +15795,123 @@ msgstr ""
 msgid "No principles available."
 msgstr ""
 
-#: src/Modules/Methodology/Frontend/MethodologyView.php:380
+#: src/Modules/Methodology/Frontend/MethodologyView.php:384
 msgid "No formations available."
 msgstr ""
 
-#: src/Modules/Methodology/Frontend/MethodologyView.php:411
+#: src/Modules/Methodology/Frontend/MethodologyView.php:415
 msgid "tasks"
 msgstr ""
 
-#: src/Modules/Methodology/Frontend/MethodologyView.php:439
+#: src/Modules/Methodology/Frontend/MethodologyView.php:443
 msgid "No set pieces available."
 msgstr ""
 
-#: src/Modules/Methodology/Frontend/MethodologyView.php:473
+#: src/Modules/Methodology/Frontend/MethodologyView.php:477
 msgid "Set piece not found."
 msgstr ""
 
-#: src/Modules/Methodology/Frontend/MethodologyView.php:504
+#: src/Modules/Methodology/Frontend/MethodologyView.php:512
 msgid "Vision not yet recorded."
 msgstr ""
 
-#: src/Modules/Methodology/Frontend/MethodologyView.php:542
+#: src/Modules/Methodology/Frontend/MethodologyView.php:550
 msgid "No football actions available."
 msgstr ""
 
-#: src/Modules/Methodology/MethodologyEnums.php:54
+#: src/Modules/Methodology/MethodologyEnums.php:55
 msgid "Aanvallen"
 msgstr ""
 
-#: src/Modules/Methodology/MethodologyEnums.php:55
+#: src/Modules/Methodology/MethodologyEnums.php:56
 msgid "Omschakelen naar verdedigen"
 msgstr ""
 
-#: src/Modules/Methodology/MethodologyEnums.php:56
+#: src/Modules/Methodology/MethodologyEnums.php:57
 msgid "Omschakelen naar aanvallen"
 msgstr ""
 
-#: src/Modules/Methodology/MethodologyEnums.php:57
+#: src/Modules/Methodology/MethodologyEnums.php:58
 msgid "Verdedigen"
 msgstr ""
 
-#: src/Modules/Methodology/MethodologyEnums.php:64
+#: src/Modules/Methodology/MethodologyEnums.php:65
 msgid "Opbouwen"
 msgstr ""
 
-#: src/Modules/Methodology/MethodologyEnums.php:65
+#: src/Modules/Methodology/MethodologyEnums.php:66
 msgid "Scoren"
 msgstr ""
 
-#: src/Modules/Methodology/MethodologyEnums.php:66
+#: src/Modules/Methodology/MethodologyEnums.php:67
 msgid "Overgang na balverlies"
 msgstr ""
 
-#: src/Modules/Methodology/MethodologyEnums.php:67
+#: src/Modules/Methodology/MethodologyEnums.php:68
 msgid "Overgang na balwinst"
 msgstr ""
 
-#: src/Modules/Methodology/MethodologyEnums.php:68
+#: src/Modules/Methodology/MethodologyEnums.php:69
 msgid "Storen"
 msgstr ""
 
-#: src/Modules/Methodology/MethodologyEnums.php:69
+#: src/Modules/Methodology/MethodologyEnums.php:70
 msgid "Doelpunten voorkomen"
 msgstr ""
 
-#: src/Modules/Methodology/MethodologyEnums.php:76
+#: src/Modules/Methodology/MethodologyEnums.php:77
 msgid "Corner"
 msgstr ""
 
-#: src/Modules/Methodology/MethodologyEnums.php:77
+#: src/Modules/Methodology/MethodologyEnums.php:78
 msgid "Vrije trap (direct)"
 msgstr ""
 
-#: src/Modules/Methodology/MethodologyEnums.php:78
+#: src/Modules/Methodology/MethodologyEnums.php:79
 msgid "Vrije trap (voorzet)"
 msgstr ""
 
-#: src/Modules/Methodology/MethodologyEnums.php:80
+#: src/Modules/Methodology/MethodologyEnums.php:81
 msgid "Inworp"
 msgstr ""
 
-#: src/Modules/Methodology/MethodologyEnums.php:95
-msgid "Aanvallend positiespel"
-msgstr ""
-
-#: src/Modules/Methodology/MethodologyEnums.php:96
-msgid "Dominant balbezit"
+#: src/Modules/Methodology/MethodologyEnums.php:90
+msgid "Omschakelen"
 msgstr ""
 
 #: src/Modules/Methodology/MethodologyEnums.php:97
-msgid "Reactief / counter"
+msgid "Aanvallend positiespel"
 msgstr ""
 
 #: src/Modules/Methodology/MethodologyEnums.php:98
-msgid "High press"
+msgid "Dominant balbezit"
 msgstr ""
 
 #: src/Modules/Methodology/MethodologyEnums.php:99
+msgid "Reactief / counter"
+msgstr ""
+
+#: src/Modules/Methodology/MethodologyEnums.php:100
+msgid "High press"
+msgstr ""
+
+#: src/Modules/Methodology/MethodologyEnums.php:101
 msgid "Pragmatisch"
 msgstr ""
 
-#: src/Modules/Methodology/MethodologyEnums.php:106
+#: src/Modules/Methodology/MethodologyEnums.php:108
 msgid "Aanvallers"
 msgstr ""
 
-#: src/Modules/Methodology/MethodologyEnums.php:107
+#: src/Modules/Methodology/MethodologyEnums.php:109
 msgid "Middenvelders"
 msgstr ""
 
-#: src/Modules/Methodology/MethodologyEnums.php:108
+#: src/Modules/Methodology/MethodologyEnums.php:110
 msgid "Verdedigers"
 msgstr ""
 
-#: src/Modules/Methodology/MethodologyEnums.php:109
+#: src/Modules/Methodology/MethodologyEnums.php:111
 msgid "Keeper"
 msgstr ""
 
@@ -21758,7 +21760,7 @@ msgid "Bad blueprint id."
 msgstr ""
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:657
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1105
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1106
 msgid "Hide chemistry"
 msgstr ""
 
@@ -21922,34 +21924,38 @@ msgstr ""
 msgid "Could not save the change. Try again."
 msgstr ""
 
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1103
+msgid "Could not identify the player. Try again or pick a different row."
+msgstr ""
+
 #. translators: %d = age in years
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1104
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1105
 #, php-format
 msgid "age %d"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1106
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1107
 msgid "Show chemistry"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1107
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1108
 msgid "Name the new blueprint:"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1108
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1109
 msgid "Copy of blueprint"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1109
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1110
 msgid "Could not duplicate. Try again."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1112
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1113
 msgid "Remove from roster"
 msgstr ""
 
 #. translators: %s = entry display name (guest/custom/cross-team)
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1114
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1115
 #, php-format
 msgid ""
 "Remove %s from the roster? Any slots holding this entry will be cleared."
@@ -22413,14 +22419,14 @@ msgstr ""
 #: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:745
 #: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:761
 #: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:782
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:872
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:912
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:927
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:967
 msgid "Blueprint not found."
 msgstr ""
 
 #: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:725
 #: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:786
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:876
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:931
 msgid "This blueprint is locked. Reopen it before editing."
 msgstr ""
 
@@ -22440,11 +22446,37 @@ msgstr ""
 msgid "slot_label is required."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:881
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:823
+msgid "Failed to save the assignment."
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:873
+msgid "ref.player_id is missing or non-numeric for a player assignment."
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:879
+msgid "ref.player_id must be a positive integer for a player assignment."
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:888
+msgid "ref.name is required for a guest assignment."
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:901
+msgid "ref.label is required for a custom assignment."
+msgstr ""
+
+#. translators: %s = unknown ref kind
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:909
+#, php-format
+msgid "Unknown ref.kind: %s"
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:936
 msgid "Assignments map is required."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:918
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:973
 msgid "Status must be draft, shared, or locked."
 msgstr ""
 
