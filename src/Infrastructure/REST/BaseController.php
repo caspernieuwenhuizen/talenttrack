@@ -62,8 +62,20 @@ abstract class BaseController {
 
     /**
      * Validate that a value is a positive integer (>= 1).
+     *
+     * #1057 — MUST be `public` because subclasses pass it to
+     * `register_rest_route` as `'validate_callback' => [ self::class,
+     * 'isPositiveInt' ]`. WP REST invokes the callback via PHP's
+     * `call_user_func()` from outside the class hierarchy, which
+     * cannot reach `protected` methods even from a subclass — the
+     * dispatcher 500s with `cannot access protected method ...` when
+     * the route arg validation runs. Four controllers depend on this
+     * (LookupsRestController, InvitationsRestController,
+     * LookupNormalisationRestController, PushSubscriptionsRestController);
+     * all of them were broken on any path that took an `id` URL
+     * segment until v4.15.5.
      */
-    protected static function isPositiveInt( $value ): bool {
+    public static function isPositiveInt( $value ): bool {
         return is_numeric( $value ) && (int) $value >= 1;
     }
 }
