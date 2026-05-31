@@ -28,6 +28,21 @@ final class HybridDeepRateStep implements WizardStepInterface {
         $cats = $wpdb->get_results(
             "SELECT id, label FROM {$p}tt_eval_categories WHERE parent_id IS NULL AND is_active = 1 ORDER BY display_order, label"
         );
+
+        // #819 — eval-type → category filter. Empty mapping for the
+        // selected type = fall back to "all" (back-compat with pre-#819
+        // installs and any type the operator hasn't curated yet).
+        $type_for_filter = (int) ( $state['eval_type_id'] ?? 0 );
+        if ( $type_for_filter > 0 ) {
+            $allowed = ( new \TT\Infrastructure\Evaluations\EvalTypeCategoriesRepository() )
+                ->categoryIdsFor( $type_for_filter );
+            if ( ! empty( $allowed ) ) {
+                $allowed_map = array_flip( array_map( 'intval', $allowed ) );
+                $cats = array_values( array_filter( (array) $cats, function ( $c ) use ( $allowed_map ) {
+                    return isset( $allowed_map[ (int) $c->id ] );
+                } ) );
+            }
+        }
         // v3.110.116 — was reading the stale `wp_options[tt_rating_scale_max]`
         // key. Reads `tt_config[rating_max]` instead so the input
         // bounds track the active scale.
