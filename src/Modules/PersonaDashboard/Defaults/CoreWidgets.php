@@ -21,6 +21,7 @@ use TT\Modules\PersonaDashboard\Widgets\InfoCardWidget;
 use TT\Modules\PersonaDashboard\Widgets\KpiCardWidget;
 use TT\Modules\PersonaDashboard\Widgets\KpiStripWidget;
 use TT\Modules\PersonaDashboard\Widgets\MarkAttendanceHeroWidget;
+use TT\Modules\PersonaDashboard\Widgets\MatchesNeedingReviewWidget;
 use TT\Modules\PersonaDashboard\Widgets\MiniPlayerListWidget;
 use TT\Modules\PersonaDashboard\Widgets\NavigationTileWidget;
 use TT\Modules\PersonaDashboard\Widgets\OnboardingPipelineWidget;
@@ -84,6 +85,11 @@ final class CoreWidgets {
         // coach hero in `CoreTemplates::coach()`; the older widget
         // stays registered for back-compat with customized templates.
         WidgetRegistry::register( new MarkAttendanceHeroWidget() );
+        // #1050 — surfaces match executions in PENDING_REVIEW on the
+        // coach hero so they don't get forgotten between End-match
+        // and Finalize. Silent (returns empty) when nothing needs
+        // review. Pairs with the listing surface #1047.
+        WidgetRegistry::register( new MatchesNeedingReviewWidget() );
 
         // v3.110.113 — academy-wide feed of operator-authored
         // thread messages. Surfaces on the HoD dashboard as a

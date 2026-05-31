@@ -141,6 +141,12 @@ final class CoreTemplates {
         // itself — coaches without `tt_rate_player_behaviour` get an
         // empty row set and the widget renders the positive empty state.
         $grid->add( new WidgetSlot( 'data_table', 'behaviour_pending', Size::XL, 0, 6, 2, 41 ) );
+        // #1050 — matches-needing-review reminder. Silent when nothing
+        // needs review; surfaces an amber-bordered list with up to 5
+        // PENDING_REVIEW matches when there is. Sits above the
+        // behaviour-pending block at high priority so the coach sees
+        // it as soon as they land on the hero.
+        $grid->add( new WidgetSlot( 'matches_needing_review', '', Size::XL, 0, 8, 2, 5 ) );
         // v3.110.69 (#0092) — hero is the new mark-attendance entry
         // point. Replaces `today_up_next_hero` whose "Attendance" CTA
         // dropped the coach on the activities list rather than the
