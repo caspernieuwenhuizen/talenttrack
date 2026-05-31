@@ -328,8 +328,12 @@ class MethodologyView extends FrontendViewBase {
         $tasks       = MethodologyEnums::teamTasks();
         $assets_repo = new MethodologyAssetsRepository();
         $primary     = $assets_repo->primaryFor( MethodologyAssetsRepository::TYPE_PRINCIPLE, (int) $p->id );
+        // #919 — bare "← Back to principles" link removed per CLAUDE.md §5
+        // (no third back affordance allowed). The breadcrumb chain
+        // (Dashboard › Methodology) + the tt_back pill (when arriving
+        // from the list) cover navigation. Click the "Principles" tab to
+        // return to the list.
         ?>
-        <p><a href="<?php echo esc_url( remove_query_arg( 'pid' ) ); ?>">← <?php esc_html_e( 'Back to principles', 'talenttrack' ); ?></a></p>
         <h2 style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
             <code><?php echo esc_html( (string) $p->code ); ?></code>
             <span><?php echo esc_html( $title ?: __( '(untitled)', 'talenttrack' ) ); ?></span>
@@ -476,8 +480,12 @@ class MethodologyView extends FrontendViewBase {
         $title   = MultilingualField::string( $sp->title_json ) ?: $sp->slug;
         $bullets = MultilingualField::stringList( $sp->bullets_json );
         $primary = ( new MethodologyAssetsRepository() )->primaryFor( MethodologyAssetsRepository::TYPE_SET_PIECE, (int) $sp->id );
+        // #919 — bare "← Back to set pieces" link removed per CLAUDE.md §5
+        // (no third back affordance allowed). The breadcrumb chain
+        // (Dashboard › Methodology) + the tt_back pill (when arriving
+        // from the list) cover navigation. Click the "Spelhervattingen"
+        // tab to return to the list.
         ?>
-        <p><a href="<?php echo esc_url( remove_query_arg( 'sid' ) ); ?>">← <?php esc_html_e( 'Back to set pieces', 'talenttrack' ); ?></a></p>
         <h2><?php echo esc_html( $title ); ?> <span class="tt-mlogy-pill"><?php echo esc_html( MethodologyEnums::sides()[ (string) $sp->side ] ?? $sp->side ); ?></span></h2>
         <div class="tt-mlogy-detail-grid">
             <div>
