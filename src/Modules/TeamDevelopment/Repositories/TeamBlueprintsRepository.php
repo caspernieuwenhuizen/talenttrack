@@ -329,18 +329,26 @@ class TeamBlueprintsRepository {
      */
     public function setAssignment( int $blueprint_id, string $slot_label, $ref, string $tier = self::TIER_PRIMARY ): bool {
         if ( $blueprint_id <= 0 || $slot_label === '' ) return false;
+        $this->last_error = '';
         $tier    = self::cleanTier( $tier );
         $club_id = CurrentClub::id();
 
         $normalised = self::normaliseRef( $ref );
         if ( $normalised === null ) {
             // Null / invalid → delete the cell.
-            $this->wpdb->delete( $this->assignments, [
+            // #1054 — wpdb->delete returns false on SQL failure (also
+            // returns 0 when nothing matched, which is a legitimate
+            // no-op). Distinguish via $this->wpdb->last_error.
+            $deleted = $this->wpdb->delete( $this->assignments, [
                 'club_id'      => $club_id,
                 'blueprint_id' => $blueprint_id,
                 'slot_label'   => $slot_label,
                 'tier'         => $tier,
             ] );
+            if ( $deleted === false && $this->wpdb->last_error !== '' ) {
+                $this->last_error = (string) $this->wpdb->last_error;
+                return false;
+            }
         } else {
             $row = self::buildAssignmentRow( $blueprint_id, $club_id, $slot_label, $tier, $normalised );
             if ( $row === null ) return false;
@@ -350,10 +358,26 @@ class TeamBlueprintsRepository {
                   WHERE blueprint_id = %d AND club_id = %d AND slot_label = %s AND tier = %s",
                 $blueprint_id, $club_id, $slot_label, $tier
             ) );
+            // #1054 — check the wpdb return value. Previously the
+            // failure mode was: INSERT collides with the UNIQUE on
+            // (blueprint_id, slot_label, tier) because a stale row
+            // exists with a different club_id; insert silently returns
+            // false; setAssignment returns true; endpoint returns 200
+            // OK; user sees "I picked a player but it vanished". The
+            // new uniq_slot_tier_club constraint (migration 0135) also
+            // closes the underlying cross-club collision.
             if ( $existing > 0 ) {
-                $this->wpdb->update( $this->assignments, $row, [ 'id' => $existing ] );
+                $updated = $this->wpdb->update( $this->assignments, $row, [ 'id' => $existing ] );
+                if ( $updated === false ) {
+                    $this->last_error = (string) ( $this->wpdb->last_error ?: 'wpdb->update returned false' );
+                    return false;
+                }
             } else {
-                $this->wpdb->insert( $this->assignments, $row );
+                $inserted = $this->wpdb->insert( $this->assignments, $row );
+                if ( $inserted === false ) {
+                    $this->last_error = (string) ( $this->wpdb->last_error ?: 'wpdb->insert returned false' );
+                    return false;
+                }
             }
         }
         $this->wpdb->update( $this->blueprints, [
@@ -361,6 +385,20 @@ class TeamBlueprintsRepository {
         ], [ 'id' => $blueprint_id, 'club_id' => $club_id ] );
         return true;
     }
+
+    /**
+     * #1054 — last SQL-layer error from `setAssignment`. Empty string
+     * when the previous call succeeded or hasn't been called yet. The
+     * REST controller surfaces this in the 500 response so the operator
+     * can diagnose underlying issues (UNIQUE collision, FK violation,
+     * schema drift).
+     */
+    public function lastError(): string {
+        return $this->last_error ?? '';
+    }
+
+    /** @var string */
+    private $last_error = '';
 
     /**
      * @return array<string, array{primary?:int, secondary?:int, tertiary?:int}>

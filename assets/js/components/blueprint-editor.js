@@ -886,6 +886,13 @@
 
     function saveAssignment(slotLabel, tierKey, ref) {
         if (!cfg.can_manage || cfg.locked) return;
+        // #1054 — if the caller passed a ref that looks like a player
+        // assignment but with no usable player_id, refuse to send.
+        // Previously this devolved into a silent server-side clear.
+        if (ref && ref.kind === 'player' && (!ref.player_id || parseInt(ref.player_id, 10) <= 0)) {
+            alert((cfg.i18n && cfg.i18n.bad_ref) || 'Could not identify the player. Try again or pick a different row.');
+            return;
+        }
         closePicker();
         saveHint((cfg.i18n && cfg.i18n.saving) || 'Saving...');
         var body = { slot_label: slotLabel, tier: tierKey };
@@ -900,16 +907,35 @@
             body: JSON.stringify(body)
         })
         .then(function (r) {
-            if (!r.ok) throw new Error('save_failed');
-            return r.json();
+            // #1054 — read the body even on !ok so the server's error
+            // message (now surfaced as 400 / 500 with a real string)
+            // makes it into the alert. Falls back to a generic message
+            // if the body isn't JSON-parsable.
+            return r.json().then(function (data) {
+                if (!r.ok) {
+                    var msg = (data && data.message) || ((cfg.i18n && cfg.i18n.save_failed) || 'Could not save the change.');
+                    throw new Error(msg);
+                }
+                return data;
+            }, function () {
+                throw new Error((cfg.i18n && cfg.i18n.save_failed) || 'Could not save the change.');
+            });
         })
-        .then(function () {
+        .then(function (data) {
+            // #1054 — verify the server actually persisted what we sent.
+            // If we sent a player ref but the response carries ref:null,
+            // the assignment was coerced to a clear somewhere — don't
+            // reload as if nothing's wrong.
+            if (ref && ref.kind && (!data || data.ref === null || data.ref === undefined)) {
+                throw new Error((cfg.i18n && cfg.i18n.save_failed) || 'The server accepted the request but did not persist the assignment.');
+            }
             // Reload to refresh chemistry + occupant names from the
             // server. Cheaper than re-implementing chemistry locally.
             window.location.reload();
         })
-        .catch(function () {
-            alert((cfg.i18n && cfg.i18n.save_failed) || 'Could not save the change. Try again.');
+        .catch(function (err) {
+            var msg = (err && err.message) || ((cfg.i18n && cfg.i18n.save_failed) || 'Could not save the change. Try again.');
+            alert(msg);
             saveHint('');
         });
     }
@@ -925,7 +951,14 @@
     function refForRosterEntry(p) {
         if (!p) return null;
         if (p.kind === 'player' || p.kind === 'crossteam') {
-            return { kind: 'player', player_id: parseInt(p.player_id, 10) };
+            // #1054 — never build a player ref without a valid id.
+            // parseInt(undefined, 10) is NaN which JSON-stringifies
+            // to null; the server used to silently coerce that to a
+            // "clear" and delete the slot. Refuse here so the caller
+            // (saveAssignment) short-circuits with a real error.
+            var pid = parseInt(p.player_id, 10);
+            if (!pid || pid <= 0) return null;
+            return { kind: 'player', player_id: pid };
         }
         if (p.kind === 'guest') {
             return { kind: 'guest', name: p.name, position: p.pos || null };

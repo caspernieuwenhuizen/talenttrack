@@ -1100,6 +1100,7 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
                 'label_required'        => __( 'Custom label is required.', 'talenttrack' ),
                 'confirm_clear_all'     => __( 'Clear every slot on this blueprint? This cannot be undone.', 'talenttrack' ),
                 'save_failed'           => __( 'Could not save the change. Try again.', 'talenttrack' ),
+                'bad_ref'               => __( 'Could not identify the player. Try again or pick a different row.', 'talenttrack' ),
                 /* translators: %d = age in years */
                 'age_fmt'               => __( 'age %d', 'talenttrack' ),
                 'hide_chem_label'       => __( 'Hide chemistry', 'talenttrack' ),
