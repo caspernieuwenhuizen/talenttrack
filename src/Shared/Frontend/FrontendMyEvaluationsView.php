@@ -42,29 +42,13 @@ class FrontendMyEvaluationsView extends FrontendViewBase {
             return;
         }
 
-        global $wpdb;
-        $p = $wpdb->prefix;
-
-        // Last 30 days + everything in the current week. The KPI is
-        // strictly "this week" but the surface widens to the trailing
-        // 30 so coaches always see *some* recent context even on a
-        // quiet week.
-        $cutoff = gmdate( 'Y-m-d', strtotime( '-30 days' ) );
-
-        $evals = $wpdb->get_results( $wpdb->prepare(
-            "SELECT e.id, e.eval_date, e.opponent, e.game_result,
-                    lt.name AS type_name,
-                    pl.first_name, pl.last_name
-               FROM {$p}tt_evaluations e
-               LEFT JOIN {$p}tt_lookups lt ON e.eval_type_id = lt.id
-               LEFT JOIN {$p}tt_players pl ON e.player_id = pl.id
-              WHERE e.coach_id = %d
-                AND e.archived_at IS NULL
-                AND e.eval_date >= %s
-              ORDER BY e.eval_date DESC",
-            $coach_user_id,
-            $cutoff
-        ) );
+        // #920 — query now lives in `EvaluationsRepository::recentForCoach`
+        // (mirrored by the new `GET /evaluations/recent` REST endpoint).
+        // Widens to a 30-day trailing window — wider than the KPI's
+        // strictly-this-week cut so coaches always see some recent context
+        // even on a quiet week.
+        $evals = ( new \TT\Infrastructure\Evaluations\EvaluationsRepository() )
+            ->recentForCoach( $coach_user_id, 30 );
 
         if ( empty( $evals ) ) {
             echo '<p><em>' . esc_html__( 'No evaluations authored in the last 30 days. New evaluations you record will appear here.', 'talenttrack' ) . '</em></p>';
