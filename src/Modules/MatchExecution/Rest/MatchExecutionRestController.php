@@ -140,10 +140,17 @@ class MatchExecutionRestController {
         $body = $r->get_json_params();
         $home = max( 0, min( 99, (int) ( $body['home'] ?? 0 ) ) );
         $away = max( 0, min( 99, (int) ( $body['away'] ?? 0 ) ) );
-        ( new MatchExecutionRepository() )->update( $exec_id, [
+        $repo = new MatchExecutionRepository();
+        $repo->update( $exec_id, [
             'home_score' => $home,
             'away_score' => $away,
         ] );
+        // #1048 — score edits in PENDING_REVIEW don't affect minutes
+        // arithmetic but DO need the attendance row's `minutes_played`
+        // to stay current for downstream reports. Skipping recompute
+        // here (a score change touches nothing in computeMinutes); the
+        // sub / goal endpoints below DO recompute since they change
+        // either the sub log or the implied roster shape.
         return RestResponse::success( [ 'execution_id' => $exec_id, 'home' => $home, 'away' => $away ] );
     }
 
@@ -166,7 +173,13 @@ class MatchExecutionRestController {
         if ( $event_uuid === '' || $half < 1 || $half > 2 || $player_off_id <= 0 || $player_on_id <= 0 ) {
             return RestResponse::error( 'bad_input', __( 'Substitution payload missing required fields.', 'talenttrack' ), 400 );
         }
-        ( new MatchExecutionRepository() )->logSubstitution( $exec_id, $event_uuid, $half, $minute, $player_off_id, $player_on_id );
+        $repo = new MatchExecutionRepository();
+        $repo->logSubstitution( $exec_id, $event_uuid, $half, $minute, $player_off_id, $player_on_id );
+        // #1048 — sub log changed → minutes need to be re-derived.
+        // Only when state is PENDING_REVIEW; live writes happen too
+        // frequently and the final recompute lands at end-of-second-
+        // half via route_finish.
+        self::recomputeIfPendingReview( $repo, $exec_id );
         return RestResponse::success( [ 'execution_id' => $exec_id, 'event_uuid' => $event_uuid ] );
     }
 
@@ -184,7 +197,14 @@ class MatchExecutionRestController {
         if ( $event_uuid === '' || $player_id <= 0 || $half < 1 || $half > 2 ) {
             return RestResponse::error( 'bad_input', __( 'Goal-event payload missing required fields.', 'talenttrack' ), 400 );
         }
-        ( new MatchExecutionRepository() )->logGoalEvent( $exec_id, $event_uuid, $player_id, $half, $minute );
+        $repo = new MatchExecutionRepository();
+        $repo->logGoalEvent( $exec_id, $event_uuid, $player_id, $half, $minute );
+        // #1048 — goal events don't affect minutes_played directly
+        // (computeMinutes ignores goal_events), but they do affect
+        // any downstream summary that mirrors the goal log. Recompute
+        // call is cheap and keeps the contract uniform; if profiling
+        // shows it's hot, gate this on a config switch.
+        self::recomputeIfPendingReview( $repo, $exec_id );
         return RestResponse::success( [ 'execution_id' => $exec_id, 'event_uuid' => $event_uuid ] );
     }
 
@@ -194,7 +214,9 @@ class MatchExecutionRestController {
         $finalized_err = self::assertEditable( $exec_id );
         if ( $finalized_err ) return $finalized_err;
         $event_uuid = (string) $r['event_uuid'];
-        ( new MatchExecutionRepository() )->reverseGoalEvent( $event_uuid );
+        $repo = new MatchExecutionRepository();
+        $repo->reverseGoalEvent( $event_uuid );
+        self::recomputeIfPendingReview( $repo, $exec_id );
         return RestResponse::success( [ 'execution_id' => $exec_id, 'event_uuid' => $event_uuid ] );
     }
 
@@ -238,82 +260,11 @@ class MatchExecutionRestController {
             [ 'id' => $activity_id, 'club_id' => CurrentClub::id() ]
         );
 
-        // 3. Write attendance + minutes from the prep snapshot + the
-        // substitution log.
-        $prep = ( new MatchPrepRepository() )->findByActivity( $activity_id );
-        if ( $prep ) {
-            $prep_id = (int) $prep->id;
-            $avail   = ( new MatchPrepRepository() )->listAvailability( $prep_id );
-            $lineup  = ( new MatchPrepRepository() )->listLineup( $prep_id );
-
-            $starting_xi_half1 = [];
-            $starting_xi_half2 = [];
-            foreach ( $lineup as $l ) {
-                if ( (int) $l->half === 1 ) $starting_xi_half1[] = (int) $l->player_id;
-                if ( (int) $l->half === 2 ) $starting_xi_half2[] = (int) $l->player_id;
-            }
-
-            $minutes_map = $repo->computeMinutes(
-                $exec_id,
-                $starting_xi_half1,
-                $starting_xi_half2,
-                (int) $prep->half_length_minutes,
-                (int) $prep->half_length_minutes
-            );
-
-            // #1032 — reconcile stale attendance rows. If mark-attendance
-            // ran separately on this activity before match-execution
-            // finished, or if the prep's availability changed between
-            // runs, orphaned `tt_attendance` rows survive and surface in
-            // the rate-step roster as ghost entries (often from other
-            // teams). The prep's availability list IS the source of
-            // truth at match-finish, so drop any attendance row whose
-            // player isn't in it.
-            $avail_pids = [];
-            foreach ( $avail as $a ) {
-                $pid = (int) $a->player_id;
-                if ( $pid > 0 ) $avail_pids[] = $pid;
-            }
-            if ( ! empty( $avail_pids ) ) {
-                $in = implode( ',', array_fill( 0, count( $avail_pids ), '%d' ) );
-                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-                $wpdb->query( $wpdb->prepare(
-                    "DELETE FROM {$p}tt_attendance
-                      WHERE activity_id = %d
-                        AND club_id     = %d
-                        AND player_id NOT IN ($in)",
-                    array_merge( [ $activity_id, CurrentClub::id() ], $avail_pids )
-                ) );
-            }
-
-            foreach ( $avail as $a ) {
-                $pid    = (int) $a->player_id;
-                $status = (string) $a->status;
-                if ( strcasecmp( $status, 'Present' ) === 0 ) {
-                    $status = 'Present';
-                }
-                $minutes = $minutes_map[ $pid ] ?? 0;
-                $existing = $wpdb->get_var( $wpdb->prepare(
-                    "SELECT id FROM {$p}tt_attendance
-                      WHERE activity_id = %d AND player_id = %d AND club_id = %d LIMIT 1",
-                    $activity_id, $pid, CurrentClub::id()
-                ) );
-                if ( $existing ) {
-                    $wpdb->update( "{$p}tt_attendance", [
-                        'status'          => $status,
-                        'minutes_played'  => $minutes,
-                    ], [ 'id' => (int) $existing ] );
-                } else {
-                    $wpdb->insert( "{$p}tt_attendance", [
-                        'club_id'        => CurrentClub::id(),
-                        'activity_id'    => $activity_id,
-                        'player_id'      => $pid,
-                        'status'         => $status,
-                        'minutes_played' => $minutes,
-                    ] );
-                }
-            }
-        }
+        // 3. #1048 — recompute attendance + minutes from prep + sub
+        // log. The inline write block lives on the repository now so
+        // PENDING_REVIEW edits + finalize can re-fire it (see
+        // `MatchExecutionRepository::recomputeAttendanceAndMinutes`).
+        $repo->recomputeAttendanceAndMinutes( $exec_id );
 
         Logger::info( 'match_execution.finish', [
             'activity_id'  => $activity_id,
@@ -368,7 +319,14 @@ class MatchExecutionRestController {
             );
         }
 
-        ( new MatchExecutionRepository() )->update( $exec_id, [
+        // #1048 — belt-and-braces recompute before lock. Even though
+        // every PENDING_REVIEW edit already recomputed, a fresh pass
+        // here closes the window where a missed write (offline-queue
+        // replay, transient DB error) leaves derived totals stale.
+        $repo = new MatchExecutionRepository();
+        $repo->recomputeAttendanceAndMinutes( $exec_id );
+
+        $repo->update( $exec_id, [
             'state' => MatchExecutionState::FINALIZED,
         ] );
 
@@ -396,6 +354,26 @@ class MatchExecutionRestController {
      * before the half-start it batched against; the existing endpoints
      * accept those today and #1033 doesn't change that.
      */
+    /**
+     * #1048 — fire `recomputeAttendanceAndMinutes` only when the
+     * execution is in PENDING_REVIEW. Live writes during the match
+     * happen often; recomputing on every tap would thrash the
+     * attendance table and the final pass on `route_finish` covers
+     * the live trio. PENDING_REVIEW edits are the ones that need
+     * the side-effect to keep derived totals fresh.
+     */
+    private static function recomputeIfPendingReview( MatchExecutionRepository $repo, int $exec_id ): void {
+        global $wpdb;
+        $p = $wpdb->prefix;
+        $state = (string) $wpdb->get_var( $wpdb->prepare(
+            "SELECT state FROM {$p}tt_match_execution WHERE id = %d AND club_id = %d",
+            $exec_id, CurrentClub::id()
+        ) );
+        if ( $state === MatchExecutionState::PENDING_REVIEW ) {
+            $repo->recomputeAttendanceAndMinutes( $exec_id );
+        }
+    }
+
     private static function assertEditable( int $exec_id ): ?\WP_REST_Response {
         global $wpdb;
         $p = $wpdb->prefix;
