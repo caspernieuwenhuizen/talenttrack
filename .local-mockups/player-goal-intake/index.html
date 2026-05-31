@@ -1,0 +1,1296 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Player goal-setting intake — print mockup</title>
+<style>
+/* ---------------------------------------------------------------------------
+   Print-tuned tokens. Pure greyscale where possible (cheap to copy/laminate)
+   with a single ink-teal accent for the headings + brand anchors.
+   --------------------------------------------------------------------------- */
+:root {
+    --ink:        #1a1d21;
+    --ink-soft:   #5b6e75;
+    --line:       #b8bdc2;
+    --line-soft:  #d6dadd;
+    --paper:      #ffffff;
+    --mute:       #f3f5f6;
+    --accent:     #155a57;   /* deep teal, prints fine in B/W */
+    --warn:       #8a5e0a;
+
+    --font:       'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-write: 'Inter', sans-serif;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: #c9cdd0; }
+body {
+    font-family: var(--font);
+    color: var(--ink);
+    font-size: 11pt;
+    line-height: 1.35;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ---------------------------------------------------------------------------
+   Mockup chrome — picker + page-break hints. Stripped on print.
+   --------------------------------------------------------------------------- */
+.mockup-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: #222;
+    color: #eee;
+    font-size: 12px;
+    padding: 8px 12px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+    border-bottom: 2px solid #000;
+}
+.mockup-bar strong { color: #ffd; margin-right: 4px; }
+.mockup-bar button {
+    background: #444; color: #eee; border: 1px solid #666;
+    padding: 4px 10px; border-radius: 4px; font: inherit; cursor: pointer;
+    font-size: 11px;
+}
+.mockup-bar button[aria-pressed="true"] { background: #6c4; color: #000; border-color: #4a3; font-weight: 600; }
+.mockup-hint {
+    background: #fff8e8;
+    padding: 6px 12px;
+    font-size: 11px;
+    color: #8a5e0a;
+    text-align: center;
+    border-bottom: 1px solid #e8b933;
+}
+
+/* ---------------------------------------------------------------------------
+   Surface picker — toggles between intake + reference.
+   --------------------------------------------------------------------------- */
+.surface { display: none; }
+body[data-surface="intake"]    .surface--intake    { display: block; }
+body[data-surface="reference"] .surface--reference { display: block; }
+
+/* ---------------------------------------------------------------------------
+   Paper — fixed A4 portrait. 16mm margins (slightly generous so handwriting
+   doesn't crash the edge). Visible separation between pages on screen.
+   --------------------------------------------------------------------------- */
+.paper {
+    width: 210mm;
+    min-height: 297mm;
+    background: var(--paper);
+    margin: 24px auto;
+    padding: 16mm 14mm;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    page-break-after: always;
+    position: relative;
+}
+.paper:last-child { page-break-after: auto; }
+
+/* Page footer — running text at bottom of every page */
+.paper-footer {
+    position: absolute;
+    bottom: 8mm;
+    left: 14mm;
+    right: 14mm;
+    font-size: 9pt;
+    color: var(--ink-soft);
+    display: flex;
+    justify-content: space-between;
+    border-top: 1px solid var(--line-soft);
+    padding-top: 4px;
+}
+
+/* ---------------------------------------------------------------------------
+   Print rules — A4, no chrome, no shadow, real page breaks.
+   --------------------------------------------------------------------------- */
+@page { size: A4 portrait; margin: 0; }
+@media print {
+    body { background: #fff; }
+    .mockup-bar, .mockup-hint { display: none !important; }
+    .paper {
+        margin: 0;
+        box-shadow: none;
+        width: 210mm;
+        min-height: 297mm;
+        page-break-after: always;
+    }
+    .paper:last-child { page-break-after: auto; }
+    /* When printing intake-only or reference-only, the picker is hidden so
+       the non-active surface needs a "real" display: none — already covered
+       by the surface visibility rules above. */
+}
+
+/* ---------------------------------------------------------------------------
+   Intake form — top identity block.
+   --------------------------------------------------------------------------- */
+.brand {
+    font-size: 9pt;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--accent);
+    font-weight: 700;
+    margin: 0 0 4px;
+}
+.title {
+    margin: 0 0 12px;
+    font-size: 18pt;
+    font-weight: 800;
+    color: var(--ink);
+    line-height: 1.15;
+}
+.title small {
+    display: block;
+    font-size: 10pt;
+    font-weight: 500;
+    color: var(--ink-soft);
+    margin-top: 2px;
+}
+
+.identity {
+    display: grid;
+    grid-template-columns: 28mm 1fr;
+    gap: 8mm;
+    padding-bottom: 4mm;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 5mm;
+}
+.identity__photo {
+    width: 28mm;
+    height: 32mm;
+    background: var(--mute);
+    border: 1px solid var(--line);
+    border-radius: 2mm;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink-soft);
+    font-size: 8pt;
+    text-align: center;
+    padding: 2mm;
+}
+.identity__body { min-width: 0; }
+.identity__name {
+    font-size: 16pt;
+    font-weight: 800;
+    margin: 0 0 2mm;
+    line-height: 1.1;
+}
+.identity__meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2mm 6mm;
+    font-size: 10pt;
+}
+.identity__meta dt {
+    font-size: 8pt;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--ink-soft);
+    font-weight: 600;
+    margin: 0;
+}
+.identity__meta dd { margin: 0 0 1mm; font-weight: 600; }
+
+/* Stat row */
+.stats {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 2mm;
+    margin-bottom: 5mm;
+}
+.stat {
+    border: 1px solid var(--line-soft);
+    border-radius: 2mm;
+    padding: 2.5mm 2mm;
+    text-align: center;
+    background: var(--mute);
+}
+.stat__num {
+    font-size: 16pt;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+}
+.stat__label {
+    display: block;
+    font-size: 8pt;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin-top: 1mm;
+    font-weight: 600;
+}
+
+/* ---------------------------------------------------------------------------
+   Looking-back block — pre-printed anchor data + blank reflection lines.
+   --------------------------------------------------------------------------- */
+.section-h {
+    display: flex;
+    align-items: baseline;
+    gap: 4mm;
+    margin: 5mm 0 2mm;
+}
+.section-h__title {
+    font-size: 11pt;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--accent);
+    margin: 0;
+}
+.section-h__hint {
+    font-size: 9pt;
+    color: var(--ink-soft);
+    font-style: italic;
+    margin: 0;
+}
+.section-h::before {
+    content: '';
+    width: 4mm;
+    height: 4mm;
+    background: var(--accent);
+    border-radius: 1mm;
+    flex-shrink: 0;
+    align-self: center;
+}
+
+.lookback {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6mm;
+    margin-bottom: 5mm;
+}
+.lookback__card {
+    border: 1px solid var(--line-soft);
+    border-radius: 2mm;
+    padding: 3mm 3.5mm;
+}
+.lookback__card-title {
+    font-size: 9pt;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--ink-soft);
+    margin: 0 0 2mm;
+}
+.lookback__card ul {
+    margin: 0;
+    padding-left: 4mm;
+    font-size: 10pt;
+}
+.lookback__card li { margin-bottom: 1mm; }
+.lookback__card li small {
+    color: var(--ink-soft);
+    font-weight: 400;
+}
+
+.reflection {
+    border: 1px dashed var(--line);
+    padding: 3mm 4mm 2mm;
+    border-radius: 2mm;
+    margin-bottom: 5mm;
+}
+.reflection__label {
+    font-size: 9pt;
+    color: var(--ink-soft);
+    margin: 0 0 2mm;
+    font-style: italic;
+}
+.write-line {
+    border-bottom: 1px solid var(--line);
+    height: 7mm;
+}
+.write-line:last-child { border-bottom: none; }
+
+/* ---------------------------------------------------------------------------
+   Goal box — one per goal, 3 per intake. Sub-fields for principle + action
+   hooks so the conversation lands in TT vocabulary.
+   --------------------------------------------------------------------------- */
+.goal {
+    border: 1.5px solid var(--ink);
+    border-radius: 2mm;
+    padding: 4mm 4mm 3mm;
+    margin-bottom: 5mm;
+    page-break-inside: avoid;
+}
+.goal__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4mm;
+    padding-bottom: 2mm;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 3mm;
+}
+.goal__num {
+    background: var(--ink);
+    color: var(--paper);
+    width: 8mm;
+    height: 8mm;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11pt;
+    font-weight: 800;
+    flex-shrink: 0;
+}
+.goal__categories {
+    display: flex;
+    gap: 3mm;
+    font-size: 9pt;
+}
+.goal__cat {
+    display: inline-flex;
+    align-items: center;
+    gap: 1mm;
+}
+.goal__cat::before {
+    content: '';
+    width: 3mm;
+    height: 3mm;
+    border: 1.5px solid var(--ink);
+    border-radius: 0.5mm;
+    display: inline-block;
+}
+
+.goal__field {
+    margin-bottom: 2.5mm;
+}
+.goal__field-label {
+    font-size: 9pt;
+    font-weight: 700;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin: 0 0 1mm;
+}
+.goal__field-label small {
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: 500;
+    color: var(--ink-soft);
+    font-style: italic;
+    margin-left: 3mm;
+}
+.goal__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4mm;
+}
+.goal__codes {
+    display: flex;
+    gap: 1.5mm;
+    align-items: center;
+    margin-top: 0.5mm;
+}
+.goal__code-box {
+    border: 1px solid var(--line);
+    width: 12mm;
+    height: 6mm;
+    border-radius: 1mm;
+    display: inline-block;
+    background: var(--mute);
+}
+/* Action names are real Dutch words ("Vrijlopen", "Communicatie",
+   "Spelinzicht") and need more horizontal room than the 5-char principle
+   codes ("AO-01"). The principle column stays compact. */
+.goal__codes--actions .goal__code-box {
+    width: 30mm;
+    height: 8mm;
+}
+.goal__codes small {
+    color: var(--ink-soft);
+    font-size: 8pt;
+    margin-left: 2mm;
+    font-style: italic;
+}
+
+/* Goal-specific write-line variant — solid line, ample height */
+.goal .write-line {
+    border-bottom: 1px solid var(--line);
+    height: 7mm;
+}
+
+.goal__footer {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4mm;
+    margin-top: 2mm;
+    padding-top: 2mm;
+    border-top: 1px dashed var(--line);
+}
+.goal__footer-cell {
+    font-size: 9pt;
+}
+.goal__footer-cell .write-line {
+    height: 5mm;
+    border-bottom: 1px solid var(--ink);
+}
+.goal__footer-cell-label {
+    font-size: 8pt;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    margin: 1mm 0 0;
+    font-weight: 600;
+}
+
+/* ---------------------------------------------------------------------------
+   Signatures
+   --------------------------------------------------------------------------- */
+.signatures {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6mm;
+    margin-top: 6mm;
+    padding-top: 4mm;
+    border-top: 2px solid var(--ink);
+}
+.sig {
+    text-align: left;
+}
+.sig__line {
+    border-bottom: 1px solid var(--ink);
+    height: 12mm;
+}
+.sig__label {
+    font-size: 9pt;
+    color: var(--ink-soft);
+    margin: 1mm 0 0;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    font-weight: 600;
+}
+
+.cta-note {
+    background: var(--mute);
+    border-left: 3px solid var(--accent);
+    padding: 3mm 4mm;
+    margin-top: 5mm;
+    font-size: 9pt;
+    color: var(--ink-soft);
+    line-height: 1.4;
+}
+.cta-note strong { color: var(--ink); }
+
+/* ---------------------------------------------------------------------------
+   Methodology reference — principles + football actions.
+   --------------------------------------------------------------------------- */
+.ref-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 3mm;
+    margin-bottom: 5mm;
+}
+.ref-head__sub {
+    font-size: 9pt;
+    color: var(--ink-soft);
+}
+
+.phase {
+    margin-bottom: 4mm;
+    page-break-inside: avoid;
+}
+.phase__title {
+    font-size: 10pt;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--paper);
+    background: var(--accent);
+    padding: 1.5mm 3mm;
+    border-radius: 1mm;
+    margin: 0 0 2mm;
+    display: inline-block;
+}
+.phase__title small {
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: 0;
+    opacity: 0.85;
+    margin-left: 2mm;
+}
+
+.principle {
+    display: grid;
+    grid-template-columns: 12mm 1fr;
+    gap: 3mm;
+    padding: 1.5mm 0;
+    border-bottom: 1px dotted var(--line-soft);
+    font-size: 10pt;
+    line-height: 1.3;
+    page-break-inside: avoid;
+}
+.principle:last-child { border-bottom: none; }
+.principle__code {
+    font-weight: 800;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    font-size: 10pt;
+}
+.principle__text { color: var(--ink); }
+
+.actions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 5mm;
+    margin-top: 3mm;
+}
+.actions-col__title {
+    font-size: 10pt;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--paper);
+    background: var(--ink);
+    padding: 1.5mm 3mm;
+    border-radius: 1mm;
+    margin: 0 0 2mm;
+}
+.action {
+    padding: 2mm 0;
+    border-bottom: 1px dotted var(--line-soft);
+    font-size: 10pt;
+    page-break-inside: avoid;
+}
+.action:last-child { border-bottom: none; }
+.action__name {
+    font-weight: 700;
+    color: var(--ink);
+}
+.action__hint {
+    font-size: 8.5pt;
+    color: var(--ink-soft);
+    margin-left: 2mm;
+    font-style: italic;
+}
+
+.ref-howto {
+    background: var(--mute);
+    border-left: 3px solid var(--accent);
+    padding: 3mm 4mm;
+    margin: 4mm 0 5mm;
+    font-size: 9.5pt;
+    color: var(--ink);
+    line-height: 1.4;
+}
+.ref-howto strong { color: var(--accent); }
+.ref-howto ol { margin: 2mm 0 0 4mm; padding: 0; }
+.ref-howto li { margin-bottom: 1mm; }
+
+/* ---------------------------------------------------------------------------
+   Leerdoelen — 2-column layout, attacking left, defending right. 10 entries
+   total, 5 per column. Each entry: title + 4-5 deelvaardigheden bullets.
+   --------------------------------------------------------------------------- */
+.leerdoelen-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6mm;
+    margin-top: 4mm;
+}
+.leerdoelen-col__title {
+    font-size: 10pt;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--paper);
+    background: var(--accent);
+    padding: 1.5mm 3mm;
+    border-radius: 1mm;
+    margin: 0 0 2mm;
+    display: block;
+}
+.leerdoelen-subhead {
+    font-size: 9pt;
+    color: var(--ink-soft);
+    margin: 3mm 0 1.5mm;
+    font-style: italic;
+    font-weight: 600;
+    border-bottom: 1px dotted var(--line);
+    padding-bottom: 1mm;
+}
+.leerdoel {
+    padding: 1.5mm 0 2mm;
+    page-break-inside: avoid;
+}
+.leerdoel__title {
+    font-size: 10pt;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 0 0 1mm;
+}
+.leerdoel ul {
+    margin: 0;
+    padding-left: 4mm;
+    font-size: 8.5pt;
+    line-height: 1.35;
+}
+.leerdoel li {
+    margin-bottom: 0.5mm;
+    color: var(--ink-soft);
+}
+
+/* ---------------------------------------------------------------------------
+   Per-section selection — drives which methodology pages render. Each .paper
+   carries a modifier class; body[data-ref-*="false"] hides that section.
+   --------------------------------------------------------------------------- */
+body[data-ref-principles="false"] .paper--principles { display: none; }
+body[data-ref-actions="false"]    .paper--actions    { display: none; }
+body[data-ref-leerdoelen="false"] .paper--leerdoelen { display: none; }
+
+/* The section-picker chrome — only relevant when methodology surface is
+   active. Hidden when intake surface is selected. */
+.ref-section-picker { display: none; gap: 6px; align-items: center; }
+body[data-surface="reference"] .ref-section-picker { display: inline-flex; }
+.ref-section-picker label {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: #333; color: #eee; padding: 4px 8px; border-radius: 4px;
+    font-size: 11px; cursor: pointer; user-select: none;
+}
+.ref-section-picker input[type="checkbox"] { margin: 0; }
+</style>
+</head>
+<body data-surface="intake" data-ref-principles="true" data-ref-actions="true" data-ref-leerdoelen="true">
+
+<div class="mockup-bar" role="region" aria-label="Mockup surface picker">
+    <strong>Surface:</strong>
+    <button type="button" data-pick="intake" aria-pressed="true">Intake form (per player, every meeting)</button>
+    <button type="button" data-pick="reference">Methodology reference (printed once)</button>
+
+    <span class="ref-section-picker">
+        <strong style="color:#ffd;">Include:</strong>
+        <label><input type="checkbox" checked data-ref-toggle="principles"> Spelprincipes (1 p)</label>
+        <label><input type="checkbox" checked data-ref-toggle="actions"> Voetbalhandelingen (1 p)</label>
+        <label><input type="checkbox" checked data-ref-toggle="leerdoelen"> Leerdoelen (1 p)</label>
+    </span>
+
+    &nbsp;
+    <button type="button" onclick="window.print()" style="background:#6c4;color:#000;">Print preview</button>
+</div>
+<div class="mockup-hint">
+    Hint: open the picker to flip between surfaces. Hit <strong>Print preview</strong> (or Ctrl/Cmd-P) to see how the active surface lays out on A4 — the screen mockup is sized to match real paper.
+</div>
+
+<!-- ============================================================
+     INTAKE FORM — one per player, printed before each 1:1.
+     Two pages: P1 = identity + lookback + goal 1. P2 = goals 2-3 + sigs.
+     ============================================================ -->
+<div class="surface surface--intake">
+
+    <!-- PAGE 1 -->
+    <article class="paper">
+        <p class="brand">TalentTrack · seizoensintake 2026/27</p>
+        <h1 class="title">Doelenintake — Lucas de Vries
+            <small>Pagina 1: speler-snapshot · lees voor het gesprek begint. Doelen volgen op pagina 2 + 3.</small>
+        </h1>
+
+        <section class="identity">
+            <div class="identity__photo">Foto</div>
+            <div class="identity__body">
+                <p class="identity__name">Lucas de Vries</p>
+                <dl class="identity__meta">
+                    <div><dt>Team</dt><dd>Hedel JO13-1</dd></div>
+                    <div><dt>Positie</dt><dd>Rechtsbuiten</dd></div>
+                    <div><dt>Leeftijd · Geboortedatum</dt><dd>13 · 14-09-2012</dd></div>
+                    <div><dt>Rugnummer</dt><dd>#7</dd></div>
+                    <div><dt>Bij academie sinds</dt><dd>2022-08 (4e seizoen)</dd></div>
+                    <div><dt>Voorkeursvoet</dt><dd>Rechts</dd></div>
+                </dl>
+            </div>
+        </section>
+
+        <section class="stats" aria-label="Seizoen 2025/26">
+            <div class="stat"><span class="stat__num">22</span><span class="stat__label">Wedstr.</span></div>
+            <div class="stat"><span class="stat__num">1486</span><span class="stat__label">Minuten</span></div>
+            <div class="stat"><span class="stat__num">8</span><span class="stat__label">Doelpunten</span></div>
+            <div class="stat"><span class="stat__num">11</span><span class="stat__label">Assists</span></div>
+            <div class="stat"><span class="stat__num">3,8</span><span class="stat__label">Gem. score</span></div>
+        </section>
+
+        <div class="section-h">
+            <h2 class="section-h__title">Terugblik · 2025/26</h2>
+            <p class="section-h__hint">Voorgedrukte ankerpunten uit POP + evaluaties — bespreek ze, geen monoloog.</p>
+        </div>
+
+        <section class="lookback">
+            <div class="lookback__card">
+                <p class="lookback__card-title">Sterke punten vorig seizoen (mediaan eval)</p>
+                <ul>
+                    <li>Versnelling <small>· 4,3 / 5 — beste van het team</small></li>
+                    <li>1:1 op de flank <small>· 4,1 / 5</small></li>
+                    <li>Voorzetnauwkeurigheid <small>· 3,9 / 5</small></li>
+                </ul>
+            </div>
+            <div class="lookback__card">
+                <p class="lookback__card-title">Ontwikkelpunten</p>
+                <ul>
+                    <li>Defensieve herstelacties <small>· 2,6 / 5</small></li>
+                    <li>Beslissingen onder druk <small>· 2,9 / 5</small></li>
+                    <li>Koppen <small>· 2,4 / 5</small></li>
+                </ul>
+            </div>
+            <div class="lookback__card">
+                <p class="lookback__card-title">Doelen uit vorig seizoen</p>
+                <ul>
+                    <li>Voorzetnauwkeurigheid verbeteren <small>· behaald (3,9 vs doel 3,5)</small></li>
+                    <li>Gem. 1 doelpuntbijdrage / wedstrijd <small>· behaald (0,86)</small></li>
+                    <li>Dekken voor de rechtsback bij omschakeling <small>· loopt</small></li>
+                </ul>
+            </div>
+            <div class="lookback__card">
+                <p class="lookback__card-title">Trainersnotities (Casper, eind-seizoen gesprek)</p>
+                <ul>
+                    <li>"Wil graag aanvallender spelen"</li>
+                    <li>"Vertrouwen groeit, vraagt nog wel coaching"</li>
+                    <li>"Defensieve discipline kan beter — niet ingebakken"</li>
+                </ul>
+            </div>
+        </section>
+
+        <div class="section-h">
+            <h2 class="section-h__title">Reflectie — in de eigen woorden van de speler</h2>
+            <p class="section-h__hint">Openingsvraag: "Welke wedstrijd of moment van vorig seizoen ben je het meest trots op? En welke moment vond je lastig?"</p>
+        </div>
+        <section class="reflection">
+            <p class="reflection__label">Speler schrijft / trainer noteert:</p>
+            <div class="write-line"></div>
+            <div class="write-line"></div>
+            <div class="write-line"></div>
+        </section>
+
+        <div class="paper-footer">
+            <span>Lucas de Vries · Hedel JO13-1 · Casper Nieuwenhuizen</span>
+            <span>Pagina 1 van 3 · speler-snapshot</span>
+        </div>
+    </article>
+
+    <!-- PAGE 2 — Goals 1 + 2 -->
+    <article class="paper">
+        <p class="brand">TalentTrack · seizoensintake 2026/27</p>
+        <h1 class="title">Doelenintake — Lucas de Vries
+            <small>Doelen 1 + 2 · invullen tijdens het gesprek.</small>
+        </h1>
+
+        <!-- ========================= DOEL 1 ========================= -->
+        <article class="goal">
+            <div class="goal__head">
+                <span class="goal__num">1</span>
+                <div class="goal__categories">
+                    <span class="goal__cat">Technisch</span>
+                    <span class="goal__cat">Tactisch</span>
+                    <span class="goal__cat">Fysiek</span>
+                    <span class="goal__cat">Mentaal</span>
+                </div>
+            </div>
+
+            <div class="goal__field">
+                <p class="goal__field-label">Doelomschrijving <small>de SMART-zin die jullie samen formuleren</small></p>
+                <div class="write-line"></div>
+                <div class="write-line"></div>
+            </div>
+
+            <div class="goal__row">
+                <div class="goal__field">
+                    <p class="goal__field-label">Gekoppeld(e) spelprincipe(s) <small>codes van de referentiekaart, max 2</small></p>
+                    <div class="goal__codes">
+                        <span class="goal__code-box"></span>
+                        <span class="goal__code-box"></span>
+                        <small>bijv. AO-01, VS-03</small>
+                    </div>
+                </div>
+                <div class="goal__field">
+                    <p class="goal__field-label">Gekoppelde voetbalhandeling(en) <small>max 2</small></p>
+                    <div class="goal__codes goal__codes--actions">
+                        <span class="goal__code-box"></span>
+                        <span class="goal__code-box"></span>
+                        <small>bijv. Passen, Vrijlopen</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="goal__field">
+                <p class="goal__field-label">Waarom dit belangrijk is <small>in de woorden van de speler — wat verandert er als dit lukt?</small></p>
+                <div class="write-line"></div>
+                <div class="write-line"></div>
+            </div>
+
+            <div class="goal__field">
+                <p class="goal__field-label">Hoe we dit meten <small>waar we naar kijken om te weten dat het werkt</small></p>
+                <div class="write-line"></div>
+                <div class="write-line"></div>
+            </div>
+
+            <div class="goal__footer">
+                <div class="goal__footer-cell">
+                    <div class="write-line"></div>
+                    <p class="goal__footer-cell-label">Eerste check-in datum</p>
+                </div>
+                <div class="goal__footer-cell">
+                    <div class="write-line"></div>
+                    <p class="goal__footer-cell-label">Eigenaar (speler / trainer / beide)</p>
+                </div>
+            </div>
+        </article>
+
+        <!-- ========================= DOEL 2 ========================= -->
+        <article class="goal">
+            <div class="goal__head">
+                <span class="goal__num">2</span>
+                <div class="goal__categories">
+                    <span class="goal__cat">Technisch</span>
+                    <span class="goal__cat">Tactisch</span>
+                    <span class="goal__cat">Fysiek</span>
+                    <span class="goal__cat">Mentaal</span>
+                </div>
+            </div>
+
+            <div class="goal__field">
+                <p class="goal__field-label">Doelomschrijving <small>de SMART-zin die jullie samen formuleren</small></p>
+                <div class="write-line"></div>
+                <div class="write-line"></div>
+            </div>
+
+            <div class="goal__row">
+                <div class="goal__field">
+                    <p class="goal__field-label">Gekoppeld(e) spelprincipe(s)</p>
+                    <div class="goal__codes">
+                        <span class="goal__code-box"></span>
+                        <span class="goal__code-box"></span>
+                        <small>bijv. AO-01, VS-03</small>
+                    </div>
+                </div>
+                <div class="goal__field">
+                    <p class="goal__field-label">Gekoppelde voetbalhandeling(en)</p>
+                    <div class="goal__codes goal__codes--actions">
+                        <span class="goal__code-box"></span>
+                        <span class="goal__code-box"></span>
+                        <small>bijv. Passen, Vrijlopen</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="goal__field">
+                <p class="goal__field-label">Waarom dit belangrijk is</p>
+                <div class="write-line"></div>
+                <div class="write-line"></div>
+            </div>
+
+            <div class="goal__field">
+                <p class="goal__field-label">Hoe we dit meten</p>
+                <div class="write-line"></div>
+                <div class="write-line"></div>
+            </div>
+
+            <div class="goal__footer">
+                <div class="goal__footer-cell">
+                    <div class="write-line"></div>
+                    <p class="goal__footer-cell-label">Eerste check-in datum</p>
+                </div>
+                <div class="goal__footer-cell">
+                    <div class="write-line"></div>
+                    <p class="goal__footer-cell-label">Eigenaar</p>
+                </div>
+            </div>
+        </article>
+
+        <div class="paper-footer">
+            <span>Lucas de Vries · Hedel JO13-1 · Casper Nieuwenhuizen</span>
+            <span>Pagina 2 van 3 · doelen 1 + 2</span>
+        </div>
+    </article>
+
+    <!-- PAGE 3 — Goal 3 + closing + signatures -->
+    <article class="paper">
+        <p class="brand">TalentTrack · seizoensintake 2026/27</p>
+        <h1 class="title">Doelenintake — Lucas de Vries
+            <small>Doel 3 · afsluitende reflectie · ondertekening.</small>
+        </h1>
+
+        <!-- ========================= DOEL 3 ========================= -->
+        <article class="goal">
+            <div class="goal__head">
+                <span class="goal__num">3</span>
+                <div class="goal__categories">
+                    <span class="goal__cat">Technisch</span>
+                    <span class="goal__cat">Tactisch</span>
+                    <span class="goal__cat">Fysiek</span>
+                    <span class="goal__cat">Mentaal</span>
+                </div>
+            </div>
+
+            <div class="goal__field">
+                <p class="goal__field-label">Doelomschrijving <small>de SMART-zin die jullie samen formuleren</small></p>
+                <div class="write-line"></div>
+                <div class="write-line"></div>
+            </div>
+
+            <div class="goal__row">
+                <div class="goal__field">
+                    <p class="goal__field-label">Gekoppeld(e) spelprincipe(s)</p>
+                    <div class="goal__codes">
+                        <span class="goal__code-box"></span>
+                        <span class="goal__code-box"></span>
+                        <small>bijv. AO-01, VS-03</small>
+                    </div>
+                </div>
+                <div class="goal__field">
+                    <p class="goal__field-label">Gekoppelde voetbalhandeling(en)</p>
+                    <div class="goal__codes goal__codes--actions">
+                        <span class="goal__code-box"></span>
+                        <span class="goal__code-box"></span>
+                        <small>bijv. Passen, Vrijlopen</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="goal__field">
+                <p class="goal__field-label">Waarom dit belangrijk is</p>
+                <div class="write-line"></div>
+                <div class="write-line"></div>
+            </div>
+
+            <div class="goal__field">
+                <p class="goal__field-label">Hoe we dit meten</p>
+                <div class="write-line"></div>
+                <div class="write-line"></div>
+            </div>
+
+            <div class="goal__footer">
+                <div class="goal__footer-cell">
+                    <div class="write-line"></div>
+                    <p class="goal__footer-cell-label">Eerste check-in datum</p>
+                </div>
+                <div class="goal__footer-cell">
+                    <div class="write-line"></div>
+                    <p class="goal__footer-cell-label">Eigenaar</p>
+                </div>
+            </div>
+        </article>
+
+        <!-- Afsluitende reflectie -->
+        <div class="section-h">
+            <h2 class="section-h__title">Afsluiting — één ding om mee te nemen het seizoen in</h2>
+            <p class="section-h__hint">Keuze van de speler — de kernzin om te onthouden als het lastig wordt.</p>
+        </div>
+        <section class="reflection">
+            <div class="write-line"></div>
+            <div class="write-line"></div>
+        </section>
+
+        <!-- Ondertekening -->
+        <section class="signatures">
+            <div class="sig">
+                <div class="sig__line"></div>
+                <p class="sig__label">Speler · Lucas de Vries</p>
+            </div>
+            <div class="sig">
+                <div class="sig__line"></div>
+                <p class="sig__label">Trainer · Casper Nieuwenhuizen</p>
+            </div>
+            <div class="sig">
+                <div class="sig__line"></div>
+                <p class="sig__label">Datum gesprek</p>
+            </div>
+        </section>
+
+        <div class="cta-note">
+            <strong>Reminder voor de trainer:</strong> zet de drie doelen hierboven binnen 48&nbsp;uur in TalentTrack (Speler &rsaquo; Doelen &rsaquo; + Nieuw doel) zodat de digitale versie aan dit gesprek hangt. Gebruik de velden "gekoppeld spelprincipe" en "gekoppelde voetbalhandeling" in de wizard zodat het digitale doel hetzelfde leest als hierboven.
+        </div>
+
+        <div class="paper-footer">
+            <span>Lucas de Vries · Hedel JO13-1 · Casper Nieuwenhuizen</span>
+            <span>Pagina 3 van 3 · doel 3 + afronding</span>
+        </div>
+    </article>
+
+</div>
+
+<!-- ============================================================
+     METHODOLOGY REFERENCE — printed ONCE, brought to every meeting.
+     Two pages: principles + football actions.
+     ============================================================ -->
+<div class="surface surface--reference">
+
+    <!-- PAGE 1 — Spelprincipes -->
+    <article class="paper paper--principles">
+        <header class="ref-head">
+            <div>
+                <p class="brand">TalentTrack · methodiek-referentie</p>
+                <h1 class="title" style="margin-bottom:0;">Spelprincipes
+                    <small>Hedel academie — speelmodel · 18 principes · gebruik de codes bij het opstellen van doelen.</small>
+                </h1>
+            </div>
+            <p class="ref-head__sub">Eenmaal printen · lamineren · bewaren in de doelenmap</p>
+        </header>
+
+        <div class="ref-howto">
+            <strong>Hoe je deze kaart gebruikt tijdens een doelenintake (1:1):</strong>
+            <ol>
+                <li>Bespreek het ontwikkelpunt van de speler in gewone taal.</li>
+                <li>Kies samen <strong>1–2 principes</strong> die hieraan raken (de code komt op het intakeformulier).</li>
+                <li>Ga daarna naar pagina 2 en kies <strong>1–2 voetbalhandelingen</strong> die — als ze beter worden — het principe versterken.</li>
+            </ol>
+        </div>
+
+        <section class="phase">
+            <h2 class="phase__title">Aanvallen <small>· opbouwen</small></h2>
+            <div class="principle"><span class="principle__code">AO-01</span><span class="principle__text">Ons balbezit is gericht op kansen en doelpunten — we spelen zoveel mogelijk vooruit.</span></div>
+            <div class="principle"><span class="principle__code">AO-02</span><span class="principle__text">Backs doen mee in de aanval — we vallen vaak aan via de zijkanten.</span></div>
+            <div class="principle"><span class="principle__code">AO-03</span><span class="principle__text">Geen horizontale ballen bij kantwissel — kies achteruit of vooruit.</span></div>
+            <div class="principle"><span class="principle__code">AO-04</span><span class="principle__text">Onze opbouw begint bij de keeper — lang alleen bij uitzondering.</span></div>
+            <div class="principle"><span class="principle__code">AO-05</span><span class="principle__text">Het derdemansprincipe — bij elke combinatie zoeken we de derde man.</span></div>
+        </section>
+
+        <section class="phase">
+            <h2 class="phase__title">Aanvallen <small>· scoren</small></h2>
+            <div class="principle"><span class="principle__code">AS-01</span><span class="principle__text">Bezetting voor de goal bij voorzetten — sluiten met voldoende mensen aan.</span></div>
+            <div class="principle"><span class="principle__code">AS-02</span><span class="principle__text">Mik laag in de hoek — binnenkant binnen de 16, koppen via een stuit.</span></div>
+        </section>
+
+        <section class="phase">
+            <h2 class="phase__title">Verdedigen <small>· storen</small></h2>
+            <div class="principle"><span class="principle__code">VS-01</span><span class="principle__text">Lokken door het midden óf dwingen naar de zijkant met dicht midden.</span></div>
+            <div class="principle"><span class="principle__code">VS-02</span><span class="principle__text">Bewegen mee met de bal — iedereen heeft zijn functie.</span></div>
+            <div class="principle"><span class="principle__code">VS-03</span><span class="principle__text">Balverlies helft tegenstander → het liefst direct druk.</span></div>
+            <div class="principle"><span class="principle__code">VS-04</span><span class="principle__text">Onze helft is ónze helft — compact spelen, altijd druk op de bal.</span></div>
+            <div class="principle"><span class="principle__code">VS-05</span><span class="principle__text">Verdedig in zone 16m–middenlijn — opsluiten van achter door 7/10/11/9.</span></div>
+        </section>
+
+        <section class="phase">
+            <h2 class="phase__title">Verdedigen <small>· doelpunten voorkomen</small></h2>
+            <div class="principle"><span class="principle__code">VV-01</span><span class="principle__text">In en rond de 16: spelers worden niet meer overgegeven.</span></div>
+            <div class="principle"><span class="principle__code">VV-02</span><span class="principle__text">Verdedigers maken in/rond de 16 fysiek contact met tegenstanders.</span></div>
+            <div class="principle"><span class="principle__code">VV-03</span><span class="principle__text">Voorkom 1:1 aan de zijkant — hulp van 3/4, 7/11 of 6/8.</span></div>
+        </section>
+
+        <section class="phase">
+            <h2 class="phase__title">Omschakelen <small>· naar aanvallen</small></h2>
+            <div class="principle"><span class="principle__code">OA-01</span><span class="principle__text">Verovering helft tegenstander — direct de diepte zoeken indien mogelijk.</span></div>
+            <div class="principle"><span class="principle__code">OA-02</span><span class="principle__text">Verovering eigen helft — bal in de ploeg houden, diepte alleen voor grote kans.</span></div>
+            <div class="principle"><span class="principle__code">OA-03</span><span class="principle__text">Bij directe druk: bal zo snel mogelijk verplaatsen naar de andere kant.</span></div>
+        </section>
+
+        <div class="paper-footer">
+            <span>Hedel academie · Spelprincipes (18) · v 2026/27</span>
+            <span>Spelprincipes</span>
+        </div>
+    </article>
+
+    <!-- PAGE 2 — Voetbalhandelingen -->
+    <article class="paper paper--actions">
+        <header class="ref-head">
+            <div>
+                <p class="brand">TalentTrack · methodiek-referentie</p>
+                <h1 class="title" style="margin-bottom:0;">Voetbalhandelingen
+                    <small>De 11 voetbalhandelingen die elke speler oefent — kies er 1–2 per doel.</small>
+                </h1>
+            </div>
+            <p class="ref-head__sub">Eenmaal printen · lamineren · bewaren in de doelenmap</p>
+        </header>
+
+        <div class="actions-grid">
+            <section>
+                <h2 class="actions-col__title">Met balcontact</h2>
+                <div class="action"><span class="action__name">Aannemen</span><span class="action__hint">eerste balcontact · aanname</span></div>
+                <div class="action"><span class="action__name">Passen</span><span class="action__hint">pass · snelheid · richting</span></div>
+                <div class="action"><span class="action__name">Dribbelen</span><span class="action__hint">dribbel · loopactie · 1:1</span></div>
+                <div class="action"><span class="action__name">Schieten</span><span class="action__hint">schot · afronding</span></div>
+                <div class="action"><span class="action__name">Koppen</span><span class="action__hint">kopbal · luchtduel</span></div>
+            </section>
+
+            <section>
+                <h2 class="actions-col__title">Zonder balcontact</h2>
+                <div class="action"><span class="action__name">Vrijlopen</span><span class="action__hint">vrijlopen · ruimte creëren</span></div>
+                <div class="action"><span class="action__name">Knijpen</span><span class="action__hint">knijpen · compactheid</span></div>
+                <div class="action"><span class="action__name">Jagen</span><span class="action__hint">jagen · druk geven</span></div>
+                <div class="action"><span class="action__name">Dekken</span><span class="action__hint">dekken · rugdekking</span></div>
+            </section>
+
+            <section>
+                <h2 class="actions-col__title">Ondersteunend</h2>
+                <div class="action"><span class="action__name">Spelinzicht</span><span class="action__hint">het spel lezen</span></div>
+                <div class="action"><span class="action__name">Communicatie</span><span class="action__hint">coachen van medespelers</span></div>
+            </section>
+        </div>
+
+        <div class="ref-howto" style="margin-top:8mm;">
+            <strong>Uitgewerkt voorbeeld — een principe koppelen aan een handeling:</strong>
+            <ol>
+                <li>Speler wil dreigender zijn vanaf rechts → principe <strong>AO-02</strong> (backs &amp; aanval via de zijkanten).</li>
+                <li>Concrete handelingen erachter: <strong>Passen</strong> (voorzet) + <strong>Vrijlopen</strong> (loopactie om de bal te ontvangen).</li>
+                <li>De doelomschrijving op het intakeformulier wordt "Bedreigender vanaf rechts", met gekoppeld principe AO-02 en handelingen Passen + Vrijlopen.</li>
+            </ol>
+        </div>
+
+        <div class="paper-footer">
+            <span>Hedel academie · Voetbalhandelingen (11) · v 2026/27</span>
+            <span>Voetbalhandelingen</span>
+        </div>
+    </article>
+
+    <!-- PAGE 3 — Leerdoelen -->
+    <article class="paper paper--leerdoelen">
+        <header class="ref-head">
+            <div>
+                <p class="brand">TalentTrack · methodiek-referentie</p>
+                <h1 class="title" style="margin-bottom:0;">Leerdoelen
+                    <small>Hedel academie — 10 leerdoelen · 2 zijden × 2 teamtaken · onderbouwen de spelprincipes met concrete deelvaardigheden.</small>
+                </h1>
+            </div>
+            <p class="ref-head__sub">Eenmaal printen · lamineren · bewaren in de doelenmap</p>
+        </header>
+
+        <div class="ref-howto">
+            <strong>Hoe je deze kaart gebruikt:</strong> elk leerdoel bestaat uit een titel + 4–5 deelvaardigheden. Tijdens de doelenintake kies je samen met de speler één deelvaardigheid om aan te werken — die wordt het "waarom dit belangrijk is" of "hoe we dit meten" op het intakeformulier.
+        </div>
+
+        <div class="leerdoelen-grid">
+            <section>
+                <h2 class="leerdoelen-col__title">Aanvallen</h2>
+
+                <h3 class="leerdoelen-subhead">· opbouwen</h3>
+                <article class="leerdoel">
+                    <h4 class="leerdoel__title">Positiespel verbeteren</h4>
+                    <ul>
+                        <li>Omgaan met ruimtes en positie kiezen</li>
+                        <li>Wegdraai-bewegingen kiezen en toepassen</li>
+                        <li>Passen op korte afstand</li>
+                        <li>Aan- en meenemen van/met de bal</li>
+                    </ul>
+                </article>
+                <article class="leerdoel">
+                    <h4 class="leerdoel__title">Dieptespel verbeteren</h4>
+                    <ul>
+                        <li>Omgaan met ruimtes en afspeelmogelijkheden creëren</li>
+                        <li>Juiste keuzes maken in de passing</li>
+                        <li>Passing op langere afstand</li>
+                        <li>Momenten herkennen om diep te spelen</li>
+                    </ul>
+                </article>
+
+                <h3 class="leerdoelen-subhead">· scoren</h3>
+                <article class="leerdoel">
+                    <h4 class="leerdoel__title">Aanval met voorzet</h4>
+                    <ul>
+                        <li>Gerichte voorzet geven</li>
+                        <li>Overzicht bewaren</li>
+                        <li>Positie kiezen en afstemmen</li>
+                        <li>Loopacties</li>
+                    </ul>
+                </article>
+                <article class="leerdoel">
+                    <h4 class="leerdoel__title">1:1 uitspelen</h4>
+                    <ul>
+                        <li>Herkennen van een 1:1-situatie</li>
+                        <li>Passeerbeweging kiezen en toepassen</li>
+                        <li>Wegdraaibeweging kiezen en toepassen</li>
+                        <li>Kapbeweging kiezen en toepassen</li>
+                        <li>Juiste moment inzetten</li>
+                    </ul>
+                </article>
+                <article class="leerdoel">
+                    <h4 class="leerdoel__title">Verbeteren scoren</h4>
+                    <ul>
+                        <li>Balaanname / controleren</li>
+                        <li>Rust bewaren</li>
+                        <li>Gericht schieten</li>
+                        <li>Gericht koppen</li>
+                    </ul>
+                </article>
+            </section>
+
+            <section>
+                <h2 class="leerdoelen-col__title">Verdedigen</h2>
+
+                <h3 class="leerdoelen-subhead">· storen</h3>
+                <article class="leerdoel">
+                    <h4 class="leerdoel__title">Verbeteren storen</h4>
+                    <ul>
+                        <li>Momenten herkennen van storen of juist niet storen</li>
+                        <li>Vooruit verdedigen</li>
+                        <li>Mandekking of zonedekking</li>
+                        <li>Omgaan met positie kiezen</li>
+                        <li>Communiceren met medespelers</li>
+                    </ul>
+                </article>
+                <article class="leerdoel">
+                    <h4 class="leerdoel__title">Voorkomen dieptespel</h4>
+                    <ul>
+                        <li>Vooruit verdedigen</li>
+                        <li>Mandekking of zonedekking</li>
+                        <li>Tackle op de bal</li>
+                        <li>Linies op korte onderlinge afstand houden</li>
+                        <li>Omgaan met positie kiezen</li>
+                    </ul>
+                </article>
+
+                <h3 class="leerdoelen-subhead">· doelpunten voorkomen</h3>
+                <article class="leerdoel">
+                    <h4 class="leerdoel__title">Voorzet verdedigen</h4>
+                    <ul>
+                        <li>Overzicht bewaren</li>
+                        <li>Positie kiezen</li>
+                        <li>Afstemmen dekking</li>
+                        <li>Bal verwerken en wegwerken</li>
+                    </ul>
+                </article>
+                <article class="leerdoel">
+                    <h4 class="leerdoel__title">1:1 verdedigen</h4>
+                    <ul>
+                        <li>Vooruit verdedigen</li>
+                        <li>Naar de bal kijken — verdedigende houding</li>
+                        <li>De tegenstander vóór je houden</li>
+                        <li>Tackle / sliding op de bal</li>
+                        <li>Tegenstander naar de kant dwingen</li>
+                    </ul>
+                </article>
+                <article class="leerdoel">
+                    <h4 class="leerdoel__title">Verbeteren doelpunten voorkomen</h4>
+                    <ul>
+                        <li>Bal en tegenstander in zicht houden</li>
+                        <li>Tegenstander meelopen / volgen</li>
+                        <li>Duels spelen</li>
+                        <li>Onderling communiceren</li>
+                        <li>Tackle / sliding</li>
+                    </ul>
+                </article>
+            </section>
+        </div>
+
+        <div class="paper-footer">
+            <span>Hedel academie · Leerdoelen (10) · v 2026/27</span>
+            <span>Leerdoelen</span>
+        </div>
+    </article>
+
+</div>
+
+<script>
+document.querySelectorAll('[data-pick]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        var v = btn.getAttribute('data-pick');
+        document.body.setAttribute('data-surface', v);
+        document.querySelectorAll('[data-pick]').forEach(function (b) {
+            b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
+        });
+    });
+});
+
+// Methodology section toggles — drive body[data-ref-*] which CSS uses to
+// hide non-selected pages. Mirrors the production Print dialog UX.
+document.querySelectorAll('[data-ref-toggle]').forEach(function (chk) {
+    chk.addEventListener('change', function () {
+        var section = chk.getAttribute('data-ref-toggle');
+        document.body.setAttribute('data-ref-' + section, chk.checked ? 'true' : 'false');
+    });
+});
+</script>
+</body>
+</html>

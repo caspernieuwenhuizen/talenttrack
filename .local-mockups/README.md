@@ -33,6 +33,7 @@ Plain HTML + CSS prototypes for surfaces where a visual design pass before filin
 - `match-execution/` — live-match sideline view (mobile-first, 360×640 budget). State picker at top toggles between not_started / first_half / half_time / second_half / pending_review / finalized (legacy `finished` still selectable for diffing).
 - `match-executions-list/` — dedicated listing surface at `?tt_view=match-executions` PLUS the `MatchesNeedingReviewWidget` hero-widget preview (toggle via the picker). Surfaces the orange "pending review" pills and grey "finalized" pills that the list view + execution view share.
 - `wizard-chrome/` — three visual alternatives for the wizard step indicator + action button row, alongside the v3.110.102 baseline for diffing. Toggle via the picker; "Compare all 3" lays the variants side-by-side at ≥1100px. Brief in `notes.md` covers tradeoffs + a recommendation.
+- `player-goal-intake/` — **print** mockup (A4 portrait) for the season-start goal-setting 1:1. Two surfaces in one file via the picker: (a) per-player intake form, **3 pages** (snapshot → goals 1+2 → goal 3+afronding), printed before each conversation; (b) methodology reference sheet, **up to 3 pages** with per-section selection (Spelprincipes / Voetbalhandelingen / Leerdoelen), printed once and brought to every meeting. Fully Dutch on print; EN source → NL .po mapping table in `notes.md` for the executor. Vocabulary lifted verbatim from `database/migrations/0018_methodology_full_content.php`.
 
 ## Not yet mocked (high-value candidates)
 
