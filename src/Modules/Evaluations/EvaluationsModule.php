@@ -20,6 +20,8 @@ class EvaluationsModule implements ModuleInterface {
             // v2.13.0: per-age-group category weights for overall rating.
             add_action( 'admin_post_tt_save_category_weights',  [ Admin\CategoryWeightsPage::class, 'handleSave' ] );
             add_action( 'admin_post_tt_reset_category_weights', [ Admin\CategoryWeightsPage::class, 'handleReset' ] );
+            // #819 — per-eval-type category allowlist (admin matrix).
+            Admin\EvalTypeCategoriesPage::init();
         }
         EvaluationsRestController::init();
         EvalCategoriesRestController::init();

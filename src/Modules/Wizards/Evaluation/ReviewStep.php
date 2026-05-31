@@ -348,6 +348,20 @@ final class ReviewStep implements WizardStepInterface {
         // child rating rows ("an empty evaluation that pollutes the DB").
         $rmin = (int) QueryHelpers::get_config( 'rating_min', '5' );
         $rmax = (int) QueryHelpers::get_config( 'rating_max', '10' );
+
+        // #819 — if the selected eval_type has a category-allowlist
+        // configured (via the new tt_eval_type_categories mapping),
+        // refuse ratings for categories outside the allowlist. Empty
+        // mapping = all categories allowed (back-compat).
+        $type_id_for_filter = (int) ( $state['eval_type_id'] ?? 0 );
+        $allowed_cat_ids    = [];
+        if ( $type_id_for_filter > 0 ) {
+            $allowed_cat_ids = ( new \TT\Infrastructure\Evaluations\EvalTypeCategoriesRepository() )
+                ->categoryIdsFor( $type_id_for_filter );
+        }
+        $has_allowlist = ! empty( $allowed_cat_ids );
+        $allowed_map   = $has_allowlist ? array_flip( array_map( 'intval', $allowed_cat_ids ) ) : [];
+
         $valid_ratings = [];
         foreach ( $ratings as $cat_id => $val ) {
             $val = (int) $val;
@@ -360,6 +374,12 @@ final class ReviewStep implements WizardStepInterface {
                         __( 'Ratings must be between %1$d and %2$d.', 'talenttrack' ),
                         $rmin, $rmax
                     )
+                );
+            }
+            if ( $has_allowlist && ! isset( $allowed_map[ (int) $cat_id ] ) ) {
+                return new \WP_Error(
+                    'category_not_allowed_for_type',
+                    __( 'One of the rated categories is not allowed for the selected evaluation type. Refresh the form and try again.', 'talenttrack' )
                 );
             }
             $valid_ratings[ (int) $cat_id ] = $val;
