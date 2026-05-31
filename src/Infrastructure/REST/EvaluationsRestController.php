@@ -102,13 +102,18 @@ class EvaluationsRestController {
             $first = (string) ( $e->first_name ?? '' );
             $last  = (string) ( $e->last_name  ?? '' );
             $name  = trim( $first . ' ' . $last );
+            // #806 — REST payload exposes both keys:
+            //   `type_name`            — raw canonical key (back-compat,
+            //                            useful for grouping / filtering).
+            //   `type_name_localised`  — user-facing string for display.
             $out[] = [
-                'id'          => (int) $e->id,
-                'eval_date'   => (string) $e->eval_date,
-                'opponent'    => (string) ( $e->opponent ?? '' ),
-                'game_result' => (string) ( $e->game_result ?? '' ),
-                'type_name'   => (string) ( $e->type_name ?? '' ),
-                'player'      => [
+                'id'                  => (int) $e->id,
+                'eval_date'           => (string) $e->eval_date,
+                'opponent'            => (string) ( $e->opponent ?? '' ),
+                'game_result'         => (string) ( $e->game_result ?? '' ),
+                'type_name'           => (string) ( $e->type_name ?? '' ),
+                'type_name_localised' => (string) ( $e->type_name_localised ?? '' ),
+                'player'              => [
                     'first_name' => $first,
                     'last_name'  => $last,
                     'display'    => $name !== '' ? $name : '—',

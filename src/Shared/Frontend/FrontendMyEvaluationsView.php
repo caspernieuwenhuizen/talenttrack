@@ -81,7 +81,11 @@ class FrontendMyEvaluationsView extends FrontendViewBase {
             echo '<tr>';
             echo '<td>' . esc_html( (string) $e->eval_date ) . '</td>';
             echo '<td><a class="tt-link" href="' . esc_url( $detail_url ) . '">' . esc_html( $player_name ) . '</a></td>';
-            echo '<td>' . esc_html( (string) ( $e->type_name ?? '—' ) ) . '</td>';
+            // #806 — pre-localised by EvaluationsRepository so bypass
+            // becomes structurally impossible. Falls back to the raw
+            // type_name when the lookup row is missing.
+            $type_disp = ! empty( $e->type_name_localised ) ? $e->type_name_localised : ( $e->type_name ?? '—' );
+            echo '<td>' . esc_html( (string) $type_disp ) . '</td>';
             echo '<td>' . esc_html( $match_text !== '' ? $match_text : '—' ) . '</td>';
             echo '</tr>';
         }
