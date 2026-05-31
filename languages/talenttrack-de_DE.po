@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-05-31T19:03:17+00:00\n"
+"POT-Creation-Date: 2026-05-31T19:09:24+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -14615,13 +14615,15 @@ msgid "Attacking"
 msgstr ""
 
 #: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php:238
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:436
 #: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:286
-msgid "Set pieces (atk)"
+msgid "Set pieces (attack)"
 msgstr ""
 
 #: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php:239
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:437
 #: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:287
-msgid "Set pieces (def)"
+msgid "Set pieces (defend)"
 msgstr ""
 
 #: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php:242
@@ -14746,14 +14748,6 @@ msgstr ""
 
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:416
 msgid "Second half lineup"
-msgstr ""
-
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:436
-msgid "Set pieces (attack)"
-msgstr ""
-
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:437
-msgid "Set pieces (defend)"
 msgstr ""
 
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:457

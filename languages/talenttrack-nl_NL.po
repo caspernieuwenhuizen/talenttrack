@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-05-31T19:03:17+00:00\n"
+"POT-Creation-Date: 2026-05-31T19:09:24+00:00\n"
 "PO-Revision-Date: 2026-04-25 10:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -15497,14 +15497,16 @@ msgid "Attacking"
 msgstr "Aanvallen"
 
 #: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php:238
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:436
 #: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:286
-msgid "Set pieces (atk)"
-msgstr ""
+msgid "Set pieces (attack)"
+msgstr "Spelhervatting (aanval)"
 
 #: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php:239
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:437
 #: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:287
-msgid "Set pieces (def)"
-msgstr ""
+msgid "Set pieces (defend)"
+msgstr "Spelhervatting (verdediging)"
 
 #: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php:242
 #: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:290
@@ -15634,14 +15636,6 @@ msgstr "Kopieer opstelling 1e helft naar 2e helft"
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:416
 msgid "Second half lineup"
 msgstr "Opstelling 2e helft"
-
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:436
-msgid "Set pieces (attack)"
-msgstr "Spelhervatting (aanval)"
-
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:437
-msgid "Set pieces (defend)"
-msgstr "Spelhervatting (verdediging)"
 
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:457
 #, php-format
