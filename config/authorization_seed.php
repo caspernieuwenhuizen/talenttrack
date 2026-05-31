@@ -175,12 +175,22 @@ return array_merge(
     ] ),
 
     // ─── ASSISTANT COACH ────────────────────────────────────────────
+    // #1060 — AC is operational, HC is development. AC entries below
+    // exclude every per-player development-data entity (evaluations,
+    // pdp_*, behaviour_ratings, team_chemistry, dev_ideas) and their
+    // tile-visibility counterparts. AC sees aggregates only (per team)
+    // and runs the operational surfaces (activities, attendance,
+    // match prep/execution, VCT). HC's per-player notes still flow
+    // through to AC INSIDE the match-prep / match-execution surfaces
+    // because those gate on `match_prep` / `match_execution` (not on
+    // the development entities); the AC-with-kid case is handled by
+    // the existing parent path.
     $expand( 'assistant_coach', [
         'team'                       => [ 'r',   'team',   $mod_teams ],
         'players'                    => [ 'r',   'team',   $mod_players ],
         'people'                     => [ 'r',   'team',   $mod_people ],
         'my_person'                  => [ 'rc',  'self',   $mod_people ],
-        'evaluations'                => [ 'rc',  'team',   $mod_evals ],
+        // #1060 — `evaluations` removed (HC professional-judgment data).
         'activities'                 => [ 'rc',  'team',   $mod_activities ],
         'goals'                      => [ 'rc',  'team',   $mod_goals ],
         'attendance'                 => [ 'rc',  'team',   $mod_activities ],
@@ -190,15 +200,15 @@ return array_merge(
         'rate_cards'                 => [ 'r',   'team',   $mod_stats ],
         'compare'                    => [ 'r',   'team',   $mod_stats ],
         'documentation'              => [ 'r',   'global', $mod_documentation ],
-        'pdp_file'                   => [ 'rc',  'team',   $mod_pdp ],
-        'pdp_verdict'                => [ 'r',   'team',   $mod_pdp ],
-        'pdp_conversations'          => [ 'rc',  'team',   $mod_pdp ],
+        // #1060 — PDP entities (`pdp_file`, `pdp_verdict`, `pdp_conversations`)
+        // removed. Safeguarding territory. `pdp_calendar_export` stays
+        // because it's `self`-scoped (AC exports their OWN calendar slots).
         'pdp_calendar_export'        => [ 'rc',  'self',   $mod_pdp ],
-        'team_chemistry'             => [ 'r',   'team',   $mod_team_dev ],
+        // #1060 — `team_chemistry` removed (development analytics).
         'workflow_tasks'             => [ 'r',   'self',   $mod_workflow ],
         'task_completion'            => [ 'rc',  'self',   $mod_workflow ],
         'frontend_admin'             => [ 'r',   'global', $mod_authorization ],
-        'dev_ideas'                  => [ 'c',   'global', $mod_development ],
+        // #1060 — `dev_ideas` removed (development authoring).
         'thread_messages'            => [ 'rc',  'team',   $mod_threads ],
         'staff_development'          => [ 'rc',  'self',   $mod_staff_dev ],
         'staff_certifications'       => [ 'rc',  'self',   $mod_staff_dev ],
@@ -208,30 +218,33 @@ return array_merge(
         'my_staff_certifications'    => [ 'rc',  'self',   $mod_staff_dev ],
         // v3.110.215 (#846) — coach reads their OWN authored evaluations
         // via the My-group "evaluations this week" KPI tile. Scope `self`
-        // = filter by coach_id = current user. Distinct from `evaluations`
-        // above (broader team-scope read of any evaluation on the team).
+        // = filter by coach_id = current user. Kept for AC (operational
+        // signal — when did I rate, not what's in the eval).
         'my_evaluations'             => [ 'r',   'self',   $mod_evals ],
         'persona_templates'          => [ 'r',   'global', $mod_persona_dash ],
         'push_subscriptions'         => [ 'rcd', 'self',   $mod_push ],
         'player_status'              => [ 'r',   'team',   $mod_players ],
         'player_status_breakdown'    => [ 'r',   'team',   $mod_players ],
-        'player_behaviour_ratings'   => [ 'r',   'team',   $mod_players ],
+        // #1060 — `player_behaviour_ratings` removed (development data).
         'trial_inputs'               => [ 'c',   'team',   $mod_trials ],
         'player_timeline'            => [ 'r',   'team',   $mod_journey ],
         'invitations'                => [ 'c',   'team',   $mod_invitations ],
         // #0079 — tile-visibility entities. Distinct from the data
         // entities above so the matrix can answer "see this tile" and
         // "read this data" separately. All matrix-only (no cap bridge).
+        // #1060 — the tile-visibility panels for removed data entities
+        // (`evaluations_panel`, `team_chemistry_panel`, `pdp_panel`)
+        // are also removed so the AC dashboard doesn't render empty
+        // tiles linking to surfaces they can't access.
         'team_roster_panel'          => [ 'r',   'team',   $mod_teams ],
         'coach_player_list_panel'    => [ 'r',   'team',   $mod_players ],
         'people_directory_panel'     => [ 'r',   'team',   $mod_people ],
-        'evaluations_panel'          => [ 'r',   'team',   $mod_evals ],
         'activities_panel'           => [ 'r',   'team',   $mod_activities ],
         'goals_panel'                => [ 'r',   'team',   $mod_goals ],
         'podium_panel'               => [ 'r',   'team',   $mod_stats ],
-        'team_chemistry_panel'       => [ 'r',   'team',   $mod_team_dev ],
-        'pdp_panel'                  => [ 'r',   'team',   $mod_pdp ],
-        // #0085 — player notes (staff-only running log on the player file).
+        // #0085 — player notes (staff-only running log on the player
+        // file). #1060 — kept for AC: notes are operational (logistics,
+        // safeguarding flags handled separately), not development data.
         'player_notes'               => [ 'rc',  'team',   $mod_threads ],
         // #0095 — VCT module. Assistant coach plans/edits/publishes
         // VCT sessions on their team scope (same as head coach — both
