@@ -34221,6 +34221,15 @@ msgstr "Kies een geldige begintijd of laat het veld leeg."
 msgid "Start time"
 msgstr "Begintijd"
 
+# #1085 — VCT-10 sideline PHV banner
+#. translators: %d = number of active PHV-flagged players
+#: src/Modules/Vct/Frontend/FrontendVctSessionView.php
+#, php-format
+msgid "PHV exclusion — %d player"
+msgid_plural "PHV exclusions — %d players"
+msgstr[0] "PHV-uitsluiting — %d speler"
+msgstr[1] "PHV-uitsluitingen — %d spelers"
+
 #~ msgid ""
 #~ "Pick a team to open the formation board with auto-suggested XI, depth "
 #~ "chart, and chemistry breakdown."

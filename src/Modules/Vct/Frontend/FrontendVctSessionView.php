@@ -96,6 +96,11 @@ class FrontendVctSessionView extends FrontendViewBase {
 
         self::renderFactsHeader( $session );
 
+        // #1085 VCT-10 — PHV exclusion banner. Pulls the team's active
+        // PHV-flagged players (via VctPhvFlagsRepository), so the coach
+        // on the sideline can see at a glance who is workload-adjusted.
+        self::renderPhvExclusionBanner( (int) $session['team_id'] );
+
         $blocks = ( new VctSessionBlocksRepository() )->listForSession( (int) $session['id'] );
         self::renderBlocks( $blocks );
 
@@ -105,6 +110,57 @@ class FrontendVctSessionView extends FrontendViewBase {
         } else {
             self::renderStatusNotice( $session );
         }
+    }
+
+    /**
+     * #1085 VCT-10 — sideline PHV exclusion banner.
+     *
+     * Lists every active-PHV-flagged player on the session's team
+     * roster (resolved via QueryHelpers::get_players() + the existing
+     * VctPhvFlagsRepository::activeForRoster()). Renders nothing when
+     * the roster has no flagged players — the banner is information
+     * the coach needs at the pitch only when there is something to act
+     * on, not a permanent header.
+     *
+     * Mockup design-of-record at `.local-mockups/vct-session-coach-view/`.
+     */
+    private static function renderPhvExclusionBanner( int $team_id ): void {
+        if ( $team_id <= 0 ) return;
+        $roster = \TT\Infrastructure\Query\QueryHelpers::get_players( $team_id );
+        if ( ! $roster ) return;
+        $roster_ids = [];
+        foreach ( $roster as $p ) {
+            $pid = (int) ( $p->id ?? 0 );
+            if ( $pid > 0 ) $roster_ids[] = $pid;
+        }
+        if ( ! $roster_ids ) return;
+        $flagged = ( new \TT\Modules\Vct\Repositories\VctPhvFlagsRepository() )->activeForRoster( $roster_ids );
+        if ( ! $flagged ) return;
+        $by_id = [];
+        foreach ( $roster as $p ) {
+            $by_id[ (int) ( $p->id ?? 0 ) ] = $p;
+        }
+        $names = [];
+        foreach ( $flagged as $pid ) {
+            if ( isset( $by_id[ $pid ] ) ) {
+                $names[] = \TT\Infrastructure\Query\QueryHelpers::player_display_name( $by_id[ $pid ] );
+            }
+        }
+        if ( ! $names ) return;
+        echo '<aside class="tt-vct-phv-banner" role="status" aria-live="polite" style="background:#fef0e6;border-left:4px solid #c75c1f;padding:12px 16px;margin:0 0 16px;border-radius:8px;display:flex;gap:12px;align-items:flex-start;">';
+        echo '<span aria-hidden="true" style="background:#c75c1f;color:#fff;font-size:11px;font-weight:800;padding:2px 8px;border-radius:10px;text-transform:uppercase;letter-spacing:0.4px;flex-shrink:0;">' . esc_html__( 'PHV', 'talenttrack' ) . '</span>';
+        echo '<div style="font-size:13px;line-height:1.45;color:#5b3a1a;">';
+        echo '<strong style="display:block;margin-bottom:2px;color:#7c2f12;">'
+            . esc_html(
+                sprintf(
+                    /* translators: %d = number of active PHV-flagged players */
+                    _n( 'PHV exclusion — %d player', 'PHV exclusions — %d players', count( $names ), 'talenttrack' ),
+                    count( $names )
+                )
+            )
+            . '</strong>';
+        echo esc_html( implode( ' · ', $names ) );
+        echo '</div></aside>';
     }
 
     private static function renderFactsHeader( array $session ): void {
