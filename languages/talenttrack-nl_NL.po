@@ -34054,6 +34054,119 @@ msgstr "Opslaan mislukt: begintijd is ongeldig."
 msgid "VCT defaults saved."
 msgstr "VCT-standaarden opgeslagen."
 
+# #1089 — VCT-14 PHV flag panel
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Physical / Health / Vitality flag — workload adjusted"
+msgstr "Fysiek / health / vitality vlag — belasting aangepast"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "PHV"
+msgstr "PHV"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "PHV — Physical / Health / Vitality"
+msgstr "PHV — Fysiek / health / vitality"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Player has a PHV flag"
+msgstr "Speler heeft een PHV-vlag"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Automatically excluded from VCT blocks above the configured intensity ceiling."
+msgstr "Wordt automatisch uitgesloten van VCT-blokken boven het ingestelde intensiteitsplafond."
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Reason (short, for the coach)"
+msgstr "Reden (kort, voor de trainer)"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Visible to staff on the coach view; not visible to other parents."
+msgstr "Zichtbaar voor staf op de coach-view; niet zichtbaar voor andere ouders."
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Intensity ceiling (max intensity band)"
+msgstr "Intensiteitsplafond (max intensity-band)"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "— Pick a reason —"
+msgstr "— Kies een reden —"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "— None set —"
+msgstr "— Niet ingesteld —"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Injury — knee"
+msgstr "Blessure — knie"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Injury — ankle"
+msgstr "Blessure — enkel"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Asthma"
+msgstr "Astma"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Cardiac condition"
+msgstr "Hartconditie"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Other medical reason"
+msgstr "Andere medische reden"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Temporary fatigue"
+msgstr "Tijdelijke vermoeidheid"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "1 — recovery only"
+msgstr "1 — alleen recovery"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "2 — low"
+msgstr "2 — laag"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "3 — medium"
+msgstr "3 — gemiddeld"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "4 — high"
+msgstr "4 — hoog"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "e.g. Cleared for level 4 from 1 July — physio checked."
+msgstr "bijv. Mag vanaf 1 juli weer op niveau 4 — fysio gecheckt."
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Save PHV flag"
+msgstr "PHV-vlag opslaan"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Where the PHV flag appears:"
+msgstr "Waar de PHV-vlag verschijnt:"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Hero pill next to the name · VCT session wizard workload check · coach-view sideline banner · match prep per-player attention."
+msgstr "Hero-pill naast de naam · belastingscheck in de VCT-sessie-wizard · sideline-banner op de coach-view · per-speler aandachtspunt in matchprep."
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Cleared"
+msgstr "Vrijgegeven"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "Intensity ceiling"
+msgstr "Intensiteitsplafond"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "You do not have permission to edit PHV flags."
+msgstr "Je hebt geen rechten om PHV-vlaggen te wijzigen."
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "PHV flag saved."
+msgstr "PHV-vlag opgeslagen."
+
 #~ msgid ""
 #~ "Pick a team to open the formation board with auto-suggested XI, depth "
 #~ "chart, and chemistry breakdown."

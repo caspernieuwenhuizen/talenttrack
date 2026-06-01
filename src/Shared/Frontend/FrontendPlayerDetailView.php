@@ -186,6 +186,13 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             return;
         }
 
+        // #1089 VCT-14 — handle PHV-panel POST before rendering so the
+        // panel reflects the just-saved state. Cap-gated inside.
+        $phv_panel_notice = '';
+        if ( $_SERVER['REQUEST_METHOD'] === 'POST' && isset( $_POST['_tt_vct_phv_panel'] ) ) {
+            $phv_panel_notice = self::handleVctPhvPost( $player_id, $user_id );
+        }
+
         $player = QueryHelpers::get_player( $player_id );
 
         if ( ! $player ) {
@@ -222,7 +229,8 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         ?>
         <article class="tt-player-detail" data-tab="<?php echo esc_attr( $active_tab ); ?>">
             <?php
-            self::renderHero( $player, $name, $team, $team_url );
+            $phv_row = ( new \TT\Modules\Vct\Repositories\VctPhvFlagsRepository() )->findForPlayer( $player_id );
+            self::renderHero( $player, $name, $team, $team_url, $phv_row );
             self::renderActionRow( $player, $players_url );
             ?>
 
@@ -265,7 +273,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                         case 'trials':      self::renderTrialsTab( $player_id, $player ); break;
                         case 'notes':       self::renderNotesTab( $player_id, $user_id ); break;
                         case 'profile':
-                        default:            self::renderProfileTab( $player ); break;
+                        default:            self::renderProfileTab( $player, $phv_row, $phv_panel_notice ); break;
                     }
                     ?>
                 </section>
@@ -279,13 +287,15 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      * border around the initials/photo avatar; jersey number is a
      * small badge tucked into the avatar's bottom-right corner.
      */
-    private static function renderHero( object $player, string $name, ?object $team, string $team_url ): void {
+    private static function renderHero( object $player, string $name, ?object $team, string $team_url, ?array $phv_row = null ): void {
         $status    = (string) ( $player->status ?? 'inactive' );
         $photo     = (string) ( $player->photo_url ?? '' );
         $jersey    = ! empty( $player->jersey_number ) ? (int) $player->jersey_number : 0;
         $positions = json_decode( (string) ( $player->preferred_positions ?? '' ), true );
         $first_pos = is_array( $positions ) && ! empty( $positions ) ? (string) $positions[0] : '';
         $journey   = self::journeyText( $player );
+        // #1089 VCT-14 — orange PHV pill on the hero when active.
+        $phv_active = $phv_row !== null && ! empty( $phv_row['is_active'] );
         ?>
         <header class="tt-player-detail__hero" aria-label="<?php esc_attr_e( 'Player', 'talenttrack' ); ?>">
             <div class="tt-player-hero__row">
@@ -300,7 +310,12 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                     <?php endif; ?>
                 </div>
                 <div class="tt-player-hero__main">
-                    <h1 class="tt-player-hero__name"><?php echo esc_html( $name ); ?></h1>
+                    <h1 class="tt-player-hero__name">
+                        <?php echo esc_html( $name ); ?>
+                        <?php if ( $phv_active ) : ?>
+                            <span class="tt-player-phv-pill" title="<?php esc_attr_e( 'Physical / Health / Vitality flag — workload adjusted', 'talenttrack' ); ?>"><?php esc_html_e( 'PHV', 'talenttrack' ); ?></span>
+                        <?php endif; ?>
+                    </h1>
                     <?php if ( $team ) : ?>
                         <p class="tt-player-hero__sub">
                             <a href="<?php echo esc_url( $team_url ); ?>"><?php echo esc_html( (string) $team->name ); ?></a>
@@ -744,7 +759,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      * exists in `tt_player_parents` (#0032) and `tt_prospects` (#0066)
      * but wasn't previously visible on this page.
      */
-    private static function renderProfileTab( object $player ): void {
+    private static function renderProfileTab( object $player, ?array $phv_row = null, string $phv_notice_html = '' ): void {
         $player_id  = (int) $player->id;
         $age_tier   = AgeTier::forPlayer( $player_id );
         $tier_label = AgeTier::labels()[ $age_tier ] ?? '';
@@ -820,6 +835,9 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         if ( empty( $player->team_id ) && current_user_can( 'tt_edit_players' ) ) {
             self::renderAssignTeamForm( $player_id );
         }
+
+        // #1089 VCT-14 — PHV panel under the Identity/Academy cards.
+        self::renderPhvPanel( $player_id, $phv_row, $phv_notice_html );
     }
 
     /**
@@ -1565,5 +1583,192 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             'd'     => esc_html( gmdate( 'j', $ts ) ) . '<small>' . esc_html( gmdate( 'M', $ts ) ) . '</small>',
             'class' => $cls,
         ];
+    }
+
+    /**
+     * #1089 VCT-14 — PHV (Physical / Health / Vitality) panel.
+     *
+     * Lives on the Profile tab. Coaches + HoD with `tt_edit_players`
+     * see the form; everyone with `tt_view_players` sees a read-only
+     * summary. The pill on the hero is emitted by `renderHero()` when
+     * the row is active.
+     *
+     * Mockup design-of-record at `.local-mockups/vct-phv-flag/`.
+     */
+    private static function renderPhvPanel( int $player_id, ?array $phv_row, string $notice_html ): void {
+        $can_edit  = current_user_can( 'tt_edit_players' );
+        $is_active = $phv_row !== null && ! empty( $phv_row['is_active'] );
+        $reason    = $phv_row !== null ? (string) $phv_row['reason_key']        : '';
+        $ceiling   = $phv_row !== null ?         $phv_row['intensity_ceiling']  : null;
+        $notes     = $phv_row !== null ? (string) $phv_row['notes']             : '';
+
+        // Hide the panel entirely from non-staff viewers (parents) when
+        // no flag is active — medical-adjacent metadata stays off-screen
+        // unless there's something to surface.
+        if ( ! $can_edit && ! $is_active ) {
+            return;
+        }
+
+        // The mockup's reason picker uses a fixed Dutch enum; expose the
+        // same labels with stable internal keys so they survive locale
+        // changes + future i18n via `tt_lookups`.
+        $reasons = [
+            ''               => __( '— Pick a reason —', 'talenttrack' ),
+            'injury_knee'    => __( 'Injury — knee', 'talenttrack' ),
+            'injury_ankle'   => __( 'Injury — ankle', 'talenttrack' ),
+            'asthma'         => __( 'Asthma', 'talenttrack' ),
+            'cardiac'        => __( 'Cardiac condition', 'talenttrack' ),
+            'other_medical'  => __( 'Other medical reason', 'talenttrack' ),
+            'temp_fatigue'   => __( 'Temporary fatigue', 'talenttrack' ),
+        ];
+        $ceilings = [
+            1 => __( '1 — recovery only', 'talenttrack' ),
+            2 => __( '2 — low', 'talenttrack' ),
+            3 => __( '3 — medium', 'talenttrack' ),
+            4 => __( '4 — high', 'talenttrack' ),
+        ];
+
+        $cancel_url = add_query_arg(
+            [ 'tt_view' => 'players', 'id' => $player_id, 'tab' => 'profile' ],
+            \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+        );
+        ?>
+        <section class="tt-player-card tt-player-phv-panel<?php echo $is_active ? ' is-active' : ''; ?>">
+            <div class="tt-player-card__head">
+                <h3><?php esc_html_e( 'PHV — Physical / Health / Vitality', 'talenttrack' ); ?></h3>
+            </div>
+            <?php echo $notice_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — controlled markup from handleVctPhvPost(). ?>
+            <?php if ( $can_edit ) : ?>
+                <form class="tt-player-phv-panel__form" method="POST" action="">
+                    <?php wp_nonce_field( 'tt_vct_phv_panel_' . $player_id, '_tt_vct_phv_panel_nonce' ); ?>
+                    <input type="hidden" name="_tt_vct_phv_panel" value="1">
+
+                    <label class="tt-player-phv-toggle">
+                        <input type="checkbox" name="is_active" value="1"<?php checked( $is_active ); ?>>
+                        <span class="tt-player-phv-toggle__label">
+                            <?php esc_html_e( 'Player has a PHV flag', 'talenttrack' ); ?>
+                            <span class="tt-player-phv-toggle__sub">
+                                <?php esc_html_e( 'Automatically excluded from VCT blocks above the configured intensity ceiling.', 'talenttrack' ); ?>
+                            </span>
+                        </span>
+                    </label>
+
+                    <div class="tt-field">
+                        <label class="tt-field-label" for="tt-phv-reason-<?php echo (int) $player_id; ?>">
+                            <?php esc_html_e( 'Reason (short, for the coach)', 'talenttrack' ); ?>
+                        </label>
+                        <select id="tt-phv-reason-<?php echo (int) $player_id; ?>" class="tt-input" name="reason_key">
+                            <?php foreach ( $reasons as $key => $label ) : ?>
+                                <option value="<?php echo esc_attr( $key ); ?>"<?php selected( $reason, $key ); ?>><?php echo esc_html( $label ); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <p class="tt-field-hint">
+                            <?php esc_html_e( 'Visible to staff on the coach view; not visible to other parents.', 'talenttrack' ); ?>
+                        </p>
+                    </div>
+
+                    <div class="tt-field">
+                        <label class="tt-field-label" for="tt-phv-ceiling-<?php echo (int) $player_id; ?>">
+                            <?php esc_html_e( 'Intensity ceiling (max intensity band)', 'talenttrack' ); ?>
+                        </label>
+                        <select id="tt-phv-ceiling-<?php echo (int) $player_id; ?>" class="tt-input" name="intensity_ceiling">
+                            <option value=""><?php esc_html_e( '— None set —', 'talenttrack' ); ?></option>
+                            <?php foreach ( $ceilings as $value => $label ) : ?>
+                                <option value="<?php echo (int) $value; ?>"<?php selected( (int) $ceiling, (int) $value ); ?>><?php echo esc_html( $label ); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div class="tt-field">
+                        <label class="tt-field-label" for="tt-phv-notes-<?php echo (int) $player_id; ?>">
+                            <?php esc_html_e( 'Notes (optional)', 'talenttrack' ); ?>
+                        </label>
+                        <textarea id="tt-phv-notes-<?php echo (int) $player_id; ?>" class="tt-input" name="notes" rows="3" placeholder="<?php esc_attr_e( 'e.g. Cleared for level 4 from 1 July — physio checked.', 'talenttrack' ); ?>"><?php echo esc_textarea( $notes ); ?></textarea>
+                    </div>
+
+                    <?php
+                    echo \TT\Shared\Frontend\Components\FormSaveButton::render( [
+                        'label'      => __( 'Save PHV flag', 'talenttrack' ),
+                        'cancel_url' => $cancel_url,
+                    ] );
+                    ?>
+                </form>
+            <?php else : ?>
+                <dl class="tt-player-phv-summary">
+                    <dt><?php esc_html_e( 'Status', 'talenttrack' ); ?></dt>
+                    <dd><?php echo $is_active ? esc_html__( 'Active', 'talenttrack' ) : esc_html__( 'Cleared', 'talenttrack' ); ?></dd>
+                    <?php if ( $reason !== '' && isset( $reasons[ $reason ] ) ) : ?>
+                        <dt><?php esc_html_e( 'Reason', 'talenttrack' ); ?></dt>
+                        <dd><?php echo esc_html( $reasons[ $reason ] ); ?></dd>
+                    <?php endif; ?>
+                    <?php if ( $ceiling !== null && isset( $ceilings[ (int) $ceiling ] ) ) : ?>
+                        <dt><?php esc_html_e( 'Intensity ceiling', 'talenttrack' ); ?></dt>
+                        <dd><?php echo esc_html( $ceilings[ (int) $ceiling ] ); ?></dd>
+                    <?php endif; ?>
+                    <?php if ( $notes !== '' ) : ?>
+                        <dt><?php esc_html_e( 'Notes', 'talenttrack' ); ?></dt>
+                        <dd><?php echo esc_html( $notes ); ?></dd>
+                    <?php endif; ?>
+                </dl>
+            <?php endif; ?>
+            <p class="tt-player-phv-panel__surfaces">
+                <strong><?php esc_html_e( 'Where the PHV flag appears:', 'talenttrack' ); ?></strong>
+                <?php esc_html_e( 'Hero pill next to the name · VCT session wizard workload check · coach-view sideline banner · match prep per-player attention.', 'talenttrack' ); ?>
+            </p>
+        </section>
+        <style>
+        .tt-player-phv-pill { background: #c75c1f; color: #fff; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 10px; text-transform: uppercase; letter-spacing: 0.4px; margin-left: 8px; vertical-align: middle; }
+        .tt-player-phv-panel { margin-top: 16px; border-color: #c75c1f33; }
+        .tt-player-phv-panel.is-active { border-color: #c75c1f; }
+        .tt-player-phv-panel .tt-player-card__head h3 { color: #c75c1f; text-transform: uppercase; letter-spacing: 0.4px; font-size: 14px; font-weight: 800; }
+        .tt-player-phv-toggle { display: flex; align-items: center; gap: 12px; padding: 12px 0; cursor: pointer; }
+        .tt-player-phv-toggle input { width: 22px; height: 22px; accent-color: #c75c1f; cursor: pointer; }
+        .tt-player-phv-toggle__label { font-weight: 600; }
+        .tt-player-phv-toggle__sub { display: block; font-size: 12px; color: var(--tt-muted, #5b6e75); font-weight: 400; margin-top: 2px; }
+        .tt-player-phv-panel .tt-field { margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--tt-line, #d6dadd); }
+        .tt-player-phv-panel__surfaces { background: var(--tt-mute, #f0f3f2); padding: 10px 12px; border-radius: 6px; font-size: 12px; color: var(--tt-muted, #5b6e75); margin-top: 16px; }
+        .tt-player-phv-panel__surfaces strong { display: block; color: var(--tt-ink, #1a1d21); margin-bottom: 2px; }
+        .tt-player-phv-summary { display: grid; grid-template-columns: 1fr 2fr; gap: 6px 12px; margin: 8px 0; }
+        .tt-player-phv-summary dt { font-weight: 600; color: var(--tt-muted, #5b6e75); }
+        .tt-player-phv-summary dd { margin: 0; }
+        </style>
+        <?php
+    }
+
+    /**
+     * #1089 VCT-14 — POST handler for the PHV panel form. Returns
+     * a notice HTML fragment (empty when the request isn't ours).
+     */
+    private static function handleVctPhvPost( int $player_id, int $user_id ): string {
+        if ( ! current_user_can( 'tt_edit_players' ) ) {
+            return '<div class="tt-notice tt-notice--error">' . esc_html__( 'You do not have permission to edit PHV flags.', 'talenttrack' ) . '</div>';
+        }
+        $nonce = isset( $_POST['_tt_vct_phv_panel_nonce'] ) ? (string) $_POST['_tt_vct_phv_panel_nonce'] : '';
+        if ( ! wp_verify_nonce( $nonce, 'tt_vct_phv_panel_' . $player_id ) ) {
+            return '<div class="tt-notice tt-notice--error">' . esc_html__( 'Save failed: session expired. Reload and try again.', 'talenttrack' ) . '</div>';
+        }
+        $is_active = ! empty( $_POST['is_active'] );
+        $reason    = isset( $_POST['reason_key'] ) ? sanitize_key( (string) $_POST['reason_key'] ) : '';
+        // Restrict reason to the known enum to avoid arbitrary strings
+        // landing in the column.
+        $valid_reasons = [ 'injury_knee', 'injury_ankle', 'asthma', 'cardiac', 'other_medical', 'temp_fatigue' ];
+        if ( $reason !== '' && ! in_array( $reason, $valid_reasons, true ) ) {
+            $reason = '';
+        }
+        $ceiling_raw = isset( $_POST['intensity_ceiling'] ) ? trim( (string) $_POST['intensity_ceiling'] ) : '';
+        $ceiling     = $ceiling_raw === '' ? null : max( 1, min( 10, (int) $ceiling_raw ) );
+        $notes       = isset( $_POST['notes'] ) ? sanitize_textarea_field( (string) wp_unslash( $_POST['notes'] ) ) : '';
+
+        $ok = ( new \TT\Modules\Vct\Repositories\VctPhvFlagsRepository() )->setFlag(
+            $player_id,
+            $is_active,
+            $user_id,
+            $notes,
+            $reason,
+            $ceiling
+        );
+        return $ok
+            ? '<div class="tt-notice tt-notice--success">' . esc_html__( 'PHV flag saved.', 'talenttrack' ) . '</div>'
+            : '<div class="tt-notice tt-notice--error">' . esc_html__( 'Save failed: database error.', 'talenttrack' ) . '</div>';
     }
 }

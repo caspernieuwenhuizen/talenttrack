@@ -57,11 +57,41 @@ class VctPhvFlagsRepository implements VctPhvFlagsProvider {
     }
 
     /**
+     * Look up the full current PHV row for a single player. Returns
+     * null when no row exists. Reads the reason_key + intensity_ceiling
+     * columns added by migration 0140 (#1089 / VCT-14) so the player-
+     * detail PHV panel can prefill its inputs.
+     *
+     * @return array{id:int, is_active:bool, reason_key:string, intensity_ceiling:?int, notes:string}|null
+     */
+    public function findForPlayer( int $player_id ): ?array {
+        $row = $this->wpdb->get_row( $this->wpdb->prepare(
+            "SELECT id, is_active, reason_key, intensity_ceiling, notes
+               FROM {$this->table}
+              WHERE club_id = %d AND player_id = %d
+              LIMIT 1",
+            CurrentClub::id(), $player_id
+        ) );
+        if ( ! $row ) return null;
+        return [
+            'id'                => (int) $row->id,
+            'is_active'         => (int) $row->is_active === 1,
+            'reason_key'        => (string) ( $row->reason_key ?? '' ),
+            'intensity_ceiling' => $row->intensity_ceiling !== null ? (int) $row->intensity_ceiling : null,
+            'notes'             => (string) ( $row->notes ?? '' ),
+        ];
+    }
+
+    /**
      * Upsert the flag for a single player. $is_active=true flags the
      * player (sets flagged_at, flagged_by, clears cleared_at);
      * $is_active=false clears the flag (sets cleared_at, cleared_by).
+     *
+     * #1089 (VCT-14) extended the signature with $reason_key +
+     * $intensity_ceiling. Both default to "" / null so callers from
+     * before the upgrade (WorkloadCapRule, tests) keep working.
      */
-    public function setFlag( int $player_id, bool $is_active, int $actor_user_id, string $notes = '' ): bool {
+    public function setFlag( int $player_id, bool $is_active, int $actor_user_id, string $notes = '', string $reason_key = '', ?int $intensity_ceiling = null ): bool {
         $club_id = CurrentClub::id();
         $now     = current_time( 'mysql', true );
 
@@ -72,12 +102,14 @@ class VctPhvFlagsRepository implements VctPhvFlagsProvider {
 
         if ( $is_active ) {
             $data = [
-                'is_active'  => 1,
-                'flagged_at' => $now,
-                'flagged_by' => $actor_user_id,
-                'cleared_at' => null,
-                'cleared_by' => null,
-                'notes'      => $notes,
+                'is_active'         => 1,
+                'flagged_at'        => $now,
+                'flagged_by'        => $actor_user_id,
+                'cleared_at'        => null,
+                'cleared_by'        => null,
+                'notes'             => $notes,
+                'reason_key'        => $reason_key,
+                'intensity_ceiling' => $intensity_ceiling,
             ];
         } else {
             $data = [
@@ -86,6 +118,9 @@ class VctPhvFlagsRepository implements VctPhvFlagsProvider {
                 'cleared_by' => $actor_user_id,
             ];
             if ( $notes !== '' ) $data['notes'] = $notes;
+            // Preserve reason + ceiling on clear so re-flagging keeps
+            // the previous metadata. Explicit wipe can be added later
+            // if pilot reports the friction.
         }
 
         if ( $existing > 0 ) {
