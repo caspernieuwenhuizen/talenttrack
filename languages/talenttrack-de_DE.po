@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-01T18:20:29+00:00\n"
+"POT-Creation-Date: 2026-06-01T18:44:38+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -2023,7 +2023,7 @@ msgstr "Filter"
 #: src/Modules/Vct/Wizard/WhenStep.php:43
 #: src/Modules/Wizards/Activity/DetailsStep.php:34
 #: src/Modules/Wizards/Activity/ReviewStep.php:70
-#: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:74
+#: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:91
 #: src/Shared/Frontend/CoachDashboardView.php:194
 #: src/Shared/Frontend/CoachDashboardView.php:241
 #: src/Shared/Frontend/CoachForms.php:188
@@ -2105,7 +2105,7 @@ msgstr "Titel"
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:270
 #: src/Modules/Wizards/Activity/ReviewStep.php:60
 #: src/Modules/Wizards/Activity/TypeStatusStep.php:24
-#: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:77
+#: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:94
 #: src/Modules/Wizards/Player/ReviewStep.php:31
 #: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:29
 #: src/Shared/Frontend/CoachDashboardView.php:188
@@ -2198,7 +2198,7 @@ msgstr "Typ"
 #: src/Modules/Wizards/Activity/TypeStatusStep.php:41
 #: src/Modules/Wizards/Prospect/IdentityStep.php:100
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:352
-#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:198
+#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:217
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:288
 #: src/Shared/Frontend/CoachDashboardView.php:248
 #: src/Shared/Frontend/CoachDashboardView.php:301
@@ -2541,7 +2541,7 @@ msgstr "— Alle —"
 #: src/Modules/Wizards/Activity/DetailsStep.php:57
 #: src/Modules/Wizards/Activity/ReviewStep.php:73
 #: src/Modules/Wizards/Evaluation/BehaviourStep.php:92
-#: src/Modules/Wizards/Evaluation/RateActorsStep.php:219
+#: src/Modules/Wizards/Evaluation/RateActorsStep.php:229
 #: src/Modules/Wizards/Prospect/ReviewStep.php:49
 #: src/Modules/Wizards/Team/BasicsStep.php:40
 #: src/Modules/Workflow/Forms/AwaitTeamOfferDecisionForm.php:62
@@ -2626,7 +2626,7 @@ msgstr ""
 #: src/Modules/Activities/Admin/ActivitiesPage.php:398
 #: src/Modules/Activities/Admin/ActivitiesPage.php:409
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:346
-#: src/Modules/Wizards/Evaluation/RateActorsStep.php:134
+#: src/Modules/Wizards/Evaluation/RateActorsStep.php:151
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1493
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1496
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1503
@@ -8889,8 +8889,8 @@ msgid "Use club default (%s)"
 msgstr ""
 
 #: src/Modules/Configuration/Admin/UserProfileExtensions.php:58
-#: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:106
-#: src/Modules/Wizards/Evaluation/RateActorsStep.php:178
+#: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:123
+#: src/Modules/Wizards/Evaluation/RateActorsStep.php:191
 #: src/Shared/Frontend/CoachForms.php:244
 msgid "Detailed"
 msgstr ""
@@ -10327,8 +10327,8 @@ msgid "Generate-form layout"
 msgstr ""
 
 #: src/Modules/DemoData/Admin/DemoDataPage.php:299
-#: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:105
-#: src/Modules/Wizards/Evaluation/RateActorsStep.php:177
+#: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:122
+#: src/Modules/Wizards/Evaluation/RateActorsStep.php:190
 #: src/Shared/Frontend/CoachForms.php:243
 msgid "Basic"
 msgstr ""
@@ -12355,7 +12355,6 @@ msgstr "Kategorie"
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:791
 #: src/Modules/PersonaDashboard/Widgets/TeamOverviewGridWidget.php:147
 #: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:18
-#: src/Shared/Frontend/Components/RatingInputComponent.php:35
 #: src/Shared/Frontend/FrontendEvaluationsView.php:380
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:127
 #: src/Shared/Frontend/FrontendTeamBehaviourCaptureView.php:161
@@ -17642,7 +17641,7 @@ msgstr ""
 
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:197
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:54
-#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:200
+#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:219
 #: src/Shared/Frontend/CoachDashboardView.php:302
 #: src/Shared/Frontend/CoachForms.php:563
 #: src/Shared/Frontend/FrontendGoalsManageView.php:171
@@ -24817,8 +24816,8 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Wizards/Evaluation/BehaviourStep.php:76
-#: src/Modules/Wizards/Evaluation/RateActorsStep.php:119
-#: src/Modules/Wizards/Evaluation/RateActorsStep.php:138
+#: src/Modules/Wizards/Evaluation/RateActorsStep.php:136
+#: src/Modules/Wizards/Evaluation/RateActorsStep.php:155
 msgid "Not rated"
 msgstr ""
 
@@ -24845,17 +24844,17 @@ msgstr ""
 msgid "Could not write evaluation row."
 msgstr ""
 
-#: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:69
+#: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:86
 msgid ""
 "Add the activity context this evaluation is anchored to, then rate the "
 "categories that matter."
 msgstr ""
 
-#: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:80
+#: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:97
 msgid "— pick a type —"
 msgstr ""
 
-#: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:90
+#: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:107
 msgid "Context"
 msgstr ""
 
@@ -24887,12 +24886,12 @@ msgstr ""
 msgid "Rate players"
 msgstr ""
 
-#: src/Modules/Wizards/Evaluation/RateActorsStep.php:79
+#: src/Modules/Wizards/Evaluation/RateActorsStep.php:96
 msgid "No players to rate. Mark attendance first or pick another activity."
 msgstr ""
 
 #. translators: %d: player count
-#: src/Modules/Wizards/Evaluation/RateActorsStep.php:87
+#: src/Modules/Wizards/Evaluation/RateActorsStep.php:104
 #, php-format
 msgid ""
 "%d player ready to rate. Tap a player to expand and rate; tap again to "
@@ -24905,37 +24904,37 @@ msgstr[1] ""
 
 #. translators: %1$d = number of players done (rated or skipped), %2$d = total players to rate.
 #. translators: %1$d = 0, %2$d = total. Initial server-rendered state before JS updates it.
-#: src/Modules/Wizards/Evaluation/RateActorsStep.php:102
-#: src/Modules/Wizards/Evaluation/RateActorsStep.php:111
+#: src/Modules/Wizards/Evaluation/RateActorsStep.php:119
+#: src/Modules/Wizards/Evaluation/RateActorsStep.php:128
 #, php-format
 msgid "%1$d of %2$d players rated"
 msgstr ""
 
-#: src/Modules/Wizards/Evaluation/RateActorsStep.php:120
+#: src/Modules/Wizards/Evaluation/RateActorsStep.php:137
 msgid "Rating…"
 msgstr ""
 
-#: src/Modules/Wizards/Evaluation/RateActorsStep.php:121
+#: src/Modules/Wizards/Evaluation/RateActorsStep.php:138
 msgid "Rated"
 msgstr ""
 
-#: src/Modules/Wizards/Evaluation/RateActorsStep.php:122
+#: src/Modules/Wizards/Evaluation/RateActorsStep.php:139
 #: src/Modules/Workflow/TaskStatus.php:68
 msgid "Skipped"
 msgstr ""
 
-#: src/Modules/Wizards/Evaluation/RateActorsStep.php:133
+#: src/Modules/Wizards/Evaluation/RateActorsStep.php:150
 msgid "On loan from another team for this match."
 msgstr ""
 
 #. translators: %s: main category label
-#: src/Modules/Wizards/Evaluation/RateActorsStep.php:186
+#: src/Modules/Wizards/Evaluation/RateActorsStep.php:199
 #: src/Shared/Frontend/CoachForms.php:276
 #, php-format
 msgid "%s detail mode"
 msgstr ""
 
-#: src/Modules/Wizards/Evaluation/RateActorsStep.php:232
+#: src/Modules/Wizards/Evaluation/RateActorsStep.php:242
 msgid "Skip this player (no evaluation written)"
 msgstr ""
 
@@ -25684,16 +25683,20 @@ msgstr ""
 msgid "How was this week? (%1$s–%2$s)"
 msgstr ""
 
-#: src/Modules/Workflow/Forms/PlayerSelfEvaluationForm.php:55
+#: src/Modules/Workflow/Forms/PlayerSelfEvaluationForm.php:49
+msgid "How was this week?"
+msgstr ""
+
+#: src/Modules/Workflow/Forms/PlayerSelfEvaluationForm.php:57
 msgid "What went well this week"
 msgstr ""
 
-#: src/Modules/Workflow/Forms/PlayerSelfEvaluationForm.php:65
+#: src/Modules/Workflow/Forms/PlayerSelfEvaluationForm.php:67
 msgid "What to work on next week"
 msgstr ""
 
-#: src/Modules/Workflow/Forms/PlayerSelfEvaluationForm.php:84
-#: src/Modules/Workflow/Forms/PostGameEvaluationForm.php:91
+#: src/Modules/Workflow/Forms/PlayerSelfEvaluationForm.php:86
+#: src/Modules/Workflow/Forms/PostGameEvaluationForm.php:94
 msgid "Rating is outside the configured range."
 msgstr ""
 
@@ -25705,11 +25708,15 @@ msgstr ""
 msgid "Overall rating (%1$s–%2$s)"
 msgstr ""
 
-#: src/Modules/Workflow/Forms/PostGameEvaluationForm.php:62
+#: src/Modules/Workflow/Forms/PostGameEvaluationForm.php:57
+msgid "Overall rating"
+msgstr ""
+
+#: src/Modules/Workflow/Forms/PostGameEvaluationForm.php:65
 msgid "What went well"
 msgstr ""
 
-#: src/Modules/Workflow/Forms/PostGameEvaluationForm.php:72
+#: src/Modules/Workflow/Forms/PostGameEvaluationForm.php:75
 msgid "What to work on"
 msgstr ""
 
@@ -25963,25 +25970,25 @@ msgstr ""
 msgid "Could not save the task. Please try again."
 msgstr ""
 
-#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:133
+#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:152
 msgid ""
 "This task has already been completed. Below is the response that was "
 "submitted."
 msgstr ""
 
-#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:159
+#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:178
 msgid "Submit"
 msgstr "Absenden"
 
-#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:179
+#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:198
 msgid "unassigned"
 msgstr ""
 
-#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:197
+#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:216
 msgid "Assigned to"
 msgstr ""
 
-#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:206
+#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:225
 msgid "You can view this task, but only the assignee can edit or complete it."
 msgstr ""
 
