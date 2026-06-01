@@ -130,6 +130,24 @@ class PeopleRepository {
 
         $row = self::sanitizeForStorage( $data );
         $row['club_id'] = CurrentClub::id();
+
+        // #1104 — block a second active person record from claiming a
+        // WP user that another active row already owns in this club.
+        // The auth resolver's `getPersonIdByUserId` was non-deterministic
+        // when duplicates existed; the fix is two-sided (resolver ORDER
+        // BY + this guard). Inactive (`status='inactive'`) rows are
+        // allowed to share `wp_user_id` since they don't resolve.
+        if ( isset( $row['wp_user_id'] ) && (int) $row['wp_user_id'] > 0
+             && ( ! isset( $row['status'] ) || $row['status'] === 'active' ) ) {
+            $existing = $wpdb->get_var( $wpdb->prepare(
+                "SELECT id FROM {$p}tt_people
+                  WHERE wp_user_id = %d AND status = 'active' AND club_id = %d
+                  LIMIT 1",
+                (int) $row['wp_user_id'], (int) $row['club_id']
+            ) );
+            if ( $existing ) return false;
+        }
+
         $result = $wpdb->insert( "{$p}tt_people", $row );
         if ( $result === false ) return false;
 
@@ -158,6 +176,25 @@ class PeopleRepository {
         $p = $wpdb->prefix;
         $row = self::sanitizeForStorage( $data, true );
         if ( empty( $row ) ) return true;
+
+        // #1104 — block re-pointing this row's wp_user_id at a WP user
+        // already owned by another active person record in this club,
+        // or flipping status to 'active' when that would create a
+        // duplicate. Same rationale as the create() guard.
+        $would_link_user_id = array_key_exists( 'wp_user_id', $row )
+            ? (int) $row['wp_user_id']
+            : 0;
+        $would_be_active = ! array_key_exists( 'status', $row ) || $row['status'] === 'active';
+        if ( $would_link_user_id > 0 && $would_be_active ) {
+            $clash = $wpdb->get_var( $wpdb->prepare(
+                "SELECT id FROM {$p}tt_people
+                  WHERE wp_user_id = %d AND status = 'active' AND club_id = %d AND id <> %d
+                  LIMIT 1",
+                $would_link_user_id, CurrentClub::id(), $id
+            ) );
+            if ( $clash ) return false;
+        }
+
         $result = $wpdb->update( "{$p}tt_people", $row, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
         return $result !== false;
     }

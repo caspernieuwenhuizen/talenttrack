@@ -326,18 +326,54 @@ class AuthorizationService {
 
     // Public API — helpers used by UI / debug page
 
+    /**
+     * #1104 — `ORDER BY id DESC` makes the picked row deterministic AND
+     * matches the dedupe migration's "data-richer-then-newer-wins" tiebreak.
+     * Without it MySQL is free to return any active row when duplicates
+     * exist; the resolver then looks up team assignments on a stale
+     * Persoon record and the user gets zero scopes despite the admin UI
+     * showing the assignments on a different (newer) Persoon. The
+     * PeopleRepository::create() / update() guards (also #1104) block
+     * future duplicates from landing; this ORDER BY hardens the read
+     * path for already-existing duplicates until a one-off cleanup runs.
+     */
     public static function getPersonIdByUserId( int $user_id ): ?int {
         if ( $user_id <= 0 ) return null;
         if ( array_key_exists( $user_id, self::$cache_person ) ) return self::$cache_person[ $user_id ];
 
         global $wpdb;
         $row = $wpdb->get_var( $wpdb->prepare(
-            "SELECT id FROM {$wpdb->prefix}tt_people WHERE wp_user_id = %d AND status = 'active' AND club_id = %d LIMIT 1",
+            "SELECT id FROM {$wpdb->prefix}tt_people
+              WHERE wp_user_id = %d AND status = 'active' AND club_id = %d
+              ORDER BY id DESC
+              LIMIT 1",
             $user_id, CurrentClub::id()
         ) );
         $person_id = $row ? (int) $row : null;
         self::$cache_person[ $user_id ] = $person_id;
         return $person_id;
+    }
+
+    /**
+     * #1104 — diagnostic helper. Returns every active tt_people row id
+     * that points at the given WP user in the current club. Normal
+     * case: one element. Duplicate case (the #1104 bug surface): two or
+     * more. The DebugPage uses this to warn when the dashboard symptom
+     * may trace back to a duplicate-person row rather than a missing
+     * matrix grant.
+     *
+     * @return int[]
+     */
+    public static function findAllActivePersonIdsByUserId( int $user_id ): array {
+        if ( $user_id <= 0 ) return [];
+        global $wpdb;
+        $rows = $wpdb->get_col( $wpdb->prepare(
+            "SELECT id FROM {$wpdb->prefix}tt_people
+              WHERE wp_user_id = %d AND status = 'active' AND club_id = %d
+              ORDER BY id DESC",
+            $user_id, CurrentClub::id()
+        ) );
+        return is_array( $rows ) ? array_map( 'intval', $rows ) : [];
     }
 
     public static function getCurrentPersonId(): ?int {
