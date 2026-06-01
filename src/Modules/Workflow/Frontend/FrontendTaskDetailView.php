@@ -115,6 +115,25 @@ class FrontendTaskDetailView extends FrontendViewBase {
         }
         $is_completed = (string) $task['status'] === TaskStatus::COMPLETED;
 
+        // #1067 — rating-input chip + slider component assets. Workflow
+        // tasks that surface a rating field (PostGameEvaluationForm,
+        // PlayerSelfEvaluationForm) consume this component; load on
+        // every task detail page since the cost is small and the page
+        // is one-shot.
+        wp_enqueue_style(
+            'tt-rating-input',
+            TT_PLUGIN_URL . 'assets/css/components/rating-input.css',
+            [],
+            TT_VERSION
+        );
+        wp_enqueue_script(
+            'tt-rating-input',
+            TT_PLUGIN_URL . 'assets/js/components/rating-input.js',
+            [],
+            TT_VERSION,
+            true
+        );
+
         echo '<h1 class="tt-fview-title" style="margin:6px 0 18px; font-size:22px; color:#1a1d21;">'
             . esc_html( $template->name() )
             . '</h1>';

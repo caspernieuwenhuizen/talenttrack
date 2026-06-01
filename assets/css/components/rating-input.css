@@ -1,0 +1,164 @@
+/* ---------------------------------------------------------------------------
+ * RatingInputComponent — chip grid (single) + inline-slider row (list).
+ * Mockup of record: .local-mockups/player-rating-input/ (#1067).
+ *
+ * Mobile-first. Base CSS targets 360px and scales up via min-width media
+ * queries. 48px tap targets on chips; 36px hit area on the slider; sub-rows
+ * indented 12px. No hover-only behaviour.
+ * ---------------------------------------------------------------------------
+ */
+
+.tt-rating-input {
+    --tt-rating-accent: var(--tt-accent, #2271b1);
+    --tt-rating-ink:    var(--tt-ink,    #1a1d21);
+    --tt-rating-soft:   var(--tt-ink-soft, #5b6e75);
+    --tt-rating-line:   var(--tt-line, #d6dadd);
+    --tt-rating-paper:  var(--tt-paper, #ffffff);
+    --tt-rating-mute:   var(--tt-mute,  #f0f3f2);
+    margin: 0;
+}
+
+/* === Single — chip grid =================================================== */
+
+.tt-rating-chips {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+.tt-rating-chip {
+    appearance: none;
+    -webkit-appearance: none;
+    border: 1.5px solid var(--tt-rating-line);
+    background: var(--tt-rating-paper);
+    color: var(--tt-rating-ink);
+    border-radius: 10px;
+    min-height: 48px;
+    font: 600 17px/1 inherit;
+    cursor: pointer;
+    touch-action: manipulation;
+    transition: transform 50ms ease;
+}
+.tt-rating-chip:active { transform: scale(0.97); }
+.tt-rating-chip:focus-visible {
+    outline: 2px solid var(--tt-rating-accent);
+    outline-offset: 2px;
+}
+.tt-rating-chip[aria-checked="true"] {
+    background: var(--tt-rating-accent);
+    border-color: var(--tt-rating-accent);
+    color: #fff;
+}
+.tt-rating-chip[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+/* Half-step values render lighter so the eye lands on whole numbers. */
+.tt-rating-chip[data-half="true"] {
+    color: var(--tt-rating-soft);
+    font-size: 15px;
+}
+.tt-rating-chip[data-half="true"][aria-checked="true"] { color: #fff; }
+/* Filler cell keeps the last row even when the value count isn't a
+   multiple of 4 (e.g. 11 values → 4·3 + 1 filler). */
+.tt-rating-chip--filler {
+    visibility: hidden;
+    pointer-events: none;
+}
+
+/* === List — slider row ==================================================== */
+
+.tt-rating-row {
+    display: grid;
+    /* Label (78px fits "Technical/Tactical/Physical/Mental" without wrap)
+       · slider (flex) · value readout (34px fits "10.0"). */
+    grid-template-columns: 78px 1fr 34px;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 8px;
+    min-height: 56px;
+}
+.tt-rating-row + .tt-rating-row {
+    border-top: 1px solid var(--tt-rating-line);
+}
+.tt-rating-row--sub {
+    padding-left: 20px;
+}
+/* Host-provided label (e.g. a <th> in a table layout) — only render
+   the slider + value cells. */
+.tt-rating-row--nolabel {
+    grid-template-columns: 1fr 34px;
+    padding: 0;
+    min-height: 0;
+}
+.tt-rating-row--nolabel + .tt-rating-row--nolabel {
+    border-top: 0;
+}
+.tt-rating-row__label {
+    font: 600 13px/1.2 inherit;
+    color: var(--tt-rating-ink);
+}
+.tt-rating-row__sub {
+    display: block;
+    font: 400 10px/1 inherit;
+    color: var(--tt-rating-soft);
+    margin-top: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.tt-rating-row__slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 36px; /* tall hit target */
+    background: transparent;
+    touch-action: pan-y;
+    margin: 0;
+}
+.tt-rating-row__slider:focus { outline: none; }
+.tt-rating-row__slider:focus-visible::-webkit-slider-thumb {
+    outline: 2px solid var(--tt-rating-accent);
+    outline-offset: 2px;
+}
+.tt-rating-row__slider::-webkit-slider-runnable-track {
+    height: 6px; background: var(--tt-rating-line); border-radius: 3px;
+}
+.tt-rating-row__slider::-moz-range-track {
+    height: 6px; background: var(--tt-rating-line); border-radius: 3px;
+}
+.tt-rating-row__slider::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--tt-rating-accent);
+    border: 3px solid #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+    cursor: grab;
+    margin-top: -11px;
+}
+.tt-rating-row__slider::-moz-range-thumb {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--tt-rating-accent);
+    border: 3px solid #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+    cursor: grab;
+}
+.tt-rating-row__slider:active::-webkit-slider-thumb { cursor: grabbing; }
+.tt-rating-row__slider[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.tt-rating-row__val {
+    font: 700 18px/1 inherit;
+    color: var(--tt-rating-accent);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+.tt-rating-row__val--unset {
+    color: var(--tt-rating-line);
+    font-weight: 400;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tt-rating-chip { transition: none; }
+}

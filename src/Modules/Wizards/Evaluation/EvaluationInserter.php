@@ -78,9 +78,16 @@ final class EvaluationInserter {
         // EvaluationsRestController::write_ratings).
         $club_id = CurrentClub::id();
         $ratings = is_array( $row['ratings'] ?? null ) ? (array) $row['ratings'] : [];
+        // #1067 — rating column is DECIMAL(4,1) so half-step values
+        // (e.g. 7.5) flow through unmodified. The cast to float +
+        // round-to-0.5 guards against legacy callers passing strings
+        // or non-snapped floats; the rating-input component snaps on
+        // the client and the wizard validate() snaps on the server,
+        // so this is defense.
         foreach ( $ratings as $cat_id => $val ) {
-            $val = (int) $val;
+            $val = (float) $val;
             if ( $val <= 0 ) continue;
+            $val = round( $val * 2 ) / 2;
             $wpdb->insert( "{$p}tt_eval_ratings", [
                 'club_id'       => $club_id,
                 'evaluation_id' => $eval_id,
