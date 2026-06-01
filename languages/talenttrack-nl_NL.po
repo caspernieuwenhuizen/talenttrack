@@ -33980,6 +33980,43 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+# #1087 — VCT-12 Configuration tiles
+#: src/Shared/Frontend/FrontendConfigurationView.php:1547
+msgid "VCT macro-blocks"
+msgstr "VCT macro-blokken"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:1548
+msgid "Block templates the VCT session wizard uses (warming-up, hoofddeel, cooldown, theme-blocks). Edit names + default duration + default intensity."
+msgstr "Bloktemplates die de VCT sessie-wizard gebruikt (warming-up, hoofddeel, cooldown, themablokken). Bewerk namen + standaardduur + standaardintensiteit."
+
+#. translators: %d is the number of active VCT macro-block templates.
+#: src/Shared/Frontend/FrontendConfigurationView.php:1551
+#, php-format
+msgid "%d active"
+msgid_plural "%d active"
+msgstr[0] "%d actief"
+msgstr[1] "%d actief"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:1558
+msgid "VCT age-profiles"
+msgstr "VCT leeftijdsprofielen"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:1559
+msgid "Per age band (JO8 → JO19) the workload-cap, max intensity per MD-day, max VCT session length. Drives the wizard's workload check."
+msgstr "Per leeftijdsband (JO8 → JO19) het belastingsplafond, max intensiteit per MD-dag, max VCT sessieduur. Bepaalt de belastingscheck van de wizard."
+
+#. translators: %d is the number of configured VCT age-profile bands.
+#: src/Shared/Frontend/FrontendConfigurationView.php:1562
+#, php-format
+msgid "%d age band"
+msgid_plural "%d age bands"
+msgstr[0] "%d leeftijdsband"
+msgstr[1] "%d leeftijdsbanden"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:1571
+msgid "NEW"
+msgstr "NIEUW"
+
 #~ msgid ""
 #~ "Pick a team to open the formation board with auto-suggested XI, depth "
 #~ "chart, and chemistry breakdown."
