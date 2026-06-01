@@ -210,7 +210,80 @@ final class EditorPage {
             'user_counts'              => $user_counts,
             'persona_labels'           => self::personaLabelsMap( $personas ),
             'i18n'                     => self::i18nStrings(),
+            // #1102 — visibility hints. Editor renders a green-check or
+            // amber-warning line beside each slot's "Capability required"
+            // line based on whether the active persona's default WP role
+            // typically holds the cap (widgets) or whether the chosen
+            // tile slug's underlying cap is reachable (navigation tiles).
+            // Cheap heuristic — does NOT account for per-user matrix
+            // scope overrides; the hint label says so explicitly.
+            'default_role_for_persona' => self::defaultRolesByPersona( $personas ),
+            'role_caps'                => self::wpRoleCapsByRole( $personas ),
+            'tile_caps_by_slug'        => self::tileCapsBySlug(),
         ];
+    }
+
+    /**
+     * #1102 — { persona_slug: wp_role_slug } map. Used by the editor JS
+     * to look up which role's caps to compare against.
+     *
+     * @param list<string> $personas
+     * @return array<string,string>
+     */
+    private static function defaultRolesByPersona( array $personas ): array {
+        $out = [];
+        foreach ( $personas as $p ) {
+            $role = \TT\Modules\Authorization\PersonaResolver::defaultWpRoleFor( $p );
+            if ( $role !== null ) {
+                $out[ $p ] = $role;
+            }
+        }
+        return $out;
+    }
+
+    /**
+     * #1102 — { wp_role_slug: { cap_name: true, ... } } map. One entry
+     * per WP role the personas-in-scope might map to, so the editor JS
+     * can answer "does this role hold this cap?" client-side.
+     *
+     * @param list<string> $personas
+     * @return array<string, array<string, bool>>
+     */
+    private static function wpRoleCapsByRole( array $personas ): array {
+        $roles_needed = [];
+        foreach ( $personas as $p ) {
+            $role = \TT\Modules\Authorization\PersonaResolver::defaultWpRoleFor( $p );
+            if ( $role !== null ) {
+                $roles_needed[ $role ] = true;
+            }
+        }
+        $out = [];
+        foreach ( array_keys( $roles_needed ) as $role_slug ) {
+            $role = get_role( $role_slug );
+            $out[ $role_slug ] = $role ? array_filter( $role->capabilities ) : [];
+        }
+        return $out;
+    }
+
+    /**
+     * #1102 — { tile_slug: cap_name } map for every tile that declares
+     * a `cap`. Navigation tiles consume a `view_slug` as their data
+     * source; the editor needs this map to surface the same visibility
+     * hint that widgets get via their own `cap_required`.
+     *
+     * @return array<string,string>
+     */
+    private static function tileCapsBySlug(): array {
+        if ( ! class_exists( \TT\Shared\Tiles\TileRegistry::class ) ) return [];
+        $out = [];
+        foreach ( \TT\Shared\Tiles\TileRegistry::allRegistered() as $tile ) {
+            $slug = (string) ( $tile['view_slug'] ?? $tile['slug'] ?? '' );
+            $cap  = (string) ( $tile['cap']       ?? '' );
+            if ( $slug !== '' && $cap !== '' ) {
+                $out[ $slug ] = $cap;
+            }
+        }
+        return $out;
     }
 
     /** @return array<string,mixed>|null */
@@ -299,6 +372,10 @@ final class EditorPage {
             // v3.110.110 — properties-panel detail block.
             'intended_for'            => __( 'Intended for', 'talenttrack' ),
             'cap_required'            => __( 'Capability required', 'talenttrack' ),
+            // #1102 — visibility hint badges next to the cap line.
+            'visibility_ok'           => __( 'Visible to %s users by default.', 'talenttrack' ),
+            'visibility_blocked'      => __( 'Hidden — %1$s users lack `%2$s` by default. Grant via Authorization → Matrix or remove from this layout.', 'talenttrack' ),
+            'visibility_caveat'       => __( 'Based on the persona\'s default WordPress role only — per-user matrix scopes can override this.', 'talenttrack' ),
             'kpi_label'               => __( 'KPI', 'talenttrack' ),
             'persona_label_placeholder' => __( 'Use widget default', 'talenttrack' ),
             'mobile_preview_label'    => __( 'Mobile preview · 360 px', 'talenttrack' ),
