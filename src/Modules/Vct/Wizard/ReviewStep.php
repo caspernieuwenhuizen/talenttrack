@@ -49,6 +49,11 @@ final class ReviewStep implements WizardStepInterface {
         echo '<table class="tt-table tt-wizard-review-table"><tbody>';
         echo '<tr><th>' . esc_html__( 'Team',     'talenttrack' ) . '</th><td>' . esc_html( $this->teamName( (int) ( $state['team_id'] ?? 0 ) ) ) . '</td></tr>';
         echo '<tr><th>' . esc_html__( 'Date',     'talenttrack' ) . '</th><td>' . esc_html( (string) ( $state['session_date'] ?? '' ) ) . '</td></tr>';
+        // #1084 VCT-9 — surface start time on the review table when set.
+        $start_time = (string) ( $state['start_time'] ?? '' );
+        if ( $start_time !== '' ) {
+            echo '<tr><th>' . esc_html__( 'Start time', 'talenttrack' ) . '</th><td>' . esc_html( $start_time ) . '</td></tr>';
+        }
         echo '<tr><th>' . esc_html__( 'Age',      'talenttrack' ) . '</th><td>' . esc_html( $age ) . '</td></tr>';
         echo '<tr><th>' . esc_html__( 'MD',       'talenttrack' ) . '</th><td>' . esc_html( $md ) . '</td></tr>';
         echo '<tr><th>' . esc_html__( 'Theme',    'talenttrack' ) . '</th><td>' . esc_html( $theme !== '' ? $theme : __( '— none —', 'talenttrack' ) ) . '</td></tr>';
@@ -64,6 +69,9 @@ final class ReviewStep implements WizardStepInterface {
         $payload = [
             'team_id'                    => (int)    ( $state['team_id']      ?? 0 ),
             'session_date'               => (string) ( $state['session_date'] ?? '' ),
+            // #1084 VCT-9 — start time carries through to the composer
+            // so VctSessionsRepository::create persists it on the row.
+            'start_time'                 => (string) ( $state['start_time']   ?? '' ),
             'age_group'                  => (string) ( $state['_vct_preview_age_group'] ?? ( $this->ageGroupForTeam( (int) ( $state['team_id'] ?? 0 ) ) ?? 'U10' ) ),
             'tactical_theme'             => isset( $state['tactical_theme'] ) ? ( $state['tactical_theme'] ?: null ) : null,
             'requested_duration_minutes' => isset( $state['requested_duration_minutes'] ) ? (int) $state['requested_duration_minutes'] : null,

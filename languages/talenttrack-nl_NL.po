@@ -34200,6 +34200,27 @@ msgstr "Groepsgrootte (min–max spelers)"
 msgid "Save failed: code, name, and category are required."
 msgstr "Opslaan mislukt: code, naam en categorie zijn verplicht."
 
+# #1084 — VCT-9 wizard basis step
+#: src/Modules/Vct/Wizard/WhenStep.php
+msgid "Which team, date, and time is this VCT training for?"
+msgstr "Voor welk team, op welke datum en welk tijdstip is deze VCT-training?"
+
+#: src/Modules/Vct/Wizard/WhenStep.php
+msgid "Start time (optional)"
+msgstr "Begintijd (optioneel)"
+
+#: src/Modules/Vct/Wizard/WhenStep.php
+msgid "Age group + match-day context are resolved automatically on the next step. Start time prefills from the team VCT-defaults panel when configured."
+msgstr "Leeftijdsgroep + MD-context worden automatisch bepaald in de volgende stap. Begintijd wordt voorgevuld vanuit het VCT-standaardenpaneel van het team als dat is ingesteld."
+
+#: src/Modules/Vct/Wizard/WhenStep.php
+msgid "Please pick a valid start time, or leave it empty."
+msgstr "Kies een geldige begintijd of laat het veld leeg."
+
+#: src/Modules/Vct/Wizard/ReviewStep.php
+msgid "Start time"
+msgstr "Begintijd"
+
 #~ msgid ""
 #~ "Pick a team to open the formation board with auto-suggested XI, depth "
 #~ "chart, and chemistry breakdown."
