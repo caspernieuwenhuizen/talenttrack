@@ -51,6 +51,27 @@ class PersonaResolver {
     ];
 
     /**
+     * #1102 — Inverse of WP_ROLE_TO_PERSONA. Returns the WP role slug a
+     * persona typically maps from, so the persona-dashboard editor can
+     * answer "would a default user with this persona's typical WP role
+     * see this widget?" without needing a representative live user.
+     * `tt_coach` is hard-coded because it doesn't appear in the forward
+     * map — it splits at runtime via `resolveCoachPersona()` into
+     * head_coach / assistant_coach.
+     */
+    public static function defaultWpRoleFor( string $persona ): ?string {
+        if ( $persona === 'head_coach' || $persona === 'assistant_coach' ) {
+            return 'tt_coach';
+        }
+        foreach ( self::WP_ROLE_TO_PERSONA as $wp_role => $mapped_persona ) {
+            if ( $mapped_persona === $persona ) {
+                return $wp_role;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Personas the user holds. Multi-persona users get multiple entries.
      *
      * #0033 Sprint 7: a `tt_coach` user is split into `head_coach` (when

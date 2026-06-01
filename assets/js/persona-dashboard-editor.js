@@ -1331,7 +1331,7 @@
         // personas + KPI-specific description when the slot is a
         // kpi_card. Helps an admin pick the right widget out of the
         // library without leaving the editor.
-        var detail = renderDetailBlock(ref[0], ref[1]);
+        var detail = renderDetailBlock(ref[0], ref[1], state.persona);
         if (detail) form.appendChild(detail);
 
         // Size — segmented control (band slots are XL only)
@@ -1366,7 +1366,7 @@
         pane.appendChild(form);
     }
 
-    function renderDetailBlock(widgetId, dataSource) {
+    function renderDetailBlock(widgetId, dataSource, activePersona) {
         var w = widgetById(widgetId);
         if (!w) return null;
         var box = document.createElement('section');
@@ -1406,17 +1406,80 @@
         }
         // Cap required (always shown, since admins need to know who'll
         // actually see the widget after save).
-        if (w.cap_required) {
+        //
+        // #1102 — resolve the cap to compare against. Widgets declare
+        // their own `cap_required`; navigation tiles don't, but the
+        // underlying tile slug does (TileRegistry's `cap` field, lifted
+        // into BOOT.tile_caps_by_slug at PHP bootstrap time). For other
+        // tile-shaped widgets (action_card, info_card, data_table,
+        // mini_player_list) we fall back to whatever cap_required the
+        // widget itself declares.
+        var effectiveCap = w.cap_required || '';
+        if (widgetId === 'navigation_tile' && dataSource) {
+            var tileCap = (BOOT.tile_caps_by_slug || {})[dataSource];
+            if (tileCap) effectiveCap = tileCap;
+        }
+        if (effectiveCap) {
             lines.push(
                 '<div class="tt-pde-detail-cap"><span class="tt-pde-detail-label">' +
                 escape(I18N.cap_required || 'Capability required') + ':</span> <code>' +
-                escape(w.cap_required) + '</code></div>'
+                escape(effectiveCap) + '</code></div>'
             );
+
+            // #1102 — visibility hint. Compare the effective cap against
+            // the active persona's default WP role caps. Two states:
+            // green (visible) or amber (hidden). Per-user matrix scopes
+            // can override either way — the caveat line says so.
+            if (activePersona) {
+                var visHint = renderVisibilityHint(activePersona, effectiveCap);
+                if (visHint) lines.push(visHint);
+            }
         }
 
         if (lines.length === 0) return null;
         box.innerHTML = lines.join('');
         return box;
+    }
+
+    /**
+     * #1102 — render a one-line visibility badge:
+     *   green ✓  : the persona's default WP role holds the cap
+     *   amber ⚠  : it doesn't, and the widget will be hidden for the
+     *              typical user with this persona's default role.
+     * Returns null when we can't decide (persona without a mapped role,
+     * or role caps not in bootstrap — both edge cases).
+     */
+    function renderVisibilityHint(activePersona, cap) {
+        var defaults = BOOT.default_role_for_persona || {};
+        var wpRole = defaults[activePersona];
+        if (!wpRole) return null;
+
+        var roleCaps = (BOOT.role_caps || {})[wpRole] || null;
+        if (roleCaps === null) return null;
+
+        var personaLabel = (BOOT.persona_labels || {})[activePersona] || activePersona;
+        var has = !!roleCaps[cap];
+        var sprintf1 = function (tmpl, a) {
+            return tmpl.replace('%s', a).replace('%1$s', a);
+        };
+        var sprintf2 = function (tmpl, a, b) {
+            return tmpl.replace('%1$s', a).replace('%2$s', b);
+        };
+
+        if (has) {
+            return '<div class="tt-pde-detail-vis tt-pde-detail-vis--ok">' +
+                '<span aria-hidden="true">✓</span> ' +
+                escape(sprintf1(I18N.visibility_ok || 'Visible to %s users by default.', personaLabel)) +
+                ' <span class="tt-pde-detail-vis-caveat">' +
+                escape(I18N.visibility_caveat || '') +
+                '</span></div>';
+        }
+        return '<div class="tt-pde-detail-vis tt-pde-detail-vis--blocked">' +
+            '<span aria-hidden="true">⚠</span> ' +
+            escape(sprintf2(I18N.visibility_blocked || 'Hidden — %1$s users lack `%2$s` by default.', personaLabel, cap)) +
+            ' <span class="tt-pde-detail-vis-caveat">' +
+            escape(I18N.visibility_caveat || '') +
+            '</span></div>';
     }
 
     function field(labelText, body, helpText) {
