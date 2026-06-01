@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-05-31T21:32:55+00:00\n"
+"POT-Creation-Date: 2026-06-01T18:06:06+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -2240,7 +2240,7 @@ msgid "Status"
 msgstr "Statut"
 
 #: src/Modules/Activities/Admin/ActivitiesPage.php:106
-#: src/Modules/Authorization/Admin/DebugPage.php:130
+#: src/Modules/Authorization/Admin/DebugPage.php:155
 #: src/Modules/Authorization/Admin/RolesPage.php:191
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:60
 #: src/Modules/Methodology/Admin/MethodologyPage.php:150
@@ -3426,7 +3426,7 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:170
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:146
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:207
-#: src/Modules/Authorization/Admin/DebugPage.php:132
+#: src/Modules/Authorization/Admin/DebugPage.php:157
 #: src/Modules/Authorization/Admin/FunctionalRolesPage.php:247
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:56
 #: src/Modules/Authorization/Admin/RolesPage.php:192
@@ -4023,9 +4023,9 @@ msgid "WP roles"
 msgstr ""
 
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:195
-#: src/Modules/Authorization/Admin/DebugPage.php:87
-#: src/Modules/Authorization/Admin/DebugPage.php:163
-#: src/Modules/Authorization/Admin/DebugPage.php:200
+#: src/Modules/Authorization/Admin/DebugPage.php:89
+#: src/Modules/Authorization/Admin/DebugPage.php:188
+#: src/Modules/Authorization/Admin/DebugPage.php:225
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:463
 msgid "(none)"
 msgstr ""
@@ -4132,7 +4132,7 @@ msgid "Entity"
 msgstr ""
 
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:323
-#: src/Modules/Authorization/Admin/DebugPage.php:129
+#: src/Modules/Authorization/Admin/DebugPage.php:154
 #: src/Modules/Authorization/Admin/MatrixPage.php:559
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:55
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:152
@@ -4173,19 +4173,19 @@ msgstr ""
 msgid "WordPress user:"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/DebugPage.php:76
+#: src/Modules/Authorization/Admin/DebugPage.php:78
 msgid "WordPress user ID"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/DebugPage.php:80
+#: src/Modules/Authorization/Admin/DebugPage.php:82
 msgid "WordPress roles"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/DebugPage.php:92
+#: src/Modules/Authorization/Admin/DebugPage.php:94
 msgid "Linked tt_people record"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/DebugPage.php:96
+#: src/Modules/Authorization/Admin/DebugPage.php:98
 #: src/Modules/Authorization/Admin/FunctionalRolesPage.php:245
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:158
 #: src/Modules/Authorization/Admin/RolesPage.php:189
@@ -4198,36 +4198,50 @@ msgstr ""
 msgid "Person"
 msgstr "Personne"
 
-#: src/Modules/Authorization/Admin/DebugPage.php:99
+#: src/Modules/Authorization/Admin/DebugPage.php:101
 msgid "Not linked — this user has no tt_people record."
 msgstr ""
 
-#: src/Modules/Authorization/Admin/DebugPage.php:105
+#: src/Modules/Authorization/Admin/DebugPage.php:107
 msgid "Administrator override"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/DebugPage.php:108
+#: src/Modules/Authorization/Admin/DebugPage.php:110
 msgid ""
 "This user has the WordPress administrator role. AuthorizationService grants "
 "all permissions unconditionally, bypassing the role-scope lookup."
 msgstr ""
 
-#: src/Modules/Authorization/Admin/DebugPage.php:114
+#: src/Modules/Authorization/Admin/DebugPage.php:116
+msgid "Duplicate Person records"
+msgstr ""
+
+#. translators: 1: chosen Persoon id, 2: comma-separated Persoon id links
+#: src/Modules/Authorization/Admin/DebugPage.php:129
+#, php-format
+msgid ""
+"This WP user is linked to multiple active tt_people records (%2$s). The auth "
+"resolver is using #%1$d (most recently created — see #1104). Team "
+"assignments on the others are ignored. Investigate via the People admin; "
+"migration 0139 deduplicates on next upgrade."
+msgstr ""
+
+#: src/Modules/Authorization/Admin/DebugPage.php:139
 msgid "Resolved scopes"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/DebugPage.php:119
+#: src/Modules/Authorization/Admin/DebugPage.php:144
 msgid ""
 "No explicit role-scopes. (Administrator override grants everything anyway.)"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/DebugPage.php:121
+#: src/Modules/Authorization/Admin/DebugPage.php:146
 msgid ""
 "This user has no active role-scopes. They have no TalentTrack permissions "
 "beyond what WordPress capabilities they directly hold."
 msgstr ""
 
-#: src/Modules/Authorization/Admin/DebugPage.php:128
+#: src/Modules/Authorization/Admin/DebugPage.php:153
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:54
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:137
 #: src/Modules/Authorization/Admin/RolesPage.php:80
@@ -4253,11 +4267,11 @@ msgstr ""
 msgid "Role"
 msgstr "Rôle"
 
-#: src/Modules/Authorization/Admin/DebugPage.php:131
+#: src/Modules/Authorization/Admin/DebugPage.php:156
 msgid "Permissions granted"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/DebugPage.php:133
+#: src/Modules/Authorization/Admin/DebugPage.php:158
 #: src/Modules/Authorization/Admin/FunctionalRolesPage.php:248
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:57
 #: src/Modules/Authorization/Admin/RolesPage.php:193
@@ -4269,45 +4283,45 @@ msgid "Until"
 msgstr ""
 
 #. translators: %s is a functional role label.
-#: src/Modules/Authorization/Admin/DebugPage.php:156
+#: src/Modules/Authorization/Admin/DebugPage.php:181
 #: src/Modules/Authorization/Admin/RolesPage.php:245
 #, php-format
 msgid "via %s"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/DebugPage.php:178
+#: src/Modules/Authorization/Admin/DebugPage.php:203
 msgid "Flattened permissions"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/DebugPage.php:180
+#: src/Modules/Authorization/Admin/DebugPage.php:205
 msgid ""
 "The union of all permissions above, grouped by domain. This is what "
 "AuthorizationService::userHasPermission() checks against when deciding "
 "access."
 msgstr ""
 
-#: src/Modules/Authorization/Admin/DebugPage.php:205
+#: src/Modules/Authorization/Admin/DebugPage.php:230
 #: src/Modules/Authorization/Admin/RolesPage.php:340
 msgid "Global"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/DebugPage.php:229
+#: src/Modules/Authorization/Admin/DebugPage.php:254
 msgid "Role assignment (data-driven)"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/DebugPage.php:230
+#: src/Modules/Authorization/Admin/DebugPage.php:255
 msgid "Via functional role"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/DebugPage.php:231
+#: src/Modules/Authorization/Admin/DebugPage.php:256
 msgid "Derived: linked player record"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/DebugPage.php:234
+#: src/Modules/Authorization/Admin/DebugPage.php:259
 msgid "Legacy bridge: tt_team_people"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/DebugPage.php:235
+#: src/Modules/Authorization/Admin/DebugPage.php:260
 msgid "Legacy bridge: head_coach_id"
 msgstr ""
 
