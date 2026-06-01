@@ -43,3 +43,24 @@ zien. De styling volgt het ontwerp uit
 
 Komt er pilotfeedback op één van beide, dien dan een follow-up issue in
 met verwijzing naar dit document.
+
+## Per-team aanvulling: VCT-standaardenpaneel (#1088)
+
+Het centrale schema-tabblad bewerkt elk team in een seizoen tegelijk.
+Het **team-detail VCT-paneel** onderaan `?tt_view=teams&id=N` bewerkt
+één team apart:
+
+- Weekday-chiprij (Ma → Zo, multi-select)
+- Standaard begintijd + standaard duur
+- Slaat op via dezelfde `VctTeamSchedulesRepository::upsert()` die het
+  centrale tabblad gebruikt; beide surfaces worden gelezen door de
+  basis-stap van de nieuwe-VCT-sessie-wizard.
+
+Zelfde rechten-gate (`tt_vct_admin_library`), zelfde design tokens —
+de pilot kiest welk surface bij de workflow past. Trainers zonder
+bewerk-cap zien het paneel helemaal niet.
+
+Uitgesteld vanuit de mockup: optioneel `Trainingslocatie` vrijetekstveld
+(vereist een `default_location` schema-kolom) en de live "volgende
+sessie"-preview-regel (vereist weekday + datum-rekenwerk). Follow-up
+indien pilot dit vraagt.

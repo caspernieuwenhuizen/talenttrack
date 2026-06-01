@@ -34017,6 +34017,43 @@ msgstr[1] "%d leeftijdsbanden"
 msgid "NEW"
 msgstr "NIEUW"
 
+# #1088 — VCT-13 team-defaults panel
+#: src/Shared/Frontend/FrontendTeamDetailView.php:506
+msgid "VCT — Training defaults"
+msgstr "VCT — Standaardinstellingen training"
+
+#: src/Shared/Frontend/FrontendTeamDetailView.php:507
+msgid "Smart prefills for new VCT sessions of this team."
+msgstr "Slimme prefills voor nieuwe VCT-sessies van dit team."
+
+#: src/Shared/Frontend/FrontendTeamDetailView.php:535
+msgid "Default duration (min)"
+msgstr "Standaard duur (min)"
+
+#: src/Shared/Frontend/FrontendTeamDetailView.php:526
+msgid "The wizard defaults to the next selected weekday."
+msgstr "De wizard kiest standaard de eerstvolgende geselecteerde dag."
+
+#: src/Shared/Frontend/FrontendTeamDetailView.php:542
+msgid "Save VCT defaults"
+msgstr "VCT-standaarden opslaan"
+
+#: src/Shared/Frontend/FrontendTeamDetailView.php:581
+msgid "You do not have permission to edit VCT defaults."
+msgstr "Je hebt geen rechten om VCT-standaarden te wijzigen."
+
+#: src/Shared/Frontend/FrontendTeamDetailView.php:589
+msgid "Save failed: session expired. Reload and try again."
+msgstr "Opslaan mislukt: sessie verlopen. Herlaad en probeer opnieuw."
+
+#: src/Shared/Frontend/FrontendTeamDetailView.php:598
+msgid "Save failed: start time is not valid."
+msgstr "Opslaan mislukt: begintijd is ongeldig."
+
+#: src/Shared/Frontend/FrontendTeamDetailView.php:611
+msgid "VCT defaults saved."
+msgstr "VCT-standaarden opgeslagen."
+
 #~ msgid ""
 #~ "Pick a team to open the formation board with auto-suggested XI, depth "
 #~ "chart, and chemistry breakdown."
