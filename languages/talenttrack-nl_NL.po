@@ -33986,8 +33986,8 @@ msgid "VCT macro-blocks"
 msgstr "VCT macro-blokken"
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:1548
-msgid "Block templates the session wizard uses (warming-up, hoofddeel, cooldown, theme-blocks). Edit names + default duration + default intensity."
-msgstr "Bloktemplates die de sessie-wizard gebruikt (warming-up, hoofddeel, cooldown, themablokken). Bewerk namen + standaardduur + standaardintensiteit."
+msgid "Block templates the VCT session wizard uses (warming-up, hoofddeel, cooldown, theme-blocks). Edit names + default duration + default intensity."
+msgstr "Bloktemplates die de VCT sessie-wizard gebruikt (warming-up, hoofddeel, cooldown, themablokken). Bewerk namen + standaardduur + standaardintensiteit."
 
 #. translators: %d is the number of active VCT macro-block templates.
 #: src/Shared/Frontend/FrontendConfigurationView.php:1551
@@ -34002,8 +34002,8 @@ msgid "VCT age-profiles"
 msgstr "VCT leeftijdsprofielen"
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:1559
-msgid "Per age band (JO8 → JO19) the workload-cap, max intensity per MD-day, max session length. Drives the wizard's workload check."
-msgstr "Per leeftijdsband (JO8 → JO19) het belastingsplafond, max intensiteit per MD-dag, max sessieduur. Bepaalt de belastingscheck van de wizard."
+msgid "Per age band (JO8 → JO19) the workload-cap, max intensity per MD-day, max VCT session length. Drives the wizard's workload check."
+msgstr "Per leeftijdsband (JO8 → JO19) het belastingsplafond, max intensiteit per MD-dag, max VCT sessieduur. Bepaalt de belastingscheck van de wizard."
 
 #. translators: %d is the number of configured VCT age-profile bands.
 #: src/Shared/Frontend/FrontendConfigurationView.php:1562

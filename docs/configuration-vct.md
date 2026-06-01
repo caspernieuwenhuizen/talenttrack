@@ -13,8 +13,8 @@ matching sub-tab.
 
 | Tile | Opens | Count line | Why it's there |
 | --- | --- | --- | --- |
-| **VCT macro-blocks** | `?tt_view=vct-config&tab=blocks` | "%d active" — counts the operator-editable reference templates (`VctMacroBlocksRepository::listReferenceTemplates()`) | Block templates the session wizard uses (warming-up, hoofddeel, cooldown, theme-blocks). Editing the templates changes what coaches start from on Step 3 of the new-session wizard. |
-| **VCT age-profiles** | `?tt_view=vct-config&tab=age-profiles` | "%d age bands" — counts the seeded per-age envelopes (`VctAgeProfilesRepository::listAll()`) | Per age band (JO8 → JO19) the workload-cap, max intensity per MD-day, max session length. Drives the wizard's workload check + the engine's `WorkloadCapRule` enforcement everywhere a session is composed or saved. |
+| **VCT macro-blocks** | `?tt_view=vct-config&tab=blocks` | "%d active" — counts the operator-editable reference templates (`VctMacroBlocksRepository::listReferenceTemplates()`) | Block templates the VCT session wizard uses (warming-up, hoofddeel, cooldown, theme-blocks). Editing the templates changes what coaches start from on Step 3 of the new-VCT-session wizard. |
+| **VCT age-profiles** | `?tt_view=vct-config&tab=age-profiles` | "%d age bands" — counts the seeded per-age envelopes (`VctAgeProfilesRepository::listAll()`) | Per age band (JO8 → JO19) the workload-cap, max intensity per MD-day, max VCT session length. Drives the wizard's workload check + the engine's `WorkloadCapRule` enforcement everywhere a VCT session is composed or saved. |
 
 The tiles carry a green **NEW** pill + accent border (`.tt-cfg-tile--vct`)
 so HoDs landing on Configuration after the upgrade notice them on first

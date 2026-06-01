@@ -1545,8 +1545,8 @@ class FrontendConfigurationView extends FrontendViewBase {
             [
                 'url'   => $blocks_url,
                 'title' => __( 'VCT macro-blocks', 'talenttrack' ),
-                'desc'  => __( 'Block templates the session wizard uses (warming-up, hoofddeel, cooldown, theme-blocks). Edit names + default duration + default intensity.', 'talenttrack' ),
-                'icon'  => 'sessions',
+                'desc'  => __( 'Block templates the VCT session wizard uses (warming-up, hoofddeel, cooldown, theme-blocks). Edit names + default duration + default intensity.', 'talenttrack' ),
+                'icon'  => 'methodology',
                 'count' => sprintf(
                     /* translators: %d is the number of active VCT macro-block templates. */
                     _n( '%d active', '%d active', $blocks_count, 'talenttrack' ),
@@ -1556,7 +1556,7 @@ class FrontendConfigurationView extends FrontendViewBase {
             [
                 'url'   => $ages_url,
                 'title' => __( 'VCT age-profiles', 'talenttrack' ),
-                'desc'  => __( 'Per age band (JO8 → JO19) the workload-cap, max intensity per MD-day, max session length. Drives the wizard\'s workload check.', 'talenttrack' ),
+                'desc'  => __( 'Per age band (JO8 → JO19) the workload-cap, max intensity per MD-day, max VCT session length. Drives the wizard\'s workload check.', 'talenttrack' ),
                 'icon'  => 'categories',
                 'count' => sprintf(
                     /* translators: %d is the number of configured VCT age-profile bands. */

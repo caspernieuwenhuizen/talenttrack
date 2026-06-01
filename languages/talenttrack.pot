@@ -30275,7 +30275,7 @@ msgid "VCT macro-blocks"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:1548
-msgid "Block templates the session wizard uses (warming-up, hoofddeel, cooldown, theme-blocks). Edit names + default duration + default intensity."
+msgid "Block templates the VCT session wizard uses (warming-up, hoofddeel, cooldown, theme-blocks). Edit names + default duration + default intensity."
 msgstr ""
 
 #. translators: %d is the number of active VCT macro-block templates.
@@ -30291,7 +30291,7 @@ msgid "VCT age-profiles"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:1559
-msgid "Per age band (JO8 → JO19) the workload-cap, max intensity per MD-day, max session length. Drives the wizard's workload check."
+msgid "Per age band (JO8 → JO19) the workload-cap, max intensity per MD-day, max VCT session length. Drives the wizard's workload check."
 msgstr ""
 
 #. translators: %d is the number of configured VCT age-profile bands.

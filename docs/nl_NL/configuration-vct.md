@@ -13,8 +13,8 @@ te openen (`?tt_view=vct-config`) op het bijbehorende sub-tabblad.
 
 | Tegel | Opent | Telregel | Waarom hier |
 | --- | --- | --- | --- |
-| **VCT macro-blokken** | `?tt_view=vct-config&tab=blocks` | "%d actief" — telt de operator-bewerkbare referentietemplates (`VctMacroBlocksRepository::listReferenceTemplates()`) | Bloktemplates die de sessie-wizard gebruikt (warming-up, hoofddeel, cooldown, themablokken). Aanpassingen veranderen waarmee trainers in Stap 3 van de wizard-nieuwe-sessie starten. |
-| **VCT leeftijdsprofielen** | `?tt_view=vct-config&tab=age-profiles` | "%d leeftijdsbanden" — telt de geseede per-leeftijd-enveloppen (`VctAgeProfilesRepository::listAll()`) | Per leeftijdsband (JO8 → JO19) het belastingsplafond, max intensiteit per MD-dag, max sessieduur. Bepaalt de belastingscheck van de wizard én de `WorkloadCapRule` overal waar een sessie wordt samengesteld of opgeslagen. |
+| **VCT macro-blokken** | `?tt_view=vct-config&tab=blocks` | "%d actief" — telt de operator-bewerkbare referentietemplates (`VctMacroBlocksRepository::listReferenceTemplates()`) | Bloktemplates die de VCT sessie-wizard gebruikt (warming-up, hoofddeel, cooldown, themablokken). Aanpassingen veranderen waarmee trainers in Stap 3 van de wizard-nieuwe-VCT-sessie starten. |
+| **VCT leeftijdsprofielen** | `?tt_view=vct-config&tab=age-profiles` | "%d leeftijdsbanden" — telt de geseede per-leeftijd-enveloppen (`VctAgeProfilesRepository::listAll()`) | Per leeftijdsband (JO8 → JO19) het belastingsplafond, max intensiteit per MD-dag, max VCT sessieduur. Bepaalt de belastingscheck van de wizard én de `WorkloadCapRule` overal waar een VCT sessie wordt samengesteld of opgeslagen. |
 
 De tegels hebben een groene **NIEUW**-pil + accentkleurige rand
 (`.tt-cfg-tile--vct`), zodat hoofden opleidingen ze na de upgrade direct
