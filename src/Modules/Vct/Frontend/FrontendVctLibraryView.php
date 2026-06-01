@@ -50,10 +50,13 @@ class FrontendVctLibraryView extends FrontendViewBase {
 
         $category = isset( $_GET['category'] ) ? sanitize_key( (string) $_GET['category'] ) : '';
         $include_archived = isset( $_GET['archived'] ) && $_GET['archived'] === '1';
+        $edit_id = isset( $_GET['edit'] ) ? absint( $_GET['edit'] ) : 0;
 
+        self::renderStyles();
         self::renderFilterChips( $category, $include_archived );
 
         if ( $can_write ) {
+            self::renderSearchInput();
             self::renderAddForm();
         }
 
@@ -67,7 +70,73 @@ class FrontendVctLibraryView extends FrontendViewBase {
             return;
         }
 
-        self::renderTable( $rows, $can_write );
+        self::renderTable( $rows, $can_write, $edit_id );
+        self::renderSearchScript();
+    }
+
+    /**
+     * #1086 VCT-11 — scoped CSS for the surface. Tokens copied from
+     * `.local-mockups/vct-library/` per the visual-fidelity rule.
+     */
+    private static function renderStyles(): void {
+        echo '<style>
+        .tt-vct-lib-edge { width: 4px; min-height: 28px; border-radius: 2px; display: inline-block; vertical-align: middle; margin-right: 8px; }
+        .tt-vct-lib-edge[data-band="1"] { background: #c8dcdb; }
+        .tt-vct-lib-edge[data-band="2"] { background: #9bc2bd; }
+        .tt-vct-lib-edge[data-band="3"] { background: #6ba39c; }
+        .tt-vct-lib-edge[data-band="4"] { background: #3b8580; }
+        .tt-vct-lib-edge[data-band="5"], .tt-vct-lib-edge[data-band="6"], .tt-vct-lib-edge[data-band="7"], .tt-vct-lib-edge[data-band="8"], .tt-vct-lib-edge[data-band="9"], .tt-vct-lib-edge[data-band="10"] { background: #c75c1f; }
+        .tt-vct-lib-search-row { background: #fff; padding: 12px 16px; border: 1px solid #d6dadd; border-radius: 8px; margin: 0 0 12px; }
+        .tt-vct-lib-search-row label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: #5b6e75; margin-bottom: 4px; }
+        .tt-vct-lib-search-row input { width: 100%; height: 48px; padding: 0 12px; border: 1px solid #d6dadd; border-radius: 8px; font: inherit; font-size: 16px; box-sizing: border-box; }
+        .tt-vct-lib-edit-row { background: #f0f3f2; }
+        .tt-vct-lib-edit-row td { padding: 16px; }
+        .tt-vct-lib-edit-form { display: grid; gap: 12px; grid-template-columns: 1fr; }
+        @media (min-width: 768px) { .tt-vct-lib-edit-form { grid-template-columns: 1fr 1fr; } }
+        .tt-vct-lib-edit-form label { display: flex; flex-direction: column; gap: 4px; }
+        .tt-vct-lib-edit-form label > span:first-child { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: #5b6e75; }
+        .tt-vct-lib-edit-form input, .tt-vct-lib-edit-form select { min-height: 48px; padding: 0 12px; border: 1px solid #d6dadd; border-radius: 8px; font: inherit; font-size: 16px; background: #fff; }
+        .tt-vct-lib-edit-actions { grid-column: 1 / -1; display: flex; gap: 8px; justify-content: flex-end; margin-top: 8px; }
+        .tt-vct-lib-row[hidden] { display: none; }
+        </style>';
+    }
+
+    /**
+     * #1086 VCT-11 — search input. JS filter runs client-side; no new
+     * repo method required for substring matching against rendered text.
+     */
+    private static function renderSearchInput(): void {
+        ?>
+        <div class="tt-vct-lib-search-row">
+            <label for="tt-vct-lib-search"><?php esc_html_e( 'Search by name, code or keyword', 'talenttrack' ); ?></label>
+            <input type="search" id="tt-vct-lib-search" inputmode="search" autocomplete="off"
+                   placeholder="<?php esc_attr_e( 'e.g. 4 vs 2, rondo, header duel…', 'talenttrack' ); ?>">
+        </div>
+        <?php
+    }
+
+    /**
+     * #1086 VCT-11 — JS that filters rendered rows in place via the
+     * `data-search` attribute carrying the row's searchable text.
+     */
+    private static function renderSearchScript(): void {
+        ?>
+        <script>
+        (function(){
+            var input = document.getElementById('tt-vct-lib-search');
+            if (!input) return;
+            var rows = document.querySelectorAll('.tt-vct-lib-row');
+            input.addEventListener('input', function(){
+                var q = input.value.trim().toLowerCase();
+                rows.forEach(function(r){
+                    if (q === '') { r.hidden = false; return; }
+                    var hay = (r.getAttribute('data-search') || '').toLowerCase();
+                    r.hidden = hay.indexOf(q) === -1;
+                });
+            });
+        })();
+        </script>
+        <?php
     }
 
     private static function renderFilterChips( string $current, bool $include_archived ): void {
@@ -151,7 +220,8 @@ class FrontendVctLibraryView extends FrontendViewBase {
     }
 
     /** @param list<array<string,mixed>> $rows */
-    private static function renderTable( array $rows, bool $can_write ): void {
+    private static function renderTable( array $rows, bool $can_write, int $edit_id = 0 ): void {
+        $base_url = remove_query_arg( 'edit' );
         echo '<div class="tt-table-wrap"><table class="tt-table"><thead><tr>';
         echo '<th>' . esc_html__( 'Name',     'talenttrack' ) . '</th>';
         echo '<th>' . esc_html__( 'Category', 'talenttrack' ) . '</th>';
@@ -164,21 +234,47 @@ class FrontendVctLibraryView extends FrontendViewBase {
 
         foreach ( $rows as $row ) {
             $is_archived = isset( $row['archived_at'] ) || self::isArchivedById( (int) $row['id'] );
-            echo '<tr>';
-            echo '<td>' . esc_html( (string) $row['name_canonical'] ) . '<br><code style="font-size:11px;color:#888;">' . esc_html( (string) $row['code'] ) . '</code></td>';
-            echo '<td>' . esc_html( LookupTranslator::byTypeAndName( 'vct_exercise_category', (string) $row['category'] ) ) . '</td>';
-            echo '<td>' . esc_html( $row['tactical_theme'] !== null ? LookupTranslator::byTypeAndName( 'vct_tactical_theme', (string) $row['tactical_theme'] ) : '—' ) . '</td>';
-            echo '<td>' . esc_html( (string) $row['intensity_band'] ) . '</td>';
+            $cat_label   = LookupTranslator::byTypeAndName( 'vct_exercise_category', (string) $row['category'] );
+            $theme_label = $row['tactical_theme'] !== null
+                ? LookupTranslator::byTypeAndName( 'vct_tactical_theme', (string) $row['tactical_theme'] )
+                : '';
+            $row_id      = (int) $row['id'];
+            $band        = (int) $row['intensity_band'];
+            $search_hay  = trim( implode( ' ', [
+                (string) $row['name_canonical'],
+                (string) $row['code'],
+                $cat_label,
+                $theme_label,
+            ] ) );
+
+            echo '<tr class="tt-vct-lib-row" data-search="' . esc_attr( $search_hay ) . '">';
+            echo '<td>';
+            echo '<span class="tt-vct-lib-edge" data-band="' . esc_attr( (string) $band ) . '" title="' . esc_attr( sprintf( /* translators: %d = intensity band 1-10 */ __( 'Intensity band %d', 'talenttrack' ), $band ) ) . '"></span>';
+            echo esc_html( (string) $row['name_canonical'] );
+            echo '<br><code style="font-size:11px;color:#888;">' . esc_html( (string) $row['code'] ) . '</code></td>';
+            echo '<td>' . esc_html( $cat_label ) . '</td>';
+            echo '<td>' . esc_html( $theme_label !== '' ? $theme_label : '—' ) . '</td>';
+            echo '<td>' . esc_html( (string) $band ) . '</td>';
             echo '<td>' . esc_html( (string) $row['age_min'] ) . '-' . esc_html( (string) $row['age_max'] ) . '</td>';
             echo '<td>' . esc_html( $is_archived ? __( 'Archived', 'talenttrack' ) : __( 'Active', 'talenttrack' ) ) . '</td>';
 
             if ( $can_write ) {
-                echo '<td>';
+                echo '<td style="white-space:nowrap;">';
                 if ( ! $is_archived ) {
+                    // #1086 VCT-11 — inline-edit affordance. Clicking
+                    // toggles ?edit=N on the URL; the edit form for the
+                    // active id renders below the row.
+                    $edit_url = $edit_id === $row_id
+                        ? remove_query_arg( 'edit' )
+                        : add_query_arg( [ 'edit' => $row_id ], $base_url ) . '#tt-vct-lib-edit-' . $row_id;
+                    echo '<a class="tt-btn tt-btn-secondary" style="font-size:12px;padding:4px 10px;margin-right:6px;" href="' . esc_url( $edit_url ) . '">'
+                        . ( $edit_id === $row_id ? esc_html__( 'Close', 'talenttrack' ) : esc_html__( 'Edit', 'talenttrack' ) )
+                        . '</a>';
+
                     echo '<form method="POST" action="" style="display:inline;">';
-                    wp_nonce_field( 'tt_vct_library_archive_' . (int) $row['id'], '_tt_vct_lib_archive_nonce' );
+                    wp_nonce_field( 'tt_vct_library_archive_' . $row_id, '_tt_vct_lib_archive_nonce' );
                     echo '<input type="hidden" name="_tt_action" value="archive">';
-                    echo '<input type="hidden" name="exercise_id" value="' . esc_attr( (string) $row['id'] ) . '">';
+                    echo '<input type="hidden" name="exercise_id" value="' . esc_attr( (string) $row_id ) . '">';
                     echo '<button type="submit" class="tt-btn tt-btn-secondary" style="font-size:12px;padding:4px 10px;" onclick="return confirm(\'' . esc_attr__( 'Archive this exercise? It stays in history but drops out of new session candidates.', 'talenttrack' ) . '\');">'
                         . esc_html__( 'Archive', 'talenttrack' ) . '</button>';
                     echo '</form>';
@@ -186,9 +282,103 @@ class FrontendVctLibraryView extends FrontendViewBase {
                 echo '</td>';
             }
             echo '</tr>';
+
+            // #1086 VCT-11 — inline edit form, rendered as a full-width
+            // row underneath the matching exercise. Visible only when
+            // ?edit=<row_id> matches.
+            if ( $can_write && $edit_id === $row_id && ! $is_archived ) {
+                self::renderEditRow( $row, $base_url );
+            }
         }
 
         echo '</tbody></table></div>';
+    }
+
+    /**
+     * #1086 VCT-11 — inline edit form. Mirrors the add-form field set;
+     * POSTs `_tt_action=update` back through `handlePost()`.
+     *
+     * @param array<string,mixed> $row
+     */
+    private static function renderEditRow( array $row, string $cancel_url ): void {
+        $row_id     = (int) $row['id'];
+        $categories = QueryHelpers::get_lookup_names( 'vct_exercise_category' );
+        $themes     = QueryHelpers::get_lookup_names( 'vct_tactical_theme' );
+        $current_cat   = (string) $row['category'];
+        $current_theme = $row['tactical_theme'] !== null ? (string) $row['tactical_theme'] : '';
+        ?>
+        <tr class="tt-vct-lib-edit-row" id="tt-vct-lib-edit-<?php echo (int) $row_id; ?>">
+            <td colspan="7">
+                <form method="POST" action="" class="tt-vct-lib-edit-form">
+                    <?php wp_nonce_field( 'tt_vct_library_update_' . $row_id, '_tt_vct_lib_update_nonce' ); ?>
+                    <input type="hidden" name="_tt_action" value="update">
+                    <input type="hidden" name="exercise_id" value="<?php echo (int) $row_id; ?>">
+
+                    <label>
+                        <span><?php esc_html_e( 'Name', 'talenttrack' ); ?></span>
+                        <input type="text" name="name_canonical" required value="<?php echo esc_attr( (string) $row['name_canonical'] ); ?>">
+                    </label>
+                    <label>
+                        <span><?php esc_html_e( 'Code (unique slug)', 'talenttrack' ); ?></span>
+                        <input type="text" name="code" required pattern="[a-z0-9_]+" value="<?php echo esc_attr( (string) $row['code'] ); ?>">
+                    </label>
+                    <label>
+                        <span><?php esc_html_e( 'Category', 'talenttrack' ); ?></span>
+                        <select name="category" required>
+                            <?php foreach ( $categories as $c ) :
+                                $c = (string) $c; ?>
+                                <option value="<?php echo esc_attr( $c ); ?>"<?php selected( $current_cat, $c ); ?>>
+                                    <?php echo esc_html( LookupTranslator::byTypeAndName( 'vct_exercise_category', $c ) ); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </label>
+                    <label>
+                        <span><?php esc_html_e( 'Theme (optional)', 'talenttrack' ); ?></span>
+                        <select name="tactical_theme">
+                            <option value="">— —</option>
+                            <?php foreach ( $themes as $t ) :
+                                $t = (string) $t; ?>
+                                <option value="<?php echo esc_attr( $t ); ?>"<?php selected( $current_theme, $t ); ?>>
+                                    <?php echo esc_html( LookupTranslator::byTypeAndName( 'vct_tactical_theme', $t ) ); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </label>
+                    <label>
+                        <span><?php esc_html_e( 'Intensity band (1-10)', 'talenttrack' ); ?></span>
+                        <input type="number" inputmode="numeric" name="intensity_band" min="1" max="10" value="<?php echo (int) $row['intensity_band']; ?>" required>
+                    </label>
+                    <label>
+                        <span><?php esc_html_e( 'Age range (min–max)', 'talenttrack' ); ?></span>
+                        <span style="display:flex;gap:6px;">
+                            <input type="number" inputmode="numeric" name="age_min" min="6" max="19" value="<?php echo (int) $row['age_min']; ?>" required style="flex:1;">
+                            <input type="number" inputmode="numeric" name="age_max" min="6" max="19" value="<?php echo (int) $row['age_max']; ?>" required style="flex:1;">
+                        </span>
+                    </label>
+                    <label>
+                        <span><?php esc_html_e( 'Duration (min–max minutes)', 'talenttrack' ); ?></span>
+                        <span style="display:flex;gap:6px;">
+                            <input type="number" inputmode="numeric" name="duration_minutes_min" min="1" max="120" value="<?php echo (int) $row['duration_minutes_min']; ?>" required style="flex:1;">
+                            <input type="number" inputmode="numeric" name="duration_minutes_max" min="1" max="120" value="<?php echo (int) $row['duration_minutes_max']; ?>" required style="flex:1;">
+                        </span>
+                    </label>
+                    <label>
+                        <span><?php esc_html_e( 'Group size (min–max players)', 'talenttrack' ); ?></span>
+                        <span style="display:flex;gap:6px;">
+                            <input type="number" inputmode="numeric" name="players_min" min="1" max="30" value="<?php echo (int) $row['players_min']; ?>" required style="flex:1;">
+                            <input type="number" inputmode="numeric" name="players_max" min="1" max="30" value="<?php echo (int) $row['players_max']; ?>" required style="flex:1;">
+                        </span>
+                    </label>
+
+                    <div class="tt-vct-lib-edit-actions">
+                        <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( $cancel_url ); ?>"><?php esc_html_e( 'Cancel', 'talenttrack' ); ?></a>
+                        <button type="submit" class="tt-btn tt-btn-primary"><?php esc_html_e( 'Save exercise', 'talenttrack' ); ?></button>
+                    </div>
+                </form>
+            </td>
+        </tr>
+        <?php
     }
 
     /**
@@ -240,6 +430,37 @@ class FrontendVctLibraryView extends FrontendViewBase {
                 return;
             }
             self::notice( 'success', __( 'Exercise added.', 'talenttrack' ) );
+            return;
+        }
+
+        if ( $action === 'update' ) {
+            $id = isset( $_POST['exercise_id'] ) ? absint( $_POST['exercise_id'] ) : 0;
+            if ( ! wp_verify_nonce( (string) ( $_POST['_tt_vct_lib_update_nonce'] ?? '' ), 'tt_vct_library_update_' . $id ) ) {
+                self::notice( 'error', __( 'Save failed: session expired. Please reload and try again.', 'talenttrack' ) );
+                return;
+            }
+            $patch = [
+                'code'                 => sanitize_key( (string) ( $_POST['code']           ?? '' ) ),
+                'name_canonical'       => sanitize_text_field( (string) ( $_POST['name_canonical'] ?? '' ) ),
+                'category'             => sanitize_key( (string) ( $_POST['category']       ?? '' ) ),
+                'tactical_theme'       => sanitize_key( (string) ( $_POST['tactical_theme'] ?? '' ) ) ?: null,
+                'intensity_band'       => max( 1, min( 10, (int) ( $_POST['intensity_band']       ?? 3 ) ) ),
+                'age_min'              => max( 6, min( 19, (int) ( $_POST['age_min']              ?? 9 ) ) ),
+                'age_max'              => max( 6, min( 19, (int) ( $_POST['age_max']              ?? 14 ) ) ),
+                'duration_minutes_min' => max( 1, min( 120, (int) ( $_POST['duration_minutes_min'] ?? 10 ) ) ),
+                'duration_minutes_max' => max( 1, min( 120, (int) ( $_POST['duration_minutes_max'] ?? 20 ) ) ),
+                'players_min'          => max( 1, min( 30,  (int) ( $_POST['players_min']          ?? 4 ) ) ),
+                'players_max'          => max( 1, min( 30,  (int) ( $_POST['players_max']          ?? 20 ) ) ),
+            ];
+            if ( $id <= 0 || $patch['code'] === '' || $patch['name_canonical'] === '' || $patch['category'] === '' ) {
+                self::notice( 'error', __( 'Save failed: code, name, and category are required.', 'talenttrack' ) );
+                return;
+            }
+            $ok = ( new VctExercisesRepository() )->update( $id, $patch );
+            self::notice(
+                $ok ? 'success' : 'error',
+                $ok ? __( 'Exercise updated.', 'talenttrack' ) : __( 'Save failed: database error.', 'talenttrack' )
+            );
             return;
         }
 
