@@ -41,15 +41,17 @@ class PlayerSelfEvaluationForm implements FormInterface {
                     ?>
                 </label>
             </p>
-            <p>
-                <input type="number" inputmode="decimal" id="tt-self-rating" name="overall_rating"
-                       step="0.5"
-                       min="<?php echo esc_attr( (string) $rating_min ); ?>"
-                       max="<?php echo esc_attr( (string) $rating_max ); ?>"
-                       value="<?php echo esc_attr( (string) ( $existing['overall_rating'] ?? '' ) ); ?>"
-                       <?php echo self::completedAttr( $task ); ?>
-                       style="width: 100px;" />
-            </p>
+            <?php
+            // #1067 — chip grid replaces the typed-number input.
+            echo \TT\Shared\Frontend\Components\RatingInputComponent::renderSingle( [
+                'name'     => 'overall_rating',
+                'value'    => (string) ( $existing['overall_rating'] ?? '' ),
+                'label'    => __( 'How was this week?', 'talenttrack' ),
+                'min'      => $rating_min,
+                'max'      => $rating_max,
+                'disabled' => self::completedAttr( $task ) !== '',
+            ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — component escapes
+            ?>
 
             <p style="margin: 16px 0 6px;">
                 <label for="tt-self-well" style="font-weight: 600;"><?php esc_html_e( 'What went well this week', 'talenttrack' ); ?></label>

@@ -22,6 +22,23 @@ final class HybridDeepRateStep implements WizardStepInterface {
     }
 
     public function render( array $state ): void {
+        // #1067 — chip-grid / slider-row component CSS + JS. Idempotent
+        // enqueue. Same handles as RateActorsStep so loading twice is
+        // a no-op when both surfaces show in one session.
+        wp_enqueue_style(
+            'tt-rating-input',
+            TT_PLUGIN_URL . 'assets/css/components/rating-input.css',
+            [],
+            TT_VERSION
+        );
+        wp_enqueue_script(
+            'tt-rating-input',
+            TT_PLUGIN_URL . 'assets/js/components/rating-input.js',
+            [],
+            TT_VERSION,
+            true
+        );
+
         global $wpdb;
         $p = $wpdb->prefix;
 
@@ -107,7 +124,7 @@ final class HybridDeepRateStep implements WizardStepInterface {
                 ?>
                 <?php foreach ( (array) $cats as $cat ) :
                     $cid = (int) $cat->id;
-                    $val = (int) ( $state['ratings_self'][ $cid ] ?? 0 );
+                    $val = (float) ( $state['ratings_self'][ $cid ] ?? 0 );
                     $cat_label = \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( (string) $cat->label, $cid );
                     $sub_cats  = $cat_repo !== null ? $cat_repo->getChildren( $cid ) : [];
                     // Auto-default: Detailed when any sub for this main
@@ -124,11 +141,16 @@ final class HybridDeepRateStep implements WizardStepInterface {
                     <tr>
                         <th style="text-align:left;font-weight:normal;"><?php echo esc_html( $cat_label ); ?></th>
                         <td>
-                            <input type="number" min="<?php echo (int) $min; ?>" max="<?php echo (int) $max; ?>" step="1" inputmode="numeric"
-                                name="ratings_self[<?php echo $cid; ?>]"
-                                value="<?php echo $val > 0 ? (int) $val : ''; ?>"
-                                style="width:60px;" />
-                            <span style="color:var(--tt-muted);font-size:13px;">/ <?php echo (int) $max; ?></span>
+                            <?php
+                            echo \TT\Shared\Frontend\Components\RatingInputComponent::renderListRow( [
+                                'name'         => 'ratings_self[' . $cid . ']',
+                                'value'        => $val > 0 ? (string) $val : '',
+                                'label'        => $cat_label,
+                                'label_hidden' => true,
+                                'min'          => (float) $min,
+                                'max'          => (float) $max,
+                            ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — component escapes
+                            ?>
                             <?php if ( $cat_repo !== null && ! empty( $sub_cats ) ) : ?>
                                 <span class="tt-rate-detail-toggle" data-tt-rate-detail-toggle data-state="<?php echo esc_attr( $initial_state ); ?>" role="tablist" style="margin-left:12px;display:inline-flex;gap:2px;border:1px solid var(--tt-line, #d0d4d8);border-radius:4px;overflow:hidden;font-size:11px;">
                                     <button type="button" data-mode="basic"    role="tab" aria-selected="<?php echo $initial_state === 'basic' ? 'true' : 'false'; ?>" style="padding:2px 8px;border:0;background:<?php echo $initial_state === 'basic' ? '#0b3d2e;color:#fff' : '#fff;color:#1a1d21'; ?>;cursor:pointer;"><?php echo esc_html( $toggle_basic_label ); ?></button>
@@ -141,17 +163,22 @@ final class HybridDeepRateStep implements WizardStepInterface {
                         <?php foreach ( (array) $sub_cats as $sub ) :
                             $scid = (int) $sub->id;
                             if ( $scid <= 0 ) continue;
-                            $sub_val = (int) ( $state['ratings_self'][ $scid ] ?? 0 );
+                            $sub_val = (float) ( $state['ratings_self'][ $scid ] ?? 0 );
                             $sub_label = \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( (string) ( $sub->label ?? $sub->name ?? '' ), $scid );
                             ?>
                             <tr class="tt-rate-sub-row" data-tt-rate-sub-row data-parent="<?php echo $cid; ?>" <?php echo $initial_state === 'basic' ? 'hidden' : ''; ?>>
                                 <th style="text-align:left;font-weight:normal;padding-left:20px;color:var(--tt-muted);">↳ <?php echo esc_html( $sub_label ); ?></th>
                                 <td>
-                                    <input type="number" min="<?php echo (int) $min; ?>" max="<?php echo (int) $max; ?>" step="1" inputmode="numeric"
-                                        name="ratings_self[<?php echo $scid; ?>]"
-                                        value="<?php echo $sub_val > 0 ? (int) $sub_val : ''; ?>"
-                                        style="width:60px;" />
-                                    <span style="color:var(--tt-muted);font-size:13px;">/ <?php echo (int) $max; ?></span>
+                                    <?php
+                                    echo \TT\Shared\Frontend\Components\RatingInputComponent::renderListRow( [
+                                        'name'         => 'ratings_self[' . $scid . ']',
+                                        'value'        => $sub_val > 0 ? (string) $sub_val : '',
+                                        'label'        => $sub_label,
+                                        'label_hidden' => true,
+                                        'min'          => (float) $min,
+                                        'max'          => (float) $max,
+                                    ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — component escapes
+                                    ?>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -208,10 +235,13 @@ final class HybridDeepRateStep implements WizardStepInterface {
 
         $ratings_raw = isset( $post['ratings_self'] ) && is_array( $post['ratings_self'] ) ? $post['ratings_self'] : [];
         $clean = [];
+        // #1067 — slider input is 0.5-step. Schema is DECIMAL(4,1);
+        // float-cast + snap-to-0.5 mirrors RateActorsStep::validate.
         foreach ( $ratings_raw as $cid => $v ) {
-            $v = (int) $v;
-            if ( $v <= 0 ) continue;
-            $clean[ (int) $cid ] = $v;
+            $f = (float) $v;
+            if ( $f <= 0 ) continue;
+            $f = round( $f * 2 ) / 2;
+            $clean[ (int) $cid ] = $f;
         }
         return [
             'eval_date'    => $date,

@@ -32,6 +32,23 @@ final class RateActorsStep implements WizardStepInterface {
     }
 
     public function render( array $state ): void {
+        // #1067 — chip-grid / slider-row component CSS + JS. Idempotent
+        // enqueue (WP no-ops a re-registered handle); shared with
+        // HybridDeepRateStep and the post-game / self-eval forms.
+        wp_enqueue_style(
+            'tt-rating-input',
+            TT_PLUGIN_URL . 'assets/css/components/rating-input.css',
+            [],
+            TT_VERSION
+        );
+        wp_enqueue_script(
+            'tt-rating-input',
+            TT_PLUGIN_URL . 'assets/js/components/rating-input.js',
+            [],
+            TT_VERSION,
+            true
+        );
+
         global $wpdb;
         $p = $wpdb->prefix;
 
@@ -142,26 +159,22 @@ final class RateActorsStep implements WizardStepInterface {
                 <div class="tt-rate-grid">
                     <?php foreach ( (array) $quick_cats as $cat ) :
                         $cid    = (int) $cat->id;
-                        $val    = (int) ( $state['ratings'][ $pid ][ $cid ] ?? 0 );
+                        $val    = (float) ( $state['ratings'][ $pid ][ $cid ] ?? 0 );
                         $iid    = 'tt-rate-' . $pid . '-' . $cid;
                         $label  = \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( (string) $cat->label, $cid );
                         $subs   = $sub_cats_by_parent[ $cid ] ?? [];
                     ?>
-                        <div class="tt-rate-row">
-                            <label class="tt-rate-label" for="<?php echo esc_attr( $iid ); ?>"><?php echo esc_html( $label ); ?></label>
-                            <div class="tt-rate-control">
-                                <input type="number" inputmode="numeric" min="<?php echo (int) $min; ?>" max="<?php echo (int) $max; ?>"
-                                       step="1"
-                                       id="<?php echo esc_attr( $iid ); ?>"
-                                       class="tt-rate-input"
-                                       name="ratings[<?php echo $pid; ?>][<?php echo $cid; ?>]"
-                                       data-tt-rate-main="<?php echo (int) $cid; ?>"
-                                       value="<?php echo $val > 0 ? (int) $val : ''; ?>" />
-                                <span class="tt-rate-max">
-                                    / <?php echo (int) $max; ?>
-                                </span>
-                            </div>
-                        </div>
+                        <?php
+                        echo \TT\Shared\Frontend\Components\RatingInputComponent::renderListRow( [
+                            'name'        => 'ratings[' . $pid . '][' . $cid . ']',
+                            'value'       => $val > 0 ? (string) $val : '',
+                            'label'       => $label,
+                            'min'         => (float) $min,
+                            'max'         => (float) $max,
+                            'input_class' => 'tt-rate-input',
+                            'data_attrs'  => [ 'tt-rate-main' => (int) $cid ],
+                        ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — component escapes
+                        ?>
                         <?php if ( ! empty( $subs ) ) :
                             // v3.110.125 — was a native <details>/<summary>
                             // disclosure ("Detailed Technical") with the
@@ -192,25 +205,22 @@ final class RateActorsStep implements WizardStepInterface {
                             <div class="tt-rate-subs" data-tt-rate-subs hidden>
                                 <?php foreach ( $subs as $sub ) :
                                     $scid = (int) $sub->id;
-                                    $sval = (int) ( $state['ratings'][ $pid ][ $scid ] ?? 0 );
+                                    $sval = (float) ( $state['ratings'][ $pid ][ $scid ] ?? 0 );
                                     $siid = 'tt-rate-' . $pid . '-' . $scid;
                                     $slabel = \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( (string) $sub->label, $scid );
                                 ?>
-                                    <div class="tt-rate-row tt-rate-row--sub">
-                                        <label class="tt-rate-label" for="<?php echo esc_attr( $siid ); ?>">↳ <?php echo esc_html( $slabel ); ?></label>
-                                        <div class="tt-rate-control">
-                                            <input type="number" inputmode="numeric" min="<?php echo (int) $min; ?>" max="<?php echo (int) $max; ?>"
-                                                   step="1"
-                                                   id="<?php echo esc_attr( $siid ); ?>"
-                                                   class="tt-rate-input"
-                                                   name="ratings[<?php echo $pid; ?>][<?php echo $scid; ?>]"
-                                                   data-tt-rate-sub-parent="<?php echo (int) $cid; ?>"
-                                                   value="<?php echo $sval > 0 ? (int) $sval : ''; ?>" />
-                                            <span class="tt-rate-max">
-                                                / <?php echo (int) $max; ?>
-                                            </span>
-                                        </div>
-                                    </div>
+                                    <?php
+                                    echo \TT\Shared\Frontend\Components\RatingInputComponent::renderListRow( [
+                                        'name'        => 'ratings[' . $pid . '][' . $scid . ']',
+                                        'value'       => $sval > 0 ? (string) $sval : '',
+                                        'label'       => $slabel,
+                                        'sub'         => true,
+                                        'min'         => (float) $min,
+                                        'max'         => (float) $max,
+                                        'input_class' => 'tt-rate-input',
+                                        'data_attrs'  => [ 'tt-rate-sub-parent' => (int) $cid ],
+                                    ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — component escapes
+                                    ?>
                                 <?php endforeach; ?>
                             </div>
                         <?php endif; ?>
@@ -271,7 +281,13 @@ final class RateActorsStep implements WizardStepInterface {
                 var skipEl  = details.querySelector( 'input[name^="skip["]' );
                 var main    = mainInputsFor( details );
                 var filled  = 0;
-                main.forEach( function ( i ) { if ( parseInt( i.value, 10 ) > 0 ) filled++; } );
+                // #1067 — slider inputs sit at the midpoint when in
+                // empty state and carry `data-tt-rating-empty`. Treat
+                // those as unfilled regardless of their numeric value.
+                main.forEach( function ( i ) {
+                    if ( i.hasAttribute( 'data-tt-rating-empty' ) ) return;
+                    if ( parseFloat( i.value ) > 0 ) filled++;
+                } );
 
                 var state, text;
                 if ( skipEl && skipEl.checked ) {
@@ -318,14 +334,26 @@ final class RateActorsStep implements WizardStepInterface {
                 var subs = details.querySelectorAll( '[data-tt-rate-sub-parent="' + parentCatId + '"]' );
                 var sum = 0, count = 0;
                 subs.forEach( function ( s ) {
-                    var v = parseInt( s.value, 10 );
+                    if ( s.hasAttribute( 'data-tt-rating-empty' ) ) return;
+                    var v = parseFloat( s.value );
                     if ( v > 0 ) { sum += v; count++; }
                 } );
                 if ( count > 0 ) {
-                    var avg = Math.round( sum / count );
-                    var max = parseInt( mainInput.getAttribute( 'max' ), 10 );
+                    var avg = Math.round( ( sum / count ) * 2 ) / 2; // snap to 0.5
+                    var max = parseFloat( mainInput.getAttribute( 'max' ) );
                     if ( ! isNaN( max ) && avg > max ) avg = max;
                     mainInput.value = String( avg );
+                    mainInput.removeAttribute( 'data-tt-rating-empty' );
+                    // Mirror the value into the visible readout span so
+                    // the user sees the auto-computed main update. The
+                    // component's own readout listener fires on `input`
+                    // but only when the user moves the thumb; programmatic
+                    // value sets are silent.
+                    var readout = mainInput.parentElement && mainInput.parentElement.querySelector( '[data-tt-rating-readout]' );
+                    if ( readout ) {
+                        readout.textContent = avg.toFixed( 1 );
+                        readout.classList.remove( 'tt-rating-row__val--unset' );
+                    }
                     // Don't redispatch input here — the outer event
                     // listener already calls updatePlayer + updateOverall
                     // for the original sub-cat change.
@@ -391,12 +419,18 @@ final class RateActorsStep implements WizardStepInterface {
     public function validate( array $post, array $state ) {
         $ratings = isset( $post['ratings'] ) && is_array( $post['ratings'] ) ? $post['ratings'] : [];
         $clean = [];
+        // #1067 — slider input accepts 0.5 increments (schema is
+        // DECIMAL(4,1)). Cast to float, snap to 0.5 to defend against
+        // upstream input drift, and skip non-positive entries (the
+        // component strips `name` from empty sliders so they don't
+        // post — defensive belt + braces here).
         foreach ( $ratings as $pid => $cats ) {
             if ( ! is_array( $cats ) ) continue;
             foreach ( $cats as $cid => $v ) {
-                $v = (int) $v;
-                if ( $v <= 0 ) continue;
-                $clean[ (int) $pid ][ (int) $cid ] = $v;
+                $f = (float) $v;
+                if ( $f <= 0 ) continue;
+                $f = round( $f * 2 ) / 2;
+                $clean[ (int) $pid ][ (int) $cid ] = $f;
             }
         }
         $notes = isset( $post['notes'] ) && is_array( $post['notes'] )
