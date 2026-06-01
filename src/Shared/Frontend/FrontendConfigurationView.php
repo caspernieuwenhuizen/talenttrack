@@ -1396,6 +1396,14 @@ class FrontendConfigurationView extends FrontendViewBase {
         .tt-cfg-tile-icon .tt-icon { width: 28px; height: 28px; }
         .tt-cfg-tile-title { font-weight: 600; font-size: 14px; line-height: 1.25; margin: 0 0 4px; color: #1a1d21; }
         .tt-cfg-tile-desc { color: #6b7280; font-size: 12px; line-height: 1.35; margin: 0; }
+        /* #1087 VCT-12 — accent variant + count line for the two VCT
+         * Configuration tiles (macro-blocks + age-profiles). Pattern
+         * lifted from the PDP-blocks tile; accent + "NEW" pill mirror
+         * the `.local-mockups/vct-config-tiles/` design-of-record. */
+        .tt-cfg-tile--vct { border-color: #1d7874; position: relative; }
+        .tt-cfg-tile--vct:hover, .tt-cfg-tile--vct:focus { border-color: #145955; }
+        .tt-cfg-tile-badge { position: absolute; top: 8px; right: 8px; background: #1d7874; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 800; letter-spacing: 0.5px; }
+        .tt-cfg-tile-count { margin-top: 8px; font-size: 11px; color: #1d7874; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; }
         </style>
         <?php
     }
@@ -1489,6 +1497,10 @@ class FrontendConfigurationView extends FrontendViewBase {
             echo '<div class="tt-cfg-tile-desc">' . esc_html( $desc ) . '</div>';
             echo '</a>';
         }
+        // #1087 VCT-12 — two tiles for the VCT configuration sub-tabs
+        // (macro-blocks + age-profiles). Gated on `tt_vct_admin_library`
+        // since the destination view re-checks the same capability.
+        self::renderVctTiles();
         foreach ( $admin_tiles as $tile ) {
             $title = $tile[0];
             $desc  = $tile[1];
@@ -1503,6 +1515,66 @@ class FrontendConfigurationView extends FrontendViewBase {
             echo '</a>';
         }
         echo '</div>';
+    }
+
+    /**
+     * #1087 VCT-12 — emit the two VCT configuration tiles inline in the
+     * Configuration grid. Both link into `?tt_view=vct-config` (existing
+     * sub-tab view) and surface a count read from the matching repo so
+     * the operator sees at a glance how much is configured.
+     *
+     * Gated on `tt_vct_admin_library` because the destination view
+     * re-checks the same capability and silent denials are worse than
+     * hiding the tile.
+     */
+    private static function renderVctTiles(): void {
+        $user_id = get_current_user_id();
+        if ( ! \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_vct_admin_library' ) ) {
+            return;
+        }
+
+        $base = remove_query_arg( [ 'tt_view', 'config_sub' ] );
+
+        $blocks_url = add_query_arg( [ 'tt_view' => 'vct-config', 'tab' => 'blocks' ], $base );
+        $ages_url   = add_query_arg( [ 'tt_view' => 'vct-config', 'tab' => 'age-profiles' ], $base );
+
+        $blocks_count = count( ( new \TT\Modules\Vct\Repositories\VctMacroBlocksRepository() )->listReferenceTemplates() );
+        $ages_count   = count( ( new \TT\Modules\Vct\Repositories\VctAgeProfilesRepository() )->listAll() );
+
+        $tiles = [
+            [
+                'url'   => $blocks_url,
+                'title' => __( 'VCT macro-blocks', 'talenttrack' ),
+                'desc'  => __( 'Block templates the session wizard uses (warming-up, hoofddeel, cooldown, theme-blocks). Edit names + default duration + default intensity.', 'talenttrack' ),
+                'icon'  => 'sessions',
+                'count' => sprintf(
+                    /* translators: %d is the number of active VCT macro-block templates. */
+                    _n( '%d active', '%d active', $blocks_count, 'talenttrack' ),
+                    $blocks_count
+                ),
+            ],
+            [
+                'url'   => $ages_url,
+                'title' => __( 'VCT age-profiles', 'talenttrack' ),
+                'desc'  => __( 'Per age band (JO8 → JO19) the workload-cap, max intensity per MD-day, max session length. Drives the wizard\'s workload check.', 'talenttrack' ),
+                'icon'  => 'categories',
+                'count' => sprintf(
+                    /* translators: %d is the number of configured VCT age-profile bands. */
+                    _n( '%d age band', '%d age bands', $ages_count, 'talenttrack' ),
+                    $ages_count
+                ),
+            ],
+        ];
+
+        foreach ( $tiles as $t ) {
+            echo '<a class="tt-cfg-tile tt-cfg-tile--vct" href="' . esc_url( $t['url'] ) . '">';
+            echo '<span class="tt-cfg-tile-badge">' . esc_html__( 'NEW', 'talenttrack' ) . '</span>';
+            echo '<div class="tt-cfg-tile-icon">' . \TT\Shared\Icons\IconRenderer::render( $t['icon'] ) . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — IconRenderer returns sanitised SVG.
+            echo '<div class="tt-cfg-tile-title">' . esc_html( $t['title'] ) . '</div>';
+            echo '<div class="tt-cfg-tile-desc">' . esc_html( $t['desc'] ) . '</div>';
+            echo '<div class="tt-cfg-tile-count">' . esc_html( $t['count'] ) . '</div>';
+            echo '</a>';
+        }
     }
 
     /**

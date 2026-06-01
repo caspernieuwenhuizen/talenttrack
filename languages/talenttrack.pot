@@ -30269,3 +30269,39 @@ msgstr ""
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr ""
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:1547
+msgid "VCT macro-blocks"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:1548
+msgid "Block templates the session wizard uses (warming-up, hoofddeel, cooldown, theme-blocks). Edit names + default duration + default intensity."
+msgstr ""
+
+#. translators: %d is the number of active VCT macro-block templates.
+#: src/Shared/Frontend/FrontendConfigurationView.php:1551
+#, php-format
+msgid "%d active"
+msgid_plural "%d active"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:1558
+msgid "VCT age-profiles"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:1559
+msgid "Per age band (JO8 → JO19) the workload-cap, max intensity per MD-day, max session length. Drives the wizard's workload check."
+msgstr ""
+
+#. translators: %d is the number of configured VCT age-profile bands.
+#: src/Shared/Frontend/FrontendConfigurationView.php:1562
+#, php-format
+msgid "%d age band"
+msgid_plural "%d age bands"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:1571
+msgid "NEW"
+msgstr ""
