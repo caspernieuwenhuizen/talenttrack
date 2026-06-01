@@ -34167,6 +34167,39 @@ msgstr "Je hebt geen rechten om PHV-vlaggen te wijzigen."
 msgid "PHV flag saved."
 msgstr "PHV-vlag opgeslagen."
 
+# #1086 — VCT-11 library inline edit + search
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php
+msgid "Search by name, code or keyword"
+msgstr "Zoek op naam, code of trefwoord"
+
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php
+msgid "e.g. 4 vs 2, rondo, header duel…"
+msgstr "bijv. 4 vs 2, rondo, kopduel…"
+
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php
+msgid "Save exercise"
+msgstr "Oefening opslaan"
+
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php
+msgid "Exercise updated."
+msgstr "Oefening bijgewerkt."
+
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php
+msgid "Age range (min–max)"
+msgstr "Leeftijdsbereik (min–max)"
+
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php
+msgid "Duration (min–max minutes)"
+msgstr "Duur (min–max minuten)"
+
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php
+msgid "Group size (min–max players)"
+msgstr "Groepsgrootte (min–max spelers)"
+
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php
+msgid "Save failed: code, name, and category are required."
+msgstr "Opslaan mislukt: code, naam en categorie zijn verplicht."
+
 #~ msgid ""
 #~ "Pick a team to open the formation board with auto-suggested XI, depth "
 #~ "chart, and chemistry breakdown."

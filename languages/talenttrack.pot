@@ -30453,3 +30453,35 @@ msgstr ""
 #: src/Shared/Frontend/FrontendPlayerDetailView.php
 msgid "PHV flag saved."
 msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php
+msgid "Search by name, code or keyword"
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php
+msgid "e.g. 4 vs 2, rondo, header duel…"
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php
+msgid "Save exercise"
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php
+msgid "Exercise updated."
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php
+msgid "Age range (min–max)"
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php
+msgid "Duration (min–max minutes)"
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php
+msgid "Group size (min–max players)"
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php
+msgid "Save failed: code, name, and category are required."
+msgstr ""
