@@ -30505,3 +30505,11 @@ msgstr ""
 #: src/Modules/Vct/Wizard/ReviewStep.php
 msgid "Start time"
 msgstr ""
+
+#. translators: %d = number of active PHV-flagged players
+#: src/Modules/Vct/Frontend/FrontendVctSessionView.php
+#, php-format
+msgid "PHV exclusion — %d player"
+msgid_plural "PHV exclusions — %d players"
+msgstr[0] ""
+msgstr[1] ""
