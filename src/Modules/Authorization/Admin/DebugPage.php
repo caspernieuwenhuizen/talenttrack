@@ -61,9 +61,11 @@ class DebugPage {
             return;
         }
 
-        $person_id = AuthorizationService::getPersonIdByUserId( $user_id );
-        $scopes    = AuthorizationService::getResolvedScopesForUser( $user_id );
-        $is_wp_admin = user_can( $user_id, 'administrator' );
+        $person_id     = AuthorizationService::getPersonIdByUserId( $user_id );
+        $active_person_ids = AuthorizationService::findAllActivePersonIdsByUserId( $user_id );
+        $scopes        = AuthorizationService::getResolvedScopesForUser( $user_id );
+        $is_wp_admin   = user_can( $user_id, 'administrator' );
+        $has_duplicate_persons = count( $active_person_ids ) > 1;
 
         ?>
         <h2 style="margin-top:24px;">
@@ -106,6 +108,29 @@ class DebugPage {
                     <td>
                         <span style="color:#c9a227;">⚠</span>
                         <?php esc_html_e( 'This user has the WordPress administrator role. AuthorizationService grants all permissions unconditionally, bypassing the role-scope lookup.', 'talenttrack' ); ?>
+                    </td>
+                </tr>
+            <?php endif; ?>
+            <?php if ( $has_duplicate_persons ) : ?>
+                <tr>
+                    <th><?php esc_html_e( 'Duplicate Person records', 'talenttrack' ); ?></th>
+                    <td>
+                        <span style="color:#d63638;">⚠</span>
+                        <?php
+                        $links = array_map(
+                            static function ( int $pid ) {
+                                $url = admin_url( 'admin.php?page=tt-people&action=edit&id=' . $pid );
+                                return '<a href="' . esc_url( $url ) . '">#' . (int) $pid . '</a>';
+                            },
+                            $active_person_ids
+                        );
+                        echo wp_kses_post( sprintf(
+                            /* translators: 1: chosen Persoon id, 2: comma-separated Persoon id links */
+                            __( 'This WP user is linked to multiple active tt_people records (%2$s). The auth resolver is using #%1$d (most recently created — see #1104). Team assignments on the others are ignored. Investigate via the People admin; migration 0139 deduplicates on next upgrade.', 'talenttrack' ),
+                            (int) $person_id,
+                            implode( ', ', $links )
+                        ) );
+                        ?>
                     </td>
                 </tr>
             <?php endif; ?>
