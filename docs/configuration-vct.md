@@ -39,3 +39,24 @@ visit. The styling mirrors the design-of-record in
   set. Open question raised in `.local-mockups/vct-config-tiles/notes.md`.
 
 If pilot feedback flags either, file a follow-up referencing this doc.
+
+## Per-team complement: VCT defaults panel (#1088)
+
+The central schedules tab edits every team in one season at once. The
+**team-detail VCT panel** at the bottom of `?tt_view=teams&id=N`
+edits one team in isolation:
+
+- Weekday chip row (Ma → Zo, multi-select)
+- Default start time + default duration
+- Saves via the same `VctTeamSchedulesRepository::upsert()` the central
+  surface uses; both surfaces are read by the new-VCT-session wizard's
+  basis step.
+
+Same cap gate (`tt_vct_admin_library`), same design tokens — pilot can
+pick whichever surface fits the workflow. Coaches with no edit cap don't
+see the panel at all.
+
+Deferred from the mockup: optional `Trainingslocatie` free-text field
+(requires a `default_location` schema column) and the live "next
+session preview" summary line (requires weekday + date math). Follow
+up on either if pilot requests.

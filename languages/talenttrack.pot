@@ -30305,3 +30305,39 @@ msgstr[1] ""
 #: src/Shared/Frontend/FrontendConfigurationView.php:1571
 msgid "NEW"
 msgstr ""
+
+#: src/Shared/Frontend/FrontendTeamDetailView.php:506
+msgid "VCT — Training defaults"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendTeamDetailView.php:507
+msgid "Smart prefills for new VCT sessions of this team."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendTeamDetailView.php:535
+msgid "Default duration (min)"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendTeamDetailView.php:526
+msgid "The wizard defaults to the next selected weekday."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendTeamDetailView.php:542
+msgid "Save VCT defaults"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendTeamDetailView.php:581
+msgid "You do not have permission to edit VCT defaults."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendTeamDetailView.php:589
+msgid "Save failed: session expired. Reload and try again."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendTeamDetailView.php:598
+msgid "Save failed: start time is not valid."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendTeamDetailView.php:611
+msgid "VCT defaults saved."
+msgstr ""
