@@ -241,7 +241,14 @@ return array_merge(
         'people_directory_panel'     => [ 'r',   'team',   $mod_people ],
         'activities_panel'           => [ 'r',   'team',   $mod_activities ],
         'goals_panel'                => [ 'r',   'team',   $mod_goals ],
-        'podium_panel'               => [ 'r',   'team',   $mod_stats ],
+        // #1105 — podium_panel removed. Podium surfaces top-rated players
+        // across the team — a development-judgment artefact built off the
+        // same evaluation data #1060 stripped from AC. Keeping the panel
+        // entity without the underlying `evaluations` read makes the tile
+        // link to a surface AC can't populate (and exposes leaderboard
+        // signal AC isn't trusted with). Operators who explicitly granted
+        // podium_panel via the Authorization admin (`is_default = 0`)
+        // keep the override; migration 0138 only deletes the seeded row.
         // #0085 — player notes (staff-only running log on the player
         // file). #1060 — kept for AC: notes are operational (logistics,
         // safeguarding flags handled separately), not development data.
