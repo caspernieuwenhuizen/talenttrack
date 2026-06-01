@@ -30485,3 +30485,23 @@ msgstr ""
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php
 msgid "Save failed: code, name, and category are required."
 msgstr ""
+
+#: src/Modules/Vct/Wizard/WhenStep.php
+msgid "Which team, date, and time is this VCT training for?"
+msgstr ""
+
+#: src/Modules/Vct/Wizard/WhenStep.php
+msgid "Start time (optional)"
+msgstr ""
+
+#: src/Modules/Vct/Wizard/WhenStep.php
+msgid "Age group + match-day context are resolved automatically on the next step. Start time prefills from the team VCT-defaults panel when configured."
+msgstr ""
+
+#: src/Modules/Vct/Wizard/WhenStep.php
+msgid "Please pick a valid start time, or leave it empty."
+msgstr ""
+
+#: src/Modules/Vct/Wizard/ReviewStep.php
+msgid "Start time"
+msgstr ""
