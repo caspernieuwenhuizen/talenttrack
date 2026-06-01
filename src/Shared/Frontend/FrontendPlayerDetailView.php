@@ -9,6 +9,7 @@ use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Query\PlayerFileCounts;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Authorization\AgeTier;
+use TT\Modules\Authorization\MatrixGate;
 use TT\Shared\Frontend\Components\EmptyStateCard;
 use TT\Shared\Frontend\Components\RecordLink;
 
@@ -144,17 +145,32 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
     }
 
     /**
+     * Tab key → human label. Per #1107, dev-data tabs (Evaluations,
+     * PDP, Trials) are matrix-gated so AC users (whose seed strips
+     * `evaluations`, `pdp_file`, `trial_*` per #1060 / migration 0136)
+     * don't see the tabs at all. Goals + Activities stay always-on —
+     * AC's seed grants both at team scope. Notes keeps its existing
+     * cap-gate. Pattern matches `renderEvaluationsTab` / `renderPdpTab`
+     * / `renderTrialsTab` which gate again on entry for defense in
+     * depth (direct `?tab=evaluations` URL needs the same answer).
+     *
      * @return array<string,string>  tab key => human label
      */
-    private static function tabs(): array {
+    private static function tabs( int $user_id ): array {
         $tabs = [
-            'profile'     => __( 'Profile', 'talenttrack' ),
-            'goals'       => __( 'Goals', 'talenttrack' ),
-            'evaluations' => __( 'Evaluations', 'talenttrack' ),
-            'activities'  => __( 'Activities', 'talenttrack' ),
-            'pdp'         => __( 'PDP cycle', 'talenttrack' ),
-            'trials'      => __( 'Trials', 'talenttrack' ),
+            'profile' => __( 'Profile', 'talenttrack' ),
+            'goals'   => __( 'Goals', 'talenttrack' ),
         ];
+        if ( MatrixGate::canAnyScope( $user_id, 'evaluations', MatrixGate::READ ) ) {
+            $tabs['evaluations'] = __( 'Evaluations', 'talenttrack' );
+        }
+        $tabs['activities'] = __( 'Activities', 'talenttrack' );
+        if ( MatrixGate::canAnyScope( $user_id, 'pdp_file', MatrixGate::READ ) ) {
+            $tabs['pdp'] = __( 'PDP cycle', 'talenttrack' );
+        }
+        if ( MatrixGate::canAnyScope( $user_id, 'trial_cases', MatrixGate::READ ) ) {
+            $tabs['trials'] = __( 'Trials', 'talenttrack' );
+        }
         if ( current_user_can( 'tt_view_player_notes' ) ) {
             $tabs['notes'] = __( 'Notes', 'talenttrack' );
         }
@@ -197,8 +213,9 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         $team       = ! empty( $player->team_id ) ? QueryHelpers::get_team( (int) $player->team_id ) : null;
         $team_url   = $team ? add_query_arg( [ 'tt_view' => 'teams', 'id' => (int) $team->id ], RecordLink::dashboardUrl() ) : '';
 
+        $tab_set    = self::tabs( $user_id );
         $active_tab = isset( $_GET['tab'] ) ? sanitize_key( (string) wp_unslash( $_GET['tab'] ) ) : 'profile';
-        if ( ! array_key_exists( $active_tab, self::tabs() ) ) $active_tab = 'profile';
+        if ( ! array_key_exists( $active_tab, $tab_set ) ) $active_tab = 'profile';
         $base_url = add_query_arg( [ 'tt_view' => 'players', 'id' => $player_id ], RecordLink::dashboardUrl() );
 
         $counts = PlayerFileCounts::for( $player_id );
@@ -218,7 +235,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
 
             <div class="tt-player-detail__main">
                 <nav class="tt-player-tabs" role="tablist" aria-label="<?php esc_attr_e( 'Player sections', 'talenttrack' ); ?>">
-                    <?php foreach ( self::tabs() as $key => $label ) :
+                    <?php foreach ( $tab_set as $key => $label ) :
                         $url       = add_query_arg( [ 'tab' => $key ], $base_url );
                         $is_active = $key === $active_tab;
                         $count     = $counts[ $key ] ?? null;
@@ -462,6 +479,13 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         <section class="tt-player-glance" aria-label="<?php esc_attr_e( 'At a glance', 'talenttrack' ); ?>">
             <p class="tt-player-glance__title"><?php esc_html_e( 'At a glance', 'talenttrack' ); ?></p>
             <div class="tt-player-glance__grid">
+                <?php
+                // #1107 — avg rating + trend are computed from the same
+                // `tt_eval_ratings` rows the Evaluations tab gates on.
+                // Hide the KPI tile entirely when the user lacks
+                // `evaluations:read` so the value (and the direction
+                // arrow) don't leak through the side door.
+                if ( MatrixGate::canAnyScope( get_current_user_id(), 'evaluations', MatrixGate::READ ) ) : ?>
                 <a class="tt-player-kpi" href="<?php echo esc_url( add_query_arg( [ 'tab' => 'evaluations' ], $base_url ) ); ?>">
                     <div class="tt-player-kpi__label"><?php esc_html_e( 'Avg rating', 'talenttrack' ); ?></div>
                     <div class="tt-player-kpi__num">
@@ -474,6 +498,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                         <div class="tt-player-kpi__hint <?php echo esc_attr( $kpis['avg_rating']['trend_class'] ); ?>"><?php echo esc_html( $kpis['avg_rating']['hint'] ); ?></div>
                     <?php endif; ?>
                 </a>
+                <?php endif; ?>
                 <a class="tt-player-kpi" href="<?php echo esc_url( add_query_arg( [ 'tab' => 'activities' ], $base_url ) ); ?>">
                     <div class="tt-player-kpi__label"><?php esc_html_e( 'Attendance', 'talenttrack' ); ?></div>
                     <div class="tt-player-kpi__num">
@@ -1044,6 +1069,15 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
 
     /** Evaluations tab — card-row list with right-side colour-coded rating chip. */
     private static function renderEvaluationsTab( int $player_id ): void {
+        // #1107 — defense in depth. tabs() filters this out for users
+        // without `evaluations:read`, but a direct `?tab=evaluations`
+        // URL still routes here (sanitize_key + array_key_exists guards
+        // the active tab against the post-filter set). If the user
+        // shouldn't see the tab they shouldn't see the query either.
+        if ( ! MatrixGate::canAnyScope( get_current_user_id(), 'evaluations', MatrixGate::READ ) ) {
+            echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to view evaluations for this player.', 'talenttrack' ) . '</p>';
+            return;
+        }
         global $wpdb;
         // Tab list and PlayerFileCounts must agree on scope —
         // (player_id, club_id, archived_at IS NULL) — otherwise the
@@ -1226,6 +1260,11 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
 
     /** PDP tab — active cycle with 4-step progress bar + past cycles list. */
     private static function renderPdpTab( int $player_id ): void {
+        // #1107 — defense in depth. See renderEvaluationsTab note.
+        if ( ! MatrixGate::canAnyScope( get_current_user_id(), 'pdp_file', MatrixGate::READ ) ) {
+            echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to view PDP files for this player.', 'talenttrack' ) . '</p>';
+            return;
+        }
         global $wpdb;
         $files = $wpdb->get_results( $wpdb->prepare(
             "SELECT id, status, season_id, created_at FROM {$wpdb->prefix}tt_pdp_files
@@ -1374,6 +1413,11 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
 
     /** Trials tab — every trial case the player has been part of. */
     private static function renderTrialsTab( int $player_id, $player = null ): void {
+        // #1107 — defense in depth. See renderEvaluationsTab note.
+        if ( ! MatrixGate::canAnyScope( get_current_user_id(), 'trial_cases', MatrixGate::READ ) ) {
+            echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to view trial cases for this player.', 'talenttrack' ) . '</p>';
+            return;
+        }
         global $wpdb;
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT id, status, start_date, end_date FROM {$wpdb->prefix}tt_trial_cases
