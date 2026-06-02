@@ -38,6 +38,11 @@ class AnalyticsModule implements ModuleInterface {
     public function boot( Container $container ): void {
         self::registerInitialFacts();
         self::registerInitialKpis();
+        // #1063 standard-reports presets (closes #1096-#1101). Six
+        // explorer-bound KPIs whose key matches the mockup vocabulary,
+        // so the URL on the live "Explorer →" button is the URL the
+        // pilot saw in the mockup.
+        self::registerStandardReportPresetKpis();
         // #0083 Child 6 — scheduled-reports admin-post handlers + daily cron.
         \TT\Modules\Analytics\Admin\ScheduledReportsActionHandlers::init();
         \TT\Modules\Analytics\Cron\ScheduledReportsRunner::init();
@@ -320,6 +325,104 @@ class AnalyticsModule implements ModuleInterface {
             goalDirection:     Kpi::GOAL_HIGHER_BETTER,
             threshold:         50.0,
             entityScope:       'player',
+        ) );
+    }
+
+    /**
+     * #1063 standard-reports preset KPIs (#1096-#1101).
+     *
+     * Six explorer-bound KPIs, one per preset. Keys match the mockup
+     * vocabulary in `.local-mockups/standard-reports/<persona>/<slug>.html`
+     * so the URL on the live "Explorer →" button is the URL the
+     * pilot saw in the mockup. All defaults are intentionally empty —
+     * the preset's entry-point call site builds the URL with the
+     * relevant entity-scoped filter pre-applied.
+     */
+    private static function registerStandardReportPresetKpis(): void {
+        // #1096 — Player Evaluations received
+        KpiRegistry::register( new Kpi(
+            key:               'evaluations_received',
+            label:             __( 'Evaluations received', 'talenttrack' ),
+            factKey:           'evaluations',
+            measureKey:        'count',
+            defaultFilters:    [],
+            primaryDimension:  'month',
+            exploreDimensions: [ 'evaluator_id', 'team_id', 'player_id' ],
+            context:           Kpi::CONTEXT_COACH,
+            goalDirection:     Kpi::GOAL_HIGHER_BETTER,
+            entityScope:       'player',
+        ) );
+
+        // #1097 — Player Goal progress
+        KpiRegistry::register( new Kpi(
+            key:               'goal_progress',
+            label:             __( 'Goal progress', 'talenttrack' ),
+            factKey:           'goals',
+            measureKey:        'completion_rate',
+            defaultFilters:    [],
+            primaryDimension:  'month',
+            exploreDimensions: [ 'player_id', 'priority', 'status' ],
+            context:           Kpi::CONTEXT_COACH,
+            goalDirection:     Kpi::GOAL_HIGHER_BETTER,
+            threshold:         50.0,
+            entityScope:       'player',
+        ) );
+
+        // #1098 — Team Activity volume
+        KpiRegistry::register( new Kpi(
+            key:               'activity_volume',
+            label:             __( 'Activity volume', 'talenttrack' ),
+            factKey:           'activities',
+            measureKey:        'count',
+            defaultFilters:    [],
+            primaryDimension:  'month',
+            exploreDimensions: [ 'team_id', 'activity_type', 'status' ],
+            context:           Kpi::CONTEXT_COACH,
+            goalDirection:     Kpi::GOAL_HIGHER_BETTER,
+            entityScope:       'activity',
+        ) );
+
+        // #1099 — Activity Evaluation coverage
+        KpiRegistry::register( new Kpi(
+            key:               'evaluation_coverage',
+            label:             __( 'Evaluation coverage', 'talenttrack' ),
+            factKey:           'evaluations_per_session',
+            measureKey:        'count_evaluations',
+            defaultFilters:    [],
+            primaryDimension:  'month',
+            exploreDimensions: [ 'evaluator_id', 'activity_id' ],
+            context:           Kpi::CONTEXT_COACH,
+            goalDirection:     Kpi::GOAL_HIGHER_BETTER,
+            entityScope:       'activity',
+        ) );
+
+        // #1100 — Activity Attendance vs squad
+        KpiRegistry::register( new Kpi(
+            key:               'attendance_vs_squad',
+            label:             __( 'Attendance vs squad', 'talenttrack' ),
+            factKey:           'attendance',
+            measureKey:        'attendance_pct',
+            defaultFilters:    [],
+            primaryDimension:  'month',
+            exploreDimensions: [ 'team_id', 'player_id', 'status', 'activity_type' ],
+            context:           Kpi::CONTEXT_COACH,
+            goalDirection:     Kpi::GOAL_HIGHER_BETTER,
+            threshold:         70.0,
+            entityScope:       'activity',
+        ) );
+
+        // #1101 — Season Prospects logged per scout
+        KpiRegistry::register( new Kpi(
+            key:               'prospects_logged_per_scout',
+            label:             __( 'Prospects logged per scout', 'talenttrack' ),
+            factKey:           'prospects',
+            measureKey:        'count',
+            defaultFilters:    [],
+            primaryDimension:  'month',
+            exploreDimensions: [ 'discovered_by_user_id', 'current_club' ],
+            context:           Kpi::CONTEXT_ACADEMY,
+            goalDirection:     Kpi::GOAL_HIGHER_BETTER,
+            entityScope:       null,
         ) );
     }
 }

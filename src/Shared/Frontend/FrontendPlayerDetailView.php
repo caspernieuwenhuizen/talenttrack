@@ -1037,6 +1037,12 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             ] );
             return;
         }
+        // #1097 — Goal progress preset (Explorer →).
+        $goals_explore_url = \TT\Modules\Analytics\Domain\ExplorerUrl::build(
+            'goal_progress',
+            [ 'player_id' => (string) $player_id, 'date_after' => '-12 months' ],
+            'month'
+        );
         ?>
         <div class="tt-player-card">
             <div class="tt-player-card__head">
@@ -1046,9 +1052,14 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                     echo esc_html( sprintf( __( 'Active goals · %d', 'talenttrack' ), count( $rows ) ) );
                     ?>
                 </h3>
-                <?php if ( current_user_can( 'tt_edit_goals' ) ) : ?>
-                    <a class="tt-player-card__cta" href="<?php echo esc_url( $add_url ); ?>">+ <?php esc_html_e( 'Add goal', 'talenttrack' ); ?></a>
-                <?php endif; ?>
+                <div class="tt-player-card__head-actions" style="display:flex;gap:6px;align-items:center;">
+                    <a class="tt-player-card__cta tt-player-card__cta--secondary" style="background:transparent;border:1px solid var(--tt-line, #d6dadd);color:var(--tt-muted, #5b6e75);text-decoration:none;padding:6px 10px;border-radius:6px;font-size:12px;font-weight:600;" href="<?php echo esc_url( $goals_explore_url ); ?>">
+                        <?php esc_html_e( 'Explorer →', 'talenttrack' ); ?>
+                    </a>
+                    <?php if ( current_user_can( 'tt_edit_goals' ) ) : ?>
+                        <a class="tt-player-card__cta" href="<?php echo esc_url( $add_url ); ?>">+ <?php esc_html_e( 'Add goal', 'talenttrack' ); ?></a>
+                    <?php endif; ?>
+                </div>
             </div>
             <ul class="tt-player-list">
                 <?php foreach ( $rows as $g ) :
@@ -1128,6 +1139,12 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             return;
         }
         $rmax = (float) QueryHelpers::get_config( 'rating_max', '10' );
+        // #1096 — Evaluations received preset (Explorer →).
+        $eval_explore_url = \TT\Modules\Analytics\Domain\ExplorerUrl::build(
+            'evaluations_received',
+            [ 'player_id' => (string) $player_id, 'date_after' => '-12 months' ],
+            'month'
+        );
         ?>
         <div class="tt-player-card">
             <div class="tt-player-card__head">
@@ -1137,9 +1154,14 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                     echo esc_html( sprintf( __( 'Recent · %d', 'talenttrack' ), count( $rows ) ) );
                     ?>
                 </h3>
-                <?php if ( current_user_can( 'tt_edit_evaluations' ) ) : ?>
-                    <a class="tt-player-card__cta" href="<?php echo esc_url( $add_url ); ?>">+ <?php esc_html_e( 'New evaluation', 'talenttrack' ); ?></a>
-                <?php endif; ?>
+                <div class="tt-player-card__head-actions" style="display:flex;gap:6px;align-items:center;">
+                    <a class="tt-player-card__cta tt-player-card__cta--secondary" style="background:transparent;border:1px solid var(--tt-line, #d6dadd);color:var(--tt-muted, #5b6e75);text-decoration:none;padding:6px 10px;border-radius:6px;font-size:12px;font-weight:600;" href="<?php echo esc_url( $eval_explore_url ); ?>">
+                        <?php esc_html_e( 'Explorer →', 'talenttrack' ); ?>
+                    </a>
+                    <?php if ( current_user_can( 'tt_edit_evaluations' ) ) : ?>
+                        <a class="tt-player-card__cta" href="<?php echo esc_url( $add_url ); ?>">+ <?php esc_html_e( 'New evaluation', 'talenttrack' ); ?></a>
+                    <?php endif; ?>
+                </div>
             </div>
             <ul class="tt-player-list">
                 <?php foreach ( $rows as $ev ) :

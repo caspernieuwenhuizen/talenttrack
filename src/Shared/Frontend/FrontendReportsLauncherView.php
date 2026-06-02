@@ -52,6 +52,19 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
                 'desc'  => __( 'Per-coach evaluation count and recent cadence.', 'talenttrack' ),
                 'url'   => add_query_arg( [ 'tt_view' => 'reports', 'type' => 'coach_activity' ], $base_url ),
             ],
+            // #1101 — Season prospects-per-scout preset (Explorer →).
+            // HoD-scoped season-wide signal; lives on the Reports
+            // launcher because it has no per-entity entry point.
+            [
+                'slug'  => 'prospects_logged_per_scout',
+                'label' => __( 'Prospects logged per scout', 'talenttrack' ),
+                'desc'  => __( 'Season log of scout-logged prospects, grouped by who logged them.', 'talenttrack' ),
+                'url'   => \TT\Modules\Analytics\Domain\ExplorerUrl::build(
+                    'prospects_logged_per_scout',
+                    [ 'date_after' => '-12 months' ],
+                    'discovered_by_user_id'
+                ),
+            ],
         ];
 
         echo '<p style="color:#5b6e75; margin-bottom:16px;">';
