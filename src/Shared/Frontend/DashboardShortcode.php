@@ -689,6 +689,12 @@ class DashboardShortcode {
             case 'reports':
                 FrontendReportsLauncherView::render( get_current_user_id(), current_user_can( 'tt_edit_settings' ) );
                 return true;
+            // #1063 standard reports (#1090-#1095). Slug-dispatched
+            // curated views per the design-of-record in
+            // `.local-mockups/standard-reports/`.
+            case 'standard-report':
+                FrontendStandardReportsView::render( get_current_user_id(), current_user_can( 'tt_edit_settings' ) );
+                return true;
             // v3.110.189 (#797) — central Exports surface.
             case 'exports':
                 FrontendExportsView::render( get_current_user_id(), current_user_can( 'tt_edit_settings' ) );

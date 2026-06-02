@@ -34268,6 +34268,275 @@ msgstr "Explorer · Aanwezigheid versus selectie →"
 msgid "Explorer →"
 msgstr "Explorer →"
 
+# #1063 standard-reports curated views (#1090–#1095)
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Standard report"
+msgstr "Standaardrapport"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Unknown standard report. Pick one from the Reports launcher."
+msgstr "Onbekend standaardrapport. Kies er een vanuit de Rapporten-launcher."
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Export (CSV)"
+msgstr "Exporteer (CSV)"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "No data for this selection"
+msgstr "Geen gegevens voor deze selectie"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Adjust a filter and try again."
+msgstr "Pas een filter aan en probeer opnieuw."
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Pick a player"
+msgstr "Kies een speler"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Pick a team"
+msgstr "Kies een team"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "No players available — add players first to enable this report."
+msgstr "Geen spelers beschikbaar — voeg eerst spelers toe om dit rapport te kunnen openen."
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "No teams configured yet."
+msgstr "Nog geen teams geconfigureerd."
+
+#. translators: %s = player name
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+#, php-format
+msgid "Minutes played — %s"
+msgstr "Gespeelde minuten — %s"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Appearances"
+msgstr "Wedstrijden"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Avg min / appearance"
+msgstr "Gem. min / wedstrijd"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Matches in roster"
+msgstr "Wedstrijden in selectie"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Per match"
+msgstr "Per wedstrijd"
+
+#. translators: %s = team name
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+#, php-format
+msgid "Minutes distribution — %s"
+msgstr "Minutenverdeling — %s"
+
+#. translators: %d = match count
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+#, php-format
+msgid "%d match in the window"
+msgid_plural "%d matches in the window"
+msgstr[0] "%d wedstrijd in de periode"
+msgstr[1] "%d wedstrijden in de periode"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Players in selection"
+msgstr "Spelers in selectie"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Max minutes / player"
+msgstr "Max minuten / speler"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Spread (top vs bottom)"
+msgstr "Spreiding (top vs onderkant)"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "⚠ Above 30% — imbalance"
+msgstr "⚠ Boven 30% — onbalans"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Balanced selection"
+msgstr "Gebalanceerde selectie"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Per player"
+msgstr "Per speler"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Sorted by minutes, high to low."
+msgstr "Gesorteerd op minuten, hoog naar laag."
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Imbalance signal"
+msgstr "Onbalans-signaal"
+
+#. translators: %d = spread percentage
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+#, php-format
+msgid "Spread of %d%% — bottom-half players have less than half of the leading minutes. Consider rotation in upcoming matches."
+msgstr "Spreiding van %d%% — onderhelft van de spelers heeft minder dan de helft van de leidende minutenstand. Overweeg rotatie in de komende wedstrijden."
+
+#. translators: %s = team name
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+#, php-format
+msgid "Squad evaluation summary — %s"
+msgstr "Selectie-evaluatie samenvatting — %s"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Last 6 months"
+msgstr "Laatste 6 maanden"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Evaluated"
+msgstr "Geëvalueerd"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Squad average rating"
+msgstr "Gemiddelde selectie-rating"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Sorted by average rating, high to low."
+msgstr "Gesorteerd op gemiddelde rating, hoog naar laag."
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Season summary — annual review"
+msgstr "Seizoensoverzicht — jaarreview"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Academy-wide signals over the last 12 months"
+msgstr "Academy-brede signalen over de afgelopen 12 maanden"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Matches (12 mo)"
+msgstr "Wedstrijden (12 mnd)"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Evaluations (12 mo)"
+msgstr "Evaluaties (12 mnd)"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Prospects logged (12 mo)"
+msgstr "Vastgelegde prospects (12 mnd)"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Trial decisions (12 mo)"
+msgstr "Trial-beslissingen (12 mnd)"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Per team"
+msgstr "Per team"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Trial funnel — per scout, per period"
+msgstr "Trialfunnel — per scout, per periode"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Last 12 months"
+msgstr "Laatste 12 maanden"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Prospects logged"
+msgstr "Vastgelegde prospects"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Trial cases opened"
+msgstr "Trialdossiers geopend"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Decision rate"
+msgstr "Beslissingspercentage"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Per scout"
+msgstr "Per scout"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Cases opened"
+msgstr "Dossiers geopend"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Per decision"
+msgstr "Per beslissing"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Cases"
+msgstr "Dossiers"
+
+#. translators: %d = scout user id
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+#, php-format
+msgid "Scout #%d"
+msgstr "Scout #%d"
+
+#. translators: %s = scout name
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+#, php-format
+msgid "Scout report card — %s"
+msgstr "Scout-rapport — %s"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Admitted"
+msgstr "Toegelaten"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Hit rate"
+msgstr "Hit-rate"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Recent prospects"
+msgstr "Recente prospects"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Prospect"
+msgstr "Prospect"
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php
+msgid "Player · Minutes played"
+msgstr "Speler · Gespeelde minuten"
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php
+msgid "Per-player report: KPI strip + per-match timeline of minutes played."
+msgstr "Per-speler-rapport: KPI-strip + per-wedstrijd-tijdlijn van gespeelde minuten."
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php
+msgid "Team · Minutes distribution"
+msgstr "Team · Minutenverdeling"
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php
+msgid "Squad load balance — minutes per player with imbalance flag when spread > 30%."
+msgstr "Balans van selectie-belasting — minuten per speler met onbalansvlag bij spreiding > 30%."
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php
+msgid "Team · Squad evaluation summary"
+msgstr "Team · Selectie-evaluatie samenvatting"
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php
+msgid "Per-player average rating and evaluation count over the last 6 months."
+msgstr "Per-speler gemiddelde rating en aantal evaluaties over de afgelopen 6 maanden."
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php
+msgid "Academy-wide totals across players, matches, evaluations, prospects, and trial decisions over the last 12 months."
+msgstr "Academy-brede totalen voor spelers, wedstrijden, evaluaties, prospects en trialbeslissingen over de afgelopen 12 maanden."
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php
+msgid "Trial funnel"
+msgstr "Trialfunnel"
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php
+msgid "Prospects → trial cases opened → decided, broken out per scout and per decision."
+msgstr "Prospects → trialdossiers geopend → beslist, uitgesplitst per scout en per beslissing."
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php
+msgid "Scout report card"
+msgstr "Scout-rapport"
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php
+msgid "Per-scout dashboard — prospects logged, cases opened, admissions, hit rate."
+msgstr "Per-scout-dashboard — vastgelegde prospects, geopende dossiers, toelatingen, hit-rate."
+
 #~ msgid ""
 #~ "Pick a team to open the formation board with auto-suggested XI, depth "
 #~ "chart, and chemistry breakdown."
