@@ -30550,3 +30550,267 @@ msgstr ""
 #: src/Shared/Frontend/FrontendTeamDetailView.php
 msgid "Explorer →"
 msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Standard report"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Unknown standard report. Pick one from the Reports launcher."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Export (CSV)"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "No data for this selection"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Adjust a filter and try again."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Pick a player"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Pick a team"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "No players available — add players first to enable this report."
+msgstr ""
+
+#. translators: %s = player name
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+#, php-format
+msgid "Minutes played — %s"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Appearances"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Avg min / appearance"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Matches in roster"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Per match"
+msgstr ""
+
+#. translators: %s = team name
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+#, php-format
+msgid "Minutes distribution — %s"
+msgstr ""
+
+#. translators: %d = match count
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+#, php-format
+msgid "%d match in the window"
+msgid_plural "%d matches in the window"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Players in selection"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Max minutes / player"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Spread (top vs bottom)"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "⚠ Above 30% — imbalance"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Balanced selection"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Per player"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Sorted by minutes, high to low."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Imbalance signal"
+msgstr ""
+
+#. translators: %d = spread percentage
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+#, php-format
+msgid "Spread of %d%% — bottom-half players have less than half of the leading minutes. Consider rotation in upcoming matches."
+msgstr ""
+
+#. translators: %s = team name
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+#, php-format
+msgid "Squad evaluation summary — %s"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Last 6 months"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Evaluated"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Squad average rating"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Sorted by average rating, high to low."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Season summary — annual review"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Academy-wide signals over the last 12 months"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Matches (12 mo)"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Evaluations (12 mo)"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Prospects logged (12 mo)"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Trial decisions (12 mo)"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Per team"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Trial funnel — per scout, per period"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Last 12 months"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Prospects logged"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Trial cases opened"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Decision rate"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Per scout"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Cases opened"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Per decision"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Cases"
+msgstr ""
+
+#. translators: %d = scout user id
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+#, php-format
+msgid "Scout #%d"
+msgstr ""
+
+#. translators: %s = scout name
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+#, php-format
+msgid "Scout report card — %s"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Admitted"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Hit rate"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Recent prospects"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "Prospect"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php
+msgid "Player · Minutes played"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php
+msgid "Per-player report: KPI strip + per-match timeline of minutes played."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php
+msgid "Team · Minutes distribution"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php
+msgid "Squad load balance — minutes per player with imbalance flag when spread > 30%."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php
+msgid "Team · Squad evaluation summary"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php
+msgid "Per-player average rating and evaluation count over the last 6 months."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php
+msgid "Academy-wide totals across players, matches, evaluations, prospects, and trial decisions over the last 12 months."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php
+msgid "Trial funnel"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php
+msgid "Prospects → trial cases opened → decided, broken out per scout and per decision."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php
+msgid "Scout report card"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php
+msgid "Per-scout dashboard — prospects logged, cases opened, admissions, hit rate."
+msgstr ""

@@ -65,6 +65,47 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
                     'discovered_by_user_id'
                 ),
             ],
+            // #1063 standard-reports curated views (#1090-#1095). Six
+            // tiles, each opens the slug-dispatched
+            // ?tt_view=standard-report renderer. Entity-scoped reports
+            // (player- / team- / scout-) render a picker when no entity
+            // id is on the URL.
+            [
+                'slug'  => 'player-minutes-played',
+                'label' => __( 'Player · Minutes played', 'talenttrack' ),
+                'desc'  => __( 'Per-player report: KPI strip + per-match timeline of minutes played.', 'talenttrack' ),
+                'url'   => add_query_arg( [ 'tt_view' => 'standard-report', 'slug' => 'player-minutes-played' ], $base_url ),
+            ],
+            [
+                'slug'  => 'team-minutes-distribution',
+                'label' => __( 'Team · Minutes distribution', 'talenttrack' ),
+                'desc'  => __( 'Squad load balance — minutes per player with imbalance flag when spread > 30%.', 'talenttrack' ),
+                'url'   => add_query_arg( [ 'tt_view' => 'standard-report', 'slug' => 'team-minutes-distribution' ], $base_url ),
+            ],
+            [
+                'slug'  => 'team-squad-evaluation-summary',
+                'label' => __( 'Team · Squad evaluation summary', 'talenttrack' ),
+                'desc'  => __( 'Per-player average rating and evaluation count over the last 6 months.', 'talenttrack' ),
+                'url'   => add_query_arg( [ 'tt_view' => 'standard-report', 'slug' => 'team-squad-evaluation-summary' ], $base_url ),
+            ],
+            [
+                'slug'  => 'season-summary',
+                'label' => __( 'Season summary — annual review', 'talenttrack' ),
+                'desc'  => __( 'Academy-wide totals across players, matches, evaluations, prospects, and trial decisions over the last 12 months.', 'talenttrack' ),
+                'url'   => add_query_arg( [ 'tt_view' => 'standard-report', 'slug' => 'season-summary' ], $base_url ),
+            ],
+            [
+                'slug'  => 'season-trial-funnel',
+                'label' => __( 'Trial funnel', 'talenttrack' ),
+                'desc'  => __( 'Prospects → trial cases opened → decided, broken out per scout and per decision.', 'talenttrack' ),
+                'url'   => add_query_arg( [ 'tt_view' => 'standard-report', 'slug' => 'season-trial-funnel' ], $base_url ),
+            ],
+            [
+                'slug'  => 'scout-report-card',
+                'label' => __( 'Scout report card', 'talenttrack' ),
+                'desc'  => __( 'Per-scout dashboard — prospects logged, cases opened, admissions, hit rate.', 'talenttrack' ),
+                'url'   => add_query_arg( [ 'tt_view' => 'standard-report', 'slug' => 'scout-report-card' ], $base_url ),
+            ],
         ];
 
         echo '<p style="color:#5b6e75; margin-bottom:16px;">';
