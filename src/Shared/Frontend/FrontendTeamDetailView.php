@@ -404,9 +404,20 @@ final class FrontendTeamDetailView extends FrontendViewBase {
         // tables. Adds Type + Status columns (read from the same
         // `activity_type_key` / `activity_status_key` lookup fields the
         // coach edits on the activity form).
+        // #1098 — Activity volume preset (Explorer →).
+        $activity_explore_url = \TT\Modules\Analytics\Domain\ExplorerUrl::build(
+            'activity_volume',
+            [ 'team_id' => (string) $team_id, 'date_after' => '-12 months' ],
+            'month'
+        );
         echo '<section class="tt-pde-section">';
-        echo '<h3>' . esc_html__( 'Upcoming activities', 'talenttrack' ) . '</h3>';
-        echo '<div class="tt-table-wrap">';
+        echo '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">';
+        echo '<h3 style="margin:0;">' . esc_html__( 'Upcoming activities', 'talenttrack' ) . '</h3>';
+        echo '<a href="' . esc_url( $activity_explore_url ) . '" style="background:transparent;border:1px solid var(--tt-line, #d6dadd);color:var(--tt-muted, #5b6e75);text-decoration:none;padding:6px 10px;border-radius:6px;font-size:12px;font-weight:600;">'
+            . esc_html__( 'Explorer →', 'talenttrack' )
+            . '</a>';
+        echo '</div>';
+        echo '<div class="tt-table-wrap" style="margin-top:8px;">';
         echo '<table class="tt-table tt-team-activities-table"><thead><tr>';
         echo '<th>' . esc_html__( 'Date', 'talenttrack' ) . '</th>';
         echo '<th>' . esc_html__( 'Title', 'talenttrack' ) . '</th>';

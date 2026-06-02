@@ -30513,3 +30513,40 @@ msgid "PHV exclusion — %d player"
 msgid_plural "PHV exclusions — %d players"
 msgstr[0] ""
 msgstr[1] ""
+
+#: src/Modules/Analytics/AnalyticsModule.php
+msgid "Evaluations received"
+msgstr ""
+
+#: src/Modules/Analytics/AnalyticsModule.php
+msgid "Goal progress"
+msgstr ""
+
+#: src/Modules/Analytics/AnalyticsModule.php
+msgid "Activity volume"
+msgstr ""
+
+#: src/Modules/Analytics/AnalyticsModule.php
+msgid "Attendance vs squad"
+msgstr ""
+
+#: src/Modules/Analytics/AnalyticsModule.php
+msgid "Prospects logged per scout"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php
+msgid "Season log of scout-logged prospects, grouped by who logged them."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Explorer · Evaluation coverage →"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Explorer · Attendance vs squad →"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+#: src/Shared/Frontend/FrontendTeamDetailView.php
+msgid "Explorer →"
+msgstr ""

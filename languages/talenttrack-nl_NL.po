@@ -34230,6 +34230,44 @@ msgid_plural "PHV exclusions — %d players"
 msgstr[0] "PHV-uitsluiting — %d speler"
 msgstr[1] "PHV-uitsluitingen — %d spelers"
 
+# #1063 standard-reports presets (#1096–#1101)
+#: src/Modules/Analytics/AnalyticsModule.php
+msgid "Evaluations received"
+msgstr "Evaluaties ontvangen"
+
+#: src/Modules/Analytics/AnalyticsModule.php
+msgid "Goal progress"
+msgstr "Doelvoortgang"
+
+#: src/Modules/Analytics/AnalyticsModule.php
+msgid "Activity volume"
+msgstr "Activiteitsvolume"
+
+#: src/Modules/Analytics/AnalyticsModule.php
+msgid "Attendance vs squad"
+msgstr "Aanwezigheid versus selectie"
+
+#: src/Modules/Analytics/AnalyticsModule.php
+msgid "Prospects logged per scout"
+msgstr "Prospects per scout vastgelegd"
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php
+msgid "Season log of scout-logged prospects, grouped by who logged them."
+msgstr "Seizoenslog van door scouts vastgelegde prospects, gegroepeerd op wie ze vastlegde."
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Explorer · Evaluation coverage →"
+msgstr "Explorer · Evaluatiedekking →"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Explorer · Attendance vs squad →"
+msgstr "Explorer · Aanwezigheid versus selectie →"
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+#: src/Shared/Frontend/FrontendTeamDetailView.php
+msgid "Explorer →"
+msgstr "Explorer →"
+
 #~ msgid ""
 #~ "Pick a team to open the formation board with auto-suggested XI, depth "
 #~ "chart, and chemistry breakdown."
