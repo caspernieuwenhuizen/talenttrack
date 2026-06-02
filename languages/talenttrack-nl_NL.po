@@ -34301,10 +34301,6 @@ msgstr "Kies een team"
 msgid "No players available — add players first to enable this report."
 msgstr "Geen spelers beschikbaar — voeg eerst spelers toe om dit rapport te kunnen openen."
 
-#: src/Shared/Frontend/FrontendStandardReportsView.php
-msgid "No teams configured yet."
-msgstr "Nog geen teams geconfigureerd."
-
 #. translators: %s = player name
 #: src/Shared/Frontend/FrontendStandardReportsView.php
 #, php-format

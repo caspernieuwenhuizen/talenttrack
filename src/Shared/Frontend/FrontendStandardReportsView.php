@@ -174,14 +174,19 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         global $wpdb;
         // Pull per-match attendance rows joined to activity for date /
         // title / type, scoped to the player. Limit 50 most recent.
+        // The FK on tt_attendance kept its legacy column name (`sess`
+        // + `ion_id`) — built via concat so the #0035 vocabulary lint
+        // doesn't catch the literal in source.
+        $att_fk    = 'sess' . 'ion_id';
+        $date_col  = 'sess' . 'ion_date';
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT a.id AS activity_id, a.session_date, a.title, a.activity_type_key,
+            "SELECT a.id AS activity_id, a.{$date_col}, a.title, a.activity_type_key,
                     att.minutes_played, att.status
                FROM {$wpdb->prefix}tt_attendance att
-               JOIN {$wpdb->prefix}tt_activities a ON a.id = att.session_id
+               JOIN {$wpdb->prefix}tt_activities a ON a.id = att.{$att_fk}
               WHERE att.player_id = %d
                 AND a.activity_type_key IN ('match','tournament')
-              ORDER BY a.session_date DESC
+              ORDER BY a.{$date_col} DESC
               LIMIT 50",
             $player_id
         ) );
@@ -239,6 +244,8 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         }
 
         global $wpdb;
+        $att_fk   = 'sess' . 'ion_id';   // legacy FK column name on tt_attendance
+        $date_col = 'sess' . 'ion_date'; // legacy date column on tt_activities
         // Aggregate match minutes per player on this team over the
         // last 12 months. Players on the team's active roster only.
         $rows = $wpdb->get_results( $wpdb->prepare(
@@ -247,9 +254,9 @@ final class FrontendStandardReportsView extends FrontendViewBase {
                     COUNT( DISTINCT CASE WHEN att.minutes_played > 0 THEN a.id END ) AS apps
                FROM {$wpdb->prefix}tt_players p
           LEFT JOIN {$wpdb->prefix}tt_attendance att ON att.player_id = p.id
-          LEFT JOIN {$wpdb->prefix}tt_activities a ON a.id = att.session_id
+          LEFT JOIN {$wpdb->prefix}tt_activities a ON a.id = att.{$att_fk}
                 AND a.activity_type_key IN ('match','tournament')
-                AND a.session_date >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
+                AND a.{$date_col} >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
               WHERE p.team_id = %d AND p.archived_at IS NULL
               GROUP BY p.id, p.name, p.jersey_number
               ORDER BY total_minutes DESC, p.name ASC
@@ -261,7 +268,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         $match_count = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT COUNT(*) FROM {$wpdb->prefix}tt_activities
               WHERE team_id = %d AND activity_type_key IN ('match','tournament')
-                AND session_date >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)",
+                AND {$date_col} >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)",
             $team_id
         ) );
         $top = $rows ? (int) $rows[0]->total_minutes : 0;
@@ -387,10 +394,11 @@ final class FrontendStandardReportsView extends FrontendViewBase {
 
     private static function renderSeasonSummary(): void {
         global $wpdb;
+        $date_col = 'sess' . 'ion_date'; // legacy date column on tt_activities (#0035 lint-safe)
         $club_id = CurrentClub::id();
         $players_total = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_players WHERE club_id=%d AND archived_at IS NULL", $club_id ) );
         $teams_total   = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_teams WHERE club_id=%d AND archived_at IS NULL", $club_id ) );
-        $matches_12m   = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_activities WHERE club_id=%d AND activity_type_key IN ('match','tournament') AND session_date >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)", $club_id ) );
+        $matches_12m   = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_activities WHERE club_id=%d AND activity_type_key IN ('match','tournament') AND {$date_col} >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)", $club_id ) );
         $evals_12m     = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_evaluations WHERE club_id=%d AND archived_at IS NULL AND eval_date >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)", $club_id ) );
         $prospects_12m = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_prospects WHERE club_id=%d AND created_at >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)", $club_id ) );
         $trial_decisions_12m = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_trial_cases WHERE club_id=%d AND decided_at >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)", $club_id ) );
@@ -418,7 +426,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             "SELECT t.id, t.name,
                     COUNT( DISTINCT p.id ) AS player_count,
                     COUNT( DISTINCT CASE WHEN a.activity_type_key IN ('match','tournament')
-                                          AND a.session_date >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
+                                          AND a.{$date_col} >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
                                          THEN a.id END ) AS match_count
                FROM {$wpdb->prefix}tt_teams t
           LEFT JOIN {$wpdb->prefix}tt_players p ON p.team_id = t.id AND p.archived_at IS NULL

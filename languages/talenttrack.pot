@@ -30583,10 +30583,6 @@ msgstr ""
 msgid "No players available — add players first to enable this report."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendStandardReportsView.php
-msgid "No teams configured yet."
-msgstr ""
-
 #. translators: %s = player name
 #: src/Shared/Frontend/FrontendStandardReportsView.php
 #, php-format
