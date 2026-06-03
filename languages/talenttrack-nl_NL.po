@@ -1716,6 +1716,10 @@ msgstr "De persoon kon niet worden bijgewerkt."
 msgid "The person could not be archived."
 msgstr "De persoon kon niet worden gearchiveerd."
 
+#: src/Infrastructure/REST/PeopleRestController.php:217
+msgid "Person not found in your club."
+msgstr "Persoon niet gevonden in jouw club."
+
 #: src/Infrastructure/REST/PlayerJourneyRestController.php:113
 #: src/Infrastructure/REST/PlayerJourneyRestController.php:133
 #: src/Modules/Journey/Frontend/FrontendJourneyView.php:46
