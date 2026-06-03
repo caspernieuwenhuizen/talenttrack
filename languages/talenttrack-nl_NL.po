@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-03T20:36:23+00:00\n"
+"POT-Creation-Date: 2026-06-03T21:02:12+00:00\n"
 "PO-Revision-Date: 2026-04-25 10:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -1335,7 +1335,7 @@ msgstr "De oefening kon niet worden gekoppeld."
 
 #: src/Infrastructure/REST/ActivityExercisesRestController.php:127
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:165
-#: src/Infrastructure/REST/GoalsRestController.php:394
+#: src/Infrastructure/REST/GoalsRestController.php:405
 #: src/Infrastructure/REST/LookupsRestController.php:229
 #: src/Modules/Trials/Rest/TrialsRestController.php:190
 msgid "No fields to update."
@@ -1597,40 +1597,40 @@ msgstr "Ongeldig toewijzings-id."
 msgid "The assignment could not be removed."
 msgstr "De toewijzing kon niet worden verwijderd."
 
-#: src/Infrastructure/REST/GoalsRestController.php:301
+#: src/Infrastructure/REST/GoalsRestController.php:312
 msgid "Player and title are required."
 msgstr "Speler en titel zijn verplicht."
 
-#: src/Infrastructure/REST/GoalsRestController.php:310
+#: src/Infrastructure/REST/GoalsRestController.php:321
 msgid "The goal could not be saved. The database rejected the operation."
 msgstr ""
 "Het doel kon niet worden opgeslagen. De database heeft de bewerking "
 "afgewezen."
 
-#: src/Infrastructure/REST/GoalsRestController.php:369
-#: src/Infrastructure/REST/GoalsRestController.php:430
-#: src/Infrastructure/REST/GoalsRestController.php:477
+#: src/Infrastructure/REST/GoalsRestController.php:380
+#: src/Infrastructure/REST/GoalsRestController.php:441
+#: src/Infrastructure/REST/GoalsRestController.php:488
 msgid "Invalid goal id."
 msgstr "Ongeldig doel-id."
 
-#: src/Infrastructure/REST/GoalsRestController.php:403
+#: src/Infrastructure/REST/GoalsRestController.php:414
 msgid "The goal could not be updated."
 msgstr "Het doel kon niet worden bijgewerkt."
 
-#: src/Infrastructure/REST/GoalsRestController.php:434
+#: src/Infrastructure/REST/GoalsRestController.php:445
 msgid "Status is required."
 msgstr "Status is verplicht."
 
-#: src/Infrastructure/REST/GoalsRestController.php:451
+#: src/Infrastructure/REST/GoalsRestController.php:462
 msgid "Only the player's head coach can approve or reject this goal."
 msgstr ""
 "Alleen de hoofdcoach van de speler kan dit doel goedkeuren of afwijzen."
 
-#: src/Infrastructure/REST/GoalsRestController.php:462
+#: src/Infrastructure/REST/GoalsRestController.php:473
 msgid "Status update failed."
 msgstr "Status bijwerken mislukt."
 
-#: src/Infrastructure/REST/GoalsRestController.php:485
+#: src/Infrastructure/REST/GoalsRestController.php:496
 msgid "Goal delete failed."
 msgstr "Verwijderen van doel mislukt."
 
@@ -2333,7 +2333,7 @@ msgstr "Type"
 #: src/Modules/Wizards/Activity/TypeStatusStep.php:41
 #: src/Modules/Wizards/Prospect/IdentityStep.php:100
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:352
-#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:217
+#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:247
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:288
 #: src/Shared/Frontend/CoachDashboardView.php:248
 #: src/Shared/Frontend/CoachDashboardView.php:301
@@ -16711,7 +16711,7 @@ msgid "Function"
 msgstr "Functie"
 
 #: src/Modules/Methodology/Admin/MethodologyPage.php:172
-#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:36
+#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:37
 msgid "Task"
 msgstr "Taak"
 
@@ -18484,7 +18484,7 @@ msgstr "Gesprek-secties"
 #: src/Shared/Frontend/Components/FrontendThreadView.php:52
 #: src/Shared/Frontend/FrontendGoalsManageView.php:186
 #: src/Shared/Frontend/FrontendGoalsManageView.php:469
-#: src/Shared/Frontend/FrontendMyGoalsView.php:159
+#: src/Shared/Frontend/FrontendMyGoalsView.php:152
 msgid "Conversation"
 msgstr "Gesprek"
 
@@ -18801,7 +18801,7 @@ msgstr "Huidige doelen"
 
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:197
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:54
-#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:219
+#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:249
 #: src/Shared/Frontend/CoachDashboardView.php:302
 #: src/Shared/Frontend/CoachForms.php:563
 #: src/Shared/Frontend/FrontendGoalsManageView.php:171
@@ -19641,7 +19641,7 @@ msgstr "Mijn teams"
 #: src/Modules/PersonaDashboard/Widgets/TaskListPanelWidget.php:54
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:43
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:44
-#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:35
+#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:36
 #: src/Shared/CoreSurfaceRegistration.php:315
 #: src/Shared/CoreSurfaceRegistration.php:322
 #: src/Shared/CoreSurfaceRegistration.php:329
@@ -23980,7 +23980,7 @@ msgstr ""
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:213
 #: src/Shared/Frontend/FrontendGoalsManageView.php:479
-#: src/Shared/Frontend/FrontendMyGoalsView.php:162
+#: src/Shared/Frontend/FrontendMyGoalsView.php:155
 msgid "How does this work?"
 msgstr "Hoe werkt dit?"
 
@@ -27753,63 +27753,76 @@ msgstr[1] "%d taken voor 7 dagen gesnoozed."
 msgid "activity #%d"
 msgstr "activiteit #%d"
 
-#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:49
-#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:113
+#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:50
+#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:137
 msgid "Task not found"
 msgstr "Taak niet gevonden"
 
-#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:50
+#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:51
 msgid "This task does not exist (or has been removed)."
 msgstr "Deze taak bestaat niet (of is verwijderd)."
 
-#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:62
+#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:74
 msgid "Task template missing"
 msgstr "Taaksjabloon ontbreekt"
 
-#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:63
+#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:75
 msgid ""
 "The template for this task is no longer registered. Contact an administrator."
 msgstr ""
 "Het sjabloon van deze taak is niet meer geregistreerd. Neem contact op met "
 "een beheerder."
 
-#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:70
+#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:82
 msgid "This task has no form configured."
 msgstr "Deze taak heeft geen formulier geconfigureerd."
 
-#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:88
+#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:101
 msgid "Security check failed. Please refresh the page and try again."
 msgstr "Beveiligingscontrole mislukt. Vernieuw de pagina en probeer opnieuw."
 
-#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:102
+#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:126
 #: src/Shared/Frontend/DashboardShortcode.php:479
 msgid "Task completed."
 msgstr "Taak voltooid."
 
-#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:104
+#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:128
 msgid "Could not save the task. Please try again."
 msgstr "De taak kon niet worden opgeslagen. Probeer opnieuw."
 
-#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:152
+#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:176
 msgid ""
 "This task has already been completed. Below is the response that was "
 "submitted."
 msgstr ""
 "Deze taak is al voltooid. Hieronder staat het antwoord dat is verstuurd."
 
-#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:178
+# v4.20.17 #1152 — academy admin task takeover strings.
+#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:205
+msgid "Complete on behalf"
+msgstr "Voltooi namens"
+
+#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:206
 msgid "Submit"
 msgstr "Versturen"
 
-#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:198
+#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:228
 msgid "unassigned"
 msgstr "niet toegewezen"
 
-#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:216
+#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:246
 msgid "Assigned to"
 msgstr "Toegewezen aan"
 
-#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:225
+#. translators: %s — assignee display name. Surfaced when an academy admin completes a workflow task on behalf of someone else (#1152).
+#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:258
+#, php-format
+msgid ""
+"Completing on behalf of %s — this action will be recorded in the audit log."
+msgstr ""
+"Bezig met voltooien namens %s — deze actie wordt vastgelegd in het audit-log."
+
+#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:264
 msgid "You can view this task, but only the assignee can edit or complete it."
 msgstr ""
 "Je kunt deze taak bekijken, maar alleen de toegewezene kan deze bewerken of "
@@ -31435,7 +31448,7 @@ msgstr "Doel bewerken — %s"
 
 #: src/Shared/Frontend/FrontendGoalsManageView.php:69
 #: src/Shared/Frontend/FrontendGoalsManageView.php:108
-#: src/Shared/Frontend/FrontendMyGoalsView.php:120
+#: src/Shared/Frontend/FrontendMyGoalsView.php:113
 msgid "Goal not found"
 msgstr "Doel niet gevonden"
 
@@ -31869,7 +31882,7 @@ msgstr "Details tonen"
 msgid "Hide detail"
 msgstr "Details verbergen"
 
-#: src/Shared/Frontend/FrontendMyGoalsView.php:51
+#: src/Shared/Frontend/FrontendMyGoalsView.php:48
 msgid ""
 "No goals assigned yet. Your coaches will add development goals here as you "
 "progress."
@@ -31877,25 +31890,25 @@ msgstr ""
 "Nog geen doelen toegewezen. Je coaches voegen hier ontwikkelingsdoelen toe "
 "naarmate je vordert."
 
-#: src/Shared/Frontend/FrontendMyGoalsView.php:77
-#: src/Shared/Frontend/FrontendMyGoalsView.php:138
+#: src/Shared/Frontend/FrontendMyGoalsView.php:74
+#: src/Shared/Frontend/FrontendMyGoalsView.php:131
 #: src/Shared/Frontend/PlayerDashboardView.php:134
 msgid "Due:"
 msgstr "Deadline:"
 
 #. translators: %d is the number of messages on this goal's conversation thread.
-#: src/Shared/Frontend/FrontendMyGoalsView.php:84
+#: src/Shared/Frontend/FrontendMyGoalsView.php:81
 #, php-format
 msgid "Open conversation (%d message)"
 msgid_plural "Open conversation (%d messages)"
 msgstr[0] "Open gesprek (%d bericht)"
 msgstr[1] "Open gesprek (%d berichten)"
 
-#: src/Shared/Frontend/FrontendMyGoalsView.php:87
+#: src/Shared/Frontend/FrontendMyGoalsView.php:84
 msgid "Open goal &amp; start the conversation"
 msgstr "Doel openen &amp; gesprek starten"
 
-#: src/Shared/Frontend/FrontendMyGoalsView.php:121
+#: src/Shared/Frontend/FrontendMyGoalsView.php:114
 msgid "That goal is no longer available, or it does not belong to your record."
 msgstr "Dit doel is niet meer beschikbaar, of hoort niet bij jouw record."
 
@@ -34906,17 +34919,6 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
-
-# v4.20.17 #1152 — academy admin task takeover strings.
-#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php
-msgid "Complete on behalf"
-msgstr "Voltooi namens"
-
-#. translators: %s — assignee display name. Surfaced when an academy admin completes a workflow task on behalf of someone else (#1152).
-#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php
-#, php-format
-msgid "Completing on behalf of %s — this action will be recorded in the audit log."
-msgstr "Bezig met voltooien namens %s — deze actie wordt vastgelegd in het audit-log."
 
 #~ msgid ""
 #~ "Optionally connect this activity to one or more methodology principles. "
