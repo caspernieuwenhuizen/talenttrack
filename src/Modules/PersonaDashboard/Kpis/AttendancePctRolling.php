@@ -7,11 +7,32 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\PersonaDashboard\Domain\AbstractKpiDataSource;
 use TT\Modules\PersonaDashboard\Domain\KpiValue;
 use TT\Modules\PersonaDashboard\Domain\PersonaContext;
+use TT\Modules\PersonaDashboard\Domain\RenderContext;
 
 class AttendancePctRolling extends AbstractKpiDataSource {
     public function id(): string { return 'attendance_pct_rolling'; }
     public function label(): string { return __( 'Attendance % (4-week)', 'talenttrack' ); }
     public function context(): string { return PersonaContext::ACADEMY; }
+
+    /**
+     * v4.20.24 (#1210) — Deep-link with `filter[date_from]=<-28d>` +
+     * `filter[date_to]=<today>` + `filter[plan_state]=completed` so the
+     * destination activities list matches the KPI's 4-week completed
+     * window 1:1. Lands live in the dominant kpi_card placement via
+     * v4.20.22's `KpiCardWidget` → `linkUrl()` routing fix (#1207).
+     */
+    public function linkUrl( RenderContext $ctx ): string {
+        $view = $this->linkView();
+        if ( $view === '' ) return '';
+        return add_query_arg(
+            [ 'filter' => [
+                'date_from'  => gmdate( 'Y-m-d', strtotime( '-28 days' ) ),
+                'date_to'    => gmdate( 'Y-m-d' ),
+                'plan_state' => 'completed',
+            ] ],
+            $ctx->viewUrl( $view )
+        );
+    }
 
     public function compute( int $user_id, int $club_id ): KpiValue {
         global $wpdb;
