@@ -61,12 +61,22 @@ class TodayUpNextHeroWidget extends AbstractWidget {
             $detail  = self::buildDetail( $next );
         }
 
+        // #1151 — the Evaluation CTA must not surface for users
+        // without `tt_edit_evaluations`. AC lost the cap per #1060
+        // (matrix entity `evaluations` removed) but the widget had no
+        // per-button cap-gate, so the link still rendered and dropped
+        // ACs on a surface they can't author into. Attendance stays
+        // unconditional — it's gated by the upstream `tt_view_activities`
+        // every persona in `intendedPersonas()` already holds.
+        $cta_html = '<a class="tt-pd-cta tt-pd-cta-primary" href="' . esc_url( $attendance_url ) . '">' . esc_html__( 'Attendance', 'talenttrack' ) . '</a>';
+        if ( current_user_can( 'tt_edit_evaluations' ) ) {
+            $cta_html .= '<a class="tt-pd-cta tt-pd-cta-ghost" href="' . esc_url( $eval_url ) . '">' . esc_html__( 'Evaluation', 'talenttrack' ) . '</a>';
+        }
         $inner = '<div class="tt-pd-hero-eyebrow">' . esc_html( $eyebrow ) . '</div>'
             . '<div class="tt-pd-hero-title">' . esc_html( $title ) . '</div>'
             . '<div class="tt-pd-hero-detail">' . esc_html( $detail ) . '</div>'
             . '<div class="tt-pd-hero-cta-row">'
-            . '<a class="tt-pd-cta tt-pd-cta-primary" href="' . esc_url( $attendance_url ) . '">' . esc_html__( 'Attendance', 'talenttrack' ) . '</a>'
-            . '<a class="tt-pd-cta tt-pd-cta-ghost" href="' . esc_url( $eval_url ) . '">' . esc_html__( 'Evaluation', 'talenttrack' ) . '</a>'
+            . $cta_html
             . '</div>';
         return $this->wrap( $slot, $inner, 'hero hero-today' );
     }
