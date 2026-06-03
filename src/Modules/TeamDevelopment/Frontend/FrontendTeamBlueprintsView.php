@@ -998,8 +998,18 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
         // selects don't need a REST round-trip per change. Excludes
         // the current team — players already in `roster` above don't
         // need to surface as cross-team picks for themselves.
+        //
+        // v4.20.42 (#1202) — Audit 8 (#1182) flagged a privacy leak
+        // (minors): the picker used `QueryHelpers::get_teams()` +
+        // `get_players()` unconditionally, exposing the entire academy
+        // roster to any coach editing their own team's blueprint.
+        // Narrowed to teams the coach can access (admins still see all).
+        $is_admin    = current_user_can( 'tt_edit_settings' );
+        $picker_teams = $is_admin
+            ? QueryHelpers::get_teams()
+            : QueryHelpers::get_teams_for_coach( get_current_user_id() );
         $other_teams = [];
-        foreach ( QueryHelpers::get_teams() as $t ) {
+        foreach ( $picker_teams as $t ) {
             if ( (int) $t->id === $team_id ) continue;
             $players = [];
             foreach ( QueryHelpers::get_players( (int) $t->id ) as $pl ) {
