@@ -1763,34 +1763,19 @@ class FrontendActivitiesManageView extends FrontendViewBase {
     }
 
     private static function loadSession( int $id ): ?object {
-        global $wpdb; $p = $wpdb->prefix;
-        $scope = QueryHelpers::apply_demo_scope( 's', 'activity' );
-        // v3.70.1 hotfix — also fetch team_name so renderDetail can show
-        // a clickable team cell without a second query.
-        /** @var object|null $row */
-        $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT s.*, t.name AS team_name FROM {$p}tt_activities s
-             LEFT JOIN {$p}tt_teams t ON t.id = s.team_id AND t.club_id = s.club_id
-             WHERE s.id = %d AND s.archived_at IS NULL {$scope}",
-            $id
-        ) );
-        return $row ?: null;
+        // v4.20.32 (#1190) — routed through ActivitiesRepository so the
+        // on-screen view + ActivityBriefPdfExporter share one source of
+        // truth. Pre-fix the two surfaces inlined $wpdb queries with
+        // subtly different filter sets — same data-fork class as #1059.
+        return ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )->findById( $id );
     }
 
     /**
      * @return array<int, object> roster attendance rows keyed by player_id (excludes guests).
      */
     private static function loadAttendance( int $activity_id ): array {
-        global $wpdb; $p = $wpdb->prefix;
-        $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT * FROM {$p}tt_attendance WHERE activity_id = %d AND is_guest = 0",
-            $activity_id
-        ) );
-        $out = [];
-        foreach ( $rows ?: [] as $r ) {
-            if ( $r->player_id !== null ) $out[ (int) $r->player_id ] = $r;
-        }
-        return $out;
+        // v4.20.32 (#1190) — routed through ActivitiesRepository.
+        return ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )->attendanceMapByPlayer( $activity_id );
     }
 
     /**

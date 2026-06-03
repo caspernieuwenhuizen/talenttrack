@@ -4,13 +4,16 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.31
+Stable tag: 4.20.32
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.32 — Extract ActivitiesRepository — FrontendActivitiesManageView + ActivityBriefPdfExporter share one data source (closes #1190). Audit 10 (#1184) flagged the same data-fork pattern #1059 established the fix for: the on-screen activity edit view and the brief-PDF exporter inlined `$wpdb` queries with subtly different filter sets, and "any next bug fix to either side will introduce real divergence" — exporter was strict on `club_id` (same defect family #1149 / #1188 fixed at the helper layer for `get_player`) and was missing `is_guest = 0` on the attendance JOIN (so the printed roster table silently leaked guests while the on-screen list excluded them). **Fix.** New `src/Modules/Activities/Repositories/ActivitiesRepository.php` with three methods: `findById( $id )` (activity row + joined team_name, demo-scope + archived_at filter — matches `loadSession`), `listRosterAttendance( $id, $include_guests = false )` (joined player columns, default no guests — matches the on-screen list), `attendanceMapByPlayer( $id )` (keyed-by-player_id map for the edit form, excludes guests). **Migration.** `FrontendActivitiesManageView::loadSession` + `loadAttendance` thin to one-line delegations to the repository. `ActivityBriefPdfExporter::collect` does the same — pre-fix it ran two separate `$wpdb` queries with different scope filters than the view's. **Brief PDF guest behaviour explicit.** The exporter passes `include_guests = false` to mirror the on-screen attendance-table behaviour (guests render in a separate panel on screen; the brief is the roster the coach actually fielded). Documented in the exporter's inline comment so future variants can flip the flag with intent. **No inline `$wpdb` queries on `tt_activities` / `tt_attendance` remain** in either of the two refactored files. Patch bump. (closes #1190) =
+
 
 = 4.20.31 — Exports tile: phantom `exports` entity aligned to `reports` to fix non-admin denial (closes #1189). Audit 1 (#1175) found this — same bug class as #1143 (scouting-visits → phantom `scouting_visits`) and v3.110.x's series of scope-leak / phantom-entity fixes. The Exports tile at `CoreSurfaceRegistration.php:749` declared `'entity' => 'exports'`, but no persona has a seed row for `exports` in `config/authorization_seed.php`. The matrix-dispatch gate (`DashboardShortcode::matrixDispatchAllows`) calls `MatrixGate::canAnyScope($user_id, 'exports', 'read')`, which returns false for every non-admin user. Result: scouts / coaches / HoDs all got "Niet geautoriseerd" on `?tt_view=exports` even though their `tt_view_reports` cap resolved correctly. **Fix.** Aligned the tile's `entity` declaration to `reports` — the cap the tile already declares (`tt_view_reports`) maps to `reports.read` via `LegacyCapMapper`, and the matrix seed grants `reports.read` widely across personas. The Exports view itself (`FrontendExportsView`) self-filters cards per-cap, so personas only see the bulk-exporters they can run. Single-line change in `CoreSurfaceRegistration.php`. Inline comment documents the bug history so future tile edits don't reflex-revert. Patch bump. (closes #1189) =
 
