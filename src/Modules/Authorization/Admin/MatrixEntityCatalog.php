@@ -29,6 +29,37 @@ use TT\Shared\Tiles\TileRegistry;
 final class MatrixEntityCatalog {
 
     /**
+     * v4.20.9 (#1159) — Entities that legitimately live behind WordPress
+     * admin surfaces (configuration sub-tabs, audit / debug pages,
+     * licence + module-state screens) but don't declare an `entity` on
+     * any frontend tile or carry a clean `cap` mapping through the
+     * three registries the consumer-detection walks. Without this
+     * whitelist, `consumersOf()` returns an empty array for each one
+     * and the matrix admin UI flags them as "No tile or admin surface
+     * gates on this entity yet" — a false negative the operator can't
+     * act on. The whitelist surfaces a synthetic `admin_only` consumer
+     * descriptor instead, so the row reads as wired.
+     *
+     * Adding an entity here is a deliberate declaration: "this entity
+     * is intentionally only consumed by admin surfaces, not by the
+     * frontend tile registry." Frontend-tile-bearing entities should
+     * NOT be added here — they should declare their entity on the tile.
+     */
+    private const ADMIN_ONLY_ENTITIES = [
+        'authorization_changelog',
+        'impersonation_log',
+        'permission_debug',
+        'lookups',
+        'branding',
+        'feature_toggles',
+        'custom_field_values',
+        'bulk_import',
+        'license',
+        'module_state',
+    ];
+
+
+    /**
      * Slug → translatable human label. Keep this in sync with the
      * authorization seed entities; a new entity that lands in
      * `config/authorization_seed.php` should also get a label here so
@@ -160,7 +191,11 @@ final class MatrixEntityCatalog {
             return [];
         }
         $caps = LegacyCapMapper::capsForEntity( $entity );
-        if ( empty( $caps ) ) return [];
+        if ( empty( $caps ) ) {
+            // Even an entity with no cap mapping might be a legitimate
+            // admin-only surface — let the whitelist branch decide.
+            return self::adminOnlyDescriptor( $entity );
+        }
         $caps_set = array_flip( $caps );
 
         $out = [];
@@ -224,7 +259,42 @@ final class MatrixEntityCatalog {
             $seen[ $key ]  = true;
             $deduped[]     = $row;
         }
+        // After deduping, if the walk found nothing but the entity is
+        // on the admin-only whitelist, surface the synthetic descriptor
+        // so the matrix UI doesn't flag it as orphan.
+        if ( ! $deduped ) {
+            return self::adminOnlyDescriptor( $entity );
+        }
         return $deduped;
+    }
+
+    /**
+     * v4.20.9 (#1159) — Synthetic descriptor for entities on the
+     * `ADMIN_ONLY_ENTITIES` whitelist. Returns an empty array when the
+     * entity is NOT whitelisted, preserving the original "no consumers"
+     * signal for genuinely orphan entities.
+     *
+     * @return list<array{
+     *     type:string,
+     *     label:string,
+     *     cap:string,
+     *     entity_declared:?string,
+     *     cap_callback:?string,
+     *     view_slug:string
+     * }>
+     */
+    private static function adminOnlyDescriptor( string $entity ): array {
+        if ( ! in_array( $entity, self::ADMIN_ONLY_ENTITIES, true ) ) {
+            return [];
+        }
+        return [ [
+            'type'            => 'admin_only',
+            'label'           => __( 'Admin / configuration surface', 'talenttrack' ),
+            'cap'             => '',
+            'entity_declared' => $entity,
+            'cap_callback'    => null,
+            'view_slug'       => '',
+        ] ];
     }
 
     /**

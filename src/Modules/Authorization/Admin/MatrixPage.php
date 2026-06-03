@@ -609,6 +609,10 @@ class MatrixPage {
             'tile'             => __( 'frontend tile', 'talenttrack' ),
             'admin_menu'       => __( 'admin menu', 'talenttrack' ),
             'admin_dashboard'  => __( 'admin dashboard tile', 'talenttrack' ),
+            // v4.20.9 (#1159) — synthetic descriptor emitted by
+            // MatrixEntityCatalog::adminOnlyDescriptor() for entities on
+            // the whitelist of legitimately admin-only surfaces.
+            'admin_only'       => __( 'admin / configuration surface', 'talenttrack' ),
         ][ $cons['type'] ] ?? $cons['type'];
 
         $cap_tuple = $cons['cap'] !== '' ? \TT\Modules\Authorization\LegacyCapMapper::tupleFor( $cons['cap'] ) : null;
