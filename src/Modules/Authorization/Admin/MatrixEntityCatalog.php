@@ -46,6 +46,7 @@ final class MatrixEntityCatalog {
      * NOT be added here — they should declare their entity on the tile.
      */
     private const ADMIN_ONLY_ENTITIES = [
+        // v4.20.9 (#1159) — original ten
         'authorization_changelog',
         'impersonation_log',
         'permission_debug',
@@ -56,6 +57,29 @@ final class MatrixEntityCatalog {
         'bulk_import',
         'license',
         'module_state',
+        // v4.20.33 (#1192) — audit 1 (#1175) follow-on: 17 more
+        // admin/config entities whose consumer pages use a WP cap
+        // (`administrator`, `manage_options`, `read`) or a `tt_*` cap
+        // that maps to a different entity. They're all legitimately
+        // wired to wp-admin surfaces but escape the three registries
+        // `consumersOf()` walks.
+        'roles',                       // wp-admin Roles editor
+        'authorization_matrix',        // the matrix admin itself
+        'matrix_preview_apply',        // matrix preview/apply admin action
+        'backup',                      // backup tool admin page
+        'demo_data',                   // demo-data toggle + reset
+        'custom_css',                  // custom CSS editor admin
+        'impersonation_action',        // impersonate-user action
+        'usage_stats_details',         // usage-stats drill-down admin
+        'documentation',               // documentation admin pages
+        'persona_templates',           // persona-template editor admin
+        'rating_scale',                // rating-scale config admin
+        'translations',                // translations admin
+        'translations_config',         // translations module config
+        'custom_widgets',              // custom-widget builder admin
+        'football_actions',            // football-actions vocabulary admin
+        'spond_integration',           // Spond admin uses tt_edit_teams
+        'thread_messages',             // threads admin (the read path)
     ];
 
 
