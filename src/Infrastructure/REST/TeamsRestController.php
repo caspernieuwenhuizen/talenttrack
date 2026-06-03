@@ -342,6 +342,19 @@ class TeamsRestController {
         if ( $team_id <= 0 || $player_id <= 0 ) {
             return RestResponse::error( 'bad_id', __( 'Invalid team or player id.', 'talenttrack' ), 400 );
         }
+        // v4.20.40 (#1200) — Audit 2 (#1176) flagged the cross-club
+        // reassign class. Pre-fix `team_id` came from the path
+        // parameter unchecked. A coach could reassign one of their
+        // club's players to a `team_id` belonging to another club —
+        // the player's `club_id` stayed put but their `team_id`
+        // pointed at a foreign team, breaking every JOIN in
+        // dashboards / evaluations / attendance / tournaments.
+        // Verify the team exists in the writer's club before the
+        // UPDATE; falls through to 404 with a clean error code
+        // otherwise.
+        if ( QueryHelpers::get_team( $team_id ) === null ) {
+            return RestResponse::error( 'team_not_found', __( 'Team not found in your club.', 'talenttrack' ), 404 );
+        }
         $ok = $wpdb->update( $wpdb->prefix . 'tt_players', [ 'team_id' => $team_id ], [ 'id' => $player_id, 'club_id' => CurrentClub::id() ] );
         if ( $ok === false ) {
             $err = (string) $wpdb->last_error;
