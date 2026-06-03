@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-03T22:40:18+00:00\n"
+"POT-Creation-Date: 2026-06-03T22:50:13+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -703,7 +703,7 @@ msgstr ""
 #: src/Shared/Admin/BulkActionsHelper.php:98
 #: src/Shared/Frontend/FrontendEvalCategoriesView.php:182
 #: src/Shared/Frontend/FrontendPeopleManageView.php:118
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1721
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1725
 #: src/Shared/Frontend/FrontendPlayersManageView.php:213
 #: src/Shared/Frontend/FrontendTeamsManageView.php:153
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:201
@@ -2291,7 +2291,7 @@ msgstr "Typ"
 #: src/Shared/Frontend/FrontendPeopleManageView.php:116
 #: src/Shared/Frontend/FrontendPersonDetailView.php:118
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:795
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1720
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1724
 #: src/Shared/Frontend/FrontendPlayersCsvImportView.php:115
 #: src/Shared/Frontend/FrontendPlayersManageView.php:211
 #: src/Shared/Frontend/FrontendTeamDetailView.php:292
@@ -2635,14 +2635,14 @@ msgstr "— Alle —"
 #: src/Shared/Frontend/FrontendEvaluationsView.php:419
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:131
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:175
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1731
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1735
 #: src/Shared/Frontend/FrontendPlayersCsvImportView.php:119
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:181
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:251
 #: src/Shared/Frontend/FrontendTeamBehaviourCaptureView.php:170
 #: src/Shared/Frontend/FrontendTeamsManageView.php:202
 #: src/Shared/Frontend/FrontendTestTrainingsView.php:86
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:470
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:475
 #: src/Shared/Frontend/FrontendTrialCaseView.php:483
 #: src/Shared/Frontend/FrontendTrialCaseView.php:518
 #: src/Shared/Frontend/FrontendTrialsManageView.php:291
@@ -4146,7 +4146,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/DebugPage.php:89
 #: src/Modules/Authorization/Admin/DebugPage.php:188
 #: src/Modules/Authorization/Admin/DebugPage.php:225
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:463
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:468
 msgid "(none)"
 msgstr ""
 
@@ -4672,7 +4672,7 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Authorization/Admin/ImpersonationPage.php:78
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1723
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1727
 msgid "Reason"
 msgstr ""
 
@@ -5877,7 +5877,7 @@ msgstr ""
 #: src/Modules/Tournaments/Wizard/BasicsStep.php:59
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:48
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:354
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:451
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:456
 #: src/Shared/Frontend/FrontendTrialsManageView.php:274
 msgid "Start date"
 msgstr ""
@@ -5887,7 +5887,7 @@ msgstr ""
 #: src/Modules/People/Admin/TeamStaffPanel.php:162
 #: src/Modules/Tournaments/Wizard/BasicsStep.php:64
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:49
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:457
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:462
 #: src/Shared/Frontend/FrontendTrialsManageView.php:275
 msgid "End date"
 msgstr ""
@@ -13833,7 +13833,7 @@ msgid "Unsure — flag for medical review"
 msgstr ""
 
 #: src/Modules/Journey/Workflow/InjuryRecoveryConfirmForm.php:62
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1706
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1710
 msgid "Notes (optional)"
 msgstr ""
 
@@ -15448,7 +15448,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendConfigurationView.php:820
 #: src/Shared/Frontend/FrontendConfigurationView.php:1008
 #: src/Shared/Frontend/FrontendConfigurationView.php:1154
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:477
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:482
 #: src/Shared/Frontend/FrontendWizardsAdminView.php:110
 msgid "Save changes"
 msgstr ""
@@ -16125,7 +16125,7 @@ msgstr ""
 #: src/Modules/Methodology/Admin/PrincipleEditPage.php:121
 #: src/Modules/Methodology/Admin/SetPieceEditPage.php:91
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:55
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:461
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:466
 msgid "Default formation"
 msgstr ""
 
@@ -23529,7 +23529,7 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Tournaments/Wizard/BasicsStep.php:40
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:437
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:442
 msgid "Tournament name"
 msgstr ""
 
@@ -23539,7 +23539,7 @@ msgstr ""
 
 #: src/Modules/Tournaments/Wizard/BasicsStep.php:46
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:47
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:441
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:446
 msgid "Anchor team"
 msgstr ""
 
@@ -24416,48 +24416,48 @@ msgid "No teams configured yet."
 msgstr ""
 
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:222
-#: src/Shared/Frontend/FrontendTeamDetailView.php:514
+#: src/Shared/Frontend/FrontendTeamDetailView.php:518
 msgid "Mon"
 msgstr ""
 
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:222
-#: src/Shared/Frontend/FrontendTeamDetailView.php:515
+#: src/Shared/Frontend/FrontendTeamDetailView.php:519
 msgid "Tue"
 msgstr ""
 
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:222
-#: src/Shared/Frontend/FrontendTeamDetailView.php:516
+#: src/Shared/Frontend/FrontendTeamDetailView.php:520
 msgid "Wed"
 msgstr ""
 
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:222
-#: src/Shared/Frontend/FrontendTeamDetailView.php:517
+#: src/Shared/Frontend/FrontendTeamDetailView.php:521
 msgid "Thu"
 msgstr ""
 
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:222
-#: src/Shared/Frontend/FrontendTeamDetailView.php:518
+#: src/Shared/Frontend/FrontendTeamDetailView.php:522
 msgid "Fri"
 msgstr ""
 
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:222
-#: src/Shared/Frontend/FrontendTeamDetailView.php:519
+#: src/Shared/Frontend/FrontendTeamDetailView.php:523
 msgid "Sat"
 msgstr ""
 
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:222
-#: src/Shared/Frontend/FrontendTeamDetailView.php:520
+#: src/Shared/Frontend/FrontendTeamDetailView.php:524
 msgid "Sun"
 msgstr ""
 
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:242
-#: src/Shared/Frontend/FrontendTeamDetailView.php:533
-#: src/Shared/Frontend/FrontendTeamDetailView.php:534
+#: src/Shared/Frontend/FrontendTeamDetailView.php:537
+#: src/Shared/Frontend/FrontendTeamDetailView.php:538
 msgid "Training days"
 msgstr ""
 
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:249
-#: src/Shared/Frontend/FrontendTeamDetailView.php:549
+#: src/Shared/Frontend/FrontendTeamDetailView.php:553
 msgid "Default start time"
 msgstr ""
 
@@ -24489,8 +24489,8 @@ msgstr ""
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:311
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:337
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:462
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1794
-#: src/Shared/Frontend/FrontendTeamDetailView.php:630
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1798
+#: src/Shared/Frontend/FrontendTeamDetailView.php:634
 msgid "Save failed: database error."
 msgstr ""
 
@@ -31054,72 +31054,72 @@ msgstr ""
 msgid "4 — high"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1660
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1664
 msgid "PHV — Physical / Health / Vitality"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1671
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1675
 msgid "Player has a PHV flag"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1673
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1677
 msgid ""
 "Automatically excluded from VCT blocks above the configured intensity "
 "ceiling."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1680
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1684
 msgid "Reason (short, for the coach)"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1688
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1692
 msgid "Visible to staff on the coach view; not visible to other parents."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1694
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1698
 msgid "Intensity ceiling (max intensity band)"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1697
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1701
 msgid "— None set —"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1708
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1712
 msgid "e.g. Cleared for level 4 from 1 July — physio checked."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1713
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1717
 msgid "Save PHV flag"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1721
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1725
 msgid "Cleared"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1727
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1731
 msgid "Intensity ceiling"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1737
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1741
 msgid "Where the PHV flag appears:"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1738
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1742
 msgid ""
 "Hero pill next to the name · VCT session wizard workload check · coach-view "
 "sideline banner · match prep per-player attention."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1766
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1770
 msgid "You do not have permission to edit PHV flags."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1770
-#: src/Shared/Frontend/FrontendTeamDetailView.php:607
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1774
+#: src/Shared/Frontend/FrontendTeamDetailView.php:611
 msgid "Save failed: session expired. Reload and try again."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayerDetailView.php:1793
+#: src/Shared/Frontend/FrontendPlayerDetailView.php:1797
 msgid "PHV flag saved."
 msgstr ""
 
@@ -32079,35 +32079,35 @@ msgstr ""
 msgid "Open the chemistry board"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTeamDetailView.php:524
+#: src/Shared/Frontend/FrontendTeamDetailView.php:528
 msgid "VCT — Training defaults"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTeamDetailView.php:525
+#: src/Shared/Frontend/FrontendTeamDetailView.php:529
 msgid "Smart prefills for new VCT sessions of this team."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTeamDetailView.php:544
+#: src/Shared/Frontend/FrontendTeamDetailView.php:548
 msgid "The wizard defaults to the next selected weekday."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTeamDetailView.php:553
+#: src/Shared/Frontend/FrontendTeamDetailView.php:557
 msgid "Default duration (min)"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTeamDetailView.php:560
+#: src/Shared/Frontend/FrontendTeamDetailView.php:564
 msgid "Save VCT defaults"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTeamDetailView.php:599
+#: src/Shared/Frontend/FrontendTeamDetailView.php:603
 msgid "You do not have permission to edit VCT defaults."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTeamDetailView.php:616
+#: src/Shared/Frontend/FrontendTeamDetailView.php:620
 msgid "Save failed: start time is not valid."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTeamDetailView.php:629
+#: src/Shared/Frontend/FrontendTeamDetailView.php:633
 msgid "VCT defaults saved."
 msgstr ""
 
@@ -32298,11 +32298,11 @@ msgstr ""
 msgid "No full matches"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:443
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:448
 msgid "— choose —"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTournamentsManageView.php:477
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:482
 msgid "Create tournament"
 msgstr ""
 
