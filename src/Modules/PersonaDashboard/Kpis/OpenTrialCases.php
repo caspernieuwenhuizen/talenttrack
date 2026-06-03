@@ -6,11 +6,28 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Modules\PersonaDashboard\Domain\AbstractKpiDataSource;
 use TT\Modules\PersonaDashboard\Domain\KpiValue;
 use TT\Modules\PersonaDashboard\Domain\PersonaContext;
+use TT\Modules\PersonaDashboard\Domain\RenderContext;
 
 class OpenTrialCases extends AbstractKpiDataSource {
     public function id(): string { return 'open_trial_cases'; }
     public function label(): string { return __( 'Open trial cases', 'talenttrack' ); }
     public function context(): string { return PersonaContext::ACADEMY; }
+
+    /**
+     * v4.20.25 (#1211) — Deep-link with `?status=open` so the destination
+     * trials list filters out decided / archived rows. `compute()`
+     * counts `status IN ('open','extended')`; the trials picker has no
+     * "open + extended" composite option, so `open` is the closest
+     * honest single-value match. Operators who need both states in one
+     * click → follow-up (audit 6 noted: pair with #475 / #481 history
+     * on the same KPI). Lands live via v4.20.22's KpiCardWidget
+     * → linkUrl() routing (#1207).
+     */
+    public function linkUrl( RenderContext $ctx ): string {
+        $view = $this->linkView();
+        if ( $view === '' ) return '';
+        return add_query_arg( [ 'status' => 'open' ], $ctx->viewUrl( $view ) );
+    }
 
     public function compute( int $user_id, int $club_id ): KpiValue {
         global $wpdb;
