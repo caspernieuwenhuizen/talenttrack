@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-03T17:03:08+00:00\n"
+"POT-Creation-Date: 2026-06-03T17:30:48+00:00\n"
 "PO-Revision-Date: 2026-04-25 10:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -19977,23 +19977,23 @@ msgstr ""
 msgid "No children linked to this account yet."
 msgstr "Nog geen kinderen gekoppeld aan dit account."
 
-#: src/Modules/PersonaDashboard/Widgets/ChildSwitcherWithRecapWidget.php:63
+#: src/Modules/PersonaDashboard/Widgets/ChildSwitcherWithRecapWidget.php:75
 msgid "Since you last visited"
 msgstr "Sinds je laatste bezoek"
 
 #. translators: %d is the count of new evaluations across the parent's children
-#: src/Modules/PersonaDashboard/Widgets/ChildSwitcherWithRecapWidget.php:67
+#: src/Modules/PersonaDashboard/Widgets/ChildSwitcherWithRecapWidget.php:79
 #, php-format
 msgid "%d new evaluation across your children."
 msgid_plural "%d new evaluations across your children."
 msgstr[0] "%d nieuwe evaluatie voor je kinderen."
 msgstr[1] "%d nieuwe evaluaties voor je kinderen."
 
-#: src/Modules/PersonaDashboard/Widgets/ChildSwitcherWithRecapWidget.php:75
+#: src/Modules/PersonaDashboard/Widgets/ChildSwitcherWithRecapWidget.php:87
 msgid "No new updates."
 msgstr "Geen nieuwe updates."
 
-#: src/Modules/PersonaDashboard/Widgets/ChildSwitcherWithRecapWidget.php:77
+#: src/Modules/PersonaDashboard/Widgets/ChildSwitcherWithRecapWidget.php:89
 msgid "My children"
 msgstr "Mijn kinderen"
 
