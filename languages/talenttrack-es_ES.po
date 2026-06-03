@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-03T22:13:13+00:00\n"
+"POT-Creation-Date: 2026-06-03T22:18:06+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -1181,7 +1181,7 @@ msgstr "Borrador"
 msgid "Published"
 msgstr ""
 
-#: src/Infrastructure/Query/QueryHelpers.php:493
+#: src/Infrastructure/Query/QueryHelpers.php:506
 #: src/Modules/License/Admin/AccountPage.php:814
 msgid "Radar charts"
 msgstr ""
