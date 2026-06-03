@@ -197,8 +197,10 @@ return array_merge(
         'methodology'                => [ 'r',   'global', $mod_methodology ],
         'football_actions'           => [ 'r',   'global', $mod_methodology ],
         'reports'                    => [ 'r',   'team',   $mod_reports ],
-        'rate_cards'                 => [ 'r',   'team',   $mod_stats ],
-        'compare'                    => [ 'r',   'team',   $mod_stats ],
+        // #1106 — `rate_cards` + `compare` removed. Both aggregate
+        // evaluation data #1060 stripped from AC; same loophole #1105
+        // closed for `podium_panel`. `reports` stays — it's a surface
+        // gate that upstreams per-report cap checks at the next layer.
         'documentation'              => [ 'r',   'global', $mod_documentation ],
         // #1060 — PDP entities (`pdp_file`, `pdp_verdict`, `pdp_conversations`)
         // removed. Safeguarding territory. `pdp_calendar_export` stays
