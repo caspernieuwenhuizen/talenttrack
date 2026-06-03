@@ -327,6 +327,35 @@ class GoalsRestController {
             return RestResponse::error( 'missing_fields', __( 'Player and title are required.', 'talenttrack' ), 400 );
         }
 
+        // v4.20.38 (#1198) — Audit 2 (#1176) flagged the cross-club
+        // pointing class. Pre-fix `create_goal` accepted any
+        // submitted `player_id` (validated only to be > 0), with no
+        // check that the player belongs to the current club, and no
+        // `coach_owns_player` gate for non-admin writers. A coach in
+        // club A could write a goal pointed at a club B player — the
+        // goal's `club_id` resolved to A but the `player_id` was
+        // foreign, breaking every JOIN downstream and leaking the
+        // foreign player into A's dashboards.
+        //
+        // Fix: verify the submitted `player_id` exists in the writer's
+        // club (`get_player()` post-#1188 only filters demo-scope, so
+        // we check the row's `club_id` matches explicitly here), AND
+        // for non-admin / non-player writers re-run the
+        // `coach_owns_player` gate `update_goal` already enforces on
+        // the link side. Player-self-created goals stay open (player
+        // can only write for themselves — enforced by the
+        // `permission_callback` upstream + the `is_player` branch
+        // above).
+        $player_row = QueryHelpers::get_player( (int) $data['player_id'] );
+        if ( ! $player_row || (int) ( $player_row->club_id ?? 0 ) !== (int) CurrentClub::id() ) {
+            return RestResponse::error( 'forbidden_player', __( 'Player not found in your club.', 'talenttrack' ), 403 );
+        }
+        if ( ! $is_player && ! current_user_can( 'tt_edit_settings' ) ) {
+            if ( ! QueryHelpers::coach_owns_player( get_current_user_id(), (int) $data['player_id'] ) ) {
+                return RestResponse::error( 'forbidden_player', __( 'You can only set goals for players in your team.', 'talenttrack' ), 403 );
+            }
+        }
+
         $ok = $wpdb->insert( $wpdb->prefix . 'tt_goals', $data );
         if ( $ok === false ) {
             $err = (string) $wpdb->last_error;
