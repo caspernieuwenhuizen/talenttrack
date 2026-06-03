@@ -4,13 +4,16 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.35
+Stable tag: 4.20.36
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.36 — Cancel buttons on 3 record-mutating forms honour `tt_back` (closes #1196). Audit 9 (#1183) flagged three forms violating CLAUDE.md §6 point 5 ("`tt_back` overrides both edit and create cancel targets"): tournament create/edit (`FrontendTournamentsManageView.php:430-432`), VCT defaults card on team detail (`FrontendTeamDetailView.php:508-511`), PHV flag panel on player detail (`FrontendPlayerDetailView.php:1653-1656`). Each hardcoded the `cancel_url` and ignored any captured back-target — operators arriving via a dashboard tile / workflow task / cross-entity deep-link discarded that context on Cancel and got dumped on the canonical list/detail. **Fix.** Each callsite now resolves `BackLink::resolve()` first and uses its URL when present; the previous hardcoded URL becomes the fallback when no `tt_back` is in the URL. Mirrors the v3.110.x reference implementation at `FrontendPlayersManageView.php:444-445`. Inline comments cite the audit + the CLAUDE.md rule so the pattern stays consistent on subsequent edits. **Behaviour with no `tt_back` is unchanged** — fallback uses the same URL the previous `cancel_url` did. **`FrontendFunctionalRolesView`** (audit doc footnote) intentionally left out — flagged in the audit as low-priority + not record-mutating in the same sense; ships as its own follow-up if pilot triage surfaces it. Patch bump. (closes #1196) =
+
 
 = 4.20.35 — Test-trainings form: post-save redirect shape `dashboard` swapped to `list` (closes #1195). Audit 9 (#1183) flagged the bug: `FrontendTestTrainingsView.php:61` emitted `data-redirect-after-save="dashboard"`, but `assets/js/public.js:188-248` doesn't parse `dashboard` — it falls through to the silent `form.reset()`. The save succeeded but the operator saw a blank form, with no signal whether the record landed. Same bug class as #795. **Fix.** Single-character change: `data-redirect-after-save="list"` instead of `dashboard`. The `'list'` branch strips `action`/`id`/`edit` query args and stays on the current `tt_view`, which IS `test-trainings`, so the operator lands on the test-trainings list view — the natural post-create destination. No JS change needed; the existing `list` handler does the right thing for this form. **What this is NOT.** Not the future-proof option B from the audit (teaching `public.js` to handle a `dashboard` redirect shape). No other form currently emits `dashboard`, so a JS-side change has no second consumer; option 1 (the rename) is the right pick. Patch bump. (closes #1195) =
 

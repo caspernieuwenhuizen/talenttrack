@@ -427,9 +427,14 @@ class FrontendTournamentsManageView extends FrontendViewBase {
         $teams = $is_admin ? QueryHelpers::get_teams() : QueryHelpers::get_teams_for_coach( $user_id );
         $formations = QueryHelpers::get_lookup_names( 'tournament_formation' );
 
-        $cancel_url = $is_edit
-            ? esc_url( add_query_arg( [ 'tt_view' => 'tournaments', 'id' => (int) $tournament->id ], remove_query_arg( [ 'action' ] ) ) )
-            : esc_url( add_query_arg( [ 'tt_view' => 'tournaments' ], remove_query_arg( [ 'action', 'id' ] ) ) );
+        // v4.20.36 (#1196) — honour `tt_back` when present (CLAUDE.md §6
+        // point 5), falling back to the canonical create/edit target.
+        $back       = \TT\Shared\Frontend\Components\BackLink::resolve();
+        $cancel_url = $back !== null
+            ? esc_url( (string) $back['url'] )
+            : ( $is_edit
+                ? esc_url( add_query_arg( [ 'tt_view' => 'tournaments', 'id' => (int) $tournament->id ], remove_query_arg( [ 'action' ] ) ) )
+                : esc_url( add_query_arg( [ 'tt_view' => 'tournaments' ], remove_query_arg( [ 'action', 'id' ] ) ) ) );
         ?>
         <form id="<?php echo esc_attr( $form_id ); ?>" class="tt-ajax-form" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="<?php echo esc_attr( $rest_meth ); ?>" data-redirect-after-save="list">
             <div class="tt-grid tt-grid-2">
