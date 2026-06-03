@@ -4,13 +4,16 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.39
+Stable tag: 4.20.40
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.40 — Security: REST POST `/teams/{id}/players` validates the team_id against current club (closes #1200). Audit 2 (#1176) flagged the cross-club reassign class. Pre-fix `team_id` came from the URL path parameter unchecked — a coach could reassign one of their club's players to a `team_id` belonging to another club. The player's `club_id` stayed put but their `team_id` pointed at a foreign team, silently breaking every JOIN in dashboards / evaluations / attendance / tournaments — the player disappeared from their original team without showing up anywhere coherent. **Fix.** `QueryHelpers::get_team($team_id)` lookup (which is already club-scoped via `CurrentClub::id()`) runs before the UPDATE; falls through to 404 `team_not_found` with a Dutch-translatable message when missing or cross-club. Patch bump. (closes #1200) =
+
 
 = 4.20.39 — Security: REST tournament-assignments handler filters off-squad player_ids (closes #1199). Audit 2 (#1176) flagged the same #1148-shape: parent match scope-checked, child rows trusted. Pre-fix `update_assignments` inserted `tt_tournament_assignments` rows with `player_id` straight from the payload — no verification the player belonged to the tournament's squad. A coach could assign tournament minutes to any player_id within their club, including off-squad / off-team / archived players. **Fix.** Resolve the tournament's allowed squad once via `tt_tournament_squad` (scoped to current club), then drop any submitted row whose `player_id` is not in the allowed set. Mirrors the v4.20.5 attendance write-time filter; logs the dropped ids under `tournament.assignments.dropped_off_squad` so operators can spot UI / import bugs from logs. **Acceptance.** Coach assigning a non-squad player_id → the row silently drops, the rest of the payload writes, the response remains 200 OK (no error surface for probing). Patch bump. (closes #1199) =
 
