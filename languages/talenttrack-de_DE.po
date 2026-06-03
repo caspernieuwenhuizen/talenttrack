@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-03T19:31:47+00:00\n"
+"POT-Creation-Date: 2026-06-03T19:41:33+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -119,7 +119,7 @@ msgstr ""
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:585
 #: src/Modules/Wizards/Evaluation/AttendanceStep.php:334
 #: src/Modules/Wizards/Evaluation/PlayerPickerStep.php:19
-#: src/Modules/Wizards/Goal/PlayerStep.php:25
+#: src/Modules/Wizards/Goal/PlayerStep.php:36
 #: src/Shared/Frontend/CoachDashboardView.php:182
 #: src/Shared/Frontend/CoachDashboardView.php:248
 #: src/Shared/Frontend/CoachDashboardView.php:283
@@ -2384,6 +2384,7 @@ msgstr ""
 #: src/Modules/Wizards/Activity/ReviewStep.php:59
 #: src/Modules/Wizards/Activity/TeamStep.php:19
 #: src/Modules/Wizards/Activity/TeamStep.php:30
+#: src/Modules/Wizards/Goal/PlayerStep.php:76
 #: src/Modules/Wizards/Player/ReviewStep.php:34
 #: src/Modules/Wizards/Player/RosterDetailsStep.php:34
 #: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:28
@@ -25230,7 +25231,7 @@ msgid "Which player?"
 msgstr ""
 
 #: src/Modules/Wizards/Evaluation/PlayerPickerStep.php:58
-#: src/Modules/Wizards/Goal/PlayerStep.php:46
+#: src/Modules/Wizards/Goal/PlayerStep.php:115
 msgid "Please pick a player."
 msgstr ""
 
@@ -25420,19 +25421,25 @@ msgstr ""
 msgid "New goal"
 msgstr "Neues Ziel"
 
-#: src/Modules/Wizards/Goal/PlayerStep.php:34
+#: src/Modules/Wizards/Goal/PlayerStep.php:53
+msgid ""
+"You don't coach any teams yet, so there's no roster to pick from. Ask an "
+"administrator to assign you to a team."
+msgstr ""
+
+# v3.91.6 — Compare slot picker (Team → Player two-step)
+#: src/Modules/Wizards/Goal/PlayerStep.php:80
+#: src/Shared/Frontend/Components/ComparisonSlotPicker.php:82
+msgid "— Pick a team —"
+msgstr ""
+
+#: src/Modules/Wizards/Goal/PlayerStep.php:90
 msgid "Which player is this goal for?"
 msgstr ""
 
-#: src/Modules/Wizards/Goal/PlayerStep.php:40
-#: src/Modules/Wizards/Team/StaffStep.php:52
-#: src/Shared/Frontend/CoachForms.php:151
-#: src/Shared/Frontend/Components/GuestAddModal.php:75
-#: src/Shared/Frontend/Components/PlayerSearchPickerComponent.php:65
-#: src/Shared/Frontend/Components/StaffPickerComponent.php:53
-#: src/Shared/Frontend/FrontendTrialCaseView.php:325
-#: src/Shared/Frontend/FrontendTrialsManageView.php:284
-msgid "Type a name to search…"
+#: src/Modules/Wizards/Goal/PlayerStep.php:92
+#: src/Shared/Frontend/Components/ComparisonSlotPicker.php:83
+msgid "— Pick a player —"
 msgstr ""
 
 #: src/Modules/Wizards/MarkAttendance/MarkAttendanceWizard.php:47
@@ -25776,6 +25783,16 @@ msgstr ""
 msgid ""
 "Assign staff to this team. Each slot is optional — you can fill it in later "
 "from the People page."
+msgstr ""
+
+#: src/Modules/Wizards/Team/StaffStep.php:52
+#: src/Shared/Frontend/CoachForms.php:151
+#: src/Shared/Frontend/Components/GuestAddModal.php:75
+#: src/Shared/Frontend/Components/PlayerSearchPickerComponent.php:65
+#: src/Shared/Frontend/Components/StaffPickerComponent.php:53
+#: src/Shared/Frontend/FrontendTrialCaseView.php:325
+#: src/Shared/Frontend/FrontendTrialsManageView.php:284
+msgid "Type a name to search…"
 msgstr ""
 
 #: src/Modules/Wizards/TeamBlueprint/NewTeamBlueprintWizard.php:19
@@ -27661,15 +27678,6 @@ msgstr ""
 #: src/Shared/Frontend/Components/ComparisonSlotPicker.php:81
 #, php-format
 msgid "Player %d"
-msgstr ""
-
-# v3.91.6 — Compare slot picker (Team → Player two-step)
-#: src/Shared/Frontend/Components/ComparisonSlotPicker.php:82
-msgid "— Pick a team —"
-msgstr ""
-
-#: src/Shared/Frontend/Components/ComparisonSlotPicker.php:83
-msgid "— Pick a player —"
 msgstr ""
 
 #: src/Shared/Frontend/Components/ComparisonSlotPicker.php:84
