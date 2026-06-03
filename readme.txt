@@ -4,13 +4,16 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.30
+Stable tag: 4.20.31
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.31 — Exports tile: phantom `exports` entity aligned to `reports` to fix non-admin denial (closes #1189). Audit 1 (#1175) found this — same bug class as #1143 (scouting-visits → phantom `scouting_visits`) and v3.110.x's series of scope-leak / phantom-entity fixes. The Exports tile at `CoreSurfaceRegistration.php:749` declared `'entity' => 'exports'`, but no persona has a seed row for `exports` in `config/authorization_seed.php`. The matrix-dispatch gate (`DashboardShortcode::matrixDispatchAllows`) calls `MatrixGate::canAnyScope($user_id, 'exports', 'read')`, which returns false for every non-admin user. Result: scouts / coaches / HoDs all got "Niet geautoriseerd" on `?tt_view=exports` even though their `tt_view_reports` cap resolved correctly. **Fix.** Aligned the tile's `entity` declaration to `reports` — the cap the tile already declares (`tt_view_reports`) maps to `reports.read` via `LegacyCapMapper`, and the matrix seed grants `reports.read` widely across personas. The Exports view itself (`FrontendExportsView`) self-filters cards per-cap, so personas only see the bulk-exporters they can run. Single-line change in `CoreSurfaceRegistration.php`. Inline comment documents the bug history so future tile edits don't reflex-revert. Patch bump. (closes #1189) =
+
 
 = 4.20.30 — QueryHelpers::get_player() drops the strict `club_id` clause to align with the on-screen profile loader (closes #1188). Audit 10 (#1184) flagged the same defect class as #1149: three PDF exporters (`PlayerEvaluationPdfExporter`, `ScoutingReportPdfExporter`, `PlayerOnePagerPdfExporter`) gate their player lookup through `QueryHelpers::get_player()`, which filters `p.club_id = CurrentClub::id()`. The on-screen player profile (`FrontendPlayersManageView::loadPlayer()`) does NOT enforce `club_id`. Result: any player whose stored `club_id` differs from the current club's resolved value loaded fine on screen but 404'd in the three PDF exporters at print time — same UX-mismatch family as #1149. **Fix at the helper layer.** `get_player()` drops the `club_id` clause and keeps only the demo-scope filter, matching `loadPlayer()`. SaaS multi-tenancy will enforce the tenant boundary at the request layer (CurrentClub resolution + matrix-driven row visibility) — sprinkling per-helper `club_id` WHEREs was inconsistent across the loader / exporter boundary anyway, and consolidating the rule one layer up is what #1149 already started. Inline comment documents the `loadPlayer()` parity and the SaaS-readiness intent. **Three PDF exporters affected** become no-ops in this PR — their `get_player()` callsite returns the same row as `loadPlayer()` does upstream. **Acceptance.** Pilot coach prints eval PDF / scouting report PDF / player one-pager for any player that renders on screen → PDF emits successfully. No more "Player not found" 404s in print at coach-test time. Patch bump. (closes #1188) =
 
