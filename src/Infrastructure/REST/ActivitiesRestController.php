@@ -855,25 +855,77 @@ class ActivitiesRestController {
     }
 
     /**
+     * v4.20.5 (#1148) — Roster integrity guard on non-guest attendance.
+     *
+     * The activity edit form's attendance picker pre-loads every player
+     * from every team the coach has access to (see
+     * FrontendActivitiesManageView::renderForm — the JS helper hides
+     * off-team rows visually, but the hidden form fields still submit).
+     * For admin users that means the entire academy ships in the POST.
+     * Historically this handler accepted any submitted player_id and
+     * wrote it as is_guest = 0, producing rows where the player's
+     * team_id != the activity's team_id without explicit guest
+     * intention.
+     *
+     * Integrity rule now enforced here at the data-layer chokepoint:
+     * non-guest attendance MUST be on the activity's roster. Any
+     * submitted player_id whose current team_id != activity.team_id
+     * is silently dropped (with a warning log so operators can see when
+     * the UI is sending off-roster ids). The explicit guest path
+     * (POST /sessions/{id}/guests → is_guest = 1) remains the only way
+     * to record off-roster attendance.
+     *
+     * The activity form's multi-team pool optimisation is tracked as
+     * a separate upstream fix (#1154).
+     *
      * @param array<int, array{status:string, notes:string}> $rows
      * @return array<int, array{player_id:int, db_error:string}>
      */
     private static function write_attendance( int $activity_id, array $rows ): array {
         if ( ! $rows ) return [];
         global $wpdb; $p = $wpdb->prefix;
+
+        // Look up the activity's team once; off-roster filter keys off it.
+        $activity_team_id = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT team_id FROM {$p}tt_activities WHERE id = %d AND club_id = %d LIMIT 1",
+            $activity_id, CurrentClub::id()
+        ) );
+
+        $dropped = [];
         $failures = [];
         foreach ( $rows as $pid => $fields ) {
+            $pid = (int) $pid;
+            // Roster check — only when the activity has a team scope. Some
+            // activities (legacy / club-wide) carry team_id = 0; those
+            // accept any player as squad attendance.
+            if ( $activity_team_id > 0 ) {
+                $player_team_id = (int) $wpdb->get_var( $wpdb->prepare(
+                    "SELECT team_id FROM {$p}tt_players WHERE id = %d AND club_id = %d LIMIT 1",
+                    $pid, CurrentClub::id()
+                ) );
+                if ( $player_team_id !== $activity_team_id ) {
+                    $dropped[] = [ 'player_id' => $pid, 'player_team_id' => $player_team_id ];
+                    continue;
+                }
+            }
             $ok = $wpdb->insert( "{$p}tt_attendance", [
                 'club_id'     => CurrentClub::id(),
                 'activity_id' => $activity_id,
-                'player_id'  => (int) $pid,
+                'player_id'  => $pid,
                 'status'     => $fields['status'],
                 'notes'      => $fields['notes'],
                 'is_guest'   => 0,
             ] );
             if ( $ok === false ) {
-                $failures[] = [ 'player_id' => (int) $pid, 'db_error' => (string) $wpdb->last_error ];
+                $failures[] = [ 'player_id' => $pid, 'db_error' => (string) $wpdb->last_error ];
             }
+        }
+        if ( $dropped ) {
+            Logger::warning( 'session.attendance.dropped_off_roster', [
+                'activity_id'      => $activity_id,
+                'activity_team_id' => $activity_team_id,
+                'dropped'          => $dropped,
+            ] );
         }
         return $failures;
     }
