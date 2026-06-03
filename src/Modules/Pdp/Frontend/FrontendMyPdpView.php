@@ -3,7 +3,6 @@ namespace TT\Modules\Pdp\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-use TT\Domain\Vocabularies\Lookups\PdpVerdictDecision;
 use TT\Modules\Pdp\Repositories\PdpConversationsRepository;
 use TT\Modules\Pdp\Repositories\PdpFilesRepository;
 use TT\Modules\Pdp\Repositories\PdpVerdictsRepository;
@@ -180,8 +179,12 @@ class FrontendMyPdpView extends FrontendViewBase {
     private static function renderVerdictCard( object $verdict ): void {
         echo '<div class="tt-card" style="background:#fff; border:2px solid #1d7874; border-radius:8px; padding:16px; margin-top:24px;">';
         echo '<h3 style="margin:0 0 8px; font-size:16px;">' . esc_html__( 'End-of-season verdict', 'talenttrack' ) . '</h3>';
+        // #1080 — repository pre-hydrates `decision_localised` via
+        // PdpVerdictsRepository::label() (LookupTranslator + canonical
+        // English fallback). The inline `decisionLabel()` switch
+        // below that this view previously used has been removed.
         echo '<p style="margin:0 0 6px;"><strong>' . esc_html__( 'Decision:', 'talenttrack' ) . '</strong> '
-            . esc_html( self::decisionLabel( (string) $verdict->decision ) ) . '</p>';
+            . esc_html( (string) ( $verdict->decision_localised ?? '' ) ) . '</p>';
         if ( ! empty( $verdict->summary ) ) {
             echo '<div style="margin:8px 0;">' . wp_kses_post( (string) $verdict->summary ) . '</div>';
         }
@@ -239,13 +242,4 @@ class FrontendMyPdpView extends FrontendViewBase {
         return $key;
     }
 
-    private static function decisionLabel( string $decision ): string {
-        switch ( $decision ) {
-            case PdpVerdictDecision::PROMOTE:  return __( 'Promote', 'talenttrack' );
-            case PdpVerdictDecision::RETAIN:   return __( 'Retain', 'talenttrack' );
-            case PdpVerdictDecision::RELEASE:  return __( 'Release', 'talenttrack' );
-            case PdpVerdictDecision::TRANSFER: return __( 'Transfer', 'talenttrack' );
-        }
-        return $decision;
-    }
 }

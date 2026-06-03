@@ -4,6 +4,7 @@ namespace TT\Modules\Pdp\Repositories;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Domain\Vocabularies\Lookups\PdpStatus;
+use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
@@ -35,7 +36,9 @@ class PdpFilesRepository {
             "SELECT * FROM {$this->table} WHERE id = %d AND club_id = %d",
             $id, CurrentClub::id()
         ) );
-        return $row ?: null;
+        if ( ! $row ) return null;
+        self::hydrate( $row );
+        return $row;
     }
 
     /** @return object|null */
@@ -46,7 +49,9 @@ class PdpFilesRepository {
               WHERE player_id = %d AND season_id = %d AND club_id = %d",
             $player_id, $season_id, CurrentClub::id()
         ) );
-        return $row ?: null;
+        if ( ! $row ) return null;
+        self::hydrate( $row );
+        return $row;
     }
 
     /** @return object[] */
@@ -58,7 +63,9 @@ class PdpFilesRepository {
               ORDER BY updated_at DESC",
             $coach_user_id, $season_id, CurrentClub::id()
         ) );
-        return is_array( $rows ) ? $rows : [];
+        if ( ! is_array( $rows ) ) return [];
+        foreach ( $rows as $row ) self::hydrate( $row );
+        return $rows;
     }
 
     /** @return object[] */
@@ -70,7 +77,38 @@ class PdpFilesRepository {
               ORDER BY updated_at DESC",
             $season_id, CurrentClub::id()
         ) );
-        return is_array( $rows ) ? $rows : [];
+        if ( ! is_array( $rows ) ) return [];
+        foreach ( $rows as $row ) self::hydrate( $row );
+        return $rows;
+    }
+
+    /**
+     * #1080 — decorate a row in place with `status_localised` from
+     * the `pdp_status` lookup. Raw `status` stays for back-compat
+     * (filter dropdowns + the upsert gate against `PdpStatus::ALL`).
+     * Same pattern as `PdpVerdictsRepository::label()` resolved
+     * through `LookupTranslator::byTypeAndName` with the canonical
+     * English fallback. Closes the #806 / #1080 module-by-module
+     * slice for Pdp.
+     */
+    private static function hydrate( object $row ): void {
+        $raw = (string) ( $row->status ?? '' );
+        if ( $raw === '' ) {
+            $row->status_localised = '';
+            return;
+        }
+        $label = LookupTranslator::byTypeAndName( 'pdp_status', $raw );
+        if ( ! is_string( $label ) || $label === '' || $label === $raw ) {
+            // Canonical English fallback when the lookup row isn't
+            // seeded yet (fresh install pre-migration 0112).
+            switch ( $raw ) {
+                case PdpStatus::OPEN:      $label = __( 'Open',      'talenttrack' ); break;
+                case PdpStatus::COMPLETED: $label = __( 'Completed', 'talenttrack' ); break;
+                case PdpStatus::ARCHIVED:  $label = __( 'Archived',  'talenttrack' ); break;
+                default: $label = $raw;
+            }
+        }
+        $row->status_localised = $label;
     }
 
     /**

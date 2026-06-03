@@ -53,7 +53,22 @@ class PdpVerdictsRepository {
             "SELECT * FROM {$this->table} WHERE pdp_file_id = %d AND club_id = %d",
             $file_id, CurrentClub::id()
         ) );
-        return $row ?: null;
+        if ( ! $row ) return null;
+        self::hydrate( $row );
+        return $row;
+    }
+
+    /**
+     * #1080 — decorate a verdict row in place with `decision_localised`
+     * resolved through the existing static `label()` helper (which
+     * already routes through `LookupTranslator::byTypeAndName` with
+     * the canonical English fallback). Raw `decision` stays for
+     * back-compat — the upsert gate validates against
+     * `PdpVerdictDecision::ALL` and downstream KPIs group on it.
+     * Module-by-module rollout slice for #806 / Pdp.
+     */
+    private static function hydrate( object $row ): void {
+        $row->decision_localised = self::label( (string) ( $row->decision ?? '' ) );
     }
 
     /**
