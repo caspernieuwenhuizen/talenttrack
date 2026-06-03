@@ -240,20 +240,31 @@ class GoalsRestController {
         $title_link_html = \TT\Shared\Frontend\Components\RecordLink::inline( $title, $title_url );
         $status_pill_html = \TT\Infrastructure\Query\LookupPill::render( 'goal_status', (string) ( $row->status ?? '' ) );
 
+        // #1077 — pre-localised labels alongside the canonical raw
+        // codes. Mirrors the EvaluationsRestController shape
+        // (`type_name` + `type_name_localised`) from #1081 so a future
+        // non-WordPress front end gets the right string without
+        // re-implementing LabelTranslator. Existing consumers that
+        // key off the raw `status` / `priority` are unaffected.
+        $status_raw   = (string) ( $row->status ?? '' );
+        $priority_raw = (string) ( $row->priority ?? '' );
+
         return [
-            'id'                => $goal_id,
-            'player_id'         => $player_id,
-            'player_name'       => $player_name,
-            'player_link_html'  => $player_link_html,
-            'team_id'           => (int) ( $row->team_id ?? 0 ),
-            'team_name'         => (string) ( $row->team_name ?? '' ),
-            'title'             => $title,
-            'title_link_html'   => $title_link_html,
-            'description'       => (string) ( $row->description ?? '' ),
-            'status'            => (string) ( $row->status ?? '' ),
-            'status_pill_html'  => $status_pill_html,
-            'priority'          => (string) ( $row->priority ?? '' ),
-            'due_date'          => $row->due_date,
+            'id'                  => $goal_id,
+            'player_id'           => $player_id,
+            'player_name'         => $player_name,
+            'player_link_html'    => $player_link_html,
+            'team_id'             => (int) ( $row->team_id ?? 0 ),
+            'team_name'           => (string) ( $row->team_name ?? '' ),
+            'title'               => $title,
+            'title_link_html'     => $title_link_html,
+            'description'         => (string) ( $row->description ?? '' ),
+            'status'              => $status_raw,
+            'status_localised'    => \TT\Infrastructure\Query\LabelTranslator::goalStatus( $status_raw ),
+            'status_pill_html'    => $status_pill_html,
+            'priority'            => $priority_raw,
+            'priority_localised'  => \TT\Infrastructure\Query\LabelTranslator::goalPriority( $priority_raw ),
+            'due_date'            => $row->due_date,
             'created_at'        => $row->created_at,
             'created_by'        => (int) ( $row->created_by ?? 0 ),
             'archived_at'       => $row->archived_at ?? null,
