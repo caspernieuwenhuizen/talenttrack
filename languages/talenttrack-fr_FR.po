@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-03T22:50:13+00:00\n"
+"POT-Creation-Date: 2026-06-03T22:54:31+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -1426,6 +1426,7 @@ msgid "Player and date are required."
 msgstr ""
 
 #: src/Infrastructure/REST/EvaluationsRestController.php:456
+#: src/Infrastructure/REST/EvaluationsRestController.php:518
 msgid "You can only evaluate players in your team."
 msgstr ""
 
@@ -1438,19 +1439,19 @@ msgid "The evaluation was saved but some ratings failed."
 msgstr ""
 
 #: src/Infrastructure/REST/EvaluationsRestController.php:499
-#: src/Infrastructure/REST/EvaluationsRestController.php:571
+#: src/Infrastructure/REST/EvaluationsRestController.php:588
 msgid "Invalid evaluation id."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:509
+#: src/Infrastructure/REST/EvaluationsRestController.php:526
 msgid "The evaluation could not be updated."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:551
+#: src/Infrastructure/REST/EvaluationsRestController.php:568
 msgid "The evaluation was updated but some ratings failed."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:588
+#: src/Infrastructure/REST/EvaluationsRestController.php:610
 msgid "The evaluation could not be archived."
 msgstr ""
 
