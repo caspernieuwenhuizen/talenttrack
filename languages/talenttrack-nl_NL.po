@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-03T05:12:08+00:00\n"
+"POT-Creation-Date: 2026-06-03T05:23:44+00:00\n"
 "PO-Revision-Date: 2026-04-25 10:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -100,10 +100,6 @@ msgstr "Team Manager"
 #: src/Modules/Invitations/InvitationKind.php:52
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:114
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:343
-#: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php:182
-#: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php:207
-#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:230
-#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:255
 #: src/Modules/Mfa/Settings/MfaSettings.php:109
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:147
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:163
@@ -1153,9 +1149,7 @@ msgid "Counter-attack"
 msgstr ""
 
 #: src/Infrastructure/Query/LabelTranslator.php:353
-#: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php:237
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:435
-#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:285
 msgid "Defending"
 msgstr "Verdedigen"
 
@@ -1264,9 +1258,7 @@ msgstr "Onbekend activiteittype. Kies er een uit de ingestelde lijst."
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:74
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:73
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:55
-#: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php:66
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:163
-#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:138
 msgid "Activity not found."
 msgstr "Activiteit niet gevonden."
 
@@ -13527,14 +13519,10 @@ msgid "No."
 msgstr ""
 
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:262
-#: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php:165
-#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:213
 msgid "home"
 msgstr "thuis"
 
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:263
-#: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php:165
-#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:213
 msgid "away"
 msgstr "uit"
 
@@ -13777,7 +13765,6 @@ msgstr ""
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:110
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:207
 #: src/Modules/License/Admin/AccountPage.php:194
-#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:123
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:82
 #: src/Modules/Mfa/Wizards/BackupCodesStep.php:75
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:153
@@ -13787,7 +13774,6 @@ msgstr "Printen"
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:111
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:208
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:607
-#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:132
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:83
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:172
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:708
@@ -13912,6 +13898,7 @@ msgid "Afsluiting — één ding om mee te nemen het seizoen in"
 msgstr ""
 
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:315
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:200
 msgid "Speler"
 msgstr "Speler"
 
@@ -15828,80 +15815,15 @@ msgstr ""
 msgid "Could not create the execution row."
 msgstr ""
 
-#: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php:31
+#: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php:32
 msgid "Match preparation (PDF)"
 msgstr "Wedstrijdvoorbereiding (PDF)"
 
-#: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php:75
-#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:146
+#: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php:52
 msgid ""
 "No match prep exists for this activity yet. Open the wizard from the "
 "activity detail page."
 msgstr ""
-
-#. translators: 1: opponent, 2: home/away, 3: kickoff_time, 4: formation
-#: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php:169
-#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:217
-#, php-format
-msgid "vs %1$s · %2$s · KO %3$s · %4$s"
-msgstr ""
-
-#: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php:180
-#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:228
-msgid "1e half"
-msgstr "1e helft"
-
-#: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php:202
-#: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php:227
-#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:250
-#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:275
-msgid "Bench:"
-msgstr ""
-
-#: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php:205
-#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:253
-msgid "2e half"
-msgstr "2e helft"
-
-#: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php:233
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:429
-#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:281
-msgid "Match goals"
-msgstr "Wedstrijddoelen"
-
-#: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php:235
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:433
-#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:283
-msgid "General"
-msgstr ""
-
-#: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php:236
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:434
-#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:284
-msgid "Attacking"
-msgstr "Aanvallen"
-
-#: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php:238
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:436
-#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:286
-msgid "Set pieces (attack)"
-msgstr "Spelhervatting (aanval)"
-
-#: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php:239
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:437
-#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:287
-msgid "Set pieces (defend)"
-msgstr "Spelhervatting (verdediging)"
-
-#: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php:242
-#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:290
-msgid "Unavailable"
-msgstr "Niet beschikbaar"
-
-#: src/Modules/MatchPrep/Export/MatchPrepPdfExporter.php:255
-#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:303
-msgid "Per-player goals + attention"
-msgstr "Doelen + aandachtspunten per speler"
 
 # v4.5.0 (#965) — Match prep 3-column rework + roles & set-piece takers.
 # These entries cover the strings introduced in the rewrite. A future
@@ -15941,7 +15863,6 @@ msgstr ""
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:162
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:169
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:248
-#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:91
 msgid "Match prep"
 msgstr "Wedstrijdvoorbereiding"
 
@@ -16021,6 +15942,26 @@ msgstr "Kopieer opstelling 1e helft naar 2e helft"
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:416
 msgid "Second half lineup"
 msgstr "Opstelling 2e helft"
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:429
+msgid "Match goals"
+msgstr "Wedstrijddoelen"
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:433
+msgid "General"
+msgstr ""
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:434
+msgid "Attacking"
+msgstr "Aanvallen"
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:436
+msgid "Set pieces (attack)"
+msgstr "Spelhervatting (aanval)"
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:437
+msgid "Set pieces (defend)"
+msgstr "Spelhervatting (verdediging)"
 
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:457
 #, php-format
@@ -16120,6 +16061,88 @@ msgstr "Reden (optioneel)…"
 msgid "Pick player for role"
 msgstr "Kies speler voor rol"
 
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:138
+msgid "1e helft"
+msgstr ""
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:139
+msgid "2e helft"
+msgstr ""
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:147
+msgid "Bank 1e helft:"
+msgstr ""
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:148
+msgid "Bank 2e helft:"
+msgstr ""
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:153
+msgid "Wedstrijddoelen"
+msgstr ""
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:159
+msgid "Algemeen"
+msgstr ""
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:160
+#: src/Modules/Methodology/MethodologyEnums.php:55
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:249
+msgid "Aanvallen"
+msgstr "Aanvallen"
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:161
+#: src/Modules/Methodology/MethodologyEnums.php:58
+#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:250
+msgid "Verdedigen"
+msgstr "Verdedigen"
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:162
+msgid "Spelhervattingen (aanvallend)"
+msgstr ""
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:163
+msgid "Spelhervattingen (verdedigend)"
+msgstr ""
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:176
+msgid "Niet beschikbaar"
+msgstr ""
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:194
+msgid "Doen per speler"
+msgstr ""
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:196
+msgid "Geen beschikbaarheid vastgelegd."
+msgstr ""
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:201
+msgid "Aandachtspunt"
+msgstr ""
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:202
+msgid "Specifiek doel"
+msgstr ""
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:203
+msgid "Video-analist toegewezen"
+msgstr ""
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:277
+msgid "thuis"
+msgstr ""
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:277
+msgid "uit"
+msgstr ""
+
+#. translators: 1: opponent, 2: thuis/uit, 3: kickoff_time, 4: formation
+#: src/Modules/MatchPrep/Print/MatchPrepPrintableRenderer.php:281
+#, php-format
+msgid "vs %1$s · %2$s · KO %3$s · %4$s"
+msgstr ""
+
 #: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:39
 msgid "Log in to print this match prep sheet."
 msgstr ""
@@ -16128,14 +16151,20 @@ msgstr ""
 msgid "You do not have access to print this match prep sheet."
 msgstr ""
 
-#. translators: 1: team name, 2: activity title, 3: session date
-#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:86
-#, php-format
-msgid "Match prep — %1$s · %2$s · %3$s"
+#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:69
+msgid "Match prep — afdrukken"
 msgstr ""
 
-#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:322
-msgid "No per-player notes set."
+#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:85
+msgid "Afdrukken"
+msgstr ""
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:88
+msgid "Sluiten"
+msgstr "Sluiten"
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php:94
+msgid "Geen wedstrijdvoorbereiding gevonden voor deze activiteit."
 msgstr ""
 
 #: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:77
@@ -17107,11 +17136,6 @@ msgstr "Visie nog niet vastgelegd."
 msgid "No football actions available."
 msgstr "Geen voetbalhandelingen beschikbaar."
 
-#: src/Modules/Methodology/MethodologyEnums.php:55
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:249
-msgid "Aanvallen"
-msgstr "Aanvallen"
-
 #: src/Modules/Methodology/MethodologyEnums.php:56
 msgid "Omschakelen naar verdedigen"
 msgstr "Omschakelen naar verdedigen"
@@ -17119,11 +17143,6 @@ msgstr "Omschakelen naar verdedigen"
 #: src/Modules/Methodology/MethodologyEnums.php:57
 msgid "Omschakelen naar aanvallen"
 msgstr "Omschakelen naar aanvallen"
-
-#: src/Modules/Methodology/MethodologyEnums.php:58
-#: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:250
-msgid "Verdedigen"
-msgstr "Verdedigen"
 
 #: src/Modules/Methodology/MethodologyEnums.php:65
 msgid "Opbouwen"
@@ -34686,6 +34705,18 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#~ msgid "1e half"
+#~ msgstr "1e helft"
+
+#~ msgid "2e half"
+#~ msgstr "2e helft"
+
+#~ msgid "Unavailable"
+#~ msgstr "Niet beschikbaar"
+
+#~ msgid "Per-player goals + attention"
+#~ msgstr "Doelen + aandachtspunten per speler"
+
 #~ msgid ""
 #~ "Pick a team to open the formation board with auto-suggested XI, depth "
 #~ "chart, and chemistry breakdown."
@@ -35678,9 +35709,6 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Gast toevoegen"
 #~ msgstr "Gast toevoegen"
-
-#~ msgid "Sluiten"
-#~ msgstr "Sluiten"
 
 #~ msgid "Gekoppelde speler"
 #~ msgstr "Gekoppelde speler"
