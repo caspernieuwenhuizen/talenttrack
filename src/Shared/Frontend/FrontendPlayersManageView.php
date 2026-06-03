@@ -156,16 +156,18 @@ class FrontendPlayersManageView extends FrontendViewBase {
         // where the user has full context and the destructive action
         // is one tap away from the Edit button instead of one tap
         // away in a cramped row. The clickable name cell remains the
-        // primary "view" affordance. `Rate card` is kept on the row
-        // because it's a *different* destination (legacy
-        // `?tt_view=players&player_id={id}` rate-card view), not the
-        // detail page.
-        $row_actions = [
-            'card' => [
-                'label' => __( 'Rate card', 'talenttrack' ),
-                'href'  => add_query_arg( [ 'tt_view' => 'players', 'player_id' => '{id}' ], $base_url ),
-            ],
-        ];
+        // primary "view" affordance.
+        //
+        // v4.20.3 (#1145) — Rate-card row action removed. It was
+        // uncapped and visible to AC, who shouldn't reach the rate-card
+        // surface per #1060 / #1106 (rate_cards trimmed from AC's
+        // default matrix). Removing the inline button closes the leak
+        // entry-point and eliminates duplicate navigation — the name
+        // cell is the canonical view affordance. The destination URL
+        // `?tt_view=players&player_id={id}` itself is still uncapped;
+        // separate destination-gating issue tracks that for the same
+        // architectural pattern as #1106.
+        $row_actions = [];
 
         echo FrontendListTable::render( [
             'rest_path' => 'players',
