@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-03T21:09:41+00:00\n"
+"POT-Creation-Date: 2026-06-03T21:19:55+00:00\n"
 "PO-Revision-Date: 2026-04-25 10:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -664,6 +664,7 @@ msgstr "In uitvoering"
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:140
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:866
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1090
+#: src/Modules/Pdp/Repositories/PdpFilesRepository.php:106
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:147
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:301
 #: src/Modules/Prospects/Repositories/ScoutingVisitsRepository.php:36
@@ -903,6 +904,7 @@ msgstr "Overig"
 #: src/Modules/Goals/Admin/GoalsPage.php:85
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:141
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1091
+#: src/Modules/Pdp/Repositories/PdpFilesRepository.php:107
 #: src/Modules/People/Admin/PeoplePage.php:201
 #: src/Modules/PersonaDashboard/TableSources/MyRecentProspectsSource.php:80
 #: src/Modules/Players/Admin/PlayersPage.php:148
@@ -2676,7 +2678,7 @@ msgstr "— Alle —"
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:163
 #: src/Modules/Methodology/Admin/MethodologyPage.php:497
 #: src/Modules/Methodology/Frontend/MethodologyView.php:547
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:93
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:92
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:305
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:275
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:306
@@ -3240,6 +3242,7 @@ msgstr ""
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:139
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:482
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:320
+#: src/Modules/Pdp/Repositories/PdpFilesRepository.php:105
 #: src/Modules/PersonaDashboard/TableSources/MyRecentProspectsSource.php:73
 #: src/Modules/PersonaDashboard/TableSources/RecentScoutReportsSource.php:66
 #: src/Modules/PersonaDashboard/TableSources/TrialsNeedingDecisionSource.php:63
@@ -18122,70 +18125,70 @@ msgstr "Ongeldig seizoens-id."
 msgid "Could not set current season."
 msgstr "Kon het huidige seizoen niet instellen."
 
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:24
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:25
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:26
 msgid "My development plan"
 msgstr "Mijn ontwikkelplan"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:30
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:29
 msgid "No current season is set."
 msgstr "Er is geen huidig seizoen ingesteld."
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:37
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:36
 msgid "No PDP file has been opened for you this season yet."
 msgstr "Er is nog geen POP-dossier voor je geopend dit seizoen."
 
 #. translators: %s = season name
 #. translators: %s: season name (e.g. "2025/2026").
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:49
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:48
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:201
 #, php-format
 msgid "Season: %s"
 msgstr "Seizoen: %s"
 
 #. translators: %1$d sequence, %2$s template
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:65
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:64
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:523
 #, php-format
 msgid "Conversation %1$d (%2$s)"
 msgstr "Gesprek %1$d (%2$s)"
 
 #. translators: %s = date
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:77
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:76
 #, php-format
 msgid "Scheduled %s"
 msgstr "Gepland %s"
 
 #. translators: %s = date
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:84
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:83
 #, php-format
 msgid "Conducted %s"
 msgstr "Gevoerd %s"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:97
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:96
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:649
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:214
 msgid "Agreed actions"
 msgstr "Afgesproken acties"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:103
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:102
 msgid "Agenda"
 msgstr "Agenda"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:110
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:109
 msgid "Self-reflection"
 msgstr "Zelfreflectie"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:132
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:131
 msgid "Add or update your self-reflection"
 msgstr "Voeg je zelfreflectie toe of werk hem bij"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:135
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:134
 msgid "Save reflection"
 msgstr "Reflectie opslaan"
 
 # v3.110.24 — My PDP self-reflection 2-week pre-meeting gate
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:142
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:141
 msgid ""
 "You can add your self-reflection up to 2 weeks before this meeting. Check "
 "back closer to the planned date."
@@ -18193,29 +18196,29 @@ msgstr ""
 "Je kunt je zelfreflectie toevoegen tot 2 weken voor deze afspraak. Kom terug "
 "dichter bij de geplande datum."
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:154
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:153
 msgid "I acknowledge this conversation"
 msgstr "Ik bevestig dit gesprek"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:162
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:161
 msgid "You acknowledged this conversation."
 msgstr "Je hebt dit gesprek bevestigd."
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:168
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:167
 msgid "Acknowledge as parent / guardian"
 msgstr "Bevestigen als ouder / verzorger"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:173
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:172
 msgid "A parent acknowledged this conversation."
 msgstr "Een ouder heeft dit gesprek bevestigd."
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:182
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:181
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:492
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:235
 msgid "End-of-season verdict"
 msgstr "Eindeseizoens­oordeel"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:183
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:186
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:494
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:236
 #: src/Shared/Frontend/FrontendTrialCaseView.php:210
@@ -18224,56 +18227,36 @@ msgstr "Beslissing:"
 
 #. translators: %s = signoff timestamp
 #. translators: %s = signed-off timestamp
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:191
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:194
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:504
 #, php-format
 msgid "Signed off on %s"
 msgstr "Ondertekend op %s"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:233
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:236
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1098
 msgid "Start of season"
 msgstr "Begin seizoen"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:234
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:237
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1099
 msgid "Mid season"
 msgstr "Mid-seizoen"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:235
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:238
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1100
 msgid "Mid-season A"
 msgstr "Mid-seizoen A"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:236
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:239
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1101
 msgid "Mid-season B"
 msgstr "Mid-seizoen B"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:237
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:240
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1102
 msgid "End of season"
 msgstr "Einde seizoen"
-
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:244
-#: src/Modules/Pdp/Repositories/PdpVerdictsRepository.php:33
-msgid "Promote"
-msgstr "Doorstroom"
-
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:245
-#: src/Modules/Pdp/Repositories/PdpVerdictsRepository.php:34
-msgid "Retain"
-msgstr "Behouden"
-
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:246
-#: src/Modules/Pdp/Repositories/PdpVerdictsRepository.php:35
-msgid "Release"
-msgstr "Uitsluiten"
-
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:247
-#: src/Modules/Pdp/Repositories/PdpVerdictsRepository.php:36
-msgid "Transfer"
-msgstr "Transfer"
 
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:41
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:73
@@ -18859,6 +18842,22 @@ msgstr ""
 #: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:18
 msgid "Review"
 msgstr "Controleren"
+
+#: src/Modules/Pdp/Repositories/PdpVerdictsRepository.php:33
+msgid "Promote"
+msgstr "Doorstroom"
+
+#: src/Modules/Pdp/Repositories/PdpVerdictsRepository.php:34
+msgid "Retain"
+msgstr "Behouden"
+
+#: src/Modules/Pdp/Repositories/PdpVerdictsRepository.php:35
+msgid "Release"
+msgstr "Uitsluiten"
+
+#: src/Modules/Pdp/Repositories/PdpVerdictsRepository.php:36
+msgid "Transfer"
+msgstr "Transfer"
 
 #: src/Modules/Pdp/Rest/PdpBlocksRestController.php:59
 #: src/Modules/Pdp/Rest/PdpBlocksRestController.php:72
