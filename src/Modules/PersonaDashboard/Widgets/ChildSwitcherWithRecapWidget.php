@@ -52,11 +52,23 @@ class ChildSwitcherWithRecapWidget extends AbstractWidget {
         if ( empty( $children ) ) {
             $pills = '<div class="tt-pd-children-empty">' . esc_html__( 'No children linked to this account yet.', 'talenttrack' ) . '</div>';
         } else {
-            foreach ( $children as $i => $child ) {
-                $cls = $i === 0 ? 'tt-pd-child-pill is-active' : 'tt-pd-child-pill';
-                $pills .= '<button type="button" class="' . $cls . '" data-tt-pd-child="' . esc_attr( (string) $child->id ) . '">'
+            // #915 — pills were `<button>` elements with no JS handler
+            // bound, so multi-child parents couldn't navigate to a
+            // non-primary child. Per Option 2 in the issue body: render
+            // as `<a href>` to the player's detail page so the parent
+            // can drill into each child's record (evaluations, goals,
+            // PDP). No JS needed. Tap target 48×min via the existing
+            // `.tt-pd-child-pill` CSS.
+            foreach ( $children as $child ) {
+                $pid = (int) $child->id;
+                if ( $pid <= 0 ) continue;
+                $url = add_query_arg(
+                    [ 'tt_view' => 'players', 'id' => $pid ],
+                    \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+                );
+                $pills .= '<a class="tt-pd-child-pill" data-tt-pd-child="' . esc_attr( (string) $pid ) . '" href="' . esc_url( $url ) . '">'
                     . esc_html( trim( $child->first_name . ' ' . $child->last_name ) )
-                    . '</button>';
+                    . '</a>';
             }
         }
 

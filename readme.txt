@@ -4,13 +4,16 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.19.10
+Stable tag: 4.19.11
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.19.11 — Persona dashboard: child-switcher pills navigate to the child's player record (closes #915). `ChildSwitcherWithRecapWidget` rendered each child as a `<button data-tt-pd-child="N">` with no JS handler bound — multi-child parents could see the pills but couldn't click through to a non-primary child. CLAUDE.md §1 violation (the player is the root entity; a parent persona must be able to switch focus between children). **Fix per the issue body's Option 2:** pills now render as `<a href="?tt_view=players&id=N">` links to each child's player detail page. No JS handler needed — server-side routing handles navigation. The data attribute stays for selector-based instrumentation (e.g. analytics, future state-restoration). **CSS updated** to add `text-decoration: none` (pills are anchors now), `display: inline-flex` + `align-items: center` so vertical centring works on `<a>`, and a `:hover` / `:focus-visible` state with a soft white outline so keyboard users get a clear focus ring against the parent-hero gradient. 48px tap-target rule preserved. **Single-child parents.** Widget still hides the recap when no children are linked; with exactly one child, the single pill still renders + still clicks through to that child's record. **What this is NOT.** Not a dashboard-scoped child-switcher — the recap card across the bottom still aggregates across all children (which matches the widget's docblock intent). A `?child_id=N` query-param dispatcher that re-renders the recap per child is a deeper rebuild and isn't part of this fix. Patch bump. (closes #915) =
+
 
 = 4.19.10 — Configuration: dedrift four `LookupCanonicalSeeds` entries by sourcing from the typed-constants classes (closes #1022). The drift-review admin tool (#987) reads `LookupCanonicalSeeds::canonicalMap()` to decide which `tt_lookups.name` rows look legitimate vs. drifted. Four entries in that map carried stale literals that didn't match what migration seeds + REST validators actually accept: `pdp_verdict_decision` said `On track / Behind / Ahead / At risk / Released` (no — migration 0112 + `PdpVerdictsRepository::ALLOWED_DECISIONS` use `promote / retain / release / transfer`); `trial_case_status` said `Open / In progress / Decision pending / Accepted / Rejected` (no — migration 0116 + the trial workflow use `open / extended / decided / archived`); `tournament_formation` listed `11v11 / 9v9 / 7v7 / 5v5 / 4v4 / 3v3` (no — migration 0098 seeds the 8 hyphen-numeric formations); `opponent_level` listed `Below club level / Club level / Above club level` (no — `TournamentOpponentLevel::ALL` enumerates `weaker / equal / stronger / much_stronger`). Operator running the audit walk on a clean install saw legitimate rows flagged as drift, and actually-drifted rows looked fine. **Fix:** the four entries now read `PdpVerdictDecision::ALL`, `TrialCaseStatus::ALL`, `TournamentFormation::ALL`, `TournamentOpponentLevel::ALL` so the canonical map can't drift away from the migrations + REST validation again. Inline comments document the rationale next to each entry so future seed edits don't reflex-reintroduce stale literals. No schema change. No REST contract change. Patch bump. (closes #1022) =
 
