@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-03T22:05:33+00:00\n"
+"POT-Creation-Date: 2026-06-03T22:13:13+00:00\n"
 "PO-Revision-Date: 2026-04-25 10:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -151,7 +151,7 @@ msgstr "Team Manager"
 #: src/Shared/Frontend/FrontendPlayersCsvImportView.php:116
 #: src/Shared/Frontend/FrontendRateCardView.php:116
 #: src/Shared/Frontend/FrontendRolesView.php:79
-#: src/Shared/Frontend/FrontendStandardReportsView.php:380
+#: src/Shared/Frontend/FrontendStandardReportsView.php:453
 #: src/Shared/Frontend/FrontendTeamDetailView.php:290
 #: src/Shared/Frontend/FrontendTeamDetailView.php:364
 #: src/Shared/Frontend/FrontendTeamsManageView.php:278
@@ -871,7 +871,7 @@ msgstr "Fysio"
 #: src/Shared/Frontend/FrontendConfigurationView.php:1919
 #: src/Shared/Frontend/FrontendPeopleManageView.php:273
 #: src/Shared/Frontend/FrontendRolesView.php:71
-#: src/Shared/Frontend/FrontendStandardReportsView.php:507
+#: src/Shared/Frontend/FrontendStandardReportsView.php:597
 msgid "Scout"
 msgstr "Scout"
 
@@ -977,7 +977,7 @@ msgstr "Training"
 
 #: src/Infrastructure/Query/LabelTranslator.php:213
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:85
-#: src/Shared/Frontend/FrontendStandardReportsView.php:221
+#: src/Shared/Frontend/FrontendStandardReportsView.php:275
 msgid "Match"
 msgstr "Wedstrijd"
 
@@ -2169,8 +2169,8 @@ msgstr "Filteren"
 #: src/Shared/Frontend/FrontendEvaluationsView.php:304
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:57
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:82
-#: src/Shared/Frontend/FrontendStandardReportsView.php:221
-#: src/Shared/Frontend/FrontendStandardReportsView.php:589
+#: src/Shared/Frontend/FrontendStandardReportsView.php:275
+#: src/Shared/Frontend/FrontendStandardReportsView.php:688
 #: src/Shared/Frontend/FrontendTeamDetailView.php:422
 #: src/Shared/Frontend/FrontendTestTrainingsView.php:65
 #: src/Shared/Frontend/FrontendTrialCaseView.php:379
@@ -2258,7 +2258,7 @@ msgstr "Titel"
 #: src/Shared/Frontend/FrontendPeopleManageView.php:100
 #: src/Shared/Frontend/FrontendPeopleManageView.php:106
 #: src/Shared/Frontend/FrontendPeopleManageView.php:173
-#: src/Shared/Frontend/FrontendStandardReportsView.php:221
+#: src/Shared/Frontend/FrontendStandardReportsView.php:275
 #: src/Shared/Frontend/FrontendTeamDetailView.php:424
 #: src/Shared/Frontend/FrontendTrialCaseView.php:379
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:259
@@ -2497,7 +2497,7 @@ msgstr "Bron"
 #: src/Shared/Frontend/FrontendPlayersManageView.php:303
 #: src/Shared/Frontend/FrontendRateCardView.php:105
 #: src/Shared/Frontend/FrontendReportDetailView.php:94
-#: src/Shared/Frontend/FrontendStandardReportsView.php:442
+#: src/Shared/Frontend/FrontendStandardReportsView.php:525
 #: src/Shared/Frontend/FrontendTeamsManageView.php:138
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:186
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:194
@@ -2977,7 +2977,7 @@ msgid "Count"
 msgstr "Aantal"
 
 #: src/Modules/Analytics/AnalyticsModule.php:106
-#: src/Shared/Frontend/FrontendStandardReportsView.php:214
+#: src/Shared/Frontend/FrontendStandardReportsView.php:268
 msgid "Total minutes"
 msgstr "Totaal minuten"
 
@@ -3015,7 +3015,7 @@ msgstr "Totaal minuten"
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:165
 #: src/Shared/Frontend/FrontendReportDetailView.php:98
 #: src/Shared/Frontend/FrontendReportDetailView.php:180
-#: src/Shared/Frontend/FrontendStandardReportsView.php:380
+#: src/Shared/Frontend/FrontendStandardReportsView.php:453
 #: src/Shared/Frontend/FrontendTrialCaseView.php:395
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:555
 #: src/Shared/Frontend/PlayerDashboardView.php:47
@@ -3095,7 +3095,7 @@ msgstr "Proefperiode-besluiten"
 #: src/Modules/Analytics/AnalyticsModule.php:159
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:709
 #: src/Modules/Workflow/Forms/GoalApprovalForm.php:77
-#: src/Shared/Frontend/FrontendStandardReportsView.php:516
+#: src/Shared/Frontend/FrontendStandardReportsView.php:606
 #: src/Shared/Frontend/FrontendTrialCaseView.php:151
 #: src/Shared/Frontend/FrontendTrialCaseView.php:185
 #: src/Shared/Frontend/FrontendTrialCaseView.php:223
@@ -3130,7 +3130,7 @@ msgstr "Ontdekt door"
 #: src/Modules/Wizards/Prospect/IdentityStep.php:42
 #: src/Modules/Wizards/Prospect/ReviewStep.php:47
 #: src/Modules/Workflow/Forms/LogProspectForm.php:75
-#: src/Shared/Frontend/FrontendStandardReportsView.php:589
+#: src/Shared/Frontend/FrontendStandardReportsView.php:688
 msgid "Current club"
 msgstr "Huidige club"
 
@@ -3211,7 +3211,7 @@ msgid "Attendance vs squad"
 msgstr "Aanwezigheid versus selectie"
 
 #: src/Modules/Analytics/AnalyticsModule.php:417
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:60
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:66
 msgid "Prospects logged per scout"
 msgstr "Prospects per scout vastgelegd"
 
@@ -3365,7 +3365,7 @@ msgstr "Voor deze entiteit zijn nog geen analyses beschikbaar."
 #: src/Shared/Frontend/FrontendReportsLauncherView.php:24
 #: src/Shared/Frontend/FrontendReportWizardView.php:44
 #: src/Shared/Frontend/FrontendRolesView.php:27
-#: src/Shared/Frontend/FrontendStandardReportsView.php:47
+#: src/Shared/Frontend/FrontendStandardReportsView.php:85
 #: src/Shared/Frontend/FrontendTeamDetailView.php:26
 #: src/Shared/Frontend/FrontendTestTrainingsView.php:33
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:82
@@ -3464,8 +3464,8 @@ msgstr "Voor dit entiteitstype zijn nog geen analyses geregistreerd."
 #: src/Shared/Frontend/FrontendPlayersManageView.php:54
 #: src/Shared/Frontend/FrontendPlayersManageView.php:543
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:49
-#: src/Shared/Frontend/FrontendStandardReportsView.php:372
-#: src/Shared/Frontend/FrontendStandardReportsView.php:442
+#: src/Shared/Frontend/FrontendStandardReportsView.php:445
+#: src/Shared/Frontend/FrontendStandardReportsView.php:525
 #: src/Shared/Frontend/FrontendTeamsManageView.php:141
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:296
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:553
@@ -3884,7 +3884,7 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:102
 #: src/Modules/Tournaments/Wizard/MatchesStep.php:31
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:74
-#: src/Shared/Frontend/FrontendStandardReportsView.php:290
+#: src/Shared/Frontend/FrontendStandardReportsView.php:354
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:307
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:312
 msgid "Matches"
@@ -4876,8 +4876,8 @@ msgstr "Beoordelingsschaal"
 #: src/Shared/Frontend/FrontendReportsLauncherView.php:38
 #: src/Shared/Frontend/FrontendReportsLauncherView.php:39
 #: src/Shared/Frontend/FrontendReportWizardView.php:32
-#: src/Shared/Frontend/FrontendStandardReportsView.php:55
-#: src/Shared/Frontend/FrontendStandardReportsView.php:64
+#: src/Shared/Frontend/FrontendStandardReportsView.php:96
+#: src/Shared/Frontend/FrontendStandardReportsView.php:105
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:558
 msgid "Reports"
 msgstr "Rapporten"
@@ -6177,8 +6177,8 @@ msgstr "Direct"
 #: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:271
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:294
 #: src/Shared/Frontend/Components/FrontendListTable.php:120
-#: src/Shared/Frontend/FrontendStandardReportsView.php:509
-#: src/Shared/Frontend/FrontendStandardReportsView.php:518
+#: src/Shared/Frontend/FrontendStandardReportsView.php:599
+#: src/Shared/Frontend/FrontendStandardReportsView.php:608
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:286
 msgid "—"
 msgstr ""
@@ -6777,7 +6777,7 @@ msgstr ""
 "inclusief de tt_-prefix maar zonder de WordPress-prefix."
 
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:190
-#: src/Shared/Frontend/FrontendStandardReportsView.php:126
+#: src/Shared/Frontend/FrontendStandardReportsView.php:167
 msgid "Schedule"
 msgstr "Schema"
 
@@ -10745,7 +10745,7 @@ msgstr "Aantal POP-bestanden"
 #: src/Modules/CustomWidgets/DataSources/PlayersActive.php:21
 #: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:140
 #: src/Modules/PersonaDashboard/Kpis/ActivePlayersTotal.php:14
-#: src/Shared/Frontend/FrontendStandardReportsView.php:417
+#: src/Shared/Frontend/FrontendStandardReportsView.php:500
 msgid "Active players"
 msgstr "Actieve spelers"
 
@@ -13460,7 +13460,7 @@ msgid "Total players"
 msgstr ""
 
 #: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:142
-#: src/Shared/Frontend/FrontendStandardReportsView.php:418
+#: src/Shared/Frontend/FrontendStandardReportsView.php:501
 msgid "Active teams"
 msgstr ""
 
@@ -21736,19 +21736,19 @@ msgstr ""
 #: src/Modules/Reports/Admin/ReportsPage.php:54
 #: src/Modules/Reports/Admin/ReportsPage.php:235
 #: src/Shared/Frontend/FrontendReportDetailView.php:38
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:45
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:51
 msgid "Team rating averages"
 msgstr "Team-beoordelingsgemiddelden"
 
 #: src/Modules/Reports/Admin/ReportsPage.php:56
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:46
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:52
 msgid "Average rating per team across all main categories."
 msgstr "Gemiddelde beoordeling per team over alle hoofdcategorieën."
 
 #: src/Modules/Reports/Admin/ReportsPage.php:61
 #: src/Modules/Reports/Admin/ReportsPage.php:312
 #: src/Shared/Frontend/FrontendReportDetailView.php:39
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:51
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:57
 msgid "Coach activity"
 msgstr "Coachactiviteit"
 
@@ -24100,7 +24100,7 @@ msgid "Backup quality per slot."
 msgstr ""
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:515
-#: src/Shared/Frontend/FrontendStandardReportsView.php:375
+#: src/Shared/Frontend/FrontendStandardReportsView.php:448
 msgid "Coverage"
 msgstr ""
 
@@ -25521,7 +25521,7 @@ msgid "Extended"
 msgstr ""
 
 #: src/Modules/Trials/Repositories/TrialCasesRepository.php:54
-#: src/Shared/Frontend/FrontendStandardReportsView.php:498
+#: src/Shared/Frontend/FrontendStandardReportsView.php:588
 msgid "Decided"
 msgstr ""
 
@@ -25743,7 +25743,7 @@ msgid "Enter a Season ID to edit team schedules for that season."
 msgstr ""
 
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:218
-#: src/Shared/Frontend/FrontendStandardReportsView.php:634
+#: src/Shared/Frontend/FrontendStandardReportsView.php:751
 msgid "No teams configured yet."
 msgstr ""
 
@@ -26222,7 +26222,7 @@ msgstr ""
 
 #: src/Modules/Vct/Wizard/PreviewStep.php:78
 #: src/Shared/Frontend/FrontendConfigurationView.php:1729
-#: src/Shared/Frontend/FrontendStandardReportsView.php:221
+#: src/Shared/Frontend/FrontendStandardReportsView.php:275
 msgid "Min"
 msgstr "Min"
 
@@ -32398,7 +32398,7 @@ msgid "At a glance"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:505
-#: src/Shared/Frontend/FrontendStandardReportsView.php:380
+#: src/Shared/Frontend/FrontendStandardReportsView.php:453
 msgid "Avg rating"
 msgstr ""
 
@@ -32537,7 +32537,7 @@ msgstr ""
 
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1057
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1159
-#: src/Shared/Frontend/FrontendStandardReportsView.php:121
+#: src/Shared/Frontend/FrontendStandardReportsView.php:162
 #: src/Shared/Frontend/FrontendTeamDetailView.php:417
 msgid "Explorer →"
 msgstr "Explorer →"
@@ -33123,7 +33123,7 @@ msgstr "— Kies een team —"
 
 #: src/Shared/Frontend/FrontendReportDetailView.php:30
 #: src/Shared/Frontend/FrontendReportsLauncherView.php:25
-#: src/Shared/Frontend/FrontendStandardReportsView.php:48
+#: src/Shared/Frontend/FrontendStandardReportsView.php:86
 msgid "Your role does not have access to reports."
 msgstr "Je rol heeft geen toegang tot rapporten."
 
@@ -33154,32 +33154,34 @@ msgid ""
 msgstr ""
 
 # v3.91.5 — Reports launcher tile descriptions
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:52
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:58
 msgid "Per-coach evaluation count and recent cadence."
 msgstr "Aantal evaluaties per coach en recente cadans."
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:61
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:67
 msgid "Season log of scout-logged prospects, grouped by who logged them."
 msgstr ""
 "Seizoenslog van door scouts vastgelegde prospects, gegroepeerd op wie ze "
 "vastlegde."
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:75
-#: src/Shared/Frontend/FrontendStandardReportsView.php:166
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:81
+#: src/Shared/Frontend/FrontendStandardReportsView.php:207
+#: src/Shared/Frontend/FrontendStandardReportsView.php:220
 msgid "Player · Minutes played"
 msgstr "Speler · Gespeelde minuten"
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:76
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:82
 msgid "Per-player report: KPI strip + per-match timeline of minutes played."
 msgstr ""
 "Per-speler-rapport: KPI-strip + per-wedstrijd-tijdlijn van gespeelde minuten."
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:81
-#: src/Shared/Frontend/FrontendStandardReportsView.php:241
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:87
+#: src/Shared/Frontend/FrontendStandardReportsView.php:295
+#: src/Shared/Frontend/FrontendStandardReportsView.php:305
 msgid "Team · Minutes distribution"
 msgstr "Team · Minutenverdeling"
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:82
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:88
 msgid ""
 "Squad load balance — minutes per player with imbalance flag when spread > "
 "30%."
@@ -33187,23 +33189,24 @@ msgstr ""
 "Balans van selectie-belasting — minuten per speler met onbalansvlag bij "
 "spreiding > 30%."
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:87
-#: src/Shared/Frontend/FrontendStandardReportsView.php:333
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:93
+#: src/Shared/Frontend/FrontendStandardReportsView.php:397
+#: src/Shared/Frontend/FrontendStandardReportsView.php:406
 msgid "Team · Squad evaluation summary"
 msgstr "Team · Selectie-evaluatie samenvatting"
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:88
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:94
 msgid "Per-player average rating and evaluation count over the last 6 months."
 msgstr ""
 "Per-speler gemiddelde rating en aantal evaluaties over de afgelopen 6 "
 "maanden."
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:93
-#: src/Shared/Frontend/FrontendStandardReportsView.php:412
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:99
+#: src/Shared/Frontend/FrontendStandardReportsView.php:495
 msgid "Season summary — annual review"
 msgstr "Seizoensoverzicht — jaarreview"
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:94
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:100
 msgid ""
 "Academy-wide totals across players, matches, evaluations, prospects, and "
 "trial decisions over the last 12 months."
@@ -33211,11 +33214,11 @@ msgstr ""
 "Academy-brede totalen voor spelers, wedstrijden, evaluaties, prospects en "
 "trialbeslissingen over de afgelopen 12 maanden."
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:99
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:105
 msgid "Trial funnel"
 msgstr "Trialfunnel"
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:100
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:106
 msgid ""
 "Prospects → trial cases opened → decided, broken out per scout and per "
 "decision."
@@ -33223,19 +33226,20 @@ msgstr ""
 "Prospects → trialdossiers geopend → beslist, uitgesplitst per scout en per "
 "beslissing."
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:105
-#: src/Shared/Frontend/FrontendStandardReportsView.php:532
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:111
+#: src/Shared/Frontend/FrontendStandardReportsView.php:622
+#: src/Shared/Frontend/FrontendStandardReportsView.php:631
 msgid "Scout report card"
 msgstr "Scout-rapport"
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:106
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:112
 msgid ""
 "Per-scout dashboard — prospects logged, cases opened, admissions, hit rate."
 msgstr ""
 "Per-scout-dashboard — vastgelegde prospects, geopende dossiers, toelatingen, "
 "hit-rate."
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:112
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:118
 msgid "Pick a report."
 msgstr "Kies een rapport."
 
@@ -33497,98 +33501,98 @@ msgid "WordPress → Users → Edit user → Role."
 msgstr "WordPress → Gebruikers → Gebruiker bewerken → Rol."
 
 # #1063 standard-reports curated views (#1090–#1095)
-#: src/Shared/Frontend/FrontendStandardReportsView.php:54
-#: src/Shared/Frontend/FrontendStandardReportsView.php:57
+#: src/Shared/Frontend/FrontendStandardReportsView.php:95
+#: src/Shared/Frontend/FrontendStandardReportsView.php:98
 msgid "Standard report"
 msgstr "Standaardrapport"
 
-#: src/Shared/Frontend/FrontendStandardReportsView.php:58
+#: src/Shared/Frontend/FrontendStandardReportsView.php:99
 msgid "Unknown standard report. Pick one from the Reports launcher."
 msgstr "Onbekend standaardrapport. Kies er een vanuit de Rapporten-launcher."
 
-#: src/Shared/Frontend/FrontendStandardReportsView.php:123
+#: src/Shared/Frontend/FrontendStandardReportsView.php:164
 msgid "Export (CSV)"
 msgstr "Exporteer (CSV)"
 
-#: src/Shared/Frontend/FrontendStandardReportsView.php:155
+#: src/Shared/Frontend/FrontendStandardReportsView.php:196
 msgid "No data for this selection"
 msgstr "Geen gegevens voor deze selectie"
 
-#: src/Shared/Frontend/FrontendStandardReportsView.php:156
+#: src/Shared/Frontend/FrontendStandardReportsView.php:197
 msgid "Adjust a filter and try again."
 msgstr "Pas een filter aan en probeer opnieuw."
 
 #. translators: %s = player name
-#: src/Shared/Frontend/FrontendStandardReportsView.php:208
+#: src/Shared/Frontend/FrontendStandardReportsView.php:262
 #, php-format
 msgid "Minutes played — %s"
 msgstr "Gespeelde minuten — %s"
 
-#: src/Shared/Frontend/FrontendStandardReportsView.php:213
+#: src/Shared/Frontend/FrontendStandardReportsView.php:267
 msgid "Appearances"
 msgstr "Wedstrijden"
 
-#: src/Shared/Frontend/FrontendStandardReportsView.php:215
+#: src/Shared/Frontend/FrontendStandardReportsView.php:269
 msgid "Avg min / appearance"
 msgstr "Gem. min / wedstrijd"
 
-#: src/Shared/Frontend/FrontendStandardReportsView.php:216
+#: src/Shared/Frontend/FrontendStandardReportsView.php:270
 msgid "Matches in roster"
 msgstr "Wedstrijden in selectie"
 
-#: src/Shared/Frontend/FrontendStandardReportsView.php:220
+#: src/Shared/Frontend/FrontendStandardReportsView.php:274
 msgid "Per match"
 msgstr "Per wedstrijd"
 
 #. translators: %s = team name
-#: src/Shared/Frontend/FrontendStandardReportsView.php:284
+#: src/Shared/Frontend/FrontendStandardReportsView.php:348
 #, php-format
 msgid "Minutes distribution — %s"
 msgstr "Minutenverdeling — %s"
 
 #. translators: %d = match count
-#: src/Shared/Frontend/FrontendStandardReportsView.php:285
+#: src/Shared/Frontend/FrontendStandardReportsView.php:349
 #, php-format
 msgid "%d match in the window"
 msgid_plural "%d matches in the window"
 msgstr[0] "%d wedstrijd in de periode"
 msgstr[1] "%d wedstrijden in de periode"
 
-#: src/Shared/Frontend/FrontendStandardReportsView.php:289
+#: src/Shared/Frontend/FrontendStandardReportsView.php:353
 msgid "Players in selection"
 msgstr "Spelers in selectie"
 
-#: src/Shared/Frontend/FrontendStandardReportsView.php:291
+#: src/Shared/Frontend/FrontendStandardReportsView.php:355
 msgid "Max minutes / player"
 msgstr "Max minuten / speler"
 
-#: src/Shared/Frontend/FrontendStandardReportsView.php:294
+#: src/Shared/Frontend/FrontendStandardReportsView.php:358
 msgid "Spread (top vs bottom)"
 msgstr "Spreiding (top vs onderkant)"
 
-#: src/Shared/Frontend/FrontendStandardReportsView.php:295
+#: src/Shared/Frontend/FrontendStandardReportsView.php:359
 msgid "⚠ Above 30% — imbalance"
 msgstr "⚠ Boven 30% — onbalans"
 
-#: src/Shared/Frontend/FrontendStandardReportsView.php:295
+#: src/Shared/Frontend/FrontendStandardReportsView.php:359
 msgid "Balanced selection"
 msgstr "Gebalanceerde selectie"
 
-#: src/Shared/Frontend/FrontendStandardReportsView.php:301
-#: src/Shared/Frontend/FrontendStandardReportsView.php:379
+#: src/Shared/Frontend/FrontendStandardReportsView.php:365
+#: src/Shared/Frontend/FrontendStandardReportsView.php:452
 msgid "Per player"
 msgstr "Per speler"
 
-#: src/Shared/Frontend/FrontendStandardReportsView.php:301
+#: src/Shared/Frontend/FrontendStandardReportsView.php:365
 msgid "Sorted by minutes, high to low."
 msgstr "Gesorteerd op minuten, hoog naar laag."
 
-#: src/Shared/Frontend/FrontendStandardReportsView.php:316
+#: src/Shared/Frontend/FrontendStandardReportsView.php:380
 msgid "Imbalance signal"
 msgstr "Onbalans-signaal"
 
 #. translators: %d = spread percentage
-#: src/Shared/Frontend/FrontendStandardReportsView.php:320
+#: src/Shared/Frontend/FrontendStandardReportsView.php:384
 #, php-format
 msgid ""
 "Spread of %d%% — bottom-half players have less than half of the leading "
@@ -33598,135 +33602,159 @@ msgstr ""
 "de leidende minutenstand. Overweeg rotatie in de komende wedstrijden."
 
 #. translators: %s = team name
-#: src/Shared/Frontend/FrontendStandardReportsView.php:367
+#: src/Shared/Frontend/FrontendStandardReportsView.php:440
 #, php-format
 msgid "Squad evaluation summary — %s"
 msgstr "Selectie-evaluatie samenvatting — %s"
 
 #. translators: %s = team name
-#: src/Shared/Frontend/FrontendStandardReportsView.php:368
+#: src/Shared/Frontend/FrontendStandardReportsView.php:441
 msgid "Last 6 months"
 msgstr "Laatste 6 maanden"
 
-#: src/Shared/Frontend/FrontendStandardReportsView.php:373
+#: src/Shared/Frontend/FrontendStandardReportsView.php:446
 msgid "Evaluated"
 msgstr "Geëvalueerd"
 
-#: src/Shared/Frontend/FrontendStandardReportsView.php:374
+#: src/Shared/Frontend/FrontendStandardReportsView.php:447
 msgid "Squad average rating"
 msgstr "Gemiddelde selectie-rating"
 
-#: src/Shared/Frontend/FrontendStandardReportsView.php:379
+#: src/Shared/Frontend/FrontendStandardReportsView.php:452
 msgid "Sorted by average rating, high to low."
 msgstr "Gesorteerd op gemiddelde rating, hoog naar laag."
 
-#: src/Shared/Frontend/FrontendStandardReportsView.php:413
+#: src/Shared/Frontend/FrontendStandardReportsView.php:475
+msgid "Season summary"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php:476
+msgid ""
+"This academy-wide summary is only available to Head of Development and "
+"academy admins."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php:496
 msgid "Academy-wide signals over the last 12 months"
 msgstr "Academy-brede signalen over de afgelopen 12 maanden"
 
-#: src/Shared/Frontend/FrontendStandardReportsView.php:419
-#: src/Shared/Frontend/FrontendStandardReportsView.php:442
+#: src/Shared/Frontend/FrontendStandardReportsView.php:502
+#: src/Shared/Frontend/FrontendStandardReportsView.php:525
 msgid "Matches (12 mo)"
 msgstr "Wedstrijden (12 mnd)"
 
-#: src/Shared/Frontend/FrontendStandardReportsView.php:420
+#: src/Shared/Frontend/FrontendStandardReportsView.php:503
 msgid "Evaluations (12 mo)"
 msgstr "Evaluaties (12 mnd)"
 
-#: src/Shared/Frontend/FrontendStandardReportsView.php:421
+#: src/Shared/Frontend/FrontendStandardReportsView.php:504
 msgid "Prospects logged (12 mo)"
 msgstr "Vastgelegde prospects (12 mnd)"
 
-#: src/Shared/Frontend/FrontendStandardReportsView.php:422
+#: src/Shared/Frontend/FrontendStandardReportsView.php:505
 msgid "Trial decisions (12 mo)"
 msgstr "Trial-beslissingen (12 mnd)"
 
-#: src/Shared/Frontend/FrontendStandardReportsView.php:441
+#: src/Shared/Frontend/FrontendStandardReportsView.php:524
 msgid "Per team"
 msgstr "Per team"
 
-#: src/Shared/Frontend/FrontendStandardReportsView.php:491
+#: src/Shared/Frontend/FrontendStandardReportsView.php:543
+msgid "Season trial funnel"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php:544
+msgid ""
+"This academy-wide funnel report is only available to Head of Development and "
+"academy admins."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php:581
 msgid "Trial funnel — per scout, per period"
 msgstr "Trialfunnel — per scout, per periode"
 
 #. translators: %s = scout name
-#: src/Shared/Frontend/FrontendStandardReportsView.php:492
-#: src/Shared/Frontend/FrontendStandardReportsView.php:577
+#: src/Shared/Frontend/FrontendStandardReportsView.php:582
+#: src/Shared/Frontend/FrontendStandardReportsView.php:676
 msgid "Last 12 months"
 msgstr "Laatste 12 maanden"
 
-#: src/Shared/Frontend/FrontendStandardReportsView.php:496
-#: src/Shared/Frontend/FrontendStandardReportsView.php:581
+#: src/Shared/Frontend/FrontendStandardReportsView.php:586
+#: src/Shared/Frontend/FrontendStandardReportsView.php:680
 msgid "Prospects logged"
 msgstr "Vastgelegde prospects"
 
-#: src/Shared/Frontend/FrontendStandardReportsView.php:497
-#: src/Shared/Frontend/FrontendStandardReportsView.php:582
+#: src/Shared/Frontend/FrontendStandardReportsView.php:587
+#: src/Shared/Frontend/FrontendStandardReportsView.php:681
 msgid "Trial cases opened"
 msgstr "Trialdossiers geopend"
 
-#: src/Shared/Frontend/FrontendStandardReportsView.php:501
+#: src/Shared/Frontend/FrontendStandardReportsView.php:591
 msgid "Decision rate"
 msgstr "Beslissingspercentage"
 
-#: src/Shared/Frontend/FrontendStandardReportsView.php:506
+#: src/Shared/Frontend/FrontendStandardReportsView.php:596
 msgid "Per scout"
 msgstr "Per scout"
 
-#: src/Shared/Frontend/FrontendStandardReportsView.php:507
+#: src/Shared/Frontend/FrontendStandardReportsView.php:597
 msgid "Cases opened"
 msgstr "Dossiers geopend"
 
-#: src/Shared/Frontend/FrontendStandardReportsView.php:515
+#: src/Shared/Frontend/FrontendStandardReportsView.php:605
 msgid "Per decision"
 msgstr "Per beslissing"
 
-#: src/Shared/Frontend/FrontendStandardReportsView.php:516
+#: src/Shared/Frontend/FrontendStandardReportsView.php:606
 msgid "Cases"
 msgstr "Dossiers"
 
-#: src/Shared/Frontend/FrontendStandardReportsView.php:533
+#: src/Shared/Frontend/FrontendStandardReportsView.php:623
 msgid "Pick a scout from the Reports launcher."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendStandardReportsView.php:538
+#: src/Shared/Frontend/FrontendStandardReportsView.php:632
+msgid "Viewing another scout’s report card requires academy-wide access."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php:637
 #, php-format
 msgid "Scout #%d"
 msgstr "Scout #%d"
 
 #. translators: %s = scout name
-#: src/Shared/Frontend/FrontendStandardReportsView.php:576
+#: src/Shared/Frontend/FrontendStandardReportsView.php:675
 #, php-format
 msgid "Scout report card — %s"
 msgstr "Scout-rapport — %s"
 
-#: src/Shared/Frontend/FrontendStandardReportsView.php:583
+#: src/Shared/Frontend/FrontendStandardReportsView.php:682
 msgid "Admitted"
 msgstr "Toegelaten"
 
-#: src/Shared/Frontend/FrontendStandardReportsView.php:584
+#: src/Shared/Frontend/FrontendStandardReportsView.php:683
 msgid "Hit rate"
 msgstr "Hit-rate"
 
-#: src/Shared/Frontend/FrontendStandardReportsView.php:588
+#: src/Shared/Frontend/FrontendStandardReportsView.php:687
 msgid "Recent prospects"
 msgstr "Recente prospects"
 
-#: src/Shared/Frontend/FrontendStandardReportsView.php:589
+#: src/Shared/Frontend/FrontendStandardReportsView.php:688
 msgid "Prospect"
 msgstr "Prospect"
 
-#: src/Shared/Frontend/FrontendStandardReportsView.php:610
+#: src/Shared/Frontend/FrontendStandardReportsView.php:721
 msgid "No players available — add players first to enable this report."
 msgstr ""
 "Geen spelers beschikbaar — voeg eerst spelers toe om dit rapport te kunnen "
 "openen."
 
-#: src/Shared/Frontend/FrontendStandardReportsView.php:614
+#: src/Shared/Frontend/FrontendStandardReportsView.php:725
 msgid "Pick a player"
 msgstr "Kies een speler"
 
-#: src/Shared/Frontend/FrontendStandardReportsView.php:638
+#: src/Shared/Frontend/FrontendStandardReportsView.php:755
 msgid "Pick a team"
 msgstr "Kies een team"
 
