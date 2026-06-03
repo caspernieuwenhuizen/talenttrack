@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: TalentTrack 4.20.31\n"
+"Project-Id-Version: TalentTrack 4.20.32\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-03T22:23:12+00:00\n"
+"POT-Creation-Date: 2026-06-03T22:29:44+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -94,7 +94,7 @@ msgstr ""
 #: src/Modules/Documentation/AudienceResolver.php:47
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:146
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:372
-#: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:150
+#: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:139
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:157
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:239
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:231
@@ -1209,7 +1209,7 @@ msgid "Unknown activity type. Pick one from the configured list."
 msgstr ""
 
 #: src/Infrastructure/REST/ActivitiesRestController.php:969
-#: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:74
+#: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:70
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:73
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:55
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:163
@@ -2020,7 +2020,7 @@ msgstr ""
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:145
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:380
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:750
-#: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:126
+#: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:115
 #: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:40
 #: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:117
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:157
@@ -2121,7 +2121,7 @@ msgstr ""
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:148
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:376
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:751
-#: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:129
+#: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:118
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:260
 #: src/Modules/Mfa/Wizards/SecretStep.php:91
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:128
@@ -2176,7 +2176,7 @@ msgstr ""
 #: src/Modules/Development/Frontend/IdeaSubmitView.php:104
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:87
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:295
-#: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:152
+#: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:141
 #: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:46
 #: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:123
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:41
@@ -2302,7 +2302,7 @@ msgstr ""
 #: src/Modules/CustomWidgets/DataSources/PlayersActive.php:35
 #: src/Modules/CustomWidgets/DataSources/PlayersActive.php:44
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:147
-#: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:127
+#: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:116
 #: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:42
 #: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:119
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:47
@@ -2512,7 +2512,7 @@ msgstr ""
 
 #: src/Modules/Activities/Admin/ActivitiesPage.php:343
 #: src/Modules/Configuration/Admin/FormSlugContract.php:100
-#: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:128
+#: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:117
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:176
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:42
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:116
@@ -2544,8 +2544,8 @@ msgstr ""
 #: src/Modules/Configuration/Admin/FormSlugContract.php:129
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:528
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:752
-#: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:141
-#: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:153
+#: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:130
+#: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:142
 #: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:47
 #: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:124
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:163
@@ -3604,7 +3604,7 @@ msgstr ""
 #. translators: %s = generation date (Y-m-d)
 #. translators: %s: ISO datetime when the export was generated
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:431
-#: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:174
+#: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:163
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:164
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:285
 #, php-format
@@ -7223,7 +7223,7 @@ msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:96
 #: src/Modules/CustomWidgets/DataSources/PlayersActive.php:37
-#: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:151
+#: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:140
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:232
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:141
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1010
@@ -11743,15 +11743,15 @@ msgstr ""
 msgid "Activity brief (PDF)"
 msgstr ""
 
-#: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:144
+#: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:133
 msgid "Attendance roster"
 msgstr ""
 
-#: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:146
+#: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:135
 msgid "No attendance recorded."
 msgstr ""
 
-#: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:149
+#: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:138
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:143
 #: src/Modules/Stats/Admin/PlayerComparisonPage.php:261
 #: src/Modules/Teams/Admin/TeamPlayersPanel.php:61
