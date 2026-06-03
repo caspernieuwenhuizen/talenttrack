@@ -34907,6 +34907,17 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+# v4.20.17 #1152 — academy admin task takeover strings.
+#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php
+msgid "Complete on behalf"
+msgstr "Voltooi namens"
+
+#. translators: %s — assignee display name. Surfaced when an academy admin completes a workflow task on behalf of someone else (#1152).
+#: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php
+#, php-format
+msgid "Completing on behalf of %s — this action will be recorded in the audit log."
+msgstr "Bezig met voltooien namens %s — deze actie wordt vastgelegd in het audit-log."
+
 #~ msgid ""
 #~ "Optionally connect this activity to one or more methodology principles. "
 #~ "Hold Ctrl/Cmd to select multiple. Leave blank to skip."
