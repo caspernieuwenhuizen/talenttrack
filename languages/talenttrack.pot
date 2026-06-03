@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: TalentTrack 4.20.18\n"
+"Project-Id-Version: TalentTrack 4.20.19\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-03T21:02:12+00:00\n"
+"POT-Creation-Date: 2026-06-03T21:09:41+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -3030,7 +3030,7 @@ msgstr ""
 #: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:60
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:336
 #: src/Modules/Wizards/Evaluation/ActivityPickerStep.php:33
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:116
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:117
 #: src/Shared/Frontend/PlayerDashboardView.php:157
 msgid "Activity"
 msgstr ""
@@ -19797,7 +19797,7 @@ msgstr ""
 
 #: src/Modules/Reports/PlayerReportRenderer.php:495
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:182
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:140
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:141
 msgid "Date:"
 msgstr ""
 
@@ -25859,7 +25859,7 @@ msgid "My Team shows your players. New Evaluation submits training or match eval
 msgstr ""
 
 #: src/Shared/Frontend/CoachDashboardView.php:131
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:143
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:144
 #: src/Shared/Frontend/FrontendPlayersManageView.php:592
 #: src/Shared/Frontend/PlayerDashboardView.php:275
 msgid "Team:"
@@ -26475,7 +26475,7 @@ msgstr ""
 
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:103
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:204
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:102
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:98
 msgid "Activity not found"
 msgstr ""
 
@@ -28318,25 +28318,25 @@ msgstr ""
 msgid "No activities recorded for you yet."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:103
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:99
 msgid "That activity is no longer available."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:146
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:147
 msgid "Opponent:"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:149
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:150
 msgid "Location:"
 msgstr ""
 
 #. translators: %s = attendance status label (Present / Absent / Late / etc.)
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:168
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:166
 #, php-format
 msgid "Your attendance: %s"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyActivitiesView.php:178
+#: src/Shared/Frontend/FrontendMyActivitiesView.php:176
 msgid "Notes from your coach"
 msgstr ""
 
