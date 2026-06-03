@@ -66,7 +66,24 @@ final class PrinciplesStep implements WizardStepInterface {
         echo '<div class="tt-act-principle-picker" style="display:flex; flex-direction:column; gap:14px;">';
         foreach ( $function_labels as $fk => $fn_label ) {
             if ( empty( $grouped[ $fk ] ) ) continue;
-            echo '<details open style="border:1px solid #d6dadd; border-radius:8px; padding:10px 12px; background:#fff;">';
+            // #1155 — was `<details open>` for every bucket which forced
+            // operators to scroll past every principle on a fresh
+            // wizard render. Now: collapsed by default; auto-open the
+            // bucket only if it contains a principle that's already
+            // pre-selected (draft resume / wizard back-step). Keeps the
+            // everyday "new" case scannable while preserving visibility
+            // when there's an existing selection inside.
+            $bucket_has_selection = false;
+            foreach ( $grouped[ $fk ] as $tk => $rows_for_check ) {
+                foreach ( $rows_for_check as $pr_check ) {
+                    if ( in_array( (int) $pr_check->id, $selected, true ) ) {
+                        $bucket_has_selection = true;
+                        break 2;
+                    }
+                }
+            }
+            $open_attr = $bucket_has_selection ? ' open' : '';
+            echo '<details' . $open_attr . ' style="border:1px solid #d6dadd; border-radius:8px; padding:10px 12px; background:#fff;">';
             echo '<summary style="cursor:pointer; font-weight:700; font-size:14px; color:#1a1d21;">'
                 . esc_html( $fn_label )
                 . '</summary>';
