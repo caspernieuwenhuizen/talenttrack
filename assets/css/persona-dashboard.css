@@ -370,11 +370,21 @@
     border: 0;
     padding: 0.5rem 0.875rem;
     min-height: 48px;
+    display: inline-flex;
+    align-items: center;
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.18);
     color: #fff;
     font-weight: 500;
     cursor: pointer;
+    text-decoration: none; /* #915 — pills are now <a> elements */
+}
+.tt-pd-child-pill:hover,
+.tt-pd-child-pill:focus-visible {
+    background: rgba(255, 255, 255, 0.28);
+    color: #fff;
+    outline: 2px solid rgba(255, 255, 255, 0.55);
+    outline-offset: 2px;
 }
 .tt-pd-child-pill.is-active { background: var(--tt-pd-hero-cta); color: var(--tt-pd-text-primary); }
 .tt-pd-children-empty { font-size: 0.875rem; opacity: 0.85; }
