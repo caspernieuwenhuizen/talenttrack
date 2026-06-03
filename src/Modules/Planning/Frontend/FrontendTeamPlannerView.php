@@ -344,9 +344,25 @@ class FrontendTeamPlannerView extends FrontendViewBase {
             </span>
             <?php if ( ! empty( $principles ) ) : ?>
                 <span class="tt-planner-activity-principles">
-                    <?php foreach ( array_slice( $principles, 0, 3 ) as $p ) : ?>
-                        <span class="tt-planner-principle-chip"><?php echo esc_html( self::principleLabel( $p ) ); ?></span>
+                    <?php
+                    // #1125 — show codes only (not titles), wrap at 4.
+                    // Bucket colour-class derived from the code's first
+                    // letter (A* = Aanvallen, V* = Verdedigen,
+                    // O* = Omschakelen) matching the methodology
+                    // browser's principle-bucket palette.
+                    foreach ( array_slice( $principles, 0, 4 ) as $p ) :
+                        $code   = (string) ( $p->code ?? '' );
+                        $bucket = self::principleBucketFromCode( $code );
+                        ?>
+                        <span class="tt-planner-principle-chip"
+                              data-bucket="<?php echo esc_attr( $bucket ); ?>"
+                              title="<?php echo esc_attr( self::principleLabel( $p ) ); ?>">
+                            <?php echo esc_html( $code !== '' ? $code : self::principleLabel( $p ) ); ?>
+                        </span>
                     <?php endforeach; ?>
+                    <?php if ( count( $principles ) > 4 ) : ?>
+                        <span class="tt-planner-principle-more">+<?php echo (int) ( count( $principles ) - 4 ); ?></span>
+                    <?php endif; ?>
                 </span>
             <?php endif; ?>
         </a>
@@ -566,6 +582,23 @@ class FrontendTeamPlannerView extends FrontendViewBase {
             $out[ $aid ][] = $r;
         }
         return $out;
+    }
+
+    /**
+     * #1125 — derive the methodology bucket from a principle's code
+     * prefix. A* = aanvallen, V* = verdedigen, O* = omschakelen.
+     * Used to colour-code planner chips without needing a SELECT
+     * extension for `team_function_key`.
+     */
+    private static function principleBucketFromCode( string $code ): string {
+        if ( $code === '' ) return '';
+        $first = strtoupper( $code[0] );
+        switch ( $first ) {
+            case 'A': return 'aanvallen';
+            case 'V': return 'verdedigen';
+            case 'O': return 'omschakelen';
+            default:  return '';
+        }
     }
 
     private static function principleLabel( object $p ): string {
