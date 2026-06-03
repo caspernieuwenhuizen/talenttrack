@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-03T21:48:21+00:00\n"
+"POT-Creation-Date: 2026-06-03T21:54:00+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -1195,44 +1195,44 @@ msgstr ""
 msgid "Unknown orderby column."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:568
+#: src/Infrastructure/REST/ActivitiesRestController.php:580
 msgid "Title and date are required."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:577
+#: src/Infrastructure/REST/ActivitiesRestController.php:589
 msgid "The activity could not be saved. The database rejected the operation."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:606
+#: src/Infrastructure/REST/ActivitiesRestController.php:618
 msgid "The activity was saved, but some attendance rows could not be stored."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:631
-#: src/Infrastructure/REST/ActivitiesRestController.php:726
-#: src/Infrastructure/REST/ActivitiesRestController.php:951
-#: src/Infrastructure/REST/ActivitiesRestController.php:1066
+#: src/Infrastructure/REST/ActivitiesRestController.php:643
+#: src/Infrastructure/REST/ActivitiesRestController.php:738
+#: src/Infrastructure/REST/ActivitiesRestController.php:963
+#: src/Infrastructure/REST/ActivitiesRestController.php:1078
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:406
 #: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:71
 msgid "Invalid activity id."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:647
+#: src/Infrastructure/REST/ActivitiesRestController.php:659
 msgid "The activity could not be updated. The database rejected the operation."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:669
+#: src/Infrastructure/REST/ActivitiesRestController.php:681
 msgid "The activity was updated, but some attendance rows could not be stored."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:736
+#: src/Infrastructure/REST/ActivitiesRestController.php:748
 msgid "The activity could not be deleted."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:825
+#: src/Infrastructure/REST/ActivitiesRestController.php:837
 msgid "Unknown activity type. Pick one from the configured list."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:957
+#: src/Infrastructure/REST/ActivitiesRestController.php:969
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:74
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:73
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:55
@@ -1241,45 +1241,45 @@ msgid "Activity not found."
 msgstr ""
 
 # v3.22.0 — Guest-player attendance (#0026)
-#: src/Infrastructure/REST/ActivitiesRestController.php:978
+#: src/Infrastructure/REST/ActivitiesRestController.php:990
 msgid "A guest is either linked OR anonymous, not both."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:982
+#: src/Infrastructure/REST/ActivitiesRestController.php:994
 msgid "Pick a player or enter a guest name."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:989
+#: src/Infrastructure/REST/ActivitiesRestController.php:1001
 msgid "Linked player does not exist."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1050
+#: src/Infrastructure/REST/ActivitiesRestController.php:1062
 #, php-format
 msgid "The guest could not be added (database error: %s)."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1051
+#: src/Infrastructure/REST/ActivitiesRestController.php:1063
 msgid "The guest could not be added."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1074
+#: src/Infrastructure/REST/ActivitiesRestController.php:1086
 msgid "Could not update the activity."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1089
-#: src/Infrastructure/REST/ActivitiesRestController.php:1125
+#: src/Infrastructure/REST/ActivitiesRestController.php:1101
+#: src/Infrastructure/REST/ActivitiesRestController.php:1137
 msgid "Invalid attendance id."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1091
+#: src/Infrastructure/REST/ActivitiesRestController.php:1103
 msgid "Attendance row not found."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1111
+#: src/Infrastructure/REST/ActivitiesRestController.php:1123
 msgid "The attendance row could not be updated."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1129
+#: src/Infrastructure/REST/ActivitiesRestController.php:1141
 msgid "The attendance row could not be deleted."
 msgstr ""
 
@@ -1416,41 +1416,41 @@ msgstr ""
 msgid "You can only request your own evaluations."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:432
+#: src/Infrastructure/REST/EvaluationsRestController.php:442
 msgid "Evaluation not found."
 msgstr ""
 
 # ===== v3.7.0 — #0019 Sprint 1 (session 1): REST expansion + flash scaffold =====
-#: src/Infrastructure/REST/EvaluationsRestController.php:442
+#: src/Infrastructure/REST/EvaluationsRestController.php:452
 msgid "Player and date are required."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:446
+#: src/Infrastructure/REST/EvaluationsRestController.php:456
 msgid "You can only evaluate players in your team."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:457
+#: src/Infrastructure/REST/EvaluationsRestController.php:467
 msgid "The evaluation could not be created."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:471
+#: src/Infrastructure/REST/EvaluationsRestController.php:481
 msgid "The evaluation was saved but some ratings failed."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:489
-#: src/Infrastructure/REST/EvaluationsRestController.php:561
+#: src/Infrastructure/REST/EvaluationsRestController.php:499
+#: src/Infrastructure/REST/EvaluationsRestController.php:571
 msgid "Invalid evaluation id."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:499
+#: src/Infrastructure/REST/EvaluationsRestController.php:509
 msgid "The evaluation could not be updated."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:541
+#: src/Infrastructure/REST/EvaluationsRestController.php:551
 msgid "The evaluation was updated but some ratings failed."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:578
+#: src/Infrastructure/REST/EvaluationsRestController.php:588
 msgid "The evaluation could not be archived."
 msgstr ""
 
