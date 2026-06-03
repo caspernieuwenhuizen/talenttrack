@@ -3,6 +3,7 @@ namespace TT\Modules\Methodology\Repositories;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
@@ -57,18 +58,37 @@ class PrincipleLinksRepository {
         global $wpdb;
         $t = $this->sessionPivot();
 
-        $wpdb->delete( $t, [ 'activity_id' => $activity_id ] );
+        // #1153 — was silently swallowing $wpdb failures. The
+        // tt_session_principles → tt_activity_principles rename
+        // (migration 0146, missing companion to 0027) masked every
+        // write here as a successful no-op for over a year. Log
+        // failures going forward so the same family of bug doesn't
+        // go silent again — same defence as #1054 and #1137.
+        $deleted = $wpdb->delete( $t, [ 'activity_id' => $activity_id ] );
+        if ( $deleted === false ) {
+            Logger::error( 'principle_links.delete.failed', [
+                'db_error'    => (string) $wpdb->last_error,
+                'activity_id' => $activity_id,
+            ] );
+        }
 
         $clean = array_values( array_unique( array_filter( array_map( 'intval', $principle_ids ), fn( $v ) => $v > 0 ) ) );
         if ( empty( $clean ) ) return;
 
         $sort = 0;
         foreach ( $clean as $pid ) {
-            $wpdb->insert( $t, [
+            $ok = $wpdb->insert( $t, [
                 'activity_id'   => $activity_id,
                 'principle_id' => $pid,
                 'sort_order'   => $sort++,
             ] );
+            if ( $ok === false ) {
+                Logger::error( 'principle_links.insert.failed', [
+                    'db_error'     => (string) $wpdb->last_error,
+                    'activity_id'  => $activity_id,
+                    'principle_id' => $pid,
+                ] );
+            }
         }
     }
 
