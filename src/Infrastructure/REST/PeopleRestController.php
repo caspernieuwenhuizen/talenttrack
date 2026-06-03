@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\People\PeopleRepository;
+use TT\Infrastructure\People\PersonDeletionCascade;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
@@ -44,6 +45,17 @@ class PeopleRestController {
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'create_person' ],
                 'permission_callback' => function () { return current_user_can( 'tt_edit_people' ); },
+            ],
+        ] );
+        // #1138 — bulk delete-preview. Returns the per-person impact summary
+        // (CASCADE-delete counts + SET-NULL counts + human-readable refs)
+        // without writing anything. Drives the wp-admin two-step confirm
+        // dialog.
+        register_rest_route( self::NS, '/people/delete-preview', [
+            [
+                'methods'             => 'POST',
+                'callback'            => [ __CLASS__, 'delete_preview' ],
+                'permission_callback' => function () { return current_user_can( 'tt_edit_settings' ); },
             ],
         ] );
         register_rest_route( self::NS, '/people/(?P<id>\d+)', [
@@ -217,6 +229,32 @@ class PeopleRestController {
             return RestResponse::error( 'not_found', __( 'Person not found in your club.', 'talenttrack' ), 404 );
         }
         return RestResponse::success( [ 'archived' => true, 'id' => $id ] );
+    }
+
+    /**
+     * POST /people/delete-preview — informed-consent impact summary.
+     *
+     * #1138. Read-only; never writes. Returns the per-person CASCADE +
+     * SET-NULL breakdown the wp-admin two-step confirm dialog renders
+     * before the operator commits to the destructive bulk action.
+     */
+    public static function delete_preview( \WP_REST_Request $r ) {
+        $raw = $r->get_param( 'ids' );
+        $ids = [];
+        if ( is_array( $raw ) ) {
+            foreach ( $raw as $v ) {
+                $i = absint( $v );
+                if ( $i > 0 ) $ids[] = $i;
+            }
+        }
+        if ( empty( $ids ) ) {
+            return RestResponse::error( 'bad_ids', __( 'At least one person id is required.', 'talenttrack' ), 400 );
+        }
+        if ( count( $ids ) > 100 ) {
+            return RestResponse::error( 'too_many', __( 'Preview supports at most 100 ids per call.', 'talenttrack' ), 400 );
+        }
+        $cascade = new PersonDeletionCascade();
+        return RestResponse::success( $cascade->preview( $ids ) );
     }
 
     /**

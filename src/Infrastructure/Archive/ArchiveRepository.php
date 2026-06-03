@@ -3,6 +3,7 @@ namespace TT\Infrastructure\Archive;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\People\PersonDeletionCascade;
 use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
@@ -106,6 +107,14 @@ class ArchiveRepository {
         if ( $table === null ) return 0;
         $ids = $this->cleanIds( $ids );
         if ( empty( $ids ) ) return 0;
+
+        // #1138 — person delete must cascade across 9 reference tables.
+        // Route through the dedicated service so the raw DELETE doesn't
+        // strand orphan team-role / staff-dev / scope-grant rows.
+        if ( $entity === 'person' ) {
+            $result = ( new PersonDeletionCascade() )->cascade( $ids );
+            return (int) $result['deleted'];
+        }
 
         global $wpdb;
         $ph = implode( ',', array_fill( 0, count( $ids ), '%d' ) );

@@ -1,0 +1,113 @@
+/*
+ * Admin People — bulk delete impact-preview dialog.
+ * #1138 (v4.20.0). Mobile-first per CLAUDE.md §2.
+ */
+dialog.tt-people-delete-preview {
+    border: none;
+    border-radius: 8px;
+    padding: 0;
+    width: min(640px, 92vw);
+    max-height: 86vh;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+}
+dialog.tt-people-delete-preview::backdrop {
+    background: rgba(0, 0, 0, 0.45);
+}
+.tt-people-delete-preview .tt-pdp-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #e5e5e5;
+    background: #fff;
+}
+.tt-people-delete-preview .tt-pdp-header h2 {
+    margin: 0;
+    font-size: 1.05rem;
+    line-height: 1.3;
+    color: #b32d2e;
+}
+.tt-people-delete-preview .tt-pdp-body {
+    padding: 1rem 1.25rem;
+    max-height: 60vh;
+    overflow: auto;
+    background: #fff;
+    overscroll-behavior: contain;
+}
+.tt-people-delete-preview .tt-pdp-persons {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.tt-people-delete-preview .tt-pdp-person {
+    margin: 0 0 0.85rem 0;
+    padding-bottom: 0.65rem;
+    border-bottom: 1px solid #f0f0f0;
+}
+.tt-people-delete-preview .tt-pdp-person:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+.tt-people-delete-preview .tt-pdp-person ul {
+    margin: 0.4rem 0 0 1.25rem;
+    padding: 0;
+}
+.tt-people-delete-preview .tt-pdp-person li {
+    margin: 0.15rem 0;
+    line-height: 1.45;
+    color: #333;
+}
+.tt-people-delete-preview .tt-pdp-id {
+    color: #777;
+    font-weight: normal;
+    font-size: 0.85em;
+}
+.tt-people-delete-preview .tt-pdp-note {
+    margin: 1rem 0 0 0;
+    padding: 0.6rem 0.75rem;
+    background: #fff8e1;
+    border-left: 4px solid #f0c14b;
+    color: #5a4a00;
+    font-size: 0.9rem;
+}
+.tt-people-delete-preview .tt-pdp-final-prompt {
+    margin: 0 0 0.6rem 0;
+    color: #b32d2e;
+    font-weight: 600;
+}
+.tt-people-delete-preview .tt-pdp-type-input {
+    width: 100%;
+    min-height: 48px;
+    padding: 0.5rem 0.75rem;
+    font-size: 1rem;
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    letter-spacing: 0.1em;
+    border: 2px solid #b32d2e;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+.tt-people-delete-preview .tt-pdp-footer {
+    padding: 0.75rem 1.25rem;
+    border-top: 1px solid #e5e5e5;
+    background: #f7f7f7;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.6rem;
+}
+.tt-people-delete-preview .tt-pdp-footer .button {
+    min-height: 48px;
+    min-width: 48px;
+    padding: 0 1rem;
+}
+
+/* Mobile narrowing — 360-480px */
+@media (max-width: 480px) {
+    dialog.tt-people-delete-preview {
+        width: 96vw;
+        max-height: 92vh;
+    }
+    .tt-people-delete-preview .tt-pdp-footer {
+        flex-direction: column-reverse;
+    }
+    .tt-people-delete-preview .tt-pdp-footer .button {
+        width: 100%;
+    }
+}

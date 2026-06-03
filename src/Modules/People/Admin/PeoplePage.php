@@ -25,6 +25,58 @@ class PeoplePage {
 
     private const CAP = 'tt_view_people';
 
+    /**
+     * Enqueue the bulk delete-preview dialog assets on the People list.
+     * Wired from PeopleModule::boot() via `admin_enqueue_scripts`.
+     * #1138 (v4.20.0).
+     */
+    public static function enqueueAssets( string $hook ): void {
+        // Only on our People page, and only for operators who can run the
+        // destructive bulk action — the JS is dead weight otherwise.
+        if ( strpos( $hook, 'tt-people' ) === false ) return;
+        if ( ! current_user_can( 'tt_edit_settings' ) ) return;
+
+        wp_enqueue_style(
+            'tt-admin-people-delete-preview',
+            TT_PLUGIN_URL . 'assets/css/admin-people-delete-preview.css',
+            [],
+            TT_VERSION
+        );
+        wp_enqueue_script(
+            'tt-admin-people-delete-preview',
+            TT_PLUGIN_URL . 'assets/js/admin-people-delete-preview.js',
+            [],
+            TT_VERSION,
+            true
+        );
+        wp_localize_script( 'tt-admin-people-delete-preview', 'TT_PEOPLE_DELETE_PREVIEW', [
+            'rest_root' => esc_url_raw( rest_url() ),
+            'nonce'     => wp_create_nonce( 'wp_rest' ),
+            'i18n'      => [
+                'title_n'                => __( 'You are about to permanently delete %d person(s):', 'talenttrack' ),
+                'delete_n'               => __( 'Delete %d person(s)', 'talenttrack' ),
+                'cancel'                 => __( 'Cancel', 'talenttrack' ),
+                'final_confirm'          => __( 'Confirm delete', 'talenttrack' ),
+                'preview_failed'         => __( 'Preview failed', 'talenttrack' ),
+                'no_persons'             => __( 'No persons in the selection.', 'talenttrack' ),
+                'no_refs'                => __( 'No related records.', 'talenttrack' ),
+                'wp_user_unaffected'     => __( 'The associated WordPress user accounts are NOT affected — they can still log in until deleted separately via WP’s Users admin.', 'talenttrack' ),
+                'type_delete_prompt'     => __( 'Type DELETE to confirm this destructive action:', 'talenttrack' ),
+                'team_role'              => __( 'Will be removed as %s from team %s.', 'talenttrack' ),
+                'role_scope_target'      => __( '%d functional-role scope grant(s) will be removed.', 'talenttrack' ),
+                'staff_development'      => __( '%d staff-development entry(ies) will be removed.', 'talenttrack' ),
+                'staff_certifications'   => __( '%d staff certification record(s) will be removed.', 'talenttrack' ),
+                'staff_evaluations'      => __( '%d staff evaluation(s) will be removed.', 'talenttrack' ),
+                'staff_goals'            => __( '%d staff goal(s) will be removed.', 'talenttrack' ),
+                'mentorship'             => __( '%d mentorship pairing(s) will be removed.', 'talenttrack' ),
+                'invitation_pending'     => __( '%d pending invitation(s) to this person will be cancelled.', 'talenttrack' ),
+                'scope_grantor'          => __( '%d functional-role grant(s) attribution will become unknown (grants stay).', 'talenttrack' ),
+                'invitation_accepted'    => __( '%d accepted invitation(s) will keep the historical record; target reference cleared.', 'talenttrack' ),
+                'player_parent_link'     => __( 'Will be removed as parent contact from player %s.', 'talenttrack' ),
+            ],
+        ] );
+    }
+
     public static function render(): void {
         if ( ! current_user_can( self::CAP ) ) {
             wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );

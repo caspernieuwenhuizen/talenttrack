@@ -34741,6 +34741,114 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+# v4.20.0 #1138 — person permanent-delete impact-preview dialog strings.
+#: src/Infrastructure/REST/PeopleRestController.php
+msgid "At least one person id is required."
+msgstr "Selecteer ten minste één persoon."
+
+#: src/Infrastructure/REST/PeopleRestController.php
+msgid "Preview supports at most 100 ids per call."
+msgstr "Voorvertoning ondersteunt maximaal 100 ids per aanroep."
+
+#: src/Modules/People/Admin/PeoplePage.php
+#, php-format
+msgid "You are about to permanently delete %d person(s):"
+msgstr "Je staat op het punt %d persoon/personen definitief te verwijderen:"
+
+#: src/Modules/People/Admin/PeoplePage.php
+#, php-format
+msgid "Delete %d person(s)"
+msgstr "Verwijder %d persoon/personen"
+
+#: src/Modules/People/Admin/PeoplePage.php
+msgid "Confirm delete"
+msgstr "Bevestig verwijderen"
+
+#: src/Modules/People/Admin/PeoplePage.php
+msgid "Preview failed"
+msgstr "Voorvertoning mislukt"
+
+#: src/Modules/People/Admin/PeoplePage.php
+msgid "No persons in the selection."
+msgstr "Geen personen in de selectie."
+
+#: src/Modules/People/Admin/PeoplePage.php
+msgid "No related records."
+msgstr "Geen gekoppelde gegevens."
+
+#: src/Modules/People/Admin/PeoplePage.php
+msgid ""
+"The associated WordPress user accounts are NOT affected — they can still log "
+"in until deleted separately via WP’s Users admin."
+msgstr ""
+"De gekoppelde WordPress-gebruikersaccounts worden NIET aangeraakt — die "
+"kunnen nog steeds inloggen totdat ze apart via het WP-gebruikersbeheer "
+"worden verwijderd."
+
+#: src/Modules/People/Admin/PeoplePage.php
+msgid "Type DELETE to confirm this destructive action:"
+msgstr "Typ DELETE om deze onomkeerbare actie te bevestigen:"
+
+#. translators: %s is the role label, %s is the team name.
+#: src/Modules/People/Admin/PeoplePage.php
+#, php-format
+msgid "Will be removed as %s from team %s."
+msgstr "Wordt verwijderd als %s uit team %s."
+
+#: src/Modules/People/Admin/PeoplePage.php
+#, php-format
+msgid "%d functional-role scope grant(s) will be removed."
+msgstr "%d toekenning(en) van functionele-rol-scope wordt/worden verwijderd."
+
+#: src/Modules/People/Admin/PeoplePage.php
+#, php-format
+msgid "%d staff-development entry(ies) will be removed."
+msgstr "%d staf-ontwikkelingsentry('s) wordt/worden verwijderd."
+
+#: src/Modules/People/Admin/PeoplePage.php
+#, php-format
+msgid "%d staff certification record(s) will be removed."
+msgstr "%d staf-certificeringsrecord(s) wordt/worden verwijderd."
+
+#: src/Modules/People/Admin/PeoplePage.php
+#, php-format
+msgid "%d staff evaluation(s) will be removed."
+msgstr "%d staf-evaluatie(s) wordt/worden verwijderd."
+
+#: src/Modules/People/Admin/PeoplePage.php
+#, php-format
+msgid "%d staff goal(s) will be removed."
+msgstr "%d staf-doel(en) wordt/worden verwijderd."
+
+#: src/Modules/People/Admin/PeoplePage.php
+#, php-format
+msgid "%d mentorship pairing(s) will be removed."
+msgstr "%d mentorkoppeling(en) wordt/worden verwijderd."
+
+#: src/Modules/People/Admin/PeoplePage.php
+#, php-format
+msgid "%d pending invitation(s) to this person will be cancelled."
+msgstr "%d openstaande uitnodiging(en) voor deze persoon wordt/worden geannuleerd."
+
+#: src/Modules/People/Admin/PeoplePage.php
+#, php-format
+msgid "%d functional-role grant(s) attribution will become unknown (grants stay)."
+msgstr "%d functionele-rol-toekenning(en) verliest hun attributie (de toekenningen blijven)."
+
+#: src/Modules/People/Admin/PeoplePage.php
+#, php-format
+msgid ""
+"%d accepted invitation(s) will keep the historical record; target reference "
+"cleared."
+msgstr ""
+"%d geaccepteerde uitnodiging(en) behoudt de historische record; de "
+"doelverwijzing wordt leeggemaakt."
+
+#: src/Modules/People/Admin/PeoplePage.php
+#, php-format
+msgid "Will be removed as parent contact from player %s."
+msgstr "Wordt verwijderd als ouder-contact bij speler %s."
+
 #~ msgid ""
 #~ "Optionally connect this activity to one or more methodology principles. "
 #~ "Hold Ctrl/Cmd to select multiple. Leave blank to skip."
