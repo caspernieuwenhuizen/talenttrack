@@ -116,6 +116,7 @@ class PlayersRestController {
      *   ?filter[preferred_foot]=<string>
      *   ?filter[age_group]=<string> — matches the team's age_group (e.g. "U13")
      *   ?filter[archived]=<active|archived> — default active only
+     *   ?filter[status]=<active|trial|released|inactive|…> — optional, matches `tt_players.status`
      *   ?orderby=last_name|first_name|team_name|jersey_number|date_of_birth|date_joined
      *   ?order=asc|desc                                   (default: asc on last_name, desc otherwise)
      *   ?page=<int>                                       (default 1)
@@ -172,6 +173,17 @@ class PlayersRestController {
         if ( ! empty( $filter['preferred_foot'] ) ) {
             $where[]  = 'p.preferred_foot = %s';
             $params[] = sanitize_text_field( (string) $filter['preferred_foot'] );
+        }
+        // v4.20.23 (#1209) — `filter[status]` matches against
+        // `tt_players.status` (active/trial/released/inactive/…). Used by
+        // `ActivePlayersTotal::linkUrl()` so the KPI's "active players"
+        // count matches the destination list 1:1 — pre-fix the KPI
+        // filtered `p.status = 'active'` while the list did not, so a
+        // trial / released player with `archived_at IS NULL` showed in
+        // the list but not the count.
+        if ( ! empty( $filter['status'] ) ) {
+            $where[]  = 'p.status = %s';
+            $params[] = sanitize_text_field( (string) $filter['status'] );
         }
         if ( ! empty( $filter['position'] ) ) {
             // preferred_positions is a JSON array — match the value as a
