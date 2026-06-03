@@ -4,13 +4,16 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.45
+Stable tag: 4.20.46
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.46 — PlayerDashboardView tabs now filter archived rows (closes #1225). Audit 7 (#1181) flagged three tabs on the player/parent dashboard surfacing archived rows inconsistently with every other surface: Evaluations tab counted archived evals, Goals tab counted archived goals, Attendance tab counted attendance on archived activities + planned (not actual) rows. **Fix.** Evaluations query adds `e.archived_at IS NULL`. Goals query adds `g.archived_at IS NULL`. Attendance query: `s.archived_at IS NULL` on the JOIN + `a.record_type = 'actual'` in the WHERE. `plan_state = 'completed'` intentionally omitted — players want to see in-progress activities they attended too. Inline comments cite the audit + the bug history. **What this is NOT.** No `club_id` filter added — same #1188 direction; tenancy boundary enforced at the request layer in SaaS. Patch bump. (closes #1225) =
+
 
 = 4.20.45 — Comms cron: attendance-flag + goal-nudge detection get the right scope filters (closes #1224). Audit 7 (#1181) flagged five scope drifts on the parent-nudge cron. **Attendance-flag detection** (line 121) was counting guest attendance, expected-attendance rows, and archived activities as if they were the player's own absences, plus joining cross-tenant. **Fix:** four filters added — `att.club_id = pl.club_id` (cross-tenant defence), `att.is_guest = 0` (JO13 player called up to JO14-1 as guest stops carrying an "absent" toward their JO13 nudge count), `att.record_type = 'actual'` (expected-attendance rows from #788 ship 2 won't pollute the count once that ship activates), `a.archived_at IS NULL` (soft-archived activities don't drive false-positive nudges). **Goal-nudge detection** (line 78) gets the same `pl.club_id = g.club_id` join condition for cross-tenant defence. **Persona impact closed.** Parents stop receiving nudges triggered by guest call-ups + planned attendance + archived activities. Cross-tenant post-SaaS is no longer a vector. Inline comments cite the audit + the bug family so subsequent edits don't reflex-revert. Patch bump. (closes #1224) =
 

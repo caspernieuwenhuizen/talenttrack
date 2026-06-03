@@ -88,10 +88,14 @@ class PlayerDashboardView {
 
         // Evaluations
         echo '<div class="tt-tab-content' . ( $view === 'evaluations' ? ' tt-tab-content-active' : '' ) . '" data-tab="evaluations">';
+        // v4.20.46 (#1225) — added `e.archived_at IS NULL`. Pre-fix
+        // the player's own evaluations tab surfaced archived eval rows
+        // alongside live ones, inconsistent with every coach-side
+        // evaluation surface. Audit 7 (#1181).
         $evals = $wpdb->get_results( $wpdb->prepare(
             "SELECT e.*, lt.name AS type_name, u.display_name AS coach_name FROM {$p}tt_evaluations e
              LEFT JOIN {$p}tt_lookups lt ON e.eval_type_id=lt.id LEFT JOIN {$wpdb->users} u ON e.coach_id=u.ID
-             WHERE e.player_id=%d ORDER BY e.eval_date DESC", $player->id
+             WHERE e.player_id=%d AND e.archived_at IS NULL ORDER BY e.eval_date DESC", $player->id
         ));
         if ( empty( $evals ) ) {
             echo '<p>' . esc_html__( 'No evaluations yet.', 'talenttrack' ) . '</p>';
@@ -122,7 +126,8 @@ class PlayerDashboardView {
         // Goals
         echo '<div class="tt-tab-content' . ( $view === 'goals' ? ' tt-tab-content-active' : '' ) . '" data-tab="goals">';
         $goal_scope = QueryHelpers::apply_demo_scope( 'g', 'goal' );
-        $goals = $wpdb->get_results( $wpdb->prepare( "SELECT g.* FROM {$p}tt_goals g WHERE g.player_id=%d {$goal_scope} ORDER BY g.created_at DESC", $player->id ) );
+        // v4.20.46 (#1225) — added `g.archived_at IS NULL`. Audit 7.
+        $goals = $wpdb->get_results( $wpdb->prepare( "SELECT g.* FROM {$p}tt_goals g WHERE g.player_id=%d AND g.archived_at IS NULL {$goal_scope} ORDER BY g.created_at DESC", $player->id ) );
         if ( empty( $goals ) ) {
             echo '<p>' . esc_html__( 'No goals assigned.', 'talenttrack' ) . '</p>';
         } else {
@@ -143,10 +148,17 @@ class PlayerDashboardView {
         // #0026 — guest appearances surface on the player's own profile.
         // A row matches if the player either was on the roster
         // (player_id = X) or attended as a linked guest (guest_player_id = X).
+        // v4.20.46 (#1225) — added `s.archived_at IS NULL` (filter
+        // archived activities) and `a.record_type = 'actual'` (planned-
+        // attendance rows from #788 ship 2 don't belong in a player's
+        // history view). `plan_state = 'completed'` is intentionally
+        // omitted — players want to see in-progress activities they
+        // attended too. Audit 7 (#1181).
         $att = $wpdb->get_results( $wpdb->prepare(
             "SELECT a.*, s.title AS session_title, s.session_date FROM {$p}tt_attendance a
-             LEFT JOIN {$p}tt_activities s ON a.activity_id=s.id
-             WHERE a.player_id=%d OR a.guest_player_id=%d
+             LEFT JOIN {$p}tt_activities s ON a.activity_id=s.id AND s.archived_at IS NULL
+             WHERE ( a.player_id=%d OR a.guest_player_id=%d )
+               AND a.record_type = 'actual'
              ORDER BY s.session_date DESC", $player->id, $player->id
         ));
         if ( empty( $att ) ) {
