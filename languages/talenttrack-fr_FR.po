@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-03T22:35:07+00:00\n"
+"POT-Creation-Date: 2026-06-03T22:40:18+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -78,7 +78,7 @@ msgstr ""
 #: src/Modules/Analytics/AnalyticsModule.php:197
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:232
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:90
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:100
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:122
 #: src/Modules/Authorization/Admin/MatrixPage.php:586
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:157
 #: src/Modules/Authorization/Admin/RolesPage.php:357
@@ -1958,7 +1958,7 @@ msgid "Overall"
 msgstr ""
 
 #: src/Modules/Activities/Admin/ActivitiesPage.php:71
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:213
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:253
 #: src/Modules/Stats/Admin/PlayerComparisonPage.php:172
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:279
 #: src/Shared/Frontend/FrontendComparisonView.php:193
@@ -2331,7 +2331,7 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:91
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:218
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:76
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:199
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:239
 #: src/Modules/Authorization/Admin/FunctionalRolesPage.php:246
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:156
 #: src/Modules/Authorization/Admin/RolesPage.php:232
@@ -3225,7 +3225,7 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:48
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:35
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:36
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:39
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:40
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:40
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:92
 #: src/Modules/Development/Frontend/IdeasApprovalView.php:28
@@ -3308,8 +3308,8 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:37
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:45
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:71
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:40
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:48
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:41
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:49
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:51
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:165
 #: src/Modules/Authorization/Admin/ModulesPage.php:83
@@ -3477,7 +3477,7 @@ msgstr ""
 
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:38
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:39
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:42
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:43
 msgid "You do not have permission to view this report."
 msgstr ""
 
@@ -3533,7 +3533,7 @@ msgstr ""
 
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:226
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:166
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:207
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:247
 #: src/Modules/Authorization/Admin/DebugPage.php:157
 #: src/Modules/Authorization/Admin/FunctionalRolesPage.php:247
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:56
@@ -3556,7 +3556,7 @@ msgstr "De"
 
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:228
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:168
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:209
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:249
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:131
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:85
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:243
@@ -3573,7 +3573,7 @@ msgstr "À"
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:230
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:170
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:175
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:226
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:266
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:764
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:260
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:374
@@ -3749,42 +3749,52 @@ msgstr ""
 msgid "Showing %d row(s)."
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:47
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:48
 msgid "Minutes played (team)"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:50
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:51
 msgid "Minutes played per player"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:55
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:64
+msgid ""
+"You don't coach any teams yet, so there is no minutes data to show. Ask an "
+"administrator to assign you to a team."
+msgstr ""
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:71
 msgid "No teams yet — add one to enable this report."
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:75
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:77
+msgid "No data for the selected team in your scope."
+msgstr ""
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:97
 msgid "No minutes recorded for this team in the selected window."
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:83
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:214
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:105
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:254
 msgid "League"
 msgstr "Championnat"
 
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:84
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:215
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:106
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:255
 msgid "Cup"
 msgstr "Coupe"
 
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:85
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:216
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:107
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:256
 msgid "Friendly"
 msgstr "Amical"
 
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:101
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:123
 msgid "Total"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:102
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:124
 #: src/Modules/Tournaments/Wizard/MatchesStep.php:31
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:74
 #: src/Shared/Frontend/FrontendStandardReportsView.php:354
@@ -3793,27 +3803,27 @@ msgstr ""
 msgid "Matches"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:103
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:125
 msgid "Starts"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:104
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:126
 msgid "Subs in"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:105
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:127
 msgid "Subs off"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:106
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:128
 msgid "Avg / match"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:110
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:132
 msgid "% available"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:218
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:258
 msgid "Match type"
 msgstr ""
 
