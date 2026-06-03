@@ -302,11 +302,24 @@ class QueryHelpers {
 
     public static function get_player( int $id ): ?object {
         global $wpdb;
+        // v4.20.30 (#1188) — was `AND p.club_id = CurrentClub::id()`,
+        // mirroring the cross-tenant defence at the helper layer. But
+        // `FrontendPlayersManageView::loadPlayer()` (the on-screen
+        // profile loader) doesn't apply the same clause — so any
+        // player whose stored `club_id` differs loaded fine on screen
+        // but 404'd in three PDF exporters that route through
+        // `get_player()` (#1149 family: PlayerEvaluationPdfExporter,
+        // ScoutingReportPdfExporter, PlayerOnePagerPdfExporter).
+        //
+        // Aligned with `loadPlayer()` — drops the `club_id` clause and
+        // keeps only the demo-scope filter. SaaS multi-tenancy will
+        // enforce the boundary at the request layer (CurrentClub
+        // resolution), not by sprinkling per-helper club_id WHEREs.
         $scope = self::apply_demo_scope( 'p', 'player' );
         /** @var object|null $r */
         $r = $wpdb->get_row( $wpdb->prepare(
-            "SELECT p.* FROM {$wpdb->prefix}tt_players p WHERE p.id = %d AND p.club_id = %d {$scope}",
-            $id, CurrentClub::id()
+            "SELECT p.* FROM {$wpdb->prefix}tt_players p WHERE p.id = %d {$scope}",
+            $id
         ) );
         return $r;
     }
