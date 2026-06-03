@@ -4,13 +4,16 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.41
+Stable tag: 4.20.42
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.42 — Privacy: Team-blueprints "Other team" picker narrows to coach's scope (closes #1202). Audit 8 (#1182) flagged this as a privacy leak (minors). `FrontendTeamBlueprintsView::renderEditor` builds the "+ Add → Other team" tab by walking `QueryHelpers::get_teams()` + `get_players()` unconditionally — so a head-coach editing their own team's blueprint could browse the entire academy roster across every other team. Per CLAUDE.md §1 (privacy and dignity for minors) the picker must respect the coach's matrix scope. **Fix.** Branch on `tt_edit_settings` (admin); non-admins resolve teams via `get_teams_for_coach( get_current_user_id() )`. Players on those teams still come through `get_players()` per-team. Admins see the full club picker as before. Inline comment documents the privacy rationale + the cap branch. Patch bump. (closes #1202) =
+
 
 = 4.20.41 — Security: trial-case inline-form path validates player_id against current club (closes #1201). Audit 2 (#1176) flagged the same cross-club pointing class as #1198. `FrontendTrialsManageView::handlePost` accepts `player_id` from POST; when the dropdown path is used (not the inline-create-new-player path), there was no club check. The resulting `tt_trial_cases` row carried the writer's `club_id` but a foreign `player_id`, breaking the trial cascade — player-status updates downstream silently no-op on the foreign row because they're club-scoped. **Fix.** Before calling `TrialCasesRepository::create`, when `player_id` came from POST, run `QueryHelpers::get_player($player_id)` and verify the row's `club_id` matches `CurrentClub::id()`. Short-circuit with a translatable error notice when missing/cross-club. The inline-create path that creates a NEW trial player upstream is already safe — it INSERTs with `club_id = CurrentClub::id()` directly. Patch bump. (closes #1201) =
 
