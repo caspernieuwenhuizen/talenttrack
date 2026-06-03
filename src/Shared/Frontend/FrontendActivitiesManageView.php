@@ -1433,8 +1433,24 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                                 if ( $ib === false ) $ib = PHP_INT_MAX;
                                 return $ia <=> $ib;
                             } );
+                            // #1155 — collapsed by default; auto-open
+                            // the bucket only if it contains a
+                            // currently-linked principle so the
+                            // operator can see existing selections at
+                            // a glance without hunting through every
+                            // bucket. Matches the wizard step.
+                            $bucket_has_selection = false;
+                            foreach ( $grouped[ $fk ] as $tk_check => $rows_for_check ) {
+                                foreach ( $rows_for_check as $pr_check ) {
+                                    if ( in_array( (int) $pr_check->id, $linked_ids, true ) ) {
+                                        $bucket_has_selection = true;
+                                        break 2;
+                                    }
+                                }
+                            }
+                            $open_attr = $bucket_has_selection ? ' open' : '';
                             ?>
-                            <details open style="border:1px solid var(--tt-line, #d6dadd); border-radius:8px; padding:10px 12px; background:#fff;">
+                            <details<?php echo $open_attr; ?> style="border:1px solid var(--tt-line, #d6dadd); border-radius:8px; padding:10px 12px; background:#fff;">
                                 <summary style="cursor:pointer; font-weight:700; font-size:14px; color:var(--tt-ink, #1a1d21);"><?php echo esc_html( $fn_label ); ?></summary>
                                 <?php foreach ( $grouped[ $fk ] as $tk => $rows ) :
                                     $task_label = $task_labels[ $tk ] ?? ucfirst( str_replace( '_', ' ', (string) $tk ) );
