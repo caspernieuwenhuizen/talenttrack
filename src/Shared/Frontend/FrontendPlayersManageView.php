@@ -631,14 +631,14 @@ class FrontendPlayersManageView extends FrontendViewBase {
     }
 
     private static function loadPlayer( int $id ): ?object {
-        global $wpdb; $p = $wpdb->prefix;
-        $scope = QueryHelpers::apply_demo_scope( 'p', 'player' );
-        /** @var object|null $row */
-        $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT p.* FROM {$p}tt_players p WHERE p.id = %d AND p.archived_at IS NULL {$scope}",
-            $id
-        ) );
-        return $row ?: null;
+        // #1079 — was inline SQL + raw row return. PlayersRepository
+        // centralises the read + hydrates `status_localised` +
+        // `preferred_foot_localised` so the view code that already
+        // calls LabelTranslator/LookupTranslator inline can shift to
+        // echoing `$player->status_localised` directly. Raw fields
+        // stay on the row for back-compat — incremental migration
+        // per the #1077 / #1078 module-by-module precedent.
+        return ( new \TT\Infrastructure\Players\PlayersRepository() )->find( $id );
     }
 
     /**
