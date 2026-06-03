@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.12
+Stable tag: 4.20.13
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.13 — Activity edit form: Status select min-width sized for ≥15 characters (closes #1150). Pilot 2026-06-03 reported the Status `<select>` ellipsizing labels like "In uitvoering" / "Geannuleerd" because the field sits in a `.tt-grid-2` row next to Type and only got 50% of the form width at desktop. **Fix.** One CSS rule appended to `assets/css/frontend-activities-manage.css`: `.tt-dashboard #tt-activity-status { min-width: 18ch; }` — covers 15+ visible characters plus the chevron, the grid auto-rebalances so Type's column gives back the spare space, and mobile (≤ 480px) collapses to 1 column already so this is a no-op on phone viewports. Patch bump. (closes #1150) =
 
 = 4.20.12 — Print doelenintake: scope-mismatch fix on the player + team batch print routers (closes #1149). Pilot 2026-06-03 clicked "Print doelenintake" on a player profile that renders fine, hit a hard `wp_die( 'Player not found.' )` on the print URL. **Root cause.** [PlayerGoalIntakePrintRouter::emit](src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php#L161-L179) filtered the player lookup by `pl.club_id = CurrentClub::id()` (always `1` today), while the player profile view at [FrontendPlayersManageView::loadPlayer](src/Shared/Frontend/FrontendPlayersManageView.php#L631-L640) does NOT filter on club_id — only demo-scope. So when a player row carried `club_id != 1` (legacy data, demo seed, partial 0038 backfill), the page rendered fine, the "Print doelenintake" link captured the player id, and the click 404'd. Same scope-strictness family as #1054 (silent `$wpdb->update`) and #1137 (archive REST). **Fix.** Two queries change: per-player `emit()` and the team-batch `renderTeamBatch()`. Both drop the `pl.club_id = %d` / `t.club_id = %d` filter, switch to `QueryHelpers::apply_demo_scope` (the same helper the linking surface uses), and derive `$club_id` from the player's own row to drive the downstream `lastSeasonStats()` + `lookbackForPlayer()` sub-queries. Net effect: the print router stops being a stricter gate than the page that linked here; demo-mode isolation is preserved (a demo user still sees only demo rows). **What this is NOT.** Not a `tt_players.club_id` data backfill — that's a separate hygiene task. Not a change to MatchPrepPrintRouter, which has the identical shape (file follow-up if pilot surfaces it). Patch bump. (closes #1149) =
 
