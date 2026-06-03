@@ -58,7 +58,7 @@ class FrontendTestTrainingsView extends FrontendViewBase {
             $age_groups[ (int) $ag->id ] = $label;
         }
         ?>
-        <form class="tt-ajax-form" data-rest-path="test-trainings" data-rest-method="POST" data-redirect-after-save="dashboard">
+        <form class="tt-ajax-form" data-rest-path="test-trainings" data-rest-method="POST" data-redirect-after-save="list">
             <div class="tt-grid tt-grid-2">
                 <?php echo DateInputComponent::render( [
                     'name'     => 'date',
