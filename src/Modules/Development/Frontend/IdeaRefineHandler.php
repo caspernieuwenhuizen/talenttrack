@@ -16,17 +16,17 @@ use TT\Shared\Frontend\FlashMessages;
 class IdeaRefineHandler {
 
     public static function handle(): void {
-        if ( ! is_user_logged_in() ) wp_die( 'Not logged in.', 403 );
-        if ( ! current_user_can( 'tt_refine_idea' ) ) wp_die( 'Insufficient permissions.', 403 );
+        if ( ! is_user_logged_in() ) wp_die( esc_html__( 'Not logged in.', 'talenttrack' ), 403 );
+        if ( ! current_user_can( 'tt_refine_idea' ) ) wp_die( esc_html__( 'Insufficient permissions.', 'talenttrack' ), 403 );
 
         check_admin_referer( 'tt_dev_idea_refine' );
 
         $id = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
-        if ( $id <= 0 ) wp_die( 'Bad request.', 400 );
+        if ( $id <= 0 ) wp_die( esc_html__( 'Bad request.', 'talenttrack' ), 400 );
 
         $repo = new IdeaRepository();
         $idea = $repo->find( $id );
-        if ( ! $idea ) wp_die( 'Not found.', 404 );
+        if ( ! $idea ) wp_die( esc_html__( 'Not found.', 'talenttrack' ), 404 );
 
         $redirect = isset( $_POST['_redirect'] ) ? esc_url_raw( wp_unslash( (string) $_POST['_redirect'] ) ) : home_url( '/' );
 

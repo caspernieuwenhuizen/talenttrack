@@ -15,14 +15,14 @@ use TT\Shared\Frontend\FlashMessages;
 class InvitationCreateHandler {
 
     public static function handle(): void {
-        if ( ! is_user_logged_in() ) wp_die( 'Not logged in.', 403 );
-        if ( ! current_user_can( 'tt_send_invitation' ) ) wp_die( 'Insufficient permissions.', 403 );
+        if ( ! is_user_logged_in() ) wp_die( esc_html__( 'Not logged in.', 'talenttrack' ), 403 );
+        if ( ! current_user_can( 'tt_send_invitation' ) ) wp_die( esc_html__( 'Insufficient permissions.', 'talenttrack' ), 403 );
 
         check_admin_referer( 'tt_invitation_create' );
 
         $kind = isset( $_POST['kind'] ) ? sanitize_key( (string) wp_unslash( $_POST['kind'] ) ) : InvitationKind::PLAYER;
         if ( ! InvitationKind::isValid( $kind ) ) {
-            wp_die( 'Invalid kind.', 400 );
+            wp_die( esc_html__( 'Invalid kind.', 'talenttrack' ), 400 );
         }
 
         $args = [

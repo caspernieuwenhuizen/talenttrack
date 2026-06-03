@@ -4,13 +4,16 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.42
+Stable tag: 4.20.43
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.43 — i18n: 38 hardcoded English `wp_die()` strings in Development + Invitations handlers + 2 others wrapped in `__()` (closes #1220). Audit 4 (#1178) flagged these — they escaped `wp i18n make-pot` entirely, so the strings didn't even appear in the .po and shipped as English on Dutch installs. **Files touched** (38 `wp_die()` strings across 10 handlers): `IdeaPromoteHandler`, `IdeaRefineHandler`, `IdeaRejectHandler`, `IdeaSubmitHandler`, `TrackDeleteHandler`, `TrackSaveHandler`, `InvitationAcceptHandler`, `InvitationCreateHandler`, `InvitationRevokeHandler`, `MessageSaveHandler`. Each `wp_die( 'string' )` becomes `wp_die( esc_html__( 'string', 'talenttrack' ) )` per the existing codebase style. **Plus two others.** `BaseController.php:55` sprintf format `'Field "%s" is required.'` wrapped in `__()` with a `translators:` comment; `BackupSettingsPage.php:342` fallback `'Unknown error'` wrapped in `__()` inside the existing `esc_html()` call. **Dutch translations added** to `talenttrack-nl_NL.po` for the 5 new msgids (`Bad request.`, `Invalid token.`, `Invalid kind.`, `Unknown error`, `Field "%s" is required.`) — the other 3 strings (`Not logged in.`, `Insufficient permissions.`, `Not found.`) already had translations from prior backfills. No `wp_die()` raw-English literals remain in the two modules. Patch bump. (closes #1220) =
+
 
 = 4.20.42 — Privacy: Team-blueprints "Other team" picker narrows to coach's scope (closes #1202). Audit 8 (#1182) flagged this as a privacy leak (minors). `FrontendTeamBlueprintsView::renderEditor` builds the "+ Add → Other team" tab by walking `QueryHelpers::get_teams()` + `get_players()` unconditionally — so a head-coach editing their own team's blueprint could browse the entire academy roster across every other team. Per CLAUDE.md §1 (privacy and dignity for minors) the picker must respect the coach's matrix scope. **Fix.** Branch on `tt_edit_settings` (admin); non-admins resolve teams via `get_teams_for_coach( get_current_user_id() )`. Players on those teams still come through `get_players()` per-team. Admins see the full club picker as before. Inline comment documents the privacy rationale + the cap branch. Patch bump. (closes #1202) =
 
