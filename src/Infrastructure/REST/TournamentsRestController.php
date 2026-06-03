@@ -555,16 +555,42 @@ class TournamentsRestController {
         }
 
         global $wpdb; $p = $wpdb->prefix;
+
+        // v4.20.39 (#1199) — Audit 2 (#1176) flagged: the parent match
+        // is scope-checked via `fetchMatch` (club_id) above, but each
+        // row's `player_id` was trusted. Result: tournament minutes
+        // could be assigned to any player_id within the club —
+        // including players not on the tournament's squad, not on the
+        // tournament's team, even archived players. Concrete #1148
+        // shape reproduction.
+        //
+        // Resolve the tournament's allowed squad once, then drop any
+        // submitted row whose `player_id` is not in it. Same
+        // diagnostic shape as v4.20.5 attendance — silently filter
+        // with a single warning log capturing the dropped ids.
+        $allowed_player_ids = $wpdb->get_col( $wpdb->prepare(
+            "SELECT player_id FROM {$p}tt_tournament_squad
+              WHERE tournament_id = %d AND club_id = %d",
+            $tournament_id, CurrentClub::id()
+        ) );
+        $allowed_player_ids = array_map( 'intval', is_array( $allowed_player_ids ) ? $allowed_player_ids : [] );
+        $allowed_set        = array_flip( $allowed_player_ids );
+
         $wpdb->delete( "{$p}tt_tournament_assignments", [ 'match_id' => $match_id, 'club_id' => CurrentClub::id() ] );
 
         $period_count = count( $match['substitution_windows'] ) + 1;
-        $seen = []; // dedup (period, player) within the payload
+        $seen    = []; // dedup (period, player) within the payload
+        $dropped = [];
         foreach ( $payload as $row ) {
             $period   = isset( $row['period_index'] ) ? (int) $row['period_index'] : -1;
             $player   = isset( $row['player_id'] ) ? (int) $row['player_id'] : 0;
             $position = isset( $row['position_code'] ) ? strtoupper( sanitize_key( (string) $row['position_code'] ) ) : '';
             if ( $period < 0 || $period >= $period_count ) continue;
             if ( $player <= 0 ) continue;
+            if ( ! isset( $allowed_set[ $player ] ) ) {
+                $dropped[] = $player;
+                continue;
+            }
             $key = $period . '|' . $player;
             if ( isset( $seen[ $key ] ) ) continue;
             $seen[ $key ] = true;
@@ -574,6 +600,13 @@ class TournamentsRestController {
                 'period_index'  => $period,
                 'player_id'     => $player,
                 'position_code' => $position !== '' ? $position : 'BENCH',
+            ] );
+        }
+        if ( $dropped ) {
+            Logger::warning( 'tournament.assignments.dropped_off_squad', [
+                'tournament_id' => $tournament_id,
+                'match_id'      => $match_id,
+                'dropped'       => array_values( array_unique( $dropped ) ),
             ] );
         }
 

@@ -4,13 +4,16 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.38
+Stable tag: 4.20.39
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.39 — Security: REST tournament-assignments handler filters off-squad player_ids (closes #1199). Audit 2 (#1176) flagged the same #1148-shape: parent match scope-checked, child rows trusted. Pre-fix `update_assignments` inserted `tt_tournament_assignments` rows with `player_id` straight from the payload — no verification the player belonged to the tournament's squad. A coach could assign tournament minutes to any player_id within their club, including off-squad / off-team / archived players. **Fix.** Resolve the tournament's allowed squad once via `tt_tournament_squad` (scoped to current club), then drop any submitted row whose `player_id` is not in the allowed set. Mirrors the v4.20.5 attendance write-time filter; logs the dropped ids under `tournament.assignments.dropped_off_squad` so operators can spot UI / import bugs from logs. **Acceptance.** Coach assigning a non-squad player_id → the row silently drops, the rest of the payload writes, the response remains 200 OK (no error surface for probing). Patch bump. (closes #1199) =
+
 
 = 4.20.38 — Security: REST POST `/goals` validates `player_id` against writer's club + roster (closes #1198). Audit 2 (#1176) flagged this as **critical**. Pre-fix `create_goal` accepted any submitted `player_id` (validated only `> 0`), with no club lookup and no `coach_owns_player` gate for non-admin writers. A coach in club A with `tt_create_goals` could write a goal pointed at any `player_id` including foreign-club ones — the goal's `club_id` resolved to A but the `player_id` was foreign, breaking every JOIN downstream and surfacing the foreign player on A's dashboards. **Fix.** Two checks added before INSERT: (1) `QueryHelpers::get_player($player_id)` lookup + explicit `club_id` match — foreign-club ids fall through to a 403 `forbidden_player` response with a Dutch-translatable message. (2) For non-admin, non-player writers, the existing `QueryHelpers::coach_owns_player()` gate runs (mirrors the gate `update_goal` already enforces on the principle-link side). Player-self-created goals stay open — players can only write for themselves per the `permission_callback` upstream + the existing `is_player` branch enforcing `pending_approval` status. **Security framing.** Same single-tenant-pilot latency as #1197 — most attack surface is theoretical today but the gap closes pre-emptively for SaaS multi-tenancy. Patch bump. (closes #1198) =
 
