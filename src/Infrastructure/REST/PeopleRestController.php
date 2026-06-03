@@ -212,6 +212,10 @@ class PeopleRestController {
             Logger::error( 'rest.person.archive.failed', [ 'db_error' => (string) $wpdb->last_error, 'id' => $id ] );
             return RestResponse::error( 'db_error', __( 'The person could not be archived.', 'talenttrack' ), 500 );
         }
+        if ( $ok === 0 ) {
+            Logger::error( 'rest.person.archive.no_row', [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
+            return RestResponse::error( 'not_found', __( 'Person not found in your club.', 'talenttrack' ), 404 );
+        }
         return RestResponse::success( [ 'archived' => true, 'id' => $id ] );
     }
 
