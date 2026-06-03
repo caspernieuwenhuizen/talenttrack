@@ -4,13 +4,16 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.25
+Stable tag: 4.20.26
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.26 — Persona dashboard: `MyTeamAttendancePct` + `MyTeamAvgRating` deep-links carry the AC's full team scope (closes #1212). Audit 6 (#1180) flagged the drift class. Both KPIs call `QueryHelpers::get_teams_for_coach( $user_id )` and filter `pl.team_id IN (...)` in `compute()`. Their `linkUrl()` overrides previously passed `date_from` / `date_to` (and `plan_state` for attendance) but NOT `filter[team_id]`. For a head-coach of one team this is a no-op. For an assistant coach linked to three teams the destination list included the union the AC could see — and for `MyTeamAvgRating` it was worse: the evaluations list uses `pl.team_id IN coach_teams OR e.coach_id = uid` (since v3.110.126), so the destination added every evaluation the AC personally wrote on out-of-team players. "Team avg 7.4" landed on a list with foreign-team rows. **Fix — two REST extensions, two KPI overrides.** `ActivitiesRestController::list_activities` and `EvaluationsRestController::list_evaluations` both accept `filter[team_id]` as either a single id (back-compat) or a CSV (`s.team_id IN (…)` / `pl.team_id IN (…)`). `MyTeamAttendancePct::linkUrl()` and `MyTeamAvgRating::linkUrl()` now resolve `get_teams_for_coach( $ctx->user_id )` and pass the comma-separated team_id list. Mirrors the existing `compute()` scope 1:1. **Acceptance.** AC linked to U15-A and U17-B sees "team avg 7.4" → clicks → evaluations list scoped to those two teams' players. Hard-coded coach with one team continues to see the same list as before (single-value path preserves shape). **Adjacent.** Historical #857 surfaced the same drift class on a different KPI but never structurally fixed it; this PR closes the audit-flagged variants. Shipped pattern: shared `filterSpec()` recommended in audit 6 doc would obviate the per-KPI override boilerplate; future-PR target. Lands live via v4.20.22's KpiCardWidget→linkUrl() routing fix (#1207). Patch bump. (closes #1212) =
+
 
 = 4.20.25 — Persona dashboard: `OpenTrialCases` KPI deep-links with `?status=open` for KPI↔list parity (closes #1211). Audit 6 (#1180) flagged the gap: `compute()` counts `status IN ('open','extended')` while the destination `FrontendTrialsManageView` shows ALL statuses (open + extended + decided + archived) when no `?status=` is supplied. Operators clicking "5 open trial cases" landed on a list including decided ones — KPI says 5, the page might show 17. **Fix.** `linkUrl()` appends `?status=open`. The trials picker has no "open + extended" composite option, so a single value is the closest honest match per the audit's recommendation. **Acceptance.** HoD with 3 open + 2 extended cases sees "5 open trial cases", clicks, lands on a list filtered to open-only (3 rows). Extended cases are still reachable via `?status=extended` directly; pairing both in a single click is a separate enhancement adjacent to #475 / #481's earlier work on this KPI. Lands live in the dominant kpi_card placement via v4.20.22's `KpiCardWidget`→`linkUrl()` routing fix (#1207). Patch bump. (closes #1211) =
 

@@ -110,10 +110,22 @@ class MyTeamAvgRating extends AbstractKpiDataSource {
      */
     public function linkUrl( RenderContext $ctx ): string {
         [ 'from' => $from ] = self::windowDates();
-        return add_query_arg(
-            [ 'filter' => [ 'date_from' => $from ] ],
-            $ctx->viewUrl( $this->linkView() )
-        );
+        $filter = [ 'date_from' => $from ];
+        // v4.20.26 (#1212) — pass the coach's team scope so the
+        // destination matches compute()'s `pl.team_id IN coach_teams`
+        // narrowing. Important for AC linked to multiple teams: pre-fix,
+        // the list also surfaced evaluations the coach personally wrote
+        // on players outside their team (the destination uses
+        // `pl.team_id IN coach_teams OR e.coach_id = uid` since
+        // v3.110.126), so "team avg 7.4" landed on a list with extra
+        // out-of-team rows. EvaluationsRestController now accepts CSV
+        // on `filter[team_id]` (v4.20.26).
+        $teams = QueryHelpers::get_teams_for_coach( $ctx->user_id );
+        if ( ! empty( $teams ) ) {
+            $team_ids = array_map( static fn( $t ): int => (int) $t->id, $teams );
+            $filter['team_id'] = implode( ',', $team_ids );
+        }
+        return add_query_arg( [ 'filter' => $filter ], $ctx->viewUrl( $this->linkView() ) );
     }
 
     /**

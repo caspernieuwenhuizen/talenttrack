@@ -169,16 +169,23 @@ class MyTeamAttendancePct extends AbstractKpiDataSource {
         // destination filters to the SAME universe compute() counts
         // against. The activities REST endpoint accepts a comma-
         // separated value on `filter[plan_state]`.
-        return add_query_arg(
-            [
-                'filter' => [
-                    'date_from'  => $from,
-                    'date_to'    => $to,
-                    'plan_state' => implode( ',', self::ACTIVITY_STATES_COUNTING ),
-                ],
-            ],
-            $ctx->viewUrl( $this->linkView() )
-        );
+        $filter = [
+            'date_from'  => $from,
+            'date_to'    => $to,
+            'plan_state' => implode( ',', self::ACTIVITY_STATES_COUNTING ),
+        ];
+        // v4.20.26 (#1212) — pass the coach's team scope so the
+        // destination matches compute()'s `pl.team_id IN coach_teams`
+        // narrowing. AC linked to 3 teams previously landed on a list
+        // that included activities from teams the AC also has
+        // visibility on but doesn't head-coach. ActivitiesRestController
+        // now accepts CSV on `filter[team_id]` (v4.20.26).
+        $teams = QueryHelpers::get_teams_for_coach( $ctx->user_id );
+        if ( ! empty( $teams ) ) {
+            $team_ids = array_map( static fn( $t ): int => (int) $t->id, $teams );
+            $filter['team_id'] = implode( ',', $team_ids );
+        }
+        return add_query_arg( [ 'filter' => $filter ], $ctx->viewUrl( $this->linkView() ) );
     }
 
     /**
