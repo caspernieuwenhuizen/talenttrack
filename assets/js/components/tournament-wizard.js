@@ -179,6 +179,18 @@
             if ( v > 0 ) values.push( v );
         } );
         hidden.value = values.join( ',' );
+        // v4.20.28 (#1186) — fire a bubbling `change` so wizard-autosave
+        // (and any other form-level listener) picks up the new CSV.
+        // JS-driven `.value =` assignments don't trigger native events,
+        // so the autosave silently never serialised the chips. Mirrors
+        // the v4.20.7 PlayerSearchPicker fix (#1157).
+        try {
+            hidden.dispatchEvent( new Event( 'change', { bubbles: true } ) );
+        } catch ( e ) {
+            var ev = document.createEvent( 'Event' );
+            ev.initEvent( 'change', true, false );
+            hidden.dispatchEvent( ev );
+        }
     }
 
     function makeChip( value ) {
