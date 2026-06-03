@@ -997,46 +997,46 @@ msgstr ""
 #: src/Infrastructure/Query/LabelTranslator.php:249
 #: src/Modules/Tournaments/Wizard/SquadStep.php:41
 msgid "Centre back"
-msgstr ""
+msgstr "Innenverteidiger"
 
 #: src/Infrastructure/Query/LabelTranslator.php:250
 #: src/Modules/Tournaments/Wizard/SquadStep.php:42
 msgid "Left back"
-msgstr ""
+msgstr "Linksverteidiger"
 
 #: src/Infrastructure/Query/LabelTranslator.php:251
 #: src/Modules/Tournaments/Wizard/SquadStep.php:43
 msgid "Right back"
-msgstr ""
+msgstr "Rechtsverteidiger"
 
 #: src/Infrastructure/Query/LabelTranslator.php:252
 msgid "Defensive midfielder"
-msgstr ""
+msgstr "Defensiver Mittelfeldspieler"
 
 #: src/Infrastructure/Query/LabelTranslator.php:253
 msgid "Central midfielder"
-msgstr ""
+msgstr "Zentraler Mittelfeldspieler"
 
 #: src/Infrastructure/Query/LabelTranslator.php:254
 msgid "Attacking midfielder"
-msgstr ""
+msgstr "Offensiver Mittelfeldspieler"
 
 #: src/Infrastructure/Query/LabelTranslator.php:255
 msgid "Left winger"
-msgstr ""
+msgstr "Linksaußen"
 
 #: src/Infrastructure/Query/LabelTranslator.php:256
 msgid "Right winger"
-msgstr ""
+msgstr "Rechtsaußen"
 
 #: src/Infrastructure/Query/LabelTranslator.php:257
 #: src/Modules/Tournaments/Wizard/SquadStep.php:49
 msgid "Striker"
-msgstr ""
+msgstr "Stürmer"
 
 #: src/Infrastructure/Query/LabelTranslator.php:258
 msgid "Centre forward"
-msgstr ""
+msgstr "Mittelstürmer"
 
 #: src/Infrastructure/Query/LabelTranslator.php:272
 msgid "Warm-up"
