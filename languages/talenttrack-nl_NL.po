@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-03T22:54:31+00:00\n"
+"POT-Creation-Date: 2026-06-03T22:59:14+00:00\n"
 "PO-Revision-Date: 2026-04-25 10:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -1337,7 +1337,7 @@ msgstr "De oefening kon niet worden gekoppeld."
 
 #: src/Infrastructure/REST/ActivityExercisesRestController.php:127
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:165
-#: src/Infrastructure/REST/GoalsRestController.php:420
+#: src/Infrastructure/REST/GoalsRestController.php:449
 #: src/Infrastructure/REST/LookupsRestController.php:229
 #: src/Modules/Trials/Rest/TrialsRestController.php:190
 msgid "No fields to update."
@@ -1604,36 +1604,44 @@ msgstr "De toewijzing kon niet worden verwijderd."
 msgid "Player and title are required."
 msgstr "Speler en titel zijn verplicht."
 
-#: src/Infrastructure/REST/GoalsRestController.php:336
+#: src/Infrastructure/REST/GoalsRestController.php:351
+msgid "Player not found in your club."
+msgstr ""
+
+#: src/Infrastructure/REST/GoalsRestController.php:355
+msgid "You can only set goals for players in your team."
+msgstr ""
+
+#: src/Infrastructure/REST/GoalsRestController.php:365
 msgid "The goal could not be saved. The database rejected the operation."
 msgstr ""
 "Het doel kon niet worden opgeslagen. De database heeft de bewerking "
 "afgewezen."
 
-#: src/Infrastructure/REST/GoalsRestController.php:395
-#: src/Infrastructure/REST/GoalsRestController.php:456
-#: src/Infrastructure/REST/GoalsRestController.php:503
+#: src/Infrastructure/REST/GoalsRestController.php:424
+#: src/Infrastructure/REST/GoalsRestController.php:485
+#: src/Infrastructure/REST/GoalsRestController.php:532
 msgid "Invalid goal id."
 msgstr "Ongeldig doel-id."
 
-#: src/Infrastructure/REST/GoalsRestController.php:429
+#: src/Infrastructure/REST/GoalsRestController.php:458
 msgid "The goal could not be updated."
 msgstr "Het doel kon niet worden bijgewerkt."
 
-#: src/Infrastructure/REST/GoalsRestController.php:460
+#: src/Infrastructure/REST/GoalsRestController.php:489
 msgid "Status is required."
 msgstr "Status is verplicht."
 
-#: src/Infrastructure/REST/GoalsRestController.php:477
+#: src/Infrastructure/REST/GoalsRestController.php:506
 msgid "Only the player's head coach can approve or reject this goal."
 msgstr ""
 "Alleen de hoofdcoach van de speler kan dit doel goedkeuren of afwijzen."
 
-#: src/Infrastructure/REST/GoalsRestController.php:488
+#: src/Infrastructure/REST/GoalsRestController.php:517
 msgid "Status update failed."
 msgstr "Status bijwerken mislukt."
 
-#: src/Infrastructure/REST/GoalsRestController.php:511
+#: src/Infrastructure/REST/GoalsRestController.php:540
 msgid "Goal delete failed."
 msgstr "Verwijderen van doel mislukt."
 
