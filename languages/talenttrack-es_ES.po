@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-03T21:35:25+00:00\n"
+"POT-Creation-Date: 2026-06-03T21:44:08+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -1188,7 +1188,7 @@ msgstr ""
 
 #: src/Infrastructure/REST/ActivitiesRestController.php:193
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:265
-#: src/Infrastructure/REST/GoalsRestController.php:113
+#: src/Infrastructure/REST/GoalsRestController.php:115
 #: src/Infrastructure/REST/PeopleRestController.php:97
 #: src/Infrastructure/REST/PlayersRestController.php:137
 #: src/Infrastructure/REST/TeamsRestController.php:123
@@ -1293,7 +1293,7 @@ msgstr ""
 
 #: src/Infrastructure/REST/ActivityExercisesRestController.php:127
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:165
-#: src/Infrastructure/REST/GoalsRestController.php:405
+#: src/Infrastructure/REST/GoalsRestController.php:420
 #: src/Infrastructure/REST/LookupsRestController.php:229
 #: src/Modules/Trials/Rest/TrialsRestController.php:190
 msgid "No fields to update."
@@ -1544,37 +1544,37 @@ msgstr ""
 msgid "The assignment could not be removed."
 msgstr ""
 
-#: src/Infrastructure/REST/GoalsRestController.php:312
+#: src/Infrastructure/REST/GoalsRestController.php:327
 msgid "Player and title are required."
 msgstr ""
 
-#: src/Infrastructure/REST/GoalsRestController.php:321
+#: src/Infrastructure/REST/GoalsRestController.php:336
 msgid "The goal could not be saved. The database rejected the operation."
 msgstr ""
 
-#: src/Infrastructure/REST/GoalsRestController.php:380
-#: src/Infrastructure/REST/GoalsRestController.php:441
-#: src/Infrastructure/REST/GoalsRestController.php:488
+#: src/Infrastructure/REST/GoalsRestController.php:395
+#: src/Infrastructure/REST/GoalsRestController.php:456
+#: src/Infrastructure/REST/GoalsRestController.php:503
 msgid "Invalid goal id."
 msgstr ""
 
-#: src/Infrastructure/REST/GoalsRestController.php:414
+#: src/Infrastructure/REST/GoalsRestController.php:429
 msgid "The goal could not be updated."
 msgstr ""
 
-#: src/Infrastructure/REST/GoalsRestController.php:445
+#: src/Infrastructure/REST/GoalsRestController.php:460
 msgid "Status is required."
 msgstr ""
 
-#: src/Infrastructure/REST/GoalsRestController.php:462
+#: src/Infrastructure/REST/GoalsRestController.php:477
 msgid "Only the player's head coach can approve or reject this goal."
 msgstr ""
 
-#: src/Infrastructure/REST/GoalsRestController.php:473
+#: src/Infrastructure/REST/GoalsRestController.php:488
 msgid "Status update failed."
 msgstr ""
 
-#: src/Infrastructure/REST/GoalsRestController.php:496
+#: src/Infrastructure/REST/GoalsRestController.php:511
 msgid "Goal delete failed."
 msgstr ""
 
@@ -18690,7 +18690,7 @@ msgstr ""
 msgid "Viewing as"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Kpis/AttendancePctRolling.php:13
+#: src/Modules/PersonaDashboard/Kpis/AttendancePctRolling.php:14
 msgid "Attendance % (4-week)"
 msgstr ""
 
@@ -18702,7 +18702,7 @@ msgstr ""
 msgid "Cohort distribution"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Kpis/EvaluationsThisMonth.php:13
+#: src/Modules/PersonaDashboard/Kpis/EvaluationsThisMonth.php:14
 msgid "Evaluations this month"
 msgstr ""
 
@@ -18711,7 +18711,7 @@ msgstr ""
 msgid "Goal completion %"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Kpis/GoalsByPrincipleKpi.php:22
+#: src/Modules/PersonaDashboard/Kpis/GoalsByPrincipleKpi.php:23
 msgid "Goals tagged to principle (90d)"
 msgstr ""
 
@@ -18771,7 +18771,7 @@ msgstr ""
 msgid "My podium position"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Kpis/NewEvaluationsThisWeek.php:13
+#: src/Modules/PersonaDashboard/Kpis/NewEvaluationsThisWeek.php:14
 msgid "New evaluations this week"
 msgstr ""
 
@@ -18812,7 +18812,7 @@ msgstr ""
 msgid "Stale prospects"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Kpis/RecentAcademyEvents.php:12
+#: src/Modules/PersonaDashboard/Kpis/RecentAcademyEvents.php:13
 msgid "Recent academy events"
 msgstr ""
 

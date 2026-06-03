@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-03T21:35:25+00:00\n"
+"POT-Creation-Date: 2026-06-03T21:44:08+00:00\n"
 "PO-Revision-Date: 2026-04-25 10:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -1224,7 +1224,7 @@ msgstr "Radarkaarten"
 
 #: src/Infrastructure/REST/ActivitiesRestController.php:193
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:265
-#: src/Infrastructure/REST/GoalsRestController.php:113
+#: src/Infrastructure/REST/GoalsRestController.php:115
 #: src/Infrastructure/REST/PeopleRestController.php:97
 #: src/Infrastructure/REST/PlayersRestController.php:137
 #: src/Infrastructure/REST/TeamsRestController.php:123
@@ -1337,7 +1337,7 @@ msgstr "De oefening kon niet worden gekoppeld."
 
 #: src/Infrastructure/REST/ActivityExercisesRestController.php:127
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:165
-#: src/Infrastructure/REST/GoalsRestController.php:405
+#: src/Infrastructure/REST/GoalsRestController.php:420
 #: src/Infrastructure/REST/LookupsRestController.php:229
 #: src/Modules/Trials/Rest/TrialsRestController.php:190
 msgid "No fields to update."
@@ -1599,40 +1599,40 @@ msgstr "Ongeldig toewijzings-id."
 msgid "The assignment could not be removed."
 msgstr "De toewijzing kon niet worden verwijderd."
 
-#: src/Infrastructure/REST/GoalsRestController.php:312
+#: src/Infrastructure/REST/GoalsRestController.php:327
 msgid "Player and title are required."
 msgstr "Speler en titel zijn verplicht."
 
-#: src/Infrastructure/REST/GoalsRestController.php:321
+#: src/Infrastructure/REST/GoalsRestController.php:336
 msgid "The goal could not be saved. The database rejected the operation."
 msgstr ""
 "Het doel kon niet worden opgeslagen. De database heeft de bewerking "
 "afgewezen."
 
-#: src/Infrastructure/REST/GoalsRestController.php:380
-#: src/Infrastructure/REST/GoalsRestController.php:441
-#: src/Infrastructure/REST/GoalsRestController.php:488
+#: src/Infrastructure/REST/GoalsRestController.php:395
+#: src/Infrastructure/REST/GoalsRestController.php:456
+#: src/Infrastructure/REST/GoalsRestController.php:503
 msgid "Invalid goal id."
 msgstr "Ongeldig doel-id."
 
-#: src/Infrastructure/REST/GoalsRestController.php:414
+#: src/Infrastructure/REST/GoalsRestController.php:429
 msgid "The goal could not be updated."
 msgstr "Het doel kon niet worden bijgewerkt."
 
-#: src/Infrastructure/REST/GoalsRestController.php:445
+#: src/Infrastructure/REST/GoalsRestController.php:460
 msgid "Status is required."
 msgstr "Status is verplicht."
 
-#: src/Infrastructure/REST/GoalsRestController.php:462
+#: src/Infrastructure/REST/GoalsRestController.php:477
 msgid "Only the player's head coach can approve or reject this goal."
 msgstr ""
 "Alleen de hoofdcoach van de speler kan dit doel goedkeuren of afwijzen."
 
-#: src/Infrastructure/REST/GoalsRestController.php:473
+#: src/Infrastructure/REST/GoalsRestController.php:488
 msgid "Status update failed."
 msgstr "Status bijwerken mislukt."
 
-#: src/Infrastructure/REST/GoalsRestController.php:496
+#: src/Infrastructure/REST/GoalsRestController.php:511
 msgid "Goal delete failed."
 msgstr "Verwijderen van doel mislukt."
 
@@ -19738,7 +19738,7 @@ msgstr "Persona wisselen"
 msgid "Viewing as"
 msgstr "Bekijken als"
 
-#: src/Modules/PersonaDashboard/Kpis/AttendancePctRolling.php:13
+#: src/Modules/PersonaDashboard/Kpis/AttendancePctRolling.php:14
 msgid "Attendance % (4-week)"
 msgstr "Aanwezigheid % (4 weken)"
 
@@ -19750,7 +19750,7 @@ msgstr "Gemiddelde evaluatie-rating"
 msgid "Cohort distribution"
 msgstr "Cohortverdeling"
 
-#: src/Modules/PersonaDashboard/Kpis/EvaluationsThisMonth.php:13
+#: src/Modules/PersonaDashboard/Kpis/EvaluationsThisMonth.php:14
 msgid "Evaluations this month"
 msgstr "Evaluaties deze maand"
 
@@ -19759,7 +19759,7 @@ msgstr "Evaluaties deze maand"
 msgid "Goal completion %"
 msgstr "Doelvoltooiing %"
 
-#: src/Modules/PersonaDashboard/Kpis/GoalsByPrincipleKpi.php:22
+#: src/Modules/PersonaDashboard/Kpis/GoalsByPrincipleKpi.php:23
 msgid "Goals tagged to principle (90d)"
 msgstr "Doelen gekoppeld aan principe (90d)"
 
@@ -19819,7 +19819,7 @@ msgstr "Gemiddelde rating van mijn team"
 msgid "My podium position"
 msgstr "Mijn podiumpositie"
 
-#: src/Modules/PersonaDashboard/Kpis/NewEvaluationsThisWeek.php:13
+#: src/Modules/PersonaDashboard/Kpis/NewEvaluationsThisWeek.php:14
 msgid "New evaluations this week"
 msgstr "Nieuwe evaluaties deze week"
 
@@ -19860,7 +19860,7 @@ msgstr "Doorstroming prospects (12 maanden)"
 msgid "Stale prospects"
 msgstr "Vastgelopen prospects"
 
-#: src/Modules/PersonaDashboard/Kpis/RecentAcademyEvents.php:12
+#: src/Modules/PersonaDashboard/Kpis/RecentAcademyEvents.php:13
 msgid "Recent academy events"
 msgstr "Recente academie-gebeurtenissen"
 
