@@ -52,41 +52,30 @@ final class ActivityBriefPdfExporter implements ExporterInterface {
     }
 
     public function collect( ExportRequest $request ): array {
-        global $wpdb;
-        $p = $wpdb->prefix;
-
         $activity_id = (int) ( $request->filters['activity_id'] ?? 0 );
 
-        $activity = $wpdb->get_row( $wpdb->prepare(
-            "SELECT a.id, a.title, a.session_date, a.location, a.team_id, a.notes,
-                    a.activity_type_key, a.club_id,
-                    t.name AS team_name
-                FROM {$p}tt_activities a
-                LEFT JOIN {$p}tt_teams t ON t.id = a.team_id AND t.club_id = a.club_id
-                WHERE a.id = %d AND a.club_id = %d
-                LIMIT 1",
-            $activity_id,
-            (int) $request->clubId
-        ) );
-
+        // v4.20.32 (#1190) — routed through ActivitiesRepository so the
+        // exporter and the on-screen view share a single data source.
+        // Pre-fix the two surfaces inlined `$wpdb` queries with subtly
+        // different filter sets — the exporter was strict on `club_id`
+        // (which #1149/#1188 fixed at the helper layer for `get_player`)
+        // and was missing `is_guest = 0` (so the printed roster table
+        // silently leaked guests while the on-screen view's roster
+        // table excluded them). The shared repository keeps both
+        // outputs in lockstep going forward.
+        $repo = new \TT\Modules\Activities\Repositories\ActivitiesRepository();
+        $activity = $repo->findById( $activity_id );
         if ( ! $activity ) {
             return [
                 'html'    => '<p>' . esc_html__( 'Activity not found.', 'talenttrack' ) . '</p>',
                 'options' => [ 'paper' => 'A4', 'orientation' => 'portrait' ],
             ];
         }
-
-        $roster = $wpdb->get_results( $wpdb->prepare(
-            "SELECT pl.id AS player_id, pl.first_name, pl.last_name, pl.jersey_number,
-                    pl.preferred_positions, att.status, att.notes AS att_notes
-                FROM {$p}tt_attendance att
-                JOIN {$p}tt_players pl ON pl.id = att.player_id
-                WHERE att.activity_id = %d AND pl.club_id = %d
-                ORDER BY pl.last_name ASC, pl.first_name ASC",
-            $activity_id,
-            (int) $request->clubId
-        ) );
-        $roster = is_array( $roster ) ? $roster : [];
+        // Brief PDF documents the roster the coach actually fielded —
+        // guests appear in a separate panel on the on-screen view and
+        // intentionally don't print on the brief. Pass `true` if a
+        // future variant needs them.
+        $roster = $repo->listRosterAttendance( $activity_id, false );
 
         $html = self::renderHtml( $activity, $roster );
 
