@@ -30,8 +30,14 @@ final class DetailsStep implements WizardStepInterface {
         $notes    = (string) ( $state['notes'] ?? '' );
         $subtype  = (string) ( $state['game_subtype_key'] ?? '' );
         $other    = (string) ( $state['other_label'] ?? '' );
+        // #1126 — optional start + end time. HH:MM, both nullable.
+        $start_time = (string) ( $state['start_time'] ?? '' );
+        $end_time   = (string) ( $state['end_time']   ?? '' );
 
         echo '<label><span>' . esc_html__( 'Date', 'talenttrack' ) . ' *</span><input type="date" name="session_date" required value="' . esc_attr( $date ) . '" /></label>';
+
+        echo '<label><span>' . esc_html__( 'Start time (optional)', 'talenttrack' ) . '</span><input type="time" name="start_time" value="' . esc_attr( $start_time ) . '" /></label>';
+        echo '<label><span>' . esc_html__( 'End time (optional)', 'talenttrack' ) . '</span><input type="time" name="end_time" value="' . esc_attr( $end_time ) . '" /></label>';
 
         echo '<label><span>' . esc_html__( 'Title', 'talenttrack' ) . ' *</span><input type="text" name="title" required maxlength="200" value="' . esc_attr( $title ) . '" /></label>';
 
@@ -70,9 +76,28 @@ final class DetailsStep implements WizardStepInterface {
         $location = isset( $post['location'] ) ? sanitize_text_field( wp_unslash( (string) $post['location'] ) ) : '';
         $notes    = isset( $post['notes'] )    ? sanitize_textarea_field( wp_unslash( (string) $post['notes'] ) ) : '';
 
+        // #1126 — start_time + end_time, both optional. Validate HH:MM
+        // and that end > start when both are set. Empty → null.
+        $start_time = isset( $post['start_time'] ) ? trim( (string) $post['start_time'] ) : '';
+        $end_time   = isset( $post['end_time'] )   ? trim( (string) $post['end_time'] )   : '';
+        if ( $start_time !== '' && ! preg_match( '/^\d{2}:\d{2}(:\d{2})?$/', $start_time ) ) {
+            return new \WP_Error( 'bad_start_time', __( 'Start time is not valid (HH:MM).', 'talenttrack' ) );
+        }
+        if ( $end_time !== '' && ! preg_match( '/^\d{2}:\d{2}(:\d{2})?$/', $end_time ) ) {
+            return new \WP_Error( 'bad_end_time', __( 'End time is not valid (HH:MM).', 'talenttrack' ) );
+        }
+        if ( $end_time !== '' && $start_time === '' ) {
+            return new \WP_Error( 'end_without_start', __( 'Set a start time before setting an end time.', 'talenttrack' ) );
+        }
+        if ( $start_time !== '' && $end_time !== '' && strtotime( '1970-01-01 ' . $end_time ) <= strtotime( '1970-01-01 ' . $start_time ) ) {
+            return new \WP_Error( 'end_before_start', __( 'End time must be after start time.', 'talenttrack' ) );
+        }
+
         $out = [
             'title'        => $title,
             'session_date' => $date,
+            'start_time'   => $start_time !== '' ? $start_time : null,
+            'end_time'     => $end_time   !== '' ? $end_time   : null,
             'location'     => $location,
             'notes'        => $notes,
         ];

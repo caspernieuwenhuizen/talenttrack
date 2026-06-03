@@ -338,6 +338,17 @@ class FrontendTeamPlannerView extends FrontendViewBase {
                 <span class="tt-planner-activity-status">
                     <?php echo LookupPill::render( 'activity_status', $status_key ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                 </span>
+                <?php
+                // #1126 — optional time window. Rendered as
+                // "HH:MM" or "HH:MM–HH:MM" depending on which fields
+                // are set. Omitted entirely when start_time is empty.
+                $st_card = (string) ( $a->start_time ?? '' );
+                $et_card = (string) ( $a->end_time   ?? '' );
+                if ( $st_card !== '' ) :
+                    $time_text = substr( $st_card, 0, 5 ) . ( $et_card !== '' ? '–' . substr( $et_card, 0, 5 ) : '' );
+                    ?>
+                    <span class="tt-planner-activity-time"><?php echo esc_html( $time_text ); ?></span>
+                <?php endif; ?>
                 <?php if ( ! empty( $a->location ) ) : ?>
                     <span class="tt-planner-activity-loc"><?php echo esc_html( (string) $a->location ); ?></span>
                 <?php endif; ?>
@@ -547,14 +558,14 @@ class FrontendTeamPlannerView extends FrontendViewBase {
         // archived via Spond sync / activity admin; clicking them
         // routed to the activity-detail "no longer exists" notice.
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, title, session_date, location, activity_status_key, plan_state
+            "SELECT id, title, session_date, start_time, end_time, location, activity_status_key, plan_state
                FROM {$wpdb->prefix}tt_activities
               WHERE team_id = %d
                 AND club_id = %d
                 AND session_date BETWEEN %s AND %s
                 AND activity_status_key <> 'cancelled'
                 AND ( archived_at IS NULL OR archived_at = '' )
-              ORDER BY session_date ASC, id ASC",
+              ORDER BY session_date ASC, start_time ASC, id ASC",
             $team_id, CurrentClub::id(), $from, $to
         ) );
         return is_array( $rows ) ? $rows : [];

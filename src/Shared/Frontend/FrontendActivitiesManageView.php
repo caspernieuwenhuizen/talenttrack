@@ -260,6 +260,16 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         echo '<dt>' . esc_html__( 'Date', 'talenttrack' ) . '</dt>';
         echo '<dd>' . esc_html( (string) $session->session_date ) . '</dd>';
 
+        // #1126 — surface optional time window when set. Renders
+        // nothing when both fields are empty (no placeholder).
+        $st = (string) ( $session->start_time ?? '' );
+        $et = (string) ( $session->end_time   ?? '' );
+        if ( $st !== '' ) {
+            $window = substr( $st, 0, 5 ) . ( $et !== '' ? ' – ' . substr( $et, 0, 5 ) : '' );
+            echo '<dt>' . esc_html__( 'Time', 'talenttrack' ) . '</dt>';
+            echo '<dd>' . esc_html( $window ) . '</dd>';
+        }
+
         echo '<dt>' . esc_html__( 'Type', 'talenttrack' ) . '</dt>';
         echo '<dd>' . \TT\Infrastructure\Query\LookupPill::render( 'activity_type', $type_key ) . '</dd>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
@@ -1318,6 +1328,21 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                     'teams'    => $teams,
                     'selected' => $selected_team,
                 ] ); ?>
+                <?php
+                // #1126 — optional start + end time. Both empty by
+                // default; renderer omits the time line when both are
+                // blank (no placeholder).
+                $current_start = (string) ( $session->start_time ?? '' );
+                $current_end   = (string) ( $session->end_time   ?? '' );
+                ?>
+                <div class="tt-field">
+                    <label class="tt-field-label" for="tt-activity-start-time"><?php esc_html_e( 'Start time (optional)', 'talenttrack' ); ?></label>
+                    <input type="time" id="tt-activity-start-time" class="tt-input" name="start_time" value="<?php echo esc_attr( substr( $current_start, 0, 5 ) ); ?>" />
+                </div>
+                <div class="tt-field">
+                    <label class="tt-field-label" for="tt-activity-end-time"><?php esc_html_e( 'End time (optional)', 'talenttrack' ); ?></label>
+                    <input type="time" id="tt-activity-end-time" class="tt-input" name="end_time" value="<?php echo esc_attr( substr( $current_end, 0, 5 ) ); ?>" />
+                </div>
                 <div class="tt-field">
                     <label class="tt-field-label" for="tt-activity-location"><?php esc_html_e( 'Location', 'talenttrack' ); ?></label>
                     <input type="text" id="tt-activity-location" class="tt-input" name="location" value="<?php echo esc_attr( (string) ( $session->location ?? '' ) ); ?>" />

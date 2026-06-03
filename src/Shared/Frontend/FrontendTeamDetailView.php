@@ -388,13 +388,13 @@ final class FrontendTeamDetailView extends FrontendViewBase {
         // the team planner uses since v3.110.56. The legacy
         // `plan_state` column is ignored here for the same reason.
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, title, session_date, activity_type_key, activity_status_key
+            "SELECT id, title, session_date, start_time, end_time, activity_type_key, activity_status_key
                FROM {$wpdb->prefix}tt_activities
               WHERE team_id = %d
                 AND ( archived_at IS NULL OR archived_at = '' )
                 AND session_date >= CURDATE()
                 AND activity_status_key NOT IN ('completed', 'cancelled')
-              ORDER BY session_date ASC LIMIT 5",
+              ORDER BY session_date ASC, start_time ASC LIMIT 5",
             $team_id
         ) );
         if ( empty( $rows ) ) return;
@@ -435,8 +435,15 @@ final class FrontendTeamDetailView extends FrontendViewBase {
             // lookup gains i18n coverage, swap this for a registry call.
             $status_key   = (string) ( $r->activity_status_key ?? '' );
             $status_label = $status_key !== '' ? ucfirst( str_replace( '_', ' ', $status_key ) ) : '';
+            // #1126 — append the time window to the date cell when set.
+            $st = (string) ( $r->start_time ?? '' );
+            $et = (string) ( $r->end_time   ?? '' );
+            $date_text = (string) $r->session_date;
+            if ( $st !== '' ) {
+                $date_text .= ' · ' . substr( $st, 0, 5 ) . ( $et !== '' ? '–' . substr( $et, 0, 5 ) : '' );
+            }
             echo '<tr>';
-            echo '<td>' . esc_html( (string) $r->session_date ) . '</td>';
+            echo '<td>' . esc_html( $date_text ) . '</td>';
             echo '<td><a class="tt-record-link" href="' . esc_url( $url ) . '">' . esc_html( (string) $r->title ) . '</a></td>';
             echo '<td>' . ( $type_label !== '' ? esc_html( $type_label ) : '—' ) . '</td>';
             echo '<td>' . ( $status_label !== '' ? esc_html( $status_label ) : '—' ) . '</td>';
