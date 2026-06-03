@@ -3,7 +3,7 @@ namespace TT\Shared\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-use TT\Infrastructure\Query\LabelTranslator;
+use TT\Infrastructure\Goals\GoalsRepository;
 use TT\Modules\Threads\ThreadMessagesRepository;
 
 /**
@@ -37,15 +37,12 @@ class FrontendMyGoalsView extends FrontendViewBase {
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'My goals', 'talenttrack' ) );
         self::renderHeader( __( 'My goals', 'talenttrack' ) );
 
-        global $wpdb;
-        $p = $wpdb->prefix;
-
-        $goals = $wpdb->get_results( $wpdb->prepare(
-            "SELECT * FROM {$p}tt_goals
-             WHERE player_id = %d AND archived_at IS NULL
-             ORDER BY created_at DESC",
-            (int) $player->id
-        ) );
+        // #1077 — was inline SQL + per-row LabelTranslator calls in
+        // the loop below. GoalsRepository centralises the read +
+        // pre-localises `status_localised` / `priority_localised` so
+        // the view echoes the translated field by construction. Same
+        // shape as #1081 EvaluationsRepository / #806 worked example.
+        $goals = ( new GoalsRepository() )->listForPlayer( (int) $player->id );
 
         if ( empty( $goals ) ) {
             echo '<p><em>' . esc_html__( 'No goals assigned yet. Your coaches will add development goals here as you progress.', 'talenttrack' ) . '</em></p>';
@@ -72,7 +69,7 @@ class FrontendMyGoalsView extends FrontendViewBase {
                     <?php if ( ! empty( $g->description ) ) : ?>
                         <p><?php echo esc_html( \TT\Modules\Translations\TranslationLayer::render( (string) $g->description ) ); ?></p>
                     <?php endif; ?>
-                    <span class="tt-status-badge"><?php echo esc_html( LabelTranslator::goalStatus( (string) $g->status ) ); ?></span>
+                    <span class="tt-status-badge"><?php echo esc_html( (string) $g->status_localised ); ?></span>
                     <?php if ( ! empty( $g->due_date ) ) : ?>
                         <small><?php esc_html_e( 'Due:', 'talenttrack' ); ?> <?php echo esc_html( (string) $g->due_date ); ?></small>
                     <?php endif; ?>
@@ -106,15 +103,11 @@ class FrontendMyGoalsView extends FrontendViewBase {
      * comments without losing context.
      */
     private static function renderDetail( object $player, int $goal_id ): void {
-        global $wpdb;
-        $p = $wpdb->prefix;
-
-        $goal = $wpdb->get_row( $wpdb->prepare(
-            "SELECT * FROM {$p}tt_goals
-              WHERE id = %d AND player_id = %d AND archived_at IS NULL
-              LIMIT 1",
-            $goal_id, (int) $player->id
-        ) );
+        // #1077 — same repository pattern as the list path above.
+        // findForPlayer() returns null if the goal doesn't exist or
+        // doesn't belong to this player, replacing the inline
+        // SQL + per-row LabelTranslator calls.
+        $goal = ( new GoalsRepository() )->findForPlayer( $goal_id, (int) $player->id );
 
         if ( ! $goal ) {
             self::renderHeader( __( 'Goal not found', 'talenttrack' ) );
@@ -130,9 +123,9 @@ class FrontendMyGoalsView extends FrontendViewBase {
         ?>
         <article class="tt-record-detail tt-goal-detail tt-status-<?php echo esc_attr( $status ); ?>">
             <p class="tt-record-detail-meta tt-goal-detail-meta">
-                <span class="tt-status-badge"><?php echo esc_html( LabelTranslator::goalStatus( $status ) ); ?></span>
+                <span class="tt-status-badge"><?php echo esc_html( (string) $goal->status_localised ); ?></span>
                 <?php if ( $priority !== '' ) : ?>
-                    <span class="tt-priority-badge"><?php echo esc_html( LabelTranslator::goalPriority( $priority ) ); ?></span>
+                    <span class="tt-priority-badge"><?php echo esc_html( (string) $goal->priority_localised ); ?></span>
                 <?php endif; ?>
                 <?php if ( ! empty( $goal->due_date ) ) : ?>
                     <span class="tt-due"><?php esc_html_e( 'Due:', 'talenttrack' ); ?> <?php echo esc_html( (string) $goal->due_date ); ?></span>
