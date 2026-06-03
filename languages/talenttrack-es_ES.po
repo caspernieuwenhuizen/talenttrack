@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-03T22:29:44+00:00\n"
+"POT-Creation-Date: 2026-06-03T22:35:07+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -379,7 +379,7 @@ msgid "Score"
 msgstr ""
 
 #: src/Infrastructure/FeatureToggles/FeatureToggleService.php:41
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:89
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:113
 #: src/Modules/Export/Exporters/AuditLogCsvExporter.php:27
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:229
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:337
@@ -958,7 +958,7 @@ msgid "Team meeting"
 msgstr ""
 
 #: src/Infrastructure/Query/LabelTranslator.php:216
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:82
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:106
 #: src/Modules/Documentation/HelpTopics.php:202
 #: src/Modules/Methodology/Admin/MethodologyPage.php:73
 #: src/Modules/Methodology/Frontend/MethodologyView.php:48
@@ -1970,7 +1970,7 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:186
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:92
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:77
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:81
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:105
 #: src/Modules/Authorization/Admin/MatrixPage.php:700
 #: src/Modules/Authorization/Admin/RolesPage.php:492
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:472
@@ -2904,7 +2904,7 @@ msgstr ""
 #. translators: %s = player name
 #: src/Modules/Analytics/AnalyticsModule.php:116
 #: src/Modules/Analytics/AnalyticsModule.php:219
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:76
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:100
 #: src/Modules/Authorization/Admin/MatrixPage.php:701
 #: src/Modules/Authorization/Admin/RolesPage.php:491
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:474
@@ -2950,7 +2950,7 @@ msgid "Evaluator"
 msgstr ""
 
 #: src/Modules/Analytics/AnalyticsModule.php:135
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:80
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:104
 #: src/Modules/Authorization/Admin/RolesPage.php:493
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:473
 #: src/Modules/DemoData/Admin/DemoDataPage.php:724
@@ -3030,7 +3030,7 @@ msgstr ""
 
 # v3.95.0 — #0081 child 1: prospects entity
 #: src/Modules/Analytics/AnalyticsModule.php:174
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:136
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:160
 #: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:228
 #: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:209
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:36
@@ -3311,7 +3311,7 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:40
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:48
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:51
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:141
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:165
 #: src/Modules/Authorization/Admin/ModulesPage.php:83
 #: src/Modules/Documentation/HelpTopics.php:306
 #: src/Shared/CoreSurfaceRegistration.php:683
@@ -3347,7 +3347,7 @@ msgid "No analytics registered for this entity type yet."
 msgstr ""
 
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:184
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:73
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:97
 #: src/Modules/Authorization/Admin/MatrixPage.php:697
 #: src/Modules/Authorization/Admin/MatrixPage.php:698
 #: src/Modules/Authorization/Admin/RolesPage.php:488
@@ -3385,7 +3385,7 @@ msgid "Players"
 msgstr "Jugadores"
 
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:185
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:74
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:98
 #: src/Modules/Authorization/Admin/MatrixPage.php:699
 #: src/Modules/Authorization/Admin/RolesPage.php:489
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:471
@@ -3416,7 +3416,7 @@ msgid "Scouts"
 msgstr ""
 
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:188
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:93
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:117
 #: src/Modules/Pdp/Admin/SeasonsPage.php:37
 #: src/Shared/CoreSurfaceRegistration.php:1179
 msgid "Seasons"
@@ -4680,7 +4680,7 @@ msgstr ""
 msgid "Start impersonation"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:75
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:99
 #: src/Modules/Authorization/Admin/RolesPage.php:496
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:470
 #: src/Modules/DemoData/Admin/DemoDataPage.php:692
@@ -4702,17 +4702,17 @@ msgstr ""
 msgid "People"
 msgstr "Personas"
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:77
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:101
 #: src/Shared/Frontend/FrontendEvalCategoriesView.php:35
 #: src/Shared/Frontend/FrontendEvalCategoriesView.php:62
 msgid "Evaluation categories"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:78
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:102
 msgid "Category weights"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:79
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:103
 #: src/Shared/Frontend/FrontendConfigurationView.php:46
 #: src/Shared/Frontend/FrontendConfigurationView.php:71
 #: src/Shared/Frontend/FrontendConfigurationView.php:201
@@ -4720,7 +4720,7 @@ msgstr ""
 msgid "Rating scale"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:83
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:107
 #: src/Modules/Authorization/Admin/RolesPage.php:494
 #: src/Modules/Documentation/HelpTopics.php:82
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:227
@@ -4747,17 +4747,17 @@ msgstr "Informes"
 # v3.86.0 — entity labels (matrix admin) — only msgids not already
 # present elsewhere in this catalogue. Existing strings (e.g. "Audit
 # log", "Branding", "Migrations") are reused via gettext lookup.
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:85
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:109
 msgid "Settings (umbrella)"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:86
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:110
 #: src/Shared/Frontend/FrontendConfigurationView.php:107
 #: src/Shared/Frontend/FrontendConfigurationView.php:1422
 msgid "Lookups"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:87
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:111
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:61
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:280
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:871
@@ -4767,14 +4767,14 @@ msgstr ""
 msgid "Branding"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:88
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:112
 #: src/Shared/Frontend/FrontendConfigurationView.php:1473
 msgid "Feature toggles"
 msgstr ""
 
 # ===== v3.6.0 — multilingual reference data =====
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:90
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:145
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:114
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:169
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:65
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:286
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:718
@@ -4784,14 +4784,14 @@ msgstr ""
 msgid "Translations"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:91
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:115
 #: src/Modules/Documentation/HelpTopics.php:117
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:32
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:58
 msgid "Custom fields"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:92
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:116
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:329
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:339
 #: src/Shared/CoreSurfaceRegistration.php:887
@@ -4801,7 +4801,7 @@ msgstr ""
 msgid "Migrations"
 msgstr "Migraciones"
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:94
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:118
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:64
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:323
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:439
@@ -4811,50 +4811,50 @@ msgstr "Migraciones"
 msgid "Setup wizard"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:95
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:119
 msgid "Frontend admin"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:96
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:120
 #: src/Modules/Documentation/HelpTopics.php:167
 msgid "Authorization matrix"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:97
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:121
 msgid "Authorization changelog"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:98
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:122
 msgid "Functional roles (definitions)"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:99
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:123
 msgid "Functional roles (assignments)"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:100
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:124
 msgid "Backup"
 msgstr "Copia de seguridad"
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:102
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:126
 msgid "Workflow tasks"
 msgstr ""
 
 # Workflow engine — Sprint 5 (HoD dashboard + admin config UI)
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:103
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:127
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:208
 #: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:26
 #: src/Shared/CoreSurfaceRegistration.php:346
 msgid "Tasks dashboard"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:104
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:128
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:33
 #: src/Shared/CoreSurfaceRegistration.php:359
 msgid "Workflow templates"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:105
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:129
 #: src/Modules/Documentation/HelpTopics.php:137
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:36
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:37
@@ -4864,15 +4864,15 @@ msgstr ""
 msgid "Invitations"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:106
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:130
 msgid "Invitation messages"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:107
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:131
 msgid "Development ideas"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:108
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:132
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:43
 #: src/Shared/CoreSurfaceRegistration.php:209
 #: src/Shared/Frontend/FrontendOverviewView.php:28
@@ -4880,7 +4880,7 @@ msgstr ""
 msgid "My card"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:110
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:134
 #: src/Modules/Documentation/HelpTopics.php:87
 #: src/Modules/License/Admin/AccountPage.php:823
 #: src/Shared/CoreSurfaceRegistration.php:604
@@ -4893,32 +4893,32 @@ msgstr ""
 msgid "Trial cases"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:111
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:135
 msgid "Trial inputs"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:112
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:136
 msgid "Trial synthesis"
 msgstr ""
 
 # v3.60.0 — Staff development module (#0039)
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:113
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:137
 #: src/Modules/Documentation/HelpTopics.php:289
 #: src/Shared/CoreSurfaceRegistration.php:965
 msgid "Staff development"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:114
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:138
 #: src/Modules/StaffDevelopment/Frontend/FrontendStaffOverviewView.php:23
 #: src/Shared/CoreSurfaceRegistration.php:1033
 msgid "Staff overview"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:116
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:140
 msgid "Threads"
 msgstr "Hilos"
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:117
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:141
 #: src/Modules/Documentation/HelpTopics.php:284
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:91
 #: src/Shared/CoreSurfaceRegistration.php:1331
@@ -4926,51 +4926,51 @@ msgstr "Hilos"
 msgid "Spond integration"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:118
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:142
 msgid "Player timeline"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:119
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:143
 msgid "Player potential"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:120
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:144
 msgid "Player behaviour ratings"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:121
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:145
 #: src/Modules/Documentation/HelpTopics.php:279
 msgid "Player status"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:122
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:146
 msgid "Player status breakdown"
 msgstr ""
 
 # v3.52.0 — Player status methodology (#0057 Sprint 3)
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:123
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:147
 #: src/Modules/Players/Frontend/FrontendPlayerStatusMethodologyView.php:31
 #: src/Modules/Players/Frontend/FrontendPlayerStatusMethodologyView.php:53
 #: src/Shared/CoreSurfaceRegistration.php:536
 msgid "Player status methodology"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:124
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:148
 msgid "Player injuries"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:125
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:149
 msgid "Safeguarding notes"
 msgstr ""
 
 #. translators: %s = player name
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:126
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:150
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:344
 msgid "PDP file"
 msgstr ""
 
 # v3.53.0 — PDP planning windows (#0054)
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:127
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:151
 #: src/Modules/Documentation/HelpTopics.php:274
 #: src/Modules/Pdp/Frontend/FrontendPdpPlanningView.php:43
 #: src/Modules/Pdp/Frontend/FrontendPdpPlanningView.php:54
@@ -4982,16 +4982,16 @@ msgstr ""
 msgid "PDP planning"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:128
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:152
 msgid "PDP evidence packet"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:129
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:153
 msgid "PDP verdict"
 msgstr ""
 
 # v3.64.0 — Custom CSS module (#0064)
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:131
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:155
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:103
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:112
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:364
@@ -5000,11 +5000,11 @@ msgstr ""
 msgid "Custom CSS"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:132
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:156
 msgid "Persona templates"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:133
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:157
 #: src/Modules/License/Admin/AccountPage.php:824
 #: src/Modules/Reports/Frontend/FrontendScoutAccessView.php:24
 #: src/Modules/Reports/Frontend/FrontendScoutAccessView.php:27
@@ -5013,21 +5013,21 @@ msgstr ""
 msgid "Scout access"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:134
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:158
 msgid "Impersonation"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:137
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:161
 #: src/Shared/Frontend/FrontendTestTrainingsView.php:34
 msgid "Test trainings"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:139
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:163
 msgid "Player notes"
 msgstr "Notas del jugador"
 
 # v3.109.4 — #0078 Phase 3 custom widgets builder UI
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:143
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:167
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:56
 #: src/Modules/CustomWidgets/CustomWidgetsModule.php:80
 #: src/Modules/CustomWidgets/CustomWidgetsModule.php:81
@@ -5035,22 +5035,22 @@ msgstr "Notas del jugador"
 msgid "Custom widgets"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:147
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:171
 msgid "VCT sessions"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:148
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:172
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:38
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:48
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:49
 msgid "VCT exercise library"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:149
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:173
 msgid "VCT workload aggregates"
 msgstr ""
 
-#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:292
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:316
 msgid "Admin / configuration surface"
 msgstr ""
 
