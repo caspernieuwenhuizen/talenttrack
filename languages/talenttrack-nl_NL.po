@@ -26370,6 +26370,9 @@ msgid ""
 "function + team task; tick whichever apply. Skip the step to save without "
 "links."
 msgstr ""
+"Koppel deze activiteit aan één of meerdere methodologie-principes. "
+"Gegroepeerd per teamfunctie + teamtaak; vink aan wat van toepassing is. "
+"Sla de stap over om zonder koppelingen op te slaan."
 
 #: src/Modules/Wizards/Activity/PrinciplesStep.php:47
 msgid ""
@@ -26409,6 +26412,9 @@ msgid ""
 "Status defaults to \"Planned\". Flip to \"Completed\" once the activity has "
 "happened — that's when the attendance editor unlocks on the activity page."
 msgstr ""
+"Status staat standaard op \"Gepland\". Zet op \"Voltooid\" zodra de "
+"activiteit heeft plaatsgevonden — dan ontgrendelt de aanwezigheidsregistratie "
+"op de activiteitspagina."
 
 # v3.110.102 — #0092 ActivityPickerStep intro + empty-state copy NL coverage.
 #: src/Modules/Wizards/Evaluation/ActivityPickerStep.php:86
@@ -34764,7 +34770,7 @@ msgstr ""
 
 #: src/Shared/Frontend/FrontendWizardView.php:756
 msgid "You are here"
-msgstr ""
+msgstr "Je bent hier"
 
 # #0077 polish wave 1 — new strings
 #: src/Shared/Frontend/FrontendWizardView.php:771
