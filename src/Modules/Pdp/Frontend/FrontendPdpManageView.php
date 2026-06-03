@@ -771,10 +771,14 @@ class FrontendPdpManageView extends FrontendViewBase {
         }
 
         $acts = $wpdb->get_results( $wpdb->prepare(
+            // v4.20.44 (#1222) — added `a.archived_at IS NULL` so the
+            // PDP timeline panel hides soft-archived activities the
+            // coach-review surface should treat as never-having-happened.
+            // Audit 7 (#1181).
             "SELECT a.id, a.session_date, a.title, att.status
                FROM {$p}tt_attendance att
                JOIN {$p}tt_activities a ON a.id = att.activity_id
-              WHERE att.player_id = %d" . ( $since ? " AND a.session_date >= %s" : '' ) .
+              WHERE att.player_id = %d AND a.archived_at IS NULL" . ( $since ? " AND a.session_date >= %s" : '' ) .
               " ORDER BY a.session_date DESC LIMIT 10",
             ...( $since ? [ $player_id, $since ] : [ $player_id ] )
         ) );

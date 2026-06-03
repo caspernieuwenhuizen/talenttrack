@@ -82,7 +82,9 @@ final class KpiSnapshotXlsxExporter implements ExporterInterface {
             $club_id
         ) );
         $activities_in_period = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$p}tt_activities WHERE club_id = %d AND session_date BETWEEN %s AND %s",
+            // v4.20.44 (#1222) — added `archived_at IS NULL` so soft-archived
+            // activities stop polluting HoD's KPI snapshot. Audit 7 (#1181).
+            "SELECT COUNT(*) FROM {$p}tt_activities WHERE club_id = %d AND archived_at IS NULL AND session_date BETWEEN %s AND %s",
             $club_id, $date_from, $date_to
         ) );
         $evaluations_in_period = (int) $wpdb->get_var( $wpdb->prepare(

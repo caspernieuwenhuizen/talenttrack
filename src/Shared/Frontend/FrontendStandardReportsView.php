@@ -481,7 +481,9 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         $club_id = CurrentClub::id();
         $players_total = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_players WHERE club_id=%d AND archived_at IS NULL", $club_id ) );
         $teams_total   = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_teams WHERE club_id=%d AND archived_at IS NULL", $club_id ) );
-        $matches_12m   = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_activities WHERE club_id=%d AND activity_type_key IN ('match','tournament') AND {$date_col} >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)", $club_id ) );
+        // v4.20.44 (#1222) — added `archived_at IS NULL`. Soft-archived
+        // matches were inflating the HoD season-summary KPI. Audit 7.
+        $matches_12m   = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_activities WHERE club_id=%d AND archived_at IS NULL AND activity_type_key IN ('match','tournament') AND {$date_col} >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)", $club_id ) );
         $evals_12m     = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_evaluations WHERE club_id=%d AND archived_at IS NULL AND eval_date >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)", $club_id ) );
         $prospects_12m = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_prospects WHERE club_id=%d AND created_at >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)", $club_id ) );
         $trial_decisions_12m = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->prefix}tt_trial_cases WHERE club_id=%d AND decided_at >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)", $club_id ) );
@@ -510,11 +512,15 @@ final class FrontendStandardReportsView extends FrontendViewBase {
                     COUNT( DISTINCT p.id ) AS player_count,
                     COUNT( DISTINCT CASE WHEN a.activity_type_key IN ('match','tournament')
                                           AND a.{$date_col} >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
+                                          AND a.archived_at IS NULL
                                          THEN a.id END ) AS match_count
                FROM {$wpdb->prefix}tt_teams t
           LEFT JOIN {$wpdb->prefix}tt_players p ON p.team_id = t.id AND p.archived_at IS NULL
           LEFT JOIN {$wpdb->prefix}tt_activities a ON a.team_id = t.id
               WHERE t.club_id = %d AND t.archived_at IS NULL
+                /* v4.20.44 (#1222) — `a.archived_at IS NULL` inside the
+                   CASE so per-team match counts ignore soft-archived
+                   matches. Audit 7. */
               GROUP BY t.id, t.name
               ORDER BY t.name ASC",
             $club_id

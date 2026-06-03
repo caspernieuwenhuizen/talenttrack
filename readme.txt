@@ -4,13 +4,16 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.43
+Stable tag: 4.20.44
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.44 — Reports: 4 `tt_activities` reads add `archived_at IS NULL` so HoD KPIs stop counting soft-archived activities (closes #1222). Audit 7 (#1181) flagged four sibling read sites that omitted the soft-delete filter and inflated HoD-facing counts: `KpiSnapshotXlsxExporter` "Activities in period" cell, `FrontendStandardReportsView::renderSeasonSummary` "Matches (12 mo)" KPI strip, the per-team `match_count` column in the same view, and `FrontendPdpManageView` activities-timeline panel. Same pattern as #1127 (planner) which was already brought into line. **Fix.** Each WHERE clause gains `AND archived_at IS NULL` (or `AND a.archived_at IS NULL` inside the per-team CASE). Inline comments cite the audit + the bug-class history so subsequent edits don't reflex-revert. **What's NOT in this PR.** `FrontendMyActivitiesView::renderDetail` (audit's 5th entry) routes through `ActivitiesRepository::findForPlayer` which is a deeper repository change tied to #1221 — deferred. The KPI display now matches the soft-delete semantics the activity-list views use; archived activities never count toward year-end review numbers. Patch bump. (closes #1222) =
+
 
 = 4.20.43 — i18n: 38 hardcoded English `wp_die()` strings in Development + Invitations handlers + 2 others wrapped in `__()` (closes #1220). Audit 4 (#1178) flagged these — they escaped `wp i18n make-pot` entirely, so the strings didn't even appear in the .po and shipped as English on Dutch installs. **Files touched** (38 `wp_die()` strings across 10 handlers): `IdeaPromoteHandler`, `IdeaRefineHandler`, `IdeaRejectHandler`, `IdeaSubmitHandler`, `TrackDeleteHandler`, `TrackSaveHandler`, `InvitationAcceptHandler`, `InvitationCreateHandler`, `InvitationRevokeHandler`, `MessageSaveHandler`. Each `wp_die( 'string' )` becomes `wp_die( esc_html__( 'string', 'talenttrack' ) )` per the existing codebase style. **Plus two others.** `BaseController.php:55` sprintf format `'Field "%s" is required.'` wrapped in `__()` with a `translators:` comment; `BackupSettingsPage.php:342` fallback `'Unknown error'` wrapped in `__()` inside the existing `esc_html()` call. **Dutch translations added** to `talenttrack-nl_NL.po` for the 5 new msgids (`Bad request.`, `Invalid token.`, `Invalid kind.`, `Unknown error`, `Field "%s" is required.`) — the other 3 strings (`Not logged in.`, `Insufficient permissions.`, `Not found.`) already had translations from prior backfills. No `wp_die()` raw-English literals remain in the two modules. Patch bump. (closes #1220) =
 
