@@ -85,6 +85,33 @@ abstract class AbstractWidget implements Widget {
     abstract public function render( WidgetSlot $slot, RenderContext $ctx ): string;
 
     /**
+     * v4.20.22 (#1207) — Resolve a KPI's deep-link URL with the right
+     * builder. Prefer `linkUrl( $ctx )` when the data source overrides
+     * it (carries filter query-strings — date windows, team scope, etc.)
+     * and fall back to `linkView()` when only the legacy view-slug
+     * builder is available. Returns '' when the KPI is inert.
+     *
+     * Pre-#1207, `KpiCardWidget` only consulted `linkView()` while
+     * `KpiStripWidget` consulted `linkUrl()` — every per-KPI override
+     * added by #771 / #481 was dead code in the dominant `kpi_card`
+     * placement (used by every persona's default template). This
+     * helper closes the gap structurally so future widgets surfacing
+     * KPIs can't regress the same bug class.
+     */
+    protected function kpiHrefFor( $source, RenderContext $ctx ): string {
+        if ( $source === null ) return '';
+        if ( method_exists( $source, 'linkUrl' ) ) {
+            $url = (string) $source->linkUrl( $ctx );
+            if ( $url !== '' ) return $url;
+        }
+        if ( method_exists( $source, 'linkView' ) ) {
+            $view = (string) $source->linkView();
+            if ( $view !== '' ) return (string) $ctx->viewUrl( $view );
+        }
+        return '';
+    }
+
+    /**
      * Helper for rendering the standard outer wrapper. Concrete widgets
      * supply the inner HTML; the wrapper carries the bento-grid sizing
      * classes + drag-handle hooks the sprint 2 editor will read.
