@@ -25,3 +25,18 @@ From the **Teams** edit page, add a person with a functional role. The person ca
 ## Archiving
 
 When staff leave, archive them. Archived people disappear from team assignment dropdowns but historical records stay intact.
+
+## Permanent delete (clean-up)
+
+To remove a person permanently and clean every reference to them in one go, open the **People** admin page (`wp-admin → TalentTrack → People`), select the rows you want to delete, choose **Delete permanently** from the bulk-action dropdown, and click **Apply**.
+
+Before anything is written, an **impact preview dialog** shows you exactly what is about to happen, per selected person:
+
+- **Removed**: team assignments, functional-role scope grants, staff-development entries, certifications, staff evaluations, staff goals, mentorship pairings, and pending invitations.
+- **Cleared (parent row stays)**: "granted by" attribution on scope grants made by this person, accepted invitations targeting this person (the historical record stays; the target reference is nulled), and player records that listed this person as parent contact.
+
+If you confirm, a single database transaction runs the cleanup; if any step fails, the whole batch rolls back — partial deletes are impossible.
+
+For batches of 3+ persons OR any person with 5+ affected references, a second step asks you to type **DELETE** to confirm — protection against accidental clicks on large clean-ups.
+
+**WordPress user accounts are NOT touched.** If a deleted person also had a WP login, the account remains and can still sign in. Delete it separately via the WordPress **Users** admin if you want them locked out.

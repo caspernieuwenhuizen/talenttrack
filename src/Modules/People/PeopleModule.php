@@ -33,6 +33,8 @@ class PeopleModule implements ModuleInterface {
 
     public function boot( Container $container ): void {
         add_action( 'admin_menu', [ $this, 'registerMenu' ], 15 );
+        // #1138 — impact-preview dialog assets for the wp-admin bulk delete flow.
+        add_action( 'admin_enqueue_scripts', [ PeoplePage::class, 'enqueueAssets' ] );
         PeopleRestController::init();
     }
 
