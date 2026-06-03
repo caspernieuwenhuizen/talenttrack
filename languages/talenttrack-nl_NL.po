@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-03T19:24:25+00:00\n"
+"POT-Creation-Date: 2026-06-03T19:31:47+00:00\n"
 "PO-Revision-Date: 2026-04-25 10:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -1247,8 +1247,8 @@ msgstr ""
 
 #: src/Infrastructure/REST/ActivitiesRestController.php:631
 #: src/Infrastructure/REST/ActivitiesRestController.php:726
-#: src/Infrastructure/REST/ActivitiesRestController.php:899
-#: src/Infrastructure/REST/ActivitiesRestController.php:1014
+#: src/Infrastructure/REST/ActivitiesRestController.php:951
+#: src/Infrastructure/REST/ActivitiesRestController.php:1066
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:406
 #: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:71
 msgid "Invalid activity id."
@@ -1274,7 +1274,7 @@ msgstr "De activiteit kon niet worden verwijderd."
 msgid "Unknown activity type. Pick one from the configured list."
 msgstr "Onbekend activiteittype. Kies er een uit de ingestelde lijst."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:905
+#: src/Infrastructure/REST/ActivitiesRestController.php:957
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:74
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:73
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:55
@@ -1283,45 +1283,45 @@ msgid "Activity not found."
 msgstr "Activiteit niet gevonden."
 
 # v3.22.0 — Guest-player attendance (#0026)
-#: src/Infrastructure/REST/ActivitiesRestController.php:926
+#: src/Infrastructure/REST/ActivitiesRestController.php:978
 msgid "A guest is either linked OR anonymous, not both."
 msgstr "Een gast is óf gekoppeld óf anoniem, niet beide tegelijk."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:930
+#: src/Infrastructure/REST/ActivitiesRestController.php:982
 msgid "Pick a player or enter a guest name."
 msgstr "Kies een speler of vul een gastnaam in."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:937
+#: src/Infrastructure/REST/ActivitiesRestController.php:989
 msgid "Linked player does not exist."
 msgstr "Gekoppelde speler bestaat niet."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:998
+#: src/Infrastructure/REST/ActivitiesRestController.php:1050
 #, php-format
 msgid "The guest could not be added (database error: %s)."
 msgstr "De gast kon niet worden toegevoegd (databasefout: %s)."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:999
+#: src/Infrastructure/REST/ActivitiesRestController.php:1051
 msgid "The guest could not be added."
 msgstr "De gast kon niet worden toegevoegd."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1022
+#: src/Infrastructure/REST/ActivitiesRestController.php:1074
 msgid "Could not update the activity."
 msgstr "De activiteit kon niet worden bijgewerkt."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1037
-#: src/Infrastructure/REST/ActivitiesRestController.php:1073
+#: src/Infrastructure/REST/ActivitiesRestController.php:1089
+#: src/Infrastructure/REST/ActivitiesRestController.php:1125
 msgid "Invalid attendance id."
 msgstr "Ongeldig aanwezigheids-id."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1039
+#: src/Infrastructure/REST/ActivitiesRestController.php:1091
 msgid "Attendance row not found."
 msgstr "Aanwezigheidsregel niet gevonden."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1059
+#: src/Infrastructure/REST/ActivitiesRestController.php:1111
 msgid "The attendance row could not be updated."
 msgstr "De aanwezigheidsregel kon niet worden bijgewerkt."
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1077
+#: src/Infrastructure/REST/ActivitiesRestController.php:1129
 msgid "The attendance row could not be deleted."
 msgstr "De aanwezigheidsregel kon niet worden verwijderd."
 
