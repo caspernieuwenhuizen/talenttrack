@@ -154,7 +154,7 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
               FROM {$wpdb->prefix}tt_attendance att
               JOIN {$wpdb->prefix}tt_activities a ON a.id = att.activity_id AND a.archived_at IS NULL
               JOIN {$wpdb->prefix}tt_players    p ON p.id = att.player_id  AND p.archived_at IS NULL
-              LEFT JOIN {$wpdb->prefix}tt_teams t ON t.id = a.team_id
+              LEFT JOIN {$wpdb->prefix}tt_teams t ON t.id = p.team_id
              WHERE p.club_id = %d
                AND att.is_guest = 0
                AND att.record_type = 'actual'
