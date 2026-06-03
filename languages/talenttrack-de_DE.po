@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-03T23:04:32+00:00\n"
+"POT-Creation-Date: 2026-06-03T23:10:01+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -1845,15 +1845,19 @@ msgid "The team could not be archived."
 msgstr ""
 
 #: src/Infrastructure/REST/TeamsRestController.php:343
-#: src/Infrastructure/REST/TeamsRestController.php:359
+#: src/Infrastructure/REST/TeamsRestController.php:372
 msgid "Invalid team or player id."
 msgstr ""
 
-#: src/Infrastructure/REST/TeamsRestController.php:349
+#: src/Infrastructure/REST/TeamsRestController.php:356
+msgid "Team not found in your club."
+msgstr ""
+
+#: src/Infrastructure/REST/TeamsRestController.php:362
 msgid "The player could not be added to the team."
 msgstr ""
 
-#: src/Infrastructure/REST/TeamsRestController.php:366
+#: src/Infrastructure/REST/TeamsRestController.php:379
 msgid "The player could not be removed from the team."
 msgstr ""
 
