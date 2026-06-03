@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-03T21:54:00+00:00\n"
+"POT-Creation-Date: 2026-06-03T22:05:33+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -146,7 +146,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendGoalsManageView.php:248
 #: src/Shared/Frontend/FrontendGoalsManageView.php:273
 #: src/Shared/Frontend/FrontendGoalsManageView.php:342
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:65
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:83
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:300
 #: src/Shared/Frontend/FrontendPlayersCsvImportView.php:116
 #: src/Shared/Frontend/FrontendRateCardView.php:116
@@ -944,7 +944,7 @@ msgid "Training"
 msgstr "Training"
 
 #: src/Infrastructure/Query/LabelTranslator.php:213
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:67
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:85
 #: src/Shared/Frontend/FrontendStandardReportsView.php:221
 msgid "Match"
 msgstr "Spiel"
@@ -2099,7 +2099,7 @@ msgstr "Filter"
 #: src/Shared/Frontend/FrontendEvaluationsView.php:152
 #: src/Shared/Frontend/FrontendEvaluationsView.php:304
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:57
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:64
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:82
 #: src/Shared/Frontend/FrontendStandardReportsView.php:221
 #: src/Shared/Frontend/FrontendStandardReportsView.php:589
 #: src/Shared/Frontend/FrontendTeamDetailView.php:422
@@ -2185,7 +2185,7 @@ msgstr "Titel"
 #: src/Shared/Frontend/FrontendEvaluationsView.php:172
 #: src/Shared/Frontend/FrontendEvaluationsView.php:324
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:59
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:66
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:84
 #: src/Shared/Frontend/FrontendPeopleManageView.php:100
 #: src/Shared/Frontend/FrontendPeopleManageView.php:106
 #: src/Shared/Frontend/FrontendPeopleManageView.php:173
@@ -12740,7 +12740,7 @@ msgstr ""
 #. translators: 1: opponent name, 2: home or away label
 #. translators: 1: opponent name, 2: match result
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:159
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:193
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:211
 #, php-format
 msgid "vs %1$s (%2$s)"
 msgstr ""
@@ -18530,8 +18530,8 @@ msgstr "Mein Team"
 #: src/Shared/CoreSurfaceRegistration.php:235
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:37
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:38
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:97
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:98
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:115
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:116
 msgid "My evaluations"
 msgstr ""
 
@@ -18723,7 +18723,7 @@ msgstr ""
 msgid "My evaluations received"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Kpis/MyEvaluationsThisWeek.php:13
+#: src/Modules/PersonaDashboard/Kpis/MyEvaluationsThisWeek.php:14
 msgid "My evaluations this week"
 msgstr ""
 
@@ -30166,42 +30166,46 @@ msgstr ""
 msgid "Sign in to see the evaluations you authored."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:54
+#. translators: %d is the window size in days
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:66
+#, php-format
 msgid ""
-"No evaluations authored in the last 30 days. New evaluations you record will "
+"No evaluations authored in the last %d days. New evaluations you record will "
 "appear here."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:59
-msgid "Evaluations you authored in the last 30 days, newest first."
+#. translators: %d is the window size in days
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:75
+#, php-format
+msgid "Evaluations you authored in the last %d days, newest first."
 msgstr ""
 
 # ===== v3.0.0 slice 3 — Me-group frontend views =====
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:114
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:132
 msgid ""
 "No evaluations yet. Your coaches will record them here as training and "
 "matches progress."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:123
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:141
 msgid "Evaluations, newest first"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:170
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:188
 msgid "No overall rating yet"
 msgstr ""
 
 #. translators: %s is the coach's display name
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:179
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:197
 #, php-format
 msgid "by %s"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:211
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:229
 msgid "Show detail"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:212
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:230
 msgid "Hide detail"
 msgstr ""
 
