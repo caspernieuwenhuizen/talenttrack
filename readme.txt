@@ -4,13 +4,16 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.46
+Stable tag: 4.20.47
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.47 — PeopleRepository::list default-hides archived rows (closes #1226). Audit 7 (#1181) flagged the same-family bug as #1137 (people REST archive silent success): when an operator archives a person, the directory hides them but the parent-link picker on the player edit form (`ParentSearchPickerComponent`) and `FrontendFunctionalRolesView` still offered them. The REST controller defaulted-filter archived; the repository did not. **Fix.** `PeopleRepository::list()` now applies `WHERE p.archived_at IS NULL` by default unless the caller passes `include_archived = true` in filters. Mirrors `PeopleRestController::list_people`. No call-site changes needed — the two real callers (parent picker + functional roles) want active-only and now get it by default. Inline comment cites the audit + the #1137 history. Patch bump. (closes #1226) =
+
 
 = 4.20.46 — PlayerDashboardView tabs now filter archived rows (closes #1225). Audit 7 (#1181) flagged three tabs on the player/parent dashboard surfacing archived rows inconsistently with every other surface: Evaluations tab counted archived evals, Goals tab counted archived goals, Attendance tab counted attendance on archived activities + planned (not actual) rows. **Fix.** Evaluations query adds `e.archived_at IS NULL`. Goals query adds `g.archived_at IS NULL`. Attendance query: `s.archived_at IS NULL` on the JOIN + `a.record_type = 'actual'` in the WHERE. `plan_state = 'completed'` intentionally omitted — players want to see in-progress activities they attended too. Inline comments cite the audit + the bug history. **What this is NOT.** No `club_id` filter added — same #1188 direction; tenancy boundary enforced at the request layer in SaaS. Patch bump. (closes #1225) =
 

@@ -58,7 +58,7 @@ class PeopleRepository {
     // People CRUD
 
     /**
-     * @param array{only_staff?:bool, status?:string, search?:string, role_type?:string|list<string>} $filters
+     * @param array{only_staff?:bool, status?:string, search?:string, role_type?:string|list<string>, include_archived?:bool} $filters
      * @return array<int, object>
      */
     public function list( array $filters = [] ): array {
@@ -67,6 +67,16 @@ class PeopleRepository {
 
         $where  = [ 'p.club_id = %d' ];
         $params = [ CurrentClub::id() ];
+
+        // v4.20.47 (#1226) — default-hide archived people so pickers
+        // that consume this repo (parent-link picker on player edit,
+        // functional-roles assignment) stop offering soft-archived
+        // person records. Mirrors the partner REST controller's
+        // default (PeopleRestController::list_people). Audit 7 (#1181).
+        // Same family as #1137 (people REST archive silent success).
+        if ( empty( $filters['include_archived'] ) ) {
+            $where[] = 'p.archived_at IS NULL';
+        }
 
         if ( ! empty( $filters['status'] ) ) {
             $where[]  = 'p.status = %s';
