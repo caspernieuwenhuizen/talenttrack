@@ -23,7 +23,7 @@ class InvitationAcceptHandler {
 
         $token = isset( $_POST['token'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['token'] ) ) : '';
         if ( ! InvitationToken::isValidShape( $token ) ) {
-            wp_die( 'Invalid token.', 400 );
+            wp_die( esc_html__( 'Invalid token.', 'talenttrack' ), 400 );
         }
 
         $repo = new InvitationsRepository();

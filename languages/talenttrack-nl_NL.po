@@ -36777,3 +36777,26 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ "Vandaag toont deze pagina academy-brede KPI's en de standaardrapporten "
 #~ "hierboven. De twee-koloms entiteitskiezer-indeling (speler / team / "
 #~ "activiteit / seizoen) volgt in een vervolgrelease."
+
+#: src/Modules/Development/Frontend/IdeaPromoteHandler.php:29
+#: src/Modules/Development/Frontend/IdeaRefineHandler.php:25
+#: src/Modules/Development/Frontend/IdeaRejectHandler.php:24
+msgid "Bad request."
+msgstr "Ongeldig verzoek."
+
+#: src/Modules/Invitations/Frontend/InvitationAcceptHandler.php:26
+msgid "Invalid token."
+msgstr "Ongeldig token."
+
+#: src/Modules/Invitations/Frontend/InvitationCreateHandler.php:25
+msgid "Invalid kind."
+msgstr "Ongeldig type."
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:342
+msgid "Unknown error"
+msgstr "Onbekende fout"
+
+#. translators: %s is the field name
+#: src/Infrastructure/REST/BaseController.php:55
+msgid "Field \"%s\" is required."
+msgstr "Veld \"%s\" is verplicht."

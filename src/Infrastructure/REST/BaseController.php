@@ -52,7 +52,11 @@ abstract class BaseController {
             if ( $val === null || $val === '' ) {
                 $errors[] = [
                     'code'    => 'missing_field',
-                    'message' => sprintf( 'Field "%s" is required.', $field ),
+                    'message' => sprintf(
+                        /* translators: %s is the field name */
+                        __( 'Field "%s" is required.', 'talenttrack' ),
+                        $field
+                    ),
                     'details' => [ 'field' => $field ],
                 ];
             }

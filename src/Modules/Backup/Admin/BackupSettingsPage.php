@@ -339,7 +339,7 @@ class BackupSettingsPage {
         ?>
         <h3 style="margin-top:32px;"><?php esc_html_e( 'Restore from backup', 'talenttrack' ); ?></h3>
         <?php if ( empty( $preview['ok'] ) ) : ?>
-            <div class="notice notice-error"><p><?php echo esc_html( (string) ( $preview['error'] ?? 'Unknown error' ) ); ?></p></div>
+            <div class="notice notice-error"><p><?php echo esc_html( (string) ( $preview['error'] ?? __( 'Unknown error', 'talenttrack' ) ) ); ?></p></div>
         <?php else : ?>
             <p style="max-width:760px;">
                 <strong><?php esc_html_e( 'This action will replace the current data with the contents of the backup.', 'talenttrack' ); ?></strong>
