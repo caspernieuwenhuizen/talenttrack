@@ -110,6 +110,23 @@ class FrontendTrialsManageView extends FrontendViewBase {
             return;
         }
 
+        // v4.20.41 (#1201) — Audit 2 (#1176) flagged the cross-club
+        // pointing class on this inline-form path. Pre-fix the dropdown
+        // path accepted any submitted `player_id` and called
+        // `TrialCasesRepository::create()`, which stamped the writer's
+        // `club_id` on the new trial-case row but pointed the
+        // `player_id` at any existing player in the database —
+        // breaking the trial cascade (player-status updates downstream
+        // silently no-op on a foreign row because they're club-scoped).
+        // Verify the player belongs to the current club before
+        // proceeding. The inline-create path above is already
+        // safe — it INSERTs with `club_id = CurrentClub::id()`.
+        $player_row = QueryHelpers::get_player( $player_id );
+        if ( ! $player_row || (int) ( $player_row->club_id ?? 0 ) !== (int) CurrentClub::id() ) {
+            echo '<div class="tt-notice tt-notice-error">' . esc_html__( 'Player not found in your club.', 'talenttrack' ) . '</div>';
+            return;
+        }
+
         $cases = new TrialCasesRepository();
         $case_id = $cases->create( [
             'player_id'  => $player_id,
