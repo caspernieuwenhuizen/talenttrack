@@ -445,3 +445,17 @@
         padding: 6px 12px;
     }
 }
+
+/* ===== #1150 — Activity edit Status select min-width =====
+ *
+ * The Status select sits in a 2-column grid (.tt-grid-2) next to Type
+ * at desktop. With the default 50/50 split, longer Dutch status
+ * labels truncate in the closed-state display ("In uitvoering",
+ * "Geannuleerd", future "In afwachting van review"). 18ch covers
+ * 15+ visible characters plus the chevron, and the grid auto-
+ * rebalances so Type's column gives back the spare space without
+ * overflow. Mobile (≤ 480px) collapses to 1 column already so this
+ * is a no-op on phone viewports. */
+.tt-dashboard #tt-activity-status {
+    min-width: 18ch;
+}
