@@ -3,6 +3,7 @@ namespace TT\Modules\Analytics\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Analytics\Reports\MinutesQuery;
 use TT\Shared\Frontend\Components\BackLink;
@@ -49,10 +50,31 @@ final class FrontendMinutesTeamReportView extends FrontendViewBase {
         );
         self::renderHeader( __( 'Minutes played per player', 'talenttrack' ) );
 
+        // v4.20.34 (#1193) — same scope pattern as the two attendance
+        // views (v4.20.4 / #1147). Admins + `tt_view_all_teams` holders
+        // keep the club-wide list; everyone else only sees teams they
+        // coach. Both the dropdown AND the downstream `MinutesQuery`
+        // call guard against URL tampering.
+        $is_scope_admin = $is_admin || current_user_can( 'tt_view_all_teams' );
+        $allowed_team_ids = $is_scope_admin
+            ? null
+            : array_values( array_map( 'intval', array_column( QueryHelpers::get_teams_for_coach( $user_id ), 'id' ) ) );
+
+        if ( ! $is_scope_admin && $allowed_team_ids === [] ) {
+            echo '<p class="tt-notice">' . esc_html__( "You don't coach any teams yet, so there is no minutes data to show. Ask an administrator to assign you to a team.", 'talenttrack' ) . '</p>';
+            return;
+        }
+
         $team_id = isset( $_GET['team_id'] ) ? absint( $_GET['team_id'] ) : 0;
-        $teams = self::listTeams();
+        $teams = self::listTeams( $allowed_team_ids );
         if ( empty( $teams ) ) {
             echo '<p class="tt-notice">' . esc_html__( 'No teams yet — add one to enable this report.', 'talenttrack' ) . '</p>';
+            return;
+        }
+        // URL tampering: requested team_id not in the scoped list →
+        // empty state instead of forging through to MinutesQuery.
+        if ( $allowed_team_ids !== null && $team_id > 0 && ! in_array( $team_id, $allowed_team_ids, true ) ) {
+            echo '<p class="tt-notice">' . esc_html__( 'No data for the selected team in your scope.', 'talenttrack' ) . '</p>';
             return;
         }
         if ( $team_id <= 0 || ! self::teamExists( $team_id, $teams ) ) {
@@ -154,16 +176,34 @@ final class FrontendMinutesTeamReportView extends FrontendViewBase {
     }
 
     /**
-     * @return list<object>  id, name — every team the club has.
+     * v4.20.34 (#1193) — accepts an `$allowed_team_ids` scope filter.
+     * `null` means unrestricted (admin / view_all_teams); a list narrows
+     * the SQL `IN (...)` clause.
+     *
+     * @param list<int>|null $allowed_team_ids
+     * @return list<object>  id, name
      */
-    private static function listTeams(): array {
+    private static function listTeams( ?array $allowed_team_ids = null ): array {
         global $wpdb;
-        $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, name FROM {$wpdb->prefix}tt_teams
-              WHERE club_id = %d AND archived_at IS NULL
-              ORDER BY name ASC",
-            CurrentClub::id()
-        ) );
+        if ( $allowed_team_ids !== null ) {
+            if ( $allowed_team_ids === [] ) return [];
+            $placeholders = implode( ',', array_fill( 0, count( $allowed_team_ids ), '%d' ) );
+            $rows = $wpdb->get_results( $wpdb->prepare(
+                "SELECT id, name FROM {$wpdb->prefix}tt_teams
+                  WHERE club_id = %d
+                    AND archived_at IS NULL
+                    AND id IN ($placeholders)
+                  ORDER BY name ASC",
+                CurrentClub::id(), ...$allowed_team_ids
+            ) );
+        } else {
+            $rows = $wpdb->get_results( $wpdb->prepare(
+                "SELECT id, name FROM {$wpdb->prefix}tt_teams
+                  WHERE club_id = %d AND archived_at IS NULL
+                  ORDER BY name ASC",
+                CurrentClub::id()
+            ) );
+        }
         return is_array( $rows ) ? $rows : [];
     }
 
