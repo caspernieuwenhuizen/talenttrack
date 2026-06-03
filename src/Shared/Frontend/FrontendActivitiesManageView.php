@@ -1340,19 +1340,87 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 $linked_ids = ( $is_edit && $session && (int) $session->id > 0 )
                     ? ( new \TT\Modules\Methodology\Repositories\PrincipleLinksRepository() )->principlesForActivity( (int) $session->id )
                     : [];
-                if ( ! empty( $all_principles ) ) : ?>
+                if ( ! empty( $all_principles ) ) :
+                    // #1122 — replace the flat multiselect with the
+                    // bucket → principles two-level picker. Same shape
+                    // as PrinciplesStep (wizard); both surfaces keep
+                    // visual parity so a coach moving between
+                    // wizard-create + form-edit sees the same picker.
+                    $function_labels = \TT\Modules\Methodology\MethodologyEnums::teamFunctions();
+                    $task_labels     = \TT\Modules\Methodology\MethodologyEnums::teamTasks();
+                    $grouped = [];
+                    $unbucketed = [];
+                    foreach ( $all_principles as $pr ) {
+                        $fk = (string) ( $pr->team_function_key ?? '' );
+                        $tk = (string) ( $pr->team_task_key     ?? '' );
+                        if ( $fk === '' && $tk === '' ) { $unbucketed[] = $pr; continue; }
+                        $grouped[ $fk ][ $tk ][] = $pr;
+                    }
+                    $task_order = array_keys( $task_labels );
+                    ?>
                 <div class="tt-field">
-                    <label class="tt-field-label" for="tt-activity-principles"><?php esc_html_e( 'Connected principles', 'talenttrack' ); ?></label>
-                    <select id="tt-activity-principles" class="tt-input" name="activity_principle_ids[]" multiple size="6">
-                        <?php foreach ( $all_principles as $pr ) :
-                            $title = \TT\Modules\Methodology\Helpers\MultilingualField::string( $pr->title_json );
+                    <span class="tt-field-label"><?php esc_html_e( 'Connected principles', 'talenttrack' ); ?></span>
+                    <p class="tt-field-hint" style="margin-top:0;"><?php esc_html_e( 'Group by team function + team task; tick whichever apply. Leave all unticked to save without links.', 'talenttrack' ); ?></p>
+                    <div class="tt-act-principle-picker" style="display:flex; flex-direction:column; gap:10px; margin-top:6px;">
+                        <?php foreach ( $function_labels as $fk => $fn_label ) :
+                            if ( empty( $grouped[ $fk ] ) ) continue;
+                            uksort( $grouped[ $fk ], static function ( $a, $b ) use ( $task_order ): int {
+                                $ia = array_search( $a, $task_order, true );
+                                $ib = array_search( $b, $task_order, true );
+                                if ( $ia === false ) $ia = PHP_INT_MAX;
+                                if ( $ib === false ) $ib = PHP_INT_MAX;
+                                return $ia <=> $ib;
+                            } );
                             ?>
-                            <option value="<?php echo (int) $pr->id; ?>" <?php selected( in_array( (int) $pr->id, $linked_ids, true ) ); ?>>
-                                <?php echo esc_html( $pr->code . ' · ' . ( $title ?: '—' ) ); ?>
-                            </option>
+                            <details open style="border:1px solid var(--tt-line, #d6dadd); border-radius:8px; padding:10px 12px; background:#fff;">
+                                <summary style="cursor:pointer; font-weight:700; font-size:14px; color:var(--tt-ink, #1a1d21);"><?php echo esc_html( $fn_label ); ?></summary>
+                                <?php foreach ( $grouped[ $fk ] as $tk => $rows ) :
+                                    $task_label = $task_labels[ $tk ] ?? ucfirst( str_replace( '_', ' ', (string) $tk ) );
+                                    ?>
+                                    <div style="margin:10px 0 4px;">
+                                        <?php if ( (string) $tk !== '' ) : ?>
+                                            <div style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; color:var(--tt-muted, #5b6e75); margin-bottom:6px;"><?php echo esc_html( (string) $task_label ); ?></div>
+                                        <?php endif; ?>
+                                        <ul style="list-style:none; margin:0; padding:0; display:grid; grid-template-columns:1fr; gap:6px;">
+                                            <?php foreach ( $rows as $pr ) :
+                                                $title  = \TT\Modules\Methodology\Helpers\MultilingualField::string( $pr->title_json );
+                                                $label  = trim( (string) $pr->code . ( $title !== '' ? ' · ' . $title : '' ) );
+                                                $pid    = (int) $pr->id;
+                                                $is_sel = in_array( $pid, $linked_ids, true );
+                                                ?>
+                                                <li>
+                                                    <label style="display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:6px; background:<?php echo $is_sel ? '#eef4fb' : '#f9fafb'; ?>; cursor:pointer; min-height:44px;">
+                                                        <input type="checkbox" name="activity_principle_ids[]" value="<?php echo $pid; ?>"<?php checked( $is_sel ); ?> style="width:20px; height:20px;">
+                                                        <span style="flex:1; font-size:14px;"><?php echo esc_html( $label ); ?></span>
+                                                    </label>
+                                                </li>
+                                            <?php endforeach; ?>
+                                        </ul>
+                                    </div>
+                                <?php endforeach; ?>
+                            </details>
                         <?php endforeach; ?>
-                    </select>
-                    <p class="tt-field-hint"><?php esc_html_e( 'Optional. Hold Ctrl/Cmd to select multiple.', 'talenttrack' ); ?></p>
+                        <?php if ( $unbucketed !== [] ) : ?>
+                            <details style="border:1px solid var(--tt-line, #d6dadd); border-radius:8px; padding:10px 12px; background:#fff;">
+                                <summary style="cursor:pointer; font-weight:700; font-size:14px; color:var(--tt-muted, #5b6e75);"><?php esc_html_e( 'Other principles', 'talenttrack' ); ?></summary>
+                                <ul style="list-style:none; margin:10px 0 4px; padding:0; display:grid; grid-template-columns:1fr; gap:6px;">
+                                    <?php foreach ( $unbucketed as $pr ) :
+                                        $title  = \TT\Modules\Methodology\Helpers\MultilingualField::string( $pr->title_json );
+                                        $label  = trim( (string) $pr->code . ( $title !== '' ? ' · ' . $title : '' ) );
+                                        $pid    = (int) $pr->id;
+                                        $is_sel = in_array( $pid, $linked_ids, true );
+                                        ?>
+                                        <li>
+                                            <label style="display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:6px; background:<?php echo $is_sel ? '#eef4fb' : '#f9fafb'; ?>; cursor:pointer; min-height:44px;">
+                                                <input type="checkbox" name="activity_principle_ids[]" value="<?php echo $pid; ?>"<?php checked( $is_sel ); ?> style="width:20px; height:20px;">
+                                                <span style="flex:1; font-size:14px;"><?php echo esc_html( $label ); ?></span>
+                                            </label>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            </details>
+                        <?php endif; ?>
+                    </div>
                 </div>
                 <?php endif;
             }
