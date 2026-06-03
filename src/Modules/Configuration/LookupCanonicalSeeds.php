@@ -3,6 +3,11 @@ namespace TT\Modules\Configuration;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\PdpVerdictDecision;
+use TT\Domain\Vocabularies\Lookups\TournamentFormation;
+use TT\Domain\Vocabularies\Lookups\TournamentOpponentLevel;
+use TT\Domain\Vocabularies\Lookups\TrialCaseStatus;
+
 /**
  * LookupCanonicalSeeds (#987 v4.12.0) — single source of truth for the
  * canonical English internal-key values per `lookup_type`.
@@ -111,15 +116,23 @@ final class LookupCanonicalSeeds {
 
             // 0098 — tournament lookups
             'tournament_format'    => [ 'Knockout', 'Round-robin', 'Group + knockout', 'League' ],
-            'tournament_formation' => [ '11v11', '9v9', '7v7', '5v5', '4v4', '3v3' ],
-            'opponent_level'       => [ 'Below club level', 'Club level', 'Above club level' ],
+            // #1022 — drift fix: pull from the typed-constants source
+            // of truth so this map can't drift away from migration 0098
+            // + REST validation in the future.
+            'tournament_formation' => TournamentFormation::ALL,
+            'opponent_level'       => TournamentOpponentLevel::ALL,
 
             // 0110-0117 — workflow + status lookups (these ones use
             // lowercase internal keys, per migration design)
             'invitation_status' => [
                 'pending', 'sent', 'opened', 'accepted', 'declined', 'expired', 'revoked',
             ],
-            'pdp_verdict_decision' => [ 'On track', 'Behind', 'Ahead', 'At risk', 'Released' ],
+            // #1022 — drift fix: was 'On track / Behind / Ahead / At risk
+            // / Released' (none of which are actually seeded by migration
+            // 0112 or accepted by PdpVerdictsRepository::ALLOWED_DECISIONS).
+            // Source of truth is PdpVerdictDecision::ALL (promote / retain
+            // / release / transfer).
+            'pdp_verdict_decision' => PdpVerdictDecision::ALL,
             'task_status' => [
                 'open', 'in_progress', 'completed', 'overdue', 'skipped', 'cancelled',
             ],
@@ -128,7 +141,12 @@ final class LookupCanonicalSeeds {
                 'submitted', 'refining', 'ready-for-approval', 'rejected',
                 'promoting', 'promoted', 'promotion-failed', 'in-progress', 'done',
             ],
-            'trial_case_status' => [ 'Open', 'In progress', 'Decision pending', 'Accepted', 'Rejected' ],
+            // #1022 — drift fix: was 'Open / In progress / Decision
+            // pending / Accepted / Rejected' (the wrong vocabulary — those
+            // look like decision outcomes, not case statuses). Source of
+            // truth is TrialCaseStatus::ALL (open / extended / decided /
+            // archived) per migration 0116.
+            'trial_case_status' => TrialCaseStatus::ALL,
             'medium_batch_status' => [ 'Pending', 'Processing', 'Completed', 'Failed' ],
 
             // 0124 — VCT
