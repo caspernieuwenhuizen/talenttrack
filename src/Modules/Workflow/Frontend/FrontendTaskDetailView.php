@@ -3,6 +3,7 @@ namespace TT\Modules\Workflow\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\Authorization\MatrixGate;
 use TT\Modules\Workflow\Repositories\TasksRepository;
 use TT\Modules\Workflow\TaskStatus;
 use TT\Modules\Workflow\WorkflowModule;
@@ -57,6 +58,17 @@ class FrontendTaskDetailView extends FrontendViewBase {
         // (typically scout viewing an HoD-assigned invite task).
         $is_assignee = (int) $task['assignee_user_id'] === $user_id;
 
+        // #1152 — academy_admin takeover. Users carrying
+        // `task_completion:create` at GLOBAL scope can submit on
+        // behalf of an absent or unresponsive assignee. Gated through
+        // MatrixGate (not `tt_complete_tasks`) because the legacy
+        // bridge resolves via `canAnyScope` and would also let a
+        // coach with `task_completion [rc, self]` through. Only
+        // academy_admin holds the global entry today.
+        $can_takeover = MatrixGate::can( $user_id, 'task_completion', 'create', MatrixGate::SCOPE_GLOBAL );
+        $can_submit   = $is_assignee || $can_takeover;
+        $is_takeover  = $can_takeover && ! $is_assignee;
+
         $template = WorkflowModule::registry()->get( (string) $task['template_key'] );
         if ( $template === null ) {
             self::renderHeader( __( 'Task template missing', 'talenttrack' ) );
@@ -77,11 +89,12 @@ class FrontendTaskDetailView extends FrontendViewBase {
         $errors = [];
         $flash  = '';
 
-        // Submission path — only the assignee can submit. Non-assignee
-        // POSTs are silently ignored (no error notice — the submit
-        // button isn't rendered for them so reaching this branch means
-        // a manual POST or a stale form).
-        if ( $is_assignee && $_SERVER['REQUEST_METHOD'] === 'POST' && isset( $_POST['tt_workflow_submit'] ) ) {
+        // Submission path — assignee always; academy_admin takeover
+        // when `task_completion:create` is held at global scope.
+        // Non-eligible POSTs are silently ignored (no error notice —
+        // the submit button isn't rendered for them so reaching this
+        // branch means a manual POST or a stale form).
+        if ( $can_submit && $_SERVER['REQUEST_METHOD'] === 'POST' && isset( $_POST['tt_workflow_submit'] ) ) {
             $nonce_ok = isset( $_POST[ self::NONCE_FIELD ] )
                 && wp_verify_nonce( sanitize_text_field( (string) $_POST[ self::NONCE_FIELD ] ), self::NONCE_ACTION );
             if ( ! $nonce_ok ) {
@@ -94,6 +107,17 @@ class FrontendTaskDetailView extends FrontendViewBase {
                     $response = $form->serializeResponse( $raw, $task );
                     $ok = WorkflowModule::engine()->complete( $task_id, $response );
                     if ( $ok ) {
+                        // #1152 — audit-log on takeover so the
+                        // operator who completed for someone else
+                        // leaves a paper trail.
+                        if ( $is_takeover && class_exists( '\\TT\\Infrastructure\\Logging\\Logger' ) ) {
+                            \TT\Infrastructure\Logging\Logger::info( 'workflow.task.completed_on_behalf', [
+                                'task_id'           => $task_id,
+                                'template_key'      => (string) ( $task['template_key'] ?? '' ),
+                                'assignee_user_id'  => (int) ( $task['assignee_user_id'] ?? 0 ),
+                                'completed_by_user_id' => $user_id,
+                            ] );
+                        }
                         $redirect = remove_query_arg( 'task_id' ) . '&tt_workflow_done=1';
                         if ( ! headers_sent() ) {
                             wp_safe_redirect( $redirect );
@@ -155,8 +179,11 @@ class FrontendTaskDetailView extends FrontendViewBase {
 
         // v3.110.98 — surfacing assignee + status + due date for everyone
         // (assignee and viewer alike). Non-assignees get an explicit
-        // banner explaining they can read but not edit.
-        echo self::renderTaskFacts( $task, $is_assignee );
+        // banner explaining they can read but not edit. #1152 — when
+        // the viewer holds takeover, the banner switches to a
+        // "completing on behalf of [Name]" amber note so the operator
+        // sees they're acting as a stand-in.
+        echo self::renderTaskFacts( $task, $is_assignee, $is_takeover );
 
         if ( ! empty( $errors['__form'] ) ) {
             echo '<div class="tt-notice notice-error" style="background:#fdecea; border-left:4px solid #b32d2e; padding:8px 12px; margin: 8px 0 16px;">'
@@ -165,17 +192,20 @@ class FrontendTaskDetailView extends FrontendViewBase {
 
         echo '<form method="post" class="tt-workflow-form">';
         wp_nonce_field( self::NONCE_ACTION, self::NONCE_FIELD );
-        // Wrap the form in <fieldset disabled> when the viewer isn't
-        // the assignee. <fieldset disabled> is the native HTML way to
+        // Wrap the form in <fieldset disabled> when the viewer can't
+        // submit. <fieldset disabled> is the native HTML way to
         // disable every interactive control inside without per-field
         // changes to the form class.
-        $needs_lock = ! $is_assignee && ! $is_completed;
+        $needs_lock = ! $can_submit && ! $is_completed;
         if ( $needs_lock ) echo '<fieldset disabled style="border:0; padding:0; margin:0;">';
         echo $form->render( $task );
         if ( $needs_lock ) echo '</fieldset>';
-        if ( $is_assignee && ! $is_completed ) {
+        if ( $can_submit && ! $is_completed ) {
+            $submit_label = $is_takeover
+                ? __( 'Complete on behalf', 'talenttrack' )
+                : __( 'Submit', 'talenttrack' );
             echo '<p style="margin-top: 18px;"><button type="submit" name="tt_workflow_submit" value="1" class="button button-primary" style="padding:8px 18px;">'
-                . esc_html__( 'Submit', 'talenttrack' )
+                . esc_html( $submit_label )
                 . '</button></p>';
         }
         echo '</form>';
@@ -188,7 +218,7 @@ class FrontendTaskDetailView extends FrontendViewBase {
      *
      * @param array<string,mixed> $task
      */
-    private static function renderTaskFacts( array $task, bool $is_assignee ): string {
+    private static function renderTaskFacts( array $task, bool $is_assignee, bool $is_takeover = false ): string {
         $assignee_id = (int) ( $task['assignee_user_id'] ?? 0 );
         $assignee_name = '';
         if ( $assignee_id > 0 ) {
@@ -221,9 +251,19 @@ class FrontendTaskDetailView extends FrontendViewBase {
         $out .= '</dl>';
 
         if ( ! $is_assignee ) {
-            $out .= '<div class="tt-notice" style="background:#fff7e6; border-left:4px solid #d8a83b; padding:10px 12px; margin: 0 0 16px;">'
-                . esc_html__( 'You can view this task, but only the assignee can edit or complete it.', 'talenttrack' )
-                . '</div>';
+            if ( $is_takeover ) {
+                $out .= '<div class="tt-notice" style="background:#fff7e6; border-left:4px solid #d8a83b; padding:10px 12px; margin: 0 0 16px;">'
+                    . esc_html( sprintf(
+                        /* translators: %s — assignee display name. Surfaced when an academy admin completes a workflow task on behalf of someone else (#1152). */
+                        __( 'Completing on behalf of %s — this action will be recorded in the audit log.', 'talenttrack' ),
+                        $assignee_name
+                    ) )
+                    . '</div>';
+            } else {
+                $out .= '<div class="tt-notice" style="background:#fff7e6; border-left:4px solid #d8a83b; padding:10px 12px; margin: 0 0 16px;">'
+                    . esc_html__( 'You can view this task, but only the assignee can edit or complete it.', 'talenttrack' )
+                    . '</div>';
+            }
         }
         return $out;
     }

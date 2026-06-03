@@ -654,10 +654,14 @@ return array_merge(
         'team_chemistry'                => [ 'rcd', 'global', $mod_team_dev ],
         'frontend_admin'                => [ 'r',   'global', $mod_authorization ],
         'settings'                      => [ 'rcd', 'global', $mod_configuration ],
-        'workflow_tasks'                => [ 'r',   'self',   $mod_workflow ],
+        // #1152 — academy_admin can view + complete tasks assigned to
+        // others. Operational continuity when the assignee is ill or
+        // unresponsive. Other personas stay at `self` scope; only
+        // academy_admin gets the global takeover affordance.
+        'workflow_tasks'                => [ 'r',   'global', $mod_workflow ],
         'tasks_dashboard'               => [ 'r',   'global', $mod_workflow ],
         'workflow_templates'            => [ 'rcd', 'global', $mod_workflow ],
-        'task_completion'               => [ 'rc',  'self',   $mod_workflow ],
+        'task_completion'               => [ 'rc',  'global', $mod_workflow ],
         'dev_ideas'                     => [ 'rcd', 'global', $mod_development ],
         'thread_messages'               => [ 'rcd', 'global', $mod_threads ],
         'staff_overview'                => [ 'r',   'global', $mod_staff_dev ],

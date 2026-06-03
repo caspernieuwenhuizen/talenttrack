@@ -73,6 +73,13 @@ final class LegacyCapMapper {
         'tt_view_tasks_dashboard'        => [ 'tasks_dashboard','read' ],
         'tt_configure_workflow_templates'=> [ 'workflow_templates','change' ],
         'tt_manage_workflow_templates'   => [ 'workflow_templates','create_delete' ],
+        // #1152 — academy_admin takeover gate. Bridged here as a
+        // convenience for view code, but the AUTHORITATIVE check uses
+        // `MatrixGate::can( $uid, 'task_completion', 'create', SCOPE_GLOBAL )`
+        // directly because the legacy bridge resolves via
+        // `canAnyScope` — that would let a coach with `task_completion
+        // [rc, self]` pass too, which defeats the takeover gate. View
+        // code calls the MatrixGate helper, not `current_user_can`.
 
         // Development management (#0009)
         'tt_submit_idea'                 => [ 'dev_ideas',      'change' ],
