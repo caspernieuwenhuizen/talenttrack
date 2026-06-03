@@ -244,20 +244,56 @@ class LabelTranslator {
      * (custom positions an admin added stay verbatim).
      */
     public static function positionLabel( string $code ): string {
+        $longform = self::positionLongForm( $code );
+        return $longform === $code ? $code : __( $longform, 'talenttrack' ); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText -- delegated dynamic key resolved from positionLongForm()'s static switch above; the canonical English strings still ship as literal __() calls so the extractor sees them.
+    }
+
+    /**
+     * #902 — return the canonical English long form for a position
+     * code, without going through gettext. Migration 0141 needs this
+     * so it can drive `switch_to_locale() → __()` from the long form
+     * (the operator-facing `tt_translations` store).
+     */
+    public static function positionLongForm( string $code ): string {
         switch ( strtoupper( $code ) ) {
-            case 'GK':  return __( 'Goalkeeper',             'talenttrack' );
-            case 'CB':  return __( 'Centre back',            'talenttrack' );
-            case 'LB':  return __( 'Left back',              'talenttrack' );
-            case 'RB':  return __( 'Right back',             'talenttrack' );
-            case 'CDM': return __( 'Defensive midfielder',   'talenttrack' );
-            case 'CM':  return __( 'Central midfielder',     'talenttrack' );
-            case 'CAM': return __( 'Attacking midfielder',   'talenttrack' );
-            case 'LW':  return __( 'Left winger',            'talenttrack' );
-            case 'RW':  return __( 'Right winger',           'talenttrack' );
-            case 'ST':  return __( 'Striker',                'talenttrack' );
-            case 'CF':  return __( 'Centre forward',         'talenttrack' );
+            case 'GK':  return 'Goalkeeper';
+            case 'CB':  return 'Centre back';
+            case 'LB':  return 'Left back';
+            case 'RB':  return 'Right back';
+            case 'CDM': return 'Defensive midfielder';
+            case 'CM':  return 'Central midfielder';
+            case 'CAM': return 'Attacking midfielder';
+            case 'LW':  return 'Left winger';
+            case 'RW':  return 'Right winger';
+            case 'ST':  return 'Striker';
+            case 'CF':  return 'Centre forward';
         }
         return $code;
+    }
+
+    /**
+     * #902 — extractor anchors for the 11 position long forms.
+     *
+     * `positionLabel()` resolves the long form dynamically via
+     * `positionLongForm()` and then calls `__($longform)` — but the
+     * gettext extractor needs to see the canonical English literals
+     * to generate `.po` msgids. This unreachable block keeps the
+     * literals visible. Anchoring matches the convention used by
+     * other dynamic-key translators in this file (e.g.
+     * `vctExerciseCategory`'s sibling extractor anchor).
+     */
+    private static function positionLabelExtractorAnchors(): void {
+        __( 'Goalkeeper',           'talenttrack' );
+        __( 'Centre back',          'talenttrack' );
+        __( 'Left back',            'talenttrack' );
+        __( 'Right back',           'talenttrack' );
+        __( 'Defensive midfielder', 'talenttrack' );
+        __( 'Central midfielder',   'talenttrack' );
+        __( 'Attacking midfielder', 'talenttrack' );
+        __( 'Left winger',          'talenttrack' );
+        __( 'Right winger',         'talenttrack' );
+        __( 'Striker',              'talenttrack' );
+        __( 'Centre forward',       'talenttrack' );
     }
 
     /**
@@ -276,6 +312,32 @@ class LabelTranslator {
             case 'finishing':    return __( 'Finishing',   'talenttrack' );
             case 'cool_down':    return __( 'Cool-down',   'talenttrack' );
             default:             return self::humanise( $code );
+        }
+    }
+
+    /**
+     * #902 — translates a `tt_lookups.player_value` row name. The 8
+     * seed values (Commitment / Coachability / Leadership /
+     * Resilience / Communication / Work ethic / Fair play / Ambition)
+     * land in migration 0031 but were never wrapped in `__()`, so the
+     * .pot extractor never saw them. This translator anchors them so
+     * the .po files have msgids and migration 0142 can backfill
+     * `tt_translations` from the canonical English long forms.
+     *
+     * Unknown values fall through to `humanise()` so operator-added
+     * custom values render reasonably without a translator pass.
+     */
+    public static function playerValueLabel( string $name ): string {
+        switch ( $name ) {
+            case 'Commitment':    return __( 'Commitment',    'talenttrack' );
+            case 'Coachability':  return __( 'Coachability',  'talenttrack' );
+            case 'Leadership':    return __( 'Leadership',    'talenttrack' );
+            case 'Resilience':    return __( 'Resilience',    'talenttrack' );
+            case 'Communication': return __( 'Communication', 'talenttrack' );
+            case 'Work ethic':    return __( 'Work ethic',    'talenttrack' );
+            case 'Fair play':     return __( 'Fair play',     'talenttrack' );
+            case 'Ambition':      return __( 'Ambition',      'talenttrack' );
+            default:              return self::humanise( $name );
         }
     }
 
