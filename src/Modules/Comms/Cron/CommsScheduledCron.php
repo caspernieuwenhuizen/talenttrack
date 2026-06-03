@@ -74,12 +74,17 @@ final class CommsScheduledCron {
         // 28-day-old goals where the player is reachable (has wp_user_id).
         // Pulls a bounded batch per cron run (50) so a long tail
         // doesn't single-handedly hit the wp-cron timeout.
+        // v4.20.45 (#1224) — added `g.club_id = pl.club_id` to the
+        // JOIN so post-SaaS the goal-nudge cron doesn't fire across
+        // tenant boundaries (today a no-op since `club_id` always
+        // resolves to 1, but the structural defence is cheap).
+        // Audit 7 (#1181).
         $rows = $wpdb->get_results(
             "SELECT g.id, g.player_id, g.title,
                     DATEDIFF(NOW(), g.created_at) AS days_old,
                     pl.club_id, pl.first_name, pl.last_name
                 FROM {$p}tt_goals g
-                JOIN {$p}tt_players pl ON pl.id = g.player_id
+                JOIN {$p}tt_players pl ON pl.id = g.player_id AND pl.club_id = g.club_id
                 WHERE g.archived_at IS NULL
                   AND g.created_at <= DATE_SUB(NOW(), INTERVAL 28 DAY)
                   AND g.created_at >= DATE_SUB(NOW(), INTERVAL 90 DAY)
@@ -118,14 +123,29 @@ final class CommsScheduledCron {
         // Players with 3+ non-present attendance rows in their last 5
         // activities (trailing 30 days). Conservative — joins
         // attendance to activities to avoid stale future rows.
+        // v4.20.45 (#1224) — four scope filters added so the
+        // attendance-flag detection counts the right rows:
+        //   • `att.club_id = pl.club_id` — cross-tenant defence (no-op
+        //     today; structural for SaaS).
+        //   • `att.is_guest = 0` — JO13 player called up to JO14-1 as
+        //     a guest no longer carries an "absent" toward their own
+        //     JO13 nudge count.
+        //   • `att.record_type = 'actual'` — expected-attendance rows
+        //     (#788 ship 2) don't pollute the count once that ship
+        //     activates.
+        //   • `a.archived_at IS NULL` — soft-archived activities don't
+        //     contribute false-positive absences.
+        // Audit 7 (#1181).
         $rows = $wpdb->get_results(
             "SELECT pl.id AS player_id, pl.club_id, pl.team_id, pl.first_name, pl.last_name,
                     COUNT(*) AS missed_count
                 FROM {$p}tt_attendance att
-                JOIN {$p}tt_activities a ON a.id = att.activity_id
-                JOIN {$p}tt_players pl ON pl.id = att.player_id
+                JOIN {$p}tt_activities a ON a.id = att.activity_id AND a.archived_at IS NULL
+                JOIN {$p}tt_players pl ON pl.id = att.player_id AND pl.club_id = att.club_id
                 WHERE a.session_date >= DATE_SUB(NOW(), INTERVAL 30 DAY)
                   AND a.plan_state = 'completed'
+                  AND att.is_guest = 0
+                  AND att.record_type = 'actual'
                   AND LOWER(att.status) IN ('absent', 'excused', 'injured')
                 GROUP BY pl.id, pl.club_id, pl.team_id, pl.first_name, pl.last_name
                 HAVING COUNT(*) >= 3

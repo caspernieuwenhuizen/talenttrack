@@ -4,13 +4,16 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.44
+Stable tag: 4.20.45
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.45 — Comms cron: attendance-flag + goal-nudge detection get the right scope filters (closes #1224). Audit 7 (#1181) flagged five scope drifts on the parent-nudge cron. **Attendance-flag detection** (line 121) was counting guest attendance, expected-attendance rows, and archived activities as if they were the player's own absences, plus joining cross-tenant. **Fix:** four filters added — `att.club_id = pl.club_id` (cross-tenant defence), `att.is_guest = 0` (JO13 player called up to JO14-1 as guest stops carrying an "absent" toward their JO13 nudge count), `att.record_type = 'actual'` (expected-attendance rows from #788 ship 2 won't pollute the count once that ship activates), `a.archived_at IS NULL` (soft-archived activities don't drive false-positive nudges). **Goal-nudge detection** (line 78) gets the same `pl.club_id = g.club_id` join condition for cross-tenant defence. **Persona impact closed.** Parents stop receiving nudges triggered by guest call-ups + planned attendance + archived activities. Cross-tenant post-SaaS is no longer a vector. Inline comments cite the audit + the bug family so subsequent edits don't reflex-revert. Patch bump. (closes #1224) =
+
 
 = 4.20.44 — Reports: 4 `tt_activities` reads add `archived_at IS NULL` so HoD KPIs stop counting soft-archived activities (closes #1222). Audit 7 (#1181) flagged four sibling read sites that omitted the soft-delete filter and inflated HoD-facing counts: `KpiSnapshotXlsxExporter` "Activities in period" cell, `FrontendStandardReportsView::renderSeasonSummary` "Matches (12 mo)" KPI strip, the per-team `match_count` column in the same view, and `FrontendPdpManageView` activities-timeline panel. Same pattern as #1127 (planner) which was already brought into line. **Fix.** Each WHERE clause gains `AND archived_at IS NULL` (or `AND a.archived_at IS NULL` inside the per-team CASE). Inline comments cite the audit + the bug-class history so subsequent edits don't reflex-revert. **What's NOT in this PR.** `FrontendMyActivitiesView::renderDetail` (audit's 5th entry) routes through `ActivitiesRepository::findForPlayer` which is a deeper repository change tied to #1221 — deferred. The KPI display now matches the soft-delete semantics the activity-list views use; archived activities never count toward year-end review numbers. Patch bump. (closes #1222) =
 
