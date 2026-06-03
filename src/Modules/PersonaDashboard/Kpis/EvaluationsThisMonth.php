@@ -7,11 +7,32 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\PersonaDashboard\Domain\AbstractKpiDataSource;
 use TT\Modules\PersonaDashboard\Domain\KpiValue;
 use TT\Modules\PersonaDashboard\Domain\PersonaContext;
+use TT\Modules\PersonaDashboard\Domain\RenderContext;
 
 class EvaluationsThisMonth extends AbstractKpiDataSource {
     public function id(): string { return 'evaluations_this_month'; }
     public function label(): string { return __( 'Evaluations this month', 'talenttrack' ); }
     public function context(): string { return PersonaContext::ACADEMY; }
+
+    /** Cutoff used by both compute() + linkUrl() — single source of truth. */
+    private static function cutoffDate(): string {
+        return gmdate( 'Y-m-01' );
+    }
+
+    /**
+     * v4.20.24 (#1210) — Deep-link with `filter[date_from]=<1st of month>`
+     * so the destination evaluations list matches the KPI 1:1. Lands live
+     * in the dominant kpi_card placement via v4.20.22's `KpiCardWidget`
+     * → `linkUrl()` routing fix (#1207).
+     */
+    public function linkUrl( RenderContext $ctx ): string {
+        $view = $this->linkView();
+        if ( $view === '' ) return '';
+        return add_query_arg(
+            [ 'filter' => [ 'date_from' => self::cutoffDate() ] ],
+            $ctx->viewUrl( $view )
+        );
+    }
 
     public function compute( int $user_id, int $club_id ): KpiValue {
         global $wpdb;
@@ -19,7 +40,7 @@ class EvaluationsThisMonth extends AbstractKpiDataSource {
         if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
             return KpiValue::unavailable();
         }
-        $first = gmdate( 'Y-m-01 00:00:00' );
+        $first = self::cutoffDate() . ' 00:00:00';
         // v3.108.5 — added `club_id` filter. Without it the count
         // aggregated across every tenant on the install (returning
         // either 0 on a fresh pilot, or a misleading global total in

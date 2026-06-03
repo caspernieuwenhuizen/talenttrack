@@ -90,6 +90,8 @@ class GoalsRestController {
      *   ?filter[priority]=<string>
      *   ?filter[due_from]=<YYYY-MM-DD>
      *   ?filter[due_to]=<YYYY-MM-DD>
+     *   ?filter[date_from]=<YYYY-MM-DD>   — matches `g.created_at >= …`
+     *   ?filter[date_to]=<YYYY-MM-DD>     — matches `g.created_at <= …`
      *   ?orderby=due_date|created_at|status|priority|title|player_name
      *   ?order=asc|desc                                   (default: asc on due_date, desc otherwise)
      *   ?page=<int>                                       (default 1)
@@ -168,6 +170,19 @@ class GoalsRestController {
         if ( ! empty( $filter['due_to'] ) ) {
             $where[]  = 'g.due_date <= %s';
             $params[] = sanitize_text_field( (string) $filter['due_to'] );
+        }
+        // v4.20.24 (#1210) — created_at-based date filters mirror the
+        // shape used by EvaluationsRestController + ActivitiesRestController
+        // (`filter[date_from]` / `filter[date_to]`). Used by
+        // `GoalsByPrincipleKpi::linkUrl()` so the KPI's rolling 90-day
+        // window matches the destination list 1:1.
+        if ( ! empty( $filter['date_from'] ) ) {
+            $where[]  = 'g.created_at >= %s';
+            $params[] = sanitize_text_field( (string) $filter['date_from'] );
+        }
+        if ( ! empty( $filter['date_to'] ) ) {
+            $where[]  = 'g.created_at <= %s';
+            $params[] = sanitize_text_field( (string) $filter['date_to'] );
         }
 
         if ( ! empty( $r['search'] ) ) {
