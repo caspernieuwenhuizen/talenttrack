@@ -292,37 +292,56 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             echo '<dd style="white-space:pre-wrap;">' . esc_html( $notes ) . '</dd>';
         }
 
-        // v3.110.x — surface the methodology principles connected to
-        // this activity in the read-only detail page. Was previously
-        // only visible on the edit form, so coaches landing on the
-        // detail view couldn't see what the activity was anchored to
-        // without clicking Edit. Defensive: skipped when the
-        // Methodology module isn't loaded.
+        echo '</dl>';
+
+        // #1123 — Gekoppelde spelprincipes — dedicated section after
+        // the detail dl with linked pills (was an inline `<dt>/<dd>`
+        // that pilot reported was easy to miss + didn't link to the
+        // methodology browser). Skipped when the Methodology module
+        // isn't loaded.
         if ( class_exists( '\\TT\\Modules\\Methodology\\Repositories\\PrincipleLinksRepository' )
              && class_exists( '\\TT\\Modules\\Methodology\\Repositories\\PrinciplesRepository' )
         ) {
             $linked_ids = ( new \TT\Modules\Methodology\Repositories\PrincipleLinksRepository() )
                 ->principlesForActivity( (int) $session->id );
             if ( ! empty( $linked_ids ) ) {
-                $repo  = new \TT\Modules\Methodology\Repositories\PrinciplesRepository();
-                $names = [];
+                $repo = new \TT\Modules\Methodology\Repositories\PrinciplesRepository();
+                $base = \TT\Shared\Frontend\Components\RecordLink::dashboardUrl();
+                echo '<section class="tt-activity-principles" style="margin:8px 0 12px;">';
+                echo '<h3 style="margin:0 0 6px; font-size:13px; font-weight:700; color:#1a1d21;">'
+                    . esc_html__( 'Gekoppelde spelprincipes', 'talenttrack' )
+                    . '</h3>';
+                echo '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
                 foreach ( $linked_ids as $pid ) {
                     $pr = $repo->find( (int) $pid );
                     if ( ! $pr ) continue;
+                    $code = (string) ( $pr->code ?? '' );
                     $title = '';
                     if ( class_exists( '\\TT\\Modules\\Methodology\\Helpers\\MultilingualField' ) ) {
                         $title = (string) \TT\Modules\Methodology\Helpers\MultilingualField::string( $pr->title_json );
                     }
-                    $names[] = trim( (string) $pr->code . ( $title !== '' ? ' · ' . $title : '' ) );
+                    $url = add_query_arg(
+                        [ 'tt_view' => 'methodology', 'mtab' => 'principles', 'pid' => (int) $pid ],
+                        $base
+                    );
+                    // Bucket colour derived from code prefix (A* /
+                    // V* / O*) — same scheme as the planner card
+                    // chips for visual consistency.
+                    $first = $code !== '' ? strtoupper( $code[0] ) : '';
+                    $bg = '#eef4fb'; $bd = '#c5d8ee'; $fg = '#1f4f8a';
+                    if ( $first === 'A' ) { $bg = '#fde9d6'; $bd = '#f3c79b'; $fg = '#8a3b00'; }
+                    if ( $first === 'V' ) { $bg = '#dfeede'; $bd = '#a8d2a4'; $fg = '#1f5a1a'; }
+                    if ( $first === 'O' ) { $bg = '#fff3c4'; $bd = '#e3c75e'; $fg = '#7a5a08'; }
+                    $label = $code . ( $title !== '' ? ' · ' . $title : '' );
+                    echo '<a href="' . esc_url( $url ) . '"'
+                        . ' style="display:inline-block; padding:4px 10px; background:' . esc_attr( $bg ) . '; border:1px solid ' . esc_attr( $bd ) . '; border-radius:999px; font-size:12px; color:' . esc_attr( $fg ) . '; text-decoration:none; font-weight:600;"'
+                        . ' title="' . esc_attr( $title ) . '">'
+                        . esc_html( $label )
+                        . '</a>';
                 }
-                if ( ! empty( $names ) ) {
-                    echo '<dt>' . esc_html__( 'Connected principles', 'talenttrack' ) . '</dt>';
-                    echo '<dd>' . esc_html( implode( ', ', $names ) ) . '</dd>';
-                }
+                echo '</div></section>';
             }
         }
-
-        echo '</dl>';
 
         // #1099 + #1100 — Activity Explorer presets. Two affordances
         // side-by-side: Evaluation coverage + Attendance vs squad.

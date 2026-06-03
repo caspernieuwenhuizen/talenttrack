@@ -201,6 +201,26 @@
     border-radius: 999px;
     font-size: 0.7rem;
     color: #1f4f8a;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.4;
+}
+
+/*
+ * #1125 — bucket-coloured planner chips. Palette mirrors the
+ * methodology browser's team-function colour family: warm for
+ * aanvallen (offence), cool for verdedigen (defence), neutral
+ * orange for omschakelen (transition).
+ */
+.tt-planner-principle-chip[data-bucket="aanvallen"]   { background: #fde9d6; border-color: #f3c79b; color: #8a3b00; }
+.tt-planner-principle-chip[data-bucket="verdedigen"]  { background: #dfeede; border-color: #a8d2a4; color: #1f5a1a; }
+.tt-planner-principle-chip[data-bucket="omschakelen"] { background: #fff3c4; border-color: #e3c75e; color: #7a5a08; }
+
+.tt-planner-principle-more {
+    display: inline-block;
+    padding: 0.1rem 0.45rem;
+    font-size: 0.7rem;
+    color: #5b6e75;
+    font-weight: 600;
 }
 
 /*
