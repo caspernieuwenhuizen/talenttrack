@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-03T20:23:20+00:00\n"
+"POT-Creation-Date: 2026-06-03T20:30:04+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -2667,7 +2667,7 @@ msgstr ""
 #: src/Modules/License/Admin/AccountPage.php:807
 #: src/Modules/PersonaDashboard/Widgets/TeamOverviewGridWidget.php:149
 #: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:126
-#: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:68
+#: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:71
 #: src/Modules/Players/Frontend/FrontendPlayerStatusMethodologyView.php:213
 #: src/Modules/Reports/AudienceDefaults.php:109
 #: src/Modules/Reports/PlayerReportRenderer.php:396
@@ -12455,7 +12455,7 @@ msgid "(equal weights)"
 msgstr ""
 
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:746
-#: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:69
+#: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:73
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1185
 msgid "Evaluation"
 msgstr "Bewertung"
@@ -18840,7 +18840,7 @@ msgstr ""
 
 #: src/Modules/PersonaDashboard/Repositories/UpcomingActivityRepository.php:93
 #: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:274
-#: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:126
+#: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:136
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:193
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:988
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:992
@@ -18848,7 +18848,7 @@ msgid "Today"
 msgstr "Heute"
 
 #: src/Modules/PersonaDashboard/Repositories/UpcomingActivityRepository.php:94
-#: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:127
+#: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:137
 msgid "Tomorrow"
 msgstr "Morgen"
 
@@ -18856,13 +18856,13 @@ msgstr "Morgen"
 #: src/Modules/PersonaDashboard/Widgets/InfoCardWidget.php:67
 #: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:96
 #: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:55
-#: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:129
+#: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:139
 msgid "Up next"
 msgstr ""
 
 #. translators: %s is a localized date for an upcoming activity
 #: src/Modules/PersonaDashboard/Repositories/UpcomingActivityRepository.php:99
-#: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:132
+#: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:142
 #, php-format
 msgid "Up next · %s"
 msgstr ""
