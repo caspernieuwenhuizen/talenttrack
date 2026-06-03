@@ -4,13 +4,16 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.34
+Stable tag: 4.20.35
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.35 — Test-trainings form: post-save redirect shape `dashboard` swapped to `list` (closes #1195). Audit 9 (#1183) flagged the bug: `FrontendTestTrainingsView.php:61` emitted `data-redirect-after-save="dashboard"`, but `assets/js/public.js:188-248` doesn't parse `dashboard` — it falls through to the silent `form.reset()`. The save succeeded but the operator saw a blank form, with no signal whether the record landed. Same bug class as #795. **Fix.** Single-character change: `data-redirect-after-save="list"` instead of `dashboard`. The `'list'` branch strips `action`/`id`/`edit` query args and stays on the current `tt_view`, which IS `test-trainings`, so the operator lands on the test-trainings list view — the natural post-create destination. No JS change needed; the existing `list` handler does the right thing for this form. **What this is NOT.** Not the future-proof option B from the audit (teaching `public.js` to handle a `dashboard` redirect shape). No other form currently emits `dashboard`, so a JS-side change has no second consumer; option 1 (the rename) is the right pick. Patch bump. (closes #1195) =
+
 
 = 4.20.34 — Minutes-team report: AC scope leak closed on team picker + data fetch (closes #1193). Audit 3 (#1177) flagged the same shape as #1147 (the AC analytics scope leak v4.20.4 fixed for the two attendance views). `FrontendMinutesTeamReportView::listTeams()` returned every active team for the club; the downstream `MinutesQuery::forTeam()` only filters by `club_id` + `team_id`, so any AC tampering with `?team_id=N` for another team would receive that team's full lineup data. Missed in v4.20.4 because minutes shipped slightly later (#1034) and reused `MinutesQuery` directly. **Fix.** `render()` resolves `is_scope_admin = $is_admin || tt_view_all_teams` and `allowed_team_ids` via `QueryHelpers::get_teams_for_coach()`. `listTeams()` accepts the scope filter and narrows its SQL `IN (…)` clause. Tampering with a `team_id` outside the scope falls through to a friendly notice instead of forging the data fetch. A coach with zero team assignments lands on the same empty-state copy as the two attendance views. Pattern matches #1147 / #1187 1:1 so the codebase has a single retrofit shape for the bug class across all three Analytics-module surfaces now. Patch bump. (closes #1193) =
 
