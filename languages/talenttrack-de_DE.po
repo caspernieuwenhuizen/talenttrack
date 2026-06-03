@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-03T19:16:25+00:00\n"
+"POT-Creation-Date: 2026-06-03T19:24:25+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -77,7 +77,7 @@ msgstr ""
 #: src/Modules/Analytics/AnalyticsModule.php:138
 #: src/Modules/Analytics/AnalyticsModule.php:197
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:232
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:64
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:90
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:100
 #: src/Modules/Authorization/Admin/MatrixPage.php:586
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:157
@@ -1966,8 +1966,8 @@ msgstr ""
 #: src/Modules/Activities/Admin/ActivitiesPage.php:77
 #: src/Modules/Analytics/AnalyticsModule.php:95
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:186
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:66
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:65
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:92
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:77
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:50
 #: src/Modules/Authorization/Admin/MatrixPage.php:696
 #: src/Modules/Authorization/Admin/RolesPage.php:492
@@ -2326,9 +2326,9 @@ msgstr ""
 #: src/Modules/Analytics/AnalyticsModule.php:98
 #: src/Modules/Analytics/AnalyticsModule.php:121
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:233
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:65
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:162
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:64
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:91
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:218
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:76
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:199
 #: src/Modules/Authorization/Admin/FunctionalRolesPage.php:246
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:156
@@ -3219,8 +3219,8 @@ msgid "No analytics available for this entity yet."
 msgstr ""
 
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:48
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:34
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:35
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:35
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:36
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:39
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:40
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:92
@@ -3299,10 +3299,10 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:65
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:66
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:68
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:35
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:43
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:36
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:44
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:36
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:44
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:37
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:45
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:71
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:40
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:48
@@ -3430,7 +3430,7 @@ msgid "Season"
 msgstr ""
 
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:461
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:46
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:47
 msgid "Team attendance statistics"
 msgstr ""
 
@@ -3441,7 +3441,7 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:466
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:45
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:46
 msgid "Player attendance statistics"
 msgstr ""
 
@@ -3471,47 +3471,55 @@ msgid ""
 "exploration use the KPI cards above."
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:37
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:38
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:38
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:39
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:42
 msgid "You do not have permission to view this report."
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:42
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:43
 msgid "Player attendance"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:58
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:58
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:68
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:62
+msgid ""
+"You don't coach any teams yet, so there is no attendance to show. Ask an "
+"administrator to assign you to a team."
+msgstr ""
+
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:76
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:84
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:70
 msgid "No attendance recorded in the selected window."
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:67
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:66
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:93
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:78
 msgid "Present %"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:68
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:67
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:94
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:79
 msgid "Late %"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:69
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:68
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:95
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:80
 msgid "Absent %"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:70
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:69
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:96
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:81
 msgid "Excused %"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:71
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:70
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:97
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:82
 msgid "Injured %"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:164
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:220
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:234
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:245
 #: src/Shared/Frontend/Components/PlayerSearchPickerComponent.php:118
@@ -3519,8 +3527,8 @@ msgstr ""
 msgid "All teams"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:170
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:146
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:226
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:166
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:207
 #: src/Modules/Authorization/Admin/DebugPage.php:157
 #: src/Modules/Authorization/Admin/FunctionalRolesPage.php:247
@@ -3542,8 +3550,8 @@ msgstr ""
 msgid "From"
 msgstr "Von"
 
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:172
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:148
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:228
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:168
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:209
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:131
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:85
@@ -3558,8 +3566,8 @@ msgstr "Von"
 msgid "To"
 msgstr "Bis"
 
-#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:174
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:150
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:230
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:170
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:175
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:226
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:764
@@ -3571,7 +3579,7 @@ msgstr "Bis"
 msgid "Apply"
 msgstr "Anwenden"
 
-#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:43
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:44
 msgid "Team attendance"
 msgstr ""
 
