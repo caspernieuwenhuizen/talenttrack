@@ -7,11 +7,29 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\PersonaDashboard\Domain\AbstractKpiDataSource;
 use TT\Modules\PersonaDashboard\Domain\KpiValue;
 use TT\Modules\PersonaDashboard\Domain\PersonaContext;
+use TT\Modules\PersonaDashboard\Domain\RenderContext;
 
 class ActivePlayersTotal extends AbstractKpiDataSource {
     public function id(): string { return 'active_players_total'; }
     public function label(): string { return __( 'Active players', 'talenttrack' ); }
     public function context(): string { return PersonaContext::ACADEMY; }
+
+    /**
+     * v4.20.23 (#1209) — Deep-link to the players list with the same
+     * status filter `compute()` applies. Without this, KPI "12 active
+     * players" landed on `?tt_view=players` which defaults to ALL
+     * non-archived (including trial / released / inactive with
+     * `archived_at IS NULL`). Operators saw 17 rows under a "12"
+     * headline. Now the destination is filtered to `status=active`,
+     * matching the KPI 1:1. Lands live in the dominant `kpi_card`
+     * placement courtesy of v4.20.22's `KpiCardWidget` → `linkUrl()`
+     * routing (#1207).
+     */
+    public function linkUrl( RenderContext $ctx ): string {
+        $view = $this->linkView();
+        if ( $view === '' ) return '';
+        return add_query_arg( [ 'filter' => [ 'status' => 'active' ] ], $ctx->viewUrl( $view ) );
+    }
 
     public function compute( int $user_id, int $club_id ): KpiValue {
         global $wpdb;
