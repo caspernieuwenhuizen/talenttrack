@@ -4,13 +4,16 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.37
+Stable tag: 4.20.38
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.38 — Security: REST POST `/goals` validates `player_id` against writer's club + roster (closes #1198). Audit 2 (#1176) flagged this as **critical**. Pre-fix `create_goal` accepted any submitted `player_id` (validated only `> 0`), with no club lookup and no `coach_owns_player` gate for non-admin writers. A coach in club A with `tt_create_goals` could write a goal pointed at any `player_id` including foreign-club ones — the goal's `club_id` resolved to A but the `player_id` was foreign, breaking every JOIN downstream and surfacing the foreign player on A's dashboards. **Fix.** Two checks added before INSERT: (1) `QueryHelpers::get_player($player_id)` lookup + explicit `club_id` match — foreign-club ids fall through to a 403 `forbidden_player` response with a Dutch-translatable message. (2) For non-admin, non-player writers, the existing `QueryHelpers::coach_owns_player()` gate runs (mirrors the gate `update_goal` already enforces on the principle-link side). Player-self-created goals stay open — players can only write for themselves per the `permission_callback` upstream + the existing `is_player` branch enforcing `pending_approval` status. **Security framing.** Same single-tenant-pilot latency as #1197 — most attack surface is theoretical today but the gap closes pre-emptively for SaaS multi-tenancy. Patch bump. (closes #1198) =
+
 
 = 4.20.37 — Security: REST PUT/DELETE on `/evaluations/{id}` now enforce `club_id` + player-scope checks (closes #1197). Audit 2 (#1176) flagged this as **critical** — the cross-club rewrite class on `EvaluationsRestController::update_eval` (line 504) and `delete_eval` (line 579). Pre-fix the UPDATE/archive WHEREs were `id = %d` only with no `club_id`, AND `update_eval` never re-ran the `coach_owns_player` check that `create_eval` enforces. Result: (a) a coach in club A who knew an eval id from club B could rewrite that row's `player_id` / `date` / `notes` or soft-archive it; (b) within their own club, a coach could re-point an existing eval at any `player_id`, bypassing the create-time roster gate. **Fix.** `update_eval` now re-runs the `coach_owns_player` check for non-admin writers on the submitted `player_id` (mirrors `create_eval` lines 454-458), AND adds `'club_id' => CurrentClub::id()` to the UPDATE's WHERE. `delete_eval` (soft-archive) gets the same `club_id` clause. Both `403 forbidden_player` errors stay backwards-compatible with the create-side response shape so the JS handler doesn't need updates. **Security framing.** Single-tenant pilot is mostly latent today (`CurrentClub::id()` resolves to `1` everywhere), but SaaS multi-tenancy depends on these REST handlers enforcing the tenant boundary explicitly. Closing the gap pre-emptively before the second tenant lands. **Acceptance.** Coach in club A `PUT`s an eval id belonging to club B → 0 rows updated, 200 OK with `id` (no error surface for cross-club probing). Coach within own club re-points an eval at a player not on their team → 403 `forbidden_player`. Patch bump. (closes #1197) =
 
