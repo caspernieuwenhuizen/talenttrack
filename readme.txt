@@ -4,13 +4,16 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.48
+Stable tag: 4.20.49
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.49 — PDP panels activities query adds `att.is_guest = 0` + `att.record_type = 'actual'` (closes #1228). Audit 7 (#1181) flagged `FrontendPdpManageView::renderActivitiesTimeline` (line 773) as the last canonical-attendance-scope drift on a coach-facing surface: the PDP "Activities" panel listed every attendance row for the player without filtering guest call-ups and (post #788 ship 2) without distinguishing planned-vs-actual rows. v4.20.44 (#1222) already fixed the `archived_at` half. **Fix.** WHERE clause gains `att.is_guest = 0 AND att.record_type = 'actual'` so the PDP panel mirrors the canonical attendance scope used by the player-profile attendance KPI and the team roster widget. Inline comment cites the audit + the bug history. **What this is NOT.** No `club_id` filter added — per #1188's direction, tenancy boundary is enforced at the request layer in SaaS, not by per-helper WHERE clauses. Patch bump. (closes #1228) =
+
 
 = 4.20.48 — Attendance reads add `record_type = 'actual'` for stability through #788 ship 2 (closes #1227). Audit 7 (#1181) flagged three `tt_attendance` reads missing the canonical `is_guest = 0` + `record_type = 'actual'` scope. Today (pre-#788 ship 2) the impact is low because no expected-attendance rows exist; the audit logs it for stack-up before ship 2 introduces planned rows. **Three sites updated.** (1) Player profile "Attendance %" KPI tile — `FrontendPlayerDetailView.php:603`. (2) Activity edit form's per-player attendance map — routed through `ActivitiesRepository::attendanceMapByPlayer` (added record_type filter at the repo). (3) Admin Activities page roster — `ActivitiesPage.php:237`. Each query now mirrors the canonical `TeamRosterTableWidget.php:229-243` reference site. Patch bump. (closes #1227) =
 
