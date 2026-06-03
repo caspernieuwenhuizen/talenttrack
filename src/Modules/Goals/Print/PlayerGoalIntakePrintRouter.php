@@ -4,7 +4,6 @@ namespace TT\Modules\Goals\Print;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
-use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
  * PlayerGoalIntakePrintRouter (#1064) — printable season-start
@@ -70,23 +69,27 @@ class PlayerGoalIntakePrintRouter {
      */
     public static function renderTeamBatch( int $team_id, string $season ): string {
         global $wpdb;
-        $p       = $wpdb->prefix;
-        $club_id = (int) CurrentClub::id();
+        $p = $wpdb->prefix;
 
+        // #1149 — drop the club_id filter and use demo-scope, matching
+        // the per-player emit() path. Same scope-strictness mismatch
+        // family otherwise.
+        $team_scope = QueryHelpers::apply_demo_scope( 't', 'team' );
         $team = $wpdb->get_row( $wpdb->prepare(
-            "SELECT id, name FROM {$p}tt_teams WHERE id = %d AND club_id = %d LIMIT 1",
-            $team_id, $club_id
+            "SELECT id, name FROM {$p}tt_teams t WHERE t.id = %d {$team_scope} LIMIT 1",
+            $team_id
         ) );
         if ( ! $team ) {
             wp_die( esc_html__( 'Team not found.', 'talenttrack' ) );
         }
 
+        $player_scope = QueryHelpers::apply_demo_scope( 'pl', 'player' );
         $players = $wpdb->get_col( $wpdb->prepare(
-            "SELECT id FROM {$p}tt_players
-              WHERE team_id = %d AND club_id = %d
-                AND ( archived_at IS NULL )
-              ORDER BY COALESCE(jersey_number, 999) ASC, last_name ASC",
-            $team_id, $club_id
+            "SELECT pl.id FROM {$p}tt_players pl
+              WHERE pl.team_id = %d
+                AND ( pl.archived_at IS NULL ) {$player_scope}
+              ORDER BY COALESCE(pl.jersey_number, 999) ASC, pl.last_name ASC",
+            $team_id
         ) );
 
         ob_start();
@@ -160,23 +163,33 @@ class PlayerGoalIntakePrintRouter {
 
     private static function emit( int $player_id, string $season ): void {
         global $wpdb;
-        $p       = $wpdb->prefix;
-        $club_id = (int) CurrentClub::id();
+        $p = $wpdb->prefix;
 
+        // #1149 — was filtered by `pl.club_id = CurrentClub::id()` (always 1),
+        // which 404'd on installs where the player row carried a different
+        // club_id than the resolved current club. The player profile view
+        // ([FrontendPlayersManageView::loadPlayer](src/Shared/Frontend/FrontendPlayersManageView.php#L631-L640))
+        // doesn't enforce club_id either — only demo-scope — so the print
+        // router was a stricter gate than the page that linked here, and
+        // pilot 2026-06-03 hit a hard "Player not found" on a valid link.
+        // Pivot to the player's stored club_id (read it back from the row)
+        // for the sub-queries below.
+        $scope = QueryHelpers::apply_demo_scope( 'pl', 'player' );
         $player = $wpdb->get_row( $wpdb->prepare(
             "SELECT pl.id, pl.first_name, pl.last_name, pl.date_of_birth,
-                    pl.jersey_number, pl.preferred_foot, pl.team_id,
+                    pl.jersey_number, pl.preferred_foot, pl.team_id, pl.club_id,
                     pl.attachment_id_avatar,
                     t.name AS team_name
                FROM {$p}tt_players pl
                LEFT JOIN {$p}tt_teams t ON t.id = pl.team_id AND t.club_id = pl.club_id
-              WHERE pl.id = %d AND pl.club_id = %d
+              WHERE pl.id = %d {$scope}
               LIMIT 1",
-            $player_id, $club_id
+            $player_id
         ) );
         if ( ! $player ) {
             wp_die( esc_html__( 'Player not found.', 'talenttrack' ) );
         }
+        $club_id = (int) $player->club_id;
 
         $name = trim( (string) $player->first_name . ' ' . (string) $player->last_name );
 
