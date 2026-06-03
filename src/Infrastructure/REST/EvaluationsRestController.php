@@ -501,7 +501,24 @@ class EvaluationsRestController {
 
         $header = self::extract( $r );
         unset( $header['coach_id'] ); // preserve original coach
-        $ok = $wpdb->update( "{$p}tt_evaluations", $header, [ 'id' => $id ] );
+
+        // v4.20.37 (#1197) — Audit 2 (#1176) flagged the cross-club
+        // rewrite class on this handler. Pre-fix the UPDATE's WHERE
+        // was `id = %d` only with no `club_id`, AND the submitted
+        // `player_id` was not re-validated against the writer's scope
+        // — so (a) a coach in club A who knew an eval id from club B
+        // could rewrite that row's player_id / date / notes, and
+        // (b) a coach could re-point an existing eval at any player_id,
+        // bypassing the `coach_owns_player` gate `create_eval` enforces.
+        // Mirror `create_eval`'s scope check on the submitted
+        // `player_id` for non-admins, and bound the UPDATE WHERE to
+        // the current club.
+        if ( ! empty( $header['player_id'] ) && ! current_user_can( 'tt_edit_settings' ) ) {
+            if ( ! QueryHelpers::coach_owns_player( get_current_user_id(), (int) $header['player_id'] ) ) {
+                return RestResponse::error( 'forbidden_player', __( 'You can only evaluate players in your team.', 'talenttrack' ), 403 );
+            }
+        }
+        $ok = $wpdb->update( "{$p}tt_evaluations", $header, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
         if ( $ok === false ) {
             Logger::error( 'rest.evaluation.update.failed', [ 'db_error' => (string) $wpdb->last_error, 'id' => $id ] );
             return RestResponse::error(
@@ -576,10 +593,15 @@ class EvaluationsRestController {
         // already filter `e.archived_at IS NULL`, so the archived row
         // simply disappears from list / detail views without losing the
         // history. Restore is an admin operation.
+        //
+        // v4.20.37 (#1197) — Audit 2 added the `club_id` clause to the
+        // archive's WHERE. Pre-fix the soft-delete bypassed tenancy
+        // entirely — a coach in club A who knew an eval id from club B
+        // could archive that row.
         $ok = $wpdb->update(
             "{$p}tt_evaluations",
             [ 'archived_at' => current_time( 'mysql' ), 'archived_by' => get_current_user_id() ],
-            [ 'id' => $id ]
+            [ 'id' => $id, 'club_id' => CurrentClub::id() ]
         );
         if ( $ok === false ) {
             Logger::error( 'rest.evaluation.archive.failed', [ 'db_error' => (string) $wpdb->last_error, 'id' => $id ] );
