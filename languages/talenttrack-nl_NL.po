@@ -31838,17 +31838,19 @@ msgid "Sign in to see the evaluations you authored."
 msgstr "Log in om de door jou opgestelde evaluaties te zien."
 
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:54
+#. translators: %d is the window size in days
 msgid ""
-"No evaluations authored in the last 30 days. New evaluations you record will "
+"No evaluations authored in the last %d days. New evaluations you record will "
 "appear here."
 msgstr ""
-"Geen evaluaties opgesteld in de afgelopen 30 dagen. Nieuwe evaluaties die je "
+"Geen evaluaties opgesteld in de afgelopen %d dagen. Nieuwe evaluaties die je "
 "opslaat verschijnen hier."
 
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:59
-msgid "Evaluations you authored in the last 30 days, newest first."
+#. translators: %d is the window size in days
+msgid "Evaluations you authored in the last %d days, newest first."
 msgstr ""
-"Door jou opgestelde evaluaties van de afgelopen 30 dagen, nieuwste eerst."
+"Door jou opgestelde evaluaties van de afgelopen %d dagen, nieuwste eerst."
 
 # ===== v3.0.0 slice 3 — Me-group frontend views =====
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:114

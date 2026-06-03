@@ -44,19 +44,37 @@ class FrontendMyEvaluationsView extends FrontendViewBase {
 
         // #920 — query now lives in `EvaluationsRepository::recentForCoach`
         // (mirrored by the new `GET /evaluations/recent` REST endpoint).
-        // Widens to a 30-day trailing window — wider than the KPI's
-        // strictly-this-week cut so coaches always see some recent context
-        // even on a quiet week.
+        // Default window is 30 days — wider than the strictly-this-week
+        // KPI cut — so coaches always see some recent context.
+        //
+        // v4.20.27 (#1213) — honour `?days=<int>` so the
+        // `MyEvaluationsThisWeek` KPI deep-link can narrow the view to
+        // the same 7-day cut its `compute()` aggregates. Pre-fix, KPI
+        // "3 this week" landed on a 30-day list rendering 11 rows —
+        // breeding KPI ↔ list mistrust. Param clamped to [1, 90] so
+        // URL tampering can't run unbounded windows.
+        $days = isset( $_GET['days'] ) ? (int) wp_unslash( (string) $_GET['days'] ) : 30;
+        if ( $days < 1 ) $days = 30;
+        if ( $days > 90 ) $days = 90;
+
         $evals = ( new \TT\Infrastructure\Evaluations\EvaluationsRepository() )
-            ->recentForCoach( $coach_user_id, 30 );
+            ->recentForCoach( $coach_user_id, $days );
 
         if ( empty( $evals ) ) {
-            echo '<p><em>' . esc_html__( 'No evaluations authored in the last 30 days. New evaluations you record will appear here.', 'talenttrack' ) . '</em></p>';
+            echo '<p><em>' . sprintf(
+                /* translators: %d is the window size in days */
+                esc_html__( 'No evaluations authored in the last %d days. New evaluations you record will appear here.', 'talenttrack' ),
+                $days
+            ) . '</em></p>';
             return;
         }
 
         echo '<p style="margin:0 0 12px; color:#5b6e75;">'
-            . esc_html__( 'Evaluations you authored in the last 30 days, newest first.', 'talenttrack' )
+            . sprintf(
+                /* translators: %d is the window size in days */
+                esc_html__( 'Evaluations you authored in the last %d days, newest first.', 'talenttrack' ),
+                $days
+            )
             . '</p>';
 
         echo '<div class="tt-table-wrap"><table class="tt-table">';

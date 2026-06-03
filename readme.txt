@@ -4,13 +4,16 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.26
+Stable tag: 4.20.27
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.27 — Persona dashboard: `MyEvaluationsThisWeek` KPI deep-links with `?days=7` to match its compute window; destination view honours the param (closes #1213). Audit 6 (#1180) flagged the divergence: KPI counts last 7 days, destination defaults to 30. The destination's docblock explicitly comments on the broadening ("Widens to a 30-day trailing window — wider than the strictly-this-week KPI cut so coaches always see some recent context"), but the headline mismatch — "KPI says 3 but page shows 11" — breeds operator mistrust. **Fix.** `FrontendMyEvaluationsView::renderForCoach` now reads `?days=<int>`, clamps to [1, 90], defaults to 30 when absent. Translatable strings updated to interpolate the window via `%d` so "last X days" doesn't lie when the param overrides the default. `MyEvaluationsThisWeek::linkUrl()` appends `?days=7` — the destination renders the same 7-day cut the KPI counted, so KPI "3" → list of 3 rows. **Operators who land on the page without the param** (direct nav, bookmarks) still see the 30-day broadening, preserving the v3.110.215 (#846) UX intent. Lands live in the dominant kpi_card placement via v4.20.22's `KpiCardWidget`→`linkUrl()` routing fix (#1207). Patch bump. (closes #1213) =
+
 
 = 4.20.26 — Persona dashboard: `MyTeamAttendancePct` + `MyTeamAvgRating` deep-links carry the AC's full team scope (closes #1212). Audit 6 (#1180) flagged the drift class. Both KPIs call `QueryHelpers::get_teams_for_coach( $user_id )` and filter `pl.team_id IN (...)` in `compute()`. Their `linkUrl()` overrides previously passed `date_from` / `date_to` (and `plan_state` for attendance) but NOT `filter[team_id]`. For a head-coach of one team this is a no-op. For an assistant coach linked to three teams the destination list included the union the AC could see — and for `MyTeamAvgRating` it was worse: the evaluations list uses `pl.team_id IN coach_teams OR e.coach_id = uid` (since v3.110.126), so the destination added every evaluation the AC personally wrote on out-of-team players. "Team avg 7.4" landed on a list with foreign-team rows. **Fix — two REST extensions, two KPI overrides.** `ActivitiesRestController::list_activities` and `EvaluationsRestController::list_evaluations` both accept `filter[team_id]` as either a single id (back-compat) or a CSV (`s.team_id IN (…)` / `pl.team_id IN (…)`). `MyTeamAttendancePct::linkUrl()` and `MyTeamAvgRating::linkUrl()` now resolve `get_teams_for_coach( $ctx->user_id )` and pass the comma-separated team_id list. Mirrors the existing `compute()` scope 1:1. **Acceptance.** AC linked to U15-A and U17-B sees "team avg 7.4" → clicks → evaluations list scoped to those two teams' players. Hard-coded coach with one team continues to see the same list as before (single-value path preserves shape). **Adjacent.** Historical #857 surfaced the same drift class on a different KPI but never structurally fixed it; this PR closes the audit-flagged variants. Shipped pattern: shared `filterSpec()` recommended in audit 6 doc would obviate the per-KPI override boilerplate; future-PR target. Lands live via v4.20.22's KpiCardWidget→linkUrl() routing fix (#1207). Patch bump. (closes #1212) =
 
