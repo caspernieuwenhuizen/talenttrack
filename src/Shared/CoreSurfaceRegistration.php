@@ -103,7 +103,15 @@ final class CoreSurfaceRegistration {
             'wizards-admin',
             // #0084 Child 3 — additional desktop_only routes.
             'players-import',     // CSV mapping flow — laptop required.
-            'onboarding-pipeline', // xl-size pipeline widget; doesn't fit on phones.
+            // #918 — `onboarding-pipeline` moved out of desktop_only.
+            // Scouts hit the pipeline 5-15x per week from the pitch
+            // (per docs/scout-actions.md action #2); forcing a
+            // device-switch was friction the daily workflow couldn't
+            // bear. The view resolves to `viewable` via
+            // MobileSurfaceRegistry's default — kanban scrolls
+            // horizontally below 480px but no "use desktop" redirect.
+            // A full mobile-first audit (bump to `native`) ships
+            // separately if pilot asks.
             'reports',            // wizard + multi-column tables.
             // #0083 Child 3 — analytics dimension explorer.
             'explore',
