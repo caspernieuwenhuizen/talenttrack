@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-03T23:14:48+00:00\n"
+"POT-Creation-Date: 2026-06-03T23:18:59+00:00\n"
 "PO-Revision-Date: 2026-04-25 10:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -2115,7 +2115,7 @@ msgstr "Nieuw toevoegen"
 #: src/Modules/People/Admin/PeoplePage.php:520
 #: src/Modules/Players/Admin/PlayersPage.php:78
 #: src/Modules/Players/Frontend/FrontendPlayerStatusMethodologyView.php:46
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1112
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1122
 #: src/Modules/Teams/Admin/TeamsPage.php:40
 #: src/Shared/Frontend/DashboardShortcode.php:80
 #: src/Shared/Frontend/FrontendWizardsAdminView.php:40
@@ -10531,7 +10531,7 @@ msgstr "Widget opslaan"
 
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:161
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:677
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1111
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1121
 #: src/Shared/Frontend/FrontendConfigurationView.php:434
 #: src/Shared/Frontend/FrontendConfigurationView.php:823
 #: src/Shared/Frontend/FrontendConfigurationView.php:1011
@@ -23753,7 +23753,7 @@ msgid "Bad blueprint id."
 msgstr "Ongeldig blueprint-id."
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:657
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1106
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1116
 msgid "Hide chemistry"
 msgstr ""
 
@@ -23838,120 +23838,120 @@ msgid "Locked"
 msgstr "Vergrendeld"
 
 # ===== v3.0.0 slice 4 — Coaching-group frontend views =====
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1083
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1093
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:351
 #: src/Shared/Frontend/FrontendTeamsManageView.php:266
 msgid "No players on this team yet."
 msgstr "Nog geen spelers in dit team."
 
 #. translators: %1$s = team name, %2$d = roster size
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1085
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1095
 #, php-format
 msgid "%1$s — roster (%2$d)"
 msgstr "%1$s — selectie (%2$d)"
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1086
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1096
 msgid "cross-team"
 msgstr "ander team"
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1087
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1097
 msgid "guest"
 msgstr "gast"
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1088
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1098
 msgid "custom"
 msgstr "aangepast"
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1089
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1099
 msgid "player"
 msgstr "speler"
 
 #. translators: %d = tier number 1/2/3
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1091
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1101
 #, php-format
 msgid "Pick a player for tier %d"
 msgstr "Kies een speler voor tier %d"
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1092
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1102
 #: src/Shared/Frontend/Components/FrontendListTable.php:137
 msgid "Search…"
 msgstr "Zoeken…"
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1093
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1103
 #: src/Shared/Frontend/Components/ComparisonSlotPicker.php:85
 msgid "Clear this slot"
 msgstr "Wis dit slot"
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1094
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1104
 msgid "No players match."
 msgstr "Geen spelers gevonden."
 
 #. translators: %d = placement count for that player
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1096
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1106
 #, php-format
 msgid "×%d on pitch"
 msgstr "×%d op het veld"
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1097
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1107
 msgid "Pick a team and a player."
 msgstr "Kies een team en een speler."
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1098
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1108
 msgid "That player is already on the roster."
 msgstr "Die speler staat al in de selectie."
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1099
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1109
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1754
 msgid "Name is required."
 msgstr "Naam is verplicht."
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1100
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1110
 msgid "Custom label is required."
 msgstr "Aangepast label is verplicht."
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1101
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1111
 msgid "Clear every slot on this blueprint? This cannot be undone."
 msgstr ""
 "Alle posities op deze blauwdruk leegmaken? Dit kan niet ongedaan worden "
 "gemaakt."
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1102
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1112
 msgid "Could not save the change. Try again."
 msgstr "Kan de wijziging niet opslaan. Probeer opnieuw."
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1103
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1113
 msgid "Could not identify the player. Try again or pick a different row."
 msgstr ""
 "Kon de speler niet identificeren. Probeer opnieuw of kies een andere rij."
 
 #. translators: %d = age in years
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1105
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1115
 #, php-format
 msgid "age %d"
 msgstr "%d jaar"
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1107
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1117
 msgid "Show chemistry"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1108
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1118
 msgid "Name the new blueprint:"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1109
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1119
 msgid "Copy of blueprint"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1110
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1120
 msgid "Could not duplicate. Try again."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1113
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1123
 msgid "Remove from roster"
 msgstr "Verwijderen uit selectie"
 
 #. translators: %s = entry display name (guest/custom/cross-team)
-#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1115
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1125
 #, php-format
 msgid ""
 "Remove %s from the roster? Any slots holding this entry will be cleared."
