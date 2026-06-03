@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-03T21:44:08+00:00\n"
+"POT-Creation-Date: 2026-06-03T21:48:21+00:00\n"
 "PO-Revision-Date: 2026-04-25 10:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -19823,7 +19823,7 @@ msgstr "Mijn podiumpositie"
 msgid "New evaluations this week"
 msgstr "Nieuwe evaluaties deze week"
 
-#: src/Modules/PersonaDashboard/Kpis/OpenTrialCases.php:12
+#: src/Modules/PersonaDashboard/Kpis/OpenTrialCases.php:13
 msgid "Open trial cases"
 msgstr "Open stagedossiers"
 
