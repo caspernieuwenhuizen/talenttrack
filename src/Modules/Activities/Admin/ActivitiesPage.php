@@ -233,8 +233,11 @@ class ActivitiesPage {
         // dropdown in the form.
         $game_subtype_rows    = QueryHelpers::get_lookups( 'game_subtype' );
         $attendance = [];
+        // v4.20.48 (#1227) — added `record_type = 'actual'` so the
+        // admin form doesn't double up rows once #788 ship 2 lands.
+        // Audit 7 (#1181).
         if ( $activity ) foreach ( $wpdb->get_results( $wpdb->prepare(
-            "SELECT * FROM {$p}tt_attendance WHERE activity_id = %d AND is_guest = 0 AND club_id = %d",
+            "SELECT * FROM {$p}tt_attendance WHERE activity_id = %d AND is_guest = 0 AND record_type = 'actual' AND club_id = %d",
             $activity->id, CurrentClub::id()
         ) ) as $r ) $attendance[ (int) $r->player_id ] = $r;
 
