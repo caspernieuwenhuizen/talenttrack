@@ -38,6 +38,12 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Reports', 'talenttrack' ) );
         self::renderHeader( __( 'Reports', 'talenttrack' ) );
 
+        // v4.20.29 (#1187) — three academy-wide tiles are hidden for
+        // non-scope-admin users (AC etc.). The destination renderers
+        // gate too, but suppressing the launcher tile prevents the
+        // operator from clicking into an empty-state notice.
+        $is_scope_admin = $is_admin || current_user_can( 'tt_view_all_teams' );
+
         $base_url = \TT\Shared\Frontend\Components\RecordLink::dashboardUrl();
         $tiles = [
             [
@@ -111,6 +117,16 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
         echo '<p style="color:#5b6e75; margin-bottom:16px;">';
         esc_html_e( 'Pick a report.', 'talenttrack' );
         echo '</p>';
+
+        // v4.20.29 (#1187) — filter the academy-wide tiles for
+        // non-scope-admin users.
+        if ( ! $is_scope_admin ) {
+            $academy_only = [ 'season-summary', 'season-trial-funnel', 'scout-report-card', 'prospects_logged_per_scout' ];
+            $tiles = array_values( array_filter(
+                $tiles,
+                static fn( array $t ): bool => ! in_array( (string) ( $t['slug'] ?? '' ), $academy_only, true )
+            ) );
+        }
 
         echo '<div class="tt-cfg-tile-grid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px;">';
         foreach ( $tiles as $tile ) {

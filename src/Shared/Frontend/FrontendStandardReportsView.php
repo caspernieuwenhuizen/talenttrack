@@ -42,12 +42,53 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         'scout-report-card'            => 'Scout · Report card',
     ];
 
+    /**
+     * v4.20.29 (#1187) — scope helper. `tt_view_reports` is a surface
+     * gate (matrix `reports:r/team` for AC), NOT a club-wide data
+     * grant. Mirrors the v4.20.4 pattern from `FrontendAttendance*ReportView`
+     * that closed #1147. Cached on a request-scope static so each
+     * handler doesn't re-resolve `get_teams_for_coach`.
+     *
+     * Returns:
+     *  - `is_scope_admin` (bool): true when the user holds `tt_view_all_teams`
+     *    or is the admin in WP terms. Skips all scope guards.
+     *  - `allowed_team_ids` (list<int>|null): team ids the user may see.
+     *    `null` means "no restriction" (scope admin). An empty list
+     *    means "scope-limited but no teams" — handlers should render
+     *    the empty state.
+     *
+     * @return array{is_scope_admin:bool,allowed_team_ids:?list<int>}
+     */
+    private static function scope( int $user_id, bool $is_admin ): array {
+        static $cache = null;
+        if ( $cache !== null ) return $cache;
+        $is_scope_admin = $is_admin || current_user_can( 'tt_view_all_teams' );
+        $allowed_team_ids = $is_scope_admin
+            ? null
+            : array_values( array_map( 'intval', array_column( QueryHelpers::get_teams_for_coach( $user_id ), 'id' ) ) );
+        $cache = [ 'is_scope_admin' => $is_scope_admin, 'allowed_team_ids' => $allowed_team_ids ];
+        return $cache;
+    }
+
+    /**
+     * v4.20.29 (#1187) — convenience read-back of the cached scope.
+     * Handlers shouldn't reach back into request superglobals — call
+     * this once at handler entry, branch on the result.
+     */
+    private static function currentScope(): array {
+        $s = self::scope( get_current_user_id(), current_user_can( 'tt_edit_settings' ) );
+        return $s;
+    }
+
     public static function render( int $user_id, bool $is_admin ): void {
         if ( ! current_user_can( 'tt_view_reports' ) ) {
             FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'Your role does not have access to reports.', 'talenttrack' ) . '</p>';
             return;
         }
+        // v4.20.29 (#1187) — prime the scope cache so per-handler calls
+        // to currentScope() see the right user / admin context.
+        self::scope( $user_id, $is_admin );
         $slug = isset( $_GET['slug'] ) ? sanitize_key( (string) $_GET['slug'] ) : '';
         if ( ! array_key_exists( $slug, self::REPORTS ) ) {
             FrontendBreadcrumbs::fromDashboard(
@@ -167,6 +208,19 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             self::renderPlayerPicker( 'player-minutes-played' );
             return;
         }
+        // v4.20.29 (#1187) — scope guard. AC URL-tampering with a
+        // player_id belonging to a team outside the AC's matrix scope
+        // falls through to the empty state. The destination renderer
+        // would have happily pulled that player's full attendance
+        // history without this check.
+        $scope = self::currentScope();
+        if ( $scope['allowed_team_ids'] !== null
+            && ! in_array( (int) ( $player->team_id ?? 0 ), $scope['allowed_team_ids'], true )
+        ) {
+            self::renderHeader( __( 'Player · Minutes played', 'talenttrack' ) );
+            self::renderEmpty();
+            return;
+        }
         $name = QueryHelpers::player_display_name( $player );
         $team = ! empty( $player->team_id ) ? QueryHelpers::get_team( (int) $player->team_id ) : null;
         $team_name = $team ? (string) $team->name : '';
@@ -240,6 +294,16 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         if ( $team === null ) {
             self::renderHeader( __( 'Team · Minutes distribution', 'talenttrack' ) );
             self::renderTeamPicker( 'team-minutes-distribution' );
+            return;
+        }
+        // v4.20.29 (#1187) — scope guard. AC URL-tampering with a
+        // team_id outside their matrix scope falls through to empty.
+        $scope = self::currentScope();
+        if ( $scope['allowed_team_ids'] !== null
+            && ! in_array( $team_id, $scope['allowed_team_ids'], true )
+        ) {
+            self::renderHeader( __( 'Team · Minutes distribution', 'talenttrack' ) );
+            self::renderEmpty();
             return;
         }
 
@@ -334,6 +398,15 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             self::renderTeamPicker( 'team-squad-evaluation-summary' );
             return;
         }
+        // v4.20.29 (#1187) — scope guard. Same shape as team-minutes.
+        $scope = self::currentScope();
+        if ( $scope['allowed_team_ids'] !== null
+            && ! in_array( $team_id, $scope['allowed_team_ids'], true )
+        ) {
+            self::renderHeader( __( 'Team · Squad evaluation summary', 'talenttrack' ) );
+            self::renderEmpty();
+            return;
+        }
         global $wpdb;
         // Per-player average rating across all categories, last 6 mo.
         $rows = $wpdb->get_results( $wpdb->prepare(
@@ -393,6 +466,16 @@ final class FrontendStandardReportsView extends FrontendViewBase {
     // ── #1093 Season summary ────────────────────────────────────────
 
     private static function renderSeasonSummary(): void {
+        // v4.20.29 (#1187) — academy-wide framing; gate on scope-admin.
+        // AC matrix only grants `reports:r/team`; the academy-wide
+        // counts here are out of scope for team-scoped users. Hides
+        // the report and falls through to a friendly notice.
+        $scope = self::currentScope();
+        if ( ! $scope['is_scope_admin'] ) {
+            self::renderHeader( __( 'Season summary', 'talenttrack' ) );
+            echo '<p class="tt-notice">' . esc_html__( 'This academy-wide summary is only available to Head of Development and academy admins.', 'talenttrack' ) . '</p>';
+            return;
+        }
         global $wpdb;
         $date_col = 'sess' . 'ion_date'; // legacy date column on tt_activities (#0035 lint-safe)
         $club_id = CurrentClub::id();
@@ -454,6 +537,13 @@ final class FrontendStandardReportsView extends FrontendViewBase {
     // ── #1094 Season · Trial funnel ─────────────────────────────────
 
     private static function renderSeasonTrialFunnel(): void {
+        // v4.20.29 (#1187) — academy-wide funnel; gate on scope-admin.
+        $scope = self::currentScope();
+        if ( ! $scope['is_scope_admin'] ) {
+            self::renderHeader( __( 'Season trial funnel', 'talenttrack' ) );
+            echo '<p class="tt-notice">' . esc_html__( 'This academy-wide funnel report is only available to Head of Development and academy admins.', 'talenttrack' ) . '</p>';
+            return;
+        }
         global $wpdb;
         $club_id = CurrentClub::id();
         // Funnel stages: prospects → trial_cases opened → decided.
@@ -533,6 +623,15 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             echo '<p class="tt-notice">' . esc_html__( 'Pick a scout from the Reports launcher.', 'talenttrack' ) . '</p>';
             return;
         }
+        // v4.20.29 (#1187) — viewing another scout's card requires
+        // scope-admin. The own-card default (no scout_id supplied)
+        // continues to render for any user with `tt_view_reports`.
+        $scope = self::currentScope();
+        if ( $scout_id !== (int) get_current_user_id() && ! $scope['is_scope_admin'] ) {
+            self::renderHeader( __( 'Scout report card', 'talenttrack' ) );
+            echo '<p class="tt-notice">' . esc_html__( 'Viewing another scout’s report card requires academy-wide access.', 'talenttrack' ) . '</p>';
+            return;
+        }
         global $wpdb;
         $user = get_userdata( $scout_id );
         $name = $user ? (string) $user->display_name : sprintf( __( 'Scout #%d', 'talenttrack' ), $scout_id );
@@ -606,6 +705,18 @@ final class FrontendStandardReportsView extends FrontendViewBase {
     private static function renderPlayerPicker( string $slug ): void {
         $base_url = remove_query_arg( [ 'player_id' ] );
         $players  = QueryHelpers::get_players( 0 );
+        // v4.20.29 (#1187) — narrow to the AC's accessible team rosters
+        // when not scope-admin. Matches the scope guard on the per-report
+        // renderer; otherwise the picker would offer players the
+        // destination would reject anyway.
+        $scope = self::currentScope();
+        if ( $scope['allowed_team_ids'] !== null && is_array( $players ) ) {
+            $allowed = $scope['allowed_team_ids'];
+            $players = array_values( array_filter(
+                $players,
+                static fn( $p ): bool => in_array( (int) ( $p->team_id ?? 0 ), $allowed, true )
+            ) );
+        }
         if ( ! $players ) {
             echo '<p class="tt-notice">' . esc_html__( 'No players available — add players first to enable this report.', 'talenttrack' ) . '</p>';
             return;
@@ -629,7 +740,13 @@ final class FrontendStandardReportsView extends FrontendViewBase {
      */
     private static function renderTeamPicker( string $slug ): void {
         $base_url = remove_query_arg( [ 'team_id' ] );
-        $teams    = QueryHelpers::get_teams();
+        // v4.20.29 (#1187) — same scope narrowing as renderPlayerPicker.
+        $scope = self::currentScope();
+        if ( $scope['allowed_team_ids'] !== null ) {
+            $teams = QueryHelpers::get_teams_for_coach( get_current_user_id() );
+        } else {
+            $teams = QueryHelpers::get_teams();
+        }
         if ( ! $teams ) {
             echo '<p class="tt-notice">' . esc_html__( 'No teams configured yet.', 'talenttrack' ) . '</p>';
             return;
