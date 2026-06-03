@@ -3,6 +3,7 @@ namespace TT\Modules\Analytics\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
@@ -51,9 +52,34 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
         if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $from ) ) $from = $defaults['from'];
         if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $to ) )   $to   = $defaults['to'];
 
-        self::renderFilterForm( $from, $to, $team_id );
+        // v4.20.4 (#1147) — analytics scope honours the user's team
+        // assignment. Admins + holders of `tt_view_all_teams` keep the
+        // club-wide view; everyone else (notably AC, scoped to
+        // `team` per the #1060 trim) only ever sees teams they coach.
+        // Routed through `QueryHelpers::get_teams_for_coach()` — the
+        // same resolver the players list + teamplanner use, so analytics
+        // can't drift from the rest of the app.
+        $is_scope_admin = $is_admin || current_user_can( 'tt_view_all_teams' );
+        $allowed_team_ids = $is_scope_admin
+            ? null
+            : array_values( array_map( 'intval', array_column( QueryHelpers::get_teams_for_coach( $user_id ), 'id' ) ) );
 
-        $rows = self::query( $from, $to, $team_id );
+        if ( ! $is_scope_admin && $allowed_team_ids === [] ) {
+            echo '<p class="tt-notice">' . esc_html__( "You don't coach any teams yet, so there is no attendance to show. Ask an administrator to assign you to a team.", 'talenttrack' ) . '</p>';
+            return;
+        }
+
+        // If user picked a team they're not allowed to see, fall through
+        // to empty — no row leak via URL tampering.
+        if ( $allowed_team_ids !== null && $team_id > 0 && ! in_array( $team_id, $allowed_team_ids, true ) ) {
+            self::renderFilterForm( $from, $to, $team_id, $allowed_team_ids );
+            echo '<p class="tt-notice">' . esc_html__( 'No attendance recorded in the selected window.', 'talenttrack' ) . '</p>';
+            return;
+        }
+
+        self::renderFilterForm( $from, $to, $team_id, $allowed_team_ids );
+
+        $rows = self::query( $from, $to, $team_id, $allowed_team_ids );
         if ( $rows === [] ) {
             echo '<p class="tt-notice">' . esc_html__( 'No attendance recorded in the selected window.', 'talenttrack' ) . '</p>';
             return;
@@ -94,13 +120,22 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
     }
 
     /**
+     * @param list<int>|null $allowed_team_ids null = unrestricted (admin / view_all_teams);
+     *                                         non-empty list = scope the query to those teams.
      * @return list<object>
      */
-    private static function query( string $from, string $to, int $team_id ): array {
+    private static function query( string $from, string $to, int $team_id, ?array $allowed_team_ids ): array {
         global $wpdb;
         $where_team = $team_id > 0
             ? $wpdb->prepare( ' AND a.team_id = %d', $team_id )
             : '';
+
+        $where_scope = '';
+        if ( $allowed_team_ids !== null ) {
+            if ( $allowed_team_ids === [] ) return [];
+            $placeholders = implode( ',', array_fill( 0, count( $allowed_team_ids ), '%d' ) );
+            $where_scope  = $wpdb->prepare( " AND a.team_id IN ($placeholders)", ...$allowed_team_ids );
+        }
 
         /** @var object[] $rows */
         $rows = $wpdb->get_results( $wpdb->prepare(
@@ -126,6 +161,7 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
                AND a.session_date BETWEEN %s AND %s
                AND a.plan_state = 'completed'
                {$where_team}
+               {$where_scope}
              GROUP BY p.id, p.first_name, p.last_name, t.name
              ORDER BY p.last_name, p.first_name",
             CurrentClub::id(), $from, $to
@@ -147,15 +183,35 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
         ];
     }
 
-    private static function renderFilterForm( string $from, string $to, int $team_id ): void {
+    /**
+     * @param list<int>|null $allowed_team_ids
+     */
+    private static function renderFilterForm( string $from, string $to, int $team_id, ?array $allowed_team_ids ): void {
         global $wpdb;
-        /** @var object[] $teams */
-        $teams = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, name FROM {$wpdb->prefix}tt_teams
-              WHERE club_id = %d AND ( archived_at IS NULL OR archived_at = '' )
-              ORDER BY name ASC",
-            CurrentClub::id()
-        ) );
+        if ( $allowed_team_ids !== null ) {
+            if ( $allowed_team_ids === [] ) {
+                $teams = [];
+            } else {
+                $placeholders = implode( ',', array_fill( 0, count( $allowed_team_ids ), '%d' ) );
+                /** @var object[] $teams */
+                $teams = $wpdb->get_results( $wpdb->prepare(
+                    "SELECT id, name FROM {$wpdb->prefix}tt_teams
+                      WHERE club_id = %d
+                        AND ( archived_at IS NULL OR archived_at = '' )
+                        AND id IN ($placeholders)
+                      ORDER BY name ASC",
+                    CurrentClub::id(), ...$allowed_team_ids
+                ) );
+            }
+        } else {
+            /** @var object[] $teams */
+            $teams = $wpdb->get_results( $wpdb->prepare(
+                "SELECT id, name FROM {$wpdb->prefix}tt_teams
+                  WHERE club_id = %d AND ( archived_at IS NULL OR archived_at = '' )
+                  ORDER BY name ASC",
+                CurrentClub::id()
+            ) );
+        }
 
         echo '<form method="get" class="tt-filter-row" style="display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end; margin-bottom:12px;">';
         echo '<input type="hidden" name="tt_view" value="attendance-report-player" />';
