@@ -63,6 +63,22 @@
 
         function setSelection( id, label ) {
             valueEl.value = id ? String( id ) : '';
+            // v4.20.7 (#1157) — dispatch a bubbling `change` event after
+            // the JS-driven value assignment so form-level listeners
+            // (notably wizard-validation.js's required-field check)
+            // pick up the new value and re-evaluate Next-button state.
+            // Without this, the hidden input's value updates but no
+            // event fires; the new-goal wizard's Next stayed disabled
+            // even after the user had picked a player.
+            try {
+                valueEl.dispatchEvent( new Event( 'change', { bubbles: true } ) );
+            } catch ( e ) {
+                // Legacy fallback for older browsers without the Event
+                // constructor — createEvent + initEvent path.
+                var ev = document.createEvent( 'Event' );
+                ev.initEvent( 'change', true, false );
+                valueEl.dispatchEvent( ev );
+            }
             if ( id ) {
                 if ( labelEl ) labelEl.textContent = label;
                 if ( selectedEl ) selectedEl.style.display = '';
