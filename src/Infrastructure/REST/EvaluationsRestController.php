@@ -152,7 +152,7 @@ class EvaluationsRestController {
      *
      * Query params:
      *   ?search=<text>                 — player name / notes LIKE
-     *   ?filter[team_id]=<int>         — via player → team join
+     *   ?filter[team_id]=<int|CSV>     — via player → team join (single id or comma-separated list, v4.20.26 / #1212)
      *   ?filter[player_id]=<int>
      *   ?filter[eval_type_id]=<int>
      *   ?filter[date_from]=<YYYY-MM-DD>
@@ -228,8 +228,18 @@ class EvaluationsRestController {
         }
 
         if ( ! empty( $filter['team_id'] ) ) {
-            $where[]  = 'pl.team_id = %d';
-            $params[] = absint( $filter['team_id'] );
+            // v4.20.26 (#1212) — CSV variant for AC dashboards' team-
+            // filtered KPIs. Single value preserves the original shape.
+            $raw_team = (string) $filter['team_id'];
+            $team_ids = array_values( array_filter( array_map( 'absint', explode( ',', $raw_team ) ) ) );
+            if ( count( $team_ids ) === 1 ) {
+                $where[]  = 'pl.team_id = %d';
+                $params[] = $team_ids[0];
+            } elseif ( count( $team_ids ) > 1 ) {
+                $placeholders = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
+                $where[]  = "pl.team_id IN ($placeholders)";
+                $params   = array_merge( $params, $team_ids );
+            }
         }
         if ( ! empty( $filter['player_id'] ) ) {
             $where[]  = 'e.player_id = %d';

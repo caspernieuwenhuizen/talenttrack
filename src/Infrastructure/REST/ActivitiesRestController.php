@@ -158,7 +158,7 @@ class ActivitiesRestController {
      *
      * Query params (Sprint 2 contract):
      *   ?search=<text>            — title / location / team name LIKE
-     *   ?filter[team_id]=<int>
+     *   ?filter[team_id]=<int|CSV>  — single id or comma-separated list (v4.20.26 / #1212)
      *   ?filter[date_from]=<YYYY-MM-DD>
      *   ?filter[date_to]=<YYYY-MM-DD>
      *   ?filter[attendance]=complete|partial|none
@@ -247,8 +247,20 @@ class ActivitiesRestController {
         }
 
         if ( ! empty( $filter['team_id'] ) ) {
-            $where[]  = 's.team_id = %d';
-            $params[] = absint( $filter['team_id'] );
+            // v4.20.26 (#1212) — accept either a single id or a CSV of
+            // ids so AC dashboards' team-filtered KPIs can pass the full
+            // set of teams they coach. Falls back to single-value
+            // behaviour when only one id is supplied.
+            $raw_team = (string) $filter['team_id'];
+            $team_ids = array_values( array_filter( array_map( 'absint', explode( ',', $raw_team ) ) ) );
+            if ( count( $team_ids ) === 1 ) {
+                $where[]  = 's.team_id = %d';
+                $params[] = $team_ids[0];
+            } elseif ( count( $team_ids ) > 1 ) {
+                $placeholders = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
+                $where[]  = "s.team_id IN ($placeholders)";
+                $params   = array_merge( $params, $team_ids );
+            }
         }
         // v3.92.7 — `filter[player_id]=N` scopes the list to activities
         // the player attended (real attendance row OR guest-attendance
