@@ -4,13 +4,16 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.33
+Stable tag: 4.20.34
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.34 — Minutes-team report: AC scope leak closed on team picker + data fetch (closes #1193). Audit 3 (#1177) flagged the same shape as #1147 (the AC analytics scope leak v4.20.4 fixed for the two attendance views). `FrontendMinutesTeamReportView::listTeams()` returned every active team for the club; the downstream `MinutesQuery::forTeam()` only filters by `club_id` + `team_id`, so any AC tampering with `?team_id=N` for another team would receive that team's full lineup data. Missed in v4.20.4 because minutes shipped slightly later (#1034) and reused `MinutesQuery` directly. **Fix.** `render()` resolves `is_scope_admin = $is_admin || tt_view_all_teams` and `allowed_team_ids` via `QueryHelpers::get_teams_for_coach()`. `listTeams()` accepts the scope filter and narrows its SQL `IN (…)` clause. Tampering with a `team_id` outside the scope falls through to a friendly notice instead of forging the data fetch. A coach with zero team assignments lands on the same empty-state copy as the two attendance views. Pattern matches #1147 / #1187 1:1 so the codebase has a single retrofit shape for the bug class across all three Analytics-module surfaces now. Patch bump. (closes #1193) =
+
 
 = 4.20.33 — Authorization matrix: widen `ADMIN_ONLY_ENTITIES` to cover 17 admin/config orphans missed by v4.20.9 (closes #1192). Audit 1 (#1175) found these — same class as #1159 but at larger scope. The v4.20.9 `MatrixEntityCatalog::ADMIN_ONLY_ENTITIES` whitelist solved the false-orphan warning for 10 admin-only entities; audit 1 surfaced 17 more that still flagged in the matrix admin UI even though their consumer pages exist as wp-admin surfaces. Their admin pages use either a WordPress cap (`administrator`, `manage_options`, `read`) that doesn't bridge through `LegacyCapMapper`, or a `tt_*` cap that maps to a different entity (e.g. the Spond admin uses `tt_edit_teams` → `team`, not `spond_integration`). **Fix.** Whitelist extended with the 17 entities: `roles`, `authorization_matrix`, `matrix_preview_apply`, `backup`, `demo_data`, `custom_css`, `impersonation_action`, `usage_stats_details`, `documentation`, `persona_templates`, `rating_scale`, `translations`, `translations_config`, `custom_widgets`, `football_actions`, `spond_integration`, `thread_messages`. Each entry has an inline comment naming the consumer surface so the next reader knows why it's there. **No behaviour change for the matrix gate itself** — the entities were already correctly gated; the audit UI's false-orphan warning is just suppressed for entities that are wired to admin surfaces rather than frontend tiles. Closes the noise that #1159 was created to solve, completely. Patch bump. (closes #1192) =
 
