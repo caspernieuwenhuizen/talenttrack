@@ -93,8 +93,11 @@ final class ActivitiesRepository {
     public function attendanceMapByPlayer( int $activity_id ): array {
         global $wpdb;
         $p = $wpdb->prefix;
+        // v4.20.48 (#1227) — added `record_type = 'actual'` so the edit
+        // form's per-player attendance map doesn't double up once #788
+        // ship 2 lands with pre-filled expected rows. Audit 7 (#1181).
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT * FROM {$p}tt_attendance WHERE activity_id = %d AND is_guest = 0",
+            "SELECT * FROM {$p}tt_attendance WHERE activity_id = %d AND is_guest = 0 AND record_type = 'actual'",
             $activity_id
         ) );
         $out = [];

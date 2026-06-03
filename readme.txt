@@ -4,13 +4,16 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.47
+Stable tag: 4.20.48
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.48 — Attendance reads add `record_type = 'actual'` for stability through #788 ship 2 (closes #1227). Audit 7 (#1181) flagged three `tt_attendance` reads missing the canonical `is_guest = 0` + `record_type = 'actual'` scope. Today (pre-#788 ship 2) the impact is low because no expected-attendance rows exist; the audit logs it for stack-up before ship 2 introduces planned rows. **Three sites updated.** (1) Player profile "Attendance %" KPI tile — `FrontendPlayerDetailView.php:603`. (2) Activity edit form's per-player attendance map — routed through `ActivitiesRepository::attendanceMapByPlayer` (added record_type filter at the repo). (3) Admin Activities page roster — `ActivitiesPage.php:237`. Each query now mirrors the canonical `TeamRosterTableWidget.php:229-243` reference site. Patch bump. (closes #1227) =
+
 
 = 4.20.47 — PeopleRepository::list default-hides archived rows (closes #1226). Audit 7 (#1181) flagged the same-family bug as #1137 (people REST archive silent success): when an operator archives a person, the directory hides them but the parent-link picker on the player edit form (`ParentSearchPickerComponent`) and `FrontendFunctionalRolesView` still offered them. The REST controller defaulted-filter archived; the repository did not. **Fix.** `PeopleRepository::list()` now applies `WHERE p.archived_at IS NULL` by default unless the caller passes `include_archived = true` in filters. Mirrors `PeopleRestController::list_people`. No call-site changes needed — the two real callers (parent picker + functional roles) want active-only and now get it by default. Inline comment cites the audit + the #1137 history. Patch bump. (closes #1226) =
 

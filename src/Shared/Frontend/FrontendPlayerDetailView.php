@@ -600,6 +600,10 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         // attendance rows in the last 30 days. Matches the
         // "actual attendance" scope of the activities tab — only
         // completed activities count.
+        // v4.20.48 (#1227) — added `att.record_type = 'actual'`. Once
+        // #788 ship 2 lands (expected-attendance rows pre-filled at
+        // activity-create time), the denominator inflates without this
+        // filter and the displayed % drops misleadingly. Audit 7 (#1181).
         $att_row = $wpdb->get_row( $wpdb->prepare(
             "SELECT
                 SUM(CASE WHEN att.status = 'present' THEN 1 ELSE 0 END) AS present_n,
@@ -608,6 +612,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                JOIN {$p}tt_activities a ON a.id = att.activity_id
               WHERE att.player_id = %d
                 AND att.is_guest = 0
+                AND att.record_type = 'actual'
                 AND a.archived_at IS NULL
                 AND a.plan_state = 'completed'
                 AND a.session_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)",
