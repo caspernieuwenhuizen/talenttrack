@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-03T22:59:14+00:00\n"
+"POT-Creation-Date: 2026-06-03T23:04:32+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -1899,46 +1899,46 @@ msgid "Assignments payload must be an array."
 msgstr ""
 
 #. translators: %s is the tournament name
-#: src/Infrastructure/REST/TournamentsRestController.php:643
+#: src/Infrastructure/REST/TournamentsRestController.php:676
 #, php-format
 msgid "Tournament match — %s"
 msgstr ""
 
-#: src/Infrastructure/REST/TournamentsRestController.php:663
+#: src/Infrastructure/REST/TournamentsRestController.php:696
 msgid "Could not create the match activity."
 msgstr ""
 
-#: src/Infrastructure/REST/TournamentsRestController.php:724
+#: src/Infrastructure/REST/TournamentsRestController.php:757
 msgid "Could not promote match to activity."
 msgstr ""
 
-#: src/Infrastructure/REST/TournamentsRestController.php:830
+#: src/Infrastructure/REST/TournamentsRestController.php:863
 msgid "Cannot auto-plan a completed match."
 msgstr ""
 
-#: src/Infrastructure/REST/TournamentsRestController.php:838
+#: src/Infrastructure/REST/TournamentsRestController.php:871
 msgid ""
 "Match has no formation. Set a formation on the match or tournament before "
 "auto-planning."
 msgstr ""
 
-#: src/Infrastructure/REST/TournamentsRestController.php:843
+#: src/Infrastructure/REST/TournamentsRestController.php:876
 msgid "Add players to the squad before auto-planning."
 msgstr ""
 
-#: src/Infrastructure/REST/TournamentsRestController.php:1092
+#: src/Infrastructure/REST/TournamentsRestController.php:1125
 msgid "The match could not be updated."
 msgstr ""
 
-#: src/Infrastructure/REST/TournamentsRestController.php:1113
+#: src/Infrastructure/REST/TournamentsRestController.php:1146
 msgid "The match could not be deleted."
 msgstr ""
 
-#: src/Infrastructure/REST/TournamentsRestController.php:1133
+#: src/Infrastructure/REST/TournamentsRestController.php:1166
 msgid "Squad payload must be an array."
 msgstr ""
 
-#: src/Infrastructure/REST/TournamentsRestController.php:1199
+#: src/Infrastructure/REST/TournamentsRestController.php:1232
 msgid "The squad member could not be removed."
 msgstr ""
 
