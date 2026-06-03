@@ -4,7 +4,7 @@ namespace TT\Shared\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Domain\Vocabularies\Lookups\AttendanceStatus;
-use TT\Infrastructure\Query\LabelTranslator;
+use TT\Infrastructure\Activities\ActivitiesRepository;
 
 /**
  * FrontendMyActivitiesView — the "My sessions" tile destination.
@@ -86,17 +86,13 @@ class FrontendMyActivitiesView extends FrontendViewBase {
      * gap from the profile + activities list (#0061).
      */
     private static function renderDetail( object $player, int $activity_id ): void {
-        global $wpdb;
-        $p = $wpdb->prefix;
-
-        $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT a.*, t.name AS team_name
-               FROM {$p}tt_activities a
-               LEFT JOIN {$p}tt_teams t ON a.team_id = t.id
-              WHERE a.id = %d
-              LIMIT 1",
-            $activity_id
-        ) );
+        // #1078 — was inline activity SQL + separate attendance fetch
+        // + inline LabelTranslator calls below. ActivitiesRepository
+        // centralises both queries into one JOIN, hydrates the row
+        // with activity_type_localised + attendance_status_localised,
+        // so this view echoes the localised fields by construction.
+        // Same shape as #1077 GoalsRepository / #1081 worked example.
+        $row = ( new ActivitiesRepository() )->findForPlayer( $activity_id, (int) $player->id );
 
         if ( ! $row ) {
             self::renderHeader( __( 'Activity not found', 'talenttrack' ) );
@@ -104,12 +100,17 @@ class FrontendMyActivitiesView extends FrontendViewBase {
             return;
         }
 
-        $att = $wpdb->get_row( $wpdb->prepare(
-            "SELECT * FROM {$p}tt_attendance
-              WHERE activity_id = %d AND ( player_id = %d OR guest_player_id = %d )
-              LIMIT 1",
-            $activity_id, (int) $player->id, (int) $player->id
-        ) );
+        // Back-compat with the rest of this method which referenced a
+        // separate `$att` row. The repository joined attendance fields
+        // onto the activity row as `attendance_*`, so expose them via
+        // the same shape.
+        $att = null;
+        if ( ! empty( $row->attendance_status ) ) {
+            $att = (object) [
+                'status' => (string) $row->attendance_status,
+                'notes'  => (string) ( $row->attendance_notes ?? '' ),
+            ];
+        }
 
         self::enqueueAssets();
         $title = (string) \TT\Modules\Translations\TranslationLayer::render( (string) ( $row->title ?: '' ) );
@@ -149,24 +150,21 @@ class FrontendMyActivitiesView extends FrontendViewBase {
                     <span class="tt-meta-chip"><?php esc_html_e( 'Location:', 'talenttrack' ); ?> <strong><?php echo esc_html( $location ); ?></strong></span>
                 <?php endif; ?>
                 <?php if ( $type_key !== '' ) :
-                    // v3.92.7 — `LabelTranslator::activityType()` covers the
-                    // seeded activity-type lookup rows. Falls back to a
-                    // humanised key for custom types the operator added
-                    // post-seed.
-                    $type_label = LabelTranslator::activityType( $type_key );
-                    if ( $type_label === null ) {
-                        $type_label = ucfirst( str_replace( '_', ' ', $type_key ) );
-                    }
+                    // #1078 — repository pre-localises into
+                    // `activity_type_localised` (humanise-fallback
+                    // included), so the view just echoes.
                     ?>
-                    <span class="tt-status-badge"><?php echo esc_html( $type_label ); ?></span>
+                    <span class="tt-status-badge"><?php echo esc_html( (string) $row->activity_type_localised ); ?></span>
                 <?php endif; ?>
                 <?php if ( $att_status !== '' ) : ?>
                     <span class="tt-status-badge <?php echo esc_attr( $att_status_class ); ?>">
                         <?php
+                        // #1078 — pre-localised attendance status from
+                        // the repository's hydrate() pass.
                         echo esc_html( sprintf(
                             /* translators: %s = attendance status label (Present / Absent / Late / etc.) */
                             __( 'Your attendance: %s', 'talenttrack' ),
-                            LabelTranslator::attendanceStatus( $att_status )
+                            (string) ( $row->attendance_status_localised ?? '' )
                         ) );
                         ?>
                     </span>
