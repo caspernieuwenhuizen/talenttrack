@@ -386,6 +386,8 @@ final class EditorPage {
             'cancelled'               => __( 'Move cancelled.', 'talenttrack' ),
             'preview_as'              => __( 'Preview as', 'talenttrack' ),
             'widget_added'            => __( 'Added %s to the canvas.', 'talenttrack' ),
+            // #1142 — swap-on-hover status announcement.
+            'swapped'                 => __( 'Swapped.', 'talenttrack' ),
         ];
     }
 

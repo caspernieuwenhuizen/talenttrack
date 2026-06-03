@@ -198,6 +198,71 @@
             }
             s.y = minY;
         }
+        // #1142 — pull eligible slots from later rows up into horizontal
+        // gaps left by `compactGrid`'s purely-vertical pass. Repeat
+        // until stable; bounded by grid.length so a pathological cascade
+        // can't loop.
+        packHorizontally(grid);
+        return grid;
+    }
+
+    /**
+     * Horizontal gap-fill pass (#1142).
+     *
+     * `compactGrid` only pulls slots straight up — it leaves the row
+     * fragmented when a small slot has a wider sibling to its right
+     * and nothing fills the trailing gap. This pass walks each row
+     * top-to-bottom; if there is empty space starting at column X in
+     * a row, and a slot in a later row fits there at the same (or
+     * smaller) y without colliding, we move it up. Repeats until no
+     * relocation happens or the loop bound is hit.
+     *
+     * The function mutates `grid` in place; the next `renderCanvas`
+     * picks up the new x/y. Cheap (O(n²) over a grid that rarely
+     * exceeds 30 slots).
+     */
+    function packHorizontally(grid) {
+        if (!grid || grid.length < 2) return grid;
+        for (var pass = 0; pass < grid.length; pass++) {
+            var moved = false;
+            // Sort each pass top-to-bottom so we always consider rows
+            // in render order. Slots that moved earlier in the pass
+            // may still vacate space useful to slots later in the
+            // same pass — running multiple passes is the simplest
+            // way to converge without tracking deltas.
+            grid.sort(function (a, b) {
+                if (a.y !== b.y) return a.y - b.y;
+                return a.x - b.x;
+            });
+            for (var i = 0; i < grid.length; i++) {
+                var s = grid[i];
+                // Walk x rightward; for each col where the projected
+                // slot would fit without overlapping any preceding
+                // slot, consider relocating it. Only relocate if the
+                // candidate landing position has a strictly smaller
+                // y OR same y with smaller x than the current slot.
+                for (var nx = 0; nx + colsForSize(s.size) <= 12; nx++) {
+                    for (var ny = 0; ny <= s.y; ny++) {
+                        if (nx === s.x && ny === s.y) continue;
+                        if (ny === s.y && nx >= s.x) continue;
+                        var trial = { __id: s.__id, x: nx, y: ny, size: s.size, row_span: s.row_span };
+                        var blocked = false;
+                        for (var j = 0; j < grid.length; j++) {
+                            if (j === i) continue;
+                            if (slotsCollide(trial, grid[j])) { blocked = true; break; }
+                        }
+                        if (!blocked) {
+                            s.x = nx;
+                            s.y = ny;
+                            moved = true;
+                            break;
+                        }
+                    }
+                    if (moved) break;
+                }
+            }
+            if (!moved) break;
+        }
         return grid;
     }
 
@@ -931,6 +996,24 @@
                     var sz = dragSize();
                     var coords = gridCellFromEvent(e, sz);
                     if (coords) snapToGuides(coords, e, sz);
+                    // #1142 — swap-on-hover. When the operator drags an
+                    // already-placed card over another card on the
+                    // canvas, drop should SWAP the two positions
+                    // instead of pushing the target down. Detect the
+                    // intent here so the drop handler can branch.
+                    var drag = window.__ttPdeDrag;
+                    if (drag && drag.kind === 'move') {
+                        var underCard = (e.target && e.target.closest)
+                            ? e.target.closest('.tt-pde-card[data-tt-pde-slot]') : null;
+                        clearSwapTargetHighlight();
+                        if (underCard && underCard.dataset.ttPdeSlot !== drag.slotId &&
+                            underCard.dataset.ttPdeBand === 'grid') {
+                            window.__ttPdeSwapTargetId = underCard.dataset.ttPdeSlot;
+                            underCard.classList.add('is-swap-target');
+                        } else {
+                            window.__ttPdeSwapTargetId = null;
+                        }
+                    }
                     // v3.110.92 — live preview reflow. Existing cards
                     // animate to their post-drop positions BEFORE the
                     // operator releases, so the layout is no surprise.
@@ -942,6 +1025,7 @@
                 if (t.kind === 'grid') {
                     clearAlignmentGuides();
                     clearPreviewTransforms();
+                    clearSwapTargetHighlight();
                 }
             });
             t.node.addEventListener('drop', function (e) {
@@ -949,6 +1033,7 @@
                 t.node.classList.remove('is-drop-target');
                 clearAlignmentGuides();
                 clearPreviewTransforms();
+                clearSwapTargetHighlight();
                 handleDropOnBand(t.kind, e);
             });
         });
@@ -957,6 +1042,7 @@
         // transforms (covers Escape-to-cancel + drag-out-of-window cases).
         document.addEventListener('dragend', clearAlignmentGuides);
         document.addEventListener('dragend', clearPreviewTransforms);
+        document.addEventListener('dragend', clearSwapTargetHighlight);
     }
 
     function buildCard(slot, bandKind) {
@@ -1087,14 +1173,55 @@
 
     function handleDropOnBand(kind, ev) {
         var drag = window.__ttPdeDrag; window.__ttPdeDrag = null;
+        var swapTargetId = window.__ttPdeSwapTargetId;
+        window.__ttPdeSwapTargetId = null;
         if (!drag) return;
         if (drag.kind === 'add-widget') {
             placeNewSlot(drag.paletteId, '', kind, ev);
         } else if (drag.kind === 'add-kpi') {
             placeNewSlot('kpi_card', drag.paletteId, kind, ev);
         } else if (drag.kind === 'move') {
+            // #1142 — drop onto another grid card swaps positions instead
+            // of pushing the target down. Falls through to the existing
+            // push-down/compact path when dropped onto empty space.
+            if (kind === 'grid' && swapTargetId && swapTargetId !== drag.slotId) {
+                if (swapSlots(drag.slotId, swapTargetId)) return;
+            }
             moveExistingSlot(drag.slotId, kind, ev);
         }
+    }
+
+    function swapSlots(srcId, dstId) {
+        if (!state.template || !state.template.grid) return false;
+        var grid = state.template.grid;
+        var src = null, dst = null;
+        for (var i = 0; i < grid.length; i++) {
+            if (grid[i].__id === srcId) src = grid[i];
+            if (grid[i].__id === dstId) dst = grid[i];
+        }
+        if (!src || !dst) return false;
+        var srcX = src.x, srcY = src.y, srcSize = src.size, srcSpan = src.row_span;
+        src.x = dst.x; src.y = dst.y;
+        dst.x = srcX; dst.y = srcY;
+        // Swap doesn't change size on either side — the operator chose
+        // the swap intent, not a size change. If the two slots have
+        // different sizes the layout might briefly overlap; let the
+        // compact pass tidy.
+        resolveCollisions(grid, srcId);
+        compactGrid(grid);
+        commit();
+        selectSlot(srcId);
+        setStatus(I18N.swapped || 'Swapped.', 'ok');
+        // Silence the "Swap doesn't change size" lint by referencing the
+        // (unused-by-design) variables.
+        void srcSize; void srcSpan;
+        return true;
+    }
+
+    function clearSwapTargetHighlight() {
+        if (!document) return;
+        var cards = document.querySelectorAll('.tt-pde-card.is-swap-target');
+        for (var i = 0; i < cards.length; i++) cards[i].classList.remove('is-swap-target');
     }
 
     function addWidget(widgetId, dataSource) {
@@ -1790,6 +1917,134 @@
         });
 
         loadPersona(state.persona);
+        wireTouchDragFallback();
+    }
+
+    // ─── Touch drag fallback (#1142) ─────────────────────────────
+    //
+    // HTML5 drag-drop (the `draggable="true"` + `dragstart`/`dragover`
+    // chain) does not fire on iOS Safari or Chrome Android — coaches
+    // editing on a tablet had no way to reorder canvas cards short of
+    // the keyboard a11y path. This module adds a Pointer Events
+    // wrapper that detects touch input and synthesises the same
+    // dragstart → preview → drop sequence using `__ttPdeDrag` +
+    // `__ttPdeSwapTargetId` so the existing drop logic + swap-on-hover
+    // semantics work unchanged on touch.
+    //
+    // Mouse-with-pointer-fine devices keep the native HTML5 path —
+    // pointerdown on those returns early so we don't double-handle.
+    function wireTouchDragFallback() {
+        var canvas = document.querySelector('[data-tt-pde="canvas"]');
+        if (!canvas) return;
+
+        var active = null; // { card, slotId, ghost, startX, startY }
+
+        canvas.addEventListener('pointerdown', function (e) {
+            // Only touch / pen — mouse keeps the native DnD path.
+            if (e.pointerType === 'mouse') return;
+            var card = e.target && e.target.closest ? e.target.closest('.tt-pde-card[data-tt-pde-slot]') : null;
+            if (!card || card.dataset.ttPdeBand !== 'grid') return;
+            // Action buttons (×) must not start a drag.
+            if (e.target.closest('[data-tt-pde-action]')) return;
+
+            e.preventDefault();
+            var slotId = card.dataset.ttPdeSlot;
+            window.__ttPdeDrag = { kind: 'move', slotId: slotId };
+            card.classList.add('is-dragging');
+            document.body.classList.add('tt-pde-dragging');
+
+            var rect = card.getBoundingClientRect();
+            var ghost = card.cloneNode(true);
+            ghost.classList.add('tt-pde-touch-ghost');
+            ghost.style.position = 'fixed';
+            ghost.style.left = rect.left + 'px';
+            ghost.style.top = rect.top + 'px';
+            ghost.style.width = rect.width + 'px';
+            ghost.style.height = rect.height + 'px';
+            ghost.style.pointerEvents = 'none';
+            ghost.style.opacity = '0.85';
+            ghost.style.zIndex = '10000';
+            document.body.appendChild(ghost);
+
+            active = {
+                card: card,
+                slotId: slotId,
+                ghost: ghost,
+                offsetX: e.clientX - rect.left,
+                offsetY: e.clientY - rect.top
+            };
+            try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* older browsers */ }
+        });
+
+        canvas.addEventListener('pointermove', function (e) {
+            if (!active) return;
+            e.preventDefault();
+            active.ghost.style.left = (e.clientX - active.offsetX) + 'px';
+            active.ghost.style.top = (e.clientY - active.offsetY) + 'px';
+
+            // Run the same dragover-style snap + swap-target detection.
+            var sz = dragSize();
+            var coords = gridCellFromEvent(e, sz);
+            if (coords) snapToGuides(coords, e, sz);
+
+            var elBelow = document.elementFromPoint(e.clientX, e.clientY);
+            var underCard = elBelow && elBelow.closest
+                ? elBelow.closest('.tt-pde-card[data-tt-pde-slot]') : null;
+            clearSwapTargetHighlight();
+            if (underCard && underCard.dataset.ttPdeSlot !== active.slotId &&
+                underCard.dataset.ttPdeBand === 'grid') {
+                window.__ttPdeSwapTargetId = underCard.dataset.ttPdeSlot;
+                underCard.classList.add('is-swap-target');
+            } else {
+                window.__ttPdeSwapTargetId = null;
+            }
+            previewDragLayout(e);
+        });
+
+        var cancelTouchDrag = function (e) {
+            if (!active) return;
+            try { canvas.releasePointerCapture(e.pointerId); } catch (err) { /* noop */ }
+            if (active.ghost && active.ghost.parentNode) active.ghost.parentNode.removeChild(active.ghost);
+            if (active.card) active.card.classList.remove('is-dragging');
+            document.body.classList.remove('tt-pde-dragging');
+            clearAlignmentGuides();
+            clearPreviewTransforms();
+            clearSwapTargetHighlight();
+            window.__ttPdeDrag = null;
+            window.__ttPdeSwapTargetId = null;
+            active = null;
+        };
+
+        canvas.addEventListener('pointerup', function (e) {
+            if (!active) return;
+            // Determine the drop band. The ghost is pointer-events:none
+            // so elementFromPoint sees the underlying band. Default to
+            // 'grid' if we're inside the canvas; pointerup outside the
+            // canvas with active still set means a cancel.
+            var inCanvas = canvas.contains(document.elementFromPoint(e.clientX, e.clientY));
+            if (inCanvas) {
+                e.preventDefault();
+                var synthetic = { clientX: e.clientX, clientY: e.clientY, shiftKey: e.shiftKey };
+                // Tear down visuals BEFORE handleDropOnBand so the next
+                // render starts clean.
+                var finishedActive = active;
+                active = null;
+                if (finishedActive.ghost && finishedActive.ghost.parentNode) {
+                    finishedActive.ghost.parentNode.removeChild(finishedActive.ghost);
+                }
+                if (finishedActive.card) finishedActive.card.classList.remove('is-dragging');
+                document.body.classList.remove('tt-pde-dragging');
+                clearAlignmentGuides();
+                clearPreviewTransforms();
+                clearSwapTargetHighlight();
+                try { canvas.releasePointerCapture(e.pointerId); } catch (err) { /* noop */ }
+                handleDropOnBand('grid', synthetic);
+                return;
+            }
+            cancelTouchDrag(e);
+        });
+        canvas.addEventListener('pointercancel', cancelTouchDrag);
+        canvas.addEventListener('lostpointercapture', cancelTouchDrag);
     }
 
     if (document.readyState === 'loading') {

@@ -34849,6 +34849,11 @@ msgstr ""
 msgid "Will be removed as parent contact from player %s."
 msgstr "Wordt verwijderd als ouder-contact bij speler %s."
 
+# v4.20.1 #1142 — persona-dashboard editor swap-on-hover status.
+#: src/Modules/PersonaDashboard/Admin/EditorPage.php
+msgid "Swapped."
+msgstr "Gewisseld."
+
 #~ msgid ""
 #~ "Optionally connect this activity to one or more methodology principles. "
 #~ "Hold Ctrl/Cmd to select multiple. Leave blank to skip."

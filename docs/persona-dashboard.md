@@ -70,14 +70,24 @@ Top-bar controls:
 
 ### Drag & drop on the canvas
 
-The canvas is collision-free by design — two slots can never sit on the same cell. When you drop a widget onto an occupied cell, the slots already there **push down** to make room. After every move the grid auto-compacts upward so there are no orphan empty rows above a slot.
+The canvas is collision-free by design — two slots can never sit on the same cell. There are three drop semantics:
 
-Two extras while you're dragging:
+1. **Drop onto an empty cell → push-down.** The dragged widget lands at the cursor; any widgets it would overlap shift downward to make room.
+2. **Drop onto another widget → swap.** The two widgets trade positions. The hovered card lights up green while you drag over it, so you can see the swap target before releasing. This is the easiest way to move a single card into a tighter row.
+3. **Hold Shift while dropping → snap into the nearest gap.** Instead of pushing or swapping, the dragged widget snaps to the closest free cell that fits its size. Useful when you're bulk-adding from the palette and don't want existing slots to move.
 
-- **Alignment guides.** Blue 1-pixel lines appear when the dragged slot's left / right / centre edge lines up with another slot's matching edge — or with the canvas's own left / right / centre. Within a few pixels of an aligned column the drop snaps to the guide. Same for top / bottom / centre-y horizontals.
-- **Hold Shift to snap into a gap instead of pushing.** Default behaviour (push-and-reflow) is right when you're rearranging. Holding Shift on the drop switches to "find the nearest free cell that fits" — better when you're bulk-adding from the palette and don't want existing slots to move.
+After every drop the grid runs two auto-tidy passes:
+
+- **Vertical compact** pulls slots up to close empty rows above them.
+- **Horizontal pack** pulls slots left/up into row gaps that another slot fits into, so a row like `[KPI · · · · ·]` won't leave a trailing hole when a smaller widget exists on a later row that could fill it.
+
+**Alignment guides** appear while you drag: blue 1-pixel lines when the dragged slot's left / right / centre edge lines up with another slot's matching edge — or with the canvas's own left / right / centre. Within a few pixels of an aligned column the drop snaps to the guide. Same for top / bottom / centre-y horizontals.
 
 Pre-existing layouts that had overlapping slots from before this feature shipped auto-resolve on next load — you'll see a clean grid without having to drag anything.
+
+### Touch editing (tablets)
+
+The editor works the same with a finger on iPad / Android tablets. Press and hold on a canvas card, drag, and release — the same swap / push / horizontal-pack semantics apply. A floating ghost of the card tracks your finger so you can see where it'll land before letting go.
 
 ### Keyboard support
 
