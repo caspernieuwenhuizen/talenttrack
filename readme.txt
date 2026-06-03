@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.13
+Stable tag: 4.20.14
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.14 — Persona dashboard: `TodayUpNextHeroWidget` hides the Evaluation CTA from users without `tt_edit_evaluations` (closes #1151). Pilot 2026-06-03: an Assistent-trainer (AC) saw an "Evaluation" button on their dashboard hero — but AC lost the `evaluations` matrix entity in #1060, so `tt_edit_evaluations` returns false and clicking the link drops them on a surface they can't author into. **Root cause.** [TodayUpNextHeroWidget::render()](src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php#L46-L71) renders an explicit `<a>Evaluation</a>` CTA unconditionally — no `capRequired()` override (the legacy widget pre-dates the cap-gating chain). The newer `mark_attendance_hero` IS cap-gated on `tt_edit_evaluations` so AC doesn't see that widget; but `today_up_next_hero` stays registered for back-compat with custom templates and inherits the legacy unconditional CTA. **Fix.** Inline `current_user_can( 'tt_edit_evaluations' )` check wrapping the Evaluation `<a>`; Attendance stays unconditional (every persona in `intendedPersonas()` — HC, AC, team_manager — holds `tt_view_activities`). The widget itself stays registered (no `capRequired()` change) so the intended HC + TM use cases keep rendering both buttons. Defence-in-depth pattern alongside #1060 + #1105 + #1106. **What this is NOT.** Not a `capRequired()` change on the widget — that would gate out AC + team_manager entirely, who legitimately see the Attendance CTA. Not a `mark_attendance_hero` change — that widget is already cap-gated correctly. Patch bump. (closes #1151) =
 
 = 4.20.13 — Activity edit form: Status select min-width sized for ≥15 characters (closes #1150). Pilot 2026-06-03 reported the Status `<select>` ellipsizing labels like "In uitvoering" / "Geannuleerd" because the field sits in a `.tt-grid-2` row next to Type and only got 50% of the form width at desktop. **Fix.** One CSS rule appended to `assets/css/frontend-activities-manage.css`: `.tt-dashboard #tt-activity-status { min-width: 18ch; }` — covers 15+ visible characters plus the chevron, the grid auto-rebalances so Type's column gives back the spare space, and mobile (≤ 480px) collapses to 1 column already so this is a no-op on phone viewports. Patch bump. (closes #1150) =
 
