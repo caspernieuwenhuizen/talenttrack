@@ -505,10 +505,14 @@ final class FrontendTeamDetailView extends FrontendViewBase {
             ? (int) $existing['default_duration_minutes']
             : 0;
 
-        $cancel_url = add_query_arg(
-            [ 'tt_view' => 'teams', 'id' => $team_id ],
-            \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
-        );
+        // v4.20.36 (#1196) — honour `tt_back` (CLAUDE.md §6 point 5).
+        $back       = \TT\Shared\Frontend\Components\BackLink::resolve();
+        $cancel_url = $back !== null
+            ? (string) $back['url']
+            : add_query_arg(
+                [ 'tt_view' => 'teams', 'id' => $team_id ],
+                \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+            );
 
         $weekdays = [
             1  => __( 'Mon', 'talenttrack' ),

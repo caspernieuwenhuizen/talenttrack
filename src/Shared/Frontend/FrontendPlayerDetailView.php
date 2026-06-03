@@ -1650,10 +1650,14 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             4 => __( '4 — high', 'talenttrack' ),
         ];
 
-        $cancel_url = add_query_arg(
-            [ 'tt_view' => 'players', 'id' => $player_id, 'tab' => 'profile' ],
-            \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
-        );
+        // v4.20.36 (#1196) — honour `tt_back` (CLAUDE.md §6 point 5).
+        $back       = \TT\Shared\Frontend\Components\BackLink::resolve();
+        $cancel_url = $back !== null
+            ? (string) $back['url']
+            : add_query_arg(
+                [ 'tt_view' => 'players', 'id' => $player_id, 'tab' => 'profile' ],
+                \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+            );
         ?>
         <section class="tt-player-card tt-player-phv-panel<?php echo $is_active ? ' is-active' : ''; ?>">
             <div class="tt-player-card__head">
