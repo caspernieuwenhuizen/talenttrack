@@ -59,13 +59,19 @@ class KpiCardWidget extends AbstractWidget {
             . ( $kpi->delta !== null ? '<div class="tt-pd-kpi-delta">' . esc_html( $kpi->delta ) . '</div>' : '' )
             . $sparkline;
 
-        // Clickable card when the KPI declares a deep-link view.
+        // Clickable card when the KPI declares a deep-link target.
         // Whole card becomes the click target so the affordance is
-        // mobile-friendly (48px tap area). When linkView is empty the
-        // card stays inert — preserves existing behaviour.
-        $link_view = ( $source !== null && method_exists( $source, 'linkView' ) ) ? $source->linkView() : '';
-        if ( $link_view !== '' ) {
-            $url   = $ctx->viewUrl( $link_view );
+        // mobile-friendly (48px tap area). When neither linkUrl() nor
+        // linkView() is set the card stays inert — preserves existing
+        // behaviour.
+        //
+        // v4.20.22 (#1207) — routed through AbstractWidget::kpiHrefFor()
+        // so the override-aware `linkUrl()` builder (introduced for #771
+        // and #481) is consulted first. Pre-fix this widget only looked
+        // at `linkView()`, leaving every per-KPI filter-bearing override
+        // dead code in the dominant kpi_card placement.
+        $url = $this->kpiHrefFor( $source, $ctx );
+        if ( $url !== '' ) {
             $inner = '<a class="tt-pd-kpi-link" href="' . esc_url( $url ) . '">' . $body . '</a>';
         } else {
             $inner = $body;

@@ -53,19 +53,14 @@ class KpiStripWidget extends AbstractWidget {
                 . ( $kpi->delta !== null ? '<div class="tt-pd-strip-delta">' . esc_html( $kpi->delta ) . '</div>' : '' );
             // Whole card becomes the tap target when the KPI declares a
             // deep-link URL (preserves the 48px-min mobile affordance and
-            // matches KpiCardWidget's pattern). v3.110.112 — prefer the
-            // newer `linkUrl( $ctx )` builder over `linkView()` so KPIs
-            // can deep-link with filter querystrings; falls back to the
-            // legacy view-only builder for KPIs that haven't migrated.
-            $url = '';
-            if ( $source !== null ) {
-                if ( method_exists( $source, 'linkUrl' ) ) {
-                    $url = $source->linkUrl( $ctx );
-                } elseif ( method_exists( $source, 'linkView' ) ) {
-                    $v = $source->linkView();
-                    if ( $v !== '' ) $url = $ctx->viewUrl( $v );
-                }
-            }
+            // matches KpiCardWidget's pattern).
+            //
+            // v4.20.22 (#1207) — routed through AbstractWidget::kpiHrefFor()
+            // so both KPI widgets share one source of truth. Previously
+            // v3.110.112 added the linkUrl-first lookup here but
+            // KpiCardWidget regressed by only checking linkView(); the
+            // shared helper closes that drift class.
+            $url = $this->kpiHrefFor( $source, $ctx );
             if ( $url !== '' ) {
                 $cards .= '<a class="tt-pd-strip-kpi tt-pd-strip-link" href="' . esc_url( $url ) . '">' . $body . '</a>';
             } else {
