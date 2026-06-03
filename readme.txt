@@ -4,13 +4,16 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.27
+Stable tag: 4.20.28
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.28 — tournament-wizard: chip-editor hidden CSV write dispatches `change` so autosave picks it up (closes #1186). Audit 5 (#1179) flagged the last remaining instance of the #1157 dispatch-omission pattern. The tournament wizard's chip-editor (substitution-windows CSV) wrote the hidden input's value via direct `.value = …` assignment and never dispatched. The wizard ships inside `.tt-wizard-form`, which means `wizard-autosave.js` listens at the form level for `input` / `change` events — without the dispatch the autosave never saw the chip add/remove, so the draft stored on the server stayed empty. Reproducer: add a substitution window → autosave debounce settles → refresh → chip is gone. **Fix.** `rebuildChipHidden()` in `assets/js/components/tournament-wizard.js:170-182` now dispatches a bubbling `change` event after the value write (with legacy `createEvent`+`initEvent` fallback for older browsers). Same idiom + comment style as the v4.20.7 PlayerSearchPicker fix (#1157). **Out of scope.** The `cloneBlankMatchCard` hidden-input clears flagged in the audit body — they land on detached DOM nodes (the cloned card isn't attached to the form yet, so a dispatched event wouldn't bubble to the autosave listener anyway), and the cleared value matches the already-empty initial state, so the missing dispatch has no functional impact today. Left untouched; the shared `setAndNotify(el, val)` helper proposed in the audit doc is the right cleanup if this surface grows. Patch bump. (closes #1186) =
+
 
 = 4.20.27 — Persona dashboard: `MyEvaluationsThisWeek` KPI deep-links with `?days=7` to match its compute window; destination view honours the param (closes #1213). Audit 6 (#1180) flagged the divergence: KPI counts last 7 days, destination defaults to 30. The destination's docblock explicitly comments on the broadening ("Widens to a 30-day trailing window — wider than the strictly-this-week KPI cut so coaches always see some recent context"), but the headline mismatch — "KPI says 3 but page shows 11" — breeds operator mistrust. **Fix.** `FrontendMyEvaluationsView::renderForCoach` now reads `?days=<int>`, clamps to [1, 90], defaults to 30 when absent. Translatable strings updated to interpolate the window via `%d` so "last X days" doesn't lie when the param overrides the default. `MyEvaluationsThisWeek::linkUrl()` appends `?days=7` — the destination renders the same 7-day cut the KPI counted, so KPI "3" → list of 3 rows. **Operators who land on the page without the param** (direct nav, bookmarks) still see the 30-day broadening, preserving the v3.110.215 (#846) UX intent. Lands live in the dominant kpi_card placement via v4.20.22's `KpiCardWidget`→`linkUrl()` routing fix (#1207). Patch bump. (closes #1213) =
 
