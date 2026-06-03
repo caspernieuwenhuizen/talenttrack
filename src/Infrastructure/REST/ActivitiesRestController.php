@@ -511,6 +511,9 @@ class ActivitiesRestController {
             'title'                    => (string) $row->title,
             'title_link_html'          => $title_link_html,
             'session_date'             => (string) $row->session_date,
+            // #1126 — surface optional time window on the read payload.
+            'start_time'               => $row->start_time !== null ? (string) $row->start_time : null,
+            'end_time'                 => $row->end_time   !== null ? (string) $row->end_time   : null,
             'location'                 => (string) ( $row->location ?? '' ),
             'team_id'                  => (int) ( $row->team_id ?? 0 ),
             'team_name'                => (string) ( $row->team_name ?? '' ),
@@ -762,9 +765,31 @@ class ActivitiesRestController {
         $plan_state = sanitize_text_field( (string) ( $r['plan_state'] ?? '' ) );
         $allowed_plan_states = [ 'draft', 'scheduled', 'in_progress', 'completed', 'cancelled' ];
 
+        // #1126 — optional start_time + end_time. Validate HH:MM
+        // shape, treat empty as null. End must come after start when
+        // both are set.
+        $start_time_raw = trim( (string) ( $r['start_time'] ?? '' ) );
+        $end_time_raw   = trim( (string) ( $r['end_time']   ?? '' ) );
+        $start_time = null;
+        $end_time   = null;
+        if ( $start_time_raw !== '' && preg_match( '/^\d{2}:\d{2}(:\d{2})?$/', $start_time_raw ) ) {
+            $start_time = $start_time_raw;
+        }
+        if ( $end_time_raw !== '' && preg_match( '/^\d{2}:\d{2}(:\d{2})?$/', $end_time_raw ) ) {
+            $end_time = $end_time_raw;
+        }
+        if ( $start_time !== null && $end_time !== null
+            && strtotime( '1970-01-01 ' . $end_time ) <= strtotime( '1970-01-01 ' . $start_time )
+        ) {
+            // Silently drop end_time on a malformed combo so the row
+            // still persists; UI validation should have caught this.
+            $end_time = null;
+        }
         $payload = [
             'title'               => sanitize_text_field( (string) ( $r['title'] ?? '' ) ),
             'session_date'        => sanitize_text_field( (string) ( $r['session_date'] ?? '' ) ),
+            'start_time'          => $start_time,
+            'end_time'            => $end_time,
             'team_id'             => absint( $r['team_id'] ?? 0 ),
             'coach_id'            => get_current_user_id(),
             'location'            => sanitize_text_field( (string) ( $r['location'] ?? '' ) ),

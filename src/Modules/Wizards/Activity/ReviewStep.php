@@ -68,6 +68,13 @@ final class ReviewStep implements WizardStepInterface {
         }
         $rows[] = [ __( 'Title',    'talenttrack' ), (string) ( $state['title'] ?? '' ),       false ];
         $rows[] = [ __( 'Date',     'talenttrack' ), (string) ( $state['session_date'] ?? '' ), false ];
+        // #1126 — show the optional time window on the review when set.
+        $st = (string) ( $state['start_time'] ?? '' );
+        $et = (string) ( $state['end_time']   ?? '' );
+        if ( $st !== '' ) {
+            $window = substr( $st, 0, 5 ) . ( $et !== '' ? ' – ' . substr( $et, 0, 5 ) : '' );
+            $rows[] = [ __( 'Time', 'talenttrack' ), $window, false ];
+        }
         $rows[] = [ __( 'Location', 'talenttrack' ), $loc !== '' ? $loc : '—', false ];
         if ( $notes !== '' ) {
             $rows[] = [ __( 'Notes', 'talenttrack' ), $notes, true ];
@@ -151,6 +158,8 @@ final class ReviewStep implements WizardStepInterface {
             'coach_id'            => get_current_user_id(),
             'title'               => $title,
             'session_date'        => $date,
+            'start_time'          => ! empty( $state['start_time'] ) ? (string) $state['start_time'] : null,
+            'end_time'            => ! empty( $state['end_time'] )   ? (string) $state['end_time']   : null,
             'location'            => (string) ( $state['location'] ?? '' ),
             'notes'               => (string) ( $state['notes'] ?? '' ),
             'activity_type_key'   => $type,
