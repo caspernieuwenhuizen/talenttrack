@@ -1202,16 +1202,53 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         $teams         = $is_admin ? QueryHelpers::get_teams() : QueryHelpers::get_teams_for_coach( $user_id );
         $selected_team = (int) ( $session->team_id ?? ( $teams ? $teams[0]->id : 0 ) );
 
-        // Roster spans every team the coach has access to so changing
-        // the team dropdown later doesn't lose attendance state. The
-        // attendance.js helper hides rows for non-current teams.
+        // v4.20.10 (#1154) — was: roster spanned every team the coach
+        // has access to, so the entire academy shipped in the hidden
+        // form fields. That produced the off-roster `is_guest = 0`
+        // artefacts #1148 had to write-time-filter and DELETE-backfill.
+        // Now: roster is the activity's current team only, unioned with
+        // any players who already have an attendance row on this
+        // activity (legacy historical squad data preserved through
+        // #1148's audit-trail-aware backfill — those rows must stay
+        // editable in the form even when the player has since moved
+        // teams).
+        //
+        // Team-dropdown switch edge case: when the admin changes the
+        // team `<select>`, the picker still shows the OLD team's roster
+        // until the activity is saved + page reloaded. This is the
+        // niche edge case (#1154 issue body) — coaches typically pick
+        // the team first, then mark attendance. Save-and-reload is the
+        // documented recovery.
         $players_by_team = [];
         $all_players     = [];
-        foreach ( $teams as $t ) {
-            $tp = QueryHelpers::get_players( (int) $t->id );
-            foreach ( $tp as $pl ) {
+        if ( $selected_team > 0 ) {
+            $current_roster = QueryHelpers::get_players( $selected_team );
+            foreach ( $current_roster as $pl ) {
                 $all_players[ (int) $pl->id ] = $pl;
-                $players_by_team[ (int) $t->id ][] = (int) $pl->id;
+                $players_by_team[ $selected_team ][] = (int) $pl->id;
+            }
+        }
+        // Union in players who already have an attendance row on this
+        // activity but aren't on the current roster. Keeps historical
+        // squad data editable.
+        if ( $attendance ) {
+            $missing_ids = array_diff( array_map( 'intval', array_keys( $attendance ) ), array_keys( $all_players ) );
+            if ( $missing_ids ) {
+                global $wpdb;
+                $placeholders = implode( ',', array_fill( 0, count( $missing_ids ), '%d' ) );
+                /** @var object[] $legacy_rows */
+                $legacy_rows = $wpdb->get_results( $wpdb->prepare(
+                    "SELECT * FROM {$wpdb->prefix}tt_players
+                      WHERE id IN ($placeholders) AND archived_at IS NULL",
+                    ...$missing_ids
+                ) );
+                if ( is_array( $legacy_rows ) ) {
+                    foreach ( $legacy_rows as $pl ) {
+                        $pid = (int) $pl->id;
+                        $all_players[ $pid ] = $pl;
+                        $players_by_team[ (int) $pl->team_id ][] = $pid;
+                    }
+                }
             }
         }
 
