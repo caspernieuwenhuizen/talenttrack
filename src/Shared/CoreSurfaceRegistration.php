@@ -622,7 +622,14 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_PROSPECTS,
             'view_slug'    => 'scouting-visits',
-            'entity'       => 'scouting_visits',
+            // v4.20.2 (#1143) — was 'scouting_visits' (phantom entity with no
+            // matrix seed for any persona, so the DashboardShortcode's
+            // matrix-dispatch gate denied every non-admin user before the
+            // view's own gate could pass). Aligned to 'prospects' to match
+            // the tile's declared cap (tt_view_prospects) and the view's
+            // own gate. Scouting visits authorization rides on prospects
+            // across every layer.
+            'entity'       => 'prospects',
             'group'        => $trials_group,
             'kind'         => 'work',
             'order'        => 6,
