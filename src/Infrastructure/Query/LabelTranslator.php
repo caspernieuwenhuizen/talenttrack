@@ -190,6 +190,24 @@ class LabelTranslator {
      * row, journey-event summaries, cohort transitions).
      */
     public static function activityType( string $key ): ?string {
+        if ( $key === '' ) return null;
+        // #1121 — route through the lookup translator so operator-
+        // added activity_type rows (e.g. `meeting` → "Bespreking" in
+        // the live `activity_type` lookup) render their Dutch label.
+        // The hardcoded switch below was stale vs. the seeded
+        // `activity_type` lookup ('game', 'training', 'other',
+        // 'tournament', 'meeting', …) and returned null for any key
+        // outside the legacy list, which made the Team-detail
+        // Aankomende-activiteiten table show blank cells.
+        if ( class_exists( '\\TT\\Infrastructure\\Query\\LookupTranslator' ) ) {
+            $label = \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'activity_type', $key );
+            if ( is_string( $label ) && $label !== '' && $label !== $key ) {
+                return $label;
+            }
+        }
+        // Legacy keys that pre-date the unified `activity_type` lookup.
+        // Kept so journey-event summaries + cohort transitions referencing
+        // archived keys keep rendering their canonical English.
         switch ( strtolower( $key ) ) {
             case 'training':      return __( 'Training', 'talenttrack' );
             case 'match':         return __( 'Match', 'talenttrack' );
@@ -201,8 +219,10 @@ class LabelTranslator {
             case 'cup':           return __( 'Cup match', 'talenttrack' );
             case 'league':        return __( 'League match', 'talenttrack' );
             case 'tournament':    return __( 'Tournament', 'talenttrack' );
-            default:              return null;
         }
+        // Final fallback: humanise the key (`meeting` → "Meeting").
+        // Better than a blank cell when both lookup + legacy switch miss.
+        return ucfirst( str_replace( '_', ' ', strtolower( $key ) ) );
     }
 
     /**

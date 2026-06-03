@@ -406,15 +406,37 @@ class FrontendTeamPlannerView extends FrontendViewBase {
      * @return object[] teams the current user can access for the planner
      */
     private static function teamsForUser( int $user_id ): array {
-        global $wpdb;
-        $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, name FROM {$wpdb->prefix}tt_teams
-              WHERE club_id = %d
-                AND ( team_kind IS NULL OR team_kind = '' )
-              ORDER BY name ASC",
-            CurrentClub::id()
-        ) );
-        return is_array( $rows ) ? $rows : [];
+        // #1124 — apply the same scope filter the teams page applies.
+        // Admins + tt_edit_settings holders see every team; everyone
+        // else is filtered through QueryHelpers::get_teams_for_coach()
+        // which resolves both modern AuthorizationService scopes and
+        // legacy tt_user_team_link rows.
+        $is_admin = current_user_can( 'tt_edit_settings' ) || current_user_can( 'tt_view_all_teams' );
+        if ( $is_admin ) {
+            global $wpdb;
+            $rows = $wpdb->get_results( $wpdb->prepare(
+                "SELECT id, name FROM {$wpdb->prefix}tt_teams
+                  WHERE club_id = %d
+                    AND ( team_kind IS NULL OR team_kind = '' )
+                  ORDER BY name ASC",
+                CurrentClub::id()
+            ) );
+            return is_array( $rows ) ? $rows : [];
+        }
+        // Coach / AC / HC path. Filter by accessible team list and
+        // drop trial / scout teams (`team_kind <> ''`) like the admin
+        // query above.
+        $accessible = \TT\Infrastructure\Query\QueryHelpers::get_teams_for_coach( $user_id );
+        if ( ! $accessible ) return [];
+        $out = [];
+        foreach ( $accessible as $t ) {
+            $kind = (string) ( $t->team_kind ?? '' );
+            if ( $kind !== '' ) continue;
+            $out[] = $t;
+        }
+        // Stable sort by name to match the admin path.
+        usort( $out, static fn( $a, $b ): int => strcasecmp( (string) ( $a->name ?? '' ), (string) ( $b->name ?? '' ) ) );
+        return $out;
     }
 
     /** @param object[] $teams */
@@ -504,6 +526,10 @@ class FrontendTeamPlannerView extends FrontendViewBase {
         // `plan_state` was the legacy filter; on rows created via the
         // non-planner flow it always defaults to `completed`, so it
         // cannot be relied on as a "is this cancelled" signal.
+        // #1127 — exclude soft-deleted activities. Without this filter
+        // the planner kept rendering cards for activities the operator
+        // archived via Spond sync / activity admin; clicking them
+        // routed to the activity-detail "no longer exists" notice.
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT id, title, session_date, location, activity_status_key, plan_state
                FROM {$wpdb->prefix}tt_activities
@@ -511,6 +537,7 @@ class FrontendTeamPlannerView extends FrontendViewBase {
                 AND club_id = %d
                 AND session_date BETWEEN %s AND %s
                 AND activity_status_key <> 'cancelled'
+                AND ( archived_at IS NULL OR archived_at = '' )
               ORDER BY session_date ASC, id ASC",
             $team_id, CurrentClub::id(), $from, $to
         ) );
