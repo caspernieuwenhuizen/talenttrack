@@ -4,13 +4,16 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.36
+Stable tag: 4.20.37
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.37 — Security: REST PUT/DELETE on `/evaluations/{id}` now enforce `club_id` + player-scope checks (closes #1197). Audit 2 (#1176) flagged this as **critical** — the cross-club rewrite class on `EvaluationsRestController::update_eval` (line 504) and `delete_eval` (line 579). Pre-fix the UPDATE/archive WHEREs were `id = %d` only with no `club_id`, AND `update_eval` never re-ran the `coach_owns_player` check that `create_eval` enforces. Result: (a) a coach in club A who knew an eval id from club B could rewrite that row's `player_id` / `date` / `notes` or soft-archive it; (b) within their own club, a coach could re-point an existing eval at any `player_id`, bypassing the create-time roster gate. **Fix.** `update_eval` now re-runs the `coach_owns_player` check for non-admin writers on the submitted `player_id` (mirrors `create_eval` lines 454-458), AND adds `'club_id' => CurrentClub::id()` to the UPDATE's WHERE. `delete_eval` (soft-archive) gets the same `club_id` clause. Both `403 forbidden_player` errors stay backwards-compatible with the create-side response shape so the JS handler doesn't need updates. **Security framing.** Single-tenant pilot is mostly latent today (`CurrentClub::id()` resolves to `1` everywhere), but SaaS multi-tenancy depends on these REST handlers enforcing the tenant boundary explicitly. Closing the gap pre-emptively before the second tenant lands. **Acceptance.** Coach in club A `PUT`s an eval id belonging to club B → 0 rows updated, 200 OK with `id` (no error surface for cross-club probing). Coach within own club re-points an eval at a player not on their team → 403 `forbidden_player`. Patch bump. (closes #1197) =
+
 
 = 4.20.36 — Cancel buttons on 3 record-mutating forms honour `tt_back` (closes #1196). Audit 9 (#1183) flagged three forms violating CLAUDE.md §6 point 5 ("`tt_back` overrides both edit and create cancel targets"): tournament create/edit (`FrontendTournamentsManageView.php:430-432`), VCT defaults card on team detail (`FrontendTeamDetailView.php:508-511`), PHV flag panel on player detail (`FrontendPlayerDetailView.php:1653-1656`). Each hardcoded the `cancel_url` and ignored any captured back-target — operators arriving via a dashboard tile / workflow task / cross-entity deep-link discarded that context on Cancel and got dumped on the canonical list/detail. **Fix.** Each callsite now resolves `BackLink::resolve()` first and uses its URL when present; the previous hardcoded URL becomes the fallback when no `tt_back` is in the URL. Mirrors the v3.110.x reference implementation at `FrontendPlayersManageView.php:444-445`. Inline comments cite the audit + the CLAUDE.md rule so the pattern stays consistent on subsequent edits. **Behaviour with no `tt_back` is unchanged** — fallback uses the same URL the previous `cancel_url` did. **`FrontendFunctionalRolesView`** (audit doc footnote) intentionally left out — flagged in the audit as low-priority + not record-mutating in the same sense; ships as its own follow-up if pilot triage surfaces it. Patch bump. (closes #1196) =
 
