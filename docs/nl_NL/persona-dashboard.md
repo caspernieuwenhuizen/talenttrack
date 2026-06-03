@@ -52,14 +52,24 @@ Werkbalk:
 
 ### Slepen & neerzetten op het canvas
 
-Het canvas is botsingsvrij ontworpen — twee slots kunnen nooit op dezelfde cel staan. Drop je een widget op een bezette cel, dan **schuiven** de slots die daar al staan naar beneden om plaats te maken. Na elke verplaatsing trekt het rooster automatisch naar boven samen, zodat er geen lege rijen tussen slots ontstaan.
+Het canvas is botsingsvrij ontworpen — twee slots kunnen nooit op dezelfde cel staan. Er zijn drie drop-semantieken:
 
-Twee extra's tijdens het slepen:
+1. **Drop op een lege cel → duwen.** De gesleepte widget landt onder de cursor; widgets die zouden overlappen schuiven naar beneden om plaats te maken.
+2. **Drop op een andere widget → wisselen.** De twee widgets ruilen van positie. De zwevende kaart kleurt groen op tijdens het slepen, zodat je het wissel­doel ziet vóór je loslaat. Dit is de snelste manier om één kaart in een strakkere rij te plaatsen.
+3. **Houd Shift ingedrukt → snap in het dichtstbijzijnde gat.** In plaats van duwen of wisselen springt de gesleepte widget naar de dichtstbijzijnde vrije cel die past. Handig bij bulk-toevoegen vanuit het palet als je bestaande slots niet wilt verplaatsen.
 
-- **Uitlijnings­hulplijnen.** Blauwe lijntjes van 1 pixel verschijnen wanneer de linker- / rechter- / midden-rand van het gesleepte slot uitlijnt met de bijbehorende rand van een ander slot — of met de linker- / rechter- / midden-rand van het canvas zelf. Binnen een paar pixels rondom een uitgelijnde kolom snapt de drop naar de hulplijn. Hetzelfde geldt voor boven / onder / midden-y horizontale hulplijnen.
-- **Houd Shift ingedrukt om in een gat te snappen in plaats van te duwen.** Het standaardgedrag (duwen-en-herrangschikken) past bij rearrangeren. Houd Shift ingedrukt tijdens de drop om over te schakelen naar "zoek de dichtstbijzijnde lege cel die past" — handiger bij bulk-toevoegen vanuit het palet als je bestaande slots niet wilt verplaatsen.
+Na elke drop draaien er twee automatische opruim-passes:
+
+- **Verticale samentrekking** trekt slots omhoog zodat er geen lege rijen erboven blijven.
+- **Horizontale samenpakking** trekt slots naar links/omhoog in rij-gaten waar een andere widget in past, zodat een rij als `[KPI · · · · ·]` geen losse opening laat als er op een latere rij een kleinere widget bestaat die die ruimte kan vullen.
+
+**Uitlijnings­hulplijnen** verschijnen tijdens het slepen: blauwe lijntjes van 1 pixel wanneer de linker- / rechter- / midden-rand van het gesleepte slot uitlijnt met de bijbehorende rand van een ander slot — of met de rand van het canvas zelf. Binnen een paar pixels rondom een uitgelijnde kolom snapt de drop naar de hulplijn. Hetzelfde geldt voor boven / onder / midden-y horizontaal.
 
 Bestaande lay-outs met overlappende slots van vóór deze feature lossen zichzelf op bij de volgende laad — je krijgt een schoon rooster te zien zonder zelf iets te slepen.
+
+### Aanraak­bewerken (tablets)
+
+De editor werkt op dezelfde manier met je vinger op iPad / Android-tablets. Druk en houd een canvas-kaart vast, sleep en laat los — dezelfde wissel / duw / samenpak-semantieken gelden. Een zwevend schaduwbeeld van de kaart volgt je vinger, zodat je ziet waar hij gaat landen voordat je loslaat.
 
 ### Toetsenbord
 

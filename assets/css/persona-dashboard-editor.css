@@ -402,6 +402,30 @@ body.tt-pde-dragging * {
 .tt-pde-card.is-dragging-over {
     box-shadow: inset 0 0 0 2px var(--pde-accent);
 }
+/* #1142 — swap-on-hover affordance. Lights up the card the operator is
+ * about to swap with so the drop semantics ("these two cards will trade
+ * places") read at a glance. */
+.tt-pde-card.is-swap-target {
+    box-shadow: inset 0 0 0 3px #2e7d32, 0 0 0 4px rgba(46, 125, 50, 0.18);
+    background: #e8f5e9;
+}
+/* #1142 — touch fallback. Native scroll must yield to our pointer-down
+ * drag handler on the canvas cards; without this, iOS / Android scroll
+ * the page when the operator tries to start a drag. */
+.tt-pde-card[data-tt-pde-band="grid"] {
+    touch-action: none;
+}
+/* #1142 — floating ghost rendered during a touch drag. Inherits the
+ * card's look + adds a subtle shadow so the operator sees where their
+ * finger is. */
+.tt-pde-card.tt-pde-touch-ghost {
+    box-shadow: 0 10px 28px rgba(11, 31, 58, 0.32);
+    outline: 2px solid var(--pde-accent);
+    outline-offset: 1px;
+    /* Re-enable pointer-events:none from the inline style for clarity
+     * if any future CSS overrides it. */
+    pointer-events: none;
+}
 
 .tt-pde-card-label {
     font-weight: 600;
