@@ -746,7 +746,14 @@ final class CoreSurfaceRegistration {
         TileRegistry::register([
             'module_class' => self::M_REPORTS,
             'view_slug'    => 'exports',
-            'entity'       => 'exports',
+            // v4.20.31 (#1189) — was 'exports', a phantom entity with
+            // no matrix seed for any persona, so the DashboardShortcode
+            // matrix-dispatch gate denied every non-admin. Same shape
+            // as #1143 (scouting-visits → 'scouting_visits') and the
+            // #1105 / #1106 leaks. Aligned to 'reports' to match the
+            // tile's declared cap (`tt_view_reports`) and the view's
+            // own per-cap card filtering. Audit 1 (#1175) caught this.
+            'entity'       => 'reports',
             'group'        => $analytics_group,
             'kind'         => 'work',
             'order'        => 27,
