@@ -3,6 +3,7 @@ namespace TT\Modules\Analytics\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
@@ -51,9 +52,20 @@ final class FrontendAttendanceTeamReportView extends FrontendViewBase {
         if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $from ) ) $from = $defaults['from'];
         if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $to ) )   $to   = $defaults['to'];
 
+        // v4.20.4 (#1147) — same team-scope pattern as the player report.
+        $is_scope_admin = $is_admin || current_user_can( 'tt_view_all_teams' );
+        $allowed_team_ids = $is_scope_admin
+            ? null
+            : array_values( array_map( 'intval', array_column( QueryHelpers::get_teams_for_coach( $user_id ), 'id' ) ) );
+
+        if ( ! $is_scope_admin && $allowed_team_ids === [] ) {
+            echo '<p class="tt-notice">' . esc_html__( "You don't coach any teams yet, so there is no attendance to show. Ask an administrator to assign you to a team.", 'talenttrack' ) . '</p>';
+            return;
+        }
+
         self::renderFilterForm( $from, $to );
 
-        $rows = self::query( $from, $to );
+        $rows = self::query( $from, $to, $allowed_team_ids );
         if ( $rows === [] ) {
             echo '<p class="tt-notice">' . esc_html__( 'No attendance recorded in the selected window.', 'talenttrack' ) . '</p>';
             return;
@@ -91,11 +103,18 @@ final class FrontendAttendanceTeamReportView extends FrontendViewBase {
     }
 
     /**
+     * @param list<int>|null $allowed_team_ids null = unrestricted
      * @return list<object>  one row per team in the window with raw
      *                        counters; PHP `pct()` does the formatting.
      */
-    private static function query( string $from, string $to ): array {
+    private static function query( string $from, string $to, ?array $allowed_team_ids ): array {
         global $wpdb;
+        $where_scope = '';
+        if ( $allowed_team_ids !== null ) {
+            if ( $allowed_team_ids === [] ) return [];
+            $placeholders = implode( ',', array_fill( 0, count( $allowed_team_ids ), '%d' ) );
+            $where_scope  = $wpdb->prepare( " AND t.id IN ($placeholders)", ...$allowed_team_ids );
+        }
         /** @var object[] $rows */
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT
@@ -115,6 +134,7 @@ final class FrontendAttendanceTeamReportView extends FrontendViewBase {
                AND att.record_type = 'actual'
                AND a.session_date BETWEEN %s AND %s
                AND a.plan_state = 'completed'
+               {$where_scope}
              GROUP BY t.id, t.name
              ORDER BY t.name ASC",
             CurrentClub::id(), $from, $to
