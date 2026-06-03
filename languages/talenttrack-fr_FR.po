@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-03T21:19:55+00:00\n"
+"POT-Creation-Date: 2026-06-03T21:35:25+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -1190,7 +1190,7 @@ msgstr ""
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:265
 #: src/Infrastructure/REST/GoalsRestController.php:113
 #: src/Infrastructure/REST/PeopleRestController.php:97
-#: src/Infrastructure/REST/PlayersRestController.php:136
+#: src/Infrastructure/REST/PlayersRestController.php:137
 #: src/Infrastructure/REST/TeamsRestController.php:123
 msgid "Unknown orderby column."
 msgstr ""
@@ -1737,35 +1737,35 @@ msgstr ""
 msgid "Injury not found."
 msgstr ""
 
-#: src/Infrastructure/REST/PlayersRestController.php:270
+#: src/Infrastructure/REST/PlayersRestController.php:282
 msgid "No CSV file uploaded."
 msgstr ""
 
-#: src/Infrastructure/REST/PlayersRestController.php:274
+#: src/Infrastructure/REST/PlayersRestController.php:286
 msgid "The upload failed."
 msgstr ""
 
-#: src/Infrastructure/REST/PlayersRestController.php:277
+#: src/Infrastructure/REST/PlayersRestController.php:289
 msgid "CSV files larger than 5MB are not accepted."
 msgstr ""
 
-#: src/Infrastructure/REST/PlayersRestController.php:280
+#: src/Infrastructure/REST/PlayersRestController.php:292
 msgid "Uploaded file could not be read."
 msgstr ""
 
-#: src/Infrastructure/REST/PlayersRestController.php:284
+#: src/Infrastructure/REST/PlayersRestController.php:296
 msgid "Only .csv files are accepted."
 msgstr ""
 
-#: src/Infrastructure/REST/PlayersRestController.php:405
+#: src/Infrastructure/REST/PlayersRestController.php:417
 msgid "The player could not be created."
 msgstr ""
 
-#: src/Infrastructure/REST/PlayersRestController.php:441
+#: src/Infrastructure/REST/PlayersRestController.php:453
 msgid "The player could not be updated."
 msgstr ""
 
-#: src/Infrastructure/REST/PlayersRestController.php:505
+#: src/Infrastructure/REST/PlayersRestController.php:517
 msgid "The player could not be deleted."
 msgstr ""
 
@@ -10245,7 +10245,7 @@ msgstr ""
 # #0060 — Persona dashboard KPI labels
 #: src/Modules/CustomWidgets/DataSources/PlayersActive.php:21
 #: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:140
-#: src/Modules/PersonaDashboard/Kpis/ActivePlayersTotal.php:13
+#: src/Modules/PersonaDashboard/Kpis/ActivePlayersTotal.php:14
 #: src/Shared/Frontend/FrontendStandardReportsView.php:417
 msgid "Active players"
 msgstr ""
