@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-03T05:23:44+00:00\n"
+"POT-Creation-Date: 2026-06-03T16:31:26+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -603,7 +603,7 @@ msgid "In Progress"
 msgstr "En cours"
 
 #: src/Infrastructure/Query/LabelTranslator.php:26
-#: src/Infrastructure/Query/LabelTranslator.php:407
+#: src/Infrastructure/Query/LabelTranslator.php:427
 #: src/Modules/Analytics/AnalyticsModule.php:145
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:150
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:153
@@ -800,7 +800,7 @@ msgstr "Kinésithérapeute"
 
 #: src/Infrastructure/Query/LabelTranslator.php:84
 #: src/Infrastructure/Query/LabelTranslator.php:133
-#: src/Infrastructure/Query/LabelTranslator.php:217
+#: src/Infrastructure/Query/LabelTranslator.php:237
 #: src/Infrastructure/Security/RolesService.php:327
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:235
 #: src/Modules/Authorization/Admin/MatrixPage.php:591
@@ -841,7 +841,7 @@ msgid "Other"
 msgstr "Autre"
 
 #: src/Infrastructure/Query/LabelTranslator.php:99
-#: src/Infrastructure/Query/LabelTranslator.php:408
+#: src/Infrastructure/Query/LabelTranslator.php:428
 #: src/Modules/Activities/Admin/ActivitiesPage.php:129
 #: src/Modules/Analytics/ScheduledReportsRepository.php:69
 #: src/Modules/CustomWidgets/DataSources/GoalsOpen.php:37
@@ -917,25 +917,25 @@ msgstr "Membre de l'équipe"
 msgid "Mentor"
 msgstr "Mentor"
 
-#: src/Infrastructure/Query/LabelTranslator.php:194
+#: src/Infrastructure/Query/LabelTranslator.php:212
 msgid "Training"
 msgstr "Entraînement"
 
-#: src/Infrastructure/Query/LabelTranslator.php:195
+#: src/Infrastructure/Query/LabelTranslator.php:213
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:67
 #: src/Shared/Frontend/FrontendStandardReportsView.php:221
 msgid "Match"
 msgstr "Match"
 
-#: src/Infrastructure/Query/LabelTranslator.php:196
+#: src/Infrastructure/Query/LabelTranslator.php:214
 msgid "Clinic"
 msgstr "Stage"
 
-#: src/Infrastructure/Query/LabelTranslator.php:197
+#: src/Infrastructure/Query/LabelTranslator.php:215
 msgid "Team meeting"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:198
+#: src/Infrastructure/Query/LabelTranslator.php:216
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:51
 #: src/Modules/Documentation/HelpTopics.php:202
 #: src/Modules/Methodology/Admin/MethodologyPage.php:73
@@ -949,23 +949,23 @@ msgstr ""
 msgid "Methodology"
 msgstr "Méthodologie"
 
-#: src/Infrastructure/Query/LabelTranslator.php:200
+#: src/Infrastructure/Query/LabelTranslator.php:218
 msgid "Friendly match"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:201
+#: src/Infrastructure/Query/LabelTranslator.php:219
 msgid "Cup match"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:202
+#: src/Infrastructure/Query/LabelTranslator.php:220
 msgid "League match"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:203
+#: src/Infrastructure/Query/LabelTranslator.php:221
 msgid "Tournament"
 msgstr "Tournoi"
 
-#: src/Infrastructure/Query/LabelTranslator.php:216
+#: src/Infrastructure/Query/LabelTranslator.php:236
 #: src/Modules/Backup/PresetRegistry.php:78
 #: src/Modules/License/FeatureMap.php:159
 #: src/Modules/Reports/AudienceType.php:87
@@ -973,189 +973,189 @@ msgstr "Tournoi"
 msgid "Standard"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:218
-#: src/Infrastructure/Query/LabelTranslator.php:286
+#: src/Infrastructure/Query/LabelTranslator.php:238
+#: src/Infrastructure/Query/LabelTranslator.php:306
 #: src/Modules/Tournaments/Wizard/SquadStep.php:40
 msgid "Goalkeeper"
 msgstr "Gardien de but"
 
-#: src/Infrastructure/Query/LabelTranslator.php:229
+#: src/Infrastructure/Query/LabelTranslator.php:249
 msgid "Neutral 4-3-3"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:230
+#: src/Infrastructure/Query/LabelTranslator.php:250
 msgid "Possession 4-3-3"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:231
+#: src/Infrastructure/Query/LabelTranslator.php:251
 msgid "Counter 4-3-3"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:232
+#: src/Infrastructure/Query/LabelTranslator.php:252
 msgid "Press-heavy 4-3-3"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:287
+#: src/Infrastructure/Query/LabelTranslator.php:307
 #: src/Modules/Tournaments/Wizard/SquadStep.php:41
 msgid "Centre back"
 msgstr "Défenseur central"
 
-#: src/Infrastructure/Query/LabelTranslator.php:288
+#: src/Infrastructure/Query/LabelTranslator.php:308
 #: src/Modules/Tournaments/Wizard/SquadStep.php:42
 msgid "Left back"
 msgstr "Arrière gauche"
 
-#: src/Infrastructure/Query/LabelTranslator.php:289
+#: src/Infrastructure/Query/LabelTranslator.php:309
 #: src/Modules/Tournaments/Wizard/SquadStep.php:43
 msgid "Right back"
 msgstr "Arrière droit"
 
-#: src/Infrastructure/Query/LabelTranslator.php:290
+#: src/Infrastructure/Query/LabelTranslator.php:310
 msgid "Defensive midfielder"
 msgstr "Milieu défensif"
 
-#: src/Infrastructure/Query/LabelTranslator.php:291
+#: src/Infrastructure/Query/LabelTranslator.php:311
 msgid "Central midfielder"
 msgstr "Milieu central"
 
-#: src/Infrastructure/Query/LabelTranslator.php:292
+#: src/Infrastructure/Query/LabelTranslator.php:312
 msgid "Attacking midfielder"
 msgstr "Milieu offensif"
 
-#: src/Infrastructure/Query/LabelTranslator.php:293
+#: src/Infrastructure/Query/LabelTranslator.php:313
 msgid "Left winger"
 msgstr "Ailier gauche"
 
-#: src/Infrastructure/Query/LabelTranslator.php:294
+#: src/Infrastructure/Query/LabelTranslator.php:314
 msgid "Right winger"
 msgstr "Ailier droit"
 
-#: src/Infrastructure/Query/LabelTranslator.php:295
+#: src/Infrastructure/Query/LabelTranslator.php:315
 #: src/Modules/Tournaments/Wizard/SquadStep.php:49
 msgid "Striker"
 msgstr "Buteur"
 
-#: src/Infrastructure/Query/LabelTranslator.php:296
+#: src/Infrastructure/Query/LabelTranslator.php:316
 msgid "Centre forward"
 msgstr "Avant-centre"
 
-#: src/Infrastructure/Query/LabelTranslator.php:308
+#: src/Infrastructure/Query/LabelTranslator.php:328
 msgid "Warm-up"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:309
+#: src/Infrastructure/Query/LabelTranslator.php:329
 msgid "Technical"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:310
+#: src/Infrastructure/Query/LabelTranslator.php:330
 msgid "Sided game"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:311
+#: src/Infrastructure/Query/LabelTranslator.php:331
 msgid "Conditioning"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:312
-#: src/Infrastructure/Query/LabelTranslator.php:354
+#: src/Infrastructure/Query/LabelTranslator.php:332
+#: src/Infrastructure/Query/LabelTranslator.php:374
 msgid "Finishing"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:313
+#: src/Infrastructure/Query/LabelTranslator.php:333
 msgid "Cool-down"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:332
+#: src/Infrastructure/Query/LabelTranslator.php:352
 msgid "Commitment"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:333
+#: src/Infrastructure/Query/LabelTranslator.php:353
 msgid "Coachability"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:334
+#: src/Infrastructure/Query/LabelTranslator.php:354
 msgid "Leadership"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:335
+#: src/Infrastructure/Query/LabelTranslator.php:355
 msgid "Resilience"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:336
+#: src/Infrastructure/Query/LabelTranslator.php:356
 msgid "Communication"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:337
+#: src/Infrastructure/Query/LabelTranslator.php:357
 msgid "Work ethic"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:338
+#: src/Infrastructure/Query/LabelTranslator.php:358
 msgid "Fair play"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:339
+#: src/Infrastructure/Query/LabelTranslator.php:359
 msgid "Ambition"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:349
+#: src/Infrastructure/Query/LabelTranslator.php:369
 msgid "Build-up"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:350
+#: src/Infrastructure/Query/LabelTranslator.php:370
 msgid "Pressing"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:351
+#: src/Infrastructure/Query/LabelTranslator.php:371
 msgid "Transition"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:352
+#: src/Infrastructure/Query/LabelTranslator.php:372
 msgid "Counter-attack"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:353
+#: src/Infrastructure/Query/LabelTranslator.php:373
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:435
 msgid "Defending"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:355
+#: src/Infrastructure/Query/LabelTranslator.php:375
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:486
 msgid "Set pieces"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:356
+#: src/Infrastructure/Query/LabelTranslator.php:376
 msgid "1v1 duels"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:357
+#: src/Infrastructure/Query/LabelTranslator.php:377
 msgid "Possession"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:358
+#: src/Infrastructure/Query/LabelTranslator.php:378
 msgid "Mixed"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:378
+#: src/Infrastructure/Query/LabelTranslator.php:398
 msgid "Match day"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:379
+#: src/Infrastructure/Query/LabelTranslator.php:399
 msgid "No match context"
 msgstr ""
 
 #. translators: %d is the band number (1-10).
 #. translators: %d = intensity band 1-10
-#: src/Infrastructure/Query/LabelTranslator.php:393
+#: src/Infrastructure/Query/LabelTranslator.php:413
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:252
 #, php-format
 msgid "Intensity band %d"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:405
+#: src/Infrastructure/Query/LabelTranslator.php:425
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:897
 msgid "Draft"
 msgstr "Brouillon"
 
-#: src/Infrastructure/Query/LabelTranslator.php:406
+#: src/Infrastructure/Query/LabelTranslator.php:426
 msgid "Published"
 msgstr ""
 
@@ -19726,25 +19726,25 @@ msgid_plural "%d activities"
 msgstr[0] "%d activiteit"
 msgstr[1] "%d activiteiten"
 
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:474
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:496
 msgid "Previous week"
 msgstr ""
 
 #. translators: %d: number of weeks.
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:477
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:499
 #, php-format
 msgid "Previous %d week"
 msgid_plural "Previous %d weeks"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:483
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:505
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:740
 msgid "Next week"
 msgstr ""
 
 #. translators: %d: number of weeks.
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:486
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:508
 #, php-format
 msgid "Next %d week"
 msgid_plural "Next %d weeks"
