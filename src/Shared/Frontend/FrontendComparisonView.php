@@ -83,8 +83,13 @@ class FrontendComparisonView extends FrontendViewBase {
             if ( $pl ) $players[] = $pl;
         }
 
-        // All players for slot selectors (cross-club — observer's scope).
-        // Demo-mode scope applied so demo runs only show demo-tagged players.
+        // All players for slot selectors. Tenant boundary is enforced at the
+        // request layer in SaaS (#1188) — per-helper `club_id` WHERE clauses
+        // were deliberately not added here per that direction. Demo-mode
+        // scope applied so demo runs only show demo-tagged players.
+        // v4.20.51 (#1232) — comment rewritten from the pre-#0038 "cross-club
+        // — observer's scope" framing, which was misleading and risked
+        // becoming an anti-precedent for new picker code.
         global $wpdb;
         $p = $wpdb->prefix;
         $player_scope = QueryHelpers::apply_demo_scope( 'pl', 'player' );
