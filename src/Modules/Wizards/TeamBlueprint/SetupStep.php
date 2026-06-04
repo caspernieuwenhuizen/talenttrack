@@ -20,8 +20,16 @@ final class SetupStep implements WizardStepInterface {
     public function render( array $state ): void {
         global $wpdb; $p = $wpdb->prefix;
 
+        // v4.20.50 (#1230) — added `archived_at IS NULL` so the wizard
+        // picker matches the team-blueprint list view, which already
+        // filters on team archive status. Otherwise an operator who
+        // archived a team to clean up the directory would still see
+        // it offered as a blueprint target, and the resulting blueprint
+        // would be invisible from the list. Audit 7 (#1181).
         $teams = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, name FROM {$p}tt_teams WHERE club_id = %d ORDER BY name ASC LIMIT 200",
+            "SELECT id, name FROM {$p}tt_teams
+              WHERE club_id = %d AND archived_at IS NULL
+              ORDER BY name ASC LIMIT 200",
             CurrentClub::id()
         ) );
         $templates = $wpdb->get_results(
