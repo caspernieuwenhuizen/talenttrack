@@ -774,11 +774,17 @@ class FrontendPdpManageView extends FrontendViewBase {
             // v4.20.44 (#1222) — added `a.archived_at IS NULL` so the
             // PDP timeline panel hides soft-archived activities the
             // coach-review surface should treat as never-having-happened.
+            // v4.20.49 (#1228) — added `att.is_guest = 0` + `att.record_type = 'actual'`
+            // so the PDP panel mirrors the canonical attendance scope used by
+            // the player-profile attendance KPI (per #788 ship 2 / #1148).
             // Audit 7 (#1181).
             "SELECT a.id, a.session_date, a.title, att.status
                FROM {$p}tt_attendance att
                JOIN {$p}tt_activities a ON a.id = att.activity_id
-              WHERE att.player_id = %d AND a.archived_at IS NULL" . ( $since ? " AND a.session_date >= %s" : '' ) .
+              WHERE att.player_id = %d
+                AND att.is_guest = 0
+                AND att.record_type = 'actual'
+                AND a.archived_at IS NULL" . ( $since ? " AND a.session_date >= %s" : '' ) .
               " ORDER BY a.session_date DESC LIMIT 10",
             ...( $since ? [ $player_id, $since ] : [ $player_id ] )
         ) );
