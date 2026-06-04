@@ -4,13 +4,16 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.49
+Stable tag: 4.20.50
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.50 — Team-blueprint wizard picker filters archived teams (closes #1230). Audit 7 (#1181) flagged `SetupStep::render` walking `tt_teams` without `archived_at IS NULL`, while the blueprints list view (which IS filtered) was the downstream surface — operator archives a team to clean up the directory, but the wizard still offers it as a blueprint target. Selecting an archived team and saving creates an orphan blueprint that's invisible from the list. **Fix.** WHERE clause gains `archived_at IS NULL`. Inline comment cites the audit + the list/wizard divergence so subsequent edits don't reflex-revert. **What's NOT in this PR.** The sibling `PlayerComparisonPage.php:80` admin team picker (mentioned in the issue) already has `archived_at IS NULL`; the issue's `club_id` flag there is per-helper-tenancy which #1188 set the direction against — skipped consistently with the rest of this audit slice. Patch bump. (closes #1230) =
+
 
 = 4.20.49 — PDP panels activities query adds `att.is_guest = 0` + `att.record_type = 'actual'` (closes #1228). Audit 7 (#1181) flagged `FrontendPdpManageView::renderActivitiesTimeline` (line 773) as the last canonical-attendance-scope drift on a coach-facing surface: the PDP "Activities" panel listed every attendance row for the player without filtering guest call-ups and (post #788 ship 2) without distinguishing planned-vs-actual rows. v4.20.44 (#1222) already fixed the `archived_at` half. **Fix.** WHERE clause gains `att.is_guest = 0 AND att.record_type = 'actual'` so the PDP panel mirrors the canonical attendance scope used by the player-profile attendance KPI and the team roster widget. Inline comment cites the audit + the bug history. **What this is NOT.** No `club_id` filter added — per #1188's direction, tenancy boundary is enforced at the request layer in SaaS, not by per-helper WHERE clauses. Patch bump. (closes #1228) =
 
