@@ -4,13 +4,16 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.50
+Stable tag: 4.20.51
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.51 — Reports admin player picker + Comparison view comment cleanup (closes #1232). Audit 7 (#1181) flagged two surfaces. (1) `ReportsPage::runLegacy` "Top 10 players" fallback (line 187) listed players by `status = 'active'` only — an archived player whose status flag never flipped (the archive button doesn't always clear status) lands in the report. **Fix.** WHERE clause gains `pl.archived_at IS NULL`. (2) `FrontendComparisonView::render` slot-selector query (line 86) carries the pre-#0038 comment "cross-club — observer's scope" — misleading post-#0038 and risks becoming an anti-precedent for new picker code. **Fix.** Comment rewritten to "tenant boundary enforced at the request layer (#1188); per-helper `club_id` WHERE clauses deliberately not added per that direction." **What's NOT in this PR.** No `club_id` filter added on either query — per #1188, tenancy is enforced at the request layer in SaaS, not by per-helper WHERE clauses. The teams query at line 103 (also flagged) keeps the same direction. Patch bump. (closes #1232) =
+
 
 = 4.20.50 — Team-blueprint wizard picker filters archived teams (closes #1230). Audit 7 (#1181) flagged `SetupStep::render` walking `tt_teams` without `archived_at IS NULL`, while the blueprints list view (which IS filtered) was the downstream surface — operator archives a team to clean up the directory, but the wizard still offers it as a blueprint target. Selecting an archived team and saving creates an orphan blueprint that's invisible from the list. **Fix.** WHERE clause gains `archived_at IS NULL`. Inline comment cites the audit + the list/wizard divergence so subsequent edits don't reflex-revert. **What's NOT in this PR.** The sibling `PlayerComparisonPage.php:80` admin team picker (mentioned in the issue) already has `archived_at IS NULL`; the issue's `club_id` flag there is per-helper-tenancy which #1188 set the direction against — skipped consistently with the rest of this audit slice. Patch bump. (closes #1230) =
 

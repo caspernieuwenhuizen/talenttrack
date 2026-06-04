@@ -184,7 +184,13 @@ class ReportsPage {
         if ( $type === 'progress' ) {
             echo '<h2>' . esc_html__( 'Player Progress Over Time', 'talenttrack' ) . '</h2>';
             $player_scope = QueryHelpers::apply_demo_scope( 'pl', 'player' );
-            $pids = $player_ids ?: $wpdb->get_col( "SELECT pl.id FROM {$p}tt_players pl WHERE pl.status='active' {$player_scope} LIMIT 10" );
+            // v4.20.51 (#1232) — added `pl.archived_at IS NULL` so the
+            // "Top 10 players" fallback doesn't include archived players
+            // whose `status` flag was never flipped (the archive button
+            // doesn't always clear status). Audit 7 (#1181). `club_id`
+            // filter is intentionally NOT added here — tenancy boundary
+            // is enforced at the request layer in SaaS (#1188).
+            $pids = $player_ids ?: $wpdb->get_col( "SELECT pl.id FROM {$p}tt_players pl WHERE pl.status='active' AND pl.archived_at IS NULL {$player_scope} LIMIT 10" );
             foreach ( $pids as $pid ) {
                 $pl = QueryHelpers::get_player( (int) $pid ); if ( ! $pl ) continue;
                 $rd = QueryHelpers::player_radar_datasets( (int) $pid, 5 );
