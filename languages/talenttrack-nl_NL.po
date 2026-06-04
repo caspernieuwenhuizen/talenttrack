@@ -26148,10 +26148,11 @@ msgid "The exercise could not be saved."
 msgstr ""
 
 #. translators: %s is the required field name.
+#: src/Infrastructure/REST/BaseController.php:55
 #: src/Modules/Vct/Rest/VctExercisesRestController.php:169
 #, php-format
 msgid "Field \"%s\" is required."
-msgstr ""
+msgstr "Veld \"%s\" is verplicht."
 
 #: src/Modules/Vct/Rest/VctExercisesRestController.php:177
 msgid "intensity_band must be 1-10."
@@ -36796,7 +36797,3 @@ msgstr "Ongeldig type."
 msgid "Unknown error"
 msgstr "Onbekende fout"
 
-#. translators: %s is the field name
-#: src/Infrastructure/REST/BaseController.php:55
-msgid "Field \"%s\" is required."
-msgstr "Veld \"%s\" is verplicht."
