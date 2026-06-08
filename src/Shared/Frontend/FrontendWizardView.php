@@ -1253,7 +1253,16 @@ class FrontendWizardView extends FrontendViewBase {
             }
             .tt-rate-label { font-weight: 500; font-size: .95rem; flex: 1 1 0; min-width: 120px; }
             .tt-rate-control { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; flex: 0 0 auto; }
-            .tt-rate-input {
+            /* #1270 — narrowed selector to exclude type="range". The
+             * legacy `.tt-rate-input` block was authored for a number
+             * input; the #1067 component reused the classname on its
+             * slider for JS back-compat. The 80px width + border +
+             * padding here painted a fake input frame over what
+             * should be a CSS-grid-expanding slider lane, leaving the
+             * coach with an invisible track on desktop. Excluding
+             * type="range" keeps the legacy number-input styling
+             * working without clobbering the new slider. */
+            .tt-rate-input:not([type="range"]) {
                 width: 80px;
                 flex: 0 0 80px;
                 min-height: 48px;
