@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.52
+Stable tag: 4.20.53
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.53 — Print goal intake: SELECT references the canonical `tt_players.photo_url` column (closes #1267). Pilot 2026-06-08: every "Print doelenintake" click 404'd with "Speler niet gevonden" — the `PlayerGoalIntakePrintRouter::emit()` SELECT carried `pl.attachment_id_avatar`, a column that does not exist on `tt_players` per migration 0001. MySQL returned an "Unknown column" error and `$wpdb->get_row` returned null, hitting `wp_die('Player not found.')` on every valid player_id. Canonical column is `pl.photo_url` per [FrontendPlayerDetailView.php:292](src/Shared/Frontend/FrontendPlayerDetailView.php#L292) and every other player-photo callsite. **Fix.** Two-line change: replace `pl.attachment_id_avatar` with `pl.photo_url` in the SELECT + read `(string) $player->photo_url` directly in the photo render block (no `wp_get_attachment_image_url` round-trip needed since `photo_url` already stores the URL). Affects both the per-player print path and the `renderTeamBatch` roster loop. Patch bump. (closes #1267) =
 
 = 4.20.52 — New-evaluation wizard: auto-skip cascade now lands on PlayerPicker when the user has no rateable activities (closes #1266). Pilot 2026-06-08: an admin clicked "+ Nieuwe evaluatie" and dropped onto an empty Review step ("voor ." with no player name, "0 categorieën beoordeeld"). **Root cause.** [ActivityPickerStep::nextStep](src/Modules/Wizards/Evaluation/ActivityPickerStep.php#L150-L153) fell through to `'attendance'` when `_path` was unset. For users with zero recent rateable activities, the framework's auto-skip loop cascaded ActivityPicker → Attendance → RateActors → Behaviour → Review, with PlayerPickerStep bypassed because nothing routed there from the empty-state ActivityPicker skip. **Fix.** `nextStep` now branches explicitly: `_path === 'player-first'` → `'player-picker'`; `_path === 'activity-first'` → `'attendance'`; auto-skip default (empty `_path`) → `'player-picker'` so PlayerPickerStep gets the chance to collect a `player_id`. The pilot can now create an evaluation without first authoring a rateable activity. **Defence-in-depth in ReviewStep::render.** Refuses to render when the state has neither `activity_id` nor `player_id` — surfaces a clear "Wizard state is incomplete" notice instead of an empty review that would corrupt eval rows on submit. Catches any future step-chain regression of the same family. **Same silent-fail family as #1054 / #1137 / #1149 / #1153.** Patch bump. (closes #1266) =
 

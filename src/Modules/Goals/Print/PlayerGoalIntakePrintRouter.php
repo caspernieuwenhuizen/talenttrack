@@ -175,10 +175,15 @@ class PlayerGoalIntakePrintRouter {
         // Pivot to the player's stored club_id (read it back from the row)
         // for the sub-queries below.
         $scope = QueryHelpers::apply_demo_scope( 'pl', 'player' );
+        // #1267 — was `pl.attachment_id_avatar` (nonexistent column);
+        // canonical column is `pl.photo_url` per migration 0001 /
+        // every other player-photo callsite. The non-existent column
+        // made $wpdb->get_row return null → wp_die('Player not
+        // found.') on every valid id.
         $player = $wpdb->get_row( $wpdb->prepare(
             "SELECT pl.id, pl.first_name, pl.last_name, pl.date_of_birth,
                     pl.jersey_number, pl.preferred_foot, pl.team_id, pl.club_id,
-                    pl.attachment_id_avatar,
+                    pl.photo_url,
                     t.name AS team_name
                FROM {$p}tt_players pl
                LEFT JOIN {$p}tt_teams t ON t.id = pl.team_id AND t.club_id = pl.club_id
@@ -231,8 +236,11 @@ class PlayerGoalIntakePrintRouter {
     <section class="identity">
         <div class="identity__photo">
             <?php
-            $photo = $player->attachment_id_avatar ? wp_get_attachment_image_url( (int) $player->attachment_id_avatar, 'thumbnail' ) : '';
-            if ( $photo ) {
+            // #1267 — same column fix. Reads photo_url directly per
+            // FrontendPlayerDetailView::294 etc., no wp_get_attachment_image_url
+            // round-trip needed since photo_url already stores the URL.
+            $photo = (string) ( $player->photo_url ?? '' );
+            if ( $photo !== '' ) {
                 echo '<img src="' . esc_url( $photo ) . '" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:2mm;">';
             } else {
                 esc_html_e( 'Foto', 'talenttrack' );
