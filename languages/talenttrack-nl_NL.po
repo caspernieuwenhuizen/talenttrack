@@ -35023,6 +35023,23 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+# v4.20.57 #1275 — seasons edit subview + REST update strings.
+#: src/Modules/Pdp/Admin/SeasonsPage.php
+msgid "Edit season"
+msgstr "Seizoen bewerken"
+
+#: src/Modules/Pdp/Admin/SeasonsPage.php
+msgid "Back to seasons"
+msgstr "Terug naar seizoenen"
+
+#: src/Modules/Pdp/Admin/SeasonsPage.php
+msgid "Could not update the season — check that name + dates are filled and end date follows start date."
+msgstr "Kon het seizoen niet bijwerken — controleer dat naam + datums ingevuld zijn en dat de einddatum na de startdatum ligt."
+
+#: src/Modules/Pdp/Rest/SeasonsRestController.php
+msgid "The season could not be updated."
+msgstr "Het seizoen kon niet worden bijgewerkt."
+
 #~ msgid ""
 #~ "Optionally connect this activity to one or more methodology principles. "
 #~ "Hold Ctrl/Cmd to select multiple. Leave blank to skip."

@@ -42,6 +42,17 @@ class SeasonsRestController {
                 'permission_callback' => [ __CLASS__, 'can_admin' ],
             ],
         ] );
+        // #1275 — PATCH /seasons/{id} updates name + dates. Mirrors
+        // the existing /current sub-route's shape (PATCH + admin cap)
+        // so a future non-WordPress front end has the same operation
+        // surface as the new wp-admin edit form.
+        register_rest_route( self::NS, '/seasons/(?P<id>\d+)', [
+            [
+                'methods'             => 'PATCH',
+                'callback'            => [ __CLASS__, 'update' ],
+                'permission_callback' => [ __CLASS__, 'can_admin' ],
+            ],
+        ] );
     }
 
     public static function can_view(): bool {
@@ -85,6 +96,43 @@ class SeasonsRestController {
             Logger::error( 'pdp.season.create.failed', [ 'name' => $name ] );
             return RestResponse::error( 'db_error',
                 __( 'The season could not be created.', 'talenttrack' ), 500 );
+        }
+        return RestResponse::success( [ 'id' => $id ] );
+    }
+
+    public static function update( \WP_REST_Request $r ): \WP_REST_Response {
+        $id = absint( $r['id'] );
+        if ( $id <= 0 ) {
+            return RestResponse::error( 'bad_id', __( 'Invalid season id.', 'talenttrack' ), 400 );
+        }
+
+        $name  = sanitize_text_field( (string) ( $r['name'] ?? '' ) );
+        $start = sanitize_text_field( (string) ( $r['start_date'] ?? '' ) );
+        $end   = sanitize_text_field( (string) ( $r['end_date'] ?? '' ) );
+
+        if ( $name === '' || $start === '' || $end === '' ) {
+            return RestResponse::error( 'missing_fields',
+                __( 'Name, start date, and end date are required.', 'talenttrack' ), 400 );
+        }
+        if ( strtotime( $end ) <= strtotime( $start ) ) {
+            return RestResponse::error( 'bad_range',
+                __( 'End date must be after start date.', 'talenttrack' ), 400 );
+        }
+
+        $repo = new SeasonsRepository();
+        if ( ! $repo->find( $id ) ) {
+            return RestResponse::error( 'not_found',
+                __( 'Season not found.', 'talenttrack' ), 404 );
+        }
+        $ok = $repo->update( $id, [
+            'name'       => $name,
+            'start_date' => $start,
+            'end_date'   => $end,
+        ] );
+        if ( ! $ok ) {
+            Logger::error( 'pdp.season.update.failed', [ 'id' => $id, 'name' => $name ] );
+            return RestResponse::error( 'db_error',
+                __( 'The season could not be updated.', 'talenttrack' ), 500 );
         }
         return RestResponse::success( [ 'id' => $id ] );
     }
