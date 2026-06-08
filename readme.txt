@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.53
+Stable tag: 4.20.54
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.54 — Blueprint editor: chemistry recompute is best-effort on assignment save + blueprint GET (closes #1268). Pilot 2026-06-08: picking a player on a blueprint slot fired a 500 ("Kan de wijziging niet opslaan. Probeer opnieuw."). Symptom analysis: the alert exactly matched the JS `save_failed` i18n fallback, which only fires when `r.json()` rejects — i.e. a PHP fatal returned an HTML error page, not the structured `RestResponse::error` JSON a `setAssignment` failure would emit. The throw site is the chemistry recompute that runs after `setAssignment` succeeds: the assignment row is already persisted, but the operator sees a hard rejection. **Fix.** Wrap both chemistry compute paths in try/catch: `set_blueprint_assignment()` post-save AND `get_blueprint()` (the page reload's recovery surface — would 500 too after a save if chemistry is broken). On throw, log `blueprint.{assignment,get}.chemistry.failed` to `wp-content/debug.log` with the blueprint id + slot + tier + stack trace, and return the response with `blueprint_chemistry: null` + `chemistry_error: <msg>`. The editor renders cleanly without the chemistry overlay; the operator's pick lands. Same defence-in-depth as #1054 / #1137 / #1149 / #1153 — surface downstream failures loudly via the logger so the chemistry root cause becomes diagnosable. **Part 2 follow-up.** After this ships, the pilot can reproduce the click + their debug.log captures the real chemistry error message and stack trace. The root cause (most likely a schema gap on `tt_players.position_side_preference` from a skipped migration 0033, or `tt_team_chemistry_pairings` similarly) gets a separate focused issue once the trace is in hand. Patch bump. (closes #1268) =
 
 = 4.20.53 — Print goal intake: SELECT references the canonical `tt_players.photo_url` column (closes #1267). Pilot 2026-06-08: every "Print doelenintake" click 404'd with "Speler niet gevonden" — the `PlayerGoalIntakePrintRouter::emit()` SELECT carried `pl.attachment_id_avatar`, a column that does not exist on `tt_players` per migration 0001. MySQL returned an "Unknown column" error and `$wpdb->get_row` returned null, hitting `wp_die('Player not found.')` on every valid player_id. Canonical column is `pl.photo_url` per [FrontendPlayerDetailView.php:292](src/Shared/Frontend/FrontendPlayerDetailView.php#L292) and every other player-photo callsite. **Fix.** Two-line change: replace `pl.attachment_id_avatar` with `pl.photo_url` in the SELECT + read `(string) $player->photo_url` directly in the photo render block (no `wp_get_attachment_image_url` round-trip needed since `photo_url` already stores the URL). Affects both the per-player print path and the `renderTeamBatch` roster loop. Patch bump. (closes #1267) =
 
