@@ -148,8 +148,17 @@ final class ActivityPickerStep implements WizardStepInterface {
     }
 
     public function nextStep( array $state ): ?string {
-        if ( ( $state['_path'] ?? '' ) === 'player-first' ) return 'player-picker';
-        return 'attendance';
+        $path = (string) ( $state['_path'] ?? '' );
+        if ( $path === 'player-first' )   return 'player-picker';
+        if ( $path === 'activity-first' ) return 'attendance';
+        // #1266 — auto-skip case: `notApplicableFor()` returned true
+        // because the user has no rateable activities (admin, scout,
+        // brand-new coach). Route to player-picker so the player-
+        // first fallback gets a chance to render, instead of
+        // cascading through every activity-first-only step
+        // (attendance / rate-actors / behaviour) straight to Review
+        // with empty state and a wp_die-friendly NULL player_id.
+        return 'player-picker';
     }
 
     public function submit( array $state ) { return null; }
