@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.55
+Stable tag: 4.20.56
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.56 — i18n: 9 empty Dutch msgstr filled on the match-executions surface (closes #1273). Pilot 2026-06-08: the "Match executions" link on the Activities page rendered in English on a `nl_NL` install. Root cause: the code path correctly wraps every label in `__('...', 'talenttrack')`; the gap was in the translation file, where `talenttrack-nl_NL.po` had the `msgid` lines for this surface but empty `msgstr` lines, so WordPress fell back to the English source. Audit of the same `.po` showed nine empty `msgstr` lines on this surface alone — the link was the visible tip; the entire list view + state-pill vocabulary was untranslated. **Fix.** Single `.po` edit, vocabulary consistent with the already-shipped `Match execution` → `Wedstrijduitvoering`: `Match executions` → "Wedstrijduitvoeringen", `You do not have permission to view match executions.` → "Je hebt geen rechten om wedstrijduitvoeringen te bekijken.", `No teams visible to you yet.` → "Nog geen teams zichtbaar voor jou.", `No match executions match the current filters.` → "Geen wedstrijduitvoeringen voldoen aan de huidige filters.", `All states` → "Alle statussen", `Pending review` → "Wacht op controle", `Finalized` → "Afgerond", `Live` → "Live" (borrowed term), `Not started` → "Niet gestart". The `.mo` recompile fires from CI's existing `msgfmt` build step. Patch bump. (closes #1273) =
 
 = 4.20.55 — Rating slider: legacy `.tt-rate-input` CSS no longer clobbers the new component slider (closes #1270). Pilot 2026-06-08: "Spelers beoordelen" step rendered each category row as a tiny 80px boxed input with no visible slider track on desktop. **Root cause.** The #1067 component `RatingInputComponent::renderListRow` emits `<input type="range" class="tt-rating-row__slider tt-rate-input">` — the dual classname is documented as JS back-compat (existing handlers query `.tt-rate-input` for the value). But the legacy CSS block at [FrontendWizardView.php:1256](src/Shared/Frontend/FrontendWizardView.php#L1256) (authored for a number input) targets `.tt-rate-input` unconditionally with `width: 80px` + `border` + `border-radius` + `padding`, painting a fake input frame over what should be a CSS-grid-expanding slider lane. Inline `<style>` lands after the linked `assets/css/components/rating-input.css` in DOM order, so single-class specificity goes to the legacy. **Fix (Option B from the issue body).** Narrowed selector to `.tt-rate-input:not([type="range"])`. One CSS-rule change. The legacy number-input styling keeps working for any surviving non-range usage; the new range-input slider lane is left alone for the component's own stylesheet. Option A (drop the `.tt-rate-input` classname from the slider + update JS) stays as the architectural follow-up — this ship unblocks the pilot today without touching the component or JS surface. Patch bump. (closes #1270) =
 
