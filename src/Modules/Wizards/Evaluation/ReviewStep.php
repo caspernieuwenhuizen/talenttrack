@@ -25,6 +25,23 @@ final class ReviewStep implements WizardStepInterface {
     public function label(): string { return __( 'Review', 'talenttrack' ); }
 
     public function render( array $state ): void {
+        // #1266 — belt-and-braces: refuse to render the review when
+        // the state has neither an activity_id (activity-first path)
+        // nor a player_id (player-first path). The auto-skip cascade
+        // is fixed in ActivityPickerStep::nextStep, but a future
+        // step-chain regression of the same family would otherwise
+        // silently produce an evaluation row with NULL player_id /
+        // NULL activity_id. Hard-stop here keeps the data layer
+        // clean even if upstream regresses.
+        $has_activity = (int) ( $state['activity_id'] ?? 0 ) > 0;
+        $has_player   = (int) ( $state['player_id']   ?? 0 ) > 0;
+        if ( ! $has_activity && ! $has_player ) {
+            echo '<p class="tt-notice tt-notice-error">' . esc_html__(
+                'Wizard state is incomplete (no activity and no player picked). Cancel and start over from the dashboard.',
+                'talenttrack'
+            ) . '</p>';
+            return;
+        }
         if ( ( $state['_path'] ?? '' ) === 'activity-first' ) {
             $this->renderActivityReview( $state );
         } else {

@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.51
+Stable tag: 4.20.52
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.52 — New-evaluation wizard: auto-skip cascade now lands on PlayerPicker when the user has no rateable activities (closes #1266). Pilot 2026-06-08: an admin clicked "+ Nieuwe evaluatie" and dropped onto an empty Review step ("voor ." with no player name, "0 categorieën beoordeeld"). **Root cause.** [ActivityPickerStep::nextStep](src/Modules/Wizards/Evaluation/ActivityPickerStep.php#L150-L153) fell through to `'attendance'` when `_path` was unset. For users with zero recent rateable activities, the framework's auto-skip loop cascaded ActivityPicker → Attendance → RateActors → Behaviour → Review, with PlayerPickerStep bypassed because nothing routed there from the empty-state ActivityPicker skip. **Fix.** `nextStep` now branches explicitly: `_path === 'player-first'` → `'player-picker'`; `_path === 'activity-first'` → `'attendance'`; auto-skip default (empty `_path`) → `'player-picker'` so PlayerPickerStep gets the chance to collect a `player_id`. The pilot can now create an evaluation without first authoring a rateable activity. **Defence-in-depth in ReviewStep::render.** Refuses to render when the state has neither `activity_id` nor `player_id` — surfaces a clear "Wizard state is incomplete" notice instead of an empty review that would corrupt eval rows on submit. Catches any future step-chain regression of the same family. **Same silent-fail family as #1054 / #1137 / #1149 / #1153.** Patch bump. (closes #1266) =
 
 = 4.20.51 — Reports admin player picker + Comparison view comment cleanup (closes #1232). Audit 7 (#1181) flagged two surfaces. (1) `ReportsPage::runLegacy` "Top 10 players" fallback (line 187) listed players by `status = 'active'` only — an archived player whose status flag never flipped (the archive button doesn't always clear status) lands in the report. **Fix.** WHERE clause gains `pl.archived_at IS NULL`. (2) `FrontendComparisonView::render` slot-selector query (line 86) carries the pre-#0038 comment "cross-club — observer's scope" — misleading post-#0038 and risks becoming an anti-precedent for new picker code. **Fix.** Comment rewritten to "tenant boundary enforced at the request layer (#1188); per-helper `club_id` WHERE clauses deliberately not added per that direction." **What's NOT in this PR.** No `club_id` filter added on either query — per #1188, tenancy is enforced at the request layer in SaaS, not by per-helper WHERE clauses. The teams query at line 103 (also flagged) keeps the same direction. Patch bump. (closes #1232) =
 
