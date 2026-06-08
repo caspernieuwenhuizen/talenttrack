@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-08T21:01:13+00:00\n"
+"POT-Creation-Date: 2026-06-08T21:04:23+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -23204,68 +23204,68 @@ msgid "The blueprint could not be created."
 msgstr ""
 
 #: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:625
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:721
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:745
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:761
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:782
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:927
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:967
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:741
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:765
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:781
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:802
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:976
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1016
 msgid "Blueprint not found."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:725
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:786
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:931
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:745
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:806
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:980
 msgid "This blueprint is locked. Reopen it before editing."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:733
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:753
 msgid "Nothing to update."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:766
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:786
 msgid "Give the cloned blueprint a name."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:771
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:791
 msgid "Could not duplicate the blueprint."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:792
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:812
 msgid "slot_label is required."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:823
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:843
 msgid "Failed to save the assignment."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:873
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:922
 msgid "ref.player_id is missing or non-numeric for a player assignment."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:879
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:928
 msgid "ref.player_id must be a positive integer for a player assignment."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:888
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:937
 msgid "ref.name is required for a guest assignment."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:901
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:950
 msgid "ref.label is required for a custom assignment."
 msgstr ""
 
 #. translators: %s = unknown ref kind
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:909
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:958
 #, php-format
 msgid "Unknown ref.kind: %s"
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:936
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:985
 msgid "Assignments map is required."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:973
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1022
 msgid "Status must be draft, shared, or locked."
 msgstr ""
 
