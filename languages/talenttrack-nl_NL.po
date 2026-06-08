@@ -15568,45 +15568,45 @@ msgstr ""
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:41
 msgid "You do not have permission to view match executions."
-msgstr ""
+msgstr "Je hebt geen rechten om wedstrijduitvoeringen te bekijken."
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:46
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:49
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:225
 msgid "Match executions"
-msgstr ""
+msgstr "Wedstrijduitvoeringen"
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:53
 msgid "No teams visible to you yet."
-msgstr ""
+msgstr "Nog geen teams zichtbaar voor jou."
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:77
 msgid "No match executions match the current filters."
-msgstr ""
+msgstr "Geen wedstrijduitvoeringen voldoen aan de huidige filters."
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:247
 msgid "All states"
-msgstr ""
+msgstr "Alle statussen"
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:248
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:266
 #: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:216
 msgid "Live"
-msgstr ""
+msgstr "Live"
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:249
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:269
 msgid "Pending review"
-msgstr ""
+msgstr "Wacht op controle"
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:250
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:272
 msgid "Finalized"
-msgstr ""
+msgstr "Afgerond"
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:275
 msgid "Not started"
-msgstr ""
+msgstr "Niet gestart"
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:41
 msgid "Match execution is restricted to coaches and admins."
