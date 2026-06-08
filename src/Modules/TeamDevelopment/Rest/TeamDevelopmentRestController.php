@@ -624,12 +624,31 @@ class TeamDevelopmentRestController {
             return RestResponse::error( 'bad_blueprint',
                 __( 'Blueprint not found.', 'talenttrack' ), 404 );
         }
-        $primary_lineup = $repo->loadPrimaryLineup( $id );
-        $blueprint_chemistry = ( new BlueprintChemistryEngine() )->computeForLineup(
-            (int) $bp['team_id'],
-            (array) ( $bp['slots'] ?? [] ),
-            $primary_lineup
-        );
+        // #1268 — same chemistry-recompute guard as set_blueprint_assignment().
+        // The GET path is the editor's recovery surface after a save; a
+        // chemistry throw here would 500 every subsequent page reload
+        // even with the assignment safely written. Catch + log + return
+        // the blueprint with `blueprint_chemistry: null`; the editor
+        // renders cleanly without the chemistry overlay.
+        $primary_lineup      = $repo->loadPrimaryLineup( $id );
+        $blueprint_chemistry = null;
+        $chemistry_error     = null;
+        try {
+            $blueprint_chemistry = ( new BlueprintChemistryEngine() )->computeForLineup(
+                (int) $bp['team_id'],
+                (array) ( $bp['slots'] ?? [] ),
+                $primary_lineup
+            );
+        } catch ( \Throwable $e ) {
+            $chemistry_error = $e->getMessage();
+            if ( class_exists( '\\TT\\Infrastructure\\Logging\\Logger' ) ) {
+                \TT\Infrastructure\Logging\Logger::error( 'blueprint.get.chemistry.failed', [
+                    'blueprint_id' => $id,
+                    'error'        => $chemistry_error,
+                    'trace'        => $e->getTraceAsString(),
+                ] );
+            }
+        }
 
         // #953 — surface the full ref shape (player / guest / custom) on
         // the GET payload so a future SaaS front end can render every
@@ -642,6 +661,7 @@ class TeamDevelopmentRestController {
         return RestResponse::success( [
             'blueprint'           => $bp,
             'blueprint_chemistry' => $blueprint_chemistry,
+            'chemistry_error'     => $chemistry_error,
         ] );
     }
 
@@ -825,21 +845,50 @@ class TeamDevelopmentRestController {
             );
         }
 
-        // Recompute chemistry on the new primary lineup so the editor
-        // can refresh the score + lines without round-tripping the get.
-        $bp     = $repo->find( $id );
-        $lineup = $repo->loadPrimaryLineup( $id );
-        $blueprint_chemistry = ( new BlueprintChemistryEngine() )->computeForLineup(
-            (int) $bp['team_id'],
-            (array) ( $bp['slots'] ?? [] ),
-            $lineup
-        );
+        // #1268 — chemistry recompute is best-effort. The assignment
+        // row is already persisted by setAssignment above; a
+        // chemistry failure here must NOT 500 the whole save and
+        // lie to the operator that their pick was rejected. Catch
+        // any throw, log it with full context, and return the save
+        // as 200 with `blueprint_chemistry: null`. The next page
+        // reload pulls a fresh chemistry score via the GET path
+        // (which is the recovery the JS already performs).
+        //
+        // Same defence as #1054 / #1137 / #1149 / #1153 — surface
+        // downstream failures loudly via the logger so the chemistry
+        // root cause becomes diagnosable from `wp-content/debug.log`
+        // without the operator describing the steps.
+        $blueprint_chemistry = null;
+        $chemistry_error = null;
+        try {
+            $bp     = $repo->find( $id );
+            $lineup = $repo->loadPrimaryLineup( $id );
+            if ( $bp !== null ) {
+                $blueprint_chemistry = ( new BlueprintChemistryEngine() )->computeForLineup(
+                    (int) $bp['team_id'],
+                    (array) ( $bp['slots'] ?? [] ),
+                    $lineup
+                );
+            }
+        } catch ( \Throwable $e ) {
+            $chemistry_error = $e->getMessage();
+            if ( class_exists( '\\TT\\Infrastructure\\Logging\\Logger' ) ) {
+                \TT\Infrastructure\Logging\Logger::error( 'blueprint.assignment.chemistry.failed', [
+                    'blueprint_id' => $id,
+                    'slot_label'   => $slot,
+                    'tier'         => $tier,
+                    'error'        => $chemistry_error,
+                    'trace'        => $e->getTraceAsString(),
+                ] );
+            }
+        }
         return RestResponse::success( [
             'id'                  => $id,
             'slot_label'          => $slot,
             'tier'                => $tier,
             'ref'                 => $ref,
             'blueprint_chemistry' => $blueprint_chemistry,
+            'chemistry_error'     => $chemistry_error,
         ] );
     }
 
