@@ -6,12 +6,13 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Modules\Pdp\Repositories\SeasonsRepository;
 
 /**
- * SeasonsPage — wp-admin CRUD for `tt_seasons`.
+ * SeasonsPage — wp-admin CRUD for `tt_seasons`: list, create, edit,
+ * set-current.
  *
- * Tiny: list, create, set-current. Edit (renaming a season / nudging
- * dates) is intentionally out-of-scope; if a season needs editing,
- * delete + re-add is fine because PDP files reference seasons by id
- * and the join survives a name change anyway.
+ * Delete remains intentionally out of scope — PDP files reference
+ * seasons by id, so a delete would orphan or hard-fail any
+ * `tt_pdp_files.season_id` lookup. Operators correct a typo'd date
+ * via edit (#1275) rather than delete + re-add.
  *
  * Mutations route through `admin-post.php` (server-side form posts)
  * rather than the REST endpoints because the wp-admin context isn't
@@ -20,7 +21,8 @@ use TT\Modules\Pdp\Repositories\SeasonsRepository;
 class SeasonsPage {
 
     public static function init(): void {
-        add_action( 'admin_post_tt_save_season', [ __CLASS__, 'handleSave' ] );
+        add_action( 'admin_post_tt_save_season',        [ __CLASS__, 'handleSave' ] );
+        add_action( 'admin_post_tt_update_season',      [ __CLASS__, 'handleUpdate' ] );
         add_action( 'admin_post_tt_set_current_season', [ __CLASS__, 'handleSetCurrent' ] );
     }
 
@@ -30,6 +32,19 @@ class SeasonsPage {
         }
 
         $repo = new SeasonsRepository();
+
+        // #1275 — dedicated edit subview at ?page=tt-seasons&action=edit&id=N.
+        // Pre-fills the form with the season's current values; submits
+        // to the new tt_update_season handler. Default branch (no
+        // action / unknown action) renders the existing list + create.
+        $action = isset( $_GET['action'] ) ? sanitize_key( (string) wp_unslash( $_GET['action'] ) ) : '';
+        if ( $action === 'edit' ) {
+            $id     = isset( $_GET['id'] ) ? absint( wp_unslash( (string) $_GET['id'] ) ) : 0;
+            $season = $id > 0 ? $repo->find( $id ) : null;
+            self::renderEdit( $season );
+            return;
+        }
+
         $rows = $repo->all();
         $current = $repo->current();
         ?>
@@ -64,6 +79,13 @@ class SeasonsPage {
                             <td><?php echo esc_html( (string) $r->end_date ); ?></td>
                             <td><?php echo $is_current ? esc_html__( 'Yes', 'talenttrack' ) : '—'; ?></td>
                             <td>
+                                <?php
+                                // #1275 — edit affordance per row. Routes to
+                                // the dedicated edit subview which pre-fills
+                                // the form with the season's current values.
+                                $edit_url = admin_url( 'admin.php?page=tt-seasons&action=edit&id=' . (int) $r->id );
+                                ?>
+                                <a href="<?php echo esc_url( $edit_url ); ?>" class="button" style="margin-right:6px;"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a>
                                 <?php if ( ! $is_current ) : ?>
                                     <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="display:inline;">
                                         <?php wp_nonce_field( 'tt_set_current_season_' . (int) $r->id, 'tt_nonce' ); ?>
@@ -102,6 +124,51 @@ class SeasonsPage {
         <?php
     }
 
+    /**
+     * #1275 — edit subview rendered when ?action=edit&id=N. Pre-fills
+     * the form with the season's current values; submits to the
+     * `tt_update_season` admin-post handler below.
+     */
+    private static function renderEdit( ?object $season ): void {
+        $list_url = admin_url( 'admin.php?page=tt-seasons' );
+        ?>
+        <div class="wrap">
+            <h1><?php esc_html_e( 'Edit season', 'talenttrack' ); ?></h1>
+            <?php if ( ! $season ) : ?>
+                <div class="notice notice-error"><p><?php esc_html_e( 'Season not found.', 'talenttrack' ); ?></p></div>
+                <p><a href="<?php echo esc_url( $list_url ); ?>" class="button"><?php esc_html_e( 'Back to seasons', 'talenttrack' ); ?></a></p>
+            <?php else : ?>
+                <?php if ( isset( $_GET['tt_err'] ) ) : ?>
+                    <div class="notice notice-error"><p><?php echo esc_html( (string) wp_unslash( $_GET['tt_err'] ) ); ?></p></div>
+                <?php endif; ?>
+                <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="max-width:600px;">
+                    <?php wp_nonce_field( 'tt_update_season_' . (int) $season->id, 'tt_nonce' ); ?>
+                    <input type="hidden" name="action" value="tt_update_season" />
+                    <input type="hidden" name="id" value="<?php echo (int) $season->id; ?>" />
+                    <table class="form-table">
+                        <tr>
+                            <th><label for="tt-season-edit-name"><?php esc_html_e( 'Name', 'talenttrack' ); ?> *</label></th>
+                            <td><input type="text" id="tt-season-edit-name" name="name" class="regular-text" required value="<?php echo esc_attr( (string) $season->name ); ?>" /></td>
+                        </tr>
+                        <tr>
+                            <th><label for="tt-season-edit-start"><?php esc_html_e( 'Start date', 'talenttrack' ); ?> *</label></th>
+                            <td><input type="date" id="tt-season-edit-start" name="start_date" required value="<?php echo esc_attr( (string) $season->start_date ); ?>" /></td>
+                        </tr>
+                        <tr>
+                            <th><label for="tt-season-edit-end"><?php esc_html_e( 'End date', 'talenttrack' ); ?> *</label></th>
+                            <td><input type="date" id="tt-season-edit-end" name="end_date" required value="<?php echo esc_attr( (string) $season->end_date ); ?>" /></td>
+                        </tr>
+                    </table>
+                    <p>
+                        <button type="submit" class="button button-primary"><?php esc_html_e( 'Save changes', 'talenttrack' ); ?></button>
+                        <a href="<?php echo esc_url( $list_url ); ?>" class="button" style="margin-left:6px;"><?php esc_html_e( 'Cancel', 'talenttrack' ); ?></a>
+                    </p>
+                </form>
+            <?php endif; ?>
+        </div>
+        <?php
+    }
+
     public static function handleSave(): void {
         if ( ! current_user_can( 'tt_edit_seasons' ) ) wp_die( esc_html__( 'Forbidden.', 'talenttrack' ) );
         check_admin_referer( 'tt_save_season', 'tt_nonce' );
@@ -125,6 +192,42 @@ class SeasonsPage {
         $url = $id > 0 ? add_query_arg( 'tt_msg', '1', $back )
                        : add_query_arg( 'tt_err', urlencode( __( 'Database refused the save.', 'talenttrack' ) ), $back );
         wp_safe_redirect( $url );
+        exit;
+    }
+
+    /**
+     * #1275 — update an existing season's name + dates. Mirrors
+     * handleSave's validation contract; nonce keyed to the row id so
+     * a stale form on a deleted/refactored season fails the check
+     * loudly rather than touching the wrong row.
+     */
+    public static function handleUpdate(): void {
+        if ( ! current_user_can( 'tt_edit_seasons' ) ) wp_die( esc_html__( 'Forbidden.', 'talenttrack' ) );
+        $id = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
+        check_admin_referer( 'tt_update_season_' . $id, 'tt_nonce' );
+        \TT\Modules\Authorization\Impersonation\ImpersonationContext::blockDestructiveAdminHandler( 'season.update' );
+
+        $list_back = admin_url( 'admin.php?page=tt-seasons' );
+        $edit_back = admin_url( 'admin.php?page=tt-seasons&action=edit&id=' . $id );
+        if ( $id <= 0 ) {
+            wp_safe_redirect( add_query_arg( 'tt_err', urlencode( __( 'Invalid season id.', 'talenttrack' ) ), $list_back ) );
+            exit;
+        }
+
+        $name  = sanitize_text_field( wp_unslash( (string) ( $_POST['name'] ?? '' ) ) );
+        $start = sanitize_text_field( wp_unslash( (string) ( $_POST['start_date'] ?? '' ) ) );
+        $end   = sanitize_text_field( wp_unslash( (string) ( $_POST['end_date'] ?? '' ) ) );
+
+        $ok = ( new SeasonsRepository() )->update( $id, [
+            'name'       => $name,
+            'start_date' => $start,
+            'end_date'   => $end,
+        ] );
+        if ( ! $ok ) {
+            wp_safe_redirect( add_query_arg( 'tt_err', urlencode( __( 'Could not update the season — check that name + dates are filled and end date follows start date.', 'talenttrack' ) ), $edit_back ) );
+            exit;
+        }
+        wp_safe_redirect( add_query_arg( 'tt_msg', '1', $list_back ) );
         exit;
     }
 

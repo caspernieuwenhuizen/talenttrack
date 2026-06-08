@@ -69,6 +69,38 @@ class SeasonsRepository {
     }
 
     /**
+     * Update a season's name + dates. Returns false on validation
+     * failure or wpdb error; true on success or no-op (no rows
+     * changed but no error either).
+     *
+     * #1275 — closes the "I created a season with the wrong dates
+     * and have no way to fix it" gap. The previous "delete + re-add"
+     * docblock advice was wrong: PDP files reference seasons by id
+     * and there's no `delete()` method anyway.
+     *
+     * @param array{name:string, start_date:string, end_date:string} $data
+     */
+    public function update( int $id, array $data ): bool {
+        if ( $id <= 0 ) return false;
+        $name  = sanitize_text_field( (string) ( $data['name'] ?? '' ) );
+        $start = (string) ( $data['start_date'] ?? '' );
+        $end   = (string) ( $data['end_date']   ?? '' );
+        if ( $name === '' || $start === '' || $end === '' ) return false;
+        $start_ts = strtotime( $start );
+        $end_ts   = strtotime( $end );
+        if ( $start_ts === false || $end_ts === false || $end_ts <= $start_ts ) {
+            return false;
+        }
+
+        $ok = $this->wpdb->update(
+            $this->table,
+            [ 'name' => $name, 'start_date' => $start, 'end_date' => $end ],
+            [ 'id' => $id, 'club_id' => CurrentClub::id() ]
+        );
+        return $ok !== false;
+    }
+
+    /**
      * Mark a single season as current. Atomically demotes any other.
      * Fires the `tt_pdp_season_set_current` action so the carryover
      * job can roll open goals into the new season.
