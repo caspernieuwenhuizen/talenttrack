@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-09T05:12:29+00:00\n"
+"POT-Creation-Date: 2026-06-09T05:17:51+00:00\n"
 "PO-Revision-Date: 2026-04-25 10:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -228,6 +228,8 @@ msgstr "Staf"
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:585
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:803
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:822
+#: src/Modules/DemoData/Admin/DemoReviewPage.php:179
+#: src/Modules/DemoData/Admin/DemoReviewPage.php:201
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:243
 #: src/Modules/Goals/Admin/GoalsPage.php:94
 #: src/Modules/Players/Admin/PlayersPage.php:184
@@ -3923,7 +3925,7 @@ msgid "Friendly"
 msgstr "Oefen"
 
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:123
-#: src/Modules/DemoData/Admin/DemoReviewPage.php:61
+#: src/Modules/DemoData/Admin/DemoReviewPage.php:70
 msgid "Total"
 msgstr ""
 
@@ -4380,7 +4382,7 @@ msgstr "Persona"
 #: src/Modules/Authorization/Admin/MatrixPage.php:116
 #: src/Modules/Authorization/Admin/MatrixPage.php:557
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:513
-#: src/Modules/DemoData/Admin/DemoReviewPage.php:60
+#: src/Modules/DemoData/Admin/DemoReviewPage.php:69
 #: src/Shared/Frontend/FrontendAuditLogView.php:321
 #: src/Shared/Frontend/FrontendAuditLogView.php:381
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:92
@@ -11626,47 +11628,114 @@ msgstr "Een PHP-extensie heeft de upload geblokkeerd."
 msgid "Upload failed (error code %d)."
 msgstr "Upload mislukt (foutcode %d)."
 
-#: src/Modules/DemoData/Admin/DemoReviewPage.php:36
+#: src/Modules/DemoData/Admin/DemoReviewPage.php:45
 msgid "You do not have permission to review demo data."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoReviewPage.php:43
+#: src/Modules/DemoData/Admin/DemoReviewPage.php:52
 #: src/Shared/CoreSurfaceRegistration.php:1118
 msgid "Demo data review"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoReviewPage.php:46
+#: src/Modules/DemoData/Admin/DemoReviewPage.php:55
 msgid ""
 "Per-entity inventory of demo-tagged rows split by their origin. User-created "
 "rows (you created them mid-demo) are recommended to keep; seeded rows are "
 "recommended to delete when you convert this install to production."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoReviewPage.php:53
+#: src/Modules/DemoData/Admin/DemoReviewPage.php:62
 msgid "No demo-tagged rows on this install. Nothing to convert."
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoReviewPage.php:62
+#: src/Modules/DemoData/Admin/DemoReviewPage.php:71
 msgid "User-created"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoReviewPage.php:63
+#: src/Modules/DemoData/Admin/DemoReviewPage.php:72
 msgid "Seeded"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoReviewPage.php:64
+#: src/Modules/DemoData/Admin/DemoReviewPage.php:73
 msgid "Seed batches"
 msgstr ""
 
-#: src/Modules/DemoData/Admin/DemoReviewPage.php:94
+#: src/Modules/DemoData/Admin/DemoReviewPage.php:103
 msgid "Totals"
 msgstr "Totalen"
 
-#: src/Modules/DemoData/Admin/DemoReviewPage.php:104
+#: src/Modules/DemoData/Admin/DemoReviewPage.php:129
+msgid "Conversion complete. The selected batches were processed."
+msgstr ""
+
+#: src/Modules/DemoData/Admin/DemoReviewPage.php:154
+msgid "Convert to production"
+msgstr ""
+
+#: src/Modules/DemoData/Admin/DemoReviewPage.php:156
 msgid ""
-"Conversion to production (per-record curation + transactional delete) ships "
-"in #1272 PR2. This page lets you confirm the inventory matches what you "
-"expect before that wizard becomes available."
+"For each batch below, choose whether to DELETE the rows (along with their "
+"demo tags) or PROMOTE them to production (entity rows stay; only the demo "
+"tags are removed so they stop being scoped by demo mode)."
+msgstr ""
+
+#: src/Modules/DemoData/Admin/DemoReviewPage.php:162
+msgid "Smart defaults:"
+msgstr ""
+
+#: src/Modules/DemoData/Admin/DemoReviewPage.php:163
+msgid ""
+"Seed batches are pre-selected to delete; user-created rows are pre-selected "
+"to promote."
+msgstr ""
+
+#: src/Modules/DemoData/Admin/DemoReviewPage.php:168
+msgid "Run conversion now? Deletions cannot be undone."
+msgstr ""
+
+#: src/Modules/DemoData/Admin/DemoReviewPage.php:172
+msgid "Seeded batches"
+msgstr ""
+
+#: src/Modules/DemoData/Admin/DemoReviewPage.php:174
+msgid "No seeded batches."
+msgstr ""
+
+#: src/Modules/DemoData/Admin/DemoReviewPage.php:184
+#: src/Modules/DemoData/Admin/DemoReviewPage.php:196
+msgid "Promote to production"
+msgstr ""
+
+#: src/Modules/DemoData/Admin/DemoReviewPage.php:188
+#: src/Modules/DemoData/Admin/DemoReviewPage.php:204
+msgid "rows"
+msgstr ""
+
+#: src/Modules/DemoData/Admin/DemoReviewPage.php:192
+msgid "User-created rows"
+msgstr ""
+
+#: src/Modules/DemoData/Admin/DemoReviewPage.php:196
+msgid "(recommended — these are real records)"
+msgstr ""
+
+#: src/Modules/DemoData/Admin/DemoReviewPage.php:201
+msgid "(careful — these are NOT seeded data)"
+msgstr ""
+
+#: src/Modules/DemoData/Admin/DemoReviewPage.php:208
+msgid "Run conversion"
+msgstr ""
+
+#: src/Modules/DemoData/Admin/DemoReviewPage.php:220
+#: src/Modules/Pdp/Admin/SeasonsPage.php:173
+#: src/Modules/Pdp/Admin/SeasonsPage.php:205
+#: src/Modules/Pdp/Admin/SeasonsPage.php:235
+msgid "Forbidden."
+msgstr "Niet toegestaan."
+
+#: src/Modules/DemoData/Admin/DemoReviewPage.php:238
+msgid "No batches selected."
 msgstr ""
 
 #: src/Modules/DemoData/DemoBanner.php:35
@@ -18283,12 +18352,6 @@ msgstr "Seizoen niet gevonden."
 #: src/Modules/Pdp/Admin/SeasonsPage.php:139
 msgid "Back to seasons"
 msgstr "Terug naar seizoenen"
-
-#: src/Modules/Pdp/Admin/SeasonsPage.php:173
-#: src/Modules/Pdp/Admin/SeasonsPage.php:205
-#: src/Modules/Pdp/Admin/SeasonsPage.php:235
-msgid "Forbidden."
-msgstr "Niet toegestaan."
 
 #: src/Modules/Pdp/Admin/SeasonsPage.php:183
 msgid ""
