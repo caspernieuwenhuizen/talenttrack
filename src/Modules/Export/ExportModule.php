@@ -31,6 +31,7 @@ use TT\Modules\Export\Exporters\PlayersListCsvExporter;
 use TT\Modules\Export\Exporters\ScoutingReportPdfExporter;
 use TT\Modules\Export\Exporters\StaffDirectoryCsvExporter;
 use TT\Modules\Export\Exporters\TeamActivitiesCsvExporter;
+use TT\Modules\Export\Exporters\TeamPlannerXlsxExporter;
 use TT\Modules\Export\Exporters\TeamIcalExporter;
 use TT\Modules\Export\Exporters\TeamPlanningPdfExporter;
 use TT\Modules\Export\Exporters\TeamRosterStatsCsvExporter;
@@ -115,6 +116,12 @@ class ExportModule implements ModuleInterface {
         // v4.3.18 (#947) — per-team planning PDF, consumed by the team
         // planner's Export PDF button.
         ExporterRegistry::register( new TeamPlanningPdfExporter() );
+
+        // #1269 v4.20.59 — week-by-week styled xlsx mirroring the
+        // online team-planner grid; replaces the team_activities flat
+        // exporter as the planner page's Export XLSX target. Uses the
+        // styled_sheets renderer payload shipped in v4.20.58.
+        ExporterRegistry::register( new TeamPlannerXlsxExporter() );
 
         ExportRestController::init();
 
