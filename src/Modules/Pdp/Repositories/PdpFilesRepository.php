@@ -30,10 +30,11 @@ class PdpFilesRepository {
         $this->table = $wpdb->prefix . 'tt_pdp_files';
     }
 
-    public function find( int $id ): ?object {
+    public function find( int $id, bool $include_archived = false ): ?object {
         if ( $id <= 0 ) return null;
+        $archived_clause = $include_archived ? '' : 'AND archived_at IS NULL';
         $row = $this->wpdb->get_row( $this->wpdb->prepare(
-            "SELECT * FROM {$this->table} WHERE id = %d AND club_id = %d",
+            "SELECT * FROM {$this->table} WHERE id = %d AND club_id = %d {$archived_clause}",
             $id, CurrentClub::id()
         ) );
         if ( ! $row ) return null;
@@ -42,11 +43,12 @@ class PdpFilesRepository {
     }
 
     /** @return object|null */
-    public function findByPlayerSeason( int $player_id, int $season_id ): ?object {
+    public function findByPlayerSeason( int $player_id, int $season_id, bool $include_archived = false ): ?object {
         if ( $player_id <= 0 || $season_id <= 0 ) return null;
+        $archived_clause = $include_archived ? '' : 'AND archived_at IS NULL';
         $row = $this->wpdb->get_row( $this->wpdb->prepare(
             "SELECT * FROM {$this->table}
-              WHERE player_id = %d AND season_id = %d AND club_id = %d",
+              WHERE player_id = %d AND season_id = %d AND club_id = %d {$archived_clause}",
             $player_id, $season_id, CurrentClub::id()
         ) );
         if ( ! $row ) return null;
@@ -55,11 +57,12 @@ class PdpFilesRepository {
     }
 
     /** @return object[] */
-    public function listForCoach( int $coach_user_id, int $season_id ): array {
+    public function listForCoach( int $coach_user_id, int $season_id, bool $include_archived = false ): array {
         if ( $coach_user_id <= 0 || $season_id <= 0 ) return [];
+        $archived_clause = $include_archived ? '' : 'AND archived_at IS NULL';
         $rows = $this->wpdb->get_results( $this->wpdb->prepare(
             "SELECT * FROM {$this->table}
-              WHERE owner_coach_id = %d AND season_id = %d AND club_id = %d
+              WHERE owner_coach_id = %d AND season_id = %d AND club_id = %d {$archived_clause}
               ORDER BY updated_at DESC",
             $coach_user_id, $season_id, CurrentClub::id()
         ) );
@@ -69,17 +72,83 @@ class PdpFilesRepository {
     }
 
     /** @return object[] */
-    public function listForSeason( int $season_id ): array {
+    public function listForSeason( int $season_id, bool $include_archived = false ): array {
         if ( $season_id <= 0 ) return [];
+        $archived_clause = $include_archived ? '' : 'AND archived_at IS NULL';
         $rows = $this->wpdb->get_results( $this->wpdb->prepare(
             "SELECT * FROM {$this->table}
-              WHERE season_id = %d AND club_id = %d
+              WHERE season_id = %d AND club_id = %d {$archived_clause}
               ORDER BY updated_at DESC",
             $season_id, CurrentClub::id()
         ) );
         if ( ! is_array( $rows ) ) return [];
         foreach ( $rows as $row ) self::hydrate( $row );
         return $rows;
+    }
+
+    /**
+     * #1274 PR1 — soft archive a PDP file. Updates `archived_at = NOW()`
+     * iff the row exists, belongs to the current club, and is not
+     * already archived. Returns true only when a row was actually
+     * touched — a stale double-click on an already-archived file
+     * returns false so the caller can flash a "already archived" hint
+     * instead of a false-positive success.
+     */
+    public function archive( int $id ): bool {
+        if ( $id <= 0 ) return false;
+        $ok = $this->wpdb->update(
+            $this->table,
+            [ 'archived_at' => current_time( 'mysql', true ) ],
+            [ 'id' => $id, 'club_id' => CurrentClub::id(), 'archived_at' => null ]
+        );
+        return is_int( $ok ) && $ok > 0;
+    }
+
+    /**
+     * #1274 PR1 — restore a soft-archived PDP file. Symmetric inverse
+     * of archive(). Gated on the new `tt_unarchive_pdp` cap at the
+     * REST + UI layer; the repo method itself is just the write.
+     */
+    public function restore( int $id ): bool {
+        if ( $id <= 0 ) return false;
+        $ok = $this->wpdb->update(
+            $this->table,
+            [ 'archived_at' => null ],
+            [ 'id' => $id, 'club_id' => CurrentClub::id() ]
+        );
+        return $ok !== false;
+    }
+
+    /**
+     * #1274 PR2 — count active (non-archived) PDP files for a player.
+     * Used by the player-archive cascade to populate the confirm
+     * modal's "Archiving this player will also archive N PDPs" line.
+     */
+    public function countActiveForPlayer( int $player_id ): int {
+        if ( $player_id <= 0 ) return 0;
+        return (int) $this->wpdb->get_var( $this->wpdb->prepare(
+            "SELECT COUNT(*) FROM {$this->table}
+              WHERE player_id = %d AND club_id = %d AND archived_at IS NULL",
+            $player_id, CurrentClub::id()
+        ) );
+    }
+
+    /**
+     * #1274 PR2 — bulk-archive every active PDP attached to a player.
+     * Returns the count of rows touched. Caller wraps in a transaction
+     * with the player-archive write.
+     */
+    public function archiveAllForPlayer( int $player_id ): int {
+        if ( $player_id <= 0 ) return 0;
+        $n = $this->wpdb->query( $this->wpdb->prepare(
+            "UPDATE {$this->table}
+                SET archived_at = %s
+              WHERE player_id = %d AND club_id = %d AND archived_at IS NULL",
+            current_time( 'mysql', true ),
+            $player_id,
+            CurrentClub::id()
+        ) );
+        return is_int( $n ) ? $n : 0;
     }
 
     /**

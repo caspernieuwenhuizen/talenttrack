@@ -52,7 +52,27 @@ class PdpFilesRestController {
                 'callback'            => [ __CLASS__, 'patch' ],
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
             ],
+            // #1274 PR1 — DELETE = soft-archive (mirrors the
+            // EvaluationsRestController::delete_eval pattern, also a
+            // soft-delete). Cap-gated on tt_edit_pdp.
+            [
+                'methods'             => 'DELETE',
+                'callback'            => [ __CLASS__, 'archive' ],
+                'permission_callback' => [ __CLASS__, 'can_edit' ],
+            ],
         ] );
+        // #1274 PR1 — restore endpoint, gated on a new admin-only cap.
+        register_rest_route( self::NS, '/pdp-files/(?P<id>\d+)/restore', [
+            [
+                'methods'             => 'POST',
+                'callback'            => [ __CLASS__, 'restore' ],
+                'permission_callback' => [ __CLASS__, 'can_unarchive' ],
+            ],
+        ] );
+    }
+
+    public static function can_unarchive(): bool {
+        return current_user_can( 'tt_unarchive_pdp' );
     }
 
     public static function can_view(): bool {
@@ -402,6 +422,67 @@ class PdpFilesRestController {
             return RestResponse::success( [ 'id' => $id, 'unchanged' => true ] );
         }
         return RestResponse::success( [ 'id' => $id ] );
+    }
+
+    /**
+     * #1274 PR1 — DELETE /pdp-files/{id} → soft archive.
+     *
+     * Mirrors EvaluationsRestController::delete_eval (also a soft-
+     * delete). 404 when the row is gone OR already archived; 200 on
+     * a successful archive write.
+     */
+    public static function archive( \WP_REST_Request $r ): \WP_REST_Response {
+        $id = absint( $r['id'] );
+        if ( $id <= 0 ) {
+            return RestResponse::error( 'bad_id', __( 'Invalid PDP file id.', 'talenttrack' ), 400 );
+        }
+        $files = new PdpFilesRepository();
+        $file  = $files->find( $id );
+        if ( ! $file ) {
+            return RestResponse::error( 'not_found', __( 'PDP file not found or already archived.', 'talenttrack' ), 404 );
+        }
+        if ( ! self::canEditFile( $file ) ) {
+            return RestResponse::error( 'forbidden',
+                __( 'You do not have permission to archive this PDP file.', 'talenttrack' ), 403 );
+        }
+        if ( ! $files->archive( $id ) ) {
+            return RestResponse::error( 'archive_failed',
+                __( 'Could not archive the PDP file.', 'talenttrack' ), 500 );
+        }
+        Logger::info( 'pdp.file.archived', [
+            'pdp_file_id' => $id,
+            'player_id'   => (int) ( $file->player_id ?? 0 ),
+            'by_user'     => get_current_user_id(),
+        ] );
+        return RestResponse::success( [ 'id' => $id, 'archived' => true ] );
+    }
+
+    /**
+     * #1274 PR1 — POST /pdp-files/{id}/restore → un-archive.
+     *
+     * Cap-gated on `tt_unarchive_pdp` (admin-only by default seed).
+     */
+    public static function restore( \WP_REST_Request $r ): \WP_REST_Response {
+        $id = absint( $r['id'] );
+        if ( $id <= 0 ) {
+            return RestResponse::error( 'bad_id', __( 'Invalid PDP file id.', 'talenttrack' ), 400 );
+        }
+        $files = new PdpFilesRepository();
+        // include_archived=true so we can find the row to restore.
+        $file = $files->find( $id, true );
+        if ( ! $file ) {
+            return RestResponse::error( 'not_found', __( 'PDP file not found.', 'talenttrack' ), 404 );
+        }
+        if ( ! $files->restore( $id ) ) {
+            return RestResponse::error( 'restore_failed',
+                __( 'Could not restore the PDP file.', 'talenttrack' ), 500 );
+        }
+        Logger::info( 'pdp.file.restored', [
+            'pdp_file_id' => $id,
+            'player_id'   => (int) ( $file->player_id ?? 0 ),
+            'by_user'     => get_current_user_id(),
+        ] );
+        return RestResponse::success( [ 'id' => $id, 'restored' => true ] );
     }
 
     private static function resolveCycleSize( \WP_REST_Request $r, int $player_id ): int {

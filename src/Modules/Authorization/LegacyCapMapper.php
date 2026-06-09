@@ -165,6 +165,11 @@ final class LegacyCapMapper {
         'tt_view_pdp'                    => [ 'pdp_file',              'read' ],
         'tt_edit_pdp'                    => [ 'pdp_file',              'change' ],
         'tt_edit_pdp_verdict'            => [ 'pdp_verdict',           'change' ],
+        // #1274 PR1 — un-archive (restore) is a distinct privilege from
+        // edit. Seeded admin-only; bridges to pdp_file:create_delete
+        // because un-archiving is morally a "bring back a deleted row"
+        // operation and should require the same trust as create/delete.
+        'tt_unarchive_pdp'               => [ 'pdp_file',              'create_delete' ],
 
         // #0071 — Impersonation. The act-cap. Cross-club guard +
         // admin-on-admin block enforced in ImpersonationService.
