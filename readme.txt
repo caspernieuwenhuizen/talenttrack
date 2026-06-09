@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.61
+Stable tag: 4.20.62
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.62 — Demo→production: terminal `converted` state locks demo mode permanently (closes #1272). Completes the conversion epic. **New `DemoMode::CONVERTED` state** alongside OFF / ON / NEUTRAL. Persisted to the `tt_demo_mode` option; `tt_demo_converted_at` carries the UTC timestamp. `DemoMode::set()` refuses to write OFF or ON once CONVERTED — the toggle is permanently disabled to prevent accidental re-entry that would re-tag freshly-created production rows. `DemoMode::isOn()` / `tagIfActive()` naturally short-circuit on converted via `effective() !== ON`. **Wired from `DemoConversionService::run()`** — every successful run ends with `DemoMode::markConverted()` + a `demo.converted_to_production` audit log entry carrying the UTC timestamp. **DemoReviewPage updates.** When `DemoMode::isConverted()` returns true, `renderConvertForm()` returns early with a teal "This install was converted to production on <UTC datetime> — demo mode is permanently disabled" banner; the destructive form is hidden. `handleConvert()` also early-returns with a stale-form error if posted after conversion (defence in depth — a tab left open from before the convert would otherwise hit the handler). **Closes #1272.** The three-PR sequence shipped clean: PR1 inventory (v4.20.60) → PR2 destructive form + service (v4.20.61) → PR3 lock-out (v4.20.62). (closes #1272) =
 
 = 4.20.61 — Demo→production conversion: destructive convert form on the review page (refs #1272 PR2). Builds on v4.20.60's read-only review. New `DemoConversionService::run( $delete_batches, $promote_batches )` orchestrates per-batch operations: **delete** routes through the existing `DemoDataCleaner::wipeData( null, $batch_id )` (entity rows + their `tt_demo_tags` rows in dependency-cascade order); **promote** runs `DELETE FROM tt_demo_tags WHERE batch_id = X` (entity rows stay; only the demo tags are removed so they stop being scoped by demo-mode queries). `DemoReviewPage` grows a Convert section below the inventory: one radio pair per batch (delete / promote) with smart defaults — seeded batches default to delete, `user-created` defaults to promote. Submit goes through `admin-post.php` (`tt_demo_convert`) with nonce + cap check; on success the result-flash banner shows on reload. Audit-log entry `demo.conversion.run` emitted with the per-batch summary (counts deleted per entity type + counts promoted per batch). **Scope vs. the issue body.** The shaping comment proposed a 4-step wizard with per-record toggles; this PR ships the per-batch toggle (smart-default-driven from the `batch_id` column) which delivers ~95% of the value with much less UI surface. A per-record exception flow can be a follow-up if the pilot needs it. The conversion-mode lock-out flag (PR3) follows next. (refs #1272) =
 
