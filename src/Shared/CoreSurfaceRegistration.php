@@ -1108,6 +1108,18 @@ final class CoreSurfaceRegistration {
             'slug'         => 'tt-demo-data',
             'callback'     => [ \TT\Modules\DemoData\Admin\DemoDataPage::class, 'render' ],
         ]);
+        // #1272 PR1 — read-only review surface; PR2 of the same issue
+        // adds the destructive conversion wizard. Cap-gated on
+        // tt_edit_settings (academy admin) rather than manage_options
+        // so an academy_admin without WP-superadmin can inspect.
+        AdminMenuRegistry::register([
+            'module_class' => 'TT\\Modules\\DemoData\\DemoDataModule',
+            'parent'       => 'talenttrack',
+            'title'        => __( 'Demo data review', 'talenttrack' ),
+            'cap'          => 'tt_edit_settings',
+            'slug'         => 'tt-demo-review',
+            'callback'     => [ \TT\Modules\DemoData\Admin\DemoReviewPage::class, 'render' ],
+        ]);
 
         // ── People group ──
         if ( $show_legacy ) {
