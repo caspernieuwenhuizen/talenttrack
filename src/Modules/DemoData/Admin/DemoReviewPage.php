@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\DemoData\DemoConversionService;
+use TT\Modules\DemoData\DemoMode;
 
 /**
  * DemoReviewPage (#1272 PR1) — read-only inventory of demo-tagged rows
@@ -123,6 +124,23 @@ final class DemoReviewPage {
      * @param array{all:int, user:int, seeded:int} $totals
      */
     private static function renderConvertForm( array $breakdown, array $totals ): void {
+        // #1272 PR3 — terminal-state lock. Once converted, the form is
+        // permanently hidden and replaced with a "locked since YYYY-MM-DD"
+        // badge. The install can never re-enter demo mode (see
+        // DemoMode::set / ::markConverted) so re-running the convert
+        // operation is meaningless.
+        if ( DemoMode::isConverted() ) {
+            $converted_at = DemoMode::convertedAt();
+            echo '<div class="notice notice-info" style="margin-top:20px; border-left-color:#1d7874;"><p>'
+                . esc_html( sprintf(
+                    /* translators: %s = UTC datetime the install was marked converted (YYYY-MM-DD HH:MM:SS) */
+                    __( 'This install was converted to production on %s — demo mode is permanently disabled.', 'talenttrack' ),
+                    $converted_at !== '' ? $converted_at . ' UTC' : __( 'an earlier date', 'talenttrack' )
+                ) )
+                . '</p></div>';
+            return;
+        }
+
         // Result flash from a recently-completed conversion.
         if ( isset( $_GET['tt_convert_msg'] ) ) {
             echo '<div class="notice notice-success" style="margin-top:20px;"><p>'
@@ -222,6 +240,14 @@ final class DemoReviewPage {
         check_admin_referer( 'tt_demo_convert', 'tt_nonce' );
 
         $back = admin_url( 'admin.php?page=tt-demo-review' );
+
+        // #1272 PR3 — refuse to re-run once converted. Defence in depth
+        // alongside the form being hidden when DemoMode::isConverted.
+        // A stale form on an open tab would otherwise hit the handler.
+        if ( DemoMode::isConverted() ) {
+            wp_safe_redirect( add_query_arg( 'tt_convert_err', urlencode( __( 'This install is already converted — demo mode is permanently disabled.', 'talenttrack' ) ), $back ) );
+            exit;
+        }
 
         $delete_batches  = [];
         $promote_batches = [];

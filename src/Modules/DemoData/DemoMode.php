@@ -17,18 +17,28 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  */
 class DemoMode {
 
-    public const OFF     = 'off';
-    public const ON      = 'on';
-    public const NEUTRAL = 'neutral';
+    public const OFF       = 'off';
+    public const ON        = 'on';
+    public const NEUTRAL   = 'neutral';
+    // #1272 PR3 — terminal state set by DemoConversionService after a
+    // successful run. Cannot be unset via the toggle UI. `tagIfActive`
+    // and `current()` both treat it as "no demo mode ever again on
+    // this install".
+    public const CONVERTED = 'converted';
 
-    private const OPTION = 'tt_demo_mode';
+    private const OPTION          = 'tt_demo_mode';
+    private const OPTION_CONVERTED_AT = 'tt_demo_converted_at';
 
     public static function current(): string {
         $value = (string) get_option( self::OPTION, self::OFF );
-        return in_array( $value, [ self::OFF, self::ON ], true ) ? $value : self::OFF;
+        return in_array( $value, [ self::OFF, self::ON, self::CONVERTED ], true ) ? $value : self::OFF;
     }
 
     public static function set( string $mode ): void {
+        // #1272 PR3 — once converted, the toggle is permanently disabled.
+        // Re-enabling demo mode would re-tag freshly-created rows and
+        // dilute the operator's just-cleaned production set.
+        if ( self::isConverted() ) return;
         if ( ! in_array( $mode, [ self::OFF, self::ON ], true ) ) {
             return;
         }
@@ -37,6 +47,34 @@ class DemoMode {
 
     public static function isOn(): bool {
         return self::current() === self::ON;
+    }
+
+    /**
+     * #1272 PR3 — true once `DemoConversionService::run()` has marked
+     * the install converted. Once true, never returns false on this
+     * install (terminal state).
+     */
+    public static function isConverted(): bool {
+        return self::current() === self::CONVERTED;
+    }
+
+    /**
+     * #1272 PR3 — called by DemoConversionService after a successful
+     * conversion run. Writes the terminal state + timestamp.
+     */
+    public static function markConverted(): void {
+        update_option( self::OPTION, self::CONVERTED );
+        update_option( self::OPTION_CONVERTED_AT, gmdate( 'Y-m-d H:i:s' ) );
+    }
+
+    /**
+     * Returns the UTC datetime the install was marked converted, or
+     * empty string when never converted.
+     */
+    public static function convertedAt(): string {
+        if ( ! self::isConverted() ) return '';
+        $val = get_option( self::OPTION_CONVERTED_AT, '' );
+        return is_string( $val ) ? $val : '';
     }
 
     /**

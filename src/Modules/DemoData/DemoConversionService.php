@@ -62,6 +62,17 @@ final class DemoConversionService {
             'summary'  => $summary,
         ] );
 
+        // #1272 PR3 — terminal state. Once converted, demo mode is
+        // permanently disabled on this install: the toggle UI is
+        // locked, `tagIfActive` no-ops via `effective() !== ON`, and
+        // a re-run of this service is a no-op (every batch is gone).
+        DemoMode::markConverted();
+        Logger::info( 'demo.converted_to_production', [
+            'club_id'      => CurrentClub::id(),
+            'by_user'      => get_current_user_id(),
+            'converted_at' => DemoMode::convertedAt(),
+        ] );
+
         return $summary;
     }
 
