@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.64
+Stable tag: 4.20.65
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.65 — PDP hard delete with five-table cascade (closes #1274). Completes the PDP archive + cleanup epic. **New `PdpCascadeDeleter` service** under `src/Modules/Pdp/`, same pattern as `PersonDeletionCascade` from #1138. Single transaction, child-first delete order: `tt_pdp_calendar_links` (WHERE conversation_id IN ...) → `tt_goal_links` (link_type='pdp_conversation', link_id IN ...) → `tt_pdp_conversations` → `tt_pdp_verdicts` → `tt_pdp_blocks` (self-gates on table existence — migration 0107 is recent) → `tt_pdp_files`. Any per-table failure throws + the transaction rolls back; nothing partial reaches disk. Audit-log entry `pdp.deleted_with_cascade` with per-table counts on success, `pdp.cascade.failed` with the underlying error on rollback. **New `tt_delete_pdp` cap** in `LegacyCapMapper`, bridged to `pdp_file:create_delete` (same matrix tuple as `tt_unarchive_pdp` from PR1 but a distinct cap so views can gate the destructive surface separately and the audit trail names the act precisely). Admin-only via the existing `academy_admin → pdp_file [rcd, global]` seed. **New REST endpoint** `POST /wp-json/talenttrack/v1/pdp-files/{id}/permanent-delete`, cap-gated, returns per-table row counts. The endpoint walks already-archived PDPs too (the common data-retention case is "archive first, permanently delete later"). The double-confirm UX (typed slug) lives on the calling surface — REST is the primitive. **PR3 wrap-up.** Closes the three-PR sequence: PR1 (v4.20.63) archive primitive → PR2 (v4.20.64) player-archive cascade → PR3 (v4.20.65) hard delete. The pre-delete CSV export to `wp-content/uploads/tt-pdp-deletes/` and the wp-admin double-confirm surface from the shaping comment are deferred to a tiny UX-only follow-up; the data layer + REST + cap shipped end-to-end. (closes #1274) =
 
 = 4.20.64 — Player archive now cascades to PDP files (refs #1274 PR2). Builds on v4.20.63's soft-archive primitive. **`ArchiveRepository::archive( 'player', $ids, $by )`** wraps the player-archive UPDATE in `START TRANSACTION` and calls `PdpFilesRepository::archiveAllForPlayer( $player_id )` for each archived player; rolls back on any failure so the player never ends up archived without their PDPs (or vice versa). **`activeDependentsFor( 'player', $id )`** gains a `pdp_files` key sourced from the new `countActiveForPlayer()` helper — the existing impact-preview UX that uses this for the archive-confirm modal now includes "X PDPs" in the cascade summary alongside evaluations + goals. **No UI work in this PR.** The pre-archive confirm modal already consumes `activeDependentsFor()` output, so the new `pdp_files` key surfaces naturally without view changes. **Refs #1274** — PR2 of 3. PR3 (hard-delete + cascade-deleter service for the data-retention case) follows. (refs #1274) =
 

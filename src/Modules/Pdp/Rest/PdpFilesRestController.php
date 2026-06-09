@@ -69,10 +69,25 @@ class PdpFilesRestController {
                 'permission_callback' => [ __CLASS__, 'can_unarchive' ],
             ],
         ] );
+        // #1274 PR3 — permanent delete with five-table cascade.
+        // Cap-gated on tt_delete_pdp (admin only by seed). The
+        // double-confirm UX (typed-slug) lives on the calling
+        // surface, not the endpoint itself — REST is the primitive.
+        register_rest_route( self::NS, '/pdp-files/(?P<id>\d+)/permanent-delete', [
+            [
+                'methods'             => 'POST',
+                'callback'            => [ __CLASS__, 'permanent_delete' ],
+                'permission_callback' => [ __CLASS__, 'can_delete' ],
+            ],
+        ] );
     }
 
     public static function can_unarchive(): bool {
         return current_user_can( 'tt_unarchive_pdp' );
+    }
+
+    public static function can_delete(): bool {
+        return current_user_can( 'tt_delete_pdp' );
     }
 
     public static function can_view(): bool {
@@ -483,6 +498,41 @@ class PdpFilesRestController {
             'by_user'     => get_current_user_id(),
         ] );
         return RestResponse::success( [ 'id' => $id, 'restored' => true ] );
+    }
+
+    /**
+     * #1274 PR3 — POST /pdp-files/{id}/permanent-delete → irreversible
+     * cascade delete across five tables via PdpCascadeDeleter. Caller
+     * must hold `tt_delete_pdp` (admin only by seed). Returns the
+     * per-table row counts so the calling UI can confirm what
+     * vanished. The double-confirm UX (typed slug) lives on the
+     * calling surface; this endpoint is the primitive.
+     */
+    public static function permanent_delete( \WP_REST_Request $r ): \WP_REST_Response {
+        $id = absint( $r['id'] );
+        if ( $id <= 0 ) {
+            return RestResponse::error( 'bad_id', __( 'Invalid PDP file id.', 'talenttrack' ), 400 );
+        }
+        $files = new PdpFilesRepository();
+        // include_archived=true — the operator may be purging an
+        // already-archived PDP (the common data-retention case is
+        // "archive first, then permanently delete later").
+        $file = $files->find( $id, true );
+        if ( ! $file ) {
+            return RestResponse::error( 'not_found', __( 'PDP file not found.', 'talenttrack' ), 404 );
+        }
+        try {
+            $deleted = ( new \TT\Modules\Pdp\PdpCascadeDeleter() )->deletePdpFile( $id );
+        } catch ( \Throwable $e ) {
+            return RestResponse::error( 'cascade_failed',
+                __( 'Could not permanently delete the PDP file. The transaction was rolled back; nothing changed.', 'talenttrack' ),
+                500
+            );
+        }
+        return RestResponse::success( [
+            'id'      => $id,
+            'deleted' => $deleted,
+        ] );
     }
 
     private static function resolveCycleSize( \WP_REST_Request $r, int $player_id ): int {
