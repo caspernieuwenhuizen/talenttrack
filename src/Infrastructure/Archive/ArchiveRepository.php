@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\People\PersonDeletionCascade;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Pdp\Repositories\PdpFilesRepository;
 
 /**
  * ArchiveRepository — archive / restore / hard-delete across entity tables.
@@ -62,6 +63,32 @@ class ArchiveRepository {
                 SET archived_at = %s, archived_by = %d
                 WHERE id IN ({$ph}) AND club_id = %d AND archived_at IS NULL";
         $args = array_merge( [ current_time( 'mysql' ), $by_user_id ], $ids, [ CurrentClub::id() ] );
+
+        // #1274 PR2 — player archive cascades to PDP files so PDPs for
+        // players who leave the academy stop appearing on dashboards
+        // and KPI rollups. Wrapped in a transaction so a PDP-cascade
+        // failure doesn't leave the player archived without their
+        // PDPs (or vice versa). Repository pattern keeps the cascade
+        // in the same layer as the entity-write itself — UI code
+        // doesn't need to know about it.
+        if ( $entity === 'player' ) {
+            $wpdb->query( 'START TRANSACTION' );
+            try {
+                $count = (int) $wpdb->query( $wpdb->prepare( $sql, ...$args ) );
+                if ( class_exists( PdpFilesRepository::class ) ) {
+                    $pdp_repo = new PdpFilesRepository();
+                    foreach ( $ids as $player_id ) {
+                        $pdp_repo->archiveAllForPlayer( (int) $player_id );
+                    }
+                }
+                $wpdb->query( 'COMMIT' );
+                return $count;
+            } catch ( \Throwable $e ) {
+                $wpdb->query( 'ROLLBACK' );
+                throw $e;
+            }
+        }
+
         return (int) $wpdb->query( $wpdb->prepare( $sql, ...$args ) );
     }
 
@@ -207,6 +234,13 @@ class ArchiveRepository {
                 "SELECT COUNT(*) FROM {$p}tt_goals g WHERE g.player_id = %d AND g.club_id = %d AND g.archived_at IS NULL {$goal_scope}",
                 $id, CurrentClub::id()
             ) );
+            // #1274 PR2 — surface active (non-archived) PDPs so the
+            // archive-confirm modal includes them in the cascade
+            // count. Reuses the new PdpFilesRepository helper rather
+            // than duplicating the COUNT query here.
+            if ( class_exists( PdpFilesRepository::class ) ) {
+                $out['pdp_files'] = ( new PdpFilesRepository() )->countActiveForPlayer( $id );
+            }
         }
 
         return $out;
