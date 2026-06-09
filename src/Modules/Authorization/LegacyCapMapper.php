@@ -170,6 +170,12 @@ final class LegacyCapMapper {
         // because un-archiving is morally a "bring back a deleted row"
         // operation and should require the same trust as create/delete.
         'tt_unarchive_pdp'               => [ 'pdp_file',              'create_delete' ],
+        // #1274 PR3 — hard delete for data-retention cases (GDPR
+        // erasure, parental request, player aged out). Same matrix
+        // tuple as unarchive (admin-only via create_delete) but a
+        // distinct cap so views can gate the destructive surface
+        // separately and the audit trail names the act precisely.
+        'tt_delete_pdp'                  => [ 'pdp_file',              'create_delete' ],
 
         // #0071 — Impersonation. The act-cap. Cross-club guard +
         // admin-on-admin block enforced in ImpersonationService.
