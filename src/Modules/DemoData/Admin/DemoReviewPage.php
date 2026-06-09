@@ -4,6 +4,7 @@ namespace TT\Modules\DemoData\Admin;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\DemoData\DemoConversionService;
 
 /**
  * DemoReviewPage (#1272 PR1) — read-only inventory of demo-tagged rows
@@ -30,6 +31,14 @@ final class DemoReviewPage {
     private const ENTITIES = [
         'team', 'player', 'person', 'activity', 'evaluation', 'goal',
     ];
+
+    /**
+     * #1272 PR2 — admin-post hook for the conversion form.
+     * Wired from DemoDataModule::boot().
+     */
+    public static function init(): void {
+        add_action( 'admin_post_tt_demo_convert', [ __CLASS__, 'handleConvert' ] );
+    }
 
     public static function render(): void {
         if ( ! current_user_can( self::CAP ) ) {
@@ -100,14 +109,139 @@ final class DemoReviewPage {
                 </tfoot>
             </table>
 
-            <p style="margin-top:20px; max-width:720px; color:#5b6e75;">
-                <?php esc_html_e(
-                    'Conversion to production (per-record curation + transactional delete) ships in #1272 PR2. This page lets you confirm the inventory matches what you expect before that wizard becomes available.',
-                    'talenttrack'
-                ); ?>
-            </p>
+            <?php self::renderConvertForm( $breakdown, $totals ); ?>
         </div>
         <?php
+    }
+
+    /**
+     * #1272 PR2 — destructive convert form. Lists every batch_id with
+     * a smart-default checkbox (delete seeded; keep user-created).
+     * Submit goes through admin-post → `handleConvert()` → service.
+     *
+     * @param array<string, array{total:int, user:int, seeded:int, batches:array<string,int>}> $breakdown
+     * @param array{all:int, user:int, seeded:int} $totals
+     */
+    private static function renderConvertForm( array $breakdown, array $totals ): void {
+        // Result flash from a recently-completed conversion.
+        if ( isset( $_GET['tt_convert_msg'] ) ) {
+            echo '<div class="notice notice-success" style="margin-top:20px;"><p>'
+                . esc_html__( 'Conversion complete. The selected batches were processed.', 'talenttrack' )
+                . '</p></div>';
+        }
+        if ( isset( $_GET['tt_convert_err'] ) ) {
+            echo '<div class="notice notice-error" style="margin-top:20px;"><p>'
+                . esc_html( (string) wp_unslash( $_GET['tt_convert_err'] ) )
+                . '</p></div>';
+        }
+
+        // Build the union of batch_ids from the breakdown so we can
+        // render one checkbox per batch (rather than one per entity).
+        $all_batches = [];
+        foreach ( $breakdown as $entity_row ) {
+            foreach ( (array) $entity_row['batches'] as $batch_id => $cnt ) {
+                $all_batches[ (string) $batch_id ] = ( $all_batches[ $batch_id ] ?? 0 ) + (int) $cnt;
+            }
+        }
+        ksort( $all_batches );
+        // user-created appears separately (always keep — operator can opt-in to delete).
+        $user_total = (int) $totals['user'];
+
+        if ( empty( $all_batches ) && $user_total === 0 ) {
+            return;
+        }
+        ?>
+        <h2 style="margin-top:32px;"><?php esc_html_e( 'Convert to production', 'talenttrack' ); ?></h2>
+        <p style="max-width:720px; color:#5b6e75;">
+            <?php esc_html_e(
+                'For each batch below, choose whether to DELETE the rows (along with their demo tags) or PROMOTE them to production (entity rows stay; only the demo tags are removed so they stop being scoped by demo mode).',
+                'talenttrack'
+            ); ?>
+        </p>
+        <p style="max-width:720px; color:#5b6e75;">
+            <strong><?php esc_html_e( 'Smart defaults:', 'talenttrack' ); ?></strong>
+            <?php esc_html_e( 'Seed batches are pre-selected to delete; user-created rows are pre-selected to promote.', 'talenttrack' ); ?>
+        </p>
+
+        <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>"
+              style="max-width:720px; margin-top:12px; padding:16px; border:1px solid #d6dadd; border-radius:6px; background:#fafafa;"
+              onsubmit="return confirm(<?php echo esc_attr( wp_json_encode( __( 'Run conversion now? Deletions cannot be undone.', 'talenttrack' ) ) ); ?>);">
+            <?php wp_nonce_field( 'tt_demo_convert', 'tt_nonce' ); ?>
+            <input type="hidden" name="action" value="tt_demo_convert" />
+
+            <h3 style="margin-top:0;"><?php esc_html_e( 'Seeded batches', 'talenttrack' ); ?></h3>
+            <?php if ( empty( $all_batches ) ) : ?>
+                <p style="color:#5b6e75;"><em><?php esc_html_e( 'No seeded batches.', 'talenttrack' ); ?></em></p>
+            <?php else : foreach ( $all_batches as $batch_id => $cnt ) : ?>
+                <div style="margin:6px 0;">
+                    <label>
+                        <input type="radio" name="<?php echo esc_attr( 'batch_' . $batch_id ); ?>" value="delete" checked />
+                        <strong><?php esc_html_e( 'Delete', 'talenttrack' ); ?></strong>
+                    </label>
+                    &nbsp;
+                    <label>
+                        <input type="radio" name="<?php echo esc_attr( 'batch_' . $batch_id ); ?>" value="promote" />
+                        <?php esc_html_e( 'Promote to production', 'talenttrack' ); ?>
+                    </label>
+                    &nbsp;
+                    <code><?php echo esc_html( (string) $batch_id ); ?></code>
+                    · <?php echo (int) $cnt; ?> <?php esc_html_e( 'rows', 'talenttrack' ); ?>
+                </div>
+            <?php endforeach; endif; ?>
+
+            <h3 style="margin-top:16px;"><?php esc_html_e( 'User-created rows', 'talenttrack' ); ?></h3>
+            <div style="margin:6px 0;">
+                <label>
+                    <input type="radio" name="batch_user-created" value="promote" checked />
+                    <strong><?php esc_html_e( 'Promote to production', 'talenttrack' ); ?></strong> <?php esc_html_e( '(recommended — these are real records)', 'talenttrack' ); ?>
+                </label>
+                <br>
+                <label style="margin-top:4px; display:inline-block;">
+                    <input type="radio" name="batch_user-created" value="delete" />
+                    <?php esc_html_e( 'Delete', 'talenttrack' ); ?> <?php esc_html_e( '(careful — these are NOT seeded data)', 'talenttrack' ); ?>
+                </label>
+                &nbsp;
+                <code>user-created</code> · <?php echo (int) $user_total; ?> <?php esc_html_e( 'rows', 'talenttrack' ); ?>
+            </div>
+
+            <p style="margin-top:16px;">
+                <button type="submit" class="button button-primary"><?php esc_html_e( 'Run conversion', 'talenttrack' ); ?></button>
+            </p>
+        </form>
+        <?php
+    }
+
+    /**
+     * Admin-post handler for the convert form. Reads per-batch
+     * radio values (delete / promote) and dispatches to the service.
+     */
+    public static function handleConvert(): void {
+        if ( ! current_user_can( self::CAP ) ) {
+            wp_die( esc_html__( 'Forbidden.', 'talenttrack' ) );
+        }
+        check_admin_referer( 'tt_demo_convert', 'tt_nonce' );
+
+        $back = admin_url( 'admin.php?page=tt-demo-review' );
+
+        $delete_batches  = [];
+        $promote_batches = [];
+        foreach ( (array) $_POST as $key => $value ) {
+            if ( strncmp( (string) $key, 'batch_', 6 ) !== 0 ) continue;
+            $batch_id = substr( (string) $key, 6 );
+            if ( $batch_id === '' ) continue;
+            $choice = sanitize_key( (string) wp_unslash( $value ) );
+            if ( $choice === 'delete' )      $delete_batches[]  = $batch_id;
+            elseif ( $choice === 'promote' ) $promote_batches[] = $batch_id;
+        }
+
+        if ( empty( $delete_batches ) && empty( $promote_batches ) ) {
+            wp_safe_redirect( add_query_arg( 'tt_convert_err', urlencode( __( 'No batches selected.', 'talenttrack' ) ), $back ) );
+            exit;
+        }
+
+        ( new DemoConversionService() )->run( $delete_batches, $promote_batches );
+        wp_safe_redirect( add_query_arg( 'tt_convert_msg', '1', $back ) );
+        exit;
     }
 
     /**

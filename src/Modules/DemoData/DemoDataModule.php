@@ -24,6 +24,8 @@ class DemoDataModule implements ModuleInterface {
     public function boot( Container $container ): void {
         if ( is_admin() ) {
             Admin\DemoDataPage::init();
+            // #1272 PR2 — wire the convert form's admin-post handler.
+            Admin\DemoReviewPage::init();
         }
         DemoBanner::init();
     }
