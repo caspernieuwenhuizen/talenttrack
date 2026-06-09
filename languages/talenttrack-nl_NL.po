@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-08T21:04:23+00:00\n"
+"POT-Creation-Date: 2026-06-09T05:02:28+00:00\n"
 "PO-Revision-Date: 2026-04-25 10:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -320,6 +320,7 @@ msgstr "Detail"
 #: src/Modules/Methodology/Admin/MethodologyPage.php:626
 #: src/Modules/Methodology/Admin/MethodologyPage.php:669
 #: src/Modules/Methodology/Admin/MethodologyPage.php:704
+#: src/Modules/Pdp/Admin/SeasonsPage.php:88
 #: src/Modules/People/Admin/PeoplePage.php:239
 #: src/Modules/Players/Admin/PlayersPage.php:184
 #: src/Modules/Players/Admin/PlayersPage.php:288
@@ -2130,7 +2131,7 @@ msgstr "Nieuw toevoegen"
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:116
 #: src/Modules/Methodology/Admin/MethodologyPage.php:769
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:375
-#: src/Modules/Pdp/Admin/SeasonsPage.php:39
+#: src/Modules/Pdp/Admin/SeasonsPage.php:54
 #: src/Modules/People/Admin/PeoplePage.php:520
 #: src/Modules/Players/Admin/PlayersPage.php:78
 #: src/Modules/Players/Frontend/FrontendPlayerStatusMethodologyView.php:46
@@ -3539,7 +3540,7 @@ msgstr "Scouts"
 
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:188
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:117
-#: src/Modules/Pdp/Admin/SeasonsPage.php:37
+#: src/Modules/Pdp/Admin/SeasonsPage.php:52
 #: src/Shared/CoreSurfaceRegistration.php:1179
 msgid "Seasons"
 msgstr "Seizoenen"
@@ -4011,8 +4012,9 @@ msgstr "Nieuw schema"
 #: src/Modules/CustomWidgets/DataSources/PlayersActive.php:34
 #: src/Modules/Development/Frontend/TracksView.php:49
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:58
-#: src/Modules/Pdp/Admin/SeasonsPage.php:49
-#: src/Modules/Pdp/Admin/SeasonsPage.php:87
+#: src/Modules/Pdp/Admin/SeasonsPage.php:64
+#: src/Modules/Pdp/Admin/SeasonsPage.php:109
+#: src/Modules/Pdp/Admin/SeasonsPage.php:150
 #: src/Modules/People/Admin/PeoplePage.php:171
 #: src/Modules/People/Admin/TeamStaffPanel.php:51
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:110
@@ -5623,6 +5625,7 @@ msgstr "Wijzigingen toepassen"
 #: src/Modules/Authorization/Admin/MatrixPage.php:925
 #: src/Modules/Development/Frontend/IdeasRefineView.php:130
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:275
+#: src/Modules/Pdp/Admin/SeasonsPage.php:164
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:310
 #: src/Modules/People/Admin/PeoplePage.php:58
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:361
@@ -6120,7 +6123,8 @@ msgid "Select person"
 msgstr "Selecteer persoon"
 
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:208
-#: src/Modules/Pdp/Admin/SeasonsPage.php:91
+#: src/Modules/Pdp/Admin/SeasonsPage.php:113
+#: src/Modules/Pdp/Admin/SeasonsPage.php:154
 #: src/Modules/People/Admin/TeamStaffPanel.php:158
 #: src/Modules/Tournaments/Wizard/BasicsStep.php:59
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:48
@@ -6131,7 +6135,8 @@ msgid "Start date"
 msgstr "Startdatum"
 
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:212
-#: src/Modules/Pdp/Admin/SeasonsPage.php:95
+#: src/Modules/Pdp/Admin/SeasonsPage.php:117
+#: src/Modules/Pdp/Admin/SeasonsPage.php:158
 #: src/Modules/People/Admin/TeamStaffPanel.php:162
 #: src/Modules/Tournaments/Wizard/BasicsStep.php:64
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:49
@@ -15673,7 +15678,7 @@ msgstr "Wedstrijdklok"
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:195
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:724
-#: src/Modules/Pdp/Admin/SeasonsPage.php:50
+#: src/Modules/Pdp/Admin/SeasonsPage.php:65
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:131
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:290
 #: src/Shared/Frontend/FrontendPeopleManageView.php:242
@@ -16395,6 +16400,7 @@ msgstr "Beschrijving (EN)"
 #: src/Modules/Methodology/Admin/PrincipleEditPage.php:173
 #: src/Modules/Methodology/Admin/SetPieceEditPage.php:121
 #: src/Modules/Methodology/Admin/VisionEditPage.php:120
+#: src/Modules/Pdp/Admin/SeasonsPage.php:163
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:320
 #: src/Shared/Frontend/CoachForms.php:94
 #: src/Shared/Frontend/FrontendConfigurationView.php:433
@@ -18113,11 +18119,11 @@ msgstr "Wizard opnieuw gestart."
 msgid "Frontend dashboard page created."
 msgstr "Frontend-dashboardpagina aangemaakt."
 
-#: src/Modules/Pdp/Admin/SeasonsPage.php:29
+#: src/Modules/Pdp/Admin/SeasonsPage.php:31
 msgid "You do not have permission to manage seasons."
 msgstr "Je hebt geen toestemming om seizoenen te beheren."
 
-#: src/Modules/Pdp/Admin/SeasonsPage.php:45
+#: src/Modules/Pdp/Admin/SeasonsPage.php:60
 msgid ""
 "Exactly one season can be marked current. PDP files are scoped to a season, "
 "and the carryover job runs whenever you change the current season."
@@ -18126,27 +18132,27 @@ msgstr ""
 "een seizoen, en de carryover-taak draait elke keer dat je het huidige "
 "seizoen wijzigt."
 
-#: src/Modules/Pdp/Admin/SeasonsPage.php:51
+#: src/Modules/Pdp/Admin/SeasonsPage.php:66
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:131
 #: src/Shared/Frontend/FrontendPeopleManageView.php:243
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:188
 msgid "End"
 msgstr "Einde"
 
-#: src/Modules/Pdp/Admin/SeasonsPage.php:52
+#: src/Modules/Pdp/Admin/SeasonsPage.php:67
 msgid "Current?"
 msgstr "Huidig?"
 
-#: src/Modules/Pdp/Admin/SeasonsPage.php:57
+#: src/Modules/Pdp/Admin/SeasonsPage.php:72
 msgid "No seasons yet — add the first below."
 msgstr "Nog geen seizoenen — voeg hieronder de eerste toe."
 
-#: src/Modules/Pdp/Admin/SeasonsPage.php:65
+#: src/Modules/Pdp/Admin/SeasonsPage.php:80
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:90
 msgid "Yes"
 msgstr "Ja"
 
-#: src/Modules/Pdp/Admin/SeasonsPage.php:72
+#: src/Modules/Pdp/Admin/SeasonsPage.php:94
 msgid ""
 "Make this the current season? Carryover will run for any open PDP file from "
 "the previous season."
@@ -18154,28 +18160,45 @@ msgstr ""
 "Dit seizoen als huidig instellen? De carryover-taak draait voor elk open POP-"
 "dossier uit het vorige seizoen."
 
-#: src/Modules/Pdp/Admin/SeasonsPage.php:72
+#: src/Modules/Pdp/Admin/SeasonsPage.php:94
 msgid "Set as current"
 msgstr "Als huidig instellen"
 
-#: src/Modules/Pdp/Admin/SeasonsPage.php:81
+#: src/Modules/Pdp/Admin/SeasonsPage.php:103
 msgid "Add a season"
 msgstr "Seizoen toevoegen"
 
-#: src/Modules/Pdp/Admin/SeasonsPage.php:88
+#: src/Modules/Pdp/Admin/SeasonsPage.php:110
 msgid "2026/2027"
 msgstr "2026/2027"
 
-#: src/Modules/Pdp/Admin/SeasonsPage.php:99
+#: src/Modules/Pdp/Admin/SeasonsPage.php:121
 msgid "Add season"
 msgstr "Seizoen toevoegen"
 
-#: src/Modules/Pdp/Admin/SeasonsPage.php:106
-#: src/Modules/Pdp/Admin/SeasonsPage.php:132
+# v4.20.57 #1275 — seasons edit subview + REST update strings.
+#: src/Modules/Pdp/Admin/SeasonsPage.php:136
+msgid "Edit season"
+msgstr "Seizoen bewerken"
+
+#: src/Modules/Pdp/Admin/SeasonsPage.php:138
+#: src/Modules/Pdp/Rest/PdpBlocksRestController.php:77
+#: src/Modules/Pdp/Rest/SeasonsRestController.php:125
+#: src/Modules/Pdp/Rest/SeasonsRestController.php:148
+msgid "Season not found."
+msgstr "Seizoen niet gevonden."
+
+#: src/Modules/Pdp/Admin/SeasonsPage.php:139
+msgid "Back to seasons"
+msgstr "Terug naar seizoenen"
+
+#: src/Modules/Pdp/Admin/SeasonsPage.php:173
+#: src/Modules/Pdp/Admin/SeasonsPage.php:205
+#: src/Modules/Pdp/Admin/SeasonsPage.php:235
 msgid "Forbidden."
 msgstr "Niet toegestaan."
 
-#: src/Modules/Pdp/Admin/SeasonsPage.php:116
+#: src/Modules/Pdp/Admin/SeasonsPage.php:183
 msgid ""
 "Invalid season data — name, start date, and end date are required, and end "
 "date must follow start date."
@@ -18183,17 +18206,27 @@ msgstr ""
 "Ongeldige seizoens­gegevens — naam, startdatum en einddatum zijn verplicht, "
 "en de einddatum moet na de startdatum liggen."
 
-#: src/Modules/Pdp/Admin/SeasonsPage.php:126
+#: src/Modules/Pdp/Admin/SeasonsPage.php:193
 msgid "Database refused the save."
 msgstr "De database wees de actie af."
 
 # #0044 — PDP cycle (Sprint 1)
-#: src/Modules/Pdp/Admin/SeasonsPage.php:139
-#: src/Modules/Pdp/Rest/SeasonsRestController.php:95
+#: src/Modules/Pdp/Admin/SeasonsPage.php:213
+#: src/Modules/Pdp/Admin/SeasonsPage.php:242
+#: src/Modules/Pdp/Rest/SeasonsRestController.php:106
+#: src/Modules/Pdp/Rest/SeasonsRestController.php:143
 msgid "Invalid season id."
 msgstr "Ongeldig seizoens-id."
 
-#: src/Modules/Pdp/Admin/SeasonsPage.php:149
+#: src/Modules/Pdp/Admin/SeasonsPage.php:227
+msgid ""
+"Could not update the season — check that name + dates are filled and end "
+"date follows start date."
+msgstr ""
+"Kon het seizoen niet bijwerken — controleer dat naam + datums ingevuld zijn "
+"en dat de einddatum na de startdatum ligt."
+
+#: src/Modules/Pdp/Admin/SeasonsPage.php:252
 msgid "Could not set current season."
 msgstr "Kon het huidige seizoen niet instellen."
 
@@ -18939,11 +18972,6 @@ msgstr "Transfer"
 msgid "season_id is required."
 msgstr ""
 
-#: src/Modules/Pdp/Rest/PdpBlocksRestController.php:77
-#: src/Modules/Pdp/Rest/SeasonsRestController.php:100
-msgid "Season not found."
-msgstr "Seizoen niet gevonden."
-
 #: src/Modules/Pdp/Rest/PdpBlocksRestController.php:83
 msgid "blocks must be an array of { sequence, start_date, end_date } entries."
 msgstr ""
@@ -19109,17 +19137,23 @@ msgstr ""
 msgid "The verdict could not be saved."
 msgstr "Het eindoordeel kon niet worden opgeslagen."
 
-#: src/Modules/Pdp/Rest/SeasonsRestController.php:72
+#: src/Modules/Pdp/Rest/SeasonsRestController.php:83
+#: src/Modules/Pdp/Rest/SeasonsRestController.php:115
 msgid "Name, start date, and end date are required."
 msgstr "Naam, startdatum en einddatum zijn verplicht."
 
-#: src/Modules/Pdp/Rest/SeasonsRestController.php:76
+#: src/Modules/Pdp/Rest/SeasonsRestController.php:87
+#: src/Modules/Pdp/Rest/SeasonsRestController.php:119
 msgid "End date must be after start date."
 msgstr "De einddatum moet na de startdatum liggen."
 
-#: src/Modules/Pdp/Rest/SeasonsRestController.php:87
+#: src/Modules/Pdp/Rest/SeasonsRestController.php:98
 msgid "The season could not be created."
 msgstr "Het seizoen kon niet worden aangemaakt."
+
+#: src/Modules/Pdp/Rest/SeasonsRestController.php:135
+msgid "The season could not be updated."
+msgstr "Het seizoen kon niet worden bijgewerkt."
 
 #: src/Modules/Pdp/Workflow/PdpConversationDueTemplate.php:29
 msgid "PDP conversation due"
@@ -35022,23 +35056,6 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
-
-# v4.20.57 #1275 — seasons edit subview + REST update strings.
-#: src/Modules/Pdp/Admin/SeasonsPage.php
-msgid "Edit season"
-msgstr "Seizoen bewerken"
-
-#: src/Modules/Pdp/Admin/SeasonsPage.php
-msgid "Back to seasons"
-msgstr "Terug naar seizoenen"
-
-#: src/Modules/Pdp/Admin/SeasonsPage.php
-msgid "Could not update the season — check that name + dates are filled and end date follows start date."
-msgstr "Kon het seizoen niet bijwerken — controleer dat naam + datums ingevuld zijn en dat de einddatum na de startdatum ligt."
-
-#: src/Modules/Pdp/Rest/SeasonsRestController.php
-msgid "The season could not be updated."
-msgstr "Het seizoen kon niet worden bijgewerkt."
 
 #~ msgid ""
 #~ "Optionally connect this activity to one or more methodology principles. "

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-08T21:04:23+00:00\n"
+"POT-Creation-Date: 2026-06-09T05:02:28+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -320,6 +320,7 @@ msgstr ""
 #: src/Modules/Methodology/Admin/MethodologyPage.php:626
 #: src/Modules/Methodology/Admin/MethodologyPage.php:669
 #: src/Modules/Methodology/Admin/MethodologyPage.php:704
+#: src/Modules/Pdp/Admin/SeasonsPage.php:88
 #: src/Modules/People/Admin/PeoplePage.php:239
 #: src/Modules/Players/Admin/PlayersPage.php:184
 #: src/Modules/Players/Admin/PlayersPage.php:288
@@ -2061,7 +2062,7 @@ msgstr "Añadir"
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:116
 #: src/Modules/Methodology/Admin/MethodologyPage.php:769
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:375
-#: src/Modules/Pdp/Admin/SeasonsPage.php:39
+#: src/Modules/Pdp/Admin/SeasonsPage.php:54
 #: src/Modules/People/Admin/PeoplePage.php:520
 #: src/Modules/Players/Admin/PlayersPage.php:78
 #: src/Modules/Players/Frontend/FrontendPlayerStatusMethodologyView.php:46
@@ -3450,7 +3451,7 @@ msgstr ""
 
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:188
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:117
-#: src/Modules/Pdp/Admin/SeasonsPage.php:37
+#: src/Modules/Pdp/Admin/SeasonsPage.php:52
 #: src/Shared/CoreSurfaceRegistration.php:1179
 msgid "Seasons"
 msgstr "Temporadas"
@@ -3912,8 +3913,9 @@ msgstr ""
 #: src/Modules/CustomWidgets/DataSources/PlayersActive.php:34
 #: src/Modules/Development/Frontend/TracksView.php:49
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:58
-#: src/Modules/Pdp/Admin/SeasonsPage.php:49
-#: src/Modules/Pdp/Admin/SeasonsPage.php:87
+#: src/Modules/Pdp/Admin/SeasonsPage.php:64
+#: src/Modules/Pdp/Admin/SeasonsPage.php:109
+#: src/Modules/Pdp/Admin/SeasonsPage.php:150
 #: src/Modules/People/Admin/PeoplePage.php:171
 #: src/Modules/People/Admin/TeamStaffPanel.php:51
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:110
@@ -5451,6 +5453,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/MatrixPage.php:925
 #: src/Modules/Development/Frontend/IdeasRefineView.php:130
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:275
+#: src/Modules/Pdp/Admin/SeasonsPage.php:164
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:310
 #: src/Modules/People/Admin/PeoplePage.php:58
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:361
@@ -5905,7 +5908,8 @@ msgid "Select person"
 msgstr ""
 
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:208
-#: src/Modules/Pdp/Admin/SeasonsPage.php:91
+#: src/Modules/Pdp/Admin/SeasonsPage.php:113
+#: src/Modules/Pdp/Admin/SeasonsPage.php:154
 #: src/Modules/People/Admin/TeamStaffPanel.php:158
 #: src/Modules/Tournaments/Wizard/BasicsStep.php:59
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:48
@@ -5916,7 +5920,8 @@ msgid "Start date"
 msgstr ""
 
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:212
-#: src/Modules/Pdp/Admin/SeasonsPage.php:95
+#: src/Modules/Pdp/Admin/SeasonsPage.php:117
+#: src/Modules/Pdp/Admin/SeasonsPage.php:158
 #: src/Modules/People/Admin/TeamStaffPanel.php:162
 #: src/Modules/Tournaments/Wizard/BasicsStep.php:64
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:49
@@ -14790,7 +14795,7 @@ msgstr ""
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:195
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:724
-#: src/Modules/Pdp/Admin/SeasonsPage.php:50
+#: src/Modules/Pdp/Admin/SeasonsPage.php:65
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:131
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:290
 #: src/Shared/Frontend/FrontendPeopleManageView.php:242
@@ -15504,6 +15509,7 @@ msgstr ""
 #: src/Modules/Methodology/Admin/PrincipleEditPage.php:173
 #: src/Modules/Methodology/Admin/SetPieceEditPage.php:121
 #: src/Modules/Methodology/Admin/VisionEditPage.php:120
+#: src/Modules/Pdp/Admin/SeasonsPage.php:163
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:320
 #: src/Shared/Frontend/CoachForms.php:94
 #: src/Shared/Frontend/FrontendConfigurationView.php:433
@@ -17133,80 +17139,104 @@ msgstr ""
 msgid "Frontend dashboard page created."
 msgstr ""
 
-#: src/Modules/Pdp/Admin/SeasonsPage.php:29
+#: src/Modules/Pdp/Admin/SeasonsPage.php:31
 msgid "You do not have permission to manage seasons."
 msgstr ""
 
-#: src/Modules/Pdp/Admin/SeasonsPage.php:45
+#: src/Modules/Pdp/Admin/SeasonsPage.php:60
 msgid ""
 "Exactly one season can be marked current. PDP files are scoped to a season, "
 "and the carryover job runs whenever you change the current season."
 msgstr ""
 
-#: src/Modules/Pdp/Admin/SeasonsPage.php:51
+#: src/Modules/Pdp/Admin/SeasonsPage.php:66
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:131
 #: src/Shared/Frontend/FrontendPeopleManageView.php:243
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:188
 msgid "End"
 msgstr "Fin"
 
-#: src/Modules/Pdp/Admin/SeasonsPage.php:52
+#: src/Modules/Pdp/Admin/SeasonsPage.php:67
 msgid "Current?"
 msgstr ""
 
-#: src/Modules/Pdp/Admin/SeasonsPage.php:57
+#: src/Modules/Pdp/Admin/SeasonsPage.php:72
 msgid "No seasons yet — add the first below."
 msgstr ""
 
-#: src/Modules/Pdp/Admin/SeasonsPage.php:65
+#: src/Modules/Pdp/Admin/SeasonsPage.php:80
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:90
 msgid "Yes"
 msgstr "Sí"
 
-#: src/Modules/Pdp/Admin/SeasonsPage.php:72
+#: src/Modules/Pdp/Admin/SeasonsPage.php:94
 msgid ""
 "Make this the current season? Carryover will run for any open PDP file from "
 "the previous season."
 msgstr ""
 
-#: src/Modules/Pdp/Admin/SeasonsPage.php:72
+#: src/Modules/Pdp/Admin/SeasonsPage.php:94
 msgid "Set as current"
 msgstr ""
 
-#: src/Modules/Pdp/Admin/SeasonsPage.php:81
+#: src/Modules/Pdp/Admin/SeasonsPage.php:103
 msgid "Add a season"
 msgstr ""
 
-#: src/Modules/Pdp/Admin/SeasonsPage.php:88
+#: src/Modules/Pdp/Admin/SeasonsPage.php:110
 msgid "2026/2027"
 msgstr ""
 
-#: src/Modules/Pdp/Admin/SeasonsPage.php:99
+#: src/Modules/Pdp/Admin/SeasonsPage.php:121
 msgid "Add season"
 msgstr ""
 
-#: src/Modules/Pdp/Admin/SeasonsPage.php:106
-#: src/Modules/Pdp/Admin/SeasonsPage.php:132
+#: src/Modules/Pdp/Admin/SeasonsPage.php:136
+msgid "Edit season"
+msgstr ""
+
+#: src/Modules/Pdp/Admin/SeasonsPage.php:138
+#: src/Modules/Pdp/Rest/PdpBlocksRestController.php:77
+#: src/Modules/Pdp/Rest/SeasonsRestController.php:125
+#: src/Modules/Pdp/Rest/SeasonsRestController.php:148
+msgid "Season not found."
+msgstr ""
+
+#: src/Modules/Pdp/Admin/SeasonsPage.php:139
+msgid "Back to seasons"
+msgstr ""
+
+#: src/Modules/Pdp/Admin/SeasonsPage.php:173
+#: src/Modules/Pdp/Admin/SeasonsPage.php:205
+#: src/Modules/Pdp/Admin/SeasonsPage.php:235
 msgid "Forbidden."
 msgstr ""
 
-#: src/Modules/Pdp/Admin/SeasonsPage.php:116
+#: src/Modules/Pdp/Admin/SeasonsPage.php:183
 msgid ""
 "Invalid season data — name, start date, and end date are required, and end "
 "date must follow start date."
 msgstr ""
 
-#: src/Modules/Pdp/Admin/SeasonsPage.php:126
+#: src/Modules/Pdp/Admin/SeasonsPage.php:193
 msgid "Database refused the save."
 msgstr ""
 
 # #0044 — PDP cycle (Sprint 1)
-#: src/Modules/Pdp/Admin/SeasonsPage.php:139
-#: src/Modules/Pdp/Rest/SeasonsRestController.php:95
+#: src/Modules/Pdp/Admin/SeasonsPage.php:213
+#: src/Modules/Pdp/Admin/SeasonsPage.php:242
+#: src/Modules/Pdp/Rest/SeasonsRestController.php:106
+#: src/Modules/Pdp/Rest/SeasonsRestController.php:143
 msgid "Invalid season id."
 msgstr ""
 
-#: src/Modules/Pdp/Admin/SeasonsPage.php:149
+#: src/Modules/Pdp/Admin/SeasonsPage.php:227
+msgid ""
+"Could not update the season — check that name + dates are filled and end "
+"date follows start date."
+msgstr ""
+
+#: src/Modules/Pdp/Admin/SeasonsPage.php:252
 msgid "Could not set current season."
 msgstr ""
 
@@ -17936,11 +17966,6 @@ msgstr ""
 msgid "season_id is required."
 msgstr ""
 
-#: src/Modules/Pdp/Rest/PdpBlocksRestController.php:77
-#: src/Modules/Pdp/Rest/SeasonsRestController.php:100
-msgid "Season not found."
-msgstr ""
-
 #: src/Modules/Pdp/Rest/PdpBlocksRestController.php:83
 msgid "blocks must be an array of { sequence, start_date, end_date } entries."
 msgstr ""
@@ -18097,16 +18122,22 @@ msgstr ""
 msgid "The verdict could not be saved."
 msgstr ""
 
-#: src/Modules/Pdp/Rest/SeasonsRestController.php:72
+#: src/Modules/Pdp/Rest/SeasonsRestController.php:83
+#: src/Modules/Pdp/Rest/SeasonsRestController.php:115
 msgid "Name, start date, and end date are required."
 msgstr ""
 
-#: src/Modules/Pdp/Rest/SeasonsRestController.php:76
+#: src/Modules/Pdp/Rest/SeasonsRestController.php:87
+#: src/Modules/Pdp/Rest/SeasonsRestController.php:119
 msgid "End date must be after start date."
 msgstr ""
 
-#: src/Modules/Pdp/Rest/SeasonsRestController.php:87
+#: src/Modules/Pdp/Rest/SeasonsRestController.php:98
 msgid "The season could not be created."
+msgstr ""
+
+#: src/Modules/Pdp/Rest/SeasonsRestController.php:135
+msgid "The season could not be updated."
 msgstr ""
 
 #: src/Modules/Pdp/Workflow/PdpConversationDueTemplate.php:29
