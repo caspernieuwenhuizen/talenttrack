@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: TalentTrack 4.20.58\n"
+"Project-Id-Version: TalentTrack 4.20.59\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-09T05:02:28+00:00\n"
+"POT-Creation-Date: 2026-06-09T05:07:51+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -2363,7 +2363,7 @@ msgstr ""
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:93
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:128
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:157
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:166
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:169
 #: src/Modules/Players/Admin/PlayersPage.php:126
 #: src/Modules/Players/Admin/PlayersPage.php:373
 #: src/Modules/Players/Admin/PlayersPage.php:441
@@ -3061,10 +3061,11 @@ msgstr ""
 #: src/Modules/Authorization/Admin/MatrixPage.php:558
 #: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:41
 #: src/Modules/Export/Exporters/AttendanceRegisterCsvExporter.php:118
+#: src/Modules/Export/Exporters/TeamPlannerXlsxExporter.php:314
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:298
 #: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:128
 #: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:60
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:336
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:339
 #: src/Modules/Wizards/Evaluation/ActivityPickerStep.php:33
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:117
 #: src/Shared/Frontend/PlayerDashboardView.php:169
@@ -3593,7 +3594,7 @@ msgid "Export CSV"
 msgstr ""
 
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:145
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:121
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:124
 msgid "Export PDF"
 msgstr ""
 
@@ -5768,7 +5769,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/RolesPage.php:254
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:443
 #: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:271
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:294
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:297
 #: src/Shared/Frontend/Components/FrontendListTable.php:120
 #: src/Shared/Frontend/FrontendStandardReportsView.php:605
 #: src/Shared/Frontend/FrontendStandardReportsView.php:614
@@ -7716,7 +7717,7 @@ msgstr ""
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:774
 #: src/Modules/Goals/Admin/GoalsPage.php:207
 #: src/Modules/Methodology/Admin/MediaPicker.php:44
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:291
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:294
 #: src/Shared/Frontend/Components/GuestAddModal.php:115
 #: src/Shared/Frontend/FrontendTeamsManageView.php:260
 msgid "Add"
@@ -12214,6 +12215,52 @@ msgstr ""
 msgid "TalentTrack activities"
 msgstr ""
 
+#: src/Modules/Export/Exporters/TeamPlannerXlsxExporter.php:50
+msgid "Team planner (week-by-week)"
+msgstr ""
+
+#: src/Modules/Export/Exporters/TeamPlannerXlsxExporter.php:58
+msgid "Planner grid"
+msgstr ""
+
+#: src/Modules/Export/Exporters/TeamPlannerXlsxExporter.php:59
+msgid "Principles trained (last 8 weeks)"
+msgstr ""
+
+#. translators: 1: team name, 2: date_from, 3: date_to
+#: src/Modules/Export/Exporters/TeamPlannerXlsxExporter.php:128
+#, php-format
+msgid "Planner — %1$s — %2$s to %3$s"
+msgstr ""
+
+#. translators: 1: start of week, 2: end of week
+#. translators: 1: first day of the week, 2: last day.
+#: src/Modules/Export/Exporters/TeamPlannerXlsxExporter.php:152
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:264
+#, php-format
+msgid "Week of %1$s — %2$s"
+msgstr ""
+
+#: src/Modules/Export/Exporters/TeamPlannerXlsxExporter.php:219
+msgid "Planner"
+msgstr ""
+
+#: src/Modules/Export/Exporters/TeamPlannerXlsxExporter.php:228
+msgid "Principles 8w"
+msgstr ""
+
+#: src/Modules/Export/Exporters/TeamPlannerXlsxExporter.php:293
+msgid "Principle code"
+msgstr ""
+
+#: src/Modules/Export/Exporters/TeamPlannerXlsxExporter.php:294
+msgid "Hit count"
+msgstr ""
+
+#: src/Modules/Export/Exporters/TeamPlannerXlsxExporter.php:300
+msgid "No principles trained in the last 8 weeks."
+msgstr ""
+
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:76
 msgid "Team planning (PDF)"
 msgstr ""
@@ -16227,7 +16274,7 @@ msgstr ""
 #. translators: %s = season name
 #. translators: %s: season name (e.g. "2025/2026").
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:48
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:201
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:204
 #, php-format
 msgid "Season: %s"
 msgstr ""
@@ -17850,7 +17897,7 @@ msgstr ""
 #: src/Modules/PersonaDashboard/Repositories/UpcomingActivityRepository.php:93
 #: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:274
 #: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:136
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:193
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:196
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:988
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:992
 msgid "Today"
@@ -18725,45 +18772,39 @@ msgstr ""
 msgid "No teams available — assign yourself to a team first to use the planner."
 msgstr ""
 
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:134
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:137
 msgid "Export XLSX"
 msgstr ""
 
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:152
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:155
 msgid "One week"
 msgstr ""
 
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:153
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:156
 msgid "Two weeks"
 msgstr ""
 
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:154
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:157
 msgid "Four weeks"
 msgstr ""
 
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:155
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:158
 msgid "Eight weeks"
 msgstr ""
 
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:156
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:159
 msgid "Full season"
 msgstr ""
 
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:180
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:183
 msgid "Show"
 msgstr ""
 
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:215
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:218
 msgid "Schedule activity"
 msgstr ""
 
-#. translators: 1: first day of the week, 2: last day.
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:261
-#, php-format
-msgid "Week of %1$s — %2$s"
-msgstr ""
-
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:410
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:413
 msgid "Principles trained — last 8 weeks"
 msgstr ""
 
@@ -18771,7 +18812,7 @@ msgstr ""
 #. translators: %d: count of past activities
 #. translators: %d: count of activities today
 #. translators: %d: count of activities
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:419
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:422
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:713
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:747
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:760
@@ -18784,25 +18825,25 @@ msgid_plural "%d activities"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:523
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:526
 msgid "Previous week"
 msgstr ""
 
 #. translators: %d: number of weeks.
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:526
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:529
 #, php-format
 msgid "Previous %d week"
 msgid_plural "Previous %d weeks"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:532
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:535
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:769
 msgid "Next week"
 msgstr ""
 
 #. translators: %d: number of weeks.
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:535
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:538
 #, php-format
 msgid "Next %d week"
 msgid_plural "Next %d weeks"
