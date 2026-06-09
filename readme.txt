@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.60
+Stable tag: 4.20.61
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.61 — Demo→production conversion: destructive convert form on the review page (refs #1272 PR2). Builds on v4.20.60's read-only review. New `DemoConversionService::run( $delete_batches, $promote_batches )` orchestrates per-batch operations: **delete** routes through the existing `DemoDataCleaner::wipeData( null, $batch_id )` (entity rows + their `tt_demo_tags` rows in dependency-cascade order); **promote** runs `DELETE FROM tt_demo_tags WHERE batch_id = X` (entity rows stay; only the demo tags are removed so they stop being scoped by demo-mode queries). `DemoReviewPage` grows a Convert section below the inventory: one radio pair per batch (delete / promote) with smart defaults — seeded batches default to delete, `user-created` defaults to promote. Submit goes through `admin-post.php` (`tt_demo_convert`) with nonce + cap check; on success the result-flash banner shows on reload. Audit-log entry `demo.conversion.run` emitted with the per-batch summary (counts deleted per entity type + counts promoted per batch). **Scope vs. the issue body.** The shaping comment proposed a 4-step wizard with per-record toggles; this PR ships the per-batch toggle (smart-default-driven from the `batch_id` column) which delivers ~95% of the value with much less UI surface. A per-record exception flow can be a follow-up if the pilot needs it. The conversion-mode lock-out flag (PR3) follows next. (refs #1272) =
 
 = 4.20.60 — Demo data review admin page (refs #1272 PR1 of 3). Read-only inventory under TalentTrack → Demo data review (`?page=tt-demo-review`). Per-entity breakdown of demo-tagged rows split by `batch_id` provenance — user-created (recommended keep) vs seeded batches (recommended delete). Zero mutation. Pilot uses this to confirm the inventory matches expectation before the destructive conversion wizard (PR2) and the lock-out flag (PR3) ship. **Cap.** `tt_edit_settings` (academy admin) — narrower than the existing Demo data page's `manage_options` so academy_admin without WP-superadmin can inspect without seeing the generate/wipe controls. **Output.** Six rows (team / player / person / activity / evaluation / goal) × five columns (total / user-created / seeded / per-batch breakdown). Totals row at the bottom. Empty-state when zero demo-tagged rows. Refs #1272. (refs #1272) =
 
