@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-09T05:27:38+00:00\n"
+"POT-Creation-Date: 2026-06-09T05:38:12+00:00\n"
 "PO-Revision-Date: 2026-04-25 10:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -13789,9 +13789,10 @@ msgstr "POP / ontwikkelplan (PDF)"
 
 #: src/Modules/Export/Exporters/PdpPdfExporter.php:69
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:44
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:372
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:396
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:474
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:387
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:411
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:489
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:522
 #: src/Modules/Pdp/Rest/PdpVerdictsRestController.php:56
 #: src/Modules/Pdp/Rest/PdpVerdictsRestController.php:85
 #: src/Modules/Pdp/Rest/PdpVerdictsRestController.php:102
@@ -13801,7 +13802,7 @@ msgstr "POP-dossier niet gevonden."
 #: src/Modules/Export/Exporters/PdpPdfExporter.php:80
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:70
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:47
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:376
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:391
 msgid "You do not have access to this PDP file."
 msgstr "Je hebt geen toegang tot dit POP-dossier."
 
@@ -18595,12 +18596,12 @@ msgid "Cycle"
 msgstr "Cyclus"
 
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:151
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:252
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:267
 msgid "Parent confirmation"
 msgstr "Ouder-bevestiging"
 
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:152
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:253
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:268
 msgid "Player confirmation"
 msgstr "Speler-bevestiging"
 
@@ -19226,33 +19227,33 @@ msgid "The conversation could not be updated."
 msgstr "Het gesprek kon niet worden bijgewerkt."
 
 #. translators: %s = parent / player
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:284
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:299
 #, php-format
 msgid "%s received"
 msgstr "%s ontvangen"
 
 #. translators: %s = parent / player
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:285
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:300
 #, php-format
 msgid "%s not yet received"
 msgstr "%s nog niet ontvangen"
 
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:301
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:316
 #: src/Modules/Wizards/Goal/DetailsStep.php:44
 msgid "Player is required."
 msgstr "Speler is verplicht."
 
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:309
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:324
 msgid "No current season is set. Configure a season before creating PDP files."
 msgstr ""
 "Er is geen huidig seizoen ingesteld. Stel eerst een seizoen in voordat je "
 "POP-dossiers aanmaakt."
 
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:318
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:333
 msgid "You can only create PDP files for players on your own teams."
 msgstr "Je kunt alleen POP-dossiers aanmaken voor spelers in je eigen teams."
 
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:335
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:350
 msgid ""
 "A PDP file already exists for this player and season, or the database "
 "refused the write."
@@ -19260,42 +19261,49 @@ msgstr ""
 "Er bestaat al een POP-dossier voor deze speler en dit seizoen, of de "
 "database wees de actie af."
 
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:367
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:391
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:437
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:468
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:382
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:406
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:452
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:483
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:514
 #: src/Modules/Pdp/Rest/PdpVerdictsRestController.php:52
 #: src/Modules/Pdp/Rest/PdpVerdictsRestController.php:81
 #: src/Modules/Pdp/Rest/PdpVerdictsRestController.php:98
 msgid "Invalid PDP file id."
 msgstr "Ongeldig POP-dossier-id."
 
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:400
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:415
 msgid "You do not have permission to edit this PDP file."
 msgstr "Je hebt geen toestemming om dit POP-dossier te bewerken."
 
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:409
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:424
 msgid "Owner update failed."
 msgstr "Bijwerken van eigenaar is mislukt."
 
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:417
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:432
 msgid "Invalid status. Use open, completed, or archived."
 msgstr "Ongeldige status. Gebruik open, afgerond of gearchiveerd."
 
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:442
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:457
 msgid "PDP file not found or already archived."
 msgstr ""
 
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:446
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:461
 msgid "You do not have permission to archive this PDP file."
 msgstr ""
 
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:450
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:465
 msgid "Could not archive the PDP file."
 msgstr ""
 
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:478
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:493
 msgid "Could not restore the PDP file."
+msgstr ""
+
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:528
+msgid ""
+"Could not permanently delete the PDP file. The transaction was rolled back; "
+"nothing changed."
 msgstr ""
 
 #: src/Modules/Pdp/Rest/PdpVerdictsRestController.php:59
