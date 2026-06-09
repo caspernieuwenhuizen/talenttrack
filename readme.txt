@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.58
+Stable tag: 4.20.59
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.59 — Team planner Export XLSX produces a week-by-week styled grid mirroring the online view (closes #1269). Follow-up to v4.20.58's XlsxRenderer extension. **What changed.** New `TeamPlannerXlsxExporter` (key `team_planner`, xlsx-only) returns the `styled_sheets` payload shape. The team-planner page's Export XLSX button at [FrontendTeamPlannerView.php:127](src/Modules/Planning/Frontend/FrontendTeamPlannerView.php#L127) now targets `team_planner` instead of the flat `team_activities` exporter (the legacy CSV+xlsx flat exporter stays registered for direct REST callers who want raw rows). **Output shape.** Two sheets: (1) **Planner** — A–G = Monday → Sunday, per-week trio (merged week-header / day-of-week + date header / merged day-cell with stacked activity cards). Each card line = title bold / start–end time / location / principle codes (≤ 4 + overflow) / type. Status drives the cell fill (completed = green, in_progress = amber, postponed = red). Today's cell + day-of-week header gets a teal border. Cancelled activities excluded (matches the online view). Sort: `session_date ASC, start_time ASC NULLS LAST, id ASC`. (2) **Principles 8w** — two-column hits table over the same 8-week / `activity_status_key = 'completed'` filter the online view uses. **Date range snap.** `date_from` snaps to the Monday on/before so the grid columns always start at Monday. Defaults: `date_from = -1 month` (snapped), `date_to = date_from + 6 weeks`. **Cap-gated** on `tt_view_activities`. **Closes #1269.** (closes #1269) =
 
 = 4.20.58 — XlsxRenderer: new `styled_sheets` payload shape for richer Excel output (refs #1269). Framework extension lands first as its own ship; the team-planner-grid exporter that consumes it ships in the follow-up PR that closes the issue. **What changed.** [XlsxRenderer::render()](src/Modules/Export/Format/Renderers/XlsxRenderer.php) now branches on `isStyledPayload()` — payloads declaring `'styled_sheets' => [ ... ]` walk a new code path that handles per-cell named styles, merged ranges, and column widths. Legacy payloads (flat-table single-sheet, multi-sheet `'sheets' =>` map) keep their existing render path untouched — every existing exporter is unaffected. **Payload shape.** Each styled sheet declares `rows` (each cell is either a scalar or `[ 'v' => value, 'style' => 'style-key' ]`), `merges` (A1-style range strings), `col_widths` (column letter → character-unit width), and `styles` (name-keyed map; supports `font.{bold,size,color}`, `fill.color`, `borders.all.{style,color}`, `alignment.{horizontal,vertical,wrap}`). Style spec mirrors PhpSpreadsheet's `Style::applyFromArray` shape one-to-one but the renderer translates so callers don't import the lib directly. **Performance.** Each style key resolves to its PhpSpreadsheet array exactly once per sheet via a pre-resolved cache — applying the same style to 200 cells doesn't re-allocate 200x. Patch bump. (refs #1269) =
 

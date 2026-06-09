@@ -97,8 +97,11 @@ class FrontendTeamPlannerView extends FrontendViewBase {
      * targets on phones.
      *
      * PDF → `team_planning` exporter (new in this ship).
-     * XLSX → `team_activities` exporter (existing CSV exporter that
-     * already supports `xlsx` format).
+     * XLSX → `team_planner` exporter (#1269 / v4.20.59) — week-by-week
+     * styled grid mirroring the online view. Switched from the
+     * legacy `team_activities` flat exporter (which still exists for
+     * direct REST callers who want raw rows). The new exporter uses
+     * the `styled_sheets` payload shape shipped in v4.20.58.
      */
     private static function renderExportActions( int $team_id, string $date_from, string $date_to ): string {
         if ( $team_id <= 0 ) return '';
@@ -124,7 +127,7 @@ class FrontendTeamPlannerView extends FrontendViewBase {
             <form method="POST" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="tt-export-form" style="margin:0;">
                 <?php wp_nonce_field( 'tt_export', '_tt_export_nonce' ); ?>
                 <input type="hidden" name="action"               value="tt_export">
-                <input type="hidden" name="tt_export_key"        value="team_activities">
+                <input type="hidden" name="tt_export_key"        value="team_planner">
                 <input type="hidden" name="format"               value="xlsx">
                 <input type="hidden" name="team_id"              value="<?php echo (int) $team_id; ?>">
                 <input type="hidden" name="date_from"            value="<?php echo esc_attr( $date_from ); ?>">
