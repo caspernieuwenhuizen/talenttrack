@@ -55,6 +55,11 @@ class PdpModule implements ModuleInterface {
         SeasonCarryover::init();
         PdpPrintRouter::init();
 
+        // #1294 — wp-admin double-confirm hard-delete handler. Hooks
+        // `admin_post_tt_pdp_permanent_delete`; the matching surface
+        // lives in `FrontendPdpManageView::renderPermanentDeleteForm`.
+        PdpHardDeleteAdminPost::init();
+
         // Register workflow templates. Same priority as WorkflowModule's
         // registerShippedTemplates so dispatchers (priority 20) see them.
         add_action( 'init', [ self::class, 'registerWorkflowTemplates' ], 5 );

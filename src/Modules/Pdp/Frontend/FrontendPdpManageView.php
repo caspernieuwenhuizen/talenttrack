@@ -73,6 +73,24 @@ class FrontendPdpManageView extends FrontendViewBase {
                 __( 'New PDP file', 'talenttrack' ),
                 [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'pdp', $pdp_label ) ]
             );
+        } elseif ( $action === 'permanent-delete' && $file_id > 0 ) {
+            // #1294 — destructive subview gets its own breadcrumb label
+            // so the chain reads "PDP → PDP file detail → Permanently
+            // delete PDP". The intermediate crumb is the back affordance
+            // to the file detail per CLAUDE.md § 5.
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
+                __( 'Permanently delete PDP', 'talenttrack' ),
+                [
+                    \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'pdp', $pdp_label ),
+                    [
+                        'label' => __( 'PDP file detail', 'talenttrack' ),
+                        'url'   => add_query_arg(
+                            [ 'tt_view' => 'pdp', 'id' => $file_id ],
+                            \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+                        ),
+                    ],
+                ]
+            );
         } elseif ( $file_id > 0 ) {
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
                 __( 'PDP file detail', 'talenttrack' ),
@@ -82,13 +100,29 @@ class FrontendPdpManageView extends FrontendViewBase {
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $pdp_label );
         }
 
+        // #1294 — flash notices surfaced by the admin-post handler land
+        // on the manage list (`deleted`) or the confirm form
+        // (`name_mismatch`, `csv_failed`, `cascade_failed`). The form
+        // renderer reads its own notice; here we surface the success /
+        // not-found notice on the list view.
+        if ( $action === '' && $file_id === 0 ) {
+            self::renderPermanentDeleteFlashNotices();
+        }
+
         if ( $action === 'new' ) {
             self::renderCreateForm( $user_id, $is_admin );
             return;
         }
 
         if ( $file_id > 0 ) {
-            $file = ( new PdpFilesRepository() )->find( $file_id );
+            // #1294 — the permanent-delete confirm surface needs to
+            // resolve archived files too (the common path is "archive
+            // first, then permanently delete later"). Other actions
+            // keep the historical default (hide archived) so the
+            // existing detail / conversation / verdict flows still
+            // honour the soft-archive contract.
+            $include_archived = ( $action === 'permanent-delete' );
+            $file = ( new PdpFilesRepository() )->find( $file_id, $include_archived );
             if ( ! $file ) {
                 self::renderHeader( __( 'PDP file not found', 'talenttrack' ) );
                 echo '<p class="tt-notice">' . esc_html__( 'That PDP file no longer exists.', 'talenttrack' ) . '</p>';
@@ -97,6 +131,21 @@ class FrontendPdpManageView extends FrontendViewBase {
             if ( ! self::canSeeFile( $file, $user_id, $is_admin ) ) {
                 self::renderHeader( __( 'Access denied', 'talenttrack' ) );
                 echo '<p class="tt-notice">' . esc_html__( 'You do not have access to this PDP file.', 'talenttrack' ) . '</p>';
+                return;
+            }
+
+            // #1294 — destructive confirm surface. Cap-gated on
+            // `tt_delete_pdp` (admin-only by seed). Falls through to
+            // `canSeeFile` above for the view-only ladder; the cap
+            // re-check here is what prevents a coach who can SEE the
+            // file from triggering the surface.
+            if ( $action === 'permanent-delete' ) {
+                if ( ! current_user_can( 'tt_delete_pdp' ) ) {
+                    self::renderHeader( __( 'Access denied', 'talenttrack' ) );
+                    echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to permanently delete PDP files.', 'talenttrack' ) . '</p>';
+                    return;
+                }
+                self::renderPermanentDeleteForm( $file );
                 return;
             }
 
@@ -113,6 +162,231 @@ class FrontendPdpManageView extends FrontendViewBase {
         }
 
         self::renderList( $user_id, $is_admin );
+    }
+
+    /**
+     * #1294 — flash notices set by `PdpHardDeleteAdminPost` after a
+     * successful or failed hard-delete redirect. Rendered above the
+     * list table so the operator sees confirmation immediately.
+     */
+    private static function renderPermanentDeleteFlashNotices(): void {
+        $code = isset( $_GET['tt_notice'] ) ? sanitize_key( (string) $_GET['tt_notice'] ) : '';
+        if ( $code === '' ) return;
+        $csv  = isset( $_GET['csv'] ) ? (string) wp_unslash( $_GET['csv'] ) : '';
+        switch ( $code ) {
+            case 'deleted':
+                echo '<div class="tt-notice tt-notice-success" style="padding:12px 14px; border-radius:6px; background:#ecfdf5; border:1px solid #a7f3d0; margin-bottom:16px;">';
+                echo '<p style="margin:0;">' . esc_html__( 'PDP file permanently deleted.', 'talenttrack' ) . '</p>';
+                if ( $csv !== '' ) {
+                    echo '<p style="margin:6px 0 0; font-size:13px; color:#065f46;">' . esc_html( sprintf(
+                        /* translators: %s = absolute CSV file path */
+                        __( 'Pre-delete CSV saved to %s', 'talenttrack' ),
+                        $csv
+                    ) ) . '</p>';
+                }
+                echo '</div>';
+                break;
+            case 'not_found':
+                echo '<div class="tt-notice" style="padding:12px 14px; border-radius:6px; background:#fef2f2; border:1px solid #fecaca; margin-bottom:16px;">';
+                echo '<p style="margin:0;">' . esc_html__( 'That PDP file no longer exists.', 'talenttrack' ) . '</p>';
+                echo '</div>';
+                break;
+        }
+    }
+
+    /**
+     * #1294 — destructive double-confirm surface. Renders the cascade
+     * summary, then a typed-name confirm form. The submit button stays
+     * disabled until the operator types the player's display name
+     * verbatim.
+     *
+     * Cancel target per CLAUDE.md § 6 — back to the PDP file detail
+     * (or whatever `tt_back` captured on the way in).
+     */
+    private static function renderPermanentDeleteForm( object $file ): void {
+        $file_id = (int) $file->id;
+        $player  = \TT\Infrastructure\Query\QueryHelpers::get_player( (int) $file->player_id );
+        $player_name = $player ? \TT\Infrastructure\Query\QueryHelpers::player_display_name( $player ) : '';
+        $season  = ( new SeasonsRepository() )->find( (int) $file->season_id );
+        $season_name = $season ? (string) $season->name : '';
+
+        $summary = \TT\Modules\Pdp\PdpHardDeleteAdminPost::cascadeSummary( $file_id );
+
+        $title = $player_name !== ''
+            ? sprintf(
+                /* translators: %s = player display name */
+                __( 'Permanently delete PDP — %s', 'talenttrack' ),
+                $player_name
+            )
+            : __( 'Permanently delete PDP', 'talenttrack' );
+        self::renderHeader( $title );
+
+        // Flash notice from a failed previous attempt (typed-name
+        // mismatch / CSV failure / cascade failure).
+        $notice = isset( $_GET['tt_notice'] ) ? sanitize_key( (string) $_GET['tt_notice'] ) : '';
+        if ( $notice === 'name_mismatch' ) {
+            echo '<div class="tt-notice" style="padding:12px 14px; border-radius:6px; background:#fef2f2; border:1px solid #fecaca; margin-bottom:16px;">';
+            echo '<p style="margin:0;">' . esc_html__( 'The name you typed did not match the player. Try again.', 'talenttrack' ) . '</p>';
+            echo '</div>';
+        } elseif ( $notice === 'csv_failed' ) {
+            echo '<div class="tt-notice" style="padding:12px 14px; border-radius:6px; background:#fef2f2; border:1px solid #fecaca; margin-bottom:16px;">';
+            echo '<p style="margin:0;">' . esc_html__( 'Pre-delete CSV export failed. Nothing was deleted.', 'talenttrack' ) . '</p>';
+            echo '</div>';
+        } elseif ( $notice === 'cascade_failed' ) {
+            echo '<div class="tt-notice" style="padding:12px 14px; border-radius:6px; background:#fef2f2; border:1px solid #fecaca; margin-bottom:16px;">';
+            echo '<p style="margin:0;">' . esc_html__( 'The cascade delete failed. The transaction was rolled back; nothing changed.', 'talenttrack' ) . '</p>';
+            echo '</div>';
+        }
+
+        // Warning banner.
+        echo '<div class="tt-notice" style="padding:14px 16px; border-radius:8px; background:#fff7ed; border:1px solid #fdba74; margin-bottom:20px;">';
+        echo '<p style="margin:0; font-weight:600; color:#9a3412;">' . esc_html__( 'This action is irreversible.', 'talenttrack' ) . '</p>';
+        echo '<p style="margin:8px 0 0; color:#7c2d12;">' . esc_html__( 'Every conversation, verdict, calendar link, and goal-link row tied to this PDP file will be permanently removed from the database. A pre-delete CSV snapshot will be written to wp-content/uploads/tt-pdp-deletes/ before the cascade runs.', 'talenttrack' ) . '</p>';
+        echo '</div>';
+
+        // Cascade summary card.
+        echo '<div class="tt-card" style="background:#fff; border:1px solid #e5e7ea; border-radius:8px; padding:16px; margin-bottom:20px;">';
+        echo '<h2 style="font-size:16px; margin:0 0 12px;">' . esc_html__( 'Cascade summary', 'talenttrack' ) . '</h2>';
+        echo '<ul style="margin:0; padding-left:20px; line-height:1.7;">';
+        if ( $player_name !== '' ) {
+            echo '<li>' . esc_html( sprintf( /* translators: %s = player name */ __( 'Player: %s', 'talenttrack' ), $player_name ) ) . '</li>';
+        }
+        if ( $season_name !== '' ) {
+            echo '<li>' . esc_html( sprintf( /* translators: %s = season name */ __( 'Season: %s', 'talenttrack' ), $season_name ) ) . '</li>';
+        }
+        echo '<li>' . esc_html( sprintf(
+            /* translators: %d = count */
+            _n( '%d conversation will be removed', '%d conversations will be removed', $summary['conversations'], 'talenttrack' ),
+            $summary['conversations']
+        ) ) . '</li>';
+        echo '<li>' . esc_html( sprintf(
+            /* translators: %d = count */
+            _n( '%d verdict will be removed', '%d verdicts will be removed', $summary['verdict'], 'talenttrack' ),
+            $summary['verdict']
+        ) ) . '</li>';
+        echo '<li>' . esc_html( sprintf(
+            /* translators: %d = count */
+            _n( '%d calendar link will be removed', '%d calendar links will be removed', $summary['calendar_links'], 'talenttrack' ),
+            $summary['calendar_links']
+        ) ) . '</li>';
+        echo '<li>' . esc_html( sprintf(
+            /* translators: %d = count */
+            _n( '%d PDP block will be removed', '%d PDP blocks will be removed', $summary['blocks'], 'talenttrack' ),
+            $summary['blocks']
+        ) ) . '</li>';
+        echo '<li>' . esc_html( sprintf(
+            /* translators: %d = count */
+            _n( '%d goal link will be removed', '%d goal links will be removed', $summary['goal_links'], 'talenttrack' ),
+            $summary['goal_links']
+        ) ) . '</li>';
+        echo '<li style="margin-top:8px; border-top:1px solid #e5e7ea; padding-top:8px;"><strong>' . esc_html( sprintf(
+            /* translators: %d = total cascade row count */
+            __( 'Total related rows: %d', 'talenttrack' ),
+            $summary['total']
+        ) ) . '</strong></li>';
+        echo '</ul>';
+        echo '</div>';
+
+        // Typed-name confirm form. Cancel target follows the
+        // CLAUDE.md § 6 rule: prefer tt_back, else fall back to the
+        // file detail page.
+        $cancel_url = '';
+        $resolved   = \TT\Shared\Frontend\Components\BackLink::resolve();
+        if ( $resolved !== null ) {
+            $cancel_url = $resolved['url'];
+        } else {
+            $cancel_url = add_query_arg(
+                [ 'tt_view' => 'pdp', 'id' => $file_id ],
+                \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+            );
+        }
+
+        $form_action = esc_url( admin_url( 'admin-post.php' ) );
+        $nonce_field = wp_nonce_field(
+            \TT\Modules\Pdp\PdpHardDeleteAdminPost::ACTION . '_' . $file_id,
+            \TT\Modules\Pdp\PdpHardDeleteAdminPost::NONCE,
+            true,
+            false
+        );
+        $expected_attr = esc_attr( $player_name );
+        ?>
+        <form method="post" action="<?php echo $form_action; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — admin_url() escaped above. ?>" class="tt-pdp-perm-delete-form">
+            <input type="hidden" name="action" value="<?php echo esc_attr( \TT\Modules\Pdp\PdpHardDeleteAdminPost::ACTION ); ?>" />
+            <input type="hidden" name="pdp_file_id" value="<?php echo (int) $file_id; ?>" />
+            <?php echo $nonce_field; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — wp_nonce_field returns escaped HTML. ?>
+
+            <div class="tt-field" style="margin-bottom:16px;">
+                <label class="tt-field-label tt-field-required" for="tt-pdp-confirm-name">
+                    <?php echo esc_html( sprintf(
+                        /* translators: %s = expected player name */
+                        __( 'Type the player\'s name to confirm: %s', 'talenttrack' ),
+                        $player_name
+                    ) ); ?>
+                </label>
+                <input
+                    type="text"
+                    id="tt-pdp-confirm-name"
+                    name="confirm_name"
+                    class="tt-input"
+                    autocomplete="off"
+                    autocapitalize="words"
+                    inputmode="text"
+                    spellcheck="false"
+                    required
+                    data-expected="<?php echo $expected_attr; ?>"
+                    style="font-size:16px; min-height:48px;"
+                />
+                <p style="margin:6px 0 0; color:#5b6e75; font-size:13px;">
+                    <?php esc_html_e( 'The delete button stays disabled until the typed name matches exactly (case-insensitive).', 'talenttrack' ); ?>
+                </p>
+            </div>
+
+            <div class="tt-form-actions" style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+                <a href="<?php echo esc_url( $cancel_url ); ?>" class="tt-btn tt-btn-secondary" style="min-height:48px; padding:8px 16px; touch-action:manipulation;">
+                    <?php esc_html_e( 'Cancel', 'talenttrack' ); ?>
+                </a>
+                <button
+                    type="submit"
+                    class="tt-btn tt-btn-danger"
+                    id="tt-pdp-perm-delete-submit"
+                    disabled
+                    style="min-height:48px; padding:8px 16px; touch-action:manipulation; background:#b91c1c; color:#fff; border:1px solid #991b1b;"
+                >
+                    <?php esc_html_e( 'Permanently delete PDP', 'talenttrack' ); ?>
+                </button>
+            </div>
+        </form>
+
+        <script>
+            (function () {
+                var form   = document.querySelector('form.tt-pdp-perm-delete-form');
+                if (!form) return;
+                var input  = form.querySelector('#tt-pdp-confirm-name');
+                var submit = form.querySelector('#tt-pdp-perm-delete-submit');
+                if (!input || !submit) return;
+                var expected = (input.dataset.expected || '').trim().replace(/\s+/g, ' ').toLowerCase();
+                function normalise(v) {
+                    return String(v || '').trim().replace(/\s+/g, ' ').toLowerCase();
+                }
+                function apply() {
+                    submit.disabled = (expected === '' || normalise(input.value) !== expected);
+                }
+                input.addEventListener('input', apply);
+                form.addEventListener('submit', function (ev) {
+                    if (submit.disabled) {
+                        ev.preventDefault();
+                        return;
+                    }
+                    // Final native confirm so an accidental Enter on a
+                    // matched typed name still gets one last "are you
+                    // sure?" gate.
+                    var msg = '<?php echo esc_js( __( 'This will permanently delete the PDP file and all related rows. Continue?', 'talenttrack' ) ); ?>';
+                    if (!window.confirm(msg)) { ev.preventDefault(); }
+                });
+                apply();
+            })();
+        </script>
+        <?php
     }
 
     private static function renderList( int $user_id, bool $is_admin ): void {
@@ -425,6 +699,17 @@ class FrontendPdpManageView extends FrontendViewBase {
         if ( $can_verdict && $verdict === null ) {
             $vurl = add_query_arg( [ 'tt_view' => 'pdp', 'id' => (int) $file->id, 'action' => 'verdict' ], $base_url );
             echo '<a class="tt-btn tt-btn-primary" href="' . esc_url( $vurl ) . '">' . esc_html__( 'Record verdict', 'talenttrack' ) . '</a>';
+        }
+        // #1294 — irreversible hard-delete entry point. Cap-gated on
+        // `tt_delete_pdp` (admin-only by seed). Routes to the typed-name
+        // confirm subview at ?tt_view=pdp&action=permanent-delete.
+        if ( current_user_can( 'tt_delete_pdp' ) ) {
+            $del_url = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg(
+                [ 'tt_view' => 'pdp', 'id' => (int) $file->id, 'action' => 'permanent-delete' ],
+                $base_url
+            ) );
+            echo '<a class="tt-btn tt-btn-danger" href="' . esc_url( $del_url ) . '" style="margin-left:auto; background:#b91c1c; color:#fff; border:1px solid #991b1b; min-height:48px; padding:8px 16px; touch-action:manipulation;">'
+                . esc_html__( 'Permanently delete PDP', 'talenttrack' ) . '</a>';
         }
         echo '</div>';
 

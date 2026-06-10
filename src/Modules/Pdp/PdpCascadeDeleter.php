@@ -35,9 +35,19 @@ final class PdpCascadeDeleter {
      * row counts. Throws on any wpdb failure (caller catches +
      * surfaces 500 to the operator).
      *
+     * #1294 — optional `$extra_audit` is merged into the
+     * `pdp.deleted_with_cascade` Logger event so a calling surface
+     * (the wp-admin double-confirm UI) can attach side-effect metadata
+     * such as the pre-delete CSV export's file path. The cascade
+     * itself does not write the CSV — the surface does it before
+     * invoking this method — but the audit-trail entry is the
+     * canonical place to record the linkage.
+     *
+     * @param int $pdp_file_id
+     * @param array<string,mixed> $extra_audit
      * @return array<string, int>
      */
-    public function deletePdpFile( int $pdp_file_id ): array {
+    public function deletePdpFile( int $pdp_file_id, array $extra_audit = [] ): array {
         if ( $pdp_file_id <= 0 ) return [];
 
         global $wpdb;
@@ -97,20 +107,22 @@ final class PdpCascadeDeleter {
             if ( $n === false ) throw new \RuntimeException( 'Cascade delete failed on tt_pdp_verdicts: ' . $wpdb->last_error );
             $deleted['tt_pdp_verdicts'] = (int) $n;
 
-            // 4. blocks (self-gates on table existence — migration 0107
-            // is recent; some installs may lack it).
-            $blocks_table = $p . 'tt_pdp_blocks';
-            $blocks_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $blocks_table ) ) === $blocks_table;
-            if ( $blocks_exists ) {
-                $n = $wpdb->query( $wpdb->prepare(
-                    "DELETE FROM {$blocks_table} WHERE pdp_file_id = %d AND club_id = %d",
-                    $pdp_file_id, $club_id
-                ) );
-                if ( $n === false ) throw new \RuntimeException( 'Cascade delete failed on tt_pdp_blocks: ' . $wpdb->last_error );
-                $deleted['tt_pdp_blocks'] = (int) $n;
-            } else {
-                $deleted['tt_pdp_blocks'] = 0;
-            }
+            // 4. blocks — DELIBERATE NO-OP.
+            //
+            // The original v4.20.65 ship assumed `tt_pdp_blocks` was
+            // file-scoped (one row set per PDP file). It isn't —
+            // migration 0107 defined the table as (club_id, season_id,
+            // sequence): one block set per *season*, shared across
+            // every PDP file in that season. A `WHERE pdp_file_id =
+            // %d` query would error because the column doesn't exist;
+            // and even if it ran, deleting the season's blocks because
+            // one player's file is being purged would wreck every
+            // sibling PDP file in the same season.
+            //
+            // The right answer is "don't touch blocks at all" — they
+            // outlive any single PDP file. Tracked + corrected here in
+            // #1294 so the cascade no longer silently fails.
+            $deleted['tt_pdp_blocks'] = 0;
 
             // 5. final parent delete
             $n = $wpdb->query( $wpdb->prepare(
@@ -122,12 +134,20 @@ final class PdpCascadeDeleter {
 
             $wpdb->query( 'COMMIT' );
 
-            Logger::info( 'pdp.deleted_with_cascade', [
+            $audit_event = [
                 'pdp_file_id' => $pdp_file_id,
                 'club_id'     => $club_id,
                 'by_user'     => get_current_user_id(),
                 'deleted'     => $deleted,
-            ] );
+            ];
+            // #1294 — surface-provided side-effect metadata (e.g.
+            // pre-delete CSV path from the wp-admin double-confirm
+            // surface). Extra keys can never override the canonical
+            // ones above.
+            if ( ! empty( $extra_audit ) ) {
+                $audit_event = array_merge( $extra_audit, $audit_event );
+            }
+            Logger::info( 'pdp.deleted_with_cascade', $audit_event );
 
             return $deleted;
         } catch ( \Throwable $e ) {
