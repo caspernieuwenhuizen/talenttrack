@@ -40,6 +40,7 @@
         wireSegmentedToggle(sandbox, state);
         wireReset(sandbox, state);
         wireSave(sandbox, state);
+        wireLoadBlueprint(sandbox);
         wireSlotTaps(state);
         wireSheetDismiss();
 
@@ -376,6 +377,103 @@
         document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') closePicker();
         });
+    }
+
+    // -----------------------------------------------------------------
+    // #1325 — Load blueprint button. Fetches the team's saved
+    // blueprints, lists match-day flavour rows in a bottom sheet, and
+    // navigates to ?blueprint_id=N on pick. Auto-switch to the
+    // blueprint's formation is handled server-side.
+    // -----------------------------------------------------------------
+    function wireLoadBlueprint(sandbox) {
+        var btn = sandbox.querySelector('.tt-tc-load-blueprint');
+        if (!btn) return;
+        btn.addEventListener('click', function () {
+            btn.disabled = true;
+            fetch(cfg.rest_root + '/teams/' + cfg.team_id + '/blueprints', {
+                credentials: 'same-origin',
+                headers: { 'X-WP-Nonce': cfg.nonce }
+            }).then(function (r) {
+                if (!r.ok) throw new Error('list_failed');
+                return r.json();
+            }).then(function (resp) {
+                var rows = (resp && resp.data) ? resp.data : (Array.isArray(resp) ? resp : []);
+                var matchDay = rows.filter(function (b) {
+                    return (b.flavour || 'match_day') === 'match_day';
+                });
+                openBlueprintPicker(matchDay);
+            }).catch(function () {
+                window.alert(cfg.i18n.load_bp_list_failed || 'Could not load blueprints.');
+            }).finally(function () {
+                btn.disabled = false;
+            });
+        });
+    }
+
+    function openBlueprintPicker(rows) {
+        closePicker();
+        var sheet = document.createElement('div');
+        sheet.className = 'tt-chem-picker';
+        sheet.setAttribute('role', 'dialog');
+        sheet.setAttribute('aria-modal', 'true');
+        var title = cfg.i18n.load_bp_title || 'Pick a saved blueprint';
+        var emptyMsg = cfg.i18n.load_bp_empty || 'No saved blueprints yet.';
+        var closeLabel = cfg.i18n.picker_close || 'Close';
+        sheet.innerHTML =
+            '<div class="tt-chem-picker-backdrop" data-close></div>' +
+            '<div class="tt-chem-picker-sheet">' +
+                '<header class="tt-chem-picker-header">' +
+                    '<h3 class="tt-chem-picker-title">' + escapeHtml(title) + '</h3>' +
+                    '<button type="button" class="tt-btn tt-btn-secondary tt-btn-sm" data-close>' + escapeHtml(closeLabel) + '</button>' +
+                '</header>' +
+                '<ul class="tt-chem-picker-list" role="listbox"></ul>' +
+            '</div>';
+        document.body.appendChild(sheet);
+        document.body.classList.add('tt-chem-picker-open');
+        openSheet = sheet;
+
+        sheet.querySelectorAll('[data-close]').forEach(function (el) {
+            el.addEventListener('click', function () { closePicker(); });
+        });
+
+        var list = sheet.querySelector('.tt-chem-picker-list');
+        if (!rows.length) {
+            var li = document.createElement('li');
+            li.className = 'tt-chem-picker-row tt-chem-picker-row--empty';
+            li.innerHTML = '<span class="tt-chem-picker-name">' + escapeHtml(emptyMsg) + '</span>';
+            list.appendChild(li);
+            return;
+        }
+        rows.forEach(function (bp) {
+            var li = document.createElement('li');
+            li.className = 'tt-chem-picker-row';
+            li.setAttribute('role', 'option');
+            li.setAttribute('tabindex', '0');
+            var name = String(bp.name || '');
+            var meta = (bp.template_name || bp.formation_shape || '') + ' · ' + (bp.status || '');
+            li.innerHTML =
+                '<span class="tt-chem-picker-name">' + escapeHtml(name) + '</span>' +
+                '<span class="tt-chem-picker-meta">' + escapeHtml(meta) + '</span>';
+            var go = function () { navigateToBlueprint(bp.id); };
+            li.addEventListener('click', go);
+            li.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); }
+            });
+            list.appendChild(li);
+        });
+        var first = list.querySelector('.tt-chem-picker-row[role="option"]');
+        if (first) first.focus();
+    }
+
+    function navigateToBlueprint(bpId) {
+        var url = new URL(window.location.href);
+        url.searchParams.set('tt_view', 'team-chemistry');
+        url.searchParams.set('team_id', String(cfg.team_id));
+        url.searchParams.set('blueprint_id', String(bpId));
+        // Server picks the blueprint's formation; let `template_id` be
+        // re-derived rather than stuck on whatever the user had open.
+        url.searchParams.delete('template_id');
+        window.location.href = url.toString();
     }
 
     var openSheet = null;

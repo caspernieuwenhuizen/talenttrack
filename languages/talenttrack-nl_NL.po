@@ -24968,6 +24968,26 @@ msgstr ""
 msgid "Tap any slot on the pitch to swap the player."
 msgstr "Tik op een positie op het veld om de speler te wisselen."
 
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:307
+msgid "Load blueprint"
+msgstr "Blueprint openen"
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:309
+msgid "Loaded blueprint:"
+msgstr "Blueprint geladen:"
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:725
+msgid "Pick a saved blueprint"
+msgstr "Kies een opgeslagen blueprint"
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:726
+msgid "No saved blueprints yet."
+msgstr "Nog geen opgeslagen blueprints."
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:727
+msgid "Could not load blueprints."
+msgstr "Kan de blueprints niet laden."
+
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:705
 msgid "Stop trying a lineup"
 msgstr "Stop met opstelling proberen"

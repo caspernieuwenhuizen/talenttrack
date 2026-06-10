@@ -168,6 +168,22 @@
 .tt-tc-override-banner strong { color: var(--tt-tc-link); }
 .tt-tc-override-hint { color: var(--tt-tc-muted); }
 
+/* #1325 — loaded-blueprint banner */
+.tt-tc-loaded-banner {
+    background: var(--tt-tc-accent-15);
+    border: 1px solid var(--tt-tc-link);
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin: 0 0 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 14px;
+    flex-wrap: wrap;
+}
+.tt-tc-loaded-banner strong { color: var(--tt-tc-link); margin-right: 4px; }
+
 /* Coverage banner */
 .tt-tc-empty-banner {
     background: #fffbe6;
