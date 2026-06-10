@@ -26158,8 +26158,10 @@ msgid "Hiding archived"
 msgstr ""
 
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:169
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+#: src/Modules/Pdp/Frontend/FrontendPdpPlanningView.php
 msgid "Show archived"
-msgstr ""
+msgstr "Toon gearchiveerd"
 
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:179
 msgid "+ Add exercise"
@@ -35248,6 +35250,27 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
+
+# #1293 — PDP archive / restore inline buttons + Show archived toggle.
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Hide archived"
+msgstr "Verberg gearchiveerd"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "PDP archived"
+msgstr "PDP gearchiveerd"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "PDP restored"
+msgstr "PDP hersteld"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Archive this PDP?"
+msgstr "Dit PDP archiveren?"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Restore this PDP?"
+msgstr "Dit PDP herstellen?"
 
 #~ msgid ""
 #~ "Optionally connect this activity to one or more methodology principles. "

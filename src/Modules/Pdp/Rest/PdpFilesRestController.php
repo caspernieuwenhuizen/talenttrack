@@ -155,7 +155,21 @@ class PdpFilesRestController {
             $params[] = get_current_user_id();
         }
 
+        // #1293 — `include_archived` query param. Default hides
+        // archived rows (the soft-archive primitive landed in #1274
+        // but the list endpoint kept showing every row regardless).
+        // Operators with the `tt_unarchive_pdp` cap can opt in via
+        // `?include_archived=1` (top-level) or `filter[include_archived]=1`
+        // (the form FrontendListTable forwards via its static_filters
+        // map). Coaches without the cap always see only active rows
+        // (no point in showing a row they can't act on).
         $filter = is_array( $r['filter'] ?? null ) ? (array) $r['filter'] : [];
+        $include_archived_raw = $r['include_archived'] ?? ( $filter['include_archived'] ?? null );
+        $include_archived     = ! empty( $include_archived_raw ) && current_user_can( 'tt_unarchive_pdp' );
+        unset( $filter['include_archived'] );
+        if ( ! $include_archived ) {
+            $where[] = 'f.archived_at IS NULL';
+        }
         if ( ! empty( $filter['team_id'] ) ) {
             $where[]  = 'pl.team_id = %d';
             $params[] = absint( $filter['team_id'] );
@@ -180,7 +194,7 @@ class PdpFilesRestController {
         // The list view renders one rollup checkmark per file —
         // "received" = at least one conversation has the ack set.
         // Per-conversation acks remain visible on the file detail page.
-        $list_sql = "SELECT f.id, f.player_id, f.season_id, f.owner_coach_id, f.cycle_size, f.status, f.notes, f.updated_at,
+        $list_sql = "SELECT f.id, f.player_id, f.season_id, f.owner_coach_id, f.cycle_size, f.status, f.notes, f.updated_at, f.archived_at,
                             pl.first_name, pl.last_name, pl.team_id,
                             t.name AS team_name,
                             (SELECT MAX(c.parent_ack_at IS NOT NULL)
@@ -267,6 +281,17 @@ class PdpFilesRestController {
         $parent_ack_html = self::ack_checkmark( $parent_ack, __( 'Parent confirmation', 'talenttrack' ) );
         $player_ack_html = self::ack_checkmark( $player_ack, __( 'Player confirmation', 'talenttrack' ) );
 
+        // #1293 — inline Archive / Restore button per row. Archive
+        // visible to `tt_edit_pdp` holders on active rows; Restore to
+        // `tt_unarchive_pdp` holders on already-archived rows. The
+        // pdp-archive-button JS handler intercepts the click, fires
+        // DELETE / POST against the per-row REST endpoint, fades the
+        // row out and toasts the result. Buttons carry the 48×48
+        // minimum tap target via the shared `.tt-btn-secondary`
+        // baseline + the explicit `min-height:48px` inline style.
+        $is_archived  = ! empty( $row->archived_at );
+        $actions_html = self::row_actions_html( $file_id, $player_name, $is_archived );
+
         return [
             'id'               => $file_id,
             'player_id'        => $player_id,
@@ -283,8 +308,37 @@ class PdpFilesRestController {
             'player_ack'       => $player_ack,
             'player_ack_html'  => $player_ack_html,
             'updated_at'       => (string) ( $row->updated_at ?? '' ),
+            'archived_at'      => $row->archived_at !== null ? (string) $row->archived_at : null,
+            'is_archived'      => $is_archived,
+            'actions_html'     => $actions_html,
             'detail_url'       => $detail_url,
         ];
+    }
+
+    /**
+     * #1293 — render the inline Archive / Restore button HTML for a
+     * single row. Returns an empty fragment when the current user
+     * doesn't hold the relevant cap (so the actions column stays
+     * neat for read-only viewers). The button payload is consumed
+     * by `assets/js/pdp-archive-button.js`.
+     */
+    private static function row_actions_html( int $file_id, string $player_name, bool $is_archived ): string {
+        if ( $is_archived ) {
+            if ( ! current_user_can( 'tt_unarchive_pdp' ) ) return '';
+            return sprintf(
+                '<button type="button" class="tt-btn tt-btn-secondary tt-pdp-row-action" data-tt-pdp-restore="%1$d" data-tt-pdp-player="%2$s" style="min-height:48px;min-width:48px;padding:8px 12px;touch-action:manipulation;">%3$s</button>',
+                $file_id,
+                esc_attr( $player_name ),
+                esc_html__( 'Restore', 'talenttrack' )
+            );
+        }
+        if ( ! current_user_can( 'tt_edit_pdp' ) ) return '';
+        return sprintf(
+            '<button type="button" class="tt-btn tt-btn-secondary tt-pdp-row-action" data-tt-pdp-archive="%1$d" data-tt-pdp-player="%2$s" style="min-height:48px;min-width:48px;padding:8px 12px;touch-action:manipulation;">%3$s</button>',
+            $file_id,
+            esc_attr( $player_name ),
+            esc_html__( 'Archive', 'talenttrack' )
+        );
     }
 
     /**
