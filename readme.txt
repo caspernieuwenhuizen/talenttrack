@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.73
+Stable tag: 4.20.74
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.74 — PDP hard-delete: typed-name confirm + pre-delete CSV export (closes #1294). Follow-up to v4.20.65's REST primitive. **Routable destructive surface** at `?tt_view=pdp&action=permanent-delete&id=N`, cap-gated on `tt_delete_pdp`. Cascade summary card renders before any destructive action; final button stays disabled until the operator types the player's display name (case-insensitive match — mirrors #1138's PersonDeletionCascade idea). **Pre-delete CSV** written to `wp-content/uploads/tt-pdp-deletes/pdp-{id}-{timestamp}.csv` capturing the PDP file row + every conversation + verdict + calendar links + season block config (for audit context). On confirm: admin-post handler `tt_pdp_permanent_delete` invokes the existing `PdpCascadeDeleter::deletePdpFile()`; the `pdp.deleted_with_cascade` audit-log entry now includes the `csv_path`. **Adjacent fix.** `PdpCascadeDeleter` v4.20.65 referenced a non-existent `tt_pdp_blocks.pdp_file_id` — blocks are season-scoped per migration 0107, not file-scoped. Blocks DELETE now correctly no-ops + the summary reports `0 blocks` honestly; the season-level block config still appears in the CSV for audit context. **Docs.** `docs/pdp-cycle.md` + `docs/nl_NL/pdp-cycle.md` gain an "Archive vs. permanently delete" section. **Dutch.** 21 new msgstrs (5 plural pairs). Patch bump. (closes #1294) =
 
 = 4.20.73 — PDP inline Archive + Restore buttons + Show-archived toggle (closes #1293). Follow-up to v4.20.63's PDP soft-archive REST primitive. **REST.** [`PdpFilesRestController::list()`](src/Modules/Pdp/Rest/PdpFilesRestController.php) reads `include_archived` (cap-gated on `tt_unarchive_pdp`); default-hides archived. `format_list_row()` now emits `actions_html` + `is_archived` + `archived_at` for the list table. New `row_actions_html()` helper emits the per-row Archive / Restore button with `data-tt-pdp-archive` / `data-tt-pdp-restore` + the rest nonce. **JS.** New [assets/js/pdp-archive-button.js](assets/js/pdp-archive-button.js) — delegated click handler: confirm → DELETE / POST → fade-remove row → toast. Enqueued by [FrontendPdpManageView](src/Modules/Pdp/Frontend/FrontendPdpManageView.php) via the overridden `enqueueAssets()`. **List table.** Actions column added + Show/Hide archived toggle; `static_filters` forwards `include_archived` through the REST hydrator. **Planning view.** [FrontendPdpPlanningView](src/Modules/Pdp/Frontend/FrontendPdpPlanningView.php) gains a one-click "Show archived" cross-link into the manage view's archived listing — planning is an aggregate matrix where per-row restore isn't natural, so the affordance lives on the surface that actually has rows. **Mobile-first.** 48px tap targets, `:active` feedback, `touch-action: manipulation`. **Translations.** 6 nl_NL msgstrs (5 new + 1 existing-empty filled). Patch bump. (closes #1293) =
 
