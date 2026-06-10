@@ -134,13 +134,32 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
                 'tt_view' => 'team-blueprints',
                 'id'      => (int) $row['id'],
             ], $base_url );
-            echo '<tr>';
+            $is_locked = (string) ( $row['status'] ?? '' ) === TeamBlueprintsRepository::STATUS_LOCKED;
+            echo '<tr data-tt-row>';
             echo '<td><a class="tt-record-link" href="' . esc_url( $open ) . '">' . esc_html( (string) $row['name'] ) . '</a></td>';
             echo '<td>' . esc_html( (string) ( $row['template_name'] ?? '—' ) ) . '</td>';
             echo '<td>' . self::statusPill( (string) $row['status'] ) . '</td>';
             echo '<td>' . esc_html( (string) $row['updated_at'] ) . '</td>';
-            echo '<td><a class="tt-btn tt-btn-secondary tt-btn-sm" href="' . esc_url( $open ) . '">'
-                . esc_html__( 'Open', 'talenttrack' ) . '</a></td>';
+            echo '<td style="display:flex; gap:6px; flex-wrap:wrap;">';
+            echo '<a class="tt-btn tt-btn-secondary tt-btn-sm" href="' . esc_url( $open ) . '">'
+                . esc_html__( 'Open', 'talenttrack' ) . '</a>';
+            // #1329 — Delete affordance, cap-gated; hidden on locked
+            // blueprints (Reopen first), matches the spirit of the
+            // lock semantics already enforced server-side.
+            if ( $can_manage && ! $is_locked ) {
+                $confirm = sprintf(
+                    /* translators: %s = blueprint name */
+                    __( 'Delete "%s"? This cannot be undone.', 'talenttrack' ),
+                    (string) $row['name']
+                );
+                echo '<button type="button" class="tt-btn tt-btn-secondary tt-btn-sm tt-record-delete"'
+                    . ' data-rest-path="' . esc_attr( 'blueprints/' . (int) $row['id'] ) . '"'
+                    . ' data-confirm-msg="' . esc_attr( $confirm ) . '"'
+                    . ' data-deleted-msg="' . esc_attr__( 'Blueprint deleted.', 'talenttrack' ) . '">'
+                    . esc_html__( 'Delete', 'talenttrack' )
+                    . '</button>';
+            }
+            echo '</td>';
             echo '</tr>';
         }
         echo '</tbody></table>';
@@ -662,6 +681,25 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
         // take me back to the list". Save As prompts the user for a
         // new name and clones.
         echo '<div style="margin-left:auto; display:inline-flex; gap:6px; flex-wrap:wrap;">';
+        // #1329 — Delete affordance on the editor toolbar. Cap-gated;
+        // hidden on locked blueprints (Reopen first via the status row,
+        // which leaves a system-message breadcrumb in the discussion
+        // thread). Redirects to the team's blueprint list on success.
+        $is_locked = $bp['status'] === TeamBlueprintsRepository::STATUS_LOCKED;
+        if ( current_user_can( 'tt_manage_team_chemistry' ) && ! $is_locked ) {
+            $confirm = sprintf(
+                /* translators: %s = blueprint name */
+                __( 'Delete "%s"? This cannot be undone.', 'talenttrack' ),
+                (string) ( $bp['name'] ?? '' )
+            );
+            echo '<button type="button" class="tt-btn tt-btn-secondary tt-btn-sm tt-record-delete"'
+                . ' data-rest-path="' . esc_attr( 'blueprints/' . (int) $bp['id'] ) . '"'
+                . ' data-confirm-msg="' . esc_attr( $confirm ) . '"'
+                . ' data-deleted-msg="' . esc_attr__( 'Blueprint deleted.', 'talenttrack' ) . '"'
+                . ' data-redirect-after-delete="' . esc_attr( $list_url ) . '">'
+                . esc_html__( 'Delete blueprint', 'talenttrack' )
+                . '</button>';
+        }
         echo '<button type="button" class="tt-btn tt-btn-secondary tt-btn-sm tt-bp-save-as">'
             . esc_html__( 'Save as…', 'talenttrack' )
             . '</button>';

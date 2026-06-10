@@ -31684,3 +31684,16 @@ msgstr ""
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php
+#, php-format
+msgid "Delete \"%s\"? This cannot be undone."
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php
+msgid "Blueprint deleted."
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php
+msgid "Delete blueprint"
+msgstr ""
