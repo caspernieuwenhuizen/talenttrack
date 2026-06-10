@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.82
+Stable tag: 4.20.83
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.83 — Activities admin + frontend route cap checks through `AuthorizationService::userCanOrMatrix` so Functional-Role-only operators authorise the same way the REST controller already does (closes #1319). Pilot operators granted `tt_view_activities` / `tt_edit_activities` via a Functional Role (no WP role) used to be silently denied by the rendered HTML even though `ActivitiesRestController` correctly authorised them. **Fix.** 10 mechanical swaps from `current_user_can('tt_*_activities')` to `AuthorizationService::userCanOrMatrix($uid, 'tt_*_activities')` — 6 in [`FrontendActivitiesManageView`](src/Shared/Frontend/FrontendActivitiesManageView.php) (list gate, create CTA, detail-row Edit + match-prep CTA, eval-skipped re-open button, detail action toolbar) + 4 in [`ActivitiesPage`](src/Modules/Activities/Admin/ActivitiesPage.php) (Add-New page-title-action, per-row Edit/Delete, `handle_save`, `handle_delete`). Repeated checks hoist into a single local. **Pattern reference.** [`ActivitiesRestController:107-145`](src/Infrastructure/REST/ActivitiesRestController.php#L107-L145). Patch bump. (closes #1319) =
 
 = 4.20.82 — Head coaches now land on the head_coach persona dashboard, not assistant_coach (closes #1314). Pilot 2026-06-10: assigning a `tt_coach` user as head coach via the team form's Staff section landed them on the Assistant coach dashboard. **Root cause.** Migration 0030 added `tt_team_people.is_head_coach TINYINT NOT NULL DEFAULT 0` but no writer was ever wired at the modern insert sites; v3.110.200's removal of the legacy `tt_teams.head_coach_id` dropdown then made `tt_team_people` the only assignment path. Every coach assigned through it got `is_head_coach = 0`, so `PersonaResolver::resolveCoachPersona()` routed them to `assistant_coach`. **Fix at the canonical writers.** [`PeopleRepository::assignToTeam()`](src/Infrastructure/People/PeopleRepository.php#L316-L337) — the team form's Staff section — now derives `'is_head_coach' => $fn_role_key === 'head_coach' ? 1 : 0`. [`Wizards\Team\ReviewStep::run()`](src/Modules/Wizards/Team/ReviewStep.php#L80-L100) — the new-team wizard — gets the same derivation from its slot key. **Backfill migration** [0149](database/migrations/0149_backfill_is_head_coach_from_role.php) flips `is_head_coach` to 1 on existing rows where the linked functional role's `role_key = 'head_coach'` OR the row's `role_in_team` string equals `'head_coach'`. Idempotent. **Side benefit.** Analytics widgets and team-overview queries that already join on `is_head_coach` (`MyTeamAttendancePct`, `TeamRosterTableWidget`, etc.) now see the correct head-coach for every team. Patch bump. (closes #1314) =
 
