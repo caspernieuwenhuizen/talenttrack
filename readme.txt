@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.66
+Stable tag: 4.20.67
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.67 — Player profile: date helpers guard the `'0000-00-00'` zero-date sentinel (closes #1281). Pilot 2026-06-08 screenshot showed `30 Nov '-1` in the hero / facts cell and `2026 yrs in academy` on a player whose `date_of_birth = '0000-00-00'`. PHP's `strtotime('0000-00-00')` returns a negative timestamp (~-62167219200), not `false`, so the existing `=== false` guards in `shortDate`, `ageHint`, and `yearsInAcademy` didn't catch the sentinel and the formatters happily rendered year -1. **Fix.** Three new entry guards in [FrontendPlayerDetailView.php](src/Shared/Frontend/FrontendPlayerDetailView.php) — `shortDate` returns `—`, `ageHint` + `yearsInAcademy` return empty. The Identiteit table row now routes through `shortDate()` instead of echoing `$player->date_of_birth` raw, so the table cell renders `—` instead of the literal `0000-00-00`. Mirrors the existing guard at `PlayerGoalIntakePrintRouter:421`. Patch bump. (closes #1281) =
 
 = 4.20.66 — Team planner: post-save redirect now lands on the week containing the new activity (closes #1271). Pilot 2026-06-08: scheduling an activity from the planner for a date outside the visible week made the activity look like it never saved — it persisted fine, but the post-save redirect inherited the planner's original `week_start` and the new card fell outside the `BETWEEN <start> AND <end>` filter window. **Fix.** Single-function JS addition in [public.js](assets/js/public.js): `adjustPlannerWeek( redirectUrl, form )` parses the redirect URL, detects `tt_view=team-planner`, reads the form's `session_date`, computes the Monday-snapped week (matches `FrontendTeamPlannerView::resolveWeekStart`), and rewrites the URL's `week_start` param. Wraps the existing `data-redirect-after-save-url` branch in the `.tt-ajax-form` handler. Other redirect targets (list / detail / reload / non-planner explicit URLs) are unaffected. **Scope.** ~25 lines of JS. No PHP changes. No translations. Patch bump. (closes #1271) =
 
