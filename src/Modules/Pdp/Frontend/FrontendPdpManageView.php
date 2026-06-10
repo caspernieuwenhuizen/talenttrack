@@ -30,6 +30,35 @@ use TT\Shared\Frontend\FrontendViewBase;
  */
 class FrontendPdpManageView extends FrontendViewBase {
 
+    /**
+     * #1293 — enqueue the shared frontend assets and the PDP-specific
+     * inline Archive / Restore button handler. The handler is scoped
+     * to the manage view because no other surface emits the
+     * `[data-tt-pdp-archive]` / `[data-tt-pdp-restore]` selectors.
+     */
+    protected static function enqueueAssets(): void {
+        parent::enqueueAssets();
+
+        wp_enqueue_script(
+            'tt-pdp-archive-button',
+            TT_PLUGIN_URL . 'assets/js/pdp-archive-button.js',
+            [ 'tt-public' ],
+            TT_VERSION,
+            true
+        );
+        wp_localize_script(
+            'tt-pdp-archive-button',
+            'TT_PdpArchiveI18n',
+            [
+                'confirm_archive' => __( 'Archive this PDP?', 'talenttrack' ),
+                'confirm_restore' => __( 'Restore this PDP?', 'talenttrack' ),
+                'archived_toast'  => __( 'PDP archived', 'talenttrack' ),
+                'restored_toast'  => __( 'PDP restored', 'talenttrack' ),
+                'error_generic'   => __( 'Action failed.', 'talenttrack' ),
+            ]
+        );
+    }
+
     public static function render( int $user_id, bool $is_admin ): void {
         self::enqueueAssets();
 
@@ -141,17 +170,42 @@ class FrontendPdpManageView extends FrontendViewBase {
             PdpStatus::ARCHIVED  => __( 'Archived',  'talenttrack' ),
         ];
 
-        echo FrontendListTable::render( [
+        // #1293 — Show-archived toggle. The REST list endpoint hides
+        // archived rows by default; the toggle flips `include_archived=1`
+        // in the querystring, which the FrontendListTable hydrator
+        // forwards as a static filter on every fetch. The link only
+        // renders for users who hold `tt_unarchive_pdp` — there's no
+        // point offering "Show archived" to operators who can't act
+        // on archived rows.
+        $include_archived = ! empty( $_GET['include_archived'] );
+        if ( current_user_can( 'tt_unarchive_pdp' ) ) {
+            $toggle_url = $include_archived
+                ? remove_query_arg( 'include_archived' )
+                : add_query_arg( 'include_archived', '1' );
+            $toggle_label = $include_archived
+                ? __( 'Hide archived', 'talenttrack' )
+                : __( 'Show archived', 'talenttrack' );
+            echo '<p style="margin:0 0 12px;"><a class="tt-btn tt-btn-secondary" href="' . esc_url( $toggle_url ) . '" style="min-height:48px;padding:8px 14px;touch-action:manipulation;">' . esc_html( $toggle_label ) . '</a></p>';
+        }
+
+        // #1293 — Actions column hosts the per-row Archive / Restore
+        // button. Cap-gating is applied server-side in
+        // PdpFilesRestController::row_actions_html(); the cell prints
+        // empty for viewers without the matching capability.
+        $columns = [
+            'player_name' => [ 'label' => __( 'Player', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'player_link_html' ],
+            'team_name'   => [ 'label' => __( 'Team',   'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'team_link_html' ],
+            'status'      => [ 'label' => __( 'Status', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'status_pill_html' ],
+            'cycle_size'  => [ 'label' => __( 'Cycle',  'talenttrack' ), 'sortable' => true ],
+            'parent_ack'  => [ 'label' => __( 'Parent confirmation', 'talenttrack' ), 'render' => 'html', 'value_key' => 'parent_ack_html' ],
+            'player_ack'  => [ 'label' => __( 'Player confirmation', 'talenttrack' ), 'render' => 'html', 'value_key' => 'player_ack_html' ],
+            'updated_at'  => [ 'label' => __( 'Updated', 'talenttrack' ), 'sortable' => true, 'render' => 'date' ],
+            'actions'     => [ 'label' => __( 'Actions', 'talenttrack' ), 'render' => 'html', 'value_key' => 'actions_html' ],
+        ];
+
+        $list_config = [
             'rest_path' => 'pdp-files',
-            'columns' => [
-                'player_name' => [ 'label' => __( 'Player', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'player_link_html' ],
-                'team_name'   => [ 'label' => __( 'Team',   'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'team_link_html' ],
-                'status'      => [ 'label' => __( 'Status', 'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'status_pill_html' ],
-                'cycle_size'  => [ 'label' => __( 'Cycle',  'talenttrack' ), 'sortable' => true ],
-                'parent_ack'  => [ 'label' => __( 'Parent confirmation', 'talenttrack' ), 'render' => 'html', 'value_key' => 'parent_ack_html' ],
-                'player_ack'  => [ 'label' => __( 'Player confirmation', 'talenttrack' ), 'render' => 'html', 'value_key' => 'player_ack_html' ],
-                'updated_at'  => [ 'label' => __( 'Updated', 'talenttrack' ), 'sortable' => true, 'render' => 'date' ],
-            ],
+            'columns'   => $columns,
             'filters' => [
                 'team_id' => [
                     'type'    => 'select',
@@ -178,7 +232,18 @@ class FrontendPdpManageView extends FrontendViewBase {
             // applied here first; other list views will adopt the same
             // `row_url_key` config + REST `detail_url` field pattern.
             'row_url_key'  => 'detail_url',
-        ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — render() returns escaped HTML.
+        ];
+        // #1293 — when the operator opts in, surface archived rows via
+        // a static filter on the REST request. FrontendListTable's JS
+        // hydrator forwards static_filters as `filter[<key>]` params;
+        // the list endpoint reads `include_archived` from either the
+        // top-level query string or the filter map, so this round-trips
+        // cleanly without polluting the user-facing filter UI.
+        if ( $include_archived ) {
+            $list_config['static_filters'] = [ 'include_archived' => '1' ];
+        }
+
+        echo FrontendListTable::render( $list_config ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — render() returns escaped HTML.
     }
 
     private static function renderCreateForm( int $user_id, bool $is_admin ): void {
