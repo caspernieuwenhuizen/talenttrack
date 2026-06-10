@@ -94,6 +94,24 @@ class FrontendGoalsManageView extends FrontendViewBase {
                     'primary' => true,
                     'icon'    => '✎',
                 ];
+                // #1332 — Print doelenintake reaches the same printable
+                // surface that the player profile + team detail already
+                // expose. Derive `player_id` from the goal; defensive
+                // skip if it's missing (schema permits null even though
+                // the create wizard requires it).
+                $goal_player_id = (int) ( $goal->player_id ?? 0 );
+                if ( $goal_player_id > 0 ) {
+                    $intake_url = add_query_arg(
+                        [ 'tt_goal_intake_print' => '1', 'player_id' => $goal_player_id ],
+                        home_url( '/' )
+                    );
+                    $detail_actions[] = [
+                        'label'  => __( 'Print doelenintake', 'talenttrack' ),
+                        'href'   => $intake_url,
+                        'target' => '_blank',
+                        'icon'   => '⎙',
+                    ];
+                }
                 $detail_actions[] = [
                     'label'   => __( 'Archive', 'talenttrack' ),
                     'variant' => 'danger',
