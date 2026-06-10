@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.70
+Stable tag: 4.20.71
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.71 — Audit 1 CI harness — phantom-entity + cap-without-entity guards at PR time (closes #1191). Audit 1 (#1175) found one phantom entity (`exports`, fixed in v4.19.x) and zero broken tile caps. The two reverse-direction assertions from the audit doc's CI sketch are mechanically checkable and pass today; this ship makes them a CI guard so the #1143/#1105/#1106/#1147/#1159 bug class is caught at PR time instead of pilot-report. **What shipped.** New [scripts/audit-1-coverage.php](scripts/audit-1-coverage.php) — standalone PHP script (no WP bootstrap, matches the repo's existing PHPStan + Playwright CI shape, no PHPUnit harness needed). Two assertions: (B) every tile entity declared in `TileRegistry::register([...])` exists in `config/authorization_seed.php`; (C) every tile cap that maps via `LegacyCapMapper::tupleFor()` resolves to a seeded entity. Exits 0 on green, non-zero with per-tile detail on failure. New [.github/workflows/audit-1-coverage.yml](.github/workflows/audit-1-coverage.yml) runs the script on PRs touching the seed, surface registration, the mapper, the script, or the workflow. **Skipped.** The forward-direction assertion (orphan-entity sweep) from the audit doc — it has 51 orphans today and only becomes useful after the `ADMIN_ONLY_ENTITIES` widening that follows separately. Patch bump. (closes #1191) =
 
 = 4.20.70 — Audit 11 — player-picker pattern coverage docs (closes #1296). Pilot 2026-06-09 raised that the new-activity wizard offers a team dropdown but no player picker, while the Goal wizard uses a proper team→player cascade and the Evaluation wizard uses an autocomplete. Codifies the audit findings into `docs/audits/2026-06-audit-11-player-picker-coverage.md` so future PRs adding a player-selection surface have a citation target. **Two canonical patterns documented.** Pattern 1: `PlayerSearchPickerComponent` autocomplete (reference site: Evaluation wizard PlayerPickerStep). Pattern 2: team→player cascade via `wizard-cascade-picker.js` (reference site: Goal wizard PlayerStep). **Five drift surfaces identified.** Activity wizard (gap — retrofitted in #1297). Four legacy `includes/`-namespace forms (Admin Goals / Admin Evaluations / Frontend coach eval form / Frontend coach goals form) — candidates for deletion in the legacy-removal sweep rather than retrofit, because the modern wizards cover those surfaces. **Three implicit surfaces** documented as non-picker by design (Evaluation Attendance + RateActors steps, MatchExecution sideline). No code change in this ship — pure documentation. Patch bump. (closes #1296) =
 

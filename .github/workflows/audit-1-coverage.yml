@@ -1,0 +1,60 @@
+name: Audit 1 coverage guard
+
+# #1191 — ships the two reverse-direction assertions from Audit 1's CI
+# sketch (docs/audits/2026-06-audit-1-authorization-coverage.md) as a
+# PR-time guard against the #1143 / #1105 / #1106 / #1147 / #1159 /
+# #1189 bug class:
+#
+#   Assertion B — every tile entity exists in the authorization seed.
+#                  Catches phantom entities (a tile declares an entity
+#                  no persona is seeded for, so MatrixGate denies every
+#                  user — #1143's `scouting_visits`, #1189's `exports`).
+#
+#   Assertion C — every tile cap maps through LegacyCapMapper to a
+#                  seeded entity. Catches the same bug class smuggled
+#                  in via the cap layer.
+#
+# The third audit-doc assertion (every seed entity has a consumer
+# surface) is intentionally NOT shipped — it has 51 orphans today and
+# only becomes useful after the ADMIN_ONLY_ENTITIES widening that
+# follows separately.
+#
+# The guard is a standalone PHP script (scripts/audit-1-coverage.php)
+# with no WordPress bootstrap — repo CI is PHPStan + Playwright, no
+# PHPUnit / WP_UnitTestCase infrastructure to plug into.
+
+on:
+  pull_request:
+    paths:
+      - 'config/authorization_seed.php'
+      - 'src/Shared/CoreSurfaceRegistration.php'
+      - 'src/Modules/Authorization/LegacyCapMapper.php'
+      - 'scripts/audit-1-coverage.php'
+      - '.github/workflows/audit-1-coverage.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'config/authorization_seed.php'
+      - 'src/Shared/CoreSurfaceRegistration.php'
+      - 'src/Modules/Authorization/LegacyCapMapper.php'
+      - 'scripts/audit-1-coverage.php'
+      - '.github/workflows/audit-1-coverage.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    name: Phantom-entity + cap-without-entity guard
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      - name: Run audit-1 coverage guard
+        run: php scripts/audit-1-coverage.php
