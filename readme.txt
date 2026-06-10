@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.69
+Stable tag: 4.20.70
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.70 — Audit 11 — player-picker pattern coverage docs (closes #1296). Pilot 2026-06-09 raised that the new-activity wizard offers a team dropdown but no player picker, while the Goal wizard uses a proper team→player cascade and the Evaluation wizard uses an autocomplete. Codifies the audit findings into `docs/audits/2026-06-audit-11-player-picker-coverage.md` so future PRs adding a player-selection surface have a citation target. **Two canonical patterns documented.** Pattern 1: `PlayerSearchPickerComponent` autocomplete (reference site: Evaluation wizard PlayerPickerStep). Pattern 2: team→player cascade via `wizard-cascade-picker.js` (reference site: Goal wizard PlayerStep). **Five drift surfaces identified.** Activity wizard (gap — retrofitted in #1297). Four legacy `includes/`-namespace forms (Admin Goals / Admin Evaluations / Frontend coach eval form / Frontend coach goals form) — candidates for deletion in the legacy-removal sweep rather than retrofit, because the modern wizards cover those surfaces. **Three implicit surfaces** documented as non-picker by design (Evaluation Attendance + RateActors steps, MatchExecution sideline). No code change in this ship — pure documentation. Patch bump. (closes #1296) =
 
 = 4.20.69 — loadX($id) view helpers: audit-7 finding documented, #1188 direction preserved (closes #1221). Audit 7 (#1181) flagged four sibling per-view `loadX(int $id)` helpers (`loadPlayer`, `loadGoal`, `loadTeam`, `loadSession`) as sharing the #1149 club_id-drift shape — `archived_at IS NULL` filter present, `club_id` filter absent. **Decision.** Don't add `club_id`. The #1188 direction (v4.20.30) settled that tenancy is enforced at the request layer in SaaS (CurrentClub resolution), NOT by sprinkling per-helper club_id WHEREs. The four helpers stay consistent with `QueryHelpers::get_player`, `PlayersRepository::find`, and `ActivitiesRepository::findById` which have already adopted that direction. **What actually changed in this PR.** Inline comments added to [`FrontendGoalsManageView::loadGoal`](src/Shared/Frontend/FrontendGoalsManageView.php) and [`FrontendTeamsManageView::loadTeam`](src/Shared/Frontend/FrontendTeamsManageView.php) citing the audit + the #1188 direction so future maintainers don't reflex-add the WHERE in a follow-up sweep. `loadPlayer` (already routed through `PlayersRepository::find` per #1079) and `loadSession` (routed through `ActivitiesRepository::findById` per #1190) needed no edit — their repository layer already carries the same direction. Same pattern as v4.20.51 (#1232) which closed a sibling audit-7 finding with documentation rather than code change. Patch bump. (closes #1221) =
 
