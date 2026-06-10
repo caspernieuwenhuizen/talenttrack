@@ -8,3 +8,10 @@ tests/e2e/.auth/
 
 # wp-env
 .wp-env.override.json
+
+# Claude Code session state (worktrees + per-session locks)
+.claude/
+.local-mockups/
+
+# Temp dumps accidentally created from Windows c:\temp paths
+ctemp*
