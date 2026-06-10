@@ -22,6 +22,21 @@ use TT\Infrastructure\Query\QueryHelpers;
  */
 class PlayerGoalIntakePrintRouter {
 
+    /**
+     * #1313 — block-keys the picker exposes. Each maps to one
+     * `<article>` / `<section>` in `emit()`. Order is the display
+     * order on the picker UI; the renderer always emits in page order.
+     */
+    private const BLOCK_KEYS = [
+        'snapshot',
+        'doel1',
+        'doel2',
+        'doel3',
+        'afsluiting',
+        'handtekeningen',
+        'reminder',
+    ];
+
     public static function init(): void {
         add_action( 'admin_init', [ __CLASS__, 'maybeRender' ], 1 );
         add_action( 'template_redirect', [ __CLASS__, 'maybeRender' ], 1 );
@@ -47,17 +62,65 @@ class PlayerGoalIntakePrintRouter {
         nocache_headers();
         header( 'Content-Type: text/html; charset=UTF-8' );
 
+        // #1313 — block picker. First click on "Print doelenintake"
+        // lands on a picker page (all 7 blocks pre-checked). Submitting
+        // the form round-trips back to this URL with `blocks[]=…` query
+        // params; we re-enter `maybeRender` and dispatch to the render
+        // path. `blocks[]=all` is the escape hatch for "Print alles".
+        $blocks = self::selectedBlocks();
+        if ( $blocks === null ) {
+            if ( $team_id > 0 ) {
+                echo self::renderTeamBatchPicker( $team_id, $season );
+            } else {
+                echo self::renderPickerHtml( $player_id, $season );
+            }
+            exit;
+        }
+
         if ( $team_id > 0 ) {
-            echo self::renderTeamBatch( $team_id, $season );
+            echo self::renderTeamBatch( $team_id, $season, $blocks );
         } else {
-            echo self::renderHtml( $player_id, $season );
+            echo self::renderHtml( $player_id, $season, $blocks );
         }
         exit;
     }
 
-    public static function renderHtml( int $player_id, string $season ): string {
+    /**
+     * #1313 — resolve which blocks to render from the `blocks[]` query
+     * param. Returns:
+     *   - `null` when `blocks` is absent or contains no valid keys —
+     *     the dispatcher renders the picker instead of the document.
+     *   - All-true map when `blocks[]=all` (the "Print alles" escape).
+     *   - Selective map otherwise (true only for ticked keys).
+     *
+     * @return array<string,bool>|null
+     */
+    private static function selectedBlocks(): ?array {
+        if ( ! isset( $_GET['blocks'] ) ) return null;
+        $raw = array_map( 'sanitize_key', (array) $_GET['blocks'] );
+
+        if ( in_array( 'all', $raw, true ) ) {
+            return array_fill_keys( self::BLOCK_KEYS, true );
+        }
+
+        $out = array_fill_keys( self::BLOCK_KEYS, false );
+        foreach ( $raw as $key ) {
+            if ( isset( $out[ $key ] ) ) {
+                $out[ $key ] = true;
+            }
+        }
+        // No valid keys ticked → bounce to picker. Handles the edge
+        // case where the operator unchecks every box and submits.
+        if ( ! in_array( true, $out, true ) ) return null;
+        return $out;
+    }
+
+    /**
+     * @param array<string,bool> $blocks
+     */
+    public static function renderHtml( int $player_id, string $season, array $blocks ): string {
         ob_start();
-        self::emit( $player_id, $season );
+        self::emit( $player_id, $season, $blocks );
         return (string) ob_get_clean();
     }
 
@@ -66,8 +129,10 @@ class PlayerGoalIntakePrintRouter {
      * team's roster, in roster display order. Each player's 3 pages
      * are emitted back-to-back; the browser print-dialog produces a
      * single concatenated PDF when the operator picks "Save as PDF".
+     *
+     * @param array<string,bool> $blocks #1313 — block selection from the picker.
      */
-    public static function renderTeamBatch( int $team_id, string $season ): string {
+    public static function renderTeamBatch( int $team_id, string $season, array $blocks ): string {
         global $wpdb;
         $p = $wpdb->prefix;
 
@@ -129,10 +194,11 @@ class PlayerGoalIntakePrintRouter {
                 // Emit the player's 3 pages. emit() prints its own
                 // full HTML doc; for batching, we only want the
                 // <article> blocks. Capture each player's pages
-                // separately and inject them.
+                // separately and inject them. #1313 — same $blocks
+                // selection applies to every player in the batch.
                 $pid = (int) $pid;
                 ob_start();
-                self::emit( $pid, $season );
+                self::emit( $pid, $season, $blocks );
                 $full = (string) ob_get_clean();
                 if ( preg_match_all( '#<article class="paper">.*?</article>#s', $full, $matches ) ) {
                     foreach ( $matches[0] as $page ) {
@@ -161,7 +227,10 @@ class PlayerGoalIntakePrintRouter {
         return sprintf( '%d/%02d', $year - 1, $year % 100 );
     }
 
-    private static function emit( int $player_id, string $season ): void {
+    /**
+     * @param array<string,bool> $blocks #1313 — per-block render gates.
+     */
+    private static function emit( int $player_id, string $season, array $blocks ): void {
         global $wpdb;
         $p = $wpdb->prefix;
 
@@ -226,7 +295,8 @@ class PlayerGoalIntakePrintRouter {
     <a href="<?php echo esc_url( wp_get_referer() ?: home_url( '/' ) ); ?>"><?php esc_html_e( 'Close', 'talenttrack' ); ?></a>
 </div>
 
-<?php // PAGE 1 — speler-snapshot ?>
+<?php // PAGE 1 — speler-snapshot. #1313 — only emit if snapshot block is selected. ?>
+<?php if ( $blocks['snapshot'] ) : ?>
 <article class="paper">
     <p class="brand"><?php echo esc_html( sprintf( __( 'TalentTrack · seizoensintake %s', 'talenttrack' ), $season ) ); ?></p>
     <h1 class="title"><?php echo esc_html( sprintf( __( 'Doelenintake — %s', 'talenttrack' ), $name ) ); ?>
@@ -298,38 +368,45 @@ class PlayerGoalIntakePrintRouter {
         <span><?php esc_html_e( 'Pagina 1 van 3 · speler-snapshot', 'talenttrack' ); ?></span>
     </div>
 </article>
+<?php endif; // snapshot ?>
 
-<?php // PAGE 2 — doelen 1 + 2 ?>
+<?php // PAGE 2 — doelen 1 + 2. #1313 — only emit if at least one goal block on this page is selected. ?>
+<?php if ( $blocks['doel1'] || $blocks['doel2'] ) : ?>
 <article class="paper">
     <p class="brand"><?php echo esc_html( sprintf( __( 'TalentTrack · seizoensintake %s', 'talenttrack' ), $season ) ); ?></p>
     <h1 class="title"><?php echo esc_html( sprintf( __( 'Doelenintake — %s', 'talenttrack' ), $name ) ); ?>
         <small><?php esc_html_e( 'Doelen 1 + 2 · invullen tijdens het gesprek.', 'talenttrack' ); ?></small>
     </h1>
 
-    <?php self::renderGoalBox( 1 ); ?>
-    <?php self::renderGoalBox( 2 ); ?>
+    <?php if ( $blocks['doel1'] ) self::renderGoalBox( 1 ); ?>
+    <?php if ( $blocks['doel2'] ) self::renderGoalBox( 2 ); ?>
 
     <div class="paper-footer">
         <span><?php echo esc_html( $name ); ?> · <?php echo esc_html( (string) ( $player->team_name ?? '' ) ); ?></span>
         <span><?php esc_html_e( 'Pagina 2 van 3 · doelen 1 + 2', 'talenttrack' ); ?></span>
     </div>
 </article>
+<?php endif; // doel1 || doel2 ?>
 
-<?php // PAGE 3 — doel 3 + afronding ?>
+<?php // PAGE 3 — doel 3 + afronding. #1313 — only emit if at least one block on this page is selected. ?>
+<?php if ( $blocks['doel3'] || $blocks['afsluiting'] || $blocks['handtekeningen'] || $blocks['reminder'] ) : ?>
 <article class="paper">
     <p class="brand"><?php echo esc_html( sprintf( __( 'TalentTrack · seizoensintake %s', 'talenttrack' ), $season ) ); ?></p>
     <h1 class="title"><?php echo esc_html( sprintf( __( 'Doelenintake — %s', 'talenttrack' ), $name ) ); ?>
         <small><?php esc_html_e( 'Doel 3 · afsluitende reflectie · ondertekening.', 'talenttrack' ); ?></small>
     </h1>
 
-    <?php self::renderGoalBox( 3 ); ?>
+    <?php if ( $blocks['doel3'] ) self::renderGoalBox( 3 ); ?>
 
+    <?php if ( $blocks['afsluiting'] ) : ?>
     <div class="section-h"><h2 class="section-h__title"><?php esc_html_e( 'Afsluiting — één ding om mee te nemen het seizoen in', 'talenttrack' ); ?></h2></div>
     <section class="reflection">
         <div class="write-line"></div>
         <div class="write-line"></div>
     </section>
+    <?php endif; ?>
 
+    <?php if ( $blocks['handtekeningen'] ) : ?>
     <section class="signatures">
         <div class="sig">
             <div class="sig__line"></div>
@@ -344,17 +421,21 @@ class PlayerGoalIntakePrintRouter {
             <p class="sig__label"><?php esc_html_e( 'Datum gesprek', 'talenttrack' ); ?></p>
         </div>
     </section>
+    <?php endif; ?>
 
+    <?php if ( $blocks['reminder'] ) : ?>
     <div class="cta-note">
         <strong><?php esc_html_e( 'Reminder voor de trainer:', 'talenttrack' ); ?></strong>
         <?php esc_html_e( 'zet de drie doelen hierboven binnen 48 uur in TalentTrack (Speler › Doelen › + Nieuw doel) zodat de digitale versie aan dit gesprek hangt. Gebruik de velden "gekoppeld spelprincipe" en "gekoppelde voetbalhandeling" in de wizard zodat het digitale doel hetzelfde leest als hierboven.', 'talenttrack' ); ?>
     </div>
+    <?php endif; ?>
 
     <div class="paper-footer">
         <span><?php echo esc_html( $name ); ?> · <?php echo esc_html( (string) ( $player->team_name ?? '' ) ); ?></span>
         <span><?php esc_html_e( 'Pagina 3 van 3 · doel 3 + afronding', 'talenttrack' ); ?></span>
     </div>
 </article>
+<?php endif; // page 3 has any block ?>
 
 </body>
 </html>
@@ -654,6 +735,283 @@ body { font-family: var(--font); color: var(--ink); font-size: 11pt; line-height
 
 .cta-note { background: var(--mute); border-left: 3px solid var(--accent); padding: 3mm 4mm; margin-top: 5mm; font-size: 9pt; color: var(--ink-soft); line-height: 1.4; }
 .cta-note strong { color: var(--ink); }
+CSS;
+    }
+
+    /**
+     * #1313 — single-player picker page. Renders the 7 block checkboxes
+     * pre-checked, a Print button (submits the form), a Print-all link
+     * (escape hatch), and a Cancel link back to where the operator came
+     * from. Mobile-first per CLAUDE.md §2 — 48px touch targets, 16px
+     * input font to suppress iOS zoom, base layout at 360px.
+     */
+    private static function renderPickerHtml( int $player_id, string $season ): string {
+        global $wpdb;
+        $p = $wpdb->prefix;
+        $scope  = QueryHelpers::apply_demo_scope( 'pl', 'player' );
+        $player = $wpdb->get_row( $wpdb->prepare(
+            "SELECT pl.first_name, pl.last_name
+               FROM {$p}tt_players pl
+              WHERE pl.id = %d {$scope}
+              LIMIT 1",
+            $player_id
+        ) );
+        if ( ! $player ) {
+            wp_die( esc_html__( 'Player not found.', 'talenttrack' ) );
+        }
+        $name = trim( (string) $player->first_name . ' ' . (string) $player->last_name );
+
+        $print_all_url = add_query_arg( [
+            'tt_goal_intake_print' => 1,
+            'player_id'            => $player_id,
+            'season'               => $season,
+            'blocks'               => [ 'all' ],
+        ], home_url( '/' ) );
+
+        return self::renderPicker(
+            sprintf( __( 'Doelenintake — %1$s — kies blokken', 'talenttrack' ), $name ),
+            sprintf( __( 'Speler: %1$s · Seizoen %2$s', 'talenttrack' ), $name, $season ),
+            [
+                'tt_goal_intake_print' => 1,
+                'player_id'            => $player_id,
+                'season'               => $season,
+            ],
+            $print_all_url
+        );
+    }
+
+    /**
+     * #1313 — team-batch picker. Identical UX to the per-player picker;
+     * the operator picks blocks once and the same selection applies to
+     * every player in the batch.
+     */
+    private static function renderTeamBatchPicker( int $team_id, string $season ): string {
+        global $wpdb;
+        $p = $wpdb->prefix;
+        $team_scope = QueryHelpers::apply_demo_scope( 't', 'team' );
+        $team = $wpdb->get_row( $wpdb->prepare(
+            "SELECT id, name FROM {$p}tt_teams t WHERE t.id = %d {$team_scope} LIMIT 1",
+            $team_id
+        ) );
+        if ( ! $team ) {
+            wp_die( esc_html__( 'Team not found.', 'talenttrack' ) );
+        }
+
+        $player_scope = QueryHelpers::apply_demo_scope( 'pl', 'player' );
+        $player_count = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$p}tt_players pl
+              WHERE pl.team_id = %d
+                AND ( pl.archived_at IS NULL ) {$player_scope}",
+            $team_id
+        ) );
+
+        $print_all_url = add_query_arg( [
+            'tt_goal_intake_print' => 1,
+            'team_id'              => $team_id,
+            'season'               => $season,
+            'blocks'               => [ 'all' ],
+        ], home_url( '/' ) );
+
+        return self::renderPicker(
+            sprintf( __( 'Seizoens-intakes — %1$s — kies blokken', 'talenttrack' ), (string) $team->name ),
+            sprintf(
+                /* translators: 1: team name, 2: season, 3: player count */
+                __( 'Team: %1$s · Seizoen %2$s · %3$d spelers', 'talenttrack' ),
+                (string) $team->name, $season, $player_count
+            ),
+            [
+                'tt_goal_intake_print' => 1,
+                'team_id'              => $team_id,
+                'season'               => $season,
+            ],
+            $print_all_url
+        );
+    }
+
+    /**
+     * #1313 — shared picker chrome used by both single-player and
+     * team-batch flows. The form submits via GET back to the same URL,
+     * adding `blocks[]=…` for each ticked checkbox; `maybeRender()`
+     * then re-enters and dispatches to the render path.
+     *
+     * @param array<string,scalar> $hidden_fields  hidden inputs to round-trip
+     */
+    private static function renderPicker( string $title, string $subtitle, array $hidden_fields, string $print_all_url ): string {
+        $cancel_url = wp_get_referer() ?: home_url( '/' );
+
+        $block_labels = [
+            'snapshot'       => __( 'Snapshot (foto, stats, terugblik, reflectie)',     'talenttrack' ),
+            'doel1'          => __( 'Doel 1',                                            'talenttrack' ),
+            'doel2'          => __( 'Doel 2',                                            'talenttrack' ),
+            'doel3'          => __( 'Doel 3',                                            'talenttrack' ),
+            'afsluiting'     => __( 'Afsluiting (reflectie 1 ding om mee te nemen)',     'talenttrack' ),
+            'handtekeningen' => __( 'Handtekeningen (speler / trainer / datum)',         'talenttrack' ),
+            'reminder'       => __( 'Trainer-reminder (CTA-note)',                       'talenttrack' ),
+        ];
+
+        ob_start();
+        ?><!DOCTYPE html>
+<html <?php language_attributes(); ?>>
+<head>
+    <meta charset="<?php bloginfo( 'charset' ); ?>">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><?php echo esc_html( $title ); ?></title>
+    <style><?php echo self::pickerStylesCss(); ?></style>
+</head>
+<body>
+
+<main class="picker">
+    <header class="picker__header">
+        <h1 class="picker__title"><?php echo esc_html( $title ); ?></h1>
+        <p class="picker__subtitle"><?php echo esc_html( $subtitle ); ?></p>
+    </header>
+
+    <form class="picker__form" action="<?php echo esc_url( home_url( '/' ) ); ?>" method="get">
+        <?php foreach ( $hidden_fields as $name => $value ) : ?>
+            <input type="hidden" name="<?php echo esc_attr( (string) $name ); ?>" value="<?php echo esc_attr( (string) $value ); ?>">
+        <?php endforeach; ?>
+
+        <fieldset class="picker__fieldset">
+            <legend class="picker__legend"><?php esc_html_e( 'Selecteer de blokken om te printen', 'talenttrack' ); ?></legend>
+            <ul class="picker__list">
+                <?php foreach ( $block_labels as $key => $label ) : ?>
+                    <li class="picker__item">
+                        <label class="picker__label">
+                            <input type="checkbox" name="blocks[]" value="<?php echo esc_attr( $key ); ?>" checked>
+                            <span class="picker__text"><?php echo esc_html( $label ); ?></span>
+                        </label>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        </fieldset>
+
+        <div class="picker__actions">
+            <button type="submit" class="picker__btn picker__btn--primary"><?php esc_html_e( 'Print geselecteerde blokken', 'talenttrack' ); ?></button>
+            <a class="picker__btn picker__btn--secondary" href="<?php echo esc_url( $print_all_url ); ?>"><?php esc_html_e( 'Print alles', 'talenttrack' ); ?></a>
+            <a class="picker__btn picker__btn--ghost" href="<?php echo esc_url( $cancel_url ); ?>"><?php esc_html_e( 'Annuleren', 'talenttrack' ); ?></a>
+        </div>
+    </form>
+</main>
+
+</body>
+</html>
+        <?php
+        return (string) ob_get_clean();
+    }
+
+    /**
+     * #1313 — picker styles. Mobile-first per CLAUDE.md §2: base CSS
+     * targets ~360px viewports; the only breakpoint is 768px where the
+     * action buttons switch from stacked to a row. 48×48 touch targets
+     * on every interactive element; 16px input font to suppress iOS
+     * focus-zoom. No build step — inlined to match the print router's
+     * convention.
+     */
+    private static function pickerStylesCss(): string {
+        return <<<CSS
+:root {
+    --ink: #1a1d21;
+    --ink-soft: #5b6e75;
+    --line: #d6dadd;
+    --accent: #155a57;
+    --accent-hover: #0e4441;
+    --bg: #f3f5f6;
+    --paper: #ffffff;
+    --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font);
+    font-size: 1rem;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    padding: 1rem;
+    padding-top: env(safe-area-inset-top, 1rem);
+    padding-bottom: env(safe-area-inset-bottom, 1rem);
+}
+
+.picker {
+    background: var(--paper);
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    max-width: 36rem;
+    margin: 0 auto;
+    padding: 1.25rem;
+}
+.picker__header { margin-bottom: 1.25rem; padding-bottom: 1rem; border-bottom: 1px solid var(--line); }
+.picker__title { font-size: 1.25rem; font-weight: 700; margin: 0 0 0.25rem; line-height: 1.25; color: var(--ink); }
+.picker__subtitle { margin: 0; color: var(--ink-soft); font-size: 0.875rem; }
+
+.picker__form { margin: 0; }
+.picker__fieldset { border: 0; padding: 0; margin: 0 0 1.25rem; }
+.picker__legend { font-size: 0.875rem; font-weight: 600; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.5rem; padding: 0; }
+.picker__list { list-style: none; padding: 0; margin: 0; }
+.picker__item { margin: 0; }
+.picker__label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 3rem;
+    padding: 0.5rem;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.picker__label:hover { background: var(--bg); }
+.picker__label input[type="checkbox"] {
+    width: 1.5rem;
+    height: 1.5rem;
+    flex-shrink: 0;
+    accent-color: var(--accent);
+    cursor: pointer;
+}
+.picker__text { font-size: 1rem; line-height: 1.35; }
+
+.picker__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
+}
+.picker__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 3rem;
+    padding: 0 1.25rem;
+    border-radius: 0.375rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border: 1px solid transparent;
+    cursor: pointer;
+    text-decoration: none;
+    touch-action: manipulation;
+    font-family: inherit;
+}
+.picker__btn--primary { background: var(--accent); color: var(--paper); }
+.picker__btn--primary:hover { background: var(--accent-hover); }
+.picker__btn--secondary { background: var(--paper); color: var(--accent); border-color: var(--accent); }
+.picker__btn--secondary:hover { background: var(--bg); }
+.picker__btn--ghost { background: transparent; color: var(--ink-soft); border-color: var(--line); }
+.picker__btn--ghost:hover { background: var(--bg); color: var(--ink); }
+.picker__btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+@media (min-width: 768px) {
+    body { padding: 2rem 1rem; }
+    .picker { padding: 1.75rem; }
+    .picker__actions { flex-direction: row; }
+    .picker__btn--primary { order: 3; margin-left: auto; }
+    .picker__btn--secondary { order: 2; }
+    .picker__btn--ghost { order: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+}
 CSS;
     }
 }

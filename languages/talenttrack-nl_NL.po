@@ -37729,3 +37729,49 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ "Vandaag toont deze pagina academy-brede KPI's en de standaardrapporten "
 #~ "hierboven. De twee-koloms entiteitskiezer-indeling (speler / team / "
 #~ "activiteit / seizoen) volgt in een vervolgrelease."
+
+# #1313 — goal-intake print picker (v4.20.81). i18n-sync will merge
+# these into the proper position on next run; meanwhile they land here
+# verbatim so a Dutch install reads correctly today.
+
+msgid "Doelenintake — %1$s — kies blokken"
+msgstr "Doelenintake — %1$s — kies blokken"
+
+msgid "Seizoens-intakes — %1$s — kies blokken"
+msgstr "Seizoens-intakes — %1$s — kies blokken"
+
+msgid "Speler: %1$s · Seizoen %2$s"
+msgstr "Speler: %1$s · Seizoen %2$s"
+
+msgid "Team: %1$s · Seizoen %2$s · %3$d spelers"
+msgstr "Team: %1$s · Seizoen %2$s · %3$d spelers"
+
+msgid "Selecteer de blokken om te printen"
+msgstr "Selecteer de blokken om te printen"
+
+msgid "Snapshot (foto, stats, terugblik, reflectie)"
+msgstr "Snapshot (foto, stats, terugblik, reflectie)"
+
+msgid "Doel 1"
+msgstr "Doel 1"
+
+msgid "Doel 2"
+msgstr "Doel 2"
+
+msgid "Afsluiting (reflectie 1 ding om mee te nemen)"
+msgstr "Afsluiting (reflectie 1 ding om mee te nemen)"
+
+msgid "Handtekeningen (speler / trainer / datum)"
+msgstr "Handtekeningen (speler / trainer / datum)"
+
+msgid "Trainer-reminder (CTA-note)"
+msgstr "Trainer-reminder (CTA-note)"
+
+msgid "Print geselecteerde blokken"
+msgstr "Print geselecteerde blokken"
+
+msgid "Print alles"
+msgstr "Print alles"
+
+msgid "Annuleren"
+msgstr "Annuleren"
