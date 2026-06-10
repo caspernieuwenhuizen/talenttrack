@@ -66,9 +66,10 @@ jobs:
           # historical migrations + the Activator's initial schema +
           # docblock notes that reference the rename.
           # The pattern intentionally excludes:
-          #   - database/migrations/0001_*.php through 0026_*.php (frozen history)
+          #   - database/migrations/ entirely (#1318 — append-only schema
+          #     mutation files MUST name the column they're renaming;
+          #     they cannot smuggle live runtime regressions)
           #   - src/Core/Activator.php (initial-schema CREATE TABLE statements)
-          #   - the rename migration itself
           #   - the spec
           #   - .po file (translation msgid history)
           #   - explicit docblock comments mentioning the rename
@@ -109,18 +110,15 @@ jobs:
             "'sessions/\\{id\\}'"
           )
           excludes=(
-            -e 'database/migrations/0001'
-            -e 'database/migrations/0002'
-            -e 'database/migrations/0004'
-            -e 'database/migrations/0010'
-            -e 'database/migrations/0013'
-            -e 'database/migrations/0015'
-            -e 'database/migrations/0020'
-            -e 'database/migrations/0021_workflow_engine'
-            -e 'database/migrations/0022_workflow_default_triggers'
-            -e 'database/migrations/0026'
-            -e 'database/migrations/0027_rename_sessions_to_activities'
-            -e 'database/migrations/0028_authorization_user_walk'
+            # #1318 — blanket-exclude the migrations directory. Migrations
+            # are append-only schema-mutation files; their entire purpose
+            # is to type the old name and rename it. They cannot smuggle
+            # live runtime regressions. The per-migration allowlist
+            # (0001, 0002, … 0028) was a ratchet — every rename-away
+            # migration tripped the gate until an operator remembered to
+            # add it. Migration 0146 (session_principles → activity_principles)
+            # was the latent failure that surfaced this.
+            -e 'database/migrations/'
             -e 'src/Core/Activator.php'
             -e 'specs/0035'
             -e 'languages/talenttrack-nl_NL.po'
