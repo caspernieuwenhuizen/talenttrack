@@ -96,6 +96,10 @@ final class ReviewStep implements WizardStepInterface {
                 'team_id'             => $team_id,
                 'person_id'           => $person_id,
                 'functional_role_id'  => (int) $role->id,
+                // #1314 — mirror the PeopleRepository::assignToTeam
+                // fix: derive is_head_coach from the slot so the new
+                // head coach lands on the head_coach persona dashboard.
+                'is_head_coach'       => $slot === 'head_coach' ? 1 : 0,
             ] );
         }
 

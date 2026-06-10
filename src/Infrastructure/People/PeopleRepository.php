@@ -331,6 +331,16 @@ class PeopleRepository {
             'person_id'          => $person_id,
             'functional_role_id' => $functional_role_id,
             'role_in_team'       => $fn_role_key,
+            // #1314 — PersonaResolver::resolveCoachPersona() reads
+            // is_head_coach to split tt_coach into head_coach vs
+            // assistant_coach. Migration 0030 added the column with
+            // DEFAULT 0 but no writer was ever wired here, so every
+            // coach assigned via the Staff section since v3.110.200
+            // (which removed the legacy head_coach_id dropdown) landed
+            // on the assistant_coach dashboard. Derive from the resolved
+            // functional-role key — same value the row's role_in_team
+            // string already carries.
+            'is_head_coach'      => $fn_role_key === 'head_coach' ? 1 : 0,
             'start_date'         => $start ?: null,
             'end_date'           => $end ?: null,
         ] );
