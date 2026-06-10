@@ -137,6 +137,32 @@
         });
     }
 
+    // v4.20.66 (#1271) — when redirecting back to the team planner after
+    // an activity save, jump the planner to the week that contains the
+    // saved date. Without this, picking a date outside the captured
+    // `week_start` makes the activity disappear from the planner grid
+    // post-redirect (matches FrontendTeamPlannerView::resolveWeekStart).
+    function adjustPlannerWeek(redirectUrl, form) {
+        try {
+            var url = new URL(redirectUrl, window.location.origin);
+            if (url.searchParams.get('tt_view') !== 'team-planner') return redirectUrl;
+            var dateInput = form.querySelector('input[name="session_date"]');
+            var d = dateInput ? String(dateInput.value || '') : '';
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) return redirectUrl;
+            var dt = new Date(d + 'T00:00:00Z');
+            if (isNaN(dt.getTime())) return redirectUrl;
+            // JS getUTCDay(): 0=Sun..6=Sat. Snap back to Monday.
+            var dow = dt.getUTCDay();
+            var daysBack = (dow + 6) % 7;
+            dt.setUTCDate(dt.getUTCDate() - daysBack);
+            var monday = dt.toISOString().slice(0, 10);
+            url.searchParams.set('week_start', monday);
+            return url.toString();
+        } catch (e) {
+            return redirectUrl;
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
 
         // Tab switching — legacy `data-tab` pattern (tabs share a page,
@@ -241,7 +267,10 @@
                         // v3.92.5 — explicit URL redirect. Used by the
                         // coach-side PDP conversation form to land back on
                         // the parent file view after save / sign.
-                        setTimeout(function() { window.location.href = redirectUrl; }, 1200);
+                        // v4.20.66 (#1271) — pass through adjustPlannerWeek so
+                        // a team-planner redirect lands on the week containing
+                        // the saved activity, not the week the user was on.
+                        setTimeout(function() { window.location.href = adjustPlannerWeek(redirectUrl, form); }, 1200);
                     } else {
                         form.reset();
                         setTimeout(function() { setSaveBtnState(btn, 'idle'); }, 1500);

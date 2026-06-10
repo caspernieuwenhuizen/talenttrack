@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.65
+Stable tag: 4.20.66
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.66 — Team planner: post-save redirect now lands on the week containing the new activity (closes #1271). Pilot 2026-06-08: scheduling an activity from the planner for a date outside the visible week made the activity look like it never saved — it persisted fine, but the post-save redirect inherited the planner's original `week_start` and the new card fell outside the `BETWEEN <start> AND <end>` filter window. **Fix.** Single-function JS addition in [public.js](assets/js/public.js): `adjustPlannerWeek( redirectUrl, form )` parses the redirect URL, detects `tt_view=team-planner`, reads the form's `session_date`, computes the Monday-snapped week (matches `FrontendTeamPlannerView::resolveWeekStart`), and rewrites the URL's `week_start` param. Wraps the existing `data-redirect-after-save-url` branch in the `.tt-ajax-form` handler. Other redirect targets (list / detail / reload / non-planner explicit URLs) are unaffected. **Scope.** ~25 lines of JS. No PHP changes. No translations. Patch bump. (closes #1271) =
 
 = 4.20.65 — PDP hard delete with five-table cascade (closes #1274). Completes the PDP archive + cleanup epic. **New `PdpCascadeDeleter` service** under `src/Modules/Pdp/`, same pattern as `PersonDeletionCascade` from #1138. Single transaction, child-first delete order: `tt_pdp_calendar_links` (WHERE conversation_id IN ...) → `tt_goal_links` (link_type='pdp_conversation', link_id IN ...) → `tt_pdp_conversations` → `tt_pdp_verdicts` → `tt_pdp_blocks` (self-gates on table existence — migration 0107 is recent) → `tt_pdp_files`. Any per-table failure throws + the transaction rolls back; nothing partial reaches disk. Audit-log entry `pdp.deleted_with_cascade` with per-table counts on success, `pdp.cascade.failed` with the underlying error on rollback. **New `tt_delete_pdp` cap** in `LegacyCapMapper`, bridged to `pdp_file:create_delete` (same matrix tuple as `tt_unarchive_pdp` from PR1 but a distinct cap so views can gate the destructive surface separately and the audit trail names the act precisely). Admin-only via the existing `academy_admin → pdp_file [rcd, global]` seed. **New REST endpoint** `POST /wp-json/talenttrack/v1/pdp-files/{id}/permanent-delete`, cap-gated, returns per-table row counts. The endpoint walks already-archived PDPs too (the common data-retention case is "archive first, permanently delete later"). The double-confirm UX (typed slug) lives on the calling surface — REST is the primitive. **PR3 wrap-up.** Closes the three-PR sequence: PR1 (v4.20.63) archive primitive → PR2 (v4.20.64) player-archive cascade → PR3 (v4.20.65) hard delete. The pre-delete CSV export to `wp-content/uploads/tt-pdp-deletes/` and the wp-admin double-confirm surface from the shaping comment are deferred to a tiny UX-only follow-up; the data layer + REST + cap shipped end-to-end. (closes #1274) =
 
