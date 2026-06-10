@@ -314,11 +314,21 @@
             if (!path) return;
             var confirmMsg = btn.getAttribute('data-confirm-msg') || (i18n.confirm_delete_record || 'Delete this record?');
             var deletedMsg = btn.getAttribute('data-deleted-msg') || (i18n.deleted_record || 'Deleted.');
+            // #1329 — `data-redirect-after-delete` lets a destructive
+            // action navigate away on success (e.g. blueprint editor
+            // deleting itself → return to the team's blueprint list).
+            // Beats the default `reload()` which would 404 the just-
+            // deleted record.
+            var redirectAfter = btn.getAttribute('data-redirect-after-delete');
             var doDelete = function() {
                 restRequest(path, 'DELETE', null).then(function(res) {
                     if (res.ok) {
                         if (window.ttFlash && window.ttFlash.addNear) {
                             window.ttFlash.addNear(btn, 'success', deletedMsg);
+                        }
+                        if (redirectAfter) {
+                            window.location.href = redirectAfter;
+                            return;
                         }
                         var row = btn.closest('[data-tt-row]') || btn.closest('tr') || btn.closest('li');
                         if (row) {
