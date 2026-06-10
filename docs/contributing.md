@@ -46,6 +46,17 @@ The translation discipline is per audience:
 
 If a doc's audience changes from `dev` to anything else, add the Dutch translation in that PR. If it changes the other way, remove the Dutch counterpart in the same PR.
 
+### i18n CI workflows (PR-time + weekly)
+
+Translation drift is gated and reported automatically by two workflows under `.github/workflows/`:
+
+- **`i18n-pr-check.yml`** runs on every PR that touches `src/**/*.php` or `languages/**`. It refreshes a snapshot `.pot` against the PR branch, `msgmerge`s it into `talenttrack-nl_NL.po`, and fails when the empty-`msgstr` count grew vs. `main`. The failure comment lists the new English msgids. The PR also fails if it adds an obvious hardcoded English leak (`wp_die("Capital…")`, `WP_Error('code', "Capital…")`, `sprintf("Capital…")` — wrap those in `__()` / `_e()` / `esc_html__()`).
+- **`i18n-drift-report.yml`** runs every Monday 06:00 UTC and on manual dispatch. It refreshes the `.pot`, `msgmerge`s every locale `.po`, counts empty + fuzzy entries, and writes the result into an auto-managed tracking issue titled `i18n drift report`. The body lists per-locale counts, the top 10 source files driving the `nl_NL` gap, and PRs merged in the last 7 days that touched PHP under `src/`.
+
+**Override**: when a PR genuinely needs to ship new untranslated msgids (typically because a feature lands faster than the translator), label the PR `i18n-drift-acceptable`. The PR-check passes; the weekly drift report still records the new entries.
+
+Neither workflow commits anything — `i18n-sync.yml` (structural `.pot` regeneration + `msgmerge`) is the only workflow that writes to `languages/`.
+
 ## Layout conventions
 
 - One H1 per file, matching the slug's title in `HelpTopics::all()`.

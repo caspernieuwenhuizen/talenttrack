@@ -1,0 +1,254 @@
+name: i18n drift report
+
+# Weekly translation-drift report. Refreshes the .pot from PHP source,
+# runs `msgmerge` against every locale .po, counts empty + fuzzy
+# msgstr entries, and (re)files a tracking issue with the headline
+# counts, the top-10 files driving the gap, and the PR numbers
+# merged in the previous week that introduced new untranslated
+# msgids.
+#
+# Why this workflow exists: translation drift used to be caught
+# manually during pilot triage (three NL strings went missing in
+# #1158 before a pilot operator reported the screen was back in
+# English). This moves detection to CI so the count is visible
+# every Monday and tied to a single issue that can be closed once
+# the gap is cleared. See #1223 + Audit 4 (#1178).
+#
+# Separation of concerns vs. existing workflows:
+# - `i18n-sync.yml` REGENERATES `.pot` and `msgmerge`s it into `.po`
+#   on every PHP-touching merge to main. It's structural — it keeps
+#   the file layout honest. It commits the result.
+# - This workflow REPORTS on the resulting drift. It does NOT
+#   commit anything to the repo; it only writes the issue body.
+
+on:
+  schedule:
+    # Every Monday 06:00 UTC.
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  report:
+    name: Refresh .pot, msgmerge, file/update tracking issue
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # Need enough history to find PRs merged in the last 7 days.
+          fetch-depth: 0
+
+      - name: Setup PHP + wp-cli
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          tools: wp-cli
+
+      - name: Install gettext (msgmerge / msgattrib)
+        run: sudo apt-get update && sudo apt-get install -y gettext
+
+      # Refresh the .pot from PHP source so msgmerge has a current
+      # template to compare each locale against. We write to a temp
+      # path rather than overwriting languages/talenttrack.pot — the
+      # i18n-sync workflow owns that file. We just need the snapshot
+      # for the count.
+      - name: Regenerate .pot snapshot
+        run: |
+          mkdir -p .drift
+          wp i18n make-pot . .drift/talenttrack.pot --slug=talenttrack --skip-audit
+
+      # For each locale: msgmerge the snapshot into a temp copy of the
+      # .po (so we don't mutate the repo) and count empty / fuzzy
+      # entries. The first `msgstr ""` belongs to the header block —
+      # subtract one.
+      - name: Count empty + fuzzy per locale
+        id: counts
+        shell: bash
+        run: |
+          set -e
+          mkdir -p .drift
+          summary=".drift/summary.md"
+          json=".drift/summary.json"
+          : > "$summary"
+          echo '{}' > "$json"
+
+          {
+            echo "| Locale | Total msgids | Empty msgstr | Fuzzy |"
+            echo "| --- | ---: | ---: | ---: |"
+          } >> "$summary"
+
+          tmp_json=$(mktemp)
+          echo '{' > "$tmp_json"
+          first=1
+
+          for po in languages/talenttrack-*.po; do
+            locale=$(basename "$po" .po | sed 's/^talenttrack-//')
+            work=".drift/${locale}.po"
+            cp "$po" "$work"
+            msgmerge --update --backup=none --no-fuzzy-matching \
+              "$work" .drift/talenttrack.pot >/dev/null 2>&1
+
+            # Total msgids = count of `msgid "` minus the header.
+            total=$(grep -c '^msgid ' "$work" || true)
+            total=$(( total > 0 ? total - 1 : 0 ))
+
+            # Empty msgstr (one-line form): `msgstr ""` on its own line.
+            # The header entry itself has `msgstr ""` so subtract 1.
+            empty=$(grep -c '^msgstr ""$' "$work" || true)
+            empty=$(( empty > 0 ? empty - 1 : 0 ))
+
+            # Fuzzy entries — `#, fuzzy` flag lines.
+            fuzzy=$(grep -c '^#, .*fuzzy' "$work" || true)
+
+            echo "| \`$locale\` | $total | $empty | $fuzzy |" >> "$summary"
+
+            if [ "$first" -eq 0 ]; then
+              echo ',' >> "$tmp_json"
+            fi
+            first=0
+            printf '"%s": {"total": %d, "empty": %d, "fuzzy": %d}' \
+              "$locale" "$total" "$empty" "$fuzzy" >> "$tmp_json"
+          done
+          echo '' >> "$tmp_json"
+          echo '}' >> "$tmp_json"
+          mv "$tmp_json" "$json"
+
+          echo "" >> "$summary"
+
+      # Top 10 source files driving the nl_NL gap. Each empty entry in
+      # the merged .po has `#:` comment lines listing its source
+      # references; we extract the filename (drop line numbers), bucket
+      # by file, and print the top 10. nl_NL is the pilot locale, so
+      # it's the one we surface in the headline.
+      - name: Top 10 files by empty-msgstr count (nl_NL)
+        shell: bash
+        run: |
+          set -e
+          po=".drift/nl_NL.po"
+          {
+            echo "## Top 10 files by empty-msgstr count (nl_NL)"
+            echo ""
+            echo "| File | Empty msgstr entries |"
+            echo "| --- | ---: |"
+          } >> .drift/summary.md
+
+          # Walk the .po block-by-block. A block is separated by blank
+          # lines. For each block whose msgstr is empty (`msgstr ""`
+          # followed by no continuation), record the `#:` references.
+          awk '
+            BEGIN { RS = ""; FS = "\n" }
+            {
+              empty = 0
+              has_msgstr = 0
+              for (i = 1; i <= NF; i++) {
+                if ($i ~ /^msgstr ""$/) { has_msgstr = 1; empty = 1 }
+                else if ($i ~ /^msgstr /) { has_msgstr = 1; empty = 0 }
+              }
+              # Skip header block: it has no msgid content (msgid "").
+              has_real_msgid = 0
+              for (i = 1; i <= NF; i++) {
+                if ($i ~ /^msgid "[^"]/) { has_real_msgid = 1 }
+              }
+              if (has_msgstr && empty && has_real_msgid) {
+                for (i = 1; i <= NF; i++) {
+                  if ($i ~ /^#: /) {
+                    refs = substr($i, 4)
+                    n = split(refs, parts, " ")
+                    for (j = 1; j <= n; j++) {
+                      # Strip :line suffix.
+                      sub(/:[0-9]+$/, "", parts[j])
+                      if (parts[j] != "") print parts[j]
+                    }
+                  }
+                }
+              }
+            }
+          ' "$po" | sort | uniq -c | sort -rn | head -10 | \
+          while read -r count file; do
+            echo "| \`$file\` | $count |" >> .drift/summary.md
+          done
+
+          echo "" >> .drift/summary.md
+
+      # PRs merged in the previous 7 days that touched src/**/*.php.
+      # Any of those is a candidate source of new untranslated msgids.
+      # We can't easily prove causality from CI alone, so this is a
+      # "look here first" hint — the reviewer triages the list.
+      - name: List PRs merged in the previous 7 days that touched PHP
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -e
+          since=$(date -u -d '7 days ago' +%Y-%m-%d)
+          {
+            echo "## PRs merged since ${since} touching \`src/**/*.php\`"
+            echo ""
+            echo "_These PRs are the most likely source of new untranslated msgids in this report._"
+            echo ""
+          } >> .drift/summary.md
+
+          # gh pr list with merged-at filter; restrict to PRs that
+          # touched PHP under src/.
+          gh pr list \
+            --state merged \
+            --limit 50 \
+            --search "merged:>=${since}" \
+            --json number,title,mergedAt,files \
+            --jq '
+              .[] | select(
+                any(.files[]?.path; startswith("src/") and endswith(".php"))
+              ) | "- #\(.number) — \(.title) (merged \(.mergedAt | split("T")[0]))"
+            ' >> .drift/summary.md || echo "_No PRs touching PHP merged in this window._" >> .drift/summary.md
+
+          echo "" >> .drift/summary.md
+
+      # Compose the final issue body. Header notes that this is
+      # auto-managed so a human doesn't manually edit it.
+      - name: Compose issue body
+        shell: bash
+        run: |
+          set -e
+          body=".drift/issue-body.md"
+          {
+            echo "_This issue is auto-managed by \`.github/workflows/i18n-drift-report.yml\`. The body is rewritten every Monday 06:00 UTC. Close it when the empty-msgstr counts reach acceptable thresholds — the workflow will reopen / refile if drift returns._"
+            echo ""
+            echo "## Headline counts ($(date -u +%Y-%m-%d))"
+            echo ""
+            cat .drift/summary.md
+            echo "---"
+            echo ""
+            echo "Refs #1223. See \`docs/i18n-architecture.md\` for the translation pipeline. Override the PR-time check by labelling a PR with \`i18n-drift-acceptable\`."
+          } > "$body"
+
+      # Find an open issue with the tracking title; create one if
+      # absent, otherwise rewrite its body. The title is stable so the
+      # workflow can locate the same issue week after week.
+      - name: File or update tracking issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -e
+          title="i18n drift report"
+          existing=$(gh issue list \
+            --state open \
+            --search "in:title \"$title\"" \
+            --json number,title \
+            --jq ".[] | select(.title == \"$title\") | .number" \
+            | head -1)
+
+          if [ -z "$existing" ]; then
+            echo "No open tracking issue — creating one."
+            gh issue create \
+              --title "$title" \
+              --body-file .drift/issue-body.md \
+              --label "i18n,tech-debt"
+          else
+            echo "Updating tracking issue #$existing."
+            gh issue edit "$existing" \
+              --body-file .drift/issue-body.md
+          fi
