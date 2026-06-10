@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.75
+Stable tag: 4.20.76
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.76 — New-activity wizard gains an AttendanceRosterStep (closes #1297). Pilot 2026-06-09: the wizard never asks which players are expected to attend, so coaches save the activity then revisit the edit form to mark attendance — Goal wizard already captures players in-flow via PlayerStep. **New step** [`AttendanceRosterStep`](src/Modules/Wizards/Activity/AttendanceRosterStep.php) slots between PrinciplesStep and ReviewStep, rendering the just-picked team's roster as default-checked checkboxes; operator unchecks anyone known absent. Top-of-step Check all / Uncheck all affordances (48px tap targets per CLAUDE.md § 2). "Add guest players" `<details>` disclosure opens `PlayerSearchPickerComponent` scoped to sibling teams within coach scope (matches the post-save edit form's guest UX). "Set attendance later" skip link preserves the existing zero-row behaviour. **Save side.** `ReviewStep::submit()` writes the roster picks into `tt_attendance` with `record_type='expected'`, `is_guest=0`; guest picks get `is_guest=1`. New `insertExpectedAttendance()` helper. **Wiring.** `PrinciplesStep::nextStep` now returns `'attendance-roster'`. ReviewStep summary row shows a Roster cell with the count. New [`assets/js/components/wizard-attendance-roster.js`](assets/js/components/wizard-attendance-roster.js) — externalised per CLAUDE.md § 2. **Dutch.** 13 new msgstrs (11 singular + 2 plural pairs). Patch bump. (closes #1297) =
 
 = 4.20.75 — Demo→production: per-record overrides on top of the per-batch toggle (closes #1295). Follow-up to v4.20.61's per-batch toggle. The shaping comment on #1272 proposed per-record toggles for the rare edge case where one seeded row turned into a real signing mid-demo; this ships that flow without compromising the per-batch UX that handles ~95% of decisions. **What changed.** [`DemoReviewPage::renderConvertForm()`](src/Modules/DemoData/Admin/DemoReviewPage.php) gains a per-batch `<details>` "Show records" expander listing every tagged row with three per-record radios: `delete` / `promote` / `inherit` (default `inherit` — existing operators experience zero behaviour change). `handleConvert()` parses `record_<entity_type>_<entity_id>` keys into a flat `[entity_type => [id => decision]]` map. [`DemoConversionService::run()`](src/Modules/DemoData/DemoConversionService.php) accepts the overrides as an optional third argument; a pre-pass strips `tt_demo_tags` for `promote` overrides on delete batches (rescue path), then per-batch loops run unchanged, then a post-pass deletes rows for `delete` overrides on promoted batches. Audit log entry `demo.conversion.run` gains `per_record_overrides` + `summary.per_record_overrides_applied`. **Dutch.** 4 new msgstrs (`Toon records`, `Per rij overschrijven`, `Promoveren`, `Erven`). Patch bump. (closes #1295) =
 
