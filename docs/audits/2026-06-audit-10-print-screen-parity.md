@@ -1,3 +1,5 @@
+<!-- audience: dev -->
+
 # Audit 10 — Print/PDF router vs on-screen view content composition parity
 
 Date: 2026-06-03 · Issue: #1184

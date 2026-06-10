@@ -1,3 +1,5 @@
+<!-- audience: dev -->
+
 # Audit 7 — Per-entity scope-filter consistency across sibling read paths
 
 Date: 2026-06-03

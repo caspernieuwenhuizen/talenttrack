@@ -1,3 +1,5 @@
+<!-- audience: dev -->
+
 # Audit 8 — Form-picker option-source honours user's matrix scope
 
 Date: 2026-06-03

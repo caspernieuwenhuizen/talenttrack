@@ -1,3 +1,5 @@
+<!-- audience: dev -->
+
 # Audit 11 — Player-picker pattern coverage
 
 Date: 2026-06-09

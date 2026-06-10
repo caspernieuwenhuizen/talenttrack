@@ -1,3 +1,5 @@
+<!-- audience: dev -->
+
 # Audit 5 — JS shared-component synthetic-event dispatch on hidden-input writes
 
 Date: 2026-06-03. Spec: #1179. Performed against the v4.20.7 working tree.

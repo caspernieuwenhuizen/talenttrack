@@ -1,3 +1,5 @@
+<!-- audience: dev -->
+
 # Audit 6 — Widget → list deep-link filter parity
 
 Date: 2026-06-03. Spec: #1180. Performed against the v4.17.x working tree.

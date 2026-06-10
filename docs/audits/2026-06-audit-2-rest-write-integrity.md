@@ -1,3 +1,5 @@
+<!-- audience: dev -->
+
 # Audit 2 — REST write-path integrity
 
 **Date:** 2026-06-03

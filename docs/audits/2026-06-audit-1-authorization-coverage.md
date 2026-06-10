@@ -1,3 +1,5 @@
+<!-- audience: dev -->
+
 # Audit 1 — Authorization coverage
 
 Static cross-check of `config/authorization_seed.php` against

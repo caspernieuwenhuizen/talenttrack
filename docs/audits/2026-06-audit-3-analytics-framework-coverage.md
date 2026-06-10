@@ -1,3 +1,5 @@
+<!-- audience: dev -->
+
 # Audit 3 — Analytics direct-`$wpdb` views vs `KpiRegistry` framework
 
 Date: 2026-06-03. Parent issue: #1177.
