@@ -200,8 +200,14 @@
             openSaveAsDialog(function (result) {
                 if (!result) return;
                 btn.disabled = true;
-                saveAsBlueprint(result.name, result.flavour, state).catch(function () {
-                    window.alert(cfg.i18n.save_bp_failed);
+                saveAsBlueprint(result.name, result.flavour, state).catch(function (err) {
+                    // #1328 — prefer the server's hint (now propagated
+                    // by saveAsBlueprint's `r2.json()` parse on !ok)
+                    // over the generic string.
+                    var hint = err && err.message && err.message !== 'bp_assign_failed' && err.message !== 'bp_create_failed'
+                        ? err.message
+                        : cfg.i18n.save_bp_failed;
+                    window.alert(hint);
                     btn.disabled = false;
                 });
             });
@@ -302,11 +308,27 @@
                 headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': cfg.nonce },
                 body: JSON.stringify({ assignments: lineup })
             }).then(function (r2) {
-                if (!r2.ok) throw new Error('bp_assign_failed');
+                if (!r2.ok) {
+                    // #1328 — surface the server's actual error so the
+                    // operator sees what went wrong (schema drift,
+                    // UNIQUE collision, …) instead of a generic
+                    // "save failed". Mirrors the #1066 client-side
+                    // pattern on the singular-assignment path.
+                    return r2.json().then(function (body) {
+                        var msg = (body && body.errors && body.errors[0] && body.errors[0].message) || '';
+                        throw new Error(msg || 'bp_assign_failed');
+                    }, function () {
+                        throw new Error('bp_assign_failed');
+                    });
+                }
                 sessionStorage.removeItem(STORAGE_KEY);
+                // #1328 — the editor view reads `?id=`, not
+                // `?blueprint_id=`. Sending the user to `blueprint_id`
+                // landed them on the team's blueprint LIST view,
+                // requiring a second click to enter the editor.
                 window.location.href = window.location.pathname
                     + '?tt_view=team-blueprints&team_id=' + cfg.team_id
-                    + '&blueprint_id=' + bpId;
+                    + '&id=' + bpId;
             });
         });
     }
