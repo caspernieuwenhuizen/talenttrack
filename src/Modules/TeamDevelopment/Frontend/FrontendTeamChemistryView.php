@@ -123,21 +123,33 @@ class FrontendTeamChemistryView extends FrontendViewBase {
 
         global $wpdb; $p = $wpdb->prefix;
 
+        // #1325 — `?blueprint_id=N` loads a previously-saved blueprint as
+        // the lineup baseline. Loaded blueprints override the formation
+        // template (so the page auto-switches to the blueprint's
+        // formation) and replace the suggested XI on the pitch + in the
+        // sandbox config.
+        $loaded_blueprint = self::loadRequestedBlueprint( (int) $team->id );
+
         // Template pick — `?template_id` overrides the persisted choice
         // for a one-off preview; otherwise the team's saved template is
-        // used, falling back to the lowest-id seeded shape.
+        // used, falling back to the lowest-id seeded shape. When a
+        // blueprint is loaded, its formation_template_id wins.
         $requested_template = isset( $_GET['template_id'] ) ? absint( $_GET['template_id'] ) : 0;
         $stored_template_id = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT formation_template_id FROM {$p}tt_team_formations WHERE team_id = %d",
             (int) $team->id
         ) );
-        $template_id = $requested_template > 0
-            ? $requested_template
-            : ( $stored_template_id > 0
-                ? $stored_template_id
-                : (int) $wpdb->get_var(
-                    "SELECT id FROM {$p}tt_formation_templates WHERE is_seeded = 1 AND archived_at IS NULL ORDER BY id ASC LIMIT 1"
-                ) );
+        if ( $loaded_blueprint !== null && (int) ( $loaded_blueprint['formation_template_id'] ?? 0 ) > 0 ) {
+            $template_id = (int) $loaded_blueprint['formation_template_id'];
+        } else {
+            $template_id = $requested_template > 0
+                ? $requested_template
+                : ( $stored_template_id > 0
+                    ? $stored_template_id
+                    : (int) $wpdb->get_var(
+                        "SELECT id FROM {$p}tt_formation_templates WHERE is_seeded = 1 AND archived_at IS NULL ORDER BY id ASC LIMIT 1"
+                    ) );
+        }
         if ( $template_id <= 0 ) {
             echo '<div class="tt-tc-emptystate">';
             echo '<h2>' . esc_html__( 'No formation templates yet', 'talenttrack' ) . '</h2>';
@@ -166,6 +178,19 @@ class FrontendTeamChemistryView extends FrontendViewBase {
             $poss, $cntr, $prss
         );
 
+        // #1325 — when a blueprint is loaded, replace the aggregator's
+        // suggested XI with the blueprint's primary-tier lineup. The
+        // depth chart + style/formation/composite scores stay correct
+        // (they reflect the roster, not the displayed XI); only the
+        // pitch occupants + link chemistry pivot to the blueprint.
+        if ( $loaded_blueprint !== null ) {
+            $chem['suggested_xi'] = self::overlayBlueprintLineup(
+                $chem['suggested_xi'],
+                $chem['depth'] ?? [],
+                $loaded_blueprint['primary_lineup'] ?? []
+            );
+        }
+
         $blueprint = ( new BlueprintChemistryEngine() )->computeForSuggested(
             (int) $team->id, $slots, $chem['suggested_xi']
         );
@@ -173,7 +198,12 @@ class FrontendTeamChemistryView extends FrontendViewBase {
         $can_manage = current_user_can( 'tt_manage_team_chemistry' );
 
         // Toolbar: formation / style summary / mode toggle / save-as-blueprint.
-        self::renderToolbar( (int) $team->id, $template_id, (string) ( $template->name ?? '' ), $poss, $cntr, $prss, $can_manage );
+        self::renderToolbar( (int) $team->id, $template_id, (string) ( $template->name ?? '' ), $poss, $cntr, $prss, $can_manage, $loaded_blueprint );
+
+        // #1325 — loaded-blueprint banner: shows what's loaded + clear link.
+        if ( $loaded_blueprint !== null ) {
+            self::renderLoadedBlueprintBanner( $loaded_blueprint, (int) $team->id );
+        }
 
         // Empty-state banner sits above the layout so it's not buried.
         if ( ! $chem['has_enough_data'] ) {
@@ -220,7 +250,8 @@ class FrontendTeamChemistryView extends FrontendViewBase {
      */
     private static function renderToolbar(
         int $team_id, int $current_template_id, string $current_name,
-        int $poss, int $cntr, int $prss, bool $can_manage
+        int $poss, int $cntr, int $prss, bool $can_manage,
+        ?array $loaded_blueprint = null
     ): void {
         global $wpdb; $p = $wpdb->prefix;
         $rows = $wpdb->get_results(
@@ -273,8 +304,16 @@ class FrontendTeamChemistryView extends FrontendViewBase {
                     <button type="button" class="tt-btn tt-btn-secondary tt-tc-sandbox-reset" hidden>
                         <?php esc_html_e( 'Reset', 'talenttrack' ); ?>
                     </button>
+                    <button type="button" class="tt-btn tt-btn-secondary tt-tc-load-blueprint"
+                            data-team-id="<?php echo (int) $team_id; ?>">
+                        <?php esc_html_e( 'Load blueprint', 'talenttrack' ); ?>
+                    </button>
                     <button type="button" class="tt-btn tt-btn-primary tt-tc-sandbox-save" hidden>
-                        <?php esc_html_e( 'Save as blueprint', 'talenttrack' ); ?>
+                        <?php
+                        echo $loaded_blueprint !== null
+                            ? esc_html__( 'Save changes', 'talenttrack' )
+                            : esc_html__( 'Save as blueprint', 'talenttrack' );
+                        ?>
                     </button>
                 </div>
             <?php endif; ?>
@@ -720,6 +759,9 @@ class FrontendTeamChemistryView extends FrontendViewBase {
                 'save_bp_name_label'     => __( 'Blueprint name', 'talenttrack' ),
                 'save_bp_save'           => __( 'Save blueprint', 'talenttrack' ),
                 'save_bp_cancel'         => __( 'Cancel', 'talenttrack' ),
+                'load_bp_title'          => __( 'Pick a saved blueprint', 'talenttrack' ),
+                'load_bp_empty'          => __( 'No saved blueprints yet.', 'talenttrack' ),
+                'load_bp_list_failed'    => __( 'Could not load blueprints.', 'talenttrack' ),
                 'reset_confirm'  => __( 'Discard the sandbox lineup and restore the suggested XI?', 'talenttrack' ),
                 'sandbox_active' => __( '%d slot swapped from the suggested XI.', 'talenttrack' ),
                 'sandbox_active_many' => __( '%d slots swapped from the suggested XI.', 'talenttrack' ),
@@ -787,5 +829,114 @@ class FrontendTeamChemistryView extends FrontendViewBase {
         if ( ! is_array( $parts ) || count( $parts ) === 0 ) return strtoupper( substr( $name, 0, 1 ) );
         if ( count( $parts ) === 1 ) return strtoupper( substr( $parts[0], 0, 2 ) );
         return strtoupper( substr( $parts[0], 0, 1 ) . substr( end( $parts ), 0, 1 ) );
+    }
+
+    /**
+     * #1325 — resolve `?blueprint_id` to the team's saved blueprint or
+     * null. Filters to match-day flavour (single-tier — squad-plan is
+     * out of scope until the chemistry surface goes multi-tier) and
+     * verifies the blueprint belongs to this team to keep the URL
+     * non-cross-team.
+     *
+     * @return array{id:int, name:string, formation_template_id:int, primary_lineup:array<string,int>}|null
+     */
+    private static function loadRequestedBlueprint( int $team_id ): ?array {
+        $blueprint_id = isset( $_GET['blueprint_id'] ) ? absint( $_GET['blueprint_id'] ) : 0;
+        if ( $blueprint_id <= 0 ) return null;
+
+        $repo = new \TT\Modules\TeamDevelopment\Repositories\TeamBlueprintsRepository();
+        $bp = $repo->find( $blueprint_id );
+        if ( $bp === null ) return null;
+        if ( (int) ( $bp['team_id'] ?? 0 ) !== $team_id ) return null;
+        if ( (string) ( $bp['flavour'] ?? '' ) === \TT\Modules\TeamDevelopment\Repositories\TeamBlueprintsRepository::FLAVOUR_SQUAD_PLAN ) {
+            return null;
+        }
+
+        return [
+            'id'                    => (int) $bp['id'],
+            'name'                  => (string) ( $bp['name'] ?? '' ),
+            'formation_template_id' => (int) ( $bp['formation_template_id'] ?? 0 ),
+            'primary_lineup'        => $repo->loadPrimaryLineup( $blueprint_id ),
+        ];
+    }
+
+    /**
+     * #1325 — replace each slot's suggested entry with the blueprint's
+     * picked player. Looks up the new player's fit score in the same
+     * slot's depth chart so the pitch card colour-codes correctly; falls
+     * back to "no data" when the player isn't in the depth chart for
+     * that slot (e.g. blueprint pick is a cross-position assignment).
+     *
+     * @param array<string, array{player_id:int, player_name:string, score:float, has_data:bool}>       $suggested
+     * @param array<string, list<array<string,mixed>>>                                                   $depth
+     * @param array<string, int>                                                                          $lineup
+     * @return array<string, array{player_id:int, player_name:string, score:float, has_data:bool}>
+     */
+    private static function overlayBlueprintLineup( array $suggested, array $depth, array $lineup ): array {
+        if ( empty( $lineup ) ) return $suggested;
+
+        $out = $suggested;
+        foreach ( $lineup as $slot_label => $player_id ) {
+            $slot_key = (string) $slot_label;
+            $pid      = (int) $player_id;
+            if ( $pid <= 0 ) {
+                $out[ $slot_key ] = [
+                    'player_id' => 0, 'player_name' => '', 'score' => 0.0, 'has_data' => false,
+                ];
+                continue;
+            }
+
+            // Try the slot's depth chart first — gives the precomputed
+            // fit score + name without an extra query.
+            $entry = null;
+            foreach ( (array) ( $depth[ $slot_key ] ?? [] ) as $row ) {
+                if ( (int) ( $row['player_id'] ?? 0 ) === $pid ) {
+                    $entry = $row;
+                    break;
+                }
+            }
+            if ( $entry === null ) {
+                // Player isn't in the slot's depth chart — pull the
+                // display name from the player record and mark
+                // `has_data = false` so the pitch renders the "?" pill.
+                $player = QueryHelpers::get_player( $pid );
+                $name   = $player ? QueryHelpers::player_display_name( $player ) : '';
+                $out[ $slot_key ] = [
+                    'player_id'   => $pid,
+                    'player_name' => $name,
+                    'score'       => 0.0,
+                    'has_data'    => false,
+                ];
+            } else {
+                $out[ $slot_key ] = [
+                    'player_id'   => $pid,
+                    'player_name' => (string) ( $entry['player_name'] ?? '' ),
+                    'score'       => (float)  ( $entry['score']       ?? 0.0 ),
+                    'has_data'    => (bool)   ( $entry['has_data']    ?? false ),
+                ];
+            }
+        }
+        return $out;
+    }
+
+    /**
+     * #1325 — banner above the layout: "Loaded blueprint: <name> · Clear".
+     */
+    private static function renderLoadedBlueprintBanner( array $bp, int $team_id ): void {
+        $clear_url = add_query_arg(
+            [ 'tt_view' => 'team-chemistry', 'team_id' => $team_id ],
+            remove_query_arg( [ 'blueprint_id', 'template_id' ] )
+        );
+        ?>
+        <div class="tt-tc-loaded-banner" role="status">
+            <span>
+                <strong><?php esc_html_e( 'Loaded blueprint:', 'talenttrack' ); ?></strong>
+                <?php echo esc_html( (string) ( $bp['name'] ?? '' ) ); ?>
+            </span>
+            <a class="tt-btn tt-btn-secondary tt-btn-sm" href="<?php echo esc_url( $clear_url ); ?>">
+                <?php esc_html_e( 'Clear', 'talenttrack' ); ?>
+            </a>
+        </div>
+        <?php
     }
 }
