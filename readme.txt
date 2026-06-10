@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.76
+Stable tag: 4.20.77
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.77 — i18n nl_NL audit-4 translator bundle — 672 Dutch msgstrs across 11 batches (closes #1279, #1204, #1205, #1206, #1208, #1214, #1215, #1216, #1217, #1218, #1219). Audit 4 (#1178) sweep. Single bundled PR fills the empty `msgstr` lines on every nl_NL surface the audit flagged. **Per-batch counts.** Player profile (#1279) 46, PersonaDashboard widgets (#1204) 22, Eval+Activity+Goal wizard steps (#1205) 23, FrontendExportsView (#1206) 54, FrontendConfigurationView + LabelTranslator (#1208) 65, MatchExecution surface (#1214) 52, Tournaments wizard + match-add view (#1215) 57, MatchPrep wizard + printable (#1216) 31, VCT module surfaces (#1217) 154, Goals + Pdp + TeamDevelopment (#1218) 137, Comms email templates (#1219) 65 — 706 total references collapsing to 672 unique entries (cross-file shared strings counted once). **Vocabulary.** Aligned to existing nl_NL baseline: Coach→Trainer, Player→Speler, PDP→POP, Squad→Selectie, Bench→Reservebank, Pitch→Veld, Trial→Proeftraining. Informal register (`je`/`jou`) throughout. Placeholders (`%s`, `%d`, `%1$s` …) preserved exactly. **Validation.** Zero placeholder mismatches verified. The `.mo` regenerates on merge via the existing `chore(i18n)` workflow. Patch bump. (closes #1279) (closes #1204) (closes #1205) (closes #1206) (closes #1208) (closes #1214) (closes #1215) (closes #1216) (closes #1217) (closes #1218) (closes #1219) =
 
 = 4.20.76 — New-activity wizard gains an AttendanceRosterStep (closes #1297). Pilot 2026-06-09: the wizard never asks which players are expected to attend, so coaches save the activity then revisit the edit form to mark attendance — Goal wizard already captures players in-flow via PlayerStep. **New step** [`AttendanceRosterStep`](src/Modules/Wizards/Activity/AttendanceRosterStep.php) slots between PrinciplesStep and ReviewStep, rendering the just-picked team's roster as default-checked checkboxes; operator unchecks anyone known absent. Top-of-step Check all / Uncheck all affordances (48px tap targets per CLAUDE.md § 2). "Add guest players" `<details>` disclosure opens `PlayerSearchPickerComponent` scoped to sibling teams within coach scope (matches the post-save edit form's guest UX). "Set attendance later" skip link preserves the existing zero-row behaviour. **Save side.** `ReviewStep::submit()` writes the roster picks into `tt_attendance` with `record_type='expected'`, `is_guest=0`; guest picks get `is_guest=1`. New `insertExpectedAttendance()` helper. **Wiring.** `PrinciplesStep::nextStep` now returns `'attendance-roster'`. ReviewStep summary row shows a Roster cell with the count. New [`assets/js/components/wizard-attendance-roster.js`](assets/js/components/wizard-attendance-roster.js) — externalised per CLAUDE.md § 2. **Dutch.** 13 new msgstrs (11 singular + 2 plural pairs). Patch bump. (closes #1297) =
 
