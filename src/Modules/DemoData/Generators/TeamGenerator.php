@@ -22,9 +22,11 @@ use TT\Modules\DemoData\DemoBatchRegistry;
  *
  * Staff wiring: for each team we create two tt_team_people rows —
  * coach<N> as head_coach, assistant<N> as assistant_coach — via the
- * functional-role system. The legacy `head_coach_id` column is still
- * set for backcompat with `QueryHelpers::get_teams_for_coach()` and
- * any other v1 consumers that haven't migrated yet.
+ * functional-role system. #1315 retired the legacy `head_coach_id`
+ * column on `tt_teams`; head-coach attribution downstream
+ * (ActivityGenerator, EvaluationGenerator, PlayerGenerator) reads
+ * the WP user id directly off the team row's `head_coach_user_id`
+ * field, populated here from the `coach<N>` slot.
  */
 class TeamGenerator {
 
@@ -61,7 +63,7 @@ class TeamGenerator {
     }
 
     /**
-     * @return object[] Inserted team rows (id, name, age_group, head_coach_id).
+     * @return object[] Inserted team rows (id, name, age_group, head_coach_user_id).
      */
     public function generate(): array {
         global $wpdb;
@@ -82,20 +84,19 @@ class TeamGenerator {
         $assistant_coach_fn_id = $this->functionalRoleId( 'assistant_coach' );
 
         for ( $i = 0; $i < $count; $i++ ) {
-            $age_group       = $age_groups[ $i ];
-            $coach_slot      = 'coach' . ( $i + 1 );
-            $assistant_slot  = 'assistant' . ( $i + 1 );
-            $head_coach_id   = (int) ( $this->users[ $coach_slot ] ?? 0 );
-            $head_coach_pid  = (int) ( $this->persons[ $coach_slot ] ?? 0 );
-            $assistant_pid   = (int) ( $this->persons[ $assistant_slot ] ?? 0 );
+            $age_group           = $age_groups[ $i ];
+            $coach_slot          = 'coach' . ( $i + 1 );
+            $assistant_slot      = 'assistant' . ( $i + 1 );
+            $head_coach_user_id  = (int) ( $this->users[ $coach_slot ] ?? 0 );
+            $head_coach_pid      = (int) ( $this->persons[ $coach_slot ] ?? 0 );
+            $assistant_pid       = (int) ( $this->persons[ $assistant_slot ] ?? 0 );
 
             $name = trim( $club_name . ' ' . $age_group );
             $wpdb->insert( "{$wpdb->prefix}tt_teams", [
-                'club_id'       => CurrentClub::id(),
-                'name'          => $name,
-                'age_group'     => $age_group,
-                'head_coach_id' => $head_coach_id,
-                'notes'         => 'Demo team',
+                'club_id'   => CurrentClub::id(),
+                'name'      => $name,
+                'age_group' => $age_group,
+                'notes'     => 'Demo team',
             ] );
             $team_id = (int) $wpdb->insert_id;
 
@@ -112,10 +113,13 @@ class TeamGenerator {
             }
 
             $teams[] = (object) [
-                'id'            => $team_id,
-                'name'          => $name,
-                'age_group'     => $age_group,
-                'head_coach_id' => $head_coach_id,
+                'id'                  => $team_id,
+                'name'                => $name,
+                'age_group'           => $age_group,
+                // #1315 — `head_coach_id` column retired from tt_teams.
+                // Downstream demo generators read the user id from this
+                // shape field, populated from the `coach<N>` slot.
+                'head_coach_user_id'  => $head_coach_user_id,
             ];
         }
         return $teams;
@@ -132,6 +136,10 @@ class TeamGenerator {
             'person_id'          => $person_id,
             'role_in_team'       => $role_key,
             'functional_role_id' => $functional_role_id ?: null,
+            // #1314 — write the is_head_coach flag at the demo insert
+            // site too, so seeded teams have a correct head-coach
+            // attribution without depending on the backfill migration.
+            'is_head_coach'      => $role_key === 'head_coach' ? 1 : 0,
         ] );
         $team_person_id = (int) $wpdb->insert_id;
         if ( $team_person_id > 0 ) {

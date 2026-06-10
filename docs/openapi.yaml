@@ -120,7 +120,9 @@ components:
         id: { type: integer, format: int64 }
         name: { type: string }
         age_group: { type: string }
-        head_coach_id: { type: integer, nullable: true }
+        # `head_coach_id` removed in v4.20.84 (#1315). Head-coach
+        # identity is now exposed via `coach_name` / `coach_person_id`
+        # in the list/detail response, sourced from `tt_team_people`.
         season_id: { type: integer, nullable: true }
         notes: { type: string }
         created_at: { type: string, format: date-time }

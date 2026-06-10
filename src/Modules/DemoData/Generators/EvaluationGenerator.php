@@ -54,7 +54,7 @@ class EvaluationGenerator {
 
     /**
      * @param object[] $players generated players (with .id, .team_id, .archetype, .wp_user_id)
-     * @param object[] $teams   generated teams (with .id, .head_coach_id)
+     * @param object[] $teams   generated teams (with .id, .head_coach_user_id)
      */
     public function __construct(
         DemoBatchRegistry $registry,
@@ -88,7 +88,7 @@ class EvaluationGenerator {
 
         $team_coach = [];
         foreach ( $this->teams as $t ) {
-            $team_coach[ (int) $t->id ] = (int) $t->head_coach_id;
+            $team_coach[ (int) $t->id ] = (int) $t->head_coach_user_id;
         }
 
         $opponents = SeedLoader::opponents();

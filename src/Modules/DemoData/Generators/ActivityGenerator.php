@@ -101,7 +101,7 @@ class ActivityGenerator {
         $total = 0;
         foreach ( $this->teams as $team ) {
             $team_id  = (int) $team->id;
-            $coach_id = (int) $team->head_coach_id;
+            $coach_id = (int) $team->head_coach_user_id;
             $roster   = $players_by_team[ $team_id ] ?? [];
             if ( ! $roster ) continue;
 

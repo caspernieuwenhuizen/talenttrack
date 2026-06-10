@@ -184,7 +184,10 @@ class Activator {
             id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             name VARCHAR(255) NOT NULL,
             age_group VARCHAR(100) DEFAULT '',
-            head_coach_id BIGINT UNSIGNED DEFAULT 0,
+            -- #1315 — `head_coach_id` retired. Head-coach assignment
+            -- lives in tt_team_people via the functional-role system.
+            -- Migration 0150 drops the column on installs that already
+            -- have it.
             notes TEXT,
             archived_at DATETIME NULL DEFAULT NULL,
             archived_by BIGINT UNSIGNED NULL DEFAULT NULL,

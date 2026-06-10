@@ -84,7 +84,8 @@ class FormSlugContract {
         return [
             'name'          => __( 'Name', 'talenttrack' ),
             'age_group'     => __( 'Age group', 'talenttrack' ),
-            'head_coach_id' => __( 'Head coach', 'talenttrack' ),
+            // #1315 — `head_coach_id` entry removed alongside the
+            // retirement of the legacy column on tt_teams.
             'notes'         => __( 'Notes', 'talenttrack' ),
         ];
     }

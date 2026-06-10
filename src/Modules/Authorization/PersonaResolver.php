@@ -104,34 +104,22 @@ class PersonaResolver {
     }
 
     /**
-     * #0033 Sprint 7: split a `tt_coach` WP role into head_coach and/or
-     * assistant_coach personas. v3.110.108 — derivation now considers
-     * BOTH assignment paths in use today, in this order:
+     * #0033 Sprint 7 + #1315: split a `tt_coach` WP role into
+     * head_coach and/or assistant_coach personas via the
+     * `tt_team_people.is_head_coach` flag.
      *
-     *   1. **Legacy team form**: `tt_teams.head_coach_id = user_id`.
-     *      The team wizard's `ReviewStep` and `TeamsRestController`
-     *      write here; the operator-facing team edit form's "Head
-     *      coach" dropdown writes here. If the user is the
-     *      `head_coach_id` on any team, they are a head coach —
-     *      period.
+     * A user with multiple team assignments may be head of one team
+     * and assistant on another; both personas get added.
      *
-     *   2. **Sprint 7 join table**: `tt_team_people.is_head_coach`
-     *      per row. A user with multiple team assignments may be
-     *      head of one team and assistant on another; both personas
-     *      get added.
+     * A coach with no assignments still gets `head_coach` (defensive
+     * default — better to over-grant than to lock them out during
+     * the matrix bridge's dormant phase).
      *
-     * Before v3.110.108 only the join-table path was consulted. A
-     * coach assigned via the team edit form (path 1) without a
-     * matching `is_head_coach=1` row in path 2 was silently
-     * mis-classified as `assistant_coach`. The dashboard greeting
-     * read "Assistant coach" for someone who is a head coach
-     * everywhere they're assigned. Pilot-surfaced fix: union both
-     * paths so the head-coach status is honoured regardless of
-     * which assignment surface wrote it.
-     *
-     * A coach with no assignments via either path still gets
-     * `head_coach` (defensive default — better to over-grant than
-     * to lock them out during the matrix bridge's dormant phase).
+     * History: until #1315 a path 1 also consulted
+     * `tt_teams.head_coach_id` for back-compat with the v3.x team
+     * form's "Head coach" dropdown. That column was retired in
+     * #1315 — `tt_team_people.is_head_coach` is now the single
+     * source of truth.
      *
      * @return string[]
      */
@@ -139,14 +127,7 @@ class PersonaResolver {
         global $wpdb;
         $p = $wpdb->prefix;
 
-        // Path 1 (legacy) — `tt_teams.head_coach_id` direct assignment.
-        $is_team_head = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$p}tt_teams WHERE head_coach_id = %d AND archived_at IS NULL",
-            $user_id
-        ) ) > 0;
-
-        // Path 2 (Sprint 7) — `tt_team_people.is_head_coach` per row.
-        $has_head      = $is_team_head; // path 1 wins for the head flag
+        $has_head      = false;
         $has_assistant = false;
 
         $person_ids = $wpdb->get_col( $wpdb->prepare(

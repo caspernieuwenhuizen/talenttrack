@@ -11,12 +11,15 @@ use TT\Modules\Workflow\TaskContext;
  * team given on the TaskContext. Used by the post-match evaluation
  * template to route the per-player tasks to the team's head coach.
  *
- * Resolution order:
- *   1. tt_teams.head_coach_id is a tt_people.id; resolve to wp_user_id.
- *   2. If that's empty/missing, fall back to the head_coach
- *      functional-role assignment in tt_team_people for this team.
+ * Resolution: the head_coach functional-role assignment in
+ * tt_team_people for this team. Pre-#1315 also consulted a legacy
+ * `tt_teams.head_coach_id` column, but that column held a WP user ID
+ * everywhere else in the codebase while this resolver mis-treated it
+ * as a `tt_people.id`. The legacy path was silently broken since
+ * v3.110.200 dropped the dropdown; the column itself was retired in
+ * #1315 — `tt_team_people` is now the single source of truth.
  *
- * Returns an empty array (and logs under WP_DEBUG) if neither path
+ * Returns an empty array (and logs under WP_DEBUG) if no head coach
  * resolves — the engine will skip task creation for this context.
  */
 class TeamHeadCoachResolver implements AssigneeResolver {
@@ -29,20 +32,7 @@ class TeamHeadCoachResolver implements AssigneeResolver {
         $p = $wpdb->prefix;
         $team_id = (int) $context->team_id;
 
-        // Path 1: tt_teams.head_coach_id (a tt_people row).
-        $head_coach_person_id = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT head_coach_id FROM {$p}tt_teams WHERE id = %d LIMIT 1",
-            $team_id
-        ) );
-        if ( $head_coach_person_id > 0 ) {
-            $user_id = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT wp_user_id FROM {$p}tt_people WHERE id = %d LIMIT 1",
-                $head_coach_person_id
-            ) );
-            if ( $user_id > 0 ) return [ $user_id ];
-        }
-
-        // Path 2: a head_coach functional-role assignment on this team.
+        // The head_coach functional-role assignment on this team.
         $user_id = (int) $wpdb->get_var( $wpdb->prepare(
             "SELECT pe.wp_user_id
              FROM {$p}tt_team_people tp
@@ -56,7 +46,6 @@ class TeamHeadCoachResolver implements AssigneeResolver {
             'head_coach'
         ) );
         if ( $user_id > 0 ) return [ $user_id ];
-
         if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
             error_log( sprintf(
                 '[TalentTrack workflow] TeamHeadCoachResolver: no head coach found for team_id=%d',

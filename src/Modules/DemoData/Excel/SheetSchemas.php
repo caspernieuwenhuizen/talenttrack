@@ -57,7 +57,9 @@ final class SheetSchemas {
                     'name'            => [ 'label' => 'Name',             'type' => self::TYPE_STRING, 'required' => true  ],
                     'age_group'       => [ 'label' => 'Age group',        'type' => self::TYPE_STRING, 'required' => false ],
                     'level'           => [ 'label' => 'Level',            'type' => self::TYPE_STRING, 'required' => false ],
-                    'head_coach_key'  => [ 'label' => 'Head coach key',   'type' => self::TYPE_KEY,    'required' => false, 'fk' => 'people.auto_key' ],
+                    // #1315 — `head_coach_key` column dropped from the
+                    // Teams sheet. Head-coach assignment lives in the
+                    // Staff sheet (tt_team_people) via functional roles.
                     'notes'           => [ 'label' => 'Notes',            'type' => self::TYPE_STRING, 'required' => false ],
                 ],
             ],
