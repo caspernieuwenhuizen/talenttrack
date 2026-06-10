@@ -459,3 +459,17 @@
 .tt-dashboard #tt-activity-status {
     min-width: 18ch;
 }
+
+/* ===== #1311 — Activity edit attendance Status select min-width =====
+ *
+ * Mirrors the #1150 fix for the activity-level Status select but on
+ * the per-row attendance table. Without a min-width the Status column
+ * collapses to the chevron and longer Dutch labels (Aanwezig, Afwezig,
+ * Te laat, Geblesseerd) clip to "Aa". 14ch covers 11 visible characters
+ * plus the chevron — fits the longest seeded status comfortably.
+ * Mobile (≤ 480px) is already stacked single-column via the existing
+ * .tt-attendance-table responsive rules, so this is a no-op on phone
+ * viewports. */
+.tt-dashboard .tt-attendance-status {
+    min-width: 14ch;
+}
