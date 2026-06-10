@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.67
+Stable tag: 4.20.68
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.68 — preferred_foot lookup_type slug consolidates on the singular `foot_option` (closes #1278). Pilot 2026-06-08: `preferred_foot` rendered raw English ("Left" / "Right" / "Both") across the player profile, players list, coach dashboard, comparison view, and overview tile on a `nl_NL` install — even though the `tt_lookups`/`tt_translations` rows ship `Links` / `Rechts` / `Beide`. Root cause: the seeded `lookup_type` is the **singular** `foot_option` (per `Activator.php:845` + `ConfigurationPage.php:97`), but six callsites queried the **plural** `foot_options`; the `LookupTranslator` SELECT found nothing and fell back to the raw value. **Fix.** Find-and-replace `'foot_options'` → `'foot_option'` in the six `LookupTranslator::byTypeAndName` / `LookupPill::render` callsites: [PlayersRepository.php:82](src/Infrastructure/Players/PlayersRepository.php#L82), [PlayersRestController.php:378](src/Infrastructure/REST/PlayersRestController.php#L378), [CoachDashboardView.php:133](src/Shared/Frontend/CoachDashboardView.php#L133), [FrontendComparisonView.php:357](src/Shared/Frontend/FrontendComparisonView.php#L357), [FrontendOverviewView.php:128](src/Shared/Frontend/FrontendOverviewView.php#L128), [FrontendPlayerDetailView.php:450 + 782](src/Shared/Frontend/FrontendPlayerDetailView.php#L450). Docblock at `PlayersRepository.php:28-35` rewritten — it incorrectly told future maintainers the canonical form was plural. Back-compat fallback removed (no longer needed once the primary slug is correct). UI routing slugs in `ConfigurationPage` / `FrontendConfigurationView` left alone — those are admin tab keys, not `lookup_type` queries. Patch bump. (closes #1278) =
 
 = 4.20.67 — Player profile: date helpers guard the `'0000-00-00'` zero-date sentinel (closes #1281). Pilot 2026-06-08 screenshot showed `30 Nov '-1` in the hero / facts cell and `2026 yrs in academy` on a player whose `date_of_birth = '0000-00-00'`. PHP's `strtotime('0000-00-00')` returns a negative timestamp (~-62167219200), not `false`, so the existing `=== false` guards in `shortDate`, `ageHint`, and `yearsInAcademy` didn't catch the sentinel and the formatters happily rendered year -1. **Fix.** Three new entry guards in [FrontendPlayerDetailView.php](src/Shared/Frontend/FrontendPlayerDetailView.php) — `shortDate` returns `—`, `ageHint` + `yearsInAcademy` return empty. The Identiteit table row now routes through `shortDate()` instead of echoing `$player->date_of_birth` raw, so the table cell renders `—` instead of the literal `0000-00-00`. Mirrors the existing guard at `PlayerGoalIntakePrintRouter:421`. Patch bump. (closes #1281) =
 

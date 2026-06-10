@@ -25,14 +25,17 @@ use TT\Infrastructure\Query\QueryHelpers;
  *   `preferred_foot`               raw code (back-compat)
  *   `preferred_foot_localised`     user-facing label via
  *                                  `LookupTranslator::byTypeAndName(
- *                                  'foot_options', $code )`. Two
- *                                  callsites historically disagreed
- *                                  on the lookup_type slug
- *                                  (`foot_option` vs `foot_options`);
- *                                  the repository normalises to the
- *                                  seeded plural `foot_options` per
- *                                  the lookup admin's canonical
- *                                  rows.
+ *                                  'foot_option', $code )`. The
+ *                                  seeded `tt_lookups.lookup_type` is
+ *                                  the singular `foot_option`
+ *                                  (Activator + admin tab + REST
+ *                                  consumers all agree). A previous
+ *                                  docblock here said "plural" — that
+ *                                  was the actual drift cause for
+ *                                  #1278. Six callsites that queried
+ *                                  the plural slug rendered raw
+ *                                  English; all consolidated on the
+ *                                  singular form in v4.20.68.
  *
  * Position labels (`preferred_positions` is a JSON array) are
  * deliberately not hydrated here — they need per-element translation
@@ -79,16 +82,7 @@ class PlayersRepository {
             $row->preferred_foot_localised = '';
             return;
         }
-        $label = LookupTranslator::byTypeAndName( 'foot_options', $foot_raw );
-        // Back-compat fallback: a prior site (FrontendMyProfileView at
-        // line 108 before refactor) used the singular `foot_option`
-        // slug. Try that too if the plural didn't land a translation.
-        if ( ! is_string( $label ) || $label === '' || $label === $foot_raw ) {
-            $alt = LookupTranslator::byTypeAndName( 'foot_option', $foot_raw );
-            if ( is_string( $alt ) && $alt !== '' && $alt !== $foot_raw ) {
-                $label = $alt;
-            }
-        }
+        $label = LookupTranslator::byTypeAndName( 'foot_option', $foot_raw );
         $row->preferred_foot_localised = is_string( $label ) && $label !== '' ? $label : $foot_raw;
     }
 }

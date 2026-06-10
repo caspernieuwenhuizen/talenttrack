@@ -375,7 +375,7 @@ class PlayersRestController {
             // path so the value shows as the localised label ("Rechts"
             // on a Dutch install) instead of the raw stored key.
             'preferred_foot_pill_html' => $pl->preferred_foot
-                ? LookupPill::render( 'foot_options', (string) $pl->preferred_foot )
+                ? LookupPill::render( 'foot_option', (string) $pl->preferred_foot )
                 : '',
             'photo_url'        => (string) ( $pl->photo_url ?? '' ),
             'date_of_birth'    => $pl->date_of_birth ?: null,

@@ -447,7 +447,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         $dob_hint  = $dob_raw !== '' ? self::ageHint( $dob_raw )   : '';
 
         $foot_value = $foot_raw !== ''
-            ? \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'foot_options', $foot_raw )
+            ? \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'foot_option', $foot_raw )
             : '—';
         $foot_hint  = is_array( $positions ) && ! empty( $positions )
             ? implode( ' / ', array_map( 'strval', $positions ) )
@@ -779,7 +779,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         $team       = ! empty( $player->team_id ) ? QueryHelpers::get_team( (int) $player->team_id ) : null;
 
         $foot_label = ! empty( $player->preferred_foot )
-            ? LookupTranslator::byTypeAndName( 'foot_options', (string) $player->preferred_foot )
+            ? LookupTranslator::byTypeAndName( 'foot_option', (string) $player->preferred_foot )
             : '';
         $status_label = ! empty( $player->status )
             ? \TT\Infrastructure\Query\LabelTranslator::playerStatus( (string) $player->status )
