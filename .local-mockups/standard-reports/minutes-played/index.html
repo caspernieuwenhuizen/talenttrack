@@ -1,0 +1,799 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Minutes played — mockup options</title>
+<style>
+:root {
+    --bg:            #f6f7f7;
+    --ink:           #1a1d21;
+    --muted:         #5b6e75;
+    --panel:         #ffffff;
+    --line:          #e3e6ea;
+    --row-alt:       #fafbfc;
+    --tt-accent:     #2271b1;
+    --tt-accent-15:  rgba(34,113,177,0.15);
+    --tt-success:    #2e7d4f;
+    --tt-warn:       #c75c1f;
+    --tt-danger:     #d63638;
+
+    --type-league:   #2271b1;
+    --type-cup:      #6b3fa0;
+    --type-friendly: #2e7d4f;
+    --type-other:    #9aa3a8;
+    --highlight:     #fff4d6;
+    --highlight-line:#c79100;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    padding: 20px;
+    line-height: 1.4;
+    font-size: 14px;
+}
+
+/* ---------- mockup switcher chrome (strip on port) ---------- */
+.mockup-bar {
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    background: #222;
+    color: #eee;
+    margin: -20px -20px 16px;
+    padding: 8px 14px;
+    font-size: 12px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+    border-bottom: 2px solid #000;
+}
+.mockup-bar strong { color: #ffd; margin-right: 6px; }
+.mockup-bar button {
+    background: #444; color: #eee; border: 1px solid #666;
+    padding: 6px 12px; border-radius: 4px; font: inherit; font-size: 12px;
+    cursor: pointer; min-height: 32px;
+}
+.mockup-bar button[aria-pressed="true"] { background: #6c4; color: #000; border-color: #4a3; font-weight: 600; }
+.mockup-bar .group { display: inline-flex; gap: 4px; margin-right: 12px; }
+.mockup-bar .viewport-toggle { margin-left: auto; }
+
+.viewport-frame {
+    max-width: 100%;
+    margin: 0 auto;
+    transition: max-width 0.15s ease;
+}
+.viewport-frame.is-mobile {
+    max-width: 390px;
+    border: 1px dashed #ccc;
+    padding: 10px;
+    background: #fff;
+    border-radius: 12px;
+}
+
+/* ---------- page header ---------- */
+.page-head { margin-bottom: 16px; }
+.page-head h1 { margin: 0 0 4px; font-size: 22px; }
+.page-head .lede { color: var(--muted); margin: 0; font-size: 13px; }
+
+.breadcrumbs {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 12px;
+}
+.breadcrumbs a { color: var(--tt-accent); text-decoration: none; }
+.breadcrumbs .sep { margin: 0 6px; opacity: 0.5; }
+
+/* ---------- filter bar ---------- */
+.filter-bar {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 14px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+}
+.filter-bar label {
+    display: flex;
+    flex-direction: column;
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    gap: 4px;
+}
+.filter-bar select, .filter-bar input[type="date"] {
+    font-size: 16px; /* prevent iOS zoom */
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: #fff;
+    min-height: 44px;
+    color: var(--ink);
+}
+.filter-bar .chips {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+.chip {
+    border: 1px solid var(--line);
+    background: #fff;
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    color: var(--ink);
+}
+.chip[aria-pressed="true"] { background: var(--tt-accent-15); border-color: var(--tt-accent); color: var(--tt-accent); font-weight: 600; }
+.chip .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.dot.league   { background: var(--type-league); }
+.dot.cup      { background: var(--type-cup); }
+.dot.friendly { background: var(--type-friendly); }
+.dot.other    { background: var(--type-other); }
+
+@media (min-width: 640px) {
+    .filter-bar {
+        grid-template-columns: 1fr 1fr 1fr auto;
+        align-items: end;
+    }
+    .filter-bar .chips { grid-column: 1 / -1; }
+}
+
+/* ---------- shared option container ---------- */
+.option { display: none; }
+.option.is-active { display: block; }
+
+.option-title {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+    margin: 0 0 8px;
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+}
+.option-title strong { color: var(--ink); font-size: 16px; text-transform: none; letter-spacing: 0; }
+
+/* ---------- KPI strip ---------- */
+.kpi-strip {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 14px;
+}
+@media (min-width: 640px) { .kpi-strip { grid-template-columns: repeat(4, 1fr); } }
+.kpi-card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 12px;
+}
+.kpi-card .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; }
+.kpi-card .value { font-size: 20px; font-weight: 600; margin-top: 2px; }
+.kpi-card .sub   { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+/* ============================================================
+   OPTION A — Squad table (default)
+   ============================================================ */
+.squad-table {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow-x: auto;
+}
+.squad-table table { width: 100%; border-collapse: collapse; min-width: 760px; }
+.squad-table th, .squad-table td {
+    padding: 10px 12px;
+    text-align: right;
+    font-size: 13px;
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+}
+.squad-table th {
+    background: #fafbfc;
+    font-weight: 600;
+    color: var(--muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    position: sticky; top: 0;
+    cursor: pointer;
+}
+.squad-table th.player, .squad-table td.player { text-align: left; }
+.squad-table tr:last-child td { border-bottom: none; }
+.squad-table tr.highlight td { background: var(--highlight); }
+.squad-table .player-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.avatar {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--tt-accent-15);
+    color: var(--tt-accent);
+    font-size: 11px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+}
+.player-cell .meta { display: flex; flex-direction: column; }
+.player-cell .meta .pos { font-size: 11px; color: var(--muted); }
+.squad-table .rank {
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+}
+.squad-table .pct-bar {
+    display: inline-block;
+    width: 64px;
+    height: 6px;
+    background: #eef0f3;
+    border-radius: 3px;
+    position: relative;
+    vertical-align: middle;
+    margin-left: 6px;
+}
+.squad-table .pct-bar > span {
+    position: absolute; inset: 0 auto 0 0;
+    background: var(--tt-accent);
+    border-radius: 3px;
+}
+
+/* mobile compact card variant of the table */
+@media (max-width: 639px) {
+    .option-a-cards { display: grid; gap: 8px; }
+    .option-a-table { display: none; }
+}
+@media (min-width: 640px) {
+    .option-a-cards { display: none; }
+    .option-a-table { display: block; }
+}
+.player-card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 12px;
+}
+.player-card.highlight { background: var(--highlight); border-color: var(--highlight-line); }
+.player-card .top { display: flex; align-items: center; gap: 10px; }
+.player-card .name { font-weight: 600; }
+.player-card .pos  { font-size: 12px; color: var(--muted); }
+.player-card .total {
+    margin-left: auto;
+    font-size: 18px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+.player-card .total small { font-weight: 400; color: var(--muted); font-size: 11px; }
+.player-card .split {
+    margin-top: 10px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+}
+.split-cell {
+    background: #fafbfc;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 6px 8px;
+    text-align: center;
+}
+.split-cell .lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; }
+.split-cell .val { font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* ============================================================
+   OPTION B — Stacked bar chart
+   ============================================================ */
+.bars {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 12px;
+}
+.bar-row {
+    display: grid;
+    grid-template-columns: 110px 1fr 60px;
+    gap: 8px;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--line);
+}
+.bar-row:last-child { border-bottom: none; }
+.bar-row.highlight  { background: var(--highlight); margin: 0 -8px; padding: 8px; border-radius: 6px; }
+
+.bar-row .name { font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bar-row .name small { display: block; color: var(--muted); font-size: 11px; }
+.bar-row .total {
+    font-size: 13px;
+    font-weight: 600;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.bar-track {
+    background: #eef0f3;
+    border-radius: 4px;
+    height: 16px;
+    overflow: hidden;
+    display: flex;
+}
+.bar-seg {
+    display: block;
+    height: 100%;
+}
+.bar-seg.league   { background: var(--type-league); }
+.bar-seg.cup      { background: var(--type-cup); }
+.bar-seg.friendly { background: var(--type-friendly); }
+.bar-seg.other    { background: var(--type-other); }
+
+.bars-legend {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 10px;
+}
+.bars-legend .dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; vertical-align: middle; margin-right: 4px; }
+
+.bars-summary {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--line);
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+.bars-summary strong { color: var(--ink); }
+
+@media (max-width: 480px) {
+    .bar-row { grid-template-columns: 90px 1fr 52px; gap: 6px; }
+    .bar-row .name { font-size: 12px; }
+}
+
+/* ============================================================
+   OPTION C — Spotlight + squad context
+   ============================================================ */
+.spotlight {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 14px;
+}
+.spotlight .head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+.spotlight .head .avatar { width: 48px; height: 48px; font-size: 16px; }
+.spotlight .head h2 { margin: 0; font-size: 18px; }
+.spotlight .head .sub { font-size: 12px; color: var(--muted); }
+.spotlight-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+}
+@media (min-width: 480px) { .spotlight-stats { grid-template-columns: repeat(4, 1fr); } }
+.spot-stat {
+    background: #fafbfc;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 8px 10px;
+}
+.spot-stat .lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; }
+.spot-stat .val { font-size: 17px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.spot-stat .sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+.spot-types {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 6px;
+}
+.type-row {
+    display: grid;
+    grid-template-columns: 80px 1fr 60px;
+    gap: 8px;
+    align-items: center;
+    font-size: 13px;
+}
+.type-row .lbl { display: flex; align-items: center; gap: 6px; }
+.type-row .val { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+.type-row .bar-track { height: 8px; }
+
+.context-block {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 12px;
+}
+.context-block h3 {
+    margin: 0 0 8px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--muted);
+}
+.rank-line {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-top: 1px solid var(--line);
+    font-size: 13px;
+}
+.rank-line:first-of-type { border-top: none; }
+.rank-line.is-self {
+    background: var(--highlight);
+    margin: 0 -12px;
+    padding: 8px 12px;
+}
+.rank-line .rank { width: 24px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.rank-line .name { flex: 1; }
+.rank-line .mins { font-weight: 600; font-variant-numeric: tabular-nums; }
+.rank-line .delta { color: var(--muted); font-size: 11px; margin-left: 6px; }
+
+/* ============================================================
+   OPTION D — Head-to-head
+   ============================================================ */
+.h2h-picker {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.h2h-picker select {
+    font-size: 16px;
+    padding: 10px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    min-height: 44px;
+}
+.h2h-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+.h2h-card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 12px;
+}
+.h2h-card .head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+.h2h-card .head .name { font-weight: 600; font-size: 14px; }
+.h2h-card .head .sub  { font-size: 11px; color: var(--muted); }
+.h2h-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 6px;
+    padding: 6px 0;
+    border-top: 1px solid var(--line);
+    font-size: 13px;
+}
+.h2h-row:first-of-type { border-top: none; }
+.h2h-row .lbl { color: var(--muted); }
+.h2h-row .val { font-weight: 600; font-variant-numeric: tabular-nums; }
+.h2h-row .val.lead { color: var(--tt-success); }
+.h2h-row .val.behind { color: var(--tt-danger); }
+
+@media (max-width: 480px) {
+    .h2h-grid { grid-template-columns: 1fr; }
+}
+
+/* ---------- export bar (shared) ---------- */
+.export-bar {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+}
+.btn {
+    background: #fff;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    min-height: 44px;
+}
+.btn.primary { background: var(--tt-accent); color: #fff; border-color: var(--tt-accent); }
+</style>
+</head>
+<body>
+
+<div class="mockup-bar">
+    <strong>Mockup — minutes played</strong>
+    <span class="group">
+        <button data-option="A" aria-pressed="true">A · Squad table</button>
+        <button data-option="B">B · Visual bars</button>
+        <button data-option="C">C · Spotlight</button>
+        <button data-option="D">D · Head-to-head</button>
+    </span>
+    <span class="viewport-toggle group">
+        <button data-viewport="desktop" aria-pressed="true">Desktop</button>
+        <button data-viewport="mobile">Mobile 390</button>
+    </span>
+</div>
+
+<div class="viewport-frame" id="viewport">
+
+<div class="breadcrumbs">
+    <a href="#">Dashboard</a>
+    <span class="sep">›</span>
+    <a href="#">Analytics</a>
+    <span class="sep">›</span>
+    <span>Minutes played</span>
+</div>
+
+<header class="page-head">
+    <h1>Minutes played</h1>
+    <p class="lede">JO15-1 · season 2025/26 — minutes per player, split by match type. Tap a player to drill in.</p>
+</header>
+
+<form class="filter-bar" onsubmit="return false;">
+    <label>
+        <span>Team</span>
+        <select><option>JO15-1</option><option>JO15-2</option><option>JO14-1</option></select>
+    </label>
+    <label>
+        <span>From</span>
+        <input type="date" value="2025-08-01">
+    </label>
+    <label>
+        <span>To</span>
+        <input type="date" value="2026-05-30">
+    </label>
+    <div class="chips" role="group" aria-label="Match types">
+        <button type="button" class="chip" aria-pressed="true"><span class="dot league"></span>All types</button>
+        <button type="button" class="chip"><span class="dot league"></span>League</button>
+        <button type="button" class="chip"><span class="dot cup"></span>Cup</button>
+        <button type="button" class="chip"><span class="dot friendly"></span>Friendly</button>
+    </div>
+</form>
+
+<section class="kpi-strip">
+    <div class="kpi-card"><div class="label">Matches</div><div class="value">24</div><div class="sub">14 league · 4 cup · 6 friendly</div></div>
+    <div class="kpi-card"><div class="label">Squad mins</div><div class="value">14,520</div><div class="sub">avg 855 / player</div></div>
+    <div class="kpi-card"><div class="label">Most</div><div class="value">1 480</div><div class="sub">Lucas (RB)</div></div>
+    <div class="kpi-card"><div class="label">Least</div><div class="value">120</div><div class="sub">Daan (GK · backup)</div></div>
+</section>
+
+<!-- ===================== OPTION A ===================== -->
+<section class="option is-active" data-option="A">
+    <p class="option-title">Layout A — <strong>Squad table (default)</strong></p>
+
+    <!-- Desktop table -->
+    <div class="squad-table option-a-table">
+        <table>
+            <thead>
+                <tr>
+                    <th class="rank">#</th>
+                    <th class="player">Player</th>
+                    <th>Total</th>
+                    <th>Matches</th>
+                    <th>Starts</th>
+                    <th>Subs in</th>
+                    <th>Subs off</th>
+                    <th>Avg / match</th>
+                    <th>League</th>
+                    <th>Cup</th>
+                    <th>Friendly</th>
+                    <th>% avail</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td class="rank">1</td><td class="player"><div class="player-cell"><span class="avatar">LB</span><div class="meta"><span>Lucas Bakker</span><span class="pos">RB</span></div></div></td><td>1 480</td><td>22</td><td>21</td><td>1</td><td>2</td><td>67</td><td>950</td><td>240</td><td>290</td><td>89% <span class="pct-bar"><span style="width:89%"></span></span></td></tr>
+                <tr><td class="rank">2</td><td class="player"><div class="player-cell"><span class="avatar">SV</span><div class="meta"><span>Sem van Dam</span><span class="pos">CM</span></div></div></td><td>1 350</td><td>21</td><td>20</td><td>1</td><td>3</td><td>64</td><td>880</td><td>200</td><td>270</td><td>81%<span class="pct-bar"><span style="width:81%"></span></span></td></tr>
+                <tr><td class="rank">3</td><td class="player"><div class="player-cell"><span class="avatar">TJ</span><div class="meta"><span>Thijs Jansen</span><span class="pos">CB</span></div></div></td><td>1 280</td><td>20</td><td>19</td><td>1</td><td>2</td><td>64</td><td>820</td><td>200</td><td>260</td><td>77%<span class="pct-bar"><span style="width:77%"></span></span></td></tr>
+                <tr class="highlight"><td class="rank">4</td><td class="player"><div class="player-cell"><span class="avatar">JD</span><div class="meta"><span>Jan de Vries</span><span class="pos">ST</span></div></div></td><td>1 120</td><td>19</td><td>15</td><td>4</td><td>4</td><td>59</td><td>720</td><td>160</td><td>240</td><td>67%<span class="pct-bar"><span style="width:67%"></span></span></td></tr>
+                <tr><td class="rank">5</td><td class="player"><div class="player-cell"><span class="avatar">RM</span><div class="meta"><span>Ruben Mulder</span><span class="pos">LB</span></div></div></td><td>1 080</td><td>19</td><td>17</td><td>2</td><td>3</td><td>57</td><td>700</td><td>160</td><td>220</td><td>65%<span class="pct-bar"><span style="width:65%"></span></span></td></tr>
+                <tr><td class="rank">6</td><td class="player"><div class="player-cell"><span class="avatar">BV</span><div class="meta"><span>Bram Visser</span><span class="pos">CB</span></div></div></td><td>1 040</td><td>18</td><td>16</td><td>2</td><td>2</td><td>58</td><td>680</td><td>120</td><td>240</td><td>62%<span class="pct-bar"><span style="width:62%"></span></span></td></tr>
+                <tr><td class="rank">7</td><td class="player"><div class="player-cell"><span class="avatar">PD</span><div class="meta"><span>Pim Dekker</span><span class="pos">CM</span></div></div></td><td>980</td><td>18</td><td>13</td><td>5</td><td>5</td><td>54</td><td>620</td><td>140</td><td>220</td><td>59%<span class="pct-bar"><span style="width:59%"></span></span></td></tr>
+                <tr><td class="rank">8</td><td class="player"><div class="player-cell"><span class="avatar">NH</span><div class="meta"><span>Noah Hendriks</span><span class="pos">RW</span></div></div></td><td>950</td><td>17</td><td>14</td><td>3</td><td>4</td><td>56</td><td>610</td><td>120</td><td>220</td><td>57%<span class="pct-bar"><span style="width:57%"></span></span></td></tr>
+                <tr><td class="rank">9</td><td class="player"><div class="player-cell"><span class="avatar">TM</span><div class="meta"><span>Tim Meijer</span><span class="pos">LW</span></div></div></td><td>880</td><td>16</td><td>12</td><td>4</td><td>5</td><td>55</td><td>560</td><td>100</td><td>220</td><td>53%<span class="pct-bar"><span style="width:53%"></span></span></td></tr>
+                <tr><td class="rank">10</td><td class="player"><div class="player-cell"><span class="avatar">FK</span><div class="meta"><span>Finn Klaassen</span><span class="pos">CM</span></div></div></td><td>820</td><td>15</td><td>11</td><td>4</td><td>4</td><td>55</td><td>540</td><td>80</td><td>200</td><td>49%<span class="pct-bar"><span style="width:49%"></span></span></td></tr>
+                <tr><td class="rank">11</td><td class="player"><div class="player-cell"><span class="avatar">MW</span><div class="meta"><span>Max Willems</span><span class="pos">ST</span></div></div></td><td>720</td><td>14</td><td>8</td><td>6</td><td>3</td><td>51</td><td>480</td><td>60</td><td>180</td><td>43%<span class="pct-bar"><span style="width:43%"></span></span></td></tr>
+                <tr><td class="rank">12</td><td class="player"><div class="player-cell"><span class="avatar">JB</span><div class="meta"><span>Jules Brouwer</span><span class="pos">CB</span></div></div></td><td>640</td><td>13</td><td>7</td><td>6</td><td>2</td><td>49</td><td>420</td><td>60</td><td>160</td><td>38%<span class="pct-bar"><span style="width:38%"></span></span></td></tr>
+                <tr><td class="rank">13</td><td class="player"><div class="player-cell"><span class="avatar">SP</span><div class="meta"><span>Stijn Peters</span><span class="pos">CM</span></div></div></td><td>540</td><td>12</td><td>5</td><td>7</td><td>2</td><td>45</td><td>360</td><td>40</td><td>140</td><td>32%<span class="pct-bar"><span style="width:32%"></span></span></td></tr>
+                <tr><td class="rank">14</td><td class="player"><div class="player-cell"><span class="avatar">EB</span><div class="meta"><span>Elias Bos</span><span class="pos">GK</span></div></div></td><td>1 320</td><td>16</td><td>16</td><td>0</td><td>0</td><td>70</td><td>960</td><td>180</td><td>180</td><td>79%<span class="pct-bar"><span style="width:79%"></span></span></td></tr>
+                <tr><td class="rank">15</td><td class="player"><div class="player-cell"><span class="avatar">DH</span><div class="meta"><span>Daan Hofman</span><span class="pos">GK</span></div></div></td><td>120</td><td>2</td><td>2</td><td>0</td><td>0</td><td>60</td><td>0</td><td>40</td><td>80</td><td>7%<span class="pct-bar"><span style="width:7%"></span></span></td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Mobile cards -->
+    <div class="option-a-cards">
+        <div class="player-card"><div class="top"><span class="avatar">LB</span><div><div class="name">1. Lucas Bakker</div><div class="pos">RB · 21 start · 1 on · 2 off</div></div><div class="total">1 480<small> min</small></div></div><div class="split"><div class="split-cell"><div class="lbl">Avg</div><div class="val">67</div></div><div class="split-cell"><div class="lbl">League</div><div class="val">950</div></div><div class="split-cell"><div class="lbl">Cup</div><div class="val">240</div></div><div class="split-cell"><div class="lbl">Friendly</div><div class="val">290</div></div></div></div>
+        <div class="player-card"><div class="top"><span class="avatar">SV</span><div><div class="name">2. Sem van Dam</div><div class="pos">CM · 20 start · 1 on · 3 off</div></div><div class="total">1 350<small> min</small></div></div><div class="split"><div class="split-cell"><div class="lbl">Avg</div><div class="val">64</div></div><div class="split-cell"><div class="lbl">League</div><div class="val">880</div></div><div class="split-cell"><div class="lbl">Cup</div><div class="val">200</div></div><div class="split-cell"><div class="lbl">Friendly</div><div class="val">270</div></div></div></div>
+        <div class="player-card highlight"><div class="top"><span class="avatar">JD</span><div><div class="name">4. Jan de Vries</div><div class="pos">ST · 15 start · 4 on · 4 off</div></div><div class="total">1 120<small> min</small></div></div><div class="split"><div class="split-cell"><div class="lbl">Avg</div><div class="val">59</div></div><div class="split-cell"><div class="lbl">League</div><div class="val">720</div></div><div class="split-cell"><div class="lbl">Cup</div><div class="val">160</div></div><div class="split-cell"><div class="lbl">Friendly</div><div class="val">240</div></div></div></div>
+        <div class="player-card"><div class="top"><span class="avatar">RM</span><div><div class="name">5. Ruben Mulder</div><div class="pos">LB · 17 start · 2 on · 3 off</div></div><div class="total">1 080<small> min</small></div></div><div class="split"><div class="split-cell"><div class="lbl">Avg</div><div class="val">57</div></div><div class="split-cell"><div class="lbl">League</div><div class="val">700</div></div><div class="split-cell"><div class="lbl">Cup</div><div class="val">160</div></div><div class="split-cell"><div class="lbl">Friendly</div><div class="val">220</div></div></div></div>
+        <div class="player-card"><div class="top"><span class="avatar">PD</span><div><div class="name">7. Pim Dekker</div><div class="pos">CM · 13 start · 5 on · 5 off</div></div><div class="total">980<small> min</small></div></div><div class="split"><div class="split-cell"><div class="lbl">Avg</div><div class="val">54</div></div><div class="split-cell"><div class="lbl">League</div><div class="val">620</div></div><div class="split-cell"><div class="lbl">Cup</div><div class="val">140</div></div><div class="split-cell"><div class="lbl">Friendly</div><div class="val">220</div></div></div></div>
+        <div class="player-card"><div class="top"><span class="avatar">…</span><div><div class="name">… 10 more</div><div class="pos">tap to expand</div></div></div></div>
+    </div>
+
+    <div class="export-bar">
+        <button class="btn primary">Export CSV</button>
+        <button class="btn">Schedule weekly email</button>
+    </div>
+
+    <p style="margin-top:14px; font-size:12px; color:var(--muted);">
+        <strong>Best for:</strong> the default scan — sortable, ranked, drillable. The highlighted row is the player you opened from a parent's question. Mobile collapses to per-player cards.
+    </p>
+</section>
+
+<!-- ===================== OPTION B ===================== -->
+<section class="option" data-option="B">
+    <p class="option-title">Layout B — <strong>Visual bars (stacked by match type)</strong></p>
+
+    <div class="bars">
+        <div class="bars-legend">
+            <span><span class="dot" style="background:var(--type-league)"></span>League</span>
+            <span><span class="dot" style="background:var(--type-cup)"></span>Cup</span>
+            <span><span class="dot" style="background:var(--type-friendly)"></span>Friendly</span>
+        </div>
+
+        <div class="bar-row"><div class="name">Lucas Bakker<small>RB · 22 matches</small></div><div class="bar-track"><span class="bar-seg league" style="width:64%"></span><span class="bar-seg cup" style="width:16%"></span><span class="bar-seg friendly" style="width:20%"></span></div><div class="total">1 480</div></div>
+        <div class="bar-row"><div class="name">Sem van Dam<small>CM · 21 matches</small></div><div class="bar-track"><span class="bar-seg league" style="width:65%"></span><span class="bar-seg cup" style="width:15%"></span><span class="bar-seg friendly" style="width:20%"></span></div><div class="total">1 350</div></div>
+        <div class="bar-row"><div class="name">Elias Bos<small>GK · 16 matches</small></div><div class="bar-track"><span class="bar-seg league" style="width:73%"></span><span class="bar-seg cup" style="width:14%"></span><span class="bar-seg friendly" style="width:13%"></span></div><div class="total">1 320</div></div>
+        <div class="bar-row"><div class="name">Thijs Jansen<small>CB · 20 matches</small></div><div class="bar-track"><span class="bar-seg league" style="width:64%"></span><span class="bar-seg cup" style="width:16%"></span><span class="bar-seg friendly" style="width:20%"></span></div><div class="total">1 280</div></div>
+        <div class="bar-row highlight"><div class="name">Jan de Vries<small>ST · 19 matches</small></div><div class="bar-track"><span class="bar-seg league" style="width:64%"></span><span class="bar-seg cup" style="width:14%"></span><span class="bar-seg friendly" style="width:22%"></span></div><div class="total">1 120</div></div>
+        <div class="bar-row"><div class="name">Ruben Mulder<small>LB · 19 matches</small></div><div class="bar-track"><span class="bar-seg league" style="width:65%"></span><span class="bar-seg cup" style="width:15%"></span><span class="bar-seg friendly" style="width:20%"></span></div><div class="total">1 080</div></div>
+        <div class="bar-row"><div class="name">Bram Visser<small>CB · 18 matches</small></div><div class="bar-track"><span class="bar-seg league" style="width:65%"></span><span class="bar-seg cup" style="width:12%"></span><span class="bar-seg friendly" style="width:23%"></span></div><div class="total">1 040</div></div>
+        <div class="bar-row"><div class="name">Pim Dekker<small>CM · 18 matches</small></div><div class="bar-track"><span class="bar-seg league" style="width:63%"></span><span class="bar-seg cup" style="width:14%"></span><span class="bar-seg friendly" style="width:23%"></span></div><div class="total">980</div></div>
+        <div class="bar-row"><div class="name">Noah Hendriks<small>RW · 17 matches</small></div><div class="bar-track"><span class="bar-seg league" style="width:64%"></span><span class="bar-seg cup" style="width:13%"></span><span class="bar-seg friendly" style="width:23%"></span></div><div class="total">950</div></div>
+        <div class="bar-row"><div class="name">Tim Meijer<small>LW · 16 matches</small></div><div class="bar-track"><span class="bar-seg league" style="width:64%"></span><span class="bar-seg cup" style="width:11%"></span><span class="bar-seg friendly" style="width:25%"></span></div><div class="total">880</div></div>
+        <div class="bar-row"><div class="name">Finn Klaassen<small>CM · 15 matches</small></div><div class="bar-track"><span class="bar-seg league" style="width:66%"></span><span class="bar-seg cup" style="width:10%"></span><span class="bar-seg friendly" style="width:24%"></span></div><div class="total">820</div></div>
+        <div class="bar-row"><div class="name">Max Willems<small>ST · 14 matches</small></div><div class="bar-track"><span class="bar-seg league" style="width:67%"></span><span class="bar-seg cup" style="width:8%"></span><span class="bar-seg friendly" style="width:25%"></span></div><div class="total">720</div></div>
+        <div class="bar-row"><div class="name">Jules Brouwer<small>CB · 13 matches</small></div><div class="bar-track"><span class="bar-seg league" style="width:66%"></span><span class="bar-seg cup" style="width:9%"></span><span class="bar-seg friendly" style="width:25%"></span></div><div class="total">640</div></div>
+        <div class="bar-row"><div class="name">Stijn Peters<small>CM · 12 matches</small></div><div class="bar-track"><span class="bar-seg league" style="width:67%"></span><span class="bar-seg cup" style="width:7%"></span><span class="bar-seg friendly" style="width:26%"></span></div><div class="total">540</div></div>
+        <div class="bar-row"><div class="name">Daan Hofman<small>GK · 2 matches (backup)</small></div><div class="bar-track"><span class="bar-seg cup" style="width:33%"></span><span class="bar-seg friendly" style="width:67%"></span></div><div class="total">120</div></div>
+
+        <div class="bars-summary">
+            <span>Squad median: <strong>980 min</strong></span>
+            <span>Highest – lowest gap: <strong>1 360 min</strong></span>
+            <span>Spread (P10–P90): <strong>540 — 1 350 min</strong></span>
+        </div>
+    </div>
+
+    <p style="margin-top:14px; font-size:12px; color:var(--muted);">
+        <strong>Best for:</strong> showing a parent the distribution at a glance — bar lengths make outliers obvious, segment colours show the type split without numbers. Highlighted bar = the player in question. Squad median + spread line beneath answers "is this player unusual."
+    </p>
+</section>
+
+<!-- ===================== OPTION C ===================== -->
+<section class="option" data-option="C">
+    <p class="option-title">Layout C — <strong>Player spotlight + squad context</strong></p>
+
+    <div class="spotlight">
+        <div class="head">
+            <span class="avatar">JD</span>
+            <div>
+                <h2>Jan de Vries</h2>
+                <div class="sub">ST · JO15-1 · season 2025/26</div>
+            </div>
+        </div>
+
+        <div class="spotlight-stats">
+            <div class="spot-stat"><div class="lbl">Total mins</div><div class="val">1 120</div><div class="sub">in 24 squad matches</div></div>
+            <div class="spot-stat"><div class="lbl">Matches</div><div class="val">19</div><div class="sub">15 start · 4 on · 4 off</div></div>
+            <div class="spot-stat"><div class="lbl">Avg / match</div><div class="val">59 min</div><div class="sub">match length 70</div></div>
+            <div class="spot-stat"><div class="lbl">% available</div><div class="val">67%</div><div class="sub">missed 4 (injury)</div></div>
+        </div>
+
+        <div class="spot-types">
+            <div class="type-row"><div class="lbl"><span class="dot league"></span>League</div><div class="bar-track"><span class="bar-seg league" style="width:64%"></span></div><div class="val">720</div></div>
+            <div class="type-row"><div class="lbl"><span class="dot cup"></span>Cup</div><div class="bar-track"><span class="bar-seg cup" style="width:14%"></span></div><div class="val">160</div></div>
+            <div class="type-row"><div class="lbl"><span class="dot friendly"></span>Friendly</div><div class="bar-track"><span class="bar-seg friendly" style="width:22%"></span></div><div class="val">240</div></div>
+        </div>
+    </div>
+
+    <div class="context-block">
+        <h3>Where Jan sits in the squad</h3>
+        <div class="rank-line"><div class="rank">1.</div><div class="name">Lucas Bakker (RB)</div><div class="mins">1 480</div><div class="delta">+360</div></div>
+        <div class="rank-line"><div class="rank">2.</div><div class="name">Sem van Dam (CM)</div><div class="mins">1 350</div><div class="delta">+230</div></div>
+        <div class="rank-line"><div class="rank">3.</div><div class="name">Thijs Jansen (CB)</div><div class="mins">1 280</div><div class="delta">+160</div></div>
+        <div class="rank-line is-self"><div class="rank">4.</div><div class="name"><strong>Jan de Vries (ST)</strong></div><div class="mins">1 120</div><div class="delta">median +140</div></div>
+        <div class="rank-line"><div class="rank">5.</div><div class="name">Ruben Mulder (LB)</div><div class="mins">1 080</div><div class="delta">−40</div></div>
+        <div class="rank-line"><div class="rank">6.</div><div class="name">Bram Visser (CB)</div><div class="mins">1 040</div><div class="delta">−80</div></div>
+        <div class="rank-line"><div class="rank">7.</div><div class="name">Pim Dekker (CM)</div><div class="mins">980</div><div class="delta">−140</div></div>
+        <div class="rank-line"><div class="rank">… 8.</div><div class="name">Noah Hendriks (RW)</div><div class="mins">950</div><div class="delta">−170</div></div>
+        <p style="margin: 10px 0 0; color: var(--muted); font-size: 12px;"><strong>Ranked 4 of 15.</strong> Above squad median (980) by 140 min. Position-peer comparison: only ST in squad.</p>
+    </div>
+
+    <p style="margin-top:14px; font-size:12px; color:var(--muted);">
+        <strong>Best for:</strong> opening before a parent meeting. One hero card shows the player's numbers; rank list shows context. The "ranked 4 of 15" line is the sentence you say out loud.
+    </p>
+</section>
+
+<!-- ===================== OPTION D ===================== -->
+<section class="option" data-option="D">
+    <p class="option-title">Layout D — <strong>Head-to-head comparison</strong></p>
+
+    <div class="h2h-picker">
+        <select><option>Jan de Vries (ST)</option></select>
+        <select><option>Sem van Dam (CM)</option></select>
+    </div>
+
+    <div class="h2h-grid">
+        <div class="h2h-card">
+            <div class="head"><span class="avatar">JD</span><div><div class="name">Jan de Vries</div><div class="sub">ST · age 14</div></div></div>
+            <div class="h2h-row"><div class="lbl">Total mins</div><div class="val behind">1 120</div></div>
+            <div class="h2h-row"><div class="lbl">Matches</div><div class="val behind">19</div></div>
+            <div class="h2h-row"><div class="lbl">Started</div><div class="val behind">15</div></div>
+            <div class="h2h-row"><div class="lbl">Subs in</div><div class="val lead">4</div></div>
+            <div class="h2h-row"><div class="lbl">Subs off</div><div class="val behind">4</div></div>
+            <div class="h2h-row"><div class="lbl">Avg per match</div><div class="val behind">59</div></div>
+            <div class="h2h-row"><div class="lbl">% of available</div><div class="val behind">67%</div></div>
+            <hr style="border:none; border-top:1px dashed var(--line); margin: 8px 0;">
+            <div class="h2h-row"><div class="lbl"><span class="dot league"></span>League</div><div class="val">720</div></div>
+            <div class="h2h-row"><div class="lbl"><span class="dot cup"></span>Cup</div><div class="val">160</div></div>
+            <div class="h2h-row"><div class="lbl"><span class="dot friendly"></span>Friendly</div><div class="val">240</div></div>
+        </div>
+
+        <div class="h2h-card">
+            <div class="head"><span class="avatar">SV</span><div><div class="name">Sem van Dam</div><div class="sub">CM · age 14</div></div></div>
+            <div class="h2h-row"><div class="lbl">Total mins</div><div class="val lead">1 350</div></div>
+            <div class="h2h-row"><div class="lbl">Matches</div><div class="val lead">21</div></div>
+            <div class="h2h-row"><div class="lbl">Started</div><div class="val lead">20</div></div>
+            <div class="h2h-row"><div class="lbl">Subs in</div><div class="val behind">1</div></div>
+            <div class="h2h-row"><div class="lbl">Subs off</div><div class="val lead">3</div></div>
+            <div class="h2h-row"><div class="lbl">Avg per match</div><div class="val lead">64</div></div>
+            <div class="h2h-row"><div class="lbl">% of available</div><div class="val lead">81%</div></div>
+            <hr style="border:none; border-top:1px dashed var(--line); margin: 8px 0;">
+            <div class="h2h-row"><div class="lbl"><span class="dot league"></span>League</div><div class="val">880</div></div>
+            <div class="h2h-row"><div class="lbl"><span class="dot cup"></span>Cup</div><div class="val">200</div></div>
+            <div class="h2h-row"><div class="lbl"><span class="dot friendly"></span>Friendly</div><div class="val">270</div></div>
+        </div>
+    </div>
+
+    <p style="margin-top:14px; font-size:12px; color:var(--muted);">
+        <strong>Best for:</strong> when a parent specifically compares their kid to another. Green / red highlights make the gaps unambiguous without needing to be defensive. Position notice: different positions get different minutes is a real coaching answer this view supports.
+    </p>
+</section>
+
+</div><!-- /viewport-frame -->
+
+<script>
+document.querySelectorAll('.mockup-bar button[data-option]').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const opt = btn.dataset.option;
+        document.querySelectorAll('.mockup-bar button[data-option]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.option === opt)));
+        document.querySelectorAll('.option').forEach(s => s.classList.toggle('is-active', s.dataset.option === opt));
+    });
+});
+document.querySelectorAll('.mockup-bar button[data-viewport]').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const vp = btn.dataset.viewport;
+        document.querySelectorAll('.mockup-bar button[data-viewport]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.viewport === vp)));
+        document.getElementById('viewport').classList.toggle('is-mobile', vp === 'mobile');
+    });
+});
+</script>
+
+</body>
+</html>

@@ -270,7 +270,7 @@ final class DemoReviewPage {
                             </label>
                             <label style="margin-right:8px;">
                                 <input type="radio" name="<?php echo esc_attr( $name_attr ); ?>" value="promote" />
-                                <?php esc_html_e( 'Promote', 'talenttrack' ); ?>
+                                <?php echo esc_html( _x( 'Promote', 'demo per-record radio', 'talenttrack' ) ); ?>
                             </label>
                             <label>
                                 <input type="radio" name="<?php echo esc_attr( $name_attr ); ?>" value="inherit" checked />

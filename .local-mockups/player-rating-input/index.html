@@ -1,0 +1,1049 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1a1d21">
+<title>Player rating input — mockup</title>
+<style>
+/* ---------------------------------------------------------------------------
+   Design tokens — mirror what TT production uses so the port is mechanical.
+   --------------------------------------------------------------------------- */
+:root {
+    --tt-ink:        #1a1d21;
+    --tt-ink-soft:   #5b6e75;
+    --tt-paper:      #ffffff;
+    --tt-bg:         #f5f7f6;
+    --tt-line:       #d6dadd;
+    --tt-line-soft:  #e6e9ec;
+    --tt-accent:     #2271b1;
+    --tt-accent-15:  rgba(34,113,177,0.15);
+    --tt-success:    #2e7d4f;
+    --tt-warn:       #c75c1f;
+    --tt-danger:     #d63638;
+    --tt-mute:       #f0f3f2;
+
+    --tap-min:       48px;
+    --gap:           12px;
+    --gap-lg:        16px;
+    --radius:        10px;
+    --radius-lg:     16px;
+    --font:          'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+    font-family: var(--font);
+    color: var(--tt-ink);
+    background: var(--tt-bg);
+    font-size: 16px;
+    line-height: 1.4;
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+    padding-bottom: 96px;
+}
+
+/* ---------------------------------------------------------------------------
+   Mockup-only chrome — strip when porting to production.
+   --------------------------------------------------------------------------- */
+.mockup-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: #222;
+    color: #eee;
+    font-size: 12px;
+    padding: 8px 12px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+    border-bottom: 2px solid #000;
+}
+.mockup-bar strong { color: #ffd; margin-right: 4px; }
+.mockup-bar button {
+    background: #444; color: #eee; border: 1px solid #666;
+    padding: 6px 10px; border-radius: 4px; font: inherit; cursor: pointer;
+    font-size: 11px;
+}
+.mockup-bar button[aria-pressed="true"] {
+    background: #6c4; color: #000; border-color: #4a3; font-weight: 600;
+}
+.mockup-bar .legend {
+    color: #bbb;
+    font-size: 11px;
+    margin-left: auto;
+    padding-left: 8px;
+}
+
+/* ---------------------------------------------------------------------------
+   Frame — phone-budget 360px column.
+   --------------------------------------------------------------------------- */
+.frame {
+    max-width: 360px;
+    margin: 0 auto;
+    padding: 16px 12px 24px;
+}
+
+.page-h1 {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 4px 0 4px;
+}
+.page-sub {
+    font-size: 13px;
+    color: var(--tt-ink-soft);
+    margin: 0 0 12px;
+}
+
+.card {
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    margin-bottom: 18px;
+}
+.card__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.card__label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--tt-ink-soft);
+    font-weight: 700;
+}
+.card__variant-name {
+    font-size: 16px;
+    font-weight: 700;
+    margin: 0 0 2px;
+}
+.card__variant-sub {
+    font-size: 12px;
+    color: var(--tt-ink-soft);
+    margin: 0 0 14px;
+}
+
+/* Match-context block above each rating input — simulates the
+   PostGameEvaluationForm card on a sideline phone. */
+.context {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    background: var(--tt-mute);
+    border-radius: var(--radius);
+    margin-bottom: 14px;
+}
+.context__avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--tt-accent-15);
+    color: var(--tt-accent);
+    display: grid; place-items: center;
+    font-weight: 700; font-size: 13px;
+}
+.context__name {
+    font-size: 14px; font-weight: 600;
+}
+.context__meta {
+    font-size: 11px; color: var(--tt-ink-soft);
+}
+
+.label-row {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin-bottom: 8px;
+}
+.label-row label {
+    font-weight: 600; font-size: 14px;
+}
+.range-hint {
+    font-size: 12px; color: var(--tt-ink-soft);
+}
+
+/* ---------------------------------------------------------------------------
+   Variant A — Chip grid
+   3 rows × 4 chips (11 values), one tap = done.
+   --------------------------------------------------------------------------- */
+.chip-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+.chip {
+    appearance: none;
+    -webkit-appearance: none;
+    border: 1.5px solid var(--tt-line);
+    background: var(--tt-paper);
+    color: var(--tt-ink);
+    border-radius: var(--radius);
+    min-height: var(--tap-min);
+    font: 600 17px/1 var(--font);
+    cursor: pointer;
+    touch-action: manipulation;
+    transition: transform .05s ease;
+}
+.chip:active { transform: scale(0.97); }
+.chip[aria-pressed="true"] {
+    background: var(--tt-accent);
+    border-color: var(--tt-accent);
+    color: #fff;
+}
+/* Visual emphasis: whole numbers slightly bolder than halves */
+.chip[data-half="true"] {
+    color: var(--tt-ink-soft);
+    font-size: 15px;
+}
+.chip[data-half="true"][aria-pressed="true"] { color: #fff; }
+.chip__filler {
+    visibility: hidden;
+    pointer-events: none;
+}
+
+/* ---------------------------------------------------------------------------
+   Variant B — Stepper (matches the score stepper pattern in match-execution)
+   −  [ 7.5 ]  +    with +/-0.5 step
+   --------------------------------------------------------------------------- */
+.stepper {
+    display: grid;
+    grid-template-columns: var(--tap-min) 1fr var(--tap-min);
+    align-items: stretch;
+    border: 1px solid var(--tt-line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    min-height: 64px;
+}
+.stepper__btn {
+    appearance: none;
+    background: var(--tt-mute);
+    color: var(--tt-ink);
+    border: 0;
+    font: 700 24px/1 var(--font);
+    cursor: pointer;
+    touch-action: manipulation;
+    display: grid; place-items: center;
+}
+.stepper__btn:disabled { color: var(--tt-line); cursor: not-allowed; }
+.stepper__btn:active:not(:disabled) { background: var(--tt-line); }
+.stepper__btn--plus { background: var(--tt-accent); color: #fff; }
+.stepper__btn--plus:active:not(:disabled) { background: #1a5d96; }
+.stepper__val {
+    display: grid; place-items: center;
+    font: 700 28px/1 var(--font);
+    color: var(--tt-ink);
+}
+.stepper__hint {
+    text-align: center;
+    font-size: 11px;
+    color: var(--tt-ink-soft);
+    margin-top: 8px;
+}
+.preset-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    margin-top: 10px;
+}
+.preset-btn {
+    appearance: none;
+    border: 1px dashed var(--tt-line);
+    background: var(--tt-paper);
+    color: var(--tt-ink-soft);
+    min-height: 36px;
+    border-radius: 8px;
+    font: 600 13px/1 var(--font);
+    cursor: pointer;
+}
+.preset-btn:active { background: var(--tt-mute); }
+
+/* ---------------------------------------------------------------------------
+   Variant C — Slider with tick labels (snapped to 0.5)
+   --------------------------------------------------------------------------- */
+.slider-wrap {
+    padding-top: 4px;
+}
+.slider-value {
+    display: flex; align-items: baseline; gap: 6px;
+    margin-bottom: 6px;
+}
+.slider-value strong {
+    font: 700 36px/1 var(--font);
+    color: var(--tt-accent);
+}
+.slider-value span {
+    font-size: 13px;
+    color: var(--tt-ink-soft);
+}
+.slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 36px; /* tall hit target */
+    background: transparent;
+    touch-action: pan-y;
+}
+.slider:focus { outline: none; }
+.slider::-webkit-slider-runnable-track {
+    height: 8px;
+    background: var(--tt-line);
+    border-radius: 4px;
+}
+.slider::-moz-range-track {
+    height: 8px;
+    background: var(--tt-line);
+    border-radius: 4px;
+}
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--tt-accent);
+    border: 3px solid #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    cursor: grab;
+    margin-top: -12px;
+}
+.slider::-moz-range-thumb {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--tt-accent);
+    border: 3px solid #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+    cursor: grab;
+}
+.slider:active::-webkit-slider-thumb { cursor: grabbing; }
+.ticks {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    margin-top: 6px;
+    padding: 0 12px; /* align tick labels with thumb travel */
+}
+.ticks span {
+    text-align: center;
+    font-size: 11px;
+    color: var(--tt-ink-soft);
+    font-weight: 600;
+    position: relative;
+}
+.ticks span::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: -10px;
+    width: 1px;
+    height: 6px;
+    background: var(--tt-line);
+}
+
+/* ---------------------------------------------------------------------------
+   Variant D — Two-stage (whole number row, then .0 / .5 toggle)
+   Coach picks "8" then picks ".0" or ".5".
+   --------------------------------------------------------------------------- */
+.whole-row {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 6px;
+    margin-bottom: 10px;
+}
+.whole-row .chip { font-size: 18px; }
+.half-toggle {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border: 1.5px solid var(--tt-line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    min-height: var(--tap-min);
+}
+.half-toggle button {
+    appearance: none;
+    background: var(--tt-paper);
+    border: 0;
+    color: var(--tt-ink);
+    font: 600 16px/1 var(--font);
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.half-toggle button:first-child { border-right: 1.5px solid var(--tt-line); }
+.half-toggle button[aria-pressed="true"] {
+    background: var(--tt-accent); color: #fff;
+}
+.compound-readout {
+    text-align: center;
+    margin-top: 12px;
+    font: 700 28px/1 var(--font);
+}
+.compound-readout span {
+    color: var(--tt-accent);
+}
+.compound-readout small {
+    display: block;
+    font: 400 12px/1 var(--font);
+    color: var(--tt-ink-soft);
+    margin-top: 4px;
+}
+
+/* ---------------------------------------------------------------------------
+   Baseline — the current production input, for diffing.
+   --------------------------------------------------------------------------- */
+.baseline-input {
+    width: 100px;
+    height: 40px;
+    border: 1px solid var(--tt-line);
+    border-radius: 4px;
+    padding: 6px 8px;
+    font: 400 16px/1 var(--font);
+}
+.baseline-note {
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--tt-warn);
+}
+
+/* ---------------------------------------------------------------------------
+   Multi-category list — slider on the same line as the category label.
+   Used in the multi-category view to answer "does this fit at 360?".
+   --------------------------------------------------------------------------- */
+.cat-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.cat-list--bordered { border: 1px solid var(--tt-line-soft); border-radius: var(--radius); }
+.cat-row {
+    display: grid;
+    /* label · slider · value — sized so the readout never wraps */
+    grid-template-columns: 78px 1fr 34px;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 8px;
+    min-height: 56px;
+}
+.cat-list--bordered .cat-row + .cat-row {
+    border-top: 1px solid var(--tt-line-soft);
+}
+.cat-row__label {
+    font: 600 13px/1.2 var(--font);
+    color: var(--tt-ink);
+}
+.cat-row__sub {
+    display: block;
+    font: 400 10px/1 var(--font);
+    color: var(--tt-ink-soft);
+    margin-top: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.cat-row__slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 36px;
+    background: transparent;
+    touch-action: pan-y;
+    margin: 0;
+}
+.cat-row__slider:focus { outline: none; }
+.cat-row__slider::-webkit-slider-runnable-track {
+    height: 6px; background: var(--tt-line); border-radius: 3px;
+}
+.cat-row__slider::-moz-range-track {
+    height: 6px; background: var(--tt-line); border-radius: 3px;
+}
+.cat-row__slider::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--tt-accent);
+    border: 3px solid #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+    cursor: grab;
+    margin-top: -11px;
+}
+.cat-row__slider::-moz-range-thumb {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--tt-accent);
+    border: 3px solid #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+    cursor: grab;
+}
+.cat-row__val {
+    font: 700 18px/1 var(--font);
+    color: var(--tt-accent);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+.cat-row__val--unset { color: var(--tt-line); font-weight: 400; }
+
+/* Stacked variant — label on top, slider below. Same data, two screens
+   of vertical space per category instead of one. */
+.cat-row--stacked {
+    display: block;
+    padding: 12px 8px;
+}
+.cat-row--stacked .cat-row__head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 4px;
+}
+.cat-row--stacked .cat-row__label { font-size: 14px; }
+.cat-row--stacked .cat-row__val   { font-size: 20px; }
+
+/* Per-category overall progress / running average for the form footer */
+.cat-summary {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: 10px 12px;
+    margin-top: 10px;
+    background: var(--tt-mute);
+    border-radius: var(--radius);
+}
+.cat-summary__label { font-size: 12px; color: var(--tt-ink-soft); font-weight: 600; }
+.cat-summary__val   { font: 700 22px/1 var(--font); color: var(--tt-accent); }
+
+/* Layout-comparison view — show inline + stacked side by side at wide screens */
+@media (min-width: 720px) {
+    body[data-view="multi"] .layout-compare {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+}
+.layout-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: var(--tt-ink-soft);
+    font-weight: 700;
+    margin: 0 0 6px;
+}
+
+/* ---------------------------------------------------------------------------
+   "Compare all" layout — at desktop widths put variants side by side
+   so the user can scan them in one screen.
+   --------------------------------------------------------------------------- */
+body[data-view="all"] .frame {
+    max-width: none;
+    padding: 16px;
+}
+body[data-view="all"] .grid {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: 1fr;
+}
+@media (min-width: 720px) {
+    body[data-view="all"] .grid {
+        grid-template-columns: repeat(2, minmax(320px, 360px));
+        justify-content: center;
+    }
+}
+@media (min-width: 1100px) {
+    body[data-view="all"] .grid {
+        grid-template-columns: repeat(3, minmax(320px, 360px));
+    }
+}
+
+/* Single-variant views: hide everything else */
+body[data-view="A"] .card:not(#variant-A),
+body[data-view="B"] .card:not(#variant-B),
+body[data-view="C"] .card:not(#variant-C),
+body[data-view="D"] .card:not(#variant-D),
+body[data-view="baseline"] .card:not(#variant-baseline),
+body[data-view="multi"] .card:not(#variant-multi) {
+    display: none;
+}
+
+/* The multi-category card is only visible in its own view */
+body:not([data-view="multi"]) #variant-multi { display: none; }
+
+/* Footer for context — the actual eval form has 'went well' / 'work on' too */
+.form-tail {
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--radius-lg);
+    padding: 14px;
+    color: var(--tt-ink-soft);
+    font-size: 13px;
+    margin-bottom: 24px;
+}
+.form-tail strong { color: var(--tt-ink); }
+
+.save-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--tt-paper);
+    border-top: 1px solid var(--tt-line);
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+    display: flex;
+    gap: 8px;
+    z-index: 50;
+}
+.save-bar > button {
+    flex: 1;
+    min-height: var(--tap-min);
+    border-radius: var(--radius);
+    font: 600 15px/1 var(--font);
+    border: 0;
+    cursor: pointer;
+}
+.save-bar .cancel {
+    background: var(--tt-mute);
+    color: var(--tt-ink);
+    border: 1px solid var(--tt-line);
+}
+.save-bar .save {
+    background: var(--tt-accent);
+    color: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+}
+</style>
+</head>
+<body data-view="all">
+
+<div class="mockup-bar">
+    <strong>View:</strong>
+    <button type="button" data-view="all" aria-pressed="true">Compare all</button>
+    <button type="button" data-view="A">A · Chip grid</button>
+    <button type="button" data-view="B">B · Stepper</button>
+    <button type="button" data-view="C">C · Slider</button>
+    <button type="button" data-view="D">D · Two-stage</button>
+    <button type="button" data-view="multi">Multi-cat (slider inline)</button>
+    <button type="button" data-view="baseline">Baseline</button>
+    <span class="legend">Range 5.0–10.0 · step 0.5</span>
+</div>
+
+<div class="frame">
+    <h1 class="page-h1">Player rating</h1>
+    <p class="page-sub">Post-match · 4 alternatives to the typed number input.</p>
+
+    <div class="grid">
+
+        <!-- ============================================================
+             BASELINE (current production input)
+             ============================================================ -->
+        <section class="card" id="variant-baseline">
+            <div class="card__head">
+                <span class="card__label">Baseline · current</span>
+            </div>
+            <h2 class="card__variant-name">Number field</h2>
+            <p class="card__variant-sub">What ships today in PostGameEvaluationForm.</p>
+
+            <div class="context">
+                <span class="context__avatar">JD</span>
+                <div>
+                    <div class="context__name">Jordi de Vries</div>
+                    <div class="context__meta">U17 · 6 Jun · 75'</div>
+                </div>
+            </div>
+
+            <div class="label-row">
+                <label for="tt-baseline">Overall rating</label>
+                <span class="range-hint">5.0 – 10.0</span>
+            </div>
+            <input id="tt-baseline" class="baseline-input" type="number"
+                   inputmode="decimal" step="0.5" min="5" max="10" value="">
+            <p class="baseline-note">Coach must tap the field, fight the numeric keyboard, type a decimal, dismiss the keyboard. On gloves: nearly unusable.</p>
+        </section>
+
+        <!-- ============================================================
+             VARIANT A — Chip grid
+             ============================================================ -->
+        <section class="card" id="variant-A">
+            <div class="card__head">
+                <span class="card__label">Variant A</span>
+            </div>
+            <h2 class="card__variant-name">Chip grid</h2>
+            <p class="card__variant-sub">All 11 values on screen. One tap = done. Best for speed + precision.</p>
+
+            <div class="context">
+                <span class="context__avatar">JD</span>
+                <div>
+                    <div class="context__name">Jordi de Vries</div>
+                    <div class="context__meta">U17 · 6 Jun · 75'</div>
+                </div>
+            </div>
+
+            <div class="label-row">
+                <label>Overall rating</label>
+                <span class="range-hint">Tap one</span>
+            </div>
+            <div class="chip-grid" role="radiogroup" aria-label="Overall rating" data-variant="A">
+                <button type="button" class="chip" role="radio" data-value="5">5</button>
+                <button type="button" class="chip" role="radio" data-value="5.5" data-half="true">5.5</button>
+                <button type="button" class="chip" role="radio" data-value="6">6</button>
+                <button type="button" class="chip" role="radio" data-value="6.5" data-half="true">6.5</button>
+                <button type="button" class="chip" role="radio" data-value="7">7</button>
+                <button type="button" class="chip" role="radio" data-value="7.5" data-half="true">7.5</button>
+                <button type="button" class="chip" role="radio" data-value="8" aria-pressed="true">8</button>
+                <button type="button" class="chip" role="radio" data-value="8.5" data-half="true">8.5</button>
+                <button type="button" class="chip" role="radio" data-value="9">9</button>
+                <button type="button" class="chip" role="radio" data-value="9.5" data-half="true">9.5</button>
+                <button type="button" class="chip" role="radio" data-value="10">10</button>
+                <button type="button" class="chip chip__filler" aria-hidden="true" tabindex="-1"></button>
+            </div>
+        </section>
+
+        <!-- ============================================================
+             VARIANT B — Stepper
+             ============================================================ -->
+        <section class="card" id="variant-B">
+            <div class="card__head">
+                <span class="card__label">Variant B</span>
+            </div>
+            <h2 class="card__variant-name">Stepper</h2>
+            <p class="card__variant-sub">Same pattern as the score stepper in match execution. Familiar muscle memory.</p>
+
+            <div class="context">
+                <span class="context__avatar">JD</span>
+                <div>
+                    <div class="context__name">Jordi de Vries</div>
+                    <div class="context__meta">U17 · 6 Jun · 75'</div>
+                </div>
+            </div>
+
+            <div class="label-row">
+                <label>Overall rating</label>
+                <span class="range-hint">± 0.5 per tap</span>
+            </div>
+            <div class="stepper" data-variant="B">
+                <button type="button" class="stepper__btn stepper__btn--minus" aria-label="Decrease rating">−</button>
+                <output class="stepper__val" aria-live="polite">7.5</output>
+                <button type="button" class="stepper__btn stepper__btn--plus" aria-label="Increase rating">+</button>
+            </div>
+            <p class="stepper__hint">Long-press to hold and scrub · default starts at 7.0 (academy average)</p>
+
+            <div class="preset-row">
+                <button type="button" class="preset-btn" data-preset="6">Below par · 6</button>
+                <button type="button" class="preset-btn" data-preset="7">Average · 7</button>
+                <button type="button" class="preset-btn" data-preset="8">Good · 8</button>
+                <button type="button" class="preset-btn" data-preset="9">Excellent · 9</button>
+            </div>
+        </section>
+
+        <!-- ============================================================
+             VARIANT C — Slider with tick labels
+             ============================================================ -->
+        <section class="card" id="variant-C">
+            <div class="card__head">
+                <span class="card__label">Variant C</span>
+            </div>
+            <h2 class="card__variant-name">Slider with ticks</h2>
+            <p class="card__variant-sub">Drag with a fat thumb. Native range, snapped to 0.5. Fastest for coarse moves.</p>
+
+            <div class="context">
+                <span class="context__avatar">JD</span>
+                <div>
+                    <div class="context__name">Jordi de Vries</div>
+                    <div class="context__meta">U17 · 6 Jun · 75'</div>
+                </div>
+            </div>
+
+            <div class="label-row">
+                <label for="tt-slider">Overall rating</label>
+                <span class="range-hint">Drag · 5.0–10.0</span>
+            </div>
+            <div class="slider-wrap" data-variant="C">
+                <div class="slider-value">
+                    <strong data-readout>7.5</strong>
+                    <span>/ 10.0</span>
+                </div>
+                <input id="tt-slider" class="slider" type="range"
+                       min="5" max="10" step="0.5" value="7.5">
+                <div class="ticks" aria-hidden="true">
+                    <span>5</span><span>6</span><span>7</span><span>8</span><span>9</span><span>10</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================
+             VARIANT D — Two-stage (whole, then half)
+             ============================================================ -->
+        <section class="card" id="variant-D">
+            <div class="card__head">
+                <span class="card__label">Variant D</span>
+            </div>
+            <h2 class="card__variant-name">Two-stage</h2>
+            <p class="card__variant-sub">Whole number first, then .0 / .5. Two taps, big targets, no scrolling needed.</p>
+
+            <div class="context">
+                <span class="context__avatar">JD</span>
+                <div>
+                    <div class="context__name">Jordi de Vries</div>
+                    <div class="context__meta">U17 · 6 Jun · 75'</div>
+                </div>
+            </div>
+
+            <div class="label-row">
+                <label>Whole number</label>
+                <span class="range-hint">Step 1 of 2</span>
+            </div>
+            <div class="whole-row" role="radiogroup" aria-label="Whole number" data-stage="whole">
+                <button type="button" class="chip" data-value="5">5</button>
+                <button type="button" class="chip" data-value="6">6</button>
+                <button type="button" class="chip" data-value="7" aria-pressed="true">7</button>
+                <button type="button" class="chip" data-value="8">8</button>
+                <button type="button" class="chip" data-value="9">9</button>
+                <button type="button" class="chip" data-value="10">10</button>
+            </div>
+
+            <div class="label-row">
+                <label>Half step</label>
+                <span class="range-hint">Step 2 of 2</span>
+            </div>
+            <div class="half-toggle" role="radiogroup" aria-label="Half step" data-stage="half">
+                <button type="button" data-value="0" aria-pressed="true">.0</button>
+                <button type="button" data-value="0.5">.5</button>
+            </div>
+
+            <p class="compound-readout">
+                <span data-readout-d>7.0</span>
+                <small>Selected rating</small>
+            </p>
+        </section>
+
+        <!-- ============================================================
+             MULTI-CATEGORY view — slider on the same line as category
+             label. Tests the fit at 360px with the 4 canonical eval
+             categories (Technical / Tactical / Physical / Mental).
+             ============================================================ -->
+        <section class="card" id="variant-multi">
+            <div class="card__head">
+                <span class="card__label">Multi-category · slider per row</span>
+            </div>
+            <h2 class="card__variant-name">Slider on the same line as category</h2>
+            <p class="card__variant-sub">Compact list — label on the left, slider in the middle, value on the right. Tap a row to focus, drag to set.</p>
+
+            <div class="context">
+                <span class="context__avatar">JD</span>
+                <div>
+                    <div class="context__name">Jordi de Vries</div>
+                    <div class="context__meta">U17 · 6 Jun · 75' · 4 categories</div>
+                </div>
+            </div>
+
+            <p class="layout-label">Layout 1 · slider inline</p>
+            <div class="cat-list cat-list--bordered" data-multi="inline">
+                <div class="cat-row">
+                    <div class="cat-row__label">Technical<span class="cat-row__sub">Ball · 1v1</span></div>
+                    <input class="cat-row__slider" type="range" min="5" max="10" step="0.5" value="7.5" aria-label="Technical">
+                    <div class="cat-row__val" data-readout>7.5</div>
+                </div>
+                <div class="cat-row">
+                    <div class="cat-row__label">Tactical<span class="cat-row__sub">Decisions · positioning</span></div>
+                    <input class="cat-row__slider" type="range" min="5" max="10" step="0.5" value="6.5" aria-label="Tactical">
+                    <div class="cat-row__val" data-readout>6.5</div>
+                </div>
+                <div class="cat-row">
+                    <div class="cat-row__label">Physical<span class="cat-row__sub">Pace · duels</span></div>
+                    <input class="cat-row__slider" type="range" min="5" max="10" step="0.5" value="9" aria-label="Physical">
+                    <div class="cat-row__val" data-readout>9.0</div>
+                </div>
+                <div class="cat-row">
+                    <div class="cat-row__label">Mental<span class="cat-row__sub">Focus · resilience</span></div>
+                    <input class="cat-row__slider" type="range" min="5" max="10" step="0.5" value="7" aria-label="Mental">
+                    <div class="cat-row__val" data-readout>7.0</div>
+                </div>
+            </div>
+
+            <div class="cat-summary">
+                <span class="cat-summary__label">Average across 4 categories</span>
+                <span class="cat-summary__val" data-avg>7.5</span>
+            </div>
+
+            <p class="layout-label" style="margin-top:24px;">Layout 2 · label on top (for diffing)</p>
+            <div class="cat-list cat-list--bordered" data-multi="stacked">
+                <div class="cat-row cat-row--stacked">
+                    <div class="cat-row__head">
+                        <span class="cat-row__label">Technical</span>
+                        <span class="cat-row__val" data-readout>7.5</span>
+                    </div>
+                    <input class="cat-row__slider" type="range" min="5" max="10" step="0.5" value="7.5" aria-label="Technical">
+                </div>
+                <div class="cat-row cat-row--stacked">
+                    <div class="cat-row__head">
+                        <span class="cat-row__label">Tactical</span>
+                        <span class="cat-row__val" data-readout>6.5</span>
+                    </div>
+                    <input class="cat-row__slider" type="range" min="5" max="10" step="0.5" value="6.5" aria-label="Tactical">
+                </div>
+                <div class="cat-row cat-row--stacked">
+                    <div class="cat-row__head">
+                        <span class="cat-row__label">Physical</span>
+                        <span class="cat-row__val" data-readout>9.0</span>
+                    </div>
+                    <input class="cat-row__slider" type="range" min="5" max="10" step="0.5" value="9" aria-label="Physical">
+                </div>
+                <div class="cat-row cat-row--stacked">
+                    <div class="cat-row__head">
+                        <span class="cat-row__label">Mental</span>
+                        <span class="cat-row__val" data-readout>7.0</span>
+                    </div>
+                    <input class="cat-row__slider" type="range" min="5" max="10" step="0.5" value="7" aria-label="Mental">
+                </div>
+            </div>
+
+            <p style="font-size:12px; color:var(--tt-ink-soft); margin-top:14px; line-height:1.5;">
+                <strong>Fit check at 360px:</strong> label column is 78px (fits "Technical / Tactical / Physical / Mental" without wrap, plus a small sub-label below). Slider takes the remaining flex. Value column is 34px fixed for a tabular 2-digit readout (e.g. "7.5"). Total: 78 + gap + flex + gap + 34 = comfortable at 360px frame minus 32px padding.
+            </p>
+        </section>
+
+    </div><!-- /.grid -->
+
+    <div class="form-tail">
+        <strong>Below the rating</strong> the form still has "What went well" and "What to work on" textareas — unchanged. The rating input is the only thing this mockup explores.
+    </div>
+</div>
+
+<div class="save-bar">
+    <button type="button" class="cancel">Cancel</button>
+    <button type="button" class="save">Save rating</button>
+</div>
+
+<script>
+/* ---------------------------------------------------------------------------
+   Mockup-only interactions. Production port writes its own handlers.
+   --------------------------------------------------------------------------- */
+
+// Variant picker
+document.querySelectorAll('.mockup-bar button[data-view]').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.body.dataset.view = btn.dataset.view;
+        document.querySelectorAll('.mockup-bar button[data-view]').forEach(b => {
+            b.setAttribute('aria-pressed', String(b === btn));
+        });
+        window.scrollTo({ top: 0, behavior: 'instant' });
+    });
+});
+
+// Variant A — chip grid
+document.querySelectorAll('[data-variant="A"] .chip:not(.chip__filler)').forEach(chip => {
+    chip.addEventListener('click', () => {
+        chip.parentElement.querySelectorAll('.chip').forEach(c =>
+            c.setAttribute('aria-pressed', String(c === chip)));
+    });
+});
+
+// Variant B — stepper
+(function () {
+    const root  = document.querySelector('[data-variant="B"]');
+    if (!root) return;
+    const val   = root.querySelector('.stepper__val');
+    const minus = root.querySelector('.stepper__btn--minus');
+    const plus  = root.querySelector('.stepper__btn--plus');
+    const MIN = 5, MAX = 10, STEP = 0.5;
+
+    const render = (v) => {
+        val.textContent = v.toFixed(1);
+        minus.disabled = v <= MIN;
+        plus.disabled  = v >= MAX;
+    };
+    let v = parseFloat(val.textContent);
+    render(v);
+
+    minus.addEventListener('click', () => { v = Math.max(MIN, v - STEP); render(v); });
+    plus .addEventListener('click', () => { v = Math.min(MAX, v + STEP); render(v); });
+
+    // Preset rows under stepper
+    document.querySelectorAll('#variant-B .preset-btn').forEach(p => {
+        p.addEventListener('click', () => {
+            v = parseFloat(p.dataset.preset);
+            render(v);
+        });
+    });
+}());
+
+// Variant C — slider readout
+(function () {
+    const root  = document.querySelector('[data-variant="C"]');
+    if (!root) return;
+    const input = root.querySelector('input[type="range"]');
+    const out   = root.querySelector('[data-readout]');
+    input.addEventListener('input', () => {
+        out.textContent = parseFloat(input.value).toFixed(1);
+    });
+}());
+
+// Multi-category — per-row readout + running average for the inline layout
+(function () {
+    const root = document.querySelector('#variant-multi');
+    if (!root) return;
+
+    function wire(list, opts) {
+        const rows = list.querySelectorAll('.cat-row');
+        const avgEl = opts && opts.avgEl;
+        const recompute = () => {
+            if (!avgEl) return;
+            let sum = 0, n = 0;
+            rows.forEach(r => {
+                const v = parseFloat(r.querySelector('input').value);
+                if (!isNaN(v)) { sum += v; n++; }
+            });
+            avgEl.textContent = n ? (sum / n).toFixed(1) : '—';
+        };
+        rows.forEach(row => {
+            const input = row.querySelector('input');
+            const out   = row.querySelector('[data-readout]');
+            input.addEventListener('input', () => {
+                out.textContent = parseFloat(input.value).toFixed(1);
+                recompute();
+            });
+        });
+        recompute();
+    }
+
+    wire(root.querySelector('[data-multi="inline"]'), {
+        avgEl: root.querySelector('[data-avg]'),
+    });
+    wire(root.querySelector('[data-multi="stacked"]'), {});
+}());
+
+// Variant D — two-stage
+(function () {
+    const root = document.querySelector('#variant-D');
+    if (!root) return;
+    const wholeBtns = root.querySelectorAll('[data-stage="whole"] button');
+    const halfBtns  = root.querySelectorAll('[data-stage="half"] button');
+    const out       = root.querySelector('[data-readout-d]');
+
+    function compute() {
+        const whole = parseFloat(root.querySelector('[data-stage="whole"] [aria-pressed="true"]')?.dataset.value || '7');
+        const halfBtn = root.querySelector('[data-stage="half"] [aria-pressed="true"]');
+        const half = halfBtn ? parseFloat(halfBtn.dataset.value) : 0;
+        // 10.5 is impossible — clamp
+        const total = whole === 10 ? 10 : whole + half;
+        out.textContent = total.toFixed(1);
+        // Disable .5 when whole == 10
+        halfBtns.forEach(b => {
+            if (b.dataset.value === '0.5') {
+                b.disabled = (whole === 10);
+                b.style.opacity = whole === 10 ? '0.4' : '';
+                if (whole === 10 && b.getAttribute('aria-pressed') === 'true') {
+                    b.setAttribute('aria-pressed', 'false');
+                    halfBtns[0].setAttribute('aria-pressed', 'true');
+                }
+            }
+        });
+    }
+
+    wholeBtns.forEach(b => b.addEventListener('click', () => {
+        wholeBtns.forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+        compute();
+    }));
+    halfBtns.forEach(b => b.addEventListener('click', () => {
+        if (b.disabled) return;
+        halfBtns.forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+        compute();
+    }));
+    compute();
+}());
+</script>
+
+</body>
+</html>

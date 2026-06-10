@@ -11957,8 +11957,11 @@ msgstr "Toon records"
 msgid "Override per row"
 msgstr "Per rij overschrijven"
 
-# #1295 — per-record radio: short label (no "to production" suffix)
+# #1295 — per-record radio: short label (no "to production" suffix);
+# uses gettext context to disambiguate from PdpVerdictsRepository's
+# Promote (player-progression vocabulary, Doorstroom in nl_NL).
 #: src/Modules/DemoData/Admin/DemoReviewPage.php:273
+msgctxt "demo per-record radio"
 msgid "Promote"
 msgstr "Promoveren"
 
