@@ -120,6 +120,13 @@ final class DemoReviewPage {
      * a smart-default checkbox (delete seeded; keep user-created).
      * Submit goes through admin-post → `handleConvert()` → service.
      *
+     * #1295 — each batch row gains a `<details>` expander listing every
+     * tagged row in that batch with a per-record override radio
+     * (`delete` / `promote` / `inherit`; default `inherit`). The
+     * per-record overrides are denormalised into the POST payload
+     * keyed by `record_<entity_type>_<entity_id>` and expanded by
+     * `handleConvert()` before the service call.
+     *
      * @param array<string, array{total:int, user:int, seeded:int, batches:array<string,int>}> $breakdown
      * @param array{all:int, user:int, seeded:int} $totals
      */
@@ -204,6 +211,7 @@ final class DemoReviewPage {
                     &nbsp;
                     <code><?php echo esc_html( (string) $batch_id ); ?></code>
                     · <?php echo (int) $cnt; ?> <?php esc_html_e( 'rows', 'talenttrack' ); ?>
+                    <?php self::renderRecordsExpander( (string) $batch_id ); ?>
                 </div>
             <?php endforeach; endif; ?>
 
@@ -220,6 +228,7 @@ final class DemoReviewPage {
                 </label>
                 &nbsp;
                 <code>user-created</code> · <?php echo (int) $user_total; ?> <?php esc_html_e( 'rows', 'talenttrack' ); ?>
+                <?php self::renderRecordsExpander( 'user-created' ); ?>
             </div>
 
             <p style="margin-top:16px;">
@@ -227,6 +236,151 @@ final class DemoReviewPage {
             </p>
         </form>
         <?php
+    }
+
+    /**
+     * #1295 — Per-record override expander rendered inline under each
+     * batch row. Lists every tagged row in this batch with a
+     * `delete / promote / inherit` radio (default `inherit` so the
+     * per-batch decision wins unless the operator picks an override).
+     * Hidden behind a native `<details>` so the form stays compact for
+     * the 95% case where no overrides are needed.
+     */
+    private static function renderRecordsExpander( string $batch_id ): void {
+        $records = self::recordsInBatch( $batch_id );
+        if ( empty( $records ) ) return;
+        ?>
+        <details style="margin-top:6px; margin-left:18px;">
+            <summary style="cursor:pointer; color:#1d7874;"><?php esc_html_e( 'Show records', 'talenttrack' ); ?></summary>
+            <p style="color:#5b6e75; margin:6px 0;"><em><?php esc_html_e( 'Override per row', 'talenttrack' ); ?></em></p>
+            <table class="widefat" style="background:#fff; margin-top:4px;">
+                <tbody>
+                <?php foreach ( $records as $rec ) :
+                    $name_attr = sprintf( 'record_%s_%d', $rec['entity_type'], (int) $rec['entity_id'] );
+                ?>
+                    <tr>
+                        <td style="padding:4px 8px;">
+                            <code><?php echo esc_html( $rec['entity_type'] . ' #' . (int) $rec['entity_id'] ); ?></code>
+                            &nbsp;<?php echo esc_html( $rec['display_name'] ); ?>
+                        </td>
+                        <td style="padding:4px 8px; white-space:nowrap;">
+                            <label style="margin-right:8px;">
+                                <input type="radio" name="<?php echo esc_attr( $name_attr ); ?>" value="delete" />
+                                <?php esc_html_e( 'Delete', 'talenttrack' ); ?>
+                            </label>
+                            <label style="margin-right:8px;">
+                                <input type="radio" name="<?php echo esc_attr( $name_attr ); ?>" value="promote" />
+                                <?php esc_html_e( 'Promote', 'talenttrack' ); ?>
+                            </label>
+                            <label>
+                                <input type="radio" name="<?php echo esc_attr( $name_attr ); ?>" value="inherit" checked />
+                                <?php esc_html_e( 'Inherit', 'talenttrack' ); ?>
+                            </label>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        </details>
+        <?php
+    }
+
+    /**
+     * #1295 — Returns every tagged row for the given batch, resolved
+     * against the underlying entity table for a display name. Used by
+     * `renderRecordsExpander()`. Returns an empty list when the batch
+     * has no tagged rows or the tag table is missing.
+     *
+     * @return array<int, array{entity_type:string, entity_id:int, display_name:string}>
+     */
+    private static function recordsInBatch( string $batch_id ): array {
+        global $wpdb;
+        $tag_table = $wpdb->prefix . 'tt_demo_tags';
+        $club_id   = (int) CurrentClub::id();
+
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT entity_type, entity_id
+               FROM {$tag_table}
+              WHERE club_id = %d AND batch_id = %s
+              ORDER BY entity_type ASC, entity_id ASC",
+            $club_id, $batch_id
+        ) );
+
+        $out = [];
+        foreach ( (array) $rows as $r ) {
+            $entity_type = (string) ( $r->entity_type ?? '' );
+            $entity_id   = (int) ( $r->entity_id ?? 0 );
+            if ( $entity_type === '' || $entity_id <= 0 ) continue;
+            $out[] = [
+                'entity_type' => $entity_type,
+                'entity_id'   => $entity_id,
+                'display_name' => self::displayNameFor( $entity_type, $entity_id ),
+            ];
+        }
+        return $out;
+    }
+
+    /**
+     * #1295 — Resolve a human-readable display name for one tagged
+     * entity. Per-type column choice:
+     *   - team       → name
+     *   - player     → first_name + last_name
+     *   - person     → first_name + last_name (no display_name column
+     *                  on tt_people; the spec called for display_name
+     *                  but the schema only has first/last)
+     *   - activity   → title
+     *   - goal       → title
+     *   - evaluation → composite `eval #<id>` — no name column on
+     *                  tt_evaluations; the entity is described by its
+     *                  player + date but those are out of scope here
+     * Returns an empty string when the row no longer exists.
+     */
+    private static function displayNameFor( string $entity_type, int $entity_id ): string {
+        global $wpdb;
+        $club_id = (int) CurrentClub::id();
+
+        switch ( $entity_type ) {
+            case 'team':
+                $name = $wpdb->get_var( $wpdb->prepare(
+                    "SELECT name FROM {$wpdb->prefix}tt_teams WHERE id = %d AND club_id = %d",
+                    $entity_id, $club_id
+                ) );
+                return is_string( $name ) ? $name : '';
+
+            case 'player':
+                $row = $wpdb->get_row( $wpdb->prepare(
+                    "SELECT first_name, last_name FROM {$wpdb->prefix}tt_players WHERE id = %d AND club_id = %d",
+                    $entity_id, $club_id
+                ) );
+                if ( ! $row ) return '';
+                return trim( (string) ( $row->first_name ?? '' ) . ' ' . (string) ( $row->last_name ?? '' ) );
+
+            case 'person':
+                $row = $wpdb->get_row( $wpdb->prepare(
+                    "SELECT first_name, last_name FROM {$wpdb->prefix}tt_people WHERE id = %d AND club_id = %d",
+                    $entity_id, $club_id
+                ) );
+                if ( ! $row ) return '';
+                return trim( (string) ( $row->first_name ?? '' ) . ' ' . (string) ( $row->last_name ?? '' ) );
+
+            case 'activity':
+                $title = $wpdb->get_var( $wpdb->prepare(
+                    "SELECT title FROM {$wpdb->prefix}tt_activities WHERE id = %d AND club_id = %d",
+                    $entity_id, $club_id
+                ) );
+                return is_string( $title ) ? $title : '';
+
+            case 'goal':
+                $title = $wpdb->get_var( $wpdb->prepare(
+                    "SELECT title FROM {$wpdb->prefix}tt_goals WHERE id = %d AND club_id = %d",
+                    $entity_id, $club_id
+                ) );
+                return is_string( $title ) ? $title : '';
+
+            case 'evaluation':
+                return sprintf( 'eval_id #%d', $entity_id );
+        }
+        return '';
     }
 
     /**
@@ -251,13 +405,39 @@ final class DemoReviewPage {
 
         $delete_batches  = [];
         $promote_batches = [];
+        // #1295 — per-record overrides shaped
+        //   [ entity_type => [ entity_id => 'delete'|'promote' ] ]
+        // `inherit` is the default and is dropped here (no override).
+        $per_record_overrides = [];
+        $allowed_entity_types = [ 'team', 'player', 'person', 'activity', 'evaluation', 'goal' ];
+
         foreach ( (array) $_POST as $key => $value ) {
-            if ( strncmp( (string) $key, 'batch_', 6 ) !== 0 ) continue;
-            $batch_id = substr( (string) $key, 6 );
-            if ( $batch_id === '' ) continue;
-            $choice = sanitize_key( (string) wp_unslash( $value ) );
-            if ( $choice === 'delete' )      $delete_batches[]  = $batch_id;
-            elseif ( $choice === 'promote' ) $promote_batches[] = $batch_id;
+            $key_str = (string) $key;
+
+            if ( strncmp( $key_str, 'batch_', 6 ) === 0 ) {
+                $batch_id = substr( $key_str, 6 );
+                if ( $batch_id === '' ) continue;
+                $choice = sanitize_key( (string) wp_unslash( $value ) );
+                if ( $choice === 'delete' )      $delete_batches[]  = $batch_id;
+                elseif ( $choice === 'promote' ) $promote_batches[] = $batch_id;
+                continue;
+            }
+
+            if ( strncmp( $key_str, 'record_', 7 ) === 0 ) {
+                $rest = substr( $key_str, 7 );
+                // Last underscore separates entity_type from entity_id.
+                $sep = strrpos( $rest, '_' );
+                if ( $sep === false ) continue;
+                $entity_type = substr( $rest, 0, $sep );
+                $entity_id   = (int) substr( $rest, $sep + 1 );
+                if ( $entity_id <= 0 ) continue;
+                if ( ! in_array( $entity_type, $allowed_entity_types, true ) ) continue;
+                $choice = sanitize_key( (string) wp_unslash( $value ) );
+                if ( $choice === 'delete' || $choice === 'promote' ) {
+                    $per_record_overrides[ $entity_type ][ $entity_id ] = $choice;
+                }
+                // 'inherit' (or anything else) → no entry; per-batch wins.
+            }
         }
 
         if ( empty( $delete_batches ) && empty( $promote_batches ) ) {
@@ -265,7 +445,7 @@ final class DemoReviewPage {
             exit;
         }
 
-        ( new DemoConversionService() )->run( $delete_batches, $promote_batches );
+        ( new DemoConversionService() )->run( $delete_batches, $promote_batches, $per_record_overrides );
         wp_safe_redirect( add_query_arg( 'tt_convert_msg', '1', $back ) );
         exit;
     }

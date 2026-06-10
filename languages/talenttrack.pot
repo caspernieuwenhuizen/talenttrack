@@ -10508,6 +10508,22 @@ msgstr ""
 msgid "Run conversion"
 msgstr ""
 
+#: src/Modules/DemoData/Admin/DemoReviewPage.php:254
+msgid "Show records"
+msgstr ""
+
+#: src/Modules/DemoData/Admin/DemoReviewPage.php:255
+msgid "Override per row"
+msgstr ""
+
+#: src/Modules/DemoData/Admin/DemoReviewPage.php:273
+msgid "Promote"
+msgstr ""
+
+#: src/Modules/DemoData/Admin/DemoReviewPage.php:277
+msgid "Inherit"
+msgstr ""
+
 #: src/Modules/DemoData/Admin/DemoReviewPage.php:238
 #: src/Modules/Pdp/Admin/SeasonsPage.php:173
 #: src/Modules/Pdp/Admin/SeasonsPage.php:205

@@ -11739,6 +11739,26 @@ msgstr ""
 msgid "Run conversion"
 msgstr ""
 
+# #1295 — per-record override expander on the demo→production form
+#: src/Modules/DemoData/Admin/DemoReviewPage.php:254
+msgid "Show records"
+msgstr "Toon records"
+
+# #1295 — header above the per-record override radio set
+#: src/Modules/DemoData/Admin/DemoReviewPage.php:255
+msgid "Override per row"
+msgstr "Per rij overschrijven"
+
+# #1295 — per-record radio: short label (no "to production" suffix)
+#: src/Modules/DemoData/Admin/DemoReviewPage.php:273
+msgid "Promote"
+msgstr "Promoveren"
+
+# #1295 — per-record radio: keep the batch's decision
+#: src/Modules/DemoData/Admin/DemoReviewPage.php:277
+msgid "Inherit"
+msgstr "Erven"
+
 #: src/Modules/DemoData/Admin/DemoReviewPage.php:238
 #: src/Modules/Pdp/Admin/SeasonsPage.php:173
 #: src/Modules/Pdp/Admin/SeasonsPage.php:205
