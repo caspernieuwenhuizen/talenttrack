@@ -1,0 +1,269 @@
+name: i18n PR check
+
+# Per-PR translation-drift guard. Refreshes a snapshot .pot against
+# the PR's branch, msgmerges into a fresh copy of the nl_NL .po, and
+# fails when the empty-msgstr count grew vs. the same operation on
+# `main`. The author can override by labelling the PR
+# `i18n-drift-acceptable` (e.g. when the translator hasn't caught up
+# yet but the PR ships an exit-criteria feature).
+#
+# Bonus regex grep — Table C leak classes (Audit 4 / #1178):
+#   - literal English in `wp_die(...)`
+#   - literal English as 2nd arg to `WP_Error(...)`
+#   - literal English as `sprintf(...)` format string
+# These three patterns cover the hardcoded leak class without
+# triggering on legitimate uses. The job fails if any new occurrence
+# is found in the PR's diff (vs. main).
+#
+# See #1223 + Audit 4. Separation of concerns vs. existing workflows:
+# - `translations.yml` validates .po syntax + warns on empty msgstr
+#   counts. It doesn't gate.
+# - `i18n-sync.yml` runs on main, not on PRs. It commits structural
+#   changes (msgmerge after .pot refresh).
+# - This workflow gates PRs that grow the gap.
+
+on:
+  pull_request:
+    paths:
+      - 'src/**/*.php'
+      - 'languages/**'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  drift-gate:
+    name: Empty-msgstr delta + hardcoded-English grep
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # We need main's tree to compute the baseline delta.
+          fetch-depth: 0
+
+      - name: Setup PHP + wp-cli
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          tools: wp-cli
+
+      - name: Install gettext (msgmerge)
+        run: sudo apt-get update && sudo apt-get install -y gettext
+
+      # Compute baseline empty-msgstr count for nl_NL on the merge
+      # base. We checkout main into a sibling worktree so the PR
+      # branch's working tree stays intact.
+      - name: Compute baseline (main) empty-msgstr count
+        id: baseline
+        shell: bash
+        run: |
+          set -e
+          mkdir -p .drift-baseline
+          # Get the merge-base of the PR vs. main.
+          git fetch origin main:refs/remotes/origin/main
+          base_sha=$(git merge-base HEAD origin/main)
+          echo "Merge base: $base_sha"
+
+          # Worktree at the merge-base.
+          git worktree add .drift-baseline-tree "$base_sha"
+
+          (
+            cd .drift-baseline-tree
+            wp i18n make-pot . ../.drift-baseline/talenttrack.pot \
+              --slug=talenttrack --skip-audit
+            cp languages/talenttrack-nl_NL.po ../.drift-baseline/nl_NL.po
+          )
+
+          msgmerge --update --backup=none --no-fuzzy-matching \
+            .drift-baseline/nl_NL.po .drift-baseline/talenttrack.pot \
+            >/dev/null 2>&1
+
+          baseline_empty=$(grep -c '^msgstr ""$' .drift-baseline/nl_NL.po || true)
+          baseline_empty=$(( baseline_empty > 0 ? baseline_empty - 1 : 0 ))
+          echo "baseline_empty=$baseline_empty" >> "$GITHUB_OUTPUT"
+          echo "Baseline (main) empty msgstr count: $baseline_empty"
+
+          # Snapshot baseline msgids for later diffing.
+          msgattrib --untranslated .drift-baseline/nl_NL.po \
+            -o .drift-baseline/nl_NL.untranslated.po || true
+
+      - name: Compute PR-branch empty-msgstr count
+        id: head
+        shell: bash
+        run: |
+          set -e
+          mkdir -p .drift-head
+          wp i18n make-pot . .drift-head/talenttrack.pot \
+            --slug=talenttrack --skip-audit
+          cp languages/talenttrack-nl_NL.po .drift-head/nl_NL.po
+          msgmerge --update --backup=none --no-fuzzy-matching \
+            .drift-head/nl_NL.po .drift-head/talenttrack.pot \
+            >/dev/null 2>&1
+
+          head_empty=$(grep -c '^msgstr ""$' .drift-head/nl_NL.po || true)
+          head_empty=$(( head_empty > 0 ? head_empty - 1 : 0 ))
+          echo "head_empty=$head_empty" >> "$GITHUB_OUTPUT"
+          echo "PR-branch empty msgstr count: $head_empty"
+
+          msgattrib --untranslated .drift-head/nl_NL.po \
+            -o .drift-head/nl_NL.untranslated.po || true
+
+      # Compare deltas. If new untranslated msgids appeared (HEAD has
+      # entries the baseline didn't), surface them in the failure
+      # comment. The override label short-circuits the failure.
+      - name: Compare deltas + comment on PR
+        id: compare
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -e
+          baseline=${{ steps.baseline.outputs.baseline_empty }}
+          head=${{ steps.head.outputs.head_empty }}
+          delta=$(( head - baseline ))
+          echo "delta=$delta" >> "$GITHUB_OUTPUT"
+          echo "Empty-msgstr delta: $delta (baseline=$baseline, head=$head)"
+
+          if [ "$delta" -le 0 ]; then
+            echo "OK — no new empty msgstr entries."
+            exit 0
+          fi
+
+          # Extract msgids that are untranslated in HEAD but were not
+          # untranslated (or didn't exist) in baseline. We diff the
+          # `msgid "..."` lines of the two untranslated .po snapshots.
+          grep -E '^msgid "' .drift-baseline/nl_NL.untranslated.po \
+            | sort -u > .drift-baseline/untranslated_msgids.txt || true
+          grep -E '^msgid "' .drift-head/nl_NL.untranslated.po \
+            | sort -u > .drift-head/untranslated_msgids.txt || true
+          comm -23 \
+            .drift-head/untranslated_msgids.txt \
+            .drift-baseline/untranslated_msgids.txt \
+            > .drift-head/new_untranslated.txt || true
+
+          new_count=$(wc -l < .drift-head/new_untranslated.txt | tr -d ' ')
+          echo "New untranslated msgids in this PR: $new_count"
+
+          # Check for the override label.
+          override=$(jq -r '.pull_request.labels[]?.name' "$GITHUB_EVENT_PATH" \
+            | grep -Fxc 'i18n-drift-acceptable' || true)
+          if [ "$override" -gt 0 ]; then
+            echo "::notice::Label 'i18n-drift-acceptable' present — drift accepted."
+            exit 0
+          fi
+
+          {
+            echo "## i18n drift detected"
+            echo ""
+            echo "This PR introduces **$delta new empty \`msgstr\` entries** in \`languages/talenttrack-nl_NL.po\` (baseline: $baseline, head: $head)."
+            echo ""
+            echo "Add the Dutch translations in the same PR, or label this PR \`i18n-drift-acceptable\` to override."
+            echo ""
+            if [ -s .drift-head/new_untranslated.txt ]; then
+              echo "<details><summary>New untranslated msgids ($new_count shown, first 50)</summary>"
+              echo ""
+              echo '```'
+              head -50 .drift-head/new_untranslated.txt
+              echo '```'
+              echo ""
+              echo "</details>"
+            fi
+            echo ""
+            echo "_Refs #1223._"
+          } > .drift-head/comment.md
+
+          gh pr comment "${{ github.event.pull_request.number }}" \
+            --body-file .drift-head/comment.md || true
+
+          echo "::error::PR adds $delta untranslated msgids without 'i18n-drift-acceptable' label."
+          exit 1
+
+      # Bonus: hardcoded-English leak grep (Audit 4 Table C).
+      # We scan only the files changed in the PR — false-positive
+      # sweeps across the whole src/ tree are not the point of a PR
+      # check. The intent: catch new leaks at the moment they land.
+      - name: Hardcoded-English leak grep (Table C)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -e
+          git fetch origin main:refs/remotes/origin/main || true
+          base_sha=$(git merge-base HEAD origin/main)
+          changed=$(git diff --name-only --diff-filter=AM "$base_sha"...HEAD \
+            -- 'src/**/*.php' || true)
+
+          if [ -z "$changed" ]; then
+            echo "No changed PHP files under src/ — skipping leak grep."
+            exit 0
+          fi
+
+          fail=0
+          report=".drift-head/leak-report.md"
+          : > "$report"
+
+          # Pattern A: wp_die(" Capital   — literal English in wp_die().
+          patternA='wp_die\(\s*['"'"'"][A-Z]'
+          # Pattern B: WP_Error('code', "Capital   — literal English as
+          # 2nd arg to WP_Error().
+          patternB='WP_Error\(\s*['"'"'"][a-z_]+['"'"'"]\s*,\s*['"'"'"][A-Z]'
+          # Pattern C: sprintf("Capital   — literal English as the
+          # format string of sprintf().
+          patternC='sprintf\(\s*['"'"'"][A-Z]'
+
+          for pat_label_pair in \
+            "A:$patternA:wp_die() with literal English string" \
+            "B:$patternB:WP_Error() with literal English as 2nd arg" \
+            "C:$patternC:sprintf() with literal English format string"; do
+            label=${pat_label_pair%%:*}
+            rest=${pat_label_pair#*:}
+            pat=${rest%%:*}
+            desc=${rest#*:}
+
+            hits=""
+            while IFS= read -r f; do
+              [ -z "$f" ] && continue
+              [ ! -f "$f" ] && continue
+              # `grep -E -n` returns matching lines with line numbers.
+              # Skip lines where the literal is wrapped in __() / _e() /
+              # esc_html__() / esc_attr__() — those go through gettext.
+              matches=$(grep -En "$pat" "$f" \
+                | grep -vE '__\(|_e\(|esc_html__\(|esc_attr__\(|_x\(|_n\(' \
+                || true)
+              if [ -n "$matches" ]; then
+                hits+="$f:\n$matches\n\n"
+              fi
+            done <<< "$changed"
+
+            if [ -n "$hits" ]; then
+              {
+                echo "### Pattern $label — $desc"
+                echo ""
+                echo '```'
+                printf "%b" "$hits"
+                echo '```'
+                echo ""
+              } >> "$report"
+              fail=1
+            fi
+          done
+
+          if [ "$fail" -eq 1 ]; then
+            {
+              echo "## Hardcoded English leaks detected (Audit 4 Table C)"
+              echo ""
+              echo "The following lines in this PR look like user-facing English strings that bypass the gettext layer. Wrap them in \`__()\` / \`_e()\` / \`esc_html__()\` so translators can localise them."
+              echo ""
+              cat "$report"
+              echo ""
+              echo "_Refs #1223 + #1178. False positive? Reply on this PR and we'll tune the pattern._"
+            } > .drift-head/leak-comment.md
+
+            gh pr comment "${{ github.event.pull_request.number }}" \
+              --body-file .drift-head/leak-comment.md || true
+            echo "::error::Hardcoded English leak(s) found in changed PHP files."
+            exit 1
+          fi
+
+          echo "OK — no hardcoded-English leak patterns in changed files."
