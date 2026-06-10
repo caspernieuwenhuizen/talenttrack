@@ -101,6 +101,32 @@ final class ReviewStep implements WizardStepInterface {
             }
         }
 
+        // #1297 — summarise the expected-attendance roster captured by
+        // AttendanceRosterStep. Skip-mode shows "Set attendance later";
+        // otherwise show counts so the operator can sanity-check before
+        // submit.
+        $attendance_skip  = ! empty( $state['attendance_skip'] );
+        $attendance_picks = array_values( array_unique( array_filter( array_map( 'intval', (array) ( $state['attendance_picks'] ?? [] ) ) ) ) );
+        $attendance_guests = array_values( array_unique( array_filter( array_map( 'intval', (array) ( $state['attendance_guest_picks'] ?? [] ) ) ) ) );
+        if ( $attendance_skip ) {
+            $rows[] = [ __( 'Roster', 'talenttrack' ), __( 'Set attendance later', 'talenttrack' ), false ];
+        } else {
+            $pieces = [];
+            $pieces[] = sprintf(
+                /* translators: %d = number of expected players */
+                _n( '%d player expected', '%d players expected', count( $attendance_picks ), 'talenttrack' ),
+                count( $attendance_picks )
+            );
+            if ( ! empty( $attendance_guests ) ) {
+                $pieces[] = sprintf(
+                    /* translators: %d = number of guest players */
+                    _n( '%d guest', '%d guests', count( $attendance_guests ), 'talenttrack' ),
+                    count( $attendance_guests )
+                );
+            }
+            $rows[] = [ __( 'Roster', 'talenttrack' ), implode( ', ', $pieces ), false ];
+        }
+
         echo '<div class="tt-table-wrap"><table class="tt-table tt-wizard-review-table"><tbody>';
         foreach ( $rows as [ $label, $value, $multiline ] ) {
             if ( $value === '' ) continue;
@@ -207,6 +233,28 @@ final class ReviewStep implements WizardStepInterface {
                 ->setActivityPrinciples( $activity_id, $principle_ids );
         }
 
+        // #1297 — persist the expected-attendance roster captured by
+        // AttendanceRosterStep. `record_type='expected'` so the rows
+        // are visible to the existing edit form as a pre-seeded roster
+        // (vocabulary from #788 ship 2; once the activity happens the
+        // edit form converts to `record_type='actual'`). When the
+        // operator ticked "Set attendance later", no rows are written
+        // and we preserve the pre-#1297 behaviour exactly. Roster picks
+        // get is_guest=0; sibling-team picks from the guest disclosure
+        // get is_guest=1, matching the post-save guest UX.
+        $attendance_skip = ! empty( $state['attendance_skip'] );
+        if ( ! $attendance_skip ) {
+            $picks  = array_values( array_unique( array_filter( array_map( 'intval', (array) ( $state['attendance_picks'] ?? [] ) ) ) ) );
+            $guests = array_values( array_unique( array_filter( array_map( 'intval', (array) ( $state['attendance_guest_picks'] ?? [] ) ) ) ) );
+
+            foreach ( $picks as $pid ) {
+                self::insertExpectedAttendance( $activity_id, $pid, false );
+            }
+            foreach ( $guests as $gpid ) {
+                self::insertExpectedAttendance( $activity_id, $gpid, true );
+            }
+        }
+
         // v3.85.3 — was redirect to ?tt_view=activities&id=N (the
         // activity DETAIL page, which renders two back-button
         // affordances and no clear "go to list" path). Operator wants
@@ -237,5 +285,41 @@ final class ReviewStep implements WizardStepInterface {
             if ( (string) $row->name === $name ) return LookupTranslator::name( $row );
         }
         return $name;
+    }
+
+    /**
+     * #1297 — write one expected-attendance row. Status is left at the
+     * schema default ('present' on older installs; downstream reads
+     * scope on `record_type='expected'` to distinguish pre-seeded vs
+     * actual rows). Guest rows mirror the post-save guest endpoint:
+     * `is_guest=1`, `guest_player_id` pinned to the picked player so
+     * promotion / reporting joins match.
+     */
+    private static function insertExpectedAttendance( int $activity_id, int $player_id, bool $is_guest ): void {
+        if ( $activity_id <= 0 || $player_id <= 0 ) return;
+
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $row = [
+            'club_id'     => CurrentClub::id(),
+            'activity_id' => $activity_id,
+            'player_id'   => $is_guest ? 0 : $player_id,
+            'is_guest'    => $is_guest ? 1 : 0,
+            'record_type' => 'expected',
+        ];
+        if ( $is_guest ) {
+            $row['guest_player_id'] = $player_id;
+        }
+
+        $ok = $wpdb->insert( "{$p}tt_attendance", $row );
+        if ( $ok === false ) {
+            Logger::error( 'wizard.activity.attendance.expected.failed', [
+                'db_error'   => (string) $wpdb->last_error,
+                'activity_id' => $activity_id,
+                'player_id'  => $player_id,
+                'is_guest'   => $is_guest,
+            ] );
+        }
     }
 }
