@@ -342,19 +342,15 @@ class QueryHelpers {
     }
 
     /**
-     * Teams a user coaches. Consults both:
+     * Teams a user coaches via an active team-scoped role
+     * (`tt_user_role_scopes.scope_type = 'team'`). PeopleRepository::
+     * assignToTeam syncs this row at every Staff-section assignment,
+     * so it's authoritative for head coach, assistant coach, and
+     * manager assignments.
      *
-     *   1. Legacy: `tt_teams.head_coach_id` (the v2.x assignment path).
-     *   2. Modern: `tt_user_role_scopes` with `scope_type='team'` for any
-     *      team-scoped role (head coach, assistant coach, manager). Pre-
-     *      v3.x staff panel writes go here, not the legacy column.
-     *
-     * The two paths union-merge so a user assigned via the new staff
-     * panel sees their team under "My teams" / can create PDP files,
-     * even though the legacy column wasn't updated. Without this, the
-     * staff panel and "My teams" disagree — the player surface uses
-     * the modern path (AuthorizationService) but `get_teams_for_coach`
-     * was reading only the legacy column.
+     * Pre-#1315 also unioned `tt_teams.head_coach_id` for back-compat
+     * with the v3.x team form's "Head coach" dropdown. That column
+     * was retired in #1315; the URS path is now the single source.
      *
      * @return object[]
      */
@@ -368,31 +364,25 @@ class QueryHelpers {
             $user_id, CurrentClub::id()
         ) );
 
-        // Fast path: just the legacy column.
-        if ( $person_id <= 0 ) {
-            return $wpdb->get_results( $wpdb->prepare(
-                "SELECT t.* FROM {$wpdb->prefix}tt_teams t
-                 WHERE t.head_coach_id = %d AND t.club_id = %d {$scope}
-                 ORDER BY t.name ASC",
-                $user_id, CurrentClub::id()
-            ));
-        }
+        // No tt_people row → no team-scope grants. Modern assignments
+        // require a tt_people row (assignToTeam creates one) so this
+        // short-circuit only catches users who never went through the
+        // Staff section at all.
+        if ( $person_id <= 0 ) return [];
 
-        // Union path: legacy column OR active team-scoped role.
         $today = current_time( 'Y-m-d' );
         return $wpdb->get_results( $wpdb->prepare(
             "SELECT DISTINCT t.* FROM {$wpdb->prefix}tt_teams t
-              LEFT JOIN {$wpdb->prefix}tt_user_role_scopes urs
+              INNER JOIN {$wpdb->prefix}tt_user_role_scopes urs
                 ON urs.scope_type = 'team' AND urs.scope_id = t.id
                 AND urs.person_id = %d
                 AND urs.club_id = t.club_id
                 AND ( urs.start_date IS NULL OR urs.start_date <= %s )
                 AND ( urs.end_date   IS NULL OR urs.end_date   >= %s )
-              WHERE ( t.head_coach_id = %d OR urs.id IS NOT NULL )
-                AND t.club_id = %d
+              WHERE t.club_id = %d
                 {$scope}
               ORDER BY t.name ASC",
-            $person_id, $today, $today, $user_id, CurrentClub::id()
+            $person_id, $today, $today, CurrentClub::id()
         ));
     }
 

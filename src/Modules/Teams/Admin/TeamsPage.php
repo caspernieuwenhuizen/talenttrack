@@ -145,18 +145,12 @@ class TeamsPage {
                         <?php foreach ( $age_groups as $ag ) : ?><option value="<?php echo esc_attr( $ag ); ?>" <?php selected( $team->age_group ?? '', $ag ); ?>><?php echo esc_html( $ag ); ?></option><?php endforeach; ?>
                     </select></td></tr>
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_TEAM, (int) ( $team->id ?? 0 ), 'age_group' ); ?>
-                    <tr>
-                        <th><?php esc_html_e( 'Head Coach', 'talenttrack' ); ?></th>
-                        <td>
-                            <?php wp_dropdown_users( [ 'name' => 'head_coach_id', 'selected' => $team->head_coach_id ?? 0, 'show_option_none' => __( '— None —', 'talenttrack' ), 'option_none_value' => 0 ] ); ?>
-                            <?php if ( $is_edit ) : ?>
-                                <p class="description">
-                                    <?php esc_html_e( 'This is the legacy head coach field (kept for display only). As of v2.10.0 it no longer drives permissions — the Staff section below is the source of truth. The head coach from this field was automatically added to the Staff list on upgrade.', 'talenttrack' ); ?>
-                                </p>
-                            <?php endif; ?>
-                        </td>
-                    </tr>
-                    <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_TEAM, (int) ( $team->id ?? 0 ), 'head_coach_id' ); ?>
+                    <?php /* #1315 — legacy Head Coach dropdown removed.
+                              Head-coach assignment is exclusively through
+                              the Staff section below (functional roles +
+                              tt_team_people). The frontend form dropped
+                              this in v3.110.200; the wp-admin form
+                              followed in v4.20.84. */ ?>
                     <tr><th><?php esc_html_e( 'Notes', 'talenttrack' ); ?></th><td><textarea name="notes" rows="3" class="large-text"><?php echo esc_textarea( $team->notes ?? '' ); ?></textarea></td></tr>
                     <?php CustomFieldsSlot::render( CustomFieldsRepository::ENTITY_TEAM, (int) ( $team->id ?? 0 ), 'notes' ); ?>
                     <?php
@@ -305,7 +299,8 @@ class TeamsPage {
         $data = [
             'name' => isset( $_POST['name'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['name'] ) ) : '',
             'age_group' => isset( $_POST['age_group'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['age_group'] ) ) : '',
-            'head_coach_id' => isset( $_POST['head_coach_id'] ) ? absint( $_POST['head_coach_id'] ) : 0,
+            // #1315 — `head_coach_id` retired. Head-coach assignment
+            // flows entirely through the Staff section / tt_team_people.
             'notes' => isset( $_POST['notes'] ) ? sanitize_textarea_field( wp_unslash( (string) $_POST['notes'] ) ) : '',
             'spond_group_id' => $spond_group_id !== '' ? $spond_group_id : null,
         ];

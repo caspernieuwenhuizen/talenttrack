@@ -100,8 +100,10 @@ final class DemoDataXlsxExporter implements ExporterInterface {
 
         switch ( $sheet ) {
             case 'Teams':
+                // #1315 — `head_coach_id` column retired; the export
+                // shape drops the matching `head_coach_key` column.
                 $rows = $wpdb->get_results( $wpdb->prepare(
-                    "SELECT id, name, age_group, level, head_coach_id, notes
+                    "SELECT id, name, age_group, level, notes
                         FROM {$p}tt_teams WHERE club_id = %d
                         ORDER BY id ASC",
                     $club_id
@@ -111,7 +113,6 @@ final class DemoDataXlsxExporter implements ExporterInterface {
                     'name'            => 'name',
                     'age_group'       => 'age_group',
                     'level'           => 'level',
-                    'head_coach_key'  => 'head_coach_id',
                     'notes'           => 'notes',
                 ] );
 

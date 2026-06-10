@@ -257,7 +257,10 @@ class DebugPage {
             // Retained for any third-party filter that still emits the legacy
             // source values via tt_auth_resolve_permissions.
             case 'legacy_team_people':   return __( 'Legacy bridge: tt_team_people', 'talenttrack' );
-            case 'legacy_head_coach_id': return __( 'Legacy bridge: head_coach_id', 'talenttrack' );
+            // #1315 — `legacy_head_coach_id` source kept in the switch
+            // for any third-party filter that still emits it, but the
+            // underlying column is gone.
+            case 'legacy_head_coach_id': return __( 'Legacy bridge: head_coach_id (retired)', 'talenttrack' );
             default: return $source;
         }
     }

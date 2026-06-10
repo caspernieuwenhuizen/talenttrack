@@ -54,15 +54,15 @@ final class ReviewStep implements WizardStepInterface {
         $name = (string) ( $state['name'] ?? '' );
         if ( $name === '' ) return new \WP_Error( 'name_required', __( 'Team name is required.', 'talenttrack' ) );
 
-        $head_coach_id = (int) ( $state['staff_head_coach'] ?? 0 );
-
+        // #1315 — `head_coach_id` retired. The staff slot still feeds
+        // the tt_team_people insert loop below; it just doesn't get
+        // duplicated onto the legacy column anymore.
         $spond_group_id = (string) ( $state['spond_group_id'] ?? '' );
 
         $ok = $wpdb->insert( $wpdb->prefix . 'tt_teams', [
             'club_id'        => CurrentClub::id(),
             'name'           => $name,
             'age_group'      => (string) ( $state['age_group'] ?? '' ),
-            'head_coach_id'  => $head_coach_id,
             'notes'          => (string) ( $state['notes'] ?? '' ),
             'spond_group_id' => $spond_group_id !== '' ? $spond_group_id : null,
         ] );

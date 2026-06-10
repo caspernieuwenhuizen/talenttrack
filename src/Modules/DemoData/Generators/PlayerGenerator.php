@@ -66,7 +66,7 @@ class PlayerGenerator {
     private int $perTeam;
 
     /**
-     * @param object[] $teams {id, name, age_group, head_coach_id}
+     * @param object[] $teams {id, name, age_group, head_coach_user_id}
      * @param array<string,int> $users slot => user id
      */
     public function __construct(
