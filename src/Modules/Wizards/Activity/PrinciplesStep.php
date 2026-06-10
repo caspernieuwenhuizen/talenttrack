@@ -155,6 +155,6 @@ final class PrinciplesStep implements WizardStepInterface {
         return [ 'activity_principle_ids' => $ids ];
     }
 
-    public function nextStep( array $state ): ?string { return 'review'; }
+    public function nextStep( array $state ): ?string { return 'attendance-roster'; }
     public function submit( array $state ) { return null; }
 }

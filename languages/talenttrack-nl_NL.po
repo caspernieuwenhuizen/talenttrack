@@ -35392,6 +35392,65 @@ msgstr "Hiermee wordt het PDP-dossier en alle gerelateerde rijen definitief verw
 msgid "You do not have permission to permanently delete PDP files."
 msgstr "Je hebt geen toestemming om PDP-dossiers definitief te verwijderen."
 
+# #1297 — AttendanceRosterStep on the new-activity wizard
+#: src/Modules/Wizards/Activity/AttendanceRosterStep.php
+msgid "Tick the players expected at this activity. Defaults to the whole team."
+msgstr "Vink de spelers aan die op deze activiteit verwacht worden. Standaard staat de hele selectie aan."
+
+#: src/Modules/Wizards/Activity/AttendanceRosterStep.php
+msgid "Pick a team first; the roster will populate from that pick."
+msgstr "Kies eerst een team; de selectie wordt op basis daarvan ingevuld."
+
+#: src/Modules/Wizards/Activity/AttendanceRosterStep.php
+msgid "This team has no active players. Add players to the team first, or skip this step to save without a roster."
+msgstr "Dit team heeft geen actieve spelers. Voeg eerst spelers toe, of sla deze stap over om zonder selectie op te slaan."
+
+#: src/Modules/Wizards/Activity/AttendanceRosterStep.php
+msgid "Check all"
+msgstr "Alles aanvinken"
+
+#: src/Modules/Wizards/Activity/AttendanceRosterStep.php
+msgid "Uncheck all"
+msgstr "Alles uitvinken"
+
+#: src/Modules/Wizards/Activity/AttendanceRosterStep.php
+msgid "Add guest players"
+msgstr "Gastspelers toevoegen"
+
+#: src/Modules/Wizards/Activity/AttendanceRosterStep.php
+msgid "Pick a player from a sibling team who will join this activity as a guest."
+msgstr "Kies een speler uit een ander team binnen je scope die als gast aansluit bij deze activiteit."
+
+#: src/Modules/Wizards/Activity/AttendanceRosterStep.php
+msgid "To remove a guest, clear the wizard or proceed and edit attendance after creating."
+msgstr "Verwijder een gast door de wizard te legen of door na opslaan via het bewerkscherm de aanwezigheid aan te passen."
+
+#: src/Modules/Wizards/Activity/AttendanceRosterStep.php
+msgid "Find a guest player"
+msgstr "Zoek een gastspeler"
+
+#: src/Modules/Wizards/Activity/AttendanceRosterStep.php
+msgid "Set attendance later — save the activity with no roster."
+msgstr "Aanwezigheid later instellen — sla de activiteit op zonder selectie."
+
+#: src/Modules/Wizards/Activity/ReviewStep.php
+msgid "Set attendance later"
+msgstr "Aanwezigheid later instellen"
+
+#: src/Modules/Wizards/Activity/ReviewStep.php
+#, php-format
+msgid "%d player expected"
+msgid_plural "%d players expected"
+msgstr[0] "%d speler verwacht"
+msgstr[1] "%d spelers verwacht"
+
+#: src/Modules/Wizards/Activity/ReviewStep.php
+#, php-format
+msgid "%d guest"
+msgid_plural "%d guests"
+msgstr[0] "%d gast"
+msgstr[1] "%d gasten"
+
 #~ msgid ""
 #~ "Optionally connect this activity to one or more methodology principles. "
 #~ "Hold Ctrl/Cmd to select multiple. Leave blank to skip."

@@ -39,11 +39,18 @@ final class NewActivityWizard implements WizardInterface, SupportsCancelAsDraft 
         // had the Principles practiced multiselect since v3.79.0
         // (#0077 M2). The step is optional — operators skip by leaving
         // the multiselect empty.
+        //
+        // #1297 — AttendanceRosterStep added between Principles and
+        // Review. Closes the parity gap with the Goal wizard's
+        // PlayerStep cascade: the new-activity wizard never asked which
+        // players the activity is for, forcing coaches to save then
+        // revisit the edit form to mark expected attendance.
         return [
             new TeamStep(),
             new TypeStatusStep(),
             new DetailsStep(),
             new PrinciplesStep(),
+            new AttendanceRosterStep(),
             new ReviewStep(),
         ];
     }
