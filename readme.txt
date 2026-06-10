@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.71
+Stable tag: 4.20.72
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.72 — i18n weekly drift report + PR-time check (closes #1223). Audit 4 (#1178) follow-up. Moves translation-drift detection from manual pilot triage to automated CI. **Two new workflows.** [.github/workflows/i18n-drift-report.yml](.github/workflows/i18n-drift-report.yml) — Monday 06:00 UTC cron + `workflow_dispatch`. Regenerates a `.pot` snapshot into `.drift/` (the existing `i18n-sync.yml` owns the committed `languages/talenttrack.pot`; this workflow only reports), `msgmerge`s each locale `.po` into a temp copy, counts total / empty / fuzzy per locale, computes top-10 files driving the nl_NL gap, lists merged-in-last-7-days PRs touching `src/**/*.php` via `gh pr list`, and creates or rewrites the `i18n drift report` tracking issue. [.github/workflows/i18n-pr-check.yml](.github/workflows/i18n-pr-check.yml) — `pull_request` on `src/**/*.php` + `languages/**`. Computes empty-msgstr delta vs. the merge-base; fails when the PR introduces new English strings unless it carries the `i18n-drift-acceptable` label. Plus the bonus regex grep for the three Table C hardcoded-English leak shapes (`wp_die`, `WP_Error`, `sprintf`) scoped to the PR's changed files. **Docs.** `docs/contributing.md` gains an i18n CI workflows subsection explaining both workflows + the override label. Patch bump. (closes #1223) =
 
 = 4.20.71 — Audit 1 CI harness — phantom-entity + cap-without-entity guards at PR time (closes #1191). Audit 1 (#1175) found one phantom entity (`exports`, fixed in v4.19.x) and zero broken tile caps. The two reverse-direction assertions from the audit doc's CI sketch are mechanically checkable and pass today; this ship makes them a CI guard so the #1143/#1105/#1106/#1147/#1159 bug class is caught at PR time instead of pilot-report. **What shipped.** New [scripts/audit-1-coverage.php](scripts/audit-1-coverage.php) — standalone PHP script (no WP bootstrap, matches the repo's existing PHPStan + Playwright CI shape, no PHPUnit harness needed). Two assertions: (B) every tile entity declared in `TileRegistry::register([...])` exists in `config/authorization_seed.php`; (C) every tile cap that maps via `LegacyCapMapper::tupleFor()` resolves to a seeded entity. Exits 0 on green, non-zero with per-tile detail on failure. New [.github/workflows/audit-1-coverage.yml](.github/workflows/audit-1-coverage.yml) runs the script on PRs touching the seed, surface registration, the mapper, the script, or the workflow. **Skipped.** The forward-direction assertion (orphan-entity sweep) from the audit doc — it has 51 orphans today and only becomes useful after the `ADMIN_ONLY_ENTITIES` widening that follows separately. Patch bump. (closes #1191) =
 
