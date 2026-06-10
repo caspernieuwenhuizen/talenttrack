@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.72
+Stable tag: 4.20.73
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.73 — PDP inline Archive + Restore buttons + Show-archived toggle (closes #1293). Follow-up to v4.20.63's PDP soft-archive REST primitive. **REST.** [`PdpFilesRestController::list()`](src/Modules/Pdp/Rest/PdpFilesRestController.php) reads `include_archived` (cap-gated on `tt_unarchive_pdp`); default-hides archived. `format_list_row()` now emits `actions_html` + `is_archived` + `archived_at` for the list table. New `row_actions_html()` helper emits the per-row Archive / Restore button with `data-tt-pdp-archive` / `data-tt-pdp-restore` + the rest nonce. **JS.** New [assets/js/pdp-archive-button.js](assets/js/pdp-archive-button.js) — delegated click handler: confirm → DELETE / POST → fade-remove row → toast. Enqueued by [FrontendPdpManageView](src/Modules/Pdp/Frontend/FrontendPdpManageView.php) via the overridden `enqueueAssets()`. **List table.** Actions column added + Show/Hide archived toggle; `static_filters` forwards `include_archived` through the REST hydrator. **Planning view.** [FrontendPdpPlanningView](src/Modules/Pdp/Frontend/FrontendPdpPlanningView.php) gains a one-click "Show archived" cross-link into the manage view's archived listing — planning is an aggregate matrix where per-row restore isn't natural, so the affordance lives on the surface that actually has rows. **Mobile-first.** 48px tap targets, `:active` feedback, `touch-action: manipulation`. **Translations.** 6 nl_NL msgstrs (5 new + 1 existing-empty filled). Patch bump. (closes #1293) =
 
 = 4.20.72 — i18n weekly drift report + PR-time check (closes #1223). Audit 4 (#1178) follow-up. Moves translation-drift detection from manual pilot triage to automated CI. **Two new workflows.** [.github/workflows/i18n-drift-report.yml](.github/workflows/i18n-drift-report.yml) — Monday 06:00 UTC cron + `workflow_dispatch`. Regenerates a `.pot` snapshot into `.drift/` (the existing `i18n-sync.yml` owns the committed `languages/talenttrack.pot`; this workflow only reports), `msgmerge`s each locale `.po` into a temp copy, counts total / empty / fuzzy per locale, computes top-10 files driving the nl_NL gap, lists merged-in-last-7-days PRs touching `src/**/*.php` via `gh pr list`, and creates or rewrites the `i18n drift report` tracking issue. [.github/workflows/i18n-pr-check.yml](.github/workflows/i18n-pr-check.yml) — `pull_request` on `src/**/*.php` + `languages/**`. Computes empty-msgstr delta vs. the merge-base; fails when the PR introduces new English strings unless it carries the `i18n-drift-acceptable` label. Plus the bonus regex grep for the three Table C hardcoded-English leak shapes (`wp_die`, `WP_Error`, `sprintf`) scoped to the PR's changed files. **Docs.** `docs/contributing.md` gains an i18n CI workflows subsection explaining both workflows + the override label. Patch bump. (closes #1223) =
 
