@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.79
+Stable tag: 4.20.80
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.80 — Activity edit attendance Status select gains a `min-width: 14ch` so the closed-state display shows the full Dutch label (closes #1311). Pilot 2026-06-10 screenshot from an nl_NL install: the per-row Status `<select>` collapsed to the chevron, showing only `Aa▾` instead of `Aanwezig` / `Afwezig` / `Te laat` / `Geblesseerd`. **Fix.** [`frontend-activities-manage.css`](assets/css/frontend-activities-manage.css) gains a single rule on `.tt-dashboard .tt-attendance-status` mirroring the #1150 fix for `#tt-activity-status`; 14ch fits the longest seeded status with chevron. **No mobile regression.** `.tt-attendance-table` already stacks single-column at ≤ 480px via existing responsive rules, so the `min-width` is a no-op on phone viewports. Patch bump. (closes #1311) =
 
 = 4.20.79 — Player profile Activities tab sorts ascending (chronological) with the recent-25-displayed-ASC pattern (closes #1316). Pilot 2026-06-10: scanning a player's season top-to-bottom reads more naturally in chronological order than newest-first. **Fix.** [FrontendPlayerDetailView::renderActivitiesTab()](src/Shared/Frontend/FrontendPlayerDetailView.php#L1222-L1241) — the query wraps the existing recent-window selection in an outer `SELECT * FROM (...) recent ORDER BY session_date ASC, id ASC`. Inner query keeps `ORDER BY a.session_date DESC, a.id DESC LIMIT 25` so the operator still sees the MOST RECENT 25 activities (past + upcoming), not the oldest 25 of the player's career; the outer SELECT just reverses for display. The combined effect: recent window + chronological reading order. **Scope.** Single surface — the player profile Activities tab. The other 5 activity-list surfaces in the audit (player profile header timeline, player dashboard widget, player status capture picker, team behaviour capture picker, wp-admin Activities page) stay DESC for now; pilot will revisit if the activity-tab change reads well. **No regression.** The 4 already-ASC surfaces (Activities list, My profile upcoming, Team detail upcoming, Team planner) untouched. Patch bump. (closes #1316) =
 
