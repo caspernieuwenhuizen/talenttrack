@@ -8,6 +8,7 @@ use TT\Domain\Vocabularies\Lookups\ActivityTypeKey;
 use TT\Infrastructure\Query\LabelTranslator;
 use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Shared\Frontend\Components\DateInputComponent;
 use TT\Shared\Frontend\Components\FormSaveButton;
@@ -127,7 +128,12 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             // so re-entry shows only the unrated set; no duplicate
             // eval rows.
             $detail_actions = [];
-            if ( $session && current_user_can( 'tt_edit_activities' ) ) {
+            // #1319 — matrix-aware cap check so Functional-Role-only
+            // grants (no WP role) authorise the same way the REST
+            // controller does.
+            $current_uid    = get_current_user_id();
+            $can_edit_acts  = AuthorizationService::userCanOrMatrix( $current_uid, 'tt_edit_activities' );
+            if ( $session && $can_edit_acts ) {
                 $activities_list_url = add_query_arg( [ 'tt_view' => 'activities' ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() );
                 $edit_url = add_query_arg(
                     [ 'tt_view' => 'activities', 'id' => (int) $session->id, 'action' => 'edit' ],
@@ -144,7 +150,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 // no prep row exists, or directly to the form when it
                 // does (FrontendMatchPrepView handles the redirect).
                 $type_key = strtolower( (string) ( $session->activity_type_key ?? '' ) );
-                if ( in_array( $type_key, [ 'match', ActivityTypeKey::GAME ], true ) && current_user_can( 'tt_edit_activities' ) ) {
+                if ( in_array( $type_key, [ 'match', ActivityTypeKey::GAME ], true ) && $can_edit_acts ) {
                     $prep_url = add_query_arg(
                         [
                             'tt_view'     => 'match-prep',
@@ -216,7 +222,10 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         // v3.110.53 — header-actions slot for + New activity.
         $list_base_url = remove_query_arg( [ 'action', 'id' ] );
         $page_actions = [];
-        if ( current_user_can( 'tt_view_activities' ) ) {
+        // #1319 — matrix-aware cap checks. ActivitiesRestController
+        // already routes via userCanOrMatrix; render surfaces follow.
+        $current_uid = get_current_user_id();
+        if ( AuthorizationService::userCanOrMatrix( $current_uid, 'tt_view_activities' ) ) {
             // #1047 — entry point to the dedicated match-executions
             // listing surface. Sits left of the primary "+ New
             // activity" CTA so the retrospective surface is reachable
@@ -226,7 +235,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 'href'  => add_query_arg( [ 'tt_view' => 'match-executions' ], $list_base_url ),
             ];
         }
-        if ( current_user_can( 'tt_edit_activities' ) ) {
+        if ( AuthorizationService::userCanOrMatrix( $current_uid, 'tt_edit_activities' ) ) {
             $flat_url = add_query_arg( [ 'tt_view' => 'activities', 'action' => 'new' ], $list_base_url );
             $page_actions[] = [
                 'label'   => __( 'New activity', 'talenttrack' ),
@@ -386,7 +395,8 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         if ( $eval_skipped === 1 ) {
             echo '<div class="tt-notice tt-notice-info" style="margin:0 0 8px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">';
             echo '<span>' . esc_html__( 'Rating skipped — this activity won\'t appear in the rating picker.', 'talenttrack' ) . '</span>';
-            if ( current_user_can( 'tt_edit_activities' ) ) {
+            // #1319 — matrix-aware cap so FR-only operators can re-open.
+            if ( AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_edit_activities' ) ) {
                 $aid = (int) $session->id;
                 echo '<button type="button" class="tt-button tt-button-secondary" data-tt-reopen-rating="' . esc_attr( (string) $aid ) . '" data-tt-rest-path="activities/' . (int) $aid . '/evaluation-skipped">';
                 echo esc_html__( 'Re-open for rating', 'talenttrack' );
@@ -509,7 +519,9 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         $pct = (int) round( ( $present / $roster_size ) * 100 );
         if ( $pct > 100 ) $pct = 100;
 
-        $can_edit = current_user_can( 'tt_edit_activities' );
+        // #1319 — matrix-aware cap so FR-only operators see the Edit
+        // toolbar action on the detail row.
+        $can_edit = AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_edit_activities' );
         $edit_url = '';
         if ( $can_edit ) {
             $edit_url = \TT\Shared\Frontend\Components\BackLink::appendTo(

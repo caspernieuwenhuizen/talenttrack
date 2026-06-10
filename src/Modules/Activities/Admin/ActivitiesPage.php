@@ -12,6 +12,7 @@ use TT\Infrastructure\Query\LabelTranslator;
 use TT\Infrastructure\Query\LookupPill;
 use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Shared\Validation\CustomFieldValidator;
 use TT\Shared\Admin\BackButton;
@@ -74,7 +75,13 @@ class ActivitiesPage {
         }
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e( 'Activities', 'talenttrack' ); ?><?php if ( current_user_can( 'tt_edit_activities' ) ) : ?> <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-activities&action=new' ) ); ?>" class="page-title-action"><?php esc_html_e( 'Add New', 'talenttrack' ); ?></a><?php endif; ?> <?php \TT\Shared\Admin\HelpLink::render( 'activities' ); ?></h1>
+            <?php
+            // #1319 — matrix-aware cap so FR-only operators see the
+            // Add-New + per-row Edit/Delete links. Hoisted once here
+            // and reused inside the row loop below.
+            $can_edit_activities = AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_edit_activities' );
+            ?>
+            <h1><?php esc_html_e( 'Activities', 'talenttrack' ); ?><?php if ( $can_edit_activities ) : ?> <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-activities&action=new' ) ); ?>" class="page-title-action"><?php esc_html_e( 'Add New', 'talenttrack' ); ?></a><?php endif; ?> <?php \TT\Shared\Admin\HelpLink::render( 'activities' ); ?></h1>
             <?php if ( isset( $_GET['tt_msg'] ) ) : ?><div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Saved.', 'talenttrack' ); ?></p></div><?php endif; ?>
             <?php self::renderMigrationNotice(); ?>
             <?php \TT\Shared\Admin\BulkActionsHelper::renderBulkMessage(); ?>
@@ -150,7 +157,7 @@ class ActivitiesPage {
                             echo esc_html( $act_team_name !== '' ? $act_team_name : '—' );
                         }
                     ?></td>
-                    <td><?php if ( current_user_can( 'tt_edit_activities' ) ) : ?><a href="<?php echo esc_url( admin_url( "admin.php?page=tt-activities&action=edit&id={$a->id}" ) ); ?>"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a> | <a href="<?php echo esc_url( wp_nonce_url( admin_url( "admin-post.php?action=tt_delete_activity&id={$a->id}" ), 'tt_del_act_' . $a->id ) ); ?>" data-tt-confirm-message="<?php echo esc_attr( sprintf( __( 'Delete the activity "%s"?', 'talenttrack' ), (string) $a->title ) ); ?>" data-tt-confirm-title="<?php esc_attr_e( 'Delete activity?', 'talenttrack' ); ?>" data-tt-confirm-confirm-label="<?php esc_attr_e( 'Delete', 'talenttrack' ); ?>" data-tt-confirm-danger style="color:#b32d2e;"><?php esc_html_e( 'Delete', 'talenttrack' ); ?></a><?php else : ?><span style="color:#999;">—</span><?php endif; ?></td></tr>
+                    <td><?php if ( $can_edit_activities ) : ?><a href="<?php echo esc_url( admin_url( "admin.php?page=tt-activities&action=edit&id={$a->id}" ) ); ?>"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a> | <a href="<?php echo esc_url( wp_nonce_url( admin_url( "admin-post.php?action=tt_delete_activity&id={$a->id}" ), 'tt_del_act_' . $a->id ) ); ?>" data-tt-confirm-message="<?php echo esc_attr( sprintf( __( 'Delete the activity "%s"?', 'talenttrack' ), (string) $a->title ) ); ?>" data-tt-confirm-title="<?php esc_attr_e( 'Delete activity?', 'talenttrack' ); ?>" data-tt-confirm-confirm-label="<?php esc_attr_e( 'Delete', 'talenttrack' ); ?>" data-tt-confirm-danger style="color:#b32d2e;"><?php esc_html_e( 'Delete', 'talenttrack' ); ?></a><?php else : ?><span style="color:#999;">—</span><?php endif; ?></td></tr>
             <?php endforeach; endif; ?></tbody></table>
 
             <?php \TT\Shared\Admin\BulkActionsHelper::renderActionBar( $view ); ?>
@@ -468,7 +475,8 @@ class ActivitiesPage {
     }
 
     public static function handle_save(): void {
-        if ( ! current_user_can( 'tt_edit_activities' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        // #1319 — matrix-aware cap mirroring ActivitiesRestController.
+        if ( ! AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_edit_activities' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         check_admin_referer( 'tt_save_activity', 'tt_nonce' );
         global $wpdb; $p = $wpdb->prefix;
         $id = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
@@ -577,7 +585,8 @@ class ActivitiesPage {
     public static function handle_delete(): void {
         $id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
         check_admin_referer( 'tt_del_act_' . $id );
-        if ( ! current_user_can( 'tt_edit_activities' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        // #1319 — matrix-aware cap mirroring ActivitiesRestController.
+        if ( ! AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_edit_activities' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         \TT\Modules\Authorization\Impersonation\ImpersonationContext::blockDestructiveAdminHandler( 'activity.delete' );
         global $wpdb; $p = $wpdb->prefix;
         $wpdb->delete( "{$p}tt_attendance", [ 'activity_id' => $id, 'club_id' => CurrentClub::id() ] );
