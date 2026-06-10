@@ -727,12 +727,18 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
 
     /** Compact "12 Mar '13" style date — readable in 360px facts cells. */
     private static function shortDate( string $iso ): string {
+        // v4.20.67 (#1281) — '0000-00-00' is the MySQL zero-date
+        // sentinel; strtotime() returns ~-62167219200 (year -1) instead
+        // of false, so the formatter rendered "30 Nov '-1" before this
+        // guard. Mirrors PlayerGoalIntakePrintRouter:421.
+        if ( $iso === '' || $iso === '0000-00-00' ) return '—';
         $ts = strtotime( $iso );
         if ( $ts === false ) return $iso;
         return gmdate( "j M ’y", $ts );
     }
 
     private static function ageHint( string $dob_iso ): string {
+        if ( $dob_iso === '' || $dob_iso === '0000-00-00' ) return '';
         $ts = strtotime( $dob_iso );
         if ( $ts === false ) return '';
         $now   = current_time( 'timestamp' );
@@ -743,6 +749,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
     }
 
     private static function yearsInAcademy( string $joined_iso ): string {
+        if ( $joined_iso === '' || $joined_iso === '0000-00-00' ) return '';
         $ts = strtotime( $joined_iso );
         if ( $ts === false ) return '';
         $now  = current_time( 'timestamp' );
@@ -783,8 +790,11 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         );
 
         $identity_rows = [];
-        if ( ! empty( $player->date_of_birth ) ) {
-            $identity_rows[] = [ __( 'Date of birth', 'talenttrack' ), esc_html( (string) $player->date_of_birth ) ];
+        // v4.20.67 (#1281) — route through shortDate so the zero-date
+        // sentinel renders "—" instead of the literal "0000-00-00".
+        $dob_raw = (string) ( $player->date_of_birth ?? '' );
+        if ( $dob_raw !== '' && $dob_raw !== '0000-00-00' ) {
+            $identity_rows[] = [ __( 'Date of birth', 'talenttrack' ), esc_html( self::shortDate( $dob_raw ) ) ];
         }
         if ( is_array( $positions ) && ! empty( $positions ) ) {
             $identity_rows[] = [ __( 'Position(s)', 'talenttrack' ), esc_html( implode( ' · ', array_map( 'strval', $positions ) ) ) ];
