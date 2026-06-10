@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.74
+Stable tag: 4.20.75
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.75 — Demo→production: per-record overrides on top of the per-batch toggle (closes #1295). Follow-up to v4.20.61's per-batch toggle. The shaping comment on #1272 proposed per-record toggles for the rare edge case where one seeded row turned into a real signing mid-demo; this ships that flow without compromising the per-batch UX that handles ~95% of decisions. **What changed.** [`DemoReviewPage::renderConvertForm()`](src/Modules/DemoData/Admin/DemoReviewPage.php) gains a per-batch `<details>` "Show records" expander listing every tagged row with three per-record radios: `delete` / `promote` / `inherit` (default `inherit` — existing operators experience zero behaviour change). `handleConvert()` parses `record_<entity_type>_<entity_id>` keys into a flat `[entity_type => [id => decision]]` map. [`DemoConversionService::run()`](src/Modules/DemoData/DemoConversionService.php) accepts the overrides as an optional third argument; a pre-pass strips `tt_demo_tags` for `promote` overrides on delete batches (rescue path), then per-batch loops run unchanged, then a post-pass deletes rows for `delete` overrides on promoted batches. Audit log entry `demo.conversion.run` gains `per_record_overrides` + `summary.per_record_overrides_applied`. **Dutch.** 4 new msgstrs (`Toon records`, `Per rij overschrijven`, `Promoveren`, `Erven`). Patch bump. (closes #1295) =
 
 = 4.20.74 — PDP hard-delete: typed-name confirm + pre-delete CSV export (closes #1294). Follow-up to v4.20.65's REST primitive. **Routable destructive surface** at `?tt_view=pdp&action=permanent-delete&id=N`, cap-gated on `tt_delete_pdp`. Cascade summary card renders before any destructive action; final button stays disabled until the operator types the player's display name (case-insensitive match — mirrors #1138's PersonDeletionCascade idea). **Pre-delete CSV** written to `wp-content/uploads/tt-pdp-deletes/pdp-{id}-{timestamp}.csv` capturing the PDP file row + every conversation + verdict + calendar links + season block config (for audit context). On confirm: admin-post handler `tt_pdp_permanent_delete` invokes the existing `PdpCascadeDeleter::deletePdpFile()`; the `pdp.deleted_with_cascade` audit-log entry now includes the `csv_path`. **Adjacent fix.** `PdpCascadeDeleter` v4.20.65 referenced a non-existent `tt_pdp_blocks.pdp_file_id` — blocks are season-scoped per migration 0107, not file-scoped. Blocks DELETE now correctly no-ops + the summary reports `0 blocks` honestly; the season-level block config still appears in the CSV for audit context. **Docs.** `docs/pdp-cycle.md` + `docs/nl_NL/pdp-cycle.md` gain an "Archive vs. permanently delete" section. **Dutch.** 21 new msgstrs (5 plural pairs). Patch bump. (closes #1294) =
 
