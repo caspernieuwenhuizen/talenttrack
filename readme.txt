@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.80
+Stable tag: 4.20.81
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.81 — Goal-intake print gains a block picker (closes #1313). Pilot 2026-06-10: the **Print doelenintake** button on the player profile (and the team-batch button on team detail) used to jump straight to the 3-page printable document. Coaches can now choose which of 7 blocks to print: Snapshot · Doel 1 · Doel 2 · Doel 3 · Afsluiting · Handtekeningen · Trainer-reminder. **What changed.** [`PlayerGoalIntakePrintRouter::maybeRender()`](src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php) gains a `selectedBlocks()` resolver — absent `blocks[]` query param shows the picker; `blocks[]=all` is the "Print alles" escape hatch; any other ticked subset renders only those blocks with per-`<article>`/`<section>` guards in `emit()`. Empty pages (e.g. all of doel3/afsluiting/handtekeningen/reminder unchecked) just don't emit — no blank A4 wasted. **Team batch.** The same picker fronts the team-batch path; the operator picks blocks once and the selection applies to every player in the batch. **Mobile-first** per CLAUDE.md §2 — picker labels are 48px touch targets, 16px input font suppresses iOS focus-zoom, single-column at 360px / row at 768px+. **Back-compat.** URL contract preserved — buttons still link to `?tt_goal_intake_print=1&player_id=N`; the response now lands on the picker. Defaults: all 7 blocks pre-checked → one click on **Print geselecteerde blokken** reproduces today's output. **Dutch.** 14 new msgstrs (Snapshot, Doel 1, Doel 2, Afsluiting…, Handtekeningen…, Trainer-reminder…, plus the picker chrome + titles). Patch bump. (closes #1313) =
 
 = 4.20.80 — Activity edit attendance Status select gains a `min-width: 14ch` so the closed-state display shows the full Dutch label (closes #1311). Pilot 2026-06-10 screenshot from an nl_NL install: the per-row Status `<select>` collapsed to the chevron, showing only `Aa▾` instead of `Aanwezig` / `Afwezig` / `Te laat` / `Geblesseerd`. **Fix.** [`frontend-activities-manage.css`](assets/css/frontend-activities-manage.css) gains a single rule on `.tt-dashboard .tt-attendance-status` mirroring the #1150 fix for `#tt-activity-status`; 14ch fits the longest seeded status with chevron. **No mobile regression.** `.tt-attendance-table` already stacks single-column at ≤ 480px via existing responsive rules, so the `min-width` is a no-op on phone viewports. Patch bump. (closes #1311) =
 
