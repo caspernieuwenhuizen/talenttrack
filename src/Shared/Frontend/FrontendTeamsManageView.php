@@ -442,6 +442,15 @@ class FrontendTeamsManageView extends FrontendViewBase {
     }
 
     private static function loadTeam( int $id ): ?object {
+        // v4.20.69 (#1221, audit-7 / #1181) — no `t.club_id = %d` clause
+        // here. The audit flagged this helper alongside loadPlayer /
+        // loadGoal / loadSession as missing the tenancy filter, but
+        // v4.20.30 (#1188) settled the direction: tenancy boundary is
+        // enforced at the request layer (CurrentClub resolution), not by
+        // sprinkling per-helper club_id WHEREs. (Note: `QueryHelpers::get_team`
+        // still carries the legacy club_id clause as of this ship — see
+        // the same audit's separate finding; that helper is the next
+        // sweep target for #1188-direction alignment.)
         global $wpdb; $p = $wpdb->prefix;
         $scope = QueryHelpers::apply_demo_scope( 't', 'team' );
         /** @var object|null $row */

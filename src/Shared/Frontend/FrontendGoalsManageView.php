@@ -484,6 +484,15 @@ class FrontendGoalsManageView extends FrontendViewBase {
     }
 
     private static function loadGoal( int $id ): ?object {
+        // v4.20.69 (#1221, audit-7 / #1181) — no `g.club_id = %d` clause
+        // here. The audit flagged this helper alongside loadPlayer /
+        // loadTeam / loadSession as missing the tenancy filter, but
+        // v4.20.30 (#1188) settled the direction: tenancy boundary is
+        // enforced at the request layer (CurrentClub resolution), not by
+        // sprinkling per-helper club_id WHEREs. Sibling helpers in the
+        // QueryHelpers canonical layer (`get_player`) and the repository
+        // layer (`PlayersRepository::find`, `ActivitiesRepository::findById`)
+        // are already aligned; this view stays consistent with them.
         global $wpdb; $p = $wpdb->prefix;
         $scope = QueryHelpers::apply_demo_scope( 'g', 'goal' );
         /** @var object|null $row */
