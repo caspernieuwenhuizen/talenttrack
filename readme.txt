@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.78
+Stable tag: 4.20.79
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.79 — Player profile Activities tab sorts ascending (chronological) with the recent-25-displayed-ASC pattern (closes #1316). Pilot 2026-06-10: scanning a player's season top-to-bottom reads more naturally in chronological order than newest-first. **Fix.** [FrontendPlayerDetailView::renderActivitiesTab()](src/Shared/Frontend/FrontendPlayerDetailView.php#L1222-L1241) — the query wraps the existing recent-window selection in an outer `SELECT * FROM (...) recent ORDER BY session_date ASC, id ASC`. Inner query keeps `ORDER BY a.session_date DESC, a.id DESC LIMIT 25` so the operator still sees the MOST RECENT 25 activities (past + upcoming), not the oldest 25 of the player's career; the outer SELECT just reverses for display. The combined effect: recent window + chronological reading order. **Scope.** Single surface — the player profile Activities tab. The other 5 activity-list surfaces in the audit (player profile header timeline, player dashboard widget, player status capture picker, team behaviour capture picker, wp-admin Activities page) stay DESC for now; pilot will revisit if the activity-tab change reads well. **No regression.** The 4 already-ASC surfaces (Activities list, My profile upcoming, Team detail upcoming, Team planner) untouched. Patch bump. (closes #1316) =
 
 = 4.20.78 — i18n hotfix: gettext context disambiguates the demo per-record `Promote` radio from the PDP verdict `Promote`. The v4.20.77 i18n bundle introduced an `msgid "Promote"` for the demo→production radio with nl_NL `Promoveren`, colliding with the existing PDP-verdict `Promote` (nl_NL `Doorstroom`). `msgfmt --check` rejected the duplicate, blocking the release-ZIP build for v4.20.77. **Fix.** [`DemoReviewPage.php:273`](src/Modules/DemoData/Admin/DemoReviewPage.php#L273) now uses `_x( 'Promote', 'demo per-record radio', 'talenttrack' )`; the matching `.po` entry carries `msgctxt "demo per-record radio"`. Gettext keys on (msgid, context), so the two surfaces resolve to their distinct Dutch labels without a duplicate-definition error. Patch bump. =
 

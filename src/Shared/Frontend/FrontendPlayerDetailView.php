@@ -1225,18 +1225,29 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         // planned rows render a neutral "Planned" pill instead of the
         // wizard's default-Present pre-fill so coach intent stays
         // distinct from coach pre-fill.
+        //
+        // #1316 — display in ascending date order (oldest → newest)
+        // so the operator scans the player's season top-to-bottom in
+        // chronological reading order. The inner query still picks
+        // the MOST RECENT 25 (DESC LIMIT 25), so the operator sees
+        // the recent window — not the oldest 25 of the player's
+        // career; the outer SELECT just reverses for display.
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT a.id, a.title, a.session_date, a.activity_type_key, a.plan_state, att.status
-               FROM {$wpdb->prefix}tt_attendance att
-               JOIN {$wpdb->prefix}tt_activities a ON a.id = att.activity_id
-              WHERE att.player_id = %d
-                AND att.is_guest = 0
-                AND a.archived_at IS NULL
-                AND (
-                    ( a.plan_state = 'completed' AND a.session_date <= CURDATE() )
-                    OR a.plan_state IN ( 'planned', 'scheduled' )
-                )
-              ORDER BY a.session_date DESC LIMIT 25",
+            "SELECT * FROM (
+                SELECT a.id, a.title, a.session_date, a.activity_type_key, a.plan_state, att.status
+                   FROM {$wpdb->prefix}tt_attendance att
+                   JOIN {$wpdb->prefix}tt_activities a ON a.id = att.activity_id
+                  WHERE att.player_id = %d
+                    AND att.is_guest = 0
+                    AND a.archived_at IS NULL
+                    AND (
+                        ( a.plan_state = 'completed' AND a.session_date <= CURDATE() )
+                        OR a.plan_state IN ( 'planned', 'scheduled' )
+                    )
+                  ORDER BY a.session_date DESC, a.id DESC
+                  LIMIT 25
+             ) recent
+             ORDER BY session_date ASC, id ASC",
             $player_id
         ) );
         if ( empty( $rows ) ) {
