@@ -22290,6 +22290,10 @@ msgstr ""
 msgid "Failed to save the assignment."
 msgstr ""
 
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1019
+msgid "Failed to save the lineup."
+msgstr ""
+
 #: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:922
 msgid "ref.player_id is missing or non-numeric for a player assignment."
 msgstr ""

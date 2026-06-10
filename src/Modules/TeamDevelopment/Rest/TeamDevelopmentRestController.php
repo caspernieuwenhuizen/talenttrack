@@ -1003,7 +1003,22 @@ class TeamDevelopmentRestController {
             }
             $clean[ $slot_key ] = $value;
         }
-        $repo->replaceAssignments( $id, $clean );
+        // #1328 — bulk-replace now surfaces SQL-layer failures via
+        // `lastError()` instead of silently returning 200 OK with no
+        // rows persisted. Mirrors the #1066 fix on the singular
+        // `set_blueprint_assignment` path.
+        $ok = $repo->replaceAssignments( $id, $clean );
+        if ( ! $ok ) {
+            $hint = $repo->lastError();
+            if ( class_exists( '\\TT\\Infrastructure\\Logging\\Logger' ) ) {
+                \TT\Infrastructure\Logging\Logger::error( 'blueprint.assignments.replace.failed', [
+                    'blueprint_id' => $id,
+                    'error'        => $hint,
+                ] );
+            }
+            return RestResponse::error( 'save_failed',
+                $hint !== '' ? $hint : __( 'Failed to save the lineup.', 'talenttrack' ), 500 );
+        }
         return RestResponse::success( [ 'id' => $id ] );
     }
 

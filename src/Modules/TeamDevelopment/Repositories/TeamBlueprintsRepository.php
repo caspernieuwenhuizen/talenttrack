@@ -202,12 +202,20 @@ class TeamBlueprintsRepository {
      */
     public function replaceAssignments( int $blueprint_id, array $slot_to_player ): bool {
         if ( $blueprint_id <= 0 ) return false;
+        $this->last_error = '';
         $club_id = CurrentClub::id();
 
-        $this->wpdb->delete( $this->assignments, [
+        // #1328 — check the wpdb return on the bulk delete. Previously
+        // a SQL-layer failure here (schema drift, FK violation) would
+        // be swallowed and the caller would think the replace succeeded.
+        $deleted = $this->wpdb->delete( $this->assignments, [
             'blueprint_id' => $blueprint_id,
             'club_id'      => $club_id,
         ] );
+        if ( $deleted === false ) {
+            $this->last_error = (string) ( $this->wpdb->last_error ?: 'wpdb->delete returned false' );
+            return false;
+        }
         // #953 — value can be a flat int (legacy `player_id`) or an
         // array. When array, inner value can itself be:
         //   - int  (legacy `player_id` for that tier)
@@ -221,23 +229,40 @@ class TeamBlueprintsRepository {
                 // Single-tier ref object at the top level (callers that
                 // pass `{ kind:..., player_id:... }` per slot).
                 $row = self::buildAssignmentRow( $blueprint_id, $club_id, $slot_label, self::TIER_PRIMARY, $value );
-                if ( $row !== null ) $this->wpdb->insert( $this->assignments, $row );
+                if ( $row !== null && ! $this->insertRowOrCapture( $row ) ) return false;
             } elseif ( is_array( $value ) ) {
                 foreach ( $value as $tier => $entry ) {
                     $tier_clean = self::cleanTier( (string) $tier );
                     $ref = self::normaliseRef( $entry );
                     $row = self::buildAssignmentRow( $blueprint_id, $club_id, $slot_label, $tier_clean, $ref );
-                    if ( $row !== null ) $this->wpdb->insert( $this->assignments, $row );
+                    if ( $row !== null && ! $this->insertRowOrCapture( $row ) ) return false;
                 }
             } else {
                 $ref = self::normaliseRef( $value );
                 $row = self::buildAssignmentRow( $blueprint_id, $club_id, $slot_label, self::TIER_PRIMARY, $ref );
-                if ( $row !== null ) $this->wpdb->insert( $this->assignments, $row );
+                if ( $row !== null && ! $this->insertRowOrCapture( $row ) ) return false;
             }
         }
         $this->wpdb->update( $this->blueprints, [
             'updated_at' => current_time( 'mysql' ),
         ], [ 'id' => $blueprint_id, 'club_id' => $club_id ] );
+        return true;
+    }
+
+    /**
+     * #1328 — bulk-insert helper that captures wpdb errors into
+     * `$this->last_error` so `replaceAssignments` can short-circuit
+     * loudly instead of silently dropping rows the way #1054 / #1066
+     * fixed for `setAssignment`.
+     *
+     * @param array<string,mixed> $row
+     */
+    private function insertRowOrCapture( array $row ): bool {
+        $inserted = $this->wpdb->insert( $this->assignments, $row );
+        if ( $inserted === false ) {
+            $this->last_error = (string) ( $this->wpdb->last_error ?: 'wpdb->insert returned false' );
+            return false;
+        }
         return true;
     }
 

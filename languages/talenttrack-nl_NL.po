@@ -25215,6 +25215,10 @@ msgstr "slot_label is verplicht."
 msgid "Failed to save the assignment."
 msgstr "Opslaan van de toewijzing is mislukt."
 
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:1019
+msgid "Failed to save the lineup."
+msgstr "Opslaan van de opstelling is mislukt."
+
 #: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:922
 msgid "ref.player_id is missing or non-numeric for a player assignment."
 msgstr "ref.player_id ontbreekt of is niet-numeriek voor een spelertoewijzing."
