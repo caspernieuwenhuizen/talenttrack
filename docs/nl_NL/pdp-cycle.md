@@ -84,3 +84,16 @@ Op de POP-detailpagina staat de cyclusvoortgang nu als **(X van N ondertekend)**
 - een **Bevestigingen**-kolom met iconen voor ouder (👤) en speler (⚽) — `✓` na bevestiging, `·` zolang de bevestiging nog ontbreekt
 
 De samenvattingskaart heeft een hulpknop die het PDP-onderwerp direct in de docs-drawer opent.
+
+## Archiveren versus definitief verwijderen
+
+POP-dossiers kennen **twee** verwijderpaden zodat destructief opruimen nooit per ongeluk de verkeerde regel raakt.
+
+- **Archiveren** — soft-delete. Het dossier verdwijnt uit de standaardlijst, maar elke rij blijft in de database staan. Coaches met bewerkrechten kunnen een actief dossier archiveren (knop *Archiveren* in de actiekolom). Beheerders zetten de schakelaar *Gearchiveerd tonen* aan op de POP-lijst en klikken op *Herstellen* om het dossier terug te halen. Dit is het juiste antwoord wanneer een speler halverwege het seizoen vertrekt of de cyclus per ongeluk is geopend.
+- **Definitief verwijderen** — onomkeerbare hard-delete. Alleen beschikbaar voor operators met de capability `tt_delete_pdp` (standaard alleen voor beheerders). De knop staat op de detailpagina van het POP-dossier en opent een bevestigingspagina die:
+  - een **cascade-samenvatting** toont — hoeveel gesprekken / eindoordelen / kalenderkoppelingen / POP-blokken / doel-koppelingen er verdwijnen.
+  - vereist dat de operator de **naam van de speler** letterlijk overtypt voordat de knop *PDP definitief verwijderen* actief wordt (hoofdletterongevoelig, met tolerantie voor extra spaties).
+  - een **CSV-momentopname vóór verwijdering** schrijft naar `wp-content/uploads/tt-pdp-deletes/pdp-<dossier-id>-<tijdstempel>.csv` voordat de cascade wordt uitgevoerd. Het absolute pad wordt vastgelegd in de audit-log-entry `pdp.deleted_with_cascade`, samen met de rijaantallen per tabel.
+  - de cascade over vijf tabellen draait binnen één transactie. Elke fout draait alles terug; gedeeltelijke status na een fout is onmogelijk.
+
+Gebruik standaard *Archiveren*. Grijp alleen naar *Definitief verwijderen* voor AVG-wisbeleid, ouderverzoeken of andere legitieme bewaartermijn-zaken. Het CSV-bestand is je audit trail — bewaar het.

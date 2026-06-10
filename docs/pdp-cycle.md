@@ -84,3 +84,16 @@ The PDP file detail page now shows cycle progress as **(X of N signed off)** nex
 - an **Acks** column with parent (👤) and player (⚽) acknowledgement icons — `✓` once acked, `·` while pending
 
 The summary card has a context-sensitive help button that opens the PDP topic in the docs drawer.
+
+## Archive vs. permanently delete
+
+PDP files have **two** removal paths so destructive cleanup never costs an accidental click on the wrong row.
+
+- **Archive** — soft-delete. The file disappears from the default list, but every row stays in the database. Coaches with edit reach can archive an active file (`Archive` button in the actions column). Admins can flip the *Show archived* toggle on the PDP list and click *Restore* to bring it back. This is the right answer when a player leaves mid-season or the cycle was opened by mistake.
+- **Permanently delete** — irreversible hard-delete. Available only to operators holding the `tt_delete_pdp` capability (admin only by seed). The button lives on the PDP file detail page and opens a confirm subview that:
+  - shows a **Cascade summary** — how many conversations / verdicts / calendar links / PDP blocks / goal-link rows will vanish.
+  - requires the operator to **type the player's name** verbatim before the *Permanently delete PDP* button enables (case-insensitive, trim-tolerant).
+  - writes a **pre-delete CSV snapshot** to `wp-content/uploads/tt-pdp-deletes/pdp-<file-id>-<timestamp>.csv` before the cascade runs. The CSV's absolute path is recorded in the `pdp.deleted_with_cascade` audit-log entry alongside the per-table row counts.
+  - runs the five-table cascade inside a single transaction. Any failure rolls the whole thing back; partial state on failure is impossible.
+
+Use *Archive* by default. Reach for *Permanently delete* only for GDPR-erasure, parental-request, or other legitimate data-retention cases. The CSV snapshot is your audit trail — keep it.

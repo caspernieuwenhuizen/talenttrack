@@ -35272,6 +35272,106 @@ msgstr "Dit PDP archiveren?"
 msgid "Restore this PDP?"
 msgstr "Dit PDP herstellen?"
 
+# #1294 — PDP hard-delete wp-admin double-confirm surface.
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Permanently delete PDP"
+msgstr "PDP definitief verwijderen"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+#, php-format
+msgid "Permanently delete PDP — %s"
+msgstr "PDP definitief verwijderen — %s"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Cascade summary"
+msgstr "Cascade-samenvatting"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+#, php-format
+msgid "Type the player's name to confirm: %s"
+msgstr "Type de naam van de speler om te bevestigen: %s"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "The delete button stays disabled until the typed name matches exactly (case-insensitive)."
+msgstr "De verwijderknop blijft uitgeschakeld totdat de getypte naam exact overeenkomt (hoofdletterongevoelig)."
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "This action is irreversible."
+msgstr "Deze actie is onomkeerbaar."
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Every conversation, verdict, calendar link, and goal-link row tied to this PDP file will be permanently removed from the database. A pre-delete CSV snapshot will be written to wp-content/uploads/tt-pdp-deletes/ before the cascade runs."
+msgstr "Elk gesprek, eindoordeel, kalenderkoppeling en doel-koppeling die aan dit PDP-dossier is verbonden, wordt definitief uit de database verwijderd. Voordat de cascade wordt uitgevoerd, wordt er een CSV-momentopname opgeslagen in wp-content/uploads/tt-pdp-deletes/."
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+#, php-format
+msgid "%d conversation will be removed"
+msgid_plural "%d conversations will be removed"
+msgstr[0] "%d gesprek wordt verwijderd"
+msgstr[1] "%d gesprekken worden verwijderd"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+#, php-format
+msgid "%d verdict will be removed"
+msgid_plural "%d verdicts will be removed"
+msgstr[0] "%d eindoordeel wordt verwijderd"
+msgstr[1] "%d eindoordelen worden verwijderd"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+#, php-format
+msgid "%d calendar link will be removed"
+msgid_plural "%d calendar links will be removed"
+msgstr[0] "%d kalenderkoppeling wordt verwijderd"
+msgstr[1] "%d kalenderkoppelingen worden verwijderd"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+#, php-format
+msgid "%d PDP block will be removed"
+msgid_plural "%d PDP blocks will be removed"
+msgstr[0] "%d PDP-blok wordt verwijderd"
+msgstr[1] "%d PDP-blokken worden verwijderd"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+#, php-format
+msgid "%d goal link will be removed"
+msgid_plural "%d goal links will be removed"
+msgstr[0] "%d doel-koppeling wordt verwijderd"
+msgstr[1] "%d doel-koppelingen worden verwijderd"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+#, php-format
+msgid "Total related rows: %d"
+msgstr "Totaal aantal gerelateerde rijen: %d"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "PDP file permanently deleted."
+msgstr "PDP-dossier definitief verwijderd."
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+#, php-format
+msgid "Pre-delete CSV saved to %s"
+msgstr "Pre-delete CSV opgeslagen op %s"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "The name you typed did not match the player. Try again."
+msgstr "De naam die je hebt getypt komt niet overeen met de speler. Probeer het opnieuw."
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Pre-delete CSV export failed. Nothing was deleted."
+msgstr "Pre-delete CSV-export is mislukt. Er is niets verwijderd."
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "The cascade delete failed. The transaction was rolled back; nothing changed."
+msgstr "De cascade-verwijdering is mislukt. De transactie is teruggedraaid; er is niets gewijzigd."
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "This will permanently delete the PDP file and all related rows. Continue?"
+msgstr "Hiermee wordt het PDP-dossier en alle gerelateerde rijen definitief verwijderd. Doorgaan?"
+
+#: src/Modules/Pdp/PdpHardDeleteAdminPost.php
+msgid "You do not have permission to permanently delete PDP files."
+msgstr "Je hebt geen toestemming om PDP-dossiers definitief te verwijderen."
+
 #~ msgid ""
 #~ "Optionally connect this activity to one or more methodology principles. "
 #~ "Hold Ctrl/Cmd to select multiple. Leave blank to skip."
