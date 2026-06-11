@@ -82,7 +82,7 @@ Acht persona's worden meegeleverd in de seed:
 - `assistant_coach` — een `tt_coach` WP-gebruiker met `tt_team_people.is_head_coach = 0` voor minstens één team.
 - `head_coach` — een `tt_coach` WP-gebruiker met `tt_team_people.is_head_coach = 1` voor minstens één team. Een coach kan beide persona's tegelijk hebben als hij/zij hoofdcoach is van het ene team en assistent van een ander.
 - `head_of_development` — `tt_head_dev` WP-rol; overziet de hele academie.
-- `scout` — `tt_scout` WP-rol; leest spelers + evaluaties over teams heen.
+- `scout` — `tt_scout` WP-rol; leest spelers over teams heen. Sinds v4.20.103 (#1378) zijn evaluatie-reads beperkt tot toegewezen spelers, en POP-dossiers/-oordelen worden helemaal niet toegekend — selectiebeslissingen zijn geen scouting-input.
 - `team_manager` — nieuw in #0033 Sprint 7; `tt_team_manager` WP-rol. Logistiek voor een team (activiteiten, aanwezigheid, uitnodigingen) zonder coachingautoriteit.
 - `academy_admin` — `administrator` of `tt_club_admin` WP-rol.
 
