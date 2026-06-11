@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-11T22:44:53+00:00\n"
+"POT-Creation-Date: 2026-06-11T22:58:26+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -14995,7 +14995,7 @@ msgstr ""
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:248
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:266
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:216
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:233
 msgid "Live"
 msgstr ""
 
@@ -15231,7 +15231,7 @@ msgstr ""
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:422
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:727
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:279
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:296
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:177
 msgid "Start match"
 msgstr ""
@@ -19410,8 +19410,9 @@ msgid ""
 "Drag-and-drop editor — tune what each persona sees on their landing page."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Repositories/UpcomingActivityRepository.php:93
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:274
+#: src/Modules/PersonaDashboard/Repositories/UpcomingActivityRepository.php:94
+#: src/Modules/PersonaDashboard/Repositories/UpcomingActivityRepository.php:119
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:291
 #: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:136
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:196
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1007
@@ -19419,21 +19420,27 @@ msgstr ""
 msgid "Today"
 msgstr "Aujourd'hui"
 
-#: src/Modules/PersonaDashboard/Repositories/UpcomingActivityRepository.php:94
+#: src/Modules/PersonaDashboard/Repositories/UpcomingActivityRepository.php:95
+#: src/Modules/PersonaDashboard/Repositories/UpcomingActivityRepository.php:120
 #: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:137
 msgid "Tomorrow"
 msgstr "Demain"
 
 #: src/Modules/PersonaDashboard/Repositories/UpcomingActivityRepository.php:96
+#: src/Modules/PersonaDashboard/Repositories/UpcomingActivityRepository.php:121
+msgid "Yesterday"
+msgstr ""
+
+#: src/Modules/PersonaDashboard/Repositories/UpcomingActivityRepository.php:98
 #: src/Modules/PersonaDashboard/Widgets/InfoCardWidget.php:67
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:96
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:97
 #: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:55
 #: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:139
 msgid "Up next"
 msgstr ""
 
 #. translators: %s is a localized date for an upcoming activity
-#: src/Modules/PersonaDashboard/Repositories/UpcomingActivityRepository.php:99
+#: src/Modules/PersonaDashboard/Repositories/UpcomingActivityRepository.php:106
 #: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:142
 #, php-format
 msgid "Up next · %s"
@@ -19835,11 +19842,11 @@ msgid ""
 "HoD top-strip \"season at a glance\" placement."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:53
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:54
 msgid "Mark attendance hero"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:56
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:57
 msgid ""
 "Head-coach landing card: reads the next un-processed activity on a team the "
 "coach owns, surfaces type / team / time, and exposes a one-tap CTA into the "
@@ -19848,59 +19855,70 @@ msgid ""
 "activity picker. Reads upcoming activities via UpcomingActivityRepository."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:97
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:98
 #: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:56
 msgid "No upcoming activity"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:98
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:99
 msgid "Schedule a training or match to populate this card."
 msgstr ""
 
 #: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:105
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:140
-msgid "Select completed activity to evaluate"
+msgid "Pick an activity"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:153
+#. translators: %s = activity type · team · day, e.g. "Training · U14 · Today"
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:155
+#, php-format
+msgid "Continue attendance — %s"
+msgstr ""
+
+#. translators: %s = activity type · team · day, e.g. "Training · U14 · Today"
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:157
+#, php-format
+msgid "Mark attendance — %s"
+msgstr ""
+
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:170
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:78
 msgid "Edit activity"
 msgstr ""
 
 #. translators: %s = live half + minute, e.g. "1e 23'"
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:213
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:230
 #, php-format
 msgid "Live · %s"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:221
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:238
 msgid "Live match"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:233
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:250
 msgid "Resume match"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:246
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:263
 msgid "Today's match"
 msgstr ""
 
 #. translators: %s = kickoff time HH:MM
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:257
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:274
 #, php-format
 msgid "Kickoff %s"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:282
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:299
 msgid "Edit prep"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:315
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:332
 msgid "HT"
 msgstr ""
 
 #. translators: 1: half number (1 or 2), 2: minute
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:323
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:340
 #, php-format
 msgid "%1$de %2$d'"
 msgstr ""

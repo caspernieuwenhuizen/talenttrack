@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-11T22:44:53+00:00\n"
+"POT-Creation-Date: 2026-06-11T22:58:26+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -16121,7 +16121,7 @@ msgstr "Alle statussen"
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:248
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:266
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:216
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:233
 msgid "Live"
 msgstr "Live"
 
@@ -16361,7 +16361,7 @@ msgstr "Wissel vastleggen"
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:422
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:727
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:279
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:296
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:177
 msgid "Start match"
 msgstr "Wedstrijd starten"
@@ -20739,8 +20739,9 @@ msgid ""
 msgstr ""
 "Drag-and-drop-editor — bepaal wat elke persona ziet op zijn landingspagina."
 
-#: src/Modules/PersonaDashboard/Repositories/UpcomingActivityRepository.php:93
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:274
+#: src/Modules/PersonaDashboard/Repositories/UpcomingActivityRepository.php:94
+#: src/Modules/PersonaDashboard/Repositories/UpcomingActivityRepository.php:119
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:291
 #: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:136
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:196
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1007
@@ -20748,21 +20749,27 @@ msgstr ""
 msgid "Today"
 msgstr "Vandaag"
 
-#: src/Modules/PersonaDashboard/Repositories/UpcomingActivityRepository.php:94
+#: src/Modules/PersonaDashboard/Repositories/UpcomingActivityRepository.php:95
+#: src/Modules/PersonaDashboard/Repositories/UpcomingActivityRepository.php:120
 #: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:137
 msgid "Tomorrow"
 msgstr "Morgen"
 
 #: src/Modules/PersonaDashboard/Repositories/UpcomingActivityRepository.php:96
+#: src/Modules/PersonaDashboard/Repositories/UpcomingActivityRepository.php:121
+msgid "Yesterday"
+msgstr "Gisteren"
+
+#: src/Modules/PersonaDashboard/Repositories/UpcomingActivityRepository.php:98
 #: src/Modules/PersonaDashboard/Widgets/InfoCardWidget.php:67
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:96
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:97
 #: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:55
 #: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:139
 msgid "Up next"
 msgstr "Eerstvolgende"
 
 #. translators: %s is a localized date for an upcoming activity
-#: src/Modules/PersonaDashboard/Repositories/UpcomingActivityRepository.php:99
+#: src/Modules/PersonaDashboard/Repositories/UpcomingActivityRepository.php:106
 #: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:142
 #, php-format
 msgid "Up next · %s"
@@ -21211,11 +21218,11 @@ msgstr ""
 "rendert zoals een losse KPI-kaart — hoofdgetal, trend, sparkline. Gebruik "
 "dit voor de HoD-top-strip \"seizoen in een oogopslag\"-plaatsing."
 
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:53
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:54
 msgid "Mark attendance hero"
 msgstr "Aanwezigheid-blok"
 
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:56
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:57
 msgid ""
 "Head-coach landing card: reads the next un-processed activity on a team the "
 "coach owns, surfaces type / team / time, and exposes a one-tap CTA into the "
@@ -21230,75 +21237,71 @@ msgstr ""
 "activiteit\"-CTA naar de activiteit-picker van de wizard. Leest aankomende "
 "activiteiten via UpcomingActivityRepository."
 
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:97
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:98
 #: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:56
 msgid "No upcoming activity"
 msgstr "Geen geplande activiteit"
 
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:98
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:99
 msgid "Schedule a training or match to populate this card."
 msgstr "Plan een training of wedstrijd om deze kaart te vullen."
 
 # ===== #1350 — hero CTA names the action + target =====
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:105
 msgid "Pick an activity"
 msgstr "Kies een activiteit"
 
 #. translators: %s = activity type · team · day, e.g. "Training · U14 · Today"
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php
-#, php-format
-msgid "Mark attendance — %s"
-msgstr "Aanwezigheid registreren — %s"
-
-#. translators: %s = activity type · team · day, e.g. "Training · U14 · Today"
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:155
 #, php-format
 msgid "Continue attendance — %s"
 msgstr "Aanwezigheid hervatten — %s"
 
-#: src/Modules/PersonaDashboard/Repositories/UpcomingActivityRepository.php
-msgid "Yesterday"
-msgstr "Gisteren"
+#. translators: %s = activity type · team · day, e.g. "Training · U14 · Today"
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:157
+#, php-format
+msgid "Mark attendance — %s"
+msgstr "Aanwezigheid registreren — %s"
 
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:153
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:170
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:78
 msgid "Edit activity"
 msgstr "Activiteit bewerken"
 
 #. translators: %s = live half + minute, e.g. "1e 23'"
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:213
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:230
 #, php-format
 msgid "Live · %s"
 msgstr "Live · %s"
 
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:221
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:238
 msgid "Live match"
 msgstr "Live wedstrijd"
 
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:233
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:250
 msgid "Resume match"
 msgstr "Wedstrijd hervatten"
 
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:246
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:263
 msgid "Today's match"
 msgstr "Wedstrijd van vandaag"
 
 #. translators: %s = kickoff time HH:MM
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:257
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:274
 #, php-format
 msgid "Kickoff %s"
 msgstr "Aftrap %s"
 
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:282
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:299
 msgid "Edit prep"
 msgstr "Voorbereiding bewerken"
 
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:315
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:332
 msgid "HT"
 msgstr "Rust"
 
 #. translators: 1: half number (1 or 2), 2: minute
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:323
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:340
 #, php-format
 msgid "%1$de %2$d'"
 msgstr "%1$de %2$d'"
