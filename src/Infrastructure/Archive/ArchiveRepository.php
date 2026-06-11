@@ -4,6 +4,7 @@ namespace TT\Infrastructure\Archive;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\People\PersonDeletionCascade;
+use TT\Infrastructure\Players\PlayerDeletionCascade;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Pdp\Repositories\PdpFilesRepository;
 
@@ -118,12 +119,11 @@ class ArchiveRepository {
      * Hard-delete N rows. Irreversible. Caller must verify permissions
      * before calling this — anyone holding the repo can wipe data.
      *
-     * Cascade rules are NOT handled here — this method deletes exactly
-     * the rows from the entity table. If an entity has dependent rows
-     * (e.g. player has evaluations), the caller should either delete
-     * those first or accept the orphaning. Foreign-key constraints in
-     * the schema would enforce cascades at the DB level; currently
-     * TalentTrack tables don't declare FKs.
+     * Persons (#1138) and players (#1355) route through dedicated
+     * cascade services. Other entities delete exactly the entity rows:
+     * dependent rows are the caller's concern. Foreign-key constraints
+     * would enforce cascades at the DB level; currently TalentTrack
+     * tables don't declare FKs.
      *
      * @param string $entity
      * @param int[]  $ids
@@ -140,6 +140,14 @@ class ArchiveRepository {
         // strand orphan team-role / staff-dev / scope-grant rows.
         if ( $entity === 'person' ) {
             $result = ( new PersonDeletionCascade() )->cascade( $ids );
+            return (int) $result['deleted'];
+        }
+
+        // #1355 — player delete cascades across every player-keyed
+        // table (incl. injuries — a minor's medical history) so a
+        // right-to-erasure hard-delete actually erases.
+        if ( $entity === 'player' ) {
+            $result = ( new PlayerDeletionCascade() )->cascade( $ids );
             return (int) $result['deleted'];
         }
 
