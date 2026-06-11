@@ -41,6 +41,17 @@ Je kunt migraties ook handmatig uitvoeren vanaf de pagina **Plug-ins**. Naast de
 
 Alle stappen zijn **idempotent** — migraties draaien terwijl er niets veranderd is, is een no-op.
 
+## Als een migratie mislukt (v4.20.96+)
+
+Een migratie die een fout geeft (host-specifieke SQL-beperkingen, afwijkend schema, een slechte release) verschuilt zich niet langer achter een succesbanner:
+
+- De plug-in-versie wordt **niet** als geïnstalleerd gemarkeerd — het schema blijft gemarkeerd als in afwachting totdat elke migratie voltooid is.
+- Er verschijnt een **rode melding** op elke beheerpagina met per mislukte migratie de databasefout, plus een knop **Migraties nu opnieuw uitvoeren**.
+- Automatische her-runs worden opgeschort zolang er een fout geregistreerd staat, zodat één slechte migratie niet bij elke pagina-laad opnieuw draait. Opnieuw proberen is altijd expliciet: de knop in de melding, of **Migraties uitvoeren** op de Plug-ins-pagina.
+- De foutenlijst staat in de optie `tt_migration_failures` en wist zichzelf bij de eerste schone run.
+
+Blijft de retry mislukken, dan is de fouttekst in de melding precies wat je host of ontwikkelaar nodig heeft — die benoemt het migratiebestand en de exacte SQL-fout.
+
 ## Wat je nooit hoeft te doen
 
 - Deactiveren + opnieuw activeren (oude workflow, niet langer nodig)

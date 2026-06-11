@@ -22,11 +22,14 @@ class Activator {
 
     /**
      * Idempotent. Triggerable on demand from the Plugins page or the
-     * schema-out-of-date admin notice. Stores TT_VERSION on success so
-     * the schema-check knows whether another run is needed after an
-     * update.
+     * schema-out-of-date admin notice. Stores TT_VERSION only when the
+     * migration runner reports zero failures — a failed migration must
+     * keep the schema flagged pending instead of hiding behind a green
+     * banner (#1346). Returns the failures so callers can surface them.
+     *
+     * @return array<int, array{name:string, error:string}>
      */
-    public static function runMigrations(): void {
+    public static function runMigrations(): array {
         ( new RolesService() )->installRoles();
 
         // v2.12.0 dbDelta silently dropped the `key` column on some
@@ -43,9 +46,19 @@ class Activator {
         self::seedFunctionalRolesIfEmpty();
         self::seedEvalCategoriesIfEmpty();
 
+        $failures = [];
         try {
-            ( new MigrationRunner() )->run();
+            $results = ( new MigrationRunner() )->run();
+            foreach ( $results as $r ) {
+                if ( empty( $r['ok'] ) ) {
+                    $failures[] = [
+                        'name'  => (string) ( $r['name'] ?? '' ),
+                        'error' => (string) ( $r['error'] ?? '' ),
+                    ];
+                }
+            }
         } catch ( \Throwable $e ) {
+            $failures[] = [ 'name' => 'migration-runner', 'error' => $e->getMessage() ];
             if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
                 error_log( '[TalentTrack] Migration runner threw during runMigrations(): ' . $e->getMessage() );
             }
@@ -63,7 +76,10 @@ class Activator {
         // [talenttrack_dashboard] shortcode.
         self::seedDashboardPageIfMissing();
 
-        update_option( 'tt_installed_version', TT_VERSION );
+        if ( $failures === [] ) {
+            update_option( 'tt_installed_version', TT_VERSION );
+        }
+        return $failures;
     }
 
     public static function deactivate(): void {
