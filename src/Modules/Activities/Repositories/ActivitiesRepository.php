@@ -84,6 +84,122 @@ final class ActivitiesRepository {
     }
 
     /**
+     * #1320 — recent-window list of activities a player attended,
+     * shared by the player profile Activities tab + header timeline
+     * + player dashboard. The 3 surfaces previously inlined the same
+     * JOIN-on-attendance shape with subtly different filter sets
+     * (the Activities tab gained an ASC display in #1316; the others
+     * stayed DESC); every schema change to `tt_activities` /
+     * `tt_attendance` requires updating each one independently.
+     *
+     * Inner query selects the MOST RECENT $limit activities (DESC),
+     * matching #1316's recent-window semantics. Outer SELECT reverses
+     * to ASC when callers want chronological display.
+     *
+     * Filter shape:
+     *   - `include_guests`     (default false) — attendance rows where
+     *                          `is_guest = 1` joined via `guest_player_id`.
+     *   - `record_types`       (default `['actual']`) — list of
+     *                          `att.record_type` values. The player
+     *                          dashboard wants `['actual']`; the
+     *                          Activities tab also accepts planned
+     *                          rows (it filters by `plan_state` instead).
+     *   - `include_archived`   (default false) — when true, drops the
+     *                          `a.archived_at IS NULL` filter.
+     *   - `plan_states`        (optional) — list of `a.plan_state`
+     *                          values to filter on. Empty = no filter.
+     *   - `only_past_completed` (default false) — when true, completed
+     *                          activities are only included if
+     *                          `session_date <= CURDATE()` (the
+     *                          Activities tab's "no future-dated
+     *                          completed shows" rule).
+     *
+     * @param array{
+     *     include_guests?: bool,
+     *     record_types?: list<string>,
+     *     include_archived?: bool,
+     *     plan_states?: list<string>,
+     *     only_past_completed?: bool
+     * } $filters
+     * @param 'ASC'|'DESC' $display_order
+     * @return list<object>
+     */
+    public function listForPlayer( int $player_id, int $limit, string $display_order = 'DESC', array $filters = [] ): array {
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $display_order = strtoupper( $display_order ) === 'ASC' ? 'ASC' : 'DESC';
+        $limit         = max( 1, min( 100, $limit ) );
+
+        $include_guests     = ! empty( $filters['include_guests'] );
+        // record_types: array_key_exists distinguishes "not set" (default
+        // to ['actual']) from explicit null (skip the filter entirely).
+        $record_types_key   = array_key_exists( 'record_types', $filters );
+        $record_types       = $record_types_key
+            ? ( is_array( $filters['record_types'] ) ? array_values( array_filter( array_map( 'strval', $filters['record_types'] ) ) ) : null )
+            : [ 'actual' ];
+        $include_archived   = ! empty( $filters['include_archived'] );
+        $plan_states        = isset( $filters['plan_states'] ) && is_array( $filters['plan_states'] )
+            ? array_values( array_filter( array_map( 'strval', $filters['plan_states'] ) ) )
+            : [];
+        $only_past_completed = ! empty( $filters['only_past_completed'] );
+
+        $where  = [];
+        $params = [];
+
+        if ( $include_guests ) {
+            $where[]  = '( att.player_id = %d OR att.guest_player_id = %d )';
+            $params[] = $player_id;
+            $params[] = $player_id;
+        } else {
+            $where[]  = 'att.player_id = %d';
+            $where[]  = 'att.is_guest = 0';
+            $params[] = $player_id;
+        }
+
+        if ( is_array( $record_types ) && ! empty( $record_types ) ) {
+            $placeholders = implode( ',', array_fill( 0, count( $record_types ), '%s' ) );
+            $where[]      = "att.record_type IN ({$placeholders})";
+            $params       = array_merge( $params, $record_types );
+        }
+
+        if ( ! $include_archived ) {
+            $where[] = 'a.archived_at IS NULL';
+        }
+
+        if ( ! empty( $plan_states ) ) {
+            $placeholders = implode( ',', array_fill( 0, count( $plan_states ), '%s' ) );
+            $where[]      = "a.plan_state IN ({$placeholders})";
+            $params       = array_merge( $params, $plan_states );
+        }
+
+        if ( $only_past_completed ) {
+            // Completed rows must be in the past; in-flight rows
+            // (planned/scheduled) pass through regardless of date.
+            $where[] = "( ( a.plan_state = 'completed' AND a.session_date <= CURDATE() ) OR a.plan_state IN ( 'planned', 'scheduled' ) )";
+        }
+
+        $where_sql = implode( ' AND ', $where );
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $sql = "SELECT * FROM (
+                    SELECT a.id, a.title, a.session_date, a.activity_type_key, a.plan_state, a.team_id, a.activity_status_key,
+                           att.id AS attendance_id, att.status, att.notes AS att_notes, att.is_guest, att.record_type
+                      FROM {$p}tt_attendance att
+                      JOIN {$p}tt_activities a ON a.id = att.activity_id
+                     WHERE {$where_sql}
+                  ORDER BY a.session_date DESC, a.id DESC
+                     LIMIT %d
+                ) recent
+                ORDER BY recent.session_date {$display_order}, recent.id {$display_order}";
+
+        $params[] = $limit;
+
+        $rows = $wpdb->get_results( $wpdb->prepare( $sql, ...$params ) );
+        return is_array( $rows ) ? $rows : [];
+    }
+
+    /**
      * Variant for the on-screen view's edit form, which keys
      * attendance rows by `player_id` for fast lookups. Excludes
      * guests by contract.
