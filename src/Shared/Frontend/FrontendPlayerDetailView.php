@@ -69,22 +69,13 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             true
         );
 
-        // Pre-fetch the player's 20 most recent completed activities so
-        // the behaviour popover doesn't need a second REST round-trip on
-        // open. Mirrors FrontendPlayerStatusCaptureView::loadRecentActivitiesForPlayer.
-        global $wpdb;
-        $p = $wpdb->prefix;
-        $recent = $can_log_behaviour ? (array) $wpdb->get_results( $wpdb->prepare(
-            "SELECT DISTINCT a.id, a.session_date, a.title
-               FROM {$p}tt_activities a
-               JOIN {$p}tt_attendance att ON att.activity_id = a.id
-              WHERE att.player_id = %d
-                AND a.activity_status_key = %s
-                AND a.archived_at IS NULL
-              ORDER BY a.session_date DESC
-              LIMIT %d",
-            $player_id, 'completed', 20
-        ) ) : [];
+        // #1320 — routed through ActivitiesRepository::listRecentCompletedForPlayer
+        // so this site and FrontendPlayerStatusCaptureView's sibling
+        // converge on a single source of the "recent completed
+        // activities for behaviour rating" query.
+        $recent = $can_log_behaviour
+            ? ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )->listRecentCompletedForPlayer( $player_id, 20 )
+            : [];
         $activities = [];
         foreach ( $recent as $a ) {
             $activities[] = [
