@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.105
+Stable tag: 4.20.106
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.106 — Player hero card shows the real rating, not "149" (closes #1352). The audit caught [`RateCardHeroWidget`](src/Modules/PersonaDashboard/Widgets/RateCardHeroWidget.php) hardcoding `(rolling / 5.0) * 99` — the pre-0095 5-point assumption. On the Dutch 5-10 scale a 7.5 average rendered overall "149" as the first thing a player saw at login, while the My-team card showed the raw 7.5. Per the locked decision the hero now shows the raw rolling rating to one decimal (number_format_i18n), matching the My-team card — one source of truth that survives operator rating-scale reconfiguration. No strings changed. Patch bump. (closes #1352) =
 
 = 4.20.105 — Parent-confirmation links expire after 30 days (closes #1356). Audit security finding: the public parent yes/no link in the test-training invitation email carried a deterministic HMAC with no timestamp component — a forwarded or leaked email link stayed valid forever, and replaying it disclosed the recorded decision. **Fix.** [`ParentConfirmationController`](src/Modules/Prospects/Rest/ParentConfirmationController.php) — expiry keys off the workflow task's `created_at` rather than a token redesign, so old AND outstanding links go stale identically (no resend wave needed at deploy, no token-format fork). Links older than `LINK_TTL_DAYS = 30` return a localized 410 ("ask the academy to send a new one") BEFORE the idempotent-replay branch, so an expired link reveals nothing — not even the already-recorded outcome. Token verification itself unchanged (hash_equals against the task/prospect/uuid/salt HMAC). 1 new Dutch msgstr. Patch bump. (closes #1356) =
 
