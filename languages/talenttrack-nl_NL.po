@@ -35955,8 +35955,7 @@ msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid ""
-#~ "Optionally conneDROPPED: 29
-ct this activity to one or more methodology principles. "
+#~ "Optionally connect this activity to one or more methodology principles. "
 #~ "Hold Ctrl/Cmd to select multiple. Leave blank to skip."
 #~ msgstr ""
 #~ "Verbind deze activiteit optioneel aan een of meer methodologie-principes. "
@@ -37755,10 +37754,6 @@ msgstr "Blueprint verwijderd."
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php
 msgid "Delete blueprint"
 msgstr "Blueprint verwijderen"
-
-#: src/Shared/Frontend/FrontendActivitiesManageView.php
-msgid "Tournament"
-msgstr "Toernooi"
 
 #: src/Shared/Frontend/FrontendActivitiesManageView.php
 msgid "Not linked yet. Use the edit form to pick an existing tournament."
