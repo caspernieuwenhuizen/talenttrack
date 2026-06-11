@@ -60,6 +60,8 @@ Niet alle regels zijn voor iedereen zichtbaar. Elke regel heeft een **zichtbaarh
 
 Als de reis een regel bevat die je niet mag zien, lees je *"1 regel verborgen — alleen zichtbaar voor andere rollen."* bovenaan, zodat de chronologie eerlijk blijft. Het detail blijft buiten beeld.
 
+Sinds v4.20.98 zijn medische gegevens dubbel afgeschermd en audit-gelogd: blessures van een speler bekijken of bewerken vereist zowel de medische-zicht-permissie **als** toegang tot die specifieke speler (dezelfde scoperegel als de rest van het dossier), en elke blessure-weergave, -aanmaak, -bewerking en -archivering — plus elke tijdlijn-weergave die medische of veiligheidsregels opleverde — komt in het auditlog met wie, wanneer en welke speler. Dat is precies het spoor waar een veiligheidsonderzoek om vraagt.
+
 ## Cohort-overgangen (hoofd opleidingen)
 
 Wil je weten wie er dit jaar naar U15 is doorgestroomd? Of welke spelers vorig seizoen langdurig geblesseerd waren? Open **Cohort-overgangen** onder Analytics:
