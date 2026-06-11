@@ -75,9 +75,23 @@ jobs:
             cp languages/talenttrack-nl_NL.po ../.drift-baseline/nl_NL.po
           )
 
-          msgmerge --update --backup=none --no-fuzzy-matching \
-            .drift-baseline/nl_NL.po .drift-baseline/talenttrack.pot \
-            >/dev/null 2>&1
+          # #1338 — capture stderr instead of silencing it. `msgmerge
+          # --update` can return 0 even when it logged a fatal-parse
+          # 'duplicate message definition' error and wrote a partial
+          # file. We surface both the non-zero exit AND the fatal-error
+          # line in stderr.
+          if ! msgmerge --update --backup=none --no-fuzzy-matching \
+               .drift-baseline/nl_NL.po .drift-baseline/talenttrack.pot \
+               2> .drift-baseline/msgmerge.err; then
+            echo "::error::msgmerge failed on baseline (main) — see error below."
+            cat .drift-baseline/msgmerge.err || true
+            exit 1
+          fi
+          if grep -q 'fatal error' .drift-baseline/msgmerge.err; then
+            echo "::error::msgmerge reported a fatal error on baseline (main) — see below."
+            cat .drift-baseline/msgmerge.err
+            exit 1
+          fi
 
           baseline_empty=$(grep -c '^msgstr ""$' .drift-baseline/nl_NL.po || true)
           baseline_empty=$(( baseline_empty > 0 ? baseline_empty - 1 : 0 ))
@@ -97,9 +111,33 @@ jobs:
           wp i18n make-pot . .drift-head/talenttrack.pot \
             --slug=talenttrack --skip-audit
           cp languages/talenttrack-nl_NL.po .drift-head/nl_NL.po
-          msgmerge --update --backup=none --no-fuzzy-matching \
-            .drift-head/nl_NL.po .drift-head/talenttrack.pot \
-            >/dev/null 2>&1
+          # #1338 — same fatal-error surfacing as the baseline step.
+          if ! msgmerge --update --backup=none --no-fuzzy-matching \
+               .drift-head/nl_NL.po .drift-head/talenttrack.pot \
+               2> .drift-head/msgmerge.err; then
+            echo "::error::msgmerge failed on PR branch — see error below."
+            cat .drift-head/msgmerge.err || true
+            exit 1
+          fi
+          if grep -q 'fatal error' .drift-head/msgmerge.err; then
+            echo "::error::msgmerge reported a fatal error on PR branch — see below."
+            cat .drift-head/msgmerge.err
+            exit 1
+          fi
+
+          # #1338 — defence-in-depth: even when msgmerge stays quiet,
+          # `msguniq` will flag duplicate msgids that survive into the
+          # committed .po (e.g. an active block colliding with an
+          # obsolete `#~` block from a past bulk-translation import).
+          # Targets the committed file directly so we catch landmines
+          # that pre-date this PR's diff as soon as a change touches
+          # the .po.
+          if ! msguniq --no-wrap languages/talenttrack-nl_NL.po \
+               -o /dev/null 2> .drift-head/msguniq.err; then
+            echo "::error::Duplicate msgid found in nl_NL.po — see locations below."
+            cat .drift-head/msguniq.err
+            exit 1
+          fi
 
           head_empty=$(grep -c '^msgstr ""$' .drift-head/nl_NL.po || true)
           head_empty=$(( head_empty > 0 ? head_empty - 1 : 0 ))
