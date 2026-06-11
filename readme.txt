@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.100
+Stable tag: 4.20.101
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.101 — Default UI font: system sans replaces the Georgia serif stack (closes #1351). Audit visual finding: the `.tt-dashboard` body fell back to `Georgia, "Iowan Old Style", … serif` ([public.css:69](assets/css/public.css), [frontend-admin.css:76-77](assets/css/frontend-admin.css)) while buttons hardcoded Helvetica and the persona dashboard declared no font at all — so the navy/Tailwind-style first screen every coach sees rendered in a serif it was never designed for: the single most visible "several apps stitched together" signal. **Fix.** Both `--tt-font-body` / `--tt-font-display` token defaults and every hardcoded serif site in public.css (the `"Playfair Display", Georgia` dash titles, the bare `Georgia, serif` block) now resolve through `var(--tt-font-…, <system sans stack>)` — `-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif`. The BrandStyles operator override (brand font picked in the editor) continues to win everywhere, now including the previously-hardcoded display-font sites. [`LetterTemplateEngine`](src/Modules/Trials/Letters/LetterTemplateEngine.php) keeps Georgia deliberately — parent letters are formal print documents, not app chrome. CSS-only, no strings, no schema. Patch bump. (closes #1351) =
 
 = 4.20.100 — Mark-attendance hero: CTA names the action + target, past dates stop reading "Up next", resume beats restart (closes #1350). Audit UX finding on the coach's most-tapped control. **CTA copy.** [`MarkAttendanceHeroWidget`](src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php) — the v3.110.108 shared label "Select completed activity to evaluate" was wrong on both branches: populated state now reads *"Mark attendance — Training · U14 · Today"* (type · team · day via the new `UpcomingActivityRepository::dayLabelFor`), empty state reads *"Pick an activity"*. **Eyebrow.** [`UpcomingActivityRepository::eyebrowFor`](src/Modules/PersonaDashboard/Repositories/UpcomingActivityRepository.php) gains Yesterday + past-date branches — since #792 the hero often shows the latest (past) rateable activity and "Up next · Jun 10" on yesterday's training read like the system didn't know what day it is; past dates now render as the bare date. **Resume.** When `WizardState` holds an in-flight mark-attendance run for the SAME activity, the hero CTA omits `restart=1` and reads *"Continue attendance — …"* — a coach who stepped away mid-roster no longer loses the run by re-entering through the hero; runs for a different activity keep the v3.110.84 fresh-start nuke. 4 new + 1 changed Dutch entries; the obsolete `#~ Pick an activity` pair was promoted to active (removing it from the obsolete block — the #1338 landmine class). Patch bump. (closes #1350) =
 
