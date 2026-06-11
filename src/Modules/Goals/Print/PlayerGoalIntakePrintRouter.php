@@ -282,7 +282,7 @@ class PlayerGoalIntakePrintRouter {
     <title><?php
         echo esc_html( sprintf(
             /* translators: 1: player display name, 2: season e.g. 2026/27 */
-            __( 'Doelenintake — %1$s — %2$s', 'talenttrack' ),
+            __( 'Goals intake — %1$s — %2$s', 'talenttrack' ),
             $name, $season
         ) );
     ?></title>
@@ -299,7 +299,7 @@ class PlayerGoalIntakePrintRouter {
 <?php if ( $blocks['snapshot'] ) : ?>
 <article class="paper">
     <p class="brand"><?php echo esc_html( sprintf( __( 'TalentTrack · seizoensintake %s', 'talenttrack' ), $season ) ); ?></p>
-    <h1 class="title"><?php echo esc_html( sprintf( __( 'Doelenintake — %s', 'talenttrack' ), $name ) ); ?>
+    <h1 class="title"><?php echo esc_html( sprintf( __( 'Goals intake — %s', 'talenttrack' ), $name ) ); ?>
         <small><?php esc_html_e( 'Pagina 1: speler-snapshot — lees voor het gesprek begint. Doelen volgen op pagina 2 + 3.', 'talenttrack' ); ?></small>
     </h1>
 
@@ -374,8 +374,8 @@ class PlayerGoalIntakePrintRouter {
 <?php if ( $blocks['doel1'] || $blocks['doel2'] ) : ?>
 <article class="paper">
     <p class="brand"><?php echo esc_html( sprintf( __( 'TalentTrack · seizoensintake %s', 'talenttrack' ), $season ) ); ?></p>
-    <h1 class="title"><?php echo esc_html( sprintf( __( 'Doelenintake — %s', 'talenttrack' ), $name ) ); ?>
-        <small><?php esc_html_e( 'Doelen 1 + 2 · invullen tijdens het gesprek.', 'talenttrack' ); ?></small>
+    <h1 class="title"><?php echo esc_html( sprintf( __( 'Goals intake — %s', 'talenttrack' ), $name ) ); ?>
+        <small><?php esc_html_e( 'Goals 1 + 2 · fill in during the conversation.', 'talenttrack' ); ?></small>
     </h1>
 
     <?php if ( $blocks['doel1'] ) self::renderGoalBox( 1 ); ?>
@@ -392,7 +392,7 @@ class PlayerGoalIntakePrintRouter {
 <?php if ( $blocks['doel3'] || $blocks['afsluiting'] || $blocks['handtekeningen'] || $blocks['reminder'] ) : ?>
 <article class="paper">
     <p class="brand"><?php echo esc_html( sprintf( __( 'TalentTrack · seizoensintake %s', 'talenttrack' ), $season ) ); ?></p>
-    <h1 class="title"><?php echo esc_html( sprintf( __( 'Doelenintake — %s', 'talenttrack' ), $name ) ); ?>
+    <h1 class="title"><?php echo esc_html( sprintf( __( 'Goals intake — %s', 'talenttrack' ), $name ) ); ?>
         <small><?php esc_html_e( 'Doel 3 · afsluitende reflectie · ondertekening.', 'talenttrack' ); ?></small>
     </h1>
 
@@ -640,7 +640,7 @@ class PlayerGoalIntakePrintRouter {
         return [
             [ 'title' => __( 'Sterke punten vorig seizoen (mediaan eval)', 'talenttrack' ), 'items' => $strong ],
             [ 'title' => __( 'Ontwikkelpunten',                            'talenttrack' ), 'items' => $weak ],
-            [ 'title' => __( 'Doelen uit vorig seizoen',                   'talenttrack' ), 'items' => $goals ],
+            [ 'title' => __( 'Goals from last season',                     'talenttrack' ), 'items' => $goals ],
             [ 'title' => __( 'Trainersnotities',                           'talenttrack' ), 'items' => [] ],
         ];
     }
@@ -769,7 +769,7 @@ CSS;
         ], home_url( '/' ) );
 
         return self::renderPicker(
-            sprintf( __( 'Doelenintake — %1$s — kies blokken', 'talenttrack' ), $name ),
+            sprintf( __( 'Goals intake — %1$s — choose blocks', 'talenttrack' ), $name ),
             sprintf( __( 'Speler: %1$s · Seizoen %2$s', 'talenttrack' ), $name, $season ),
             [
                 'tt_goal_intake_print' => 1,
@@ -888,7 +888,7 @@ CSS;
         <div class="picker__actions">
             <button type="submit" class="picker__btn picker__btn--primary"><?php esc_html_e( 'Print geselecteerde blokken', 'talenttrack' ); ?></button>
             <a class="picker__btn picker__btn--secondary" href="<?php echo esc_url( $print_all_url ); ?>"><?php esc_html_e( 'Print alles', 'talenttrack' ); ?></a>
-            <a class="picker__btn picker__btn--ghost" href="<?php echo esc_url( $cancel_url ); ?>"><?php esc_html_e( 'Annuleren', 'talenttrack' ); ?></a>
+            <a class="picker__btn picker__btn--ghost" href="<?php echo esc_url( $cancel_url ); ?>"><?php esc_html_e( 'Cancel', 'talenttrack' ); ?></a>
         </div>
     </form>
 </main>
