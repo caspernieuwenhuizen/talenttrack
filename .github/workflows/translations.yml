@@ -44,11 +44,12 @@ jobs:
           set +e
           any_warn=0
           for po in languages/*.po; do
-            # Count `msgstr ""` on a line by itself, then subtract 1
-            # for the header entry which always has an empty msgstr
-            # (the header's metadata sits on continuation lines).
-            empty=$(grep -c '^msgstr ""$' "$po")
-            empty=$(( empty > 0 ? empty - 1 : 0 ))
+            # #1395 — entry-based count via msgattrib: the old
+            # `^msgstr ""$` line-grep miscounted wrapped multi-line
+            # translated msgstrs (whose first line is a bare
+            # `msgstr ""`) as empty.
+            empty=$(msgattrib --untranslated --no-fuzzy --no-obsolete \
+              "$po" 2>/dev/null | grep -c '^msgid ' || true)
             if [ "$empty" -gt 0 ]; then
               echo "::warning file=$po::$empty untranslated msgstr entries in $po — fill in the translations to clear this warning."
               any_warn=1

@@ -93,10 +93,16 @@ jobs:
             exit 1
           fi
 
-          baseline_empty=$(grep -c '^msgstr ""$' .drift-baseline/nl_NL.po || true)
-          baseline_empty=$(( baseline_empty > 0 ? baseline_empty - 1 : 0 ))
+          # #1395 — count untranslated ENTRIES via msgattrib, not
+          # `^msgstr ""$` lines: a wrapped multi-line translated msgstr
+          # also starts with a bare `msgstr ""` line, so the line-grep
+          # miscounted every long translation as empty. msgattrib parses
+          # entries; the header (translated metadata) is excluded by
+          # --untranslated, fuzzies are excluded to match msgfmt stats.
+          baseline_empty=$(msgattrib --untranslated --no-fuzzy --no-obsolete \
+            .drift-baseline/nl_NL.po 2>/dev/null | grep -c '^msgid ' || true)
           echo "baseline_empty=$baseline_empty" >> "$GITHUB_OUTPUT"
-          echo "Baseline (main) empty msgstr count: $baseline_empty"
+          echo "Baseline (main) untranslated entry count: $baseline_empty"
 
           # Snapshot baseline msgids for later diffing.
           msgattrib --untranslated .drift-baseline/nl_NL.po \
@@ -139,10 +145,11 @@ jobs:
             exit 1
           fi
 
-          head_empty=$(grep -c '^msgstr ""$' .drift-head/nl_NL.po || true)
-          head_empty=$(( head_empty > 0 ? head_empty - 1 : 0 ))
+          # #1395 — entry-based count; see the baseline step's comment.
+          head_empty=$(msgattrib --untranslated --no-fuzzy --no-obsolete \
+            .drift-head/nl_NL.po 2>/dev/null | grep -c '^msgid ' || true)
           echo "head_empty=$head_empty" >> "$GITHUB_OUTPUT"
-          echo "PR-branch empty msgstr count: $head_empty"
+          echo "PR-branch untranslated entry count: $head_empty"
 
           msgattrib --untranslated .drift-head/nl_NL.po \
             -o .drift-head/nl_NL.untranslated.po || true
