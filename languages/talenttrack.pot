@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: TalentTrack 4.20.106\n"
+"Project-Id-Version: TalentTrack 4.20.107\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-11T23:54:05+00:00\n"
+"POT-Creation-Date: 2026-06-11T23:58:59+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -21045,13 +21045,11 @@ msgstr ""
 #: src/Modules/Stats/Admin/PlayerComparisonPage.php:264
 #: src/Shared/Frontend/FrontendComparisonView.php:359
 #: src/Shared/Frontend/FrontendMyProfileView.php:115
-#: src/Shared/Frontend/FrontendTeammateView.php:103
 msgid "Height"
 msgstr ""
 
 #: src/Modules/Stats/Admin/PlayerComparisonPage.php:267
 #: src/Shared/Frontend/FrontendMyProfileView.php:118
-#: src/Shared/Frontend/FrontendTeammateView.php:107
 msgid "Weight"
 msgstr ""
 
@@ -30867,7 +30865,7 @@ msgstr ""
 msgid "This player is not on your team."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTeammateView.php:112
+#: src/Shared/Frontend/FrontendTeammateView.php:111
 msgid "Teammate details are read-only. Individual ratings, evaluations, and goals stay private."
 msgstr ""
 

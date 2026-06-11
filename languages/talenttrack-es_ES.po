@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-11T23:54:05+00:00\n"
+"POT-Creation-Date: 2026-06-11T23:58:59+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -22351,13 +22351,11 @@ msgstr ""
 #: src/Modules/Stats/Admin/PlayerComparisonPage.php:264
 #: src/Shared/Frontend/FrontendComparisonView.php:359
 #: src/Shared/Frontend/FrontendMyProfileView.php:115
-#: src/Shared/Frontend/FrontendTeammateView.php:103
 msgid "Height"
 msgstr ""
 
 #: src/Modules/Stats/Admin/PlayerComparisonPage.php:267
 #: src/Shared/Frontend/FrontendMyProfileView.php:118
-#: src/Shared/Frontend/FrontendTeammateView.php:107
 msgid "Weight"
 msgstr ""
 
@@ -32844,7 +32842,7 @@ msgstr ""
 msgid "This player is not on your team."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTeammateView.php:112
+#: src/Shared/Frontend/FrontendTeammateView.php:111
 msgid ""
 "Teammate details are read-only. Individual ratings, evaluations, and goals "
 "stay private."
