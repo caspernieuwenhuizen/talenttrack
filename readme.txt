@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.106
+Stable tag: 4.20.107
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.107 — Teammate view stops exposing height and weight of minors peer-to-peer (closes #1353). Audit harm-risk finding: [`FrontendTeammateView`](src/Shared/Frontend/FrontendTeammateView.php) showed every teammate a player's body measurements — a body-image landmine for 13-17-year-olds. Both fields removed from the teammate render; positions, jersey number and preferred foot stay. Staff surfaces keep height/weight via their own cap gating, and the staff-gated REST player payload is unchanged. No new strings. Patch bump. (closes #1353) =
 
 = 4.20.106 — Player hero card shows the real rating, not "149" (closes #1352). The audit caught [`RateCardHeroWidget`](src/Modules/PersonaDashboard/Widgets/RateCardHeroWidget.php) hardcoding `(rolling / 5.0) * 99` — the pre-0095 5-point assumption. On the Dutch 5-10 scale a 7.5 average rendered overall "149" as the first thing a player saw at login, while the My-team card showed the raw 7.5. Per the locked decision the hero now shows the raw rolling rating to one decimal (number_format_i18n), matching the My-team card — one source of truth that survives operator rating-scale reconfiguration. No strings changed. Patch bump. (closes #1352) =
 
