@@ -5,19 +5,22 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\Export\Domain\ExportRequest;
 use TT\Modules\Export\ExporterInterface;
+use TT\Modules\MatchPrep\Frontend\FrontendMatchPrepView;
+use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
 
 /**
  * MatchDayTeamSheetPdfExporter (#0063 use case 4) — pitch-side match-day
  * team sheet PDF.
  *
- * Per user-direction shaping (2026-05-08): filter `tt_activities` to
- * `activity_type_key = 'match'`; surface the match meta (opponent,
- * home_away, kickoff_time, formation) added by migration 0079;
- * partition the squad by `tt_attendance.lineup_role` into Starting XI
- * vs Bench. Position per player comes from the per-match
- * `tt_attendance.position_played` override, falling back to
- * `tt_players.preferred_positions[0]` when the operator hasn't filled
- * it in.
+ * #1194 — source of truth is the match-prep view. When a match-prep
+ * row exists for the activity, the exporter partitions players via
+ * `tt_match_prep_lineup` (half 1 = Starting XI) and
+ * `tt_match_prep_availability` (Present-but-not-in-lineup = Bench;
+ * Absent = Squad). Position per player resolves from the formation
+ * template's slot label. When no match-prep row exists (legacy
+ * activities pre-#838), the exporter falls back to the original
+ * `tt_attendance.lineup_role` / `position_played` path so the
+ * existing PDF surface keeps working without regression.
  *
  * URL:
  *   `GET /wp-json/talenttrack/v1/exports/match_day_team_sheet?format=pdf&activity_id=42`
@@ -83,40 +86,22 @@ final class MatchDayTeamSheetPdfExporter implements ExporterInterface {
             ];
         }
 
-        $roster = $wpdb->get_results( $wpdb->prepare(
-            "SELECT pl.id AS player_id, pl.first_name, pl.last_name, pl.jersey_number,
-                    pl.preferred_positions,
-                    att.status, att.lineup_role, att.position_played
-                FROM {$p}tt_attendance att
-                JOIN {$p}tt_players pl ON pl.id = att.player_id
-                WHERE att.activity_id = %d AND pl.club_id = %d
-                ORDER BY
-                    CASE LOWER(IFNULL(att.lineup_role, ''))
-                        WHEN 'start' THEN 1
-                        WHEN 'bench' THEN 2
-                        ELSE 3
-                    END ASC,
-                    pl.jersey_number IS NULL,
-                    pl.jersey_number ASC,
-                    pl.last_name ASC",
-            $activity_id,
-            (int) $request->clubId
-        ) );
-        $roster = is_array( $roster ) ? $roster : [];
+        // #1194 — prefer match-prep as source of truth. Legacy path
+        // (read tt_attendance.lineup_role) remains as fallback for
+        // activities created before match-prep shipped.
+        $prep_repo = new MatchPrepRepository();
+        $prep      = $prep_repo->findByActivity( $activity_id );
 
-        // Partition by lineup_role.
-        $starting = [];
-        $bench    = [];
-        $squad    = [];
-        foreach ( $roster as $r ) {
-            $role = strtolower( (string) ( $r->lineup_role ?? '' ) );
-            if ( $role === 'start' ) {
-                $starting[] = $r;
-            } elseif ( $role === 'bench' ) {
-                $bench[] = $r;
-            } else {
-                $squad[] = $r;
-            }
+        if ( $prep ) {
+            [ $starting, $bench, $squad ] = self::partitionFromMatchPrep(
+                $prep_repo,
+                (int) $prep->id,
+                (int) ( $prep->formation_template_id ?? 0 ),
+                $activity_id,
+                (int) $request->clubId
+            );
+        } else {
+            [ $starting, $bench, $squad ] = self::partitionFromAttendance( $activity_id, (int) $request->clubId );
         }
 
         $html = self::renderHtml( $activity, $starting, $bench, $squad );
@@ -263,5 +248,176 @@ final class MatchDayTeamSheetPdfExporter implements ExporterInterface {
             case 'away': return __( 'away', 'talenttrack' );
             default:     return '—';
         }
+    }
+
+    /**
+     * #1194 — partition from match-prep tables. Half 1 lineup = Starting
+     * XI; Present-but-not-in-lineup = Bench; Absent (or no row) =
+     * Squad.
+     *
+     * @return array{0:list<object>,1:list<object>,2:list<object>}
+     */
+    private static function partitionFromMatchPrep(
+        MatchPrepRepository $repo,
+        int $prep_id,
+        int $formation_template_id,
+        int $activity_id,
+        int $club_id
+    ): array {
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        // Slot-to-position-label map from the formation template.
+        $shape = '';
+        if ( $formation_template_id > 0 ) {
+            $shape = (string) $wpdb->get_var( $wpdb->prepare(
+                "SELECT formation_shape FROM {$p}tt_formation_templates WHERE id = %d LIMIT 1",
+                $formation_template_id
+            ) );
+        }
+        $slot_position = self::buildSlotPositionMap( $shape );
+
+        // Half-1 lineup → slot_number per player_id.
+        $starting_slot = [];
+        foreach ( $repo->listLineup( $prep_id ) as $row ) {
+            if ( (int) $row->half !== 1 ) continue;
+            $starting_slot[ (int) $row->player_id ] = (int) $row->slot_number;
+        }
+
+        // Availability + reason per player.
+        $availability = [];
+        foreach ( $repo->listAvailability( $prep_id ) as $row ) {
+            $availability[ (int) $row->player_id ] = (string) $row->status;
+        }
+
+        // Pull every roster player on the team in one query so Bench
+        // can also include players who haven't been ticked in
+        // availability yet (defensive — usually availability covers
+        // the full roster).
+        $player_ids = array_keys( $starting_slot + $availability );
+        if ( empty( $player_ids ) ) {
+            return [ [], [], [] ];
+        }
+        $placeholders = implode( ',', array_fill( 0, count( $player_ids ), '%d' ) );
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $players = $wpdb->get_results( $wpdb->prepare(
+            "SELECT pl.id AS player_id, pl.first_name, pl.last_name, pl.jersey_number, pl.preferred_positions
+               FROM {$p}tt_players pl
+              WHERE pl.id IN ({$placeholders}) AND pl.club_id = %d",
+            array_merge( $player_ids, [ $club_id ] )
+        ) );
+        $players = is_array( $players ) ? $players : [];
+
+        $starting = [];
+        $bench    = [];
+        $squad    = [];
+
+        foreach ( $players as $pl ) {
+            $pid    = (int) $pl->player_id;
+            $status = strcasecmp( $availability[ $pid ] ?? '', 'Present' ) === 0 ? 'Present' : ( $availability[ $pid ] ?? '' );
+
+            if ( isset( $starting_slot[ $pid ] ) ) {
+                $slot                  = $starting_slot[ $pid ];
+                $pl->status            = 'Present';
+                $pl->lineup_role       = 'start';
+                $pl->position_played   = $slot_position[ $slot ] ?? '';
+                $starting[]            = $pl;
+                continue;
+            }
+            if ( $status === 'Present' ) {
+                $pl->status          = 'Present';
+                $pl->lineup_role     = 'bench';
+                $pl->position_played = '';
+                $bench[]             = $pl;
+                continue;
+            }
+            $pl->status          = $availability[ $pid ] ?? '';
+            $pl->lineup_role     = '';
+            $pl->position_played = '';
+            $squad[]             = $pl;
+        }
+
+        // Stable sort within each section: jersey ASC nulls last,
+        // last_name ASC. Matches the legacy ORDER BY.
+        $sorter = static function ( object $a, object $b ): int {
+            $ja = $a->jersey_number !== null ? (int) $a->jersey_number : PHP_INT_MAX;
+            $jb = $b->jersey_number !== null ? (int) $b->jersey_number : PHP_INT_MAX;
+            if ( $ja !== $jb ) return $ja <=> $jb;
+            return strcasecmp( (string) $a->last_name, (string) $b->last_name );
+        };
+        usort( $starting, $sorter );
+        usort( $bench, $sorter );
+        usort( $squad, $sorter );
+
+        return [ $starting, $bench, $squad ];
+    }
+
+    /**
+     * Legacy fallback: read partition from `tt_attendance.lineup_role`
+     * / `position_played`. Used when no match-prep row exists for the
+     * activity (legacy installs, or activities created before #838).
+     *
+     * @return array{0:list<object>,1:list<object>,2:list<object>}
+     */
+    private static function partitionFromAttendance( int $activity_id, int $club_id ): array {
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $roster = $wpdb->get_results( $wpdb->prepare(
+            "SELECT pl.id AS player_id, pl.first_name, pl.last_name, pl.jersey_number,
+                    pl.preferred_positions,
+                    att.status, att.lineup_role, att.position_played
+                FROM {$p}tt_attendance att
+                JOIN {$p}tt_players pl ON pl.id = att.player_id
+                WHERE att.activity_id = %d AND pl.club_id = %d
+                ORDER BY
+                    CASE LOWER(IFNULL(att.lineup_role, ''))
+                        WHEN 'start' THEN 1
+                        WHEN 'bench' THEN 2
+                        ELSE 3
+                    END ASC,
+                    pl.jersey_number IS NULL,
+                    pl.jersey_number ASC,
+                    pl.last_name ASC",
+            $activity_id,
+            $club_id
+        ) );
+        $roster = is_array( $roster ) ? $roster : [];
+
+        $starting = [];
+        $bench    = [];
+        $squad    = [];
+        foreach ( $roster as $r ) {
+            $role = strtolower( (string) ( $r->lineup_role ?? '' ) );
+            if ( $role === 'start' ) {
+                $starting[] = $r;
+            } elseif ( $role === 'bench' ) {
+                $bench[] = $r;
+            } else {
+                $squad[] = $r;
+            }
+        }
+        return [ $starting, $bench, $squad ];
+    }
+
+    /**
+     * Slot_number → position label map (e.g. 1 => 'GK', 9 => 'ST')
+     * derived from the formation shape's default layout. Returns an
+     * empty map when shape is unknown — callers fall back to blank
+     * position labels.
+     *
+     * @return array<int,string>
+     */
+    private static function buildSlotPositionMap( string $shape ): array {
+        if ( $shape === '' ) return [];
+        $layouts = FrontendMatchPrepView::defaultSlotLayouts();
+        if ( ! isset( $layouts[ $shape ] ) ) return [];
+        $map = [];
+        foreach ( $layouts[ $shape ] as $entry ) {
+            if ( isset( $entry['num'], $entry['label'] ) ) {
+                $map[ (int) $entry['num'] ] = (string) $entry['label'];
+            }
+        }
+        return $map;
     }
 }

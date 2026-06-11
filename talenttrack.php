@@ -3,7 +3,7 @@
  * Plugin Name: TalentTrack
  * Plugin URI:  https://github.com/caspernieuwenhuizen/talenttrack
  * Description: Frontend-first, modular youth football talent management system for a single club.
- * Version:     4.20.89
+ * Version:     4.20.90
  * Author:      Casper Nieuwenhuizen
  * Author URI:  https://github.com/caspernieuwenhuizen
  * License:     GPL-2.0+

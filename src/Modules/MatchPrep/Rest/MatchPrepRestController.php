@@ -5,6 +5,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\REST\RestResponse;
+use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\MatchPrep\Frontend\FrontendMatchPrepView;
 use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
 
 /**
@@ -150,9 +152,138 @@ class MatchPrepRestController {
             }
         }
 
+        // #1194 — project the match-prep partition onto
+        // `tt_attendance.lineup_role` + `position_played` so downstream
+        // consumers (post-match evaluation flow, future activity-view
+        // surfaces) see the planning state. Match-prep remains
+        // canonical; tt_attendance is the projection target. Runs after
+        // the lineup + availability writes above so it always reflects
+        // the latest state.
+        self::projectAttendance( $activity_id, $prep_id, $repo );
+
         Logger::info( 'match_prep.save', [ 'activity_id' => $activity_id, 'prep_id' => $prep_id ] );
 
         return RestResponse::success( [ 'prep_id' => $prep_id, 'activity_id' => $activity_id ] );
+    }
+
+    /**
+     * #1194 — write-through projection from match-prep to tt_attendance.
+     *
+     *   Half-1 lineup slot → lineup_role = 'start', position_played =
+     *     formation-template's slot label.
+     *   Present availability not in half-1 lineup → lineup_role =
+     *     'bench', position_played = NULL.
+     *   Absent / not in availability → lineup_role = NULL, position_played
+     *     = NULL.
+     *
+     * The attendance row gets an UPSERT — if no row exists for
+     * (activity_id, player_id) it's seeded with record_type='expected'
+     * so the post-save activity edit form can pick it up via the
+     * existing pre-seeded roster path (#1297). When the activity is
+     * marked completed, the edit form converts to record_type='actual';
+     * this projection touches only `lineup_role` + `position_played`
+     * and leaves status/notes/record_type unchanged on existing rows.
+     */
+    private static function projectAttendance( int $activity_id, int $prep_id, MatchPrepRepository $repo ): void {
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $prep = $repo->findByActivity( $activity_id );
+        if ( ! $prep ) return;
+
+        // Formation shape → slot → label map.
+        $shape = '';
+        $formation_id = (int) ( $prep->formation_template_id ?? 0 );
+        if ( $formation_id > 0 ) {
+            $shape = (string) $wpdb->get_var( $wpdb->prepare(
+                "SELECT formation_shape FROM {$p}tt_formation_templates WHERE id = %d LIMIT 1",
+                $formation_id
+            ) );
+        }
+        $slot_position = [];
+        if ( $shape !== '' ) {
+            $layouts = FrontendMatchPrepView::defaultSlotLayouts();
+            if ( isset( $layouts[ $shape ] ) ) {
+                foreach ( $layouts[ $shape ] as $entry ) {
+                    if ( isset( $entry['num'], $entry['label'] ) ) {
+                        $slot_position[ (int) $entry['num'] ] = (string) $entry['label'];
+                    }
+                }
+            }
+        }
+
+        // Half-1 lineup → slot per player.
+        $starting_slot = [];
+        foreach ( $repo->listLineup( $prep_id ) as $row ) {
+            if ( (int) $row->half !== 1 ) continue;
+            $starting_slot[ (int) $row->player_id ] = (int) $row->slot_number;
+        }
+
+        // Build the set of players to project — union of availability +
+        // lineup (an operator who hasn't filled availability but pinned
+        // someone into a slot still gets their projection).
+        $availability = [];
+        foreach ( $repo->listAvailability( $prep_id ) as $row ) {
+            $availability[ (int) $row->player_id ] = (string) $row->status;
+        }
+        $player_ids = array_keys( $starting_slot + $availability );
+
+        foreach ( $player_ids as $player_id ) {
+            $player_id = (int) $player_id;
+            if ( $player_id <= 0 ) continue;
+
+            if ( isset( $starting_slot[ $player_id ] ) ) {
+                $lineup_role     = 'start';
+                $slot            = $starting_slot[ $player_id ];
+                $position_played = $slot_position[ $slot ] ?? null;
+            } else {
+                $present         = strcasecmp( (string) ( $availability[ $player_id ] ?? '' ), 'Present' ) === 0;
+                $lineup_role     = $present ? 'bench' : null;
+                $position_played = null;
+            }
+
+            self::upsertAttendanceLineup( $activity_id, $player_id, $lineup_role, $position_played );
+        }
+    }
+
+    /**
+     * UPSERT the lineup projection onto tt_attendance. Updates an
+     * existing (activity_id, player_id, is_guest=0) row if present;
+     * otherwise inserts a new row tagged record_type='expected' so the
+     * edit form's pre-seeded roster path (#1297) treats it identically
+     * to wizard-created expected rows.
+     */
+    private static function upsertAttendanceLineup( int $activity_id, int $player_id, ?string $lineup_role, ?string $position_played ): void {
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $existing_id = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT id FROM {$p}tt_attendance
+              WHERE activity_id = %d AND player_id = %d AND is_guest = 0
+              LIMIT 1",
+            $activity_id, $player_id
+        ) );
+        if ( $existing_id > 0 ) {
+            $wpdb->update(
+                "{$p}tt_attendance",
+                [
+                    'lineup_role'     => $lineup_role,
+                    'position_played' => $position_played,
+                ],
+                [ 'id' => $existing_id ]
+            );
+            return;
+        }
+
+        $wpdb->insert( "{$p}tt_attendance", [
+            'club_id'         => CurrentClub::id(),
+            'activity_id'     => $activity_id,
+            'player_id'       => $player_id,
+            'is_guest'        => 0,
+            'record_type'     => 'expected',
+            'lineup_role'     => $lineup_role,
+            'position_played' => $position_played,
+        ] );
     }
 
     /**

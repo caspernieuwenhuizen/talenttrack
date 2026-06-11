@@ -311,6 +311,23 @@ class FrontendMatchPrepView extends FrontendViewBase {
                    rel="noopener">
                     <?php esc_html_e( 'Print (landscape A4)', 'talenttrack' ); ?>
                 </a>
+                <?php
+                // #1194 — pitch-side team-sheet PDF (Starting XI / Bench /
+                // Squad partition + signature lines). Source of truth is
+                // this match-prep view; the exporter reads from the same
+                // tt_match_prep_* tables.
+                $team_sheet_url = rest_url( 'talenttrack/v1/exports/match_day_team_sheet' );
+                $team_sheet_url = add_query_arg(
+                    [ 'format' => 'pdf', 'activity_id' => $activity_id ],
+                    $team_sheet_url
+                );
+                ?>
+                <a class="tt-btn tt-btn-secondary"
+                   href="<?php echo esc_url( $team_sheet_url ); ?>"
+                   target="_blank"
+                   rel="noopener">
+                    <?php esc_html_e( 'Print team sheet (PDF)', 'talenttrack' ); ?>
+                </a>
                 <span class="tt-mp-spacer"></span>
                 <span class="tt-mp-save-state" data-tt-mp-save-state aria-live="polite"><?php esc_html_e( 'All changes saved.', 'talenttrack' ); ?></span>
             </div>
