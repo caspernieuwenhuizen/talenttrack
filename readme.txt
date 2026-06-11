@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.94
+Stable tag: 4.20.95
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.95 — Release cut + nl_NL.po repair (release-blocker). The v4.20.94 tag's release build failed on two `.po` corruptions: (1) a stray `DROPPED: 29` stderr line interleaved into an obsolete msgid block by #1339's awk sweep (split the word "connect" mid-string — 5 of msgfmt's 6 fatal errors), and (2) a duplicate active `msgid "Tournament"` appended by #1324 three minutes before #1338's msguniq PR gate landed. **Fix.** Obsolete block restored; duplicate Tournament block removed (the pre-existing entry at the LabelTranslator reference already carries the identical `Toernooi` msgstr, and gettext keys on msgid so the activities-view call resolves through it). Verified: no remaining same-msgid pairs without msgctxt disambiguation, no malformed continuation lines. First release published by the #1376 auto-release pipeline. Patch bump. =
 
 = 4.20.94 — Activities repository extraction slice — `listRecentCompletedForPlayer` (closes one slice of #1320). Next #1320 slice per the locked Option-B per-surface pacing. Two view files were running the same `SELECT DISTINCT a.id, a.session_date, a.title … WHERE activity_status_key='completed'` query to drive the behaviour-rating popovers' "Related activity" dropdown — [`FrontendPlayerDetailView::enqueueHeroPopovers`](src/Shared/Frontend/FrontendPlayerDetailView.php) for the player profile hero, and [`FrontendPlayerStatusCaptureView::loadRecentActivitiesForPlayer`](src/Shared/Frontend/FrontendPlayerStatusCaptureView.php) for the dedicated status-capture surface. The duplication was already documented in the v3.74.2 comment "Mirrors FrontendPlayerStatusCaptureView::loadRecentActivitiesForPlayer", and #1316's ASC-sort touch could've been smaller if the method had existed. **Extracted.** New [`ActivitiesRepository::listRecentCompletedForPlayer(int $player_id, int $limit): array`](src/Modules/Activities/Repositories/ActivitiesRepository.php) holds the canonical query; both callers now delegate. Filters on `activity_status_key='completed'` (NOT `plan_state` — distinct lifecycle axes per migration 0144). Returns `id` / `session_date` / `title` only — the dropdown doesn't need a full row. Visible behaviour unchanged: same WHERE/ORDER/LIMIT, same result shape. Different from the existing `listForPlayer` method (different filter axis, narrower result set), so deliberately a separate method rather than another optional parameter on `listForPlayer`. **Remaining #1320 slices.** PlayerDashboardView feed, FrontendActivitiesManageView list (needs `listForTeam`), `Admin\ActivitiesPage` CRUD (needs `softArchive` + `createWithAttendance`), 32 sites in `ActivitiesRestController`. Patch bump. (refs #1320) =
 
