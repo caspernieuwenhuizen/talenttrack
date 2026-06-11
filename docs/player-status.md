@@ -8,7 +8,7 @@ Each player carries a **traffic-light status** — green, amber, red, or grey �
 
 - **Green** — on track. Solid evaluations, present at sessions, behaviour where you'd want it.
 - **Amber** — on the edge. Numbers say it's worth paying attention; not a decision yet.
-- **Red** — the data signal that termination intent is data-supported. The conversation belongs in a PDP meeting, not a sticky note.
+- **Red** — the data signals this player needs an intervention conversation. It belongs in a PDP meeting, not a sticky note.
 - **Grey** — building first picture. New players or sparse data; the system doesn't yet have enough signal.
 
 The algorithm flags. Humans decide. The PDP verdict at the end of the cycle is the formal call; the traffic light is the read between cycles.
@@ -32,7 +32,7 @@ A behaviour rating below 3.0 floors the colour at amber, regardless of the other
 - **Player detail (admin)** — same dot in the team-players panel.
 - **REST API** — `GET /players/{id}/status` and `GET /teams/{id}/player-statuses` for any custom dashboard or integration.
 
-Coaches and HoD see the full breakdown (the four input scores + the threshold reasons). Parents and players see only the soft label — never the numerics, never the word "termination".
+Coaches and HoD see the full breakdown (the four input scores + the threshold reasons). Parents and players see only the soft label ("On track" / "Extra attention" / "Could use extra support right now") — never the numerics, never internal staff framing.
 
 ## Capturing the inputs
 

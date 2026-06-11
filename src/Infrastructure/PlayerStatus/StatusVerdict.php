@@ -8,8 +8,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *
  * The four colors:
  *   - `green`   — on track.
- *   - `amber`   — on the edge; data signal that a replacement may be warranted.
- *   - `red`     — termination intent is data-supported.
+ *   - `amber`   — needs extra attention; the data says check in soon.
+ *   - `red`     — the data signals this player needs an intervention
+ *                 conversation (PDP meeting), urgently.
  *   - `unknown` — sparse data; new player or insufficient signal.
  *
  * `score` is the composite numeric (0-100). `inputs` holds each input
@@ -58,14 +59,15 @@ final class StatusVerdict {
     }
 
     /**
-     * Soft label for parent-facing surfaces. Never reveals numerics or
-     * the word "termination".
+     * Soft label for parent-facing surfaces. Never reveals numerics.
+     * #1377 — growth-framed wording: a child's bad quarter reads as
+     * "needs support", not as a risk assessment about them.
      */
     public function softLabel(): string {
         switch ( $this->color ) {
             case self::COLOR_GREEN:   return __( 'On track', 'talenttrack' );
-            case self::COLOR_AMBER:   return __( 'At risk', 'talenttrack' );
-            case self::COLOR_RED:     return __( 'Needs significant development support', 'talenttrack' );
+            case self::COLOR_AMBER:   return __( 'Extra attention', 'talenttrack' );
+            case self::COLOR_RED:     return __( 'Could use extra support right now', 'talenttrack' );
             default:                  return __( 'Building first picture', 'talenttrack' );
         }
     }

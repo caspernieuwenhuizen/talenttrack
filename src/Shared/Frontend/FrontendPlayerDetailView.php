@@ -92,7 +92,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             [ 'key' => PotentialBand::PROFESSIONAL_ELSEWHERE, 'label' => __( 'Professional elsewhere', 'talenttrack' ) ],
             [ 'key' => PotentialBand::SEMI_PRO,               'label' => __( 'Semi-pro', 'talenttrack' ) ],
             [ 'key' => PotentialBand::TOP_AMATEUR,            'label' => __( 'Top amateur', 'talenttrack' ) ],
-            [ 'key' => PotentialBand::RECREATIONAL,           'label' => __( 'Recreational', 'talenttrack' ) ],
+            [ 'key' => PotentialBand::RECREATIONAL,           'label' => __( 'Foundation', 'talenttrack' ) ],
         ];
 
         $history_url = add_query_arg(

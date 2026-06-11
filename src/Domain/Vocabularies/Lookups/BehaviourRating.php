@@ -6,8 +6,8 @@
  * the `behaviour_rating_label` lookup seeded by migration 0042 with
  * display labels:
  *
- *   1 — Concerning
- *   2 — Below expectations
+ *   1 — Needs support   (was "Concerning" pre-#1377)
+ *   2 — Developing      (was "Below expectations" pre-#1377)
  *   3 — Acceptable
  *   4 — Strong
  *   5 — Exemplary

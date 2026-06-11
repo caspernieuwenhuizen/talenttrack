@@ -641,14 +641,15 @@ msgstr "Gedrag %s onder bodem %s — gemaximeerd op oranje."
 msgid "On track"
 msgstr "Op koers"
 
+# #1377 — growth-framed soft labels (was "At risk" / "Needs significant development support").
 #: src/Infrastructure/PlayerStatus/StatusVerdict.php:67
 #: src/Modules/Players/Frontend/PlayerStatusRenderer.php:106
-msgid "At risk"
-msgstr "Risico"
+msgid "Extra attention"
+msgstr "Extra aandacht"
 
 #: src/Infrastructure/PlayerStatus/StatusVerdict.php:68
-msgid "Needs significant development support"
-msgstr "Heeft veel begeleiding nodig"
+msgid "Could use extra support right now"
+msgstr "Kan nu extra ondersteuning gebruiken"
 
 #: src/Infrastructure/PlayerStatus/StatusVerdict.php:69
 #: src/Modules/Players/Frontend/PlayerStatusRenderer.php:108
@@ -31265,12 +31266,11 @@ msgstr "Gedragsbeoordelingen"
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:159
 msgid ""
-"Concerning … Exemplary. Labels for the player behaviour card and evaluation "
-"review."
+"Needs support … Exemplary. Labels for the player behaviour card and "
+"evaluation review."
 msgstr ""
-"Zorgwekkend … Voorbeeldig. Labels voor de spelersgedragskaart en de "
-"evaluatiebeoordeling.Zorgwekkend … Voorbeeldig. Labels voor de "
-"spelersgedragskaart en de evaluatiebeoordeling."
+"Heeft begeleiding nodig … Voorbeeldig. Labels voor de spelersgedragskaart "
+"en de evaluatiebeoordeling."
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:160
 #: src/Shared/Frontend/FrontendConfigurationView.php:257
@@ -33454,10 +33454,11 @@ msgstr "Semi-prof"
 msgid "Top amateur"
 msgstr "Topamateur"
 
+# #1377 — was "Recreational"/"Recreatief"; ceiling tone dropped.
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:95
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:241
-msgid "Recreational"
-msgstr "Recreatief"
+msgid "Foundation"
+msgstr "Breedtesport"
 
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:116
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:372

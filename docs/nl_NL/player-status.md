@@ -8,7 +8,7 @@ Elke speler krijgt een **stoplichtstatus** — groen, oranje, rood of grijs — 
 
 - **Groen** — op koers. Sterke evaluaties, aanwezig op trainingen, gedrag op orde.
 - **Oranje** — op de rand. Cijfers vragen om aandacht; geen besluit, wel een signaal.
-- **Rood** — het data-signaal voor mogelijke beëindiging. Hoort thuis in een POP-gesprek, niet op een Post-it.
+- **Rood** — de data geeft aan dat deze speler een interventiegesprek nodig heeft. Hoort thuis in een POP-gesprek, niet op een Post-it.
 - **Grijs** — eerste beeld nog niet klaar. Nieuwe spelers of weinig data; het systeem heeft nog te weinig signaal.
 
 Het algoritme markeert. Mensen besluiten. De POP-eindbeoordeling aan het eind van de cyclus is de formele call; het stoplicht is het kijkje daartussen.
@@ -32,7 +32,7 @@ Een gedragsscore onder 3.0 plafonneert de kleur op oranje, ongeacht de overige s
 - **Spelerdetail (beheer)** — dezelfde stip in het spelerspaneel.
 - **REST API** — `GET /players/{id}/status` en `GET /teams/{id}/player-statuses` voor eigen dashboards of integraties.
 
-Coaches en hoofd opleidingen zien de volledige onderbouwing (de vier deelscores + de overschreden drempels). Ouders en spelers zien alleen het zachte label — nooit cijfers, nooit het woord "beëindiging".
+Coaches en hoofd opleidingen zien de volledige onderbouwing (de vier deelscores + de overschreden drempels). Ouders en spelers zien alleen het zachte label ("Op koers" / "Extra aandacht" / "Kan nu extra ondersteuning gebruiken") — nooit cijfers, nooit interne stafterminologie.
 
 ## Inputs vastleggen
 
