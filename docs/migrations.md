@@ -41,6 +41,17 @@ You can also run migrations any time from the **Plugins** page. Next to the Tale
 
 All steps are **idempotent** — running migrations when nothing has changed is a no-op.
 
+## When a migration fails (v4.20.96+)
+
+A migration that errors (host-specific SQL restrictions, drifted schema, a bad release) no longer hides behind a success banner:
+
+- The plugin version is **not** marked installed — the schema stays flagged pending until every migration completes.
+- A **red notice** appears on every admin page listing each failed migration and its database error, with a **Retry migrations now** button.
+- Automatic re-runs are suspended while a failure is recorded, so one bad migration doesn't re-execute on every page load. Retrying is always explicit: the notice button, or **Run Migrations** on the Plugins page.
+- The failure list lives in the `tt_migration_failures` option and clears itself on the first clean run.
+
+If the retry keeps failing, the error text in the notice is what your host or developer needs — it names the migration file and the exact SQL error.
+
 ## What you never need to do
 
 - Deactivate + reactivate (old workflow, no longer required)

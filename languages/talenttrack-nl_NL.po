@@ -29443,6 +29443,26 @@ msgstr ""
 msgid "Run migrations now"
 msgstr "Migraties nu uitvoeren"
 
+# ===== #1346 — migration failure surfacing =====
+#: src/Shared/Admin/SchemaStatus.php
+msgid "TalentTrack database migration failed."
+msgstr "TalentTrack-databasemigratie mislukt."
+
+#: src/Shared/Admin/SchemaStatus.php
+msgid ""
+"The migrations below did not complete. The schema stays flagged as out of "
+"date and some features may not work until they succeed. Fix the underlying "
+"issue (the error text usually names it), then retry."
+msgstr ""
+"Onderstaande migraties zijn niet voltooid. Het schema blijft gemarkeerd als "
+"verouderd en sommige functies werken mogelijk niet totdat ze slagen. Los "
+"het onderliggende probleem op (de fouttekst benoemt het meestal) en probeer "
+"het opnieuw."
+
+#: src/Shared/Admin/SchemaStatus.php
+msgid "Retry migrations now"
+msgstr "Migraties nu opnieuw uitvoeren"
+
 #: src/Shared/Admin/SchemaStatus.php:88
 msgid "Idempotent — safe to run repeatedly."
 msgstr "Idempotent — veilig om meerdere keren uit te voeren."

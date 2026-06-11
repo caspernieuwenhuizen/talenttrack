@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.95
+Stable tag: 4.20.96
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.96 — Migration failures surface loudly instead of hiding behind a green banner (closes #1346). The 2026-06-11 production-readiness audit's top engineering finding: [`Kernel::boot`](src/Core/Kernel.php) discarded the runner's results and [`Activator::runMigrations`](src/Core/Activator.php) unconditionally wrote `tt_installed_version`, so a failed `ALTER` produced "migrations completed successfully" and the operator only discovered the broken schema days later via REST 500s (the #1331/0129 incident class). **Failure surfacing.** [`MigrationRunner::run`](src/Infrastructure/Database/MigrationRunner.php) now persists failed results to the new `tt_migration_failures` option (cleared on the first clean run; `runOne` keeps its own entry in sync). `Activator::runMigrations` returns the failures and only writes `tt_installed_version` when there are none. [`SchemaStatus`](src/Shared/Admin/SchemaStatus.php) treats recorded failures as pending and renders a red, non-dismissible notice listing each failed migration + its SQL error, with a *Retry migrations now* button; the post-run redirect reports failure when the run recorded errors even without an exception. **Retry-storm stop.** `Kernel::boot` skips the runner when the stored version matches TT_VERSION (also killing the per-request 163-file glob + dbDelta on every load) and when failures are recorded — retries are explicit, via the notice or the Plugins-page link. **Concurrency.** `run()` takes a non-blocking MySQL `GET_LOCK` so two requests racing after an update can't double-run a migration. **Adjacent fix.** The v4.20.95 release commit bumped the plugin header but missed the `TT_VERSION` constant (4.20.94) — both now read 4.20.96. 3 new Dutch msgstrs; docs/migrations.md (EN+NL) gain a "When a migration fails" section. Patch bump. (closes #1346) =
 
 = 4.20.95 — Release cut + nl_NL.po repair (release-blocker). The v4.20.94 tag's release build failed on two `.po` corruptions: (1) a stray `DROPPED: 29` stderr line interleaved into an obsolete msgid block by #1339's awk sweep (split the word "connect" mid-string — 5 of msgfmt's 6 fatal errors), and (2) a duplicate active `msgid "Tournament"` appended by #1324 three minutes before #1338's msguniq PR gate landed. **Fix.** Obsolete block restored; duplicate Tournament block removed (the pre-existing entry at the LabelTranslator reference already carries the identical `Toernooi` msgstr, and gettext keys on msgid so the activities-view call resolves through it). Verified: no remaining same-msgid pairs without msgctxt disambiguation, no malformed continuation lines. First release published by the #1376 auto-release pipeline. Patch bump. =
 

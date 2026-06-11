@@ -31,6 +31,14 @@ class MigrationRunner {
 
     private const TRACKING_TABLE = 'tt_migrations';
 
+    /**
+     * Option holding the failures of the most recent run as
+     * [ ['name' => …, 'error' => …], … ]. Cleared by any run that
+     * ends with zero failures. SchemaStatus reads it to keep the
+     * schema flagged pending and show the errors (#1346).
+     */
+    public const FAILURES_OPTION = 'tt_migration_failures';
+
     /** @var string */
     private $migrations_dir;
 
@@ -46,19 +54,63 @@ class MigrationRunner {
             return [];
         }
 
-        $this->ensureTrackingTable();
-        $this->handleLegacyInstall();
+        global $wpdb;
 
-        $applied = $this->getAppliedMigrations();
-        $files   = $this->scanMigrationFiles();
-
-        $results = [];
-        foreach ( $files as $file ) {
-            $name = basename( $file, '.php' );
-            if ( in_array( $name, $applied, true ) ) continue;
-            $results[] = $this->runFile( $file, $name );
+        // Two requests racing right after a plugin update must not run
+        // the same migration concurrently — multi-statement DDL is not
+        // transactional, and seed-inserts without unique keys would
+        // double up. Non-blocking: the loser skips, the winner's
+        // tracking rows make the next pass a no-op.
+        $lock_name = $wpdb->prefix . 'tt_migrations_run';
+        $acquired  = $wpdb->get_var( $wpdb->prepare( 'SELECT GET_LOCK(%s, 0)', $lock_name ) );
+        if ( (string) $acquired !== '1' ) {
+            return [];
         }
-        return $results;
+
+        try {
+            $this->ensureTrackingTable();
+            $this->handleLegacyInstall();
+
+            $applied = $this->getAppliedMigrations();
+            $files   = $this->scanMigrationFiles();
+
+            $results = [];
+            foreach ( $files as $file ) {
+                $name = basename( $file, '.php' );
+                if ( in_array( $name, $applied, true ) ) continue;
+                $results[] = $this->runFile( $file, $name );
+            }
+
+            $this->recordFailures( $results );
+            return $results;
+        } finally {
+            $wpdb->query( $wpdb->prepare( 'SELECT RELEASE_LOCK(%s)', $lock_name ) );
+        }
+    }
+
+    /**
+     * Persist failed results to FAILURES_OPTION so the admin notice can
+     * surface them; clear the option when the run ended clean. A failed
+     * migration is never marked applied, so it re-enters $results on
+     * the next run — an empty failure set here means nothing is broken.
+     *
+     * @param array<int, array{name:string, ok:bool, error:?string}> $results
+     */
+    private function recordFailures( array $results ): void {
+        $failures = [];
+        foreach ( $results as $r ) {
+            if ( empty( $r['ok'] ) ) {
+                $failures[] = [
+                    'name'  => (string) ( $r['name'] ?? '' ),
+                    'error' => (string) ( $r['error'] ?? '' ),
+                ];
+            }
+        }
+        if ( $failures !== [] ) {
+            update_option( self::FAILURES_OPTION, $failures, false );
+        } else {
+            delete_option( self::FAILURES_OPTION );
+        }
     }
 
     /**
@@ -78,7 +130,34 @@ class MigrationRunner {
         if ( ! file_exists( $file ) ) {
             return $this->errorResult( $name, "Migration file not found: $file" );
         }
-        return $this->runFile( $file, $name );
+        $result = $this->runFile( $file, $name );
+        $this->syncFailureRecord( $result );
+        return $result;
+    }
+
+    /**
+     * Single-run counterpart of recordFailures(): update or clear just
+     * this migration's entry in FAILURES_OPTION.
+     *
+     * @param array{name:string, ok:bool, error:?string} $result
+     */
+    private function syncFailureRecord( array $result ): void {
+        $failures = get_option( self::FAILURES_OPTION, [] );
+        if ( ! is_array( $failures ) ) $failures = [];
+        $name = (string) ( $result['name'] ?? '' );
+
+        $failures = array_values( array_filter( $failures, function ( $f ) use ( $name ) {
+            return is_array( $f ) && ( $f['name'] ?? '' ) !== $name;
+        } ) );
+        if ( empty( $result['ok'] ) ) {
+            $failures[] = [ 'name' => $name, 'error' => (string) ( $result['error'] ?? '' ) ];
+        }
+
+        if ( $failures !== [] ) {
+            update_option( self::FAILURES_OPTION, $failures, false );
+        } else {
+            delete_option( self::FAILURES_OPTION );
+        }
     }
 
     /**

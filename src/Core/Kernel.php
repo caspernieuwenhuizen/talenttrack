@@ -62,7 +62,16 @@ class Kernel {
         // lookups per cap resolve) and idempotent.
         CapabilityAliases::init();
 
-        ( new MigrationRunner() )->run();
+        // #1346 — only invoke the runner when something can actually be
+        // pending. A version match means the last run completed clean;
+        // recorded failures mean auto-retrying every request would turn
+        // one bad migration into a sitewide retry storm — the operator
+        // retries from the SchemaStatus notice instead.
+        $installed = (string) get_option( 'tt_installed_version', '' );
+        $failures  = get_option( MigrationRunner::FAILURES_OPTION, [] );
+        if ( $installed !== TT_VERSION && empty( $failures ) ) {
+            ( new MigrationRunner() )->run();
+        }
 
         $this->registerCoreServices();
 

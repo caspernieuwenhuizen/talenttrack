@@ -4,6 +4,7 @@ namespace TT\Shared\Admin;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Core\Activator;
+use TT\Infrastructure\Database\MigrationRunner;
 
 /**
  * SchemaStatus — v3.0.0 migration UX.
@@ -42,11 +43,18 @@ class SchemaStatus {
      * True when the stored installed version is missing or doesn't
      * match the running TT_VERSION. Missing option means the plugin
      * was never activated (fresh install, or activated before the
-     * tracking existed — treat as pending).
+     * tracking existed — treat as pending). Recorded migration
+     * failures also count as pending (#1346).
      */
     public static function isPending(): bool {
         $stored = get_option( self::OPTION_KEY, '' );
-        return $stored === '' || $stored !== TT_VERSION;
+        return $stored === '' || $stored !== TT_VERSION || self::failures() !== [];
+    }
+
+    /** @return array<int, array{name:string, error:string}> */
+    private static function failures(): array {
+        $failures = get_option( MigrationRunner::FAILURES_OPTION, [] );
+        return is_array( $failures ) ? $failures : [];
     }
 
     /**
@@ -56,6 +64,12 @@ class SchemaStatus {
     public static function renderNotice(): void {
         if ( ! self::isPending() ) return;
         if ( ! current_user_can( 'tt_edit_settings' ) && ! current_user_can( 'activate_plugins' ) ) return;
+
+        $failures = self::failures();
+        if ( $failures !== [] ) {
+            self::renderFailureNotice( $failures );
+            return;
+        }
 
         $stored = (string) get_option( self::OPTION_KEY, '' );
         $stored_display = $stored === '' ? __( '(never installed)', 'talenttrack' ) : $stored;
@@ -87,6 +101,43 @@ class SchemaStatus {
                 <span style="margin-left:12px; color:#666; font-size:12px;">
                     <?php esc_html_e( 'Idempotent — safe to run repeatedly.', 'talenttrack' ); ?>
                 </span>
+            </p>
+        </div>
+        <?php
+    }
+
+    /**
+     * Persistent error notice when the last run recorded failures.
+     * Red, not dismissible — the schema is in a known-bad state and
+     * data-writing features may 500 until the migration succeeds.
+     *
+     * @param array<int, array{name:string, error:string}> $failures
+     */
+    private static function renderFailureNotice( array $failures ): void {
+        $run_url = wp_nonce_url(
+            admin_url( 'admin-post.php?action=' . self::ACTION ),
+            self::ACTION
+        );
+        ?>
+        <div class="notice notice-error">
+            <p style="font-weight:600; margin-bottom:6px;">
+                <?php esc_html_e( 'TalentTrack database migration failed.', 'talenttrack' ); ?>
+            </p>
+            <p>
+                <?php esc_html_e( 'The migrations below did not complete. The schema stays flagged as out of date and some features may not work until they succeed. Fix the underlying issue (the error text usually names it), then retry.', 'talenttrack' ); ?>
+            </p>
+            <ul style="margin:0 0 10px 18px; list-style:disc;">
+                <?php foreach ( $failures as $f ) : ?>
+                    <li>
+                        <code><?php echo esc_html( (string) ( $f['name'] ?? '' ) ); ?></code>
+                        — <?php echo esc_html( (string) ( $f['error'] ?? '' ) ); ?>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+            <p style="margin-bottom:10px;">
+                <a href="<?php echo esc_url( $run_url ); ?>" class="button button-primary">
+                    <?php esc_html_e( 'Retry migrations now', 'talenttrack' ); ?>
+                </a>
             </p>
         </div>
         <?php
@@ -128,7 +179,11 @@ class SchemaStatus {
 
         $error = '';
         try {
-            Activator::runMigrations();
+            $failures = Activator::runMigrations();
+            if ( $failures !== [] ) {
+                $first = $failures[0];
+                $error = (string) ( $first['name'] ?? '' ) . ': ' . (string) ( $first['error'] ?? '' );
+            }
         } catch ( \Throwable $e ) {
             $error = $e->getMessage();
             if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
