@@ -277,27 +277,14 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
     }
 
     /**
-     * v3.74.2 — short list of completed activities the player attended,
-     * used as the "Related activity" dropdown on the behaviour-rating
-     * form (#15). Filters to status='completed' so coaches don't tie a
-     * rating to an activity that hasn't happened yet.
+     * #1320 — routed through ActivitiesRepository::listRecentCompletedForPlayer
+     * so this view and the FrontendPlayerDetailView hero popovers share
+     * one source for the "Related activity" dropdown query.
      *
      * @return list<object>
      */
     private static function loadRecentActivitiesForPlayer( int $player_id, int $limit = 20 ): array {
-        global $wpdb;
-        $p = $wpdb->prefix;
-        $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT DISTINCT a.id, a.session_date, a.title
-               FROM {$p}tt_activities a
-               JOIN {$p}tt_attendance att ON att.activity_id = a.id
-              WHERE att.player_id = %d
-                AND a.activity_status_key = %s
-                AND a.archived_at IS NULL
-              ORDER BY a.session_date DESC
-              LIMIT %d",
-            $player_id, 'completed', $limit
-        ) );
-        return is_array( $rows ) ? $rows : [];
+        return ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )
+            ->listRecentCompletedForPlayer( $player_id, $limit );
     }
 }

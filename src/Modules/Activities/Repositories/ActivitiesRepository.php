@@ -239,6 +239,37 @@ final class ActivitiesRepository {
     }
 
     /**
+     * #1320 slice 2 — short list of completed activities the player
+     * attended. Used by the behaviour-rating popovers + the player
+     * status-capture surface as the "Related activity" dropdown source.
+     *
+     * Filters on `activity_status_key = 'completed'` (NOT `plan_state`
+     * — those are different lifecycle axes per migration 0144) so
+     * coaches don't tie a behaviour rating to an activity that hasn't
+     * happened yet. Returns id / session_date / title only — the
+     * dropdown doesn't need a full row.
+     *
+     * @return list<object>
+     */
+    public function listRecentCompletedForPlayer( int $player_id, int $limit ): array {
+        global $wpdb;
+        $p     = $wpdb->prefix;
+        $limit = max( 1, min( 100, $limit ) );
+        $rows  = $wpdb->get_results( $wpdb->prepare(
+            "SELECT DISTINCT a.id, a.session_date, a.title
+               FROM {$p}tt_activities a
+               JOIN {$p}tt_attendance att ON att.activity_id = a.id
+              WHERE att.player_id = %d
+                AND a.activity_status_key = %s
+                AND a.archived_at IS NULL
+              ORDER BY a.session_date DESC
+              LIMIT %d",
+            $player_id, 'completed', $limit
+        ) );
+        return is_array( $rows ) ? $rows : [];
+    }
+
+    /**
      * Variant for the on-screen view's edit form, which keys
      * attendance rows by `player_id` for fast lookups. Excludes
      * guests by contract.
