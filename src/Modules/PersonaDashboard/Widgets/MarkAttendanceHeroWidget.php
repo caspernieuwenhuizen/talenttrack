@@ -15,6 +15,7 @@ use TT\Modules\PersonaDashboard\Repositories\UpcomingActivityRepository;
 use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\RecordLink;
 use TT\Shared\Wizards\WizardEntryPoint;
+use TT\Shared\Wizards\WizardState;
 
 /**
  * MarkAttendanceHeroWidget (#0092, v3.110.69) — head-coach dashboard hero.
@@ -96,13 +97,12 @@ class MarkAttendanceHeroWidget extends AbstractWidget {
             $eyebrow = __( 'Up next', 'talenttrack' );
             $title   = __( 'No upcoming activity', 'talenttrack' );
             $detail  = __( 'Schedule a training or match to populate this card.', 'talenttrack' );
-            // v3.110.108 — pilot ask: the hero button on this dashboard
-            // is the coach's entry point into both "mark attendance" and
-            // the rate-confirm fork. Naming it for the destination action
-            // ("evaluate") rather than the first wizard step reads more
-            // accurately. Single label for both the empty-state and
-            // populated-state CTAs so the affordance is consistent.
-            $primary_label  = __( 'Select completed activity to evaluate', 'talenttrack' );
+            // #1350 — the CTA names the immediate action. The old shared
+            // "Select completed activity to evaluate" label (v3.110.108)
+            // was wrong on both branches: nothing here is "completed"
+            // jargon a coach uses, and in the populated state there's
+            // nothing left to select.
+            $primary_label  = __( 'Pick an activity', 'talenttrack' );
             // v3.110.84 — `restart=1` forces a fresh wizard run.
             // Belt-and-suspenders alongside the autosave removal: even
             // if a stale `tt_wizard_drafts` row somehow lingered, the
@@ -129,15 +129,32 @@ class MarkAttendanceHeroWidget extends AbstractWidget {
             $detail     = self::buildDetail( $next, $type_label !== '' ? $user_title : '' );
 
             $wizard_base   = WizardEntryPoint::urlFor( 'mark-attendance', $ctx->viewUrl( 'activities' ) );
-            // v3.110.84 — see empty-state branch above for the
-            // `restart=1` rationale. Hero entry CTA always starts
-            // fresh; any in-flight wizard state for this user is
-            // nuked before the first render.
-            $primary_url   = add_query_arg(
-                [ 'activity_id' => $aid, 'restart' => 1 ],
-                $wizard_base
-            );
-            $primary_label = __( 'Select completed activity to evaluate', 'talenttrack' );
+            // #1350 — resume instead of restart when an in-flight run
+            // for THIS activity exists: a coach who stepped away
+            // mid-attendance and taps the hero again expects to land
+            // where they were, not lose the run. A run for a different
+            // activity (or none) keeps the v3.110.84 fresh-start nuke.
+            $in_flight   = WizardState::load( $ctx->user_id, 'mark-attendance' );
+            $resume_same = (int) ( $in_flight['activity_id'] ?? 0 ) === $aid;
+            $url_args    = [ 'activity_id' => $aid ];
+            if ( ! $resume_same ) {
+                $url_args['restart'] = 1;
+            }
+            $primary_url = add_query_arg( $url_args, $wizard_base );
+
+            // #1350 — name the action and the target: the coach's most-
+            // tapped button should read "Mark attendance — Training ·
+            // U14 · Today", not wizard jargon.
+            $cta_context = implode( ' · ', array_filter( [
+                $title,
+                trim( (string) ( $next->team_name ?? '' ) ),
+                UpcomingActivityRepository::dayLabelFor( (string) $next->session_date ),
+            ], static fn( $part ) => $part !== '' ) );
+            $primary_label = $resume_same
+                /* translators: %s = activity type · team · day, e.g. "Training · U14 · Today" */
+                ? sprintf( __( 'Continue attendance — %s', 'talenttrack' ), $cta_context )
+                /* translators: %s = activity type · team · day, e.g. "Training · U14 · Today" */
+                : sprintf( __( 'Mark attendance — %s', 'talenttrack' ), $cta_context );
 
             // v3.110.73 — attach `tt_back` pointing to the dashboard so
             // the activity edit form's Cancel button returns the coach

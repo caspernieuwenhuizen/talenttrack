@@ -21239,10 +21239,26 @@ msgstr "Geen geplande activiteit"
 msgid "Schedule a training or match to populate this card."
 msgstr "Plan een training of wedstrijd om deze kaart te vullen."
 
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:105
-#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:140
-msgid "Select completed activity to evaluate"
-msgstr "Kies een afgeronde activiteit om te beoordelen"
+# ===== #1350 — hero CTA names the action + target =====
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php
+msgid "Pick an activity"
+msgstr "Kies een activiteit"
+
+#. translators: %s = activity type · team · day, e.g. "Training · U14 · Today"
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php
+#, php-format
+msgid "Mark attendance — %s"
+msgstr "Aanwezigheid registreren — %s"
+
+#. translators: %s = activity type · team · day, e.g. "Training · U14 · Today"
+#: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php
+#, php-format
+msgid "Continue attendance — %s"
+msgstr "Aanwezigheid hervatten — %s"
+
+#: src/Modules/PersonaDashboard/Repositories/UpcomingActivityRepository.php
+msgid "Yesterday"
+msgstr "Gisteren"
 
 #: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:153
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:78
@@ -37833,11 +37849,6 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Pick a session"
 #~ msgstr "Kies een sessie"
-
-# v3.110.72 — renamed from `Pick a session` to clear the #0035 forbidden-vocabulary gate.
-# Old msgid kept above so a downgraded install doesn't lose its translation mid-flight.
-#~ msgid "Pick an activity"
-#~ msgstr "Kies een activiteit"
 
 #~ msgid "Skip rating, save attendance"
 #~ msgstr "Beoordeling overslaan, aanwezigheid opslaan"

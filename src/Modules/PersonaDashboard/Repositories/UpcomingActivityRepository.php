@@ -88,17 +88,40 @@ final class UpcomingActivityRepository {
      * the same date string the same way.
      */
     public static function eyebrowFor( string $session_date ): string {
+        $date     = substr( $session_date, 0, 10 );
         $today    = gmdate( 'Y-m-d' );
         $tomorrow = gmdate( 'Y-m-d', strtotime( '+1 day' ) );
-        if ( $session_date === $today )    return __( 'Today', 'talenttrack' );
-        if ( $session_date === $tomorrow ) return __( 'Tomorrow', 'talenttrack' );
-        $ts = strtotime( $session_date );
+        if ( $date === $today )    return __( 'Today', 'talenttrack' );
+        if ( $date === $tomorrow ) return __( 'Tomorrow', 'talenttrack' );
+        if ( $date === gmdate( 'Y-m-d', strtotime( '-1 day' ) ) ) return __( 'Yesterday', 'talenttrack' );
+        $ts = strtotime( $date );
         if ( $ts === false ) return __( 'Up next', 'talenttrack' );
+        $formatted = (string) wp_date( (string) get_option( 'date_format', 'Y-m-d' ), $ts );
+        // #1350 — since #792 the hero can show the latest rateable
+        // activity, which is often in the past; "Up next · <past date>"
+        // read like the system didn't know what day it is.
+        if ( $date < $today ) return $formatted;
         return sprintf(
             /* translators: %s is a localized date for an upcoming activity */
             __( 'Up next · %s', 'talenttrack' ),
-            (string) wp_date( (string) get_option( 'date_format', 'Y-m-d' ), $ts )
+            $formatted
         );
+    }
+
+    /**
+     * Compact day token for CTA labels: "Today" / "Tomorrow" /
+     * "Yesterday" / localized date (#1350). Unlike eyebrowFor, never
+     * carries the "Up next" prefix.
+     */
+    public static function dayLabelFor( string $session_date ): string {
+        $date  = substr( $session_date, 0, 10 );
+        $today = gmdate( 'Y-m-d' );
+        if ( $date === $today ) return __( 'Today', 'talenttrack' );
+        if ( $date === gmdate( 'Y-m-d', strtotime( '+1 day' ) ) ) return __( 'Tomorrow', 'talenttrack' );
+        if ( $date === gmdate( 'Y-m-d', strtotime( '-1 day' ) ) ) return __( 'Yesterday', 'talenttrack' );
+        $ts = strtotime( $date );
+        if ( $ts === false ) return '';
+        return (string) wp_date( (string) get_option( 'date_format', 'Y-m-d' ), $ts );
     }
 
     /**
