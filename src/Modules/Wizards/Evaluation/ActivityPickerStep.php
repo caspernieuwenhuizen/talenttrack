@@ -83,11 +83,11 @@ final class ActivityPickerStep implements WizardStepInterface {
         ?>
         <?php if ( $is_mark_attendance ) : ?>
             <p style="color:var(--tt-muted);max-width:60ch;">
-                <?php esc_html_e( 'Pick a completed activity from the last 90 days to mark attendance for. Activities only appear here once they are marked completed and their type is rateable.', 'talenttrack' ); ?>
+                <?php esc_html_e( 'Pick an activity from the last 90 days to mark attendance for. Scheduled activities appear from their planned date; the activity type must be rateable.', 'talenttrack' ); ?>
             </p>
         <?php else : ?>
             <p style="color:var(--tt-muted);max-width:60ch;">
-                <?php esc_html_e( 'Pick a completed activity from the last 90 days to rate the players who attended, or rate a player directly without an activity context. Activities only appear here once they are marked completed and their type is rateable.', 'talenttrack' ); ?>
+                <?php esc_html_e( 'Pick an activity from the last 90 days to rate the players who attended, or rate a player directly without an activity context. Scheduled activities appear from their planned date; activities with every present player rated drop off the list.', 'talenttrack' ); ?>
             </p>
 
             <p style="margin: var(--tt-sp-3) 0;">
@@ -112,7 +112,7 @@ final class ActivityPickerStep implements WizardStepInterface {
             <?php if ( $is_mark_attendance ) : ?>
                 <p class="tt-notice"><?php esc_html_e( 'No activities to mark attendance for. Schedule a training or match via the Activities tile, then come back here.', 'talenttrack' ); ?></p>
             <?php else : ?>
-                <p class="tt-notice"><?php esc_html_e( 'No completed rateable activities in the last 90 days. Mark an activity as completed (and use a rateable activity type) to see it here, or pick a player below to rate ad-hoc.', 'talenttrack' ); ?></p>
+                <p class="tt-notice"><?php esc_html_e( 'No rateable activities in the last 90 days. Schedule or complete an activity with a rateable type to see it here, or pick a player below to rate ad-hoc.', 'talenttrack' ); ?></p>
             <?php endif; ?>
         <?php else : ?>
             <div role="radiogroup" class="tt-activity-picker">
@@ -126,6 +126,14 @@ final class ActivityPickerStep implements WizardStepInterface {
                         <span>
                             <strong><?php echo esc_html( (string) $r->title ); ?></strong>
                             <span style="color:var(--tt-muted);font-size:14px;">— <?php echo esc_html( (string) $r->team_name ); ?> · <?php echo esc_html( $when_pretty ); ?></span>
+                            <?php if ( (int) ( $r->rated_count ?? 0 ) > 0 && (int) ( $r->unrated_present ?? 0 ) > 0 ) : ?>
+                                <span style="display:block;color:var(--tt-muted);font-size:14px;">
+                                    <?php
+                                    /* translators: %d = number of present players without a rating yet */
+                                    echo esc_html( sprintf( _n( '%d player still unrated', '%d players still unrated', (int) $r->unrated_present, 'talenttrack' ), (int) $r->unrated_present ) );
+                                    ?>
+                                </span>
+                            <?php endif; ?>
                         </span>
                     </label>
                 <?php endforeach; ?>
@@ -168,16 +176,15 @@ final class ActivityPickerStep implements WizardStepInterface {
      *
      *   - Past `$days` days (default 90 since v3.110.4 — was 30, but
      *     pilot cadences regularly missed two-week windows).
-     *   - `plan_state = 'completed'` (since v3.110.4) so the picker
-     *     shows activities that actually happened, not scheduled-but-
-     *     not-yet-played ones.
-     *   - **NOT already evaluated** (v3.110.87) — `NOT EXISTS` on
-     *     `tt_evaluations` for the activity. Once the wizard has
-     *     written any eval row for the activity, the picker treats
-     *     the run as done and stops surfacing it. Coaches who want
-     *     to add more ratings to an already-rated activity use the
-     *     player-first eval path or the activity detail page; the
-     *     picker is for fresh runs only.
+     *   - `plan_state` completed, OR scheduled / in_progress with the
+     *     session date arrived (#1349 — planner-created sessions stay
+     *     'scheduled' until a wizard run flips them; restricting to
+     *     'completed' dead-ended the flow for coaches who plan ahead).
+     *   - **Not fully evaluated** (#1349, supersedes the v3.110.87
+     *     all-or-nothing rule): an activity drops out only when every
+     *     present/late player has an eval row. Partially-rated ones
+     *     stay listed with an `unrated_present` count the picker
+     *     renders as "N players still unrated".
      *   - On teams the coach is assigned to via `tt_team_people` (or
      *     OR'd open for site administrators / HoD / club admins).
      *   - Of an `activity_type` with `meta.rateable` true (or unset —
@@ -198,38 +205,51 @@ final class ActivityPickerStep implements WizardStepInterface {
         // team case multiplying the row set during planner evaluation.
         // Grouping by the primary key collapses duplicates regardless of
         // which OR branch fired.
-        // v3.110.87 — exclude activities that already carry at least
-        // one `tt_evaluations` row. Pilot symptom: coach completed the
-        // mark-attendance wizard (attendance + rating + Submit) for
-        // tonight's training, returned to the dashboard, clicked the
-        // empty-state **Pick an activity** CTA, and the picker still
-        // listed the activity they'd just finished. The picker treats
-        // "completed activity in the last 90 days" as eligible without
-        // checking evaluation-completion, so freshly-rated rows kept
-        // surfacing. The NOT EXISTS filter checks for ANY eval on the
-        // activity — same rule for both wizards (eval + mark-attendance).
-        // Coach who wants to add more ratings to an already-rated
-        // activity can use the player-first eval path or the activity
-        // detail page; the wizard picker is for fresh runs.
         // v3.110.186 (#792) — also include `a.team_id, a.location` in
         // the SELECT so the MarkAttendanceHero can reuse this method
         // via `UpcomingActivityRepository::latestRateableForCoach()`.
         // The picker itself ignores the new fields; the hero needs them
         // for `buildDetail()`.
+        // #1349 — two eligibility fixes:
+        //   1. plan_state widened from 'completed'-only to also accept
+        //      'scheduled' / 'in_progress' sessions whose date has
+        //      arrived. The Team planner creates plan_state='scheduled'
+        //      and nothing flipped it before the wizard looked, so
+        //      coaches who plan ahead found the flagship 1-tap flow
+        //      dead-ended on training day. The wizard's own terminal-
+        //      completion helper flips state to 'completed' on finish.
+        //   2. The all-or-nothing NOT EXISTS eval filter is replaced by
+        //      an unrated-present count (same present/late + linked-
+        //      guest semantics as RateActorsStep): activities with
+        //      partial evaluations stay listed, annotated with how many
+        //      present players still lack a rating; fully-evaluated
+        //      ones drop out as before.
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT a.id, a.title, a.session_date, a.activity_type_key, a.team_id, a.location, t.name AS team_name
+            "SELECT a.id, a.title, a.session_date, a.activity_type_key, a.team_id, a.location, t.name AS team_name,
+                    (SELECT COUNT(DISTINCT e.player_id) FROM {$p}tt_evaluations e
+                      WHERE e.activity_id = a.id AND e.club_id = a.club_id) AS rated_count,
+                    (SELECT COUNT(DISTINCT pl.id)
+                       FROM {$p}tt_attendance att
+                       INNER JOIN {$p}tt_players pl
+                           ON pl.id = COALESCE( att.guest_player_id, att.player_id )
+                           AND pl.club_id = att.club_id
+                      WHERE att.activity_id = a.id AND att.club_id = a.club_id
+                        AND LOWER(att.status) IN ( 'present', 'late' )
+                        AND ( att.is_guest = 0 OR att.guest_player_id IS NOT NULL )
+                        AND NOT EXISTS (
+                            SELECT 1 FROM {$p}tt_evaluations e2
+                             WHERE e2.activity_id = att.activity_id
+                               AND e2.player_id   = pl.id
+                               AND e2.club_id     = att.club_id
+                          )) AS unrated_present
                FROM {$p}tt_activities a
                INNER JOIN {$p}tt_teams t ON t.id = a.team_id AND t.club_id = a.club_id
               WHERE a.club_id = %d
                 AND a.archived_at IS NULL
-                AND a.plan_state = 'completed'
+                AND a.plan_state IN ('completed', 'scheduled', 'in_progress')
                 AND a.session_date < CURDATE() + INTERVAL 1 DAY
                 AND a.session_date >= CURDATE() - INTERVAL %d DAY
                 AND COALESCE(a.evaluation_skipped, 0) = 0
-                AND NOT EXISTS (
-                    SELECT 1 FROM {$p}tt_evaluations e
-                     WHERE e.activity_id = a.id AND e.club_id = a.club_id
-                  )
                 AND ( a.team_id IN (
                     SELECT tp.team_id FROM {$p}tt_team_people tp
                      INNER JOIN {$p}tt_people pe ON pe.id = tp.person_id
@@ -240,6 +260,7 @@ final class ActivityPickerStep implements WizardStepInterface {
                        AND ( um.meta_value LIKE '%administrator%' OR um.meta_value LIKE '%tt_head_dev%' OR um.meta_value LIKE '%tt_club_admin%' )
                   ) )
               GROUP BY a.id, a.title, a.session_date, a.activity_type_key, a.team_id, a.location, t.name
+             HAVING rated_count = 0 OR unrated_present > 0
               ORDER BY a.session_date DESC
               LIMIT 30",
             CurrentClub::id(), $days, $user_id, CurrentClub::id(), $user_id
