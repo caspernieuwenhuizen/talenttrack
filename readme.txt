@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.104
+Stable tag: 4.20.105
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.105 — Parent-confirmation links expire after 30 days (closes #1356). Audit security finding: the public parent yes/no link in the test-training invitation email carried a deterministic HMAC with no timestamp component — a forwarded or leaked email link stayed valid forever, and replaying it disclosed the recorded decision. **Fix.** [`ParentConfirmationController`](src/Modules/Prospects/Rest/ParentConfirmationController.php) — expiry keys off the workflow task's `created_at` rather than a token redesign, so old AND outstanding links go stale identically (no resend wave needed at deploy, no token-format fork). Links older than `LINK_TTL_DAYS = 30` return a localized 410 ("ask the academy to send a new one") BEFORE the idempotent-replay branch, so an expired link reveals nothing — not even the already-recorded outcome. Token verification itself unchanged (hash_equals against the task/prospect/uuid/salt HMAC). 1 new Dutch msgstr. Patch bump. (closes #1356) =
 
 = 4.20.104 — PlayerDeletionCascade: hard-deleting a player erases every player-keyed row (closes #1355). Audit GDPR/data-integrity finding: `ArchiveRepository::deletePermanently('player')` removed only the `tt_players` row — evaluations, goals, journey events and injuries (a minor's medical history) persisted keyed to a dead player_id, so a right-to-erasure hard-delete didn't actually erase, and orphans skewed any aggregate not joining tt_players. Persons already had the pattern (#1138). **New [`PlayerDeletionCascade`](src/Infrastructure/Players/PlayerDeletionCascade.php)** (mirrors PersonDeletionCascade: single transaction, per-statement guards, full rollback on any failure, Logger summary). Parent-keyed children delete first (eval ratings, goal links + goal discussion threads/reads, PDP conversations/verdicts/calendar links, trial staff/inputs/extensions), then a **dynamic information_schema sweep** removes rows from every `tt_*` table holding a `player_id`/`guest_player_id` column — self-healing: future player-keyed tables are covered without editing the class. SET-NULL exceptions for team facts that outlive the player: `tt_match_execution_goal_events.player_id` (match score history stays) and `tt_prospects.player_id` (conversion link clears; prospect retention runs its own clock). `deletePermanently('player')` now routes through the cascade; the auto-backup-before-bulk-destructive hook continues to fire upstream. **Docs**: privacy-operator-guide (EN+NL) erasure procedure rewritten — self-service now, with the two remaining manual steps (photo file in uploads, linked WP account) called out. Patch bump. (closes #1355) =
 
