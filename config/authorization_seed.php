@@ -399,7 +399,12 @@ return array_merge(
     $expand( 'scout', [
         'players'                    => [ 'r',   'global', $mod_players ],
         'team'                       => [ 'r',   'global', $mod_teams ],
-        'evaluations'                => [ 'r',   'global', $mod_evals ],
+        // #1378 — was global. Scouts read evaluations only for players
+        // they're linked to (trial/prospect assignment via scout_access);
+        // full development-judgment history academy-wide was the widest
+        // sensitive-data grant in the matrix. Mirrors the #1060 AC
+        // tightening; migration 0154 backfills existing installs.
+        'evaluations'                => [ 'r',   'player', $mod_evals ],
         'activities'                 => [ 'r',   'global', $mod_activities ],
         'goals'                      => [ 'r',   'global', $mod_goals ],
         'reports'                    => [ 'r',   'global', $mod_reports ],
@@ -412,8 +417,8 @@ return array_merge(
         'trial_synthesis'            => [ 'r',   'player', $mod_trials ],
         'trial_letters_generated'    => [ 'r',   'player', $mod_trials ],
         'documentation'              => [ 'r',   'global', $mod_documentation ],
-        'pdp_file'                   => [ 'r',   'global', $mod_pdp ],
-        'pdp_verdict'                => [ 'r',   'global', $mod_pdp ],
+        // #1378 — pdp_file + pdp_verdict dropped entirely: promote/
+        // release deliberations are not scouting inputs.
         'pdp_calendar_export'        => [ 'rc',  'self',   $mod_pdp ],
         'team_chemistry'             => [ 'r',   'global', $mod_team_dev ],
         'workflow_tasks'             => [ 'r',   'self',   $mod_workflow ],

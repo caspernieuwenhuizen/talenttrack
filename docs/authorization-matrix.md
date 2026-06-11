@@ -82,7 +82,7 @@ Eight personas ship in the seed:
 - `assistant_coach` — a `tt_coach` WP user with `tt_team_people.is_head_coach = 0` for at least one team.
 - `head_coach` — a `tt_coach` WP user with `tt_team_people.is_head_coach = 1` for at least one team. A coach can hold both personas if they head-coach one team and assist another.
 - `head_of_development` — `tt_head_dev` WP role; oversees the whole academy.
-- `scout` — `tt_scout` WP role; reads players + evaluations cross-team.
+- `scout` — `tt_scout` WP role; reads players cross-team. Since v4.20.103 (#1378) evaluation reads are scoped to assigned players, and PDP files/verdicts are not granted at all — release deliberations are not scouting inputs.
 - `team_manager` — new in #0033 Sprint 7; `tt_team_manager` WP role. Logistics for a team (sessions, attendance, invitations) without coaching authority.
 - `academy_admin` — `administrator` or `tt_club_admin` WP role.
 
