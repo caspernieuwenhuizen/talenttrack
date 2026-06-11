@@ -83,11 +83,11 @@ final class ActivityPickerStep implements WizardStepInterface {
         ?>
         <?php if ( $is_mark_attendance ) : ?>
             <p style="color:var(--tt-muted);max-width:60ch;">
-                <?php esc_html_e( 'Pick an activity from the last 90 days to mark attendance for. Scheduled sessions appear from their session date; the activity type must be rateable.', 'talenttrack' ); ?>
+                <?php esc_html_e( 'Pick an activity from the last 90 days to mark attendance for. Scheduled activities appear from their planned date; the activity type must be rateable.', 'talenttrack' ); ?>
             </p>
         <?php else : ?>
             <p style="color:var(--tt-muted);max-width:60ch;">
-                <?php esc_html_e( 'Pick an activity from the last 90 days to rate the players who attended, or rate a player directly without an activity context. Scheduled sessions appear from their session date; activities with every present player rated drop off the list.', 'talenttrack' ); ?>
+                <?php esc_html_e( 'Pick an activity from the last 90 days to rate the players who attended, or rate a player directly without an activity context. Scheduled activities appear from their planned date; activities with every present player rated drop off the list.', 'talenttrack' ); ?>
             </p>
 
             <p style="margin: var(--tt-sp-3) 0;">

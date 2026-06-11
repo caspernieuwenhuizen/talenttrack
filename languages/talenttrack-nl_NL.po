@@ -27373,23 +27373,24 @@ msgstr ""
 #: src/Modules/Wizards/Evaluation/ActivityPickerStep.php:86
 msgid ""
 "Pick an activity from the last 90 days to mark attendance for. Scheduled "
-"sessions appear from their session date; the activity type must be rateable."
+"activities appear from their planned date; the activity type must be "
+"rateable."
 msgstr ""
 "Kies een activiteit van de laatste 90 dagen om aanwezigheid voor te "
-"registreren. Geplande sessies verschijnen vanaf hun sessiedatum; het "
-"activiteitstype moet beoordeelbaar zijn."
+"registreren. Geplande activiteiten verschijnen vanaf hun geplande datum; "
+"het activiteitstype moet beoordeelbaar zijn."
 
 #: src/Modules/Wizards/Evaluation/ActivityPickerStep.php:90
 msgid ""
 "Pick an activity from the last 90 days to rate the players who attended, or "
-"rate a player directly without an activity context. Scheduled sessions "
-"appear from their session date; activities with every present player rated "
+"rate a player directly without an activity context. Scheduled activities "
+"appear from their planned date; activities with every present player rated "
 "drop off the list."
 msgstr ""
 "Kies een activiteit van de laatste 90 dagen om de aanwezige spelers te "
 "beoordelen, of beoordeel direct een speler zonder activiteitscontext. "
-"Geplande sessies verschijnen vanaf hun sessiedatum; activiteiten waarvan "
-"elke aanwezige speler beoordeeld is, verdwijnen uit de lijst."
+"Geplande activiteiten verschijnen vanaf hun geplande datum; activiteiten "
+"waarvan elke aanwezige speler beoordeeld is, verdwijnen uit de lijst."
 
 #. translators: %d = number of present players without a rating yet
 #: src/Modules/Wizards/Evaluation/ActivityPickerStep.php
