@@ -99,14 +99,13 @@ class FrontendTeammateView extends FrontendViewBase {
                         <dt style="color:#666; font-size:13px;"><?php esc_html_e( 'Preferred foot', 'talenttrack' ); ?></dt>
                         <dd style="margin:0;"><?php echo esc_html( __( (string) $mate->preferred_foot, 'talenttrack' ) ); ?></dd>
                     <?php endif; ?>
-                    <?php if ( ! empty( $mate->height_cm ) ) : ?>
-                        <dt style="color:#666; font-size:13px;"><?php esc_html_e( 'Height', 'talenttrack' ); ?></dt>
-                        <dd style="margin:0;"><?php echo esc_html( (string) $mate->height_cm ); ?> cm</dd>
-                    <?php endif; ?>
-                    <?php if ( ! empty( $mate->weight_kg ) ) : ?>
-                        <dt style="color:#666; font-size:13px;"><?php esc_html_e( 'Weight', 'talenttrack' ); ?></dt>
-                        <dd style="margin:0;"><?php echo esc_html( (string) $mate->weight_kg ); ?> kg</dd>
-                    <?php endif; ?>
+                    <?php
+                    // #1353 — height/weight removed from the teammate
+                    // view. Body measurements of minors are coach data,
+                    // not peer data: weight visible to teammates is a
+                    // body-image landmine for 13-17-year-olds. Staff
+                    // views keep both fields via their own cap gating.
+                    ?>
                 </dl>
                 <p style="color:#888; font-size:12px; margin:16px 0 0; font-style:italic;">
                     <?php esc_html_e( 'Teammate details are read-only. Individual ratings, evaluations, and goals stay private.', 'talenttrack' ); ?>
