@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-11T23:32:17+00:00\n"
+"POT-Creation-Date: 2026-06-11T23:54:05+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -20090,19 +20090,19 @@ msgid ""
 msgstr ""
 
 #. translators: %s is the player's first name
-#: src/Modules/PersonaDashboard/Widgets/RateCardHeroWidget.php:64
+#: src/Modules/PersonaDashboard/Widgets/RateCardHeroWidget.php:69
 #, php-format
 msgid "Hey %s"
 msgstr ""
 
 # #0060 sprint 3 — hero data wiring + team tabs + flag flip
 #. translators: %d is the count of evaluations behind the rolling rating
-#: src/Modules/PersonaDashboard/Widgets/RateCardHeroWidget.php:70
+#: src/Modules/PersonaDashboard/Widgets/RateCardHeroWidget.php:75
 #, php-format
 msgid "Rolling rating across your last %d evaluations."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Widgets/RateCardHeroWidget.php:73
+#: src/Modules/PersonaDashboard/Widgets/RateCardHeroWidget.php:78
 msgid "Your rate card fills in once your coach saves your first evaluation."
 msgstr ""
 
@@ -21019,27 +21019,32 @@ msgid "Logged"
 msgstr ""
 
 # ParentConfirmationController errors
-#: src/Modules/Prospects/Rest/ParentConfirmationController.php:68
+#: src/Modules/Prospects/Rest/ParentConfirmationController.php:81
 msgid "This confirmation link is invalid."
 msgstr ""
 
-#: src/Modules/Prospects/Rest/ParentConfirmationController.php:71
+#: src/Modules/Prospects/Rest/ParentConfirmationController.php:84
 msgid "This confirmation link does not specify a valid outcome."
 msgstr ""
 
-#: src/Modules/Prospects/Rest/ParentConfirmationController.php:77
+#: src/Modules/Prospects/Rest/ParentConfirmationController.php:90
 msgid "This confirmation link points at a task that no longer exists."
 msgstr ""
 
-#: src/Modules/Prospects/Rest/ParentConfirmationController.php:80
+#: src/Modules/Prospects/Rest/ParentConfirmationController.php:93
 msgid "This confirmation link does not match a parent-confirmation task."
 msgstr ""
 
-#: src/Modules/Prospects/Rest/ParentConfirmationController.php:87
+#: src/Modules/Prospects/Rest/ParentConfirmationController.php:100
 msgid "This confirmation link is no longer valid."
 msgstr ""
 
 #: src/Modules/Prospects/Rest/ParentConfirmationController.php:109
+msgid ""
+"This confirmation link has expired. Please ask the academy to send a new one."
+msgstr ""
+
+#: src/Modules/Prospects/Rest/ParentConfirmationController.php:133
 msgid "Could not record your response. Please try again."
 msgstr ""
 
