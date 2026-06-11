@@ -27369,26 +27369,35 @@ msgstr ""
 "aanwezigheidsregistratie op de activiteitspagina."
 
 # v3.110.102 — #0092 ActivityPickerStep intro + empty-state copy NL coverage.
+# #1349 — eligibility widened: scheduled sessions appear from their date.
 #: src/Modules/Wizards/Evaluation/ActivityPickerStep.php:86
 msgid ""
-"Pick a completed activity from the last 90 days to mark attendance for. "
-"Activities only appear here once they are marked completed and their type is "
-"rateable."
+"Pick an activity from the last 90 days to mark attendance for. Scheduled "
+"sessions appear from their session date; the activity type must be rateable."
 msgstr ""
-"Kies een afgeronde activiteit van de laatste 90 dagen om aanwezigheid voor "
-"te registreren. Activiteiten verschijnen hier pas als ze als afgerond "
-"gemarkeerd zijn en hun type beoordeelbaar is."
+"Kies een activiteit van de laatste 90 dagen om aanwezigheid voor te "
+"registreren. Geplande sessies verschijnen vanaf hun sessiedatum; het "
+"activiteitstype moet beoordeelbaar zijn."
 
 #: src/Modules/Wizards/Evaluation/ActivityPickerStep.php:90
 msgid ""
-"Pick a completed activity from the last 90 days to rate the players who "
-"attended, or rate a player directly without an activity context. Activities "
-"only appear here once they are marked completed and their type is rateable."
+"Pick an activity from the last 90 days to rate the players who attended, or "
+"rate a player directly without an activity context. Scheduled sessions "
+"appear from their session date; activities with every present player rated "
+"drop off the list."
 msgstr ""
-"Kies een afgeronde activiteit van de laatste 90 dagen om de aanwezige "
-"spelers te beoordelen, of beoordeel direct een speler zonder "
-"activiteitscontext. Activiteiten verschijnen hier pas als ze als afgerond "
-"gemarkeerd zijn en hun type beoordeelbaar is."
+"Kies een activiteit van de laatste 90 dagen om de aanwezige spelers te "
+"beoordelen, of beoordeel direct een speler zonder activiteitscontext. "
+"Geplande sessies verschijnen vanaf hun sessiedatum; activiteiten waarvan "
+"elke aanwezige speler beoordeeld is, verdwijnen uit de lijst."
+
+#. translators: %d = number of present players without a rating yet
+#: src/Modules/Wizards/Evaluation/ActivityPickerStep.php
+#, php-format
+msgid "%d player still unrated"
+msgid_plural "%d players still unrated"
+msgstr[0] "%d speler nog niet beoordeeld"
+msgstr[1] "%d spelers nog niet beoordeeld"
 
 #: src/Modules/Wizards/Evaluation/ActivityPickerStep.php:106
 msgid "→ Rate a player directly"
@@ -27404,13 +27413,13 @@ msgstr ""
 
 #: src/Modules/Wizards/Evaluation/ActivityPickerStep.php:115
 msgid ""
-"No completed rateable activities in the last 90 days. Mark an activity as "
-"completed (and use a rateable activity type) to see it here, or pick a "
-"player below to rate ad-hoc."
+"No rateable activities in the last 90 days. Schedule or complete an "
+"activity with a rateable type to see it here, or pick a player below to "
+"rate ad-hoc."
 msgstr ""
-"Geen afgeronde, beoordeelbare activiteiten in de laatste 90 dagen. Markeer "
-"een activiteit als afgerond (met een beoordeelbaar activiteitstype) om hier "
-"te verschijnen, of kies hieronder een speler om ad hoc te beoordelen."
+"Geen beoordeelbare activiteiten in de laatste 90 dagen. Plan of voltooi een "
+"activiteit met een beoordeelbaar type om hier te verschijnen, of kies "
+"hieronder een speler om ad hoc te beoordelen."
 
 #: src/Modules/Wizards/Evaluation/ActivityPickerStep.php:145
 msgid "Pick an activity, or use \"Rate a player directly\"."

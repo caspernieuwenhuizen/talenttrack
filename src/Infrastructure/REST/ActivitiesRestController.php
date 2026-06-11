@@ -834,6 +834,14 @@ class ActivitiesRestController {
                 $payload['planned_at'] = current_time( 'mysql' );
                 $payload['planned_by'] = get_current_user_id();
             }
+        } elseif ( $status === ActivityStatusKey::COMPLETED || $status === ActivityStatusKey::CANCELLED ) {
+            // #1349 — the edit form posts activity_status_key but not
+            // plan_state, so flipping status to Completed used to leave
+            // plan_state='scheduled' behind and the session stayed
+            // invisible to the attendance/eval wizards. The two columns
+            // are distinct lifecycle axes (migration 0144), but a
+            // terminal status implies the matching terminal plan state.
+            $payload['plan_state'] = $status === ActivityStatusKey::COMPLETED ? 'completed' : 'cancelled';
         }
         return $payload;
     }
