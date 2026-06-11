@@ -1,0 +1,119 @@
+name: Auto-release on version bump
+
+# #1376 — PUC auto-update on pilot sites checks the latest GitHub
+# RELEASE (talenttrack.php wires `enableReleaseAssets()`), but the
+# release job in release.yml only fires on manual tag pushes. Tags
+# lagged main by dozens of versions, so client sites saw no update
+# for days. This workflow closes the gap: every version bump that
+# lands on `main` publishes a release automatically.
+#
+# Mechanics:
+#   1. Read `Version:` from the talenttrack.php plugin header.
+#   2. If release `v<version>` already exists → no-op (idempotent;
+#      re-runs, reverts, and non-bump pushes touching this file are
+#      all safe).
+#   3. Build the plugin ZIP — same steps as release.yml's `release`
+#      job + release-tag.yml (gettext, composer no-dev, msgfmt loop,
+#      rsync excludes).
+#   4. Create the release via softprops/action-gh-release with an
+#      explicit tag_name + target_commitish — the release API creates
+#      the tag in the same call, no separate `git push --tags`
+#      needed. Tags created by GITHUB_TOKEN don't re-trigger
+#      release.yml's tag-push job, so nothing double-publishes.
+#
+# The tag-push path in release.yml and the manual escape hatch in
+# release-tag.yml both stay — the release-exists check here prevents
+# collisions in every direction.
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'talenttrack.php'
+
+permissions:
+  contents: write
+
+jobs:
+  auto-release:
+    name: Publish release for the version on main
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Read plugin version
+        id: version
+        run: |
+          version=$(grep -oP '^\s*\*\s*Version:\s*\K[0-9]+\.[0-9]+\.[0-9]+' talenttrack.php)
+          if [ -z "$version" ]; then
+            echo "::error::Could not parse Version: header from talenttrack.php."
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "tag=v$version" >> "$GITHUB_OUTPUT"
+          echo "Plugin version on main: $version"
+
+      - name: Check whether the release already exists
+        id: exists
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if gh release view "${{ steps.version.outputs.tag }}" \
+               --repo "${{ github.repository }}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "Release ${{ steps.version.outputs.tag }} already exists — nothing to do."
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "Release ${{ steps.version.outputs.tag }} does not exist yet — building."
+          fi
+
+      - name: Install gettext
+        if: steps.exists.outputs.exists == 'false'
+        run: sudo apt-get update && sudo apt-get install -y gettext
+
+      - name: Setup PHP
+        if: steps.exists.outputs.exists == 'false'
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          tools: composer:v2
+
+      - name: Install production dependencies
+        if: steps.exists.outputs.exists == 'false'
+        run: |
+          if [ -f composer.json ] && grep -q '"require"' composer.json && ! grep -q '"require": *{ *}' composer.json; then
+            composer install --no-dev --no-interaction --no-progress --prefer-dist --optimize-autoloader
+          fi
+
+      - name: Regenerate .mo files from .po (always fresh in release ZIP)
+        if: steps.exists.outputs.exists == 'false'
+        run: |
+          for po in languages/*.po; do
+            mo="${po%.po}.mo"
+            echo "Compiling $po → $mo"
+            msgfmt -o "$mo" "$po"
+          done
+
+      - name: Build plugin ZIP
+        if: steps.exists.outputs.exists == 'false'
+        run: |
+          mkdir -p /tmp/build
+          # vendor/ is bundled (production deps only — phpstan + szepeviktor are dev-only).
+          rsync -av \
+            --exclude='.git' --exclude='.github' --exclude='.gitignore' \
+            --exclude='tests' --exclude='phpstan*' \
+            --exclude='vendor/bin' --exclude='vendor/phpstan' --exclude='vendor/szepeviktor' \
+            --exclude='branding-plugin' \
+            ./ /tmp/build/talenttrack/
+          cd /tmp/build
+          zip -r talenttrack.zip talenttrack
+
+      - name: Create GitHub Release (tag created via the release API)
+        if: steps.exists.outputs.exists == 'false'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          files: /tmp/build/talenttrack.zip
+          generate_release_notes: true

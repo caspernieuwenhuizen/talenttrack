@@ -155,7 +155,23 @@ The `Validate .po syntax` job on every PR uses `msgfmt --check --statistics` so 
 
 If `wp-cli` isn't on your local path: machine extraction via [`wp i18n make-pot`](https://make.wordpress.org/cli/handbook/references/commands/i18n/make-pot/) is the canonical tool. The fallback `tools/generate-locale-skeletons.php` in the repo seeds new-locale `.po` files from the existing `nl_NL.po` (full msgid set + empty msgstrs) — useful when adding a fresh locale, not a substitute for POT regeneration on each release.
 
-## Release — tag a version, automation takes over
+## Release — every version bump on main auto-publishes
+
+**Since #1376**, `.github/workflows/auto-release.yml` runs on every push
+to `main` that touches `talenttrack.php`. It reads the `Version:` header,
+and when no GitHub release `v<version>` exists yet it builds
+`talenttrack.zip` and publishes the release (the tag is created by the
+release API in the same call — no manual `git tag` needed). This is what
+feeds PUC auto-updates on pilot sites: PUC checks the **latest GitHub
+release**, so a version that merges without a release is invisible to
+client installs. Before #1376 releases required a manual tag push and
+lagged main by dozens of versions.
+
+The manual flow below still works (the auto-release job no-ops when the
+release already exists) and remains useful for cutting a release with a
+curated CHANGES.md section.
+
+### Manual flow — tag a version, automation takes over
 
 After merging, in Claude Code:
 
