@@ -533,6 +533,17 @@ class ActivitiesRestController {
             'coach_id'                 => (int) ( $row->coach_id ?? 0 ),
             'activity_type_key'         => $type_key,
             'activity_type_pill_html'   => \TT\Infrastructure\Query\LookupPill::render( 'activity_type', $type_key ),
+            // #1324 — surface the optional tournament link.
+            'tournament_id'             => isset( $row->tournament_id ) ? (int) $row->tournament_id : null,
+            'tournament'                => isset( $row->tournament ) && is_object( $row->tournament )
+                ? [
+                    'id'          => (int) $row->tournament->id,
+                    'name'        => (string) $row->tournament->name,
+                    'start_date'  => (string) ( $row->tournament->start_date ?? '' ),
+                    'end_date'    => $row->tournament->end_date !== null ? (string) $row->tournament->end_date : null,
+                    'match_count' => (int) ( $row->tournament->match_count ?? 0 ),
+                ]
+                : null,
             'activity_status_key'       => (string) ( $row->activity_status_key ?? 'planned' ),
             'activity_status_pill_html' => \TT\Infrastructure\Query\LookupPill::render( 'activity_status', (string) ( $row->activity_status_key ?? 'planned' ) ),
             'activity_source_key'       => (string) ( $row->activity_source_key ?? 'manual' ),
@@ -797,6 +808,11 @@ class ActivitiesRestController {
             // still persists; UI validation should have caught this.
             $end_time = null;
         }
+        // #1324 — tournament_id only persists when the activity is
+        // type=tournament; non-tournament types null it out so a type
+        // change doesn't leave a stale FK behind.
+        $tournament_id = absint( $r['tournament_id'] ?? 0 );
+
         $payload = [
             'title'               => sanitize_text_field( (string) ( $r['title'] ?? '' ) ),
             'session_date'        => sanitize_text_field( (string) ( $r['session_date'] ?? '' ) ),
@@ -810,6 +826,7 @@ class ActivitiesRestController {
             'activity_status_key' => $status,
             'game_subtype_key'    => $type === ActivityTypeKey::GAME && $subtype !== '' ? $subtype : null,
             'other_label'         => $type === ActivityTypeKey::OTHER && $other !== ''   ? $other   : null,
+            'tournament_id'       => $type === ActivityTypeKey::TOURNAMENT && $tournament_id > 0 ? $tournament_id : null,
         ];
         if ( in_array( $plan_state, $allowed_plan_states, true ) ) {
             $payload['plan_state'] = $plan_state;

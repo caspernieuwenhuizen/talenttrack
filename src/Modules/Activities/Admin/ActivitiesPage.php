@@ -507,6 +507,10 @@ class ActivitiesPage {
             'other_label'       => $type === ActivityTypeKey::OTHER && ! empty( $_POST['other_label'] )
                 ? sanitize_text_field( wp_unslash( (string) $_POST['other_label'] ) )
                 : null,
+            // #1324 — tournament_id only persists when type=tournament.
+            'tournament_id'     => $type === ActivityTypeKey::TOURNAMENT && ! empty( $_POST['tournament_id'] )
+                ? absint( $_POST['tournament_id'] )
+                : null,
         ];
 
         if ( $id ) {
