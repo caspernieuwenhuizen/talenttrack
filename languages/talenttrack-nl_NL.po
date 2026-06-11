@@ -35955,7 +35955,8 @@ msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid ""
-#~ "Optionally connect this activity to one or more methodology principles. "
+#~ "Optionally conneDROPPED: 29
+ct this activity to one or more methodology principles. "
 #~ "Hold Ctrl/Cmd to select multiple. Leave blank to skip."
 #~ msgstr ""
 #~ "Verbind deze activiteit optioneel aan een of meer methodologie-principes. "
@@ -36125,8 +36126,6 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ msgid "Latest goal:"
 #~ msgstr "Recentste doel:"
 
-#~ msgid "Deadline"
-#~ msgstr "Deadline"
 
 #~ msgid "Att. %"
 #~ msgstr "Aanw. %"
@@ -36149,11 +36148,7 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ msgid "Manage availability"
 #~ msgstr "Beschikbaarheid beheren"
 
-#~ msgid "min 1e"
-#~ msgstr "min 1e"
 
-#~ msgid "min 2e"
-#~ msgstr "min 2e"
 
 #~ msgid "Attention"
 #~ msgstr "Aandacht"
@@ -36228,11 +36223,7 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ msgid "Who comes off for %s?"
 #~ msgstr "Wie gaat eruit voor %s?"
 
-#~ msgid "1e"
-#~ msgstr "1e"
 
-#~ msgid "2e"
-#~ msgstr "2e"
 
 #~ msgid "Pick a dimension above to break the headline down by groups."
 #~ msgstr ""
@@ -36558,8 +36549,6 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ msgstr "Coördinatie"
 
 # Subcategory seed labels — Mental
-#~ msgid "Focus"
-#~ msgstr "Focus"
 
 #~ msgid "Attitude"
 #~ msgstr "Houding"
@@ -36610,8 +36599,6 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ msgid "Invalid date."
 #~ msgstr "Ongeldige datum."
 
-#~ msgid "Slot %d"
-#~ msgstr "Slot %d"
 
 #~ msgid "No team"
 #~ msgstr "Geen team"
@@ -36622,8 +36609,6 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ msgid "Tap a tile to go straight to that section."
 #~ msgstr "Tik op een tegel om direct naar dat onderdeel te gaan."
 
-#~ msgid "Coaching"
-#~ msgstr "Coaching"
 
 #~ msgid "Activities you've attended."
 #~ msgstr "Trainingen die je hebt bijgewoond."
@@ -36791,14 +36776,8 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ msgid "Logins, active users, evaluations per day."
 #~ msgstr "Logins, actieve gebruikers, evaluaties per dag."
 
-#~ msgid "Logins (7d)"
-#~ msgstr "Logins (7d)"
 
-#~ msgid "Logins (30d)"
-#~ msgstr "Logins (30d)"
 
-#~ msgid "Logins (90d)"
-#~ msgstr "Logins (90d)"
 
 #~ msgid "Active users (7d)"
 #~ msgstr "Actieve gebruikers (7d)"
@@ -36812,8 +36791,6 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ msgid "Open detailed view in wp-admin"
 #~ msgstr "Open gedetailleerd overzicht in wp-admin"
 
-#~ msgid "🎭 DEMO"
-#~ msgstr "🎭 DEMO"
 
 #~ msgid "TalentTrack is running in demo mode. Real club records are hidden."
 #~ msgstr "TalentTrack draait in demomodus. Echte clubgegevens zijn verborgen."
@@ -36913,11 +36890,7 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ msgid "Vision"
 #~ msgstr "Visie"
 
-#~ msgid "Selecteer een diagram of afbeelding"
-#~ msgstr "Selecteer een diagram of afbeelding"
 
-#~ msgid "Toevoegen aan methodologie"
-#~ msgstr "Toevoegen aan methodologie"
 
 #~ msgid "Task not yours"
 #~ msgstr "Niet jouw taak"
@@ -36958,20 +36931,10 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ msgstr ""
 #~ "Spelers van buiten de selectie. Gasten tellen niet mee in teamstats."
 
-#~ msgid "Nog geen gasten toegevoegd."
-#~ msgstr "Nog geen gasten toegevoegd."
 
-#~ msgid "Save the session first; gasten kunnen daarna worden toegevoegd."
-#~ msgstr "Save the session first; gasten kunnen daarna worden toegevoegd."
 
-#~ msgid "Gast toevoegen"
-#~ msgstr "Gast toevoegen"
 
-#~ msgid "Gekoppelde speler"
-#~ msgstr "Gekoppelde speler"
 
-#~ msgid "Anonieme gast"
-#~ msgstr "Anonieme gast"
 
 #~ msgid ""
 #~ "Kies een speler van een ander team. De evaluatie van vandaag verschijnt "
@@ -36980,8 +36943,6 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ "Kies een speler van een ander team. De evaluatie van vandaag verschijnt "
 #~ "op zijn/haar profiel."
 
-#~ msgid "— Kies speler —"
-#~ msgstr "— Kies speler —"
 
 #~ msgid ""
 #~ "Geen TalentTrack-record nodig. Vul de basisgegevens in; je kunt deze gast "
@@ -36990,23 +36951,11 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ "Geen TalentTrack-record nodig. Vul de basisgegevens in; je kunt deze gast "
 #~ "later promoveren naar een echte speler."
 
-#~ msgid "Naam"
-#~ msgstr "Naam"
 
-#~ msgid "Leeftijd"
-#~ msgstr "Leeftijd"
 
-#~ msgid "Positie"
-#~ msgstr "Positie"
 
-#~ msgid "— Onbekend —"
-#~ msgstr "— Onbekend —"
 
-#~ msgid "Annuleren"
-#~ msgstr "Annuleren"
 
-#~ msgid "Toevoegen"
-#~ msgstr "Toevoegen"
 
 #~ msgid "Save the session first, then add guests."
 #~ msgstr "Sla de activiteit eerst op en voeg daarna gasten toe."
@@ -37058,8 +37007,6 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 # #0037 — guest-attendance polish (autosave + fuzzy picker + team filter)
 # 'All teams' already translated above (line ~3882); not duplicated here.
-#~ msgid "Type een naam om te zoeken…"
-#~ msgstr "Type een naam om te zoeken…"
 
 #~ msgid "Could not save activity."
 #~ msgstr "Activiteit opslaan mislukt."
@@ -37230,8 +37177,6 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ "\"all\" voor alle wizards, \"off\" om uit te zetten, of een lijst slugs "
 #~ "gescheiden door komma's."
 
-#~ msgid "tt_wizards_enabled"
-#~ msgstr "tt_wizards_enabled"
 
 #~ msgid "Available wizard slugs"
 #~ msgstr "Beschikbare wizard-slugs"
@@ -37530,8 +37475,6 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ msgid "No trial history."
 #~ msgstr "Geen stagegeschiedenis."
 
-#~ msgid "training"
-#~ msgstr "training"
 
 #~ msgid "match"
 #~ msgstr "wedstrijd"
@@ -37843,3 +37786,26 @@ msgstr "Nieuw toernooi aanmaken →"
 #: src/Shared/Frontend/FrontendActivitiesManageView.php
 msgid "No tournament yet? Ask an admin to create one in the Tournaments planner."
 msgstr "Nog geen toernooi? Vraag een beheerder om er een aan te maken in de toernooiplanner."
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php
+#, php-format
+msgid "Goals intake — %s"
+msgstr "Doelenintake — %s"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php
+#, php-format
+msgid "Goals intake — %1$s — %2$s"
+msgstr "Doelenintake — %1$s — %2$s"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php
+#, php-format
+msgid "Goals intake — %1$s — choose blocks"
+msgstr "Doelenintake — %1$s — kies blokken"
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php
+msgid "Goals 1 + 2 · fill in during the conversation."
+msgstr "Doelen 1 + 2 · invullen tijdens het gesprek."
+
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php
+msgid "Goals from last season"
+msgstr "Doelen uit vorig seizoen"

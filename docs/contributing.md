@@ -57,6 +57,8 @@ Translation drift is gated and reported automatically by two workflows under `.g
 
 Neither workflow commits anything — `i18n-sync.yml` (structural `.pot` regeneration + `msgmerge`) is the only workflow that writes to `languages/`.
 
+Dutch literals (`'Annuleren'`, `'Opslaan'`, `'Doelen…'`) as `msgid`s in PHP source are a bug — they sabotage `msgmerge` when the same literal also appears as an obsolete `#~` block in `nl_NL.po`. Always use English msgid + Dutch msgstr. The landmines on main as of v4.20.78 were cleaned up in #1339 and the PR-time gate added in #1338 prevents future regressions.
+
 ## Layout conventions
 
 - One H1 per file, matching the slug's title in `HelpTopics::all()`.

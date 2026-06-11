@@ -95,7 +95,7 @@ class EvalTypeCategoriesPage {
                             <?php endforeach; ?>
                         </div>
 
-                        <button type="submit" class="button button-primary"><?php esc_html_e( 'Opslaan', 'talenttrack' ); ?></button>
+                        <button type="submit" class="button button-primary"><?php esc_html_e( 'Save', 'talenttrack' ); ?></button>
                     </form>
                 </div>
             <?php endforeach; ?>
