@@ -52,11 +52,16 @@ class RateCardHeroWidget extends AbstractWidget {
         $position = self::primaryPosition( $player );
         $photo    = (string) ( $player->photo_url ?? '' );
 
-        // Rolling rating from the existing stats service. 5-point scale → 99-scale.
+        // #1352 — show the raw rolling rating to one decimal, exactly
+        // like the My-team card. The old `(rolling / 5.0) * 99`
+        // conversion assumed the pre-0095 5-point scale; on the Dutch
+        // 5-10 scale it produced impossible numbers ("149") as the
+        // first thing a player saw. Raw keeps one source of truth and
+        // survives operator rating-scale reconfiguration.
         $headline = self::headline( (int) $player->id );
         $rolling  = $headline['rolling'];
         $latest   = $headline['latest'];
-        $overall  = $rolling !== null ? (int) round( ( (float) $rolling / 5.0 ) * 99 ) : 0;
+        $overall  = $rolling !== null ? number_format_i18n( (float) $rolling, 1 ) : '';
         $delta    = self::trendDelta( $rolling, $latest );
 
         $greeting = sprintf(
@@ -85,7 +90,7 @@ class RateCardHeroWidget extends AbstractWidget {
             . '<div class="tt-pd-hero-right">'
             . '<div class="tt-pd-rate-card">'
             . $photo_html
-            . '<div class="tt-pd-rate-overall">' . esc_html( $overall > 0 ? (string) $overall : '—' ) . '</div>'
+            . '<div class="tt-pd-rate-overall">' . esc_html( $overall !== '' ? $overall : '—' ) . '</div>'
             . '<div class="tt-pd-rate-pos">' . esc_html( $position !== '' ? $position : '—' ) . '</div>'
             . '<div class="tt-pd-rate-name">' . esc_html( $name ) . '</div>'
             . ( $delta !== '' ? '<div class="tt-pd-rate-delta">' . esc_html( $delta ) . '</div>' : '' )
