@@ -29443,6 +29443,15 @@ msgstr ""
 msgid "Run migrations now"
 msgstr "Migraties nu uitvoeren"
 
+# ===== #1347 — go-live runbook topic =====
+#: src/Modules/Documentation/HelpTopics.php
+msgid "Go-live runbook"
+msgstr "Go-live-runbook"
+
+#: src/Modules/Documentation/HelpTopics.php
+msgid "Pre-launch checklist for taking an academy install into production."
+msgstr "Pre-launch-checklist om een academie-installatie in productie te nemen."
+
 # ===== #1346 — migration failure surfacing =====
 #: src/Shared/Admin/SchemaStatus.php
 msgid "TalentTrack database migration failed."

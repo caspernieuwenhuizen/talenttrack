@@ -198,6 +198,11 @@ class HelpTopics {
                 'group'   => 'configuration',
                 'summary' => __( 'Scheduled exports, partial restore, the 14-day undo window.', 'talenttrack' ),
             ],
+            'go-live-runbook' => [
+                'title'   => __( 'Go-live runbook', 'talenttrack' ),
+                'group'   => 'configuration',
+                'summary' => __( 'Pre-launch checklist for taking an academy install into production.', 'talenttrack' ),
+            ],
             'methodology' => [
                 'title'   => __( 'Methodology', 'talenttrack' ),
                 'group'   => 'performance',
