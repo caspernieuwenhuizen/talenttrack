@@ -27,6 +27,12 @@ use TT\Modules\Workflow\WorkflowModule;
  * subsequent hits return a 200 with the existing decision rather
  * than re-completing).
  *
+ * #1356 — links expire LINK_TTL_DAYS after the task was created. The
+ * HMAC itself is deterministic (no timestamp component), so expiry
+ * keys off the task row's created_at: forwarded or leaked emails go
+ * stale for old AND outstanding links alike, and an expired link
+ * discloses nothing — not even the recorded decision.
+ *
  * Why GET, not POST: parents click a link in an email. Links are
  * GETs. The endpoint is idempotent on the workflow side
  * (TaskEngine::complete is a no-op on already-completed tasks),
@@ -35,6 +41,13 @@ use TT\Modules\Workflow\WorkflowModule;
 final class ParentConfirmationController {
 
     private const NS = 'talenttrack/v1';
+
+    /**
+     * Days a confirmation link stays valid after the task is created.
+     * 30 covers slow parental response (the test training itself is
+     * normally within two weeks) without leaving links live forever.
+     */
+    private const LINK_TTL_DAYS = 30;
 
     public static function init(): void {
         add_action( 'rest_api_init', [ self::class, 'register' ] );
@@ -85,6 +98,17 @@ final class ParentConfirmationController {
         $expected      = self::tokenFor( $task_id, $prospect_id, $prospect_uuid );
         if ( ! hash_equals( $expected, $token ) ) {
             return RestResponse::error( 'invalid_token', __( 'This confirmation link is no longer valid.', 'talenttrack' ), 403 );
+        }
+
+        // #1356 — expiry before the idempotent-replay branch, so an
+        // expired link reveals nothing, including the recorded outcome.
+        $created = strtotime( (string) ( $task['created_at'] ?? '' ) );
+        if ( $created !== false && $created < strtotime( '-' . self::LINK_TTL_DAYS . ' days' ) ) {
+            return RestResponse::error(
+                'link_expired',
+                __( 'This confirmation link has expired. Please ask the academy to send a new one.', 'talenttrack' ),
+                410
+            );
         }
 
         // Idempotent: if the task is already completed, return a 200

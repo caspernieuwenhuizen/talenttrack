@@ -29570,6 +29570,11 @@ msgstr "Migraties nu uitvoeren"
 msgid "Idempotent — safe to run repeatedly."
 msgstr "Idempotent — veilig om meerdere keren uit te voeren."
 
+# ===== #1356 — parent confirmation link expiry =====
+#: src/Modules/Prospects/Rest/ParentConfirmationController.php
+msgid "This confirmation link has expired. Please ask the academy to send a new one."
+msgstr "Deze bevestigingslink is verlopen. Vraag de academie om een nieuwe te sturen."
+
 # ===== #1346 — migration failure surfacing =====
 #: src/Shared/Admin/SchemaStatus.php:124
 msgid "TalentTrack database migration failed."
