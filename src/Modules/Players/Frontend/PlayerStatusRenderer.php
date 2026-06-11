@@ -103,7 +103,7 @@ final class PlayerStatusRenderer {
     private static function labelFor( string $color ): string {
         switch ( $color ) {
             case StatusVerdict::COLOR_GREEN:   return __( 'On track',   'talenttrack' );
-            case StatusVerdict::COLOR_AMBER:   return __( 'At risk',    'talenttrack' );
+            case StatusVerdict::COLOR_AMBER:   return __( 'Extra attention', 'talenttrack' );
             case StatusVerdict::COLOR_RED:     return __( 'Critical',   'talenttrack' );
             default:                           return __( 'Building first picture', 'talenttrack' );
         }

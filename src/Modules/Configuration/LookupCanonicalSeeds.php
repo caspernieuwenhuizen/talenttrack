@@ -99,9 +99,9 @@ final class LookupCanonicalSeeds {
                 'First aid', 'GDPR awareness', 'Child safeguarding',
             ],
 
-            // 0042 — behaviour rating labels
+            // 0042 — behaviour rating labels (#1377 growth-framed rewording)
             'behaviour_rating_label' => [
-                'Concerning', 'Below expectations', 'Meeting expectations',
+                'Needs support', 'Developing', 'Meeting expectations',
                 'Above expectations', 'Exemplary',
             ],
 

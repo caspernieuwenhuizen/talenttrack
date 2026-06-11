@@ -238,7 +238,7 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
                                 PotentialBand::PROFESSIONAL_ELSEWHERE => __( 'Professional elsewhere', 'talenttrack' ),
                                 PotentialBand::SEMI_PRO               => __( 'Semi-pro', 'talenttrack' ),
                                 PotentialBand::TOP_AMATEUR            => __( 'Top amateur', 'talenttrack' ),
-                                PotentialBand::RECREATIONAL           => __( 'Recreational', 'talenttrack' ),
+                                PotentialBand::RECREATIONAL           => __( 'Foundation', 'talenttrack' ),
                             ];
                             $current_band = $latest_potential ? (string) $latest_potential->potential_band : '';
                             foreach ( $bands as $code => $label ) :
