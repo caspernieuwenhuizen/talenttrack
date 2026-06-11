@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-11T22:58:26+00:00\n"
+"POT-Creation-Date: 2026-06-11T23:32:17+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -604,21 +604,21 @@ msgid "Behaviour %s below floor %s — capped at amber."
 msgstr ""
 
 # v3.50.0 — Player status (#0057)
-#: src/Infrastructure/PlayerStatus/StatusVerdict.php:66
+#: src/Infrastructure/PlayerStatus/StatusVerdict.php:68
 #: src/Modules/Players/Frontend/PlayerStatusRenderer.php:105
 msgid "On track"
 msgstr ""
 
-#: src/Infrastructure/PlayerStatus/StatusVerdict.php:67
-#: src/Modules/Players/Frontend/PlayerStatusRenderer.php:106
-msgid "At risk"
-msgstr ""
-
-#: src/Infrastructure/PlayerStatus/StatusVerdict.php:68
-msgid "Needs significant development support"
-msgstr ""
-
 #: src/Infrastructure/PlayerStatus/StatusVerdict.php:69
+#: src/Modules/Players/Frontend/PlayerStatusRenderer.php:106
+msgid "Extra attention"
+msgstr ""
+
+#: src/Infrastructure/PlayerStatus/StatusVerdict.php:70
+msgid "Could use extra support right now"
+msgstr ""
+
+#: src/Infrastructure/PlayerStatus/StatusVerdict.php:71
 #: src/Modules/Players/Frontend/PlayerStatusRenderer.php:108
 msgid "Building first picture"
 msgstr ""
@@ -29310,11 +29310,9 @@ msgstr "Valoraciones de comportamiento"
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:159
 msgid ""
-"Concerning … Exemplary. Labels for the player behaviour card and evaluation "
-"review."
+"Needs support … Exemplary. Labels for the player behaviour card and "
+"evaluation review."
 msgstr ""
-"Preocupante … Ejemplar. Etiquetas para la tarjeta de comportamiento del "
-"jugador y la revisión de evaluación."
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:160
 #: src/Shared/Frontend/FrontendConfigurationView.php:257
@@ -31323,7 +31321,7 @@ msgstr ""
 
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:95
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:241
-msgid "Recreational"
+msgid "Foundation"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:116
@@ -33858,6 +33856,13 @@ msgstr ""
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr ""
+
+#~ msgid ""
+#~ "Concerning … Exemplary. Labels for the player behaviour card and "
+#~ "evaluation review."
+#~ msgstr ""
+#~ "Preocupante … Ejemplar. Etiquetas para la tarjeta de comportamiento del "
+#~ "jugador y la revisión de evaluación."
 
 #~ msgid "Connected"
 #~ msgstr "Conectado"

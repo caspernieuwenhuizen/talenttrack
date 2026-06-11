@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-11T22:58:26+00:00\n"
+"POT-Creation-Date: 2026-06-11T23:32:17+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -636,22 +636,22 @@ msgid "Behaviour %s below floor %s — capped at amber."
 msgstr "Gedrag %s onder bodem %s — gemaximeerd op oranje."
 
 # v3.50.0 — Player status (#0057)
-#: src/Infrastructure/PlayerStatus/StatusVerdict.php:66
+#: src/Infrastructure/PlayerStatus/StatusVerdict.php:68
 #: src/Modules/Players/Frontend/PlayerStatusRenderer.php:105
 msgid "On track"
 msgstr "Op koers"
 
 # #1377 — growth-framed soft labels (was "At risk" / "Needs significant development support").
-#: src/Infrastructure/PlayerStatus/StatusVerdict.php:67
+#: src/Infrastructure/PlayerStatus/StatusVerdict.php:69
 #: src/Modules/Players/Frontend/PlayerStatusRenderer.php:106
 msgid "Extra attention"
 msgstr "Extra aandacht"
 
-#: src/Infrastructure/PlayerStatus/StatusVerdict.php:68
+#: src/Infrastructure/PlayerStatus/StatusVerdict.php:70
 msgid "Could use extra support right now"
 msgstr "Kan nu extra ondersteuning gebruiken"
 
-#: src/Infrastructure/PlayerStatus/StatusVerdict.php:69
+#: src/Infrastructure/PlayerStatus/StatusVerdict.php:71
 #: src/Modules/Players/Frontend/PlayerStatusRenderer.php:108
 msgid "Building first picture"
 msgstr "Eerste beeld opbouwen"
@@ -31272,8 +31272,8 @@ msgid ""
 "Needs support … Exemplary. Labels for the player behaviour card and "
 "evaluation review."
 msgstr ""
-"Heeft begeleiding nodig … Voorbeeldig. Labels voor de spelersgedragskaart "
-"en de evaluatiebeoordeling."
+"Heeft begeleiding nodig … Voorbeeldig. Labels voor de spelersgedragskaart en "
+"de evaluatiebeoordeling."
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:160
 #: src/Shared/Frontend/FrontendConfigurationView.php:257
