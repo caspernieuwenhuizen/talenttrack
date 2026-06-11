@@ -42,6 +42,12 @@ final class ActivitiesRepository {
     /**
      * Fetch an activity row + joined team name, applying the same
      * `archived_at IS NULL` + demo-scope filters the on-screen view uses.
+     *
+     * #1324 — when the activity links to a tournament
+     * (`tournament_id` not null), the returned object also carries a
+     * `tournament` sub-object: `{ id, name, start_date, end_date,
+     * match_count }`. When `tournament_id` is null or the linked row
+     * is archived/missing, `$row->tournament` is null.
      */
     public function findById( int $activity_id ): ?object {
         global $wpdb;
@@ -54,7 +60,40 @@ final class ActivitiesRepository {
              WHERE s.id = %d AND s.archived_at IS NULL {$scope}",
             $activity_id
         ) );
-        return $row ?: null;
+        if ( ! $row ) return null;
+
+        // #1324 — hydrate the linked tournament (if any).
+        $row->tournament = null;
+        $tournament_id   = isset( $row->tournament_id ) ? (int) $row->tournament_id : 0;
+        if ( $tournament_id > 0 ) {
+            $row->tournament = self::hydrateTournament( $tournament_id, (int) ( $row->club_id ?? 0 ) );
+        }
+
+        return $row;
+    }
+
+    /**
+     * #1324 — narrow tournament shape: id, name, start_date, end_date,
+     * match_count. Returns null when the tournament is missing or
+     * archived (the activity stays in tournament-typed limbo with
+     * `tournament_id` populated but no hydrated sub-object).
+     */
+    private static function hydrateTournament( int $tournament_id, int $club_id ): ?object {
+        global $wpdb;
+        $p = $wpdb->prefix;
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT id, name, start_date, end_date
+               FROM {$p}tt_tournaments
+              WHERE id = %d AND archived_at IS NULL AND club_id = %d
+              LIMIT 1",
+            $tournament_id, $club_id
+        ) );
+        if ( ! $row ) return null;
+        $row->match_count = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$p}tt_tournament_matches WHERE tournament_id = %d",
+            $tournament_id
+        ) );
+        return $row;
     }
 
     /**

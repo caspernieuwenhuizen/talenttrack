@@ -37812,3 +37812,34 @@ msgstr "Blueprint verwijderd."
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php
 msgid "Delete blueprint"
 msgstr "Blueprint verwijderen"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Tournament"
+msgstr "Toernooi"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Not linked yet. Use the edit form to pick an existing tournament."
+msgstr "Nog niet gekoppeld. Kies een bestaand toernooi via het bewerkformulier."
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+#, php-format
+msgid "%d match"
+msgid_plural "%d matches"
+msgstr[0] "%d wedstrijd"
+msgstr[1] "%d wedstrijden"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Open tournament planner →"
+msgstr "Open toernooiplanner →"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "— Not linked —"
+msgstr "— Niet gekoppeld —"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Create new tournament →"
+msgstr "Nieuw toernooi aanmaken →"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "No tournament yet? Ask an admin to create one in the Tournaments planner."
+msgstr "Nog geen toernooi? Vraag een beheerder om er een aan te maken in de toernooiplanner."

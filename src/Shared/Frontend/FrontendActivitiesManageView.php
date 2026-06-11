@@ -313,6 +313,13 @@ class FrontendActivitiesManageView extends FrontendViewBase {
 
         echo '</dl>';
 
+        // #1324 — tournament info block for tournament-typed activities.
+        // Renders nothing for other types so non-tournament surfaces
+        // stay uncluttered.
+        if ( $type_key === ActivityTypeKey::TOURNAMENT ) {
+            self::renderDetailTournamentBlock( $session );
+        }
+
         // #1123 — Gekoppelde spelprincipes — dedicated section after
         // the detail dl with linked pills (was an inline `<dt>/<dd>`
         // that pilot reported was easy to miss + didn't link to the
@@ -1275,7 +1282,8 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         $current_type    = (string) ( $session->activity_type_key ?? ActivityTypeKey::TRAINING );
         $current_status  = (string) ( $session->activity_status_key ?? ActivityStatusKey::PLANNED );
         $current_subtype = (string) ( $session->game_subtype_key ?? '' );
-        $current_other   = (string) ( $session->other_label ?? '' );
+        $current_other        = (string) ( $session->other_label ?? '' );
+        $current_tournament_id = (int) ( $session->tournament_id ?? 0 );
 
         // Edit mode → PUT /activities/{id}; create → POST /activities.
         $is_edit   = $session !== null;
@@ -1342,6 +1350,12 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                     <label class="tt-field-label tt-field-required" for="tt-activity-other-label"><?php esc_html_e( 'Other label', 'talenttrack' ); ?></label>
                     <input type="text" id="tt-activity-other-label" class="tt-input" name="other_label" maxlength="120" value="<?php echo esc_attr( $current_other ); ?>" placeholder="<?php esc_attr_e( 'e.g. Team-building day', 'talenttrack' ); ?>" />
                 </div>
+                <?php
+                // #1324 — tournament link picker. Shown only when
+                // activity_type_key === 'tournament' (toggle handled
+                // alongside subtype + other_label by the existing JS).
+                self::renderFormTournamentPicker( $selected_team, $current_tournament_id, $current_type );
+                ?>
                 <?php
                 // #0006 — when the team-planner sends the user here
                 // with `?session_date=YYYY-MM-DD&plan_state=scheduled`,
@@ -1520,11 +1534,13 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             (function(){
                 var sel = document.getElementById('tt-activity-type');
                 if ( ! sel ) return;
-                var subRow   = document.getElementById('tt-activity-subtype-row');
-                var otherRow = document.getElementById('tt-activity-other-row');
+                var subRow         = document.getElementById('tt-activity-subtype-row');
+                var otherRow       = document.getElementById('tt-activity-other-row');
+                var tournamentRow  = document.getElementById('tt-activity-tournament-row'); // #1324
                 sel.addEventListener('change', function(){
-                    if ( subRow )   subRow.style.display   = ( sel.value === 'game' )  ? '' : 'none';
-                    if ( otherRow ) otherRow.style.display = ( sel.value === 'other' ) ? '' : 'none';
+                    if ( subRow )        subRow.style.display        = ( sel.value === 'game' )       ? '' : 'none';
+                    if ( otherRow )      otherRow.style.display      = ( sel.value === 'other' )      ? '' : 'none';
+                    if ( tournamentRow ) tournamentRow.style.display = ( sel.value === 'tournament' ) ? '' : 'none';
                 });
             })();
             </script>
@@ -1816,5 +1832,123 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             $out[] = $r;
         }
         return $out;
+    }
+
+    /**
+     * #1324 — render the tournament info block on the detail view of
+     * a tournament-typed activity. The tournament name + dates +
+     * match count display unconditionally (informational); the
+     * "Open tournament planner" deep-link is gated on
+     * `tt_view_tournaments`. When no tournament is linked, the block
+     * still renders so the operator sees the slot exists, with a hint
+     * to link one in the edit form.
+     */
+    private static function renderDetailTournamentBlock( object $session ): void {
+        $tournament = isset( $session->tournament ) && is_object( $session->tournament ) ? $session->tournament : null;
+        echo '<section class="tt-activity-tournament" style="margin:8px 0 12px;">';
+        echo '<h3 style="margin:0 0 6px; font-size:13px; font-weight:700; color:#1a1d21;">'
+            . esc_html__( 'Tournament', 'talenttrack' )
+            . '</h3>';
+        if ( ! $tournament ) {
+            echo '<p style="margin:0; color:#5b6e75;">'
+                . esc_html__( 'Not linked yet. Use the edit form to pick an existing tournament.', 'talenttrack' )
+                . '</p>';
+            echo '</section>';
+            return;
+        }
+
+        $name       = (string) ( $tournament->name ?? '' );
+        $start_date = (string) ( $tournament->start_date ?? '' );
+        $end_date   = (string) ( $tournament->end_date ?? '' );
+        $match_n    = (int) ( $tournament->match_count ?? 0 );
+
+        $date_label = $start_date;
+        if ( $end_date !== '' && $end_date !== $start_date ) {
+            $date_label .= ' – ' . $end_date;
+        }
+        $match_label = sprintf(
+            /* translators: %d: tournament match count */
+            _n( '%d match', '%d matches', $match_n, 'talenttrack' ),
+            $match_n
+        );
+
+        echo '<p style="margin:0 0 4px; font-weight:600;">' . esc_html( $name ) . '</p>';
+        echo '<p style="margin:0; color:#5b6e75;">'
+            . esc_html( $date_label . ' · ' . $match_label )
+            . '</p>';
+
+        if ( AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_view_tournaments' ) ) {
+            $planner_url = add_query_arg(
+                [ 'tt_view' => 'tournaments', 'id' => (int) $tournament->id ],
+                \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+            );
+            echo '<p style="margin:6px 0 0;"><a href="' . esc_url( $planner_url ) . '">'
+                . esc_html__( 'Open tournament planner →', 'talenttrack' )
+                . '</a></p>';
+        }
+        echo '</section>';
+    }
+
+    /**
+     * #1324 — tournament link picker on the activity edit form.
+     * Renders a hidden block by default; shown when
+     * activity_type_key === 'tournament' via the existing JS toggle.
+     * Coach can link an existing tournament without holding
+     * `tt_view_tournaments` (the picker exposes id + name + dates
+     * only via the narrow `TournamentsRepository::listForTeamPicker`
+     * shape). The "Create new tournament" CTA is admin-only, gated
+     * on `tt_edit_tournaments`.
+     */
+    private static function renderFormTournamentPicker( int $team_id, int $selected_tournament_id, string $current_type ): void {
+        $tournaments = [];
+        if ( $team_id > 0 ) {
+            $tournaments = ( new \TT\Modules\Tournaments\Repositories\TournamentsRepository() )
+                ->listForTeamPicker( $team_id );
+        }
+        $can_create_tournament = AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_edit_tournaments' );
+        ?>
+        <div class="tt-field" id="tt-activity-tournament-row" style="<?php echo $current_type === ActivityTypeKey::TOURNAMENT ? '' : 'display:none;'; ?>">
+            <label class="tt-field-label" for="tt-activity-tournament">
+                <?php esc_html_e( 'Tournament', 'talenttrack' ); ?>
+            </label>
+            <select id="tt-activity-tournament" class="tt-input" name="tournament_id">
+                <option value="0"<?php selected( $selected_tournament_id, 0 ); ?>>
+                    <?php esc_html_e( '— Not linked —', 'talenttrack' ); ?>
+                </option>
+                <?php foreach ( $tournaments as $t ) :
+                    $tid   = (int) $t->id;
+                    $label = (string) $t->name;
+                    $dates = (string) $t->start_date;
+                    if ( ! empty( $t->end_date ) && $t->end_date !== $t->start_date ) {
+                        $dates .= ' – ' . (string) $t->end_date;
+                    }
+                ?>
+                    <option value="<?php echo esc_attr( (string) $tid ); ?>"<?php selected( $selected_tournament_id, $tid ); ?>>
+                        <?php echo esc_html( $label . ' (' . $dates . ')' ); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+            <?php if ( $can_create_tournament ) :
+                $wizard_url = add_query_arg(
+                    [
+                        'tt_view' => 'wizard',
+                        'slug'    => 'new-tournament',
+                        'team_id' => $team_id,
+                    ],
+                    \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+                );
+                ?>
+                <p class="tt-field-hint" style="margin:4px 0 0;">
+                    <a href="<?php echo esc_url( $wizard_url ); ?>">
+                        <?php esc_html_e( 'Create new tournament →', 'talenttrack' ); ?>
+                    </a>
+                </p>
+            <?php else : ?>
+                <p class="tt-field-hint" style="margin:4px 0 0; color:#5b6e75;">
+                    <?php esc_html_e( 'No tournament yet? Ask an admin to create one in the Tournaments planner.', 'talenttrack' ); ?>
+                </p>
+            <?php endif; ?>
+        </div>
+        <?php
     }
 }
