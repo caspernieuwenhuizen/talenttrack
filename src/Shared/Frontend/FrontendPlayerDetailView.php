@@ -1232,24 +1232,21 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         // the MOST RECENT 25 (DESC LIMIT 25), so the operator sees
         // the recent window — not the oldest 25 of the player's
         // career; the outer SELECT just reverses for display.
-        $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT * FROM (
-                SELECT a.id, a.title, a.session_date, a.activity_type_key, a.plan_state, att.status
-                   FROM {$wpdb->prefix}tt_attendance att
-                   JOIN {$wpdb->prefix}tt_activities a ON a.id = att.activity_id
-                  WHERE att.player_id = %d
-                    AND att.is_guest = 0
-                    AND a.archived_at IS NULL
-                    AND (
-                        ( a.plan_state = 'completed' AND a.session_date <= CURDATE() )
-                        OR a.plan_state IN ( 'planned', 'scheduled' )
-                    )
-                  ORDER BY a.session_date DESC, a.id DESC
-                  LIMIT 25
-             ) recent
-             ORDER BY session_date ASC, id ASC",
-            $player_id
-        ) );
+        // #1320 — routed through ActivitiesRepository::listForPlayer so
+        // the activity-table read path lives in one place. The shape
+        // (recent-25 + ASC display + plan-state filter, no record_type
+        // filter so 'expected' planned rows still surface) is preserved
+        // via the filter array.
+        $rows = ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )->listForPlayer(
+            (int) $player_id,
+            25,
+            'ASC',
+            [
+                'record_types'        => null,
+                'plan_states'         => [ 'completed', 'planned', 'scheduled' ],
+                'only_past_completed' => true,
+            ]
+        );
         if ( empty( $rows ) ) {
             $team_id = $player !== null ? (int) ( $player->team_id ?? 0 ) : 0;
             if ( $team_id > 0 ) {
