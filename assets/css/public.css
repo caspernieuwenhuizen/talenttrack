@@ -66,7 +66,7 @@
      * serif stack + 1.55 line-height so existing installs render
      * identically until the operator opts in via the editor.
      */
-    font-family: var(--tt-font-body, Georgia, "Iowan Old Style", "Palatino Linotype", serif);
+    font-family: var(--tt-font-body, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif);
     font-size: var(--tt-fs-body, 1rem);
     color: var(--tt-ink);
     line-height: var(--tt-lh-body, 1.55);
@@ -86,7 +86,7 @@
 }
 .tt-login-logo { max-height: 70px; margin: 0 auto 1rem; display: block; }
 .tt-login-title {
-    font-family: "Playfair Display", Georgia, serif; font-size: 1.6rem; font-weight: 700;
+    font-family: var(--tt-font-display, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif); font-size: 1.6rem; font-weight: 700;
     margin: 0 0 .25rem; color: var(--tt-primary, #0b3d2e);
 }
 .tt-login-subtitle { color: var(--tt-muted); font-style: italic; margin: 0 0 1.5rem; font-size: .95rem; }
@@ -128,7 +128,7 @@
     padding: .75rem 1rem;
     background: #fff7e0;
     border-left: 3px solid var(--tt-secondary, #e8b624);
-    font-family: Georgia, serif;
+    font-family: var(--tt-font-body, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif);
     font-style: italic;
     color: var(--tt-ink);
 }
@@ -148,7 +148,7 @@
 .tt-dash-header::after { content: ""; position: absolute; bottom: -8px; left: 0; width: 60px; height: 2px; background: var(--tt-secondary, #e8b624); }
 .tt-dash-brand { display: flex; align-items: center; gap: 1rem; }
 .tt-dash-logo { max-height: 44px; width: auto; }
-.tt-dash-title { font-family: "Playfair Display", Georgia, serif; font-size: 1.4rem; font-weight: 700; margin: 0; color: var(--tt-primary, #0b3d2e); line-height: 1.2; }
+.tt-dash-title { font-family: var(--tt-font-display, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif); font-size: 1.4rem; font-weight: 700; margin: 0; color: var(--tt-primary, #0b3d2e); line-height: 1.2; }
 
 /* Dashboard actions cluster (#0036) */
 /* Sits opposite the brand block: optional DEMO pill, help icon, user menu. */
@@ -444,7 +444,7 @@ dialog.tt-modal::backdrop {
 }
 .tt-docs-drawer__head h3 {
     flex: 1;
-    font-family: "Playfair Display", Georgia, serif;
+    font-family: var(--tt-font-display, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif);
     font-size: 16px; font-weight: 700; margin: 0;
     color: var(--tt-primary, #0b3d2e);
 }
@@ -563,7 +563,7 @@ body.tt-docs-drawer-open { overflow: hidden; }
 .tt-custom-fields-list dd {
     margin: 0;
     color: var(--tt-ink);
-    font-family: Georgia, serif;
+    font-family: var(--tt-font-body, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif);
 }
 @media (max-width: 600px) {
     .tt-custom-fields-list { grid-template-columns: 1fr; gap: .2rem; }
@@ -630,7 +630,7 @@ body.tt-docs-drawer-open { overflow: hidden; }
 .tt-card { display: flex; gap: 1rem; padding: var(--tt-card-padding, 1rem); background: var(--tt-card-bg, #fff); border: 1px solid var(--tt-card-border, var(--tt-line)); border-left: 3px solid var(--tt-card-accent-border, var(--tt-primary, #0b3d2e)); box-shadow: var(--tt-shadow-sm, none); transition: transform var(--tt-motion-duration, 150ms) var(--tt-motion-easing, ease), box-shadow var(--tt-motion-duration, 150ms) var(--tt-motion-easing, ease); }
 .tt-card:hover { transform: translateY(-2px); box-shadow: var(--tt-shadow-md, 0 8px 24px -8px rgba(0,0,0,0.12)); }
 .tt-card-thumb img { width: 60px; height: 60px; object-fit: cover; border-radius: 50%; border: 2px solid var(--tt-secondary, #e8b624); }
-.tt-card-body h3 { margin: 0 0 .4rem; font-size: 1.1rem; font-family: "Playfair Display", Georgia, serif; color: var(--tt-primary, #0b3d2e); }
+.tt-card-body h3 { margin: 0 0 .4rem; font-size: 1.1rem; font-family: var(--tt-font-display, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif); color: var(--tt-primary, #0b3d2e); }
 .tt-card-body h3 a { color: inherit; text-decoration: none; }
 .tt-card-body p { margin: 2px 0; font-size: 0.85rem; color: var(--tt-muted); font-family: "Helvetica Neue", Arial, sans-serif; }
 .tt-card-body p strong { color: var(--tt-ink); font-weight: 600; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.08em; margin-right: 4px; }
@@ -650,7 +650,7 @@ body.tt-docs-drawer-open { overflow: hidden; }
 
 .tt-goals-list { display: flex; flex-direction: column; gap: .8rem; margin: 1rem 0; }
 .tt-goal-item { padding: .9rem 1rem; background: #fff; border: 1px solid var(--tt-line); border-left: 4px solid #ccc; }
-.tt-goal-item h4 { margin: 0 0 .3rem; font-family: "Playfair Display", Georgia, serif; color: var(--tt-primary, #0b3d2e); font-size: 1rem; }
+.tt-goal-item h4 { margin: 0 0 .3rem; font-family: var(--tt-font-display, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif); color: var(--tt-primary, #0b3d2e); font-size: 1rem; }
 .tt-status-pending     { border-left-color: #c9a227; }
 .tt-status-in_progress { border-left-color: #2271b1; }
 .tt-status-completed   { border-left-color: #00a32a; }
@@ -871,7 +871,7 @@ input[type="checkbox"], input[type="radio"] {
 .tt-form-msg.tt-success { display: block; background: #e6f5e9; color: #0a5c2a; border-left: 3px solid #00a32a; }
 .tt-form-msg.tt-error   { display: block; background: #fce8e8; color: #8a1f1f; border-left: 3px solid #b32d2e; }
 
-.tt-dashboard h3 { font-family: "Playfair Display", Georgia, serif; font-size: 1.3rem; color: var(--tt-primary, #0b3d2e); margin: 1.5rem 0 .5rem; padding-bottom: .3rem; border-bottom: 1px solid var(--tt-line); }
+.tt-dashboard h3 { font-family: var(--tt-font-display, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif); font-size: 1.3rem; color: var(--tt-primary, #0b3d2e); margin: 1.5rem 0 .5rem; padding-bottom: .3rem; border-bottom: 1px solid var(--tt-line); }
 .tt-dashboard h4 { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--tt-muted); margin: 1.2rem 0 .4rem; }
 
 @media (max-width: 700px) {
