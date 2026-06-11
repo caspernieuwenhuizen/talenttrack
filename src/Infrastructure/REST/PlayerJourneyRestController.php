@@ -3,6 +3,7 @@ namespace TT\Infrastructure\REST;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Audit\AuditService;
 use TT\Infrastructure\Journey\EventEmitter;
 use TT\Infrastructure\Journey\EventTypeRegistry;
 use TT\Infrastructure\Journey\InjuryRepository;
@@ -118,6 +119,21 @@ class PlayerJourneyRestController extends BaseController {
 
         $repo = new PlayerEventsRepository();
         $result = $repo->timelineForPlayer( $player_id, $filters, $allowed );
+
+        // #1348 — reads that actually returned medical/safeguarding
+        // entries are audit-logged (CLAUDE.md §1). Ordinary timeline
+        // reads stay unlogged to keep the audit table signal-dense.
+        $sensitive = 0;
+        foreach ( $result['events'] as $event ) {
+            if ( in_array( (string) ( $event->visibility ?? '' ), [ 'medical', 'safeguarding' ], true ) ) {
+                $sensitive++;
+            }
+        }
+        if ( $sensitive > 0 ) {
+            ( new AuditService() )->record( 'player.sensitive_timeline_viewed', 'player', $player_id, [
+                'sensitive_count' => $sensitive,
+            ] );
+        }
 
         return RestResponse::success( [
             'events'       => array_map( [ __CLASS__, 'formatEvent' ], $result['events'] ),
@@ -251,14 +267,26 @@ class PlayerJourneyRestController extends BaseController {
 
     public static function list_injuries( \WP_REST_Request $r ): \WP_REST_Response {
         $player_id = (int) $r['id'];
+        // #1348 — the global medical cap alone is not enough: the viewer
+        // must also be in scope for THIS player, and the read is logged.
+        // Medical records on minors are the most sensitive data class in
+        // the system (CLAUDE.md §1: permission-gated AND audit-logged).
+        if ( ! AuthorizationService::canViewPlayer( get_current_user_id(), $player_id ) ) {
+            return RestResponse::error( 'forbidden', __( 'You do not have access to this player.', 'talenttrack' ), 403 );
+        }
         $rows = ( new InjuryRepository() )->listForPlayer( $player_id, (bool) $r->get_param( 'include_archived' ) );
+        ( new AuditService() )->record( 'player.injuries_viewed', 'player', $player_id, [
+            'count' => count( $rows ),
+        ] );
         return RestResponse::success( [ 'injuries' => array_map( static fn( $row ) => (array) $row, $rows ) ] );
     }
 
     public static function create_injury( \WP_REST_Request $r ): \WP_REST_Response {
         $player_id = (int) $r['id'];
-        $payload   = (array) $r->get_json_params();
-        $payload['player_id'] = $player_id;
+        if ( ! AuthorizationService::canEditPlayer( get_current_user_id(), $player_id ) ) {
+            return RestResponse::error( 'forbidden', __( 'You cannot record injuries for this player.', 'talenttrack' ), 403 );
+        }
+        $payload = (array) $r->get_json_params();
 
         $id = ( new InjuryRepository() )->create( [
             'player_id'             => $player_id,
@@ -274,24 +302,71 @@ class PlayerJourneyRestController extends BaseController {
         if ( $id <= 0 ) {
             return RestResponse::error( 'bad_request', __( 'Could not record injury.', 'talenttrack' ), 400 );
         }
+        ( new AuditService() )->record( 'player.injury_created', 'player_injury', $id, [
+            'player_id' => $player_id,
+        ] );
         return RestResponse::success( [ 'id' => $id ] );
     }
 
     public static function update_injury( \WP_REST_Request $r ): \WP_REST_Response {
-        $id = (int) $r['id'];
+        $id   = (int) $r['id'];
+        $repo = new InjuryRepository();
+        $row  = $repo->find( $id );
+        if ( ! $row ) {
+            return RestResponse::error( 'not_found', __( 'Injury not found.', 'talenttrack' ), 404 );
+        }
+        $player_id = (int) $row->player_id;
+        if ( ! AuthorizationService::canEditPlayer( get_current_user_id(), $player_id ) ) {
+            return RestResponse::error( 'forbidden', __( 'You cannot edit injuries for this player.', 'talenttrack' ), 403 );
+        }
+
+        // #1348 — sanitize per field instead of passing client values
+        // through array_intersect_key untouched.
         $payload = (array) $r->get_json_params();
-        $patch = array_intersect_key( $payload, array_flip( [
-            'expected_return', 'actual_return', 'injury_type_lookup_id', 'body_part_lookup_id', 'severity_lookup_id', 'notes',
-        ] ) );
-        $ok = ( new InjuryRepository() )->update( $id, $patch );
+        $patch   = [];
+        foreach ( [ 'expected_return', 'actual_return' ] as $key ) {
+            if ( array_key_exists( $key, $payload ) ) {
+                $patch[ $key ] = $payload[ $key ] === null ? null : sanitize_text_field( (string) $payload[ $key ] );
+            }
+        }
+        foreach ( [ 'injury_type_lookup_id', 'body_part_lookup_id', 'severity_lookup_id' ] as $key ) {
+            if ( array_key_exists( $key, $payload ) ) {
+                $patch[ $key ] = $payload[ $key ] === null ? null : (int) $payload[ $key ];
+            }
+        }
+        if ( array_key_exists( 'notes', $payload ) ) {
+            $patch['notes'] = sanitize_textarea_field( (string) $payload['notes'] );
+        }
+
+        $ok = $repo->update( $id, $patch );
+        if ( $ok ) {
+            ( new AuditService() )->record( 'player.injury_updated', 'player_injury', $id, [
+                'player_id' => $player_id,
+                'fields'    => array_keys( $patch ),
+            ] );
+        }
         return $ok
             ? RestResponse::success( [ 'updated' => true ] )
             : RestResponse::error( 'bad_request', __( 'No fields to update or update failed.', 'talenttrack' ), 400 );
     }
 
     public static function archive_injury( \WP_REST_Request $r ): \WP_REST_Response {
-        $id = (int) $r['id'];
-        $ok = ( new InjuryRepository() )->archive( $id, get_current_user_id() );
+        $id   = (int) $r['id'];
+        $repo = new InjuryRepository();
+        $row  = $repo->find( $id );
+        if ( ! $row ) {
+            return RestResponse::error( 'not_found', __( 'Injury not found.', 'talenttrack' ), 404 );
+        }
+        $player_id = (int) $row->player_id;
+        if ( ! AuthorizationService::canEditPlayer( get_current_user_id(), $player_id ) ) {
+            return RestResponse::error( 'forbidden', __( 'You cannot edit injuries for this player.', 'talenttrack' ), 403 );
+        }
+        $ok = $repo->archive( $id, get_current_user_id() );
+        if ( $ok ) {
+            ( new AuditService() )->record( 'player.injury_archived', 'player_injury', $id, [
+                'player_id' => $player_id,
+            ] );
+        }
         return $ok
             ? RestResponse::success( [ 'archived' => true ] )
             : RestResponse::error( 'not_found', __( 'Injury not found.', 'talenttrack' ), 404 );

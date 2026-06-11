@@ -1789,6 +1789,15 @@ msgstr "Voorvertoning ondersteunt maximaal 100 ids per aanroep."
 msgid "You do not have access to this player."
 msgstr "Je hebt geen toegang tot deze speler."
 
+# ===== #1348 — injury endpoint scope guards =====
+#: src/Infrastructure/REST/PlayerJourneyRestController.php
+msgid "You cannot record injuries for this player."
+msgstr "Je kunt geen blessures registreren voor deze speler."
+
+#: src/Infrastructure/REST/PlayerJourneyRestController.php
+msgid "You cannot edit injuries for this player."
+msgstr "Je kunt geen blessures bewerken voor deze speler."
+
 #: src/Infrastructure/REST/PlayerJourneyRestController.php:145
 msgid "You cannot add events for this player."
 msgstr "Je kunt geen gebeurtenissen toevoegen voor deze speler."

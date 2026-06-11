@@ -60,6 +60,8 @@ Not every entry is visible to everyone. Each entry has a **visibility level**:
 
 When the journey contains an entry you can't see, you'll see *"1 entry hidden — visible to other roles only."* at the top so the chronology stays honest. The detail itself stays out of sight.
 
+Since v4.20.98, medical data is double-gated and audit-logged: viewing or editing a player's injuries requires both the medical-view permission **and** access to that specific player (the same scope rule as the rest of their record), and every injury view, create, edit, and archive — plus any timeline read that returned medical or safeguarding entries — lands in the audit log with who, when, and which player. That's the trail a safeguarding inquiry asks for.
+
 ## Cohort transitions (head of academy)
 
 Want to know everyone who got promoted to U15 this year? Or every long-term injury last season? Open **Cohort transitions** under Analytics:

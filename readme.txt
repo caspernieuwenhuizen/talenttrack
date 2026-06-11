@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.97
+Stable tag: 4.20.98
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.98 — Injury endpoints: per-player scope + audit logging on minors' medical data (closes #1348). Audit finding (privacy of minors): all four injury routes in [`PlayerJourneyRestController`](src/Infrastructure/REST/PlayerJourneyRestController.php) gated on the global `tt_view_player_medical` cap only — a team-A coach holding the cap could enumerate `GET /players/{id}/injuries` for every player in the academy, with nothing logged; the timeline handler in the same controller already scope-checked. **Scope guards.** `list_injuries` now requires `AuthorizationService::canViewPlayer`; `create_injury` / `update_injury` / `archive_injury` require `canEditPlayer` — update/archive resolve the injury's `player_id` via `InjuryRepository::find` first. **Audit trail.** Every injury list/create/update/archive records an [`AuditService`](src/Infrastructure/Audit/AuditService.php) entry (`player.injuries_viewed`, `player.injury_created/updated/archived`) with player_id + changed-field keys, and `get_timeline` logs `player.sensitive_timeline_viewed` whenever a read actually returned medical/safeguarding entries — ordinary timeline reads stay unlogged to keep the audit table signal-dense. CLAUDE.md §1's "permission-gated and audit-logged" promise now holds on the medical surface. **Input hardening.** `update_injury` sanitizes per field (dates, lookup ids, `sanitize_textarea_field` on notes) instead of passing client values through `array_intersect_key` raw. 2 new Dutch msgstrs; docs/player-journey.md (EN+NL) Privacy section documents the double-gate + audit trail. Patch bump. (closes #1348) =
 
 = 4.20.97 — Go-live runbook + license-state verification path (closes #1347). Audit finding: the pilot roster (~4 teams / 70-90 players) exceeds the free tier (1 team / 25 players), and if license enforcement were active the roster import would hard-fail at player #26 mid-onboarding. **Verified:** with the shipped default `TT_COMMERCIAL_MODE = false`, [`LicenseGate`](src/Modules/License/LicenseGate.php) short-circuits to Pro/no-caps — the risk only materialises on installs flipped to commercial mode, where the [`DevOverride`](src/Modules/License/DevOverride.php) tier pin is the correct guard. Both paths are now documented as a hard go-live checklist item rather than tribal knowledge. **New operator doc** [`docs/go-live-runbook.md`](docs/go-live-runbook.md) (+ nl_NL): license state (blocker), host-level full-site backup requirement — the plugin's table export covers neither `wp-content/uploads/` photos nor `wp_users` (blocker), schema/migration banner check (blocker), Spond + email smoke tests, access spot-checks, day-one support plan. Registered in [`HelpTopics`](src/Modules/Documentation/HelpTopics.php) under Configuration so it's findable in-app. 2 new Dutch msgstrs. Patch bump. (closes #1347) =
 
