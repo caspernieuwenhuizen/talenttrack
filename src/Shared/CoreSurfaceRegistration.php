@@ -58,6 +58,7 @@ final class CoreSurfaceRegistration {
     private const M_STAFF_DEV     = 'TT\\Modules\\StaffDevelopment\\StaffDevelopmentModule';
     private const M_WIZARDS       = 'TT\\Modules\\Wizards\\WizardsModule';
     private const M_WORKFLOW      = 'TT\\Modules\\Workflow\\WorkflowModule';
+    private const M_VCT           = 'TT\\Modules\\Vct\\VctModule';
     private const M_JOURNEY       = 'TT\\Modules\\Journey\\JourneyModule';
 
     /**
@@ -484,6 +485,29 @@ final class CoreSurfaceRegistration {
             'icon'         => 'kanban',
             'color'        => '#2271b1',
             'cap'          => 'tt_view_plan',
+        ]);
+        // #1373 — the VCT session designer was reachable only by typing
+        // the URL. The coach entry point is the new-vct-session wizard
+        // (there is no list view; vct-session is a detail route), so
+        // the tile carries a url_callback into the wizard entry.
+        TileRegistry::register([
+            'module_class' => self::M_VCT,
+            'view_slug'    => 'vct-planner',
+            'entity'       => 'vct',
+            'group'        => $performance_group,
+            'kind'         => 'work',
+            'order'        => 26,
+            'label'        => __( 'VCT session designer', 'talenttrack' ),
+            'description'  => __( 'Build a structured training from the exercise library: blocks, coaching points, A4 print.', 'talenttrack' ),
+            'icon'         => 'kanban',
+            'color'        => '#1d7874',
+            'cap'          => 'tt_vct_plan',
+            'url_callback' => static function ( int $user_id ): string {
+                return \TT\Shared\Wizards\WizardEntryPoint::urlFor(
+                    'new-vct-session',
+                    \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+                );
+            },
         ]);
         TileRegistry::register([
             'module_class' => self::M_GOALS,
