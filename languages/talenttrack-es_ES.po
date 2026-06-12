@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-12T00:52:44+00:00\n"
+"POT-Creation-Date: 2026-06-12T01:18:07+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -2663,7 +2663,7 @@ msgstr "— Todos —"
 #: src/Modules/Teams/Admin/TeamsPage.php:154
 #: src/Modules/Wizards/Activity/DetailsStep.php:63
 #: src/Modules/Wizards/Activity/ReviewStep.php:80
-#: src/Modules/Wizards/Evaluation/BehaviourStep.php:92
+#: src/Modules/Wizards/Evaluation/BehaviourStep.php:105
 #: src/Modules/Wizards/Evaluation/RateActorsStep.php:229
 #: src/Modules/Wizards/Prospect/ReviewStep.php:49
 #: src/Modules/Wizards/Team/BasicsStep.php:40
@@ -25886,29 +25886,33 @@ msgstr ""
 msgid "No players to rate. Skip to continue."
 msgstr ""
 
-#: src/Modules/Wizards/Evaluation/BehaviourStep.php:60
+#: src/Modules/Wizards/Evaluation/BehaviourStep.php:68
 msgid ""
-"Optional — record a quick behaviour rating for this activity. Skip any "
-"player you do not want to rate today. Players left blank get no behaviour "
-"row."
+"Behaviour is tracked separately from performance — this optional second pass "
+"records conduct, not football. Leave everything blank (or keep this section "
+"closed) and tap Next if you only want performance ratings today."
 msgstr ""
 
-#: src/Modules/Wizards/Evaluation/BehaviourStep.php:76
+#: src/Modules/Wizards/Evaluation/BehaviourStep.php:73
+msgid "Rate behaviour for this activity"
+msgstr ""
+
+#: src/Modules/Wizards/Evaluation/BehaviourStep.php:89
 #: src/Modules/Wizards/Evaluation/RateActorsStep.php:136
 #: src/Modules/Wizards/Evaluation/RateActorsStep.php:155
 msgid "Not rated"
 msgstr ""
 
-#: src/Modules/Wizards/Evaluation/BehaviourStep.php:81
+#: src/Modules/Wizards/Evaluation/BehaviourStep.php:94
 msgid "Behaviour rating"
 msgstr ""
 
-#: src/Modules/Wizards/Evaluation/BehaviourStep.php:84
+#: src/Modules/Wizards/Evaluation/BehaviourStep.php:97
 #: src/Shared/Frontend/FrontendTeamBehaviourCaptureView.php:163
 msgid "— skip —"
 msgstr ""
 
-#: src/Modules/Wizards/Evaluation/BehaviourStep.php:97
+#: src/Modules/Wizards/Evaluation/BehaviourStep.php:110
 #: src/Shared/Frontend/FrontendTeamBehaviourCaptureView.php:173
 msgid "Optional one-liner"
 msgstr ""
