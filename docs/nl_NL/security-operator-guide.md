@@ -49,7 +49,24 @@ Voeg persona's geleidelijk toe: zet het op dag één aan voor *Academy admin* + 
 
 **Lockout-herstel (beheerder schakelt namens gebruiker uit)** — als een gebruiker zowel zijn telefoon als zijn reservecodes kwijt is, is het formulier *MFA resetten bij een andere gebruiker* op hetzelfde beheerder-blok de herstelroute. Kies de aangemelde gebruiker uit de dropdown, vink het bevestigingsvakje aan, klik op *MFA resetten bij deze gebruiker*. De `tt_user_mfa`-rij wordt gewist; bij de volgende login meldt de gebruiker zich opnieuw aan. De actie wordt aan beide kanten in de audit-log vastgelegd — actor (beheerder) en ontvanger (doelgebruiker).
 
-Als jij (de enige academy admin) zelf buitengesloten raakt zonder uitweg, heb je directe database-toegang nodig om je `tt_user_mfa`-rij te wissen. Om dat te voorkomen: **houd minstens twee adminaccounts**, zodat een admin altijd een andere admin via de UI kan herstellen.
+### Herstel bij MFA-buitensluiting
+
+Als jij (de enige academy admin) buitengesloten raakt — verkeerde codes, klokafwijking, een verloren toestel of een inschrijving die nooit is afgerond — bestaan er vanaf v4.20.128 twee noodpaden. Geen van beide vereist database-toegang:
+
+1. **wp-config-noodschakelaar (primair, voor iedereen).** Voeg deze regel toe aan `wp-config.php` (de support van je host kan dit doen als jij het niet kunt):
+
+   ```php
+   define( 'TT_MFA_DISABLE', true );
+   ```
+
+   Dit onderdrukt alleen de MFA-*handhaving* — je inschrijving en het personabeleid blijven onaangeroerd. Log in, herstel je inschrijving via het MFA-tabblad en **verwijder daarna de regel**; de handhaving hervat precies zoals die was. Zolang de constante actief is, toont elke wp-admin-pagina een waarschuwingsbanner zodat hij niet stilletjes aan kan blijven staan.
+
+2. **wp-cli-commando's (voor technische beheerders).**
+   - `wp tt mfa status` — toont de afgedwongen persona's, of de noodschakelaar actief is, en per gebruiker de inschrijvings-/blokkeringsstatus — eerst diagnosticeren, dan handelen.
+   - `wp tt mfa disable` — zet het personabeleid op leeg (handhaving installatiebreed uit) en wist elke lopende MFA-uitdaging, in één aanroep. Inschrijvingsrijen blijven staan; heractiveer via het MFA-tabblad zodra je hersteld bent.
+   - `wp tt mfa reset <user-id|login|e-mail>` — wist alleen de inschrijvingsrij van één gebruiker (die zich bij de volgende login opnieuw inschrijft); het installatiebrede beleid blijft onaangeroerd.
+
+Voorkomen blijft beter dan herstellen: **houd minstens twee adminaccounts**, zodat een admin altijd een andere admin via de bovenstaande UI kan herstellen.
 
 **Audit-log-integratie** — elke MFA-gebeurtenis verschijnt onder `wp-admin → TalentTrack → Audit log` met actiekeys `mfa.enrolled` / `mfa.verified` / `mfa.verify_failed` / `mfa.lockout` / `mfa.backup_code_used` / `mfa.backup_codes_regenerated` / `mfa.disabled` / `mfa.device_remembered` / `mfa.required_personas_changed`. Filter op `action=mfa.lockout` om gebruikers te zien die de drempel raken; filter op `action=mfa.disabled` om resets door beheerders te zien.
 

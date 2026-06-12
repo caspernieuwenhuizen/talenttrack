@@ -56,5 +56,23 @@ class MfaModule implements ModuleInterface {
         WizardRegistry::register( new MfaEnrollmentWizard() );
         MfaActionHandlers::init();
         MfaLoginGuard::init();
+
+        // #1392 — break-glass recovery surfaces.
+        // wp-cli command group (`wp tt mfa status|disable|reset`);
+        // no-op on web requests.
+        if ( class_exists( 'WP_CLI' ) ) {
+            \WP_CLI::add_command( 'tt mfa', \TT\Modules\Mfa\Cli\MfaCliCommand::class );
+        }
+        // Loud admin notice while the wp-config kill-switch is active,
+        // so it can't be silently left on after a recovery.
+        if ( MfaLoginGuard::killSwitchActive() && is_admin() ) {
+            add_action( 'admin_notices', static function (): void {
+                echo '<div class="notice notice-warning"><p><strong>'
+                    . esc_html__( 'TalentTrack: MFA enforcement is disabled via the TT_MFA_DISABLE constant.', 'talenttrack' )
+                    . '</strong> '
+                    . esc_html__( 'Remove the define from wp-config.php to re-enable enforcement. Enrollment and policy were not changed.', 'talenttrack' )
+                    . '</p></div>';
+            } );
+        }
     }
 }

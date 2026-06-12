@@ -38209,3 +38209,12 @@ msgid "%d PDP conversation logged"
 msgid_plural "%d PDP conversations logged"
 msgstr[0] "%d PDP-gesprek vastgelegd"
 msgstr[1] "%d PDP-gesprekken vastgelegd"
+
+# #1392 - MFA lockout recovery (v4.20.128). i18n-sync will merge these
+# into the proper position on next run; meanwhile they land here
+# verbatim so a Dutch install reads correctly today.
+msgid "TalentTrack: MFA enforcement is disabled via the TT_MFA_DISABLE constant."
+msgstr "TalentTrack: MFA-handhaving is uitgeschakeld via de constante TT_MFA_DISABLE."
+
+msgid "Remove the define from wp-config.php to re-enable enforcement. Enrollment and policy were not changed."
+msgstr "Verwijder de define uit wp-config.php om de handhaving weer in te schakelen. Inschrijving en beleid zijn niet gewijzigd."

@@ -60,6 +60,34 @@ final class MfaSecretsRepository {
     }
 
     /**
+     * #1392 — every enrollment row for the current club, for the
+     * `wp tt mfa status` diagnostic. Narrow shape: user id, enrolled
+     * timestamp, lockout state, failed-attempt counter.
+     *
+     * @return list<array{wp_user_id:int, enrolled_at:?string, locked_until:?string, failed_attempts:int}>
+     */
+    public function listEnrollments(): array {
+        global $wpdb;
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT wp_user_id, enrolled_at, locked_until, failed_attempts
+               FROM {$this->table()}
+              WHERE club_id = %d
+              ORDER BY wp_user_id ASC",
+            CurrentClub::id()
+        ), ARRAY_A );
+        $out = [];
+        foreach ( (array) $rows as $r ) {
+            $out[] = [
+                'wp_user_id'      => (int) $r['wp_user_id'],
+                'enrolled_at'     => $r['enrolled_at'] !== null ? (string) $r['enrolled_at'] : null,
+                'locked_until'    => $r['locked_until'] !== null ? (string) $r['locked_until'] : null,
+                'failed_attempts' => (int) ( $r['failed_attempts'] ?? 0 ),
+            ];
+        }
+        return $out;
+    }
+
+    /**
      * Whether a user has completed enrollment (i.e. a row exists with
      * `enrolled_at IS NOT NULL`). Used by the Account-page status tab
      * and (Sprint 3) the login filter.

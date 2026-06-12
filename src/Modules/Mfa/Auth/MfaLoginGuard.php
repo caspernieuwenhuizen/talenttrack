@@ -70,7 +70,20 @@ final class MfaLoginGuard {
      * @param string   $user_login
      * @param \WP_User $user
      */
+    /**
+     * #1392 — break-glass kill-switch. `define( 'TT_MFA_DISABLE', true )`
+     * in wp-config.php suppresses ENFORCEMENT only: no challenge is set
+     * on login and no request is redirected. Enrollment rows and the
+     * persona policy are untouched, so removing the constant restores
+     * the exact prior state. This is the operator-lockout recovery that
+     * doesn't need database access — see docs/mfa.md.
+     */
+    public static function killSwitchActive(): bool {
+        return defined( 'TT_MFA_DISABLE' ) && TT_MFA_DISABLE;
+    }
+
     public static function onLogin( $user_login, $user ): void {
+        if ( self::killSwitchActive() ) return;
         if ( ! ( $user instanceof \WP_User ) ) return;
         $user_id = (int) $user->ID;
         if ( $user_id <= 0 ) return;
@@ -101,6 +114,9 @@ final class MfaLoginGuard {
      * MFA challenge to the prompt / wizard until they clear it.
      */
     public static function enforce(): void {
+        // #1392 — break-glass: wp-config kill-switch suppresses all
+        // enforcement (a locked-out operator regains wp-admin).
+        if ( self::killSwitchActive() ) return;
         if ( ! is_user_logged_in() ) return;
         if ( wp_doing_ajax() || wp_doing_cron() ) return;
         if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) return;
