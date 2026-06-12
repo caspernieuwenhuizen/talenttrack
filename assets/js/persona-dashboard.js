@@ -65,9 +65,37 @@
         } catch (e) { /* private browsing — silently skip */ }
     }
 
+    // #1361 — aria-busy + skeleton helpers. TT.Loading (public.js) is
+    // the shared implementation; the inline fallback keeps this bundle
+    // self-sufficient if it ever loads standalone.
+    function setBusy(el, busy) {
+        if (window.TT && TT.Loading) {
+            busy ? TT.Loading.start(el) : TT.Loading.stop(el);
+            return;
+        }
+        if (busy) { el.setAttribute('aria-busy', 'true'); el.classList.add('tt-is-loading'); }
+        else { el.removeAttribute('aria-busy'); el.classList.remove('tt-is-loading'); }
+    }
+
+    function skeletonRows(count) {
+        var out = '';
+        for (var i = 0; i < count; i++) {
+            out += '<div class="tt-pd-team-player-row is-skeleton" aria-hidden="true">'
+                + '<span class="tt-skeleton"></span>'
+                + '<span class="tt-skeleton"></span>'
+                + '<span class="tt-skeleton"></span>'
+                + '</div>';
+        }
+        return out;
+    }
+
     function fetchTeamBreakdown(teamId, body, days) {
         var url = cfg.rest_url + 'persona-dashboard/team-breakdown?team_id=' + encodeURIComponent(teamId)
             + '&days=' + encodeURIComponent(days);
+        // #1361 — immediate visual feedback: three pulse rows in the
+        // shape of the real breakdown, aria-busy for AT.
+        setBusy(body, true);
+        body.innerHTML = skeletonRows(3);
         fetch(url, {
             credentials: 'same-origin',
             headers: { 'X-WP-Nonce': cfg.rest_nonce }
@@ -75,8 +103,10 @@
             return res.ok ? res.json() : Promise.reject(res.status);
         }).then(function (json) {
             body.dataset.ttLoaded = '1';
+            setBusy(body, false);
             renderBreakdown(body, json && json.players ? json.players : []);
         }).catch(function () {
+            setBusy(body, false);
             body.innerHTML = '<div class="tt-pd-team-card-loading">' + (cfg.i18n_breakdown_failed || 'Could not load player breakdown.') + '</div>';
         });
     }

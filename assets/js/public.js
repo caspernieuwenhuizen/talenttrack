@@ -59,6 +59,38 @@
         return out;
     }
 
+    /**
+     * #1361 — shared loading-state helper. Call start(container) before
+     * a REST fetch and stop(container) when it settles: the container
+     * gets aria-busy="true" (announced by AT) plus the .tt-is-loading
+     * class CSS consumers hook their busy treatment onto. skeleton(n)
+     * returns n pulse-placeholder blocks (aria-hidden — purely visual;
+     * the aria-busy on the container carries the semantics). Exposed on
+     * window.TT so the other bundles (frontend-list-table.js,
+     * persona-dashboard.js) reuse one implementation.
+     */
+    var Loading = {
+        start: function (el) {
+            if (!el) return;
+            el.setAttribute('aria-busy', 'true');
+            el.classList.add('tt-is-loading');
+        },
+        stop: function (el) {
+            if (!el) return;
+            el.removeAttribute('aria-busy');
+            el.classList.remove('tt-is-loading');
+        },
+        skeleton: function (count) {
+            var out = '';
+            for (var i = 0; i < (count || 3); i++) {
+                out += '<span class="tt-skeleton" aria-hidden="true"></span>';
+            }
+            return out;
+        }
+    };
+    window.TT = window.TT || {};
+    window.TT.Loading = Loading;
+
     function restRequest(path, method, body) {
         var base = (window.TT && TT.rest_url) ? TT.rest_url : '/wp-json/talenttrack/v1/';
         var url = base.replace(/\/+$/, '/') + path.replace(/^\/+/, '');

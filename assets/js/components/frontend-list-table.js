@@ -221,6 +221,11 @@
     function refresh(root) {
         var config = root._ttListConfig;
         var state  = root._ttListState;
+        // #1361 — aria-busy + .tt-is-loading on the component root for
+        // the duration of the fetch; CSS dims the stale rows and AT
+        // announces the busy state. TT.Loading lives in public.js.
+        var loading = (window.TT && TT.Loading) || null;
+        if (loading) loading.start(root);
         setStatus(root, 'loading', config.i18n.loading);
         // v3.92.7 — merge static_filters (server-locked filter values
         // passed via the PHP `static_filters` config arg) into the
@@ -250,6 +255,8 @@
             updateSortHeaders(root, state);
         }).catch(function() {
             setStatus(root, 'error', config.i18n.error);
+        }).finally(function() {
+            if (loading) loading.stop(root);
         });
     }
 
