@@ -26,6 +26,13 @@ jobs:
       - name: PHP syntax check
         run: |
           find src -name "*.php" -print0 | xargs -0 -n1 -P4 php -l
+      # #1393 — MFA QR capacity + no-truncation regression gate. Pure
+      # PHP (no WP bootstrap): asserts realistic otpauth URIs fit the
+      # v7/v8 budgets, the renderer emits sane SVG across the v6-v10
+      # production range, and over-capacity payloads are refused
+      # instead of silently truncated.
+      - name: MFA QR self-check
+        run: php bin/qr-selfcheck.php
 
   phpstan:
     name: PHPStan Static Analysis (level 8)

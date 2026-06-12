@@ -54,29 +54,54 @@ final class SecretStep implements WizardStepInterface {
             $row = $repo->findByUserId( $user_id );
         }
 
-        $secret      = (string) ( $row['secret'] ?? '' );
-        $user        = wp_get_current_user();
-        $account     = (string) ( $user->user_email ?: $user->user_login );
-        $issuer      = self::issuerLabel();
+        $secret  = (string) ( $row['secret'] ?? '' );
+        $user    = wp_get_current_user();
+        $account = (string) ( $user->user_email ?: $user->user_login );
+        $issuer  = self::issuerLabel();
+
+        // #1393 — keep the composed otpauth URI inside QR version 8
+        // (192 bytes at ECC L). The issuer appears twice in the URI
+        // (label prefix + issuer= param), so a long academy name can
+        // push a scannable v6–v7 code into the dense v9–v10 range —
+        // or past the encoder ceiling entirely. When the decorated
+        // issuer doesn't fit, fall back to the bare brand rather than
+        // shipping a denser (or truncated) code.
         $otpauth_uri = TotpService::otpauthUri( $secret, $account, $issuer );
-        $qr_svg      = QrCodeRenderer::svg( $otpauth_uri, 6 );
+        if ( strlen( $otpauth_uri ) > 192 && $issuer !== 'TalentTrack' ) {
+            $issuer      = 'TalentTrack';
+            $otpauth_uri = TotpService::otpauthUri( $secret, $account, $issuer );
+        }
+        $qr_svg = QrCodeRenderer::svg( $otpauth_uri, 6 );
 
         echo '<p>' . esc_html__( "Open your authenticator app, tap +, and scan this QR code. The app will start showing 6-digit codes that change every 30 seconds — that's how you'll sign in from now on.", 'talenttrack' ) . '</p>';
 
         echo '<div style="display:flex; gap:24px; flex-wrap:wrap; align-items:flex-start; margin:24px 0;">';
 
         // QR code (mobile-first: full width on phones, side-by-side ≥640px).
-        echo '<div style="flex:0 0 240px; max-width:100%;">';
-        echo '<div style="background:#ffffff; padding:8px; display:inline-block; border:1px solid #ddd;">';
-        // The SVG is generated server-side from a trusted internal URI;
-        // safe to echo without escaping its tags. KSES would strip the
-        // <path> attributes we need.
-        echo $qr_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-        echo '</div>';
-        echo '<p style="font-size:12px; color:#5b6e75; margin:8px 0 0;">'
-            . esc_html__( 'Scan with your authenticator app.', 'talenttrack' )
-            . '</p>';
-        echo '</div>';
+        // #1393 — box bumped 240px → 300px and the SVG fills it
+        // (style="width:100%" on the root), so even a v8 code clears
+        // ~4.5 px/module — readable for phone cameras.
+        if ( $qr_svg !== '' ) {
+            echo '<div style="flex:0 0 300px; max-width:100%;">';
+            echo '<div style="background:#ffffff; padding:8px; border:1px solid #ddd;">';
+            // The SVG is generated server-side from a trusted internal URI;
+            // safe to echo without escaping its tags. KSES would strip the
+            // <path> attributes we need.
+            echo $qr_svg; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            echo '</div>';
+            echo '<p style="font-size:12px; color:#5b6e75; margin:8px 0 0;">'
+                . esc_html__( 'Scan with your authenticator app.', 'talenttrack' )
+                . '</p>';
+            echo '</div>';
+        } else {
+            // #1393 — over-capacity payload: the renderer refuses to
+            // emit a truncated (invalid) QR. Steer to manual entry.
+            echo '<div style="flex:0 0 300px; max-width:100%;">';
+            echo '<p class="tt-notice">'
+                . esc_html__( 'The QR code could not be generated for this account — use the manual entry details instead. Both set up the same secret.', 'talenttrack' )
+                . '</p>';
+            echo '</div>';
+        }
 
         // Manual-entry fallback.
         echo '<div style="flex:1 1 320px; min-width:280px;">';
@@ -114,18 +139,25 @@ final class SecretStep implements WizardStepInterface {
     }
 
     /**
-     * Display the issuer in the QR / manual-entry as "TalentTrack — <site name>"
+     * Display the issuer in the QR / manual-entry as "TalentTrack <site name>"
      * when the site has a non-default name, otherwise just "TalentTrack".
-     * The em-dash + site-name suffix lets a user with multiple TalentTrack
-     * installs (e.g. dev + production) tell them apart in their authenticator
+     * The site-name suffix lets a user with multiple TalentTrack installs
+     * (e.g. dev + production) tell them apart in their authenticator
      * app's account list.
+     *
+     * #1393 — was "TalentTrack — <site>": the em-dash is a 3-byte UTF-8
+     * char that percent-encodes to 9 chars, TWICE (label prefix +
+     * issuer= param), inflating every real install's QR by ~16 bytes
+     * and pushing it a version denser than needed. Plain ASCII space
+     * now. The render path additionally caps the composed URI at the
+     * v8 budget (see render()).
      */
     private static function issuerLabel(): string {
         $site_name = trim( (string) get_bloginfo( 'name' ) );
         if ( $site_name === '' || strcasecmp( $site_name, 'TalentTrack' ) === 0 ) {
             return 'TalentTrack';
         }
-        return 'TalentTrack — ' . $site_name;
+        return 'TalentTrack ' . $site_name;
     }
 
     /**
