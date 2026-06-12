@@ -249,9 +249,16 @@ Ordered by raw frequency (most-used first). Each action lists:
   write a short qualitative summary for the academy director — output
   is the academy's quarterly accountability artefact
 - **Surface today:** `quarterly_hod_review` task in the workflow
-  inbox (per migration 0023); HoD matrix view at the team level
-  *(verify exact route — described in i18n strings as "HoD matrix:
-  per-team-per-block planned vs conducted conversations")*
+  inbox (per migration 0023) — the task form renders a live 90-day
+  snapshot (evaluations / activities by type / goals / on-time task
+  rate) plus the three summary fields (what worked, what didn't,
+  focus for next quarter). The per-team × per-block planned-vs-
+  conducted conversations matrix is `?tt_view=pdp-planning`
+  (`FrontendPdpPlanningView`, cap `tt_edit_pdp`); cells drill into
+  per-player block status via `&action=block`, and from there into
+  the individual PDP files where conversations get closed.
+  *Verified end-to-end 2026-06-12 (#1370): inbox task → matrix →
+  block drill-down → file detail all route correctly.*
 - **Player-centric framing:** *what next* at the cohort level —
   drives the next quarter's coaching priorities, which in turn
   shape per-player development
@@ -270,12 +277,24 @@ Ordered by raw frequency (most-used first). Each action lists:
   position, generate the per-prospect invitation message, and have
   the host coach see the test-training prospect on their attendance
   roster on the day
-- **Surface today:** `?tt_view=onboarding-pipeline` (kanban —
-  `invited` column); existing `tt_activities` rows with `type=training`
-  as the host sessions; *(verify — is the "slot prospect into
-  training" flow a first-class action or does it require manual
-  cross-referencing between the pipeline view and the activities
-  view?)*
+- **Surface today:** `?tt_view=onboarding-pipeline` (kanban). The
+  slotting flow is first-class, built on dedicated test-training
+  sessions (`tt_test_trainings`) rather than piggy-backing team
+  trainings: a card in the `Prospects`/`Invited` column deep-links to
+  the open workflow task; `InviteToTestTrainingForm` picks an
+  existing upcoming test training OR schedules a new one (date /
+  location / age group / host coach) in the same submit, plus the
+  parent invitation message; `confirm_test_training` then surfaces
+  the copy-pasteable invite, and `record_test_training_outcome`
+  closes the loop. Host sessions can also be created directly via
+  the `+ New test training` action card
+  (`?tt_view=test-trainings&action=new`). To observe a prospect
+  inside a *regular team training* instead, open that activity and
+  add them on the guest-attendance panel (free-text guest) — the
+  host coach then sees them on the day's roster.
+  *Verified end-to-end 2026-06-12 (#1370): pipeline card → invite
+  task → confirm → outcome all route correctly; the team-training
+  variant is the guest-panel route above, not a separate action.*
 - **Player-centric framing:** *where in the funnel* + *where to*
 - **Polish notes:**
 
@@ -289,11 +308,9 @@ Ordered by raw frequency (most-used first). Each action lists:
   nav-affordance compliance (§5), Save+Cancel (§6), mobile-first at
   360px (§2), player-centric language (§1), list-view compliance
   (#0091), and any plain bugs.
-- The "*(verify)*" markers above are the most likely sources of
-  friction — they flag actions whose surface either doesn't exist as
-  a single coherent flow or isn't obvious from the dashboard. Each
-  one gets a quick investigation before we decide whether it's a
-  build-it or a wire-it-up.
+- The "*(verify)*" markers this doc originally carried (actions #9
+  and #10) were resolved in #1370 — both flows exist as coherent
+  routes and the surface notes above now name them exactly.
 - High-frequency actions (#1–#4) get the most scrutiny — small
   friction at those frequencies compounds into hours per season per
   HoD. The HoD's job in this academy is essentially "act on signals
