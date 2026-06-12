@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.114
+Stable tag: 4.20.115
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.115 — Contrast + tiny-type pass: 12px floor for UI text, dark green for status glyphs (closes #1363). Audit a11y finding. **Tiny type.** ~58 `font-size` declarations of 8-11px raised to a 12px floor across 16 stylesheets — coaches read these pitch-side in sunlight. Two audit-sanctioned exemptions kept and annotated in-file: the player-card collectible (its miniature stat labels are the card aesthetic) and the blueprint pitch-diagram circle abbreviations / tier marks (space-constrained diagram glyphs). **Contrast.** The text-level failures were the wp-admin status glyphs: 13 `color:#00a32a` (3.35:1 on white) green checks/dots across Authorization, Configuration, Evaluations, People admin pages and the custom-field renderer → `#2e7d4f` (5.0:1), matching the player-detail success token. `var(--tt-warning)` audits clean — every consumer is a border/badge with dark text (#7c5a00), never text itself; the blueprint heat-scale gold is a border with #7a4f1d text. CSS/inline-style only, no strings, no schema. Patch bump. (closes #1363) =
 
 = 4.20.114 — Team planner + VCT designer reach the coach dashboard (closes #1373). Audit discoverability finding: 97 routable views, ~8 surfaced per persona — the Team planner tile lived only in the legacy grid the persona dashboard replaced, and the VCT session designer (exercise library, blocks, coaching points, A4 print) was reachable ONLY by typing the URL. **Coach tiles.** [`CoreTemplates::coach`](src/Modules/PersonaDashboard/Defaults/CoreTemplates.php) gains `team-planner` + `vct-planner` tiles (10 tiles, rows 3-5; quick-actions/behaviour rows shift one down). Both cap-gate through TileRegistry — no tt_view_plan / tt_vct_plan, no tile. **VCT entry.** There is no VCT list view (vct-session is a detail route), so the new [`TileRegistry`](src/Shared/CoreSurfaceRegistration.php) `vct-planner` tile carries a `url_callback` straight into the new-vct-session wizard; [`NavigationTileWidget`](src/Modules/PersonaDashboard/Widgets/NavigationTileWidget.php) now prefers a tile's pre-rendered url over the plain `?tt_view=` route — which also makes wizard-entry tiles a reusable pattern. 3 new Dutch msgstrs. Patch bump. (closes #1373) =
 

@@ -119,7 +119,7 @@ class CustomFieldsPage {
                         <td><?php echo $f->is_required ? '<span class="dashicons dashicons-yes" style="color:#2271b1;"></span>' : '—'; ?></td>
                         <td>
                             <?php if ( $f->is_active ) : ?>
-                                <span style="color:#00a32a;">●</span> <?php esc_html_e( 'Active', 'talenttrack' ); ?>
+                                <span style="color:#2e7d4f;">●</span> <?php esc_html_e( 'Active', 'talenttrack' ); ?>
                             <?php else : ?>
                                 <span style="color:#888;">●</span> <?php esc_html_e( 'Inactive', 'talenttrack' ); ?>
                             <?php endif; ?>

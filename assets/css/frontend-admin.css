@@ -927,7 +927,7 @@ body:not(.tt-theme-inherit) .tt-dashboard .tt-field {
 /* Match label shrinkage — date stacked above the type/coach line, both
  * smaller, sits inside the 80px badge column. Keeps all info but
  * uses the column more efficiently. */
-.tt-dashboard .tt-mye-badge-wrap .tt-mye-meta { font-size: 11px; }
+.tt-dashboard .tt-mye-badge-wrap .tt-mye-meta { font-size: 12px; }
 .tt-dashboard .tt-mye-badge-wrap .tt-mye-date { font-size: 12px; }
 .tt-dashboard .tt-mye-match { margin: 0 0 4px; }
 .tt-dashboard .tt-mye-toggle {
@@ -1211,14 +1211,14 @@ body:not(.tt-theme-inherit) .tt-dashboard .tt-field {
     border-radius: 10px;
     background: #f0c14b;
     color: #1f1300;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.06em;
     vertical-align: 1px;
 }
 .tt-guest-subline {
-    font-size: 11px;
+    font-size: 12px;
     color: #5b6470;
     margin-top: 2px;
 }

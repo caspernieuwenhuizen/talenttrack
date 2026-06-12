@@ -256,7 +256,7 @@
 }
 
 .tt-bpe-who-meta {
-    font-size: 11px;
+    font-size: 12px;
     color: var(--tt-bpe-muted);
     white-space: nowrap;
     overflow: hidden;
@@ -274,7 +274,7 @@
     border-radius: 9px;
     background: var(--tt-bpe-tier1);
     color: #fff;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 700;
     vertical-align: 1px;
 }
@@ -532,7 +532,7 @@
 }
 
 .tt-bpe-circle-abbr {
-    font-size: 8px;
+    font-size: 8px; /* #1363 exempt: pitch-circle abbreviation */
     color: var(--tt-bpe-muted);
     margin-top: 1px;
     letter-spacing: 0.04em;
@@ -574,7 +574,7 @@
     border-radius: 5px;
     background: #f6f7f7;
     border: 1px dashed #c9ced3;
-    font-size: 11px;
+    font-size: 12px;
     color: var(--tt-bpe-muted);
     cursor: pointer;
     white-space: nowrap;
@@ -628,7 +628,7 @@
     margin-right: 6px;
     border-radius: 50%;
     color: #fff;
-    font-size: 9px;
+    font-size: 9px; /* #1363 exempt: pitch tier mark */
     font-weight: 800;
     flex-shrink: 0;
 }
@@ -695,7 +695,7 @@
 
 .tt-bpe-picker-head {
     padding: 6px 8px 4px;
-    font-size: 11px;
+    font-size: 12px;
     color: var(--tt-bpe-muted);
     text-transform: uppercase;
     letter-spacing: 0.04em;
@@ -776,7 +776,7 @@
 }
 
 .tt-bpe-picker-row-sub {
-    font-size: 11px;
+    font-size: 12px;
     color: #5b6e75;
     white-space: nowrap;
     overflow: hidden;
@@ -944,7 +944,7 @@ body.tt-bp-chem-hidden .tt-chem-link {
 
 .tt-bp-heat-count {
     display: block;
-    font-size: 10px;
+    font-size: 12px;
     margin-top: 2px;
     font-weight: 600;
 }

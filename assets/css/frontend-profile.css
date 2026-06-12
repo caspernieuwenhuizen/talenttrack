@@ -144,7 +144,7 @@
  * gives the dd room to breathe. */
 .tt-profile-dl dt {
     color: var(--tt-profile-ink-soft);
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -246,7 +246,7 @@
     grid-column: 2;
     grid-row: 1 / span 2;
     align-self: center;
-    font-size: 11px;
+    font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.06em;
     font-weight: 700;

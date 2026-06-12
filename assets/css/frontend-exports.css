@@ -57,7 +57,7 @@
     border-radius: 999px;
     background: #0b3d2e;
     color: #fff;
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 600;
     letter-spacing: 0.04em;
     line-height: 1.4;
@@ -239,7 +239,7 @@
 
 .tt-export-card__columns-action {
     min-height: 32px;
-    font-size: 11px;
+    font-size: 12px;
     padding: 4px 10px;
 }
 

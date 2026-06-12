@@ -225,7 +225,7 @@
 }
 .tt-mexec-player-name small {
     display: block;
-    font-size: 11px;
+    font-size: 12px;
     color: var(--tt-mexec-ink-soft);
     font-weight: 400;
     text-transform: uppercase;
@@ -279,7 +279,7 @@
     flex-wrap: wrap;
 }
 .tt-mexec-goal-chip {
-    font-size: 11px;
+    font-size: 12px;
     background: #fff8e8;
     border: 1px solid #e8b933;
     color: #8a5e0a;
@@ -353,7 +353,7 @@
 .tt-mexec-footer-cta[data-action="end-match"]         { background: var(--tt-mexec-danger); }
 .tt-mexec-footer-cta[data-action="done"]              { background: var(--tt-mexec-ink); }
 .tt-mexec-footer-sub {
-    font-size: 11px;
+    font-size: 12px;
     color: var(--tt-mexec-ink-soft);
     text-align: center;
     margin: 6px 0 0;

@@ -73,7 +73,7 @@ class CategoryWeightsPage {
                     <h2 style="margin:0 0 6px; display:flex; align-items:center; gap:12px;">
                         <?php echo esc_html( (string) $ag->name ); ?>
                         <?php if ( $has_cfg ) : ?>
-                            <span style="font-size:12px; font-weight:400; color:#00a32a;">● <?php esc_html_e( 'Configured', 'talenttrack' ); ?></span>
+                            <span style="font-size:12px; font-weight:400; color:#2e7d4f;">● <?php esc_html_e( 'Configured', 'talenttrack' ); ?></span>
                         <?php else : ?>
                             <span style="font-size:12px; font-weight:400; color:#888;">● <?php esc_html_e( 'Equal fallback in use', 'talenttrack' ); ?></span>
                         <?php endif; ?>
