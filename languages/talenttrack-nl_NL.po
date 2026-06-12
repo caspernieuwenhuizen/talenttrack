@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-12T01:57:21+00:00\n"
+"POT-Creation-Date: 2026-06-12T05:11:54+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -71,7 +71,7 @@ msgid "Team Manager"
 msgstr "Team Manager"
 
 #: includes/Activator.php:178 src/Infrastructure/Security/RolesService.php:378
-#: src/Modules/Activities/Admin/ActivitiesPage.php:390
+#: src/Modules/Activities/Admin/ActivitiesPage.php:356
 #: src/Modules/Analytics/AnalyticsModule.php:76
 #: src/Modules/Analytics/AnalyticsModule.php:119
 #: src/Modules/Analytics/AnalyticsModule.php:138
@@ -222,7 +222,7 @@ msgid "Staff"
 msgstr "Staf"
 
 #: includes/Admin/Reports.php:55
-#: src/Modules/Activities/Admin/ActivitiesPage.php:160
+#: src/Modules/Activities/Admin/ActivitiesPage.php:142
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:317
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:319
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:585
@@ -304,7 +304,7 @@ msgid "Detail"
 msgstr "Detail"
 
 #: src/Infrastructure/Diagnostics/ModuleCompletenessPage.php:38
-#: src/Modules/Activities/Admin/ActivitiesPage.php:160
+#: src/Modules/Activities/Admin/ActivitiesPage.php:142
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:583
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:600
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:760
@@ -909,7 +909,7 @@ msgstr "Overig"
 
 #: src/Infrastructure/Query/LabelTranslator.php:99
 #: src/Infrastructure/Query/LabelTranslator.php:428
-#: src/Modules/Activities/Admin/ActivitiesPage.php:136
+#: src/Modules/Activities/Admin/ActivitiesPage.php:118
 #: src/Modules/Analytics/ScheduledReportsRepository.php:69
 #: src/Modules/CustomWidgets/DataSources/GoalsOpen.php:37
 #: src/Modules/CustomWidgets/DataSources/PdpFiles.php:36
@@ -2079,7 +2079,7 @@ msgstr "Alleen-lezen Waarnemer"
 msgid "Overall"
 msgstr "Totaal"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:72
+#: src/Modules/Activities/Admin/ActivitiesPage.php:54
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:253
 #: src/Modules/Stats/Admin/PlayerComparisonPage.php:172
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:279
@@ -2087,7 +2087,7 @@ msgstr "Totaal"
 msgid "All types"
 msgstr "Alle types"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:84
+#: src/Modules/Activities/Admin/ActivitiesPage.php:66
 #: src/Modules/Analytics/AnalyticsModule.php:95
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:186
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:92
@@ -2125,7 +2125,7 @@ msgstr "Alle types"
 msgid "Activities"
 msgstr "Activiteiten"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:84
+#: src/Modules/Activities/Admin/ActivitiesPage.php:66
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:550
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:781
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:73
@@ -2138,7 +2138,7 @@ msgstr "Activiteiten"
 msgid "Add New"
 msgstr "Nieuw toevoegen"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:85
+#: src/Modules/Activities/Admin/ActivitiesPage.php:67
 #: src/Modules/Authorization/Admin/FunctionalRolesPage.php:354
 #: src/Modules/Authorization/Admin/RolesPage.php:508
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:85
@@ -2161,11 +2161,11 @@ msgstr "Nieuw toevoegen"
 msgid "Saved."
 msgstr "Opgeslagen."
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:94
+#: src/Modules/Activities/Admin/ActivitiesPage.php:76
 msgid "Type:"
 msgstr "Type:"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:100
+#: src/Modules/Activities/Admin/ActivitiesPage.php:82
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:504
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:134
 #: src/Modules/Journey/Frontend/FrontendJourneyView.php:220
@@ -2176,8 +2176,8 @@ msgstr "Type:"
 msgid "Filter"
 msgstr "Filteren"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:109
-#: src/Modules/Activities/Admin/ActivitiesPage.php:351
+#: src/Modules/Activities/Admin/ActivitiesPage.php:91
+#: src/Modules/Activities/Admin/ActivitiesPage.php:317
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:487
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:397
 #: src/Modules/CustomWidgets/DataSources/ActivitiesRecent.php:25
@@ -2233,8 +2233,8 @@ msgstr "Filteren"
 msgid "Date"
 msgstr "Datum"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:110
-#: src/Modules/Activities/Admin/ActivitiesPage.php:349
+#: src/Modules/Activities/Admin/ActivitiesPage.php:92
+#: src/Modules/Activities/Admin/ActivitiesPage.php:315
 #: src/Modules/Configuration/Admin/FormSlugContract.php:99
 #: src/Modules/Configuration/Admin/FormSlugContract.php:110
 #: src/Modules/CustomWidgets/DataSources/ActivitiesRecent.php:22
@@ -2272,8 +2272,8 @@ msgstr "Datum"
 msgid "Title"
 msgstr "Titel"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:111
-#: src/Modules/Activities/Admin/ActivitiesPage.php:300
+#: src/Modules/Activities/Admin/ActivitiesPage.php:93
+#: src/Modules/Activities/Admin/ActivitiesPage.php:266
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:96
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:218
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:70
@@ -2319,10 +2319,10 @@ msgstr "Titel"
 msgid "Type"
 msgstr "Type"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:112
-#: src/Modules/Activities/Admin/ActivitiesPage.php:310
-#: src/Modules/Activities/Admin/ActivitiesPage.php:390
-#: src/Modules/Activities/Admin/ActivitiesPage.php:409
+#: src/Modules/Activities/Admin/ActivitiesPage.php:94
+#: src/Modules/Activities/Admin/ActivitiesPage.php:276
+#: src/Modules/Activities/Admin/ActivitiesPage.php:356
+#: src/Modules/Activities/Admin/ActivitiesPage.php:375
 #: src/Modules/Analytics/AnalyticsModule.php:100
 #: src/Modules/Analytics/AnalyticsModule.php:139
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:141
@@ -2430,7 +2430,7 @@ msgstr "Type"
 msgid "Status"
 msgstr "Status"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:113
+#: src/Modules/Activities/Admin/ActivitiesPage.php:95
 #: src/Modules/Authorization/Admin/DebugPage.php:155
 #: src/Modules/Authorization/Admin/RolesPage.php:191
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:60
@@ -2444,8 +2444,8 @@ msgstr "Status"
 msgid "Source"
 msgstr "Bron"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:114
-#: src/Modules/Activities/Admin/ActivitiesPage.php:355
+#: src/Modules/Activities/Admin/ActivitiesPage.php:96
+#: src/Modules/Activities/Admin/ActivitiesPage.php:321
 #: src/Modules/Analytics/AnalyticsModule.php:77
 #: src/Modules/Analytics/AnalyticsModule.php:98
 #: src/Modules/Analytics/AnalyticsModule.php:121
@@ -2559,7 +2559,7 @@ msgstr "Bron"
 msgid "Team"
 msgstr "Team"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:115
+#: src/Modules/Activities/Admin/ActivitiesPage.php:97
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:142
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:58
 #: src/Modules/Authorization/Admin/RolesPage.php:194
@@ -2599,21 +2599,21 @@ msgstr "Team"
 msgid "Actions"
 msgstr "Acties"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:117
+#: src/Modules/Activities/Admin/ActivitiesPage.php:99
 msgid "No activities."
 msgstr "Geen activiteiten."
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:160
+#: src/Modules/Activities/Admin/ActivitiesPage.php:142
 #, php-format
 msgid "Delete the activity \"%s\"?"
 msgstr "Activiteit \"%s\" verwijderen?"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:160
+#: src/Modules/Activities/Admin/ActivitiesPage.php:142
 msgid "Delete activity?"
 msgstr "Activiteit verwijderen?"
 
 #. translators: %d: number of activities migrated
-#: src/Modules/Activities/Admin/ActivitiesPage.php:187
+#: src/Modules/Activities/Admin/ActivitiesPage.php:169
 #, php-format
 msgid ""
 "%d existing activities were migrated from sessions and default to type "
@@ -2623,25 +2623,25 @@ msgstr ""
 "type \"Training\". Herclassificeer eventuele historische wedstrijden via het "
 "bewerkformulier."
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:191
+#: src/Modules/Activities/Admin/ActivitiesPage.php:173
 #: src/Modules/Backup/Admin/BulkUndoNotice.php:97
 #: src/Shared/Frontend/DashboardShortcode.php:114
 #: src/Shared/Frontend/FlashMessages.php:138
 msgid "Dismiss"
 msgstr "Verbergen"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:279
+#: src/Modules/Activities/Admin/ActivitiesPage.php:245
 #: src/Shared/Admin/BackNavigator.php:124
 msgid "Edit Activity"
 msgstr "Activiteit bewerken"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:279
+#: src/Modules/Activities/Admin/ActivitiesPage.php:245
 #: src/Shared/Admin/BackNavigator.php:123
 #: src/Shared/Frontend/CoachDashboardView.php:34
 msgid "New Activity"
 msgstr "Nieuwe activiteit"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:283
+#: src/Modules/Activities/Admin/ActivitiesPage.php:249
 msgid ""
 "The activity was saved, but one or more custom fields had invalid values and "
 "were not updated."
@@ -2649,41 +2649,41 @@ msgstr ""
 "De activiteit is opgeslagen, maar één of meer aangepaste velden hadden "
 "ongeldige waarden en zijn niet bijgewerkt."
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:289
+#: src/Modules/Activities/Admin/ActivitiesPage.php:255
 msgid "The database rejected the save. No activity was created."
 msgstr ""
 "De database heeft de opslag geweigerd. Er is geen activiteit aangemaakt."
 
 # v3.47.0 — activity status + wizard config UX
-#: src/Modules/Activities/Admin/ActivitiesPage.php:325
+#: src/Modules/Activities/Admin/ActivitiesPage.php:291
 msgid "Lifecycle of the activity. Defaults to \"Planned\" on create."
 msgstr "Levensfase van de activiteit. Standaard \"Gepland\" bij aanmaken."
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:329
+#: src/Modules/Activities/Admin/ActivitiesPage.php:295
 #: src/Modules/Wizards/Activity/DetailsStep.php:46
 #: src/Modules/Wizards/Activity/ReviewStep.php:64
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1341
 msgid "Game subtype"
 msgstr "Wedstrijd-subtype"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:332
+#: src/Modules/Activities/Admin/ActivitiesPage.php:298
 #: src/Modules/Wizards/Activity/DetailsStep.php:47
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1343
 msgid "— Choose —"
 msgstr "— Kies —"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:339
+#: src/Modules/Activities/Admin/ActivitiesPage.php:305
 msgid "Optional: friendly, cup, or league."
 msgstr "Optioneel: oefen, beker of competitie."
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:343
+#: src/Modules/Activities/Admin/ActivitiesPage.php:309
 #: src/Modules/Wizards/Activity/DetailsStep.php:58
 #: src/Modules/Wizards/Activity/ReviewStep.php:67
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1350
 msgid "Other label"
 msgstr "Andere label"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:346
+#: src/Modules/Activities/Admin/ActivitiesPage.php:312
 msgid ""
 "Required when Type is \"Other\". Free text — e.g. team-building day, club "
 "meeting."
@@ -2691,7 +2691,7 @@ msgstr ""
 "Verplicht als Type \"Anders\" is. Vrije tekst — bijv. team-buildingdag, "
 "clubvergadering."
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:353
+#: src/Modules/Activities/Admin/ActivitiesPage.php:319
 #: src/Modules/Configuration/Admin/FormSlugContract.php:101
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:117
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:161
@@ -2713,13 +2713,13 @@ msgstr ""
 msgid "Location"
 msgstr "Locatie"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:355
+#: src/Modules/Activities/Admin/ActivitiesPage.php:321
 msgid "— All —"
 msgstr "— Alle —"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:358
-#: src/Modules/Activities/Admin/ActivitiesPage.php:390
-#: src/Modules/Activities/Admin/ActivitiesPage.php:410
+#: src/Modules/Activities/Admin/ActivitiesPage.php:324
+#: src/Modules/Activities/Admin/ActivitiesPage.php:356
+#: src/Modules/Activities/Admin/ActivitiesPage.php:376
 #: src/Modules/Configuration/Admin/FormSlugContract.php:89
 #: src/Modules/Configuration/Admin/FormSlugContract.php:103
 #: src/Modules/Configuration/Admin/FormSlugContract.php:130
@@ -2782,18 +2782,18 @@ msgid "Notes"
 msgstr "Notities"
 
 # v3.110.x — Activities module polish: rename principles label + wizard guest opt-in
-#: src/Modules/Activities/Admin/ActivitiesPage.php:368
+#: src/Modules/Activities/Admin/ActivitiesPage.php:334
 #: src/Modules/Wizards/Activity/PrinciplesStep.php:34
 #: src/Modules/Wizards/Activity/ReviewStep.php:100
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1450
 msgid "Connected principles"
 msgstr "Verbonden principes"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:379
+#: src/Modules/Activities/Admin/ActivitiesPage.php:345
 msgid "Optional. Hold Ctrl/Cmd to select multiple."
 msgstr "Optioneel. Houd Ctrl/Cmd ingedrukt om meerdere te selecteren."
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:389
+#: src/Modules/Activities/Admin/ActivitiesPage.php:355
 #: src/Modules/Analytics/AnalyticsModule.php:73
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:43
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:117
@@ -2815,18 +2815,18 @@ msgstr "Optioneel. Houd Ctrl/Cmd ingedrukt om meerdere te selecteren."
 msgid "Attendance"
 msgstr "Aanwezigheid"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:398
+#: src/Modules/Activities/Admin/ActivitiesPage.php:364
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1616
 msgid "Attendance is recorded once the activity is marked Completed."
 msgstr ""
 "Aanwezigheid wordt geregistreerd zodra de activiteit op Voltooid staat."
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:405
+#: src/Modules/Activities/Admin/ActivitiesPage.php:371
 msgid "Guest attendees"
 msgstr "Gast-aanwezigen"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:408
-#: src/Modules/Activities/Admin/ActivitiesPage.php:419
+#: src/Modules/Activities/Admin/ActivitiesPage.php:374
+#: src/Modules/Activities/Admin/ActivitiesPage.php:385
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:365
 #: src/Modules/Wizards/Evaluation/RateActorsStep.php:151
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1707
@@ -2838,7 +2838,7 @@ msgstr "Gast-aanwezigen"
 msgid "Guest"
 msgstr "Gast"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:439
+#: src/Modules/Activities/Admin/ActivitiesPage.php:405
 msgid ""
 "Guests are added and edited from the public Activity page. This panel is "
 "read-only."
@@ -2846,7 +2846,7 @@ msgstr ""
 "Gasten worden toegevoegd en bewerkt op de publieke Activiteit-pagina. Dit "
 "paneel is alleen-lezen."
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:444
+#: src/Modules/Activities/Admin/ActivitiesPage.php:410
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:617
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:774
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:533
@@ -2854,7 +2854,7 @@ msgstr ""
 msgid "Update"
 msgstr "Bijwerken"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:444
+#: src/Modules/Activities/Admin/ActivitiesPage.php:410
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:862
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:981
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:373
@@ -2873,8 +2873,8 @@ msgstr "Bijwerken"
 msgid "Save"
 msgstr "Opslaan"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:479
-#: src/Modules/Activities/Admin/ActivitiesPage.php:593
+#: src/Modules/Activities/Admin/ActivitiesPage.php:445
+#: src/Modules/Activities/Admin/ActivitiesPage.php:557
 #: src/Modules/Analytics/Admin/ScheduledReportsActionHandlers.php:94
 #: src/Modules/Authorization/Admin/DebugPage.php:23
 #: src/Modules/Authorization/Admin/FunctionalRolesPage.php:40
@@ -2984,7 +2984,7 @@ msgstr "Opslaan"
 msgid "Unauthorized"
 msgstr "Geen toegang"
 
-#: src/Modules/Activities/Admin/ActivitiesPage.php:540
+#: src/Modules/Activities/Admin/ActivitiesPage.php:506
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:887
 #: src/Modules/Goals/Admin/GoalsPage.php:251
 #: src/Modules/Players/Admin/PlayersPage.php:556
