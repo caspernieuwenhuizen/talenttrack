@@ -1382,6 +1382,18 @@ final class CoreSurfaceRegistration {
             'slug'         => 'tt-migrations',
             'callback'     => [ \TT\Modules\Configuration\Admin\MigrationsPage::class, 'render_page' ],
         ]);
+        // #1360 — operator error-log viewer, next to Migrations: the
+        // same database-admin tool group. Gated by the audit-log read
+        // cap (read-only operator log surface, same holder set).
+        AdminMenuRegistry::register([
+            'module_class' => self::M_CONFIG,
+            'parent'       => $parent,
+            'group'        => 'config',
+            'title'        => __( 'Error Log', 'talenttrack' ),
+            'cap'          => 'tt_view_audit_log',
+            'slug'         => 'tt-error-log',
+            'callback'     => [ \TT\Modules\Configuration\Admin\ErrorLogPage::class, 'render_page' ],
+        ]);
 
         // ── Access Control group (Authorization is always-on). ──
         if ( $show_legacy ) {

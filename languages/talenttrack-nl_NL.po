@@ -37946,3 +37946,44 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Annuleren"
 #~ msgstr "Annuleren"
+
+# #1360 - operator error-log surface (v4.20.119). i18n-sync will merge
+# these into the proper position on next run; meanwhile they land here
+# verbatim so a Dutch install reads correctly today.
+msgid "Error Log"
+msgstr "Foutenlog"
+
+#, php-format
+msgid "Recent plugin errors and warnings, captured at runtime. The newest %d entries are kept; older rows are pruned automatically."
+msgstr "Recente fouten en waarschuwingen van de plug-in, vastgelegd tijdens runtime. De nieuwste %d regels blijven bewaard; oudere rijen worden automatisch opgeschoond."
+
+msgid "The error log table does not exist yet. Run the pending database migrations to create it."
+msgstr "De foutenlogtabel bestaat nog niet. Voer de openstaande databasemigraties uit om deze aan te maken."
+
+msgid "All levels"
+msgstr "Alle niveaus"
+
+msgid "Errors only"
+msgstr "Alleen fouten"
+
+msgid "Warnings only"
+msgstr "Alleen waarschuwingen"
+
+msgid "Level:"
+msgstr "Niveau:"
+
+msgid "From:"
+msgstr "Van:"
+
+msgid "To:"
+msgstr "Tot:"
+
+#, php-format
+msgid "Showing the newest %1$d of %2$d matching entries. Narrow the date range to see older ones."
+msgstr "De nieuwste %1$d van %2$d passende regels worden getoond. Verklein het datumbereik om oudere te zien."
+
+msgid "No log entries match the current filter."
+msgstr "Geen logregels passen bij het huidige filter."
+
+msgid "Show details"
+msgstr "Toon details"
