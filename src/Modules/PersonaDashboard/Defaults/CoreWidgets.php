@@ -17,6 +17,7 @@ use TT\Modules\PersonaDashboard\Widgets\AddProspectHeroWidget;
 use TT\Modules\PersonaDashboard\Widgets\AssignedPlayersGridWidget;
 use TT\Modules\PersonaDashboard\Widgets\ChildSwitcherWithRecapWidget;
 use TT\Modules\PersonaDashboard\Widgets\DataTableWidget;
+use TT\Modules\PersonaDashboard\Widgets\HodWeekRecapWidget;
 use TT\Modules\PersonaDashboard\Widgets\InfoCardWidget;
 use TT\Modules\PersonaDashboard\Widgets\KpiCardWidget;
 use TT\Modules\PersonaDashboard\Widgets\KpiStripWidget;
@@ -54,6 +55,8 @@ final class CoreWidgets {
         WidgetRegistry::register( new RateCardHeroWidget() );
         WidgetRegistry::register( new TodayUpNextHeroWidget() );
         WidgetRegistry::register( new ChildSwitcherWithRecapWidget() );
+        // #1374 — HoD "This week at the academy" since-last-visit recap.
+        WidgetRegistry::register( new HodWeekRecapWidget() );
         WidgetRegistry::register( new SystemHealthStripWidget() );
         WidgetRegistry::register( new AssignedPlayersGridWidget() );
         WidgetRegistry::register( new TeamOverviewGridWidget() );

@@ -57,7 +57,21 @@ final class PersonaLandingRenderer {
         $club_id = self::currentClubId();
 
         // Bump last-visited so "since you last visited" recap diffs work.
-        update_user_meta( $user_id, 'tt_last_visited_at', current_time( 'mysql' ) );
+        // #1374 — the bump used to happen BEFORE the recap widgets read
+        // the meta, so the window collapsed to ~zero on every render.
+        // Now: when the previous bump is older than 30 minutes (a new
+        // visit "session"), the old value rotates into
+        // `tt_recap_since_at` — the stable baseline the recap widgets
+        // (HoD week recap, parent child-switcher) diff against for the
+        // whole session. Rapid in-session navigation keeps the baseline.
+        $now  = current_time( 'mysql' );
+        $last = get_user_meta( $user_id, 'tt_last_visited_at', true );
+        if ( is_string( $last ) && $last !== ''
+             && ( strtotime( $now ) - (int) strtotime( $last ) ) > 30 * MINUTE_IN_SECONDS
+        ) {
+            update_user_meta( $user_id, 'tt_recap_since_at', $last );
+        }
+        update_user_meta( $user_id, 'tt_last_visited_at', $now );
 
         if ( $persona === null ) {
             // No mapped persona — fall back to the legacy tile grid.
