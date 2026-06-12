@@ -61,8 +61,14 @@ class PlayerCardView {
      *                                   renders with the neutral colorway — v2.16.0
      *                                   decision: tiers are a ranking signal, not an
      *                                   intrinsic rating tier.
+     * @param bool $show_ratings #1354 — false renders the celebration
+     *                           variant: photo, name, position, team and
+     *                           tier styling, but no rolling average and
+     *                           no per-category numbers. For player/
+     *                           parent-facing podiums where peers'
+     *                           evaluation data must stay private.
      */
-    public static function renderCard( int $player_id, string $size = 'md', bool $show_tier = false, ?string $tier_override = null ): void {
+    public static function renderCard( int $player_id, string $size = 'md', bool $show_tier = false, ?string $tier_override = null, bool $show_ratings = true ): void {
         $player = QueryHelpers::get_player( $player_id );
         if ( ! $player ) {
             echo '<p><em>' . esc_html__( 'Player not found.', 'talenttrack' ) . '</em></p>';
@@ -116,6 +122,10 @@ class PlayerCardView {
         $rating_display = $rolling !== null
             ? self::formatRatingNumber( $rolling )
             : '—';
+        if ( ! $show_ratings ) {
+            $rating_display = '';
+            $stats          = [];
+        }
         // #0063 — wrap the card in a link to the frontend player detail
         // so podium cards click through to the player profile per the
         // user's "cards should lead to player profile" ask.
@@ -123,12 +133,17 @@ class PlayerCardView {
         ?>
         <a href="<?php echo esc_url( $detail_url ); ?>" class="tt-pc-link" style="text-decoration:none; color:inherit; display:block;">
         <div class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>" role="img"
-             aria-label="<?php echo esc_attr( sprintf(
+             aria-label="<?php echo esc_attr( $show_ratings ? sprintf(
                  /* translators: 1: player name, 2: tier (Gold/Silver/Bronze/Unrated), 3: rolling average. */
                  __( '%1$s — %2$s tier, %3$s rolling average', 'talenttrack' ),
                  QueryHelpers::player_display_name( $player ),
                  $tier_label,
                  $rating_display
+             ) : sprintf(
+                 /* translators: 1: player name, 2: tier (Gold/Silver/Bronze/Unrated). */
+                 __( '%1$s — %2$s tier', 'talenttrack' ),
+                 QueryHelpers::player_display_name( $player ),
+                 $tier_label
              ) ); ?>">
             <div class="tt-pc__surface"></div>
             <div class="tt-pc__facets"></div>
@@ -146,7 +161,9 @@ class PlayerCardView {
 
             <div class="tt-pc__content">
                 <div class="tt-pc__top">
-                    <div class="tt-pc__rating"><?php echo esc_html( $rating_display ); ?></div>
+                    <?php if ( $show_ratings ) : ?>
+                        <div class="tt-pc__rating"><?php echo esc_html( $rating_display ); ?></div>
+                    <?php endif; ?>
                     <?php if ( $position !== '' ) : ?>
                         <div class="tt-pc__position"><?php echo esc_html( $position ); ?></div>
                     <?php endif; ?>
@@ -158,14 +175,16 @@ class PlayerCardView {
                     <?php echo esc_html( QueryHelpers::player_display_name( $player ) ); ?>
                 </div>
 
-                <div class="tt-pc__stats">
-                    <?php foreach ( $stats as $s ) : ?>
-                        <div class="tt-pc__stat">
-                            <span class="tt-pc__stat-value"><?php echo esc_html( $s['value'] ); ?></span>
-                            <span class="tt-pc__stat-label"><?php echo esc_html( $s['label'] ); ?></span>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
+                <?php if ( $show_ratings ) : ?>
+                    <div class="tt-pc__stats">
+                        <?php foreach ( $stats as $s ) : ?>
+                            <div class="tt-pc__stat">
+                                <span class="tt-pc__stat-value"><?php echo esc_html( $s['value'] ); ?></span>
+                                <span class="tt-pc__stat-label"><?php echo esc_html( $s['label'] ); ?></span>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
 
                 <?php if ( $team_name !== '' ) : ?>
                     <div class="tt-pc__team"><?php echo esc_html( $team_name ); ?></div>
@@ -189,7 +208,7 @@ class PlayerCardView {
      * @param array<int, array{player_id:int, rolling:?float, eval_count:int}> $top
      *        Up to 3 entries, already sorted by rolling average desc.
      */
-    public static function renderPodium( array $top ): void {
+    public static function renderPodium( array $top, bool $show_ratings = true ): void {
         // Reorder: 2 | 1 | 3 for the classic podium arrangement.
         $slots = [
             2 => $top[1] ?? null,
@@ -210,7 +229,7 @@ class PlayerCardView {
                     </div>
                     <?php if ( $entry && ! empty( $entry['player_id'] ) ) :
                         $size = $rank === 1 ? 'md' : 'sm';
-                        self::renderCard( (int) $entry['player_id'], $size, true, $tier_by_rank[ $rank ] );
+                        self::renderCard( (int) $entry['player_id'], $size, true, $tier_by_rank[ $rank ], $show_ratings );
                     else : ?>
                         <div class="tt-pc-empty">
                             <?php esc_html_e( 'Not enough ranked players yet', 'talenttrack' ); ?>

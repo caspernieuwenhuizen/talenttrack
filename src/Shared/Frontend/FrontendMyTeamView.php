@@ -67,7 +67,14 @@ class FrontendMyTeamView extends FrontendViewBase {
             <div class="tt-mt-podium-block">
                 <?php if ( ! empty( $top ) ) : ?>
                     <h3><?php esc_html_e( 'Top players on the team', 'talenttrack' ); ?></h3>
-                    <?php \TT\Modules\Stats\Admin\PlayerCardView::renderPodium( $top ); ?>
+                    <?php
+                    // #1354 — player/parent surface: celebration only.
+                    // Position + name + photo + tier; the top-3's actual
+                    // rating numbers stay staff-side, matching the
+                    // docs/player-dashboard.md promise that teammates'
+                    // ratings stay private.
+                    \TT\Modules\Stats\Admin\PlayerCardView::renderPodium( $top, false );
+                    ?>
                 <?php else : ?>
                     <p style="text-align:center; color:var(--tt-muted, #6a6d66); margin:30px 0;"><em><?php esc_html_e( 'Not enough rated teammates yet for a podium.', 'talenttrack' ); ?></em></p>
                 <?php endif; ?>
