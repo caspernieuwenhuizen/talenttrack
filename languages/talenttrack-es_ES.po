@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-11T23:58:59+00:00\n"
+"POT-Creation-Date: 2026-06-12T00:52:44+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -53,8 +53,8 @@ msgstr ""
 #: src/Modules/Mfa/Settings/MfaSettings.php:108
 #: src/Modules/People/Admin/PeoplePage.php:505
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:305
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:209
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:264
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:253
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:308
 #: src/Modules/Players/Admin/PlayersPage.php:127
 #: src/Modules/Players/Admin/PlayersPage.php:398
 #: src/Shared/Frontend/DashboardShortcode.php:1160
@@ -105,13 +105,13 @@ msgstr ""
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:491
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:591
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:304
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:208
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:263
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:252
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:307
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:93
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:99
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:157
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:59
-#: src/Modules/Stats/Admin/PlayerCardView.php:243
+#: src/Modules/Stats/Admin/PlayerCardView.php:262
 #: src/Modules/Stats/Admin/PlayerRateCardsPage.php:58
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:269
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:502
@@ -180,7 +180,7 @@ msgstr "Jugador"
 #: src/Shared/Frontend/FrontendEvaluationsView.php:155
 #: src/Shared/Frontend/FrontendEvaluationsView.php:340
 #: src/Shared/Frontend/FrontendPeopleManageView.php:267
-#: src/Shared/Frontend/FrontendReportDetailView.php:179
+#: src/Shared/Frontend/FrontendReportDetailView.php:187
 #: src/Shared/Frontend/FrontendRolesView.php:67
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:260
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:530
@@ -195,8 +195,8 @@ msgstr "Entrenador"
 #: src/Modules/Authorization/Admin/RolesPage.php:432
 #: src/Modules/People/Admin/PeoplePage.php:501
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:309
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:213
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:268
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:257
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:312
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:118
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:152
 #: src/Shared/Frontend/DashboardShortcode.php:1163
@@ -787,8 +787,8 @@ msgstr "Justificado"
 #: src/Modules/Mfa/Settings/MfaSettings.php:104
 #: src/Modules/People/Admin/PeoplePage.php:499
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:306
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:210
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:265
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:254
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:309
 #: src/Modules/Teams/Admin/TeamsPage.php:51
 #: src/Modules/Wizards/Team/StaffStep.php:34
 #: src/Shared/Frontend/FrontendConfigurationView.php:1916
@@ -800,8 +800,8 @@ msgstr ""
 #: src/Modules/Mfa/Settings/MfaSettings.php:105
 #: src/Modules/People/Admin/PeoplePage.php:498
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:307
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:211
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:266
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:255
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:310
 #: src/Modules/Teams/Admin/TeamsPage.php:52
 #: src/Modules/Wizards/Team/StaffStep.php:35
 #: src/Shared/Frontend/FrontendConfigurationView.php:1917
@@ -813,8 +813,8 @@ msgstr ""
 #: src/Infrastructure/Query/LabelTranslator.php:80
 #: src/Modules/Mfa/Settings/MfaSettings.php:107
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:308
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:212
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:267
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:256
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:311
 #: src/Modules/Teams/Admin/TeamsPage.php:53
 #: src/Modules/Wizards/Team/StaffStep.php:36
 #: src/Shared/Frontend/FrontendConfigurationView.php:1918
@@ -842,8 +842,8 @@ msgstr "Fisioterapeuta"
 #: src/Modules/Mfa/Settings/MfaSettings.php:106
 #: src/Modules/People/Admin/PeoplePage.php:504
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:310
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:214
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:269
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:258
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:313
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:198
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:150
 #: src/Modules/Reports/AudienceType.php:91
@@ -1781,35 +1781,35 @@ msgstr ""
 msgid "No fields to update or update failed."
 msgstr ""
 
-#: src/Infrastructure/REST/PlayersRestController.php:282
+#: src/Infrastructure/REST/PlayersRestController.php:288
 msgid "No CSV file uploaded."
 msgstr ""
 
-#: src/Infrastructure/REST/PlayersRestController.php:286
+#: src/Infrastructure/REST/PlayersRestController.php:292
 msgid "The upload failed."
 msgstr ""
 
-#: src/Infrastructure/REST/PlayersRestController.php:289
+#: src/Infrastructure/REST/PlayersRestController.php:295
 msgid "CSV files larger than 5MB are not accepted."
 msgstr ""
 
-#: src/Infrastructure/REST/PlayersRestController.php:292
+#: src/Infrastructure/REST/PlayersRestController.php:298
 msgid "Uploaded file could not be read."
 msgstr ""
 
-#: src/Infrastructure/REST/PlayersRestController.php:296
+#: src/Infrastructure/REST/PlayersRestController.php:302
 msgid "Only .csv files are accepted."
 msgstr ""
 
-#: src/Infrastructure/REST/PlayersRestController.php:417
+#: src/Infrastructure/REST/PlayersRestController.php:423
 msgid "The player could not be created."
 msgstr ""
 
-#: src/Infrastructure/REST/PlayersRestController.php:453
+#: src/Infrastructure/REST/PlayersRestController.php:459
 msgid "The player could not be updated."
 msgstr ""
 
-#: src/Infrastructure/REST/PlayersRestController.php:517
+#: src/Infrastructure/REST/PlayersRestController.php:523
 msgid "The player could not be deleted."
 msgstr ""
 
@@ -2987,7 +2987,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendEvaluationsView.php:244
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:156
 #: src/Shared/Frontend/FrontendReportDetailView.php:98
-#: src/Shared/Frontend/FrontendReportDetailView.php:180
+#: src/Shared/Frontend/FrontendReportDetailView.php:188
 #: src/Shared/Frontend/FrontendStandardReportsView.php:453
 #: src/Shared/Frontend/FrontendTrialCaseView.php:395
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:555
@@ -13090,7 +13090,7 @@ msgstr ""
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:760
 #: src/Modules/Reports/Frontend/FrontendScoutMyPlayersView.php:89
 #: src/Modules/Reports/PlayerReportRenderer.php:40
-#: src/Modules/Stats/Admin/PlayerCardView.php:68
+#: src/Modules/Stats/Admin/PlayerCardView.php:74
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:35
 #: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:533
 #: src/Shared/Frontend/DashboardShortcode.php:666
@@ -13842,7 +13842,7 @@ msgstr ""
 #: src/Modules/Methodology/Admin/MethodologyPage.php:134
 #: src/Modules/Methodology/Admin/MethodologyPage.php:143
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1227
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:155
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:199
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:54
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:342
 #: src/Shared/Admin/BulkActionsHelper.php:100
@@ -14686,7 +14686,7 @@ msgstr ""
 
 #: src/Modules/License/Admin/AccountPage.php:809
 #: src/Modules/Onboarding/Admin/OnboardingHandlers.php:188
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:218
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:262
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:522
 #: src/Modules/Stats/Admin/UsageStatsPage.php:347
 #: src/Shared/Admin/BackNavigator.php:107 src/Shared/Admin/SchemaStatus.php:163
@@ -16998,8 +16998,8 @@ msgstr ""
 
 #: src/Modules/Mfa/Settings/MfaSettings.php:102
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:311
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:215
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:270
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:259
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:314
 #: src/Shared/Frontend/FrontendConfigurationView.php:1914
 msgid "Academy admin"
 msgstr ""
@@ -17010,8 +17010,8 @@ msgstr ""
 
 #: src/Modules/Mfa/Settings/MfaSettings.php:110
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:312
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:216
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:271
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:260
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:315
 #: src/Shared/Frontend/FrontendConfigurationView.php:1922
 msgid "Read-only observer"
 msgstr ""
@@ -19154,7 +19154,7 @@ msgstr "Mis jugadores"
 
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:120
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:312
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:152
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:196
 #: src/Shared/CoreSurfaceRegistration.php:380
 msgid "My teams"
 msgstr "Mis equipos"
@@ -19228,38 +19228,60 @@ msgstr ""
 msgid "Help & docs"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:105
+#. translators: %d = number of teams whose last Spond sync errored
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:110
+#, php-format
+msgid "Spond sync failed for %d team — schedules may be out of date."
+msgid_plural "Spond sync failed for %d teams — schedules may be out of date."
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %s = human-readable time since the last successful Spond sync
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:116
+#, php-format
+msgid "Spond sync last succeeded %s ago — schedules may be out of date."
+msgstr ""
+
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:120
+msgid "Spond sync has not completed yet — schedules may be out of date."
+msgstr ""
+
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:126
+msgid "Check Spond status"
+msgstr ""
+
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:149
 msgid "Could not load player breakdown."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:106
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:150
 msgid "No players in window."
 msgstr ""
 
 #. translators: %s: first name.
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:240
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:284
 #, php-format
 msgid "Good morning, %s"
 msgstr ""
 
 #. translators: %s: first name.
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:243
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:287
 #, php-format
 msgid "Good afternoon, %s"
 msgstr ""
 
 #. translators: %s: first name.
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:246
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:290
 #, php-format
 msgid "Good evening, %s"
 msgstr ""
 
 # #0060 — Persona switcher labels
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:274
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:318
 msgid "Switch persona"
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:275
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:319
 msgid "Viewing as"
 msgstr ""
 
@@ -20296,7 +20318,7 @@ msgstr ""
 #. translators: %d is the number of days
 #: src/Modules/PersonaDashboard/Widgets/TeamOverviewGridWidget.php:67
 #: src/Modules/Reports/Admin/ReportsPage.php:336
-#: src/Shared/Frontend/FrontendReportDetailView.php:158
+#: src/Shared/Frontend/FrontendReportDetailView.php:166
 #: src/Shared/Frontend/FrontendUsageStatsView.php:71
 #, php-format
 msgid "Last %d days"
@@ -21251,18 +21273,18 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Reports/Admin/ReportsPage.php:330
-#: src/Shared/Frontend/FrontendReportDetailView.php:153
+#: src/Shared/Frontend/FrontendReportDetailView.php:161
 #: src/Shared/Frontend/FrontendTrialsManageView.php:226
 msgid "Window"
 msgstr ""
 
 #: src/Modules/Reports/Admin/ReportsPage.php:345
-#: src/Shared/Frontend/FrontendReportDetailView.php:173
+#: src/Shared/Frontend/FrontendReportDetailView.php:181
 msgid "No evaluations saved in this window."
 msgstr ""
 
 #: src/Modules/Reports/Admin/ReportsPage.php:354
-#: src/Shared/Frontend/FrontendReportDetailView.php:181
+#: src/Shared/Frontend/FrontendReportDetailView.php:189
 msgid "Last evaluation"
 msgstr ""
 
@@ -22279,28 +22301,34 @@ msgid ""
 msgstr ""
 
 #. translators: 1: player name, 2: tier (Gold/Silver/Bronze/Unrated), 3: rolling average.
-#: src/Modules/Stats/Admin/PlayerCardView.php:128
+#: src/Modules/Stats/Admin/PlayerCardView.php:138
 #, php-format
 msgid "%1$s — %2$s tier, %3$s rolling average"
 msgstr ""
 
-#: src/Modules/Stats/Admin/PlayerCardView.php:216
+#. translators: 1: player name, 2: tier (Gold/Silver/Bronze/Unrated).
+#: src/Modules/Stats/Admin/PlayerCardView.php:144
+#, php-format
+msgid "%1$s — %2$s tier"
+msgstr ""
+
+#: src/Modules/Stats/Admin/PlayerCardView.php:235
 msgid "Not enough ranked players yet"
 msgstr ""
 
-#: src/Modules/Stats/Admin/PlayerCardView.php:240
+#: src/Modules/Stats/Admin/PlayerCardView.php:259
 msgid "Gold"
 msgstr ""
 
-#: src/Modules/Stats/Admin/PlayerCardView.php:241
+#: src/Modules/Stats/Admin/PlayerCardView.php:260
 msgid "Silver"
 msgstr ""
 
-#: src/Modules/Stats/Admin/PlayerCardView.php:242
+#: src/Modules/Stats/Admin/PlayerCardView.php:261
 msgid "Bronze"
 msgstr ""
 
-#: src/Modules/Stats/Admin/PlayerCardView.php:244
+#: src/Modules/Stats/Admin/PlayerCardView.php:263
 msgid "Unrated"
 msgstr ""
 
@@ -28181,24 +28209,24 @@ msgstr ""
 #: src/Shared/Frontend/CoachDashboardView.php:131
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:144
 #: src/Shared/Frontend/FrontendPlayersManageView.php:592
-#: src/Shared/Frontend/PlayerDashboardView.php:287
+#: src/Shared/Frontend/PlayerDashboardView.php:288
 msgid "Team:"
 msgstr ""
 
 #: src/Shared/Frontend/CoachDashboardView.php:132
 #: src/Shared/Frontend/FrontendPlayersManageView.php:595
-#: src/Shared/Frontend/PlayerDashboardView.php:288
+#: src/Shared/Frontend/PlayerDashboardView.php:289
 msgid "Pos:"
 msgstr ""
 
 #: src/Shared/Frontend/CoachDashboardView.php:133
 #: src/Shared/Frontend/FrontendPlayersManageView.php:598
-#: src/Shared/Frontend/PlayerDashboardView.php:289
+#: src/Shared/Frontend/PlayerDashboardView.php:290
 msgid "Foot:"
 msgstr ""
 
 #: src/Shared/Frontend/CoachDashboardView.php:151
-#: src/Shared/Frontend/PlayerDashboardView.php:308
+#: src/Shared/Frontend/PlayerDashboardView.php:309
 msgid "Additional Information"
 msgstr ""
 
@@ -31195,33 +31223,33 @@ msgstr ""
 
 # v3.27.0 — demo-readiness omnibus
 # 'New evaluation', 'Top players on the team', 'All teams' already translated earlier in this file.
-#: src/Shared/Frontend/FrontendMyTeamView.php:72
+#: src/Shared/Frontend/FrontendMyTeamView.php:79
 msgid "Not enough rated teammates yet for a podium."
 msgstr ""
 
 #. translators: %d is the player's rank within their team.
-#: src/Shared/Frontend/FrontendMyTeamView.php:82
+#: src/Shared/Frontend/FrontendMyTeamView.php:89
 #, php-format
 msgid "#%d"
 msgstr ""
 
 #. translators: %d is the count of rated players on the team.
-#: src/Shared/Frontend/FrontendMyTeamView.php:86
+#: src/Shared/Frontend/FrontendMyTeamView.php:93
 #, php-format
 msgid "of %d on the team"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyTeamView.php:91
+#: src/Shared/Frontend/FrontendMyTeamView.php:98
 msgid "Not yet rated"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyTeamView.php:92
+#: src/Shared/Frontend/FrontendMyTeamView.php:99
 msgid "rank shows after the first evaluation"
 msgstr ""
 
 #. translators: %s is the team name.
-#: src/Shared/Frontend/FrontendMyTeamView.php:105
-#: src/Shared/Frontend/PlayerDashboardView.php:245
+#: src/Shared/Frontend/FrontendMyTeamView.php:112
+#: src/Shared/Frontend/PlayerDashboardView.php:246
 #, php-format
 msgid "Teammates on %s"
 msgstr ""
@@ -32142,7 +32170,7 @@ msgid ""
 msgstr ""
 
 #. translators: %d is number of days
-#: src/Shared/Frontend/FrontendReportDetailView.php:145
+#: src/Shared/Frontend/FrontendReportDetailView.php:153
 #, php-format
 msgid ""
 "Evaluations saved per coach in the last %d days. Archived rows excluded."
