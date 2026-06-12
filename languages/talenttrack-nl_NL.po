@@ -38030,8 +38030,8 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 msgid "No players yet"
 msgstr "Nog geen spelers"
 
-msgid "Players are the heart of TalentTrack — every evaluation, goal, and session hangs off a player record. Add your first player to get started."
-msgstr "Spelers zijn het hart van TalentTrack — elke evaluatie, elk doel en elke sessie hangt aan een spelersrecord. Voeg je eerste speler toe om te beginnen."
+msgid "Players are the heart of TalentTrack — every evaluation, goal, and activity hangs off a player record. Add your first player to get started."
+msgstr "Spelers zijn het hart van TalentTrack — elke evaluatie, elk doel en elke activiteit hangt aan een spelersrecord. Voeg je eerste speler toe om te beginnen."
 
 msgid "Add your first player"
 msgstr "Voeg je eerste speler toe"
@@ -38039,8 +38039,8 @@ msgstr "Voeg je eerste speler toe"
 msgid "No evaluations yet"
 msgstr "Nog geen evaluaties"
 
-msgid "Evaluations capture how each player performed in a training or match. Record the first one after your next session."
-msgstr "Evaluaties leggen vast hoe elke speler presteerde in een training of wedstrijd. Leg de eerste vast na je volgende sessie."
+msgid "Evaluations capture how each player performed in a training or match. Record the first one after your next activity."
+msgstr "Evaluaties leggen vast hoe elke speler presteerde in een training of wedstrijd. Leg de eerste vast na je volgende activiteit."
 
 msgid "No activities recorded for you yet"
 msgstr "Nog geen activiteiten voor jou vastgelegd"

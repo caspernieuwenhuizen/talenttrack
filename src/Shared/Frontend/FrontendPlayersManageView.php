@@ -236,7 +236,7 @@ class FrontendPlayersManageView extends FrontendViewBase {
             'empty_state_card' => [
                 'icon'      => 'players',
                 'headline'  => __( 'No players yet', 'talenttrack' ),
-                'explainer' => __( 'Players are the heart of TalentTrack — every evaluation, goal, and session hangs off a player record. Add your first player to get started.', 'talenttrack' ),
+                'explainer' => __( 'Players are the heart of TalentTrack — every evaluation, goal, and activity hangs off a player record. Add your first player to get started.', 'talenttrack' ),
                 'cta_label' => __( 'Add your first player', 'talenttrack' ),
                 'cta_url'   => \TT\Shared\Wizards\WizardEntryPoint::urlFor(
                     'new-player',

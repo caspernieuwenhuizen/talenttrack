@@ -187,7 +187,7 @@ class FrontendEvaluationsView extends FrontendViewBase {
             'empty_state_card' => [
                 'icon'      => 'evaluations',
                 'headline'  => __( 'No evaluations yet', 'talenttrack' ),
-                'explainer' => __( 'Evaluations capture how each player performed in a training or match. Record the first one after your next session.', 'talenttrack' ),
+                'explainer' => __( 'Evaluations capture how each player performed in a training or match. Record the first one after your next activity.', 'talenttrack' ),
                 'cta_label' => __( 'Record first evaluation', 'talenttrack' ),
                 'cta_url'   => \TT\Shared\Wizards\WizardEntryPoint::urlFor(
                     'new-evaluation',
