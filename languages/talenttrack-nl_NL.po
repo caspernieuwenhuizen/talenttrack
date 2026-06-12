@@ -38065,3 +38065,16 @@ msgstr "Doelen leggen vast waar elke speler dit seizoen aan werkt. Stel het eers
 
 msgid "Plan your first activity"
 msgstr "Plan je eerste activiteit"
+
+# #1365 - icon language unification (v4.20.122). i18n-sync will merge
+# these into the proper position on next run; meanwhile they land here
+# verbatim so a Dutch install reads correctly today.
+msgid "Needs attention"
+msgstr "Vraagt aandacht"
+
+msgid "Above 30% — imbalance"
+msgstr "Boven 30% — onbalans"
+
+#, php-format
+msgid "One or more ratings are at or below %s — please add a comment explaining the low score."
+msgstr "Een of meer beoordelingen zijn %s of lager — voeg een opmerking toe die de lage score toelicht."

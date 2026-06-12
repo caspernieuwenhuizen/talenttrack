@@ -289,7 +289,7 @@ class CoachForms {
                     $sub_label  = EvalCategoriesRepository::displayLabel( (string) ( $sub->label ?? $sub->name ?? '' ), $scid );
                     ?>
                     <div class="tt-form-row tt-form-row--rating tt-form-row--sub">
-                        <label>↳ <?php echo esc_html( $sub_label ); ?></label>
+                        <label><?php echo \TT\Shared\Icons\IconRenderer::render( 'corner-down-right', [ 'width' => 12, 'height' => 12, 'style' => 'vertical-align:-1px;margin-right:2px;' ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG. ?><?php echo esc_html( $sub_label ); ?></label>
                         <input type="number" inputmode="decimal" class="tt-rating-num" name="ratings[<?php echo $scid; ?>]" min="<?php echo esc_attr( $rmin ); ?>" max="<?php echo esc_attr( $rmax ); ?>" step="<?php echo esc_attr( $rstep ); ?>" value="<?php echo esc_attr( $sub_rating ); ?>" />
                         <span class="tt-range-hint">(<?php echo esc_html( $rmin ); ?>–<?php echo esc_html( $rmax ); ?>)</span>
                     </div>
@@ -303,9 +303,11 @@ class CoachForms {
             <div class="tt-form-row tt-low-rating-warning" data-tt-low-rating-warning hidden>
                 <span style="color:var(--tt-warning, #c9962a); font-size:13px;">
                     <?php
+                    // #1365 — inline SVG instead of the OS-dependent warning glyph.
+                    echo \TT\Shared\Icons\IconRenderer::render( 'warning', [ 'width' => 13, 'height' => 13, 'style' => 'vertical-align:-2px;margin-right:3px;' ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG.
                     printf(
                         /* translators: %s is the threshold value */
-                        esc_html__( '⚠ One or more ratings are at or below %s — please add a comment explaining the low score.', 'talenttrack' ),
+                        esc_html__( 'One or more ratings are at or below %s — please add a comment explaining the low score.', 'talenttrack' ),
                         esc_html( rtrim( rtrim( number_format( $low_threshold, 1 ), '0' ), '.' ) )
                     );
                     ?>
@@ -573,7 +575,7 @@ class CoachForms {
                         <?php endforeach; ?>
                     </select></td>
                     <td><?php echo esc_html( $g->due_date ?: '—' ); ?></td>
-                    <td><button class="tt-btn-sm tt-goal-delete" data-goal-id="<?php echo (int) $g->id; ?>">✕</button></td></tr>
+                    <td><button class="tt-btn-sm tt-goal-delete" data-goal-id="<?php echo (int) $g->id; ?>" aria-label="<?php esc_attr_e( 'Delete', 'talenttrack' ); ?>"><?php echo \TT\Shared\Icons\IconRenderer::render( 'x', [ 'width' => 12, 'height' => 12 ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG. ?></button></td></tr>
             <?php endforeach; ?>
             </tbody></table>
         <?php endif; ?>

@@ -813,19 +813,29 @@ class FrontendPdpManageView extends FrontendViewBase {
                 'class'  => 'tt-icon tt-pdp-ack-hourglass',
                 'style'  => 'vertical-align:-2px; color:#c9962a;',
             ] );
+            // #1365 — role glyphs + checkmark are inline SVGs now
+            // (were person / football emoji + a check text glyph).
+            $role_attrs = [ 'width' => 12, 'height' => 12, 'style' => 'vertical-align:-2px;margin-right:1px;' ];
+            $check_ok   = \TT\Shared\Icons\IconRenderer::render( 'check', [
+                'width'  => '12',
+                'height' => '12',
+                'style'  => 'vertical-align:-2px; color:#2c8a2c;',
+            ] );
             echo '<span title="' . esc_attr( $parent_ok
                     ? __( 'Parent has acknowledged', 'talenttrack' )
                     : __( 'Parent acknowledgement pending', 'talenttrack' ) ) . '" style="margin-right:6px;">'
-                . '👤'
                 // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — IconRenderer output is trusted SVG.
-                . ( $parent_ok ? '<span style="color:#2c8a2c;">✓</span>' : $hourglass )
+                . \TT\Shared\Icons\IconRenderer::render( 'profile', $role_attrs )
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — IconRenderer output is trusted SVG.
+                . ( $parent_ok ? $check_ok : $hourglass )
                 . '</span>';
             echo '<span title="' . esc_attr( $player_ok
                     ? __( 'Player has acknowledged', 'talenttrack' )
                     : __( 'Player acknowledgement pending', 'talenttrack' ) ) . '">'
-                . '⚽'
                 // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — IconRenderer output is trusted SVG.
-                . ( $player_ok ? '<span style="color:#2c8a2c;">✓</span>' : $hourglass )
+                . \TT\Shared\Icons\IconRenderer::render( 'players', $role_attrs )
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — IconRenderer output is trusted SVG.
+                . ( $player_ok ? $check_ok : $hourglass )
                 . '</span>';
             echo '</td>';
             echo '<td><a class="tt-btn tt-btn-secondary tt-btn-sm" href="' . esc_url( $url ) . '">'

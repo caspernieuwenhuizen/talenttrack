@@ -87,7 +87,9 @@ class CoachDashboardView {
             $_print_url = esc_url( add_query_arg( [ 'tt_print' => $pid ], remove_query_arg( [ 'tt_view', 'player_id' ] ) ) );
             echo '<div style="margin-bottom:10px;">';
             echo '<a href="' . $_print_url . '" target="_blank" rel="noopener" style="display:inline-block;padding:6px 12px;border:1px solid #c3c4c7;border-radius:4px;background:#fff;color:#1a1d21;font-size:13px;text-decoration:none;">';
-            echo esc_html__( '🖨 Print report', 'talenttrack' );
+            // #1365 — inline SVG instead of the OS-dependent printer emoji.
+            echo \TT\Shared\Icons\IconRenderer::render( 'print', [ 'width' => 14, 'height' => 14, 'style' => 'vertical-align:-2px;margin-right:4px;' ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG.
+            echo esc_html__( 'Print report', 'talenttrack' );
             echo '</a>';
             echo '</div>';
 
@@ -309,7 +311,7 @@ class CoachDashboardView {
                             <option value="<?php echo esc_attr( $v ); ?>" <?php selected( (string) $g->status, $v ); ?>><?php echo esc_html( LabelTranslator::goalStatus( $v ) ); ?></option><?php endforeach; ?>
                     </select></td>
                     <td><?php echo esc_html( $g->due_date ?: '—' ); ?></td>
-                    <td><button class="tt-btn-sm tt-goal-delete" data-goal-id="<?php echo (int) $g->id; ?>">✕</button></td></tr>
+                    <td><button class="tt-btn-sm tt-goal-delete" data-goal-id="<?php echo (int) $g->id; ?>" aria-label="<?php esc_attr_e( 'Delete', 'talenttrack' ); ?>"><?php echo \TT\Shared\Icons\IconRenderer::render( 'x', [ 'width' => 12, 'height' => 12 ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG. ?></button></td></tr>
             <?php endforeach; ?></tbody></table>
         <?php endif; ?>
         <?php

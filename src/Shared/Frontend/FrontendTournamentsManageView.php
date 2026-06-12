@@ -248,7 +248,7 @@ class FrontendTournamentsManageView extends FrontendViewBase {
             $page_actions[] = [
                 'label' => __( 'Edit', 'talenttrack' ),
                 'href'  => $edit_url,
-                'icon'  => '✎',
+                'icon'  => \TT\Shared\Icons\IconRenderer::render( 'edit', [ 'width' => 16, 'height' => 16 ] ), // #1365 — inline SVG edit icon.
             ];
         }
         self::renderHeader( (string) $tournament->name, self::pageActionsHtml( $page_actions ) );

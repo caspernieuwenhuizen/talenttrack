@@ -71,7 +71,7 @@ final class FrontendTeamDetailView extends FrontendViewBase {
                 'label'   => __( 'Edit', 'talenttrack' ),
                 'href'    => $edit_url,
                 'primary' => true,
-                'icon'    => '✎',
+                'icon'    => \TT\Shared\Icons\IconRenderer::render( 'edit', [ 'width' => 16, 'height' => 16 ] ), // #1365 — inline SVG edit icon.
             ];
             $actions[] = [
                 'label'   => __( 'Archive', 'talenttrack' ),

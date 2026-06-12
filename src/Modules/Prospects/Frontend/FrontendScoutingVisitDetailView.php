@@ -79,7 +79,7 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
             $page_actions[] = [
                 'label' => __( 'Edit visit', 'talenttrack' ),
                 'href'  => BackLink::appendTo( $edit_url ),
-                'icon'  => '✎',
+                'icon'  => \TT\Shared\Icons\IconRenderer::render( 'edit', [ 'width' => 16, 'height' => 16 ] ), // #1365 — inline SVG edit icon.
             ];
         }
         if ( AuthorizationService::userCanOrMatrix( $user_id, 'tt_edit_prospects' ) ) {

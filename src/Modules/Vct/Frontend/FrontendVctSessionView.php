@@ -89,7 +89,7 @@ class FrontendVctSessionView extends FrontendViewBase {
             $page_actions[] = [
                 'label' => __( 'Print A4', 'talenttrack' ),
                 'href'  => add_query_arg( [ 'print' => 'a4' ] ),
-                'icon'  => '🖨',
+                'icon'  => \TT\Shared\Icons\IconRenderer::render( 'print', [ 'width' => 16, 'height' => 16 ] ), // #1365 — inline SVG print icon.
             ];
         }
         self::renderHeader( $title, self::pageActionsHtml( $page_actions ) );

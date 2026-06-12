@@ -276,7 +276,7 @@ class FrontendEvaluationsView extends FrontendViewBase {
                 'label'   => __( 'Edit', 'talenttrack' ),
                 'href'    => $edit_url,
                 'primary' => true,
-                'icon'    => '✎',
+                'icon'    => \TT\Shared\Icons\IconRenderer::render( 'edit', [ 'width' => 16, 'height' => 16 ] ), // #1365 — inline SVG edit icon.
             ];
             $actions[] = [
                 'label'      => __( 'Archive', 'talenttrack' ),
@@ -404,7 +404,7 @@ class FrontendEvaluationsView extends FrontendViewBase {
                                         $sub_label = (string) ( $sub->category_label ?? $sub->category_key ?? '—' );
                                         ?>
                                         <tr>
-                                            <td style="padding-left:20px; color:var(--tt-muted, #5b6e75);">↳ <?php echo esc_html( \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( $sub_label ) ); ?></td>
+                                            <td style="padding-left:20px; color:var(--tt-muted, #5b6e75);"><?php echo \TT\Shared\Icons\IconRenderer::render( 'corner-down-right', [ 'width' => 12, 'height' => 12, 'style' => 'vertical-align:-1px;margin-right:2px;' ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG. ?><?php echo esc_html( \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( $sub_label ) ); ?></td>
                                             <td style="text-align:right; font-variant-numeric:tabular-nums; color:var(--tt-muted, #5b6e75);"><?php echo esc_html( number_format_i18n( (float) $sub->rating, 1 ) ); ?></td>
                                         </tr>
                                     <?php endforeach; ?>
