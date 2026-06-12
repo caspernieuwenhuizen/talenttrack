@@ -1114,3 +1114,28 @@ a.tt-pd-pipeline-col--link:focus-visible {
     padding: 0.125rem 0.375rem;
     line-height: 1.2;
 }
+
+/* #1368 — system notice banner (Spond staleness etc.). Mobile-first;
+   warning palette matches the text-safe amber from the contrast pass. */
+.tt-pd-sysnotice {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid #f6c87a;
+    border-left: 4px solid #b45309;
+    border-radius: 8px;
+    background: #fff7ed;
+    color: #7c3a07;
+    font-size: 0.9375rem;
+}
+.tt-pd-sysnotice-link {
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    font-weight: 600;
+    color: #7c3a07;
+    text-decoration: underline;
+    touch-action: manipulation;
+}

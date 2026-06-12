@@ -37,7 +37,7 @@ Het sync-window is **30 dagen terug + 180 dagen vooruit** rollend, dus historisc
 - **Nu vernieuwen**-knop op het team-formulier én op het Spond-overzicht voor een directe sync.
 - **WP-CLI**: `wp tt spond sync` (alle teams) of `wp tt spond sync --team=<id>`.
 
-Laatste-sync-status verschijnt in de tabel op **Configuratie → Spond** — groen bij ok, rood met de reden bij een mislukking.
+Laatste-sync-status verschijnt in de tabel op **Configuratie → Spond** — groen bij ok, rood met de reden bij een mislukking. Sinds v4.20.109 (#1368) tonen ook de dashboards van hoofd opleidingen en beheerder een waarschuwingsbanner wanneer de meest recente geslaagde sync ouder is dan 24 uur of de laatste sync van een gekoppeld team mislukte — zo valt een kapotte sync op waar iemand het daadwerkelijk ziet, niet alleen op deze beheerpagina.
 
 ## Privacy + beveiliging
 

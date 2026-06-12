@@ -74,6 +74,7 @@ final class PersonaLandingRenderer {
         if ( in_array( $persona, [ 'head_coach', 'assistant_coach' ], true ) ) {
             self::renderTeamTabs( $user_id );
         }
+        self::renderSystemNotices( $persona );
         GridRenderer::render( $template, $ctx );
         echo '</div>';
 
@@ -82,6 +83,49 @@ final class PersonaLandingRenderer {
         if ( $template->hero === null && $template->task === null && $template->grid->isEmpty() ) {
             FrontendTileGrid::render();
         }
+    }
+
+    /**
+     * #1368 — operational warnings that belong above the grid, not in
+     * it (they render nothing when healthy, so a grid slot would leave
+     * a hole). HoD + admin only; the personas who can act on them.
+     * Decision logic lives in the owning module (SaaS-ready §4) — this
+     * method only composes.
+     */
+    private static function renderSystemNotices( string $persona ): void {
+        if ( ! in_array( $persona, [ 'head_of_development', 'academy_admin' ], true ) ) {
+            return;
+        }
+        if ( ! class_exists( \TT\Modules\Spond\SpondSyncHealth::class ) ) {
+            return;
+        }
+        $spond = \TT\Modules\Spond\SpondSyncHealth::check();
+        if ( ! in_array( $spond['state'], [ 'stale', 'failed' ], true ) ) {
+            return;
+        }
+
+        if ( $spond['state'] === 'failed' ) {
+            $text = sprintf(
+                /* translators: %d = number of teams whose last Spond sync errored */
+                _n( 'Spond sync failed for %d team — schedules may be out of date.', 'Spond sync failed for %d teams — schedules may be out of date.', (int) $spond['failed_count'], 'talenttrack' ),
+                (int) $spond['failed_count']
+            );
+        } elseif ( $spond['last_sync'] !== '' ) {
+            $text = sprintf(
+                /* translators: %s = human-readable time since the last successful Spond sync */
+                __( 'Spond sync last succeeded %s ago — schedules may be out of date.', 'talenttrack' ),
+                human_time_diff( (int) strtotime( $spond['last_sync'] ) )
+            );
+        } else {
+            $text = __( 'Spond sync has not completed yet — schedules may be out of date.', 'talenttrack' );
+        }
+
+        echo '<div class="tt-pd-sysnotice" role="status">'
+            . '<span class="tt-pd-sysnotice-text">' . esc_html( $text ) . '</span>'
+            . '<a class="tt-pd-sysnotice-link" href="' . esc_url( admin_url( 'admin.php?page=' . \TT\Modules\Spond\Admin\SpondOverviewPage::SLUG ) ) . '">'
+            . esc_html__( 'Check Spond status', 'talenttrack' )
+            . '</a>'
+            . '</div>';
     }
 
     private static function enqueueAssets(): void {
