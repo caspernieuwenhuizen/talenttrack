@@ -132,7 +132,16 @@ final class RateActorsStep implements WizardStepInterface {
             ?>
         </div>
 
+        <?php
+        // #1372 — interruption-recovery notice. Hidden until the
+        // buffer script below restores values from sessionStorage.
+        ?>
+        <p class="tt-notice" data-tt-rate-restored hidden>
+            <?php esc_html_e( 'Restored your in-progress ratings from this device.', 'talenttrack' ); ?>
+        </p>
+
         <div class="tt-rate-roster" data-tt-rate-roster data-main-cat-count="<?php echo (int) $main_cat_count; ?>"
+             data-tt-rate-buffer-key="<?php echo esc_attr( 'tt-rate-buffer-' . $aid ); ?>"
              data-i18n-not-rated="<?php esc_attr_e( 'Not rated', 'talenttrack' ); ?>"
              data-i18n-rating="<?php esc_attr_e( 'Rating…', 'talenttrack' ); ?>"
              data-i18n-rated="<?php esc_attr_e( 'Rated', 'talenttrack' ); ?>"
@@ -373,6 +382,7 @@ final class RateActorsStep implements WizardStepInterface {
                 }
                 var details = e.target.closest( '[data-tt-rate-player]' );
                 if ( details ) { updatePlayer( details ); updateOverall(); }
+                persistBuffer();
             } );
             roster.addEventListener( 'change', function ( e ) {
                 if ( ! e.target ) return;
@@ -381,7 +391,109 @@ final class RateActorsStep implements WizardStepInterface {
                 }
                 var details = e.target.closest( '[data-tt-rate-player]' );
                 if ( details ) { updatePlayer( details ); updateOverall(); }
+                persistBuffer();
             } );
+
+            // #1372 — interruption buffer. Every slider / notes / skip
+            // change is mirrored into sessionStorage keyed per
+            // activity, so a discarded tab (phone call, app switch)
+            // doesn't cost the coach 14 players' worth of input.
+            // Client-side only — no server writes before Review, so
+            // the autosave race that got global wizard autosave
+            // removed (FrontendWizardView v3.x) cannot recur.
+            // sessionStorage survives mobile tab discards (the tab
+            // restores in place); it does NOT survive an explicitly
+            // closed tab — that's the documented boundary.
+            var bufferKey = roster.getAttribute( 'data-tt-rate-buffer-key' ) || '';
+
+            function snapshotBuffer() {
+                var data = {};
+                roster.querySelectorAll( 'input[name^="ratings["]' ).forEach( function ( el ) {
+                    if ( el.hasAttribute( 'data-tt-rating-empty' ) ) return;
+                    if ( el.value !== '' ) data[ el.name ] = el.value;
+                } );
+                roster.querySelectorAll( 'textarea[name^="notes["]' ).forEach( function ( el ) {
+                    if ( el.value !== '' ) data[ el.name ] = el.value;
+                } );
+                roster.querySelectorAll( 'input[name^="skip["]' ).forEach( function ( el ) {
+                    if ( el.checked ) data[ el.name ] = '1';
+                } );
+                return data;
+            }
+
+            function persistBuffer() {
+                if ( ! bufferKey ) return;
+                try {
+                    var data = snapshotBuffer();
+                    if ( Object.keys( data ).length > 0 ) {
+                        sessionStorage.setItem( bufferKey, JSON.stringify( data ) );
+                    } else {
+                        sessionStorage.removeItem( bufferKey );
+                    }
+                } catch ( err ) { /* storage unavailable — degrade silently */ }
+            }
+
+            function clearBuffer() {
+                if ( ! bufferKey ) return;
+                try { sessionStorage.removeItem( bufferKey ); } catch ( err ) { /* noop */ }
+            }
+
+            function rehydrateBuffer() {
+                if ( ! bufferKey ) return;
+                var raw = null;
+                try { raw = sessionStorage.getItem( bufferKey ); } catch ( err ) { return; }
+                if ( ! raw ) return;
+                var data;
+                try { data = JSON.parse( raw ); } catch ( err ) { return; }
+                if ( ! data || typeof data !== 'object' ) return;
+                var restored = 0;
+                Object.keys( data ).forEach( function ( name ) {
+                    var el = null;
+                    try {
+                        var esc = window.CSS && CSS.escape ? CSS.escape( name ) : name.replace( /([\[\]])/g, '\\$1' );
+                        el = roster.querySelector( '[name="' + esc + '"]' );
+                    } catch ( err ) { el = null; }
+                    if ( ! el ) return;
+                    if ( el.type === 'checkbox' ) {
+                        if ( ! el.checked ) { el.checked = true; restored++; }
+                        return;
+                    }
+                    // The buffer is fresher than the server-side wizard
+                    // state (it's written on every input; state only on
+                    // step submit) — buffered values win.
+                    if ( el.value !== data[ name ] || el.hasAttribute( 'data-tt-rating-empty' ) ) {
+                        el.value = data[ name ];
+                        el.removeAttribute( 'data-tt-rating-empty' );
+                        restored++;
+                    }
+                } );
+                if ( restored > 0 ) {
+                    // Re-derive mains from subs, repaint pills + progress.
+                    roster.querySelectorAll( '[data-tt-rate-sub-parent]' ).forEach( function ( s ) {
+                        if ( ! s.hasAttribute( 'data-tt-rating-empty' ) ) recalcMainFromSubs( s );
+                    } );
+                    allDetails.forEach( updatePlayer );
+                    updateOverall();
+                    var notice = document.querySelector( '[data-tt-rate-restored]' );
+                    if ( notice ) notice.removeAttribute( 'hidden' );
+                }
+            }
+
+            rehydrateBuffer();
+
+            // Clear on Next (values move into the wizard state) and on
+            // explicit Cancel; keep on Back so a return restores. The
+            // submitter button carries tt_wizard_action.
+            var wizardForm = roster.closest( 'form' );
+            if ( wizardForm ) {
+                wizardForm.addEventListener( 'submit', function ( e ) {
+                    var action = '';
+                    if ( e.submitter && e.submitter.name === 'tt_wizard_action' ) {
+                        action = e.submitter.value || '';
+                    }
+                    if ( action !== 'back' ) clearBuffer();
+                } );
+            }
 
             // v3.110.125 — per-category Basic/Detailed pill toggle.
             // Click delegated on the roster so the handler picks up
