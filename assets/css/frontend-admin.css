@@ -1404,3 +1404,48 @@ body:not(.tt-theme-inherit) .tt-dashboard .tt-field {
     .tt-dashboard .tt-trial-staff-row select { flex: 1 1 60%; }
     .tt-dashboard .tt-trial-staff-row input { flex: 1 1 40%; }
 }
+
+/*  Loading-state primitives (#1361)
+   Two shared shapes for every REST-backed fetch:
+     .tt-loading  — inline spinner (reuses the tt-spin keyframes).
+     .tt-skeleton — pulsing placeholder block sized by the consumer.
+   Containers being fetched get aria-busy="true" + .tt-is-loading via
+   TT.Loading (public.js); consumers style their own busy treatment
+   off those hooks (the list table dims its tbody below).
+   prefers-reduced-motion: the spinner stops rotating (static ring +
+   the surrounding "Loading…" text still communicates) and the
+   skeleton stops pulsing (static block).
+    */
+/* Unscoped (still tt- prefixed) so non-.tt-dashboard surfaces like
+   the persona dashboard widgets can reuse the same primitives. */
+.tt-loading {
+    display: inline-block;
+    width: 16px; height: 16px;
+    border: 2px solid var(--tt-muted, #5b6e75);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: tt-spin 0.7s linear infinite;
+    vertical-align: middle;
+}
+.tt-skeleton {
+    display: inline-block;
+    height: 1em;
+    width: 100%;
+    border-radius: var(--tt-r-sm, 4px);
+    background: linear-gradient(90deg, var(--tt-bg-soft, #f2f4f5) 25%, var(--tt-line, #d6dadd) 50%, var(--tt-bg-soft, #f2f4f5) 75%);
+    background-size: 200% 100%;
+    animation: tt-skeleton-pulse 1.2s ease-in-out infinite;
+    color: transparent;
+    pointer-events: none;
+}
+@keyframes tt-skeleton-pulse { to { background-position: -200% 0; } }
+
+/* List-table busy treatment: keep the old rows visible but visibly
+   stale while the replacement page is in flight. */
+.tt-dashboard .tt-list-table.tt-is-loading .tt-list-table-table tbody { opacity: 0.45; }
+
+@media (prefers-reduced-motion: reduce) {
+    .tt-loading,
+    .tt-dashboard .tt-list-table-status.is-loading::before { animation: none; }
+    .tt-skeleton { animation: none; background: var(--tt-bg-soft, #f2f4f5); }
+}

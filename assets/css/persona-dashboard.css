@@ -896,6 +896,12 @@
     border-bottom: 1px solid var(--tt-pd-divider);
 }
 .tt-pd-team-player-row:last-child { border-bottom: 0; }
+/* #1361 — skeleton rows shown while the team breakdown fetch is in
+   flight. Same grid as the real rows; the .tt-skeleton primitive
+   (frontend-admin.css) provides the pulse + reduced-motion handling. */
+.tt-pd-team-player-row.is-skeleton .tt-skeleton { height: 0.9em; }
+.tt-pd-team-player-row.is-skeleton .tt-skeleton:first-child { width: 60%; }
+.tt-pd-team-player-row.is-skeleton .tt-skeleton + .tt-skeleton { width: 34px; }
 .tt-pd-team-player-name {
     color: var(--tt-pd-text-primary);
     text-decoration: none;
