@@ -112,15 +112,23 @@ final class CoreTemplates {
             $grid->add( new WidgetSlot( 'kpi_card', $kpi_id, Size::S, $i * 3, 2, 1, 20 + $i ) );
         }
         // Row 2: navigation tiles for primary coach surfaces.
+        // #1373 — team-planner + vct-planner added: forward planning
+        // was structurally framed as not-a-coach-job (the planner tile
+        // existed only in the legacy grid; the VCT designer had no
+        // entry point at all). Both tiles cap-gate through
+        // TileRegistry, so coaches without tt_view_plan / tt_vct_plan
+        // simply don't see them.
         $tiles = [
-            [ 'activities',   __( 'Activities',  'talenttrack' ), 30 ],
-            [ 'evaluations',  __( 'Evaluations', 'talenttrack' ), 31 ],
-            [ 'goals',        __( 'Goals',       'talenttrack' ), 32 ],
-            [ 'players',      __( 'My players',  'talenttrack' ), 33 ],
-            [ 'teams',        __( 'My teams',    'talenttrack' ), 34 ],
-            [ 'pdp',          __( 'PDP',         'talenttrack' ), 35 ],
-            [ 'methodology',  __( 'Methodology', 'talenttrack' ), 36 ],
-            [ 'my-tasks',     __( 'My tasks',    'talenttrack' ), 37 ],
+            [ 'activities',   __( 'Activities',   'talenttrack' ), 30 ],
+            [ 'evaluations',  __( 'Evaluations',  'talenttrack' ), 31 ],
+            [ 'goals',        __( 'Goals',        'talenttrack' ), 32 ],
+            [ 'players',      __( 'My players',   'talenttrack' ), 33 ],
+            [ 'teams',        __( 'My teams',     'talenttrack' ), 34 ],
+            [ 'pdp',          __( 'PDP',          'talenttrack' ), 35 ],
+            [ 'methodology',  __( 'Methodology',  'talenttrack' ), 36 ],
+            [ 'my-tasks',     __( 'My tasks',     'talenttrack' ), 37 ],
+            [ 'team-planner', __( 'Team planner', 'talenttrack' ), 38 ],
+            [ 'vct-planner',  __( 'VCT designer', 'talenttrack' ), 39 ],
         ];
         foreach ( $tiles as $i => [ $slug, $label, $priority ] ) {
             $col = ( $i % 4 ) * 3;
@@ -129,18 +137,19 @@ final class CoreTemplates {
                 'navigation_tile', $slug, Size::S, $col, $row, 1, $priority, true, $label
             ) );
         }
-        // Row 5: quick actions panel.
+        // Row 6: quick actions panel (#1373 — tiles grew to 10 and now
+        // occupy rows 3-5; everything below shifts one row).
         $grid->add( new WidgetSlot(
             'quick_actions_panel',
             'new_evaluation,new_goal,new_activity,new_player',
-            Size::M, 0, 5, 1, 40
+            Size::M, 0, 6, 1, 40
         ) );
-        // #871 — row 6: behaviour-pending widget. Surfaces players the
+        // #871 — row 7: behaviour-pending widget. Surfaces players the
         // coach hasn't rated in the last 14 days (configurable via
         // tt_config.behaviour_staleness_days). Cap-gated via the source
         // itself — coaches without `tt_rate_player_behaviour` get an
         // empty row set and the widget renders the positive empty state.
-        $grid->add( new WidgetSlot( 'data_table', 'behaviour_pending', Size::XL, 0, 6, 2, 41 ) );
+        $grid->add( new WidgetSlot( 'data_table', 'behaviour_pending', Size::XL, 0, 7, 2, 41 ) );
         // #1050 — matches-needing-review reminder. Silent when nothing
         // needs review; surfaces an amber-bordered list with up to 5
         // PENDING_REVIEW matches when there is. Sits above the
