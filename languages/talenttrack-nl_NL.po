@@ -38234,3 +38234,9 @@ msgstr "%1$s (#%2$d) heeft geen MFA-inschrijvingsrij — niets om te resetten."
 #, php-format
 msgid "Enrollment wiped for %1$s (#%2$d) — they re-enroll on next login."
 msgstr "Inschrijving gewist voor %1$s (#%2$d) — opnieuw inschrijven bij de volgende login."
+
+# #1393 - MFA QR fixes (v4.20.129). i18n-sync will merge these into the
+# proper position on next run; meanwhile they land here verbatim so a
+# Dutch install reads correctly today.
+msgid "The QR code could not be generated for this account — use the manual entry details instead. Both set up the same secret."
+msgstr "De QR-code kon voor dit account niet worden gegenereerd — gebruik in plaats daarvan de handmatige invoergegevens. Beide stellen hetzelfde geheim in."

@@ -53,6 +53,16 @@ final class QrCodeRenderer {
      * @return string  SVG markup, ready for `echo`.
      */
     public static function svg( string $text, int $module_px = 6 ): string {
+        // #1393 — never silently truncate. A QR that scans but decodes
+        // to a chopped otpauth URI is worse than no QR (the app imports
+        // a broken secret). Over-capacity input returns '' so the
+        // caller can fall back to manual entry; the miss is logged via
+        // error_log directly (not Logger) to keep this class pure-PHP
+        // and standalone-testable.
+        if ( strlen( $text ) > 271 ) {
+            error_log( '[TalentTrack] QrCodeRenderer: payload exceeds v10 capacity (' . strlen( $text ) . ' bytes) — no QR rendered, caller should surface manual entry.' );
+            return '';
+        }
         $matrix = self::buildMatrix( $text );
         $size   = count( $matrix );
         // Quiet zone: 4 modules per spec.
@@ -71,8 +81,11 @@ final class QrCodeRenderer {
             }
         }
 
+        // #1393 — style block lets the SVG fill its container (the
+        // Secret step's QR box) instead of being pinned to the
+        // module_px-derived size; viewBox keeps it crisp at any scale.
         $svg  = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' . $total . ' ' . $total . '"';
-        $svg .= ' width="' . (int) $px . '" height="' . (int) $px . '" shape-rendering="crispEdges" role="img" aria-label="MFA secret QR code">';
+        $svg .= ' width="' . (int) $px . '" height="' . (int) $px . '" style="width:100%;height:auto;display:block;" shape-rendering="crispEdges" role="img" aria-label="MFA secret QR code">';
         $svg .= '<rect width="' . $total . '" height="' . $total . '" fill="#ffffff"/>';
         $svg .= '<path d="' . $rects . '" fill="#000000"/>';
         $svg .= '</svg>';
@@ -102,12 +115,12 @@ final class QrCodeRenderer {
             if ( $length <= $cap ) { $version = $v; break; }
         }
         if ( $version === 0 ) {
-            // Defensive: caller passed something longer than 271 bytes,
-            // which our otpauth URIs never do. Fall back to v10 and
-            // truncate; the QR will still be valid for whatever fit.
-            $version = 10;
-            $bytes   = array_slice( $bytes, 0, 271 );
-            $length  = 271;
+            // #1393 — unreachable from svg() (which gates on 271 bytes
+            // and returns '' first), kept as a hard guard for any
+            // future direct caller: a truncated otpauth URI scans fine
+            // but decodes to a chopped, invalid payload, so refusing
+            // is the only correct behaviour.
+            throw new \InvalidArgumentException( 'QR payload exceeds version-10 byte-mode capacity (271 bytes).' );
         }
 
         $bitstream = self::encodeData( $bytes, $version );
