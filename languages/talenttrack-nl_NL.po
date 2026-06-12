@@ -38166,3 +38166,46 @@ msgstr "Kopieer laatste %s"
 # here verbatim so a Dutch install reads correctly today.
 msgid "Restored your in-progress ratings from this device."
 msgstr "Je tussentijdse beoordelingen zijn hersteld vanaf dit apparaat."
+
+# #1374 - HoD week recap widget (v4.20.127). i18n-sync will merge these
+# into the proper position on next run; meanwhile they land here
+# verbatim so a Dutch install reads correctly today.
+msgid "This week at the academy"
+msgstr "Deze week op de academie"
+
+msgid "Since-you-last-visited recap for academy-wide roles: evaluations written, activities completed, new prospects, trial decisions, behaviour ratings, and PDP conversations in the window, each linking to the relevant view. Window = your previous visit, capped at 14 days; 7 days on first visit."
+msgstr "Sinds-je-laatste-bezoek-overzicht voor academiebrede rollen: geschreven evaluaties, afgeronde activiteiten, nieuwe prospects, proefbeslissingen, gedragsbeoordelingen en PDP-gesprekken in het venster, elk gelinkt naar de relevante weergave. Venster = je vorige bezoek, begrensd op 14 dagen; 7 dagen bij een eerste bezoek."
+
+#, php-format
+msgid "%1$d evaluation written by %2$d coach"
+msgid_plural "%1$d evaluations written by %2$d coaches"
+msgstr[0] "%1$d evaluatie geschreven door %2$d coach"
+msgstr[1] "%1$d evaluaties geschreven door %2$d coaches"
+
+#, php-format
+msgid "%1$d of %2$d planned activities completed"
+msgstr "%1$d van %2$d geplande activiteiten afgerond"
+
+#, php-format
+msgid "%d new prospect logged"
+msgid_plural "%d new prospects logged"
+msgstr[0] "%d nieuwe prospect vastgelegd"
+msgstr[1] "%d nieuwe prospects vastgelegd"
+
+#, php-format
+msgid "%d trial decision made"
+msgid_plural "%d trial decisions made"
+msgstr[0] "%d proefbeslissing genomen"
+msgstr[1] "%d proefbeslissingen genomen"
+
+#, php-format
+msgid "%d behaviour rating logged"
+msgid_plural "%d behaviour ratings logged"
+msgstr[0] "%d gedragsbeoordeling vastgelegd"
+msgstr[1] "%d gedragsbeoordelingen vastgelegd"
+
+#, php-format
+msgid "%d PDP conversation logged"
+msgid_plural "%d PDP conversations logged"
+msgstr[0] "%d PDP-gesprek vastgelegd"
+msgstr[1] "%d PDP-gesprekken vastgelegd"

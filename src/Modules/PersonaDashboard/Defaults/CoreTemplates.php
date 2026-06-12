@@ -186,27 +186,32 @@ final class CoreTemplates {
         $grid->add( new WidgetSlot( 'team_overview_grid', 'days=30,sort=concern_first', Size::L, 0, 0, 3, 5 ) );
         $grid->add( new WidgetSlot( 'action_card',        'new_trial',                  Size::S, 9, 0, 1, 6 ) );
         $grid->add( new WidgetSlot( 'action_card',        'new_test_training',          Size::S, 9, 1, 1, 7 ) );
-        // Row 3: onboarding pipeline strip (XL, full width, 1 row). Six-stage
+        // #1374 — row 3: "This week at the academy" since-last-visit
+        // recap. Sits directly under the team pulse so the Monday
+        // mental diff across six widgets becomes one glance. Every
+        // slot below shifted one row down.
+        $grid->add( new WidgetSlot( 'hod_week_recap', '', Size::XL, 0, 3, 1, 8 ) );
+        // Row 4: onboarding pipeline strip (XL, full width, 1 row). Six-stage
         // funnel counts so invitations / outcomes / trial-group / team-offer
         // backlog are visible without drilling into the kanban — drives
         // actions #2, #3, #10 in the HoD-actions doc.
-        $grid->add( new WidgetSlot( 'onboarding_pipeline', '', Size::XL, 0, 3, 1, 9 ) );
-        // Rows 4-5: upcoming activities table (XL, full width, 2 rows).
-        $grid->add( new WidgetSlot( 'data_table', 'upcoming_activities', Size::XL, 0, 4, 2, 10 ) );
-        // Rows 6-7: trials needing decision.
-        $grid->add( new WidgetSlot( 'data_table', 'trials_needing_decision', Size::XL, 0, 6, 2, 12 ) );
-        // Row 8: recent comments & notes (v3.110.113 — pilot ask).
+        $grid->add( new WidgetSlot( 'onboarding_pipeline', '', Size::XL, 0, 4, 1, 9 ) );
+        // Rows 5-6: upcoming activities table (XL, full width, 2 rows).
+        $grid->add( new WidgetSlot( 'data_table', 'upcoming_activities', Size::XL, 0, 5, 2, 10 ) );
+        // Rows 7-8: trials needing decision.
+        $grid->add( new WidgetSlot( 'data_table', 'trials_needing_decision', Size::XL, 0, 7, 2, 12 ) );
+        // Row 9: recent comments & notes (v3.110.113 — pilot ask).
         // M=6 cols on the left half of the row; the right half is left
         // empty to give the list breathing room. Drops into the natural
         // reading flow between the trials table and the navigation tile
         // grid below. Cap-gated on `tt_view_threads` — HoD has it.
-        $grid->add( new WidgetSlot( 'recent_comments',    '',                            Size::M, 0, 8, 1, 14 ) );
-        // #871 — row 9: behaviour-pending widget for HoD. Same source
+        $grid->add( new WidgetSlot( 'recent_comments',    '',                            Size::M, 0, 9, 1, 14 ) );
+        // #871 — row 10: behaviour-pending widget for HoD. Same source
         // as the coach version (`behaviour_pending`) but with global
         // scope — HoDs hold `tt_manage_players` so the source returns
         // every club player overdue for a rating, not just the coach's
-        // team scope. Tiles below shift from row 9 → row 10.
-        $grid->add( new WidgetSlot( 'data_table', 'behaviour_pending', Size::XL, 0, 9, 2, 15 ) );
+        // team scope.
+        $grid->add( new WidgetSlot( 'data_table', 'behaviour_pending', Size::XL, 0, 10, 2, 15 ) );
         // Row 8+: navigation tiles. Top row carries the HoD's four
         // highest-frequency drill-downs (funnel, inbox, players, teams);
         // second row carries the cycle / record-keeping surfaces; tail
@@ -243,7 +248,8 @@ final class CoreTemplates {
             // for the new `recent_comments` widget on row 8.
             // v4.1.2 (#871) — tiles shift again to y=11 to clear the
             // new `behaviour_pending` widget on row 9 (height 2).
-            $row = 11 + (int) floor( $i / 4 );
+            // #1374 — one more shift to y=12 for the week-recap row.
+            $row = 12 + (int) floor( $i / 4 );
             $grid->add( new WidgetSlot(
                 'navigation_tile', $slug, Size::S, $col, $row, 1, $priority, true, $label
             ) );

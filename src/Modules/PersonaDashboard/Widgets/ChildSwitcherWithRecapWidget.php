@@ -127,7 +127,16 @@ class ChildSwitcherWithRecapWidget extends AbstractWidget {
     }
 
     private static function lastVisited( int $user_id ): ?string {
-        $raw = get_user_meta( $user_id, 'tt_last_visited_at', true );
+        // #1374 — read the rotated visit baseline, not the live bump:
+        // PersonaLandingRenderer updates `tt_last_visited_at` BEFORE
+        // widgets render, so diffing against it collapsed the window
+        // to ~zero. `tt_recap_since_at` holds the previous session's
+        // timestamp; fall back to the live key for installs where the
+        // baseline hasn't rotated yet.
+        $raw = get_user_meta( $user_id, 'tt_recap_since_at', true );
+        if ( ! is_string( $raw ) || $raw === '' ) {
+            $raw = get_user_meta( $user_id, 'tt_last_visited_at', true );
+        }
         if ( ! is_string( $raw ) || $raw === '' ) return null;
         return $raw;
     }
