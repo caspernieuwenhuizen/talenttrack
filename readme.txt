@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.115
+Stable tag: 4.20.116
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.116 — Migration authoring hardened: per-statement exec() guard + CI lint against dbDelta-on-existing-tables (closes #1357). Companion to v4.20.96's failure surfacing — that fixed how failures REPORT; this fixes how they're DETECTED and prevented. **exec() guard.** [`Migration`](src/Infrastructure/Database/Migration.php) base class gains `protected exec( string $sql ): int` which throws at the exact failing statement; the runner's old fallback read only the LAST database error after up() returned, so a failed statement followed by a successful one was invisible and the migration got marked applied half-done (47 raw-ALTER migrations carry that latent risk; new migrations route every statement through exec()). **CI lint.** New [`migration-lint.yml`](.github/workflows/migration-lint.yml) fails any ADDED migration that passes a pre-existing table to dbDelta — dbDelta silently no-ops ALTERs when the live table drifts (the #1331/0129 incident class; 24 grandfathered sites stay untouched since they already ran wherever they'll ever run). **Docs.** docs/migrations.md (EN+NL) gains a "Writing migrations" standards section: exec() always, addColumnIfMissing for column adds, dbDelta only for genuinely new tables. The GET_LOCK concurrency guard shipped in v4.20.96. No runtime behaviour change for existing installs. Patch bump. (closes #1357) =
 
 = 4.20.115 — Contrast + tiny-type pass: 12px floor for UI text, dark green for status glyphs (closes #1363). Audit a11y finding. **Tiny type.** ~58 `font-size` declarations of 8-11px raised to a 12px floor across 16 stylesheets — coaches read these pitch-side in sunlight. Two audit-sanctioned exemptions kept and annotated in-file: the player-card collectible (its miniature stat labels are the card aesthetic) and the blueprint pitch-diagram circle abbreviations / tier marks (space-constrained diagram glyphs). **Contrast.** The text-level failures were the wp-admin status glyphs: 13 `color:#00a32a` (3.35:1 on white) green checks/dots across Authorization, Configuration, Evaluations, People admin pages and the custom-field renderer → `#2e7d4f` (5.0:1), matching the player-detail success token. `var(--tt-warning)` audits clean — every consumer is a border/badge with dark text (#7c5a00), never text itself; the blueprint heat-scale gold is a border with #7a4f1d text. CSS/inline-style only, no strings, no schema. Patch bump. (closes #1363) =
 

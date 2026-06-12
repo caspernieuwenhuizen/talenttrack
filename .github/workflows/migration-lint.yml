@@ -1,0 +1,67 @@
+name: Migration lint
+
+# #1357 — guards the #1331/0129 silent-failure class: dbDelta passed a
+# CREATE TABLE IF NOT EXISTS for a table that already exists silently
+# no-ops the implied ALTERs when the live table has drifted, and the
+# runner marks the migration applied anyway. New migrations that need
+# to evolve an existing table must use MigrationHelpers::addColumnIfMissing
+# (column adds) or Migration::exec (guarded raw ALTERs).
+#
+# Scope: ADDED files only — the 24 pre-existing dbDelta sites are
+# grandfathered (they already ran wherever they will ever run).
+
+on:
+  pull_request:
+    paths:
+      - 'database/migrations/**.php'
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: No dbDelta on pre-existing tables
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Scan added migrations
+        shell: bash
+        run: |
+          set -e
+          git fetch origin main:refs/remotes/origin/main || true
+          base_sha=$(git merge-base HEAD origin/main)
+          added=$(git diff --name-only --diff-filter=A "$base_sha"...HEAD -- 'database/migrations/*.php' || true)
+
+          if [ -z "$added" ]; then
+            echo "No new migration files — nothing to lint."
+            exit 0
+          fi
+
+          fail=0
+          for f in $added; do
+            [ -f "$f" ] || continue
+            if ! grep -q "dbDelta" "$f"; then
+              continue
+            fi
+            # Tables this migration feeds into dbDelta.
+            tables=$(grep -oE 'CREATE TABLE (IF NOT EXISTS )?\{\$p\}tt_[a-z_]+' "$f" \
+              | grep -oE 'tt_[a-z_]+' | sort -u || true)
+            for t in $tables; do
+              # Created by any OTHER migration (or the Activator schema)?
+              prior=$(grep -lE "CREATE TABLE (IF NOT EXISTS )?\{\\\$p\}${t}([^a-z_]|\$)" \
+                database/migrations/*.php src/Core/Activator.php 2>/dev/null \
+                | grep -vF "$f" || true)
+              if [ -n "$prior" ]; then
+                echo "::error file=$f::dbDelta CREATE for pre-existing table ${t} — dbDelta silently no-ops ALTERs when the live table drifts (#1331 class). Use MigrationHelpers::addColumnIfMissing or Migration::exec instead. Table first created in: $(echo "$prior" | head -1)"
+                fail=1
+              fi
+            done
+          done
+
+          if [ "$fail" = "1" ]; then
+            exit 1
+          fi
+          echo "OK — no dbDelta-on-existing-table patterns in added migrations."

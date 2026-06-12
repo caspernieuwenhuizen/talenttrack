@@ -52,6 +52,14 @@ Een migratie die een fout geeft (host-specifieke SQL-beperkingen, afwijkend sche
 
 Blijft de retry mislukken, dan is de fouttekst in de melding precies wat je host of ontwikkelaar nodig heeft — die benoemt het migratiebestand en de exacte SQL-fout.
 
+## Migraties schrijven (standaarden v4.20.116+, dev)
+
+Drie regels, afgedwongen via review + CI:
+
+1. **Elke statement loopt via `$this->exec( $sql )`** (op de `Migration`-basisklasse). De fallback van de runner leest alleen de *laatste* databasefout nadat `up()` klaar is — een mislukte statement gevolgd door een geslaagde zou onzichtbaar zijn en de migratie half-af als toegepast markeren. `exec()` gooit een exception bij precies de statement die brak, en dat is wat de rode beheermelding vervolgens toont.
+2. **Kolommen toevoegen aan bestaande tabellen gaat via `MigrationHelpers::addColumnIfMissing()`**, nooit via `dbDelta`. dbDelta slaat ALTERs stilletjes over wanneer de live tabel afwijkt van het CREATE-statement — de foutklasse achter de v4.20.85-reparatie van de blueprint-kolommen. CI (`migration-lint.yml`) laat elke nieuwe migratie falen die een bestaande tabel aan dbDelta voert.
+3. **`dbDelta` blijft prima voor écht nieuwe tabellen** — eerste aanmaak is het geval dat het goed afhandelt.
+
 ## Wat je nooit hoeft te doen
 
 - Deactiveren + opnieuw activeren (oude workflow, niet langer nodig)
