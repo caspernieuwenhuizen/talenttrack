@@ -120,6 +120,15 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
                 'desc'  => __( 'Per-coach rating distribution and variance — spots the rate-everyone-the-same pattern.', 'talenttrack' ),
                 'url'   => add_query_arg( [ 'tt_view' => 'standard-report', 'slug' => 'coach-evaluation-quality' ], $base_url ),
             ],
+            // #1369 — the legacy wp-admin Player Progress & Radar,
+            // ported native. Coach-visible; the renderer scopes data
+            // to the viewer's teams.
+            [
+                'slug'  => 'player-progress-radar',
+                'label' => __( 'Player · Progress & radar', 'talenttrack' ),
+                'desc'  => __( 'Radar charts over evaluation categories — per-player progress, player comparison, team averages.', 'talenttrack' ),
+                'url'   => add_query_arg( [ 'tt_view' => 'standard-report', 'slug' => 'player-progress-radar' ], $base_url ),
+            ],
         ];
 
         echo '<p style="color:#5b6e75; margin-bottom:16px;">';

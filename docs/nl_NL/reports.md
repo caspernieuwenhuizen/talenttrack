@@ -36,4 +36,8 @@ Beperkt tot academiebrede rollen (hoofd opleiding / beheerder): coaches kunnen e
 
 Team-gemiddelden en Coach-activiteit renderen nu rechtstreeks op het publieke dashboard via `?tt_view=reports&type=team_ratings` en `?type=coach_activity` — geen sprong meer naar wp-admin. Elk rapport heeft bovenaan een knop **Afdrukken / Opslaan als PDF**: bij klikken opent het printvenster van de browser met een stijlblad dat dashboard-elementen verbergt, zodat "Opslaan als PDF" een schone PDF oplevert.
 
-Het oude rapport "Spelersontwikkeling & Radar" opent nog in wp-admin omdat het leunt op formulier-submit en Chart.js-infrastructuur die te omvangrijk is om mee te porten. De frontend-port staat in de wachtrij (#1369) — tot die landt, volg je de wp-admin-link vanuit deze rapportenlijst in plaats van een dashboard-tegel te zoeken.
+## Speler · Voortgang & radar (v4.20.124)
+
+Het oude wp-admin-rapport "Spelersontwikkeling & Radar" rendert nu rechtstreeks op het dashboard als standaardrapport (Rapporten → *Speler · Voortgang & radar*). Dezelfde drie modi met dezelfde data: **Spelersvoortgang** (de laatste vijf evaluaties van elke geselecteerde speler als gestapelde radarseries — laat de selectie leeg voor de top-10 actieve spelers), **Spelersvergelijking** (de meest recente evaluatie van elke speler over elkaar op één radar; kies er minstens twee) en **Teamgemiddelden** (één radarserie per team, gemiddeld per categorie).
+
+Coaches zien alleen spelers en teams van hun eigen teams; academiebrede rollen zien alles. De oude wp-admin-route stuurt door naar dit rapport, dus bladwijzers blijven werken. Integraties kunnen dezelfde datasets lezen via `GET /wp-json/talenttrack/v1/reports/player-radar?mode=…&player_ids=…`.
