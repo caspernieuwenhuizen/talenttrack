@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.109
+Stable tag: 4.20.110
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.110 — Report-detail N+1 collapsed to two grouped queries (closes #1359). Audit perf finding: the Team-ratings report fired one COUNT per team plus one AVG per team×category cell — 10 teams × 6 categories = 70 queries per render. [`FrontendReportDetailView`](src/Shared/Frontend/FrontendReportDetailView.php) now runs ONE grouped eval-count query + ONE grouped per-category average query and renders cells from the maps; identical WHERE semantics, identical output. The second audit site — [`PlayersRestController`](src/Infrastructure/REST/PlayersRestController.php)'s per-id canViewPlayer total loop — was reviewed and deliberately kept: AuthorizationService resolves from per-request caches after the first call, so the loop is array work, not N+1 queries, and replicating the matrix/parent-link/team-scope rules in SQL would fork the authorization logic into a second implementation; the decision is now documented at the call site. No strings, no schema. Patch bump. (closes #1359) =
 
 = 4.20.109 — Spond sync staleness warns on the HoD/admin dashboard (closes #1368). Audit finding: the Spond sync rides Spond's unofficial API; when it breaks mid-season, schedule entry silently becomes manual and the failure surfaced only on the wp-admin Configuration → Spond page nobody checks daily. **New [`SpondSyncHealth`](src/Modules/Spond/SpondSyncHealth.php)** service (decision logic in the owning module per SaaS-ready §4): disabled (no credentials / no linked teams), ok, stale (freshest successful sync > 24h or never), failed (any linked team's last sync errored). **Banner.** [`PersonaLandingRenderer`](src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php) gains a `renderSystemNotices` strip above the grid for the head_of_development + academy_admin personas — renders nothing when healthy (which is why it's not a grid widget: an empty slot would leave a hole), amber warning with a *Check Spond status* deep-link to the Spond admin page when stale/failed. Uses the existing per-team `spond_last_sync_*` columns; no polling added. Mobile-first banner CSS, 48px link target, text-safe amber palette. 4 new Dutch entries (incl. one plural pair); docs/spond-integration.md (EN+NL) updated. Patch bump. (closes #1368) =
 
