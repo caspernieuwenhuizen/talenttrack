@@ -119,7 +119,7 @@ class ErrorLogPage {
                         <td><?php echo esc_html( (string) $row->created_at ); ?></td>
                         <td>
                             <span style="display:inline-block;padding:1px 8px;border-radius:10px;font-size:12px;font-weight:600;<?php echo $is_error ? 'background:#fcebea;color:#b32d2e;' : 'background:#fcf9e8;color:#7c5a00;'; ?>">
-                                <?php echo $is_error ? esc_html__( 'error', 'talenttrack' ) : esc_html__( 'warning', 'talenttrack' ); ?>
+                                <?php echo $is_error ? esc_html__( 'Error', 'talenttrack' ) : esc_html__( 'Warning', 'talenttrack' ); ?>
                             </span>
                         </td>
                         <td><code style="font-size:12px;"><?php echo esc_html( (string) $row->message ); ?></code></td>
