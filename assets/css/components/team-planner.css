@@ -270,3 +270,47 @@
     font-size: 0.75rem;
     color: #5b6e75;
 }
+
+/* #1371 — "Copy last {weekday}" chip on empty day cells. Same dashed
+   affordance language as .tt-planner-empty; 48px touch target. */
+.tt-planner-copy-chip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    margin-top: 6px;
+    border: 1px dashed #9db5c0;
+    border-radius: 6px;
+    color: #1d7874;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 8px;
+    text-align: center;
+    touch-action: manipulation;
+}
+.tt-planner-copy-chip:hover,
+.tt-planner-copy-chip:focus-visible {
+    border-color: #1d7874;
+    background: #f2f8f7;
+}
+
+/* #1371 — Duplicate action under each activity card. */
+.tt-planner-duplicate {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    margin: 2px 0 6px;
+    border-radius: 6px;
+    color: #5b6e75;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 600;
+    touch-action: manipulation;
+}
+.tt-planner-duplicate:hover,
+.tt-planner-duplicate:focus-visible {
+    color: #1d7874;
+    background: #f2f8f7;
+}

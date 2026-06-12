@@ -83,10 +83,13 @@ class FrontendTeamPlannerView extends FrontendViewBase {
         $principle_map = self::principlesByActivity( $activity_ids );
 
         $can_manage = AuthorizationService::userCanOrMatrix( $user_id, 'tt_manage_plan' );
+        // #1371 — most recent past activity per weekday, feeding the
+        // "Copy last {weekday}" chips on empty day cells.
+        $last_by_weekday = $can_manage ? self::lastActivityByWeekday( $team_id ) : [];
 
         echo self::renderToolbar( $teams, $team, $range, $range_start, $weeks_count, $season, $can_manage );
         echo self::renderExportActions( $team_id, $range_start, $range_end );
-        echo self::renderRangeGrid( $range_start, $weeks_count, $activities, $principle_map, $team_id, $can_manage );
+        echo self::renderRangeGrid( $range_start, $weeks_count, $activities, $principle_map, $team_id, $can_manage, $last_by_weekday );
         echo self::renderPrincipleCoverage( $team_id );
     }
 
@@ -231,7 +234,7 @@ class FrontendTeamPlannerView extends FrontendViewBase {
      * @param object[]                    $activities
      * @param array<int, object[]>        $principle_map
      */
-    private static function renderRangeGrid( string $range_start, int $weeks_count, array $activities, array $principle_map, int $team_id, bool $can_manage ): string {
+    private static function renderRangeGrid( string $range_start, int $weeks_count, array $activities, array $principle_map, int $team_id, bool $can_manage, array $last_by_weekday = [] ): string {
         $by_day = [];
         foreach ( $activities as $a ) {
             $d = (string) ( $a->session_date ?? '' );
@@ -242,7 +245,7 @@ class FrontendTeamPlannerView extends FrontendViewBase {
         ob_start();
         for ( $w = 0; $w < $weeks_count; $w++ ) {
             $week_start = gmdate( 'Y-m-d', strtotime( $range_start . ' +' . ( $w * 7 ) . ' days' ) );
-            echo self::renderSingleWeek( $week_start, $by_day, $principle_map, $team_id, $can_manage, $weeks_count > 1 );
+            echo self::renderSingleWeek( $week_start, $by_day, $principle_map, $team_id, $can_manage, $weeks_count > 1, $last_by_weekday );
         }
         return (string) ob_get_clean();
     }
@@ -251,7 +254,7 @@ class FrontendTeamPlannerView extends FrontendViewBase {
      * @param array<string, object[]>     $by_day
      * @param array<int, object[]>        $principle_map
      */
-    private static function renderSingleWeek( string $week_start, array $by_day, array $principle_map, int $team_id, bool $can_manage, bool $show_week_label ): string {
+    private static function renderSingleWeek( string $week_start, array $by_day, array $principle_map, int $team_id, bool $can_manage, bool $show_week_label, array $last_by_weekday = [] ): string {
         $today_str = gmdate( 'Y-m-d' );
         ob_start();
         ?>
@@ -293,12 +296,40 @@ class FrontendTeamPlannerView extends FrontendViewBase {
                                 ], RecordLink::dashboardUrl() ) ) ); ?>">
                                     + <?php esc_html_e( 'Add', 'talenttrack' ); ?>
                                 </a>
+                                <?php
+                                // #1371 — "Copy last {weekday}" chip:
+                                // pre-fills the create form from the
+                                // team's previous activity on this
+                                // weekday. Future/today cells only —
+                                // planning is forward.
+                                $dow      = (int) gmdate( 'N', strtotime( $day ) );
+                                $template = $last_by_weekday[ $dow ] ?? null;
+                                if ( $template !== null && $day >= $today_str ) :
+                                    $copy_url = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [
+                                        'tt_view'        => 'activities',
+                                        'action'         => 'new',
+                                        'team_id'        => $team_id,
+                                        'session_date'   => $day,
+                                        'duplicate_from' => (int) $template->id,
+                                        'plan_state'     => 'scheduled',
+                                    ], RecordLink::dashboardUrl() ) );
+                                    ?>
+                                    <a class="tt-planner-copy-chip" href="<?php echo esc_url( $copy_url ); ?>" title="<?php echo esc_attr( (string) ( $template->title ?? '' ) ); ?>">
+                                        <?php
+                                        echo esc_html( sprintf(
+                                            /* translators: %s: localized weekday name (e.g. Tuesday) */
+                                            __( 'Copy last %s', 'talenttrack' ),
+                                            wp_date( 'l', strtotime( $day ) )
+                                        ) );
+                                        ?>
+                                    </a>
+                                <?php endif; ?>
                             <?php else : ?>
                                 <p class="tt-planner-empty-readonly"><?php esc_html_e( '—', 'talenttrack' ); ?></p>
                             <?php endif; ?>
                         <?php else : ?>
                             <?php foreach ( $items as $a ) : ?>
-                                <?php echo self::renderActivityCard( $a, $principle_map[ (int) $a->id ] ?? [] ); ?>
+                                <?php echo self::renderActivityCard( $a, $principle_map[ (int) $a->id ] ?? [], $can_manage ); ?>
                             <?php endforeach; ?>
                         <?php endif; ?>
                     </div>
@@ -310,7 +341,7 @@ class FrontendTeamPlannerView extends FrontendViewBase {
     }
 
     /** @param array<int, object> $principles */
-    private static function renderActivityCard( object $a, array $principles ): string {
+    private static function renderActivityCard( object $a, array $principles, bool $can_manage = false ): string {
         // The status pill is driven by `activity_status_key` — the
         // lookup the user actually edits on the activities form. The
         // legacy `plan_state` column defaulted to `completed` on
@@ -380,6 +411,24 @@ class FrontendTeamPlannerView extends FrontendViewBase {
                 </span>
             <?php endif; ?>
         </a>
+        <?php if ( $can_manage ) :
+            // #1371 — duplicate this activity onto a new date (default
+            // source + 7 days; the create form confirms before save).
+            $dup_url = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [
+                'tt_view'        => 'activities',
+                'action'         => 'new',
+                'duplicate_from' => (int) $a->id,
+                'plan_state'     => 'scheduled',
+            ], RecordLink::dashboardUrl() ) );
+            ?>
+            <a class="tt-planner-duplicate" href="<?php echo esc_url( $dup_url ); ?>" aria-label="<?php echo esc_attr( sprintf(
+                /* translators: %s: activity title */
+                __( 'Duplicate "%s" to a new date', 'talenttrack' ),
+                (string) ( $a->title ?? '' )
+            ) ); ?>">
+                <?php esc_html_e( 'Duplicate', 'talenttrack' ); ?>
+            </a>
+        <?php endif; ?>
         <?php
         return (string) ob_get_clean();
     }
@@ -572,6 +621,42 @@ class FrontendTeamPlannerView extends FrontendViewBase {
             $team_id, CurrentClub::id(), $from, $to
         ) );
         return is_array( $rows ) ? $rows : [];
+    }
+
+    /**
+     * #1371 — the team's most recent activity per weekday (Mon=1 …
+     * Sun=7), today or earlier. Feeds the "Copy last {weekday}" chips:
+     * an empty Tuesday cell offers a copy of the last Tuesday session
+     * when one exists. Cancelled + archived rows never qualify as
+     * templates.
+     *
+     * @return array<int, object> ISO weekday → {id, session_date, title}
+     */
+    private static function lastActivityByWeekday( int $team_id ): array {
+        global $wpdb;
+        // One bounded scan: newest-first within the last 26 weeks, then
+        // first-seen-per-weekday in PHP (no window functions — MySQL
+        // 5.6 floor).
+        $cutoff = gmdate( 'Y-m-d', strtotime( '-26 weeks' ) );
+        $rows   = $wpdb->get_results( $wpdb->prepare(
+            "SELECT id, session_date, title
+               FROM {$wpdb->prefix}tt_activities
+              WHERE team_id = %d
+                AND club_id = %d
+                AND session_date BETWEEN %s AND %s
+                AND activity_status_key <> 'cancelled'
+                AND ( archived_at IS NULL OR archived_at = '' )
+              ORDER BY session_date DESC, id DESC
+              LIMIT 200",
+            $team_id, CurrentClub::id(), $cutoff, gmdate( 'Y-m-d' )
+        ) );
+        $out = [];
+        foreach ( (array) $rows as $r ) {
+            $dow = (int) gmdate( 'N', strtotime( (string) $r->session_date ) );
+            if ( ! isset( $out[ $dow ] ) ) $out[ $dow ] = $r;
+            if ( count( $out ) === 7 ) break;
+        }
+        return $out;
     }
 
     /**

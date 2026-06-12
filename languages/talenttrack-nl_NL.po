@@ -38146,3 +38146,17 @@ msgstr "Spelersvoortgang & radar"
 
 msgid "Radar charts over evaluation categories: per-player progress, player comparison, or team averages."
 msgstr "Radargrafieken over evaluatiecategorieën: voortgang per speler, spelersvergelijking of teamgemiddelden."
+
+# #1371 - repeat last session (v4.20.125). i18n-sync will merge these
+# into the proper position on next run; meanwhile they land here
+# verbatim so a Dutch install reads correctly today.
+msgid "Duplicate"
+msgstr "Dupliceren"
+
+#, php-format
+msgid "Duplicate \"%s\" to a new date"
+msgstr "Dupliceer \"%s\" naar een nieuwe datum"
+
+#, php-format
+msgid "Copy last %s"
+msgstr "Kopieer laatste %s"
