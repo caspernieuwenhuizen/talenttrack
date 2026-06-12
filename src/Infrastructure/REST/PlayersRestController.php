@@ -240,6 +240,12 @@ class PlayersRestController {
         $all_ids = $params
             ? $wpdb->get_col( $wpdb->prepare( $count_sql, ...$params ) )
             : $wpdb->get_col( $count_sql );
+        // #1359 — reviewed and kept as-is: canViewPlayer resolves from
+        // AuthorizationService's per-request caches after the first
+        // call (role scopes + team links load once), so this loop is
+        // O(ids) array work, not N+1 queries. Replicating the matrix
+        // + parent-link + team-scope logic in SQL would fork the
+        // authorization rules into a second implementation.
         $total = 0;
         foreach ( (array) $all_ids as $pid ) {
             if ( AuthorizationService::canViewPlayer( $user_id, (int) $pid ) ) $total++;
