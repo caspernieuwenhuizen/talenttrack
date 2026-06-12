@@ -97,7 +97,7 @@ class RolesPage {
                         <td><?php echo (int) $r->permission_count; ?></td>
                         <td>
                             <?php if ( (int) $r->is_system === 1 ) : ?>
-                                <span style="color:#00a32a;">✓</span>
+                                <span style="color:#2e7d4f;">✓</span>
                             <?php else : ?>
                                 —
                             <?php endif; ?>

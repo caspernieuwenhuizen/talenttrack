@@ -192,7 +192,7 @@ class CustomFieldRenderer {
         if ( $type === CustomFieldsRepository::TYPE_CHECKBOX ) {
             $truthy = in_array( $value, [ true, 1, '1' ], true );
             return $truthy
-                ? '<span style="color:#00a32a;">✓</span>'
+                ? '<span style="color:#2e7d4f;">✓</span>'
                 : '<span style="color:#888;">—</span>';
         }
 

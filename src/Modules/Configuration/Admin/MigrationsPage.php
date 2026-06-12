@@ -109,7 +109,7 @@ class MigrationsPage {
                         <tr>
                             <td>
                                 <?php if ( $r['applied'] ) : ?>
-                                    <span style="color:#00a32a;font-weight:bold;">✓</span>
+                                    <span style="color:#2e7d4f;font-weight:bold;">✓</span>
                                 <?php else : ?>
                                     <span style="color:#c9a227;font-weight:bold;">⏳</span>
                                 <?php endif; ?>
@@ -155,7 +155,7 @@ class MigrationsPage {
                     <th><?php esc_html_e( 'Tracking table', 'talenttrack' ); ?></th>
                     <td>
                         <?php if ( $state['tracking_table_exists'] ) : ?>
-                            <span style="color:#00a32a;">✓</span> <code><?php global $wpdb; echo esc_html( $wpdb->prefix . 'tt_migrations' ); ?></code>
+                            <span style="color:#2e7d4f;">✓</span> <code><?php global $wpdb; echo esc_html( $wpdb->prefix . 'tt_migrations' ); ?></code>
                         <?php else : ?>
                             <span style="color:#b32d2e;">✗</span> <?php esc_html_e( 'Tracking table does not exist yet.', 'talenttrack' ); ?>
                         <?php endif; ?>

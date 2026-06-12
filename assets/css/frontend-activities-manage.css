@@ -86,7 +86,7 @@
     margin: 0;
 }
 .tt-dashboard .tt-act-filters__label {
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -177,7 +177,7 @@
     color: var(--tt-warn, #c75c1f);
 }
 .tt-dashboard .tt-act-bucket-head__count {
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 500;
     color: var(--tt-ink-soft, #5b6e75);
     font-variant-numeric: tabular-nums;
@@ -230,7 +230,7 @@
 }
 .tt-dashboard .tt-act-date__m {
     display: block;
-    font-size: 10px;
+    font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.4px;
     font-weight: 600;
@@ -286,7 +286,7 @@
     display: inline-block;
     padding: 1px 8px;
     border-radius: 8px;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
     margin-right: 4px;
     vertical-align: middle;

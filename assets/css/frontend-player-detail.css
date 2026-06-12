@@ -118,7 +118,7 @@
     right: -4px;
     background: var(--tt-ink-strong);
     color: #fff;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 800;
     min-width: 24px;
     height: 24px;
@@ -296,7 +296,7 @@
     background: var(--tt-bg-soft);
 }
 .tt-player-facts__label {
-    font-size: 10px;
+    font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     color: var(--tt-ink-soft);
@@ -309,7 +309,7 @@
     margin: 4px 0 0;
 }
 .tt-player-facts__hint {
-    font-size: 11px;
+    font-size: 12px;
     color: var(--tt-ink-soft);
     margin: 1px 0 0;
 }
@@ -321,7 +321,7 @@
         margin-top: 0;
     }
     .tt-player-facts__cell { padding: 14px 8px; text-align: left; }
-    .tt-player-facts__label { font-size: 11px; }
+    .tt-player-facts__label { font-size: 12px; }
     .tt-player-facts__value { font-size: 17px; margin-top: 6px; }
 }
 
@@ -335,7 +335,7 @@
     margin: var(--tt-gap) 0 0;
 }
 .tt-player-glance__title {
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -361,7 +361,7 @@
 }
 .tt-player-kpi:active { border-color: var(--tt-accent); }
 .tt-player-kpi__label {
-    font-size: 10px;
+    font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.4px;
     font-weight: 600;
@@ -375,13 +375,13 @@
     font-variant-numeric: tabular-nums;
 }
 .tt-player-kpi__num small {
-    font-size: 11px;
+    font-size: 12px;
     color: var(--tt-ink-soft);
     font-weight: 600;
     margin-left: 2px;
 }
 .tt-player-kpi__hint {
-    font-size: 10px;
+    font-size: 12px;
     margin-top: 4px;
     color: var(--tt-ink-soft);
     display: flex;
@@ -459,7 +459,7 @@
     border-color: var(--tt-ink-strong);
 }
 .tt-player-tab__count {
-    font-size: 11px;
+    font-size: 12px;
     background: var(--tt-mute-soft);
     color: var(--tt-ink-soft);
     padding: 1px 6px;
@@ -582,12 +582,12 @@
     margin-top: 2px;
 }
 .tt-player-row__date-d small {
-    font-size: 10px;
+    font-size: 12px;
     font-weight: 700;
     margin-left: 2px;
 }
 .tt-player-row__date-m {
-    font-size: 10px;
+    font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.4px;
     font-weight: 600;
@@ -634,7 +634,7 @@
 
 /* Row-level status / priority pills (smaller than the player-pill above). */
 .tt-player-row__pill {
-    font-size: 11px;
+    font-size: 12px;
     background: var(--tt-mute-soft);
     color: var(--tt-ink-soft);
     padding: 1px 8px;

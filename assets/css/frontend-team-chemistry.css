@@ -300,7 +300,7 @@
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    font-size: 11px;
+    font-size: 12px;
 }
 .tt-tc-who {
     display: flex;
@@ -410,7 +410,7 @@
 }
 .tt-tc-score-label {
     grid-area: label;
-    font-size: 10px;
+    font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 0.04em;
     color: var(--tt-tc-muted);
@@ -426,7 +426,7 @@
     text-align: right;
 }
 .tt-tc-score-value sup {
-    font-size: 11px;
+    font-size: 12px;
     color: var(--tt-tc-muted);
     font-weight: 600;
     vertical-align: top;
@@ -434,7 +434,7 @@
 }
 .tt-tc-score-trend {
     grid-area: trend;
-    font-size: 11px;
+    font-size: 12px;
     color: var(--tt-tc-muted);
     font-weight: 500;
     line-height: 1.2;
@@ -709,7 +709,7 @@ body.tt-chem-sandbox-on .tt-pitch-slot:active {
     color: var(--tt-tc-accent);
     border-radius: 10px;
     padding: 2px 8px;
-    font-size: 11px;
+    font-size: 12px;
     white-space: nowrap;
 }
 .tt-chem-picker-row--empty {

@@ -164,7 +164,7 @@
     background: transparent;
     border-bottom: 1px solid var(--tt-line, #e2e8f0);
     color: var(--tt-muted, #475569);
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
 }
 .tt-dashboard .tt-planner-sub-marker {
@@ -173,7 +173,7 @@
     border-radius: 99px;
     background: #fef3c7;
     color: #b45309;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 700;
 }
 .tt-dashboard .tt-planner-cell--changed {
@@ -240,7 +240,7 @@
     background: var(--tt-line, #e2e8f0);
     color: var(--tt-fg, #0f172a);
     border-radius: 3px;
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 700;
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
     text-align: center;
