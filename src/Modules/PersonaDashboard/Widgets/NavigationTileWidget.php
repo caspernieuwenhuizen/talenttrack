@@ -79,7 +79,12 @@ class NavigationTileWidget extends AbstractWidget {
 
         $label = $slot->persona_label !== '' ? $slot->persona_label : (string) ( $tile['label'] ?? $slug );
         $desc  = (string) ( $tile['desc'] ?? $tile['description'] ?? '' );
-        $url   = $ctx->viewUrl( $slug );
+        // #1373 — tiles registered with a url_callback (e.g. wizard
+        // entry points) carry a pre-rendered url; plain tiles keep
+        // the ?tt_view=<slug> route.
+        $url = isset( $tile['url'] ) && $tile['url'] !== ''
+            ? (string) $tile['url']
+            : $ctx->viewUrl( $slug );
 
         $inner = '<a class="tt-pd-tile-link" href="' . esc_url( $url ) . '">'
             . '<span class="tt-pd-tile-label">' . esc_html( $label ) . '</span>'

@@ -20557,6 +20557,19 @@ msgstr "Mijn toegewezen spelers"
 msgid "Help & docs"
 msgstr "Help & docs"
 
+# ===== #1373 — planner + VCT tiles surfaced =====
+#: src/Shared/CoreSurfaceRegistration.php
+msgid "VCT session designer"
+msgstr "VCT-trainingsontwerper"
+
+#: src/Shared/CoreSurfaceRegistration.php
+msgid "Build a structured training from the exercise library: blocks, coaching points, A4 print."
+msgstr "Bouw een gestructureerde training uit de oefeningenbibliotheek: blokken, coachingpunten, A4-print."
+
+#: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php
+msgid "VCT designer"
+msgstr "VCT-ontwerper"
+
 # ===== #1387 — behaviour step explainer + remembered preference =====
 #: src/Modules/Wizards/Evaluation/BehaviourStep.php
 msgid "Behaviour is tracked separately from performance — this optional second pass records conduct, not football. Leave everything blank (or keep this section closed) and tap Next if you only want performance ratings today."

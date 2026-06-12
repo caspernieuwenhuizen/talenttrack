@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.113
+Stable tag: 4.20.114
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.114 — Team planner + VCT designer reach the coach dashboard (closes #1373). Audit discoverability finding: 97 routable views, ~8 surfaced per persona — the Team planner tile lived only in the legacy grid the persona dashboard replaced, and the VCT session designer (exercise library, blocks, coaching points, A4 print) was reachable ONLY by typing the URL. **Coach tiles.** [`CoreTemplates::coach`](src/Modules/PersonaDashboard/Defaults/CoreTemplates.php) gains `team-planner` + `vct-planner` tiles (10 tiles, rows 3-5; quick-actions/behaviour rows shift one down). Both cap-gate through TileRegistry — no tt_view_plan / tt_vct_plan, no tile. **VCT entry.** There is no VCT list view (vct-session is a detail route), so the new [`TileRegistry`](src/Shared/CoreSurfaceRegistration.php) `vct-planner` tile carries a `url_callback` straight into the new-vct-session wizard; [`NavigationTileWidget`](src/Modules/PersonaDashboard/Widgets/NavigationTileWidget.php) now prefers a tile's pre-rendered url over the plain `?tt_view=` route — which also makes wizard-entry tiles a reusable pattern. 3 new Dutch msgstrs. Patch bump. (closes #1373) =
 
 = 4.20.113 — HoD dashboard stops being five screens long on a phone (closes #1375). Audit UX finding: the HoD template stacks a KPI strip + 7 XL/L widgets + 19 tiles; on mobile the trials/behaviour tables landed several screens deep. **Fold.** [`GridRenderer`](src/Modules/PersonaDashboard/Frontend/GridRenderer.php) wraps grid cells with `mobile_priority >= 12` in a `<details class="tt-pd-fold" open>` disclosure titled with the widget label. Markup ships OPEN: desktop/tablet hide the summary entirely (zero chrome change), non-JS phones degrade to today's expanded stack, and a one-shot JS pass closes the folds on phone viewports at load (no resize listener — rotation keeps the user's choices). 48px summaries, native disclosure semantics, keyboard operable. **Tile wall.** Navigation tiles are exempt from folding (19 individual disclosures would be worse) and instead compact to 2-up on phones via CSS — half the scroll. Existing `defaultMobilePriority` values drive what folds; no template changes. No strings (widget labels already translated). Patch bump. (closes #1375) =
 
