@@ -19,7 +19,7 @@ use TT\Shared\Frontend\Components\RecordLink;
  * baseline (`tt_recap_since_at`, rotated by PersonaLandingRenderer at
  * the start of each visit session; capped at 14 days; 7-day default
  * on first visit) and counts: evaluations written (by N coaches),
- * sessions completed (of N planned), new prospects, trial decisions,
+ * activities completed (of N planned), new prospects, trial decisions,
  * behaviour ratings logged, PDP conversations conducted. Each line
  * links to the relevant view.
  *
@@ -36,7 +36,7 @@ class HodWeekRecapWidget extends AbstractWidget {
     public function label(): string { return __( 'This week at the academy', 'talenttrack' ); }
 
     public function description(): string {
-        return __( 'Since-you-last-visited recap for academy-wide roles: evaluations written, sessions completed, new prospects, trial decisions, behaviour ratings, and PDP conversations in the window, each linking to the relevant view. Window = your previous visit, capped at 14 days; 7 days on first visit.', 'talenttrack' );
+        return __( 'Since-you-last-visited recap for academy-wide roles: evaluations written, activities completed, new prospects, trial decisions, behaviour ratings, and PDP conversations in the window, each linking to the relevant view. Window = your previous visit, capped at 14 days; 7 days on first visit.', 'talenttrack' );
     }
 
     public function defaultSize(): string { return Size::XL; }
@@ -74,8 +74,8 @@ class HodWeekRecapWidget extends AbstractWidget {
         ];
         $lines[] = [
             sprintf(
-                /* translators: 1: completed session count, 2: planned session count in the window */
-                __( '%1$d of %2$d planned sessions completed', 'talenttrack' ),
+                /* translators: 1: completed activity count, 2: planned activity count in the window */
+                __( '%1$d of %2$d planned activities completed', 'talenttrack' ),
                 $stats['sessions_completed'],
                 $stats['sessions_total']
             ),

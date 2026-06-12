@@ -60,10 +60,10 @@ final class PersonaLandingRenderer {
         // #1374 — the bump used to happen BEFORE the recap widgets read
         // the meta, so the window collapsed to ~zero on every render.
         // Now: when the previous bump is older than 30 minutes (a new
-        // visit "session"), the old value rotates into
+        // visit), the old value rotates into
         // `tt_recap_since_at` — the stable baseline the recap widgets
         // (HoD week recap, parent child-switcher) diff against for the
-        // whole session. Rapid in-session navigation keeps the baseline.
+        // whole window. Rapid follow-up navigation keeps the baseline.
         $now  = current_time( 'mysql' );
         $last = get_user_meta( $user_id, 'tt_last_visited_at', true );
         if ( is_string( $last ) && $last !== ''
