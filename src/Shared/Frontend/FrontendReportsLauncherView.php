@@ -112,6 +112,14 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
                 'desc'  => __( 'Per-scout dashboard — prospects logged, cases opened, admissions, hit rate.', 'talenttrack' ),
                 'url'   => add_query_arg( [ 'tt_view' => 'standard-report', 'slug' => 'scout-report-card' ], $base_url ),
             ],
+            // #1367 — HoD coach-quality lens. Academy-wide only (the
+            // renderer gates too); coaches never see each other's stats.
+            [
+                'slug'  => 'coach-evaluation-quality',
+                'label' => __( 'Coach · Evaluation quality', 'talenttrack' ),
+                'desc'  => __( 'Per-coach rating distribution and variance — spots the rate-everyone-the-same pattern.', 'talenttrack' ),
+                'url'   => add_query_arg( [ 'tt_view' => 'standard-report', 'slug' => 'coach-evaluation-quality' ], $base_url ),
+            ],
         ];
 
         echo '<p style="color:#5b6e75; margin-bottom:16px;">';
@@ -121,7 +129,7 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
         // v4.20.29 (#1187) — filter the academy-wide tiles for
         // non-scope-admin users.
         if ( ! $is_scope_admin ) {
-            $academy_only = [ 'season-summary', 'season-trial-funnel', 'scout-report-card', 'prospects_logged_per_scout' ];
+            $academy_only = [ 'season-summary', 'season-trial-funnel', 'scout-report-card', 'prospects_logged_per_scout', 'coach-evaluation-quality' ];
             $tiles = array_values( array_filter(
                 $tiles,
                 static fn( array $t ): bool => ! in_array( (string) ( $t['slug'] ?? '' ), $academy_only, true )

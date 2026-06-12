@@ -155,6 +155,27 @@ Ordered by raw frequency (most-used first). Each action lists:
 - **Player-centric framing:** *where now* + *where from* (longitudinal
   trend across cycles); cohort-level *where to* (are the four teams
   developing at the rate the academy promised parents?)
+- **Shipped:**
+  - **v4.20.123** — the rate-everyone-a-6 spot-check is no longer
+    manual: new standard report *Coach · Evaluation quality*
+    (`?tt_view=standard-report&slug=coach-evaluation-quality`, also on
+    the Reports launcher). Per coach: evaluation count, rating count,
+    mean rating, standard deviation, the most-given rating + its share
+    of all ratings, and the last-evaluation date; filterable by team +
+    date range. Rows with σ below 0.5 across 10+ ratings get a
+    yellow low-variance flag. Scope-admin only (`tt_view_all_teams` /
+    admin) — coaches cannot read each other's stats. CSV export +
+    `GET /reports/coach-evaluation-quality` REST endpoint share the
+    same query. (#1367)
+    *How to test:* as HoD, open Reports → *Coach · Evaluation
+    quality*. Verify a coach who rates everything the same shows a
+    near-zero std dev and a high most-given-rating share, with the
+    yellow flag once they have 10+ ratings; a varied coach shows
+    σ well above 0.5 and no flag. Filter to one team and a date
+    window and confirm the numbers shrink accordingly. Click
+    *Export (CSV)* and check the same rows download. Log in as a
+    head coach and confirm the report tile is absent and the direct
+    URL shows the restriction notice.
 - **Polish notes:**
 
 ### 6. Resolve a "team concern" flag

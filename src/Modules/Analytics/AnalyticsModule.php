@@ -46,6 +46,9 @@ class AnalyticsModule implements ModuleInterface {
         // #0083 Child 6 — scheduled-reports admin-post handlers + daily cron.
         \TT\Modules\Analytics\Admin\ScheduledReportsActionHandlers::init();
         \TT\Modules\Analytics\Cron\ScheduledReportsRunner::init();
+        // #1367 — REST surface for the coach-evaluation-quality report
+        // (the PHP renderer + this endpoint share CoachEvalQualityQuery).
+        \TT\Infrastructure\REST\ReportsRestController::init();
     }
 
     /**
