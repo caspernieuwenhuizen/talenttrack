@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.107
+Stable tag: 4.20.108
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.108 — Player/parent podium stops broadcasting the top-3's rating numbers (closes #1354). Audit harm-risk finding: the My-team podium and the legacy player dashboard rendered full FIFA-style cards for the top 3 — rolling average plus per-category all-time numbers — visible to every teammate and parent on the team, while docs/player-dashboard.md explicitly promised teammates' "ratings stay private". Three minors' evaluation data was one screenshot from the team WhatsApp. **Fix.** [`PlayerCardView::renderCard/renderPodium`](src/Modules/Stats/Admin/PlayerCardView.php) gain a `$show_ratings` flag: when false, the card keeps the celebration (photo, name, position, team, gold/silver/bronze tier styling, click-through) but renders no rolling average and no per-category stats; the aria-label drops the rating too. [`FrontendMyTeamView`](src/Shared/Frontend/FrontendMyTeamView.php) + [`PlayerDashboardView`](src/Shared/Frontend/PlayerDashboardView.php) (player/parent surfaces) pass false; [`CoachDashboardView`](src/Shared/Frontend/CoachDashboardView.php) + [`FrontendPodiumView`](src/Shared/Frontend/FrontendPodiumView.php) (staff surfaces) keep the full cards. Code now matches the documented promise. The player's own card on My team keeps their own numbers (own data). 1 new Dutch msgstr (numberless aria-label). Patch bump. (closes #1354) =
 
 = 4.20.107 — Teammate view stops exposing height and weight of minors peer-to-peer (closes #1353). Audit harm-risk finding: [`FrontendTeammateView`](src/Shared/Frontend/FrontendTeammateView.php) showed every teammate a player's body measurements — a body-image landmine for 13-17-year-olds. Both fields removed from the teammate render; positions, jersey number and preferred foot stay. Staff surfaces keep height/weight via their own cap gating, and the staff-gated REST player payload is unchanged. No new strings. Patch bump. (closes #1353) =
 

@@ -233,7 +233,8 @@ class PlayerDashboardView {
         $top      = $team_svc->getTopPlayersForTeam( $team_id, 3, 5 );
         if ( ! empty( $top ) ) {
             echo '<h3 style="text-align:center;margin-top:10px;">' . esc_html__( 'Top players on the team', 'talenttrack' ) . '</h3>';
-            \TT\Modules\Stats\Admin\PlayerCardView::renderPodium( $top );
+            // #1354 — player-facing: no peer rating numbers.
+            \TT\Modules\Stats\Admin\PlayerCardView::renderPodium( $top, false );
         }
 
         // Teammate roster — names + photos only, no ratings.

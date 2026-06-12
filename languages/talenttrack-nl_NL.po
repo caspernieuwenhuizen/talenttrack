@@ -23796,6 +23796,12 @@ msgstr ""
 msgid "%1$s — %2$s tier, %3$s rolling average"
 msgstr "%1$s — niveau %2$s, voortschrijdend gemiddelde %3$s"
 
+#. translators: 1: player name, 2: tier (Gold/Silver/Bronze/Unrated).
+#: src/Modules/Stats/Admin/PlayerCardView.php
+#, php-format
+msgid "%1$s — %2$s tier"
+msgstr "%1$s — niveau %2$s"
+
 #: src/Modules/Stats/Admin/PlayerCardView.php:216
 msgid "Not enough ranked players yet"
 msgstr "Nog niet genoeg gerangschikte spelers"
