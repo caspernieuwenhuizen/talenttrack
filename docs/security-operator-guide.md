@@ -49,7 +49,24 @@ Add personas progressively: enable for *Academy admin* + *Head of development* o
 
 **Lockout recovery (operator on-behalf-of-user disable)** — if a user loses their phone *and* their backup codes, the *Reset MFA on another user* form on the same operator sub-section is the recovery path. Pick the enrolled user from the dropdown, tick the confirmation box, click *Reset MFA on this user*. Their `tt_user_mfa` row is wiped; they re-enroll on their next login. The action is audit-logged on both sides — actor (operator) and subject (target user).
 
-If you (the only academy admin) get locked out without recourse, you'll need direct database access to wipe your `tt_user_mfa` row. To avoid that, **keep at least two admin accounts** so an admin can always recover another admin via the operator UI.
+### MFA lockout recovery
+
+If you (the only academy admin) get locked out — wrong codes, clock skew, a lost device, or an enrollment that never completed — two break-glass paths exist as of v4.20.128. Neither needs database access:
+
+1. **wp-config kill-switch (primary, for everyone).** Add this line to `wp-config.php` (your host's support can do it if you can't):
+
+   ```php
+   define( 'TT_MFA_DISABLE', true );
+   ```
+
+   It suppresses MFA *enforcement only* — your enrollment and the persona policy are untouched. Sign in, fix your enrollment from the MFA tab, then **remove the line**; enforcement resumes exactly as it was. While the constant is set, a warning banner shows on every wp-admin page so it can't be silently left on.
+
+2. **wp-cli commands (for technical operators).**
+   - `wp tt mfa status` — shows the gated personas, whether the kill-switch is active, and per-user enrolled/locked state — diagnose before acting.
+   - `wp tt mfa disable` — sets the persona policy to empty (enforcement off install-wide) and flushes every live MFA challenge, in one call. Enrollment rows stay; re-enable from the MFA tab when recovered.
+   - `wp tt mfa reset <user-id|login|email>` — wipes one user's enrollment row only (they re-enroll on next login); the install-wide policy is untouched.
+
+Prevention is still better than recovery: **keep at least two admin accounts** so an admin can always recover another admin via the operator UI above.
 
 **Audit log integration** — every MFA event surfaces under `wp-admin → TalentTrack → Audit log` with action keys `mfa.enrolled` / `mfa.verified` / `mfa.verify_failed` / `mfa.lockout` / `mfa.backup_code_used` / `mfa.backup_codes_regenerated` / `mfa.disabled` / `mfa.device_remembered` / `mfa.required_personas_changed`. Filter on `action=mfa.lockout` to spot users hitting the threshold; filter on `action=mfa.disabled` to spot operator-initiated resets.
 
