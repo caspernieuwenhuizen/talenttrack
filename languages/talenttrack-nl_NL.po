@@ -20557,6 +20557,15 @@ msgstr "Mijn toegewezen spelers"
 msgid "Help & docs"
 msgstr "Help & docs"
 
+# ===== #1387 — behaviour step explainer + remembered preference =====
+#: src/Modules/Wizards/Evaluation/BehaviourStep.php
+msgid "Behaviour is tracked separately from performance — this optional second pass records conduct, not football. Leave everything blank (or keep this section closed) and tap Next if you only want performance ratings today."
+msgstr "Gedrag wordt los van prestatie bijgehouden — deze optionele tweede ronde registreert gedrag, geen voetbal. Laat alles leeg (of houd deze sectie dicht) en tik op Volgende als je vandaag alleen prestatiebeoordelingen wilt."
+
+#: src/Modules/Wizards/Evaluation/BehaviourStep.php
+msgid "Rate behaviour for this activity"
+msgstr "Gedrag beoordelen voor deze activiteit"
+
 # ===== #1368 — Spond staleness banner =====
 #. translators: %d = number of teams whose last Spond sync errored
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:110

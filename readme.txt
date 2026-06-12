@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.111
+Stable tag: 4.20.112
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.112 — BehaviourStep explains the second rating pass + remembers whether you use it (closes #1387). Audit UX finding: the optional behaviour pass in the eval wizard read as "why am I rating everyone twice?" for cap-holding coaches. Per the locked decision (copy-polish, step stays in the wizard): [`BehaviourStep`](src/Modules/Wizards/Evaluation/BehaviourStep.php) now opens with an explainer — behaviour records conduct, not football; leave blank and tap Next for performance-only — and the roster sits inside a 48px disclosure. The coach's last choice persists in user meta (`tt_behaviour_step_last`): skipped last time → roster starts collapsed so Next is one tap; completed last time (or in-progress values in state) → starts open. 2 new Dutch msgstrs. Patch bump. (closes #1387) =
 
 = 4.20.111 — prefers-reduced-motion floor across every surface (closes #1364). Audit a11y finding: reduced-motion was honoured in only 12 of 31 stylesheets — 11 sheets carried animation/transition with no guard (tournament planner alone has 10). Instead of 11 per-sheet patches, ONE shared rule in [public.css](assets/css/public.css) collapses animation/transition durations to 0.01ms under the media query for everything inside the `.tt-root` / `.tt-dashboard` wrappers (theme untouched), plus a tt--scoped twin in [admin.css](assets/css/admin.css) for wp-admin surfaces. Spinners freeze to a static glyph — state stays perceivable without the pulse, per the issue AC. Future sheets are covered automatically. CSS-only. Patch bump. (closes #1364) =
 
