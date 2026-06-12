@@ -44,6 +44,9 @@ class Logger {
     /** @var EnvironmentService|null */
     private static $environment;
 
+    /** #1360 — guards against persist-path recursion into Logger. */
+    private static bool $persisting = false;
+
     public function __construct( ?EnvironmentService $environment = null ) {
         if ( $environment !== null ) {
             self::$environment = $environment;
@@ -87,5 +90,19 @@ class Logger {
         );
 
         error_log( $formatted );
+
+        // #1360 — errors + warnings additionally persist to
+        // `tt_error_log` so operators can read them from wp-admin
+        // (Error Log page) without server access. persist() never
+        // throws and never calls back into Logger; the re-entrancy
+        // flag is belt-and-braces against future hooks in the write
+        // path.
+        if ( $level === self::LEVEL_ERROR || $level === self::LEVEL_WARNING ) {
+            if ( ! self::$persisting ) {
+                self::$persisting = true;
+                ErrorLogRepository::persist( $level, $message, $context );
+                self::$persisting = false;
+            }
+        }
     }
 }
