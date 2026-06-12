@@ -96,6 +96,24 @@ class TrialCasesRepository {
         return $row ?: null;
     }
 
+    /**
+     * #1358 — every non-archived trial case for one player, for the
+     * player-profile Trials tab. Newest start date first.
+     *
+     * @return object[] rows: id, status, start_date, end_date.
+     */
+    public function listForPlayer( int $player_id, int $limit = 10 ): array {
+        if ( $player_id <= 0 ) return [];
+        $limit = max( 1, min( 50, $limit ) );
+        $rows  = $this->wpdb->get_results( $this->wpdb->prepare(
+            "SELECT id, status, start_date, end_date FROM {$this->table}
+              WHERE player_id = %d AND club_id = %d AND archived_at IS NULL
+              ORDER BY start_date DESC LIMIT %d",
+            $player_id, CurrentClub::id(), $limit
+        ) );
+        return is_array( $rows ) ? $rows : [];
+    }
+
     public function findOpenForPlayer( int $player_id ): ?object {
         if ( $player_id <= 0 ) return null;
         $row = $this->wpdb->get_row( $this->wpdb->prepare(

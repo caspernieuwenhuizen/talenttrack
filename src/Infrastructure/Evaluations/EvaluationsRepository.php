@@ -97,4 +97,88 @@ class EvaluationsRepository {
 
         return $rows;
     }
+
+    /**
+     * #1358 — recent evaluations for one player, with the per-
+     * evaluation mean rating surfaced inline so the player-profile
+     * Evaluations tab can render its rating chip without a second
+     * round-trip per row.
+     *
+     * Tab list and PlayerFileCounts must agree on scope —
+     * (player_id, club_id, archived_at IS NULL) — otherwise the tab
+     * badge and the list can fall out of sync.
+     *
+     * @return array<int, object> rows: id, eval_date, eval_type_id, avg_rating.
+     */
+    public function listRecentForPlayer( int $player_id, int $limit = 50 ): array {
+        if ( $player_id <= 0 ) return [];
+        $limit = max( 1, min( 100, $limit ) );
+
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT e.id, e.eval_date, e.eval_type_id,
+                    (SELECT AVG(r.rating) FROM {$p}tt_eval_ratings r
+                      WHERE r.evaluation_id = e.id AND r.club_id = e.club_id) AS avg_rating
+               FROM {$p}tt_evaluations e
+              WHERE e.player_id = %d AND e.club_id = %d AND e.archived_at IS NULL
+              ORDER BY e.eval_date DESC LIMIT %d",
+            $player_id, CurrentClub::id(), $limit
+        ) );
+        return is_array( $rows ) ? $rows : [];
+    }
+
+    /**
+     * #1358 — whole-history rating summary for the player-profile
+     * "Avg rating" KPI: mean of every rating row across the player's
+     * non-archived evaluations plus the distinct evaluation count.
+     * The direct-mean shape mirrors `MiniPlayerListWidget` (the
+     * dashboard tile's per-evaluation average), aggregated across the
+     * player's whole history.
+     *
+     * @return object|null `{avg_r: float|null, n: int}`; null on query failure.
+     */
+    public function ratingSummaryForPlayer( int $player_id ): ?object {
+        if ( $player_id <= 0 ) return null;
+
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT AVG(r.rating) AS avg_r, COUNT(DISTINCT e.id) AS n
+               FROM {$p}tt_evaluations e
+               JOIN {$p}tt_eval_ratings r ON r.evaluation_id = e.id
+              WHERE e.player_id = %d
+                AND e.archived_at IS NULL
+                AND ( e.club_id = %d OR e.club_id IS NULL )",
+            $player_id, CurrentClub::id()
+        ) );
+        return $row ?: null;
+    }
+
+    /**
+     * #1358 — mean rating of the player's most recent evaluation, for
+     * the KPI's trend arrow (compared against the rolling mean from
+     * `ratingSummaryForPlayer`). Null when the player has no rated
+     * evaluations.
+     */
+    public function lastEvaluationMeanForPlayer( int $player_id ): ?float {
+        if ( $player_id <= 0 ) return null;
+
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $last = $wpdb->get_var( $wpdb->prepare(
+            "SELECT AVG(r.rating)
+               FROM {$p}tt_evaluations e
+               JOIN {$p}tt_eval_ratings r ON r.evaluation_id = e.id
+              WHERE e.player_id = %d AND e.archived_at IS NULL
+                AND ( e.club_id = %d OR e.club_id IS NULL )
+              GROUP BY e.id
+              ORDER BY e.eval_date DESC LIMIT 1",
+            $player_id, CurrentClub::id()
+        ) );
+        return $last !== null ? (float) $last : null;
+    }
 }

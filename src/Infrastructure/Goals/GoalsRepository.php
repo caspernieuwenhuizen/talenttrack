@@ -98,6 +98,79 @@ class GoalsRepository {
     }
 
     /**
+     * #1358 — every non-archived goal for the player-profile Goals
+     * tab (completed/cancelled rows included — the tab shows the full
+     * picture; only the KPI counts filter by status), ordered by
+     * urgency: dated goals first by nearest due date, undated last by
+     * recency.
+     *
+     * @return array<int, object>
+     */
+    public function listActiveByDueDateForPlayer( int $player_id, int $limit = 50 ): array {
+        if ( $player_id <= 0 ) return [];
+        $limit = max( 1, min( 100, $limit ) );
+
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT g.*
+               FROM {$p}tt_goals g
+              WHERE g.player_id = %d AND g.archived_at IS NULL
+                AND ( g.club_id = %d OR g.club_id IS NULL )
+              ORDER BY g.due_date IS NULL, g.due_date ASC, g.created_at DESC
+              LIMIT %d",
+            $player_id, CurrentClub::id(), $limit
+        ) );
+        if ( ! is_array( $rows ) ) return [];
+        foreach ( $rows as $row ) {
+            self::hydrate( $row );
+        }
+        return $rows;
+    }
+
+    /**
+     * #1358 — count of active (non-archived, not completed/cancelled)
+     * goals, for the player-profile "Goals" KPI.
+     */
+    public function countActiveForPlayer( int $player_id ): int {
+        if ( $player_id <= 0 ) return 0;
+
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$p}tt_goals
+              WHERE player_id = %d AND archived_at IS NULL
+                AND ( club_id = %d OR club_id IS NULL )
+                AND ( status IS NULL OR status NOT IN ( 'completed', 'cancelled' ) )",
+            $player_id, CurrentClub::id()
+        ) );
+    }
+
+    /**
+     * #1358 — count of active goals due within the next `$days` days,
+     * for the KPI's "N due soon" hint.
+     */
+    public function countDueSoonForPlayer( int $player_id, int $days = 7 ): int {
+        if ( $player_id <= 0 ) return 0;
+        $days = max( 1, $days );
+
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$p}tt_goals
+              WHERE player_id = %d AND archived_at IS NULL
+                AND ( club_id = %d OR club_id IS NULL )
+                AND due_date IS NOT NULL
+                AND due_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL %d DAY)
+                AND ( status IS NULL OR status NOT IN ( 'completed', 'cancelled' ) )",
+            $player_id, CurrentClub::id(), $days
+        ) );
+    }
+
+    /**
      * Decorate a `tt_goals` row in place with `status_localised` and
      * `priority_localised`. Raw fields stay for back-compat — KPI
      * aggregations + filter dropdowns key off the canonical codes.
