@@ -36,7 +36,7 @@ Coaches en hoofd opleidingen zien de volledige onderbouwing (de vier deelscores 
 
 ## Inputs vastleggen
 
-- **Gedragsobservaties** — `POST /players/{id}/behaviour-ratings` met een 1-5 score en optionele notitie/context. Het "Gedrag toevoegen"-formulier op het spelersprofiel volgt in een latere release; voor nu via REST of WP-CLI.
+- **Gedragsobservaties** — de **Gedrag vastleggen**-popover op de hero van het spelersprofiel (geleverd in v4.8.0), of `POST /players/{id}/behaviour-ratings` voor integraties. Een 1-5 score met optionele notitie en gerelateerde activiteit.
 - **Potentieel** — `POST /players/{id}/potential` met een van `first_team` / `professional_elsewhere` / `semi_pro` / `top_amateur` / `recreational`. Standaard alleen voor hoofd opleidingen.
 - **Aanwezigheid + evaluaties** — al vastgelegd via de bestaande flows; de calculator leest ze direct.
 

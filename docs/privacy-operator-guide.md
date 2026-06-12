@@ -35,17 +35,13 @@ What TalentTrack does *not* store: payment data (the Freemius integration handle
 
 Under GDPR a data subject can ask you for *all the personal data you hold about them*, in a portable format. You must respond within one month.
 
-> **Status:** A formal "Subject Access Export" feature ships in the Export module (#0063 use case 10 — *Player GDPR export ZIP*). Until then, the manual procedure below applies.
-
-**Manual procedure (today):**
+The **Subject Access Export** is built in (#0063 use case 10 — *Player GDPR export ZIP*):
 
 1. Verify the requestor's identity. A parent asking for their child's data should establish that they are indeed the parent — usually a quick email exchange.
-2. Walk the player profile and copy each section. Profile, evaluations, goals, attendance, PDP records, trial cases, journey events, notes (#0085 — staff-only, not exposed to the player or parent in the export — see the GDPR note below), scout reports.
-3. Compile into a PDF or ZIP. The format is up to you; the GDPR requirement is "structured, commonly used, and machine-readable" — a clean PDF + JSON/CSV for the structured parts both qualify.
+2. Run the export: Exports → *Player GDPR export (ZIP)*, or `GET /wp-json/talenttrack/v1/exports/gdpr_subject_access_zip?format=zip&player_id=N`. The ZIP bundles the player's structured data (profile, evaluations, goals, attendance, PDP records, trial cases, journey events) in machine-readable form, satisfying the GDPR "structured, commonly used, machine-readable" requirement. Every export writes a `gdpr.subject_access_export` audit row.
+3. Review the contents before sending — staff notes follow the legitimate-interest guidance below; redact where your DPO advises.
 4. Send via a method appropriate for sensitive data — encrypted email, a one-time download link, or in-person with photo ID verification.
 5. Log the request and your response in your academy's privacy register.
-
-**Once #0063 ships:** the export becomes a single click from `wp-admin → TalentTrack → Players → [player] → Export GDPR data`. The output ZIP is structured per the GDPR's "data portability" article, signed, and timestamped.
 
 **One subtlety for player notes (#0085).** Player notes are staff-only by design — coaches need to be able to write candid observations without parent visibility (*"Lucas was unusually quiet at practice tonight, parents are going through a divorce"* is genuinely useful to staff and harmful if surfaced to the parent). Under GDPR the parent does have the right to receive their child's personal data. This creates a tension. The current approach: include note bodies in subject-access exports unless the academy has a documented legitimate-interest justification for excluding specific notes (e.g. safeguarding-flagged notes referencing a third party). Discuss with your DPO before answering a request that includes notes.
 

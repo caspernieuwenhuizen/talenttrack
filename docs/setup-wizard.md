@@ -18,7 +18,7 @@ The wizard is reachable from four places — pick whichever you find first.
 
 1. **Welcome** — short explanation of the plugin and two buttons: *Set up my academy* (continues into the wizard) or *Try with sample data* (deep-links to the demo data generator under Tools so you can explore before committing).
 2. **Academy basics** — academy name, primary color, season label, default date format. Saved to `tt_config`.
-3. **First team** — name + age group. Creates one row in `tt_teams`. You can skip this step if you want to add teams in bulk via CSV later.
+3. **First team** — name + age group. Creates one row in `tt_teams`. You can skip this step and add teams later from the Teams view (players — not teams — support bulk CSV import).
 4. **First admin** — confirms your WP account, creates a `tt_people` staff record linked to it, and (optionally) grants you the *Club Admin* role.
 5. **Done** — summary of what was set up and four "Recommended next steps" cards: add players, invite first coach, customize branding, create a frontend dashboard page.
 
