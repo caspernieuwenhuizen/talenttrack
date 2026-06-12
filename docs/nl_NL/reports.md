@@ -28,4 +28,4 @@ Hoeveel evaluaties elke coach heeft opgeslagen in het gekozen venster (laatste 7
 
 Team-gemiddelden en Coach-activiteit renderen nu rechtstreeks op het publieke dashboard via `?tt_view=reports&type=team_ratings` en `?type=coach_activity` — geen sprong meer naar wp-admin. Elk rapport heeft bovenaan een knop **Afdrukken / Opslaan als PDF**: bij klikken opent het printvenster van de browser met een stijlblad dat dashboard-elementen verbergt, zodat "Opslaan als PDF" een schone PDF oplevert.
 
-Het oude rapport "Spelersontwikkeling & Radar" opent nog in wp-admin omdat het leunt op formulier-submit en Chart.js-infrastructuur die te omvangrijk is om mee te porten. Een toekomstige spec migreert dat.
+Het oude rapport "Spelersontwikkeling & Radar" opent nog in wp-admin omdat het leunt op formulier-submit en Chart.js-infrastructuur die te omvangrijk is om mee te porten. De frontend-port staat in de wachtrij (#1369) — tot die landt, volg je de wp-admin-link vanuit deze rapportenlijst in plaats van een dashboard-tegel te zoeken.

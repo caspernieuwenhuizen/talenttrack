@@ -35,17 +35,13 @@ Wat TalentTrack *niet* opslaat: betalingsgegevens (de Freemius-integratie regelt
 
 Onder AVG kan een betrokkene jou vragen om *alle persoonsgegevens die je over hem houdt*, in een overdraagbaar formaat. Je moet binnen één maand reageren.
 
-> **Status:** een formele "Subject Access Export"-feature komt in de Export-module (#0063 use case 10 — *Player GDPR export ZIP*). Tot die tijd geldt de handmatige procedure hieronder.
-
-**Handmatige procedure (vandaag):**
+De **Subject Access Export** is ingebouwd (#0063 use case 10 — *Player GDPR export ZIP*):
 
 1. Verifieer de identiteit van de aanvrager. Een ouder die de data van zijn kind opvraagt moet aantoonbaar de ouder zijn — meestal een snelle e-mailwisseling.
-2. Loop het spelersprofiel door en kopieer elke sectie. Profiel, evaluaties, doelen, aanwezigheid, POP-records, stagedossiers, journey-events, notities (#0085 — staf-only, niet aan de speler of ouder getoond in de export — zie de AVG-noot hieronder), scoutrapporten.
-3. Compileer in een PDF of ZIP. Het format is aan jou; AVG-eis is "gestructureerd, gangbaar gebruikt en machineleesbaar" — een schone PDF + JSON/CSV voor de gestructureerde delen voldoen beide.
+2. Draai de export: Exports → *Speler AVG-export (ZIP)*, of `GET /wp-json/talenttrack/v1/exports/gdpr_subject_access_zip?format=zip&player_id=N`. De ZIP bundelt de gestructureerde data van de speler (profiel, evaluaties, doelen, aanwezigheid, POP-records, stagedossiers, journey-events) in machineleesbare vorm — voldoet aan de AVG-eis "gestructureerd, gangbaar gebruikt en machineleesbaar". Elke export schrijft een `gdpr.subject_access_export`-auditregel.
+3. Bekijk de inhoud vóór verzending — voor stafnotities geldt de gerechtvaardigd-belang-richtlijn hieronder; redigeer waar je FG dat adviseert.
 4. Verstuur via een methode die past bij gevoelige data — versleutelde e-mail, eenmalige downloadlink, of in persoon met legitimatie.
 5. Log de aanvraag en jouw reactie in het privacyregister van je academie.
-
-**Zodra #0063 leeft:** de export wordt een enkele klik vanuit `wp-admin → TalentTrack → Spelers → [speler] → Export GDPR data`. De output-ZIP volgt de "data-portabiliteit"-bepaling van AVG, is ondertekend en getimestamped.
 
 **Eén subtiliteit voor spelersnotities (#0085).** Spelersnotities zijn staf-only by design — coaches moeten openhartige observaties kunnen schrijven zonder dat ouders meekijken (*"Lucas was vanavond op de training stiller dan normaal, ouders zijn aan het scheiden"* is genuinely nuttig voor staf en schadelijk als de ouder het zou zien). Onder AVG heeft de ouder wél recht op de persoonsgegevens van zijn kind. Dat creëert spanning. De huidige aanpak: notitie-bodies opnemen in inzage-exports, tenzij de academie een gedocumenteerde gerechtvaardigd-belang-onderbouwing heeft om specifieke notities uit te sluiten (bijvoorbeeld safeguarding-flagged notities die naar een derde verwijzen). Overleg met je FG voordat je een verzoek beantwoordt waar notities in zitten.
 

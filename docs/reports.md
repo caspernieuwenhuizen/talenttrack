@@ -28,4 +28,4 @@ How many evaluations each coach has saved in the chosen window (last 7, 30, 90, 
 
 Team rating averages and Coach activity now render natively on the public dashboard at `?tt_view=reports&type=team_ratings` and `?type=coach_activity` — no more wp-admin tab jump. Each report has a **Print / Save as PDF** button at the top: clicking it opens the browser's print dialog with a stylesheet that strips dashboard chrome, so picking "Save as PDF" produces a clean tabular PDF.
 
-The legacy Player Progress + Radar report still opens in wp-admin since it leans on form-submit + Chart.js infrastructure significant to port. A future spec will migrate it.
+The legacy Player Progress + Radar report still opens in wp-admin since it leans on form-submit + Chart.js infrastructure significant to port. The frontend port is queued (#1369) — until it lands, follow the wp-admin link from this report list rather than hunting for a dashboard tile.

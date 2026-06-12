@@ -18,7 +18,7 @@ De wizard is bereikbaar vanuit vier plekken — kies welke je het eerst tegenkom
 
 1. **Welkom** — korte uitleg van de plugin en twee knoppen: *Mijn academie instellen* (gaat verder met de wizard) of *Probeer met voorbeeldgegevens* (verwijst naar de demogegevensgenerator onder Tools zodat je kunt verkennen voordat je commit).
 2. **Basisgegevens academie** — naam, primaire kleur, seizoenlabel, standaard datumnotatie. Opgeslagen in `tt_config`.
-3. **Eerste team** — naam + leeftijdscategorie. Maakt één rij aan in `tt_teams`. Je kunt deze stap overslaan als je teams later via CSV in bulk wilt toevoegen.
+3. **Eerste team** — naam + leeftijdscategorie. Maakt één rij aan in `tt_teams`. Je kunt deze stap overslaan en teams later toevoegen via de Teams-weergave (spelers — geen teams — ondersteunen bulk-CSV-import).
 4. **Eerste beheerder** — bevestigt je WP-account, maakt een `tt_people`-stafrecord gekoppeld aan dat account, en (optioneel) kent je de rol *Clubbeheerder* toe.
 5. **Klaar** — overzicht van wat is ingesteld plus vier kaarten met "Aanbevolen vervolgstappen": spelers toevoegen, eerste coach uitnodigen, branding aanpassen, frontend-dashboardpagina aanmaken.
 

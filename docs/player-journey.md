@@ -49,6 +49,8 @@ When you log an injury, two things happen:
 
 When the player returns, set **Actual return** on the injury and an *Injury ended* entry lands on the journey.
 
+The injury record is **deliberately minimal**: body part, severity, dates, notes and a coach reminder. There are no return-to-play stages, no medical-file attachments, no treatment plans — TalentTrack tracks the development impact of an injury, not its clinical management. If your physio expects a medical system, set that expectation up front: this isn't one.
+
 ## Privacy
 
 Not every entry is visible to everyone. Each entry has a **visibility level**:

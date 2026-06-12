@@ -36,7 +36,7 @@ Coaches and HoD see the full breakdown (the four input scores + the threshold re
 
 ## Capturing the inputs
 
-- **Behaviour ratings** — `POST /players/{id}/behaviour-ratings` with a 1-5 score and optional notes/context. The "Add behaviour observation" form on the player profile lands in a follow-up release; for now coaches use REST or WP-CLI.
+- **Behaviour ratings** — the **Log behaviour** popover on the player profile hero (shipped v4.8.0), or `POST /players/{id}/behaviour-ratings` for integrations. A 1-5 score with optional notes and a related activity.
 - **Potential** — `POST /players/{id}/potential` with one of `first_team` / `professional_elsewhere` / `semi_pro` / `top_amateur` / `recreational`. HoD-only by default.
 - **Attendance + ratings** — already captured by the existing flows; the calculator reads them directly.
 

@@ -49,6 +49,8 @@ Wanneer je een blessure vastlegt, gebeuren er twee dingen:
 
 Wanneer de speler terugkomt, vul je **Werkelijke terugkeer** in en verschijnt er een *Blessure hersteld*-regel op de reis.
 
+Het blessurerecord is **bewust minimaal**: lichaamsdeel, ernst, datums, notities en een coach-herinnering. Geen return-to-play-fasen, geen medische bijlagen, geen behandelplannen — TalentTrack volgt de ontwikkelimpact van een blessure, niet de klinische behandeling. Verwacht je fysio een medisch systeem, stel die verwachting dan vooraf bij: dit is er geen.
+
 ## Privacy
 
 Niet alle regels zijn voor iedereen zichtbaar. Elke regel heeft een **zichtbaarheidsniveau**:
