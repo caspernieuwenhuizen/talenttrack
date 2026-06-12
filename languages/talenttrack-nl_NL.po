@@ -38160,3 +38160,9 @@ msgstr "Dupliceer \"%s\" naar een nieuwe datum"
 #, php-format
 msgid "Copy last %s"
 msgstr "Kopieer laatste %s"
+
+# #1372 - interruption-proof RateActorsStep (v4.20.126). i18n-sync will
+# merge these into the proper position on next run; meanwhile they land
+# here verbatim so a Dutch install reads correctly today.
+msgid "Restored your in-progress ratings from this device."
+msgstr "Je tussentijdse beoordelingen zijn hersteld vanaf dit apparaat."
