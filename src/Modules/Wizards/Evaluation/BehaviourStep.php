@@ -55,10 +55,23 @@ final class BehaviourStep implements WizardStepInterface {
 
         $existing_ratings = (array) ( $state['behaviour_ratings'] ?? [] );
         $existing_notes   = (array) ( $state['behaviour_notes'] ?? [] );
+
+        // #1387 — pilot-anticipated "why am I rating twice?" question:
+        // explain the second pass, and remember the coach's last choice.
+        // A coach who skipped behaviour last run gets the roster
+        // collapsed behind a disclosure so Next is one tap away; any
+        // in-progress values force it open.
+        $last_choice = (string) get_user_meta( get_current_user_id(), 'tt_behaviour_step_last', true );
+        $start_open  = $last_choice !== 'skipped' || ! empty( array_filter( $existing_ratings ) );
         ?>
         <p style="color:var(--tt-muted);max-width:60ch;">
-            <?php esc_html_e( 'Optional — record a quick behaviour rating for this activity. Skip any player you do not want to rate today. Players left blank get no behaviour row.', 'talenttrack' ); ?>
+            <?php esc_html_e( 'Behaviour is tracked separately from performance — this optional second pass records conduct, not football. Leave everything blank (or keep this section closed) and tap Next if you only want performance ratings today.', 'talenttrack' ); ?>
         </p>
+
+        <details class="tt-behaviour-disclosure" <?php echo $start_open ? 'open' : ''; ?>>
+            <summary class="tt-rate-player-summary" style="min-height:48px;display:flex;align-items:center;cursor:pointer;touch-action:manipulation;">
+                <strong><?php esc_html_e( 'Rate behaviour for this activity', 'talenttrack' ); ?></strong>
+            </summary>
 
         <div class="tt-rate-roster">
             <?php foreach ( $players as $pl ) :
@@ -101,6 +114,7 @@ final class BehaviourStep implements WizardStepInterface {
                 </details>
             <?php endforeach; ?>
         </div>
+        </details>
         <?php
     }
 
@@ -135,6 +149,15 @@ final class BehaviourStep implements WizardStepInterface {
             if ( $n === '' ) continue;
             $notes[ $pid ] = $n;
         }
+
+        // #1387 — remember whether this coach uses the behaviour pass,
+        // so the next run defaults the roster open (they do) or
+        // collapsed behind the disclosure (they don't).
+        update_user_meta(
+            get_current_user_id(),
+            'tt_behaviour_step_last',
+            $ratings === [] ? 'skipped' : 'completed'
+        );
 
         return [
             'behaviour_ratings' => $ratings,
