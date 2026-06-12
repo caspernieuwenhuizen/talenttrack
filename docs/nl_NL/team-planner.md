@@ -64,3 +64,12 @@ Wie activiteiten kan bekijken, kan de planning bekijken. Wie activiteiten kan be
 - **Slepen-en-neerzetten herinplannen** — om een activiteit te verplaatsen, bewerk je hem op het activiteitenformulier en wijzig je de datum.
 - **Inline aanmaak-modal** — klikken op `+ Toevoegen` brengt je naar het activiteitenformulier in plaats van een snelaanmaak-dialoog te openen. Het formulier is het canonieke aanmaak-oppervlak.
 - **Meervoudige seizoenskiezer** — het Volledig seizoen-venster pakt altijd `is_current`. Wil je een toekomstig seizoen plannen, zet dan eerst de `is_current` vlag op dat seizoen onder PDP → Seizoenen.
+
+## Sessies herhalen (v4.20.125)
+
+Twee snelkoppelingen halen het overtypen uit de weekplanning:
+
+- **Dupliceren** onder elke activiteitenkaart opent het aanmaakformulier, vooringevuld met titel, tijd, locatie, type en gekoppelde principes van het origineel — standaard gedateerd één week later. Aanwezigheid en evaluaties reizen nooit mee met de kopie. Pas aan wat nodig is en sla op.
+- **Kopieer laatste {weekdag}** verschijnt in lege dagcellen (vandaag of later) wanneer het team een eerdere sessie op die weekdag heeft — een lege dinsdag biedt "Kopieer laatste dinsdag". Het opent hetzelfde vooringevulde formulier, gericht op de datum van die cel.
+
+Beide landen in het activiteitenformulier ter bevestiging, dus er wordt niets blind gekloond; de kopie wordt aangemaakt als gepland item.

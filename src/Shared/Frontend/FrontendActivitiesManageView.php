@@ -85,7 +85,11 @@ class FrontendActivitiesManageView extends FrontendViewBase {
 
         if ( $action === 'new' ) {
             self::renderHeader( __( 'New activity', 'talenttrack' ) );
-            self::renderForm( $user_id, $is_admin, null, [], [] );
+            // #1371 — duplicate mode: `?duplicate_from=<id>` pre-fills
+            // the create form from an existing activity (title, time,
+            // location, type, principles — NOT attendance/evals). The
+            // user confirms in the form; nothing is cloned blind.
+            self::renderForm( $user_id, $is_admin, self::duplicatePrefill(), [], [] );
             return;
         }
 
@@ -1302,7 +1306,9 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         $current_tournament_id = (int) ( $session->tournament_id ?? 0 );
 
         // Edit mode → PUT /activities/{id}; create → POST /activities.
-        $is_edit   = $session !== null;
+        // #1371 — a duplicate-prefill object has no id, so it stays on
+        // the create path while pre-filling every field.
+        $is_edit   = $session !== null && (int) ( $session->id ?? 0 ) > 0;
         $rest_path = $is_edit ? 'activities/' . (int) $session->id : 'activities';
         $rest_meth = $is_edit ? 'PUT' : 'POST';
         $form_id   = 'tt-activity-form';
@@ -1396,7 +1402,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 // existing `plan_state` alone (the URL param is only
                 // honoured on create).
                 $plan_state_url = isset( $_GET['plan_state'] ) ? sanitize_key( (string) $_GET['plan_state'] ) : '';
-                if ( $session === null && in_array( $plan_state_url, [ 'draft', 'scheduled' ], true ) ) :
+                if ( ! $is_edit && in_array( $plan_state_url, [ 'draft', 'scheduled' ], true ) ) :
                 ?>
                 <input type="hidden" name="plan_state" value="<?php echo esc_attr( $plan_state_url ); ?>" />
                 <?php endif; ?>
@@ -1441,8 +1447,13 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             if ( class_exists( '\\TT\\Modules\\Methodology\\Repositories\\PrinciplesRepository' )
                  && class_exists( '\\TT\\Modules\\Methodology\\Repositories\\PrincipleLinksRepository' ) ) {
                 $all_principles = ( new \TT\Modules\Methodology\Repositories\PrinciplesRepository() )->listFiltered();
-                $linked_ids = ( $is_edit && $session && (int) $session->id > 0 )
-                    ? ( new \TT\Modules\Methodology\Repositories\PrincipleLinksRepository() )->principlesForActivity( (int) $session->id )
+                // #1371 — duplicate mode pre-ticks the source
+                // activity's principles via `duplicate_source_id`.
+                $principles_activity_id = ( $is_edit && $session && (int) $session->id > 0 )
+                    ? (int) $session->id
+                    : (int) ( $session->duplicate_source_id ?? 0 );
+                $linked_ids = $principles_activity_id > 0
+                    ? ( new \TT\Modules\Methodology\Repositories\PrincipleLinksRepository() )->principlesForActivity( $principles_activity_id )
                     : [];
                 if ( ! empty( $all_principles ) ) :
                     // #1122 — replace the flat multiselect with the
@@ -1812,6 +1823,50 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         // truth. Pre-fix the two surfaces inlined $wpdb queries with
         // subtly different filter sets — same data-fork class as #1059.
         return ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )->findById( $id );
+    }
+
+    /**
+     * #1371 — build the create-form prefill object for
+     * `?action=new&duplicate_from=<id>`. Copies title / time /
+     * location / type (+ subtype / other-label) and the team; the
+     * status resets to Planned, the tournament link is NOT copied,
+     * notes are NOT copied, and attendance/eval rows never travel
+     * (the form starts empty on create anyway). `duplicate_source_id`
+     * rides along so the principles picker can pre-tick the source's
+     * links.
+     *
+     * Target date: `?session_date=YYYY-MM-DD` when the caller picked a
+     * cell (the planner's copy-last-weekday chip), else source + 7
+     * days (the card's Duplicate action).
+     *
+     * Returns null when no (valid) source is referenced — the form
+     * then renders the plain empty create state.
+     */
+    private static function duplicatePrefill(): ?object {
+        $source_id = isset( $_GET['duplicate_from'] ) ? absint( $_GET['duplicate_from'] ) : 0;
+        if ( $source_id <= 0 ) return null;
+        $src = self::loadSession( $source_id );
+        if ( $src === null ) return null;
+
+        $url_date = isset( $_GET['session_date'] ) ? sanitize_text_field( (string) $_GET['session_date'] ) : '';
+        $target   = preg_match( '/^\d{4}-\d{2}-\d{2}$/', $url_date )
+            ? $url_date
+            : gmdate( 'Y-m-d', strtotime( (string) $src->session_date . ' +7 days' ) );
+
+        $pre = new \stdClass();
+        $pre->id                  = 0;
+        $pre->duplicate_source_id = (int) $src->id;
+        $pre->title               = (string) ( $src->title ?? '' );
+        $pre->team_id             = (int) ( $src->team_id ?? 0 );
+        $pre->session_date        = $target;
+        $pre->start_time          = (string) ( $src->start_time ?? '' );
+        $pre->end_time            = (string) ( $src->end_time ?? '' );
+        $pre->location            = (string) ( $src->location ?? '' );
+        $pre->activity_type_key   = (string) ( $src->activity_type_key ?? ActivityTypeKey::TRAINING );
+        $pre->game_subtype_key    = (string) ( $src->game_subtype_key ?? '' );
+        $pre->other_label         = (string) ( $src->other_label ?? '' );
+        $pre->activity_status_key = ActivityStatusKey::PLANNED;
+        return $pre;
     }
 
     /**

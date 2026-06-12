@@ -64,3 +64,12 @@ If you can see activities you can see the planner. If you can edit activities yo
 - **Drag-drop reschedule** — to move an activity, edit it on the activities form and change the date.
 - **Inline create modal** — clicking `+ Add` takes you to the activities form rather than opening a quick-create dialog. The form is the canonical create surface.
 - **Multiple-season picker** — the Full season range always picks `is_current`. To plan a future season, set that season's `is_current` flag first under PDP → Seasons.
+
+## Repeating sessions (v4.20.125)
+
+Two shortcuts remove the re-typing from weekly planning:
+
+- **Duplicate** under each activity card opens the create form pre-filled with the source's title, time, location, type, and connected principles — dated one week after the original by default. Attendance and evaluations never travel with the copy. Adjust anything, then save.
+- **Copy last {weekday}** appears in empty day cells (today or later) when the team has a previous session on that weekday — an empty Tuesday offers "Copy last Tuesday". It opens the same pre-filled form targeted at that cell's date.
+
+Both land in the activities form for confirmation, so nothing is cloned blind; the copy is created as a scheduled plan item.
