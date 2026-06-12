@@ -97,7 +97,8 @@ final class MfaCliCommand {
         }
 
         \WP_CLI::success( sprintf(
-            'MFA persona policy set to [] (enforcement off); %d live challenge transient(s) flushed. Enrollment rows untouched — re-enable from the MFA tab when recovered.',
+            /* translators: %d: number of flushed challenge transients */
+            __( 'MFA persona policy set to [] (enforcement off); %d live challenge transient(s) flushed. Enrollment rows untouched — re-enable from the MFA tab when recovered.', 'talenttrack' ),
             $flushed
         ) );
     }
@@ -123,15 +124,25 @@ final class MfaCliCommand {
         $ref  = (string) ( $args[0] ?? '' );
         $user = is_numeric( $ref ) ? get_userdata( (int) $ref ) : ( get_user_by( 'login', $ref ) ?: get_user_by( 'email', $ref ) );
         if ( ! $user instanceof \WP_User ) {
-            \WP_CLI::error( sprintf( 'No user found for "%s" (tried id, login, email).', $ref ) );
+            \WP_CLI::error( sprintf( /* translators: %s: the user reference the operator typed */ __( 'No user found for "%s" (tried id, login, email).', 'talenttrack' ), $ref ) );
             return;
         }
         $repo = new MfaSecretsRepository();
         if ( $repo->findByUserId( (int) $user->ID ) === null ) {
-            \WP_CLI::warning( sprintf( '%s (#%d) has no MFA enrollment row — nothing to reset.', $user->user_login, (int) $user->ID ) );
+            \WP_CLI::warning( sprintf(
+                /* translators: 1: user login, 2: user id */
+                __( '%1$s (#%2$d) has no MFA enrollment row — nothing to reset.', 'talenttrack' ),
+                $user->user_login,
+                (int) $user->ID
+            ) );
         } else {
             $repo->disable( (int) $user->ID );
-            \WP_CLI::success( sprintf( 'Enrollment wiped for %s (#%d) — they re-enroll on next login.', $user->user_login, (int) $user->ID ) );
+            \WP_CLI::success( sprintf(
+                /* translators: 1: user login, 2: user id */
+                __( 'Enrollment wiped for %1$s (#%2$d) — they re-enroll on next login.', 'talenttrack' ),
+                $user->user_login,
+                (int) $user->ID
+            ) );
         }
         // Clear any live challenge so the user isn't stuck mid-redirect.
         MfaLoginGuard::clearPending( (int) $user->ID );

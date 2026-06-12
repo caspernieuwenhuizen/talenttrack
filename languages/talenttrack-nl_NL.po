@@ -38218,3 +38218,19 @@ msgstr "TalentTrack: MFA-handhaving is uitgeschakeld via de constante TT_MFA_DIS
 
 msgid "Remove the define from wp-config.php to re-enable enforcement. Enrollment and policy were not changed."
 msgstr "Verwijder de define uit wp-config.php om de handhaving weer in te schakelen. Inschrijving en beleid zijn niet gewijzigd."
+
+#, php-format
+msgid "No user found for \"%s\" (tried id, login, email)."
+msgstr "Geen gebruiker gevonden voor \"%s\" (geprobeerd: id, login, e-mail)."
+
+#, php-format
+msgid "MFA persona policy set to [] (enforcement off); %d live challenge transient(s) flushed. Enrollment rows untouched — re-enable from the MFA tab when recovered."
+msgstr "MFA-personabeleid op [] gezet (handhaving uit); %d lopende uitdagings-transient(s) gewist. Inschrijvingsrijen onaangeroerd — heractiveer via het MFA-tabblad zodra je hersteld bent."
+
+#, php-format
+msgid "%1$s (#%2$d) has no MFA enrollment row — nothing to reset."
+msgstr "%1$s (#%2$d) heeft geen MFA-inschrijvingsrij — niets om te resetten."
+
+#, php-format
+msgid "Enrollment wiped for %1$s (#%2$d) — they re-enroll on next login."
+msgstr "Inschrijving gewist voor %1$s (#%2$d) — opnieuw inschrijven bij de volgende login."
