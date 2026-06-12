@@ -22499,6 +22499,29 @@ msgstr "Deze bevestigingslink hoort niet bij een ouderbevestigingstaak."
 msgid "This confirmation link is no longer valid."
 msgstr "Deze bevestigingslink is niet meer geldig."
 
+# ===== #1368 — Spond staleness banner =====
+#. translators: %d = number of teams whose last Spond sync errored
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php
+#, php-format
+msgid "Spond sync failed for %d team — schedules may be out of date."
+msgid_plural "Spond sync failed for %d teams — schedules may be out of date."
+msgstr[0] "Spond-synchronisatie mislukt voor %d team — schema's zijn mogelijk verouderd."
+msgstr[1] "Spond-synchronisatie mislukt voor %d teams — schema's zijn mogelijk verouderd."
+
+#. translators: %s = human-readable time since the last successful Spond sync
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php
+#, php-format
+msgid "Spond sync last succeeded %s ago — schedules may be out of date."
+msgstr "Spond-synchronisatie is voor het laatst %s geleden gelukt — schema's zijn mogelijk verouderd."
+
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php
+msgid "Spond sync has not completed yet — schedules may be out of date."
+msgstr "Spond-synchronisatie is nog niet voltooid — schema's zijn mogelijk verouderd."
+
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php
+msgid "Check Spond status"
+msgstr "Spond-status controleren"
+
 # ===== #1356 — parent confirmation link expiry =====
 #: src/Modules/Prospects/Rest/ParentConfirmationController.php:109
 msgid ""

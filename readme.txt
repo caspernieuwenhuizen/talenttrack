@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.108
+Stable tag: 4.20.109
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.109 — Spond sync staleness warns on the HoD/admin dashboard (closes #1368). Audit finding: the Spond sync rides Spond's unofficial API; when it breaks mid-season, schedule entry silently becomes manual and the failure surfaced only on the wp-admin Configuration → Spond page nobody checks daily. **New [`SpondSyncHealth`](src/Modules/Spond/SpondSyncHealth.php)** service (decision logic in the owning module per SaaS-ready §4): disabled (no credentials / no linked teams), ok, stale (freshest successful sync > 24h or never), failed (any linked team's last sync errored). **Banner.** [`PersonaLandingRenderer`](src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php) gains a `renderSystemNotices` strip above the grid for the head_of_development + academy_admin personas — renders nothing when healthy (which is why it's not a grid widget: an empty slot would leave a hole), amber warning with a *Check Spond status* deep-link to the Spond admin page when stale/failed. Uses the existing per-team `spond_last_sync_*` columns; no polling added. Mobile-first banner CSS, 48px link target, text-safe amber palette. 4 new Dutch entries (incl. one plural pair); docs/spond-integration.md (EN+NL) updated. Patch bump. (closes #1368) =
 
 = 4.20.108 — Player/parent podium stops broadcasting the top-3's rating numbers (closes #1354). Audit harm-risk finding: the My-team podium and the legacy player dashboard rendered full FIFA-style cards for the top 3 — rolling average plus per-category all-time numbers — visible to every teammate and parent on the team, while docs/player-dashboard.md explicitly promised teammates' "ratings stay private". Three minors' evaluation data was one screenshot from the team WhatsApp. **Fix.** [`PlayerCardView::renderCard/renderPodium`](src/Modules/Stats/Admin/PlayerCardView.php) gain a `$show_ratings` flag: when false, the card keeps the celebration (photo, name, position, team, gold/silver/bronze tier styling, click-through) but renders no rolling average and no per-category stats; the aria-label drops the rating too. [`FrontendMyTeamView`](src/Shared/Frontend/FrontendMyTeamView.php) + [`PlayerDashboardView`](src/Shared/Frontend/PlayerDashboardView.php) (player/parent surfaces) pass false; [`CoachDashboardView`](src/Shared/Frontend/CoachDashboardView.php) + [`FrontendPodiumView`](src/Shared/Frontend/FrontendPodiumView.php) (staff surfaces) keep the full cards. Code now matches the documented promise. The player's own card on My team keeps their own numbers (own data). 1 new Dutch msgstr (numberless aria-label). Patch bump. (closes #1354) =
 

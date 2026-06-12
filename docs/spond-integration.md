@@ -37,7 +37,7 @@ The sync window is **30 days back + 180 days forward** rolling, so historical ev
 - **Refresh now** button on the team edit page and on the Spond admin overview for an immediate sync.
 - **WP-CLI**: `wp tt spond sync` (all teams) or `wp tt spond sync --team=<id>`.
 
-Last-sync status appears in the **Configuration → Spond** table — green when OK, red with the reason if a sync failed.
+Last-sync status appears in the **Configuration → Spond** table — green when OK, red with the reason if a sync failed. Since v4.20.109 (#1368) the head-of-academy and admin dashboards also show a warning banner when the freshest successful sync is older than 24 hours or any linked team's last sync failed — so a broken sync surfaces where someone will actually see it, not only on this admin page.
 
 ## Privacy + security
 
