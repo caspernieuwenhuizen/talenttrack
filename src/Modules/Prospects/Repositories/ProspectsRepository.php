@@ -39,6 +39,33 @@ class ProspectsRepository {
     }
 
     /**
+     * #1358 — the prospect record that was promoted into this player
+     * (when one exists), for the player-profile Discovery card: who
+     * scouted them, at what event, when. Newest discovery wins when
+     * multiple rows point at the same player. Guards against the
+     * table not existing yet (pre-migration installs) the same way
+     * the view's old inline SHOW TABLES check did.
+     *
+     * @return object|null rows: discovered_by_user_id, discovered_at,
+     *                     discovered_at_event, current_club.
+     */
+    public function findPromotedForPlayer( int $player_id ): ?object {
+        if ( $player_id <= 0 ) return null;
+        $exists = $this->wpdb->get_var( $this->wpdb->prepare( 'SHOW TABLES LIKE %s', $this->table ) );
+        if ( $exists !== $this->table ) return null;
+        $row = $this->wpdb->get_row( $this->wpdb->prepare(
+            "SELECT discovered_by_user_id, discovered_at, discovered_at_event, current_club
+               FROM {$this->table}
+              WHERE promoted_to_player_id = %d
+                AND archived_at IS NULL
+              ORDER BY discovered_at DESC
+              LIMIT 1",
+            $player_id
+        ) );
+        return $row ?: null;
+    }
+
+    /**
      * @param array{
      *   discovered_by_user_id?: int,
      *   include_archived?: bool,

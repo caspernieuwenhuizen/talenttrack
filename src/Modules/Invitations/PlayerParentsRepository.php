@@ -112,6 +112,28 @@ class PlayerParentsRepository {
         return array_map( 'intval', (array) $rows );
     }
 
+    /**
+     * #1358 — full link rows for the player-profile Parents ·
+     * Guardians card: `parent_user_id` + `is_primary`, primary first,
+     * then oldest link first. Guards against the pivot table not
+     * existing yet (pre-migration installs) the same way the view's
+     * old inline SHOW TABLES check did.
+     *
+     * @return list<object>
+     */
+    public function linksForPlayer( int $playerId ): array {
+        if ( $playerId <= 0 ) return [];
+        $exists = $this->wpdb->get_var( $this->wpdb->prepare( 'SHOW TABLES LIKE %s', $this->table ) );
+        if ( $exists !== $this->table ) return [];
+        $rows = $this->wpdb->get_results( $this->wpdb->prepare(
+            "SELECT parent_user_id, is_primary FROM {$this->table}
+              WHERE player_id = %d AND club_id = %d
+              ORDER BY is_primary DESC, created_at ASC",
+            $playerId, CurrentClub::id()
+        ) );
+        return is_array( $rows ) ? $rows : [];
+    }
+
     /** @return list<int> parent WP user IDs linked to this player. */
     public function parentsForPlayer( int $playerId ): array {
         if ( $playerId <= 0 ) return [];

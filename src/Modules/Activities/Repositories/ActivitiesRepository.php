@@ -275,6 +275,42 @@ final class ActivitiesRepository {
     }
 
     /**
+     * #1358 — attendance summary for the player-profile "Attendance"
+     * KPI: present rows vs. all actual attendance rows on completed,
+     * non-archived activities in the trailing window. Matches the
+     * "actual attendance" scope of the player Activities tab — only
+     * completed activities count.
+     *
+     * v4.20.48 (#1227) — `att.record_type = 'actual'` filter so the
+     * denominator doesn't inflate once #788 ship 2 lands with
+     * pre-filled expected rows. Audit 7 (#1181).
+     *
+     * @return object|null `{present_n: int|null, total_n: int}`; null on query failure.
+     */
+    public function attendanceRateForPlayer( int $player_id, int $days = 30 ): ?object {
+        if ( $player_id <= 0 ) return null;
+        $days = max( 1, $days );
+
+        global $wpdb;
+        $p   = $wpdb->prefix;
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT
+                SUM(CASE WHEN att.status = 'present' THEN 1 ELSE 0 END) AS present_n,
+                COUNT(*) AS total_n
+               FROM {$p}tt_attendance att
+               JOIN {$p}tt_activities a ON a.id = att.activity_id
+              WHERE att.player_id = %d
+                AND att.is_guest = 0
+                AND att.record_type = 'actual'
+                AND a.archived_at IS NULL
+                AND a.plan_state = 'completed'
+                AND a.session_date >= DATE_SUB(CURDATE(), INTERVAL %d DAY)",
+            $player_id, $days
+        ) );
+        return $row ?: null;
+    }
+
+    /**
      * Variant for the on-screen view's edit form, which keys
      * attendance rows by `player_id` for fast lookups. Excludes
      * guests by contract.

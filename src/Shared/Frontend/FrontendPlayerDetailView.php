@@ -540,25 +540,17 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      * @return array<string,array{value:string,scale:string,hint:string,trend_class:string}>
      */
     private static function atAGlance( int $player_id, array $counts ): array {
-        global $wpdb;
-        $p = $wpdb->prefix;
+        // #1358 — KPI queries live in their domain repositories; this
+        // method just shapes the numbers for display.
+        $evals_repo = new \TT\Infrastructure\Evaluations\EvaluationsRepository();
+        $goals_repo = new \TT\Infrastructure\Goals\GoalsRepository();
 
         // Avg rating: mean of every rating row across the player's
-        // non-archived evaluations. Ratings live in `tt_eval_ratings`
-        // joined to `tt_evaluations` via `evaluation_id`; the
-        // direct-mean shape mirrors `MiniPlayerListWidget` (the
-        // dashboard's "recent evaluations" tile's per-evaluation
-        // average), aggregated across the player's whole history.
-        // Trend arrow compares the most recent evaluation's mean
-        // against the rolling mean.
-        $avg_row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT AVG(r.rating) AS avg_r, COUNT(DISTINCT e.id) AS n
-               FROM {$p}tt_evaluations e
-               JOIN {$p}tt_eval_ratings r ON r.evaluation_id = e.id
-              WHERE e.player_id = %d
-                AND e.archived_at IS NULL",
-            $player_id
-        ) );
+        // non-archived evaluations, via
+        // EvaluationsRepository::ratingSummaryForPlayer. Trend arrow
+        // compares the most recent evaluation's mean against the
+        // rolling mean.
+        $avg_row   = $evals_repo->ratingSummaryForPlayer( $player_id );
         $avg_value = '—';
         $avg_scale = '';
         $avg_hint  = '';
@@ -569,17 +561,9 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             if ( $rmax_cfg > 0 ) {
                 $avg_scale = '/' . (int) round( $rmax_cfg );
             }
-            $last = $wpdb->get_var( $wpdb->prepare(
-                "SELECT AVG(r.rating)
-                   FROM {$p}tt_evaluations e
-                   JOIN {$p}tt_eval_ratings r ON r.evaluation_id = e.id
-                  WHERE e.player_id = %d AND e.archived_at IS NULL
-                  GROUP BY e.id
-                  ORDER BY e.eval_date DESC LIMIT 1",
-                $player_id
-            ) );
+            $last = $evals_repo->lastEvaluationMeanForPlayer( $player_id );
             if ( $last !== null && (int) $avg_row->n > 1 ) {
-                $delta = (float) $last - (float) $avg_row->avg_r;
+                $delta = $last - (float) $avg_row->avg_r;
                 if ( abs( $delta ) >= 0.1 ) {
                     $avg_hint  = ( $delta > 0 ? '▲ ' : '▼ ' ) . number_format_i18n( abs( $delta ), 1 );
                     $avg_class = $delta > 0 ? 'tt-player-kpi__trend--up' : 'tt-player-kpi__trend--down';
@@ -587,28 +571,11 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             }
         }
 
-        // Attendance %: present rows / non-cancelled completed
-        // attendance rows in the last 30 days. Matches the
-        // "actual attendance" scope of the activities tab — only
-        // completed activities count.
-        // v4.20.48 (#1227) — added `att.record_type = 'actual'`. Once
-        // #788 ship 2 lands (expected-attendance rows pre-filled at
-        // activity-create time), the denominator inflates without this
-        // filter and the displayed % drops misleadingly. Audit 7 (#1181).
-        $att_row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT
-                SUM(CASE WHEN att.status = 'present' THEN 1 ELSE 0 END) AS present_n,
-                COUNT(*) AS total_n
-               FROM {$p}tt_attendance att
-               JOIN {$p}tt_activities a ON a.id = att.activity_id
-              WHERE att.player_id = %d
-                AND att.is_guest = 0
-                AND att.record_type = 'actual'
-                AND a.archived_at IS NULL
-                AND a.plan_state = 'completed'
-                AND a.session_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)",
-            $player_id
-        ) );
+        // Attendance %: present rows / actual attendance rows on
+        // completed activities in the last 30 days, via
+        // ActivitiesRepository::attendanceRateForPlayer (same scope as
+        // the activities tab — only completed activities count).
+        $att_row   = ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )->attendanceRateForPlayer( $player_id, 30 );
         $att_value = '—';
         $att_scale = '';
         $att_hint  = '';
@@ -624,23 +591,11 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         // Goals KPI: count of active (non-archived, non-completed)
         // goals, with a "1 due soon" hint when the nearest due date
         // is within 7 days.
-        $active_goals = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$p}tt_goals
-              WHERE player_id = %d AND archived_at IS NULL
-                AND ( status IS NULL OR status NOT IN ( 'completed', 'cancelled' ) )",
-            $player_id
-        ) );
+        $active_goals = $goals_repo->countActiveForPlayer( $player_id );
         $goals_hint  = '';
         $goals_class = '';
         if ( $active_goals > 0 ) {
-            $due_soon = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$p}tt_goals
-                  WHERE player_id = %d AND archived_at IS NULL
-                    AND due_date IS NOT NULL
-                    AND due_date BETWEEN CURDATE() AND DATE_ADD(CURDATE(), INTERVAL 7 DAY)
-                    AND ( status IS NULL OR status NOT IN ( 'completed', 'cancelled' ) )",
-                $player_id
-            ) );
+            $due_soon = $goals_repo->countDueSoonForPlayer( $player_id, 7 );
             if ( $due_soon > 0 ) {
                 /* translators: %d: number of goals due in the next 7 days */
                 $goals_hint  = sprintf( _n( '%d due soon', '%d due soon', $due_soon, 'talenttrack' ), $due_soon );
@@ -882,34 +837,27 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      * meta when present).
      */
     private static function renderParentsCard( int $player_id ): void {
-        global $wpdb;
-        $p     = $wpdb->prefix;
+        // #1358 — link rows come from PlayerParentsRepository (which
+        // also owns the table-exists guard for pre-migration installs).
         $rows  = [];
-        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', "{$p}tt_player_parents" ) ) === "{$p}tt_player_parents" ) {
-            $links = (array) $wpdb->get_results( $wpdb->prepare(
-                "SELECT parent_user_id, is_primary FROM {$p}tt_player_parents
-                  WHERE player_id = %d
-                  ORDER BY is_primary DESC, created_at ASC",
-                $player_id
-            ) );
-            foreach ( $links as $link ) {
-                $user = get_userdata( (int) $link->parent_user_id );
-                if ( ! $user ) continue;
-                $name  = $user->display_name !== '' ? (string) $user->display_name : (string) $user->user_email;
-                $email = (string) $user->user_email;
-                $phone = trim( (string) get_user_meta( (int) $user->ID, 'phone', true ) );
-                $bits  = [];
-                if ( ! empty( $link->is_primary ) ) {
-                    $bits[] = '<em>' . esc_html__( 'primary', 'talenttrack' ) . '</em>';
-                }
-                if ( $phone !== '' ) {
-                    $bits[] = '<a href="tel:' . esc_attr( $phone ) . '">' . esc_html( $phone ) . '</a>';
-                }
-                if ( $email !== '' ) {
-                    $bits[] = '<a href="mailto:' . esc_attr( $email ) . '">' . esc_html( $email ) . '</a>';
-                }
-                $rows[] = [ $name, implode( ' · ', $bits ) ];
+        $links = ( new \TT\Modules\Invitations\PlayerParentsRepository() )->linksForPlayer( $player_id );
+        foreach ( $links as $link ) {
+            $user = get_userdata( (int) $link->parent_user_id );
+            if ( ! $user ) continue;
+            $name  = $user->display_name !== '' ? (string) $user->display_name : (string) $user->user_email;
+            $email = (string) $user->user_email;
+            $phone = trim( (string) get_user_meta( (int) $user->ID, 'phone', true ) );
+            $bits  = [];
+            if ( ! empty( $link->is_primary ) ) {
+                $bits[] = '<em>' . esc_html__( 'primary', 'talenttrack' ) . '</em>';
             }
+            if ( $phone !== '' ) {
+                $bits[] = '<a href="tel:' . esc_attr( $phone ) . '">' . esc_html( $phone ) . '</a>';
+            }
+            if ( $email !== '' ) {
+                $bits[] = '<a href="mailto:' . esc_attr( $email ) . '">' . esc_html( $email ) . '</a>';
+            }
+            $rows[] = [ $name, implode( ' · ', $bits ) ];
         }
         ?>
         <div class="tt-player-card">
@@ -938,20 +886,10 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      * when. Mirrors `MyRecentProspectsSource` shape.
      */
     private static function renderDiscoveryCard( int $player_id ): void {
-        global $wpdb;
-        $p   = $wpdb->prefix;
-        $row = null;
-        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', "{$p}tt_prospects" ) ) === "{$p}tt_prospects" ) {
-            $row = $wpdb->get_row( $wpdb->prepare(
-                "SELECT discovered_by_user_id, discovered_at, discovered_at_event, current_club
-                   FROM {$p}tt_prospects
-                  WHERE promoted_to_player_id = %d
-                    AND archived_at IS NULL
-                  ORDER BY discovered_at DESC
-                  LIMIT 1",
-                $player_id
-            ) );
-        }
+        // #1358 — the promoted-prospect row comes from
+        // ProspectsRepository (which also owns the table-exists guard
+        // for pre-migration installs).
+        $row = ( new \TT\Modules\Prospects\Repositories\ProspectsRepository() )->findPromotedForPlayer( $player_id );
         ?>
         <div class="tt-player-card">
             <div class="tt-player-card__head">
@@ -1020,14 +958,9 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
 
     /** Goals tab — card-row list of every non-archived goal. */
     private static function renderGoalsTab( int $player_id ): void {
-        global $wpdb;
-        $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, title, status, priority, due_date FROM {$wpdb->prefix}tt_goals
-              WHERE player_id = %d AND archived_at IS NULL
-              ORDER BY due_date IS NULL, due_date ASC, created_at DESC
-              LIMIT 50",
-            $player_id
-        ) );
+        // #1358 — list shape lives in GoalsRepository (urgency order:
+        // dated goals by nearest due date, undated last by recency).
+        $rows = ( new \TT\Infrastructure\Goals\GoalsRepository() )->listActiveByDueDateForPlayer( $player_id, 50 );
         $add_url = add_query_arg(
             [ 'tt_view' => 'goals', 'action' => 'new', 'player_id' => $player_id ],
             RecordLink::dashboardUrl()
@@ -1113,22 +1046,10 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to view evaluations for this player.', 'talenttrack' ) . '</p>';
             return;
         }
-        global $wpdb;
-        // Tab list and PlayerFileCounts must agree on scope —
-        // (player_id, club_id, archived_at IS NULL) — otherwise the
-        // badge and the tab can fall out of sync.
-        // Rating is the per-evaluation mean of `tt_eval_ratings` rows;
-        // surface it inline so the row-right rating chip can render
-        // without a second round-trip per row.
-        $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT e.id, e.eval_date, e.eval_type_id,
-                    (SELECT AVG(r.rating) FROM {$wpdb->prefix}tt_eval_ratings r
-                      WHERE r.evaluation_id = e.id AND r.club_id = e.club_id) AS avg_rating
-               FROM {$wpdb->prefix}tt_evaluations e
-              WHERE e.player_id = %d AND e.club_id = %d AND e.archived_at IS NULL
-              ORDER BY e.eval_date DESC LIMIT 50",
-            $player_id, \TT\Infrastructure\Tenancy\CurrentClub::id()
-        ) );
+        // #1358 — list shape lives in EvaluationsRepository (scope
+        // agreement with PlayerFileCounts + the inline avg_rating
+        // chip documented there).
+        $rows = ( new \TT\Infrastructure\Evaluations\EvaluationsRepository() )->listRecentForPlayer( $player_id, 50 );
         $add_url = add_query_arg(
             [ 'tt_view' => 'evaluations', 'action' => 'new', 'player_id' => $player_id ],
             RecordLink::dashboardUrl()
@@ -1211,7 +1132,6 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
 
     /** Activities tab — recent attended + planned activities for the player. */
     private static function renderActivitiesTab( int $player_id, ?object $player = null ): void {
-        global $wpdb;
         // v3.110.185 (#789) — both planned and completed activities;
         // planned rows render a neutral "Planned" pill instead of the
         // wizard's default-Present pre-fill so coach intent stays
@@ -1319,12 +1239,9 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to view PDP files for this player.', 'talenttrack' ) . '</p>';
             return;
         }
-        global $wpdb;
-        $files = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, status, season_id, created_at FROM {$wpdb->prefix}tt_pdp_files
-              WHERE player_id = %d ORDER BY created_at DESC LIMIT 10",
-            $player_id
-        ) );
+        // #1358 — list shape lives in PdpFilesRepository (newest-first,
+        // archived included: older cycles are still history).
+        $files = ( new \TT\Modules\Pdp\Repositories\PdpFilesRepository() )->listRecentForPlayer( $player_id, 10 );
         if ( empty( $files ) ) {
             EmptyStateCard::render( [
                 'icon'      => 'pdp',
@@ -1472,13 +1389,8 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to view trial cases for this player.', 'talenttrack' ) . '</p>';
             return;
         }
-        global $wpdb;
-        $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, status, start_date, end_date FROM {$wpdb->prefix}tt_trial_cases
-              WHERE player_id = %d AND archived_at IS NULL
-              ORDER BY start_date DESC LIMIT 10",
-            $player_id
-        ) );
+        // #1358 — list shape lives in TrialCasesRepository.
+        $rows = ( new \TT\Modules\Trials\Repositories\TrialCasesRepository() )->listForPlayer( $player_id, 10 );
         if ( empty( $rows ) ) {
             $is_trial_player = $player && isset( $player->status ) && (string) $player->status === PlayerStatus::TRIAL;
             $card = [

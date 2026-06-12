@@ -56,6 +56,26 @@ class PdpFilesRepository {
         return $row;
     }
 
+    /**
+     * #1358 — recent PDP files for the player-profile PDP tab:
+     * newest-first, archived rows INCLUDED (the tab treats the most
+     * recent file as the active cycle and everything older as
+     * history — an archived cycle is still history).
+     *
+     * @return object[] rows: id, status, season_id, created_at.
+     */
+    public function listRecentForPlayer( int $player_id, int $limit = 10 ): array {
+        if ( $player_id <= 0 ) return [];
+        $limit = max( 1, min( 50, $limit ) );
+        $rows  = $this->wpdb->get_results( $this->wpdb->prepare(
+            "SELECT id, status, season_id, created_at FROM {$this->table}
+              WHERE player_id = %d AND club_id = %d
+              ORDER BY created_at DESC LIMIT %d",
+            $player_id, CurrentClub::id(), $limit
+        ) );
+        return is_array( $rows ) ? $rows : [];
+    }
+
     /** @return object[] */
     public function listForCoach( int $coach_user_id, int $season_id, bool $include_archived = false ): array {
         if ( $coach_user_id <= 0 || $season_id <= 0 ) return [];
