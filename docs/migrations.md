@@ -52,6 +52,14 @@ A migration that errors (host-specific SQL restrictions, drifted schema, a bad r
 
 If the retry keeps failing, the error text in the notice is what your host or developer needs — it names the migration file and the exact SQL error.
 
+## Writing migrations (v4.20.116+ standards, dev)
+
+Three rules, enforced by review + CI:
+
+1. **Every statement goes through `$this->exec( $sql )`** (on the `Migration` base class). The runner's fallback only reads the database's *last* error after `up()` returns — a failed statement followed by a successful one would be invisible and the migration would be marked applied half-done. `exec()` throws at the exact statement that broke, which is what the red admin notice then shows.
+2. **Column adds on existing tables use `MigrationHelpers::addColumnIfMissing()`**, never `dbDelta`. dbDelta silently no-ops ALTERs when the live table has drifted from the CREATE statement — the failure class behind the v4.20.85 blueprint-columns repair. CI (`migration-lint.yml`) fails any new migration that passes a pre-existing table to dbDelta.
+3. **`dbDelta` stays fine for genuinely new tables** — first creation is the case it handles well.
+
 ## What you never need to do
 
 - Deactivate + reactivate (old workflow, no longer required)
