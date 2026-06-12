@@ -3,11 +3,16 @@ namespace TT\Modules\Activities\Repositories;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Archive\ArchiveRepository;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Tenancy\CurrentClub;
 
 /**
  * ActivitiesRepository — shared read-path for `tt_activities` + the
- * roster attendance rows joined into the same view.
+ * roster attendance rows joined into the same view. Since the #1320
+ * admin-CRUD slice it also owns the wp-admin write paths (create /
+ * update / roster replace / delete), so `Admin\ActivitiesPage` no
+ * longer touches `$wpdb` directly.
  *
  * v4.20.32 (#1190) — extracted from
  * `FrontendActivitiesManageView::loadSession()`/`loadAttendance()` and
@@ -291,5 +296,181 @@ final class ActivitiesRepository {
             if ( $r->player_id !== null ) $out[ (int) $r->player_id ] = $r;
         }
         return $out;
+    }
+
+    /**
+     * #1320 admin-CRUD slice — the wp-admin activities list
+     * (`Admin\ActivitiesPage::render_page`). Club-strict, archive-tab
+     * aware, demo-scoped, optionally filtered to one activity type.
+     *
+     * `$type_key` is validated against the live `activity_type` lookup
+     * here (not in the caller) so an unknown value silently means "no
+     * type filter" — same lenient wp-admin semantics as before.
+     *
+     * `coach_name` rides along for parity with the historical inline
+     * query even though the current list table doesn't render it.
+     *
+     * @param string $view 'active' | 'archived' | 'all' (re-sanitized here).
+     * @return list<object>
+     */
+    public function listForAdmin( string $view = 'active', string $type_key = '', int $limit = 50 ): array {
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $view_clause = ArchiveRepository::filterClause( ArchiveRepository::sanitizeView( $view ) );
+        $scope       = QueryHelpers::apply_demo_scope( 'a', 'activity' );
+        $limit       = max( 1, min( 200, $limit ) );
+
+        $type_clause = '';
+        $params      = [ CurrentClub::id() ];
+        if ( $type_key !== '' ) {
+            $valid_types = array_map(
+                static fn( $row ) => (string) $row->name,
+                QueryHelpers::get_lookups( 'activity_type' )
+            );
+            if ( in_array( $type_key, $valid_types, true ) ) {
+                $type_clause = ' AND a.activity_type_key = %s';
+                $params[]    = $type_key;
+            }
+        }
+        $params[] = $limit;
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT a.*, t.name AS team_name, u.display_name AS coach_name
+               FROM {$p}tt_activities a
+               LEFT JOIN {$p}tt_teams t ON a.team_id = t.id AND t.club_id = a.club_id
+               LEFT JOIN {$wpdb->users} u ON a.coach_id = u.ID
+              WHERE a.{$view_clause}
+                AND a.club_id = %d
+                {$scope}
+                {$type_clause}
+           ORDER BY a.session_date DESC
+              LIMIT %d",
+            ...$params
+        ) );
+        return is_array( $rows ) ? $rows : [];
+    }
+
+    /**
+     * #1320 admin-CRUD slice — single activity for the wp-admin edit
+     * form. Unlike `findById` (the frontend detail shape) this is
+     * club-strict, ignores demo scope, and DOES return archived rows —
+     * the admin archive tab links straight into the edit form.
+     */
+    public function findForAdmin( int $activity_id ): ?object {
+        if ( $activity_id <= 0 ) return null;
+        global $wpdb;
+        $p   = $wpdb->prefix;
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT * FROM {$p}tt_activities WHERE id = %d AND club_id = %d",
+            $activity_id, CurrentClub::id()
+        ) );
+        return $row ?: null;
+    }
+
+    /**
+     * #1320 admin-CRUD slice — guest attendance rows for one activity,
+     * joined to the linked player + their team for display. Read-only
+     * panel on the wp-admin edit form (#0077 M2 parity); guest CRUD
+     * stays on the frontend modal flow.
+     *
+     * @return list<object>
+     */
+    public function listGuestAttendance( int $activity_id ): array {
+        global $wpdb;
+        $p    = $wpdb->prefix;
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT att.*, pl.first_name, pl.last_name, t.name AS guest_team_name
+               FROM {$p}tt_attendance att
+               LEFT JOIN {$p}tt_players pl ON pl.id = att.guest_player_id AND pl.club_id = att.club_id
+               LEFT JOIN {$p}tt_teams   t  ON t.id = pl.team_id           AND t.club_id  = pl.club_id
+              WHERE att.activity_id = %d AND att.is_guest = 1 AND att.club_id = %d
+              ORDER BY att.id ASC",
+            $activity_id, CurrentClub::id()
+        ) );
+        return is_array( $rows ) ? $rows : [];
+    }
+
+    /**
+     * #1320 admin-CRUD slice — insert a new activity. The caller
+     * supplies the sanitized column map (including
+     * `activity_source_key`); `club_id` is stamped here.
+     *
+     * @return int|null New activity id, or null when the insert failed
+     *                  (read `lastError()` for the DB message).
+     */
+    public function create( array $data ): ?int {
+        global $wpdb;
+        $p               = $wpdb->prefix;
+        $data['club_id'] = CurrentClub::id();
+        $ok              = $wpdb->insert( "{$p}tt_activities", $data );
+        return $ok === false ? null : (int) $wpdb->insert_id;
+    }
+
+    /**
+     * #1320 admin-CRUD slice — club-scoped update of one activity.
+     *
+     * @return bool False only on a DB error ("0 rows changed" is true,
+     *              matching the historical `$ok !== false` check).
+     */
+    public function update( int $activity_id, array $data ): bool {
+        global $wpdb;
+        $p = $wpdb->prefix;
+        return $wpdb->update(
+            "{$p}tt_activities",
+            $data,
+            [ 'id' => $activity_id, 'club_id' => CurrentClub::id() ]
+        ) !== false;
+    }
+
+    /**
+     * #1320 admin-CRUD slice — wipe + rewrite the roster attendance
+     * rows for an activity. Only touches `is_guest = 0` rows: guest
+     * rows are managed via the frontend / REST endpoints and survive a
+     * legacy admin save cycle (#0026).
+     *
+     * @param array<int, array{status: string, notes: string}> $entries
+     *                  Keyed by player id; values already sanitized.
+     * @return array<int, string> Player id => DB error message, for
+     *                  each row whose insert failed (caller logs).
+     */
+    public function replaceRosterAttendance( int $activity_id, array $entries ): array {
+        global $wpdb;
+        $p = $wpdb->prefix;
+        $wpdb->delete( "{$p}tt_attendance", [ 'activity_id' => $activity_id, 'is_guest' => 0, 'club_id' => CurrentClub::id() ] );
+        $failed = [];
+        foreach ( $entries as $player_id => $entry ) {
+            $ok = $wpdb->insert( "{$p}tt_attendance", [
+                'activity_id' => $activity_id,
+                'player_id'   => (int) $player_id,
+                'status'      => (string) ( $entry['status'] ?? 'Present' ),
+                'notes'       => (string) ( $entry['notes'] ?? '' ),
+                'is_guest'    => 0,
+                'club_id'     => CurrentClub::id(),
+            ] );
+            if ( $ok === false ) $failed[ (int) $player_id ] = (string) $wpdb->last_error;
+        }
+        return $failed;
+    }
+
+    /**
+     * #1320 admin-CRUD slice — hard-delete an activity and ALL its
+     * attendance rows (roster + guests). Club-scoped.
+     */
+    public function deleteWithAttendance( int $activity_id ): void {
+        global $wpdb;
+        $p = $wpdb->prefix;
+        $wpdb->delete( "{$p}tt_attendance", [ 'activity_id' => $activity_id, 'club_id' => CurrentClub::id() ] );
+        $wpdb->delete( "{$p}tt_activities", [ 'id' => $activity_id, 'club_id' => CurrentClub::id() ] );
+    }
+
+    /**
+     * Last DB error message, for callers surfacing write failures
+     * without reaching into `$wpdb` themselves.
+     */
+    public function lastError(): string {
+        global $wpdb;
+        return (string) $wpdb->last_error;
     }
 }
