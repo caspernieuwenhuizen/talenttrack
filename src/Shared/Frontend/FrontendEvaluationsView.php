@@ -183,6 +183,18 @@ class FrontendEvaluationsView extends FrontendViewBase {
             'search'       => [ 'placeholder' => __( 'Search player, notes…', 'talenttrack' ) ],
             'default_sort' => [ 'orderby' => 'eval_date', 'order' => 'desc' ],
             'empty_state'  => __( 'No evaluations match your filters.', 'talenttrack' ),
+            // #1362 — guided fresh-install empty state (no active query only).
+            'empty_state_card' => [
+                'icon'      => 'evaluations',
+                'headline'  => __( 'No evaluations yet', 'talenttrack' ),
+                'explainer' => __( 'Evaluations capture how each player performed in a training or match. Record the first one after your next activity.', 'talenttrack' ),
+                'cta_label' => __( 'Record first evaluation', 'talenttrack' ),
+                'cta_url'   => \TT\Shared\Wizards\WizardEntryPoint::urlFor(
+                    'new-evaluation',
+                    add_query_arg( [ 'tt_view' => 'evaluations', 'action' => 'new' ], remove_query_arg( [ 'action', 'id' ] ) )
+                ),
+                'cta_cap'   => 'tt_edit_evaluations',
+            ],
             // v3.110.170 — row-link standard. EvaluationsRestController
             // emits `detail_url` (same URL the inline date/avg cells use)
             // so dead-space clicks on the row open the evaluation detail.

@@ -230,6 +230,20 @@ class FrontendPlayersManageView extends FrontendViewBase {
             'search'       => [ 'placeholder' => __( 'Search by name…', 'talenttrack' ) ],
             'default_sort' => [ 'orderby' => 'last_name', 'order' => 'asc' ],
             'empty_state'  => __( 'No players match your filters.', 'talenttrack' ),
+            // #1362 — guided fresh-install empty state. Rendered only
+            // when no search/filter is active; the wizard entry point
+            // decides flat form vs. wizard like the header action does.
+            'empty_state_card' => [
+                'icon'      => 'players',
+                'headline'  => __( 'No players yet', 'talenttrack' ),
+                'explainer' => __( 'Players are the heart of TalentTrack — every evaluation, goal, and activity hangs off a player record. Add your first player to get started.', 'talenttrack' ),
+                'cta_label' => __( 'Add your first player', 'talenttrack' ),
+                'cta_url'   => \TT\Shared\Wizards\WizardEntryPoint::urlFor(
+                    'new-player',
+                    add_query_arg( [ 'tt_view' => 'players', 'action' => 'new' ], remove_query_arg( [ 'action', 'id' ] ) )
+                ),
+                'cta_cap'   => 'tt_edit_players',
+            ],
             // v3.110.170 — row-link standard.
             'row_url_key'  => 'detail_url',
         ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — render() returns escaped HTML.

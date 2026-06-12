@@ -313,6 +313,18 @@ class FrontendGoalsManageView extends FrontendViewBase {
             'search'       => [ 'placeholder' => __( 'Search title, description, player…', 'talenttrack' ) ],
             'default_sort' => [ 'orderby' => 'due_date', 'order' => 'asc' ],
             'empty_state'  => __( 'No goals match your filters.', 'talenttrack' ),
+            // #1362 — guided fresh-install empty state (no active query only).
+            'empty_state_card' => [
+                'icon'      => 'goals',
+                'headline'  => __( 'No goals yet', 'talenttrack' ),
+                'explainer' => __( 'Goals capture what each player is working on this season. Set the first one to give training a direction.', 'talenttrack' ),
+                'cta_label' => __( 'Add first goal', 'talenttrack' ),
+                'cta_url'   => \TT\Shared\Wizards\WizardEntryPoint::urlFor(
+                    'new-goal',
+                    add_query_arg( [ 'tt_view' => 'goals', 'action' => 'new' ], remove_query_arg( [ 'action', 'id' ] ) )
+                ),
+                'cta_cap'   => 'tt_edit_goals',
+            ],
             // v3.110.170 — row-link standard.
             'row_url_key'  => 'detail_url',
         ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — render() returns escaped HTML.

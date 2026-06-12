@@ -72,6 +72,14 @@ class FrontendMyActivitiesView extends FrontendViewBase {
             'search'       => [ 'placeholder' => __( 'Search title, location, team…', 'talenttrack' ) ],
             'default_sort' => [ 'orderby' => 'session_date', 'order' => 'desc' ],
             'empty_state'  => __( 'No activities recorded for you yet.', 'talenttrack' ),
+            // #1362 — guided fresh empty state. Player-self surface:
+            // activities are planned at team level by the coach, so
+            // there's no CTA — the explainer sets the expectation.
+            'empty_state_card' => [
+                'icon'      => 'activities',
+                'headline'  => __( 'No activities recorded for you yet', 'talenttrack' ),
+                'explainer' => __( 'When your coach plans trainings or matches for your team, they show up here together with your attendance.', 'talenttrack' ),
+            ],
             // v3.110.170 — row-link standard. Same destination as the
             // title cell (`?tt_view=activities&id=N` — see the slug-
             // selection note in ActivitiesRestController::format_row).
