@@ -38078,3 +38078,56 @@ msgstr "Boven 30% — onbalans"
 #, php-format
 msgid "One or more ratings are at or below %s — please add a comment explaining the low score."
 msgstr "Een of meer beoordelingen zijn %s of lager — voeg een opmerking toe die de lage score toelicht."
+
+# #1367 - coach evaluation-quality report (v4.20.123). i18n-sync will
+# merge these into the proper position on next run; meanwhile they land
+# here verbatim so a Dutch install reads correctly today.
+msgid "Coach · Evaluation quality"
+msgstr "Coach · Evaluatiekwaliteit"
+
+msgid "Per-coach rating distribution and variance — spots the rate-everyone-the-same pattern."
+msgstr "Beoordelingsverdeling en variatie per coach — signaleert het patroon waarbij iedereen hetzelfde cijfer krijgt."
+
+msgid "This report is restricted to academy-wide roles."
+msgstr "Dit rapport is beperkt tot academiebrede rollen."
+
+msgid "Evaluation quality — per coach"
+msgstr "Evaluatiekwaliteit — per coach"
+
+msgid "Rating distribution and variance per coach. Low variance with a real sample size usually means everyone gets the same number."
+msgstr "Beoordelingsverdeling en variatie per coach. Lage variatie bij een echte steekproefomvang betekent meestal dat iedereen hetzelfde cijfer krijgt."
+
+msgid "Coaches in selection"
+msgstr "Coaches in selectie"
+
+msgid "Mean of coach means"
+msgstr "Gemiddelde van coachgemiddelden"
+
+msgid "Low-variance flags"
+msgstr "Lage-variatievlaggen"
+
+#, php-format
+msgid "σ below %s with 10+ ratings"
+msgstr "σ onder %s met 10+ beoordelingen"
+
+msgid "Per coach"
+msgstr "Per coach"
+
+msgid "Sorted by evaluation count. Flagged rows: standard deviation under the threshold with a meaningful sample."
+msgstr "Gesorteerd op aantal evaluaties. Gevlagde rijen: standaarddeviatie onder de drempel met een betekenisvolle steekproef."
+
+msgid "Mean"
+msgstr "Gemiddelde"
+
+msgid "Std dev"
+msgstr "Std.dev."
+
+msgid "Most-given rating"
+msgstr "Meest gegeven score"
+
+msgid "low variance"
+msgstr "lage variatie"
+
+#, php-format
+msgid "%1$s (%2$s%% of ratings)"
+msgstr "%1$s (%2$s%% van de beoordelingen)"

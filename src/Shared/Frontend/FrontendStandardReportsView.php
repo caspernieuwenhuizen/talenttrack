@@ -40,6 +40,8 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         'season-summary'               => 'Season · Summary',
         'season-trial-funnel'          => 'Season · Trial funnel',
         'scout-report-card'            => 'Scout · Report card',
+        // #1367 — HoD coach-quality lens (scope-admin only).
+        'coach-evaluation-quality'     => 'Coach · Evaluation quality',
     ];
 
     /**
@@ -90,6 +92,12 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         // to currentScope() see the right user / admin context.
         self::scope( $user_id, $is_admin );
         $slug = isset( $_GET['slug'] ) ? sanitize_key( (string) $_GET['slug'] ) : '';
+        // #1367 — CSV export streams + exits before any page chrome,
+        // same shape as FrontendExploreView's export_csv action.
+        $action = isset( $_GET['action'] ) ? sanitize_key( (string) $_GET['action'] ) : '';
+        if ( $slug === 'coach-evaluation-quality' && $action === 'export_csv' ) {
+            self::streamCoachEvalQualityCsv();
+        }
         if ( ! array_key_exists( $slug, self::REPORTS ) ) {
             FrontendBreadcrumbs::fromDashboard(
                 __( 'Standard report', 'talenttrack' ),
@@ -111,6 +119,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             case 'season-summary':               self::renderSeasonSummary(); break;
             case 'season-trial-funnel':          self::renderSeasonTrialFunnel(); break;
             case 'scout-report-card':            self::renderScoutReportCard(); break;
+            case 'coach-evaluation-quality':     self::renderCoachEvaluationQuality(); break;
         }
     }
 
@@ -701,6 +710,171 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             echo '</tr>';
         }
         echo '</tbody></table></section>';
+    }
+
+    // ── #1367 Coach · Evaluation quality ─────────────────────────────
+
+    /**
+     * @return array{team_id:int, date_from:string, date_to:string}
+     */
+    private static function coachEvalQualityFilters(): array {
+        return [
+            'team_id'   => isset( $_GET['team_id'] ) ? absint( $_GET['team_id'] ) : 0,
+            'date_from' => isset( $_GET['date_from'] ) ? sanitize_text_field( (string) wp_unslash( $_GET['date_from'] ) ) : '',
+            'date_to'   => isset( $_GET['date_to'] ) ? sanitize_text_field( (string) wp_unslash( $_GET['date_to'] ) ) : '',
+        ];
+    }
+
+    /**
+     * Per-coach rating distribution / variance — the HoD's
+     * rate-everyone-a-6 spot-check (head-of-development-actions.md #5)
+     * as a report. Scope-admin only: coaches must not read each
+     * other's stats.
+     */
+    private static function renderCoachEvaluationQuality(): void {
+        $scope = self::currentScope();
+        if ( ! $scope['is_scope_admin'] ) {
+            self::renderHeader( __( 'Coach · Evaluation quality', 'talenttrack' ) );
+            echo '<p class="tt-notice">' . esc_html__( 'This report is restricted to academy-wide roles.', 'talenttrack' ) . '</p>';
+            return;
+        }
+
+        $filters = self::coachEvalQualityFilters();
+        $rows    = ( new \TT\Modules\Analytics\Reports\CoachEvalQualityQuery() )->rows( $filters );
+
+        $explore_url = ExplorerUrl::build(
+            'evaluations_received',
+            [ 'date_after' => '-12 months' ],
+            'evaluator_id'
+        );
+        $export_url = add_query_arg( array_merge(
+            [ 'tt_view' => 'standard-report', 'slug' => 'coach-evaluation-quality', 'action' => 'export_csv' ],
+            array_filter( $filters )
+        ), RecordLink::dashboardUrl() );
+
+        self::renderPageHead(
+            __( 'Evaluation quality — per coach', 'talenttrack' ),
+            __( 'Rating distribution and variance per coach. Low variance with a real sample size usually means everyone gets the same number.', 'talenttrack' ),
+            $explore_url,
+            $export_url
+        );
+
+        // Filter bar: team + date range, plain GET round-trip.
+        $teams = QueryHelpers::get_teams();
+        echo '<form method="get" class="tt-rep-section" style="display:flex; gap:12px; align-items:end; flex-wrap:wrap; padding:12px 16px;">';
+        echo '<input type="hidden" name="tt_view" value="standard-report" />';
+        echo '<input type="hidden" name="slug" value="coach-evaluation-quality" />';
+        echo '<label style="display:flex; flex-direction:column; gap:2px; font-size:13px;"><span>' . esc_html__( 'Team', 'talenttrack' ) . '</span>';
+        echo '<select name="team_id"><option value="0">' . esc_html__( 'All teams', 'talenttrack' ) . '</option>';
+        foreach ( (array) $teams as $t ) {
+            echo '<option value="' . (int) $t->id . '"' . selected( $filters['team_id'], (int) $t->id, false ) . '>' . esc_html( (string) $t->name ) . '</option>';
+        }
+        echo '</select></label>';
+        echo '<label style="display:flex; flex-direction:column; gap:2px; font-size:13px;"><span>' . esc_html__( 'From', 'talenttrack' ) . '</span>';
+        echo '<input type="date" name="date_from" value="' . esc_attr( $filters['date_from'] ) . '" /></label>';
+        echo '<label style="display:flex; flex-direction:column; gap:2px; font-size:13px;"><span>' . esc_html__( 'To', 'talenttrack' ) . '</span>';
+        echo '<input type="date" name="date_to" value="' . esc_attr( $filters['date_to'] ) . '" /></label>';
+        echo '<button type="submit" class="tt-rep-btn">' . esc_html__( 'Apply', 'talenttrack' ) . '</button>';
+        echo '</form>';
+
+        $total_evals  = array_sum( array_column( $rows, 'eval_count' ) );
+        $flagged      = count( array_filter( $rows, static fn( array $r ): bool => $r['low_variance'] ) );
+        $means        = array_filter( array_column( $rows, 'mean_rating' ), static fn( $v ) => $v !== null );
+        $academy_mean = $means ? round( array_sum( $means ) / count( $means ), 2 ) : null;
+
+        self::renderKpiStrip( [
+            [ 'num' => (string) count( $rows ), 'label' => __( 'Coaches in selection', 'talenttrack' ) ],
+            [ 'num' => (string) $total_evals,   'label' => __( 'Evaluations', 'talenttrack' ) ],
+            [ 'num' => $academy_mean !== null ? number_format_i18n( $academy_mean, 2 ) : '—', 'label' => __( 'Mean of coach means', 'talenttrack' ) ],
+            [
+                'num'   => (string) $flagged,
+                'label' => __( 'Low-variance flags', 'talenttrack' ),
+                'sub'   => $flagged > 0
+                    /* translators: %s: standard-deviation threshold */
+                    ? sprintf( __( 'σ below %s with 10+ ratings', 'talenttrack' ), number_format_i18n( \TT\Modules\Analytics\Reports\CoachEvalQualityQuery::LOW_VARIANCE_THRESHOLD, 1 ) )
+                    : '',
+                'warn'  => $flagged > 0,
+            ],
+        ] );
+        if ( ! $rows ) { self::renderEmpty(); return; }
+
+        echo '<section class="tt-rep-section">';
+        echo '<div class="tt-rep-section__head"><h2 class="tt-rep-section__title">' . esc_html__( 'Per coach', 'talenttrack' ) . '</h2><span class="tt-rep-section__hint">' . esc_html__( 'Sorted by evaluation count. Flagged rows: standard deviation under the threshold with a meaningful sample.', 'talenttrack' ) . '</span></div>';
+        echo '<table class="tt-rep-table"><thead><tr>'
+            . '<th>' . esc_html__( 'Coach', 'talenttrack' ) . '</th>'
+            . '<th class="num">' . esc_html__( 'Evaluations', 'talenttrack' ) . '</th>'
+            . '<th class="num">' . esc_html__( 'Ratings', 'talenttrack' ) . '</th>'
+            . '<th class="num">' . esc_html__( 'Mean', 'talenttrack' ) . '</th>'
+            . '<th class="num">' . esc_html__( 'Std dev', 'talenttrack' ) . '</th>'
+            . '<th>' . esc_html__( 'Most-given rating', 'talenttrack' ) . '</th>'
+            . '<th>' . esc_html__( 'Last evaluation', 'talenttrack' ) . '</th>'
+            . '</tr></thead><tbody>';
+        foreach ( $rows as $r ) {
+            $style = $r['low_variance'] ? ' style="background:#fcf9e8;"' : '';
+            echo '<tr' . $style . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — static attribute.
+            echo '<td>' . esc_html( $r['coach_name'] );
+            if ( $r['low_variance'] ) {
+                echo ' <span style="color:#7c5a00; font-size:11px; font-weight:600;">' . esc_html__( 'low variance', 'talenttrack' ) . '</span>';
+            }
+            echo '</td>';
+            echo '<td class="num">' . (int) $r['eval_count'] . '</td>';
+            echo '<td class="num">' . (int) $r['rating_count'] . '</td>';
+            echo '<td class="num">' . ( $r['mean_rating'] !== null ? esc_html( number_format_i18n( $r['mean_rating'], 2 ) ) : '—' ) . '</td>';
+            echo '<td class="num">' . ( $r['stddev'] !== null ? esc_html( number_format_i18n( $r['stddev'], 2 ) ) : '—' ) . '</td>';
+            if ( $r['modal_value'] !== null && $r['modal_pct'] !== null ) {
+                echo '<td>' . esc_html( sprintf(
+                    /* translators: 1: rating value, 2: percentage of all ratings at that value */
+                    __( '%1$s (%2$s%% of ratings)', 'talenttrack' ),
+                    number_format_i18n( $r['modal_value'], 1 ),
+                    number_format_i18n( $r['modal_pct'], 1 )
+                ) ) . '</td>';
+            } else {
+                echo '<td>—</td>';
+            }
+            echo '<td>' . esc_html( $r['last_eval_date'] ?? '—' ) . '</td>';
+            echo '</tr>';
+        }
+        echo '</tbody></table></section>';
+    }
+
+    /**
+     * Stream the coach-evaluation-quality rows as a CSV download and
+     * exit. Same scope gate as the renderer; non-scope-admins fall
+     * through to the normal page render (which shows the restriction
+     * notice).
+     */
+    private static function streamCoachEvalQualityCsv(): void {
+        $scope = self::currentScope();
+        if ( ! $scope['is_scope_admin'] ) return;
+
+        $rows = ( new \TT\Modules\Analytics\Reports\CoachEvalQualityQuery() )->rows( self::coachEvalQualityFilters() );
+
+        $out = fopen( 'php://temp', 'r+' );
+        fputcsv( $out, [ 'coach', 'evaluations', 'ratings', 'mean_rating', 'stddev', 'modal_value', 'modal_pct', 'last_evaluation', 'low_variance' ] );
+        foreach ( $rows as $r ) {
+            fputcsv( $out, [
+                $r['coach_name'],
+                $r['eval_count'],
+                $r['rating_count'],
+                $r['mean_rating'] ?? '',
+                $r['stddev'] ?? '',
+                $r['modal_value'] ?? '',
+                $r['modal_pct'] ?? '',
+                $r['last_eval_date'] ?? '',
+                $r['low_variance'] ? '1' : '0',
+            ] );
+        }
+        rewind( $out );
+        $csv = (string) stream_get_contents( $out );
+        fclose( $out );
+
+        $filename = sanitize_file_name( 'coach-evaluation-quality-' . gmdate( 'Y-m-d' ) . '.csv' );
+        nocache_headers();
+        header( 'Content-Type: text/csv; charset=UTF-8' );
+        header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
+        header( 'Content-Length: ' . strlen( $csv ) );
+        echo $csv; // phpcs:ignore WordPress.Security.EscapeOutput
+        exit;
     }
 
     /**
