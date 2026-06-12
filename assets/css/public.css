@@ -918,3 +918,18 @@ input[type="checkbox"], input[type="radio"] {
     .tt-record-link { transition: none; }
     .tt-record-link:hover, .tt-record-link:focus-visible { transform: none; }
 }
+
+/* #1364 — reduced-motion floor for every TalentTrack frontend surface.
+   One shared rule instead of per-sheet guards: decorative animation and
+   transitions collapse to imperceptible durations when the OS asks for
+   reduced motion. Spinners freeze to a static glyph — still perceivable
+   state, no pulse. Scoped so the active theme keeps its own choices. */
+@media (prefers-reduced-motion: reduce) {
+    .tt-root *, .tt-root *::before, .tt-root *::after,
+    .tt-dashboard *, .tt-dashboard *::before, .tt-dashboard *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
