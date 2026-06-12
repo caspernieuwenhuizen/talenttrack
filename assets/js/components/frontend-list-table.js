@@ -212,7 +212,15 @@
         if (!tbody) return;
         var rows = (payload && payload.rows) || [];
         if (!rows.length) {
-            tbody.innerHTML = '<tr class="tt-list-table-empty"><td colspan="' + (Object.keys(config.columns).length + (Object.keys(config.row_actions).length ? 1 : 0)) + '">' + escapeHtml(config.i18n.empty) + '</td></tr>';
+            // #1362 — guided EmptyStateCard (server-rendered, cap-aware
+            // HTML in config.empty_html) for the fresh "you have
+            // nothing yet" case; plain "nothing matches your filters"
+            // text whenever a search or filter is active.
+            var hasQuery = !!state.search || Object.keys(state.filter || {}).length > 0;
+            var emptyContent = (!hasQuery && config.empty_html)
+                ? config.empty_html
+                : escapeHtml(config.i18n.empty);
+            tbody.innerHTML = '<tr class="tt-list-table-empty"><td colspan="' + (Object.keys(config.columns).length + (Object.keys(config.row_actions).length ? 1 : 0)) + '">' + emptyContent + '</td></tr>';
             return;
         }
         tbody.innerHTML = rows.map(function(r) { return renderRow(config, r); }).join('');

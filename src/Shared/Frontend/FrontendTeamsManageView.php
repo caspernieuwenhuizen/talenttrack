@@ -159,6 +159,23 @@ class FrontendTeamsManageView extends FrontendViewBase {
             'search'       => [ 'placeholder' => __( 'Search team name or age group…', 'talenttrack' ) ],
             'default_sort' => [ 'orderby' => 'name', 'order' => 'asc' ],
             'empty_state'  => __( 'No teams match your filters.', 'talenttrack' ),
+            // #1362 — guided fresh-install empty state. CTA suppressed
+            // at the free-tier team cap (same check as the header action).
+            'empty_state_card' => array_merge(
+                [
+                    'icon'      => 'teams',
+                    'headline'  => __( 'No teams yet', 'talenttrack' ),
+                    'explainer' => __( 'Teams group players by age group and connect them to coaches and activities. Create your first team to build the academy structure.', 'talenttrack' ),
+                ],
+                $at_team_cap ? [] : [
+                    'cta_label' => __( 'Create your first team', 'talenttrack' ),
+                    'cta_url'   => \TT\Shared\Wizards\WizardEntryPoint::urlFor(
+                        'new-team',
+                        add_query_arg( [ 'tt_view' => 'teams', 'action' => 'new' ], $base_url )
+                    ),
+                    'cta_cap'   => 'tt_edit_teams',
+                ]
+            ),
             // v3.110.170 — row-link standard.
             'row_url_key'  => 'detail_url',
         ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — render() returns escaped HTML.

@@ -1449,3 +1449,39 @@ body:not(.tt-theme-inherit) .tt-dashboard .tt-field {
     .tt-dashboard .tt-list-table-status.is-loading::before { animation: none; }
     .tt-skeleton { animation: none; background: var(--tt-bg-soft, #f2f4f5); }
 }
+
+/*  EmptyStateCard (#1362)
+   Shared styles for the .tt-empty-state component (icon + headline +
+   explainer + cap-gated CTA). Previously the component shipped without
+   any stylesheet rules — consumers inherited typography only. Unscoped
+   but tt- prefixed, same reasoning as the loading primitives above:
+   the component renders inside list-table cells, player-profile tabs,
+   and the activities surface alike. Mobile-first; the CTA meets the
+   48px touch target via .tt-btn plus the min-height here.
+    */
+.tt-empty-state {
+    text-align: center;
+    padding: 32px 16px;
+    color: var(--tt-muted, #5b6e75);
+}
+.tt-empty-state__icon {
+    color: var(--tt-muted, #5b6e75);
+    opacity: 0.45;
+    margin-bottom: 8px;
+}
+.tt-empty-state__headline {
+    margin: 0 0 6px;
+    font-size: 1rem;
+    color: inherit;
+}
+.tt-empty-state__explainer {
+    margin: 0 auto 16px;
+    max-width: 46ch;
+    font-size: 0.85rem;
+}
+.tt-empty-state__action { margin: 0; }
+.tt-empty-state__cta {
+    display: inline-block;
+    min-height: 48px;
+    line-height: 1.4;
+}

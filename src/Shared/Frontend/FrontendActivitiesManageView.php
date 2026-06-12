@@ -710,9 +710,20 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             + count( $buckets['later'] );
 
         if ( $forward_total === 0 && $past_total === 0 ) {
+            // #1362 — guided empty state with a cap-gated create CTA
+            // (same wizard entry point as the header's "New activity").
             echo '<div class="tt-act-empty">';
-            echo '<h3>' . esc_html__( 'No activities to show', 'talenttrack' ) . '</h3>';
-            echo '<p>' . esc_html__( 'Try changing the team or type filter, or create a new activity to get started.', 'talenttrack' ) . '</p>';
+            \TT\Shared\Frontend\Components\EmptyStateCard::render( [
+                'icon'      => 'activities',
+                'headline'  => __( 'No activities to show', 'talenttrack' ),
+                'explainer' => __( 'Try changing the team or type filter, or create a new activity to get started.', 'talenttrack' ),
+                'cta_label' => __( 'Plan your first activity', 'talenttrack' ),
+                'cta_url'   => \TT\Shared\Wizards\WizardEntryPoint::urlFor(
+                    'new-activity',
+                    add_query_arg( [ 'tt_view' => 'activities', 'action' => 'new' ], remove_query_arg( [ 'action', 'id' ] ) )
+                ),
+                'cta_cap'   => 'tt_edit_activities',
+            ] );
             echo '</div>';
             echo '</div>'; // .tt-act-surface
             return;

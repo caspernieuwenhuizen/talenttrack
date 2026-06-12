@@ -38023,3 +38023,45 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Annuleren"
 #~ msgstr "Annuleren"
+
+# #1362 - empty-state sweep (v4.20.121). i18n-sync will merge these
+# into the proper position on next run; meanwhile they land here
+# verbatim so a Dutch install reads correctly today.
+msgid "No players yet"
+msgstr "Nog geen spelers"
+
+msgid "Players are the heart of TalentTrack — every evaluation, goal, and session hangs off a player record. Add your first player to get started."
+msgstr "Spelers zijn het hart van TalentTrack — elke evaluatie, elk doel en elke sessie hangt aan een spelersrecord. Voeg je eerste speler toe om te beginnen."
+
+msgid "Add your first player"
+msgstr "Voeg je eerste speler toe"
+
+msgid "No evaluations yet"
+msgstr "Nog geen evaluaties"
+
+msgid "Evaluations capture how each player performed in a training or match. Record the first one after your next session."
+msgstr "Evaluaties leggen vast hoe elke speler presteerde in een training of wedstrijd. Leg de eerste vast na je volgende sessie."
+
+msgid "No activities recorded for you yet"
+msgstr "Nog geen activiteiten voor jou vastgelegd"
+
+msgid "When your coach plans trainings or matches for your team, they show up here together with your attendance."
+msgstr "Als je coach trainingen of wedstrijden voor je team plant, verschijnen ze hier samen met je aanwezigheid."
+
+msgid "No teams yet"
+msgstr "Nog geen teams"
+
+msgid "Teams group players by age group and connect them to coaches and activities. Create your first team to build the academy structure."
+msgstr "Teams groeperen spelers per leeftijdsgroep en verbinden ze met coaches en activiteiten. Maak je eerste team aan om de academiestructuur op te bouwen."
+
+msgid "Create your first team"
+msgstr "Maak je eerste team aan"
+
+msgid "No goals yet"
+msgstr "Nog geen doelen"
+
+msgid "Goals capture what each player is working on this season. Set the first one to give training a direction."
+msgstr "Doelen leggen vast waar elke speler dit seizoen aan werkt. Stel het eerste in om de training richting te geven."
+
+msgid "Plan your first activity"
+msgstr "Plan je eerste activiteit"

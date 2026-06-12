@@ -72,6 +72,20 @@ class FrontendListTable {
         $filters       = is_array( $config['filters']     ?? null ) ? $config['filters']     : [];
         $row_actions   = is_array( $config['row_actions'] ?? null ) ? $config['row_actions'] : [];
         $empty_state   = (string) ( $config['empty_state'] ?? __( 'No results.', 'talenttrack' ) );
+        // #1362 — optional EmptyStateCard config (icon / headline /
+        // explainer / cta_label / cta_url / cta_cap). Pre-rendered
+        // server-side so the capability check on the CTA happens in
+        // PHP; the JS hydrator swaps it in for the bare `empty_state`
+        // string — but ONLY when no search/filter is active. "Nothing
+        // matches your filters" keeps the plain text; "you have
+        // nothing yet" (the fresh-install case) gets the guided card.
+        $empty_card      = is_array( $config['empty_state_card'] ?? null ) ? $config['empty_state_card'] : [];
+        $empty_card_html = '';
+        if ( $empty_card ) {
+            ob_start();
+            EmptyStateCard::render( $empty_card );
+            $empty_card_html = trim( (string) ob_get_clean() );
+        }
         $search_cfg    = is_array( $config['search']      ?? null ) ? $config['search']      : [];
         $default_sort  = is_array( $config['default_sort']?? null ) ? $config['default_sort']: [];
         $per_page_opts = is_array( $config['per_page_options'] ?? null ) ? $config['per_page_options'] : [ 10, 25, 50, 100 ];
@@ -104,6 +118,7 @@ class FrontendListTable {
             'static_filters'   => self::sanitizeStaticFilters( $static_filters ),
             'row_actions'      => self::rowActionsForJs( $row_actions ),
             'row_url_key'      => $row_url_key,
+            'empty_html'       => $empty_card_html,
             'per_page_options' => array_values( $per_page_opts ),
             'default_sort'     => [
                 'orderby' => (string) ( $default_sort['orderby'] ?? '' ),
@@ -153,7 +168,16 @@ class FrontendListTable {
                         <?php if ( $row_actions ) : ?><th class="tt-list-table-actions-col"><span class="screen-reader-text"><?php esc_html_e( 'Actions', 'talenttrack' ); ?></span></th><?php endif; ?>
                     </tr></thead>
                     <tbody data-tt-list-body="1">
-                        <tr class="tt-list-table-empty" data-tt-list-empty="1"><td colspan="<?php echo (int) ( count( $columns ) + ( $row_actions ? 1 : 0 ) ); ?>"><?php echo esc_html( $empty_state ); ?></td></tr>
+                        <tr class="tt-list-table-empty" data-tt-list-empty="1"><td colspan="<?php echo (int) ( count( $columns ) + ( $row_actions ? 1 : 0 ) ); ?>"><?php
+                            // #1362 — no-JS shell mirrors the hydrator's choice:
+                            // guided card only when no query is active.
+                            $no_query = $state['search'] === '' && empty( $state['filter'] );
+                            if ( $empty_card_html !== '' && $no_query ) {
+                                echo $empty_card_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — EmptyStateCard escapes internally.
+                            } else {
+                                echo esc_html( $empty_state );
+                            }
+                        ?></td></tr>
                     </tbody>
                 </table>
             </div>
