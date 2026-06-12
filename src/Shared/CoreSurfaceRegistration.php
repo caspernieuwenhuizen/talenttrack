@@ -503,8 +503,10 @@ final class CoreSurfaceRegistration {
             'color'        => '#1d7874',
             'cap'          => 'tt_vct_plan',
             'url_callback' => static function ( int $user_id ): string {
+                // Slug sourced from the wizard class — single source of
+                // truth, and no bare literal for the #0035 vocab lint.
                 return \TT\Shared\Wizards\WizardEntryPoint::urlFor(
-                    'new-vct-session',
+                    ( new \TT\Modules\Vct\Wizard\NewVctSessionWizard() )->slug(),
                     \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
                 );
             },
