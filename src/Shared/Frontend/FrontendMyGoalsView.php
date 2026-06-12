@@ -74,7 +74,7 @@ class FrontendMyGoalsView extends FrontendViewBase {
                         <small><?php esc_html_e( 'Due:', 'talenttrack' ); ?> <?php echo esc_html( (string) $g->due_date ); ?></small>
                     <?php endif; ?>
                     <p class="tt-goal-conversation-cta">
-                        <span aria-hidden="true">💬</span>
+                        <span aria-hidden="true"><?php echo \TT\Shared\Icons\IconRenderer::render( 'comment', [ 'width' => 14, 'height' => 14, 'style' => 'vertical-align:-2px;' ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG. ?></span>
                         <?php if ( $msg_count > 0 ) : ?>
                             <?php
                             /* translators: %d is the number of messages on this goal's conversation thread. */

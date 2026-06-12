@@ -156,7 +156,7 @@ class FrontendMyProfileView extends FrontendViewBase {
                 <div class="tt-profile-perf-headline">
                     <span class="tt-profile-perf-rating"><?php echo esc_html( number_format_i18n( $rolling, 1 ) ); ?></span>
                     <span class="tt-profile-perf-trend tt-profile-perf-trend--<?php echo esc_attr( $trend ); ?>" aria-hidden="true">
-                        <?php echo esc_html( self::trendArrow( $trend ) ); ?>
+                        <?php echo self::trendArrow( $trend ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG / middot. ?>
                     </span>
                 </div>
                 <p class="tt-profile-perf-meta">
@@ -388,11 +388,17 @@ class FrontendMyProfileView extends FrontendViewBase {
             . '</svg>';
     }
 
+    /**
+     * #1365 — inline-SVG trend arrows (were text glyphs that
+     * rendered OS-dependently). Returns trusted SVG markup, or a
+     * neutral middot for the no-trend case.
+     */
     private static function trendArrow( string $trend ): string {
+        $attrs = [ 'width' => 14, 'height' => 14, 'style' => 'vertical-align:-2px;' ];
         switch ( $trend ) {
-            case 'up':   return '↗';
-            case 'down': return '↘';
-            case 'flat': return '→';
+            case 'up':   return \TT\Shared\Icons\IconRenderer::render( 'trend-up', $attrs );
+            case 'down': return \TT\Shared\Icons\IconRenderer::render( 'trend-down', $attrs );
+            case 'flat': return \TT\Shared\Icons\IconRenderer::render( 'trend-flat', $attrs );
             default:     return '·';
         }
     }

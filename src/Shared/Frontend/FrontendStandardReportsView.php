@@ -356,7 +356,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             [
                 'num'   => $spread_pct . '%',
                 'label' => __( 'Spread (top vs bottom)', 'talenttrack' ),
-                'sub'   => $spread_pct > 30 ? __( '⚠ Above 30% — imbalance', 'talenttrack' ) : __( 'Balanced selection', 'talenttrack' ),
+                'sub'   => $spread_pct > 30 ? __( 'Above 30% — imbalance', 'talenttrack' ) : __( 'Balanced selection', 'talenttrack' ),
                 'warn'  => $spread_pct > 30,
             ],
         ] );

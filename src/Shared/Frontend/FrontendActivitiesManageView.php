@@ -143,7 +143,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                     'label'   => __( 'Edit', 'talenttrack' ),
                     'href'    => $edit_url,
                     'primary' => true,
-                    'icon'    => '✎',
+                    'icon'    => \TT\Shared\Icons\IconRenderer::render( 'edit', [ 'width' => 16, 'height' => 16 ] ), // #1365 — inline SVG edit icon.
                 ];
                 // v3.110.214 (#838) — match preparation surface.
                 // Only on match-type activities; jumps to the wizard if
@@ -755,7 +755,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         if ( $buckets['attention_count'] > 0 ) {
             self::renderBucket(
                 'attention',
-                __( '⚠ Needs attention', 'talenttrack' ),
+                __( 'Needs attention', 'talenttrack' ),
                 $buckets['attention'],
                 sprintf(
                     /* translators: %d: count of past planned activities */
@@ -850,7 +850,12 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         if ( $attention ) $cls .= ' tt-act-bucket-head--attention';
 
         echo '<li><div class="' . esc_attr( $cls ) . '" data-bucket="' . esc_attr( $bucket_key ) . '">';
-        echo '<span>' . esc_html( $title ) . '</span>';
+        // #1365 — attention bucket carries an inline-SVG warning icon
+        // (was a glyph baked into the translated title).
+        $title_icon = $attention
+            ? \TT\Shared\Icons\IconRenderer::render( 'warning', [ 'width' => 13, 'height' => 13, 'style' => 'vertical-align:-2px;margin-right:4px;' ] )
+            : '';
+        echo '<span>' . $title_icon . esc_html( $title ) . '</span>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — icon is trusted SVG.
         echo '<span class="tt-act-bucket-head__count">' . esc_html( $count_label ) . '</span>';
         echo '</div></li>';
 

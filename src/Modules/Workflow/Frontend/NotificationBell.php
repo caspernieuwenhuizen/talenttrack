@@ -45,10 +45,12 @@ class NotificationBell {
 
         // v3.110.124 — pilot: "text for open tasks is too big, should
         // probably be an Icon with number in brackets behind it (3)".
-        // Visible chrome is now `🔔 (3)` instead of `🔔 3 open tasks`;
-        // full label moves to `aria-label` so screen readers still
-        // announce "3 open tasks, link". On the inbox itself with zero
-        // tasks, the visible chrome is just `🔔` (no parenthesised 0).
+        // Visible chrome is now a bell icon + `(3)` instead of the
+        // full `3 open tasks` text; the full label moves to
+        // `aria-label` so screen readers still announce "3 open
+        // tasks, link". On the inbox itself with zero tasks, the
+        // visible chrome is just the bell (no parenthesised 0).
+        // #1365 — the bell is an inline SVG (was a bell emoji).
         $count_visual = $count > 0 ? '(' . (int) $count . ')' : '';
         $aria_label   = $count > 0
             ? sprintf(
@@ -64,7 +66,7 @@ class NotificationBell {
 
         $bell = sprintf(
             '<a href="%1$s" class="tt-dash-bell-pill" aria-label="%2$s" title="%2$s" style="display:inline-flex; align-items:center; gap:4px; padding:4px 10px; background:%3$s; color:#fff; border-radius:999px; text-decoration:none; font-size:12px; font-weight:600; line-height:1.6;">'
-                . '<span aria-hidden="true">🔔</span>'
+                . '<span aria-hidden="true">' . \TT\Shared\Icons\IconRenderer::render( 'bell', [ 'width' => 13, 'height' => 13, 'style' => 'vertical-align:-2px;' ] ) . '</span>'
                 . '%4$s'
             . '</a>',
             esc_url( $url ),
@@ -97,10 +99,11 @@ class NotificationBell {
             $count
         );
 
-        // The bell glyph + count, wrapped in spans so we can style
+        // The bell icon + count, wrapped in spans so we can style
         // the count badge red. The title string contains HTML —
         // WP admin bar honours it as-is when `meta.html` is true.
-        $title  = '<span class="ab-icon" style="margin-right:4px;" aria-hidden="true">🔔</span>';
+        // #1365 — inline SVG (was a bell emoji).
+        $title  = '<span class="ab-icon" style="margin-right:4px;" aria-hidden="true">' . \TT\Shared\Icons\IconRenderer::render( 'bell', [ 'width' => 15, 'height' => 15, 'style' => 'vertical-align:-3px;' ] ) . '</span>';
         $title .= '<span class="ab-label" style="background:#b32d2e;color:#fff;border-radius:999px;padding:1px 8px;font-weight:600;">(' . (int) $count . ')</span>';
 
         $wp_admin_bar->add_node( [

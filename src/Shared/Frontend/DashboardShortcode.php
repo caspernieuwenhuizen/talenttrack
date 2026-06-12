@@ -1198,8 +1198,13 @@ class DashboardShortcode {
         echo '<div class="tt-docs-drawer__panel" role="dialog">';
         echo '<header class="tt-docs-drawer__head">';
         echo '<h3 id="tt-docs-drawer-title" data-tt-docs-drawer-title>' . esc_html__( 'Help', 'talenttrack' ) . '</h3>';
-        echo '<a href="' . esc_url( $help_url ) . '" class="tt-docs-drawer__expand" data-tt-docs-drawer-expand title="' . esc_attr__( 'Open full Help & Docs', 'talenttrack' ) . '" aria-label="' . esc_attr__( 'Open full Help & Docs', 'talenttrack' ) . '">↗</a>';
-        echo '<button type="button" class="tt-docs-drawer__close" data-tt-docs-drawer-close aria-label="' . esc_attr__( 'Close', 'talenttrack' ) . '">×</button>';
+        // #1365 — inline-SVG expand + close icons (were arrow / times glyphs).
+        echo '<a href="' . esc_url( $help_url ) . '" class="tt-docs-drawer__expand" data-tt-docs-drawer-expand title="' . esc_attr__( 'Open full Help & Docs', 'talenttrack' ) . '" aria-label="' . esc_attr__( 'Open full Help & Docs', 'talenttrack' ) . '">'
+            . \TT\Shared\Icons\IconRenderer::render( 'external-link', [ 'width' => 14, 'height' => 14 ] ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG.
+            . '</a>';
+        echo '<button type="button" class="tt-docs-drawer__close" data-tt-docs-drawer-close aria-label="' . esc_attr__( 'Close', 'talenttrack' ) . '">'
+            . \TT\Shared\Icons\IconRenderer::render( 'x', [ 'width' => 14, 'height' => 14 ] ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG.
+            . '</button>';
         echo '</header>';
         echo '<div class="tt-docs-drawer__body" data-tt-docs-drawer-body>';
         echo '<p class="tt-docs-drawer__loading">' . esc_html__( 'Loading…', 'talenttrack' ) . '</p>';

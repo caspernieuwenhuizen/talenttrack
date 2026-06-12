@@ -645,7 +645,7 @@ class FrontendConfigurationView extends FrontendViewBase {
             </button>
 
             <div class="tt-lkp-panel-empty">
-                <div class="tt-lkp-panel-empty-icon" aria-hidden="true">✎</div>
+                <div class="tt-lkp-panel-empty-icon" aria-hidden="true"><?php echo \TT\Shared\Icons\IconRenderer::render( 'edit', [ 'width' => 28, 'height' => 28 ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG. ?></div>
                 <p>
                     <strong><?php esc_html_e( 'Tap a row to edit', 'talenttrack' ); ?></strong>
                     <br>
@@ -1510,7 +1510,10 @@ class FrontendConfigurationView extends FrontendViewBase {
             if ( $icon !== '' ) {
                 echo '<div class="tt-cfg-tile-icon">' . \TT\Shared\Icons\IconRenderer::render( $icon ) . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
             }
-            echo '<div class="tt-cfg-tile-title">' . esc_html( $title ) . ' ↗</div>';
+            // #1365 — inline-SVG external-link marker (was an arrow glyph).
+            echo '<div class="tt-cfg-tile-title">' . esc_html( $title ) . ' '
+                . \TT\Shared\Icons\IconRenderer::render( 'external-link', [ 'width' => 12, 'height' => 12, 'style' => 'vertical-align:-1px;' ] ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG.
+                . '</div>';
             echo '<div class="tt-cfg-tile-desc">' . esc_html( $desc ) . '</div>';
             echo '</a>';
         }

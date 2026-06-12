@@ -72,7 +72,9 @@ class PlayerDashboardView {
         $_print_url_self = esc_url( add_query_arg( [ 'tt_print' => (int) $player->id ], remove_query_arg( [ 'tt_view' ] ) ) );
         echo '<div class="tt-overview-print-row">';
         echo '<a href="' . $_print_url_self . '" target="_blank" rel="noopener" class="tt-overview-print-link">';
-        echo esc_html__( '🖨 Print report', 'talenttrack' );
+        // #1365 — inline SVG instead of the OS-dependent printer emoji.
+        echo \TT\Shared\Icons\IconRenderer::render( 'print', [ 'width' => 14, 'height' => 14, 'style' => 'vertical-align:-2px;margin-right:4px;' ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG.
+        echo esc_html__( 'Print report', 'talenttrack' );
         echo '</a>';
         echo '</div>';
         \TT\Modules\Stats\Admin\PlayerCardView::renderCard( (int) $player->id, 'md', true );
