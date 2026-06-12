@@ -237,3 +237,14 @@
 @keyframes tt-bk-spin {
     to { transform: rotate(360deg); }
 }
+
+/* #1364 — reduced-motion floor for TalentTrack wp-admin surfaces.
+   Scoped to tt- prefixed containers so core wp-admin keeps its own
+   motion choices. */
+@media (prefers-reduced-motion: reduce) {
+    [class*="tt-"] *, [class*="tt-"]::before, [class*="tt-"]::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

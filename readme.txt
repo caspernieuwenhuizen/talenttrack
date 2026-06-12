@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.110
+Stable tag: 4.20.111
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.111 — prefers-reduced-motion floor across every surface (closes #1364). Audit a11y finding: reduced-motion was honoured in only 12 of 31 stylesheets — 11 sheets carried animation/transition with no guard (tournament planner alone has 10). Instead of 11 per-sheet patches, ONE shared rule in [public.css](assets/css/public.css) collapses animation/transition durations to 0.01ms under the media query for everything inside the `.tt-root` / `.tt-dashboard` wrappers (theme untouched), plus a tt--scoped twin in [admin.css](assets/css/admin.css) for wp-admin surfaces. Spinners freeze to a static glyph — state stays perceivable without the pulse, per the issue AC. Future sheets are covered automatically. CSS-only. Patch bump. (closes #1364) =
 
 = 4.20.110 — Report-detail N+1 collapsed to two grouped queries (closes #1359). Audit perf finding: the Team-ratings report fired one COUNT per team plus one AVG per team×category cell — 10 teams × 6 categories = 70 queries per render. [`FrontendReportDetailView`](src/Shared/Frontend/FrontendReportDetailView.php) now runs ONE grouped eval-count query + ONE grouped per-category average query and renders cells from the maps; identical WHERE semantics, identical output. The second audit site — [`PlayersRestController`](src/Infrastructure/REST/PlayersRestController.php)'s per-id canViewPlayer total loop — was reviewed and deliberately kept: AuthorizationService resolves from per-request caches after the first call, so the loop is array work, not N+1 queries, and replicating the matrix/parent-link/team-scope rules in SQL would fork the authorization logic into a second implementation; the decision is now documented at the call site. No strings, no schema. Patch bump. (closes #1359) =
 
