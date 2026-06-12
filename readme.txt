@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.20.112
+Stable tag: 4.20.113
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.20.113 — HoD dashboard stops being five screens long on a phone (closes #1375). Audit UX finding: the HoD template stacks a KPI strip + 7 XL/L widgets + 19 tiles; on mobile the trials/behaviour tables landed several screens deep. **Fold.** [`GridRenderer`](src/Modules/PersonaDashboard/Frontend/GridRenderer.php) wraps grid cells with `mobile_priority >= 12` in a `<details class="tt-pd-fold" open>` disclosure titled with the widget label. Markup ships OPEN: desktop/tablet hide the summary entirely (zero chrome change), non-JS phones degrade to today's expanded stack, and a one-shot JS pass closes the folds on phone viewports at load (no resize listener — rotation keeps the user's choices). 48px summaries, native disclosure semantics, keyboard operable. **Tile wall.** Navigation tiles are exempt from folding (19 individual disclosures would be worse) and instead compact to 2-up on phones via CSS — half the scroll. Existing `defaultMobilePriority` values drive what folds; no template changes. No strings (widget labels already translated). Patch bump. (closes #1375) =
 
 = 4.20.112 — BehaviourStep explains the second rating pass + remembers whether you use it (closes #1387). Audit UX finding: the optional behaviour pass in the eval wizard read as "why am I rating everyone twice?" for cap-holding coaches. Per the locked decision (copy-polish, step stays in the wizard): [`BehaviourStep`](src/Modules/Wizards/Evaluation/BehaviourStep.php) now opens with an explainer — behaviour records conduct, not football; leave blank and tap Next for performance-only — and the roster sits inside a 48px disclosure. The coach's last choice persists in user meta (`tt_behaviour_step_last`): skipped last time → roster starts collapsed so Next is one tap; completed last time (or in-progress values in state) → starts open. 2 new Dutch msgstrs. Patch bump. (closes #1387) =
 

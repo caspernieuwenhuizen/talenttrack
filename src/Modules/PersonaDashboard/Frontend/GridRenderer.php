@@ -23,6 +23,17 @@ use TT\Modules\PersonaDashboard\Registry\WidgetRegistry;
  */
 final class GridRenderer {
 
+    /**
+     * #1375 — grid cells at or above this mobile priority render inside
+     * a <details class="tt-pd-fold" open> disclosure. Markup ships open
+     * (desktop unaffected; summary hidden ≥768px via CSS); a small JS
+     * pass closes them on phone viewports at load, so without JS the
+     * page degrades to today's fully-expanded stack. Navigation tiles
+     * are exempt — folding each tile individually would be worse than
+     * the wall; they compact to 2-up on mobile via CSS instead.
+     */
+    private const MOBILE_FOLD_PRIORITY = 12;
+
     public static function render( PersonaTemplate $template, RenderContext $ctx ): void {
         if ( $template->hero !== null ) {
             self::renderBand( $template->hero, $ctx, 'hero-band' );
@@ -66,8 +77,19 @@ final class GridRenderer {
             $cls = 'tt-pd-grid-cell tt-pd-mobile-priority-' . max( 1, $slot->mobile_priority );
             if ( ! $slot->mobile_visible ) $cls .= ' tt-pd-mobile-hidden';
 
+            $fold = $slot->mobile_priority >= self::MOBILE_FOLD_PRIORITY
+                && $slot->widget_id !== 'navigation_tile';
+
             echo '<div class="' . esc_attr( $cls ) . '" style="' . esc_attr( $style ) . '" role="listitem">';
+            if ( $fold ) {
+                echo '<details class="tt-pd-fold" open>'
+                    . '<summary class="tt-pd-fold-summary">' . esc_html( $widget->label() ) . '</summary>'
+                    . '<div class="tt-pd-fold-body">';
+            }
             echo $widget->render( $slot, $ctx ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            if ( $fold ) {
+                echo '</div></details>';
+            }
             echo '</div>';
         }
         echo '</div>';

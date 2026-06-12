@@ -121,3 +121,15 @@
         });
     });
 })();
+
+/* #1375 — close low-priority folds on phone viewports at load. Markup
+   ships open so non-JS and desktop render fully expanded; this runs
+   once (no resize listener — a rotation mid-session keeps the user's
+   current open/closed choices). */
+(function () {
+    'use strict';
+    if (!window.matchMedia || !window.matchMedia('(max-width: 767.98px)').matches) return;
+    document.querySelectorAll('.tt-pd-fold[open]').forEach(function (fold) {
+        fold.removeAttribute('open');
+    });
+})();
