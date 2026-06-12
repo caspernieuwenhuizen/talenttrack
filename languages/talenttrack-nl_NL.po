@@ -38131,3 +38131,18 @@ msgstr "lage variatie"
 #, php-format
 msgid "%1$s (%2$s%% of ratings)"
 msgstr "%1$s (%2$s%% van de beoordelingen)"
+
+# #1369 - player progress & radar frontend port (v4.20.124). i18n-sync
+# will merge these into the proper position on next run; meanwhile they
+# land here verbatim so a Dutch install reads correctly today.
+msgid "Player · Progress & radar"
+msgstr "Speler · Voortgang & radar"
+
+msgid "Radar charts over evaluation categories — per-player progress, player comparison, team averages."
+msgstr "Radargrafieken over evaluatiecategorieën — voortgang per speler, spelersvergelijking, teamgemiddelden."
+
+msgid "Player progress & radar"
+msgstr "Spelersvoortgang & radar"
+
+msgid "Radar charts over evaluation categories: per-player progress, player comparison, or team averages."
+msgstr "Radargrafieken over evaluatiecategorieën: voortgang per speler, spelersvergelijking of teamgemiddelden."

@@ -36,4 +36,8 @@ Restricted to academy-wide roles (head of development / admin): coaches cannot s
 
 Team rating averages and Coach activity now render natively on the public dashboard at `?tt_view=reports&type=team_ratings` and `?type=coach_activity` — no more wp-admin tab jump. Each report has a **Print / Save as PDF** button at the top: clicking it opens the browser's print dialog with a stylesheet that strips dashboard chrome, so picking "Save as PDF" produces a clean tabular PDF.
 
-The legacy Player Progress + Radar report still opens in wp-admin since it leans on form-submit + Chart.js infrastructure significant to port. The frontend port is queued (#1369) — until it lands, follow the wp-admin link from this report list rather than hunting for a dashboard tile.
+## Player · Progress & radar (v4.20.124)
+
+The legacy wp-admin "Player Progress & Radar" report now renders natively on the dashboard as a standard report (Reports → *Player · Progress & radar*). Same three modes with the same data: **Player Progress** (each selected player's last five evaluations as stacked radar series — leave the selection empty for the top-10 active players), **Player Comparison** (each player's most recent evaluation overlaid on one radar; pick at least two), and **Team Averages** (one radar series per team, averaged per category).
+
+Coaches see only their own teams' players and teams; academy-wide roles see everything. The old wp-admin route redirects here, so bookmarks keep working. Integrations can read the same datasets from `GET /wp-json/talenttrack/v1/reports/player-radar?mode=…&player_ids=…`.

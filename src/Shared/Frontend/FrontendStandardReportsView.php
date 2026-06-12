@@ -42,6 +42,8 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         'scout-report-card'            => 'Scout · Report card',
         // #1367 — HoD coach-quality lens (scope-admin only).
         'coach-evaluation-quality'     => 'Coach · Evaluation quality',
+        // #1369 — wp-admin "Player Progress & Radar" ported native.
+        'player-progress-radar'        => 'Player · Progress & radar',
     ];
 
     /**
@@ -120,6 +122,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             case 'season-trial-funnel':          self::renderSeasonTrialFunnel(); break;
             case 'scout-report-card':            self::renderScoutReportCard(); break;
             case 'coach-evaluation-quality':     self::renderCoachEvaluationQuality(); break;
+            case 'player-progress-radar':        self::renderPlayerProgressRadar(); break;
         }
     }
 
@@ -875,6 +878,119 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         header( 'Content-Length: ' . strlen( $csv ) );
         echo $csv; // phpcs:ignore WordPress.Security.EscapeOutput
         exit;
+    }
+
+    // ── #1369 Player · Progress & radar (wp-admin legacy port) ───────
+
+    /**
+     * Native port of the wp-admin "Player Progress & Radar" report
+     * (`admin.php?page=tt-reports&report=legacy`). Three modes —
+     * progress (per-player radar overlay of the last 5 evaluations),
+     * comparison (latest-evaluation radar overlay across ≥ 2 players),
+     * team_avg (one radar series per team) — using the exact same
+     * `QueryHelpers` calls as the legacy renderer, so the charts carry
+     * identical data. The wp-admin route now redirects here.
+     *
+     * Scope: non-scope-admin users (head coaches / AC) only see and
+     * query players on their own teams; team_avg narrows to their
+     * teams. The wp-admin original was admin-area-only so it had no
+     * such guard; the frontend surface needs one.
+     */
+    private static function renderPlayerProgressRadar(): void {
+        $scope = self::currentScope();
+
+        $mode = isset( $_GET['mode'] ) ? sanitize_key( (string) $_GET['mode'] ) : 'progress';
+        if ( ! in_array( $mode, [ 'progress', 'comparison', 'team_avg' ], true ) ) $mode = 'progress';
+        $selected_ids = array_map( 'absint', (array) ( $_GET['f_players'] ?? [] ) );
+        $run          = isset( $_GET['run'] );
+
+        // Scope-filter the picker (and the selection) for non-admins.
+        $players = QueryHelpers::get_players();
+        if ( $scope['allowed_team_ids'] !== null && is_array( $players ) ) {
+            $allowed = $scope['allowed_team_ids'];
+            $players = array_values( array_filter(
+                $players,
+                static fn( $pl ): bool => in_array( (int) ( $pl->team_id ?? 0 ), $allowed, true )
+            ) );
+            $allowed_player_ids = array_map( static fn( $pl ): int => (int) $pl->id, $players );
+            $selected_ids = array_values( array_intersect( $selected_ids, $allowed_player_ids ) );
+        }
+
+        $explore_url = ExplorerUrl::build(
+            'evaluations_received',
+            [ 'date_after' => '-12 months' ],
+            'player_id'
+        );
+        self::renderPageHead(
+            __( 'Player progress & radar', 'talenttrack' ),
+            __( 'Radar charts over evaluation categories: per-player progress, player comparison, or team averages.', 'talenttrack' ),
+            $explore_url
+        );
+
+        // Mode + player picker form (plain GET round-trip, no-JS safe).
+        echo '<form method="get" class="tt-rep-section" style="display:flex; gap:12px; align-items:end; flex-wrap:wrap; padding:12px 16px;">';
+        echo '<input type="hidden" name="tt_view" value="standard-report" />';
+        echo '<input type="hidden" name="slug" value="player-progress-radar" />';
+        echo '<input type="hidden" name="run" value="1" />';
+        echo '<label style="display:flex; flex-direction:column; gap:2px; font-size:13px;"><span>' . esc_html__( 'Report Type', 'talenttrack' ) . '</span>';
+        echo '<select name="mode">';
+        echo '<option value="progress"' . selected( $mode, 'progress', false ) . '>' . esc_html__( 'Player Progress', 'talenttrack' ) . '</option>';
+        echo '<option value="comparison"' . selected( $mode, 'comparison', false ) . '>' . esc_html__( 'Player Comparison (radar)', 'talenttrack' ) . '</option>';
+        echo '<option value="team_avg"' . selected( $mode, 'team_avg', false ) . '>' . esc_html__( 'Team Averages (radar)', 'talenttrack' ) . '</option>';
+        echo '</select></label>';
+        echo '<label style="display:flex; flex-direction:column; gap:2px; font-size:13px; flex:1 1 220px;"><span>' . esc_html__( 'Player(s)', 'talenttrack' ) . '</span>';
+        echo '<select name="f_players[]" multiple size="6" style="min-width:200px;">';
+        foreach ( (array) $players as $pl ) {
+            $pid = (int) ( $pl->id ?? 0 );
+            if ( $pid <= 0 ) continue;
+            echo '<option value="' . $pid . '"' . ( in_array( $pid, $selected_ids, true ) ? ' selected' : '' ) . '>'
+                . esc_html( QueryHelpers::player_display_name( $pl ) ) . '</option>';
+        }
+        echo '</select></label>';
+        echo '<button type="submit" class="tt-rep-btn">' . esc_html__( 'Run Report', 'talenttrack' ) . '</button>';
+        echo '</form>';
+
+        if ( ! $run ) return;
+
+        $query = new \TT\Modules\Analytics\Reports\PlayerRadarQuery();
+        $max   = (float) QueryHelpers::get_config( 'rating_max', '10' );
+
+        echo '<section class="tt-rep-section" style="padding:16px;">';
+        if ( $mode === 'progress' ) {
+            echo '<h2 class="tt-rep-section__title">' . esc_html__( 'Player Progress Over Time', 'talenttrack' ) . '</h2>';
+            // Fallback mirrors the wp-admin original ("Top 10 active
+            // players"), narrowed to the viewer's teams when scoped.
+            $pids = $selected_ids ?: $query->defaultProgressPlayerIds( $scope['allowed_team_ids'] );
+            $any  = false;
+            foreach ( $pids as $pid ) {
+                $pl = QueryHelpers::get_player( (int) $pid );
+                if ( ! $pl ) continue;
+                $rd  = $query->progressForPlayer( (int) $pid, 5 );
+                $any = true;
+                echo '<h3 style="margin:14px 0 6px; font-size:15px;">' . esc_html( QueryHelpers::player_display_name( $pl ) ) . '</h3>';
+                echo ! empty( $rd['datasets'] )
+                    ? '<div style="max-width:350px;">' . QueryHelpers::radar_chart_svg( $rd['labels'], $rd['datasets'], $max ) . '</div>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG.
+                    : '<p class="tt-rep-section__hint">' . esc_html__( 'No data.', 'talenttrack' ) . '</p>';
+            }
+            if ( ! $any ) { self::renderEmpty(); }
+        } elseif ( $mode === 'comparison' ) {
+            echo '<h2 class="tt-rep-section__title">' . esc_html__( 'Player Comparison', 'talenttrack' ) . '</h2>';
+            if ( count( $selected_ids ) < 2 ) {
+                echo '<p class="tt-rep-section__hint">' . esc_html__( 'Select at least 2 players.', 'talenttrack' ) . '</p>';
+            } else {
+                $data = $query->comparison( $selected_ids );
+                echo ! empty( $data['datasets'] )
+                    ? '<div style="max-width:400px;">' . QueryHelpers::radar_chart_svg( $data['labels'], $data['datasets'], $max ) . '</div>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG.
+                    : '<p class="tt-rep-section__hint">' . esc_html__( 'No data.', 'talenttrack' ) . '</p>';
+            }
+        } else { // team_avg
+            echo '<h2 class="tt-rep-section__title">' . esc_html__( 'Team Averages', 'talenttrack' ) . '</h2>';
+            $data = $query->teamAverages( $scope['allowed_team_ids'] );
+            echo ! empty( $data['datasets'] )
+                ? '<div style="max-width:400px;">' . QueryHelpers::radar_chart_svg( $data['labels'], $data['datasets'], $max ) . '</div>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG.
+                : '<p class="tt-rep-section__hint">' . esc_html__( 'No data.', 'talenttrack' ) . '</p>';
+        }
+        echo '</section>';
     }
 
     /**
