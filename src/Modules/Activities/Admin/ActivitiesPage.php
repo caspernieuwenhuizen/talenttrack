@@ -13,7 +13,7 @@ use TT\Infrastructure\Query\LookupPill;
 use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
-use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Activities\Repositories\ActivitiesRepository;
 use TT\Shared\Validation\CustomFieldValidator;
 use TT\Shared\Admin\BackButton;
 
@@ -39,33 +39,15 @@ class ActivitiesPage {
         $action = isset( $_GET['action'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['action'] ) ) : 'list';
         $id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
         if ( $action === 'new' || $action === 'edit' ) { self::render_form( $id ); return; }
-        global $wpdb; $p = $wpdb->prefix;
 
         $view        = \TT\Infrastructure\Archive\ArchiveRepository::sanitizeView( $_GET['tt_view'] ?? 'active' );
-        $view_clause = \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $view );
         $type_filter = isset( $_GET['type'] ) ? sanitize_key( (string) wp_unslash( $_GET['type'] ) ) : '';
 
-        $scope          = QueryHelpers::apply_demo_scope( 'a', 'activity' );
-        $type_lookup    = QueryHelpers::get_lookups( 'activity_type' );
-        $valid_types    = array_map( static fn( $row ) => (string) $row->name, $type_lookup );
-        $type_clause    = '';
-        $type_params    = [];
-        if ( $type_filter !== '' && in_array( $type_filter, $valid_types, true ) ) {
-            $type_clause = ' AND a.activity_type_key = %s';
-            $type_params[] = $type_filter;
-        }
-        $list_sql = "SELECT a.*, t.name AS team_name, u.display_name AS coach_name
-                     FROM {$p}tt_activities a
-                     LEFT JOIN {$p}tt_teams t ON a.team_id=t.id AND t.club_id = a.club_id
-                     LEFT JOIN {$wpdb->users} u ON a.coach_id=u.ID
-                     WHERE a.{$view_clause}
-                       AND a.club_id = %d
-                       {$scope}
-                       {$type_clause}
-                     ORDER BY a.session_date DESC
-                     LIMIT 50";
-        $list_params = array_merge( [ CurrentClub::id() ], $type_params );
-        $activities  = $wpdb->get_results( $wpdb->prepare( $list_sql, ...$list_params ) );
+        // #1320 — list query lives in the repository; unknown type
+        // keys mean "no filter" there, same lenient semantics as the
+        // old inline SQL.
+        $type_lookup = QueryHelpers::get_lookups( 'activity_type' );
+        $activities  = ( new ActivitiesRepository() )->listForAdmin( $view, $type_filter, 50 );
         $base_url    = admin_url( 'admin.php?page=tt-activities' );
         // Type filter is lookup-driven — admin-added rows show up
         // automatically. Labels are translated via LookupTranslator.
@@ -222,11 +204,10 @@ class ActivitiesPage {
     }
 
     private static function render_form( int $id ): void {
-        global $wpdb; $p = $wpdb->prefix;
-        $activity = $id ? $wpdb->get_row( $wpdb->prepare(
-            "SELECT * FROM {$p}tt_activities WHERE id = %d AND club_id = %d",
-            $id, CurrentClub::id()
-        ) ) : null;
+        // #1320 — reads route through the repository (club-strict,
+        // archived rows included so the archive tab can edit).
+        $repo     = new ActivitiesRepository();
+        $activity = $id ? $repo->findForAdmin( $id ) : null;
         $teams = QueryHelpers::get_teams();
         $att_statuses = QueryHelpers::get_lookup_names( 'attendance_status' );
         // #0050 — Type now lookup-driven; existing rows store the seed
@@ -239,32 +220,17 @@ class ActivitiesPage {
         // rows + translate via LookupTranslator like every other lookup
         // dropdown in the form.
         $game_subtype_rows    = QueryHelpers::get_lookups( 'game_subtype' );
-        $attendance = [];
-        // v4.20.48 (#1227) — added `record_type = 'actual'` so the
-        // admin form doesn't double up rows once #788 ship 2 lands.
-        // Audit 7 (#1181).
-        if ( $activity ) foreach ( $wpdb->get_results( $wpdb->prepare(
-            "SELECT * FROM {$p}tt_attendance WHERE activity_id = %d AND is_guest = 0 AND record_type = 'actual' AND club_id = %d",
-            $activity->id, CurrentClub::id()
-        ) ) as $r ) $attendance[ (int) $r->player_id ] = $r;
+        // v4.20.48 (#1227) — `record_type = 'actual'` filter (inside
+        // attendanceMapByPlayer) so the admin form doesn't double up
+        // rows once #788 ship 2 lands. Audit 7 (#1181).
+        $attendance = $activity ? $repo->attendanceMapByPlayer( (int) $activity->id ) : [];
 
         // #0077 M2 — frontend↔admin parity. The frontend manage view
         // shows guest attendees; admin used to silently hide them so
         // an academy admin checking an activity didn't see who actually
         // showed up. Read-only list here keeps wp-admin honest; CRUD
         // stays on the frontend modal flow.
-        $guests = [];
-        if ( $activity ) {
-            $guests = (array) $wpdb->get_results( $wpdb->prepare(
-                "SELECT a.*, pl.first_name, pl.last_name, t.name AS guest_team_name
-                 FROM {$p}tt_attendance a
-                 LEFT JOIN {$p}tt_players pl ON pl.id = a.guest_player_id AND pl.club_id = a.club_id
-                 LEFT JOIN {$p}tt_teams   t  ON t.id = pl.team_id        AND t.club_id  = pl.club_id
-                 WHERE a.activity_id = %d AND a.is_guest = 1 AND a.club_id = %d
-                 ORDER BY a.id ASC",
-                $activity->id, CurrentClub::id()
-            ) );
-        }
+        $guests = $activity ? $repo->listGuestAttendance( (int) $activity->id ) : [];
         $team_id = (int) ( $activity->team_id ?? 0 );
         $players = $team_id ? QueryHelpers::get_players( $team_id ) : QueryHelpers::get_players();
         $state = self::popFormState();
@@ -478,7 +444,7 @@ class ActivitiesPage {
         // #1319 — matrix-aware cap mirroring ActivitiesRestController.
         if ( ! AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_edit_activities' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         check_admin_referer( 'tt_save_activity', 'tt_nonce' );
-        global $wpdb; $p = $wpdb->prefix;
+        $repo = new ActivitiesRepository();
         $id = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;
 
         $type = isset( $_POST['activity_type_key'] ) ? sanitize_text_field( (string) wp_unslash( $_POST['activity_type_key'] ) ) : ActivityTypeKey::TRAINING;
@@ -514,15 +480,15 @@ class ActivitiesPage {
         ];
 
         if ( $id ) {
-            $ok = $wpdb->update( "{$p}tt_activities", $data, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
+            $ok = $repo->update( $id, $data );
         } else {
             // Source defaults to 'manual' — Spond and demo-data writes
             // override this from their own code paths.
             $data['activity_source_key'] = 'manual';
-            $data['club_id']             = CurrentClub::id();
-            $ok = $wpdb->insert( "{$p}tt_activities", $data );
-            if ( $ok !== false ) {
-                $id = (int) $wpdb->insert_id;
+            $new_id = $repo->create( $data );
+            $ok     = $new_id !== null;
+            if ( $new_id !== null ) {
+                $id = $new_id;
                 // v3.76.2 — auto-tag demo-on rows.
                 \TT\Modules\DemoData\DemoMode::tagIfActive( 'activity', $id );
             }
@@ -536,8 +502,8 @@ class ActivitiesPage {
         }
 
         if ( $ok === false ) {
-            Logger::error( 'admin.activity.save.failed', [ 'db_error' => (string) $wpdb->last_error, 'is_update' => (bool) $id ] );
-            self::saveFormState( [ 'db_error' => $wpdb->last_error ?: __( 'Unknown database error.', 'talenttrack' ) ] );
+            Logger::error( 'admin.activity.save.failed', [ 'db_error' => $repo->lastError(), 'is_update' => (bool) $id ] );
+            self::saveFormState( [ 'db_error' => $repo->lastError() ?: __( 'Unknown database error.', 'talenttrack' ) ] );
             $back = add_query_arg(
                 [ 'page' => 'tt-activities', 'action' => $id ? 'edit' : 'new', 'id' => $id ],
                 admin_url( 'admin.php' )
@@ -548,20 +514,18 @@ class ActivitiesPage {
 
         // #0026 — only wipe roster rows; guest rows (is_guest=1) are
         // managed via the frontend / REST endpoints and survive a
-        // legacy admin save cycle.
-        $wpdb->delete( "{$p}tt_attendance", [ 'activity_id' => $id, 'is_guest' => 0, 'club_id' => CurrentClub::id() ] );
-        $att_raw = isset( $_POST['att'] ) && is_array( $_POST['att'] ) ? $_POST['att'] : [];
+        // legacy admin save cycle. (Wipe + rewrite happens inside
+        // replaceRosterAttendance.)
+        $att_raw     = isset( $_POST['att'] ) && is_array( $_POST['att'] ) ? $_POST['att'] : [];
+        $att_entries = [];
         foreach ( $att_raw as $pid => $d ) {
-            $ok_att = $wpdb->insert( "{$p}tt_attendance", [
-                'activity_id' => $id, 'player_id' => absint( $pid ),
+            $att_entries[ absint( $pid ) ] = [
                 'status' => isset( $d['status'] ) ? sanitize_text_field( wp_unslash( (string) $d['status'] ) ) : 'Present',
-                'notes' => isset( $d['notes'] ) ? sanitize_text_field( wp_unslash( (string) $d['notes'] ) ) : '',
-                'is_guest' => 0,
-                'club_id'  => CurrentClub::id(),
-            ]);
-            if ( $ok_att === false ) {
-                Logger::error( 'admin.activity.attendance.save.failed', [ 'db_error' => (string) $wpdb->last_error, 'activity_id' => $id, 'player_id' => absint( $pid ) ] );
-            }
+                'notes'  => isset( $d['notes'] ) ? sanitize_text_field( wp_unslash( (string) $d['notes'] ) ) : '',
+            ];
+        }
+        foreach ( $repo->replaceRosterAttendance( $id, $att_entries ) as $failed_pid => $db_error ) {
+            Logger::error( 'admin.activity.attendance.save.failed', [ 'db_error' => $db_error, 'activity_id' => $id, 'player_id' => $failed_pid ] );
         }
 
         $cf_errors = CustomFieldValidator::persistFromPost( CustomFieldsRepository::ENTITY_ACTIVITY, $id, $_POST );
@@ -592,9 +556,7 @@ class ActivitiesPage {
         // #1319 — matrix-aware cap mirroring ActivitiesRestController.
         if ( ! AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_edit_activities' ) ) wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
         \TT\Modules\Authorization\Impersonation\ImpersonationContext::blockDestructiveAdminHandler( 'activity.delete' );
-        global $wpdb; $p = $wpdb->prefix;
-        $wpdb->delete( "{$p}tt_attendance", [ 'activity_id' => $id, 'club_id' => CurrentClub::id() ] );
-        $wpdb->delete( "{$p}tt_activities", [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
+        ( new ActivitiesRepository() )->deleteWithAttendance( $id );
         wp_safe_redirect( admin_url( 'admin.php?page=tt-activities&tt_msg=deleted' ) );
         exit;
     }
