@@ -424,10 +424,25 @@ to the filesystem. They never touch the same surface concurrently.
 ### Convention
 
 - **Analysts** file issues with the normal `bug` / `enhancement` /
-  `tech-debt` labels, add the investigation findings to the body, but
-  do NOT add `ready-for-dev` until the issue is fully scoped AND the
-  user has confirmed it should be queued. Analysts NEVER edit
-  working-tree files for queue items — only the issue itself.
+  `tech-debt` labels and add the investigation findings to the body.
+  Analysts NEVER edit working-tree files for queue items — only the
+  issue itself.
+- **`ready-for-dev` auto-mark vs. hold.** The label is the handoff
+  signal to the executor; parallel-session safety is preserved by the
+  executor's separate `drain the queue` go-ahead, not by the label
+  itself. So:
+  - **Auto-mark `ready-for-dev`** when the issue is a bug, has a
+    concrete root cause located (file + line), proposes a single-path
+    fix (specific code or CSS change), and lists acceptance criteria.
+    These are mechanical — Gate 2 would just be friction.
+  - **Hold (default labels only, no `ready-for-dev`)** when the issue
+    is an enhancement, offers multi-option fixes (A vs. B), requires
+    a product decision, needs a wizard-plan exemption, or otherwise
+    has any unresolved question. The analyst posts the open questions
+    in a shaping comment and waits for the user to flip the label.
+  - **In doubt → hold.** The cost of an unnecessary user round-trip
+    is one comment; the cost of auto-queueing an under-shaped issue
+    is wasted executor work.
 - **Executor** drains the queue when the user says *"drain the queue"*
   / *"ship the queue"* / *"ship what's ready"* (or equivalent). Query
   `gh issue list --label ready-for-dev --state open --sort created`,
