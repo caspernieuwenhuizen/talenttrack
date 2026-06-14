@@ -37,23 +37,46 @@ final class CoreTemplates {
 
     public static function player( int $club_id ): PersonaTemplate {
         // Player tile order from the design brief:
-        // My journey · My card · My team · My evaluations · My activities · My goals · My PDP · My profile.
+        // My check-ins (the "something asked of me" anchor — the weekly
+        // self-evaluation surfaces as a task here, #1385) · My journey ·
+        // My card · My team · My evaluations · My activities · My goals ·
+        // My PDP · My profile.
         $tiles = [
-            [ 'my-journey',      __( 'My journey',     'talenttrack' ), 1 ],
-            [ 'overview',        __( 'My card',        'talenttrack' ), 2 ],
-            [ 'my-team',         __( 'My team',        'talenttrack' ), 3 ],
-            [ 'my-evaluations',  __( 'My evaluations', 'talenttrack' ), 4 ],
-            [ 'my-activities',   __( 'My activities',  'talenttrack' ), 5 ],
-            [ 'my-goals',        __( 'My goals',       'talenttrack' ), 6 ],
-            [ 'my-pdp',          __( 'My PDP',         'talenttrack' ), 7 ],
-            [ 'profile',         __( 'My profile',     'talenttrack' ), 8 ],
+            [ 'my-tasks',        __( 'My check-ins',   'talenttrack' ), 1 ],
+            [ 'my-journey',      __( 'My journey',     'talenttrack' ), 2 ],
+            [ 'overview',        __( 'My card',        'talenttrack' ), 3 ],
+            [ 'my-team',         __( 'My team',        'talenttrack' ), 4 ],
+            [ 'my-evaluations',  __( 'My evaluations', 'talenttrack' ), 5 ],
+            [ 'my-activities',   __( 'My activities',  'talenttrack' ), 6 ],
+            [ 'my-goals',        __( 'My goals',       'talenttrack' ), 7 ],
+            [ 'my-pdp',          __( 'My PDP',         'talenttrack' ), 8 ],
+            [ 'profile',         __( 'My profile',     'talenttrack' ), 9 ],
+        ];
+        // #1385 — surface the player's own progress KPIs above the nav
+        // tiles. `my_team_podium_position` is intentionally NOT placed by
+        // default: it's gated by the `tt_player_visible_rank` toggle
+        // (#1384, off by default) and would otherwise render a permanent
+        // "—". Academies that enable the rank can add it via customisation.
+        $player_kpis = [
+            'my_rating_trend',
+            'my_activities_attended_pct',
+            'my_evaluations_received',
+            'my_goals_completed_season',
+            'my_pdp_conversations_done',
+            'my_next_milestone',
         ];
         $grid = new GridLayout();
-        foreach ( $tiles as $i => [ $slug, $label, $priority ] ) {
+        foreach ( $player_kpis as $i => $kpi_id ) {
             $col = ( $i % 4 ) * 3;
             $row = (int) floor( $i / 4 );
+            $grid->add( new WidgetSlot( 'kpi_card', $kpi_id, Size::S, $col, $row, 1, 6 + $i ) );
+        }
+        $tile_row_offset = (int) ceil( count( $player_kpis ) / 4 );
+        foreach ( $tiles as $i => [ $slug, $label, $priority ] ) {
+            $col = ( $i % 4 ) * 3;
+            $row = (int) floor( $i / 4 ) + $tile_row_offset;
             $grid->add( new WidgetSlot(
-                'navigation_tile', $slug, Size::S, $col, $row, 1, $priority + 10, true, $label
+                'navigation_tile', $slug, Size::S, $col, $row, 1, $priority + 20, true, $label
             ) );
         }
         return new PersonaTemplate(

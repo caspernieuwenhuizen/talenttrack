@@ -4,6 +4,22 @@
 
 Wanneer je inlogt als speler kom je op een tegelraster dat helemaal op jou is gericht. Elke tegel opent een onderdeel van je eigen profiel. Gebruik bovenaan elke pagina de **← Terug**-link om hier terug te keren.
 
+## In één oogopslag
+
+Boven je tegels zie je een rij kleine **voortgangskaarten** op basis van je eigen gegevens:
+
+- **Mijn beoordelingstrend** — je rolling-gemiddelde en hoe het sinds vorige maand is bewogen.
+- **Mijn aanwezigheid %** — je aanwezigheid over de afgelopen vier weken.
+- **Ontvangen evaluaties** en **Afgeronde doelen** — lopende totalen.
+- **Afgeronde PDP-gesprekken** — hoeveel ontwikkelgesprekken je hebt gehad.
+- **Mijn volgende mijlpaal** — je eerstvolgende doel en de streefdatum.
+
+Een kaart toont een streepje totdat er gegevens achter zitten (bijv. vóór je eerste evaluatie). Heeft je academie de zichtbare teamrang aangezet, dan verschijnt hier ook een **podiumpositie**-kaart.
+
+Heeft een coach je een bericht achtergelaten — feedback voor de speler bij een evaluatie of een reactie op een van je doelen — dan zie je dat in de kaart **"Feedback van je coach"**. Die kaart verschijnt alleen als er iets nieuws is.
+
+De tegel **Mijn check-ins** is waar je wekelijkse zelfevaluatie en andere taken binnenkomen — dé plek waar de academie iets *van jou* vraagt.
+
 ## Jouw tegels
 
 ### Mijn kaart
