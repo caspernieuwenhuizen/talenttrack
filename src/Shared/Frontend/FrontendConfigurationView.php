@@ -1741,6 +1741,17 @@ class FrontendConfigurationView extends FrontendViewBase {
                         <input type="number" inputmode="decimal" id="tt-cfg-rating-step" class="tt-input" name="config[rating_step]" min="0.1" max="1" step="0.1" value="<?php echo esc_attr( QueryHelpers::get_config( 'rating_step', '0.5' ) ); ?>" />
                     </div>
                 </div>
+                <?php // #1384 — opt-in player-visible team rank. ?>
+                <div class="tt-field" style="margin-top:var(--tt-sp-3);">
+                    <input type="hidden" name="config[tt_player_visible_rank]" value="0" />
+                    <label>
+                        <input type="checkbox" name="config[tt_player_visible_rank]" value="1" <?php checked( QueryHelpers::get_config( 'tt_player_visible_rank', '0' ), '1' ); ?> />
+                        <?php esc_html_e( 'Show each player their team rank', 'talenttrack' ); ?>
+                    </label>
+                    <p class="tt-field-hint" style="margin-top:6px;">
+                        <?php esc_html_e( 'When off (default), players see a personal growth trend on My team instead of a "#N of M" rank. Turn on only if your academy wants players to see their numeric standing. Staff always see ranks; no other teammate\'s rank is ever shown to a player.', 'talenttrack' ); ?>
+                    </p>
+                </div>
             </div>
             <div class="tt-form-actions" style="margin-top:16px;">
                 <?php echo FormSaveButton::render( [ 'label' => __( 'Save rating scale', 'talenttrack' ) ] ); ?>

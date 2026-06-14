@@ -163,6 +163,110 @@ class EvaluationsRepository {
      * `ratingSummaryForPlayer`). Null when the player has no rated
      * evaluations.
      */
+    /**
+     * #1384 — personal rating trend for the player's own "My team"
+     * surface. Compares the mean rating across two adjacent windows
+     * (the last `$window_days`, vs. the `$window_days` before that) and
+     * finds the main category that improved most between them. Powers
+     * the growth-framed chip that replaces / accompanies the team rank.
+     *
+     * Business logic lives here (not the view) so the PHP render and the
+     * `GET /players/{id}/rating-trend` endpoint return identical answers
+     * (SaaS-readiness §4).
+     *
+     * @return array{
+     *   has_data: bool,
+     *   current_avg: float|null,
+     *   prior_avg: float|null,
+     *   delta: float|null,
+     *   top_category: string|null
+     * }
+     */
+    public function personalTrendForPlayer( int $player_id, int $window_days = 30 ): array {
+        $empty = [
+            'has_data'     => false,
+            'current_avg'  => null,
+            'prior_avg'    => null,
+            'delta'        => null,
+            'top_category' => null,
+        ];
+        if ( $player_id <= 0 ) return $empty;
+        if ( $window_days <= 0 ) $window_days = 30;
+
+        global $wpdb;
+        $p          = $wpdb->prefix;
+        $club_id    = CurrentClub::id();
+        $recent_cut = gmdate( 'Y-m-d', strtotime( "-{$window_days} days" ) );
+        $prior_cut  = gmdate( 'Y-m-d', strtotime( '-' . ( $window_days * 2 ) . ' days' ) );
+
+        // Overall window means. Ratings join on evaluation_id only (not
+        // club_id) to stay inclusive of the legacy `club_id = 0` rating
+        // rows noted in EvaluationsRestController::write_ratings; the
+        // evaluation itself is club-scoped, which is the tenancy gate.
+        $current_avg = $wpdb->get_var( $wpdb->prepare(
+            "SELECT AVG(r.rating)
+               FROM {$p}tt_evaluations e
+               JOIN {$p}tt_eval_ratings r ON r.evaluation_id = e.id
+              WHERE e.player_id = %d AND e.archived_at IS NULL
+                AND ( e.club_id = %d OR e.club_id IS NULL )
+                AND e.eval_date >= %s",
+            $player_id, $club_id, $recent_cut
+        ) );
+        $prior_avg = $wpdb->get_var( $wpdb->prepare(
+            "SELECT AVG(r.rating)
+               FROM {$p}tt_evaluations e
+               JOIN {$p}tt_eval_ratings r ON r.evaluation_id = e.id
+              WHERE e.player_id = %d AND e.archived_at IS NULL
+                AND ( e.club_id = %d OR e.club_id IS NULL )
+                AND e.eval_date >= %s AND e.eval_date < %s",
+            $player_id, $club_id, $prior_cut, $recent_cut
+        ) );
+
+        $current = $current_avg !== null ? (float) $current_avg : null;
+        $prior   = $prior_avg !== null ? (float) $prior_avg : null;
+        if ( $current === null ) return $empty;
+
+        $delta = ( $prior !== null ) ? round( $current - $prior, 1 ) : null;
+
+        // Top-improving MAIN category between the two windows.
+        $top_category = null;
+        if ( $prior !== null ) {
+            $rows = $wpdb->get_results( $wpdb->prepare(
+                "SELECT c.id AS category_id, c.label AS label,
+                        AVG( CASE WHEN e.eval_date >= %s THEN r.rating END ) AS recent_avg,
+                        AVG( CASE WHEN e.eval_date >= %s AND e.eval_date < %s THEN r.rating END ) AS prior_avg
+                   FROM {$p}tt_evaluations e
+                   JOIN {$p}tt_eval_ratings r ON r.evaluation_id = e.id
+                   JOIN {$p}tt_eval_categories c ON c.id = r.category_id
+                  WHERE e.player_id = %d AND e.archived_at IS NULL
+                    AND ( e.club_id = %d OR e.club_id IS NULL )
+                    AND c.parent_id IS NULL
+                    AND e.eval_date >= %s
+                  GROUP BY c.id, c.label",
+                $recent_cut, $prior_cut, $recent_cut, $player_id, $club_id, $prior_cut
+            ) );
+            $best_delta = 0.0;
+            foreach ( (array) $rows as $row ) {
+                if ( $row->recent_avg === null || $row->prior_avg === null ) continue;
+                $cat_delta = (float) $row->recent_avg - (float) $row->prior_avg;
+                if ( $cat_delta > $best_delta ) {
+                    $best_delta   = $cat_delta;
+                    $top_category = EvalCategoriesRepository::displayLabel(
+                        (string) $row->label, (int) $row->category_id
+                    );
+                }
+            }
+        }
+
+        return [
+            'has_data'     => true,
+            'current_avg'  => round( $current, 1 ),
+            'prior_avg'    => $prior !== null ? round( $prior, 1 ) : null,
+            'delta'        => $delta,
+            'top_category' => $top_category,
+        ];
+    }
+
     public function lastEvaluationMeanForPlayer( int $player_id ): ?float {
         if ( $player_id <= 0 ) return null;
 

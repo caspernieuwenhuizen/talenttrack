@@ -38251,3 +38251,35 @@ msgstr "Optioneel — wat ging goed en waaraan nog gewerkt kan worden. Zichtbaar
 
 msgid "Feedback from your coach"
 msgstr "Feedback van je coach"
+
+# #1384 - player-visible rank toggle + growth trend chip (v4.20.131).
+# i18n-sync will merge these into the proper position on next run.
+msgid "Show each player their team rank"
+msgstr "Toon elke speler zijn teamrang"
+
+msgid "When off (default), players see a personal growth trend on My team instead of a \"#N of M\" rank. Turn on only if your academy wants players to see their numeric standing. Staff always see ranks; no other teammate's rank is ever shown to a player."
+msgstr "Als dit uit staat (standaard), zien spelers op Mijn team een persoonlijke groeitrend in plaats van een rang \"#N van M\". Zet het alleen aan als je academie wil dat spelers hun numerieke positie zien. Stafleden zien altijd rangen; de rang van een andere teamgenoot wordt nooit aan een speler getoond."
+
+msgid "Your progress"
+msgstr "Jouw voortgang"
+
+msgid "Your rating trend will appear after your first evaluation."
+msgstr "Je beoordelingstrend verschijnt na je eerste evaluatie."
+
+msgid "%s average so far"
+msgstr "%s gemiddeld tot nu toe"
+
+msgid "Your trend appears after your next evaluation."
+msgstr "Je trend verschijnt na je volgende evaluatie."
+
+msgid "+%s since last month"
+msgstr "+%s sinds vorige maand"
+
+msgid "%s since last month"
+msgstr "%s sinds vorige maand"
+
+msgid "Level with last month"
+msgstr "Gelijk aan vorige maand"
+
+msgid "Improving most: %s"
+msgstr "Grootste vooruitgang: %s"

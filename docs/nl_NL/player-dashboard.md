@@ -19,7 +19,7 @@ Een knop **Rapport afdrukken** rechts geeft een nette printversie van de hele ka
 > Accountgegevens (weergavenaam, e-mailadres, wachtwoord) staan in **Mijn instellingen** onder je naam rechtsboven — zie verderop.
 
 ### Mijn team
-Het podium van je team staat bovenaan — top 3 op rolling-rating, goud/zilver/brons. Daaronder staat je eigen spelerskaart met een **#N van M**-badge die je eigen positie in het team toont. Posities van andere teamgenoten worden *niet* getoond — alleen het podium is openbaar. De lijst met teamgenoten onderaan toont alleen namen en foto's; tik op een teamgenoot om hun basisgegevens (positie, rugnummer, voet, lengte, gewicht) te zien. Hun evaluaties, doelen en scores blijven privé.
+Het podium van je team staat bovenaan — top 3 op rolling-rating, goud/zilver/brons. Daaronder staat je eigen spelerskaart met een **persoonlijke groeitrend** — hoe je rolling-rating sinds vorige maand is bewogen en de categorie waarin je het meest vooruitgaat. Standaard zie je géén numerieke teamrang "#N van M": academies kunnen die aanzetten (Configuratie → Beoordelingsschaal → "Toon elke speler zijn teamrang"), en als die aanstaat verschijnt hij naast de trend. In beide gevallen wordt de rang van een andere teamgenoot nooit getoond — alleen het podium is openbaar. De lijst met teamgenoten onderaan toont alleen namen en foto's; tik op een teamgenoot om hun basisgegevens (positie, rugnummer, voet, lengte, gewicht) te zien. Hun evaluaties, doelen en scores blijven privé.
 
 ### Mijn evaluaties
 Elke evaluatie die een coach over jou heeft vastgelegd, meest recent eerst. Per rij zie je de datum, het type, de coach en de pillen — compact als standaard, klap een rij open voor de volledige onderverdeling.
