@@ -38283,3 +38283,8 @@ msgstr "Gelijk aan vorige maand"
 
 msgid "Improving most: %s"
 msgstr "Grootste vooruitgang: %s"
+
+# #1385 - player motivational layer (v4.20.132). i18n-sync will merge
+# these into the proper position on next run.
+msgid "My check-ins"
+msgstr "Mijn check-ins"

@@ -4,6 +4,22 @@
 
 When you log in as a player you land on a tile grid scoped to you. Each tile opens one part of your own profile. Use the **← Back** link at the top of every page to return here.
 
+## At a glance
+
+Above your tiles you'll see a row of small **progress cards** drawn from your own data:
+
+- **My rating trend** — your rolling evaluation average and how it moved since last month.
+- **My activities attended %** — your attendance over the last four weeks.
+- **My evaluations received** and **My goals completed** — running totals.
+- **My PDP conversations done** — how many development conversations you've had.
+- **My next milestone** — your nearest goal and its due date.
+
+A card shows a dash until there's data behind it (e.g. before your first evaluation). When your academy has turned on visible team ranking, a **podium position** card appears here too.
+
+If a coach has left you a note — player-facing feedback on an evaluation, or a comment on one of your goals — it shows in a **"A note from your coach"** card. The card only appears when there's something new.
+
+The **My check-ins** tile is where your weekly self-evaluation and any other tasks land — it's the one place the academy asks something *of* you.
+
 ## Your tiles
 
 ### My card

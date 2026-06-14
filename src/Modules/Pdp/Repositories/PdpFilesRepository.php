@@ -154,6 +154,24 @@ class PdpFilesRepository {
     }
 
     /**
+     * #1385 — count of PDP conversations that have actually been
+     * conducted (`conducted_at` set) across a player's non-archived PDP
+     * files. Powers the `MyPdpConversationsDone` player KPI.
+     */
+    public function countConductedConversationsForPlayer( int $player_id ): int {
+        if ( $player_id <= 0 ) return 0;
+        $conv = $this->wpdb->prefix . 'tt_pdp_conversations';
+        return (int) $this->wpdb->get_var( $this->wpdb->prepare(
+            "SELECT COUNT(*)
+               FROM {$conv} c
+               JOIN {$this->table} f ON f.id = c.pdp_file_id
+              WHERE f.player_id = %d AND f.club_id = %d AND f.archived_at IS NULL
+                AND c.conducted_at IS NOT NULL",
+            $player_id, CurrentClub::id()
+        ) );
+    }
+
+    /**
      * #1274 PR2 — bulk-archive every active PDP attached to a player.
      * Returns the count of rows touched. Caller wraps in a transaction
      * with the player-archive write.

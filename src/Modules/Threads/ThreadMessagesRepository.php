@@ -131,6 +131,43 @@ final class ThreadMessagesRepository {
         return (bool) $ok;
     }
 
+    /**
+     * #1385 — the most recent public, non-system, non-deleted message on
+     * any of a player's goal threads, authored by someone OTHER than the
+     * player themselves. Powers the `coach_nudge` ("A note from your
+     * coach") card. Goal threads use `thread_type = 'goal'` with
+     * `thread_id = tt_goals.id`.
+     *
+     * @return object|null `{body: string, created_at: string}`
+     */
+    public function latestPublicGoalMessageForPlayer( int $player_id, int $exclude_user_id = 0 ): ?object {
+        if ( $player_id <= 0 ) return null;
+        global $wpdb;
+        $p   = $wpdb->prefix;
+        $tbl = $this->table();
+
+        $sql  = "SELECT m.body, m.created_at
+                   FROM {$tbl} m
+                   JOIN {$p}tt_goals g ON g.id = m.thread_id
+                  WHERE m.thread_type = 'goal'
+                    AND m.club_id = %d
+                    AND m.is_system = 0
+                    AND m.deleted_at IS NULL
+                    AND m.visibility = %s
+                    AND g.player_id = %d
+                    AND g.archived_at IS NULL";
+        $args = [ CurrentClub::id(), ThreadVisibility::PUBLIC_LEVEL, $player_id ];
+        if ( $exclude_user_id > 0 ) {
+            $sql   .= " AND m.author_user_id <> %d";
+            $args[] = $exclude_user_id;
+        }
+        $sql .= " ORDER BY m.created_at DESC, m.id DESC LIMIT 1";
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared — args bound below.
+        $row = $wpdb->get_row( $wpdb->prepare( $sql, $args ) );
+        return $row ?: null;
+    }
+
     public function withinEditWindow( string $created_at ): bool {
         $created_ts = strtotime( $created_at . ' UTC' );
         if ( $created_ts === false ) return false;

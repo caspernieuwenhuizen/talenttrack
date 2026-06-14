@@ -285,4 +285,47 @@ class EvaluationsRepository {
         ) );
         return $last !== null ? (float) $last : null;
     }
+
+    /**
+     * #1385 — count of non-archived evaluations recorded for a player,
+     * for the `MyEvaluationsReceived` player KPI.
+     */
+    public function countForPlayer( int $player_id ): int {
+        if ( $player_id <= 0 ) return 0;
+
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$p}tt_evaluations
+              WHERE player_id = %d AND archived_at IS NULL
+                AND ( club_id = %d OR club_id IS NULL )",
+            $player_id, CurrentClub::id()
+        ) );
+    }
+
+    /**
+     * #1385 — most recent non-empty player-facing feedback (the #1386
+     * field) for a player. One source for the `coach_nudge` widget.
+     *
+     * @return object|null `{player_feedback: string, eval_date: string}`
+     */
+    public function latestPlayerFeedbackForPlayer( int $player_id ): ?object {
+        if ( $player_id <= 0 ) return null;
+
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT player_feedback, eval_date
+               FROM {$p}tt_evaluations
+              WHERE player_id = %d AND archived_at IS NULL
+                AND ( club_id = %d OR club_id IS NULL )
+                AND player_feedback IS NOT NULL AND player_feedback <> ''
+              ORDER BY eval_date DESC, id DESC
+              LIMIT 1",
+            $player_id, CurrentClub::id()
+        ) );
+        return $row ?: null;
+    }
 }

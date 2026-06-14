@@ -4,9 +4,11 @@ namespace TT\Modules\PersonaDashboard\Widgets;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\PersonaDashboard\Domain\AbstractWidget;
+use TT\Modules\PersonaDashboard\Domain\PlayerNudge;
 use TT\Modules\PersonaDashboard\Domain\RenderContext;
 use TT\Modules\PersonaDashboard\Domain\Size;
 use TT\Modules\PersonaDashboard\Domain\WidgetSlot;
+use TT\Modules\PersonaDashboard\Kpis\PlayerKpiResolver;
 
 /**
  * InfoCardWidget — persona-specific read-only summary block.
@@ -60,7 +62,16 @@ class InfoCardWidget extends AbstractWidget {
 
         switch ( $preset ) {
             case 'coach_nudge':
-                return $this->renderShell( $slot, __( 'A note from your coach', 'talenttrack' ), __( 'No new notes right now.', 'talenttrack' ) );
+                // #1385 — real data: the most recent player-facing
+                // evaluation feedback (#1386) or goal-thread comment.
+                // Per this widget's contract the card hides itself when
+                // there's nothing to surface, rather than showing a
+                // permanent "No new notes" stub.
+                $player_id = PlayerKpiResolver::playerId( $ctx->user_id );
+                if ( $player_id <= 0 ) return '';
+                $nudge = PlayerNudge::latestFor( $player_id, $ctx->user_id );
+                if ( $nudge === null ) return '';
+                return $this->renderShell( $slot, __( 'A note from your coach', 'talenttrack' ), $nudge['text'] );
             case 'pending_pdp_ack':
                 return $this->renderShell( $slot, __( 'PDP awaiting your acknowledgement', 'talenttrack' ), __( 'No conversations are waiting on you.', 'talenttrack' ) );
             case 'next_activity':

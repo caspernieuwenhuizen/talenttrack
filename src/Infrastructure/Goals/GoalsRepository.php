@@ -171,6 +171,54 @@ class GoalsRepository {
     }
 
     /**
+     * #1385 — count of completed (non-archived) goals for a player, for
+     * the `MyGoalsCompletedSeason` player KPI.
+     */
+    public function countCompletedForPlayer( int $player_id ): int {
+        if ( $player_id <= 0 ) return 0;
+
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$p}tt_goals
+              WHERE player_id = %d AND archived_at IS NULL
+                AND ( club_id = %d OR club_id IS NULL )
+                AND status = 'completed'",
+            $player_id, CurrentClub::id()
+        ) );
+    }
+
+    /**
+     * #1385 — the player's next milestone: nearest-due active goal
+     * (non-archived, not completed/cancelled, with a due date). Returns
+     * null when the player has no dated active goal. Powers
+     * `MyNextMilestone`.
+     */
+    public function nextDueActiveGoalForPlayer( int $player_id ): ?object {
+        if ( $player_id <= 0 ) return null;
+
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT g.*
+               FROM {$p}tt_goals g
+              WHERE g.player_id = %d AND g.archived_at IS NULL
+                AND ( g.club_id = %d OR g.club_id IS NULL )
+                AND g.due_date IS NOT NULL
+                AND ( g.status IS NULL OR g.status NOT IN ( 'completed', 'cancelled' ) )
+              ORDER BY g.due_date ASC
+              LIMIT 1",
+            $player_id, CurrentClub::id()
+        ) );
+
+        if ( ! $row ) return null;
+        self::hydrate( $row );
+        return $row;
+    }
+
+    /**
      * Decorate a `tt_goals` row in place with `status_localised` and
      * `priority_localised`. Raw fields stay for back-compat — KPI
      * aggregations + filter dropdowns key off the canonical codes.
