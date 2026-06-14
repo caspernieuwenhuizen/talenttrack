@@ -46,6 +46,18 @@ class PlayerJourneyRestController extends BaseController {
             ],
         ] );
 
+        // #1384 — personal rating trend (growth chip on My team). Gated
+        // per-player by AuthorizationService::canViewPlayer in the
+        // handler so a player/parent can read their own trend without a
+        // staff capability, while staff still pass via the same check.
+        register_rest_route( self::NS, '/players/(?P<id>\d+)/rating-trend', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'get_rating_trend' ],
+                'permission_callback' => [ __CLASS__, 'permLoggedIn' ],
+            ],
+        ] );
+
         // Manual events.
         register_rest_route( self::NS, '/players/(?P<id>\d+)/events', [
             [
@@ -152,6 +164,18 @@ class PlayerJourneyRestController extends BaseController {
         $allowed = PlayerEventsRepository::visibilitiesForUser( $user_id );
         $rows    = ( new PlayerEventsRepository() )->transitionsForPlayer( $player_id, $allowed );
         return RestResponse::success( [ 'events' => array_map( [ __CLASS__, 'formatEvent' ], $rows ) ] );
+    }
+
+    public static function get_rating_trend( \WP_REST_Request $r ): \WP_REST_Response {
+        $player_id = (int) $r['id'];
+        $user_id   = get_current_user_id();
+        if ( ! AuthorizationService::canViewPlayer( $user_id, $player_id ) ) {
+            return RestResponse::error( 'forbidden', __( 'You do not have access to this player.', 'talenttrack' ), 403 );
+        }
+
+        $trend = ( new \TT\Infrastructure\Evaluations\EvaluationsRepository() )
+            ->personalTrendForPlayer( $player_id );
+        return RestResponse::success( $trend );
     }
 
     public static function create_event( \WP_REST_Request $r ): \WP_REST_Response {

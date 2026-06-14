@@ -11,9 +11,12 @@ use TT\Infrastructure\Stats\TeamStatsService;
  *
  * Layout (#0061 round 3):
  *   1. Podium first (visual headline) — top 3 by rolling rating.
- *   2. The viewer's own player card with a "You're #N of M" badge.
- *      The badge surfaces the viewer's rank without ever showing
- *      ranks of *other* teammates — protecting the silent middle.
+ *   2. The viewer's own player card with a growth-framed trend chip.
+ *      The raw "#N of M" rank badge is opt-in per academy via the
+ *      `tt_player_visible_rank` config toggle (default OFF, #1384) —
+ *      when off, the player sees only the personal trend; when on,
+ *      rank + trend show together. Either way no *other* teammate's
+ *      rank is exposed, protecting the silent middle.
  *   3. Teammate roster (names + photos only, click → non-rating
  *      detail surface in `FrontendTeammateView`).
  */
@@ -35,6 +38,16 @@ class FrontendMyTeamView extends FrontendViewBase {
         $team_svc   = new TeamStatsService();
         $top        = $team_svc->getTopPlayersForTeam( $team_id, 3, 5 );
         $rank_info  = $team_svc->getRankInTeam( (int) $player->id, 5 );
+
+        // #1384 — the player-visible team rank ("#N of M") is opt-in per
+        // academy. Default OFF: the player sees a growth-framed personal
+        // trend chip instead. ON: rank badge + trend chip together. Staff
+        // personas always see rank elsewhere; this gates the player's own
+        // "My team" surface only.
+        $show_rank = QueryHelpers::get_config( 'tt_player_visible_rank', '0' ) === '1';
+        $trend     = ( new \TT\Infrastructure\Evaluations\EvaluationsRepository() )
+            ->personalTrendForPlayer( (int) $player->id );
+
         $own_in_top = false;
         if ( $rank_info !== null ) {
             foreach ( $top as $row ) {
@@ -58,6 +71,15 @@ class FrontendMyTeamView extends FrontendViewBase {
         .tt-mt-rank-badge-unrated { background: var(--tt-line, #e5e7ea); color: var(--tt-muted, #5b6e75); }
         .tt-mt-rank-badge-unrated .tt-mt-rank-badge-rank { font-size: 14px; letter-spacing: 0.04em; }
         .tt-mt-roster-title { text-align: center; margin: 30px 0 10px; font-size: 14px; color: var(--tt-muted, #5b6e75); text-transform: uppercase; letter-spacing: 0.05em; }
+        /* #1384 — growth-framed trend chip (mobile-first). Replaces the
+         * raw rank for the player; shown alongside it when rank is on. */
+        .tt-mt-trend-chip { display: inline-flex; flex-direction: column; align-items: center; gap: 4px; max-width: 22rem; padding: 10px 16px; background: var(--tt-bg-soft, #f5f7f6); border: 1px solid var(--tt-line, #e5e7ea); border-radius: 14px; text-align: center; }
+        .tt-mt-trend-headline { display: inline-flex; align-items: center; gap: 6px; font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 17px; line-height: 1.1; color: var(--tt-primary, #0b3d2e); }
+        .tt-mt-trend-headline.tt-mt-trend-up { color: #1f7a4d; }
+        .tt-mt-trend-headline.tt-mt-trend-down { color: #b45309; }
+        .tt-mt-trend-sub { font-size: 12px; color: var(--tt-muted, #5b6e75); }
+        .tt-mt-trend-top { font-size: 12px; color: var(--tt-text, #1f2a30); }
+        .tt-mt-trend-top strong { color: var(--tt-primary, #0b3d2e); }
         @media (min-width: 768px) {
             .tt-mt-own-card-wrap { padding: 22px 12px; }
             .tt-mt-own-card-wrap .tt-pc { transform: scale(0.95); margin-bottom: -16px; }
@@ -82,23 +104,26 @@ class FrontendMyTeamView extends FrontendViewBase {
 
             <div class="tt-mt-own-card-wrap">
                 <?php \TT\Modules\Stats\Admin\PlayerCardView::renderCard( (int) $player->id, 'md', true ); ?>
-                <?php if ( $rank_info !== null ) : ?>
-                    <span class="tt-mt-rank-badge<?php echo $own_in_top ? ' tt-mt-rank-badge-podium' : ''; ?>">
-                        <span class="tt-mt-rank-badge-rank"><?php
-                            /* translators: %d is the player's rank within their team. */
-                            printf( esc_html__( '#%d', 'talenttrack' ), (int) $rank_info['rank'] );
-                        ?></span>
-                        <span class="tt-mt-rank-badge-meta"><?php
-                            /* translators: %d is the count of rated players on the team. */
-                            printf( esc_html__( 'of %d on the team', 'talenttrack' ), (int) $rank_info['total'] );
-                        ?></span>
-                    </span>
-                <?php else : ?>
-                    <span class="tt-mt-rank-badge tt-mt-rank-badge-unrated">
-                        <span class="tt-mt-rank-badge-rank"><?php esc_html_e( 'Not yet rated', 'talenttrack' ); ?></span>
-                        <span class="tt-mt-rank-badge-meta"><?php esc_html_e( 'rank shows after the first evaluation', 'talenttrack' ); ?></span>
-                    </span>
+                <?php if ( $show_rank ) : ?>
+                    <?php if ( $rank_info !== null ) : ?>
+                        <span class="tt-mt-rank-badge<?php echo $own_in_top ? ' tt-mt-rank-badge-podium' : ''; ?>">
+                            <span class="tt-mt-rank-badge-rank"><?php
+                                /* translators: %d is the player's rank within their team. */
+                                printf( esc_html__( '#%d', 'talenttrack' ), (int) $rank_info['rank'] );
+                            ?></span>
+                            <span class="tt-mt-rank-badge-meta"><?php
+                                /* translators: %d is the count of rated players on the team. */
+                                printf( esc_html__( 'of %d on the team', 'talenttrack' ), (int) $rank_info['total'] );
+                            ?></span>
+                        </span>
+                    <?php else : ?>
+                        <span class="tt-mt-rank-badge tt-mt-rank-badge-unrated">
+                            <span class="tt-mt-rank-badge-rank"><?php esc_html_e( 'Not yet rated', 'talenttrack' ); ?></span>
+                            <span class="tt-mt-rank-badge-meta"><?php esc_html_e( 'rank shows after the first evaluation', 'talenttrack' ); ?></span>
+                        </span>
+                    <?php endif; ?>
                 <?php endif; ?>
+                <?php self::renderTrendChip( $trend ); ?>
             </div>
 
             <?php
@@ -146,5 +171,71 @@ class FrontendMyTeamView extends FrontendViewBase {
             <?php endif; ?>
         </div>
         <?php
+    }
+
+    /**
+     * #1384 — growth-framed personal trend chip. Always shown to the
+     * player; the raw team rank is opt-in (tt_player_visible_rank).
+     *
+     * @param array{has_data:bool,current_avg:float|null,prior_avg:float|null,delta:float|null,top_category:string|null} $trend
+     */
+    private static function renderTrendChip( array $trend ): void {
+        echo '<div class="tt-mt-trend-chip">';
+
+        if ( empty( $trend['has_data'] ) ) {
+            echo '<span class="tt-mt-trend-headline">' . esc_html__( 'Your progress', 'talenttrack' ) . '</span>';
+            echo '<span class="tt-mt-trend-sub">' . esc_html__( 'Your rating trend will appear after your first evaluation.', 'talenttrack' ) . '</span>';
+            echo '</div>';
+            return;
+        }
+
+        $delta = $trend['delta'];
+        if ( $delta === null ) {
+            echo '<span class="tt-mt-trend-headline">' . esc_html( sprintf(
+                /* translators: %s is the player's average rating so far, e.g. "7.2". */
+                __( '%s average so far', 'talenttrack' ),
+                number_format_i18n( (float) $trend['current_avg'], 1 )
+            ) ) . '</span>';
+            echo '<span class="tt-mt-trend-sub">' . esc_html__( 'Your trend appears after your next evaluation.', 'talenttrack' ) . '</span>';
+            echo '</div>';
+            return;
+        }
+
+        if ( $delta > 0 ) {
+            $icon = 'trend-up';
+            $cls  = ' tt-mt-trend-up';
+            $headline = sprintf(
+                /* translators: %s is the rating increase since last month, e.g. "0.4". */
+                __( '+%s since last month', 'talenttrack' ),
+                number_format_i18n( $delta, 1 )
+            );
+        } elseif ( $delta < 0 ) {
+            $icon = 'trend-down';
+            $cls  = ' tt-mt-trend-down';
+            $headline = sprintf(
+                /* translators: %s is the (negative) rating change since last month, e.g. "-0.3". */
+                __( '%s since last month', 'talenttrack' ),
+                number_format_i18n( $delta, 1 )
+            );
+        } else {
+            $icon = 'trend-flat';
+            $cls  = '';
+            $headline = __( 'Level with last month', 'talenttrack' );
+        }
+
+        echo '<span class="tt-mt-trend-headline' . esc_attr( $cls ) . '">';
+        echo \TT\Shared\Icons\IconRenderer::render( $icon, [ 'width' => 16, 'height' => 16 ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG.
+        echo '<span>' . esc_html( $headline ) . '</span>';
+        echo '</span>';
+
+        if ( $delta > 0 && ! empty( $trend['top_category'] ) ) {
+            echo '<span class="tt-mt-trend-top">' . sprintf(
+                /* translators: %s is a skill category label, e.g. "Technical". */
+                esc_html__( 'Improving most: %s', 'talenttrack' ),
+                '<strong>' . esc_html( (string) $trend['top_category'] ) . '</strong>'
+            ) . '</span>';
+        }
+
+        echo '</div>';
     }
 }
