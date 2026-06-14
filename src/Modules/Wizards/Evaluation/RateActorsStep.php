@@ -245,6 +245,21 @@ final class RateActorsStep implements WizardStepInterface {
                             ?></textarea>
                         </div>
                     </div>
+                    <?php // #1386 — optional player-facing feedback. Separate from the
+                          // staff-only Notes above: this string is shown to the player
+                          // (and their parents) in My evaluations. ?>
+                    <div class="tt-rate-row">
+                        <label class="tt-rate-label" for="tt-rate-feedback-<?php echo $pid; ?>"><?php esc_html_e( 'Feedback for the player', 'talenttrack' ); ?></label>
+                        <div class="tt-rate-control">
+                            <textarea rows="2"
+                                      id="tt-rate-feedback-<?php echo $pid; ?>"
+                                      class="tt-rate-notes"
+                                      name="player_feedback[<?php echo $pid; ?>]"
+                                      placeholder="<?php esc_attr_e( 'Optional — what they did well and what to work on next. Shown to the player and their parents.', 'talenttrack' ); ?>"><?php
+                                echo esc_textarea( (string) ( $state['player_feedback'][ $pid ] ?? '' ) );
+                            ?></textarea>
+                        </div>
+                    </div>
                     <div class="tt-rate-row tt-rate-skip-row">
                         <label class="tt-rate-skip">
                             <input type="checkbox" name="skip[<?php echo $pid; ?>]" value="1" <?php checked( ! empty( $state['skip'][ $pid ] ) ); ?> />
@@ -415,6 +430,9 @@ final class RateActorsStep implements WizardStepInterface {
                 roster.querySelectorAll( 'textarea[name^="notes["]' ).forEach( function ( el ) {
                     if ( el.value !== '' ) data[ el.name ] = el.value;
                 } );
+                roster.querySelectorAll( 'textarea[name^="player_feedback["]' ).forEach( function ( el ) {
+                    if ( el.value !== '' ) data[ el.name ] = el.value;
+                } );
                 roster.querySelectorAll( 'input[name^="skip["]' ).forEach( function ( el ) {
                     if ( el.checked ) data[ el.name ] = '1';
                 } );
@@ -548,11 +566,14 @@ final class RateActorsStep implements WizardStepInterface {
         $notes = isset( $post['notes'] ) && is_array( $post['notes'] )
             ? array_map( 'sanitize_textarea_field', wp_unslash( $post['notes'] ) )
             : [];
+        $player_feedback = isset( $post['player_feedback'] ) && is_array( $post['player_feedback'] )
+            ? array_map( 'sanitize_textarea_field', wp_unslash( $post['player_feedback'] ) )
+            : [];
         $skip  = isset( $post['skip'] ) && is_array( $post['skip'] )
             ? array_map( 'absint', $post['skip'] )
             : [];
 
-        return [ 'ratings' => $clean, 'notes' => $notes, 'skip' => $skip ];
+        return [ 'ratings' => $clean, 'notes' => $notes, 'player_feedback' => $player_feedback, 'skip' => $skip ];
     }
 
     public function nextStep( array $state ): ?string { return 'behaviour'; }

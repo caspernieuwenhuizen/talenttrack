@@ -25,6 +25,7 @@ final class EvaluationInserter {
      *   player_id: int,
      *   ratings: array<int|string,int|string>,
      *   notes?: string,
+     *   player_feedback?: string,
      * } $row
      * @return int|\WP_Error  evaluation id on success, WP_Error on failure
      */
@@ -59,6 +60,8 @@ final class EvaluationInserter {
             'coach_id'    => $coach_id,
             'eval_date'   => $eval_date,
             'notes'       => (string) ( $row['notes'] ?? '' ),
+            // #1386 — optional player-facing feedback (NULL when absent).
+            'player_feedback' => (string) ( $row['player_feedback'] ?? '' ),
         ];
         if ( $aid > 0 )         $insert['activity_id']  = $aid;
         if ( $eval_type_id > 0 ) $insert['eval_type_id'] = $eval_type_id;

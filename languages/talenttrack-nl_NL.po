@@ -38240,3 +38240,14 @@ msgstr "Inschrijving gewist voor %1$s (#%2$d) — opnieuw inschrijven bij de vol
 # Dutch install reads correctly today.
 msgid "The QR code could not be generated for this account — use the manual entry details instead. Both set up the same secret."
 msgstr "De QR-code kon voor dit account niet worden gegenereerd — gebruik in plaats daarvan de handmatige invoergegevens. Beide stellen hetzelfde geheim in."
+
+# #1386 - player-visible evaluation feedback (v4.20.130). i18n-sync will
+# merge these into the proper position on next run.
+msgid "Feedback for the player"
+msgstr "Feedback voor de speler"
+
+msgid "Optional — what they did well and what to work on next. Shown to the player and their parents."
+msgstr "Optioneel — wat ging goed en waaraan nog gewerkt kan worden. Zichtbaar voor de speler en de ouders."
+
+msgid "Feedback from your coach"
+msgstr "Feedback van je coach"

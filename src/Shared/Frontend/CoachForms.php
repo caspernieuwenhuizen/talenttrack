@@ -177,6 +177,8 @@ class CoachForms {
             $cur_home_away   = $is_edit ? (string) ( $existing_eval->home_away ?? '' ) : '';
             $cur_minutes     = $is_edit ? (string) ( $existing_eval->minutes_played ?? '' ) : '';
             $cur_notes       = $is_edit ? (string) ( $existing_eval->notes ?? '' ) : '';
+            // #1386 — player-facing feedback, distinct from staff-only notes.
+            $cur_feedback    = $is_edit ? (string) ( $existing_eval->player_feedback ?? '' ) : '';
             $match_open      = $is_edit && $cur_type_id > 0 && ! empty( $type_meta[ $cur_type_id ] );
             ?>
             <div class="tt-form-row"><label><?php esc_html_e( 'Type', 'talenttrack' ); ?> *</label><select name="eval_type_id" id="tt_fe_eval_type" required>
@@ -300,6 +302,8 @@ class CoachForms {
                 <?php
             endforeach; ?>
             <div class="tt-form-row"><label><?php esc_html_e( 'Notes', 'talenttrack' ); ?></label><textarea name="notes" rows="3" data-tt-low-rating-notes><?php echo esc_textarea( $cur_notes ); ?></textarea></div>
+            <?php // #1386 — optional feedback shown to the player + parents (Notes above stay staff-only). ?>
+            <div class="tt-form-row"><label><?php esc_html_e( 'Feedback for the player', 'talenttrack' ); ?></label><textarea name="player_feedback" rows="3" placeholder="<?php esc_attr_e( 'Optional — what they did well and what to work on next. Shown to the player and their parents.', 'talenttrack' ); ?>"><?php echo esc_textarea( $cur_feedback ); ?></textarea></div>
             <div class="tt-form-row tt-low-rating-warning" data-tt-low-rating-warning hidden>
                 <span style="color:var(--tt-warning, #c9962a); font-size:13px;">
                     <?php

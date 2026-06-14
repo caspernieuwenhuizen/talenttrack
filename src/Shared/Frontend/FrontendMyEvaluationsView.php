@@ -224,6 +224,19 @@ class FrontendMyEvaluationsView extends FrontendViewBase {
                             </div>
                         <?php endif; ?>
 
+                        <?php
+                        // #1386 — coach's player-facing feedback. Optional and
+                        // distinct from the staff-only `notes` field (never
+                        // rendered on this surface). Shown to the player and,
+                        // via the same view, their parents.
+                        $feedback = trim( (string) ( $ev->player_feedback ?? '' ) );
+                        if ( $feedback !== '' ) : ?>
+                            <div class="tt-mye-feedback">
+                                <div class="tt-mye-feedback-label"><?php esc_html_e( 'Feedback from your coach', 'talenttrack' ); ?></div>
+                                <p class="tt-mye-feedback-text"><?php echo nl2br( esc_html( $feedback ) ); ?></p>
+                            </div>
+                        <?php endif; ?>
+
                         <?php if ( $has_detail ) : ?>
                             <button type="button" class="tt-mye-toggle" data-tt-mye-toggle aria-expanded="false" aria-controls="<?php echo esc_attr( $detail_id ); ?>">
                                 <span class="tt-mye-toggle-show"><?php esc_html_e( 'Show detail', 'talenttrack' ); ?></span>
