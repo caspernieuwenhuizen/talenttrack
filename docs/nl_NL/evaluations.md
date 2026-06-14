@@ -12,9 +12,14 @@ Een **evaluatie** is je beoordeling van een speler op een specifieke datum, op b
 4. Kies de datum.
 5. Geef elke hoofdcategorie een score. De schaal (vaak 1–5) is door de academie ingesteld.
 6. Wil je preciezer zijn? Duik in de subcategorieën — je hoofdcategorie wordt dan het gemiddelde.
-7. Voeg een notitie toe over wat je hebt gezien.
-8. Bij een wedstrijd vul je ook tegenstander, competitie, uitslag, thuis/uit en gespeelde minuten in.
-9. Opslaan.
+7. Voeg een notitie toe over wat je hebt gezien. Dit veld **Notities** is alleen voor stafleden — de speler ziet het nooit.
+8. Voeg optioneel **Feedback voor de speler** toe. Anders dan Notities is dit veld *wel* zichtbaar voor de speler (en de ouders) op hun eigen evaluatiescherm — gebruik het om te vertellen wat goed ging en waaraan nog gewerkt kan worden. Laat het leeg als je niets te delen hebt.
+9. Bij een wedstrijd vul je ook tegenstander, competitie, uitslag, thuis/uit en gespeelde minuten in.
+10. Opslaan.
+
+## Wat de speler ziet
+
+Spelers (en hun ouders) zien alleen de scores en het bericht **Feedback voor de speler** — nooit je interne Notities. Laat je het feedbackveld leeg, dan ziet de speler enkel de scores.
 
 ## Een evaluatie bekijken
 

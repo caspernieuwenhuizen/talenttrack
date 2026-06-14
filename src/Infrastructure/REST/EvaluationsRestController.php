@@ -628,6 +628,9 @@ class EvaluationsRestController {
             'eval_type_id'   => absint( $r['eval_type_id'] ?? 0 ),
             'eval_date'      => sanitize_text_field( (string) ( $r['eval_date'] ?? current_time( 'Y-m-d' ) ) ),
             'notes'          => sanitize_textarea_field( (string) ( $r['notes'] ?? '' ) ),
+            // #1386 — optional coach feedback shown to the player/parent.
+            // Distinct from `notes` (staff-only); see the player view.
+            'player_feedback' => sanitize_textarea_field( (string) ( $r['player_feedback'] ?? '' ) ),
             'opponent'       => sanitize_text_field( (string) ( $r['opponent'] ?? '' ) ),
             'competition'    => sanitize_text_field( (string) ( $r['competition'] ?? '' ) ),
             'game_result'   => sanitize_text_field( (string) ( $r['game_result'] ?? '' ) ),

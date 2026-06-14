@@ -12,9 +12,14 @@ An **evaluation** is your rating of a player on a specific date, across the cate
 4. Pick the date.
 5. Give a rating to each main category. The scale (often 1–5) is set by the academy.
 6. If you want to be more precise, drill into the subcategories — your main rating becomes the average.
-7. Add a note about what you saw.
-8. If the type is a match, fill in opponent, competition, result, home/away and minutes played.
-9. Save.
+7. Add a note about what you saw. This **Notes** field is for staff only — the player never sees it.
+8. Optionally, add **Feedback for the player**. Unlike Notes, this field *is* shown to the player (and their parents) on their own evaluations screen — use it to tell them what they did well and what to work on next. Leave it blank if you have nothing to share.
+9. If the type is a match, fill in opponent, competition, result, home/away and minutes played.
+10. Save.
+
+## What the player sees
+
+Players (and their parents) only ever see the scores and the **Feedback for the player** message — never your internal Notes. If you leave the feedback field blank, the player just sees the ratings.
 
 ## Reading an evaluation
 

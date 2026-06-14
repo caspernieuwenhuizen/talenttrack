@@ -57,6 +57,7 @@ final class EvaluationRowRestController {
             'player_id'   => isset( $body['player_id'] )   ? (int) $body['player_id']   : 0,
             'eval_date'   => sanitize_text_field( (string) ( $body['eval_date'] ?? '' ) ),
             'notes'       => sanitize_textarea_field( wp_unslash( (string) ( $body['notes'] ?? '' ) ) ),
+            'player_feedback' => sanitize_textarea_field( wp_unslash( (string) ( $body['player_feedback'] ?? '' ) ) ),
             'ratings'     => is_array( $body['ratings'] ?? null ) ? array_map( 'intval', (array) $body['ratings'] ) : [],
         ];
 

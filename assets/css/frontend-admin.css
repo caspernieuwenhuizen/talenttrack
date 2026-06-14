@@ -924,6 +924,26 @@ body:not(.tt-theme-inherit) .tt-dashboard .tt-field {
     /* Tighter bottom margin so the toggle hugs the pills row. */
     margin: 0 0 6px;
 }
+/* #1386 — coach's player-facing feedback callout. Soft accent panel so
+ * it reads as a personal message, distinct from the scored pills above. */
+.tt-dashboard .tt-mye-feedback {
+    margin: 0 0 8px;
+    padding: 8px 12px;
+    border-left: 3px solid var(--tt-primary, #0b3d2e);
+    background: var(--tt-bg-soft, #f5f7f6);
+    border-radius: 0 6px 6px 0;
+}
+.tt-dashboard .tt-mye-feedback-label {
+    font-size: var(--tt-fs-sm, 13px);
+    font-weight: 600;
+    color: var(--tt-primary, #0b3d2e);
+    margin: 0 0 2px;
+}
+.tt-dashboard .tt-mye-feedback-text {
+    margin: 0;
+    color: var(--tt-text, #1f2a30);
+    line-height: 1.45;
+}
 /* Match label shrinkage — date stacked above the type/coach line, both
  * smaller, sits inside the 80px badge column. Keeps all info but
  * uses the column more efficiently. */

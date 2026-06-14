@@ -56,6 +56,7 @@ final class ReviewStep implements WizardStepInterface {
         $aid     = (int) ( $state['activity_id'] ?? 0 );
         $ratings = (array) ( $state['ratings'] ?? [] );
         $notes   = (array) ( $state['notes'] ?? [] );
+        $player_feedback = (array) ( $state['player_feedback'] ?? [] );
         $skip    = (array) ( $state['skip'] ?? [] );
         $present_players = RateActorsStep::ratablePlayersForActivity( $aid );
 
@@ -81,6 +82,7 @@ final class ReviewStep implements WizardStepInterface {
                     'eval_date'   => $eval_date,
                     'ratings'     => array_map( 'intval', $r ),
                     'notes'       => (string) ( $notes[ $pid ] ?? '' ),
+                    'player_feedback' => (string) ( $player_feedback[ $pid ] ?? '' ),
                 ];
             } else {
                 $unrated[] = trim( (string) $pl->first_name . ' ' . (string) $pl->last_name );
@@ -224,6 +226,7 @@ final class ReviewStep implements WizardStepInterface {
         $aid     = (int) ( $state['activity_id'] ?? 0 );
         $ratings = (array) ( $state['ratings'] ?? [] );
         $notes   = (array) ( $state['notes'] ?? [] );
+        $player_feedback = (array) ( $state['player_feedback'] ?? [] );
         $skip    = (array) ( $state['skip'] ?? [] );
 
         $activity_row = $wpdb->get_row( $wpdb->prepare(
@@ -261,6 +264,7 @@ final class ReviewStep implements WizardStepInterface {
                 'eval_date'   => $eval_date,
                 'ratings'     => $cats,
                 'notes'       => (string) ( $notes[ $player_id ] ?? '' ),
+                'player_feedback' => (string) ( $player_feedback[ $player_id ] ?? '' ),
             ] );
             if ( ! is_wp_error( $result ) ) $created++;
         }
