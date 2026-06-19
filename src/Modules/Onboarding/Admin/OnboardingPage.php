@@ -65,6 +65,7 @@ class OnboardingPage {
             case 'academy':     self::renderAcademy();    break;
             case 'first_team':  self::renderFirstTeam();  break;
             case 'first_admin': self::renderFirstAdmin(); break;
+            case 'dashboard':   self::renderDashboard();  break;
             case 'done':        self::renderDone();       break;
             default:
                 echo '<p>' . esc_html__( 'Unknown step.', 'talenttrack' ) . '</p>';
@@ -249,10 +250,49 @@ class OnboardingPage {
         <?php
     }
 
+    private static function renderDashboard(): void {
+        $existing = get_posts( [
+            'post_type'   => 'page',
+            'post_status' => [ 'publish', 'draft', 'private' ],
+            'numberposts' => 1,
+            's'           => '[talenttrack_dashboard]',
+        ] );
+        $has_existing = ! empty( $existing );
+        ?>
+        <h2><?php esc_html_e( 'Dashboard page', 'talenttrack' ); ?></h2>
+        <p style="max-width:680px;">
+            <?php esc_html_e( 'TalentTrack runs on a frontend page that hosts the [talenttrack_dashboard] shortcode. This creates that page and sets it as the site homepage, so coaches, players, and parents land straight on the dashboard when they sign in.', 'talenttrack' ); ?>
+        </p>
+        <?php if ( $has_existing ) : ?>
+            <p class="description" style="max-width:680px;">
+                <?php esc_html_e( 'A page with the dashboard shortcode already exists — it will be reused and set as the homepage, not duplicated.', 'talenttrack' ); ?>
+            </p>
+        <?php endif; ?>
+        <p style="margin-top:24px; display:flex; gap:12px; flex-wrap:wrap;">
+            <a class="button button-primary button-hero" href="<?php echo esc_url( self::actionUrl( 'tt_onboarding_create_dashboard_page' ) ); ?>">
+                <?php esc_html_e( 'Create page & set as homepage', 'talenttrack' ); ?>
+            </a>
+            <a class="button button-secondary button-hero" href="<?php echo esc_url( self::actionUrl( 'tt_onboarding_advance', [ 'from' => 'dashboard', 'skip' => '1' ] ) ); ?>">
+                <?php esc_html_e( 'Skip', 'talenttrack' ); ?>
+            </a>
+        </p>
+        <p class="description" style="max-width:680px;">
+            <?php esc_html_e( 'You can change the homepage later under Settings → Reading.', 'talenttrack' ); ?>
+        </p>
+        <?php
+    }
+
     private static function renderDone(): void {
         $academy = OnboardingState::payloadFor( 'academy' );
         $team    = OnboardingState::payloadFor( 'first_team' );
         $admin   = OnboardingState::payloadFor( 'first_admin' );
+        $dash    = OnboardingState::payloadFor( 'dashboard' );
+
+        // Land on the frontend dashboard page when one was created/reused
+        // during the wizard; otherwise fall back to the wp-admin dashboard.
+        $dashboard_url = ! empty( $dash['page_url'] )
+            ? (string) $dash['page_url']
+            : admin_url( 'admin.php?page=talenttrack' );
         ?>
         <h2><?php esc_html_e( 'Setup complete', 'talenttrack' ); ?></h2>
         <p><?php esc_html_e( 'You are ready to use TalentTrack. Here is what was set up:', 'talenttrack' ); ?></p>
@@ -306,11 +346,6 @@ class OnboardingPage {
                 admin_url( 'admin.php?page=tt-config&tab=branding' )
             );
             self::renderNextStepCard(
-                __( 'Create dashboard page', 'talenttrack' ),
-                __( 'A frontend page with the [talenttrack_dashboard] shortcode so coaches and players can sign in.', 'talenttrack' ),
-                self::actionUrl( 'tt_onboarding_create_dashboard_page' )
-            );
-            self::renderNextStepCard(
                 __( 'Set up backups', 'talenttrack' ),
                 __( 'Schedule daily backups so a hosting hiccup does not lose your data.', 'talenttrack' ),
                 admin_url( 'admin.php?page=tt-config&tab=backups' )
@@ -319,7 +354,7 @@ class OnboardingPage {
         </div>
 
         <p style="margin-top:32px;">
-            <a class="button button-primary" href="<?php echo esc_url( admin_url( 'admin.php?page=talenttrack' ) ); ?>">
+            <a class="button button-primary" href="<?php echo esc_url( $dashboard_url ); ?>">
                 <?php esc_html_e( 'Go to dashboard', 'talenttrack' ); ?>
             </a>
         </p>
@@ -334,6 +369,7 @@ class OnboardingPage {
             'academy'     => __( 'Academy basics', 'talenttrack' ),
             'first_team'  => __( 'First team', 'talenttrack' ),
             'first_admin' => __( 'First admin', 'talenttrack' ),
+            'dashboard'   => __( 'Dashboard page', 'talenttrack' ),
             'done'        => __( 'Done', 'talenttrack' ),
         ];
         $current_idx = array_search( $step, OnboardingState::STEPS, true );

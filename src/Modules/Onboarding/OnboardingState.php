@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  */
 class OnboardingState {
 
-    public const STEPS = [ 'welcome', 'academy', 'first_team', 'first_admin', 'done' ];
+    public const STEPS = [ 'welcome', 'academy', 'first_team', 'first_admin', 'dashboard', 'done' ];
 
     private const STATE_OPT     = 'tt_onboarding_state';
     private const COMPLETED_OPT = 'tt_onboarding_completed_at';

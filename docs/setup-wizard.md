@@ -2,7 +2,7 @@
 
 # Setup wizard
 
-The setup wizard is the first thing a fresh TalentTrack install shows. It creates the minimum a club needs to start using the plugin: an academy name, a first team, and your admin profile.
+The setup wizard is the first thing a fresh TalentTrack install shows. It creates the minimum a club needs to start using the plugin: an academy name, a first team, your admin profile, and a frontend dashboard page set as the site homepage.
 
 ## Where to find it
 
@@ -14,13 +14,14 @@ The wizard is reachable from four places — pick whichever you find first.
 - **Account page**: when the wizard isn't completed, `TalentTrack → Account` shows a small "Finish setting up TalentTrack" notice with a Resume button.
 - **After completing**: the banner and `Welcome` menu entry disappear, but the Configuration tab and Account-page notice continue to offer "Run wizard again" / "Start over". Restarting the wizard does **not** delete data you already entered — it just walks the form steps again.
 
-## What the five steps do
+## What the six steps do
 
 1. **Welcome** — short explanation of the plugin and two buttons: *Set up my academy* (continues into the wizard) or *Try with sample data* (deep-links to the demo data generator under Tools so you can explore before committing).
 2. **Academy basics** — academy name, primary color, season label, default date format. Saved to `tt_config`.
 3. **First team** — name + age group. Creates one row in `tt_teams`. You can skip this step and add teams later from the Teams view (players — not teams — support bulk CSV import).
 4. **First admin** — confirms your WP account, creates a `tt_people` staff record linked to it, and (optionally) grants you the *Club Admin* role.
-5. **Done** — summary of what was set up and four "Recommended next steps" cards: add players, invite first coach, customize branding, create a frontend dashboard page.
+5. **Dashboard page** — creates a WordPress page holding the `[talenttrack_dashboard]` shortcode and sets it as the site homepage, so signing in lands straight on the dashboard. If a page with the shortcode already exists it is reused (and published if it was a draft), never duplicated. You can skip this step, and you can change the homepage later under Settings → Reading.
+6. **Done** — summary of what was set up and "Recommended next steps" cards (add players, invite first coach, customize branding, set up backups). The **Go to dashboard** button opens the frontend dashboard page created in step 5 (or the wp-admin dashboard if you skipped it).
 
 ## Skip vs dismiss
 
@@ -46,6 +47,6 @@ Future epics like the monetization trial CTA (#0011) or the backup setup wizard 
 ## State storage
 
 - `tt_onboarding_state` (option) — JSON `{ step, dismissed, payload }`. Per-step form values are kept in `payload` so a page refresh mid-step doesn't lose typing.
-- `tt_onboarding_completed_at` (option) — UNIX timestamp set when step 5 is reached.
+- `tt_onboarding_completed_at` (option) — UNIX timestamp set when the dashboard step is completed or skipped.
 
 Resetting the wizard deletes both options.
