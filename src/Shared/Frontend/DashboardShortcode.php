@@ -282,14 +282,6 @@ class DashboardShortcode {
             echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
         }
 
-        // #1452 — surface the running version at the foot of the dashboard
-        // so operators can confirm what's deployed without opening wp-admin.
-        // Operator-only so player/parent dashboards stay clean.
-        if ( $is_admin ) {
-            echo '<div class="tt-dash-version" style="margin-top:24px;text-align:center;font-size:.75rem;color:#90a0a6;">'
-                . esc_html( 'v' . TT_VERSION ) . '</div>';
-        }
-
         echo '</div>';
 
         /** @var string $output */
@@ -1112,6 +1104,15 @@ class DashboardShortcode {
         if ( $demo_on ) {
             echo '<span class="tt-dash-demo-pill" tabindex="0" title="' . esc_attr( $demo_tip ) . '" aria-label="' . esc_attr( $demo_tip ) . '">'
                 . esc_html__( 'DEMO', 'talenttrack' )
+                . '</span>';
+        }
+
+        // #1452 — running version, operator-only, sits in the actions row
+        // beside the help button so operators can confirm what's deployed
+        // without opening wp-admin. Players/parents don't see it.
+        if ( current_user_can( 'tt_edit_settings' ) ) {
+            echo '<span class="tt-dash-version" style="align-self:center;font-size:.75rem;color:#90a0a6;">'
+                . esc_html( 'v' . TT_VERSION )
                 . '</span>';
         }
 
