@@ -32409,3 +32409,13 @@ msgstr ""
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr ""
+
+#. translators: %s: localized match date, e.g. "14 Jun"
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:160
+#, php-format
+msgid "Available on match day (%s)"
+msgstr ""
+
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:96
+msgid "The match can only be started on match day."
+msgstr ""

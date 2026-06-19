@@ -36863,6 +36863,16 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#. translators: %s: localized match date, e.g. "14 Jun"
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:160
+#, php-format
+msgid "Available on match day (%s)"
+msgstr "Beschikbaar op wedstrijddag (%s)"
+
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:96
+msgid "The match can only be started on match day."
+msgstr "De wedstrijd kan alleen op wedstrijddag worden gestart."
+
 #~ msgid "Create dashboard page"
 #~ msgstr "Dashboardpagina aanmaken"
 

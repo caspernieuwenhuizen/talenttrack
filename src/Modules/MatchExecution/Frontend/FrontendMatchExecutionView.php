@@ -149,6 +149,20 @@ class FrontendMatchExecutionView extends FrontendViewBase {
         $session_date = (string) ( $activity->session_date ?? '' );
         $kickoff      = (string) ( $activity->kickoff_time ?? '' );
         $when         = trim( $session_date . ( $kickoff !== '' ? ' ' . substr( $kickoff, 0, 5 ) : '' ) );
+
+        // #1473 — starting the match is gated to match day (server date).
+        // Before then the Start CTA + timer button render disabled with a
+        // dated tooltip; the start transition is also rejected server-side.
+        $is_match_day   = ( $session_date !== '' && substr( $session_date, 0, 10 ) === current_time( 'Y-m-d' ) );
+        $start_locked   = ( ! $is_match_day && $state === MatchExecutionState::NOT_STARTED );
+        $start_lock_msg = '';
+        if ( $start_locked ) {
+            $start_lock_msg = sprintf(
+                /* translators: %s: localized match date, e.g. "14 Jun" */
+                __( 'Available on match day (%s)', 'talenttrack' ),
+                $session_date !== '' ? (string) wp_date( 'j M', (int) strtotime( $session_date ) ) : ''
+            );
+        }
         ?>
         <div class="tt-mexec" data-activity-id="<?php echo (int) $activity_id; ?>" data-state="<?php echo esc_attr( $state ); ?>" data-half-length="<?php echo (int) $prep->half_length_minutes; ?>">
 
@@ -192,7 +206,7 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                     <p class="tt-mexec-timer-half" data-status="" data-tt-mexec-half-label>—</p>
                     <p class="tt-mexec-timer-clock" data-tt-mexec-clock>00:00</p>
                 </div>
-                <button type="button" class="tt-mexec-timer-btn" data-tt-mexec-timer-toggle><?php esc_html_e( 'Start', 'talenttrack' ); ?></button>
+                <button type="button" class="tt-mexec-timer-btn" data-tt-mexec-timer-toggle<?php echo $start_locked ? ' disabled title="' . esc_attr( $start_lock_msg ) . '"' : ''; ?>><?php esc_html_e( 'Start', 'talenttrack' ); ?></button>
             </section>
 
             <section class="tt-mexec-section tt-mexec-on-pitch" aria-label="<?php esc_attr_e( 'Tracked players', 'talenttrack' ); ?>">
@@ -419,7 +433,7 @@ class FrontendMatchExecutionView extends FrontendViewBase {
 
             <footer class="tt-mexec-footer">
                 <div class="tt-mexec-footer-inner">
-                    <button type="button" class="tt-mexec-footer-cta" data-tt-mexec-state-action data-action="start-match"><?php esc_html_e( 'Start match', 'talenttrack' ); ?></button>
+                    <button type="button" class="tt-mexec-footer-cta" data-tt-mexec-state-action data-action="start-match"<?php echo $start_locked ? ' disabled title="' . esc_attr( $start_lock_msg ) . '"' : ''; ?>><?php esc_html_e( 'Start match', 'talenttrack' ); ?></button>
                     <p class="tt-mexec-footer-sub" data-state="online" data-tt-mexec-status>
                         <span class="tt-mexec-footer-dot"></span>
                         <span data-tt-mexec-status-text><?php esc_html_e( 'Synced', 'talenttrack' ); ?></span>
@@ -444,6 +458,9 @@ class FrontendMatchExecutionView extends FrontendViewBase {
             'home_score'    => $home_score,
             'away_score'    => $away_score,
             'execution_id'  => $execution_id,
+            // #1473 — match-day gate for the Start CTA / timer.
+            'is_match_day'   => $is_match_day,
+            'start_lock_msg' => $start_lock_msg,
         ];
         ?>
         <script type="application/json" id="tt-mexec-bootstrap"><?php echo wp_json_encode( $bootstrap ); ?></script>

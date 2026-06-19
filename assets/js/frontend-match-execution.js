@@ -22,6 +22,11 @@
     })();
     var cfg = window.TT_MATCH_EXECUTION || {};
     var i18n = cfg.i18n || {};
+    // #1473 — the match can only be started on match day. The server
+    // enforces this too; this keeps the UI honest (disabled CTA + timer,
+    // dated tooltip). Defaults to allowed when the flag is absent.
+    var IS_MATCH_DAY = bootstrap.is_match_day !== false;
+    var START_LOCK_MSG = bootstrap.start_lock_msg || '';
     var ACTIVITY_ID = parseInt(cfg.activity_id, 10) || 0;
     var HALF_LENGTH = parseInt(bootstrap.half_length, 10) || 35;
 
@@ -86,6 +91,8 @@
         if (!state.running) {
             // Starting the timer for the current half.
             if (state.state === 'not_started') {
+                // #1473 — block the start before match day.
+                if (!IS_MATCH_DAY) return;
                 state.state = 'first_half'; state.half = 1;
                 api('start-half', { half: 1 });
                 renderStateButton(); renderHalfLabel();
@@ -114,6 +121,8 @@
     // --- Sticky bottom action (half transitions) ---
     els.stateBtn.addEventListener('click', function () {
         if (state.state === 'not_started') {
+            // #1473 — block the start before match day.
+            if (!IS_MATCH_DAY) return;
             // Footer CTA shortcut for "Start match" — same effect as the
             // timer Start button. v4.3.19 (#956) maps this footer state
             // explicitly per the spec table.
@@ -314,7 +323,9 @@
         } else {
             els.stateBtn.textContent = i18n.start_match || 'Start match';
             els.stateBtn.setAttribute('data-action', 'start-match');
-            els.stateBtn.disabled = false;
+            // #1473 — keep Start disabled until match day.
+            els.stateBtn.disabled = !IS_MATCH_DAY;
+            if (!IS_MATCH_DAY && START_LOCK_MSG) els.stateBtn.title = START_LOCK_MSG;
         }
         // Also sync the parent <div class="tt-mexec"> data-state attr so
         // CSS state-driven visibility rules apply.
@@ -324,6 +335,9 @@
             if (state.state === 'not_started') {
                 els.timerBtn.textContent = i18n.start || 'Start';
                 els.timerBtn.setAttribute('data-action', 'start');
+                // #1473 — keep the timer Start disabled until match day.
+                els.timerBtn.disabled = !IS_MATCH_DAY;
+                if (!IS_MATCH_DAY && START_LOCK_MSG) els.timerBtn.title = START_LOCK_MSG;
             } else if (state.running) {
                 els.timerBtn.textContent = i18n.pause || 'Pause';
                 els.timerBtn.setAttribute('data-action', 'pause');
