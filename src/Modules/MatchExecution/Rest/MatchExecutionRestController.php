@@ -79,6 +79,27 @@ class MatchExecutionRestController {
         if ( $half !== 1 && $half !== 2 ) return RestResponse::error( 'bad_half', __( 'Half must be 1 or 2.', 'talenttrack' ), 400 );
 
         $repo = new MatchExecutionRepository();
+
+        // #1473 — starting the match (half 1 from a not-yet-started
+        // execution) is gated to match day. Second-half starts and
+        // idempotent re-calls of an already-started match are not
+        // re-gated (an offline-queue replay must still land).
+        if ( $half === 1 ) {
+            global $wpdb;
+            $state = (string) $wpdb->get_var( $wpdb->prepare(
+                "SELECT state FROM {$wpdb->prefix}tt_match_execution WHERE id = %d AND club_id = %d",
+                $exec_id, CurrentClub::id()
+            ) );
+            $not_started = ( $state === '' || $state === MatchExecutionState::NOT_STARTED );
+            if ( $not_started && ! self::isMatchDay( absint( $r['activity_id'] ) ) ) {
+                return RestResponse::error(
+                    'not_match_day',
+                    __( 'The match can only be started on match day.', 'talenttrack' ),
+                    409
+                );
+            }
+        }
+
         $col  = $half === 1 ? 'first_half_started_at' : 'second_half_started_at';
         $next_state = $half === 1 ? MatchExecutionState::FIRST_HALF : MatchExecutionState::SECOND_HALF;
         $repo->update( $exec_id, [
@@ -400,6 +421,21 @@ class MatchExecutionRestController {
      *
      * @return array{0:int, 1:?\WP_REST_Response} [execution_id, error_response_or_null]
      */
+    /**
+     * #1473 — true when the activity's `session_date` is the server's
+     * current date. The match-start transition is gated on this.
+     */
+    private static function isMatchDay( int $activity_id ): bool {
+        if ( $activity_id <= 0 ) return false;
+        global $wpdb;
+        $session_date = $wpdb->get_var( $wpdb->prepare(
+            "SELECT session_date FROM {$wpdb->prefix}tt_activities WHERE id = %d AND club_id = %d",
+            $activity_id, CurrentClub::id()
+        ) );
+        if ( ! $session_date ) return false;
+        return substr( (string) $session_date, 0, 10 ) === current_time( 'Y-m-d' );
+    }
+
     private static function ensureExecution( \WP_REST_Request $r ): array {
         $activity_id = absint( $r['activity_id'] );
         if ( $activity_id <= 0 ) {

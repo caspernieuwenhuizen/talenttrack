@@ -148,7 +148,11 @@ werkbalk is de directe sneltoets voor "deze opstelling nu printen".
 - De selectie aanpassen (spelers toevoegen / verwijderen) — dat doe
   je op de pagina **Teams**.
 - De wedstrijd zelf draaien — dat is **Match Execution**, de live
-  telefoon-app voor de assistent-coach.
+  telefoon-app voor de assistent-coach. De knop **Start match** wordt
+  pas actief op de wedstrijddag zelf — daarvoor is hij wel zichtbaar
+  maar uitgeschakeld, met een tooltip die de datum noemt waarop hij
+  vrijkomt ("Beschikbaar op wedstrijddag (14 jun)"). Zo wordt een
+  wedstrijd niet per ongeluk te vroeg gestart.
 - Analist-feedback vastleggen — de camera-vlag markeert alleen wie er
   is aangewezen; het vastleggen van de feedback zelf is een aparte
   workflow.

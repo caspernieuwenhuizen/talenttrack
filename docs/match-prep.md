@@ -140,6 +140,9 @@ now".
 - Edit the roster (add / remove players from the team) — that's the
   **Teams** page.
 - Run the match itself — that's **Match Execution**, the live phone
-  app for the assistant coach.
+  app for the assistant coach. The **Start match** button only becomes
+  active on match day itself — before then it's shown but disabled, with
+  a tooltip naming the date it unlocks ("Available on match day (14
+  Jun)"). This keeps a match from being started early by accident.
 - Capture analyst feedback — the camera flag only marks who's been
   appointed; capturing their feedback is a separate workflow.
