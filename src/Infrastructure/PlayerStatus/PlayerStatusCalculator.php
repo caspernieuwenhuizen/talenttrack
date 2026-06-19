@@ -181,6 +181,7 @@ final class PlayerStatusCalculator {
                JOIN {$wpdb->prefix}tt_evaluations e ON e.id = r.evaluation_id AND e.club_id = r.club_id
               WHERE e.player_id = %d
                 AND e.club_id = %d
+                AND e.archived_at IS NULL
                 AND e.eval_date >= %s
                 AND e.eval_date <= %s",
             $player_id, CurrentClub::id(), $from, $to
