@@ -72,6 +72,15 @@ met drie chips per speler: **Aanwezig**, **Afwezig (excused)**,
 selectie er." Het sluiten van de drawer slaat op; wie als afwezig
 wordt gemarkeerd wordt uit elke positie en rolrij verwijderd.
 
+Heeft de wedstrijdactiviteit een **geplande selectie** (de verwachte
+spelers die je bij het aanmaken koos), dan begint de
+beschikbaarheidsstap vanuit dat plan in plaats van iedereen op
+Aanwezig te zetten: geplande spelers staan standaard op Aanwezig, en
+teamspelers die je uit het plan liet staan vooraf op Afwezig met de
+reden "niet in geplande selectie." Pas elke chip aan — de
+standaardwaarden zijn slechts een voorzet. Activiteiten zonder
+geplande selectie zetten nog steeds iedereen standaard op Aanwezig.
+
 ## Formatie
 
 In het dropdown **Formatie** staat elke regel uit

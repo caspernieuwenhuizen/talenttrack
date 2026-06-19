@@ -47,6 +47,12 @@ Both filters survive in the URL (`?team_id=N&activity_type_key=match`), so deep-
 
 The activity list shows the type as a colour-coded pill so trainings, games, tournaments, meetings and other activities are easy to scan at a glance.
 
+## Expected attendance
+
+When you create an activity you pick which players are expected — the roster step defaults to the whole team, and you untick anyone you already know is away. Those picks are the activity's **planned roster**.
+
+Open an activity's detail page and you'll see an **Expected attendance** panel listing those players (guests are tagged), with the count in the heading, so you know who to expect before the session. It shows nothing if you chose "Set attendance later" at creation. Marking who actually turned up still happens on the edit form (or the Mark attendance wizard) — the planned roster is what you expected, the marked attendance is what happened.
+
 ## Why the type matters
 
 Each activity type can be linked to a workflow template that fires when you save an activity of that type. By default:

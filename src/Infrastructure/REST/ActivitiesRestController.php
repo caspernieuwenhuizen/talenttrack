@@ -82,6 +82,16 @@ class ActivitiesRestController {
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
             ],
         ] );
+        // #1453 — read the planned (expected) attendance roster for an
+        // activity, so a non-WP front end gets the same "who to expect"
+        // data the activity detail page and match-prep step render.
+        register_rest_route( self::NS, '/activities/(?P<id>\d+)/planned-attendance', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'get_planned_attendance' ],
+                'permission_callback' => [ __CLASS__, 'can_view' ],
+            ],
+        ] );
         register_rest_route( self::NS, '/attendance/(?P<id>\d+)', [
             [
                 'methods'             => 'PATCH',
@@ -1112,6 +1122,42 @@ class ActivitiesRestController {
         }
         do_action( 'tt_activity_evaluation_skipped_changed', $id, $skipped );
         return RestResponse::success( [ 'id' => $id, 'evaluation_skipped' => $skipped ] );
+    }
+
+    /**
+     * GET /activities/{id}/planned-attendance — the planned (expected)
+     * roster for an activity: the players the coach ticked at creation
+     * (`record_type='expected'`). Read-only; mirrors what the activity
+     * detail page and the match-prep availability step consume. Empty
+     * `roster` when no plan was captured.
+     */
+    public static function get_planned_attendance( \WP_REST_Request $r ) {
+        global $wpdb; $p = $wpdb->prefix;
+        $id = absint( $r['id'] );
+        if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid activity id.', 'talenttrack' ), 400 );
+
+        // Club-scope the activity before exposing its roster.
+        $exists = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT id FROM {$p}tt_activities WHERE id = %d AND club_id = %d",
+            $id, CurrentClub::id()
+        ) );
+        if ( $exists <= 0 ) return RestResponse::error( 'not_found', __( 'Activity not found.', 'talenttrack' ), 404 );
+
+        $roster = ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )
+            ->plannedRosterForActivity( $id );
+        $out = array_map( static function ( $row ) {
+            return [
+                'player_id' => (int) ( $row->player_id ?? 0 ),
+                'is_guest'  => (int) ( $row->is_guest ?? 0 ) === 1,
+                'name'      => (string) ( $row->name ?? '' ),
+            ];
+        }, $roster );
+
+        return RestResponse::success( [
+            'activity_id' => $id,
+            'count'       => count( $out ),
+            'roster'      => $out,
+        ] );
     }
 
     /**

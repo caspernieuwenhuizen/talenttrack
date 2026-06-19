@@ -373,6 +373,11 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             }
         }
 
+        // #1453 — surface the planned (expected) roster so a coach
+        // opening the activity sees who to expect, before any actual
+        // attendance is marked.
+        self::renderPlannedAttendance( $session );
+
         // #1099 + #1100 — Activity Explorer presets. Two affordances
         // side-by-side: Evaluation coverage + Attendance vs squad.
         $activity_id_attr = (string) (int) ( $session->id ?? 0 );
@@ -481,6 +486,52 @@ class FrontendActivitiesManageView extends FrontendViewBase {
      * current active roster are included, mirroring v3.110.95's list-
      * view fix.
      */
+    /**
+     * #1453 — "Expected attendance" section on the activity detail
+     * page. Lists the planned roster captured at activity creation
+     * (the `record_type='expected'` rows from AttendanceRosterStep),
+     * so a coach knows who to expect before the session. Guests are
+     * tagged. Renders nothing when no planned roster was captured
+     * (the "Set later" path), keeping the surface uncluttered.
+     *
+     * Composition only — the repository owns the query so REST and the
+     * match-prep step read the same planned roster (CLAUDE.md §4).
+     */
+    private static function renderPlannedAttendance( object $session ): void {
+        $activity_id = (int) ( $session->id ?? 0 );
+        if ( $activity_id <= 0 ) return;
+
+        $roster = ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )
+            ->plannedRosterForActivity( $activity_id );
+        if ( empty( $roster ) ) return;
+
+        echo '<section class="tt-activity-expected" style="margin:8px 0 12px; padding:14px 16px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px;">';
+        echo '<h3 style="margin:0 0 8px; font-size:13px; font-weight:700; color:#1a1d21;">'
+            . esc_html(
+                sprintf(
+                    /* translators: %d = number of players expected at the activity */
+                    _n( 'Expected attendance · %d player', 'Expected attendance · %d players', count( $roster ), 'talenttrack' ),
+                    count( $roster )
+                )
+            )
+            . '</h3>';
+        echo '<ul style="list-style:none; margin:0; padding:0; display:flex; flex-wrap:wrap; gap:6px;">';
+        foreach ( $roster as $row ) {
+            $name     = (string) ( $row->name ?? '' );
+            $is_guest = (int) ( $row->is_guest ?? 0 ) === 1;
+            echo '<li style="display:inline-flex; align-items:center; gap:6px; padding:6px 12px; min-height:32px; background:#eef4fb; border-radius:999px; font-size:13px; color:#1a1d21;">';
+            echo esc_html( $name );
+            if ( $is_guest ) {
+                echo '<span style="font-size:11px; font-weight:600; color:#5b6e75; text-transform:uppercase; letter-spacing:.03em;">'
+                    . esc_html__( 'Guest', 'talenttrack' )
+                    . '</span>';
+            }
+            echo '</li>';
+        }
+        echo '</ul>';
+        echo '</section>';
+    }
+
     private static function renderAttendanceSummary( object $session ): void {
         global $wpdb;
         $p          = $wpdb->prefix;
