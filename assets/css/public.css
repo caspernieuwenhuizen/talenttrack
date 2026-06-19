@@ -72,6 +72,13 @@
     line-height: var(--tt-lh-body, 1.55);
 }
 .tt-dashboard *, .tt-dashboard *::before, .tt-dashboard *::after { box-sizing: border-box; }
+/* #1457 — platform-aware width. The 1100px cap above keeps a comfortable
+   reading line on phone/tablet; from the 1024px desktop breakpoint up the
+   dashboard uses much more of the viewport (up to 1600px) so wide monitors
+   aren't mostly empty margin. Mobile-first: base cap stays, this only widens. */
+@media (min-width: 1024px) {
+    .tt-dashboard { max-width: min(94vw, 1600px); }
+}
 
 /* Login shell */
 .tt-login-shell {

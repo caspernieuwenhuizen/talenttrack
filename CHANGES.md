@@ -1,3 +1,7 @@
+# TalentTrack v4.21.9 — Dashboard uses desktop width (#1457)
+
+The dashboard was capped at 1100px on every screen. It now widens from the 1024px breakpoint up (to `min(94vw, 1600px)`), so desktops use far more of the viewport while phone/tablet keep the comfortable reading width. If a block theme constrains page-content width below this, a full-width page template is the follow-up.
+
 # TalentTrack v4.21.8 — Version moved into the dashboard header row (#1452)
 
 The operator version indicator now sits in the dashboard header actions row, next to the help button, instead of a footer at the bottom of the page. Still operator-only.
