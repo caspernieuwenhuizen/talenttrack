@@ -522,6 +522,15 @@
     background: var(--tt-bg-soft);
 }
 
+/* #1472 — same row-link affordance for hand-rolled `.tt-table` lists
+   (e.g. match executions). The inner per-column link stays the
+   keyboard / AT path; the whole row is a pointer target via
+   tt-table-tools.js. Cells get enough vertical padding to clear the
+   48px touch-target floor. */
+.tt-table tbody tr.is-row-link { cursor: pointer; }
+.tt-table tbody tr.is-row-link:hover { background: var(--tt-bg-soft); }
+.tt-table tbody tr.is-row-link > td { padding-top: 14px; padding-bottom: 14px; }
+
 .tt-dashboard .tt-list-table-actions { white-space: nowrap; text-align: right; }
 .tt-dashboard .tt-list-table-action {
     display: inline-block;
