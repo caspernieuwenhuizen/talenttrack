@@ -12,6 +12,30 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid "Data migration"
+msgstr "Datamigratie"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid "Move data to another TalentTrack install. Choose which data sets to include; you get a .ttmig file to import on the other install. Data only — WordPress users and media are not included."
+msgstr "Verplaats gegevens naar een andere TalentTrack-installatie. Kies welke gegevenssets je meeneemt; je krijgt een .ttmig-bestand dat je op de andere installatie importeert. Alleen gegevens — WordPress-gebruikers en media worden niet meegenomen."
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid "Export for migration"
+msgstr "Exporteren voor migratie"
+
+#: src/Modules/Backup/MigrationExporter.php
+msgid "Staff & roles"
+msgstr "Staf & rollen"
+
+#: src/Modules/Backup/MigrationExporter.php
+msgid "Activities & attendance"
+msgstr "Activiteiten & aanwezigheid"
+
+#: src/Modules/Backup/MigrationExporter.php
+msgid "Lookups & configuration"
+msgstr "Keuzelijsten & configuratie"
+
 #. Plugin Name of the plugin
 #: talenttrack.php src/Core/Activator.php:131
 #: src/Modules/Comms/Channel/Adapters/PushChannelAdapter.php:61
