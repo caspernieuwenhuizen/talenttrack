@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-19T20:59:28+00:00\n"
+"POT-Creation-Date: 2026-06-19T21:49:57+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -11,58 +11,6 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-
-#: src/Shared/Frontend/FrontendModulesView.php
-msgid "You do not have permission to manage modules."
-msgstr "Je hebt geen rechten om modules te beheren."
-
-#: src/Shared/Frontend/FrontendModulesView.php
-msgid "Module state saved. Reload open tabs to see the effect."
-msgstr "Modulestatus opgeslagen. Herlaad open tabbladen om het effect te zien."
-
-#: src/Shared/Frontend/FrontendModulesView.php
-msgid "Turn TalentTrack modules on or off. A disabled module registers no hooks, REST routes, pages, or capabilities until re-enabled. Core modules cannot be disabled."
-msgstr "Schakel TalentTrack-modules in of uit. Een uitgeschakelde module registreert geen hooks, REST-routes, pagina's of rechten totdat hij weer wordt ingeschakeld. Kernmodules kunnen niet worden uitgeschakeld."
-
-#: src/Shared/Frontend/FrontendModulesView.php
-msgid "Change active modules now? Disabling a module hides its surfaces immediately — reload other open tabs after saving."
-msgstr "Actieve modules nu wijzigen? Een module uitschakelen verbergt de bijbehorende schermen direct — herlaad andere open tabbladen na het opslaan."
-
-#: src/Shared/Frontend/FrontendModulesView.php
-msgid "Turn TalentTrack modules on or off."
-msgstr "Schakel TalentTrack-modules in of uit."
-
-#: src/Shared/Frontend/FrontendModulesView.php
-msgid "Unknown module."
-msgstr "Onbekende module."
-
-#: src/Shared/Frontend/FrontendModulesView.php
-msgid "Core modules cannot be disabled."
-msgstr "Kernmodules kunnen niet worden uitgeschakeld."
-
-#: src/Modules/Backup/Admin/BackupSettingsPage.php
-msgid "Data migration"
-msgstr "Datamigratie"
-
-#: src/Modules/Backup/Admin/BackupSettingsPage.php
-msgid "Move data to another TalentTrack install. Choose which data sets to include; you get a .ttmig file to import on the other install. Data only — WordPress users and media are not included."
-msgstr "Verplaats gegevens naar een andere TalentTrack-installatie. Kies welke gegevenssets je meeneemt; je krijgt een .ttmig-bestand dat je op de andere installatie importeert. Alleen gegevens — WordPress-gebruikers en media worden niet meegenomen."
-
-#: src/Modules/Backup/Admin/BackupSettingsPage.php
-msgid "Export for migration"
-msgstr "Exporteren voor migratie"
-
-#: src/Modules/Backup/MigrationExporter.php
-msgid "Staff & roles"
-msgstr "Staf & rollen"
-
-#: src/Modules/Backup/MigrationExporter.php
-msgid "Activities & attendance"
-msgstr "Activiteiten & aanwezigheid"
-
-#: src/Modules/Backup/MigrationExporter.php
-msgid "Lookups & configuration"
-msgstr "Keuzelijsten & configuratie"
 
 #. Plugin Name of the plugin
 #: talenttrack.php src/Core/Activator.php:131
@@ -109,7 +57,7 @@ msgstr ""
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:322
 #: src/Modules/Players/Admin/PlayersPage.php:127
 #: src/Modules/Players/Admin/PlayersPage.php:398
-#: src/Shared/Frontend/DashboardShortcode.php:1169
+#: src/Shared/Frontend/DashboardShortcode.php:1173
 #: src/Shared/Frontend/FrontendConfigurationView.php:1935
 #: src/Shared/Frontend/FrontendPeopleManageView.php:274
 #: src/Shared/Frontend/FrontendRolesView.php:83
@@ -118,7 +66,7 @@ msgstr "Ouder"
 
 #: database/migrations/0030_authorization_sprint_7_roles.php:54
 #: src/Modules/Authorization/Admin/MatrixPage.php:592
-#: src/Shared/Frontend/DashboardShortcode.php:1174
+#: src/Shared/Frontend/DashboardShortcode.php:1178
 msgid "Team Manager"
 msgstr "Team Manager"
 
@@ -184,7 +132,7 @@ msgstr "Team Manager"
 #: src/Shared/Frontend/Components/PlayerPickerComponent.php:33
 #: src/Shared/Frontend/Components/PlayerSearchPickerComponent.php:63
 #: src/Shared/Frontend/DashboardShortcode.php:105
-#: src/Shared/Frontend/DashboardShortcode.php:1168
+#: src/Shared/Frontend/DashboardShortcode.php:1172
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1607
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1618
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1719
@@ -252,7 +200,7 @@ msgstr "Trainer"
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:326
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:118
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:152
-#: src/Shared/Frontend/DashboardShortcode.php:1172
+#: src/Shared/Frontend/DashboardShortcode.php:1176
 #: src/Shared/Frontend/FrontendConfigurationView.php:1929
 #: src/Shared/Frontend/FrontendPeopleManageView.php:270
 #: src/Shared/Frontend/FrontendRolesView.php:59
@@ -276,8 +224,8 @@ msgstr "Staf"
 
 #: includes/Admin/Reports.php:55
 #: src/Modules/Activities/Admin/ActivitiesPage.php:142
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:317
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:319
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:321
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:323
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:585
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:803
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:822
@@ -441,6 +389,7 @@ msgstr ""
 
 #: src/Infrastructure/Diagnostics/ModuleCompletenessPage.php:46
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:324
+#: src/Shared/Frontend/FrontendModulesView.php:128
 msgid "Module"
 msgstr "Module"
 
@@ -936,7 +885,7 @@ msgstr "Fysio"
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:150
 #: src/Modules/Reports/AudienceType.php:91
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:155
-#: src/Shared/Frontend/DashboardShortcode.php:1173
+#: src/Shared/Frontend/DashboardShortcode.php:1177
 #: src/Shared/Frontend/FrontendConfigurationView.php:1933
 #: src/Shared/Frontend/FrontendPeopleManageView.php:273
 #: src/Shared/Frontend/FrontendRolesView.php:71
@@ -1006,7 +955,7 @@ msgstr "Clubbeheerder"
 #: src/Modules/Authorization/Admin/FunctionalRolesPage.php:317
 #: src/Modules/Authorization/Admin/MatrixPage.php:589
 #: src/Modules/Authorization/Admin/RolesPage.php:433
-#: src/Shared/Frontend/DashboardShortcode.php:1171
+#: src/Shared/Frontend/DashboardShortcode.php:1175
 msgid "Head Coach"
 msgstr "Hoofdtrainer"
 
@@ -1016,7 +965,7 @@ msgstr "Hoofdtrainer"
 #: src/Modules/Authorization/Admin/FunctionalRolesPage.php:318
 #: src/Modules/Authorization/Admin/MatrixPage.php:588
 #: src/Modules/Authorization/Admin/RolesPage.php:434
-#: src/Shared/Frontend/DashboardShortcode.php:1170
+#: src/Shared/Frontend/DashboardShortcode.php:1174
 msgid "Assistant Coach"
 msgstr "Assistent-trainer"
 
@@ -2622,7 +2571,7 @@ msgstr "Team"
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:142
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:58
 #: src/Modules/Authorization/Admin/RolesPage.php:194
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:290
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:294
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:561
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:793
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:101
@@ -2950,10 +2899,10 @@ msgstr "Opslaan"
 #: src/Modules/Authorization/Admin/RolesPage.php:38
 #: src/Modules/Authorization/Admin/RolesPage.php:273
 #: src/Modules/Authorization/Admin/RolesPage.php:307
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:44
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:466
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:522
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:551
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:46
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:527
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:583
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:612
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:992
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:1008
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:1024
@@ -3040,6 +2989,7 @@ msgstr "Opslaan"
 #: src/Modules/Translations/Admin/TranslationsConfigTab.php:294
 #: src/Shared/Admin/BulkActionsHelper.php:221
 #: src/Shared/Admin/BulkActionsHelper.php:224
+#: src/Shared/Frontend/FrontendModulesView.php:170
 #: src/Shared/Mobile/MobileActionHandlers.php:40
 msgid "Unauthorized"
 msgstr "Geen toegang"
@@ -3102,6 +3052,7 @@ msgstr "Totaal minuten"
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:100
 #: src/Modules/Authorization/Admin/MatrixPage.php:701
 #: src/Modules/Authorization/Admin/RolesPage.php:491
+#: src/Modules/Backup/MigrationExporter.php:37
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:474
 #: src/Modules/DemoData/Admin/DemoDataPage.php:717
 #: src/Modules/Documentation/HelpTopics.php:47
@@ -3149,6 +3100,7 @@ msgstr "Beoordelaar"
 #: src/Modules/Analytics/AnalyticsModule.php:138
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:104
 #: src/Modules/Authorization/Admin/RolesPage.php:493
+#: src/Modules/Backup/MigrationExporter.php:39
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:473
 #: src/Modules/DemoData/Admin/DemoDataPage.php:724
 #: src/Modules/Documentation/HelpTopics.php:62
@@ -3464,9 +3416,9 @@ msgstr "Voor deze entiteit zijn nog geen analyses beschikbaar."
 #: src/Shared/Frontend/DashboardShortcode.php:469
 #: src/Shared/Frontend/DashboardShortcode.php:617
 #: src/Shared/Frontend/DashboardShortcode.php:625
-#: src/Shared/Frontend/DashboardShortcode.php:819
-#: src/Shared/Frontend/DashboardShortcode.php:827
-#: src/Shared/Frontend/DashboardShortcode.php:835
+#: src/Shared/Frontend/DashboardShortcode.php:823
+#: src/Shared/Frontend/DashboardShortcode.php:831
+#: src/Shared/Frontend/DashboardShortcode.php:839
 #: src/Shared/Frontend/FrontendAuditLogView.php:37
 #: src/Shared/Frontend/FrontendConfigurationView.php:29
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:22
@@ -3476,6 +3428,7 @@ msgstr "Voor deze entiteit zijn nog geen analyses beschikbaar."
 #: src/Shared/Frontend/FrontendMailComposeView.php:32
 #: src/Shared/Frontend/FrontendMigrationsView.php:23
 #: src/Shared/Frontend/FrontendMobileSettingsView.php:31
+#: src/Shared/Frontend/FrontendModulesView.php:101
 #: src/Shared/Frontend/FrontendPersonDetailView.php:23
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:175
 #: src/Shared/Frontend/FrontendPlayersCsvImportView.php:34
@@ -3558,6 +3511,7 @@ msgstr "Voor dit entiteitstype zijn nog geen analyses geregistreerd."
 #: src/Modules/Authorization/Admin/MatrixPage.php:697
 #: src/Modules/Authorization/Admin/MatrixPage.php:698
 #: src/Modules/Authorization/Admin/RolesPage.php:488
+#: src/Modules/Backup/MigrationExporter.php:34
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:469
 #: src/Modules/DemoData/Admin/DemoDataPage.php:699
 #: src/Modules/Journey/Frontend/FrontendJourneyView.php:63
@@ -3595,6 +3549,7 @@ msgstr "Spelers"
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:98
 #: src/Modules/Authorization/Admin/MatrixPage.php:699
 #: src/Modules/Authorization/Admin/RolesPage.php:489
+#: src/Modules/Backup/MigrationExporter.php:35
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:471
 #: src/Modules/DemoData/Admin/DemoDataPage.php:684
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:45
@@ -4291,7 +4246,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:170
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:182
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:196
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:643
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:704
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:373
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:377
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:392
@@ -5546,7 +5501,7 @@ msgid "Head of Dev"
 msgstr "Hoofd Opleidingen"
 
 #: src/Modules/Authorization/Admin/MatrixPage.php:593
-#: src/Shared/Frontend/DashboardShortcode.php:1175
+#: src/Shared/Frontend/DashboardShortcode.php:1179
 msgid "Academy Admin"
 msgstr "Academy Admin"
 
@@ -5755,6 +5710,9 @@ msgstr "scope"
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:308
 #: src/Modules/Documentation/HelpTopics.php:172
 #: src/Shared/CoreSurfaceRegistration.php:1476
+#: src/Shared/Frontend/FrontendModulesView.php:107
+#: src/Shared/Frontend/FrontendModulesView.php:108
+#: src/Shared/Frontend/FrontendModulesView.php:206
 msgid "Modules"
 msgstr "Modules"
 
@@ -5827,6 +5785,7 @@ msgstr "Prestaties"
 #: src/Shared/Frontend/FrontendConfigurationView.php:41
 #: src/Shared/Frontend/FrontendConfigurationView.php:113
 #: src/Shared/Frontend/FrontendLookupNormalisationView.php:41
+#: src/Shared/Frontend/FrontendModulesView.php:220
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:560
 #: src/Shared/Frontend/FrontendWizardsAdminView.php:82
 msgid "Configuration"
@@ -5842,6 +5801,7 @@ msgid "Optional / commercial"
 msgstr "Optioneel / commercieel"
 
 #: src/Modules/Authorization/Admin/ModulesPage.php:115
+#: src/Shared/Frontend/FrontendModulesView.php:142
 msgid "(core)"
 msgstr "(core)"
 
@@ -5856,15 +5816,18 @@ msgstr "Core module — kan niet worden uitgeschakeld."
 #: src/Modules/Authorization/Admin/ModulesPage.php:137
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:355
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:154
+#: src/Shared/Frontend/FrontendModulesView.php:150
 msgid "On"
 msgstr "Aan"
 
 #: src/Modules/Authorization/Admin/ModulesPage.php:137
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:356
+#: src/Shared/Frontend/FrontendModulesView.php:150
 msgid "Off"
 msgstr "Uit"
 
 #: src/Modules/Authorization/Admin/ModulesPage.php:148
+#: src/Shared/Frontend/FrontendModulesView.php:160
 msgid "Save module state"
 msgstr "Modulestatus opslaan"
 
@@ -6842,14 +6805,14 @@ msgstr "Laatste back-up %s geleden — schema overschreden."
 msgid "Last backup %s ago — backups are stale."
 msgstr "Laatste back-up %s geleden — back-ups zijn verouderd."
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:61
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:63
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:63
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:320
 #: src/Shared/Frontend/FrontendConfigurationView.php:1474
 msgid "Backups"
 msgstr "Back-ups"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:63
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:65
 msgid ""
 "Schedule snapshots of your TalentTrack data and restore them when needed. "
 "Backups cover the plugin's own tables only — not WordPress users or media "
@@ -6859,37 +6822,37 @@ msgstr ""
 "nodig. Back-ups dekken alleen de eigen tabellen van de plugin — geen "
 "WordPress-gebruikers of media-uploads."
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:78
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:82
 msgid "Last run:"
 msgstr "Laatste run:"
 
 #. translators: %s is human-readable time-since
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:83
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:87
 #, php-format
 msgid "%s ago — success."
 msgstr "%s geleden — succesvol."
 
 #. translators: 1: time-since, 2: error message
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:89
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:93
 #, php-format
 msgid "%1$s ago — failed (%2$s)."
 msgstr "%1$s geleden — mislukt (%2$s)."
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:98
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:102
 msgid "Next run:"
 msgstr "Volgende uitvoering:"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:101
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:105
 msgid "overdue (will fire on the next WP-cron tick)"
 msgstr "achterstallig (wordt uitgevoerd bij de volgende WP-cron-tik)"
 
 #. translators: %s is human-readable time-until
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:105
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:109
 #, php-format
 msgid "in about %s"
 msgstr "over ongeveer %s"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:112
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:116
 msgid ""
 "Next run is not scheduled yet — save settings once to schedule the cron "
 "event."
@@ -6897,18 +6860,18 @@ msgstr ""
 "Volgende uitvoering is nog niet gepland — sla de instellingen één keer op om "
 "de cron-event te plannen."
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:166
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:288
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:170
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:292
 #: src/Modules/DemoData/Admin/DemoDataPage.php:423
 #: src/Shared/Frontend/FrontendExportsView.php:251
 msgid "Preset"
 msgstr "Preset"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:181
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:185
 msgid "Custom tables"
 msgstr "Aangepaste tabellen"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:185
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:189
 msgid ""
 "Only used when preset is \"Custom\". One table per line, including the tt_ "
 "prefix but not the WordPress prefix."
@@ -6916,53 +6879,53 @@ msgstr ""
 "Alleen gebruikt als de preset \"Aangepast\" is. Eén tabel per regel, "
 "inclusief de tt_-prefix maar zonder de WordPress-prefix."
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:190
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:194
 #: src/Shared/Frontend/FrontendStandardReportsView.php:179
 msgid "Schedule"
 msgstr "Schema"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:193
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:197
 msgid "Daily"
 msgstr "Dagelijks"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:194
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:198
 msgid "Weekly"
 msgstr "Wekelijks"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:195
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:199
 msgid "On demand"
 msgstr "Op aanvraag"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:200
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:204
 msgid "Retention"
 msgstr "Bewaartermijn"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:204
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:208
 msgid "Keep this many local backups before purging the oldest."
 msgstr "Bewaar zoveel lokale back-ups voordat de oudste worden verwijderd."
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:209
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:213
 msgid "Local destination"
 msgstr "Lokale bestemming"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:216
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:220
 #, php-format
 msgid "Save backups to %s"
 msgstr "Sla back-ups op in %s"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:217
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:221
 msgid "Save backups to wp-content/uploads/talenttrack-backups/"
 msgstr "Sla back-ups op in wp-content/uploads/talenttrack-backups/"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:223
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:227
 msgid "Email destination"
 msgstr "E-mailbestemming"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:227
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:231
 msgid "Email each backup to the recipients below"
 msgstr "E-mail elke back-up naar onderstaande ontvangers"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:231
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:235
 msgid ""
 "Comma-separated list. Files larger than 10 MB will not be attached — "
 "recipients receive a notice instead."
@@ -6970,15 +6933,15 @@ msgstr ""
 "Lijst gescheiden door komma's. Bestanden groter dan 10 MB worden niet "
 "meegestuurd — ontvangers krijgen alleen een melding."
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:236
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:240
 msgid "Save backup settings"
 msgstr "Back-upinstellingen opslaan"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:243
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:247
 msgid "Run a backup now"
 msgstr "Maak nu een back-up"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:245
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:249
 msgid ""
 "Triggers a backup with the current settings without waiting for the "
 "scheduled run. Useful for testing, before risky operations, or on low-"
@@ -6988,16 +6951,16 @@ msgstr ""
 "te wachten. Handig voor testen, voor risicovolle handelingen, of op sites "
 "met weinig verkeer waar WP-cron onbetrouwbaar is."
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:250
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:254
 msgid "Run backup now"
 msgstr "Nu back-up maken"
 
 # Backup running overlay (#6 + #7).
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:267
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:271
 msgid "Backup in progress…"
 msgstr "Bezig met back-up…"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:270
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:274
 msgid ""
 "Hang on while we snapshot your TalentTrack tables. This usually takes a few "
 "seconds — please don't close this tab."
@@ -7005,19 +6968,19 @@ msgstr ""
 "Even geduld terwijl we een momentopname maken van je TalentTrack-tabellen. "
 "Dit duurt meestal een paar seconden — sluit dit tabblad niet."
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:280
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:284
 msgid "Stored backups (local)"
 msgstr "Opgeslagen back-ups (lokaal)"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:282
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:286
 msgid "No local backups yet."
 msgstr "Nog geen lokale back-ups."
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:286
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:290
 msgid "Filename"
 msgstr "Bestandsnaam"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:287
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:291
 #: src/Modules/DemoData/Admin/DemoDataPage.php:818
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:49
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:110
@@ -7028,18 +6991,18 @@ msgstr "Bestandsnaam"
 msgid "Created"
 msgstr "Aangemaakt"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:289
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:293
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:797
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:349
 msgid "Size"
 msgstr "Grootte"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:305
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:309
 msgid "Download"
 msgstr "Downloaden"
 
 # Backup confirm prompts (#3 + #6).
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:308
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:312
 msgid ""
 "Open the restore preview for this backup? You will be asked to confirm again "
 "before any data is replaced."
@@ -7047,74 +7010,74 @@ msgstr ""
 "Het herstelvoorbeeld voor deze back-up openen? Je krijgt nog een tweede "
 "bevestiging voordat er data wordt vervangen."
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:309
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:313
 msgid "Open restore preview?"
 msgstr "Herstelvoorbeeld openen?"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:310
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:314
 msgid "Open preview"
 msgstr "Voorbeeld openen"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:310
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:731
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:314
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:792
 #: src/Modules/Pdp/Rest/PdpFilesRestController.php:332
 #: src/Shared/Admin/BulkActionsHelper.php:167
 #: src/Shared/Frontend/DashboardShortcode.php:89
 msgid "Restore"
 msgstr "Herstellen"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:312
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:595
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:620
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:316
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:656
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:681
 #: src/Modules/License/Admin/AccountPage.php:819
 msgid "Partial restore"
 msgstr "Gedeeltelijk terugzetten"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:315
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:319
 msgid "Delete this backup file? This cannot be undone."
 msgstr "Dit back-upbestand verwijderen? Dit kan niet ongedaan worden gemaakt."
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:316
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:320
 msgid "Delete backup file?"
 msgstr "Back-upbestand verwijderen?"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:335
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:431
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:602
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:339
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:435
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:663
 msgid "Backup not found."
 msgstr "Back-up niet gevonden."
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:340
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:344
 msgid "Restore from backup"
 msgstr "Terugzetten vanuit back-up"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:342
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:346
 msgid "Unknown error"
 msgstr "Onbekende fout"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:345
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:349
 msgid ""
 "This action will replace the current data with the contents of the backup."
 msgstr "Deze actie vervangt de huidige gegevens door de inhoud van de back-up."
 
 #. translators: 1: backup created date, 2: plugin version
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:349
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:353
 #, php-format
 msgid " Snapshot created %1$s on plugin version %2$s."
 msgstr " Momentopname gemaakt %1$s met plugin-versie %2$s."
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:356
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:712
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:360
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:773
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:146
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:298
 msgid "Table"
 msgstr "Tabel"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:356
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:360
 msgid "Rows"
 msgstr "Rijen"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:365
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:369
 msgid ""
 "Restoring your TalentTrack tables from the snapshot. This usually takes a "
 "few seconds — please don't close this tab."
@@ -7122,20 +7085,39 @@ msgstr ""
 "Bezig met herstellen van je TalentTrack-tabellen vanuit de snapshot. Dit "
 "duurt meestal een paar seconden — sluit dit tabblad niet."
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:370
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:374
 msgid "Type RESTORE to confirm:"
 msgstr "Typ RESTORE ter bevestiging:"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:374
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:378
 msgid "Restore from this backup"
 msgstr "Vanuit deze back-up terugzetten"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:608
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:454
+msgid "Data migration"
+msgstr "Datamigratie"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:456
+msgid ""
+"Move data to another TalentTrack install. Choose which data sets to include; "
+"you get a .ttmig file to import on the other install. Data only — WordPress "
+"users and media are not included."
+msgstr ""
+"Verplaats gegevens naar een andere TalentTrack-installatie. Kies welke "
+"gegevenssets je meeneemt; je krijgt een .ttmig-bestand dat je op de andere "
+"installatie importeert. Alleen gegevens — WordPress-gebruikers en media "
+"worden niet meegenomen."
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:469
+msgid "Export for migration"
+msgstr "Exporteren voor migratie"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:669
 #: src/Modules/Backup/BackupRestorer.php:81
 msgid "Backup file is not valid."
 msgstr "Back-upbestand is ongeldig."
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:622
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:683
 msgid ""
 "Pick a scope from this backup. We resolve the dependency closure (parent "
 "rows the scope needs to be consistent) and show a per-table diff against the "
@@ -7147,23 +7129,23 @@ msgstr ""
 "tonen per tabel een diff tegenover de huidige database. Alleen de rijen in "
 "de scope worden geraakt — andere rijen blijven onaangeroerd."
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:626
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:687
 msgid "Back to backups"
 msgstr "Terug naar back-ups"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:633
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:694
 msgid "1. Choose scope"
 msgstr "1. Scope kiezen"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:640
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:701
 msgid "Entity table"
 msgstr "Entiteitstabel"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:653
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:714
 msgid "Row IDs"
 msgstr "Rij-id's"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:656
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:717
 msgid ""
 "Comma-separated. Leave empty to include every row of this table from the "
 "backup."
@@ -7171,68 +7153,68 @@ msgstr ""
 "Door komma's gescheiden. Laat leeg om elke rij van deze tabel uit de back-up "
 "mee te nemen."
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:660
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:721
 msgid "Include children"
 msgstr "Kindertabellen meenemen"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:671
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:732
 msgid "Tick the child tables to follow downward from the chosen scope."
 msgstr ""
 "Vink de kindertabellen aan om vanuit de gekozen scope naar beneden te volgen."
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:676
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:737
 msgid "Compute diff"
 msgstr "Diff berekenen"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:692
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:753
 msgid "No rows in this table."
 msgstr "Geen rijen in deze tabel."
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:704
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:765
 msgid "2. Review diff and choose actions"
 msgstr "2. Diff bekijken en acties kiezen"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:713
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:774
 msgid "In scope"
 msgstr "In scope"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:714
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:775
 msgid "New (green)"
 msgstr "Nieuw (groen)"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:715
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:776
 msgid "Differ (yellow)"
 msgstr "Verschillen (geel)"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:716
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:777
 msgid "Action for green"
 msgstr "Actie voor groen"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:717
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:778
 msgid "Action for yellow"
 msgstr "Actie voor geel"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:732
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:739
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:793
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:800
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:201
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:276
 #: src/Shared/Frontend/FrontendLookupNormalisationView.php:162
 msgid "Skip"
 msgstr "Overslaan"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:737
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:798
 msgid "Keep current"
 msgstr "Huidige behouden"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:738
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:799
 msgid "Overwrite with backup"
 msgstr "Overschrijven met back-up"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:749
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:810
 msgid "Dry run (compute changes without writing)"
 msgstr "Proefdraai (wijzigingen berekenen zonder weg te schrijven)"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:753
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:814
 msgid "Execute partial restore"
 msgstr "Gedeeltelijk terugzetten uitvoeren"
 
@@ -7360,6 +7342,18 @@ msgstr ""
 #: src/Modules/Backup/Destinations/LocalDestination.php:28
 msgid "Local disk"
 msgstr "Lokale schijf"
+
+#: src/Modules/Backup/MigrationExporter.php:36
+msgid "Staff & roles"
+msgstr "Staf & rollen"
+
+#: src/Modules/Backup/MigrationExporter.php:38
+msgid "Activities & attendance"
+msgstr "Activiteiten & aanwezigheid"
+
+#: src/Modules/Backup/MigrationExporter.php:40
+msgid "Lookups & configuration"
+msgstr "Keuzelijsten & configuratie"
 
 # Backup preset labels (#6).
 #: src/Modules/Backup/PresetRegistry.php:77
@@ -8579,6 +8573,7 @@ msgstr "Functie"
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:406
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:109
+#: src/Shared/Frontend/FrontendModulesView.php:129
 msgid "Enabled"
 msgstr "Ingeschakeld"
 
@@ -12962,7 +12957,7 @@ msgstr "Geen passende onderwerpen."
 #: src/Shared/CoreSurfaceRegistration.php:1489
 #: src/Shared/CoreSurfaceRegistration.php:1675
 #: src/Shared/Frontend/CoachDashboardView.php:37
-#: src/Shared/Frontend/DashboardShortcode.php:1209
+#: src/Shared/Frontend/DashboardShortcode.php:1213
 #: src/Shared/Frontend/FrontendDocsView.php:103
 #: src/Shared/Frontend/PlayerDashboardView.php:51
 msgid "Help"
@@ -14529,7 +14524,7 @@ msgstr "Printen"
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:747
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:271
 #: src/Shared/Frontend/Components/GuestAddModal.php:48
-#: src/Shared/Frontend/DashboardShortcode.php:1214
+#: src/Shared/Frontend/DashboardShortcode.php:1218
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:114
 msgid "Close"
 msgstr "Sluiten"
@@ -20808,8 +20803,8 @@ msgstr "Mijn toegewezen spelers"
 
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:378
 #: src/Shared/Frontend/Components/HelpDrawer.php:22
-#: src/Shared/Frontend/DashboardShortcode.php:1127
-#: src/Shared/Frontend/DashboardShortcode.php:1128
+#: src/Shared/Frontend/DashboardShortcode.php:1131
+#: src/Shared/Frontend/DashboardShortcode.php:1132
 msgid "Help & docs"
 msgstr "Help & docs"
 
@@ -23168,8 +23163,8 @@ msgstr ""
 
 #: src/Modules/Reports/Frontend/FrontendScoutAccessView.php:30
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:35
-#: src/Shared/Frontend/DashboardShortcode.php:820
-#: src/Shared/Frontend/DashboardShortcode.php:828
+#: src/Shared/Frontend/DashboardShortcode.php:824
+#: src/Shared/Frontend/DashboardShortcode.php:832
 msgid "You need scout-management permission to view this page."
 msgstr "Je hebt scout-beheerrechten nodig om deze pagina te bekijken."
 
@@ -30724,7 +30719,7 @@ msgstr "Geen resultaten."
 
 #: src/Shared/Frontend/Components/FrontendListTable.php:129
 #: src/Shared/Frontend/DashboardShortcode.php:66
-#: src/Shared/Frontend/DashboardShortcode.php:1219
+#: src/Shared/Frontend/DashboardShortcode.php:1223
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:415
 #: src/Shared/Frontend/FrontendWizardView.php:286
 msgid "Loading…"
@@ -31039,19 +31034,19 @@ msgstr "Je rol heeft geen toegang tot teamblauwdrukken."
 msgid "Player not found"
 msgstr "Speler niet gevonden"
 
-#: src/Shared/Frontend/DashboardShortcode.php:836
+#: src/Shared/Frontend/DashboardShortcode.php:840
 msgid "This area is for scout users."
 msgstr "Dit deel is voor scoutgebruikers."
 
-#: src/Shared/Frontend/DashboardShortcode.php:1050
+#: src/Shared/Frontend/DashboardShortcode.php:1054
 msgid "Section unavailable"
 msgstr "Sectie niet beschikbaar"
 
-#: src/Shared/Frontend/DashboardShortcode.php:1053
+#: src/Shared/Frontend/DashboardShortcode.php:1057
 msgid "This section is currently unavailable."
 msgstr "Dit onderdeel is momenteel niet beschikbaar."
 
-#: src/Shared/Frontend/DashboardShortcode.php:1056
+#: src/Shared/Frontend/DashboardShortcode.php:1060
 msgid ""
 "The administrator has temporarily turned off this part of TalentTrack. "
 "Please check back later, or ask your administrator if you need access."
@@ -31060,7 +31055,7 @@ msgstr ""
 "Probeer het later opnieuw, of neem contact op met je beheerder als je "
 "toegang nodig hebt."
 
-#: src/Shared/Frontend/DashboardShortcode.php:1079
+#: src/Shared/Frontend/DashboardShortcode.php:1083
 msgid ""
 "TalentTrack is running in demo mode. Real club records are hidden until demo "
 "mode is turned off."
@@ -31069,48 +31064,48 @@ msgstr ""
 "demomodus wordt uitgeschakeld."
 
 # #0036 — dashboard polish (helper button + DEMO pill + logo toggle + tile scale)
-#: src/Shared/Frontend/DashboardShortcode.php:1106
+#: src/Shared/Frontend/DashboardShortcode.php:1110
 msgid "DEMO"
 msgstr "DEMO"
 
-#: src/Shared/Frontend/DashboardShortcode.php:1143
+#: src/Shared/Frontend/DashboardShortcode.php:1147
 #: src/Shared/Frontend/FrontendMySettingsView.php:38
 #: src/Shared/Frontend/FrontendMySettingsView.php:39
 msgid "My settings"
 msgstr "Mijn instellingen"
 
 # v3.110.1 — #0086 Workstream B Child 2: session management UI
-#: src/Shared/Frontend/DashboardShortcode.php:1150
+#: src/Shared/Frontend/DashboardShortcode.php:1154
 #: src/Shared/Frontend/FrontendMySessionsView.php:26
 #: src/Shared/Frontend/FrontendMySessionsView.php:27
 msgid "My sessions"
 msgstr "Mijn sessies"
 
-#: src/Shared/Frontend/DashboardShortcode.php:1162
+#: src/Shared/Frontend/DashboardShortcode.php:1166
 msgid "View as"
 msgstr "Bekijken als"
 
-#: src/Shared/Frontend/DashboardShortcode.php:1165
+#: src/Shared/Frontend/DashboardShortcode.php:1169
 msgid "All personas (default)"
 msgstr "Alle persona's (standaard)"
 
-#: src/Shared/Frontend/DashboardShortcode.php:1189
+#: src/Shared/Frontend/DashboardShortcode.php:1193
 msgid "Go to Admin"
 msgstr "Naar beheer"
 
-#: src/Shared/Frontend/DashboardShortcode.php:1193
+#: src/Shared/Frontend/DashboardShortcode.php:1197
 msgid "Log out"
 msgstr "Uitloggen"
 
-#: src/Shared/Frontend/DashboardShortcode.php:1211
+#: src/Shared/Frontend/DashboardShortcode.php:1215
 msgid "Open full Help & Docs"
 msgstr "Volledige Help & Docs openen"
 
-#: src/Shared/Frontend/DashboardShortcode.php:1283
+#: src/Shared/Frontend/DashboardShortcode.php:1287
 msgid "You are viewing as"
 msgstr "Je bekijkt als"
 
-#: src/Shared/Frontend/DashboardShortcode.php:1284
+#: src/Shared/Frontend/DashboardShortcode.php:1288
 msgid "Switch back to all personas"
 msgstr "Terug naar alle persona's"
 
@@ -33412,6 +33407,44 @@ msgid ""
 msgstr ""
 "Staat standaard aan. Vink uit om telefoons op elke pagina de krappe "
 "desktopweergave te laten zien. Tablets en laptops blijven hetzelfde."
+
+#: src/Shared/Frontend/FrontendModulesView.php:80
+msgid "Unknown module."
+msgstr "Onbekende module."
+
+#: src/Shared/Frontend/FrontendModulesView.php:83
+msgid "Core modules cannot be disabled."
+msgstr "Kernmodules kunnen niet worden uitgeschakeld."
+
+#: src/Shared/Frontend/FrontendModulesView.php:102
+msgid "You do not have permission to manage modules."
+msgstr "Je hebt geen rechten om modules te beheren."
+
+#: src/Shared/Frontend/FrontendModulesView.php:112
+msgid "Module state saved. Reload open tabs to see the effect."
+msgstr "Modulestatus opgeslagen. Herlaad open tabbladen om het effect te zien."
+
+#: src/Shared/Frontend/FrontendModulesView.php:119
+msgid ""
+"Turn TalentTrack modules on or off. A disabled module registers no hooks, "
+"REST routes, pages, or capabilities until re-enabled. Core modules cannot be "
+"disabled."
+msgstr ""
+"Schakel TalentTrack-modules in of uit. Een uitgeschakelde module registreert "
+"geen hooks, REST-routes, pagina's of rechten totdat hij weer wordt "
+"ingeschakeld. Kernmodules kunnen niet worden uitgeschakeld."
+
+#: src/Shared/Frontend/FrontendModulesView.php:122
+msgid ""
+"Change active modules now? Disabling a module hides its surfaces immediately "
+"— reload other open tabs after saving."
+msgstr ""
+"Actieve modules nu wijzigen? Een module uitschakelen verbergt de "
+"bijbehorende schermen direct — herlaad andere open tabbladen na het opslaan."
+
+#: src/Shared/Frontend/FrontendModulesView.php:207
+msgid "Turn TalentTrack modules on or off."
+msgstr "Schakel TalentTrack-modules in of uit."
 
 # v3.92.7 — FrontendListTable migration of ?tt_view=my-activities + LookupTranslator::activityType helper
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:61
