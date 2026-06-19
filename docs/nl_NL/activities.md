@@ -71,6 +71,10 @@ Naast het type heeft elke activiteit twee extra velden:
 
 De 90-daagse rollup die het Hoofd Opleidingen gebruikt toont één regel per actief type — hernoem of voeg types toe en de rollup volgt automatisch.
 
+## Wie het heeft aangemaakt en gewijzigd
+
+Onderaan het detailpaneel van een activiteit staat een kleine regel: **Aangemaakt door** wie de activiteit heeft toegevoegd en op welke datum, en **Laatst gewijzigd door** wie het laatst heeft bewerkt. Dit wordt vanaf nu automatisch vastgelegd — activiteiten die vóór deze toevoeging zijn aangemaakt tonen hier niets (er is geen historie om in te vullen), en de regel verschijnt pas zodra er een auteur bekend is.
+
 ## Gasten
 
 Je kunt spelers van buiten de selectie toevoegen aan een activiteit — bijvoorbeeld een speler die je leent van een ander team voor een oefenwedstrijd, of een proefspeler.

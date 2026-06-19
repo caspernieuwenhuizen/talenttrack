@@ -510,7 +510,13 @@ final class ActivitiesRepository {
         global $wpdb;
         $p               = $wpdb->prefix;
         $data['club_id'] = CurrentClub::id();
-        $ok              = $wpdb->insert( "{$p}tt_activities", $data );
+        // #1471 — stamp the creator (audit, distinct from coach_id).
+        // Forward-only: a system / cron write (uid 0) leaves it null.
+        $uid = get_current_user_id();
+        if ( $uid > 0 ) {
+            $data['created_by'] = $uid;
+        }
+        $ok = $wpdb->insert( "{$p}tt_activities", $data );
         return $ok === false ? null : (int) $wpdb->insert_id;
     }
 
@@ -523,6 +529,11 @@ final class ActivitiesRepository {
     public function update( int $activity_id, array $data ): bool {
         global $wpdb;
         $p = $wpdb->prefix;
+        // #1471 — record who last changed the activity (audit footer).
+        $uid = get_current_user_id();
+        if ( $uid > 0 ) {
+            $data['updated_by'] = $uid;
+        }
         return $wpdb->update(
             "{$p}tt_activities",
             $data,

@@ -317,6 +317,15 @@ class FrontendActivitiesManageView extends FrontendViewBase {
 
         echo '</dl>';
 
+        // #1471 — created/changed audit footer (renders nothing for
+        // pre-audit rows with no recorded author).
+        \TT\Shared\Frontend\Components\AuditMeta::render( [
+            'created_by' => isset( $session->created_by ) ? (int) $session->created_by : 0,
+            'created_at' => (string) ( $session->created_at ?? '' ),
+            'updated_by' => isset( $session->updated_by ) ? (int) $session->updated_by : 0,
+            'updated_at' => (string) ( $session->updated_at ?? '' ),
+        ] );
+
         // #1324 — tournament info block for tournament-typed activities.
         // Renders nothing for other types so non-tournament surfaces
         // stay uncluttered.

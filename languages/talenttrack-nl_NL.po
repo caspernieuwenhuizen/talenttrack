@@ -36847,6 +36847,22 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#. translators: 1: user name, 2: date/time
+#: src/Shared/Frontend/Components/AuditMeta.php:37
+#, php-format
+msgid "Created by %1$s on %2$s"
+msgstr "Aangemaakt door %1$s op %2$s"
+
+#. translators: 1: user name, 2: date/time
+#: src/Shared/Frontend/Components/AuditMeta.php:46
+#, php-format
+msgid "Last changed by %1$s on %2$s"
+msgstr "Laatst gewijzigd door %1$s op %2$s"
+
+#: src/Shared/Frontend/Components/AuditMeta.php:67
+msgid "a former user"
+msgstr "een voormalige gebruiker"
+
 #~ msgid "Create dashboard page"
 #~ msgstr "Dashboardpagina aanmaken"
 
