@@ -28,8 +28,12 @@ class EvalTypeCategoriesPage {
     }
 
     public static function registerMenu(): void {
+        // #1449 — this is a low-level evaluation setting, not a top-level
+        // menu item. Registered with a null parent so the page stays
+        // reachable by URL (and from the evaluation-categories config) but
+        // no longer clutters the TalentTrack admin menu.
         add_submenu_page(
-            'talenttrack',
+            null,
             __( 'Eval Type Categories', 'talenttrack' ),
             __( 'Eval Type Categories', 'talenttrack' ),
             self::CAP,

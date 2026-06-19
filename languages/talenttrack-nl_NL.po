@@ -11995,7 +11995,7 @@ msgstr ""
 #: src/Modules/DemoData/Admin/DemoReviewPage.php:53
 #: src/Shared/CoreSurfaceRegistration.php:1144
 msgid "Demo data review"
-msgstr ""
+msgstr "Demogegevens beoordelen"
 
 #: src/Modules/DemoData/Admin/DemoReviewPage.php:56
 msgid ""
