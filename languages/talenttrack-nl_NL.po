@@ -12,6 +12,26 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+#: src/Modules/Onboarding/Admin/OnboardingPage.php
+msgid "Dashboard page"
+msgstr "Dashboardpagina"
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php
+msgid "TalentTrack runs on a frontend page that hosts the [talenttrack_dashboard] shortcode. This creates that page and sets it as the site homepage, so coaches, players, and parents land straight on the dashboard when they sign in."
+msgstr "TalentTrack draait op een frontendpagina met de [talenttrack_dashboard] shortcode. Dit maakt die pagina aan en stelt deze in als de homepage van de site, zodat trainers, spelers en ouders direct op het dashboard landen wanneer ze inloggen."
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php
+msgid "A page with the dashboard shortcode already exists — it will be reused and set as the homepage, not duplicated."
+msgstr "Er bestaat al een pagina met de dashboard-shortcode — die wordt hergebruikt en als homepage ingesteld, niet gedupliceerd."
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php
+msgid "Create page & set as homepage"
+msgstr "Pagina aanmaken & als homepage instellen"
+
+#: src/Modules/Onboarding/Admin/OnboardingPage.php
+msgid "You can change the homepage later under Settings → Reading."
+msgstr "Je kunt de homepage later wijzigen onder Instellingen → Lezen."
+
 #. Plugin Name of the plugin
 #: talenttrack.php src/Core/Activator.php:131
 #: src/Modules/Comms/Channel/Adapters/PushChannelAdapter.php:61

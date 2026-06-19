@@ -46,6 +46,11 @@ class OnboardingHandlers {
         } elseif ( $from === 'first_team' && isset( $_GET['skip'] ) ) {
             OnboardingState::setStep( 'first_admin' );
             do_action( 'tt_onboarding_step_completed', 'first_team', [ 'skipped' => true ] );
+        } elseif ( $from === 'dashboard' && isset( $_GET['skip'] ) ) {
+            // Skipping page creation still finishes the wizard.
+            OnboardingState::setStep( 'done' );
+            OnboardingState::markCompleted();
+            do_action( 'tt_onboarding_step_completed', 'dashboard', [ 'skipped' => true ] );
         }
         self::redirectToPage();
     }
@@ -135,8 +140,7 @@ class OnboardingHandlers {
             'person_id'  => $person_id,
         ];
         OnboardingState::recordPayload( 'first_admin', $payload );
-        OnboardingState::setStep( 'done' );
-        OnboardingState::markCompleted();
+        OnboardingState::setStep( 'dashboard' );
         do_action( 'tt_onboarding_step_completed', 'first_admin', $payload );
 
         self::redirectToPage( [ 'tt_ob_msg' => 'admin_made' ] );
@@ -171,8 +175,8 @@ class OnboardingHandlers {
     public static function handleCreateDashboardPage(): void {
         self::guard( 'tt_onboarding_create_dashboard_page' );
 
-        // Look for an existing page with the shortcode before creating
-        // a new one — re-running this should not produce duplicates.
+        // Reuse an existing page that already holds the shortcode so
+        // re-running never produces duplicates.
         $existing = get_posts( [
             'post_type'   => 'page',
             'post_status' => [ 'publish', 'draft', 'private' ],
@@ -181,8 +185,12 @@ class OnboardingHandlers {
         ] );
         if ( ! empty( $existing ) ) {
             $page_id = (int) $existing[0]->ID;
+            // Make sure a reused draft is publicly reachable as the homepage.
+            if ( get_post_status( $page_id ) !== 'publish' ) {
+                wp_update_post( [ 'ID' => $page_id, 'post_status' => 'publish' ] );
+            }
         } else {
-            $page_id = wp_insert_post( [
+            $page_id = (int) wp_insert_post( [
                 'post_type'    => 'page',
                 'post_status'  => 'publish',
                 'post_title'   => __( 'Dashboard', 'talenttrack' ),
@@ -190,11 +198,24 @@ class OnboardingHandlers {
             ] );
         }
 
-        $url = is_int( $page_id ) && $page_id > 0
-            ? get_permalink( $page_id )
-            : admin_url( 'admin.php?page=talenttrack' );
-        wp_safe_redirect( $url ?: admin_url( 'admin.php?page=talenttrack' ) );
-        exit;
+        $page_url = '';
+        if ( $page_id > 0 ) {
+            // Set the dashboard page as the site front page so the root URL
+            // lands on it (#1441).
+            update_option( 'show_on_front', 'page' );
+            update_option( 'page_on_front', $page_id );
+            $page_url = (string) get_permalink( $page_id );
+        }
+
+        OnboardingState::recordPayload( 'dashboard', [
+            'page_id'  => $page_id,
+            'page_url' => $page_url,
+        ] );
+        OnboardingState::setStep( 'done' );
+        OnboardingState::markCompleted();
+        do_action( 'tt_onboarding_step_completed', 'dashboard', [ 'page_id' => $page_id ] );
+
+        self::redirectToPage( [ 'tt_ob_msg' => 'page_made' ] );
     }
 
     // Helpers
