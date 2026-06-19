@@ -35,6 +35,8 @@ class BackupSettingsPage {
         add_action( 'admin_post_tt_backup_bulk_undo',         [ self::class, 'handleBulkUndo' ] );
         add_action( 'admin_post_tt_backup_bulk_undo_dismiss', [ self::class, 'handleBulkUndoDismiss' ] );
         add_action( 'admin_post_tt_backup_partial_execute',   [ self::class, 'handlePartialExecute' ] );
+        // #1464 phase 1 — data migration export.
+        add_action( 'admin_post_tt_migration_export',         [ self::class, 'handleMigrationExport' ] );
     }
 
     // Render
@@ -62,6 +64,8 @@ class BackupSettingsPage {
         <p style="max-width:760px;">
             <?php esc_html_e( 'Schedule snapshots of your TalentTrack data and restore them when needed. Backups cover the plugin\'s own tables only — not WordPress users or media uploads.', 'talenttrack' ); ?>
         </p>
+
+        <?php self::renderMigrationSection(); ?>
 
         <?php
         // #0063 — show actual next-run from wp_cron next to last-run.
@@ -435,6 +439,63 @@ class BackupSettingsPage {
         header( 'Content-Disposition: attachment; filename="' . basename( $id ) . '"' );
         header( 'Content-Length: ' . (string) filesize( $path ) );
         readfile( $path );
+        exit;
+    }
+
+    /**
+     * #1464 phase 1 — "Data migration" export section. Lets an operator
+     * pick which data sets to bundle into a downloadable `.ttmig` archive
+     * to import on another TalentTrack install. Import is a later phase.
+     */
+    private static function renderMigrationSection(): void {
+        $groups = \TT\Modules\Backup\MigrationExporter::entityGroups();
+        ?>
+        <hr style="margin:24px 0;">
+        <h3><?php esc_html_e( 'Data migration', 'talenttrack' ); ?></h3>
+        <p style="max-width:760px;">
+            <?php esc_html_e( 'Move data to another TalentTrack install. Choose which data sets to include; you get a .ttmig file to import on the other install. Data only — WordPress users and media are not included.', 'talenttrack' ); ?>
+        </p>
+        <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+            <?php wp_nonce_field( 'tt_migration_export', 'tt_nonce' ); ?>
+            <input type="hidden" name="action" value="tt_migration_export" />
+            <fieldset style="margin:8px 0 16px;">
+                <?php foreach ( $groups as $key => $g ) : ?>
+                    <label style="display:block; min-height:32px; line-height:32px;">
+                        <input type="checkbox" name="entities[]" value="<?php echo esc_attr( $key ); ?>" checked />
+                        <?php echo esc_html( $g['label'] ); ?>
+                    </label>
+                <?php endforeach; ?>
+            </fieldset>
+            <?php submit_button( __( 'Export for migration', 'talenttrack' ), 'secondary', 'submit', false ); ?>
+        </form>
+        <?php
+    }
+
+    /**
+     * #1464 phase 1 — stream a `.ttmig` export of the selected data sets.
+     */
+    public static function handleMigrationExport(): void {
+        self::guard( 'tt_migration_export' );
+
+        $requested = isset( $_POST['entities'] ) && is_array( $_POST['entities'] )
+            ? array_map( 'sanitize_key', wp_unslash( $_POST['entities'] ) )
+            : [];
+        $valid = array_values( array_intersect( $requested, \TT\Modules\Backup\MigrationExporter::entityKeys() ) );
+        if ( empty( $valid ) ) {
+            self::redirectBack( [ 'tt_bk_msg' => 'migration_empty' ] );
+        }
+
+        $bytes = \TT\Modules\Backup\MigrationExporter::export( $valid );
+        if ( $bytes === '' ) {
+            self::redirectBack( [ 'tt_bk_msg' => 'migration_empty' ] );
+        }
+
+        $filename = \TT\Modules\Backup\MigrationExporter::filename( gmdate( 'Ymd-His' ) );
+        nocache_headers();
+        header( 'Content-Type: application/gzip' );
+        header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
+        header( 'Content-Length: ' . (string) strlen( $bytes ) );
+        echo $bytes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- binary gzip stream.
         exit;
     }
 

@@ -81,6 +81,14 @@ Direct na afloop van de bulkactie verschijnt een melding met de link **Ongedaan 
 
 De drempel van 10 rijen is filterbaar via `tt_backup_bulk_safety_threshold`.
 
+## Datamigratie — export (v4.21.14+)
+
+Om gegevens naar een **andere** TalentTrack-installatie te verplaatsen, gebruik je het onderdeel **Datamigratie** op de Back-uppagina. Vink de gegevenssets aan die je meeneemt (Spelers, Teams, Staf & rollen, Evaluaties, Activiteiten & aanwezigheid, Doelen, Keuzelijsten & configuratie) en klik op **Exporteren voor migratie** om een `.ttmig`-bestand te downloaden — gzip-JSON, dezelfde structuur als een back-up, met `kind: migration`.
+
+Export bevat alleen gegevens: WordPress-gebruikers en media worden niet meegenomen. Koppelingen tussen installaties (`wp_user_id`) worden bij het importeren bepaald, niet in het bestand opgeslagen.
+
+Het importeren van een `.ttmig` op de doelinstallatie — uploaden, selectie van entiteiten/records, interactieve conflictoplossing en gebruikerskoppeling, en ID-hermapping zodat het veilig samenvoegt in een gevulde installatie — volgt in latere fasen (#1464).
+
 ## Wat blijft uitgesteld
 
 S3, Dropbox, GDrive en SFTP-bestemmingen zitten niet in v1; de bestemmingsinterface is al aanwezig, dus elk daarvan is een toevoeging van één klasse wanneer de tijd er rijp voor is (waarschijnlijk gebundeld met #0011 monetisatie als Pro-feature).

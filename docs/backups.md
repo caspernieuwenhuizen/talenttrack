@@ -81,6 +81,14 @@ Right after the bulk operation finishes, an admin notice appears with an **Undo 
 
 The 10-row threshold is filterable via `tt_backup_bulk_safety_threshold`.
 
+## Data migration — export (v4.21.14+)
+
+To move data to a **different** TalentTrack install, use the **Data migration** section on the Backups page. Tick the data sets to include (Players, Teams, Staff & roles, Evaluations, Activities & attendance, Goals, Lookups & configuration) and click **Export for migration** to download a `.ttmig` archive — gzipped JSON, the same envelope as a backup, stamped `kind: migration`.
+
+Export is data-only: WordPress users and media are not included. Cross-install user links (`wp_user_id`) are resolved at import time, not carried in the file.
+
+Importing a `.ttmig` on the target install — upload, entity/record selection, interactive conflict resolution and user mapping, and ID remapping so it merges safely into a populated install — is being delivered in follow-up phases (#1464).
+
 ## What's still deferred
 
 S3, Dropbox, GDrive, and SFTP destinations are not in v1; the destination interface is in place so each is a one-class addition when the time is right (likely bundled with #0011 monetization as a Pro-tier feature).
