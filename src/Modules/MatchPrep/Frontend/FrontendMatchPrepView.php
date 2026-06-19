@@ -245,8 +245,20 @@ class FrontendMatchPrepView extends FrontendViewBase {
             'id'      => $activity_id,
         ], remove_query_arg( [ 'tt_view', 'activity_id' ] ) );
 
+        // #1479 — Dashboard → Activities → [Activity] → Match prep. The
+        // previous crumb passed `href`, but the breadcrumb component reads
+        // `url` (so it rendered as un-clickable plain text); `viewCrumb()`
+        // builds the correct shape. The source-activity crumb is the
+        // standards-compliant "back to the activity" affordance (no
+        // bespoke button); the contextual pill is auto-rendered from
+        // `tt_back` when match prep was entered from the activity.
+        $activity_crumb_label = (string) ( $activity->title ?? '' );
+        if ( $activity_crumb_label === '' ) {
+            $activity_crumb_label = __( 'Activity', 'talenttrack' );
+        }
         FrontendBreadcrumbs::fromDashboard( __( 'Match prep', 'talenttrack' ), [
-            [ 'label' => __( 'Activities', 'talenttrack' ), 'href' => add_query_arg( [ 'tt_view' => 'activities' ], remove_query_arg( [ 'tt_view', 'activity_id' ] ) ) ],
+            FrontendBreadcrumbs::viewCrumb( 'activities', __( 'Activities', 'talenttrack' ) ),
+            FrontendBreadcrumbs::viewCrumb( 'activities', $activity_crumb_label, [ 'id' => $activity_id ] ),
         ] );
 
         parent::enqueueAssets();
