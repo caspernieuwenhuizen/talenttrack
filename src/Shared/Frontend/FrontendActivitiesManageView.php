@@ -155,12 +155,16 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 // does (FrontendMatchPrepView handles the redirect).
                 $type_key = strtolower( (string) ( $session->activity_type_key ?? '' ) );
                 if ( in_array( $type_key, [ 'match', ActivityTypeKey::GAME ], true ) && $can_edit_acts ) {
-                    $prep_url = add_query_arg(
-                        [
-                            'tt_view'     => 'match-prep',
-                            'activity_id' => (int) $session->id,
-                        ],
-                        \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+                    // #1479 — carry the back-target so match prep can
+                    // render the "← Back to <activity>" pill (CLAUDE.md §5).
+                    $prep_url = \TT\Shared\Frontend\Components\BackLink::appendTo(
+                        add_query_arg(
+                            [
+                                'tt_view'     => 'match-prep',
+                                'activity_id' => (int) $session->id,
+                            ],
+                            \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+                        )
                     );
                     $detail_actions[] = [
                         'label' => __( 'Plan match prep', 'talenttrack' ),
