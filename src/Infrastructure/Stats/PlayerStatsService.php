@@ -51,7 +51,10 @@ class PlayerStatsService {
         global $wpdb;
         $p = $wpdb->prefix;
 
-        $clauses = [ 'player_id = %d' ];
+        // #1469 — archived evaluations must never contribute to a
+        // player's displayed rating/score. The aggregate report paths
+        // already exclude them; this rate-card path was the leak.
+        $clauses = [ 'player_id = %d', 'archived_at IS NULL' ];
         $args    = [ $player_id ];
 
         $date_from = $filters['date_from'] ?? '';

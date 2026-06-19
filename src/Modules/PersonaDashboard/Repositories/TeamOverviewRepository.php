@@ -66,6 +66,7 @@ final class TeamOverviewRepository {
                           INNER JOIN {$p}tt_players pl ON pl.id = e.player_id AND pl.club_id = e.club_id
                          WHERE pl.team_id = t.id
                            AND e.club_id = t.club_id
+                           AND e.archived_at IS NULL
                            AND e.eval_date >= %s
                            AND e.eval_date <= %s
                     ) AS avg_rating,
@@ -157,6 +158,7 @@ final class TeamOverviewRepository {
                           INNER JOIN {$p}tt_evaluations e ON e.id = r.evaluation_id AND e.club_id = r.club_id
                          WHERE e.player_id = pl.id
                            AND e.club_id = pl.club_id
+                           AND e.archived_at IS NULL
                            AND e.eval_date >= %s
                            AND e.eval_date <= %s
                     ) AS avg_rating
