@@ -74,6 +74,10 @@ class CustomWidgetsModule implements ModuleInterface {
         // `current_user_can()` returns the right answer for callers
         // that haven't been migrated to matrix-aware checks yet.
         add_action( 'init', [ self::class, 'ensureCapabilities' ] );
+        // #1449 — modern menu: sits under the "Configuration" heading
+        // next to Dashboard layouts. The `sort` weight only applies in
+        // the modern menu (legacy mode keeps registration order).
+        $modern = ! \TT\Shared\Admin\Menu::shouldShowLegacyMenus();
         AdminMenuRegistry::register( [
             'module_class' => self::class,
             'parent'       => 'talenttrack',
@@ -84,6 +88,7 @@ class CustomWidgetsModule implements ModuleInterface {
             'callback'     => [ CustomWidgetsAdminPage::class, 'render' ],
             'group'        => 'configuration',
             'order'        => 35,
+            'sort'         => $modern ? 12 : 1000,
         ] );
 
         // Configuration tile — same pattern as Dashboard layouts.

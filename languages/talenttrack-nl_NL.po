@@ -11444,6 +11444,10 @@ msgstr "Basis"
 msgid "Advanced"
 msgstr "Geavanceerd"
 
+#: src/Shared/CoreSurfaceRegistration.php:1095
+msgid "Data & demo"
+msgstr "Gegevens & demo"
+
 # v3.56.0 — Excel demo data finished (#0059)
 #: src/Modules/DemoData/Admin/DemoDataPage.php:312
 msgid "Step 0 — Source"

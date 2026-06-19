@@ -39,6 +39,11 @@ class SeedReviewModule implements ModuleInterface {
     public function register( Container $container ): void {}
 
     public function boot( Container $container ): void {
+        // #1449 — modern menu: Seed review sits under the "Data & demo"
+        // heading next to Demo data. The `sort` weight only applies in
+        // the modern menu (legacy mode keeps the default registration
+        // order). See CoreSurfaceRegistration::registerAdminSubmenu.
+        $modern = ! \TT\Shared\Admin\Menu::shouldShowLegacyMenus();
         AdminMenuRegistry::register( [
             'module_class' => self::class,
             'parent'       => 'talenttrack',
@@ -47,8 +52,9 @@ class SeedReviewModule implements ModuleInterface {
             'cap'          => 'tt_edit_settings',
             'slug'         => 'tt-seed-review',
             'callback'     => [ SeedReviewPage::class, 'render' ],
-            'group'        => 'configuration',
+            'group'        => 'data_demo',
             'order'        => 92,
+            'sort'         => $modern ? 23 : 1000,
         ] );
 
         add_action( 'admin_post_tt_seed_review_export', [ SeedReviewPage::class, 'handleExport' ] );

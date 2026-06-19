@@ -3,7 +3,7 @@
  * Plugin Name: TalentTrack
  * Plugin URI:  https://github.com/caspernieuwenhuizen/talenttrack
  * Description: Frontend-first, modular youth football talent management system for a single club.
- * Version:     4.21.16
+ * Version:     4.21.17
  * Author:      Casper Nieuwenhuizen
  * Author URI:  https://github.com/caspernieuwenhuizen
  * License:     GPL-2.0+
@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'TT_VERSION',     '4.21.16' );
+define( 'TT_VERSION',     '4.21.17' );
 define( 'TT_PLUGIN_DIR',  plugin_dir_path( __FILE__ ) );
 define( 'TT_PLUGIN_URL',  plugin_dir_url( __FILE__ ) );
 define( 'TT_PLUGIN_FILE', __FILE__ );
@@ -114,8 +114,7 @@ add_action( 'init', function () {
     if ( is_admin() && class_exists( 'TT\\Shared\\Admin\\MenuExtension' ) ) {
         TT\Shared\Admin\MenuExtension::init();
     }
-    // #0077 F4 — module-completeness dev report. Self-gates on WP_DEBUG.
-    if ( is_admin() && class_exists( 'TT\\Infrastructure\\Diagnostics\\ModuleCompletenessPage' ) ) {
-        TT\Infrastructure\Diagnostics\ModuleCompletenessPage::init();
-    }
+    // #0077 F4 — module-completeness dev report. #1449 moved its menu
+    // row into AdminMenuRegistry (CoreSurfaceRegistration, WP_DEBUG-
+    // gated), so it no longer self-hooks admin_menu from here.
 }, 5 );

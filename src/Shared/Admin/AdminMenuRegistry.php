@@ -40,6 +40,7 @@ final class AdminMenuRegistry {
      *   callback: callable,
      *   group: string,
      *   order: int,
+     *   sort: int,
      *   is_separator: bool
      * }>
      */
@@ -73,7 +74,8 @@ final class AdminMenuRegistry {
      *   slug: string,
      *   callback: callable,
      *   group?: string,
-     *   order?: int
+     *   order?: int,
+     *   sort?: int
      * } $entry
      */
     public static function register( array $entry ): void {
@@ -83,6 +85,7 @@ final class AdminMenuRegistry {
             'label'        => '',
             'group'        => '',
             'order'        => 100,
+            'sort'         => 1000,
             'is_separator' => false,
         ];
         $entry = array_merge( $defaults, $entry );
@@ -95,8 +98,13 @@ final class AdminMenuRegistry {
 
     /**
      * Register a non-clickable separator heading row.
+     *
+     * `$sort` controls the row's position when `applyAll()` orders the
+     * menu (lower = higher). Leave it at the default so the row keeps
+     * its registration-order slot; pass an explicit value to place a
+     * modern-menu heading next to the items it groups.
      */
-    public static function registerSeparator( string $slug, string $label, string $cap, string $group = '', int $order = 0 ): void {
+    public static function registerSeparator( string $slug, string $label, string $cap, string $group = '', int $order = 0, int $sort = 1000 ): void {
         self::$entries[] = [
             'module_class' => null,
             'parent'       => 'talenttrack',
@@ -107,6 +115,7 @@ final class AdminMenuRegistry {
             'callback'     => static function () { wp_safe_redirect( admin_url( 'admin.php?page=talenttrack' ) ); exit; },
             'group'        => $group,
             'order'        => $order,
+            'sort'         => $sort,
             'is_separator' => true,
         ];
     }
@@ -158,15 +167,17 @@ final class AdminMenuRegistry {
      * are noise.
      */
     public static function applyAll(): void {
+        $entries = self::sortedEntries();
+
         // First pass: collect which groups have any visible non-separator entry.
         $live_groups = [];
-        foreach ( self::$entries as $entry ) {
+        foreach ( $entries as $entry ) {
             if ( $entry['is_separator'] ) continue;
             if ( ! self::moduleEnabled( $entry['module_class'] ) ) continue;
             if ( $entry['group'] !== '' ) $live_groups[ $entry['group'] ] = true;
         }
 
-        foreach ( self::$entries as $entry ) {
+        foreach ( $entries as $entry ) {
             if ( $entry['is_separator'] ) {
                 // Skip separators whose group has no visible children.
                 if ( $entry['group'] !== '' && empty( $live_groups[ $entry['group'] ] ) ) continue;
@@ -182,6 +193,32 @@ final class AdminMenuRegistry {
                 $entry['callback']
             );
         }
+    }
+
+    /**
+     * Order the registered entries by their `sort` weight (ascending,
+     * lower = higher in the menu), falling back to registration order
+     * for equal weights. Entries that never set `sort` share the
+     * default (1000), so they keep their registration-order slot — the
+     * sort only repositions entries given an explicit weight (the
+     * modern wp-admin menu's grouped headings + items). Hand-rolled
+     * stable sort (index tiebreak) so the result is identical across
+     * PHP versions regardless of `usort`'s stability guarantees.
+     *
+     * @return list<array<string,mixed>>
+     */
+    private static function sortedEntries(): array {
+        $indexed = [];
+        foreach ( self::$entries as $i => $entry ) {
+            $indexed[] = [ 'i' => $i, 'entry' => $entry ];
+        }
+        usort( $indexed, static function ( $a, $b ): int {
+            $sa = isset( $a['entry']['sort'] ) ? (int) $a['entry']['sort'] : 1000;
+            $sb = isset( $b['entry']['sort'] ) ? (int) $b['entry']['sort'] : 1000;
+            if ( $sa !== $sb ) return $sa <=> $sb;
+            return $a['i'] <=> $b['i'];
+        } );
+        return array_map( static fn ( array $row ): array => $row['entry'], $indexed );
     }
 
     /**

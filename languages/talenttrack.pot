@@ -10150,6 +10150,10 @@ msgstr ""
 msgid "Advanced"
 msgstr ""
 
+#: src/Shared/CoreSurfaceRegistration.php:1095
+msgid "Data & demo"
+msgstr ""
+
 #: src/Modules/DemoData/Admin/DemoDataPage.php:312
 msgid "Step 0 — Source"
 msgstr ""
