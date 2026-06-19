@@ -32387,3 +32387,19 @@ msgstr ""
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr ""
+
+#. translators: 1: user name, 2: date/time
+#: src/Shared/Frontend/Components/AuditMeta.php:37
+#, php-format
+msgid "Created by %1$s on %2$s"
+msgstr ""
+
+#. translators: 1: user name, 2: date/time
+#: src/Shared/Frontend/Components/AuditMeta.php:46
+#, php-format
+msgid "Last changed by %1$s on %2$s"
+msgstr ""
+
+#: src/Shared/Frontend/Components/AuditMeta.php:67
+msgid "a former user"
+msgstr ""

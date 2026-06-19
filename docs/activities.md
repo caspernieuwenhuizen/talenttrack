@@ -71,6 +71,10 @@ Every activity carries two extra fields beyond the headline type:
 
 The Head of Development's 90-day quarterly rollup also uses these types: it shows one row per type in use, so renaming or adding types reflects there automatically.
 
+## Who created and changed it
+
+The activity detail page shows a small line at the bottom of the detail panel: **Created by** whoever added the activity, on the date they did, and **Last changed by** whoever most recently edited it. This is recorded automatically from now on — activities created before this was added show nothing there (there's no history to fill in), and the line only appears once an author is known.
+
 ## Guests
 
 You can add players from outside the squad to an activity — for example a player borrowed from another team for a friendly, or a trial player.
