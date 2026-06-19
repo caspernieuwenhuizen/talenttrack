@@ -99,7 +99,10 @@ final class FrontendMatchExecutionsListView extends FrontendViewBase {
             $team_name = (string) ( $r->team_name ?? ( '#' . (int) $r->team_id ) );
             $score = sprintf( '%d–%d', (int) $r->home_score, (int) $r->away_score );
 
-            echo '<tr>';
+            // #1472 — whole-row click target. The inner date link stays
+            // the keyboard / AT path (no nested role=link on the <tr>);
+            // tt-table-tools.js wires the pointer navigation.
+            echo '<tr class="is-row-link" data-row-href="' . esc_url( $row_url ) . '">';
             echo '<td><a class="tt-record-link" href="' . esc_url( $row_url ) . '">' . esc_html( (string) $r->session_date ) . '</a></td>';
             echo '<td>' . esc_html( $team_name ) . '</td>';
             echo '<td>' . esc_html( $opp ) . '</td>';

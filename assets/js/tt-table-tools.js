@@ -251,6 +251,61 @@
         updateCount();
     }
 
+    // #1472 — whole-row click for hand-rolled `.tt-table` lists. A row
+    // opts in with class `is-row-link` + `data-row-href`. The inner
+    // per-column link stays the keyboard / AT path (no role=link on the
+    // <tr>), so this is a pointer-only enhancement and degrades to that
+    // link when JS is off. Document-delegated, bound once. Rows inside a
+    // FrontendListTable (`[data-tt-list-body]`) are left to that
+    // component's own hydrator.
+    var rowLinksBound = false;
+
+    function rowLinkFor(target) {
+        var tr = (target && target.closest) ? target.closest('tr.is-row-link[data-row-href]') : null;
+        if (!tr) return null;
+        if (tr.closest('[data-tt-list-body]')) return null;
+        return tr;
+    }
+
+    function targetIsInteractive(el, stop) {
+        while (el && el !== stop) {
+            var tag = el.tagName;
+            if (tag === 'A' || tag === 'BUTTON' || tag === 'INPUT' ||
+                tag === 'SELECT' || tag === 'TEXTAREA' || tag === 'LABEL') return true;
+            if (el.getAttribute && el.getAttribute('role') === 'button') return true;
+            el = el.parentNode;
+        }
+        return false;
+    }
+
+    function navigateRowLink(href, newTab) {
+        if (!href) return;
+        if (newTab) { window.open(href, '_blank', 'noopener'); }
+        else { window.location.href = href; }
+    }
+
+    function bindRowLinks() {
+        if (rowLinksBound) return;
+        rowLinksBound = true;
+
+        document.addEventListener('click', function (e) {
+            var tr = rowLinkFor(e.target);
+            if (!tr || targetIsInteractive(e.target, tr)) return;
+            // Don't navigate when the user was selecting text in the row.
+            var sel = window.getSelection && window.getSelection();
+            if (sel && sel.toString && sel.toString().length > 0) return;
+            navigateRowLink(tr.getAttribute('data-row-href'), e.metaKey || e.ctrlKey || e.button === 1);
+        });
+
+        // Middle-click → new tab.
+        document.addEventListener('auxclick', function (e) {
+            if (e.button !== 1) return;
+            var tr = rowLinkFor(e.target);
+            if (!tr || targetIsInteractive(e.target, tr)) return;
+            navigateRowLink(tr.getAttribute('data-row-href'), true);
+        });
+    }
+
     function init(root) {
         root = root || document;
         var tables = root.querySelectorAll('table.tt-table-sortable');
@@ -261,6 +316,7 @@
             attachSearchBar(table);
             attachHeaderSort(table);
         }
+        bindRowLinks();
     }
 
     window.ttTableTools = { init: init };
