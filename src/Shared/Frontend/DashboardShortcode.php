@@ -282,6 +282,14 @@ class DashboardShortcode {
             echo '<p><em>' . esc_html__( 'Unknown section.', 'talenttrack' ) . '</em></p>';
         }
 
+        // #1452 — surface the running version at the foot of the dashboard
+        // so operators can confirm what's deployed without opening wp-admin.
+        // Operator-only so player/parent dashboards stay clean.
+        if ( $is_admin ) {
+            echo '<div class="tt-dash-version" style="margin-top:24px;text-align:center;font-size:.75rem;color:#90a0a6;">'
+                . esc_html( 'v' . TT_VERSION ) . '</div>';
+        }
+
         echo '</div>';
 
         /** @var string $output */
