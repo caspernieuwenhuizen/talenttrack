@@ -143,6 +143,11 @@ De centrale `?tt_view=exports`-pagina heeft nog steeds een match-prep
 PDF-exporter voor wie liever vandaaruit werkt; de knop in de
 werkbalk is de directe sneltoets voor "deze opstelling nu printen".
 
+De knop **Print team sheet (PDF)** ernaast downloadt het teamblad voor
+langs de lijn (basiself / bank / selectie met handtekeningregels) als
+PDF-bestand. Het wordt direct naar je apparaat gedownload in plaats van
+in een nieuw tabblad geopend.
+
 ## Wat hier niet kan
 
 - De selectie aanpassen (spelers toevoegen / verwijderen) — dat doe

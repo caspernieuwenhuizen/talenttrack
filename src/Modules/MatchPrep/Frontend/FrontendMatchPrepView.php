@@ -322,12 +322,18 @@ class FrontendMatchPrepView extends FrontendViewBase {
                     $team_sheet_url
                 );
                 ?>
-                <a class="tt-btn tt-btn-secondary"
-                   href="<?php echo esc_url( $team_sheet_url ); ?>"
-                   target="_blank"
-                   rel="noopener">
+<?php
+                // #1476 — the export endpoint is REST cookie-auth, which
+                // requires the X-WP-Nonce; a bare link carried none and
+                // 401'd. Trigger via fetch (nonce header) → blob download
+                // instead of a raw navigation. Button, not link, since it
+                // runs JS rather than navigating.
+                ?>
+                <button type="button" class="tt-btn tt-btn-secondary"
+                        data-tt-mp-team-sheet
+                        data-url="<?php echo esc_url( $team_sheet_url ); ?>">
                     <?php esc_html_e( 'Print team sheet (PDF)', 'talenttrack' ); ?>
-                </a>
+                </button>
                 <span class="tt-mp-spacer"></span>
                 <span class="tt-mp-save-state" data-tt-mp-save-state aria-live="polite"><?php esc_html_e( 'All changes saved.', 'talenttrack' ); ?></span>
             </div>
@@ -708,6 +714,7 @@ class FrontendMatchPrepView extends FrontendViewBase {
                 'reason'          => __( 'Reason (optional)…', 'talenttrack' ),
                 'pick_player'     => __( '— Pick player —', 'talenttrack' ),
                 'pick_for_role'   => __( 'Pick player for role', 'talenttrack' ),
+                'team_sheet_failed' => __( 'Could not generate the team sheet. Please try again.', 'talenttrack' ),
             ],
         ] );
     }

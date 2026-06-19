@@ -875,6 +875,55 @@
     }
 
     // ---------------------------------------------------------------------
+    // #1476 — team-sheet PDF. The export endpoint is REST cookie-auth and
+    // requires the X-WP-Nonce header; a bare link navigation carried no
+    // nonce and returned 401. Fetch with the nonce, then download the
+    // returned PDF blob. A user lacking the capability now gets a proper
+    // 403 (the request is authenticated) rather than a confusing 401.
+    // ---------------------------------------------------------------------
+
+    var teamSheetBtn = $('[data-tt-mp-team-sheet]');
+    if (teamSheetBtn) {
+        teamSheetBtn.addEventListener('click', function () {
+            var url = teamSheetBtn.getAttribute('data-url');
+            if (!url) return;
+            teamSheetBtn.disabled = true;
+            fetch(url, {
+                method: 'GET',
+                credentials: 'same-origin',
+                headers: {
+                    'Accept': 'application/pdf',
+                    'X-WP-Nonce': cfg.rest_nonce || ''
+                }
+            }).then(function (r) {
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                var name = 'team-sheet.pdf';
+                var cd = r.headers.get('Content-Disposition') || '';
+                var m = /filename\*?=(?:UTF-8'')?"?([^";]+)"?/i.exec(cd);
+                if (m && m[1]) {
+                    try { name = decodeURIComponent(m[1]); } catch (e) { name = m[1]; }
+                }
+                return r.blob().then(function (blob) {
+                    var objUrl = URL.createObjectURL(blob);
+                    var a = document.createElement('a');
+                    a.href = objUrl;
+                    a.download = name;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    setTimeout(function () { URL.revokeObjectURL(objUrl); }, 4000);
+                });
+            }).catch(function () {
+                var msg = (cfg.i18n && cfg.i18n.team_sheet_failed)
+                    || 'Could not generate the team sheet. Please try again.';
+                window.alert(msg);
+            }).then(function () {
+                teamSheetBtn.disabled = false;
+            });
+        });
+    }
+
+    // ---------------------------------------------------------------------
     // Initial render
     // ---------------------------------------------------------------------
 
