@@ -135,6 +135,11 @@ exporter for users who want to drive the same export from there; the
 toolbar button is just the in-place shortcut for "print this lineup
 now".
 
+The **Print team sheet (PDF)** button next to it downloads the pitch-side
+team sheet (Starting XI / Bench / Squad with signature lines) as a PDF
+file. It downloads straight to your device rather than opening a new
+tab.
+
 ## What you can't do here
 
 - Edit the roster (add / remove players from the team) — that's the

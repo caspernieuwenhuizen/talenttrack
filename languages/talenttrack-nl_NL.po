@@ -36873,6 +36873,10 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:718
+msgid "Could not generate the team sheet. Please try again."
+msgstr "Het teamblad kon niet worden gegenereerd. Probeer het opnieuw."
+
 #~ msgid "Create dashboard page"
 #~ msgstr "Dashboardpagina aanmaken"
 

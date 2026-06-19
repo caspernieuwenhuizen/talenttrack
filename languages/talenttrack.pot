@@ -32419,3 +32419,7 @@ msgstr ""
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr ""
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:718
+msgid "Could not generate the team sheet. Please try again."
+msgstr ""
