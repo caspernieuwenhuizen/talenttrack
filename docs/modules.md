@@ -6,6 +6,10 @@
 
 Each TalentTrack module can be turned off here. Disabled modules don't `register()` or `boot()` — their tiles, REST routes, admin pages, and capabilities all silently disappear until re-enabled. The toggle is per-install, so a multi-tenant deployment would need a separate per-tenant flag (deferred to v2 of #0011).
 
+## Frontend access (v4.21.15+)
+
+The same toggle is reachable from the frontend admin surface at **`?tt_view=modules`** (and via a **Modules** tile under Configuration), gated by the `tt_manage_modules` capability (administrator + academy admin by default) instead of a raw admin-only check. It's also exposed over REST for non-WordPress front ends: `GET /wp-json/talenttrack/v1/modules` lists modules; `POST` with `{ "class": "...", "enabled": true|false }` toggles one. The wp-admin page stays as the power-user fallback.
+
 ## Why turn a module off?
 
 - **Demo to a non-paying prospect.** Disable License so the upgrade banner stays out of the way.

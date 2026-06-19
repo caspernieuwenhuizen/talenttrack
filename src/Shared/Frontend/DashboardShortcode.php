@@ -732,6 +732,10 @@ class DashboardShortcode {
             case 'migrations':
                 FrontendMigrationsView::render( $user_id, $is_admin );
                 return true;
+            case 'modules':
+                // #1451 — frontend equivalent of the wp-admin Modules toggle.
+                FrontendModulesView::render( $user_id, $is_admin );
+                return true;
             case 'usage-stats':
                 FrontendUsageStatsView::render( $user_id, $is_admin );
                 return true;

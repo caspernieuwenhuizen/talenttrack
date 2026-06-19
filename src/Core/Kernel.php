@@ -114,6 +114,8 @@ class Kernel {
         BrandStyles::init( $this->container );
         DashboardShortcode::register();
         \TT\Shared\Frontend\FlashMessages::init();
+        // #1451 — frontend Modules toggle (cap-ensure + save handler + tile).
+        \TT\Shared\Frontend\FrontendModulesView::init();
         // #0084 Child 1 — admin-post handlers for the mobile-prompt
         // page's "email me the link" + the operator-only mobile-gate
         // toggle. Static init; mirrors how MfaActionHandlers wires.

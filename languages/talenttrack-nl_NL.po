@@ -12,6 +12,34 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+#: src/Shared/Frontend/FrontendModulesView.php
+msgid "You do not have permission to manage modules."
+msgstr "Je hebt geen rechten om modules te beheren."
+
+#: src/Shared/Frontend/FrontendModulesView.php
+msgid "Module state saved. Reload open tabs to see the effect."
+msgstr "Modulestatus opgeslagen. Herlaad open tabbladen om het effect te zien."
+
+#: src/Shared/Frontend/FrontendModulesView.php
+msgid "Turn TalentTrack modules on or off. A disabled module registers no hooks, REST routes, pages, or capabilities until re-enabled. Core modules cannot be disabled."
+msgstr "Schakel TalentTrack-modules in of uit. Een uitgeschakelde module registreert geen hooks, REST-routes, pagina's of rechten totdat hij weer wordt ingeschakeld. Kernmodules kunnen niet worden uitgeschakeld."
+
+#: src/Shared/Frontend/FrontendModulesView.php
+msgid "Change active modules now? Disabling a module hides its surfaces immediately — reload other open tabs after saving."
+msgstr "Actieve modules nu wijzigen? Een module uitschakelen verbergt de bijbehorende schermen direct — herlaad andere open tabbladen na het opslaan."
+
+#: src/Shared/Frontend/FrontendModulesView.php
+msgid "Turn TalentTrack modules on or off."
+msgstr "Schakel TalentTrack-modules in of uit."
+
+#: src/Shared/Frontend/FrontendModulesView.php
+msgid "Unknown module."
+msgstr "Onbekende module."
+
+#: src/Shared/Frontend/FrontendModulesView.php
+msgid "Core modules cannot be disabled."
+msgstr "Kernmodules kunnen niet worden uitgeschakeld."
+
 #: src/Modules/Backup/Admin/BackupSettingsPage.php
 msgid "Data migration"
 msgstr "Datamigratie"
