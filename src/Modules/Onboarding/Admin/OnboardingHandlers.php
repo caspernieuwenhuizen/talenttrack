@@ -194,7 +194,10 @@ class OnboardingHandlers {
                 'post_type'    => 'page',
                 'post_status'  => 'publish',
                 'post_title'   => __( 'Dashboard', 'talenttrack' ),
-                'post_content' => '[talenttrack_dashboard]',
+                // #1457 — wrap in an alignfull group so block themes (which
+                // constrain post content to ~645px) render the dashboard
+                // full-width; the plugin CSS then caps it at 1600px.
+                'post_content' => "<!-- wp:group {\"align\":\"full\"} -->\n<div class=\"wp-block-group alignfull\">[talenttrack_dashboard]</div>\n<!-- /wp:group -->",
             ] );
         }
 
