@@ -67,6 +67,14 @@ shortcut for "the whole roster is here today." Closing the drawer
 saves; marking anyone Absent pulls them out of every lineup slot and
 role row.
 
+When the match activity has a **planned roster** (the expected players
+you picked when creating it), the availability step starts from that
+plan instead of marking everyone Present: planned players default to
+Present, and team players you left out of the plan are pre-marked
+Absent with the reason "not in planned roster." Adjust any chip — the
+defaults are just a head start. Activities created without a planned
+roster still default everyone to Present.
+
 ## Formation
 
 The **Formation** dropdown lists every entry from

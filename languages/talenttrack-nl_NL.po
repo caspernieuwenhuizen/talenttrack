@@ -17035,6 +17035,24 @@ msgstr ""
 "Markeer wie kan spelen. Iedereen begint als Aanwezig; markeer alleen "
 "uitzonderingen."
 
+#: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:62
+msgid ""
+"Defaults follow the planned roster — players left out are pre-marked Absent. "
+"Adjust as needed."
+msgstr ""
+"Standaardwaarden volgen de geplande selectie — spelers die ontbreken staan "
+"vooraf op Afwezig. Pas aan waar nodig."
+
+#: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:78
+msgid "Not in planned roster"
+msgstr "Niet in geplande selectie"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:500
+msgid "Expected attendance · %d player"
+msgid_plural "Expected attendance · %d players"
+msgstr[0] "Verwachte opkomst · %d speler"
+msgstr[1] "Verwachte opkomst · %d spelers"
+
 #: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:76
 msgid "Optional reason"
 msgstr "Optionele reden"

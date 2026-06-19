@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Activities\Repositories\ActivitiesRepository;
 use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
 use TT\Shared\Wizards\WizardStepInterface;
 
@@ -13,9 +14,14 @@ use TT\Shared\Wizards\WizardStepInterface;
  * AvailabilityStep — Present/Absent/Excused/Injured toggle per
  * roster player. `Late` is filtered out via `tt_lookups.meta.hide_from_prep`.
  *
- * The step seeds state with every player on the activity's team
- * marked Present on first render. Operator marks exceptions; reason
- * field stays visible for non-Present rows.
+ * #1453 — first-render defaults are seeded from the activity's planned
+ * (expected) roster, captured by the new-activity wizard's
+ * AttendanceRosterStep: players in the planned roster default Present,
+ * team players the coach left out of the plan default Absent (reason
+ * "not in planned roster"). When the activity has no planned roster
+ * (the "Set later" path), every player defaults Present as before.
+ * Operator marks exceptions; reason field stays visible for
+ * non-Present rows.
  */
 final class AvailabilityStep implements WizardStepInterface {
 
@@ -46,16 +52,38 @@ final class AvailabilityStep implements WizardStepInterface {
             ? $state['availability']
             : [];
 
+        // #1453 — seed defaults from the planned (expected) roster.
+        // `$planned` is the set of team player ids ticked at activity
+        // creation; `$absent_name` is the install's "absent" status (so
+        // a customised vocabulary still resolves), falling back to all-
+        // Present when the activity has no plan or no absent status.
+        $planned     = ( new ActivitiesRepository() )->plannedPlayerIdSet( $activity_id );
+        $has_plan    = ! empty( $planned );
+        $absent_name = self::absentStatusName( $statuses );
+        $not_planned_reason = __( 'Not in planned roster', 'talenttrack' );
+
         echo '<input type="hidden" name="activity_id" value="' . esc_attr( (string) $activity_id ) . '" />';
         echo '<p style="margin: 0 0 12px; color:#5b6e75;">'
-            . esc_html__( 'Mark who can play. Everyone starts as Present; only flag exceptions.', 'talenttrack' )
+            . esc_html(
+                $has_plan
+                    ? __( 'Defaults follow the planned roster — players left out are pre-marked Absent. Adjust as needed.', 'talenttrack' )
+                    : __( 'Mark who can play. Everyone starts as Present; only flag exceptions.', 'talenttrack' )
+            )
             . '</p>';
 
         echo '<div class="tt-match-prep-availability" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:12px;">';
         foreach ( $players as $pl ) {
             $pid    = (int) $pl->id;
             $name   = (string) QueryHelpers::player_display_name( $pl );
-            $row    = $existing[ $pid ] ?? [ 'status' => 'Present', 'reason' => '' ];
+            if ( isset( $existing[ $pid ] ) ) {
+                // Operator's in-flight / saved choice always wins.
+                $row = $existing[ $pid ];
+            } elseif ( $has_plan && ! isset( $planned[ $pid ] ) && $absent_name !== null ) {
+                // On the team but left out of the plan → planned absent.
+                $row = [ 'status' => $absent_name, 'reason' => $not_planned_reason ];
+            } else {
+                $row = [ 'status' => 'Present', 'reason' => '' ];
+            }
             $status = (string) ( $row['status'] ?? 'Present' );
             $reason = (string) ( $row['reason'] ?? '' );
 
@@ -174,6 +202,21 @@ final class AvailabilityStep implements WizardStepInterface {
             $team_id, CurrentClub::id()
         ) );
         return is_array( $rows ) ? $rows : [];
+    }
+
+    /**
+     * #1453 — the install's "absent" prep status name (exact stored
+     * case), or null when the vocabulary has no absent-like status.
+     * Used to pre-mark not-planned players; null disables that default
+     * so they fall back to Present rather than an invalid status.
+     */
+    private static function absentStatusName( array $statuses ): ?string {
+        foreach ( $statuses as $opt ) {
+            if ( strcasecmp( (string) ( $opt->name ?? '' ), 'absent' ) === 0 ) {
+                return (string) $opt->name;
+            }
+        }
+        return null;
     }
 
     /** @return object[] attendance_status rows minus `hide_from_prep` */

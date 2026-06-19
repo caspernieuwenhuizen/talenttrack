@@ -14933,6 +14933,22 @@ msgstr ""
 msgid "Mark who can play. Everyone starts as Present; only flag exceptions."
 msgstr ""
 
+#: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:62
+msgid ""
+"Defaults follow the planned roster — players left out are pre-marked Absent. "
+"Adjust as needed."
+msgstr ""
+
+#: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:78
+msgid "Not in planned roster"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:500
+msgid "Expected attendance · %d player"
+msgid_plural "Expected attendance · %d players"
+msgstr[0] ""
+msgstr[1] ""
+
 #: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:76
 msgid "Optional reason"
 msgstr ""

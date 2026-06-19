@@ -335,6 +335,76 @@ final class ActivitiesRepository {
     }
 
     /**
+     * #1453 — the planned (expected) attendance roster for an activity:
+     * the `record_type='expected'` rows seeded by the activity wizard's
+     * AttendanceRosterStep (#1297) and the match-prep flow. One entry
+     * per expected roster player and per expected guest, with the
+     * display name resolved and ordered by name.
+     *
+     * Effective player id is `guest_player_id` for guests (the expected
+     * row pins `player_id=0`, `is_guest=1`, `guest_player_id=<pid>`) and
+     * `player_id` otherwise — see
+     * `Wizards\Activity\ReviewStep::insertExpectedAttendance()`.
+     *
+     * Drives the "Expected attendance" section on the activity detail
+     * page and the default seeding in the match-prep availability step,
+     * so both surfaces (and REST) read planned attendance from one
+     * place rather than re-querying `tt_attendance` in a view.
+     *
+     * @return list<object> each: {player_id:int, is_guest:int, name:string}
+     */
+    public function plannedRosterForActivity( int $activity_id ): array {
+        if ( $activity_id <= 0 ) return [];
+
+        global $wpdb;
+        $p = $wpdb->prefix;
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT att.player_id, att.guest_player_id, att.is_guest,
+                    COALESCE( gpl.first_name, pl.first_name ) AS first_name,
+                    COALESCE( gpl.last_name,  pl.last_name )  AS last_name
+               FROM {$p}tt_attendance att
+               LEFT JOIN {$p}tt_players pl  ON pl.id  = att.player_id
+               LEFT JOIN {$p}tt_players gpl ON gpl.id = att.guest_player_id
+              WHERE att.activity_id = %d
+                AND att.club_id = %d
+                AND att.record_type = 'expected'
+              ORDER BY last_name ASC, first_name ASC",
+            $activity_id, CurrentClub::id()
+        ) );
+
+        $out = [];
+        foreach ( $rows ?: [] as $r ) {
+            $is_guest = (int) $r->is_guest === 1;
+            $pid      = $is_guest ? (int) $r->guest_player_id : (int) $r->player_id;
+            if ( $pid <= 0 ) continue;
+            $name = trim( (string) ( $r->first_name ?? '' ) . ' ' . (string) ( $r->last_name ?? '' ) );
+            if ( $name === '' ) $name = '#' . $pid;
+            $out[] = (object) [
+                'player_id' => $pid,
+                'is_guest'  => $is_guest ? 1 : 0,
+                'name'      => $name,
+            ];
+        }
+        return $out;
+    }
+
+    /**
+     * #1453 — the set of player ids planned (expected) for an activity,
+     * keyed for O(1) membership tests. Roster players only (guests are
+     * not part of the team's availability default in match prep).
+     *
+     * @return array<int, true>
+     */
+    public function plannedPlayerIdSet( int $activity_id ): array {
+        $set = [];
+        foreach ( $this->plannedRosterForActivity( $activity_id ) as $row ) {
+            if ( (int) ( $row->is_guest ?? 0 ) === 1 ) continue;
+            $set[ (int) $row->player_id ] = true;
+        }
+        return $set;
+    }
+
+    /**
      * #1320 admin-CRUD slice — the wp-admin activities list
      * (`Admin\ActivitiesPage::render_page`). Club-strict, archive-tab
      * aware, demo-scoped, optionally filtered to one activity type.
