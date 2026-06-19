@@ -71,6 +71,15 @@ class Kernel {
         $failures  = get_option( MigrationRunner::FAILURES_OPTION, [] );
         if ( $installed !== TT_VERSION && empty( $failures ) ) {
             ( new MigrationRunner() )->run();
+            // #1448 — stamp the installed version once migrations apply
+            // clean (the runner clears FAILURES_OPTION on a zero-failure
+            // run). Without this the runner re-fires every request after a
+            // PUC update, since only the activation hook set the stamp.
+            // A failed run leaves the stamp behind so the SchemaStatus
+            // retry path still engages.
+            if ( empty( get_option( MigrationRunner::FAILURES_OPTION, [] ) ) ) {
+                update_option( 'tt_installed_version', TT_VERSION );
+            }
         }
 
         $this->registerCoreServices();
