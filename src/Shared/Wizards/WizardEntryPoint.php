@@ -171,14 +171,28 @@ final class WizardEntryPoint {
             return self::$request_context_override;
         }
 
-        $path = '/';
-        if ( isset( $_SERVER['REQUEST_URI'] ) ) {
-            $raw   = wp_unslash( (string) $_SERVER['REQUEST_URI'] );
-            $q_pos = strpos( $raw, '?' );
-            $path  = $q_pos === false ? $raw : substr( $raw, 0, $q_pos );
-            if ( $path === '' ) $path = '/';
+        if ( ! isset( $_SERVER['REQUEST_URI'] ) ) {
+            return home_url( '/' );
         }
-        return home_url( $path );
+        $raw   = wp_unslash( (string) $_SERVER['REQUEST_URI'] );
+        $q_pos = strpos( $raw, '?' );
+        $path  = $q_pos === false ? $raw : substr( $raw, 0, $q_pos );
+        if ( $path === '' ) {
+            return home_url( '/' );
+        }
+
+        // #1455 — REQUEST_URI's path is already absolute from the web root
+        // and, on a subdirectory install, already includes the WP subdir
+        // (e.g. /wordpress/...). Passing it through home_url() prepends the
+        // subdir a SECOND time (/wordpress/wordpress/… → 404 on wizard Next).
+        // Combine the site's scheme+host (no path) with the request path.
+        $home = wp_parse_url( home_url() );
+        if ( empty( $home['host'] ) ) {
+            return home_url( $path ); // defensive — shouldn't happen
+        }
+        $origin = ( $home['scheme'] ?? 'http' ) . '://' . $home['host']
+            . ( isset( $home['port'] ) ? ':' . $home['port'] : '' );
+        return esc_url_raw( $origin . $path );
     }
 
     /**
