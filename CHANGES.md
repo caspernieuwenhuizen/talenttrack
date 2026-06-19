@@ -1,3 +1,7 @@
+# TalentTrack v4.21.8 — Version moved into the dashboard header row (#1452)
+
+The operator version indicator now sits in the dashboard header actions row, next to the help button, instead of a footer at the bottom of the page. Still operator-only.
+
 # TalentTrack v4.21.7 — Running version shown on the dashboard (#1452)
 
 Operators now see the running plugin version (`v<x.y.z>`) as a subtle footer at the bottom of the frontend dashboard, so they can confirm what's deployed without opening wp-admin. Gated to operators (`tt_edit_settings`) so player and parent dashboards stay clean.
