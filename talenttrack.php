@@ -3,7 +3,7 @@
  * Plugin Name: TalentTrack
  * Plugin URI:  https://github.com/caspernieuwenhuizen/talenttrack
  * Description: Frontend-first, modular youth football talent management system for a single club.
- * Version:     4.21.4
+ * Version:     4.21.5
  * Author:      Casper Nieuwenhuizen
  * Author URI:  https://github.com/caspernieuwenhuizen
  * License:     GPL-2.0+
@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'TT_VERSION',     '4.21.4' );
+define( 'TT_VERSION',     '4.21.5' );
 define( 'TT_PLUGIN_DIR',  plugin_dir_path( __FILE__ ) );
 define( 'TT_PLUGIN_URL',  plugin_dir_url( __FILE__ ) );
 define( 'TT_PLUGIN_FILE', __FILE__ );
@@ -100,11 +100,17 @@ add_action( 'plugins_loaded', function () {
     load_plugin_textdomain( 'talenttrack', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
 }, 1 );
 
-add_action( 'plugins_loaded', function () {
+// Boot on `init` rather than `plugins_loaded` so module boot()s that call
+// __() run after the textdomain is available. Translating before `init` trips
+// WP 6.7's _load_textdomain_just_in_time notice on every request (#1438).
+// Early priority (1) means module-registered `init` callbacks (default
+// priority 10) still fire later in the same init cycle, and the admin-menu
+// block below (priority 5) still runs after the kernel has booted.
+add_action( 'init', function () {
     TT\Core\Kernel::instance()->boot();
-}, 5 );
+}, 1 );
 
-add_action( 'plugins_loaded', function () {
+add_action( 'init', function () {
     if ( is_admin() && class_exists( 'TT\\Shared\\Admin\\MenuExtension' ) ) {
         TT\Shared\Admin\MenuExtension::init();
     }
@@ -112,4 +118,4 @@ add_action( 'plugins_loaded', function () {
     if ( is_admin() && class_exists( 'TT\\Infrastructure\\Diagnostics\\ModuleCompletenessPage' ) ) {
         TT\Infrastructure\Diagnostics\ModuleCompletenessPage::init();
     }
-}, 10 );
+}, 5 );
