@@ -155,6 +155,15 @@ jobs:
             # underscore form names the lookup_type vocabulary, not the
             # renamed-away column on the sessions table.
             -e 'src/Domain/Vocabularies/Lookups/CompetitionType.php'
+            # v4.21.x — `LookupTranslationSeeds` carries the localized
+            # labels for canonical lookup values, including the legitimate
+            # `competition_type` lookup type (Cup / League / Friendly /
+            # …). Same rationale as `LookupCanonicalSeeds` /
+            # `CompetitionType`: the underscore form names the lookup_type
+            # vocabulary, not the renamed-away sessions column. Without
+            # this the release build failed the no-legacy gate and no
+            # release asset was published.
+            -e 'src/Modules/Configuration/LookupTranslationSeeds.php'
           )
           fail=0
           for tok in "${forbidden[@]}"; do
