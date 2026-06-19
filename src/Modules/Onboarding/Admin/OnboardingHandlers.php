@@ -207,6 +207,9 @@ class OnboardingHandlers {
             // lands on it (#1441).
             update_option( 'show_on_front', 'page' );
             update_option( 'page_on_front', $page_id );
+            // #1462 — pin the link-builder to this page so internal
+            // dashboard links and the homepage can't drift apart.
+            QueryHelpers::set_config( 'dashboard_page_id', (string) $page_id );
             $page_url = (string) get_permalink( $page_id );
         }
 

@@ -113,7 +113,11 @@ final class RecordLink {
     public static function dashboardUrl(): string {
         // 1. Configured page (the happy path).
         $page_id = (int) \TT\Infrastructure\Query\QueryHelpers::get_config( 'dashboard_page_id', '0' );
-        if ( $page_id > 0 ) {
+        // #1462 — only trust the configured page when it's actually
+        // published. A trashed/deleted dashboard page left the stale id
+        // pointing every link at a dead page; falling through lets the
+        // self-heal scan below adopt the live page and re-cache its id.
+        if ( $page_id > 0 && get_post_status( $page_id ) === 'publish' ) {
             return self::permalinkOrHome( $page_id );
         }
 

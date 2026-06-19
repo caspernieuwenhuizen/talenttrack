@@ -50,7 +50,9 @@ class FrontendAccessControl {
      */
     public function dashboardUrl(): string {
         $page_id = (int) $this->config->get( 'dashboard_page_id', '0' );
-        if ( $page_id > 0 ) {
+        // #1462 — ignore a stale config that points at a trashed/missing
+        // page; fall through to home_url('/') (the front page).
+        if ( $page_id > 0 && get_post_status( $page_id ) === 'publish' ) {
             // v3.85.0 — when the dashboard page is the site's front page,
             // serve it from the root rather than `/page-slug/` so shared
             // links read cleanly. Mirrors RecordLink::permalinkOrHome().
