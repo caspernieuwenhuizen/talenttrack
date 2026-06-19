@@ -156,7 +156,10 @@ class OnboardingPage {
             'team_name' => (string) ( $payload['team_name'] ?? '' ),
             'age_group' => (string) ( $payload['age_group'] ?? '' ),
         ];
-        $age_groups = QueryHelpers::get_lookup_names( 'age_group' );
+        // Translated labels keyed by stored (canonical English) name, so the
+        // option value stays DB-matchable while the visible text honours the
+        // site language (#1440).
+        $age_groups = QueryHelpers::get_lookup_label_pairs( 'age_group' );
         ?>
         <h2><?php esc_html_e( 'First team', 'talenttrack' ); ?></h2>
         <p style="max-width:680px;">
@@ -185,8 +188,8 @@ class OnboardingPage {
                     <td>
                         <select id="tt_ob_age_group" name="age_group">
                             <option value=""><?php esc_html_e( '— Select —', 'talenttrack' ); ?></option>
-                            <?php foreach ( $age_groups as $ag ) : ?>
-                                <option value="<?php echo esc_attr( $ag ); ?>" <?php selected( $values['age_group'], $ag ); ?>><?php echo esc_html( $ag ); ?></option>
+                            <?php foreach ( $age_groups as $ag_value => $ag_label ) : ?>
+                                <option value="<?php echo esc_attr( $ag_value ); ?>" <?php selected( $values['age_group'], $ag_value ); ?>><?php echo esc_html( $ag_label ); ?></option>
                             <?php endforeach; ?>
                         </select>
                         <p class="description"><?php esc_html_e( 'Pick the closest match. New age groups can be added under Configuration → Lookups.', 'talenttrack' ); ?></p>
