@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-19T20:19:24+00:00\n"
+"POT-Creation-Date: 2026-06-19T20:59:28+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -2784,7 +2784,7 @@ msgstr "Aktualisieren"
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:981
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:373
 #: src/Modules/Development/Frontend/IdeasRefineView.php:129
-#: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:98
+#: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:102
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:533
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:179
 #: src/Modules/License/Admin/AccountPage.php:325
@@ -2840,8 +2840,8 @@ msgstr "Speichern"
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:36
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:343
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:404
-#: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:43
-#: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:108
+#: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:47
+#: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:112
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:856
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:985
 #: src/Modules/Goals/Admin/GoalsPage.php:214
@@ -2879,7 +2879,7 @@ msgstr "Speichern"
 #: src/Modules/Methodology/Admin/VisionEditPage.php:127
 #: src/Modules/Mfa/Admin/MfaActionHandlers.php:109
 #: src/Modules/Mfa/Admin/MfaActionHandlers.php:148
-#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:228
+#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:231
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:35
 #: src/Modules/People/Admin/PeoplePage.php:82
 #: src/Modules/People/Admin/PeoplePage.php:415
@@ -12625,20 +12625,20 @@ msgstr ""
 msgid "That key is already used by another category. Pick a different one."
 msgstr ""
 
-#: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:33
-#: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:34
-#: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:56
+#: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:37
+#: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:38
+#: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:60
 msgid "Eval Type Categories"
 msgstr ""
 
-#: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:58
+#: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:62
 msgid ""
 "Per evaluatietype: vink de categorieën die in het rating-formulier moeten "
 "verschijnen. Niets aanvinken voor een type = alle actieve categorieën tonen "
 "(terugval-gedrag, gelijk aan vóór #819)."
 msgstr ""
 
-#: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:62
+#: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:66
 msgid "Mapping opgeslagen."
 msgstr ""
 
