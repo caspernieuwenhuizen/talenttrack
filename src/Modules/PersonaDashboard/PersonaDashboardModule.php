@@ -56,6 +56,9 @@ class PersonaDashboardModule implements ModuleInterface {
         // Editor admin page — registered behind the existing
         // AdminMenuRegistry pattern so module-disable continues to gate
         // it via ModuleRegistry::isEnabled().
+        // #1449 — modern menu: sits under the "Configuration" heading.
+        // The `sort` weight only applies in the modern menu.
+        $modern = ! \TT\Shared\Admin\Menu::shouldShowLegacyMenus();
         AdminMenuRegistry::register( [
             'module_class' => self::class,
             'parent'       => 'talenttrack',
@@ -66,6 +69,7 @@ class PersonaDashboardModule implements ModuleInterface {
             'callback'     => [ EditorPage::class, 'render' ],
             'group'        => 'configuration',
             'order'        => 30,
+            'sort'         => $modern ? 11 : 1000,
         ] );
 
         // Surface the editor on the Configuration tile-landing so admins

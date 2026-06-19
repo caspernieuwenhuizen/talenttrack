@@ -1073,6 +1073,28 @@ final class CoreSurfaceRegistration {
         $show_welcome = \TT\Shared\Admin\Menu::shouldShowWelcome();
         $parent       = $show_legacy ? 'talenttrack' : null;
 
+        // #1449 — modern (non-legacy) wp-admin menu grouping. When the
+        // legacy entity menus are off, the only always-visible submenu
+        // rows are the operator/utility pages; left flat they read as a
+        // jumble. Group them under separator headings ordered via the
+        // registry's `sort` weight. The weight is only applied in the
+        // modern menu — in legacy mode every row keeps the default
+        // weight (1000), so the legacy menu's registration-order layout
+        // is untouched. `$msort` collapses to the default in legacy
+        // mode so the same `register()` calls below serve both menus.
+        $msort = static fn ( int $weight ): int => $show_legacy ? 1000 : $weight;
+        if ( ! $show_legacy ) {
+            // Each heading auto-suppresses when its group has no visible
+            // child (see AdminMenuRegistry::applyAll), so the Developer
+            // heading only shows when Module completeness is registered
+            // (WP_DEBUG), and any module-gated group hides with its rows.
+            AdminMenuRegistry::registerSeparator( 'tt-sep-m-config',    __( 'Configuration', 'talenttrack' ), 'tt_edit_persona_templates', 'configuration', 0, 10 );
+            AdminMenuRegistry::registerSeparator( 'tt-sep-m-data',      __( 'Data & demo', 'talenttrack' ),   'tt_edit_settings',          'data_demo',     0, 20 );
+            AdminMenuRegistry::registerSeparator( 'tt-sep-m-help',      __( 'Help', 'talenttrack' ),          'read',                      'help',          0, 30 );
+            AdminMenuRegistry::registerSeparator( 'tt-sep-m-advanced',  __( 'Advanced', 'talenttrack' ),      'tt_impersonate_users',      'advanced',      0, 40 );
+            AdminMenuRegistry::registerSeparator( 'tt-sep-m-developer', __( 'Developer', 'talenttrack' ),     'manage_options',            'developer',     0, 50 );
+        }
+
         // #0063 — drop the explicit "Dashboard" submenu mirror.
         // WordPress automatically clones the top-level entry as the
         // first submenu when any submenu attaches; the explicit
@@ -1107,6 +1129,7 @@ final class CoreSurfaceRegistration {
             'cap'          => 'read',
             'slug'         => \TT\Modules\License\Admin\AccountPage::SLUG,
             'callback'     => [ \TT\Modules\License\Admin\AccountPage::class, 'render' ],
+            'sort'         => $msort( 5 ),
         ]);
 
         // v3.90.0 — top-level "TalentTrack" click now lands on Account.
@@ -1119,6 +1142,7 @@ final class CoreSurfaceRegistration {
             'cap'          => 'read',
             'slug'         => 'tt-dashboard',
             'callback'     => [ \TT\Shared\Admin\Menu::class, 'renderDashboardTiles' ],
+            'sort'         => $msort( 6 ),
         ]);
 
         // v3.70.1 hotfix — Demo data submenu was registered only in
@@ -1133,6 +1157,8 @@ final class CoreSurfaceRegistration {
             'cap'          => 'manage_options',
             'slug'         => 'tt-demo-data',
             'callback'     => [ \TT\Modules\DemoData\Admin\DemoDataPage::class, 'render' ],
+            'group'        => 'data_demo',
+            'sort'         => $msort( 21 ),
         ]);
         // #1272 PR1 — read-only review surface; PR2 of the same issue
         // adds the destructive conversion wizard. Cap-gated on
@@ -1145,7 +1171,43 @@ final class CoreSurfaceRegistration {
             'cap'          => 'tt_edit_settings',
             'slug'         => 'tt-demo-review',
             'callback'     => [ \TT\Modules\DemoData\Admin\DemoReviewPage::class, 'render' ],
+            'group'        => 'data_demo',
+            'sort'         => $msort( 22 ),
         ]);
+
+        // #1449 — Impersonate user, routed through the registry (was a
+        // raw add_submenu_page in ImpersonationPage). Operator tool;
+        // grouped under "Advanced" in the modern menu. The page's own
+        // render() keeps its cap guard.
+        AdminMenuRegistry::register([
+            'module_class' => self::M_AUTHORIZATION,
+            'parent'       => 'talenttrack',
+            'title'        => __( 'Impersonate user', 'talenttrack' ),
+            'cap'          => 'tt_impersonate_users',
+            'slug'         => 'tt-impersonate',
+            'callback'     => [ \TT\Modules\Authorization\Admin\ImpersonationPage::class, 'render' ],
+            'group'        => 'advanced',
+            'sort'         => $msort( 41 ),
+        ]);
+
+        // #1449 — Module completeness (dev diagnostic), routed through
+        // the registry (was a raw add_submenu_page in
+        // ModuleCompletenessPage, wired from talenttrack.php). Only
+        // registered under WP_DEBUG so production never sees it; grouped
+        // under "Developer" in the modern menu.
+        if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+            AdminMenuRegistry::register([
+                'module_class' => null,
+                'parent'       => 'talenttrack',
+                'title'        => __( 'Module completeness (dev)', 'talenttrack' ),
+                'label'        => __( 'Module completeness', 'talenttrack' ),
+                'cap'          => 'manage_options',
+                'slug'         => 'tt-module-completeness',
+                'callback'     => [ \TT\Infrastructure\Diagnostics\ModuleCompletenessPage::class, 'render' ],
+                'group'        => 'developer',
+                'sort'         => $msort( 51 ),
+            ]);
+        }
 
         // ── People group ──
         if ( $show_legacy ) {
@@ -1496,6 +1558,7 @@ final class CoreSurfaceRegistration {
             'cap'          => 'read',
             'slug'         => 'tt-docs',
             'callback'     => [ \TT\Modules\Documentation\Admin\DocumentationPage::class, 'render_page' ],
+            'sort'         => $msort( 31 ),
         ]);
     }
 

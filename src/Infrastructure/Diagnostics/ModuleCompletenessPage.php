@@ -10,21 +10,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  */
 final class ModuleCompletenessPage {
 
-    public static function init(): void {
-        if ( ! ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ) return;
-        add_action( 'admin_menu', [ self::class, 'register' ], 25 );
-    }
-
-    public static function register(): void {
-        add_submenu_page(
-            'talenttrack',
-            __( 'Module completeness (dev)', 'talenttrack' ),
-            __( 'Module completeness', 'talenttrack' ),
-            'manage_options',
-            'tt-module-completeness',
-            [ self::class, 'render' ]
-        );
-    }
+    // #1449 — the menu row is registered declaratively via
+    // AdminMenuRegistry in CoreSurfaceRegistration::registerAdminSubmenu
+    // (group "developer", WP_DEBUG-gated there) so it groups + orders
+    // with the other operator/dev tools. This class only renders now.
 
     public static function render(): void {
         if ( ! current_user_can( 'manage_options' ) ) {

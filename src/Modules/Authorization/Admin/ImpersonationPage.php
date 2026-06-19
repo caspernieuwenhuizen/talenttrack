@@ -23,21 +23,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  */
 final class ImpersonationPage {
 
-    public static function init(): void {
-        add_action( 'admin_menu', [ self::class, 'register' ], 30 );
-    }
-
-    public static function register(): void {
-        if ( ! current_user_can( 'tt_impersonate_users' ) ) return;
-        add_submenu_page(
-            'talenttrack',
-            __( 'Impersonate user', 'talenttrack' ),
-            __( 'Impersonate user', 'talenttrack' ),
-            'tt_impersonate_users',
-            'tt-impersonate',
-            [ self::class, 'render' ]
-        );
-    }
+    // #1449 — the menu row is registered declaratively via
+    // AdminMenuRegistry in CoreSurfaceRegistration::registerAdminSubmenu
+    // (group "advanced") so it groups + orders with the other operator
+    // pages and survives module gating. This class only renders now.
 
     public static function render(): void {
         if ( ! current_user_can( 'tt_impersonate_users' ) ) {
