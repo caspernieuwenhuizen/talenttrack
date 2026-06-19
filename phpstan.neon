@@ -1,3 +1,8 @@
+includes:
+    # Baseline file grandfathers existing issues so CI can be green from day one.
+    # New code must pass clean; existing issues are cleaned up incrementally.
+    - phpstan-baseline.neon
+
 parameters:
     level: 8
     paths:
@@ -5,6 +10,3 @@ parameters:
     bootstrapFiles:
         - vendor/szepeviktor/phpstan-wordpress/bootstrap.php
     ignoreErrors: []
-    # Baseline file grandfathers existing issues so CI can be green from day one.
-    # New code must pass clean; existing issues are cleaned up incrementally.
-    baseline: phpstan-baseline.neon
