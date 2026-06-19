@@ -44,8 +44,29 @@
         }
     }
 
+    // #1478 — one-shot flashes queued across a navigation. The save
+    // handler queues a "Saved" toast before redirecting; it's drained
+    // and shown once on the destination page so the confirmation
+    // survives the redirect.
+    var QUEUE_KEY = 'ttFlashQueue';
+
+    function drainFlashQueue() {
+        var q;
+        try {
+            q = JSON.parse(sessionStorage.getItem(QUEUE_KEY) || '[]');
+            sessionStorage.removeItem(QUEUE_KEY);
+        } catch (e) { return; }
+        if (!Array.isArray(q)) return;
+        q.forEach(function(item) {
+            if (item && item.message && window.ttFlash) {
+                window.ttFlash.add(item.type || 'info', item.message);
+            }
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.tt-dashboard .tt-flash').forEach(wireFlash);
+        drainFlashQueue();
     });
 
     // Expose a tiny add-flash helper so other scripts can push transient
@@ -69,6 +90,24 @@
             flash.querySelector('a').addEventListener('click', function(e) { e.preventDefault(); dismissFlash(flash); });
             stack.appendChild(flash);
             if (type === 'success') setTimeout(function() { dismissFlash(flash); }, AUTO_DISMISS_MS);
+        },
+
+        /**
+         * #1478 — queue a one-shot flash to show after the next page
+         * load. Used by the save handler so the "Saved" confirmation
+         * survives the post-save redirect and appears on the
+         * destination page. Falls back to an in-place flash when
+         * sessionStorage isn't available.
+         */
+        queue: function(type, message) {
+            try {
+                var q = JSON.parse(sessionStorage.getItem(QUEUE_KEY) || '[]');
+                if (!Array.isArray(q)) q = [];
+                q.push({ type: type || 'info', message: String(message || '') });
+                sessionStorage.setItem(QUEUE_KEY, JSON.stringify(q));
+            } catch (e) {
+                window.ttFlash.add(type, message);
+            }
         },
 
         /**

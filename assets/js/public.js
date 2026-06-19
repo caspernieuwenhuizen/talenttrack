@@ -254,6 +254,16 @@
                     // instead of equality and handle each compound shape.
                     var redirectIsList   = (redirect === '1' || redirect === 'list' || (redirect && redirect.indexOf('list:') === 0));
                     var redirectIsDetail = (redirect && redirect.indexOf('detail:') === 0);
+                    // #1478 — consistent success toast on every save,
+                    // including forms with no `.tt-form-msg`. Queue it
+                    // across a post-save redirect so it lands on the
+                    // destination; show it in place when we stay put.
+                    if (window.ttFlash) {
+                        var willRedirect = redirectIsList || redirectIsDetail
+                            || redirect === 'reload' || !!redirectUrl;
+                        if (willRedirect) { window.ttFlash.queue('success', i18n.saved); }
+                        else { window.ttFlash.add('success', i18n.saved); }
+                    }
                     if (redirectIsList) {
                         setTimeout(function() {
                             try {
