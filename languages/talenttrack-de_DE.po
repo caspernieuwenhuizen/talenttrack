@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-19T20:08:38+00:00\n"
+"POT-Creation-Date: 2026-06-19T20:19:24+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -2879,7 +2879,7 @@ msgstr "Speichern"
 #: src/Modules/Methodology/Admin/VisionEditPage.php:127
 #: src/Modules/Mfa/Admin/MfaActionHandlers.php:109
 #: src/Modules/Mfa/Admin/MfaActionHandlers.php:148
-#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:225
+#: src/Modules/Onboarding/Admin/OnboardingHandlers.php:228
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:35
 #: src/Modules/People/Admin/PeoplePage.php:82
 #: src/Modules/People/Admin/PeoplePage.php:415
