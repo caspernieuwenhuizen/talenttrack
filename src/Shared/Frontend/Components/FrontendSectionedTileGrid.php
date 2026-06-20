@@ -36,11 +36,27 @@ final class FrontendSectionedTileGrid {
      * Render the given ordered sections.
      *
      * @param array<int, array{label:string, tiles:array<int,array<string,mixed>>, render?:callable}> $sections
-     * @param array{tile_renderer?:callable} $args Optional global per-tile
-     *        renderer used for sections that don't supply their own.
+     * @param array{
+     *   tile_renderer?:callable,
+     *   grid_class?:string,
+     *   grid_inline?:bool
+     * } $args Optional:
+     *   - `tile_renderer` — global per-tile renderer for sections without
+     *      their own `render`.
+     *   - `grid_class` — CSS class on each section's grid wrapper
+     *      (default `tt-cfg-tile-grid`).
+     *   - `grid_inline` — emit the fallback inline grid styles
+     *      (default true). Set false when the consumer already styles
+     *      `grid_class` via enqueued CSS (e.g. the Configuration views'
+     *      `tileGridStyles()`), so the helper doesn't override it.
      */
     public static function render( array $sections, array $args = [] ): void {
         $default_renderer = $args['tile_renderer'] ?? null;
+        $grid_class       = (string) ( $args['grid_class'] ?? 'tt-cfg-tile-grid' );
+        $grid_inline      = $args['grid_inline'] ?? true;
+        $grid_style       = $grid_inline
+            ? ' style="display:grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px;"'
+            : '';
 
         foreach ( $sections as $section ) {
             $label = (string) ( $section['label'] ?? '' );
@@ -53,7 +69,7 @@ final class FrontendSectionedTileGrid {
                 echo '<h3 class="tt-cfg-section" style="margin:18px 0 8px; font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#6b7280;">'
                     . esc_html( $label ) . '</h3>';
             }
-            echo '<div class="tt-cfg-tile-grid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px;">';
+            echo '<div class="' . esc_attr( $grid_class ) . '"' . $grid_style . '>';
             foreach ( $tiles as $tile ) {
                 if ( is_callable( $renderer ) ) {
                     $renderer( $tile );

@@ -37471,6 +37471,42 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/Frontend/FrontendConfigurationView.php:211
+msgid ""
+"Lookup vocabularies, grouped by domain. Values are translatable and feed "
+"every dropdown across the dashboard."
+msgstr ""
+"Keuzelijst-vocabulaires, gegroepeerd per domein. Waarden zijn vertaalbaar en "
+"voeden elke keuzelijst in het dashboard."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:222
+msgid "Players & teams"
+msgstr "Spelers & teams"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:223
+msgid "Evaluations & development"
+msgstr "Evaluaties & ontwikkeling"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:225
+msgid "Scouting & trials"
+msgstr "Scouting & stages"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:226
+msgid "Tournaments & match"
+msgstr "Toernooien & wedstrijd"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:227
+msgid "Staff & people"
+msgstr "Staf & mensen"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:228
+msgid "Reports & workflow"
+msgstr "Rapporten & workflow"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:229
+msgid "Advanced / internal"
+msgstr "Geavanceerd / intern"
+
 #~ msgid "Explorer · Evaluation coverage →"
 #~ msgstr "Explorer · Evaluatiedekking →"
 
