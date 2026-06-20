@@ -70,19 +70,20 @@
 
         renderRoster();
         renderPitch();
-        wireToolbar(root);
+        wireToolbar();
         wireAddForm(root);
         wireDocClicks();
 
-        // Pre-existing toolbar (Save / Save As / Hide chemistry) and
-        // status row (Share / Lock / Reopen / Move back to draft) sit
-        // OUTSIDE `.tt-bpe-editor` — they were rendered by the view's
-        // `renderEditorToolbar()` + `renderStatusRow()`. Wire them
-        // unconditionally so they work even when the editor is
-        // locked / read-only.
+        // #1527 — the consolidated action bar (formation select, Save,
+        // Clear all, Heatmap, Chemistry toggle) and its "⋯ More" overflow
+        // (Save as…, share links, status transitions, Delete) sit OUTSIDE
+        // `.tt-bpe-editor`, rendered by the view's `renderActionBar()`.
+        // Wire from the document so the handlers find them; wire
+        // unconditionally so they work even when locked / read-only.
         wireHideChemistryToggle();
         wireSaveToolbar();
         wireStatusButtons();
+        wireOverflowMenu();
     });
 
     // ==================== rendering ====================================
@@ -703,8 +704,10 @@
 
     // ==================== formation toolbar ============================
 
-    function wireToolbar(root) {
-        var sel = root.querySelector('.tt-bpe-formation-select');
+    function wireToolbar() {
+        // #1527 — formation select + Clear-all now live in the action
+        // bar (outside `.tt-bpe-editor`), so query from the document.
+        var sel = document.querySelector('.tt-bpe-formation-select');
         if (sel) {
             sel.addEventListener('change', function () {
                 var newId = parseInt(sel.value, 10);
@@ -741,7 +744,7 @@
             });
         }
 
-        var clearBtn = root.querySelector('.tt-bpe-clear-all');
+        var clearBtn = document.querySelector('.tt-bpe-clear-all');
         if (clearBtn) {
             clearBtn.addEventListener('click', function () {
                 if (!cfg.can_manage || cfg.locked) return;
@@ -773,7 +776,9 @@
     // ==================== save / save-as / hide-chem toolbar ===========
 
     function wireSaveToolbar() {
-        var toolbar = document.querySelector('.tt-bp-editor-toolbar');
+        // #1527 — Save / Save-as now live in the consolidated action bar
+        // (Save in-bar, Save-as in the overflow menu).
+        var toolbar = document.querySelector('.tt-bpe-actionbar');
         if (!toolbar) return;
         var listUrl = toolbar.getAttribute('data-list-url') || (cfg.list_url || '');
 
@@ -845,9 +850,14 @@
         function applyHide(hidden) {
             document.body.classList.toggle('tt-bp-chem-hidden', hidden);
             btn.setAttribute('aria-pressed', hidden ? 'true' : 'false');
-            btn.textContent = hidden
+            // #1527 — the toggle is icon-only now; swap its accessible
+            // name + tooltip. CSS swaps the eye / eye-off glyph off the
+            // aria-pressed state.
+            var label = hidden
                 ? ((cfg.i18n && cfg.i18n.show_chem_label) || 'Show chemistry')
                 : ((cfg.i18n && cfg.i18n.hide_chem_label) || 'Hide chemistry');
+            btn.setAttribute('aria-label', label);
+            btn.title = label;
         }
     }
 
@@ -880,6 +890,44 @@
                 });
             });
         });
+    }
+
+    // ==================== overflow ("⋯ More") menu =====================
+
+    function wireOverflowMenu() {
+        var details = document.querySelector('.tt-bpe-more');
+        if (!details) return;
+
+        // Close on outside click.
+        document.addEventListener('click', function (e) {
+            if (!details.open) return;
+            if (details.contains(e.target)) return;
+            details.open = false;
+        });
+
+        // Close on Escape; return focus to the summary toggle so
+        // keyboard users keep their place.
+        details.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && details.open) {
+                details.open = false;
+                var summary = details.querySelector('summary');
+                if (summary) summary.focus();
+            }
+        });
+
+        // Close after picking a menu item (the action's own handler —
+        // status / save-as / delete / link — runs first). Skip link
+        // items that open in a new tab so the menu doesn't flicker shut
+        // before the browser follows the href.
+        var menu = details.querySelector('.tt-bpe-more-menu');
+        if (menu) {
+            menu.addEventListener('click', function (e) {
+                var item = e.target.closest && e.target.closest('.tt-bpe-more-item');
+                if (!item) return;
+                if (item.tagName === 'A' && item.getAttribute('target') === '_blank') return;
+                details.open = false;
+            });
+        }
     }
 
     // ==================== persistence ==================================
