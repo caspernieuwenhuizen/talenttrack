@@ -58,6 +58,11 @@ class HelpTopics {
                 'group'   => 'performance',
                 'summary' => __( 'Games, trainings, and other activities — typing, attendance, and post-game evaluations.', 'talenttrack' ),
             ],
+            'holidays' => [
+                'title'   => __( 'Holidays', 'talenttrack' ),
+                'group'   => 'performance',
+                'summary' => __( 'Academy-wide holiday periods shown as banners on every team planner.', 'talenttrack' ),
+            ],
             'goals' => [
                 'title'   => __( 'Goals', 'talenttrack' ),
                 'group'   => 'performance',

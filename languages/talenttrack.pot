@@ -32532,4 +32532,96 @@ msgstr ""
 msgid "The Analytics explorer is turned off. Your reports still work — find them under Reports. An administrator can re-enable the explorer under Modules."
 msgstr ""
 
+#: src/Modules/Holidays/Rest/HolidaysRestController.php
+msgid "Holiday not found."
+msgstr ""
+
+#: src/Modules/Holidays/Rest/HolidaysRestController.php
+msgid "Could not create the holiday."
+msgstr ""
+
+#: src/Modules/Holidays/Rest/HolidaysRestController.php
+msgid "Could not update the holiday."
+msgstr ""
+
+#: src/Modules/Holidays/Rest/HolidaysRestController.php
+msgid "Could not delete the holiday."
+msgstr ""
+
+#: src/Modules/Holidays/Rest/HolidaysRestController.php
+msgid "A valid start date is required."
+msgstr ""
+
+#: src/Modules/Holidays/Rest/HolidaysRestController.php
+msgid "A valid end date is required."
+msgstr ""
+
+#: src/Modules/Holidays/Rest/HolidaysRestController.php
+msgid "The start date must be on or before the end date."
+msgstr ""
+
+#: src/Modules/Holidays/Rest/HolidaysRestController.php
+msgid "Both a start and end date are required."
+msgstr ""
+
+#: src/Modules/Holidays/Rest/HolidaysRestController.php
+msgid "New holiday"
+msgstr ""
+
+#: src/Modules/Holidays/Rest/HolidaysRestController.php
+msgid "Holiday details"
+msgstr ""
+
+#: src/Modules/Holidays/Rest/HolidaysRestController.php
+msgid "e.g. Christmas break"
+msgstr ""
+
+#: src/Modules/Holidays/Rest/HolidaysRestController.php
+msgid "You do not have permission to view holidays."
+msgstr ""
+
+#: src/Modules/Holidays/Rest/HolidaysRestController.php
+msgid "Academy holidays"
+msgstr ""
+
+#: src/Modules/Holidays/Rest/HolidaysRestController.php
+msgid "Academy-wide holiday periods. They show as a banner across the affected days on every team planner."
+msgstr ""
+
+#: src/Modules/Holidays/Rest/HolidaysRestController.php
+msgid "Delete this holiday?"
+msgstr ""
+
+#: src/Modules/Holidays/Rest/HolidaysRestController.php
+msgid "Search holidays…"
+msgstr ""
+
+#: src/Modules/Holidays/Rest/HolidaysRestController.php
+msgid "No holidays match your search."
+msgstr ""
+
+#: src/Modules/Holidays/Rest/HolidaysRestController.php
+msgid "No holidays yet"
+msgstr ""
+
+#: src/Modules/Holidays/Rest/HolidaysRestController.php
+msgid "Add the academy holiday periods so coaches see them on the planner and avoid scheduling on closed days."
+msgstr ""
+
+#: src/Modules/Holidays/Rest/HolidaysRestController.php
+msgid "Add first holiday"
+msgstr ""
+
+#: src/Modules/Holidays/Rest/HolidaysRestController.php
+msgid "Academy holiday periods shown on every team planner."
+msgstr ""
+
+#: src/Modules/Documentation/HelpTopics.php
+msgid "Academy-wide holiday periods shown as banners on every team planner."
+msgstr ""
+
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php
+msgid "Holidays"
+msgstr ""
+
 

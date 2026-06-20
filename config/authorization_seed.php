@@ -59,6 +59,7 @@ $mod_demo             = TT\Modules\DemoData\DemoDataModule::class;
 $mod_pdp              = TT\Modules\Pdp\PdpModule::class;
 $mod_team_dev         = TT\Modules\TeamDevelopment\TeamDevelopmentModule::class;
 $mod_analytics        = TT\Modules\Analytics\AnalyticsModule::class;
+$mod_holidays         = class_exists( '\\TT\\Modules\\Holidays\\HolidaysModule' ) ? \TT\Modules\Holidays\HolidaysModule::class : $mod_authorization;
 $mod_workflow         = TT\Modules\Workflow\WorkflowModule::class;
 $mod_development      = TT\Modules\Development\DevelopmentModule::class;
 $mod_trials           = class_exists( '\TT\Modules\Trials\TrialsModule' )           ? \TT\Modules\Trials\TrialsModule::class           : $mod_authorization;
@@ -186,6 +187,7 @@ return array_merge(
     // the development entities); the AC-with-kid case is handled by
     // the existing parent path.
     $expand( 'assistant_coach', [
+        'holidays'                => [ 'r',   'global', $mod_holidays ],
         'team'                       => [ 'r',   'team',   $mod_teams ],
         'players'                    => [ 'r',   'team',   $mod_players ],
         'people'                     => [ 'r',   'team',   $mod_people ],
@@ -263,6 +265,7 @@ return array_merge(
 
     // ─── HEAD COACH ─────────────────────────────────────────────────
     $expand( 'head_coach', [
+        'holidays'                => [ 'r',   'global', $mod_holidays ],
         'team'                       => [ 'rc',  'team',   $mod_teams ],
         'players'                    => [ 'r',   'team',   $mod_players ],
         'people'                     => [ 'r',   'team',   $mod_people ],
@@ -345,6 +348,7 @@ return array_merge(
 
     // ─── TEAM MANAGER ───────────────────────────────────────────────
     $expand( 'team_manager', [
+        'holidays'                => [ 'rcd', 'global', $mod_holidays ],
         'team'                       => [ 'r',   'team',   $mod_teams ],
         'players'                    => [ 'r',   'team',   $mod_players ],
         'people'                     => [ 'r',   'team',   $mod_people ],
@@ -474,6 +478,7 @@ return array_merge(
     // pdp_*, trial_*, staff_development, etc.). audit_log + tasks_dashboard +
     // usage_stats remain R for governance visibility.
     $expand( 'head_of_development', [
+        'holidays'                => [ 'rcd', 'global', $mod_holidays ],
         'team'                          => [ 'rcd', 'global', $mod_teams ],
         'players'                       => [ 'rcd', 'global', $mod_players ],
         'people'                        => [ 'rcd', 'global', $mod_people ],
@@ -601,6 +606,7 @@ return array_merge(
 
     // ─── ACADEMY ADMIN ──────────────────────────────────────────────
     $expand( 'academy_admin', [
+        'holidays'                => [ 'rcd', 'global', $mod_holidays ],
         'team'                          => [ 'rcd', 'global', $mod_teams ],
         'players'                       => [ 'rcd', 'global', $mod_players ],
         'people'                        => [ 'rcd', 'global', $mod_people ],

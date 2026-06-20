@@ -60,6 +60,11 @@ final class LegacyCapMapper {
         'tt_edit_methodology'            => [ 'methodology',    'change' ],
         'tt_view_reports'                => [ 'reports',        'read' ],
 
+        // #1480 — academy-wide holidays.
+        'tt_view_holidays'               => [ 'holidays',       'read' ],
+        'tt_edit_holidays'               => [ 'holidays',       'change' ],
+        'tt_manage_holidays'             => [ 'holidays',       'create_delete' ],
+
         // Settings + admin
         'tt_view_settings'               => [ 'settings',       'read' ],
         'tt_edit_settings'               => [ 'settings',       'change' ],

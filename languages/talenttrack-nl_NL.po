@@ -36962,6 +36962,98 @@ msgstr "Module- en functiestatus opslaan"
 msgid "The Analytics explorer is turned off. Your reports still work — find them under Reports. An administrator can re-enable the explorer under Modules."
 msgstr "De Analytics-verkenner staat uit. Je rapporten werken nog — die vind je onder Rapporten. Een beheerder kan de verkenner weer aanzetten onder Modules."
 
+#: src/Modules/Holidays/Rest/HolidaysRestController.php
+msgid "Holiday not found."
+msgstr "Vakantie niet gevonden."
+
+#: src/Modules/Holidays/Rest/HolidaysRestController.php
+msgid "Could not create the holiday."
+msgstr "De vakantie kon niet worden aangemaakt."
+
+#: src/Modules/Holidays/Rest/HolidaysRestController.php
+msgid "Could not update the holiday."
+msgstr "De vakantie kon niet worden bijgewerkt."
+
+#: src/Modules/Holidays/Rest/HolidaysRestController.php
+msgid "Could not delete the holiday."
+msgstr "De vakantie kon niet worden verwijderd."
+
+#: src/Modules/Holidays/Rest/HolidaysRestController.php
+msgid "A valid start date is required."
+msgstr "Een geldige startdatum is verplicht."
+
+#: src/Modules/Holidays/Rest/HolidaysRestController.php
+msgid "A valid end date is required."
+msgstr "Een geldige einddatum is verplicht."
+
+#: src/Modules/Holidays/Rest/HolidaysRestController.php
+msgid "The start date must be on or before the end date."
+msgstr "De startdatum moet op of vóór de einddatum liggen."
+
+#: src/Modules/Holidays/Rest/HolidaysRestController.php
+msgid "Both a start and end date are required."
+msgstr "Zowel een start- als een einddatum is verplicht."
+
+#: src/Modules/Holidays/Rest/HolidaysRestController.php
+msgid "New holiday"
+msgstr "Nieuwe vakantie"
+
+#: src/Modules/Holidays/Rest/HolidaysRestController.php
+msgid "Holiday details"
+msgstr "Vakantiegegevens"
+
+#: src/Modules/Holidays/Rest/HolidaysRestController.php
+msgid "e.g. Christmas break"
+msgstr "bijv. kerstvakantie"
+
+#: src/Modules/Holidays/Rest/HolidaysRestController.php
+msgid "You do not have permission to view holidays."
+msgstr "Je hebt geen toestemming om vakanties te bekijken."
+
+#: src/Modules/Holidays/Rest/HolidaysRestController.php
+msgid "Academy holidays"
+msgstr "Academievakanties"
+
+#: src/Modules/Holidays/Rest/HolidaysRestController.php
+msgid "Academy-wide holiday periods. They show as a banner across the affected days on every team planner."
+msgstr "Academiebrede vakantieperiodes. Ze verschijnen als banner over de betreffende dagen op elke teamplanner."
+
+#: src/Modules/Holidays/Rest/HolidaysRestController.php
+msgid "Delete this holiday?"
+msgstr "Deze vakantie verwijderen?"
+
+#: src/Modules/Holidays/Rest/HolidaysRestController.php
+msgid "Search holidays…"
+msgstr "Vakanties zoeken…"
+
+#: src/Modules/Holidays/Rest/HolidaysRestController.php
+msgid "No holidays match your search."
+msgstr "Geen vakanties gevonden."
+
+#: src/Modules/Holidays/Rest/HolidaysRestController.php
+msgid "No holidays yet"
+msgstr "Nog geen vakanties"
+
+#: src/Modules/Holidays/Rest/HolidaysRestController.php
+msgid "Add the academy holiday periods so coaches see them on the planner and avoid scheduling on closed days."
+msgstr "Voeg de vakantieperiodes toe zodat coaches ze op de planner zien en niet op gesloten dagen plannen."
+
+#: src/Modules/Holidays/Rest/HolidaysRestController.php
+msgid "Add first holiday"
+msgstr "Eerste vakantie toevoegen"
+
+#: src/Modules/Holidays/Rest/HolidaysRestController.php
+msgid "Academy holiday periods shown on every team planner."
+msgstr "Academievakanties die op elke teamplanner worden getoond."
+
+#: src/Modules/Documentation/HelpTopics.php
+msgid "Academy-wide holiday periods shown as banners on every team planner."
+msgstr "Academiebrede vakantieperiodes die als banner op elke teamplanner worden getoond."
+
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php
+msgid "Holidays"
+msgstr "Vakanties"
+
 #~ msgid "Create dashboard page"
 #~ msgstr "Dashboardpagina aanmaken"
 
