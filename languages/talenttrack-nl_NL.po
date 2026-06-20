@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-20T13:05:37+00:00\n"
+"POT-Creation-Date: 2026-06-20T13:33:11+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -99,7 +99,7 @@ msgstr "Team Manager"
 #: src/Modules/Goals/Admin/GoalsPage.php:134
 #: src/Modules/Invitations/InvitationKind.php:52
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:114
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:357
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:359
 #: src/Modules/Mfa/Settings/MfaSettings.php:109
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:470
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:491
@@ -133,11 +133,11 @@ msgstr "Team Manager"
 #: src/Shared/Frontend/Components/PlayerSearchPickerComponent.php:63
 #: src/Shared/Frontend/DashboardShortcode.php:105
 #: src/Shared/Frontend/DashboardShortcode.php:1224
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1671
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1682
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1783
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1694
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1705
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1806
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1861
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1829
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1884
 #: src/Shared/Frontend/FrontendConfigurationView.php:2038
 #: src/Shared/Frontend/FrontendEvaluationsView.php:153
 #: src/Shared/Frontend/FrontendEvaluationsView.php:167
@@ -430,7 +430,7 @@ msgstr "Module"
 
 #: src/Infrastructure/Diagnostics/ModuleCompletenessPage.php:39
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:86
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:183
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:185
 msgid "Score"
 msgstr "Score"
 
@@ -1072,8 +1072,8 @@ msgid "League match"
 msgstr "Competitiewedstrijd"
 
 #: src/Infrastructure/Query/LabelTranslator.php:221
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1985
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2047
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2008
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2070
 msgid "Tournament"
 msgstr "Toernooi"
 
@@ -1326,7 +1326,7 @@ msgstr ""
 #: src/Infrastructure/REST/ActivitiesRestController.php:998
 #: src/Infrastructure/REST/ActivitiesRestController.php:1113
 #: src/Infrastructure/REST/ActivitiesRestController.php:1137
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:442
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:443
 #: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:73
 msgid "Invalid activity id."
 msgstr "Ongeldig activiteit-id."
@@ -2216,7 +2216,7 @@ msgstr "Alle types"
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:76
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:79
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:82
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:255
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:278
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:158
 #: src/Shared/Frontend/FrontendTrialCaseView.php:374
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:556
@@ -2316,8 +2316,8 @@ msgstr "Filteren"
 #: src/Shared/Frontend/CoachForms.php:190
 #: src/Shared/Frontend/CoachForms.php:486
 #: src/Shared/Frontend/Components/DateInputComponent.php:30
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:277
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1458
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:300
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1481
 #: src/Shared/Frontend/FrontendEvaluationsView.php:152
 #: src/Shared/Frontend/FrontendEvaluationsView.php:328
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:57
@@ -2364,7 +2364,7 @@ msgstr "Datum"
 #: src/Shared/Frontend/CoachDashboardView.php:289
 #: src/Shared/Frontend/CoachForms.php:485
 #: src/Shared/Frontend/CoachForms.php:551
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1423
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1446
 #: src/Shared/Frontend/FrontendGoalsManageView.php:395
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:58
 #: src/Shared/Frontend/FrontendTeamDetailView.php:423
@@ -2399,9 +2399,9 @@ msgstr "Titel"
 #: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:29
 #: src/Shared/Frontend/CoachDashboardView.php:190
 #: src/Shared/Frontend/CoachForms.php:184
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:290
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:759
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1401
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:313
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:782
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1424
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:95
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:147
 #: src/Shared/Frontend/FrontendEvaluationsView.php:172
@@ -2495,13 +2495,13 @@ msgstr "Type"
 #: src/Shared/Frontend/CoachForms.php:498
 #: src/Shared/Frontend/CoachForms.php:568
 #: src/Shared/Frontend/DashboardShortcode.php:104
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:293
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1409
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1672
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1685
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1784
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1813
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1862
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:316
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1432
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1695
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1708
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1807
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1836
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1885
 #: src/Shared/Frontend/FrontendExportsView.php:92
 #: src/Shared/Frontend/FrontendExportsView.php:120
 #: src/Shared/Frontend/FrontendExportsView.php:236
@@ -2617,9 +2617,9 @@ msgstr "Bron"
 #: src/Shared/Frontend/CoachForms.php:487
 #: src/Shared/Frontend/Components/TeamPickerComponent.php:36
 #: src/Shared/Frontend/DashboardShortcode.php:107
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:297
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:749
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1475
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:320
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:772
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1498
 #: src/Shared/Frontend/FrontendComparisonView.php:354
 #: src/Shared/Frontend/FrontendEvaluationsView.php:154
 #: src/Shared/Frontend/FrontendEvaluationsView.php:162
@@ -2763,13 +2763,13 @@ msgstr "Levensfase van de activiteit. Standaard \"Gepland\" bij aanmaken."
 #: src/Modules/Activities/Admin/ActivitiesPage.php:295
 #: src/Modules/Wizards/Activity/DetailsStep.php:46
 #: src/Modules/Wizards/Activity/ReviewStep.php:64
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1427
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1450
 msgid "Game subtype"
 msgstr "Wedstrijd-subtype"
 
 #: src/Modules/Activities/Admin/ActivitiesPage.php:298
 #: src/Modules/Wizards/Activity/DetailsStep.php:47
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1429
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1452
 msgid "— Choose —"
 msgstr "— Kies —"
 
@@ -2780,7 +2780,7 @@ msgstr "Optioneel: oefen, beker of competitie."
 #: src/Modules/Activities/Admin/ActivitiesPage.php:309
 #: src/Modules/Wizards/Activity/DetailsStep.php:58
 #: src/Modules/Wizards/Activity/ReviewStep.php:67
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1436
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1459
 msgid "Other label"
 msgstr "Andere label"
 
@@ -2808,8 +2808,8 @@ msgstr ""
 #: src/Modules/Workflow/Forms/InviteToTestTrainingForm.php:78
 #: src/Shared/Frontend/CoachDashboardView.php:247
 #: src/Shared/Frontend/CoachForms.php:492
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:312
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1496
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:335
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1519
 #: src/Shared/Frontend/FrontendTestTrainingsView.php:70
 msgid "Location"
 msgstr "Locatie"
@@ -2856,13 +2856,13 @@ msgstr "— Alle —"
 #: src/Shared/Frontend/CoachForms.php:493
 #: src/Shared/Frontend/CoachForms.php:498
 #: src/Shared/Frontend/DashboardShortcode.php:108
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:318
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1502
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1673
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1692
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1785
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1816
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1863
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:341
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1525
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1696
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1715
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1808
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1839
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1886
 #: src/Shared/Frontend/FrontendEvaluationsView.php:157
 #: src/Shared/Frontend/FrontendEvaluationsView.php:443
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:122
@@ -2886,7 +2886,7 @@ msgstr "Notities"
 #: src/Modules/Activities/Admin/ActivitiesPage.php:334
 #: src/Modules/Wizards/Activity/PrinciplesStep.php:34
 #: src/Modules/Wizards/Activity/ReviewStep.php:100
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1541
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1564
 msgid "Connected principles"
 msgstr "Verbonden principes"
 
@@ -2908,8 +2908,8 @@ msgstr "Optioneel. Houd Ctrl/Cmd ingedrukt om meerdere te selecteren."
 #: src/Modules/Wizards/Evaluation/AttendanceStep.php:22
 #: src/Shared/Frontend/CoachDashboardView.php:249
 #: src/Shared/Frontend/CoachForms.php:494
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:611
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1647
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:634
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1670
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:509
 #: src/Shared/Frontend/FrontendTrialCaseView.php:379
 #: src/Shared/Frontend/PlayerDashboardView.php:49
@@ -2917,7 +2917,7 @@ msgid "Attendance"
 msgstr "Aanwezigheid"
 
 #: src/Modules/Activities/Admin/ActivitiesPage.php:364
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1707
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1730
 msgid "Attendance is recorded once the activity is marked Completed."
 msgstr ""
 "Aanwezigheid wordt geregistreerd zodra de activiteit op Voltooid staat."
@@ -2930,13 +2930,13 @@ msgstr "Gast-aanwezigen"
 #: src/Modules/Activities/Admin/ActivitiesPage.php:385
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:365
 #: src/Modules/Wizards/Evaluation/RateActorsStep.php:160
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:539
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1798
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1801
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1808
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1859
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1878
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1879
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:562
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1821
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1824
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1831
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1882
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1901
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1902
 msgid "Guest"
 msgstr "Gast"
 
@@ -3864,7 +3864,7 @@ msgstr "T/m"
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:373
 #: src/Shared/Admin/BulkActionsHelper.php:175
 #: src/Shared/Frontend/Components/FrontendListTable.php:160
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:769
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:792
 #: src/Shared/Frontend/FrontendStandardReportsView.php:780
 msgid "Apply"
 msgstr "Toepassen"
@@ -4257,12 +4257,12 @@ msgid "Next run"
 msgstr "Volgende uitvoer"
 
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:173
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:742
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:744
 msgid "Pause"
 msgstr "Pauzeren"
 
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:175
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:743
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:745
 msgid "Resume"
 msgstr "Hervatten"
 
@@ -4275,7 +4275,7 @@ msgstr "Hervatten"
 #: src/Modules/Pdp/Rest/PdpFilesRestController.php:340
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:279
 #: src/Shared/Admin/BulkActionsHelper.php:169
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:208
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:231
 #: src/Shared/Frontend/FrontendEvaluationsView.php:185
 #: src/Shared/Frontend/FrontendEvaluationsView.php:294
 #: src/Shared/Frontend/FrontendGoalsManageView.php:116
@@ -5796,7 +5796,7 @@ msgstr "Wijzigingen toepassen"
 #: src/Modules/Authorization/Admin/MatrixPage.php:925
 #: src/Modules/Development/Frontend/IdeasRefineView.php:130
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:891
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:289
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:291
 #: src/Modules/Pdp/Admin/SeasonsPage.php:164
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:346
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:649
@@ -5811,7 +5811,7 @@ msgstr "Wijzigingen toepassen"
 #: src/Shared/Frontend/Components/FrontendThreadView.php:170
 #: src/Shared/Frontend/Components/GuestAddModal.php:112
 #: src/Shared/Frontend/DashboardShortcode.php:119
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1871
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1894
 #: src/Shared/Frontend/FrontendConfigurationView.php:832
 #: src/Shared/Frontend/FrontendConfigurationView.php:1020
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:178
@@ -14344,8 +14344,8 @@ msgid "Starting XI"
 msgstr "Basisopstelling"
 
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:178
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:256
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:258
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:260
 msgid "Bench"
 msgstr "Reservebank"
 
@@ -14558,7 +14558,7 @@ msgstr "Dag"
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:259
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:125
 #: src/Modules/Wizards/Activity/ReviewStep.php:76
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:286
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:309
 msgid "Time"
 msgstr "Tijd"
 
@@ -16454,7 +16454,7 @@ msgstr "Je hebt geen rechten om wedstrijduitvoeringen te bekijken."
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:46
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:49
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:242
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:265
 msgid "Match executions"
 msgstr "Wedstrijduitvoeringen"
 
@@ -16518,50 +16518,50 @@ msgid "Plan match prep"
 msgstr "Wedstrijdvoorbereiding plannen"
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:143
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:810
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:818
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:824
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:812
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:820
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:826
 msgid "OPP"
 msgstr "TEG"
 
 #. translators: %s: localized match date, e.g. "14 Jun"
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:162
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:164
 #, php-format
 msgid "Available on match day (%s)"
 msgstr "Beschikbaar op wedstrijddag (%s)"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:173
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:175
 msgid "vs"
 msgstr "tegen"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:187
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:195
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:189
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:197
 #, php-format
 msgid "%s score"
 msgstr "%s score"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:188
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:190
 msgid "Decrease home score"
 msgstr "Thuisscore verlagen"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:190
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:192
 msgid "Increase home score"
 msgstr "Thuisscore verhogen"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:196
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:198
 msgid "Decrease away score"
 msgstr "Uitscore verlagen"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:198
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:200
 msgid "Increase away score"
 msgstr "Uitscore verhogen"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:204
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:206
 msgid "Match timer"
 msgstr "Wedstrijdklok"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:209
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:741
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:211
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:743
 #: src/Modules/Pdp/Admin/SeasonsPage.php:65
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:131
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:290
@@ -16571,237 +16571,233 @@ msgstr "Wedstrijdklok"
 msgid "Start"
 msgstr "Start"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:212
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:214
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:216
 msgid "Tracked players"
 msgstr "Gevolgde spelers"
 
 #. translators: %d: number of flagged players
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:217
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:219
 #, php-format
 msgid "%d flagged"
 msgid_plural "%d flagged"
 msgstr[0] "%d gemarkeerd"
 msgstr[1] "%d gemarkeerd"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:222
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:224
 msgid "No players flagged with a specific goal in the match prep."
 msgstr "Geen spelers met een specifiek doel in de voorbereiding."
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:237
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:239
 #, php-format
 msgid "flagged: %s"
 msgstr "gemarkeerd: %s"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:241
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:243
 msgid "Tap to add one (long-press to remove last)"
 msgstr ""
 "Tik om er een toe te voegen (lang indrukken om de laatste te verwijderen)"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:241
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:243
 msgid "+ action"
 msgstr "+ actie"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:247
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:249
 msgid "actions"
 msgstr "acties"
 
 #. translators: %d: number of bench players
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:261
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:263
 #, php-format
 msgid "%d available"
 msgid_plural "%d available"
 msgstr[0] "%d beschikbaar"
 msgstr[1] "%d beschikbaar"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:266
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:268
 msgid "No bench players available."
 msgstr "Geen wisselspelers beschikbaar."
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:278
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:280
 msgid "Bring on"
 msgstr "Erin brengen"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:278
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:280
 msgid "→ on"
 msgstr "→ in"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:286
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:288
 msgid "Choose who comes off"
 msgstr "Kies wie eraf gaat"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:288
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:290
 msgid "Tap a player to swap"
 msgstr "Tik op een speler om te wisselen"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:302
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:304
 msgid "Post-match status"
 msgstr "Status na wedstrijd"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:306
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:308
 msgid "Match ended · pending review"
 msgstr "Wedstrijd afgelopen · wacht op controle"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:308
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:310
 msgid "Finalized — read-only"
 msgstr "Afgerond — alleen-lezen"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:314
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:316
 msgid "Finalize match"
 msgstr "Wedstrijd afronden"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:317
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:319
 msgid "Locks the match. Goals, subs, and score cannot be edited after."
 msgstr ""
 "Vergrendelt de wedstrijd. Doelpunten, wissels en eindstand kunnen daarna "
 "niet meer worden bewerkt."
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:335
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:338
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:337
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:340
 msgid "Add late events"
 msgstr "Late gebeurtenissen toevoegen"
 
 #. translators: %d = max minute accepted (half length + 10 stoppage)
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:344
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:346
 #, php-format
 msgid "Minute 0–%d"
 msgstr "Minuut 0–%d"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:353
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:355
 msgid "+ Add late goal"
 msgstr "+ Laat doelpunt toevoegen"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:359
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:394
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:405
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:361
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:396
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:407
 msgid "— pick player —"
 msgstr "— kies speler —"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:368
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:414
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:370
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:416
 msgid "Half"
 msgstr "Helft"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:370
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:416
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:372
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:418
 msgid "1st half"
 msgstr "1e helft"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:371
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:417
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:373
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:419
 msgid "2nd half"
 msgstr "2e helft"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:375
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:421
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:377
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:423
 msgid "Minute"
 msgstr "Minuut"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:381
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:383
 msgid "Log goal"
 msgstr "Doelpunt vastleggen"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:388
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:390
 msgid "+ Add late substitution"
 msgstr "+ Late wissel toevoegen"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:392
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:394
 msgid "Off (came off)"
 msgstr "Eraf (gewisseld)"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:403
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:405
 msgid "On (came on)"
 msgstr "Erop (ingebracht)"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:427
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:429
 msgid "Log substitution"
 msgstr "Wissel vastleggen"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:436
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:744
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:438
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:746
 #: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:296
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:185
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:195
 msgid "Start match"
 msgstr "Wedstrijd starten"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:189
-msgid "View match"
-msgstr "Wedstrijd bekijken"
-
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:439
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:441
 msgid "Synced"
 msgstr "Gesynchroniseerd"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:619
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:621
 msgid "Could not save:"
 msgstr "Opslaan mislukt:"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:624
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:626
 msgid "Finalize this match? Goals, subs, and score cannot be edited after."
 msgstr ""
 "Deze wedstrijd afronden? Doelpunten, wissels en eindstand kunnen daarna niet "
 "meer worden bewerkt."
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:625
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:627
 msgid "Could not finalize:"
 msgstr "Afronden mislukt:"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:745
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:747
 msgid "End first half"
 msgstr "Eerste helft afsluiten"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:746
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:748
 msgid "Start second half"
 msgstr "Tweede helft starten"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:747
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:749
 msgid "End match"
 msgstr "Einde wedstrijd"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:748
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:750
 msgid "Return to dashboard"
 msgstr "Terug naar dashboard"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:749
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:751
 #, php-format
 msgid "Tap a player to swap in %s"
 msgstr "Tik op een speler om in te brengen voor %s"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:750
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:752
 #, php-format
 msgid "✓ %1$s on for %2$s · %3$s'"
 msgstr "✓ %1$s erop voor %2$s · %3$s'"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:751
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:753
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:54
 msgid "Undo"
 msgstr "Ongedaan maken"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:752
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:754
 msgid "Offline — actions queued"
 msgstr "Offline — acties in wachtrij"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:753
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:755
 msgid "Back online — syncing…"
 msgstr "Weer online — synchroniseren…"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:754
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:756
 msgid "First half"
 msgstr "Eerste helft"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:755
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:757
 msgid "Second half"
 msgstr "Tweede helft"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:756
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:758
 msgid "Half time"
 msgstr "Rust"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:757
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:759
 msgid "Kickoff pending"
 msgstr "Aftrap nog te starten"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:758
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:760
 msgid "Final"
 msgstr "Einde"
 
@@ -16837,11 +16833,11 @@ msgstr ""
 msgid "This match is finalized and no longer accepts edits."
 msgstr "Deze wedstrijd is afgerond en accepteert geen wijzigingen meer."
 
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:446
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:447
 msgid "Plan this match first before running execution."
 msgstr "Plan deze wedstrijd eerst voordat je de uitvoering start."
 
-#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:450
+#: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:451
 msgid "Could not create the execution row."
 msgstr "Aanmaken van de uitvoeringsregel is mislukt."
 
@@ -17049,7 +17045,7 @@ msgstr "Rol leegmaken"
 #: src/Modules/Tournaments/Wizard/SquadStep.php:97
 #: src/Modules/Wizards/Evaluation/AttendanceStep.php:109
 #: src/Modules/Wizards/Evaluation/AttendanceStep.php:308
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1664
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1687
 msgid "Mark all present"
 msgstr "Iedereen aanwezig"
 
@@ -20740,9 +20736,9 @@ msgstr "KPI toevoegen"
 #: src/Modules/Tournaments/Wizard/MatchesStep.php:154
 #: src/Shared/Admin/OptionSetEditor.php:135
 #: src/Shared/Frontend/DashboardShortcode.php:113
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1830
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1864
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1870
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1853
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1887
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1893
 #: src/Shared/Frontend/FrontendConfigurationView.php:1650
 #: src/Shared/Frontend/FrontendPlayersManageView.php:370
 #: src/Shared/Frontend/FrontendTeamsManageView.php:330
@@ -21305,8 +21301,8 @@ msgstr ""
 #: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:291
 #: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:136
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:216
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1091
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1095
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1114
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1118
 msgid "Today"
 msgstr "Vandaag"
 
@@ -21903,6 +21899,7 @@ msgid "Live match"
 msgstr "Live wedstrijd"
 
 #: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:250
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:191
 msgid "Resume match"
 msgstr "Wedstrijd hervatten"
 
@@ -22004,7 +22001,7 @@ msgstr "Nog geen evaluaties."
 #: src/Modules/PersonaDashboard/Widgets/MiniPlayerListWidget.php:81
 #: src/Modules/PersonaDashboard/Widgets/ScoutingPlanWidget.php:66
 #: src/Modules/PersonaDashboard/Widgets/TaskListPanelWidget.php:87
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1701
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1724
 msgid "Show all"
 msgstr "Toon alles"
 
@@ -22526,12 +22523,12 @@ msgstr "Getrainde principes — laatste 8 weken"
 #. translators: %d: count of activities today
 #. translators: %d: count of activities
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:498
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:811
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:845
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:858
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:871
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:884
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:897
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:834
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:868
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:881
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:894
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:907
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:920
 #, php-format
 msgid "%d activity"
 msgid_plural "%d activities"
@@ -22551,7 +22548,7 @@ msgstr[0] "Vorige %d week"
 msgstr[1] "Vorige %d weken"
 
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:615
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:867
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:890
 msgid "Next week"
 msgstr "Volgende week"
 
@@ -25039,7 +25036,7 @@ msgstr "Het team voor deze blauwdruk bestaat niet meer."
 #. translators: 1 = blueprint name, 2 = team name
 #. translators: 1: localised "Today", 2: day-of-week + date (e.g. "Wed 28 May")
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:212
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1094
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1117
 #, php-format
 msgid "%1$s · %2$s"
 msgstr "%1$s · %2$s"
@@ -25134,7 +25131,7 @@ msgstr "Positie (optioneel, bv. ST)"
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:388
 #: src/Shared/Frontend/Components/GuestAddModal.php:47
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1840
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1863
 msgid "Add guest"
 msgstr "Gast toevoegen"
 
@@ -25374,7 +25371,7 @@ msgid "That player is already on the roster."
 msgstr "Die speler staat al in de selectie."
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1147
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1873
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1896
 msgid "Name is required."
 msgstr "Naam is verplicht."
 
@@ -27836,7 +27833,7 @@ msgstr "Voor welk team, op welke datum en welk tijdstip is deze VCT-training?"
 
 #: src/Modules/Vct/Wizard/WhenStep.php:68
 #: src/Modules/Wizards/Activity/DetailsStep.php:39
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1488
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1511
 msgid "Start time (optional)"
 msgstr "Begintijd (optioneel)"
 
@@ -27948,12 +27945,12 @@ msgid "Set attendance later — save the activity with no roster."
 msgstr "Aanwezigheid later instellen — sla de activiteit op zonder selectie."
 
 #: src/Modules/Wizards/Activity/DetailsStep.php:40
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1492
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1515
 msgid "End time (optional)"
 msgstr "Eindtijd (optioneel)"
 
 #: src/Modules/Wizards/Activity/DetailsStep.php:58
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1437
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1460
 msgid "e.g. Team-building day"
 msgstr "bijv. Teambuildingdag"
 
@@ -27984,7 +27981,7 @@ msgstr "Beschrijf wat voor soort activiteit dit is."
 #: src/Modules/Wizards/Activity/NewActivityWizard.php:31
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:75
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:87
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:249
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:272
 msgid "New activity"
 msgstr "Nieuwe activiteit"
 
@@ -28023,7 +28020,7 @@ msgstr ""
 "onder Methodologie."
 
 #: src/Modules/Wizards/Activity/PrinciplesStep.php:117
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1600
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1623
 msgid "Other principles"
 msgstr "Overige principes"
 
@@ -30055,7 +30052,7 @@ msgstr "Opslaan mislukt."
 
 #: src/Shared/Admin/DragReorder.php:149
 #: src/Shared/Frontend/DashboardShortcode.php:82
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1876
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1899
 #: src/Shared/Frontend/FrontendConfigurationView.php:447
 #: src/Shared/Frontend/FrontendConfigurationView.php:1041
 #: src/Shared/Frontend/FrontendConfigurationView.php:1132
@@ -30823,7 +30820,7 @@ msgstr ""
 "lage score toelicht."
 
 #: src/Shared/Frontend/CoachForms.php:496
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1650
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1673
 msgid "No players on your teams yet."
 msgstr "Nog geen spelers in je teams."
 
@@ -31420,49 +31417,53 @@ msgid "Edit activity — %s"
 msgstr "Activiteit bewerken — %s"
 
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:108
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:218
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:241
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:106
 msgid "Activity not found"
 msgstr "Activiteit niet gevonden"
 
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:110
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:222
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:245
 msgid "That activity no longer exists."
 msgstr "Die activiteit bestaat niet meer."
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:203
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:193
+msgid "View match"
+msgstr "Wedstrijd bekijken"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:226
 msgid "Continue rating"
 msgstr "Doorgaan met beoordelen"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:212
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:235
 msgid "Archive this activity? It will be hidden but the data is preserved."
 msgstr ""
 "Deze activiteit archiveren? Ze wordt verborgen maar de data blijft bewaard."
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:355
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:378
 msgid "Gekoppelde spelprincipes"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:408
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:431
 msgid "Explorer · Evaluation coverage →"
 msgstr "Explorer · Evaluatiedekking →"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:411
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:434
 msgid "Explorer · Attendance vs squad →"
 msgstr "Explorer · Aanwezigheid versus selectie →"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:426
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:449
 msgid "Rating skipped — this activity won't appear in the rating picker."
 msgstr ""
 "Beoordeling overgeslagen — deze activiteit verschijnt niet meer in de "
 "beoordelings-picker."
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:431
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:454
 msgid "Re-open for rating"
 msgstr "Heropenen voor beoordeling"
 
 #. translators: %d = number of players expected at the activity
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:526
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:549
 #, php-format
 msgid "Expected attendance · %d player"
 msgid_plural "Expected attendance · %d players"
@@ -31470,24 +31471,24 @@ msgstr[0] "Verwachte opkomst · %d speler"
 msgstr[1] "Verwachte opkomst · %d spelers"
 
 #. translators: 1: present count, 2: roster size, 3: percentage 0-100
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:616
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:639
 #, php-format
 msgid "%1$d / %2$d players (%3$d%% present)"
 msgstr "%1$d / %2$d spelers (%3$d%% aanwezig)"
 
 #. translators: %d: number of players without an attendance row
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:663
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:686
 #, php-format
 msgid "%d player on the current roster has no attendance row yet."
 msgid_plural "%d players on the current roster have no attendance row yet."
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:675
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:698
 msgid "No attendance recorded yet."
 msgstr "Nog geen aanwezigheid geregistreerd."
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:751
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:774
 #: src/Shared/Frontend/FrontendExportsView.php:632
 msgid "— all teams —"
 msgstr "— alle teams —"
@@ -31495,15 +31496,15 @@ msgstr "— alle teams —"
 # v4.7.0 (#973) — activities list date-bucket redesign.
 # (Apply, Next week, %d activity, %1$s · %2$s reuse existing msgids
 #  elsewhere in this catalogue — no entries added for them.)
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:761
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:784
 msgid "— all types —"
 msgstr "— alle types —"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:786
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:809
 msgid "No activities to show"
 msgstr "Geen activiteiten om te tonen"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:787
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:810
 msgid ""
 "Try changing the team or type filter, or create a new activity to get "
 "started."
@@ -31511,152 +31512,152 @@ msgstr ""
 "Pas het team- of type-filter aan, of maak een nieuwe activiteit aan om te "
 "beginnen."
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:788
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:811
 msgid "Plan your first activity"
 msgstr "Plan je eerste activiteit"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:807
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:830
 msgid "Past activities"
 msgstr "Voorbije activiteiten"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:808
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:831
 msgid "Past"
 msgstr "Voorbij"
 
 # #1365 - icon language unification (v4.20.122). i18n-sync will merge
 # these into the proper position on next run; meanwhile they land here
 # verbatim so a Dutch install reads correctly today.
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:826
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:849
 msgid "Needs attention"
 msgstr "Vraagt aandacht"
 
 #. translators: %d: count of past planned activities
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:830
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:853
 #, php-format
 msgid "%d past, still planned"
 msgid_plural "%d past, still planned"
 msgstr[0] "%d voorbij, nog gepland"
 msgstr[1] "%d voorbij, nog gepland"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:854
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:877
 msgid "This week"
 msgstr "Deze week"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:880
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:903
 msgid "Later this month"
 msgstr "Later deze maand"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:893
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:916
 msgid "Later"
 msgstr "Later"
 
 #. translators: %d: count of past activities
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:951
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:974
 #, php-format
 msgid "%d past activity"
 msgid_plural "%d past activities"
 msgstr[0] "%d voorbije activiteit"
 msgstr[1] "%d voorbije activiteiten"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:955
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:978
 msgid "shown · Hide"
 msgstr "zichtbaar · Verberg"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:956
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:979
 msgid "hidden · Show"
 msgstr "verborgen · Toon"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1025
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1048
 msgid "still planned"
 msgstr "nog gepland"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1038
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1061
 msgid "(untitled activity)"
 msgstr "(activiteit zonder titel)"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1542
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1565
 msgid ""
 "Group by team function + team task; tick whichever apply. Leave all unticked "
 "to save without links."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1742
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1765
 msgid "Update activity"
 msgstr "Activiteit bijwerken"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1742
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1765
 msgid "Save activity"
 msgstr "Activiteit opslaan"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1770
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1793
 msgid "Guests"
 msgstr "Gasten"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1772
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1795
 msgid "Players from outside the squad. Guests do not count toward team stats."
 msgstr ""
 "Spelers van buiten de selectie. Gasten tellen niet mee in teamstatistieken."
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1791
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1814
 msgid "No guests added yet."
 msgstr "Nog geen gasten toegevoegd."
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1802
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1860
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1825
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1883
 msgid "(unaffiliated)"
 msgstr "(geen team)"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1827
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1877
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1850
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1900
 msgid "Notes…"
 msgstr "Notities…"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1868
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1891
 msgid "Remove this guest?"
 msgstr "Deze gast verwijderen?"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1869
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1892
 msgid "Remove guest"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1872
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1895
 msgid "Pick a player."
 msgstr "Kies een speler."
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1874
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1897
 msgid "Could not add guest."
 msgstr "Gast toevoegen is niet gelukt."
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1875
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1898
 msgid "Saving activity first…"
 msgstr "Activiteit wordt eerst opgeslagen…"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1989
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2012
 msgid "Not linked yet. Use the edit form to pick an existing tournament."
 msgstr ""
 "Nog niet gekoppeld. Kies een bestaand toernooi via het bewerkformulier."
 
 #. translators: %d: tournament match count
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2006
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2029
 #, php-format
 msgid "%d match"
 msgid_plural "%d matches"
 msgstr[0] "%d wedstrijd"
 msgstr[1] "%d wedstrijden"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2021
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2044
 msgid "Open tournament planner →"
 msgstr "Open toernooiplanner →"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2051
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2074
 msgid "— Not linked —"
 msgstr "— Niet gekoppeld —"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2078
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2101
 msgid "Create new tournament →"
 msgstr "Nieuw toernooi aanmaken →"
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2083
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2106
 msgid ""
 "No tournament yet? Ask an admin to create one in the Tournaments planner."
 msgstr ""
