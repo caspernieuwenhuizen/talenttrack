@@ -89,7 +89,7 @@ De status staat in `tt_feature_state` (met de `club_id` tenancy-steiger), plus `
 
 ### Analytics-verkenner
 
-- **Analytics-verkenner** (standaard **uit**, beheerd op de **wp-admin**-Modulepagina) — de ad-hoc Analytics-tegel en dimensie-/KPI-verkenner (`?tt_view=analytics`, `explore`, `scheduled-reports`). Uitzetten verbergt de tegel en die pagina's, maar de **analytics-engine blijft draaien** — de aanwezigheids-, speelminuten- en standaardrapporten plus de dashboard-KPI's werken gewoon, want die gebruiken de engine rechtstreeks, niet de verkenner-UI.
+- **Analytics-verkenner** (standaard **uit**, beheerd op de **wp-admin**-Modulepagina) — de ad-hoc Analytics-tegel en dimensie-/KPI-verkenner (`?tt_view=analytics`, `explore`, `scheduled-reports`). Uitzetten verbergt de tegel en die pagina's, maar de **analytics-engine blijft draaien** — de aanwezigheids-, speelminuten- en standaardrapporten plus de dashboard-KPI's werken gewoon, want die gebruiken de engine rechtstreeks, niet de verkenner-UI. Sinds v4.26.9 verbergt de schakelaar ook elke inline **Verkennen →**-link (spelerdetail, teamdetail, standaardrapporten, de prospects-per-scout-tegel op de rapportenstartpagina), zodat het uitzetten van de Verkenner geen verwijzingen naar een uitgeschakelde functie achterlaat. De activiteitendetailpagina toont helemaal geen Verkenner-rij meer.
 
 ## Alleen-lezen status voor iedereen (`?tt_view=features`, v4.23.1+)
 

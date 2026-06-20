@@ -992,9 +992,11 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                     ?>
                 </h3>
                 <div class="tt-player-card__head-actions" style="display:flex;gap:6px;align-items:center;">
+                    <?php if ( \TT\Modules\Analytics\AnalyticsModule::explorerEnabled() ) : // #1552 — gate behind the Explorer toggle. ?>
                     <a class="tt-player-card__cta tt-player-card__cta--secondary" style="background:transparent;border:1px solid var(--tt-line, #d6dadd);color:var(--tt-muted, #5b6e75);text-decoration:none;padding:6px 10px;border-radius:6px;font-size:12px;font-weight:600;" href="<?php echo esc_url( $goals_explore_url ); ?>">
                         <?php esc_html_e( 'Explorer →', 'talenttrack' ); ?>
                     </a>
+                    <?php endif; ?>
                     <?php if ( current_user_can( 'tt_edit_goals' ) ) : ?>
                         <a class="tt-player-card__cta" href="<?php echo esc_url( $add_url ); ?>">+ <?php esc_html_e( 'Add goal', 'talenttrack' ); ?></a>
                     <?php endif; ?>
@@ -1082,9 +1084,11 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                     ?>
                 </h3>
                 <div class="tt-player-card__head-actions" style="display:flex;gap:6px;align-items:center;">
+                    <?php if ( \TT\Modules\Analytics\AnalyticsModule::explorerEnabled() ) : // #1552 — gate behind the Explorer toggle. ?>
                     <a class="tt-player-card__cta tt-player-card__cta--secondary" style="background:transparent;border:1px solid var(--tt-line, #d6dadd);color:var(--tt-muted, #5b6e75);text-decoration:none;padding:6px 10px;border-radius:6px;font-size:12px;font-weight:600;" href="<?php echo esc_url( $eval_explore_url ); ?>">
                         <?php esc_html_e( 'Explorer →', 'talenttrack' ); ?>
                     </a>
+                    <?php endif; ?>
                     <?php if ( current_user_can( 'tt_edit_evaluations' ) ) : ?>
                         <a class="tt-player-card__cta" href="<?php echo esc_url( $add_url ); ?>">+ <?php esc_html_e( 'New evaluation', 'talenttrack' ); ?></a>
                     <?php endif; ?>

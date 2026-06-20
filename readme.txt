@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.26.8
+Stable tag: 4.26.9
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.26.9 — Explorer: remove the activity-detail row + gate every inline affordance behind the toggle (closes #1552). The Analytics-explorer toggle (`analytics_explorer_enabled`) gated the explorer views and dashboard tile, but the inline **Explore →** links rendered regardless — so switching Explorer off left dangling links into a disabled feature. Two changes: (1) the Explorer preset row was removed from the activity detail view entirely (clutter there regardless of the toggle); (2) every other inline affordance now renders only when `AnalyticsModule::explorerEnabled()` — the player-detail goals + evaluations cards, the team-detail upcoming-activities header, all standard-report page heads (one gate in `renderPageHead` covers the eight report types), and the reports launcher's prospects-per-scout tile. With Explorer off, no Explore link renders anywhere; the analytics engine and standard reports keep working. docs/modules.md (EN+NL) updated. No new strings. Patch bump. (closes #1552) =
 
 = 4.26.8 — Data migration export: per-record include/exclude (closes #1517). The `.ttmig` migration export was all-or-nothing per data set, so test records (scratch players, etc.) had to come along. Each record-bearing set (Players, Teams, Staff & roles, Evaluations, Activities & attendance, Goals) now has a collapsed **Show N records** expander: every record is included by default; untick the ones to leave behind. Excluding a primary record also drops its child rows in the same set (e.g. an excluded activity drops its attendance). "Lookups & configuration" stays all-or-nothing — reference data, not test records. Default behaviour is unchanged for anyone who doesn't expand: the full set still exports. When an exclusion would orphan an included dependent in another set (e.g. excluding a player while keeping their evaluations), a confirmation step lists the orphan risks via [`BackupDependencyMap`](src/Modules/Backup/BackupDependencyMap.php) and offers **Download anyway** or cancel. Implementation: [`MigrationExporter::export()`](src/Modules/Backup/MigrationExporter.php) takes an exclusion set and builds per-table row filters; [`BackupSerializer::snapshot()`](src/Modules/Backup/BackupSerializer.php) gained an optional row-exclusion filter (full backups unchanged). Expanders are mobile-first (48px targets at 360px); very large sets cap the expander at 500 rows with a visible note (rows beyond are always included). docs/backups.md (EN+NL) updated; new Dutch strings. Patch bump. (closes #1517) =
 

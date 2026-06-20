@@ -88,7 +88,7 @@ State lives in `tt_feature_state` (carrying the `club_id` tenancy scaffold), wit
 
 ### Analytics explorer
 
-- **Analytics explorer** (default **off**, managed on the **wp-admin** Modules page) — the ad-hoc Analytics dashboard tile and dimension/KPI explorer (`?tt_view=analytics`, `explore`, `scheduled-reports`). Turning it off hides the tile and those pages, but the **analytics engine keeps running** — the attendance, minutes and standard reports plus dashboard KPIs all still work, because they consume the engine directly, not the explorer UI.
+- **Analytics explorer** (default **off**, managed on the **wp-admin** Modules page) — the ad-hoc Analytics dashboard tile and dimension/KPI explorer (`?tt_view=analytics`, `explore`, `scheduled-reports`). Turning it off hides the tile and those pages, but the **analytics engine keeps running** — the attendance, minutes and standard reports plus dashboard KPIs all still work, because they consume the engine directly, not the explorer UI. As of v4.26.9 the toggle also hides every inline **Explore →** affordance (player detail, team detail, standard reports, the reports launcher's prospects-per-scout tile), so switching Explorer off leaves no dangling links into a disabled feature. The activity detail page no longer carries an Explorer preset row at all.
 
 ## Read-only status for everyone (`?tt_view=features`, v4.23.1+)
 

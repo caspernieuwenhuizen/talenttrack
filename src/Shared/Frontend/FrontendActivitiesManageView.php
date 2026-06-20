@@ -414,26 +414,10 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         // attendance is marked.
         self::renderPlannedAttendance( $session );
 
-        // #1099 + #1100 — Activity Explorer presets. Two affordances
-        // side-by-side: Evaluation coverage + Attendance vs squad.
-        $activity_id_attr = (string) (int) ( $session->id ?? 0 );
-        $cov_url = \TT\Modules\Analytics\Domain\ExplorerUrl::build(
-            'evaluation_coverage',
-            [ 'activity_id' => $activity_id_attr, 'date_after' => '-12 months' ]
-        );
-        $att_url = \TT\Modules\Analytics\Domain\ExplorerUrl::build(
-            'attendance_vs_squad',
-            [ 'team_id' => (string) (int) ( $session->team_id ?? 0 ), 'date_after' => '-12 months' ],
-            'player_id'
-        );
-        echo '<div class="tt-activity-explorer-row" style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 12px;">';
-        echo '<a href="' . esc_url( $cov_url ) . '" style="background:transparent;border:1px solid #d6dadd;color:#5b6e75;text-decoration:none;padding:6px 10px;border-radius:6px;font-size:12px;font-weight:600;">'
-            . esc_html__( 'Explorer · Evaluation coverage →', 'talenttrack' )
-            . '</a>';
-        echo '<a href="' . esc_url( $att_url ) . '" style="background:transparent;border:1px solid #d6dadd;color:#5b6e75;text-decoration:none;padding:6px 10px;border-radius:6px;font-size:12px;font-weight:600;">'
-            . esc_html__( 'Explorer · Attendance vs squad →', 'talenttrack' )
-            . '</a>';
-        echo '</div>';
+        // #1552 — the Activity Explorer preset row (#1099/#1100) was
+        // removed from the activity detail view: clutter on this page
+        // regardless of the Explorer toggle. The same presets stay
+        // reachable from the Explorer views and standard reports.
 
         // v3.110.138 — when the coach marked attendance and chose
         // "Skip rating — no rating needed", this activity carries

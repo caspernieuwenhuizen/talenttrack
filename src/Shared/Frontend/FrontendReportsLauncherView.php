@@ -154,6 +154,16 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
             ) );
         }
 
+        // #1552 — the prospects-per-scout tile is an Explorer preset; drop
+        // it when the Explorer feature is switched off so it doesn't link
+        // into a disabled surface.
+        if ( ! \TT\Modules\Analytics\AnalyticsModule::explorerEnabled() ) {
+            $tiles = array_values( array_filter(
+                $tiles,
+                static fn( array $t ): bool => (string) ( $t['slug'] ?? '' ) !== 'prospects_logged_per_scout'
+            ) );
+        }
+
         // #1503 — group the tiles by purpose/theme instead of one flat
         // grid. Each group declares its tiles by slug in display order;
         // the scope filter above may have removed some, so a group with

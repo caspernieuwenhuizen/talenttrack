@@ -171,7 +171,10 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             echo '<p class="tt-rep-page-head__sub">' . esc_html( $sub ) . '</p>';
         }
         echo '<div class="tt-rep-page-head__actions">';
-        echo '<a class="tt-rep-btn" href="' . esc_url( $explore_url ) . '">' . esc_html__( 'Explorer →', 'talenttrack' ) . '</a>';
+        // #1552 — only surface the Explorer link when the feature is on.
+        if ( $explore_url !== '' && \TT\Modules\Analytics\AnalyticsModule::explorerEnabled() ) {
+            echo '<a class="tt-rep-btn" href="' . esc_url( $explore_url ) . '">' . esc_html__( 'Explorer →', 'talenttrack' ) . '</a>';
+        }
         if ( $export_url !== null ) {
             echo '<a class="tt-rep-btn" href="' . esc_url( $export_url ) . '">' . esc_html__( 'Export (CSV)', 'talenttrack' ) . '</a>';
         }
