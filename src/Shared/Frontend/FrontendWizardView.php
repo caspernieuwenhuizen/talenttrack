@@ -174,7 +174,12 @@ class FrontendWizardView extends FrontendViewBase {
         // #1036 — V3 chrome wraps the rail + form area in a 2-col grid
         // on desktop. The grid's parent owns data-rail-open which the
         // mobile rail-toggle JS flips.
-        echo '<div class="tt-wizard-layout" data-rail-open="false">';
+        // #1514 — single-step wizards emit no rail (renderProgress() returns
+        // early when count(steps) <= 1), so the lone form child would land in
+        // the 220px rail column and get squished. Flag the no-rail case so
+        // the CSS drops to a single full-width column.
+        $has_rail = count( $wizard->steps() ) > 1 ? '1' : '0';
+        echo '<div class="tt-wizard-layout" data-rail-open="false" data-has-rail="' . esc_attr( $has_rail ) . '">';
         self::renderProgress( $wizard, $current_slug, $state );
         if ( $error ) {
             echo '<div class="tt-notice tt-notice-error" role="alert">' . esc_html( $error ) . '</div>';
@@ -870,6 +875,11 @@ class FrontendWizardView extends FrontendViewBase {
                 .tt-wizard-layout {
                     grid-template-columns: 220px 1fr;
                     align-items: start;
+                }
+                /* #1514 — single-step wizards emit no rail; drop to one
+                   full-width column so the form is not squished into 220px. */
+                .tt-wizard-layout[data-has-rail="0"] {
+                    grid-template-columns: 1fr;
                 }
                 .tt-wizard-layout .tt-wizard-form { margin: 0; }
             }
