@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.26.16
+Stable tag: 4.26.17
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.26.17 — Single-step wizards: render full-width instead of squished into the rail column (closes #1514). The wizard chrome's desktop layout is a 2-column grid (220px step rail + 1fr form). For a single-step wizard `renderProgress()` returns early and emits no rail, so the lone form child landed in the 220px first column and was squished (match prep's one-step Availability flow was the visible case). `FrontendWizardView` now stamps `data-has-rail` on the layout wrapper, and the ≥720px CSS drops `[data-has-rail="0"]` to a single full-width column. Multi-step wizards are unchanged (rail left, form right); 360px mobile was already single-column. Patch bump. (closes #1514) =
 
 = 4.26.16 — Configuration page: group the flat tile grid into sections (closes #1532). The frontend Configuration landing was one flat grid of ~18 tiles with a vague "edited inline / opens in wp-admin" disclaimer. Tiles are now grouped by purpose via the shared `FrontendSectionedTileGrid` (#1543), auto-hiding any section with no permitted tiles: **Appearance** (Appearance surface + Custom CSS), **Dashboard** (Default dashboard + the filter-contributed Dashboard layouts / Custom widgets), **Data & vocabularies** (Lookups, Rating scale, Players CSV import, Lookup canonical-language review), **Methodology & cycles** (PDP cycle blocks, Seasons, Player status methodology, VCT config tiles), **Integrations** (Spond), **System** (General, Feature toggles, Backups, Translations, Audit log, Setup wizard, wp-admin menus, Modules). The external-link marker now shows only on tiles that actually open in wp-admin — previously every "admin" tile was marked, including frontend views. No tile dropped or duplicated; filter-injected tiles still appear. Mobile-first (one column at 360px). docs/configuration-branding.md (EN+NL) updated; 3 new Dutch section labels. Patch bump. (closes #1532) =
 
