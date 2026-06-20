@@ -111,4 +111,33 @@ final class MatchExecutionState {
     public static function isEditable( string $value ): bool {
         return in_array( $value, self::EDITABLE, true );
     }
+
+    /**
+     * #1520 — post-live states (the match has been played). The detail
+     * page surfaces these as "View match" on any day; the LIVE states as
+     * "Resume match"; NOT_STARTED only as "Start match", and only on
+     * match day.
+     *
+     * @var list<string>
+     */
+    public const POST_LIVE = [
+        self::PENDING_REVIEW,
+        self::FINALIZED,
+        self::FINISHED,
+    ];
+
+    public static function isPostLive( string $value ): bool {
+        return in_array( $value, self::POST_LIVE, true );
+    }
+
+    /**
+     * #1473 / #1520 — is the given activity date "match day"? Starting a
+     * match is gated to the server's current date. Shared by the match
+     * execution view's start-lock and the activity detail-page button so
+     * the two surfaces can't drift. `$session_date` is the stored
+     * `tt_activities.session_date` (date or datetime string).
+     */
+    public static function isMatchDay( string $session_date ): bool {
+        return $session_date !== '' && substr( $session_date, 0, 10 ) === current_time( 'Y-m-d' );
+    }
 }

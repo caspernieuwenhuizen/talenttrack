@@ -433,7 +433,8 @@ class MatchExecutionRestController {
             $activity_id, CurrentClub::id()
         ) );
         if ( ! $session_date ) return false;
-        return substr( (string) $session_date, 0, 10 ) === current_time( 'Y-m-d' );
+        // #1520 — shared rule with the view + detail-page button.
+        return \TT\Domain\Vocabularies\Enums\MatchExecutionState::isMatchDay( (string) $session_date );
     }
 
     private static function ensureExecution( \WP_REST_Request $r ): array {

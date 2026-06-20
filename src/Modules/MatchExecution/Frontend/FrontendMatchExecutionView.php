@@ -153,7 +153,9 @@ class FrontendMatchExecutionView extends FrontendViewBase {
         // #1473 — starting the match is gated to match day (server date).
         // Before then the Start CTA + timer button render disabled with a
         // dated tooltip; the start transition is also rejected server-side.
-        $is_match_day   = ( $session_date !== '' && substr( $session_date, 0, 10 ) === current_time( 'Y-m-d' ) );
+        // #1520 — shared match-day rule so this lock and the activity
+        // detail-page "Start match" button can't drift.
+        $is_match_day   = MatchExecutionState::isMatchDay( $session_date );
         $start_locked   = ( ! $is_match_day && $state === MatchExecutionState::NOT_STARTED );
         $start_lock_msg = '';
         if ( $start_locked ) {
