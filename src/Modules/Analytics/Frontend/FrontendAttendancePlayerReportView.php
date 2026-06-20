@@ -85,6 +85,48 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
             return;
         }
 
+        // #1488 — rank worst-attendance first and flag at-risk players
+        // (>= the shared, configurable missed-threshold the Comms cron
+        // also uses). The table stays client-side sortable on any column;
+        // this is just the default order + the inline / panel flags.
+        $threshold = \TT\Modules\Analytics\Domain\AttendanceFlagService::threshold();
+        $at_risk   = [];
+        foreach ( $rows as $r ) {
+            $total          = (int) ( $r->total ?? 0 );
+            $r->_present_pct = $total > 0 ? ( (int) $r->present / $total ) * 100 : null;
+            $r->_missed      = \TT\Modules\Analytics\Domain\AttendanceFlagService::missed( $r );
+            $r->_flagged     = $r->_missed >= $threshold;
+            if ( $r->_flagged ) $at_risk[] = $r;
+        }
+        usort( $rows, static function ( $a, $b ) {
+            // No-data rows sort last; otherwise ascending present %.
+            $pa = $a->_present_pct ?? 1000.0;
+            $pb = $b->_present_pct ?? 1000.0;
+            if ( $pa === $pb ) {
+                return strcasecmp( (string) ( $a->last_name ?? '' ), (string) ( $b->last_name ?? '' ) );
+            }
+            return $pa <=> $pb;
+        } );
+
+        if ( $at_risk !== [] ) {
+            usort( $at_risk, static fn( $a, $b ) => $b->_missed <=> $a->_missed );
+            echo '<div class="tt-panel" style="border-left:4px solid #d63638; margin-top:12px;">';
+            echo '<h3 class="tt-panel-title" style="margin-top:0;">' . esc_html( sprintf(
+                /* translators: %d is the missed-activities threshold */
+                __( 'At-risk players (%d or more missed)', 'talenttrack' ),
+                $threshold
+            ) ) . '</h3>';
+            echo '<ul style="margin:0; padding-left:18px; line-height:1.7;">';
+            foreach ( $at_risk as $r ) {
+                $nm = trim( ( $r->first_name ?? '' ) . ' ' . ( $r->last_name ?? '' ) );
+                if ( $nm === '' ) $nm = '#' . (int) $r->player_id;
+                echo '<li>' . esc_html( $nm ) . ' <span style="color:var(--tt-muted);">'
+                    . esc_html( sprintf( /* translators: %d missed activities */ __( '%d missed', 'talenttrack' ), (int) $r->_missed ) )
+                    . '</span></li>';
+            }
+            echo '</ul></div>';
+        }
+
         echo '<div class="tt-table-wrap"><table class="tt-table tt-table-sortable" style="width:100%; margin-top:12px;">';
         echo '<thead><tr>';
         echo '<th>' . esc_html__( 'Player',    'talenttrack' ) . '</th>';
@@ -105,8 +147,16 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
                 RecordLink::dashboardUrl()
             ) );
             $team_name = (string) ( $r->team_name ?? '' );
-            echo '<tr>';
-            echo '<td><a class="tt-record-link" href="' . esc_url( $player_url ) . '">' . esc_html( $player_name ) . '</a></td>';
+            // #1488 — inline at-risk badge for flagged players.
+            $badge = '';
+            if ( ! empty( $r->_flagged ) ) {
+                $badge = ' <span class="tt-flag-badge" title="'
+                    . esc_attr( sprintf( /* translators: %d missed activities */ __( '%d missed', 'talenttrack' ), (int) $r->_missed ) )
+                    . '" style="display:inline-block; background:#fcecec; color:#d63638; border-radius:10px; padding:1px 7px; font-size:11px; font-weight:600; white-space:nowrap;">⚠ '
+                    . (int) $r->_missed . '</span>';
+            }
+            echo '<tr' . ( ! empty( $r->_flagged ) ? ' style="background:#fffafa;"' : '' ) . '>';
+            echo '<td><a class="tt-record-link" href="' . esc_url( $player_url ) . '">' . esc_html( $player_name ) . '</a>' . $badge . '</td>';
             echo '<td>' . ( $team_name !== '' ? esc_html( $team_name ) : '<span class="tt-muted">&mdash;</span>' ) . '</td>';
             echo '<td style="text-align:right;">' . (int) $r->activities . '</td>';
             echo '<td style="text-align:right;">' . esc_html( self::pct( $r->present, $r->total ) ) . '</td>';

@@ -36928,6 +36928,16 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ msgid "Optional reason"
 #~ msgstr "Optionele reden"
 
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php
+#, php-format
+msgid "At-risk players (%d or more missed)"
+msgstr "Risicospelers (%d of meer gemist)"
+
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php
+#, php-format
+msgid "%d missed"
+msgstr "%d gemist"
+
 #~ msgid "Create dashboard page"
 #~ msgstr "Dashboardpagina aanmaken"
 
