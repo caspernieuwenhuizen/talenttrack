@@ -820,7 +820,7 @@ msgstr "Inactief"
 #: src/Modules/Tournaments/Wizard/SquadStep.php:125
 #: src/Shared/Frontend/FrontendTeamDetailView.php:372
 msgid "Trial"
-msgstr "Proeftraining"
+msgstr "Stage"
 
 #: src/Infrastructure/Query/LabelTranslator.php:49
 msgid "Deleted"
@@ -3218,7 +3218,7 @@ msgstr "Completion-percentage"
 #: src/Shared/Frontend/FrontendConfigurationView.php:198
 #: src/Shared/Frontend/FrontendConfigurationView.php:302
 msgid "Trial decisions"
-msgstr "Proefperiode-besluiten"
+msgstr "Stagebesluiten"
 
 #: src/Modules/Analytics/AnalyticsModule.php:182
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1069
@@ -5214,11 +5214,11 @@ msgstr "Stagedossiers"
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:136
 msgid "Trial inputs"
-msgstr "Proefinvoer"
+msgstr "Stage-input"
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:137
 msgid "Trial synthesis"
-msgstr "Proef-samenvatting"
+msgstr "Stage-samenvatting"
 
 # v3.60.0 — Staff development module (#0039)
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:138
@@ -6007,7 +6007,7 @@ msgid ""
 "Trial cases — track a prospective player from first activity through the "
 "decision."
 msgstr ""
-"Proeftrainingen — volg een potentiële speler vanaf de eerste activiteit tot "
+"Stagedossiers — volg een potentiële speler vanaf de eerste activiteit tot "
 "aan de beslissing."
 
 #: src/Modules/Authorization/Admin/ModulesPage.php:287
@@ -6045,7 +6045,7 @@ msgstr "Geplande taken: na-wedstrijd-evaluaties, zelf-evaluaties, HoD-reviews."
 #: src/Modules/Authorization/Admin/ModulesPage.php:294
 msgid "Chronological player events — trial, signing, injury, transitions."
 msgstr ""
-"Chronologische spelergebeurtenissen — proefperiode, contract, blessure, "
+"Chronologische spelergebeurtenissen — stage, contract, blessure, "
 "overgangen."
 
 #: src/Modules/Authorization/Admin/ModulesPage.php:295
@@ -21008,7 +21008,7 @@ msgstr "Instroompijplijn"
 #: src/Shared/Frontend/FrontendTrialsManageView.php:28
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:20
 msgid "Trials"
-msgstr "Stagedossiers"
+msgstr "Stages"
 
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:260
 #: src/Shared/CoreSurfaceRegistration.php:611
@@ -21262,11 +21262,11 @@ msgstr "Aankomende proeftrainingen"
 
 #: src/Modules/PersonaDashboard/Kpis/TrialDecisionsPending.php:16
 msgid "Trial decisions pending"
-msgstr "Trialbeslissingen openstaand"
+msgstr "Stagebesluiten openstaand"
 
 #: src/Modules/PersonaDashboard/Kpis/TrialGroupActiveCount.php:18
 msgid "Players in trial group"
-msgstr "Spelers in trialgroep"
+msgstr "Spelers in stagegroep"
 
 #: src/Modules/PersonaDashboard/PersonaDashboardModule.php:87
 msgid ""
@@ -21361,7 +21361,7 @@ msgstr[1] ""
 #: src/Modules/Prospects/Rest/ProspectsRestController.php:178
 #: src/Modules/Wizards/Prospect/IdentityStep.php:120
 msgid "In trial"
-msgstr "In proefperiode"
+msgstr "Op stage"
 
 #: src/Modules/PersonaDashboard/TableSources/MyRecentProspectsSource.php:90
 #: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:233
@@ -21385,7 +21385,7 @@ msgid ""
 "registered label, icon, and gates on its capability — admins without the cap "
 "see no card."
 msgstr ""
-"Een primaire call-to-action-tegel (bijv. \"+ Nieuwe proefperiode\", \"+ "
+"Een primaire call-to-action-tegel (bijv. \"+ Nieuwe stage\", \"+ "
 "Nieuwe evaluatie\"). Het data-source-veld kiest de actie; de kaart toont het "
 "geregistreerde label, icoon en gate-permissie van de actie — admins zonder "
 "de permissie zien geen kaart."
@@ -21420,7 +21420,7 @@ msgstr "+ Nieuw scoutrapport"
 
 #: src/Modules/PersonaDashboard/Widgets/ActionCardWidget.php:104
 msgid "+ New trial"
-msgstr "+ Nieuwe proefperiode"
+msgstr "+ Nieuwe stage"
 
 #: src/Modules/PersonaDashboard/Widgets/ActionCardWidget.php:105
 msgid "+ New test training"
@@ -21565,7 +21565,7 @@ msgid ""
 msgstr ""
 "Compact tabel-oppervlak voor \"recente X\"-lijsten met een Toon-alle-link. "
 "Kies een van de geregistreerde presets in de data-source-dropdown (komende "
-"activiteiten, proefperiodes die beslissing nodig hebben, mijn recente "
+"activiteiten, stagedossiers die een besluit nodig hebben, mijn recente "
 "prospects, recente audit-events, enz.). Rijen komen van een TableRowSource-"
 "implementatie, scoped op de kijker + zijn club; Toon-alle routeert naar de "
 "bijbehorende volledige lijst."
@@ -21678,7 +21678,7 @@ msgid ""
 "your previous visit, capped at 14 days; 7 days on first visit."
 msgstr ""
 "Sinds-je-laatste-bezoek-overzicht voor academiebrede rollen: geschreven "
-"evaluaties, afgeronde activiteiten, nieuwe prospects, proefbeslissingen, "
+"evaluaties, afgeronde activiteiten, nieuwe prospects, stagebesluiten, "
 "gedragsbeoordelingen en PDP-gesprekken in het venster, elk gelinkt naar de "
 "relevante weergave. Venster = je vorige bezoek, begrensd op 14 dagen; 7 "
 "dagen bij een eerste bezoek."
@@ -21710,8 +21710,8 @@ msgstr[1] "%d nieuwe prospects vastgelegd"
 #, php-format
 msgid "%d trial decision made"
 msgid_plural "%d trial decisions made"
-msgstr[0] "%d proefbeslissing genomen"
-msgstr[1] "%d proefbeslissingen genomen"
+msgstr[0] "%d stagebesluit genomen"
+msgstr[1] "%d stagebesluiten genomen"
 
 #. translators: %d: behaviour rating count
 #: src/Modules/PersonaDashboard/Widgets/HodWeekRecapWidget.php:108
@@ -22013,7 +22013,7 @@ msgid ""
 "for scouts; full-club for HoD / admin."
 msgstr ""
 "Zes-fase-tellingstrook — Prospects / Uitgenodigd / Proeftraining / "
-"Proefgroep / Teamaanbod / Toegetreden — vanuit tt_prospects en "
+"Stagegroep / Teamaanbod / Toegetreden — vanuit tt_prospects en "
 "tt_workflow_tasks via ProspectStageClassifier. Elke fase toont aantal + een "
 "amber stale-badge wanneer een taak in die fase >30 dagen achterstallig is. "
 "Scout-scoped (eigen discovered_by) voor scouts; volledige club voor HoD / "
@@ -22056,7 +22056,7 @@ msgstr "Proeftraining"
 #: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:212
 #: src/Modules/Trials/TrialGroupTeam.php:40
 msgid "Trial group"
-msgstr "Trialgroep"
+msgstr "Stagegroep"
 
 #: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:232
 #: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:213
@@ -22925,7 +22925,7 @@ msgstr "Wachten op uitkomst"
 
 #: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:290
 msgid "In trial group"
-msgstr "In trialgroep"
+msgstr "In stagegroep"
 
 #: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:292
 msgid "Team offer pending"
@@ -23397,7 +23397,7 @@ msgstr ""
 msgid "Respectful, definitive letter declining a place after the trial."
 msgstr ""
 "Respectvolle, definitieve brief met afwijzing van een plek na de "
-"proefperiode."
+"stage."
 
 #: src/Modules/Reports/AudienceType.php:125
 msgid ""
@@ -25101,7 +25101,7 @@ msgstr "Naam gast"
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:384
 msgid "Guest name (e.g. visiting trialist)"
-msgstr "Naam gast (bv. proefspeler op bezoek)"
+msgstr "Naam gast (bv. stagespeler op bezoek)"
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:386
 msgid "Position (optional, e.g. ST)"
@@ -26527,7 +26527,7 @@ msgid ""
 "joining."
 msgstr ""
 "Vink de spelers in de selectie aan en geef per speler aan welke posities hij "
-"kan spelen. Proeftrainingsspelers staan standaard uit — vink ze alleen aan "
+"kan spelen. Stagespelers staan standaard uit — vink ze alleen aan "
 "als ze meegaan."
 
 #: src/Modules/Tournaments/Wizard/SquadStep.php:93
@@ -26893,11 +26893,11 @@ msgstr "Leeftijd speler in jaren"
 
 #: src/Modules/Trials/Letters/DefaultLetterTemplates.php:48
 msgid "Trial start date (formatted)"
-msgstr "Startdatum proefperiode (geformatteerd)"
+msgstr "Startdatum stage (geformatteerd)"
 
 #: src/Modules/Trials/Letters/DefaultLetterTemplates.php:49
 msgid "Trial end date (formatted)"
-msgstr "Einddatum proefperiode (geformatteerd)"
+msgstr "Einddatum stage (geformatteerd)"
 
 #: src/Modules/Trials/Letters/DefaultLetterTemplates.php:50
 msgid "Club name from configuration"
@@ -27070,12 +27070,12 @@ msgstr ""
 
 #: src/Modules/Trials/Rest/TrialsRestController.php:166
 msgid "Could not create trial case."
-msgstr "Proefdossier kon niet worden aangemaakt."
+msgstr "Stagedossier kon niet worden aangemaakt."
 
 #: src/Modules/Trials/Rest/TrialsRestController.php:177
 #: src/Modules/Trials/Rest/TrialsRestController.php:203
 msgid "Trial case not found."
-msgstr "Proefdossier niet gevonden."
+msgstr "Stagedossier niet gevonden."
 
 #: src/Modules/Trials/Rest/TrialsRestController.php:179
 msgid "No access to this case."
@@ -27110,7 +27110,7 @@ msgstr "Niet toegewezen aan dit dossier."
 #: src/Modules/Trials/TrialGroupTeam.php:39
 #, php-format
 msgid "Trial group %s"
-msgstr "Trialgroep %s"
+msgstr "Stagegroep %s"
 
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:36
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:48
@@ -28650,7 +28650,7 @@ msgstr "is gecontracteerd en sluit aan bij een team."
 #: src/Modules/Wizards/Player/PathStep.php:32
 #: src/Modules/Wizards/Player/ReviewStep.php:31
 msgid "Trial player"
-msgstr "Stage-speler"
+msgstr "Stagespeler"
 
 #: src/Modules/Wizards/Player/PathStep.php:32
 msgid "is coming in for a 2 to 6 week look."
@@ -28913,7 +28913,7 @@ msgstr ""
 
 #: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:24
 msgid "Squad plan (3 tiers per slot, trial overlay)"
-msgstr "Selectieplan (3 tiers per positie, proefspeler-overlay)"
+msgstr "Selectieplan (3 tiers per positie, stagespeler-overlay)"
 
 #: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:25
 msgid "Match-day lineup (single starting XI)"
@@ -28954,8 +28954,8 @@ msgid ""
 "planning towards next season or trial decisions. Three tiers per slot "
 "(primary / secondary / tertiary) and trial overlay."
 msgstr ""
-"planning richting volgend seizoen of beslissingen over proefspelers. Drie "
-"tiers per positie (primair / secundair / tertiair) en proefspeler-overlay."
+"planning richting volgend seizoen of stagebesluiten. Drie "
+"tiers per positie (primair / secundair / tertiair) en stagespeler-overlay."
 
 #: src/Modules/Wizards/TeamBlueprint/SetupStep.php:67
 msgid "— pick a formation —"
@@ -29264,7 +29264,7 @@ msgstr "Aanbeveling"
 
 #: src/Modules/Workflow/Forms/RecordTestTrainingOutcomeForm.php:61
 msgid "Admit to trial group"
-msgstr "Toelaten tot trialgroep"
+msgstr "Toelaten tot stagegroep"
 
 #: src/Modules/Workflow/Forms/RecordTestTrainingOutcomeForm.php:69
 msgid "Decline (with encouragement letter)"
@@ -29281,7 +29281,7 @@ msgstr "Kies één aanbeveling."
 # ReviewTrialGroupMembershipForm
 #: src/Modules/Workflow/Forms/ReviewTrialGroupMembershipForm.php:28
 msgid "Review the trial-group player and decide the next step."
-msgstr "Beoordeel de trialgroep-speler en bepaal de volgende stap."
+msgstr "Beoordeel de stagegroep-speler en bepaal de volgende stap."
 
 #: src/Modules/Workflow/Forms/ReviewTrialGroupMembershipForm.php:36
 msgid "Offer a team position"
@@ -29289,7 +29289,7 @@ msgstr "Teamplaats aanbieden"
 
 #: src/Modules/Workflow/Forms/ReviewTrialGroupMembershipForm.php:44
 msgid "Continue in trial group (re-review in 90 days)"
-msgstr "Doorgaan in trialgroep (opnieuw beoordelen over 90 dagen)"
+msgstr "Doorgaan in stagegroep (opnieuw beoordelen over 90 dagen)"
 
 #: src/Modules/Workflow/Forms/ReviewTrialGroupMembershipForm.php:57
 msgid "Rationale"
@@ -29913,7 +29913,7 @@ msgstr ""
 
 #: src/Modules/Workflow/Templates/ReviewTrialGroupMembershipTemplate.php:44
 msgid "Review trial-group membership"
-msgstr "Lidmaatschap trialgroep beoordelen"
+msgstr "Lidmaatschap stagegroep beoordelen"
 
 #: src/Modules/Workflow/Templates/ReviewTrialGroupMembershipTemplate.php:48
 msgid ""
@@ -29921,9 +29921,9 @@ msgid ""
 "group, or decline. Re-spawns every 90 days while the trial case is in "
 "continue-in-trial-group state."
 msgstr ""
-"Beslis of je de prospect een teamplaats aanbiedt, doorgaat in de trialgroep "
-"of afwijst. Wordt elke 90 dagen opnieuw gepland zolang de trial in 'doorgaan "
-"in trialgroep' staat."
+"Beslis of je de prospect een teamplaats aanbiedt, doorgaat in de stagegroep "
+"of afwijst. Wordt elke 90 dagen opnieuw gepland zolang het stagedossier in 'doorgaan "
+"in stagegroep' staat."
 
 # ===== v2.22.0 — Hierarchical back button + Help wiki =====
 #: src/Shared/Admin/BackButton.php:68
@@ -30397,7 +30397,7 @@ msgstr "Stagetrajecten"
 
 #: src/Shared/CoreSurfaceRegistration.php:695
 msgid "Edit default templates for new trial cases."
-msgstr "Bewerk standaardtemplates voor nieuwe proefcases."
+msgstr "Bewerk standaardtemplates voor nieuwe stagedossiers."
 
 #: src/Shared/CoreSurfaceRegistration.php:707
 #: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:24
@@ -31955,8 +31955,8 @@ msgid ""
 "Trial / signing / promotion / release / graduation. Tags player timeline "
 "events."
 msgstr ""
-"Proefperiode / contract / promotie / vrijgave / afzwaai. Tagt "
-"tijdlijngebeurtenissen van spelers.Proefperiode / contract / promotie / "
+"Stage / contract / promotie / vrijgave / afzwaai. Tagt "
+"tijdlijngebeurtenissen van spelers.Stage / contract / promotie / "
 "vrijgave / afzwaai. Tagt tijdlijngebeurtenissen van spelers."
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:168
@@ -32037,7 +32037,7 @@ msgid ""
 "player keepsake, scout, and three trial letters."
 msgstr ""
 "Acht rapporttemplates: standaard, maandelijks oudersverslag, interne "
-"coaches, speler-herinnering, scout, en drie proefperiode-brieven."
+"coaches, speler-herinnering, scout, en drie stagebrieven."
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:194
 #: src/Shared/Frontend/FrontendConfigurationView.php:296
@@ -32057,13 +32057,13 @@ msgstr ""
 #: src/Shared/Frontend/FrontendConfigurationView.php:197
 #: src/Shared/Frontend/FrontendConfigurationView.php:301
 msgid "Trial statuses"
-msgstr "Proefperiode-statussen"
+msgstr "Stagestatussen"
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:197
 msgid "Open / extended / decided / archived — trial-case lifecycle states."
 msgstr ""
 "Open / verlengd / besloten / gearchiveerd — levenscyclus van een "
-"proefperiode."
+"stagedossier."
 
 #: src/Shared/Frontend/FrontendConfigurationView.php:198
 msgid ""
@@ -33053,7 +33053,7 @@ msgstr "Alleen actief"
 #: src/Shared/Frontend/FrontendExportsView.php:94
 #: src/Shared/Frontend/FrontendExportsView.php:238
 msgid "Trial only"
-msgstr "Alleen proeftraining"
+msgstr "Alleen stage"
 
 #: src/Shared/Frontend/FrontendExportsView.php:95
 #: src/Shared/Frontend/FrontendExportsView.php:239
@@ -34621,7 +34621,7 @@ msgid ""
 "to place them on the roster."
 msgstr ""
 "Deze speler heeft nog geen team — typisch na toelating uit een "
-"proeftraining. Kies een team om hem in de selectie te plaatsen."
+"stage. Kies een team om hem in de selectie te plaatsen."
 
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:971
 msgid "No goals yet for this player"
@@ -34742,7 +34742,7 @@ msgstr "Eerdere cycli · %d"
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1389
 msgid "You do not have permission to view trial cases for this player."
 msgstr ""
-"Je hebt geen rechten om proeftrainingsdossiers van deze speler te bekijken."
+"Je hebt geen rechten om stagedossiers van deze speler te bekijken."
 
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1398
 msgid "No trial history for this player"
@@ -34772,7 +34772,7 @@ msgstr "Stagedossier openen"
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1420
 #, php-format
 msgid "Trial cases · %d"
-msgstr "Proeftrainingsdossiers · %d"
+msgstr "Stagedossiers · %d"
 
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1463
 msgid "Notes are staff-only"
@@ -35333,18 +35333,18 @@ msgid ""
 "trial decisions over the last 12 months."
 msgstr ""
 "Academy-brede totalen voor spelers, wedstrijden, evaluaties, prospects en "
-"trialbeslissingen over de afgelopen 12 maanden."
+"stagebesluiten over de afgelopen 12 maanden."
 
 #: src/Shared/Frontend/FrontendReportsLauncherView.php:105
 msgid "Trial funnel"
-msgstr "Trialfunnel"
+msgstr "Stagefunnel"
 
 #: src/Shared/Frontend/FrontendReportsLauncherView.php:106
 msgid ""
 "Prospects → trial cases opened → decided, broken out per scout and per "
 "decision."
 msgstr ""
-"Prospects → trialdossiers geopend → beslist, uitgesplitst per scout en per "
+"Prospects → stagedossiers geopend → beslist, uitgesplitst per scout en per "
 "beslissing."
 
 #: src/Shared/Frontend/FrontendReportsLauncherView.php:111
@@ -35907,7 +35907,7 @@ msgstr "Vastgelegde prospects (12 mnd)"
 
 #: src/Shared/Frontend/FrontendStandardReportsView.php:519
 msgid "Trial decisions (12 mo)"
-msgstr "Trial-beslissingen (12 mnd)"
+msgstr "Stagebesluiten (12 mnd)"
 
 #: src/Shared/Frontend/FrontendStandardReportsView.php:542
 msgid "Per team"
@@ -35925,7 +35925,7 @@ msgstr ""
 
 #: src/Shared/Frontend/FrontendStandardReportsView.php:599
 msgid "Trial funnel — per scout, per period"
-msgstr "Trialfunnel — per scout, per periode"
+msgstr "Stagefunnel — per scout, per periode"
 
 #. translators: %s = scout name
 #: src/Shared/Frontend/FrontendStandardReportsView.php:600
@@ -35941,7 +35941,7 @@ msgstr "Vastgelegde prospects"
 #: src/Shared/Frontend/FrontendStandardReportsView.php:605
 #: src/Shared/Frontend/FrontendStandardReportsView.php:699
 msgid "Trial cases opened"
-msgstr "Trialdossiers geopend"
+msgstr "Stagedossiers geopend"
 
 #: src/Shared/Frontend/FrontendStandardReportsView.php:609
 msgid "Decision rate"
@@ -36610,7 +36610,7 @@ msgstr "Evaluaties in deze periode"
 
 #: src/Shared/Frontend/FrontendTrialCaseView.php:376
 msgid "No activities yet during this trial period."
-msgstr "Nog geen activiteiten in deze proefperiode."
+msgstr "Nog geen activiteiten in deze stageperiode."
 
 #: src/Shared/Frontend/FrontendTrialCaseView.php:397
 msgid "No evaluations yet during this trial period."
@@ -36934,7 +36934,7 @@ msgstr "Inclusief gearchiveerd"
 
 #: src/Shared/Frontend/FrontendTrialsManageView.php:215
 msgid "No trial cases match those filters yet."
-msgstr "Nog geen trial-cases die aan deze filters voldoen."
+msgstr "Nog geen stagedossiers die aan deze filters voldoen."
 
 #: src/Shared/Frontend/FrontendTrialsManageView.php:268
 msgid "Existing player"
