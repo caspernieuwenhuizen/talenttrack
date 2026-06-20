@@ -1058,11 +1058,11 @@ msgstr "Balbezit 4-3-3"
 
 #: src/Infrastructure/Query/LabelTranslator.php:251
 msgid "Counter 4-3-3"
-msgstr "Counter 4-3-3"
+msgstr "Omschakeling 4-3-3"
 
 #: src/Infrastructure/Query/LabelTranslator.php:252
 msgid "Press-heavy 4-3-3"
-msgstr "Pressing 4-3-3"
+msgstr "Druk zetten 4-3-3"
 
 # v3.110.101 — football position long-form labels for tt_lookups.name codes
 # (Activator seeds GK/CB/LB/RB/CDM/CM/CAM/LW/RW/ST/CF; LabelTranslator::positionLabel
@@ -36829,6 +36829,19 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
+
+#: src/Infrastructure/Query/LabelTranslator.php
+msgid "Neutral 4-4-2"
+msgstr "Neutraal 4-4-2"
+#: src/Infrastructure/Query/LabelTranslator.php
+msgid "Neutral 3-5-2"
+msgstr "Neutraal 3-5-2"
+#: src/Infrastructure/Query/LabelTranslator.php
+msgid "Neutral 4-2-3-1"
+msgstr "Neutraal 4-2-3-1"
+#: src/Infrastructure/Query/LabelTranslator.php
+msgid "Offensive 3-4-3 (diamond)"
+msgstr "Aanvallend 3-4-3 (ruit)"
 
 #~ msgid "Create dashboard page"
 #~ msgstr "Dashboardpagina aanmaken"

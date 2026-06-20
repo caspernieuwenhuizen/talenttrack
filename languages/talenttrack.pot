@@ -32424,3 +32424,15 @@ msgstr ""
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr ""
+#: src/Infrastructure/Query/LabelTranslator.php
+msgid "Neutral 4-4-2"
+msgstr ""
+#: src/Infrastructure/Query/LabelTranslator.php
+msgid "Neutral 3-5-2"
+msgstr ""
+#: src/Infrastructure/Query/LabelTranslator.php
+msgid "Neutral 4-2-3-1"
+msgstr ""
+#: src/Infrastructure/Query/LabelTranslator.php
+msgid "Offensive 3-4-3 (diamond)"
+msgstr ""

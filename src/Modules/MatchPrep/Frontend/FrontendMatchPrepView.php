@@ -285,11 +285,20 @@ class FrontendMatchPrepView extends FrontendViewBase {
                             $tpl_id    = (int) ( $tpl->id ?? 0 );
                             $tpl_name  = (string) ( $tpl->name ?? '' );
                             $tpl_shape = (string) ( $tpl->formation_shape ?? '' );
+                            // #1477 — localise the descriptive name (the shape
+                            // digits stay as-is). The translated name already
+                            // contains the shape for seeded formations, so only
+                            // prepend the shape for a custom name that lacks it
+                            // (avoids the old "4-3-3 — Neutral 4-3-3" repeat).
+                            $tpl_label = \TT\Infrastructure\Query\LabelTranslator::formationName( $tpl_name );
+                            if ( $tpl_shape !== '' && strpos( $tpl_label, $tpl_shape ) === false ) {
+                                $tpl_label = $tpl_shape . ' — ' . $tpl_label;
+                            }
                             ?>
                             <option value="<?php echo esc_attr( (string) $tpl_id ); ?>"
                                     data-shape="<?php echo esc_attr( $tpl_shape ); ?>"
                                     <?php selected( (int) ( $prep->formation_template_id ?? 0 ), $tpl_id ); ?>>
-                                <?php echo esc_html( $tpl_shape !== '' ? $tpl_shape . ' — ' . $tpl_name : $tpl_name ); ?>
+                                <?php echo esc_html( $tpl_label ); ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
