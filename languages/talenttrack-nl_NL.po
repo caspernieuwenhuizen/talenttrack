@@ -37359,6 +37359,18 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/Frontend/Components/ArchiveRowActions.php
+msgid "Restore this record?"
+msgstr "Dit record herstellen?"
+
+#: src/Shared/Frontend/Components/ArchiveRowActions.php
+msgid "Permanently delete this record? This cannot be undone and removes its linked data."
+msgstr "Dit record definitief verwijderen? Dit kan niet ongedaan worden gemaakt en verwijdert de gekoppelde gegevens."
+
+#: src/Infrastructure/REST/GoalsRestController.php
+msgid "Goal not found."
+msgstr "Doel niet gevonden."
+
 #~ msgid ""
 #~ "No seasons configured yet. Open the wp-admin Seasons page first and add a "
 #~ "season — then come back here to set its PDP blocks."

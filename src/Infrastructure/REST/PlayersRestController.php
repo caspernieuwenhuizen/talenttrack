@@ -91,6 +91,47 @@ class PlayersRestController {
                 },
             ],
         ]);
+        // #1470 — archive lifecycle: restore + gated permanent delete.
+        register_rest_route( self::NS, '/players/(?P<id>\d+)/restore', [
+            [
+                'methods'             => 'POST',
+                'callback'            => [ __CLASS__, 'restore_player' ],
+                'permission_callback' => function () { return current_user_can( 'tt_edit_players' ); },
+            ],
+        ] );
+        register_rest_route( self::NS, '/players/(?P<id>\d+)/permanent', [
+            [
+                'methods'             => 'DELETE',
+                'callback'            => [ __CLASS__, 'delete_player_permanently' ],
+                'permission_callback' => function () { return current_user_can( 'tt_edit_settings' ); },
+            ],
+        ] );
+    }
+
+    /** #1470 — restore an archived player. */
+    public static function restore_player( \WP_REST_Request $r ) {
+        $id = absint( $r['id'] );
+        if ( $id <= 0 ) {
+            return RestResponse::error( 'bad_id', __( 'Invalid player id.', 'talenttrack' ), 400 );
+        }
+        $n = ( new \TT\Infrastructure\Archive\ArchiveRepository() )->restore( 'player', [ $id ] );
+        if ( $n === 0 ) {
+            return RestResponse::error( 'not_found', __( 'Player not found.', 'talenttrack' ), 404 );
+        }
+        return RestResponse::success( [ 'restored' => true, 'id' => $id ] );
+    }
+
+    /** #1470 — permanently delete a player + cascade (irreversible). Gated by tt_edit_settings. */
+    public static function delete_player_permanently( \WP_REST_Request $r ) {
+        $id = absint( $r['id'] );
+        if ( $id <= 0 ) {
+            return RestResponse::error( 'bad_id', __( 'Invalid player id.', 'talenttrack' ), 400 );
+        }
+        $n = ( new \TT\Infrastructure\Archive\ArchiveRepository() )->deletePermanently( 'player', [ $id ] );
+        if ( $n === 0 ) {
+            return RestResponse::error( 'not_found', __( 'Player not found.', 'talenttrack' ), 404 );
+        }
+        return RestResponse::success( [ 'deleted' => true, 'id' => $id ] );
     }
 
     /** Whitelist of columns the `orderby` query param accepts. */

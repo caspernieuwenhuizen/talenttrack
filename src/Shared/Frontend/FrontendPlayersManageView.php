@@ -167,7 +167,8 @@ class FrontendPlayersManageView extends FrontendViewBase {
         // `?tt_view=players&player_id={id}` itself is still uncapped;
         // separate destination-gating issue tracks that for the same
         // architectural pattern as #1106.
-        $row_actions = [];
+        // #1470 — Restore + gated permanent-delete on archived rows.
+        $row_actions = \TT\Shared\Frontend\Components\ArchiveRowActions::build( 'players', 'tt_edit_players' );
 
         echo FrontendListTable::render( [
             'rest_path' => 'players',
@@ -212,6 +213,7 @@ class FrontendPlayersManageView extends FrontendViewBase {
                     'options' => [
                         'active'   => __( 'Active',   'talenttrack' ),
                         'archived' => __( 'Archived', 'talenttrack' ),
+                        'all'      => __( 'All',      'talenttrack' ),
                     ],
                 ],
                 // #0093 — "Unassigned" lens. Surfaces active players who

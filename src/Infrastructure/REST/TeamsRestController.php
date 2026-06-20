@@ -85,6 +85,21 @@ class TeamsRestController {
                 'permission_callback' => $can_edit,
             ],
         ] );
+        // #1470 — archive lifecycle: restore + gated permanent delete.
+        register_rest_route( self::NS, '/teams/(?P<id>\d+)/restore', [
+            [
+                'methods'             => 'POST',
+                'callback'            => [ __CLASS__, 'restore_team' ],
+                'permission_callback' => $can_edit,
+            ],
+        ] );
+        register_rest_route( self::NS, '/teams/(?P<id>\d+)/permanent', [
+            [
+                'methods'             => 'DELETE',
+                'callback'            => [ __CLASS__, 'delete_team_permanently' ],
+                'permission_callback' => function () { return current_user_can( 'tt_edit_settings' ); },
+            ],
+        ] );
         register_rest_route( self::NS, '/teams/(?P<id>\d+)/players/(?P<player_id>\d+)', [
             [
                 'methods'             => 'POST',
@@ -323,6 +338,24 @@ class TeamsRestController {
             return RestResponse::error( 'db_error', __( 'The team could not be archived.', 'talenttrack' ), 500, [ 'db_error' => $err ] );
         }
         return RestResponse::success( [ 'archived' => true, 'id' => $id ] );
+    }
+
+    /** #1470 — restore an archived team. */
+    public static function restore_team( \WP_REST_Request $r ) {
+        $id = absint( $r['id'] );
+        if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid team id.', 'talenttrack' ), 400 );
+        $n = ( new \TT\Infrastructure\Archive\ArchiveRepository() )->restore( 'team', [ $id ] );
+        if ( $n === 0 ) return RestResponse::error( 'not_found', __( 'Team not found.', 'talenttrack' ), 404 );
+        return RestResponse::success( [ 'restored' => true, 'id' => $id ] );
+    }
+
+    /** #1470 — permanently delete a team (irreversible). Gated by tt_edit_settings. */
+    public static function delete_team_permanently( \WP_REST_Request $r ) {
+        $id = absint( $r['id'] );
+        if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid team id.', 'talenttrack' ), 400 );
+        $n = ( new \TT\Infrastructure\Archive\ArchiveRepository() )->deletePermanently( 'team', [ $id ] );
+        if ( $n === 0 ) return RestResponse::error( 'not_found', __( 'Team not found.', 'talenttrack' ), 404 );
+        return RestResponse::success( [ 'deleted' => true, 'id' => $id ] );
     }
 
     public static function add_player_to_team( \WP_REST_Request $r ) {

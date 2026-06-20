@@ -32889,3 +32889,16 @@ msgstr ""
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr ""
+
+#: src/Shared/Frontend/Components/ArchiveRowActions.php
+msgid "Restore this record?"
+msgstr ""
+
+#: src/Shared/Frontend/Components/ArchiveRowActions.php
+msgid "Permanently delete this record? This cannot be undone and removes its linked data."
+msgstr ""
+
+#: src/Infrastructure/REST/GoalsRestController.php
+msgid "Goal not found."
+msgstr ""
+
