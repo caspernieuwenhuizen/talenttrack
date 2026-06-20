@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.26.18
+Stable tag: 4.26.19
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.26.19 — Wizard review steps: standard two-column table for Blueprint / Player / Team (closes #1526). Three create-wizard Review steps still rendered a plain `<dl class="tt-wizard-review">` bulleted list instead of the canonical `<table class="tt-table tt-wizard-review-table">` the Activity, Prospect and VCT wizards use. Converted all three (Team Blueprint, Player, Team) to the standard table markup wrapped in `tt-table-wrap` — same label→value rows, now a clean two-column table that wraps gracefully at 360px. No `<dl class="tt-wizard-review">` remains in any wizard Review step; labels/values unchanged. Patch bump. (closes #1526) =
 
 = 4.26.18 — Blueprint 3-4-3 (offensive diamond): move the back line off the goalkeeper (closes #1525). The seeded "Offensive 3-4-3 (diamond)" formation placed its back three at y=0.84/0.86/0.84 — only ~0.09 from the GK at y=0.95 — so the centre-back visually overlapped the keeper on the editor pitch. The back three move to y=0.80 (~0.15 clearance, matching the standard flat 3-4-3). Two parts: migration 0158 is corrected for fresh installs, and a new forward migration `0164_fix_offensive_343_back_line` rewrites the seeded row's `slots_json` on existing installs (only the back-three y values; guarded to the seeded system row so a club's hand-edited copy is never touched; idempotent). Other slots unchanged. Patch bump. (closes #1525) =
 
