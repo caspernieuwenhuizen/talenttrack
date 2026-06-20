@@ -41,6 +41,13 @@ class EvaluationsRestController {
             [ 'methods' => 'PUT',    'callback' => [ __CLASS__, 'update_eval' ], 'permission_callback' => function () { return current_user_can( 'tt_edit_evaluations' ); } ],
             [ 'methods' => 'DELETE', 'callback' => [ __CLASS__, 'delete_eval' ], 'permission_callback' => function () { return current_user_can( 'tt_edit_evaluations' ); } ],
         ]);
+        // #1470 — archive lifecycle: restore + gated permanent delete.
+        register_rest_route( self::NS, '/evaluations/(?P<id>\d+)/restore', [
+            [ 'methods' => 'POST', 'callback' => [ __CLASS__, 'restore_eval' ], 'permission_callback' => function () { return current_user_can( 'tt_edit_evaluations' ); } ],
+        ]);
+        register_rest_route( self::NS, '/evaluations/(?P<id>\d+)/permanent', [
+            [ 'methods' => 'DELETE', 'callback' => [ __CLASS__, 'delete_eval_permanently' ], 'permission_callback' => function () { return current_user_can( 'tt_edit_settings' ); } ],
+        ]);
 
         // #920 — "My evaluations" feed. Mirrors what
         // FrontendMyEvaluationsView::renderForCoach renders. Defaults
@@ -623,6 +630,24 @@ class EvaluationsRestController {
             );
         }
         return RestResponse::success( [ 'archived' => true, 'id' => $id ] );
+    }
+
+    /** #1470 — restore an archived evaluation. */
+    public static function restore_eval( \WP_REST_Request $r ) {
+        $id = (int) $r['id'];
+        if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid evaluation id.', 'talenttrack' ), 400 );
+        $n = ( new \TT\Infrastructure\Archive\ArchiveRepository() )->restore( 'evaluation', [ $id ] );
+        if ( $n === 0 ) return RestResponse::error( 'not_found', __( 'Evaluation not found.', 'talenttrack' ), 404 );
+        return RestResponse::success( [ 'restored' => true, 'id' => $id ] );
+    }
+
+    /** #1470 — permanently delete an evaluation (irreversible). Gated by tt_edit_settings. */
+    public static function delete_eval_permanently( \WP_REST_Request $r ) {
+        $id = (int) $r['id'];
+        if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid evaluation id.', 'talenttrack' ), 400 );
+        $n = ( new \TT\Infrastructure\Archive\ArchiveRepository() )->deletePermanently( 'evaluation', [ $id ] );
+        if ( $n === 0 ) return RestResponse::error( 'not_found', __( 'Evaluation not found.', 'talenttrack' ), 404 );
+        return RestResponse::success( [ 'deleted' => true, 'id' => $id ] );
     }
 
     /**

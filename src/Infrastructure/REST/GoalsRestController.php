@@ -52,6 +52,21 @@ class GoalsRestController {
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
             ],
         ] );
+        // #1470 — archive lifecycle: restore + gated permanent delete.
+        register_rest_route( self::NS, '/goals/(?P<id>\d+)/restore', [
+            [
+                'methods'             => 'POST',
+                'callback'            => [ __CLASS__, 'restore_goal' ],
+                'permission_callback' => [ __CLASS__, 'can_edit' ],
+            ],
+        ] );
+        register_rest_route( self::NS, '/goals/(?P<id>\d+)/permanent', [
+            [
+                'methods'             => 'DELETE',
+                'callback'            => [ __CLASS__, 'delete_goal_permanently' ],
+                'permission_callback' => [ __CLASS__, 'can_hard_delete' ],
+            ],
+        ] );
         register_rest_route( self::NS, '/goals/(?P<id>\d+)/status', [
             [
                 'methods'             => 'PATCH',
@@ -536,23 +551,53 @@ class GoalsRestController {
         return RestResponse::success( [ 'id' => $goal_id, 'status' => $status ] );
     }
 
+    /**
+     * #1470 — DELETE now SOFT-ARCHIVES (was a hard delete). This makes
+     * goals consistent with players/teams/evaluations: a DELETE hides
+     * the goal but preserves the data, and it can be restored or — for
+     * `tt_edit_settings` holders — permanently removed.
+     */
     public static function delete_goal( \WP_REST_Request $r ) {
-        global $wpdb;
         $goal_id = absint( $r['id'] );
         if ( $goal_id <= 0 ) {
             return RestResponse::error( 'bad_id', __( 'Invalid goal id.', 'talenttrack' ), 400 );
         }
-        $ok = $wpdb->delete( $wpdb->prefix . 'tt_goals', [ 'id' => $goal_id, 'club_id' => CurrentClub::id() ] );
-        if ( $ok === false ) {
-            $err = (string) $wpdb->last_error;
-            Logger::error( 'goal.delete.failed', [ 'db_error' => $err, 'goal_id' => $goal_id ] );
-            return RestResponse::error(
-                'db_error',
-                __( 'Goal delete failed.', 'talenttrack' ),
-                500,
-                [ 'db_error' => $err ]
-            );
+        $n = ( new \TT\Infrastructure\Archive\ArchiveRepository() )
+            ->archive( 'goal', [ $goal_id ], (int) get_current_user_id() );
+        if ( $n === 0 ) {
+            return RestResponse::error( 'not_found', __( 'Goal not found.', 'talenttrack' ), 404 );
+        }
+        return RestResponse::success( [ 'archived' => true, 'id' => $goal_id ] );
+    }
+
+    /** #1470 — restore an archived goal. */
+    public static function restore_goal( \WP_REST_Request $r ) {
+        $goal_id = absint( $r['id'] );
+        if ( $goal_id <= 0 ) {
+            return RestResponse::error( 'bad_id', __( 'Invalid goal id.', 'talenttrack' ), 400 );
+        }
+        $n = ( new \TT\Infrastructure\Archive\ArchiveRepository() )->restore( 'goal', [ $goal_id ] );
+        if ( $n === 0 ) {
+            return RestResponse::error( 'not_found', __( 'Goal not found.', 'talenttrack' ), 404 );
+        }
+        return RestResponse::success( [ 'restored' => true, 'id' => $goal_id ] );
+    }
+
+    /** #1470 — permanently delete a goal (irreversible). Gated by tt_edit_settings. */
+    public static function delete_goal_permanently( \WP_REST_Request $r ) {
+        $goal_id = absint( $r['id'] );
+        if ( $goal_id <= 0 ) {
+            return RestResponse::error( 'bad_id', __( 'Invalid goal id.', 'talenttrack' ), 400 );
+        }
+        $n = ( new \TT\Infrastructure\Archive\ArchiveRepository() )->deletePermanently( 'goal', [ $goal_id ] );
+        if ( $n === 0 ) {
+            return RestResponse::error( 'not_found', __( 'Goal not found.', 'talenttrack' ), 404 );
         }
         return RestResponse::success( [ 'deleted' => true, 'id' => $goal_id ] );
+    }
+
+    /** #1470 — permanent delete is gated behind the settings cap, like wp-admin. */
+    public static function can_hard_delete(): bool {
+        return current_user_can( 'tt_edit_settings' );
     }
 }
