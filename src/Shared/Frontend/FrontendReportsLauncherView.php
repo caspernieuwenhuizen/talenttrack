@@ -179,54 +179,16 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
             [ 'label' => __( 'Season overview', 'talenttrack' ),           'slugs' => [ 'season-summary' ] ],
         ];
 
-        $by_slug = [];
-        foreach ( $tiles as $tile ) {
-            $by_slug[ (string) ( $tile['slug'] ?? '' ) ] = $tile;
-        }
-        $placed = [];
-
-        foreach ( $groups as $group ) {
-            $group_tiles = [];
-            foreach ( $group['slugs'] as $slug ) {
-                if ( isset( $by_slug[ $slug ] ) ) {
-                    $group_tiles[] = $by_slug[ $slug ];
-                    $placed[ $slug ] = true;
-                }
-            }
-            if ( empty( $group_tiles ) ) continue;
-            self::renderReportSection( (string) $group['label'], $group_tiles );
-        }
-
-        // Trailing safety net for any tile not assigned to a group.
-        $leftover = array_values( array_filter(
+        // #1543 — grouping + section rendering now live in the shared
+        // FrontendSectionedTileGrid presenter (the #1503 renderReportSection
+        // was folded into it). Output is visually unchanged: same heading +
+        // .tt-cfg-tile-grid markup, same auto-hide-empty-section behaviour,
+        // same trailing "Other reports" bucket for ungrouped tiles.
+        $sections = \TT\Shared\Frontend\Components\FrontendSectionedTileGrid::fromGroups(
             $tiles,
-            static fn( array $t ): bool => ! isset( $placed[ (string) ( $t['slug'] ?? '' ) ] )
-        ) );
-        if ( ! empty( $leftover ) ) {
-            self::renderReportSection( __( 'Other reports', 'talenttrack' ), $leftover );
-        }
-    }
-
-    /**
-     * #1503 — render one report section: a small-caps heading above the
-     * existing tile grid. Kept mobile-first — the grid wraps to a single
-     * column at 360px and tap targets are unchanged.
-     *
-     * @param list<array{label:string,desc:string,url:string}> $tiles
-     */
-    private static function renderReportSection( string $label, array $tiles ): void {
-        echo '<h3 class="tt-reports-section" style="margin:18px 0 8px; font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#6b7280;">'
-            . esc_html( $label ) . '</h3>';
-        echo '<div class="tt-cfg-tile-grid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px;">';
-        foreach ( $tiles as $tile ) {
-            ?>
-            <a class="tt-cfg-tile" href="<?php echo esc_url( (string) $tile['url'] ); ?>"
-               style="display:block; background:#fff; border:1px solid #e5e7ea; border-radius:8px; padding:14px; text-decoration:none; color:#1a1d21; min-height:76px;">
-                <div style="font-weight:600; font-size:14px; line-height:1.25; margin-bottom:4px;"><?php echo esc_html( (string) $tile['label'] ); ?></div>
-                <div style="color:#6b7280; font-size:12px; line-height:1.35;"><?php echo esc_html( (string) $tile['desc'] ); ?></div>
-            </a>
-            <?php
-        }
-        echo '</div>';
+            $groups,
+            __( 'Other reports', 'talenttrack' )
+        );
+        \TT\Shared\Frontend\Components\FrontendSectionedTileGrid::render( $sections );
     }
 }
