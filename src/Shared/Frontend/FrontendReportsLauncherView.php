@@ -154,6 +154,59 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
             ) );
         }
 
+        // #1503 — group the tiles by purpose/theme instead of one flat
+        // grid. Each group declares its tiles by slug in display order;
+        // the scope filter above may have removed some, so a group with
+        // no surviving tile renders no header (e.g. a regular coach sees
+        // no Recruitment / Season overview section). Any tile not claimed
+        // by a group falls through to a trailing "Other reports" section
+        // so a future addition is never silently dropped.
+        $groups = [
+            [ 'label' => __( 'Development & performance', 'talenttrack' ), 'slugs' => [ 'player-progress-radar', 'rate-cards', 'team_ratings', 'team-squad-evaluation-summary' ] ],
+            [ 'label' => __( 'Playing time', 'talenttrack' ),              'slugs' => [ 'player-minutes-played', 'team-minutes-distribution' ] ],
+            [ 'label' => __( 'Recruitment', 'talenttrack' ),               'slugs' => [ 'prospects_logged_per_scout', 'season-trial-funnel', 'scout-report-card' ] ],
+            [ 'label' => __( 'Staff & quality', 'talenttrack' ),           'slugs' => [ 'coach_activity', 'coach-evaluation-quality' ] ],
+            [ 'label' => __( 'Season overview', 'talenttrack' ),           'slugs' => [ 'season-summary' ] ],
+        ];
+
+        $by_slug = [];
+        foreach ( $tiles as $tile ) {
+            $by_slug[ (string) ( $tile['slug'] ?? '' ) ] = $tile;
+        }
+        $placed = [];
+
+        foreach ( $groups as $group ) {
+            $group_tiles = [];
+            foreach ( $group['slugs'] as $slug ) {
+                if ( isset( $by_slug[ $slug ] ) ) {
+                    $group_tiles[] = $by_slug[ $slug ];
+                    $placed[ $slug ] = true;
+                }
+            }
+            if ( empty( $group_tiles ) ) continue;
+            self::renderReportSection( (string) $group['label'], $group_tiles );
+        }
+
+        // Trailing safety net for any tile not assigned to a group.
+        $leftover = array_values( array_filter(
+            $tiles,
+            static fn( array $t ): bool => ! isset( $placed[ (string) ( $t['slug'] ?? '' ) ] )
+        ) );
+        if ( ! empty( $leftover ) ) {
+            self::renderReportSection( __( 'Other reports', 'talenttrack' ), $leftover );
+        }
+    }
+
+    /**
+     * #1503 — render one report section: a small-caps heading above the
+     * existing tile grid. Kept mobile-first — the grid wraps to a single
+     * column at 360px and tap targets are unchanged.
+     *
+     * @param list<array{label:string,desc:string,url:string}> $tiles
+     */
+    private static function renderReportSection( string $label, array $tiles ): void {
+        echo '<h3 class="tt-reports-section" style="margin:18px 0 8px; font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#6b7280;">'
+            . esc_html( $label ) . '</h3>';
         echo '<div class="tt-cfg-tile-grid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px;">';
         foreach ( $tiles as $tile ) {
             ?>
