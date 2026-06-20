@@ -1012,27 +1012,26 @@ final class CoreSurfaceRegistration {
             },
         ]);
 
-        // ── Staff development group (#0039) — visible to any user
-        // who can view the staff-development surface. The HoD overview
-        // tile is gated separately on the expiry-roll-up cap. ──
-        $staff_dev_group = __( 'Staff development', 'talenttrack' );
+        // #1540 — a staff member's personal development now sits under the
+        // "Me"/"My" group, mirroring the player experience, instead of a
+        // separate "Staff development" heading. The four personal tiles
+        // stay cap-gated on tt_view_staff_development, so a staff user sees
+        // the staff set and a player sees the player set — "My" is persona-
+        // appropriate. Labels are unified with the player tiles (the
+        // "staff" qualifier dropped); for a rare dual-role user this can
+        // surface two "My PDP" tiles — accepted per #1540. Orders sit after
+        // the player tiles (10-60) so each persona's set reads well.
         TileRegistry::register([
             'module_class' => self::M_STAFF_DEV,
             'view_slug'    => 'my-staff-pdp',
             'entity'       => 'my_staff_pdp',
-            'group'        => $staff_dev_group,
+            'group'        => $me_group,
             'kind'         => 'work',
-            'order'        => 10,
-            // v3.92.0 — was "My PDP" which collided with the player's
-            // Me-group "My PDP" tile label. Coaches sat next to both on
-            // their dashboard with no way to tell them apart. The label
-            // is the only difference between the two; renamed here so
-            // coaches see "My staff PDP" and players see "My PDP".
-            'label'        => __( 'My staff PDP', 'talenttrack' ),
+            'order'        => 70,
+            'label'        => __( 'My PDP', 'talenttrack' ),
             'description'  => __( 'Your personal development plan.', 'talenttrack' ),
-            // v3.72.5 — was `'pdp'` but no pdp.svg exists; tile rendered
-            // without an icon. `methodology` fits the staff-development
-            // theme and is distinct from regular PDP's `goals` icon.
+            // v3.72.5 — `methodology` icon (no pdp.svg exists); distinct
+            // from the player PDP's `goals` icon.
             'icon'         => 'methodology',
             'color'        => '#0b3d2e',
             'cap'          => 'tt_view_staff_development',
@@ -1041,10 +1040,10 @@ final class CoreSurfaceRegistration {
             'module_class' => self::M_STAFF_DEV,
             'view_slug'    => 'my-staff-goals',
             'entity'       => 'my_staff_goals',
-            'group'        => $staff_dev_group,
+            'group'        => $me_group,
             'kind'         => 'work',
-            'order'        => 20,
-            'label'        => __( 'My staff goals', 'talenttrack' ),
+            'order'        => 80,
+            'label'        => __( 'My goals', 'talenttrack' ),
             'description'  => __( 'Personal goals, optionally linked to a badge.', 'talenttrack' ),
             'icon'         => 'goals',
             'color'        => '#1d7874',
@@ -1054,10 +1053,10 @@ final class CoreSurfaceRegistration {
             'module_class' => self::M_STAFF_DEV,
             'view_slug'    => 'my-staff-evaluations',
             'entity'       => 'my_staff_evaluations',
-            'group'        => $staff_dev_group,
+            'group'        => $me_group,
             'kind'         => 'work',
-            'order'        => 30,
-            'label'        => __( 'My staff evaluations', 'talenttrack' ),
+            'order'        => 90,
+            'label'        => __( 'My evaluations', 'talenttrack' ),
             'description'  => __( 'Self and top-down staff evaluations.', 'talenttrack' ),
             'icon'         => 'evaluations',
             'color'        => '#7c3a9e',
@@ -1067,20 +1066,24 @@ final class CoreSurfaceRegistration {
             'module_class' => self::M_STAFF_DEV,
             'view_slug'    => 'my-staff-certifications',
             'entity'       => 'my_staff_certifications',
-            'group'        => $staff_dev_group,
+            'group'        => $me_group,
             'kind'         => 'work',
-            'order'        => 40,
+            'order'        => 100,
             'label'        => __( 'My certifications', 'talenttrack' ),
             'description'  => __( 'Coaching badges and certs with expiry tracking.', 'talenttrack' ),
             'icon'         => 'rate-card',
             'color'        => '#c9962a',
             'cap'          => 'tt_view_staff_development',
         ]);
+        // #1540 — "Staff overview" is the academy-wide HoD lens (open
+        // goals, overdue reviews, expiring certs), not a personal tile.
+        // Re-homed to the People group alongside the other academy-people
+        // management surfaces; the "Staff development" group is retired.
         TileRegistry::register([
             'module_class' => self::M_STAFF_DEV,
             'view_slug'    => 'staff-overview',
             'entity'       => 'staff_overview',
-            'group'        => $staff_dev_group,
+            'group'        => $people_group,
             'kind'         => 'admin',
             'order'        => 50,
             'label'        => __( 'Staff overview', 'talenttrack' ),
