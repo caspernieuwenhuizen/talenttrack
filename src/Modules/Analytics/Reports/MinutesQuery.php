@@ -97,16 +97,28 @@ final class MinutesQuery {
             $exec = $exec_repo->findByActivity( $aid );
             $exec_id = $exec ? (int) $exec->id : 0;
 
-            // Minutes per player for this activity.
-            $minutes_map = $exec_id > 0
-                ? $exec_repo->computeMinutes( $exec_id, $start1, $start2, $half_length, $half_length )
-                : [];
+            // #1489 — persisted per-player minutes (written to
+            // tt_attendance.minutes_played by the match execution on
+            // finish / finalize / pending-review edit) are the single
+            // source of truth. Reading them fixes the "no data" case
+            // where a live-tracked match recorded minutes but the
+            // read-time recompute yielded nothing (e.g. the prep lineup
+            // was cleared or never mirrored). Fall back to the
+            // lineup-based recompute only when nothing was persisted yet
+            // — a plan-only week, or a match finished before minutes were
+            // written — so those weeks still appear.
+            $minutes_map = self::persistedMinutes( $aid, $club_id );
             if ( empty( $minutes_map ) ) {
-                // Match has lineup but no execution row — credit starters
-                // with the full half length anyway so plan-only weeks
-                // don't disappear from the report.
-                foreach ( $start1 as $pid ) $minutes_map[ $pid ] = ( $minutes_map[ $pid ] ?? 0 ) + $half_length;
-                foreach ( $start2 as $pid ) $minutes_map[ $pid ] = ( $minutes_map[ $pid ] ?? 0 ) + $half_length;
+                $minutes_map = $exec_id > 0
+                    ? $exec_repo->computeMinutes( $exec_id, $start1, $start2, $half_length, $half_length )
+                    : [];
+                if ( empty( $minutes_map ) ) {
+                    // Match has a lineup but no execution / persisted
+                    // minutes — credit starters with the full half length
+                    // so plan-only weeks don't disappear from the report.
+                    foreach ( $start1 as $pid ) $minutes_map[ $pid ] = ( $minutes_map[ $pid ] ?? 0 ) + $half_length;
+                    foreach ( $start2 as $pid ) $minutes_map[ $pid ] = ( $minutes_map[ $pid ] ?? 0 ) + $half_length;
+                }
             }
 
             // Starts counter — once per activity, even if started both halves.
@@ -147,7 +159,10 @@ final class MinutesQuery {
                 $totals[ $pid ]  = ( $totals[ $pid ]  ?? 0 ) + $mins;
                 if ( ! isset( $by_type[ $pid ] ) ) $by_type[ $pid ] = [];
                 $by_type[ $pid ][ $type_key ] = ( $by_type[ $pid ][ $type_key ] ?? 0 ) + $mins;
-                if ( isset( $on_pitch[ $pid ] ) ) {
+                // #1489 — a player with persisted minutes played in this
+                // match even if they aren't in the (possibly empty) prep
+                // lineup / sub log, so count the appearance.
+                if ( isset( $on_pitch[ $pid ] ) || $mins > 0 ) {
                     $matches[ $pid ] = ( $matches[ $pid ] ?? 0 ) + 1;
                 }
             }
@@ -193,5 +208,34 @@ final class MinutesQuery {
         } );
 
         return $rows;
+    }
+
+    /**
+     * #1489 — per-player persisted minutes for one activity, written to
+     * tt_attendance.minutes_played by MatchExecutionRepository on finish
+     * / finalize. Excludes guests and zero / NULL minutes (only players
+     * who actually got on the pitch).
+     *
+     * @return array<int,int> player_id => minutes
+     */
+    private static function persistedMinutes( int $activity_id, int $club_id ): array {
+        global $wpdb;
+        $p = $wpdb->prefix;
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT player_id, minutes_played
+               FROM {$p}tt_attendance
+              WHERE activity_id = %d
+                AND club_id = %d
+                AND is_guest = 0
+                AND minutes_played IS NOT NULL
+                AND minutes_played > 0",
+            $activity_id, $club_id
+        ) );
+        $map = [];
+        foreach ( (array) $rows as $r ) {
+            $pid = (int) $r->player_id;
+            if ( $pid > 0 ) $map[ $pid ] = (int) $r->minutes_played;
+        }
+        return $map;
     }
 }
