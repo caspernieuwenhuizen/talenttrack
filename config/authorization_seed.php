@@ -115,6 +115,11 @@ return array_merge(
         'my_profile'              => [ 'rc',  'self',   $mod_players ],
         'my_team'                 => [ 'r',   'self',   $mod_teams ],
         'my_evaluations'          => [ 'r',   'self',   $mod_evals ],
+        // #1482 — tile-visibility entity for the Me-group "My evaluations"
+        // tile, distinct from the `my_evaluations` data entity (which AC /
+        // HC also hold at self scope for their authored-evals feed). Keeps
+        // the player tile off a coach's dashboard under matrix-as-truth.
+        'my_evaluations_panel'    => [ 'r',   'self',   $mod_evals ],
         'my_activities'           => [ 'r',   'self',   $mod_activities ],
         'my_goals'                => [ 'r',   'self',   $mod_goals ],
         'my_journey'              => [ 'r',   'self',   $mod_journey ],
@@ -146,6 +151,9 @@ return array_merge(
         'my_profile'              => [ 'rc',  'self',   $mod_players ],
         'my_team'                 => [ 'r',   'player', $mod_teams ],
         'my_evaluations'          => [ 'r',   'player', $mod_evals ],
+        // #1482 — see player block: parent reads the child's "My
+        // evaluations" tile via this dedicated tile-visibility entity.
+        'my_evaluations_panel'    => [ 'r',   'player', $mod_evals ],
         'my_activities'           => [ 'r',   'player', $mod_activities ],
         'my_goals'                => [ 'r',   'player', $mod_goals ],
         'my_journey'              => [ 'r',   'player', $mod_journey ],
