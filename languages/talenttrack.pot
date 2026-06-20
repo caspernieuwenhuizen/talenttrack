@@ -32682,3 +32682,72 @@ msgstr ""
 msgid "See which features are switched on"
 msgstr ""
 
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Date notation"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "First day of the week"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Monday"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Sunday"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Timezone"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Save general settings"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Date notation, first day of the week, timezone and locale for the whole academy."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "How dates are written across TalentTrack. Example with today’s date:"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "The day the team planner week grid starts on."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Default language for date and number formatting. Only installed languages are listed."
+msgstr ""
+
+#: src/Shared/Dates/TTDate.php
+msgid "System default (WordPress setting)"
+msgstr ""
+
+#: src/Shared/Dates/TTDate.php
+msgid "Day-Month-Year — 31-12-2026"
+msgstr ""
+
+#: src/Shared/Dates/TTDate.php
+msgid "Day/Month/Year — 31/12/2026"
+msgstr ""
+
+#: src/Shared/Dates/TTDate.php
+msgid "Day.Month.Year — 31.12.2026"
+msgstr ""
+
+#: src/Shared/Dates/TTDate.php
+msgid "Month/Day/Year — 12/31/2026"
+msgstr ""
+
+#: src/Shared/Dates/TTDate.php
+msgid "ISO — 2026-12-31"
+msgstr ""
+
+#: src/Shared/Dates/TTDate.php
+msgid "Long — 31 December 2026"
+msgstr ""
+

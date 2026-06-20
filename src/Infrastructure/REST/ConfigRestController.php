@@ -69,6 +69,13 @@ class ConfigRestController {
         'persona_dashboard.player.enabled',
         'persona_dashboard.parent.enabled',
         'persona_dashboard.readonly_observer.enabled',
+        // #1481 — General settings (academy-wide basics). Un-mapped in
+        // KEY_AREA_MAP, so they resolve to the tt_edit_settings umbrella
+        // cap (admins / club admins).
+        'tt_date_format',
+        'tt_week_start',
+        'tt_timezone',
+        'tt_locale',
     ];
 
     /**

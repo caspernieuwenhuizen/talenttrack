@@ -36954,6 +36954,74 @@ msgstr "Welke onderdelen van TalentTrack aanstaan voor jouw academie. Dit is een
 msgid "See which features are switched on"
 msgstr "Bekijk welke functies aanstaan"
 
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Date notation"
+msgstr "Datumnotatie"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "First day of the week"
+msgstr "Eerste dag van de week"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Monday"
+msgstr "Maandag"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Sunday"
+msgstr "Zondag"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Timezone"
+msgstr "Tijdzone"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Save general settings"
+msgstr "Algemene instellingen opslaan"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Date notation, first day of the week, timezone and locale for the whole academy."
+msgstr "Datumnotatie, eerste dag van de week, tijdzone en locale voor de hele academie."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "How dates are written across TalentTrack. Example with today’s date:"
+msgstr "Hoe datums in heel TalentTrack worden geschreven. Voorbeeld met de datum van vandaag:"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "The day the team planner week grid starts on."
+msgstr "De dag waarop het weekraster van de teamplanner begint."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Default language for date and number formatting. Only installed languages are listed."
+msgstr "Standaardtaal voor datum- en getalnotatie. Alleen geïnstalleerde talen worden getoond."
+
+#: src/Shared/Dates/TTDate.php
+msgid "System default (WordPress setting)"
+msgstr "Systeemstandaard (WordPress-instelling)"
+
+#: src/Shared/Dates/TTDate.php
+msgid "Day-Month-Year — 31-12-2026"
+msgstr "Dag-Maand-Jaar — 31-12-2026"
+
+#: src/Shared/Dates/TTDate.php
+msgid "Day/Month/Year — 31/12/2026"
+msgstr "Dag/Maand/Jaar — 31/12/2026"
+
+#: src/Shared/Dates/TTDate.php
+msgid "Day.Month.Year — 31.12.2026"
+msgstr "Dag.Maand.Jaar — 31.12.2026"
+
+#: src/Shared/Dates/TTDate.php
+msgid "Month/Day/Year — 12/31/2026"
+msgstr "Maand/Dag/Jaar — 12/31/2026"
+
+#: src/Shared/Dates/TTDate.php
+msgid "ISO — 2026-12-31"
+msgstr "ISO — 2026-12-31"
+
+#: src/Shared/Dates/TTDate.php
+msgid "Long — 31 December 2026"
+msgstr "Lang — 31 December 2026"
+
 #~ msgid "Evaluations / coach"
 #~ msgstr "Evaluaties per coach"
 
