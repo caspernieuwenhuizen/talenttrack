@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.26.19
+Stable tag: 4.26.20
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.26.20 — Export view: collapsible per-export blocks grouped by domain (closes #1542). The Exports surface rendered all 14 bulk exporters with their filter forms fully expanded at once — cluttered and hard to scan. Each exporter is now a collapsed native `<details>` block whose summary shows the title + a format badge per supported output (CSV / XLSX / PDF / ICS / JSON / ZIP); expanding reveals the filters, format toggle and Export button. The exporters are grouped into six purpose-based sections (Squad & players, Activities & attendance, Evaluations, Goals, Reports & people, Admin & compliance), each auto-hiding when the user has no permitted exporter in it. Pure presentation change — the per-card cap filtering, format chips, column picker, nonce and `ExportService` dispatch are all unchanged. Keyboard- and screen-reader-accessible (real `<summary>` disclosures); 360px clean. New docs/exports.md (EN+NL); Dutch strings for the section labels. Patch bump. (closes #1542) =
 
 = 4.26.19 — Wizard review steps: standard two-column table for Blueprint / Player / Team (closes #1526). Three create-wizard Review steps still rendered a plain `<dl class="tt-wizard-review">` bulleted list instead of the canonical `<table class="tt-table tt-wizard-review-table">` the Activity, Prospect and VCT wizards use. Converted all three (Team Blueprint, Player, Team) to the standard table markup wrapped in `tt-table-wrap` — same label→value rows, now a clean two-column table that wraps gracefully at 360px. No `<dl class="tt-wizard-review">` remains in any wizard Review step; labels/values unchanged. Patch bump. (closes #1526) =
 

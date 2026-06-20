@@ -274,3 +274,52 @@
     margin: 0;
     flex: 0 0 auto;
 }
+
+/* #1542 — exporters as collapsed accordion blocks grouped by domain.
+   Each card is a native <details>; the summary is the collapsed header
+   (title + format badges), the body holds the filters + Export button. */
+.tt-export-section {
+    margin: 22px 0 10px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #6b7280;
+}
+.tt-export-card {
+    position: static;
+    display: block;
+    min-height: 0;
+    padding: 0;
+    overflow: hidden;
+}
+.tt-export-card__summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 14px 16px;
+    min-height: 48px;
+    cursor: pointer;
+    list-style: none;
+}
+.tt-export-card__summary::-webkit-details-marker { display: none; }
+.tt-export-card__summary:focus-visible {
+    outline: 2px solid #0b3d2e;
+    outline-offset: -2px;
+}
+.tt-export-card__badges {
+    display: inline-flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+/* Format chips ride inline in the summary, not absolutely positioned. */
+.tt-export-card__summary .tt-export-card__format {
+    position: static;
+    top: auto;
+    right: auto;
+    font-size: 11px;
+}
+.tt-export-card__desc { padding: 0 16px; }
+.tt-export-card__form { padding: 0 16px 14px; }
