@@ -3,10 +3,9 @@ namespace TT\Modules\Vct\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
-use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Pdp\Repositories\SeasonsRepository;
 use TT\Modules\Vct\Repositories\VctAgeProfilesRepository;
 use TT\Modules\Vct\Repositories\VctMacroBlocksRepository;
 use TT\Modules\Vct\Repositories\VctTeamSchedulesRepository;
@@ -14,19 +13,28 @@ use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\FrontendViewBase;
 
 /**
- * FrontendVctConfigView (#0095 VCT-12 / #952).
+ * FrontendVctConfigView (#0095 VCT-12 / #952, overhauled in #1546).
  *
- * VCT configuration tile at ?tt_view=vct-config with three sub-tabs:
+ * Single "VCT configuration" tile at ?tt_view=vct-config with three
+ * sub-tabs:
  *
  *   ?tab=blocks       — macro-block calendar editor (season periodization)
  *   ?tab=age-profiles — per-age intensity ceiling + envelope tuning
  *   ?tab=schedules    — per-team weekly training-day preferences
  *
+ * Season + team are dropdowns (no raw ID typing); the season select
+ * auto-loads on change. Macro-blocks are edited with a structured
+ * label + date-range repeater (add / remove / reorder) that saves
+ * through `PUT /vct/macro-blocks`, so the WordPress render and a
+ * future SaaS front end share the same validated write path
+ * (CLAUDE.md §4). Per-block phase profiles have an advanced JSON
+ * fallback so the common case (label + dates) stays friendly.
+ *
  * All three are settings sub-forms; Save+Cancel exempt per
  * CLAUDE.md §6 (a). Cap: tt_vct_admin_library (HoD/admin only).
  *
- * Form POSTs route back to the same view via the standard
- * shortcode dispatch; handlers call the repos directly.
+ * The age-profile + schedule forms POST back to the same view via the
+ * standard shortcode dispatch; handlers call the repos directly.
  */
 class FrontendVctConfigView extends FrontendViewBase {
 
@@ -40,6 +48,10 @@ class FrontendVctConfigView extends FrontendViewBase {
 
         if ( $_SERVER['REQUEST_METHOD'] === 'POST' ) {
             self::handlePost();
+        }
+
+        if ( defined( 'TT_PLUGIN_URL' ) && defined( 'TT_VERSION' ) ) {
+            wp_enqueue_style( 'tt-vct-config', TT_PLUGIN_URL . 'assets/css/frontend-vct-config.css', [], TT_VERSION );
         }
 
         $tab = isset( $_GET['tab'] ) ? sanitize_key( (string) $_GET['tab'] ) : 'blocks';
@@ -60,98 +72,215 @@ class FrontendVctConfigView extends FrontendViewBase {
 
     private static function renderTabBar( string $current ): void {
         $tabs = [
-            'blocks'       => __( 'Macro-blocks',       'talenttrack' ),
-            'age-profiles' => __( 'Age profiles',       'talenttrack' ),
-            'schedules'    => __( 'Team schedules',     'talenttrack' ),
+            'blocks'       => __( 'Macro-blocks',   'talenttrack' ),
+            'age-profiles' => __( 'Age profiles',   'talenttrack' ),
+            'schedules'    => __( 'Team schedules', 'talenttrack' ),
         ];
-        echo '<div class="tt-vct-config-tabs" style="display:flex;gap:6px;margin:8px 0 16px;border-bottom:1px solid #ddd;">';
+        echo '<nav class="tt-vct-config-tabs" aria-label="' . esc_attr__( 'VCT configuration sections', 'talenttrack' ) . '">';
         foreach ( $tabs as $slug => $label ) {
             $active = $slug === $current;
             $href = add_query_arg( [ 'tab' => $slug ] );
-            echo '<a href="' . esc_url( $href ) . '" style="padding:8px 14px;text-decoration:none;border-bottom:3px solid '
-                . ( $active ? '#0b3d2e' : 'transparent' ) . ';color:' . ( $active ? '#0b3d2e;font-weight:600' : '#555' ) . ';">'
-                . esc_html( $label )
-                . '</a>';
+            echo '<a class="tt-vct-config-tab' . ( $active ? ' is-active' : '' ) . '"'
+                . ( $active ? ' aria-current="page"' : '' )
+                . ' href="' . esc_url( $href ) . '">' . esc_html( $label ) . '</a>';
         }
+        echo '</nav>';
+    }
+
+    /**
+     * Render a season `<select>` that submits its enclosing GET form on
+     * change (auto-load). Defaults to the active season. Returns the
+     * resolved season id (the requested one, the active one, or the
+     * newest) and the season list so the caller can reuse it.
+     *
+     * @param object[] $seasons
+     */
+    private static function renderSeasonSelect( array $seasons, int $selected, string $label ): void {
+        echo '<div class="tt-field">';
+        echo '<label class="tt-field-label" for="tt-vct-season">' . esc_html( $label ) . '</label>';
+        echo '<select id="tt-vct-season" class="tt-input" name="season_id" data-tt-vct-autoload>';
+        foreach ( $seasons as $s ) {
+            $is_current = (int) $s->is_current === 1;
+            $name = (string) $s->name;
+            if ( $is_current ) {
+                $name .= ' — ' . __( 'current', 'talenttrack' );
+            }
+            echo '<option value="' . esc_attr( (string) (int) $s->id ) . '" ' . selected( $selected, (int) $s->id, false ) . '>'
+                . esc_html( $name ) . '</option>';
+        }
+        echo '</select>';
         echo '</div>';
+    }
+
+    private static function noSeasonsNotice(): void {
+        $seasons_url = add_query_arg( [ 'tt_view' => 'seasons' ], remove_query_arg( [ 'tt_view', 'tab' ] ) );
+        echo '<p class="tt-notice">'
+            . esc_html__( 'No seasons configured yet. Add a season under Configuration → Seasons first, then come back here.', 'talenttrack' )
+            . ' <a href="' . esc_url( $seasons_url ) . '">' . esc_html__( 'Manage seasons', 'talenttrack' ) . '</a>'
+            . '</p>';
     }
 
     // ── BLOCKS ───────────────────────────────────────────────────────
 
     private static function renderBlocksTab(): void {
-        $repo = new VctMacroBlocksRepository();
-        $references = $repo->listReferenceTemplates();
-
-        $season_id = isset( $_GET['season_id'] ) ? absint( $_GET['season_id'] ) : 0;
-        $team_id   = isset( $_GET['team_id'] )   ? absint( $_GET['team_id'] )   : 0;
-
-        echo '<p>' . esc_html__( 'Define the macro-block calendar for a season. `team_id = 0` is the club-wide default; non-zero is a per-team override.', 'talenttrack' ) . '</p>';
-
-        // Picker.
-        echo '<form method="GET" action="" style="display:flex;gap:8px;align-items:end;margin:0 0 16px;">';
-        echo '<input type="hidden" name="tt_view" value="vct-config">';
-        echo '<input type="hidden" name="tab"     value="blocks">';
-        echo '<label><span>' . esc_html__( 'Season ID', 'talenttrack' ) . '</span><input type="number" inputmode="numeric" name="season_id" min="1" value="' . esc_attr( (string) $season_id ) . '"></label>';
-        echo '<label><span>' . esc_html__( 'Team ID (0 = club default)', 'talenttrack' ) . '</span><input type="number" inputmode="numeric" name="team_id" min="0" value="' . esc_attr( (string) $team_id ) . '"></label>';
-        echo '<button type="submit" class="tt-btn tt-btn-secondary">' . esc_html__( 'Load', 'talenttrack' ) . '</button>';
-        echo '</form>';
-
-        // Reference templates.
-        if ( $references ) {
-            echo '<h3 style="margin-top:24px;font-size:14px;">' . esc_html__( 'Reference phase profiles', 'talenttrack' ) . '</h3>';
-            echo '<ul style="margin:0 0 16px;padding-left:18px;font-size:13px;">';
-            foreach ( $references as $r ) {
-                $weeks = is_array( $r['phase_profile'] ) ? count( $r['phase_profile'] ) : 0;
-                echo '<li>' . esc_html( (string) $r['label'] )
-                    . ' — ' . esc_html( sprintf(
-                        /* translators: %d is the week count */
-                        __( '%d-week profile', 'talenttrack' ),
-                        $weeks
-                    ) )
-                    . '</li>';
-            }
-            echo '</ul>';
-        }
-
-        if ( $season_id <= 0 ) {
-            echo '<p class="tt-empty">' . esc_html__( 'Enter a Season ID to load or edit its macro-blocks.', 'talenttrack' ) . '</p>';
+        $seasons = ( new SeasonsRepository() )->all();
+        if ( empty( $seasons ) ) {
+            echo '<p>' . esc_html__( 'Define the macro-block calendar for a season. The club default applies to every team; pick a team to set an override.', 'talenttrack' ) . '</p>';
+            self::noSeasonsNotice();
             return;
         }
 
-        $blocks = $repo->listForSeason( $team_id, $season_id );
+        $current = ( new SeasonsRepository() )->current();
+        $default_season = $current ? (int) $current->id : (int) $seasons[0]->id;
+        $season_id = isset( $_GET['season_id'] ) ? absint( $_GET['season_id'] ) : $default_season;
+        if ( $season_id <= 0 ) $season_id = $default_season;
+        $team_id = isset( $_GET['team_id'] ) ? absint( $_GET['team_id'] ) : 0;
 
-        if ( $blocks ) {
-            echo '<h3 style="margin-top:24px;font-size:14px;">' . esc_html(
-                sprintf(
-                    /* translators: 1: season id, 2: team id */
-                    __( 'Current blocks for season %1$d / team %2$d', 'talenttrack' ),
-                    $season_id, $team_id
-                )
-            ) . '</h3>';
-            echo '<table class="tt-table"><thead><tr><th>#</th><th>' . esc_html__( 'Label', 'talenttrack' ) . '</th><th>' . esc_html__( 'Start', 'talenttrack' ) . '</th><th>' . esc_html__( 'End', 'talenttrack' ) . '</th><th>' . esc_html__( 'Weeks', 'talenttrack' ) . '</th></tr></thead><tbody>';
-            foreach ( $blocks as $b ) {
-                $weeks = is_array( $b['phase_profile'] ) ? count( $b['phase_profile'] ) : 0;
-                echo '<tr><td>' . esc_html( (string) $b['sequence'] ) . '</td><td>' . esc_html( (string) $b['label'] ) . '</td><td>' . esc_html( (string) $b['start_date'] ) . '</td><td>' . esc_html( (string) $b['end_date'] ) . '</td><td>' . esc_html( (string) $weeks ) . '</td></tr>';
+        $repo       = new VctMacroBlocksRepository();
+        $references = $repo->listReferenceTemplates();
+        $teams      = QueryHelpers::get_teams();
+
+        echo '<p>' . esc_html__( 'Define the macro-block calendar for a season. The club default applies to every team; pick a team to set an override just for them.', 'talenttrack' ) . '</p>';
+
+        // Season + team pickers — auto-load on change (no Load button).
+        echo '<form method="GET" action="" class="tt-vct-picker">';
+        echo '<input type="hidden" name="tt_view" value="vct-config">';
+        echo '<input type="hidden" name="tab"     value="blocks">';
+        self::renderSeasonSelect( $seasons, $season_id, __( 'Season', 'talenttrack' ) );
+
+        echo '<div class="tt-field">';
+        echo '<label class="tt-field-label" for="tt-vct-team">' . esc_html__( 'Team', 'talenttrack' ) . '</label>';
+        echo '<select id="tt-vct-team" class="tt-input" name="team_id" data-tt-vct-autoload>';
+        echo '<option value="0" ' . selected( $team_id, 0, false ) . '>' . esc_html__( 'Club default (all teams)', 'talenttrack' ) . '</option>';
+        foreach ( $teams as $t ) {
+            $tname = (string) $t->name;
+            if ( ! empty( $t->age_group ) ) {
+                $tname .= ' (' . (string) $t->age_group . ')';
+            }
+            echo '<option value="' . esc_attr( (string) (int) $t->id ) . '" ' . selected( $team_id, (int) $t->id, false ) . '>'
+                . esc_html( $tname ) . '</option>';
+        }
+        echo '</select>';
+        echo '</div>';
+        // No-JS fallback so the pickers still load without the auto-submit script.
+        echo '<noscript><button type="submit" class="tt-btn tt-btn-secondary">' . esc_html__( 'Load', 'talenttrack' ) . '</button></noscript>';
+        echo '</form>';
+
+        // Reference templates (read-only) in the shared table.
+        if ( $references ) {
+            echo '<h3 class="tt-vct-section-title">' . esc_html__( 'Reference phase profiles', 'talenttrack' ) . '</h3>';
+            echo '<table class="tt-table"><thead><tr><th>' . esc_html__( 'Template', 'talenttrack' ) . '</th><th>' . esc_html__( 'Weeks', 'talenttrack' ) . '</th></tr></thead><tbody>';
+            foreach ( $references as $r ) {
+                $weeks = is_array( $r['phase_profile'] ) ? count( $r['phase_profile'] ) : 0;
+                echo '<tr><td>' . esc_html( (string) $r['label'] ) . '</td><td>' . esc_html( (string) $weeks ) . '</td></tr>';
             }
             echo '</tbody></table>';
-        } else {
-            echo '<p class="tt-empty">' . esc_html__( 'No macro-blocks configured for this season/team yet.', 'talenttrack' ) . '</p>';
         }
 
-        // Bulk JSON replace form (v1 power-user form; richer UI in Phase 2).
-        echo '<details style="margin-top:24px;padding:12px;background:#f5f5f5;border-radius:8px;">';
-        echo '<summary style="cursor:pointer;font-weight:600;">' . esc_html__( 'Replace block set (paste JSON)', 'talenttrack' ) . '</summary>';
-        echo '<form method="POST" action="" style="margin-top:12px;">';
-        wp_nonce_field( 'tt_vct_cfg_blocks_save', '_tt_vct_cfg_nonce' );
-        echo '<input type="hidden" name="_tt_action" value="save_blocks">';
-        echo '<input type="hidden" name="season_id"  value="' . esc_attr( (string) $season_id ) . '">';
-        echo '<input type="hidden" name="team_id"    value="' . esc_attr( (string) $team_id ) . '">';
-        echo '<label style="display:block;"><span>' . esc_html__( 'Blocks JSON array', 'talenttrack' ) . '</span>'
-            . '<textarea name="blocks_json" rows="10" style="width:100%;font-family:monospace;font-size:12px;" placeholder=\'[{"sequence":1,"label":"Block 1","start_date":"2026-08-01","end_date":"2026-09-12","phase_profile":[{"week":1,"phase":"introductie","multiplier":0.85}]}]\'></textarea>'
-            . '</label>';
-        echo '<p class="description">' . esc_html__( 'Each block: { sequence, label, start_date, end_date, phase_profile: [{week, phase, multiplier}] }. Server validates contiguous sequences, no overlaps, valid YYYY-MM-DD.', 'talenttrack' ) . '</p>';
-        echo '<button type="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Replace block set', 'talenttrack' ) . '</button>';
-        echo '</form></details>';
+        // Structured editor — hydrated + saved by frontend-vct-config.js.
+        $blocks = $repo->listForSeason( $team_id, $season_id );
+        // When viewing a team that has no own override, listForSeason
+        // returns the club-default rows too (team_id DESC). For editing a
+        // team override we only want its own rows; the club default is
+        // edited via the "Club default" option. Filter to the picked scope.
+        $own = [];
+        foreach ( $blocks as $b ) {
+            $own[] = [
+                'sequence'      => (int) $b['sequence'],
+                'label'         => (string) $b['label'],
+                'start_date'    => (string) $b['start_date'],
+                'end_date'      => (string) $b['end_date'],
+                'phase_profile' => is_array( $b['phase_profile'] ) ? $b['phase_profile'] : [],
+            ];
+        }
+
+        $payload = [
+            'season_id' => $season_id,
+            'team_id'   => $team_id,
+            'blocks'    => $own,
+        ];
+
+        $scope_label = $team_id === 0
+            ? __( 'Club default', 'talenttrack' )
+            : self::teamName( $teams, $team_id );
+
+        echo '<h3 class="tt-vct-section-title">' . esc_html( sprintf(
+            /* translators: %s = the scope being edited (a team name or "Club default") */
+            __( 'Macro-blocks — %s', 'talenttrack' ),
+            $scope_label
+        ) ) . '</h3>';
+
+        echo '<form id="tt-vct-blocks-form" class="tt-vct-blocks" novalidate>';
+        echo '<div class="tt-vct-blocks-rows" data-tt-vct-rows></div>';
+        echo '<div class="tt-vct-blocks-actions">';
+        echo '<button type="button" class="tt-btn tt-btn-secondary" data-tt-vct-add>' . esc_html__( 'Add block', 'talenttrack' ) . '</button>';
+        echo '</div>';
+        echo '<div class="tt-vct-blocks-messages" data-tt-vct-messages role="status" aria-live="polite"></div>';
+        echo '<div class="tt-form-actions">';
+        echo '<button type="submit" class="tt-btn tt-btn-primary" data-tt-vct-save>' . esc_html__( 'Save block set', 'talenttrack' ) . '</button>';
+        echo '<span class="tt-form-msg" data-tt-vct-msg></span>';
+        echo '</div>';
+        echo '</form>';
+
+        echo '<script type="application/json" data-tt-vct-blocks-payload>'
+            . wp_json_encode( $payload ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — JSON in a script type=application/json block is safe
+            . '</script>';
+
+        self::enqueueBlocksEditor();
+    }
+
+    /** @param object[] $teams */
+    private static function teamName( array $teams, int $team_id ): string {
+        foreach ( $teams as $t ) {
+            if ( (int) $t->id === $team_id ) {
+                $name = (string) $t->name;
+                if ( ! empty( $t->age_group ) ) {
+                    $name .= ' (' . (string) $t->age_group . ')';
+                }
+                return $name;
+            }
+        }
+        /* translators: %d = team id for a team no longer in the list */
+        return sprintf( __( 'Team #%d', 'talenttrack' ), $team_id );
+    }
+
+    private static function enqueueBlocksEditor(): void {
+        if ( ! defined( 'TT_PLUGIN_URL' ) || ! defined( 'TT_VERSION' ) ) return;
+
+        // Season/team auto-load + structured block repeater.
+        wp_enqueue_script( 'tt-vct-config', TT_PLUGIN_URL . 'assets/js/frontend-vct-config.js', [], TT_VERSION, true );
+        wp_localize_script( 'tt-vct-config', 'TT_VCT_CONFIG', [
+            'rest_root' => esc_url_raw( rest_url( 'talenttrack/v1' ) ),
+            'nonce'     => wp_create_nonce( 'wp_rest' ),
+            'i18n'      => [
+                /* translators: %d = block number, 1-indexed */
+                'block_label'    => __( 'Block %d', 'talenttrack' ),
+                'name'           => __( 'Name', 'talenttrack' ),
+                'from'           => __( 'From', 'talenttrack' ),
+                'to'             => __( 'To', 'talenttrack' ),
+                'remove'         => __( 'Remove', 'talenttrack' ),
+                'move_up'        => __( 'Move up', 'talenttrack' ),
+                'move_down'      => __( 'Move down', 'talenttrack' ),
+                'advanced'       => __( 'Advanced: weekly phase profile (JSON)', 'talenttrack' ),
+                'phase_hint'     => __( 'Optional. Array of { week, phase, multiplier } objects. Leave blank for the default profile.', 'talenttrack' ),
+                'name_ph'        => __( 'e.g. Build-up block', 'talenttrack' ),
+                'saving'         => __( 'Saving…', 'talenttrack' ),
+                'saved'          => __( 'Block set saved.', 'talenttrack' ),
+                'save_failed'    => __( 'Could not save. Try again.', 'talenttrack' ),
+                'empty'          => __( 'No macro-blocks yet. Add the first block to start the season calendar.', 'talenttrack' ),
+                'need_one'       => __( 'Add at least one block before saving.', 'talenttrack' ),
+                'bad_json'       => __( 'The advanced phase profile for block %d is not valid JSON.', 'talenttrack' ),
+                /* translators: %d = block number */
+                'err_no_name'    => __( 'Block %d needs a name.', 'talenttrack' ),
+                /* translators: %d = block number */
+                'err_no_dates'   => __( 'Block %d needs a start and end date.', 'talenttrack' ),
+                /* translators: %d = block number */
+                'err_end_before' => __( 'Block %d ends before it starts.', 'talenttrack' ),
+                /* translators: 1: block A number, 2: block B number */
+                'err_overlap'    => __( 'Block %1$d overlaps with block %2$d.', 'talenttrack' ),
+                'msg_ok'         => __( 'Looks good — no overlaps, all dates valid.', 'talenttrack' ),
+            ],
+        ] );
     }
 
     // ── AGE PROFILES ─────────────────────────────────────────────────
@@ -159,9 +288,9 @@ class FrontendVctConfigView extends FrontendViewBase {
     private static function renderAgeProfilesTab(): void {
         $profiles = ( new VctAgeProfilesRepository() )->listAll();
         if ( ! $profiles ) {
-            echo '<div class="tt-notice tt-notice--info" style="padding:12px 16px;">';
-            echo '<p style="margin:0 0 6px;"><strong>' . esc_html__( 'No age profiles are set up yet.', 'talenttrack' ) . '</strong></p>';
-            echo '<p style="margin:0;">' . esc_html__( 'Age profiles cap how long and how intensely each team can train safely, by age group. Until they exist, the VCT planner can\'t build a training. Ask your academy administrator to add them — they\'re part of the standard VCT setup for your club.', 'talenttrack' ) . '</p>';
+            echo '<div class="tt-notice tt-notice--info tt-vct-empty">';
+            echo '<p><strong>' . esc_html__( 'No age profiles are set up yet.', 'talenttrack' ) . '</strong></p>';
+            echo '<p>' . esc_html__( 'Age profiles cap how long and how intensely each team can train safely, by age group. Until they exist, the VCT planner can\'t build a training. Ask your academy administrator to add them — they\'re part of the standard VCT setup for your club.', 'talenttrack' ) . '</p>';
             echo '</div>';
             return;
         }
@@ -169,28 +298,34 @@ class FrontendVctConfigView extends FrontendViewBase {
         echo '<p>' . esc_html__( 'Tune the per-age workload envelope. Coaches see the resulting ceiling on the wizard\'s Duration step + the engine enforces it everywhere.', 'talenttrack' ) . '</p>';
 
         foreach ( $profiles as $p ) {
-            echo '<details style="margin:8px 0;padding:12px;background:#f9f9f9;border-radius:6px;">';
-            echo '<summary style="cursor:pointer;font-weight:600;">' . esc_html( (string) $p['age_group'] )
-                . ' — ' . esc_html( sprintf(
-                    /* translators: 1: minutes max, 2: intensity ceiling */
-                    __( '%1$d min · band %2$d', 'talenttrack' ),
-                    (int) $p['session_minutes_max'], (int) $p['intensity_band_max']
-                ) ) . '</summary>';
-            echo '<form method="POST" action="" style="margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:8px;">';
+            echo '<details class="tt-vct-accordion">';
+            echo '<summary class="tt-vct-accordion-summary">';
+            echo '<span class="tt-vct-accordion-title">' . esc_html( (string) $p['age_group'] ) . '</span>';
+            echo '<span class="tt-vct-accordion-meta">' . esc_html( sprintf(
+                /* translators: 1: minutes max, 2: intensity ceiling */
+                __( '%1$d min · band %2$d', 'talenttrack' ),
+                (int) $p['session_minutes_max'], (int) $p['intensity_band_max']
+            ) ) . '</span>';
+            echo '</summary>';
+            echo '<form method="POST" action="" class="tt-vct-form tt-vct-form-grid">';
             wp_nonce_field( 'tt_vct_cfg_age_save_' . (int) $p['id'], '_tt_vct_cfg_nonce' );
             echo '<input type="hidden" name="_tt_action" value="save_age_profile">';
             echo '<input type="hidden" name="id"         value="' . esc_attr( (string) $p['id'] ) . '">';
-            self::renderNumberInput( 'session_minutes_max',               __( 'Session minutes max',               'talenttrack' ), (int) $p['session_minutes_max'],               30, 180 );
-            self::renderNumberInput( 'intensity_band_max',                __( 'Intensity band max (1-10)',         'talenttrack' ), (int) $p['intensity_band_max'],                1, 10 );
-            self::renderNumberInput( 'min_recovery_hours_between_high',   __( 'Min recovery hours between high',   'talenttrack' ), (int) $p['min_recovery_hours_between_high'],   12, 168 );
-            self::renderNumberInput( 'growth_spurt_load_reduction_pct',   __( 'PHV load reduction %',              'talenttrack' ), (int) $p['growth_spurt_load_reduction_pct'],   0, 50 );
-            self::renderNumberInput( 'weekly_load_envelope',              __( 'Weekly load envelope',              'talenttrack' ), (int) $p['weekly_load_envelope'],              50, 10000 );
-            echo '<label><span>' . esc_html__( 'Match load multiplier per minute', 'talenttrack' ) . '</span>'
-                . '<input type="number" inputmode="decimal" step="0.1" min="0" max="20" name="match_load_multiplier_per_minute" value="' . esc_attr( (string) $p['match_load_multiplier_per_minute'] ) . '"></label>';
-            echo '<label style="grid-column:1 / -1;"><input type="checkbox" name="md_logic_enabled" value="1" ' . checked( $p['md_logic_enabled'], true, false ) . '> '
+            self::renderNumberInput( 'session_minutes_max',             __( 'Minutes per training (max)',      'talenttrack' ), (int) $p['session_minutes_max'],             30, 180 );
+            self::renderNumberInput( 'intensity_band_max',              __( 'Intensity band max (1-10)',       'talenttrack' ), (int) $p['intensity_band_max'],              1, 10 );
+            self::renderNumberInput( 'min_recovery_hours_between_high', __( 'Min recovery hours between high', 'talenttrack' ), (int) $p['min_recovery_hours_between_high'], 12, 168 );
+            self::renderNumberInput( 'growth_spurt_load_reduction_pct', __( 'PHV load reduction %',            'talenttrack' ), (int) $p['growth_spurt_load_reduction_pct'], 0, 50 );
+            self::renderNumberInput( 'weekly_load_envelope',            __( 'Weekly load envelope',            'talenttrack' ), (int) $p['weekly_load_envelope'],            50, 10000 );
+            echo '<div class="tt-field">';
+            echo '<label class="tt-field-label" for="match_load_multiplier_per_minute_' . esc_attr( (string) $p['id'] ) . '">' . esc_html__( 'Match load multiplier per minute', 'talenttrack' ) . '</label>';
+            echo '<input class="tt-input" id="match_load_multiplier_per_minute_' . esc_attr( (string) $p['id'] ) . '" type="number" inputmode="decimal" step="0.1" min="0" max="20" name="match_load_multiplier_per_minute" value="' . esc_attr( (string) $p['match_load_multiplier_per_minute'] ) . '">';
+            echo '</div>';
+            echo '<label class="tt-vct-check tt-vct-form-full"><input type="checkbox" name="md_logic_enabled" value="1" ' . checked( $p['md_logic_enabled'], true, false ) . '> '
                 . esc_html__( 'MD logic enabled (off for U10/U11 per Appendix A)', 'talenttrack' )
                 . '</label>';
-            echo '<button type="submit" class="tt-btn tt-btn-primary" style="grid-column:1 / -1;margin-top:8px;">' . esc_html__( 'Save', 'talenttrack' ) . '</button>';
+            echo '<div class="tt-form-actions tt-vct-form-full">';
+            echo '<button type="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Save', 'talenttrack' ) . '</button>';
+            echo '</div>';
             echo '</form>';
             echo '</details>';
         }
@@ -199,20 +334,29 @@ class FrontendVctConfigView extends FrontendViewBase {
     // ── SCHEDULES ────────────────────────────────────────────────────
 
     private static function renderSchedulesTab(): void {
-        $season_id = isset( $_GET['season_id'] ) ? absint( $_GET['season_id'] ) : 0;
-
+        $seasons = ( new SeasonsRepository() )->all();
         echo '<p>' . esc_html__( 'Set per-team weekly VCT training days. Drives the wizard\'s date-default to the next configured weekday.', 'talenttrack' ) . '</p>';
 
-        echo '<form method="GET" action="" style="display:flex;gap:8px;align-items:end;margin:0 0 16px;">';
+        if ( empty( $seasons ) ) {
+            self::noSeasonsNotice();
+            return;
+        }
+
+        $current = ( new SeasonsRepository() )->current();
+        $default_season = $current ? (int) $current->id : (int) $seasons[0]->id;
+        $season_id = isset( $_GET['season_id'] ) ? absint( $_GET['season_id'] ) : $default_season;
+        if ( $season_id <= 0 ) $season_id = $default_season;
+
+        echo '<form method="GET" action="" class="tt-vct-picker">';
         echo '<input type="hidden" name="tt_view" value="vct-config">';
         echo '<input type="hidden" name="tab"     value="schedules">';
-        echo '<label><span>' . esc_html__( 'Season ID', 'talenttrack' ) . '</span><input type="number" inputmode="numeric" name="season_id" min="1" value="' . esc_attr( (string) $season_id ) . '"></label>';
-        echo '<button type="submit" class="tt-btn tt-btn-secondary">' . esc_html__( 'Load', 'talenttrack' ) . '</button>';
+        self::renderSeasonSelect( $seasons, $season_id, __( 'Season', 'talenttrack' ) );
+        echo '<noscript><button type="submit" class="tt-btn tt-btn-secondary">' . esc_html__( 'Load', 'talenttrack' ) . '</button></noscript>';
         echo '</form>';
 
-        if ( $season_id <= 0 ) {
-            echo '<p class="tt-empty">' . esc_html__( 'Enter a Season ID to edit team schedules for that season.', 'talenttrack' ) . '</p>';
-            return;
+        if ( defined( 'TT_PLUGIN_URL' ) && defined( 'TT_VERSION' ) ) {
+            // Only the auto-load handler is needed here (no block editor).
+            wp_enqueue_script( 'tt-vct-config', TT_PLUGIN_URL . 'assets/js/frontend-vct-config.js', [], TT_VERSION, true );
         }
 
         $teams_repo = new VctTeamSchedulesRepository();
@@ -231,34 +375,68 @@ class FrontendVctConfigView extends FrontendViewBase {
             $start   = $row !== null ? (string) ( $row['default_start_time'] ?? '' ) : '';
             $dur     = $row !== null && $row['default_duration_minutes'] !== null ? (string) $row['default_duration_minutes'] : '';
 
-            echo '<details style="margin:6px 0;padding:12px;background:#f9f9f9;border-radius:6px;">';
-            echo '<summary style="cursor:pointer;font-weight:600;">' . esc_html( (string) $t->name )
+            echo '<details class="tt-vct-accordion">';
+            echo '<summary class="tt-vct-accordion-summary">';
+            echo '<span class="tt-vct-accordion-title">' . esc_html( (string) $t->name )
                 . ( ! empty( $t->age_group ) ? ' (' . esc_html( (string) $t->age_group ) . ')' : '' )
-                . '</summary>';
-            echo '<form method="POST" action="" style="margin-top:8px;">';
+                . '</span>';
+            if ( $bitmask > 0 ) {
+                echo '<span class="tt-vct-accordion-meta">' . esc_html( self::weekdaySummary( $weekday_labels, $bitmask ) ) . '</span>';
+            }
+            echo '</summary>';
+            echo '<form method="POST" action="" class="tt-vct-form">';
             wp_nonce_field( 'tt_vct_cfg_schedule_save_' . $team_id . '_' . $season_id, '_tt_vct_cfg_nonce' );
             echo '<input type="hidden" name="_tt_action" value="save_schedule">';
             echo '<input type="hidden" name="team_id"    value="' . esc_attr( (string) $team_id ) . '">';
             echo '<input type="hidden" name="season_id"  value="' . esc_attr( (string) $season_id ) . '">';
 
-            echo '<fieldset style="margin:8px 0;padding:8px;border:1px solid #ddd;">';
+            echo '<fieldset class="tt-vct-weekdays">';
             echo '<legend>' . esc_html__( 'Training days', 'talenttrack' ) . '</legend>';
+            echo '<div class="tt-vct-weekday-row">';
             foreach ( $weekday_labels as $bit => $label ) {
                 $checked = ( $bitmask & $bit ) === $bit ? 'checked' : '';
-                echo '<label style="display:inline-block;margin-right:10px;font-weight:normal;"><input type="checkbox" name="weekday_bits[]" value="' . esc_attr( (string) $bit ) . '" ' . $checked . '> ' . esc_html( $label ) . '</label>';
+                echo '<label class="tt-vct-weekday"><input type="checkbox" name="weekday_bits[]" value="' . esc_attr( (string) $bit ) . '" ' . $checked . '> <span>' . esc_html( $label ) . '</span></label>';
             }
+            echo '</div>';
             echo '</fieldset>';
 
-            echo '<label><span>' . esc_html__( 'Default start time', 'talenttrack' ) . '</span><input type="time" name="default_start_time" value="' . esc_attr( $start ) . '"></label>';
-            echo '<label style="margin-left:12px;"><span>' . esc_html__( 'Default duration (minutes)', 'talenttrack' ) . '</span><input type="number" inputmode="numeric" name="default_duration_minutes" min="20" max="180" step="5" value="' . esc_attr( $dur ) . '"></label>';
-            echo '<br><button type="submit" class="tt-btn tt-btn-primary" style="margin-top:8px;">' . esc_html__( 'Save schedule', 'talenttrack' ) . '</button>';
+            echo '<div class="tt-vct-form-grid">';
+            echo '<div class="tt-field">';
+            echo '<label class="tt-field-label">' . esc_html__( 'Default start time', 'talenttrack' ) . '</label>';
+            echo '<input class="tt-input" type="time" name="default_start_time" value="' . esc_attr( $start ) . '">';
+            echo '</div>';
+            echo '<div class="tt-field">';
+            echo '<label class="tt-field-label">' . esc_html__( 'Default duration (minutes)', 'talenttrack' ) . '</label>';
+            echo '<input class="tt-input" type="number" inputmode="numeric" name="default_duration_minutes" min="20" max="180" step="5" value="' . esc_attr( $dur ) . '">';
+            echo '</div>';
+            echo '</div>';
+
+            echo '<div class="tt-form-actions">';
+            echo '<button type="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Save schedule', 'talenttrack' ) . '</button>';
+            echo '</div>';
             echo '</form></details>';
         }
     }
 
+    /**
+     * Human-readable training-day summary for a schedule accordion's
+     * meta line, e.g. "Tue · Thu".
+     *
+     * @param array<int,string> $labels
+     */
+    private static function weekdaySummary( array $labels, int $bitmask ): string {
+        $out = [];
+        foreach ( $labels as $bit => $label ) {
+            if ( ( $bitmask & $bit ) === $bit ) $out[] = $label;
+        }
+        return implode( ' · ', $out );
+    }
+
     private static function renderNumberInput( string $name, string $label, int $value, int $min, int $max ): void {
-        echo '<label><span>' . esc_html( $label ) . '</span>'
-            . '<input type="number" inputmode="numeric" name="' . esc_attr( $name ) . '" min="' . esc_attr( (string) $min ) . '" max="' . esc_attr( (string) $max ) . '" value="' . esc_attr( (string) $value ) . '" required></label>';
+        echo '<div class="tt-field">';
+        echo '<label class="tt-field-label" for="' . esc_attr( $name ) . '">' . esc_html( $label ) . '</label>';
+        echo '<input class="tt-input" type="number" inputmode="numeric" id="' . esc_attr( $name ) . '" name="' . esc_attr( $name ) . '" min="' . esc_attr( (string) $min ) . '" max="' . esc_attr( (string) $max ) . '" value="' . esc_attr( (string) $value ) . '" required>';
+        echo '</div>';
     }
 
     // ── POST handlers ────────────────────────────────────────────────
@@ -266,37 +444,10 @@ class FrontendVctConfigView extends FrontendViewBase {
     private static function handlePost(): void {
         $action = isset( $_POST['_tt_action'] ) ? sanitize_key( (string) $_POST['_tt_action'] ) : '';
 
-        if ( $action === 'save_blocks' ) {
-            if ( ! wp_verify_nonce( (string) ( $_POST['_tt_vct_cfg_nonce'] ?? '' ), 'tt_vct_cfg_blocks_save' ) ) {
-                self::notice( 'error', __( 'Save failed: session expired. Please reload.', 'talenttrack' ) );
-                return;
-            }
-            $season_id = absint( $_POST['season_id'] ?? 0 );
-            $team_id   = absint( $_POST['team_id']   ?? 0 );
-            $raw       = (string) ( $_POST['blocks_json'] ?? '' );
-            $blocks    = json_decode( $raw, true );
-            if ( ! is_array( $blocks ) ) {
-                self::notice( 'error', __( 'Save failed: blocks_json is not valid JSON.', 'talenttrack' ) );
-                return;
-            }
-            $ok = ( new VctMacroBlocksRepository() )->replaceForSeason( $team_id, $season_id, $blocks );
-            self::notice(
-                $ok ? 'success' : 'error',
-                $ok
-                    ? sprintf(
-                        /* translators: %d is the block count */
-                        __( 'Replaced macro-blocks for the season (%d blocks).', 'talenttrack' ),
-                        count( $blocks )
-                    )
-                    : __( 'Save failed: database error.', 'talenttrack' )
-            );
-            return;
-        }
-
         if ( $action === 'save_age_profile' ) {
             $id = absint( $_POST['id'] ?? 0 );
             if ( ! wp_verify_nonce( (string) ( $_POST['_tt_vct_cfg_nonce'] ?? '' ), 'tt_vct_cfg_age_save_' . $id ) ) {
-                self::notice( 'error', __( 'Save failed: session expired. Please reload.', 'talenttrack' ) );
+                self::notice( 'error', __( 'Save failed: your form expired. Please reload.', 'talenttrack' ) );
                 return;
             }
             $patch = [
@@ -320,7 +471,7 @@ class FrontendVctConfigView extends FrontendViewBase {
             $team_id   = absint( $_POST['team_id']   ?? 0 );
             $season_id = absint( $_POST['season_id'] ?? 0 );
             if ( ! wp_verify_nonce( (string) ( $_POST['_tt_vct_cfg_nonce'] ?? '' ), 'tt_vct_cfg_schedule_save_' . $team_id . '_' . $season_id ) ) {
-                self::notice( 'error', __( 'Save failed: session expired. Please reload.', 'talenttrack' ) );
+                self::notice( 'error', __( 'Save failed: your form expired. Please reload.', 'talenttrack' ) );
                 return;
             }
             $bits = 0;
@@ -343,9 +494,7 @@ class FrontendVctConfigView extends FrontendViewBase {
     }
 
     private static function notice( string $variant, string $msg ): void {
-        $bg = $variant === 'error' ? '#fdecea' : ( $variant === 'success' ? '#e9f5e9' : '#fff8e1' );
-        $bar = $variant === 'error' ? '#b32d2e' : ( $variant === 'success' ? '#2c8a2c' : '#dba617' );
-        echo '<div class="tt-notice tt-notice--' . esc_attr( $variant ) . '" style="margin:8px 0 16px;padding:12px;background:' . esc_attr( $bg ) . ';border-left:4px solid ' . esc_attr( $bar ) . ';">'
+        echo '<div class="tt-notice tt-notice--' . esc_attr( $variant ) . ' tt-vct-notice">'
             . esc_html( $msg ) . '</div>';
     }
 }

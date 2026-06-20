@@ -2,65 +2,83 @@
 
 # VCT-configuratie
 
-Het Configuratie-overzicht heeft twee nieuwe tegels voor de Variable
-Coaching Templates (VCT) module — **VCT macro-blokken** en **VCT
-leeftijdsprofielen**. Beide tegels zitten achter de rechten-cap
-`tt_vct_admin_library`, dus alleen het Hoofd Opleidingen (en
-beheerders) ziet ze. Klik op een tegel om de bestaande VCT-configuratie
-te openen (`?tt_view=vct-config`) op het bijbehorende sub-tabblad.
+Het Configuratie-overzicht heeft één **VCT-configuratie**-tegel voor de
+Variabel Coachen-template (VCT) module, achter de rechten-cap
+`tt_vct_admin_library`, zodat alleen het Hoofd Opleidingen (en
+beheerders) hem ziet. De tegel opent de VCT-configuratieweergave
+(`?tt_view=vct-config`); de eigen tabbalk regelt het navigeren tussen de
+drie onderdelen.
 
-## Tegels in één oogopslag
+De tegel heeft een groene **NIEUW**-pil + accentrand
+(`.tt-cfg-tile--vct`) en een telregel die samenvat hoeveel er is
+ingesteld ("%d bloksjablonen · %d leeftijdsgroepen").
 
-| Tegel | Opent | Telregel | Waarom hier |
-| --- | --- | --- | --- |
-| **VCT macro-blokken** | `?tt_view=vct-config&tab=blocks` | "%d actief" — telt de operator-bewerkbare referentietemplates (`VctMacroBlocksRepository::listReferenceTemplates()`) | Bloktemplates die de VCT sessie-wizard gebruikt (warming-up, hoofddeel, cooldown, themablokken). Aanpassingen veranderen waarmee trainers in Stap 3 van de wizard-nieuwe-VCT-sessie starten. |
-| **VCT leeftijdsprofielen** | `?tt_view=vct-config&tab=age-profiles` | "%d leeftijdsbanden" — telt de geseede per-leeftijd-enveloppen (`VctAgeProfilesRepository::listAll()`) | Per leeftijdsband (JO8 → JO19) het belastingsplafond, max intensiteit per MD-dag, max VCT sessieduur. Bepaalt de belastingscheck van de wizard én de `WorkloadCapRule` overal waar een VCT sessie wordt samengesteld of opgeslagen. |
+## De drie tabbladen
 
-De tegels hebben een groene **NIEUW**-pil + accentkleurige rand
-(`.tt-cfg-tile--vct`), zodat hoofden opleidingen ze na de upgrade direct
-zien. De styling volgt het ontwerp uit
-`.local-mockups/vct-config-tiles/`.
+| Tabblad | Wat het doet |
+| --- | --- |
+| **Macro-blokken** | De periodiseringskalender van het seizoen — een lijst met blokken met datums (opbouw, in-season, taper, …) per seizoen, eventueel per team overschreven. |
+| **Leeftijdsprofielen** | Per leeftijdsgroep (JO8 → JO19) het belastingsplafond, de maximale intensiteit per MD-dag en de maximale trainingsduur. Voedt de belastingscheck in de wizard en de afdwinging door de engine, overal waar een VCT-training wordt samengesteld of opgeslagen. |
+| **Teamschema's** | De wekelijkse VCT-trainingsdagen per team voor een seizoen. Bepaalt de standaarddatum van de wizard op de eerstvolgende ingestelde weekdag. |
 
-## Wat valt onder deze slice
+Vóór #1546 waren er twee tegels (één voor macro-blokken en één voor
+leeftijdsprofielen) en had het tabblad Teamschema's helemaal geen tegel.
+De ene tegel maakt alle drie bereikbaar vanaf één ingang.
 
-- Twee nieuwe tegels die in `FrontendConfigurationView::renderTileGrid()`
-  inline gerenderd worden.
-- Geen schema- of REST-wijzigingen — beide bestemmings-tabbladen
-  shipten al met VCT-12 (#952). Dit issue dicht de
-  vindbaarheidskloof.
-- Rechten-gate: `tt_vct_admin_library` wordt één keer gecheckt in
-  `renderVctTiles()`. Gebruikers zonder de cap zien de rest van het
-  Configuratie-overzicht onveranderd.
+## Een seizoen en team kiezen
 
-## Wat niet in deze slice valt (open follow-ups)
+Seizoen en team zijn nu **keuzelijsten** — geen ID's meer intypen.
 
-- Telling van gearchiveerde templates op de macro-blokken-tegel
-  (bijvoorbeeld "5 actief · 2 archief"). De mockup liet de archief-UX
-  open; voor nu toont de tegel alleen het aantal actieve templates.
-- Een waarschuwingsstatus op de leeftijdsprofielen-tegel als een band
-  geen belastingsplafond heeft. Open vraag uit
-  `.local-mockups/vct-config-tiles/notes.md`.
+- **Seizoen** staat standaard op het actieve seizoen van de academie en
+  **laadt vanzelf bij wijziging**: kies een ander seizoen en de weergave
+  herlaadt ervoor. Er is geen aparte "Laden"-knop (alleen zonder
+  JavaScript verschijnt een terugvalknop). Geldt voor de tabbladen
+  Macro-blokken en Teamschema's.
+- **Team** (tabblad Macro-blokken) is een keuzelijst met bovenaan de
+  optie **Clubstandaard (alle teams)**. De clubstandaard geldt voor elk
+  team; kies een specifiek team om er alleen voor hen een uitzondering te
+  maken.
 
-Komt er pilotfeedback op één van beide, dien dan een follow-up issue in
-met verwijzing naar dit document.
+## Macro-blokken bewerken
 
-## Per-team aanvulling: VCT-standaardenpaneel (#1088)
+De blokkenset wordt bewerkt met een gestructureerde editor — één rij per
+blok, elk met een **naam**, een **startdatum** en een **einddatum**
+(eigen datumkiezers). Rijen zijn toe te voegen, te verwijderen en te
+herordenen (omhoog / omlaag). De editor markeert overlap, ontbrekende
+namen en omgekeerde datums meteen tijdens het typen.
 
-Het centrale schema-tabblad bewerkt elk team in een seizoen tegelijk.
-Het **team-detail VCT-paneel** onderaan `?tt_view=teams&id=N` bewerkt
-één team apart:
+Elk blok kan een optioneel **wekelijks faseprofiel** dragen. Voor het
+gewone geval (naam + datums) is niets extra's nodig; voor het geavanceerde
+geval accepteert een uitklapbaar onderdeel "Geavanceerd: wekelijks
+faseprofiel (JSON)" per blok een reeks `{ week, phase, multiplier }`-objecten.
 
-- Weekday-chiprij (Ma → Zo, multi-select)
-- Standaard begintijd + standaard duur
-- Slaat op via dezelfde `VctTeamSchedulesRepository::upsert()` die het
-  centrale tabblad gebruikt; beide surfaces worden gelezen door de
-  basis-stap van de nieuwe-VCT-sessie-wizard.
+Opslaan stuurt de hele blokkenset naar
+`PUT /vct/macro-blocks?season_id=N&team_id=M`, die alles aan de
+serverkant opnieuw valideert: 1–12 blokken, opeenvolgende volgnummers
+(1..N), geldige `YYYY-MM-DD`-datums, einde op/na start, geen overlappende
+periodes. De gedeelde `VctMacroBlockValidator` is de enige bron van
+waarheid, gebruikt door zowel het REST-eindpunt als andere schrijvers,
+zodat de WordPress-weergave en een toekomstige SaaS-frontend dezelfde
+antwoorden geven.
 
-Zelfde rechten-gate (`tt_vct_admin_library`), zelfde design tokens —
-de pilot kiest welk surface bij de workflow past. Trainers zonder
-bewerk-cap zien het paneel helemaal niet.
+De alleen-lezen tabel **Referentie-faseprofielen** boven de editor toont
+de meegeleverde sjabloonprofielen ter referentie.
 
-Uitgesteld vanuit de mockup: optioneel `Trainingslocatie` vrijetekstveld
-(vereist een `default_location` schema-kolom) en de live "volgende
-sessie"-preview-regel (vereist weekday + datum-rekenwerk). Follow-up
-indien pilot dit vraagt.
+## Leeftijdsprofielen en teamschema's bewerken
+
+Beide tabbladen gebruiken verzorgde `<details>`-accordeons — één per
+leeftijdsgroep / team. Elke samenvatting toont de kerngetallen (minuten +
+intensiteitsband bij een leeftijdsprofiel; de trainingsdagen bij een
+team). De formulieren erin gebruiken het gedeelde `tt-field`-raster en
+stapelen op 360px tot één kolom. Elk formulier slaat afzonderlijk op
+(instellingen-subformulieren; alleen Opslaan volgens CLAUDE.md §6 (a)).
+
+## Aanvulling per team: VCT-standaardenpaneel (#1088)
+
+Het centrale tabblad Teamschema's bewerkt alle teams in één seizoen
+tegelijk. Het **VCT-paneel op de teamdetailpagina** onderaan
+`?tt_view=teams&id=N` bewerkt één team apart (weekdag-chips, standaard
+starttijd + duur). Beide schermen slaan op via dezelfde
+`VctTeamSchedulesRepository::upsert()` en worden gelezen door de
+basisstap van de nieuwe-VCT-wizard. Zelfde rechten-cap, zelfde
+design-tokens.

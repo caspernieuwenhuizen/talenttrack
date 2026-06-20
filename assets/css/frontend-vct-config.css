@@ -1,0 +1,311 @@
+/* TalentTrack — VCT configuration tile (#1546).
+ *
+ * Mobile-first per CLAUDE.md §2: base styles target ~360px, min-width
+ * queries scale up. Touch targets >= 48px, inputs 16px (no iOS zoom),
+ * :focus-visible rings, touch-action: manipulation. Renders inside
+ * `.tt-dashboard` so the parent layout / colour variables apply.
+ */
+
+/* ── Tab bar ─────────────────────────────────────────────────────── */
+.tt-dashboard .tt-vct-config-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin: 8px 0 16px;
+    border-bottom: 1px solid #e5e7ea;
+}
+.tt-dashboard .tt-vct-config-tab {
+    display: inline-flex;
+    align-items: center;
+    min-height: 48px;
+    padding: 8px 14px;
+    text-decoration: none;
+    color: #5b6e75;
+    border-bottom: 3px solid transparent;
+    touch-action: manipulation;
+}
+.tt-dashboard .tt-vct-config-tab.is-active {
+    color: var(--tt-primary, #0b3d2e);
+    font-weight: 600;
+    border-bottom-color: var(--tt-primary, #0b3d2e);
+}
+.tt-dashboard .tt-vct-config-tab:focus-visible {
+    outline: 2px solid var(--tt-primary, #1d7874);
+    outline-offset: 2px;
+}
+
+/* ── Pickers (season / team) ─────────────────────────────────────── */
+.tt-dashboard .tt-vct-picker {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 0 0 20px;
+}
+@media (min-width: 480px) {
+    .tt-dashboard .tt-vct-picker {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: flex-end;
+    }
+    .tt-dashboard .tt-vct-picker .tt-field {
+        flex: 1 1 200px;
+        min-width: 0;
+    }
+}
+
+.tt-dashboard .tt-vct-section-title {
+    margin: 24px 0 10px;
+    font-size: 0.95rem;
+}
+
+.tt-dashboard .tt-vct-notice {
+    margin: 8px 0 16px;
+}
+.tt-dashboard .tt-vct-empty {
+    padding: 12px 16px;
+}
+
+/* ── Accordions (age profiles / schedules) ───────────────────────── */
+.tt-dashboard .tt-vct-accordion {
+    background: #fff;
+    border: 1px solid #e5e7ea;
+    border-radius: 8px;
+    margin: 0 0 10px;
+    overflow: hidden;
+}
+.tt-dashboard .tt-vct-accordion-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    min-height: 48px;
+    padding: 12px 16px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #1a1d21;
+    list-style: none;
+    touch-action: manipulation;
+}
+.tt-dashboard .tt-vct-accordion-summary::-webkit-details-marker { display: none; }
+.tt-dashboard .tt-vct-accordion-summary::after {
+    content: "\25BC";
+    font-size: 0.7em;
+    color: #5b6e75;
+    margin-left: auto;
+    transition: transform 0.15s ease;
+}
+.tt-dashboard .tt-vct-accordion[open] .tt-vct-accordion-summary::after {
+    transform: rotate(180deg);
+}
+.tt-dashboard .tt-vct-accordion-summary:focus-visible {
+    outline: 2px solid var(--tt-primary, #1d7874);
+    outline-offset: -2px;
+}
+.tt-dashboard .tt-vct-accordion-meta {
+    font-weight: 400;
+    font-size: 0.85rem;
+    color: #5b6e75;
+}
+
+/* Forms inside an accordion */
+.tt-dashboard .tt-vct-form {
+    padding: 0 16px 16px;
+}
+.tt-dashboard .tt-vct-form-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+@media (min-width: 480px) {
+    .tt-dashboard .tt-vct-form-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+.tt-dashboard .tt-vct-form-full { grid-column: 1 / -1; }
+
+.tt-dashboard .tt-vct-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 48px;
+    font-weight: 400;
+}
+.tt-dashboard .tt-vct-check input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+}
+
+/* Weekday toggles */
+.tt-dashboard .tt-vct-weekdays {
+    margin: 0 0 12px;
+    padding: 12px;
+    border: 1px solid #e5e7ea;
+    border-radius: 6px;
+}
+.tt-dashboard .tt-vct-weekdays legend {
+    padding: 0 6px;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+.tt-dashboard .tt-vct-weekday-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.tt-dashboard .tt-vct-weekday {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 48px;
+    padding: 6px 12px;
+    border: 1px solid #d6d7da;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-dashboard .tt-vct-weekday:has(input:checked) {
+    background: #e6f4f1;
+    border-color: var(--tt-primary, #1d7874);
+    color: var(--tt-primary, #1d7874);
+}
+.tt-dashboard .tt-vct-weekday:focus-within {
+    outline: 2px solid var(--tt-primary, #1d7874);
+    outline-offset: 2px;
+}
+.tt-dashboard .tt-vct-weekday input { width: 18px; height: 18px; }
+
+/* ── Structured macro-block editor ───────────────────────────────── */
+.tt-dashboard .tt-vct-blocks-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 0 0 12px;
+}
+.tt-dashboard .tt-vct-block-row {
+    background: #fff;
+    border: 1px solid #e5e7ea;
+    border-radius: 8px;
+    padding: 12px 14px;
+}
+.tt-dashboard .tt-vct-block-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+.tt-dashboard .tt-vct-block-seq {
+    font-weight: 600;
+    color: #1a1d21;
+}
+.tt-dashboard .tt-vct-block-tools {
+    display: flex;
+    gap: 6px;
+}
+.tt-dashboard .tt-btn-icon {
+    min-width: 48px;
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    line-height: 1;
+    font-size: 1.1rem;
+    background: #f4f6f7;
+    border: 1px solid #d6d7da;
+    border-radius: 6px;
+    color: #1a1d21;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-dashboard .tt-btn-icon:focus-visible {
+    outline: 2px solid var(--tt-primary, #1d7874);
+    outline-offset: 2px;
+}
+.tt-dashboard .tt-vct-remove { color: #b32d2e; }
+
+.tt-dashboard .tt-vct-block-fields {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+}
+@media (min-width: 600px) {
+    .tt-dashboard .tt-vct-block-fields {
+        grid-template-columns: 2fr 1fr 1fr;
+        align-items: end;
+    }
+    .tt-dashboard .tt-vct-block-name { grid-column: auto; }
+}
+.tt-dashboard .tt-vct-block-fields .tt-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 0;
+}
+.tt-dashboard .tt-vct-block-fields input {
+    min-height: 48px;
+    font-size: 16px; /* iOS no-zoom */
+}
+
+.tt-dashboard .tt-vct-block-advanced {
+    margin-top: 10px;
+    border-top: 1px dashed #e5e7ea;
+    padding-top: 8px;
+}
+.tt-dashboard .tt-vct-block-advanced summary {
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: #5b6e75;
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+    touch-action: manipulation;
+}
+.tt-dashboard .tt-vct-block-advanced summary:focus-visible {
+    outline: 2px solid var(--tt-primary, #1d7874);
+    outline-offset: 2px;
+}
+.tt-dashboard .tt-vct-phase {
+    width: 100%;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 13px;
+    box-sizing: border-box;
+    margin-top: 6px;
+}
+.tt-dashboard .tt-field-hint {
+    margin: 6px 0 0;
+    font-size: 0.8rem;
+    color: #5b6e75;
+}
+
+.tt-dashboard .tt-vct-blocks-actions {
+    margin: 0 0 12px;
+}
+
+.tt-dashboard .tt-vct-blocks-messages {
+    margin: 0 0 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.tt-dashboard .tt-vct-msg {
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.88rem;
+}
+.tt-dashboard .tt-vct-msg-ok {
+    background: #e9f5e9;
+    border-left: 4px solid #2c8a2c;
+    color: #1f5e1f;
+}
+.tt-dashboard .tt-vct-msg-error {
+    background: #fdecea;
+    border-left: 4px solid #b32d2e;
+    color: #842029;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tt-dashboard .tt-vct-accordion-summary::after { transition: none; }
+}

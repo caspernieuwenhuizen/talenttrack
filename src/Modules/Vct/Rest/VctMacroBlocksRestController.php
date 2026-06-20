@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\REST\RestResponse;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Modules\Vct\Repositories\VctMacroBlocksRepository;
+use TT\Modules\Vct\Validation\VctMacroBlockValidator;
 
 /**
  * VctMacroBlocksRestController — periodization calendar.
@@ -66,12 +67,12 @@ class VctMacroBlocksRestController {
      *   { season_id, team_id (0=club default), blocks: [{sequence,
      *     label, start_date, end_date, phase_profile: [...]}, ...] }
      *
-     * Server-side validation mirrors PdpBlocksRestController: contiguous
-     * sequences 1..N, valid dates, end >= start, no overlaps. Spec also
-     * asks for season-boundary validation; without a Seasons module
-     * dependency in the VCT module we settle for date sanity here and
-     * trust the caller (the config tile loads the season's start/end
-     * client-side and clamps the form inputs).
+     * Server-side validation lives in the shared VctMacroBlockValidator
+     * (so the config tile and any future SaaS writer share one rule set):
+     * contiguous sequences 1..N, valid dates, end >= start, no overlaps.
+     * Spec also asks for season-boundary validation; without a Seasons
+     * module dependency in the VCT module we settle for date sanity here
+     * and trust the caller.
      */
     public static function replace( \WP_REST_Request $r ): \WP_REST_Response {
         $season_id = (int) ( $r->get_param( 'season_id' ) ?? 0 );
@@ -87,19 +88,9 @@ class VctMacroBlocksRestController {
                 400 );
         }
 
-        $blocks = [];
-        foreach ( $raw as $entry ) {
-            if ( ! is_array( $entry ) ) continue;
-            $blocks[] = [
-                'sequence'      => (int)    ( $entry['sequence']   ?? 0 ),
-                'label'         => sanitize_text_field( (string) ( $entry['label']      ?? '' ) ),
-                'start_date'    => trim( (string) ( $entry['start_date'] ?? '' ) ),
-                'end_date'      => trim( (string) ( $entry['end_date']   ?? '' ) ),
-                'phase_profile' => is_array( $entry['phase_profile'] ?? null ) ? $entry['phase_profile'] : [],
-            ];
-        }
+        $blocks = VctMacroBlockValidator::normalise( $raw );
 
-        $err = self::validate( $blocks );
+        $err = VctMacroBlockValidator::validate( $blocks );
         if ( $err !== null ) {
             return RestResponse::error( 'invalid_blocks', $err, 400 );
         }
@@ -115,56 +106,5 @@ class VctMacroBlocksRestController {
             'team_id'   => $team_id,
             'count'     => count( $blocks ),
         ] );
-    }
-
-    /**
-     * Server-side validation mirroring PdpBlocksRestController::
-     * validate(). Returns null on success, or a localised error
-     * message describing the first failure.
-     *
-     * @param list<array{sequence:int,label:string,start_date:string,end_date:string,phase_profile:array<int,mixed>}> $blocks
-     */
-    private static function validate( array $blocks ): ?string {
-        $count = count( $blocks );
-        if ( $count < 1 || $count > 12 ) {
-            return __( 'A season must have between 1 and 12 macro-blocks.', 'talenttrack' );
-        }
-        $sequences = array_map( static fn( $b ) => (int) $b['sequence'], $blocks );
-        sort( $sequences );
-        for ( $i = 0; $i < $count; $i++ ) {
-            if ( $sequences[ $i ] !== ( $i + 1 ) ) {
-                return __( 'Block sequence numbers must be contiguous starting from 1 (1, 2, … N).', 'talenttrack' );
-            }
-        }
-        foreach ( $blocks as $b ) {
-            if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $b['start_date'] )
-                || ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $b['end_date'] ) ) {
-                return sprintf(
-                    /* translators: %d = block number */
-                    __( 'Block %d has an invalid date format. Use YYYY-MM-DD.', 'talenttrack' ),
-                    (int) $b['sequence']
-                );
-            }
-            if ( $b['end_date'] < $b['start_date'] ) {
-                return sprintf(
-                    /* translators: %d = block number */
-                    __( 'Block %d ends before it starts.', 'talenttrack' ),
-                    (int) $b['sequence']
-                );
-            }
-        }
-        $sorted = $blocks;
-        usort( $sorted, static fn( $a, $b ): int => strcmp( $a['start_date'], $b['start_date'] ) );
-        for ( $i = 1; $i < $count; $i++ ) {
-            if ( $sorted[ $i ]['start_date'] <= $sorted[ $i - 1 ]['end_date'] ) {
-                return sprintf(
-                    /* translators: 1: block A sequence, 2: block B sequence */
-                    __( 'Block %1$d overlaps with block %2$d. Blocks must not share dates.', 'talenttrack' ),
-                    (int) $sorted[ $i - 1 ]['sequence'],
-                    (int) $sorted[ $i ]['sequence']
-                );
-            }
-        }
-        return null;
     }
 }

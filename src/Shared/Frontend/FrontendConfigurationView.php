@@ -1613,10 +1613,13 @@ class FrontendConfigurationView extends FrontendViewBase {
     }
 
     /**
-     * #1087 VCT-12 — emit the two VCT configuration tiles inline in the
-     * Configuration grid. Both link into `?tt_view=vct-config` (existing
-     * sub-tab view) and surface a count read from the matching repo so
-     * the operator sees at a glance how much is configured.
+     * #1546 — emit a single "VCT configuration" tile inline in the
+     * Configuration grid. It opens `?tt_view=vct-config` at the default
+     * tab; the destination view's own tab bar (Macro-blocks / Age
+     * profiles / Team schedules) handles sub-navigation, so all three
+     * tabs — including Schedules, which never had a tile — are now
+     * reachable from one entry point. The count line summarises the
+     * macro-block templates + age bands configured.
      *
      * Gated on `tt_vct_admin_library` because the destination view
      * re-checks the same capability and silent denials are worse than
@@ -1635,26 +1638,15 @@ class FrontendConfigurationView extends FrontendViewBase {
 
         return [
             [
-                'url'   => add_query_arg( [ 'tt_view' => 'vct-config', 'tab' => 'blocks' ], $base ),
-                'title' => __( 'VCT macro-blocks', 'talenttrack' ),
-                'desc'  => __( 'Block templates the VCT session wizard uses (warming-up, hoofddeel, cooldown, theme-blocks). Edit names + default duration + default intensity.', 'talenttrack' ),
+                'url'   => add_query_arg( [ 'tt_view' => 'vct-config' ], $base ),
+                'title' => __( 'VCT configuration', 'talenttrack' ),
+                'desc'  => __( 'Macro-block calendar, per-age workload envelopes and per-team training days for the Variabel Coachen-template planner — all on one screen.', 'talenttrack' ),
                 'icon'  => 'methodology',
                 'vct'   => true,
                 'count' => sprintf(
-                    /* translators: %d is the number of active VCT macro-block templates. */
-                    _n( '%d active', '%d active', $blocks_count, 'talenttrack' ),
-                    $blocks_count
-                ),
-            ],
-            [
-                'url'   => add_query_arg( [ 'tt_view' => 'vct-config', 'tab' => 'age-profiles' ], $base ),
-                'title' => __( 'VCT age-profiles', 'talenttrack' ),
-                'desc'  => __( 'Per age band (JO8 → JO19) the workload-cap, max intensity per MD-day, max VCT session length. Drives the wizard\'s workload check.', 'talenttrack' ),
-                'icon'  => 'categories',
-                'vct'   => true,
-                'count' => sprintf(
-                    /* translators: %d is the number of configured VCT age-profile bands. */
-                    _n( '%d age band', '%d age bands', $ages_count, 'talenttrack' ),
+                    /* translators: 1: number of macro-block templates, 2: number of age bands. */
+                    __( '%1$d block templates · %2$d age bands', 'talenttrack' ),
+                    $blocks_count,
                     $ages_count
                 ),
             ],

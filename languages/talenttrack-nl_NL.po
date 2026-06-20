@@ -40027,3 +40027,132 @@ msgstr "Openbare, alleen-lezen deellinks voor teamblauwdrukken. Het bewerken van
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php
 msgid "Blueprint sharing is turned off."
 msgstr "Het delen van blauwdrukken staat uit."
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "VCT configuration sections"
+msgstr "VCT-configuratieonderdelen"
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid ""
+"No seasons configured yet. Add a season under Configuration → Seasons first, "
+"then come back here."
+msgstr ""
+"Er zijn nog geen seizoenen ingesteld. Voeg eerst een seizoen toe onder "
+"Configuratie → Seizoenen en kom dan hier terug."
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid ""
+"Define the macro-block calendar for a season. The club default applies to "
+"every team; pick a team to set an override."
+msgstr ""
+"Stel de macro-blokkenkalender voor een seizoen in. De clubstandaard geldt "
+"voor elk team; kies een team om een uitzondering in te stellen."
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid ""
+"Define the macro-block calendar for a season. The club default applies to "
+"every team; pick a team to set an override just for them."
+msgstr ""
+"Stel de macro-blokkenkalender voor een seizoen in. De clubstandaard geldt "
+"voor elk team; kies een team om er alleen voor hen een uitzondering in te "
+"stellen."
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "Club default (all teams)"
+msgstr "Clubstandaard (alle teams)"
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "Club default"
+msgstr "Clubstandaard"
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "Macro-blocks — %s"
+msgstr "Macro-blokken — %s"
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "Save block set"
+msgstr "Blokkenset opslaan"
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "Team #%d"
+msgstr "Team #%d"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid ""
+"Macro-block calendar, per-age workload envelopes and per-team training days "
+"for the Variabel Coachen-template planner — all on one screen."
+msgstr ""
+"Macro-blokkenkalender, werklast-bereiken per leeftijd en trainingsdagen per "
+"team voor de Variabel Coachen-templateplanner — allemaal op één scherm."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "%1$d block templates · %2$d age bands"
+msgstr "%1$d bloksjablonen · %2$d leeftijdsgroepen"
+
+#: src/Modules/Vct/Validation/VctMacroBlockValidator.php
+msgid "Block %d needs a name."
+msgstr "Blok %d heeft een naam nodig."
+
+#: src/Modules/Vct/Validation/VctMacroBlockValidator.php
+msgid "Block %d has an invalid date. Use the date pickers."
+msgstr "Blok %d heeft een ongeldige datum. Gebruik de datumkiezers."
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "Advanced: weekly phase profile (JSON)"
+msgstr "Geavanceerd: wekelijks faseprofiel (JSON)"
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid ""
+"Optional. Array of { week, phase, multiplier } objects. Leave blank for the "
+"default profile."
+msgstr ""
+"Optioneel. Een reeks { week, phase, multiplier }-objecten. Laat leeg voor "
+"het standaardprofiel."
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "e.g. Build-up block"
+msgstr "bijv. Opbouwblok"
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "Block set saved."
+msgstr "Blokkenset opgeslagen."
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "No macro-blocks yet. Add the first block to start the season calendar."
+msgstr "Nog geen macro-blokken. Voeg het eerste blok toe om de seizoenskalender te starten."
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "Add at least one block before saving."
+msgstr "Voeg minstens één blok toe voordat je opslaat."
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "The advanced phase profile for block %d is not valid JSON."
+msgstr "Het geavanceerde faseprofiel voor blok %d is geen geldige JSON."
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "Block %d needs a start and end date."
+msgstr "Blok %d heeft een start- en einddatum nodig."
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "Looks good — no overlaps, all dates valid."
+msgstr "Ziet er goed uit — geen overlap, alle datums geldig."
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "Minutes per training (max)"
+msgstr "Minuten per training (max)"
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "Save failed: your form expired. Please reload."
+msgstr "Opslaan mislukt: je formulier is verlopen. Laad de pagina opnieuw."
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "Add block"
+msgstr "Blok toevoegen"
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "Move up"
+msgstr "Omhoog"
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "Move down"
+msgstr "Omlaag"
