@@ -177,6 +177,115 @@ class UsageTracker {
     }
 
     /**
+     * Top N features/surfaces touched in the last $days — frontend
+     * dashboard views (`?tt_view=`) and wp-admin pages combined, grouped
+     * by the slug. The "what are people actually using" signal.
+     *
+     * @return array<int, array{target:string, count:int}>
+     */
+    public static function topFeatures( int $days, int $limit = 10 ): array {
+        global $wpdb;
+        $cutoff = gmdate( 'Y-m-d H:i:s', time() - $days * DAY_IN_SECONDS );
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT event_target AS target, COUNT(*) AS c
+               FROM {$wpdb->prefix}tt_usage_events
+              WHERE event_type IN ( 'frontend_view', 'admin_page_view' )
+                AND event_target IS NOT NULL AND event_target <> ''
+                AND created_at >= %s
+                AND club_id = %d
+              GROUP BY event_target
+              ORDER BY c DESC
+              LIMIT %d",
+            $cutoff, CurrentClub::id(), $limit
+        ) );
+        $out = [];
+        foreach ( (array) $rows as $r ) {
+            $out[] = [ 'target' => (string) $r->target, 'count' => (int) $r->c ];
+        }
+        return $out;
+    }
+
+    /**
+     * Total tracked events of any type in the last $days — the
+     * "interactions" count (views + logins + instrumented actions).
+     */
+    public static function totalEvents( int $days ): int {
+        global $wpdb;
+        $cutoff = gmdate( 'Y-m-d H:i:s', time() - $days * DAY_IN_SECONDS );
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$wpdb->prefix}tt_usage_events
+              WHERE created_at >= %s AND club_id = %d",
+            $cutoff, CurrentClub::id()
+        ) );
+    }
+
+    /**
+     * Observed time-on-task, inferred from event gaps (no IPs / no
+     * fingerprints — purely the timestamps we already store). A user's
+     * events are split into sessions wherever the gap between two
+     * consecutive events exceeds the idle threshold; a session's duration
+     * is last-minus-first within it. Single-event sessions count toward
+     * the tally but contribute 0 observed minutes (we can't see how long
+     * one page stayed open), so this is a deliberate *lower bound* on
+     * real time online — labelled "observed" in the UI.
+     *
+     * @return array{sessions:int, active_users:int, total_minutes:int, avg_session_minutes:float, avg_minutes_per_user:float}
+     */
+    public static function sessionStats( int $days ): array {
+        global $wpdb;
+        $cutoff   = gmdate( 'Y-m-d H:i:s', time() - $days * DAY_IN_SECONDS );
+        $idle_gap = 30 * MINUTE_IN_SECONDS;
+
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT user_id, UNIX_TIMESTAMP(created_at) AS ts
+               FROM {$wpdb->prefix}tt_usage_events
+              WHERE created_at >= %s AND club_id = %d
+              ORDER BY user_id ASC, ts ASC",
+            $cutoff, CurrentClub::id()
+        ) );
+
+        $sessions      = 0;
+        $total_seconds = 0;
+        $users         = [];
+        $cur_user      = null;
+        $session_start = 0;
+        $prev_ts       = 0;
+
+        foreach ( (array) $rows as $r ) {
+            $uid = (int) $r->user_id;
+            $ts  = (int) $r->ts;
+            $users[ $uid ] = true;
+
+            if ( $uid !== $cur_user ) {
+                $cur_user      = $uid;
+                $session_start = $ts;
+                $prev_ts       = $ts;
+                $sessions++;
+                continue;
+            }
+            if ( ( $ts - $prev_ts ) > $idle_gap ) {
+                $total_seconds += ( $prev_ts - $session_start );
+                $session_start  = $ts;
+                $sessions++;
+            }
+            $prev_ts = $ts;
+        }
+        if ( $cur_user !== null ) {
+            $total_seconds += ( $prev_ts - $session_start );
+        }
+
+        $total_minutes = (int) round( $total_seconds / 60 );
+        $active_users  = count( $users );
+        return [
+            'sessions'             => $sessions,
+            'active_users'         => $active_users,
+            'total_minutes'        => $total_minutes,
+            'avg_session_minutes'  => $sessions > 0 ? round( $total_minutes / $sessions, 1 ) : 0.0,
+            'avg_minutes_per_user' => $active_users > 0 ? round( $total_minutes / $active_users, 1 ) : 0.0,
+        ];
+    }
+
+    /**
      * Top N admin pages visited in the last $days.
      *
      * @return array<int, array{page:string, count:int}>

@@ -7,22 +7,30 @@ Via **Analyse → Gebruiksstatistieken** krijg je een beeld van hoe je club de p
 ## Wat er wordt bijgehouden
 
 - **Logins** — elke WordPress-login telt, per gebruiker, per dag
+- **Frontend-weergaven** — welke dashboardschermen (`?tt_view=…`) mensen openen
 - **Bezoeken aan beheerpagina's** — welke TalentTrack-beheerpagina's mensen bezoeken
 - **Aangemaakte evaluaties** — geteld via de evaluatietabel, niet apart getrackt
 
 Gebeurtenissen ouder dan **90 dagen worden automatisch verwijderd**. Er worden geen IP-adressen, user agents of referrer-URL's vastgelegd. Gebeurtenistracking is uitsluitend bedoeld voor club-interne inzichten.
 
-## KPI-surfaces
+## Applicatie-KPI's — gebruik, geen uitkomsten
 
-Het dashboard toont:
+De pagina **Applicatie-KPI's** beantwoordt *wordt de tool gebruikt, door wie, hoeveel en waarvoor* — betrokkenheidssignalen, geen voetbaluitkomsten. (Aanwezigheid %, doelvoltooiing en beoordelingen zijn *rapportinhoud* over spelerontwikkeling en staan in de **Rapporten**-launcher, niet hier.)
 
-- **Logins** — tellingen over 7 / 30 / 90 dagen
-- **Actieve gebruikers** — unieke gebruikers met activiteit in 7 / 30 / 90 dagen
-- **DAU-lijngrafiek** — laatste 90 dagen
-- **Evaluaties per dag** — laatste 90 dagen
-- **Actieve gebruikers per rol** — uitsplitsing beheerder / coach / speler / overig
-- **Meest bezochte beheerpagina's** — welke TalentTrack-pagina's het vaakst worden bezocht
-- **Inactieve gebruikers** — gebruikers die al 30+ dagen niet zijn ingelogd
+Hoofdtegels:
+
+- **Actieve gebruikers** — unieke gebruikers met activiteit in de periode
+- **Logins / gebruiker** — herbetrokkenheid: hoe vaak actieve gebruikers terugkomen
+- **Kleefkracht (DAU/MAU)** — gemiddeld dagelijks-actief ÷ 30-dagen-actief; hoe routineus de tool is
+- **Gem. sessie** & **Tijd online (gemeten)** — sessieduur en totale tijd, afgeleid uit de tussenpozen van events (bewust een *ondergrens* — één openstaande pagina is niet meetbaar)
+- **Acties / gebruiker** — interacties (weergaven + logins + acties) per actieve gebruiker
+
+Panelen:
+
+- **Dagelijks actieve gebruikers** lijngrafiek
+- **Actieve gebruikers per rol** — beheerder / coach / speler / overig
+- **Meest gebruikte functies** — meest geopende frontend-weergaven + beheerpagina's
+- **Inactieve gebruikers** — wie er in de periode niet heeft ingelogd (wie je een seintje geeft)
 
 ## Drill-downs
 
