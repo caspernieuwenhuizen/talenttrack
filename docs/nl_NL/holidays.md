@@ -16,7 +16,9 @@ Vakanties zijn **eenmalig** — er is nog geen engine voor terugkerende vakantie
 
 ## Waar ze verschijnen
 
-Elke vakantie verschijnt als banner over de betreffende dag(en) op elke teamplanner, zodat in één oogopslag duidelijk is welke dagen de academie gesloten is. (De plannerbanner volgt in een vervolgstap; de vakantiedata + het beheer komen eerst.)
+Elke vakantie verschijnt als gekleurde banner op de betreffende dag(en) van elke teamplanner, zodat in één oogopslag duidelijk is welke dagen de academie gesloten is. De banner gebruikt de kleur van de vakantie (indien ingesteld) en toont de notitie bij hover.
+
+Als je vanaf de planner een activiteit op een vakantiedag probeert te plannen, verschijnt er een **zachte bevestiging** ("Deze dag is een academievakantie … toch plannen?"). Die blokkeert nooit — bevestig om door te gaan, of annuleer om een andere dag te kiezen.
 
 ## Wie ze kan beheren
 

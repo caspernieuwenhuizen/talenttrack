@@ -32624,4 +32624,9 @@ msgstr ""
 msgid "Holidays"
 msgstr ""
 
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php
+#, php-format
+msgid "This day is an academy holiday (%s). Schedule an activity anyway?"
+msgstr ""
+
 
