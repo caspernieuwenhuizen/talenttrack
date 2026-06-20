@@ -190,6 +190,8 @@ class FrontendEvaluationsView extends FrontendViewBase {
                     ],
                 ],
             ],
+            // #1470 — Restore + gated permanent-delete on archived rows.
+            'row_actions'  => \TT\Shared\Frontend\Components\ArchiveRowActions::build( 'evaluations', 'tt_edit_evaluations' ),
             'search'       => [ 'placeholder' => __( 'Search player, notes…', 'talenttrack' ) ],
             'default_sort' => [ 'orderby' => 'eval_date', 'order' => 'desc' ],
             'empty_state'  => __( 'No evaluations match your filters.', 'talenttrack' ),

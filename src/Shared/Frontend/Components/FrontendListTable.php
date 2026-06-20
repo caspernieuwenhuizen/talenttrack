@@ -425,6 +425,9 @@ class FrontendListTable {
             }
             if ( ! empty( $a['confirm'] ) ) $entry['confirm'] = (string) $a['confirm'];
             if ( ! empty( $a['variant'] ) ) $entry['variant'] = (string) $a['variant'];
+            // #1470 — per-row visibility gate; JS hides the action on rows
+            // whose `show_if` field is falsy (e.g. only-on-archived rows).
+            if ( ! empty( $a['show_if'] ) ) $entry['show_if'] = (string) $a['show_if'];
             $out[ (string) $key ] = $entry;
         }
         return $out;

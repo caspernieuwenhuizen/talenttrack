@@ -128,7 +128,8 @@ class FrontendTeamsManageView extends FrontendViewBase {
         // v3.110.53 — list rows are scanning surfaces. Edit / Delete
         // moved to the team detail page (FrontendTeamDetailView). The
         // clickable team name cell is the only row affordance.
-        $row_actions = [];
+        // #1470 — Restore + gated permanent-delete on archived rows.
+        $row_actions = \TT\Shared\Frontend\Components\ArchiveRowActions::build( 'teams', 'tt_edit_teams' );
 
         echo FrontendListTable::render( [
             'rest_path' => 'teams',
@@ -152,6 +153,7 @@ class FrontendTeamsManageView extends FrontendViewBase {
                     'options' => [
                         'active'   => __( 'Active',   'talenttrack' ),
                         'archived' => __( 'Archived', 'talenttrack' ),
+                        'all'      => __( 'All',      'talenttrack' ),
                     ],
                 ],
             ],

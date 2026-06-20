@@ -284,7 +284,7 @@ class EvaluationsRestController {
 
         $where_sql = implode( ' AND ', $where ) . ' ' . $scope;
 
-        $list_sql = "SELECT e.id, e.eval_date, e.notes, e.player_id, e.coach_id, e.eval_type_id,
+        $list_sql = "SELECT e.id, e.eval_date, e.notes, e.player_id, e.coach_id, e.eval_type_id, e.archived_at,
                             pl.first_name, pl.last_name, pl.team_id,
                             t.name AS team_name,
                             u.display_name AS coach_name,
@@ -418,6 +418,7 @@ class EvaluationsRestController {
             'avg_rating'      => $avg,
             'avg_link_html'   => $avg_link_html,
             'notes_excerpt'   => esc_html( wp_trim_words( (string) ( $row->notes ?? '' ), 14 ) ),
+            'archived_at'     => $row->archived_at ?? null,
             // v3.110.170 — row-link standard (#758). Same URL the inline
             // date / avg links use; now exposed as a top-level field so
             // FrontendListTable's `row_url_key` config can pick it up

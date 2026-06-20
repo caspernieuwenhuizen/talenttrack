@@ -248,14 +248,10 @@ class FrontendGoalsManageView extends FrontendViewBase {
             }
         }
 
-        $row_actions = [
-            // v3.70.1 hotfix — Edit row action carries `action=edit` so
-            // it routes to the form; bare `id=N` (from title clicks) goes
-            // to the read-only detail in render() above.
-            // v3.110.53 — Edit / Delete moved to the goal detail page
-            // (renderDetail() above). The clickable goal title is the
-            // only row affordance.
-        ];
+        // v3.110.53 — Edit / Delete moved to the goal detail page; the
+        // clickable goal title is the only active-row affordance.
+        // #1470 — Restore + gated permanent-delete on archived rows.
+        $row_actions = \TT\Shared\Frontend\Components\ArchiveRowActions::build( 'goals', 'tt_edit_goals' );
 
         echo FrontendListTable::render( [
             'rest_path' => 'goals',

@@ -99,6 +99,10 @@
         var out = '';
         Object.keys(actions).forEach(function(key) {
             var a = actions[key];
+            // #1470 — per-row visibility: when an action declares `show_if`,
+            // only render it for rows where that field is truthy (e.g.
+            // Restore / Delete-permanently only on rows with `archived_at`).
+            if (a.show_if && !row[a.show_if]) return;
             var label = escapeHtml(a.label);
             if (a.href) {
                 // The href template uses raw substitution (not URL-encoded twice for known-safe placeholders like {id}).
