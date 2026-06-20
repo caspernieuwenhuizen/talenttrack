@@ -32620,4 +32620,8 @@ msgstr ""
 msgid "Academy-wide holiday periods shown as banners on every team planner."
 msgstr ""
 
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php
+msgid "Holidays"
+msgstr ""
+
 

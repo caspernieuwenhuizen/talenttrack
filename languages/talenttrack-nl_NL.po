@@ -37050,6 +37050,10 @@ msgstr "Academievakanties die op elke teamplanner worden getoond."
 msgid "Academy-wide holiday periods shown as banners on every team planner."
 msgstr "Academiebrede vakantieperiodes die als banner op elke teamplanner worden getoond."
 
+#: src/Modules/Authorization/Admin/MatrixEntityCatalog.php
+msgid "Holidays"
+msgstr "Vakanties"
+
 #~ msgid "Create dashboard page"
 #~ msgstr "Dashboardpagina aanmaken"
 
