@@ -47,7 +47,7 @@ class FrontendUsageStatsView extends FrontendViewBase {
         // live in the Reports launcher, not on a usage dashboard.
         $active_users = UsageTracker::uniqueActiveUsers( $days );
         $logins       = UsageTracker::countEvents( 'login', $days );
-        $sessions     = UsageTracker::sessionStats( $days );
+        $time_stats   = UsageTracker::sessionStats( $days );
         $total_events = UsageTracker::totalEvents( $days );
 
         $dau   = UsageTracker::dailyActiveUsers( $days );
@@ -93,8 +93,8 @@ class FrontendUsageStatsView extends FrontendViewBase {
             self::kpi( __( 'Active users',          'talenttrack' ), (string) $active_users, '' );
             self::kpi( __( 'Logins / user',         'talenttrack' ), self::formatNumber( $logins_per_user, 1 ), '' );
             self::kpi( __( 'Stickiness (DAU/MAU)',  'talenttrack' ), (string) $stickiness . '%', '' );
-            self::kpi( __( 'Avg session',           'talenttrack' ), self::formatMinutes( (float) $sessions['avg_session_minutes'] ), '' );
-            self::kpi( __( 'Time online (observed)', 'talenttrack' ), self::formatHours( (int) $sessions['total_minutes'] ), '' );
+            self::kpi( __( 'Avg session',           'talenttrack' ), self::formatMinutes( (float) $time_stats['avg_session_minutes'] ), '' );
+            self::kpi( __( 'Time online (observed)', 'talenttrack' ), self::formatHours( (int) $time_stats['total_minutes'] ), '' );
             self::kpi( __( 'Actions / user',        'talenttrack' ), self::formatNumber( $actions_per_user, 1 ), '' );
             ?>
         </div>
