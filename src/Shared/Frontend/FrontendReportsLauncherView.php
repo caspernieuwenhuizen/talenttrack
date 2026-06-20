@@ -129,6 +129,15 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
                 'desc'  => __( 'Radar charts over evaluation categories — per-player progress, player comparison, team averages.', 'talenttrack' ),
                 'url'   => add_query_arg( [ 'tt_view' => 'standard-report', 'slug' => 'player-progress-radar' ], $base_url ),
             ],
+            // #1487 — Rate cards, folded in from the former standalone
+            // dashboard tile. The view self-gates the Standard tier
+            // (upgrade nudge for Free), so the gating is preserved here.
+            [
+                'slug'  => 'rate-cards',
+                'label' => __( 'Rate cards', 'talenttrack' ),
+                'desc'  => __( 'Per-player rating cards with trends.', 'talenttrack' ),
+                'url'   => add_query_arg( [ 'tt_view' => 'rate-cards' ], $base_url ),
+            ],
         ];
 
         echo '<p style="color:#5b6e75; margin-bottom:16px;">';
