@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-20T15:29:48+00:00\n"
+"POT-Creation-Date: 2026-06-20T15:36:45+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -1953,7 +1953,7 @@ msgstr ""
 #: src/Infrastructure/REST/TeamsRestController.php:289
 #: src/Infrastructure/REST/TeamsRestController.php:310
 #: src/Modules/Wizards/Team/BasicsStep.php:45
-#: src/Modules/Wizards/Team/ReviewStep.php:55
+#: src/Modules/Wizards/Team/ReviewStep.php:56
 msgid "Team name is required."
 msgstr ""
 
@@ -2320,8 +2320,8 @@ msgstr "Titel"
 #: src/Modules/Wizards/Activity/ReviewStep.php:60
 #: src/Modules/Wizards/Activity/TypeStatusStep.php:24
 #: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:94
-#: src/Modules/Wizards/Player/ReviewStep.php:31
-#: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:29
+#: src/Modules/Wizards/Player/ReviewStep.php:30
+#: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:28
 #: src/Shared/Frontend/CoachDashboardView.php:190
 #: src/Shared/Frontend/CoachForms.php:184
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:313
@@ -2534,9 +2534,9 @@ msgstr ""
 #: src/Modules/Wizards/Activity/TeamStep.php:19
 #: src/Modules/Wizards/Activity/TeamStep.php:30
 #: src/Modules/Wizards/Goal/PlayerStep.php:76
-#: src/Modules/Wizards/Player/ReviewStep.php:34
+#: src/Modules/Wizards/Player/ReviewStep.php:33
 #: src/Modules/Wizards/Player/RosterDetailsStep.php:34
-#: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:28
+#: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:27
 #: src/Modules/Wizards/TeamBlueprint/SetupStep.php:45
 #: src/Shared/Frontend/CoachDashboardView.php:244
 #: src/Shared/Frontend/CoachForms.php:487
@@ -4084,9 +4084,9 @@ msgstr ""
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:226
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:318
 #: src/Modules/Wizards/Person/ReviewStep.php:33
-#: src/Modules/Wizards/Player/ReviewStep.php:32
+#: src/Modules/Wizards/Player/ReviewStep.php:31
 #: src/Modules/Wizards/Prospect/ReviewStep.php:45
-#: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:31
+#: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:30
 #: src/Shared/Frontend/Components/GuestAddModal.php:85
 #: src/Shared/Frontend/FrontendConfigurationView.php:970
 #: src/Shared/Frontend/FrontendHolidaysView.php:40
@@ -9132,7 +9132,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:128
 #: src/Modules/Stats/Admin/PlayerComparisonPage.php:270
 #: src/Modules/Teams/Admin/TeamPlayersPanel.php:64
-#: src/Modules/Wizards/Player/ReviewStep.php:33
+#: src/Modules/Wizards/Player/ReviewStep.php:32
 #: src/Modules/Wizards/Player/RosterDetailsStep.php:32
 #: src/Modules/Wizards/Player/TrialDetailsStep.php:47
 #: src/Modules/Wizards/Prospect/IdentityStep.php:38
@@ -9170,7 +9170,7 @@ msgstr "Gewicht (kg)"
 #: src/Modules/Export/Exporters/PlayersListCsvExporter.php:102
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:43
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:130
-#: src/Modules/Wizards/Player/ReviewStep.php:38
+#: src/Modules/Wizards/Player/ReviewStep.php:37
 #: src/Modules/Wizards/Player/RosterDetailsStep.php:51
 #: src/Shared/Frontend/FrontendConfigurationView.php:150
 #: src/Shared/Frontend/FrontendConfigurationView.php:275
@@ -9197,7 +9197,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:42
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:129
 #: src/Modules/Methodology/Admin/PositionEditPage.php:84
-#: src/Modules/Wizards/Player/ReviewStep.php:37
+#: src/Modules/Wizards/Player/ReviewStep.php:36
 #: src/Modules/Wizards/Player/RosterDetailsStep.php:43
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:752
 #: src/Shared/Frontend/FrontendPlayersManageView.php:324
@@ -9253,7 +9253,7 @@ msgstr ""
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:188
 #: src/Modules/Stats/Admin/PlayerComparisonPage.php:251
 #: src/Modules/Wizards/Team/BasicsStep.php:31
-#: src/Modules/Wizards/Team/ReviewStep.php:19
+#: src/Modules/Wizards/Team/ReviewStep.php:20
 #: src/Shared/Frontend/FrontendComparisonView.php:355
 #: src/Shared/Frontend/FrontendMyProfileView.php:99
 #: src/Shared/Frontend/FrontendPlayersManageView.php:207
@@ -13358,7 +13358,7 @@ msgstr ""
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:266
 #: src/Modules/Tournaments/Wizard/FormationStep.php:21
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:57
-#: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:30
+#: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:29
 #: src/Modules/Wizards/TeamBlueprint/SetupStep.php:66
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:189
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:298
@@ -15319,7 +15319,7 @@ msgstr ""
 
 #: src/Modules/License/Admin/UpgradeNudge.php:75
 #: src/Modules/License/LicenseGate.php:186
-#: src/Modules/Wizards/Team/ReviewStep.php:50
+#: src/Modules/Wizards/Team/ReviewStep.php:51
 msgid ""
 "You have reached the free-tier limit of 1 team. Upgrade to Standard to add "
 "more."
@@ -15328,7 +15328,7 @@ msgstr ""
 #: src/Modules/License/Admin/UpgradeNudge.php:76
 #: src/Modules/License/LicenseGate.php:187
 #: src/Modules/Players/PlayerCsvImporter.php:221
-#: src/Modules/Wizards/Player/ReviewStep.php:65
+#: src/Modules/Wizards/Player/ReviewStep.php:66
 msgid ""
 "You have reached the free-tier limit of 25 players. Upgrade to Standard to "
 "add more."
@@ -17745,7 +17745,7 @@ msgstr ""
 
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:182
 #: src/Modules/Wizards/Team/BasicsStep.php:29
-#: src/Modules/Wizards/Team/ReviewStep.php:18
+#: src/Modules/Wizards/Team/ReviewStep.php:19
 #: src/Shared/Frontend/FrontendTeamsManageView.php:204
 msgid "Team name"
 msgstr ""
@@ -22442,7 +22442,7 @@ msgstr ""
 # v3.69.0 — Spond JSON-API fetcher (#0062)
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:200
 #: src/Modules/Teams/Admin/TeamsPage.php:173
-#: src/Modules/Wizards/Team/ReviewStep.php:31
+#: src/Modules/Wizards/Team/ReviewStep.php:32
 #: src/Modules/Wizards/Team/SpondGroupStep.php:25
 #: src/Modules/Wizards/Team/SpondGroupStep.php:49
 msgid "Spond group"
@@ -26799,7 +26799,7 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Wizards/Person/BasicsStep.php:51
-#: src/Modules/Wizards/Player/ReviewStep.php:72
+#: src/Modules/Wizards/Player/ReviewStep.php:73
 #: src/Modules/Wizards/Player/RosterDetailsStep.php:64
 #: src/Modules/Wizards/Player/TrialDetailsStep.php:80
 #: src/Modules/Wizards/Prospect/IdentityStep.php:133
@@ -26855,7 +26855,7 @@ msgid "Choose one"
 msgstr ""
 
 #: src/Modules/Wizards/Player/PathStep.php:31
-#: src/Modules/Wizards/Player/ReviewStep.php:31
+#: src/Modules/Wizards/Player/ReviewStep.php:30
 msgid "Roster player"
 msgstr ""
 
@@ -26864,7 +26864,7 @@ msgid "has been signed and is joining a team."
 msgstr ""
 
 #: src/Modules/Wizards/Player/PathStep.php:32
-#: src/Modules/Wizards/Player/ReviewStep.php:31
+#: src/Modules/Wizards/Player/ReviewStep.php:30
 msgid "Trial player"
 msgstr ""
 
@@ -26880,20 +26880,20 @@ msgstr ""
 msgid "Check the details below before creating the record."
 msgstr ""
 
-#: src/Modules/Wizards/Player/ReviewStep.php:40
+#: src/Modules/Wizards/Player/ReviewStep.php:39
 #: src/Modules/Wizards/Player/TrialDetailsStep.php:59
 msgid "Trial track"
 msgstr ""
 
-#: src/Modules/Wizards/Player/ReviewStep.php:41
+#: src/Modules/Wizards/Player/ReviewStep.php:40
 msgid "Trial start"
 msgstr ""
 
-#: src/Modules/Wizards/Player/ReviewStep.php:42
+#: src/Modules/Wizards/Player/ReviewStep.php:41
 msgid "Trial end"
 msgstr ""
 
-#: src/Modules/Wizards/Player/ReviewStep.php:91
+#: src/Modules/Wizards/Player/ReviewStep.php:92
 msgid "Could not create the player record."
 msgstr ""
 
@@ -27052,7 +27052,7 @@ msgstr "Neues Team"
 msgid "Check the team details before creating it."
 msgstr ""
 
-#: src/Modules/Wizards/Team/ReviewStep.php:69
+#: src/Modules/Wizards/Team/ReviewStep.php:70
 msgid "Could not create the team."
 msgstr ""
 
@@ -27112,15 +27112,15 @@ msgstr ""
 msgid "Match-day lineup (single starting XI)"
 msgstr ""
 
-#: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:44
+#: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:45
 msgid "You do not have permission to create blueprints."
 msgstr ""
 
-#: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:51
+#: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:52
 msgid "Setup is incomplete. Go back to fill in all fields."
 msgstr ""
 
-#: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:55
+#: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:56
 msgid "Could not create the blueprint."
 msgstr ""
 
