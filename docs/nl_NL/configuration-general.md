@@ -19,7 +19,7 @@ Academiebrede basisinstellingen die bepalen hoe datums en de kalender in heel Ta
 
 Datumnotatie loopt via één helper, `TT\Shared\Dates\TTDate`, zodat de keuze van de academie op één plek wordt nageleefd in plaats van bij elke aanroep opnieuw te worden bepaald. De preset **Systeemstandaard** reproduceert exact de WordPress-datumnotatie, zodat een installatie die de instelling nooit aanraakt ongewijzigd blijft.
 
-Onderdelen nemen de helper stapsgewijs over. De **teamplanner** respecteert de eerste dag van de week meteen; bredere toepassing van de datumnotatie-preset in de rest van het product volgt in vervolgwerk voor deze instelling. Tot een onderdeel de helper overneemt, behoudt het zijn huidige notatie.
+De datumnotatie wordt in de hele frontend toegepast overal waar een **volledige datum** wordt getoond — spelersprofielen, evaluaties, activiteiten, doelen, PDP-ondertekeningen, rapporten, scoutingbezoeken en de audit-stempels "aangemaakt / bijgewerkt". **Compacte kalenderlabels** (de `ma 31` / `31 dec`-dagcellen van de teamplanner en de afgekorte `31 dec '26`-kerngegevensdatums) houden bewust hun compacte notatie — de preset bepaalt volledige datums, niet ruimtebeperkte labels. De **teamplanner** respecteert ook de eerste dag van de week.
 
 ## Zie ook
 

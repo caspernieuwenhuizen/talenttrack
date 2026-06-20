@@ -19,7 +19,7 @@ Academy-wide basics that affect how dates and the calendar read across TalentTra
 
 Date notation resolves through a single helper, `TT\Shared\Dates\TTDate`, so the academy's choice is honoured in one place rather than re-decided at every call site. The **System default** preset reproduces the WordPress date format exactly, so an install that never touches the setting renders unchanged.
 
-Surfaces adopt the helper incrementally. The **team planner** honours the first-day-of-week immediately; broader adoption of the date-notation preset across the rest of the product rolls out in follow-up work for this setting. Until a surface adopts the helper, it keeps its current format.
+The date notation applies across the frontend wherever a **full date** is shown — player profiles, evaluations, activities, goals, PDP sign-offs, reports, scouting visits, and the audit "created / updated" stamps. **Compact calendar labels** (the team planner's `Mon 31` / `Dec 31` day cells, and the abbreviated `31 Dec '26` key-facts dates) deliberately keep their compact format — the preset governs full dates, not space-constrained labels. The **team planner** also honours the first-day-of-week.
 
 ## See also
 

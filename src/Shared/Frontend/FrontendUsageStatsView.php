@@ -190,7 +190,7 @@ class FrontendUsageStatsView extends FrontendViewBase {
                             <td><?php echo esc_html( (string) $row['display_name'] ); ?></td>
                             <td style="text-align:right;"><?php
                                 $ts = strtotime( (string) $row['last_login'] );
-                                echo esc_html( $ts ? (string) wp_date( 'j M Y', $ts ) : '—' );
+                                echo esc_html( $ts ? \TT\Shared\Dates\TTDate::date( $ts ) : '—' );
                             ?></td>
                         </tr>
                     <?php endforeach; ?>

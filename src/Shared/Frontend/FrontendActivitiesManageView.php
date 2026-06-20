@@ -275,7 +275,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         echo '<dl class="tt-record-detail-list" style="display:grid; grid-template-columns: minmax(120px, max-content) 1fr; gap:6px 16px; margin:0;">';
 
         echo '<dt>' . esc_html__( 'Date', 'talenttrack' ) . '</dt>';
-        echo '<dd>' . esc_html( (string) $session->session_date ) . '</dd>';
+        echo '<dd>' . esc_html( \TT\Shared\Dates\TTDate::date( (string) $session->session_date ) ) . '</dd>';
 
         // #1126 — surface optional time window when set. Renders
         // nothing when both fields are empty (no placeholder).

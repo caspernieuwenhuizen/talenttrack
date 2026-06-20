@@ -71,7 +71,7 @@ class FrontendMyGoalsView extends FrontendViewBase {
                     <?php endif; ?>
                     <span class="tt-status-badge"><?php echo esc_html( (string) $g->status_localised ); ?></span>
                     <?php if ( ! empty( $g->due_date ) ) : ?>
-                        <small><?php esc_html_e( 'Due:', 'talenttrack' ); ?> <?php echo esc_html( (string) $g->due_date ); ?></small>
+                        <small><?php esc_html_e( 'Due:', 'talenttrack' ); ?> <?php echo esc_html( \TT\Shared\Dates\TTDate::date( (string) $g->due_date ) ); ?></small>
                     <?php endif; ?>
                     <p class="tt-goal-conversation-cta">
                         <span aria-hidden="true"><?php echo \TT\Shared\Icons\IconRenderer::render( 'comment', [ 'width' => 14, 'height' => 14, 'style' => 'vertical-align:-2px;' ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG. ?></span>
@@ -128,7 +128,7 @@ class FrontendMyGoalsView extends FrontendViewBase {
                     <span class="tt-priority-badge"><?php echo esc_html( (string) $goal->priority_localised ); ?></span>
                 <?php endif; ?>
                 <?php if ( ! empty( $goal->due_date ) ) : ?>
-                    <span class="tt-due"><?php esc_html_e( 'Due:', 'talenttrack' ); ?> <?php echo esc_html( (string) $goal->due_date ); ?></span>
+                    <span class="tt-due"><?php esc_html_e( 'Due:', 'talenttrack' ); ?> <?php echo esc_html( \TT\Shared\Dates\TTDate::date( (string) $goal->due_date ) ); ?></span>
                 <?php endif; ?>
             </p>
             <?php if ( ! empty( $goal->description ) ) : ?>

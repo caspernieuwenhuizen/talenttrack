@@ -65,9 +65,15 @@ class TTDate {
     }
 
     /** The configured preset slug (defaults to `system`). */
+    /** Request-scoped cache — the retrofit calls these on every date render. */
+    private static ?string $preset_cache = null;
+    private static ?bool $week_monday_cache = null;
+
     public static function preset(): string {
+        if ( self::$preset_cache !== null ) return self::$preset_cache;
         $preset = ( new ConfigService() )->get( self::FORMAT_KEY, 'system' );
-        return isset( self::presets()[ $preset ] ) ? $preset : 'system';
+        self::$preset_cache = isset( self::presets()[ $preset ] ) ? $preset : 'system';
+        return self::$preset_cache;
     }
 
     /**
@@ -95,9 +101,24 @@ class TTDate {
         return wp_date( self::dateFormat(), $ts );
     }
 
+    /**
+     * Format a date *with* its clock time per the academy preset — used
+     * for DATETIME values (created/updated stamps, sign-offs). The date
+     * part follows the preset; the time is appended as 24-hour `H:i`.
+     *
+     * @param int|string|\DateTimeInterface|null $when
+     */
+    public static function dateTime( $when ): string {
+        $ts = self::ts( $when );
+        if ( $ts === null ) return '';
+        return wp_date( self::dateFormat() . ', H:i', $ts );
+    }
+
     /** True when the academy week starts on Monday (the default). */
     public static function weekStartsMonday(): bool {
-        return ( new ConfigService() )->get( self::WEEK_START_KEY, 'mon' ) !== 'sun';
+        if ( self::$week_monday_cache !== null ) return self::$week_monday_cache;
+        self::$week_monday_cache = ( new ConfigService() )->get( self::WEEK_START_KEY, 'mon' ) !== 'sun';
+        return self::$week_monday_cache;
     }
 
     /**

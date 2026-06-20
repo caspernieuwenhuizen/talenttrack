@@ -262,7 +262,7 @@ class FrontendUsageStatsDetailsView extends FrontendViewBase {
                 <tbody>
                 <?php foreach ( (array) $rows as $r ) : ?>
                     <tr>
-                        <td><?php echo esc_html( (string) $r->created_at ); ?></td>
+                        <td><?php echo esc_html( \TT\Shared\Dates\TTDate::dateTime( (string) $r->created_at ) ); ?></td>
                         <td><?php echo esc_html( (string) $r->player_name ); ?></td>
                         <td><?php echo esc_html( (string) ( $r->type_name ?: '—' ) ); ?></td>
                         <td><?php echo esc_html( (string) $r->coach_name ); ?></td>
@@ -438,7 +438,7 @@ class FrontendUsageStatsDetailsView extends FrontendViewBase {
                 <tbody>
                 <?php foreach ( (array) $rows as $r ) : ?>
                     <tr>
-                        <td style="white-space:nowrap;"><?php echo esc_html( (string) $r->created_at ); ?></td>
+                        <td style="white-space:nowrap;"><?php echo esc_html( \TT\Shared\Dates\TTDate::dateTime( (string) $r->created_at ) ); ?></td>
                         <td><code><?php echo esc_html( (string) $r->event_type ); ?></code></td>
                         <td><?php echo $r->event_target ? esc_html( self::pageLabel( (string) $r->event_target ) ) : '<span style="color:#888;">—</span>'; ?></td>
                     </tr>
@@ -469,7 +469,7 @@ class FrontendUsageStatsDetailsView extends FrontendViewBase {
                 <tr>
                     <td><strong><?php echo esc_html( $name ); ?></strong></td>
                     <td><?php echo esc_html( self::userRole( (int) $r->user_id ) ); ?></td>
-                    <td><?php echo esc_html( (string) $r->created_at ); ?></td>
+                    <td><?php echo esc_html( \TT\Shared\Dates\TTDate::dateTime( (string) $r->created_at ) ); ?></td>
                 </tr>
             <?php endforeach; endif; ?>
             </tbody>

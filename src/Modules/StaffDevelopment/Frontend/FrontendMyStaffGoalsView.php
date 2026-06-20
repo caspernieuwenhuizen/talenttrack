@@ -59,7 +59,7 @@ class FrontendMyStaffGoalsView extends FrontendViewBase {
                 echo '<td>' . esc_html( (string) $g->title ) . '</td>';
                 echo '<td>' . esc_html( LookupTranslator::byTypeAndName( 'goal_priority', (string) ( $g->priority ?? '' ) ) ) . '</td>';
                 echo '<td>' . esc_html( LookupTranslator::byTypeAndName( 'goal_status', (string) ( $g->status ?? '' ) ) ) . '</td>';
-                echo '<td>' . esc_html( (string) ( $g->due_date ?? '—' ) ) . '</td>';
+                echo '<td>' . esc_html( ( $g->due_date ?? '' ) !== '' ? \TT\Shared\Dates\TTDate::date( (string) $g->due_date ) : '—' ) . '</td>';
                 echo '<td>' . esc_html( (string) ( $cert_by_id[ (int) $g->cert_type_lookup_id ] ?? '—' ) ) . '</td>';
                 echo '</tr>';
             }

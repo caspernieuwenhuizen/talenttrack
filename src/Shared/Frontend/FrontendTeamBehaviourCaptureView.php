@@ -134,7 +134,7 @@ final class FrontendTeamBehaviourCaptureView extends FrontendViewBase {
                         $selected = $i === 0 ? ' selected' : '';
                     ?>
                         <option value="<?php echo (int) $act->id; ?>"<?php echo $selected; ?>>
-                            <?php echo esc_html( sprintf( '%s · %s', (string) $act->session_date, (string) $act->title ) ); ?>
+                            <?php echo esc_html( sprintf( '%s · %s', \TT\Shared\Dates\TTDate::date( (string) $act->session_date ), (string) $act->title ) ); ?>
                         </option>
                     <?php endforeach; ?>
                 </select>

@@ -118,7 +118,7 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
                 <tbody>
                     <tr>
                         <th scope="row"><?php esc_html_e( 'Date', 'talenttrack' ); ?></th>
-                        <td><?php echo esc_html( mysql2date( get_option( 'date_format' ), (string) $visit->visit_date, true ) ); ?></td>
+                        <td><?php echo esc_html( \TT\Shared\Dates\TTDate::date( (string) $visit->visit_date ) ); ?></td>
                     </tr>
                     <?php if ( $time_label !== '' ) : ?>
                         <tr>
@@ -213,7 +213,7 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
                             <td><?php echo esc_html( (string) ( $p->current_club ?? '' ) ); ?></td>
                             <td><?php echo esc_html( (string) ( $p->position ?? '' ) ); ?></td>
                             <td data-sort="<?php echo esc_attr( (string) ( $p->discovered_at ?? '' ) ); ?>">
-                                <?php echo esc_html( mysql2date( get_option( 'date_format' ), (string) ( $p->discovered_at ?? '' ), true ) ); ?>
+                                <?php echo esc_html( \TT\Shared\Dates\TTDate::date( (string) ( $p->discovered_at ?? '' ) ) ); ?>
                             </td>
                             <td><?php echo esc_html( $status ); ?></td>
                         </tr>

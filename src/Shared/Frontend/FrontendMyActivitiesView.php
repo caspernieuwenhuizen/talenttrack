@@ -146,7 +146,7 @@ class FrontendMyActivitiesView extends FrontendViewBase {
         <article class="tt-activity-detail">
             <p class="tt-activity-detail-meta">
                 <?php if ( $session_date !== '' ) : ?>
-                    <span class="tt-due"><?php esc_html_e( 'Date:', 'talenttrack' ); ?> <?php echo esc_html( $session_date ); ?></span>
+                    <span class="tt-due"><?php esc_html_e( 'Date:', 'talenttrack' ); ?> <?php echo esc_html( \TT\Shared\Dates\TTDate::date( $session_date ) ); ?></span>
                 <?php endif; ?>
                 <?php if ( $team_name !== '' ) : ?>
                     <span class="tt-meta-chip"><?php esc_html_e( 'Team:', 'talenttrack' ); ?> <strong><?php echo esc_html( $team_name ); ?></strong></span>
