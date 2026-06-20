@@ -37543,6 +37543,26 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/Frontend/FrontendExportsView.php:322
+msgid ""
+"Per-record exports (player one-pager, scouting report PDF, PDP, etc.) stay "
+"on each record's detail page where the relevant id is in context."
+msgstr ""
+"Exports per record (spelersfiche, scoutingrapport-PDF, POP, enz.) blijven op "
+"het detailscherm van elk record staan waar de bijbehorende id in context is."
+
+#: src/Shared/Frontend/FrontendExportsView.php:349
+msgid "Squad & players"
+msgstr "Selectie & spelers"
+
+#: src/Shared/Frontend/FrontendExportsView.php:353
+msgid "Reports & people"
+msgstr "Rapporten & mensen"
+
+#: src/Shared/Frontend/FrontendExportsView.php:354
+msgid "Admin & compliance"
+msgstr "Beheer & compliance"
+
 #~ msgid ""
 #~ "Per-club custom styling (#0064): visual editor, code editor, file upload, "
 #~ "starter templates, history with revert. Frontend + wp-admin surfaces."

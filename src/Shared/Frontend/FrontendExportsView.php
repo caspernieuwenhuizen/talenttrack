@@ -319,7 +319,7 @@ class FrontendExportsView extends FrontendViewBase {
         self::renderHeader( __( 'Exports', 'talenttrack' ) );
 
         echo '<p class="tt-export-intro">';
-        esc_html_e( 'Bulk exporters in one place. Per-record exports (player one-pager, scouting report PDF, PDP, etc.) stay on each record\'s detail page where the relevant id is in context.', 'talenttrack' );
+        esc_html_e( 'Per-record exports (player one-pager, scouting report PDF, PDP, etc.) stay on each record\'s detail page where the relevant id is in context.', 'talenttrack' );
         echo '</p>';
 
         if ( self::$post_error !== null ) {
@@ -334,11 +334,49 @@ class FrontendExportsView extends FrontendViewBase {
         // include a team picker.
         $teams = self::teamsForUser( $user_id, $is_admin );
 
-        echo '<div class="tt-export-grid">';
+        // #1542 — group the exporters into purpose-based sections, each a
+        // heading above its collapsed accordion blocks. Auto-hide a section
+        // with no cap-permitted exporter (mirrors the Reports launcher /
+        // config grouping). Cards map to a section by their key.
+        $group_of = [
+            'players_list'       => 'squad',
+            'team_roster_stats'  => 'squad',
+            'federation_json'    => 'squad',
+            'attendance_register'=> 'activities',
+            'team_activities'    => 'activities',
+            'team_ical'          => 'activities',
+            'evaluations_xlsx'   => 'evaluations',
+            'player_evaluations' => 'evaluations',
+            'goals_list'         => 'goals',
+            'kpi_snapshot'       => 'reports',
+            'staff_directory'    => 'reports',
+            'audit_log'          => 'admin',
+            'backup_zip'         => 'admin',
+            'demo_data_xlsx'     => 'admin',
+        ];
+        $sections = [
+            'squad'       => [ 'label' => __( 'Squad & players', 'talenttrack' ),         'cards' => [] ],
+            'activities'  => [ 'label' => __( 'Activities & attendance', 'talenttrack' ), 'cards' => [] ],
+            'evaluations' => [ 'label' => __( 'Evaluations', 'talenttrack' ),             'cards' => [] ],
+            'goals'       => [ 'label' => __( 'Goals', 'talenttrack' ),                   'cards' => [] ],
+            'reports'     => [ 'label' => __( 'Reports & people', 'talenttrack' ),        'cards' => [] ],
+            'admin'       => [ 'label' => __( 'Admin & compliance', 'talenttrack' ),      'cards' => [] ],
+        ];
         foreach ( $visible_cards as $card ) {
-            self::renderCard( $card, $teams );
+            $key = (string) ( $card['key'] ?? '' );
+            $sec = $group_of[ $key ] ?? 'admin'; // unmapped future exporter falls into Admin
+            $sections[ $sec ]['cards'][] = $card;
         }
-        echo '</div>';
+
+        foreach ( $sections as $section ) {
+            if ( empty( $section['cards'] ) ) continue;
+            echo '<h3 class="tt-export-section">' . esc_html( $section['label'] ) . '</h3>';
+            echo '<div class="tt-export-grid">';
+            foreach ( $section['cards'] as $card ) {
+                self::renderCard( $card, $teams );
+            }
+            echo '</div>';
+        }
     }
 
     /**
@@ -504,15 +542,20 @@ class FrontendExportsView extends FrontendViewBase {
         $primary  = $formats[0];
         $multi    = count( $formats ) > 1;
 
-        echo '<div class="tt-export-card">';
-
-        // Single-format cards keep the static badge top-right; multi-format
-        // cards render the chip-group inline below the description.
-        if ( ! $multi ) {
-            echo '<span class="tt-export-card__format">' . esc_html( self::formatLabel( $primary ) ) . '</span>';
+        // #1542 — each exporter is a collapsed <details> block. The summary
+        // shows the title + a format badge per supported output so the
+        // format is scannable without expanding; the body holds the filters
+        // + format toggle + Export button.
+        echo '<details class="tt-export-card">';
+        echo '<summary class="tt-export-card__summary">';
+        echo '<strong class="tt-export-card__title">' . esc_html( $label ) . '</strong>';
+        echo '<span class="tt-export-card__badges">';
+        foreach ( $formats as $fmt ) {
+            echo '<span class="tt-export-card__format">' . esc_html( self::formatLabel( $fmt ) ) . '</span>';
         }
+        echo '</span>';
+        echo '</summary>';
 
-        echo '<div class="tt-export-card__header"><strong class="tt-export-card__title">' . esc_html( $label ) . '</strong></div>';
         echo '<p class="tt-export-card__desc">' . esc_html( $desc ) . '</p>';
 
         // #939 — POST target is admin-post.php (`action=tt_export`),
@@ -561,7 +604,7 @@ class FrontendExportsView extends FrontendViewBase {
         echo '</div>';
 
         echo '</form>';
-        echo '</div>';
+        echo '</details>';
     }
 
     /**
