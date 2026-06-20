@@ -153,6 +153,7 @@ final class CoreSurfaceRegistration {
         TileRegistry::registerSlugOwnership( 'eval-categories',    self::M_EVALUATIONS );
         TileRegistry::registerSlugOwnership( 'roles',              self::M_AUTHORIZATION );
         TileRegistry::registerSlugOwnership( 'usage-stats-details', self::M_STATS );
+        TileRegistry::registerSlugOwnership( 'rate-cards',          self::M_STATS );
         TileRegistry::registerSlugOwnership( 'docs',               self::M_DOCUMENTATION );
         TileRegistry::registerSlugOwnership( 'wizard',             self::M_WIZARDS );
         TileRegistry::registerSlugOwnership( 'wizards-admin',      self::M_WIZARDS );
@@ -723,19 +724,11 @@ final class CoreSurfaceRegistration {
             'color'        => '#7c3aed',
             'cap'          => 'tt_view_analytics',
         ]);
-        TileRegistry::register([
-            'module_class' => self::M_STATS,
-            'view_slug'    => 'rate-cards',
-            'entity'       => 'rate_cards',
-            'group'        => $analytics_group,
-            'kind'         => 'work',
-            'order'        => 10,
-            'label'        => __( 'Rate cards', 'talenttrack' ),
-            'description'  => __( 'Per-player rating cards with trends.', 'talenttrack' ),
-            'icon'         => 'rate-card',
-            'color'        => '#2271b1',
-            'cap'          => 'tt_view_reports',
-        ]);
+        // #1487 — Rate cards is no longer a standalone dashboard tile; it
+        // lives as an entry inside the Reports launcher
+        // (FrontendReportsLauncherView). The `?tt_view=rate-cards` route
+        // still works (DashboardShortcode case + the registerSlugOwnership
+        // entry); the view self-gates the Standard tier + upgrade nudge.
         TileRegistry::register([
             'module_class' => self::M_STATS,
             'view_slug'    => 'compare',

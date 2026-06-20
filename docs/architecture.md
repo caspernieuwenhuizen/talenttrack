@@ -82,7 +82,7 @@ The plugin ships a fully frontend-first UI on top of the `[talenttrack_dashboard
 
 - **Me-group** — `my-evaluations`, `my-sessions`, `my-goals`, `my-card`, `my-profile`.
 - **Coaching group** — `players`, `teams`, `evaluations`, `sessions`, `goals`, `methodology`.
-- **Analytics group** — `rate-cards`, `compare`.
+- **Analytics group** — `compare`, `reports` (the Reports launcher, which now also lists `rate-cards` as an entry rather than a standalone tile).
 
 Each view extends `FrontendViewBase` and delegates form save to a REST endpoint. List tables are rendered by `FrontendListTable`, which speaks the same orderby/filter/search contract as the REST controllers (see [REST API reference](rest-api.md)).
 
