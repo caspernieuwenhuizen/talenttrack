@@ -41,3 +41,9 @@ Team rating averages and Coach activity now render natively on the public dashbo
 The legacy wp-admin "Player Progress & Radar" report now renders natively on the dashboard as a standard report (Reports → *Player · Progress & radar*). Same three modes with the same data: **Player Progress** (each selected player's last five evaluations as stacked radar series — leave the selection empty for the top-10 active players), **Player Comparison** (each player's most recent evaluation overlaid on one radar; pick at least two), and **Team Averages** (one radar series per team, averaged per category).
 
 Coaches see only their own teams' players and teams; academy-wide roles see everything. The old wp-admin route redirects here, so bookmarks keep working. Integrations can read the same datasets from `GET /wp-json/talenttrack/v1/reports/player-radar?mode=…&player_ids=…`.
+
+## Player attendance — ranking + at-risk flags (v4.21.36)
+
+The player attendance report defaults to **worst attendance first** (lowest present %), so the players who need attention surface at the top. Every column stays sortable — click a header to re-sort.
+
+Players who have **missed** a configurable number of activities in the window (absent / excused / injured) are **flagged**: an inline ⚠ badge with the missed count, a tinted row, and an **At-risk players** panel above the table listing them worst-first. The threshold (default **3**) is the *single source of truth* shared with the daily attendance-flag notification, so the report and the nudge email always agree. It's stored in `tt_config` under `attendance_flag_threshold` (a settings toggle for it rides along with the General settings work).

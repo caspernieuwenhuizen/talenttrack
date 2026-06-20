@@ -32498,4 +32498,14 @@ msgstr ""
 #: src/Shared/Validation/CustomFieldValidator.php:350
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
+msgstr ""#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php
+#, php-format
+msgid "At-risk players (%d or more missed)"
 msgstr ""
+
+#: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php
+#, php-format
+msgid "%d missed"
+msgstr ""
+
+

@@ -136,6 +136,10 @@ final class CommsScheduledCron {
         //   • `a.archived_at IS NULL` — soft-archived activities don't
         //     contribute false-positive absences.
         // Audit 7 (#1181).
+        // #1488 — shared, operator-configurable threshold (single source
+        // of truth with the attendance report). Validated int (>= 1),
+        // safe to interpolate.
+        $threshold = \TT\Modules\Analytics\Domain\AttendanceFlagService::threshold();
         $rows = $wpdb->get_results(
             "SELECT pl.id AS player_id, pl.club_id, pl.team_id, pl.first_name, pl.last_name,
                     COUNT(*) AS missed_count
@@ -148,7 +152,7 @@ final class CommsScheduledCron {
                   AND att.record_type = 'actual'
                   AND LOWER(att.status) IN ('absent', 'excused', 'injured')
                 GROUP BY pl.id, pl.club_id, pl.team_id, pl.first_name, pl.last_name
-                HAVING COUNT(*) >= 3
+                HAVING COUNT(*) >= {$threshold}
                 ORDER BY missed_count DESC
                 LIMIT 30"
         );
