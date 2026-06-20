@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.26.7
+Stable tag: 4.26.8
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.26.8 — Data migration export: per-record include/exclude (closes #1517). The `.ttmig` migration export was all-or-nothing per data set, so test records (scratch players, etc.) had to come along. Each record-bearing set (Players, Teams, Staff & roles, Evaluations, Activities & attendance, Goals) now has a collapsed **Show N records** expander: every record is included by default; untick the ones to leave behind. Excluding a primary record also drops its child rows in the same set (e.g. an excluded activity drops its attendance). "Lookups & configuration" stays all-or-nothing — reference data, not test records. Default behaviour is unchanged for anyone who doesn't expand: the full set still exports. When an exclusion would orphan an included dependent in another set (e.g. excluding a player while keeping their evaluations), a confirmation step lists the orphan risks via [`BackupDependencyMap`](src/Modules/Backup/BackupDependencyMap.php) and offers **Download anyway** or cancel. Implementation: [`MigrationExporter::export()`](src/Modules/Backup/MigrationExporter.php) takes an exclusion set and builds per-table row filters; [`BackupSerializer::snapshot()`](src/Modules/Backup/BackupSerializer.php) gained an optional row-exclusion filter (full backups unchanged). Expanders are mobile-first (48px targets at 360px); very large sets cap the expander at 500 rows with a visible note (rows beyond are always included). docs/backups.md (EN+NL) updated; new Dutch strings. Patch bump. (closes #1517) =
 
 = 4.26.7 — Access Control pages: restore menu reachability under the modern menu (closes #1530). With the modern (non-legacy) wp-admin menu active, the whole Access Control group registered with a null parent — the pages still resolved by URL but appeared in no menu, so the Authorization Matrix, Migration preview, Compare users, Permission Debug and Permission Chain Debug were reachable only by typing the address. Two surfaces now expose them: (1) the modern wp-admin menu gets a new "Access Control" heading (`tt-sep-m-access`, gated to non-legacy mode) and the five pages register with an explicit `talenttrack` parent + `$msort` weights (44–48) so they sit under it, between Advanced and Developer — mirroring the #1449 modern-separator pattern. Legacy mode keeps its existing `tt-sep-access` group unchanged. (2) The frontend **Roles & rights** surface gains an "Advanced authorization tools" section linking out to the five pages. Every menu entry and link is gated on its page's own capability, so no user sees a dead link, and there are no duplicate rows in either menu mode. docs/access-control.md (EN+NL) documents where to find the tools. 2 new Dutch msgstrs. Patch bump. (closes #1530) =
 

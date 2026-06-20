@@ -87,6 +87,12 @@ Om gegevens naar een **andere** TalentTrack-installatie te verplaatsen, gebruik 
 
 Export bevat alleen gegevens: WordPress-gebruikers en media worden niet meegenomen. Koppelingen tussen installaties (`wp_user_id`) worden bij het importeren bepaald, niet in het bestand opgeslagen.
 
+### Afzonderlijke records achterlaten (v4.26.8+)
+
+Naast de selectievakjes per gegevensset heeft elke recordhoudende set (Spelers, Teams, Staf & rollen, Evaluaties, Activiteiten & aanwezigheid, Doelen) een **Toon N records**-uitklap. Elk record is standaard inbegrepen; haal het vinkje weg bij de records die je wilt achterlaten — handig om testspelers of kladrecords weg te laten voordat je naar een schone installatie migreert. Een record uitsluiten verwijdert ook de onderliggende rijen binnen dezelfde set (bijv. een activiteit uitsluiten verwijdert de bijbehorende aanwezigheidsrijen). "Keuzelijsten & configuratie" blijft alles-of-niets, want dat is referentiegegevens en geen testrecords.
+
+Als je een record uitsluit waarnaar een andere inbegrepen set nog verwijst — bijvoorbeeld een speler uitsluiten maar diens evaluaties behouden — toont een bevestigingsstap die losgekoppelde verwijzingen vóór het downloaden. Je kunt **Toch downloaden** (de afhankelijke records worden geëxporteerd zonder het record waarnaar ze verwijzen) of annuleren en je selectie aanpassen. Zeer grote sets tonen alleen de eerste 500 records in de uitklap; records daarboven zijn altijd inbegrepen.
+
 Het importeren van een `.ttmig` op de doelinstallatie — uploaden, selectie van entiteiten/records, interactieve conflictoplossing en gebruikerskoppeling, en ID-hermapping zodat het veilig samenvoegt in een gevulde installatie — volgt in latere fasen (#1464).
 
 ## Wat blijft uitgesteld
