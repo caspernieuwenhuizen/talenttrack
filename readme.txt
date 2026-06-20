@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.26.5
+Stable tag: 4.26.6
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.26.6 — Age-group labels: localise U-codes to the Dutch O-convention (closes #1528). On an nl_NL site age groups rendered as the English seed (U14) on the player-status methodology page and other surfaces. The translation mechanism was working — the U-codes simply had no Dutch value (only Senior was seeded) and several surfaces rendered the raw `tt_lookups.name` instead of routing through `LookupTranslator`. Three parts: (1) `LookupTranslationSeeds` now maps U7…U21/U23 → O7…O21/O23 for nl_NL (fr/de/es use the UEFA U-notation natively, so no override row); fresh installs seed correctly. (2) New migration `0163_seed_age_group_dutch_labels` backfills existing installs — INSERT IGNORE on the translations unique key, so a club's manual edits (e.g. an existing U19 → O19) are never overwritten. (3) Routed the display surfaces through `LookupTranslator`: the methodology page, plus the team/player age-group labels in the player-detail, teammate, podium, report-detail, standard-reports, teams-manage and coach-dashboard frontend views, and the Category Weights / Teams / People / Reports admin tables. Filled the methodology page's outstanding Dutch string. docs/configuration-lookups.md (EN+NL) documents the O-convention. Patch bump. (closes #1528) =
 
 = 4.26.5 — Blueprint formation picker: localise the formation names (closes #1523). On an nl_NL site the blueprint Formation pickers showed English names. A central translator (`LabelTranslator::formationName()`) already exists and the REST controller + match-prep view route through it, but the blueprint surfaces rendered the raw `tt_formation_templates.name` (English seed). Routed all three through the translator: the create-wizard dropdown ([SetupStep](src/Modules/Wizards/TeamBlueprint/SetupStep.php)), the editor toolbar dropdown ([FrontendTeamBlueprintsView](src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php)), and the wizard review row ([ReviewStep](src/Modules/Wizards/TeamBlueprint/ReviewStep.php)). The `(shape)` suffix stays literal. All eight seeded formation names already had Dutch translations (added in #1477), so no `.po` change was needed. Patch bump. (closes #1523) =
 

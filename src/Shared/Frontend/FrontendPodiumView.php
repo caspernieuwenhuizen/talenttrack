@@ -49,7 +49,7 @@ class FrontendPodiumView extends FrontendViewBase {
             echo '</h2>';
             if ( ! empty( $team->age_group ) ) {
                 echo '<small style="color:#5b6e75; font-weight:normal;">'
-                    . esc_html( (string) $team->age_group )
+                    . esc_html( \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'age_group', (string) $team->age_group ) )
                     . '</small>';
             }
             echo '</header>';

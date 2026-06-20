@@ -65,6 +65,10 @@ In v4.11.0 backfilt een eenmalige migratie (`0131_lookup_translation_seeds`) `tt
 
 De migratie is idempotent; opnieuw uitvoeren heeft geen effect.
 
+### Leeftijdscategorie-labels (v4.26.6)
+
+Leeftijdscategorieën gebruiken de internationale **U**-notatie als canonieke interne sleutel (`U7…U23`, `Senior`). Op een Nederlandse site worden ze getoond met de **O**-conventie (Onder) — `O7…O23`, `Senioren` — opgelost via `tt_translations`, net als elk ander lookup-label. Migratie `0163_seed_age_group_dutch_labels` vult deze Nederlandse labels aan op bestaande installaties (INSERT IGNORE, dus eigen bewerkingen van een club via het bewerkscherm worden nooit overschreven); nieuwe installaties seeden ze uit `LookupTranslationSeeds`. Frans, Duits en Spaans houden de U-notatie aan, dus die krijgen geen eigen rij. Elk dashboardscherm rendert het leeftijdscategorie-label via `LookupTranslator`, nooit de ruwe `name`.
+
 ## Vergrendelde rijen
 
 Sommige rijen zijn gemarkeerd met `is_locked = true` omdat workflow-regels ze op naam lezen. Vergrendelde rijen:

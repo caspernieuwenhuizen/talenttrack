@@ -77,7 +77,7 @@ class FrontendTeammateView extends FrontendViewBase {
                         <div style="color:#666; font-size:14px;">
                             <?php echo esc_html( (string) $team->name ); ?>
                             <?php if ( ! empty( $team->age_group ) ) : ?>
-                                — <?php echo esc_html( (string) $team->age_group ); ?>
+                                — <?php echo esc_html( \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'age_group', (string) $team->age_group ) ); ?>
                             <?php endif; ?>
                         </div>
                     <?php endif; ?>

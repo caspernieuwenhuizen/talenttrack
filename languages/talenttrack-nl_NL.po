@@ -22743,6 +22743,10 @@ msgid ""
 "60, red below 40, behaviour floor at the midpoint of the active rating "
 "scale) applies until you save an override."
 msgstr ""
+"Stel in hoe de stoplichtstatus wordt berekend. De meegeleverde standaard "
+"(40% beoordelingen / 25% gedrag / 20% aanwezigheid / 15% potentieel, oranje "
+"onder 60, rood onder 40, gedragsondergrens op het midden van de actieve "
+"beoordelingsschaal) geldt totdat je een afwijking opslaat."
 
 #: src/Modules/Players/Frontend/FrontendPlayerStatusMethodologyView.php:59
 msgid "Club-wide default"

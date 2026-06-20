@@ -106,7 +106,7 @@ class TeamsPage {
                     ?></strong>
                         <?php if ( $is_archived ) : ?><span style="display:inline-block;margin-left:6px;padding:1px 6px;background:#e0e0e0;border-radius:2px;font-size:10px;text-transform:uppercase;color:#555;"><?php esc_html_e( 'Archived', 'talenttrack' ); ?></span><?php endif; ?>
                     </td>
-                    <td><?php echo esc_html( (string) $t->age_group ); ?></td>
+                    <td><?php echo esc_html( \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'age_group', (string) $t->age_group ) ); ?></td>
                     <td><?php $render_staff( (int) $t->id, 'head_coach' ); ?></td>
                     <td><?php $render_staff( (int) $t->id, 'assistant_coach' ); ?></td>
                     <td><?php $render_staff( (int) $t->id, 'team_manager' ); ?></td>

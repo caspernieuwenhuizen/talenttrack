@@ -65,6 +65,10 @@ In v4.11.0 a one-time migration (`0131_lookup_translation_seeds`) backfills `tt_
 
 The migration is idempotent; re-running it has no effect.
 
+### Age-group labels (v4.26.6)
+
+Age groups use the international **U** notation as the canonical internal key (`U7…U23`, `Senior`). On a Dutch site they display with the **O** (Onder) convention — `O7…O23`, `Senioren` — resolved through `tt_translations` like every other lookup label. Migration `0163_seed_age_group_dutch_labels` backfills these Dutch labels on existing installs (INSERT IGNORE, so a club's own edits via the Edit view are never overwritten); fresh installs seed them from `LookupTranslationSeeds`. French, German and Spanish keep the U notation natively, so they carry no override row. Every dashboard surface renders the age-group label through `LookupTranslator`, never the raw `name`.
+
 ## Locked rows
 
 Some rows are marked `is_locked = true` because workflow rules read them by name. Locked rows:

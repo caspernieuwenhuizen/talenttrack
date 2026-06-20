@@ -58,7 +58,8 @@ final class FrontendPlayerStatusMethodologyView {
 
         self::renderForm( 0, __( 'Club-wide default', 'talenttrack' ) );
         foreach ( $age_groups as $ag ) {
-            $label = sprintf( __( 'Age group: %s', 'talenttrack' ), (string) $ag->name );
+            // #1528 — localise the age-group label (U14 -> O14 on nl_NL).
+            $label = sprintf( __( 'Age group: %s', 'talenttrack' ), \TT\Infrastructure\Query\LookupTranslator::name( $ag ) );
             self::renderForm( (int) $ag->id, $label );
         }
 

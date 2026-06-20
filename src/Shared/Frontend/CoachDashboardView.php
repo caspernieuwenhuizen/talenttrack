@@ -49,7 +49,7 @@ class CoachDashboardView {
         } else {
             $team_svc = new \TT\Infrastructure\Stats\TeamStatsService();
             foreach ( $teams as $team ) {
-                echo '<h3>' . esc_html( (string) $team->name ) . ' <small>(' . esc_html( (string) $team->age_group ) . ')</small></h3>';
+                echo '<h3>' . esc_html( (string) $team->name ) . ' <small>(' . esc_html( \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'age_group', (string) $team->age_group ) ) . ')</small></h3>';
                 // v2.15.0: top-3 podium before the roster grid.
                 $top = $team_svc->getTopPlayersForTeam( (int) $team->id, 3, 5 );
                 if ( ! empty( $top ) ) {
