@@ -42,8 +42,11 @@ class FrontendConfigurationView extends FrontendViewBase {
         if ( $sub !== '' ) {
             $sub_labels = [
                 'general'     => __( 'General', 'talenttrack' ),
-                'branding'    => __( 'Branding', 'talenttrack' ),
-                'theme'       => __( 'Theme & fonts', 'talenttrack' ),
+                'appearance'  => __( 'Appearance', 'talenttrack' ),
+                // #1531 — Branding + Theme & fonts retired into Appearance;
+                // labels kept so old deep links still resolve a crumb.
+                'branding'    => __( 'Appearance', 'talenttrack' ),
+                'theme'       => __( 'Appearance', 'talenttrack' ),
                 'rating'      => __( 'Rating scale', 'talenttrack' ),
                 'pdp-blocks'  => __( 'PDP cycle blocks', 'talenttrack' ),
             ];
@@ -62,16 +65,16 @@ class FrontendConfigurationView extends FrontendViewBase {
                 self::renderSubBackLink();
                 self::renderGeneralForm();
                 return;
+            // #1531 — Branding + Theme & fonts consolidated into one
+            // Appearance surface (colours unified). The old subs route here
+            // too so existing deep links / bookmarks still land somewhere.
+            case 'appearance':
             case 'branding':
-                self::renderHeader( __( 'Branding', 'talenttrack' ) );
+            case 'theme':
+                self::renderHeader( __( 'Appearance', 'talenttrack' ) );
                 self::renderSubBackLink();
                 wp_enqueue_media();
-                self::renderBrandingForm();
-                return;
-            case 'theme':
-                self::renderHeader( __( 'Theme & fonts', 'talenttrack' ) );
-                self::renderSubBackLink();
-                self::renderThemeForm();
+                self::renderAppearanceForm();
                 return;
             case 'rating':
                 self::renderHeader( __( 'Rating scale', 'talenttrack' ) );
@@ -1452,8 +1455,9 @@ class FrontendConfigurationView extends FrontendViewBase {
         $frontend_tiles = [
             'general'   => [ __( 'General', 'talenttrack' ),       __( 'Date notation, first day of the week, timezone and locale for the whole academy.', 'talenttrack' ), 'settings' ],
             'dashboard' => [ __( 'Default dashboard', 'talenttrack' ), __( 'Choose what every user sees on the dashboard root: the persona dashboard or the classic tile grid.', 'talenttrack' ), 'dashboard' ],
-            'branding'  => [ __( 'Branding', 'talenttrack' ),     __( 'Academy name, logo, primary and secondary colours.', 'talenttrack' ), 'rate-card' ],
-            'theme'     => [ __( 'Theme & fonts', 'talenttrack' ), __( 'Theme inheritance, display + body fonts and accent colours.', 'talenttrack' ), 'settings' ],
+            // #1531 — Branding + Theme & fonts consolidated into one
+            // Appearance surface (all brand colours in one Colours section).
+            'appearance'=> [ __( 'Appearance', 'talenttrack' ),   __( 'Academy name, logo, all brand colours, fonts and theme inheritance — in one place.', 'talenttrack' ), 'rate-card' ],
             'lookups'   => [ __( 'Lookups', 'talenttrack' ),       __( 'Activity types, positions, age groups, goal statuses, evaluation types — every dropdown vocabulary in one place.', 'talenttrack' ), 'categories' ],
             'rating'    => [ __( 'Rating scale', 'talenttrack' ),  __( 'Min, max and step for evaluation ratings.', 'talenttrack' ), 'weights' ],
             'pdp-blocks'=> [ __( 'PDP cycle blocks', 'talenttrack' ), __( 'Date ranges for each block in a PDP cycle, per season. Configure 2, 3 or 4 blocks with date pairs validated against the season window.', 'talenttrack' ), 'calendar' ],
@@ -1504,7 +1508,7 @@ class FrontendConfigurationView extends FrontendViewBase {
         }
         $admin_tiles = array_merge( $admin_tiles, [
             [ __( 'Seasons', 'talenttrack' ),                    __( 'Create, edit, delete and set the current academy season. PDP files and the carryover job are scoped to the current season.', 'talenttrack' ), add_query_arg( [ 'tt_view' => 'seasons' ], remove_query_arg( [ 'tt_view', 'config_sub' ] ) ), 'calendar' ],
-            [ __( 'Custom CSS', 'talenttrack' ),                 __( 'Per-club custom styling (#0064): visual editor, code editor, file upload, starter templates, history with revert. Frontend + wp-admin surfaces.', 'talenttrack' ), add_query_arg( [ 'tt_view' => 'custom-css' ], remove_query_arg( [ 'tt_view', 'config_sub' ] ) ), 'rate-card' ],
+            [ __( 'Custom CSS', 'talenttrack' ),                 __( 'Per-club custom styling (#0064): visual editor, code editor, file upload, starter templates, history with revert. Frontend + wp-admin surfaces.', 'talenttrack' ), add_query_arg( [ 'tt_view' => 'custom-css' ], remove_query_arg( [ 'tt_view', 'config_sub' ] ) ), 'edit' ], // #1531 — distinct icon (was 'rate-card', shared with branding).
             [ __( 'Spond integration', 'talenttrack' ),          __( 'Per-team iCal sync status and "Refresh now" buttons. Lives in wp-admin.', 'talenttrack' ),                admin_url( 'admin.php?page=tt-spond' ), 'sessions' ],
             [ __( 'Feature toggles', 'talenttrack' ),            __( 'Per-module enable/disable toggles. Live in wp-admin.', 'talenttrack' ),                                add_query_arg( [ 'tab' => 'toggles' ],     $admin_url ), 'gear' ],
             [ __( 'Backups', 'talenttrack' ),                    __( 'Manual + scheduled database backups. Lives in wp-admin.', 'talenttrack' ),                              add_query_arg( [ 'tab' => 'backups' ],     $admin_url ), 'migrations' ],
@@ -1695,28 +1699,38 @@ class FrontendConfigurationView extends FrontendViewBase {
         return $count;
     }
 
-    private static function renderBrandingForm(): void {
-        $logo = QueryHelpers::get_config( 'logo_url', '' );
-        // v4.12.11 (#1024) — club short code drives the home-team
-        // abbreviation on the match-execution score box. When empty, a
-        // derivation from the academy name is used at render time
-        // (`ClubIdentity::shortCode()`); operator can override here.
+    /**
+     * #1531 — single "Appearance" surface consolidating the former
+     * Branding and Theme & fonts tiles. Stacked sections: Identity,
+     * Colours (primary/secondary + the accent palette, all in one place),
+     * Typography, Theme, and an Advanced link to Custom CSS. One form +
+     * one Save/Cancel; reuses the existing config keys + save path, so no
+     * data migration. The accent-colour fields simply moved out of the
+     * theme form into Colours.
+     */
+    private static function renderAppearanceForm(): void {
+        $logo            = QueryHelpers::get_config( 'logo_url', '' );
         $club_short_code = QueryHelpers::get_config( 'club_short_code', '' );
+        $theme_inherit   = (string) QueryHelpers::get_config( 'theme_inherit', '0' );
+        $font_display    = (string) QueryHelpers::get_config( 'font_display',  BrandFonts::SYSTEM_DEFAULT );
+        $font_body       = (string) QueryHelpers::get_config( 'font_body',     BrandFonts::SYSTEM_DEFAULT );
+        $cancel_url      = remove_query_arg( [ 'config_sub' ] );
+        $css_url         = add_query_arg( [ 'tt_view' => 'custom-css' ], remove_query_arg( [ 'tt_view', 'config_sub' ] ) );
         ?>
-        <form id="tt-config-form" data-tt-config-form="1" data-tt-config-sub="branding">
+        <form id="tt-config-form" data-tt-config-form="1" data-tt-config-sub="appearance">
+
+            <h3 class="tt-cfg-section-head" style="margin:8px 0 8px;"><?php esc_html_e( 'Identity', 'talenttrack' ); ?></h3>
             <div class="tt-panel">
                 <div class="tt-grid tt-grid-2">
                     <div class="tt-field">
                         <label class="tt-field-label" for="tt-cfg-academy-name"><?php esc_html_e( 'Academy name', 'talenttrack' ); ?></label>
                         <input type="text" id="tt-cfg-academy-name" class="tt-input" name="config[academy_name]" value="<?php echo esc_attr( QueryHelpers::get_config( 'academy_name', '' ) ); ?>" />
                     </div>
-
                     <div class="tt-field">
                         <label class="tt-field-label" for="tt-cfg-club-short-code"><?php esc_html_e( 'Club short code', 'talenttrack' ); ?></label>
                         <input type="text" id="tt-cfg-club-short-code" class="tt-input" name="config[club_short_code]" maxlength="3" value="<?php echo esc_attr( $club_short_code ); ?>" inputmode="text" autocomplete="off" />
                         <p class="tt-field-hint" style="margin-top:6px; color:var(--tt-muted);"><?php esc_html_e( 'Three-letter club abbreviation shown on the match scoreboard (e.g. HED for vv Hedel). Leave empty to derive from the academy name.', 'talenttrack' ); ?></p>
                     </div>
-
                     <div class="tt-field">
                         <span class="tt-field-label"><?php esc_html_e( 'Logo', 'talenttrack' ); ?></span>
                         <input type="hidden" id="tt-cfg-logo-url" name="config[logo_url]" value="<?php echo esc_attr( $logo ); ?>" />
@@ -1728,7 +1742,13 @@ class FrontendConfigurationView extends FrontendViewBase {
                         <button type="button" class="tt-btn tt-btn-secondary" id="tt-cfg-logo-pick"><?php esc_html_e( 'Choose logo…', 'talenttrack' ); ?></button>
                         <button type="button" class="tt-btn tt-btn-secondary" id="tt-cfg-logo-clear" style="margin-left:6px;"><?php esc_html_e( 'Remove', 'talenttrack' ); ?></button>
                     </div>
+                </div>
+            </div>
 
+            <h3 class="tt-cfg-section-head" style="margin:18px 0 8px;"><?php esc_html_e( 'Colours', 'talenttrack' ); ?></h3>
+            <div class="tt-panel">
+                <p style="margin:0 0 var(--tt-sp-3); color:var(--tt-muted);"><?php esc_html_e( 'Every brand colour in one place — the two primary brand colours plus the accent/status palette.', 'talenttrack' ); ?></p>
+                <div class="tt-grid tt-grid-2">
                     <div class="tt-field">
                         <label class="tt-field-label" for="tt-cfg-primary-color"><?php esc_html_e( 'Primary color', 'talenttrack' ); ?></label>
                         <input type="color" id="tt-cfg-primary-color" name="config[primary_color]" value="<?php echo esc_attr( QueryHelpers::get_config( 'primary_color', '#0b3d2e' ) ); ?>" />
@@ -1736,52 +1756,6 @@ class FrontendConfigurationView extends FrontendViewBase {
                     <div class="tt-field">
                         <label class="tt-field-label" for="tt-cfg-secondary-color"><?php esc_html_e( 'Secondary color', 'talenttrack' ); ?></label>
                         <input type="color" id="tt-cfg-secondary-color" name="config[secondary_color]" value="<?php echo esc_attr( QueryHelpers::get_config( 'secondary_color', '#e8b624' ) ); ?>" />
-                    </div>
-                </div>
-            </div>
-            <div class="tt-form-actions" style="margin-top:16px;">
-                <?php echo FormSaveButton::render( [ 'label' => __( 'Save branding', 'talenttrack' ) ] ); ?>
-            </div>
-            <div class="tt-form-msg"></div>
-        </form>
-        <?php
-        self::renderConfigJs( true );
-    }
-
-    private static function renderThemeForm(): void {
-        $theme_inherit = (string) QueryHelpers::get_config( 'theme_inherit', '0' );
-        $font_display  = (string) QueryHelpers::get_config( 'font_display',  BrandFonts::SYSTEM_DEFAULT );
-        $font_body     = (string) QueryHelpers::get_config( 'font_body',     BrandFonts::SYSTEM_DEFAULT );
-        ?>
-        <form id="tt-config-form" data-tt-config-form="1" data-tt-config-sub="theme">
-            <div class="tt-panel">
-                <p style="margin:0 0 var(--tt-sp-3); color:var(--tt-muted);">
-                    <?php esc_html_e( 'Inheritance applies to fonts, colors, and basic links/buttons. TalentTrack’s structural design (spacing, layout, player cards) is unchanged. Pick fonts and accent colors below — fields left as “(System default)” or empty fall back to TalentTrack’s defaults.', 'talenttrack' ); ?>
-                </p>
-
-                <div class="tt-field">
-                    <label>
-                        <input type="checkbox" name="config[theme_inherit]" value="1" <?php checked( $theme_inherit, '1' ); ?> />
-                        <?php esc_html_e( 'Defer typography, link color, headings and plain buttons to the active WP theme.', 'talenttrack' ); ?>
-                    </label>
-                </div>
-
-                <div class="tt-grid tt-grid-2">
-                    <div class="tt-field">
-                        <label class="tt-field-label" for="tt-cfg-font-display"><?php esc_html_e( 'Display font', 'talenttrack' ); ?></label>
-                        <select id="tt-cfg-font-display" class="tt-input" name="config[font_display]">
-                            <?php foreach ( BrandFonts::displayOptions() as $value => $label ) : ?>
-                                <option value="<?php echo esc_attr( (string) $value ); ?>" <?php selected( $font_display, (string) $value ); ?>><?php echo esc_html( (string) $label ); ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div class="tt-field">
-                        <label class="tt-field-label" for="tt-cfg-font-body"><?php esc_html_e( 'Body font', 'talenttrack' ); ?></label>
-                        <select id="tt-cfg-font-body" class="tt-input" name="config[font_body]">
-                            <?php foreach ( BrandFonts::bodyOptions() as $value => $label ) : ?>
-                                <option value="<?php echo esc_attr( (string) $value ); ?>" <?php selected( $font_body, (string) $value ); ?>><?php echo esc_html( (string) $label ); ?></option>
-                            <?php endforeach; ?>
-                        </select>
                     </div>
                     <?php
                     foreach ( [
@@ -1801,13 +1775,55 @@ class FrontendConfigurationView extends FrontendViewBase {
                     <?php endforeach; ?>
                 </div>
             </div>
-            <div class="tt-form-actions" style="margin-top:16px;">
-                <?php echo FormSaveButton::render( [ 'label' => __( 'Save theme', 'talenttrack' ) ] ); ?>
+
+            <h3 class="tt-cfg-section-head" style="margin:18px 0 8px;"><?php esc_html_e( 'Typography', 'talenttrack' ); ?></h3>
+            <div class="tt-panel">
+                <div class="tt-grid tt-grid-2">
+                    <div class="tt-field">
+                        <label class="tt-field-label" for="tt-cfg-font-display"><?php esc_html_e( 'Display font', 'talenttrack' ); ?></label>
+                        <select id="tt-cfg-font-display" class="tt-input" name="config[font_display]">
+                            <?php foreach ( BrandFonts::displayOptions() as $value => $label ) : ?>
+                                <option value="<?php echo esc_attr( (string) $value ); ?>" <?php selected( $font_display, (string) $value ); ?>><?php echo esc_html( (string) $label ); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="tt-field">
+                        <label class="tt-field-label" for="tt-cfg-font-body"><?php esc_html_e( 'Body font', 'talenttrack' ); ?></label>
+                        <select id="tt-cfg-font-body" class="tt-input" name="config[font_body]">
+                            <?php foreach ( BrandFonts::bodyOptions() as $value => $label ) : ?>
+                                <option value="<?php echo esc_attr( (string) $value ); ?>" <?php selected( $font_body, (string) $value ); ?>><?php echo esc_html( (string) $label ); ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="tt-cfg-section-head" style="margin:18px 0 8px;"><?php esc_html_e( 'Theme', 'talenttrack' ); ?></h3>
+            <div class="tt-panel">
+                <p style="margin:0 0 var(--tt-sp-3); color:var(--tt-muted);">
+                    <?php esc_html_e( 'Inheritance applies to fonts, colors, and basic links/buttons. TalentTrack’s structural design (spacing, layout, player cards) is unchanged. Fields left as “(System default)” or empty fall back to TalentTrack’s defaults.', 'talenttrack' ); ?>
+                </p>
+                <div class="tt-field">
+                    <label>
+                        <input type="checkbox" name="config[theme_inherit]" value="1" <?php checked( $theme_inherit, '1' ); ?> />
+                        <?php esc_html_e( 'Defer typography, link color, headings and plain buttons to the active WP theme.', 'talenttrack' ); ?>
+                    </label>
+                </div>
+            </div>
+
+            <h3 class="tt-cfg-section-head" style="margin:18px 0 8px;"><?php esc_html_e( 'Advanced', 'talenttrack' ); ?></h3>
+            <div class="tt-panel">
+                <p style="margin:0 0 var(--tt-sp-3); color:var(--tt-muted);"><?php esc_html_e( 'Per-club custom styling — visual + code editor, file upload, starter templates and revertable history.', 'talenttrack' ); ?></p>
+                <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( $css_url ); ?>"><?php esc_html_e( 'Open Custom CSS', 'talenttrack' ); ?></a>
+            </div>
+
+            <div style="margin-top:16px;">
+                <?php echo FormSaveButton::render( [ 'label' => __( 'Save appearance', 'talenttrack' ), 'cancel_url' => $cancel_url ] ); ?>
             </div>
             <div class="tt-form-msg"></div>
         </form>
         <?php
-        self::renderConfigJs( false );
+        self::renderConfigJs( true );
     }
 
     /**
@@ -2254,7 +2270,7 @@ class FrontendConfigurationView extends FrontendViewBase {
                     var m = /^config\[(.+)\]$/.exec(key);
                     if (m) config[m[1]] = value;
                 });
-                if (form.dataset.ttConfigSub === 'theme' && (config.theme_inherit === undefined || config.theme_inherit === '')) config.theme_inherit = '0';
+                if ((form.dataset.ttConfigSub === 'theme' || form.dataset.ttConfigSub === 'appearance') && (config.theme_inherit === undefined || config.theme_inherit === '')) config.theme_inherit = '0';
                 if (form.dataset.ttConfigSub === 'menus' && (config.show_legacy_menus === undefined || config.show_legacy_menus === '')) config.show_legacy_menus = '0';
 
                 var url = (rest.rest_url || '/wp-json/talenttrack/v1/').replace(/\/+$/, '/') + 'config';

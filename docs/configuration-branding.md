@@ -10,6 +10,18 @@ Visiting **Configuration** with no `?tab=` parameter shows a tile grid grouped b
 
 The tab strip at the top is gone; from any in-page tab use the **← Configuration** link in the page title to return to the tile grid.
 
+## Appearance surface (v4.26.13+)
+
+On the frontend Configuration view, the former **Branding** and **Theme & fonts** tiles are consolidated into a single **Appearance** entry — so every brand colour lives in one place instead of being split across two tiles. Opening Appearance shows one page with stacked sections:
+
+- **Identity** — academy name, club short code, logo.
+- **Colours** — primary, secondary, and the full accent/status palette (accent, danger, warning, success, info, focus-ring), all together.
+- **Typography** — display font and body font.
+- **Theme** — the "defer to the active WP theme" inheritance toggle.
+- **Advanced** — a link into the Custom CSS editor.
+
+No configuration keys changed and there is no data migration — existing values render unchanged. Save + Cancel sit at the bottom of the page. Old `?config_sub=branding` / `?config_sub=theme` deep links still resolve to the Appearance surface.
+
 ## Tabs
 
 ### General

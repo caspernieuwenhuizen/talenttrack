@@ -37471,6 +37471,41 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/Frontend/FrontendConfigurationView.php:46
+msgid "Appearance"
+msgstr "Vormgeving"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:1455
+msgid "Academy name, logo, all brand colours, fonts and theme inheritance — in one place."
+msgstr "Academienaam, logo, alle merkkleuren, lettertypen en thema-overerving — op één plek."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:1747
+msgid "Every brand colour in one place — the two primary brand colours plus the accent/status palette."
+msgstr "Alle merkkleuren op één plek — de twee primaire merkkleuren plus het accent-/statuspalet."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:1790
+msgid ""
+"Inheritance applies to fonts, colors, and basic links/buttons. TalentTrack’s "
+"structural design (spacing, layout, player cards) is unchanged. Fields left "
+"as “(System default)” or empty fall back to TalentTrack’s defaults."
+msgstr ""
+"Overerving geldt voor lettertypen, kleuren en basislinks/-knoppen. Het "
+"structurele ontwerp van TalentTrack (witruimte, lay-out, spelerskaarten) "
+"blijft ongewijzigd. Velden die op “(Systeemstandaard)” of leeg staan vallen "
+"terug op de standaarden van TalentTrack."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:1797
+msgid "Per-club custom styling — visual + code editor, file upload, starter templates and revertable history."
+msgstr "Aangepaste styling per club — visuele + code-editor, bestandsupload, starttemplates en terugdraaibare geschiedenis."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:1799
+msgid "Open Custom CSS"
+msgstr "Aangepaste CSS openen"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:1803
+msgid "Save appearance"
+msgstr "Vormgeving opslaan"
+
 #: src/Shared/Frontend/FrontendConfigurationView.php:211
 msgid ""
 "Lookup vocabularies, grouped by domain. Values are translatable and feed "
