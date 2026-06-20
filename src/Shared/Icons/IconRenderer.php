@@ -35,11 +35,54 @@ class IconRenderer {
         return TT_PLUGIN_DIR . 'assets/icons/';
     }
 
+    /**
+     * Directory holding the Phosphor duotone variants used on TILE
+     * surfaces only (#1553). These are 256-viewBox `fill="currentColor"`
+     * glyphs with a 0.2-opacity back layer; the inline icon set in
+     * `dir()` (24-viewBox line icons) is untouched and still drives
+     * buttons / menus / inline usages.
+     */
+    public static function duotoneDir(): string {
+        return TT_PLUGIN_DIR . 'assets/icons/duotone/';
+    }
+
     public static function exists( string $name ): bool {
         if ( ! self::isValidName( $name ) ) {
             return false;
         }
         return is_file( self::dir() . $name . '.svg' );
+    }
+
+    /**
+     * Whether a Phosphor duotone variant exists for the given icon key.
+     */
+    public static function duotoneExists( string $name ): bool {
+        if ( ! self::isValidName( $name ) ) {
+            return false;
+        }
+        return is_file( self::duotoneDir() . $name . '.svg' );
+    }
+
+    /**
+     * Inline the Phosphor duotone variant for TILE surfaces (#1553).
+     *
+     * Identical attribute-merge behaviour to {@see render()} but loads
+     * from `assets/icons/duotone/`. Falls back to the inline line icon
+     * when no duotone variant is bundled for the key, so a tile never
+     * renders blank. The chip's `color` drives the accent tint via
+     * `currentColor`.
+     *
+     * @param string $name  icon basename (no extension), must match /^[a-z0-9-]+$/
+     * @param array<string,string|int|bool> $attrs attributes merged onto the <svg> root
+     */
+    public static function renderDuotone( string $name, array $attrs = [] ): string {
+        $svg = self::loadDuotone( $name );
+        if ( $svg === null ) {
+            // No duotone variant bundled — fall back to the inline icon
+            // so the tile is never blank.
+            return self::render( $name, $attrs );
+        }
+        return self::inject( $svg, $attrs );
     }
 
     /**
@@ -58,7 +101,18 @@ class IconRenderer {
         if ( $svg === null ) {
             return '';
         }
+        return self::inject( $svg, $attrs );
+    }
 
+    /**
+     * Merge the default + caller attributes onto the root <svg> tag of
+     * the given markup. Shared by {@see render()} and
+     * {@see renderDuotone()}.
+     *
+     * @param string $svg raw SVG markup
+     * @param array<string,string|int|bool> $attrs attributes merged onto the <svg> root
+     */
+    private static function inject( string $svg, array $attrs ): string {
         $defaults = [
             'class'       => 'tt-icon',
             'width'       => 24,
@@ -79,7 +133,7 @@ class IconRenderer {
         // Source SVGs have a single <svg ...> opening with viewBox+fill etc.
         // We strip any existing class/width/height/aria-hidden/focusable
         // before injecting so caller overrides win.
-        $svg = preg_replace_callback(
+        return preg_replace_callback(
             '/<svg\b([^>]*)>/i',
             function ( $m ) use ( $attr_str, $merged ) {
                 $existing = $m[1];
@@ -91,8 +145,6 @@ class IconRenderer {
             $svg,
             1
         );
-
-        return $svg;
     }
 
     private static function load( string $name ): ?string {
@@ -115,6 +167,24 @@ class IconRenderer {
             self::logMissOnce( $name );
         }
         return self::$cache[ $name ];
+    }
+
+    private static function loadDuotone( string $name ): ?string {
+        if ( ! self::isValidName( $name ) ) {
+            return null;
+        }
+        $cache_key = 'duotone:' . $name;
+        if ( array_key_exists( $cache_key, self::$cache ) ) {
+            return self::$cache[ $cache_key ];
+        }
+        $path = self::duotoneDir() . $name . '.svg';
+        if ( ! is_file( $path ) ) {
+            self::$cache[ $cache_key ] = null;
+            return null;
+        }
+        $contents = file_get_contents( $path );
+        self::$cache[ $cache_key ] = ( $contents === false ) ? null : trim( $contents );
+        return self::$cache[ $cache_key ];
     }
 
     private static function isValidName( string $name ): bool {

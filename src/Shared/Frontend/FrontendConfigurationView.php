@@ -250,7 +250,7 @@ class FrontendConfigurationView extends FrontendViewBase {
                 'grid_inline'   => false,
                 'tile_renderer' => static function ( array $tile ): void {
                     echo '<a class="tt-cfg-tile" href="' . esc_url( (string) $tile['url'] ) . '">';
-                    echo '<div class="tt-cfg-tile-icon">' . \TT\Shared\Icons\IconRenderer::render( (string) $tile['icon'] ) . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                    echo '<div class="tt-cfg-tile-icon">' . \TT\Shared\Frontend\Components\TileIconChip::render( (string) $tile['icon'], '#0b3d2e' ) . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — TileIconChip escapes its own attrs and IconRenderer returns trusted SVG.
                     echo '<div class="tt-cfg-tile-title">' . esc_html( (string) $tile['title'] ) . '</div>';
                     echo '<div class="tt-cfg-tile-desc">' . esc_html( (string) $tile['desc'] ) . '</div>';
                     echo '</a>';
@@ -1427,10 +1427,11 @@ class FrontendConfigurationView extends FrontendViewBase {
         .tt-cfg-tile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
         .tt-cfg-tile { display: block; background: #fff; border: 1px solid var(--tt-line, #e5e7ea); border-radius: 8px; padding: 14px; text-decoration: none; color: #1a1d21; min-height: 76px; box-shadow: var(--tt-shadow-sm, none); transition: transform var(--tt-motion-duration, 180ms) var(--tt-motion-easing, cubic-bezier(0.2, 0.8, 0.2, 1)), box-shadow var(--tt-motion-duration, 180ms) var(--tt-motion-easing, ease), border-color var(--tt-motion-duration, 180ms) var(--tt-motion-easing, ease); }
         .tt-cfg-tile:hover, .tt-cfg-tile:focus { transform: translateY(-1px); box-shadow: var(--tt-shadow-md, 0 4px 12px rgba(0,0,0,0.08)); border-color: #d0d4d8; color: #1a1d21; }
-        /* v3.72.5 — icon column on each tile, mirrors the wp-admin
-         * dashboard tile look. Width fixed; icon fills its slot. */
-        .tt-cfg-tile-icon { width: 28px; height: 28px; margin-bottom: 8px; color: #0b3d2e; }
-        .tt-cfg-tile-icon .tt-icon { width: 28px; height: 28px; }
+        /* #1553 — the icon slot now hosts a TileIconChip (Phosphor duotone
+         * glyph in an accent chip); the chip sizes itself, so this wrapper
+         * only handles spacing. Emoji tiles still set their own font-size
+         * inline. */
+        .tt-cfg-tile-icon { margin-bottom: 8px; line-height: 0; }
         .tt-cfg-tile-title { font-weight: 600; font-size: 14px; line-height: 1.25; margin: 0 0 4px; color: #1a1d21; }
         .tt-cfg-tile-desc { color: #6b7280; font-size: 12px; line-height: 1.35; margin: 0; }
         /* #1087 VCT-12 — accent variant + count line for the two VCT
@@ -1443,6 +1444,7 @@ class FrontendConfigurationView extends FrontendViewBase {
         .tt-cfg-tile-count { margin-top: 8px; font-size: 11px; color: #1d7874; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; }
         </style>
         <?php
+        echo \TT\Shared\Frontend\Components\TileIconChip::styles(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — static trusted CSS.
     }
 
     private static function renderTileGrid(): void {
@@ -1566,7 +1568,7 @@ class FrontendConfigurationView extends FrontendViewBase {
             if ( $emoji ) {
                 echo '<div class="tt-cfg-tile-icon" style="font-size:22px; line-height:1;">' . esc_html( $icon ) . '</div>';
             } else {
-                echo '<div class="tt-cfg-tile-icon">' . \TT\Shared\Icons\IconRenderer::render( $icon ) . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — IconRenderer returns sanitised SVG.
+                echo '<div class="tt-cfg-tile-icon">' . \TT\Shared\Frontend\Components\TileIconChip::render( $icon, '#0b3d2e' ) . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — TileIconChip escapes its own attrs and IconRenderer returns trusted SVG.
             }
         }
         echo '<div class="tt-cfg-tile-title">' . esc_html( $title );

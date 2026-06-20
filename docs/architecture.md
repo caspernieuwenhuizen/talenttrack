@@ -95,6 +95,14 @@ The Configuration-family views (Configuration, Lookups index, Modules, Export, R
 
 This is for the static curated tile family only. The persona-dashboard tile system (`FrontendTileGrid` / `TileRegistry`) is dynamic/persona/entity-driven and stays separate, as does the wp-admin `add_submenu_page` separator logic in `AdminMenuRegistry`.
 
+### Tile icons — Phosphor duotone in accent chips (#1553)
+
+Tile surfaces render their icon as a [Phosphor](https://phosphoricons.com/) **duotone** glyph (MIT-licensed) inside an accent-tinted rounded "chip": a ~3.25rem rounded square with a `color-mix(in srgb, <accent> 14%, #fff)` tint, a 2rem (32px) glyph, and the glyph colour set to the per-tile accent (the duotone inherits it via `currentColor`). The shared `\TT\Shared\Frontend\Components\TileIconChip::render( $icon_key, $accent )` helper emits the chip markup; `TileIconChip::styles()` emits its (idempotent) CSS once per request. It is wired into the persona-dashboard tiles (`FrontendTileGrid`) and the Configuration tiles (`.tt-cfg-tile-icon` in `FrontendConfigurationView`).
+
+The duotone SVGs live in `assets/icons/duotone/<key>.svg`, keyed identically to the line-icon set. `IconRenderer::renderDuotone( $key )` loads from that directory and **falls back to the line icon** (`render()`) when no duotone variant is bundled for a key, so a tile is never blank. The bundled set + its MIT licence are under `assets/icons/duotone/` (`LICENSE`).
+
+Scope is **tile surfaces only.** Inline icons (buttons, wp-admin menu, 18–20px usages) keep the original line set via `IconRenderer::render()` from `assets/icons/` — tiny duotone reads muddy. The inline render path is unchanged.
+
 The sticky `body.tt-theme-inherit` toggle (#0023) lets a host theme override the design tokens TalentTrack defines. Token contract is documented in [theme integration](theme-integration.md).
 
 ## Settings + lookups
