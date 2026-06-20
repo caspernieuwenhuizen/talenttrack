@@ -221,19 +221,6 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
         $tab = isset( $_GET['tab'] ) ? sanitize_key( (string) $_GET['tab'] ) : 'lineup';
         if ( $tab !== 'comments' ) $tab = 'lineup';
 
-        if ( $is_squad && $tab === 'lineup' ) {
-            $toggle_url = $heatmap
-                ? remove_query_arg( 'heatmap' )
-                : add_query_arg( 'heatmap', '1' );
-            $toggle_label = $heatmap
-                ? __( 'Show lineup view', 'talenttrack' )
-                : __( 'Show coverage heatmap', 'talenttrack' );
-            echo '<p style="margin:0 0 12px;">';
-            echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( $toggle_url ) . '">'
-                . esc_html( $toggle_label ) . '</a>';
-            echo '</p>';
-        }
-
         // Tab nav.
         $editor_url   = add_query_arg( [ 'tt_view' => 'team-blueprints', 'id' => (int) $bp['id'] ], $base_url );
         $comments_url = add_query_arg( [ 'tab' => 'comments' ], $editor_url );
@@ -246,30 +233,19 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
             . esc_html__( 'Comments', 'talenttrack' ) . '</a>';
         echo '</nav>';
 
-        // #0068 Phase 4 — share-link buttons (cap-gated on
-        // tt_manage_team_chemistry; same as locking).
-        if ( $can_manage && $tab === 'lineup' ) {
-            self::renderShareLinkActions( $bp );
-        }
-
         if ( $tab === 'comments' ) {
             FrontendThreadView::render( 'blueprint', (int) $bp['id'], $user_id );
             return;
         }
 
-        // Status row + flavour pill + action buttons.
-        self::renderStatusRow( $bp, $can_manage, $is_locked );
-
-        // v3.110.184 — editor toolbar: Save / Save As / Hide chemistry.
-        // Save: returns to the blueprints list with a toast confirming
-        // the work is persisted (every drop already auto-saved; this is
-        // "done editing" navigation). Save As: clones to a new draft
-        // with a fresh name and redirects to the new editor.
-        // Hide chemistry: CSS toggle bound by `frontend-team-blueprint.js`
-        // (sessionStorage-persisted per blueprint).
-        if ( $can_manage && ! $is_locked ) {
-            self::renderEditorToolbar( $bp, $team );
-        }
+        // #1527 — consolidated icon action bar + "⋯ More" overflow.
+        // Replaces the former four button clusters (formation toolbar,
+        // editor toolbar, share actions, status transitions). Frequent
+        // actions sit icon-only in the bar; infrequent / destructive
+        // actions live in the overflow menu. Informational status /
+        // flavour pills render below the bar via renderStatusPills().
+        self::renderActionBar( $bp, $can_manage, $is_locked, $is_squad, $heatmap );
+        self::renderStatusPills( $bp );
 
         // #953 — primary-tier lineup map drives the chemistry headline.
         // `loadAssignments()` already filters to `ref_kind='player'`, so
@@ -339,8 +315,6 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
              data-team-id="<?php echo (int) $bp['team_id']; ?>"
              data-locked="<?php echo $is_locked ? '1' : '0'; ?>"
              data-can-edit="<?php echo $can_edit ? '1' : '0'; ?>">
-
-            <?php self::renderEditorToolbarFormation( $bp, $team_name, $can_edit ); ?>
 
             <div class="tt-bpe-layout">
                 <aside class="tt-bpe-roster" aria-label="<?php esc_attr_e( 'Roster', 'talenttrack' ); ?>">
@@ -430,25 +404,52 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
     }
 
     /**
-     * Toolbar above the layout — team display (read-only), formation
-     * dropdown, clear-all button and a save-state hint.
+     * #1527 — one consolidated icon action bar + "⋯ More" overflow menu.
+     *
+     * Replaces four former clusters (formation toolbar, editor toolbar,
+     * share-link actions, status transitions). Frequent actions are
+     * icon-only in the bar (labelled formation dropdown, Save, Clear all
+     * slots, Heatmap toggle for squad plans, Chemistry show/hide);
+     * infrequent / destructive actions live behind the "⋯ More" overflow
+     * (Save as…, Open / Rotate share link, status transitions, Delete).
+     *
+     * This is a visual / interaction reorganisation only — every button
+     * keeps its existing JS hook class, data-attributes, cap / state
+     * gating and confirm dialog. The JS in `blueprint-editor.js` finds
+     * the same selectors (`.tt-bpe-formation-select`, `.tt-bpe-clear-all`,
+     * `.tt-bp-hide-chem-toggle`, `.tt-bp-save-done`, `.tt-bp-save-as`,
+     * `.tt-bp-status-btn`, `[data-tt-bpe-savehint]`).
      *
      * @param array<string,mixed> $bp
      */
-    private static function renderEditorToolbarFormation( array $bp, string $team_name, bool $can_edit ): void {
+    private static function renderActionBar(
+        array $bp,
+        bool $can_manage,
+        bool $is_locked,
+        bool $is_squad,
+        bool $heatmap
+    ): void {
+        $blueprint_id = (int) $bp['id'];
+        $base_url     = remove_query_arg( [ 'id', 'team_id', 'action' ] );
+        $list_url     = add_query_arg(
+            [ 'tt_view' => 'team-blueprints', 'team_id' => (int) $bp['team_id'] ],
+            $base_url
+        );
+        $can_edit = $can_manage && ! $is_locked;
+
+        echo '<div class="tt-bpe-actionbar" role="toolbar" aria-label="' . esc_attr__( 'Blueprint actions', 'talenttrack' ) . '"'
+            . ' data-blueprint-id="' . $blueprint_id . '"'
+            . ' data-list-url="' . esc_attr( $list_url ) . '">';
+
+        // --- Formation selector (stays a labelled dropdown). ---
         global $wpdb; $p = $wpdb->prefix;
         $templates = $wpdb->get_results(
             "SELECT id, name, formation_shape FROM {$p}tt_formation_templates
               WHERE archived_at IS NULL ORDER BY is_seeded DESC, name ASC"
         );
         $current_template_id = (int) ( $bp['formation_template_id'] ?? 0 );
-        echo '<div class="tt-bpe-toolbar">';
-        echo '<div class="tt-bpe-toolbar-group">';
-        echo '<span class="tt-bpe-toolbar-label">' . esc_html__( 'Team', 'talenttrack' ) . '</span>';
-        echo '<span class="tt-bpe-toolbar-value">' . esc_html( $team_name ) . '</span>';
-        echo '</div>';
-        echo '<div class="tt-bpe-toolbar-group">';
-        echo '<label class="tt-bpe-toolbar-label" for="tt-bpe-formation">' . esc_html__( 'Formation', 'talenttrack' ) . '</label>';
+        echo '<div class="tt-bpe-ab-formation">';
+        echo '<label class="tt-bpe-ab-formation-label" for="tt-bpe-formation">' . esc_html__( 'Formation', 'talenttrack' ) . '</label>';
         echo '<select id="tt-bpe-formation" class="tt-bpe-formation-select"' . ( $can_edit ? '' : ' disabled' ) . '>';
         foreach ( (array) $templates as $tpl ) {
             $sel = ( (int) $tpl->id === $current_template_id ) ? ' selected' : '';
@@ -459,26 +460,208 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
         }
         echo '</select>';
         echo '</div>';
+
+        // --- In-bar icon buttons (frequent). ---
+        echo '<div class="tt-bpe-ab-icons">';
+
+        // Save (primary). Auto-save fires on every placement; "Save" is
+        // the "done editing, take me back to the list" cue.
         if ( $can_edit ) {
-            echo '<button type="button" class="tt-bpe-clear-all">' . esc_html__( 'Clear all slots', 'talenttrack' ) . '</button>';
+            echo self::iconButton(
+                'tt-bp-save-done tt-bpe-ab-primary',
+                'check',
+                __( 'Save', 'talenttrack' )
+            );
         }
+
+        // Clear all slots (destructive — JS confirms).
+        if ( $can_edit ) {
+            echo self::iconButton(
+                'tt-bpe-clear-all',
+                'eraser',
+                __( 'Clear all slots', 'talenttrack' )
+            );
+        }
+
+        // Heatmap toggle — squad-plan only. A link, not a button, since
+        // it's a server round-trip (?heatmap=1) like the old toggle.
+        if ( $is_squad ) {
+            $toggle_url   = $heatmap ? remove_query_arg( 'heatmap' ) : add_query_arg( 'heatmap', '1' );
+            $toggle_label = $heatmap
+                ? __( 'Show lineup view', 'talenttrack' )
+                : __( 'Show coverage heatmap', 'talenttrack' );
+            echo '<a class="tt-bpe-ab-btn tt-bpe-ab-heatmap' . ( $heatmap ? ' is-active' : '' ) . '"'
+                . ' href="' . esc_url( $toggle_url ) . '"'
+                . ' aria-label="' . esc_attr( $toggle_label ) . '"'
+                . ' title="' . esc_attr( $toggle_label ) . '">'
+                . \TT\Shared\Icons\IconRenderer::render( 'layers', [ 'class' => 'tt-icon', 'width' => 22, 'height' => 22 ] )
+                . '</a>';
+        }
+
+        // Chemistry show/hide toggle (sessionStorage-persisted in JS).
+        echo '<button type="button" class="tt-bpe-ab-btn tt-bp-hide-chem-toggle"'
+            . ' aria-pressed="false"'
+            . ' aria-label="' . esc_attr__( 'Hide chemistry', 'talenttrack' ) . '"'
+            . ' title="' . esc_attr__( 'Hide chemistry', 'talenttrack' ) . '">'
+            . \TT\Shared\Icons\IconRenderer::render( 'eye', [ 'class' => 'tt-icon tt-bpe-ab-icon-eye', 'width' => 22, 'height' => 22 ] )
+            . \TT\Shared\Icons\IconRenderer::render( 'eye-off', [ 'class' => 'tt-icon tt-bpe-ab-icon-eye-off', 'width' => 22, 'height' => 22 ] )
+            . '</button>';
+
+        // Save-state hint sits next to Save.
         echo '<span class="tt-bpe-toolbar-hint" aria-live="polite" data-tt-bpe-savehint></span>';
+
+        echo '</div>'; // .tt-bpe-ab-icons
+
+        // --- "⋯ More" overflow menu (infrequent / destructive). ---
+        if ( $can_manage ) {
+            self::renderActionBarOverflow( $bp, $can_manage, $is_locked, $list_url );
+        }
+
+        echo '</div>'; // .tt-bpe-actionbar
+    }
+
+    /**
+     * #1527 — the "⋯ More" overflow menu. A native <details> disclosure
+     * so it works without JS and gets keyboard support (Enter / Space to
+     * toggle, Escape handled in JS). Holds Save as…, the share-link
+     * actions, status transitions and Delete — all with full text labels
+     * plus a leading icon.
+     *
+     * @param array<string,mixed> $bp
+     */
+    private static function renderActionBarOverflow( array $bp, bool $can_manage, bool $is_locked, string $list_url ): void {
+        $blueprint_id = (int) $bp['id'];
+        $status       = (string) $bp['status'];
+
+        echo '<details class="tt-bpe-more" data-blueprint-id="' . $blueprint_id . '">';
+        echo '<summary class="tt-bpe-ab-btn tt-bpe-more-toggle" aria-label="' . esc_attr__( 'More actions', 'talenttrack' ) . '" title="' . esc_attr__( 'More actions', 'talenttrack' ) . '">'
+            . \TT\Shared\Icons\IconRenderer::render( 'more-horizontal', [ 'class' => 'tt-icon', 'width' => 22, 'height' => 22 ] )
+            . '</summary>';
+        echo '<div class="tt-bpe-more-menu" role="menu">';
+
+        // Save as… (clone). Bound by JS.
+        if ( ! $is_locked ) {
+            echo self::overflowButton( 'tt-bp-save-as', 'copy', __( 'Save as…', 'talenttrack' ) );
+        }
+
+        // Share-link actions.
+        $share = self::shareLinkUrls( $bp );
+        if ( $share !== null ) {
+            echo '<a class="tt-bpe-more-item" role="menuitem" href="' . esc_url( $share['open'] ) . '" target="_blank" rel="noopener">'
+                . \TT\Shared\Icons\IconRenderer::render( 'share', [ 'class' => 'tt-icon', 'width' => 18, 'height' => 18 ] )
+                . '<span>' . esc_html__( 'Open share link', 'talenttrack' ) . '</span>'
+                . '</a>';
+            echo '<a class="tt-bpe-more-item tt-bpe-more-danger" role="menuitem" href="' . esc_url( $share['rotate'] ) . '"'
+                . ' onclick="return confirm(' . esc_attr( wp_json_encode( __( 'Rotate the share link? Anyone holding the previous URL will be locked out.', 'talenttrack' ) ) ) . ');">'
+                . \TT\Shared\Icons\IconRenderer::render( 'refresh', [ 'class' => 'tt-icon', 'width' => 18, 'height' => 18 ] )
+                . '<span>' . esc_html__( 'Rotate share link', 'talenttrack' ) . '</span>'
+                . '</a>';
+        }
+
+        // Status transitions (cap-gated already by the caller). Each
+        // carries the same .tt-bp-status-btn hook + data-target-status.
+        echo '<span class="tt-bp-status-actions tt-bpe-more-statusgroup" data-blueprint-id="' . $blueprint_id . '">';
+        if ( $status === TeamBlueprintsRepository::STATUS_DRAFT ) {
+            echo self::statusOverflowButton( 'shared', 'share', __( 'Share with staff', 'talenttrack' ) );
+        }
+        if ( $status === TeamBlueprintsRepository::STATUS_SHARED ) {
+            echo self::statusOverflowButton( 'draft', 'corner-down-right', __( 'Move back to draft', 'talenttrack' ) );
+            echo self::statusOverflowButton( 'locked', 'lock', __( 'Lock', 'talenttrack' ) );
+        }
+        if ( $is_locked ) {
+            echo self::statusOverflowButton( 'shared', 'unlock', __( 'Reopen', 'talenttrack' ) );
+        }
+        echo '</span>';
+
+        // Delete (destructive — handled by the shared .tt-record-delete
+        // handler in public.js, which keys off the data attributes).
+        // Hidden on locked blueprints (Reopen first).
+        if ( ! $is_locked ) {
+            $confirm = sprintf(
+                /* translators: %s = blueprint name */
+                __( 'Delete "%s"? This cannot be undone.', 'talenttrack' ),
+                (string) ( $bp['name'] ?? '' )
+            );
+            echo '<button type="button" class="tt-bpe-more-item tt-bpe-more-danger tt-record-delete" role="menuitem"'
+                . ' data-rest-path="' . esc_attr( 'blueprints/' . $blueprint_id ) . '"'
+                . ' data-confirm-msg="' . esc_attr( $confirm ) . '"'
+                . ' data-deleted-msg="' . esc_attr__( 'Blueprint deleted.', 'talenttrack' ) . '"'
+                . ' data-redirect-after-delete="' . esc_attr( $list_url ) . '">'
+                . \TT\Shared\Icons\IconRenderer::render( 'trash', [ 'class' => 'tt-icon', 'width' => 18, 'height' => 18 ] )
+                . '<span>' . esc_html__( 'Delete blueprint', 'talenttrack' ) . '</span>'
+                . '</button>';
+        }
+
+        echo '</div>'; // .tt-bpe-more-menu
+        echo '</details>';
+    }
+
+    /**
+     * #1527 — informational status + flavour pills, rendered below the
+     * action bar. (The status transitions themselves moved into the
+     * action bar's overflow menu.)
+     *
+     * @param array<string,mixed> $bp
+     */
+    private static function renderStatusPills( array $bp ): void {
+        $status  = (string) $bp['status'];
+        $flavour = (string) ( $bp['flavour'] ?? '' );
+        echo '<div class="tt-bp-statusbar" style="display:flex; align-items:center; gap:12px; margin-bottom:12px; flex-wrap:wrap;">';
+        echo '<span style="color:#5b6e75; font-size:12px; text-transform:uppercase; letter-spacing:0.04em;">'
+            . esc_html__( 'Status', 'talenttrack' ) . '</span>';
+        echo self::statusPill( $status );
+        echo self::flavourPill( $flavour );
         echo '</div>';
     }
 
     /**
-     * #0068 Phase 4 — share-link controls. "Open share link" opens a
-     * read-only public view; "Rotate share link" sets a fresh seed
-     * invalidating every prior URL for this blueprint.
+     * #1527 — an icon-only action-bar button with a discernible name
+     * (visible tooltip + aria-label). Used for the frequent in-bar
+     * actions.
+     */
+    private static function iconButton( string $hook_classes, string $icon, string $label ): string {
+        return '<button type="button" class="tt-bpe-ab-btn ' . esc_attr( $hook_classes ) . '"'
+            . ' aria-label="' . esc_attr( $label ) . '"'
+            . ' title="' . esc_attr( $label ) . '">'
+            . \TT\Shared\Icons\IconRenderer::render( $icon, [ 'class' => 'tt-icon', 'width' => 22, 'height' => 22 ] )
+            . '</button>';
+    }
+
+    /**
+     * #1527 — a full-label overflow-menu button (icon + text).
+     */
+    private static function overflowButton( string $hook_classes, string $icon, string $label ): string {
+        return '<button type="button" class="tt-bpe-more-item ' . esc_attr( $hook_classes ) . '" role="menuitem">'
+            . \TT\Shared\Icons\IconRenderer::render( $icon, [ 'class' => 'tt-icon', 'width' => 18, 'height' => 18 ] )
+            . '<span>' . esc_html( $label ) . '</span>'
+            . '</button>';
+    }
+
+    /**
+     * #1527 — a status-transition overflow-menu button. Carries the
+     * .tt-bp-status-btn hook + data-target-status the JS reads.
+     */
+    private static function statusOverflowButton( string $target, string $icon, string $label ): string {
+        return '<button type="button" class="tt-bpe-more-item tt-bp-status-btn" role="menuitem" data-target-status="' . esc_attr( $target ) . '">'
+            . \TT\Shared\Icons\IconRenderer::render( $icon, [ 'class' => 'tt-icon', 'width' => 18, 'height' => 18 ] )
+            . '<span>' . esc_html( $label ) . '</span>'
+            . '</button>';
+    }
+
+    /**
+     * #0068 Phase 4 — share-link URL builder. Returns the read-only
+     * public "open" URL plus the nonce-protected "rotate" URL, or null
+     * when no share-token seed could be established.
      *
      * @param array<string,mixed> $bp
+     * @return array{open:string,rotate:string}|null
      */
-    private static function renderShareLinkActions( array $bp ): void {
+    private static function shareLinkUrls( array $bp ): ?array {
         $repo = new TeamBlueprintsRepository();
         $seed = $repo->ensureShareTokenSeed( (int) $bp['id'] );
-        if ( $seed === '' ) return;
+        if ( $seed === '' ) return null;
         $token = BlueprintShareToken::tokenFor( (int) $bp['id'], (string) $bp['uuid'], $seed );
-        $share_url = add_query_arg( [
+        $open_url = add_query_arg( [
             'tt_view' => 'team-blueprint-share',
             'id'      => (string) $bp['uuid'],
             'token'   => $token,
@@ -487,13 +670,7 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
             admin_url( 'admin-post.php?action=tt_blueprint_rotate_share&id=' . (int) $bp['id'] ),
             'tt_blueprint_rotate_share_' . (int) $bp['id']
         );
-        echo '<p class="tt-bp-share" style="margin:0 0 12px; display:flex; gap:8px; flex-wrap:wrap;">';
-        echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( $share_url ) . '" target="_blank" rel="noopener">'
-            . esc_html__( 'Open share link', 'talenttrack' ) . '</a>';
-        echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( $rotate_url ) . '" '
-            . 'onclick="return confirm(' . esc_attr( wp_json_encode( __( 'Rotate the share link? Anyone holding the previous URL will be locked out.', 'talenttrack' ) ) ) . ');">'
-            . esc_html__( 'Rotate share link', 'talenttrack' ) . '</a>';
-        echo '</p>';
+        return [ 'open' => $open_url, 'rotate' => $rotate_url ];
     }
 
     /**
@@ -649,95 +826,6 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
             'tt_msg'  => 'share_rotated',
         ], RecordLink::dashboardUrl() ) );
         exit;
-    }
-
-    /** @param array<string,mixed> $bp */
-    /**
-     * v3.110.184 — editor toolbar above the chemistry headline. Three
-     * affordances: "Hide chemistry" toggle (sessionStorage-persisted),
-     * "Save" (returns to the team-blueprints list with toast), "Save as"
-     * (clones the blueprint to a new draft via `POST /blueprints/{id}/clone`).
-     *
-     * The toggle + Save / Save-As behaviour is wired by
-     * `frontend-team-blueprint.js`; this method only emits the markup
-     * with the right data-attributes for the JS to find.
-     */
-    private static function renderEditorToolbar( array $bp, object $team ): void {
-        $base_url = remove_query_arg( [ 'id', 'team_id', 'action' ] );
-        $list_url = add_query_arg(
-            [ 'tt_view' => 'team-blueprints', 'team_id' => (int) $bp['team_id'] ],
-            $base_url
-        );
-        echo '<div class="tt-bp-editor-toolbar" data-blueprint-id="' . (int) $bp['id'] . '" data-list-url="' . esc_attr( $list_url ) . '" style="display:flex; align-items:center; gap:8px; margin-bottom:12px; flex-wrap:wrap;">';
-
-        // Hide-chemistry toggle. Bound by JS; the button reads its
-        // pressed state from sessionStorage on hydrate so a refresh
-        // keeps the preference.
-        echo '<button type="button" class="tt-btn tt-btn-secondary tt-btn-sm tt-bp-hide-chem-toggle" aria-pressed="false">'
-            . esc_html__( 'Hide chemistry', 'talenttrack' )
-            . '</button>';
-
-        // Save / Save As. Auto-save is on under the hood (every drop
-        // PUTs immediately), so "Save" is effectively "done editing,
-        // take me back to the list". Save As prompts the user for a
-        // new name and clones.
-        echo '<div style="margin-left:auto; display:inline-flex; gap:6px; flex-wrap:wrap;">';
-        // #1329 — Delete affordance on the editor toolbar. Cap-gated;
-        // hidden on locked blueprints (Reopen first via the status row,
-        // which leaves a system-message breadcrumb in the discussion
-        // thread). Redirects to the team's blueprint list on success.
-        $is_locked = $bp['status'] === TeamBlueprintsRepository::STATUS_LOCKED;
-        if ( current_user_can( 'tt_manage_team_chemistry' ) && ! $is_locked ) {
-            $confirm = sprintf(
-                /* translators: %s = blueprint name */
-                __( 'Delete "%s"? This cannot be undone.', 'talenttrack' ),
-                (string) ( $bp['name'] ?? '' )
-            );
-            echo '<button type="button" class="tt-btn tt-btn-secondary tt-btn-sm tt-record-delete"'
-                . ' data-rest-path="' . esc_attr( 'blueprints/' . (int) $bp['id'] ) . '"'
-                . ' data-confirm-msg="' . esc_attr( $confirm ) . '"'
-                . ' data-deleted-msg="' . esc_attr__( 'Blueprint deleted.', 'talenttrack' ) . '"'
-                . ' data-redirect-after-delete="' . esc_attr( $list_url ) . '">'
-                . esc_html__( 'Delete blueprint', 'talenttrack' )
-                . '</button>';
-        }
-        echo '<button type="button" class="tt-btn tt-btn-secondary tt-btn-sm tt-bp-save-as">'
-            . esc_html__( 'Save as…', 'talenttrack' )
-            . '</button>';
-        echo '<button type="button" class="tt-btn tt-btn-primary tt-btn-sm tt-bp-save-done">'
-            . esc_html__( 'Save', 'talenttrack' )
-            . '</button>';
-        echo '</div>';
-        echo '</div>';
-    }
-
-    private static function renderStatusRow( array $bp, bool $can_manage, bool $is_locked ): void {
-        $status  = (string) $bp['status'];
-        $flavour = (string) ( $bp['flavour'] ?? '' );
-        echo '<div class="tt-bp-statusbar" style="display:flex; align-items:center; gap:12px; margin-bottom:12px; flex-wrap:wrap;">';
-        echo '<span style="color:#5b6e75; font-size:12px; text-transform:uppercase; letter-spacing:0.04em;">'
-            . esc_html__( 'Status', 'talenttrack' ) . '</span>';
-        echo self::statusPill( $status );
-        echo self::flavourPill( $flavour );
-        if ( $can_manage ) {
-            echo '<span class="tt-bp-status-actions" data-blueprint-id="' . (int) $bp['id'] . '" style="display:inline-flex; gap:6px;">';
-            if ( $status === TeamBlueprintsRepository::STATUS_DRAFT ) {
-                echo '<button class="tt-btn tt-btn-secondary tt-btn-sm tt-bp-status-btn" data-target-status="shared">'
-                    . esc_html__( 'Share with staff', 'talenttrack' ) . '</button>';
-            }
-            if ( $status === TeamBlueprintsRepository::STATUS_SHARED ) {
-                echo '<button class="tt-btn tt-btn-secondary tt-btn-sm tt-bp-status-btn" data-target-status="draft">'
-                    . esc_html__( 'Move back to draft', 'talenttrack' ) . '</button>';
-                echo '<button class="tt-btn tt-btn-primary tt-btn-sm tt-bp-status-btn" data-target-status="locked">'
-                    . esc_html__( 'Lock', 'talenttrack' ) . '</button>';
-            }
-            if ( $is_locked ) {
-                echo '<button class="tt-btn tt-btn-secondary tt-btn-sm tt-bp-status-btn" data-target-status="shared">'
-                    . esc_html__( 'Reopen', 'talenttrack' ) . '</button>';
-            }
-            echo '</span>';
-        }
-        echo '</div>';
     }
 
     /** @param array<string,mixed> $chemistry */

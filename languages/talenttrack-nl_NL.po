@@ -37646,6 +37646,10 @@ msgstr "PDF voorbereiden…"
 msgid "Could not generate the PDF. Use Print instead."
 msgstr "Kon de PDF niet genereren. Gebruik in plaats daarvan Afdrukken."
 
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:442
+msgid "Blueprint actions"
+msgstr "Blauwdrukacties"
+
 #~ msgid ""
 #~ "Per-club custom styling (#0064): visual editor, code editor, file upload, "
 #~ "starter templates, history with revert. Frontend + wp-admin surfaces."

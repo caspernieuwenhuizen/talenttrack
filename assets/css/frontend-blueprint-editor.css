@@ -40,47 +40,60 @@
 }
 
 /* =====================================================================
- * Editor toolbar — sits above the layout. Team display (read-only),
- * formation dropdown, clear-all button, save-state hint.
+ * #1527 — consolidated action bar. One compact icon bar sitting above
+ * the editor layout: labelled Formation dropdown, then icon-only Save /
+ * Clear all / Heatmap / Chemistry toggle, then a "⋯ More" overflow for
+ * the infrequent + destructive actions (Save as, share links, status
+ * transitions, Delete). Mobile-first: wraps at 360px, every control is
+ * >= 48 CSS px and spaced >= 8px.
  * ===================================================================== */
 
-.tt-bpe-toolbar {
+.tt-bpe-actionbar {
+    --tt-bpe-line: #e3e6ea;
+    --tt-bpe-ink: #1a1d21;
+    --tt-bpe-muted: #5b6e75;
+    --tt-bpe-tier1: #1d7874;
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
     align-items: center;
-    background: var(--tt-bpe-panel);
+    gap: 8px;
+    background: #ffffff;
     border: 1px solid var(--tt-bpe-line);
     border-radius: 10px;
-    padding: 10px 12px;
+    padding: 8px 10px;
     margin-bottom: 12px;
+    box-sizing: border-box;
 }
 
-.tt-bpe-toolbar-group {
+.tt-bpe-actionbar * {
+    box-sizing: border-box;
+}
+
+/* Formation selector — labelled dropdown, stays first. */
+.tt-bpe-ab-formation {
     display: inline-flex;
     align-items: center;
     gap: 6px;
+    flex: 1 1 auto;
+    min-width: 0;
 }
 
-.tt-bpe-toolbar-label {
+.tt-bpe-ab-formation-label {
     font-size: 12px;
     color: var(--tt-bpe-muted);
     text-transform: uppercase;
     letter-spacing: 0.04em;
+    white-space: nowrap;
 }
 
-.tt-bpe-toolbar-value {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--tt-bpe-ink);
-}
-
-.tt-bpe-toolbar select,
-.tt-bpe-toolbar button {
+.tt-bpe-formation-select {
     font: inherit;
-    font-size: 14px;
-    padding: 8px 12px;
-    min-height: 44px;
+    font-size: 16px; /* >=16px so iOS doesn't auto-zoom on focus */
+    padding: 8px 10px;
+    min-height: 48px;
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: 100%;
     border: 1px solid var(--tt-bpe-line);
     border-radius: 8px;
     background: #fff;
@@ -88,35 +101,203 @@
     touch-action: manipulation;
 }
 
-.tt-bpe-toolbar button {
-    cursor: pointer;
-}
-
-.tt-bpe-toolbar button:focus-visible,
-.tt-bpe-toolbar select:focus-visible {
+.tt-bpe-formation-select:focus-visible {
     outline: 2px solid var(--tt-bpe-tier1);
     outline-offset: 2px;
 }
 
-.tt-bpe-clear-all {
+/* Icon button group (Save / Clear / Heatmap / Chemistry). */
+.tt-bpe-ab-icons {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+/* Icon-only action button — square 48x48 touch target. */
+.tt-bpe-ab-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border: 1px solid var(--tt-bpe-line);
+    border-radius: 8px;
     background: #fff;
-    border-color: var(--tt-bpe-line);
     color: var(--tt-bpe-ink);
+    cursor: pointer;
+    text-decoration: none;
+    touch-action: manipulation;
+    transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.tt-bpe-ab-btn .tt-icon {
+    display: block;
+    pointer-events: none;
+}
+
+.tt-bpe-ab-btn:hover {
+    background: #f4f6f7;
+}
+
+.tt-bpe-ab-btn:active {
+    background: #eceff0;
+}
+
+.tt-bpe-ab-btn:focus-visible,
+.tt-bpe-more-toggle:focus-visible {
+    outline: 2px solid var(--tt-bpe-tier1);
+    outline-offset: 2px;
+}
+
+/* Save — primary tint. */
+.tt-bpe-ab-primary {
+    background: var(--tt-bpe-tier1);
+    border-color: var(--tt-bpe-tier1);
+    color: #fff;
+}
+
+.tt-bpe-ab-primary:hover {
+    background: #18605c;
+    border-color: #18605c;
+}
+
+.tt-bpe-ab-primary:active {
+    background: #134f4c;
+}
+
+/* Heatmap toggle active state. */
+.tt-bpe-ab-heatmap.is-active {
+    background: #f4f6f7;
+    border-color: var(--tt-bpe-tier1);
+    color: var(--tt-bpe-tier1);
+}
+
+/* Chemistry toggle — eye / eye-off glyph swap driven by aria-pressed. */
+.tt-bp-hide-chem-toggle .tt-bpe-ab-icon-eye-off { display: none; }
+.tt-bp-hide-chem-toggle[aria-pressed="true"] .tt-bpe-ab-icon-eye { display: none; }
+.tt-bp-hide-chem-toggle[aria-pressed="true"] .tt-bpe-ab-icon-eye-off { display: block; }
+
+.tt-bp-hide-chem-toggle[aria-pressed="true"] {
+    background: #f4f6f7;
+    border-color: var(--tt-bpe-tier1);
+    color: var(--tt-bpe-tier1);
 }
 
 .tt-bpe-toolbar-hint {
-    margin-left: auto;
     font-size: 12px;
     color: var(--tt-bpe-muted);
     min-height: 18px;
 }
 
-@media (min-width: 480px) {
-    .tt-bpe-toolbar select,
-    .tt-bpe-toolbar button {
-        font-size: 13px;
-        min-height: 40px;
-        padding: 6px 10px;
+/* "⋯ More" overflow — native <details> disclosure, pushed to the end. */
+.tt-bpe-more {
+    position: relative;
+    margin-left: auto;
+}
+
+.tt-bpe-more-toggle {
+    list-style: none;
+    /* reuse the icon-button box */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border: 1px solid var(--tt-bpe-line);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--tt-bpe-ink);
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.tt-bpe-more-toggle::-webkit-details-marker { display: none; }
+.tt-bpe-more-toggle::marker { content: ''; }
+
+.tt-bpe-more[open] .tt-bpe-more-toggle {
+    background: #f4f6f7;
+    border-color: var(--tt-bpe-tier1);
+    color: var(--tt-bpe-tier1);
+}
+
+.tt-bpe-more-menu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 6px);
+    z-index: 40;
+    min-width: 220px;
+    max-width: calc(100vw - 24px);
+    background: #fff;
+    border: 1px solid var(--tt-bpe-line);
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(26, 29, 33, 0.14);
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.tt-bpe-more-statusgroup {
+    display: contents;
+}
+
+.tt-bpe-more-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-height: 48px;
+    padding: 10px 12px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--tt-bpe-ink);
+    font: inherit;
+    font-size: 15px;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+.tt-bpe-more-item .tt-icon {
+    flex: 0 0 auto;
+    color: var(--tt-bpe-muted);
+}
+
+.tt-bpe-more-item:hover {
+    background: #f4f6f7;
+}
+
+.tt-bpe-more-item:focus-visible {
+    outline: 2px solid var(--tt-bpe-tier1);
+    outline-offset: -2px;
+}
+
+.tt-bpe-more-danger {
+    color: #b32d2e;
+}
+
+.tt-bpe-more-danger .tt-icon {
+    color: #b32d2e;
+}
+
+.tt-bpe-more-danger:hover {
+    background: #fbeceb;
+}
+
+@media (min-width: 768px) {
+    .tt-bpe-ab-formation {
+        flex: 0 0 auto;
+    }
+    .tt-bpe-formation-select {
+        flex: 0 1 auto;
+        max-width: 280px;
+    }
+    .tt-bpe-toolbar-hint {
+        margin-left: 4px;
     }
 }
 
@@ -870,27 +1051,9 @@ body.tt-bp-chem-hidden .tt-chem-link {
     display: none !important;
 }
 
-.tt-bp-hide-chem-toggle[aria-pressed="true"] {
-    background: #f4f6f7;
-    border-color: #1d7874;
-    color: #1d7874;
-}
-
 /* =====================================================================
- * Editor toolbar (Save / Save As / Hide chemistry) + status row +
- * tab nav — kept from the legacy stylesheet so the editor's PHP-
- * rendered chrome still styles correctly.
+ * Tab nav (Lineup | Comments) — unchanged by #1527.
  * ===================================================================== */
-
-.tt-bp-editor-toolbar button {
-    min-height: 40px;
-    touch-action: manipulation;
-}
-
-.tt-bp-statusbar .tt-bp-status-actions button {
-    min-height: 40px;
-    touch-action: manipulation;
-}
 
 .tt-bp-tabs .tt-bp-tab {
     padding: 8px 14px;
@@ -978,8 +1141,10 @@ body.tt-bp-chem-hidden .tt-chem-link {
 @media (prefers-reduced-motion: reduce) {
     .tt-bpe-slot,
     .tt-bpe-roster-row,
-    .tt-bpe-toolbar button,
-    .tt-bpe-toolbar select {
+    .tt-bpe-ab-btn,
+    .tt-bpe-more-toggle,
+    .tt-bpe-more-item,
+    .tt-bpe-formation-select {
         transition: none;
     }
 }

@@ -22,10 +22,21 @@ Klik op **Aanmaken** en je komt direct in de editor met lege posities, klaar om 
 
 Herbouwd in v4.6.0 (#972) — schone port van het in-tree prototype `.local-mockups/blueprint-editor/index.html`. Vier regio's:
 
-- **Toolbar** boven de lay-out — alleen-lezen team-naam, **Formatie**-dropdown (elke actieve sjabloon uit `tt_formation_templates`), **Wis alle posities**-knop en een opslag-hint die "Opslaan…" toont tussen schrijfacties.
+- **Actiebalk** boven de lay-out — één compacte balk die elke actie op topniveau samenbrengt (#1527). De **Formatie**-dropdown blijft links een gelabelde besturing (elke actieve sjabloon uit `tt_formation_templates`). Daarna een rij icoon-knoppen voor de veelgebruikte acties — **Opslaan** (primair), **Wis alle posities**, de **dekkingsheatmap**-schakelaar (alleen selectieplannen) en de **chemie tonen/verbergen**-schakelaar — elk met een tooltip en schermlezer-label. Een opslag-hint toont "Opslaan…" tussen schrijfacties. Alles wat zelden of destructief is zit achter het **⋯ Meer**-menu aan het einde van de balk (Opslaan als…, Deelbare link openen / vernieuwen, de statusovergangen, Blauwdruk verwijderen).
 - **Selectiebalk** — titel `<Team> — selectie (<N>)`, daarna elke actieve speler als versleepbare rij: avatar met initialen + naam + meta-regel (positie, leeftijd, soort voor niet-team-entries). Een `×N`-badge verschijnt naast de naam zodra die speler op één of meer posities in de huidige formatie staat. Onder de lijst opent de knop **+ Voeg gast / aangepaste naam toe** een inline 3-tab-formulier (Ander team / Gast / Aangepast — hieronder beschreven).
 - **Veld** — de posities van de formatie. Elke positie toont een genummerde cirkel (bv. `9` / `ST`) en een drielagige stack er direct onder: **primair / secundair / tertiair** diepte. De tier wordt twee keer gecodeerd — door het cijfer links van elke rij EN door de randkleur (turquoise / amber / grijs) — zodat het diepteschema leesbaar blijft zonder kleur.
 - **Lijnchemie-kop** — `— / 100` totdat je spelers begint te plaatsen, daarna ververst hij na elke wijziging.
+
+### Het ⋯ Meer-menu
+
+Het overflow-menu is een native disclosure: klik (of focus + Enter / Spatie) op de **⋯**-knop om het te openen, klik ernaast of druk Escape om het te sluiten. Het bevat, met volledige tekstlabels:
+
+- **Opslaan als…** — kloon de huidige blauwdruk naar een nieuw concept.
+- **Deelbare link openen** / **Deelbare link vernieuwen** — de publieke alleen-lezen link-besturingen (zie *Publieke deellink* hieronder).
+- De toegestane **statusovergangen** voor de huidige status (*Delen met staf*, *Terug naar concept*, *Vergrendel*, *Heropenen*).
+- **Blauwdruk verwijderen** — verborgen zodra de blauwdruk vergrendeld is (eerst heropenen).
+
+Elk van deze behoudt zijn eigen bevestiging waar die er was (Vernieuwen, Verwijderen, Wis alles). Aan wat de acties doen is niets veranderd — #1527 heeft ze alleen in één balk samengebracht.
 
 ### Speler kiezen
 
@@ -56,15 +67,15 @@ Een andere formatie kiezen uit de **Formatie**-dropdown werkt de sjabloon van de
 
 ### Wis alle posities
 
-De knop **Wis alle posities** in de toolbar verwijdert alle toewijzingen van de huidige blauwdruk na een bevestiging. Er is geen undo — gebruik 'm bij een verse start vanaf een bestaande blauwdruk via *Opslaan als*.
+De knop **Wis alle posities** in de actiebalk verwijdert alle toewijzingen van de huidige blauwdruk na een bevestiging. Er is geen undo — gebruik 'm bij een verse start vanaf een bestaande blauwdruk via *Opslaan als*.
 
 ### Opslaan
 
-Elke keuze / leegmaak / formatie-wisseling slaat direct op. Er is geen batch-opslag. De **Opslaan**-knop in de statusrij betekent "klaar met bewerken, breng me terug naar de lijst" — hij navigeert naar de blauwdrukkenlijst van het team met een bevestigings-toast. **Opslaan als** vraagt om een nieuwe naam en kloont de huidige blauwdruk (inclusief elke toewijzingsrij) naar een nieuw concept en opent dat concept.
+Elke keuze / leegmaak / formatie-wisseling slaat direct op. Er is geen batch-opslag. De **Opslaan**-knop in de actiebalk betekent "klaar met bewerken, breng me terug naar de lijst" — hij navigeert naar de blauwdrukkenlijst van het team met een bevestigings-toast. **Opslaan als…**, in het **⋯ Meer**-menu, vraagt om een nieuwe naam en kloont de huidige blauwdruk (inclusief elke toewijzingsrij) naar een nieuw concept en opent dat concept.
 
 ### Chemie verbergen
 
-De knop **Chemie verbergen** in de statusrij verbergt de chemie-koptekst EN elke chemie-lijn op het veld. De staat blijft staan in `sessionStorage` per blauwdruk-id, dus een refresh onthoudt de voorkeur. Handig wanneer je het diepteschema rustig wilt lezen zonder chemie-ruis.
+De **chemie tonen/verbergen**-schakelaar in de actiebalk verbergt de chemie-koptekst EN elke chemie-lijn op het veld. Het oog-icoon toont de huidige staat en de tooltip / het label wisselt tussen *Chemie verbergen* en *Chemie tonen*. De staat blijft staan in `sessionStorage` per blauwdruk-id, dus een refresh onthoudt de voorkeur. Handig wanneer je het diepteschema rustig wilt lezen zonder chemie-ruis.
 
 ### Chemiescore
 
@@ -86,7 +97,7 @@ Elke blauwdruk gaat door drie statussen:
 - **Gedeeld** — zichtbaar voor iedereen met leesrechten op teamchemie. Gebruik dit als je feedback van de staf wilt.
 - **Vergrendeld** — alleen-lezen. Drag-drop is uit; de toewijzingsendpoints weigeren elke schrijfactie. Gebruik dit als de blauwdruk definitief is en je niet wilt dat iemand (inclusief jezelf) per ongeluk vlak voor de wedstrijd nog een speler verschuift.
 
-De statusbalk boven het veld toont waar je zit. Knoppen verschijnen voor de toegestane vervolgacties:
+Een status-pil onder de actiebalk toont waar je zit. De toegestane vervolgacties zitten in het **⋯ Meer**-menu van de actiebalk:
 
 - *Delen met staf* (concept → gedeeld)
 - *Terug naar concept* (gedeeld → concept) of *Vergrendel* (gedeeld → vergrendeld)
@@ -120,7 +131,7 @@ De selectiebalk krijgt een *Proefspelers*-divider met proefspelers die aan dit t
 
 ### Dekkingsheatmap
 
-Een *Toon dekkingsheatmap*-knop op selectieplan-blauwdrukken zet het veld in dekkings-modus:
+De **dekkingsheatmap**-schakelaar in de actiebalk (alleen selectieplan-blauwdrukken) zet het veld in dekkings-modus:
 
 - **Rood** — 0 tiers gevuld (niet gedekt)
 - **Oranje** — 1 (alleen primair, geen backup)
@@ -146,7 +157,7 @@ Systeemberichten worden automatisch gepost bij elke statusovergang (`Status gewi
 
 ## Publieke deellink (#0068 Fase 4)
 
-De **Deelbare link openen**-knop op de editor genereert een URL van de vorm:
+Het **Deelbare link openen**-item in het **⋯ Meer**-menu van de actiebalk genereert een URL van de vorm:
 
 ```
 ?tt_view=team-blueprint-share&id=<uuid>&token=<hmac>

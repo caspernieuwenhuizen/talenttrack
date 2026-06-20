@@ -22,10 +22,21 @@ Click **Create** and you land on the editor with empty slots, ready to fill.
 
 Rebuilt v4.6.0 (#972) — clean port of the in-tree prototype at `.local-mockups/blueprint-editor/index.html`. Four regions:
 
-- **Toolbar** above the layout — read-only team display, **Formation** dropdown (every active template from `tt_formation_templates`), **Clear all slots** button, and a save-state hint that flashes "Saving…" between writes.
+- **Action bar** above the layout — one compact bar that consolidates every top-level action (#1527). The **Formation** dropdown stays a labelled control on the left (every active template from `tt_formation_templates`). Then a row of icon-only buttons for the frequent actions — **Save** (primary), **Clear all slots**, **Coverage heatmap** toggle (squad plans only), and the **chemistry show/hide** toggle — each with a tooltip and screen-reader label. A save-state hint flashes "Saving…" between writes. Everything infrequent or destructive lives behind the **⋯ More** menu at the end of the bar (Save as…, Open / Rotate share link, the status transitions, Delete blueprint).
 - **Roster sidebar** — title `<Team> — roster (<N>)`, then every active player on the team as a draggable row: avatar with initials + name + a meta line (position, age, kind for non-team entries). An `×N` badge appears next to the name as soon as that player sits in one or more slots on the current formation. Below the list, a **+ Add guest / custom name** button opens an inline 3-tab form (Other team / Guest / Custom — more on that below).
 - **Pitch** — the formation slots. Each position renders a numbered circle (e.g. `9` / `ST`) and a three-row stack directly underneath: **primary / secondary / tertiary** depth. The tier is encoded twice — by the digit on the left of each row AND by the row's border colour (teal / amber / grey) — so the depth chart stays readable without colour.
 - **Link chemistry headline** — `— / 100` until you start placing players, then updates after every change.
+
+### The ⋯ More menu
+
+The overflow menu is a native disclosure: click (or focus + Enter / Space) the **⋯** button to open it, click outside or press Escape to close. It holds, with full text labels:
+
+- **Save as…** — clone the current blueprint to a fresh draft.
+- **Open share link** / **Rotate share link** — the public read-only link controls (see *Public share-link* below).
+- The legal **status transitions** for the current state (*Share with staff*, *Move back to draft*, *Lock*, *Reopen*).
+- **Delete blueprint** — hidden once the blueprint is locked (Reopen first).
+
+Each of these keeps its own confirmation prompt where it had one (Rotate, Delete, Clear all). Nothing changed about what the actions do — #1527 only moved them into one bar.
 
 ### Picking a player
 
@@ -56,15 +67,15 @@ Picking a different formation from the **Formation** dropdown updates the bluepr
 
 ### Clear all slots
 
-The **Clear all slots** button in the toolbar wipes every assignment for the current blueprint after a confirmation prompt. There's no undo — use it when starting fresh from an existing blueprint via *Save As*.
+The **Clear all slots** button in the action bar wipes every assignment for the current blueprint after a confirmation prompt. There's no undo — use it when starting fresh from an existing blueprint via *Save As*.
 
 ### Saving
 
-Each pick / clear / formation change saves immediately. There's no batch save. The **Save** button on the status row is "done editing, take me back to the list" — it navigates to the team's blueprint list with a confirmation toast. **Save As** prompts for a new name and clones the current blueprint (including every assignment row) to a fresh draft, then opens that draft's editor.
+Each pick / clear / formation change saves immediately. There's no batch save. The **Save** button in the action bar is "done editing, take me back to the list" — it navigates to the team's blueprint list with a confirmation toast. **Save as…**, in the **⋯ More** menu, prompts for a new name and clones the current blueprint (including every assignment row) to a fresh draft, then opens that draft's editor.
 
 ### Hide chemistry
 
-The **Hide chemistry** toggle in the status row hides the chemistry headline card AND every chemistry link line on the pitch. The state persists in `sessionStorage` keyed by blueprint id, so a refresh keeps the preference. Useful when reviewing the depth chart without the chemistry noise.
+The **chemistry show/hide** toggle in the action bar hides the chemistry headline card AND every chemistry link line on the pitch. The eye icon shows the current state and its tooltip / label flips between *Hide chemistry* and *Show chemistry*. The state persists in `sessionStorage` keyed by blueprint id, so a refresh keeps the preference. Useful when reviewing the depth chart without the chemistry noise.
 
 ### Chemistry score
 
@@ -86,7 +97,7 @@ Every blueprint moves through three states:
 - **Shared** — visible to everyone with read access on team chemistry. Use this when you want feedback from the staff.
 - **Locked** — read-only. Drag-drop is disabled; the assignment endpoints reject every write. Use this when the blueprint is final and you don't want anyone (including yourself) to nudge a player by accident before the match.
 
-The status row above the pitch shows where you are. Buttons appear for the legal next moves:
+A status pill below the action bar shows where you are. The legal next moves live in the action bar's **⋯ More** menu:
 
 - *Share with staff* (draft → shared)
 - *Move back to draft* (shared → draft) or *Lock* (shared → locked)
@@ -120,7 +131,7 @@ The roster sidebar gets a *Trials* divider listing trial players assigned to thi
 
 ### Coverage heatmap
 
-A *Show coverage heatmap* button on squad-plan blueprints flips the pitch into a depth-coverage view:
+The **coverage heatmap** toggle in the action bar (squad-plan blueprints only) flips the pitch into a depth-coverage view:
 
 - **Red** — 0 tiers covered (uncovered)
 - **Orange** — 1 (primary only, no backup)
@@ -146,7 +157,7 @@ System messages auto-post on status transitions (`Status changed to: shared` / `
 
 ## Public share-link (#0068 Phase 4)
 
-The editor's **Open share link** button generates a URL of shape:
+The **Open share link** item in the action bar's **⋯ More** menu generates a URL of shape:
 
 ```
 ?tt_view=team-blueprint-share&id=<uuid>&token=<hmac>
