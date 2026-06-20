@@ -179,6 +179,16 @@ class FrontendEvaluationsView extends FrontendViewBase {
                     'label_from' => __( 'From', 'talenttrack' ),
                     'label_to'   => __( 'To',   'talenttrack' ),
                 ],
+                // #1470 — Active / Archived / All status filter.
+                'archived' => [
+                    'type'    => 'select',
+                    'label'   => __( 'Archive', 'talenttrack' ),
+                    'options' => [
+                        'active'   => __( 'Active',   'talenttrack' ),
+                        'archived' => __( 'Archived', 'talenttrack' ),
+                        'all'      => __( 'All',      'talenttrack' ),
+                    ],
+                ],
             ],
             'search'       => [ 'placeholder' => __( 'Search player, notes…', 'talenttrack' ) ],
             'default_sort' => [ 'orderby' => 'eval_date', 'order' => 'desc' ],

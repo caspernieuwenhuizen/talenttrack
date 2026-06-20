@@ -177,8 +177,19 @@ class EvaluationsRestController {
         $order   = strtolower( (string) ( $r['order'] ?? ( $orderby_key === 'eval_date' ? 'desc' : 'asc' ) ) );
         if ( ! in_array( $order, [ 'asc', 'desc' ], true ) ) $order = 'desc';
 
-        $where  = [ 'e.club_id = %d', 'e.archived_at IS NULL' ];
+        $where  = [ 'e.club_id = %d' ];
         $params = [ CurrentClub::id() ];
+
+        // #1470 — Active / Archived / All status filter (default Active).
+        $archived_view = \TT\Infrastructure\Archive\ArchiveRepository::sanitizeView(
+            is_array( $r['filter'] ?? null ) ? ( $r['filter']['archived'] ?? '' ) : ''
+        );
+        if ( $archived_view === 'active' ) {
+            $where[] = 'e.archived_at IS NULL';
+        } elseif ( $archived_view === 'archived' ) {
+            $where[] = 'e.archived_at IS NOT NULL';
+        }
+        // 'all' → no archived clause.
 
         $scope = QueryHelpers::apply_demo_scope( 'e', 'evaluation' );
 
