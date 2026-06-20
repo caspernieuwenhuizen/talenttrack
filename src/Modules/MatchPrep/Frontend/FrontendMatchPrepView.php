@@ -318,9 +318,13 @@ class FrontendMatchPrepView extends FrontendViewBase {
                     <?php esc_html_e( 'Availability', 'talenttrack' ); ?>
                 </button>
                 <?php
-                // #1031 — Print opens the dedicated print route in a new tab.
-                // The standalone document skips the theme + WP admin bar
-                // entirely, so the printed sheet is clean.
+                // #1031, #1475 — Print opens the dedicated print route in a
+                // new tab. The standalone document skips the theme + WP
+                // admin bar entirely, so the captured sheet is clean. On
+                // that page an "Export as PDF" action runs the client-side
+                // image-capture (tt-image-pdf.js): html2canvas → A4
+                // landscape PDF, pixel-faithful to the page. The browser
+                // print dialog stays as a fallback on the same page.
                 $print_url = add_query_arg(
                     [ 'tt_match_prep_print' => '1', 'activity_id' => $activity_id ],
                     home_url( '/' )
@@ -330,31 +334,28 @@ class FrontendMatchPrepView extends FrontendViewBase {
                    href="<?php echo esc_url( $print_url ); ?>"
                    target="_blank"
                    rel="noopener">
-                    <?php esc_html_e( 'Print (landscape A4)', 'talenttrack' ); ?>
+                    <?php esc_html_e( 'Print / export PDF', 'talenttrack' ); ?>
                 </a>
                 <?php
-                // #1194 — pitch-side team-sheet PDF (Starting XI / Bench /
-                // Squad partition + signature lines). Source of truth is
-                // this match-prep view; the exporter reads from the same
-                // tt_match_prep_* tables.
-                $team_sheet_url = rest_url( 'talenttrack/v1/exports/match_day_team_sheet' );
+                // #1194, #1475 — pitch-side team-sheet (Starting XI / Bench
+                // / Squad partition + signature lines). Source of truth is
+                // this match-prep view. The print route renders the same
+                // partitioned document the DomPDF exporter emits, then the
+                // image-capture action produces the A4-landscape PDF. The
+                // route is cookie-authed and gated by tt_view_activities in
+                // MatchPrepPrintRouter; the REST DomPDF exporter remains
+                // registered as the server-side fallback.
                 $team_sheet_url = add_query_arg(
-                    [ 'format' => 'pdf', 'activity_id' => $activity_id ],
-                    $team_sheet_url
+                    [ 'tt_match_prep_print' => '1', 'mode' => 'team_sheet', 'activity_id' => $activity_id ],
+                    home_url( '/' )
                 );
                 ?>
-<?php
-                // #1476 — the export endpoint is REST cookie-auth, which
-                // requires the X-WP-Nonce; a bare link carried none and
-                // 401'd. Trigger via fetch (nonce header) → blob download
-                // instead of a raw navigation. Button, not link, since it
-                // runs JS rather than navigating.
-                ?>
-                <button type="button" class="tt-btn tt-btn-secondary"
-                        data-tt-mp-team-sheet
-                        data-url="<?php echo esc_url( $team_sheet_url ); ?>">
-                    <?php esc_html_e( 'Print team sheet (PDF)', 'talenttrack' ); ?>
-                </button>
+                <a class="tt-btn tt-btn-secondary"
+                   href="<?php echo esc_url( $team_sheet_url ); ?>"
+                   target="_blank"
+                   rel="noopener">
+                    <?php esc_html_e( 'Print team sheet', 'talenttrack' ); ?>
+                </a>
                 <span class="tt-mp-spacer"></span>
                 <span class="tt-mp-save-state" data-tt-mp-save-state aria-live="polite"><?php esc_html_e( 'All changes saved.', 'talenttrack' ); ?></span>
             </div>
@@ -735,7 +736,6 @@ class FrontendMatchPrepView extends FrontendViewBase {
                 'reason'          => __( 'Reason (optional)…', 'talenttrack' ),
                 'pick_player'     => __( '— Pick player —', 'talenttrack' ),
                 'pick_for_role'   => __( 'Pick player for role', 'talenttrack' ),
-                'team_sheet_failed' => __( 'Could not generate the team sheet. Please try again.', 'talenttrack' ),
             ],
         ] );
     }

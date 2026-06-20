@@ -125,35 +125,41 @@ dan kun je de wijziging opnieuw doen; het netwerk kan kuren hebben.
 
 ## Afdrukken (of opslaan als PDF)
 
-De knop **Afdrukken (liggend A4)** in de werkbalk opent de
-afdrukdialoog van je browser direct op de huidige pagina — één klik,
-geen herlaadbeurt. De afdrukstijl verbergt het dashboard-frame
+De knop **Afdrukken / PDF exporteren** in de werkbalk opent een schone
+afdrukpagina in een nieuw tabblad. Die pagina toont alleen de
+opstelling + aandachtspunten + wedstrijddoelen — geen dashboard-frame
 (merkbanner, DEMO-strip, gebruikersmenu, breadcrumbs, terugknop,
-werkbalk) zodat alleen de opstelling + aandachtspunten +
-wedstrijddoelen op het papier verschijnen. De eerste zichtbare regel
-op het papier is `Wedstrijdvoorbereiding — <wedstrijd> · <datum>` op
-12pt vetgedrukt. De positie-nummers, spelernamen, het `!`-icoon
-(rood) en het camera-icoon (groen) behouden hun kleuren op papier.
-Lege regels in de wedstrijddoelen worden afgedrukt als nette
-horizontale lijntjes zonder placeholder-tekst, zodat de coach er nog
-op kan schrijven. Het hele formulier past op **één liggende
-A4-pagina** op 100% printschaal; bevestig de afdruk en neem het vel
-mee naar de lijn.
+werkbalk). De positie-nummers, spelernamen, het `!`-icoon (rood) en
+het camera-icoon (groen) behouden hun kleuren.
 
-Liever een PDF in plaats van een papieren afdruk? De afdrukdialoog
-heeft een **Opslaan als PDF**-keuze in de bestemmingslijst — die
-maakt een bruikbare PDF met dezelfde indeling, zonder aparte
-exporter. Het rollenpaneel staat voorlopig alleen op het scherm; een
-volgende release voegt het ook aan de afdruk toe.
+Op die pagina krijg je op twee manieren een bestand:
 
-De centrale `?tt_view=exports`-pagina heeft nog steeds een match-prep
-PDF-exporter voor wie liever vandaaruit werkt; de knop in de
-werkbalk is de directe sneltoets voor "deze opstelling nu printen".
+- **Exporteren als PDF (A4 liggend)** — de aanbevolen hoofdroute. Dit
+  maakt een afbeelding van de pagina precies zoals je hem ziet en
+  plaatst die op A4 liggend, geschaald op paginabreedte. Past de
+  inhoud niet op één pagina, dan wordt hij automatisch over meerdere
+  pagina's verdeeld. De PDF wordt direct naar je apparaat gedownload.
+  Omdat de pagina als afbeelding wordt vastgelegd is het resultaat
+  pixelgetrouw aan het scherm — het nadeel is dat de tekst in de PDF
+  niet selecteerbaar is.
+- **Afdrukken** — opent de eigen afdrukdialoog van de browser, waar je
+  via de bestemming **Opslaan als PDF** een PDF met selecteerbare
+  tekst kunt maken als je dat liever hebt.
 
-De knop **Print team sheet (PDF)** ernaast downloadt het teamblad voor
-langs de lijn (basiself / bank / selectie met handtekeningregels) als
-PDF-bestand. Het wordt direct naar je apparaat gedownload in plaats van
-in een nieuw tabblad geopend.
+De eerste export kan de allereerste keer op een trage verbinding even
+duren: de pagina laadt de afbeeldingsmotor pas wanneer je op
+Exporteren klikt (hij wordt niet eerder gedownload), zodat de
+match-prep-pagina zelf niet zwaarder wordt. Lukt het vastleggen niet
+op je apparaat, dan verschijnt een korte melding en kun je terugvallen
+op **Afdrukken → Opslaan als PDF**.
+
+De knop **Wedstrijdformulier afdrukken** ernaast opent het teamblad
+voor langs de lijn (basiself / bank / selectie met handtekeningregels)
+op dezelfde soort schone afdrukpagina, met dezelfde keuze
+**Exporteren als PDF** / **Afdrukken**. De centrale
+`?tt_view=exports`-pagina heeft nog steeds een server-side match-prep /
+teamblad PDF-exporter als terugvaloptie voor wie liever vandaaruit
+werkt.
 
 ## Wat hier niet kan
 

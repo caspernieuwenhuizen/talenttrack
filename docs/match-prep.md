@@ -117,34 +117,37 @@ If a save fails, retry the edit; the network may have hiccuped.
 
 ## Print to paper (or PDF)
 
-The **Print (landscape A4)** button in the toolbar opens the browser's
-own print dialog on the current page — one click, no page reload. The
-page's print stylesheet drops the dashboard chrome (brand banner,
-DEMO strip, user menu, breadcrumbs, back-pill, toolbar) so only the
-lineup + per-player attention + tactical goals end up on paper. The
-first visible printed line is `Wedstrijdvoorbereiding — <activity> ·
-<date>` at 12pt bold. The slot numbers, player names, the `!` icon
-(red) and the camera icon (green) all keep their colours on paper.
-Empty goal lines print as clean horizontal rules with no placeholder
-text, leaving the coach room to write. The whole spreadsheet fits on
-**one landscape-A4 page** at 100% print scale; confirm the print,
-take the sheet to the sideline.
+The **Print / export PDF** button in the toolbar opens a clean print
+page in a new tab. That page shows only the lineup + per-player
+attention + tactical goals — no dashboard chrome (brand banner, DEMO
+strip, user menu, breadcrumbs, back-pill, toolbar). The slot numbers,
+player names, the `!` icon (red) and the camera icon (green) all keep
+their colours.
 
-Need a PDF instead of a printout? The browser's print dialog has a
-**Save as PDF** option in its destination dropdown — picking it
-produces a usable PDF file with the same layout, no separate exporter
-needed. The role pane is on the screen surface only for now; a
-follow-up release will add it to the printed sheet too.
+On that page you have two ways to get a file:
 
-The central `?tt_view=exports` page still carries a match-prep PDF
-exporter for users who want to drive the same export from there; the
-toolbar button is just the in-place shortcut for "print this lineup
-now".
+- **Export as PDF (A4 landscape)** — the primary, recommended path.
+  It takes a picture of the page exactly as you see it and lays it out
+  on A4 landscape, scaled to the page width. If the content is taller
+  than one page it spreads across multiple pages automatically. The
+  PDF downloads straight to your device. Because it captures the page
+  as an image, the result is pixel-faithful to the screen — the
+  trade-off is that the text in the PDF is not selectable.
+- **Print** — opens the browser's own print dialog, where the **Save
+  as PDF** destination produces a text-based PDF if you prefer that.
 
-The **Print team sheet (PDF)** button next to it downloads the pitch-side
-team sheet (Starting XI / Bench / Squad with signature lines) as a PDF
-file. It downloads straight to your device rather than opening a new
-tab.
+The first export may take a moment the very first time on a slow
+connection: the page loads the capture engine on demand (it isn't
+downloaded until you click Export), so nothing extra weighs on the
+match-prep page itself. If the capture can't run on your device a
+short notice appears and you can fall back to **Print → Save as PDF**.
+
+The **Print team sheet** button next to it opens the pitch-side team
+sheet (Starting XI / Bench / Squad with signature lines) on the same
+kind of clean print page, with the same **Export as PDF** /
+**Print** choice. The central `?tt_view=exports` page still carries a
+server-side match-prep / team-sheet PDF exporter as a fallback for
+anyone who prefers to drive the export from there.
 
 ## What you can't do here
 

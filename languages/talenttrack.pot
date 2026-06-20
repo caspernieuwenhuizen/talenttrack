@@ -33085,3 +33085,39 @@ msgid ""
 "the daily attendance-flag notification — they all read this one number. "
 "Default 3."
 msgstr ""
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php
+msgid "Print / export PDF"
+msgstr ""
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php
+msgid "Print team sheet"
+msgstr ""
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php
+msgid "Export as PDF (A4 landscape)"
+msgstr ""
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php
+msgid "Log in to print this match sheet."
+msgstr ""
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php
+msgid "You do not have access to print this match sheet."
+msgstr ""
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php
+msgid "Team sheet — print"
+msgstr ""
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php
+msgid "No team sheet found for this activity."
+msgstr ""
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php
+msgid "Preparing PDF…"
+msgstr ""
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php
+msgid "Could not generate the PDF. Use Print instead."
+msgstr ""
