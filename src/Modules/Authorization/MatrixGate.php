@@ -64,6 +64,12 @@ class MatrixGate {
     public static function canAnyScope( int $user_id, string $entity, string $activity ): bool {
         if ( $user_id <= 0 ) return false;
 
+        // #1485 — an entity owned by a disabled sub-feature is denied at
+        // every scope, mirroring the per-row owning-module short-circuit
+        // below. One check, no parallel "is the feature on?" branch in
+        // callers.
+        if ( self::featureDenies( $entity ) ) return false;
+
         $personas = PersonaResolver::effectivePersonas( $user_id );
         if ( empty( $personas ) ) return false;
 
@@ -110,6 +116,9 @@ class MatrixGate {
             'source_row_id' => null,
         ];
         if ( $user_id <= 0 ) return $denied;
+
+        // #1485 — disabled sub-feature: no row grants access.
+        if ( self::featureDenies( $entity ) ) return $denied;
 
         $personas = PersonaResolver::effectivePersonas( $user_id );
         if ( empty( $personas ) ) return $denied;
@@ -212,6 +221,9 @@ class MatrixGate {
         ?int $scope_target_id = null
     ): bool {
         if ( $user_id <= 0 ) return false;
+
+        // #1485 — disabled sub-feature denies the entity outright.
+        if ( self::featureDenies( $entity ) ) return false;
 
         $personas = PersonaResolver::effectivePersonas( $user_id );
         if ( empty( $personas ) ) return false;
@@ -356,5 +368,15 @@ class MatrixGate {
         }
 
         return false;
+    }
+
+    /**
+     * #1485 — true when the entity is owned by a sub-feature that is
+     * currently switched off. Guarded by class_exists so the gate is a
+     * no-op on installs where the FeatureRegistry hasn't loaded yet.
+     */
+    private static function featureDenies( string $entity ): bool {
+        if ( ! class_exists( '\\TT\\Core\\FeatureRegistry' ) ) return false;
+        return \TT\Core\FeatureRegistry::entityDisabled( $entity );
     }
 }

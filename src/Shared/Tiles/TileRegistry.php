@@ -67,6 +67,10 @@ final class TileRegistry {
             'cap'               => '',
             'cap_callback'      => null,
             'module_class'      => null,
+            // #1485 — sub-feature key (FeatureRegistry). When set and the
+            // feature is off, the tile hides exactly like a disabled
+            // module's tile, but the parent module stays on.
+            'feature'           => '',
             'view_slug'         => '',
             // #0056 — flag for surfaces that genuinely need a tablet/laptop;
             // the dispatched view renders a "best on desktop" banner under
@@ -256,6 +260,15 @@ final class TileRegistry {
         $owner = $tile['module_class'] ?? null;
         if ( $owner !== null && $owner !== '' ) {
             if ( ! ModuleRegistry::isEnabled( (string) $owner ) ) return false;
+        }
+
+        // #1485 — a tile that names an off sub-feature hides while its
+        // parent module stays on. Lets sibling tiles (e.g. Team blueprint
+        // next to Team chemistry) remain visible.
+        $feature = (string) ( $tile['feature'] ?? '' );
+        if ( $feature !== '' && class_exists( '\\TT\\Core\\FeatureRegistry' )
+             && ! \TT\Core\FeatureRegistry::isEnabled( $feature ) ) {
+            return false;
         }
 
         $entity        = (string) ( $tile['entity'] ?? '' );

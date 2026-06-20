@@ -83,12 +83,15 @@ class PlayerJourneyRestController extends BaseController {
             ],
         ] );
 
-        // Cohort transitions.
+        // Cohort transitions. #1485 — gated by the cohort_transitions
+        // sub-feature flag on top of the cap, so switching the feature
+        // off takes its REST surface dark while the rest of Journey
+        // (timeline / injuries) keeps serving.
         register_rest_route( self::NS, '/journey/cohort-transitions', [
             [
                 'methods'             => 'GET',
                 'callback'            => [ __CLASS__, 'cohort_transitions' ],
-                'permission_callback' => self::permCan( 'tt_view_settings' ),
+                'permission_callback' => self::permCanFeature( 'tt_view_settings', 'cohort_transitions' ),
             ],
         ] );
 

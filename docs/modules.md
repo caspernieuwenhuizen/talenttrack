@@ -67,9 +67,28 @@ Every module-state change writes a row to `tt_module_state` with the `updated_by
 
 ## Features (toggles within a module)
 
-Below the module list, **Features** lets you switch off an individual feature without disabling its whole module.
+Some modules own several distinct surfaces. A **feature flag** switches one of them off while the rest of the module — and its sibling surfaces — keep running. This is finer-grained than the module toggle: disabling the whole module would take down surfaces you want to keep.
 
-- **Analytics explorer** (default **off**) — the ad-hoc Analytics dashboard tile and dimension/KPI explorer (`?tt_view=analytics`, `explore`, `scheduled-reports`). Turning it off hides the tile and those pages, but the **analytics engine keeps running** — the attendance, minutes and standard reports plus dashboard KPIs all still work, because they consume the engine directly, not the explorer UI. Re-enable it here any time.
+### Per-module feature toggles (`?tt_view=modules`, v4.23.0+)
+
+On the frontend Modules page each feature appears as an indented row (↳) directly beneath its parent module, with its own On/Off switch. A feature only shows while its parent module is on. Two features ship **off by default**:
+
+- **Cohort transitions** (Journey module, default **off**) — the academy-wide "find players by journey event + date range" query (`?tt_view=cohort-transitions`). Turning it off hides its tile, its page, and its REST route (`/journey/cohort-transitions`). The rest of Journey — player timeline, injuries, safeguarding notes — stays fully available.
+- **Team chemistry** (Team Development module, default **off**) — the formation board with suggested XI and chemistry scoring (`?tt_view=team-chemistry`). Turning it off hides its tile, its page, and the chemistry/pairings/team-fit REST routes. The **Team blueprint** editor — which lives in the same module and shares the same capability — stays available.
+
+What an off feature does, on the next page load:
+
+- Its **tile** disappears from the dashboard (sibling tiles in the same module stay).
+- A user who lands on the feature's `?tt_view=<slug>` (bookmark, stale tab) sees the same friendly "this section is currently unavailable" notice as a disabled module.
+- `MatrixGate` denies the feature's own matrix entity at every scope — the cap is unreachable even for a persona that holds it — without touching entities shared with sibling surfaces.
+- The feature's **REST routes** return 401/403; routes that back sibling surfaces keep serving.
+- Existing data rows are **untouched** — re-enabling restores access to all history.
+
+State lives in `tt_feature_state` (carrying the `club_id` tenancy scaffold), with `updated_by` + timestamp for audit. It's exposed over REST for non-WordPress front ends: `GET /wp-json/talenttrack/v1/features` lists features; `POST` with `{ "key": "...", "enabled": true|false }` toggles one (both gated by `tt_manage_modules`).
+
+### Analytics explorer
+
+- **Analytics explorer** (default **off**, managed on the **wp-admin** Modules page) — the ad-hoc Analytics dashboard tile and dimension/KPI explorer (`?tt_view=analytics`, `explore`, `scheduled-reports`). Turning it off hides the tile and those pages, but the **analytics engine keeps running** — the attendance, minutes and standard reports plus dashboard KPIs all still work, because they consume the engine directly, not the explorer UI.
 
 ## See also
 
