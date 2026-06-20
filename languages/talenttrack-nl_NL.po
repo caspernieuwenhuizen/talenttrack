@@ -38553,6 +38553,10 @@ msgid "Match existing"
 msgstr "Komt overeen"
 
 #: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid "New"
+msgstr "Nieuw"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
 msgid "Matched on"
 msgstr "Gematcht op"
 
