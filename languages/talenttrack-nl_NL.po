@@ -16724,6 +16724,10 @@ msgstr "Wissel vastleggen"
 msgid "Start match"
 msgstr "Wedstrijd starten"
 
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:189
+msgid "View match"
+msgstr "Wedstrijd bekijken"
+
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:439
 msgid "Synced"
 msgstr "Gesynchroniseerd"

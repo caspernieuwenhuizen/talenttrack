@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.26.2
+Stable tag: 4.26.3
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.26.3 — Live-match CTA: make the detail-page button state- and date-aware (closes #1520). On a match activity's detail page, **Start match** showed for any match-type activity on any date (e.g. a match moved to tomorrow still offered "Start match") and kept reading "Start match" after the match had started or finished — even though the execution view (#1473) already refuses to start before match day. [`FrontendActivitiesManageView`](src/Shared/Frontend/FrontendActivitiesManageView.php) now reads the execution row and computes the CTA: a not-started match shows **Start match** only on match day and is **hidden** off-day (no misleading CTA); a live match shows **Resume match** on any day; a played match shows **View match** on any day. The match-day rule is extracted to `MatchExecutionState::isMatchDay()` and now shared by the detail-page button, the execution view's start-lock, and the REST start-transition gate so the three surfaces can't drift. 1 new Dutch msgstr ("View match"). Patch bump. (closes #1520) =
 
 = 4.26.2 — Wizard entry points: make availability matrix-aware (closes #1516). On the prospect onboarding pipeline, **+ New prospect** did nothing — clicking it reloaded the page. The button renders behind the matrix-aware `AuthorizationService::userCanOrMatrix( 'tt_edit_prospects' )`, but [`WizardRegistry::isAvailable()`](src/Shared/Wizards/WizardRegistry.php) resolved the same cap with plain `user_can()`. When the cap is granted via the authorization matrix / functional roles (the normal case for `tt_edit_prospects`, including administrator), the button rendered but `WizardEntryPoint::urlFor()` saw the wizard as unavailable and returned the fallback URL — the same pipeline page. `isAvailable()` now resolves the cap via `userCanOrMatrix()`, consistent with the button render-guards and the rest of the app. Strictly more correct: grants availability to legitimate matrix cap-holders, removes access from no one. Systemic — every wizard entry button whose cap is matrix-only is fixed (new-prospect is the visible case; spot-checked new-activity, new-evaluation). Patch bump. (closes #1516) =
 

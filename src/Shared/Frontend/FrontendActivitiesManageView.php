@@ -174,17 +174,40 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                     // surface. Same gate as match prep (type=match/game
                     // + tt_edit_activities); the view re-checks that a
                     // match prep exists, refusing to launch otherwise.
-                    $exec_url = add_query_arg(
-                        [
-                            'tt_view'     => 'match-execution',
-                            'activity_id' => (int) $session->id,
-                        ],
-                        \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
-                    );
-                    $detail_actions[] = [
-                        'label' => __( 'Start match', 'talenttrack' ),
-                        'href'  => $exec_url,
-                    ];
+                    // #1520 — make the live-match CTA state- and date-aware,
+                    // consistent with the execution view's own gating (#1473):
+                    //   not_started + match day  -> "Start match"
+                    //   not_started + off day    -> hidden (no misleading CTA)
+                    //   live                      -> "Resume match" (any day)
+                    //   post-live                 -> "View match"   (any day)
+                    // Shared match-day rule lives on MatchExecutionState so the
+                    // button and the view can't drift.
+                    $exec_row   = ( new \TT\Modules\MatchExecution\Repositories\MatchExecutionRepository() )->findByActivity( (int) $session->id );
+                    $exec_state = $exec_row->state ?? \TT\Domain\Vocabularies\Enums\MatchExecutionState::NOT_STARTED;
+                    $is_match_day = \TT\Domain\Vocabularies\Enums\MatchExecutionState::isMatchDay( (string) ( $session->session_date ?? '' ) );
+
+                    $exec_label = '';
+                    if ( \TT\Domain\Vocabularies\Enums\MatchExecutionState::isLive( (string) $exec_state ) ) {
+                        $exec_label = __( 'Resume match', 'talenttrack' );
+                    } elseif ( \TT\Domain\Vocabularies\Enums\MatchExecutionState::isPostLive( (string) $exec_state ) ) {
+                        $exec_label = __( 'View match', 'talenttrack' );
+                    } elseif ( $is_match_day ) {
+                        $exec_label = __( 'Start match', 'talenttrack' );
+                    }
+
+                    if ( $exec_label !== '' ) {
+                        $exec_url = add_query_arg(
+                            [
+                                'tt_view'     => 'match-execution',
+                                'activity_id' => (int) $session->id,
+                            ],
+                            \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+                        );
+                        $detail_actions[] = [
+                            'label' => $exec_label,
+                            'href'  => $exec_url,
+                        ];
+                    }
                 }
                 // v3.110.97 — Continue rating. Only on completed
                 // activities (attendance + rating only make sense
