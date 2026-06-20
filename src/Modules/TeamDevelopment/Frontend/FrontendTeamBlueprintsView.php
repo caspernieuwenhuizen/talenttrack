@@ -452,7 +452,8 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
         echo '<select id="tt-bpe-formation" class="tt-bpe-formation-select"' . ( $can_edit ? '' : ' disabled' ) . '>';
         foreach ( (array) $templates as $tpl ) {
             $sel = ( (int) $tpl->id === $current_template_id ) ? ' selected' : '';
-            $label = (string) $tpl->name;
+            // #1523 — localise the seeded formation name; the (shape) suffix stays literal.
+            $label = \TT\Infrastructure\Query\LabelTranslator::formationName( (string) $tpl->name );
             if ( $tpl->formation_shape ) $label .= ' (' . (string) $tpl->formation_shape . ')';
             echo '<option value="' . (int) $tpl->id . '"' . $sel . '>' . esc_html( $label ) . '</option>';
         }

@@ -78,8 +78,11 @@ final class ReviewStep implements WizardStepInterface {
     private static function templateName( int $id ): string {
         if ( $id <= 0 ) return '—';
         global $wpdb;
-        return (string) ( $wpdb->get_var( $wpdb->prepare(
+        $name = $wpdb->get_var( $wpdb->prepare(
             "SELECT name FROM {$wpdb->prefix}tt_formation_templates WHERE id = %d", $id
-        ) ) ?: ( '#' . $id ) );
+        ) );
+        if ( ! $name ) return '#' . $id;
+        // #1523 — localise the seeded formation name.
+        return \TT\Infrastructure\Query\LabelTranslator::formationName( (string) $name );
     }
 }
