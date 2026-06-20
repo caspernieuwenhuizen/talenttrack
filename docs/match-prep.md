@@ -83,6 +83,12 @@ most common shape. Changing the formation reshapes the slot positions
 on the pitches; player assignments transfer to the slots that survive
 the rename, the rest fall back to the bench.
 
+The descriptive name reads in your language (the shape numbers stay the
+same in every language) — e.g. **Neutraal 4-3-3**, **Balbezit 4-3-3**.
+An **Aanvallend 3-4-3 (ruit)** option (a 3-4-3 with a midfield diamond:
+DM, two central mids and an attacking mid behind a front three) ships
+alongside the standard 3-4-3.
+
 ## Player names — short form
 
 Every player label on the match-prep surface — roster column, pitch

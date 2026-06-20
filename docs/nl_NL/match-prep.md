@@ -89,6 +89,13 @@ gebruikte vorm van de pilot. Een andere formatie kiezen hervormt de
 posities op de velden; toewijzingen die op een doorlopende positie
 blijven gaan mee, de rest valt terug op de bank.
 
+De beschrijvende naam staat in je eigen taal (de cijfers van de vorm
+blijven in elke taal gelijk) — bijv. **Neutraal 4-3-3**, **Balbezit
+4-3-3**. Naast de standaard 3-4-3 is er nu ook een **Aanvallend 3-4-3
+(ruit)**: een 3-4-3 met een middenveldruit (DM, twee centrale
+middenvelders en een aanvallende middenvelder achter een voorhoede van
+drie).
+
 ## Spelernamen — korte vorm
 
 Elke spelernaam op het scherm — selectielijst, posities op de velden,

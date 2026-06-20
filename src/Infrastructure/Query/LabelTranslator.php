@@ -241,8 +241,10 @@ class LabelTranslator {
     }
 
     /**
-     * i18n audit (May 2026) Bundle 7 — translate `tt_formation_templates.name`
-     * for the 4 system formations seeded by 0032 + Activator.
+     * Translate `tt_formation_templates.name` for the system formations
+     * seeded by 0032 / 0065 / Activator. The shape digits stay literal;
+     * only the descriptive word is localised (#1477). Custom formations a
+     * club adds fall through to their typed name unchanged.
      */
     public static function formationName( string $name ): string {
         switch ( $name ) {
@@ -250,6 +252,12 @@ class LabelTranslator {
             case 'Possession 4-3-3':  return __( 'Possession 4-3-3', 'talenttrack' );
             case 'Counter 4-3-3':     return __( 'Counter 4-3-3', 'talenttrack' );
             case 'Press-heavy 4-3-3': return __( 'Press-heavy 4-3-3', 'talenttrack' );
+            // #1477 — the 4-4-2 / 3-5-2 / 4-2-3-1 top-ups (0065) and the
+            // new offensive 3-4-3 diamond were never localised.
+            case 'Neutral 4-4-2':     return __( 'Neutral 4-4-2', 'talenttrack' );
+            case 'Neutral 3-5-2':     return __( 'Neutral 3-5-2', 'talenttrack' );
+            case 'Neutral 4-2-3-1':   return __( 'Neutral 4-2-3-1', 'talenttrack' );
+            case 'Offensive 3-4-3 (diamond)': return __( 'Offensive 3-4-3 (diamond)', 'talenttrack' );
             default:                  return $name;
         }
     }

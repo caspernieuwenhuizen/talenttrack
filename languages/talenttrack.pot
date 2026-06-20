@@ -26513,7 +26513,7 @@ msgid "VCT session designer"
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:502
-msgid "Build sessions from the exercise library."
+msgid "Build trainings from the exercise library."
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:523
@@ -32423,4 +32423,16 @@ msgstr ""
 #: src/Shared/Validation/CustomFieldValidator.php:350
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
+msgstr ""
+#: src/Infrastructure/Query/LabelTranslator.php
+msgid "Neutral 4-4-2"
+msgstr ""
+#: src/Infrastructure/Query/LabelTranslator.php
+msgid "Neutral 3-5-2"
+msgstr ""
+#: src/Infrastructure/Query/LabelTranslator.php
+msgid "Neutral 4-2-3-1"
+msgstr ""
+#: src/Infrastructure/Query/LabelTranslator.php
+msgid "Offensive 3-4-3 (diamond)"
 msgstr ""
