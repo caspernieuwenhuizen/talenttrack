@@ -308,6 +308,17 @@ class FrontendGoalsManageView extends FrontendViewBase {
                     'label_from' => __( 'Due from', 'talenttrack' ),
                     'label_to'   => __( 'Due to',   'talenttrack' ),
                 ],
+                // #1470 — Active / Archived / All. Labelled "Archive" to
+                // avoid clashing with the goal-status filter above.
+                'archived' => [
+                    'type'    => 'select',
+                    'label'   => __( 'Archive', 'talenttrack' ),
+                    'options' => [
+                        'active'   => __( 'Active',   'talenttrack' ),
+                        'archived' => __( 'Archived', 'talenttrack' ),
+                        'all'      => __( 'All',      'talenttrack' ),
+                    ],
+                ],
             ],
             'row_actions'  => $row_actions,
             'search'       => [ 'placeholder' => __( 'Search title, description, player…', 'talenttrack' ) ],

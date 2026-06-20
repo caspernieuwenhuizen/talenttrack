@@ -27,4 +27,4 @@ Klik op een rij in de evaluatielijst om de volledige uitsplitsing te zien — ee
 
 ## Oude evaluaties opruimen
 
-Je kunt een evaluatie **archiveren** om hem uit lijsten te halen maar in de historie van de speler te bewaren, of **verwijderen** als hij per ongeluk is aangemaakt. Gearchiveerde evaluaties tellen niet mee voor de spelerskaarten.
+Je kunt een evaluatie **archiveren** om hem uit lijsten te halen maar in de historie van de speler te bewaren, of **verwijderen** als hij per ongeluk is aangemaakt. Gearchiveerde evaluaties tellen niet mee voor de spelerskaarten. Met het **Archief**-filter (Actief / Gearchiveerd / Alle) in de lijst vind je gearchiveerde evaluaties terug — standaard staat het op Actief.

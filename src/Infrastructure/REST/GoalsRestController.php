@@ -126,9 +126,20 @@ class GoalsRestController {
 
         $scope = QueryHelpers::apply_demo_scope( 'g', 'goal' );
 
-        if ( empty( $r['include_archived'] ) ) {
-            $where[] = 'g.archived_at IS NULL';
+        // #1470 — Active / Archived / All status filter. Back-compat:
+        // the legacy `include_archived=1` still maps to "all".
+        $archived_view = \TT\Infrastructure\Archive\ArchiveRepository::sanitizeView(
+            is_array( $r['filter'] ?? null ) ? ( $r['filter']['archived'] ?? '' ) : ''
+        );
+        if ( ! empty( $r['include_archived'] ) ) {
+            $archived_view = 'all';
         }
+        if ( $archived_view === 'active' ) {
+            $where[] = 'g.archived_at IS NULL';
+        } elseif ( $archived_view === 'archived' ) {
+            $where[] = 'g.archived_at IS NOT NULL';
+        }
+        // 'all' → no archived clause.
 
         // v3.91.2 — bypass coach-scope filter for personas with matrix
         // `goals:r[global]` (scout, head_of_development, academy_admin).
