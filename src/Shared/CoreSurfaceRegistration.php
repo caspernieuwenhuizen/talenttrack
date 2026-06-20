@@ -190,8 +190,17 @@ final class CoreSurfaceRegistration {
         // Me-group tiles are also visible to parents (scoped to their
         // child via the matrix `parent` persona seed). Without this,
         // parents land on an empty dashboard.
+        //
+        // #1482 — when the matrix is dormant this callback is the only
+        // gate, so it must not leak player-only tiles to a non-player.
+        // A coach can carry the legacy `tt_parent` cap without any
+        // linked child; require a real parent→player link (the same
+        // check MatrixGate's parent scope uses) so only genuine parents
+        // pass. Matrix-active installs are governed by the seed, which
+        // already restricts these entities to player/parent.
         $is_player_or_parent_cb = static function ( int $user_id ) use ( $is_player_cb ): bool {
-            return $is_player_cb( $user_id ) || user_can( $user_id, 'tt_parent' );
+            return $is_player_cb( $user_id )
+                || ( user_can( $user_id, 'tt_parent' ) && QueryHelpers::user_is_linked_parent( $user_id ) );
         };
         // #0079 — `$is_coach_or_admin_cb` removed. Coach-tier tiles now
         // declare a *_panel matrix entity and matrix-active installs gate

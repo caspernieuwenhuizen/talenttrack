@@ -342,6 +342,24 @@ class QueryHelpers {
     }
 
     /**
+     * #1482 — does this user actually have a child linked as a player?
+     * Mirrors the canonical parent-scope check `MatrixGate` runs
+     * (`tt_player_parents.parent_user_id`). Used to harden the Me-group
+     * tile fallback so merely holding the `tt_parent` cap (which a coach
+     * can carry) no longer reveals player-only tiles when the matrix is
+     * dormant — only a genuine linked parent passes.
+     */
+    public static function user_is_linked_parent( int $user_id ): bool {
+        if ( $user_id <= 0 ) return false;
+        global $wpdb;
+        $hit = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT 1 FROM {$wpdb->prefix}tt_player_parents WHERE parent_user_id = %d LIMIT 1",
+            $user_id
+        ) );
+        return $hit === 1;
+    }
+
+    /**
      * Teams a user coaches via an active team-scoped role
      * (`tt_user_role_scopes.scope_type = 'team'`). PeopleRepository::
      * assignToTeam syncs this row at every Staff-section assignment,
