@@ -37409,6 +37409,64 @@ msgstr ""
 "Beheerdershulpmiddelen om de autorisatiematrix te inspecteren en te "
 "migreren. Deze openen in wp-admin."
 
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:459
+msgid ""
+"Expand a data set to leave individual records behind (e.g. test players). "
+"Everything is included by default; untick a record to exclude it."
+msgstr ""
+"Vouw een gegevensset uit om afzonderlijke records achter te laten (bijv. "
+"testspelers). Alles is standaard inbegrepen; haal het vinkje bij een record "
+"weg om het uit te sluiten."
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:503
+#, php-format
+msgid "Show %d record"
+msgid_plural "Show %d records"
+msgstr[0] "Toon %d record"
+msgstr[1] "Toon %d records"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:512
+#, php-format
+msgid "Showing the first %d records; any beyond that are always included."
+msgstr "De eerste %d records worden getoond; records daarboven zijn altijd inbegrepen."
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:566
+msgid "(no label)"
+msgstr "(geen label)"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:740
+msgid "Confirm migration export"
+msgstr "Migratie-export bevestigen"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:742
+msgid ""
+"Some records you excluded are still referenced by data you are exporting. "
+"These references will point at records that are not in the archive:"
+msgstr ""
+"Sommige records die je hebt uitgesloten worden nog gebruikt door gegevens "
+"die je exporteert. Deze verwijzingen wijzen naar records die niet in het "
+"archief zitten:"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:752
+#, php-format
+msgid "%1$d %2$s record references an excluded %3$s record."
+msgid_plural "%1$d %2$s records reference an excluded %3$s record."
+msgstr[0] "%1$d %2$s-record verwijst naar een uitgesloten %3$s-record."
+msgstr[1] "%1$d %2$s-records verwijzen naar een uitgesloten %3$s-record."
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:760
+msgid ""
+"You can export exactly as selected — the dependents will be imported without "
+"their referenced record — or go back and adjust your selection."
+msgstr ""
+"Je kunt exact exporteren zoals geselecteerd — de afhankelijke records worden "
+"geïmporteerd zonder het record waarnaar ze verwijzen — of teruggaan en je "
+"selectie aanpassen."
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:771
+msgid "Download anyway"
+msgstr "Toch downloaden"
+
 #~ msgid "Goal delete failed."
 #~ msgstr "Verwijderen van doel mislukt."
 

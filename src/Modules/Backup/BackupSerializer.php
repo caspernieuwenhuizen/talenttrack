@@ -37,6 +37,14 @@ class BackupSerializer {
      *
      * @param string[] $table_names Bare table names without the wpdb prefix (e.g. 'tt_players')
      * @param string   $preset      Identifier kept on the snapshot for traceability
+     * @param array<string,array{column:string,ids:array<int,int>}> $exclude
+     *                              #1517 — optional per-table row exclusions:
+     *                              for each bare table, drop rows whose
+     *                              `column` value is in `ids`. Empty (the
+     *                              default) snapshots every row, so full
+     *                              backups are unchanged. Filtering runs in
+     *                              PHP after the fetch; the checksum is then
+     *                              computed over the filtered tables.
      *
      * @return array{
      *   version:string,
@@ -47,7 +55,7 @@ class BackupSerializer {
      *   checksum:string
      * }
      */
-    public static function snapshot( array $table_names, string $preset ): array {
+    public static function snapshot( array $table_names, string $preset, array $exclude = [] ): array {
         global $wpdb;
 
         $tables = [];
@@ -79,9 +87,23 @@ class BackupSerializer {
             }
 
             $rows = $wpdb->get_results( "SELECT * FROM {$table}", ARRAY_A );
+            $rows = is_array( $rows ) ? $rows : [];
+
+            // #1517 — per-table row exclusion (migration export's
+            // leave-test-records-behind selection). Drop rows whose
+            // `column` value is in the excluded id set.
+            if ( isset( $exclude[ $bare ]['column'], $exclude[ $bare ]['ids'] ) && ! empty( $exclude[ $bare ]['ids'] ) ) {
+                $col     = (string) $exclude[ $bare ]['column'];
+                $drop    = array_fill_keys( array_map( 'intval', (array) $exclude[ $bare ]['ids'] ), true );
+                $rows    = array_values( array_filter(
+                    $rows,
+                    static fn ( array $row ): bool => ! isset( $drop[ (int) ( $row[ $col ] ?? 0 ) ] )
+                ) );
+            }
+
             $tables[ $bare ] = [
                 'columns' => $columns,
-                'rows'    => is_array( $rows ) ? $rows : [],
+                'rows'    => $rows,
             ];
         }
 

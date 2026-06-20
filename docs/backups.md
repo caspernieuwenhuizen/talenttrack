@@ -87,6 +87,12 @@ To move data to a **different** TalentTrack install, use the **Data migration** 
 
 Export is data-only: WordPress users and media are not included. Cross-install user links (`wp_user_id`) are resolved at import time, not carried in the file.
 
+### Leaving individual records behind (v4.26.8+)
+
+Beyond the per-data-set checkboxes, each record-bearing set (Players, Teams, Staff & roles, Evaluations, Activities & attendance, Goals) has a **Show N records** expander. Every record is included by default; untick the ones you want to leave behind — handy for dropping test players or scratch records before migrating to a clean install. Excluding a record also drops its child rows in the same set (e.g. excluding an activity drops its attendance rows). "Lookups & configuration" stays all-or-nothing, as it is reference data rather than test records.
+
+If you exclude a record that another included set still references — for example, excluding a player while keeping their evaluations — a confirmation step lists those orphaned dependents before the download. You can **Download anyway** (the dependents export without their referenced record) or cancel and adjust your selection. Very large sets show only the first 500 records in the expander; records beyond that are always included.
+
 Importing a `.ttmig` on the target install — upload, entity/record selection, interactive conflict resolution and user mapping, and ID remapping so it merges safely into a populated install — is being delivered in follow-up phases (#1464).
 
 ## What's still deferred

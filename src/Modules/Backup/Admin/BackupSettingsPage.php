@@ -448,27 +448,139 @@ class BackupSettingsPage {
      * to import on another TalentTrack install. Import is a later phase.
      */
     private static function renderMigrationSection(): void {
-        $groups = \TT\Modules\Backup\MigrationExporter::entityGroups();
+        $groups       = \TT\Modules\Backup\MigrationExporter::entityGroups();
+        $record_ents  = \TT\Modules\Backup\MigrationExporter::recordEntities();
         ?>
         <hr style="margin:24px 0;">
         <h3><?php esc_html_e( 'Data migration', 'talenttrack' ); ?></h3>
         <p style="max-width:760px;">
             <?php esc_html_e( 'Move data to another TalentTrack install. Choose which data sets to include; you get a .ttmig file to import on the other install. Data only — WordPress users and media are not included.', 'talenttrack' ); ?>
         </p>
+        <p style="max-width:760px; color:#5b6e75;">
+            <?php esc_html_e( 'Expand a data set to leave individual records behind (e.g. test players). Everything is included by default; untick a record to exclude it.', 'talenttrack' ); ?>
+        </p>
         <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
             <?php wp_nonce_field( 'tt_migration_export', 'tt_backup_nonce' ); ?>
             <input type="hidden" name="action" value="tt_migration_export" />
-            <fieldset style="margin:8px 0 16px;">
+            <fieldset style="margin:8px 0 16px; max-width:760px;">
                 <?php foreach ( $groups as $key => $g ) : ?>
-                    <label style="display:block; min-height:32px; line-height:32px;">
-                        <input type="checkbox" name="entities[]" value="<?php echo esc_attr( $key ); ?>" checked />
-                        <?php echo esc_html( $g['label'] ); ?>
+                    <label style="display:flex; align-items:center; gap:8px; min-height:48px;">
+                        <input type="checkbox" name="entities[]" value="<?php echo esc_attr( $key ); ?>" checked style="width:20px; height:20px;" />
+                        <span><?php echo esc_html( $g['label'] ); ?></span>
                     </label>
+                    <?php
+                    if ( isset( $record_ents[ $key ] ) ) {
+                        self::renderMigrationRecordsExpander( (string) $key, (string) $g['label'] );
+                    }
+                    ?>
                 <?php endforeach; ?>
             </fieldset>
             <?php submit_button( __( 'Export for migration', 'talenttrack' ), 'secondary', 'submit', false ); ?>
         </form>
         <?php
+    }
+
+    /**
+     * #1517 — per-record include/exclude expander for one record-bearing
+     * entity group. A collapsed `<details>` keeps the form compact; inside,
+     * each record is an "include" checkbox checked by default. A hidden
+     * `mig_all[<entity>]` field carries every rendered id so the handler can
+     * derive the excluded set (unchecked checkboxes aren't submitted).
+     */
+    private static function renderMigrationRecordsExpander( string $entity, string $label ): void {
+        $records = self::migrationRecordsFor( $entity );
+        if ( empty( $records['rows'] ) ) return;
+
+        $all_ids = implode( ',', array_map( static fn ( array $r ): int => (int) $r['id'], $records['rows'] ) );
+        ?>
+        <details style="margin:0 0 10px 28px;">
+            <summary style="cursor:pointer; color:#1d7874; min-height:44px; line-height:44px;">
+                <?php
+                /* translators: %d: number of records. */
+                echo esc_html( sprintf( _n( 'Show %d record', 'Show %d records', count( $records['rows'] ), 'talenttrack' ), count( $records['rows'] ) ) );
+                ?>
+            </summary>
+            <input type="hidden" name="mig_all[<?php echo esc_attr( $entity ); ?>]" value="<?php echo esc_attr( $all_ids ); ?>" />
+            <?php if ( $records['truncated'] ) : ?>
+                <p style="color:#b06000; margin:6px 0;"><em>
+                    <?php
+                    /* translators: %d: number of records shown. */
+                    echo esc_html( sprintf( __( 'Showing the first %d records; any beyond that are always included.', 'talenttrack' ), count( $records['rows'] ) ) );
+                    ?>
+                </em></p>
+            <?php endif; ?>
+            <ul style="list-style:none; margin:6px 0; padding:0;">
+                <?php foreach ( $records['rows'] as $rec ) : ?>
+                    <li>
+                        <label style="display:flex; align-items:center; gap:8px; min-height:44px;">
+                            <input type="checkbox" name="mig_keep[<?php echo esc_attr( $entity ); ?>][]" value="<?php echo (int) $rec['id']; ?>" checked style="width:20px; height:20px;" />
+                            <span><code>#<?php echo (int) $rec['id']; ?></code> <?php echo esc_html( $rec['label'] ); ?></span>
+                        </label>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        </details>
+        <?php
+    }
+
+    /**
+     * Fetch the primary records of a record-bearing migration entity, with
+     * a human display name. Capped to keep the expander manageable; the cap
+     * is surfaced (`truncated`) rather than silently dropping records — rows
+     * beyond the cap are still exported (they just can't be unticked here).
+     *
+     * @return array{rows: array<int, array{id:int, label:string}>, truncated: bool}
+     */
+    private static function migrationRecordsFor( string $entity ): array {
+        $entities = \TT\Modules\Backup\MigrationExporter::recordEntities();
+        if ( ! isset( $entities[ $entity ] ) ) return [ 'rows' => [], 'truncated' => false ];
+
+        global $wpdb;
+        $table = $wpdb->prefix . $entities[ $entity ]['table'];
+        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
+            return [ 'rows' => [], 'truncated' => false ];
+        }
+
+        $cap   = 500;
+        $total = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table}" );
+        $raw   = $wpdb->get_results( "SELECT * FROM {$table} ORDER BY id ASC LIMIT " . ( $cap + 1 ), ARRAY_A );
+        $raw   = is_array( $raw ) ? $raw : [];
+        $truncated = count( $raw ) > $cap;
+        if ( $truncated ) {
+            $raw = array_slice( $raw, 0, $cap );
+        }
+
+        $rows = [];
+        foreach ( $raw as $r ) {
+            $id = (int) ( $r['id'] ?? 0 );
+            if ( $id <= 0 ) continue;
+            $rows[] = [ 'id' => $id, 'label' => self::migrationDisplayName( $r ) ];
+        }
+        return [ 'rows' => $rows, 'truncated' => $truncated, 'total' => $total ];
+    }
+
+    /**
+     * Best-effort human label for a migration record row, from whichever
+     * common name columns the table carries.
+     *
+     * @param array<string,mixed> $row
+     */
+    private static function migrationDisplayName( array $row ): string {
+        $first = trim( (string) ( $row['first_name'] ?? '' ) );
+        $last  = trim( (string) ( $row['last_name'] ?? '' ) );
+        if ( $first !== '' || $last !== '' ) {
+            return trim( $first . ' ' . $last );
+        }
+        foreach ( [ 'name', 'title', 'label' ] as $col ) {
+            $val = trim( (string) ( $row[ $col ] ?? '' ) );
+            if ( $val !== '' ) return $val;
+        }
+        // Evaluations and similar dated records: fall back to a date column.
+        foreach ( [ 'eval_date', 'session_date', 'date', 'created_at' ] as $col ) {
+            $val = trim( (string) ( $row[ $col ] ?? '' ) );
+            if ( $val !== '' ) return $val;
+        }
+        return __( '(no label)', 'talenttrack' );
     }
 
     /**
@@ -485,7 +597,27 @@ class BackupSettingsPage {
             self::redirectBack( [ 'tt_bk_msg' => 'migration_empty' ] );
         }
 
-        $bytes = \TT\Modules\Backup\MigrationExporter::export( $valid );
+        // #1517 — per-record exclusions. On the confirm re-submit they
+        // arrive as a compact JSON blob; on first submit derive them from
+        // the rendered ids (mig_all) minus the kept ids (mig_keep).
+        $confirmed  = ! empty( $_POST['mig_confirm'] );
+        $exclusions = $confirmed
+            ? self::parseMigrationExclusionsJson( wp_unslash( (string) ( $_POST['mig_exclusions_json'] ?? '' ) ) )
+            : self::parseMigrationExclusions();
+        $exclusions = array_intersect_key( $exclusions, array_flip( $valid ) );
+
+        // #1517 — warn (but allow) when an excluded record leaves included
+        // dependents orphaned in another data set. Show a confirmation step
+        // the first time; "Download anyway" re-submits with mig_confirm.
+        if ( ! $confirmed && ! empty( $exclusions ) ) {
+            $orphans = self::detectMigrationOrphans( $valid, $exclusions );
+            if ( ! empty( $orphans ) ) {
+                self::renderMigrationConfirm( $valid, $exclusions, $orphans );
+                exit;
+            }
+        }
+
+        $bytes = \TT\Modules\Backup\MigrationExporter::export( $valid, $exclusions );
         if ( $bytes === '' ) {
             self::redirectBack( [ 'tt_bk_msg' => 'migration_empty' ] );
         }
@@ -497,6 +629,167 @@ class BackupSettingsPage {
         header( 'Content-Length: ' . (string) strlen( $bytes ) );
         echo $bytes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- binary gzip stream.
         exit;
+    }
+
+    /**
+     * #1517 — derive per-entity excluded ids from the export form:
+     * (all rendered ids) − (kept/checked ids), per record-bearing entity.
+     *
+     * @return array<string, array<int,int>>
+     */
+    private static function parseMigrationExclusions(): array {
+        $all  = isset( $_POST['mig_all'] ) && is_array( $_POST['mig_all'] ) ? wp_unslash( $_POST['mig_all'] ) : [];
+        $keep = isset( $_POST['mig_keep'] ) && is_array( $_POST['mig_keep'] ) ? wp_unslash( $_POST['mig_keep'] ) : [];
+        $record_keys = array_keys( \TT\Modules\Backup\MigrationExporter::recordEntities() );
+
+        $out = [];
+        foreach ( $all as $entity => $csv ) {
+            $entity = sanitize_key( (string) $entity );
+            if ( ! in_array( $entity, $record_keys, true ) ) continue;
+
+            $all_ids  = array_filter( array_map( 'intval', explode( ',', (string) $csv ) ) );
+            $kept_ids = isset( $keep[ $entity ] ) && is_array( $keep[ $entity ] )
+                ? array_map( 'intval', $keep[ $entity ] )
+                : [];
+            $excluded = array_values( array_diff( $all_ids, $kept_ids ) );
+            if ( ! empty( $excluded ) ) {
+                $out[ $entity ] = $excluded;
+            }
+        }
+        return $out;
+    }
+
+    /**
+     * #1517 — decode the confirm step's serialized exclusion set.
+     *
+     * @return array<string, array<int,int>>
+     */
+    private static function parseMigrationExclusionsJson( string $json ): array {
+        $decoded = json_decode( $json, true );
+        if ( ! is_array( $decoded ) ) return [];
+        $record_keys = array_keys( \TT\Modules\Backup\MigrationExporter::recordEntities() );
+
+        $out = [];
+        foreach ( $decoded as $entity => $ids ) {
+            $entity = sanitize_key( (string) $entity );
+            if ( ! in_array( $entity, $record_keys, true ) || ! is_array( $ids ) ) continue;
+            $ids = array_values( array_filter( array_map( 'intval', $ids ) ) );
+            if ( ! empty( $ids ) ) $out[ $entity ] = $ids;
+        }
+        return $out;
+    }
+
+    /**
+     * #1517 — find included records that reference an excluded record in
+     * another data set (e.g. an evaluation kept while its player is
+     * excluded). Uses BackupDependencyMap to walk parent→child references.
+     * Within-group children (which follow their parent's exclusion) and
+     * tables not part of the export are skipped.
+     *
+     * @param string[] $valid                          exported entity keys
+     * @param array<string, array<int,int>> $exclusions
+     * @return array<int, array{parent_entity:string, child_table:string, count:int}>
+     */
+    private static function detectMigrationOrphans( array $valid, array $exclusions ): array {
+        global $wpdb;
+        $entities = \TT\Modules\Backup\MigrationExporter::recordEntities();
+        $groups   = \TT\Modules\Backup\MigrationExporter::entityGroups();
+        $inverse  = \TT\Modules\Backup\BackupDependencyMap::inverse();
+
+        // Tables actually present in the export (any selected group's tables).
+        $exported_tables = [];
+        foreach ( $valid as $key ) {
+            foreach ( $groups[ $key ]['tables'] ?? [] as $t ) $exported_tables[ $t ] = true;
+        }
+        // Excluded ids keyed by the table that owns them (primary tables).
+        $excluded_by_table = [];
+        foreach ( $exclusions as $entity => $ids ) {
+            if ( isset( $entities[ $entity ] ) ) $excluded_by_table[ $entities[ $entity ]['table'] ] = array_map( 'intval', $ids );
+        }
+
+        $orphans = [];
+        foreach ( $exclusions as $entity => $ids ) {
+            if ( empty( $ids ) || ! isset( $entities[ $entity ] ) ) continue;
+            $primary      = $entities[ $entity ]['table'];
+            $own_children = $entities[ $entity ]['children'];
+            $ids          = array_values( array_unique( array_map( 'intval', $ids ) ) );
+            $id_list      = implode( ',', $ids );
+
+            foreach ( $inverse[ $primary ] ?? [] as $child_table => $cols ) {
+                if ( isset( $own_children[ $child_table ] ) ) continue;       // follows parent — already excluded
+                if ( empty( $exported_tables[ $child_table ] ) ) continue;    // not in this export
+
+                $table = $wpdb->prefix . $child_table;
+                if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) continue;
+
+                $count = 0;
+                foreach ( $cols as $col ) {
+                    $col   = preg_replace( '/[^a-z0-9_]/i', '', (string) $col );
+                    if ( $col === '' ) continue;
+                    $sql   = "SELECT COUNT(*) FROM {$table} WHERE {$col} IN ({$id_list})";
+                    // Don't count child rows that are themselves excluded.
+                    if ( ! empty( $excluded_by_table[ $child_table ] ) ) {
+                        $sql .= ' AND id NOT IN (' . implode( ',', $excluded_by_table[ $child_table ] ) . ')';
+                    }
+                    $count += (int) $wpdb->get_var( $sql );
+                }
+                if ( $count > 0 ) {
+                    $orphans[] = [ 'parent_entity' => (string) $entity, 'child_table' => (string) $child_table, 'count' => $count ];
+                }
+            }
+        }
+        return $orphans;
+    }
+
+    /**
+     * #1517 — confirmation interstitial shown when excluding records would
+     * orphan included dependents. Lists the orphan risks and offers
+     * "Download anyway" (re-submits with mig_confirm + the serialized
+     * exclusion set) or a Cancel link back to the Backups page.
+     *
+     * @param string[] $valid
+     * @param array<string, array<int,int>> $exclusions
+     * @param array<int, array{parent_entity:string, child_table:string, count:int}> $orphans
+     */
+    private static function renderMigrationConfirm( array $valid, array $exclusions, array $orphans ): void {
+        $groups = \TT\Modules\Backup\MigrationExporter::entityGroups();
+        $table_label = static function ( string $bare ) use ( $groups ): string {
+            foreach ( $groups as $g ) {
+                if ( in_array( $bare, $g['tables'], true ) ) return (string) $g['label'];
+            }
+            return $bare;
+        };
+        $back = wp_get_referer() ?: admin_url( 'admin.php?page=talenttrack' );
+
+        if ( ! function_exists( 'get_admin_page_title' ) ) require_once ABSPATH . 'wp-admin/includes/template.php';
+        echo '<div class="wrap">';
+        echo '<h1>' . esc_html__( 'Confirm migration export', 'talenttrack' ) . '</h1>';
+        echo '<p style="max-width:760px;">' . esc_html__( 'Some records you excluded are still referenced by data you are exporting. These references will point at records that are not in the archive:', 'talenttrack' ) . '</p>';
+        echo '<ul style="max-width:760px; list-style:disc; margin-left:20px;">';
+        foreach ( $orphans as $o ) {
+            echo '<li>' . esc_html( sprintf(
+                /* translators: 1: number of records, 2: data set the records live in, 3: excluded data set. */
+                _n( '%1$d %2$s record references an excluded %3$s record.', '%1$d %2$s records reference an excluded %3$s record.', (int) $o['count'], 'talenttrack' ),
+                (int) $o['count'],
+                $table_label( (string) $o['child_table'] ),
+                $table_label( \TT\Modules\Backup\MigrationExporter::recordEntities()[ $o['parent_entity'] ]['table'] ?? $o['parent_entity'] )
+            ) ) . '</li>';
+        }
+        echo '</ul>';
+        echo '<p style="max-width:760px;">' . esc_html__( 'You can export exactly as selected — the dependents will be imported without their referenced record — or go back and adjust your selection.', 'talenttrack' ) . '</p>';
+
+        echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
+        wp_nonce_field( 'tt_migration_export', 'tt_backup_nonce' );
+        echo '<input type="hidden" name="action" value="tt_migration_export" />';
+        echo '<input type="hidden" name="mig_confirm" value="1" />';
+        foreach ( $valid as $key ) {
+            echo '<input type="hidden" name="entities[]" value="' . esc_attr( $key ) . '" />';
+        }
+        echo '<input type="hidden" name="mig_exclusions_json" value="' . esc_attr( (string) wp_json_encode( $exclusions ) ) . '" />';
+        submit_button( __( 'Download anyway', 'talenttrack' ), 'primary', 'submit', false );
+        echo ' <a class="button button-secondary" href="' . esc_url( $back ) . '">' . esc_html__( 'Cancel', 'talenttrack' ) . '</a>';
+        echo '</form>';
+        echo '</div>';
     }
 
     public static function handleRestore(): void {
