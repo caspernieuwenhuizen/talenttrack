@@ -1537,11 +1537,13 @@ class FrontendConfigurationView extends FrontendViewBase {
         // (macro-blocks + age-profiles). Gated on `tt_vct_admin_library`
         // since the destination view re-checks the same capability.
         self::renderVctTiles();
+        $seen_urls = [];
         foreach ( $admin_tiles as $tile ) {
             $title = $tile[0];
             $desc  = $tile[1];
             $url   = $tile[2];
             $icon  = $tile[3] ?? '';
+            $seen_urls[ (string) $url ] = true;
             echo '<a class="tt-cfg-tile" href="' . esc_url( $url ) . '">';
             if ( $icon !== '' ) {
                 echo '<div class="tt-cfg-tile-icon">' . \TT\Shared\Icons\IconRenderer::render( $icon ) . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -1553,7 +1555,56 @@ class FrontendConfigurationView extends FrontendViewBase {
             echo '<div class="tt-cfg-tile-desc">' . esc_html( $desc ) . '</div>';
             echo '</a>';
         }
+
+        // #1539 — also surface tiles contributed through the
+        // `tt_config_tile_groups` filter (Modules, Dashboard layouts,
+        // Custom widgets). Only the wp-admin Configuration page applied
+        // this filter, so on the frontend — the surface the modern menu
+        // uses — those tiles were invisible. Render them here, cap-gated,
+        // deduped against what's already on the grid.
+        self::renderContributedConfigTiles( $seen_urls );
+
         echo '</div>';
+    }
+
+    /**
+     * #1539 — render Configuration tiles contributed via the
+     * `tt_config_tile_groups` filter. Each tile is
+     * `{ label, description, icon, url, cap }`; contributors use an emoji
+     * icon. wp-admin destinations get the external-link marker.
+     *
+     * @param array<string,bool> $seen_urls URLs already rendered on the grid.
+     */
+    private static function renderContributedConfigTiles( array $seen_urls ): void {
+        $groups = (array) apply_filters( 'tt_config_tile_groups', [] );
+        foreach ( $groups as $group ) {
+            $tiles = is_array( $group['tiles'] ?? null ) ? $group['tiles'] : [];
+            foreach ( $tiles as $tile ) {
+                $cap = (string) ( $tile['cap'] ?? 'tt_view_settings' );
+                if ( ! current_user_can( $cap ) ) continue;
+                $url = (string) ( $tile['url'] ?? '' );
+                if ( $url === '' || isset( $seen_urls[ $url ] ) ) continue;
+                $seen_urls[ $url ] = true;
+
+                $title       = (string) ( $tile['label'] ?? '' );
+                $desc        = (string) ( $tile['description'] ?? '' );
+                $icon        = (string) ( $tile['icon'] ?? '' );
+                $is_external = strpos( $url, '/wp-admin/' ) !== false;
+
+                echo '<a class="tt-cfg-tile" href="' . esc_url( $url ) . '">';
+                if ( $icon !== '' ) {
+                    // Contributors use an emoji icon, not an IconRenderer slug.
+                    echo '<div class="tt-cfg-tile-icon" style="font-size:22px; line-height:1;">' . esc_html( $icon ) . '</div>';
+                }
+                echo '<div class="tt-cfg-tile-title">' . esc_html( $title );
+                if ( $is_external ) {
+                    echo ' ' . \TT\Shared\Icons\IconRenderer::render( 'external-link', [ 'width' => 12, 'height' => 12, 'style' => 'vertical-align:-1px;' ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG.
+                }
+                echo '</div>';
+                echo '<div class="tt-cfg-tile-desc">' . esc_html( $desc ) . '</div>';
+                echo '</a>';
+            }
+        }
     }
 
     /**
