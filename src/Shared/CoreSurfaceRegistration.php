@@ -499,7 +499,7 @@ final class CoreSurfaceRegistration {
             'kind'         => 'work',
             'order'        => 26,
             'label'        => __( 'VCT session designer', 'talenttrack' ),
-            'description'  => __( 'Build sessions from the exercise library.', 'talenttrack' ),
+            'description'  => __( 'Build trainings from the exercise library.', 'talenttrack' ),
             'icon'         => 'kanban',
             'color'        => '#1d7874',
             'cap'          => 'tt_vct_plan',

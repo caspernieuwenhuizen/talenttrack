@@ -30125,7 +30125,7 @@ msgid "VCT session designer"
 msgstr "VCT-trainingsontwerper"
 
 #: src/Shared/CoreSurfaceRegistration.php:502
-msgid "Build sessions from the exercise library."
+msgid "Build trainings from the exercise library."
 msgstr "Bouw trainingen uit de oefeningenbibliotheek."
 
 #: src/Shared/CoreSurfaceRegistration.php:523

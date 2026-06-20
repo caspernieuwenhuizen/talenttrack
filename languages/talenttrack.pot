@@ -26513,7 +26513,7 @@ msgid "VCT session designer"
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:502
-msgid "Build sessions from the exercise library."
+msgid "Build trainings from the exercise library."
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:523
