@@ -36922,6 +36922,38 @@ msgstr "Vind spelers academiebreed op journey-gebeurtenis en datumbereik. Speler
 msgid "Formation board with suggested XI and chemistry scoring. The Team blueprint editor stays available when this is off."
 msgstr "Formatiebord met voorgestelde XI en chemie-score. De Teamblauwdruk-editor blijft beschikbaar als dit uitstaat."
 
+#: src/Shared/CoreSurfaceRegistration.php
+msgid "About"
+msgstr "Over"
+
+#: src/Shared/Frontend/FrontendFeaturesView.php
+msgid "Always on"
+msgstr "Altijd aan"
+
+#: src/Shared/Frontend/FrontendFeaturesView.php
+msgid "Provides:"
+msgstr "Levert:"
+
+#: src/Shared/Frontend/FrontendFeaturesView.php
+msgid "Nothing to show yet."
+msgstr "Nog niets om te tonen."
+
+#: src/Shared/Frontend/FrontendFeaturesView.php
+msgid "Manage modules & features"
+msgstr "Modules & functies beheren"
+
+#: src/Shared/CoreSurfaceRegistration.php
+msgid "See which parts of TalentTrack are switched on."
+msgstr "Bekijk welke onderdelen van TalentTrack aanstaan."
+
+#: src/Shared/Frontend/FrontendFeaturesView.php
+msgid "Which parts of TalentTrack are switched on for your academy. This is a read-only overview — ask an administrator to change anything."
+msgstr "Welke onderdelen van TalentTrack aanstaan voor jouw academie. Dit is een alleen-lezen overzicht — vraag een beheerder om iets te wijzigen."
+
+#: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php
+msgid "See which features are switched on"
+msgstr "Bekijk welke functies aanstaan"
+
 #~ msgid "Evaluations / coach"
 #~ msgstr "Evaluaties per coach"
 

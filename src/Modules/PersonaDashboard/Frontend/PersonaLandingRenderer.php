@@ -90,6 +90,7 @@ final class PersonaLandingRenderer {
         }
         self::renderSystemNotices( $persona );
         GridRenderer::render( $template, $ctx );
+        self::renderAboutFooter( $base_url );
         echo '</div>';
 
         // If the template's grid was empty (and we have no hero/task either),
@@ -97,6 +98,23 @@ final class PersonaLandingRenderer {
         if ( $template->hero === null && $template->task === null && $template->grid->isEmpty() ) {
             FrontendTileGrid::render();
         }
+    }
+
+    /**
+     * #1486 — a quiet "what's switched on" link beneath every persona
+     * dashboard, so the read-only Features status is reachable for all
+     * personas (the curated persona templates don't render the legacy
+     * tile grid that carries the About → Features tile). No cap gate —
+     * the status view is read-only and safe for everyone.
+     */
+    private static function renderAboutFooter( string $base_url ): void {
+        $url = add_query_arg( [ 'tt_view' => 'features' ], $base_url );
+        echo '<footer class="tt-pd-about" style="margin-top:18px; padding-top:12px; border-top:1px solid #eceff1;">';
+        echo '<a class="tt-pd-about-link" href="' . esc_url( $url ) . '" '
+            . 'style="display:inline-flex; align-items:center; min-height:48px; gap:6px; color:#5b6e75; font-size:13px; text-decoration:none;">'
+            . esc_html__( 'See which features are switched on', 'talenttrack' )
+            . ' →</a>';
+        echo '</footer>';
     }
 
     /**

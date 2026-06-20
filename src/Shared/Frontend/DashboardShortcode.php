@@ -756,6 +756,10 @@ class DashboardShortcode {
                 // #1451 — frontend equivalent of the wp-admin Modules toggle.
                 FrontendModulesView::render( $user_id, $is_admin );
                 return true;
+            case 'features':
+                // #1486 — read-only "what's switched on" status, all personas.
+                \TT\Shared\Frontend\FrontendFeaturesView::render( $user_id, $is_admin );
+                return true;
             case 'usage-stats':
                 FrontendUsageStatsView::render( $user_id, $is_admin );
                 return true;

@@ -90,6 +90,14 @@ State lives in `tt_feature_state` (carrying the `club_id` tenancy scaffold), wit
 
 - **Analytics explorer** (default **off**, managed on the **wp-admin** Modules page) — the ad-hoc Analytics dashboard tile and dimension/KPI explorer (`?tt_view=analytics`, `explore`, `scheduled-reports`). Turning it off hides the tile and those pages, but the **analytics engine keeps running** — the attendance, minutes and standard reports plus dashboard KPIs all still work, because they consume the engine directly, not the explorer UI.
 
+## Read-only status for everyone (`?tt_view=features`, v4.23.1+)
+
+The Modules page is admin-only (it's a write surface). For transparency, every user — coach, player, parent — gets a read-only **Features** view at **`?tt_view=features`**, reachable from a **Features** tile under the **About** group on the dashboard. It needs no special capability.
+
+It lists each user-facing module with an **On / Off / Always on** badge, a one-line "Provides:" summary (built from the surfaces the module owns), and any sub-feature toggles nested beneath it with their own badge + description. There are no controls — it's a snapshot of what's live. Users who *can* manage modules see a **Manage modules & features** link that jumps to the editable page.
+
+The same data is available over REST at `GET /wp-json/talenttrack/v1/feature-status` (any logged-in user). All the shaping lives in `FeatureStatusService`, so the view and the API return the same answer. Only modules that actually present something to a user (own a tile or a feature) appear — pure-infrastructure modules are omitted.
+
 ## See also
 
 - [Authorization matrix](authorization-matrix.md) — module disable feeds into the matrix gate.
