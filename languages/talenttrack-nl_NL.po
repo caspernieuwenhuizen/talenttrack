@@ -36843,6 +36843,12 @@ msgstr "Neutraal 4-2-3-1"
 msgid "Offensive 3-4-3 (diamond)"
 msgstr "Aanvallend 3-4-3 (ruit)"
 
+#. translators: %s: player name
+#: src/Modules/MatchPrep/Wizards/AvailabilityStep.php
+#, php-format
+msgid "Availability — %s"
+msgstr "Beschikbaarheid — %s"
+
 #~ msgid "Create dashboard page"
 #~ msgstr "Dashboardpagina aanmaken"
 

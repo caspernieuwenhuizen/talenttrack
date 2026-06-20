@@ -32435,4 +32435,10 @@ msgid "Neutral 4-2-3-1"
 msgstr ""
 #: src/Infrastructure/Query/LabelTranslator.php
 msgid "Offensive 3-4-3 (diamond)"
+msgstr ""#. translators: %s: player name
+#: src/Modules/MatchPrep/Wizards/AvailabilityStep.php
+#, php-format
+msgid "Availability — %s"
 msgstr ""
+
+

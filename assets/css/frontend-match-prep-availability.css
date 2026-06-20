@@ -1,0 +1,124 @@
+/*
+ * frontend-match-prep-availability.css (#1474)
+ *
+ * Dense, mobile-first availability marker for the match-prep wizard's
+ * first step. One row per player: full (untruncated) name + a horizontal
+ * segmented status control. The reason field is revealed inline only
+ * when a non-Present status is picked — via :has(), with an @supports
+ * fallback that keeps the field visible where :has() is unsupported, so
+ * the reason is always reachable. No JS.
+ */
+
+.tt-avail-intro {
+    margin: 0 0 12px;
+    color: #5b6e75;
+    font-size: 0.875rem;
+}
+
+.tt-avail-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.tt-avail-row {
+    border: 1px solid var(--tt-line, #e5e7ea);
+    border-radius: 10px;
+    padding: 10px 12px;
+    background: #fff;
+}
+
+.tt-avail-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 8px;
+    color: #1a1d21;
+    /* full name, never truncated */
+    overflow-wrap: anywhere;
+}
+
+.tt-avail-seg {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(76px, 1fr));
+    gap: 8px;
+}
+
+/* The radio is the state holder; the label is the visible target. */
+.tt-avail-radio {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.tt-avail-seg label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: 6px 8px;
+    border: 1px solid #d6dadd;
+    border-radius: 8px;
+    background: #f7f9fa;
+    color: #36424a;
+    font-size: 0.8125rem;
+    line-height: 1.2;
+    text-align: center;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    transition: background-color 0.12s, border-color 0.12s, color 0.12s;
+}
+
+.tt-avail-radio:checked + label {
+    background: var(--tt-primary, #2271b1);
+    border-color: var(--tt-primary, #2271b1);
+    color: #fff;
+    font-weight: 600;
+}
+
+.tt-avail-radio:focus-visible + label {
+    outline: 2px solid var(--tt-primary, #2271b1);
+    outline-offset: 2px;
+}
+
+.tt-avail-reason {
+    display: block;
+    width: 100%;
+    margin-top: 8px;
+    padding: 10px;
+    font-size: 16px; /* prevents iOS focus-zoom */
+    border: 1px solid #c3c4c7;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+
+/* Reveal-on-exception. Fallback above keeps the field visible where
+   :has() isn't supported; here it's hidden until a non-Present status
+   is selected. */
+@supports selector(:has(*)) {
+    .tt-avail-reason {
+        display: none;
+    }
+    .tt-avail-row:has(.tt-avail-radio:not([value="Present" i]):checked) .tt-avail-reason {
+        display: block;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tt-avail-seg label { transition: none; }
+}
+
+@media (min-width: 480px) {
+    /* Roomier rows on larger phones / tablets: name beside the control. */
+    .tt-avail-row {
+        display: grid;
+        grid-template-columns: minmax(120px, 1fr) minmax(0, 2fr);
+        align-items: center;
+        gap: 4px 16px;
+    }
+    .tt-avail-name { margin-bottom: 0; }
+    .tt-avail-reason { grid-column: 1 / -1; margin-top: 4px; }
+}
