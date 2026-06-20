@@ -37610,6 +37610,42 @@ msgstr ""
 "speler, de aanwezigheidsranglijst en de dagelijkse aanwezigheidsmelding — ze "
 "lezen allemaal dit ene getal. Standaard 3."
 
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php
+msgid "Print / export PDF"
+msgstr "Afdrukken / PDF exporteren"
+
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php
+msgid "Print team sheet"
+msgstr "Wedstrijdformulier afdrukken"
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php
+msgid "Export as PDF (A4 landscape)"
+msgstr "Exporteren als PDF (A4 liggend)"
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php
+msgid "Log in to print this match sheet."
+msgstr "Log in om dit wedstrijdformulier af te drukken."
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php
+msgid "You do not have access to print this match sheet."
+msgstr "Je hebt geen toegang om dit wedstrijdformulier af te drukken."
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php
+msgid "Team sheet — print"
+msgstr "Wedstrijdformulier — afdrukken"
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php
+msgid "No team sheet found for this activity."
+msgstr "Geen wedstrijdformulier gevonden voor deze activiteit."
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php
+msgid "Preparing PDF…"
+msgstr "PDF voorbereiden…"
+
+#: src/Modules/MatchPrep/Print/MatchPrepPrintRouter.php
+msgid "Could not generate the PDF. Use Print instead."
+msgstr "Kon de PDF niet genereren. Gebruik in plaats daarvan Afdrukken."
+
 #~ msgid ""
 #~ "Per-club custom styling (#0064): visual editor, code editor, file upload, "
 #~ "starter templates, history with revert. Frontend + wp-admin surfaces."

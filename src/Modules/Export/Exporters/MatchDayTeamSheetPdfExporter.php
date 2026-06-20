@@ -113,13 +113,82 @@ final class MatchDayTeamSheetPdfExporter implements ExporterInterface {
     }
 
     /**
+     * #1475 — style + body fragment for the client-side image-capture
+     * print path. Returns the same partitioned team-sheet markup the
+     * DomPDF exporter produces, so the on-screen print page (captured by
+     * html2canvas) is the exact document the DomPDF fallback would emit.
+     *
+     * `body` is empty when the activity isn't a match / isn't found —
+     * the caller renders its own "not found" chrome.
+     *
+     * @return array{style:string,body:string,title:string}
+     */
+    public static function documentParts( int $activity_id, int $club_id ): array {
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $activity = $wpdb->get_row( $wpdb->prepare(
+            "SELECT a.id, a.title, a.session_date, a.location, a.team_id, a.activity_type_key,
+                    a.opponent, a.home_away, a.kickoff_time, a.formation,
+                    t.name AS team_name
+                FROM {$p}tt_activities a
+                LEFT JOIN {$p}tt_teams t ON t.id = a.team_id AND t.club_id = a.club_id
+                WHERE a.id = %d AND a.club_id = %d
+                LIMIT 1",
+            $activity_id,
+            $club_id
+        ) );
+        if ( ! $activity ) return [ 'style' => '', 'body' => '', 'title' => '' ];
+        if ( strtolower( (string) ( $activity->activity_type_key ?? '' ) ) !== 'match' ) {
+            return [ 'style' => '', 'body' => '', 'title' => '' ];
+        }
+
+        $prep_repo = new MatchPrepRepository();
+        $prep      = $prep_repo->findByActivity( $activity_id );
+        if ( $prep ) {
+            [ $starting, $bench, $squad ] = self::partitionFromMatchPrep(
+                $prep_repo,
+                (int) $prep->id,
+                (int) ( $prep->formation_template_id ?? 0 ),
+                $activity_id,
+                $club_id
+            );
+        } else {
+            [ $starting, $bench, $squad ] = self::partitionFromAttendance( $activity_id, $club_id );
+        }
+
+        return [
+            'style' => self::styleBlock(),
+            'body'  => self::bodyFragment( $activity, $starting, $bench, $squad ),
+            'title' => (string) $activity->title,
+        ];
+    }
+
+    /**
      * @param object   $activity
      * @param object[] $starting
      * @param object[] $bench
      * @param object[] $squad
      */
     private static function renderHtml( object $activity, array $starting, array $bench, array $squad ): string {
-        $css = '@page { size: A4 portrait; margin: 14mm; }'
+        $css   = self::styleBlock();
+        $title = (string) $activity->title;
+        $body  = self::bodyFragment( $activity, $starting, $bench, $squad );
+
+        return '<!doctype html><html><head><meta charset="UTF-8">'
+            . '<title>' . esc_html( $title ) . '</title>'
+            . '<style>' . $css . '</style></head><body>'
+            . $body
+            . '</body></html>';
+    }
+
+    /**
+     * #1475 — the team-sheet CSS, extracted so the print router can
+     * inline it into the standalone capture document (the same CSS the
+     * DomPDF render uses, so the image-capture output matches).
+     */
+    public static function styleBlock(): string {
+        return '@page { size: A4 portrait; margin: 14mm; }'
              . 'body { font-family: DejaVu Sans, Arial, sans-serif; font-size: 11pt; color: #1a1d21; line-height: 1.4; margin: 0; }'
              . 'h1 { font-size: 22pt; margin: 0 0 1mm; }'
              . 'h2 { font-size: 13pt; margin: 6mm 0 2mm; border-bottom: 1px solid #c5c8cc; padding-bottom: 2mm; }'
@@ -136,7 +205,19 @@ final class MatchDayTeamSheetPdfExporter implements ExporterInterface {
              . '.position { width: 22mm; color: #5b6e75; font-size: 10pt; }'
              . '.signature { margin-top: 8mm; display: flex; gap: 12mm; }'
              . '.signature .sig-line { flex: 1; border-top: 1px solid #1a1d21; padding-top: 2mm; font-size: 9pt; color: #5b6e75; }';
+    }
 
+    /**
+     * #1475 — the inner team-sheet document fragment (`.tt-tsheet-doc`),
+     * shared by the DomPDF full-document render and the client-capture
+     * print page so both surfaces show identical content.
+     *
+     * @param object   $activity
+     * @param object[] $starting
+     * @param object[] $bench
+     * @param object[] $squad
+     */
+    public static function bodyFragment( object $activity, array $starting, array $bench, array $squad ): string {
         $home_away = strtolower( (string) ( $activity->home_away ?? '' ) );
         $vs_text   = ( $activity->opponent ?? '' ) !== ''
             ? sprintf(
@@ -193,9 +274,7 @@ final class MatchDayTeamSheetPdfExporter implements ExporterInterface {
             . '<div class="sig-line">' . esc_html__( 'Referee signature', 'talenttrack' ) . '</div>'
             . '</div>';
 
-        return '<!doctype html><html><head><meta charset="UTF-8">'
-            . '<title>' . esc_html( $title ) . '</title>'
-            . '<style>' . $css . '</style></head><body>'
+        return '<div class="tt-tsheet-doc">'
             . '<div class="header">'
             . '<h1>' . esc_html( $title ) . '</h1>'
             . ( $vs_text !== '' ? '<div class="vs">' . esc_html( $vs_text ) . '</div>' : '' )
@@ -203,7 +282,7 @@ final class MatchDayTeamSheetPdfExporter implements ExporterInterface {
             . $meta_html
             . $sections_html
             . $signature_html
-            . '</body></html>';
+            . '</div>';
     }
 
     /**
