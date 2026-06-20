@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.26.0
+Stable tag: 4.26.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.26.1 — Data migration export: fix the always-failing nonce check (closes #1551). The "Export for migration" button landed on WordPress's "link expired" page and never produced the `.ttmig` download. [`BackupSettingsPage::renderMigrationSection`](src/Modules/Backup/Admin/BackupSettingsPage.php) emitted the nonce under the field name `tt_nonce`, but `guard()` verifies via `check_admin_referer( $action, 'tt_backup_nonce' )` — the field every other backup form on the page already uses. `check_admin_referer` found no nonce in the expected field and failed every time. The form now writes `tt_backup_nonce`, matching the handler; the nonce check is still real — a genuinely stale/invalid nonce is still rejected. Broken since the migration export shipped in #1464. Unblocks #1517 (per-record export selection). Patch bump. (closes #1551) =
 
 = 4.20.129 — MFA enrollment QR fixes: smaller otpauth payload, no silent truncation, bigger render + CI capacity gate (refs #1393). Pilot incident 2026-06-11: Google Authenticator wouldn't read the enrollment QR while manual entry worked — the secret + TOTP math were fine; the QR payload and density were the problem. **Payload shrink.** [`SecretStep::issuerLabel`](src/Modules/Mfa/Wizards/SecretStep.php) drops the em-dash decoration ("TalentTrack — <site>" → "TalentTrack <site>") — the em-dash percent-encoded to 9 chars TWICE (label prefix + issuer= param), inflating every real install's QR; and the render path now enforces a version-8 budget: when the composed otpauth URI exceeds 192 bytes, it recomposes with the bare "TalentTrack" issuer rather than shipping a denser code. **No silent truncation.** [`QrCodeRenderer`](src/Modules/Mfa/Domain/QrCodeRenderer.php)'s `array_slice(...,271)` fallback — which produced a scannable QR decoding to a CHOPPED, invalid otpauth URI — is gone: `svg()` refuses over-capacity payloads (logs + returns ''), the matrix builder throws for any future direct caller, and the Secret step renders a steer-to-manual-entry notice instead of a broken code. **Bigger render.** QR box 240px → 300px with the SVG filling it (`style="width:100%"` + viewBox) — a v8 code now clears ~4.5 px/module. **CI gate.** New [`bin/qr-selfcheck.php`](bin/qr-selfcheck.php) (pure PHP, runs in the PHP-lint job): realistic URIs fit the v7/v8 budgets (incl. the bare-issuer fallback), the renderer emits sane SVG across the v6–v10 production range, over-capacity input is refused. The full optical round-trip through an independent decoder is tracked on #1393 pending the PHP test floor (#1388) — which is also why this ships as refs, not closes: the pilot's physical Google-Authenticator scan is the closing criterion. 1 new Dutch msgstr. Patch bump. (refs #1393) =
 

@@ -456,7 +456,7 @@ class BackupSettingsPage {
             <?php esc_html_e( 'Move data to another TalentTrack install. Choose which data sets to include; you get a .ttmig file to import on the other install. Data only — WordPress users and media are not included.', 'talenttrack' ); ?>
         </p>
         <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
-            <?php wp_nonce_field( 'tt_migration_export', 'tt_nonce' ); ?>
+            <?php wp_nonce_field( 'tt_migration_export', 'tt_backup_nonce' ); ?>
             <input type="hidden" name="action" value="tt_migration_export" />
             <fieldset style="margin:8px 0 16px;">
                 <?php foreach ( $groups as $key => $g ) : ?>
