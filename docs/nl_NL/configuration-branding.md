@@ -10,6 +10,18 @@ Wanneer je **Configuratie** opent zonder een `?tab=`-parameter krijg je een tege
 
 De tabstrip bovenaan is verdwenen; gebruik vanuit elk tabblad de **← Configuratie**-link in de paginatitel om terug naar het tegelraster te gaan.
 
+## Vormgeving-scherm (v4.26.13+)
+
+Op de frontend-Configuratieweergave zijn de voormalige tegels **Branding** en **Thema & lettertypen** samengevoegd tot één **Vormgeving**-ingang — zo staan alle merkkleuren op één plek in plaats van verdeeld over twee tegels. Vormgeving openen toont één pagina met gestapelde secties:
+
+- **Identiteit** — academienaam, clubafkorting, logo.
+- **Kleuren** — primair, secundair en het volledige accent-/statuspalet (accent, gevaar, waarschuwing, succes, info, focusrand), allemaal bij elkaar.
+- **Typografie** — display- en bodylettertype.
+- **Thema** — de "overlaten aan het actieve WP-thema"-overervingsschakelaar.
+- **Geavanceerd** — een link naar de Aangepaste CSS-editor.
+
+Er zijn geen configuratiesleutels gewijzigd en er is geen datamigratie — bestaande waarden worden ongewijzigd weergegeven. Opslaan + Annuleren staan onderaan de pagina. Oude `?config_sub=branding` / `?config_sub=theme`-deeplinks komen nog steeds uit bij het Vormgeving-scherm.
+
 ## Tabbladen
 
 ### Algemeen
