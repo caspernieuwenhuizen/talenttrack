@@ -62,8 +62,18 @@ final class AvailabilityStep implements WizardStepInterface {
         $absent_name = self::absentStatusName( $statuses );
         $not_planned_reason = __( 'Not in planned roster', 'talenttrack' );
 
+        // #1474 — dense, mobile-first rows + segmented status control;
+        // the reason field reveals inline only for non-Present rows (CSS
+        // :has(), with an @supports fallback that keeps it visible).
+        wp_enqueue_style(
+            'tt-mp-availability',
+            TT_PLUGIN_URL . 'assets/css/frontend-match-prep-availability.css',
+            [],
+            TT_VERSION
+        );
+
         echo '<input type="hidden" name="activity_id" value="' . esc_attr( (string) $activity_id ) . '" />';
-        echo '<p style="margin: 0 0 12px; color:#5b6e75;">'
+        echo '<p class="tt-avail-intro">'
             . esc_html(
                 $has_plan
                     ? __( 'Defaults follow the planned roster — players left out are pre-marked Absent. Adjust as needed.', 'talenttrack' )
@@ -71,7 +81,7 @@ final class AvailabilityStep implements WizardStepInterface {
             )
             . '</p>';
 
-        echo '<div class="tt-match-prep-availability" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:12px;">';
+        echo '<div class="tt-avail-list tt-match-prep-availability">';
         foreach ( $players as $pl ) {
             $pid    = (int) $pl->id;
             $name   = (string) QueryHelpers::player_display_name( $pl );
@@ -87,21 +97,21 @@ final class AvailabilityStep implements WizardStepInterface {
             $status = (string) ( $row['status'] ?? 'Present' );
             $reason = (string) ( $row['reason'] ?? '' );
 
-            echo '<div class="tt-card" style="padding:12px; border:1px solid var(--tt-line,#e5e7ea); border-radius:8px;">';
-            echo '<div style="font-weight:600; margin-bottom:6px;">' . esc_html( $name ) . '</div>';
-            echo '<div style="display:flex; gap:6px; flex-wrap:wrap;">';
+            echo '<div class="tt-avail-row">';
+            echo '<div class="tt-avail-name">' . esc_html( $name ) . '</div>';
+            echo '<div class="tt-avail-seg" role="radiogroup" aria-label="'
+                . esc_attr( sprintf( /* translators: %s: player name */ __( 'Availability — %s', 'talenttrack' ), $name ) )
+                . '">';
             foreach ( $statuses as $opt ) {
                 $opt_name  = (string) $opt->name;
                 $opt_label = LookupTranslator::name( $opt );
-                $checked   = $status === $opt_name ? 'checked' : '';
+                $checked   = $status === $opt_name ? ' checked' : '';
                 $id_attr   = 'tt-mp-avail-' . $pid . '-' . sanitize_key( $opt_name );
-                echo '<label style="display:inline-flex; align-items:center; gap:4px; padding:6px 10px; border:1px solid #d6dadd; border-radius:14px; cursor:pointer; min-height:32px;">';
-                echo '<input type="radio" id="' . esc_attr( $id_attr ) . '" name="availability[' . $pid . '][status]" value="' . esc_attr( $opt_name ) . '" ' . $checked . ' />';
-                echo '<span>' . esc_html( $opt_label ) . '</span>';
-                echo '</label>';
+                echo '<input type="radio" class="tt-avail-radio" id="' . esc_attr( $id_attr ) . '" name="availability[' . $pid . '][status]" value="' . esc_attr( $opt_name ) . '"' . $checked . ' />';
+                echo '<label for="' . esc_attr( $id_attr ) . '">' . esc_html( $opt_label ) . '</label>';
             }
             echo '</div>';
-            echo '<input type="text" name="availability[' . $pid . '][reason]" value="' . esc_attr( $reason ) . '" placeholder="' . esc_attr__( 'Optional reason', 'talenttrack' ) . '" style="width:100%; margin-top:8px;" />';
+            echo '<input type="text" class="tt-avail-reason" name="availability[' . $pid . '][reason]" value="' . esc_attr( $reason ) . '" placeholder="' . esc_attr__( 'Reason (optional)…', 'talenttrack' ) . '" />';
             echo '</div>';
         }
         echo '</div>';
