@@ -91,6 +91,14 @@ De status staat in `tt_feature_state` (met de `club_id` tenancy-steiger), plus `
 
 - **Analytics-verkenner** (standaard **uit**, beheerd op de **wp-admin**-Modulepagina) — de ad-hoc Analytics-tegel en dimensie-/KPI-verkenner (`?tt_view=analytics`, `explore`, `scheduled-reports`). Uitzetten verbergt de tegel en die pagina's, maar de **analytics-engine blijft draaien** — de aanwezigheids-, speelminuten- en standaardrapporten plus de dashboard-KPI's werken gewoon, want die gebruiken de engine rechtstreeks, niet de verkenner-UI.
 
+## Alleen-lezen status voor iedereen (`?tt_view=features`, v4.23.1+)
+
+De Modulepagina is alleen voor beheerders (het is een schrijfvlak). Voor transparantie krijgt elke gebruiker — coach, speler, ouder — een alleen-lezen **Functies**-weergave op **`?tt_view=features`**, bereikbaar via een **Functies**-tegel onder de groep **Over** op het dashboard. Er is geen speciale capability voor nodig.
+
+Het toont elke gebruikersgerichte module met een **Aan / Uit / Altijd aan**-badge, een regel "Levert:" (opgebouwd uit de onderdelen die de module bezit), en eventuele subfuncties eronder met hun eigen badge + beschrijving. Er zijn geen knoppen — het is een momentopname van wat live is. Gebruikers die modules *mogen* beheren zien een link **Modules & functies beheren** naar de bewerkbare pagina.
+
+Dezelfde data is via REST beschikbaar op `GET /wp-json/talenttrack/v1/feature-status` (elke ingelogde gebruiker). Alle vormgeving zit in `FeatureStatusService`, zodat de weergave en de API hetzelfde antwoord geven. Alleen modules die de gebruiker daadwerkelijk iets tonen (een tegel of functie bezitten) verschijnen — pure infrastructuurmodules worden weggelaten.
+
 ## Zie ook
 
 - [Authorisatie­matrix](authorization-matrix.md) — module-disable voedt de matrix-gate.

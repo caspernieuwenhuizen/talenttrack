@@ -1078,6 +1078,21 @@ final class CoreSurfaceRegistration {
             'color'        => '#2271b1',
             'cap'          => 'tt_view_staff_certifications_expiry',
         ]);
+
+        // #1486 — read-only "what's switched on" status. Visible to every
+        // persona (no cap), so anyone can see which parts of the product
+        // are live. The write surface stays the cap-gated Modules page.
+        $about_group = __( 'About', 'talenttrack' );
+        TileRegistry::register([
+            'view_slug'   => 'features',
+            'group'       => $about_group,
+            'kind'        => 'setup',
+            'order'       => 10,
+            'label'       => __( 'Features', 'talenttrack' ),
+            'description' => __( 'See which parts of TalentTrack are switched on.', 'talenttrack' ),
+            'icon'        => 'settings',
+            'color'       => '#5b6e75',
+        ]);
     }
 
     /* ───────────────────────────────────────────────────────────
