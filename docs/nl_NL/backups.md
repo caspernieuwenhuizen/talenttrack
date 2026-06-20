@@ -93,7 +93,17 @@ Naast de selectievakjes per gegevensset heeft elke recordhoudende set (Spelers, 
 
 Als je een record uitsluit waarnaar een andere inbegrepen set nog verwijst — bijvoorbeeld een speler uitsluiten maar diens evaluaties behouden — toont een bevestigingsstap die losgekoppelde verwijzingen vóór het downloaden. Je kunt **Toch downloaden** (de afhankelijke records worden geëxporteerd zonder het record waarnaar ze verwijzen) of annuleren en je selectie aanpassen. Zeer grote sets tonen alleen de eerste 500 records in de uitklap; records daarboven zijn altijd inbegrepen.
 
-Het importeren van een `.ttmig` op de doelinstallatie — uploaden, selectie van entiteiten/records, interactieve conflictoplossing en gebruikerskoppeling, en ID-hermapping zodat het veilig samenvoegt in een gevulde installatie — volgt in latere fasen (#1464).
+## Datamigratie — importvoorbeeld (v4.32.1+)
+
+Op de doelinstallatie accepteert het onderdeel **Importeren vanaf een andere installatie** (net onder de exportbediening) een `.ttmig`-bestand. Kies het archief en klik op **Import voorvertonen** om het te inspecteren. Deze stap is **alleen-lezen** — hij valideert het bestand en rapporteert wat erin zit, maar wijzigt niets.
+
+Het voorbeeld toont:
+
+- **Validatie** — het bestand moet decodeerbaar zijn, het kenmerk `kind: migration` dragen en zijn controlegetal doorstaan (`sha256` over de gegevenstabellen). Een beschadigd of bewerkt archief wordt geweigerd. Een archief van een andere hoofdversie opent nog wel, maar met een compatibiliteitswaarschuwing.
+- **Inhoud** — aantal rijen per gegevensset (Spelers, Teams, Staf & rollen, Evaluaties, Activiteiten & aanwezigheid, Doelen, Keuzelijsten & configuratie).
+- **Wat er bij importeren zou gebeuren** — voor de recordsets met een natuurlijke sleutel (Spelers op voornaam + achternaam + geboortedatum, Teams op naam + leeftijdsgroep, Staf op voornaam + achternaam + e‑mail): hoeveel binnenkomende records **overeenkomen met een bestaand record** op deze installatie versus hoeveel **nieuw** zijn. De match gebeurt op stabiele sleutel, niet op id — ids verschillen tussen installaties, dus bronrecord 5 is niet doelrecord 5.
+
+Het toepassen van de import — records invoegen met hergemapte ids, verwijzingen herschrijven, matches interactief oplossen en WordPress-gebruikers koppelen — is de volgende fase en is nog niet beschikbaar. Uploads zijn begrensd op 25 MB; grotere datasets komen met de schrijffase.
 
 ## Wat blijft uitgesteld
 

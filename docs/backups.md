@@ -93,7 +93,17 @@ Beyond the per-data-set checkboxes, each record-bearing set (Players, Teams, Sta
 
 If you exclude a record that another included set still references — for example, excluding a player while keeping their evaluations — a confirmation step lists those orphaned dependents before the download. You can **Download anyway** (the dependents export without their referenced record) or cancel and adjust your selection. Very large sets show only the first 500 records in the expander; records beyond that are always included.
 
-Importing a `.ttmig` on the target install — upload, entity/record selection, interactive conflict resolution and user mapping, and ID remapping so it merges safely into a populated install — is being delivered in follow-up phases (#1464).
+## Data migration — import preview (v4.32.1+)
+
+On the target install, the **Import from another install** subsection (just below the export controls) accepts a `.ttmig` file. Choose the archive and click **Preview import** to inspect it. This step is **read-only** — it validates the file and reports what it carries, but changes nothing.
+
+The preview shows:
+
+- **Validation** — the file must decode, be stamped `kind: migration`, and pass its checksum (`sha256` over the data tables). A corrupted or edited archive is rejected. An archive from a different major version still opens but shows a compatibility warning.
+- **Contents** — row counts per data set (Players, Teams, Staff & roles, Evaluations, Activities & attendance, Goals, Lookups & configuration).
+- **What would happen on import** — for the record sets with a natural key (Players matched on first name + last name + date of birth, Teams on name + age group, Staff on first name + last name + email), how many incoming records **match an existing record** on this install versus how many are **new**. Matching is by stable key, not by id — ids differ between installs, so a source id of 5 is not the target's record 5.
+
+Applying the import — inserting records with remapped ids, rewriting foreign keys, resolving matches interactively, and linking WordPress users — is the next phase and is not available yet. Uploads are capped at 25 MB; larger datasets come with the write phase.
 
 ## What's still deferred
 

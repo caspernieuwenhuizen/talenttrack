@@ -37,6 +37,8 @@ class BackupSettingsPage {
         add_action( 'admin_post_tt_backup_partial_execute',   [ self::class, 'handlePartialExecute' ] );
         // #1464 phase 1 — data migration export.
         add_action( 'admin_post_tt_migration_export',         [ self::class, 'handleMigrationExport' ] );
+        // #1464 phase 2 — data migration import (upload + read-only preview).
+        add_action( 'admin_post_tt_migration_import_preview', [ self::class, 'handleMigrationImportPreview' ] );
     }
 
     // Render
@@ -477,6 +479,42 @@ class BackupSettingsPage {
             </fieldset>
             <?php submit_button( __( 'Export for migration', 'talenttrack' ), 'secondary', 'submit', false ); ?>
         </form>
+
+        <?php self::renderMigrationImportForm(); ?>
+        <?php
+    }
+
+    /**
+     * #1464 phase 2 — upload form for a `.ttmig` archive. Submitting runs a
+     * read-only preview (validation + per-entity counts + stable-key
+     * conflict analysis); it never writes. Applying the import — id
+     * remapping, conflict resolution and wp_user mapping — lands in a later
+     * phase, so the form is explicit that this step only inspects the file.
+     */
+    private static function renderMigrationImportForm(): void {
+        $max = size_format( \TT\Modules\Backup\MigrationImporter::MAX_UPLOAD_BYTES );
+        ?>
+        <h4 style="margin:24px 0 6px;"><?php esc_html_e( 'Import from another install', 'talenttrack' ); ?></h4>
+        <p style="max-width:760px;">
+            <?php esc_html_e( 'Upload a .ttmig file exported from another TalentTrack install to preview what it contains. This step only inspects the archive and reports what would be imported — it does not change any data yet.', 'talenttrack' ); ?>
+        </p>
+        <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" enctype="multipart/form-data">
+            <?php wp_nonce_field( 'tt_migration_import', 'tt_backup_nonce' ); ?>
+            <input type="hidden" name="action" value="tt_migration_import_preview" />
+            <p>
+                <label for="tt_mig_file" style="display:block; margin-bottom:6px;">
+                    <?php esc_html_e( 'Migration archive (.ttmig)', 'talenttrack' ); ?>
+                </label>
+                <input type="file" id="tt_mig_file" name="migration_file" accept=".ttmig,application/gzip" required style="min-height:44px;" />
+                <span class="description" style="display:block; margin-top:4px;">
+                    <?php
+                    /* translators: %s is a human-readable file size, e.g. "25 MB". */
+                    echo esc_html( sprintf( __( 'Maximum %s. Larger datasets are a later phase.', 'talenttrack' ), $max ) );
+                    ?>
+                </span>
+            </p>
+            <?php submit_button( __( 'Preview import', 'talenttrack' ), 'secondary', 'submit', false ); ?>
+        </form>
         <?php
     }
 
@@ -789,6 +827,137 @@ class BackupSettingsPage {
         submit_button( __( 'Download anyway', 'talenttrack' ), 'primary', 'submit', false );
         echo ' <a class="button button-secondary" href="' . esc_url( $back ) . '">' . esc_html__( 'Cancel', 'talenttrack' ) . '</a>';
         echo '</form>';
+        echo '</div>';
+    }
+
+    /**
+     * #1464 phase 2 — handle a `.ttmig` upload and render a read-only
+     * preview. Never writes: it validates the envelope, summarises the
+     * contents and runs the stable-key conflict analysis, then renders the
+     * result inline. Validation failures render in the same view so the
+     * operator always sees an outcome.
+     */
+    public static function handleMigrationImportPreview(): void {
+        self::guard( 'tt_migration_import' );
+
+        // PHP-level upload checks first — surface them as the validation
+        // error so the preview page can show a single, consistent message.
+        $err = (int) ( $_FILES['migration_file']['error'] ?? UPLOAD_ERR_NO_FILE );
+        $tmp = isset( $_FILES['migration_file']['tmp_name'] ) ? (string) $_FILES['migration_file']['tmp_name'] : '';
+        $size = (int) ( $_FILES['migration_file']['size'] ?? 0 );
+
+        $fail_msg = '';
+        if ( $err === UPLOAD_ERR_INI_SIZE || $err === UPLOAD_ERR_FORM_SIZE || $size > \TT\Modules\Backup\MigrationImporter::MAX_UPLOAD_BYTES ) {
+            $fail_msg = sprintf(
+                /* translators: %s is a human-readable file size, e.g. "25 MB". */
+                __( 'The file is larger than the %s upload limit. Importing larger datasets is a later phase.', 'talenttrack' ),
+                size_format( \TT\Modules\Backup\MigrationImporter::MAX_UPLOAD_BYTES )
+            );
+        } elseif ( $err !== UPLOAD_ERR_OK || $tmp === '' || ! is_uploaded_file( $tmp ) ) {
+            $fail_msg = __( 'No file was uploaded. Choose a .ttmig archive and try again.', 'talenttrack' );
+        }
+
+        if ( $fail_msg !== '' ) {
+            self::renderMigrationImportPreview( [], [ 'ok' => false, 'error' => $fail_msg, 'warnings' => [], 'plugin_version' => '', 'created_at' => '', 'entities' => [] ] );
+            exit;
+        }
+
+        $bytes      = (string) file_get_contents( $tmp );
+        $snapshot   = \TT\Modules\Backup\BackupSerializer::fromGzippedJson( $bytes );
+        $validation = \TT\Modules\Backup\MigrationImporter::validate( $snapshot );
+
+        self::renderMigrationImportPreview( is_array( $snapshot ) ? $snapshot : [], $validation );
+        exit;
+    }
+
+    /**
+     * #1464 phase 2 — render the read-only import preview page: validation
+     * outcome, source metadata, per-entity row counts and the stable-key
+     * conflict analysis (would-insert vs would-update once the write engine
+     * lands). No commit affordance — applying the import is a later phase.
+     *
+     * @param array<string,mixed> $snapshot
+     * @param array{ok:bool, error:string, warnings:string[], plugin_version:string, created_at:string, entities:string[]} $validation
+     */
+    private static function renderMigrationImportPreview( array $snapshot, array $validation ): void {
+        if ( ! function_exists( 'get_admin_page_title' ) ) require_once ABSPATH . 'wp-admin/includes/template.php';
+        $back = admin_url( 'admin.php?page=tt-config&tab=backups' );
+
+        echo '<div class="wrap">';
+        echo '<h1>' . esc_html__( 'Import preview', 'talenttrack' ) . '</h1>';
+
+        if ( empty( $validation['ok'] ) ) {
+            echo '<div class="notice notice-error"><p>' . esc_html( (string) ( $validation['error'] ?? __( 'The migration archive could not be read.', 'talenttrack' ) ) ) . '</p></div>';
+            echo '<p><a class="button button-secondary" href="' . esc_url( $back ) . '">' . esc_html__( 'Back to backups', 'talenttrack' ) . '</a></p>';
+            echo '</div>';
+            return;
+        }
+
+        foreach ( (array) ( $validation['warnings'] ?? [] ) as $w ) {
+            echo '<div class="notice notice-warning"><p>' . esc_html( (string) $w ) . '</p></div>';
+        }
+
+        $created = (string) ( $validation['created_at'] ?? '' );
+        $version = (string) ( $validation['plugin_version'] ?? '' );
+        echo '<p style="max-width:760px;">';
+        if ( $created !== '' || $version !== '' ) {
+            printf(
+                /* translators: 1: archive creation date, 2: source plugin version */
+                esc_html__( 'Archive created %1$s on plugin version %2$s. Nothing below has been imported — this is a preview only.', 'talenttrack' ),
+                esc_html( $created !== '' ? $created : __( '(unknown date)', 'talenttrack' ) ),
+                esc_html( $version !== '' ? $version : __( '(unknown)', 'talenttrack' ) )
+            );
+        } else {
+            esc_html_e( 'Nothing below has been imported — this is a preview only.', 'talenttrack' );
+        }
+        echo '</p>';
+
+        // Per-entity contents.
+        $summary = \TT\Modules\Backup\MigrationImporter::summarize( $snapshot );
+        echo '<h2>' . esc_html__( 'Contents', 'talenttrack' ) . '</h2>';
+        if ( empty( $summary ) ) {
+            echo '<p><em>' . esc_html__( 'The archive contains no recognised data sets.', 'talenttrack' ) . '</em></p>';
+        } else {
+            echo '<table class="widefat striped" style="max-width:620px;">';
+            echo '<thead><tr><th>' . esc_html__( 'Data set', 'talenttrack' ) . '</th><th style="text-align:right;">' . esc_html__( 'Rows', 'talenttrack' ) . '</th></tr></thead><tbody>';
+            foreach ( $summary as $row ) {
+                echo '<tr><td>' . esc_html( (string) $row['label'] ) . '</td><td style="text-align:right;">' . (int) $row['total'] . '</td></tr>';
+            }
+            echo '</tbody></table>';
+        }
+
+        // Stable-key conflict analysis.
+        $conflicts = \TT\Modules\Backup\MigrationImporter::analyzeConflicts( $snapshot );
+        echo '<h2 style="margin-top:24px;">' . esc_html__( 'What would happen on import', 'talenttrack' ) . '</h2>';
+        echo '<p style="max-width:760px; color:#5b6e75;">' . esc_html__( 'Incoming records are matched against this install by a stable key (not by id, which differs between installs). A match would be an update-or-insert choice in the interactive step; the rest would be inserted as new records.', 'talenttrack' ) . '</p>';
+        if ( empty( $conflicts ) ) {
+            echo '<p><em>' . esc_html__( 'No record-level data sets in this archive to compare.', 'talenttrack' ) . '</em></p>';
+        } else {
+            echo '<table class="widefat striped" style="max-width:820px;">';
+            echo '<thead><tr>'
+                . '<th>' . esc_html__( 'Data set', 'talenttrack' ) . '</th>'
+                . '<th style="text-align:right;">' . esc_html__( 'Incoming', 'talenttrack' ) . '</th>'
+                . '<th style="text-align:right;">' . esc_html__( 'Match existing', 'talenttrack' ) . '</th>'
+                . '<th style="text-align:right;">' . esc_html__( 'New', 'talenttrack' ) . '</th>'
+                . '<th>' . esc_html__( 'Matched on', 'talenttrack' ) . '</th>'
+                . '</tr></thead><tbody>';
+            foreach ( $conflicts as $row ) {
+                echo '<tr>'
+                    . '<td>' . esc_html( (string) $row['label'] ) . '</td>'
+                    . '<td style="text-align:right;">' . (int) $row['incoming'] . '</td>'
+                    . '<td style="text-align:right;">' . (int) $row['conflicts'] . '</td>'
+                    . '<td style="text-align:right;">' . (int) $row['new'] . '</td>'
+                    . '<td><code>' . esc_html( (string) $row['key'] ) . '</code></td>'
+                    . '</tr>';
+            }
+            echo '</tbody></table>';
+        }
+
+        echo '<div class="notice notice-info inline" style="margin:20px 0; max-width:820px;"><p>'
+            . esc_html__( 'Applying the import — inserting these records with remapped ids, resolving matches, and linking WordPress users — is the next phase and is not available yet. No data has been changed.', 'talenttrack' )
+            . '</p></div>';
+
+        echo '<p><a class="button button-secondary" href="' . esc_url( $back ) . '">' . esc_html__( 'Back to backups', 'talenttrack' ) . '</a></p>';
         echo '</div>';
     }
 

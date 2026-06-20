@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.32.0
+Stable tag: 4.32.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.32.1 — Data migration: import preview (phase 2 of #1464). The export half (Backups → Data migration → Export for migration) produced a portable `.ttmig` archive but there was no way to inspect one on the receiving install. The Backups page gains an **Import from another install** subsection that accepts a `.ttmig` upload and renders a read-only preview: envelope validation (decodable, stamped `kind: migration`, checksum over the data tables, a soft warning across major versions), per-data-set row counts, and a stable-key conflict analysis showing how many incoming Players / Teams / Staff records match an existing record on this install (Players on first name + last name + date of birth, Teams on name + age group, Staff on first name + last name + email) versus how many are new. Matching is by natural key, not by id — source ids are meaningless on a different install. The preview never writes: applying the import (id remapping, foreign-key rewriting, interactive conflict resolution and WordPress-user linking) is the next phase. All analysis lives in a new `MigrationImporter` class, out of the view, so a future REST consumer reuses the same logic. Uploads capped at 25 MB. New docs (EN+NL); Dutch strings for the import surface. Patch bump. (refs #1464) =
 
 = 4.29.0 — Modules page redesign: category-grouped cards with status pills + central module metadata (closes #1536). The Modules page was a flat checkbox list of every module, slugifying the class name with only a faint "(core)" badge — hard to scan, and the module-vs-feature distinction was barely visible. Modules now render as **cards grouped by category** (Player data, Coaching & development, Planning & match day, Communication, Analytics & reporting, Integrations, Administration, Advanced / developer). Each card shows an icon, a human label, a one-line description, a status pill (Core / On / Off) and a Module type tag, with a switch toggle (core locked). A new central registry `TT\Shared\Modules\ModuleMetadata` maps every module class to its label, description, icon and category, so no raw class name is ever shown. Sub-features render inside their parent card in an expandable panel with a distinct Feature pill, a per-module feature count and their own switches. Mobile-first: one column at 360px, 48px touch targets, keyboard-accessible `<details>` panels. The `/modules` + `/features` REST contracts and the admin-post save are unchanged — this is a render-layer + metadata change. New docs (EN+NL); Dutch strings for every label, description and category. Minor bump. (closes #1536) =
 
