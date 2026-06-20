@@ -39,9 +39,12 @@ return new class extends Migration {
         // pos: x 0..1 left→right, y 0..1 top(attack)→bottom(own goal).
         $slots = [
             [ 'label' => 'GK',  'pos' => [ 'x' => 0.50, 'y' => 0.95 ], 'side' => 'center', 'weights' => [ 'technical' => 0.20, 'tactical' => 0.40, 'physical' => 0.20, 'mental' => 0.20 ] ],
-            [ 'label' => 'LCB', 'pos' => [ 'x' => 0.28, 'y' => 0.84 ], 'side' => 'left',   'weights' => [ 'technical' => 0.20, 'tactical' => 0.40, 'physical' => 0.30, 'mental' => 0.10 ] ],
-            [ 'label' => 'CB',  'pos' => [ 'x' => 0.50, 'y' => 0.86 ], 'side' => 'center', 'weights' => [ 'technical' => 0.20, 'tactical' => 0.45, 'physical' => 0.25, 'mental' => 0.10 ] ],
-            [ 'label' => 'RCB', 'pos' => [ 'x' => 0.72, 'y' => 0.84 ], 'side' => 'right',  'weights' => [ 'technical' => 0.20, 'tactical' => 0.40, 'physical' => 0.30, 'mental' => 0.10 ] ],
+            // #1525 — back three at y=0.80 (was 0.84/0.86/0.84) so they clear
+            // the GK at 0.95 (~0.15 separation, matching the standard flat
+            // 3-4-3) instead of overlapping it.
+            [ 'label' => 'LCB', 'pos' => [ 'x' => 0.28, 'y' => 0.80 ], 'side' => 'left',   'weights' => [ 'technical' => 0.20, 'tactical' => 0.40, 'physical' => 0.30, 'mental' => 0.10 ] ],
+            [ 'label' => 'CB',  'pos' => [ 'x' => 0.50, 'y' => 0.80 ], 'side' => 'center', 'weights' => [ 'technical' => 0.20, 'tactical' => 0.45, 'physical' => 0.25, 'mental' => 0.10 ] ],
+            [ 'label' => 'RCB', 'pos' => [ 'x' => 0.72, 'y' => 0.80 ], 'side' => 'right',  'weights' => [ 'technical' => 0.20, 'tactical' => 0.40, 'physical' => 0.30, 'mental' => 0.10 ] ],
             [ 'label' => 'DM',  'pos' => [ 'x' => 0.50, 'y' => 0.66 ], 'side' => 'center', 'weights' => [ 'technical' => 0.30, 'tactical' => 0.45, 'physical' => 0.15, 'mental' => 0.10 ] ],
             [ 'label' => 'LCM', 'pos' => [ 'x' => 0.30, 'y' => 0.52 ], 'side' => 'left',   'weights' => [ 'technical' => 0.35, 'tactical' => 0.35, 'physical' => 0.20, 'mental' => 0.10 ] ],
             [ 'label' => 'RCM', 'pos' => [ 'x' => 0.70, 'y' => 0.52 ], 'side' => 'right',  'weights' => [ 'technical' => 0.35, 'tactical' => 0.35, 'physical' => 0.20, 'mental' => 0.10 ] ],
