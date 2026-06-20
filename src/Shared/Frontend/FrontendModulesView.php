@@ -4,6 +4,7 @@ namespace TT\Shared\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Core\ModuleRegistry;
+use TT\Core\FeatureRegistry;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\FormSaveButton;
 
@@ -49,10 +50,54 @@ class FrontendModulesView extends FrontendViewBase {
                 ],
             ],
         ] );
+        // #1485 — sub-feature flags. Read/write the on/off state of an
+        // individual feature inside a module (e.g. cohort_transitions).
+        register_rest_route( 'talenttrack/v1', '/features', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ self::class, 'restFeatureList' ],
+                'permission_callback' => [ self::class, 'restPermission' ],
+            ],
+            [
+                'methods'             => 'POST',
+                'callback'            => [ self::class, 'restFeatureToggle' ],
+                'permission_callback' => [ self::class, 'restPermission' ],
+                'args'                => [
+                    'key'     => [ 'required' => true, 'type' => 'string' ],
+                    'enabled' => [ 'required' => true, 'type' => 'boolean' ],
+                ],
+            ],
+        ] );
     }
 
     public static function restPermission(): bool {
         return current_user_can( self::CAP );
+    }
+
+    /** @return \WP_REST_Response */
+    public static function restFeatureList() {
+        $out = array_map(
+            static fn( $f ) => [
+                'key'          => (string) $f['key'],
+                'label'        => (string) $f['label'],
+                'description'  => (string) $f['description'],
+                'module_class' => (string) $f['module_class'],
+                'enabled'      => ! empty( $f['enabled'] ),
+            ],
+            FeatureRegistry::allWithState()
+        );
+        return new \WP_REST_Response( array_values( $out ), 200 );
+    }
+
+    /** @return \WP_REST_Response|\WP_Error */
+    public static function restFeatureToggle( \WP_REST_Request $req ) {
+        $key     = (string) $req->get_param( 'key' );
+        $enabled = (bool) $req->get_param( 'enabled' );
+        if ( ! FeatureRegistry::exists( $key ) ) {
+            return new \WP_Error( 'tt_unknown_feature', __( 'Unknown feature.', 'talenttrack' ), [ 'status' => 404 ] );
+        }
+        FeatureRegistry::setEnabled( $key, $enabled );
+        return new \WP_REST_Response( [ 'key' => $key, 'enabled' => $enabled ], 200 );
     }
 
     /** @return \WP_REST_Response */
@@ -151,6 +196,31 @@ class FrontendModulesView extends FrontendViewBase {
                                 </label>
                             </td>
                         </tr>
+                        <?php
+                        // #1485 — sub-feature toggles nested beneath their
+                        // parent module. Only meaningful while the module
+                        // is on; a disabled module hides its whole surface
+                        // so per-feature switches would be dead controls.
+                        $features = $enabled ? FeatureRegistry::forModule( $class ) : [];
+                        foreach ( $features as $f ) :
+                            $f_on = ! empty( $f['enabled'] );
+                            ?>
+                            <tr class="tt-feature-row">
+                                <td style="padding-left:28px;">
+                                    <span aria-hidden="true" style="color:var(--tt-muted); margin-right:6px;">↳</span>
+                                    <strong><?php echo esc_html( (string) $f['label'] ); ?></strong>
+                                    <span style="color:var(--tt-muted); font-size:11px; margin-left:6px;"><?php esc_html_e( '(feature)', 'talenttrack' ); ?></span>
+                                    <div style="color:var(--tt-muted); font-size:12px; max-width:560px;"><?php echo esc_html( (string) $f['description'] ); ?></div>
+                                </td>
+                                <td>
+                                    <label style="display:inline-flex; align-items:center; gap:6px; min-height:48px;">
+                                        <input type="checkbox" name="features[]" value="<?php echo esc_attr( (string) $f['key'] ); ?>"
+                                            <?php checked( $f_on ); ?> />
+                                        <?php echo $f_on ? esc_html__( 'On', 'talenttrack' ) : esc_html__( 'Off', 'talenttrack' ); ?>
+                                    </label>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
                     <?php endforeach; ?>
                     </tbody>
                 </table>
@@ -183,6 +253,20 @@ class FrontendModulesView extends FrontendViewBase {
             $now = isset( $checked_set[ $class ] );
             if ( $now !== ! empty( $m['enabled'] ) ) {
                 ModuleRegistry::setEnabled( $class, $now );
+            }
+        }
+
+        // #1485 — persist sub-feature toggles. Only features whose parent
+        // module is currently on are present in the form (FeatureRegistry
+        // omits the rest), so absence means "unchecked", not "untouched".
+        $features_checked = isset( $_POST['features'] ) && is_array( $_POST['features'] )
+            ? array_flip( array_map( static fn( $v ) => (string) $v, (array) wp_unslash( $_POST['features'] ) ) )
+            : [];
+        foreach ( FeatureRegistry::allWithState() as $f ) {
+            $key = (string) $f['key'];
+            $now = isset( $features_checked[ $key ] );
+            if ( $now !== ! empty( $f['enabled'] ) ) {
+                FeatureRegistry::setEnabled( $key, $now );
             }
         }
 

@@ -32630,3 +32630,21 @@ msgid "This day is an academy holiday (%s). Schedule an activity anyway?"
 msgstr ""
 
 
+
+
+#: src/Shared/Frontend/FrontendModulesView.php
+msgid "Unknown feature."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendModulesView.php
+msgid "(feature)"
+msgstr ""
+
+#: src/Core/FeatureRegistry.php
+msgid "Find players academy-wide by journey event and date range. Player timeline, injuries and safeguarding stay available when this is off."
+msgstr ""
+
+#: src/Core/FeatureRegistry.php
+msgid "Formation board with suggested XI and chemistry scoring. The Team blueprint editor stays available when this is off."
+msgstr ""
+

@@ -36906,6 +36906,22 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/Frontend/FrontendModulesView.php
+msgid "Unknown feature."
+msgstr "Onbekende functie."
+
+#: src/Shared/Frontend/FrontendModulesView.php
+msgid "(feature)"
+msgstr "(functie)"
+
+#: src/Core/FeatureRegistry.php
+msgid "Find players academy-wide by journey event and date range. Player timeline, injuries and safeguarding stay available when this is off."
+msgstr "Vind spelers academiebreed op journey-gebeurtenis en datumbereik. Spelerstijdlijn, blessures en safeguarding blijven beschikbaar als dit uitstaat."
+
+#: src/Core/FeatureRegistry.php
+msgid "Formation board with suggested XI and chemistry scoring. The Team blueprint editor stays available when this is off."
+msgstr "Formatiebord met voorgestelde XI en chemie-score. De Teamblauwdruk-editor blijft beschikbaar als dit uitstaat."
+
 #~ msgid "Evaluations / coach"
 #~ msgstr "Evaluaties per coach"
 

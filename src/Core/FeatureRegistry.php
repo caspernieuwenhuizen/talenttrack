@@ -1,0 +1,234 @@
+<?php
+namespace TT\Core;
+
+if ( ! defined( 'ABSPATH' ) ) exit;
+
+/**
+ * FeatureRegistry — sub-feature flags within a module (#1485).
+ *
+ * A module can be wholly disabled via ModuleRegistry. Some modules own
+ * several distinct surfaces, and an academy may want one off while the
+ * rest stay on — e.g. the Journey module owns the player timeline,
+ * injuries, safeguarding AND the Cohort-transitions query; disabling
+ * Journey wholesale would remove core player surfaces. A feature flag
+ * switches off just the one surface.
+ *
+ * This mirrors ModuleRegistry exactly, scoped one level finer:
+ *   - a static catalog declares each feature, its owning module, its
+ *     default state, and which view-slugs / matrix-entities it gates;
+ *   - state lives in `tt_feature_state` (club-scoped for SaaS tenancy);
+ *   - `isEnabled()` is the single read API consulted by the tile gate,
+ *     the dispatcher, MatrixGate, and the REST permission callbacks.
+ *
+ * Unknown keys default to enabled (so an entity / slug that no feature
+ * claims is never gated). Catalogued features fall back to their
+ * declared `default_enabled` when no state row exists yet.
+ */
+class FeatureRegistry {
+
+    /**
+     * Feature catalog. Keyed by the feature key (stored verbatim in
+     * `tt_feature_state.feature_key`).
+     *
+     * Each entry:
+     *   - label / description  — shown on the modules management page
+     *                            and the read-only status view (#1486).
+     *   - module_class         — the owning module; the feature only
+     *                            appears (and only gates) while its
+     *                            parent module is enabled.
+     *   - default_enabled      — state for installs with no row yet.
+     *   - view_slugs           — `tt_view=` routes the feature owns;
+     *                            gated by `viewSlugDisabled()`.
+     *   - entities             — matrix entities the feature owns;
+     *                            gated by `entityDisabled()` via
+     *                            MatrixGate. MUST be entities unique to
+     *                            the feature — never a panel entity
+     *                            shared with a sibling surface.
+     *
+     * @return array<string, array{
+     *   label: string,
+     *   description: string,
+     *   module_class: string,
+     *   default_enabled: bool,
+     *   view_slugs: list<string>,
+     *   entities: list<string>
+     * }>
+     */
+    private static function catalog(): array {
+        return [
+            'cohort_transitions' => [
+                'label'           => __( 'Cohort transitions', 'talenttrack' ),
+                'description'     => __( 'Find players academy-wide by journey event and date range. Player timeline, injuries and safeguarding stay available when this is off.', 'talenttrack' ),
+                'module_class'    => 'TT\\Modules\\Journey\\JourneyModule',
+                'default_enabled' => false,
+                'view_slugs'      => [ 'cohort-transitions' ],
+                'entities'        => [ 'cohort_transitions' ],
+            ],
+            'team_chemistry' => [
+                'label'           => __( 'Team chemistry', 'talenttrack' ),
+                'description'     => __( 'Formation board with suggested XI and chemistry scoring. The Team blueprint editor stays available when this is off.', 'talenttrack' ),
+                'module_class'    => 'TT\\Modules\\TeamDevelopment\\TeamDevelopmentModule',
+                'default_enabled' => false,
+                'view_slugs'      => [ 'team-chemistry' ],
+                'entities'        => [ 'team_chemistry' ],
+            ],
+        ];
+    }
+
+    /** @var array<string, bool>|null per-request state cache */
+    private static $stateCache = null;
+
+    /** Whether the key names a catalogued feature. */
+    public static function exists( string $key ): bool {
+        return array_key_exists( $key, self::catalog() );
+    }
+
+    /**
+     * Is the feature on? Unknown keys are treated as enabled so callers
+     * can guard a surface unconditionally without first checking the
+     * catalog. Catalogued features fall back to `default_enabled` when
+     * no state row exists.
+     */
+    public static function isEnabled( string $key ): bool {
+        $catalog = self::catalog();
+        if ( ! isset( $catalog[ $key ] ) ) return true;
+
+        // A feature whose parent module is off is implicitly off — there
+        // is no surface to gate, and the management UI hides it.
+        if ( ! ModuleRegistry::isEnabled( $catalog[ $key ]['module_class'] ) ) return false;
+
+        $state = self::loadStateCache();
+        if ( array_key_exists( $key, $state ) ) return $state[ $key ];
+        return (bool) $catalog[ $key ]['default_enabled'];
+    }
+
+    /**
+     * Persist a new enabled state. Drops the cache so the next read
+     * (and the next request) sees the change.
+     */
+    public static function setEnabled( string $key, bool $enabled, ?int $actor_user_id = null ): void {
+        if ( ! self::exists( $key ) ) return;
+        global $wpdb;
+        $table = $wpdb->prefix . 'tt_feature_state';
+        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) return;
+
+        $existing = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$table} WHERE feature_key = %s AND club_id = 1",
+            $key
+        ) );
+        $row = [
+            'enabled'    => $enabled ? 1 : 0,
+            'updated_at' => current_time( 'mysql' ),
+            'updated_by' => $actor_user_id !== null ? $actor_user_id : get_current_user_id(),
+        ];
+        if ( $existing > 0 ) {
+            $wpdb->update( $table, $row, [ 'feature_key' => $key, 'club_id' => 1 ] );
+        } else {
+            $row['feature_key'] = $key;
+            $row['club_id']     = 1;
+            $wpdb->insert( $table, $row );
+        }
+        self::$stateCache = null;
+    }
+
+    /**
+     * Every catalogued feature with its resolved state, restricted to
+     * features whose parent module is enabled (a feature under a
+     * disabled module is not a meaningful toggle). Used by the modules
+     * management UI and the REST list.
+     *
+     * @return list<array{
+     *   key: string, label: string, description: string,
+     *   module_class: string, enabled: bool, default_enabled: bool
+     * }>
+     */
+    public static function allWithState(): array {
+        $out = [];
+        foreach ( self::catalog() as $key => $meta ) {
+            if ( ! ModuleRegistry::isEnabled( $meta['module_class'] ) ) continue;
+            $out[] = [
+                'key'             => $key,
+                'label'           => (string) $meta['label'],
+                'description'     => (string) $meta['description'],
+                'module_class'    => (string) $meta['module_class'],
+                'enabled'         => self::isEnabled( $key ),
+                'default_enabled' => (bool) $meta['default_enabled'],
+            ];
+        }
+        return $out;
+    }
+
+    /**
+     * Features owned by the given module (enabled or not). Used by the
+     * modules UI to nest feature toggles directly beneath their parent.
+     *
+     * @return list<array{key:string, label:string, description:string, enabled:bool}>
+     */
+    public static function forModule( string $module_class ): array {
+        $module_class = ltrim( $module_class, '\\' );
+        $out = [];
+        foreach ( self::catalog() as $key => $meta ) {
+            if ( ltrim( (string) $meta['module_class'], '\\' ) !== $module_class ) continue;
+            $out[] = [
+                'key'         => $key,
+                'label'       => (string) $meta['label'],
+                'description' => (string) $meta['description'],
+                'enabled'     => self::isEnabled( $key ),
+            ];
+        }
+        return $out;
+    }
+
+    /**
+     * Is this matrix entity owned by a feature that is currently off?
+     * Consulted by MatrixGate so a disabled feature's entity denies its
+     * cap exactly like a disabled module's entity does.
+     */
+    public static function entityDisabled( string $entity ): bool {
+        if ( $entity === '' ) return false;
+        foreach ( self::catalog() as $key => $meta ) {
+            if ( in_array( $entity, $meta['entities'], true ) && ! self::isEnabled( $key ) ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Is this `tt_view=` slug owned by a feature that is currently off?
+     * Consulted by the dashboard dispatcher to refuse direct URLs to a
+     * disabled feature's surface, mirroring
+     * `TileRegistry::isViewSlugDisabled()` for modules.
+     */
+    public static function viewSlugDisabled( string $slug ): bool {
+        if ( $slug === '' ) return false;
+        foreach ( self::catalog() as $key => $meta ) {
+            if ( in_array( $slug, $meta['view_slugs'], true ) && ! self::isEnabled( $key ) ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @return array<string, bool> feature_key => enabled
+     */
+    private static function loadStateCache(): array {
+        if ( self::$stateCache !== null ) return self::$stateCache;
+        global $wpdb;
+        $table = $wpdb->prefix . 'tt_feature_state';
+        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ) !== $table ) {
+            self::$stateCache = [];
+            return self::$stateCache;
+        }
+        $rows = $wpdb->get_results( "SELECT feature_key, enabled FROM {$table} WHERE club_id = 1" );
+        $out = [];
+        if ( is_array( $rows ) ) {
+            foreach ( $rows as $r ) {
+                $out[ (string) $r->feature_key ] = (bool) $r->enabled;
+            }
+        }
+        self::$stateCache = $out;
+        return $out;
+    }
+}

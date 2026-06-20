@@ -70,12 +70,16 @@ class TeamDevelopmentRestController {
             ],
         ] );
 
-        // Sprint 2-5 — chemistry, pairings, team-fit.
+        // Sprint 2-5 — chemistry, pairings, team-fit. #1485 — these are
+        // the Team-chemistry sub-feature's REST surface. They gate on the
+        // feature flag (via can_view_chemistry / can_manage_chemistry) so
+        // switching it off takes them dark while the blueprint + formation
+        // routes below — which share the same caps — keep serving.
         register_rest_route( self::NS, '/teams/(?P<id>\d+)/chemistry', [
             [
                 'methods'             => 'GET',
                 'callback'            => [ __CLASS__, 'get_chemistry' ],
-                'permission_callback' => [ __CLASS__, 'can_view' ],
+                'permission_callback' => [ __CLASS__, 'can_view_chemistry' ],
             ],
         ] );
         // v3.110.174 — chemistry preview for the "Try a lineup" sandbox
@@ -84,33 +88,33 @@ class TeamDevelopmentRestController {
             [
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'preview_chemistry' ],
-                'permission_callback' => [ __CLASS__, 'can_view' ],
+                'permission_callback' => [ __CLASS__, 'can_view_chemistry' ],
             ],
         ] );
         register_rest_route( self::NS, '/teams/(?P<id>\d+)/pairings', [
             [
                 'methods'             => 'GET',
                 'callback'            => [ __CLASS__, 'list_pairings' ],
-                'permission_callback' => [ __CLASS__, 'can_view' ],
+                'permission_callback' => [ __CLASS__, 'can_view_chemistry' ],
             ],
             [
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'add_pairing' ],
-                'permission_callback' => [ __CLASS__, 'can_manage' ],
+                'permission_callback' => [ __CLASS__, 'can_manage_chemistry' ],
             ],
         ] );
         register_rest_route( self::NS, '/pairings/(?P<id>\d+)', [
             [
                 'methods'             => 'DELETE',
                 'callback'            => [ __CLASS__, 'delete_pairing' ],
-                'permission_callback' => [ __CLASS__, 'can_manage' ],
+                'permission_callback' => [ __CLASS__, 'can_manage_chemistry' ],
             ],
         ] );
         register_rest_route( self::NS, '/players/(?P<id>\d+)/team-fit', [
             [
                 'methods'             => 'GET',
                 'callback'            => [ __CLASS__, 'get_team_fit' ],
-                'permission_callback' => [ __CLASS__, 'can_view' ],
+                'permission_callback' => [ __CLASS__, 'can_view_chemistry' ],
             ],
         ] );
 
@@ -186,6 +190,24 @@ class TeamDevelopmentRestController {
 
     public static function can_manage(): bool {
         return current_user_can( 'tt_manage_team_chemistry' );
+    }
+
+    /**
+     * #1485 — chemistry-board read access: the view cap AND the
+     * team_chemistry sub-feature being on. Blueprint / formation routes
+     * keep using can_view() so they survive the feature switch.
+     */
+    public static function can_view_chemistry(): bool {
+        if ( ! current_user_can( 'tt_view_team_chemistry' ) ) return false;
+        if ( ! class_exists( '\\TT\\Core\\FeatureRegistry' ) ) return true;
+        return \TT\Core\FeatureRegistry::isEnabled( 'team_chemistry' );
+    }
+
+    /** #1485 — chemistry-board write access, feature-gated. */
+    public static function can_manage_chemistry(): bool {
+        if ( ! current_user_can( 'tt_manage_team_chemistry' ) ) return false;
+        if ( ! class_exists( '\\TT\\Core\\FeatureRegistry' ) ) return true;
+        return \TT\Core\FeatureRegistry::isEnabled( 'team_chemistry' );
     }
 
     public static function get_formation( \WP_REST_Request $r ): \WP_REST_Response {

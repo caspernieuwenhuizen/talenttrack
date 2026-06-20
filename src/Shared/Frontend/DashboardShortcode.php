@@ -274,6 +274,12 @@ class DashboardShortcode {
             // boot. Owner is resolved from the TileRegistry entry whose
             // `view_slug` matches.
             self::renderModuleDisabledNotice();
+        } elseif ( class_exists( '\\TT\\Core\\FeatureRegistry' )
+                   && \TT\Core\FeatureRegistry::viewSlugDisabled( $view ) ) {
+            // #1485 — slug is owned by a sub-feature that is currently
+            // off (parent module still on). Same friendly notice as a
+            // disabled module; the surface didn't register its data.
+            self::renderModuleDisabledNotice();
         } elseif ( ! self::matrixDispatchAllows( $view, $user_id ) ) {
             // #0079 — when the view's tile declares a matrix entity AND
             // the matrix is active, MatrixGate is the sole authority for

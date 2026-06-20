@@ -39,6 +39,24 @@ abstract class BaseController {
     }
 
     /**
+     * Permission callback factory: require a capability AND that a
+     * sub-feature is switched on (#1485). Used to gate the REST surface
+     * of a feature that shares its capability with a sibling surface
+     * (e.g. team chemistry shares `tt_view_team_chemistry` with the
+     * blueprint editor), where gating on the cap alone would take the
+     * sibling down too.
+     *
+     * @return callable(): bool
+     */
+    public static function permCanFeature( string $capability, string $feature_key ): callable {
+        return static function () use ( $capability, $feature_key ): bool {
+            if ( ! current_user_can( $capability ) ) return false;
+            if ( ! class_exists( '\\TT\\Core\\FeatureRegistry' ) ) return true;
+            return \TT\Core\FeatureRegistry::isEnabled( $feature_key );
+        };
+    }
+
+    /**
      * Validate that the named fields are present (not null, not '').
      *
      * @param string[] $fields

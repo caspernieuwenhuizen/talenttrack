@@ -68,9 +68,28 @@ Elke module-statuswijziging schrijft een rij naar `tt_module_state` met de `upda
 
 ## Functies (schakelaars binnen een module)
 
-Onder de modulelijst kun je via **Functies** een afzonderlijke functie uitschakelen zonder de hele module uit te zetten.
+Sommige modules bezitten meerdere losse onderdelen. Met een **functievlag** zet je er één uit terwijl de rest van de module — en de naastgelegen onderdelen — blijft draaien. Dit is fijnmaziger dan de moduleschakelaar: de hele module uitzetten zou onderdelen meenemen die je juist wilt behouden.
 
-- **Analytics-verkenner** (standaard **uit**) — de ad-hoc Analytics-tegel en dimensie-/KPI-verkenner (`?tt_view=analytics`, `explore`, `scheduled-reports`). Uitzetten verbergt de tegel en die pagina's, maar de **analytics-engine blijft draaien** — de aanwezigheids-, speelminuten- en standaardrapporten plus de dashboard-KPI's werken gewoon, want die gebruiken de engine rechtstreeks, niet de verkenner-UI. Je kunt hem hier altijd weer aanzetten.
+### Functieschakelaars per module (`?tt_view=modules`, v4.23.0+)
+
+Op de frontend-Modulepagina verschijnt elke functie als een ingesprongen rij (↳) direct onder de bovenliggende module, met een eigen Aan/Uit-schakelaar. Een functie verschijnt alleen zolang de bovenliggende module aanstaat. Twee functies staan **standaard uit**:
+
+- **Cohort-overgangen** (Journey-module, standaard **uit**) — de academie­brede zoekopdracht "vind spelers op journey-gebeurtenis + datumbereik" (`?tt_view=cohort-transitions`). Uitzetten verbergt de tegel, de pagina en de REST-route (`/journey/cohort-transitions`). De rest van Journey — spelers­tijdlijn, blessures, safeguarding-notities — blijft volledig beschikbaar.
+- **Teamchemie** (Team Development-module, standaard **uit**) — het formatiebord met voorgestelde XI en chemie-score (`?tt_view=team-chemistry`). Uitzetten verbergt de tegel, de pagina en de chemie-/koppel-/team-fit-REST-routes. De **Teamblauwdruk**-editor — die in dezelfde module zit en dezelfde capability deelt — blijft beschikbaar.
+
+Wat een uitgeschakelde functie doet, bij de volgende paginalading:
+
+- De **tegel** verdwijnt van het dashboard (naastgelegen tegels in dezelfde module blijven).
+- Wie op de `?tt_view=<slug>` van de functie belandt (bladwijzer, oud tabblad) ziet dezelfde vriendelijke melding "dit onderdeel is momenteel niet beschikbaar" als bij een uitgeschakelde module.
+- `MatrixGate` weigert de eigen matrix-entiteit van de functie op elk niveau — de capability is onbereikbaar, zelfs voor een persona die hem bezit — zonder entiteiten te raken die met naastgelegen onderdelen gedeeld worden.
+- De **REST-routes** van de functie geven 401/403; routes achter naastgelegen onderdelen blijven werken.
+- Bestaande datarijen blijven **ongemoeid** — weer aanzetten herstelt de toegang tot alle historie.
+
+De status staat in `tt_feature_state` (met de `club_id` tenancy-steiger), plus `updated_by` + timestamp voor audit. Het is via REST beschikbaar voor niet-WordPress-frontends: `GET /wp-json/talenttrack/v1/features` toont de functies; `POST` met `{ "key": "...", "enabled": true|false }` schakelt er één (beide afgeschermd met `tt_manage_modules`).
+
+### Analytics-verkenner
+
+- **Analytics-verkenner** (standaard **uit**, beheerd op de **wp-admin**-Modulepagina) — de ad-hoc Analytics-tegel en dimensie-/KPI-verkenner (`?tt_view=analytics`, `explore`, `scheduled-reports`). Uitzetten verbergt de tegel en die pagina's, maar de **analytics-engine blijft draaien** — de aanwezigheids-, speelminuten- en standaardrapporten plus de dashboard-KPI's werken gewoon, want die gebruiken de engine rechtstreeks, niet de verkenner-UI.
 
 ## Zie ook
 
