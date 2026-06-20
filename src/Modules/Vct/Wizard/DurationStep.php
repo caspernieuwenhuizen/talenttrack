@@ -29,6 +29,19 @@ final class DurationStep implements WizardStepInterface {
         if ( $current < 20 ) $current = $max;
         if ( $current > $max ) $current = $max;
 
+        // #1518 — when the team has no age group, the cap silently fell
+        // back to a default. Make that visible so the coach knows the
+        // ceiling isn't tuned to their team yet.
+        if ( $age_group === null ) {
+            echo '<div class="tt-notice tt-notice--caution" role="status" style="padding:10px 14px;margin:0 0 12px;background:#fff8e1;border-left:4px solid #dba617;border-radius:6px;font-size:14px;">'
+                . esc_html( sprintf(
+                    /* translators: %d is the default minutes ceiling */
+                    __( 'This team has no age group set, so we\'re using a default cap of %d minutes. Set the team\'s age group in its team settings for an age-tuned limit.', 'talenttrack' ),
+                    $max
+                ) )
+                . '</div>';
+        }
+
         echo '<p>' . esc_html(
             $age_group !== null
                 ? sprintf(

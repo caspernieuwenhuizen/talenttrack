@@ -69,6 +69,44 @@ The module shipped across Phase 1 (architecture-first) and Phase 2 (UI):
 - **A4/A6 print mockup-fidelity polish** on the coach view — `FrontendVctSessionPrintView` exists and prints the session; mockup polish ships in a follow-up.
 - **Current-block teal-border highlight** + live timer on the coach view — visual polish, follow-up.
 
+## Coach-facing guidance and messages
+
+The wizard and coach view are written to read as a finished Dutch-first
+coach tool — the rules engine's internal codes never reach the screen:
+
+- **Theme step** shows a one-line focus per tactical theme (e.g.
+  *Possession → ball control, short passing, and keeping the ball as a
+  team*) so a coach who is unsure which to pick gets a plain cue.
+- **Duration step** warns clearly when the team has no age group set:
+  it explains it is using a default minutes cap and points the coach to
+  the team settings to set an age-tuned limit.
+- **When step** explains that the age group and match-day (MD) context
+  are detected automatically from the team and its season schedule on
+  the next step — the coach does not enter them.
+- **Preview step** renders the rules engine's warnings as readable
+  sentences instead of raw codes. Blocking problems ("this training
+  can't be built yet") each carry a short resolution hint telling the
+  coach what to do next — for example, set the team's age group, pick a
+  different date, or ask an admin to add a session blueprint. The
+  mapping from engine code to sentence + hint lives in
+  [`RuleMessages`](../src/Modules/Vct/Rules/RuleMessages.php), in the
+  rules layer, so the REST API and the rendered wizard speak the same
+  language.
+- **Empty states** are self-serviceable: when no age profiles exist,
+  the configuration view explains what age profiles do and that an
+  academy admin sets them up, with no migration numbers. The session
+  view explains *why* a training has no blocks (no suitable exercises
+  for the chosen age, theme, and duration) and how to fix it.
+- **Publish** wording front-loads the two-step confirmation: publishing
+  links the training to a team activity, and if one already exists at
+  the same date and time the coach is asked to reuse it or create a new
+  one.
+
+The `MD-4 … MD … MD+2` / `NONE` tokens in the exercise library's
+MD-context picker are intentional technical periodisation tokens, not
+untranslated English — a Dutch coach reads `MD-2` exactly as an English
+one does, so they are deliberately exempt from translation.
+
 ## How the surfaces talk to each other
 
 A coach plans a session via the wizard (#1084). The wizard reads:

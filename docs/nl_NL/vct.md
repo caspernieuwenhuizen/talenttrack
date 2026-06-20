@@ -69,6 +69,50 @@ De module is gelanceerd in Fase 1 (architectuur-eerst) en Fase 2 (UI):
 - **A4/A6 print mockup-fidelity polish** op de coach-view — `FrontendVctSessionPrintView` bestaat en print de sessie; mockup-polish komt in een follow-up.
 - **Huidige-blok teal-rand highlight** + live timer op de coach-view — visuele polish, follow-up.
 
+## Begeleiding en meldingen voor de trainer
+
+De wizard en coach-view zijn geschreven om te lezen als een afgewerkt
+Nederlandstalig trainerstool — de interne codes van de regel-engine
+komen nooit op het scherm:
+
+- **Thema-stap** toont één regel focus per tactisch thema (bijv.
+  *Balbezit → balbeheersing, kort passen en als team de bal houden*),
+  zodat een trainer die twijfelt welk thema te kiezen een duidelijke
+  hint krijgt.
+- **Duur-stap** waarschuwt duidelijk wanneer het team geen
+  leeftijdsgroep heeft ingesteld: hij legt uit dat een standaard
+  minutenlimiet wordt gebruikt en verwijst de trainer naar de
+  teaminstellingen voor een op leeftijd afgestemde limiet.
+- **Wanneer-stap** legt uit dat de leeftijdsgroep en de
+  wedstrijddagcontext (MD) automatisch worden afgeleid uit het team en
+  het seizoensschema bij de volgende stap — de trainer voert die niet
+  zelf in.
+- **Voorbeeld-stap** toont de waarschuwingen van de regel-engine als
+  leesbare zinnen in plaats van ruwe codes. Blokkerende problemen
+  ("deze VCT-training kan nog niet worden opgebouwd") krijgen elk een
+  korte oplossingshint die de trainer vertelt wat te doen — bijvoorbeeld
+  de leeftijdsgroep van het team instellen, een andere datum kiezen of
+  een beheerder vragen een trainingsblauwdruk toe te voegen. De
+  toewijzing van engine-code naar zin + hint staat in
+  [`RuleMessages`](../../src/Modules/Vct/Rules/RuleMessages.php), in de
+  regellaag, zodat de REST-API en de getoonde wizard dezelfde taal
+  spreken.
+- **Lege toestanden** zijn zelf op te lossen: als er geen
+  leeftijdsprofielen zijn, legt de configuratieweergave uit wat
+  leeftijdsprofielen doen en dat een academybeheerder ze instelt, zonder
+  migratienummers. De sessieweergave legt uit *waarom* een training geen
+  blokken heeft (geen passende oefeningen voor de gekozen leeftijd, thema
+  en duur) en hoe je dat oplost.
+- **Publiceren** zet de tweestapsbevestiging vooraan: publiceren koppelt
+  de training aan een teamactiviteit, en als er op dezelfde datum en
+  tijd al een activiteit bestaat, wordt de trainer gevraagd die te
+  hergebruiken of een nieuwe aan te maken.
+
+De tokens `MD-4 … MD … MD+2` / `NONE` in de MD-contextkiezer van de
+oefeningenbibliotheek zijn bewuste technische periodiseringstokens, geen
+onvertaald Engels — een Nederlandse trainer leest `MD-2` precies zoals
+een Engelse, dus ze zijn bewust vrijgesteld van vertaling.
+
 ## Hoe de surfaces met elkaar praten
 
 Een trainer plant een sessie via de wizard (#1084). De wizard leest:
