@@ -37501,6 +37501,22 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/Frontend/FrontendConfigurationView.php:1463
+msgid "Data & vocabularies"
+msgstr "Gegevens & vocabulaires"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:1464
+msgid "Methodology & cycles"
+msgstr "Methodiek & cycli"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:1465
+msgid "Integrations"
+msgstr "Integraties"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:1471
+msgid "Per-club custom styling: visual + code editor, file upload, starter templates, revertable history."
+msgstr "Aangepaste styling per club: visuele + code-editor, bestandsupload, starttemplates, terugdraaibare geschiedenis."
+
 #: src/Shared/CoreSurfaceRegistration.php:459
 msgid "Planning & tactics"
 msgstr "Planning & tactiek"

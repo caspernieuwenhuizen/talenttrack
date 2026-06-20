@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.26.15
+Stable tag: 4.26.16
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.26.16 — Configuration page: group the flat tile grid into sections (closes #1532). The frontend Configuration landing was one flat grid of ~18 tiles with a vague "edited inline / opens in wp-admin" disclaimer. Tiles are now grouped by purpose via the shared `FrontendSectionedTileGrid` (#1543), auto-hiding any section with no permitted tiles: **Appearance** (Appearance surface + Custom CSS), **Dashboard** (Default dashboard + the filter-contributed Dashboard layouts / Custom widgets), **Data & vocabularies** (Lookups, Rating scale, Players CSV import, Lookup canonical-language review), **Methodology & cycles** (PDP cycle blocks, Seasons, Player status methodology, VCT config tiles), **Integrations** (Spond), **System** (General, Feature toggles, Backups, Translations, Audit log, Setup wizard, wp-admin menus, Modules). The external-link marker now shows only on tiles that actually open in wp-admin — previously every "admin" tile was marked, including frontend views. No tile dropped or duplicated; filter-injected tiles still appear. Mobile-first (one column at 360px). docs/configuration-branding.md (EN+NL) updated; 3 new Dutch section labels. Patch bump. (closes #1532) =
 
 = 4.26.15 — Staff development: surface the personal tiles under "My" (closes #1540). A staff member's own development was parked in a separate "Staff development" group, inconsistent with the player experience (whose development sits under "Me"). The four personal staff tiles (PDP, goals, evaluations, certifications) now live in the **"My"** group, cap-gated on `tt_view_staff_development` so a staff user sees the staff set and a player sees the player set. Labels are unified with the player tiles (the "staff" qualifier dropped: My PDP / My goals / My evaluations / My certifications), reusing the existing msgids. The academy-wide **Staff overview** roll-up moves to the **People** group, and the now-empty "Staff development" group is retired. Only `group` + `label` moved — caps, entities and access are unchanged. Known dual-role edge (a user who is both player and staff sees two "My PDP" tiles) is accepted per the issue. docs/staff-development.md (EN+NL) updated. Patch bump. (closes #1540) =
 

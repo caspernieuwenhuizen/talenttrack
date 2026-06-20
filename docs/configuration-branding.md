@@ -22,6 +22,19 @@ On the frontend Configuration view, the former **Branding** and **Theme & fonts*
 
 No configuration keys changed and there is no data migration — existing values render unchanged. Save + Cancel sit at the bottom of the page. Old `?config_sub=branding` / `?config_sub=theme` deep links still resolve to the Appearance surface.
 
+## Frontend Configuration sections (v4.26.16+)
+
+The frontend Configuration landing groups its tiles into purpose-based sections instead of one flat grid; a section with no visible (permitted) tiles renders no heading:
+
+- **Appearance** — the consolidated Appearance surface + Custom CSS.
+- **Dashboard** — Default dashboard, plus the filter-contributed Dashboard layouts / Custom widgets tiles.
+- **Data & vocabularies** — Lookups, Rating scale, Players CSV import, Lookup canonical-language review.
+- **Methodology & cycles** — PDP cycle blocks, Seasons, Player status methodology, and the VCT config tiles.
+- **Integrations** — Spond.
+- **System** — General, Feature toggles, Backups, Translations, Audit log, Setup wizard, wp-admin menus, Modules.
+
+Tiles that open in wp-admin (Spond, Feature toggles, Backups, Translations, Audit log, Setup wizard) carry an external-link marker so the context switch is expected; the frontend tiles do not. Rendering goes through the shared `FrontendSectionedTileGrid`.
+
 ## Tabs
 
 ### General
