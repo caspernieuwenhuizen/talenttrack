@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-20T00:05:12+00:00\n"
+"POT-Creation-Date: 2026-06-20T06:23:13+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -661,7 +661,7 @@ msgstr "Eerste beeld opbouwen"
 #: src/Modules/Invitations/InvitationStatus.php:61
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:339
 #: src/Shared/Frontend/FrontendExportsView.php:121
-#: src/Shared/Frontend/FrontendWizardView.php:749
+#: src/Shared/Frontend/FrontendWizardView.php:760
 msgid "Pending"
 msgstr "In behandeling"
 
@@ -670,7 +670,7 @@ msgid "In Progress"
 msgstr "In uitvoering"
 
 #: src/Infrastructure/Query/LabelTranslator.php:26
-#: src/Infrastructure/Query/LabelTranslator.php:427
+#: src/Infrastructure/Query/LabelTranslator.php:435
 #: src/Modules/Analytics/AnalyticsModule.php:148
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:150
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:153
@@ -687,7 +687,7 @@ msgstr "In uitvoering"
 #: src/Modules/Workflow/TaskStatus.php:66
 #: src/Shared/Frontend/FrontendExportsView.php:123
 #: src/Shared/Frontend/FrontendWizardsAdminView.php:156
-#: src/Shared/Frontend/FrontendWizardView.php:747
+#: src/Shared/Frontend/FrontendWizardView.php:758
 msgid "Completed"
 msgstr "Voltooid"
 
@@ -789,7 +789,7 @@ msgstr "Verwijderd"
 #: src/Infrastructure/Query/LabelTranslator.php:56
 #: src/Modules/Analytics/AnalyticsModule.php:86
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:144
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:723
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:732
 #: src/Modules/Wizards/Evaluation/AttendanceStep.php:138
 msgid "Present"
 msgstr "Aanwezig"
@@ -807,7 +807,7 @@ msgid "Late"
 msgstr "Laat"
 
 #: src/Infrastructure/Query/LabelTranslator.php:59
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:725
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:734
 msgid "Injured"
 msgstr "Geblesseerd"
 
@@ -908,7 +908,7 @@ msgid "Other"
 msgstr "Overig"
 
 #: src/Infrastructure/Query/LabelTranslator.php:99
-#: src/Infrastructure/Query/LabelTranslator.php:428
+#: src/Infrastructure/Query/LabelTranslator.php:436
 #: src/Modules/Activities/Admin/ActivitiesPage.php:118
 #: src/Modules/Analytics/ScheduledReportsRepository.php:69
 #: src/Modules/CustomWidgets/DataSources/GoalsOpen.php:37
@@ -1043,192 +1043,208 @@ msgid "Standard"
 msgstr "Standard"
 
 #: src/Infrastructure/Query/LabelTranslator.php:238
-#: src/Infrastructure/Query/LabelTranslator.php:306
+#: src/Infrastructure/Query/LabelTranslator.php:314
 #: src/Modules/Tournaments/Wizard/SquadStep.php:40
 msgid "Goalkeeper"
 msgstr "Keeper"
 
-#: src/Infrastructure/Query/LabelTranslator.php:249
+#: src/Infrastructure/Query/LabelTranslator.php:251
 msgid "Neutral 4-3-3"
 msgstr "Neutraal 4-3-3"
 
-#: src/Infrastructure/Query/LabelTranslator.php:250
+#: src/Infrastructure/Query/LabelTranslator.php:252
 msgid "Possession 4-3-3"
 msgstr "Balbezit 4-3-3"
 
-#: src/Infrastructure/Query/LabelTranslator.php:251
+#: src/Infrastructure/Query/LabelTranslator.php:253
 msgid "Counter 4-3-3"
 msgstr "Omschakeling 4-3-3"
 
-#: src/Infrastructure/Query/LabelTranslator.php:252
+#: src/Infrastructure/Query/LabelTranslator.php:254
 msgid "Press-heavy 4-3-3"
 msgstr "Druk zetten 4-3-3"
+
+#: src/Infrastructure/Query/LabelTranslator.php:257
+msgid "Neutral 4-4-2"
+msgstr "Neutraal 4-4-2"
+
+#: src/Infrastructure/Query/LabelTranslator.php:258
+msgid "Neutral 3-5-2"
+msgstr "Neutraal 3-5-2"
+
+#: src/Infrastructure/Query/LabelTranslator.php:259
+msgid "Neutral 4-2-3-1"
+msgstr "Neutraal 4-2-3-1"
+
+#: src/Infrastructure/Query/LabelTranslator.php:260
+msgid "Offensive 3-4-3 (diamond)"
+msgstr "Aanvallend 3-4-3 (ruit)"
 
 # v3.110.101 — football position long-form labels for tt_lookups.name codes
 # (Activator seeds GK/CB/LB/RB/CDM/CM/CAM/LW/RW/ST/CF; LabelTranslator::positionLabel
 # maps each to a localised long name surfaced in the new-goal wizard cascade).
-#: src/Infrastructure/Query/LabelTranslator.php:307
+#: src/Infrastructure/Query/LabelTranslator.php:315
 #: src/Modules/Tournaments/Wizard/SquadStep.php:41
 msgid "Centre back"
 msgstr "Centrale verdediger"
 
-#: src/Infrastructure/Query/LabelTranslator.php:308
+#: src/Infrastructure/Query/LabelTranslator.php:316
 #: src/Modules/Tournaments/Wizard/SquadStep.php:42
 msgid "Left back"
 msgstr "Linksback"
 
-#: src/Infrastructure/Query/LabelTranslator.php:309
+#: src/Infrastructure/Query/LabelTranslator.php:317
 #: src/Modules/Tournaments/Wizard/SquadStep.php:43
 msgid "Right back"
 msgstr "Rechtsback"
 
-#: src/Infrastructure/Query/LabelTranslator.php:310
+#: src/Infrastructure/Query/LabelTranslator.php:318
 msgid "Defensive midfielder"
 msgstr "Verdedigende middenvelder"
 
-#: src/Infrastructure/Query/LabelTranslator.php:311
+#: src/Infrastructure/Query/LabelTranslator.php:319
 msgid "Central midfielder"
 msgstr "Middenvelder"
 
-#: src/Infrastructure/Query/LabelTranslator.php:312
+#: src/Infrastructure/Query/LabelTranslator.php:320
 msgid "Attacking midfielder"
 msgstr "Aanvallende middenvelder"
 
-#: src/Infrastructure/Query/LabelTranslator.php:313
+#: src/Infrastructure/Query/LabelTranslator.php:321
 msgid "Left winger"
 msgstr "Linksbuiten"
 
-#: src/Infrastructure/Query/LabelTranslator.php:314
+#: src/Infrastructure/Query/LabelTranslator.php:322
 msgid "Right winger"
 msgstr "Rechtsbuiten"
 
-#: src/Infrastructure/Query/LabelTranslator.php:315
+#: src/Infrastructure/Query/LabelTranslator.php:323
 #: src/Modules/Tournaments/Wizard/SquadStep.php:49
 msgid "Striker"
 msgstr "Spits"
 
-#: src/Infrastructure/Query/LabelTranslator.php:316
+#: src/Infrastructure/Query/LabelTranslator.php:324
 msgid "Centre forward"
 msgstr "Centrumspits"
 
-#: src/Infrastructure/Query/LabelTranslator.php:328
+#: src/Infrastructure/Query/LabelTranslator.php:336
 msgid "Warm-up"
 msgstr "Warming-up"
 
 # Canonical main category labels (seed)
-#: src/Infrastructure/Query/LabelTranslator.php:329
+#: src/Infrastructure/Query/LabelTranslator.php:337
 msgid "Technical"
 msgstr "Technisch"
 
-#: src/Infrastructure/Query/LabelTranslator.php:330
+#: src/Infrastructure/Query/LabelTranslator.php:338
 msgid "Sided game"
 msgstr "Partijspel"
 
-#: src/Infrastructure/Query/LabelTranslator.php:331
+#: src/Infrastructure/Query/LabelTranslator.php:339
 msgid "Conditioning"
 msgstr "Conditie"
 
-#: src/Infrastructure/Query/LabelTranslator.php:332
-#: src/Infrastructure/Query/LabelTranslator.php:374
+#: src/Infrastructure/Query/LabelTranslator.php:340
+#: src/Infrastructure/Query/LabelTranslator.php:382
 msgid "Finishing"
 msgstr "Afronden"
 
-#: src/Infrastructure/Query/LabelTranslator.php:333
+#: src/Infrastructure/Query/LabelTranslator.php:341
 msgid "Cool-down"
 msgstr "Cooling-down"
 
-#: src/Infrastructure/Query/LabelTranslator.php:352
+#: src/Infrastructure/Query/LabelTranslator.php:360
 msgid "Commitment"
 msgstr "Toewijding"
 
-#: src/Infrastructure/Query/LabelTranslator.php:353
+#: src/Infrastructure/Query/LabelTranslator.php:361
 msgid "Coachability"
 msgstr "Coachbaarheid"
 
-#: src/Infrastructure/Query/LabelTranslator.php:354
+#: src/Infrastructure/Query/LabelTranslator.php:362
 msgid "Leadership"
 msgstr "Leiderschap"
 
-#: src/Infrastructure/Query/LabelTranslator.php:355
+#: src/Infrastructure/Query/LabelTranslator.php:363
 msgid "Resilience"
 msgstr "Veerkracht"
 
-#: src/Infrastructure/Query/LabelTranslator.php:356
+#: src/Infrastructure/Query/LabelTranslator.php:364
 msgid "Communication"
 msgstr "Communicatie"
 
-#: src/Infrastructure/Query/LabelTranslator.php:357
+#: src/Infrastructure/Query/LabelTranslator.php:365
 msgid "Work ethic"
 msgstr "Werkethos"
 
-#: src/Infrastructure/Query/LabelTranslator.php:358
+#: src/Infrastructure/Query/LabelTranslator.php:366
 msgid "Fair play"
 msgstr "Fair play"
 
-#: src/Infrastructure/Query/LabelTranslator.php:359
+#: src/Infrastructure/Query/LabelTranslator.php:367
 msgid "Ambition"
 msgstr "Ambitie"
 
-#: src/Infrastructure/Query/LabelTranslator.php:369
+#: src/Infrastructure/Query/LabelTranslator.php:377
 msgid "Build-up"
 msgstr "Opbouw"
 
-#: src/Infrastructure/Query/LabelTranslator.php:370
+#: src/Infrastructure/Query/LabelTranslator.php:378
 msgid "Pressing"
 msgstr "Pressing"
 
-#: src/Infrastructure/Query/LabelTranslator.php:371
+#: src/Infrastructure/Query/LabelTranslator.php:379
 msgid "Transition"
 msgstr "Omschakeling"
 
-#: src/Infrastructure/Query/LabelTranslator.php:372
+#: src/Infrastructure/Query/LabelTranslator.php:380
 msgid "Counter-attack"
 msgstr "Counter"
 
-#: src/Infrastructure/Query/LabelTranslator.php:373
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:470
+#: src/Infrastructure/Query/LabelTranslator.php:381
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:479
 msgid "Defending"
 msgstr "Verdedigen"
 
-#: src/Infrastructure/Query/LabelTranslator.php:375
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:521
+#: src/Infrastructure/Query/LabelTranslator.php:383
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:530
 msgid "Set pieces"
 msgstr "Spelhervattingen"
 
-#: src/Infrastructure/Query/LabelTranslator.php:376
+#: src/Infrastructure/Query/LabelTranslator.php:384
 msgid "1v1 duels"
 msgstr "1-tegen-1 duels"
 
-#: src/Infrastructure/Query/LabelTranslator.php:377
+#: src/Infrastructure/Query/LabelTranslator.php:385
 msgid "Possession"
 msgstr "Balbezit"
 
-#: src/Infrastructure/Query/LabelTranslator.php:378
+#: src/Infrastructure/Query/LabelTranslator.php:386
 msgid "Mixed"
 msgstr "Gemengd"
 
-#: src/Infrastructure/Query/LabelTranslator.php:398
+#: src/Infrastructure/Query/LabelTranslator.php:406
 msgid "Match day"
 msgstr "Wedstrijddag"
 
-#: src/Infrastructure/Query/LabelTranslator.php:399
+#: src/Infrastructure/Query/LabelTranslator.php:407
 msgid "No match context"
 msgstr "Geen wedstrijdcontext"
 
 #. translators: %d is the band number (1-10).
 #. translators: %d = intensity band 1-10
-#: src/Infrastructure/Query/LabelTranslator.php:413
+#: src/Infrastructure/Query/LabelTranslator.php:421
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:252
 #, php-format
 msgid "Intensity band %d"
 msgstr "Intensiteitsniveau %d"
 
-#: src/Infrastructure/Query/LabelTranslator.php:425
+#: src/Infrastructure/Query/LabelTranslator.php:433
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:935
 msgid "Draft"
 msgstr "Concept"
 
-#: src/Infrastructure/Query/LabelTranslator.php:426
+#: src/Infrastructure/Query/LabelTranslator.php:434
 msgid "Published"
 msgstr "Gepubliceerd"
 
@@ -8589,7 +8605,7 @@ msgstr "Toggles opslaan"
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:431
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:368
 #: src/Shared/CoreSurfaceRegistration.php:1107
-#: src/Shared/Frontend/FrontendTileGrid.php:276
+#: src/Shared/Frontend/FrontendTileGrid.php:283
 msgid "Welcome"
 msgstr "Welkom"
 
@@ -8614,7 +8630,7 @@ msgstr "Eerste beheerder"
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:435
 #: src/Modules/Development/IdeaStatus.php:102
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:647
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:656
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:373
 msgid "Done"
 msgstr "Klaar"
@@ -8694,7 +8710,7 @@ msgstr "Gebruikers-ID"
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:505
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:135
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:718
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:727
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:290
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:937
 #: src/Modules/Translations/Admin/TranslationsConfigTab.php:137
@@ -10970,13 +10986,13 @@ msgid "Save widget"
 msgstr "Widget opslaan"
 
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:161
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:712
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:721
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1159
 #: src/Shared/Frontend/FrontendConfigurationView.php:434
 #: src/Shared/Frontend/FrontendConfigurationView.php:823
 #: src/Shared/Frontend/FrontendConfigurationView.php:1011
 #: src/Shared/Frontend/FrontendConfigurationView.php:1897
-#: src/Shared/Frontend/FrontendWizardView.php:811
+#: src/Shared/Frontend/FrontendWizardView.php:822
 msgid "Saving…"
 msgstr "Opslaan…"
 
@@ -14521,7 +14537,7 @@ msgstr "Printen"
 
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:179
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:295
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:642
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:651
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:83
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:172
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:747
@@ -15256,9 +15272,9 @@ msgid "Cohort transitions"
 msgstr "Cohort-overgangen"
 
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:63
-#: src/Shared/CoreSurfaceRegistration.php:806
-msgid "Find players by journey event and date range."
-msgstr "Vind spelers op reisgebeurtenis en periode."
+msgid ""
+"Find every player whose journey contains a particular event in a date range."
+msgstr ""
 
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:72
 msgid "— Select an event type —"
@@ -15907,7 +15923,7 @@ msgstr ""
 "hebben geen limiet."
 
 #: src/Modules/License/Admin/AccountPage.php:740
-#: src/Shared/Frontend/FrontendWizardView.php:748
+#: src/Shared/Frontend/FrontendWizardView.php:759
 msgid "Current"
 msgstr "Huidig"
 
@@ -16712,133 +16728,133 @@ msgstr "Wedstrijdvoorbereiding — %1$s · %2$s"
 msgid "Match prep toolbar"
 msgstr "Werkbalk wedstrijdvoorbereiding"
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:298
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:307
 msgid "Half length"
 msgstr "Helftduur"
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:306
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:363
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:364
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:315
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:372
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:373
 #: src/Modules/Vct/Frontend/FrontendVctSessionView.php:170
 #: src/Modules/Vct/Wizard/ReviewStep.php:60
 msgid "min"
 msgstr "min"
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:309
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:641
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:318
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:650
 #: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:29
 msgid "Availability"
 msgstr "Beschikbaarheid"
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:324
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:333
 msgid "Print (landscape A4)"
 msgstr "Afdrukken (liggend A4)"
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:347
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:356
 msgid "Print team sheet (PDF)"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:350
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:713
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:359
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:722
 msgid "All changes saved."
 msgstr "Alle wijzigingen opgeslagen."
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:357
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:358
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:366
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:367
 msgid "Selection · minutes"
 msgstr "Selectie · minuten"
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:365
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:414
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:374
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:423
 msgid "tot"
 msgstr "tot"
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:371
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:554
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:380
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:563
 msgid "No availability captured yet."
 msgstr "Nog geen beschikbaarheid ingevuld."
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:372
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:381
 msgid "Open availability"
 msgstr "Beschikbaarheid openen"
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:429
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:438
 msgid "First half lineup"
 msgstr "Opstelling 1e helft"
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:444
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:445
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:453
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:454
 msgid "Copy 1st half lineup to 2nd half"
 msgstr "Kopieer opstelling 1e helft naar 2e helft"
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:451
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:460
 msgid "Second half lineup"
 msgstr "Opstelling 2e helft"
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:464
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:473
 msgid "Match goals"
 msgstr "Wedstrijddoelen"
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:468
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:477
 msgid "General"
 msgstr "Algemeen"
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:469
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:478
 msgid "Attacking"
 msgstr "Aanvallen"
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:471
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:480
 msgid "Set pieces (attack)"
 msgstr "Spelhervatting (aanval)"
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:472
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:481
 msgid "Set pieces (defend)"
 msgstr "Spelhervatting (verdediging)"
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:492
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:501
 #, php-format
 msgid "Goal %d…"
 msgstr "Doelstelling %d…"
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:509
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:528
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:573
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:518
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:537
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:582
 msgid "…"
 msgstr "…"
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:540
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:549
 msgid "Player focus"
 msgstr "Doen per speler"
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:546
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:580
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:555
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:589
 msgid "Specific goal"
 msgstr "Specifiek doel"
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:547
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:586
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:556
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:595
 msgid "Video analyst appointed"
 msgstr "Video-analist aangewezen"
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:568
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:577
 msgid "Attention text"
 msgstr "Aandachtspunt"
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:599
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:608
 msgid "Roles & set pieces"
 msgstr "Rollen & standaardsituaties"
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:617
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:727
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:626
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:736
 msgid "— Pick player —"
 msgstr "— Kies speler —"
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:622
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:623
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:631
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:632
 msgid "Clear role"
 msgstr "Rol leegmaken"
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:646
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:655
 #: src/Modules/Tournaments/Wizard/SquadStep.php:97
 #: src/Modules/Wizards/Evaluation/AttendanceStep.php:109
 #: src/Modules/Wizards/Evaluation/AttendanceStep.php:308
@@ -16846,54 +16862,55 @@ msgstr "Rol leegmaken"
 msgid "Mark all present"
 msgstr "Iedereen aanwezig"
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:714
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:723
 msgid "Unsaved changes…"
 msgstr "Niet-opgeslagen wijzigingen…"
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:715
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:724
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:366
 msgid "Save failed. Try again."
 msgstr "Opslaan mislukt. Probeer opnieuw."
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:716
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:725
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:500
 msgid "Search player…"
 msgstr "Zoek speler…"
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:717
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:726
 msgid "No available players found."
 msgstr "Geen beschikbare spelers gevonden."
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:719
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:728
 msgid "on pitch"
 msgstr "op veld"
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:720
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:729
 #, php-format
 msgid "Slot %1$s — %2$s half"
 msgstr "Plek %1$s — %2$s helft"
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:721
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:730
 msgid "1st"
 msgstr "1e"
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:722
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:731
 msgid "2nd"
 msgstr "2e"
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:724
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:733
 msgid "Absent (excused)"
 msgstr "Afwezig (excused)"
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:726
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:735
+#: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:114
 msgid "Reason (optional)…"
 msgstr "Reden (optioneel)…"
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:728
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:737
 msgid "Pick player for role"
 msgstr "Kies speler voor rol"
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:729
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:738
 msgid "Could not generate the team sheet. Please try again."
 msgstr "Het teamblad kon niet worden gegenereerd. Probeer het opnieuw."
 
@@ -17004,7 +17021,7 @@ msgid "Geen wedstrijdvoorbereiding gevonden voor deze activiteit."
 msgstr "Geen wedstrijdvoorbereiding gevonden voor deze activiteit."
 
 #: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:79
-#: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:162
+#: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:172
 msgid "Match prep could not be created."
 msgstr "Wedstrijdvoorbereiding kon niet worden aangemaakt."
 
@@ -17045,7 +17062,7 @@ msgstr ""
 msgid "Not in planned roster"
 msgstr "Niet in geplande selectie"
 
-#: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:69
+#: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:79
 msgid ""
 "Defaults follow the planned roster — players left out are pre-marked Absent. "
 "Adjust as needed."
@@ -17053,23 +17070,25 @@ msgstr ""
 "Standaardwaarden volgen de geplande selectie — spelers die ontbreken staan "
 "vooraf op Afwezig. Pas aan waar nodig."
 
-#: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:70
+#: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:80
 msgid "Mark who can play. Everyone starts as Present; only flag exceptions."
 msgstr ""
 "Markeer wie kan spelen. Iedereen begint als Aanwezig; markeer alleen "
 "uitzonderingen."
 
-#: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:104
-msgid "Optional reason"
-msgstr "Optionele reden"
+#. translators: %s: player name
+#: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:103
+#, php-format
+msgid "Availability — %s"
+msgstr "Beschikbaarheid — %s"
 
-#: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:113
-#: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:156
+#: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:123
+#: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:166
 msgid "Missing activity_id."
 msgstr "activity_id ontbreekt."
 
 #. translators: %d = number of Present players
-#: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:136
+#: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:146
 #, php-format
 msgid ""
 "Only %d players are marked Present. You need at least 11 to field a starting "
@@ -30231,6 +30250,10 @@ msgstr "Applicatie-KPIs"
 msgid "Usage: evaluations, attendance, goals, players."
 msgstr "Gebruik: evaluaties, aanwezigheid, doelen, spelers."
 
+#: src/Shared/CoreSurfaceRegistration.php:806
+msgid "Find players by journey event and date range."
+msgstr "Vind spelers op reisgebeurtenis en periode."
+
 #: src/Shared/CoreSurfaceRegistration.php:825
 msgid "Idea pipeline"
 msgstr "Ideeënkanaal"
@@ -35862,16 +35885,16 @@ msgstr "Logistiek, wat mee te nemen, contactinstructies…"
 msgid "Schedule test training"
 msgstr "Plan proeftraining"
 
-#: src/Shared/Frontend/FrontendTileGrid.php:171
+#: src/Shared/Frontend/FrontendTileGrid.php:178
 msgid "Today's work"
 msgstr "Werk van vandaag"
 
-#: src/Shared/Frontend/FrontendTileGrid.php:177
+#: src/Shared/Frontend/FrontendTileGrid.php:184
 msgid "Setup & administration"
 msgstr "Setup & beheer"
 
 #. translators: %s is user display name
-#: src/Shared/Frontend/FrontendTileGrid.php:273
+#: src/Shared/Frontend/FrontendTileGrid.php:280
 #, php-format
 msgid "Welcome, %s"
 msgstr "Welkom, %s"
@@ -36678,49 +36701,49 @@ msgstr ""
 "Je bent %s geleden begonnen. Doorgaan waar je gebleven was, of opnieuw "
 "beginnen?"
 
-#: src/Shared/Frontend/FrontendWizardView.php:718
+#: src/Shared/Frontend/FrontendWizardView.php:729
 msgid "Wizard steps"
 msgstr "Wizard-stappen"
 
 #. translators: 1: current step number, 2: total step count
-#: src/Shared/Frontend/FrontendWizardView.php:728
+#: src/Shared/Frontend/FrontendWizardView.php:739
 #, php-format
 msgid "Step %1$d of %2$d"
 msgstr ""
 
 #. translators: 1: step number, 2: step label, 3: state
-#: src/Shared/Frontend/FrontendWizardView.php:744
+#: src/Shared/Frontend/FrontendWizardView.php:755
 #, php-format
 msgid "Step %1$d: %2$s (%3$s)"
 msgstr "Stap %1$d: %2$s (%3$s)"
 
-#: src/Shared/Frontend/FrontendWizardView.php:749
-#: src/Shared/Frontend/FrontendWizardView.php:758
+#: src/Shared/Frontend/FrontendWizardView.php:760
+#: src/Shared/Frontend/FrontendWizardView.php:769
 msgid "Not applicable"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendWizardView.php:756
+#: src/Shared/Frontend/FrontendWizardView.php:767
 msgid "You are here"
 msgstr "Je bent hier"
 
 # #0077 polish wave 1 — new strings
-#: src/Shared/Frontend/FrontendWizardView.php:771
+#: src/Shared/Frontend/FrontendWizardView.php:782
 msgid "Help for this step"
 msgstr "Hulp bij deze stap"
 
-#: src/Shared/Frontend/FrontendWizardView.php:812
+#: src/Shared/Frontend/FrontendWizardView.php:823
 msgid "Saved · "
 msgstr "Opgeslagen · "
 
-#: src/Shared/Frontend/FrontendWizardView.php:813
+#: src/Shared/Frontend/FrontendWizardView.php:824
 msgid "Save failed"
 msgstr "Opslaan mislukt"
 
-#: src/Shared/Frontend/FrontendWizardView.php:835
+#: src/Shared/Frontend/FrontendWizardView.php:846
 msgid "This field is required."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendWizardView.php:836
+#: src/Shared/Frontend/FrontendWizardView.php:847
 msgid "Fill in every required field to continue."
 msgstr ""
 
@@ -36830,24 +36853,8 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
-#: src/Infrastructure/Query/LabelTranslator.php
-msgid "Neutral 4-4-2"
-msgstr "Neutraal 4-4-2"
-#: src/Infrastructure/Query/LabelTranslator.php
-msgid "Neutral 3-5-2"
-msgstr "Neutraal 3-5-2"
-#: src/Infrastructure/Query/LabelTranslator.php
-msgid "Neutral 4-2-3-1"
-msgstr "Neutraal 4-2-3-1"
-#: src/Infrastructure/Query/LabelTranslator.php
-msgid "Offensive 3-4-3 (diamond)"
-msgstr "Aanvallend 3-4-3 (ruit)"
-
-#. translators: %s: player name
-#: src/Modules/MatchPrep/Wizards/AvailabilityStep.php
-#, php-format
-msgid "Availability — %s"
-msgstr "Beschikbaarheid — %s"
+#~ msgid "Optional reason"
+#~ msgstr "Optionele reden"
 
 #~ msgid "Create dashboard page"
 #~ msgstr "Dashboardpagina aanmaken"

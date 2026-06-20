@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-20T00:05:12+00:00\n"
+"POT-Creation-Date: 2026-06-20T06:23:13+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -628,7 +628,7 @@ msgstr ""
 #: src/Modules/Invitations/InvitationStatus.php:61
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:339
 #: src/Shared/Frontend/FrontendExportsView.php:121
-#: src/Shared/Frontend/FrontendWizardView.php:749
+#: src/Shared/Frontend/FrontendWizardView.php:760
 msgid "Pending"
 msgstr "En attente"
 
@@ -637,7 +637,7 @@ msgid "In Progress"
 msgstr "En cours"
 
 #: src/Infrastructure/Query/LabelTranslator.php:26
-#: src/Infrastructure/Query/LabelTranslator.php:427
+#: src/Infrastructure/Query/LabelTranslator.php:435
 #: src/Modules/Analytics/AnalyticsModule.php:148
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:150
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:153
@@ -654,7 +654,7 @@ msgstr "En cours"
 #: src/Modules/Workflow/TaskStatus.php:66
 #: src/Shared/Frontend/FrontendExportsView.php:123
 #: src/Shared/Frontend/FrontendWizardsAdminView.php:156
-#: src/Shared/Frontend/FrontendWizardView.php:747
+#: src/Shared/Frontend/FrontendWizardView.php:758
 msgid "Completed"
 msgstr "Terminé"
 
@@ -756,7 +756,7 @@ msgstr ""
 #: src/Infrastructure/Query/LabelTranslator.php:56
 #: src/Modules/Analytics/AnalyticsModule.php:86
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:144
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:723
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:732
 #: src/Modules/Wizards/Evaluation/AttendanceStep.php:138
 msgid "Present"
 msgstr "Présent"
@@ -774,7 +774,7 @@ msgid "Late"
 msgstr "En retard"
 
 #: src/Infrastructure/Query/LabelTranslator.php:59
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:725
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:734
 msgid "Injured"
 msgstr "Blessé"
 
@@ -875,7 +875,7 @@ msgid "Other"
 msgstr "Autre"
 
 #: src/Infrastructure/Query/LabelTranslator.php:99
-#: src/Infrastructure/Query/LabelTranslator.php:428
+#: src/Infrastructure/Query/LabelTranslator.php:436
 #: src/Modules/Activities/Admin/ActivitiesPage.php:118
 #: src/Modules/Analytics/ScheduledReportsRepository.php:69
 #: src/Modules/CustomWidgets/DataSources/GoalsOpen.php:37
@@ -1010,188 +1010,204 @@ msgid "Standard"
 msgstr ""
 
 #: src/Infrastructure/Query/LabelTranslator.php:238
-#: src/Infrastructure/Query/LabelTranslator.php:306
+#: src/Infrastructure/Query/LabelTranslator.php:314
 #: src/Modules/Tournaments/Wizard/SquadStep.php:40
 msgid "Goalkeeper"
 msgstr "Gardien de but"
 
-#: src/Infrastructure/Query/LabelTranslator.php:249
+#: src/Infrastructure/Query/LabelTranslator.php:251
 msgid "Neutral 4-3-3"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:250
+#: src/Infrastructure/Query/LabelTranslator.php:252
 msgid "Possession 4-3-3"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:251
+#: src/Infrastructure/Query/LabelTranslator.php:253
 msgid "Counter 4-3-3"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:252
+#: src/Infrastructure/Query/LabelTranslator.php:254
 msgid "Press-heavy 4-3-3"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:307
+#: src/Infrastructure/Query/LabelTranslator.php:257
+msgid "Neutral 4-4-2"
+msgstr ""
+
+#: src/Infrastructure/Query/LabelTranslator.php:258
+msgid "Neutral 3-5-2"
+msgstr ""
+
+#: src/Infrastructure/Query/LabelTranslator.php:259
+msgid "Neutral 4-2-3-1"
+msgstr ""
+
+#: src/Infrastructure/Query/LabelTranslator.php:260
+msgid "Offensive 3-4-3 (diamond)"
+msgstr ""
+
+#: src/Infrastructure/Query/LabelTranslator.php:315
 #: src/Modules/Tournaments/Wizard/SquadStep.php:41
 msgid "Centre back"
 msgstr "Défenseur central"
 
-#: src/Infrastructure/Query/LabelTranslator.php:308
+#: src/Infrastructure/Query/LabelTranslator.php:316
 #: src/Modules/Tournaments/Wizard/SquadStep.php:42
 msgid "Left back"
 msgstr "Arrière gauche"
 
-#: src/Infrastructure/Query/LabelTranslator.php:309
+#: src/Infrastructure/Query/LabelTranslator.php:317
 #: src/Modules/Tournaments/Wizard/SquadStep.php:43
 msgid "Right back"
 msgstr "Arrière droit"
 
-#: src/Infrastructure/Query/LabelTranslator.php:310
+#: src/Infrastructure/Query/LabelTranslator.php:318
 msgid "Defensive midfielder"
 msgstr "Milieu défensif"
 
-#: src/Infrastructure/Query/LabelTranslator.php:311
+#: src/Infrastructure/Query/LabelTranslator.php:319
 msgid "Central midfielder"
 msgstr "Milieu central"
 
-#: src/Infrastructure/Query/LabelTranslator.php:312
+#: src/Infrastructure/Query/LabelTranslator.php:320
 msgid "Attacking midfielder"
 msgstr "Milieu offensif"
 
-#: src/Infrastructure/Query/LabelTranslator.php:313
+#: src/Infrastructure/Query/LabelTranslator.php:321
 msgid "Left winger"
 msgstr "Ailier gauche"
 
-#: src/Infrastructure/Query/LabelTranslator.php:314
+#: src/Infrastructure/Query/LabelTranslator.php:322
 msgid "Right winger"
 msgstr "Ailier droit"
 
-#: src/Infrastructure/Query/LabelTranslator.php:315
+#: src/Infrastructure/Query/LabelTranslator.php:323
 #: src/Modules/Tournaments/Wizard/SquadStep.php:49
 msgid "Striker"
 msgstr "Buteur"
 
-#: src/Infrastructure/Query/LabelTranslator.php:316
+#: src/Infrastructure/Query/LabelTranslator.php:324
 msgid "Centre forward"
 msgstr "Avant-centre"
 
-#: src/Infrastructure/Query/LabelTranslator.php:328
+#: src/Infrastructure/Query/LabelTranslator.php:336
 msgid "Warm-up"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:329
+#: src/Infrastructure/Query/LabelTranslator.php:337
 msgid "Technical"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:330
+#: src/Infrastructure/Query/LabelTranslator.php:338
 msgid "Sided game"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:331
+#: src/Infrastructure/Query/LabelTranslator.php:339
 msgid "Conditioning"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:332
-#: src/Infrastructure/Query/LabelTranslator.php:374
+#: src/Infrastructure/Query/LabelTranslator.php:340
+#: src/Infrastructure/Query/LabelTranslator.php:382
 msgid "Finishing"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:333
+#: src/Infrastructure/Query/LabelTranslator.php:341
 msgid "Cool-down"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:352
+#: src/Infrastructure/Query/LabelTranslator.php:360
 msgid "Commitment"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:353
+#: src/Infrastructure/Query/LabelTranslator.php:361
 msgid "Coachability"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:354
+#: src/Infrastructure/Query/LabelTranslator.php:362
 msgid "Leadership"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:355
+#: src/Infrastructure/Query/LabelTranslator.php:363
 msgid "Resilience"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:356
+#: src/Infrastructure/Query/LabelTranslator.php:364
 msgid "Communication"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:357
+#: src/Infrastructure/Query/LabelTranslator.php:365
 msgid "Work ethic"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:358
+#: src/Infrastructure/Query/LabelTranslator.php:366
 msgid "Fair play"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:359
+#: src/Infrastructure/Query/LabelTranslator.php:367
 msgid "Ambition"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:369
+#: src/Infrastructure/Query/LabelTranslator.php:377
 msgid "Build-up"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:370
+#: src/Infrastructure/Query/LabelTranslator.php:378
 msgid "Pressing"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:371
+#: src/Infrastructure/Query/LabelTranslator.php:379
 msgid "Transition"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:372
+#: src/Infrastructure/Query/LabelTranslator.php:380
 msgid "Counter-attack"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:373
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:470
+#: src/Infrastructure/Query/LabelTranslator.php:381
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:479
 msgid "Defending"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:375
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:521
+#: src/Infrastructure/Query/LabelTranslator.php:383
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:530
 msgid "Set pieces"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:376
+#: src/Infrastructure/Query/LabelTranslator.php:384
 msgid "1v1 duels"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:377
+#: src/Infrastructure/Query/LabelTranslator.php:385
 msgid "Possession"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:378
+#: src/Infrastructure/Query/LabelTranslator.php:386
 msgid "Mixed"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:398
+#: src/Infrastructure/Query/LabelTranslator.php:406
 msgid "Match day"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:399
+#: src/Infrastructure/Query/LabelTranslator.php:407
 msgid "No match context"
 msgstr ""
 
 #. translators: %d is the band number (1-10).
 #. translators: %d = intensity band 1-10
-#: src/Infrastructure/Query/LabelTranslator.php:413
+#: src/Infrastructure/Query/LabelTranslator.php:421
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:252
 #, php-format
 msgid "Intensity band %d"
 msgstr ""
 
-#: src/Infrastructure/Query/LabelTranslator.php:425
+#: src/Infrastructure/Query/LabelTranslator.php:433
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:935
 msgid "Draft"
 msgstr "Brouillon"
 
-#: src/Infrastructure/Query/LabelTranslator.php:426
+#: src/Infrastructure/Query/LabelTranslator.php:434
 msgid "Published"
 msgstr ""
 
@@ -7999,7 +8015,7 @@ msgstr ""
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:431
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:368
 #: src/Shared/CoreSurfaceRegistration.php:1107
-#: src/Shared/Frontend/FrontendTileGrid.php:276
+#: src/Shared/Frontend/FrontendTileGrid.php:283
 msgid "Welcome"
 msgstr ""
 
@@ -8024,7 +8040,7 @@ msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:435
 #: src/Modules/Development/IdeaStatus.php:102
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:647
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:656
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:373
 msgid "Done"
 msgstr "Terminé"
@@ -8096,7 +8112,7 @@ msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:505
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:135
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:718
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:727
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:290
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:937
 #: src/Modules/Translations/Admin/TranslationsConfigTab.php:137
@@ -10234,13 +10250,13 @@ msgid "Save widget"
 msgstr ""
 
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:161
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:712
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:721
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1159
 #: src/Shared/Frontend/FrontendConfigurationView.php:434
 #: src/Shared/Frontend/FrontendConfigurationView.php:823
 #: src/Shared/Frontend/FrontendConfigurationView.php:1011
 #: src/Shared/Frontend/FrontendConfigurationView.php:1897
-#: src/Shared/Frontend/FrontendWizardView.php:811
+#: src/Shared/Frontend/FrontendWizardView.php:822
 msgid "Saving…"
 msgstr "Enregistrement…"
 
@@ -13498,7 +13514,7 @@ msgstr "Imprimer"
 
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:179
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:295
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:642
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:651
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:83
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:172
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:747
@@ -14199,7 +14215,6 @@ msgid "Cohort transitions"
 msgstr ""
 
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:63
-#: src/Shared/CoreSurfaceRegistration.php:806
 msgid ""
 "Find every player whose journey contains a particular event in a date range."
 msgstr ""
@@ -14790,7 +14805,7 @@ msgid "Caps apply only on the Free plan. Trial and Standard / Pro have no cap."
 msgstr ""
 
 #: src/Modules/License/Admin/AccountPage.php:740
-#: src/Shared/Frontend/FrontendWizardView.php:748
+#: src/Shared/Frontend/FrontendWizardView.php:759
 msgid "Current"
 msgstr ""
 
@@ -15557,133 +15572,133 @@ msgstr ""
 msgid "Match prep toolbar"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:298
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:307
 msgid "Half length"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:306
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:363
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:364
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:315
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:372
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:373
 #: src/Modules/Vct/Frontend/FrontendVctSessionView.php:170
 #: src/Modules/Vct/Wizard/ReviewStep.php:60
 msgid "min"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:309
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:641
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:318
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:650
 #: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:29
 msgid "Availability"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:324
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:333
 msgid "Print (landscape A4)"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:347
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:356
 msgid "Print team sheet (PDF)"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:350
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:713
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:359
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:722
 msgid "All changes saved."
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:357
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:358
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:366
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:367
 msgid "Selection · minutes"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:365
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:414
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:374
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:423
 msgid "tot"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:371
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:554
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:380
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:563
 msgid "No availability captured yet."
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:372
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:381
 msgid "Open availability"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:429
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:438
 msgid "First half lineup"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:444
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:445
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:453
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:454
 msgid "Copy 1st half lineup to 2nd half"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:451
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:460
 msgid "Second half lineup"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:464
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:473
 msgid "Match goals"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:468
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:477
 msgid "General"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:469
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:478
 msgid "Attacking"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:471
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:480
 msgid "Set pieces (attack)"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:472
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:481
 msgid "Set pieces (defend)"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:492
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:501
 #, php-format
 msgid "Goal %d…"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:509
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:528
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:573
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:518
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:537
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:582
 msgid "…"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:540
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:549
 msgid "Player focus"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:546
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:580
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:555
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:589
 msgid "Specific goal"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:547
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:586
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:556
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:595
 msgid "Video analyst appointed"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:568
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:577
 msgid "Attention text"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:599
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:608
 msgid "Roles & set pieces"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:617
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:727
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:626
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:736
 msgid "— Pick player —"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:622
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:623
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:631
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:632
 msgid "Clear role"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:646
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:655
 #: src/Modules/Tournaments/Wizard/SquadStep.php:97
 #: src/Modules/Wizards/Evaluation/AttendanceStep.php:109
 #: src/Modules/Wizards/Evaluation/AttendanceStep.php:308
@@ -15691,54 +15706,55 @@ msgstr ""
 msgid "Mark all present"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:714
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:723
 msgid "Unsaved changes…"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:715
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:724
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:366
 msgid "Save failed. Try again."
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:716
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:725
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:500
 msgid "Search player…"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:717
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:726
 msgid "No available players found."
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:719
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:728
 msgid "on pitch"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:720
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:729
 #, php-format
 msgid "Slot %1$s — %2$s half"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:721
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:730
 msgid "1st"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:722
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:731
 msgid "2nd"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:724
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:733
 msgid "Absent (excused)"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:726
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:735
+#: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:114
 msgid "Reason (optional)…"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:728
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:737
 msgid "Pick player for role"
 msgstr ""
 
-#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:729
+#: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:738
 msgid "Could not generate the team sheet. Please try again."
 msgstr ""
 
@@ -15849,7 +15865,7 @@ msgid "Geen wedstrijdvoorbereiding gevonden voor deze activiteit."
 msgstr ""
 
 #: src/Modules/MatchPrep/Rest/MatchPrepRestController.php:79
-#: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:162
+#: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:172
 msgid "Match prep could not be created."
 msgstr ""
 
@@ -15886,27 +15902,29 @@ msgstr ""
 msgid "Not in planned roster"
 msgstr ""
 
-#: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:69
+#: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:79
 msgid ""
 "Defaults follow the planned roster — players left out are pre-marked Absent. "
 "Adjust as needed."
 msgstr ""
 
-#: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:70
+#: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:80
 msgid "Mark who can play. Everyone starts as Present; only flag exceptions."
 msgstr ""
 
-#: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:104
-msgid "Optional reason"
+#. translators: %s: player name
+#: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:103
+#, php-format
+msgid "Availability — %s"
 msgstr ""
 
-#: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:113
-#: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:156
+#: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:123
+#: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:166
 msgid "Missing activity_id."
 msgstr ""
 
 #. translators: %d = number of Present players
-#: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:136
+#: src/Modules/MatchPrep/Wizards/AvailabilityStep.php:146
 #, php-format
 msgid ""
 "Only %d players are marked Present. You need at least 11 to field a starting "
@@ -28077,7 +28095,7 @@ msgid "Me"
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:212
-msgid "Your FIFA-style card, ratings, and headline numbers."
+msgid "Your card, ratings and headline numbers."
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:225
@@ -28097,12 +28115,11 @@ msgid "Development goals to work toward."
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:283
-msgid ""
-"Your development plan: conversations, reflections, end-of-season verdict."
+msgid "Your plan: talks, reflections, season verdict."
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:302
-msgid "Your story at the academy — milestones, evaluations, goals."
+msgid "Your academy story: milestones and progress."
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:309
@@ -28110,7 +28127,7 @@ msgid "Tasks"
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:318
-msgid "Open tasks waiting on you — evaluations, goals, reviews."
+msgid "Open tasks: evaluations, goals, reviews."
 msgstr ""
 
 #. translators: %d: number of open tasks
@@ -28120,12 +28137,11 @@ msgid "My tasks (%d)"
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:349
-msgid ""
-"Per-template and per-coach completion rates plus currently overdue tasks."
+msgid "Completion rates and overdue tasks per coach."
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:362
-msgid "Enable or disable templates and override their cadence + deadline."
+msgid "Enable templates; set cadence and deadline."
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:383
@@ -28137,13 +28153,11 @@ msgid "Players on the teams you coach."
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:412
-msgid "Staff, parents, scouts and other non-player records."
+msgid "Staff, parents, scouts and other non-players."
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:426
-msgid ""
-"Per-team staff assignments — head coach, assistant, manager, physio. "
-"Different from academy-wide Roles & rights."
+msgid "Per-team staff: coach, assistant, manager, physio."
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:455
@@ -28155,9 +28169,7 @@ msgid "Log training activities and attendance."
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:485
-msgid ""
-"Plan training activities week by week, with principle tagging and plan-state "
-"tracking."
+msgid "Plan training week by week with principles."
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:501
@@ -28165,9 +28177,7 @@ msgid "VCT session designer"
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:502
-msgid ""
-"Build a structured training from the exercise library: blocks, coaching "
-"points, A4 print."
+msgid "Build trainings from the exercise library."
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:523
@@ -28175,29 +28185,23 @@ msgid "Set and track player development goals."
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:535
-msgid ""
-"Per-season development files: conversations, goals, end-of-season verdict."
+msgid "Per-season files: talks, goals, verdict."
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:547
-msgid "HoD matrix: per-team-per-block planned vs conducted conversations."
+msgid "Planned vs held talks, per team and block."
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:564
-msgid ""
-"Per-age-group input weights, thresholds, and behaviour-floor rule for the "
-"traffic-light status."
+msgid "Weights and thresholds for status by age group."
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:578
-msgid ""
-"Formation board with auto-suggested XI, depth chart, and chemistry breakdown."
+msgid "Formation board: suggested XI and chemistry."
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:590
-msgid ""
-"Coach-authored lineups: drag players onto the pitch, see chemistry update "
-"live, share with staff and lock when set."
+msgid "Drag-and-drop lineups with live chemistry."
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:602
@@ -28213,20 +28217,15 @@ msgid "Principles, formations, positions and set pieces."
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:632
-msgid "Manage prospective players: track, dates, staff input, and decisions."
+msgid "Track prospects: dates, input and decisions."
 msgstr ""
 
-# Tile registration
 #: src/Shared/CoreSurfaceRegistration.php:648
-msgid ""
-"Six-stage funnel from scout-logged prospect through team-offer acceptance. "
-"HoD + Scout + Academy Admin only."
+msgid "Prospect-to-offer funnel across six stages."
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:672
-msgid ""
-"Plan and record off-site visits where scouts spot potential prospects "
-"(matches, tournaments, open days)."
+msgid "Plan and log scouting visits to spot prospects."
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:684
@@ -28235,7 +28234,7 @@ msgid "Trial tracks"
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:685
-msgid "Edit the track templates new trial cases use as defaults."
+msgid "Edit default templates for new trial cases."
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:697
@@ -28244,7 +28243,7 @@ msgid "Letter templates"
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:698
-msgid "Customize the admit / decline letter wording per locale."
+msgid "Customize admit/decline letter wording per locale."
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:722
@@ -28256,7 +28255,7 @@ msgid "Compare up to 4 players side-by-side."
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:757
-msgid "Player progress, team rating averages, coach activity."
+msgid "Player progress, team ratings, coach activity."
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:779
@@ -28267,9 +28266,7 @@ msgid "Exports"
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:780
-msgid ""
-"Bulk exporters in one place: players, attendance, goals, evaluations, "
-"calendar, backup."
+msgid "Bulk exports: players, attendance, goals, more."
 msgstr ""
 
 # v3.28.0 — deferred follow-up
@@ -28282,9 +28279,11 @@ msgid "Application KPIs"
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:793
-msgid ""
-"Active users, evaluations per coach, attendance %, top players, goal "
-"completion."
+msgid "Usage: evaluations, attendance, goals, players."
+msgstr ""
+
+#: src/Shared/CoreSurfaceRegistration.php:806
+msgid "Find players by journey event and date range."
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:825
@@ -28292,15 +28291,15 @@ msgid "Idea pipeline"
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:834
-msgid "Spotted a bug or feature? Send it to the development queue."
+msgid "Spotted a bug or idea? Send it to the team."
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:847
-msgid "Kanban view of every staged idea — submitted through done."
+msgid "Kanban board of every staged idea."
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:860
-msgid "Approve & promote ideas straight to GitHub, or reject with a note."
+msgid "Approve and promote ideas, or reject them."
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:873
@@ -28322,8 +28321,7 @@ msgid "Wizards"
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:922
-msgid ""
-"Toggle the create-record wizards on or off, and see completion analytics."
+msgid "Toggle record wizards; see completion stats."
 msgstr ""
 
 # #0021 — frontend audit-log viewer (only the strings new to this view —
@@ -28354,7 +28352,7 @@ msgid "Your personal development plan."
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:1014
-msgid "Personal development goals — optionally linked to a certification."
+msgid "Personal goals, optionally linked to a badge."
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:1027
@@ -28362,12 +28360,11 @@ msgid "Self and top-down staff evaluations."
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:1040
-msgid "Coaching badges, first aid, GDPR and more — with expiry tracking."
+msgid "Coaching badges and certs with expiry tracking."
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:1053
-msgid ""
-"Open goals, overdue reviews, expiring certifications across the academy."
+msgid "Open goals, overdue reviews, expiring certs."
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:1085
@@ -33561,16 +33558,16 @@ msgstr ""
 msgid "Schedule test training"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTileGrid.php:171
+#: src/Shared/Frontend/FrontendTileGrid.php:178
 msgid "Today's work"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTileGrid.php:177
+#: src/Shared/Frontend/FrontendTileGrid.php:184
 msgid "Setup & administration"
 msgstr ""
 
 #. translators: %s is user display name
-#: src/Shared/Frontend/FrontendTileGrid.php:273
+#: src/Shared/Frontend/FrontendTileGrid.php:280
 #, php-format
 msgid "Welcome, %s"
 msgstr ""
@@ -34350,49 +34347,49 @@ msgstr ""
 msgid "You started this %s ago. Continue where you left off, or start over?"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendWizardView.php:718
+#: src/Shared/Frontend/FrontendWizardView.php:729
 msgid "Wizard steps"
 msgstr ""
 
 #. translators: 1: current step number, 2: total step count
-#: src/Shared/Frontend/FrontendWizardView.php:728
+#: src/Shared/Frontend/FrontendWizardView.php:739
 #, php-format
 msgid "Step %1$d of %2$d"
 msgstr ""
 
 #. translators: 1: step number, 2: step label, 3: state
-#: src/Shared/Frontend/FrontendWizardView.php:744
+#: src/Shared/Frontend/FrontendWizardView.php:755
 #, php-format
 msgid "Step %1$d: %2$s (%3$s)"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendWizardView.php:749
-#: src/Shared/Frontend/FrontendWizardView.php:758
+#: src/Shared/Frontend/FrontendWizardView.php:760
+#: src/Shared/Frontend/FrontendWizardView.php:769
 msgid "Not applicable"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendWizardView.php:756
+#: src/Shared/Frontend/FrontendWizardView.php:767
 msgid "You are here"
 msgstr ""
 
 # #0077 polish wave 1 — new strings
-#: src/Shared/Frontend/FrontendWizardView.php:771
+#: src/Shared/Frontend/FrontendWizardView.php:782
 msgid "Help for this step"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendWizardView.php:812
+#: src/Shared/Frontend/FrontendWizardView.php:823
 msgid "Saved · "
 msgstr ""
 
-#: src/Shared/Frontend/FrontendWizardView.php:813
+#: src/Shared/Frontend/FrontendWizardView.php:824
 msgid "Save failed"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendWizardView.php:835
+#: src/Shared/Frontend/FrontendWizardView.php:846
 msgid "This field is required."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendWizardView.php:836
+#: src/Shared/Frontend/FrontendWizardView.php:847
 msgid "Fill in every required field to continue."
 msgstr ""
 
