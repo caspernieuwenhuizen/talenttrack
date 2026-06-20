@@ -26,7 +26,6 @@ final class ReviewStep implements WizardStepInterface {
     public function render( array $state ): void {
         $path = (string) ( $state['path'] ?? 'roster' );
         echo '<p>' . esc_html__( 'Check the details below before creating the record.', 'talenttrack' ) . '</p>';
-        echo '<dl class="tt-wizard-review">';
         $rows = [
             __( 'Type', 'talenttrack' )           => $path === 'trial' ? __( 'Trial player', 'talenttrack' ) : __( 'Roster player', 'talenttrack' ),
             __( 'Name', 'talenttrack' )           => trim( ( (string) ( $state['first_name'] ?? '' ) ) . ' ' . ( (string) ( $state['last_name'] ?? '' ) ) ),
@@ -41,10 +40,12 @@ final class ReviewStep implements WizardStepInterface {
             $rows[ __( 'Trial start', 'talenttrack' ) ]  = (string) ( $state['trial_start_date'] ?? '' );
             $rows[ __( 'Trial end', 'talenttrack' ) ]    = (string) ( $state['trial_end_date'] ?? '' );
         }
+        // #1526 — standard two-column review table (matches Activity/Prospect/VCT).
+        echo '<div class="tt-table-wrap"><table class="tt-table tt-wizard-review-table"><tbody>';
         foreach ( $rows as $k => $v ) {
-            echo '<dt>' . esc_html( $k ) . '</dt><dd>' . esc_html( (string) $v ) . '</dd>';
+            echo '<tr><th scope="row" style="width:35%;">' . esc_html( $k ) . '</th><td>' . esc_html( (string) $v ) . '</td></tr>';
         }
-        echo '</dl>';
+        echo '</tbody></table></div>';
     }
 
     public function validate( array $post, array $state ) { return []; }

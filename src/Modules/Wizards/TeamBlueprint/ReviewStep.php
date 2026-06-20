@@ -23,17 +23,18 @@ final class ReviewStep implements WizardStepInterface {
         $flavour_label = $flavour === TeamBlueprintsRepository::FLAVOUR_SQUAD_PLAN
             ? __( 'Squad plan (3 tiers per slot, trial overlay)', 'talenttrack' )
             : __( 'Match-day lineup (single starting XI)', 'talenttrack' );
-        echo '<dl class="tt-wizard-review">';
         $rows = [
             __( 'Team',      'talenttrack' ) => self::teamName( (int) ( $state['team_id'] ?? 0 ) ),
             __( 'Type',      'talenttrack' ) => $flavour_label,
             __( 'Formation', 'talenttrack' ) => self::templateName( (int) ( $state['formation_template_id'] ?? 0 ) ),
             __( 'Name',      'talenttrack' ) => (string) ( $state['name'] ?? '' ),
         ];
+        // #1526 — standard two-column review table (matches Activity/Prospect/VCT).
+        echo '<div class="tt-table-wrap"><table class="tt-table tt-wizard-review-table"><tbody>';
         foreach ( $rows as $k => $v ) {
-            echo '<dt>' . esc_html( $k ) . '</dt><dd>' . esc_html( (string) $v ) . '</dd>';
+            echo '<tr><th scope="row" style="width:35%;">' . esc_html( $k ) . '</th><td>' . esc_html( (string) $v ) . '</td></tr>';
         }
-        echo '</dl>';
+        echo '</tbody></table></div>';
     }
 
     public function validate( array $post, array $state ) { return []; }

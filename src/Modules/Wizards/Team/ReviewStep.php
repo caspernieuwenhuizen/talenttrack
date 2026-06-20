@@ -14,9 +14,10 @@ final class ReviewStep implements WizardStepInterface {
 
     public function render( array $state ): void {
         echo '<p>' . esc_html__( 'Check the team details before creating it.', 'talenttrack' ) . '</p>';
-        echo '<dl class="tt-wizard-review">';
-        echo '<dt>' . esc_html__( 'Team name', 'talenttrack' ) . '</dt><dd>' . esc_html( (string) ( $state['name'] ?? '' ) ) . '</dd>';
-        echo '<dt>' . esc_html__( 'Age group', 'talenttrack' ) . '</dt><dd>' . esc_html( (string) ( $state['age_group'] ?? '—' ) ) . '</dd>';
+        // #1526 — standard two-column review table (matches Activity/Prospect/VCT).
+        echo '<div class="tt-table-wrap"><table class="tt-table tt-wizard-review-table"><tbody>';
+        echo '<tr><th scope="row" style="width:35%;">' . esc_html__( 'Team name', 'talenttrack' ) . '</th><td>' . esc_html( (string) ( $state['name'] ?? '' ) ) . '</td></tr>';
+        echo '<tr><th scope="row" style="width:35%;">' . esc_html__( 'Age group', 'talenttrack' ) . '</th><td>' . esc_html( (string) ( $state['age_group'] ?? '—' ) ) . '</td></tr>';
         foreach ( StaffStep::SLOTS as $key => $label ) {
             $uid = (int) ( $state[ 'staff_' . $key ] ?? 0 );
             $name = '—';
@@ -24,13 +25,13 @@ final class ReviewStep implements WizardStepInterface {
                 $u = get_userdata( $uid );
                 if ( $u ) $name = (string) $u->display_name;
             }
-            echo '<dt>' . esc_html__( $label, 'talenttrack' ) . '</dt><dd>' . esc_html( $name ) . '</dd>';
+            echo '<tr><th scope="row" style="width:35%;">' . esc_html__( $label, 'talenttrack' ) . '</th><td>' . esc_html( $name ) . '</td></tr>';
         }
         $spond_group_id = (string) ( $state['spond_group_id'] ?? '' );
         if ( $spond_group_id !== '' ) {
-            echo '<dt>' . esc_html__( 'Spond group', 'talenttrack' ) . '</dt><dd>' . esc_html( $spond_group_id ) . '</dd>';
+            echo '<tr><th scope="row" style="width:35%;">' . esc_html__( 'Spond group', 'talenttrack' ) . '</th><td>' . esc_html( $spond_group_id ) . '</td></tr>';
         }
-        echo '</dl>';
+        echo '</tbody></table></div>';
     }
 
     public function validate( array $post, array $state ) { return []; }
