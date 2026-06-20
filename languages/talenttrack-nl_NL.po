@@ -38510,10 +38510,6 @@ msgid "(unknown date)"
 msgstr "(datum onbekend)"
 
 #: src/Modules/Backup/Admin/BackupSettingsPage.php
-msgid "(unknown)"
-msgstr "(onbekend)"
-
-#: src/Modules/Backup/Admin/BackupSettingsPage.php
 msgid "Nothing below has been imported — this is a preview only."
 msgstr "Niets hieronder is geïmporteerd — dit is alleen een voorbeeld."
 
