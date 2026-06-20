@@ -22,6 +22,19 @@ Op de frontend-Configuratieweergave zijn de voormalige tegels **Branding** en **
 
 Er zijn geen configuratiesleutels gewijzigd en er is geen datamigratie — bestaande waarden worden ongewijzigd weergegeven. Opslaan + Annuleren staan onderaan de pagina. Oude `?config_sub=branding` / `?config_sub=theme`-deeplinks komen nog steeds uit bij het Vormgeving-scherm.
 
+## Configuratiesecties in de frontend (v4.26.16+)
+
+De frontend-Configuratielandingspagina groepeert de tegels in doelgerichte secties in plaats van één plat raster; een sectie zonder zichtbare (toegestane) tegels toont geen kop:
+
+- **Vormgeving** — het samengevoegde Vormgeving-scherm + Aangepaste CSS.
+- **Dashboard** — Standaarddashboard, plus de via een filter aangedragen tegels Dashboard-indelingen / Aangepaste widgets.
+- **Gegevens & vocabulaires** — Lookups, Beoordelingsschaal, Spelers-CSV-import, Lookup canonieke-taalcontrole.
+- **Methodiek & cycli** — POP-cyclusblokken, Seizoenen, Methodiek spelerstatus en de VCT-configuratietegels.
+- **Integraties** — Spond.
+- **Systeem** — Algemeen, Functieschakelaars, Back-ups, Vertalingen, Auditlog, Setup-wizard, wp-admin-menu's, Modules.
+
+Tegels die in wp-admin openen (Spond, Functieschakelaars, Back-ups, Vertalingen, Auditlog, Setup-wizard) hebben een externe-link-markering zodat de contextwissel verwacht is; de frontend-tegels niet. De weergave loopt via de gedeelde `FrontendSectionedTileGrid`.
+
 ## Tabbladen
 
 ### Algemeen
