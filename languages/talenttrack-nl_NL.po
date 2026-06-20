@@ -37565,6 +37565,51 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ "scoutingrapport-PDF, POP, enz.) blijven op de detailpagina van elk record "
 #~ "waar de bijbehorende id in context staat."
 
+#: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php
+msgid "Attendance leaderboard"
+msgstr "Aanwezigheidsranglijst"
+
+#: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php
+msgid ""
+"League-table ranking of the best and worst attenders over a window, with at-"
+"risk players flagged."
+msgstr ""
+"Ranglijst van de beste en slechtste aanwezigheid over een periode, met "
+"risicospelers gemarkeerd."
+
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php
+msgid "Needs attention — lowest attendance"
+msgstr "Aandacht nodig — laagste aanwezigheid"
+
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php
+msgid "Most reliable — highest attendance"
+msgstr "Meest betrouwbaar — hoogste aanwezigheid"
+
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php
+msgid "No players to rank yet."
+msgstr "Nog geen spelers om te rangschikken."
+
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php
+msgid "How many"
+msgstr "Aantal"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Attendance at-risk threshold"
+msgstr "Risicodrempel aanwezigheid"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid ""
+"How many missed activities (absent, excused or injured) flag a player as at "
+"risk. Used by the player attendance report, the attendance leaderboard, and "
+"the daily attendance-flag notification — they all read this one number. "
+"Default 3."
+msgstr ""
+"Hoeveel gemiste activiteiten (afwezig, afgemeld of geblesseerd) een speler "
+"als risico markeren. Wordt gebruikt door het aanwezigheidsrapport per "
+"speler, de aanwezigheidsranglijst en de dagelijkse aanwezigheidsmelding — ze "
+"lezen allemaal dit ene getal. Standaard 3."
+
 #~ msgid ""
 #~ "Per-club custom styling (#0064): visual editor, code editor, file upload, "
 #~ "starter templates, history with revert. Frontend + wp-admin surfaces."

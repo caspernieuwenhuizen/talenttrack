@@ -76,6 +76,12 @@ class ConfigRestController {
         'tt_week_start',
         'tt_timezone',
         'tt_locale',
+        // #1488 — attendance at-risk flag threshold (missed activities in
+        // the window). Single source of truth shared by the player
+        // attendance report, the leaderboard, and the daily attendance-flag
+        // notification. Un-mapped in KEY_AREA_MAP → resolves to the
+        // tt_edit_settings umbrella (admins / club admins).
+        'attendance_flag_threshold',
     ];
 
     /**

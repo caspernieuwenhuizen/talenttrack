@@ -1033,6 +1033,9 @@ class DashboardShortcode {
             case 'attendance-report-player':
                 \TT\Modules\Analytics\Frontend\FrontendAttendancePlayerReportView::render( $user_id, $is_admin );
                 return true;
+            case 'attendance-leaderboard':
+                \TT\Modules\Analytics\Frontend\FrontendAttendanceLeaderboardView::render( $user_id, $is_admin );
+                return true;
             case 'minutes-report-team':
                 \TT\Modules\Analytics\Frontend\FrontendMinutesTeamReportView::render( $user_id, $is_admin );
                 return true;
@@ -1388,6 +1391,7 @@ class DashboardShortcode {
             'activities'          => 'activities',
             'goals'               => 'goals',
             'reports'             => 'reports',
+            'attendance-leaderboard' => 'reports',
             'rate-cards'          => 'rate-cards',
             'compare'             => 'player-comparison',
             'methodology'         => 'methodology',
