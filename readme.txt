@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.26.10
+Stable tag: 4.26.11
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.26.11 — Lookups index: group the ~32 lookup tiles by domain (closes #1535). The Configuration → Lookups landing page was a flat grid of ~32 cards — hard to scan. The cards are now grouped into nine domain sections (Activities & attendance, Players & teams, Evaluations & development, Goals, Scouting & trials, Tournaments & match, Staff & people, Reports & workflow, Advanced / internal) via the shared `FrontendSectionedTileGrid` (#1543), which auto-hides any empty section. Tiles keep their existing icon + card styling; a trailing "Other" bucket catches any future card so none is ever dropped. The first real adopter of the helper — extended it with a `grid_inline`/`grid_class` option so CSS-class-styled consumers (the Configuration views' `tileGridStyles()`) integrate without the helper overriding their layout. Mobile-first (one column at 360px). docs/configuration-lookups.md (EN+NL) updated; new Dutch section labels. Patch bump. (closes #1535) =
 
 = 4.26.10 — Shared sectioned tile-grid presenter for the Configuration-family views (closes #1543). Five Configuration-family views render a curated, static tile list grouped under headed sections with the same "auto-hide empty/cap-gated section" behaviour; two bespoke implementations had already shipped. Extracted it once: `\TT\Shared\Frontend\Components\FrontendSectionedTileGrid` renders ordered sections (heading + `.tt-cfg-tile-grid`), drops tiles whose `cap` the user lacks (matrix-aware), hides any section left empty, and supports a per-section render hook for non-card layouts (e.g. the Export view's `<details>` accordions). A `fromGroups()` helper turns a flat curated list into sections by slug with a trailing leftover bucket. The #1503 Reports-launcher `renderReportSection` was folded into it — visually unchanged. Documented in docs/architecture.md so the consumer issues (#1532/#1535/#1536/#1542) adopt it without re-deriving the pattern. Internal; no new strings. Patch bump. (closes #1543) =
 

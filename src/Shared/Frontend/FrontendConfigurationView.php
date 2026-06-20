@@ -208,24 +208,52 @@ class FrontendConfigurationView extends FrontendViewBase {
         ];
 
         echo '<p style="margin-bottom:var(--tt-sp-4); color:var(--tt-muted);">';
-        esc_html_e( 'Pick a lookup category. Values are translatable and feed every dropdown across the dashboard.', 'talenttrack' );
+        esc_html_e( 'Lookup vocabularies, grouped by domain. Values are translatable and feed every dropdown across the dashboard.', 'talenttrack' );
         echo '</p>';
 
-        echo '<div class="tt-cfg-tile-grid">';
+        // #1535 — group the ~32 lookup cards into domain sections via the
+        // shared FrontendSectionedTileGrid presenter (auto-hides any empty
+        // section). Tiles keep their existing .tt-cfg-tile markup + icon, so
+        // grid_inline is off — the enqueued tileGridStyles() drives layout.
+        $tiles = [];
         foreach ( $cards as $row ) {
             list( $title, $desc, $slug, $icon ) = $row;
-            if ( $slug === '__rating' ) {
-                $url = $rating_url;
-            } else {
-                $url = add_query_arg( [ 'config_sub' => 'lookups', 'category' => $slug ], $base );
-            }
-            echo '<a class="tt-cfg-tile" href="' . esc_url( $url ) . '">';
-            echo '<div class="tt-cfg-tile-icon">' . \TT\Shared\Icons\IconRenderer::render( $icon ) . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-            echo '<div class="tt-cfg-tile-title">' . esc_html( $title ) . '</div>';
-            echo '<div class="tt-cfg-tile-desc">' . esc_html( $desc ) . '</div>';
-            echo '</a>';
+            $url = ( $slug === '__rating' )
+                ? $rating_url
+                : add_query_arg( [ 'config_sub' => 'lookups', 'category' => $slug ], $base );
+            $tiles[] = [ 'slug' => $slug, 'title' => $title, 'desc' => $desc, 'icon' => $icon, 'url' => $url ];
         }
-        echo '</div>';
+
+        $groups = [
+            [ 'label' => __( 'Activities & attendance', 'talenttrack' ), 'slugs' => [ 'activity_types', 'activity_statuses', 'game_subtypes', 'competition_types', 'att_statuses' ] ],
+            [ 'label' => __( 'Players & teams', 'talenttrack' ),         'slugs' => [ 'positions', 'foot_options', 'age_groups', 'journey_event_types' ] ],
+            [ 'label' => __( 'Evaluations & development', 'talenttrack' ),'slugs' => [ 'eval_types', '__rating', 'behaviour_ratings', 'potential_bands', 'player_values', 'pdp_verdict_decisions' ] ],
+            [ 'label' => __( 'Goals', 'talenttrack' ),                   'slugs' => [ 'goal_statuses', 'goal_priorities', 'goal_approval_decisions' ] ],
+            [ 'label' => __( 'Scouting & trials', 'talenttrack' ),       'slugs' => [ 'trial_case_statuses', 'trial_case_decisions', 'scouting_visit_statuses' ] ],
+            [ 'label' => __( 'Tournaments & match', 'talenttrack' ),     'slugs' => [ 'tournament_formations', 'tournament_opponent_levels' ] ],
+            [ 'label' => __( 'Staff & people', 'talenttrack' ),          'slugs' => [ 'cert_types', 'invitation_statuses', 'invitation_kinds' ] ],
+            [ 'label' => __( 'Reports & workflow', 'talenttrack' ),      'slugs' => [ 'task_statuses', 'audience_types', 'scheduled_report_frequencies', 'scheduled_report_statuses' ] ],
+            [ 'label' => __( 'Advanced / internal', 'talenttrack' ),     'slugs' => [ 'idea_statuses', 'idea_types' ] ],
+        ];
+
+        $sections = \TT\Shared\Frontend\Components\FrontendSectionedTileGrid::fromGroups(
+            $tiles,
+            $groups,
+            __( 'Other', 'talenttrack' )
+        );
+        \TT\Shared\Frontend\Components\FrontendSectionedTileGrid::render(
+            $sections,
+            [
+                'grid_inline'   => false,
+                'tile_renderer' => static function ( array $tile ): void {
+                    echo '<a class="tt-cfg-tile" href="' . esc_url( (string) $tile['url'] ) . '">';
+                    echo '<div class="tt-cfg-tile-icon">' . \TT\Shared\Icons\IconRenderer::render( (string) $tile['icon'] ) . '</div>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                    echo '<div class="tt-cfg-tile-title">' . esc_html( (string) $tile['title'] ) . '</div>';
+                    echo '<div class="tt-cfg-tile-desc">' . esc_html( (string) $tile['desc'] ) . '</div>';
+                    echo '</a>';
+                },
+            ]
+        );
     }
 
     /**
