@@ -35011,6 +35011,30 @@ msgstr "Rapportkaarten per speler met trends."
 msgid "Pick a report."
 msgstr "Kies een rapport."
 
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:159
+msgid "Development & performance"
+msgstr "Ontwikkeling & prestaties"
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:160
+msgid "Playing time"
+msgstr "Speeltijd"
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:161
+msgid "Recruitment"
+msgstr "Werving"
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:162
+msgid "Staff & quality"
+msgstr "Staf & kwaliteit"
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:163
+msgid "Season overview"
+msgstr "Seizoensoverzicht"
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:186
+msgid "Other reports"
+msgstr "Overige rapporten"
+
 # === #0014 Sprints 3+4+5 — Report generator + wizard + scout flow ===
 #: src/Shared/Frontend/FrontendReportWizardView.php:37
 #: src/Shared/Frontend/FrontendReportWizardView.php:38

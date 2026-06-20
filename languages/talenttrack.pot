@@ -30764,6 +30764,30 @@ msgstr ""
 msgid "Pick a report."
 msgstr ""
 
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:159
+msgid "Development & performance"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:160
+msgid "Playing time"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:161
+msgid "Recruitment"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:162
+msgid "Staff & quality"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:163
+msgid "Season overview"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:186
+msgid "Other reports"
+msgstr ""
+
 #: src/Shared/Frontend/FrontendReportWizardView.php:37
 #: src/Shared/Frontend/FrontendReportWizardView.php:38
 #: src/Shared/Frontend/FrontendReportWizardView.php:45
