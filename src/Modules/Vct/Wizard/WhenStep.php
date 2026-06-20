@@ -68,7 +68,7 @@ final class WhenStep implements WizardStepInterface {
         echo '<label><span>' . esc_html__( 'Start time (optional)', 'talenttrack' ) . '</span>'
             . '<input type="time" name="start_time" value="' . esc_attr( $current_time ) . '"></label>';
 
-        echo '<p class="description">' . esc_html__( 'Age group + match-day context are resolved automatically on the next step. Start time prefills from the team VCT-defaults panel when configured.', 'talenttrack' ) . '</p>';
+        echo '<p class="description">' . esc_html__( 'On the next step we detect this team\'s age group and its match-day (MD) context from the team and its season schedule — you don\'t need to enter them. Start time prefills from the team VCT-defaults panel when configured.', 'talenttrack' ) . '</p>';
     }
 
     public function validate( array $post, array $state ) {

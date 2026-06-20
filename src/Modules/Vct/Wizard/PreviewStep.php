@@ -13,6 +13,7 @@ use TT\Modules\Vct\Rules\ProgressionRule;
 use TT\Modules\Vct\Rules\Providers\NativeActivitiesReader;
 use TT\Modules\Vct\Rules\Providers\NativeRecentPicksProvider;
 use TT\Modules\Vct\Rules\RecoveryRule;
+use TT\Modules\Vct\Rules\RuleMessages;
 use TT\Modules\Vct\Rules\RulesEngine;
 use TT\Modules\Vct\Rules\SessionCompositionRule;
 use TT\Modules\Vct\Rules\SessionPlanContext;
@@ -54,9 +55,15 @@ final class PreviewStep implements WizardStepInterface {
         $blocking = $this->blockingReasons( $ctx );
         if ( $blocking ) {
             echo '<div class="tt-notice tt-notice--error" role="alert">';
-            echo '<p><strong>' . esc_html__( 'Cannot compose this VCT training:', 'talenttrack' ) . '</strong></p><ul>';
+            echo '<p><strong>' . esc_html__( 'This VCT training can\'t be built yet:', 'talenttrack' ) . '</strong></p><ul>';
             foreach ( $blocking as $r ) {
-                echo '<li>' . esc_html( $this->humanReason( $r ) ) . '</li>';
+                $hint = RuleMessages::resolutionHint( $r );
+                echo '<li>' . esc_html( RuleMessages::humanMessage( $r ) );
+                if ( $hint !== '' ) {
+                    echo ' <span class="tt-vct-hint" style="display:block;margin-top:2px;color:#5b3a1a;font-size:13px;">'
+                        . esc_html( $hint ) . '</span>';
+                }
+                echo '</li>';
             }
             echo '</ul></div>';
             return;
@@ -100,11 +107,14 @@ final class PreviewStep implements WizardStepInterface {
 
         if ( $ctx->warnings ) {
             echo '<div class="tt-notice tt-notice--info" style="margin-top:12px;">';
-            echo '<p><strong>' . esc_html__( 'Notes from the engine:', 'talenttrack' ) . '</strong></p><ul>';
+            echo '<p><strong>' . esc_html__( 'Good to know:', 'talenttrack' ) . '</strong></p><ul>';
             foreach ( $ctx->warnings as $w ) {
                 $severity = (string) ( $w['severity'] ?? 'info' );
                 if ( $severity === 'block' ) continue;
-                echo '<li><em>' . esc_html( ucfirst( $severity ) ) . ':</em> ' . esc_html( $this->humanReason( $w ) ) . '</li>';
+                $prefix = $severity === 'caution'
+                    ? esc_html__( 'Heads-up', 'talenttrack' )
+                    : esc_html__( 'Note', 'talenttrack' );
+                echo '<li><em>' . $prefix . ':</em> ' . esc_html( RuleMessages::humanMessage( $w ) ) . '</li>';
             }
             echo '</ul></div>';
         }
@@ -150,13 +160,6 @@ final class PreviewStep implements WizardStepInterface {
             if ( ( $w['severity'] ?? '' ) === 'block' ) $out[] = $w;
         }
         return $out;
-    }
-
-    /** Human-readable summary of a structured warning. */
-    private function humanReason( array $w ): string {
-        $code = (string) ( $w['code'] ?? 'unknown' );
-        $details = (array) ( $w['details'] ?? [] );
-        return $code . ' — ' . wp_json_encode( $details );
     }
 
     private function makeEngine(): RulesEngine {

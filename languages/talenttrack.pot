@@ -33125,3 +33125,169 @@ msgstr ""
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:442
 msgid "Blueprint actions"
 msgstr ""
+
+#: src/Modules/Vct/Rules/RuleMessages.php:40
+msgid "No training profile is set up for this age group yet, so the safe-load limits are unknown."
+msgstr ""
+
+#: src/Modules/Vct/Rules/RuleMessages.php:43
+msgid "This team's age group isn't recognised, so the engine can't pick suitable exercises."
+msgstr ""
+
+#: src/Modules/Vct/Rules/RuleMessages.php:46
+msgid "No session blueprint exists for this age group and match-day context, so there is nothing to build the training from."
+msgstr ""
+
+#: src/Modules/Vct/Rules/RuleMessages.php:49
+msgid "One block was more intense than this age group allows, so it was capped to the safe ceiling."
+msgstr ""
+
+#. translators: %s is the exercise slot category
+#: src/Modules/Vct/Rules/RuleMessages.php:56
+#, php-format
+msgid "No suitable exercise was found for the \"%s\" slot at this age, theme, and match-day context."
+msgstr ""
+
+#: src/Modules/Vct/Rules/RuleMessages.php:60
+msgid "No suitable exercise was found for one of the slots at this age, theme, and match-day context."
+msgstr ""
+
+#. translators: %d is the recommended recovery hours
+#: src/Modules/Vct/Rules/RuleMessages.php:67
+#, php-format
+msgid "Some players trained hard less than %d hours ago and may not be fully recovered."
+msgstr ""
+
+#: src/Modules/Vct/Rules/RuleMessages.php:71
+msgid "Some players trained hard recently and may not be fully recovered."
+msgstr ""
+
+#: src/Modules/Vct/Rules/RuleMessages.php:74
+msgid "This training adds a lot of load for the week — keep an eye on the team's total."
+msgstr ""
+
+#. translators: %d is the age-safe maximum minutes
+#: src/Modules/Vct/Rules/RuleMessages.php:81
+#, php-format
+msgid "The duration was shortened to %d minutes, the safe maximum for this age group."
+msgstr ""
+
+#: src/Modules/Vct/Rules/RuleMessages.php:85
+msgid "The duration was shortened to the safe maximum for this age group."
+msgstr ""
+
+#: src/Modules/Vct/Rules/RuleMessages.php:88
+msgid "No season periodisation block applies here, so a neutral training load was used."
+msgstr ""
+
+#. translators: %d is the percentage the load was reduced by
+#: src/Modules/Vct/Rules/RuleMessages.php:95
+#, php-format
+msgid "The load was eased by %d%% because some players are flagged for a growth spurt (PHV)."
+msgstr ""
+
+#: src/Modules/Vct/Rules/RuleMessages.php:99
+msgid "The load was eased because some players are flagged for a growth spurt (PHV)."
+msgstr ""
+
+#: src/Modules/Vct/Rules/RuleMessages.php:103
+msgid "The engine flagged something about this training. Review the blocks before publishing."
+msgstr ""
+
+#: src/Modules/Vct/Rules/RuleMessages.php:118
+msgid "Open VCT configuration → Age profiles and set up this age group's limits."
+msgstr ""
+
+#: src/Modules/Vct/Rules/RuleMessages.php:121
+msgid "Set this team's age group (for example U13) in its team settings, then try again."
+msgstr ""
+
+#: src/Modules/Vct/Rules/RuleMessages.php:124
+msgid "Pick a different date so the match-day context changes, or ask an admin to add a session blueprint for this age group."
+msgstr ""
+
+#: src/Modules/Vct/Rules/RuleMessages.php:127
+msgid "No action needed — the block was already capped to the safe ceiling for you."
+msgstr ""
+
+#: src/Modules/Vct/Wizard/PreviewStep.php:58
+msgid "This VCT training can't be built yet:"
+msgstr ""
+
+#: src/Modules/Vct/Wizard/PreviewStep.php:110
+msgid "Good to know:"
+msgstr ""
+
+#: src/Modules/Vct/Wizard/PreviewStep.php:115
+msgid "Heads-up"
+msgstr ""
+
+#: src/Modules/Vct/Wizard/WhenStep.php:71
+msgid "On the next step we detect this team's age group and its match-day (MD) context from the team and its season schedule — you don't need to enter them. Start time prefills from the team VCT-defaults panel when configured."
+msgstr ""
+
+#. translators: %d is the default minutes ceiling
+#: src/Modules/Vct/Wizard/DurationStep.php:38
+#, php-format
+msgid "This team has no age group set, so we're using a default cap of %d minutes. Set the team's age group in its team settings for an age-tuned limit."
+msgstr ""
+
+#: src/Modules/Vct/Wizard/ThemeStep.php:54
+msgid "Playing out from the back with controlled passing."
+msgstr ""
+
+#: src/Modules/Vct/Wizard/ThemeStep.php:55
+msgid "Winning the ball back quickly and high up the pitch."
+msgstr ""
+
+#: src/Modules/Vct/Wizard/ThemeStep.php:56
+msgid "Fast switches between attack and defence the moment possession changes."
+msgstr ""
+
+#: src/Modules/Vct/Wizard/ThemeStep.php:57
+msgid "Striking quickly into space after a turnover."
+msgstr ""
+
+#: src/Modules/Vct/Wizard/ThemeStep.php:58
+msgid "Organising the press, cover, and one-on-one defending."
+msgstr ""
+
+#: src/Modules/Vct/Wizard/ThemeStep.php:59
+msgid "Creating and converting chances in front of goal."
+msgstr ""
+
+#: src/Modules/Vct/Wizard/ThemeStep.php:60
+msgid "Corners, free-kicks, and throw-ins — attacking and defending."
+msgstr ""
+
+#: src/Modules/Vct/Wizard/ThemeStep.php:61
+msgid "Beating and stopping an opponent in direct duels."
+msgstr ""
+
+#: src/Modules/Vct/Wizard/ThemeStep.php:62
+msgid "Ball control, short passing, and keeping the ball as a team."
+msgstr ""
+
+#: src/Modules/Vct/Wizard/ThemeStep.php:63
+msgid "A balanced session touching several themes."
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:163
+msgid "No age profiles are set up yet."
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:164
+msgid "Age profiles cap how long and how intensely each team can train safely, by age group. Until they exist, the VCT planner can't build a training. Ask your academy administrator to add them — they're part of the standard VCT setup for your club."
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php:221
+msgid "No teams yet. Create your teams under Teams first, then come back here to set their training days."
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctSessionView.php:190
+msgid "No blocks in this VCT training yet — the planner couldn't find suitable exercises for this age group, theme, and duration. Try a different theme or duration, or add matching exercises to the library."
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctSessionView.php:241
+msgid "Publishing links this training to a team activity. If an activity already exists at this date and time, you'll be asked whether to reuse it or create a new one."
+msgstr ""

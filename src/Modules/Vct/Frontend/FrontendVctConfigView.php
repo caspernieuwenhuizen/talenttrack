@@ -159,7 +159,10 @@ class FrontendVctConfigView extends FrontendViewBase {
     private static function renderAgeProfilesTab(): void {
         $profiles = ( new VctAgeProfilesRepository() )->listAll();
         if ( ! $profiles ) {
-            echo '<p class="tt-empty">' . esc_html__( 'No age profiles seeded for this club. Re-run migration 0125 to seed defaults.', 'talenttrack' ) . '</p>';
+            echo '<div class="tt-notice tt-notice--info" style="padding:12px 16px;">';
+            echo '<p style="margin:0 0 6px;"><strong>' . esc_html__( 'No age profiles are set up yet.', 'talenttrack' ) . '</strong></p>';
+            echo '<p style="margin:0;">' . esc_html__( 'Age profiles cap how long and how intensely each team can train safely, by age group. Until they exist, the VCT planner can\'t build a training. Ask your academy administrator to add them — they\'re part of the standard VCT setup for your club.', 'talenttrack' ) . '</p>';
+            echo '</div>';
             return;
         }
 
@@ -215,7 +218,7 @@ class FrontendVctConfigView extends FrontendViewBase {
         $teams_repo = new VctTeamSchedulesRepository();
         $teams = QueryHelpers::get_teams();
         if ( ! $teams ) {
-            echo '<p class="tt-empty">' . esc_html__( 'No teams configured yet.', 'talenttrack' ) . '</p>';
+            echo '<p class="tt-empty">' . esc_html__( 'No teams yet. Create your teams under Teams first, then come back here to set their training days.', 'talenttrack' ) . '</p>';
             return;
         }
 

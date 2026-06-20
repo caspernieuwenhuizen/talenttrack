@@ -187,7 +187,7 @@ class FrontendVctSessionView extends FrontendViewBase {
     /** @param list<array<string,mixed>> $blocks */
     private static function renderBlocks( array $blocks ): void {
         if ( ! $blocks ) {
-            echo '<p class="tt-notice">' . esc_html__( 'No blocks composed for this VCT training.', 'talenttrack' ) . '</p>';
+            echo '<p class="tt-notice">' . esc_html__( 'No blocks in this VCT training yet — the planner couldn\'t find suitable exercises for this age group, theme, and duration. Try a different theme or duration, or add matching exercises to the library.', 'talenttrack' ) . '</p>';
             return;
         }
 
@@ -238,7 +238,7 @@ class FrontendVctSessionView extends FrontendViewBase {
         echo '<form method="POST" action="" style="margin-top:24px;padding:16px;background:#f5f5f5;border-radius:8px;">';
         wp_nonce_field( 'tt_vct_publish_' . (int) $session['id'], '_tt_vct_publish_nonce' );
         echo '<p style="margin:0 0 12px;">'
-            . esc_html__( 'Publish this draft to bind it to a team Activity (creates a new Activity, or binds to an existing one at the same slot if you confirm).', 'talenttrack' )
+            . esc_html__( 'Publishing links this training to a team activity. If an activity already exists at this date and time, you\'ll be asked whether to reuse it or create a new one.', 'talenttrack' )
             . '</p>';
         echo '<input type="hidden" name="bind_existing" value="0">';
         echo '<button type="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Publish VCT training', 'talenttrack' ) . '</button>';

@@ -198,6 +198,10 @@ class FrontendVctLibraryView extends FrontendViewBase {
 
         echo '<fieldset style="grid-column:1 / -1;margin:8px 0 0;padding:8px;border:1px solid #ddd;">';
         echo '<legend>' . esc_html__( 'MD contexts (tick all that apply)', 'talenttrack' ) . '</legend>';
+        // MD-4 … MD … MD+2 / NONE are intentional technical tokens used
+        // industry-wide for match-day periodisation. They are NOT
+        // translated — a Dutch coach reads "MD-2" exactly as an English
+        // one does. (#1518: deliberate i18n exemption, not a leak.)
         $md_map = [
             'md_minus_4' => 'MD-4',
             'md_minus_3' => 'MD-3',
