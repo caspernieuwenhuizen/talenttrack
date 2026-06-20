@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.26.9
+Stable tag: 4.26.10
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.26.10 — Shared sectioned tile-grid presenter for the Configuration-family views (closes #1543). Five Configuration-family views render a curated, static tile list grouped under headed sections with the same "auto-hide empty/cap-gated section" behaviour; two bespoke implementations had already shipped. Extracted it once: `\TT\Shared\Frontend\Components\FrontendSectionedTileGrid` renders ordered sections (heading + `.tt-cfg-tile-grid`), drops tiles whose `cap` the user lacks (matrix-aware), hides any section left empty, and supports a per-section render hook for non-card layouts (e.g. the Export view's `<details>` accordions). A `fromGroups()` helper turns a flat curated list into sections by slug with a trailing leftover bucket. The #1503 Reports-launcher `renderReportSection` was folded into it — visually unchanged. Documented in docs/architecture.md so the consumer issues (#1532/#1535/#1536/#1542) adopt it without re-deriving the pattern. Internal; no new strings. Patch bump. (closes #1543) =
 
 = 4.26.9 — Explorer: remove the activity-detail row + gate every inline affordance behind the toggle (closes #1552). The Analytics-explorer toggle (`analytics_explorer_enabled`) gated the explorer views and dashboard tile, but the inline **Explore →** links rendered regardless — so switching Explorer off left dangling links into a disabled feature. Two changes: (1) the Explorer preset row was removed from the activity detail view entirely (clutter there regardless of the toggle); (2) every other inline affordance now renders only when `AnalyticsModule::explorerEnabled()` — the player-detail goals + evaluations cards, the team-detail upcoming-activities header, all standard-report page heads (one gate in `renderPageHead` covers the eight report types), and the reports launcher's prospects-per-scout tile. With Explorer off, no Explore link renders anywhere; the analytics engine and standard reports keep working. docs/modules.md (EN+NL) updated. No new strings. Patch bump. (closes #1552) =
 

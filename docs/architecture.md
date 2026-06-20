@@ -86,6 +86,15 @@ The plugin ships a fully frontend-first UI on top of the `[talenttrack_dashboard
 
 Each view extends `FrontendViewBase` and delegates form save to a REST endpoint. List tables are rendered by `FrontendListTable`, which speaks the same orderby/filter/search contract as the REST controllers (see [REST API reference](rest-api.md)).
 
+### Sectioned tile grids (#1543)
+
+The Configuration-family views (Configuration, Lookups index, Modules, Export, Reports launcher) render a *curated, static* tile list grouped under headed sections. `\TT\Shared\Frontend\Components\FrontendSectionedTileGrid` is the shared presenter for that pattern:
+
+- `render( array $sections, array $args = [] )` — `$sections` is an ordered list of `[ 'label', 'tiles' => [ ['label','desc','url','icon'?,'cap'?], … ], 'render'? => callable ]`. Each section renders a small-caps heading + the `.tt-cfg-tile-grid`; a tile carrying a `cap` is dropped when the user lacks it (matrix-aware), and a section with no surviving tiles renders nothing. Pass a section `render` callable (or a global `$args['tile_renderer']`) to emit a custom per-tile shape — e.g. the Export view's `<details>` accordions.
+- `fromGroups( array $tiles, array $groups, string $leftover_label = '' )` — turns a flat curated list (each tile carrying a `slug`) into ordered sections by matching `$groups[]['slugs']`, with a trailing leftover bucket so a new tile is never silently dropped.
+
+This is for the static curated tile family only. The persona-dashboard tile system (`FrontendTileGrid` / `TileRegistry`) is dynamic/persona/entity-driven and stays separate, as does the wp-admin `add_submenu_page` separator logic in `AdminMenuRegistry`.
+
 The sticky `body.tt-theme-inherit` toggle (#0023) lets a host theme override the design tokens TalentTrack defines. Token contract is documented in [theme integration](theme-integration.md).
 
 ## Settings + lookups
