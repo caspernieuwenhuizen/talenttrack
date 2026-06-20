@@ -41,6 +41,7 @@ class FrontendConfigurationView extends FrontendViewBase {
         $config_label = __( 'Configuration', 'talenttrack' );
         if ( $sub !== '' ) {
             $sub_labels = [
+                'general'     => __( 'General', 'talenttrack' ),
                 'branding'    => __( 'Branding', 'talenttrack' ),
                 'theme'       => __( 'Theme & fonts', 'talenttrack' ),
                 'rating'      => __( 'Rating scale', 'talenttrack' ),
@@ -56,6 +57,11 @@ class FrontendConfigurationView extends FrontendViewBase {
         }
 
         switch ( $sub ) {
+            case 'general':
+                self::renderHeader( __( 'General', 'talenttrack' ) );
+                self::renderSubBackLink();
+                self::renderGeneralForm();
+                return;
             case 'branding':
                 self::renderHeader( __( 'Branding', 'talenttrack' ) );
                 self::renderSubBackLink();
@@ -1416,6 +1422,7 @@ class FrontendConfigurationView extends FrontendViewBase {
         // scannable at a glance like the wp-admin dashboard. Reuses the
         // existing IconRenderer SVG set; no new assets required.
         $frontend_tiles = [
+            'general'   => [ __( 'General', 'talenttrack' ),       __( 'Date notation, first day of the week, timezone and locale for the whole academy.', 'talenttrack' ), 'settings' ],
             'dashboard' => [ __( 'Default dashboard', 'talenttrack' ), __( 'Choose what every user sees on the dashboard root: the persona dashboard or the classic tile grid.', 'talenttrack' ), 'dashboard' ],
             'branding'  => [ __( 'Branding', 'talenttrack' ),     __( 'Academy name, logo, primary and secondary colours.', 'talenttrack' ), 'rate-card' ],
             'theme'     => [ __( 'Theme & fonts', 'talenttrack' ), __( 'Theme inheritance, display + body fonts and accent colours.', 'talenttrack' ), 'settings' ],
@@ -1719,6 +1726,100 @@ class FrontendConfigurationView extends FrontendViewBase {
             </div>
             <div class="tt-form-msg"></div>
         </form>
+        <?php
+        self::renderConfigJs( false );
+    }
+
+    /**
+     * #1481 — General settings: academy-wide date notation, first day of
+     * the week, timezone and locale. Save-only (settings sub-form, §6a
+     * wizard + Cancel exemption). Persists via POST /config like the
+     * other inline sub-forms; the keys are whitelisted in
+     * ConfigRestController::ALLOWED_KEYS.
+     */
+    private static function renderGeneralForm(): void {
+        $date_preset = QueryHelpers::get_config( \TT\Shared\Dates\TTDate::FORMAT_KEY, 'system' );
+        $week_start  = QueryHelpers::get_config( \TT\Shared\Dates\TTDate::WEEK_START_KEY, 'mon' );
+        $tz_current  = QueryHelpers::get_config( \TT\Shared\Dates\TTDate::TIMEZONE_KEY, '' );
+        if ( $tz_current === '' ) {
+            $opt        = get_option( 'timezone_string' );
+            $tz_current = is_string( $opt ) ? $opt : '';
+        }
+        $locale_current = QueryHelpers::get_config( \TT\Shared\Dates\TTDate::LOCALE_KEY, '' );
+        if ( $locale_current === '' ) {
+            $locale_current = (string) get_locale();
+        }
+
+        $preset_labels  = \TT\Shared\Dates\TTDate::presetLabels();
+        $preset_samples = \TT\Shared\Dates\TTDate::presetSamples();
+        $locales        = array_merge( [ 'en_US' ], (array) get_available_languages() );
+        $locales        = array_values( array_unique( $locales ) );
+        ?>
+        <form id="tt-config-form" data-tt-config-form="1" data-tt-config-sub="general">
+            <div class="tt-panel">
+                <div class="tt-field">
+                    <label class="tt-field-label" for="tt-cfg-date-format"><?php esc_html_e( 'Date notation', 'talenttrack' ); ?></label>
+                    <select id="tt-cfg-date-format" class="tt-input" name="config[tt_date_format]">
+                        <?php foreach ( $preset_labels as $slug => $label ) : ?>
+                            <option value="<?php echo esc_attr( $slug ); ?>" <?php selected( $date_preset, $slug ); ?>><?php echo esc_html( $label ); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <p class="tt-field-hint" style="margin-top:6px;">
+                        <?php esc_html_e( 'How dates are written across TalentTrack. Example with today’s date:', 'talenttrack' ); ?>
+                        <strong id="tt-cfg-date-preview"><?php echo esc_html( $preset_samples[ $date_preset ] ?? '' ); ?></strong>
+                    </p>
+                </div>
+
+                <div class="tt-field" style="margin-top:var(--tt-sp-3);">
+                    <label class="tt-field-label" for="tt-cfg-week-start"><?php esc_html_e( 'First day of the week', 'talenttrack' ); ?></label>
+                    <select id="tt-cfg-week-start" class="tt-input" name="config[tt_week_start]">
+                        <option value="mon" <?php selected( $week_start, 'mon' ); ?>><?php esc_html_e( 'Monday', 'talenttrack' ); ?></option>
+                        <option value="sun" <?php selected( $week_start, 'sun' ); ?>><?php esc_html_e( 'Sunday', 'talenttrack' ); ?></option>
+                    </select>
+                    <p class="tt-field-hint" style="margin-top:6px;">
+                        <?php esc_html_e( 'The day the team planner week grid starts on.', 'talenttrack' ); ?>
+                    </p>
+                </div>
+
+                <div class="tt-field" style="margin-top:var(--tt-sp-3);">
+                    <label class="tt-field-label" for="tt-cfg-timezone"><?php esc_html_e( 'Timezone', 'talenttrack' ); ?></label>
+                    <select id="tt-cfg-timezone" class="tt-input" name="config[tt_timezone]">
+                        <?php
+                        // wp_timezone_choice returns escaped <option> markup.
+                        echo wp_timezone_choice( $tz_current, get_user_locale() ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- core helper returns escaped option list.
+                        ?>
+                    </select>
+                </div>
+
+                <div class="tt-field" style="margin-top:var(--tt-sp-3);">
+                    <label class="tt-field-label" for="tt-cfg-locale"><?php esc_html_e( 'Locale', 'talenttrack' ); ?></label>
+                    <select id="tt-cfg-locale" class="tt-input" name="config[tt_locale]">
+                        <?php foreach ( $locales as $loc ) : ?>
+                            <option value="<?php echo esc_attr( (string) $loc ); ?>" <?php selected( $locale_current, $loc ); ?>><?php echo esc_html( (string) $loc ); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <p class="tt-field-hint" style="margin-top:6px;">
+                        <?php esc_html_e( 'Default language for date and number formatting. Only installed languages are listed.', 'talenttrack' ); ?>
+                    </p>
+                </div>
+            </div>
+            <div class="tt-form-actions" style="margin-top:16px;">
+                <?php echo FormSaveButton::render( [ 'label' => __( 'Save general settings', 'talenttrack' ) ] ); ?>
+            </div>
+            <div class="tt-form-msg"></div>
+        </form>
+        <script>
+        (function(){
+            var samples = <?php echo wp_json_encode( $preset_samples ); ?>;
+            var sel = document.getElementById('tt-cfg-date-format');
+            var out = document.getElementById('tt-cfg-date-preview');
+            if (sel && out) {
+                sel.addEventListener('change', function(){
+                    if (Object.prototype.hasOwnProperty.call(samples, sel.value)) out.textContent = samples[sel.value];
+                });
+            }
+        })();
+        </script>
         <?php
         self::renderConfigJs( false );
     }

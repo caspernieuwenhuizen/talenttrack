@@ -29,6 +29,7 @@ Pick a topic. Use the search box to find anything quickly.
 - [Evaluation categories and weights](eval-categories-weights.md)
 - [Custom fields](custom-fields.md)
 - [Configuration and branding](configuration-branding.md)
+- [Configuration — General](configuration-general.md)
 - [Access control](access-control.md)
 - [Usage statistics](usage-statistics.md)
 - [Account and licensing](license-and-account.md)

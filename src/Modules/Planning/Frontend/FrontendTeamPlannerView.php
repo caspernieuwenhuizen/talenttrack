@@ -563,9 +563,13 @@ class FrontendTeamPlannerView extends FrontendViewBase {
         } else {
             $ts = current_time( 'timestamp' );
         }
-        // Snap to Monday.
+        // #1481 — snap to the academy's configured first day of the week
+        // (Monday by default; Sunday when set in General settings).
         $dow = (int) gmdate( 'N', $ts ); // 1 (Mon) – 7 (Sun)
-        return gmdate( 'Y-m-d', $ts - ( $dow - 1 ) * DAY_IN_SECONDS );
+        $back = \TT\Shared\Dates\TTDate::weekStartsMonday()
+            ? ( $dow - 1 )   // days back to the most recent Monday
+            : ( $dow % 7 );  // days back to the most recent Sunday
+        return gmdate( 'Y-m-d', $ts - $back * DAY_IN_SECONDS );
     }
 
     /**
@@ -577,12 +581,12 @@ class FrontendTeamPlannerView extends FrontendViewBase {
         if ( $range === 'season' ) {
             $season = ( new SeasonsRepository() )->current();
             if ( $season !== null && ! empty( $season->start_date ) && ! empty( $season->end_date ) ) {
-                // Snap season window to whole weeks (Mon–Sun) so the
-                // grid lines up. Start = Monday on/before season start;
-                // end = Sunday on/after season end.
+                // Snap season window to whole weeks so the grid lines up.
+                // Start = first-day-of-week on/before season start; end =
+                // last-day-of-week on/after season end. #1481 — both ends
+                // follow the academy's configured week start (Mon or Sun).
                 $season_start = self::resolveWeekStart( (string) $season->start_date );
-                $end_dow      = (int) gmdate( 'N', strtotime( (string) $season->end_date ) );
-                $season_end   = gmdate( 'Y-m-d', strtotime( (string) $season->end_date ) + ( 7 - $end_dow ) * DAY_IN_SECONDS );
+                $season_end   = gmdate( 'Y-m-d', strtotime( self::resolveWeekStart( (string) $season->end_date ) . ' +6 days' ) );
                 $weeks        = (int) ceil( ( ( strtotime( $season_end ) - strtotime( $season_start ) ) / DAY_IN_SECONDS + 1 ) / 7 );
                 if ( $weeks < 1 ) $weeks = 1;
                 return [ $season_start, $season_end, $weeks, $season ];
