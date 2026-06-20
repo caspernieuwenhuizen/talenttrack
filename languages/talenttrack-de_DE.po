@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-20T06:23:13+00:00\n"
+"POT-Creation-Date: 2026-06-20T07:16:14+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -57,7 +57,7 @@ msgstr ""
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:322
 #: src/Modules/Players/Admin/PlayersPage.php:127
 #: src/Modules/Players/Admin/PlayersPage.php:398
-#: src/Shared/Frontend/DashboardShortcode.php:1173
+#: src/Shared/Frontend/DashboardShortcode.php:1183
 #: src/Shared/Frontend/FrontendConfigurationView.php:1935
 #: src/Shared/Frontend/FrontendPeopleManageView.php:274
 #: src/Shared/Frontend/FrontendRolesView.php:83
@@ -66,7 +66,7 @@ msgstr "Elternteil"
 
 #: database/migrations/0030_authorization_sprint_7_roles.php:54
 #: src/Modules/Authorization/Admin/MatrixPage.php:592
-#: src/Shared/Frontend/DashboardShortcode.php:1178
+#: src/Shared/Frontend/DashboardShortcode.php:1188
 msgid "Team Manager"
 msgstr ""
 
@@ -132,7 +132,7 @@ msgstr ""
 #: src/Shared/Frontend/Components/PlayerPickerComponent.php:33
 #: src/Shared/Frontend/Components/PlayerSearchPickerComponent.php:63
 #: src/Shared/Frontend/DashboardShortcode.php:105
-#: src/Shared/Frontend/DashboardShortcode.php:1172
+#: src/Shared/Frontend/DashboardShortcode.php:1182
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1671
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1682
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1783
@@ -141,11 +141,11 @@ msgstr ""
 #: src/Shared/Frontend/FrontendConfigurationView.php:1934
 #: src/Shared/Frontend/FrontendEvaluationsView.php:153
 #: src/Shared/Frontend/FrontendEvaluationsView.php:167
-#: src/Shared/Frontend/FrontendEvaluationsView.php:339
+#: src/Shared/Frontend/FrontendEvaluationsView.php:349
 #: src/Shared/Frontend/FrontendGoalsManageView.php:171
 #: src/Shared/Frontend/FrontendGoalsManageView.php:266
 #: src/Shared/Frontend/FrontendGoalsManageView.php:291
-#: src/Shared/Frontend/FrontendGoalsManageView.php:372
+#: src/Shared/Frontend/FrontendGoalsManageView.php:383
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:83
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:291
 #: src/Shared/Frontend/FrontendPlayersCsvImportView.php:116
@@ -178,7 +178,7 @@ msgstr "Spieler"
 #: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:95
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:154
 #: src/Shared/Frontend/FrontendEvaluationsView.php:155
-#: src/Shared/Frontend/FrontendEvaluationsView.php:352
+#: src/Shared/Frontend/FrontendEvaluationsView.php:362
 #: src/Shared/Frontend/FrontendPeopleManageView.php:267
 #: src/Shared/Frontend/FrontendReportDetailView.php:187
 #: src/Shared/Frontend/FrontendRolesView.php:67
@@ -200,7 +200,7 @@ msgstr "Trainer"
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:326
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:118
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:152
-#: src/Shared/Frontend/DashboardShortcode.php:1176
+#: src/Shared/Frontend/DashboardShortcode.php:1186
 #: src/Shared/Frontend/FrontendConfigurationView.php:1929
 #: src/Shared/Frontend/FrontendPeopleManageView.php:270
 #: src/Shared/Frontend/FrontendRolesView.php:59
@@ -334,7 +334,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:147
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:77
 #: src/Shared/Frontend/FrontendEvalCategoriesView.php:132
-#: src/Shared/Frontend/FrontendEvaluationsView.php:276
+#: src/Shared/Frontend/FrontendEvaluationsView.php:286
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:199
 #: src/Shared/Frontend/FrontendGoalsManageView.php:92
 #: src/Shared/Frontend/FrontendPersonDetailView.php:68
@@ -716,6 +716,8 @@ msgstr ""
 #: src/Modules/Wizards/Prospect/IdentityStep.php:122
 #: src/Shared/Admin/BulkActionsHelper.php:98
 #: src/Shared/Frontend/FrontendEvalCategoriesView.php:182
+#: src/Shared/Frontend/FrontendEvaluationsView.php:187
+#: src/Shared/Frontend/FrontendGoalsManageView.php:317
 #: src/Shared/Frontend/FrontendPeopleManageView.php:118
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1651
 #: src/Shared/Frontend/FrontendPlayersManageView.php:213
@@ -848,7 +850,7 @@ msgstr "Physiotherapeut"
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:150
 #: src/Modules/Reports/AudienceType.php:91
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:155
-#: src/Shared/Frontend/DashboardShortcode.php:1177
+#: src/Shared/Frontend/DashboardShortcode.php:1187
 #: src/Shared/Frontend/FrontendConfigurationView.php:1933
 #: src/Shared/Frontend/FrontendPeopleManageView.php:273
 #: src/Shared/Frontend/FrontendRolesView.php:71
@@ -896,7 +898,9 @@ msgstr "Andere"
 #: src/Modules/Trials/Repositories/TrialCasesRepository.php:55
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:259
 #: src/Shared/Admin/BulkActionsHelper.php:99
+#: src/Shared/Frontend/FrontendEvaluationsView.php:188
 #: src/Shared/Frontend/FrontendExportsView.php:124
+#: src/Shared/Frontend/FrontendGoalsManageView.php:318
 #: src/Shared/Frontend/FrontendPeopleManageView.php:119
 #: src/Shared/Frontend/FrontendPlayersManageView.php:214
 #: src/Shared/Frontend/FrontendTeamsManageView.php:154
@@ -918,7 +922,7 @@ msgstr "Vereins-Admin"
 #: src/Modules/Authorization/Admin/FunctionalRolesPage.php:317
 #: src/Modules/Authorization/Admin/MatrixPage.php:589
 #: src/Modules/Authorization/Admin/RolesPage.php:433
-#: src/Shared/Frontend/DashboardShortcode.php:1175
+#: src/Shared/Frontend/DashboardShortcode.php:1185
 msgid "Head Coach"
 msgstr "Cheftrainer"
 
@@ -928,7 +932,7 @@ msgstr "Cheftrainer"
 #: src/Modules/Authorization/Admin/FunctionalRolesPage.php:318
 #: src/Modules/Authorization/Admin/MatrixPage.php:588
 #: src/Modules/Authorization/Admin/RolesPage.php:434
-#: src/Shared/Frontend/DashboardShortcode.php:1174
+#: src/Shared/Frontend/DashboardShortcode.php:1184
 msgid "Assistant Coach"
 msgstr "Co-Trainer"
 
@@ -1325,7 +1329,7 @@ msgstr ""
 
 #: src/Infrastructure/REST/ActivityExercisesRestController.php:127
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:165
-#: src/Infrastructure/REST/GoalsRestController.php:449
+#: src/Infrastructure/REST/GoalsRestController.php:460
 #: src/Infrastructure/REST/LookupsRestController.php:229
 #: src/Modules/Trials/Rest/TrialsRestController.php:190
 msgid "No fields to update."
@@ -1456,42 +1460,42 @@ msgstr ""
 msgid "You can only request your own evaluations."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:442
+#: src/Infrastructure/REST/EvaluationsRestController.php:453
 msgid "Evaluation not found."
 msgstr ""
 
 # ===== v3.7.0 — #0019 Sprint 1 (session 1): REST expansion + flash scaffold =====
-#: src/Infrastructure/REST/EvaluationsRestController.php:452
+#: src/Infrastructure/REST/EvaluationsRestController.php:463
 msgid "Player and date are required."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:456
-#: src/Infrastructure/REST/EvaluationsRestController.php:518
+#: src/Infrastructure/REST/EvaluationsRestController.php:467
+#: src/Infrastructure/REST/EvaluationsRestController.php:529
 msgid "You can only evaluate players in your team."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:467
+#: src/Infrastructure/REST/EvaluationsRestController.php:478
 msgid "The evaluation could not be created."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:481
+#: src/Infrastructure/REST/EvaluationsRestController.php:492
 msgid "The evaluation was saved but some ratings failed."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:499
-#: src/Infrastructure/REST/EvaluationsRestController.php:588
+#: src/Infrastructure/REST/EvaluationsRestController.php:510
+#: src/Infrastructure/REST/EvaluationsRestController.php:599
 msgid "Invalid evaluation id."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:526
+#: src/Infrastructure/REST/EvaluationsRestController.php:537
 msgid "The evaluation could not be updated."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:568
+#: src/Infrastructure/REST/EvaluationsRestController.php:579
 msgid "The evaluation was updated but some ratings failed."
 msgstr ""
 
-#: src/Infrastructure/REST/EvaluationsRestController.php:610
+#: src/Infrastructure/REST/EvaluationsRestController.php:621
 msgid "The evaluation could not be archived."
 msgstr ""
 
@@ -1585,46 +1589,46 @@ msgstr ""
 msgid "The assignment could not be removed."
 msgstr ""
 
-#: src/Infrastructure/REST/GoalsRestController.php:327
+#: src/Infrastructure/REST/GoalsRestController.php:338
 msgid "Player and title are required."
 msgstr ""
 
-#: src/Infrastructure/REST/GoalsRestController.php:351
+#: src/Infrastructure/REST/GoalsRestController.php:362
 #: src/Shared/Frontend/FrontendTrialsManageView.php:126
 msgid "Player not found in your club."
 msgstr ""
 
-#: src/Infrastructure/REST/GoalsRestController.php:355
+#: src/Infrastructure/REST/GoalsRestController.php:366
 msgid "You can only set goals for players in your team."
 msgstr ""
 
-#: src/Infrastructure/REST/GoalsRestController.php:365
+#: src/Infrastructure/REST/GoalsRestController.php:376
 msgid "The goal could not be saved. The database rejected the operation."
 msgstr ""
 
-#: src/Infrastructure/REST/GoalsRestController.php:424
-#: src/Infrastructure/REST/GoalsRestController.php:485
-#: src/Infrastructure/REST/GoalsRestController.php:532
+#: src/Infrastructure/REST/GoalsRestController.php:435
+#: src/Infrastructure/REST/GoalsRestController.php:496
+#: src/Infrastructure/REST/GoalsRestController.php:543
 msgid "Invalid goal id."
 msgstr ""
 
-#: src/Infrastructure/REST/GoalsRestController.php:458
+#: src/Infrastructure/REST/GoalsRestController.php:469
 msgid "The goal could not be updated."
 msgstr ""
 
-#: src/Infrastructure/REST/GoalsRestController.php:489
+#: src/Infrastructure/REST/GoalsRestController.php:500
 msgid "Status is required."
 msgstr ""
 
-#: src/Infrastructure/REST/GoalsRestController.php:506
+#: src/Infrastructure/REST/GoalsRestController.php:517
 msgid "Only the player's head coach can approve or reject this goal."
 msgstr ""
 
-#: src/Infrastructure/REST/GoalsRestController.php:517
+#: src/Infrastructure/REST/GoalsRestController.php:528
 msgid "Status update failed."
 msgstr ""
 
-#: src/Infrastructure/REST/GoalsRestController.php:540
+#: src/Infrastructure/REST/GoalsRestController.php:551
 msgid "Goal delete failed."
 msgstr ""
 
@@ -2169,7 +2173,7 @@ msgstr "Filter"
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:277
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1458
 #: src/Shared/Frontend/FrontendEvaluationsView.php:152
-#: src/Shared/Frontend/FrontendEvaluationsView.php:316
+#: src/Shared/Frontend/FrontendEvaluationsView.php:326
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:57
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:82
 #: src/Shared/Frontend/FrontendStandardReportsView.php:287
@@ -2215,7 +2219,7 @@ msgstr "Datum"
 #: src/Shared/Frontend/CoachForms.php:485
 #: src/Shared/Frontend/CoachForms.php:551
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1423
-#: src/Shared/Frontend/FrontendGoalsManageView.php:388
+#: src/Shared/Frontend/FrontendGoalsManageView.php:399
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:58
 #: src/Shared/Frontend/FrontendTeamDetailView.php:423
 #: src/Shared/Frontend/FrontendTrialCaseView.php:427
@@ -2255,7 +2259,7 @@ msgstr "Titel"
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:95
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:147
 #: src/Shared/Frontend/FrontendEvaluationsView.php:172
-#: src/Shared/Frontend/FrontendEvaluationsView.php:336
+#: src/Shared/Frontend/FrontendEvaluationsView.php:346
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:59
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:84
 #: src/Shared/Frontend/FrontendPeopleManageView.php:100
@@ -2358,7 +2362,7 @@ msgstr "Typ"
 #: src/Shared/Frontend/FrontendGoalsManageView.php:181
 #: src/Shared/Frontend/FrontendGoalsManageView.php:270
 #: src/Shared/Frontend/FrontendGoalsManageView.php:296
-#: src/Shared/Frontend/FrontendGoalsManageView.php:407
+#: src/Shared/Frontend/FrontendGoalsManageView.php:418
 #: src/Shared/Frontend/FrontendMigrationsView.php:67
 #: src/Shared/Frontend/FrontendPeopleManageView.php:116
 #: src/Shared/Frontend/FrontendPersonDetailView.php:118
@@ -2473,7 +2477,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendComparisonView.php:354
 #: src/Shared/Frontend/FrontendEvaluationsView.php:154
 #: src/Shared/Frontend/FrontendEvaluationsView.php:162
-#: src/Shared/Frontend/FrontendEvaluationsView.php:345
+#: src/Shared/Frontend/FrontendEvaluationsView.php:355
 #: src/Shared/Frontend/FrontendExportsView.php:91
 #: src/Shared/Frontend/FrontendExportsView.php:107
 #: src/Shared/Frontend/FrontendExportsView.php:119
@@ -2506,7 +2510,6 @@ msgstr ""
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:186
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:194
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:285
-#: src/Shared/Frontend/FrontendUsageStatsView.php:145
 msgid "Team"
 msgstr "Team"
 
@@ -2706,7 +2709,7 @@ msgstr "— Alle —"
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1816
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1863
 #: src/Shared/Frontend/FrontendEvaluationsView.php:157
-#: src/Shared/Frontend/FrontendEvaluationsView.php:431
+#: src/Shared/Frontend/FrontendEvaluationsView.php:441
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:122
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:166
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1661
@@ -2957,7 +2960,6 @@ msgstr ""
 
 #: src/Modules/Analytics/AnalyticsModule.php:88
 #: src/Modules/CustomWidgets/DataSources/ActivitiesRecent.php:26
-#: src/Shared/Frontend/FrontendUsageStatsView.php:84
 msgid "Attendance %"
 msgstr ""
 
@@ -3009,8 +3011,8 @@ msgstr ""
 #: src/Shared/Frontend/FrontendEvaluationsView.php:44
 #: src/Shared/Frontend/FrontendEvaluationsView.php:94
 #: src/Shared/Frontend/FrontendEvaluationsView.php:115
-#: src/Shared/Frontend/FrontendEvaluationsView.php:244
-#: src/Shared/Frontend/FrontendEvaluationsView.php:256
+#: src/Shared/Frontend/FrontendEvaluationsView.php:254
+#: src/Shared/Frontend/FrontendEvaluationsView.php:266
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:156
 #: src/Shared/Frontend/FrontendReportDetailView.php:98
 #: src/Shared/Frontend/FrontendReportDetailView.php:188
@@ -3078,7 +3080,7 @@ msgstr "Ziele"
 #: src/Shared/Frontend/FrontendGoalsManageView.php:185
 #: src/Shared/Frontend/FrontendGoalsManageView.php:268
 #: src/Shared/Frontend/FrontendGoalsManageView.php:301
-#: src/Shared/Frontend/FrontendGoalsManageView.php:392
+#: src/Shared/Frontend/FrontendGoalsManageView.php:403
 #: src/Shared/Frontend/FrontendTrialCaseView.php:427
 msgid "Priority"
 msgstr "Priorität"
@@ -3341,14 +3343,14 @@ msgstr ""
 #: src/Modules/Vct/Frontend/FrontendVctSessionView.php:62
 #: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:29
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:36
-#: src/Shared/Frontend/DashboardShortcode.php:276
-#: src/Shared/Frontend/DashboardShortcode.php:413
-#: src/Shared/Frontend/DashboardShortcode.php:469
-#: src/Shared/Frontend/DashboardShortcode.php:617
-#: src/Shared/Frontend/DashboardShortcode.php:625
-#: src/Shared/Frontend/DashboardShortcode.php:823
-#: src/Shared/Frontend/DashboardShortcode.php:831
-#: src/Shared/Frontend/DashboardShortcode.php:839
+#: src/Shared/Frontend/DashboardShortcode.php:286
+#: src/Shared/Frontend/DashboardShortcode.php:423
+#: src/Shared/Frontend/DashboardShortcode.php:479
+#: src/Shared/Frontend/DashboardShortcode.php:627
+#: src/Shared/Frontend/DashboardShortcode.php:635
+#: src/Shared/Frontend/DashboardShortcode.php:833
+#: src/Shared/Frontend/DashboardShortcode.php:841
+#: src/Shared/Frontend/DashboardShortcode.php:849
 #: src/Shared/Frontend/FrontendAuditLogView.php:37
 #: src/Shared/Frontend/FrontendConfigurationView.php:29
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:22
@@ -3375,7 +3377,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendTrialCaseView.php:62
 #: src/Shared/Frontend/FrontendTrialsManageView.php:31
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:32
-#: src/Shared/Frontend/FrontendUsageStatsView.php:29
+#: src/Shared/Frontend/FrontendUsageStatsView.php:32
 #: src/Shared/Frontend/FrontendWizardsAdminView.php:28
 msgid "Not authorized"
 msgstr ""
@@ -3466,7 +3468,6 @@ msgstr ""
 #: src/Shared/Frontend/FrontendTeamsManageView.php:141
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:296
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:553
-#: src/Shared/Frontend/FrontendUsageStatsView.php:146
 msgid "Players"
 msgstr "Spieler"
 
@@ -3739,8 +3740,8 @@ msgstr ""
 #: src/Modules/People/Admin/PeoplePage.php:342
 #: src/Modules/Players/Admin/PlayersPage.php:410
 #: src/Modules/Translations/Admin/TranslationsConfigTab.php:68
-#: src/Shared/Frontend/FrontendGoalsManageView.php:436
-#: src/Shared/Frontend/FrontendGoalsManageView.php:458
+#: src/Shared/Frontend/FrontendGoalsManageView.php:447
+#: src/Shared/Frontend/FrontendGoalsManageView.php:469
 #: src/Shared/Frontend/FrontendPeopleManageView.php:185
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:171
 msgid "— None —"
@@ -4073,8 +4074,10 @@ msgstr ""
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:279
 #: src/Shared/Admin/BulkActionsHelper.php:169
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:208
-#: src/Shared/Frontend/FrontendEvaluationsView.php:282
+#: src/Shared/Frontend/FrontendEvaluationsView.php:185
+#: src/Shared/Frontend/FrontendEvaluationsView.php:292
 #: src/Shared/Frontend/FrontendGoalsManageView.php:116
+#: src/Shared/Frontend/FrontendGoalsManageView.php:315
 #: src/Shared/Frontend/FrontendPersonDetailView.php:74
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:418
 #: src/Shared/Frontend/FrontendTeamDetailView.php:77
@@ -4477,7 +4480,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendTeamsManageView.php:405
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:117
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:459
-#: src/Shared/Frontend/FrontendUsageStatsView.php:108
+#: src/Shared/Frontend/FrontendUsageStatsView.php:120
 msgid "Role"
 msgstr "Rolle"
 
@@ -4622,7 +4625,7 @@ msgstr "Schlüssel"
 #: src/Shared/Frontend/FrontendEvalCategoriesView.php:187
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:237
 #: src/Shared/Frontend/FrontendGoalsManageView.php:193
-#: src/Shared/Frontend/FrontendGoalsManageView.php:421
+#: src/Shared/Frontend/FrontendGoalsManageView.php:432
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:112
 msgid "Description"
 msgstr "Beschreibung"
@@ -5350,7 +5353,7 @@ msgid "Head of Dev"
 msgstr ""
 
 #: src/Modules/Authorization/Admin/MatrixPage.php:593
-#: src/Shared/Frontend/DashboardShortcode.php:1179
+#: src/Shared/Frontend/DashboardShortcode.php:1189
 msgid "Academy Admin"
 msgstr ""
 
@@ -5892,6 +5895,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:323
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:377
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:458
+#: src/Shared/Frontend/FrontendUsageStatsView.php:184
 msgid "User"
 msgstr "Benutzer"
 
@@ -7994,6 +7998,7 @@ msgstr "Bundesland"
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:394
 #: src/Modules/Development/IdeaType.php:55
 #: src/Modules/License/Admin/AccountPage.php:768
+#: src/Shared/Frontend/FrontendUsageStatsView.php:149
 msgid "Feature"
 msgstr ""
 
@@ -9079,7 +9084,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:104
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:84
 #: src/Modules/Wizards/Goal/DetailsStep.php:25
-#: src/Shared/Frontend/FrontendGoalsManageView.php:383
+#: src/Shared/Frontend/FrontendGoalsManageView.php:394
 msgid "Due date"
 msgstr ""
 
@@ -9103,7 +9108,7 @@ msgstr ""
 #: src/Modules/Tournaments/Wizard/MatchesStep.php:163
 #: src/Shared/Frontend/CoachDashboardView.php:198
 #: src/Shared/Frontend/CoachForms.php:192
-#: src/Shared/Frontend/FrontendEvaluationsView.php:365
+#: src/Shared/Frontend/FrontendEvaluationsView.php:375
 msgid "Opponent"
 msgstr "Gegner"
 
@@ -12049,7 +12054,7 @@ msgstr ""
 #: src/Shared/CoreSurfaceRegistration.php:1544
 #: src/Shared/CoreSurfaceRegistration.php:1731
 #: src/Shared/Frontend/CoachDashboardView.php:37
-#: src/Shared/Frontend/DashboardShortcode.php:1213
+#: src/Shared/Frontend/DashboardShortcode.php:1223
 #: src/Shared/Frontend/FrontendDocsView.php:103
 #: src/Shared/Frontend/PlayerDashboardView.php:51
 msgid "Help"
@@ -12777,7 +12782,7 @@ msgstr ""
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:290
 #: src/Shared/Frontend/CoachDashboardView.php:208
 #: src/Shared/Frontend/CoachForms.php:202
-#: src/Shared/Frontend/FrontendEvaluationsView.php:369
+#: src/Shared/Frontend/FrontendEvaluationsView.php:379
 msgid "Result"
 msgstr "Ergebnis"
 
@@ -12797,7 +12802,7 @@ msgstr "Auswärts"
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:406
 #: src/Shared/Frontend/CoachDashboardView.php:210
 #: src/Shared/Frontend/CoachForms.php:204
-#: src/Shared/Frontend/FrontendEvaluationsView.php:377
+#: src/Shared/Frontend/FrontendEvaluationsView.php:387
 msgid "Minutes Played"
 msgstr ""
 
@@ -12806,7 +12811,7 @@ msgstr ""
 #: src/Modules/Reports/AudienceDefaults.php:106
 #: src/Shared/Frontend/CoachDashboardView.php:212
 #: src/Shared/Frontend/CoachForms.php:206
-#: src/Shared/Frontend/FrontendEvaluationsView.php:384
+#: src/Shared/Frontend/FrontendEvaluationsView.php:394
 #: src/Shared/Frontend/FrontendStandardReportsView.php:809
 #: src/Shared/Frontend/PlayerDashboardView.php:109
 msgid "Ratings"
@@ -12885,14 +12890,14 @@ msgstr ""
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:227
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:326
 #: src/Shared/Frontend/FrontendComparisonView.php:637
-#: src/Shared/Frontend/FrontendEvaluationsView.php:391
+#: src/Shared/Frontend/FrontendEvaluationsView.php:401
 msgid "Category"
 msgstr "Kategorie"
 
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:791
 #: src/Modules/PersonaDashboard/Widgets/TeamOverviewGridWidget.php:147
 #: src/Modules/Wizards/Evaluation/HybridDeepRateStep.php:18
-#: src/Shared/Frontend/FrontendEvaluationsView.php:392
+#: src/Shared/Frontend/FrontendEvaluationsView.php:402
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:118
 #: src/Shared/Frontend/FrontendTeamBehaviourCaptureView.php:161
 msgid "Rating"
@@ -13255,7 +13260,7 @@ msgstr ""
 #: src/Modules/Stats/Admin/PlayerCardView.php:74
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:35
 #: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:533
-#: src/Shared/Frontend/DashboardShortcode.php:666
+#: src/Shared/Frontend/DashboardShortcode.php:676
 msgid "Player not found."
 msgstr ""
 
@@ -13471,7 +13476,7 @@ msgid "Due Date"
 msgstr "Fälligkeitsdatum"
 
 #: src/Modules/Goals/Admin/GoalsPage.php:157
-#: src/Shared/Frontend/FrontendGoalsManageView.php:434
+#: src/Shared/Frontend/FrontendGoalsManageView.php:445
 msgid "Linked principle"
 msgstr ""
 
@@ -13480,7 +13485,7 @@ msgid "Optional. Links this goal to a methodology principle."
 msgstr ""
 
 #: src/Modules/Goals/Admin/GoalsPage.php:181
-#: src/Shared/Frontend/FrontendGoalsManageView.php:456
+#: src/Shared/Frontend/FrontendGoalsManageView.php:467
 msgid "Linked football action"
 msgstr ""
 
@@ -13520,7 +13525,7 @@ msgstr "Drucken"
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:747
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:271
 #: src/Shared/Frontend/Components/GuestAddModal.php:48
-#: src/Shared/Frontend/DashboardShortcode.php:1218
+#: src/Shared/Frontend/DashboardShortcode.php:1228
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:114
 msgid "Close"
 msgstr "Schließen"
@@ -14009,11 +14014,13 @@ msgstr ""
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:342
 #: src/Shared/Admin/BulkActionsHelper.php:100
 #: src/Shared/Frontend/Components/FrontendListTable.php:271
+#: src/Shared/Frontend/FrontendEvaluationsView.php:189
 #: src/Shared/Frontend/FrontendExportsView.php:96
 #: src/Shared/Frontend/FrontendExportsView.php:125
 #: src/Shared/Frontend/FrontendExportsView.php:196
 #: src/Shared/Frontend/FrontendExportsView.php:240
 #: src/Shared/Frontend/FrontendExportsView.php:599
+#: src/Shared/Frontend/FrontendGoalsManageView.php:319
 #: src/Shared/Frontend/FrontendTrialsManageView.php:187
 #: src/Shared/Frontend/FrontendTrialsManageView.php:195
 msgid "All"
@@ -18260,7 +18267,7 @@ msgstr ""
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:917
 #: src/Shared/Frontend/Components/FrontendThreadView.php:52
 #: src/Shared/Frontend/FrontendGoalsManageView.php:204
-#: src/Shared/Frontend/FrontendGoalsManageView.php:499
+#: src/Shared/Frontend/FrontendGoalsManageView.php:510
 #: src/Shared/Frontend/FrontendMyGoalsView.php:152
 msgid "Conversation"
 msgstr "Unterhaltung"
@@ -18386,7 +18393,6 @@ msgid "Since %s"
 msgstr ""
 
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1130
-#: src/Shared/Frontend/FrontendUsageStatsView.php:224
 msgid "No evaluations in this window."
 msgstr ""
 
@@ -19483,8 +19489,8 @@ msgstr ""
 
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:378
 #: src/Shared/Frontend/Components/HelpDrawer.php:22
-#: src/Shared/Frontend/DashboardShortcode.php:1131
-#: src/Shared/Frontend/DashboardShortcode.php:1132
+#: src/Shared/Frontend/DashboardShortcode.php:1141
+#: src/Shared/Frontend/DashboardShortcode.php:1142
 msgid "Help & docs"
 msgstr ""
 
@@ -19562,7 +19568,6 @@ msgid "Evaluations this month"
 msgstr ""
 
 #: src/Modules/PersonaDashboard/Kpis/GoalCompletionPct.php:13
-#: src/Shared/Frontend/FrontendUsageStatsView.php:85
 msgid "Goal completion %"
 msgstr ""
 
@@ -20650,7 +20655,7 @@ msgstr ""
 #: src/Modules/PersonaDashboard/Widgets/TeamOverviewGridWidget.php:67
 #: src/Modules/Reports/Admin/ReportsPage.php:255
 #: src/Shared/Frontend/FrontendReportDetailView.php:166
-#: src/Shared/Frontend/FrontendUsageStatsView.php:71
+#: src/Shared/Frontend/FrontendUsageStatsView.php:83
 #, php-format
 msgid "Last %d days"
 msgstr ""
@@ -21680,8 +21685,8 @@ msgstr ""
 
 #: src/Modules/Reports/Frontend/FrontendScoutAccessView.php:30
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:35
-#: src/Shared/Frontend/DashboardShortcode.php:824
-#: src/Shared/Frontend/DashboardShortcode.php:832
+#: src/Shared/Frontend/DashboardShortcode.php:834
+#: src/Shared/Frontend/DashboardShortcode.php:842
 msgid "You need scout-management permission to view this page."
 msgstr ""
 
@@ -21746,6 +21751,7 @@ msgid "Sent"
 msgstr "Gesendet"
 
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:65
+#: src/Shared/Frontend/FrontendUsageStatsView.php:150
 msgid "Views"
 msgstr ""
 
@@ -21789,7 +21795,7 @@ msgid "Generated:"
 msgstr ""
 
 #: src/Modules/Reports/PlayerReportRenderer.php:146
-#: src/Shared/Frontend/FrontendUsageStatsView.php:63
+#: src/Shared/Frontend/FrontendUsageStatsView.php:75
 msgid "Period:"
 msgstr ""
 
@@ -22462,7 +22468,7 @@ msgid "— none —"
 msgstr ""
 
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:99
-#: src/Shared/Frontend/FrontendGoalsManageView.php:487
+#: src/Shared/Frontend/FrontendGoalsManageView.php:498
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:999
 msgid "Add goal"
 msgstr ""
@@ -22810,7 +22816,6 @@ msgstr ""
 
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:121
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:118
-#: src/Shared/Frontend/FrontendUsageStatsView.php:82
 msgid "Logins"
 msgstr ""
 
@@ -23066,6 +23071,7 @@ msgid "No inactive users — everyone has been active recently."
 msgstr ""
 
 #: src/Modules/Stats/Admin/UsageStatsPage.php:220
+#: src/Shared/Frontend/FrontendUsageStatsView.php:185
 msgid "Last login"
 msgstr "Letzte Anmeldung"
 
@@ -23643,7 +23649,7 @@ msgid ""
 msgstr ""
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:243
-#: src/Shared/Frontend/FrontendGoalsManageView.php:509
+#: src/Shared/Frontend/FrontendGoalsManageView.php:520
 #: src/Shared/Frontend/FrontendMyGoalsView.php:155
 msgid "How does this work?"
 msgstr ""
@@ -27365,7 +27371,7 @@ msgid "Security check failed. Please refresh the page and try again."
 msgstr ""
 
 #: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:126
-#: src/Shared/Frontend/DashboardShortcode.php:479
+#: src/Shared/Frontend/DashboardShortcode.php:489
 msgid "Task completed."
 msgstr ""
 
@@ -28273,8 +28279,8 @@ msgstr ""
 # 'Logins', 'Loading…', 'Help', 'Period:', 'Last %d days' already translated earlier in this file.
 #: src/Shared/CoreSurfaceRegistration.php:792
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:44
-#: src/Shared/Frontend/FrontendUsageStatsView.php:35
-#: src/Shared/Frontend/FrontendUsageStatsView.php:36
+#: src/Shared/Frontend/FrontendUsageStatsView.php:38
+#: src/Shared/Frontend/FrontendUsageStatsView.php:39
 msgid "Application KPIs"
 msgstr ""
 
@@ -28770,7 +28776,7 @@ msgstr ""
 
 #: src/Shared/Frontend/Components/FrontendListTable.php:129
 #: src/Shared/Frontend/DashboardShortcode.php:66
-#: src/Shared/Frontend/DashboardShortcode.php:1223
+#: src/Shared/Frontend/DashboardShortcode.php:1233
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:415
 #: src/Shared/Frontend/FrontendWizardView.php:286
 msgid "Loading…"
@@ -29033,44 +29039,44 @@ msgstr ""
 msgid "Check your email for a password reset link."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:277
+#: src/Shared/Frontend/DashboardShortcode.php:287
 msgid "You do not have access to this surface."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:281
+#: src/Shared/Frontend/DashboardShortcode.php:291
 msgid "Unknown section"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:282
+#: src/Shared/Frontend/DashboardShortcode.php:292
 msgid "Unknown section."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:414
+#: src/Shared/Frontend/DashboardShortcode.php:424
 msgid "This section is only available for users linked to a player record."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:455
+#: src/Shared/Frontend/DashboardShortcode.php:465
 msgid "Sign in required"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:456
+#: src/Shared/Frontend/DashboardShortcode.php:466
 #: src/Shared/Frontend/FrontendMySettingsView.php:43
 msgid "You need to be logged in to manage your settings."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:470
+#: src/Shared/Frontend/DashboardShortcode.php:480
 msgid "Your role does not have access to tasks."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:618
+#: src/Shared/Frontend/DashboardShortcode.php:628
 msgid "Your role does not have access to team chemistry boards."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:626
+#: src/Shared/Frontend/DashboardShortcode.php:636
 msgid "Your role does not have access to team blueprints."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:665
+#: src/Shared/Frontend/DashboardShortcode.php:675
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:191
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:194
 #: src/Shared/Frontend/FrontendPlayersManageView.php:66
@@ -29078,73 +29084,73 @@ msgstr ""
 msgid "Player not found"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:840
+#: src/Shared/Frontend/DashboardShortcode.php:850
 msgid "This area is for scout users."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1054
+#: src/Shared/Frontend/DashboardShortcode.php:1064
 msgid "Section unavailable"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1057
+#: src/Shared/Frontend/DashboardShortcode.php:1067
 msgid "This section is currently unavailable."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1060
+#: src/Shared/Frontend/DashboardShortcode.php:1070
 msgid ""
 "The administrator has temporarily turned off this part of TalentTrack. "
 "Please check back later, or ask your administrator if you need access."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1083
+#: src/Shared/Frontend/DashboardShortcode.php:1093
 msgid ""
 "TalentTrack is running in demo mode. Real club records are hidden until demo "
 "mode is turned off."
 msgstr ""
 
 # #0036 — dashboard polish (helper button + DEMO pill + logo toggle + tile scale)
-#: src/Shared/Frontend/DashboardShortcode.php:1110
+#: src/Shared/Frontend/DashboardShortcode.php:1120
 msgid "DEMO"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1147
+#: src/Shared/Frontend/DashboardShortcode.php:1157
 #: src/Shared/Frontend/FrontendMySettingsView.php:38
 #: src/Shared/Frontend/FrontendMySettingsView.php:39
 msgid "My settings"
 msgstr ""
 
 # v3.110.1 — #0086 Workstream B Child 2: session management UI
-#: src/Shared/Frontend/DashboardShortcode.php:1154
+#: src/Shared/Frontend/DashboardShortcode.php:1164
 #: src/Shared/Frontend/FrontendMySessionsView.php:26
 #: src/Shared/Frontend/FrontendMySessionsView.php:27
 msgid "My sessions"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1166
+#: src/Shared/Frontend/DashboardShortcode.php:1176
 msgid "View as"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1169
+#: src/Shared/Frontend/DashboardShortcode.php:1179
 msgid "All personas (default)"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1193
+#: src/Shared/Frontend/DashboardShortcode.php:1203
 msgid "Go to Admin"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1197
+#: src/Shared/Frontend/DashboardShortcode.php:1207
 msgid "Log out"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1215
+#: src/Shared/Frontend/DashboardShortcode.php:1225
 msgid "Open full Help & Docs"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1287
+#: src/Shared/Frontend/DashboardShortcode.php:1297
 msgid "You are viewing as"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1288
+#: src/Shared/Frontend/DashboardShortcode.php:1298
 msgid "Switch back to all personas"
 msgstr ""
 
@@ -29397,7 +29403,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendPersonDetailView.php:24
 #: src/Shared/Frontend/FrontendRolesView.php:28
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:33
-#: src/Shared/Frontend/FrontendUsageStatsView.php:30
+#: src/Shared/Frontend/FrontendUsageStatsView.php:33
 msgid "You do not have permission to view this section."
 msgstr ""
 
@@ -30540,13 +30546,13 @@ msgstr ""
 
 #: src/Shared/Frontend/FrontendEvaluationsView.php:68
 #: src/Shared/Frontend/FrontendEvaluationsView.php:71
-#: src/Shared/Frontend/FrontendEvaluationsView.php:243
-#: src/Shared/Frontend/FrontendEvaluationsView.php:246
+#: src/Shared/Frontend/FrontendEvaluationsView.php:253
+#: src/Shared/Frontend/FrontendEvaluationsView.php:256
 msgid "Evaluation not found"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendEvaluationsView.php:72
-#: src/Shared/Frontend/FrontendEvaluationsView.php:247
+#: src/Shared/Frontend/FrontendEvaluationsView.php:257
 msgid "That evaluation no longer exists, or you do not have access."
 msgstr ""
 
@@ -30557,46 +30563,46 @@ msgstr ""
 msgid "Average"
 msgstr "Durchschnitt"
 
-#: src/Shared/Frontend/FrontendEvaluationsView.php:183
+#: src/Shared/Frontend/FrontendEvaluationsView.php:193
 msgid "Search player, notes…"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendEvaluationsView.php:185
+#: src/Shared/Frontend/FrontendEvaluationsView.php:195
 msgid "No evaluations match your filters."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendEvaluationsView.php:189
+#: src/Shared/Frontend/FrontendEvaluationsView.php:199
 msgid "No evaluations yet"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendEvaluationsView.php:190
+#: src/Shared/Frontend/FrontendEvaluationsView.php:200
 msgid ""
 "Evaluations capture how each player performed in a training or match. Record "
 "the first one after your next activity."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendEvaluationsView.php:191
+#: src/Shared/Frontend/FrontendEvaluationsView.php:201
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1062
 msgid "Record first evaluation"
 msgstr ""
 
 #. translators: %s = player name
-#: src/Shared/Frontend/FrontendEvaluationsView.php:255
+#: src/Shared/Frontend/FrontendEvaluationsView.php:265
 #, php-format
 msgid "Evaluation — %s"
 msgstr ""
 
 #. translators: %s = player display name
-#: src/Shared/Frontend/FrontendEvaluationsView.php:260
+#: src/Shared/Frontend/FrontendEvaluationsView.php:270
 #, php-format
 msgid "Evaluation of %s"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendEvaluationsView.php:286
+#: src/Shared/Frontend/FrontendEvaluationsView.php:296
 msgid "Archive this evaluation? It will be hidden but the data is preserved."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendEvaluationsView.php:386
+#: src/Shared/Frontend/FrontendEvaluationsView.php:396
 msgid "No ratings recorded for this evaluation."
 msgstr ""
 
@@ -30942,38 +30948,38 @@ msgstr ""
 msgid "Due to"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:313
+#: src/Shared/Frontend/FrontendGoalsManageView.php:324
 msgid "Search title, description, player…"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:315
+#: src/Shared/Frontend/FrontendGoalsManageView.php:326
 msgid "No goals match your filters."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:319
+#: src/Shared/Frontend/FrontendGoalsManageView.php:330
 msgid "No goals yet"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:320
+#: src/Shared/Frontend/FrontendGoalsManageView.php:331
 msgid ""
 "Goals capture what each player is working on this season. Set the first one "
 "to give training a direction."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:321
+#: src/Shared/Frontend/FrontendGoalsManageView.php:332
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:973
 msgid "Add first goal"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:445
+#: src/Shared/Frontend/FrontendGoalsManageView.php:456
 msgid "Optional. Anchor this goal to a methodology principle."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:475
+#: src/Shared/Frontend/FrontendGoalsManageView.php:486
 msgid "Optional. Anchor this goal to a single football action."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:487
+#: src/Shared/Frontend/FrontendGoalsManageView.php:498
 msgid "Update goal"
 msgstr ""
 
@@ -31881,7 +31887,6 @@ msgstr ""
 
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:318
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:776
-#: src/Shared/Frontend/FrontendUsageStatsView.php:366
 msgid "Unassigned"
 msgstr ""
 
@@ -32725,6 +32730,30 @@ msgstr ""
 
 #: src/Shared/Frontend/FrontendReportsLauncherView.php:144
 msgid "Pick a report."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:165
+msgid "Development & performance"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:166
+msgid "Playing time"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:167
+msgid "Recruitment"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:168
+msgid "Staff & quality"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:169
+msgid "Season overview"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:196
+msgid "Other reports"
 msgstr ""
 
 # === #0014 Sprints 3+4+5 — Report generator + wizard + scout flow ===
@@ -34204,65 +34233,89 @@ msgstr ""
 msgid "No activity on this day."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendUsageStatsView.php:59
+#: src/Shared/Frontend/FrontendUsageStatsView.php:71
 msgid ""
 "Application-level KPIs over the selected window. Events older than 90 days "
 "are deleted automatically. No IP addresses or user agents are recorded."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendUsageStatsView.php:75
+#: src/Shared/Frontend/FrontendUsageStatsView.php:87
 msgid "Open in wp-admin"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendUsageStatsView.php:81
-#: src/Shared/Frontend/FrontendUsageStatsView.php:182
+#: src/Shared/Frontend/FrontendUsageStatsView.php:93
+#: src/Shared/Frontend/FrontendUsageStatsView.php:213
 msgid "Active users"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendUsageStatsView.php:83
-msgid "Evaluations / coach"
+#: src/Shared/Frontend/FrontendUsageStatsView.php:94
+msgid "Logins / user"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendUsageStatsView.php:95
+msgid "Stickiness (DAU/MAU)"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendUsageStatsView.php:96
+msgid "Avg session"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendUsageStatsView.php:97
+msgid "Time online (observed)"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendUsageStatsView.php:98
+msgid "Actions / user"
 msgstr ""
 
 #. translators: %d is the number of days
-#: src/Shared/Frontend/FrontendUsageStatsView.php:93
+#: src/Shared/Frontend/FrontendUsageStatsView.php:105
 #, php-format
 msgid "Daily active users (%d days)"
 msgstr ""
 
 #. translators: %d is the number of days
-#: src/Shared/Frontend/FrontendUsageStatsView.php:104
+#: src/Shared/Frontend/FrontendUsageStatsView.php:116
 #, php-format
 msgid "Active users by role (%d days)"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendUsageStatsView.php:109
+#: src/Shared/Frontend/FrontendUsageStatsView.php:121
 msgid "Users"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendUsageStatsView.php:132
-msgid "Players by team"
+#: src/Shared/Frontend/FrontendUsageStatsView.php:143
+msgid "Top features used"
 msgstr ""
 
-#. translators: %d active players
-#: src/Shared/Frontend/FrontendUsageStatsView.php:136
-#, php-format
-msgid "%d active players across the academy."
+#: src/Shared/Frontend/FrontendUsageStatsView.php:145
+msgid "No views recorded in this window yet."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendUsageStatsView.php:141
-msgid "No active players yet."
-msgstr ""
-
-#: src/Shared/Frontend/FrontendUsageStatsView.php:147
+#: src/Shared/Frontend/FrontendUsageStatsView.php:151
 msgid "Share"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendUsageStatsView.php:148
-msgid "Distribution"
+#. translators: %d is the number of days
+#: src/Shared/Frontend/FrontendUsageStatsView.php:177
+#, php-format
+msgid "Dormant users (no login in %d days)"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendUsageStatsView.php:221
-msgid "Top 5 most-evaluated"
+#: src/Shared/Frontend/FrontendUsageStatsView.php:180
+msgid "Everyone with an account has logged in recently."
+msgstr ""
+
+#. translators: %s is a number of minutes
+#: src/Shared/Frontend/FrontendUsageStatsView.php:253
+#, php-format
+msgid "%s min"
+msgstr ""
+
+#. translators: %s is a number of hours
+#: src/Shared/Frontend/FrontendUsageStatsView.php:259
+#, php-format
+msgid "%s h"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendViewBase.php:81
