@@ -66,6 +66,12 @@ Een afhankelijkheidsgrafiek + waarschuwings-UI staat op de v2-roadmap voor de Mo
 
 Elke module-statuswijziging schrijft een rij naar `tt_module_state` met de `updated_by` gebruikers-id en timestamp. Tot #0021 verschijnt en de audit-log viewer dit oppervlakt, is de rij het enige spoor.
 
+## Functies (schakelaars binnen een module)
+
+Onder de modulelijst kun je via **Functies** een afzonderlijke functie uitschakelen zonder de hele module uit te zetten.
+
+- **Analytics-verkenner** (standaard **uit**) — de ad-hoc Analytics-tegel en dimensie-/KPI-verkenner (`?tt_view=analytics`, `explore`, `scheduled-reports`). Uitzetten verbergt de tegel en die pagina's, maar de **analytics-engine blijft draaien** — de aanwezigheids-, speelminuten- en standaardrapporten plus de dashboard-KPI's werken gewoon, want die gebruiken de engine rechtstreeks, niet de verkenner-UI. Je kunt hem hier altijd weer aanzetten.
+
 ## Zie ook
 
 - [Authorisatie­matrix](authorization-matrix.md) — module-disable voedt de matrix-gate.

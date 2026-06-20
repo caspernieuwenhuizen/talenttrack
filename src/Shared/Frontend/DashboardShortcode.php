@@ -963,6 +963,10 @@ class DashboardShortcode {
     private static function dispatchAnalyticsExploreView( string $view, int $user_id, bool $is_admin ): bool {
         switch ( $view ) {
             case 'explore':
+                if ( ! \TT\Modules\Analytics\AnalyticsModule::explorerEnabled() ) {
+                    self::renderAnalyticsExplorerOff();
+                    return true;
+                }
                 \TT\Modules\Analytics\Frontend\FrontendExploreView::render( $user_id, $is_admin );
                 return true;
             default:
@@ -971,11 +975,27 @@ class DashboardShortcode {
     }
 
     /**
+     * #1484 — the ad-hoc Analytics Explorer is turned off. Render a
+     * friendly notice (with the canonical breadcrumb chain) instead of
+     * the explorer surface. The reports the engine feeds are unaffected.
+     */
+    private static function renderAnalyticsExplorerOff(): void {
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Analytics', 'talenttrack' ) );
+        echo '<p class="tt-notice">'
+            . esc_html__( 'The Analytics explorer is turned off. Your reports still work — find them under Reports. An administrator can re-enable the explorer under Modules.', 'talenttrack' )
+            . '</p>';
+    }
+
+    /**
      * #0083 Child 5 — central analytics surface.
      */
     private static function dispatchAnalyticsCentralView( string $view, int $user_id, bool $is_admin ): bool {
         switch ( $view ) {
             case 'analytics':
+                if ( ! \TT\Modules\Analytics\AnalyticsModule::explorerEnabled() ) {
+                    self::renderAnalyticsExplorerOff();
+                    return true;
+                }
                 \TT\Modules\Analytics\Frontend\FrontendAnalyticsView::render( $user_id, $is_admin );
                 return true;
             default:
@@ -1009,6 +1029,10 @@ class DashboardShortcode {
     private static function dispatchAnalyticsScheduleView( string $view, int $user_id, bool $is_admin ): bool {
         switch ( $view ) {
             case 'scheduled-reports':
+                if ( ! \TT\Modules\Analytics\AnalyticsModule::explorerEnabled() ) {
+                    self::renderAnalyticsExplorerOff();
+                    return true;
+                }
                 \TT\Modules\Analytics\Frontend\FrontendScheduledReportsView::render( $user_id, $is_admin );
                 return true;
             default:

@@ -32508,4 +32508,28 @@ msgstr ""
 msgid "%d missed"
 msgstr ""
 
+#: src/Modules/Authorization/Admin/ModulesPage.php
+msgid "Features"
+msgstr ""
+
+#: src/Modules/Authorization/Admin/ModulesPage.php
+msgid "Analytics explorer"
+msgstr ""
+
+#: src/Modules/Authorization/Admin/ModulesPage.php
+msgid "Toggle individual features without disabling their whole module."
+msgstr ""
+
+#: src/Modules/Authorization/Admin/ModulesPage.php
+msgid "The ad-hoc Analytics dashboard tile + dimension explorer. The analytics engine and the reports it feeds (attendance, minutes, standard reports, KPIs) keep working when this is off."
+msgstr ""
+
+#: src/Modules/Authorization/Admin/ModulesPage.php
+msgid "Save module & feature state"
+msgstr ""
+
+#: src/Modules/Authorization/Admin/ModulesPage.php
+msgid "The Analytics explorer is turned off. Your reports still work — find them under Reports. An administrator can re-enable the explorer under Modules."
+msgstr ""
+
 

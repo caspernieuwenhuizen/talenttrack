@@ -36938,6 +36938,30 @@ msgstr "Risicospelers (%d of meer gemist)"
 msgid "%d missed"
 msgstr "%d gemist"
 
+#: src/Modules/Authorization/Admin/ModulesPage.php
+msgid "Features"
+msgstr "Functies"
+
+#: src/Modules/Authorization/Admin/ModulesPage.php
+msgid "Analytics explorer"
+msgstr "Analytics-verkenner"
+
+#: src/Modules/Authorization/Admin/ModulesPage.php
+msgid "Toggle individual features without disabling their whole module."
+msgstr "Schakel afzonderlijke functies in of uit zonder de hele module uit te zetten."
+
+#: src/Modules/Authorization/Admin/ModulesPage.php
+msgid "The ad-hoc Analytics dashboard tile + dimension explorer. The analytics engine and the reports it feeds (attendance, minutes, standard reports, KPIs) keep working when this is off."
+msgstr "De ad-hoc Analytics-tegel + dimensieverkenner. De analytics-engine en de rapporten die hij voedt (aanwezigheid, speelminuten, standaardrapporten, KPI's) blijven werken als dit uitstaat."
+
+#: src/Modules/Authorization/Admin/ModulesPage.php
+msgid "Save module & feature state"
+msgstr "Module- en functiestatus opslaan"
+
+#: src/Modules/Authorization/Admin/ModulesPage.php
+msgid "The Analytics explorer is turned off. Your reports still work — find them under Reports. An administrator can re-enable the explorer under Modules."
+msgstr "De Analytics-verkenner staat uit. Je rapporten werken nog — die vind je onder Rapporten. Een beheerder kan de verkenner weer aanzetten onder Modules."
+
 #~ msgid "Create dashboard page"
 #~ msgstr "Dashboardpagina aanmaken"
 

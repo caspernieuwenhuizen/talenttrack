@@ -65,6 +65,12 @@ A dependency graph + warning UI is on the v2 roadmap for the Modules surface.
 
 Every module-state change writes a row to `tt_module_state` with the `updated_by` user id and timestamp. Until #0021 ships and the audit log viewer surfaces this, the row is the only trail.
 
+## Features (toggles within a module)
+
+Below the module list, **Features** lets you switch off an individual feature without disabling its whole module.
+
+- **Analytics explorer** (default **off**) — the ad-hoc Analytics dashboard tile and dimension/KPI explorer (`?tt_view=analytics`, `explore`, `scheduled-reports`). Turning it off hides the tile and those pages, but the **analytics engine keeps running** — the attendance, minutes and standard reports plus dashboard KPIs all still work, because they consume the engine directly, not the explorer UI. Re-enable it here any time.
+
 ## See also
 
 - [Authorization matrix](authorization-matrix.md) — module disable feeds into the matrix gate.
