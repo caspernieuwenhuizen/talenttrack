@@ -235,7 +235,13 @@ jobs:
           # time-on-task visit on the Application KPIs surface), the same
           # legitimate non-training-session sense as `browser session` /
           # `active sessions` above. Not the renamed-away training entity.
-          allow_phrases="earlier session|active sessions|browser session|session expired|possession|Possession|migrated from sessions|Activities \(Sessions\)|Sessions referencing|FrontendListTable\.php|sprintf|^\s*\*|impersonation session|My sessions\" tile destination|tt-report-sessions|sessions\.(view|manage)|session\.[a-z_]+|'sessions'\s+=>|'session'\s+=>|, +'sessions' \],?\$|'my-sessions'|My sessions|VCT session|VCT sessions|'vct-session'|vct-sessions|Avg session|per session"
+          # #1577 — `'icon' => 'sessions'` is an icon-asset slug (the
+          # calendar glyph reused by the Spond integration tile, added in
+          # #1532), not user-visible copy. The i18n regex over-matches the
+          # bare slug literal. FrontendConfigurationView is already excluded
+          # from the token grep above for `competition_type`; allow the icon
+          # slug here too.
+          allow_phrases="earlier session|active sessions|browser session|session expired|possession|Possession|migrated from sessions|Activities \(Sessions\)|Sessions referencing|FrontendListTable\.php|sprintf|^\s*\*|impersonation session|My sessions\" tile destination|tt-report-sessions|sessions\.(view|manage)|session\.[a-z_]+|'sessions'\s+=>|'session'\s+=>|, +'sessions' \],?\$|'my-sessions'|My sessions|VCT session|VCT sessions|'vct-session'|vct-sessions|Avg session|per session|'icon' *=> *'sessions'"
           i18n_hits=$(grep -rnE "$i18n_pattern" --include='*.php' src/ 2>/dev/null \
             | grep -vE "$allow_files" \
             | grep -vE "$allow_phrases" \
