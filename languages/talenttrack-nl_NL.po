@@ -38447,6 +38447,168 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid "Import from another install"
+msgstr "Importeren vanaf een andere installatie"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid ""
+"Upload a .ttmig file exported from another TalentTrack install to preview "
+"what it contains. This step only inspects the archive and reports what would "
+"be imported — it does not change any data yet."
+msgstr ""
+"Upload een .ttmig-bestand dat is geëxporteerd vanaf een andere TalentTrack-"
+"installatie om te bekijken wat het bevat. Deze stap inspecteert alleen het "
+"archief en rapporteert wat er geïmporteerd zou worden — er worden nog geen "
+"gegevens gewijzigd."
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid "Migration archive (.ttmig)"
+msgstr "Migratiearchief (.ttmig)"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+#, php-format
+msgid "Maximum %s. Larger datasets are a later phase."
+msgstr "Maximaal %s. Grotere datasets volgen in een latere fase."
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid "Preview import"
+msgstr "Import voorvertonen"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+#, php-format
+msgid ""
+"The file is larger than the %s upload limit. Importing larger datasets is a "
+"later phase."
+msgstr ""
+"Het bestand is groter dan de uploadlimiet van %s. Het importeren van grotere "
+"datasets volgt in een latere fase."
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid "No file was uploaded. Choose a .ttmig archive and try again."
+msgstr "Er is geen bestand geüpload. Kies een .ttmig-archief en probeer opnieuw."
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid "Import preview"
+msgstr "Importvoorbeeld"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid "The migration archive could not be read."
+msgstr "Het migratiearchief kon niet worden gelezen."
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+#, php-format
+msgid ""
+"Archive created %1$s on plugin version %2$s. Nothing below has been imported "
+"— this is a preview only."
+msgstr ""
+"Archief gemaakt op %1$s met plugin-versie %2$s. Niets hieronder is "
+"geïmporteerd — dit is alleen een voorbeeld."
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid "(unknown date)"
+msgstr "(datum onbekend)"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid "Nothing below has been imported — this is a preview only."
+msgstr "Niets hieronder is geïmporteerd — dit is alleen een voorbeeld."
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid "Contents"
+msgstr "Inhoud"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid "The archive contains no recognised data sets."
+msgstr "Het archief bevat geen herkende gegevenssets."
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid "Data set"
+msgstr "Gegevensset"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid "What would happen on import"
+msgstr "Wat er bij importeren zou gebeuren"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid ""
+"Incoming records are matched against this install by a stable key (not by id, "
+"which differs between installs). A match would be an update-or-insert choice "
+"in the interactive step; the rest would be inserted as new records."
+msgstr ""
+"Binnenkomende records worden op deze installatie gematcht op een stabiele "
+"sleutel (niet op id, dat verschilt tussen installaties). Een match wordt een "
+"keuze tussen bijwerken of toevoegen in de interactieve stap; de rest wordt "
+"als nieuwe records toegevoegd."
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid "No record-level data sets in this archive to compare."
+msgstr "Geen recordgegevenssets in dit archief om te vergelijken."
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid "Incoming"
+msgstr "Binnenkomend"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid "Match existing"
+msgstr "Komt overeen"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid "New"
+msgstr "Nieuw"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid "Matched on"
+msgstr "Gematcht op"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid ""
+"Applying the import — inserting these records with remapped ids, resolving "
+"matches, and linking WordPress users — is the next phase and is not available "
+"yet. No data has been changed."
+msgstr ""
+"Het toepassen van de import — deze records invoegen met hergemapte ids, "
+"matches oplossen en WordPress-gebruikers koppelen — is de volgende fase en is "
+"nog niet beschikbaar. Er zijn geen gegevens gewijzigd."
+
+#: src/Modules/Backup/MigrationImporter.php
+msgid ""
+"The file could not be read. It must be a .ttmig migration archive exported "
+"from another TalentTrack install."
+msgstr ""
+"Het bestand kon niet worden gelezen. Het moet een .ttmig-migratiearchief zijn "
+"dat is geëxporteerd vanaf een andere TalentTrack-installatie."
+
+#: src/Modules/Backup/MigrationImporter.php
+msgid ""
+"This is not a migration archive. On the source install use \"Export for "
+"migration\" to produce a .ttmig file."
+msgstr ""
+"Dit is geen migratiearchief. Gebruik op de broninstallatie \"Exporteren voor "
+"migratie\" om een .ttmig-bestand te maken."
+
+#: src/Modules/Backup/MigrationImporter.php
+msgid "The migration archive is missing its data tables."
+msgstr "Het migratiearchief mist zijn gegevenstabellen."
+
+#: src/Modules/Backup/MigrationImporter.php
+msgid ""
+"The migration archive failed its integrity check (checksum mismatch). It may "
+"be corrupted or have been edited."
+msgstr ""
+"Het migratiearchief is niet door zijn integriteitscontrole gekomen "
+"(controlegetal komt niet overeen). Het is mogelijk beschadigd of bewerkt."
+
+#: src/Modules/Backup/MigrationImporter.php
+#, php-format
+msgid ""
+"This archive was exported from version %1$s; this install runs %2$s. "
+"Importing across major versions may not line up — review the preview "
+"carefully."
+msgstr ""
+"Dit archief is geëxporteerd vanaf versie %1$s; deze installatie draait %2$s. "
+"Importeren tussen hoofdversies kan misschien niet aansluiten — bekijk het "
+"voorbeeld zorgvuldig."
+
 #~ msgid "Print (landscape A4)"
 #~ msgstr "Afdrukken (liggend A4)"
 
