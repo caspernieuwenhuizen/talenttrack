@@ -67,7 +67,7 @@ final class SetupStep implements WizardStepInterface {
         echo '<option value="0">' . esc_html__( '— pick a formation —', 'talenttrack' ) . '</option>';
         foreach ( (array) $templates as $tpl ) {
             echo '<option value="' . (int) $tpl->id . '" ' . selected( $current_template, (int) $tpl->id, false ) . '>'
-                . esc_html( (string) $tpl->name ) . '</option>';
+                . esc_html( \TT\Infrastructure\Query\LabelTranslator::formationName( (string) $tpl->name ) ) . '</option>'; // #1523 — localise the seeded formation name.
         }
         echo '</select></label>';
 

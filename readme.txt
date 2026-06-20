@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.26.4
+Stable tag: 4.26.5
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.26.5 — Blueprint formation picker: localise the formation names (closes #1523). On an nl_NL site the blueprint Formation pickers showed English names. A central translator (`LabelTranslator::formationName()`) already exists and the REST controller + match-prep view route through it, but the blueprint surfaces rendered the raw `tt_formation_templates.name` (English seed). Routed all three through the translator: the create-wizard dropdown ([SetupStep](src/Modules/Wizards/TeamBlueprint/SetupStep.php)), the editor toolbar dropdown ([FrontendTeamBlueprintsView](src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php)), and the wizard review row ([ReviewStep](src/Modules/Wizards/TeamBlueprint/ReviewStep.php)). The `(shape)` suffix stays literal. All eight seeded formation names already had Dutch translations (added in #1477), so no `.po` change was needed. Patch bump. (closes #1523) =
 
 = 4.26.4 — Blueprint canvas: stop the false "did not persist" error on every player assignment (closes #1524). Adding a player to a blueprint slot showed a browser error ("The server accepted the request but did not persist the assignment.") even though the player *was* saved — visible after a reload. The save succeeded server-side; the JS false-positived. `PUT /blueprints/{id}/assignment` returns the standard REST envelope `{ success, data: { ref, blueprint_chemistry, … }, errors }`, but [`saveAssignment()`](assets/js/components/blueprint-editor.js) read `data.ref` at the top level — always `undefined`, since the value is at `data.data.ref` — so the #1054 persistence guard threw on every successful save. The handler now unwraps the envelope once (`payload = env.data ?? env`), checks `payload.ref` for the persistence guard, and surfaces real server errors from `env.errors[0].message` on 4xx/5xx instead of a generic fallback. Audited the other blueprint-editor fetch callers: `clone` already reads `resp.data.id || resp.id`; the auto-save / clear / status handlers only check `r.ok` then reload (no payload read), so they were already envelope-safe. No new strings. Patch bump. (closes #1524) =
 
