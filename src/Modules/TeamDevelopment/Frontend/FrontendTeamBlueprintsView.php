@@ -657,6 +657,12 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
      * @return array{open:string,rotate:string}|null
      */
     private static function shareLinkUrls( array $bp ): ?array {
+        // #1537 — share links are gated behind the
+        // `team_blueprints_sharing` feature. When off, the overflow menu
+        // shows no share actions; blueprint editing is unaffected.
+        if ( ! \TT\Core\FeatureRegistry::isEnabled( 'team_blueprints_sharing' ) ) {
+            return null;
+        }
         $repo = new TeamBlueprintsRepository();
         $seed = $repo->ensureShareTokenSeed( (int) $bp['id'] );
         if ( $seed === '' ) return null;
@@ -679,6 +685,15 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
      * lineup table + chemistry headline + status pill, no comments.
      */
     public static function renderShared(): void {
+        // #1537 — public share links are gated behind the
+        // `team_blueprints_sharing` feature. The dispatcher already refuses
+        // the `team-blueprint-share` slug when off (FeatureRegistry::
+        // viewSlugDisabled), but guard here too so a direct call can't
+        // bypass it.
+        if ( ! \TT\Core\FeatureRegistry::isEnabled( 'team_blueprints_sharing' ) ) {
+            self::renderSharedNotFound();
+            return;
+        }
         $uuid  = isset( $_GET['id'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['id'] ) ) : '';
         $token = isset( $_GET['token'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['token'] ) ) : '';
         if ( $uuid === '' || $token === '' ) {
@@ -813,6 +828,10 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
      * for this blueprint immediately fails verification.
      */
     public static function handleRotateShareLink(): void {
+        // #1537 — rotation is meaningless when sharing is off.
+        if ( ! \TT\Core\FeatureRegistry::isEnabled( 'team_blueprints_sharing' ) ) {
+            wp_die( esc_html__( 'Blueprint sharing is turned off.', 'talenttrack' ), '', [ 'response' => 403 ] );
+        }
         if ( ! current_user_can( 'tt_manage_team_chemistry' ) ) {
             wp_die( esc_html__( 'You do not have permission to rotate the share link.', 'talenttrack' ), '', [ 'response' => 403 ] );
         }

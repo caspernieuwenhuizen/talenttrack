@@ -80,10 +80,17 @@ Sommige modules bezitten meerdere losse onderdelen. Met een **functievlag** zet 
 
 ### Functieschakelaars per module (`?tt_view=modules`, v4.23.0+)
 
-Op de frontend-Modulepagina verschijnt elke functie als een ingesprongen rij (↳) direct onder de bovenliggende module, met een eigen Aan/Uit-schakelaar. Een functie verschijnt alleen zolang de bovenliggende module aanstaat. Twee functies staan **standaard uit**:
+Op de frontend-Modulepagina verschijnt elke functie als een ingesprongen rij (↳) direct onder de bovenliggende module, met een eigen Aan/Uit-schakelaar. Een functie verschijnt alleen zolang de bovenliggende module aanstaat. De functies die **standaard uit** staan:
 
 - **Cohort-overgangen** (Journey-module, standaard **uit**) — de academie­brede zoekopdracht "vind spelers op journey-gebeurtenis + datumbereik" (`?tt_view=cohort-transitions`). Uitzetten verbergt de tegel, de pagina en de REST-route (`/journey/cohort-transitions`). De rest van Journey — spelers­tijdlijn, blessures, safeguarding-notities — blijft volledig beschikbaar.
 - **Teamchemie** (Team Development-module, standaard **uit**) — het formatiebord met voorgestelde XI en chemie-score (`?tt_view=team-chemistry`). Uitzetten verbergt de tegel, de pagina en de chemie-/koppel-/team-fit-REST-routes. De **Teamblauwdruk**-editor — die in dezelfde module zit en dezelfde capability deelt — blijft beschikbaar.
+- **Analytics-verkenner** (Analytics-module, standaard **uit**) — de ad-hoc verkenner voor KPI- en dimensievragen (`?tt_view=analytics`, `explore`, `scheduled-reports`). Zie de sectie hieronder voor wat blijft draaien als hij uitstaat. (Vanaf v4.30.0 is dit een `FeatureRegistry`-functie, beheerd op dezelfde frontend-Modulepagina als de andere, niet langer alleen op de wp-admin-pagina.)
+- **Eigen widgets** (Eigen widgets-module, standaard **uit**) — de bèta-bouwer voor eigen dashboardwidgets. Uitzetten slaat de hele moduleboot over — geen beheerpagina, geen REST-routes, geen tegel in het editorpalet — precies zoals de oude optie `tt_custom_widgets_enabled`. (Vanaf v4.30.0 is dit een `FeatureRegistry`-functie; de vorige optiewaarde wordt bij de upgrade meegenomen, zodat er niets verandert.)
+
+De functies die **standaard aan** staan (ze draaien vandaag al; uitzetten is een opt-out, dus academies die ze willen houden ze zonder iets te doen):
+
+- **Oefeningen uit foto halen** (Oefeningen-module, standaard **aan**) — de foto→oefening-AI-extractie (`POST /vision/extract`) en de bijbehorende vastleg-UI. Uitzetten laat de extractie-REST-route 403 teruggeven; de CRUD van de oefeningenbibliotheek blijft ongemoeid.
+- **Deellinks voor blauwdrukken** (Team Development-module, standaard **aan**) — openbare, alleen-lezen deellinks voor teamblauwdrukken (`?tt_view=team-blueprint-share`) en het genereren/roteren van de deel-URL. Uitzetten verbergt de deelacties in de blauwdruk-editor, laat de openbare deel-URL de melding "niet geldig" tonen en weigert de rotatie-actie; het bewerken van blauwdrukken blijft ongemoeid.
 
 Wat een uitgeschakelde functie doet, bij de volgende paginalading:
 
@@ -97,7 +104,7 @@ De status staat in `tt_feature_state` (met de `club_id` tenancy-steiger), plus `
 
 ### Analytics-verkenner
 
-- **Analytics-verkenner** (standaard **uit**, beheerd op de **wp-admin**-Modulepagina) — de ad-hoc Analytics-tegel en dimensie-/KPI-verkenner (`?tt_view=analytics`, `explore`, `scheduled-reports`). Uitzetten verbergt de tegel en die pagina's, maar de **analytics-engine blijft draaien** — de aanwezigheids-, speelminuten- en standaardrapporten plus de dashboard-KPI's werken gewoon, want die gebruiken de engine rechtstreeks, niet de verkenner-UI. Sinds v4.26.9 verbergt de schakelaar ook elke inline **Verkennen →**-link (spelerdetail, teamdetail, standaardrapporten, de prospects-per-scout-tegel op de rapportenstartpagina), zodat het uitzetten van de Verkenner geen verwijzingen naar een uitgeschakelde functie achterlaat. De activiteitendetailpagina toont helemaal geen Verkenner-rij meer.
+- **Analytics-verkenner** (standaard **uit**) — de ad-hoc Analytics-tegel en dimensie-/KPI-verkenner (`?tt_view=analytics`, `explore`, `scheduled-reports`). Vanaf v4.30.0 is dit een `FeatureRegistry`-functie, beheerd op de frontend-Modulepagina naast de andere (de wp-admin-Modulepagina werkt ook nog; beide schrijven dezelfde `tt_feature_state`-rij). Uitzetten verbergt de tegel en die pagina's, maar de **analytics-engine blijft draaien** — de aanwezigheids-, speelminuten- en standaardrapporten plus de dashboard-KPI's werken gewoon, want die gebruiken de engine rechtstreeks, niet de verkenner-UI. Sinds v4.26.9 verbergt de schakelaar ook elke inline **Verkennen →**-link (spelerdetail, teamdetail, standaardrapporten, de prospects-per-scout-tegel op de rapportenstartpagina), zodat het uitzetten van de Verkenner geen verwijzingen naar een uitgeschakelde functie achterlaat. De activiteitendetailpagina toont helemaal geen Verkenner-rij meer.
 
 ## Alleen-lezen status voor iedereen (`?tt_view=features`, v4.23.1+)
 

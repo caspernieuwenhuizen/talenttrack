@@ -63,7 +63,13 @@ final class VisionExtractRestController {
             [
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'extract' ],
-                'permission_callback' => static fn() => current_user_can( 'tt_edit_activities' ),
+                // #1537 — gated by the `exercises_vision_extraction` feature
+                // flag AND the real `tt_edit_activities` capability. When the
+                // feature is off the route returns 403, but the exercise
+                // library CRUD is untouched.
+                'permission_callback' => static fn() =>
+                    \TT\Core\FeatureRegistry::isEnabled( 'exercises_vision_extraction' )
+                    && current_user_can( 'tt_edit_activities' ),
             ],
         ] );
     }

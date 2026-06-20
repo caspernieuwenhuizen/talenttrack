@@ -72,6 +72,53 @@ class FeatureRegistry {
                 'view_slugs'      => [ 'team-chemistry' ],
                 'entities'        => [ 'team_chemistry' ],
             ],
+            // #1537 — the ad-hoc Analytics Explorer surface (#1484). The
+            // Analytics engine always runs; this only governs the
+            // operator-facing explorer + scheduled-reports views. Migrated
+            // from the `analytics_explorer_enabled` config flag; migration
+            // 0166 carries the existing on/off state forward.
+            'analytics_explorer' => [
+                'label'           => __( 'Analytics explorer', 'talenttrack' ),
+                'description'     => __( 'The ad-hoc explorer for building KPI and dimension queries. The standard reports and the analytics engine stay available when this is off.', 'talenttrack' ),
+                'module_class'    => 'TT\\Modules\\Analytics\\AnalyticsModule',
+                'default_enabled' => false,
+                'view_slugs'      => [ 'analytics', 'explore', 'scheduled-reports' ],
+                'entities'        => [],
+            ],
+            // #1537 — the Custom widgets builder (#0078). Migrated from the
+            // `tt_custom_widgets_enabled` option; migration 0166 carries the
+            // existing on/off state forward. Default off, matching the
+            // module's prior behaviour.
+            'custom_widgets' => [
+                'label'           => __( 'Custom widgets', 'talenttrack' ),
+                'description'     => __( 'The builder for bespoke dashboard widgets backed by custom data sources (beta).', 'talenttrack' ),
+                'module_class'    => 'TT\\Modules\\CustomWidgets\\CustomWidgetsModule',
+                'default_enabled' => false,
+                'view_slugs'      => [],
+                'entities'        => [ 'custom_widgets' ],
+            ],
+            // #1537 — photo-to-exercise AI extraction (#0016). Default ON to
+            // preserve current behaviour; academies opt out. The exercise
+            // library CRUD stays available when this is off.
+            'exercises_vision_extraction' => [
+                'label'           => __( 'Photo exercise extraction', 'talenttrack' ),
+                'description'     => __( 'Read a training plan photo and turn it into exercises with AI. The exercise library stays available when this is off.', 'talenttrack' ),
+                'module_class'    => 'TT\\Modules\\Exercises\\ExercisesModule',
+                'default_enabled' => true,
+                'view_slugs'      => [],
+                'entities'        => [],
+            ],
+            // #1537 — public blueprint share links (#0068). Default ON to
+            // preserve current behaviour; academies opt out. Blueprint
+            // editing stays available when this is off.
+            'team_blueprints_sharing' => [
+                'label'           => __( 'Blueprint share links', 'talenttrack' ),
+                'description'     => __( 'Public read-only share links for team blueprints. Blueprint editing stays available when this is off.', 'talenttrack' ),
+                'module_class'    => 'TT\\Modules\\TeamDevelopment\\TeamDevelopmentModule',
+                'default_enabled' => true,
+                'view_slugs'      => [ 'team-blueprint-share' ],
+                'entities'        => [],
+            ],
         ];
     }
 
