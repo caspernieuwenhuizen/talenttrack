@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.26.17
+Stable tag: 4.26.18
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.26.18 — Blueprint 3-4-3 (offensive diamond): move the back line off the goalkeeper (closes #1525). The seeded "Offensive 3-4-3 (diamond)" formation placed its back three at y=0.84/0.86/0.84 — only ~0.09 from the GK at y=0.95 — so the centre-back visually overlapped the keeper on the editor pitch. The back three move to y=0.80 (~0.15 clearance, matching the standard flat 3-4-3). Two parts: migration 0158 is corrected for fresh installs, and a new forward migration `0164_fix_offensive_343_back_line` rewrites the seeded row's `slots_json` on existing installs (only the back-three y values; guarded to the seeded system row so a club's hand-edited copy is never touched; idempotent). Other slots unchanged. Patch bump. (closes #1525) =
 
 = 4.26.17 — Single-step wizards: render full-width instead of squished into the rail column (closes #1514). The wizard chrome's desktop layout is a 2-column grid (220px step rail + 1fr form). For a single-step wizard `renderProgress()` returns early and emits no rail, so the lone form child landed in the 220px first column and was squished (match prep's one-step Availability flow was the visible case). `FrontendWizardView` now stamps `data-has-rail` on the layout wrapper, and the ≥720px CSS drops `[data-has-rail="0"]` to a single full-width column. Multi-step wizards are unchanged (rail left, form right); 360px mobile was already single-column. Patch bump. (closes #1514) =
 
