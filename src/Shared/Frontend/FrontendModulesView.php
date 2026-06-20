@@ -5,6 +5,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Core\ModuleRegistry;
 use TT\Core\FeatureRegistry;
+use TT\Shared\Modules\ModuleMetadata;
+use TT\Shared\Icons\IconRenderer;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\FormSaveButton;
 
@@ -149,6 +151,12 @@ class FrontendModulesView extends FrontendViewBase {
         }
 
         self::enqueueAssets();
+        wp_enqueue_style(
+            'tt-frontend-modules',
+            TT_PLUGIN_URL . 'assets/css/frontend-modules.css',
+            [ 'tt-frontend-mobile' ],
+            TT_VERSION
+        );
         FrontendBreadcrumbs::fromDashboard( __( 'Modules', 'talenttrack' ) );
         self::renderHeader( __( 'Modules', 'talenttrack' ) );
 
@@ -158,73 +166,130 @@ class FrontendModulesView extends FrontendViewBase {
                 . '</div>';
         }
 
-        $modules = ModuleRegistry::allWithState();
+        // Group every declared module under its category. Categories with
+        // no modules drop out. The render below is a pure composer — all
+        // state comes from ModuleRegistry / FeatureRegistry, all wording
+        // from ModuleMetadata (CLAUDE.md §4: no business logic in the view).
+        $categories = ModuleMetadata::categories();
+        $grouped    = array_fill_keys( array_keys( $categories ), [] );
+        foreach ( ModuleRegistry::allWithState() as $m ) {
+            $meta = ModuleMetadata::for( (string) $m['class'] );
+            $cat  = isset( $grouped[ $meta['category'] ] ) ? $meta['category'] : ModuleMetadata::CAT_ADVANCED;
+            $grouped[ $cat ][] = [ 'state' => $m, 'meta' => $meta ];
+        }
         ?>
-        <p style="max-width:680px;">
+        <p class="tt-modules-intro">
             <?php esc_html_e( 'Turn TalentTrack modules on or off. A disabled module registers no hooks, REST routes, pages, or capabilities until re-enabled. Core modules cannot be disabled.', 'talenttrack' ); ?>
         </p>
-        <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>"
+        <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="tt-modules-form"
               onsubmit="return confirm('<?php echo esc_js( __( 'Change active modules now? Disabling a module hides its surfaces immediately — reload other open tabs after saving.', 'talenttrack' ) ); ?>');">
             <?php wp_nonce_field( 'tt_modules_frontend_save', 'tt_nonce' ); ?>
             <input type="hidden" name="action" value="tt_modules_frontend_save" />
-            <div class="tt-table-wrap">
-                <table class="tt-table">
-                    <thead><tr>
-                        <th><?php esc_html_e( 'Module', 'talenttrack' ); ?></th>
-                        <th style="width:96px;"><?php esc_html_e( 'Enabled', 'talenttrack' ); ?></th>
-                    </tr></thead>
-                    <tbody>
-                    <?php foreach ( $modules as $m ) :
-                        $class     = (string) $m['class'];
-                        $enabled   = ! empty( $m['enabled'] );
-                        $always_on = ! empty( $m['always_on'] );
-                        $short     = self::shortName( $class );
-                        ?>
-                        <tr>
-                            <td>
-                                <strong><?php echo esc_html( $short ); ?></strong>
-                                <?php if ( $always_on ) : ?>
-                                    <span style="color:var(--tt-muted); font-size:11px; margin-left:6px;"><?php esc_html_e( '(core)', 'talenttrack' ); ?></span>
-                                <?php endif; ?>
-                                <div style="color:var(--tt-muted); font-size:11px;"><code><?php echo esc_html( $class ); ?></code></div>
-                            </td>
-                            <td>
-                                <label style="display:inline-flex; align-items:center; gap:6px; min-height:48px;">
-                                    <input type="checkbox" name="enabled[]" value="<?php echo esc_attr( $class ); ?>"
-                                        <?php checked( $enabled ); ?> <?php disabled( $always_on ); ?> />
-                                    <?php echo $enabled ? esc_html__( 'On', 'talenttrack' ) : esc_html__( 'Off', 'talenttrack' ); ?>
-                                </label>
-                            </td>
-                        </tr>
-                        <?php
-                        // #1485 — sub-feature toggles nested beneath their
-                        // parent module. Only meaningful while the module
-                        // is on; a disabled module hides its whole surface
-                        // so per-feature switches would be dead controls.
-                        $features = $enabled ? FeatureRegistry::forModule( $class ) : [];
-                        foreach ( $features as $f ) :
-                            $f_on = ! empty( $f['enabled'] );
+
+            <?php foreach ( $categories as $cat_key => $cat_label ) :
+                if ( empty( $grouped[ $cat_key ] ) ) continue;
+                ?>
+                <section class="tt-modules-cat" aria-labelledby="tt-cat-<?php echo esc_attr( $cat_key ); ?>">
+                    <h2 class="tt-modules-cat-title" id="tt-cat-<?php echo esc_attr( $cat_key ); ?>">
+                        <?php echo esc_html( $cat_label ); ?>
+                    </h2>
+                    <div class="tt-modules-grid">
+                        <?php foreach ( $grouped[ $cat_key ] as $entry ) :
+                            $class     = (string) $entry['state']['class'];
+                            $enabled   = ! empty( $entry['state']['enabled'] );
+                            $always_on = ! empty( $entry['state']['always_on'] );
+                            $meta      = $entry['meta'];
+                            $features  = $enabled ? FeatureRegistry::forModule( $class ) : [];
+                            $f_count   = count( $features );
                             ?>
-                            <tr class="tt-feature-row">
-                                <td style="padding-left:28px;">
-                                    <span aria-hidden="true" style="color:var(--tt-muted); margin-right:6px;">↳</span>
-                                    <strong><?php echo esc_html( (string) $f['label'] ); ?></strong>
-                                    <span style="color:var(--tt-muted); font-size:11px; margin-left:6px;"><?php esc_html_e( '(feature)', 'talenttrack' ); ?></span>
-                                    <div style="color:var(--tt-muted); font-size:12px; max-width:560px;"><?php echo esc_html( (string) $f['description'] ); ?></div>
-                                </td>
-                                <td>
-                                    <label style="display:inline-flex; align-items:center; gap:6px; min-height:48px;">
-                                        <input type="checkbox" name="features[]" value="<?php echo esc_attr( (string) $f['key'] ); ?>"
-                                            <?php checked( $f_on ); ?> />
-                                        <?php echo $f_on ? esc_html__( 'On', 'talenttrack' ) : esc_html__( 'Off', 'talenttrack' ); ?>
+                            <article class="tt-module-card<?php echo $enabled ? '' : ' is-off'; ?><?php echo $always_on ? ' is-core' : ''; ?>">
+                                <div class="tt-module-card-head">
+                                    <span class="tt-module-icon" aria-hidden="true">
+                                        <?php echo IconRenderer::render( (string) $meta['icon'], [ 'width' => 22, 'height' => 22 ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- inline SVG from a trusted local file. ?>
+                                    </span>
+                                    <div class="tt-module-card-titles">
+                                        <h3 class="tt-module-name"><?php echo esc_html( (string) $meta['label'] ); ?></h3>
+                                        <div class="tt-module-tags">
+                                            <span class="tt-tag tt-tag-type"><?php esc_html_e( 'Module', 'talenttrack' ); ?></span>
+                                            <?php if ( $always_on ) : ?>
+                                                <span class="tt-tag tt-tag-core"><?php esc_html_e( 'Core', 'talenttrack' ); ?></span>
+                                            <?php elseif ( $enabled ) : ?>
+                                                <span class="tt-tag tt-tag-on"><?php esc_html_e( 'On', 'talenttrack' ); ?></span>
+                                            <?php else : ?>
+                                                <span class="tt-tag tt-tag-off"><?php esc_html_e( 'Off', 'talenttrack' ); ?></span>
+                                            <?php endif; ?>
+                                            <?php if ( $f_count > 0 ) : ?>
+                                                <span class="tt-tag tt-tag-count">
+                                                    <?php
+                                                    printf(
+                                                        esc_html( _n( '%d feature', '%d features', $f_count, 'talenttrack' ) ),
+                                                        (int) $f_count
+                                                    );
+                                                    ?>
+                                                </span>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                    <label class="tt-module-toggle">
+                                        <span class="tt-screen-reader-text">
+                                            <?php
+                                            /* translators: %s: module name */
+                                            printf( esc_html__( 'Enable %s', 'talenttrack' ), esc_html( (string) $meta['label'] ) );
+                                            ?>
+                                        </span>
+                                        <input type="checkbox" name="enabled[]" value="<?php echo esc_attr( $class ); ?>"
+                                            <?php checked( $enabled ); ?> <?php disabled( $always_on ); ?> />
+                                        <span class="tt-switch" aria-hidden="true"></span>
                                     </label>
-                                </td>
-                            </tr>
+                                </div>
+
+                                <?php if ( $meta['description'] !== '' ) : ?>
+                                    <p class="tt-module-desc"><?php echo esc_html( (string) $meta['description'] ); ?></p>
+                                <?php endif; ?>
+
+                                <?php if ( $f_count > 0 ) : ?>
+                                    <details class="tt-module-features">
+                                        <summary class="tt-module-features-summary">
+                                            <?php
+                                            printf(
+                                                esc_html( _n( '%d feature', '%d features', $f_count, 'talenttrack' ) ),
+                                                (int) $f_count
+                                            );
+                                            ?>
+                                        </summary>
+                                        <ul class="tt-feature-list">
+                                        <?php foreach ( $features as $f ) :
+                                            $f_on  = ! empty( $f['enabled'] );
+                                            $f_lbl = (string) $f['label'];
+                                            ?>
+                                            <li class="tt-feature-item">
+                                                <div class="tt-feature-titles">
+                                                    <span class="tt-feature-name"><?php echo esc_html( $f_lbl ); ?></span>
+                                                    <span class="tt-tag tt-tag-feature"><?php esc_html_e( 'Feature', 'talenttrack' ); ?></span>
+                                                    <p class="tt-feature-desc"><?php echo esc_html( (string) $f['description'] ); ?></p>
+                                                </div>
+                                                <label class="tt-module-toggle tt-feature-toggle">
+                                                    <span class="tt-screen-reader-text">
+                                                        <?php
+                                                        /* translators: %s: feature name */
+                                                        printf( esc_html__( 'Enable %s', 'talenttrack' ), esc_html( $f_lbl ) );
+                                                        ?>
+                                                    </span>
+                                                    <input type="checkbox" name="features[]" value="<?php echo esc_attr( (string) $f['key'] ); ?>"
+                                                        <?php checked( $f_on ); ?> />
+                                                    <span class="tt-switch" aria-hidden="true"></span>
+                                                </label>
+                                            </li>
+                                        <?php endforeach; ?>
+                                        </ul>
+                                    </details>
+                                <?php endif; ?>
+                            </article>
                         <?php endforeach; ?>
-                    <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
+                    </div>
+                </section>
+            <?php endforeach; ?>
+
             <?php
             echo FormSaveButton::render( [
                 'label'      => __( 'Save module state', 'talenttrack' ),
@@ -307,11 +372,5 @@ class FrontendModulesView extends FrontendViewBase {
 
     private static function dashboardUrl(): string {
         return \TT\Shared\Frontend\Components\RecordLink::dashboardUrl();
-    }
-
-    private static function shortName( string $class ): string {
-        $parts = explode( '\\', $class );
-        $last  = (string) end( $parts );
-        return preg_replace( '/Module$/', '', $last ) ?: $last;
     }
 }

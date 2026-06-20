@@ -33291,3 +33291,321 @@ msgstr ""
 #: src/Modules/Vct/Frontend/FrontendVctSessionView.php:241
 msgid "Publishing links this training to a team activity. If an activity already exists at this date and time, you'll be asked whether to reuse it or create a new one."
 msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Player data"
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Coaching & development"
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Planning & match day"
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Analytics & reporting"
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Advanced / developer"
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Authentication"
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Sign-in, sign-out and login handling. The product is unreachable without it."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Academy settings, lookups and branding that most other modules read from."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "The permission matrix that decides who can see and do what across the academy."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Licensing"
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Subscription and monetization checks. Leave on for live academies."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Scheduled exports of academy data so nothing is lost between seasons."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Invite coaches, players and parents to their own account in the academy."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "First-run setup guidance that helps a new academy get started quickly."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Editable wording for the interface so each academy reads in its own language."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Multilingual content"
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Translate academy data rows — lookups, categories and roles — into multiple languages."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Starter data review"
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Export, edit and re-import the starter lists shipped with a new academy."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Two-step verification"
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Optional extra sign-in check that protects accounts holding sensitive player data."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Login security"
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Records failed sign-in attempts so suspicious activity is visible in the audit log."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "The player record at the centre of the academy — profile, contacts and history."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Tracks where each player stands — trialling, signed, on loan, released or graduated."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Coaches, scouts, physios and parents linked to the players they support."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Age-group squads players belong to, with rosters and staff assignments."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "The chronological timeline of every player — trial, signing, injuries and key transitions."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Trials and outcomes for players being assessed before a signing decision."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "The recruitment pipeline of players being scouted before they enter the academy."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Dated player assessments that build a picture of progress over months and seasons."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Individual development goals set for and with each player."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Personal development plans"
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Structured development plans that turn assessments and goals into a player roadmap."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Development insights"
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Cross-cutting development views that show where each player is heading next."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "The academy playing philosophy and curriculum that coaching is measured against."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Team blueprints and formation planning that frame how players develop together."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Coach growth tracking, so the people developing players keep developing too."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "A library of training exercises coaches draw on when planning training."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Conditioning training (VCT)"
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Age-aware conditioning-training planner for U10–U14 with workload safeguards."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Training activities and matches, with attendance and the minutes each player gets."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Planning calendar"
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "A shared calendar that lays out each team's activities and fixtures across the season."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Academy-wide holiday calendar that warns planners when activities fall on a break."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Plan tournament squads and balance the minutes players get across the day."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Match preparation"
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Head-coach match plan — line-up, availability and the printable team sheet."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Live match-day surface for the assistant coach to record minutes and events."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Conversation threads between coaches, players and parents about a player."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Notifications"
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Outbound email and notifications, with opt-out, quiet hours and rate limiting."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Push notifications"
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Browser and device push alerts for time-sensitive academy updates."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Standard player and team reports — attendance, minutes and development summaries."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Statistics"
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Player and team statistics, including the player card summary figures."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "The analytics engine plus the optional explorer for ad-hoc KPI and dimension queries."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Download academy data as CSV, JSON or calendar files for use elsewhere."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Connects to Spond so team scheduling and availability stay in sync."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Admin Center link"
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Connects this academy to the central TalentTrack Admin Center for support and updates."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Onboarding"
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Documentation"
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Exercises"
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Workflow"
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Automated task templates and scheduled background work across the academy."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Setup wizards"
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Guided step-by-step flows for creating players, teams and other records."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Personal dashboards"
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Role-tailored dashboard layouts so each persona lands on what matters to them."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "A builder for bespoke dashboard widgets backed by custom data sources (beta)."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Inject site-specific styling without editing the plugin."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "In-product help pages and admin guides built into the dashboard."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Generates sample players and teams for demos and testing — turn off in production."
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Core"
+msgstr ""
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Enable %s"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendModulesView.php
+msgid "%d feature"
+msgid_plural "%d features"
+msgstr[0] ""
+msgstr[1] ""

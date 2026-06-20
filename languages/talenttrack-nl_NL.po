@@ -39681,3 +39681,321 @@ msgstr "Publiceren koppelt deze training aan een teamactiviteit. Als er op deze 
 
 #~ msgid "Annuleren"
 #~ msgstr "Annuleren"
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Player data"
+msgstr "Spelersgegevens"
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Coaching & development"
+msgstr "Coaching & ontwikkeling"
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Planning & match day"
+msgstr "Planning & wedstrijddag"
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Analytics & reporting"
+msgstr "Analyse & rapportage"
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Advanced / developer"
+msgstr "Geavanceerd / ontwikkelaar"
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Authentication"
+msgstr "Authenticatie"
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Sign-in, sign-out and login handling. The product is unreachable without it."
+msgstr "Aan- en afmelden en aanmeldbeheer. Zonder deze module is het product onbereikbaar."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Academy settings, lookups and branding that most other modules read from."
+msgstr "Academie-instellingen, keuzelijsten en huisstijl waar de meeste andere modules uit lezen."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "The permission matrix that decides who can see and do what across the academy."
+msgstr "De rechtenmatrix die bepaalt wie binnen de academie wat mag zien en doen."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Licensing"
+msgstr "Licenties"
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Subscription and monetization checks. Leave on for live academies."
+msgstr "Abonnements- en betalingscontroles. Laat dit aan staan voor live academies."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Scheduled exports of academy data so nothing is lost between seasons."
+msgstr "Geplande exports van academiegegevens, zodat er tussen seizoenen niets verloren gaat."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Invite coaches, players and parents to their own account in the academy."
+msgstr "Nodig trainers, spelers en ouders uit voor hun eigen account in de academie."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "First-run setup guidance that helps a new academy get started quickly."
+msgstr "Begeleiding bij de eerste configuratie, zodat een nieuwe academie snel van start gaat."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Editable wording for the interface so each academy reads in its own language."
+msgstr "Aanpasbare teksten voor de interface, zodat elke academie in de eigen taal leest."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Multilingual content"
+msgstr "Meertalige inhoud"
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Translate academy data rows — lookups, categories and roles — into multiple languages."
+msgstr "Vertaal gegevensrijen van de academie — keuzelijsten, categorieën en rollen — naar meerdere talen."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Starter data review"
+msgstr "Startgegevens controleren"
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Export, edit and re-import the starter lists shipped with a new academy."
+msgstr "Exporteer, bewerk en importeer opnieuw de startlijsten die bij een nieuwe academie horen."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Two-step verification"
+msgstr "Verificatie in twee stappen"
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Optional extra sign-in check that protects accounts holding sensitive player data."
+msgstr "Optionele extra aanmeldcontrole die accounts met gevoelige spelersgegevens beschermt."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Login security"
+msgstr "Aanmeldbeveiliging"
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Records failed sign-in attempts so suspicious activity is visible in the audit log."
+msgstr "Registreert mislukte aanmeldpogingen, zodat verdachte activiteit zichtbaar is in het auditlogboek."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "The player record at the centre of the academy — profile, contacts and history."
+msgstr "Het spelersdossier dat centraal staat in de academie — profiel, contacten en historie."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Tracks where each player stands — trialling, signed, on loan, released or graduated."
+msgstr "Houdt bij waar elke speler staat — op proef, getekend, verhuurd, vertrokken of doorgestroomd."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Coaches, scouts, physios and parents linked to the players they support."
+msgstr "Trainers, scouts, fysiotherapeuten en ouders, gekoppeld aan de spelers die zij begeleiden."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Age-group squads players belong to, with rosters and staff assignments."
+msgstr "De leeftijdsteams waartoe spelers behoren, met selecties en stafindelingen."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "The chronological timeline of every player — trial, signing, injuries and key transitions."
+msgstr "De chronologische tijdlijn van elke speler — proef, ondertekening, blessures en belangrijke overgangen."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Trials and outcomes for players being assessed before a signing decision."
+msgstr "Proeven en uitkomsten voor spelers die worden beoordeeld vóór een tekenbeslissing."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "The recruitment pipeline of players being scouted before they enter the academy."
+msgstr "De wervingspijplijn van spelers die gescout worden voordat ze de academie binnenkomen."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Dated player assessments that build a picture of progress over months and seasons."
+msgstr "Gedateerde spelersbeoordelingen die een beeld vormen van de voortgang over maanden en seizoenen."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Individual development goals set for and with each player."
+msgstr "Individuele ontwikkeldoelen die voor en samen met elke speler worden opgesteld."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Personal development plans"
+msgstr "Persoonlijke ontwikkelplannen"
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Structured development plans that turn assessments and goals into a player roadmap."
+msgstr "Gestructureerde ontwikkelplannen die beoordelingen en doelen omzetten in een routekaart voor de speler."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Development insights"
+msgstr "Ontwikkelinzichten"
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Cross-cutting development views that show where each player is heading next."
+msgstr "Overkoepelende ontwikkeloverzichten die laten zien welke kant elke speler op gaat."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "The academy playing philosophy and curriculum that coaching is measured against."
+msgstr "De speelfilosofie en het curriculum van de academie waaraan de coaching wordt afgemeten."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Team blueprints and formation planning that frame how players develop together."
+msgstr "Teamblauwdrukken en opstellingsplanning die bepalen hoe spelers samen groeien."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Coach growth tracking, so the people developing players keep developing too."
+msgstr "Het volgen van trainersgroei, zodat de mensen die spelers ontwikkelen zelf ook blijven groeien."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "A library of training exercises coaches draw on when planning training."
+msgstr "Een bibliotheek met trainingsoefeningen waaruit trainers putten bij het plannen van trainingen."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Conditioning training (VCT)"
+msgstr "Conditietraining (VCT)"
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Age-aware conditioning-training planner for U10–U14 with workload safeguards."
+msgstr "Leeftijdsbewuste conditietrainingsplanner voor O10–O14 met belastingsbewaking."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Training activities and matches, with attendance and the minutes each player gets."
+msgstr "Trainingen en wedstrijden, met aanwezigheid en de speelminuten van elke speler."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Planning calendar"
+msgstr "Planningskalender"
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "A shared calendar that lays out each team's activities and fixtures across the season."
+msgstr "Een gedeelde kalender die de activiteiten en wedstrijden van elk team over het seizoen weergeeft."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Academy-wide holiday calendar that warns planners when activities fall on a break."
+msgstr "Academiebrede vakantiekalender die planners waarschuwt als activiteiten in een vakantie vallen."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Plan tournament squads and balance the minutes players get across the day."
+msgstr "Plan toernooiselecties en verdeel de speelminuten eerlijk over de dag."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Match preparation"
+msgstr "Wedstrijdvoorbereiding"
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Head-coach match plan — line-up, availability and the printable team sheet."
+msgstr "Wedstrijdplan voor de hoofdtrainer — opstelling, beschikbaarheid en het afdrukbare wedstrijdformulier."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Live match-day surface for the assistant coach to record minutes and events."
+msgstr "Live wedstrijddagscherm waarop de assistent-trainer minuten en gebeurtenissen vastlegt."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Conversation threads between coaches, players and parents about a player."
+msgstr "Gespreksdraden tussen trainers, spelers en ouders over een speler."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Notifications"
+msgstr "Meldingen"
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Outbound email and notifications, with opt-out, quiet hours and rate limiting."
+msgstr "Uitgaande e-mail en meldingen, met afmeldoptie, stille uren en snelheidsbegrenzing."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Push notifications"
+msgstr "Pushmeldingen"
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Browser and device push alerts for time-sensitive academy updates."
+msgstr "Push-meldingen op browser en apparaat voor tijdgevoelige academie-updates."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Standard player and team reports — attendance, minutes and development summaries."
+msgstr "Standaardrapporten voor spelers en teams — aanwezigheid, minuten en ontwikkelsamenvattingen."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Statistics"
+msgstr "Statistieken"
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Player and team statistics, including the player card summary figures."
+msgstr "Speler- en teamstatistieken, inclusief de samenvattende cijfers op de spelerskaart."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "The analytics engine plus the optional explorer for ad-hoc KPI and dimension queries."
+msgstr "De analysemotor plus de optionele verkenner voor ad-hoc KPI- en dimensievragen."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Download academy data as CSV, JSON or calendar files for use elsewhere."
+msgstr "Download academiegegevens als CSV-, JSON- of kalenderbestanden voor gebruik elders."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Connects to Spond so team scheduling and availability stay in sync."
+msgstr "Koppelt aan Spond zodat teamplanning en beschikbaarheid gesynchroniseerd blijven."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Admin Center link"
+msgstr "Koppeling met Admin Center"
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Connects this academy to the central TalentTrack Admin Center for support and updates."
+msgstr "Verbindt deze academie met het centrale TalentTrack Admin Center voor ondersteuning en updates."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Onboarding"
+msgstr "Onboarding"
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Documentation"
+msgstr "Documentatie"
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Exercises"
+msgstr "Oefeningen"
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Workflow"
+msgstr "Workflow"
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Automated task templates and scheduled background work across the academy."
+msgstr "Geautomatiseerde taaksjablonen en geplande achtergrondtaken binnen de hele academie."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Setup wizards"
+msgstr "Configuratiewizards"
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Guided step-by-step flows for creating players, teams and other records."
+msgstr "Begeleide stapsgewijze flows voor het aanmaken van spelers, teams en andere records."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Personal dashboards"
+msgstr "Persoonlijke dashboards"
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Role-tailored dashboard layouts so each persona lands on what matters to them."
+msgstr "Op de rol afgestemde dashboardindelingen, zodat elke persona ziet wat er voor hen toe doet."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "A builder for bespoke dashboard widgets backed by custom data sources (beta)."
+msgstr "Een bouwer voor dashboardwidgets op maat, met aangepaste gegevensbronnen (bèta)."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Inject site-specific styling without editing the plugin."
+msgstr "Voeg site-specifieke styling toe zonder de plugin te bewerken."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "In-product help pages and admin guides built into the dashboard."
+msgstr "Helppagina's en beheerdershandleidingen die in het dashboard zijn ingebouwd."
+
+#: src/Shared/Modules/ModuleMetadata.php
+msgid "Generates sample players and teams for demos and testing — turn off in production."
+msgstr "Genereert voorbeeldspelers en -teams voor demo's en tests — zet dit uit in productie."
+
+#: src/Shared/Frontend/FrontendModulesView.php
+msgid "Core"
+msgstr "Kern"
+
+#: src/Shared/Frontend/FrontendModulesView.php
+msgid "Enable %s"
+msgstr "%s inschakelen"
+
+#: src/Shared/Frontend/FrontendModulesView.php
+msgid "%d feature"
+msgid_plural "%d features"
+msgstr[0] "%d functie"
+msgstr[1] "%d functies"

@@ -10,6 +10,14 @@ Elke TalentTrack-module kan hier worden uitgeschakeld. Uitgeschakelde modules `r
 
 Dezelfde toggle is bereikbaar vanuit de frontend-beheeromgeving via **`?tt_view=modules`** (en een **Modules**-tegel onder Configuratie), afgeschermd met de capability `tt_manage_modules` (standaard beheerder + clubbeheerder) in plaats van een kale admin-only-controle. Hij is ook beschikbaar via REST voor niet-WordPress-frontends: `GET /wp-json/talenttrack/v1/modules` geeft de modules; een `POST` met `{ "class": "...", "enabled": true|false }` schakelt er één om. De wp-adminpagina blijft als fallback voor gevorderden.
 
+## Kaartindeling (v4.29.0+)
+
+De frontend-Modulespagina toont modules als **kaarten gegroepeerd per categorie** in plaats van een platte lijst. Elke kaart toont een pictogram, een leesbaar label en een korte omschrijving, plus een statuspil — **Kern** (grijs, kan niet worden uitgeschakeld), **On** (groen) of **Off** (gedempt) — en een **Module**-typelabel. De schakelaar rechts schakelt de module in of uit; bij kernmodules staat de schakelaar vast. De bevestigingsdialoog ("herlaad open tabbladen na het opslaan") en de onderliggende REST-contracten zijn ongewijzigd.
+
+De categorieën, op volgorde: **Spelersgegevens**, **Coaching & ontwikkeling**, **Planning & wedstrijddag**, **Communicatie**, **Analyse & rapportage**, **Integraties**, **Administratie** (met de drie altijd-aan kernmodules) en **Geavanceerd / ontwikkelaar**. Het label, de omschrijving, het pictogram en de categorie van elke module staan op één plek — `TT\Shared\Modules\ModuleMetadata` — zodat een gebruiker nooit een kale klassennaam ziet.
+
+Als een module subfuncties heeft, toont de kaart een functieteller (bijv. "2 functies") en een uitklapbaar paneel. Elke functie staat in de kaart van de bovenliggende module, met een eigen **Functie**-pil (visueel anders dan het Module-label), de omschrijving en een eigen schakelaar. Functies verschijnen alleen zolang hun bovenliggende module aanstaat. De pagina is mobile-first: kaarten stapelen op een telefoon in één kolom en de schakelaars voldoen aan het 48px-aanraakdoel.
+
 ## Waarom een module uitschakelen?
 
 - **Demo aan een niet-betalende prospect.** Schakel License uit zodat de upgrade-banner niet stoort.
