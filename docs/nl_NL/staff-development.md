@@ -6,13 +6,18 @@ De plugin volgt spelers tot in detail. Vanaf v3.58.0 volgt hij **de mensen die d
 
 ## Wat je krijgt
 
-Een nieuwe tegelgroep "Stafontwikkeling" op het dashboard, met vijf tegels:
+Sinds **v4.26.15** staan je vier persoonlijke stafontwikkelingstegels onder de groep **"Mijn"** op het dashboard — dezelfde plek waar een speler zijn eigen ontwikkeling ziet — in plaats van een aparte kop "Stafontwikkeling". Ze zijn afgeschermd op `tt_view_staff_development`, dus een stafmedewerker ziet de stafset en een speler de spelerset. De labels komen overeen met de spelertegels (zonder "staf"-toevoeging):
 
 - **Mijn POP** — je persoonlijke ontwikkelingsplan. Vier velden: sterke punten, ontwikkelpunten, acties komend kwartaal, en een vrije narratief voor context. Eén rij per (jij, seizoen). Opslaan overschrijft de vorige inhoud — gebruik het narratief voor historie.
-- **Mijn stafdoelen** — persoonlijke ontwikkelingsdoelen. Elk doel heeft een titel, prioriteit, status, optionele einddatum, en een **optionele koppeling aan een certificering** (bv. "UEFA-B halen"). Bij koppeling verschijnt het doel ook op de certificeringentegel zodat het pad van "ik wil dit" → "ik heb dit" zichtbaar blijft.
-- **Mijn stafevaluaties** — log van zelf-evaluaties en (als je rechten hebt) top-down evaluaties van het hoofd ontwikkeling. De evaluatieboom voor staf staat los van die van spelers; hij bevat standaard vijf hoofdcategorieën: *Coaching-vakmanschap / Communicatie / Methodische beheersing / Mentorschap / Betrouwbaarheid*. Subcategorieën voeg je toe via wp-admin → Configuratie → Evaluatiecategorieën, net als bij spelers.
+- **Mijn doelen** — persoonlijke ontwikkelingsdoelen. Elk doel heeft een titel, prioriteit, status, optionele einddatum, en een **optionele koppeling aan een certificering** (bv. "UEFA-B halen"). Bij koppeling verschijnt het doel ook op de certificeringentegel zodat het pad van "ik wil dit" → "ik heb dit" zichtbaar blijft.
+- **Mijn evaluaties** — log van zelf-evaluaties en (als je rechten hebt) top-down evaluaties van het hoofd ontwikkeling. De evaluatieboom voor staf staat los van die van spelers; hij bevat standaard vijf hoofdcategorieën: *Coaching-vakmanschap / Communicatie / Methodische beheersing / Mentorschap / Betrouwbaarheid*. Subcategorieën voeg je toe via wp-admin → Configuratie → Evaluatiecategorieën, net als bij spelers.
 - **Mijn certificeringen** — het badge-register. Elke rij heeft een uitgever, een "uitgegeven op"-datum, een optionele "verloopt op"-datum, en een optionele document-URL (Google Drive, OneDrive, intranet — de plugin host het bestand niet). Rijen die binnen 90 dagen verlopen krijgen een oranje pil, binnen 30 dagen rood, verlopen grijs. Dezelfde drempels sturen het workflow-template voor certificering-verloop.
+
+De academiebrede overzichtstegel is verplaatst naar de groep **Mensen**:
+
 - **Stafoverzicht** — de roll-up voor het hoofd ontwikkeling. Drie kaarten: open stafdoelen door de hele academie, top-down reviews die te oud zijn (geen review in de afgelopen 365 dagen), en certificeringen die binnen 90 dagen verlopen. Elke rij linkt naar het detailscherm. Alleen zichtbaar voor de rollen hoofd-ontwikkeling en clubbeheerder.
+
+*(Een gebruiker die zowel speler als staf is, ziet beide persoonlijke sets onder "Mijn" — bv. twee "Mijn POP"-tegels. Dit is zeldzaam en geaccepteerd; de twee openen verschillende schermen.)*
 
 ## Functionele rol: Mentor
 

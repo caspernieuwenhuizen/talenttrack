@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.26.14
+Stable tag: 4.26.15
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.26.15 — Staff development: surface the personal tiles under "My" (closes #1540). A staff member's own development was parked in a separate "Staff development" group, inconsistent with the player experience (whose development sits under "Me"). The four personal staff tiles (PDP, goals, evaluations, certifications) now live in the **"My"** group, cap-gated on `tt_view_staff_development` so a staff user sees the staff set and a player sees the player set. Labels are unified with the player tiles (the "staff" qualifier dropped: My PDP / My goals / My evaluations / My certifications), reusing the existing msgids. The academy-wide **Staff overview** roll-up moves to the **People** group, and the now-empty "Staff development" group is retired. Only `group` + `label` moved — caps, entities and access are unchanged. Known dual-role edge (a user who is both player and staff sees two "My PDP" tiles) is accepted per the issue. docs/staff-development.md (EN+NL) updated. Patch bump. (closes #1540) =
 
 = 4.26.14 — Dashboard: split the Performance grab-bag (closes #1548). The Performance tile group mixed core coach work with planning tools, tactical boards, analytics and a config surface. It's now three clean homes: **Performance** keeps only Evaluations / Activities / Goals; a new **Planning & tactics** group (right after Performance) holds Team planner, VCT session designer, Team blueprint and Team chemistry; **Podium** (rankings / top performers) moves into the existing **Analytics** group. The **Player status methodology** tile leaves the dashboard entirely and surfaces under the Configuration area instead (it defines how the traffic-light status is computed; still gated `tt_edit_settings`). Only `group` / `order` changed on the tiles — caps, entities and feature gates are untouched, and empty/gated groups still auto-hide. docs/coach-dashboard.md (EN+NL) updated; one new Dutch string ("Planning & tactics"). Patch bump. (closes #1548) =
 

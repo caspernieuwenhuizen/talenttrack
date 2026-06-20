@@ -6,13 +6,18 @@ The plugin tracks players in detail. From v3.58.0 it tracks the **people who coa
 
 ## What you get
 
-A new "Staff development" tile group on the dashboard, with five tiles:
+As of **v4.26.15** your four personal staff-development tiles live under the **"My"** group on the dashboard — the same place a player sees their own development — instead of a separate "Staff development" heading. They're cap-gated on `tt_view_staff_development`, so a staff member sees the staff set and a player sees the player set. The labels match the player tiles (no "staff" qualifier):
 
 - **My PDP** — your personal-development plan. Four fields: strengths, development areas, actions next quarter, and a free-form narrative for context. One row per (you, season). Save updates the same row; the previous content is overwritten, so use the narrative for history.
-- **My staff goals** — personal-development goals. Each goal has a title, priority, status, optional due date, and an **optional link to a certification** (e.g. "Take UEFA-B"). When linked, the goal appears alongside the certification on the certifications tile so the trail from "I want this" → "I have this" is visible.
-- **My staff evaluations** — the log of self-evaluations and (where you have permission) top-down evaluations from the head of development. The eval-category tree for staff is independent from the player tree; it ships seeded with five mains: *Coaching craft / Communication / Methodology fluency / Mentorship / Reliability*. Add subcategories under wp-admin → Configuration → Eval categories like you would for the player tree.
+- **My goals** — personal-development goals. Each goal has a title, priority, status, optional due date, and an **optional link to a certification** (e.g. "Take UEFA-B"). When linked, the goal appears alongside the certification on the certifications tile so the trail from "I want this" → "I have this" is visible.
+- **My evaluations** — the log of self-evaluations and (where you have permission) top-down evaluations from the head of development. The eval-category tree for staff is independent from the player tree; it ships seeded with five mains: *Coaching craft / Communication / Methodology fluency / Mentorship / Reliability*. Add subcategories under wp-admin → Configuration → Eval categories like you would for the player tree.
 - **My certifications** — the badge register. Each row carries an issuer, an "issued on" date, an optional "expires on" date, and an optional document URL (Google Drive, OneDrive, intranet — the plugin doesn't host the file). Rows expiring within 90 days get an amber pill, within 30 days red, and expired grey. The same colour ladder drives the certification-expiring workflow template.
+
+The academy-wide oversight tile moved to the **People** group:
+
 - **Staff overview** — the head-of-development roll-up. Three cards: open staff goals across the academy, top-down reviews overdue (no review in the past 365 days), and certifications expiring in the next 90 days. Each row links to the relevant detail surface. Visible only to head-of-development and club-admin roles.
+
+*(A user who is both a player and staff sees both personal sets under "My" — e.g. two "My PDP" tiles. This is rare and accepted; the two open different surfaces.)*
 
 ## Functional role: Mentor
 
