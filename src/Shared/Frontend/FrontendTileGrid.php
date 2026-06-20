@@ -4,7 +4,7 @@ namespace TT\Shared\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
-use TT\Shared\Icons\IconRenderer;
+use TT\Shared\Frontend\Components\TileIconChip;
 use TT\Shared\Tiles\TileRegistry;
 
 /**
@@ -114,20 +114,10 @@ class FrontendTileGrid {
             border-color: #d0d4d8;
             color: #1a1d21;
         }
-        .tt-ftile-icon {
-            flex-shrink: 0;
-            width: calc(38px * var(--tt-tile-scale));
-            height: calc(38px * var(--tt-tile-scale));
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-        }
-        .tt-ftile-icon .tt-icon {
-            width: calc(20px * var(--tt-tile-scale));
-            height: calc(20px * var(--tt-tile-scale));
-        }
+        /* #1553 — tile icons render as Phosphor duotone glyphs inside an
+           accent-tinted chip (`.tt-tile-chip`, shared via TileIconChip).
+           The chip's own CSS drives box + glyph sizing; nothing further
+           is needed here. */
         .tt-ftile-body {
             flex: 1;
             min-width: 0;
@@ -160,6 +150,7 @@ class FrontendTileGrid {
             .tt-ftile-grid { grid-template-columns: 1fr; }
         }
         </style>
+        <?php echo TileIconChip::styles(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — static trusted CSS. ?>
 
         <div class="tt-ftile-grid-wrap">
         <div class="tt-ftile-greeting"><?php echo esc_html( $greeting ); ?></div>
@@ -256,9 +247,13 @@ class FrontendTileGrid {
             <div class="tt-ftile-grid">
                 <?php foreach ( $tiles as $tile ) : ?>
                     <a class="tt-ftile" href="<?php echo esc_url( (string) ( $tile['url'] ?? '' ) ); ?>">
-                        <span class="tt-ftile-icon" style="background:<?php echo esc_attr( (string) ( $tile['color'] ?? '#5b6e75' ) ); ?>;">
-                            <?php echo IconRenderer::render( (string) ( $tile['icon'] ?? '' ) ); ?>
-                        </span>
+                        <?php
+                        // #1553 — Phosphor duotone glyph in an accent chip.
+                        echo TileIconChip::render(
+                            (string) ( $tile['icon'] ?? '' ),
+                            (string) ( $tile['color'] ?? '#5b6e75' )
+                        ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — TileIconChip escapes its own attrs and IconRenderer returns trusted SVG.
+                        ?>
                         <div class="tt-ftile-body">
                             <div class="tt-ftile-label"><?php echo esc_html( (string) ( $tile['label'] ?? '' ) ); ?></div>
                             <p class="tt-ftile-desc"><?php echo esc_html( (string) ( $tile['desc'] ?? '' ) ); ?></p>
