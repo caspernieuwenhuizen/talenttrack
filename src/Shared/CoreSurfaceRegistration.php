@@ -901,6 +901,22 @@ final class CoreSurfaceRegistration {
             // tile shouldn't sit in their day-to-day surface.
             'hide_for_personas' => [ 'head_of_development' ],
         ]);
+        // #1480 — academy-wide holiday management. Visible to managers /
+        // admins (the `tt_manage_holidays` create-delete cap). Coaches see
+        // holidays as planner banners without the management tile.
+        TileRegistry::register([
+            'module_class' => 'TT\\Modules\\Holidays\\HolidaysModule',
+            'view_slug'    => 'holidays',
+            'entity'       => 'holidays',
+            'group'        => $admin_group,
+            'kind'         => 'setup',
+            'order'        => 15,
+            'label'        => __( 'Holidays', 'talenttrack' ),
+            'description'  => __( 'Academy holiday periods shown on every team planner.', 'talenttrack' ),
+            'icon'         => 'activities',
+            'color'        => '#ff9800',
+            'cap'          => 'tt_manage_holidays',
+        ]);
         TileRegistry::register([
             'module_class' => self::M_CONFIG,
             'view_slug'    => 'migrations',

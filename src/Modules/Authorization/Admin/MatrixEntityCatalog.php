@@ -103,6 +103,7 @@ final class MatrixEntityCatalog {
             'rating_scale'                  => __( 'Rating scale', 'talenttrack' ),
             'goals'                         => __( 'Goals', 'talenttrack' ),
             'activities'                    => __( 'Activities', 'talenttrack' ),
+            'holidays'                      => __( 'Holidays', 'talenttrack' ),
             'methodology'                   => __( 'Methodology', 'talenttrack' ),
             'reports'                       => __( 'Reports', 'talenttrack' ),
             // Settings + admin

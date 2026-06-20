@@ -730,6 +730,10 @@ class DashboardShortcode {
             case 'configuration':
                 FrontendConfigurationView::render( $user_id, $is_admin );
                 return true;
+            case 'holidays':
+                // #1480 — academy-wide holiday management.
+                \TT\Shared\Frontend\FrontendHolidaysView::render( $user_id, $is_admin );
+                return true;
             case 'custom-fields':
                 FrontendCustomFieldsView::render( $user_id, $is_admin );
                 return true;

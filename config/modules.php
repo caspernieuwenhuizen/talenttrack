@@ -116,4 +116,6 @@ return [
     // engine. VCT-6 (#911) adds REST + UI; VCT-7 (#912) adds the nightly
     // workload aggregation task.
     TT\Modules\Vct\VctModule::class                              => true,
+    // #1480 — academy-wide holiday calendar (holidays entity + planner banners).
+    TT\Modules\Holidays\HolidaysModule::class                    => true,
 ];
