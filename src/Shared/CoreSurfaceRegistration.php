@@ -236,10 +236,18 @@ final class CoreSurfaceRegistration {
             'color'        => '#2271b1',
             'cap_callback' => $is_player_or_parent_cb,
         ]);
+        // #1482 — tile-visibility entity `my_evaluations_panel` (granted
+        // only to player + parent in the seed), distinct from the data
+        // entity `my_evaluations`. The latter is also held by assistant /
+        // head coaches at self scope so their "what did I author?" feed
+        // (`/evaluations/recent` + the "evaluations this week" KPI) keeps
+        // working — but with matrix-as-truth that grant would otherwise
+        // surface this player-self "My evaluations" tile on a coach's
+        // dashboard. Same disambiguation pattern as `my_pdp_panel`.
         TileRegistry::register([
             'module_class' => self::M_EVALUATIONS,
             'view_slug'    => 'my-evaluations',
-            'entity'       => 'my_evaluations',
+            'entity'       => 'my_evaluations_panel',
             'group'        => $me_group,
             'kind'         => 'work',
             'order'        => 30,
