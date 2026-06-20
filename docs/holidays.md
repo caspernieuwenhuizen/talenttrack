@@ -16,7 +16,9 @@ Holidays are **one-off** — there's no recurring-holiday engine yet, so add eac
 
 ## Where they show
 
-Each holiday renders as a banner across the affected day(s) on every team planner, so it's obvious at a glance which days the academy is closed. (The planner banner ships in a follow-up; the holiday data + management land first.)
+Each holiday renders as a coloured banner on the affected day(s) of every team planner, so it's obvious at a glance which days the academy is closed. The banner uses the holiday's colour (if set) and shows its note on hover.
+
+When you try to schedule an activity on a holiday day from the planner, a **soft confirmation** appears ("This day is an academy holiday … schedule anyway?"). It never blocks — confirm to go ahead, cancel to pick another day.
 
 ## Who can manage them
 

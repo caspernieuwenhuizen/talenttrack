@@ -55,6 +55,19 @@ class FrontendTeamPlannerView extends FrontendViewBase {
             [],
             TT_VERSION
         );
+        // #1480 — soft "this is a holiday" confirm when scheduling from a
+        // holiday day. Never blocks; Cancel just stops the navigation.
+        wp_enqueue_script(
+            'tt-planner-holiday-warning',
+            TT_PLUGIN_URL . 'assets/js/planner-holiday-warning.js',
+            [],
+            TT_VERSION,
+            true
+        );
+        wp_localize_script( 'tt-planner-holiday-warning', 'TT_HOLIDAY', [
+            /* translators: %s: holiday name */
+            'warning' => __( 'This day is an academy holiday (%s). Schedule an activity anyway?', 'talenttrack' ),
+        ] );
         FrontendBreadcrumbs::fromDashboard( __( 'Team planner', 'talenttrack' ) );
         self::renderHeader( __( 'Team planner', 'talenttrack' ) );
 
@@ -77,6 +90,10 @@ class FrontendTeamPlannerView extends FrontendViewBase {
         // Compute the rendered range. For `season`, snap the season
         // window to whole weeks (Mon–Sun) so the grid lines up.
         [ $range_start, $range_end, $weeks_count, $season ] = self::resolveRangeWindow( $range, $week_start );
+
+        // #1480 — academy holidays overlapping the visible window, mapped
+        // per day so each affected day shows a banner on the planner.
+        self::loadHolidays( $range_start, $range_end );
 
         $activities    = self::activitiesForRange( $team_id, $range_start, $range_end );
         $activity_ids  = array_map( static fn ( $a ): int => (int) $a->id, $activities );
@@ -279,11 +296,21 @@ class FrontendTeamPlannerView extends FrontendViewBase {
                 $date_label = wp_date( 'M j', strtotime( $day ) );
                 $items      = $by_day[ $day ] ?? [];
                 ?>
-                <div class="tt-planner-day <?php echo $is_today ? 'tt-planner-day-today' : ''; ?>" role="listitem">
+                <?php $holiday = self::$holidaysByDay[ $day ] ?? null; ?>
+                <div class="tt-planner-day <?php echo $is_today ? 'tt-planner-day-today' : ''; ?><?php echo $holiday ? ' tt-planner-day-holiday' : ''; ?>" role="listitem"<?php echo $holiday ? ' data-tt-holiday-name="' . esc_attr( (string) $holiday->name ) . '"' : ''; ?>>
                     <div class="tt-planner-day-head">
                         <span class="tt-planner-dow"><?php echo esc_html( $day_label ); ?></span>
                         <span class="tt-planner-date"><?php echo esc_html( $date_label ); ?></span>
                     </div>
+                    <?php if ( $holiday ) :
+                        $h_color = (string) ( $holiday->color ?? '' );
+                        if ( $h_color === '' ) $h_color = '#ff9800';
+                        $h_note = (string) ( $holiday->note ?? '' );
+                        ?>
+                        <div class="tt-planner-holiday" style="--tt-holiday-color: <?php echo esc_attr( $h_color ); ?>;"<?php echo $h_note !== '' ? ' title="' . esc_attr( $h_note ) . '"' : ''; ?>>
+                            <?php echo esc_html( (string) $holiday->name ); ?>
+                        </div>
+                    <?php endif; ?>
                     <div class="tt-planner-day-body">
                         <?php if ( empty( $items ) ) : ?>
                             <?php if ( $can_manage ) : ?>
@@ -596,6 +623,36 @@ class FrontendTeamPlannerView extends FrontendViewBase {
             'week_start' => $week_start,
             'range'      => $range,
         ], RecordLink::dashboardUrl() );
+    }
+
+    /**
+     * #1480 — academy holidays mapped per `Y-m-d` day across the visible
+     * window. Set once per render, read in the day-cell loop.
+     *
+     * @var array<string,object>
+     */
+    private static array $holidaysByDay = [];
+
+    /**
+     * Pre-fetch the holidays overlapping [$from, $to] and expand them to
+     * a per-day map. Guarded so a disabled Holidays module is a no-op.
+     */
+    private static function loadHolidays( string $from, string $to ): void {
+        self::$holidaysByDay = [];
+        if ( ! class_exists( '\\TT\\Modules\\Holidays\\Repositories\\HolidaysRepository' ) ) {
+            return;
+        }
+        $holidays = ( new \TT\Modules\Holidays\Repositories\HolidaysRepository() )->list( $from, $to );
+        foreach ( $holidays as $h ) {
+            $start = max( $from, (string) $h->start_date );
+            $end   = min( $to,   (string) $h->end_date );
+            $ts    = strtotime( $start );
+            $endTs = strtotime( $end );
+            while ( $ts !== false && $endTs !== false && $ts <= $endTs ) {
+                self::$holidaysByDay[ gmdate( 'Y-m-d', $ts ) ] = $h;
+                $ts += DAY_IN_SECONDS;
+            }
+        }
     }
 
     /** @return object[] */

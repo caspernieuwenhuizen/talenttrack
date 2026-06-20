@@ -37054,6 +37054,11 @@ msgstr "Academiebrede vakantieperiodes die als banner op elke teamplanner worden
 msgid "Holidays"
 msgstr "Vakanties"
 
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php
+#, php-format
+msgid "This day is an academy holiday (%s). Schedule an activity anyway?"
+msgstr "Deze dag is een academievakantie (%s). Toch een activiteit plannen?"
+
 #~ msgid "Create dashboard page"
 #~ msgstr "Dashboardpagina aanmaken"
 
