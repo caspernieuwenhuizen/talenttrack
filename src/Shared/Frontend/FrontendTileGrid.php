@@ -148,6 +148,13 @@ class FrontendTileGrid {
             margin: 0;
             word-break: break-word;
             overflow-wrap: anywhere;
+            /* #1490 — safety net: clamp to 2 lines so an over-long
+               description can never break the tile layout. */
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
         @media (max-width: 640px) {
             .tt-ftile-grid { grid-template-columns: 1fr; }

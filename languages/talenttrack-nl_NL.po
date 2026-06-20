@@ -15257,9 +15257,8 @@ msgstr "Cohort-overgangen"
 
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:63
 #: src/Shared/CoreSurfaceRegistration.php:806
-msgid ""
-"Find every player whose journey contains a particular event in a date range."
-msgstr "Vind elke speler met een specifieke gebeurtenis in een datumbereik."
+msgid "Find players by journey event and date range."
+msgstr "Vind spelers op reisgebeurtenis en periode."
 
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:72
 msgid "— Select an event type —"
@@ -30043,8 +30042,8 @@ msgid "Me"
 msgstr "Ik"
 
 #: src/Shared/CoreSurfaceRegistration.php:212
-msgid "Your FIFA-style card, ratings, and headline numbers."
-msgstr "Jouw FIFA-kaart, beoordelingen en kerncijfers."
+msgid "Your card, ratings and headline numbers."
+msgstr "Je kaart, beoordelingen en kerncijfers."
 
 #: src/Shared/CoreSurfaceRegistration.php:225
 msgid "Your teammates and the team podium."
@@ -30063,21 +30062,20 @@ msgid "Development goals to work toward."
 msgstr "Ontwikkelingsdoelen om naartoe te werken."
 
 #: src/Shared/CoreSurfaceRegistration.php:283
-msgid ""
-"Your development plan: conversations, reflections, end-of-season verdict."
-msgstr "Jouw ontwikkelplan: gesprekken, reflecties, eindeseizoens­oordeel."
+msgid "Your plan: talks, reflections, season verdict."
+msgstr "Je plan: gesprekken, reflecties, seizoensoordeel."
 
 #: src/Shared/CoreSurfaceRegistration.php:302
-msgid "Your story at the academy — milestones, evaluations, goals."
-msgstr "Je verhaal bij de academie — mijlpalen, evaluaties, doelen."
+msgid "Your academy story: milestones and progress."
+msgstr "Je academieverhaal: mijlpalen en voortgang."
 
 #: src/Shared/CoreSurfaceRegistration.php:309
 msgid "Tasks"
 msgstr "Taken"
 
 #: src/Shared/CoreSurfaceRegistration.php:318
-msgid "Open tasks waiting on you — evaluations, goals, reviews."
-msgstr "Openstaande taken die op je wachten — evaluaties, doelen, reviews."
+msgid "Open tasks: evaluations, goals, reviews."
+msgstr "Openstaande taken: evaluaties, doelen, reviews."
 
 #. translators: %d: number of open tasks
 #: src/Shared/CoreSurfaceRegistration.php:329
@@ -30086,14 +30084,12 @@ msgid "My tasks (%d)"
 msgstr "Mijn taken (%d)"
 
 #: src/Shared/CoreSurfaceRegistration.php:349
-msgid ""
-"Per-template and per-coach completion rates plus currently overdue tasks."
-msgstr ""
-"Voltooiingspercentages per template en per coach plus huidige te late taken."
+msgid "Completion rates and overdue tasks per coach."
+msgstr "Voltooiingspercentages en achterstallige taken per coach."
 
 #: src/Shared/CoreSurfaceRegistration.php:362
-msgid "Enable or disable templates and override their cadence + deadline."
-msgstr "Templates aan/uit zetten en hun cadens + deadline overschrijven."
+msgid "Enable templates; set cadence and deadline."
+msgstr "Templates aan/uit; stel cadans en deadline in."
 
 #: src/Shared/CoreSurfaceRegistration.php:383
 msgid "Teams you coach — roster, podium, evaluations."
@@ -30104,16 +30100,12 @@ msgid "Players on the teams you coach."
 msgstr "Spelers van de teams die jij coacht."
 
 #: src/Shared/CoreSurfaceRegistration.php:412
-msgid "Staff, parents, scouts and other non-player records."
-msgstr "Staf, ouders, scouts en andere niet-speler records."
+msgid "Staff, parents, scouts and other non-players."
+msgstr "Staf, ouders, scouts en andere niet-spelers."
 
 #: src/Shared/CoreSurfaceRegistration.php:426
-msgid ""
-"Per-team staff assignments — head coach, assistant, manager, physio. "
-"Different from academy-wide Roles & rights."
-msgstr ""
-"Stafrollen per team — hoofdcoach, assistent, manager, fysio. Niet hetzelfde "
-"als academiebrede Rollen & rechten."
+msgid "Per-team staff: coach, assistant, manager, physio."
+msgstr "Stafleden per team: coach, assistent, manager, fysio."
 
 #: src/Shared/CoreSurfaceRegistration.php:455
 msgid "Record player ratings, add notes and scores."
@@ -30124,12 +30116,8 @@ msgid "Log training activities and attendance."
 msgstr "Registreer trainingen en aanwezigheid."
 
 #: src/Shared/CoreSurfaceRegistration.php:485
-msgid ""
-"Plan training activities week by week, with principle tagging and plan-state "
-"tracking."
-msgstr ""
-"Plan trainingsactiviteiten per week, met koppeling van principes en "
-"bijhouden van planstatus."
+msgid "Plan training week by week with principles."
+msgstr "Plan trainingen week voor week met principes."
 
 # ===== #1373 — planner + VCT tiles surfaced =====
 #: src/Shared/CoreSurfaceRegistration.php:501
@@ -30137,49 +30125,32 @@ msgid "VCT session designer"
 msgstr "VCT-trainingsontwerper"
 
 #: src/Shared/CoreSurfaceRegistration.php:502
-msgid ""
-"Build a structured training from the exercise library: blocks, coaching "
-"points, A4 print."
-msgstr ""
-"Bouw een gestructureerde training uit de oefeningenbibliotheek: blokken, "
-"coachingpunten, A4-print."
+msgid "Build sessions from the exercise library."
+msgstr "Bouw trainingen uit de oefeningenbibliotheek."
 
 #: src/Shared/CoreSurfaceRegistration.php:523
 msgid "Set and track player development goals."
 msgstr "Stel ontwikkelingsdoelen in en volg ze per speler."
 
 #: src/Shared/CoreSurfaceRegistration.php:535
-msgid ""
-"Per-season development files: conversations, goals, end-of-season verdict."
-msgstr ""
-"Seizoens­gebonden ontwikkeldossiers: gesprekken, doelen, eindeseizoens­oordeel."
+msgid "Per-season files: talks, goals, verdict."
+msgstr "Bestanden per seizoen: gesprekken, doelen, oordeel."
 
 #: src/Shared/CoreSurfaceRegistration.php:547
-msgid "HoD matrix: per-team-per-block planned vs conducted conversations."
-msgstr "HO-matrix: per team per blok geplande vs uitgevoerde gesprekken."
+msgid "Planned vs held talks, per team and block."
+msgstr "Geplande vs. gehouden gesprekken, per team en blok."
 
 #: src/Shared/CoreSurfaceRegistration.php:564
-msgid ""
-"Per-age-group input weights, thresholds, and behaviour-floor rule for the "
-"traffic-light status."
-msgstr ""
-"Per leeftijdscategorie: weging van inputs, drempels en gedragsbodemregel "
-"voor de stoplichtstatus."
+msgid "Weights and thresholds for status by age group."
+msgstr "Wegingen en drempels voor status per leeftijdsgroep."
 
 #: src/Shared/CoreSurfaceRegistration.php:578
-msgid ""
-"Formation board with auto-suggested XI, depth chart, and chemistry breakdown."
-msgstr ""
-"Formatiebord met automatisch voorgestelde basiself, dieptestaat en chemie-"
-"opbouw."
+msgid "Formation board: suggested XI and chemistry."
+msgstr "Opstellingsbord: voorgestelde XI en chemie."
 
 #: src/Shared/CoreSurfaceRegistration.php:590
-msgid ""
-"Coach-authored lineups: drag players onto the pitch, see chemistry update "
-"live, share with staff and lock when set."
-msgstr ""
-"Door de coach opgestelde basiselftallen: sleep spelers op het veld, zie de "
-"chemie live veranderen, deel met staf en zet vast wanneer klaar."
+msgid "Drag-and-drop lineups with live chemistry."
+msgstr "Sleep opstellingen samen met live chemie."
 
 #: src/Shared/CoreSurfaceRegistration.php:602
 msgid "Team rankings and top performers."
@@ -30194,23 +30165,17 @@ msgid "Principles, formations, positions and set pieces."
 msgstr "Principes, formaties, posities en spelhervattingen."
 
 #: src/Shared/CoreSurfaceRegistration.php:632
-msgid "Manage prospective players: track, dates, staff input, and decisions."
-msgstr "Beheer aspirant-spelers: traject, datums, staf-input en beslissingen."
+msgid "Track prospects: dates, input and decisions."
+msgstr "Volg prospects: data, input en beslissingen."
 
 # Tile registration
 #: src/Shared/CoreSurfaceRegistration.php:648
-msgid ""
-"Six-stage funnel from scout-logged prospect through team-offer acceptance. "
-"HoD + Scout + Academy Admin only."
-msgstr ""
-"Trechter in zes stappen van door een scout vastgelegde prospect tot "
-"acceptatie van het teamaanbod. Alleen HoO + Scout + Academy Admin."
+msgid "Prospect-to-offer funnel across six stages."
+msgstr "Trechter van prospect tot aanbod in zes fasen."
 
 #: src/Shared/CoreSurfaceRegistration.php:672
-msgid ""
-"Plan and record off-site visits where scouts spot potential prospects "
-"(matches, tournaments, open days)."
-msgstr ""
+msgid "Plan and log scouting visits to spot prospects."
+msgstr "Plan en registreer scoutingbezoeken voor prospects."
 
 #: src/Shared/CoreSurfaceRegistration.php:684
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:19
@@ -30218,8 +30183,8 @@ msgid "Trial tracks"
 msgstr "Stagetrajecten"
 
 #: src/Shared/CoreSurfaceRegistration.php:685
-msgid "Edit the track templates new trial cases use as defaults."
-msgstr "Bewerk de standaard-trajecten die nieuwe stagedossiers gebruiken."
+msgid "Edit default templates for new trial cases."
+msgstr "Bewerk standaardtemplates voor nieuwe proefcases."
 
 #: src/Shared/CoreSurfaceRegistration.php:697
 #: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:24
@@ -30227,8 +30192,8 @@ msgid "Letter templates"
 msgstr "Briefsjablonen"
 
 #: src/Shared/CoreSurfaceRegistration.php:698
-msgid "Customize the admit / decline letter wording per locale."
-msgstr "Pas de bewoording van de aanbod- of afwijzingsbrief aan per taal."
+msgid "Customize admit/decline letter wording per locale."
+msgstr "Pas tekst van toelaat-/afwijsbrief aan per taal."
 
 #: src/Shared/CoreSurfaceRegistration.php:722
 msgid "Academy-wide KPIs and the dimension explorer."
@@ -30239,8 +30204,8 @@ msgid "Compare up to 4 players side-by-side."
 msgstr "Vergelijk maximaal 4 spelers naast elkaar."
 
 #: src/Shared/CoreSurfaceRegistration.php:757
-msgid "Player progress, team rating averages, coach activity."
-msgstr "Spelersvoortgang, team-beoordelingsgemiddelden, coachactiviteit."
+msgid "Player progress, team ratings, coach activity."
+msgstr "Spelervoortgang, teambeoordelingen, coachactiviteit."
 
 #: src/Shared/CoreSurfaceRegistration.php:779
 #: src/Shared/Frontend/FrontendExportsView.php:305
@@ -30250,10 +30215,8 @@ msgid "Exports"
 msgstr "Exports"
 
 #: src/Shared/CoreSurfaceRegistration.php:780
-msgid ""
-"Bulk exporters in one place: players, attendance, goals, evaluations, "
-"calendar, backup."
-msgstr ""
+msgid "Bulk exports: players, attendance, goals, more."
+msgstr "Bulkexports: spelers, aanwezigheid, doelen, meer."
 
 # v3.28.0 — deferred follow-up
 # 'Logins', 'Loading…', 'Help', 'Period:', 'Last %d days' already translated earlier in this file.
@@ -30265,28 +30228,24 @@ msgid "Application KPIs"
 msgstr "Applicatie-KPIs"
 
 #: src/Shared/CoreSurfaceRegistration.php:793
-msgid ""
-"Active users, evaluations per coach, attendance %, top players, goal "
-"completion."
-msgstr ""
+msgid "Usage: evaluations, attendance, goals, players."
+msgstr "Gebruik: evaluaties, aanwezigheid, doelen, spelers."
 
 #: src/Shared/CoreSurfaceRegistration.php:825
 msgid "Idea pipeline"
 msgstr "Ideeënkanaal"
 
 #: src/Shared/CoreSurfaceRegistration.php:834
-msgid "Spotted a bug or feature? Send it to the development queue."
-msgstr "Een bug of feature opgemerkt? Stuur hem naar de ontwikkelwachtrij."
+msgid "Spotted a bug or idea? Send it to the team."
+msgstr "Bug of idee gezien? Stuur het naar het team."
 
 #: src/Shared/CoreSurfaceRegistration.php:847
-msgid "Kanban view of every staged idea — submitted through done."
-msgstr "Kanban-overzicht van elk staged idee — van ingediend tot klaar."
+msgid "Kanban board of every staged idea."
+msgstr "Kanban-bord van elk ingediend idee."
 
 #: src/Shared/CoreSurfaceRegistration.php:860
-msgid "Approve & promote ideas straight to GitHub, or reject with a note."
-msgstr ""
-"Goedkeuren & ideeën rechtstreeks naar GitHub promoten, of afwijzen met een "
-"notitie."
+msgid "Approve and promote ideas, or reject them."
+msgstr "Keur ideeën goed en promoot ze, of wijs ze af."
 
 #: src/Shared/CoreSurfaceRegistration.php:873
 msgid "Group ideas into a player-development roadmap."
@@ -30307,11 +30266,8 @@ msgid "Wizards"
 msgstr "Wizards"
 
 #: src/Shared/CoreSurfaceRegistration.php:922
-msgid ""
-"Toggle the create-record wizards on or off, and see completion analytics."
-msgstr ""
-"Zet de wizards voor record-aanmaak aan of uit en bekijk de completion-"
-"statistieken."
+msgid "Toggle record wizards; see completion stats."
+msgstr "Zet recordwizards aan/uit; zie voltooiingsstats."
 
 # #0021 — frontend audit-log viewer (only the strings new to this view —
 # Audit log / When / Entity / Payload / No audit entries match... /
@@ -30341,24 +30297,20 @@ msgid "Your personal development plan."
 msgstr "Je persoonlijke ontwikkelingsplan."
 
 #: src/Shared/CoreSurfaceRegistration.php:1014
-msgid "Personal development goals — optionally linked to a certification."
-msgstr ""
-"Persoonlijke ontwikkelingsdoelen — optioneel gekoppeld aan een certificering."
+msgid "Personal goals, optionally linked to a badge."
+msgstr "Persoonlijke doelen, optioneel gekoppeld aan een badge."
 
 #: src/Shared/CoreSurfaceRegistration.php:1027
 msgid "Self and top-down staff evaluations."
 msgstr "Zelf- en top-down stafevaluaties."
 
 #: src/Shared/CoreSurfaceRegistration.php:1040
-msgid "Coaching badges, first aid, GDPR and more — with expiry tracking."
-msgstr "Coachingbadges, EHBO, AVG en meer — met verloopbewaking."
+msgid "Coaching badges and certs with expiry tracking."
+msgstr "Coachbadges en certificaten met vervaltracking."
 
 #: src/Shared/CoreSurfaceRegistration.php:1053
-msgid ""
-"Open goals, overdue reviews, expiring certifications across the academy."
-msgstr ""
-"Open doelen, verlopen reviews en verlopende certificeringen door de hele "
-"academie."
+msgid "Open goals, overdue reviews, expiring certs."
+msgstr "Open doelen, achterstallige reviews, vervallende certs."
 
 #: src/Shared/CoreSurfaceRegistration.php:1085
 msgid "Data & demo"

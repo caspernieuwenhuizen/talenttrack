@@ -532,7 +532,7 @@
     box-shadow: 0 4px 12px rgba(11, 31, 58, 0.06);
 }
 .tt-pd-tile-label { font-size: 0.9375rem; font-weight: 600; letter-spacing: -0.005em; }
-.tt-pd-tile-desc  { font-size: 0.75rem;   color: var(--tt-pd-text-muted); }
+.tt-pd-tile-desc  { font-size: 0.75rem;   color: var(--tt-pd-text-muted); display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .tt-pd-tile-arrow {
     position: absolute;
     right: 1rem;
