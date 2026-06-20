@@ -33637,3 +33637,121 @@ msgstr ""
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php
 msgid "Blueprint sharing is turned off."
 msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "VCT configuration sections"
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid ""
+"No seasons configured yet. Add a season under Configuration → Seasons first, "
+"then come back here."
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid ""
+"Define the macro-block calendar for a season. The club default applies to "
+"every team; pick a team to set an override."
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid ""
+"Define the macro-block calendar for a season. The club default applies to "
+"every team; pick a team to set an override just for them."
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "Club default (all teams)"
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "Club default"
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "Macro-blocks — %s"
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "Save block set"
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "Team #%d"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid ""
+"Macro-block calendar, per-age workload envelopes and per-team training days "
+"for the Variabel Coachen-template planner — all on one screen."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "%1$d block templates · %2$d age bands"
+msgstr ""
+
+#: src/Modules/Vct/Validation/VctMacroBlockValidator.php
+msgid "Block %d needs a name."
+msgstr ""
+
+#: src/Modules/Vct/Validation/VctMacroBlockValidator.php
+msgid "Block %d has an invalid date. Use the date pickers."
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "Advanced: weekly phase profile (JSON)"
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid ""
+"Optional. Array of { week, phase, multiplier } objects. Leave blank for the "
+"default profile."
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "e.g. Build-up block"
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "Block set saved."
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "No macro-blocks yet. Add the first block to start the season calendar."
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "Add at least one block before saving."
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "The advanced phase profile for block %d is not valid JSON."
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "Block %d needs a start and end date."
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "Looks good — no overlaps, all dates valid."
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "Minutes per training (max)"
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "Save failed: your form expired. Please reload."
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "Add block"
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "Move up"
+msgstr ""
+
+#: src/Modules/Vct/Frontend/FrontendVctConfigView.php
+msgid "Move down"
+msgstr ""
