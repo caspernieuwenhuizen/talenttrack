@@ -57,7 +57,7 @@ class FrontendMyStaffEvaluationsView extends FrontendViewBase {
                 $u = get_userdata( (int) $r->reviewer_user_id );
                 $reviewer = $u ? (string) $u->display_name : '#' . (int) $r->reviewer_user_id;
                 echo '<tr>';
-                echo '<td>' . esc_html( (string) $r->eval_date ) . '</td>';
+                echo '<td>' . esc_html( \TT\Shared\Dates\TTDate::date( (string) $r->eval_date ) ) . '</td>';
                 echo '<td>' . esc_html( (string) $r->review_kind ) . '</td>';
                 echo '<td>' . esc_html( $reviewer ) . '</td>';
                 echo '<td>' . esc_html( (string) $r->notes ) . '</td>';

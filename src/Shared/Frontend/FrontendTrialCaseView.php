@@ -400,7 +400,7 @@ class FrontendTrialCaseView extends FrontendViewBase {
             echo '<table class="tt-table"><thead><tr><th>' . esc_html__( 'Date', 'talenttrack' ) . '</th><th>' . esc_html__( 'Evaluator', 'talenttrack' ) . '</th></tr></thead><tbody>';
             foreach ( $evals as $e ) {
                 $u = get_userdata( (int) $e->evaluator_user_id );
-                echo '<tr><td>' . esc_html( (string) $e->eval_date ) . '</td><td>' . esc_html( $u ? (string) $u->display_name : '#' . (int) $e->evaluator_user_id ) . '</td></tr>';
+                echo '<tr><td>' . esc_html( \TT\Shared\Dates\TTDate::date( (string) $e->eval_date ) ) . '</td><td>' . esc_html( $u ? (string) $u->display_name : '#' . (int) $e->evaluator_user_id ) . '</td></tr>';
             }
             echo '</tbody></table>';
             echo '</div>';
@@ -608,7 +608,7 @@ class FrontendTrialCaseView extends FrontendViewBase {
             echo '<table class="tt-table"><thead><tr><th>' . esc_html__( 'Generated at', 'talenttrack' ) . '</th><th>' . esc_html__( 'Audience', 'talenttrack' ) . '</th><th>' . esc_html__( 'Status', 'talenttrack' ) . '</th></tr></thead><tbody>';
             foreach ( $history as $row ) {
                 $status = $row->revoked_at ? __( 'Revoked', 'talenttrack' ) : __( 'Active', 'talenttrack' );
-                echo '<tr><td>' . esc_html( (string) $row->created_at ) . '</td><td>' . esc_html( (string) $row->audience ) . '</td><td>' . esc_html( $status ) . '</td></tr>';
+                echo '<tr><td>' . esc_html( \TT\Shared\Dates\TTDate::dateTime( (string) $row->created_at ) ) . '</td><td>' . esc_html( (string) $row->audience ) . '</td><td>' . esc_html( $status ) . '</td></tr>';
             }
             echo '</tbody></table>';
             echo '</div></section>';

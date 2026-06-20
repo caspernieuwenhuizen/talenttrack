@@ -86,7 +86,7 @@ class FrontendStaffOverviewView extends FrontendViewBase {
             foreach ( $open_goals as $g ) {
                 $name = trim( ( $g->first_name ?? '' ) . ' ' . ( $g->last_name ?? '' ) ) ?: '#' . (int) $g->person_id;
                 echo '<li>' . esc_html( $name ) . ' — ' . esc_html( (string) $g->title );
-                if ( $g->due_date ) echo ' <em>' . esc_html( (string) $g->due_date ) . '</em>';
+                if ( $g->due_date ) echo ' <em>' . esc_html( \TT\Shared\Dates\TTDate::date( (string) $g->due_date ) ) . '</em>';
                 echo '</li>';
             }
             echo '</ul>';

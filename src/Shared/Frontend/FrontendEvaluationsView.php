@@ -324,7 +324,7 @@ class FrontendEvaluationsView extends FrontendViewBase {
             <div class="tt-record-detail-meta">
                 <dl class="tt-profile-dl" style="display:grid; grid-template-columns:auto 1fr; gap:6px 18px; margin:0 0 16px;">
                     <dt><?php esc_html_e( 'Date', 'talenttrack' ); ?></dt>
-                    <dd><?php echo esc_html( (string) $eval->eval_date ); ?></dd>
+                    <dd><?php echo esc_html( \TT\Shared\Dates\TTDate::date( (string) $eval->eval_date ) ); ?></dd>
                     <?php
                     // v3.110.175 — was selecting `et.label AS eval_type_label`
                     // but `tt_lookups` has no `label` column. The SELECT errored

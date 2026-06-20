@@ -110,7 +110,7 @@ class PlayerDashboardView {
                 . '</tr></thead><tbody>';
             foreach ( $evals as $ev ) {
                 $full = QueryHelpers::get_evaluation( (int) $ev->id );
-                echo '<tr><td>' . esc_html( $ev->eval_date ) . '</td><td>' . esc_html( $ev->type_name ?: '—' ) . '</td><td>' . esc_html( $ev->coach_name ) . '</td><td>';
+                echo '<tr><td>' . esc_html( \TT\Shared\Dates\TTDate::date( (string) $ev->eval_date ) ) . '</td><td>' . esc_html( $ev->type_name ?: '—' ) . '</td><td>' . esc_html( $ev->coach_name ) . '</td><td>';
                 if ( $ev->opponent ) {
                     echo '<small>' . esc_html( sprintf( __( 'vs %s (%s)', 'talenttrack' ), $ev->opponent, $ev->game_result ?: '—' ) ) . '</small><br/>';
                 }
@@ -138,7 +138,7 @@ class PlayerDashboardView {
                 echo '<div class="tt-goal-item tt-status-' . esc_attr( $g->status ) . '"><h4>' . esc_html( \TT\Modules\Translations\TranslationLayer::render( (string) $g->title ) ) . '</h4>';
                 if ( $g->description ) echo '<p>' . esc_html( \TT\Modules\Translations\TranslationLayer::render( (string) $g->description ) ) . '</p>';
                 echo '<span class="tt-status-badge">' . esc_html( LabelTranslator::goalStatus( (string) $g->status ) ) . '</span>';
-                if ( $g->due_date ) echo ' <small>' . esc_html__( 'Due:', 'talenttrack' ) . ' ' . esc_html( $g->due_date ) . '</small>';
+                if ( $g->due_date ) echo ' <small>' . esc_html__( 'Due:', 'talenttrack' ) . ' ' . esc_html( \TT\Shared\Dates\TTDate::date( (string) $g->due_date ) ) . '</small>';
                 echo '</div>';
             }
             echo '</div>';
@@ -181,7 +181,7 @@ class PlayerDashboardView {
                     $session_label .= ' ' . __( '(as guest)', 'talenttrack' );
                 }
                 echo '<tr class="' . esc_attr( $cls ) . ( $is_guest_visit ? ' tt-att-guest' : '' ) . '">'
-                    . '<td>' . esc_html( (string) $a->session_date ) . '</td>'
+                    . '<td>' . esc_html( \TT\Shared\Dates\TTDate::date( (string) $a->session_date ) ) . '</td>'
                     . '<td>' . esc_html( \TT\Modules\Translations\TranslationLayer::render( $session_label ) ) . '</td>'
                     . '<td>' . esc_html( LabelTranslator::attendanceStatus( (string) $a->status ) ) . '</td>'
                     . '<td>' . ( $a->notes ? esc_html( \TT\Modules\Translations\TranslationLayer::render( (string) $a->notes ) ) : '—' ) . '</td>'

@@ -288,7 +288,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         foreach ( $rows as $r ) {
             $url = RecordLink::detailUrlForWithBack( 'activities', (int) $r->activity_id );
             echo '<tr>';
-            echo '<td>' . esc_html( (string) $r->session_date ) . '</td>';
+            echo '<td>' . esc_html( \TT\Shared\Dates\TTDate::date( (string) $r->session_date ) ) . '</td>';
             echo '<td><a href="' . esc_url( $url ) . '">' . esc_html( (string) ( $r->title ?? '—' ) ) . '</a></td>';
             echo '<td>' . esc_html( (string) ( $r->activity_type_key ?? '' ) ) . '</td>';
             $min = (int) ( $r->minutes_played ?? 0 );
@@ -707,7 +707,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         foreach ( $recent_prospects as $r ) {
             $full = trim( ( (string) ( $r->first_name ?? '' ) ) . ' ' . ( (string) ( $r->last_name ?? '' ) ) );
             echo '<tr>';
-            echo '<td>' . esc_html( gmdate( 'Y-m-d', strtotime( (string) ( $r->created_at ?? '' ) ) ?: time() ) ) . '</td>';
+            echo '<td>' . esc_html( \TT\Shared\Dates\TTDate::date( strtotime( (string) ( $r->created_at ?? '' ) ) ?: time() ) ) . '</td>';
             echo '<td>' . esc_html( $full !== '' ? $full : '—' ) . '</td>';
             echo '<td>' . esc_html( (string) ( $r->current_club ?? '' ) ) . '</td>';
             echo '</tr>';

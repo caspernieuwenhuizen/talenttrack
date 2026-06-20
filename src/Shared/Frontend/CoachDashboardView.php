@@ -310,7 +310,7 @@ class CoachDashboardView {
                         <?php foreach ( $statuses as $st ) : $v = strtolower( str_replace( ' ', '_', $st ) ); ?>
                             <option value="<?php echo esc_attr( $v ); ?>" <?php selected( (string) $g->status, $v ); ?>><?php echo esc_html( LabelTranslator::goalStatus( $v ) ); ?></option><?php endforeach; ?>
                     </select></td>
-                    <td><?php echo esc_html( $g->due_date ?: '—' ); ?></td>
+                    <td><?php echo esc_html( $g->due_date ? \TT\Shared\Dates\TTDate::date( (string) $g->due_date ) : '—' ); ?></td>
                     <td><button class="tt-btn-sm tt-goal-delete" data-goal-id="<?php echo (int) $g->id; ?>" aria-label="<?php esc_attr_e( 'Delete', 'talenttrack' ); ?>"><?php echo \TT\Shared\Icons\IconRenderer::render( 'x', [ 'width' => 12, 'height' => 12 ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG. ?></button></td></tr>
             <?php endforeach; ?></tbody></table>
         <?php endif; ?>

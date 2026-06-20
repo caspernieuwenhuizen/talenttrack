@@ -69,17 +69,14 @@ final class AuditMeta {
     }
 
     /**
-     * Localized date + time. Uses `wp_date()` (site timezone + locale)
-     * until the central date helper from the general-settings work
-     * lands. Returns '' for an empty / unparseable timestamp.
+     * Localized date + time via the academy date-notation preset (#1481).
+     * Returns '' for an empty / unparseable timestamp.
      */
     private static function formatDate( string $mysql_datetime ): string {
         $mysql_datetime = trim( $mysql_datetime );
         if ( $mysql_datetime === '' || $mysql_datetime === '0000-00-00 00:00:00' ) {
             return '';
         }
-        $ts = strtotime( $mysql_datetime );
-        if ( $ts === false ) return '';
-        return (string) wp_date( 'j M Y, H:i', $ts );
+        return \TT\Shared\Dates\TTDate::dateTime( $mysql_datetime );
     }
 }

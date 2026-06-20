@@ -103,7 +103,7 @@ final class FrontendMatchExecutionsListView extends FrontendViewBase {
             // the keyboard / AT path (no nested role=link on the <tr>);
             // tt-table-tools.js wires the pointer navigation.
             echo '<tr class="is-row-link" data-row-href="' . esc_url( $row_url ) . '">';
-            echo '<td><a class="tt-record-link" href="' . esc_url( $row_url ) . '">' . esc_html( (string) $r->session_date ) . '</a></td>';
+            echo '<td><a class="tt-record-link" href="' . esc_url( $row_url ) . '">' . esc_html( \TT\Shared\Dates\TTDate::date( (string) $r->session_date ) ) . '</a></td>';
             echo '<td>' . esc_html( $team_name ) . '</td>';
             echo '<td>' . esc_html( $opp ) . '</td>';
             echo '<td style="text-align:right;">' . esc_html( $score ) . '</td>';

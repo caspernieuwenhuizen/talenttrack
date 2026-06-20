@@ -171,7 +171,7 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
                             <option value="0"><?php esc_html_e( '— None —', 'talenttrack' ); ?></option>
                             <?php foreach ( $recent_activities as $act ) : ?>
                                 <option value="<?php echo (int) $act->id; ?>">
-                                    <?php echo esc_html( sprintf( '%s · %s', (string) $act->session_date, (string) $act->title ) ); ?>
+                                    <?php echo esc_html( sprintf( '%s · %s', \TT\Shared\Dates\TTDate::date( (string) $act->session_date ), (string) $act->title ) ); ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>

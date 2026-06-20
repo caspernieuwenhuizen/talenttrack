@@ -238,7 +238,7 @@ class FrontendTaskDetailView extends FrontendViewBase {
         if ( $due_raw !== '' ) {
             $ts = strtotime( $due_raw );
             if ( $ts !== false ) {
-                $due_label = (string) wp_date( (string) get_option( 'date_format', 'Y-m-d' ), $ts );
+                $due_label = \TT\Shared\Dates\TTDate::date( $ts );
             }
         }
 

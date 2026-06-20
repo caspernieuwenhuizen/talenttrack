@@ -79,8 +79,8 @@ class FrontendScoutHistoryView extends FrontendViewBase {
                         <td style="padding:8px;border-bottom:1px solid #eee;"><?php echo esc_html( $name ); ?></td>
                         <td style="padding:8px;border-bottom:1px solid #eee;"><?php echo esc_html( $recipient ); ?></td>
                         <td style="padding:8px;border-bottom:1px solid #eee;"><?php echo esc_html( self::audienceLabel( (string) $row->audience ) ); ?></td>
-                        <td style="padding:8px;border-bottom:1px solid #eee;font-variant-numeric:tabular-nums;"><?php echo esc_html( (string) $row->created_at ); ?></td>
-                        <td style="padding:8px;border-bottom:1px solid #eee;font-variant-numeric:tabular-nums;"><?php echo esc_html( (string) ( $row->expires_at ?? '—' ) ); ?></td>
+                        <td style="padding:8px;border-bottom:1px solid #eee;font-variant-numeric:tabular-nums;"><?php echo esc_html( \TT\Shared\Dates\TTDate::dateTime( (string) $row->created_at ) ); ?></td>
+                        <td style="padding:8px;border-bottom:1px solid #eee;font-variant-numeric:tabular-nums;"><?php echo esc_html( ( $row->expires_at ?? '' ) !== '' ? \TT\Shared\Dates\TTDate::dateTime( (string) $row->expires_at ) : '—' ); ?></td>
                         <td style="padding:8px;border-bottom:1px solid #eee;"><?php echo esc_html( $status ); ?></td>
                         <td style="padding:8px;border-bottom:1px solid #eee;font-variant-numeric:tabular-nums;"><?php echo (int) $row->access_count; ?></td>
                         <td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">

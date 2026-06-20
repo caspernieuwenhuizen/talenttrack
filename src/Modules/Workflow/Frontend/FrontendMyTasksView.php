@@ -3,7 +3,6 @@ namespace TT\Modules\Workflow\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Workflow\Repositories\TasksRepository;
 use TT\Modules\Workflow\TaskStatus;
@@ -540,16 +539,14 @@ class FrontendMyTasksView extends FrontendViewBase {
         if ( $diff < 0 && $diff > -86400 ) {
             return __( 'overdue', 'talenttrack' );
         }
-        $format = (string) QueryHelpers::get_config( 'date_format', 'Y-m-d' );
-        return wp_date( $format, $ts );
+        return \TT\Shared\Dates\TTDate::date( $ts );
     }
 
     private static function formatCompleted( string $completed_at ): string {
         if ( $completed_at === '' ) return '';
         $ts = strtotime( $completed_at );
         if ( $ts === false ) return $completed_at;
-        $format = (string) QueryHelpers::get_config( 'date_format', 'Y-m-d' );
-        return wp_date( $format, $ts );
+        return \TT\Shared\Dates\TTDate::date( $ts );
     }
 
     public static function detailUrl( int $task_id ): string {

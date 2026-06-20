@@ -97,7 +97,7 @@ class FrontendMyEvaluationsView extends FrontendViewBase {
                 if ( ! empty( $e->game_result ) ) $match_text .= ' (' . (string) $e->game_result . ')';
             }
             echo '<tr>';
-            echo '<td>' . esc_html( (string) $e->eval_date ) . '</td>';
+            echo '<td>' . esc_html( \TT\Shared\Dates\TTDate::date( (string) $e->eval_date ) ) . '</td>';
             echo '<td><a class="tt-link" href="' . esc_url( $detail_url ) . '">' . esc_html( $player_name ) . '</a></td>';
             // #806 — pre-localised by EvaluationsRepository so bypass
             // becomes structurally impossible. Falls back to the raw
@@ -188,7 +188,7 @@ class FrontendMyEvaluationsView extends FrontendViewBase {
                             <span class="tt-rp-badge tt-rp-attention" aria-label="<?php esc_attr_e( 'No overall rating yet', 'talenttrack' ); ?>" role="img"><span aria-hidden="true">—</span></span>
                         <?php endif; ?>
                         <div class="tt-mye-meta">
-                            <div class="tt-mye-date"><?php echo esc_html( (string) $ev->eval_date ); ?></div>
+                            <div class="tt-mye-date"><?php echo esc_html( \TT\Shared\Dates\TTDate::date( (string) $ev->eval_date ) ); ?></div>
                             <div class="tt-mye-type"><?php echo esc_html( (string) ( $ev->type_name ?: '—' ) ); ?></div>
                             <?php if ( ! empty( $ev->coach_name ) ) : ?>
                                 <div class="tt-mye-coach"><?php

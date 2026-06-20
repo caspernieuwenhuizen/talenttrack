@@ -1110,7 +1110,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                             </div>
                             <div class="tt-player-row__body">
                                 <p class="tt-player-row__title"><?php esc_html_e( 'Evaluation', 'talenttrack' ); ?></p>
-                                <p class="tt-player-row__meta"><?php echo esc_html( (string) ( $ev->eval_date ?? '' ) ); ?></p>
+                                <p class="tt-player-row__meta"><?php echo esc_html( \TT\Shared\Dates\TTDate::date( (string) ( $ev->eval_date ?? '' ) ) ); ?></p>
                             </div>
                             <?php if ( $rating !== null ) : ?>
                                 <div class="tt-player-row__rating <?php echo esc_attr( $rating_class ); ?>">
@@ -1215,7 +1215,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                             </div>
                             <div class="tt-player-row__body">
                                 <p class="tt-player-row__title"><?php echo esc_html( (string) ( $a->title ?? '' ) ); ?></p>
-                                <p class="tt-player-row__meta"><?php echo esc_html( (string) ( $a->session_date ?? '' ) ); ?></p>
+                                <p class="tt-player-row__meta"><?php echo esc_html( \TT\Shared\Dates\TTDate::date( (string) ( $a->session_date ?? '' ) ) ); ?></p>
                             </div>
                             <?php if ( $status_lbl !== '' ) : ?>
                                 <span class="tt-player-row__pill" data-status="<?php echo esc_attr( $status_key ); ?>">
@@ -1289,8 +1289,8 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                 <?php if ( ! empty( $active->created_at ) ) : ?>
                     <p class="tt-player-row__meta" style="margin-top:8px;">
                         <?php
-                        /* translators: %s: ISO date the PDP cycle was created */
-                        echo esc_html( sprintf( __( 'Created %s', 'talenttrack' ), (string) $active->created_at ) );
+                        /* translators: %s: date the PDP cycle was created */
+                        echo esc_html( sprintf( __( 'Created %s', 'talenttrack' ), \TT\Shared\Dates\TTDate::date( (string) $active->created_at ) ) );
                         ?>
                     </p>
                 <?php endif; ?>
@@ -1322,7 +1322,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                                     <p class="tt-player-row__title">
                                         <?php echo esc_html( LookupTranslator::byTypeAndName( 'pdp_status', (string) ( $f->status ?? '' ) ) ); ?>
                                     </p>
-                                    <p class="tt-player-row__meta"><?php echo esc_html( (string) ( $f->created_at ?? '' ) ); ?></p>
+                                    <p class="tt-player-row__meta"><?php echo esc_html( \TT\Shared\Dates\TTDate::date( (string) ( $f->created_at ?? '' ) ) ); ?></p>
                                 </div>
                                 <span class="tt-player-row__chev" aria-hidden="true">›</span>
                             </a>

@@ -958,7 +958,7 @@ class FrontendPdpManageView extends FrontendViewBase {
                 $lock_reasons[] = sprintf(
                     /* translators: %s = sign-off timestamp */
                     __( 'coach signed off on %s', 'talenttrack' ),
-                    esc_html( (string) $conv->coach_signoff_at )
+                    esc_html( \TT\Shared\Dates\TTDate::dateTime( (string) $conv->coach_signoff_at ) )
                 );
             }
             if ( ! empty( $conv->parent_ack_at ) ) {
@@ -1018,7 +1018,7 @@ class FrontendPdpManageView extends FrontendViewBase {
             <?php endif; ?>
 
             <?php if ( $is_signed ) : ?>
-                <p class="tt-pdp-signed-off"><strong><?php esc_html_e( 'Signed off', 'talenttrack' ); ?></strong> — <?php echo esc_html( (string) $conv->coach_signoff_at ); ?></p>
+                <p class="tt-pdp-signed-off"><strong><?php esc_html_e( 'Signed off', 'talenttrack' ); ?></strong> — <?php echo esc_html( \TT\Shared\Dates\TTDate::dateTime( (string) $conv->coach_signoff_at ) ); ?></p>
             <?php elseif ( ! $is_locked ) : ?>
                 <div class="tt-field">
                     <label class="tt-checkbox">
@@ -1123,7 +1123,7 @@ class FrontendPdpManageView extends FrontendViewBase {
         if ( $evals ) {
             echo '<ul style="margin:0 0 8px; padding-left:18px; font-size:12px;">';
             foreach ( $evals as $e ) {
-                echo '<li>' . esc_html( (string) $e->eval_date ) . '</li>';
+                echo '<li>' . esc_html( \TT\Shared\Dates\TTDate::date( (string) $e->eval_date ) ) . '</li>';
             }
             echo '</ul>';
         } else {
@@ -1152,7 +1152,7 @@ class FrontendPdpManageView extends FrontendViewBase {
         if ( $acts ) {
             echo '<ul style="margin:0 0 8px; padding-left:18px; font-size:12px;">';
             foreach ( $acts as $a ) {
-                echo '<li>' . esc_html( (string) $a->session_date ) . ' — '
+                echo '<li>' . esc_html( \TT\Shared\Dates\TTDate::date( (string) $a->session_date ) ) . ' — '
                     . esc_html( (string) $a->title ) . ' ('
                     . esc_html( LookupTranslator::byTypeAndName( 'activity_status', (string) ( $a->status ?? '' ) ) ) . ')</li>';
             }
