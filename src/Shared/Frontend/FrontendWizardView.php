@@ -654,9 +654,20 @@ class FrontendWizardView extends FrontendViewBase {
             $path  = $q_pos === false ? $raw : substr( $raw, 0, $q_pos );
             if ( $path === '' ) $path = '/';
         }
+        // #1491 — REQUEST_URI's path is already absolute from the web root
+        // and, on a subdirectory install, already includes the WP subdir
+        // (e.g. /wordpress/...). Passing it through home_url() prepends the
+        // subdir a SECOND time (/wordpress/wordpress/… → 404 on wizard
+        // Next). Combine the site's scheme+host (no path) with the request
+        // path instead — same fix as currentDashboardUrl() under #1455.
+        $home = wp_parse_url( home_url() );
+        $base = ! empty( $home['host'] )
+            ? ( ( $home['scheme'] ?? 'http' ) . '://' . $home['host']
+                . ( isset( $home['port'] ) ? ':' . $home['port'] : '' ) . $path )
+            : home_url( $path ); // defensive — shouldn't happen
         return add_query_arg(
             [ 'tt_view' => 'wizard', 'tt_wizard' => $slug ],
-            home_url( $path )
+            $base
         );
     }
 

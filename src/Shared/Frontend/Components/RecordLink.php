@@ -149,7 +149,19 @@ final class RecordLink {
             $q_pos = strpos( $raw, '?' );
             $path  = $q_pos === false ? $raw : substr( $raw, 0, $q_pos );
             if ( $path === '' ) $path = '/';
-            return home_url( $path );
+            // #1491 — REQUEST_URI already includes the site subdir on a
+            // subdirectory install (e.g. /wordpress/...), so home_url($path)
+            // prepends it again (/wordpress/wordpress/… → 404). Combine the
+            // canonical scheme+host (no path) with the request path instead,
+            // mirroring WizardEntryPoint::currentDashboardUrl() (#1455).
+            $home = wp_parse_url( home_url() );
+            if ( ! empty( $home['host'] ) ) {
+                return esc_url_raw(
+                    ( $home['scheme'] ?? 'http' ) . '://' . $home['host']
+                    . ( isset( $home['port'] ) ? ':' . $home['port'] : '' ) . $path
+                );
+            }
+            return home_url( $path ); // defensive — shouldn't happen
         }
         return home_url( '/' );
     }
