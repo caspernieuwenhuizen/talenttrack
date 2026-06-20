@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-20T14:23:38+00:00\n"
+"POT-Creation-Date: 2026-06-20T14:28:37+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -33190,7 +33190,7 @@ msgstr ""
 msgid "Season overview"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:206
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:190
 msgid "Other reports"
 msgstr ""
 
