@@ -10,6 +10,14 @@ Each TalentTrack module can be turned off here. Disabled modules don't `register
 
 The same toggle is reachable from the frontend admin surface at **`?tt_view=modules`** (and via a **Modules** tile under Configuration), gated by the `tt_manage_modules` capability (administrator + academy admin by default) instead of a raw admin-only check. It's also exposed over REST for non-WordPress front ends: `GET /wp-json/talenttrack/v1/modules` lists modules; `POST` with `{ "class": "...", "enabled": true|false }` toggles one. The wp-admin page stays as the power-user fallback.
 
+## Card layout (v4.29.0+)
+
+The frontend Modules page presents modules as **cards grouped by category** rather than a flat list. Each card shows an icon, a human label and a one-line description, plus a status pill — **Core** (grey, cannot be switched off), **On** (green) or **Off** (muted) — and a **Module** type tag. The switch on the right enables or disables the module; core modules render with the switch locked. The confirm dialog ("reload open tabs after saving") and the underlying REST contracts are unchanged.
+
+Categories, in order: **Player data**, **Coaching & development**, **Planning & match day**, **Communication**, **Analytics & reporting**, **Integrations**, **Administration** (which holds the three always-on core modules) and **Advanced / developer**. The label, description, icon and category for every module live in one place — `TT\Shared\Modules\ModuleMetadata` — so no raw class name is ever shown to a user.
+
+Where a module owns sub-features, the card carries a feature count (e.g. "2 features") and an expandable panel. Each feature sits inside its parent card with its own **Feature** pill (visually distinct from the Module tag), its description and its own switch. Features only appear while their parent module is on. The page is mobile-first: cards stack to one column on a phone and the switches meet the 48px touch target.
+
 ## Why turn a module off?
 
 - **Demo to a non-paying prospect.** Disable License so the upgrade banner stays out of the way.

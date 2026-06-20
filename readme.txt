@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.28.2
+Stable tag: 4.29.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.29.0 — Modules page redesign: category-grouped cards with status pills + central module metadata (closes #1536). The Modules page was a flat checkbox list of every module, slugifying the class name with only a faint "(core)" badge — hard to scan, and the module-vs-feature distinction was barely visible. Modules now render as **cards grouped by category** (Player data, Coaching & development, Planning & match day, Communication, Analytics & reporting, Integrations, Administration, Advanced / developer). Each card shows an icon, a human label, a one-line description, a status pill (Core / On / Off) and a Module type tag, with a switch toggle (core locked). A new central registry `TT\Shared\Modules\ModuleMetadata` maps every module class to its label, description, icon and category, so no raw class name is ever shown. Sub-features render inside their parent card in an expandable panel with a distinct Feature pill, a per-module feature count and their own switches. Mobile-first: one column at 360px, 48px touch targets, keyboard-accessible `<details>` panels. The `/modules` + `/features` REST contracts and the admin-post save are unchanged — this is a render-layer + metadata change. New docs (EN+NL); Dutch strings for every label, description and category. Minor bump. (closes #1536) =
 
 = 4.26.20 — Export view: collapsible per-export blocks grouped by domain (closes #1542). The Exports surface rendered all 14 bulk exporters with their filter forms fully expanded at once — cluttered and hard to scan. Each exporter is now a collapsed native `<details>` block whose summary shows the title + a format badge per supported output (CSV / XLSX / PDF / ICS / JSON / ZIP); expanding reveals the filters, format toggle and Export button. The exporters are grouped into six purpose-based sections (Squad & players, Activities & attendance, Evaluations, Goals, Reports & people, Admin & compliance), each auto-hiding when the user has no permitted exporter in it. Pure presentation change — the per-card cap filtering, format chips, column picker, nonce and `ExportService` dispatch are all unchanged. Keyboard- and screen-reader-accessible (real `<summary>` disclosures); 360px clean. New docs/exports.md (EN+NL); Dutch strings for the section labels. Patch bump. (closes #1542) =
 
