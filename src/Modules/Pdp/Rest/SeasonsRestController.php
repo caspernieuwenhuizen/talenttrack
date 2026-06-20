@@ -52,6 +52,14 @@ class SeasonsRestController {
                 'callback'            => [ __CLASS__, 'update' ],
                 'permission_callback' => [ __CLASS__, 'can_admin' ],
             ],
+            // #1481 — DELETE is guarded: the current season and any
+            // season with linked PDP / staff-dev / VCT records can't be
+            // removed (edit it instead), so referential integrity holds.
+            [
+                'methods'             => 'DELETE',
+                'callback'            => [ __CLASS__, 'delete' ],
+                'permission_callback' => [ __CLASS__, 'can_admin' ],
+            ],
         ] );
     }
 
@@ -135,6 +143,31 @@ class SeasonsRestController {
                 __( 'The season could not be updated.', 'talenttrack' ), 500 );
         }
         return RestResponse::success( [ 'id' => $id ] );
+    }
+
+    public static function delete( \WP_REST_Request $r ): \WP_REST_Response {
+        $id = absint( $r['id'] );
+        if ( $id <= 0 ) {
+            return RestResponse::error( 'bad_id', __( 'Invalid season id.', 'talenttrack' ), 400 );
+        }
+        $repo   = new SeasonsRepository();
+        $season = $repo->find( $id );
+        if ( $season === null ) {
+            return RestResponse::error( 'not_found', __( 'Season not found.', 'talenttrack' ), 404 );
+        }
+        if ( (int) $season->is_current === 1 ) {
+            return RestResponse::error( 'is_current',
+                __( 'The current season can’t be deleted. Set another season as current first.', 'talenttrack' ), 409 );
+        }
+        if ( $repo->isReferenced( $id ) ) {
+            return RestResponse::error( 'has_references',
+                __( 'This season has linked records (PDP files, staff development or schedules). Edit it instead of deleting.', 'talenttrack' ), 409 );
+        }
+        if ( ! $repo->delete( $id ) ) {
+            Logger::error( 'pdp.season.delete.failed', [ 'id' => $id ] );
+            return RestResponse::error( 'db_error', __( 'The season could not be deleted.', 'talenttrack' ), 500 );
+        }
+        return RestResponse::success( [ 'id' => $id, 'deleted' => true ] );
     }
 
     public static function set_current( \WP_REST_Request $r ): \WP_REST_Response {

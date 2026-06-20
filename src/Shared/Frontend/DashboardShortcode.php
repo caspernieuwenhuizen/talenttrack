@@ -760,6 +760,10 @@ class DashboardShortcode {
                 // #1486 — read-only "what's switched on" status, all personas.
                 \TT\Shared\Frontend\FrontendFeaturesView::render( $user_id, $is_admin );
                 return true;
+            case 'seasons':
+                // #1481 — frontend Seasons manager (create/edit/set-current/delete).
+                \TT\Shared\Frontend\FrontendSeasonsView::render( $user_id, $is_admin );
+                return true;
             case 'usage-stats':
                 FrontendUsageStatsView::render( $user_id, $is_admin );
                 return true;

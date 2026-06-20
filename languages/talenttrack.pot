@@ -32751,3 +32751,93 @@ msgstr ""
 msgid "Long — 31 December 2026"
 msgstr ""
 
+
+#: src/Shared/Frontend/FrontendSeasonsView.php
+msgid "Set current"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendSeasonsView.php
+msgid "Season name"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendSeasonsView.php
+msgid "New season"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendSeasonsView.php
+msgid "Save season"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendSeasonsView.php
+msgid "Create season"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Manage seasons"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendSeasonsView.php
+msgid "Ends"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendSeasonsView.php
+msgid "+ New season"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendSeasonsView.php
+msgid "Exactly one season is current. PDP files are scoped to a season, and the carryover job runs whenever you change the current season."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendSeasonsView.php
+msgid "No seasons yet. Create your first one."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendSeasonsView.php
+msgid "Has linked records — edit instead of deleting."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendSeasonsView.php
+msgid "That season no longer exists."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendSeasonsView.php
+msgid "Season not found"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Create, edit, delete and set the current academy season. PDP files and the carryover job are scoped to the current season."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "No seasons configured yet. Add a season under Configuration → Seasons first, then come back here to set its PDP blocks."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendSeasonsView.php
+msgid "Make this the current season? Carryover runs for any open PDP file from the previous season."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendSeasonsView.php
+#, php-format
+msgid "Delete the season “%s”? This cannot be undone."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendSeasonsView.php
+msgid "Something went wrong. Please try again."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendSeasonsView.php
+msgid "End date must be after the start date."
+msgstr ""
+
+#: src/Modules/Pdp/Rest/SeasonsRestController.php
+msgid "The current season can’t be deleted. Set another season as current first."
+msgstr ""
+
+#: src/Modules/Pdp/Rest/SeasonsRestController.php
+msgid "This season has linked records (PDP files, staff development or schedules). Edit it instead of deleting."
+msgstr ""
+
+#: src/Modules/Pdp/Rest/SeasonsRestController.php
+msgid "The season could not be deleted."
+msgstr ""
+
