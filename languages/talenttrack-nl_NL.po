@@ -39999,3 +39999,31 @@ msgid "%d feature"
 msgid_plural "%d features"
 msgstr[0] "%d functie"
 msgstr[1] "%d functies"
+
+#: src/Core/FeatureRegistry.php
+msgid "The ad-hoc explorer for building KPI and dimension queries. The standard reports and the analytics engine stay available when this is off."
+msgstr "De verkenner voor het samenstellen van KPI- en dimensievragen. De standaardrapporten en de analyse-engine blijven beschikbaar wanneer dit uitstaat."
+
+#: src/Core/FeatureRegistry.php
+msgid "The builder for bespoke dashboard widgets backed by custom data sources (beta)."
+msgstr "De bouwer voor eigen dashboardwidgets op basis van aangepaste gegevensbronnen (bèta)."
+
+#: src/Core/FeatureRegistry.php
+msgid "Photo exercise extraction"
+msgstr "Oefeningen uit foto halen"
+
+#: src/Core/FeatureRegistry.php
+msgid "Read a training plan photo and turn it into exercises with AI. The exercise library stays available when this is off."
+msgstr "Lees een foto van een trainingsplan en zet die met AI om in oefeningen. De oefeningenbibliotheek blijft beschikbaar wanneer dit uitstaat."
+
+#: src/Core/FeatureRegistry.php
+msgid "Blueprint share links"
+msgstr "Deellinks voor blauwdrukken"
+
+#: src/Core/FeatureRegistry.php
+msgid "Public read-only share links for team blueprints. Blueprint editing stays available when this is off."
+msgstr "Openbare, alleen-lezen deellinks voor teamblauwdrukken. Het bewerken van blauwdrukken blijft beschikbaar wanneer dit uitstaat."
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php
+msgid "Blueprint sharing is turned off."
+msgstr "Het delen van blauwdrukken staat uit."

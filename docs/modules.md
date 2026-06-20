@@ -79,10 +79,17 @@ Some modules own several distinct surfaces. A **feature flag** switches one of t
 
 ### Per-module feature toggles (`?tt_view=modules`, v4.23.0+)
 
-On the frontend Modules page each feature appears as an indented row (↳) directly beneath its parent module, with its own On/Off switch. A feature only shows while its parent module is on. Two features ship **off by default**:
+On the frontend Modules page each feature appears as an indented row (↳) directly beneath its parent module, with its own On/Off switch. A feature only shows while its parent module is on. The features that ship **off by default**:
 
 - **Cohort transitions** (Journey module, default **off**) — the academy-wide "find players by journey event + date range" query (`?tt_view=cohort-transitions`). Turning it off hides its tile, its page, and its REST route (`/journey/cohort-transitions`). The rest of Journey — player timeline, injuries, safeguarding notes — stays fully available.
 - **Team chemistry** (Team Development module, default **off**) — the formation board with suggested XI and chemistry scoring (`?tt_view=team-chemistry`). Turning it off hides its tile, its page, and the chemistry/pairings/team-fit REST routes. The **Team blueprint** editor — which lives in the same module and shares the same capability — stays available.
+- **Analytics explorer** (Analytics module, default **off**) — the ad-hoc explorer for KPI and dimension queries (`?tt_view=analytics`, `explore`, `scheduled-reports`). See the section below for what stays running when it's off. (v4.30.0+ this is a `FeatureRegistry` feature, managed on the same frontend Modules page alongside the others, not only on the wp-admin page.)
+- **Custom widgets** (Custom widgets module, default **off**) — the beta builder for bespoke dashboard widgets. Turning it off skips the whole module boot — no admin page, no REST routes, no editor palette tile — exactly as the old `tt_custom_widgets_enabled` option did. (v4.30.0+ this is a `FeatureRegistry` feature; the prior option value is carried forward on upgrade so nothing changes.)
+
+The features that ship **on by default** (they run today; turning them off is an opt-out, so academies that want them keep them with no action):
+
+- **Photo exercise extraction** (Exercises module, default **on**) — the photo→exercise AI extraction (`POST /vision/extract`) and its capture UI. Turning it off makes the extraction REST route return 403; the exercise library CRUD is unaffected.
+- **Blueprint share links** (Team Development module, default **on**) — public read-only share links for team blueprints (`?tt_view=team-blueprint-share`) and the share-URL generate/rotate controls. Turning it off hides the share actions in the blueprint editor, makes the public share URL show the "not valid" notice, and refuses the rotate action; blueprint editing is unaffected.
 
 What an off feature does, on the next page load:
 
@@ -96,7 +103,7 @@ State lives in `tt_feature_state` (carrying the `club_id` tenancy scaffold), wit
 
 ### Analytics explorer
 
-- **Analytics explorer** (default **off**, managed on the **wp-admin** Modules page) — the ad-hoc Analytics dashboard tile and dimension/KPI explorer (`?tt_view=analytics`, `explore`, `scheduled-reports`). Turning it off hides the tile and those pages, but the **analytics engine keeps running** — the attendance, minutes and standard reports plus dashboard KPIs all still work, because they consume the engine directly, not the explorer UI. As of v4.26.9 the toggle also hides every inline **Explore →** affordance (player detail, team detail, standard reports, the reports launcher's prospects-per-scout tile), so switching Explorer off leaves no dangling links into a disabled feature. The activity detail page no longer carries an Explorer preset row at all.
+- **Analytics explorer** (default **off**) — the ad-hoc Analytics dashboard tile and dimension/KPI explorer (`?tt_view=analytics`, `explore`, `scheduled-reports`). As of v4.30.0 this is a `FeatureRegistry` feature, managed on the frontend Modules page next to the others (the wp-admin Modules page still works too; both write the same `tt_feature_state` row). Turning it off hides the tile and those pages, but the **analytics engine keeps running** — the attendance, minutes and standard reports plus dashboard KPIs all still work, because they consume the engine directly, not the explorer UI. As of v4.26.9 the toggle also hides every inline **Explore →** affordance (player detail, team detail, standard reports, the reports launcher's prospects-per-scout tile), so switching Explorer off leaves no dangling links into a disabled feature. The activity detail page no longer carries an Explorer preset row at all.
 
 ## Read-only status for everyone (`?tt_view=features`, v4.23.1+)
 

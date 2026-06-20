@@ -169,15 +169,14 @@ class CustomWidgetsModule implements ModuleInterface {
     }
 
     /**
-     * Feature toggle check. Reads `tt_custom_widgets_enabled` from
-     * `tt_config` if the helper is loaded; falls back to
-     * `wp_options` for installs predating the per-club config layer.
+     * Feature toggle check. #1537 — the toggle now lives in
+     * `FeatureRegistry` under the `custom_widgets` feature key; migration
+     * 0166 carried the prior `tt_custom_widgets_enabled` value (config or
+     * option) forward into `tt_feature_state`. Default off, matching the
+     * module's prior behaviour.
      */
     private static function isFeatureEnabled(): bool {
-        if ( class_exists( '\\TT\\Infrastructure\\Config\\ConfigService' ) ) {
-            return ( new \TT\Infrastructure\Config\ConfigService() )->getBool( 'tt_custom_widgets_enabled', false );
-        }
-        return (bool) get_option( 'tt_custom_widgets_enabled', false );
+        return \TT\Core\FeatureRegistry::isEnabled( 'custom_widgets' );
     }
 
     /**

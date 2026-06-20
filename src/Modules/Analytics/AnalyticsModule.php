@@ -5,7 +5,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
-use TT\Infrastructure\Config\ConfigService;
 use TT\Modules\Analytics\Domain\DateTimeColumn;
 use TT\Modules\Analytics\Domain\Dimension;
 use TT\Modules\Analytics\Domain\Fact;
@@ -45,12 +44,21 @@ class AnalyticsModule implements ModuleInterface {
      */
     public const EXPLORER_CONFIG_KEY = 'analytics_explorer_enabled';
 
+    /**
+     * #1537 — the explorer toggle now lives in `FeatureRegistry` under the
+     * `analytics_explorer` feature key; migration 0166 carried the prior
+     * `analytics_explorer_enabled` config value into `tt_feature_state`.
+     * The legacy `EXPLORER_CONFIG_KEY` + `setExplorerEnabled()` remain as a
+     * thin shim so any caller predating the migration keeps working.
+     */
+    public const FEATURE_KEY = 'analytics_explorer';
+
     public static function explorerEnabled(): bool {
-        return ( new ConfigService() )->get( self::EXPLORER_CONFIG_KEY, '0' ) === '1';
+        return \TT\Core\FeatureRegistry::isEnabled( self::FEATURE_KEY );
     }
 
     public static function setExplorerEnabled( bool $on ): void {
-        ( new ConfigService() )->set( self::EXPLORER_CONFIG_KEY, $on ? '1' : '0' );
+        \TT\Core\FeatureRegistry::setEnabled( self::FEATURE_KEY, $on );
     }
 
     public function register( Container $container ): void {}
