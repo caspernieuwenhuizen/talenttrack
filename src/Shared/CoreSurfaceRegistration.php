@@ -449,6 +449,14 @@ final class CoreSurfaceRegistration {
         // Development group so player-development surfaces don't sit
         // alongside the activity / evaluation / podium tiles.
         $development_group = __( 'Development', 'talenttrack' );
+        // #1548 — split the Performance grab-bag: the planning + tactics
+        // tools (team planner, VCT designer, team blueprint, team chemistry)
+        // move to their own group, leaving Performance as the core coach
+        // work (Evaluations, Activities, Goals). The group lands right after
+        // Performance because its first registered tile (Team planner) is
+        // registered between Activities and Goals — and TileRegistry orders
+        // groups by first-registration.
+        $planning_tactics_group = __( 'Planning & tactics', 'talenttrack' );
         // #0079 — coach-side panels declare tile-visibility entities. The
         // underlying data entities (`evaluations`, `activities`, `goals`,
         // `pdp_file`) keep their REST/repo gating role; the *_panel
@@ -487,9 +495,9 @@ final class CoreSurfaceRegistration {
             'module_class' => self::M_PLANNING,
             'view_slug'    => 'team-planner',
             'entity'       => 'activities_panel',
-            'group'        => $performance_group,
+            'group'        => $planning_tactics_group, // #1548
             'kind'         => 'work',
-            'order'        => 25,
+            'order'        => 10,
             'label'        => __( 'Team planner', 'talenttrack' ),
             'description'  => __( 'Plan training week by week with principles.', 'talenttrack' ),
             'icon'         => 'kanban',
@@ -504,9 +512,9 @@ final class CoreSurfaceRegistration {
             'module_class' => self::M_VCT,
             'view_slug'    => 'vct-planner',
             'entity'       => 'vct',
-            'group'        => $performance_group,
+            'group'        => $planning_tactics_group, // #1548
             'kind'         => 'work',
-            'order'        => 26,
+            'order'        => 20,
             'label'        => __( 'VCT session designer', 'talenttrack' ),
             'description'  => __( 'Build trainings from the exercise library.', 'talenttrack' ),
             'icon'         => 'kanban',
@@ -562,28 +570,18 @@ final class CoreSurfaceRegistration {
             // only for roles that legitimately plan.
             'cap'          => 'tt_edit_pdp',
         ]);
-        TileRegistry::register([
-            'module_class' => self::M_PLAYERS,
-            'view_slug'    => 'player-status-methodology',
-            'entity'       => 'player_status_methodology',
-            'group'        => $performance_group,
-            'kind'         => 'setup',
-            'order'        => 60,
-            'label'        => __( 'Player status methodology', 'talenttrack' ),
-            'description'  => __( 'Weights and thresholds for status by age group.', 'talenttrack' ),
-            'icon'         => 'settings',
-            'color'        => '#7c3aed',
-            'cap'          => 'tt_edit_settings',
-            'desktop_preferred' => true,
-        ]);
+        // #1548 — Player status methodology is configuration (it defines
+        // how the traffic-light status is computed), not a dashboard work
+        // tile. Removed from the dashboard and surfaced as a Configuration
+        // sub-tile instead (FrontendConfigurationView, cap tt_edit_settings).
         TileRegistry::register([
             'module_class' => self::M_TEAMDEV,
             'view_slug'    => 'team-chemistry',
             'entity'       => 'team_chemistry_panel',
             'feature'      => 'team_chemistry',
-            'group'        => $performance_group,
+            'group'        => $planning_tactics_group, // #1548
             'kind'         => 'work',
-            'order'        => 50,
+            'order'        => 40,
             'label'        => __( 'Team chemistry', 'talenttrack' ),
             'description'  => __( 'Formation board: suggested XI and chemistry.', 'talenttrack' ),
             'icon'         => 'teams',
@@ -593,26 +591,16 @@ final class CoreSurfaceRegistration {
             'module_class' => self::M_TEAMDEV,
             'view_slug'    => 'team-blueprints',
             'entity'       => 'team_chemistry_panel',
-            'group'        => $performance_group,
+            'group'        => $planning_tactics_group, // #1548
             'kind'         => 'work',
-            'order'        => 55,
+            'order'        => 30,
             'label'        => __( 'Team blueprint', 'talenttrack' ),
             'description'  => __( 'Drag-and-drop lineups with live chemistry.', 'talenttrack' ),
             'icon'         => 'teams',
             'color'        => '#1d6cb1',
         ]);
-        TileRegistry::register([
-            'module_class' => self::M_STATS,
-            'view_slug'    => 'podium',
-            'entity'       => 'podium_panel',
-            'group'        => $performance_group,
-            'kind'         => 'work',
-            'order'        => 60,
-            'label'        => __( 'Podium', 'talenttrack' ),
-            'description'  => __( 'Team rankings and top performers.', 'talenttrack' ),
-            'icon'         => 'podium',
-            'color'        => '#e8b624',
-        ]);
+        // #1548 — Podium (rankings / top performers) is analytics, not
+        // core coach work; registered with the Analytics group below.
 
         // ── Reference group ──
         TileRegistry::register([
@@ -773,6 +761,20 @@ final class CoreSurfaceRegistration {
             'icon'         => 'reports',
             'color'        => '#00a32a',
             'cap'          => 'tt_view_reports',
+        ]);
+        // #1548 — Podium moved here from Performance: it's team rankings /
+        // top performers, an analytics surface. Cap/entity/module unchanged.
+        TileRegistry::register([
+            'module_class' => self::M_STATS,
+            'view_slug'    => 'podium',
+            'entity'       => 'podium_panel',
+            'group'        => $analytics_group,
+            'kind'         => 'work',
+            'order'        => 30,
+            'label'        => __( 'Podium', 'talenttrack' ),
+            'description'  => __( 'Team rankings and top performers.', 'talenttrack' ),
+            'icon'         => 'podium',
+            'color'        => '#e8b624',
         ]);
         // v3.110.189 (#797) — central Exports surface tile. The view
         // itself filters cards per-cap so users without specific

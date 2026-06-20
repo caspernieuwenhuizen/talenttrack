@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.26.13
+Stable tag: 4.26.14
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.26.14 — Dashboard: split the Performance grab-bag (closes #1548). The Performance tile group mixed core coach work with planning tools, tactical boards, analytics and a config surface. It's now three clean homes: **Performance** keeps only Evaluations / Activities / Goals; a new **Planning & tactics** group (right after Performance) holds Team planner, VCT session designer, Team blueprint and Team chemistry; **Podium** (rankings / top performers) moves into the existing **Analytics** group. The **Player status methodology** tile leaves the dashboard entirely and surfaces under the Configuration area instead (it defines how the traffic-light status is computed; still gated `tt_edit_settings`). Only `group` / `order` changed on the tiles — caps, entities and feature gates are untouched, and empty/gated groups still auto-hide. docs/coach-dashboard.md (EN+NL) updated; one new Dutch string ("Planning & tactics"). Patch bump. (closes #1548) =
 
 = 4.26.13 — Appearance: consolidate Branding + Theme & fonts into one surface (closes #1531). Brand settings had drifted into three overlapping tiles with colours split across two — to change colours you had to visit both Branding (primary/secondary) and Theme & fonts (accent palette). The frontend Configuration view now has a single **Appearance** tile opening one page with stacked sections: Identity (name, short code, logo), Colours (primary, secondary **and** the accent/status palette — all in one place), Typography (display + body fonts), Theme (the WP-theme inheritance toggle), and Advanced (a link into Custom CSS). One Save + Cancel at the bottom. No config keys renamed and no data migration — the accent-colour fields simply moved into the Colours section, so existing values render unchanged. Old `?config_sub=branding` / `?config_sub=theme` deep links resolve to Appearance. Custom CSS gets its own icon (was sharing Branding's). Mobile-first; docs/configuration-branding.md (EN+NL) updated; new Dutch strings. Patch bump. (closes #1531) =
 
