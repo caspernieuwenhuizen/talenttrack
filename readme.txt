@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.26.11
+Stable tag: 4.26.12
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.26.12 — Frontend Configuration: show the filter-injected tiles (closes #1539). Modules, Dashboard layouts and Custom widgets register their Configuration tiles through the `tt_config_tile_groups` filter, but that filter was applied only on the wp-admin Configuration page — the frontend `FrontendConfigurationView::renderTileGrid()` built its own hardcoded tile arrays and never called the filter. So on the modern menu's frontend Configuration surface, the **Modules** tile (and the Dashboard-layouts / Custom-widgets tiles) were missing. The frontend view now applies the filter and renders the contributed tiles alongside its own, each cap-gated, deduped by URL against the existing tiles, with the external-link marker for wp-admin destinations. wp-admin Configuration is unchanged. Patch bump. (closes #1539) =
 
 = 4.26.11 — Lookups index: group the ~32 lookup tiles by domain (closes #1535). The Configuration → Lookups landing page was a flat grid of ~32 cards — hard to scan. The cards are now grouped into nine domain sections (Activities & attendance, Players & teams, Evaluations & development, Goals, Scouting & trials, Tournaments & match, Staff & people, Reports & workflow, Advanced / internal) via the shared `FrontendSectionedTileGrid` (#1543), which auto-hides any empty section. Tiles keep their existing icon + card styling; a trailing "Other" bucket catches any future card so none is ever dropped. The first real adopter of the helper — extended it with a `grid_inline`/`grid_class` option so CSS-class-styled consumers (the Configuration views' `tileGridStyles()`) integrate without the helper overriding their layout. Mobile-first (one column at 360px). docs/configuration-lookups.md (EN+NL) updated; new Dutch section labels. Patch bump. (closes #1535) =
 
