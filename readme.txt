@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.26.1
+Stable tag: 4.26.2
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.26.2 — Wizard entry points: make availability matrix-aware (closes #1516). On the prospect onboarding pipeline, **+ New prospect** did nothing — clicking it reloaded the page. The button renders behind the matrix-aware `AuthorizationService::userCanOrMatrix( 'tt_edit_prospects' )`, but [`WizardRegistry::isAvailable()`](src/Shared/Wizards/WizardRegistry.php) resolved the same cap with plain `user_can()`. When the cap is granted via the authorization matrix / functional roles (the normal case for `tt_edit_prospects`, including administrator), the button rendered but `WizardEntryPoint::urlFor()` saw the wizard as unavailable and returned the fallback URL — the same pipeline page. `isAvailable()` now resolves the cap via `userCanOrMatrix()`, consistent with the button render-guards and the rest of the app. Strictly more correct: grants availability to legitimate matrix cap-holders, removes access from no one. Systemic — every wizard entry button whose cap is matrix-only is fixed (new-prospect is the visible case; spot-checked new-activity, new-evaluation). Patch bump. (closes #1516) =
 
 = 4.26.1 — Data migration export: fix the always-failing nonce check (closes #1551). The "Export for migration" button landed on WordPress's "link expired" page and never produced the `.ttmig` download. [`BackupSettingsPage::renderMigrationSection`](src/Modules/Backup/Admin/BackupSettingsPage.php) emitted the nonce under the field name `tt_nonce`, but `guard()` verifies via `check_admin_referer( $action, 'tt_backup_nonce' )` — the field every other backup form on the page already uses. `check_admin_referer` found no nonce in the expected field and failed every time. The form now writes `tt_backup_nonce`, matching the handler; the nonce check is still real — a genuinely stale/invalid nonce is still rejected. Broken since the migration export shipped in #1464. Unblocks #1517 (per-record export selection). Patch bump. (closes #1551) =
 
