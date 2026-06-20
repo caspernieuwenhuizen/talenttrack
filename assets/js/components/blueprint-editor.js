@@ -911,22 +911,31 @@
             // message (now surfaced as 400 / 500 with a real string)
             // makes it into the alert. Falls back to a generic message
             // if the body isn't JSON-parsable.
-            return r.json().then(function (data) {
+            // #1524 — the REST layer wraps responses in the standard
+            // envelope { success, data, errors }, so unwrap to .data
+            // once and read the payload from there. Errors live under
+            // .errors[].message. Reading data.ref / data.message at the
+            // top level always missed (it's at data.data.ref), so the
+            // #1054 persistence guard threw on every successful save.
+            return r.json().then(function (env) {
+                var payload = (env && env.data !== undefined && env.data !== null) ? env.data : env;
                 if (!r.ok) {
-                    var msg = (data && data.message) || ((cfg.i18n && cfg.i18n.save_failed) || 'Could not save the change.');
+                    var msg = (env && env.errors && env.errors[0] && env.errors[0].message)
+                        || (payload && payload.message)
+                        || ((cfg.i18n && cfg.i18n.save_failed) || 'Could not save the change.');
                     throw new Error(msg);
                 }
-                return data;
+                return payload;
             }, function () {
                 throw new Error((cfg.i18n && cfg.i18n.save_failed) || 'Could not save the change.');
             });
         })
-        .then(function (data) {
+        .then(function (payload) {
             // #1054 — verify the server actually persisted what we sent.
             // If we sent a player ref but the response carries ref:null,
             // the assignment was coerced to a clear somewhere — don't
             // reload as if nothing's wrong.
-            if (ref && ref.kind && (!data || data.ref === null || data.ref === undefined)) {
+            if (ref && ref.kind && (!payload || payload.ref === null || payload.ref === undefined)) {
                 throw new Error((cfg.i18n && cfg.i18n.save_failed) || 'The server accepted the request but did not persist the assignment.');
             }
             // Reload to refresh chemistry + occupant names from the

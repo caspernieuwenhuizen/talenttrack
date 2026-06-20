@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.26.3
+Stable tag: 4.26.4
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.26.4 — Blueprint canvas: stop the false "did not persist" error on every player assignment (closes #1524). Adding a player to a blueprint slot showed a browser error ("The server accepted the request but did not persist the assignment.") even though the player *was* saved — visible after a reload. The save succeeded server-side; the JS false-positived. `PUT /blueprints/{id}/assignment` returns the standard REST envelope `{ success, data: { ref, blueprint_chemistry, … }, errors }`, but [`saveAssignment()`](assets/js/components/blueprint-editor.js) read `data.ref` at the top level — always `undefined`, since the value is at `data.data.ref` — so the #1054 persistence guard threw on every successful save. The handler now unwraps the envelope once (`payload = env.data ?? env`), checks `payload.ref` for the persistence guard, and surfaces real server errors from `env.errors[0].message` on 4xx/5xx instead of a generic fallback. Audited the other blueprint-editor fetch callers: `clone` already reads `resp.data.id || resp.id`; the auto-save / clear / status handlers only check `r.ok` then reload (no payload read), so they were already envelope-safe. No new strings. Patch bump. (closes #1524) =
 
 = 4.26.3 — Live-match CTA: make the detail-page button state- and date-aware (closes #1520). On a match activity's detail page, **Start match** showed for any match-type activity on any date (e.g. a match moved to tomorrow still offered "Start match") and kept reading "Start match" after the match had started or finished — even though the execution view (#1473) already refuses to start before match day. [`FrontendActivitiesManageView`](src/Shared/Frontend/FrontendActivitiesManageView.php) now reads the execution row and computes the CTA: a not-started match shows **Start match** only on match day and is **hidden** off-day (no misleading CTA); a live match shows **Resume match** on any day; a played match shows **View match** on any day. The match-day rule is extracted to `MatchExecutionState::isMatchDay()` and now shared by the detail-page button, the execution view's start-lock, and the REST start-transition gate so the three surfaces can't drift. 1 new Dutch msgstr ("View match"). Patch bump. (closes #1520) =
 
