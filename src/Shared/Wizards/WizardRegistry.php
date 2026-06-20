@@ -42,7 +42,11 @@ final class WizardRegistry {
         if ( ! $w ) return false;
         if ( ! self::isEnabled( $slug ) ) return false;
         if ( $user_id <= 0 ) $user_id = get_current_user_id();
-        return user_can( $user_id, $w->requiredCap() );
+        // Matrix-aware: the cap may be granted via the authorization matrix /
+        // functional roles rather than a plain WP cap. Mirror how the button
+        // render-guards and the rest of the app resolve caps, otherwise a
+        // matrix-only cap holder sees the button but urlFor() falls back.
+        return \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, $w->requiredCap() );
     }
 
     /**
