@@ -32469,4 +32469,51 @@ msgstr ""
 #: src/Shared/Validation/CustomFieldValidator.php:350
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
+msgstr ""#: src/Shared/Frontend/FrontendUsageStatsView.php
+msgid "Logins / user"
 msgstr ""
+
+#: src/Shared/Frontend/FrontendUsageStatsView.php
+msgid "Stickiness (DAU/MAU)"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendUsageStatsView.php
+msgid "Avg session"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendUsageStatsView.php
+msgid "Time online (observed)"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendUsageStatsView.php
+msgid "Actions / user"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendUsageStatsView.php
+msgid "Top features used"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendUsageStatsView.php
+msgid "No views recorded in this window yet."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendUsageStatsView.php
+#, php-format
+msgid "Dormant users (no login in %d days)"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendUsageStatsView.php
+msgid "Everyone with an account has logged in recently."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendUsageStatsView.php
+#, php-format
+msgid "%s min"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendUsageStatsView.php
+#, php-format
+msgid "%s h"
+msgstr ""
+
+

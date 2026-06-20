@@ -246,6 +246,16 @@ class DashboardShortcode {
         // view so the prompt is unmissable but not blocking.
         FrontendInstallBanner::render();
 
+        // Usage instrumentation — capture the frontend surface the
+        // logged-in user landed on (the dashboard root records as
+        // `dashboard`). wp-admin views are tracked separately. One cheap
+        // insert; events are pruned at 90 days and carry no IP / UA.
+        \TT\Infrastructure\Usage\UsageTracker::record(
+            $user_id,
+            'frontend_view',
+            $view !== '' ? $view : 'dashboard'
+        );
+
         if ( $view === '' ) {
             // #0060 — when the persona-dashboard feature flag is on,
             // PersonaLandingRenderer takes over the empty-view landing

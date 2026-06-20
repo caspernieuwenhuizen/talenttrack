@@ -36880,6 +36880,53 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ msgid "Optional reason"
 #~ msgstr "Optionele reden"
 
+#: src/Shared/Frontend/FrontendUsageStatsView.php
+msgid "Logins / user"
+msgstr "Logins / gebruiker"
+
+#: src/Shared/Frontend/FrontendUsageStatsView.php
+msgid "Stickiness (DAU/MAU)"
+msgstr "Kleefkracht (DAU/MAU)"
+
+#: src/Shared/Frontend/FrontendUsageStatsView.php
+msgid "Avg session"
+msgstr "Gem. sessie"
+
+#: src/Shared/Frontend/FrontendUsageStatsView.php
+msgid "Time online (observed)"
+msgstr "Tijd online (gemeten)"
+
+#: src/Shared/Frontend/FrontendUsageStatsView.php
+msgid "Actions / user"
+msgstr "Acties / gebruiker"
+
+#: src/Shared/Frontend/FrontendUsageStatsView.php
+msgid "Top features used"
+msgstr "Meest gebruikte functies"
+
+#: src/Shared/Frontend/FrontendUsageStatsView.php
+msgid "No views recorded in this window yet."
+msgstr "Nog geen weergaven in deze periode."
+
+#: src/Shared/Frontend/FrontendUsageStatsView.php
+#, php-format
+msgid "Dormant users (no login in %d days)"
+msgstr "Inactieve gebruikers (geen login in %d dagen)"
+
+#: src/Shared/Frontend/FrontendUsageStatsView.php
+msgid "Everyone with an account has logged in recently."
+msgstr "Iedereen met een account heeft recent ingelogd."
+
+#: src/Shared/Frontend/FrontendUsageStatsView.php
+#, php-format
+msgid "%s min"
+msgstr "%s min"
+
+#: src/Shared/Frontend/FrontendUsageStatsView.php
+#, php-format
+msgid "%s h"
+msgstr "%s u"
+
 #~ msgid "Create dashboard page"
 #~ msgstr "Dashboardpagina aanmaken"
 

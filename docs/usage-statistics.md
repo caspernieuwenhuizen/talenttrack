@@ -7,22 +7,30 @@
 ## What's tracked
 
 - **Logins** — each WordPress login counts, per user, per day
+- **Frontend views** — which dashboard surfaces (`?tt_view=…`) people open
 - **Admin page views** — which TalentTrack admin pages people visit
 - **Evaluations created** — counted via the evaluations table, not tracked separately
 
 Events older than **90 days are automatically deleted**. No IP addresses, user agents, or referrer URLs are recorded. Event tracking is strictly for club-internal usage visibility.
 
-## KPI surfaces
+## Application KPIs — engagement, not outcomes
 
-The dashboard shows:
+The **Application KPIs** page answers *is the tool being used, by whom, how much, and for what* — engagement signals, not football outcomes. (Attendance %, goal completion and ratings are player-development *report content* and live in the **Reports** launcher, not here.)
 
-- **Logins** — 7 / 30 / 90 day counts
-- **Active users** — distinct users with any activity in 7 / 30 / 90 days
-- **DAU line chart** — last 90 days
-- **Evaluations per day** — last 90 days
-- **Active users by role** — admin / coach / player / other breakdown
-- **Top admin pages** — which TalentTrack pages are most visited
-- **Inactive users** — users who haven't logged in in 30+ days
+Headline tiles:
+
+- **Active users** — distinct users with any activity in the window
+- **Logins / user** — re-engagement: how often active users come back
+- **Stickiness (DAU/MAU)** — average daily-active ÷ 30-day-active; how habitual the tool is
+- **Avg session** & **Time online (observed)** — session length and total time on task, inferred from the gaps between a user's events (a deliberate *lower bound* — a single page left open can't be measured)
+- **Actions / user** — interactions (views + logins + actions) per active user
+
+Panels:
+
+- **Daily active users** line chart
+- **Active users by role** — admin / coach / player / other
+- **Top features used** — most-opened frontend views + admin pages
+- **Dormant users** — who hasn't logged in during the window (who to nudge)
 
 ## Drill-downs
 
