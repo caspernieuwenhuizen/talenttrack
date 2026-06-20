@@ -1475,6 +1475,7 @@ class FrontendConfigurationView extends FrontendViewBase {
             ];
         }
         $admin_tiles = array_merge( $admin_tiles, [
+            [ __( 'Seasons', 'talenttrack' ),                    __( 'Create, edit, delete and set the current academy season. PDP files and the carryover job are scoped to the current season.', 'talenttrack' ), add_query_arg( [ 'tt_view' => 'seasons' ], remove_query_arg( [ 'tt_view', 'config_sub' ] ) ), 'calendar' ],
             [ __( 'Custom CSS', 'talenttrack' ),                 __( 'Per-club custom styling (#0064): visual editor, code editor, file upload, starter templates, history with revert. Frontend + wp-admin surfaces.', 'talenttrack' ), add_query_arg( [ 'tt_view' => 'custom-css' ], remove_query_arg( [ 'tt_view', 'config_sub' ] ) ), 'rate-card' ],
             [ __( 'Spond integration', 'talenttrack' ),          __( 'Per-team iCal sync status and "Refresh now" buttons. Lives in wp-admin.', 'talenttrack' ),                admin_url( 'admin.php?page=tt-spond' ), 'sessions' ],
             [ __( 'Feature toggles', 'talenttrack' ),            __( 'Per-module enable/disable toggles. Live in wp-admin.', 'talenttrack' ),                                add_query_arg( [ 'tab' => 'toggles' ],     $admin_url ), 'gear' ],
@@ -1900,8 +1901,10 @@ class FrontendConfigurationView extends FrontendViewBase {
 
         $all_seasons = $seasons_repo->all();
         if ( empty( $all_seasons ) ) {
+            $seasons_url = add_query_arg( [ 'tt_view' => 'seasons' ], remove_query_arg( [ 'tt_view', 'config_sub' ] ) );
             echo '<p class="tt-notice">'
-                . esc_html__( 'No seasons configured yet. Open the wp-admin Seasons page first and add a season — then come back here to set its PDP blocks.', 'talenttrack' )
+                . esc_html__( 'No seasons configured yet. Add a season under Configuration → Seasons first, then come back here to set its PDP blocks.', 'talenttrack' )
+                . ' <a href="' . esc_url( $seasons_url ) . '">' . esc_html__( 'Manage seasons', 'talenttrack' ) . '</a>'
                 . '</p>';
             return;
         }

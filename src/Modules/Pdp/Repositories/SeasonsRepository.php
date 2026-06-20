@@ -101,6 +101,64 @@ class SeasonsRepository {
     }
 
     /**
+     * Tables that reference a season by `season_id`. A season with rows
+     * in any of these cannot be deleted — doing so would orphan PDP
+     * files, blocks, staff-development records, or VCT schedules. Edit
+     * the season instead. Module tables that don't exist (module never
+     * installed / disabled) are skipped.
+     *
+     * @var list<string>
+     */
+    private const REFERENCING_TABLES = [
+        'tt_pdp_files',
+        'tt_pdp_blocks',
+        'tt_staff_goals',
+        'tt_staff_evaluations',
+        'tt_staff_pdp',
+        'tt_vct_macro_blocks',
+        'tt_vct_team_schedules',
+    ];
+
+    /**
+     * Does any record reference this season? Used to gate deletion so
+     * referential integrity holds across the PDP / staff-dev / VCT
+     * tables — mirroring why the wp-admin manager never offered delete.
+     */
+    public function isReferenced( int $id ): bool {
+        if ( $id <= 0 ) return false;
+        $p = $this->wpdb->prefix;
+        foreach ( self::REFERENCING_TABLES as $t ) {
+            $full = $p . $t;
+            if ( $this->wpdb->get_var( $this->wpdb->prepare( 'SHOW TABLES LIKE %s', $full ) ) !== $full ) {
+                continue;
+            }
+            $hit = (int) $this->wpdb->get_var( $this->wpdb->prepare(
+                "SELECT 1 FROM {$full} WHERE season_id = %d LIMIT 1",
+                $id
+            ) );
+            if ( $hit === 1 ) return true;
+        }
+        return false;
+    }
+
+    /**
+     * Delete a season. Hard-guarded: refuses the current season (you'd
+     * be left with none) and any season referenced by linked records
+     * (you'd orphan them). Callers should surface the specific reason
+     * via `find()` + `isReferenced()` before calling; this is the
+     * defence-in-depth backstop.
+     */
+    public function delete( int $id ): bool {
+        if ( $id <= 0 ) return false;
+        $season = $this->find( $id );
+        if ( $season === null ) return false;
+        if ( (int) $season->is_current === 1 ) return false;
+        if ( $this->isReferenced( $id ) ) return false;
+        $ok = $this->wpdb->delete( $this->table, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
+        return $ok !== false && (int) $ok > 0;
+    }
+
+    /**
      * Mark a single season as current. Atomically demotes any other.
      * Fires the `tt_pdp_season_set_current` action so the carryover
      * job can roll open goals into the new season.

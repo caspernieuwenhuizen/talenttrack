@@ -37234,6 +37234,95 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/Frontend/FrontendSeasonsView.php
+msgid "Set current"
+msgstr "Stel in als huidig"
+
+#: src/Shared/Frontend/FrontendSeasonsView.php
+msgid "Season name"
+msgstr "Seizoensnaam"
+
+#: src/Shared/Frontend/FrontendSeasonsView.php
+msgid "New season"
+msgstr "Nieuw seizoen"
+
+#: src/Shared/Frontend/FrontendSeasonsView.php
+msgid "Save season"
+msgstr "Seizoen opslaan"
+
+#: src/Shared/Frontend/FrontendSeasonsView.php
+msgid "Create season"
+msgstr "Seizoen aanmaken"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Manage seasons"
+msgstr "Seizoenen beheren"
+
+#: src/Shared/Frontend/FrontendSeasonsView.php
+msgid "Ends"
+msgstr "Eindigt"
+
+#: src/Shared/Frontend/FrontendSeasonsView.php
+msgid "+ New season"
+msgstr "+ Nieuw seizoen"
+
+#: src/Shared/Frontend/FrontendSeasonsView.php
+msgid "Exactly one season is current. PDP files are scoped to a season, and the carryover job runs whenever you change the current season."
+msgstr "Precies één seizoen is het huidige. PDP-dossiers zijn gekoppeld aan een seizoen en de overdrachtstaak draait telkens wanneer je het huidige seizoen wijzigt."
+
+#: src/Shared/Frontend/FrontendSeasonsView.php
+msgid "No seasons yet. Create your first one."
+msgstr "Nog geen seizoenen. Maak je eerste aan."
+
+#: src/Shared/Frontend/FrontendSeasonsView.php
+msgid "Has linked records — edit instead of deleting."
+msgstr "Heeft gekoppelde records — bewerk in plaats van verwijderen."
+
+#: src/Shared/Frontend/FrontendSeasonsView.php
+msgid "That season no longer exists."
+msgstr "Dat seizoen bestaat niet meer."
+
+#: src/Shared/Frontend/FrontendSeasonsView.php
+msgid "Season not found"
+msgstr "Seizoen niet gevonden"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Create, edit, delete and set the current academy season. PDP files and the carryover job are scoped to the current season."
+msgstr "Maak, bewerk, verwijder en stel het huidige academieseizoen in. PDP-dossiers en de overdrachtstaak zijn gekoppeld aan het huidige seizoen."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "No seasons configured yet. Add a season under Configuration → Seasons first, then come back here to set its PDP blocks."
+msgstr "Nog geen seizoenen ingesteld. Voeg eerst een seizoen toe onder Configuratie → Seizoenen en kom dan hier terug om de PDP-blokken in te stellen."
+
+#: src/Shared/Frontend/FrontendSeasonsView.php
+msgid "Make this the current season? Carryover runs for any open PDP file from the previous season."
+msgstr "Dit het huidige seizoen maken? De overdracht draait voor elk open PDP-dossier uit het vorige seizoen."
+
+#: src/Shared/Frontend/FrontendSeasonsView.php
+#, php-format
+msgid "Delete the season “%s”? This cannot be undone."
+msgstr "Het seizoen “%s” verwijderen? Dit kan niet ongedaan worden gemaakt."
+
+#: src/Shared/Frontend/FrontendSeasonsView.php
+msgid "Something went wrong. Please try again."
+msgstr "Er ging iets mis. Probeer het opnieuw."
+
+#: src/Shared/Frontend/FrontendSeasonsView.php
+msgid "End date must be after the start date."
+msgstr "De einddatum moet na de startdatum liggen."
+
+#: src/Modules/Pdp/Rest/SeasonsRestController.php
+msgid "The current season can’t be deleted. Set another season as current first."
+msgstr "Het huidige seizoen kan niet worden verwijderd. Stel eerst een ander seizoen in als huidig."
+
+#: src/Modules/Pdp/Rest/SeasonsRestController.php
+msgid "This season has linked records (PDP files, staff development or schedules). Edit it instead of deleting."
+msgstr "Dit seizoen heeft gekoppelde records (PDP-dossiers, stafontwikkeling of schema’s). Bewerk het in plaats van te verwijderen."
+
+#: src/Modules/Pdp/Rest/SeasonsRestController.php
+msgid "The season could not be deleted."
+msgstr "Het seizoen kon niet worden verwijderd."
+
 #~ msgid "Evaluations / coach"
 #~ msgstr "Evaluaties per coach"
 
