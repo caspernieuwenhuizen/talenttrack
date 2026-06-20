@@ -5,6 +5,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Analytics\Domain\AttendanceFlagService;
+use TT\Modules\Analytics\Reports\AttendanceRankingQuery;
 use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
@@ -79,37 +81,22 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
 
         self::renderFilterForm( $from, $to, $team_id, $allowed_team_ids );
 
-        $rows = self::query( $from, $to, $team_id, $allowed_team_ids );
+        // #1488 — ranking, the missed count, and the at-risk flag all
+        // come from the shared AttendanceRankingQuery so the report, the
+        // leaderboard, the REST surface, and the Comms cron can never
+        // drift. Rows arrive worst-attendance-first; the table stays
+        // client-side sortable on any column on top of that default.
+        $rows = ( new AttendanceRankingQuery() )->rows( $from, $to, $team_id, $allowed_team_ids );
         if ( $rows === [] ) {
             echo '<p class="tt-notice">' . esc_html__( 'No attendance recorded in the selected window.', 'talenttrack' ) . '</p>';
             return;
         }
 
-        // #1488 — rank worst-attendance first and flag at-risk players
-        // (>= the shared, configurable missed-threshold the Comms cron
-        // also uses). The table stays client-side sortable on any column;
-        // this is just the default order + the inline / panel flags.
-        $threshold = \TT\Modules\Analytics\Domain\AttendanceFlagService::threshold();
-        $at_risk   = [];
-        foreach ( $rows as $r ) {
-            $total          = (int) ( $r->total ?? 0 );
-            $r->_present_pct = $total > 0 ? ( (int) $r->present / $total ) * 100 : null;
-            $r->_missed      = \TT\Modules\Analytics\Domain\AttendanceFlagService::missed( $r );
-            $r->_flagged     = $r->_missed >= $threshold;
-            if ( $r->_flagged ) $at_risk[] = $r;
-        }
-        usort( $rows, static function ( $a, $b ) {
-            // No-data rows sort last; otherwise ascending present %.
-            $pa = $a->_present_pct ?? 1000.0;
-            $pb = $b->_present_pct ?? 1000.0;
-            if ( $pa === $pb ) {
-                return strcasecmp( (string) ( $a->last_name ?? '' ), (string) ( $b->last_name ?? '' ) );
-            }
-            return $pa <=> $pb;
-        } );
+        $threshold = AttendanceFlagService::threshold();
+        $at_risk   = array_values( array_filter( $rows, static fn( array $r ): bool => ! empty( $r['flagged'] ) ) );
 
         if ( $at_risk !== [] ) {
-            usort( $at_risk, static fn( $a, $b ) => $b->_missed <=> $a->_missed );
+            usort( $at_risk, static fn( $a, $b ) => (int) $b['missed'] <=> (int) $a['missed'] );
             echo '<div class="tt-panel" style="border-left:4px solid #d63638; margin-top:12px;">';
             echo '<h3 class="tt-panel-title" style="margin-top:0;">' . esc_html( sprintf(
                 /* translators: %d is the missed-activities threshold */
@@ -118,10 +105,10 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
             ) ) . '</h3>';
             echo '<ul style="margin:0; padding-left:18px; line-height:1.7;">';
             foreach ( $at_risk as $r ) {
-                $nm = trim( ( $r->first_name ?? '' ) . ' ' . ( $r->last_name ?? '' ) );
-                if ( $nm === '' ) $nm = '#' . (int) $r->player_id;
+                $nm = trim( ( (string) $r['first_name'] ) . ' ' . ( (string) $r['last_name'] ) );
+                if ( $nm === '' ) $nm = '#' . (int) $r['player_id'];
                 echo '<li>' . esc_html( $nm ) . ' <span style="color:var(--tt-muted);">'
-                    . esc_html( sprintf( /* translators: %d missed activities */ __( '%d missed', 'talenttrack' ), (int) $r->_missed ) )
+                    . esc_html( sprintf( /* translators: %d missed activities */ __( '%d missed', 'talenttrack' ), (int) $r['missed'] ) )
                     . '</span></li>';
             }
             echo '</ul></div>';
@@ -140,83 +127,33 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
         echo '</tr></thead><tbody>';
 
         foreach ( $rows as $r ) {
-            $player_name = trim( ( $r->first_name ?? '' ) . ' ' . ( $r->last_name ?? '' ) );
-            if ( $player_name === '' ) $player_name = '#' . (int) $r->player_id;
+            $player_name = trim( ( (string) $r['first_name'] ) . ' ' . ( (string) $r['last_name'] ) );
+            if ( $player_name === '' ) $player_name = '#' . (int) $r['player_id'];
             $player_url = BackLink::appendTo( add_query_arg(
-                [ 'tt_view' => 'players', 'id' => (int) $r->player_id ],
+                [ 'tt_view' => 'players', 'id' => (int) $r['player_id'] ],
                 RecordLink::dashboardUrl()
             ) );
-            $team_name = (string) ( $r->team_name ?? '' );
+            $team_name = (string) $r['team_name'];
             // #1488 — inline at-risk badge for flagged players.
             $badge = '';
-            if ( ! empty( $r->_flagged ) ) {
+            if ( ! empty( $r['flagged'] ) ) {
                 $badge = ' <span class="tt-flag-badge" title="'
-                    . esc_attr( sprintf( /* translators: %d missed activities */ __( '%d missed', 'talenttrack' ), (int) $r->_missed ) )
+                    . esc_attr( sprintf( /* translators: %d missed activities */ __( '%d missed', 'talenttrack' ), (int) $r['missed'] ) )
                     . '" style="display:inline-block; background:#fcecec; color:#d63638; border-radius:10px; padding:1px 7px; font-size:11px; font-weight:600; white-space:nowrap;">⚠ '
-                    . (int) $r->_missed . '</span>';
+                    . (int) $r['missed'] . '</span>';
             }
-            echo '<tr' . ( ! empty( $r->_flagged ) ? ' style="background:#fffafa;"' : '' ) . '>';
+            echo '<tr' . ( ! empty( $r['flagged'] ) ? ' style="background:#fffafa;"' : '' ) . '>';
             echo '<td><a class="tt-record-link" href="' . esc_url( $player_url ) . '">' . esc_html( $player_name ) . '</a>' . $badge . '</td>';
             echo '<td>' . ( $team_name !== '' ? esc_html( $team_name ) : '<span class="tt-muted">&mdash;</span>' ) . '</td>';
-            echo '<td style="text-align:right;">' . (int) $r->activities . '</td>';
-            echo '<td style="text-align:right;">' . esc_html( self::pct( $r->present, $r->total ) ) . '</td>';
-            echo '<td style="text-align:right;">' . esc_html( self::pct( $r->late,    $r->total ) ) . '</td>';
-            echo '<td style="text-align:right;">' . esc_html( self::pct( $r->absent,  $r->total ) ) . '</td>';
-            echo '<td style="text-align:right;">' . esc_html( self::pct( $r->excused, $r->total ) ) . '</td>';
-            echo '<td style="text-align:right;">' . esc_html( self::pct( $r->injured, $r->total ) ) . '</td>';
+            echo '<td style="text-align:right;">' . (int) $r['activities'] . '</td>';
+            echo '<td style="text-align:right;">' . esc_html( self::pct( $r['present'], $r['total'] ) ) . '</td>';
+            echo '<td style="text-align:right;">' . esc_html( self::pct( $r['late'],    $r['total'] ) ) . '</td>';
+            echo '<td style="text-align:right;">' . esc_html( self::pct( $r['absent'],  $r['total'] ) ) . '</td>';
+            echo '<td style="text-align:right;">' . esc_html( self::pct( $r['excused'], $r['total'] ) ) . '</td>';
+            echo '<td style="text-align:right;">' . esc_html( self::pct( $r['injured'], $r['total'] ) ) . '</td>';
             echo '</tr>';
         }
         echo '</tbody></table></div>';
-    }
-
-    /**
-     * @param list<int>|null $allowed_team_ids null = unrestricted (admin / view_all_teams);
-     *                                         non-empty list = scope the query to those teams.
-     * @return list<object>
-     */
-    private static function query( string $from, string $to, int $team_id, ?array $allowed_team_ids ): array {
-        global $wpdb;
-        $where_team = $team_id > 0
-            ? $wpdb->prepare( ' AND a.team_id = %d', $team_id )
-            : '';
-
-        $where_scope = '';
-        if ( $allowed_team_ids !== null ) {
-            if ( $allowed_team_ids === [] ) return [];
-            $placeholders = implode( ',', array_fill( 0, count( $allowed_team_ids ), '%d' ) );
-            $where_scope  = $wpdb->prepare( " AND a.team_id IN ($placeholders)", ...$allowed_team_ids );
-        }
-
-        /** @var object[] $rows */
-        $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT
-                p.id   AS player_id,
-                p.first_name,
-                p.last_name,
-                t.name AS team_name,
-                COUNT(DISTINCT a.id) AS activities,
-                COUNT(att.id) AS total,
-                SUM( CASE WHEN LOWER(att.status) = 'present' THEN 1 ELSE 0 END ) AS present,
-                SUM( CASE WHEN LOWER(att.status) = 'late'    THEN 1 ELSE 0 END ) AS late,
-                SUM( CASE WHEN LOWER(att.status) = 'absent'  THEN 1 ELSE 0 END ) AS absent,
-                SUM( CASE WHEN LOWER(att.status) = 'excused' THEN 1 ELSE 0 END ) AS excused,
-                SUM( CASE WHEN LOWER(att.status) = 'injured' THEN 1 ELSE 0 END ) AS injured
-              FROM {$wpdb->prefix}tt_attendance att
-              JOIN {$wpdb->prefix}tt_activities a ON a.id = att.activity_id AND a.archived_at IS NULL
-              JOIN {$wpdb->prefix}tt_players    p ON p.id = att.player_id  AND p.archived_at IS NULL
-              LEFT JOIN {$wpdb->prefix}tt_teams t ON t.id = p.team_id
-             WHERE p.club_id = %d
-               AND att.is_guest = 0
-               AND att.record_type = 'actual'
-               AND a.session_date BETWEEN %s AND %s
-               AND a.plan_state = 'completed'
-               {$where_team}
-               {$where_scope}
-             GROUP BY p.id, p.first_name, p.last_name, t.name
-             ORDER BY p.last_name, p.first_name",
-            CurrentClub::id(), $from, $to
-        ) );
-        return is_array( $rows ) ? $rows : [];
     }
 
     private static function pct( $part, $total ): string {

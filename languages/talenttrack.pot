@@ -33031,3 +33031,42 @@ msgstr ""
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr ""
+
+#: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php
+msgid "Attendance leaderboard"
+msgstr ""
+
+#: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php
+msgid ""
+"League-table ranking of the best and worst attenders over a window, with at-"
+"risk players flagged."
+msgstr ""
+
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php
+msgid "Needs attention — lowest attendance"
+msgstr ""
+
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php
+msgid "Most reliable — highest attendance"
+msgstr ""
+
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php
+msgid "No players to rank yet."
+msgstr ""
+
+#: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php
+msgid "How many"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Attendance at-risk threshold"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid ""
+"How many missed activities (absent, excused or injured) flag a player as at "
+"risk. Used by the player attendance report, the attendance leaderboard, and "
+"the daily attendance-flag notification — they all read this one number. "
+"Default 3."
+msgstr ""

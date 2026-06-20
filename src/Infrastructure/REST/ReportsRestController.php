@@ -3,8 +3,10 @@ namespace TT\Infrastructure\REST;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Modules\Analytics\Reports\AttendanceRankingQuery;
 use TT\Modules\Analytics\Reports\CoachEvalQualityQuery;
 use TT\Modules\Analytics\Reports\PlayerRadarQuery;
+use TT\Modules\Analytics\Domain\AttendanceFlagService;
 use WP_REST_Request;
 
 /**
@@ -56,6 +58,96 @@ final class ReportsRestController extends BaseController {
                 ],
             ],
         ] );
+        // #1488 — attendance ranking surfaces. Gated on `tt_view_analytics`
+        // (the same cap the PHP-rendered report + leaderboard check);
+        // results are additionally narrowed to the caller's team scope
+        // below, so coaches never read other teams' rows.
+        $attendance_args = [
+            'team_id' => [ 'sanitize_callback' => 'absint',              'required' => false ],
+            'from'    => [ 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
+            'to'      => [ 'sanitize_callback' => 'sanitize_text_field', 'required' => false ],
+        ];
+        register_rest_route( self::NS, '/reports/attendance-leaderboard', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ self::class, 'attendanceLeaderboard' ],
+                'permission_callback' => self::permCan( 'tt_view_analytics' ),
+                'args'                => $attendance_args + [
+                    'n' => [ 'sanitize_callback' => 'absint', 'required' => false ],
+                ],
+            ],
+        ] );
+        register_rest_route( self::NS, '/reports/attendance-at-risk', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ self::class, 'attendanceAtRisk' ],
+                'permission_callback' => self::permCan( 'tt_view_analytics' ),
+                'args'                => $attendance_args,
+            ],
+        ] );
+    }
+
+    public static function attendanceLeaderboard( WP_REST_Request $req ): \WP_REST_Response {
+        [ $from, $to ]   = self::attendanceWindow( $req );
+        $team_id         = (int) $req->get_param( 'team_id' );
+        $n               = (int) ( $req->get_param( 'n' ) ?: 10 );
+        $allowed         = self::attendanceScope( $team_id );
+        if ( $allowed['blocked'] ) return RestResponse::success( [ 'top' => [], 'bottom' => [], 'total' => 0 ] );
+
+        $board = ( new AttendanceRankingQuery() )->leaderboard( $from, $to, $n, $team_id, $allowed['team_ids'] );
+        return RestResponse::success( $board );
+    }
+
+    public static function attendanceAtRisk( WP_REST_Request $req ): \WP_REST_Response {
+        [ $from, $to ]   = self::attendanceWindow( $req );
+        $team_id         = (int) $req->get_param( 'team_id' );
+        $allowed         = self::attendanceScope( $team_id );
+        if ( $allowed['blocked'] ) return RestResponse::success( [ 'players' => [], 'threshold' => AttendanceFlagService::threshold() ] );
+
+        $players = ( new AttendanceRankingQuery() )->atRisk( $from, $to, $team_id, $allowed['team_ids'] );
+        return RestResponse::success( [
+            'players'   => $players,
+            'threshold' => AttendanceFlagService::threshold(),
+        ] );
+    }
+
+    /**
+     * Resolve + validate the `from`/`to` window (default last 90 days).
+     *
+     * @return array{0:string,1:string}
+     */
+    private static function attendanceWindow( WP_REST_Request $req ): array {
+        $from = (string) $req->get_param( 'from' );
+        $to   = (string) $req->get_param( 'to' );
+        if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $from ) ) $from = gmdate( 'Y-m-d', strtotime( '-90 days' ) );
+        if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $to ) )   $to   = gmdate( 'Y-m-d' );
+        return [ $from, $to ];
+    }
+
+    /**
+     * Mirror the analytics views' team-scope rule: academy-wide roles
+     * (`tt_view_all_teams` / settings admin) read the whole club;
+     * everyone else is narrowed to the teams they coach. A coach who
+     * passes a team they don't coach — or coaches nothing — is blocked.
+     *
+     * @return array{team_ids:list<int>|null, blocked:bool}
+     */
+    private static function attendanceScope( int $team_id ): array {
+        $is_scope_admin = current_user_can( 'tt_view_all_teams' ) || current_user_can( 'tt_edit_settings' );
+        if ( $is_scope_admin ) {
+            return [ 'team_ids' => null, 'blocked' => false ];
+        }
+        $team_ids = array_values( array_map(
+            'intval',
+            array_column( \TT\Infrastructure\Query\QueryHelpers::get_teams_for_coach( get_current_user_id() ), 'id' )
+        ) );
+        if ( $team_ids === [] ) {
+            return [ 'team_ids' => [], 'blocked' => true ];
+        }
+        if ( $team_id > 0 && ! in_array( $team_id, $team_ids, true ) ) {
+            return [ 'team_ids' => $team_ids, 'blocked' => true ];
+        }
+        return [ 'team_ids' => $team_ids, 'blocked' => false ];
     }
 
     public static function playerRadar( WP_REST_Request $req ): \WP_REST_Response {

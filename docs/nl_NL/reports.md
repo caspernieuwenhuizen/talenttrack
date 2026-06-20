@@ -46,4 +46,19 @@ Coaches zien alleen spelers en teams van hun eigen teams; academiebrede rollen z
 
 Het aanwezigheidsrapport per speler staat standaard op **laagste aanwezigheid eerst** (laagste aanwezig-%), zodat de spelers die aandacht nodig hebben bovenaan staan. Elke kolom blijft sorteerbaar — klik op een kop om opnieuw te sorteren.
 
-Spelers die een instelbaar aantal activiteiten hebben **gemist** in de periode (afwezig / afgemeld / geblesseerd) worden **gemarkeerd**: een ⚠-badge met het aantal gemiste activiteiten, een licht gekleurde rij, en een paneel **Risicospelers** boven de tabel. De drempel (standaard **3**) is de *enige bron van waarheid* die gedeeld wordt met de dagelijkse aanwezigheidsmelding, zodat het rapport en de melding altijd overeenkomen. Hij staat in `tt_config` onder `attendance_flag_threshold`.
+Spelers die een instelbaar aantal activiteiten hebben **gemist** in de periode (afwezig / afgemeld / geblesseerd) worden **gemarkeerd**: een ⚠-badge met het aantal gemiste activiteiten, een licht gekleurde rij, en een paneel **Risicospelers** boven de tabel. De drempel (standaard **3**) is de *enige bron van waarheid* die gedeeld wordt met de dagelijkse aanwezigheidsmelding, zodat het rapport en de melding altijd overeenkomen.
+
+### De risicodrempel instellen
+
+De drempel staat onder **Configuratie → Algemeen → Risicodrempel aanwezigheid** (een instelling voor de academy-beheerder). Eén getal, tussen 1 en 50, bepaalt elke risicomarkering: het aanwezigheidsrapport per speler, de aanwezigheidsranglijst en de dagelijkse aanwezigheidsmelding lezen het allemaal. Zet hem lager om verzuim eerder op te merken, of hoger als jullie academy alleen op aanhoudend verzuim wil reageren.
+
+## Aanwezigheidsranglijst (v4.27.0)
+
+Een aparte ranglijst die je opent vanuit de Rapporten-startpagina (*Aanwezigheidsranglijst*). Hij rangschikt spelers over de gekozen periode in twee tabellen naast elkaar: **Aandacht nodig** (de laagste aanwezigheid-%, waar risicospelers hun ⚠-badge houden) en **Meest betrouwbaar** (de hoogste aanwezigheid-%). Kies hoeveel je toont (standaard 10, maximaal 50) en beperk eventueel tot één team. Coaches zien alleen hun eigen teams; academy-brede rollen zien de hele club.
+
+Op een telefoon stapelen de twee tabellen tot één kolom zonder horizontaal scrollen; vanaf tabletbreedte staan ze naast elkaar. Bovenop de standaardrangschikking is elke kolom sorteerbaar.
+
+Integraties kunnen dezelfde gegevens lezen — met dezelfde `tt_view_analytics`-toegang en team-afbakening — via:
+
+- `GET /wp-json/talenttrack/v1/reports/attendance-leaderboard?from=…&to=…&n=…&team_id=…` — `{ top, bottom, total }`.
+- `GET /wp-json/talenttrack/v1/reports/attendance-at-risk?from=…&to=…&team_id=…` — gemarkeerde spelers met de slechtste eerst, elk met een `declining`-trendindicator, plus de actieve `threshold`.

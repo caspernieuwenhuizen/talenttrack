@@ -468,6 +468,11 @@ class FrontendAnalyticsView extends FrontendViewBase {
                 'url'         => add_query_arg( [ 'tt_view' => 'attendance-report-player' ], $base ),
             ],
             [
+                'label'       => __( 'Attendance leaderboard', 'talenttrack' ),
+                'description' => __( 'League-table ranking of the best and worst attenders over a window, with at-risk players flagged.', 'talenttrack' ),
+                'url'         => add_query_arg( [ 'tt_view' => 'attendance-leaderboard' ], $base ),
+            ],
+            [
                 'label'       => __( 'Minutes played per team', 'talenttrack' ),
                 'description' => __( 'Per-player minutes for a team\'s matches in a window, split by match type (League / Cup / Friendly) with starts / subs / % available.', 'talenttrack' ),
                 'url'         => add_query_arg( [ 'tt_view' => 'minutes-report-team' ], $base ),

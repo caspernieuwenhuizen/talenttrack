@@ -1888,6 +1888,18 @@ class FrontendConfigurationView extends FrontendViewBase {
                         <?php esc_html_e( 'Default language for date and number formatting. Only installed languages are listed.', 'talenttrack' ); ?>
                     </p>
                 </div>
+
+                <?php // #1488 — attendance at-risk flag threshold. ?>
+                <div class="tt-field" style="margin-top:var(--tt-sp-3);">
+                    <label class="tt-field-label" for="tt-cfg-attendance-threshold"><?php esc_html_e( 'Attendance at-risk threshold', 'talenttrack' ); ?></label>
+                    <input type="number" inputmode="numeric" id="tt-cfg-attendance-threshold" class="tt-input"
+                        name="config[<?php echo esc_attr( \TT\Modules\Analytics\Domain\AttendanceFlagService::CONFIG_KEY ); ?>]"
+                        min="1" max="50" step="1"
+                        value="<?php echo esc_attr( (string) \TT\Modules\Analytics\Domain\AttendanceFlagService::threshold() ); ?>" />
+                    <p class="tt-field-hint" style="margin-top:6px;">
+                        <?php esc_html_e( 'How many missed activities (absent, excused or injured) flag a player as at risk. Used by the player attendance report, the attendance leaderboard, and the daily attendance-flag notification — they all read this one number. Default 3.', 'talenttrack' ); ?>
+                    </p>
+                </div>
             </div>
             <div class="tt-form-actions" style="margin-top:16px;">
                 <?php echo FormSaveButton::render( [ 'label' => __( 'Save general settings', 'talenttrack' ) ] ); ?>
