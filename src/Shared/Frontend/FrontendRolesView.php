@@ -45,6 +45,8 @@ class FrontendRolesView extends FrontendViewBase {
             </a>
         </p>
 
+        <?php self::renderAdvancedToolsSection(); ?>
+
         <?php
         // The Read-Only Observer card first (most-missed role).
         self::renderRoleCard(
@@ -90,6 +92,41 @@ class FrontendRolesView extends FrontendViewBase {
         }
         ?>
         <?php
+    }
+
+    /**
+     * #1530 — cap-gated links to the wp-admin Access Control pages
+     * (Authorization Matrix + the matrix / permission debug tools). These
+     * have no frontend equivalent, so the frontend Roles surface links out
+     * to them — the same pattern FrontendFunctionalRolesView uses for
+     * "Roles & rights". Each link is gated on its page's own cap so a user
+     * who can't open the page never sees a dead link. The whole section is
+     * suppressed when the user holds none of the caps.
+     */
+    private static function renderAdvancedToolsSection(): void {
+        $tools = [
+            [ 'cap' => 'administrator',     'slug' => 'tt-matrix',          'label' => __( 'Authorization Matrix', 'talenttrack' ) ],
+            [ 'cap' => 'administrator',     'slug' => 'tt-matrix-preview',  'label' => __( 'Migration preview', 'talenttrack' ) ],
+            [ 'cap' => 'administrator',     'slug' => 'tt-user-compare',    'label' => __( 'Compare users', 'talenttrack' ) ],
+            [ 'cap' => 'tt_view_settings',  'slug' => 'tt-roles-debug',     'label' => __( 'Permission Debug', 'talenttrack' ) ],
+            [ 'cap' => 'administrator',     'slug' => 'tt-auth-chain-debug','label' => __( 'Permission Chain Debug', 'talenttrack' ) ],
+        ];
+
+        $visible = array_values( array_filter( $tools, static fn ( array $t ): bool => current_user_can( $t['cap'] ) ) );
+        if ( empty( $visible ) ) return;
+
+        echo '<section style="margin:0 0 var(--tt-sp-4);">';
+        echo '<h3 style="margin:0 0 var(--tt-sp-2);">' . esc_html__( 'Advanced authorization tools', 'talenttrack' ) . '</h3>';
+        echo '<p style="color:var(--tt-muted); max-width:760px; margin:0 0 var(--tt-sp-3);">'
+            . esc_html__( 'Administrator-level tools for inspecting and migrating the authorization matrix. These open in wp-admin.', 'talenttrack' )
+            . '</p>';
+        echo '<ul style="list-style:none; margin:0; padding:0; display:flex; flex-wrap:wrap; gap:var(--tt-sp-2, 8px);">';
+        foreach ( $visible as $t ) {
+            $url = admin_url( 'admin.php?page=' . $t['slug'] );
+            echo '<li><a class="tt-btn tt-btn-secondary" href="' . esc_url( $url ) . '">' . esc_html( $t['label'] ) . '</a></li>';
+        }
+        echo '</ul>';
+        echo '</section>';
     }
 
     private static function renderRoleCard( string $slug, string $label, string $description, bool $highlight ): void {

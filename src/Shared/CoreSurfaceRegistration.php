@@ -1132,6 +1132,14 @@ final class CoreSurfaceRegistration {
             AdminMenuRegistry::registerSeparator( 'tt-sep-m-data',      __( 'Data & demo', 'talenttrack' ),   'tt_edit_settings',          'data_demo',     0, 20 );
             AdminMenuRegistry::registerSeparator( 'tt-sep-m-help',      __( 'Help', 'talenttrack' ),          'read',                      'help',          0, 30 );
             AdminMenuRegistry::registerSeparator( 'tt-sep-m-advanced',  __( 'Advanced', 'talenttrack' ),      'tt_impersonate_users',      'advanced',      0, 40 );
+            // #1530 — the Access Control admin pages (Authorization Matrix +
+            // the matrix / permission debug tools) had no modern menu entry,
+            // so with legacy menus off they were reachable only by typing the
+            // URL. Give the group a modern heading; the pages themselves now
+            // register with an explicit `talenttrack` parent + `$msort`
+            // weights (44-48) so they sit under it, between Advanced and
+            // Developer. Legacy keeps its existing `tt-sep-access` group.
+            AdminMenuRegistry::registerSeparator( 'tt-sep-m-access',    __( 'Access Control', 'talenttrack' ), 'tt_view_settings',         'access',        0, 43 );
             AdminMenuRegistry::registerSeparator( 'tt-sep-m-developer', __( 'Developer', 'talenttrack' ),     'manage_options',            'developer',     0, 50 );
         }
 
@@ -1521,12 +1529,13 @@ final class CoreSurfaceRegistration {
         ]);
         AdminMenuRegistry::register([
             'module_class' => self::M_AUTHORIZATION,
-            'parent'       => $parent,
+            'parent'       => 'talenttrack', // #1530 — show in the modern menu too (was $parent → hidden when legacy off).
             'group'        => 'access',
             'title'        => __( 'Permission Debug', 'talenttrack' ),
             'cap'          => 'tt_view_settings',
             'slug'         => 'tt-roles-debug',
             'callback'     => [ \TT\Modules\Authorization\Admin\DebugPage::class, 'render' ],
+            'sort'         => $msort( 47 ),
         ]);
         // v3.110.178 (#777) — per-user, per-cap layered chain debug
         // (user_can → LegacyCapMapper::evaluate → userCanOrMatrix).
@@ -1537,39 +1546,43 @@ final class CoreSurfaceRegistration {
         // right WP role + matrix grant.
         AdminMenuRegistry::register([
             'module_class' => self::M_AUTHORIZATION,
-            'parent'       => $parent,
+            'parent'       => 'talenttrack', // #1530 — show in the modern menu too.
             'group'        => 'access',
             'title'        => __( 'Permission Chain Debug', 'talenttrack' ),
             'cap'          => 'administrator',
             'slug'         => 'tt-auth-chain-debug',
             'callback'     => [ \TT\Modules\Authorization\Admin\AuthChainDebugPage::class, 'render' ],
+            'sort'         => $msort( 48 ),
         ]);
         AdminMenuRegistry::register([
             'module_class' => self::M_AUTHORIZATION,
-            'parent'       => $parent,
+            'parent'       => 'talenttrack', // #1530 — show in the modern menu too.
             'group'        => 'access',
             'title'        => __( 'Authorization Matrix', 'talenttrack' ),
             'cap'          => 'administrator',
             'slug'         => 'tt-matrix',
             'callback'     => [ \TT\Modules\Authorization\Admin\MatrixPage::class, 'render' ],
+            'sort'         => $msort( 44 ),
         ]);
         AdminMenuRegistry::register([
             'module_class' => self::M_AUTHORIZATION,
-            'parent'       => $parent,
+            'parent'       => 'talenttrack', // #1530 — show in the modern menu too.
             'group'        => 'access',
             'title'        => __( 'Migration preview', 'talenttrack' ),
             'cap'          => 'administrator',
             'slug'         => 'tt-matrix-preview',
             'callback'     => [ \TT\Modules\Authorization\Admin\PreviewPage::class, 'render' ],
+            'sort'         => $msort( 45 ),
         ]);
         AdminMenuRegistry::register([
             'module_class' => self::M_AUTHORIZATION,
-            'parent'       => $parent,
+            'parent'       => 'talenttrack', // #1530 — show in the modern menu too.
             'group'        => 'access',
             'title'        => __( 'Compare users', 'talenttrack' ),
             'cap'          => 'administrator',
             'slug'         => 'tt-user-compare',
             'callback'     => [ \TT\Modules\Authorization\Admin\UserComparisonPage::class, 'render' ],
+            'sort'         => $msort( 46 ),
         ]);
         AdminMenuRegistry::register([
             'module_class' => self::M_AUTHORIZATION,

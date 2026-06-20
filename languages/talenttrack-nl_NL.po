@@ -37397,6 +37397,18 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/Frontend/FrontendRolesView.php:119
+msgid "Advanced authorization tools"
+msgstr "Geavanceerde autorisatietools"
+
+#: src/Shared/Frontend/FrontendRolesView.php:121
+msgid ""
+"Administrator-level tools for inspecting and migrating the authorization "
+"matrix. These open in wp-admin."
+msgstr ""
+"Beheerdershulpmiddelen om de autorisatiematrix te inspecteren en te "
+"migreren. Deze openen in wp-admin."
+
 #~ msgid "Goal delete failed."
 #~ msgstr "Verwijderen van doel mislukt."
 
