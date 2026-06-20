@@ -364,7 +364,7 @@ class FrontendTeamsManageView extends FrontendViewBase {
         ?>
         <div class="tt-team-detail-meta" style="display:flex; flex-wrap:wrap; gap:16px; align-items:center; margin-bottom:8px;">
             <?php if ( ! empty( $team->age_group ) ) : ?>
-                <span class="tt-pill"><?php echo esc_html( (string) $team->age_group ); ?></span>
+                <span class="tt-pill"><?php echo esc_html( \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'age_group', (string) $team->age_group ) ); ?></span>
             <?php endif; ?>
             <?php if ( $can_edit ) : ?>
                 <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( $edit_url ); ?>" style="margin-left:auto;">

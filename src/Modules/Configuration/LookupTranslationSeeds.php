@@ -36,7 +36,26 @@ final class LookupTranslationSeeds {
             ],
 
             'age_group' => [
-                // U-codes are locale-invariant; only Senior translates.
+                // #1528 — Dutch uses the "O" (Onder) convention: U14 → O14.
+                // fr/de/es use the UEFA U-notation natively, so the canonical
+                // "U…" value is already correct for them and carries no row
+                // (locale-invariant values are simply not listed).
+                'U7'  => [ 'nl_NL' => 'O7' ],
+                'U8'  => [ 'nl_NL' => 'O8' ],
+                'U9'  => [ 'nl_NL' => 'O9' ],
+                'U10' => [ 'nl_NL' => 'O10' ],
+                'U11' => [ 'nl_NL' => 'O11' ],
+                'U12' => [ 'nl_NL' => 'O12' ],
+                'U13' => [ 'nl_NL' => 'O13' ],
+                'U14' => [ 'nl_NL' => 'O14' ],
+                'U15' => [ 'nl_NL' => 'O15' ],
+                'U16' => [ 'nl_NL' => 'O16' ],
+                'U17' => [ 'nl_NL' => 'O17' ],
+                'U18' => [ 'nl_NL' => 'O18' ],
+                'U19' => [ 'nl_NL' => 'O19' ],
+                'U20' => [ 'nl_NL' => 'O20' ],
+                'U21' => [ 'nl_NL' => 'O21' ],
+                'U23' => [ 'nl_NL' => 'O23' ],
                 'Senior' => [ 'nl_NL' => 'Senioren', 'fr_FR' => 'Seniors', 'de_DE' => 'Senioren', 'es_ES' => 'Senior' ],
             ],
 

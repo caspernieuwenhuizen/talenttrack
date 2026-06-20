@@ -311,7 +311,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
                         <p class="tt-player-hero__sub">
                             <a href="<?php echo esc_url( $team_url ); ?>"><?php echo esc_html( (string) $team->name ); ?></a>
                             <?php if ( ! empty( $team->age_group ) ) : ?>
-                                <span> · <?php echo esc_html( (string) $team->age_group ); ?></span>
+                                <span> · <?php echo esc_html( \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'age_group', (string) $team->age_group ) ); ?></span>
                             <?php endif; ?>
                         </p>
                     <?php else : ?>
@@ -763,7 +763,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             $team_url   = add_query_arg( [ 'tt_view' => 'teams', 'id' => (int) $team->id ], RecordLink::dashboardUrl() );
             $team_html  = '<a href="' . esc_url( $team_url ) . '">' . esc_html( (string) $team->name ) . '</a>';
             if ( ! empty( $team->age_group ) ) {
-                $team_html .= ' · ' . esc_html( (string) $team->age_group );
+                $team_html .= ' · ' . esc_html( \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'age_group', (string) $team->age_group ) );
             }
         }
 

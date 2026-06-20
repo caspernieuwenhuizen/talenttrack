@@ -127,7 +127,7 @@ final class FrontendReportDetailView extends FrontendViewBase {
             $eval_count = $eval_counts[ (int) $team->id ] ?? 0;
             echo '<tr><td><strong>' . esc_html( (string) $team->name ) . '</strong>';
             if ( ! empty( $team->age_group ) ) {
-                echo ' <span style="color:#888;">(' . esc_html( (string) $team->age_group ) . ')</span>';
+                echo ' <span style="color:#888;">(' . esc_html( \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'age_group', (string) $team->age_group ) ) . ')</span>';
             }
             echo '</td>';
             foreach ( $categories as $cat ) {

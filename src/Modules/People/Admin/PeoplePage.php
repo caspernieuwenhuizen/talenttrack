@@ -397,7 +397,7 @@ class PeoplePage {
                             : (string) $a->role_in_team;
                         ?>
                         <tr>
-                            <td><?php echo esc_html( $a->team_name ); ?> <?php if ( ! empty( $a->age_group ) ) echo '<small style="color:#999;">(' . esc_html( $a->age_group ) . ')</small>'; ?></td>
+                            <td><?php echo esc_html( $a->team_name ); ?> <?php if ( ! empty( $a->age_group ) ) echo '<small style="color:#999;">(' . esc_html( \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'age_group', (string) $a->age_group ) ) . ')</small>'; ?></td>
                             <td><?php echo esc_html( \TT\Modules\Authorization\Admin\FunctionalRolesPage::roleLabel( $role_key ) ); ?></td>
                             <td><?php echo esc_html( $a->start_date ?: '—' ); ?></td>
                             <td><?php echo esc_html( $a->end_date ?: '—' ); ?></td>

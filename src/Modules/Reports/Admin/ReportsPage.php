@@ -189,7 +189,7 @@ class ReportsPage {
                     ) );
                     ?>
                     <tr>
-                        <td><strong><?php echo esc_html( (string) $team->name ); ?></strong><?php if ( ! empty( $team->age_group ) ) : ?> <span style="color:#888;">(<?php echo esc_html( (string) $team->age_group ); ?>)</span><?php endif; ?></td>
+                        <td><strong><?php echo esc_html( (string) $team->name ); ?></strong><?php if ( ! empty( $team->age_group ) ) : ?> <span style="color:#888;">(<?php echo esc_html( \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'age_group', (string) $team->age_group ) ); ?>)</span><?php endif; ?></td>
                         <?php foreach ( $categories as $cat ) :
                             $avg = $wpdb->get_var( $wpdb->prepare(
                                 "SELECT AVG(r.rating)

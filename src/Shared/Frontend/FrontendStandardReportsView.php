@@ -1055,7 +1055,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             if ( $tid <= 0 ) continue;
             $url = add_query_arg( [ 'slug' => $slug, 'team_id' => $tid ], $base_url );
             $label = (string) ( $t->name ?? '' );
-            if ( ! empty( $t->age_group ) ) $label .= ' (' . (string) $t->age_group . ')';
+            if ( ! empty( $t->age_group ) ) $label .= ' (' . \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'age_group', (string) $t->age_group ) . ')';
             echo '<li><a class="tt-rep-btn" style="display:block;" href="' . esc_url( $url ) . '">' . esc_html( $label ) . '</a></li>';
         }
         echo '</ul></section>';
