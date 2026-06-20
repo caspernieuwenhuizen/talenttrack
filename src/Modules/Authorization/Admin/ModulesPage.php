@@ -144,8 +144,27 @@ class ModulesPage {
                     </details>
                 <?php endforeach; ?>
 
+                <h2 style="margin-top:28px;"><?php esc_html_e( 'Features', 'talenttrack' ); ?></h2>
+                <p style="color:#5b6e75; font-size:13px; margin-top:0;">
+                    <?php esc_html_e( 'Toggle individual features without disabling their whole module.', 'talenttrack' ); ?>
+                </p>
+                <table class="widefat striped" style="border:0;">
+                    <tbody>
+                        <tr>
+                            <td style="width:30%;"><strong><?php esc_html_e( 'Analytics explorer', 'talenttrack' ); ?></strong></td>
+                            <td><span style="color:#3a4047; font-size:13px;"><?php esc_html_e( 'The ad-hoc Analytics dashboard tile + dimension explorer. The analytics engine and the reports it feeds (attendance, minutes, standard reports, KPIs) keep working when this is off.', 'talenttrack' ); ?></span></td>
+                            <td style="width:10%;">
+                                <label style="display:inline-flex; align-items:center; gap:6px;">
+                                    <input type="checkbox" name="feature_analytics_explorer" value="1" <?php checked( \TT\Modules\Analytics\AnalyticsModule::explorerEnabled() ); ?> />
+                                    <?php echo \TT\Modules\Analytics\AnalyticsModule::explorerEnabled() ? esc_html__( 'On', 'talenttrack' ) : esc_html__( 'Off', 'talenttrack' ); ?>
+                                </label>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
                 <p style="margin-top:14px;">
-                    <?php submit_button( __( 'Save module state', 'talenttrack' ), 'primary', 'submit', false ); ?>
+                    <?php submit_button( __( 'Save module & feature state', 'talenttrack' ), 'primary', 'submit', false ); ?>
                 </p>
             </form>
 
@@ -174,6 +193,12 @@ class ModulesPage {
                 ModuleRegistry::setEnabled( $class, $now_enabled );
             }
         }
+
+        // #1484 — Analytics Explorer feature toggle (independent of the
+        // module). Default off; checkbox present = on.
+        \TT\Modules\Analytics\AnalyticsModule::setExplorerEnabled(
+            isset( $_POST['feature_analytics_explorer'] )
+        );
 
         wp_safe_redirect( add_query_arg( [ 'page' => 'tt-modules', 'tt_msg' => 'saved' ], admin_url( 'admin.php' ) ) );
         exit;

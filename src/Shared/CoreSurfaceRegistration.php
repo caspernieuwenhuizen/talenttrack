@@ -709,21 +709,26 @@ final class CoreSurfaceRegistration {
         // ── Analytics group ──
         $analytics_group = __( 'Analytics', 'talenttrack' );
         // v3.110.108 — central Analytics tile pointing at the
-        // FrontendAnalyticsView (#0083 Child 5). Was reachable only
-        // via direct URL; admin / HoD now see it in the tile grid.
-        TileRegistry::register([
-            'module_class' => 'TT\\Modules\\Analytics\\AnalyticsModule',
-            'view_slug'    => 'analytics',
-            'entity'       => 'analytics',
-            'group'        => $analytics_group,
-            'kind'         => 'work',
-            'order'        => 5,
-            'label'        => __( 'Analytics', 'talenttrack' ),
-            'description'  => __( 'Academy-wide KPIs and the dimension explorer.', 'talenttrack' ),
-            'icon'         => 'reports',
-            'color'        => '#7c3aed',
-            'cap'          => 'tt_view_analytics',
-        ]);
+        // FrontendAnalyticsView (#0083 Child 5).
+        // #1484 — the ad-hoc Analytics Explorer is a feature switch
+        // (default off), independent of the module. Only register the
+        // tile when the explorer is enabled; the engine + the reports it
+        // feeds keep running regardless.
+        if ( \TT\Modules\Analytics\AnalyticsModule::explorerEnabled() ) {
+            TileRegistry::register([
+                'module_class' => 'TT\\Modules\\Analytics\\AnalyticsModule',
+                'view_slug'    => 'analytics',
+                'entity'       => 'analytics',
+                'group'        => $analytics_group,
+                'kind'         => 'work',
+                'order'        => 5,
+                'label'        => __( 'Analytics', 'talenttrack' ),
+                'description'  => __( 'Academy-wide KPIs and the dimension explorer.', 'talenttrack' ),
+                'icon'         => 'reports',
+                'color'        => '#7c3aed',
+                'cap'          => 'tt_view_analytics',
+            ]);
+        }
         // #1487 — Rate cards is no longer a standalone dashboard tile; it
         // lives as an entry inside the Reports launcher
         // (FrontendReportsLauncherView). The `?tt_view=rate-cards` route

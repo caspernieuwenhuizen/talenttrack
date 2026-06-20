@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
+use TT\Infrastructure\Config\ConfigService;
 use TT\Modules\Analytics\Domain\DateTimeColumn;
 use TT\Modules\Analytics\Domain\Dimension;
 use TT\Modules\Analytics\Domain\Fact;
@@ -32,6 +33,25 @@ use TT\Modules\Analytics\Domain\Measure;
 class AnalyticsModule implements ModuleInterface {
 
     public function getName(): string { return 'analytics'; }
+
+    /**
+     * #1484 — the ad-hoc **Analytics Explorer** UI (the dashboard tile +
+     * the `analytics` / `explore` / `scheduled-reports` views) is a
+     * feature switch, independent of the module itself. The module always
+     * stays on so the engine — facts, KPIs, the data the attendance /
+     * minutes / standard reports query — keeps running; this only governs
+     * whether the operator-facing ad-hoc explorer surface is shown.
+     * Default OFF.
+     */
+    public const EXPLORER_CONFIG_KEY = 'analytics_explorer_enabled';
+
+    public static function explorerEnabled(): bool {
+        return ( new ConfigService() )->get( self::EXPLORER_CONFIG_KEY, '0' ) === '1';
+    }
+
+    public static function setExplorerEnabled( bool $on ): void {
+        ( new ConfigService() )->set( self::EXPLORER_CONFIG_KEY, $on ? '1' : '0' );
+    }
 
     public function register( Container $container ): void {}
 
