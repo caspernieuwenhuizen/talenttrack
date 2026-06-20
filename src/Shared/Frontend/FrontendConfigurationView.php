@@ -1481,6 +1481,16 @@ class FrontendConfigurationView extends FrontendViewBase {
         $lookup_normalisation_pending = $lookup_normalisation_url !== null ? self::pendingLookupDriftCount() : 0;
 
         $admin_tiles = [];
+        // #1548 — Player status methodology moved off the dashboard into
+        // Configuration (it defines how the traffic-light status is computed).
+        if ( current_user_can( 'tt_edit_settings' ) ) {
+            $admin_tiles[] = [
+                __( 'Player status methodology', 'talenttrack' ),
+                __( 'Weights and thresholds for the player traffic-light status, per age group.', 'talenttrack' ),
+                add_query_arg( [ 'tt_view' => 'player-status-methodology' ], remove_query_arg( [ 'tt_view', 'config_sub' ] ) ),
+                'settings',
+            ];
+        }
         if ( $players_import_url !== null ) {
             $admin_tiles[] = [
                 __( 'Players CSV import', 'talenttrack' ),

@@ -21,8 +21,19 @@ Leg een training, wedstrijd of ander evenement vast. Kies het team, de datum, ev
 ### Doelen
 Voeg ontwikkelingsdoelen toe voor een speler en volg de voortgang.
 
+## Planning & tactiek
+
+*(v4.26.14)* De vooruitkijkende planning- en tactiekhulpmiddelen staan in hun eigen groep **Planning & tactiek**, direct na Prestatie — gescheiden van het dagelijkse werk Evaluaties / Activiteiten / Doelen:
+
+- **Teamplanner** — plan de trainingsweek, principe voor principe.
+- **VCT-sessieontwerper** — bouw een training uit de oefeningenbibliotheek.
+- **Teamblauwdruk** — sleep opstellingen met live chemie.
+- **Teamchemie** — formatiebord met een voorgestelde basiself.
+
+## Analytics
+
 ### Podium
-De top-3 van elk team dat je coacht, op één scherm.
+De top-3 van elk team dat je coacht, op één scherm. *(v4.26.14 — hierheen verplaatst vanuit Prestatie naar de groep Analytics, naast Rapporten en Spelersvergelijking.)*
 
 ## Naslag
 

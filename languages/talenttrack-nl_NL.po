@@ -37501,6 +37501,14 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/CoreSurfaceRegistration.php:459
+msgid "Planning & tactics"
+msgstr "Planning & tactiek"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:1490
+msgid "Weights and thresholds for the player traffic-light status, per age group."
+msgstr "Wegingen en drempelwaarden voor de stoplichtstatus van de speler, per leeftijdscategorie."
+
 #: src/Shared/Frontend/FrontendConfigurationView.php:46
 msgid "Appearance"
 msgstr "Vormgeving"
