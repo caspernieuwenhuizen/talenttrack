@@ -452,7 +452,12 @@ class Activator {
         ) $c;";
 
         // Sessions & attendance
-        $queries[] = "CREATE TABLE {$p}tt_activitys (
+        // #1511 — was a misspelled `tt_activitys` (introduced in the
+        // #0035 sessions→activities rename). The entire codebase reads
+        // `tt_activities`, so fresh installs created the wrong-named
+        // base table and the activities feature was broken until the
+        // 0159 repair migration. Fixed at the source for new installs.
+        $queries[] = "CREATE TABLE {$p}tt_activities (
             id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
             title VARCHAR(255) NOT NULL,
             session_date DATE NOT NULL,
