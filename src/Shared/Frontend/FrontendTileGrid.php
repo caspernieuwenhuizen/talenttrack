@@ -74,6 +74,13 @@ class FrontendTileGrid {
         ?>
         <style>
         .tt-ftile-grid-wrap { --tt-tile-scale: <?php echo esc_html( (string) $scale_factor ); ?>; <?php echo esc_html( TileGridStandard::cssVars() ); ?> }
+        /* #1612 — the canvas shell (#1590) removed the theme's max-width, so on
+           wide monitors the 2-column daily-use block stretched and the work
+           groups reflowed 4–5 wide and sprawled right into the rail's zone.
+           Contain the whole dashboard at the mockup's ~1320px so work groups
+           stay in a consistent left column and "Setup & administration" aligns
+           under the same width. No effect below 1320px → mobile unchanged. */
+        .tt-ftile-grid-wrap { max-width: 1320px; }
         .tt-ftile-greeting {
             font-size: calc(17px * var(--tt-tile-scale));
             font-weight: 600;
@@ -213,7 +220,11 @@ class FrontendTileGrid {
         .tt-ftile-mywork {
             border: 1px solid #e5e7ea;
             border-radius: var(--tt-tile-radius, 8px);
-            background: #fff;
+            /* #1612 — subtly tinted panel background (mockup's .panel) so the
+               "My work" rail reads as a separate panel, distinct from the
+               white work-group cards. Rows stay white on the hover/focus
+               states above. */
+            background: #fbfcfd;
             padding: calc(12px * var(--tt-tile-scale));
         }
         .tt-ftile-mywork-head {
