@@ -43,6 +43,10 @@ class ConfigRestController {
         'theme_inherit',
         'font_display',
         'font_body',
+        // #1587 — academy-wide Tile appearance preset (compact /
+        // comfortable / spacious). Drives tile size + column density on
+        // every tile surface via TileGridStandard.
+        'tile_appearance',
         'color_accent',
         'color_danger',
         'color_warning',
@@ -97,6 +101,7 @@ class ConfigRestController {
         'theme_inherit'     => 'branding',
         'font_display'      => 'branding',
         'font_body'         => 'branding',
+        'tile_appearance'   => 'branding',
         'color_accent'      => 'branding',
         'color_danger'      => 'branding',
         'color_warning'     => 'branding',

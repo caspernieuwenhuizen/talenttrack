@@ -22,6 +22,22 @@ On the frontend Configuration view, the former **Branding** and **Theme & fonts*
 
 No configuration keys changed and there is no data migration — existing values render unchanged. Save + Cancel sit at the bottom of the page. Old `?config_sub=branding` / `?config_sub=theme` deep links still resolve to the Appearance surface.
 
+## Tile appearance (v4.33.0+)
+
+The Appearance surface gains a **Tile appearance** dropdown that sets the size and column density of the tiles shown across the plugin — the dashboard tile grid, Configuration, the Reports launcher and the Teams "Team development" tiles — in one place, academy-wide.
+
+| Preset | Effect |
+| --- | --- |
+| **Compact** | Denser tiles, more columns per row — fits more on screen. |
+| **Comfortable** (default) | The standard tile size used before this release. |
+| **Spacious** | Larger, roomier tiles with fewer columns per row. |
+
+The setting is stored academy-wide under the `tile_appearance` configuration key and applies to every tile surface at once — there are no per-screen overrides. All presets reflow responsively: on a phone the grid collapses to a single column, and Spacious never causes horizontal scrolling.
+
+A single shared standard now drives every tile's size and layout (`TileGridStandard`), so the surfaces stay visually identical to one another regardless of the chosen preset.
+
+**Tile scale:** the older numeric **Tile scale** percentage (set on the wp-admin Configuration page) still works — it is applied as an additional multiplier on top of the chosen preset, so existing overrides keep their effect. When Tile scale is left at 100%, the preset alone governs tile sizing.
+
 ## Frontend Configuration sections (v4.26.16+)
 
 The frontend Configuration landing groups its tiles into purpose-based sections instead of one flat grid; a section with no visible (permitted) tiles renders no heading:
