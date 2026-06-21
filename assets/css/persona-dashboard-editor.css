@@ -674,6 +674,18 @@ body.tt-pde-dragging * {
 }
 .tt-pde-checkbox input[type="checkbox"] { width: 1.125rem; height: 1.125rem; }
 
+/* #1611 — multi-select action checklist (quick_actions_panel data_source) */
+.tt-pde-checklist {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+.tt-pde-checklist .tt-pde-checkbox {
+    min-height: 3rem;
+    padding: 0 0.25rem;
+    cursor: pointer;
+}
+
 /* ─── Modal ──────────────────────────────────────────────────── */
 
 .tt-pde-modal-root[aria-hidden="false"] {

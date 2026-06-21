@@ -194,3 +194,7 @@ The persona-dashboard editor used to ask for free-text "data source" values for 
 - Navigation tile → every registered tile slug, runtime list
 
 Legacy values that no longer match a preset stay visible (with a "(legacy)" suffix) so a removed preset surfaces instead of silently nulling.
+
+### Multi-select action picker (Quick actions panel)
+
+The **Quick actions panel** widget stacks several action cards, so its data source is a comma-separated *list* of action IDs rather than a single one. For this widget the editor renders a **checklist** of the available actions (the same catalogue as the Action card) instead of a single-select dropdown — tick the actions you want and the editor joins them into the CSV value. Newly added Quick actions panels start with the four core actions pre-selected (New evaluation, New goal, New activity, Add player), so the widget is never blank out of the box. Each ticked action still renders only when the viewing persona holds its underlying capability.

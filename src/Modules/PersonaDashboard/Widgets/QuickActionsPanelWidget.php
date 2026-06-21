@@ -37,6 +37,30 @@ class QuickActionsPanelWidget extends AbstractWidget {
 
     public function defaultMobilePriority(): int { return 35; }
 
+    /**
+     * #1611 — publish the available action ids ⇒ labels so the persona
+     * editor renders a checklist instead of a free-text data_source.
+     * The catalogue is sourced from `action_card` so the labels and the
+     * available actions stay in sync with the single-action card (no
+     * drift). Cap-gating still happens at render time per action.
+     *
+     * @return array<string,string>
+     */
+    public function dataSourceCatalogue(): array {
+        $action = WidgetRegistry::get( 'action_card' );
+        if ( $action !== null && method_exists( $action, 'dataSourceCatalogue' ) ) {
+            return $action->dataSourceCatalogue();
+        }
+        return [];
+    }
+
+    /**
+     * #1611 — signal to the editor that `data_source` is a comma-joined
+     * list of catalogue ids, so it renders a multi-select checklist
+     * rather than the single-select dropdown.
+     */
+    public function dataSourceMultiple(): bool { return true; }
+
     public function render( WidgetSlot $slot, RenderContext $ctx ): string {
         $action = WidgetRegistry::get( 'action_card' );
         if ( $action === null ) return '';

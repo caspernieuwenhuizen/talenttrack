@@ -83,8 +83,17 @@
         };
     }
 
+    // #1611 — sensible default data_source for multi-select CSV widgets
+    // so they're never blank out of the box. Pre-selects the four core
+    // quick actions when the widget is added with no explicit source.
+    var MULTI_DEFAULT_DATA_SOURCE = {
+        quick_actions_panel: 'new_evaluation,new_goal,new_activity,new_player'
+    };
     function newSlot(widgetId, dataSource, size) {
         var w = widgetById(widgetId);
+        if (!dataSource && MULTI_DEFAULT_DATA_SOURCE[widgetId]) {
+            dataSource = MULTI_DEFAULT_DATA_SOURCE[widgetId];
+        }
         return {
             widget: dataSource ? widgetId + ':' + dataSource : widgetId,
             size: size || (w ? w.default_size : 'M'),
@@ -1475,7 +1484,11 @@
             form.appendChild(field(I18N.data_source || 'Data source', kpiSelect(slot)));
         } else {
             var catalogue = (BOOT.data_sources_by_widget || {})[ref[0]];
-            if (catalogue && Object.keys(catalogue).length > 0) {
+            var isMulti = !!(BOOT.multi_data_source_widgets || {})[ref[0]];
+            if (catalogue && Object.keys(catalogue).length > 0 && isMulti) {
+                // #1611 — CSV data_source → checklist of catalogue ids.
+                form.appendChild(field(I18N.data_source || 'Data source', dataSourceMultiSelect(slot, catalogue)));
+            } else if (catalogue && Object.keys(catalogue).length > 0) {
                 form.appendChild(field(I18N.data_source || 'Data source', dataSourceSelect(slot, catalogue)));
             } else if (ref[0] === 'navigation_tile' || ref[0] === 'action_card' || ref[0] === 'info_card' || ref[0] === 'data_table' || ref[0] === 'mini_player_list') {
                 form.appendChild(field(I18N.data_source || 'Data source', dataSourceText(slot)));
@@ -1716,6 +1729,58 @@
             commit();
         });
         return sel;
+    }
+    // #1611 — multi-select checklist for widgets whose data_source is a
+    // comma-joined list of catalogue ids (e.g. quick_actions_panel). The
+    // selected ids are joined with commas and written back to slot.widget
+    // as `<widget>:<id1>,<id2>,...`.
+    function dataSourceMultiSelect(slot, catalogue) {
+        var box = document.createElement('div');
+        box.className = 'tt-pde-checklist';
+        var ref = splitRef(slot.widget);
+        var selected = (ref[1] || '').split(',').map(function (s) { return s.trim(); })
+            .filter(function (s) { return s; });
+        function syncSlot() {
+            var picked = [];
+            Array.prototype.forEach.call(box.querySelectorAll('input[type="checkbox"]'), function (cb) {
+                if (cb.checked) picked.push(cb.value);
+            });
+            slot.widget = picked.length ? ref[0] + ':' + picked.join(',') : ref[0];
+            commit();
+        }
+        var keys = Object.keys(catalogue);
+        keys.forEach(function (k) {
+            var label = document.createElement('label');
+            label.className = 'tt-pde-checkbox';
+            var input = document.createElement('input');
+            input.type = 'checkbox';
+            input.value = k;
+            input.checked = selected.indexOf(k) !== -1;
+            input.addEventListener('change', syncSlot);
+            var text = document.createElement('span');
+            text.textContent = catalogue[k];
+            label.appendChild(input);
+            label.appendChild(text);
+            box.appendChild(label);
+        });
+        // Keep any unknown (legacy) ids selectable so a since-removed
+        // action isn't silently dropped from an existing template.
+        selected.forEach(function (id) {
+            if (keys.indexOf(id) !== -1) return;
+            var label = document.createElement('label');
+            label.className = 'tt-pde-checkbox';
+            var input = document.createElement('input');
+            input.type = 'checkbox';
+            input.value = id;
+            input.checked = true;
+            input.addEventListener('change', syncSlot);
+            var text = document.createElement('span');
+            text.textContent = id + ' (legacy)';
+            label.appendChild(input);
+            label.appendChild(text);
+            box.appendChild(label);
+        });
+        return box;
     }
     function personaLabelInput(slot) {
         var input = document.createElement('input');
