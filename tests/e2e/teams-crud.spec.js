@@ -38,10 +38,20 @@ test.describe( 'Teams CRUD', () => {
         // because the renderer threw an unrelated warning. We just
         // assert the section's heading is present — that's enough to
         // catch the silent-fail regression.
-        const editLink = page.locator(
+        //
+        // #1593: navigate via the edit link's href rather than clicking it.
+        // After the create redirect the list page carries dismissible admin
+        // notices; WordPress injects their "Dismiss" buttons after load,
+        // which shifts the table (and this link) downward, so a `.click()`
+        // never sees the link reach Playwright's "stable" state and times
+        // out. The href is deterministic, so a direct goto is both robust
+        // and still exercises exactly what this test verifies — that the
+        // edit page renders the staff section.
+        const editHref = await page.locator(
             `a[href*="page=tt-teams"][href*="action=edit"]`
-        ).first();
-        await editLink.click();
+        ).first().getAttribute( 'href' );
+        expect( editHref ).toBeTruthy();
+        await page.goto( editHref );
         await page.waitForURL( /page=tt-teams.*action=edit/ );
 
         // The staff heading text varies per locale; we match the
@@ -50,9 +60,17 @@ test.describe( 'Teams CRUD', () => {
 
         // ── Edit ──
         await page.fill( 'input[name="name"]', teamName + ' Renamed' );
+        // #1593: submit the team form via requestSubmit() rather than
+        // clicking the button. The edit page carries dismissible admin
+        // notices whose injected Dismiss buttons shift the layout, so the
+        // "Update Team" button never reaches Playwright's "stable" state and
+        // a `.click()` silently waits out the timeout without ever firing.
+        // requestSubmit() runs the same native HTML5 validation + submit on
+        // the form that owns the name field, with no click-actionability
+        // dependency — robust and still faithful to a real save.
         await Promise.all( [
             page.waitForURL( /page=tt-teams(?!&action=)/ ),
-            page.click( 'input[type="submit"], button[type="submit"]' ),
+            page.locator( 'input[name="name"]' ).evaluate( ( el ) => el.form.requestSubmit() ),
         ] );
         await expect( page.locator( 'body' ) ).toContainText( teamName + ' Renamed' );
     } );
