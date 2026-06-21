@@ -34042,4 +34042,59 @@ msgstr ""
 
 #: src/Shared/Frontend/FrontendTeamsManageView.php
 msgid "Players (most)"
+#: src/Shared/Frontend/FrontendTeamDetailView.php:261
+msgid "Customize"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendTeamDetailView.php:303
+msgid "Customize sections"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendTeamDetailView.php:304
+msgid "Show on this page"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendTeamDetailView.php:305
+msgid ""
+"Personal to you, across every team you coach. The team header always shows."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendTeamDetailView.php:319
+msgid "Save layout"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendTeamDetailView.php:340
+msgid "Saved. Reloading…"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendTeamDetailView.php:402
+msgid "next 14 d"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendTeamDetailView.php:412
+msgid "Squad rating"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendTeamDetailView.php:469
+msgid "No players on this roster yet."
+msgstr ""
+
+#. translators: %d: number of players on the roster.
+#: src/Shared/Frontend/FrontendTeamDetailView.php:460
+#, php-format
+msgid "Roster · %d"
+msgstr ""
+
+#: src/Infrastructure/Teams/TeamDetailSections.php:59
+#: src/Shared/Frontend/FrontendTeamDetailView.php:629
+msgid "Trial roster"
+msgstr ""
+
+#: src/Infrastructure/Teams/TeamDetailSections.php:58
+#: src/Shared/Frontend/FrontendTeamDetailView.php:591
+msgid "Team info"
+msgstr ""
+
+#: src/Infrastructure/REST/TeamDetailPreferencesRestController.php:69
+msgid "Expected an object under `sections`."
 msgstr ""

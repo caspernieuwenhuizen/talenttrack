@@ -94,6 +94,22 @@ The player file is rebuilt as a port of `.local-mockups/player-profile/index.htm
 
 The team detail page now shows current trial players under their own **Trial players** subsection. They were previously hidden behind the active-status filter on the team roster.
 
+## Team detail — player-profile-style redesign (v4.40.0 — #1613)
+
+The team page is rebuilt to mirror the [player profile](?page=tt-docs&topic=teams-players#player-file-ux-redesign-v480--977): same shapes, same card system, same responsive rail/main grid. Backend unchanged — same `tt_teams` row, same `tt_view_teams` gate, same `?tt_view=teams&id=N` URL.
+
+- **Hero.** Paper background with the team crest (initials in an accent chip, status-coloured ring), name, a "Teams · age group" sub-line, and identity pills (status, age group, player count). The hero is **always shown** and cannot be hidden.
+- **Action row.** New activity (primary) · Planner · Edit · Print seizoens-intakes · Customize · `⋯` overflow (Archive). Cap-gated: New activity → `tt_edit_activities`, Edit + Archive → `tt_edit_teams`, batch print → `tt_edit_goals`, Customize → coach-of-this-team.
+- **Key facts strip.** Age group · Head coach · Players. 3-up on mobile, vertical in the left rail on desktop.
+- **At-a-glance KPIs.** Upcoming (planned activities in the next 14 days, links to the planner) · Avg attendance (last 30 days) · Avg squad rating (mean across the roster's evaluations, shown on the academy's rating scale). Numbers come from `TeamKpisRepository`, not the view.
+- **Cards.** Roster, Staff, Team info, Trial roster (when present), Upcoming activities — each a card panel. **Every table row is now a whole-row link** (Roster → player, Staff → person, Upcoming activities → activity) — this fixes the long-standing "the upcoming activity table has no row click". The inner per-column link stays the keyboard / assistive-tech path; middle-click and cmd/ctrl-click open in a new tab.
+
+### Customize — per-coach sections
+
+A **Customize** button (visible only to coaches who manage the team) opens a panel of section toggles. The choice is **personal to that coach** and applies across **every team they coach** — it is not a club-wide setting and doesn't change what anyone else sees. The toggleable sections are: Key facts, At a glance, Roster, Staff, Team info, Trial roster, Upcoming activities. The hero always shows.
+
+The preference is stored per user and read/written through `GET`/`PUT /wp-json/talenttrack/v1/me/preferences/team-detail`, so a future non-WordPress front end gets the same layout. Players, parents, admins, and coaches who haven't customised all see the default — every section on.
+
 ## Edit cap path (v3.79.0)
 
 The team-detail edit button and the Teams REST endpoints (list / get / create / delete) now consult `AuthorizationService::userCanOrMatrix` rather than `current_user_can`. This means a Head of Development granted `tt_edit_teams` via the matrix scope-row layer (functional role bridge) passes the gate too, matching the pattern already used by Tile gating and the Activities REST endpoints.

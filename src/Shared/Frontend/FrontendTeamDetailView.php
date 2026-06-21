@@ -5,21 +5,53 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\People\PeopleRepository;
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Infrastructure\Security\AuthorizationService;
+use TT\Infrastructure\Teams\TeamDetailSections;
+use TT\Infrastructure\Teams\TeamKpisRepository;
+use TT\Shared\Frontend\Components\RecordLink;
 
 /**
- * FrontendTeamDetailView — read-only display of a single team (#0063)
- * reachable via `?tt_view=teams&id=N`.
+ * FrontendTeamDetailView — the team's working surface at
+ * `?tt_view=teams&id=N` (#0063, redesigned in #1613).
  *
- * Lists the roster (one row per player, RecordLink to the player
- * detail), the staff assignments (head coach / assistant / manager
- * pulled via `PeopleRepository::getTeamStaff` — NOT the legacy
- * `tt_teams.head_coach_id` column the user flagged), upcoming
- * activities, and a chemistry-score teaser linking to the chemistry
- * board.
+ * The layout mirrors the player profile (FrontendPlayerDetailView /
+ * frontend-player-detail.css): a paper hero carrying the team identity,
+ * a key-facts strip, an at-a-glance KPI strip, then the content (Roster,
+ * Staff, Team info, Upcoming activities, Trial roster) in
+ * `tt-player-card`-style panels. Every table row is a whole-row link via
+ * the shared `is-row-link` handler (tt-table-tools.js).
  *
- * Cap-gated on `tt_view_teams`. Composition only.
+ * The head coach can hide sections they don't want, saved as a per-user
+ * preference (TeamDetailSections → user meta, read back via
+ * `GET/PUT /me/preferences/team-detail`). The hero is always shown;
+ * everything else is toggleable. Non-coaches — and coaches who haven't
+ * customised — see the default, every section on.
+ *
+ * Cap-gated on `tt_view_teams`. Composition only: all data comes from
+ * repositories / QueryHelpers, all visibility/KPI logic lives outside
+ * this file (CLAUDE.md §4).
  */
 final class FrontendTeamDetailView extends FrontendViewBase {
+
+    private static bool $detail_css_enqueued = false;
+
+    private static function enqueueDetailAssets(): void {
+        if ( self::$detail_css_enqueued ) return;
+        // Reuse the player-detail card system + tokens (1:1 shapes).
+        wp_enqueue_style(
+            'tt-frontend-player-detail',
+            TT_PLUGIN_URL . 'assets/css/frontend-player-detail.css',
+            [ 'tt-frontend-mobile' ],
+            TT_VERSION
+        );
+        wp_enqueue_style(
+            'tt-frontend-team-detail',
+            TT_PLUGIN_URL . 'assets/css/frontend-team-detail.css',
+            [ 'tt-frontend-player-detail' ],
+            TT_VERSION
+        );
+        self::$detail_css_enqueued = true;
+    }
 
     public static function render( int $team_id, int $user_id, bool $is_admin ): void {
         if ( ! current_user_can( 'tt_view_teams' ) ) {
@@ -38,7 +70,6 @@ final class FrontendTeamDetailView extends FrontendViewBase {
 
         $team = QueryHelpers::get_team( $team_id );
 
-        // v3.92.1 — breadcrumb chain replaces the standalone back link.
         $teams_label = __( 'Teams', 'talenttrack' );
         if ( ! $team ) {
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
@@ -51,133 +82,444 @@ final class FrontendTeamDetailView extends FrontendViewBase {
         }
 
         self::enqueueAssets();
+        self::enqueueDetailAssets();
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
             (string) $team->name,
             [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'teams', $teams_label ) ]
         );
 
-        // v3.110.53 — Edit + Archive page-header actions. Same pattern
-        // as Player detail: Edit becomes a FAB on mobile, Archive
-        // (danger) is desktop-only and routes to REST DELETE
-        // teams/{id} via tt-frontend-archive-button.js.
-        $actions  = [];
-        $teams_url = add_query_arg( [ 'tt_view' => 'teams' ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() );
-        if ( current_user_can( 'tt_edit_teams' ) ) {
-            $edit_url = add_query_arg(
-                [ 'tt_view' => 'teams', 'id' => $team_id, 'action' => 'edit' ],
-                \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
-            );
-            $actions[] = [
-                'label'   => __( 'Edit', 'talenttrack' ),
-                'href'    => $edit_url,
-                'primary' => true,
-                'icon'    => \TT\Shared\Icons\IconRenderer::render( 'edit', [ 'width' => 16, 'height' => 16 ] ), // #1365 — inline SVG edit icon.
-            ];
-            $actions[] = [
-                'label'   => __( 'Archive', 'talenttrack' ),
-                'variant' => 'danger',
-                'data_attrs' => [
-                    'tt-archive-rest-path' => 'teams/' . $team_id,
-                    'tt-archive-confirm'   => __( 'Archive this team? It will be hidden but the data is preserved.', 'talenttrack' ),
-                    'tt-archive-redirect'  => $teams_url,
-                ],
-            ];
-        }
-        // #1064 — team-batch print: one 3-page intake per active
-        // roster player, concatenated into a single PDF when the
-        // operator picks "Save as PDF" in the browser print dialog.
-        if ( current_user_can( 'tt_edit_goals' ) ) {
-            $intake_batch_url = add_query_arg(
-                [ 'tt_goal_intake_print' => '1', 'team_id' => $team_id ],
-                home_url( '/' )
-            );
-            $actions[] = [
-                'label'  => __( 'Print seizoens-intakes', 'talenttrack' ),
-                'href'   => $intake_batch_url,
-                'target' => '_blank',
-            ];
-        }
-        self::renderHeader( (string) $team->name, self::pageActionsHtml( $actions ) );
+        // Per-user section visibility. The hero is always shown.
+        $sections = TeamDetailSections::forUser( $user_id );
+        // The customize control is for coaches who manage this team.
+        $can_customize = AuthorizationService::canManageTeam( $user_id, $team_id );
 
         $roster = QueryHelpers::get_players( $team_id );
         $trials = self::loadTrialPlayers( $team_id );
         $staff  = ( new PeopleRepository() )->getTeamStaff( $team_id );
         ?>
-        <article class="tt-team-detail">
+        <article class="tt-team-detail tt-player-detail">
             <?php
-            // v3.110.95 — header attributes (age group, level) as a
-            // key/value table so the team page reads consistently with
-            // the staff / roster / activities tables below. Was a
-            // <dl class="tt-profile-dl"> definition list; operators
-            // asked for tables across the whole page.
-            $detail_rows = [];
-            if ( ! empty( $team->age_group ) ) {
-                $detail_rows[] = [ __( 'Age group', 'talenttrack' ), (string) $team->age_group ];
-            }
-            if ( ! empty( $team->level ) ) {
-                $detail_rows[] = [ __( 'Level', 'talenttrack' ), (string) $team->level ];
-            }
-            if ( $detail_rows !== [] ) :
-                ?>
-                <section class="tt-pde-section">
-                    <div class="tt-table-wrap">
-                    <table class="tt-table tt-team-attrs-table">
-                        <tbody>
-                            <?php foreach ( $detail_rows as $row ) : ?>
-                                <tr>
-                                    <th scope="row" style="width:30%; text-align:left; font-weight:600;"><?php echo esc_html( (string) $row[0] ); ?></th>
-                                    <td><?php echo esc_html( (string) $row[1] ); ?></td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                    </div>
-                </section>
-            <?php endif; ?>
+            self::renderHero( $team, $roster, $staff );
+            self::renderActionRow( $team, $can_customize );
 
-            <?php
-            // #0063 — staff via tt_team_people, NOT the legacy
-            // tt_teams.head_coach_id column the user explicitly flagged.
-            self::renderStaff( $staff );
-            self::renderRoster( $roster, $team_id );
-            // #0077 M4 — surface trial players on the team page; they
-            // were silently hidden behind the status='active' filter
-            // in get_players. Coaches need to see who's currently on
-            // a tryout with their team without jumping to /trials.
-            self::renderTrialRoster( $trials );
-            self::renderUpcomingActivities( $team_id );
-            self::renderChemistryTeaser( $team_id );
-            // #1088 VCT-13 — inline VCT training-defaults panel.
-            // Settings sub-form per CLAUDE.md §3 exemption (a); drives
-            // the new-VCT-session wizard's basis-step prefill.
-            self::renderVctDefaultsPanel( $team_id, $vct_panel_notice );
-            // v3.110.100 — team-scoped Analytics section removed from
-            // the detail page, mirroring v3.110.99's activity-detail
-            // change. Operator wants analytics from the central tile,
-            // not per-team. The renderer + team-scoped KPIs stay on
-            // disk so the central tile keeps consuming them.
+            if ( $can_customize ) {
+                self::enqueueCustomizeAssets( $team_id );
+                self::renderCustomizePanel( $sections );
+            }
             ?>
+
+            <div class="tt-player-detail__rail">
+                <?php
+                if ( $sections['key_facts'] ) {
+                    self::renderKeyFacts( $team, $roster, $staff );
+                }
+                if ( $sections['kpis'] ) {
+                    self::renderKpis( $team_id );
+                }
+                ?>
+            </div>
+
+            <div class="tt-player-detail__main">
+                <?php
+                if ( $sections['roster'] ) {
+                    self::renderRoster( $roster, $team_id );
+                }
+                if ( $sections['staff'] ) {
+                    self::renderStaff( $staff );
+                }
+                if ( $sections['team_info'] ) {
+                    self::renderTeamInfo( $team );
+                }
+                if ( $sections['trial_roster'] ) {
+                    self::renderTrialRoster( $trials );
+                }
+                if ( $sections['upcoming_activities'] ) {
+                    self::renderUpcomingActivities( $team_id );
+                }
+                // Team chemistry teaser stays on — a link card, not a
+                // toggleable content section.
+                self::renderChemistryTeaser( $team_id );
+                // #1088 VCT-13 — inline VCT training-defaults panel
+                // (settings sub-form per CLAUDE.md §3 exemption (a)).
+                self::renderVctDefaultsPanel( $team_id, $vct_panel_notice );
+                ?>
+            </div>
         </article>
         <?php
     }
 
     /**
-     * Render head coach / assistant coach / team manager rows from
-     * the staff-assignment pivot. Each name links to the person
-     * detail surface.
+     * Paper hero with the team crest (initials in an accent chip,
+     * status-coloured border), name, "Teams · age group · season"
+     * sub-line, and identity pills.
+     *
+     * @param array<int,object> $roster
+     * @param array<string,mixed> $staff
+     */
+    private static function renderHero( object $team, array $roster, array $staff ): void {
+        $name      = (string) $team->name;
+        $age_group = (string) ( $team->age_group ?? '' );
+        $age_label = $age_group !== ''
+            ? \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'age_group', $age_group )
+            : '';
+        $status    = $team->archived_at ? 'archived' : 'active';
+        $teams_url = add_query_arg( [ 'tt_view' => 'teams' ], RecordLink::dashboardUrl() );
+        $player_n  = count( $roster );
+        ?>
+        <header class="tt-player-detail__hero tt-team-hero" aria-label="<?php esc_attr_e( 'Team', 'talenttrack' ); ?>">
+            <div class="tt-player-hero__row">
+                <div class="tt-player-hero__avatar tt-team-hero__crest" data-status="<?php echo esc_attr( $status ); ?>" aria-hidden="true">
+                    <?php echo esc_html( self::crestFor( $name ) ); ?>
+                </div>
+                <div class="tt-player-hero__main">
+                    <h1 class="tt-player-hero__name"><?php echo esc_html( $name ); ?></h1>
+                    <p class="tt-player-hero__sub">
+                        <a href="<?php echo esc_url( $teams_url ); ?>"><?php esc_html_e( 'Teams', 'talenttrack' ); ?></a>
+                        <?php if ( $age_label !== '' ) : ?>
+                            <span> · <?php echo esc_html( $age_label ); ?></span>
+                        <?php endif; ?>
+                    </p>
+                    <p class="tt-player-hero__pills">
+                        <span class="tt-player-pill" data-status="<?php echo esc_attr( $status ); ?>">
+                            <?php echo $status === 'archived'
+                                ? esc_html__( 'Archived', 'talenttrack' )
+                                : esc_html__( 'Active', 'talenttrack' ); ?>
+                        </span>
+                        <?php if ( $age_label !== '' ) : ?>
+                            <span class="tt-player-pill tt-player-pill--pos"><?php echo esc_html( $age_label ); ?></span>
+                        <?php endif; ?>
+                        <span class="tt-player-pill">
+                            <?php
+                            /* translators: %d: number of players on the roster */
+                            echo esc_html( sprintf( _n( '%d player', '%d players', $player_n, 'talenttrack' ), $player_n ) );
+                            ?>
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </header>
+        <?php
+    }
+
+    /**
+     * Action row — New activity · Edit · Planner · Archive. Cap-gated
+     * identically to the legacy page-header actions.
+     */
+    private static function renderActionRow( object $team, bool $can_customize ): void {
+        $team_id   = (int) $team->id;
+        $teams_url = add_query_arg( [ 'tt_view' => 'teams' ], RecordLink::dashboardUrl() );
+        $can_edit  = current_user_can( 'tt_edit_teams' );
+        ?>
+        <div class="tt-player-detail__actions" aria-label="<?php esc_attr_e( 'Actions', 'talenttrack' ); ?>">
+            <?php if ( current_user_can( 'tt_edit_activities' ) ) :
+                $new_activity_url = add_query_arg(
+                    [ 'tt_view' => 'activities', 'action' => 'new', 'team_id' => $team_id ],
+                    RecordLink::dashboardUrl()
+                );
+                ?>
+                <a class="tt-player-action tt-player-action--primary" href="<?php echo esc_url( $new_activity_url ); ?>">
+                    + <?php esc_html_e( 'New activity', 'talenttrack' ); ?>
+                </a>
+            <?php endif; ?>
+
+            <?php
+            $planner_url = add_query_arg(
+                [ 'tt_view' => 'team-planner', 'team_id' => $team_id ],
+                RecordLink::dashboardUrl()
+            );
+            ?>
+            <a class="tt-player-action" href="<?php echo esc_url( $planner_url ); ?>">
+                <?php esc_html_e( 'Planner', 'talenttrack' ); ?>
+            </a>
+
+            <?php if ( $can_edit ) :
+                $edit_url = add_query_arg(
+                    [ 'tt_view' => 'teams', 'id' => $team_id, 'action' => 'edit' ],
+                    RecordLink::dashboardUrl()
+                );
+                ?>
+                <a class="tt-player-action" href="<?php echo esc_url( $edit_url ); ?>">
+                    <?php esc_html_e( 'Edit', 'talenttrack' ); ?>
+                </a>
+            <?php endif; ?>
+
+            <?php if ( current_user_can( 'tt_edit_goals' ) ) :
+                // #1064 — team-batch print: one 3-page intake per active
+                // roster player, concatenated into a single PDF.
+                $intake_batch_url = add_query_arg(
+                    [ 'tt_goal_intake_print' => '1', 'team_id' => $team_id ],
+                    home_url( '/' )
+                );
+                ?>
+                <a class="tt-player-action" href="<?php echo esc_url( $intake_batch_url ); ?>" target="_blank" rel="noopener">
+                    <?php esc_html_e( 'Print seizoens-intakes', 'talenttrack' ); ?>
+                </a>
+            <?php endif; ?>
+
+            <?php if ( $can_customize ) : ?>
+                <button type="button" class="tt-player-action tt-team-customize-trigger" data-tt-team-customize-trigger="1" aria-expanded="false" aria-controls="tt-team-customize-panel">
+                    <?php esc_html_e( 'Customize', 'talenttrack' ); ?>
+                </button>
+            <?php endif; ?>
+
+            <?php if ( $can_edit ) : ?>
+                <div class="tt-player-action tt-player-action--more"
+                     role="button"
+                     tabindex="0"
+                     aria-haspopup="true"
+                     aria-expanded="false"
+                     aria-label="<?php esc_attr_e( 'More actions', 'talenttrack' ); ?>"
+                     onclick="this.setAttribute('aria-expanded', this.getAttribute('aria-expanded') === 'true' ? 'false' : 'true');"
+                     onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.setAttribute('aria-expanded', this.getAttribute('aria-expanded') === 'true' ? 'false' : 'true');}">
+                    ⋯
+                    <div class="tt-player-action__menu" role="menu">
+                        <button type="button"
+                                class="tt-player-action tt-player-action--danger"
+                                role="menuitem"
+                                data-tt-archive-rest-path="<?php echo esc_attr( 'teams/' . $team_id ); ?>"
+                                data-tt-archive-confirm="<?php echo esc_attr__( 'Archive this team? It will be hidden but the data is preserved.', 'talenttrack' ); ?>"
+                                data-tt-archive-redirect="<?php echo esc_attr( $teams_url ); ?>">
+                            <?php esc_html_e( 'Archive', 'talenttrack' ); ?>
+                        </button>
+                    </div>
+                </div>
+            <?php endif; ?>
+        </div>
+        <?php
+    }
+
+    /**
+     * Customize panel — per-coach section visibility toggles. Settings
+     * sub-form per CLAUDE.md §3 exemption (a) / §6 exemption (a): it's a
+     * preference panel, not record creation, so Save-only is fine. The
+     * toggles persist via PUT /me/preferences/team-detail
+     * (frontend-team-detail-customize.js).
+     *
+     * @param array<string,bool> $sections
+     */
+    private static function renderCustomizePanel( array $sections ): void {
+        $labels = TeamDetailSections::labels();
+        ?>
+        <section id="tt-team-customize-panel" class="tt-team-customize" hidden aria-label="<?php esc_attr_e( 'Customize sections', 'talenttrack' ); ?>">
+            <h3 class="tt-team-customize__title"><?php esc_html_e( 'Show on this page', 'talenttrack' ); ?></h3>
+            <p class="tt-team-customize__sub"><?php esc_html_e( 'Personal to you, across every team you coach. The team header always shows.', 'talenttrack' ); ?></p>
+            <div class="tt-team-customize__grid" data-tt-team-customize-form="1">
+                <?php foreach ( TeamDetailSections::SECTIONS as $key ) :
+                    $on    = ! empty( $sections[ $key ] );
+                    $label = (string) ( $labels[ $key ] ?? $key );
+                    ?>
+                    <label class="tt-team-customize__row">
+                        <input type="checkbox" name="<?php echo esc_attr( $key ); ?>" value="1"<?php checked( $on ); ?> data-tt-team-section="<?php echo esc_attr( $key ); ?>">
+                        <span><?php echo esc_html( $label ); ?></span>
+                    </label>
+                <?php endforeach; ?>
+            </div>
+            <div class="tt-team-customize__foot">
+                <button type="button" class="tt-btn tt-btn-primary" data-tt-team-customize-save="1">
+                    <?php esc_html_e( 'Save layout', 'talenttrack' ); ?>
+                </button>
+                <span class="tt-team-customize__status" data-tt-team-customize-status="1" role="status" aria-live="polite"></span>
+            </div>
+        </section>
+        <?php
+    }
+
+    private static function enqueueCustomizeAssets( int $team_id ): void {
+        wp_enqueue_script(
+            'tt-frontend-team-detail-customize',
+            TT_PLUGIN_URL . 'assets/js/frontend-team-detail-customize.js',
+            [],
+            TT_VERSION,
+            true
+        );
+        wp_localize_script( 'tt-frontend-team-detail-customize', 'TTTeamDetailCustomize', [
+            'rest_url'   => esc_url_raw( rest_url( 'talenttrack/v1/me/preferences/team-detail' ) ),
+            'rest_nonce' => wp_create_nonce( 'wp_rest' ),
+            'i18n'       => [
+                'saving'  => __( 'Saving…', 'talenttrack' ),
+                'saved'   => __( 'Saved. Reloading…', 'talenttrack' ),
+                'error'   => __( 'Could not save. Try again.', 'talenttrack' ),
+            ],
+        ] );
+    }
+
+    /**
+     * Key-facts strip — Age group · Head coach · Players.
+     *
+     * @param array<int,object> $roster
+     * @param array<string,mixed> $staff
+     */
+    private static function renderKeyFacts( object $team, array $roster, array $staff ): void {
+        $age_group = (string) ( $team->age_group ?? '' );
+        $age_value = $age_group !== ''
+            ? \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'age_group', $age_group )
+            : '—';
+
+        $hc_name = self::headCoachName( $staff );
+        $player_n = count( $roster );
+        ?>
+        <section class="tt-player-facts" aria-label="<?php esc_attr_e( 'Key facts', 'talenttrack' ); ?>">
+            <div class="tt-player-facts__cell">
+                <span class="tt-player-facts__label"><?php esc_html_e( 'Age group', 'talenttrack' ); ?></span>
+                <p class="tt-player-facts__value"><?php echo esc_html( $age_value ); ?></p>
+            </div>
+            <div class="tt-player-facts__cell">
+                <span class="tt-player-facts__label"><?php esc_html_e( 'Head coach', 'talenttrack' ); ?></span>
+                <p class="tt-player-facts__value"><?php echo $hc_name !== '' ? esc_html( $hc_name ) : '—'; ?></p>
+            </div>
+            <div class="tt-player-facts__cell">
+                <span class="tt-player-facts__label"><?php esc_html_e( 'Players', 'talenttrack' ); ?></span>
+                <p class="tt-player-facts__value"><?php echo (int) $player_n; ?></p>
+            </div>
+        </section>
+        <?php
+    }
+
+    /**
+     * At-a-glance KPI strip — Upcoming (14 d) · Avg attendance (30 d) ·
+     * Avg squad rating. Numbers come from TeamKpisRepository; the view
+     * only shapes them.
+     */
+    private static function renderKpis( int $team_id ): void {
+        $repo       = new TeamKpisRepository();
+        $upcoming   = $repo->upcomingCount( $team_id, 14 );
+        $attendance = $repo->avgAttendance( $team_id, 30 );
+        $rating     = $repo->avgSquadRating( $team_id );
+
+        $rmax = (int) round( (float) QueryHelpers::get_config( 'rating_max', '10' ) );
+
+        $planner_url = add_query_arg(
+            [ 'tt_view' => 'team-planner', 'team_id' => $team_id ],
+            RecordLink::dashboardUrl()
+        );
+        ?>
+        <section class="tt-player-glance" aria-label="<?php esc_attr_e( 'At a glance', 'talenttrack' ); ?>">
+            <p class="tt-player-glance__title"><?php esc_html_e( 'At a glance', 'talenttrack' ); ?></p>
+            <div class="tt-player-glance__grid">
+                <a class="tt-player-kpi" href="<?php echo esc_url( $planner_url ); ?>">
+                    <div class="tt-player-kpi__label"><?php esc_html_e( 'Upcoming', 'talenttrack' ); ?></div>
+                    <div class="tt-player-kpi__num"><?php echo (int) $upcoming; ?></div>
+                    <div class="tt-player-kpi__hint"><?php esc_html_e( 'next 14 d', 'talenttrack' ); ?></div>
+                </a>
+                <div class="tt-player-kpi">
+                    <div class="tt-player-kpi__label"><?php esc_html_e( 'Attendance', 'talenttrack' ); ?></div>
+                    <div class="tt-player-kpi__num">
+                        <?php echo $attendance !== null ? (int) $attendance : '—'; ?><?php if ( $attendance !== null ) : ?><small>%</small><?php endif; ?>
+                    </div>
+                    <div class="tt-player-kpi__hint"><?php esc_html_e( 'last 30 d', 'talenttrack' ); ?></div>
+                </div>
+                <div class="tt-player-kpi">
+                    <div class="tt-player-kpi__label"><?php esc_html_e( 'Squad rating', 'talenttrack' ); ?></div>
+                    <div class="tt-player-kpi__num">
+                        <?php
+                        echo $rating !== null ? esc_html( number_format_i18n( $rating, 1 ) ) : '—';
+                        if ( $rating !== null && $rmax > 0 ) :
+                            ?><small>/<?php echo (int) $rmax; ?></small><?php
+                        endif;
+                        ?>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <?php
+    }
+
+    /**
+     * Roster card. Each row links to the player detail; the whole row is
+     * a click target via is-row-link (tt-table-tools.js).
+     *
+     * @param array<int, object> $players
+     */
+    private static function renderRoster( array $players, int $team_id = 0 ): void {
+        $can_status = class_exists( '\TT\Modules\Players\Frontend\PlayerStatusRenderer' );
+        if ( $can_status ) {
+            \TT\Modules\Players\Frontend\PlayerStatusRenderer::enqueueStyles();
+        }
+
+        // Sort by jersey number ascending; un-numbered players last,
+        // alphabetised.
+        usort( $players, static function ( $a, $b ): int {
+            $an = isset( $a->jersey_number ) && (int) $a->jersey_number > 0 ? (int) $a->jersey_number : PHP_INT_MAX;
+            $bn = isset( $b->jersey_number ) && (int) $b->jersey_number > 0 ? (int) $b->jersey_number : PHP_INT_MAX;
+            if ( $an !== $bn ) return $an <=> $bn;
+            $cmp = strcasecmp( (string) ( $a->last_name ?? '' ), (string) ( $b->last_name ?? '' ) );
+            if ( $cmp !== 0 ) return $cmp;
+            return strcasecmp( (string) ( $a->first_name ?? '' ), (string) ( $b->first_name ?? '' ) );
+        } );
+
+        $bulk_url = '';
+        if ( $team_id > 0 && current_user_can( 'tt_rate_player_behaviour' ) ) {
+            $bulk_url = add_query_arg(
+                [ 'tt_view' => 'team-behaviour-capture', 'team_id' => $team_id ],
+                RecordLink::dashboardUrl()
+            );
+        }
+
+        $title = sprintf(
+            /* translators: %d: number of players on the roster */
+            __( 'Roster · %d', 'talenttrack' ),
+            count( $players )
+        );
+        self::cardOpen( $title, $bulk_url !== '' ? [
+            'href'  => $bulk_url,
+            'label' => __( 'Bulk-record behaviour', 'talenttrack' ),
+        ] : null );
+
+        if ( empty( $players ) ) {
+            echo '<p class="tt-player-empty">' . esc_html__( 'No players on this roster yet.', 'talenttrack' ) . '</p>';
+            self::cardClose();
+            return;
+        }
+        ?>
+        <div class="tt-table-wrap">
+        <table class="tt-table tt-team-roster-table">
+            <thead>
+                <tr>
+                    <th style="width:80px;"><?php esc_html_e( 'Jersey #', 'talenttrack' ); ?></th>
+                    <th><?php esc_html_e( 'Player', 'talenttrack' ); ?></th>
+                    <?php if ( $can_status ) : ?>
+                        <th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th>
+                    <?php endif; ?>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ( $players as $pl ) :
+                    $name = QueryHelpers::player_display_name( $pl );
+                    $url  = RecordLink::detailUrlForWithBack( 'players', (int) $pl->id );
+                    $jersey = isset( $pl->jersey_number ) && (int) $pl->jersey_number > 0
+                        ? (int) $pl->jersey_number
+                        : null;
+                    ?>
+                    <tr class="is-row-link" data-row-href="<?php echo esc_url( $url ); ?>">
+                        <td><?php echo $jersey !== null ? (int) $jersey : '<span style="color:var(--tt-muted,#5f6368);">—</span>'; ?></td>
+                        <td>
+                            <a class="tt-record-link" href="<?php echo esc_url( $url ); ?>">
+                                <?php echo esc_html( $name ); ?>
+                            </a>
+                        </td>
+                        <?php if ( $can_status ) : ?>
+                            <td><?php
+                                if ( class_exists( '\TT\Infrastructure\PlayerStatus\PlayerStatusCalculator' ) ) {
+                                    $verdict = ( new \TT\Infrastructure\PlayerStatus\PlayerStatusCalculator() )->calculate( (int) $pl->id );
+                                    echo \TT\Modules\Players\Frontend\PlayerStatusRenderer::dot( (string) $verdict->color );
+                                }
+                            ?></td>
+                        <?php endif; ?>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+        </div>
+        <?php
+        self::cardClose();
+    }
+
+    /**
+     * Staff card. Each name links to the person detail; whole-row link.
      *
      * @param array<int, object> $staff
      */
     private static function renderStaff( array $staff ): void {
-        if ( empty( $staff ) ) return;
-
-        // v3.71.0 — `PeopleRepository::getTeamStaff()` returns rows
-        // grouped by functional-role key (`['head_coach' => [...]]`),
-        // each row a nested assoc array carrying the `person` object.
-        // The previous loop iterated the outer array as if it were a
-        // flat list of staff objects, so `$s->person_id` was always
-        // unset and the section silently emitted empty `<li>`s — the
-        // user's "staff is assigned but not showing up".
         $rows = [];
         foreach ( $staff as $role_key => $group ) {
             if ( ! is_array( $group ) ) continue;
@@ -192,148 +534,74 @@ final class FrontendTeamDetailView extends FrontendViewBase {
             }
         }
         if ( empty( $rows ) ) return;
+
+        self::cardOpen( __( 'Staff', 'talenttrack' ) );
         ?>
-        <section class="tt-pde-section">
-            <h3><?php esc_html_e( 'Staff', 'talenttrack' ); ?></h3>
-            <div class="tt-table-wrap">
-            <table class="tt-table tt-team-staff-table">
-                <thead>
-                    <tr>
-                        <th><?php esc_html_e( 'Name', 'talenttrack' ); ?></th>
-                        <th><?php esc_html_e( 'Role', 'talenttrack' ); ?></th>
+        <div class="tt-table-wrap">
+        <table class="tt-table tt-team-staff-table">
+            <thead>
+                <tr>
+                    <th><?php esc_html_e( 'Name', 'talenttrack' ); ?></th>
+                    <th><?php esc_html_e( 'Role', 'talenttrack' ); ?></th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ( $rows as $row ) :
+                    $p = $row['person'];
+                    $person_id = (int) ( $p->id ?? 0 );
+                    $name      = trim( ( (string) ( $p->first_name ?? '' ) ) . ' ' . ( (string) ( $p->last_name ?? '' ) ) );
+                    if ( $name === '' || $person_id <= 0 ) continue;
+                    $role_key  = (string) $row['role_key'];
+                    $role      = $role_key !== '' ? \TT\Infrastructure\Query\LabelTranslator::roleType( $role_key ) : '';
+                    $url       = RecordLink::detailUrlForWithBack( 'people', $person_id );
+                    ?>
+                    <tr class="is-row-link" data-row-href="<?php echo esc_url( $url ); ?>">
+                        <td>
+                            <a class="tt-record-link" href="<?php echo esc_url( $url ); ?>"><?php echo esc_html( $name ); ?></a>
+                        </td>
+                        <td><?php echo $role !== '' ? esc_html( $role ) : '—'; ?></td>
                     </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ( $rows as $row ) :
-                        $p = $row['person'];
-                        $person_id = (int) ( $p->id ?? 0 );
-                        $name      = trim( ( (string) ( $p->first_name ?? '' ) ) . ' ' . ( (string) ( $p->last_name ?? '' ) ) );
-                        if ( $name === '' || $person_id <= 0 ) continue;
-                        $role_key  = (string) $row['role_key'];
-                        $role      = $role_key !== '' ? \TT\Infrastructure\Query\LabelTranslator::roleType( $role_key ) : '';
-                        $url       = \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'people', $person_id );
-                        ?>
-                        <tr>
-                            <td>
-                                <a class="tt-record-link" href="<?php echo esc_url( $url ); ?>"><?php echo esc_html( $name ); ?></a>
-                            </td>
-                            <td><?php echo $role !== '' ? esc_html( $role ) : '—'; ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-            </div>
-        </section>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+        </div>
         <?php
+        self::cardClose();
     }
 
     /**
-     * Roster table with traffic-light column for player status. Each
-     * row links to the player detail.
-     *
-     * @param array<int, object> $players
+     * Team info card — age group / level as a key/value list.
      */
-    private static function renderRoster( array $players, int $team_id = 0 ): void {
-        if ( empty( $players ) ) return;
-        $can_status = class_exists( '\TT\Modules\Players\Frontend\PlayerStatusRenderer' );
-        // v3.110.65 — load the player-status CSS. Without it, the
-        // `<span class="tt-status-dot">` markup `PlayerStatusRenderer::dot()`
-        // emits has no width / height / colour and the Status column
-        // appears blank. The wp-admin Teams panel was already
-        // enqueueing this; the frontend equivalent was not.
-        if ( $can_status ) {
-            \TT\Modules\Players\Frontend\PlayerStatusRenderer::enqueueStyles();
+    private static function renderTeamInfo( object $team ): void {
+        $rows = [];
+        if ( ! empty( $team->age_group ) ) {
+            $rows[] = [
+                __( 'Age group', 'talenttrack' ),
+                \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'age_group', (string) $team->age_group ),
+            ];
         }
+        if ( ! empty( $team->level ) ) {
+            $rows[] = [ __( 'Level', 'talenttrack' ), (string) $team->level ];
+        }
+        if ( ! empty( $team->notes ) ) {
+            $rows[] = [ __( 'Notes', 'talenttrack' ), (string) $team->notes ];
+        }
+        if ( $rows === [] ) return;
 
-        // v3.110.100 — sort the roster by jersey number ascending,
-        // players without a jersey number drop to the end alphabetised
-        // by last/first name. Operator request: positions were
-        // optional and rarely filled so the column was always '—';
-        // jersey numbers are the natural ordering on team sheets.
-        // get_players() returns alpha-sorted by last_name; re-sort
-        // locally so the change is scoped to this view (other callers
-        // depend on the alpha default).
-        usort( $players, static function ( $a, $b ): int {
-            $an = isset( $a->jersey_number ) && (int) $a->jersey_number > 0 ? (int) $a->jersey_number : PHP_INT_MAX;
-            $bn = isset( $b->jersey_number ) && (int) $b->jersey_number > 0 ? (int) $b->jersey_number : PHP_INT_MAX;
-            if ( $an !== $bn ) return $an <=> $bn;
-            $cmp = strcasecmp( (string) ( $a->last_name ?? '' ), (string) ( $b->last_name ?? '' ) );
-            if ( $cmp !== 0 ) return $cmp;
-            return strcasecmp( (string) ( $a->first_name ?? '' ), (string) ( $b->first_name ?? '' ) );
-        } );
-        ?>
-        <section class="tt-pde-section">
-            <h3><?php esc_html_e( 'Roster', 'talenttrack' ); ?></h3>
-            <?php
-            // #872 — bulk behaviour-rating entry point on the team
-            // detail roster section. Cap-gated; users without
-            // `tt_rate_player_behaviour` don't see the button.
-            if ( $team_id > 0 && current_user_can( 'tt_rate_player_behaviour' ) ) :
-                $bulk_url = add_query_arg(
-                    [ 'tt_view' => 'team-behaviour-capture', 'team_id' => $team_id ],
-                    \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
-                );
-                ?>
-                <p style="margin: 0 0 12px;">
-                    <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( $bulk_url ); ?>">
-                        <?php esc_html_e( 'Bulk-record behaviour', 'talenttrack' ); ?>
-                    </a>
-                </p>
-                <?php
-            endif;
-            ?>
-            <div class="tt-table-wrap">
-            <table class="tt-table">
-                <thead>
-                    <tr>
-                        <th style="width:80px;"><?php esc_html_e( 'Jersey #', 'talenttrack' ); ?></th>
-                        <th><?php esc_html_e( 'Player', 'talenttrack' ); ?></th>
-                        <?php if ( $can_status ) : ?>
-                            <th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th>
-                        <?php endif; ?>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ( $players as $pl ) :
-                        $name = QueryHelpers::player_display_name( $pl );
-                        $url  = \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'players', (int) $pl->id );
-                        $jersey = isset( $pl->jersey_number ) && (int) $pl->jersey_number > 0
-                            ? (int) $pl->jersey_number
-                            : null;
-                        ?>
-                        <tr>
-                            <td><?php echo $jersey !== null ? (int) $jersey : '<span style="color:var(--tt-muted,#5f6368);">—</span>'; ?></td>
-                            <td>
-                                <a class="tt-record-link" href="<?php echo esc_url( $url ); ?>">
-                                    <?php echo esc_html( $name ); ?>
-                                </a>
-                            </td>
-                            <?php if ( $can_status ) : ?>
-                                <td><?php
-                                    // Traffic-light dot via PlayerStatusCalculator +
-                                    // PlayerStatusRenderer (#0057). Closes the
-                                    // "where is player status displayed" complaint
-                                    // by surfacing it on the team roster.
-                                    if ( class_exists( '\TT\Infrastructure\PlayerStatus\PlayerStatusCalculator' ) ) {
-                                        $verdict = ( new \TT\Infrastructure\PlayerStatus\PlayerStatusCalculator() )->calculate( (int) $pl->id );
-                                        echo \TT\Modules\Players\Frontend\PlayerStatusRenderer::dot( (string) $verdict->color );
-                                    }
-                                ?></td>
-                            <?php endif; ?>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-            </div>
-        </section>
-        <?php
+        self::cardOpen( __( 'Team info', 'talenttrack' ) );
+        foreach ( $rows as $row ) {
+            echo '<div class="tt-player-kv">';
+            echo '<div class="tt-player-kv__k">' . esc_html( (string) $row[0] ) . '</div>';
+            echo '<div class="tt-player-kv__v">' . esc_html( (string) $row[1] ) . '</div>';
+            echo '</div>';
+        }
+        self::cardClose();
     }
 
     /**
      * #0077 M4 — fetch trial players for the team. Status='trial' is
      * filtered out by QueryHelpers::get_players, so we run a small
-     * dedicated query here. Demo-mode scope is applied so the panel
-     * stays consistent with the rest of the page.
+     * dedicated query here.
      *
      * @return array<int,object>
      */
@@ -351,42 +619,42 @@ final class FrontendTeamDetailView extends FrontendViewBase {
     }
 
     /**
-     * #0077 M4 — render trial-roster section.
-     * v3.110.95 — converted from <ul> to a table matching the roster
-     * shape (Name | Status pill) so the team page is consistent.
+     * #0077 M4 — trial-roster card. Each row links to the player detail;
+     * whole-row link.
+     *
+     * @param array<int,object> $players
      */
     private static function renderTrialRoster( array $players ): void {
         if ( empty( $players ) ) return;
-        echo '<section class="tt-pde-section">';
-        echo '<h3>' . esc_html__( 'Trial players', 'talenttrack' ) . '</h3>';
-        echo '<div class="tt-table-wrap">';
-        echo '<table class="tt-table tt-team-trial-table"><thead><tr>';
-        echo '<th>' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Status', 'talenttrack' ) . '</th>';
-        echo '</tr></thead><tbody>';
-        foreach ( $players as $pl ) {
-            $url = \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'players', (int) $pl->id );
-            $name = QueryHelpers::player_display_name( $pl );
-            echo '<tr>';
-            echo '<td><a class="tt-record-link" href="' . esc_url( $url ) . '">' . esc_html( $name ) . '</a></td>';
-            echo '<td><span class="tt-pill" style="background:#fff3e0; color:#a86322; font-size:11px; padding:2px 8px; border-radius:999px;">' . esc_html__( 'Trial', 'talenttrack' ) . '</span></td>';
-            echo '</tr>';
-        }
-        echo '</tbody></table>';
-        echo '</div>';
-        echo '</section>';
+        self::cardOpen( __( 'Trial roster', 'talenttrack' ) );
+        ?>
+        <div class="tt-table-wrap">
+        <table class="tt-table tt-team-trial-table">
+            <thead>
+                <tr>
+                    <th><?php esc_html_e( 'Player', 'talenttrack' ); ?></th>
+                    <th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ( $players as $pl ) :
+                    $url  = RecordLink::detailUrlForWithBack( 'players', (int) $pl->id );
+                    $name = QueryHelpers::player_display_name( $pl );
+                    ?>
+                    <tr class="is-row-link" data-row-href="<?php echo esc_url( $url ); ?>">
+                        <td><a class="tt-record-link" href="<?php echo esc_url( $url ); ?>"><?php echo esc_html( $name ); ?></a></td>
+                        <td><span class="tt-player-row__pill" data-status="trial"><?php esc_html_e( 'Trial', 'talenttrack' ); ?></span></td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+        </div>
+        <?php
+        self::cardClose();
     }
 
     private static function renderUpcomingActivities( int $team_id ): void {
         global $wpdb;
-        // v3.110.65 — exclude activities the coach has already marked
-        // Completed or Cancelled. The "upcoming" panel should be the
-        // forward-looking schedule (planned activities from today
-        // onwards), not a historical log. Filters on
-        // `activity_status_key` (the user-facing lookup the coach
-        // edits on the activities form) — same source-of-truth field
-        // the team planner uses since v3.110.56. The legacy
-        // `plan_state` column is ignored here for the same reason.
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT id, title, session_date, start_time, end_time, activity_type_key, activity_status_key
                FROM {$wpdb->prefix}tt_activities
@@ -399,95 +667,126 @@ final class FrontendTeamDetailView extends FrontendViewBase {
         ) );
         if ( empty( $rows ) ) return;
 
-        // v3.110.95 — render the upcoming activities as a table so the
-        // team page is consistent with the staff / roster / trial
-        // tables. Adds Type + Status columns (read from the same
-        // `activity_type_key` / `activity_status_key` lookup fields the
-        // coach edits on the activity form).
         // #1098 — Activity volume preset (Explorer →).
         $activity_explore_url = \TT\Modules\Analytics\Domain\ExplorerUrl::build(
             'activity_volume',
             [ 'team_id' => (string) $team_id, 'date_after' => '-12 months' ],
             'month'
         );
-        echo '<section class="tt-pde-section">';
-        echo '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">';
-        echo '<h3 style="margin:0;">' . esc_html__( 'Upcoming activities', 'talenttrack' ) . '</h3>';
-        // #1552 — only surface the Explorer link when the feature is on.
+        $head_action = null;
         if ( \TT\Modules\Analytics\AnalyticsModule::explorerEnabled() ) {
-            echo '<a href="' . esc_url( $activity_explore_url ) . '" style="background:transparent;border:1px solid var(--tt-line, #d6dadd);color:var(--tt-muted, #5b6e75);text-decoration:none;padding:6px 10px;border-radius:6px;font-size:12px;font-weight:600;">'
-                . esc_html__( 'Explorer →', 'talenttrack' )
-                . '</a>';
+            $head_action = [ 'href' => $activity_explore_url, 'label' => __( 'Explorer →', 'talenttrack' ) ];
         }
-        echo '</div>';
-        echo '<div class="tt-table-wrap" style="margin-top:8px;">';
-        echo '<table class="tt-table tt-team-activities-table"><thead><tr>';
-        echo '<th>' . esc_html__( 'Date', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Title', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Type', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Status', 'talenttrack' ) . '</th>';
-        echo '</tr></thead><tbody>';
-        foreach ( $rows as $r ) {
-            // v3.70.1 hotfix — use generic `activities` slug, not
-            // `my-activities` (which is player-self-scope and gates
-            // out academy admins / HoD opening from the team page).
-            $url = \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'activities', (int) $r->id );
-            $type_label   = \TT\Infrastructure\Query\LabelTranslator::activityType( (string) ( $r->activity_type_key ?? '' ) );
-            // Status lookup has no dedicated translator method — humanise
-            // the key inline (`in_progress` → `In progress`). When the
-            // lookup gains i18n coverage, swap this for a registry call.
-            $status_key   = (string) ( $r->activity_status_key ?? '' );
-            $status_label = $status_key !== '' ? ucfirst( str_replace( '_', ' ', $status_key ) ) : '';
-            // #1126 — append the time window to the date cell when set.
-            $st = (string) ( $r->start_time ?? '' );
-            $et = (string) ( $r->end_time   ?? '' );
-            $date_text = (string) $r->session_date;
-            if ( $st !== '' ) {
-                $date_text .= ' · ' . substr( $st, 0, 5 ) . ( $et !== '' ? '–' . substr( $et, 0, 5 ) : '' );
-            }
-            echo '<tr>';
-            echo '<td>' . esc_html( $date_text ) . '</td>';
-            echo '<td><a class="tt-record-link" href="' . esc_url( $url ) . '">' . esc_html( (string) $r->title ) . '</a></td>';
-            echo '<td>' . ( $type_label !== '' ? esc_html( $type_label ) : '—' ) . '</td>';
-            echo '<td>' . ( $status_label !== '' ? esc_html( $status_label ) : '—' ) . '</td>';
-            echo '</tr>';
-        }
-        echo '</tbody></table>';
-        echo '</div>';
-        echo '</section>';
+        self::cardOpen( __( 'Upcoming activities', 'talenttrack' ), $head_action );
+        ?>
+        <div class="tt-table-wrap">
+        <table class="tt-table tt-team-activities-table">
+            <thead>
+                <tr>
+                    <th><?php esc_html_e( 'Date', 'talenttrack' ); ?></th>
+                    <th><?php esc_html_e( 'Title', 'talenttrack' ); ?></th>
+                    <th><?php esc_html_e( 'Type', 'talenttrack' ); ?></th>
+                    <th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ( $rows as $r ) :
+                    $url = RecordLink::detailUrlForWithBack( 'activities', (int) $r->id );
+                    $type_label   = \TT\Infrastructure\Query\LabelTranslator::activityType( (string) ( $r->activity_type_key ?? '' ) );
+                    $status_key   = (string) ( $r->activity_status_key ?? '' );
+                    $status_label = $status_key !== '' ? ucfirst( str_replace( '_', ' ', $status_key ) ) : '';
+                    $st = (string) ( $r->start_time ?? '' );
+                    $et = (string) ( $r->end_time   ?? '' );
+                    $date_text = (string) $r->session_date;
+                    if ( $st !== '' ) {
+                        $date_text .= ' · ' . substr( $st, 0, 5 ) . ( $et !== '' ? '–' . substr( $et, 0, 5 ) : '' );
+                    }
+                    ?>
+                    <tr class="is-row-link" data-row-href="<?php echo esc_url( $url ); ?>">
+                        <td><?php echo esc_html( $date_text ); ?></td>
+                        <td><a class="tt-record-link" href="<?php echo esc_url( $url ); ?>"><?php echo esc_html( (string) $r->title ); ?></a></td>
+                        <td><?php echo $type_label !== '' ? esc_html( $type_label ) : '—'; ?></td>
+                        <td><?php echo $status_label !== '' ? esc_html( $status_label ) : '—'; ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+        </div>
+        <?php
+        self::cardClose();
     }
 
     private static function renderChemistryTeaser( int $team_id ): void {
         if ( ! class_exists( '\TT\Modules\TeamDevelopment\Frontend\FrontendTeamChemistryView' ) ) return;
         $url = add_query_arg(
             [ 'tt_view' => 'team-chemistry', 'team_id' => $team_id ],
-            \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+            RecordLink::dashboardUrl()
         );
-        echo '<section class="tt-pde-section">';
-        echo '<h3>' . esc_html__( 'Team chemistry', 'talenttrack' ) . '</h3>';
-        echo '<p><a class="tt-btn tt-btn-secondary" href="' . esc_url( $url ) . '">';
+        self::cardOpen( __( 'Team chemistry', 'talenttrack' ) );
+        echo '<p style="margin:0;"><a class="tt-btn tt-btn-secondary" href="' . esc_url( $url ) . '">';
         echo esc_html__( 'Open the chemistry board', 'talenttrack' );
         echo '</a></p>';
-        echo '</section>';
+        self::cardClose();
     }
 
-    // v3.110.100 — renderAnalyticsTeaser removed. The team-scoped
-    // Analytics surface (#0083 Child 4) is no longer rendered on the
-    // team detail page; coaches access analytics through the central
-    // tile. EntityAnalyticsTabRenderer + the team-scoped KPIs in
-    // KpiRegistry are unchanged — re-instate by adding a call back
-    // to render() if the operator changes their mind.
+    /* ---------- Small render helpers ---------- */
+
+    /**
+     * Open a `tt-player-card` panel with an optional head action link.
+     *
+     * @param array{href:string,label:string}|null $action
+     */
+    private static function cardOpen( string $title, ?array $action = null ): void {
+        echo '<div class="tt-player-card tt-team-card">';
+        echo '<div class="tt-player-card__head">';
+        echo '<h3 class="tt-player-card__title">' . esc_html( $title ) . '</h3>';
+        if ( $action !== null && ! empty( $action['href'] ) ) {
+            echo '<a class="tt-player-card__cta" href="' . esc_url( (string) $action['href'] ) . '">'
+                . esc_html( (string) $action['label'] ) . '</a>';
+        }
+        echo '</div>';
+        echo '<div class="tt-player-card__body">';
+    }
+
+    private static function cardClose(): void {
+        echo '</div></div>';
+    }
+
+    /** Two-letter crest from the team name (first letters of first two words). */
+    private static function crestFor( string $name ): string {
+        $name = trim( $name );
+        if ( $name === '' ) return '?';
+        $parts = preg_split( '/\s+/', $name ) ?: [ $name ];
+        $a = mb_substr( (string) ( $parts[0] ?? '' ), 0, 1 );
+        $b = count( $parts ) > 1 ? mb_substr( (string) ( $parts[1] ?? '' ), 0, 1 ) : '';
+        return mb_strtoupper( $a . $b );
+    }
+
+    /**
+     * Head coach display name from the staff-assignment groups (first
+     * head_coach entry). Empty string when none assigned.
+     *
+     * @param array<string,mixed> $staff
+     */
+    private static function headCoachName( array $staff ): string {
+        $group = $staff['head_coach'] ?? null;
+        if ( ! is_array( $group ) ) return '';
+        foreach ( $group as $entry ) {
+            if ( ! is_array( $entry ) ) continue;
+            $person = $entry['person'] ?? null;
+            if ( ! is_object( $person ) ) continue;
+            $name = trim( ( (string) ( $person->first_name ?? '' ) ) . ' ' . ( (string) ( $person->last_name ?? '' ) ) );
+            if ( $name !== '' ) return $name;
+        }
+        return '';
+    }
 
     /**
      * #1088 VCT-13 — inline VCT defaults panel.
      *
      * Renders weekday chips + default start time + default duration for
-     * the team's current-season schedule row. Drives the new-VCT-session
-     * wizard's basis-step prefill (read by VctTeamSchedulesRepository::
-     * findForTeamSeason).
-     *
-     * Settings sub-form per CLAUDE.md §3 exemption (a). Mockup
-     * design-of-record at .local-mockups/vct-team-panel/.
+     * the team's current-season schedule row. Settings sub-form per
+     * CLAUDE.md §3 exemption (a).
      */
     private static function renderVctDefaultsPanel( int $team_id, string $notice_html ): void {
         if ( ! \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_vct_admin_library' ) ) {
@@ -514,7 +813,7 @@ final class FrontendTeamDetailView extends FrontendViewBase {
             ? (string) $back['url']
             : add_query_arg(
                 [ 'tt_view' => 'teams', 'id' => $team_id ],
-                \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+                RecordLink::dashboardUrl()
             );
 
         $weekdays = [
@@ -583,9 +882,6 @@ final class FrontendTeamDetailView extends FrontendViewBase {
         </style>
         <script>
         (function(){
-            // Toggle the .is-selected class on day chips for browsers that
-            // don't support :has(). Keeps the visual feedback in sync with
-            // checkbox state without depending on selector support.
             document.querySelectorAll('.tt-vct-dow-chip input[type="checkbox"]').forEach(function(cb){
                 cb.addEventListener('change', function(){
                     cb.parentElement.classList.toggle('is-selected', cb.checked);

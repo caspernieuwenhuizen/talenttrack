@@ -1,0 +1,130 @@
+/* Team detail — player-profile-style surface (#1613).
+ *
+ * Mobile-first. Inherits the card system, hero, key-facts strip,
+ * at-a-glance KPI strip, and the responsive two-column rail/main grid
+ * from frontend-player-detail.css (loaded as a dependency). This sheet
+ * only carries the team-specific deltas: the crest chip, the customize
+ * panel, and the whole-row-link affordance on the hand-rolled tables.
+ *
+ * Base styles target the 360px viewport; `min-width` queries scale up.
+ */
+
+/* ---------- Crest (initials chip in place of the player avatar) ---------- */
+
+.tt-team-hero__crest {
+    background: var(--tt-accent, #2271b1);
+    letter-spacing: 0;
+    font-size: 22px;
+}
+@media (min-width: 720px) {
+    .tt-team-hero__crest { font-size: 30px; }
+}
+
+/* The archived status border reuses the inactive (muted) ring. */
+.tt-player-hero__avatar[data-status="archived"] { border-color: var(--tt-line-soft, #d6dadd); }
+.tt-player-pill[data-status="archived"] { background: var(--tt-mute-soft, #f0f3f2); color: var(--tt-ink-soft, #5b6e75); }
+
+/* ---------- Whole-row link on hand-rolled .tt-table lists ---------- */
+
+.tt-team-detail .tt-table tr.is-row-link { cursor: pointer; }
+.tt-team-detail .tt-table tr.is-row-link:hover { background: var(--tt-bg-soft, #f5f7f6); }
+.tt-team-detail .tt-table tr.is-row-link:active { background: var(--tt-mute-soft, #f0f3f2); }
+/* Keep the inner per-cell link as the keyboard / AT path. */
+.tt-team-detail .tt-table .tt-record-link { color: var(--tt-accent, #2271b1); text-decoration: none; font-weight: 600; }
+.tt-team-detail .tt-table .tt-record-link:focus-visible { outline: 2px solid var(--tt-accent, #2271b1); outline-offset: 2px; }
+
+/* Tables sit flush inside the card body; the card already pads. */
+.tt-team-card .tt-table-wrap { margin: 0; }
+.tt-team-card .tt-table { width: 100%; border-collapse: collapse; }
+.tt-team-card .tt-table th,
+.tt-team-card .tt-table td {
+    padding: 10px 8px;
+    text-align: left;
+    font-size: 14px;
+    border-bottom: 1px solid var(--tt-mute-soft, #f0f3f2);
+    min-height: 48px;
+}
+.tt-team-card .tt-table th {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--tt-ink-soft, #5b6e75);
+    font-weight: 700;
+}
+.tt-team-card .tt-table tbody tr:last-child td { border-bottom: none; }
+
+/* ---------- Customize panel ---------- */
+
+.tt-team-customize {
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line-soft, #d6dadd);
+    border-radius: var(--tt-radius-lg, 16px);
+    padding: 16px;
+    margin: var(--tt-gap, 12px) 0 0;
+}
+@media (min-width: 1024px) {
+    /* Span both rail + main so the panel is full width under the actions. */
+    .tt-team-detail .tt-team-customize { grid-column: 1 / -1; }
+}
+.tt-team-customize__title {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--tt-ink-soft, #5b6e75);
+}
+.tt-team-customize__sub {
+    margin: 4px 0 12px;
+    font-size: 13px;
+    color: var(--tt-ink-soft, #5b6e75);
+}
+.tt-team-customize__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 4px;
+}
+@media (min-width: 480px) {
+    .tt-team-customize__grid { grid-template-columns: 1fr 1fr; }
+}
+.tt-team-customize__row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 48px;
+    padding: 0 8px;
+    border-radius: var(--tt-radius, 10px);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--tt-ink-strong, #1a1d21);
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-team-customize__row:active { background: var(--tt-mute-soft, #f0f3f2); }
+.tt-team-customize__row input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    accent-color: var(--tt-accent, #2271b1);
+}
+.tt-team-customize__row:focus-within { outline: 2px solid var(--tt-accent, #2271b1); outline-offset: 2px; }
+.tt-team-customize__foot {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+}
+.tt-team-customize__foot .tt-btn { min-height: 48px; }
+.tt-team-customize__status {
+    font-size: 13px;
+    color: var(--tt-ink-soft, #5b6e75);
+}
+.tt-team-customize__status.is-error { color: var(--tt-danger, #d63638); }
+.tt-team-customize__status.is-success { color: var(--tt-success, #2e7d4f); }
+
+.tt-team-customize-trigger[aria-expanded="true"] {
+    background: var(--tt-ink-strong, #1a1d21);
+    color: #fff;
+    border-color: var(--tt-ink-strong, #1a1d21);
+}

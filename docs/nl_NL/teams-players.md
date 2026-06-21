@@ -94,6 +94,22 @@ Het spelersdossier is opnieuw opgebouwd als een port van `.local-mockups/player-
 
 De teamdetailpagina toont nu lopende stagespelers in een eigen subsectie **Stagespelers**. Eerder vielen ze uit de roster door de actieve-status-filter.
 
+## Teamdetail — herontwerp in spelersprofiel-stijl (v4.40.0 — #1613)
+
+De teampagina is opnieuw opgebouwd in de stijl van het [spelersprofiel](?page=tt-docs&topic=teams-players): dezelfde vormen, hetzelfde kaartsysteem, hetzelfde responsieve rail/main-grid. Backend ongewijzigd — dezelfde `tt_teams`-rij, dezelfde `tt_view_teams`-poort, dezelfde `?tt_view=teams&id=N`-URL.
+
+- **Hero.** Papieren ondergrond met het teamembleem (initialen in een accentchip, status-gekleurde rand), naam, een "Teams · leeftijdsgroep"-subregel en identiteitspillen (status, leeftijdsgroep, aantal spelers). De hero wordt **altijd getoond** en kan niet verborgen worden.
+- **Actierij.** Nieuwe activiteit (primair) · Planner · Bewerken · Seizoens-intakes printen · Aanpassen · `⋯` overflow (Archiveren). Bevoegdheidsgating: Nieuwe activiteit → `tt_edit_activities`, Bewerken + Archiveren → `tt_edit_teams`, batch-print → `tt_edit_goals`, Aanpassen → coach van dit team.
+- **Kerngegevens-strook.** Leeftijdsgroep · Hoofdcoach · Spelers. 3-koloms op mobiel, verticaal in de linkerkolom op desktop.
+- **In één oogopslag KPI's.** Aankomend (geplande activiteiten in de komende 14 dagen, linkt naar de planner) · Gem. aanwezigheid (laatste 30 dagen) · Gem. selectiebeoordeling (gemiddelde over de evaluaties van de selectie, op de beoordelingsschaal van de academie). De getallen komen uit `TeamKpisRepository`, niet uit de view.
+- **Kaarten.** Roster, Staf, Teaminfo, Stagespelers (indien aanwezig), Aankomende activiteiten — elk een kaartpaneel. **Elke tabelrij is nu een hele-rij-link** (Roster → speler, Staf → persoon, Aankomende activiteiten → activiteit) — dit lost het oude probleem op dat "de tabel met aankomende activiteiten geen rij-klik had". De interne kolomlink blijft het toetsenbord- / hulptechnologiepad; middenklik en cmd/ctrl-klik openen in een nieuw tabblad.
+
+### Aanpassen — secties per coach
+
+Een knop **Aanpassen** (alleen zichtbaar voor coaches die het team beheren) opent een paneel met sectie-schakelaars. De keuze is **persoonlijk voor die coach** en geldt voor **alle teams die hij/zij coacht** — het is geen clubbrede instelling en verandert niets aan wat anderen zien. De schakelbare secties zijn: Kerngegevens, In één oogopslag, Roster, Staf, Teaminfo, Stagespelers, Aankomende activiteiten. De hero wordt altijd getoond.
+
+De voorkeur wordt per gebruiker opgeslagen en gelezen/geschreven via `GET`/`PUT /wp-json/talenttrack/v1/me/preferences/team-detail`, zodat een toekomstige niet-WordPress-frontend dezelfde indeling krijgt. Spelers, ouders, beheerders en coaches die niets hebben aangepast zien allemaal de standaard — elke sectie aan.
+
 ## Bewerk-rechtenpad (v3.79.0)
 
 De bewerken-knop op de teamdetailpagina en de Teams REST-endpoints (list / get / create / delete) gebruiken nu `AuthorizationService::userCanOrMatrix` in plaats van `current_user_can`. Daardoor passeren ook gebruikers de poort die `tt_edit_teams` via de matrix scope-rij krijgen (functionele rol-bridge), in lijn met het patroon dat al voor tegels en de Activities REST geldt.
