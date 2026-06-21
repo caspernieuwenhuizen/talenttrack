@@ -38,6 +38,17 @@ Eén gedeelde standaard bepaalt nu de grootte en lay-out van elke tegel (`TileGr
 
 **Tegelschaal:** het oudere numerieke **Tegelschaal**-percentage (in te stellen op de wp-admin Configuratiepagina) blijft werken — het wordt als extra vermenigvuldiger bovenop de gekozen voorinstelling toegepast, zodat bestaande aanpassingen hun effect behouden. Als Tegelschaal op 100% blijft staan, bepaalt de voorinstelling alleen de tegelgrootte.
 
+### Tegelindeling (v4.35.0+)
+
+Naast de groottekeuze (nu **Tegelgrootte** genoemd) krijgt het Vormgeving-scherm een aparte **Tegelindeling**-keuzelijst. Indeling en grootte zijn onafhankelijke assen — elke combinatie is geldig (bijvoorbeeld Ruim + Gestapeld).
+
+| Indeling | Effect |
+| --- | --- |
+| **Rij (icoon links van de titel)** (standaard) | Het icoon staat links, met de titel en beschrijving ernaast gestapeld. Dit is de indeling van vóór deze release — geen visuele wijziging bij het bijwerken. |
+| **Gestapeld (icoon + titel, beschrijving eronder)** | Het icoon en de titel delen de eerste regel; de beschrijving beslaat de volledige tegelbreedte eronder. Het icoon is zo groot dat het ongeveer twee titelregels beslaat, zodat een lange titel naast het icoon naar een tweede regel loopt in plaats van de tegel breder te maken — de tegel houdt zijn standaardbreedte. |
+
+De indeling geldt overal waar een tegel een icoon toont: het dashboardtegelraster altijd, en de tegels van Configuratie / Rapporten / Modules wanneer een tegel een icoon heeft. Tegels zonder icoon hebben geen eerste regel om te delen en zien er in beide indelingen hetzelfde uit. Wordt academy-breed opgeslagen onder de configuratiesleutel `tile_layout`; standaard `row`.
+
 ## Volledig-canvas app (v4.34.0+)
 
 Het Vormgeving-scherm krijgt een selectievakje **Volledig-canvas app**. Als dit aan staat — de standaardinstelling — wordt TalentTrack op volledige breedte weergegeven en worden de kop, voettekst, zijbalk, menu's en widgets van het actieve WordPress-thema verborgen, zodat alleen de TalentTrack-interface zichtbaar is. De WordPress-beheerbalk blijft zichtbaar voor ingelogde medewerkers (het is een WordPress-element, geen thema-omlijsting, en geeft medewerkers met één klik toegang tot wp-admin).

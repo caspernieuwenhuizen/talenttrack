@@ -158,10 +158,50 @@ class FrontendTileGrid {
         @media (max-width: 640px) {
             .tt-ftile-grid { grid-template-columns: 1fr; }
         }
+
+        /* #1598 — "stacked" tile layout: icon + title share the first line,
+           description spans the full tile width beneath. The icon chip is
+           sized to ~two title rows so a long title wraps next to it rather
+           than widening the tile. Scoped to the active layout via the
+           wrapper's data-tt-tile-layout attribute; "row" is unchanged. */
+        [data-tt-tile-layout="stacked"] .tt-ftile {
+            flex-direction: column;
+            align-items: stretch;
+            gap: calc(8px * var(--tt-tile-scale));
+        }
+        [data-tt-tile-layout="stacked"] .tt-ftile-head {
+            display: flex;
+            align-items: center;
+            gap: calc(10px * var(--tt-tile-scale));
+        }
+        [data-tt-tile-layout="stacked"] .tt-ftile-head .tt-ftile-label {
+            flex: 1;
+            min-width: 0;
+            margin: 0;
+            /* allow the title to wrap to two rows beside the icon */
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        [data-tt-tile-layout="stacked"] .tt-tile-chip {
+            width: calc(2.5rem * var(--tt-tile-scale, 1));
+            height: calc(2.5rem * var(--tt-tile-scale, 1));
+        }
+        [data-tt-tile-layout="stacked"] .tt-tile-chip .tt-tile-chip__glyph {
+            width: calc(1.5rem * var(--tt-tile-scale, 1));
+            height: calc(1.5rem * var(--tt-tile-scale, 1));
+        }
+        [data-tt-tile-layout="stacked"] .tt-ftile-desc {
+            /* full width below the icon row → room for an extra line */
+            -webkit-line-clamp: 3;
+            line-clamp: 3;
+        }
         </style>
         <?php echo TileIconChip::styles(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — static trusted CSS. ?>
 
-        <div class="tt-ftile-grid-wrap">
+        <div class="tt-ftile-grid-wrap" <?php echo TileGridStandard::layoutAttr(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — layoutAttr escapes its own value. ?>>
         <div class="tt-ftile-greeting"><?php echo esc_html( $greeting ); ?></div>
 
         <?php
@@ -246,6 +286,10 @@ class FrontendTileGrid {
      * @param array<int, array{label:string, tiles:array}> $groups
      */
     private static function renderGroups( array $groups ): void {
+        // #1598 — academy-wide tile layout: 'row' (icon left, title+desc
+        // stacked beside it) or 'stacked' (icon + title share line 1,
+        // description full width beneath).
+        $stacked = TileGridStandard::activeLayout() === 'stacked';
         foreach ( $groups as $group ) {
             $tiles = $group['tiles'];
             if ( empty( $tiles ) ) continue;
@@ -254,19 +298,30 @@ class FrontendTileGrid {
                 <span><?php echo esc_html( (string) $group['label'] ); ?></span>
             </div>
             <div class="tt-ftile-grid">
-                <?php foreach ( $tiles as $tile ) : ?>
-                    <a class="tt-ftile" href="<?php echo esc_url( (string) ( $tile['url'] ?? '' ) ); ?>">
-                        <?php
-                        // #1553 — Phosphor duotone glyph in an accent chip.
-                        echo TileIconChip::render(
-                            (string) ( $tile['icon'] ?? '' ),
-                            (string) ( $tile['color'] ?? '#5b6e75' )
-                        ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — TileIconChip escapes its own attrs and IconRenderer returns trusted SVG.
-                        ?>
-                        <div class="tt-ftile-body">
-                            <div class="tt-ftile-label"><?php echo esc_html( (string) ( $tile['label'] ?? '' ) ); ?></div>
-                            <p class="tt-ftile-desc"><?php echo esc_html( (string) ( $tile['desc'] ?? '' ) ); ?></p>
-                        </div>
+                <?php foreach ( $tiles as $tile ) :
+                    // #1553 — Phosphor duotone glyph in an accent chip.
+                    $chip  = TileIconChip::render(
+                        (string) ( $tile['icon'] ?? '' ),
+                        (string) ( $tile['color'] ?? '#5b6e75' )
+                    );
+                    $label = esc_html( (string) ( $tile['label'] ?? '' ) );
+                    $desc  = esc_html( (string) ( $tile['desc'] ?? '' ) );
+                    $url   = esc_url( (string) ( $tile['url'] ?? '' ) );
+                    ?>
+                    <a class="tt-ftile" href="<?php echo $url; ?>">
+                        <?php if ( $stacked ) : ?>
+                            <div class="tt-ftile-head">
+                                <?php echo $chip; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — TileIconChip escapes its own attrs and IconRenderer returns trusted SVG. ?>
+                                <div class="tt-ftile-label"><?php echo $label; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — esc_html'd above. ?></div>
+                            </div>
+                            <p class="tt-ftile-desc"><?php echo $desc; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — esc_html'd above. ?></p>
+                        <?php else : ?>
+                            <?php echo $chip; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — TileIconChip escapes its own attrs and IconRenderer returns trusted SVG. ?>
+                            <div class="tt-ftile-body">
+                                <div class="tt-ftile-label"><?php echo $label; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — esc_html'd above. ?></div>
+                                <p class="tt-ftile-desc"><?php echo $desc; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — esc_html'd above. ?></p>
+                            </div>
+                        <?php endif; ?>
                     </a>
                 <?php endforeach; ?>
             </div>

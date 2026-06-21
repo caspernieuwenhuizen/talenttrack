@@ -1712,12 +1712,18 @@ class FrontendConfigurationView extends FrontendViewBase {
         $font_body       = (string) QueryHelpers::get_config( 'font_body',     BrandFonts::SYSTEM_DEFAULT );
         // #1587 — academy-wide Tile appearance preset.
         $tile_appearance = \TT\Shared\Frontend\Components\TileGridStandard::activePreset();
+        // #1598 — academy-wide Tile layout (orthogonal to the size preset).
+        $tile_layout     = \TT\Shared\Frontend\Components\TileGridStandard::activeLayout();
         // #1590 — full-canvas app shell toggle (default on).
         $canvas_mode     = (string) QueryHelpers::get_config( 'frontend_canvas_mode', '1' );
         $tile_labels     = [
             'compact'     => __( 'Compact', 'talenttrack' ),
             'comfortable' => __( 'Comfortable', 'talenttrack' ),
             'spacious'    => __( 'Spacious', 'talenttrack' ),
+        ];
+        $tile_layout_labels = [
+            'row'     => __( 'Row (icon left of title)', 'talenttrack' ),
+            'stacked' => __( 'Stacked (icon + title, description below)', 'talenttrack' ),
         ];
         $cancel_url      = remove_query_arg( [ 'config_sub' ] );
         $css_url         = add_query_arg( [ 'tt_view' => 'custom-css' ], remove_query_arg( [ 'tt_view', 'config_sub' ] ) );
@@ -1806,15 +1812,26 @@ class FrontendConfigurationView extends FrontendViewBase {
             <h3 class="tt-cfg-section-head" style="margin:18px 0 8px;"><?php esc_html_e( 'Tile appearance', 'talenttrack' ); ?></h3>
             <div class="tt-panel">
                 <p style="margin:0 0 var(--tt-sp-3); color:var(--tt-muted);">
-                    <?php esc_html_e( 'Set the size and column density of the tiles shown on the dashboard, Configuration, Reports and Teams. Comfortable is the default; Compact fits more on screen, Spacious is roomier.', 'talenttrack' ); ?>
+                    <?php esc_html_e( 'Set the size and arrangement of the tiles shown on the dashboard, Configuration, Reports and Teams. Size and layout are independent — pick any combination.', 'talenttrack' ); ?>
                 </p>
                 <div class="tt-field">
-                    <label class="tt-field-label" for="tt-cfg-tile-appearance"><?php esc_html_e( 'Tile appearance', 'talenttrack' ); ?></label>
+                    <label class="tt-field-label" for="tt-cfg-tile-appearance"><?php esc_html_e( 'Tile size', 'talenttrack' ); ?></label>
                     <select id="tt-cfg-tile-appearance" class="tt-input" name="config[tile_appearance]">
                         <?php foreach ( \TT\Shared\Frontend\Components\TileGridStandard::presetKeys() as $preset_key ) : ?>
                             <option value="<?php echo esc_attr( $preset_key ); ?>" <?php selected( $tile_appearance, $preset_key ); ?>><?php echo esc_html( (string) ( $tile_labels[ $preset_key ] ?? $preset_key ) ); ?></option>
                         <?php endforeach; ?>
                     </select>
+                </div>
+                <div class="tt-field">
+                    <label class="tt-field-label" for="tt-cfg-tile-layout"><?php esc_html_e( 'Tile layout', 'talenttrack' ); ?></label>
+                    <select id="tt-cfg-tile-layout" class="tt-input" name="config[tile_layout]">
+                        <?php foreach ( \TT\Shared\Frontend\Components\TileGridStandard::layoutKeys() as $layout_key ) : ?>
+                            <option value="<?php echo esc_attr( $layout_key ); ?>" <?php selected( $tile_layout, $layout_key ); ?>><?php echo esc_html( (string) ( $tile_layout_labels[ $layout_key ] ?? $layout_key ) ); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <p class="tt-field-hint" style="margin:var(--tt-sp-2) 0 0; color:var(--tt-muted); font-size:.85em;">
+                        <?php esc_html_e( 'Stacked puts the icon and title on the first line with the description beneath, so titles can run two lines without widening the tile.', 'talenttrack' ); ?>
+                    </p>
                 </div>
             </div>
 

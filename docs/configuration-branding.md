@@ -38,6 +38,17 @@ A single shared standard now drives every tile's size and layout (`TileGridStand
 
 **Tile scale:** the older numeric **Tile scale** percentage (set on the wp-admin Configuration page) still works — it is applied as an additional multiplier on top of the chosen preset, so existing overrides keep their effect. When Tile scale is left at 100%, the preset alone governs tile sizing.
 
+### Tile layout (v4.35.0+)
+
+Alongside the size dropdown (now labelled **Tile size**), the Appearance surface gains a separate **Tile layout** dropdown. Layout and size are independent axes — any combination is valid (for example Spacious + Stacked).
+
+| Layout | Effect |
+| --- | --- |
+| **Row (icon left of title)** (default) | The icon sits to the left, with the title and description stacked beside it. This is the arrangement used before this release — no visual change on upgrade. |
+| **Stacked (icon + title, description below)** | The icon and title share the first line; the description spans the full tile width beneath. The icon is sized to span roughly two title rows, so a long title wraps to a second line next to the icon instead of widening the tile — the tile keeps its standard width. |
+
+The layout applies everywhere a tile shows an icon: the dashboard tile grid always, and the Configuration / Reports / Modules tiles whenever a tile carries an icon. Tiles without an icon have no top line to share and render the same in either layout. Stored academy-wide under the `tile_layout` configuration key; default `row`.
+
 ## Full-canvas app (v4.34.0+)
 
 The Appearance surface gains a **Full-canvas app** checkbox. When it is on — the default — TalentTrack renders full-width and the active WordPress theme's header, footer, sidebar, menus and widgets are hidden, so only the TalentTrack interface shows. The WordPress admin bar still appears for logged-in staff (it is a WordPress control, not theme chrome, and gives staff a one-click route back to wp-admin).

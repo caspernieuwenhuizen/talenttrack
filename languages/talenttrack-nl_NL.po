@@ -38626,6 +38626,37 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Tile layout"
+msgstr "Tegelindeling"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Row (icon left of title)"
+msgstr "Rij (icoon links van de titel)"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Stacked (icon + title, description below)"
+msgstr "Gestapeld (icoon + titel, beschrijving eronder)"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid ""
+"Stacked puts the icon and title on the first line with the description "
+"beneath, so titles can run two lines without widening the tile."
+msgstr ""
+"Gestapeld plaatst het icoon en de titel op de eerste regel met de "
+"beschrijving eronder, zodat titels twee regels kunnen beslaan zonder de tegel "
+"breder te maken."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid ""
+"Set the size and arrangement of the tiles shown on the dashboard, "
+"Configuration, Reports and Teams. Size and layout are independent — pick any "
+"combination."
+msgstr ""
+"Stel de grootte en indeling in van de tegels op het dashboard, Configuratie, "
+"Rapporten en Teams. Grootte en indeling zijn onafhankelijk — kies elke "
+"combinatie."
+
 #~ msgid "Print (landscape A4)"
 #~ msgstr "Afdrukken (liggend A4)"
 

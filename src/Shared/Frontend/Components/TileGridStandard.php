@@ -51,6 +51,22 @@ final class TileGridStandard {
     public const DEFAULT_PRESET = 'comfortable';
 
     /**
+     * Config key holding the academy-wide tile *layout* (#1598). This is a
+     * separate axis from the size preset above: `row` keeps the icon to the
+     * left of a stacked title+description (the pre-#1598 behaviour);
+     * `stacked` puts the icon and title together on the first line with the
+     * description spanning the full tile width beneath. Size and layout
+     * combine freely (e.g. spacious + stacked).
+     */
+    public const LAYOUT_CONFIG_KEY = 'tile_layout';
+
+    /** Default layout — the pre-#1598 icon-left arrangement. */
+    public const DEFAULT_LAYOUT = 'row';
+
+    /** Valid layout keys, in settings-dropdown order. */
+    private const LAYOUTS = [ 'row', 'stacked' ];
+
+    /**
      * Preset → custom-property values. `comfortable` reproduces the
      * pre-#1587 config-tile metrics exactly (min-width 220px, gap 10px,
      * padding 14px, min-height 76px, radius 8px) so the liked standard
@@ -101,6 +117,36 @@ final class TileGridStandard {
         $raw = QueryHelpers::get_config( self::CONFIG_KEY, self::DEFAULT_PRESET );
         $key = strtolower( trim( (string) $raw ) );
         return isset( self::PRESETS[ $key ] ) ? $key : self::DEFAULT_PRESET;
+    }
+
+    /**
+     * The layout keys, in display order, for building the settings dropdown.
+     * Labels are translated at the call site.
+     *
+     * @return string[]
+     */
+    public static function layoutKeys(): array {
+        return self::LAYOUTS;
+    }
+
+    /**
+     * Resolve the active tile layout from `tt_config`, falling back to the
+     * default (`row`) for an unknown / unset value.
+     */
+    public static function activeLayout(): string {
+        $raw = QueryHelpers::get_config( self::LAYOUT_CONFIG_KEY, self::DEFAULT_LAYOUT );
+        $key = strtolower( trim( (string) $raw ) );
+        return in_array( $key, self::LAYOUTS, true ) ? $key : self::DEFAULT_LAYOUT;
+    }
+
+    /**
+     * The `data-tt-tile-layout` attribute string to stamp on a tile-grid
+     * wrapper so the shared/per-surface CSS can switch arrangement. Defaults
+     * to the active layout.
+     */
+    public static function layoutAttr( ?string $layout = null ): string {
+        $key = $layout !== null && in_array( $layout, self::LAYOUTS, true ) ? $layout : self::activeLayout();
+        return 'data-tt-tile-layout="' . esc_attr( $key ) . '"';
     }
 
     /**

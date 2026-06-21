@@ -160,15 +160,31 @@ final class FrontendSectionedTileGrid {
      * @param array<string,mixed> $tile
      */
     private static function renderTile( array $tile ): void {
-        $icon = (string) ( $tile['icon'] ?? '' );
+        $icon  = (string) ( $tile['icon'] ?? '' );
+        $label = (string) ( $tile['label'] ?? '' );
+        $desc  = (string) ( $tile['desc'] ?? '' );
+        // #1598 — when the academy-wide tile layout is "stacked" AND this
+        // tile actually has an icon, put the icon beside the title on the
+        // first line with the description beneath. Icon-less tiles (most
+        // Configuration tiles) have no top row to share, so they render the
+        // same in either layout.
+        $stacked = $icon !== '' && TileGridStandard::activeLayout() === 'stacked';
         ?>
         <a class="tt-cfg-tile" href="<?php echo esc_url( (string) ( $tile['url'] ?? '' ) ); ?>"
            style="display:block; background:#fff; border:1px solid #e5e7ea; border-radius:var(--tt-tile-radius, 8px); padding:var(--tt-tile-padding, 14px); text-decoration:none; color:#1a1d21; min-height:var(--tt-tile-min-height, 76px);">
-            <?php if ( $icon !== '' ) : ?>
-                <div class="tt-cfg-tile__icon" style="margin-bottom:6px;"><?php echo wp_kses_post( $icon ); ?></div>
+            <?php if ( $stacked ) : ?>
+                <div class="tt-cfg-tile__head" style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+                    <div class="tt-cfg-tile__icon" style="flex-shrink:0;"><?php echo wp_kses_post( $icon ); ?></div>
+                    <div style="font-weight:600; font-size:14px; line-height:1.25; min-width:0;"><?php echo esc_html( $label ); ?></div>
+                </div>
+                <div style="color:#6b7280; font-size:12px; line-height:1.35;"><?php echo esc_html( $desc ); ?></div>
+            <?php else : ?>
+                <?php if ( $icon !== '' ) : ?>
+                    <div class="tt-cfg-tile__icon" style="margin-bottom:6px;"><?php echo wp_kses_post( $icon ); ?></div>
+                <?php endif; ?>
+                <div style="font-weight:600; font-size:14px; line-height:1.25; margin-bottom:4px;"><?php echo esc_html( $label ); ?></div>
+                <div style="color:#6b7280; font-size:12px; line-height:1.35;"><?php echo esc_html( $desc ); ?></div>
             <?php endif; ?>
-            <div style="font-weight:600; font-size:14px; line-height:1.25; margin-bottom:4px;"><?php echo esc_html( (string) ( $tile['label'] ?? '' ) ); ?></div>
-            <div style="color:#6b7280; font-size:12px; line-height:1.35;"><?php echo esc_html( (string) ( $tile['desc'] ?? '' ) ); ?></div>
         </a>
         <?php
     }
