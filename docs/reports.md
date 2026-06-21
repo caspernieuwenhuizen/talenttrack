@@ -2,7 +2,7 @@
 
 # Reports
 
-The **Reports** tile is a launcher for different ways of looking at your data. The reports are grouped by purpose so the right one is easy to find: **Development & performance** (ratings, progress, rate cards), **Playing time** (minutes played and squad load), **Recruitment** (scouting, prospects, trial funnel), **Staff & quality** (coach activity and evaluation quality), and **Season overview** (the annual review). Sections you don't have access to — recruitment and season-wide reports are academy-admin only — simply don't appear.
+The **Reports** tile is a launcher for different ways of looking at your data. The reports are grouped by purpose so the right one is easy to find: **Development & performance** (ratings, progress, rate cards), **Playing time** (minutes played and squad load), **Attendance** (team and player attendance statistics and the leaderboard), **Recruitment** (scouting, prospects, trial funnel), **Staff & quality** (coach activity and evaluation quality), and **Season overview** (the annual review). Sections you don't have access to — recruitment and season-wide reports are academy-admin only — simply don't appear.
 
 ## Player progress
 
