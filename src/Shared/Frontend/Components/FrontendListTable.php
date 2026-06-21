@@ -105,6 +105,21 @@ class FrontendListTable {
         // input, select, etc.), preserving per-column links.
         $row_url_key = isset( $config['row_url_key'] ) ? sanitize_key( (string) $config['row_url_key'] ) : '';
 
+        // #1614 — optional card-grid layout. When `layout` is 'cards',
+        // the component renders a responsive `.tt-card-grid` shell
+        // instead of the `<table>`; the JS hydrator emits each row's
+        // `card_value_key` HTML fragment (a server-rendered whole-card
+        // <a>) into the grid, while the same filter / search / sort /
+        // pager chrome above + below keeps working. `columns` is still
+        // required (it drives no-JS sort links + the JS sort config) but
+        // is not rendered as a table head in card mode.
+        $layout = ( ( $config['layout'] ?? 'table' ) === 'cards' ) ? 'cards' : 'table';
+        $card_value_key = isset( $config['card_value_key'] ) ? sanitize_key( (string) $config['card_value_key'] ) : 'card_html';
+        // In card mode, sorting is offered as a single dropdown above the
+        // grid rather than clickable column headers. Each entry:
+        // [ 'label' => string, 'orderby' => string, 'order' => 'asc'|'desc' ].
+        $sort_options = is_array( $config['sort_options'] ?? null ) ? $config['sort_options'] : [];
+
         if ( $rest_path === '' || ! $columns ) return '';
 
         $state = self::stateFromQuery( $filters, $default_sort );
@@ -118,6 +133,9 @@ class FrontendListTable {
             'static_filters'   => self::sanitizeStaticFilters( $static_filters ),
             'row_actions'      => self::rowActionsForJs( $row_actions ),
             'row_url_key'      => $row_url_key,
+            // #1614 — card-grid layout config (no-op for table consumers).
+            'layout'           => $layout,
+            'card_value_key'   => $card_value_key,
             'empty_html'       => $empty_card_html,
             'per_page_options' => array_values( $per_page_opts ),
             'default_sort'     => [
@@ -157,11 +175,47 @@ class FrontendListTable {
                     </label>
                 <?php endif; ?>
                 <?php foreach ( $filters as $key => $filter ) : self::renderFilterControl( (string) $key, $filter, $state['filter'] ); endforeach; ?>
+                <?php
+                // #1614 — card mode replaces clickable column headers with
+                // a single sort dropdown, bound to orderby/order by the JS
+                // hydrator (rows themselves are JS-rendered, as in table
+                // mode).
+                if ( $layout === 'cards' && $sort_options ) :
+                    $cur_sort = $state['orderby'] . ':' . $state['order'];
+                    ?>
+                    <label class="tt-list-table-filter tt-list-table-sort">
+                        <span><?php esc_html_e( 'Sort by', 'talenttrack' ); ?></span>
+                        <select data-tt-list-sort-select="1" name="tt_sort">
+                            <?php foreach ( $sort_options as $opt ) :
+                                if ( ! is_array( $opt ) ) continue;
+                                $o_orderby = (string) ( $opt['orderby'] ?? '' );
+                                $o_order   = strtolower( (string) ( $opt['order'] ?? 'asc' ) ) === 'desc' ? 'desc' : 'asc';
+                                $o_val     = $o_orderby . ':' . $o_order;
+                                ?>
+                                <option value="<?php echo esc_attr( $o_val ); ?>" <?php selected( $cur_sort, $o_val ); ?>>
+                                    <?php echo esc_html( (string) ( $opt['label'] ?? $o_orderby ) ); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </label>
+                <?php endif; ?>
                 <noscript><button type="submit" class="tt-btn tt-btn-secondary"><?php esc_html_e( 'Apply', 'talenttrack' ); ?></button></noscript>
             </form>
 
             <div class="tt-list-table-status" data-tt-list-status="1" aria-live="polite"></div>
 
+            <?php if ( $layout === 'cards' ) : ?>
+                <div class="tt-card-grid" data-tt-list-body="1" data-tt-list-cardgrid="1">
+                    <div class="tt-list-table-empty" data-tt-list-empty="1"><?php
+                        $no_query = $state['search'] === '' && empty( $state['filter'] );
+                        if ( $empty_card_html !== '' && $no_query ) {
+                            echo $empty_card_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — EmptyStateCard escapes internally.
+                        } else {
+                            echo esc_html( $empty_state );
+                        }
+                    ?></div>
+                </div>
+            <?php else : ?>
             <div class="tt-list-table-wrap">
                 <table class="tt-list-table-table" data-tt-list-table-el="1">
                     <thead><tr><?php foreach ( $columns as $key => $col ) : self::renderColumnHeader( (string) $key, $col, $state ); endforeach; ?>
@@ -181,6 +235,7 @@ class FrontendListTable {
                     </tbody>
                 </table>
             </div>
+            <?php endif; ?>
 
             <div class="tt-list-table-footer" data-tt-list-footer="1">
                 <span class="tt-list-table-summary" data-tt-list-summary="1"></span>

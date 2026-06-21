@@ -43,6 +43,25 @@ use TT\Shared\Frontend\Components\FrontendListTable;
  */
 class FrontendTeamsManageView extends FrontendViewBase {
 
+    private static bool $teams_css_enqueued = false;
+
+    /**
+     * #1614 — the teams list renders a card grid (Variant B) instead of
+     * a table; its mobile-first stylesheet ships here, layered on top of
+     * the shared frontend-mobile base.
+     */
+    protected static function enqueueAssets(): void {
+        parent::enqueueAssets();
+        if ( self::$teams_css_enqueued ) return;
+        wp_enqueue_style(
+            'tt-frontend-teams-list',
+            TT_PLUGIN_URL . 'assets/css/frontend-teams-list.css',
+            [ 'tt-frontend-mobile' ],
+            TT_VERSION
+        );
+        self::$teams_css_enqueued = true;
+    }
+
     public static function render( int $user_id, bool $is_admin ): void {
         self::enqueueAssets();
 
@@ -125,21 +144,31 @@ class FrontendTeamsManageView extends FrontendViewBase {
             $age_group_options[ (string) $ag ] = (string) $ag;
         }
 
-        // v3.110.53 — list rows are scanning surfaces. Edit / Delete
-        // moved to the team detail page (FrontendTeamDetailView). The
-        // clickable team name cell is the only row affordance.
-        // #1470 — Restore + gated permanent-delete on archived rows.
-        $row_actions = \TT\Shared\Frontend\Components\ArchiveRowActions::build( 'teams', 'tt_edit_teams' );
-
+        // #1614 — the teams list now renders Variant B cards (whole card
+        // links to the team detail page) instead of a columnar table.
+        // The detail page owns the edit / archive lifecycle, so the old
+        // per-row Restore / permanent-delete table actions are dropped
+        // here; archived teams stay reachable via the Status filter
+        // below. `columns` is retained because it drives the REST
+        // orderby whitelist + the no-JS sort fallback, but it is not
+        // rendered as a table head in card mode.
         echo FrontendListTable::render( [
             'rest_path' => 'teams',
+            'layout'    => 'cards',
+            // Card fragment field assembled by TeamsRestController::fmtRow().
+            'card_value_key' => 'card_html',
             'columns' => [
-                // #0070 — team name + head coach as clickable cells via
-                // pre-built RecordLink HTML from the REST controller.
-                'name'         => [ 'label' => __( 'Team',         'talenttrack' ), 'sortable' => true, 'render' => 'html', 'value_key' => 'name_link_html' ],
-                'age_group'    => [ 'label' => __( 'Age group',    'talenttrack' ), 'sortable' => true ],
-                'coach_name'   => [ 'label' => __( 'Head coach',   'talenttrack' ), 'render' => 'html', 'value_key' => 'coach_link_html' ],
-                'player_count' => [ 'label' => __( 'Players',      'talenttrack' ), 'sortable' => true ],
+                'name'         => [ 'label' => __( 'Team',      'talenttrack' ), 'sortable' => true ],
+                'age_group'    => [ 'label' => __( 'Age group', 'talenttrack' ), 'sortable' => true ],
+                'player_count' => [ 'label' => __( 'Players',   'talenttrack' ), 'sortable' => true ],
+            ],
+            // Card mode surfaces sorting as a single dropdown.
+            'sort_options' => [
+                [ 'label' => __( 'Name (A–Z)',        'talenttrack' ), 'orderby' => 'name',         'order' => 'asc'  ],
+                [ 'label' => __( 'Name (Z–A)',        'talenttrack' ), 'orderby' => 'name',         'order' => 'desc' ],
+                [ 'label' => __( 'Age group',         'talenttrack' ), 'orderby' => 'age_group',    'order' => 'asc'  ],
+                [ 'label' => __( 'Players (most)',    'talenttrack' ), 'orderby' => 'player_count', 'order' => 'desc' ],
+                [ 'label' => __( 'Players (fewest)',  'talenttrack' ), 'orderby' => 'player_count', 'order' => 'asc'  ],
             ],
             'filters' => [
                 'age_group' => [
@@ -157,7 +186,6 @@ class FrontendTeamsManageView extends FrontendViewBase {
                     ],
                 ],
             ],
-            'row_actions'  => $row_actions,
             'search'       => [ 'placeholder' => __( 'Search team name or age group…', 'talenttrack' ) ],
             'default_sort' => [ 'orderby' => 'name', 'order' => 'asc' ],
             'empty_state'  => __( 'No teams match your filters.', 'talenttrack' ),
@@ -178,8 +206,6 @@ class FrontendTeamsManageView extends FrontendViewBase {
                     'cta_cap'   => 'tt_edit_teams',
                 ]
             ),
-            // v3.110.170 — row-link standard.
-            'row_url_key'  => 'detail_url',
         ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — render() returns escaped HTML.
     }
 

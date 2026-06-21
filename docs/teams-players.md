@@ -12,6 +12,18 @@ A **team** is a squad at a specific age group (e.g. "U13 Blue", "U15 Red"). Each
 
 Create teams in the **Teams** admin page. The age group field matters because [category weights](?page=tt-docs&topic=eval-categories-weights) are defined per age group.
 
+### The Teams list (v4.40.0 — #1614)
+
+The Teams list (the frontend **Teams** view) shows your teams as a grid of clickable cards rather than a table. Each card carries:
+
+- A coloured top accent and an initials crest, tinted by age band so a team always reads the same colour.
+- The team name and a head-coach line ("No head coach yet" when none is assigned).
+- A two-up stat strip: **Players** (current roster size) and **Upcoming** (activities scheduled in the next 14 days).
+
+The whole card is a link — tap or click anywhere on it to open the team page. The cards stack to a single column on phones and flow into multiple columns on wider screens.
+
+Above the grid you still have **search**, the **Age group** filter, and the **Status** filter (Active / Archived / All) — archived teams remain reachable by switching Status. Sorting moves to a single **Sort by** dropdown (name, age group, or player count) since cards aren't columnar.
+
 ### The team page
 
 Clicking a team — from the Teams list, a player profile, or anywhere a team name is linked — opens the team's own page. It shows:

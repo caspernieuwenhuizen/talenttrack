@@ -40941,3 +40941,32 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ "Stel de grootte en kolomdichtheid in van de tegels op het dashboard, "
 #~ "Configuratie, Rapporten en Teams. Comfortabel is de standaard; Compact "
 #~ "past meer op het scherm, Ruim is ruimer."
+
+#: src/Shared/Frontend/Components/TeamCard.php
+#, php-format
+msgid "Head coach · %s"
+msgstr "Hoofdcoach · %s"
+
+#: src/Shared/Frontend/Components/TeamCard.php
+msgid "No head coach yet"
+msgstr "Nog geen hoofdcoach"
+
+#: src/Shared/Frontend/Components/FrontendListTable.php
+msgid "Sort by"
+msgstr "Sorteren op"
+
+#: src/Shared/Frontend/FrontendTeamsManageView.php
+msgid "Name (A–Z)"
+msgstr "Naam (A–Z)"
+
+#: src/Shared/Frontend/FrontendTeamsManageView.php
+msgid "Name (Z–A)"
+msgstr "Naam (Z–A)"
+
+#: src/Shared/Frontend/FrontendTeamsManageView.php
+msgid "Players (fewest)"
+msgstr "Spelers (minste)"
+
+#: src/Shared/Frontend/FrontendTeamsManageView.php
+msgid "Players (most)"
+msgstr "Spelers (meeste)"
