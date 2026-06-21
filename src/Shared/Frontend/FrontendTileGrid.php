@@ -198,6 +198,93 @@ class FrontendTileGrid {
             -webkit-line-clamp: 3;
             line-clamp: 3;
         }
+
+        /* #1603 — desktop 2-column daily-use layout. Mobile-first base is a
+           single column: the left work groups stack, then the "My work"
+           rail follows beneath them. The rail drops to the bottom because
+           it is the second DOM child. At >=1024px the section becomes a
+           2-column grid (work groups left, sticky rail right). */
+        .tt-ftile-daily {
+            display: block;
+        }
+        .tt-ftile-rail {
+            margin-top: calc(18px * var(--tt-tile-scale));
+        }
+        .tt-ftile-mywork {
+            border: 1px solid #e5e7ea;
+            border-radius: var(--tt-tile-radius, 8px);
+            background: #fff;
+            padding: calc(12px * var(--tt-tile-scale));
+        }
+        .tt-ftile-mywork-head {
+            font-size: calc(10px * var(--tt-tile-scale));
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #8a9099;
+            margin: 0 0 calc(8px * var(--tt-tile-scale));
+        }
+        .tt-ftile-mywork-rows {
+            display: flex;
+            flex-direction: column;
+            gap: calc(4px * var(--tt-tile-scale));
+        }
+        .tt-ftile-mywork-row {
+            display: flex;
+            align-items: center;
+            gap: calc(10px * var(--tt-tile-scale));
+            min-height: 48px;
+            padding: calc(6px * var(--tt-tile-scale)) calc(8px * var(--tt-tile-scale));
+            border-radius: var(--tt-tile-radius, 8px);
+            text-decoration: none;
+            color: #1a1d21;
+            touch-action: manipulation;
+            transition: background-color 180ms ease;
+        }
+        .tt-ftile-mywork-row:hover,
+        .tt-ftile-mywork-row:focus,
+        .tt-ftile-mywork-row:active {
+            background: #f3f4f6;
+            color: #1a1d21;
+        }
+        .tt-ftile-mywork-row:focus-visible {
+            outline: 2px solid #2563eb;
+            outline-offset: 2px;
+        }
+        .tt-ftile-mywork-row .tt-tile-chip {
+            width: calc(2.25rem * var(--tt-tile-scale, 1));
+            height: calc(2.25rem * var(--tt-tile-scale, 1));
+        }
+        .tt-ftile-mywork-row .tt-tile-chip .tt-tile-chip__glyph {
+            width: calc(1.375rem * var(--tt-tile-scale, 1));
+            height: calc(1.375rem * var(--tt-tile-scale, 1));
+        }
+        .tt-ftile-mywork-label {
+            flex: 1;
+            min-width: 0;
+            font-weight: 600;
+            font-size: calc(14px * var(--tt-tile-scale));
+            line-height: 1.25;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+        }
+        @media (min-width: 1024px) {
+            .tt-ftile-daily--has-rail {
+                display: grid;
+                grid-template-columns: minmax(0, 1fr) 320px;
+                gap: calc(20px * var(--tt-tile-scale));
+                align-items: start;
+            }
+            .tt-ftile-daily--has-rail .tt-ftile-daily-main { min-width: 0; }
+            .tt-ftile-daily--has-rail .tt-ftile-rail {
+                margin-top: 0;
+                position: sticky;
+                top: calc(16px + env(safe-area-inset-top, 0px));
+            }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .tt-ftile-mywork-row { transition: none; }
+        }
         </style>
         <?php echo TileIconChip::styles(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — static trusted CSS. ?>
 
@@ -212,11 +299,26 @@ class FrontendTileGrid {
         // into a collapsible section, open only for admin personas.
         [ $work_groups, $setup_groups ] = self::splitByKind( $groups );
         $is_admin_persona = current_user_can( 'tt_edit_settings' );
+
+        // #1603 — peel the personal "Me" group out of the left column; it
+        // renders as the sticky "My work" rail on the right at >=1024px and
+        // drops to the bottom below that. The remaining work groups render
+        // in the left column in the explicit order from TileRegistry.
+        [ $left_groups, $me_group ] = self::peelMeGroup( $work_groups );
         ?>
 
         <details class="tt-ftile-section" open>
             <summary class="tt-ftile-section-summary"><?php esc_html_e( "Today's work", 'talenttrack' ); ?></summary>
-            <?php self::renderGroups( $work_groups ); ?>
+            <div class="tt-ftile-daily<?php echo $me_group !== null ? ' tt-ftile-daily--has-rail' : ''; ?>">
+                <div class="tt-ftile-daily-main">
+                    <?php self::renderGroups( $left_groups ); ?>
+                </div>
+                <?php if ( $me_group !== null ) : ?>
+                    <aside class="tt-ftile-rail" aria-label="<?php echo esc_attr( (string) $me_group['label'] ); ?>">
+                        <?php self::renderMyWorkPanel( $me_group ); ?>
+                    </aside>
+                <?php endif; ?>
+            </div>
         </details>
 
         <?php if ( ! empty( $setup_groups ) ) : ?>
@@ -275,6 +377,65 @@ class FrontendTileGrid {
             }
         }
         return [ $work, $setup ];
+    }
+
+    /**
+     * #1603 — separate the personal "Me" group from the rest of the
+     * daily-use groups. The Me group is matched against the same `__('Me')`
+     * source string registered in CoreSurfaceRegistration. Returns the
+     * remaining groups (left column) plus the Me group (right rail), or
+     * `null` for the rail when no Me group is visible for this user.
+     *
+     * @param array<int, array{label:string, tiles:array}> $groups
+     * @return array{0: array<int, array>, 1: array<string, mixed>|null}
+     */
+    private static function peelMeGroup( array $groups ): array {
+        $me_label = __( 'Me', 'talenttrack' );
+        $left     = [];
+        $me       = null;
+        foreach ( $groups as $g ) {
+            if ( $me === null && (string) $g['label'] === $me_label ) {
+                $me = $g;
+                continue;
+            }
+            $left[] = $g;
+        }
+        return [ $left, $me ];
+    }
+
+    /**
+     * #1603 — render the personal "Me" group as the "My work" rail: a
+     * bordered panel with a clear heading and one compact row per tile
+     * (accent-chip icon + title only, no description). Tile URLs / gating
+     * are already resolved upstream; this is layout only.
+     *
+     * @param array{label:string, tiles:array} $group
+     */
+    private static function renderMyWorkPanel( array $group ): void {
+        $tiles = $group['tiles'];
+        if ( empty( $tiles ) ) {
+            return;
+        }
+        ?>
+        <div class="tt-ftile-mywork">
+            <div class="tt-ftile-mywork-head"><?php esc_html_e( 'My work', 'talenttrack' ); ?></div>
+            <div class="tt-ftile-mywork-rows">
+                <?php foreach ( $tiles as $tile ) :
+                    $chip  = TileIconChip::render(
+                        (string) ( $tile['icon'] ?? '' ),
+                        (string) ( $tile['color'] ?? '#5b6e75' )
+                    );
+                    $label = esc_html( (string) ( $tile['label'] ?? '' ) );
+                    $url   = esc_url( (string) ( $tile['url'] ?? '' ) );
+                    ?>
+                    <a class="tt-ftile-mywork-row" href="<?php echo $url; ?>">
+                        <?php echo $chip; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — TileIconChip escapes its own attrs and IconRenderer returns trusted SVG. ?>
+                        <span class="tt-ftile-mywork-label"><?php echo $label; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — esc_html'd above. ?></span>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+        </div>
+        <?php
     }
 
     /**

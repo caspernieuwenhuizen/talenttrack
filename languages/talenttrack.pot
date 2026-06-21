@@ -32571,6 +32571,10 @@ msgstr ""
 msgid "Today's work"
 msgstr ""
 
+#: src/Shared/Frontend/FrontendTileGrid.php:169
+msgid "My work"
+msgstr ""
+
 #: src/Shared/Frontend/FrontendTileGrid.php:175
 msgid "Setup & administration"
 msgstr ""
