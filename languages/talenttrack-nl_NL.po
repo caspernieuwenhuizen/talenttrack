@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-20T18:12:58+00:00\n"
+"POT-Creation-Date: 2026-06-21T09:38:17+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -225,8 +225,8 @@ msgstr "Staf"
 
 #: includes/Admin/Reports.php:55
 #: src/Modules/Activities/Admin/ActivitiesPage.php:142
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:321
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:323
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:325
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:585
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:803
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:822
@@ -2728,7 +2728,7 @@ msgstr "Team"
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:142
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:58
 #: src/Modules/Authorization/Admin/RolesPage.php:194
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:294
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:296
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:561
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:793
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:101
@@ -2976,6 +2976,7 @@ msgstr "Optioneel. Houd Ctrl/Cmd ingedrukt om meerdere te selecteren."
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:618
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1654
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:509
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:200
 #: src/Shared/Frontend/FrontendTrialCaseView.php:379
 #: src/Shared/Frontend/PlayerDashboardView.php:49
 msgid "Attendance"
@@ -3058,10 +3059,10 @@ msgstr "Opslaan"
 #: src/Modules/Authorization/Admin/RolesPage.php:38
 #: src/Modules/Authorization/Admin/RolesPage.php:273
 #: src/Modules/Authorization/Admin/RolesPage.php:307
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:46
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:820
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:876
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:905
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:48
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:989
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:1045
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:1074
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:992
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:1008
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:1024
@@ -3777,10 +3778,12 @@ msgstr "Seizoen"
 
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:461
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:47
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:98
 msgid "Team attendance statistics"
 msgstr "Aanwezigheidsstatistieken per team"
 
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:462
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:99
 msgid ""
 "Present / late / absent / excused / injured percentages per team over a "
 "configurable date range."
@@ -3790,10 +3793,12 @@ msgstr ""
 
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:466
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:48
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:104
 msgid "Player attendance statistics"
 msgstr "Aanwezigheidsstatistieken per speler"
 
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:467
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:105
 msgid ""
 "Same attendance percentages broken down per player, optionally narrowed to a "
 "single team."
@@ -3804,10 +3809,12 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:471
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:46
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:49
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:110
 msgid "Attendance leaderboard"
 msgstr "Aanwezigheidsranglijst"
 
 #: src/Modules/Analytics/Frontend/FrontendAnalyticsView.php:472
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:111
 msgid ""
 "League-table ranking of the best and worst attenders over a window, with at-"
 "risk players flagged."
@@ -4495,7 +4502,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:170
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:182
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:196
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:997
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:1166
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:373
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:377
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:392
@@ -5925,7 +5932,7 @@ msgid "Apply changes"
 msgstr "Wijzigingen toepassen"
 
 #: src/Modules/Authorization/Admin/MatrixPage.php:925
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:790
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:828
 #: src/Modules/Development/Frontend/IdeasRefineView.php:130
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:891
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:291
@@ -7093,14 +7100,14 @@ msgstr "Laatste back-up %s geleden — schema overschreden."
 msgid "Last backup %s ago — backups are stale."
 msgstr "Laatste back-up %s geleden — back-ups zijn verouderd."
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:63
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:65
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:63
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:320
 #: src/Shared/Frontend/FrontendConfigurationView.php:1512
 msgid "Backups"
 msgstr "Back-ups"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:65
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:67
 msgid ""
 "Schedule snapshots of your TalentTrack data and restore them when needed. "
 "Backups cover the plugin's own tables only — not WordPress users or media "
@@ -7110,37 +7117,37 @@ msgstr ""
 "nodig. Back-ups dekken alleen de eigen tabellen van de plugin — geen "
 "WordPress-gebruikers of media-uploads."
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:82
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:84
 msgid "Last run:"
 msgstr "Laatste run:"
 
 #. translators: %s is human-readable time-since
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:87
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:89
 #, php-format
 msgid "%s ago — success."
 msgstr "%s geleden — succesvol."
 
 #. translators: 1: time-since, 2: error message
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:93
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:95
 #, php-format
 msgid "%1$s ago — failed (%2$s)."
 msgstr "%1$s geleden — mislukt (%2$s)."
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:102
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:104
 msgid "Next run:"
 msgstr "Volgende uitvoering:"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:105
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:107
 msgid "overdue (will fire on the next WP-cron tick)"
 msgstr "achterstallig (wordt uitgevoerd bij de volgende WP-cron-tik)"
 
 #. translators: %s is human-readable time-until
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:109
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:111
 #, php-format
 msgid "in about %s"
 msgstr "over ongeveer %s"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:116
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:118
 msgid ""
 "Next run is not scheduled yet — save settings once to schedule the cron "
 "event."
@@ -7148,18 +7155,18 @@ msgstr ""
 "Volgende uitvoering is nog niet gepland — sla de instellingen één keer op om "
 "de cron-event te plannen."
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:170
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:292
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:172
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:294
 #: src/Modules/DemoData/Admin/DemoDataPage.php:423
 #: src/Shared/Frontend/FrontendExportsView.php:251
 msgid "Preset"
 msgstr "Preset"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:185
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:187
 msgid "Custom tables"
 msgstr "Aangepaste tabellen"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:189
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:191
 msgid ""
 "Only used when preset is \"Custom\". One table per line, including the tt_ "
 "prefix but not the WordPress prefix."
@@ -7167,53 +7174,53 @@ msgstr ""
 "Alleen gebruikt als de preset \"Aangepast\" is. Eén tabel per regel, "
 "inclusief de tt_-prefix maar zonder de WordPress-prefix."
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:194
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:196
 #: src/Shared/Frontend/FrontendStandardReportsView.php:182
 msgid "Schedule"
 msgstr "Schema"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:197
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:199
 msgid "Daily"
 msgstr "Dagelijks"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:198
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:200
 msgid "Weekly"
 msgstr "Wekelijks"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:199
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:201
 msgid "On demand"
 msgstr "Op aanvraag"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:204
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:206
 msgid "Retention"
 msgstr "Bewaartermijn"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:208
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:210
 msgid "Keep this many local backups before purging the oldest."
 msgstr "Bewaar zoveel lokale back-ups voordat de oudste worden verwijderd."
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:213
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:215
 msgid "Local destination"
 msgstr "Lokale bestemming"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:220
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:222
 #, php-format
 msgid "Save backups to %s"
 msgstr "Sla back-ups op in %s"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:221
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:223
 msgid "Save backups to wp-content/uploads/talenttrack-backups/"
 msgstr "Sla back-ups op in wp-content/uploads/talenttrack-backups/"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:227
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:229
 msgid "Email destination"
 msgstr "E-mailbestemming"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:231
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:233
 msgid "Email each backup to the recipients below"
 msgstr "E-mail elke back-up naar onderstaande ontvangers"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:235
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:237
 msgid ""
 "Comma-separated list. Files larger than 10 MB will not be attached — "
 "recipients receive a notice instead."
@@ -7221,15 +7228,15 @@ msgstr ""
 "Lijst gescheiden door komma's. Bestanden groter dan 10 MB worden niet "
 "meegestuurd — ontvangers krijgen alleen een melding."
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:240
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:242
 msgid "Save backup settings"
 msgstr "Back-upinstellingen opslaan"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:247
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:249
 msgid "Run a backup now"
 msgstr "Maak nu een back-up"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:249
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:251
 msgid ""
 "Triggers a backup with the current settings without waiting for the "
 "scheduled run. Useful for testing, before risky operations, or on low-"
@@ -7239,16 +7246,16 @@ msgstr ""
 "te wachten. Handig voor testen, voor risicovolle handelingen, of op sites "
 "met weinig verkeer waar WP-cron onbetrouwbaar is."
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:254
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:256
 msgid "Run backup now"
 msgstr "Nu back-up maken"
 
 # Backup running overlay (#6 + #7).
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:271
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:273
 msgid "Backup in progress…"
 msgstr "Bezig met back-up…"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:274
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:276
 msgid ""
 "Hang on while we snapshot your TalentTrack tables. This usually takes a few "
 "seconds — please don't close this tab."
@@ -7256,19 +7263,19 @@ msgstr ""
 "Even geduld terwijl we een momentopname maken van je TalentTrack-tabellen. "
 "Dit duurt meestal een paar seconden — sluit dit tabblad niet."
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:284
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:286
 msgid "Stored backups (local)"
 msgstr "Opgeslagen back-ups (lokaal)"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:286
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:288
 msgid "No local backups yet."
 msgstr "Nog geen lokale back-ups."
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:290
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:292
 msgid "Filename"
 msgstr "Bestandsnaam"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:291
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:293
 #: src/Modules/DemoData/Admin/DemoDataPage.php:818
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:49
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:110
@@ -7279,18 +7286,18 @@ msgstr "Bestandsnaam"
 msgid "Created"
 msgstr "Aangemaakt"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:293
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:295
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:797
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:349
 msgid "Size"
 msgstr "Grootte"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:309
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:311
 msgid "Download"
 msgstr "Downloaden"
 
 # Backup confirm prompts (#3 + #6).
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:312
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:314
 msgid ""
 "Open the restore preview for this backup? You will be asked to confirm again "
 "before any data is replaced."
@@ -7298,16 +7305,16 @@ msgstr ""
 "Het herstelvoorbeeld voor deze back-up openen? Je krijgt nog een tweede "
 "bevestiging voordat er data wordt vervangen."
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:313
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:315
 msgid "Open restore preview?"
 msgstr "Herstelvoorbeeld openen?"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:314
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:316
 msgid "Open preview"
 msgstr "Voorbeeld openen"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:314
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:1085
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:316
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:1254
 #: src/Modules/Pdp/Rest/PdpFilesRestController.php:332
 #: src/Shared/Admin/BulkActionsHelper.php:167
 #: src/Shared/Frontend/Components/ArchiveRowActions.php:28
@@ -7315,58 +7322,59 @@ msgstr "Voorbeeld openen"
 msgid "Restore"
 msgstr "Herstellen"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:316
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:949
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:974
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:318
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:1118
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:1143
 #: src/Modules/License/Admin/AccountPage.php:819
 msgid "Partial restore"
 msgstr "Gedeeltelijk terugzetten"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:319
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:321
 msgid "Delete this backup file? This cannot be undone."
 msgstr "Dit back-upbestand verwijderen? Dit kan niet ongedaan worden gemaakt."
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:320
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:322
 msgid "Delete backup file?"
 msgstr "Back-upbestand verwijderen?"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:339
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:435
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:956
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:341
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:437
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:1125
 msgid "Backup not found."
 msgstr "Back-up niet gevonden."
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:344
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:346
 msgid "Restore from backup"
 msgstr "Terugzetten vanuit back-up"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:346
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:348
 msgid "Unknown error"
 msgstr "Onbekende fout"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:349
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:351
 msgid ""
 "This action will replace the current data with the contents of the backup."
 msgstr "Deze actie vervangt de huidige gegevens door de inhoud van de back-up."
 
 #. translators: 1: backup created date, 2: plugin version
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:353
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:355
 #, php-format
 msgid " Snapshot created %1$s on plugin version %2$s."
 msgstr " Momentopname gemaakt %1$s met plugin-versie %2$s."
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:360
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:1066
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:362
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:1235
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:146
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:298
 msgid "Table"
 msgstr "Tabel"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:360
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:362
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:922
 msgid "Rows"
 msgstr "Rijen"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:369
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:371
 msgid ""
 "Restoring your TalentTrack tables from the snapshot. This usually takes a "
 "few seconds — please don't close this tab."
@@ -7374,19 +7382,19 @@ msgstr ""
 "Bezig met herstellen van je TalentTrack-tabellen vanuit de snapshot. Dit "
 "duurt meestal een paar seconden — sluit dit tabblad niet."
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:374
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:376
 msgid "Type RESTORE to confirm:"
 msgstr "Typ RESTORE ter bevestiging:"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:378
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:380
 msgid "Restore from this backup"
 msgstr "Vanuit deze back-up terugzetten"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:455
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:457
 msgid "Data migration"
 msgstr "Datamigratie"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:457
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:459
 msgid ""
 "Move data to another TalentTrack install. Choose which data sets to include; "
 "you get a .ttmig file to import on the other install. Data only — WordPress "
@@ -7397,7 +7405,7 @@ msgstr ""
 "installatie importeert. Alleen gegevens — WordPress-gebruikers en media "
 "worden niet meegenomen."
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:460
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:462
 msgid ""
 "Expand a data set to leave individual records behind (e.g. test players). "
 "Everything is included by default; untick a record to exclude it."
@@ -7406,12 +7414,41 @@ msgstr ""
 "testspelers). Alles is standaard inbegrepen; haal het vinkje bij een record "
 "weg om het uit te sluiten."
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:478
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:480
 msgid "Export for migration"
 msgstr "Exporteren voor migratie"
 
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:497
+msgid "Import from another install"
+msgstr "Importeren vanaf een andere installatie"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:499
+msgid ""
+"Upload a .ttmig file exported from another TalentTrack install to preview "
+"what it contains. This step only inspects the archive and reports what would "
+"be imported — it does not change any data yet."
+msgstr ""
+"Upload een .ttmig-bestand dat is geëxporteerd vanaf een andere TalentTrack-"
+"installatie om te bekijken wat het bevat. Deze stap inspecteert alleen het "
+"archief en rapporteert wat er geïmporteerd zou worden — er worden nog geen "
+"gegevens gewijzigd."
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:506
+msgid "Migration archive (.ttmig)"
+msgstr "Migratiearchief (.ttmig)"
+
+#. translators: %s is a human-readable file size, e.g. "25 MB".
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:512
+#, php-format
+msgid "Maximum %s. Larger datasets are a later phase."
+msgstr "Maximaal %s. Grotere datasets volgen in een latere fase."
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:516
+msgid "Preview import"
+msgstr "Import voorvertonen"
+
 #. translators: %d: number of records.
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:500
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:538
 #, php-format
 msgid "Show %d record"
 msgid_plural "Show %d records"
@@ -7419,22 +7456,22 @@ msgstr[0] "Toon %d record"
 msgstr[1] "Toon %d records"
 
 #. translators: %d: number of records shown.
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:508
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:546
 #, php-format
 msgid "Showing the first %d records; any beyond that are always included."
 msgstr ""
 "De eerste %d records worden getoond; records daarboven zijn altijd "
 "inbegrepen."
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:583
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:621
 msgid "(no label)"
 msgstr "(geen label)"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:766
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:804
 msgid "Confirm migration export"
 msgstr "Migratie-export bevestigen"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:767
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:805
 msgid ""
 "Some records you excluded are still referenced by data you are exporting. "
 "These references will point at records that are not in the archive:"
@@ -7444,14 +7481,14 @@ msgstr ""
 "archief zitten:"
 
 #. translators: 1: number of records, 2: data set the records live in, 3: excluded data set.
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:772
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:810
 #, php-format
 msgid "%1$d %2$s record references an excluded %3$s record."
 msgid_plural "%1$d %2$s records reference an excluded %3$s record."
 msgstr[0] "%1$d %2$s-record verwijst naar een uitgesloten %3$s-record."
 msgstr[1] "%1$d %2$s-records verwijzen naar een uitgesloten %3$s-record."
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:779
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:817
 msgid ""
 "You can export exactly as selected — the dependents will be imported without "
 "their referenced record — or go back and adjust your selection."
@@ -7460,16 +7497,126 @@ msgstr ""
 "geïmporteerd zonder het record waarnaar ze verwijzen — of teruggaan en je "
 "selectie aanpassen."
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:789
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:827
 msgid "Download anyway"
 msgstr "Toch downloaden"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:962
+#. translators: %s is a human-readable file size, e.g. "25 MB".
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:853
+#, php-format
+msgid ""
+"The file is larger than the %s upload limit. Importing larger datasets is a "
+"later phase."
+msgstr ""
+"Het bestand is groter dan de uploadlimiet van %s. Het importeren van grotere "
+"datasets volgt in een latere fase."
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:857
+msgid "No file was uploaded. Choose a .ttmig archive and try again."
+msgstr ""
+"Er is geen bestand geüpload. Kies een .ttmig-archief en probeer opnieuw."
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:887
+msgid "Import preview"
+msgstr "Importvoorbeeld"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:890
+msgid "The migration archive could not be read."
+msgstr "Het migratiearchief kon niet worden gelezen."
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:891
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:960
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:1149
+msgid "Back to backups"
+msgstr "Terug naar back-ups"
+
+#. translators: 1: archive creation date, 2: source plugin version
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:906
+#, php-format
+msgid ""
+"Archive created %1$s on plugin version %2$s. Nothing below has been imported "
+"— this is a preview only."
+msgstr ""
+"Archief gemaakt op %1$s met plugin-versie %2$s. Niets hieronder is "
+"geïmporteerd — dit is alleen een voorbeeld."
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:907
+msgid "(unknown date)"
+msgstr "(datum onbekend)"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:908
+#: src/Modules/Workflow/Forms/QuarterlyHoDReviewForm.php:165
+msgid "(unknown)"
+msgstr "(onbekend)"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:911
+msgid "Nothing below has been imported — this is a preview only."
+msgstr "Niets hieronder is geïmporteerd — dit is alleen een voorbeeld."
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:917
+msgid "Contents"
+msgstr "Inhoud"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:919
+msgid "The archive contains no recognised data sets."
+msgstr "Het archief bevat geen herkende gegevenssets."
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:922
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:938
+msgid "Data set"
+msgstr "Gegevensset"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:931
+msgid "What would happen on import"
+msgstr "Wat er bij importeren zou gebeuren"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:932
+msgid ""
+"Incoming records are matched against this install by a stable key (not by "
+"id, which differs between installs). A match would be an update-or-insert "
+"choice in the interactive step; the rest would be inserted as new records."
+msgstr ""
+"Binnenkomende records worden op deze installatie gematcht op een stabiele "
+"sleutel (niet op id, dat verschilt tussen installaties). Een match wordt een "
+"keuze tussen bijwerken of toevoegen in de interactieve stap; de rest wordt "
+"als nieuwe records toegevoegd."
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:934
+msgid "No record-level data sets in this archive to compare."
+msgstr "Geen recordgegevenssets in dit archief om te vergelijken."
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:939
+msgid "Incoming"
+msgstr "Binnenkomend"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:940
+msgid "Match existing"
+msgstr "Komt overeen"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:941
+msgid "New"
+msgstr "Nieuw"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:942
+msgid "Matched on"
+msgstr "Gematcht op"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:957
+msgid ""
+"Applying the import — inserting these records with remapped ids, resolving "
+"matches, and linking WordPress users — is the next phase and is not "
+"available yet. No data has been changed."
+msgstr ""
+"Het toepassen van de import — deze records invoegen met hergemapte ids, "
+"matches oplossen en WordPress-gebruikers koppelen — is de volgende fase en "
+"is nog niet beschikbaar. Er zijn geen gegevens gewijzigd."
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:1131
 #: src/Modules/Backup/BackupRestorer.php:81
 msgid "Backup file is not valid."
 msgstr "Back-upbestand is ongeldig."
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:976
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:1145
 msgid ""
 "Pick a scope from this backup. We resolve the dependency closure (parent "
 "rows the scope needs to be consistent) and show a per-table diff against the "
@@ -7481,23 +7628,19 @@ msgstr ""
 "tonen per tabel een diff tegenover de huidige database. Alleen de rijen in "
 "de scope worden geraakt — andere rijen blijven onaangeroerd."
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:980
-msgid "Back to backups"
-msgstr "Terug naar back-ups"
-
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:987
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:1156
 msgid "1. Choose scope"
 msgstr "1. Scope kiezen"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:994
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:1163
 msgid "Entity table"
 msgstr "Entiteitstabel"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:1007
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:1176
 msgid "Row IDs"
 msgstr "Rij-id's"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:1010
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:1179
 msgid ""
 "Comma-separated. Leave empty to include every row of this table from the "
 "backup."
@@ -7505,68 +7648,68 @@ msgstr ""
 "Door komma's gescheiden. Laat leeg om elke rij van deze tabel uit de back-up "
 "mee te nemen."
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:1014
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:1183
 msgid "Include children"
 msgstr "Kindertabellen meenemen"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:1025
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:1194
 msgid "Tick the child tables to follow downward from the chosen scope."
 msgstr ""
 "Vink de kindertabellen aan om vanuit de gekozen scope naar beneden te volgen."
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:1030
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:1199
 msgid "Compute diff"
 msgstr "Diff berekenen"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:1046
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:1215
 msgid "No rows in this table."
 msgstr "Geen rijen in deze tabel."
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:1058
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:1227
 msgid "2. Review diff and choose actions"
 msgstr "2. Diff bekijken en acties kiezen"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:1067
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:1236
 msgid "In scope"
 msgstr "In scope"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:1068
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:1237
 msgid "New (green)"
 msgstr "Nieuw (groen)"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:1069
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:1238
 msgid "Differ (yellow)"
 msgstr "Verschillen (geel)"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:1070
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:1239
 msgid "Action for green"
 msgstr "Actie voor groen"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:1071
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:1240
 msgid "Action for yellow"
 msgstr "Actie voor geel"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:1086
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:1093
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:1255
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:1262
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:201
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:276
 #: src/Shared/Frontend/FrontendLookupNormalisationView.php:162
 msgid "Skip"
 msgstr "Overslaan"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:1091
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:1260
 msgid "Keep current"
 msgstr "Huidige behouden"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:1092
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:1261
 msgid "Overwrite with backup"
 msgstr "Overschrijven met back-up"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:1103
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:1272
 msgid "Dry run (compute changes without writing)"
 msgstr "Proefdraai (wijzigingen berekenen zonder weg te schrijven)"
 
-#: src/Modules/Backup/Admin/BackupSettingsPage.php:1107
+#: src/Modules/Backup/Admin/BackupSettingsPage.php:1276
 msgid "Execute partial restore"
 msgstr "Gedeeltelijk terugzetten uitvoeren"
 
@@ -7708,6 +7851,46 @@ msgstr "Activiteiten & aanwezigheid"
 #: src/Modules/Backup/MigrationExporter.php:40
 msgid "Lookups & configuration"
 msgstr "Keuzelijsten & configuratie"
+
+#: src/Modules/Backup/MigrationImporter.php:65
+msgid ""
+"The file could not be read. It must be a .ttmig migration archive exported "
+"from another TalentTrack install."
+msgstr ""
+"Het bestand kon niet worden gelezen. Het moet een .ttmig-migratiearchief "
+"zijn dat is geëxporteerd vanaf een andere TalentTrack-installatie."
+
+#: src/Modules/Backup/MigrationImporter.php:68
+msgid ""
+"This is not a migration archive. On the source install use \"Export for "
+"migration\" to produce a .ttmig file."
+msgstr ""
+"Dit is geen migratiearchief. Gebruik op de broninstallatie \"Exporteren voor "
+"migratie\" om een .ttmig-bestand te maken."
+
+#: src/Modules/Backup/MigrationImporter.php:71
+msgid "The migration archive is missing its data tables."
+msgstr "Het migratiearchief mist zijn gegevenstabellen."
+
+#: src/Modules/Backup/MigrationImporter.php:74
+msgid ""
+"The migration archive failed its integrity check (checksum mismatch). It may "
+"be corrupted or have been edited."
+msgstr ""
+"Het migratiearchief is niet door zijn integriteitscontrole gekomen "
+"(controlegetal komt niet overeen). Het is mogelijk beschadigd of bewerkt."
+
+#. translators: 1: source plugin version, 2: this install's version
+#: src/Modules/Backup/MigrationImporter.php:83
+#, php-format
+msgid ""
+"This archive was exported from version %1$s; this install runs %2$s. "
+"Importing across major versions may not line up — review the preview "
+"carefully."
+msgstr ""
+"Dit archief is geëxporteerd vanaf versie %1$s; deze installatie draait %2$s. "
+"Importeren tussen hoofdversies kan misschien niet aansluiten — bekijk het "
+"voorbeeld zorgvuldig."
 
 # Backup preset labels (#6).
 #: src/Modules/Backup/PresetRegistry.php:77
@@ -21248,7 +21431,7 @@ msgstr "Podium"
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:261
 #: src/Shared/Frontend/FrontendRateCardView.php:34
 #: src/Shared/Frontend/FrontendRateCardView.php:35
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:137
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:160
 msgid "Rate cards"
 msgstr "Rapportkaarten"
 
@@ -29792,10 +29975,6 @@ msgstr "Focus voor volgend kwartaal"
 msgid "Please write something in at least one field before submitting."
 msgstr "Schrijf iets in minstens één veld voordat je indient."
 
-#: src/Modules/Workflow/Forms/QuarterlyHoDReviewForm.php:165
-msgid "(unknown)"
-msgstr "(onbekend)"
-
 #: src/Modules/Workflow/Forms/QuarterlyHoDReviewForm.php:191
 msgid "no tasks yet"
 msgstr "nog geen taken"
@@ -35930,24 +36109,24 @@ msgstr ""
 "Balans van selectie-belasting — minuten per speler met onbalansvlag bij "
 "spreiding > 30%."
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:93
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:116
 #: src/Shared/Frontend/FrontendStandardReportsView.php:412
 #: src/Shared/Frontend/FrontendStandardReportsView.php:421
 msgid "Team · Squad evaluation summary"
 msgstr "Team · Selectie-evaluatie samenvatting"
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:94
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:117
 msgid "Per-player average rating and evaluation count over the last 6 months."
 msgstr ""
 "Per-speler gemiddelde rating en aantal evaluaties over de afgelopen 6 "
 "maanden."
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:99
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:122
 #: src/Shared/Frontend/FrontendStandardReportsView.php:512
 msgid "Season summary — annual review"
 msgstr "Seizoensoverzicht — jaarreview"
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:100
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:123
 msgid ""
 "Academy-wide totals across players, matches, evaluations, prospects, and "
 "trial decisions over the last 12 months."
@@ -35955,11 +36134,11 @@ msgstr ""
 "Academy-brede totalen voor spelers, wedstrijden, evaluaties, prospects en "
 "stagebesluiten over de afgelopen 12 maanden."
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:105
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:128
 msgid "Trial funnel"
 msgstr "Stagefunnel"
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:106
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:129
 msgid ""
 "Prospects → trial cases opened → decided, broken out per scout and per "
 "decision."
@@ -35967,13 +36146,13 @@ msgstr ""
 "Prospects → stagedossiers geopend → beslist, uitgesplitst per scout en per "
 "beslissing."
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:111
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:134
 #: src/Shared/Frontend/FrontendStandardReportsView.php:643
 #: src/Shared/Frontend/FrontendStandardReportsView.php:652
 msgid "Scout report card"
 msgstr "Scout-rapport"
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:112
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:135
 msgid ""
 "Per-scout dashboard — prospects logged, cases opened, admissions, hit rate."
 msgstr ""
@@ -35983,12 +36162,12 @@ msgstr ""
 # #1367 - coach evaluation-quality report (v4.20.123). i18n-sync will
 # merge these into the proper position on next run; meanwhile they land
 # here verbatim so a Dutch install reads correctly today.
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:119
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:142
 #: src/Shared/Frontend/FrontendStandardReportsView.php:743
 msgid "Coach · Evaluation quality"
 msgstr "Coach · Evaluatiekwaliteit"
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:120
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:143
 msgid ""
 "Per-coach rating distribution and variance — spots the rate-everyone-the-"
 "same pattern."
@@ -35999,11 +36178,11 @@ msgstr ""
 # #1369 - player progress & radar frontend port (v4.20.124). i18n-sync
 # will merge these into the proper position on next run; meanwhile they
 # land here verbatim so a Dutch install reads correctly today.
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:128
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:151
 msgid "Player · Progress & radar"
 msgstr "Speler · Voortgang & radar"
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:129
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:152
 msgid ""
 "Radar charts over evaluation categories — per-player progress, player "
 "comparison, team averages."
@@ -36011,35 +36190,35 @@ msgstr ""
 "Radargrafieken over evaluatiecategorieën — voortgang per speler, "
 "spelersvergelijking, teamgemiddelden."
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:138
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:161
 msgid "Per-player rating cards with trends."
 msgstr "Rapportkaarten per speler met trends."
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:144
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:167
 msgid "Pick a report."
 msgstr "Kies een rapport."
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:175
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:198
 msgid "Development & performance"
 msgstr "Ontwikkeling & prestaties"
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:176
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:199
 msgid "Playing time"
 msgstr "Speeltijd"
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:177
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:201
 msgid "Recruitment"
 msgstr "Werving"
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:178
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:202
 msgid "Staff & quality"
 msgstr "Staf & kwaliteit"
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:179
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:203
 msgid "Season overview"
 msgstr "Seizoensoverzicht"
 
-#: src/Shared/Frontend/FrontendReportsLauncherView.php:190
+#: src/Shared/Frontend/FrontendReportsLauncherView.php:214
 msgid "Other reports"
 msgstr "Overige rapporten"
 
@@ -38446,168 +38625,6 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
-
-#: src/Modules/Backup/Admin/BackupSettingsPage.php
-msgid "Import from another install"
-msgstr "Importeren vanaf een andere installatie"
-
-#: src/Modules/Backup/Admin/BackupSettingsPage.php
-msgid ""
-"Upload a .ttmig file exported from another TalentTrack install to preview "
-"what it contains. This step only inspects the archive and reports what would "
-"be imported — it does not change any data yet."
-msgstr ""
-"Upload een .ttmig-bestand dat is geëxporteerd vanaf een andere TalentTrack-"
-"installatie om te bekijken wat het bevat. Deze stap inspecteert alleen het "
-"archief en rapporteert wat er geïmporteerd zou worden — er worden nog geen "
-"gegevens gewijzigd."
-
-#: src/Modules/Backup/Admin/BackupSettingsPage.php
-msgid "Migration archive (.ttmig)"
-msgstr "Migratiearchief (.ttmig)"
-
-#: src/Modules/Backup/Admin/BackupSettingsPage.php
-#, php-format
-msgid "Maximum %s. Larger datasets are a later phase."
-msgstr "Maximaal %s. Grotere datasets volgen in een latere fase."
-
-#: src/Modules/Backup/Admin/BackupSettingsPage.php
-msgid "Preview import"
-msgstr "Import voorvertonen"
-
-#: src/Modules/Backup/Admin/BackupSettingsPage.php
-#, php-format
-msgid ""
-"The file is larger than the %s upload limit. Importing larger datasets is a "
-"later phase."
-msgstr ""
-"Het bestand is groter dan de uploadlimiet van %s. Het importeren van grotere "
-"datasets volgt in een latere fase."
-
-#: src/Modules/Backup/Admin/BackupSettingsPage.php
-msgid "No file was uploaded. Choose a .ttmig archive and try again."
-msgstr "Er is geen bestand geüpload. Kies een .ttmig-archief en probeer opnieuw."
-
-#: src/Modules/Backup/Admin/BackupSettingsPage.php
-msgid "Import preview"
-msgstr "Importvoorbeeld"
-
-#: src/Modules/Backup/Admin/BackupSettingsPage.php
-msgid "The migration archive could not be read."
-msgstr "Het migratiearchief kon niet worden gelezen."
-
-#: src/Modules/Backup/Admin/BackupSettingsPage.php
-#, php-format
-msgid ""
-"Archive created %1$s on plugin version %2$s. Nothing below has been imported "
-"— this is a preview only."
-msgstr ""
-"Archief gemaakt op %1$s met plugin-versie %2$s. Niets hieronder is "
-"geïmporteerd — dit is alleen een voorbeeld."
-
-#: src/Modules/Backup/Admin/BackupSettingsPage.php
-msgid "(unknown date)"
-msgstr "(datum onbekend)"
-
-#: src/Modules/Backup/Admin/BackupSettingsPage.php
-msgid "Nothing below has been imported — this is a preview only."
-msgstr "Niets hieronder is geïmporteerd — dit is alleen een voorbeeld."
-
-#: src/Modules/Backup/Admin/BackupSettingsPage.php
-msgid "Contents"
-msgstr "Inhoud"
-
-#: src/Modules/Backup/Admin/BackupSettingsPage.php
-msgid "The archive contains no recognised data sets."
-msgstr "Het archief bevat geen herkende gegevenssets."
-
-#: src/Modules/Backup/Admin/BackupSettingsPage.php
-msgid "Data set"
-msgstr "Gegevensset"
-
-#: src/Modules/Backup/Admin/BackupSettingsPage.php
-msgid "What would happen on import"
-msgstr "Wat er bij importeren zou gebeuren"
-
-#: src/Modules/Backup/Admin/BackupSettingsPage.php
-msgid ""
-"Incoming records are matched against this install by a stable key (not by id, "
-"which differs between installs). A match would be an update-or-insert choice "
-"in the interactive step; the rest would be inserted as new records."
-msgstr ""
-"Binnenkomende records worden op deze installatie gematcht op een stabiele "
-"sleutel (niet op id, dat verschilt tussen installaties). Een match wordt een "
-"keuze tussen bijwerken of toevoegen in de interactieve stap; de rest wordt "
-"als nieuwe records toegevoegd."
-
-#: src/Modules/Backup/Admin/BackupSettingsPage.php
-msgid "No record-level data sets in this archive to compare."
-msgstr "Geen recordgegevenssets in dit archief om te vergelijken."
-
-#: src/Modules/Backup/Admin/BackupSettingsPage.php
-msgid "Incoming"
-msgstr "Binnenkomend"
-
-#: src/Modules/Backup/Admin/BackupSettingsPage.php
-msgid "Match existing"
-msgstr "Komt overeen"
-
-#: src/Modules/Backup/Admin/BackupSettingsPage.php
-msgid "New"
-msgstr "Nieuw"
-
-#: src/Modules/Backup/Admin/BackupSettingsPage.php
-msgid "Matched on"
-msgstr "Gematcht op"
-
-#: src/Modules/Backup/Admin/BackupSettingsPage.php
-msgid ""
-"Applying the import — inserting these records with remapped ids, resolving "
-"matches, and linking WordPress users — is the next phase and is not available "
-"yet. No data has been changed."
-msgstr ""
-"Het toepassen van de import — deze records invoegen met hergemapte ids, "
-"matches oplossen en WordPress-gebruikers koppelen — is de volgende fase en is "
-"nog niet beschikbaar. Er zijn geen gegevens gewijzigd."
-
-#: src/Modules/Backup/MigrationImporter.php
-msgid ""
-"The file could not be read. It must be a .ttmig migration archive exported "
-"from another TalentTrack install."
-msgstr ""
-"Het bestand kon niet worden gelezen. Het moet een .ttmig-migratiearchief zijn "
-"dat is geëxporteerd vanaf een andere TalentTrack-installatie."
-
-#: src/Modules/Backup/MigrationImporter.php
-msgid ""
-"This is not a migration archive. On the source install use \"Export for "
-"migration\" to produce a .ttmig file."
-msgstr ""
-"Dit is geen migratiearchief. Gebruik op de broninstallatie \"Exporteren voor "
-"migratie\" om een .ttmig-bestand te maken."
-
-#: src/Modules/Backup/MigrationImporter.php
-msgid "The migration archive is missing its data tables."
-msgstr "Het migratiearchief mist zijn gegevenstabellen."
-
-#: src/Modules/Backup/MigrationImporter.php
-msgid ""
-"The migration archive failed its integrity check (checksum mismatch). It may "
-"be corrupted or have been edited."
-msgstr ""
-"Het migratiearchief is niet door zijn integriteitscontrole gekomen "
-"(controlegetal komt niet overeen). Het is mogelijk beschadigd of bewerkt."
-
-#: src/Modules/Backup/MigrationImporter.php
-#, php-format
-msgid ""
-"This archive was exported from version %1$s; this install runs %2$s. "
-"Importing across major versions may not line up — review the preview "
-"carefully."
-msgstr ""
-"Dit archief is geëxporteerd vanaf versie %1$s; deze installatie draait %2$s. "
-"Importeren tussen hoofdversies kan misschien niet aansluiten — bekijk het "
-"voorbeeld zorgvuldig."
 
 #~ msgid "Print (landscape A4)"
 #~ msgstr "Afdrukken (liggend A4)"
