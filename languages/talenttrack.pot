@@ -27064,6 +27064,7 @@ msgstr ""
 msgid "Bulk actions"
 msgstr ""
 
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:356
 #: src/Shared/Admin/BulkActionsHelper.php:172
 #: src/Shared/Frontend/Components/ArchiveRowActions.php:36
 msgid "Delete permanently"

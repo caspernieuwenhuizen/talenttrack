@@ -163,9 +163,13 @@ class PdpFilesRestController {
         // (the form FrontendListTable forwards via its static_filters
         // map). Coaches without the cap always see only active rows
         // (no point in showing a row they can't act on).
+        // #1610 — also honour the toggle for `tt_delete_pdp` holders so
+        // the archived list is reachable to permanently delete from,
+        // even on seeds where an operator can delete but not restore.
         $filter = is_array( $r['filter'] ?? null ) ? (array) $r['filter'] : [];
         $include_archived_raw = $r['include_archived'] ?? ( $filter['include_archived'] ?? null );
-        $include_archived     = ! empty( $include_archived_raw ) && current_user_can( 'tt_unarchive_pdp' );
+        $can_see_archived     = current_user_can( 'tt_unarchive_pdp' ) || current_user_can( 'tt_delete_pdp' );
+        $include_archived     = ! empty( $include_archived_raw ) && $can_see_archived;
         unset( $filter['include_archived'] );
         if ( ! $include_archived ) {
             $where[] = 'f.archived_at IS NULL';
@@ -324,13 +328,35 @@ class PdpFilesRestController {
      */
     private static function row_actions_html( int $file_id, string $player_name, bool $is_archived ): string {
         if ( $is_archived ) {
-            if ( ! current_user_can( 'tt_unarchive_pdp' ) ) return '';
-            return sprintf(
-                '<button type="button" class="tt-btn tt-btn-secondary tt-pdp-row-action" data-tt-pdp-restore="%1$d" data-tt-pdp-player="%2$s" style="min-height:48px;min-width:48px;padding:8px 12px;touch-action:manipulation;">%3$s</button>',
-                $file_id,
-                esc_attr( $player_name ),
-                esc_html__( 'Restore', 'talenttrack' )
-            );
+            $buttons = [];
+            if ( current_user_can( 'tt_unarchive_pdp' ) ) {
+                $buttons[] = sprintf(
+                    '<button type="button" class="tt-btn tt-btn-secondary tt-pdp-row-action" data-tt-pdp-restore="%1$d" data-tt-pdp-player="%2$s" style="min-height:48px;min-width:48px;padding:8px 12px;touch-action:manipulation;">%3$s</button>',
+                    $file_id,
+                    esc_attr( $player_name ),
+                    esc_html__( 'Restore', 'talenttrack' )
+                );
+            }
+            // #1610 — permanent-delete affordance for archived rows.
+            // Cap-gated on tt_delete_pdp (admin-only by seed). Links to
+            // the existing typed-name confirm subview
+            // (?tt_view=pdp&action=permanent-delete) rather than firing
+            // an inline fetch — the irreversible five-table cascade
+            // warrants the double-confirm + cascade-summary surface, and
+            // reusing it keeps a single delete path. Non-holders never
+            // see the link.
+            if ( current_user_can( 'tt_delete_pdp' ) ) {
+                $del_url = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg(
+                    [ 'tt_view' => 'pdp', 'id' => $file_id, 'action' => 'permanent-delete' ],
+                    \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+                ) );
+                $buttons[] = sprintf(
+                    '<a class="tt-btn tt-btn-danger tt-pdp-row-action" href="%1$s" style="min-height:48px;min-width:48px;padding:8px 12px;touch-action:manipulation;background:#b91c1c;color:#fff;border:1px solid #991b1b;">%2$s</a>',
+                    esc_url( $del_url ),
+                    esc_html__( 'Delete permanently', 'talenttrack' )
+                );
+            }
+            return $buttons === [] ? '' : implode( ' ', $buttons );
         }
         if ( ! current_user_can( 'tt_edit_pdp' ) ) return '';
         return sprintf(

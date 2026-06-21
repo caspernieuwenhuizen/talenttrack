@@ -450,9 +450,11 @@ class FrontendPdpManageView extends FrontendViewBase {
         // forwards as a static filter on every fetch. The link only
         // renders for users who hold `tt_unarchive_pdp` — there's no
         // point offering "Show archived" to operators who can't act
-        // on archived rows.
+        // on archived rows. #1610 — `tt_delete_pdp` holders also see the
+        // toggle so they can reach the archived list to permanently
+        // delete a file (per-row "Delete permanently" action).
         $include_archived = ! empty( $_GET['include_archived'] );
-        if ( current_user_can( 'tt_unarchive_pdp' ) ) {
+        if ( current_user_can( 'tt_unarchive_pdp' ) || current_user_can( 'tt_delete_pdp' ) ) {
             $toggle_url = $include_archived
                 ? remove_query_arg( 'include_archived' )
                 : add_query_arg( 'include_archived', '1' );
