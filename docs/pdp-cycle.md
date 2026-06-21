@@ -12,11 +12,27 @@ A **PDP file** is a per-season development plan for a single player. It pulls to
 - **Parents / guardians** — read-only of their child's file (after sign-off) plus a per-conversation acknowledgement button.
 - **Read-only observer** — read-only across all files; no edit, no acknowledgement.
 
+## PDP setup: who has a PDP this season
+
+The **PDP** tile opens on a **player-centric coverage list** for the current season instead of a bare list of files. It starts from the player (CLAUDE.md §1): every player you coach is shown once, with a clear indicator of whether their PDP **for this season** exists yet.
+
+- A summary line at the top reads, for example, *"14 of 18 players have a PDP for the current season (2025/26)."*
+- Each row shows the **player** (linked to their record), their **team**, and a **PDP this season** status:
+  - **Created** — a green *PDP ✓* pill, with conversation progress where available (e.g. *PDP ✓ 1/3*), linking straight to the file.
+  - **Not started** — a grey *Not started* pill plus a **Create PDP** button that opens the create flow pre-filled for that player and team.
+- **Filters** — team dropdown + player search, scoped the same way as the rest of the app: coaches see only their own teams' players; admins see everyone.
+- **Only players without a PDP** — a one-click toggle to hide everyone who already has a file, so you can work straight through the gaps.
+- Clicking a covered row opens the player's PDP file; clicking a missing row jumps into the create flow.
+
+A secondary **Files** tab keeps the historical file-by-file list (with the *Show archived* toggle and per-row archive / restore controls) for power users.
+
+The coverage data is also available over REST at `GET /wp-json/talenttrack/v1/pdp-files/coverage` (`season_id`, `filter[team_id]`, `search`, `only_missing`), so a future front end gets the same answer.
+
 ## The flow
 
 ### 1. Open the file
 
-From the **PDP** tile, pick a player and click *Open new PDP file*. The file is created with one row per conversation in the cycle (2, 3, or 4 — configurable per club, overridable per team) with each `scheduled_at` distributed evenly across the season's start and end dates.
+From the **PDP** tile, click *Create PDP* on a player's row (or *Open new PDP file*), pick a player and click *Open new PDP file*. The file is created with one row per conversation in the cycle (2, 3, or 4 — configurable per club, overridable per team) with each `scheduled_at` distributed evenly across the season's start and end dates.
 
 A native calendar entry is written for every conversation. When the Spond integration ships (#0031), the same entries are pushed to the Spond calendar.
 

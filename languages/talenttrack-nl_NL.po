@@ -38902,6 +38902,54 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+# === #1617 — player-centric PDP coverage list ===
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "PDP setup views"
+msgstr "POP-instelweergaven"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Files"
+msgstr "Dossiers"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "PDP this season"
+msgstr "POP dit seizoen"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Show all players"
+msgstr "Alle spelers tonen"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Only players without a PDP"
+msgstr "Alleen spelers zonder POP"
+
+#. translators: 1: covered player count, 2: total player count, 3: season name
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+#, php-format
+msgid "%1$d of %2$d players have a PDP for the current season (%3$s)."
+msgstr "%1$d van de %2$d spelers hebben een POP voor het huidige seizoen (%3$s)."
+
+#. translators: 1: conducted conversations, 2: total conversations
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php
+#, php-format
+msgctxt "PDP conversation progress"
+msgid "%1$d/%2$d"
+msgstr "%1$d/%2$d"
+
+#. translators: %s = progress like "1/3"
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php
+#, php-format
+msgid "PDP ✓ %s"
+msgstr "POP ✓ %s"
+
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php
+msgid "PDP ✓"
+msgstr "POP ✓"
+
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php
+msgid "Create PDP"
+msgstr "POP aanmaken"
+
 #~ msgid ""
 #~ "Applying the import — inserting these records with remapped ids, "
 #~ "resolving matches, and linking WordPress users — is the next phase and is "

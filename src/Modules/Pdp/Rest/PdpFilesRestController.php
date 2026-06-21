@@ -41,6 +41,17 @@ class PdpFilesRestController {
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
             ],
         ] );
+        // #1617 — player-centric coverage list for the PDP setup
+        // landing: every coach-scoped player + whether they HAVE a PDP
+        // for the season. Read-side only; reuses the view's coach/admin
+        // scoping so a non-WP front end gets the same answer.
+        register_rest_route( self::NS, '/pdp-files/coverage', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'coverage' ],
+                'permission_callback' => [ __CLASS__, 'can_view' ],
+            ],
+        ] );
         register_rest_route( self::NS, '/pdp-files/(?P<id>\d+)', [
             [
                 'methods'             => 'GET',
@@ -231,6 +242,190 @@ class PdpFilesRestController {
             'per_page'  => $per_page,
             'season_id' => $season_id,
         ] );
+    }
+
+    /**
+     * #1617 — GET /pdp-files/coverage
+     *
+     * Player-centric coverage for the current (or requested) season:
+     * one row per coach-scoped player with a `has_pdp` flag, the file
+     * link when present, conversation progress, and a "Create PDP"
+     * deep-link (pre-filled with player + team) when absent.
+     *
+     * Accepts `season_id`, `filter[team_id]`, `search`,
+     * `filter[only_missing]` (or `only_missing`). Returns the standard
+     * FrontendListTable envelope plus a `summary` block for the
+     * "M of N players have a PDP" line. Pagination is applied in PHP
+     * after the (single, indexed) coverage query — coach rosters are
+     * small, so this stays cheap and keeps the repo method a plain
+     * read.
+     */
+    public static function coverage( \WP_REST_Request $r ): \WP_REST_Response {
+        $season_id = absint( $r['season_id'] ?? 0 );
+        if ( $season_id <= 0 ) {
+            $current   = ( new SeasonsRepository() )->current();
+            $season_id = $current ? (int) $current->id : 0;
+        }
+        if ( $season_id <= 0 ) {
+            return RestResponse::success( [
+                'rows' => [], 'total' => 0, 'page' => 1, 'per_page' => 25,
+                'summary' => [ 'total' => 0, 'covered' => 0 ],
+            ] );
+        }
+
+        $filter = is_array( $r['filter'] ?? null ) ? (array) $r['filter'] : [];
+
+        $coverage_filters = [];
+        // Coach scope — global readers see every player; coaches are
+        // narrowed to their own rosters via player ids.
+        if ( ! self::hasGlobalPdpAccess( 'read' ) ) {
+            $coverage_filters['player_ids'] = self::coachScopedPlayerIds( get_current_user_id() );
+        }
+        if ( ! empty( $filter['team_id'] ) ) {
+            $coverage_filters['team_id'] = absint( $filter['team_id'] );
+        }
+        if ( ! empty( $r['search'] ) ) {
+            $coverage_filters['search'] = sanitize_text_field( (string) $r['search'] );
+        }
+        $only_missing = ! empty( $r['only_missing'] ) || ! empty( $filter['only_missing'] );
+        if ( $only_missing ) {
+            $coverage_filters['only_missing'] = true;
+        }
+
+        $files   = new PdpFilesRepository();
+        $rows    = $files->coverageForSeason( $season_id, $coverage_filters );
+        $summary = $files->coverageSummaryForSeason( $season_id, $coverage_filters );
+
+        $page     = max( 1, absint( $r['page'] ?? 1 ) );
+        $per_page = self::clamp_per_page( $r['per_page'] ?? 25 );
+        $total    = count( $rows );
+        $paged    = array_slice( $rows, ( $page - 1 ) * $per_page, $per_page );
+
+        return RestResponse::success( [
+            'rows'      => array_map( [ __CLASS__, 'format_coverage_row' ], $paged ),
+            'total'     => $total,
+            'page'      => $page,
+            'per_page'  => $per_page,
+            'season_id' => $season_id,
+            'summary'   => $summary,
+        ] );
+    }
+
+    /**
+     * #1617 — flat list of player ids on the coach's own teams. Mirrors
+     * the roster scoping the manage view uses for its filter options.
+     *
+     * @return int[]
+     */
+    private static function coachScopedPlayerIds( int $user_id ): array {
+        $ids = [];
+        foreach ( QueryHelpers::get_teams_for_coach( $user_id ) as $t ) {
+            foreach ( QueryHelpers::get_players( (int) $t->id ) as $pl ) {
+                $ids[ (int) $pl->id ] = (int) $pl->id;
+            }
+        }
+        return array_values( $ids );
+    }
+
+    /**
+     * #1617 — coverage row shape for FrontendListTable. Player name
+     * links to the player record (§1 anchor); the status cell is a
+     * green "PDP ✓ (x/y)" pill linking to the file, or a grey
+     * "Not started" pill. The action cell offers "Open" (covered) or
+     * "Create PDP" pre-filled with player + team (missing). Whole-row
+     * click target is the file when covered, else the create flow.
+     *
+     * @param object $row coverageForSeason() result
+     * @return array<string,mixed>
+     */
+    private static function format_coverage_row( $row ): array {
+        $player_id = (int) $row->player_id;
+        $team_id   = (int) ( $row->team_id ?? 0 );
+        $first     = (string) ( $row->first_name ?? '' );
+        $last      = (string) ( $row->last_name ?? '' );
+        $player_name = trim( $first . ' ' . $last );
+        if ( $player_name === '' ) $player_name = '#' . $player_id;
+        $team_name = (string) ( $row->team_name ?? '' );
+
+        $player_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
+            $player_name,
+            \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'players', $player_id )
+        );
+
+        $team_link_html = '—';
+        if ( $team_id > 0 && $team_name !== '' ) {
+            $team_link_html = \TT\Shared\Frontend\Components\RecordLink::inline(
+                $team_name,
+                \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'teams', $team_id )
+            );
+        }
+
+        $file_id   = (int) ( $row->pdp_file_id ?? 0 );
+        $has_pdp   = $file_id > 0;
+        $conducted = (int) ( $row->conv_conducted ?? 0 );
+        $total     = (int) ( $row->conv_total ?? 0 );
+
+        $dash = \TT\Shared\Frontend\Components\RecordLink::dashboardUrl();
+
+        if ( $has_pdp ) {
+            $detail_url = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg(
+                [ 'tt_view' => 'pdp', 'id' => $file_id ],
+                $dash
+            ) );
+            $progress = $total > 0
+                ? sprintf(
+                    /* translators: 1: conducted conversations, 2: total conversations */
+                    _x( '%1$d/%2$d', 'PDP conversation progress', 'talenttrack' ),
+                    $conducted,
+                    $total
+                )
+                : '';
+            $pill_label = $progress !== ''
+                ? sprintf(
+                    /* translators: %s = progress like "1/3" */
+                    __( 'PDP ✓ %s', 'talenttrack' ),
+                    $progress
+                )
+                : __( 'PDP ✓', 'talenttrack' );
+            $coverage_html = '<a href="' . esc_url( $detail_url ) . '" class="tt-status-badge tt-status-completed" style="text-decoration:none;display:inline-flex;align-items:center;min-height:28px;">'
+                . esc_html( $pill_label ) . '</a>';
+            $action_html = '<a class="tt-btn tt-btn-secondary tt-btn-sm" href="' . esc_url( $detail_url ) . '" style="min-height:48px;display:inline-flex;align-items:center;padding:8px 12px;touch-action:manipulation;">'
+                . esc_html__( 'Open', 'talenttrack' ) . '</a>';
+            $row_url = $detail_url;
+        } else {
+            $create_url = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg(
+                array_filter( [
+                    'tt_view'   => 'pdp',
+                    'action'    => 'new',
+                    'player_id' => $player_id,
+                    'team_id'   => $team_id > 0 ? $team_id : null,
+                ] ),
+                $dash
+            ) );
+            $coverage_html = '<span class="tt-status-badge tt-status-to-be-planned" style="display:inline-flex;align-items:center;min-height:28px;">'
+                . esc_html__( 'Not started', 'talenttrack' ) . '</span>';
+            $action_html = current_user_can( 'tt_edit_pdp' )
+                ? '<a class="tt-btn tt-btn-primary tt-btn-sm" href="' . esc_url( $create_url ) . '" style="min-height:48px;display:inline-flex;align-items:center;padding:8px 12px;touch-action:manipulation;">'
+                    . esc_html__( 'Create PDP', 'talenttrack' ) . '</a>'
+                : '';
+            $row_url = current_user_can( 'tt_edit_pdp' ) ? $create_url : '';
+        }
+
+        return [
+            'player_id'        => $player_id,
+            'player_name'      => $player_name,
+            'player_link_html' => $player_link_html,
+            'team_id'          => $team_id,
+            'team_name'        => $team_name,
+            'team_link_html'   => $team_link_html,
+            'has_pdp'          => $has_pdp,
+            'pdp_file_id'      => $file_id ?: null,
+            'conv_total'       => $total,
+            'conv_conducted'   => $conducted,
+            'coverage_html'    => $coverage_html,
+            'actions_html'     => $action_html,
+            'detail_url'       => $row_url,
+        ];
     }
 
     private static function clamp_per_page( $value ): int {

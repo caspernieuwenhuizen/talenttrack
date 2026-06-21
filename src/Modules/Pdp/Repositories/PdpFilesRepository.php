@@ -246,6 +246,124 @@ class PdpFilesRepository {
         return $ok ? (int) $this->wpdb->insert_id : 0;
     }
 
+    /**
+     * #1617 — player-centric PDP coverage for a season.
+     *
+     * Player-first (CLAUDE.md §1): the row spine is the PLAYER, not
+     * the file. Every active player in the requested scope is returned
+     * exactly once, LEFT JOINed against this season's PDP file so the
+     * caller can see at a glance who HAS a PDP and who does NOT. The
+     * `pdp_file_id` is null for players with no file this season; that
+     * null is the "Not started" signal.
+     *
+     * Progress (`conv_total` / `conv_conducted`) lets the caller show
+     * "1 / 3 conversations" on covered rows without a second query per
+     * player. Archived files are excluded — an archived cycle is not
+     * "covered" for the purpose of "who still needs a PDP".
+     *
+     * Scope is the caller's responsibility: pass `player_ids` already
+     * narrowed to the coach's roster (admins pass null = every active
+     * player). This keeps the coach-vs-admin authorization decision in
+     * one place (the REST controller / view) rather than re-deriving
+     * teams here.
+     *
+     * @param int        $season_id  current season id
+     * @param array{
+     *   player_ids?: int[]|null,
+     *   team_id?: int,
+     *   search?: string,
+     *   only_missing?: bool,
+     * } $filters
+     * @return object[] one row per player: player_id, first_name,
+     *   last_name, team_id, team_name, pdp_file_id, file_status,
+     *   conv_total, conv_conducted.
+     */
+    public function coverageForSeason( int $season_id, array $filters = [] ): array {
+        if ( $season_id <= 0 ) return [];
+        $conv = $this->wpdb->prefix . 'tt_pdp_conversations';
+        $players = $this->wpdb->prefix . 'tt_players';
+        $teams   = $this->wpdb->prefix . 'tt_teams';
+
+        $where  = [ "pl.status = 'active'", 'pl.club_id = %d' ];
+        $params = [ CurrentClub::id() ];
+
+        // Coach scope — restrict to a roster the caller already
+        // resolved. An empty array means "no players in scope" → no
+        // rows (a coach with no teams sees nothing, which is correct).
+        $player_ids = $filters['player_ids'] ?? null;
+        if ( is_array( $player_ids ) ) {
+            $ids = array_values( array_filter( array_map( 'intval', $player_ids ), static fn( $i ) => $i > 0 ) );
+            if ( empty( $ids ) ) return [];
+            $place    = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+            $where[]  = "pl.id IN ({$place})";
+            $params   = array_merge( $params, $ids );
+        }
+
+        if ( ! empty( $filters['team_id'] ) ) {
+            $where[]  = 'pl.team_id = %d';
+            $params[] = (int) $filters['team_id'];
+        }
+        if ( ! empty( $filters['search'] ) ) {
+            $like     = '%' . $this->wpdb->esc_like( (string) $filters['search'] ) . '%';
+            $where[]  = '(pl.first_name LIKE %s OR pl.last_name LIKE %s)';
+            $params[] = $like;
+            $params[] = $like;
+        }
+
+        $where_sql = implode( ' AND ', $where );
+
+        // The PDP file join is correlated to the season + club and
+        // excludes archived files, so a player with only an archived
+        // cycle still reads as "Not started" this season.
+        $sql = "SELECT pl.id AS player_id, pl.first_name, pl.last_name,
+                       pl.team_id, t.name AS team_name,
+                       f.id AS pdp_file_id, f.status AS file_status,
+                       (SELECT COUNT(*) FROM {$conv} c WHERE c.pdp_file_id = f.id) AS conv_total,
+                       (SELECT COUNT(*) FROM {$conv} c WHERE c.pdp_file_id = f.id AND c.conducted_at IS NOT NULL) AS conv_conducted
+                  FROM {$players} pl
+                  LEFT JOIN {$teams} t ON t.id = pl.team_id
+                  LEFT JOIN {$this->table} f
+                         ON f.player_id = pl.id
+                        AND f.season_id = %d
+                        AND f.club_id = %d
+                        AND f.archived_at IS NULL
+                 WHERE {$where_sql}";
+
+        // only_missing toggle filters AFTER the join so it reads off
+        // the joined file row.
+        if ( ! empty( $filters['only_missing'] ) ) {
+            $sql .= ' AND f.id IS NULL';
+        }
+
+        $sql .= ' ORDER BY pl.last_name ASC, pl.first_name ASC';
+
+        // season_id + club_id for the join precede the WHERE params.
+        $all = array_merge( [ $season_id, CurrentClub::id() ], $params );
+        $rows = $this->wpdb->get_results( $this->wpdb->prepare( $sql, ...$all ) );
+        return is_array( $rows ) ? $rows : [];
+    }
+
+    /**
+     * #1617 — coverage counts for the summary line
+     * ("14 of 18 players have a PDP this season"). Returns
+     * `[ 'total' => N, 'covered' => M ]` for the same scope/filters
+     * `coverageForSeason()` uses (minus `only_missing`, which would
+     * make the ratio meaningless).
+     *
+     * @param array{ player_ids?: int[]|null, team_id?: int, search?: string } $filters
+     * @return array{ total:int, covered:int }
+     */
+    public function coverageSummaryForSeason( int $season_id, array $filters = [] ): array {
+        unset( $filters['only_missing'] );
+        $rows = $this->coverageForSeason( $season_id, $filters );
+        $total   = count( $rows );
+        $covered = 0;
+        foreach ( $rows as $r ) {
+            if ( ! empty( $r->pdp_file_id ) ) $covered++;
+        }
+        return [ 'total' => $total, 'covered' => $covered ];
+    }
+
     public function setStatus( int $file_id, string $status ): bool {
         if ( $file_id <= 0 || ! PdpStatus::isValid( $status ) ) return false;
         $ok = $this->wpdb->update(

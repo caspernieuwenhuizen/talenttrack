@@ -389,11 +389,138 @@ class FrontendPdpManageView extends FrontendViewBase {
         <?php
     }
 
+    /**
+     * #1617 — the two PDP-setup tabs. "Coverage" (player-first, the
+     * default) and "Files" (the historical file-by-file list). Renders
+     * a simple link tab strip; the active tab carries `is-active`.
+     * Whole strip is a nav contract-neutral sub-affordance (it switches
+     * a query param on the same view, not a breadcrumb / back pill).
+     */
+    private static function renderSetupTabs( bool $files_active ): void {
+        $base = remove_query_arg( [ 'action', 'id', 'conv', 'player_id', 'files', 'only_missing', 'include_archived' ] );
+        $coverage_url = $base;
+        $files_url    = add_query_arg( 'files', '1', $base );
+        echo '<div role="tablist" aria-label="' . esc_attr__( 'PDP setup views', 'talenttrack' ) . '" style="display:flex; gap:4px; border-bottom:1px solid #e5e7ea; margin:0 0 16px;">';
+        echo '<a role="tab"' . ( $files_active ? '' : ' aria-selected="true"' ) . ' href="' . esc_url( $coverage_url ) . '" class="tt-pdp-setup-tab' . ( $files_active ? '' : ' is-active' ) . '" style="min-height:48px; display:inline-flex; align-items:center; padding:10px 16px; text-decoration:none; border-bottom:2px solid ' . ( $files_active ? 'transparent' : 'var(--tt-primary,#0b3d2e)' ) . '; font-weight:' . ( $files_active ? '400' : '600' ) . '; touch-action:manipulation;">'
+            . esc_html__( 'Coverage', 'talenttrack' ) . '</a>';
+        echo '<a role="tab"' . ( $files_active ? ' aria-selected="true"' : '' ) . ' href="' . esc_url( $files_url ) . '" class="tt-pdp-setup-tab' . ( $files_active ? ' is-active' : '' ) . '" style="min-height:48px; display:inline-flex; align-items:center; padding:10px 16px; text-decoration:none; border-bottom:2px solid ' . ( $files_active ? 'var(--tt-primary,#0b3d2e)' : 'transparent' ) . '; font-weight:' . ( $files_active ? '600' : '400' ) . '; touch-action:manipulation;">'
+            . esc_html__( 'Files', 'talenttrack' ) . '</a>';
+        echo '</div>';
+    }
+
+    /**
+     * #1617 — player-centric PDP coverage list for the current season.
+     * One row per coach-scoped player with a created / not-started
+     * indicator + one-click create for the missing ones. Coverage data
+     * comes from the REST endpoint (`pdp-files/coverage`) via
+     * FrontendListTable; the summary line is computed server-side from
+     * the repository for the initial scope. Business logic lives in
+     * PdpFilesRepository::coverageForSeason() per CLAUDE.md §4.
+     */
+    private static function renderCoverageList( int $user_id, bool $is_admin, object $current ): void {
+        $base_url = remove_query_arg( [ 'action', 'id', 'conv', 'player_id', 'files' ] );
+        $new_url  = add_query_arg( [ 'tt_view' => 'pdp', 'action' => 'new' ], $base_url );
+        $page_actions = [];
+        if ( current_user_can( 'tt_edit_pdp' ) ) {
+            $page_actions[] = [
+                'label'   => __( 'Open new PDP file', 'talenttrack' ),
+                'href'    => $new_url,
+                'primary' => true,
+                'icon'    => '+',
+            ];
+        }
+        self::renderHeader( __( 'Player Development Plans', 'talenttrack' ), self::pageActionsHtml( $page_actions ) );
+
+        self::renderSetupTabs( false );
+
+        // Coverage summary line ("M of N players have a PDP this
+        // season"). Scoped the same way the REST endpoint scopes:
+        // admins see every active player; coaches only their rosters.
+        $summary_filters = [];
+        if ( ! $is_admin ) {
+            $summary_filters['player_ids'] = self::coachScopedPlayerIds( $user_id );
+        }
+        $summary = ( new PdpFilesRepository() )->coverageSummaryForSeason( (int) $current->id, $summary_filters );
+        echo '<p style="color:#5b6e75; margin-bottom:12px;">' . esc_html( sprintf(
+            /* translators: 1: covered player count, 2: total player count, 3: season name */
+            __( '%1$d of %2$d players have a PDP for the current season (%3$s).', 'talenttrack' ),
+            (int) $summary['covered'],
+            (int) $summary['total'],
+            (string) $current->name
+        ) ) . '</p>';
+
+        // "Only missing" quick filter — flips `only_missing=1` in the
+        // querystring, forwarded to the REST endpoint as a static
+        // filter so the table only shows players without a PDP.
+        $only_missing = ! empty( $_GET['only_missing'] );
+        $toggle_url   = $only_missing
+            ? remove_query_arg( 'only_missing' )
+            : add_query_arg( 'only_missing', '1' );
+        $toggle_label = $only_missing
+            ? __( 'Show all players', 'talenttrack' )
+            : __( 'Only players without a PDP', 'talenttrack' );
+        echo '<p style="margin:0 0 12px;"><a class="tt-btn tt-btn-secondary" href="' . esc_url( $toggle_url ) . '" style="min-height:48px;padding:8px 14px;display:inline-flex;align-items:center;touch-action:manipulation;">' . esc_html( $toggle_label ) . '</a></p>';
+
+        $columns = [
+            'player_name' => [ 'label' => __( 'Player', 'talenttrack' ), 'sortable' => false, 'render' => 'html', 'value_key' => 'player_link_html' ],
+            'team_name'   => [ 'label' => __( 'Team',   'talenttrack' ), 'sortable' => false, 'render' => 'html', 'value_key' => 'team_link_html' ],
+            'coverage'    => [ 'label' => __( 'PDP this season', 'talenttrack' ), 'render' => 'html', 'value_key' => 'coverage_html' ],
+            'actions'     => [ 'label' => __( 'Actions', 'talenttrack' ), 'render' => 'html', 'value_key' => 'actions_html' ],
+        ];
+
+        $list_config = [
+            'rest_path' => 'pdp-files/coverage',
+            'columns'   => $columns,
+            'filters' => [
+                'team_id' => [
+                    'type'    => 'select',
+                    'label'   => __( 'Team', 'talenttrack' ),
+                    'options' => TeamPickerComponent::filterOptions( $user_id, $is_admin ),
+                ],
+            ],
+            'search'      => [ 'placeholder' => __( 'Search player…', 'talenttrack' ) ],
+            'empty_state' => __( 'No players match your filters.', 'talenttrack' ),
+            'row_url_key' => 'detail_url',
+        ];
+        if ( $only_missing ) {
+            $list_config['static_filters'] = [ 'only_missing' => '1' ];
+        }
+
+        echo FrontendListTable::render( $list_config ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — render() returns escaped HTML.
+    }
+
+    /**
+     * #1617 — flat list of player ids on the coach's own teams, used to
+     * scope the coverage summary the same way the REST endpoint scopes.
+     *
+     * @return int[]
+     */
+    private static function coachScopedPlayerIds( int $user_id ): array {
+        $ids = [];
+        foreach ( QueryHelpers::get_teams_for_coach( $user_id ) as $t ) {
+            foreach ( QueryHelpers::get_players( (int) $t->id ) as $pl ) {
+                $ids[ (int) $pl->id ] = (int) $pl->id;
+            }
+        }
+        return array_values( $ids );
+    }
+
     private static function renderList( int $user_id, bool $is_admin ): void {
         $current = ( new SeasonsRepository() )->current();
         if ( ! $current ) {
             self::renderHeader( __( 'Player Development Plans', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'No current season is set. Configure a season under Configuration → Seasons before creating PDP files.', 'talenttrack' ) . '</p>';
+            return;
+        }
+
+        // #1617 — the PDP setup landing is now a player-centric
+        // COVERAGE list (who has a PDP this season, who doesn't). The
+        // historical files-only list stays reachable as a secondary
+        // tab (`?files=1`) for power users who want the file-by-file
+        // view with archive controls.
+        $show_files = ! empty( $_GET['files'] );
+        if ( ! $show_files ) {
+            self::renderCoverageList( $user_id, $is_admin, $current );
             return;
         }
 
@@ -416,6 +543,8 @@ class FrontendPdpManageView extends FrontendViewBase {
             ];
         }
         self::renderHeader( __( 'Player Development Plans', 'talenttrack' ), self::pageActionsHtml( $page_actions ) );
+
+        self::renderSetupTabs( true );
 
         echo '<p style="color:#5b6e75; margin-bottom:12px;">' . esc_html( sprintf(
             /* translators: %s = season name */
