@@ -88,6 +88,29 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
                 'desc'  => __( 'Squad load balance — minutes per player with imbalance flag when spread > 30%.', 'talenttrack' ),
                 'url'   => add_query_arg( [ 'tt_view' => 'standard-report', 'slug' => 'team-minutes-distribution' ], $base_url ),
             ],
+            // #1592 — attendance reports were only reachable through the
+            // flag-gated Analytics surface; surface them here next to the
+            // minutes reports. Labels/descriptions reuse the existing
+            // FrontendAnalyticsView msgids. The views self-gate on
+            // tt_view_analytics + team scope.
+            [
+                'slug'  => 'attendance-report-team',
+                'label' => __( 'Team attendance statistics', 'talenttrack' ),
+                'desc'  => __( 'Present / late / absent / excused / injured percentages per team over a configurable date range.', 'talenttrack' ),
+                'url'   => add_query_arg( [ 'tt_view' => 'attendance-report-team' ], $base_url ),
+            ],
+            [
+                'slug'  => 'attendance-report-player',
+                'label' => __( 'Player attendance statistics', 'talenttrack' ),
+                'desc'  => __( 'Same attendance percentages broken down per player, optionally narrowed to a single team.', 'talenttrack' ),
+                'url'   => add_query_arg( [ 'tt_view' => 'attendance-report-player' ], $base_url ),
+            ],
+            [
+                'slug'  => 'attendance-leaderboard',
+                'label' => __( 'Attendance leaderboard', 'talenttrack' ),
+                'desc'  => __( 'League-table ranking of the best and worst attenders over a window, with at-risk players flagged.', 'talenttrack' ),
+                'url'   => add_query_arg( [ 'tt_view' => 'attendance-leaderboard' ], $base_url ),
+            ],
             [
                 'slug'  => 'team-squad-evaluation-summary',
                 'label' => __( 'Team · Squad evaluation summary', 'talenttrack' ),
@@ -174,6 +197,7 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
         $groups = [
             [ 'label' => __( 'Development & performance', 'talenttrack' ), 'slugs' => [ 'player-progress-radar', 'rate-cards', 'team_ratings', 'team-squad-evaluation-summary' ] ],
             [ 'label' => __( 'Playing time', 'talenttrack' ),              'slugs' => [ 'player-minutes-played', 'team-minutes-distribution' ] ],
+            [ 'label' => __( 'Attendance', 'talenttrack' ),                'slugs' => [ 'attendance-report-team', 'attendance-report-player', 'attendance-leaderboard' ] ],
             [ 'label' => __( 'Recruitment', 'talenttrack' ),               'slugs' => [ 'prospects_logged_per_scout', 'season-trial-funnel', 'scout-report-card' ] ],
             [ 'label' => __( 'Staff & quality', 'talenttrack' ),           'slugs' => [ 'coach_activity', 'coach-evaluation-quality' ] ],
             [ 'label' => __( 'Season overview', 'talenttrack' ),           'slugs' => [ 'season-summary' ] ],
