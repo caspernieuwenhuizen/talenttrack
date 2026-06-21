@@ -2,7 +2,7 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: TalentTrack 4.39.7\n"
+"Project-Id-Version: TalentTrack 4.42.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -34097,4 +34097,50 @@ msgstr ""
 
 #: src/Infrastructure/REST/TeamDetailPreferencesRestController.php:69
 msgid "Expected an object under `sections`."
+#. #1617 — player-centric PDP coverage list
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "PDP setup views"
+msgstr ""
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Files"
+msgstr ""
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "PDP this season"
+msgstr ""
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Show all players"
+msgstr ""
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Only players without a PDP"
+msgstr ""
+
+#. translators: 1: covered player count, 2: total player count, 3: season name
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+#, php-format
+msgid "%1$d of %2$d players have a PDP for the current season (%3$s)."
+msgstr ""
+
+#. translators: 1: conducted conversations, 2: total conversations
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php
+#, php-format
+msgctxt "PDP conversation progress"
+msgid "%1$d/%2$d"
+msgstr ""
+
+#. translators: %s = progress like "1/3"
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php
+#, php-format
+msgid "PDP ✓ %s"
+msgstr ""
+
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php
+msgid "PDP ✓"
+msgstr ""
+
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php
+msgid "Create PDP"
 msgstr ""
