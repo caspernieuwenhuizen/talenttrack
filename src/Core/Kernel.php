@@ -113,6 +113,11 @@ class Kernel {
         Menu::init();
         BrandStyles::init( $this->container );
         DashboardShortcode::register();
+        // #1590 — full-canvas app shell. When the dashboard page hosts
+        // the shortcode and the academy keeps canvas mode on (default),
+        // take over the template chokepoint so the active theme's header /
+        // footer / sidebar never render around the TalentTrack UI.
+        \TT\Shared\Frontend\CanvasShell::init();
         \TT\Shared\Frontend\FlashMessages::init();
         // #1451 — frontend Modules toggle (cap-ensure + save handler + tile).
         \TT\Shared\Frontend\FrontendModulesView::init();

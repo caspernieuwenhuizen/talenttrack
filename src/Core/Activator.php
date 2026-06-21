@@ -915,6 +915,9 @@ class Activator {
             // #1587 — academy-wide Tile appearance preset; comfortable
             // equals the pre-#1587 config-tile standard.
             'tile_appearance' => 'comfortable',
+            // #1590 — full-canvas app shell on by default; academy can
+            // opt out under Configuration → Appearance.
+            'frontend_canvas_mode' => '1',
             'login_redirect_enabled' => '1',
             'dashboard_page_id' => '0',
             'pdp_cycle_default'           => '3',

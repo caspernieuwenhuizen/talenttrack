@@ -33801,6 +33801,18 @@ msgid "Tile appearance"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Full-canvas app"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Render TalentTrack full-width, hiding the active theme’s header, footer, sidebar and menus so only the app is shown. Turn this off to keep the theme’s page layout around TalentTrack."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Show TalentTrack as a full-canvas app (recommended)."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
 msgid "Set the size and column density of the tiles shown on the dashboard, Configuration, Reports and Teams. Comfortable is the default; Compact fits more on screen, Spacious is roomier."
 msgstr ""
 
