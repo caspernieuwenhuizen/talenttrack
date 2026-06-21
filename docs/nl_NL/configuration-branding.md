@@ -22,6 +22,22 @@ Op de frontend-Configuratieweergave zijn de voormalige tegels **Branding** en **
 
 Er zijn geen configuratiesleutels gewijzigd en er is geen datamigratie — bestaande waarden worden ongewijzigd weergegeven. Opslaan + Annuleren staan onderaan de pagina. Oude `?config_sub=branding` / `?config_sub=theme`-deeplinks komen nog steeds uit bij het Vormgeving-scherm.
 
+## Tegelweergave (v4.33.0+)
+
+Het Vormgeving-scherm krijgt een keuzelijst **Tegelweergave** waarmee je de grootte en kolomdichtheid instelt van de tegels in de hele plugin — het dashboardtegelraster, Configuratie, de Rapporten-launcher en de tegels onder "Teamontwikkeling" bij Teams — op één plek, academy-breed.
+
+| Voorinstelling | Effect |
+| --- | --- |
+| **Compact** | Compactere tegels, meer kolommen per rij — past meer op het scherm. |
+| **Comfortabel** (standaard) | De standaard tegelgrootte van vóór deze release. |
+| **Ruim** | Grotere, ruimere tegels met minder kolommen per rij. |
+
+De instelling wordt academy-breed opgeslagen onder de configuratiesleutel `tile_appearance` en geldt voor alle tegeloppervlakken tegelijk — er zijn geen overrides per scherm. Alle voorinstellingen herschikken responsief: op een telefoon valt het raster terug naar één kolom, en Ruim veroorzaakt nooit horizontaal scrollen.
+
+Eén gedeelde standaard bepaalt nu de grootte en lay-out van elke tegel (`TileGridStandard`), zodat de oppervlakken er onderling identiek uitzien, ongeacht de gekozen voorinstelling.
+
+**Tegelschaal:** het oudere numerieke **Tegelschaal**-percentage (in te stellen op de wp-admin Configuratiepagina) blijft werken — het wordt als extra vermenigvuldiger bovenop de gekozen voorinstelling toegepast, zodat bestaande aanpassingen hun effect behouden. Als Tegelschaal op 100% blijft staan, bepaalt de voorinstelling alleen de tegelgrootte.
+
 ## Configuratiesecties in de frontend (v4.26.16+)
 
 De frontend-Configuratielandingspagina groepeert de tegels in doelgerichte secties in plaats van één plat raster; een sectie zonder zichtbare (toegestane) tegels toont geen kop:

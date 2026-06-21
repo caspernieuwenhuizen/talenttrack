@@ -4,6 +4,7 @@ namespace TT\Shared\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
+use TT\Shared\Frontend\Components\TileGridStandard;
 use TT\Shared\Frontend\Components\TileIconChip;
 use TT\Shared\Tiles\TileRegistry;
 
@@ -56,15 +57,23 @@ class FrontendTileGrid {
         }
         unset( $group );
 
-        // #0036 — tile scale (50–150) drives padding, icon, and font sizes
-        // via a single CSS custom property. 100 = baseline.
+        // #0036 — tile scale (50–150) drives icon + font sizes via a single
+        // CSS custom property. 100 = baseline. #1587 — grid/card *layout*
+        // (min-width, gap, padding, min-height, radius) now comes from the
+        // academy-wide Tile appearance preset via TileGridStandard; the
+        // legacy `tile_scale` is folded into the preset's min-width there,
+        // and still drives typography here.
         $scale = (int) QueryHelpers::get_config( 'tile_scale', '100' );
         if ( $scale < 50 || $scale > 150 ) $scale = 100;
         $scale_factor = $scale / 100;
 
+        // #1587 — emit the shared tile-grid standard CSS once; the dashboard
+        // grid/card consume the same `--tt-tile-*` custom properties.
+        echo TileGridStandard::styles(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — static trusted CSS.
+
         ?>
         <style>
-        .tt-ftile-grid-wrap { --tt-tile-scale: <?php echo esc_html( (string) $scale_factor ); ?>; }
+        .tt-ftile-grid-wrap { --tt-tile-scale: <?php echo esc_html( (string) $scale_factor ); ?>; <?php echo esc_html( TileGridStandard::cssVars() ); ?> }
         .tt-ftile-greeting {
             font-size: calc(17px * var(--tt-tile-scale));
             font-weight: 600;
@@ -90,8 +99,8 @@ class FrontendTileGrid {
         }
         .tt-ftile-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(calc(220px * var(--tt-tile-scale)), 1fr));
-            gap: calc(10px * var(--tt-tile-scale));
+            grid-template-columns: repeat(auto-fill, minmax(var(--tt-tile-min-width, 220px), 1fr));
+            gap: var(--tt-tile-gap, 10px);
         }
         .tt-ftile {
             display: flex;
@@ -99,11 +108,11 @@ class FrontendTileGrid {
             gap: calc(11px * var(--tt-tile-scale));
             background: #fff;
             border: 1px solid #e5e7ea;
-            border-radius: 8px;
-            padding: calc(12px * var(--tt-tile-scale)) calc(14px * var(--tt-tile-scale));
+            border-radius: var(--tt-tile-radius, 8px);
+            padding: var(--tt-tile-padding, 14px);
             text-decoration: none;
             color: #1a1d21;
-            min-height: calc(60px * var(--tt-tile-scale));
+            min-height: var(--tt-tile-min-height, 76px);
             transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
                         box-shadow 180ms ease,
                         border-color 180ms ease;

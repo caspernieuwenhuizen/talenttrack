@@ -33795,3 +33795,23 @@ msgstr ""
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr ""
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Tile appearance"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Set the size and column density of the tiles shown on the dashboard, Configuration, Reports and Teams. Comfortable is the default; Compact fits more on screen, Spacious is roomier."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Compact"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Comfortable"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Spacious"
+msgstr ""

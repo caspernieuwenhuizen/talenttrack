@@ -445,17 +445,24 @@ class FrontendTeamsManageView extends FrontendViewBase {
         $base = \TT\Shared\Frontend\Components\RecordLink::dashboardUrl();
         $chem_url = add_query_arg( [ 'tt_view' => 'team-chemistry',   'team_id' => $team_id ], $base );
         $bp_url   = add_query_arg( [ 'tt_view' => 'team-blueprints',  'team_id' => $team_id ], $base );
+        // #1587 — the Team development tiles now use the shared tile-grid
+        // standard (TileGridStandard) so their size/layout match every
+        // other tile surface and respond to the academy-wide Tile
+        // appearance preset.
+        echo \TT\Shared\Frontend\Components\TileGridStandard::styles(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — static trusted CSS.
         ?>
         <h3 style="margin:24px 0 12px;"><?php esc_html_e( 'Team development', 'talenttrack' ); ?></h3>
-        <div class="tt-panel" style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-            <a class="tt-cfg-tile" href="<?php echo esc_url( $chem_url ); ?>" style="text-decoration:none;">
-                <div class="tt-cfg-tile-title"><?php esc_html_e( 'Team chemistry', 'talenttrack' ); ?></div>
-                <div class="tt-cfg-tile-desc"><?php esc_html_e( 'Formation board with auto-suggested XI, fit scores, depth chart, link chemistry, and pairings.', 'talenttrack' ); ?></div>
-            </a>
-            <a class="tt-cfg-tile" href="<?php echo esc_url( $bp_url ); ?>" style="text-decoration:none;">
-                <div class="tt-cfg-tile-title"><?php esc_html_e( 'Team blueprints', 'talenttrack' ); ?></div>
-                <div class="tt-cfg-tile-desc"><?php esc_html_e( 'Saved match-day lineups and squad plans for this team.', 'talenttrack' ); ?></div>
-            </a>
+        <div class="tt-tile-std" style="<?php echo esc_attr( \TT\Shared\Frontend\Components\TileGridStandard::cssVars() ); ?>">
+            <div class="tt-tile-grid-std">
+                <a class="tt-tile-card-std" href="<?php echo esc_url( $chem_url ); ?>">
+                    <div class="tt-cfg-tile-title" style="font-weight:600; font-size:14px; line-height:1.25; margin:0 0 4px;"><?php esc_html_e( 'Team chemistry', 'talenttrack' ); ?></div>
+                    <div class="tt-cfg-tile-desc" style="color:#6b7280; font-size:12px; line-height:1.35;"><?php esc_html_e( 'Formation board with auto-suggested XI, fit scores, depth chart, link chemistry, and pairings.', 'talenttrack' ); ?></div>
+                </a>
+                <a class="tt-tile-card-std" href="<?php echo esc_url( $bp_url ); ?>">
+                    <div class="tt-cfg-tile-title" style="font-weight:600; font-size:14px; line-height:1.25; margin:0 0 4px;"><?php esc_html_e( 'Team blueprints', 'talenttrack' ); ?></div>
+                    <div class="tt-cfg-tile-desc" style="color:#6b7280; font-size:12px; line-height:1.35;"><?php esc_html_e( 'Saved match-day lineups and squad plans for this team.', 'talenttrack' ); ?></div>
+                </a>
+            </div>
         </div>
         <?php
     }

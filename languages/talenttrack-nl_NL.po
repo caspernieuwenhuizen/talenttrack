@@ -40647,3 +40647,22 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Annuleren"
 #~ msgstr "Annuleren"
+
+# #1587 — unified tile standard + academy-wide Tile appearance preset
+# (v4.33.0). i18n-sync will merge these into the proper position on next
+# run; meanwhile they land here verbatim so a Dutch install reads
+# correctly today.
+msgid "Tile appearance"
+msgstr "Tegelweergave"
+
+msgid "Set the size and column density of the tiles shown on the dashboard, Configuration, Reports and Teams. Comfortable is the default; Compact fits more on screen, Spacious is roomier."
+msgstr "Stel de grootte en kolomdichtheid in van de tegels op het dashboard, Configuratie, Rapporten en Teams. Comfortabel is de standaard; Compact past meer op het scherm, Ruim is ruimer."
+
+msgid "Compact"
+msgstr "Compact"
+
+msgid "Comfortable"
+msgstr "Comfortabel"
+
+msgid "Spacious"
+msgstr "Ruim"

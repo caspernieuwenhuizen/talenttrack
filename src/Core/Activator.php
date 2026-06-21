@@ -912,6 +912,9 @@ class Activator {
             'logo_url' => '',
             'show_logo' => '0',
             'tile_scale' => '100',
+            // #1587 — academy-wide Tile appearance preset; comfortable
+            // equals the pre-#1587 config-tile standard.
+            'tile_appearance' => 'comfortable',
             'login_redirect_enabled' => '1',
             'dashboard_page_id' => '0',
             'pdp_cycle_default'           => '3',

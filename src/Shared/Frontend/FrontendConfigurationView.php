@@ -1422,11 +1422,23 @@ class FrontendConfigurationView extends FrontendViewBase {
      * styling without the top-level tile grid having run first.
      */
     private static function tileGridStyles(): void {
+        // #1587 — shared tile-grid standard CSS (idempotent per request).
+        echo \TT\Shared\Frontend\Components\TileGridStandard::styles(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — static trusted CSS.
+        // The `.tt-cfg-tile-grid` markup carries the active preset's
+        // custom properties so every config tile responds to the
+        // academy-wide Tile appearance setting without a separate wrapper.
         ?>
         <style>
-        .tt-cfg-tile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
-        .tt-cfg-tile { display: block; background: #fff; border: 1px solid var(--tt-line, #e5e7ea); border-radius: 8px; padding: 14px; text-decoration: none; color: #1a1d21; min-height: 76px; box-shadow: var(--tt-shadow-sm, none); transition: transform var(--tt-motion-duration, 180ms) var(--tt-motion-easing, cubic-bezier(0.2, 0.8, 0.2, 1)), box-shadow var(--tt-motion-duration, 180ms) var(--tt-motion-easing, ease), border-color var(--tt-motion-duration, 180ms) var(--tt-motion-easing, ease); }
-        .tt-cfg-tile:hover, .tt-cfg-tile:focus { transform: translateY(-1px); box-shadow: var(--tt-shadow-md, 0 4px 12px rgba(0,0,0,0.08)); border-color: #d0d4d8; color: #1a1d21; }
+        .tt-cfg-tile-grid { <?php echo esc_html( \TT\Shared\Frontend\Components\TileGridStandard::cssVars() ); ?> }
+        /* #1587 — the config tile grid/card now consume the shared
+         * `--tt-tile-*` custom properties (TileGridStandard), so size +
+         * layout match every other tile surface and respond to the
+         * academy-wide Tile appearance preset. The `.tt-cfg-tile-grid`
+         * markup wrapper sets the variables (see renderTileGrid /
+         * tileGridStyles emitting TileGridStandard::openWrap). */
+        .tt-cfg-tile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--tt-tile-min-width, 220px), 1fr)); gap: var(--tt-tile-gap, 10px); }
+        .tt-cfg-tile { display: block; background: #fff; border: 1px solid var(--tt-line, #e5e7ea); border-radius: var(--tt-tile-radius, 8px); padding: var(--tt-tile-padding, 14px); text-decoration: none; color: #1a1d21; min-height: var(--tt-tile-min-height, 76px); box-shadow: var(--tt-shadow-sm, none); transition: transform var(--tt-motion-duration, 180ms) var(--tt-motion-easing, cubic-bezier(0.2, 0.8, 0.2, 1)), box-shadow var(--tt-motion-duration, 180ms) var(--tt-motion-easing, ease), border-color var(--tt-motion-duration, 180ms) var(--tt-motion-easing, ease); }
+        .tt-cfg-tile:hover, .tt-cfg-tile:focus, .tt-cfg-tile:focus-visible { transform: translateY(-1px); box-shadow: var(--tt-shadow-md, 0 4px 12px rgba(0,0,0,0.08)); border-color: #d0d4d8; color: #1a1d21; }
         /* #1553 — the icon slot now hosts a TileIconChip (Phosphor duotone
          * glyph in an accent chip); the chip sizes itself, so this wrapper
          * only handles spacing. Emoji tiles still set their own font-size
@@ -1698,6 +1710,13 @@ class FrontendConfigurationView extends FrontendViewBase {
         $theme_inherit   = (string) QueryHelpers::get_config( 'theme_inherit', '0' );
         $font_display    = (string) QueryHelpers::get_config( 'font_display',  BrandFonts::SYSTEM_DEFAULT );
         $font_body       = (string) QueryHelpers::get_config( 'font_body',     BrandFonts::SYSTEM_DEFAULT );
+        // #1587 — academy-wide Tile appearance preset.
+        $tile_appearance = \TT\Shared\Frontend\Components\TileGridStandard::activePreset();
+        $tile_labels     = [
+            'compact'     => __( 'Compact', 'talenttrack' ),
+            'comfortable' => __( 'Comfortable', 'talenttrack' ),
+            'spacious'    => __( 'Spacious', 'talenttrack' ),
+        ];
         $cancel_url      = remove_query_arg( [ 'config_sub' ] );
         $css_url         = add_query_arg( [ 'tt_view' => 'custom-css' ], remove_query_arg( [ 'tt_view', 'config_sub' ] ) );
         ?>
@@ -1779,6 +1798,21 @@ class FrontendConfigurationView extends FrontendViewBase {
                             <?php endforeach; ?>
                         </select>
                     </div>
+                </div>
+            </div>
+
+            <h3 class="tt-cfg-section-head" style="margin:18px 0 8px;"><?php esc_html_e( 'Tile appearance', 'talenttrack' ); ?></h3>
+            <div class="tt-panel">
+                <p style="margin:0 0 var(--tt-sp-3); color:var(--tt-muted);">
+                    <?php esc_html_e( 'Set the size and column density of the tiles shown on the dashboard, Configuration, Reports and Teams. Comfortable is the default; Compact fits more on screen, Spacious is roomier.', 'talenttrack' ); ?>
+                </p>
+                <div class="tt-field">
+                    <label class="tt-field-label" for="tt-cfg-tile-appearance"><?php esc_html_e( 'Tile appearance', 'talenttrack' ); ?></label>
+                    <select id="tt-cfg-tile-appearance" class="tt-input" name="config[tile_appearance]">
+                        <?php foreach ( \TT\Shared\Frontend\Components\TileGridStandard::presetKeys() as $preset_key ) : ?>
+                            <option value="<?php echo esc_attr( $preset_key ); ?>" <?php selected( $tile_appearance, $preset_key ); ?>><?php echo esc_html( (string) ( $tile_labels[ $preset_key ] ?? $preset_key ) ); ?></option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
             </div>
 

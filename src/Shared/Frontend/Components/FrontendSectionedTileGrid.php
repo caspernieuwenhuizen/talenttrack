@@ -54,9 +54,21 @@ final class FrontendSectionedTileGrid {
         $default_renderer = $args['tile_renderer'] ?? null;
         $grid_class       = (string) ( $args['grid_class'] ?? 'tt-cfg-tile-grid' );
         $grid_inline      = $args['grid_inline'] ?? true;
-        $grid_style       = $grid_inline
-            ? ' style="display:grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px;"'
-            : '';
+
+        // #1587 — the inline-styled grid now consumes the shared
+        // `--tt-tile-*` custom properties (TileGridStandard) instead of
+        // hardcoded metrics, so it matches every other tile surface and
+        // responds to the academy-wide Tile appearance preset. Emit the
+        // standard CSS once and carry the active preset's vars on the grid.
+        $grid_style = '';
+        if ( $grid_inline ) {
+            echo TileGridStandard::styles(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — static trusted CSS.
+            $grid_style = ' style="display:grid;'
+                . ' grid-template-columns: repeat(auto-fill, minmax(var(--tt-tile-min-width, 220px), 1fr));'
+                . ' gap: var(--tt-tile-gap, 10px);'
+                . esc_attr( TileGridStandard::cssVars() )
+                . '"';
+        }
 
         foreach ( $sections as $section ) {
             $label = (string) ( $section['label'] ?? '' );
@@ -151,7 +163,7 @@ final class FrontendSectionedTileGrid {
         $icon = (string) ( $tile['icon'] ?? '' );
         ?>
         <a class="tt-cfg-tile" href="<?php echo esc_url( (string) ( $tile['url'] ?? '' ) ); ?>"
-           style="display:block; background:#fff; border:1px solid #e5e7ea; border-radius:8px; padding:14px; text-decoration:none; color:#1a1d21; min-height:76px;">
+           style="display:block; background:#fff; border:1px solid #e5e7ea; border-radius:var(--tt-tile-radius, 8px); padding:var(--tt-tile-padding, 14px); text-decoration:none; color:#1a1d21; min-height:var(--tt-tile-min-height, 76px);">
             <?php if ( $icon !== '' ) : ?>
                 <div class="tt-cfg-tile__icon" style="margin-bottom:6px;"><?php echo wp_kses_post( $icon ); ?></div>
             <?php endif; ?>
