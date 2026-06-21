@@ -33,6 +33,33 @@ final class TileRegistry {
     public const HIDDEN = '__hidden__';
 
     /**
+     * #1603 — explicit daily-use group order for the dashboard.
+     *
+     * The grouped render previously fell back on declaration order
+     * ("first registration wins"), which is brittle: re-ordering a
+     * module's `register()` calls silently re-ordered the dashboard.
+     * This is the single, one-line-editable source of truth for the
+     * left-column work-group order. Groups not listed here keep their
+     * relative declaration order and fall to the end (stable sort).
+     *
+     * Entries are matched against each group's resolved (translated)
+     * label, so they MUST use the same `__()` source strings registered
+     * in `CoreSurfaceRegistration`. They are resolved lazily (inside the
+     * method) so the call happens after the textdomain is loaded.
+     *
+     * @return list<string>
+     */
+    public static function groupOrder(): array {
+        return [
+            __( 'Performance', 'talenttrack' ),
+            __( 'People', 'talenttrack' ),
+            __( 'Planning & tactics', 'talenttrack' ),
+            __( 'Development', 'talenttrack' ),
+            __( 'Reference', 'talenttrack' ),
+        ];
+    }
+
+    /**
      * @var list<array{
      *   slug: string, entity: string, kind: string,
      *   labels: array<string, string>, icon?: string, color?: string,
@@ -224,6 +251,18 @@ final class TileRegistry {
             $rendered['desc']           = (string) ( $tile['description'] ?? '' );
             $by_group[ $group_label ][] = $rendered;
         }
+
+        // #1603 — order the groups by the explicit daily-use group order
+        // first, then by their declaration order for anything not listed
+        // (stable). Replaces the old reliance on pure declaration order.
+        $explicit = array_flip( self::groupOrder() );
+        $decl_pos = array_flip( $group_order );
+        $big      = count( $group_order ) + count( $explicit ) + 1;
+        usort( $group_order, static function ( $a, $b ) use ( $explicit, $decl_pos, $big ) {
+            $ra = $explicit[ $a ] ?? ( $big + ( $decl_pos[ $a ] ?? 0 ) );
+            $rb = $explicit[ $b ] ?? ( $big + ( $decl_pos[ $b ] ?? 0 ) );
+            return $ra <=> $rb;
+        } );
 
         // Sort each group by `order` then label.
         $out = [];

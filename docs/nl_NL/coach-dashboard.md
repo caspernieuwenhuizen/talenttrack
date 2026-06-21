@@ -4,6 +4,10 @@
 
 Wanneer je inlogt als coach kom je op een tegelraster. Elke tegel opent één onderdeel van de app. Gebruik bovenaan elke pagina de **← Terug**-link om hier terug te keren.
 
+## Indeling op desktop
+
+*(v4.37.0)* Op een breed scherm (1024px en breder) splitst de sectie **Werk van vandaag** zich in twee kolommen. De werkgroepen lopen links in een vaste volgorde van boven naar beneden — **Prestaties → Personen → Planning & tactiek → Ontwikkeling → Naslag**, gevolgd door eventuele overige groepen (zoals Taken of Analytics). Je persoonlijke snelkoppelingen staan rechts in een vastgezet **Mijn werk**-paneel: compacte rijen met een icoon en een titel, één per persoonlijke tegel, die in beeld blijven terwijl je de linkerkolom scrolt. Op smallere schermen valt alles terug naar één kolom en zakt het **Mijn werk**-paneel naar onderen. De ingeklapte sectie **Setup & beheer** blijft eronder over de volle breedte staan.
+
 ## Tegels die je het meeste gebruikt
 
 ### Teams
