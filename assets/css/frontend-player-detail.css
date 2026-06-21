@@ -454,9 +454,9 @@
 }
 .tt-player-tab:active { background: var(--tt-mute-soft); }
 .tt-player-tab--active {
-    background: var(--tt-ink-strong);
+    background: var(--tt-primary, #0b3d2e);
     color: #fff;
-    border-color: var(--tt-ink-strong);
+    border-color: var(--tt-primary, #0b3d2e);
 }
 .tt-player-tab__count {
     font-size: 12px;
