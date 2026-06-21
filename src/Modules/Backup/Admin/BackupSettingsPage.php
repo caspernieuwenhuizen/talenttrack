@@ -1238,25 +1238,15 @@ class BackupSettingsPage {
         echo '<p><a class="button button-secondary" href="' . esc_url( $back ) . '">' . esc_html__( 'Back to backups', 'talenttrack' ) . '</a></p></div>';
     }
 
-    // #1464 — migration upload staging (one slot per operator, web-protected).
-
-    private static function migrationStageDir(): string {
-        $uploads = wp_upload_dir( null, false );
-        if ( ! is_array( $uploads ) || empty( $uploads['basedir'] ) ) return '';
-        $dir = trailingslashit( (string) $uploads['basedir'] ) . 'talenttrack-migrations';
-        if ( ! is_dir( $dir ) && ! wp_mkdir_p( $dir ) ) return '';
-        // These archives carry player data — block direct web access.
-        $index = $dir . '/index.php';
-        if ( ! file_exists( $index ) ) @file_put_contents( $index, "<?php\n// Silence is golden.\n" );
-        $htaccess = $dir . '/.htaccess';
-        if ( ! file_exists( $htaccess ) ) @file_put_contents( $htaccess, "Order Deny,Allow\nDeny from all\n" );
-        return $dir;
-    }
+    // #1464 — migration upload staging (one slot per operator). Stored in the
+    // system temp dir: always writable across requests (uploads can be
+    // restrictive) and outside the webroot, so the player data it carries is
+    // never directly fetchable.
 
     private static function stagedMigrationFile(): string {
-        $dir = self::migrationStageDir();
+        $dir = get_temp_dir();
         if ( $dir === '' ) return '';
-        return trailingslashit( $dir ) . 'staged-' . get_current_user_id() . '.ttmig';
+        return trailingslashit( $dir ) . 'tt-migration-stage-' . get_current_user_id() . '.ttmig';
     }
 
     private static function stageMigrationUpload( string $bytes ): void {
