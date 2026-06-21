@@ -96,7 +96,7 @@ Via **Toegangsbeheer → Permission Debug** kun je de effectieve rechten van een
 
 ## De Toegangsbeheer-tools vinden
 
-De geavanceerde autorisatiepagina's — Autorisatiematrix, Migratievoorbeeld, Gebruikers vergelijken, Permission Debug, Permission Chain Debug — staan onder de kop **Toegangsbeheer** in de TalentTrack-zijbalk in wp-admin. Ze verschijnen daar in zowel de oude als de moderne menu-indeling (elke vermelding is afgeschermd op de eigen capability, dus je ziet alleen wat je mag openen). Vanuit de frontend toont het scherm **Rollen & rechten** ze ook onder "Geavanceerde autorisatietools" voor snelle toegang.
+De geavanceerde autorisatiepagina's — Autorisatiematrix, Toegangsbeheer activeren, Gebruikers vergelijken, Permission Debug, Permission Chain Debug — staan onder de kop **Toegangsbeheer** in de TalentTrack-zijbalk in wp-admin. Ze verschijnen daar in zowel de oude als de moderne menu-indeling (elke vermelding is afgeschermd op de eigen capability, dus je ziet alleen wat je mag openen). Vanuit de frontend toont het scherm **Rollen & rechten** ze ook onder "Geavanceerde autorisatietools" voor snelle toegang.
 
 ## Een rol-toewijzing intrekken
 

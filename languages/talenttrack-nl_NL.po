@@ -5584,16 +5584,16 @@ msgstr "De matrix is op dit moment slapend."
 #: src/Modules/Authorization/Admin/MatrixPage.php:76
 msgid ""
 "Your edits are saved but have no runtime effect: native WP capability checks "
-"decide instead. Enable the bridge on Authorization → Migration preview to "
-"make the matrix authoritative."
+"decide instead. Enable the bridge on Authorization → Activate access control "
+"to make the matrix authoritative."
 msgstr ""
 "Je wijzigingen worden opgeslagen, maar hebben geen runtime-effect: de native "
-"WP-rechtencontrole beslist. Schakel de bridge in via Autorisatie → Migratie-"
-"preview om de matrix leidend te maken."
+"WP-rechtencontrole beslist. Schakel de bridge in via Autorisatie → "
+"Toegangsbeheer activeren om de matrix leidend te maken."
 
 #: src/Modules/Authorization/Admin/MatrixPage.php:77
-msgid "Open Migration preview →"
-msgstr "Open migratie-preview →"
+msgid "Open Activate access control →"
+msgstr "Open Toegangsbeheer activeren →"
 
 #: src/Modules/Authorization/Admin/MatrixPage.php:83
 msgid "Matrix saved."
@@ -6281,8 +6281,8 @@ msgid "Idea-to-spec workflow, pull-request hooks, dev tooling."
 msgstr "Idee-naar-spec workflow, pull-request hooks, dev-tooling."
 
 #: src/Modules/Authorization/Admin/PreviewPage.php:46
-msgid "Migration preview — Authorization Matrix"
-msgstr "Migratiepreview — Authorisatie­matrix"
+msgid "Activate access control — Authorization Matrix"
+msgstr "Toegangsbeheer activeren — Authorisatie­matrix"
 
 #: src/Modules/Authorization/Admin/PreviewPage.php:48
 msgid ""
@@ -6856,11 +6856,12 @@ msgstr ""
 msgid ""
 "The authorization matrix is in shadow mode. The \"Matrix\" column below is "
 "computed but the runtime still uses the legacy \"Cap\" column. Apply the "
-"matrix on Authorization → Migration preview to switch."
+"matrix on Authorization → Activate access control to switch."
 msgstr ""
 "De autorisatiematrix staat in schaduwmodus. De \"Matrix\"-kolom hieronder "
 "wordt berekend, maar de runtime gebruikt nog steeds de legacy \"Cap\"-kolom. "
-"Pas de matrix toe via Autorisatie → Migratiepreview om over te schakelen."
+"Pas de matrix toe via Autorisatie → Toegangsbeheer activeren om over te "
+"schakelen."
 
 # v3.103.0 — #0080 Wave B3 (UserComparisonPage N-user) + Wave C2 (matrix tile-gate popover)
 #. translators: %d: 1-based user slot index
@@ -9008,12 +9009,14 @@ msgstr "Bekijk de WordPress-rollen en bevoegdheden die TalentTrack gebruikt."
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:304
 #: src/Shared/CoreSurfaceRegistration.php:1584
 #: src/Shared/Frontend/FrontendRolesView.php:109
-msgid "Migration preview"
-msgstr "Migratiepreview"
+msgid "Activate access control"
+msgstr "Toegangsbeheer activeren"
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:305
-msgid "Preview of cap changes before activating the matrix."
-msgstr "Voorbeeld van rechten­wijzigingen voordat je de matrix activeert."
+msgid "Preview each user's access changes, then switch the matrix on."
+msgstr ""
+"Bekijk per gebruiker de wijzigingen in toegang en schakel daarna de matrix "
+"in."
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:309
 msgid "Enable or disable optional TalentTrack modules."

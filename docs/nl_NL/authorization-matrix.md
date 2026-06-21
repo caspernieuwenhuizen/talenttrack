@@ -47,7 +47,9 @@ Tot #0021 (de audit-log viewer epic) verschijnt, wordt de changelog alleen weerg
 
 ## Wijzigingen toepassen
 
-Cellen bewerken is **shadow-modus** totdat je op **Apply** klikt op de Migration Preview-pagina (TalentTrack → Toegangsbeheer → Migration preview).
+Nieuwe installaties starten met de matrix **al actief** — een gloednieuwe academy boot met matrix-gedreven autorisatie aan, omdat de geseede matrix al elke persona dekt. (Dit gebeurt eenmalig en alleen bij een verse installatie; het bijwerken van een bestaande site zet dit nooit om.) Op een bestaande site blijft de matrix slapend totdat een beheerder die bewust activeert, zoals hieronder. Wil je dit op een nieuwe installatie uitzetten, open dan **TalentTrack → Toegangsbeheer → Toegangsbeheer activeren** en klik op **Rollback**, of zet `tt_authorization_active` op `0` in `tt_config`.
+
+Cellen bewerken is **shadow-modus** totdat je op **Apply** klikt op de pagina Toegangsbeheer activeren (TalentTrack → Toegangsbeheer → Toegangsbeheer activeren).
 
 Tijdens shadow-modus:
 
@@ -63,9 +65,9 @@ Wanneer je op **Apply** klikt:
 
 Klik **Rollback** om de vlag weer naar `0` te zetten — matrixdata blijft bewaard, alleen de routing wijzigt. Rollback is één klik; matrix-gedreven autorisatie is een bewust omkeerbare beslissing.
 
-## De migratiepreview
+## Het toegangsbeheer-voorbeeld
 
-Voordat je op Apply klikt, toont de Migration Preview-pagina:
+Voordat je op Apply klikt, toont de pagina Toegangsbeheer activeren:
 
 - Per gebruiker **Gained** caps (de matrix verleent iets dat de oude caps niet deden).
 - Per gebruiker **Revoked** caps (de matrix weigert iets dat de oude caps wel verleenden) — de gevaarlijke kolom.

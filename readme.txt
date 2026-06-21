@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.37.0
+Stable tag: 4.38.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.38.0 — Authorization matrix enablement: rename "Migration preview" → "Activate access control" + default the matrix on for new installs (closes #1601). The "Migration preview" page read like a data/DB migration when it actually previews per-user access changes and switches the matrix on; every user-visible label now reads **Activate access control** (the wp-admin menu entry, the page heading, the Admin Center tile + description, the Matrix-page link and dormant-mode hint, the Compare-users notice, and the frontend Roles-and-rights tools list). The URL slug `tt-matrix-preview` is unchanged, so bookmarks survive. New academies now boot with the matrix as the authority: `Activator::activate()` captures whether `tt_installed_version` is empty before `runMigrations()` stamps it, and on a fresh install only seeds `tt_config['tt_authorization_active'] = '1'` (after the schema exists, key-absent only). Existing installs are never flipped on upgrade — they still activate deliberately via the renamed page; turn it off with the page's Rollback button or `tt_authorization_active = 0`. docs/authorization-matrix.md + docs/access-control.md (EN+NL) updated; Dutch strings for every renamed label. Minor bump. (closes #1601) =
 
 = 4.37.0 — Dashboard (desktop): 2-column layout with a fixed work-group order and a "My work" rail (closes #1603). The daily-use "Today's work" section of the persona dashboard ([FrontendTileGrid](src/Shared/Frontend/FrontendTileGrid.php)) becomes a 2-column layout at ≥1024px. **Left column** holds the work groups in one explicit, deterministic order — Performance → People → Planning & tactics → Development → Reference, then any remaining daily-use groups (e.g. Tasks, Analytics) after these. The order is now a single, one-line-editable list ([`TileRegistry::groupOrder()`](src/Shared/Tiles/TileRegistry.php)) consumed by `tilesForUserGrouped()`, replacing the previous reliance on module registration order; unlisted groups keep their relative declaration order and fall to the end (stable sort). **Right column** peels the personal "Me" group out into a sticky, bordered **"My work"** panel of compact rows — accent-chip icon + title only, no description — reusing the #1553 [`TileIconChip`](src/Shared/Frontend/Components/TileIconChip.php). Same for all personas (not persona-aware). Mobile-first: at <1024px the section is a single column and the "My work" panel drops to the bottom; clean at 360px with ≥48px rows, `:focus-visible` and reduced-motion honoured. Tile visibility/gating, labels, destinations and the collapsed "Setup & administration" section are unchanged — this is layout only. New "My work" string (Dutch "Mijn werk"); docs (EN+NL) note the desktop layout. Minor bump. (closes #1603) =
 

@@ -1581,7 +1581,7 @@ final class CoreSurfaceRegistration {
             'module_class' => self::M_AUTHORIZATION,
             'parent'       => 'talenttrack', // #1530 — show in the modern menu too.
             'group'        => 'access',
-            'title'        => __( 'Migration preview', 'talenttrack' ),
+            'title'        => __( 'Activate access control', 'talenttrack' ),
             'cap'          => 'administrator',
             'slug'         => 'tt-matrix-preview',
             'callback'     => [ \TT\Modules\Authorization\Admin\PreviewPage::class, 'render' ],

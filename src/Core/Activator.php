@@ -16,8 +16,37 @@ use TT\Infrastructure\Security\RolesService;
 class Activator {
 
     public static function activate(): void {
+        // Capture fresh-vs-upgrade BEFORE runMigrations() stamps
+        // tt_installed_version at its end. Empty here => brand-new install.
+        $is_fresh_install = ( (string) get_option( 'tt_installed_version', '' ) === '' );
+
         self::runMigrations();
+
+        // #1601 — new academies boot with the authorization matrix as the
+        // authority (the canonical / SaaS direction). Fresh installs only:
+        // never flip an existing dormant install on upgrade, which would be
+        // a surprise access change. Existing installs activate deliberately
+        // via the Activate-access-control page. Runs after runMigrations()
+        // so tt_config exists, and only when the key is not already present.
+        if ( $is_fresh_install ) {
+            self::seedAuthorizationActiveDefault();
+        }
+
         flush_rewrite_rules();
+    }
+
+    /**
+     * #1601 — seed `tt_authorization_active = '1'` on a fresh install so the
+     * matrix is authoritative from the first boot. Defensive: only writes
+     * when the key is absent, so a re-run never clobbers an operator's later
+     * Rollback (`tt_authorization_active = 0`).
+     */
+    private static function seedAuthorizationActiveDefault(): void {
+        $config = new \TT\Infrastructure\Config\ConfigService();
+        if ( $config->get( 'tt_authorization_active', '' ) !== '' ) {
+            return;
+        }
+        $config->set( 'tt_authorization_active', '1' );
     }
 
     /**

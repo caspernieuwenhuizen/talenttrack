@@ -106,7 +106,7 @@ class FrontendRolesView extends FrontendViewBase {
     private static function renderAdvancedToolsSection(): void {
         $tools = [
             [ 'cap' => 'administrator',     'slug' => 'tt-matrix',          'label' => __( 'Authorization Matrix', 'talenttrack' ) ],
-            [ 'cap' => 'administrator',     'slug' => 'tt-matrix-preview',  'label' => __( 'Migration preview', 'talenttrack' ) ],
+            [ 'cap' => 'administrator',     'slug' => 'tt-matrix-preview',  'label' => __( 'Activate access control', 'talenttrack' ) ],
             [ 'cap' => 'administrator',     'slug' => 'tt-user-compare',    'label' => __( 'Compare users', 'talenttrack' ) ],
             [ 'cap' => 'tt_view_settings',  'slug' => 'tt-roles-debug',     'label' => __( 'Permission Debug', 'talenttrack' ) ],
             [ 'cap' => 'administrator',     'slug' => 'tt-auth-chain-debug','label' => __( 'Permission Chain Debug', 'talenttrack' ) ],

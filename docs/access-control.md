@@ -102,7 +102,7 @@ A daily retention cron auto-purges stale or terminal-decline prospects per `wp_o
 
 ## Finding the Access Control tools
 
-The advanced authorization pages — Authorization Matrix, Migration preview, Compare users, Permission Debug, Permission Chain Debug — live under the **Access Control** heading in the TalentTrack wp-admin sidebar. They appear there in both the legacy and the modern menu layouts (each entry is gated on its own capability, so you only see the ones you can open). From the frontend, the **Roles & rights** surface also lists them under "Advanced authorization tools" for quick access.
+The advanced authorization pages — Authorization Matrix, Activate access control, Compare users, Permission Debug, Permission Chain Debug — live under the **Access Control** heading in the TalentTrack wp-admin sidebar. They appear there in both the legacy and the modern menu layouts (each entry is gated on its own capability, so you only see the ones you can open). From the frontend, the **Roles & rights** surface also lists them under "Advanced authorization tools" for quick access.
 
 ## Revoking a role assignment
 

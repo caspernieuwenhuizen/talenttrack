@@ -5249,11 +5249,11 @@ msgid "The matrix is currently dormant."
 msgstr ""
 
 #: src/Modules/Authorization/Admin/MatrixPage.php:76
-msgid "Your edits are saved but have no runtime effect: native WP capability checks decide instead. Enable the bridge on Authorization → Migration preview to make the matrix authoritative."
+msgid "Your edits are saved but have no runtime effect: native WP capability checks decide instead. Enable the bridge on Authorization → Activate access control to make the matrix authoritative."
 msgstr ""
 
 #: src/Modules/Authorization/Admin/MatrixPage.php:77
-msgid "Open Migration preview →"
+msgid "Open Activate access control →"
 msgstr ""
 
 #: src/Modules/Authorization/Admin/MatrixPage.php:83
@@ -5841,7 +5841,7 @@ msgid "Idea-to-spec workflow, pull-request hooks, dev tooling."
 msgstr ""
 
 #: src/Modules/Authorization/Admin/PreviewPage.php:46
-msgid "Migration preview — Authorization Matrix"
+msgid "Activate access control — Authorization Matrix"
 msgstr ""
 
 #: src/Modules/Authorization/Admin/PreviewPage.php:48
@@ -6262,7 +6262,7 @@ msgid "Pick 2–5 users to see their effective TalentTrack permissions side by s
 msgstr ""
 
 #: src/Modules/Authorization/Admin/UserComparisonPage.php:54
-msgid "The authorization matrix is in shadow mode. The \"Matrix\" column below is computed but the runtime still uses the legacy \"Cap\" column. Apply the matrix on Authorization → Migration preview to switch."
+msgid "The authorization matrix is in shadow mode. The \"Matrix\" column below is computed but the runtime still uses the legacy \"Cap\" column. Apply the matrix on Authorization → Activate access control to switch."
 msgstr ""
 
 #. translators: %d: 1-based user slot index
@@ -7957,11 +7957,11 @@ msgstr ""
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:304
 #: src/Shared/CoreSurfaceRegistration.php:1584
 #: src/Shared/Frontend/FrontendRolesView.php:109
-msgid "Migration preview"
+msgid "Activate access control"
 msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:305
-msgid "Preview of cap changes before activating the matrix."
+msgid "Preview each user's access changes, then switch the matrix on."
 msgstr ""
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:309

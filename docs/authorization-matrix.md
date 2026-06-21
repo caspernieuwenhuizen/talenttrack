@@ -47,7 +47,9 @@ Until #0021 (the audit log viewer epic) ships, the changelog only renders inside
 
 ## How to apply changes
 
-Editing cells is **shadow-mode** until you click **Apply** in the Migration Preview page (TalentTrack → Access Control → Migration preview).
+New installs start with the matrix **already active** — a brand-new academy boots with matrix-driven authorization on, because the seeded matrix already covers every persona. (The activation runs once on a fresh install only; upgrading an existing site never flips it.) On an existing site the matrix stays dormant until an admin activates it deliberately, as below. To turn it off on a new install, open **TalentTrack → Access Control → Activate access control** and click **Rollback**, or set `tt_authorization_active` to `0` in `tt_config`.
+
+Editing cells is **shadow-mode** until you click **Apply** in the Activate access control page (TalentTrack → Access Control → Activate access control).
 
 While in shadow mode:
 
@@ -63,9 +65,9 @@ When you click **Apply**:
 
 Click **Rollback** to flip the flag back to `0` — matrix data is preserved; only the routing changes. Rollback is one-click; matrix-driven authorization is a deliberately reversible decision.
 
-## The migration preview
+## The access-control preview
 
-Before clicking Apply, the Migration Preview page shows:
+Before clicking Apply, the Activate access control page shows:
 
 - Per-user **Gained** caps (matrix grants something the old caps didn't).
 - Per-user **Revoked** caps (matrix denies something the old caps granted) — the dangerous column.
