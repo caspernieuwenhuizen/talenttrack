@@ -39,6 +39,9 @@ class BackupSettingsPage {
         add_action( 'admin_post_tt_migration_export',         [ self::class, 'handleMigrationExport' ] );
         // #1464 phase 2 — data migration import (upload + read-only preview).
         add_action( 'admin_post_tt_migration_import_preview', [ self::class, 'handleMigrationImportPreview' ] );
+        // #1464 phase 3-4 — dry-run preview + typed-confirm commit.
+        add_action( 'admin_post_tt_migration_import_dryrun',  [ self::class, 'handleMigrationImportDryRun' ] );
+        add_action( 'admin_post_tt_migration_import_commit',  [ self::class, 'handleMigrationImportCommit' ] );
     }
 
     // Render
@@ -866,6 +869,13 @@ class BackupSettingsPage {
         $snapshot   = \TT\Modules\Backup\BackupSerializer::fromGzippedJson( $bytes );
         $validation = \TT\Modules\Backup\MigrationImporter::validate( $snapshot );
 
+        // #1464 phase 3 — on a valid upload, stage the archive so the
+        // dry-run + commit steps can reload it without a re-upload. One
+        // staging slot per operator; overwritten on each new upload.
+        if ( ! empty( $validation['ok'] ) ) {
+            self::stageMigrationUpload( $bytes );
+        }
+
         self::renderMigrationImportPreview( is_array( $snapshot ) ? $snapshot : [], $validation );
         exit;
     }
@@ -953,12 +963,308 @@ class BackupSettingsPage {
             echo '</tbody></table>';
         }
 
-        echo '<div class="notice notice-info inline" style="margin:20px 0; max-width:820px;"><p>'
-            . esc_html__( 'Applying the import — inserting these records with remapped ids, resolving matches, and linking WordPress users — is the next phase and is not available yet. No data has been changed.', 'talenttrack' )
-            . '</p></div>';
+        // #1464 phase 3-4 — configuration form: choose data sets, per-entity
+        // conflict strategy and WordPress-user mapping, then run a dry run.
+        self::renderMigrationImportConfigForm( $snapshot, $summary, $conflicts );
 
-        echo '<p><a class="button button-secondary" href="' . esc_url( $back ) . '">' . esc_html__( 'Back to backups', 'talenttrack' ) . '</a></p>';
+        echo '<p style="margin-top:16px;"><a class="button button-secondary" href="' . esc_url( $back ) . '">' . esc_html__( 'Cancel', 'talenttrack' ) . '</a></p>';
         echo '</div>';
+    }
+
+    /**
+     * #1464 phase 3-4 — the import configuration form. Lets the operator pick
+     * which data sets to import, how to resolve stable-key matches
+     * (update existing vs insert as new) and how to map referenced WordPress
+     * users, then submit to the dry-run step. No writes happen here.
+     *
+     * @param array<string,mixed> $snapshot
+     * @param array<string, array{label:string, tables:array<string,int>, total:int}> $summary
+     * @param array<string, array{label:string, incoming:int, conflicts:int, new:int, key:string}> $conflicts
+     */
+    private static function renderMigrationImportConfigForm( array $snapshot, array $summary, array $conflicts ): void {
+        $groups      = \TT\Modules\Backup\MigrationExporter::entityGroups();
+        $importable  = \TT\Modules\Backup\MigrationImporter::importableGroupKeys();
+        $user_refs   = \TT\Modules\Backup\MigrationImporter::userReferences( $snapshot );
+
+        echo '<h2 style="margin-top:24px;">' . esc_html__( 'Configure import', 'talenttrack' ) . '</h2>';
+        echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '">';
+        wp_nonce_field( 'tt_migration_import', 'tt_backup_nonce' );
+        echo '<input type="hidden" name="action" value="tt_migration_import_dryrun" />';
+
+        // Data-set selection (only importable record groups present in the file).
+        echo '<h3>' . esc_html__( 'Data sets to import', 'talenttrack' ) . '</h3>';
+        echo '<fieldset style="margin:6px 0 14px;">';
+        $any = false;
+        foreach ( $importable as $key ) {
+            if ( ! isset( $summary[ $key ] ) ) continue;
+            $any = true;
+            $label = (string) ( $groups[ $key ]['label'] ?? $key );
+            $count = (int) $summary[ $key ]['total'];
+            echo '<label style="display:flex; align-items:center; gap:8px; min-height:40px;">'
+                . '<input type="checkbox" name="entities[]" value="' . esc_attr( $key ) . '" checked style="width:18px; height:18px;" />'
+                . '<span>' . esc_html( $label ) . ' '
+                . '<span style="color:#6b7280;">(' . esc_html( (string) $count ) . ')</span></span>'
+                . '</label>';
+        }
+        echo '</fieldset>';
+        if ( ! $any ) {
+            echo '<p><em>' . esc_html__( 'This archive has no importable record data sets. (Lookups & configuration are used to match references, not imported.)', 'talenttrack' ) . '</em></p>';
+            echo '</form>';
+            return;
+        }
+
+        // Conflict strategy for stable-keyed entities that actually match.
+        $has_conflict = false;
+        foreach ( $conflicts as $row ) {
+            if ( (int) $row['conflicts'] > 0 ) { $has_conflict = true; break; }
+        }
+        if ( $has_conflict ) {
+            echo '<h3>' . esc_html__( 'When a record already exists', 'talenttrack' ) . '</h3>';
+            echo '<p style="max-width:760px; color:#5b6e75;">' . esc_html__( 'Some incoming records match an existing record on this install (by their stable key). Choose what to do for each — the default is to keep both by inserting a new record.', 'talenttrack' ) . '</p>';
+            $entity_for_table = [];
+            foreach ( \TT\Modules\Backup\MigrationImporter::stableKeys() as $ent => $spec ) {
+                $entity_for_table[ $ent ] = (string) ( $groups[ $ent ]['label'] ?? $ent );
+            }
+            foreach ( $conflicts as $entity => $row ) {
+                if ( (int) $row['conflicts'] <= 0 ) continue;
+                $label = (string) $row['label'];
+                echo '<div style="margin:8px 0;">';
+                echo '<strong>' . esc_html( $label ) . '</strong> '
+                    . '<span style="color:#6b7280;">' . esc_html( sprintf(
+                        /* translators: %d is a count of matching records. */
+                        _n( '%d matching record', '%d matching records', (int) $row['conflicts'], 'talenttrack' ),
+                        (int) $row['conflicts']
+                    ) ) . '</span>';
+                echo '<div style="margin:4px 0 0;">';
+                echo '<label style="display:inline-flex; align-items:center; gap:6px; margin-right:16px; min-height:36px;">'
+                    . '<input type="radio" name="conflict[' . esc_attr( (string) $entity ) . ']" value="insert" checked /> '
+                    . esc_html__( 'Insert as new', 'talenttrack' ) . '</label>';
+                echo '<label style="display:inline-flex; align-items:center; gap:6px; min-height:36px;">'
+                    . '<input type="radio" name="conflict[' . esc_attr( (string) $entity ) . ']" value="update" /> '
+                    . esc_html__( 'Update the existing record', 'talenttrack' ) . '</label>';
+                echo '</div></div>';
+            }
+        }
+
+        // WordPress-user mapping for referenced source users.
+        if ( ! empty( $user_refs ) ) {
+            echo '<h3>' . esc_html__( 'Link WordPress users', 'talenttrack' ) . '</h3>';
+            echo '<p style="max-width:760px; color:#5b6e75;">' . esc_html__( 'These records reference user accounts on the source install. Pick the matching user here, or leave unlinked. Suggestions are matched by email.', 'talenttrack' ) . '</p>';
+            echo '<table class="widefat striped" style="max-width:760px;"><thead><tr>'
+                . '<th>' . esc_html__( 'Source reference', 'talenttrack' ) . '</th>'
+                . '<th>' . esc_html__( 'Map to user on this install', 'talenttrack' ) . '</th>'
+                . '</tr></thead><tbody>';
+            foreach ( $user_refs as $ref ) {
+                $sid  = (int) $ref['source_id'];
+                $hint = (string) $ref['hint'];
+                $dropdown = wp_dropdown_users( [
+                    'name'             => 'user_map[' . $sid . ']',
+                    'selected'         => (int) $ref['suggested_user_id'],
+                    'show_option_none' => __( '— Leave unlinked —', 'talenttrack' ),
+                    'option_none_value' => 0,
+                    'echo'             => 0,
+                ] );
+                echo '<tr><td>' . esc_html( $hint !== '' ? $hint : ( '#' . $sid ) ) . '</td>'
+                    . '<td>' . $dropdown // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — wp_dropdown_users returns escaped markup.
+                    . '</td></tr>';
+            }
+            echo '</tbody></table>';
+        }
+
+        echo '<p style="margin-top:16px;">';
+        submit_button( __( 'Preview changes (dry run)', 'talenttrack' ), 'primary', 'submit', false );
+        echo '</p>';
+        echo '</form>';
+    }
+
+    /**
+     * #1464 phase 3-4 — dry-run the import: reload the staged archive, run
+     * the engine in no-write mode and render the per-table preview plus the
+     * typed-confirmation commit form.
+     */
+    public static function handleMigrationImportDryRun(): void {
+        self::guard( 'tt_migration_import' );
+
+        $snapshot = self::loadStagedMigration();
+        if ( $snapshot === null ) {
+            self::renderMigrationStagingLost();
+            exit;
+        }
+        $opts = self::readMigrationImportOpts();
+        $opts['dry_run'] = true;
+        $result = \TT\Modules\Backup\MigrationImporter::commit( $snapshot, $opts );
+        self::renderMigrationImportResult( $result, $opts, false );
+        exit;
+    }
+
+    /**
+     * #1464 phase 3-4 — apply the import. Requires the operator to type
+     * IMPORT; otherwise it falls back to the dry-run preview. On success the
+     * staged archive is removed.
+     */
+    public static function handleMigrationImportCommit(): void {
+        self::guard( 'tt_migration_import' );
+        \TT\Modules\Authorization\Impersonation\ImpersonationContext::blockDestructiveAdminHandler( 'migration.import' );
+
+        $snapshot = self::loadStagedMigration();
+        if ( $snapshot === null ) {
+            self::renderMigrationStagingLost();
+            exit;
+        }
+        $opts    = self::readMigrationImportOpts();
+        $confirm = trim( (string) wp_unslash( $_POST['confirm_text'] ?? '' ) );
+        if ( $confirm !== 'IMPORT' ) {
+            $opts['dry_run'] = true;
+            $result = \TT\Modules\Backup\MigrationImporter::commit( $snapshot, $opts );
+            self::renderMigrationImportResult( $result, $opts, false, __( 'Type IMPORT to confirm before the data is written.', 'talenttrack' ) );
+            exit;
+        }
+        $opts['dry_run'] = false;
+        $result = \TT\Modules\Backup\MigrationImporter::commit( $snapshot, $opts );
+        if ( ! empty( $result['ok'] ) ) {
+            self::clearStagedMigration();
+        }
+        self::renderMigrationImportResult( $result, $opts, true );
+        exit;
+    }
+
+    /**
+     * Parse the import configuration from the posted form.
+     *
+     * @return array{entities:string[], conflict:array<string,string>, user_map:array<int,int>}
+     */
+    private static function readMigrationImportOpts(): array {
+        $entities = isset( $_POST['entities'] ) && is_array( $_POST['entities'] )
+            ? array_map( 'sanitize_key', wp_unslash( $_POST['entities'] ) )
+            : [];
+
+        $conflict = [];
+        if ( isset( $_POST['conflict'] ) && is_array( $_POST['conflict'] ) ) {
+            foreach ( wp_unslash( $_POST['conflict'] ) as $k => $v ) {
+                $conflict[ sanitize_key( (string) $k ) ] = (string) $v === 'update' ? 'update' : 'insert';
+            }
+        }
+
+        $user_map = [];
+        if ( isset( $_POST['user_map'] ) && is_array( $_POST['user_map'] ) ) {
+            foreach ( wp_unslash( $_POST['user_map'] ) as $src => $tgt ) {
+                $user_map[ (int) $src ] = (int) $tgt;
+            }
+        }
+
+        return [ 'entities' => $entities, 'conflict' => $conflict, 'user_map' => $user_map ];
+    }
+
+    /**
+     * Render the dry-run / commit result page.
+     *
+     * @param array{ok:bool, error?:string, dry_run?:bool, tables:array<string,array{insert:int,update:int,skip:int}>, warnings:string[]} $result
+     * @param array{entities:string[], conflict:array<string,string>, user_map:array<int,int>} $opts
+     */
+    private static function renderMigrationImportResult( array $result, array $opts, bool $committed, string $notice = '' ): void {
+        if ( ! function_exists( 'get_admin_page_title' ) ) require_once ABSPATH . 'wp-admin/includes/template.php';
+        $back = admin_url( 'admin.php?page=tt-config&tab=backups' );
+
+        echo '<div class="wrap">';
+        echo '<h1>' . ( $committed ? esc_html__( 'Import complete', 'talenttrack' ) : esc_html__( 'Dry run — preview of changes', 'talenttrack' ) ) . '</h1>';
+
+        if ( $notice !== '' ) {
+            echo '<div class="notice notice-warning"><p>' . esc_html( $notice ) . '</p></div>';
+        }
+
+        if ( empty( $result['ok'] ) ) {
+            echo '<div class="notice notice-error"><p>' . esc_html( (string) ( $result['error'] ?? __( 'The import could not be completed.', 'talenttrack' ) ) ) . '</p></div>';
+            echo '<p><a class="button button-secondary" href="' . esc_url( $back ) . '">' . esc_html__( 'Back to backups', 'talenttrack' ) . '</a></p></div>';
+            return;
+        }
+
+        if ( $committed ) {
+            echo '<div class="notice notice-success"><p>' . esc_html__( 'The selected data was imported. Source ids were not preserved — references were remapped to this install.', 'talenttrack' ) . '</p></div>';
+        } else {
+            echo '<p style="max-width:760px;">' . esc_html__( 'This is a preview — nothing has been written yet. Review the counts below, then confirm to apply.', 'talenttrack' ) . '</p>';
+        }
+
+        foreach ( (array) ( $result['warnings'] ?? [] ) as $w ) {
+            echo '<div class="notice notice-warning"><p>' . esc_html( (string) $w ) . '</p></div>';
+        }
+
+        echo '<table class="widefat striped" style="max-width:620px;"><thead><tr>'
+            . '<th>' . esc_html__( 'Table', 'talenttrack' ) . '</th>'
+            . '<th style="text-align:right;">' . esc_html__( 'Insert', 'talenttrack' ) . '</th>'
+            . '<th style="text-align:right;">' . esc_html__( 'Update', 'talenttrack' ) . '</th>'
+            . '<th style="text-align:right;">' . esc_html__( 'Skip', 'talenttrack' ) . '</th>'
+            . '</tr></thead><tbody>';
+        foreach ( (array) ( $result['tables'] ?? [] ) as $tbl => $c ) {
+            echo '<tr><td><code>' . esc_html( (string) $tbl ) . '</code></td>'
+                . '<td style="text-align:right;">' . (int) ( $c['insert'] ?? 0 ) . '</td>'
+                . '<td style="text-align:right;">' . (int) ( $c['update'] ?? 0 ) . '</td>'
+                . '<td style="text-align:right;">' . (int) ( $c['skip'] ?? 0 ) . '</td></tr>';
+        }
+        echo '</tbody></table>';
+
+        if ( $committed ) {
+            echo '<p style="margin-top:16px;"><a class="button button-primary" href="' . esc_url( $back ) . '">' . esc_html__( 'Back to backups', 'talenttrack' ) . '</a></p></div>';
+            return;
+        }
+
+        // Commit form — carry the configuration forward + typed confirmation.
+        echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" style="margin-top:18px;">';
+        wp_nonce_field( 'tt_migration_import', 'tt_backup_nonce' );
+        echo '<input type="hidden" name="action" value="tt_migration_import_commit" />';
+        foreach ( (array) $opts['entities'] as $e ) {
+            echo '<input type="hidden" name="entities[]" value="' . esc_attr( (string) $e ) . '" />';
+        }
+        foreach ( (array) $opts['conflict'] as $k => $v ) {
+            echo '<input type="hidden" name="conflict[' . esc_attr( (string) $k ) . ']" value="' . esc_attr( (string) $v ) . '" />';
+        }
+        foreach ( (array) $opts['user_map'] as $s => $t ) {
+            echo '<input type="hidden" name="user_map[' . esc_attr( (string) $s ) . ']" value="' . esc_attr( (string) $t ) . '" />';
+        }
+        echo '<p><strong>' . esc_html__( 'This writes the data above into this install. It cannot be undone automatically — take a backup first if unsure.', 'talenttrack' ) . '</strong></p>';
+        echo '<label>' . esc_html__( 'Type IMPORT to confirm:', 'talenttrack' )
+            . ' <input type="text" name="confirm_text" placeholder="IMPORT" class="regular-text" required /></label>';
+        echo '<p style="margin-top:12px;">';
+        submit_button( __( 'Import now', 'talenttrack' ), 'delete', 'submit', false );
+        echo ' <a class="button button-secondary" href="' . esc_url( $back ) . '">' . esc_html__( 'Cancel', 'talenttrack' ) . '</a>';
+        echo '</p></form></div>';
+    }
+
+    /** Render the "staged archive missing" recovery message. */
+    private static function renderMigrationStagingLost(): void {
+        if ( ! function_exists( 'get_admin_page_title' ) ) require_once ABSPATH . 'wp-admin/includes/template.php';
+        $back = admin_url( 'admin.php?page=tt-config&tab=backups' );
+        echo '<div class="wrap"><h1>' . esc_html__( 'Import preview', 'talenttrack' ) . '</h1>';
+        echo '<div class="notice notice-error"><p>' . esc_html__( 'The uploaded migration archive could not be found. Please upload it again.', 'talenttrack' ) . '</p></div>';
+        echo '<p><a class="button button-secondary" href="' . esc_url( $back ) . '">' . esc_html__( 'Back to backups', 'talenttrack' ) . '</a></p></div>';
+    }
+
+    // #1464 — migration upload staging (one slot per operator). Stored in the
+    // system temp dir: always writable across requests (uploads can be
+    // restrictive) and outside the webroot, so the player data it carries is
+    // never directly fetchable.
+
+    private static function stagedMigrationFile(): string {
+        $dir = get_temp_dir();
+        if ( $dir === '' ) return '';
+        return trailingslashit( $dir ) . 'tt-migration-stage-' . get_current_user_id() . '.ttmig';
+    }
+
+    private static function stageMigrationUpload( string $bytes ): void {
+        $path = self::stagedMigrationFile();
+        if ( $path !== '' ) @file_put_contents( $path, $bytes );
+    }
+
+    /** @return array<string,mixed>|null */
+    private static function loadStagedMigration(): ?array {
+        $path = self::stagedMigrationFile();
+        if ( $path === '' || ! is_readable( $path ) ) return null;
+        $bytes = (string) file_get_contents( $path );
+        return \TT\Modules\Backup\BackupSerializer::fromGzippedJson( $bytes );
+    }
+
+    private static function clearStagedMigration(): void {
+        $path = self::stagedMigrationFile();
+        if ( $path !== '' && file_exists( $path ) ) @unlink( $path );
     }
 
     public static function handleRestore(): void {

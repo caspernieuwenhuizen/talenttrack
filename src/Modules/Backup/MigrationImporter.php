@@ -48,6 +48,349 @@ class MigrationImporter {
     }
 
     /**
+     * Entity groups that the write engine (#1464 phase 3) imports as
+     * records. The `config` group is deliberately excluded — it is reference
+     * data resolved by stable key against the target, never written (see
+     * configResolveKeys()).
+     *
+     * @return string[]
+     */
+    public static function importableGroupKeys(): array {
+        return [ 'players', 'teams', 'people', 'evaluations', 'activities', 'goals' ];
+    }
+
+    /**
+     * Config FK-target tables and the stable key used to resolve a source
+     * foreign key to an existing target row when the `config` group is not
+     * being imported (#1464 gap 1). These tables are never written by the
+     * importer — only read on the target to remap references into them.
+     *
+     * @return array<string, string[]>
+     */
+    public static function configResolveKeys(): array {
+        return [
+            'tt_lookups'         => [ 'lookup_type', 'name' ],
+            'tt_eval_categories' => [ 'category_key' ],
+            'tt_custom_fields'   => [ 'entity_type', 'field_key' ],
+        ];
+    }
+
+    /**
+     * Import the selected record groups from a validated `.ttmig` snapshot
+     * into this install (#1464 phase 3-4). Inserts rows as NEW with their
+     * source ids dropped, recording an old→new id map per table and
+     * rewriting foreign keys through BackupDependencyMap before each write.
+     * Records with a stable key (players/teams/people) that already exist on
+     * the target are either updated or inserted-as-new per the operator's
+     * choice (default insert). `club_id` is rewritten to the current club;
+     * `wp_user_id` is mapped per `user_map` (unmatched → unlinked). FKs into
+     * the config group resolve by stable key to existing target rows.
+     *
+     * Safety: a dry run performs NO writes at all — it counts what would
+     * happen using synthetic ids, so it is safe regardless of storage
+     * engine. A real run wraps every write in a transaction and rolls back
+     * on the first failure, so a partial import never lands.
+     *
+     * @param array<string,mixed> $snapshot decoded archive
+     * @param array{entities?:string[], conflict?:array<string,string>, user_map?:array<int,int>, dry_run?:bool} $opts
+     * @return array{ok:bool, error?:string, dry_run?:bool, tables:array<string,array{insert:int,update:int,skip:int}>, warnings:string[]}
+     */
+    public static function commit( array $snapshot, array $opts ): array {
+        global $wpdb;
+
+        $validation = self::validate( $snapshot );
+        if ( empty( $validation['ok'] ) ) {
+            return [ 'ok' => false, 'error' => (string) ( $validation['error'] ?? '' ), 'tables' => [], 'warnings' => [] ];
+        }
+
+        $snap_tables = is_array( $snapshot['tables'] ?? null ) ? $snapshot['tables'] : [];
+        $entities    = array_values( array_intersect(
+            array_map( 'strval', (array) ( $opts['entities'] ?? [] ) ),
+            self::importableGroupKeys()
+        ) );
+        if ( empty( $entities ) ) {
+            return [ 'ok' => false, 'error' => __( 'Select at least one data set to import.', 'talenttrack' ), 'tables' => [], 'warnings' => [] ];
+        }
+
+        $conflict = is_array( $opts['conflict'] ?? null ) ? $opts['conflict'] : [];
+        $user_map = [];
+        foreach ( (array) ( $opts['user_map'] ?? [] ) as $src => $tgt ) {
+            $user_map[ (int) $src ] = (int) $tgt;
+        }
+        $dry_run = ! empty( $opts['dry_run'] );
+        $club    = \TT\Infrastructure\Tenancy\CurrentClub::id();
+
+        $groups        = MigrationExporter::entityGroups();
+        $import_tables  = [];
+        foreach ( $entities as $e ) {
+            foreach ( $groups[ $e ]['tables'] ?? [] as $t ) $import_tables[ (string) $t ] = true;
+        }
+        $ordered = BackupDependencyMap::restoreOrder( array_keys( $import_tables ) );
+
+        $refs        = BackupDependencyMap::refs();
+        $config_keys = self::configResolveKeys();
+        $stable      = self::stableKeys();
+        $stable_by_table = [];
+        foreach ( $stable as $ent => $spec ) {
+            $stable_by_table[ $spec['table'] ] = [ 'entity' => $ent, 'columns' => $spec['columns'] ];
+        }
+
+        $warnings  = [];
+        $id_map    = [];   // table => [ old_id => new_id ]
+        $counts    = [];
+        $synthetic = 0;    // dry-run id source (negative, never collides)
+
+        // Pre-resolve config FK targets that are referenced but not imported.
+        foreach ( $ordered as $tbl ) {
+            foreach ( $refs[ $tbl ] ?? [] as $ref ) {
+                $pt = (string) $ref['parent_table'];
+                if ( isset( $config_keys[ $pt ] ) && ! isset( $id_map[ $pt ] ) ) {
+                    $id_map[ $pt ] = self::resolveConfigMap( $pt, $config_keys[ $pt ], $snap_tables, $club );
+                }
+            }
+        }
+
+        if ( ! $dry_run ) {
+            $wpdb->query( 'START TRANSACTION' );
+        }
+        $failed = false;
+
+        foreach ( $ordered as $tbl ) {
+            $physical = $wpdb->prefix . $tbl;
+            if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $physical ) ) !== $physical ) {
+                $warnings[] = sprintf(
+                    /* translators: %s is a database table name. */
+                    __( 'Table %s does not exist on this install; skipped.', 'talenttrack' ),
+                    $tbl
+                );
+                continue;
+            }
+
+            $columns  = is_array( $snap_tables[ $tbl ]['columns'] ?? null ) ? $snap_tables[ $tbl ]['columns'] : [];
+            $rows     = is_array( $snap_tables[ $tbl ]['rows'] ?? null ) ? $snap_tables[ $tbl ]['rows'] : [];
+            $has_col  = array_fill_keys( array_map( 'strval', $columns ), true );
+            $tbl_refs = $refs[ $tbl ] ?? [];
+            $sk       = $stable_by_table[ $tbl ] ?? null;
+            $strategy = $sk && ( $conflict[ $sk['entity'] ] ?? 'insert' ) === 'update' ? 'update' : 'insert';
+
+            $existing = $sk ? self::indexExistingByKey( $physical, $sk['columns'], $club ) : [];
+
+            $ins = 0; $upd = 0; $skip = 0;
+            $id_map[ $tbl ] = $id_map[ $tbl ] ?? [];
+
+            foreach ( $rows as $row ) {
+                if ( ! is_array( $row ) ) { $skip++; continue; }
+                $old_id = isset( $row['id'] ) ? (int) $row['id'] : 0;
+
+                $data = self::projectColumns( $row, $columns );
+                unset( $data['id'] );
+                if ( isset( $has_col['club_id'] ) ) {
+                    $data['club_id'] = $club;
+                }
+                if ( isset( $has_col['wp_user_id'] ) ) {
+                    $old_uid = (int) ( $row['wp_user_id'] ?? 0 );
+                    $data['wp_user_id'] = ( $old_uid > 0 && ( $user_map[ $old_uid ] ?? 0 ) > 0 ) ? $user_map[ $old_uid ] : null;
+                }
+
+                // Rewrite foreign keys via the accumulated id maps.
+                $orphaned = false;
+                foreach ( $tbl_refs as $ref ) {
+                    $col = (string) $ref['column'];
+                    if ( ! isset( $has_col[ $col ] ) ) continue;
+                    $old_fk = (int) ( $row[ $col ] ?? 0 );
+                    if ( $old_fk <= 0 ) { $data[ $col ] = null; continue; }
+                    $pt     = (string) $ref['parent_table'];
+                    $new_fk = (int) ( $id_map[ $pt ][ $old_fk ] ?? 0 );
+                    if ( $new_fk !== 0 ) {
+                        $data[ $col ] = $new_fk;
+                    } else {
+                        $data[ $col ] = null;
+                        if ( isset( $config_keys[ $pt ] ) ) {
+                            $warnings[] = sprintf(
+                                /* translators: 1: child table, 2: parent (config) table. */
+                                __( 'A %1$s row references a %2$s entry not present on this install; imported without that link.', 'talenttrack' ),
+                                $tbl,
+                                $pt
+                            );
+                        } else {
+                            // Missing record parent → would orphan the row; skip it.
+                            $orphaned = true;
+                        }
+                    }
+                }
+                if ( $orphaned ) { $skip++; continue; }
+
+                // Stable-key conflict handling.
+                if ( $sk ) {
+                    $key      = self::keyOf( $row, $sk['columns'] );
+                    $match_id = (int) ( $existing[ $key ] ?? 0 );
+                    if ( $match_id > 0 && $strategy === 'update' ) {
+                        if ( ! $dry_run ) {
+                            $ok = $wpdb->update( $physical, $data, [ 'id' => $match_id, 'club_id' => $club ] );
+                            if ( $ok === false ) { $failed = true; break 2; }
+                        }
+                        $upd++;
+                        if ( $old_id ) $id_map[ $tbl ][ $old_id ] = $match_id;
+                        continue;
+                    }
+                }
+
+                // Insert as new.
+                if ( $dry_run ) {
+                    $new_id = --$synthetic;
+                } else {
+                    $ok = $wpdb->insert( $physical, $data );
+                    if ( $ok === false ) { $failed = true; break 2; }
+                    $new_id = (int) $wpdb->insert_id;
+                }
+                $ins++;
+                if ( $old_id ) $id_map[ $tbl ][ $old_id ] = $new_id;
+                if ( $sk ) { $existing[ self::keyOf( $row, $sk['columns'] ) ] = $new_id; }
+            }
+
+            $counts[ $tbl ] = [ 'insert' => $ins, 'update' => $upd, 'skip' => $skip ];
+        }
+
+        if ( $failed ) {
+            $wpdb->query( 'ROLLBACK' );
+            return [
+                'ok'       => false,
+                'error'    => __( 'A database write failed; the import was rolled back and nothing was changed.', 'talenttrack' ),
+                'tables'   => $counts,
+                'warnings' => array_values( array_unique( $warnings ) ),
+            ];
+        }
+
+        if ( ! $dry_run ) {
+            $wpdb->query( 'COMMIT' );
+        }
+
+        return [
+            'ok'       => true,
+            'dry_run'  => $dry_run,
+            'tables'   => $counts,
+            'warnings' => array_values( array_unique( $warnings ) ),
+        ];
+    }
+
+    /**
+     * Distinct source `wp_user_id` values referenced by the importable rows
+     * in the snapshot, each paired with a suggested target user resolved by
+     * email (from the source row's guardian/email columns where available).
+     * Drives the interactive identity-mapping step.
+     *
+     * @param array<string,mixed> $snapshot
+     * @return array<int, array{source_id:int, hint:string, suggested_user_id:int}>
+     */
+    public static function userReferences( array $snapshot ): array {
+        $tables = is_array( $snapshot['tables'] ?? null ) ? $snapshot['tables'] : [];
+        $seen   = [];
+        foreach ( self::importableGroupKeys() as $group ) {
+            foreach ( ( MigrationExporter::entityGroups()[ $group ]['tables'] ?? [] ) as $t ) {
+                $rows = is_array( $tables[ $t ]['rows'] ?? null ) ? $tables[ $t ]['rows'] : [];
+                foreach ( $rows as $row ) {
+                    if ( ! is_array( $row ) || empty( $row['wp_user_id'] ) ) continue;
+                    $uid = (int) $row['wp_user_id'];
+                    if ( $uid <= 0 || isset( $seen[ $uid ] ) ) continue;
+                    $hint  = trim( (string) ( $row['email'] ?? $row['guardian_email'] ?? '' ) );
+                    if ( $hint === '' ) {
+                        $hint = trim( (string) ( ( $row['first_name'] ?? '' ) . ' ' . ( $row['last_name'] ?? '' ) ) );
+                    }
+                    $suggested = 0;
+                    $email     = trim( (string) ( $row['email'] ?? $row['guardian_email'] ?? '' ) );
+                    if ( $email !== '' ) {
+                        $u = get_user_by( 'email', $email );
+                        if ( $u ) $suggested = (int) $u->ID;
+                    }
+                    $seen[ $uid ] = [ 'source_id' => $uid, 'hint' => $hint, 'suggested_user_id' => $suggested ];
+                }
+            }
+        }
+        return array_values( $seen );
+    }
+
+    /**
+     * Build a source-id → target-id map for a config FK-target table by
+     * matching each source row's stable key against existing target rows.
+     * Source rows come from the snapshot (if the config group was exported);
+     * if absent, the map is empty and references resolve to null with a
+     * warning.
+     *
+     * @param array<string,mixed> $snap_tables
+     * @param string[] $key_cols
+     * @return array<int,int>
+     */
+    private static function resolveConfigMap( string $table, array $key_cols, array $snap_tables, int $club ): array {
+        global $wpdb;
+        $physical = $wpdb->prefix . $table;
+        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $physical ) ) !== $physical ) {
+            return [];
+        }
+        $target = self::indexExistingByKey( $physical, $key_cols, $club );
+        if ( empty( $target ) ) return [];
+
+        $rows = is_array( $snap_tables[ $table ]['rows'] ?? null ) ? $snap_tables[ $table ]['rows'] : [];
+        $map  = [];
+        foreach ( $rows as $row ) {
+            if ( ! is_array( $row ) || ! isset( $row['id'] ) ) continue;
+            $tid = (int) ( $target[ self::keyOf( $row, $key_cols ) ] ?? 0 );
+            if ( $tid > 0 ) $map[ (int) $row['id'] ] = $tid;
+        }
+        return $map;
+    }
+
+    /**
+     * Index existing target rows of a table by their stable key → id, scoped
+     * to the current club where the table carries a `club_id`.
+     *
+     * @param string[] $key_cols
+     * @return array<string,int>
+     */
+    private static function indexExistingByKey( string $physical, array $key_cols, int $club ): array {
+        global $wpdb;
+        $safe = array_values( array_filter( array_map(
+            static fn ( $c ): string => (string) preg_replace( '/[^a-z0-9_]/i', '', (string) $c ),
+            $key_cols
+        ) ) );
+        if ( empty( $safe ) ) return [];
+
+        $has_club = $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s AND COLUMN_NAME = 'club_id'",
+            $physical
+        ) );
+        $select = 'id,' . implode( ',', $safe );
+        $sql    = "SELECT {$select} FROM {$physical}";
+        if ( (int) $has_club > 0 ) {
+            $sql = $wpdb->prepare( "SELECT {$select} FROM {$physical} WHERE club_id = %d", $club );
+        }
+        $rows = $wpdb->get_results( $sql, ARRAY_A );
+        $out  = [];
+        if ( is_array( $rows ) ) {
+            foreach ( $rows as $r ) {
+                $out[ self::keyOf( (array) $r, $key_cols ) ] = (int) ( $r['id'] ?? 0 );
+            }
+        }
+        return $out;
+    }
+
+    /**
+     * Project a source row down to the snapshot's declared columns, so a
+     * write only ever touches columns that exist in the payload.
+     *
+     * @param array<string,mixed> $row
+     * @param string[] $columns
+     * @return array<string,mixed>
+     */
+    private static function projectColumns( array $row, array $columns ): array {
+        $out = [];
+        foreach ( $columns as $col ) {
+            $col = (string) $col;
+            $out[ $col ] = $row[ $col ] ?? null;
+        }
+        return $out;
+    }
+
+    /**
      * Validate a decoded archive. Returns a normalised result; `ok=false`
      * carries a human-readable error. A major-version mismatch is a soft
      * warning, not a hard failure — the envelope is forward-compatible and

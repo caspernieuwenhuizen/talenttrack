@@ -38657,6 +38657,154 @@ msgstr ""
 "Rapporten en Teams. Grootte en indeling zijn onafhankelijk — kies elke "
 "combinatie."
 
+#: src/Modules/Backup/MigrationImporter.php
+msgid "Select at least one data set to import."
+msgstr "Selecteer ten minste één gegevensset om te importeren."
+
+#: src/Modules/Backup/MigrationImporter.php
+#, php-format
+msgid "Table %s does not exist on this install; skipped."
+msgstr "Tabel %s bestaat niet op deze installatie; overgeslagen."
+
+#: src/Modules/Backup/MigrationImporter.php
+#, php-format
+msgid ""
+"A %1$s row references a %2$s entry not present on this install; imported "
+"without that link."
+msgstr ""
+"Een %1$s-rij verwijst naar een %2$s-item dat niet op deze installatie "
+"aanwezig is; geïmporteerd zonder die koppeling."
+
+#: src/Modules/Backup/MigrationImporter.php
+msgid "A database write failed; the import was rolled back and nothing was changed."
+msgstr "Een databaseschrijfactie is mislukt; de import is teruggedraaid en er is niets gewijzigd."
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid "Configure import"
+msgstr "Import configureren"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid "Data sets to import"
+msgstr "Gegevenssets om te importeren"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid ""
+"This archive has no importable record data sets. (Lookups & configuration are "
+"used to match references, not imported.)"
+msgstr ""
+"Dit archief bevat geen importeerbare recordgegevenssets. (Keuzelijsten & "
+"configuratie worden gebruikt om verwijzingen te matchen, niet geïmporteerd.)"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid "When a record already exists"
+msgstr "Wanneer een record al bestaat"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid ""
+"Some incoming records match an existing record on this install (by their "
+"stable key). Choose what to do for each — the default is to keep both by "
+"inserting a new record."
+msgstr ""
+"Sommige binnenkomende records komen overeen met een bestaand record op deze "
+"installatie (op hun stabiele sleutel). Kies per set wat je doet — standaard "
+"worden beide behouden door een nieuw record toe te voegen."
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+#, php-format
+msgid "%d matching record"
+msgid_plural "%d matching records"
+msgstr[0] "%d overeenkomend record"
+msgstr[1] "%d overeenkomende records"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid "Insert as new"
+msgstr "Als nieuw toevoegen"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid "Update the existing record"
+msgstr "Het bestaande record bijwerken"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid "Link WordPress users"
+msgstr "WordPress-gebruikers koppelen"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid ""
+"These records reference user accounts on the source install. Pick the "
+"matching user here, or leave unlinked. Suggestions are matched by email."
+msgstr ""
+"Deze records verwijzen naar gebruikersaccounts op de broninstallatie. Kies "
+"hier de bijbehorende gebruiker, of laat ongekoppeld. Suggesties worden "
+"gematcht op e-mail."
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid "Source reference"
+msgstr "Bronverwijzing"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid "Map to user on this install"
+msgstr "Koppelen aan gebruiker op deze installatie"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid "— Leave unlinked —"
+msgstr "— Niet koppelen —"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid "Preview changes (dry run)"
+msgstr "Wijzigingen voorvertonen (proefrun)"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid "Import complete"
+msgstr "Import voltooid"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid "Dry run — preview of changes"
+msgstr "Proefrun — voorbeeld van wijzigingen"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid "Type IMPORT to confirm before the data is written."
+msgstr "Typ IMPORT om te bevestigen voordat de gegevens worden weggeschreven."
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid "The import could not be completed."
+msgstr "De import kon niet worden voltooid."
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid ""
+"The selected data was imported. Source ids were not preserved — references "
+"were remapped to this install."
+msgstr ""
+"De geselecteerde gegevens zijn geïmporteerd. Bron-ids zijn niet behouden — "
+"verwijzingen zijn hergemapt naar deze installatie."
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid ""
+"This is a preview — nothing has been written yet. Review the counts below, "
+"then confirm to apply."
+msgstr ""
+"Dit is een voorbeeld — er is nog niets weggeschreven. Bekijk de tellingen "
+"hieronder en bevestig om toe te passen."
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid ""
+"This writes the data above into this install. It cannot be undone "
+"automatically — take a backup first if unsure."
+msgstr ""
+"Dit schrijft de bovenstaande gegevens naar deze installatie. Dit kan niet "
+"automatisch ongedaan worden gemaakt — maak eerst een back-up als je twijfelt."
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid "Type IMPORT to confirm:"
+msgstr "Typ IMPORT om te bevestigen:"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid "Import now"
+msgstr "Nu importeren"
+
+#: src/Modules/Backup/Admin/BackupSettingsPage.php
+msgid "The uploaded migration archive could not be found. Please upload it again."
+msgstr "Het geüploade migratiearchief kon niet worden gevonden. Upload het opnieuw."
+
 #~ msgid "Print (landscape A4)"
 #~ msgstr "Afdrukken (liggend A4)"
 

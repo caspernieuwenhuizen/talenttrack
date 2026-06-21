@@ -103,7 +103,23 @@ Het voorbeeld toont:
 - **Inhoud** — aantal rijen per gegevensset (Spelers, Teams, Staf & rollen, Evaluaties, Activiteiten & aanwezigheid, Doelen, Keuzelijsten & configuratie).
 - **Wat er bij importeren zou gebeuren** — voor de recordsets met een natuurlijke sleutel (Spelers op voornaam + achternaam + geboortedatum, Teams op naam + leeftijdsgroep, Staf op voornaam + achternaam + e‑mail): hoeveel binnenkomende records **overeenkomen met een bestaand record** op deze installatie versus hoeveel **nieuw** zijn. De match gebeurt op stabiele sleutel, niet op id — ids verschillen tussen installaties, dus bronrecord 5 is niet doelrecord 5.
 
-Het toepassen van de import — records invoegen met hergemapte ids, verwijzingen herschrijven, matches interactief oplossen en WordPress-gebruikers koppelen — is de volgende fase en is nog niet beschikbaar. Uploads zijn begrensd op 25 MB; grotere datasets komen met de schrijffase.
+## Datamigratie — een import toepassen (v4.36.0+)
+
+Vanuit het voorbeeld kun je met **Import configureren** het archief op deze installatie toepassen:
+
+1. **Kies gegevenssets** — selecteer welke recordgroepen je importeert (Spelers, Teams, Staf & rollen, Evaluaties, Activiteiten & aanwezigheid, Doelen). Keuzelijsten & configuratie worden **niet** geïmporteerd; ze worden alleen gebruikt om verwijzingen te matchen (zie hieronder).
+2. **Los matches op** — voor elke recordset waar een binnenkomend record overeenkomt met een bestaand record op de stabiele sleutel, kies je **Als nieuw toevoegen** (standaard — beide behouden) of **Het bestaande record bijwerken**.
+3. **Koppel WordPress-gebruikers** — records die naar een gebruiker op de broninstallatie verwezen, worden getoond met een voorgestelde doelgebruiker (gematcht op e‑mail); bevestig, kies een andere, of laat ongekoppeld.
+4. **Proefrun** — geeft een telling per tabel van wat er *zou* worden toegevoegd / bijgewerkt / overgeslagen. **Tijdens de proefrun wordt niets weggeschreven.**
+5. **Bevestig** — typ `IMPORT` en pas toe. De schrijfactie draait in een databasetransactie en wordt volledig teruggedraaid als een rij faalt, zodat een gedeeltelijke import nooit blijft staan.
+
+Hoe verwijzingen worden behandeld:
+
+- **Bron-ids worden nooit behouden.** Elke geïmporteerde rij wordt als nieuw ingevoegd; de importer houdt een oud→nieuw id-overzicht per tabel bij en herschrijft verwijzingen (via de afhankelijkheidskaart) naar de nieuwe ids vóór elke schrijfactie — zo verwijst een geïmporteerde evaluatie naar de geïmporteerde speler.
+- **`club_id`** wordt herschreven naar de huidige club; **`wp_user_id`** wordt ingesteld vanuit je gebruikerskoppeling (niet gekoppeld → ongekoppeld).
+- **Verwijzingen naar Keuzelijsten & configuratie** (bijv. het type van een evaluatie, de categorie van een beoordeling) worden op stabiele sleutel gematcht met het overeenkomstige item dat al op deze installatie bestaat. Heeft het doel geen match, dan wordt de rij zonder die koppeling geïmporteerd en verschijnt een waarschuwing — stel eerst de configuratie in als je die koppelingen nodig hebt.
+
+Uploads zijn begrensd op 25 MB. Het importeren van *waarden* van aangepaste velden wordt nog niet gedekt (de records zelf worden geïmporteerd, hun aangepaste waarden niet).
 
 ## Wat blijft uitgesteld
 
