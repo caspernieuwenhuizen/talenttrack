@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-21T20:56:14+00:00\n"
+"POT-Creation-Date: 2026-06-21T21:00:36+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -23435,7 +23435,7 @@ msgid "Show rate card"
 msgstr ""
 
 #: src/Modules/Stats/Admin/PlayerRateCardsPage.php:83
-#: src/Shared/Frontend/FrontendRateCardView.php:147
+#: src/Shared/Frontend/FrontendRateCardView.php:149
 msgid "Pick a player above to see their rate card."
 msgstr ""
 
