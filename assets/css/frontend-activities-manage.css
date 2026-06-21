@@ -473,3 +473,292 @@
 .tt-dashboard .tt-attendance-status {
     min-width: 14ch;
 }
+
+/* =============================================================
+   #1618 — ACTIVITY DETAIL CARD LAYOUT
+   -------------------------------------------------------------
+   Visual overhaul of `?tt_view=activities&id=N` (renderDetail):
+   an A/B inline hero + facts strip + card grid. Adapts between a
+   training activity and a match day. Mobile-first: base = 360px,
+   cards stack; the grid goes 2-up at 768px. Touch targets ≥ 48px;
+   the attendance bar + legend wrap. Class contract owned by
+   FrontendActivitiesManageView::renderDetail* helpers:
+
+     .tt-act-detail              — top-level wrapper
+     .tt-act-detail__hero        — icon chip + title + sub + pills
+     .tt-act-detail__icon        — type-coloured rounded chip
+     .tt-act-detail__name        — activity title (or "A vs B")
+     .tt-act-detail__vs          — muted "vs" between team + opponent
+     .tt-act-detail__sub         — date · time · team · location line
+     .tt-act-detail__pills       — type / subtype / status pills row
+     .tt-act-detail__facts       — facts strip grid
+     .tt-act-detail__fact        — one fact cell (k + v)
+     .tt-act-detail__grid        — card grid (1-up → 2-up)
+     .tt-act-card-d              — a detail card
+     .tt-act-card-d--span2       — full-width card on the 2-up grid
+     .tt-act-card-d__head        — card header (title + optional link)
+     .tt-act-card-d__title       — card title
+     .tt-act-card-d__link        — small action link in the header
+     .tt-act-card-d__body        — card body
+     .tt-act-pp                  — O/A/V methodology principle pill
+     .tt-act-rp                  — roster / line-up pill
+     .tt-act-lineup__group       — "Starting XI" / "Bench" sub-heading
+     .tt-act-att__head           — attendance headline
+     .tt-act-att__bar            — attendance breakdown bar
+     .tt-act-att__legend         — bar legend (wraps)
+     .tt-act-att__warn           — missing-row / empty notice
+   ============================================================= */
+
+.tt-dashboard .tt-act-detail {
+    display: grid;
+    gap: 14px;
+    max-width: 360px;
+    margin: 0 auto;
+}
+@media (min-width: 768px) {
+    .tt-dashboard .tt-act-detail { max-width: 760px; }
+}
+@media (min-width: 1100px) {
+    .tt-dashboard .tt-act-detail { max-width: 900px; }
+}
+
+/* ---- Hero ---------------------------------------------------- */
+.tt-dashboard .tt-act-detail__hero {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    background: #fff;
+    border: 1px solid var(--tt-line, #e2e8f0);
+    border-radius: 16px;
+    padding: 16px;
+}
+.tt-dashboard .tt-act-detail__icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    color: #fff;
+}
+.tt-dashboard .tt-act-detail__hero-main {
+    flex: 1;
+    min-width: 0;
+}
+.tt-dashboard .tt-act-detail__name {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin: 0 0 4px;
+    color: var(--tt-ink, #1a1d21);
+    line-height: 1.25;
+}
+.tt-dashboard .tt-act-detail__vs {
+    color: var(--tt-ink-soft, #5b6e75);
+    font-weight: 600;
+    font-size: 0.9em;
+}
+.tt-dashboard .tt-act-detail__sub {
+    margin: 0 0 8px;
+    color: var(--tt-ink-soft, #5b6e75);
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+.tt-dashboard .tt-act-detail__sub a {
+    color: var(--tt-accent, #2271b1);
+    text-decoration: none;
+}
+.tt-dashboard .tt-act-detail__sub a:hover,
+.tt-dashboard .tt-act-detail__sub a:focus-visible {
+    text-decoration: underline;
+}
+.tt-dashboard .tt-act-detail__pills {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 0;
+}
+
+/* ---- Facts strip -------------------------------------------- */
+.tt-dashboard .tt-act-detail__facts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+@media (min-width: 620px) {
+    .tt-dashboard .tt-act-detail__facts { grid-template-columns: repeat(4, 1fr); }
+}
+.tt-dashboard .tt-act-detail__fact {
+    background: var(--tt-bg-soft, #f8fafc);
+    border: 1px solid var(--tt-line, #e2e8f0);
+    border-radius: 12px;
+    padding: 11px 13px;
+}
+.tt-dashboard .tt-act-detail__fact-k {
+    font-size: 0.625rem;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--tt-ink-soft, #5b6e75);
+    margin-bottom: 3px;
+}
+.tt-dashboard .tt-act-detail__fact-v {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--tt-ink, #1a1d21);
+}
+
+/* ---- Card grid ---------------------------------------------- */
+.tt-dashboard .tt-act-detail__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+}
+@media (min-width: 768px) {
+    .tt-dashboard .tt-act-detail__grid { grid-template-columns: 1fr 1fr; }
+    .tt-dashboard .tt-act-card-d--span2 { grid-column: 1 / -1; }
+}
+.tt-dashboard .tt-act-card-d {
+    background: #fff;
+    border: 1px solid var(--tt-line, #e2e8f0);
+    border-radius: 16px;
+    overflow: hidden;
+}
+.tt-dashboard .tt-act-card-d__head {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--tt-line, #e2e8f0);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+}
+.tt-dashboard .tt-act-card-d__title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--tt-ink, #1a1d21);
+}
+.tt-dashboard .tt-act-card-d__link {
+    font-size: 0.8125rem;
+    color: var(--tt-accent, #2271b1);
+    text-decoration: none;
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0 4px;
+    touch-action: manipulation;
+}
+.tt-dashboard .tt-act-card-d__link:hover,
+.tt-dashboard .tt-act-card-d__link:focus-visible {
+    text-decoration: underline;
+}
+.tt-dashboard .tt-act-card-d__body {
+    padding: 14px 16px;
+    font-size: 0.875rem;
+    color: var(--tt-ink, #1a1d21);
+}
+.tt-dashboard .tt-act-card-d__body--prewrap { white-space: pre-wrap; }
+.tt-dashboard .tt-act-card-d__muted { color: var(--tt-ink-soft, #5b6e75); }
+
+/* ---- Principle pills (O / A / V) ---------------------------- */
+.tt-dashboard .tt-act-pp {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin: 0 6px 6px 0;
+    border: 1px solid;
+    text-decoration: none;
+    min-height: 32px;
+    line-height: 1.4;
+    touch-action: manipulation;
+}
+.tt-dashboard .tt-act-pp--O { background: #fff3c4; border-color: #e3c75e; color: #7a5a08; }
+.tt-dashboard .tt-act-pp--A { background: #fde9d6; border-color: #f3c79b; color: #8a3b00; }
+.tt-dashboard .tt-act-pp--V { background: #dfeede; border-color: #a8d2a4; color: #1f5a1a; }
+.tt-dashboard .tt-act-pp:focus-visible {
+    outline: 2px solid var(--tt-accent, #2271b1);
+    outline-offset: 2px;
+}
+
+/* ---- Roster / line-up pills --------------------------------- */
+.tt-dashboard .tt-act-rp {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    min-height: 32px;
+    border-radius: 999px;
+    background: var(--tt-bg-soft, #eef1f0);
+    color: var(--tt-ink, #33403c);
+    font-size: 0.8125rem;
+    margin: 0 6px 6px 0;
+}
+.tt-dashboard .tt-act-rp__guest {
+    font-size: 0.625rem;
+    font-weight: 600;
+    color: var(--tt-ink-soft, #8a6d3b);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+.tt-dashboard .tt-act-lineup__group {
+    font-weight: 700;
+    font-size: 0.6875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--tt-ink-soft, #5b6e75);
+    margin: 0 0 6px;
+}
+.tt-dashboard .tt-act-lineup__row + .tt-act-lineup__group { margin-top: 12px; }
+
+/* ---- Attendance breakdown ----------------------------------- */
+.tt-dashboard .tt-act-att__head {
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin: 0 0 10px;
+    color: var(--tt-ink, #1a1d21);
+}
+.tt-dashboard .tt-act-att__bar {
+    display: flex;
+    height: 14px;
+    border-radius: 7px;
+    overflow: hidden;
+    margin: 0 0 10px;
+    background: var(--tt-bg-soft, #eef1f0);
+}
+.tt-dashboard .tt-act-att__bar span {
+    display: block;
+    height: 100%;
+}
+.tt-dashboard .tt-act-att__legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 0.75rem;
+    color: var(--tt-ink-soft, #5b6e75);
+}
+.tt-dashboard .tt-act-att__legend-item {
+    display: inline-flex;
+    align-items: center;
+}
+.tt-dashboard .tt-act-att__legend-item i {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    margin-right: 5px;
+}
+.tt-dashboard .tt-act-att__warn {
+    margin: 10px 0 0;
+    font-size: 0.75rem;
+    color: #92400e;
+    font-style: italic;
+}
+
+/* ---- Audit footer ------------------------------------------- */
+.tt-dashboard .tt-act-detail__audit {
+    color: var(--tt-ink-soft, #5b6e75);
+    font-size: 0.75rem;
+}

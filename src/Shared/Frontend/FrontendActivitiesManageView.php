@@ -288,208 +288,378 @@ class FrontendActivitiesManageView extends FrontendViewBase {
      * @param object $session activity row from `loadSession`
      */
     private static function renderDetail( object $session, bool $is_admin ): void {
-        $team_id   = (int) ( $session->team_id ?? 0 );
-        $team_name = (string) ( $session->team_name ?? '' );
-        $type_key  = (string) ( $session->activity_type_key ?? ActivityTypeKey::TRAINING );
+        $team_id    = (int) ( $session->team_id ?? 0 );
+        $team_name  = (string) ( $session->team_name ?? '' );
+        $type_key   = (string) ( $session->activity_type_key ?? ActivityTypeKey::TRAINING );
         $status_key = (string) ( $session->activity_status_key ?? ActivityStatusKey::PLANNED );
 
-        echo '<div class="tt-record-detail" style="display:grid; gap:12px;">';
+        // #1618 — a "match day" is a game-typed activity (current `game`
+        // key or the legacy `match` value). Match days surface the
+        // match-only fields (opponent / home-away / kick-off / formation
+        // / line-up); training and other types use the date/time facts.
+        $is_match = in_array( strtolower( $type_key ), [ ActivityTypeKey::GAME, 'match' ], true );
 
-        echo '<dl class="tt-record-detail-list" style="display:grid; grid-template-columns: minmax(120px, max-content) 1fr; gap:6px 16px; margin:0;">';
+        $st     = (string) ( $session->start_time ?? '' );
+        $et     = (string) ( $session->end_time   ?? '' );
+        $window = $st !== '' ? substr( $st, 0, 5 ) . ( $et !== '' ? '–' . substr( $et, 0, 5 ) : '' ) : '';
 
-        echo '<dt>' . esc_html__( 'Date', 'talenttrack' ) . '</dt>';
-        echo '<dd>' . esc_html( \TT\Shared\Dates\TTDate::date( (string) $session->session_date ) ) . '</dd>';
+        echo '<div class="tt-act-detail">';
 
-        // #1126 — surface optional time window when set. Renders
-        // nothing when both fields are empty (no placeholder).
-        $st = (string) ( $session->start_time ?? '' );
-        $et = (string) ( $session->end_time   ?? '' );
-        if ( $st !== '' ) {
-            $window = substr( $st, 0, 5 ) . ( $et !== '' ? ' – ' . substr( $et, 0, 5 ) : '' );
-            echo '<dt>' . esc_html__( 'Time', 'talenttrack' ) . '</dt>';
-            echo '<dd>' . esc_html( $window ) . '</dd>';
-        }
+        // ---- Hero -------------------------------------------------
+        self::renderDetailHero( $session, $type_key, $status_key, $is_match, $team_id, $team_name, $window );
 
-        echo '<dt>' . esc_html__( 'Type', 'talenttrack' ) . '</dt>';
-        echo '<dd>' . \TT\Infrastructure\Query\LookupPill::render( 'activity_type', $type_key ) . '</dd>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+        // ---- Facts strip ------------------------------------------
+        self::renderDetailFacts( $session, $type_key, $status_key, $is_match, $window );
 
-        echo '<dt>' . esc_html__( 'Status', 'talenttrack' ) . '</dt>';
-        echo '<dd>' . \TT\Infrastructure\Query\LookupPill::render( 'activity_status', $status_key ) . '</dd>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+        // ---- Cards grid -------------------------------------------
+        echo '<div class="tt-act-detail__grid">';
 
-        if ( $team_name !== '' ) {
-            echo '<dt>' . esc_html__( 'Team', 'talenttrack' ) . '</dt>';
-            echo '<dd>';
-            if ( $team_id > 0 ) {
-                echo \TT\Shared\Frontend\Components\RecordLink::inline( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-                    $team_name,
-                    \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'teams', $team_id )
-                );
-            } else {
-                echo esc_html( $team_name );
-            }
-            echo '</dd>';
-        }
+        // #1123 — Linked principles card.
+        self::renderDetailPrinciplesCard( $session );
 
-        $location = (string) ( $session->location ?? '' );
-        if ( $location !== '' ) {
-            echo '<dt>' . esc_html__( 'Location', 'talenttrack' ) . '</dt>';
-            echo '<dd>' . esc_html( $location ) . '</dd>';
-        }
-
+        // #1618 — Session/match notes card.
         $notes = (string) ( $session->notes ?? '' );
         if ( $notes !== '' ) {
-            echo '<dt>' . esc_html__( 'Notes', 'talenttrack' ) . '</dt>';
-            echo '<dd style="white-space:pre-wrap;">' . esc_html( $notes ) . '</dd>';
+            echo '<div class="tt-act-card-d">';
+            echo '<div class="tt-act-card-d__head"><h3 class="tt-act-card-d__title">'
+                . esc_html__( 'Notes', 'talenttrack' ) . '</h3></div>';
+            echo '<div class="tt-act-card-d__body tt-act-card-d__body--prewrap">'
+                . esc_html( $notes ) . '</div>';
+            echo '</div>';
         }
 
-        echo '</dl>';
+        // #1618 — Match day: line-up card (Starting XI + Bench).
+        if ( $is_match ) {
+            self::renderLineupCard( $session );
+        }
+
+        // #1453 — Expected attendance card (planned roster).
+        self::renderPlannedAttendance( $session );
+
+        // v3.110.95 / #1618 — Attendance breakdown card on completed
+        // activities (bar + legend + headline). Planned / cancelled
+        // rows have no meaningful attendance.
+        if ( $status_key === ActivityStatusKey::COMPLETED ) {
+            self::renderAttendanceSummary( $session );
+        }
+
+        // #1324 — Tournament card for tournament-typed activities.
+        if ( $type_key === ActivityTypeKey::TOURNAMENT ) {
+            self::renderDetailTournamentBlock( $session );
+        }
+
+        echo '</div>'; // .tt-act-detail__grid
+
+        // v3.110.138 — evaluation-skipped notice (conditional). Kept as a
+        // notice rather than a card so it reads as an inline status, per
+        // the issue ("evaluation_skipped stays a conditional notice").
+        self::renderEvalSkippedNotice( $session );
 
         // #1471 — created/changed audit footer (renders nothing for
         // pre-audit rows with no recorded author).
+        echo '<div class="tt-act-detail__audit">';
         \TT\Shared\Frontend\Components\AuditMeta::render( [
             'created_by' => isset( $session->created_by ) ? (int) $session->created_by : 0,
             'created_at' => (string) ( $session->created_at ?? '' ),
             'updated_by' => isset( $session->updated_by ) ? (int) $session->updated_by : 0,
             'updated_at' => (string) ( $session->updated_at ?? '' ),
         ] );
+        echo '</div>';
 
-        // #1324 — tournament info block for tournament-typed activities.
-        // Renders nothing for other types so non-tournament surfaces
-        // stay uncluttered.
-        if ( $type_key === ActivityTypeKey::TOURNAMENT ) {
-            self::renderDetailTournamentBlock( $session );
+        echo '</div>'; // .tt-act-detail
+    }
+
+    /**
+     * #1618 — A/B inline hero: type-coloured icon chip + title +
+     * `date · time · team · location` sub-line + type/status pills.
+     * Match days render the "Home team vs Opponent" title and a
+     * kick-off / home-away sub-line. Action buttons stay in the page
+     * header (rendered by render()); the hero is informational only.
+     */
+    private static function renderDetailHero(
+        object $session,
+        string $type_key,
+        string $status_key,
+        bool $is_match,
+        int $team_id,
+        string $team_name,
+        string $window
+    ): void {
+        $colors = self::activityTypeColor( $type_key );
+        $icon   = self::activityTypeIcon( $type_key );
+
+        echo '<header class="tt-act-detail__hero">';
+        echo '<div class="tt-act-detail__icon" style="background:' . esc_attr( $colors['bg'] ) . ';">'
+            . esc_html( $icon ) . '</div>';
+        echo '<div class="tt-act-detail__hero-main">';
+
+        // Title — match days read "Team vs Opponent" when both known.
+        $title    = (string) ( $session->title ?? '' );
+        $opponent = (string) ( $session->opponent ?? '' );
+        if ( $is_match && $team_name !== '' && $opponent !== '' ) {
+            echo '<h2 class="tt-act-detail__name">'
+                . esc_html( $team_name )
+                . ' <span class="tt-act-detail__vs">' . esc_html__( 'vs', 'talenttrack' ) . '</span> '
+                . esc_html( $opponent )
+                . '</h2>';
+        } else {
+            echo '<h2 class="tt-act-detail__name">' . esc_html( $title !== '' ? $title : __( 'Activity', 'talenttrack' ) ) . '</h2>';
         }
 
-        // #1123 — Gekoppelde spelprincipes — dedicated section after
-        // the detail dl with linked pills (was an inline `<dt>/<dd>`
-        // that pilot reported was easy to miss + didn't link to the
-        // methodology browser). Skipped when the Methodology module
-        // isn't loaded.
-        if ( class_exists( '\\TT\\Modules\\Methodology\\Repositories\\PrincipleLinksRepository' )
-             && class_exists( '\\TT\\Modules\\Methodology\\Repositories\\PrinciplesRepository' )
-        ) {
-            $linked_ids = ( new \TT\Modules\Methodology\Repositories\PrincipleLinksRepository() )
-                ->principlesForActivity( (int) $session->id );
-            if ( ! empty( $linked_ids ) ) {
-                $repo = new \TT\Modules\Methodology\Repositories\PrinciplesRepository();
-                $base = \TT\Shared\Frontend\Components\RecordLink::dashboardUrl();
-                echo '<section class="tt-activity-principles" style="margin:8px 0 12px;">';
-                echo '<h3 style="margin:0 0 6px; font-size:13px; font-weight:700; color:#1a1d21;">'
-                    . esc_html__( 'Gekoppelde spelprincipes', 'talenttrack' )
-                    . '</h3>';
-                echo '<div style="display:flex; flex-wrap:wrap; gap:6px;">';
-                foreach ( $linked_ids as $pid ) {
-                    $pr = $repo->find( (int) $pid );
-                    if ( ! $pr ) continue;
-                    $code = (string) ( $pr->code ?? '' );
-                    $title = '';
-                    if ( class_exists( '\\TT\\Modules\\Methodology\\Helpers\\MultilingualField' ) ) {
-                        $title = (string) \TT\Modules\Methodology\Helpers\MultilingualField::string( $pr->title_json );
-                    }
-                    $url = add_query_arg(
-                        [ 'tt_view' => 'methodology', 'mtab' => 'principles', 'pid' => (int) $pid ],
-                        $base
-                    );
-                    // Bucket colour derived from code prefix (A* /
-                    // V* / O*) — same scheme as the planner card
-                    // chips for visual consistency.
-                    $first = $code !== '' ? strtoupper( $code[0] ) : '';
-                    $bg = '#eef4fb'; $bd = '#c5d8ee'; $fg = '#1f4f8a';
-                    if ( $first === 'A' ) { $bg = '#fde9d6'; $bd = '#f3c79b'; $fg = '#8a3b00'; }
-                    if ( $first === 'V' ) { $bg = '#dfeede'; $bd = '#a8d2a4'; $fg = '#1f5a1a'; }
-                    if ( $first === 'O' ) { $bg = '#fff3c4'; $bd = '#e3c75e'; $fg = '#7a5a08'; }
-                    $label = $code . ( $title !== '' ? ' · ' . $title : '' );
-                    echo '<a href="' . esc_url( $url ) . '"'
-                        . ' style="display:inline-block; padding:4px 10px; background:' . esc_attr( $bg ) . '; border:1px solid ' . esc_attr( $bd ) . '; border-radius:999px; font-size:12px; color:' . esc_attr( $fg ) . '; text-decoration:none; font-weight:600;"'
-                        . ' title="' . esc_attr( $title ) . '">'
-                        . esc_html( $label )
-                        . '</a>';
-                }
-                echo '</div></section>';
+        // Sub-line: date · time/kick-off · team (link) · location.
+        $sub_parts = [];
+        $sub_parts[] = esc_html( \TT\Shared\Dates\TTDate::date( (string) $session->session_date ) );
+        if ( $is_match ) {
+            $kick = (string) ( $session->kickoff_time ?? '' );
+            if ( $kick === '' && $window !== '' ) $kick = $window;
+            if ( $kick !== '' ) {
+                $sub_parts[] = esc_html( sprintf( /* translators: %s = kick-off time */ __( 'Kick-off %s', 'talenttrack' ), substr( $kick, 0, 5 ) ) );
+            }
+        } elseif ( $window !== '' ) {
+            $sub_parts[] = esc_html( $window );
+        }
+        if ( $team_name !== '' ) {
+            if ( $team_id > 0 ) {
+                $sub_parts[] = \TT\Shared\Frontend\Components\RecordLink::inline(
+                    $team_name,
+                    \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'teams', $team_id )
+                );
+            } else {
+                $sub_parts[] = esc_html( $team_name );
             }
         }
+        $location = (string) ( $session->location ?? '' );
+        if ( $location !== '' ) $sub_parts[] = esc_html( $location );
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — parts pre-escaped above.
+        echo '<p class="tt-act-detail__sub">' . implode( ' · ', $sub_parts ) . '</p>';
 
-        // #1453 — surface the planned (expected) roster so a coach
-        // opening the activity sees who to expect, before any actual
-        // attendance is marked.
-        self::renderPlannedAttendance( $session );
+        // Pills — type (+ game subtype / other label) and status.
+        echo '<p class="tt-act-detail__pills">';
+        echo \TT\Infrastructure\Query\LookupPill::render( 'activity_type', $type_key ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+        $subtype = (string) ( $session->game_subtype_key ?? '' );
+        if ( $is_match && $subtype !== '' ) {
+            echo ' ' . \TT\Infrastructure\Query\LookupPill::render( 'game_subtype', $subtype ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+        }
+        $other_label = (string) ( $session->other_label ?? '' );
+        if ( $type_key === ActivityTypeKey::OTHER && $other_label !== '' ) {
+            echo ' <span class="tt-pill" style="display:inline-block;padding:2px 10px;border-radius:999px;background:#5b6e75;color:#fff;font-size:11px;font-weight:600;">'
+                . esc_html( $other_label ) . '</span>';
+        }
+        echo ' ' . \TT\Infrastructure\Query\LookupPill::render( 'activity_status', $status_key ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+        echo '</p>';
 
-        // #1552 — the Activity Explorer preset row (#1099/#1100) was
-        // removed from the activity detail view: clutter on this page
-        // regardless of the Explorer toggle. The same presets stay
-        // reachable from the Explorer views and standard reports.
+        echo '</div>'; // hero-main
+        echo '</header>';
+    }
 
-        // v3.110.138 — when the coach marked attendance and chose
-        // "Skip rating — no rating needed", this activity carries
-        // `evaluation_skipped=1` and is filtered out of the eval-
-        // wizard's picker. Surface the state + an explicit "Re-open
-        // for rating" button so the coach can put it back on the
-        // rating queue if they change their mind. Gated on
-        // `tt_edit_activities`; defensive when the column doesn't
-        // exist on this install (pre-migration-0100 fallback).
-        $eval_skipped = (int) ( $session->evaluation_skipped ?? 0 );
-        if ( $eval_skipped === 1 ) {
-            echo '<div class="tt-notice tt-notice-info" style="margin:0 0 8px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">';
-            echo '<span>' . esc_html__( 'Rating skipped — this activity won\'t appear in the rating picker.', 'talenttrack' ) . '</span>';
-            // #1319 — matrix-aware cap so FR-only operators can re-open.
-            if ( AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_edit_activities' ) ) {
-                $aid = (int) $session->id;
-                echo '<button type="button" class="tt-button tt-button-secondary" data-tt-reopen-rating="' . esc_attr( (string) $aid ) . '" data-tt-rest-path="activities/' . (int) $aid . '/evaluation-skipped">';
-                echo esc_html__( 'Re-open for rating', 'talenttrack' );
-                echo '</button>';
+    /**
+     * #1618 — facts strip. Training/other: Date · Time · Type · Status.
+     * Match day: Opponent · Home/Away · Kick-off · Formation. Each cell
+     * renders only when it has a value (no empty placeholders).
+     */
+    private static function renderDetailFacts(
+        object $session,
+        string $type_key,
+        string $status_key,
+        bool $is_match,
+        string $window
+    ): void {
+        $cells = [];
+        if ( $is_match ) {
+            $opponent = (string) ( $session->opponent ?? '' );
+            if ( $opponent !== '' ) $cells[] = [ __( 'Opponent', 'talenttrack' ), $opponent ];
+
+            $home_away = strtolower( (string) ( $session->home_away ?? '' ) );
+            if ( $home_away === 'home' ) {
+                $cells[] = [ __( 'Home / Away', 'talenttrack' ), __( 'Home', 'talenttrack' ) ];
+            } elseif ( $home_away === 'away' ) {
+                $cells[] = [ __( 'Home / Away', 'talenttrack' ), __( 'Away', 'talenttrack' ) ];
+            }
+
+            $kick = (string) ( $session->kickoff_time ?? '' );
+            if ( $kick === '' && $window !== '' ) $kick = $window;
+            if ( $kick !== '' ) $cells[] = [ __( 'Kick-off', 'talenttrack' ), substr( $kick, 0, 5 ) ];
+
+            $formation = (string) ( $session->formation ?? '' );
+            if ( $formation !== '' ) $cells[] = [ __( 'Formation', 'talenttrack' ), $formation ];
+        } else {
+            $cells[] = [ __( 'Date', 'talenttrack' ), \TT\Shared\Dates\TTDate::date( (string) $session->session_date ) ];
+            if ( $window !== '' ) $cells[] = [ __( 'Time', 'talenttrack' ), $window ];
+            $type_label = (string) ( \TT\Infrastructure\Query\LabelTranslator::activityType( $type_key ) ?? '' );
+            if ( $type_label !== '' ) $cells[] = [ __( 'Type', 'talenttrack' ), $type_label ];
+            $status_label = \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'activity_status', $status_key );
+            if ( $status_label !== '' ) $cells[] = [ __( 'Status', 'talenttrack' ), $status_label ];
+        }
+        if ( $cells === [] ) return;
+
+        echo '<div class="tt-act-detail__facts">';
+        foreach ( $cells as $cell ) {
+            echo '<div class="tt-act-detail__fact">';
+            echo '<div class="tt-act-detail__fact-k">' . esc_html( $cell[0] ) . '</div>';
+            echo '<div class="tt-act-detail__fact-v">' . esc_html( $cell[1] ) . '</div>';
+            echo '</div>';
+        }
+        echo '</div>';
+    }
+
+    /**
+     * #1123 / #1618 — Linked principles card. O/A/V colour-coded pills,
+     * each linking into the methodology browser. Renders nothing when
+     * the Methodology module is absent or no principles are linked.
+     */
+    private static function renderDetailPrinciplesCard( object $session ): void {
+        if ( ! class_exists( '\\TT\\Modules\\Methodology\\Repositories\\PrincipleLinksRepository' )
+            || ! class_exists( '\\TT\\Modules\\Methodology\\Repositories\\PrinciplesRepository' )
+        ) {
+            return;
+        }
+        $linked_ids = ( new \TT\Modules\Methodology\Repositories\PrincipleLinksRepository() )
+            ->principlesForActivity( (int) $session->id );
+        if ( empty( $linked_ids ) ) return;
+
+        $repo = new \TT\Modules\Methodology\Repositories\PrinciplesRepository();
+        $base = \TT\Shared\Frontend\Components\RecordLink::dashboardUrl();
+        $methodology_url = add_query_arg( [ 'tt_view' => 'methodology', 'mtab' => 'principles' ], $base );
+
+        echo '<div class="tt-act-card-d tt-act-card-d--span2">';
+        echo '<div class="tt-act-card-d__head">';
+        echo '<h3 class="tt-act-card-d__title">' . esc_html__( 'Linked principles', 'talenttrack' ) . '</h3>';
+        echo '<a class="tt-act-card-d__link" href="' . esc_url( $methodology_url ) . '">'
+            . esc_html__( 'Methodology', 'talenttrack' ) . ' →</a>';
+        echo '</div>';
+        echo '<div class="tt-act-card-d__body">';
+        foreach ( $linked_ids as $pid ) {
+            $pr = $repo->find( (int) $pid );
+            if ( ! $pr ) continue;
+            $code  = (string) ( $pr->code ?? '' );
+            $title = '';
+            if ( class_exists( '\\TT\\Modules\\Methodology\\Helpers\\MultilingualField' ) ) {
+                $title = (string) \TT\Modules\Methodology\Helpers\MultilingualField::string( $pr->title_json );
+            }
+            $url = add_query_arg(
+                [ 'tt_view' => 'methodology', 'mtab' => 'principles', 'pid' => (int) $pid ],
+                $base
+            );
+            // Bucket colour from code prefix (O / A / V) — methodology scheme.
+            $first = $code !== '' ? strtoupper( $code[0] ) : '';
+            $bucket = in_array( $first, [ 'O', 'A', 'V' ], true ) ? $first : 'O';
+            $label  = $code . ( $title !== '' ? ' · ' . $title : '' );
+            echo '<a class="tt-act-pp tt-act-pp--' . esc_attr( $bucket ) . '" href="' . esc_url( $url ) . '"'
+                . ' title="' . esc_attr( $title ) . '">' . esc_html( $label ) . '</a>';
+        }
+        echo '</div>';
+        echo '</div>';
+    }
+
+    /**
+     * #1618 — Match-day line-up card: Starting XI + Bench, each player
+     * decorated with jersey + position played (preferred fallback).
+     * Grouping happens in ActivitiesRepository (CLAUDE.md §4). Renders
+     * nothing when no line-up has been captured yet.
+     */
+    private static function renderLineupCard( object $session ): void {
+        $lineup = ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )
+            ->lineupForActivity( (int) ( $session->id ?? 0 ) );
+        if ( $lineup->starting === [] && $lineup->bench === [] ) return;
+
+        echo '<div class="tt-act-card-d">';
+        echo '<div class="tt-act-card-d__head"><h3 class="tt-act-card-d__title">'
+            . esc_html__( 'Line-up', 'talenttrack' ) . '</h3></div>';
+        echo '<div class="tt-act-card-d__body">';
+
+        $render_group = static function ( string $heading, array $players ): void {
+            if ( $players === [] ) return;
+            echo '<div class="tt-act-lineup__group">' . esc_html( $heading ) . '</div>';
+            echo '<div class="tt-act-lineup__row">';
+            foreach ( $players as $pl ) {
+                $jersey   = (string) ( $pl->jersey ?? '' );
+                $position = (string) ( $pl->position ?? '' );
+                $label    = ( $jersey !== '' ? '#' . $jersey . ' ' : '' ) . (string) ( $pl->name ?? '' );
+                if ( $position !== '' ) $label .= ' · ' . $position;
+                echo '<span class="tt-act-rp">' . esc_html( $label ) . '</span>';
             }
             echo '</div>';
-            ?>
-            <script>
-            (function () {
-                var btn = document.querySelector('[data-tt-reopen-rating]');
-                if ( ! btn ) return;
-                btn.addEventListener('click', function () {
-                    var path = btn.getAttribute('data-tt-rest-path');
-                    btn.disabled = true;
-                    var tt = window.TT || {};
-                    var url = ( tt.rest_url || '/wp-json/talenttrack/v1/' ).replace(/\/+$/, '/') + path;
-                    fetch(url, {
-                        method: 'PATCH',
-                        credentials: 'same-origin',
-                        headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': tt.rest_nonce || '' },
-                        body: JSON.stringify({ skipped: 0 })
-                    }).then(function (r) {
-                        if ( r.ok ) window.location.reload();
-                        else { btn.disabled = false; btn.textContent = 'Retry'; }
-                    }).catch(function () { btn.disabled = false; });
-                });
-            })();
-            </script>
-            <?php
-        }
-
-        // v3.110.95 — Attendance summary block. Surfaces the same
-        // figures the activity-list "Att. %" column shows (now that
-        // both queries share the "attendance row for player on
-        // current active roster" predicate). The percentage is a
-        // clickable link to the edit form, which IS the per-player
-        // attendance list with marks — exactly what the user asked
-        // for. Visible only on completed activities, since planned
-        // / cancelled rows have no meaningful attendance.
-        $status_key_for_att = (string) ( $session->activity_status_key ?? ActivityStatusKey::PLANNED );
-        if ( $status_key_for_att === ActivityStatusKey::COMPLETED ) {
-            self::renderAttendanceSummary( $session );
-        }
-
-        // v3.110.53 — Edit + Archive moved to the page-header actions
-        // slot rendered by render() before this method runs.
-        //
-        // v3.110.98 — the activity-scoped Analytics section (#0083
-        // Child 4) is no longer rendered here. Operator decision: the
-        // detail page is a "what happened in this session" surface,
-        // not a stats deep-dive. Analytics moves to the central
-        // Analytics tile on the dashboard where coaches can slice
-        // across activities. The renderer + the registered
-        // activity-scoped KPIs stay on disk so the central tile
-        // continues to consume them.
+        };
+        $render_group( __( 'Starting XI', 'talenttrack' ), $lineup->starting );
+        $render_group( __( 'Bench', 'talenttrack' ), $lineup->bench );
 
         echo '</div>';
+        echo '</div>';
+    }
+
+    /**
+     * v3.110.138 — evaluation-skipped notice. When the coach marked
+     * attendance and chose "Skip rating", the activity carries
+     * `evaluation_skipped=1` and drops out of the eval-wizard picker.
+     * Surface the state + a matrix-gated "Re-open for rating" button.
+     */
+    private static function renderEvalSkippedNotice( object $session ): void {
+        $eval_skipped = (int) ( $session->evaluation_skipped ?? 0 );
+        if ( $eval_skipped !== 1 ) return;
+
+        echo '<div class="tt-notice tt-notice-info" style="margin:12px 0 0;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">';
+        echo '<span>' . esc_html__( 'Rating skipped — this activity won\'t appear in the rating picker.', 'talenttrack' ) . '</span>';
+        // #1319 — matrix-aware cap so FR-only operators can re-open.
+        if ( AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_edit_activities' ) ) {
+            $aid = (int) $session->id;
+            echo '<button type="button" class="tt-button tt-button-secondary" data-tt-reopen-rating="' . esc_attr( (string) $aid ) . '" data-tt-rest-path="activities/' . (int) $aid . '/evaluation-skipped">';
+            echo esc_html__( 'Re-open for rating', 'talenttrack' );
+            echo '</button>';
+        }
+        echo '</div>';
+        ?>
+        <script>
+        (function () {
+            var btn = document.querySelector('[data-tt-reopen-rating]');
+            if ( ! btn ) return;
+            btn.addEventListener('click', function () {
+                var path = btn.getAttribute('data-tt-rest-path');
+                btn.disabled = true;
+                var tt = window.TT || {};
+                var url = ( tt.rest_url || '/wp-json/talenttrack/v1/' ).replace(/\/+$/, '/') + path;
+                fetch(url, {
+                    method: 'PATCH',
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/json', 'X-WP-Nonce': tt.rest_nonce || '' },
+                    body: JSON.stringify({ skipped: 0 })
+                }).then(function (r) {
+                    if ( r.ok ) window.location.reload();
+                    else { btn.disabled = false; btn.textContent = 'Retry'; }
+                }).catch(function () { btn.disabled = false; });
+            });
+        })();
+        </script>
+        <?php
+    }
+
+    /**
+     * #1618 — icon + colour keyed to the activity type, for the hero
+     * chip. Falls back to the training treatment for unknown types.
+     *
+     * @return array{bg:string}
+     */
+    private static function activityTypeColor( string $type_key ): array {
+        switch ( strtolower( $type_key ) ) {
+            case ActivityTypeKey::GAME:
+            case 'match':              return [ 'bg' => '#b3261e' ];
+            case ActivityTypeKey::TOURNAMENT: return [ 'bg' => '#8a3b00' ];
+            case ActivityTypeKey::MEETING:    return [ 'bg' => '#5b6e75' ];
+            case ActivityTypeKey::OTHER:      return [ 'bg' => '#475569' ];
+            case ActivityTypeKey::TRAINING:
+            default:                   return [ 'bg' => '#1f5da8' ];
+        }
+    }
+
+    private static function activityTypeIcon( string $type_key ): string {
+        switch ( strtolower( $type_key ) ) {
+            case ActivityTypeKey::GAME:
+            case 'match':              return '⚽';
+            case ActivityTypeKey::TOURNAMENT: return '🏆';
+            case ActivityTypeKey::MEETING:    return '📋';
+            case ActivityTypeKey::OTHER:      return '📌';
+            case ActivityTypeKey::TRAINING:
+            default:                   return '🎯';
+        }
     }
 
     /**
@@ -525,8 +695,8 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             ->plannedRosterForActivity( $activity_id );
         if ( empty( $roster ) ) return;
 
-        echo '<section class="tt-activity-expected" style="margin:8px 0 12px; padding:14px 16px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px;">';
-        echo '<h3 style="margin:0 0 8px; font-size:13px; font-weight:700; color:#1a1d21;">'
+        echo '<div class="tt-act-card-d">';
+        echo '<div class="tt-act-card-d__head"><h3 class="tt-act-card-d__title">'
             . esc_html(
                 sprintf(
                     /* translators: %d = number of players expected at the activity */
@@ -534,72 +704,39 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                     count( $roster )
                 )
             )
-            . '</h3>';
-        echo '<ul style="list-style:none; margin:0; padding:0; display:flex; flex-wrap:wrap; gap:6px;">';
+            . '</h3></div>';
+        echo '<div class="tt-act-card-d__body">';
         foreach ( $roster as $row ) {
             $name     = (string) ( $row->name ?? '' );
             $is_guest = (int) ( $row->is_guest ?? 0 ) === 1;
-            echo '<li style="display:inline-flex; align-items:center; gap:6px; padding:6px 12px; min-height:32px; background:#eef4fb; border-radius:999px; font-size:13px; color:#1a1d21;">';
+            echo '<span class="tt-act-rp">';
             echo esc_html( $name );
             if ( $is_guest ) {
-                echo '<span style="font-size:11px; font-weight:600; color:#5b6e75; text-transform:uppercase; letter-spacing:.03em;">'
-                    . esc_html__( 'Guest', 'talenttrack' )
-                    . '</span>';
+                echo ' <span class="tt-act-rp__guest">' . esc_html__( 'Guest', 'talenttrack' ) . '</span>';
             }
-            echo '</li>';
+            echo '</span>';
         }
-        echo '</ul>';
-        echo '</section>';
+        echo '</div>';
+        echo '</div>';
     }
 
     private static function renderAttendanceSummary( object $session ): void {
-        global $wpdb;
-        $p          = $wpdb->prefix;
         $activity_id = (int) ( $session->id ?? 0 );
         $team_id     = (int) ( $session->team_id ?? 0 );
         if ( $activity_id <= 0 || $team_id <= 0 ) return;
 
-        $club_id = \TT\Infrastructure\Tenancy\CurrentClub::id();
-        $roster_size = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$p}tt_players
-              WHERE team_id = %d AND club_id = %d AND status = 'active'",
-            $team_id, $club_id
-        ) );
+        // #1618 — breakdown counts come from the repository, not the
+        // view (CLAUDE.md §4). The view composes the bar + legend.
+        $bd = ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )
+            ->attendanceBreakdownForActivity( $activity_id, $team_id );
+
+        $roster_size = (int) $bd->roster_size;
         if ( $roster_size === 0 ) return;
 
-        // v3.110.98 — `LOWER(a.status)` normalises the group key so
-        // legacy capitalised rows ('Present') and current lowercase
-        // rows ('present') aggregate into the same bucket. Pre-fix
-        // this counted by raw stored case, the PHP lookups asked for
-        // 'Present', and rosters whose rows had been written lowercase
-        // (the AttendanceStep::validate path via `sanitize_key()`)
-        // produced the headline "0 / N (0% present)" even when every
-        // player had a present row. The breakdown then fell through to
-        // the "custom status" branch and rendered the raw lowercase
-        // keys, which looked like a separate bug. Same case-handling
-        // story as v3.110.78's RateConfirmStep + ratablePlayersForActivity
-        // fixes.
-        $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT LOWER(a.status) AS status, COUNT(*) AS cnt
-               FROM {$p}tt_attendance a
-               INNER JOIN {$p}tt_players pl ON pl.id = a.player_id AND pl.club_id = a.club_id
-              WHERE a.activity_id = %d AND a.is_guest = 0 AND a.club_id = %d
-                AND pl.team_id = %d AND pl.status = 'active'
-              GROUP BY LOWER(a.status)",
-            $activity_id, $club_id, $team_id
-        ) );
-
-        $by_status = [];
-        $total = 0;
-        foreach ( (array) $rows as $r ) {
-            $key = strtolower( (string) ( $r->status ?? '' ) );
-            $cnt = (int) ( $r->cnt ?? 0 );
-            $by_status[ $key ] = $cnt;
-            $total += $cnt;
-        }
-        $present = (int) ( $by_status['present'] ?? 0 );
-        $pct = (int) round( ( $present / $roster_size ) * 100 );
-        if ( $pct > 100 ) $pct = 100;
+        $by_status = (array) $bd->by_status;
+        $total     = (int) $bd->total;
+        $present   = (int) $bd->present;
+        $pct       = (int) $bd->pct;
 
         // #1319 — matrix-aware cap so FR-only operators see the Edit
         // toolbar action on the detail row.
@@ -614,57 +751,75 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             );
         }
 
-        echo '<section class="tt-activity-attendance-summary" style="margin-top:20px; padding:16px 18px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px;">';
-        echo '<h3 style="margin:0 0 12px; font-size:16px;">' . esc_html__( 'Attendance', 'talenttrack' ) . '</h3>';
+        echo '<div class="tt-act-card-d tt-act-card-d--span2">';
+        echo '<div class="tt-act-card-d__head">';
+        echo '<h3 class="tt-act-card-d__title">' . esc_html__( 'Attendance', 'talenttrack' ) . '</h3>';
+        if ( $edit_url !== '' ) {
+            echo '<a class="tt-act-card-d__link" href="' . esc_url( $edit_url ) . '">'
+                . esc_html__( 'Edit', 'talenttrack' ) . ' →</a>';
+        }
+        echo '</div>';
+        echo '<div class="tt-act-card-d__body">';
 
-        echo '<p style="margin:0 0 8px; font-size:14px;">';
         $headline = sprintf(
             /* translators: 1: present count, 2: roster size, 3: percentage 0-100 */
-            __( '%1$d / %2$d players (%3$d%% present)', 'talenttrack' ),
+            __( '%1$d / %2$d present (%3$d%%)', 'talenttrack' ),
             $present, $roster_size, $pct
         );
-        if ( $edit_url !== '' ) {
-            echo '<a href="' . esc_url( $edit_url ) . '" class="tt-record-link" style="font-weight:600; font-size:16px;">'
-                . esc_html( $headline )
-                . '</a>';
-        } else {
-            echo '<strong>' . esc_html( $headline ) . '</strong>';
-        }
-        echo '</p>';
+        echo '<p class="tt-act-att__head">' . esc_html( $headline ) . '</p>';
 
-        // Per-status breakdown — explicit, so the operator sees the
-        // composition without having to re-count manually. Hidden when
-        // no rows recorded yet (total = 0). v3.110.98 — lowercase
-        // status keys so the lookup against `$by_status` (now keyed by
-        // `LOWER(a.status)`) matches. LabelTranslator handles the
-        // localised label via ucfirst.
+        // Per-status breakdown — bar + legend. Status -> bar colour map
+        // mirrors the mockup (present green / absent red / late amber /
+        // excused grey / injured purple). Custom statuses fall back to a
+        // neutral slate. Hidden when no rows recorded yet (total = 0).
         if ( $total > 0 ) {
-            $status_keys = [ 'present', 'absent', 'late', 'excused', 'injured' ];
-            $parts = [];
-            foreach ( $status_keys as $sk ) {
+            $palette = [
+                'present' => '#2e7d4f',
+                'absent'  => '#d63638',
+                'late'    => '#d9a006',
+                'excused' => '#9aa3a8',
+                'injured' => '#7b53b6',
+            ];
+            $seeded = array_keys( $palette );
+
+            // Ordered list of (key, label, count, colour) for present
+            // bar segments + legend entries.
+            $segments = [];
+            foreach ( $seeded as $sk ) {
                 $cnt = (int) ( $by_status[ $sk ] ?? 0 );
-                if ( $cnt === 0 ) continue;
                 $label = \TT\Infrastructure\Query\LabelTranslator::attendanceStatus( ucfirst( $sk ) );
-                $parts[] = '<span style="display:inline-block; margin-right:14px;">'
-                    . esc_html( $label ) . ': <strong>' . (int) $cnt . '</strong></span>';
+                $segments[] = [ 'label' => $label, 'count' => $cnt, 'color' => $palette[ $sk ] ];
             }
-            // Any custom status admins added beyond the seeded set.
             foreach ( $by_status as $sk => $cnt ) {
-                if ( in_array( $sk, $status_keys, true ) ) continue;
-                if ( $cnt === 0 || $sk === '' ) continue;
-                $parts[] = '<span style="display:inline-block; margin-right:14px;">'
-                    . esc_html( ucfirst( $sk ) ) . ': <strong>' . (int) $cnt . '</strong></span>';
+                if ( in_array( $sk, $seeded, true ) || $sk === '' || (int) $cnt === 0 ) continue;
+                $segments[] = [ 'label' => ucfirst( (string) $sk ), 'count' => (int) $cnt, 'color' => '#64748b' ];
             }
-            if ( $parts !== [] ) {
-                echo '<p style="margin:0; font-size:13px; color:#475569;">'
-                    . implode( '', $parts )
-                    . '</p>';
+
+            // Bar — width proportional to count / total. Only non-zero
+            // segments contribute a bar slice.
+            echo '<div class="tt-act-att__bar">';
+            foreach ( $segments as $seg ) {
+                if ( $seg['count'] <= 0 ) continue;
+                $w = (int) round( ( $seg['count'] / $total ) * 100 );
+                echo '<span style="width:' . (int) $w . '%; background:' . esc_attr( $seg['color'] ) . ';"></span>';
             }
+            echo '</div>';
+
+            // Legend — every segment (including zeroes) for the seeded
+            // statuses so the operator reads the full composition.
+            echo '<div class="tt-act-att__legend">';
+            foreach ( $segments as $seg ) {
+                echo '<span class="tt-act-att__legend-item">'
+                    . '<i style="background:' . esc_attr( $seg['color'] ) . ';"></i>'
+                    . esc_html( $seg['label'] ) . ' ' . (int) $seg['count']
+                    . '</span>';
+            }
+            echo '</div>';
 
             // If recorded rows < current roster, surface the gap.
             if ( $total < $roster_size ) {
                 $unrecorded = $roster_size - $total;
-                echo '<p style="margin:8px 0 0; font-size:12px; color:#92400e; font-style:italic;">'
+                echo '<p class="tt-act-att__warn">'
                     . esc_html( sprintf(
                         /* translators: %d: number of players without an attendance row */
                         _n(
@@ -678,12 +833,13 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                     . '</p>';
             }
         } else {
-            echo '<p style="margin:0; font-size:13px; color:#475569; font-style:italic;">'
+            echo '<p class="tt-act-att__warn">'
                 . esc_html__( 'No attendance recorded yet.', 'talenttrack' )
                 . '</p>';
         }
 
-        echo '</section>';
+        echo '</div>';
+        echo '</div>';
     }
 
     /**
@@ -1987,15 +2143,15 @@ class FrontendActivitiesManageView extends FrontendViewBase {
      */
     private static function renderDetailTournamentBlock( object $session ): void {
         $tournament = isset( $session->tournament ) && is_object( $session->tournament ) ? $session->tournament : null;
-        echo '<section class="tt-activity-tournament" style="margin:8px 0 12px;">';
-        echo '<h3 style="margin:0 0 6px; font-size:13px; font-weight:700; color:#1a1d21;">'
-            . esc_html__( 'Tournament', 'talenttrack' )
-            . '</h3>';
+        echo '<div class="tt-act-card-d">';
+        echo '<div class="tt-act-card-d__head"><h3 class="tt-act-card-d__title">'
+            . esc_html__( 'Tournament', 'talenttrack' ) . '</h3></div>';
+        echo '<div class="tt-act-card-d__body">';
         if ( ! $tournament ) {
-            echo '<p style="margin:0; color:#5b6e75;">'
+            echo '<p class="tt-act-card-d__muted">'
                 . esc_html__( 'Not linked yet. Use the edit form to pick an existing tournament.', 'talenttrack' )
                 . '</p>';
-            echo '</section>';
+            echo '</div></div>';
             return;
         }
 
@@ -2015,7 +2171,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         );
 
         echo '<p style="margin:0 0 4px; font-weight:600;">' . esc_html( $name ) . '</p>';
-        echo '<p style="margin:0; color:#5b6e75;">'
+        echo '<p class="tt-act-card-d__muted" style="margin:0;">'
             . esc_html( $date_label . ' · ' . $match_label )
             . '</p>';
 
@@ -2028,7 +2184,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 . esc_html__( 'Open tournament planner →', 'talenttrack' )
                 . '</a></p>';
         }
-        echo '</section>';
+        echo '</div></div>';
     }
 
     /**

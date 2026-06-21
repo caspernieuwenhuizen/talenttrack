@@ -34144,3 +34144,29 @@ msgstr ""
 #: src/Modules/Pdp/Rest/PdpFilesRestController.php
 msgid "Create PDP"
 msgstr ""
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Linked principles"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Line-up"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Home / Away"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Kick-off"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+#, php-format
+msgid "Kick-off %s"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+#, php-format
+msgid "%1$d / %2$d present (%3$d%%)"
+msgstr ""

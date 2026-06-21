@@ -583,6 +583,143 @@ final class ActivitiesRepository {
     }
 
     /**
+     * #1618 — attendance status breakdown for the activity detail card.
+     *
+     * Aggregates the actual attendance rows (`record_type='actual'`,
+     * `is_guest=0`) of players still on the team's current active
+     * roster into per-status counts, plus the roster size, the present
+     * count and the present percentage. The view composes the bar +
+     * legend from this shape; the SQL stays out of the view (CLAUDE.md
+     * §4). `LOWER(a.status)` normalises legacy capitalised rows into
+     * the same bucket as current lowercase rows (same case-handling as
+     * v3.110.98's list-view fix).
+     *
+     * @return object {
+     *   roster_size:int, total:int, present:int, pct:int,
+     *   by_status:array<string,int>  // lowercase status key => count
+     * }  roster_size 0 means the team has no active roster.
+     */
+    public function attendanceBreakdownForActivity( int $activity_id, int $team_id ): object {
+        global $wpdb;
+        $p       = $wpdb->prefix;
+        $club_id = CurrentClub::id();
+        $empty   = (object) [ 'roster_size' => 0, 'total' => 0, 'present' => 0, 'pct' => 0, 'by_status' => [] ];
+        if ( $activity_id <= 0 || $team_id <= 0 ) return $empty;
+
+        $roster_size = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$p}tt_players
+              WHERE team_id = %d AND club_id = %d AND status = 'active'",
+            $team_id, $club_id
+        ) );
+        if ( $roster_size === 0 ) return $empty;
+
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT LOWER(a.status) AS status, COUNT(*) AS cnt
+               FROM {$p}tt_attendance a
+               INNER JOIN {$p}tt_players pl ON pl.id = a.player_id AND pl.club_id = a.club_id
+              WHERE a.activity_id = %d AND a.is_guest = 0 AND a.club_id = %d
+                AND pl.team_id = %d AND pl.status = 'active'
+              GROUP BY LOWER(a.status)",
+            $activity_id, $club_id, $team_id
+        ) );
+
+        $by_status = [];
+        $total     = 0;
+        foreach ( (array) $rows as $r ) {
+            $key = strtolower( (string) ( $r->status ?? '' ) );
+            if ( $key === '' ) continue;
+            $cnt              = (int) ( $r->cnt ?? 0 );
+            $by_status[ $key ] = $cnt;
+            $total           += $cnt;
+        }
+        $present = (int) ( $by_status['present'] ?? 0 );
+        $pct     = (int) round( ( $present / $roster_size ) * 100 );
+        if ( $pct > 100 ) $pct = 100;
+
+        return (object) [
+            'roster_size' => $roster_size,
+            'total'       => $total,
+            'present'     => $present,
+            'pct'         => $pct,
+            'by_status'   => $by_status,
+        ];
+    }
+
+    /**
+     * #1618 — match-day line-up for the activity detail card.
+     *
+     * Reads the `lineup_role` / `position_played` columns the match-prep
+     * flow writes onto `tt_attendance` (see
+     * `MatchPrep\Rest\MatchPrepRestController::upsertAttendanceLineup`)
+     * and groups them into Starting XI + Bench, each decorated with the
+     * player's name, jersey number and the position played (falling back
+     * to the first preferred position). Roster rows only (no guests).
+     *
+     * Keeping the grouping in the repository means REST and the rendered
+     * card read the same line-up shape (CLAUDE.md §4).
+     *
+     * @return object {
+     *   starting: list<object{player_id:int,name:string,jersey:string,position:string}>,
+     *   bench:    list<object{...}>
+     * }
+     */
+    public function lineupForActivity( int $activity_id ): object {
+        $out = (object) [ 'starting' => [], 'bench' => [] ];
+        if ( $activity_id <= 0 ) return $out;
+
+        global $wpdb;
+        $p       = $wpdb->prefix;
+        $club_id = CurrentClub::id();
+        $rows    = $wpdb->get_results( $wpdb->prepare(
+            "SELECT a.player_id, a.lineup_role, a.position_played,
+                    pl.first_name, pl.last_name, pl.jersey_number, pl.preferred_positions
+               FROM {$p}tt_attendance a
+               INNER JOIN {$p}tt_players pl ON pl.id = a.player_id AND pl.club_id = a.club_id
+              WHERE a.activity_id = %d AND a.is_guest = 0 AND a.club_id = %d
+                AND a.lineup_role IN ( 'start', 'bench' )
+              ORDER BY ( pl.jersey_number IS NULL ), pl.jersey_number ASC,
+                       pl.last_name ASC, pl.first_name ASC",
+            $activity_id, $club_id
+        ) );
+
+        foreach ( (array) $rows as $r ) {
+            $pid  = (int) ( $r->player_id ?? 0 );
+            if ( $pid <= 0 ) continue;
+            $name = trim( (string) ( $r->first_name ?? '' ) . ' ' . (string) ( $r->last_name ?? '' ) );
+            if ( $name === '' ) $name = '#' . $pid;
+
+            $position = trim( (string) ( $r->position_played ?? '' ) );
+            if ( $position === '' ) {
+                $pref     = (string) ( $r->preferred_positions ?? '' );
+                $first    = trim( explode( ',', $pref )[0] ?? '' );
+                $position = $first;
+            }
+
+            $entry = (object) [
+                'player_id' => $pid,
+                'name'      => $name,
+                'jersey'    => (string) ( $r->jersey_number ?? '' ),
+                'position'  => $position,
+            ];
+            if ( (string) $r->lineup_role === 'start' ) {
+                $out->starting[] = $entry;
+            } else {
+                $out->bench[] = $entry;
+            }
+        }
+        return $out;
+    }
+
+    /**
+     * Last DB error message, for callers surfacing write failures
+     * without reaching into `$wpdb` themselves.
+     */
+    public function lastError(): string {
+        global $wpdb;
+        return (string) $wpdb->last_error;
+    }
+
+    /**
      * #1614 — upcoming-activity counts per team for the teams-list cards.
      *
      * Counts non-archived, non-completed/cancelled activities whose
@@ -637,14 +774,5 @@ final class ActivitiesRepository {
             $out[ (int) $row->team_id ] = (int) $row->n;
         }
         return $out;
-    }
-
-    /**
-     * Last DB error message, for callers surfacing write failures
-     * without reaching into `$wpdb` themselves.
-     */
-    public function lastError(): string {
-        global $wpdb;
-        return (string) $wpdb->last_error;
     }
 }

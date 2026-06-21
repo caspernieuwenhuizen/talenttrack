@@ -41076,3 +41076,29 @@ msgstr "Teaminfo"
 #: src/Infrastructure/REST/TeamDetailPreferencesRestController.php:69
 msgid "Expected an object under `sections`."
 msgstr "Verwacht een object onder `sections`."
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Linked principles"
+msgstr "Gekoppelde principes"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Line-up"
+msgstr "Opstelling"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Home / Away"
+msgstr "Thuis / Uit"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+msgid "Kick-off"
+msgstr "Aftrap"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+#, php-format
+msgid "Kick-off %s"
+msgstr "Aftrap %s"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php
+#, php-format
+msgid "%1$d / %2$d present (%3$d%%)"
+msgstr "%1$d / %2$d aanwezig (%3$d%%)"
