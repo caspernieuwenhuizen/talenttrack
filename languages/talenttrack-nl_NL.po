@@ -40970,3 +40970,61 @@ msgstr "Spelers (minste)"
 #: src/Shared/Frontend/FrontendTeamsManageView.php
 msgid "Players (most)"
 msgstr "Spelers (meeste)"
+#: src/Shared/Frontend/FrontendTeamDetailView.php:261
+msgid "Customize"
+msgstr "Aanpassen"
+
+#: src/Shared/Frontend/FrontendTeamDetailView.php:303
+msgid "Customize sections"
+msgstr "Secties aanpassen"
+
+#: src/Shared/Frontend/FrontendTeamDetailView.php:304
+msgid "Show on this page"
+msgstr "Tonen op deze pagina"
+
+#: src/Shared/Frontend/FrontendTeamDetailView.php:305
+msgid ""
+"Personal to you, across every team you coach. The team header always shows."
+msgstr ""
+"Persoonlijk voor jou, voor elk team dat je coacht. De teamkop wordt altijd "
+"getoond."
+
+#: src/Shared/Frontend/FrontendTeamDetailView.php:319
+msgid "Save layout"
+msgstr "Indeling opslaan"
+
+#: src/Shared/Frontend/FrontendTeamDetailView.php:340
+msgid "Saved. Reloading…"
+msgstr "Opgeslagen. Opnieuw laden…"
+
+#: src/Shared/Frontend/FrontendTeamDetailView.php:402
+msgid "next 14 d"
+msgstr "komende 14 d"
+
+#: src/Shared/Frontend/FrontendTeamDetailView.php:412
+msgid "Squad rating"
+msgstr "Selectiebeoordeling"
+
+#: src/Shared/Frontend/FrontendTeamDetailView.php:469
+msgid "No players on this roster yet."
+msgstr "Nog geen spelers in deze selectie."
+
+#. translators: %d: number of players on the roster.
+#: src/Shared/Frontend/FrontendTeamDetailView.php:460
+#, php-format
+msgid "Roster · %d"
+msgstr "Selectie · %d"
+
+#: src/Infrastructure/Teams/TeamDetailSections.php:59
+#: src/Shared/Frontend/FrontendTeamDetailView.php:629
+msgid "Trial roster"
+msgstr "Proefselectie"
+
+#: src/Infrastructure/Teams/TeamDetailSections.php:58
+#: src/Shared/Frontend/FrontendTeamDetailView.php:591
+msgid "Team info"
+msgstr "Teaminfo"
+
+#: src/Infrastructure/REST/TeamDetailPreferencesRestController.php:69
+msgid "Expected an object under `sections`."
+msgstr "Verwacht een object onder `sections`."

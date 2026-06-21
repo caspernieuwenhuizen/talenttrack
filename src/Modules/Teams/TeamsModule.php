@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Core\Container;
 use TT\Core\ModuleInterface;
+use TT\Infrastructure\REST\TeamDetailPreferencesRestController;
 use TT\Infrastructure\REST\TeamsRestController;
 
 class TeamsModule implements ModuleInterface {
@@ -13,5 +14,7 @@ class TeamsModule implements ModuleInterface {
     public function boot( Container $container ): void {
         if ( is_admin() ) Admin\TeamsPage::init();
         TeamsRestController::init();
+        // #1613 — per-user team-detail section visibility preference.
+        TeamDetailPreferencesRestController::init();
     }
 }
