@@ -138,6 +138,7 @@ final class EditorPage {
     private static function buildBootstrap( array $personas, int $club_id ): array {
         $widgets = [];
         $data_sources_by_widget = [];
+        $multi_data_source_widgets = [];
         foreach ( WidgetRegistry::all() as $w ) {
             // v3.110.110 — description + intended_personas. Methods are
             // defaulted to empty on AbstractWidget; concrete widgets
@@ -167,6 +168,12 @@ final class EditorPage {
             $catalogue = method_exists( $w, 'dataSourceCatalogue' ) ? $w->dataSourceCatalogue() : [];
             if ( ! empty( $catalogue ) ) {
                 $data_sources_by_widget[ $w->id() ] = $catalogue;
+            }
+            // #1611 — widgets whose data_source is a comma-joined list of
+            // catalogue ids signal a multi-select. The editor reads this
+            // to render a checklist instead of the single-select dropdown.
+            if ( method_exists( $w, 'dataSourceMultiple' ) && $w->dataSourceMultiple() ) {
+                $multi_data_source_widgets[ $w->id() ] = true;
             }
         }
 
@@ -206,6 +213,9 @@ final class EditorPage {
             'kpis_by_context'          => $kpis_by_context,
             // #0077 M1 — { widget_id: { preset_id: human_label } }
             'data_sources_by_widget'   => $data_sources_by_widget,
+            // #1611 — { widget_id: true } for widgets whose data_source is
+            // a comma-joined CSV of catalogue ids (multi-select checklist).
+            'multi_data_source_widgets' => $multi_data_source_widgets,
             'templates'                => $templates,
             'user_counts'              => $user_counts,
             'persona_labels'           => self::personaLabelsMap( $personas ),

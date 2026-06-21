@@ -176,3 +176,7 @@ De persona-dashboard-editor vroeg vroeger om vrije tekst voor "databron"-waarden
 - Navigatietegel → elke geregistreerde tegel-slug, dynamisch geladen
 
 Oudere waarden die niet meer overeenkomen met een preset blijven zichtbaar (met "(legacy)"-suffix), zodat een verwijderde preset opvalt in plaats van stilletjes leeg te worden.
+
+### Multi-selectie actiekiezer (Snelle acties-paneel)
+
+De widget **Snelle acties-paneel** stapelt meerdere actiekaarten, dus de databron is een door komma's gescheiden *lijst* van actie-IDs in plaats van één enkele. Voor deze widget toont de editor een **checklist** van de beschikbare acties (dezelfde catalogus als de Actiekaart) in plaats van een enkelvoudige dropdown — vink de gewenste acties aan en de editor voegt ze samen tot de CSV-waarde. Een nieuw toegevoegd Snelle acties-paneel begint met de vier kernacties voorgeselecteerd (Nieuwe evaluatie, Nieuw doel, Nieuwe activiteit, Speler toevoegen), zodat de widget nooit leeg is. Elke aangevinkte actie wordt nog steeds alleen weergegeven als de bekijkende persona over de onderliggende rechten beschikt.

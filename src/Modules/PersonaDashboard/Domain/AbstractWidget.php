@@ -82,6 +82,18 @@ abstract class AbstractWidget implements Widget {
         return [];
     }
 
+    /**
+     * #1611 — whether `data_source` holds a comma-joined list of
+     * catalogue ids (multi-select) rather than a single id. Widgets like
+     * QuickActionsPanelWidget override to true so the persona editor
+     * renders a checklist instead of the single-select dropdown. Default
+     * false keeps every existing single-action catalogue widget on the
+     * dropdown.
+     */
+    public function dataSourceMultiple(): bool {
+        return false;
+    }
+
     abstract public function render( WidgetSlot $slot, RenderContext $ctx ): string;
 
     /**
