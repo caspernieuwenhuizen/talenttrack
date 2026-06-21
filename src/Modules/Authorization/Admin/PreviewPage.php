@@ -9,7 +9,7 @@ use TT\Modules\Authorization\MatrixGate;
 use TT\Modules\Authorization\PersonaResolver;
 
 /**
- * PreviewPage — Authorization → Migration preview (#0033 Sprint 8).
+ * PreviewPage — Authorization → Activate access control (#0033 Sprint 8).
  *
  * Compares each user's old (cap-based) and new (matrix-based) effective
  * permissions. Output: an in-page table + downloadable CSV. The "Apply"
@@ -43,7 +43,7 @@ class PreviewPage {
         $rows = self::computeDiff();
         ?>
         <div class="wrap">
-            <h1><?php esc_html_e( 'Migration preview — Authorization Matrix', 'talenttrack' ); ?></h1>
+            <h1><?php esc_html_e( 'Activate access control — Authorization Matrix', 'talenttrack' ); ?></h1>
             <p style="color:#5b6e75; max-width:760px;">
                 <?php esc_html_e( 'Compare each user\'s legacy (capability-based) and new (matrix-based) effective permissions. "Gained" means the matrix grants something the old caps didn\'t. "Revoked" means the opposite — review carefully before applying.', 'talenttrack' ); ?>
             </p>

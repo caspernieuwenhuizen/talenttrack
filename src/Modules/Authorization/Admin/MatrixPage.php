@@ -73,8 +73,8 @@ class MatrixPage {
                 <div class="notice notice-warning">
                     <p>
                         <strong><?php esc_html_e( 'The matrix is currently dormant.', 'talenttrack' ); ?></strong>
-                        <?php esc_html_e( 'Your edits are saved but have no runtime effect: native WP capability checks decide instead. Enable the bridge on Authorization → Migration preview to make the matrix authoritative.', 'talenttrack' ); ?>
-                        <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-matrix-preview' ) ); ?>"><?php esc_html_e( 'Open Migration preview →', 'talenttrack' ); ?></a>
+                        <?php esc_html_e( 'Your edits are saved but have no runtime effect: native WP capability checks decide instead. Enable the bridge on Authorization → Activate access control to make the matrix authoritative.', 'talenttrack' ); ?>
+                        <a href="<?php echo esc_url( admin_url( 'admin.php?page=tt-matrix-preview' ) ); ?>"><?php esc_html_e( 'Open Activate access control →', 'talenttrack' ); ?></a>
                     </p>
                 </div>
             <?php endif; ?>

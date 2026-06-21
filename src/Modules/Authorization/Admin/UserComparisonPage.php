@@ -51,7 +51,7 @@ class UserComparisonPage {
 
             <?php if ( ! $matrix_active ) : ?>
                 <div class="notice notice-warning inline" style="margin:12px 0;">
-                    <p><?php esc_html_e( 'The authorization matrix is in shadow mode. The "Matrix" column below is computed but the runtime still uses the legacy "Cap" column. Apply the matrix on Authorization → Migration preview to switch.', 'talenttrack' ); ?></p>
+                    <p><?php esc_html_e( 'The authorization matrix is in shadow mode. The "Matrix" column below is computed but the runtime still uses the legacy "Cap" column. Apply the matrix on Authorization → Activate access control to switch.', 'talenttrack' ); ?></p>
                 </div>
             <?php endif; ?>
 
