@@ -34263,6 +34263,10 @@ msgstr "Doel bijwerken"
 msgid "You do not have permission to view holidays."
 msgstr "Je hebt geen toestemming om vakanties te bekijken."
 
+#: src/Shared/Frontend/FrontendHolidaysView.php
+msgid "You do not have permission to manage holidays."
+msgstr "Je hebt geen toestemming om vakanties te beheren."
+
 #: src/Shared/Frontend/FrontendHolidaysView.php:26
 msgid "Academy holidays"
 msgstr "Academievakanties"
@@ -40864,3 +40868,15 @@ msgstr "Toon TalentTrack op volledige breedte en verberg de kop, voettekst, zijb
 
 msgid "Show TalentTrack as a full-canvas app (recommended)."
 msgstr "Toon TalentTrack als volledig-canvas app (aanbevolen)."
+
+msgid "Edit holiday"
+msgstr "Vakantie bewerken"
+
+msgid "Update holiday"
+msgstr "Vakantie bijwerken"
+
+msgid "Holiday not found"
+msgstr "Vakantie niet gevonden"
+
+msgid "That holiday no longer exists."
+msgstr "Die vakantie bestaat niet meer."

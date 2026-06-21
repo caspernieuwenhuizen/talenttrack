@@ -24,6 +24,10 @@ Als je vanaf de planner een activiteit op een vakantiedag probeert te plannen, v
 
 Vakanties beheren (aanmaken / verwijderen) vereist de rechten **Vakanties beheren** — voor academiebeheerders, managers en het Hoofd Opleidingen. Coaches zien vakanties maar beheren ze niet.
 
+## Een vakantie bewerken
+
+Klik in de Vakantielijst op een rij (of gebruik de **Bewerken**-actie op de rij) om het bewerkformulier van de vakantie te openen. Pas de naam, de start- of einddatum of de notitie aan en klik op **Vakantie bijwerken** om op te slaan. Met **Annuleren** keer je terug naar de lijst zonder iets te wijzigen. Bewerken vereist de rechten **Vakanties beheren**.
+
 ## Een vakantie verwijderen
 
 Gebruik in de Vakantielijst de **Verwijderen**-actie op de rij. Vakanties worden zacht gearchiveerd (bewaard in de database, verborgen uit lijsten en planners), niet hard verwijderd.

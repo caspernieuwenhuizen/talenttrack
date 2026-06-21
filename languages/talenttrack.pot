@@ -30005,6 +30005,10 @@ msgstr ""
 msgid "You do not have permission to view holidays."
 msgstr ""
 
+#: src/Shared/Frontend/FrontendHolidaysView.php
+msgid "You do not have permission to manage holidays."
+msgstr ""
+
 #: src/Shared/Frontend/FrontendHolidaysView.php:26
 msgid "Academy holidays"
 msgstr ""
@@ -33830,4 +33834,20 @@ msgstr ""
 
 #: src/Shared/Frontend/FrontendConfigurationView.php
 msgid "Spacious"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendHolidaysView.php
+msgid "Edit holiday"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendHolidaysView.php
+msgid "Update holiday"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendHolidaysView.php
+msgid "Holiday not found"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendHolidaysView.php
+msgid "That holiday no longer exists."
 msgstr ""

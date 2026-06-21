@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.38.0
+Stable tag: 4.39.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.39.0 — Holidays are now editable, with click-to-open rows (closes #1602). The academy holidays list only exposed Delete — no way to edit a holiday or open one by clicking its row, even though the REST layer already supported updates (`PUT /holidays/{id}`). The list (`FrontendHolidaysView`) gains an **Edit** row action (gated `tt_manage_holidays`) and **clickable rows** via `FrontendListTable`'s `row_url_key` (the REST serializer now emits a `detail_url`, populated only for users who may manage holidays, so read-only viewers get inert rows). Edit / row-click opens a flat edit form — Name + start/end date (`type="date"`) + optional note, pre-filled from the repository — saving through the existing `PUT /holidays/{id}` with the WP nonce; **Save + Cancel** via the shared `FormSaveButton` (Cancel → the holidays list, `tt_back`-aware). Breadcrumbs render on every path (list, edit form, not-found, permission-denied) with Holidays as the parent crumb. Read stays gated on `tt_view_holidays`, writes on `tt_manage_holidays`. New strings translated to Dutch; docs (EN+NL) gain an "Editing a holiday" section. Minor bump. (closes #1602) =
 
 = 4.38.0 — Authorization matrix enablement: rename "Migration preview" → "Activate access control" + default the matrix on for new installs (closes #1601). The "Migration preview" page read like a data/DB migration when it actually previews per-user access changes and switches the matrix on; every user-visible label now reads **Activate access control** (the wp-admin menu entry, the page heading, the Admin Center tile + description, the Matrix-page link and dormant-mode hint, the Compare-users notice, and the frontend Roles-and-rights tools list). The URL slug `tt-matrix-preview` is unchanged, so bookmarks survive. New academies now boot with the matrix as the authority: `Activator::activate()` captures whether `tt_installed_version` is empty before `runMigrations()` stamps it, and on a fresh install only seeds `tt_config['tt_authorization_active'] = '1'` (after the schema exists, key-absent only). Existing installs are never flipped on upgrade — they still activate deliberately via the renamed page; turn it off with the page's Rollback button or `tt_authorization_active = 0`. docs/authorization-matrix.md + docs/access-control.md (EN+NL) updated; Dutch strings for every renamed label. Minor bump. (closes #1601) =
 
