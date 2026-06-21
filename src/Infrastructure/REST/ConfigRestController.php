@@ -47,6 +47,10 @@ class ConfigRestController {
         // comfortable / spacious). Drives tile size + column density on
         // every tile surface via TileGridStandard.
         'tile_appearance',
+        // #1590 — full-canvas app shell toggle (boolean). When on
+        // (default), the dashboard page renders without the active
+        // theme's header / footer / sidebar chrome.
+        'frontend_canvas_mode',
         'color_accent',
         'color_danger',
         'color_warning',
@@ -102,6 +106,7 @@ class ConfigRestController {
         'font_display'      => 'branding',
         'font_body'         => 'branding',
         'tile_appearance'   => 'branding',
+        'frontend_canvas_mode' => 'branding',
         'color_accent'      => 'branding',
         'color_danger'      => 'branding',
         'color_warning'     => 'branding',

@@ -38,6 +38,14 @@ A single shared standard now drives every tile's size and layout (`TileGridStand
 
 **Tile scale:** the older numeric **Tile scale** percentage (set on the wp-admin Configuration page) still works — it is applied as an additional multiplier on top of the chosen preset, so existing overrides keep their effect. When Tile scale is left at 100%, the preset alone governs tile sizing.
 
+## Full-canvas app (v4.34.0+)
+
+The Appearance surface gains a **Full-canvas app** checkbox. When it is on — the default — TalentTrack renders full-width and the active WordPress theme's header, footer, sidebar, menus and widgets are hidden, so only the TalentTrack interface shows. The WordPress admin bar still appears for logged-in staff (it is a WordPress control, not theme chrome, and gives staff a one-click route back to wp-admin).
+
+To opt out, open **Configuration → Appearance**, scroll to **Full-canvas app**, untick **Show TalentTrack as a full-canvas app**, and Save. TalentTrack then renders inside the theme's normal page layout again — useful if your theme provides navigation or branding you want to keep around the app.
+
+The setting is stored academy-wide under the `frontend_canvas_mode` configuration key. The canvas only takes over the page that hosts the `[talenttrack_dashboard]` shortcode; every other page on the site renders through the theme as usual. Print and export pages (match prep, PDP, methodology) are unaffected — they already render as standalone documents with no chrome.
+
 ## Frontend Configuration sections (v4.26.16+)
 
 The frontend Configuration landing groups its tiles into purpose-based sections instead of one flat grid; a section with no visible (permitted) tiles renders no heading:

@@ -1,0 +1,52 @@
+/*
+ * frontend-canvas.css (#1590) — full-canvas app shell frame.
+ *
+ * Loaded only on the canvas-mode dashboard page (CanvasShell::enqueueShell).
+ * Strips the document down to a full-width surface for the TalentTrack UI;
+ * the app's own responsive layout (.tt-dashboard, public.css / frontend-
+ * admin.css) drives everything inside. Mobile-first: no max-width, no
+ * horizontal scroll at 360px, safe-area padding so the WP admin bar and
+ * any fixed app bars clear iOS notches and the home indicator.
+ *
+ * Scoped to the canvas body / wrapper only — no global resets that could
+ * bleed into the admin bar or other plugins.
+ */
+
+html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+body.tt-canvas {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100vh;
+    background: var(--tt-canvas-bg, #f4f5f7);
+    /* Respect iOS notches / home indicator on any fixed app chrome. */
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    overflow-x: hidden;
+}
+
+/* The WP admin bar (staff-only) reserves 46px on phones, 32px on wider
+ * viewports. WordPress already offsets <html> via its own admin-bar CSS,
+ * so the canvas wrapper just needs to fill the remaining space. */
+body.tt-canvas .tt-canvas {
+    width: 100%;
+    max-width: 100%;
+    /* No imposed max-width — let .tt-dashboard's own layout decide. */
+    margin: 0 auto;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Tablet and up: a little breathing room around the app surface without
+ * capping its width — the dashboard's internal grid handles real layout. */
+@media (min-width: 768px) {
+    body.tt-canvas .tt-canvas {
+        padding-left: 0;
+        padding-right: 0;
+    }
+}

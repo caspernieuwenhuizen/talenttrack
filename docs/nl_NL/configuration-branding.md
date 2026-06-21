@@ -38,6 +38,14 @@ Eén gedeelde standaard bepaalt nu de grootte en lay-out van elke tegel (`TileGr
 
 **Tegelschaal:** het oudere numerieke **Tegelschaal**-percentage (in te stellen op de wp-admin Configuratiepagina) blijft werken — het wordt als extra vermenigvuldiger bovenop de gekozen voorinstelling toegepast, zodat bestaande aanpassingen hun effect behouden. Als Tegelschaal op 100% blijft staan, bepaalt de voorinstelling alleen de tegelgrootte.
 
+## Volledig-canvas app (v4.34.0+)
+
+Het Vormgeving-scherm krijgt een selectievakje **Volledig-canvas app**. Als dit aan staat — de standaardinstelling — wordt TalentTrack op volledige breedte weergegeven en worden de kop, voettekst, zijbalk, menu's en widgets van het actieve WordPress-thema verborgen, zodat alleen de TalentTrack-interface zichtbaar is. De WordPress-beheerbalk blijft zichtbaar voor ingelogde medewerkers (het is een WordPress-element, geen thema-omlijsting, en geeft medewerkers met één klik toegang tot wp-admin).
+
+Om dit uit te zetten open je **Configuratie → Vormgeving**, scrol je naar **Volledig-canvas app**, vink je **Toon TalentTrack als volledig-canvas app** uit en sla je op. TalentTrack wordt dan weer binnen de normale pagina-indeling van het thema getoond — handig als je thema navigatie of branding biedt die je rond de app wilt behouden.
+
+De instelling wordt academy-breed opgeslagen onder de configuratiesleutel `frontend_canvas_mode`. Het canvas neemt alleen de pagina over waarop de shortcode `[talenttrack_dashboard]` staat; elke andere pagina op de site wordt zoals gebruikelijk via het thema weergegeven. Afdruk- en exportpagina's (wedstrijdvoorbereiding, PDP, methodiek) blijven ongemoeid — die worden al als losstaande documenten zonder omlijsting weergegeven.
+
 ## Configuratiesecties in de frontend (v4.26.16+)
 
 De frontend-Configuratielandingspagina groepeert de tegels in doelgerichte secties in plaats van één plat raster; een sectie zonder zichtbare (toegestane) tegels toont geen kop:
