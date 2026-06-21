@@ -103,7 +103,23 @@ The preview shows:
 - **Contents** — row counts per data set (Players, Teams, Staff & roles, Evaluations, Activities & attendance, Goals, Lookups & configuration).
 - **What would happen on import** — for the record sets with a natural key (Players matched on first name + last name + date of birth, Teams on name + age group, Staff on first name + last name + email), how many incoming records **match an existing record** on this install versus how many are **new**. Matching is by stable key, not by id — ids differ between installs, so a source id of 5 is not the target's record 5.
 
-Applying the import — inserting records with remapped ids, rewriting foreign keys, resolving matches interactively, and linking WordPress users — is the next phase and is not available yet. Uploads are capped at 25 MB; larger datasets come with the write phase.
+## Data migration — applying an import (v4.36.0+)
+
+From the preview, **Configure import** lets you apply the archive to this install:
+
+1. **Choose data sets** — pick which record groups to import (Players, Teams, Staff & roles, Evaluations, Activities & attendance, Goals). Lookups & configuration are **not** imported; they are used only to match references (see below).
+2. **Resolve matches** — for each record set where an incoming record matches an existing one on its stable key, choose **Insert as new** (default — keep both) or **Update the existing record**.
+3. **Link WordPress users** — records that referenced a user on the source install are listed with a suggested target user (matched by email); confirm, pick another, or leave unlinked.
+4. **Dry run** — produces a per-table count of what *would* be inserted / updated / skipped. **Nothing is written during the dry run.**
+5. **Confirm** — type `IMPORT` and apply. The write runs inside a database transaction and rolls back completely if any row fails, so a partial import never lands.
+
+How references are handled:
+
+- **Source ids are never preserved.** Every imported row is inserted as new; the importer records an old→new id map per table and rewrites foreign keys (via the dependency map) to the new ids before each write — so an imported evaluation points at the imported player, not at whatever record happened to hold that id on the target.
+- **`club_id`** is rewritten to the current club; **`wp_user_id`** is set from your user mapping (unmapped → unlinked).
+- **References into Lookups & configuration** (e.g. an evaluation's type, a rating's category) are matched by stable key to the equivalent entry already on this install. If the target has no matching entry, the row imports without that link and a warning is shown — set up the configuration first if you need those links.
+
+Uploads are capped at 25 MB. Importing custom-field *values* is not yet covered (the records themselves import; their custom values do not).
 
 ## What's still deferred
 
