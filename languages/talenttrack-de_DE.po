@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-21T20:54:01+00:00\n"
+"POT-Creation-Date: 2026-06-21T20:56:14+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -8638,7 +8638,7 @@ msgstr ""
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:431
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:368
 #: src/Shared/CoreSurfaceRegistration.php:1175
-#: src/Shared/Frontend/FrontendTileGrid.php:503
+#: src/Shared/Frontend/FrontendTileGrid.php:514
 msgid "Welcome"
 msgstr ""
 
@@ -29045,7 +29045,7 @@ msgid "HOM"
 msgstr ""
 
 #: src/Shared/CoreSurfaceRegistration.php:212
-#: src/Shared/Frontend/FrontendTileGrid.php:393
+#: src/Shared/Frontend/FrontendTileGrid.php:404
 msgid "Me"
 msgstr ""
 
@@ -34940,20 +34940,20 @@ msgstr ""
 msgid "Schedule test training"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTileGrid.php:311
+#: src/Shared/Frontend/FrontendTileGrid.php:322
 msgid "Today's work"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTileGrid.php:326
+#: src/Shared/Frontend/FrontendTileGrid.php:337
 msgid "Setup & administration"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTileGrid.php:421
+#: src/Shared/Frontend/FrontendTileGrid.php:432
 msgid "My work"
 msgstr ""
 
 #. translators: %s is user display name
-#: src/Shared/Frontend/FrontendTileGrid.php:500
+#: src/Shared/Frontend/FrontendTileGrid.php:511
 #, php-format
 msgid "Welcome, %s"
 msgstr ""
