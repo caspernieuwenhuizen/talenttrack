@@ -24,6 +24,10 @@ When you try to schedule an activity on a holiday day from the planner, a **soft
 
 Managing holidays (create / delete) needs the **Manage holidays** permission — held by academy admins, managers and the Head of Development. Coaches can see holidays but don't manage them.
 
+## Editing a holiday
+
+On the Holidays list, click a row (or use the row's **Edit** action) to open the holiday's edit form. Change the name, the start or end date, or the note, then **Update holiday** to save. **Cancel** returns you to the list without changing anything. Editing needs the **Manage holidays** permission.
+
 ## Removing a holiday
 
 On the Holidays list, use the row's **Delete** action. Holidays are soft-archived (kept in the database, hidden from lists and planners), not hard-deleted.

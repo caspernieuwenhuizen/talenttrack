@@ -162,14 +162,27 @@ final class HolidaysRestController {
 
     /** @return array<string,mixed> */
     private static function serialize( object $row ): array {
+        // #1602 — `detail_url` powers the FrontendListTable row-link
+        // (row_url_key) and points at the in-place edit form. Only emit
+        // it for users who can actually edit; a read-only viewer gets a
+        // null and the row stays non-clickable.
+        $id         = (int) $row->id;
+        $detail_url = null;
+        if ( current_user_can( 'tt_manage_holidays' ) ) {
+            $detail_url = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg(
+                [ 'tt_view' => 'holidays', 'edit' => $id ],
+                \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+            ) );
+        }
         return [
-            'id'         => (int) $row->id,
+            'id'         => $id,
             'uuid'       => (string) $row->uuid,
             'name'       => (string) $row->name,
             'start_date' => (string) $row->start_date,
             'end_date'   => (string) $row->end_date,
             'note'       => $row->note !== null ? (string) $row->note : null,
             'color'      => $row->color !== null ? (string) $row->color : null,
+            'detail_url' => $detail_url,
         ];
     }
 }
