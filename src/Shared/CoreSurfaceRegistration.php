@@ -492,6 +492,26 @@ final class CoreSurfaceRegistration {
             'description'  => __( 'Log training activities and attendance.', 'talenttrack' ),
             'icon'         => 'activities',
             'color'        => '#c9962a',
+            // #1608 — a single-team coach lands on the activities list
+            // pre-filtered to their team. The page reads top-level
+            // `?team_id=N` (`FrontendActivitiesManageView::renderList`),
+            // not `filter[team_id]`, so the URL carries the bare param.
+            // Skipped for global team readers (admin / HoD), who want the
+            // unscoped list, and for multi-team coaches (the list filter
+            // is single-team `absint`, so there's no correct single value
+            // — they pick from the in-page team filter).
+            'url_callback' => static function ( int $user_id ): string {
+                $base = add_query_arg(
+                    [ 'tt_view' => 'activities' ],
+                    \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+                );
+                if ( current_user_can( 'tt_view_all_teams' ) ) return $base;
+                $teams = QueryHelpers::get_teams_for_coach( $user_id );
+                if ( count( $teams ) !== 1 ) return $base;
+                $team_id = (int) ( $teams[0]->id ?? 0 );
+                if ( $team_id <= 0 ) return $base;
+                return add_query_arg( [ 'team_id' => $team_id ], $base );
+            },
         ]);
         // #0006 — team-planning calendar tile, in the Performance group
         // alongside Activities. The planner is the forward-looking
