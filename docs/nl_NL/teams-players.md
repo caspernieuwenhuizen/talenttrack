@@ -12,6 +12,18 @@ Een **team** is een selectie binnen een specifieke leeftijdscategorie (bijv. "U1
 
 Maak teams aan op de beheerpagina **Teams**. De leeftijdscategorie is belangrijk, omdat [categorie gewichten](?page=tt-docs&topic=eval-categories-weights) per leeftijdscategorie worden gedefinieerd.
 
+### De Teams-lijst (v4.40.0 — #1614)
+
+De Teams-lijst (de frontend **Teams**-weergave) toont je teams als een raster van klikbare kaarten in plaats van een tabel. Elke kaart bevat:
+
+- Een gekleurde accentbalk bovenaan en een initialen-embleem, getint op leeftijdsband zodat een team altijd dezelfde kleur heeft.
+- De teamnaam en een hoofdcoach-regel ("Nog geen hoofdcoach" als er geen is toegewezen).
+- Een statstrook met twee waarden: **Spelers** (huidige selectiegrootte) en **Aankomend** (activiteiten gepland in de komende 14 dagen).
+
+De hele kaart is een link — tik of klik er ergens op om de teampagina te openen. De kaarten worden op telefoons in één kolom gestapeld en stromen op bredere schermen in meerdere kolommen.
+
+Boven het raster heb je nog steeds **zoeken**, het filter **Leeftijdscategorie** en het filter **Status** (Actief / Gearchiveerd / Alle) — gearchiveerde teams blijven bereikbaar door Status te wijzigen. Sorteren gebeurt via één **Sorteren op**-dropdown (naam, leeftijdscategorie of aantal spelers), omdat kaarten geen kolommen hebben.
+
 ### De teampagina
 
 Als je op een team klikt — vanuit de Teams-lijst, een spelersprofiel of waar dan ook een teamnaam gelinkt is — opent de eigen pagina van dat team. Deze toont:

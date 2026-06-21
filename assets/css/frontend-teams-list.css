@@ -1,0 +1,180 @@
+/*
+ * frontend-teams-list.css — Teams list "Variant B" card grid (#1614).
+ *
+ * Owns the responsive card grid that replaces the old columnar teams
+ * table at ?tt_view=teams. Authored mobile-first (CLAUDE.md § 2): base
+ * styles target the ~360px viewport (one column), then scale UP via
+ * `min-width` media queries. No max-width queries.
+ *
+ * Class contract — owned by TeamCard + the FrontendListTable card layout:
+ *
+ *   .tt-card-grid               — responsive grid container (the list body
+ *                                 in card mode; also used as the empty-state
+ *                                 wrapper).
+ *   .tt-team-card               — whole-card <a> (the tap / focus target).
+ *   .tt-team-card__accent       — coloured top accent bar (by age band).
+ *   .tt-team-card__inner        — padded body.
+ *   .tt-team-card__top          — crest + name/coach row.
+ *   .tt-team-card__crest        — initials chip, tinted by age band.
+ *   .tt-team-card__head         — name + coach column.
+ *   .tt-team-card__name         — team name.
+ *   .tt-team-card__coach        — head-coach line (.is-empty when none).
+ *   .tt-team-card__stats        — 2-up stat strip.
+ *   .tt-team-card__stat         — one stat tile (Players / Upcoming).
+ *   .tt-team-card__stat-k       — small-caps stat key.
+ *   .tt-team-card__stat-v       — stat value.
+ *   .tt-list-table-sort         — sort dropdown wrapper (card mode).
+ */
+
+/* Responsive grid: one column at the base (~360px) viewport, fluid
+ * tracks from the large-phone breakpoint up. minmax(240px, 1fr) keeps
+ * tiles readable without horizontal scroll. */
+.tt-card-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.875rem;
+    margin: 0.5rem 0 1rem;
+}
+
+@media (min-width: 480px) {
+    .tt-card-grid {
+        grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+    }
+}
+
+/* The empty-state wrapper spans the full grid width. */
+.tt-card-grid > .tt-list-table-empty {
+    grid-column: 1 / -1;
+    color: #5b6e75;
+    padding: 1rem 0;
+}
+
+/* ---- Card ----------------------------------------------------------- */
+
+.tt-team-card {
+    display: block;
+    background: #fff;
+    border: 1px solid #d6dadd;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    /* Whole card is the tap target; comfortably clears 48px. */
+    min-height: 48px;
+    touch-action: manipulation;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.tt-team-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    border-color: #c0c8cc;
+}
+
+.tt-team-card:focus-visible {
+    outline: 2px solid #2271b1;
+    outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tt-team-card {
+        transition: none;
+    }
+    .tt-team-card:hover {
+        transform: none;
+    }
+}
+
+.tt-team-card__accent {
+    display: block;
+    height: 0.25rem;
+    width: 100%;
+}
+
+.tt-team-card__inner {
+    display: block;
+    padding: 1rem;
+}
+
+.tt-team-card__top {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.tt-team-card__crest {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.25rem;
+    height: 3.25rem;
+    border-radius: 0.875rem;
+    color: #fff;
+    font-weight: 700;
+    font-size: 1.1875rem;
+    line-height: 1;
+}
+
+.tt-team-card__head {
+    min-width: 0;
+    display: block;
+}
+
+.tt-team-card__name {
+    display: block;
+    font-weight: 700;
+    font-size: 1rem;
+    line-height: 1.25;
+    color: #1a1d21;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tt-team-card__coach {
+    display: block;
+    font-size: 0.8125rem;
+    color: #5b6e75;
+    margin-top: 0.125rem;
+}
+
+.tt-team-card__coach.is-empty {
+    font-style: italic;
+}
+
+/* ---- Stat strip ----------------------------------------------------- */
+
+.tt-team-card__stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    margin-top: 0.875rem;
+}
+
+.tt-team-card__stat {
+    display: block;
+    background: #f5f7f6;
+    border-radius: 0.625rem;
+    padding: 0.5rem 0.625rem;
+}
+
+.tt-team-card__stat-k {
+    display: block;
+    font-size: 0.625rem;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: #5b6e75;
+}
+
+.tt-team-card__stat-v {
+    display: block;
+    font-size: 1.0625rem;
+    font-weight: 700;
+    color: #1a1d21;
+}
+
+/* ---- Sort dropdown (card mode) -------------------------------------- */
+
+.tt-list-table-sort select {
+    min-height: 48px;
+}

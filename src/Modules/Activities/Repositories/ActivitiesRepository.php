@@ -583,6 +583,63 @@ final class ActivitiesRepository {
     }
 
     /**
+     * #1614 — upcoming-activity counts per team for the teams-list cards.
+     *
+     * Counts non-archived, non-completed/cancelled activities whose
+     * `session_date` falls in the window `[today, today + $days)` for
+     * each of the supplied teams. Returns a map keyed by `team_id`;
+     * teams with zero upcoming activities are present with a `0` value
+     * so the caller can render every card without a second lookup.
+     *
+     * Club-scoped via `CurrentClub::id()` and demo-scoped to match the
+     * activity universe the activities list + coach heroes surface.
+     * The count query lives here (not in the view / REST controller) so
+     * the teams REST row stays a thin data assembler — same data-fork
+     * discipline #1190 established for the rest of this repository.
+     *
+     * @param list<int> $team_ids
+     * @return array<int, int> team_id => upcoming count (0 when none).
+     */
+    public function upcomingCountsByTeam( array $team_ids, int $days = 14 ): array {
+        $team_ids = array_values( array_unique( array_filter( array_map( 'intval', $team_ids ) ) ) );
+        $out = [];
+        foreach ( $team_ids as $tid ) {
+            $out[ $tid ] = 0;
+        }
+        if ( empty( $team_ids ) ) {
+            return $out;
+        }
+
+        global $wpdb;
+        $p     = $wpdb->prefix;
+        $days  = max( 1, $days );
+        $scope = QueryHelpers::apply_demo_scope( 'a', 'activity' );
+
+        $placeholders = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
+        $params       = array_merge( $team_ids, [ CurrentClub::id(), $days ] );
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT a.team_id, COUNT(*) AS n
+               FROM {$p}tt_activities a
+              WHERE a.team_id IN ({$placeholders})
+                AND a.club_id = %d
+                AND a.archived_at IS NULL
+                AND a.session_date >= CURDATE()
+                AND a.session_date < DATE_ADD(CURDATE(), INTERVAL %d DAY)
+                AND ( a.activity_status_key IS NULL OR a.activity_status_key NOT IN ('completed','cancelled') )
+                {$scope}
+           GROUP BY a.team_id",
+            ...$params
+        ) );
+
+        foreach ( $rows ?: [] as $row ) {
+            $out[ (int) $row->team_id ] = (int) $row->n;
+        }
+        return $out;
+    }
+
+    /**
      * Last DB error message, for callers surfacing write failures
      * without reaching into `$wpdb` themselves.
      */

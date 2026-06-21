@@ -231,8 +231,23 @@ class TeamsRestController {
             ? (int) $wpdb->get_var( $wpdb->prepare( $count_sql, ...$params ) )
             : (int) $wpdb->get_var( $count_sql );
 
+        // #1614 — upcoming-activity counts (next 14 days) per team for
+        // the teams-list cards. Computed once per page in the repository
+        // (one grouped query for the whole page), keyed by team id and
+        // passed into fmtRow so the card fragment carries it.
+        $team_ids = array_map( static function ( $r ) { return (int) $r->id; }, $rows );
+        $upcoming = ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )
+            ->upcomingCountsByTeam( $team_ids, 14 );
+
+        $fmt = array_map(
+            static function ( $row ) use ( $upcoming ) {
+                return self::fmtRow( $row, (int) ( $upcoming[ (int) $row->id ] ?? 0 ) );
+            },
+            $rows
+        );
+
         return RestResponse::success( [
-            'rows'     => array_map( [ __CLASS__, 'fmtRow' ], $rows ),
+            'rows'     => $fmt,
             'total'    => $total,
             'page'     => $page,
             'per_page' => $per_page,
@@ -422,7 +437,7 @@ class TeamsRestController {
         return $n;
     }
 
-    private static function fmtRow( object $t ): array {
+    private static function fmtRow( object $t, int $upcoming_count = 0 ): array {
         $name  = (string) $t->name;
 
         // #1315 — head-coach column derives exclusively from the
@@ -461,16 +476,38 @@ class TeamsRestController {
             $coach_person_id = (int) ( $hc_person_ids[0] ?? 0 );
         }
 
+        $age_group    = (string) ( $t->age_group ?? '' );
+        $player_count = isset( $t->player_count ) ? (int) $t->player_count : null;
+
+        // #1614 — pre-built Variant B card fragment for the teams-list
+        // card grid. Mirrors the `name_link_html` pattern above: the
+        // presentation component renders escaped HTML server-side so the
+        // list hydrator can emit it verbatim. The whole card is one <a>
+        // → the team detail page (with the tt_back hint already baked
+        // into $detail_url).
+        $card_html = \TT\Shared\Frontend\Components\TeamCard::html( [
+            'id'             => (int) $t->id,
+            'name'           => $name,
+            'age_group'      => $age_group,
+            'coach_name'     => $coach,
+            'player_count'   => $player_count ?? 0,
+            'upcoming_count' => $upcoming_count,
+            'detail_url'     => $detail_url,
+        ] );
+
         return [
             'id'              => (int) $t->id,
             'name'            => $name,
             'name_link_html'  => $name_link_html,
-            'age_group'       => (string) ( $t->age_group ?? '' ),
+            'age_group'       => $age_group,
             'coach_name'      => $coach,
             'coach_person_id' => $coach_person_id,
             'coach_link_html' => $coach_link_html,
             'notes'           => (string) ( $t->notes ?? '' ),
-            'player_count'    => isset( $t->player_count ) ? (int) $t->player_count : null,
+            'player_count'    => $player_count,
+            // #1614 — next-14-day activity count + pre-rendered card.
+            'upcoming_count'  => $upcoming_count,
+            'card_html'       => $card_html,
             'archived_at'     => $t->archived_at ?? null,
             // v3.110.170 — row-link standard (#758).
             'detail_url'      => $detail_url,

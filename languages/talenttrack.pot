@@ -34014,3 +34014,32 @@ msgstr ""
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr ""
+
+#: src/Shared/Frontend/Components/TeamCard.php
+#, php-format
+msgid "Head coach · %s"
+msgstr ""
+
+#: src/Shared/Frontend/Components/TeamCard.php
+msgid "No head coach yet"
+msgstr ""
+
+#: src/Shared/Frontend/Components/FrontendListTable.php
+msgid "Sort by"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendTeamsManageView.php
+msgid "Name (A–Z)"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendTeamsManageView.php
+msgid "Name (Z–A)"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendTeamsManageView.php
+msgid "Players (fewest)"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendTeamsManageView.php
+msgid "Players (most)"
+msgstr ""

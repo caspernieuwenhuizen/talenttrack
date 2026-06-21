@@ -215,6 +215,7 @@
         var tbody = root.querySelector('[data-tt-list-body="1"]');
         if (!tbody) return;
         var rows = (payload && payload.rows) || [];
+        var isCards = config.layout === 'cards';
         if (!rows.length) {
             // #1362 — guided EmptyStateCard (server-rendered, cap-aware
             // HTML in config.empty_html) for the fresh "you have
@@ -224,7 +225,22 @@
             var emptyContent = (!hasQuery && config.empty_html)
                 ? config.empty_html
                 : escapeHtml(config.i18n.empty);
-            tbody.innerHTML = '<tr class="tt-list-table-empty"><td colspan="' + (Object.keys(config.columns).length + (Object.keys(config.row_actions).length ? 1 : 0)) + '">' + emptyContent + '</td></tr>';
+            if (isCards) {
+                // #1614 — the card grid is a <div>, not a table; the
+                // empty state lives in a plain wrapper, no <td colspan>.
+                tbody.innerHTML = '<div class="tt-list-table-empty">' + emptyContent + '</div>';
+            } else {
+                tbody.innerHTML = '<tr class="tt-list-table-empty"><td colspan="' + (Object.keys(config.columns).length + (Object.keys(config.row_actions).length ? 1 : 0)) + '">' + emptyContent + '</td></tr>';
+            }
+            return;
+        }
+        if (isCards) {
+            // #1614 — each row carries a server-rendered whole-card <a>
+            // fragment (the card_value_key field). Emit it verbatim;
+            // the <a> is the keyboard-focusable tap target, so no
+            // row-link wiring is needed.
+            var key = config.card_value_key || 'card_html';
+            tbody.innerHTML = rows.map(function(r) { return r[key] == null ? '' : String(r[key]); }).join('');
             return;
         }
         tbody.innerHTML = rows.map(function(r) { return renderRow(config, r); }).join('');
@@ -403,6 +419,9 @@
                 if (e.target && e.target.name === 'search') debouncedApply();
             });
             form.addEventListener('change', function(e) {
+                // #1614 — the card-mode sort dropdown lives in the form but
+                // drives orderby/order via its own handler, not a filter.
+                if (e.target && e.target.getAttribute && e.target.getAttribute('data-tt-list-sort-select') === '1') return;
                 if (e.target && e.target.name && e.target.name !== 'search') applyFromForm();
             });
         }
@@ -434,6 +453,23 @@
                 refresh(root);
             });
         });
+
+        // #1614 — card-mode sort dropdown ("name:asc" style values).
+        // Lives inside the filter form, so the form's `change` handler
+        // would otherwise treat it as a filter; it carries no
+        // `filter[...]` name, so readFiltersFromForm ignores it, and we
+        // bind orderby/order directly here.
+        var sortSelect = root.querySelector('[data-tt-list-sort-select="1"]');
+        if (sortSelect) {
+            sortSelect.addEventListener('change', function() {
+                var parts = String(sortSelect.value || '').split(':');
+                state.orderby = parts[0] || state.orderby;
+                state.order = (parts[1] === 'desc') ? 'desc' : 'asc';
+                state.page = 1;
+                syncUrl(state);
+                refresh(root);
+            });
+        }
 
         // Per-page selector.
         var perPage = root.querySelector('[data-tt-list-perpage="1"]');
