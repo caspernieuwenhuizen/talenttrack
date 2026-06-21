@@ -136,56 +136,34 @@ class MyTeamAttendancePct extends AbstractKpiDataSource {
     }
 
     /**
-     * v3.110.126 set this empty because the KPI was inert; v3.110.165
-     * wires it up. Activities list is the right destination — its
-     * coach-scoping filter (`pl.team_id IN coach_teams`) already
-     * matches the KPI's compute() scope.
+     * The KPI opens the Team attendance statistics report
+     * (`FrontendAttendanceTeamReportView`), which auto-scopes to the
+     * coach's teams and renders the present-rate breakdown — the natural
+     * "show me the detail behind this number" destination. (#1592 shipped
+     * that report; before it existed, #771 sent the card to the activities
+     * list as a stand-in.)
      *
-     * v3.110.175 (#771): linkView is kept for the back-compat default-
-     * URL builder, but linkUrl() below is what KpiCardWidget actually
-     * calls — it adds the date-range filter so the destination scopes
-     * to the same 28-day window the percentage was computed over.
+     * linkView is kept for the back-compat default-URL builder, but
+     * linkUrl() below is what KpiCardWidget actually calls — it adds the
+     * 28-day window so the report opens over the same period the
+     * percentage was computed.
      */
-    public function linkView(): string { return 'activities'; }
+    public function linkView(): string { return 'attendance-report-team'; }
 
     /**
-     * v3.110.175 (#771) — pilot ask: "When I click on the attendance for
-     * my team KPI card it should show only those activities contributing
-     * to the number I see." The default linkUrl() rebuilt a bare
-     * `?tt_view=activities` URL with no filters, so the destination
-     * showed every activity the coach has access to — not just the
-     * 28-day window the percentage rolled over.
-     *
-     * Carrying `filter[date_from]` + `filter[date_to]` against the SAME
-     * window the compute() query uses lands the coach on the exact set
-     * of activities feeding the percentage. The activities REST
-     * endpoint filters by `s.session_date` (the same column the KPI
-     * computes against), so the row count on the list matches the
-     * KPI's denominator universe.
+     * #1608 — point the card at the Team attendance statistics report
+     * over the SAME 28-day window compute() rolls. The report
+     * (`FrontendAttendanceTeamReportView`) reads `from` / `to` and
+     * auto-scopes to the coach's teams from `get_teams_for_coach()`, so
+     * no explicit team filter is needed on the URL — the destination
+     * derives the same scope compute() uses.
      */
     public function linkUrl( RenderContext $ctx ): string {
         [ 'from' => $from, 'to' => $to ] = self::windowDates();
-        // v3.110.177 (#775) — also carry the plan_state list so the
-        // destination filters to the SAME universe compute() counts
-        // against. The activities REST endpoint accepts a comma-
-        // separated value on `filter[plan_state]`.
-        $filter = [
-            'date_from'  => $from,
-            'date_to'    => $to,
-            'plan_state' => implode( ',', self::ACTIVITY_STATES_COUNTING ),
-        ];
-        // v4.20.26 (#1212) — pass the coach's team scope so the
-        // destination matches compute()'s `pl.team_id IN coach_teams`
-        // narrowing. AC linked to 3 teams previously landed on a list
-        // that included activities from teams the AC also has
-        // visibility on but doesn't head-coach. ActivitiesRestController
-        // now accepts CSV on `filter[team_id]` (v4.20.26).
-        $teams = QueryHelpers::get_teams_for_coach( $ctx->user_id );
-        if ( ! empty( $teams ) ) {
-            $team_ids = array_map( static fn( $t ): int => (int) $t->id, $teams );
-            $filter['team_id'] = implode( ',', $team_ids );
-        }
-        return add_query_arg( [ 'filter' => $filter ], $ctx->viewUrl( $this->linkView() ) );
+        return add_query_arg(
+            [ 'from' => $from, 'to' => $to ],
+            $ctx->viewUrl( $this->linkView() )
+        );
     }
 
     /**
