@@ -34,6 +34,23 @@ Boven de lijst staan twee filters:
 
 Beide filters blijven bewaard in de URL (`?team_id=N&activity_type_key=match`), zodat deep-links vanaf het dashboard op dezelfde gefilterde weergave landen.
 
+## De activiteitdetailpagina
+
+Door op een kaart te tikken open je de detailpagina van de activiteit, opgebouwd uit kaarten zodat elk geregistreerd detail in één oogopslag zichtbaar is. De pagina past zich aan tussen een **training** en een **wedstrijddag**:
+
+- **Hero** — een typegekleurd icoontje, de titel en een subregel met `datum · tijd · team · locatie`. Bij een wedstrijddag waarvan beide teams bekend zijn leest de titel `Jouw team vs Tegenstander` en toont de subregel de aftraptijd en of het thuis of uit is. De pillen onder de titel tonen het type (plus het wedstrijdsubtype of het Overig-label) en de status. Bewerken, Opkomst registreren en de overige acties staan in de paginakop erboven.
+- **Feitenbalk** — vier snelle feiten. Een training toont Datum · Tijd · Type · Status; een wedstrijddag toont Tegenstander · Thuis/Uit · Aftrap · Opstelling. Feiten zonder waarde worden weggelaten.
+- **Kaarten** — alleen kaarten met inhoud verschijnen, zodat de pagina overzichtelijk blijft:
+  - **Gekoppelde spelprincipes** — de geoefende principes als kleurgecodeerde O/A/V-pillen, elk met een link naar de methodiekverkenner.
+  - **Notities** — de vrije tekstnotities van de activiteit.
+  - **Opstelling** (wedstrijddag) — de basiself en de bank, elke speler met rugnummer en de gespeelde positie (met terugval op de voorkeurspositie).
+  - **Verwachte opkomst** — de geplande selectie (zie hieronder).
+  - **Opkomst** (afgeronde activiteiten) — een verdeelbalk met legenda over Aanwezig / Afwezig / Te laat / Met kennisgeving / Geblesseerd (plus eventuele eigen statussen), met de kop `X / Y aanwezig (Z%)` die linkt naar het opkomstformulier. Een melding waarschuwt wanneer selectiespelers nog geen opkomstregel hebben.
+  - **Toernooi** — voor toernooi-activiteiten het gekoppelde toernooi met data en aantal wedstrijden.
+- **Auditvoettekst** — wie de activiteit heeft aangemaakt en als laatste gewijzigd.
+
+De pagina leest prettig op een telefoon: de kaarten stapelen in één kolom en verbreden naar twee kolommen op een tablet of desktop.
+
 ## Een activiteit aanmaken
 
 1. Open de tegel **Activiteiten**.

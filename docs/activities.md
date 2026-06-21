@@ -34,6 +34,23 @@ Two filters sit above the list:
 
 Both filters survive in the URL (`?team_id=N&activity_type_key=match`), so deep-links from the dashboard land on the same scoped view.
 
+## The activity detail page
+
+Tapping a card opens the activity's detail page, laid out as a set of cards so every registered detail is visible at a glance. It adapts between a **training** and a **match day**:
+
+- **Hero** — a type-coloured icon chip, the title, and a sub-line reading `date · time · team · location`. For a match day with both teams known the title reads `Your team vs Opponent` and the sub-line shows the kick-off time and whether it's home or away. Pills below the title show the type (plus the game subtype or the Other label) and the status. Edit, Mark attendance and the other actions stay in the page header above.
+- **Facts strip** — four quick facts. A training shows Date · Time · Type · Status; a match day shows Opponent · Home/Away · Kick-off · Formation. Facts with no value are left out.
+- **Cards** — only the cards that have something to show appear, so the page stays uncluttered:
+  - **Linked principles** — the practiced principles as colour-coded O/A/V pills, each linking into the methodology browser.
+  - **Notes** — the activity's free-text notes.
+  - **Line-up** (match day) — the Starting XI and the Bench, each player shown with jersey number and the position played (falling back to their preferred position).
+  - **Expected attendance** — the planned roster (see below).
+  - **Attendance** (completed activities) — a breakdown bar and legend across Present / Absent / Late / Excused / Injured (plus any custom statuses), with the headline `X / Y present (Z%)` linking to the attendance edit form. A note warns when roster players still have no attendance row.
+  - **Tournament** — for tournament-typed activities, the linked tournament with its dates and match count.
+- **Audit footer** — who created and last changed the activity.
+
+The page reads cleanly on a phone: the cards stack in a single column and widen to two columns on a tablet or desktop.
+
 ## Creating an activity
 
 1. Open the **Activities** tile.
