@@ -60,9 +60,17 @@ test.describe( 'Teams CRUD', () => {
 
         // ── Edit ──
         await page.fill( 'input[name="name"]', teamName + ' Renamed' );
+        // #1593: submit the team form via requestSubmit() rather than
+        // clicking the button. The edit page carries dismissible admin
+        // notices whose injected Dismiss buttons shift the layout, so the
+        // "Update Team" button never reaches Playwright's "stable" state and
+        // a `.click()` silently waits out the timeout without ever firing.
+        // requestSubmit() runs the same native HTML5 validation + submit on
+        // the form that owns the name field, with no click-actionability
+        // dependency — robust and still faithful to a real save.
         await Promise.all( [
             page.waitForURL( /page=tt-teams(?!&action=)/ ),
-            page.click( 'input[type="submit"], button[type="submit"]' ),
+            page.locator( 'input[name="name"]' ).evaluate( ( el ) => el.form.requestSubmit() ),
         ] );
         await expect( page.locator( 'body' ) ).toContainText( teamName + ' Renamed' );
     } );
