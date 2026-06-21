@@ -23193,7 +23193,7 @@ msgstr "Speler toevoegen"
 
 #: src/Modules/Players/Admin/PlayersPage.php:289
 msgid "Rate card"
-msgstr "Rapport"
+msgstr "Rapportkaart"
 
 #: src/Modules/Players/Admin/PlayersPage.php:309
 msgid "Please fix the errors below:"
@@ -25089,7 +25089,7 @@ msgstr "Selecteer eerst een speler."
 #: src/Modules/Stats/Admin/PlayerRateCardsPage.php:72
 #: src/Shared/Frontend/FrontendRateCardView.php:123
 msgid "Show rate card"
-msgstr "Rate card tonen"
+msgstr "Rapportkaart tonen"
 
 #: src/Modules/Stats/Admin/PlayerRateCardsPage.php:83
 #: src/Shared/Frontend/FrontendRateCardView.php:147
@@ -36314,7 +36314,7 @@ msgstr ""
 
 #: src/Shared/Frontend/FrontendRateCardView.php:44
 msgid "Rate cards (full analytics)"
-msgstr "Rate cards (volledige analyses)"
+msgstr "Rapportkaarten (volledige analyses)"
 
 #: src/Shared/Frontend/FrontendRateCardView.php:110
 msgid "— Select team —"

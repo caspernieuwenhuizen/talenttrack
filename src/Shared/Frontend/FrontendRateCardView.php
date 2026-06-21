@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Stats\PlayerStatsService;
-use TT\Shared\Frontend\Components\PlayerSearchPickerComponent;
+use TT\Shared\Frontend\Components\PlayerPickerComponent;
 use TT\Shared\Frontend\Components\TeamPickerComponent;
 
 /**
@@ -111,7 +111,7 @@ class FrontendRateCardView extends FrontendViewBase {
                 'required'    => ! $is_admin && count( $coach_teams ) > 1,
             ] );
 
-            echo PlayerSearchPickerComponent::render( [
+            echo PlayerPickerComponent::render( [
                 'name'     => 'player_id',
                 'label'    => __( 'Player', 'talenttrack' ),
                 'required' => true,
@@ -125,18 +125,20 @@ class FrontendRateCardView extends FrontendViewBase {
         </form>
         <script>
         (function(){
-            // F3 — when team changes, refresh the player picker; if the
-            // user has only the coach scope, also auto-submit so the
-            // server reloads the candidate roster from the DB. Admins
-            // can stay client-side filtering.
+            // F3 — when the team changes, reload so the server rebuilds
+            // the player dropdown from that team's roster. The player
+            // picker is a plain <select> populated server-side, so a
+            // submit is what refreshes its options. Clear any stale
+            // player_id first so the reload doesn't carry over a player
+            // from the previous team.
             var form = document.querySelector('form');
             if (!form) return;
             var teamSel = form.querySelector('select[name="team_id"]');
-            var playerWrap = form.querySelector('[data-tt-psp]');
-            if (teamSel && playerWrap) {
+            var playerSel = form.querySelector('select[name="player_id"]');
+            if (teamSel) {
                 teamSel.addEventListener('change', function(){
-                    var teamId = parseInt(teamSel.value, 10) || 0;
-                    playerWrap.dispatchEvent(new CustomEvent('tt-psp:set-team', { detail: { team_id: teamId } }));
+                    if (playerSel) { playerSel.value = ''; }
+                    form.submit();
                 });
             }
         })();
