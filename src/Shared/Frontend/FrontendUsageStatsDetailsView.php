@@ -125,11 +125,15 @@ class FrontendUsageStatsDetailsView extends FrontendViewBase {
             <?php foreach ( (array) $rows as $r ) :
                 $user = get_userdata( (int) $r->user_id );
                 $name = $user ? $user->display_name : sprintf( '(user %d)', (int) $r->user_id );
+                $login = $user ? (string) $user->user_login : '';
                 $role = self::userRole( (int) $r->user_id );
                 $timeline_url = self::detailsUrl( [ 'metric' => 'user_timeline', 'uid' => (int) $r->user_id ] );
                 ?>
                 <tr>
-                    <td><strong><?php echo esc_html( $name ); ?></strong></td>
+                    <td>
+                        <strong><?php echo esc_html( $name ); ?></strong>
+                        <?php if ( $login !== '' ) : ?><br><span style="color:#5b6e75;font-size:12px;">@<?php echo esc_html( $login ); ?></span><?php endif; ?>
+                    </td>
                     <td><?php echo esc_html( $role ); ?></td>
                     <td style="font-variant-numeric:tabular-nums;"><?php echo (int) $r->login_count; ?></td>
                     <td style="font-variant-numeric:tabular-nums;"><?php echo (int) $r->event_count; ?></td>
@@ -329,10 +333,14 @@ class FrontendUsageStatsDetailsView extends FrontendViewBase {
                 <?php foreach ( (array) $rows as $r ) :
                     $user = get_userdata( (int) $r->user_id );
                     $name = $user ? $user->display_name : sprintf( '(user %d)', (int) $r->user_id );
+                    $login = $user ? (string) $user->user_login : '';
                     $timeline_url = self::detailsUrl( [ 'metric' => 'user_timeline', 'uid' => (int) $r->user_id ] );
                     ?>
                     <tr>
-                        <td><strong><?php echo esc_html( $name ); ?></strong></td>
+                        <td>
+                            <strong><?php echo esc_html( $name ); ?></strong>
+                            <?php if ( $login !== '' ) : ?><br><span style="color:#5b6e75;font-size:12px;">@<?php echo esc_html( $login ); ?></span><?php endif; ?>
+                        </td>
                         <td style="font-variant-numeric:tabular-nums;"><?php echo (int) $r->event_count; ?></td>
                         <td><?php echo esc_html( (string) $r->last_seen ); ?></td>
                         <td><a href="<?php echo esc_url( $timeline_url ); ?>"><?php esc_html_e( 'Timeline', 'talenttrack' ); ?></a></td>
