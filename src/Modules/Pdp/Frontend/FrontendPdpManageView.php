@@ -1232,7 +1232,11 @@ class FrontendPdpManageView extends FrontendViewBase {
 
         global $wpdb; $p = $wpdb->prefix;
 
-        echo '<aside class="tt-card" style="background:#fafbfc; border:1px solid #e5e7ea; border-radius:6px; padding:12px; align-self:start;">';
+        // #1668 — was `tt-card`, whose global rule is display:flex (a
+        // media-object built for list cards), which laid the evidence
+        // sections out as a horizontal run-on and added a stray accent
+        // border + hover-lift. A plain block wrapper stacks them vertically.
+        echo '<aside class="tt-pdp-evidence" style="display:block; background:#fafbfc; border:1px solid #e5e7ea; border-radius:6px; padding:12px;">';
         echo '<h3 style="margin:0 0 8px; font-size:14px;">' . esc_html__( 'Evidence', 'talenttrack' ) . '</h3>';
         if ( $since !== null ) {
             echo '<p style="margin:0 0 8px; color:#5b6e75; font-size:12px;">' . esc_html(
