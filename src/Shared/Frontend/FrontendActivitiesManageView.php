@@ -1703,6 +1703,8 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 <div class="tt-field">
                     <span class="tt-field-label"><?php esc_html_e( 'Connected principles', 'talenttrack' ); ?></span>
                     <p class="tt-field-hint" style="margin-top:0;"><?php esc_html_e( 'Group by team function + team task; tick whichever apply. Leave all unticked to save without links.', 'talenttrack' ); ?></p>
+                    <?php // Marker so an all-unchecked submit still clears links (checkbox arrays vanish from the payload when empty). ?>
+                    <input type="hidden" name="activity_principles_present" value="1">
                     <div class="tt-act-principle-picker" style="display:flex; flex-direction:column; gap:10px; margin-top:6px;">
                         <?php foreach ( $function_labels as $fk => $fn_label ) :
                             if ( empty( $grouped[ $fk ] ) ) continue;
