@@ -68,6 +68,14 @@ class FrontendTeamPlannerView extends FrontendViewBase {
             /* translators: %s: holiday name */
             'warning' => __( 'This day is an academy holiday (%s). Schedule an activity anyway?', 'talenttrack' ),
         ] );
+        // #1631 — compose-weekly-PDF dialog open/close.
+        wp_enqueue_script(
+            'tt-planner-compose',
+            TT_PLUGIN_URL . 'assets/js/planner-compose.js',
+            [],
+            TT_VERSION,
+            true
+        );
         FrontendBreadcrumbs::fromDashboard( __( 'Team planner', 'talenttrack' ) );
         self::renderHeader( __( 'Team planner', 'talenttrack' ) );
 
@@ -195,7 +203,75 @@ class FrontendTeamPlannerView extends FrontendViewBase {
                     <?php esc_html_e( 'Export XLSX', 'talenttrack' ); ?>
                 </button>
             </form>
+            <?php // #1631 — branded weekly portrait PDF via the compose dialog. ?>
+            <button type="button" class="tt-btn tt-btn-secondary" style="min-height:48px;" data-tt-open-compose>
+                <?php esc_html_e( 'Weekly PDF', 'talenttrack' ); ?>
+            </button>
         </div>
+        <?php echo self::renderComposeDialog( $team_id, $date_from, $date_to, $self_url ); ?>
+        <?php
+        return (string) ob_get_clean();
+    }
+
+    /**
+     * #1631 — the "compose weekly PDF" dialog. Toggles for what content
+     * goes per day + header, then posts to the team_planning exporter
+     * with layout=weekly. The visible planner range is the PDF period.
+     */
+    private static function renderComposeDialog( int $team_id, string $date_from, string $date_to, string $self_url ): string {
+        $fields = [
+            'time'       => [ __( 'Time', 'talenttrack' ),          true ],
+            'location'   => [ __( 'Location', 'talenttrack' ),      true ],
+            'duration'   => [ __( 'Duration', 'talenttrack' ),      true ],
+            'match'      => [ __( 'Match details', 'talenttrack' ), true ],
+            'theme'      => [ __( 'Theme / title', 'talenttrack' ), true ],
+            'principles' => [ __( 'Principles', 'talenttrack' ),    true ],
+            'notes'      => [ __( 'Notes', 'talenttrack' ),         false ],
+            'restdays'   => [ __( 'Show rest days', 'talenttrack' ), true ],
+        ];
+        $headers = [
+            'academy_name'   => [ __( 'Academy name', 'talenttrack' ),   true ],
+            'generated_date' => [ __( 'Generated date', 'talenttrack' ), true ],
+        ];
+
+        $checkbox = static function ( string $name, string $value, string $label, bool $on ): string {
+            return '<label class="tt-compose-opt" style="display:flex; align-items:center; gap:8px; min-height:40px;">'
+                . '<input type="checkbox" name="' . esc_attr( $name ) . '[]" value="' . esc_attr( $value ) . '" style="width:18px; height:18px;"' . ( $on ? ' checked' : '' ) . ' />'
+                . '<span>' . esc_html( $label ) . '</span></label>';
+        };
+
+        ob_start();
+        ?>
+        <dialog id="tt-planner-compose" class="tt-compose-dialog" style="border:0; border-radius:12px; padding:0; max-width:420px; width:92%;">
+            <form method="POST" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="tt-compose-form" style="padding:18px 20px; margin:0;">
+                <?php wp_nonce_field( 'tt_export', '_tt_export_nonce' ); ?>
+                <input type="hidden" name="action"               value="tt_export">
+                <input type="hidden" name="tt_export_key"        value="team_planning">
+                <input type="hidden" name="format"               value="pdf">
+                <input type="hidden" name="layout"               value="weekly">
+                <input type="hidden" name="team_id"              value="<?php echo (int) $team_id; ?>">
+                <input type="hidden" name="date_from"            value="<?php echo esc_attr( $date_from ); ?>">
+                <input type="hidden" name="date_to"              value="<?php echo esc_attr( $date_to ); ?>">
+                <input type="hidden" name="tt_export_return_url" value="<?php echo esc_attr( $self_url ); ?>">
+
+                <h3 style="margin:0 0 4px;"><?php esc_html_e( 'Compose weekly PDF', 'talenttrack' ); ?></h3>
+                <p style="margin:0 0 12px; color:#5b6e75; font-size:13px;"><?php esc_html_e( 'Uses the planner\'s current date range.', 'talenttrack' ); ?></p>
+
+                <fieldset style="border:1px solid #d6dadd; border-radius:8px; padding:8px 12px; margin:0 0 12px;">
+                    <legend style="font-weight:700; font-size:13px; padding:0 4px;"><?php esc_html_e( 'Show per day', 'talenttrack' ); ?></legend>
+                    <?php foreach ( $fields as $key => $cfg ) { echo $checkbox( 'fields', (string) $key, (string) $cfg[0], (bool) $cfg[1] ); } // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in closure. ?>
+                </fieldset>
+                <fieldset style="border:1px solid #d6dadd; border-radius:8px; padding:8px 12px; margin:0 0 12px;">
+                    <legend style="font-weight:700; font-size:13px; padding:0 4px;"><?php esc_html_e( 'Header', 'talenttrack' ); ?></legend>
+                    <?php foreach ( $headers as $key => $cfg ) { echo $checkbox( 'header', (string) $key, (string) $cfg[0], (bool) $cfg[1] ); } // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped in closure. ?>
+                </fieldset>
+
+                <div style="display:flex; justify-content:flex-end; gap:8px;">
+                    <button type="button" class="tt-btn tt-btn-secondary" style="min-height:48px;" data-tt-close-compose><?php esc_html_e( 'Cancel', 'talenttrack' ); ?></button>
+                    <button type="submit" class="tt-btn tt-btn-primary" style="min-height:48px;"><?php esc_html_e( 'Download', 'talenttrack' ); ?></button>
+                </div>
+            </form>
+        </dialog>
         <?php
         return (string) ob_get_clean();
     }

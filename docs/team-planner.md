@@ -56,6 +56,21 @@ Below the grid is a small panel showing the top ten coaching principles trained 
 
 This panel uses the existing `tt_principles` framework — there's no parallel store. Tag your activities with principles on the activities form and they'll show up here automatically.
 
+## Exporting the plan
+
+Three export buttons sit above the grid:
+
+- **Export PDF** — the landscape schedule table (one row per activity).
+- **Export XLSX** — the week-by-week styled spreadsheet.
+- **Weekly PDF** — a **branded, portrait** weekly layout: a vertical week with the weekday on the left and that day's activity card on the right (type tag, time/location/duration, match details, theme + principles, optional notes), in the academy's colours and crest. Ideal to hand to players/parents or pin to the noticeboard.
+
+**Weekly PDF** opens a small **compose dialog** first, so you choose what goes in:
+
+- **Show per day** — Time · Location · Duration · Match details · Theme/title · Principles · Notes · Show rest days (everything on except Notes by default).
+- **Header** — Academy name · Generated date.
+
+The PDF covers the planner's **current date range** (set it with the window picker first). Branding comes from **Configuration → branding** (primary/secondary colour, academy name, logo) — no hardcoded colours.
+
 ## Permissions
 
 - **`tt_view_plan`** — required to open the planner. Granted by default to anyone who can see activities.

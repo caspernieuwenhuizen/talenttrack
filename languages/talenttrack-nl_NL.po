@@ -39276,3 +39276,36 @@ msgstr "Exacte tegelkolombreedte in pixels (140–400). Overschrijft het grootte
 
 msgid "Exact tile icon glyph size in pixels (14–64). Leave blank to use the preset / % scale sizing."
 msgstr "Exacte grootte van het tegelpictogram in pixels (14–64). Laat leeg om de preset-/%-schaalgrootte te gebruiken."
+
+msgid "Weekly PDF"
+msgstr "Week-PDF"
+
+msgid "Compose weekly PDF"
+msgstr "Week-PDF samenstellen"
+
+msgid "Uses the planner's current date range."
+msgstr "Gebruikt het huidige datumbereik van de planner."
+
+msgid "Show per day"
+msgstr "Toon per dag"
+
+msgid "Theme / title"
+msgstr "Thema / titel"
+
+msgid "Principles"
+msgstr "Principes"
+
+msgid "Show rest days"
+msgstr "Rustdagen tonen"
+
+msgid "Header"
+msgstr "Kop"
+
+msgid "Generated date"
+msgstr "Genereerdatum"
+
+msgid "Rest day"
+msgstr "Rustdag"
+
+msgid "Week %s"
+msgstr "Week %s"
