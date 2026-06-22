@@ -263,6 +263,22 @@ class FrontendPlayersManageView extends FrontendViewBase {
         // "Media uploader on frontend".
         wp_enqueue_media();
 
+        // #1665 — the photo picker is an enqueued script with a
+        // `media-editor` dependency so it can never run before wp.media
+        // loads (the old inline guard ran at body-parse time and never
+        // bound the click handler).
+        wp_enqueue_script(
+            'tt-player-photo',
+            TT_PLUGIN_URL . 'assets/js/frontend-player-photo.js',
+            [ 'media-editor' ],
+            TT_VERSION,
+            true
+        );
+        wp_localize_script( 'tt-player-photo', 'TTPlayerPhoto', [
+            'selectTitle' => __( 'Select photo', 'talenttrack' ),
+            'useText'     => __( 'Use', 'talenttrack' ),
+        ] );
+
         $is_edit   = $player !== null;
         $rest_path = $is_edit ? 'players/' . (int) $player->id : 'players';
         $rest_meth = $is_edit ? 'PUT' : 'POST';
@@ -482,37 +498,8 @@ class FrontendPlayersManageView extends FrontendViewBase {
                     opt.classList.toggle('is-selected', cb.checked);
                 });
             });
-
-            // wp.media uploader for the player photo.
-            if (typeof wp !== 'undefined' && wp.media) {
-                var frame;
-                var pickBtn = document.getElementById('tt-player-photo-pick');
-                var clearBtn = document.getElementById('tt-player-photo-clear');
-                var hidden = document.getElementById('tt-player-photo-url');
-                var preview = document.getElementById('tt-player-photo-preview');
-                if (pickBtn) pickBtn.addEventListener('click', function(){
-                    if (!frame) {
-                        frame = wp.media({
-                            title: '<?php echo esc_js( __( 'Select photo', 'talenttrack' ) ); ?>',
-                            button: { text: '<?php echo esc_js( __( 'Use', 'talenttrack' ) ); ?>' },
-                            library: { type: 'image' },
-                            multiple: false
-                        });
-                        frame.on('select', function(){
-                            var att = frame.state().get('selection').first().toJSON();
-                            hidden.value = att.url;
-                            preview.innerHTML = '<img src="' + att.url + '" alt="" style="max-height:120px; border-radius:6px; border:1px solid var(--tt-line);" />';
-                            hidden.dispatchEvent(new Event('change', { bubbles: true }));
-                        });
-                    }
-                    frame.open();
-                });
-                if (clearBtn) clearBtn.addEventListener('click', function(){
-                    hidden.value = '';
-                    preview.innerHTML = '';
-                    hidden.dispatchEvent(new Event('change', { bubbles: true }));
-                });
-            }
+            // #1665 — the wp.media photo picker moved to the enqueued
+            // assets/js/frontend-player-photo.js (media-editor dependency).
         })();
         </script>
         <?php
