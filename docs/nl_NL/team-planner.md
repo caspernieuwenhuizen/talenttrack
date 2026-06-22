@@ -27,9 +27,13 @@ De keuzelijst gaat mee in de URL — sla `?tt_view=team-planner&team_id=12&range
 
 Bij week / 2 / 4 / 8 weken-vensters heeft de werkbalk **vorige / vandaag / volgende** knoppen die per gekozen vensterlengte verspringen — *Volgende 4 weken* gaat dus echt vier weken vooruit, niet zeven dagen. Bij Volledig seizoen worden de vorige/volgende knoppen vervangen door de seizoensnaam, want de seizoenskeuze is impliciet (altijd het huidige seizoen).
 
-## Een team kiezen
+## Teams kiezen
 
-De keuzelijst **Team** toont elk standaardteam waartoe je toegang hebt. Kies een team om de planning naar dat team te wisselen. Alleen standaardteams (zonder `team_kind`) verschijnen — stafgroepen en andere team-soorten worden eruit gefilterd.
+De **Teams**-kiezer toont elk standaardteam waartoe je toegang hebt als selectievakjes. Vink één team aan en klik op **Toepassen** om dat team in het volledige weekrooster te plannen. Alleen standaardteams (zonder `team_kind`) verschijnen — stafgroepen en andere team-soorten worden eruit gefilterd.
+
+### Overzicht over teams heen (meerdere geselecteerd)
+
+Vink **twee of meer teams** aan en de planning schakelt over naar een **compact, alleen-lezen overzicht** — één rij per activiteit met **Datum · Team · Type · Wedstrijd (tegenstander + thuis/uit) · Status**. Dit is de blik van het Hoofd Opleiding over meerdere teams tegelijk; omdat een HoO geen teamspecifieke activiteiten plant, heeft het overzicht geen kopieer-/dupliceer-/planknoppen. Ga terug naar één team voor het bewerkbare weekrooster.
 
 ## Een activiteit plannen
 

@@ -77,12 +77,9 @@ class FrontendTeamPlannerView extends FrontendViewBase {
             return;
         }
 
-        $team_id = isset( $_GET['team_id'] ) ? absint( $_GET['team_id'] ) : (int) $teams[0]->id;
-        $team    = self::findTeam( $team_id, $teams );
-        if ( $team === null ) {
-            $team    = $teams[0];
-            $team_id = (int) $team->id;
-        }
+        // #1639 — multi-team selection for the HoD overview. `team_ids[]`
+        // (checkbox multi-select) with a legacy single `team_id` fallback.
+        $selected_ids = self::selectedTeamIds( $teams );
 
         $range      = self::resolveRange( (string) ( $_GET['range'] ?? '' ) );
         $week_start = self::resolveWeekStart( (string) ( $_GET['week_start'] ?? '' ) );
@@ -90,6 +87,20 @@ class FrontendTeamPlannerView extends FrontendViewBase {
         // Compute the rendered range. For `season`, snap the season
         // window to whole weeks (Mon–Sun) so the grid lines up.
         [ $range_start, $range_end, $weeks_count, $season ] = self::resolveRangeWindow( $range, $week_start );
+
+        // #1639 — two or more teams selected → a condensed, read-only
+        // overview across teams. A HoD doesn't plan team-specific
+        // activities, so no copy / duplicate / schedule chrome.
+        if ( count( $selected_ids ) >= 2 ) {
+            $activities = self::activitiesForRangeMulti( $selected_ids, $range_start, $range_end );
+            echo self::renderToolbar( $teams, $selected_ids, $range, $range_start, $weeks_count, $season, false, true );
+            echo self::renderMultiOverview( $activities );
+            return;
+        }
+
+        // Single team → the full editable week-grid planner (unchanged).
+        // selectedTeamIds() has already constrained this to an accessible team.
+        $team_id = $selected_ids[0];
 
         // #1480 — academy holidays overlapping the visible window, mapped
         // per day so each affected day shows a banner on the planner.
@@ -104,10 +115,37 @@ class FrontendTeamPlannerView extends FrontendViewBase {
         // "Copy last {weekday}" chips on empty day cells.
         $last_by_weekday = $can_manage ? self::lastActivityByWeekday( $team_id ) : [];
 
-        echo self::renderToolbar( $teams, $team, $range, $range_start, $weeks_count, $season, $can_manage );
+        echo self::renderToolbar( $teams, $selected_ids, $range, $range_start, $weeks_count, $season, $can_manage, false );
         echo self::renderExportActions( $team_id, $range_start, $range_end );
         echo self::renderRangeGrid( $range_start, $weeks_count, $activities, $principle_map, $team_id, $can_manage, $last_by_weekday );
         echo self::renderPrincipleCoverage( $team_id );
+    }
+
+    /**
+     * #1639 — resolve the selected team ids from the request, preserving
+     * the order of the user's accessible teams. Accepts `team_ids[]`
+     * (checkbox multi-select) or a legacy single `team_id`. Always
+     * returns at least one id (defaults to the first accessible team).
+     *
+     * @param object[] $teams
+     * @return int[]
+     */
+    private static function selectedTeamIds( array $teams ): array {
+        $accessible = array_map( static fn ( $t ): int => (int) $t->id, $teams );
+
+        $raw = [];
+        if ( isset( $_GET['team_ids'] ) && is_array( $_GET['team_ids'] ) ) {
+            $raw = array_map( 'absint', (array) $_GET['team_ids'] );
+        } elseif ( isset( $_GET['team_id'] ) ) {
+            $raw = [ absint( $_GET['team_id'] ) ];
+        }
+
+        // Intersect with accessible teams, keep accessible-team order.
+        $selected = array_values( array_filter( $accessible, static fn ( int $id ): bool => in_array( $id, $raw, true ) ) );
+        if ( ! $selected ) {
+            $selected = [ (int) $teams[0]->id ];
+        }
+        return $selected;
     }
 
     /**
@@ -162,7 +200,11 @@ class FrontendTeamPlannerView extends FrontendViewBase {
         return (string) ob_get_clean();
     }
 
-    private static function renderToolbar( array $teams, object $team, string $range, string $range_start, int $weeks_count, ?object $season, bool $can_manage ): string {
+    /**
+     * @param object[] $teams
+     * @param int[]    $selected_ids
+     */
+    private static function renderToolbar( array $teams, array $selected_ids, string $range, string $range_start, int $weeks_count, ?object $season, bool $can_manage, bool $multi ): string {
         // Step prev/next by the chosen range size; for `season` the
         // prev/next nav is hidden (the season picker is implicit —
         // currently always the `is_current` season).
@@ -170,6 +212,7 @@ class FrontendTeamPlannerView extends FrontendViewBase {
         $prev      = gmdate( 'Y-m-d', strtotime( $range_start . ' -' . $step_days . ' days' ) );
         $next      = gmdate( 'Y-m-d', strtotime( $range_start . ' +' . $step_days . ' days' ) );
         $today     = self::resolveWeekStart( '' );
+        $first_id  = (int) ( $selected_ids[0] ?? 0 );
 
         $range_options = [
             'week'    => __( 'One week', 'talenttrack' ),
@@ -182,39 +225,41 @@ class FrontendTeamPlannerView extends FrontendViewBase {
         ob_start();
         ?>
         <div class="tt-planner-toolbar">
-            <form method="get" class="tt-planner-team-picker">
+            <?php // #1639 — one form: team checkboxes + range, applied together. ?>
+            <form method="get" class="tt-planner-picker-form">
                 <input type="hidden" name="tt_view" value="team-planner" />
                 <input type="hidden" name="week_start" value="<?php echo esc_attr( $range_start ); ?>" />
-                <input type="hidden" name="range" value="<?php echo esc_attr( $range ); ?>" />
-                <label for="tt-planner-team"><?php esc_html_e( 'Team', 'talenttrack' ); ?></label>
-                <select id="tt-planner-team" name="team_id" onchange="this.form.submit()">
-                    <?php foreach ( $teams as $t ) : ?>
-                        <option value="<?php echo esc_attr( (string) $t->id ); ?>" <?php selected( (int) $t->id, (int) $team->id ); ?>>
-                            <?php echo esc_html( (string) $t->name ); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </form>
 
-            <form method="get" class="tt-planner-range-picker">
-                <input type="hidden" name="tt_view" value="team-planner" />
-                <input type="hidden" name="team_id" value="<?php echo esc_attr( (string) $team->id ); ?>" />
-                <input type="hidden" name="week_start" value="<?php echo esc_attr( $range_start ); ?>" />
-                <label for="tt-planner-range"><?php esc_html_e( 'Show', 'talenttrack' ); ?></label>
-                <select id="tt-planner-range" name="range" onchange="this.form.submit()">
+                <fieldset class="tt-planner-team-picker">
+                    <legend><?php esc_html_e( 'Teams', 'talenttrack' ); ?></legend>
+                    <?php foreach ( $teams as $t ) :
+                        $tid = (int) $t->id;
+                        ?>
+                        <label class="tt-planner-team-check">
+                            <input type="checkbox" name="team_ids[]" value="<?php echo esc_attr( (string) $tid ); ?>" <?php checked( in_array( $tid, $selected_ids, true ) ); ?> />
+                            <span><?php echo esc_html( (string) $t->name ); ?></span>
+                        </label>
+                    <?php endforeach; ?>
+                    <p class="tt-planner-team-hint"><?php esc_html_e( 'Pick two or more teams for a read-only overview across teams.', 'talenttrack' ); ?></p>
+                </fieldset>
+
+                <label class="tt-planner-range-label" for="tt-planner-range"><?php esc_html_e( 'Show', 'talenttrack' ); ?></label>
+                <select id="tt-planner-range" name="range">
                     <?php foreach ( $range_options as $value => $label ) : ?>
                         <option value="<?php echo esc_attr( $value ); ?>" <?php selected( $value, $range ); ?>>
                             <?php echo esc_html( $label ); ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
+
+                <button type="submit" class="tt-btn tt-btn-secondary tt-planner-apply"><?php esc_html_e( 'Apply', 'talenttrack' ); ?></button>
             </form>
 
             <?php if ( $range !== 'season' ) : ?>
                 <div class="tt-planner-nav">
-                    <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( self::buildUrl( $team->id, $prev, $range ) ); ?>">&larr; <?php echo esc_html( self::prevLabel( $weeks_count ) ); ?></a>
-                    <a class="tt-btn" href="<?php echo esc_url( self::buildUrl( $team->id, $today, $range ) ); ?>"><?php esc_html_e( 'Today', 'talenttrack' ); ?></a>
-                    <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( self::buildUrl( $team->id, $next, $range ) ); ?>"><?php echo esc_html( self::nextLabel( $weeks_count ) ); ?> &rarr;</a>
+                    <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( self::buildUrl( $selected_ids, $prev, $range ) ); ?>">&larr; <?php echo esc_html( self::prevLabel( $weeks_count ) ); ?></a>
+                    <a class="tt-btn" href="<?php echo esc_url( self::buildUrl( $selected_ids, $today, $range ) ); ?>"><?php esc_html_e( 'Today', 'talenttrack' ); ?></a>
+                    <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( self::buildUrl( $selected_ids, $next, $range ) ); ?>"><?php echo esc_html( self::nextLabel( $weeks_count ) ); ?> &rarr;</a>
                 </div>
             <?php elseif ( $season !== null ) : ?>
                 <div class="tt-planner-season-label">
@@ -228,11 +273,11 @@ class FrontendTeamPlannerView extends FrontendViewBase {
                 </div>
             <?php endif; ?>
 
-            <?php if ( $can_manage ) : ?>
+            <?php if ( $can_manage && ! $multi && $first_id > 0 ) : ?>
                 <a class="tt-btn tt-btn-primary" href="<?php echo esc_url( \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [
                     'tt_view'      => 'activities',
                     'action'       => 'new',
-                    'team_id'      => (int) $team->id,
+                    'team_id'      => $first_id,
                     'plan_state'   => 'scheduled',
                 ], RecordLink::dashboardUrl() ) ) ); ?>">
                     + <?php esc_html_e( 'Schedule activity', 'talenttrack' ); ?>
@@ -545,14 +590,6 @@ class FrontendTeamPlannerView extends FrontendViewBase {
         return $out;
     }
 
-    /** @param object[] $teams */
-    private static function findTeam( int $team_id, array $teams ): ?object {
-        foreach ( $teams as $t ) {
-            if ( (int) $t->id === $team_id ) return $t;
-        }
-        return null;
-    }
-
     private static function resolveRange( string $raw ): string {
         return isset( self::RANGES[ $raw ] ) ? $raw : 'week';
     }
@@ -620,10 +657,11 @@ class FrontendTeamPlannerView extends FrontendViewBase {
         );
     }
 
-    private static function buildUrl( int $team_id, string $week_start, string $range ): string {
+    /** @param int[] $team_ids */
+    private static function buildUrl( array $team_ids, string $week_start, string $range ): string {
         return add_query_arg( [
             'tt_view'    => 'team-planner',
-            'team_id'    => $team_id,
+            'team_ids'   => array_values( array_map( 'intval', $team_ids ) ),
             'week_start' => $week_start,
             'range'      => $range,
         ], RecordLink::dashboardUrl() );
@@ -682,6 +720,99 @@ class FrontendTeamPlannerView extends FrontendViewBase {
             $team_id, CurrentClub::id(), $from, $to
         ) );
         return is_array( $rows ) ? $rows : [];
+    }
+
+    /**
+     * #1639 — activities for several teams in one query, with the
+     * match-day columns + team name the read-only overview needs.
+     *
+     * @param int[] $team_ids
+     * @return object[]
+     */
+    private static function activitiesForRangeMulti( array $team_ids, string $from, string $to ): array {
+        $ids = array_values( array_unique( array_filter( array_map( 'intval', $team_ids ), static fn ( $v ): bool => $v > 0 ) ) );
+        if ( ! $ids ) return [];
+        global $wpdb;
+        $ph  = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        $sql = "SELECT a.id, a.team_id, a.title, a.session_date, a.start_time,
+                       a.activity_status_key, a.activity_type_key, a.game_subtype_key,
+                       a.opponent, a.home_away, t.name AS team_name
+                  FROM {$wpdb->prefix}tt_activities a
+                  LEFT JOIN {$wpdb->prefix}tt_teams t ON t.id = a.team_id AND t.club_id = a.club_id
+                 WHERE a.team_id IN ($ph)
+                   AND a.club_id = %d
+                   AND a.session_date BETWEEN %s AND %s
+                   AND a.activity_status_key <> 'cancelled'
+                   AND ( a.archived_at IS NULL OR a.archived_at = '' )
+                 ORDER BY a.session_date ASC, a.start_time ASC, t.name ASC, a.id ASC";
+        $params = array_merge( $ids, [ CurrentClub::id(), $from, $to ] );
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+        $rows = $wpdb->get_results( $wpdb->prepare( $sql, ...$params ) );
+        return is_array( $rows ) ? $rows : [];
+    }
+
+    /**
+     * #1639 — condensed, read-only overview across the selected teams.
+     * One row per activity: date · team · type · match (opponent +
+     * home/away) · status. No planning chrome.
+     *
+     * @param object[] $activities
+     */
+    private static function renderMultiOverview( array $activities ): string {
+        ob_start();
+        if ( ! $activities ) {
+            echo '<p class="tt-notice">' . esc_html__( 'No activities for the selected teams in this period.', 'talenttrack' ) . '</p>';
+            return (string) ob_get_clean();
+        }
+        ?>
+        <div class="tt-planner-overview" data-tt-planner-overview>
+            <table class="tt-table tt-planner-overview-table">
+                <thead>
+                    <tr>
+                        <th><?php esc_html_e( 'Date', 'talenttrack' ); ?></th>
+                        <th><?php esc_html_e( 'Team', 'talenttrack' ); ?></th>
+                        <th><?php esc_html_e( 'Type', 'talenttrack' ); ?></th>
+                        <th><?php esc_html_e( 'Match', 'talenttrack' ); ?></th>
+                        <th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                <?php foreach ( $activities as $a ) :
+                    $date       = (string) ( $a->session_date ?? '' );
+                    $time       = (string) ( $a->start_time ?? '' );
+                    $date_label = $date !== '' ? mysql2date( get_option( 'date_format' ), $date, true ) : '';
+                    if ( $time !== '' && $time !== '00:00:00' ) {
+                        $date_label .= ' · ' . substr( $time, 0, 5 );
+                    }
+                    $type_key   = (string) ( $a->activity_type_key ?? '' );
+                    $type_label = $type_key !== ''
+                        ? \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'activity_type', $type_key )
+                        : (string) ( $a->title ?? '' );
+                    $status_key = (string) ( $a->activity_status_key ?? 'planned' );
+
+                    $opponent    = (string) ( $a->opponent ?? '' );
+                    $home_away   = (string) ( $a->home_away ?? '' );
+                    $match_label = '';
+                    if ( $opponent !== '' ) {
+                        $ha = $home_away === 'home'
+                            ? __( 'Home', 'talenttrack' )
+                            : ( $home_away === 'away' ? __( 'Away', 'talenttrack' ) : '' );
+                        $match_label = $ha !== '' ? sprintf( '%s (%s)', $opponent, $ha ) : $opponent;
+                    }
+                    ?>
+                    <tr>
+                        <td data-label="<?php esc_attr_e( 'Date', 'talenttrack' ); ?>"><?php echo esc_html( $date_label ); ?></td>
+                        <td data-label="<?php esc_attr_e( 'Team', 'talenttrack' ); ?>"><?php echo esc_html( (string) ( $a->team_name ?? '' ) ); ?></td>
+                        <td data-label="<?php esc_attr_e( 'Type', 'talenttrack' ); ?>"><?php echo esc_html( $type_label ); ?></td>
+                        <td data-label="<?php esc_attr_e( 'Match', 'talenttrack' ); ?>"><?php echo $match_label !== '' ? esc_html( $match_label ) : '—'; ?></td>
+                        <td data-label="<?php esc_attr_e( 'Status', 'talenttrack' ); ?>"><?php echo LookupPill::render( 'activity_status', $status_key ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></td>
+                    </tr>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+        <?php
+        return (string) ob_get_clean();
     }
 
     /**
