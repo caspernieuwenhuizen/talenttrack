@@ -1298,7 +1298,8 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
         $raw = isset( $player->preferred_positions ) ? (string) $player->preferred_positions : '';
         if ( $raw === '' ) return '';
         $parts = array_filter( array_map( 'trim', explode( ',', $raw ) ) );
-        return $parts ? (string) reset( $parts ) : '';
+        if ( ! $parts ) return '';
+        return \TT\Infrastructure\Query\LabelTranslator::positionLabel( (string) reset( $parts ) );
     }
 
     /**
