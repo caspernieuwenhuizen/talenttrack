@@ -22741,9 +22741,12 @@ msgstr[0] "%d vastgelopen"
 msgstr[1] "%d vastgelopen"
 
 #: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:95
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:130
 msgid "stale"
 msgstr "vastgelopen"
+
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:151
+msgid "Action needed"
+msgstr "Actie nodig"
 
 # v3.110.118 — aria-label on the clickable pipeline tile
 #. translators: 1: stage label (e.g. "Test training"), 2: number of prospects in that stage.

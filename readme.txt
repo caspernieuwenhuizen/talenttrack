@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.45.0
+Stable tag: 4.45.5
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.45.5 — Scouting & onboarding pipeline restyled to the 2026 look (#1689). The standalone onboarding-pipeline funnel ([FrontendOnboardingPipelineView](src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php)) adopts the 2026 design on its existing six real stages (Prospects, Invited, Test training, Trial group, Team offer, Joined). Each column keeps its count as a rounded chip and stacks compact white player mini-cards — an initials avatar next to the prospect's name and meta line — instead of the old plain text cards. An overdue early-funnel card now carries an amber "Action needed" chip with a matching left accent; a card in the Joined column carries a green "Player" chip. Styling is the restyled mobile-first `assets/css/components/onboarding-pipeline.css` (now depending on the shared app chrome stylesheet) reading the existing brand tokens — no new palette. Base is a single vertical scroll of full-width columns at 360px, promoting to the side-by-side funnel on tablet/desktop; cards keep ≥48px targets, `:focus-visible`, and reduced-motion. No query, stage, or REST change — same data, new look. One new string ("Action needed"), Dutch added. Patch bump. (#1689) =
 
 = 4.45.0 — Shared frontend app chrome: top bar + persona chip + KPI tile (#1690). The global dashboard header (rendered once for every `?tt_view=` route by [DashboardShortcode::renderHeader()](src/Shared/Frontend/DashboardShortcode.php)) adopts the 2026 look — a dark-green top bar with a gold brand mark and a **persona chip** (initials avatar + name + resolved persona label) that doubles as the existing user-menu trigger, so no extra nav affordance is added (CLAUDE.md §5). A new [FrontendAppChrome](src/Shared/Frontend/Components/FrontendAppChrome.php) component carries the chip, a brand-initials helper, and a reusable `kpiTile()`; styling is a new mobile-first `assets/css/frontend-app-chrome.css` reading the existing `--tt-primary`/`--tt-secondary` tokens (no new palette). Persona labels resolve via the portable `PersonaResolver`; the dropdown, persona switcher, and docs drawer are untouched (additive). Below 560px the chip collapses to the avatar. Foundation for the per-view parity work (#1680). One new string ("Observer"), Dutch added. Minor bump. (#1690) =
 
