@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-22T19:10:48+00:00\n"
+"POT-Creation-Date: 2026-06-22T19:14:00+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -3556,7 +3556,6 @@ msgstr ""
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:148
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:742
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:571
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:973
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:320
 #: src/Modules/Pdp/Repositories/PdpFilesRepository.php:212
 #: src/Modules/Pdp/Rest/PdpFilesRestController.php:393
@@ -6618,7 +6617,7 @@ msgstr "Direct"
 
 #. translators: state label for a PDP meeting that's further out in the cycle and not yet actionable
 #: src/Modules/Authorization/Admin/RolesPage.php:254
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:924
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:923
 #: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:271
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:400
 #: src/Shared/Frontend/Components/FrontendListTable.php:153
@@ -20353,7 +20352,7 @@ msgid "Template"
 msgstr "Template"
 
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:899
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:920
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:919
 msgid "Scheduled"
 msgstr "Gepland"
 
@@ -20361,33 +20360,33 @@ msgstr "Gepland"
 msgid "Acks"
 msgstr "Bevestigingen"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:919
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:918
 msgid "To be planned"
 msgstr "Nog te plannen"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:921
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:920
 msgid "Held"
 msgstr "Gehouden"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:922
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:921
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1152
 #: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:268
 msgid "Signed off"
 msgstr "Ondertekend"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:956
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:958
 msgid "Parent has acknowledged"
 msgstr "Ouder heeft bevestigd"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:957
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:959
 msgid "Parent acknowledgement pending"
 msgstr "Bevestiging ouder openstaand"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:964
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:966
 msgid "Player has acknowledged"
 msgstr "Speler heeft bevestigd"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:965
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:967
 msgid "Player acknowledgement pending"
 msgstr "Bevestiging speler openstaand"
 
