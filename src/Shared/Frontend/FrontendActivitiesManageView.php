@@ -873,6 +873,13 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         $type_filter = isset( $_GET['activity_type_key'] ) ? sanitize_key( (string) $_GET['activity_type_key'] ) : '';
         $include_past = ! empty( $_GET['include_past'] );
 
+        // #1648 — quick period filter (this/next week, this/next month,
+        // this season). Empty = the full forward agenda (default).
+        $period_filter = isset( $_GET['period'] ) ? sanitize_key( (string) $_GET['period'] ) : '';
+        if ( ! in_array( $period_filter, [ 'this_week', 'next_week', 'this_month', 'next_month', 'this_season' ], true ) ) {
+            $period_filter = '';
+        }
+
         // Lookup-backed type options for the Type filter.
         $type_rows = QueryHelpers::get_lookups( 'activity_type' );
 
@@ -880,14 +887,23 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         // / team-detail links continue to land on the same scoped view.
         $team_options = TeamPickerComponent::filterOptions( $user_id, $is_admin );
 
-        // Pull the row set for THIS list — server-side query mirroring
-        // the REST WHERE/scope so other surfaces (dashboard widgets,
-        // team detail) reading the same rows stay consistent.
-        $rows = self::loadActivitiesForList( $team_filter, $type_filter );
-
         // Today (site timezone, GMT-stored value converted via
         // wp_timezone() per `current_time('Y-m-d', true)`).
         $today_str = current_time( 'Y-m-d', true );
+
+        // Resolve the period filter to a [from,to] date window before the
+        // query so the row set is scoped server-side.
+        $window = self::periodWindow( $period_filter, $today_str );
+
+        // Pull the row set for THIS list — server-side query mirroring
+        // the REST WHERE/scope so other surfaces (dashboard widgets,
+        // team detail) reading the same rows stay consistent.
+        $rows = self::loadActivitiesForList(
+            $team_filter,
+            $type_filter,
+            $window['from'] ?? '',
+            $window['to'] ?? ''
+        );
 
         // Bucket the rows.
         $buckets = self::bucketize( $rows, $today_str );
@@ -901,6 +917,10 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         echo '<form method="get" class="tt-act-filters" data-tt-act-filters>';
         // Preserve `tt_view=activities` + any back-target on submit.
         echo '<input type="hidden" name="tt_view" value="activities" />';
+        if ( $period_filter !== '' ) {
+            // Keep the active period when the Team/Type selects auto-submit.
+            echo '<input type="hidden" name="period" value="' . esc_attr( $period_filter ) . '" />';
+        }
         if ( ! empty( $_GET['tt_back'] ) ) {
             echo '<input type="hidden" name="tt_back" value="' . esc_attr( (string) $_GET['tt_back'] ) . '" />';
         }
@@ -931,6 +951,37 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         echo '</label>';
         echo '<noscript><button type="submit" class="tt-btn tt-btn-secondary">' . esc_html__( 'Apply', 'talenttrack' ) . '</button></noscript>';
         echo '</form>';
+
+        // #1648 — period quick-filter pills. Plain links (no JS) that set
+        // ?period=… while preserving the team / type / past state, so the
+        // list scopes to a window without manual date entry.
+        $period_labels = [
+            ''            => __( 'All', 'talenttrack' ),
+            'this_week'   => __( 'This week', 'talenttrack' ),
+            'next_week'   => __( 'Next week', 'talenttrack' ),
+            'this_month'  => __( 'This month', 'talenttrack' ),
+            'next_month'  => __( 'Next month', 'talenttrack' ),
+            'this_season' => __( 'This season', 'talenttrack' ),
+        ];
+        $pill_base = [ 'tt_view' => 'activities' ];
+        if ( $team_filter > 0 )      $pill_base['team_id']           = $team_filter;
+        if ( $type_filter !== '' )   $pill_base['activity_type_key'] = $type_filter;
+        if ( $include_past )         $pill_base['include_past']      = '1';
+        if ( ! empty( $_GET['tt_back'] ) ) $pill_base['tt_back']     = (string) $_GET['tt_back'];
+        $dash_url = \TT\Shared\Frontend\Components\RecordLink::dashboardUrl();
+
+        echo '<nav class="tt-act-periods" aria-label="' . esc_attr__( 'Filter by period', 'talenttrack' ) . '">';
+        foreach ( $period_labels as $key => $label ) {
+            $args = $pill_base;
+            if ( $key !== '' ) $args['period'] = $key;
+            $url      = add_query_arg( $args, $dash_url );
+            $active   = ( $period_filter === $key );
+            $cls      = 'tt-act-period' . ( $active ? ' tt-act-period--active' : '' );
+            echo '<a class="' . esc_attr( $cls ) . '" href="' . esc_url( $url ) . '"'
+                . ( $active ? ' aria-current="true"' : '' ) . '>'
+                . esc_html( $label ) . '</a>';
+        }
+        echo '</nav>';
 
         // ---- EMPTY STATE --------------------------------------------
         $forward_total = $buckets['attention_count']
@@ -1404,12 +1455,63 @@ class FrontendActivitiesManageView extends FrontendViewBase {
      *
      * @return array<int,object> raw `tt_activities` rows + team_name.
      */
-    private static function loadActivitiesForList( int $team_filter, string $type_filter ): array {
+    /**
+     * Resolve a #1648 period key to an inclusive [from,to] Y-m-d window.
+     * Weeks are ISO (Mon–Sun); months are calendar; the season comes from
+     * the configured current season. Returns null for "all" / unknown.
+     *
+     * @return array{from:string,to:string}|null
+     */
+    private static function periodWindow( string $period, string $today ): ?array {
+        if ( $period === '' ) return null;
+        $base = strtotime( $today );
+        if ( $base === false ) return null;
+
+        switch ( $period ) {
+            case 'this_week':
+            case 'next_week':
+                $dow    = (int) gmdate( 'N', $base ); // 1 = Monday
+                $monday = $base - ( $dow - 1 ) * DAY_IN_SECONDS;
+                if ( $period === 'next_week' ) $monday += 7 * DAY_IN_SECONDS;
+                return [
+                    'from' => gmdate( 'Y-m-d', $monday ),
+                    'to'   => gmdate( 'Y-m-d', $monday + 6 * DAY_IN_SECONDS ),
+                ];
+
+            case 'this_month':
+                return [ 'from' => gmdate( 'Y-m-01', $base ), 'to' => gmdate( 'Y-m-t', $base ) ];
+
+            case 'next_month':
+                $nm = strtotime( gmdate( 'Y-m-01', $base ) . ' +1 month' );
+                if ( $nm === false ) return null;
+                return [ 'from' => gmdate( 'Y-m-01', $nm ), 'to' => gmdate( 'Y-m-t', $nm ) ];
+
+            case 'this_season':
+                if ( ! class_exists( '\\TT\\Modules\\Pdp\\Repositories\\SeasonsRepository' ) ) return null;
+                $season = ( new \TT\Modules\Pdp\Repositories\SeasonsRepository() )->current();
+                if ( ! $season || empty( $season->start_date ) || empty( $season->end_date ) ) return null;
+                return [ 'from' => (string) $season->start_date, 'to' => (string) $season->end_date ];
+        }
+
+        return null;
+    }
+
+    private static function loadActivitiesForList( int $team_filter, string $type_filter, string $date_from = '', string $date_to = '' ): array {
         global $wpdb;
         $p = $wpdb->prefix;
 
         $where  = [ 's.club_id = %d', 's.archived_at IS NULL' ];
         $params = [ CurrentClub::id() ];
+
+        // #1648 — period quick-filter window (inclusive).
+        if ( $date_from !== '' ) {
+            $where[]  = 's.session_date >= %s';
+            $params[] = $date_from;
+        }
+        if ( $date_to !== '' ) {
+            $where[]  = 's.session_date <= %s';
+            $params[] = $date_to;
+        }
 
         // Demo-mode scope predicate (e.g. demo-only activities).
         $scope = QueryHelpers::apply_demo_scope( 's', 'activity' );
