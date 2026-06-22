@@ -466,6 +466,70 @@ final class ActivitiesRepository {
     }
 
     /**
+     * #1320 — the activities-manage surface list, moved out of
+     * `FrontendActivitiesManageView::loadActivitiesForList()`. Club- and
+     * demo-scoped, applies the same coach-scope guard as the REST
+     * `list_sessions` endpoint: personas with global `activities` read
+     * (scout, head_of_development, academy_admin) see every team;
+     * everyone else is restricted to the teams they head-coach. Optional
+     * team / type / date-window filters. No LIMIT — the surface renders
+     * the full filtered set (pilot volumes are tractable).
+     *
+     * @return object[]
+     */
+    public function listForManageSurface( int $team_filter, string $type_filter, int $user_id, string $date_from = '', string $date_to = '' ): array {
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $where  = [ 's.club_id = %d', 's.archived_at IS NULL' ];
+        $params = [ CurrentClub::id() ];
+
+        if ( $date_from !== '' ) {
+            $where[]  = 's.session_date >= %s';
+            $params[] = $date_from;
+        }
+        if ( $date_to !== '' ) {
+            $where[]  = 's.session_date <= %s';
+            $params[] = $date_to;
+        }
+
+        $scope = QueryHelpers::apply_demo_scope( 's', 'activity' );
+
+        // Coach-scope guard — mirrors REST list_sessions. Global-read
+        // personas bypass; everyone else is restricted to their teams.
+        if ( ! QueryHelpers::user_has_global_entity_read( $user_id, 'activities' ) ) {
+            $coach_teams = QueryHelpers::get_teams_for_coach( $user_id );
+            if ( ! $coach_teams ) {
+                return [];
+            }
+            $team_ids     = array_map( static function ( $t ) { return (int) $t->id; }, $coach_teams );
+            $placeholders = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
+            $where[]      = "s.team_id IN ($placeholders)";
+            $params       = array_merge( $params, $team_ids );
+        }
+
+        if ( $team_filter > 0 ) {
+            $where[]  = 's.team_id = %d';
+            $params[] = $team_filter;
+        }
+        if ( $type_filter !== '' ) {
+            $where[]  = 's.activity_type_key = %s';
+            $params[] = $type_filter;
+        }
+
+        $where_sql = implode( ' AND ', $where ) . ' ' . $scope;
+
+        $sql = "SELECT s.*, t.name AS team_name
+                FROM {$p}tt_activities s
+                LEFT JOIN {$p}tt_teams t ON t.id = s.team_id AND t.club_id = s.club_id
+                WHERE {$where_sql}
+                ORDER BY s.session_date ASC, s.id ASC";
+
+        $rows = $wpdb->get_results( $wpdb->prepare( $sql, ...$params ) );
+        return is_array( $rows ) ? $rows : [];
+    }
+
+    /**
      * #1320 admin-CRUD slice — single activity for the wp-admin edit
      * form. Unlike `findById` (the frontend detail shape) this is
      * club-strict, ignores demo scope, and DOES return archived rows —

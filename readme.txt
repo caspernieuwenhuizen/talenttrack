@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.45.4
+Stable tag: 4.45.5
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.45.5 — Activities-manage list query moved out of the view into ActivitiesRepository (#1320). Tech-debt: the activities management surface built its list SQL — including the demo-scope predicate and the coach-scope authorization guard — inline in `FrontendActivitiesManageView`. That query (and its permission logic) now lives in `ActivitiesRepository::listForManageSurface()`, so the surface and the REST list share one source of truth and the view holds no SQL or authorization logic (CLAUDE.md §4). Behaviour is unchanged: same filters, same coach-scope restriction, same ordering. No user-visible change. Patch bump. (#1320) =
 
 = 4.45.4 — Player load now counts guest appearances (#1382). A player guesting for another team (playing up an age group) previously had those sessions excluded from their own load, so a heavily played-up player's cumulative load read low exactly when injury risk is highest. Player-level statistics — the attendance KPI on the player profile and the status engine's load input — now include guest appearances alongside own-team sessions. Team-level statistics are unchanged: attendance percentages and the team podium still use the squad only. The rule: *player load = everything the player did anywhere; team statistics = own-roster only.* One aggregation-layer change in the player-scoped queries; single-team membership is unchanged. Patch bump. (#1382) =
 
