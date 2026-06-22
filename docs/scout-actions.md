@@ -312,6 +312,17 @@ Ordered by raw frequency (most-used first). Each action lists:
     item → lands on the visit detail page with breadcrumb +
     back-pill. (e) From the detail page click "Log scouting find"
     → new-prospect wizard opens with `from_visit=N` in the URL.
+  - **v4.43.7** — the scouting-visits list is now a mobile-first
+    card list instead of a flat table. Each card is a full-area
+    link to the visit detail (whole card is tappable, keyboard
+    focusable), showing date · status pill · location · event ·
+    prospect count · scout. Past visits are dimmed. Prospect counts
+    are fetched in a single batched query instead of one per row.
+    *How to test:* open `?tt_view=scouting-visits`. (a) Click
+    anywhere on a visit card → lands on the visit detail. (b) Tab
+    to a card and press Enter → same. (c) At 360px width the cards
+    stack with no horizontal scroll; at ≥768px they form a 2–3
+    column grid. (d) A past-dated visit renders dimmed.
 
 ### 2.1 Plan a scouting visit
 

@@ -1,0 +1,96 @@
+/* Scouting visits — mobile-first card list (#1645).
+   Each card is a full-area link to the visit detail. */
+
+.tt-dashboard .tt-svisit-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+}
+
+.tt-dashboard .tt-svisit-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-height: 48px;
+    padding: 1rem;
+    border: 1px solid var(--tt-line, #d6dadd);
+    border-radius: 12px;
+    background: #fff;
+    color: var(--tt-ink, #1a1d21);
+    text-decoration: none;
+    transition: border-color 0.12s ease, box-shadow 0.12s ease;
+    touch-action: manipulation;
+}
+
+.tt-dashboard .tt-svisit-card:active {
+    background: var(--tt-surface-2, #f1f4f6);
+}
+
+.tt-dashboard .tt-svisit-card:focus-visible {
+    outline: 2px solid var(--tt-accent, #1f6feb);
+    outline-offset: 2px;
+}
+
+.tt-dashboard .tt-svisit-card--past {
+    opacity: 0.62;
+}
+
+.tt-dashboard .tt-svisit-card__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.tt-dashboard .tt-svisit-card__date {
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.tt-dashboard .tt-svisit-card__where {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.75rem;
+    color: var(--tt-ink, #1a1d21);
+    font-size: 0.9375rem;
+}
+
+.tt-dashboard .tt-svisit-card__event {
+    color: var(--tt-ink-soft, #5b6e75);
+}
+
+.tt-dashboard .tt-svisit-card__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.75rem;
+    color: var(--tt-ink-soft, #5b6e75);
+    font-size: 0.8125rem;
+}
+
+.tt-dashboard .tt-svisit-card__scout::before {
+    content: "· ";
+}
+
+/* Hover only enhances on devices that have it (never gates anything). */
+@media (hover: hover) {
+    .tt-dashboard .tt-svisit-card:hover {
+        border-color: var(--tt-accent, #1f6feb);
+        box-shadow: 0 1px 6px rgba(31, 111, 235, 0.12);
+    }
+}
+
+/* Denser two-column grid on tablet and up. */
+@media (min-width: 768px) {
+    .tt-dashboard .tt-svisit-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 1024px) {
+    .tt-dashboard .tt-svisit-list {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}

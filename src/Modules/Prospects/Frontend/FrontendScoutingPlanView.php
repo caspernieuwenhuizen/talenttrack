@@ -185,53 +185,76 @@ class FrontendScoutingPlanView extends FrontendViewBase {
         }
 
         $today = current_time( 'Y-m-d' );
+
+        // Batch the prospect counts (one query instead of one per row).
+        $counts = ( new ScoutingVisitsRepository() )->prospectCountsForVisits(
+            array_map( static fn( $r ) => (int) $r->id, $rows )
+        );
         ?>
-        <div class="tt-table-wrap">
-            <table class="tt-table tt-table-sortable">
-                <thead>
-                    <tr>
-                        <th><?php esc_html_e( 'Date', 'talenttrack' ); ?></th>
-                        <th><?php esc_html_e( 'Location', 'talenttrack' ); ?></th>
-                        <th><?php esc_html_e( 'Event', 'talenttrack' ); ?></th>
-                        <th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th>
-                        <th><?php esc_html_e( 'Prospects', 'talenttrack' ); ?></th>
-                        <th><?php esc_html_e( 'Scout', 'talenttrack' ); ?></th>
-                    </tr>
-                </thead>
-                <tbody>
-                <?php foreach ( $rows as $row ) :
-                    $visit_id   = (int) $row->id;
-                    $date_iso   = (string) ( $row->visit_date ?? '' );
-                    $time_part  = (string) ( $row->visit_time ?? '' );
-                    $is_past    = $date_iso !== '' && $date_iso < $today;
-                    $date_label = $date_iso !== '' ? mysql2date( get_option( 'date_format' ), $date_iso, true ) : '';
-                    if ( $time_part !== '' && $time_part !== '00:00:00' ) {
-                        $date_label .= ' · ' . substr( $time_part, 0, 5 );
-                    }
-                    $detail_url = RecordLink::detailUrlForWithBack( 'scouting-visit', $visit_id );
-                    $count      = ( new ScoutingVisitsRepository() )->prospectCount( $visit_id );
-                    $scout_name = '';
-                    $scout      = get_userdata( (int) ( $row->scout_user_id ?? 0 ) );
-                    if ( $scout ) $scout_name = (string) $scout->display_name;
-                    $status_key   = (string) ( $row->status ?? ScoutingVisitStatus::PLANNED );
-                    $status_label = self::statusLabel( $status_key );
-                    $status_html  = self::statusPillHtml( $status_key, $status_label );
-                    ?>
-                    <tr class="<?php echo $is_past ? 'tt-row-past' : ''; ?>">
-                        <td data-sort="<?php echo esc_attr( $date_iso . ( $time_part ?: '00:00:00' ) ); ?>">
-                            <a href="<?php echo esc_url( $detail_url ); ?>"><?php echo esc_html( $date_label ); ?></a>
-                        </td>
-                        <td><?php echo esc_html( (string) ( $row->location ?? '' ) ); ?></td>
-                        <td><?php echo esc_html( (string) ( $row->event_description ?? '' ) ); ?></td>
-                        <td><?php echo $status_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — LookupPill escapes ?></td>
-                        <td><?php echo esc_html( (string) $count ); ?></td>
-                        <td><?php echo esc_html( $scout_name ); ?></td>
-                    </tr>
-                <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
+        <ul class="tt-svisit-list">
+            <?php foreach ( $rows as $row ) :
+                $visit_id   = (int) $row->id;
+                $date_iso   = (string) ( $row->visit_date ?? '' );
+                $time_part  = (string) ( $row->visit_time ?? '' );
+                $is_past    = $date_iso !== '' && $date_iso < $today;
+                $date_label = $date_iso !== '' ? mysql2date( get_option( 'date_format' ), $date_iso, true ) : '';
+                if ( $time_part !== '' && $time_part !== '00:00:00' ) {
+                    $date_label .= ' · ' . substr( $time_part, 0, 5 );
+                }
+                $detail_url = RecordLink::detailUrlForWithBack( 'scouting-visit', $visit_id );
+                $count      = (int) ( $counts[ $visit_id ] ?? 0 );
+                $scout_name = '';
+                $scout      = get_userdata( (int) ( $row->scout_user_id ?? 0 ) );
+                if ( $scout ) $scout_name = (string) $scout->display_name;
+                $status_key   = (string) ( $row->status ?? ScoutingVisitStatus::PLANNED );
+                $status_label = self::statusLabel( $status_key );
+                $status_html  = self::statusPillHtml( $status_key, $status_label );
+                $location     = (string) ( $row->location ?? '' );
+                $event        = (string) ( $row->event_description ?? '' );
+                $count_label  = sprintf(
+                    /* translators: %d: number of prospects logged from a scouting visit */
+                    _n( '%d prospect', '%d prospects', $count, 'talenttrack' ),
+                    $count
+                );
+                $card_cls = 'tt-svisit-card' . ( $is_past ? ' tt-svisit-card--past' : '' );
+                ?>
+                <li>
+                    <a class="<?php echo esc_attr( $card_cls ); ?>" href="<?php echo esc_url( $detail_url ); ?>">
+                        <span class="tt-svisit-card__head">
+                            <span class="tt-svisit-card__date"><?php echo esc_html( $date_label ); ?></span>
+                            <?php echo $status_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — statusPillHtml escapes ?>
+                        </span>
+                        <?php if ( $location !== '' || $event !== '' ) : ?>
+                            <span class="tt-svisit-card__where">
+                                <?php if ( $location !== '' ) : ?>
+                                    <span class="tt-svisit-card__loc"><?php echo esc_html( $location ); ?></span>
+                                <?php endif; ?>
+                                <?php if ( $event !== '' ) : ?>
+                                    <span class="tt-svisit-card__event"><?php echo esc_html( $event ); ?></span>
+                                <?php endif; ?>
+                            </span>
+                        <?php endif; ?>
+                        <span class="tt-svisit-card__meta">
+                            <span class="tt-svisit-card__count"><?php echo esc_html( $count_label ); ?></span>
+                            <?php if ( $scout_name !== '' ) : ?>
+                                <span class="tt-svisit-card__scout"><?php echo esc_html( $scout_name ); ?></span>
+                            <?php endif; ?>
+                        </span>
+                    </a>
+                </li>
+            <?php endforeach; ?>
+        </ul>
         <?php
+    }
+
+    protected static function enqueueAssets(): void {
+        parent::enqueueAssets();
+        wp_enqueue_style(
+            'tt-scouting-visits',
+            TT_PLUGIN_URL . 'assets/css/components/scouting-visits.css',
+            [ 'tt-frontend-mobile' ],
+            TT_VERSION
+        );
     }
 
     private static function renderForm( int $user_id, ?object $visit ): void {
