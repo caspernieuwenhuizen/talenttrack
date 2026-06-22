@@ -39120,2062 +39120,540 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
-#~ msgid "Standard reports"
-#~ msgstr "Standaardrapporten"
 
-#~ msgid ""
-#~ "Pre-built answers to the most common analytics questions. For ad-hoc "
-#~ "exploration use the KPI cards above."
-#~ msgstr ""
-#~ "Vooraf gebouwde antwoorden op de meest gestelde analysevragen. Voor ad-"
-#~ "hoc verkenning gebruik je de KPI-kaarten hierboven."
 
 #, php-format
-#~ msgid "%1$d / %2$d players (%3$d%% present)"
-#~ msgstr "%1$d / %2$d spelers (%3$d%% aanwezig)"
 
-#~ msgid "Trial players"
-#~ msgstr "Stagespelers"
 
-#~ msgid ""
-#~ "Applying the import — inserting these records with remapped ids, "
-#~ "resolving matches, and linking WordPress users — is the next phase and is "
-#~ "not available yet. No data has been changed."
-#~ msgstr ""
-#~ "Het toepassen van de import — deze records invoegen met hergemapte ids, "
-#~ "matches oplossen en WordPress-gebruikers koppelen — is de volgende fase "
-#~ "en is nog niet beschikbaar. Er zijn geen gegevens gewijzigd."
 
-#~ msgid "Print (landscape A4)"
-#~ msgstr "Afdrukken (liggend A4)"
 
-#~ msgid "Could not generate the team sheet. Please try again."
-#~ msgstr "Het teamblad kon niet worden gegenereerd. Probeer het opnieuw."
 
-#~ msgid "Log in to print this match prep sheet."
-#~ msgstr "Log in om dit wedstrijdvoorbereidingsblad te printen."
 
-#~ msgid "You do not have access to print this match prep sheet."
-#~ msgstr "Je hebt geen toegang om dit wedstrijdvoorbereidingsblad te printen."
 
-#~ msgid "Afdrukken"
-#~ msgstr "Afdrukken"
 
-#~ msgid "Sluiten"
-#~ msgstr "Sluiten"
 
-#~ msgid ""
-#~ "Define the macro-block calendar for a season. `team_id = 0` is the club-"
-#~ "wide default; non-zero is a per-team override."
-#~ msgstr ""
-#~ "Definieer de macroblok-kalender voor een seizoen. `team_id = 0` is de "
-#~ "clubbrede standaard; een andere waarde is een override per team."
 
-#~ msgid "Season ID"
-#~ msgstr "Seizoen-ID"
 
-#~ msgid "Team ID (0 = club default)"
-#~ msgstr "Team-ID (0 = clubstandaard)"
 
 #, php-format
-#~ msgid "%d-week profile"
-#~ msgstr "%d-weeksprofiel"
 
-#~ msgid "Enter a Season ID to load or edit its macro-blocks."
-#~ msgstr "Voer een Seizoen-ID in om de macroblokken te laden of bewerken."
 
 #, php-format
-#~ msgid "Current blocks for season %1$d / team %2$d"
-#~ msgstr "Huidige blokken voor seizoen %1$d / team %2$d"
 
-#~ msgid "No macro-blocks configured for this season/team yet."
-#~ msgstr "Nog geen macroblokken ingesteld voor dit seizoen/team."
 
-#~ msgid "Replace block set (paste JSON)"
-#~ msgstr "Blokset vervangen (plak JSON)"
 
-#~ msgid "Blocks JSON array"
-#~ msgstr "Blokken-JSON-array"
 
-#~ msgid ""
-#~ "Each block: { sequence, label, start_date, end_date, phase_profile: "
-#~ "[{week, phase, multiplier}] }. Server validates contiguous sequences, no "
-#~ "overlaps, valid YYYY-MM-DD."
-#~ msgstr ""
-#~ "Elk blok: { sequence, label, start_date, end_date, phase_profile: [{week, "
-#~ "phase, multiplier}] }. De server controleert op aaneensluitende reeksen, "
-#~ "geen overlap en geldige JJJJ-MM-DD."
 
-#~ msgid "Replace block set"
-#~ msgstr "Blokset vervangen"
 
-#~ msgid ""
-#~ "No age profiles seeded for this club. Re-run migration 0125 to seed "
-#~ "defaults."
-#~ msgstr ""
-#~ "Geen leeftijdsprofielen geseed voor deze club. Voer migratie 0125 opnieuw "
-#~ "uit om standaarden te seeden."
 
-#~ msgid "Session minutes max"
-#~ msgstr "Maximaal aantal sessieminuten"
 
-#~ msgid "Enter a Season ID to edit team schedules for that season."
-#~ msgstr ""
-#~ "Voer een Seizoen-ID in om de teamschema's voor dat seizoen te bewerken."
 
-#~ msgid "Save failed: session expired. Please reload."
-#~ msgstr "Opslaan mislukt: sessie verlopen. Ververs de pagina."
 
-#~ msgid "Save failed: blocks_json is not valid JSON."
-#~ msgstr "Opslaan mislukt: blocks_json is geen geldige JSON."
 
 #, php-format
-#~ msgid "Replaced macro-blocks for the season (%d blocks)."
-#~ msgstr "Macroblokken voor het seizoen vervangen (%d blokken)."
 
-#~ msgid "No blocks composed for this VCT training."
-#~ msgstr "Geen blokken samengesteld voor deze VCT-training."
 
-#~ msgid ""
-#~ "Publish this draft to bind it to a team Activity (creates a new Activity, "
-#~ "or binds to an existing one at the same slot if you confirm)."
-#~ msgstr ""
-#~ "Publiceer dit concept om het aan een team-Activiteit te koppelen (maakt "
-#~ "een nieuwe Activiteit aan, of koppelt aan een bestaande op hetzelfde "
-#~ "tijdslot als je bevestigt)."
 
-#~ msgid "Cannot compose this VCT training:"
-#~ msgstr "Kan deze VCT-training niet samenstellen:"
 
-#~ msgid "Notes from the engine:"
-#~ msgstr "Notities van de engine:"
 
-#~ msgid ""
-#~ "Age group + match-day context are resolved automatically on the next "
-#~ "step. Start time prefills from the team VCT-defaults panel when "
-#~ "configured."
-#~ msgstr ""
-#~ "Leeftijdsgroep + MD-context worden automatisch bepaald in de volgende "
-#~ "stap. Begintijd wordt voorgevuld vanuit het VCT-standaardenpaneel van het "
-#~ "team als dat is ingesteld."
 
 # #1087 — VCT-12 Configuration tiles
-#~ msgid "VCT macro-blocks"
-#~ msgstr "VCT macro-blokken"
 
-#~ msgid ""
-#~ "Block templates the VCT session wizard uses (warming-up, hoofddeel, "
-#~ "cooldown, theme-blocks). Edit names + default duration + default "
-#~ "intensity."
-#~ msgstr ""
-#~ "Bloktemplates die de VCT sessie-wizard gebruikt (warming-up, hoofddeel, "
-#~ "cooldown, themablokken). Bewerk namen + standaardduur + "
-#~ "standaardintensiteit."
 
 #, php-format
-#~ msgid "%d active"
-#~ msgid_plural "%d active"
-#~ msgstr[0] "%d actief"
-#~ msgstr[1] "%d actief"
 
-#~ msgid "VCT age-profiles"
-#~ msgstr "VCT leeftijdsprofielen"
 
-#~ msgid ""
-#~ "Per age band (JO8 → JO19) the workload-cap, max intensity per MD-day, max "
-#~ "VCT session length. Drives the wizard's workload check."
-#~ msgstr ""
-#~ "Per leeftijdsband (JO8 → JO19) het belastingsplafond, max intensiteit per "
-#~ "MD-dag, max VCT sessieduur. Bepaalt de belastingscheck van de wizard."
 
 #, php-format
-#~ msgid "%d age band"
-#~ msgid_plural "%d age bands"
-#~ msgstr[0] "%d leeftijdsband"
-#~ msgstr[1] "%d leeftijdsbanden"
 
-#~ msgid "(feature)"
-#~ msgstr "(functie)"
 
-#~ msgid ""
-#~ "Bulk exporters in one place. Per-record exports (player one-pager, "
-#~ "scouting report PDF, PDP, etc.) stay on each record's detail page where "
-#~ "the relevant id is in context."
-#~ msgstr ""
-#~ "Bulkexports op één plek. Per-record exports (spelerprofielblad, "
-#~ "scoutingrapport-PDF, POP, enz.) blijven op de detailpagina van elk record "
-#~ "waar de bijbehorende id in context staat."
 
-#~ msgid ""
-#~ "Per-club custom styling (#0064): visual editor, code editor, file upload, "
-#~ "starter templates, history with revert. Frontend + wp-admin surfaces."
-#~ msgstr ""
-#~ "Eigen styling per club (#0064): visuele editor, code-editor, "
-#~ "bestandsupload, startsjablonen, historie met terugzetten. Frontend + wp-"
-#~ "admin-oppervlakken."
 
-#~ msgid ""
-#~ "Pick a configuration area. Branding, theme, rating scale, and lookups are "
-#~ "edited inline; the remaining areas open in wp-admin."
-#~ msgstr ""
-#~ "Kies een configuratieonderdeel. Branding, thema, beoordelingsschaal en "
-#~ "lookuplijsten zijn inline bewerkbaar; de overige onderdelen openen in wp-"
-#~ "admin."
 
-#~ msgid "Weights and thresholds for status by age group."
-#~ msgstr "Wegingen en drempels voor status per leeftijdsgroep."
 
-#~ msgid "My staff PDP"
-#~ msgstr "Mijn staf-POP"
 
-#~ msgid "Theme & fonts"
-#~ msgstr "Thema & fonts"
 
-#~ msgid "Academy name, logo, primary and secondary colours."
-#~ msgstr "Academienaam, logo, primaire en secundaire kleuren."
 
-#~ msgid "Theme inheritance, display + body fonts and accent colours."
-#~ msgstr "Thema-overerving, display- en bodyfonts en accentkleuren."
 
-#~ msgid "Save branding"
-#~ msgstr "Branding opslaan"
 
-#~ msgid "Save theme"
-#~ msgstr "Thema opslaan"
 
-#~ msgid ""
-#~ "Pick a lookup category. Values are translatable and feed every dropdown "
-#~ "across the dashboard."
-#~ msgstr ""
-#~ "Kies een lookup-categorie. Waarden zijn vertaalbaar en voeden elke "
-#~ "dropdown op het dashboard.Kies een lookup-categorie. Waarden zijn "
-#~ "vertaalbaar en voeden elke dropdown op het dashboard."
 
-#~ msgid "Explorer · Evaluation coverage →"
-#~ msgstr "Explorer · Evaluatiedekking →"
 
-#~ msgid "Explorer · Attendance vs squad →"
-#~ msgstr "Explorer · Aanwezigheid versus selectie →"
 
-#~ msgid "Goal delete failed."
-#~ msgstr "Verwijderen van doel mislukt."
 
-#~ msgid ""
-#~ "No seasons configured yet. Open the wp-admin Seasons page first and add a "
-#~ "season — then come back here to set its PDP blocks."
-#~ msgstr ""
-#~ "Nog geen seizoenen ingesteld. Open eerst de Seizoenen-pagina in wp-admin "
-#~ "en voeg een seizoen toe — kom dan hier terug om de POP-blokken in te "
-#~ "stellen."
 
-#~ msgid "Evaluations / coach"
-#~ msgstr "Evaluaties per coach"
 
-#~ msgid "Players by team"
-#~ msgstr "Spelers per team"
 
 #, php-format
-#~ msgid "%d active players across the academy."
-#~ msgstr "%d actieve spelers in de academie."
 
-#~ msgid "No active players yet."
-#~ msgstr "Nog geen actieve spelers."
 
-#~ msgid "Distribution"
-#~ msgstr "Verdeling"
 
-#~ msgid "Top 5 most-evaluated"
-#~ msgstr "Top 5 meest geëvalueerd"
 
-#~ msgid "Optional reason"
-#~ msgstr "Optionele reden"
 
-#~ msgid "Create dashboard page"
-#~ msgstr "Dashboardpagina aanmaken"
 
-#~ msgid ""
-#~ "A frontend page with the [talenttrack_dashboard] shortcode so coaches and "
-#~ "players can sign in."
-#~ msgstr ""
-#~ "Een frontend-pagina met de shortcode [talenttrack_dashboard] zodat "
-#~ "coaches en spelers kunnen inloggen."
 
-#~ msgid "No new notes right now."
-#~ msgstr "Geen nieuwe notities op dit moment."
 
 #, php-format
-#~ msgid ""
-#~ "⚠ One or more ratings are at or below %s — please add a comment "
-#~ "explaining the low score."
-#~ msgstr ""
-#~ "⚠ Eén of meer beoordelingen liggen op of onder %s — voeg een toelichting "
-#~ "toe waarom."
 
-#~ msgid "⚠ Needs attention"
-#~ msgstr "⚠ Vereist aandacht"
 
-#~ msgid "⚠ Above 30% — imbalance"
-#~ msgstr "⚠ Boven 30% — onbalans"
 
-#~ msgid ""
-#~ "Optional — record a quick behaviour rating for this activity. Skip any "
-#~ "player you do not want to rate today. Players left blank get no behaviour "
-#~ "row."
-#~ msgstr ""
-#~ "Optioneel — leg een snelle gedragsbeoordeling vast voor deze activiteit. "
-#~ "Sla spelers over die je vandaag niet wilt beoordelen. Lege spelers "
-#~ "krijgen geen gedragsregel."
 
-#~ msgid "Legacy bridge: head_coach_id"
-#~ msgstr "Legacy-brug: head_coach_id"
 
 #, php-format
-#~ msgid "Doelenintake — %1$s — %2$s"
-#~ msgstr "Doelenintake — %1$s — %2$s"
 
 #, php-format
-#~ msgid "Doelenintake — %s"
-#~ msgstr "Doelenintake — %s"
 
-#~ msgid "Doelen 1 + 2 · invullen tijdens het gesprek."
-#~ msgstr "Doelen 1 + 2 · invullen tijdens het gesprek."
 
-#~ msgid "Doelen uit vorig seizoen"
-#~ msgstr "Doelen uit vorig seizoen"
 
-#~ msgid ""
-#~ "This is the legacy head coach field (kept for display only). As of "
-#~ "v2.10.0 it no longer drives permissions — the Staff section below is the "
-#~ "source of truth. The head coach from this field was automatically added "
-#~ "to the Staff list on upgrade."
-#~ msgstr ""
-#~ "Dit is het oude hoofdtrainer-veld (alleen nog ter weergave). Vanaf "
-#~ "v2.10.0 bepaalt het geen rechten meer — de sectie Staf hieronder is "
-#~ "leidend. De hoofdtrainer uit dit veld is bij het upgraden automatisch aan "
-#~ "de Staf toegevoegd."
 
-#~ msgid ""
-#~ "Optionally connect this activity to one or more methodology principles. "
-#~ "Hold Ctrl/Cmd to select multiple. Leave blank to skip."
-#~ msgstr ""
-#~ "Verbind deze activiteit optioneel aan een of meer methodologie-principes. "
-#~ "Houd Ctrl/Cmd ingedrukt om meerdere te selecteren. Laat leeg om over te "
-#~ "slaan."
 
-#~ msgid "Principles"
-#~ msgstr "Principes"
 
-#~ msgid "1e half"
-#~ msgstr "1e helft"
 
-#~ msgid "2e half"
-#~ msgstr "2e helft"
 
-#~ msgid "Unavailable"
-#~ msgstr "Niet beschikbaar"
 
-#~ msgid "Per-player goals + attention"
-#~ msgstr "Doelen + aandachtspunten per speler"
 
-#~ msgid ""
-#~ "Pick a team to open the formation board with auto-suggested XI, depth "
-#~ "chart, and chemistry breakdown."
-#~ msgstr ""
-#~ "Kies een team om het formatiebord te openen met automatisch voorgestelde "
-#~ "basiself, dieptestaat en chemie-opbouw."
 
-#~ msgid "Open chemistry board →"
-#~ msgstr "Open chemie-bord →"
 
 #, php-format
-#~ msgid "Team chemistry — %s"
-#~ msgstr "Teamchemie — %s"
 
-#~ msgid ""
-#~ "No formation template configured. Configure one in Settings → Team "
-#~ "development."
-#~ msgstr ""
-#~ "Geen formatie­sjabloon ingesteld. Configureer er een in Instellingen → "
-#~ "Team development."
 
 #, php-format
-#~ msgid "Style: possession %1$d / counter %2$d / press %3$d"
-#~ msgstr "Stijl: balbezit %1$d / counter %2$d / press %3$d"
 
-#~ msgid "Reset to suggested XI"
-#~ msgstr "Terug naar voorgestelde XI"
 
-#~ msgid "Strong (2.0–3.0)"
-#~ msgstr "Sterk (2,0–3,0)"
 
-#~ msgid "Workable (1.0–2.0)"
-#~ msgstr "Werkbaar (1,0–2,0)"
 
-#~ msgid "Poor (0–1.0)"
-#~ msgstr "Zwak (0–1,0)"
 
-#~ msgid ""
-#~ "Lines connect formation-adjacent slots. Score combines coach-marked "
-#~ "pairings, same line of play, and side-preference fit. Hover any line for "
-#~ "the breakdown."
-#~ msgstr ""
-#~ "Lijnen verbinden naburige posities binnen de formatie. De score "
-#~ "combineert door de coach gemarkeerde duo's, dezelfde linie en "
-#~ "voorkeursbeen-fit. Beweeg over een lijn voor de uitsplitsing."
 
 #, php-format
-#~ msgid "Formation: %s"
-#~ msgstr "Formatie: %s"
 
-#~ msgid "Formation:"
-#~ msgstr "Formatie:"
 
 #, php-format
-#~ msgid ""
-#~ "%1$d of %2$d players have at least one rated main category. Rate %3$d "
-#~ "more players in any of technical / tactical / physical / mental to start "
-#~ "seeing fit scores and a team composite."
-#~ msgstr ""
-#~ "%1$d van %2$d spelers heeft minimaal één gewaardeerde hoofdcategorie. "
-#~ "Beoordeel nog %3$d spelers in technisch / tactisch / fysiek / mentaal om "
-#~ "fit-scores en een team-totaal te zien."
 
-#~ msgid "Switch to isometric view"
-#~ msgstr "Wissel naar isometrische weergave"
 
-#~ msgid "Switch to flat view"
-#~ msgstr "Wissel naar platte weergave"
 
-#~ msgid "Paired bonus"
-#~ msgstr "Koppel­bonus"
 
-#~ msgid "Depth chart"
-#~ msgstr "Dieptestaat"
 
-#~ msgid "1st choice"
-#~ msgstr "1e keuze"
 
-#~ msgid "2nd choice"
-#~ msgstr "2e keuze"
 
-#~ msgid "3rd choice"
-#~ msgstr "3e keuze"
 
-#~ msgid "Not enough evaluations to compute a fit score."
-#~ msgstr "Nog niet genoeg evaluaties om een fit-score te berekenen."
 
-#~ msgid ""
-#~ "No pairings yet. Mark \"always start these two together\" pairs to factor "
-#~ "into the chemistry score."
-#~ msgstr ""
-#~ "Nog geen koppels. Markeer \"altijd samen opstellen\"-koppels om mee te "
-#~ "tellen in de chemie­score."
 
 #, php-format
-#~ msgid "%d scored adjacent pairs on the pitch."
-#~ msgstr "%d gescoorde aangrenzende paren op het veld."
 
-#~ msgid "End date (optional, for multi-day tournaments)"
-#~ msgstr "Einddatum (optioneel, voor meerdaagse toernooien)"
 
-#~ msgid "(no default — pick per match)"
-#~ msgstr "(geen standaard — kies per wedstrijd)"
 
-#~ msgid "Opponent name"
-#~ msgstr "Naam tegenstander"
 
-#~ msgid "Formation override (optional)"
-#~ msgstr "Opstelling-override (optioneel)"
 
-#~ msgid "Review the details below before creating the tournament."
-#~ msgstr "Controleer de details hieronder voordat je het toernooi aanmaakt."
 
-#~ msgid "Squad size"
-#~ msgstr "Selectiegrootte"
 
-#~ msgid "Match count"
-#~ msgstr "Aantal wedstrijden"
 
 #, php-format
-#~ msgid ""
-#~ "Equal-share target preview: %d minutes per player across %d squad members."
-#~ msgstr ""
-#~ "Voorbeeld gelijk-aandeel-doel: %d minuten per speler over %d "
-#~ "selectieleden."
 
-#~ msgid "Defender"
-#~ msgstr "Verdediger"
 
-#~ msgid "Midfielder"
-#~ msgstr "Middenvelder"
 
-#~ msgid "Forward"
-#~ msgstr "Aanvaller"
 
 #, php-format
-#~ msgid "Player file of %s"
-#~ msgstr "Spelersdossier van %s"
 
-#~ msgid "Latest activity:"
-#~ msgstr "Recentste activiteit:"
 
-#~ msgid "Latest evaluation:"
-#~ msgstr "Recentste evaluatie:"
 
-#~ msgid "Latest goal:"
-#~ msgstr "Recentste doel:"
 
-#~ msgid "Att. %"
-#~ msgstr "Aanw. %"
 
-#~ msgid "Complete"
-#~ msgstr "Voltooien"
 
-#~ msgid "No activities match your filters."
-#~ msgstr "Geen activiteiten passen bij je filters."
 
-#~ msgid "TRIAL"
-#~ msgstr "PROEF"
 
-#~ msgid "Tertiary"
-#~ msgstr "Tertiair"
 
-#~ msgid "Half length (min)"
-#~ msgstr "Helftduur (min)"
 
-#~ msgid "Manage availability"
-#~ msgstr "Beschikbaarheid beheren"
 
-#~ msgid "Attention"
-#~ msgstr "Aandacht"
 
-#~ msgid "Slot · Player"
-#~ msgstr "Plek · Speler"
 
-#~ msgid "— Bench —"
-#~ msgstr "— Bank —"
 
-#~ msgid "Coach notes…"
-#~ msgstr "Coachnotities…"
 
-#~ msgid "→ Copy 1e to 2e"
-#~ msgstr "→ Kopieer 1e naar 2e"
 
-#~ msgid "📄 Open print-ready PDF"
-#~ msgstr "📄 Print-versie openen (PDF)"
 
-#~ msgid "Save match prep"
-#~ msgstr "Voorbereiding opslaan"
 
-#~ msgid "Available players"
-#~ msgstr "Beschikbare spelers"
 
-#~ msgid ""
-#~ "Drag onto a depth-chart cell below or onto a pitch slot. Drop back here "
-#~ "to remove. Trial players carry a yellow border."
-#~ msgstr ""
-#~ "Sleep naar een dieptecel hieronder of naar een veldpositie. Sleep "
-#~ "hierheen terug om te verwijderen. Proefspelers hebben een gele rand."
 
-#~ msgid ""
-#~ "Drag a player onto a slot. Drop a player back here to remove them from "
-#~ "the lineup."
-#~ msgstr ""
-#~ "Sleep een speler op een positie. Sleep een speler hierheen terug om hem "
-#~ "uit de opstelling te halen."
 
-#~ msgid ""
-#~ "No TalentTrack record needed. Fill in the basics; you can promote this "
-#~ "guest to a real player later."
-#~ msgstr ""
-#~ "Geen TalentTrack-record nodig. Vul de basisgegevens in; je kunt deze gast "
-#~ "later promoveren naar een echte speler."
 
-#~ msgid "Evaluate"
-#~ msgstr "Beoordelen"
 
-#~ msgid "Add as player"
-#~ msgstr "Promoveer naar speler"
 
-#~ msgid "Specific goals"
-#~ msgstr "Specifieke doelen"
 
-#~ msgid "Substitutes"
-#~ msgstr "Wissels"
 
-#~ msgid "On pitch"
-#~ msgstr "In het veld"
 
-#~ msgid "End 1st half"
-#~ msgstr "Einde 1e helft"
 
-#~ msgid "Start 2nd half"
-#~ msgstr "Start 2e helft"
 
-#~ msgid "Match finished"
-#~ msgstr "Wedstrijd afgelopen"
 
 #, php-format
-#~ msgid "Who comes off for %s?"
-#~ msgstr "Wie gaat eruit voor %s?"
 
-#~ msgid "Pick a dimension above to break the headline down by groups."
-#~ msgstr ""
-#~ "Kies hierboven een dimensie om de hoofdwaarde uit te splitsen per groep."
 
-#~ msgid ""
-#~ "The dimension explorer is the first ship of #0083 Child 3. Time-series "
-#~ "chart, drilldown to fact rows, and PDF export ship in follow-ups."
-#~ msgstr ""
-#~ "De dimensie-explorer is de eerste oplevering van #0083 Child 3. "
-#~ "Tijdreeksdiagram, drill-down naar fact-rijen en PDF-export volgen later."
 
-#~ msgid "Attendance register (CSV)"
-#~ msgstr "Aanwezigheidsregister (CSV)"
 
-#~ msgid "Goals list (CSV)"
-#~ msgstr "Doelenlijst (CSV)"
 
-#~ msgid "Players list (CSV)"
-#~ msgstr "Spelerslijst (CSV)"
 
-#~ msgid ""
-#~ "Configure how the traffic-light status is calculated. The shipped default "
-#~ "(40% ratings / 25% behaviour / 20% attendance / 15% potential, amber "
-#~ "below 60, red below 40, behaviour floor at 3.0) applies until you save an "
-#~ "override."
-#~ msgstr ""
-#~ "Stel in hoe de stoplichtstatus berekend wordt. De standaardinstelling "
-#~ "(40% evaluaties / 25% gedrag / 20% aanwezigheid / 15% potentieel, oranje "
-#~ "onder 60, rood onder 40, gedragsbodem op 3.0) geldt totdat je een "
-#~ "override opslaat."
 
-#~ msgid "Behaviour &amp; potential"
-#~ msgstr "Gedrag &amp; potentieel"
 
-#~ msgid "Capture behaviour and potential"
-#~ msgstr "Gedrag en potentieel vastleggen"
 
-#~ msgid "Colour"
-#~ msgstr "Kleur"
 
-#~ msgid "No items yet."
-#~ msgstr "Nog geen items."
 
 #, php-format
-#~ msgid "Head coach: %s"
-#~ msgstr "Hoofdcoach: %s"
 
 #, php-format
-#~ msgid ""
-#~ "Team formation board coming with %s — team development. The placeholder "
-#~ "lives here so the layout is ready for it."
-#~ msgstr ""
-#~ "Opstellingsbord komt met %s — teamontwikkeling. De placeholder staat hier "
-#~ "zodat de layout er klaar voor is."
 
-#~ msgid "Parent ack"
-#~ msgstr "Bevestiging ouder"
 
-#~ msgid "Player ack"
-#~ msgstr "Bevestiging speler"
 
-#~ msgid ""
-#~ "Per-locale display name. Click \"Translate\" to fill these from the "
-#~ "configured engine — review and edit before saving."
-#~ msgstr ""
-#~ "Naam per locale. Klik \"Vertaal\" om deze te vullen vanuit de "
-#~ "geconfigureerde engine — controleer en bewerk voor opslaan."
 
-#~ msgid "Name this blueprint:"
-#~ msgstr "Geef deze blueprint een naam:"
 
-#~ msgid "PDP verdicts pending"
-#~ msgstr "Openstaande POP-verdicten"
 
-#~ msgid "Observation"
-#~ msgstr "Observatie"
 
-#~ msgid "Pending Approval"
-#~ msgstr "Wacht op goedkeuring"
 
-#~ msgid "Add some"
-#~ msgstr "Voeg enkele toe"
 
-#~ msgid "Additional Fields"
-#~ msgstr "Aanvullende velden"
 
-#~ msgid "Administrator Guide"
-#~ msgstr "Handleiding voor beheerders"
 
-#~ msgid "Coach Guide"
-#~ msgstr "Trainersgids"
 
-#~ msgid "Edit profile"
-#~ msgstr "Profiel bewerken"
 
-#~ msgid "Evaluation Category"
-#~ msgstr "Evaluatie-categorie"
 
-#~ msgid "Evaluation saved!"
-#~ msgstr "Evaluatie opgeslagen!"
 
-#~ msgid "Goal added!"
-#~ msgstr "Doel toegevoegd!"
 
-#~ msgid "Legacy head_coach_id"
-#~ msgstr "Verouderde hoofdtrainer-koppeling"
 
-#~ msgid "Missing required fields."
-#~ msgstr "Verplichte velden ontbreken."
 
-#~ msgid ""
-#~ "No player profile is linked to your account. Please contact your "
-#~ "administrator."
-#~ msgstr ""
-#~ "Er is geen spelersprofiel aan uw account gekoppeld. Neem contact op met "
-#~ "uw beheerder."
 
-#~ msgid "Person created."
-#~ msgstr "Persoon aangemaakt."
 
-#~ msgid "Player Guide"
-#~ msgstr "Spelersgids"
 
-#~ msgid "Record Activity"
-#~ msgstr "Trainingsactiviteit vastleggen"
 
-#~ msgid ""
-#~ "Record player, evaluation, team, session, goal, and configuration changes "
-#~ "to the audit trail."
-#~ msgstr ""
-#~ "Leg wijzigingen aan spelers, evaluaties, teams, activiteiten, doelen en "
-#~ "configuratie vast in het audit-spoor."
 
-#~ msgid "Role in team"
-#~ msgstr "Rol in team"
 
-#~ msgid "Activity saved!"
-#~ msgstr "Activiteit opgeslagen!"
 
-#~ msgid ""
-#~ "Set up your academy by visiting Configuration, adding Teams, creating "
-#~ "Players, and linking WP user accounts to players."
-#~ msgstr ""
-#~ "Zet uw academie op door naar Configuratie te gaan, teams toe te voegen, "
-#~ "spelers aan te maken en WP-gebruikersaccounts aan spelers te koppelen."
 
-#~ msgid ""
-#~ "Shown for backward compatibility. Add as an explicit assignment below to "
-#~ "manage it here."
-#~ msgstr ""
-#~ "Getoond voor achterwaartse compatibiliteit. Voeg hieronder toe als "
-#~ "expliciete toewijzing om deze hier te beheren."
 
-#~ msgid "Status updated."
-#~ msgstr "Status bijgewerkt."
 
-#~ msgid ""
-#~ "Submit evaluations, manage goals, and record attendance from the frontend "
-#~ "dashboard."
-#~ msgstr ""
-#~ "Evaluaties verzenden, doelen beheren en aanwezigheid vastleggen vanaf het "
-#~ "frontend-dashboard."
 
-#~ msgid "TalentTrack — Help & Documentation"
-#~ msgstr "TalentTrack — Hulp & documentatie"
 
-#~ msgid "The database rejected the save. No session was created."
-#~ msgstr ""
-#~ "De database heeft het opslaan afgewezen. Er is geen activiteit aangemaakt."
 
-#~ msgid "The evaluation could not be deleted."
-#~ msgstr "De evaluatie kon niet worden verwijderd."
 
-#~ msgid ""
-#~ "The evaluation could not be saved. The database rejected the operation."
-#~ msgstr ""
-#~ "De evaluatie kon niet worden opgeslagen. De database heeft de bewerking "
-#~ "afgewezen."
 
-#~ msgid "The evaluation was saved, but some ratings could not be stored."
-#~ msgstr ""
-#~ "De evaluatie is opgeslagen, maar sommige beoordelingen konden niet worden "
-#~ "bewaard."
 
-#~ msgid "The session could not be saved. The database rejected the operation."
-#~ msgstr ""
-#~ "De activiteit kon niet worden opgeslagen. De database heeft de bewerking "
-#~ "afgewezen."
 
-#~ msgid "The session was saved, but some attendance rows could not be stored."
-#~ msgstr ""
-#~ "De activiteit is opgeslagen, maar sommige aanwezigheidsrijen konden niet "
-#~ "worden bewaard."
 
-#~ msgid ""
-#~ "This is the legacy head coach field (kept for backward compatibility). "
-#~ "Prefer assigning staff in the Staff section below — it supports multiple "
-#~ "coaches, assistants, managers, and physios per team."
-#~ msgstr ""
-#~ "Dit is het verouderde hoofdtrainer-veld (behouden voor achterwaartse "
-#~ "compatibiliteit). Gebruik liever de Staf-sectie hieronder — die "
-#~ "ondersteunt meerdere trainers, assistenten, managers en fysio's per team."
 
-#~ msgid ""
-#~ "View your profile, evaluations, goals, and progress from the dashboard."
-#~ msgstr ""
-#~ "Bekijk uw profiel, evaluaties, doelen en voortgang vanuit het dashboard."
 
-#~ msgid ""
-#~ "TalentTrack uses a role-based access system. Each role grants a set of "
-#~ "permissions that can be scoped globally, to a team, or to a specific "
-#~ "player. System roles are predefined and their permission sets are read-"
-#~ "only."
-#~ msgstr ""
-#~ "TalentTrack gebruikt een rolgebaseerd toegangssysteem. Elke rol verleent "
-#~ "een set rechten die globaal, aan een team of aan een specifieke speler "
-#~ "kunnen worden gekoppeld. Systeemrollen zijn voorgedefinieerd en hun "
-#~ "rechtensets zijn alleen-lezen."
 
-#~ msgid "Open permission debugger"
-#~ msgstr "Open rechten-diagnose"
 
-#~ msgid ""
-#~ "This is a system role. Its permission set is read-only in Sprint 1F. "
-#~ "Custom role editing will be available in a future release."
-#~ msgstr ""
-#~ "Dit is een systeemrol. De rechtenset is alleen-lezen in Sprint 1F. "
-#~ "Aangepaste rolbewerking komt in een toekomstige release."
 
-#~ msgid ""
-#~ "Choose a WordPress user to see every role-scope they resolve to, the "
-#~ "source of each scope (data-driven role assignment, legacy bridge, or "
-#~ "derived), and the concrete permissions each scope grants."
-#~ msgstr ""
-#~ "Kies een WordPress-gebruiker om alle rol-bereiken te zien waar deze toe "
-#~ "herleid wordt, de bron van elk bereik (datagestuurde rol-toewijzing, "
-#~ "legacy-brug of afgeleid), en de concrete rechten die elk bereik verleent."
 
-#~ msgid ""
-#~ "Functional roles describe the jobs people hold on a team (head coach, "
-#~ "assistant coach, manager, physio, other). Each functional role is mapped "
-#~ "to one or more authorization roles, which determine what that person is "
-#~ "allowed to do. Edit a functional role below to change its mapping."
-#~ msgstr ""
-#~ "Functionele rollen beschrijven de functies die mensen binnen een team "
-#~ "vervullen (hoofdtrainer, assistent-trainer, manager, fysio, overig). Elke "
-#~ "functionele rol wordt gekoppeld aan een of meer autorisatierollen, die "
-#~ "bepalen wat die persoon mag doen. Bewerk hieronder een functionele rol om "
-#~ "de koppeling te wijzigen."
 
-#~ msgid ""
-#~ "Lead coach for a team. Owns methodology, selection, and session planning."
-#~ msgstr ""
-#~ "Hoofdverantwoordelijke trainer van een team. Eigenaar van methodiek, "
-#~ "selectie en activiteitplanning."
 
-#~ msgid ""
-#~ "The session was saved, but one or more custom fields had invalid values "
-#~ "and were not updated."
-#~ msgstr ""
-#~ "De activiteit is opgeslagen, maar één of meer aangepaste velden hadden "
-#~ "ongeldige waarden en zijn niet bijgewerkt."
 
-#~ msgid "Tactical"
-#~ msgstr "Tactisch"
 
-#~ msgid "Physical"
-#~ msgstr "Fysiek"
 
-#~ msgid "Mental"
-#~ msgstr "Mentaal"
 
 # Subcategory seed labels — Technical
-#~ msgid "Short pass"
-#~ msgstr "Korte pass"
 
-#~ msgid "Long pass"
-#~ msgstr "Lange pass"
 
-#~ msgid "First touch"
-#~ msgstr "Aanname"
 
-#~ msgid "Dribbling"
-#~ msgstr "Dribbelen"
 
-#~ msgid "Shooting"
-#~ msgstr "Schieten"
 
-#~ msgid "Heading"
-#~ msgstr "Koppen"
 
 # Subcategory seed labels — Tactical
-#~ msgid "Offensive positioning"
-#~ msgstr "Aanvallende positionering"
 
-#~ msgid "Defensive positioning"
-#~ msgstr "Verdedigende positionering"
 
-#~ msgid "Game reading"
-#~ msgstr "Spelinzicht"
 
-#~ msgid "Decision making"
-#~ msgstr "Beslissingen nemen"
 
-#~ msgid "Off-ball movement"
-#~ msgstr "Loopacties zonder bal"
 
 # Subcategory seed labels — Physical
-#~ msgid "Speed"
-#~ msgstr "Snelheid"
 
-#~ msgid "Endurance"
-#~ msgstr "Uithoudingsvermogen"
 
-#~ msgid "Strength"
-#~ msgstr "Kracht"
 
-#~ msgid "Agility"
-#~ msgstr "Wendbaarheid"
 
-#~ msgid "Coordination"
-#~ msgstr "Coördinatie"
 
 # Subcategory seed labels — Mental
-#~ msgid "Attitude"
-#~ msgstr "Houding"
 
-#~ msgid "Connected"
-#~ msgstr "Gekoppeld"
 
-#~ msgid "Add URL"
-#~ msgstr "URL toevoegen"
 
-#~ msgid ""
-#~ "Pick a lookup category. Editing happens in wp-admin; values entered here "
-#~ "are translatable and feed every dropdown across the dashboard."
-#~ msgstr ""
-#~ "Kies een lookupcategorie. Bewerken gebeurt in wp-admin; waarden zijn "
-#~ "vertaalbaar en voeden elke dropdown in het dashboard."
 
-#~ msgid ""
-#~ "%1$d teams. %2$d connected to Spond. %3$d with the last sync errored."
-#~ msgstr ""
-#~ "%1$d teams. %2$d gekoppeld aan Spond. %3$d met een mislukte laatste sync."
 
-#~ msgid "That team does not have a Spond iCal URL on file."
-#~ msgstr "Dit team heeft geen Spond iCal-URL ingesteld."
 
-#~ msgid ""
-#~ "No teams yet. Spond pulls per team — add a team first, then paste the "
-#~ "Spond iCal URL on the team edit form."
-#~ msgstr ""
-#~ "Nog geen teams. Spond werkt per team — voeg eerst een team toe en plak "
-#~ "vervolgens de Spond iCal-URL op het teambewerkformulier."
 
-#~ msgid "Not configured"
-#~ msgstr "Niet ingesteld"
 
-#~ msgid "Your attendance"
-#~ msgstr "Jouw aanwezigheid"
 
-#~ msgid "Player:"
-#~ msgstr "Speler:"
 
-#~ msgid "Click any day to see who was active."
-#~ msgstr "Klik op een dag om te zien wie actief was."
 
-#~ msgid "Click any day to see the evaluations."
-#~ msgstr "Klik op een dag om de evaluaties te zien."
 
-#~ msgid "Invalid date."
-#~ msgstr "Ongeldige datum."
 
-#~ msgid "No team"
-#~ msgstr "Geen team"
 
-#~ msgid "← Back to dashboard"
-#~ msgstr "← Terug naar dashboard"
 
-#~ msgid "Tap a tile to go straight to that section."
-#~ msgstr "Tik op een tegel om direct naar dat onderdeel te gaan."
 
-#~ msgid "Activities you've attended."
-#~ msgstr "Trainingen die je hebt bijgewoond."
 
-#~ msgid "Your personal details and contact info."
-#~ msgstr "Jouw persoonlijke gegevens en contactinformatie."
 
-#~ msgid "Roster of all players on your coached teams."
-#~ msgstr "Selectie van alle spelers in de teams die je coacht."
 
-#~ msgid "Go to admin"
-#~ msgstr "Naar beheer"
 
-#~ msgid "Open the full WordPress admin dashboard."
-#~ msgstr "Open het volledige WordPress-beheerdashboard."
 
-#~ msgid "Activities, attendance tracking."
-#~ msgstr "Trainingen en aanwezigheidsregistratie."
 
-#~ msgid "No attendance records yet."
-#~ msgstr "Nog geen aanwezigheidsregistraties."
 
-#~ msgid ""
-#~ "Playing details are maintained by your coach. Contact them for "
-#~ "corrections."
-#~ msgstr ""
-#~ "Speelgegevens worden bijgehouden door je coach. Neem contact op voor "
-#~ "correcties."
 
-#~ msgid "No teams assigned — no players to show."
-#~ msgstr "Geen teams toegewezen — geen spelers om te tonen."
 
-#~ msgid "← Back to players"
-#~ msgstr "← Terug naar spelers"
 
-#~ msgid "This section is only available for coaches and administrators."
-#~ msgstr "Dit onderdeel is alleen beschikbaar voor coaches en beheerders."
 
-#~ msgid ""
-#~ "For radar overlay and trend charts, use the admin Player Comparison page."
-#~ msgstr ""
-#~ "Voor radar- en trendoverlay-grafieken, gebruik de admin-pagina "
-#~ "Spelersvergelijking."
 
-#~ msgid "Your role does not have access to analytics views."
-#~ msgstr "Jouw rol heeft geen toegang tot analytische weergaven."
 
-#~ msgid ""
-#~ "Language the generated content is written in — goal titles, descriptions, "
-#~ "any free-text seeded by the generators. Defaults to the site locale; "
-#~ "override when the demo audience speaks a different language than the site "
-#~ "admin's browser."
-#~ msgstr ""
-#~ "Taal waarin de gegenereerde content wordt geschreven — doeltitels, "
-#~ "omschrijvingen en alle vrije tekst die de generatoren invullen. Standaard "
-#~ "gelijk aan de sitetaal; overschrijf als je demo-publiek een andere taal "
-#~ "spreekt dan de browser van de beheerder."
 
 # Goal title content (demo generator)
-#~ msgid "Improve weak foot passing"
-#~ msgstr "Passing met de zwakke voet verbeteren"
 
-#~ msgid "First-touch control under pressure"
-#~ msgstr "Aanname onder druk"
 
-#~ msgid "Consistency in 1v1 defending"
-#~ msgstr "Constantheid in 1-op-1 verdedigen"
 
-#~ msgid "Build up attacking headers"
-#~ msgstr "Opbouwend koppen"
 
-#~ msgid "Off-the-ball positioning"
-#~ msgstr "Positionering zonder bal"
 
-#~ msgid "Scanning before receiving"
-#~ msgstr "Scannen voor de aanname"
 
-#~ msgid "Finishing from cutbacks"
-#~ msgstr "Afronden vanuit terugleggers"
 
-#~ msgid "Tracking runners in transition"
-#~ msgstr "Loopacties volgen in de omschakeling"
 
-#~ msgid "Set-piece delivery accuracy"
-#~ msgstr "Nauwkeurigheid bij standaardsituaties"
 
-#~ msgid "Shape under high press"
-#~ msgstr "Ploegvorm onder hoge druk"
 
-#~ msgid "Fitness — recover faster between sprints"
-#~ msgstr "Conditie — sneller herstellen tussen sprints"
 
-#~ msgid "Leadership — communicate more on pitch"
-#~ msgstr "Leiderschap — meer communiceren op het veld"
 
-#~ msgid "Track progress weekly with the coach."
-#~ msgstr "Wekelijks voortgang bespreken met de coach."
 
-#~ msgid "Activity saved."
-#~ msgstr "Activiteit opgeslagen."
 
-#~ msgid "Activity updated."
-#~ msgstr "Activiteit bijgewerkt."
 
-#~ msgid ""
-#~ "The session could not be updated. The database rejected the operation."
-#~ msgstr ""
-#~ "De activiteit kon niet worden bijgewerkt. De database weigerde de "
-#~ "bewerking."
 
-#~ msgid ""
-#~ "The session was updated, but some attendance rows could not be stored."
-#~ msgstr ""
-#~ "De activiteit is bijgewerkt, maar sommige aanwezigheidsrijen konden niet "
-#~ "worden opgeslagen."
 
-#~ msgid "The session could not be deleted."
-#~ msgstr "De activiteit kon niet worden verwijderd."
 
-#~ msgid "Goal added."
-#~ msgstr "Doel toegevoegd."
 
-#~ msgid "Goal updated."
-#~ msgstr "Doel bijgewerkt."
 
-#~ msgid "That session no longer exists."
-#~ msgstr "Die activiteit bestaat niet meer."
 
-#~ msgid "Delete this session? It will be archived."
-#~ msgstr "Deze activiteit verwijderen? De activiteit wordt gearchiveerd."
 
-#~ msgid "Delete this goal? It will be archived."
-#~ msgstr "Dit doel verwijderen? Het wordt gearchiveerd."
 
-#~ msgid "Delete this player? They will be archived."
-#~ msgstr "Deze speler verwijderen? De speler wordt gearchiveerd."
 
-#~ msgid "Delete this team? It will be archived."
-#~ msgstr "Dit team verwijderen? Het wordt gearchiveerd."
 
-#~ msgid "Import players"
-#~ msgstr "Spelers importeren"
 
-#~ msgid "Bulk import players from a CSV file."
-#~ msgstr "Spelers in bulk importeren uit een CSV-bestand."
 
-#~ msgid "Manage role types and team assignments."
-#~ msgstr "Beheer roltypes en team-toewijzingen."
 
-#~ msgid "Eval categories"
-#~ msgstr "Evaluatiecategorieën"
 
-#~ msgid "Branding, theme inheritance, rating scale."
-#~ msgstr "Branding, theme-overerving, beoordelingsschaal."
 
-#~ msgid "Add per-entity custom fields."
-#~ msgstr "Eigen velden per entiteit toevoegen."
 
-#~ msgid "Manage the evaluation category tree."
-#~ msgstr "Beheer de boom van evaluatiecategorieën."
 
-#~ msgid "Reference for the eight TalentTrack roles."
-#~ msgstr "Naslag voor de acht TalentTrack-rollen."
 
-#~ msgid "Logins, active users, evaluations per day."
-#~ msgstr "Logins, actieve gebruikers, evaluaties per dag."
 
-#~ msgid "Active users (7d)"
-#~ msgstr "Actieve gebruikers (7d)"
 
-#~ msgid "Active users (30d)"
-#~ msgstr "Actieve gebruikers (30d)"
 
-#~ msgid "Active users (90d)"
-#~ msgstr "Actieve gebruikers (90d)"
 
-#~ msgid "Open detailed view in wp-admin"
-#~ msgstr "Open gedetailleerd overzicht in wp-admin"
 
-#~ msgid "TalentTrack is running in demo mode. Real club records are hidden."
-#~ msgstr "TalentTrack draait in demomodus. Echte clubgegevens zijn verborgen."
 
-#~ msgid "TalentTrack Demo"
-#~ msgstr "TalentTrack-demo"
 
-#~ msgid ""
-#~ "This run will create 36 persistent demo WP users and send them WordPress "
-#~ "welcome emails. The email domain must catch mail you control."
-#~ msgstr ""
-#~ "Deze run maakt 36 vaste demo-WP-gebruikers aan en stuurt ze WordPress-"
-#~ "welkomstmails. Het mailadresdomein moet mail opvangen die jij beheert."
 
-#~ msgid ""
-#~ "Every demo account will be <slot>@<this-domain>. Use a catch-all address "
-#~ "you control."
-#~ msgstr ""
-#~ "Elk demoaccount krijgt <slot>@<dit-domein>. Gebruik een catch-all-adres "
-#~ "dat jij beheert."
 
-#~ msgid ""
-#~ "Language the generated content (goal titles, descriptions, session "
-#~ "titles, default location) is written in. Only languages the generators "
-#~ "ship content dictionaries for are listed — add a key to GoalGenerator / "
-#~ "ActivityGenerator constants to support a new one."
-#~ msgstr ""
-#~ "Taal waarin de gegenereerde inhoud (doeltitels, beschrijvingen, "
-#~ "activiteittitels, standaardlocatie) is geschreven. Alleen talen waarvoor "
-#~ "de generators inhoudsdictionaries leveren, staan in de lijst — voeg een "
-#~ "sleutel toe aan de GoalGenerator-/ActivityGenerator-constanten om een "
-#~ "nieuwe taal te ondersteunen."
 
-#~ msgid ""
-#~ "Removes every demo-tagged row (evaluations, activities, goals, "
-#~ "attendance, ratings, players, teams) in dependency order. The 36 "
-#~ "persistent demo WP users are preserved. Non-demo data is never touched."
-#~ msgstr ""
-#~ "Verwijdert elke als demo gemarkeerde rij (evaluaties, activiteiten, "
-#~ "doelen, aanwezigheid, beoordelingen, spelers, teams) in "
-#~ "afhankelijkheidsvolgorde. De 36 vaste demo-WP-gebruikers blijven "
-#~ "behouden. Niet-demogegevens worden nooit aangeraakt."
 
-#~ msgid "← Back to usage statistics"
-#~ msgstr "← Terug naar gebruiksstatistieken"
 
-#~ msgid "— Select team first —"
-#~ msgstr "— Kies eerst een team —"
 
-#~ msgid "1. Welcome"
-#~ msgstr "1. Welkom"
 
-#~ msgid "2. Academy basics"
-#~ msgstr "2. Basisgegevens academie"
 
-#~ msgid "3. First team"
-#~ msgstr "3. Eerste team"
 
-#~ msgid "4. First admin"
-#~ msgstr "4. Eerste beheerder"
 
-#~ msgid "5. Done"
-#~ msgstr "5. Klaar"
 
-#~ msgid ""
-#~ "Minimal: core data only. Standard: everyday operational data. Thorough: "
-#~ "everything including audit log and lookups."
-#~ msgstr ""
-#~ "Minimaal: alleen basisgegevens. Standaard: dagelijkse operationele "
-#~ "gegevens. Uitgebreid: alles inclusief auditlog en opzoeklijsten."
 
-#~ msgid "Delete this backup file?"
-#~ msgstr "Dit back-upbestand verwijderen?"
 
-#~ msgid "← Back to backups"
-#~ msgstr "← Terug naar back-ups"
 
-#~ msgid "Start 30-day Standard trial"
-#~ msgstr "Start 30-daagse Standard-trial"
 
-#~ msgid ""
-#~ "Unlocks every Standard-tier feature for 30 days, then 14 days of read-"
-#~ "only grace, then back to Free."
-#~ msgstr ""
-#~ "Ontgrendelt 30 dagen lang elke Standard-tier-functie, daarna 14 dagen "
-#~ "alleen-lezen overgangstermijn, daarna terug naar Free."
 
-#~ msgid "View full profile"
-#~ msgstr "Volledig profiel bekijken"
 
-#~ msgid "Principles practiced"
-#~ msgstr "Geoefende principes"
 
-#~ msgid "Formations & positions"
-#~ msgstr "Formaties & posities"
 
-#~ msgid "Vision"
-#~ msgstr "Visie"
 
-#~ msgid "Task not yours"
-#~ msgstr "Niet jouw taak"
 
-#~ msgid "This task is not assigned to you."
-#~ msgstr "Deze taak is niet aan jou toegewezen."
 
 # Workflow engine — Sprint 3 (post-match + weekly self-eval)
-#~ msgid "Post-match coach evaluation"
-#~ msgstr "Coach-evaluatie na wedstrijd"
 
-#~ msgid ""
-#~ "Quick reflection on each player's match performance — overall feel plus "
-#~ "what went well and what to work on. Due 72 hours after the match."
-#~ msgstr ""
-#~ "Korte reflectie per speler na de wedstrijd — algemene indruk plus wat "
-#~ "goed ging en waar nog aan gewerkt moet worden. Deadline 72 uur na de "
-#~ "wedstrijd."
 
-#~ msgid "Activities logged"
-#~ msgstr "Activiteiten gelogd"
 
-#~ msgid ""
-#~ "Enable or disable shipped templates and override their cadence and "
-#~ "deadline. Changes take effect on the next cron tick or trigger."
-#~ msgstr ""
-#~ "Schakel meegeleverde templates in/uit en overschrijf hun cadens en "
-#~ "deadline. Wijzigingen worden van kracht bij de volgende cron-tik of "
-#~ "trigger."
 
-#~ msgid "Cadence"
-#~ msgstr "Cadens"
 
-#~ msgid "Deadline offset"
-#~ msgstr "Deadline-offset"
 
-#~ msgid "Spelers van buiten de selectie. Gasten tellen niet mee in teamstats."
-#~ msgstr ""
-#~ "Spelers van buiten de selectie. Gasten tellen niet mee in teamstats."
 
-#~ msgid ""
-#~ "Kies een speler van een ander team. De evaluatie van vandaag verschijnt "
-#~ "op zijn/haar profiel."
-#~ msgstr ""
-#~ "Kies een speler van een ander team. De evaluatie van vandaag verschijnt "
-#~ "op zijn/haar profiel."
 
-#~ msgid ""
-#~ "Geen TalentTrack-record nodig. Vul de basisgegevens in; je kunt deze gast "
-#~ "later promoveren naar een echte speler."
-#~ msgstr ""
-#~ "Geen TalentTrack-record nodig. Vul de basisgegevens in; je kunt deze gast "
-#~ "later promoveren naar een echte speler."
 
-#~ msgid "Save the session first, then add guests."
-#~ msgstr "Sla de activiteit eerst op en voeg daarna gasten toe."
 
-#~ msgid ""
-#~ "Lazily translate user-entered free text (goal titles, evaluation notes, "
-#~ "session descriptions, …) at render time when a viewer's locale differs "
-#~ "from the source. Default OFF. Translations are cached and re-used; the "
-#~ "cap below limits per-month engine spend."
-#~ msgstr ""
-#~ "Vertaal vrij ingevoerde tekst (doel-titels, evaluatienotities, "
-#~ "activiteitbeschrijvingen, …) lazy bij weergave wanneer de locale van de "
-#~ "lezer verschilt van de bron. Standaard UIT. Vertalingen worden gecacht en "
-#~ "hergebruikt; de cap hieronder beperkt per-maand engine-uitgaven."
 
-#~ msgid "Game"
-#~ msgstr "Wedstrijd"
 
-#~ msgid "Games"
-#~ msgstr "Wedstrijden"
 
-#~ msgid "Trainings"
-#~ msgstr "Trainingen"
 
-#~ msgid "Game · %s"
-#~ msgstr "Wedstrijd · %s"
 
-#~ msgid "Games logged"
-#~ msgstr "Wedstrijden geregistreerd"
 
-#~ msgid "Trainings logged"
-#~ msgstr "Trainingen geregistreerd"
 
-#~ msgid "Other activities"
-#~ msgstr "Andere activiteiten"
 
-#~ msgid "A match — friendly, cup, or league."
-#~ msgstr "Een wedstrijd — oefen, beker of competitie."
 
-#~ msgid "A training session — the default for most activities."
-#~ msgstr "Een training — de standaard voor de meeste activiteiten."
 
-#~ msgid "Anything else (team-building, club meeting, tournament). Free-form."
-#~ msgstr ""
-#~ "Alles anders (team-building, clubvergadering, toernooi). Vrije tekst."
 
-#~ msgid "Pre-season friendly or non-competitive match."
-#~ msgstr "Oefenwedstrijd of niet-competitieve wedstrijd."
 
 # #0037 — guest-attendance polish (autosave + fuzzy picker + team filter)
 # 'All teams' already translated above (line ~3882); not duplicated here.
-#~ msgid "Could not save activity."
-#~ msgstr "Activiteit opslaan mislukt."
 
-#~ msgid "Delete this activity? It will be archived."
-#~ msgstr "Activiteit verwijderen? Hij wordt gearchiveerd."
 
-#~ msgid ""
-#~ "Reset every persona\\'s permissions to the shipped defaults? This cannot "
-#~ "be undone (except by re-editing)."
-#~ msgstr ""
-#~ "Alle persona-rechten resetten naar de meegeleverde standaarden? Dit kan "
-#~ "niet ongedaan gemaakt worden (behalve door opnieuw te bewerken)."
 
-#~ msgid ""
-#~ "Each TalentTrack module can be turned off here. Disabled modules don\\'t "
-#~ "register hooks, REST routes, admin pages, or capabilities — they\\'re "
-#~ "completely invisible until re-enabled. Core modules (Auth, Configuration, "
-#~ "Authorization) cannot be disabled."
-#~ msgstr ""
-#~ "Elke TalentTrack-module kan hier worden uitgeschakeld. Uitgeschakelde "
-#~ "modules registreren geen hooks, REST-routes, beheerpagina's of "
-#~ "capabilities — ze zijn volledig onzichtbaar tot ze weer worden "
-#~ "ingeschakeld. Core modules (Auth, Configuration, Authorization) kunnen "
-#~ "niet worden uitgeschakeld."
 
-#~ msgid "Class"
-#~ msgstr "Klasse"
 
-#~ msgid "(core — cannot be disabled)"
-#~ msgstr "(core — kan niet worden uitgeschakeld)"
 
-#~ msgid "(monetization gates — see warning above when disabled)"
-#~ msgstr "(monetisatie-gates — zie waarschuwing hierboven bij uitschakelen)"
 
-#~ msgid ""
-#~ "Compare each user\\'s legacy (capability-based) and new (matrix-based) "
-#~ "effective permissions. \"Gained\" means the matrix grants something the "
-#~ "old caps didn\\'t. \"Revoked\" means the opposite — review carefully "
-#~ "before applying."
-#~ msgstr ""
-#~ "Vergelijk per gebruiker de legacy (cap-gebaseerde) en nieuwe (matrix-"
-#~ "gebaseerde) effectieve rechten. \"Gained\" betekent dat de matrix iets "
-#~ "verleent dat de oude caps niet deden. \"Revoked\" betekent het "
-#~ "tegenovergestelde — beoordeel zorgvuldig vóór toepassen."
 
-#~ msgid "User A"
-#~ msgstr "Gebruiker A"
 
-#~ msgid "User B"
-#~ msgstr "Gebruiker B"
 
-#~ msgid "— Select user A —"
-#~ msgstr "— Kies gebruiker A —"
 
-#~ msgid "— Select user B —"
-#~ msgstr "— Kies gebruiker B —"
 
-#~ msgid "You are not assigned to any teams yet."
-#~ msgstr "Je bent nog niet aan een team toegewezen."
 
-#~ msgid "No evaluations match these filters yet."
-#~ msgstr "Geen evaluaties gevonden voor deze filters."
 
-#~ msgid ""
-#~ "Link a parent account after saving the player from the People page. "
-#~ "Otherwise, fill in their name + contact below; a coach can convert them "
-#~ "to a real account later."
-#~ msgstr ""
-#~ "Koppel een ouderaccount na het opslaan via de Personen-pagina. Vul anders "
-#~ "hieronder de contactgegevens in; een coach kan deze later omzetten naar "
-#~ "een echt account."
 
-#~ msgid "Title or notes…"
-#~ msgstr "Titel of notities…"
 
-#~ msgid "No attendance records match these filters."
-#~ msgstr "Geen aanwezigheidsrecords voor deze filters."
 
-#~ msgid "Full academy roster."
-#~ msgstr "Volledige spelerslijst van de academie."
 
-#~ msgid ""
-#~ "No PDP files in this season yet. Open one above for any player you coach."
-#~ msgstr ""
-#~ "Nog geen POP-dossiers dit seizoen. Open er hierboven één voor een speler "
-#~ "die je coacht."
 
-#~ msgid "Next conversation"
-#~ msgstr "Volgend gesprek"
 
-#~ msgid "← Back to file"
-#~ msgstr "← Terug naar dossier"
 
-#~ msgid "No active goals for this player yet."
-#~ msgstr "Nog geen actieve doelen voor deze speler."
 
-#~ msgid "— complete —"
-#~ msgstr "— afgerond —"
 
-#~ msgid "← Back to team picker"
-#~ msgstr "← Terug naar team­keuze"
 
-#~ msgid "No suggested player for %s"
-#~ msgstr "Geen voorgestelde speler voor %s"
 
-#~ msgid "Team chemistry: %s / 5"
-#~ msgstr "Teamchemie: %s / 5"
 
-#~ msgid "See all sessions"
-#~ msgstr "Alle sessies bekijken"
 
 # PDP quality pass + coach auth bug fix
-#~ msgid "Type a player name…"
-#~ msgstr "Typ een spelersnaam…"
 
-#~ msgctxt "PDP file status"
-#~ msgid "Connect a parent account"
-#~ msgstr "Koppel een ouderaccount"
 
-#~ msgid "Please pick a player, a track, and start/end dates."
-#~ msgstr "Kies een speler, een traject en start- en einddatum."
 
-#~ msgid "— pick a staff member —"
-#~ msgstr "— kies een staflid —"
 
-#~ msgid "Trial:"
-#~ msgstr "Stage:"
 
-#~ msgid "Sessions"
-#~ msgstr "Sessies"
 
-#~ msgid "No sessions yet during this trial period."
-#~ msgstr "Nog geen sessies tijdens deze stageperiode."
 
-#~ msgid "Overall rating (1–5)"
-#~ msgstr "Algemene beoordeling (1–5)"
 
-#~ msgid "Skip step"
-#~ msgstr "Stap overslaan"
 
-#~ msgid "Open the relevant help topic"
-#~ msgstr "Open het bijbehorende help-onderwerp"
 
-#~ msgid "Which player are you evaluating?"
-#~ msgstr "Welke speler beoordeel je?"
 
-#~ msgid "Pick the evaluation type. The form on the next page will match."
-#~ msgstr ""
-#~ "Kies het evaluatietype. Het formulier op de volgende pagina past zich "
-#~ "daarop aan."
 
-#~ msgid "Please pick an evaluation type."
-#~ msgstr "Kies een evaluatietype."
 
-#~ msgid ""
-#~ "Optionally link this goal to a methodology entity. Skip to leave the goal "
-#~ "unlinked."
-#~ msgstr ""
-#~ "Koppel dit doel optioneel aan een methodologie-entiteit. Sla over om het "
-#~ "doel niet te koppelen."
 
-#~ msgid ""
-#~ "Wizards replace the flat create-form for the listed entries. Use \"all\" "
-#~ "for every wizard, \"off\" to disable, or a comma-separated list of slugs."
-#~ msgstr ""
-#~ "Wizards vervangen het oude formulier voor de genoemde records. Gebruik "
-#~ "\"all\" voor alle wizards, \"off\" om uit te zetten, of een lijst slugs "
-#~ "gescheiden door komma's."
 
-#~ msgid "Available wizard slugs"
-#~ msgstr "Beschikbare wizard-slugs"
 
-#~ msgid "You need head-of-academy access to use cohort transitions."
-#~ msgstr ""
-#~ "Je hebt hoofd-opleidingen-toegang nodig om cohort-overgangen te gebruiken."
 
-#~ msgid "Injury: %s"
-#~ msgstr "Blessure: %s"
 
-#~ msgid "Injury started"
-#~ msgstr "Blessure ingetreden"
 
-#~ msgid "Injury recovered"
-#~ msgstr "Blessure hersteld"
 
 # v3.46.0 — relabeled My-group tile
-#~ msgid "Training sessions and games you've attended."
-#~ msgstr "Trainingen en wedstrijden die je hebt bijgewoond."
 
-#~ msgid "No open tasks. "
-#~ msgstr "Geen openstaande taken. "
 
-#~ msgid ""
-#~ "You have no assigned players yet. Ask your Head of Development to share "
-#~ "players with you."
-#~ msgstr ""
-#~ "Je hebt nog geen toegewezen spelers. Vraag je Head of Development om "
-#~ "spelers met je te delen."
 
 # #0060 — Persona dashboard action card labels
-#~ msgid "Add player"
-#~ msgstr "Speler toevoegen"
 
-#~ msgid "Add team"
-#~ msgstr "Team toevoegen"
 
-#~ msgid "New scout report"
-#~ msgstr "Nieuw scoutrapport"
 
-#~ msgid ""
-#~ "Activity types, positions, age groups, goal statuses, evaluation types — "
-#~ "all in wp-admin."
-#~ msgstr ""
-#~ "Activiteittypes, posities, leeftijdsgroepen, doelstatussen, "
-#~ "evaluatietypes — allemaal in wp-admin."
 
-#~ msgid "Lookups & evaluation types"
-#~ msgstr "Lookups & evaluatietypes"
 
-#~ msgid ""
-#~ "Pick a configuration area. Branding, theme and rating-scale settings are "
-#~ "edited inline; the remaining areas open in wp-admin."
-#~ msgstr ""
-#~ "Kies een configuratiegebied. Branding, thema en beoordelingsschaal worden "
-#~ "hier bewerkt; de overige gebieden openen in wp-admin."
 
 # v3.50.0 — Spond integration (#0031)
-#~ msgid "Spond iCal URL"
-#~ msgstr "Spond iCal-URL"
 
-#~ msgid ""
-#~ "Paste the iCal URL from your Spond team settings. Stored encrypted; sync "
-#~ "runs hourly. Leave blank to disable."
-#~ msgstr ""
-#~ "Plak de iCal-URL uit je Spond-teaminstellingen. Versleuteld opgeslagen; "
-#~ "synchroniseert per uur. Leeg laten om uit te schakelen."
 
-#~ msgid "Spond URL was rejected — has it been revoked?"
-#~ msgstr "Spond-URL geweigerd — is hij ingetrokken?"
 
-#~ msgid "Spond URL returned 404 — has the team been deleted?"
-#~ msgstr "Spond-URL gaf 404 — is het team verwijderd?"
 
-#~ msgid "Spond returned HTTP %d."
-#~ msgstr "Spond gaf HTTP %d."
 
-#~ msgid "Spond returned an empty calendar."
-#~ msgstr "Spond gaf een lege agenda terug."
 
-#~ msgid "Spond returned a non-calendar response."
-#~ msgstr "Spond gaf een antwoord dat geen agenda was."
 
-#~ msgid "Response did not look like an iCal feed."
-#~ msgstr "Antwoord leek geen iCal-feed."
 
-#~ msgid "Spond iCal URL is empty."
-#~ msgstr "Spond iCal-URL is leeg."
 
-#~ msgid "No Spond URL configured."
-#~ msgstr "Geen Spond-URL ingesteld."
 
-#~ msgid "Spond feed contained no events."
-#~ msgstr "Spond-feed bevat geen activiteiten."
 
-#~ msgid "Insufficient signal — needs first evaluation and a few sessions."
-#~ msgstr ""
-#~ "Onvoldoende signaal — eerste evaluatie en een paar trainingen nodig."
 
-#~ msgid "Player and rating (1-5) are required."
-#~ msgstr "Speler en score (1-5) zijn verplicht."
 
-#~ msgid ""
-#~ "How many conversations are planned in their window, and how many have a "
-#~ "recorded result. Click a cell to drill into the underlying files."
-#~ msgstr ""
-#~ "Hoeveel gesprekken zijn ingepland in het venster en hoeveel hebben een "
-#~ "resultaat. Klik op een cel om de onderliggende dossiers te openen."
 
-#~ msgid ""
-#~ "Players row %1$d references team_key \"%2$s\" but no Teams row matches."
-#~ msgstr ""
-#~ "Players-rij %1$d verwijst naar team_key \"%2$s\" maar er is geen "
-#~ "overeenkomende Teams-rij."
 
-#~ msgid "Or upload an Excel template (#0059)"
-#~ msgstr "Of upload een Excel-template (#0059)"
 
-#~ msgid ""
-#~ "Walk in with the prospect's own team names and players. Download the "
-#~ "template, fill it in offline, upload it back. v1 covers the Teams and "
-#~ "Players sheets; the procedural generator handles everything else."
-#~ msgstr ""
-#~ "Loop een demo binnen met de teamnamen en spelers van de prospect zelf. "
-#~ "Download het template, vul het offline in, upload het terug. v1 dekt de "
-#~ "Teams- en Players-tabbladen; de procedurele generator vult de rest."
 
-#~ msgid "Upload + import"
-#~ msgstr "Uploaden + importeren"
 
-#~ msgid "No activity selected."
-#~ msgstr "Geen activiteit geselecteerd."
 
-#~ msgid "You do not have access to this activity."
-#~ msgstr "Je hebt geen toegang tot deze activiteit."
 
-#~ msgid "My attendance"
-#~ msgstr "Mijn aanwezigheid"
 
-#~ msgid "Capacity"
-#~ msgstr "Hoedanigheid"
 
-#~ msgid "Note from coach (about you)"
-#~ msgstr "Notitie van de coach (over jou)"
 
-#~ msgid "No goal selected."
-#~ msgstr "Geen doel geselecteerd."
 
-#~ msgid "You do not have access to this goal."
-#~ msgstr "Je hebt geen toegang tot dit doel."
 
-#~ msgid "Priority: %s"
-#~ msgstr "Prioriteit: %s"
 
-#~ msgid "Custom CSS is ON for this surface — click to turn OFF."
-#~ msgstr "Aangepaste CSS staat AAN voor deze surface — klik om uit te zetten."
 
-#~ msgid "Custom CSS is OFF for this surface — click to turn ON."
-#~ msgstr "Aangepaste CSS staat UIT voor deze surface — klik om aan te zetten."
 
-#~ msgid "Card shadow"
-#~ msgstr "Kaart-schaduw"
 
-#~ msgid "None — flat cards"
-#~ msgstr "Geen — platte kaarten"
 
-#~ msgid "File (max 200 KB)"
-#~ msgstr "Bestand (max 200 KB)"
 
-#~ msgid "Behaviour & potential"
-#~ msgstr "Gedrag & potentieel"
 
-#~ msgid "Recent goals"
-#~ msgstr "Recente doelen"
 
-#~ msgid ""
-#~ "Pick a report. The detail view opens in a new tab so you can keep this "
-#~ "dashboard open."
-#~ msgstr ""
-#~ "Kies een rapport. De detailweergave opent in een nieuw tabblad, zodat je "
-#~ "dit dashboard open kunt houden."
 
-#~ msgid "•••••••• (leave blank to keep)"
-#~ msgstr "•••••••• (leeg laten om te behouden)"
 
-#~ msgid "All sources"
-#~ msgstr "Alle bronnen"
 
-#~ msgid "Behaviour"
-#~ msgstr "Gedrag"
 
-#~ msgid "Potential"
-#~ msgstr "Potentieel"
 
-#~ msgid "Recorded on"
-#~ msgstr "Vastgelegd op"
 
-#~ msgid "Capture behaviour"
-#~ msgstr "Gedrag vastleggen"
 
-#~ msgid "Capture potential"
-#~ msgstr "Potentieel vastleggen"
 
-#~ msgid "Open dashboard chooser"
-#~ msgstr "Dashboard-keuze openen"
 
-#~ msgid "Where is the persona toggle?"
-#~ msgstr "Waar is de persona-keuze?"
 
-#~ msgid ""
-#~ "Switch between the persona dashboard and the classic tile grid in "
-#~ "<em>Configuration → Default dashboard</em>."
-#~ msgstr ""
-#~ "Wissel tussen het persona-dashboard en het klassieke tegelraster in "
-#~ "<em>Configuratie → Standaarddashboard</em>."
 
-#~ msgid "Source (Spond)"
-#~ msgstr "Bron (Spond)"
 
-#~ msgid "Source (manual)"
-#~ msgstr "Bron (handmatig)"
 
-#~ msgid "Activity sources"
-#~ msgstr "Activiteitsbronnen"
 
-#~ msgid "Add as new staff goal step"
-#~ msgstr "Toevoegen als nieuwe stafdoelstap"
 
 # v3.75.0 — New Evaluation wizard (#0072)
-#~ msgid ""
-#~ "Pick a recently-completed activity to rate the players who attended. Or "
-#~ "rate a player directly without an activity context."
-#~ msgstr ""
-#~ "Kies een recent afgeronde activiteit om de aanwezige spelers te "
-#~ "beoordelen. Of beoordeel een speler direct zonder activiteit-context."
 
-#~ msgid "No recent rateable activities. Pick a player to rate ad-hoc."
-#~ msgstr ""
-#~ "Geen recente rateable activiteiten. Kies een speler om ad-hoc te "
-#~ "beoordelen."
 
-#~ msgid ""
-#~ "Mark each player's attendance. Only present + late players will appear in "
-#~ "the rating step. This step writes real attendance rows for the activity."
-#~ msgstr ""
-#~ "Markeer per speler de aanwezigheid. Alleen aanwezige + te-laat spelers "
-#~ "verschijnen in de beoordeelstap. Deze stap schrijft echte "
-#~ "aanwezigheidsrijen voor de activiteit."
 
-#~ msgid ""
-#~ "%d player ready to rate. Quick-rate the categories below; deep-rate any "
-#~ "player by expanding their row."
-#~ msgid_plural ""
-#~ "%d players ready to rate. Quick-rate the categories below; deep-rate any "
-#~ "player by expanding their row."
-#~ msgstr[0] ""
-#~ "%d speler klaar om te beoordelen. Snelbeoordeel de categorieën hieronder; "
-#~ "deep-rate per speler door de rij uit te klappen."
-#~ msgstr[1] ""
-#~ "%d spelers klaar om te beoordelen. Snelbeoordeel de categorieën "
-#~ "hieronder; deep-rate per speler door de rij uit te klappen."
 
-#~ msgid "Setting"
-#~ msgstr "Context"
 
-#~ msgid "— pick a setting —"
-#~ msgstr "— kies een context —"
 
 # v3.76.1 / #23 — back-link labels for detail views
-#~ msgid "← Back to teams"
-#~ msgstr "← Terug naar teams"
 
-#~ msgid "← Back to people"
-#~ msgstr "← Terug naar mensen"
 
 # v3.78.0 / #0072 + #0073 follow-up — autosave + resume banner + per-row eval submit + table-source backfill
-#~ msgid "Autosave ready"
-#~ msgstr "Autosave klaar"
 
-#~ msgid "Download .css"
-#~ msgstr ".css downloaden"
 
-#~ msgid "No goals recorded yet."
-#~ msgstr "Nog geen doelen vastgelegd."
 
-#~ msgid "No attended activities yet."
-#~ msgstr "Nog geen bijgewoonde activiteiten."
 
-#~ msgid "No PDP cycle yet."
-#~ msgstr "Nog geen PDP-cyclus."
 
-#~ msgid "No trial history."
-#~ msgstr "Geen stagegeschiedenis."
 
-#~ msgid "match"
-#~ msgstr "wedstrijd"
 
-#~ msgid "tournament"
-#~ msgstr "toernooi"
 
-#~ msgid "observation"
-#~ msgstr "observatie"
 
-#~ msgid "other"
-#~ msgstr "overig"
 
-#~ msgid ""
-#~ "Uncheck a category to use the master data already in your club instead of "
-#~ "generating new rows. Activities, evaluations, and goals are always "
-#~ "generated on top of whatever master data ends up present."
-#~ msgstr ""
-#~ "Vink een categorie uit om de bestaande master-data van je club te "
-#~ "gebruiken in plaats van nieuwe rijen te genereren. Activiteiten, "
-#~ "evaluaties en doelen worden altijd bovenop de aanwezige master-data "
-#~ "gegenereerd."
 
-#~ msgid ""
-#~ "These toggles only apply to the procedural source. Excel + hybrid sources "
-#~ "read from the workbook regardless."
-#~ msgstr ""
-#~ "Deze schakelaars gelden alleen voor de procedurele bron. Excel + hybride "
-#~ "bronnen lezen sowieso uit het werkboek."
 
-#~ msgid ""
-#~ "Master-data toggles only apply to the procedural source. Excel + hybrid "
-#~ "sources read master data from the workbook regardless. Dependent-entity "
-#~ "toggles apply to every source."
-#~ msgstr ""
-#~ "Master-data-schakelaars gelden alleen voor de procedurele bron. Excel + "
-#~ "hybride bronnen lezen master-data sowieso uit het werkboek. Schakelaars "
-#~ "voor afhankelijke entiteiten gelden voor elke bron."
 
-#~ msgid "Pick at least one category to wipe."
-#~ msgstr "Kies ten minste één categorie om te wissen."
 
-#~ msgid "Used by: %1$s"
-#~ msgstr "Gebruikt door: %1$s"
 
-#~ msgid "Team chemistry: ? / 5"
-#~ msgstr "Team-chemie: ? / 5"
 
-#~ msgid "Invitation in progress"
-#~ msgstr "Uitnodiging in behandeling"
 
-#~ msgid "← Back to blueprints"
-#~ msgstr "← Terug naar blauwdrukken"
 
-#~ msgid "← Back to lineup view"
-#~ msgstr "← Terug naar opstellingsweergave"
 
-#~ msgid ""
-#~ "Backup codes remaining: %1$d of %2$d. When you run low, regenerate via "
-#~ "the action below (action ships in v3.98.3)."
-#~ msgstr ""
-#~ "Resterende reservecodes: %1$d van %2$d. Als je er weinig over hebt, "
-#~ "regenereer ze via de actie hieronder (actie volgt in v3.98.3)."
 
-#~ msgid ""
-#~ "Enrollment is a 4-step wizard (intro, scan QR, verify a first code, save "
-#~ "backup codes). The wizard ships in v3.98.3 — until then this tab is "
-#~ "informational only."
-#~ msgstr ""
-#~ "Aanmelden is een wizard met 4 stappen (intro, QR scannen, eerste code "
-#~ "verifiëren, reservecodes opslaan). De wizard volgt in v3.98.3 — tot dan "
-#~ "is dit tabblad alleen ter informatie."
 
-#~ msgid "What is coming"
-#~ msgstr "Wat eraan komt"
 
-#~ msgid ""
-#~ "4-step enrollment wizard (intro → secret + QR code → first-code "
-#~ "verification → backup codes display) — ships in v3.98.3."
-#~ msgstr ""
-#~ "Wizard van 4 stappen (intro → secret + QR-code → eerste code verifiëren → "
-#~ "reservecodes tonen) — volgt in v3.98.3."
 
-#~ msgid ""
-#~ "Per-club enforcement: operators can require MFA for academy-admin and "
-#~ "head-of-development personas, optionally for any other persona — ships in "
-#~ "v3.98.4."
-#~ msgstr ""
-#~ "Afdwingen per club: beheerders kunnen MFA verplichten voor academy-admin "
-#~ "en hoofd-opleiding-persona's, optioneel ook voor andere persona's — volgt "
-#~ "in v3.98.4."
 
-#~ msgid ""
-#~ "Optional 30-day \"remember this device\" cookie after a successful "
-#~ "verification — ships in v3.98.4."
-#~ msgstr ""
-#~ "Optionele \"vertrouw dit apparaat\"-cookie van 30 dagen na een "
-#~ "succesvolle verificatie — volgt in v3.98.4."
 
-#~ msgid ""
-#~ "Rate limiting: 5 verification attempts per 5 minutes, then a 15-minute "
-#~ "lockout — ships in v3.98.4."
-#~ msgstr ""
-#~ "Snelheidslimiet: 5 verificatiepogingen per 5 minuten, daarna 15 minuten "
-#~ "lockout — volgt in v3.98.4."
 
-#~ msgid ""
-#~ "Audit-log integration: every enrollment, verification, lockout, and "
-#~ "backup-code use is recorded — ships in v3.98.4."
-#~ msgstr ""
-#~ "Audit-log-integratie: elke aanmelding, verificatie, lockout en gebruik "
-#~ "van een reservecode wordt vastgelegd — volgt in v3.98.4."
 
-#~ msgid ""
-#~ "Verification succeeded but the enrollment could not be saved. Please try "
-#~ "again."
-#~ msgstr ""
-#~ "Verificatie geslaagd, maar de aanmelding kon niet worden opgeslagen. "
-#~ "Probeer het opnieuw."
 
-#~ msgid "What is still coming"
-#~ msgstr "Wat er nog aankomt"
 
-#~ msgid ""
-#~ "Per-club enforcement: operators can require MFA for academy-admin and "
-#~ "head-of-development personas, optionally any other persona."
-#~ msgstr ""
-#~ "Afdwingen per club: beheerders kunnen MFA verplichten voor academy-admin "
-#~ "en hoofd-opleiding-persona's, optioneel ook voor andere persona's."
 
-#~ msgid ""
-#~ "Optional 30-day \"remember this device\" cookie after a successful "
-#~ "verification."
-#~ msgstr ""
-#~ "Optionele \"vertrouw dit apparaat\"-cookie van 30 dagen na een "
-#~ "succesvolle verificatie."
 
-#~ msgid ""
-#~ "Rate limiting: 5 verification attempts per 5 minutes, then a 15-minute "
-#~ "lockout."
-#~ msgstr ""
-#~ "Snelheidslimiet: 5 verificatiepogingen per 5 minuten, daarna 15 minuten "
-#~ "lockout."
 
-#~ msgid ""
-#~ "Audit-log integration: every enrollment, verification, lockout, and "
-#~ "backup-code use is recorded."
-#~ msgstr ""
-#~ "Audit-log-integratie: elke aanmelding, verificatie, lockout en gebruik "
-#~ "van een reservecode wordt vastgelegd."
 
-#~ msgid ""
-#~ "The dimension explorer is the first ship of #0083 Child 3. Time-series "
-#~ "chart, drilldown to fact rows, and CSV / PDF export ship in follow-ups."
-#~ msgstr ""
-#~ "De dimensieverkenner is de eerste ship van #0083 Child 3. "
-#~ "Tijdreeksgrafiek, drilldown naar feitenrijen en CSV / PDF-export volgen "
-#~ "in latere PR's."
 
-#~ msgid ""
-#~ "No academy-wide KPIs registered yet. Per-entity KPIs are still reachable "
-#~ "via the Analytics tab on player, team, and activity profiles."
-#~ msgstr ""
-#~ "Er zijn nog geen academiebrede KPI's geregistreerd. Per-entiteit-KPI's "
-#~ "blijven bereikbaar via het Analytics-tabblad op speler-, team- en "
-#~ "activiteitenpaginas."
 
-#~ msgid ""
-#~ "Academy-wide KPIs. Click any card to open the explorer with that KPI "
-#~ "loaded; from there you can pivot, group, and filter. For per-entity "
-#~ "analytics, open a player, team, or activity and use the Analytics tab on "
-#~ "its detail page."
-#~ msgstr ""
-#~ "Academiebrede KPI's. Klik op een kaart om de verkenner met die KPI te "
-#~ "openen; vanaf daar kun je pivoteren, groeperen en filteren. Voor per-"
-#~ "entiteit-analyses open je een speler, team of activiteit en gebruik je "
-#~ "het Analytics-tabblad op de detailpagina."
 
-#~ msgid ""
-#~ "The central analytics view is the first ship of #0083 Child 5. Two-column "
-#~ "layout with an entity selector on the left lands in a follow-up; today "
-#~ "the page surfaces academy-wide KPIs only."
-#~ msgstr ""
-#~ "De centrale-analytics-weergave is de eerste ship van #0083 Child 5. Een "
-#~ "twee-koloms-indeling met een entiteit-selector links volgt later; vandaag "
-#~ "toont de pagina alleen academiebrede KPI's."
 
 # v3.108.4 — A3 eval wizard subcategories disclosure
-#~ msgid "Detailed %s"
-#~ msgstr "Gedetailleerde %s"
 
-#~ msgid "Import session expired. Re-upload the file."
-#~ msgstr "Importsessie verlopen. Upload het bestand opnieuw."
 
 # v3.110.42 — prospects-log click handler (mobile-first button + JS)
-#~ msgid "Could not start the prospect-logging flow. Please try again."
-#~ msgstr ""
-#~ "Kan het vastleggen van een prospect niet starten. Probeer het opnieuw."
 
-#~ msgid "Network error. Please try again."
-#~ msgstr "Netwerkfout. Probeer het opnieuw."
 
-#~ msgid "Pick a session"
-#~ msgstr "Kies een sessie"
 
-#~ msgid "Skip rating, save attendance"
-#~ msgstr "Beoordeling overslaan, aanwezigheid opslaan"
 
-#~ msgid ""
-#~ "Today the page surfaces academy-wide KPIs and the standard reports above. "
-#~ "The two-column entity-selector layout (player / team / activity / season) "
-#~ "lands in a follow-up."
-#~ msgstr ""
-#~ "Vandaag toont deze pagina academy-brede KPI's en de standaardrapporten "
-#~ "hierboven. De twee-koloms entiteitskiezer-indeling (speler / team / "
-#~ "activiteit / seizoen) volgt in een vervolgrelease."
 
 # #1313 — goal-intake print picker (v4.20.81). i18n-sync will merge
 # these into the proper position on next run; meanwhile they land here
 # verbatim so a Dutch install reads correctly today.
-#~ msgid "Doelenintake — %1$s — kies blokken"
-#~ msgstr "Doelenintake — %1$s — kies blokken"
 
-#~ msgid "Annuleren"
-#~ msgstr "Annuleren"
 
-#~ msgid ""
-#~ "Set the size and column density of the tiles shown on the dashboard, "
-#~ "Configuration, Reports and Teams. Comfortable is the default; Compact "
-#~ "fits more on screen, Spacious is roomier."
-#~ msgstr ""
-#~ "Stel de grootte en kolomdichtheid in van de tegels op het dashboard, "
-#~ "Configuratie, Rapporten en Teams. Comfortabel is de standaard; Compact "
-#~ "past meer op het scherm, Ruim is ruimer."
 
 msgid "Tactical"
 msgstr "Tactisch"
@@ -41245,3 +39723,23 @@ msgstr "Kies twee of meer teams voor een alleen-lezen overzicht over teams heen.
 
 msgid "No activities for the selected teams in this period."
 msgstr "Geen activiteiten voor de geselecteerde teams in deze periode."
+
+msgctxt "player rating"
+msgid "Insufficient"
+msgstr "Onvoldoende"
+
+msgctxt "player rating"
+msgid "Poor"
+msgstr "Matig"
+
+msgctxt "player rating"
+msgid "Average"
+msgstr "Gemiddeld"
+
+msgctxt "player rating"
+msgid "Good"
+msgstr "Goed"
+
+msgctxt "player rating"
+msgid "Excellent"
+msgstr "Uitstekend"
