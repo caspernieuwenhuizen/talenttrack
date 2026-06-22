@@ -56,6 +56,21 @@ Onder het raster staat een klein paneel met de top tien getrainde coachingsprinc
 
 Dit paneel gebruikt het bestaande `tt_principles` raamwerk — er is geen aparte opslag. Tag je activiteiten met principes op het activiteitenformulier en ze verschijnen hier automatisch.
 
+## De planning exporteren
+
+Boven het raster staan drie exportknoppen:
+
+- **Export PDF** — de liggende roostertabel (één rij per activiteit).
+- **Export XLSX** — het week-voor-week opgemaakte spreadsheet.
+- **Week-PDF** — een **gebrande, staande** weekindeling: een verticale week met de weekdag links en de activiteitkaart van die dag rechts (typelabel, tijd/locatie/duur, wedstrijddetails, thema + principes, optioneel notities), in de kleuren en het embleem van de academie. Ideaal om aan spelers/ouders te geven of op het prikbord te hangen.
+
+**Week-PDF** opent eerst een klein **samenstel-venster** waarin je kiest wat erin komt:
+
+- **Toon per dag** — Tijd · Locatie · Duur · Wedstrijddetails · Thema/titel · Principes · Notities · Rustdagen tonen (standaard alles aan behalve Notities).
+- **Kop** — Academienaam · Genereerdatum.
+
+De PDF gebruikt het **huidige datumbereik** van de planner (stel dit eerst in met de vensterkiezer). De branding komt uit **Configuratie → branding** (primaire/secundaire kleur, academienaam, logo) — geen hardgecodeerde kleuren.
+
 ## Rechten
 
 - **`tt_view_plan`** — vereist om de planning te openen. Standaard toegekend aan iedereen die activiteiten kan bekijken.
