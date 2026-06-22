@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.45.2
+Stable tag: 4.45.3
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.45.3 — Training evaluations surface the mental category first + pre-expanded (#1643). When a coach opens a **training** evaluation, the **Mental** main category now renders first and pre-expanded by default, so mentality is front-and-centre where it matters most for training. This is a presentation default only — the coach can still rate any category and is never blocked from saving without it; match and other evaluation types are unchanged. The activity-first wizard applies the default server-side from the activity's type; the flat coach form and the hybrid wizard apply it from the Type dropdown. The policy (which type counts as training, which category leads) lives in a new `TrainingEvalDefaults` domain helper rather than in the views. Patch bump. (#1643) =
 
 = 4.45.2 — Team planner multi-team view: condensed cross-team calendar (#1703). The team picker is now a multi-select dropdown instead of checkboxes. Selecting two or more teams renders a condensed, read-only calendar — week blocks stack vertically, and within each week each selected team gets one row across the seven day columns (honouring the academy's first-day-of-week). Each day-cell shows only the activity-type pill plus the opponent (and a Home/Away marker) for matches; no principle chips, copy chips, or schedule chrome. The pills are clickable and open the activity's read-only display view, the same destination as a single-team card click. At phone widths the grid collapses to one card per team with a labelled day list — no horizontal scroll. Single-team planning is unchanged. New strings translated to Dutch. Patch bump. (#1703) =
 

@@ -8,7 +8,7 @@ Een **evaluatie** is je beoordeling van een speler op een specifieke datum, op b
 
 1. Open de tegel **Evaluaties**.
 2. Kies de speler.
-3. Kies een type evaluatie (bijv. Training, Wedstrijd).
+3. Kies een type evaluatie (bijv. Training, Wedstrijd). Kies je **Training**, dan springt de categorie **Mentaal** naar boven in de ratinglijst en klappen de gedetailleerde subcategorieën automatisch open — een zetje om eerst naar de mentale kant te kijken. Het is alleen een standaard: je kunt nog steeds elke categorie beoordelen en bent nooit verplicht een Mentaal-score in te vullen om op te slaan.
 4. Kies de datum.
 5. Geef elke hoofdcategorie een **sterbeoordeling** van één tot vijf sterren. De sterren hebben labels — ★ Onvoldoende, ★★ Matig, ★★★ Gemiddeld, ★★★★ Goed, ★★★★★ Uitstekend — en worden opgeslagen op de 5–9-schaal van de academie.
 6. Wil je preciezer zijn? Duik in de subcategorieën — je hoofdcategorie wordt dan het afgeronde gemiddelde van de gezette substerren.
