@@ -41245,3 +41245,23 @@ msgstr "Kies twee of meer teams voor een alleen-lezen overzicht over teams heen.
 
 msgid "No activities for the selected teams in this period."
 msgstr "Geen activiteiten voor de geselecteerde teams in deze periode."
+
+msgctxt "player rating"
+msgid "Insufficient"
+msgstr "Onvoldoende"
+
+msgctxt "player rating"
+msgid "Poor"
+msgstr "Matig"
+
+msgctxt "player rating"
+msgid "Average"
+msgstr "Gemiddeld"
+
+msgctxt "player rating"
+msgid "Good"
+msgstr "Goed"
+
+msgctxt "player rating"
+msgid "Excellent"
+msgstr "Uitstekend"

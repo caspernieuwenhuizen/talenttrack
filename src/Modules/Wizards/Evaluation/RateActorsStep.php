@@ -363,24 +363,17 @@ final class RateActorsStep implements WizardStepInterface {
                     if ( v > 0 ) { sum += v; count++; }
                 } );
                 if ( count > 0 ) {
-                    var avg = Math.round( ( sum / count ) * 2 ) / 2; // snap to 0.5
+                    var avg = Math.round( sum / count ); // whole star (5–9)
                     var max = parseFloat( mainInput.getAttribute( 'max' ) );
                     if ( ! isNaN( max ) && avg > max ) avg = max;
                     mainInput.value = String( avg );
                     mainInput.removeAttribute( 'data-tt-rating-empty' );
-                    // Mirror the value into the visible readout span so
-                    // the user sees the auto-computed main update. The
-                    // component's own readout listener fires on `input`
-                    // but only when the user moves the thumb; programmatic
-                    // value sets are silent.
-                    var readout = mainInput.parentElement && mainInput.parentElement.querySelector( '[data-tt-rating-readout]' );
-                    if ( readout ) {
-                        readout.textContent = avg.toFixed( 1 );
-                        readout.classList.remove( 'tt-rating-row__val--unset' );
-                    }
-                    // Don't redispatch input here — the outer event
-                    // listener already calls updatePlayer + updateOverall
-                    // for the original sub-cat change.
+                    // #1641 — re-render the main category's stars + readout
+                    // and refresh the per-player status pill. The star
+                    // widget's own listener and the roster delegated
+                    // listener both fire on this input event; a programmatic
+                    // value set is otherwise silent for the stars.
+                    mainInput.dispatchEvent( new Event( 'input', { bubbles: true } ) );
                 }
             }
 
@@ -486,6 +479,11 @@ final class RateActorsStep implements WizardStepInterface {
                     }
                 } );
                 if ( restored > 0 ) {
+                    // #1641 — repaint the star widgets from the restored
+                    // hidden values (set programmatically, no input event).
+                    if ( window.TT && window.TT.RatingInput && window.TT.RatingInput.refresh ) {
+                        window.TT.RatingInput.refresh( roster );
+                    }
                     // Re-derive mains from subs, repaint pills + progress.
                     roster.querySelectorAll( '[data-tt-rate-sub-parent]' ).forEach( function ( s ) {
                         if ( ! s.hasAttribute( 'data-tt-rating-empty' ) ) recalcMainFromSubs( s );
