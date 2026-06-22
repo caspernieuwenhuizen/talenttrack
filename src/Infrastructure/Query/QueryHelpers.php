@@ -300,6 +300,28 @@ class QueryHelpers {
         ) );
     }
 
+    /**
+     * Active players for several teams in one query — avoids the per-team
+     * get_players() N+1 the coach dashboard fired (one query per team,
+     * repeated across the roster / evaluate / activity / goals sections).
+     *
+     * @param int[] $team_ids
+     * @return object[] flat list ordered by name; group by team_id in PHP
+     */
+    public static function get_players_for_teams( array $team_ids ): array {
+        $ids = array_values( array_unique( array_filter( array_map( 'intval', $team_ids ), static fn( $v ) => $v > 0 ) ) );
+        if ( ! $ids ) return [];
+        global $wpdb;
+        $scope = self::apply_demo_scope( 'p', 'player' );
+        $ph    = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        return (array) $wpdb->get_results( $wpdb->prepare(
+            "SELECT p.* FROM {$wpdb->prefix}tt_players p
+             WHERE p.team_id IN ($ph) AND p.status = 'active' AND p.club_id = %d {$scope}
+             ORDER BY p.last_name, p.first_name ASC",
+            ...array_merge( $ids, [ CurrentClub::id() ] )
+        ) );
+    }
+
     public static function get_player( int $id ): ?object {
         global $wpdb;
         // v4.20.30 (#1188) — was `AND p.club_id = CurrentClub::id()`,

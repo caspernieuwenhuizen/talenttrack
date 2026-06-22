@@ -48,6 +48,12 @@ class CoachDashboardView {
             echo '<p>' . esc_html__( 'No teams assigned.', 'talenttrack' ) . '</p>';
         } else {
             $team_svc = new \TT\Infrastructure\Stats\TeamStatsService();
+            // #1649 — one batched player query for all teams, grouped in
+            // PHP, instead of get_players() per team inside the loop.
+            $by_team = [];
+            foreach ( QueryHelpers::get_players_for_teams( array_map( static fn( $t ) => (int) $t->id, $teams ) ) as $pl ) {
+                $by_team[ (int) $pl->team_id ][] = $pl;
+            }
             foreach ( $teams as $team ) {
                 echo '<h3>' . esc_html( (string) $team->name ) . ' <small>(' . esc_html( \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'age_group', (string) $team->age_group ) ) . ')</small></h3>';
                 // v2.15.0: top-3 podium before the roster grid.
@@ -55,7 +61,7 @@ class CoachDashboardView {
                 if ( ! empty( $top ) ) {
                     \TT\Modules\Stats\Admin\PlayerCardView::renderPodium( $top );
                 }
-                $players = QueryHelpers::get_players( (int) $team->id );
+                $players = $by_team[ (int) $team->id ] ?? [];
                 if ( empty( $players ) ) { echo '<p>' . esc_html__( 'No players.', 'talenttrack' ) . '</p>'; continue; }
                 echo '<div class="tt-grid">';
                 foreach ( $players as $pl ) $this->renderPlayerCard( $pl, true );
@@ -176,8 +182,9 @@ class CoachDashboardView {
             $type_meta[ (int) $t->id ] = ! empty( $m['requires_match_details'] ) ? 1 : 0;
         }
 
-        $players = $is_admin ? QueryHelpers::get_players() : [];
-        if ( ! $is_admin ) foreach ( $teams as $t ) $players = array_merge( $players, QueryHelpers::get_players( (int) $t->id ) );
+        $players = $is_admin
+            ? QueryHelpers::get_players()
+            : QueryHelpers::get_players_for_teams( array_map( static fn( $t ) => (int) $t->id, $teams ) );
         ?>
         <h3><?php esc_html_e( 'Submit Evaluation', 'talenttrack' ); ?></h3>
         <form id="tt-eval-form" class="tt-ajax-form" data-rest-path="evaluations" data-rest-method="POST">
@@ -235,7 +242,9 @@ class CoachDashboardView {
     private function renderSessionForm( array $teams ): void {
         $statuses = QueryHelpers::get_lookup_names( 'attendance_status' );
         $all_players = [];
-        foreach ( $teams as $t ) foreach ( QueryHelpers::get_players( (int) $t->id ) as $pl ) $all_players[ (int) $pl->id ] = $pl;
+        foreach ( QueryHelpers::get_players_for_teams( array_map( static fn( $t ) => (int) $t->id, $teams ) ) as $pl ) {
+            $all_players[ (int) $pl->id ] = $pl;
+        }
         ?>
         <h3><?php esc_html_e( 'Record Training Activity', 'talenttrack' ); ?></h3>
         <form id="tt-activity-form" class="tt-ajax-form" data-rest-path="activities" data-rest-method="POST">
@@ -265,8 +274,9 @@ class CoachDashboardView {
     /** @param object[] $teams */
     private function renderGoalsForm( array $teams, bool $is_admin ): void {
         global $wpdb; $p = $wpdb->prefix;
-        $players = $is_admin ? QueryHelpers::get_players() : [];
-        if ( ! $is_admin ) foreach ( $teams as $t ) $players = array_merge( $players, QueryHelpers::get_players( (int) $t->id ) );
+        $players = $is_admin
+            ? QueryHelpers::get_players()
+            : QueryHelpers::get_players_for_teams( array_map( static fn( $t ) => (int) $t->id, $teams ) );
         $statuses   = QueryHelpers::get_lookup_names( 'goal_status' );
         $priorities = QueryHelpers::get_lookup_names( 'goal_priority' );
         $pids = wp_list_pluck( $players, 'id' );
