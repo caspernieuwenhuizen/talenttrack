@@ -93,8 +93,11 @@ final class TileIconChip {
 .tt-tile-chip {
     --tt-chip-accent: #5b6e75;
     flex-shrink: 0;
-    width: calc(3.25rem * var(--tt-tile-scale, 1));
-    height: calc(3.25rem * var(--tt-tile-scale, 1));
+    /* #1663 — the chip box derives from the glyph size (3.25 / 2 ratio).
+       When --tt-tile-icon-size is unset the fallback equals the previous
+       calc(3.25rem * scale), so the default is unchanged. */
+    width: calc(var(--tt-tile-icon-size, calc(2rem * var(--tt-tile-scale, 1))) * 3.25 / 2);
+    height: calc(var(--tt-tile-icon-size, calc(2rem * var(--tt-tile-scale, 1))) * 3.25 / 2);
     border-radius: 0.875rem;
     display: inline-flex;
     align-items: center;
@@ -105,8 +108,8 @@ final class TileIconChip {
     color: var(--tt-chip-accent);
 }
 .tt-tile-chip .tt-tile-chip__glyph {
-    width: calc(2rem * var(--tt-tile-scale, 1));
-    height: calc(2rem * var(--tt-tile-scale, 1));
+    width: var(--tt-tile-icon-size, calc(2rem * var(--tt-tile-scale, 1)));
+    height: var(--tt-tile-icon-size, calc(2rem * var(--tt-tile-scale, 1)));
     color: inherit;
 }
 @supports not (background: color-mix(in srgb, red 14%, #fff)) {

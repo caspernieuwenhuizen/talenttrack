@@ -51,6 +51,11 @@ class ConfigRestController {
         // the size preset; drives icon/title arrangement on every tile
         // surface via TileGridStandard.
         'tile_layout',
+        // #1663 — explicit pixel overrides for tile column width + icon
+        // glyph size, layered on top of the preset + % scale (blank =
+        // inherit). Both flow through TileGridStandard::cssVars().
+        'tile_min_width',
+        'tile_icon_size',
         // #1590 — full-canvas app shell toggle (boolean). When on
         // (default), the dashboard page renders without the active
         // theme's header / footer / sidebar chrome.

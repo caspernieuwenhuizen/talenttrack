@@ -941,6 +941,9 @@ class Activator {
             'logo_url' => '',
             'show_logo' => '0',
             'tile_scale' => '100',
+            // #1663 — explicit px overrides; blank = inherit preset + scale.
+            'tile_min_width' => '',
+            'tile_icon_size' => '',
             // #1587 — academy-wide Tile appearance preset; comfortable
             // equals the pre-#1587 config-tile standard.
             'tile_appearance' => 'comfortable',
