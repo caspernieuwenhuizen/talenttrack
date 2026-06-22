@@ -1,0 +1,201 @@
+/*
+ * frontend-app-chrome.css — shared frontend "app chrome" (#1690).
+ *
+ * Restyles the global dashboard header (.tt-dash-header) into the
+ * 2026-mockup top bar (dark green band, gold accent, brand mark, persona
+ * chip) and provides a reusable KPI tile (.tt-kpi). Mobile-first per
+ * CLAUDE.md §2: base styles target ~360px, min-width queries scale up.
+ * Everything is scoped under .tt-dashboard — no global resets (the active
+ * theme is treated as hostile).
+ *
+ * Tokens come from public.css: --tt-primary (#0b3d2e), --tt-secondary
+ * (#e8b624), --tt-ink, --tt-muted, --tt-shadow-md.
+ */
+
+/* ---- Top bar ------------------------------------------------------- */
+.tt-dashboard .tt-dash-header {
+    background: var(--tt-primary);
+    border-bottom: 3px solid var(--tt-secondary);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.55rem 0.9rem;
+    /* clear iOS notch / home indicator when the bar hugs the edges */
+    padding-left: max(0.9rem, env(safe-area-inset-left));
+    padding-right: max(0.9rem, env(safe-area-inset-right));
+    border-radius: 0;
+    box-shadow: var(--tt-shadow-md);
+}
+
+.tt-dashboard .tt-dash-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    min-width: 0;
+}
+.tt-dashboard .tt-dash-title {
+    color: #fff;
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.tt-dashboard .tt-dash-logo {
+    max-height: 34px;
+    width: auto;
+    display: block;
+}
+
+/* gold brand mark (shown when no custom logo is configured) */
+.tt-appchrome-mark {
+    flex: 0 0 auto;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: var(--tt-secondary);
+    color: var(--tt-primary);
+    display: grid;
+    place-items: center;
+    font-weight: 800;
+    font-size: 0.9rem;
+    letter-spacing: 0.02em;
+}
+
+/* ---- Actions cluster ---------------------------------------------- */
+.tt-dashboard .tt-dash-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #fff;
+}
+.tt-dashboard .tt-dash-version {
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+.tt-dashboard .tt-dash-help {
+    color: rgba(255, 255, 255, 0.85);
+    display: inline-grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    touch-action: manipulation;
+}
+.tt-dashboard .tt-dash-help:hover,
+.tt-dashboard .tt-dash-help:focus-visible {
+    color: var(--tt-secondary);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* ---- Persona chip (doubles as the user-menu trigger) -------------- */
+.tt-dashboard .tt-user-menu-trigger {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    padding: 0.25rem 0.6rem 0.25rem 0.3rem;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 999px;
+    color: #fff;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-dashboard .tt-user-menu-trigger:hover,
+.tt-dashboard .tt-user-menu-trigger:focus-visible {
+    background: rgba(255, 255, 255, 0.16);
+}
+.tt-appchrome-av {
+    flex: 0 0 auto;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--tt-secondary);
+    color: var(--tt-primary);
+    display: grid;
+    place-items: center;
+    font-weight: 800;
+    font-size: 0.78rem;
+}
+.tt-appchrome-who {
+    /* hidden on the smallest screens — avatar alone is the tap target */
+    display: none;
+    line-height: 1.1;
+    text-align: left;
+    min-width: 0;
+}
+.tt-appchrome-who b {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 14ch;
+}
+.tt-appchrome-who span {
+    display: block;
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.72);
+    white-space: nowrap;
+}
+.tt-dashboard .tt-user-menu-caret {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* ---- Reusable KPI tile -------------------------------------------- */
+.tt-dashboard .tt-kpi {
+    display: block;
+    background: #fff;
+    border: 1px solid #e3e6e1;
+    border-radius: 12px;
+    padding: 0.85rem 1rem;
+    box-shadow: var(--tt-shadow-md);
+    text-decoration: none;
+}
+.tt-dashboard a.tt-kpi--link:hover {
+    box-shadow: var(--tt-shadow-lg);
+}
+.tt-dashboard .tt-kpi--flag-red   { border-left: 4px solid #d8453b; }
+.tt-dashboard .tt-kpi--flag-green { border-left: 4px solid #2f9e5e; }
+.tt-kpi__label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--tt-muted);
+}
+.tt-kpi__val {
+    display: block;
+    margin-top: 0.15rem;
+    font-size: 1.7rem;
+    font-weight: 800;
+    line-height: 1.1;
+    color: var(--tt-primary);
+}
+.tt-kpi__delta {
+    display: block;
+    margin-top: 0.1rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+.tt-kpi__delta--up   { color: #2f9e5e; }
+.tt-kpi__delta--down { color: #d8453b; }
+.tt-kpi__delta--flat { color: var(--tt-muted); }
+
+/* ---- Scale up ------------------------------------------------------ */
+@media (min-width: 560px) {
+    .tt-appchrome-who { display: block; }
+    .tt-dashboard .tt-dash-title { font-size: 1.1rem; }
+}
+@media (min-width: 768px) {
+    .tt-dashboard .tt-dash-header { padding: 0.6rem 1.2rem; }
+    .tt-appchrome-mark { width: 38px; height: 38px; font-size: 1rem; }
+}
