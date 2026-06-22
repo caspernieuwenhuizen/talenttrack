@@ -39,6 +39,8 @@ class RecordTestTrainingOutcomeTemplate extends TaskTemplate {
 
     public function key(): string { return self::KEY; }
 
+    public function featureKey(): ?string { return 'onboarding_pipeline_workflow'; }
+
     public function name(): string {
         return __( 'Record test-training outcome', 'talenttrack' );
     }

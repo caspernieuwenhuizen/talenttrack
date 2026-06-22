@@ -16,6 +16,11 @@ use TT\Modules\Workflow\Contracts\TaskTemplateInterface;
  */
 abstract class TaskTemplate implements TaskTemplateInterface {
 
+    /** Default: not gated by any feature flag. Override to gate dispatch. */
+    public function featureKey(): ?string {
+        return null;
+    }
+
     /** Default: a single task, no fan-out. Override in fan-out templates. */
     public function expandTrigger( TaskContext $context ): array {
         return [ $context ];

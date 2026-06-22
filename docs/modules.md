@@ -90,6 +90,7 @@ The features that ship **on by default** (they run today; turning them off is an
 
 - **Photo exercise extraction** (Exercises module, default **on**) — the photo→exercise AI extraction (`POST /vision/extract`) and its capture UI. Turning it off makes the extraction REST route return 403; the exercise library CRUD is unaffected.
 - **Blueprint share links** (Team Development module, default **on**) — public read-only share links for team blueprints (`?tt_view=team-blueprint-share`) and the share-URL generate/rotate controls. Turning it off hides the share actions in the blueprint editor, makes the public share URL show the "not valid" notice, and refuses the rotate action; blueprint editing is unaffected.
+- **Onboarding pipeline workflow** (Workflow module, default **on**) — the automatic tasks that move prospects through the recruitment funnel (log prospect → invite → test training → trial review → team offer). Turning it off stops those six templates from dispatching new tasks; the onboarding pipeline view and any existing tasks stay visible, and every other workflow template keeps running. This is the switch that lets an academy run "workflow only for onboarding" — leave this on and disable the other templates in the workflow template config.
 
 What an off feature does, on the next page load:
 

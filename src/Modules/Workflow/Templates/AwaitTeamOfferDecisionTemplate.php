@@ -32,6 +32,8 @@ class AwaitTeamOfferDecisionTemplate extends TaskTemplate {
 
     public function key(): string { return self::KEY; }
 
+    public function featureKey(): ?string { return 'onboarding_pipeline_workflow'; }
+
     public function name(): string {
         return __( 'Team-offer decision pending', 'talenttrack' );
     }

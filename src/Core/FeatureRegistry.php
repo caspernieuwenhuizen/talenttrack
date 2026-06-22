@@ -119,6 +119,20 @@ class FeatureRegistry {
                 'view_slugs'      => [ 'team-blueprint-share' ],
                 'entities'        => [],
             ],
+            // #1644 — gates the six onboarding-pipeline workflow templates
+            // (log prospect → invite → test training → trial review → team
+            // offer). When off, no new pipeline tasks dispatch; the pipeline
+            // view and any existing tasks stay visible. Other workflow
+            // templates are unaffected — turn this on and disable the rest
+            // via template config to run "workflow only for onboarding".
+            'onboarding_pipeline_workflow' => [
+                'label'           => __( 'Onboarding pipeline workflow', 'talenttrack' ),
+                'description'     => __( 'Automatic tasks that move prospects through the recruitment funnel (log, invite, test training, trial review, team offer). The onboarding pipeline view stays available when this is off; only new task automation stops.', 'talenttrack' ),
+                'module_class'    => 'TT\\Modules\\Workflow\\WorkflowModule',
+                'default_enabled' => true,
+                'view_slugs'      => [],
+                'entities'        => [],
+            ],
         ];
     }
 
