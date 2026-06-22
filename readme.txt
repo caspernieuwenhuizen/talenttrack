@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.45.1
+Stable tag: 4.45.7
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.45.7 — My evaluations restyled to the 2026 look. The player/parent-facing "My evaluations" body ([FrontendMyEvaluationsView](src/Shared/Frontend/FrontendMyEvaluationsView.php)) adopts the shared chrome visual language (#1690): each evaluation is now a white card (1px `#e3e6e1`, radius 14px, `--tt-shadow-md`) with a warm header strip, the coach-feedback callout reads as a gold-accented note, and the detail disclosure is a rounded chip-style toggle. A summary KPI row up top reuses `FrontendAppChrome::kpiTile()` for two real stats — total evaluations and the latest overall rating with a trend chip diffing the prior cut — composed from data already fetched (no new query, no REST change). New mobile-first `assets/css/frontend-my-evaluations.css` (dep on `tt-frontend-app-chrome`) reads the existing brand tokens — no new palette. Markup, data, and nav are unchanged; this is a restyle, not a redesign. Three new strings translated to Dutch. Patch bump. (#1695) =
 
 = 4.45.1 — Weekly planner PDF: pixel-perfect browser print route (#1631). The **Weekly PDF** action now opens a branded, print-ready A4 sheet in a new tab and lets the browser's **Save as PDF** render it, instead of the server-side DomPDF layout (which couldn't do gradients, rounded corners, or background colours). A new [TeamPlannerWeeklyPrintRouter](src/Modules/Planning/Print/TeamPlannerWeeklyPrintRouter.php) emits an isolated document (same pattern as the match-prep print route — no theme chrome on paper), with the layout + branding composed by [TeamPlannerWeeklyPrintable](src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php) from `tt_activities` + `tt_config` (green day cards, gold rail, type tags, principle pills — all derived from the configured primary/secondary colours). The sheet title reads `Week plan · {team} · Week {n} · {year}`, which also becomes the proposed Save-as-PDF filename. The compose dialog's per-day / header toggles carry over as query params. The DomPDF `team_planning` weekly exporter stays as the programmatic / REST fallback. New strings translated to Dutch. Patch bump. (#1631) =
 

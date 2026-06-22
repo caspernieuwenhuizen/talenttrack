@@ -137,7 +137,47 @@ class FrontendMyEvaluationsView extends FrontendViewBase {
         $eval_ids     = array_map( fn( $e ) => (int) $e->id, $evals );
         $ratings_repo = new EvalRatingsRepository();
         $overalls     = $ratings_repo->overallRatingsForEvaluations( $eval_ids );
+
+        // Summary KPIs — composed from data already fetched above; no new
+        // query. $evals is newest-first, so the first entry with an overall
+        // value is the current rating, and the next one is the prior cut we
+        // diff against for the trend chip.
+        $rated_values = [];
+        foreach ( $evals as $e ) {
+            $v = $overalls[ (int) $e->id ]['value'] ?? null;
+            if ( $v !== null ) $rated_values[] = (float) $v;
+        }
+        $latest_rating = $rated_values[0] ?? null;
+        $prev_rating   = $rated_values[1] ?? null;
         ?>
+        <div class="tt-mye-summary" role="group" aria-label="<?php esc_attr_e( 'Evaluation summary', 'talenttrack' ); ?>">
+            <?php
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            echo \TT\Shared\Frontend\Components\FrontendAppChrome::kpiTile( [
+                'label' => __( 'Evaluations', 'talenttrack' ),
+                'value' => (string) number_format_i18n( count( $evals ) ),
+            ] );
+
+            if ( $latest_rating !== null ) {
+                $kpi = [
+                    'label' => __( 'Latest rating', 'talenttrack' ),
+                    'value' => number_format_i18n( $latest_rating, 1 ) . ' / ' . number_format_i18n( $max, 0 ),
+                ];
+                if ( $prev_rating !== null ) {
+                    $diff = $latest_rating - $prev_rating;
+                    if ( abs( $diff ) < 0.05 ) {
+                        $kpi['trend'] = 'flat';
+                        $kpi['delta'] = __( 'No change', 'talenttrack' );
+                    } else {
+                        $kpi['trend'] = $diff > 0 ? 'up' : 'down';
+                        $kpi['delta'] = ( $diff > 0 ? '+' : '−' ) . number_format_i18n( abs( $diff ), 1 );
+                    }
+                }
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                echo \TT\Shared\Frontend\Components\FrontendAppChrome::kpiTile( $kpi );
+            }
+            ?>
+        </div>
         <ol class="tt-mye-list" aria-label="<?php esc_attr_e( 'Evaluations, newest first', 'talenttrack' ); ?>">
             <?php foreach ( $evals as $ev ) :
                 $eid           = (int) $ev->id;

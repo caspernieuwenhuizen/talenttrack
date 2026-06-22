@@ -39349,3 +39349,15 @@ msgstr "Pdf openen"
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php
 msgid "Opens a print-ready sheet for the planner's current date range — Save as PDF from your browser."
 msgstr "Opent een afdrukklaar overzicht voor de huidige periode van de planner — sla op als pdf vanuit je browser."
+
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php
+msgid "Evaluation summary"
+msgstr "Samenvatting evaluaties"
+
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php
+msgid "Latest rating"
+msgstr "Laatste beoordeling"
+
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php
+msgid "No change"
+msgstr "Geen verandering"
