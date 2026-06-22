@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.45.0
+Stable tag: 4.45.2
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.45.2 — Team attendance report restyled to the 2026 look: a KPI summary strip (teams, activities, average attendance, teams below 70% flagged red) and a card-wrapped table with an inline attendance bar (red under 70%). Visual only; same per-team data. Patch bump. (#1688) =
 
 = 4.45.0 — Shared frontend app chrome: top bar + persona chip + KPI tile (#1690). The global dashboard header (rendered once for every `?tt_view=` route by [DashboardShortcode::renderHeader()](src/Shared/Frontend/DashboardShortcode.php)) adopts the 2026 look — a dark-green top bar with a gold brand mark and a **persona chip** (initials avatar + name + resolved persona label) that doubles as the existing user-menu trigger, so no extra nav affordance is added (CLAUDE.md §5). A new [FrontendAppChrome](src/Shared/Frontend/Components/FrontendAppChrome.php) component carries the chip, a brand-initials helper, and a reusable `kpiTile()`; styling is a new mobile-first `assets/css/frontend-app-chrome.css` reading the existing `--tt-primary`/`--tt-secondary` tokens (no new palette). Persona labels resolve via the portable `PersonaResolver`; the dropdown, persona switcher, and docs drawer are untouched (additive). Below 560px the chip collapses to the avatar. Foundation for the per-view parity work (#1680). One new string ("Observer"), Dutch added. Minor bump. (#1690) =
 

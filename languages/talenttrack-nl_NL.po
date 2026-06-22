@@ -2352,9 +2352,18 @@ msgstr "Alle types"
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:158
 #: src/Shared/Frontend/FrontendTrialCaseView.php:374
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:564
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php
 #: src/Shared/Modules/ModuleMetadata.php:241
 msgid "Activities"
 msgstr "Activiteiten"
+
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php
+msgid "Avg. attendance"
+msgstr "Gem. aanwezigheid"
+
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php
+msgid "Teams below 70%"
+msgstr "Teams onder 70%"
 
 #: src/Modules/Activities/Admin/ActivitiesPage.php:66
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:550
@@ -3820,6 +3829,7 @@ msgstr "Spelers"
 #: src/Shared/Frontend/FrontendTeamDetailView.php:177
 #: src/Shared/Frontend/FrontendTeamsManageView.php:71
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:560
+#: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php
 #: src/Shared/Modules/ModuleMetadata.php:159
 msgid "Teams"
 msgstr "Teams"
