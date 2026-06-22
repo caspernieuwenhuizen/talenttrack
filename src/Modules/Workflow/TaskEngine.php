@@ -56,6 +56,14 @@ class TaskEngine {
             return [];
         }
 
+        // #1644 — a template may be gated by a FeatureRegistry flag (e.g.
+        // the onboarding-pipeline templates). When the feature is off the
+        // template never dispatches; existing tasks and views are untouched.
+        $feature_key = $template->featureKey();
+        if ( $feature_key !== null && ! \TT\Core\FeatureRegistry::isEnabled( $feature_key ) ) {
+            return [];
+        }
+
         $deadline_offset = $config['deadline_offset_override']
             ?? $template->defaultDeadlineOffset();
 

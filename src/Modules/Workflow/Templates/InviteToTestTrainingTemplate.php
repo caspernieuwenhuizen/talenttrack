@@ -38,6 +38,8 @@ class InviteToTestTrainingTemplate extends TaskTemplate {
 
     public function key(): string { return self::KEY; }
 
+    public function featureKey(): ?string { return 'onboarding_pipeline_workflow'; }
+
     public function name(): string {
         return __( 'Invite prospect to test training', 'talenttrack' );
     }

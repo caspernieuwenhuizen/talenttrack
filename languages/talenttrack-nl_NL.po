@@ -41169,3 +41169,9 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ "Stel de grootte en kolomdichtheid in van de tegels op het dashboard, "
 #~ "Configuratie, Rapporten en Teams. Comfortabel is de standaard; Compact "
 #~ "past meer op het scherm, Ruim is ruimer."
+
+msgid "Onboarding pipeline workflow"
+msgstr "Workflow onboardingpijplijn"
+
+msgid "Automatic tasks that move prospects through the recruitment funnel (log, invite, test training, trial review, team offer). The onboarding pipeline view stays available when this is off; only new task automation stops."
+msgstr "Automatische taken die prospects door de wervingstrechter leiden (registreren, uitnodigen, proeftraining, stagebeoordeling, teamaanbod). De onboarding-pijplijnweergave blijft beschikbaar wanneer dit uit staat; alleen nieuwe taakautomatisering stopt."

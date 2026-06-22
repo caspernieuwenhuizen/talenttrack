@@ -91,6 +91,7 @@ De functies die **standaard aan** staan (ze draaien vandaag al; uitzetten is een
 
 - **Oefeningen uit foto halen** (Oefeningen-module, standaard **aan**) — de foto→oefening-AI-extractie (`POST /vision/extract`) en de bijbehorende vastleg-UI. Uitzetten laat de extractie-REST-route 403 teruggeven; de CRUD van de oefeningenbibliotheek blijft ongemoeid.
 - **Deellinks voor blauwdrukken** (Team Development-module, standaard **aan**) — openbare, alleen-lezen deellinks voor teamblauwdrukken (`?tt_view=team-blueprint-share`) en het genereren/roteren van de deel-URL. Uitzetten verbergt de deelacties in de blauwdruk-editor, laat de openbare deel-URL de melding "niet geldig" tonen en weigert de rotatie-actie; het bewerken van blauwdrukken blijft ongemoeid.
+- **Workflow onboardingpijplijn** (Workflow-module, standaard **aan**) — de automatische taken die prospects door de wervingstrechter leiden (prospect registreren → uitnodigen → proeftraining → stagebeoordeling → teamaanbod). Uitzetten stopt het aanmaken van nieuwe taken door deze zes templates; de onboarding-pijplijnweergave en bestaande taken blijven zichtbaar, en elke andere workflow-template blijft werken. Dit is de schakelaar waarmee een academie "workflow alleen voor onboarding" kan draaien — laat deze aan en zet de overige templates uit in de workflow-templateconfiguratie.
 
 Wat een uitgeschakelde functie doet, bij de volgende paginalading:
 

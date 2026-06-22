@@ -29,6 +29,13 @@ interface TaskTemplateInterface {
     public function key(): string;
 
     /**
+     * Optional FeatureRegistry key that gates this template's dispatch.
+     * When set and the feature is disabled, TaskEngine::dispatch() is a
+     * no-op for this template. Null (the default) means always dispatch.
+     */
+    public function featureKey(): ?string;
+
+    /**
      * Human-readable name for the template library / config UI.
      * Translatable via __() at the call site.
      */
