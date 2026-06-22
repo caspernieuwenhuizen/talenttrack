@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0+.
 msgid ""
 msgstr ""
-"Project-Id-Version: TalentTrack 4.44.6\n"
+"Project-Id-Version: TalentTrack 4.44.7\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-22T19:30:20+00:00\n"
+"POT-Creation-Date: 2026-06-22T19:35:12+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -346,8 +346,8 @@ msgstr ""
 
 #: src/Infrastructure/CustomFields/CustomFieldsSlot.php:96
 #: src/Shared/Frontend/FrontendOverviewView.php:163
-#: src/Shared/Frontend/FrontendPlayersManageView.php:532
-#: src/Shared/Frontend/FrontendPlayersManageView.php:637
+#: src/Shared/Frontend/FrontendPlayersManageView.php:519
+#: src/Shared/Frontend/FrontendPlayersManageView.php:624
 msgid "Additional information"
 msgstr ""
 
@@ -2639,7 +2639,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendPlayersCsvImportView.php:118
 #: src/Shared/Frontend/FrontendPlayersManageView.php:185
 #: src/Shared/Frontend/FrontendPlayersManageView.php:192
-#: src/Shared/Frontend/FrontendPlayersManageView.php:319
+#: src/Shared/Frontend/FrontendPlayersManageView.php:335
 #: src/Shared/Frontend/FrontendRateCardView.php:105
 #: src/Shared/Frontend/FrontendReportDetailView.php:94
 #: src/Shared/Frontend/FrontendStandardReportsView.php:546
@@ -3597,7 +3597,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:207
 #: src/Shared/Frontend/FrontendPlayersCsvImportView.php:41
 #: src/Shared/Frontend/FrontendPlayersManageView.php:54
-#: src/Shared/Frontend/FrontendPlayersManageView.php:559
+#: src/Shared/Frontend/FrontendPlayersManageView.php:546
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:49
 #: src/Shared/Frontend/FrontendStandardReportsView.php:460
 #: src/Shared/Frontend/FrontendStandardReportsView.php:546
@@ -4378,7 +4378,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:127
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:332
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:344
-#: src/Shared/Frontend/FrontendPlayersManageView.php:330
+#: src/Shared/Frontend/FrontendPlayersManageView.php:346
 #: src/Shared/Frontend/FrontendTeamsManageView.php:236
 msgid "— Select —"
 msgstr ""
@@ -8674,7 +8674,7 @@ msgstr ""
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:984
 #: src/Modules/Players/Admin/PlayersPage.php:422
 #: src/Shared/Frontend/FrontendConfigurationView.php:2302
-#: src/Shared/Frontend/FrontendPlayersManageView.php:497
+#: src/Shared/Frontend/FrontendPlayersManageView.php:279
 msgid "Use"
 msgstr ""
 
@@ -9062,7 +9062,7 @@ msgstr ""
 #: src/Modules/Workflow/Forms/LogProspectForm.php:48
 #: src/Shared/Frontend/FrontendMySettingsView.php:71
 #: src/Shared/Frontend/FrontendPeopleManageView.php:157
-#: src/Shared/Frontend/FrontendPlayersManageView.php:291
+#: src/Shared/Frontend/FrontendPlayersManageView.php:307
 #: src/Shared/Frontend/FrontendTrialsManageView.php:275
 msgid "First name"
 msgstr ""
@@ -9093,7 +9093,7 @@ msgstr ""
 #: src/Modules/Workflow/Forms/LogProspectForm.php:57
 #: src/Shared/Frontend/FrontendMySettingsView.php:75
 #: src/Shared/Frontend/FrontendPeopleManageView.php:161
-#: src/Shared/Frontend/FrontendPlayersManageView.php:295
+#: src/Shared/Frontend/FrontendPlayersManageView.php:311
 #: src/Shared/Frontend/FrontendTrialsManageView.php:277
 msgid "Last name"
 msgstr ""
@@ -9115,7 +9115,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendMyProfileView.php:121
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:732
 #: src/Shared/Frontend/FrontendPlayersCsvImportView.php:117
-#: src/Shared/Frontend/FrontendPlayersManageView.php:300
+#: src/Shared/Frontend/FrontendPlayersManageView.php:316
 #: src/Shared/Frontend/FrontendTrialsManageView.php:279
 msgid "Date of birth"
 msgstr ""
@@ -9128,13 +9128,13 @@ msgstr ""
 
 #: src/Modules/Configuration/Admin/FormSlugContract.php:55
 #: src/Modules/Players/Admin/PlayersPage.php:360
-#: src/Shared/Frontend/FrontendPlayersManageView.php:337
+#: src/Shared/Frontend/FrontendPlayersManageView.php:353
 msgid "Height (cm)"
 msgstr ""
 
 #: src/Modules/Configuration/Admin/FormSlugContract.php:56
 #: src/Modules/Players/Admin/PlayersPage.php:362
-#: src/Shared/Frontend/FrontendPlayersManageView.php:341
+#: src/Shared/Frontend/FrontendPlayersManageView.php:357
 msgid "Weight (kg)"
 msgstr ""
 
@@ -9150,7 +9150,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendConfigurationView.php:275
 #: src/Shared/Frontend/FrontendMyProfileView.php:107
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:738
-#: src/Shared/Frontend/FrontendPlayersManageView.php:328
+#: src/Shared/Frontend/FrontendPlayersManageView.php:344
 #: src/Shared/Frontend/FrontendTeammateView.php:99
 msgid "Preferred foot"
 msgstr ""
@@ -9160,7 +9160,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/PlayersListCsvExporter.php:103
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:44
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:131
-#: src/Shared/Frontend/FrontendPlayersManageView.php:347
+#: src/Shared/Frontend/FrontendPlayersManageView.php:363
 msgid "Preferred positions"
 msgstr ""
 
@@ -9173,7 +9173,7 @@ msgstr ""
 #: src/Modules/Wizards/Player/ReviewStep.php:36
 #: src/Modules/Wizards/Player/RosterDetailsStep.php:43
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:741
-#: src/Shared/Frontend/FrontendPlayersManageView.php:324
+#: src/Shared/Frontend/FrontendPlayersManageView.php:340
 msgid "Jersey number"
 msgstr ""
 
@@ -9191,21 +9191,21 @@ msgstr ""
 #: src/Modules/Configuration/Admin/FormSlugContract.php:63
 #: src/Modules/Export/Exporters/PlayersListCsvExporter.php:46
 #: src/Modules/Export/Exporters/PlayersListCsvExporter.php:105
-#: src/Shared/Frontend/FrontendPlayersManageView.php:440
+#: src/Shared/Frontend/FrontendPlayersManageView.php:456
 msgid "Guardian name"
 msgstr ""
 
 #: src/Modules/Configuration/Admin/FormSlugContract.php:64
 #: src/Modules/Export/Exporters/PlayersListCsvExporter.php:47
 #: src/Modules/Export/Exporters/PlayersListCsvExporter.php:106
-#: src/Shared/Frontend/FrontendPlayersManageView.php:444
+#: src/Shared/Frontend/FrontendPlayersManageView.php:460
 msgid "Guardian email"
 msgstr ""
 
 #: src/Modules/Configuration/Admin/FormSlugContract.php:65
 #: src/Modules/Export/Exporters/PlayersListCsvExporter.php:48
 #: src/Modules/Export/Exporters/PlayersListCsvExporter.php:107
-#: src/Shared/Frontend/FrontendPlayersManageView.php:448
+#: src/Shared/Frontend/FrontendPlayersManageView.php:464
 msgid "Guardian phone"
 msgstr ""
 
@@ -18826,7 +18826,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2147
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2153
 #: src/Shared/Frontend/FrontendConfigurationView.php:1754
-#: src/Shared/Frontend/FrontendPlayersManageView.php:370
+#: src/Shared/Frontend/FrontendPlayersManageView.php:386
 #: src/Shared/Frontend/FrontendTeamsManageView.php:356
 msgid "Remove"
 msgstr ""
@@ -20498,13 +20498,13 @@ msgid "Date Joined"
 msgstr ""
 
 #: src/Modules/Players/Admin/PlayersPage.php:378
-#: src/Shared/Frontend/FrontendPlayersManageView.php:362
+#: src/Shared/Frontend/FrontendPlayersManageView.php:378
 msgid "Photo"
 msgstr ""
 
 #: src/Modules/Players/Admin/PlayersPage.php:394
 #: src/Shared/Frontend/Components/ParentSearchPickerComponent.php:51
-#: src/Shared/Frontend/FrontendPlayersManageView.php:399
+#: src/Shared/Frontend/FrontendPlayersManageView.php:415
 msgid "Connect a parent account"
 msgstr ""
 
@@ -27857,7 +27857,7 @@ msgstr ""
 
 #: src/Shared/Frontend/CoachDashboardView.php:98
 #: src/Shared/Frontend/FrontendOverviewView.php:65
-#: src/Shared/Frontend/FrontendPlayersManageView.php:568
+#: src/Shared/Frontend/FrontendPlayersManageView.php:555
 #: src/Shared/Frontend/PlayerDashboardView.php:77
 msgid "Print report"
 msgstr ""
@@ -27876,19 +27876,19 @@ msgstr ""
 
 #: src/Shared/Frontend/CoachDashboardView.php:139
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:152
-#: src/Shared/Frontend/FrontendPlayersManageView.php:608
+#: src/Shared/Frontend/FrontendPlayersManageView.php:595
 #: src/Shared/Frontend/PlayerDashboardView.php:290
 msgid "Team:"
 msgstr ""
 
 #: src/Shared/Frontend/CoachDashboardView.php:140
-#: src/Shared/Frontend/FrontendPlayersManageView.php:611
+#: src/Shared/Frontend/FrontendPlayersManageView.php:598
 #: src/Shared/Frontend/PlayerDashboardView.php:291
 msgid "Pos:"
 msgstr ""
 
 #: src/Shared/Frontend/CoachDashboardView.php:141
-#: src/Shared/Frontend/FrontendPlayersManageView.php:614
+#: src/Shared/Frontend/FrontendPlayersManageView.php:601
 #: src/Shared/Frontend/PlayerDashboardView.php:292
 msgid "Foot:"
 msgstr ""
@@ -31840,64 +31840,64 @@ msgstr ""
 msgid "Add your first player"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayersManageView.php:285
-msgid "View rate card"
-msgstr ""
-
-#: src/Shared/Frontend/FrontendPlayersManageView.php:314
-msgid "In academy since"
-msgstr ""
-
-#: src/Shared/Frontend/FrontendPlayersManageView.php:369
-msgid "Choose photo…"
-msgstr ""
-
-#: src/Shared/Frontend/FrontendPlayersManageView.php:376
-msgid "Parent / guardian"
-msgstr ""
-
-#: src/Shared/Frontend/FrontendPlayersManageView.php:383
-msgid "Link a parent account on save (dropdown below) or fill in name + contact below; a coach can convert them to a real account later."
-msgstr ""
-
-#: src/Shared/Frontend/FrontendPlayersManageView.php:405
-msgid "Type a parent's name…"
-msgstr ""
-
-#: src/Shared/Frontend/FrontendPlayersManageView.php:416
-msgid "Only people whose role is set to \"parent\" appear here. Manage parent role assignments on the People page."
-msgstr ""
-
-#: src/Shared/Frontend/FrontendPlayersManageView.php:463
-msgid "Update player"
-msgstr ""
-
-#: src/Shared/Frontend/FrontendPlayersManageView.php:463
-msgid "Save player"
-msgstr ""
-
-#: src/Shared/Frontend/FrontendPlayersManageView.php:496
+#: src/Shared/Frontend/FrontendPlayersManageView.php:278
 msgid "Select photo"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayersManageView.php:566
+#: src/Shared/Frontend/FrontendPlayersManageView.php:301
+msgid "View rate card"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendPlayersManageView.php:330
+msgid "In academy since"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendPlayersManageView.php:385
+msgid "Choose photo…"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendPlayersManageView.php:392
+msgid "Parent / guardian"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendPlayersManageView.php:399
+msgid "Link a parent account on save (dropdown below) or fill in name + contact below; a coach can convert them to a real account later."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendPlayersManageView.php:421
+msgid "Type a parent's name…"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendPlayersManageView.php:432
+msgid "Only people whose role is set to \"parent\" appear here. Manage parent role assignments on the People page."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendPlayersManageView.php:479
+msgid "Update player"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendPlayersManageView.php:479
+msgid "Save player"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendPlayersManageView.php:553
 msgid "Edit player"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayersManageView.php:567
+#: src/Shared/Frontend/FrontendPlayersManageView.php:554
 msgid "Journey"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayersManageView.php:570
+#: src/Shared/Frontend/FrontendPlayersManageView.php:557
 msgid "Generate report…"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPlayersManageView.php:673
+#: src/Shared/Frontend/FrontendPlayersManageView.php:660
 msgid "No parent accounts linked yet. Either link an existing user from the People page, or fill in the contact details below."
 msgstr ""
 
 #. translators: %s is a comma-separated list of "Name (email)" entries.
-#: src/Shared/Frontend/FrontendPlayersManageView.php:686
+#: src/Shared/Frontend/FrontendPlayersManageView.php:673
 #, php-format
 msgid "Linked parent accounts: %s. Manage from People → user → Edit. The contact fields below are still useful for any parent without an account."
 msgstr ""
