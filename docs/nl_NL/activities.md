@@ -72,6 +72,8 @@ Bij het aanmaken van een activiteit kies je welke spelers worden verwacht — de
 
 Open de detailpagina van een activiteit en je ziet een paneel **Verwachte opkomst** met die spelers (gasten worden gemarkeerd) en het aantal in de kop, zodat je vóór de sessie weet wie je kunt verwachten. Het paneel verschijnt niet als je bij het aanmaken voor "Aanwezigheid later instellen" koos. Wie daadwerkelijk kwam, markeer je nog steeds op het bewerkformulier (of via de wizard Aanwezigheid markeren) — de geplande selectie is wat je verwachtte, de gemarkeerde aanwezigheid is wat er gebeurde.
 
+Maak je een activiteit aan die **al op Voltooid staat** (ze vond in het verleden plaats) en vul je geen aanwezigheid in, dan wordt de volledige actieve selectie automatisch als **aanwezig** geregistreerd, zodat de activiteit meteen te beoordelen is — pas eventuele afwezigheden daarna aan op het bewerkformulier.
+
 ## Waarom het type ertoe doet
 
 Elk activiteittype kan gekoppeld worden aan een workflow-sjabloon dat afgaat zodra je een activiteit van dat type opslaat. Standaard:

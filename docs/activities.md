@@ -72,6 +72,8 @@ When you create an activity you pick which players are expected — the roster s
 
 Open an activity's detail page and you'll see an **Expected attendance** panel listing those players (guests are tagged), with the count in the heading, so you know who to expect before the session. It shows nothing if you chose "Set attendance later" at creation. Marking who actually turned up still happens on the edit form (or the Mark attendance wizard) — the planned roster is what you expected, the marked attendance is what happened.
 
+If you create an activity **already marked Completed** (it happened in the past) and don't enter attendance, the full active roster is recorded as **present** automatically so the activity is immediately rateable — adjust any absences on the edit form afterward.
+
 ## Why the type matters
 
 Each activity type can be linked to a workflow template that fires when you save an activity of that type. By default:
