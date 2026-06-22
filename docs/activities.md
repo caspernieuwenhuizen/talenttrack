@@ -34,6 +34,8 @@ Two filters sit above the list:
 
 Both filters survive in the URL (`?team_id=N&activity_type_key=match`), so deep-links from the dashboard land on the same scoped view.
 
+A row of **period pills** sits below the filters: **All · This week · Next week · This month · Next month · This season**. Tapping one narrows the list to that date window without typing dates — weeks run Monday–Sunday, months are calendar months, and **This season** uses your configured current season. The choice survives in the URL (`?period=this_week`) and combines with the Team and Type filters.
+
 ## The activity detail page
 
 Tapping a card opens the activity's detail page, laid out as a set of cards so every registered detail is visible at a glance. It adapts between a **training** and a **match day**:

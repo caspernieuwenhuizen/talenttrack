@@ -41148,3 +41148,15 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ "Stel de grootte en kolomdichtheid in van de tegels op het dashboard, "
 #~ "Configuratie, Rapporten en Teams. Comfortabel is de standaard; Compact "
 #~ "past meer op het scherm, Ruim is ruimer."
+
+msgid "This month"
+msgstr "Deze maand"
+
+msgid "Next month"
+msgstr "Volgende maand"
+
+msgid "This season"
+msgstr "Dit seizoen"
+
+msgid "Filter by period"
+msgstr "Filter op periode"

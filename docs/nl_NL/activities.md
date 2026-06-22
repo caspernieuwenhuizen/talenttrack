@@ -34,6 +34,8 @@ Boven de lijst staan twee filters:
 
 Beide filters blijven bewaard in de URL (`?team_id=N&activity_type_key=match`), zodat deep-links vanaf het dashboard op dezelfde gefilterde weergave landen.
 
+Onder de filters staat een rij **periodeknoppen**: **Alle · Deze week · Volgende week · Deze maand · Volgende maand · Dit seizoen**. Tik op één om de lijst tot dat datumvenster te beperken zonder datums te typen — weken lopen van maandag tot zondag, maanden zijn kalendermaanden, en **Dit seizoen** gebruikt je ingestelde huidige seizoen. De keuze blijft bewaard in de URL (`?period=this_week`) en combineert met de Team- en Type-filters.
+
 ## De activiteitdetailpagina
 
 Door op een kaart te tikken open je de detailpagina van de activiteit, opgebouwd uit kaarten zodat elk geregistreerd detail in één oogopslag zichtbaar is. De pagina past zich aan tussen een **training** en een **wedstrijddag**:
