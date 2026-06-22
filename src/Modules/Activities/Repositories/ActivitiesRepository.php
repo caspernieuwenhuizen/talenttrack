@@ -293,19 +293,26 @@ final class ActivitiesRepository {
 
         global $wpdb;
         $p   = $wpdb->prefix;
+        // #1382 — PLAYER-level attendance includes guest appearances: a
+        // played-up player guesting for another team has an attendance
+        // row keyed by either `player_id` (is_guest = 1) or
+        // `guest_player_id` (player_id NULL). Match both and drop the
+        // `is_guest = 0` filter so the profile KPI reflects everything
+        // the player actually did. Team-level attendance (TeamKpisRepository,
+        // AttendanceRankingQuery) keeps its guest-exclusive filter.
         $row = $wpdb->get_row( $wpdb->prepare(
             "SELECT
                 SUM(CASE WHEN att.status = 'present' THEN 1 ELSE 0 END) AS present_n,
                 COUNT(*) AS total_n
                FROM {$p}tt_attendance att
                JOIN {$p}tt_activities a ON a.id = att.activity_id
-              WHERE att.player_id = %d
-                AND att.is_guest = 0
+              WHERE ( att.player_id = %d OR att.guest_player_id = %d )
+                AND att.club_id = %d
                 AND att.record_type = 'actual'
                 AND a.archived_at IS NULL
                 AND a.plan_state = 'completed'
                 AND a.session_date >= DATE_SUB(CURDATE(), INTERVAL %d DAY)",
-            $player_id, $days
+            $player_id, $player_id, CurrentClub::id(), $days
         ) );
         return $row ?: null;
     }
