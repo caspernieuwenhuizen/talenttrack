@@ -41176,3 +41176,66 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ "Stel de grootte en kolomdichtheid in van de tegels op het dashboard, "
 #~ "Configuratie, Rapporten en Teams. Comfortabel is de standaard; Compact "
 #~ "past meer op het scherm, Ruim is ruimer."
+
+msgid "Tactical"
+msgstr "Tactisch"
+
+msgid "Physical"
+msgstr "Fysiek"
+
+msgid "Mental"
+msgstr "Mentaal"
+
+msgid "Short pass"
+msgstr "Korte pass"
+
+msgid "Long pass"
+msgstr "Lange pass"
+
+msgid "First touch"
+msgstr "Balaanname"
+
+msgid "Dribbling"
+msgstr "Dribbelen"
+
+msgid "Shooting"
+msgstr "Schieten"
+
+msgid "Heading"
+msgstr "Koppen"
+
+msgid "Offensive positioning"
+msgstr "Aanvallend positiespel"
+
+msgid "Defensive positioning"
+msgstr "Verdedigend positiespel"
+
+msgid "Game reading"
+msgstr "Spelinzicht"
+
+msgid "Decision making"
+msgstr "Besluitvorming"
+
+msgid "Off-ball movement"
+msgstr "Loopacties zonder bal"
+
+msgid "Speed"
+msgstr "Snelheid"
+
+msgid "Endurance"
+msgstr "Uithoudingsvermogen"
+
+msgid "Strength"
+msgstr "Kracht"
+
+msgid "Agility"
+msgstr "Wendbaarheid"
+
+msgid "Coordination"
+msgstr "Coördinatie"
+
+msgid "Focus"
+msgstr "Focus"
+
+msgid "Attitude"
+msgstr "Houding"
