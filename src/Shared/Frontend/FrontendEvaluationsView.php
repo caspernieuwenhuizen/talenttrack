@@ -408,7 +408,7 @@ class FrontendEvaluationsView extends FrontendViewBase {
                                 $label = (string) ( $main->category_label ?? $main->category_key ?? '—' );
                                 ?>
                                 <tr>
-                                    <td><strong><?php echo esc_html( \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( $label ) ); ?></strong></td>
+                                    <td><strong><?php echo esc_html( \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( $label, (int) $cat_id ) ); ?></strong></td>
                                     <td style="text-align:right; font-variant-numeric:tabular-nums;"><?php echo esc_html( number_format_i18n( (float) $main->rating, 1 ) ); ?></td>
                                 </tr>
                                 <?php if ( ! empty( $by_parent[ $cat_id ] ) ) : ?>
@@ -416,7 +416,7 @@ class FrontendEvaluationsView extends FrontendViewBase {
                                         $sub_label = (string) ( $sub->category_label ?? $sub->category_key ?? '—' );
                                         ?>
                                         <tr>
-                                            <td style="padding-left:20px; color:var(--tt-muted, #5b6e75);"><?php echo \TT\Shared\Icons\IconRenderer::render( 'corner-down-right', [ 'width' => 12, 'height' => 12, 'style' => 'vertical-align:-1px;margin-right:2px;' ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG. ?><?php echo esc_html( \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( $sub_label ) ); ?></td>
+                                            <td style="padding-left:20px; color:var(--tt-muted, #5b6e75);"><?php echo \TT\Shared\Icons\IconRenderer::render( 'corner-down-right', [ 'width' => 12, 'height' => 12, 'style' => 'vertical-align:-1px;margin-right:2px;' ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG. ?><?php echo esc_html( \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( $sub_label, (int) $sub->category_id ) ); ?></td>
                                             <td style="text-align:right; font-variant-numeric:tabular-nums; color:var(--tt-muted, #5b6e75);"><?php echo esc_html( number_format_i18n( (float) $sub->rating, 1 ) ); ?></td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -429,7 +429,7 @@ class FrontendEvaluationsView extends FrontendViewBase {
                                     $sub_label = (string) ( $sub->category_label ?? $sub->category_key ?? '—' );
                                     ?>
                                     <tr>
-                                        <td><?php echo esc_html( \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( $sub_label ) ); ?></td>
+                                        <td><?php echo esc_html( \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( $sub_label, (int) $sub->category_id ) ); ?></td>
                                         <td style="text-align:right; font-variant-numeric:tabular-nums;"><?php echo esc_html( number_format_i18n( (float) $sub->rating, 1 ) ); ?></td>
                                     </tr>
                                 <?php endforeach;
