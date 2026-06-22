@@ -187,8 +187,14 @@
     }
 
     function makeBehaviourForm() {
-        var min = cfg.rating_min || 5;
-        var max = cfg.rating_max || 10;
+        // wp_localize_script stringifies all config values, so rating_min /
+        // rating_max arrive as strings ("5" / "10"). Coerce to numbers — a
+        // string `for` loop compares lexicographically ("5" <= "10" is
+        // false), which produced an empty rating dropdown (#1634).
+        var min = parseInt(cfg.rating_min, 10);
+        var max = parseInt(cfg.rating_max, 10);
+        if (isNaN(min)) min = 5;
+        if (isNaN(max)) max = 10;
         var sel = el('select', { class: 'tt-input', name: 'rating', required: '' });
         sel.appendChild(el('option', { value: '', text: i18n.rating_placeholder || '— pick a rating —' }));
         for (var v = min; v <= max; v++) {
