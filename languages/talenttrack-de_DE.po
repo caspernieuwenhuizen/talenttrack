@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-22T16:56:18+00:00\n"
+"POT-Creation-Date: 2026-06-22T17:22:09+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -342,6 +342,17 @@ msgstr ""
 msgid ""
 "Public read-only share links for team blueprints. Blueprint editing stays "
 "available when this is off."
+msgstr ""
+
+#: src/Core/FeatureRegistry.php:129
+msgid "Onboarding pipeline workflow"
+msgstr ""
+
+#: src/Core/FeatureRegistry.php:130
+msgid ""
+"Automatic tasks that move prospects through the recruitment funnel (log, "
+"invite, test training, trial review, team offer). The onboarding pipeline "
+"view stays available when this is off; only new task automation stops."
 msgstr ""
 
 #: src/Infrastructure/CustomFields/CustomFieldsSlot.php:96
@@ -28746,11 +28757,11 @@ msgstr ""
 msgid "no deadline"
 msgstr ""
 
-#: src/Modules/Workflow/Templates/AwaitTeamOfferDecisionTemplate.php:36
+#: src/Modules/Workflow/Templates/AwaitTeamOfferDecisionTemplate.php:38
 msgid "Team-offer decision pending"
 msgstr ""
 
-#: src/Modules/Workflow/Templates/AwaitTeamOfferDecisionTemplate.php:40
+#: src/Modules/Workflow/Templates/AwaitTeamOfferDecisionTemplate.php:42
 msgid ""
 "Waiting for the parent + player to accept or decline the team-offer "
 "position. Record the response when it arrives."
@@ -28758,11 +28769,11 @@ msgstr ""
 
 # v3.98.0 — #0081 children 2b + 3 + 4 (chain templates 3-5 + pipeline widget + KPIs + trial-cases rework)
 # Templates + descriptions
-#: src/Modules/Workflow/Templates/ConfirmTestTrainingTemplate.php:49
+#: src/Modules/Workflow/Templates/ConfirmTestTrainingTemplate.php:51
 msgid "Confirm test-training attendance"
 msgstr ""
 
-#: src/Modules/Workflow/Templates/ConfirmTestTrainingTemplate.php:53
+#: src/Modules/Workflow/Templates/ConfirmTestTrainingTemplate.php:55
 msgid ""
 "Track the parent confirmation for an invited prospect — confirmed, declined, "
 "or no response."
@@ -28778,22 +28789,22 @@ msgid ""
 "automatically when the player submits their goals."
 msgstr ""
 
-#: src/Modules/Workflow/Templates/InviteToTestTrainingTemplate.php:42
+#: src/Modules/Workflow/Templates/InviteToTestTrainingTemplate.php:44
 msgid "Invite prospect to test training"
 msgstr ""
 
-#: src/Modules/Workflow/Templates/InviteToTestTrainingTemplate.php:46
+#: src/Modules/Workflow/Templates/InviteToTestTrainingTemplate.php:48
 msgid ""
 "Pick a test training for this prospect, compose the invitation to the "
 "parent, and send. Due 7 days after the prospect is logged."
 msgstr ""
 
 # v3.97.0 — #0081 child 2a: onboarding-pipeline templates 1+2
-#: src/Modules/Workflow/Templates/LogProspectTemplate.php:49
+#: src/Modules/Workflow/Templates/LogProspectTemplate.php:51
 msgid "Log prospect"
 msgstr ""
 
-#: src/Modules/Workflow/Templates/LogProspectTemplate.php:53
+#: src/Modules/Workflow/Templates/LogProspectTemplate.php:55
 msgid ""
 "Quick-capture a new prospect — identity, age, current club, parent contact, "
 "scouting notes. Submitting creates the prospect record and notifies the Head "
@@ -28845,21 +28856,21 @@ msgid ""
 "what to focus on next."
 msgstr ""
 
-#: src/Modules/Workflow/Templates/RecordTestTrainingOutcomeTemplate.php:43
+#: src/Modules/Workflow/Templates/RecordTestTrainingOutcomeTemplate.php:45
 msgid "Record test-training outcome"
 msgstr ""
 
-#: src/Modules/Workflow/Templates/RecordTestTrainingOutcomeTemplate.php:47
+#: src/Modules/Workflow/Templates/RecordTestTrainingOutcomeTemplate.php:49
 msgid ""
 "Record observations and the admit / decline / second-attendance decision "
 "after the prospect attended a test training."
 msgstr ""
 
-#: src/Modules/Workflow/Templates/ReviewTrialGroupMembershipTemplate.php:44
+#: src/Modules/Workflow/Templates/ReviewTrialGroupMembershipTemplate.php:46
 msgid "Review trial-group membership"
 msgstr ""
 
-#: src/Modules/Workflow/Templates/ReviewTrialGroupMembershipTemplate.php:48
+#: src/Modules/Workflow/Templates/ReviewTrialGroupMembershipTemplate.php:50
 msgid ""
 "Decide whether to offer the prospect a team position, continue in the trial "
 "group, or decline. Re-spawns every 90 days while the trial case is in "
