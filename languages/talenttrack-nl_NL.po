@@ -39349,3 +39349,11 @@ msgstr "Pdf openen"
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php
 msgid "Opens a print-ready sheet for the planner's current date range — Save as PDF from your browser."
 msgstr "Opent een afdrukklaar overzicht voor de huidige periode van de planner — sla op als pdf vanuit je browser."
+
+#: src/Shared/Frontend/FrontendPodiumView.php
+msgid "Teams ranked"
+msgstr "Teams gerangschikt"
+
+#: src/Shared/Frontend/FrontendPodiumView.php
+msgid "Leading"
+msgstr "Koploper"
