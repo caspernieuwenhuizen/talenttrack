@@ -335,3 +335,106 @@
 .tt-planner-day-holiday {
     background: color-mix(in srgb, var(--tt-holiday-color, #ff9800) 6%, transparent);
 }
+
+/* #1639 — multi-team picker + read-only overview ----------------------- */
+.tt-planner-picker-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 12px;
+}
+.tt-planner-team-picker {
+    border: 1px solid var(--tt-line, #d6dadd);
+    border-radius: 8px;
+    padding: 6px 12px 8px;
+    margin: 0;
+    min-width: 0;
+}
+.tt-planner-team-picker legend {
+    font-weight: 700;
+    font-size: 0.78rem;
+    padding: 0 4px;
+    color: var(--tt-ink, #1a1d21);
+}
+.tt-planner-team-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 44px;
+    padding-right: 12px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+.tt-planner-team-check input {
+    width: 20px;
+    height: 20px;
+}
+.tt-planner-team-hint {
+    width: 100%;
+    margin: 2px 0 0;
+    font-size: 0.72rem;
+    color: var(--tt-muted, #5b6e75);
+}
+.tt-planner-range-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+.tt-planner-apply {
+    min-height: 44px;
+}
+
+.tt-planner-overview-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.tt-planner-overview-table th,
+.tt-planner-overview-table td {
+    text-align: left;
+    padding: 8px 10px;
+}
+.tt-planner-overview-table thead th {
+    border-bottom: 2px solid var(--tt-line, #d6dadd);
+    font-size: 0.8rem;
+}
+.tt-planner-overview-table tbody tr + tr td {
+    border-top: 1px solid var(--tt-line, #d6dadd);
+}
+
+/* Mobile: stack each row into a labelled card. */
+@media (max-width: 639px) {
+    .tt-planner-overview-table thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+    }
+    .tt-planner-overview-table,
+    .tt-planner-overview-table tbody,
+    .tt-planner-overview-table tr,
+    .tt-planner-overview-table td {
+        display: block;
+        width: 100%;
+    }
+    .tt-planner-overview-table tr {
+        border: 1px solid var(--tt-line, #d6dadd);
+        border-radius: 8px;
+        margin-bottom: 8px;
+        padding: 6px 10px;
+    }
+    .tt-planner-overview-table tbody tr + tr td,
+    .tt-planner-overview-table td {
+        border-top: 0;
+    }
+    .tt-planner-overview-table td {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 4px 0;
+    }
+    .tt-planner-overview-table td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: var(--tt-muted, #5b6e75);
+    }
+}

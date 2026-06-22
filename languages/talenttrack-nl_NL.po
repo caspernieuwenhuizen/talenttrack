@@ -41239,3 +41239,9 @@ msgstr "Focus"
 
 msgid "Attitude"
 msgstr "Houding"
+
+msgid "Pick two or more teams for a read-only overview across teams."
+msgstr "Kies twee of meer teams voor een alleen-lezen overzicht over teams heen."
+
+msgid "No activities for the selected teams in this period."
+msgstr "Geen activiteiten voor de geselecteerde teams in deze periode."

@@ -27,9 +27,13 @@ The dropdown round-trips through the URL — bookmark or share `?tt_view=team-pl
 
 For week / 2 / 4 / 8-week ranges the toolbar has **prev / today / next** buttons that step by the chosen window size — *Next 4 weeks* actually advances four weeks, not seven days. For Full season the prev/next buttons are replaced with the season name, since the season picker is implicit (it's always the current season).
 
-## Picking a team
+## Picking teams
 
-The **Team** dropdown lists every standard team you can access. Pick a team to switch the planner to that team. Only standard teams (no `team_kind`) appear — staff groups and other team-kinds are filtered out.
+The **Teams** picker lists every standard team you can access as checkboxes. Tick one team and press **Apply** to plan that team in the full week grid. Only standard teams (no `team_kind`) appear — staff groups and other team-kinds are filtered out.
+
+### Overview across teams (multiple selected)
+
+Tick **two or more teams** and the planner switches to a **condensed, read-only overview** — one row per activity with **Date · Team · Type · Match (opponent + home/away) · Status**. This is the Head-of-Department glance across several teams at once; because a HoD doesn't plan team-specific activities, the overview has no copy / duplicate / schedule chrome. Drop back to a single team to return to the editable week-grid planner.
 
 ## Scheduling an activity
 
