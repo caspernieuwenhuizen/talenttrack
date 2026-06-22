@@ -609,9 +609,17 @@ class FrontendTeamPlannerView extends FrontendViewBase {
         <section class="tt-planner-coverage">
             <h3><?php esc_html_e( 'Principles trained — last 8 weeks', 'talenttrack' ); ?></h3>
             <ul class="tt-planner-coverage-list">
-                <?php foreach ( $rows as $r ) : ?>
+                <?php
+                // #1683 — proportional bar per principle, relative to the
+                // most-trained one in the window.
+                $max_hits = 0;
+                foreach ( $rows as $r ) { $max_hits = max( $max_hits, (int) $r->hit_count ); }
+                foreach ( $rows as $r ) :
+                    $bar_w = $max_hits > 0 ? (int) round( (int) $r->hit_count / $max_hits * 100 ) : 0;
+                    ?>
                     <li>
                         <span class="tt-planner-principle-chip"><?php echo esc_html( self::principleLabel( $r ) ); ?></span>
+                        <span class="tt-planner-coverage-track"><i style="width:<?php echo (int) $bar_w; ?>%;"></i></span>
                         <span class="tt-planner-coverage-count">
                             <?php
                             echo esc_html( sprintf(

@@ -81,24 +81,25 @@
 }
 
 .tt-planner-day {
-    background: #fafbfc;
-    border: 1px solid #e5e7ea;
-    border-radius: 8px;
-    min-height: 12rem;
+    background: #fff;
+    border: 1px solid #e3e6e1;
+    border-radius: 12px;
+    min-height: 11rem;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
+    box-shadow: var( --tt-shadow-md, 0 4px 16px rgba( 11, 61, 46, 0.08 ) );
 }
 
 .tt-planner-day-today {
-    border-color: var( --tt-color-primary, #2271b1 );
-    box-shadow: 0 0 0 1px var( --tt-color-primary, #2271b1 );
+    border-color: transparent;
+    box-shadow: 0 0 0 2px var( --tt-secondary, #e8b624 );
 }
 
 .tt-planner-day-head {
     padding: 0.5rem 0.75rem;
-    background: #f6f7f8;
-    border-bottom: 1px solid #e5e7ea;
-    border-radius: 8px 8px 0 0;
+    background: #f4f6f3;
+    border-bottom: 1px solid #e3e6e1;
     display: flex;
     justify-content: space-between;
     align-items: baseline;
@@ -106,15 +107,15 @@
 }
 
 .tt-planner-dow {
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: #5b6e75;
+    letter-spacing: 0.05em;
+    color: var( --tt-muted, #5b6e75 );
 }
 
 .tt-planner-date {
-    color: #1a1d21;
-    font-weight: 600;
+    color: var( --tt-primary, #0b3d2e );
+    font-weight: 700;
 }
 
 .tt-planner-day-body {
@@ -150,24 +151,29 @@
 
 .tt-planner-activity {
     display: block;
-    padding: 0.5rem 0.6rem;
+    padding: 0.55rem 0.65rem;
     background: #fff;
-    border: 1px solid #e5e7ea;
+    border: 1px solid #e3e6e1;
     border-left: 3px solid #5b6e75;
-    border-radius: 4px;
+    border-radius: 8px;
     text-decoration: none;
-    color: #1a1d21;
+    color: var( --tt-ink, #14181a );
     font-size: 0.85rem;
     min-height: 48px;
+    box-shadow: 0 1px 3px rgba( 11, 61, 46, 0.06 );
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
 }
 
-.tt-planner-activity:hover {
-    background: #f6f7f8;
+.tt-planner-activity:hover,
+.tt-planner-activity:focus-visible {
+    box-shadow: var( --tt-shadow-md, 0 4px 16px rgba( 11, 61, 46, 0.12 ) );
+    transform: translateY( -1px );
 }
 
 .tt-planner-activity-title {
     display: block;
-    font-weight: 600;
+    font-weight: 700;
+    color: var( --tt-primary, #0b3d2e );
     margin-bottom: 0.25rem;
     line-height: 1.3;
 }
@@ -240,15 +246,17 @@
 
 .tt-planner-coverage {
     background: #fff;
-    border: 1px solid #e5e7ea;
-    border-radius: 8px;
-    padding: 1rem;
-    margin: 1rem 0;
+    border: 1px solid #e3e6e1;
+    border-radius: 14px;
+    padding: 1rem 1.1rem;
+    margin: 1.25rem 0;
+    box-shadow: var( --tt-shadow-md, 0 4px 16px rgba( 11, 61, 46, 0.08 ) );
 }
 
 .tt-planner-coverage h3 {
-    margin: 0 0 0.75rem;
-    font-size: 1rem;
+    margin: 0 0 0.9rem;
+    font-size: 0.95rem;
+    color: var( --tt-primary, #0b3d2e );
 }
 
 .tt-planner-coverage-list {
@@ -256,19 +264,41 @@
     margin: 0;
     padding: 0;
     display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
+    flex-direction: column;
+    gap: 0.55rem;
 }
 
 .tt-planner-coverage-list li {
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax( 120px, 200px ) 1fr auto;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.75rem;
+}
+
+.tt-planner-coverage-track {
+    height: 8px;
+    border-radius: 999px;
+    background: #eceeea;
+    overflow: hidden;
+}
+.tt-planner-coverage-track > i {
+    display: block;
+    height: 100%;
+    background: var( --tt-secondary, #e8b624 );
 }
 
 .tt-planner-coverage-count {
-    font-size: 0.75rem;
-    color: #5b6e75;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var( --tt-muted, #5b6e75 );
+    font-variant-numeric: tabular-nums;
+    min-width: 1.5rem;
+    text-align: right;
+}
+
+@media ( max-width: 520px ) {
+    .tt-planner-coverage-list li { grid-template-columns: 1fr auto; }
+    .tt-planner-coverage-track { display: none; }
 }
 
 /* #1371 — "Copy last {weekday}" chip on empty day cells. Same dashed
