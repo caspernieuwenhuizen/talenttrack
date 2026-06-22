@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-22T17:35:07+00:00\n"
+"POT-Creation-Date: 2026-06-22T19:10:48+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -1060,6 +1060,8 @@ msgid "Training"
 msgstr "Entrenamiento"
 
 #: src/Infrastructure/Query/LabelTranslator.php:213
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:775
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:807
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:85
 #: src/Shared/Frontend/FrontendStandardReportsView.php:290
 msgid "Match"
@@ -2344,6 +2346,8 @@ msgstr "Filtrar"
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:297
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:99
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:110
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:772
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:804
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:120
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:51
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:75
@@ -2431,6 +2435,8 @@ msgstr "Título"
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:260
 #: src/Modules/Mfa/Wizards/SecretStep.php:116
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:128
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:774
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:806
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:277
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:270
 #: src/Modules/Wizards/Activity/ReviewStep.php:60
@@ -2510,6 +2516,8 @@ msgstr "Tipo"
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:99
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:110
 #: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:124
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:776
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:808
 #: src/Modules/Players/Admin/PlayersPage.php:412
 #: src/Modules/Players/Admin/PlayersPage.php:446
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:52
@@ -2638,7 +2646,8 @@ msgstr ""
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:93
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:128
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:157
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:189
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:773
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:805
 #: src/Modules/Players/Admin/PlayersPage.php:126
 #: src/Modules/Players/Admin/PlayersPage.php:373
 #: src/Modules/Players/Admin/PlayersPage.php:441
@@ -3368,7 +3377,7 @@ msgstr ""
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:298
 #: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:128
 #: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:60
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:397
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:442
 #: src/Modules/Wizards/Evaluation/ActivityPickerStep.php:33
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:406
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:125
@@ -3689,6 +3698,7 @@ msgstr "Jugadores"
 #: src/Modules/License/Admin/AccountPage.php:753
 #: src/Modules/People/Admin/PeoplePage.php:175
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:247
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:234
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:175
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:523
 #: src/Modules/Stats/Admin/UsageStatsPage.php:348
@@ -3896,6 +3906,7 @@ msgstr ""
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:266
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:764
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:263
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:255
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:373
 #: src/Shared/Admin/BulkActionsHelper.php:175
 #: src/Shared/Frontend/Components/FrontendListTable.php:202
@@ -3990,7 +4001,7 @@ msgid "Export CSV"
 msgstr ""
 
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:145
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:144
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:182
 msgid "Export PDF"
 msgstr ""
 
@@ -4355,7 +4366,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendPersonDetailView.php:74
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:407
 #: src/Shared/Frontend/FrontendTeamDetailView.php:282
-#: src/Shared/Frontend/FrontendTrialTracksEditorView.php:118
+#: src/Shared/Frontend/FrontendTrialTracksEditorView.php:122
 #: src/Shared/Frontend/FrontendViewBase.php:83
 msgid "Archive"
 msgstr "Archivar"
@@ -5804,6 +5815,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendMailComposeView.php:131
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:115
 #: src/Shared/Frontend/FrontendTeamBehaviourCaptureView.php:185
+#: src/Shared/Frontend/FrontendTrialTracksEditorView.php:119
 #: src/Shared/Frontend/FrontendViewBase.php:82
 #: src/Shared/Frontend/FrontendWizardView.php:274
 msgid "Cancel"
@@ -6368,7 +6380,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/RolesPage.php:254
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:924
 #: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:271
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:355
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:400
 #: src/Shared/Frontend/Components/FrontendListTable.php:153
 #: src/Shared/Frontend/FrontendStandardReportsView.php:620
 #: src/Shared/Frontend/FrontendStandardReportsView.php:629
@@ -8837,7 +8849,7 @@ msgstr ""
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:774
 #: src/Modules/Goals/Admin/GoalsPage.php:207
 #: src/Modules/Methodology/Admin/MediaPicker.php:44
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:324
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:369
 #: src/Shared/Frontend/Components/GuestAddModal.php:115
 #: src/Shared/Frontend/FrontendTeamsManageView.php:305
 msgid "Add"
@@ -13428,6 +13440,7 @@ msgstr "Resultado"
 
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:404
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:134
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:798
 #: src/Shared/Frontend/CoachDashboardView.php:216
 #: src/Shared/Frontend/CoachForms.php:203
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:474
@@ -13435,6 +13448,7 @@ msgid "Home"
 msgstr "Local"
 
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:404
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:799
 #: src/Shared/Frontend/CoachDashboardView.php:216
 #: src/Shared/Frontend/CoachForms.php:203
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:476
@@ -13992,7 +14006,7 @@ msgstr ""
 #. translators: 1: start of week, 2: end of week
 #. translators: 1: first day of the week, 2: last day.
 #: src/Modules/Export/Exporters/TeamPlannerXlsxExporter.php:152
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:284
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:329
 #, php-format
 msgid "Week of %1$s — %2$s"
 msgstr ""
@@ -18492,7 +18506,7 @@ msgstr ""
 #. translators: %s: season name (e.g. "2025/2026").
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:48
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:255
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:224
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:269
 #, php-format
 msgid "Season: %s"
 msgstr ""
@@ -20514,7 +20528,7 @@ msgstr ""
 #: src/Modules/PersonaDashboard/Repositories/UpcomingActivityRepository.php:119
 #: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:291
 #: src/Modules/PersonaDashboard/Widgets/TodayUpNextHeroWidget.php:136
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:216
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:261
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1305
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1309
 msgid "Today"
@@ -21547,55 +21561,59 @@ msgid ""
 "No teams available — assign yourself to a team first to use the planner."
 msgstr ""
 
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:157
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:195
 msgid "Export XLSX"
 msgstr ""
 
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:175
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:218
 msgid "One week"
 msgstr ""
 
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:176
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:219
 msgid "Two weeks"
 msgstr ""
 
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:177
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:220
 msgid "Four weeks"
 msgstr ""
 
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:178
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:221
 msgid "Eight weeks"
 msgstr ""
 
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:179
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:222
 msgid "Full season"
 msgstr ""
 
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:203
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:243
+msgid "Pick two or more teams for a read-only overview across teams."
+msgstr ""
+
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:246
 msgid "Show"
 msgstr ""
 
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:238
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:283
 msgid "Schedule activity"
 msgstr ""
 
 #. translators: %s: localized weekday name (e.g. Tuesday)
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:348
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:393
 #, php-format
 msgid "Copy last %s"
 msgstr ""
 
 #. translators: %s: activity title
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:453
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:498
 #, php-format
 msgid "Duplicate \"%s\" to a new date"
 msgstr ""
 
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:456
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:501
 msgid "Duplicate"
 msgstr ""
 
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:489
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:534
 msgid "Principles trained — last 8 weeks"
 msgstr ""
 
@@ -21603,7 +21621,7 @@ msgstr ""
 #. translators: %d: count of past activities
 #. translators: %d: count of activities today
 #. translators: %d: count of activities
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:498
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:543
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1025
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1059
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1072
@@ -21616,31 +21634,35 @@ msgid_plural "%d activities"
 msgstr[0] "%d activiteit"
 msgstr[1] "%d activiteiten"
 
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:606
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:643
 msgid "Previous week"
 msgstr ""
 
 #. translators: %d: number of weeks.
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:609
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:646
 #, php-format
 msgid "Previous %d week"
 msgid_plural "Previous %d weeks"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:615
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:652
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:961
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1081
 msgid "Next week"
 msgstr ""
 
 #. translators: %d: number of weeks.
-#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:618
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:655
 #, php-format
 msgid "Next %d week"
 msgid_plural "Next %d weeks"
 msgstr[0] ""
 msgstr[1] ""
+
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:764
+msgid "No activities for the selected teams in this period."
+msgstr ""
 
 #: src/Modules/Players/Admin/PlayersPage.php:85
 msgid "All Teams"
@@ -29995,6 +30017,31 @@ msgstr ""
 msgid "Create a parent account"
 msgstr ""
 
+#: src/Shared/Frontend/Components/RatingInputComponent.php:45
+msgctxt "player rating"
+msgid "Insufficient"
+msgstr ""
+
+#: src/Shared/Frontend/Components/RatingInputComponent.php:46
+msgctxt "player rating"
+msgid "Poor"
+msgstr ""
+
+#: src/Shared/Frontend/Components/RatingInputComponent.php:47
+msgctxt "player rating"
+msgid "Average"
+msgstr ""
+
+#: src/Shared/Frontend/Components/RatingInputComponent.php:48
+msgctxt "player rating"
+msgid "Good"
+msgstr ""
+
+#: src/Shared/Frontend/Components/RatingInputComponent.php:49
+msgctxt "player rating"
+msgid "Excellent"
+msgstr ""
+
 #: src/Shared/Frontend/Components/RatingPillComponent.php:67
 msgid "strong"
 msgstr ""
@@ -35783,11 +35830,11 @@ msgstr ""
 msgid "Default duration in days"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialTracksEditorView.php:116
+#: src/Shared/Frontend/FrontendTrialTracksEditorView.php:120
 msgid "Save track"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendTrialTracksEditorView.php:118
+#: src/Shared/Frontend/FrontendTrialTracksEditorView.php:122
 msgid "Archive this track?"
 msgstr ""
 
