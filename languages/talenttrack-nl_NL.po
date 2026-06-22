@@ -15144,7 +15144,7 @@ msgstr ""
 
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:210
 msgid "No activities scheduled in this range."
-msgstr ""
+msgstr "Geen activiteiten gepland in deze periode."
 
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:258
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:93
@@ -39313,3 +39313,39 @@ msgstr "Rustdag"
 
 msgid "Week %s"
 msgstr "Week %s"
+
+#: src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php
+msgid "Rest day — no scheduled activity."
+msgstr "Rustdag — geen geplande activiteit."
+
+#: src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php
+msgid "Week plan"
+msgstr "Weekplan"
+
+#: src/Modules/Planning/Print/TeamPlannerWeeklyPrintRouter.php
+msgid "Weekly planner"
+msgstr "Weekplanning"
+
+#: src/Modules/Planning/Print/TeamPlannerWeeklyPrintRouter.php
+msgid "Save as PDF / Print"
+msgstr "Opslaan als pdf / afdrukken"
+
+#: src/Modules/Planning/Print/TeamPlannerWeeklyPrintRouter.php
+msgid "Tip: in the print dialog, enable \"Background graphics\" and set margins to Default for an exact match."
+msgstr "Tip: zet in het afdrukvenster \"Achtergrondafbeeldingen\" aan en stel de marges in op Standaard voor een exacte weergave."
+
+#: src/Modules/Planning/Print/TeamPlannerWeeklyPrintRouter.php
+msgid "Log in to print this planner."
+msgstr "Log in om deze planning af te drukken."
+
+#: src/Modules/Planning/Print/TeamPlannerWeeklyPrintRouter.php
+msgid "You do not have access to print this planner."
+msgstr "Je hebt geen toegang om deze planning af te drukken."
+
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php
+msgid "Open PDF"
+msgstr "Pdf openen"
+
+#: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php
+msgid "Opens a print-ready sheet for the planner's current date range — Save as PDF from your browser."
+msgstr "Opent een afdrukklaar overzicht voor de huidige periode van de planner — sla op als pdf vanuit je browser."

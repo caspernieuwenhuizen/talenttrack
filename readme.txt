@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.45.0
+Stable tag: 4.45.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.45.1 — Weekly planner PDF: pixel-perfect browser print route (#1631). The **Weekly PDF** action now opens a branded, print-ready A4 sheet in a new tab and lets the browser's **Save as PDF** render it, instead of the server-side DomPDF layout (which couldn't do gradients, rounded corners, or background colours). A new [TeamPlannerWeeklyPrintRouter](src/Modules/Planning/Print/TeamPlannerWeeklyPrintRouter.php) emits an isolated document (same pattern as the match-prep print route — no theme chrome on paper), with the layout + branding composed by [TeamPlannerWeeklyPrintable](src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php) from `tt_activities` + `tt_config` (green day cards, gold rail, type tags, principle pills — all derived from the configured primary/secondary colours). The sheet title reads `Week plan · {team} · Week {n} · {year}`, which also becomes the proposed Save-as-PDF filename. The compose dialog's per-day / header toggles carry over as query params. The DomPDF `team_planning` weekly exporter stays as the programmatic / REST fallback. New strings translated to Dutch. Patch bump. (#1631) =
 
 = 4.45.0 — Shared frontend app chrome: top bar + persona chip + KPI tile (#1690). The global dashboard header (rendered once for every `?tt_view=` route by [DashboardShortcode::renderHeader()](src/Shared/Frontend/DashboardShortcode.php)) adopts the 2026 look — a dark-green top bar with a gold brand mark and a **persona chip** (initials avatar + name + resolved persona label) that doubles as the existing user-menu trigger, so no extra nav affordance is added (CLAUDE.md §5). A new [FrontendAppChrome](src/Shared/Frontend/Components/FrontendAppChrome.php) component carries the chip, a brand-initials helper, and a reusable `kpiTile()`; styling is a new mobile-first `assets/css/frontend-app-chrome.css` reading the existing `--tt-primary`/`--tt-secondary` tokens (no new palette). Persona labels resolve via the portable `PersonaResolver`; the dropdown, persona switcher, and docs drawer are untouched (additive). Below 560px the chip collapses to the avatar. Foundation for the per-view parity work (#1680). One new string ("Observer"), Dutch added. Minor bump. (#1690) =
 
