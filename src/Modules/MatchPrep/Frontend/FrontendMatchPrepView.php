@@ -174,15 +174,22 @@ class FrontendMatchPrepView extends FrontendViewBase {
         $repo = new MatchPrepRepository();
         $prep = $repo->findByActivity( $activity_id );
         if ( ! $prep ) {
-            // Send back to the wizard so AvailabilityStep can collect
-            // the roster first.
+            // #1660 — no prep record yet. Render an in-place empty state
+            // instead of wp_safe_redirect()/exit: this view runs inside the
+            // dashboard shortcode after the shell (and headers) are already
+            // flushed, so the redirect was a no-op and the bare exit
+            // truncated the page to a blank shell. The other early-returns
+            // in this method already use this breadcrumb + notice pattern.
             $wizard_url = add_query_arg( [
                 'tt_view'     => 'wizard',
                 'slug'        => 'match-prep',
                 'activity_id' => $activity_id,
             ], remove_query_arg( [ 'tt_view', 'activity_id' ] ) );
-            wp_safe_redirect( $wizard_url );
-            exit;
+            FrontendBreadcrumbs::fromDashboard( __( 'Match prep', 'talenttrack' ) );
+            echo '<p class="tt-notice">' . esc_html__( 'No match preparation has been started for this match yet. Begin by capturing player availability.', 'talenttrack' ) . '</p>';
+            echo '<p><a class="tt-btn tt-btn-primary" href="' . esc_url( $wizard_url ) . '">'
+                . esc_html__( 'Start match prep', 'talenttrack' ) . '</a></p>';
+            return;
         }
 
         $prep_id      = (int) $prep->id;

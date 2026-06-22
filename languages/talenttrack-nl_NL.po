@@ -39252,3 +39252,9 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Attitude"
 #~ msgstr "Houding"
+
+msgid "No match preparation has been started for this match yet. Begin by capturing player availability."
+msgstr "Voor deze wedstrijd is nog geen wedstrijdvoorbereiding gestart. Begin met het vastleggen van de beschikbaarheid van spelers."
+
+msgid "Start match prep"
+msgstr "Wedstrijdvoorbereiding starten"
