@@ -134,6 +134,34 @@ class ScoutingVisitsRepository {
     }
 
     /**
+     * Prospect counts for several visits in one query (avoids the
+     * per-row N+1 the list view used to fire).
+     *
+     * @param int[] $visit_ids
+     * @return array<int,int> visit_id => count
+     */
+    public function prospectCountsForVisits( array $visit_ids ): array {
+        $ids = array_values( array_unique( array_filter( array_map( 'intval', $visit_ids ), static fn( $v ) => $v > 0 ) ) );
+        if ( ! $ids ) return [];
+        $prospects    = $this->wpdb->prefix . 'tt_prospects';
+        $placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        $rows = $this->wpdb->get_results( $this->wpdb->prepare(
+            "SELECT scouting_visit_id AS vid, COUNT(*) AS c
+               FROM {$prospects}
+              WHERE club_id = %d
+                AND scouting_visit_id IN ({$placeholders})
+                AND archived_at IS NULL
+              GROUP BY scouting_visit_id",
+            CurrentClub::id(), ...$ids
+        ) );
+        $out = [];
+        foreach ( (array) $rows as $r ) {
+            $out[ (int) $r->vid ] = (int) $r->c;
+        }
+        return $out;
+    }
+
+    /**
      * Prospects logged from a visit (id, names, status).
      *
      * @return object[]

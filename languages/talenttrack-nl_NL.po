@@ -41160,3 +41160,8 @@ msgstr "Dit seizoen"
 
 msgid "Filter by period"
 msgstr "Filter op periode"
+
+msgid "%d prospect"
+msgid_plural "%d prospects"
+msgstr[0] "%d prospect"
+msgstr[1] "%d prospects"
