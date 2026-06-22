@@ -39313,3 +39313,12 @@ msgstr "Rustdag"
 
 msgid "Week %s"
 msgstr "Week %s"
+
+msgid "Achieved"
+msgstr "Behaald"
+
+msgid "Missed"
+msgstr "Gemist"
+
+msgid "Nothing here yet."
+msgstr "Nog niks hier."

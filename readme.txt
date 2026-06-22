@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.45.0
+Stable tag: 4.45.3
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.45.3 — Goals view restyled to the 2026 look (#1687). The goals surfaces adopt the 2026 mockup (`marketing/pitch/mockups/05-goals.png`): the player **My goals** board (`FrontendMyGoalsView`) groups goals into three columns — Actief / Behaald / Gemist — keyed on the same status buckets `GoalsRepository` already uses (completed / cancelled / everything-else-is-active), each goal rendered as a white chrome card (1px #e3e6e1, radius 14px, `--tt-shadow-md`) with a status chip, a priority chip, a due-date pill, the description, and overlapping owner avatars; the coach **goal detail** card (`FrontendGoalsManageView::renderDetail`) gets the same chrome + chip treatment in place of the inline-styled definition list. New mobile-first `assets/css/frontend-goals.css` (base ~360px, 3-column board at ≥768px) reads the existing `--tt-primary`/`--tt-secondary` tokens — no new palette — and is enqueued with the global app-chrome sheet as its dependency. Presentation only: no queries, REST, breadcrumb/back-nav, or Save/Cancel changed. Three new strings (Achieved / Missed / Nothing here yet.), Dutch added. Patch bump. (#1687) =
 
 = 4.45.0 — Shared frontend app chrome: top bar + persona chip + KPI tile (#1690). The global dashboard header (rendered once for every `?tt_view=` route by [DashboardShortcode::renderHeader()](src/Shared/Frontend/DashboardShortcode.php)) adopts the 2026 look — a dark-green top bar with a gold brand mark and a **persona chip** (initials avatar + name + resolved persona label) that doubles as the existing user-menu trigger, so no extra nav affordance is added (CLAUDE.md §5). A new [FrontendAppChrome](src/Shared/Frontend/Components/FrontendAppChrome.php) component carries the chip, a brand-initials helper, and a reusable `kpiTile()`; styling is a new mobile-first `assets/css/frontend-app-chrome.css` reading the existing `--tt-primary`/`--tt-secondary` tokens (no new palette). Persona labels resolve via the portable `PersonaResolver`; the dropdown, persona switcher, and docs drawer are untouched (additive). Below 560px the chip collapses to the avatar. Foundation for the per-view parity work (#1680). One new string ("Observer"), Dutch added. Minor bump. (#1690) =
 
