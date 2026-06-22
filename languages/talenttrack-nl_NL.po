@@ -39313,3 +39313,9 @@ msgstr "Rustdag"
 
 msgid "Week %s"
 msgstr "Week %s"
+
+msgid "Skills profile"
+msgstr "Vaardigheidsprofiel"
+
+msgid "Latest"
+msgstr "Laatste"

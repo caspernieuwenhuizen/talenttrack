@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.45.0
+Stable tag: 4.45.6
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.45.6 — Player overview restyled to the 2026 look. The player/parent "My card" overview ([FrontendOverviewView](src/Shared/Frontend/FrontendOverviewView.php)) adopts the 2026 visual language on its real data: a clean white player-header card with an OVR rating badge (gold-on-green, the deck's `.tag-ovr` language), a row of KPI tiles (Latest / Last 5 / All-time / Evaluations) rendered via the shared `FrontendAppChrome::kpiTile()` with a momentum delta on the Last-5 tile, and the additional-info, skills-radar, and player-card sections wrapped as white cards. New mobile-first `assets/css/frontend-overview.css` (depends on `tt-frontend-app-chrome`) reading the existing `--tt-primary`/`--tt-secondary` tokens — no new palette, no query or REST change. Two new strings ("Skills profile", "Latest"), Dutch added. No dedicated mockup for this view; applied the 2026 visual language. Patch bump. (#1695) =
 
 = 4.45.0 — Shared frontend app chrome: top bar + persona chip + KPI tile (#1690). The global dashboard header (rendered once for every `?tt_view=` route by [DashboardShortcode::renderHeader()](src/Shared/Frontend/DashboardShortcode.php)) adopts the 2026 look — a dark-green top bar with a gold brand mark and a **persona chip** (initials avatar + name + resolved persona label) that doubles as the existing user-menu trigger, so no extra nav affordance is added (CLAUDE.md §5). A new [FrontendAppChrome](src/Shared/Frontend/Components/FrontendAppChrome.php) component carries the chip, a brand-initials helper, and a reusable `kpiTile()`; styling is a new mobile-first `assets/css/frontend-app-chrome.css` reading the existing `--tt-primary`/`--tt-secondary` tokens (no new palette). Persona labels resolve via the portable `PersonaResolver`; the dropdown, persona switcher, and docs drawer are untouched (additive). Below 560px the chip collapses to the avatar. Foundation for the per-view parity work (#1680). One new string ("Observer"), Dutch added. Minor bump. (#1690) =
 
