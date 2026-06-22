@@ -28,13 +28,14 @@ use TT\Infrastructure\Security\AuthorizationService;
 class FrontendJourneyView {
 
     public static function render( object $player ): void {
-        // #0061 round 3 — visual timeline restyle. Enqueue the new
-        // partial that turns the inline-styled list into a centered-
-        // node vertical timeline. Idempotent via wp_enqueue_style.
+        // #1695 — 2026 "chrome" restyle. The journey body becomes a clean
+        // left-rail timeline with brand-coloured nodes + white chrome cards.
+        // Depends on the shared app chrome (#1690) so the brand tokens and
+        // KPI/card language are present. Idempotent via wp_enqueue_style.
         wp_enqueue_style(
-            'tt-frontend-journey',
-            TT_PLUGIN_URL . 'assets/css/frontend-journey.css',
-            [ 'tt-frontend-admin' ],
+            'tt-frontend-my-journey',
+            TT_PLUGIN_URL . 'assets/css/frontend-my-journey.css',
+            [ 'tt-frontend-app-chrome' ],
             TT_VERSION
         );
 
@@ -106,7 +107,7 @@ class FrontendJourneyView {
                     <?php esc_html_e( 'Chronological story for this player. Filter by type or switch to milestones-only for the parent meeting.', 'talenttrack' ); ?>
                 </p>
 
-                <div class="tt-journey-tabs" role="tablist" style="display:flex; gap:6px; margin: 10px 0;">
+                <div class="tt-journey-tabs" role="tablist">
                     <a href="<?php echo esc_url( self::buildModeUrl( 'timeline' ) ); ?>"
                        class="tt-btn <?php echo $mode === 'timeline' ? 'tt-btn-primary' : 'tt-btn-secondary'; ?>"
                        role="tab"
@@ -149,7 +150,7 @@ class FrontendJourneyView {
             <?php endif; ?>
 
             <?php if ( $mode === 'timeline' && ! $full ) : ?>
-                <p style="margin-top:14px;">
+                <p class="tt-journey-more">
                     <a href="<?php echo esc_url( add_query_arg( 'full', '1' ) ); ?>" class="tt-btn tt-btn-secondary">
                         <?php esc_html_e( 'Show full history', 'talenttrack' ); ?>
                     </a>
@@ -165,7 +166,7 @@ class FrontendJourneyView {
     private static function renderFilters( array $selected_types, bool $full ): void {
         $types = EventTypeRegistry::all();
         ?>
-        <form method="get" class="tt-journey-filters" style="margin: 10px 0; display:flex; flex-wrap:wrap; gap:6px; align-items:center;">
+        <form method="get" class="tt-journey-filters">
             <?php
             foreach ( $_GET as $key => $value ) {
                 if ( in_array( $key, [ 'event_type', 'full', 'include_superseded' ], true ) ) continue;
@@ -174,7 +175,7 @@ class FrontendJourneyView {
                 }
             }
             ?>
-            <span class="tt-muted" style="font-size:13px;"><?php esc_html_e( 'Show:', 'talenttrack' ); ?></span>
+            <span class="tt-muted"><?php esc_html_e( 'Show:', 'talenttrack' ); ?></span>
             <?php
             // Primary filters always visible — the milestones coaches scan for.
             $primary_keys = [ 'evaluation_completed', 'injury_started', 'trial_ended' ];
@@ -185,15 +186,15 @@ class FrontendJourneyView {
                 if ( in_array( $def->key, $selected_types, true ) ) { $any_secondary_active = true; break; }
             }
             foreach ( $primary as $def ) : ?>
-                <label class="tt-chip" style="display:inline-flex; align-items:center; gap:4px; padding:6px 10px; border:1px solid <?php echo esc_attr( $def->color ); ?>; border-radius:999px; cursor:pointer; min-height:32px;">
+                <label class="tt-chip" style="border:1px solid <?php echo esc_attr( $def->color ); ?>;">
                     <input type="checkbox" name="event_type[]" value="<?php echo esc_attr( $def->key ); ?>"
                            <?php checked( in_array( $def->key, $selected_types, true ) ); ?> />
                     <?php echo esc_html( $def->label ); ?>
                 </label>
             <?php endforeach; ?>
             <?php if ( $secondary ) : ?>
-                <details class="tt-journey-filters-more" <?php echo $any_secondary_active ? 'open' : ''; ?> style="display:inline-block;">
-                    <summary style="cursor:pointer; padding:6px 10px; border:1px dashed #c4c7c5; border-radius:999px; min-height:32px; display:inline-flex; align-items:center;">
+                <details class="tt-journey-filters-more" <?php echo $any_secondary_active ? 'open' : ''; ?>>
+                    <summary>
                         <?php
                         printf(
                             /* translators: %d: number of additional filter types */
@@ -202,9 +203,9 @@ class FrontendJourneyView {
                         );
                         ?>
                     </summary>
-                    <span style="display:inline-flex; flex-wrap:wrap; gap:6px; margin-top:8px;">
+                    <span class="tt-journey-filters-more-list">
                     <?php foreach ( $secondary as $def ) : ?>
-                        <label class="tt-chip" style="display:inline-flex; align-items:center; gap:4px; padding:6px 10px; border:1px solid <?php echo esc_attr( $def->color ); ?>; border-radius:999px; cursor:pointer; min-height:32px;">
+                        <label class="tt-chip" style="border:1px solid <?php echo esc_attr( $def->color ); ?>;">
                             <input type="checkbox" name="event_type[]" value="<?php echo esc_attr( $def->key ); ?>"
                                    <?php checked( in_array( $def->key, $selected_types, true ) ); ?> />
                             <?php echo esc_html( $def->label ); ?>
@@ -216,10 +217,10 @@ class FrontendJourneyView {
             <?php if ( $full ) : ?>
                 <input type="hidden" name="full" value="1" />
             <?php endif; ?>
-            <button type="submit" class="tt-btn tt-btn-primary" style="min-height:48px;">
+            <button type="submit" class="tt-btn tt-btn-primary">
                 <?php esc_html_e( 'Filter', 'talenttrack' ); ?>
             </button>
-            <a href="<?php echo esc_url( remove_query_arg( [ 'event_type', 'full', 'include_superseded' ] ) ); ?>" class="tt-btn tt-btn-secondary" style="min-height:48px;">
+            <a href="<?php echo esc_url( remove_query_arg( [ 'event_type', 'full', 'include_superseded' ] ) ); ?>" class="tt-btn tt-btn-secondary">
                 <?php esc_html_e( 'Reset', 'talenttrack' ); ?>
             </a>
         </form>
