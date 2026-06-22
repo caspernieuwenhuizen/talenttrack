@@ -694,6 +694,7 @@ final class RateActorsStep implements WizardStepInterface {
                   FROM {$p}tt_players pl
                  WHERE pl.id IN ($in)
                    AND pl.club_id = %d
+                   AND pl.archived_at IS NULL
                    AND NOT EXISTS (
                        SELECT 1 FROM {$p}tt_evaluations e
                         WHERE e.activity_id = %d
@@ -756,6 +757,7 @@ final class RateActorsStep implements WizardStepInterface {
               WHERE att.activity_id = %d AND att.club_id = %d
                 AND LOWER(att.status) IN ( 'present', 'late' )
                 AND ( att.is_guest = 0 OR att.guest_player_id IS NOT NULL )
+                AND pl.archived_at IS NULL
                 AND NOT EXISTS (
                     SELECT 1 FROM {$p}tt_evaluations e
                      WHERE e.activity_id = att.activity_id
