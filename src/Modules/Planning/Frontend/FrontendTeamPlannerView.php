@@ -208,17 +208,19 @@ class FrontendTeamPlannerView extends FrontendViewBase {
                 <?php esc_html_e( 'Weekly PDF', 'talenttrack' ); ?>
             </button>
         </div>
-        <?php echo self::renderComposeDialog( $team_id, $date_from, $date_to, $self_url ); ?>
+        <?php echo self::renderComposeDialog( $team_id, $date_from, $date_to ); ?>
         <?php
         return (string) ob_get_clean();
     }
 
     /**
      * #1631 — the "compose weekly PDF" dialog. Toggles for what content
-     * goes per day + header, then posts to the team_planning exporter
-     * with layout=weekly. The visible planner range is the PDF period.
+     * goes per day + header, then opens the branded weekly print route
+     * (TeamPlannerWeeklyPrintRouter) in a new tab, where the browser's
+     * Save-as-PDF produces the pixel-perfect sheet. The visible planner
+     * range is the PDF period.
      */
-    private static function renderComposeDialog( int $team_id, string $date_from, string $date_to, string $self_url ): string {
+    private static function renderComposeDialog( int $team_id, string $date_from, string $date_to ): string {
         $fields = [
             'time'       => [ __( 'Time', 'talenttrack' ),          true ],
             'location'   => [ __( 'Location', 'talenttrack' ),      true ],
@@ -243,19 +245,16 @@ class FrontendTeamPlannerView extends FrontendViewBase {
         ob_start();
         ?>
         <dialog id="tt-planner-compose" class="tt-compose-dialog" style="border:0; border-radius:12px; padding:0; max-width:420px; width:92%;">
-            <form method="POST" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="tt-compose-form" style="padding:18px 20px; margin:0;">
-                <?php wp_nonce_field( 'tt_export', '_tt_export_nonce' ); ?>
-                <input type="hidden" name="action"               value="tt_export">
-                <input type="hidden" name="tt_export_key"        value="team_planning">
-                <input type="hidden" name="format"               value="pdf">
-                <input type="hidden" name="layout"               value="weekly">
-                <input type="hidden" name="team_id"              value="<?php echo (int) $team_id; ?>">
-                <input type="hidden" name="date_from"            value="<?php echo esc_attr( $date_from ); ?>">
-                <input type="hidden" name="date_to"              value="<?php echo esc_attr( $date_to ); ?>">
-                <input type="hidden" name="tt_export_return_url" value="<?php echo esc_attr( $self_url ); ?>">
+            <?php // #1631 — opens the branded print route in a new tab; the
+                  // browser's Save-as-PDF renders the pixel-perfect A4 sheet. ?>
+            <form method="GET" action="<?php echo esc_url( home_url( '/' ) ); ?>" target="_blank" class="tt-compose-form" style="padding:18px 20px; margin:0;">
+                <input type="hidden" name="tt_planner_weekly_print" value="1">
+                <input type="hidden" name="team_id"                value="<?php echo (int) $team_id; ?>">
+                <input type="hidden" name="date_from"              value="<?php echo esc_attr( $date_from ); ?>">
+                <input type="hidden" name="date_to"                value="<?php echo esc_attr( $date_to ); ?>">
 
                 <h3 style="margin:0 0 4px;"><?php esc_html_e( 'Compose weekly PDF', 'talenttrack' ); ?></h3>
-                <p style="margin:0 0 12px; color:#5b6e75; font-size:13px;"><?php esc_html_e( 'Uses the planner\'s current date range.', 'talenttrack' ); ?></p>
+                <p style="margin:0 0 12px; color:#5b6e75; font-size:13px;"><?php esc_html_e( 'Opens a print-ready sheet for the planner\'s current date range — Save as PDF from your browser.', 'talenttrack' ); ?></p>
 
                 <fieldset style="border:1px solid #d6dadd; border-radius:8px; padding:8px 12px; margin:0 0 12px;">
                     <legend style="font-weight:700; font-size:13px; padding:0 4px;"><?php esc_html_e( 'Show per day', 'talenttrack' ); ?></legend>
@@ -268,7 +267,7 @@ class FrontendTeamPlannerView extends FrontendViewBase {
 
                 <div style="display:flex; justify-content:flex-end; gap:8px;">
                     <button type="button" class="tt-btn tt-btn-secondary" style="min-height:48px;" data-tt-close-compose><?php esc_html_e( 'Cancel', 'talenttrack' ); ?></button>
-                    <button type="submit" class="tt-btn tt-btn-primary" style="min-height:48px;"><?php esc_html_e( 'Download', 'talenttrack' ); ?></button>
+                    <button type="submit" class="tt-btn tt-btn-primary" style="min-height:48px;"><?php esc_html_e( 'Open PDF', 'talenttrack' ); ?></button>
                 </div>
             </form>
         </dialog>

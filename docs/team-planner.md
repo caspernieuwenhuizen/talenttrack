@@ -69,6 +69,8 @@ Three export buttons sit above the grid:
 - **Show per day** — Time · Location · Duration · Match details · Theme/title · Principles · Notes · Show rest days (everything on except Notes by default).
 - **Header** — Academy name · Generated date.
 
+Clicking **Open PDF** opens the print-ready sheet in a new tab; use your browser's **Save as PDF** (or Print) to download it. Enable "Background graphics" in the print dialog so the green day cards and colour tags come through. The proposed filename mirrors the sheet title — `Week plan - {team} - Week {n} - {year}`.
+
 The PDF covers the planner's **current date range** (set it with the window picker first). Branding comes from **Configuration → branding** (primary/secondary colour, academy name, logo) — no hardcoded colours.
 
 ## Permissions
