@@ -111,6 +111,14 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
                 'desc'  => __( 'League-table ranking of the best and worst attenders over a window, with at-risk players flagged.', 'talenttrack' ),
                 'url'   => add_query_arg( [ 'tt_view' => 'attendance-leaderboard' ], $base_url ),
             ],
+            // #1637 — minutes-played-per-team moved here from the Analytics
+            // hub so all standard reports live under the Reports launcher.
+            [
+                'slug'  => 'minutes-report-team',
+                'label' => __( 'Minutes played per team', 'talenttrack' ),
+                'desc'  => __( 'Per-player minutes for a team\'s matches in a window, split by match type (League / Cup / Friendly) with starts / subs / % available.', 'talenttrack' ),
+                'url'   => add_query_arg( [ 'tt_view' => 'minutes-report-team' ], $base_url ),
+            ],
             [
                 'slug'  => 'team-squad-evaluation-summary',
                 'label' => __( 'Team · Squad evaluation summary', 'talenttrack' ),
@@ -196,7 +204,7 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
         // so a future addition is never silently dropped.
         $groups = [
             [ 'label' => __( 'Development & performance', 'talenttrack' ), 'slugs' => [ 'player-progress-radar', 'rate-cards', 'team_ratings', 'team-squad-evaluation-summary' ] ],
-            [ 'label' => __( 'Playing time', 'talenttrack' ),              'slugs' => [ 'player-minutes-played', 'team-minutes-distribution' ] ],
+            [ 'label' => __( 'Playing time', 'talenttrack' ),              'slugs' => [ 'player-minutes-played', 'team-minutes-distribution', 'minutes-report-team' ] ],
             [ 'label' => __( 'Attendance', 'talenttrack' ),                'slugs' => [ 'attendance-report-team', 'attendance-report-player', 'attendance-leaderboard' ] ],
             [ 'label' => __( 'Recruitment', 'talenttrack' ),               'slugs' => [ 'prospects_logged_per_scout', 'season-trial-funnel', 'scout-report-card' ] ],
             [ 'label' => __( 'Staff & quality', 'talenttrack' ),           'slugs' => [ 'coach_activity', 'coach-evaluation-quality' ] ],

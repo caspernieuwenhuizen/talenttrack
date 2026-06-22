@@ -34,7 +34,7 @@ final class FrontendAttendanceTeamReportView extends FrontendViewBase {
         if ( ! current_user_can( 'tt_view_analytics' ) ) {
             FrontendBreadcrumbs::fromDashboard(
                 __( 'Not authorized', 'talenttrack' ),
-                [ FrontendBreadcrumbs::viewCrumb( 'analytics', __( 'Analytics', 'talenttrack' ) ) ]
+                [ FrontendBreadcrumbs::viewCrumb( 'reports', __( 'Reports', 'talenttrack' ) ) ]
             );
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to view this report.', 'talenttrack' ) . '</p>';
             return;
@@ -42,7 +42,7 @@ final class FrontendAttendanceTeamReportView extends FrontendViewBase {
 
         FrontendBreadcrumbs::fromDashboard(
             __( 'Team attendance', 'talenttrack' ),
-            [ FrontendBreadcrumbs::viewCrumb( 'analytics', __( 'Analytics', 'talenttrack' ) ) ]
+            [ FrontendBreadcrumbs::viewCrumb( 'reports', __( 'Reports', 'talenttrack' ) ) ]
         );
         self::renderHeader( __( 'Team attendance statistics', 'talenttrack' ) );
 

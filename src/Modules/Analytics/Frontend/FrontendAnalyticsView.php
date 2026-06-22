@@ -127,8 +127,6 @@ class FrontendAnalyticsView extends FrontendViewBase {
             }
             echo '</div>';
         }
-
-        self::renderStandardReports();
     }
 
     /**
@@ -445,53 +443,6 @@ class FrontendAnalyticsView extends FrontendViewBase {
                 .tt-analytics-rail { position: sticky; top: 80px; max-height: calc(100vh - 100px); overflow-y: auto; }
             }
         </style>';
-    }
-
-    /**
-     * v3.110.109 — render the "Standard reports" section.
-     *
-     * Each row is a labelled card linking to a dedicated report view.
-     * New reports add an entry here; the dispatcher in
-     * `DashboardShortcode` wires the corresponding view.
-     */
-    private static function renderStandardReports(): void {
-        $base = WizardEntryPoint::dashboardBaseUrl();
-        $reports = [
-            [
-                'label'       => __( 'Team attendance statistics', 'talenttrack' ),
-                'description' => __( 'Present / late / absent / excused / injured percentages per team over a configurable date range.', 'talenttrack' ),
-                'url'         => add_query_arg( [ 'tt_view' => 'attendance-report-team' ], $base ),
-            ],
-            [
-                'label'       => __( 'Player attendance statistics', 'talenttrack' ),
-                'description' => __( 'Same attendance percentages broken down per player, optionally narrowed to a single team.', 'talenttrack' ),
-                'url'         => add_query_arg( [ 'tt_view' => 'attendance-report-player' ], $base ),
-            ],
-            [
-                'label'       => __( 'Attendance leaderboard', 'talenttrack' ),
-                'description' => __( 'League-table ranking of the best and worst attenders over a window, with at-risk players flagged.', 'talenttrack' ),
-                'url'         => add_query_arg( [ 'tt_view' => 'attendance-leaderboard' ], $base ),
-            ],
-            [
-                'label'       => __( 'Minutes played per team', 'talenttrack' ),
-                'description' => __( 'Per-player minutes for a team\'s matches in a window, split by match type (League / Cup / Friendly) with starts / subs / % available.', 'talenttrack' ),
-                'url'         => add_query_arg( [ 'tt_view' => 'minutes-report-team' ], $base ),
-            ],
-        ];
-
-        echo '<h2 style="margin-top:32px;">' . esc_html__( 'Standard reports', 'talenttrack' ) . '</h2>';
-        echo '<p style="max-width:760px; color:#5b6e75;">'
-            . esc_html__( 'Pre-built answers to the most common analytics questions. For ad-hoc exploration use the KPI cards above.', 'talenttrack' )
-            . '</p>';
-        echo '<div class="tt-analytics-reports" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:12px; margin-top:8px;">';
-        foreach ( $reports as $r ) {
-            echo '<a class="tt-kpi-card" href="' . esc_url( $r['url'] ) . '" '
-                . 'style="display:block; padding:14px 16px; background:#ffffff; border:1px solid #ddd; border-radius:6px; text-decoration:none; color:inherit;">';
-            echo '<div style="font-weight:600; margin-bottom:4px; color:#1a1d21;">' . esc_html( $r['label'] ) . '</div>';
-            echo '<div style="font-size:12px; color:#5b6e75; line-height:1.4;">' . esc_html( $r['description'] ) . '</div>';
-            echo '</a>';
-        }
-        echo '</div>';
     }
 
     private static function renderCard( Kpi $kpi, ?float $value, string $explore_url ): void {
