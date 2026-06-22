@@ -1897,6 +1897,22 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             ?>
 
             <?php
+            // #1638 — surface the created/changed audit footer on the edit
+            // form too (already shown on the detail view via #1471). Renders
+            // nothing for pre-audit rows with no recorded author.
+            if ( $is_edit ) {
+                echo '<div class="tt-act-detail__audit" style="margin:16px 0;">';
+                \TT\Shared\Frontend\Components\AuditMeta::render( [
+                    'created_by' => isset( $session->created_by ) ? (int) $session->created_by : 0,
+                    'created_at' => (string) ( $session->created_at ?? '' ),
+                    'updated_by' => isset( $session->updated_by ) ? (int) $session->updated_by : 0,
+                    'updated_at' => (string) ( $session->updated_at ?? '' ),
+                ] );
+                echo '</div>';
+            }
+            ?>
+
+            <?php
             // v3.110.58 — CLAUDE.md § 6.
             $dash_url   = \TT\Shared\Frontend\Components\RecordLink::dashboardUrl();
             $list_url   = add_query_arg( [ 'tt_view' => 'activities' ], $dash_url );
