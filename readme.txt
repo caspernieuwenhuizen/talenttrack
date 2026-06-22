@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.45.3
+Stable tag: 4.45.4
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.45.4 — Player load now counts guest appearances (#1382). A player guesting for another team (playing up an age group) previously had those sessions excluded from their own load, so a heavily played-up player's cumulative load read low exactly when injury risk is highest. Player-level statistics — the attendance KPI on the player profile and the status engine's load input — now include guest appearances alongside own-team sessions. Team-level statistics are unchanged: attendance percentages and the team podium still use the squad only. The rule: *player load = everything the player did anywhere; team statistics = own-roster only.* One aggregation-layer change in the player-scoped queries; single-team membership is unchanged. Patch bump. (#1382) =
 
 = 4.45.3 — Training evaluations surface the mental category first + pre-expanded (#1643). When a coach opens a **training** evaluation, the **Mental** main category now renders first and pre-expanded by default, so mentality is front-and-centre where it matters most for training. This is a presentation default only — the coach can still rate any category and is never blocked from saving without it; match and other evaluation types are unchanged. The activity-first wizard applies the default server-side from the activity's type; the flat coach form and the hybrid wizard apply it from the Type dropdown. The policy (which type counts as training, which category leads) lives in a new `TrainingEvalDefaults` domain helper rather than in the views. Patch bump. (#1643) =
 
