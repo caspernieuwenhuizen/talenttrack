@@ -45,6 +45,20 @@ class FormationDiagram {
         $formation = $repo->find( $formation_id );
         if ( ! $formation ) return '';
 
+        // #1670 — the SVG is styled by CSS class (pitch / node fills), so
+        // the component must carry its own stylesheet rather than rely on
+        // admin.css being present. Enqueue once; harmless to call per render
+        // (WordPress dedupes by handle). Prints in head on admin / via late
+        // styles in the footer when rendered inside a frontend shortcode.
+        if ( function_exists( 'wp_enqueue_style' ) ) {
+            wp_enqueue_style(
+                'tt-formation-diagram',
+                TT_PLUGIN_URL . 'assets/css/components/formation-diagram.css',
+                [],
+                TT_VERSION
+            );
+        }
+
         $diagram = MultilingualField::decode( $formation->diagram_data_json );
         if ( ! is_array( $diagram ) ) {
             // Fall back to a generic 4-2-3-1 layout if the formation row
