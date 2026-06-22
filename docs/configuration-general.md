@@ -14,6 +14,10 @@ Academy-wide basics that affect how dates and the calendar read across TalentTra
 | **First day of the week** | Monday (default) or Sunday — the day the **team planner** week grid starts on. |
 | **Timezone** | Academy-wide default timezone (the standard WordPress timezone list). |
 | **Locale** | Default language for date and number formatting. Only installed languages are listed. |
+| **Tile width (px)** | Exact dashboard tile column width in pixels (140–400). An explicit override that **wins over** the size preset and the % tile scale for width; leave blank to use the preset + scale. |
+| **Tile icon size (px)** | Exact tile icon glyph size in pixels (14–64); the icon chip scales around it. Leave blank to use the preset / % scale sizing. |
+
+**Tile sizing precedence:** the size preset (compact / comfortable / spacious) is the base; the **% tile scale** multiplies it; the **px width / icon** fields, when set, override those for column width and icon glyph respectively. Blank px fields change nothing — the preset + scale govern as before.
 
 ## How the date notation is applied
 

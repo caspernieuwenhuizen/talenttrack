@@ -14,6 +14,10 @@ Academiebrede basisinstellingen die bepalen hoe datums en de kalender in heel Ta
 | **Eerste dag van de week** | Maandag (standaard) of Zondag — de dag waarop het weekraster van de **teamplanner** begint. |
 | **Tijdzone** | Academiebrede standaardtijdzone (de standaard WordPress-tijdzonelijst). |
 | **Locale** | Standaardtaal voor datum- en getalnotatie. Alleen geïnstalleerde talen worden getoond. |
+| **Tegelbreedte (px)** | Exacte breedte van de dashboardtegelkolom in pixels (140–400). Een expliciete override die **voorrang heeft** op het grootte-preset en de %-tegelschaal voor de breedte; laat leeg om het preset + de schaal te gebruiken. |
+| **Tegelpictogram-grootte (px)** | Exacte grootte van het tegelpictogram in pixels (14–64); de pictogramchip schaalt eromheen. Laat leeg om de preset-/%-schaalgrootte te gebruiken. |
+
+**Voorrang bij tegelgrootte:** het grootte-preset (compact / comfortabel / ruim) is de basis; de **%-tegelschaal** vermenigvuldigt dit; de px-velden voor **breedte / pictogram** overschrijven dat, indien ingesteld, voor respectievelijk de kolombreedte en de pictogramgrootte. Lege px-velden veranderen niets — het preset + de schaal bepalen het zoals voorheen.
 
 ## Hoe de datumnotatie wordt toegepast
 

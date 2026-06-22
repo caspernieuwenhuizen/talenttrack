@@ -894,6 +894,17 @@ class ConfigurationPage {
                     <input type="number" inputmode="numeric" name="cfg[tile_scale]" value="<?php echo esc_attr( (string) $tile_scale ); ?>" min="50" max="150" step="5" style="width:80px;" /> %
                     <p class="description"><?php esc_html_e( 'Scales padding, icons, and typography of the dashboard tiles. 50–150%, default 100%.', 'talenttrack' ); ?></p>
                 </td></tr>
+                <?php // #1663 — explicit pixel overrides, layered on top of the preset + % scale. ?>
+                <?php $tile_min_width = (string) QueryHelpers::get_config( 'tile_min_width', '' ); ?>
+                <tr><th><?php esc_html_e( 'Tile width (px)', 'talenttrack' ); ?></th><td>
+                    <input type="number" inputmode="numeric" name="cfg[tile_min_width]" value="<?php echo esc_attr( $tile_min_width ); ?>" min="140" max="400" step="10" style="width:80px;" /> px
+                    <p class="description"><?php esc_html_e( 'Exact tile column width in pixels (140–400). Overrides the size preset and the % scale for width. Leave blank to use the preset.', 'talenttrack' ); ?></p>
+                </td></tr>
+                <?php $tile_icon_size = (string) QueryHelpers::get_config( 'tile_icon_size', '' ); ?>
+                <tr><th><?php esc_html_e( 'Tile icon size (px)', 'talenttrack' ); ?></th><td>
+                    <input type="number" inputmode="numeric" name="cfg[tile_icon_size]" value="<?php echo esc_attr( $tile_icon_size ); ?>" min="14" max="64" step="2" style="width:80px;" /> px
+                    <p class="description"><?php esc_html_e( 'Exact tile icon glyph size in pixels (14–64). Leave blank to use the preset / % scale sizing.', 'talenttrack' ); ?></p>
+                </td></tr>
             </table>
 
             <?php

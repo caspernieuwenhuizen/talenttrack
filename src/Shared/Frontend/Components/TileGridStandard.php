@@ -166,18 +166,33 @@ final class TileGridStandard {
         if ( $scale < 50 || $scale > 150 ) {
             $scale = 100;
         }
-        if ( $scale !== 100 ) {
+
+        // #1663 — an explicit pixel width wins over both the preset and the
+        // legacy percentage scale; blank/out-of-range falls back to them.
+        $width_px = (int) QueryHelpers::get_config( 'tile_min_width', '0' );
+        if ( $width_px >= 140 && $width_px <= 400 ) {
+            $min_width = $width_px . 'px';
+        } elseif ( $scale !== 100 ) {
             // Honour the legacy override as a multiplier on the preset's
             // min-width. calc() keeps the unit; the preset still governs
             // gap / padding / min-height / radius.
             $min_width = 'calc(' . $values['min_width'] . ' * ' . ( $scale / 100 ) . ')';
         }
 
-        return '--tt-tile-min-width:' . $min_width . ';'
+        $vars = '--tt-tile-min-width:' . $min_width . ';'
             . '--tt-tile-gap:' . $values['gap'] . ';'
             . '--tt-tile-padding:' . $values['padding'] . ';'
             . '--tt-tile-min-height:' . $values['min_height'] . ';'
             . '--tt-tile-radius:' . $values['radius'] . ';';
+
+        // #1663 — explicit pixel icon-glyph size. Unset → the CSS var()
+        // fallback keeps the scale-derived sizing, so nothing changes.
+        $icon_px = (int) QueryHelpers::get_config( 'tile_icon_size', '0' );
+        if ( $icon_px >= 14 && $icon_px <= 64 ) {
+            $vars .= '--tt-tile-icon-size:' . $icon_px . 'px;';
+        }
+
+        return $vars;
     }
 
     /**
