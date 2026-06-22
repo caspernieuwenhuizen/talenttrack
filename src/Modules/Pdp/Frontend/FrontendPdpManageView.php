@@ -899,7 +899,6 @@ class FrontendPdpManageView extends FrontendViewBase {
         echo '<th>' . esc_html__( 'Scheduled', 'talenttrack' ) . '</th>';
         echo '<th>' . esc_html__( 'Status', 'talenttrack' ) . '</th>';
         echo '<th>' . esc_html__( 'Acks', 'talenttrack' ) . '</th>';
-        echo '<th></th>';
         echo '</tr></thead><tbody>';
         // v3.110.191 — pass today + full list into derivedConvStatus()
         // so it can compute 'to_be_planned' / 'future'.
@@ -924,9 +923,12 @@ class FrontendPdpManageView extends FrontendViewBase {
                 'future'        => __( '—', 'talenttrack' ),
             ];
             $badge_label = $badge_label_map[ $derived ] ?? '—';
-            echo '<tr>';
+            // #1667 — whole-row click (pointer) via the shared
+            // tt-table-tools handler; the Template cell keeps a real
+            // <a> as the keyboard / assistive-tech path.
+            echo '<tr class="is-row-link" data-row-href="' . esc_url( $url ) . '">';
             echo '<td>' . (int) $c->sequence . '</td>';
-            echo '<td>' . esc_html( self::templateLabel( (string) $c->template_key ) ) . '</td>';
+            echo '<td><a href="' . esc_url( $url ) . '">' . esc_html( self::templateLabel( (string) $c->template_key ) ) . '</a></td>';
             echo '<td>' . esc_html( self::shortDate( $c->scheduled_at ) ) . '</td>';
             echo '<td><span class="tt-status-badge ' . esc_attr( $badge_class ) . '">' . esc_html( $badge_label ) . '</span></td>';
             // v3.110.197 (#809) — the "awaiting" state used to render as
@@ -969,8 +971,6 @@ class FrontendPdpManageView extends FrontendViewBase {
                 . ( $player_ok ? $check_ok : $hourglass )
                 . '</span>';
             echo '</td>';
-            echo '<td><a class="tt-btn tt-btn-secondary tt-btn-sm" href="' . esc_url( $url ) . '">'
-                . esc_html__( 'Open', 'talenttrack' ) . '</a></td>';
             echo '</tr>';
         }
         echo '</tbody></table>';
