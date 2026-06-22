@@ -642,6 +642,14 @@ class ActivitiesRestController {
             );
         }
 
+        // #1636 — an activity created already in "completed" status with no
+        // usable attendance is unrateable (the rate step needs present/late
+        // rows). Seed the team roster as present so the coach can evaluate
+        // immediately and adjust absences afterward.
+        if ( ( $data['activity_status_key'] ?? '' ) === ActivityStatusKey::COMPLETED ) {
+            self::seedCompletedRosterPresent( $activity_id, (int) ( $data['team_id'] ?? 0 ) );
+        }
+
         // v3.71.6 — fire the workflow event so EventDispatcher hands
         // off to the post-game evaluation template (and any other
         // template subscribed to `tt_activity_completed`). The wp-admin
@@ -980,6 +988,35 @@ class ActivitiesRestController {
             ] );
         }
         return $failures;
+    }
+
+    /**
+     * #1636 — seed every active roster player as present for an activity
+     * that was created already completed but ended up with no attendance.
+     * No-op when the activity already has attendance rows (so a filled-in
+     * form is never overwritten) or when the team / roster is empty.
+     */
+    private static function seedCompletedRosterPresent( int $activity_id, int $team_id ): void {
+        if ( $activity_id <= 0 || $team_id <= 0 ) return;
+        global $wpdb; $p = $wpdb->prefix;
+
+        $existing = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$p}tt_attendance WHERE activity_id = %d AND club_id = %d",
+            $activity_id, CurrentClub::id()
+        ) );
+        if ( $existing > 0 ) return;
+
+        $players = \TT\Infrastructure\Query\QueryHelpers::get_players( $team_id );
+        if ( ! $players ) return;
+
+        $statuses = \TT\Infrastructure\Query\QueryHelpers::get_lookup_names( 'attendance_status' );
+        $present  = $statuses[0] ?? 'Present';
+
+        $rows = [];
+        foreach ( $players as $pl ) {
+            $rows[ (int) $pl->id ] = [ 'status' => $present, 'notes' => '' ];
+        }
+        self::write_attendance( $activity_id, $rows );
     }
 
     // Guest endpoints (#0026)

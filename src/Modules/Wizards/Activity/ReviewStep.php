@@ -253,6 +253,11 @@ final class ReviewStep implements WizardStepInterface {
             foreach ( $guests as $gpid ) {
                 self::insertExpectedAttendance( $activity_id, $gpid, true );
             }
+        } elseif ( $status === ActivityStatusKey::COMPLETED ) {
+            // #1636 — created already completed but attendance skipped: seed
+            // the active roster as present so the activity is immediately
+            // rateable (the rate step needs present/late rows).
+            self::seedRosterPresent( $activity_id, $tid );
         }
 
         // v3.85.3 — was redirect to ?tt_view=activities&id=N (the
@@ -319,6 +324,37 @@ final class ReviewStep implements WizardStepInterface {
                 'activity_id' => $activity_id,
                 'player_id'  => $player_id,
                 'is_guest'   => $is_guest,
+            ] );
+        }
+    }
+
+    /**
+     * #1636 — seed every active roster player as present for an activity
+     * created already completed when the operator skipped attendance, so
+     * the activity is immediately rateable (record_type 'actual' since it
+     * already happened).
+     */
+    private static function seedRosterPresent( int $activity_id, int $team_id ): void {
+        if ( $activity_id <= 0 || $team_id <= 0 ) return;
+        $players = QueryHelpers::get_players( $team_id );
+        if ( ! $players ) return;
+
+        $statuses = QueryHelpers::get_lookup_names( 'attendance_status' );
+        $present  = $statuses[0] ?? 'Present';
+
+        global $wpdb;
+        $p    = $wpdb->prefix;
+        $club = CurrentClub::id();
+        foreach ( $players as $pl ) {
+            $pid = (int) $pl->id;
+            if ( $pid <= 0 ) continue;
+            $wpdb->insert( "{$p}tt_attendance", [
+                'club_id'     => $club,
+                'activity_id' => $activity_id,
+                'player_id'   => $pid,
+                'is_guest'    => 0,
+                'status'      => $present,
+                'record_type' => 'actual',
             ] );
         }
     }
