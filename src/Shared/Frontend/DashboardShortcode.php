@@ -32,6 +32,9 @@ class DashboardShortcode {
         // tokens defined here; public.css keeps the legacy dashboard/login
         // layout untouched.
         wp_enqueue_style( 'tt-frontend-admin', TT_PLUGIN_URL . 'assets/css/frontend-admin.css', [ 'tt-public' ], TT_VERSION );
+        // #1690 — shared frontend "app chrome": restyles the global header
+        // into the top bar + persona chip, and ships the reusable KPI tile.
+        wp_enqueue_style( 'tt-frontend-app-chrome', TT_PLUGIN_URL . 'assets/css/frontend-app-chrome.css', [ 'tt-public', 'tt-frontend-admin' ], TT_VERSION );
 
         wp_enqueue_script( 'tt-public', TT_PLUGIN_URL . 'assets/js/public.js', [], TT_VERSION, true );
         wp_enqueue_script( 'tt-flash',   TT_PLUGIN_URL . 'assets/js/components/flash.js',     [], TT_VERSION, true );
@@ -1139,7 +1142,14 @@ class DashboardShortcode {
 
         echo '<div class="tt-dash-header">';
         echo '<div class="tt-dash-brand">';
-        if ( $show_logo && $logo ) echo '<img src="' . esc_url( $logo ) . '" class="tt-dash-logo" alt="" />';
+        if ( $show_logo && $logo ) {
+            echo '<img src="' . esc_url( $logo ) . '" class="tt-dash-logo" alt="" />';
+        } else {
+            // #1690 — gold brand mark when no custom logo is configured.
+            echo '<span class="tt-appchrome-mark" aria-hidden="true">'
+                . esc_html( \TT\Shared\Frontend\Components\FrontendAppChrome::initials( $name ) )
+                . '</span>';
+        }
         echo '<h2 class="tt-dash-title">' . esc_html( $name ) . '</h2>';
         echo '</div>';
 
@@ -1194,7 +1204,10 @@ class DashboardShortcode {
 
         echo '<div class="tt-user-menu">';
         echo '<button type="button" class="tt-user-menu-trigger" aria-haspopup="true" aria-expanded="false">';
-        echo '<span class="tt-user-menu-name">' . esc_html( $user->display_name ) . '</span>';
+        // #1690 — persona chip (avatar + name + persona label) replaces the
+        // bare name; the chip doubles as the user-menu trigger so no extra
+        // nav affordance is introduced (CLAUDE.md §5).
+        echo \TT\Shared\Frontend\Components\FrontendAppChrome::personaChipInner( $user ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — component escapes internally.
         echo '<span class="tt-user-menu-caret" aria-hidden="true">▾</span>';
         echo '</button>';
         echo '<div class="tt-user-menu-dropdown" role="menu">';

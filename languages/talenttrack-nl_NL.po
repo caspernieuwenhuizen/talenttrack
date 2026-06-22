@@ -5807,6 +5807,10 @@ msgstr "Hoofd Opleidingen"
 msgid "Academy Admin"
 msgstr "Academy Admin"
 
+#: src/Shared/Frontend/Components/FrontendAppChrome.php:44
+msgid "Observer"
+msgstr "Waarnemer"
+
 #: src/Modules/Authorization/Admin/MatrixPage.php:609
 msgid "frontend tile"
 msgstr "frontend-tegel"

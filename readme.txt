@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.44.8
+Stable tag: 4.45.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.45.0 — Shared frontend app chrome: top bar + persona chip + KPI tile (#1690). The global dashboard header (rendered once for every `?tt_view=` route by [DashboardShortcode::renderHeader()](src/Shared/Frontend/DashboardShortcode.php)) adopts the 2026 look — a dark-green top bar with a gold brand mark and a **persona chip** (initials avatar + name + resolved persona label) that doubles as the existing user-menu trigger, so no extra nav affordance is added (CLAUDE.md §5). A new [FrontendAppChrome](src/Shared/Frontend/Components/FrontendAppChrome.php) component carries the chip, a brand-initials helper, and a reusable `kpiTile()`; styling is a new mobile-first `assets/css/frontend-app-chrome.css` reading the existing `--tt-primary`/`--tt-secondary` tokens (no new palette). Persona labels resolve via the portable `PersonaResolver`; the dropdown, persona switcher, and docs drawer are untouched (additive). Below 560px the chip collapses to the avatar. Foundation for the per-view parity work (#1680). One new string ("Observer"), Dutch added. Minor bump. (#1690) =
 
 = 4.39.0 — Holidays are now editable, with click-to-open rows (closes #1602). The academy holidays list only exposed Delete — no way to edit a holiday or open one by clicking its row, even though the REST layer already supported updates (`PUT /holidays/{id}`). The list (`FrontendHolidaysView`) gains an **Edit** row action (gated `tt_manage_holidays`) and **clickable rows** via `FrontendListTable`'s `row_url_key` (the REST serializer now emits a `detail_url`, populated only for users who may manage holidays, so read-only viewers get inert rows). Edit / row-click opens a flat edit form — Name + start/end date (`type="date"`) + optional note, pre-filled from the repository — saving through the existing `PUT /holidays/{id}` with the WP nonce; **Save + Cancel** via the shared `FormSaveButton` (Cancel → the holidays list, `tt_back`-aware). Breadcrumbs render on every path (list, edit form, not-found, permission-denied) with Holidays as the parent crumb. Read stays gated on `tt_view_holidays`, writes on `tt_manage_holidays`. New strings translated to Dutch; docs (EN+NL) gain an "Editing a holiday" section. Minor bump. (closes #1602) =
 
