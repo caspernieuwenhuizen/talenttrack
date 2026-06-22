@@ -113,6 +113,10 @@ class FrontendTrialTracksEditorView extends FrontendViewBase {
         echo '<label>' . esc_html__( 'Default duration in days', 'talenttrack' ) . ' <input type="number" inputmode="numeric" min="1" max="365" name="default_duration_days" value="' . esc_attr( $track ? (string) $track->default_duration_days : '28' ) . '" required></label>';
 
         echo '<div class="tt-form-actions">';
+        // #1646 / CLAUDE.md §6 — Cancel alongside Save, returning to the
+        // tracks list without discarding context.
+        $cancel_url = add_query_arg( [ 'tt_view' => 'trial-tracks-editor' ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() );
+        echo '<a class="tt-button tt-button-secondary" href="' . esc_url( $cancel_url ) . '">' . esc_html__( 'Cancel', 'talenttrack' ) . '</a> ';
         echo '<button type="submit" class="tt-button tt-button-primary">' . esc_html__( 'Save track', 'talenttrack' ) . '</button>';
         if ( $track ) {
             echo ' <button type="submit" formaction="' . esc_attr( add_query_arg( [ 'tt_view' => 'trial-tracks-editor', 'id' => (int) $track->id ] ) ) . '" name="tt_trial_track_action" value="archive" class="tt-button tt-button-danger" onclick="return confirm(\'' . esc_js( __( 'Archive this track?', 'talenttrack' ) ) . '\');">' . esc_html__( 'Archive', 'talenttrack' ) . '</button>';
