@@ -745,7 +745,12 @@ class ActivitiesRestController {
     private static function persistPrincipleLinks( \WP_REST_Request $r, int $activity_id ): void {
         if ( ! class_exists( '\\TT\\Modules\\Methodology\\Repositories\\PrincipleLinksRepository' ) ) return;
         $raw = $r['activity_principle_ids'] ?? null;
-        if ( $raw === null ) return; // absent → leave existing links untouched
+        // The frontend form carries an `activity_principles_present` marker so an
+        // all-unchecked submission (which omits the checkbox array entirely)
+        // still clears the links. Without the marker an absent array means a
+        // partial API update that didn't touch principles — leave them intact.
+        $present = ! empty( $r['activity_principles_present'] );
+        if ( $raw === null && ! $present ) return;
         if ( ! is_array( $raw ) ) $raw = [];
         $ids = array_values( array_unique( array_filter( array_map( 'intval', $raw ) ) ) );
         ( new \TT\Modules\Methodology\Repositories\PrincipleLinksRepository() )->setActivityPrinciples( $activity_id, $ids );
