@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.45.1
+Stable tag: 4.45.8
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.45.8 — My team restyled to the 2026 look (#1695). The player/parent-facing **My team** view body ([FrontendMyTeamView](src/Shared/Frontend/FrontendMyTeamView.php)) adopts the 2026 "chrome" visual language to match the global app chrome (#1690): the podium, the viewer's own card, and the teammate roster are each framed as white cards (1px `#e3e6e1`, 14px radius, `var(--tt-shadow-md)`), the podium card carries a gold top accent tying it to the brand band, the opt-in rank badge and the growth-trend chip pick up the brand tokens (`--tt-primary` / `--tt-secondary`), and the teammate roster moves from a hand-rolled inline-styled flex wrap to a responsive `minmax()` grid of brand-green avatar tiles with ≥48px touch targets and a `:focus-visible`/hover affordance. The inline `<style>` block and per-element inline styles are replaced by a new mobile-first sheet `assets/css/frontend-my-team.css` (base 360px, depends on `tt-frontend-app-chrome`). No data, query, or REST change — same real podium/rank/trend/roster data, same navigation (CLAUDE.md §5) — this is presentation only. No new user-facing strings. Patch bump. (#1695) =
 
 = 4.45.1 — Weekly planner PDF: pixel-perfect browser print route (#1631). The **Weekly PDF** action now opens a branded, print-ready A4 sheet in a new tab and lets the browser's **Save as PDF** render it, instead of the server-side DomPDF layout (which couldn't do gradients, rounded corners, or background colours). A new [TeamPlannerWeeklyPrintRouter](src/Modules/Planning/Print/TeamPlannerWeeklyPrintRouter.php) emits an isolated document (same pattern as the match-prep print route — no theme chrome on paper), with the layout + branding composed by [TeamPlannerWeeklyPrintable](src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php) from `tt_activities` + `tt_config` (green day cards, gold rail, type tags, principle pills — all derived from the configured primary/secondary colours). The sheet title reads `Week plan · {team} · Week {n} · {year}`, which also becomes the proposed Save-as-PDF filename. The compose dialog's per-day / header toggles carry over as query params. The DomPDF `team_planning` weekly exporter stays as the programmatic / REST fallback. New strings translated to Dutch. Patch bump. (#1631) =
 
