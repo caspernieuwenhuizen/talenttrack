@@ -39313,3 +39313,6 @@ msgstr "Rustdag"
 
 msgid "Week %s"
 msgstr "Week %s"
+
+msgid "Match programme"
+msgstr "Wedstrijdprogramma"
