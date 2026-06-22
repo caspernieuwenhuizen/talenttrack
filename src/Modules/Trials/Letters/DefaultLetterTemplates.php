@@ -88,7 +88,7 @@ HTML;
 
 <p>Met veel plezier bevestigen wij dat {player_first_name} {player_last_name} een plek krijgt aangeboden bij {club_name} voor het komende seizoen {next_season}.</p>
 
-<p>{player_first_name} heeft van {trial_start_date} tot {trial_end_date} meegetraind in onze {track_name}-stage. De staf is onder de indruk van zijn/haar inzet, houding en ontwikkeling in die periode, en we kijken er naar uit om hem/haar volledig op te nemen in de selectie.</p>
+<p>{player_first_name} heeft van {trial_start_date} tot {trial_end_date} meegetraind in onze {track_name}-stage. De staf is onder de indruk van {his_her} inzet, houding en ontwikkeling in die periode, en we kijken ernaar uit om {him_her} volledig in de selectie op te nemen.</p>
 
 <h2>De volgende stappen</h2>
 <ul>
@@ -125,7 +125,7 @@ HTML;
 
 <p>Na zorgvuldige weging van de input van alle stafleden die {player_first_name} hebben gezien tijdens de stage, hebben wij besloten dat {club_name} op dit moment niet de juiste plek is om {his_her} ontwikkeling voort te zetten.</p>
 
-<p>Dit besluit is definitief voor seizoen {next_season}. Wij danken {player_first_name} oprecht voor de inzet en het plezier waarmee aan de stage is deelgenomen, en wensen {him_her} veel succes op de volgende stappen in zijn/haar voetbalweg.</p>
+<p>Dit besluit is definitief voor seizoen {next_season}. Wij danken {player_first_name} oprecht voor de inzet en het plezier waarmee aan de stage is deelgenomen, en wensen {him_her} veel succes met de volgende stappen in {his_her} verdere voetballoopbaan.</p>
 
 <p class="tt-letter-signature">Met vriendelijke groet,<br>{head_of_development_name}<br>{signatory_title} — {club_name}</p>
 HTML;
@@ -165,7 +165,7 @@ HTML;
 <h2>Punten om aan te blijven werken</h2>
 <p>{growth_areas}</p>
 
-<p>We nodigen {player_first_name} van harte uit om volgend jaar opnieuw te solliciteren. Spelers groeien in verschillend tempo — een "nee" vandaag is geen "nee" voor altijd. Blijf trainen, blijf spelen en houd plezier in het voetbal.</p>
+<p>We nodigen {player_first_name} van harte uit om zich volgend jaar opnieuw aan te melden voor een stage. Spelers groeien in verschillend tempo — een "nee" vandaag is geen "nee" voor altijd. Blijf trainen, blijf spelen en houd plezier in het voetbal.</p>
 
 <p class="tt-letter-signature">Met vriendelijke groet,<br>{head_of_development_name}<br>{signatory_title} — {club_name}</p>
 HTML;
