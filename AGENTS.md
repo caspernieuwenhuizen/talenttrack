@@ -288,14 +288,17 @@ understands them — you don't type the full rule):
   planner agent. Means: read the open `ready-for-dev` specs and propose
   `<N>` file-disjoint batches (one per agent), keeping coupled issues
   (shared file, or both adding migrations) in the same batch and any broad
-  Dutch sweep solo/last. It **can't tell how many agents you have** — you
-  give the number (defaults to 2). Run this first, then launch one
+  Dutch sweep solo/last. It **skips issues already being handled** — ones
+  labelled `in-progress` or with an open PR — so re-running it mid-drain
+  won't double-assign work. It **can't tell how many agents you have** —
+  you give the number (defaults to 2). Run this first, then launch one
   `content-only` agent per batch.
 - **`content-only #<issue>`** (or **`co #<issue>`**) — to an implementation
-  agent. Means: work that issue (or several `#`s = do them in sequence),
-  content + docs + its Dutch strings only, drop a `changelog.d` note, open
-  a PR; don't touch version / changelog / `SEQUENCE.md` / `.mo`. Launch one
-  such agent per batch.
+  agent. Means: claim the issue (`in-progress` label) so the planner won't
+  re-hand it, then work it (or several `#`s = do them in sequence), content
+  + docs + its Dutch strings only, drop a `changelog.d` note, open a PR;
+  don't touch version / changelog / `SEQUENCE.md` / `.mo`. Launch one such
+  agent per batch.
 - **`release`** (or `release <version>` to override) — to the release
   agent. Means: run `tools/release.ps1` — it works out the next version
   itself from the snippets' `Bump:` levels — then review, commit, push to

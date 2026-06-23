@@ -506,8 +506,14 @@ release-plumbing files:
   is running — **you cannot auto-detect it** (separate Claude Code sessions
   can't see each other), so it is always supplied; **default to 2** when
   omitted. Steps:
-  1. List open `ready-for-dev` issues; from each spec, extract the files
-     it will touch.
+  1. List open `ready-for-dev` issues, then **drop the ones already being
+     handled** — separate sessions are invisible to you, so use GitHub as
+     the source of truth: exclude any issue carrying the **`in-progress`**
+     label OR that already has an open PR closing it
+     (`gh pr list --state open` → match `Closes #<n>`). Plan only the
+     unclaimed remainder; list the skipped in-flight issues separately so
+     the user sees they were intentionally left out. From each remaining
+     spec, extract the files it will touch.
   2. Build an overlap graph — an edge between two issues sharing a
      **code/content** file. Connected issues must go in the **same** batch
      (one agent, run sequentially). Treat every migration-adding issue as
@@ -525,7 +531,11 @@ release-plumbing files:
      issue. File lists are forecasts from specs — tell the user to confirm
      with `tools/check-overlap.ps1` once the branches exist.
 - **`content-only #<issue>`** (alias **`co #<issue>`**) → act as an
-  implementation agent for that issue: work it in its own worktree;
+  implementation agent for that issue. **First, claim it** so a concurrent
+  `batch the queue` won't re-hand it to another agent:
+  `gh issue edit <issue> --add-label in-progress` (do this per issue before
+  starting it; the issue auto-closes on merge via `Closes #<issue>`, so the
+  label needs no manual cleanup). Then: work it in its own worktree;
   change ONLY its feature/fix files, its docs (EN + `docs/nl_NL/`), and
   its new `languages/talenttrack-nl_NL.po` strings; drop a
   `changelog.d/<issue>-<slug>.md` note (add a `Bump: minor` / `major` line
