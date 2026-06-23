@@ -920,6 +920,7 @@ class FrontendCustomCssView extends FrontendViewBase {
             'frontend-profile.css',
             'frontend-activities-manage.css',
             'frontend-journey.css',
+            'frontend-my-journey.css',
             'frontend-threads.css',
             'frontend-mobile.css',
             'admin.css',

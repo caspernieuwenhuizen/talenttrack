@@ -374,30 +374,106 @@
     gap: 12px;
 }
 .tt-planner-team-picker {
-    border: 1px solid var(--tt-line, #d6dadd);
-    border-radius: 8px;
-    padding: 6px 12px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
     margin: 0;
     min-width: 0;
 }
-.tt-planner-team-picker legend {
+.tt-planner-team-label {
     font-weight: 700;
     font-size: 0.78rem;
-    padding: 0 4px;
     color: var(--tt-ink, #1a1d21);
 }
-.tt-planner-team-check {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    min-height: 44px;
-    padding-right: 12px;
-    cursor: pointer;
-    font-size: 0.9rem;
+/* #1715 — a real collapsed multi-select dropdown (a `<details>` styled
+   like a select). Mobile-first: full-width control below 480px, fixed
+   min-width above. 16px summary font stops iOS auto-zoom on focus. */
+.tt-planner-team-dd {
+    position: relative;
+    width: 100%;
+    max-width: 22rem;
 }
-.tt-planner-team-check input {
-    width: 20px;
-    height: 20px;
+.tt-planner-team-dd-toggle {
+    list-style: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    min-height: 48px;
+    padding: 0 0.75rem;
+    border: 1px solid var(--tt-line, #d6dadd);
+    border-radius: 8px;
+    background: #fff;
+    font-size: 16px;
+    touch-action: manipulation;
+}
+.tt-planner-team-dd-toggle::-webkit-details-marker { display: none; }
+.tt-planner-team-dd-text {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.tt-planner-team-dd-caret {
+    flex: 0 0 auto;
+    transition: transform 0.15s ease;
+}
+.tt-planner-team-dd[open] .tt-planner-team-dd-caret { transform: rotate(180deg); }
+@media ( prefers-reduced-motion: reduce ) {
+    .tt-planner-team-dd-caret { transition: none; }
+}
+.tt-planner-team-dd-panel {
+    position: absolute;
+    z-index: 30;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    max-height: 16rem;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid var(--tt-line, #d6dadd);
+    border-radius: 8px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    padding: 0.25rem;
+}
+/* #1721 — bulk select / clear shortcuts at the top of the panel. */
+.tt-planner-team-dd-actions {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.25rem 0.25rem 0.4rem;
+    margin-bottom: 0.25rem;
+    border-bottom: 1px solid var(--tt-line, #d6dadd);
+}
+.tt-planner-team-dd-action {
+    flex: 1 1 0;
+    min-height: 40px;
+    padding: 0 0.5rem;
+    border: 1px solid var(--tt-line, #d6dadd);
+    border-radius: 6px;
+    background: var(--tt-bg-subtle, #f3f5f6);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-planner-team-dd-action:hover { background: #e8ebed; }
+.tt-planner-team-dd-opt {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 48px;
+    padding: 0 0.5rem;
+    cursor: pointer;
+    border-radius: 6px;
+}
+.tt-planner-team-dd-opt:hover { background: var(--tt-bg-subtle, #f3f5f6); }
+.tt-planner-team-dd-opt input {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 auto;
+}
+@media ( min-width: 480px ) {
+    .tt-planner-team-dd { width: auto; min-width: 14rem; }
 }
 .tt-planner-team-hint {
     width: 100%;
@@ -413,58 +489,153 @@
     min-height: 44px;
 }
 
-.tt-planner-overview-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-.tt-planner-overview-table th,
-.tt-planner-overview-table td {
-    text-align: left;
-    padding: 8px 10px;
-}
-.tt-planner-overview-table thead th {
-    border-bottom: 2px solid var(--tt-line, #d6dadd);
-    font-size: 0.8rem;
-}
-.tt-planner-overview-table tbody tr + tr td {
-    border-top: 1px solid var(--tt-line, #d6dadd);
+/* #1703 — condensed cross-team calendar. One row per selected team
+   per week block. Mobile-first (CLAUDE.md §2): at small viewports the
+   7-day grid would overflow 360px, so the base layout stacks — each
+   team becomes a card and each day with an activity a labelled line.
+   At 768px+ the layout flips to the day-column grid (team label + 7
+   day columns); 1024px+ widens the team-label column. No horizontal
+   scroll at any width. */
+.tt-planner-multi {
+    margin: 0 0 1.25rem;
 }
 
-/* Mobile: stack each row into a labelled card. */
-@media (max-width: 639px) {
-    .tt-planner-overview-table thead {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        overflow: hidden;
-        clip: rect(0 0 0 0);
+/* Day-of-week header row — hidden on the stacked mobile layout (each
+   day carries its own label there), shown on the grid layout. */
+.tt-planner-multi-head {
+    display: none;
+}
+.tt-planner-multi-corner,
+.tt-planner-multi-dow {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--tt-muted, #5b6e75);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+.tt-planner-multi-dow {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 4px 6px;
+}
+.tt-planner-multi-dow-date {
+    font-weight: 600;
+    color: var(--tt-ink, #1a1d21);
+    text-transform: none;
+}
+.tt-planner-multi-dow-today {
+    color: var(--tt-color-primary, #2271b1);
+}
+
+/* Mobile: team card. */
+.tt-planner-multi-row {
+    background: #fafbfc;
+    border: 1px solid #e5e7ea;
+    border-radius: 8px;
+    margin: 0 0 0.5rem;
+    padding: 0.5rem 0.75rem;
+}
+.tt-planner-multi-team {
+    display: block;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--tt-ink, #1a1d21);
+    margin-bottom: 0.35rem;
+}
+.tt-planner-multi-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 6px;
+}
+/* Mobile: prefix each non-empty cell with its day label. Empty cells
+   render nothing (kept out of flow via :empty). */
+.tt-planner-multi-cell:empty {
+    display: none;
+}
+.tt-planner-multi-cell::before {
+    content: attr(data-tt-day-label);
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--tt-muted, #5b6e75);
+}
+
+/* Clickable activity — pill + optional opponent. 48px touch target,
+   8px spacing handled by the cell gap. */
+.tt-planner-multi-item {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    min-height: 48px;
+    padding: 6px 8px;
+    background: #fff;
+    border: 1px solid #e5e7ea;
+    border-radius: 6px;
+    text-decoration: none;
+    color: var(--tt-ink, #1a1d21);
+    touch-action: manipulation;
+}
+.tt-planner-multi-item:hover,
+.tt-planner-multi-item:focus-visible {
+    background: #f6f7f8;
+    border-color: #c4cbd0;
+}
+.tt-planner-multi-match {
+    font-size: 0.78rem;
+    color: var(--tt-muted, #5b6e75);
+    overflow-wrap: anywhere;
+}
+
+/* Grid layout: team label + 7 day columns. */
+@media (min-width: 768px) {
+    .tt-planner-multi-head,
+    .tt-planner-multi-row {
+        display: grid;
+        grid-template-columns: minmax(6rem, 0.8fr) repeat(7, 1fr);
+        gap: 4px;
+        align-items: stretch;
     }
-    .tt-planner-overview-table,
-    .tt-planner-overview-table tbody,
-    .tt-planner-overview-table tr,
-    .tt-planner-overview-table td {
-        display: block;
-        width: 100%;
+    .tt-planner-multi-head {
+        margin-bottom: 4px;
+        padding: 0 0.25rem;
     }
-    .tt-planner-overview-table tr {
-        border: 1px solid var(--tt-line, #d6dadd);
-        border-radius: 8px;
-        margin-bottom: 8px;
-        padding: 6px 10px;
+    .tt-planner-multi-row {
+        background: transparent;
+        border: 0;
+        padding: 0;
+        margin: 0 0 4px;
     }
-    .tt-planner-overview-table tbody tr + tr td,
-    .tt-planner-overview-table td {
-        border-top: 0;
-    }
-    .tt-planner-overview-table td {
+    .tt-planner-multi-team {
         display: flex;
-        justify-content: space-between;
-        gap: 12px;
-        padding: 4px 0;
+        align-items: center;
+        margin: 0;
+        padding: 6px 8px;
+        background: #f6f7f8;
+        border: 1px solid #e5e7ea;
+        border-radius: 6px;
+        font-size: 0.82rem;
     }
-    .tt-planner-overview-table td::before {
-        content: attr(data-label);
-        font-weight: 600;
-        color: var(--tt-muted, #5b6e75);
+    .tt-planner-multi-cell {
+        margin: 0;
+        padding: 4px;
+        background: #fafbfc;
+        border: 1px solid #e5e7ea;
+        border-radius: 6px;
+        min-height: 3rem;
+    }
+    .tt-planner-multi-cell:empty {
+        display: block;
+    }
+    .tt-planner-multi-cell::before {
+        content: none;
+    }
+}
+
+@media (min-width: 1024px) {
+    .tt-planner-multi-head,
+    .tt-planner-multi-row {
+        grid-template-columns: minmax(8rem, 0.8fr) repeat(7, 1fr);
     }
 }

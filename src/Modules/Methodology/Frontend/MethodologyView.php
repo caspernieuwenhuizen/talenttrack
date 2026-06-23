@@ -23,13 +23,13 @@ use TT\Shared\Frontend\FrontendViewBase;
  * MethodologyView — read-only frontend tile for the methodology
  * library. Reachable via `?tt_view=methodology`.
  *
- * Tabs (mtab query param):
- *   - framework (default) — the per-club methodology primer
- *   - principles          — game principles browser + detail
+ * Tabs (mtab query param), in display order:
+ *   - vision (default)    — single vision record
+ *   - framework           — the per-club methodology primer
  *   - formations          — formation positions
- *   - set_pieces          — set pieces
- *   - vision              — single vision record
+ *   - principles          — game principles browser + detail
  *   - actions             — football actions catalogue
+ *   - set_pieces          — set pieces
  *
  * Each detail view renders an image hero (primary asset) above the
  * text, then per-line guidance, then the formation diagram (when
@@ -45,6 +45,7 @@ class MethodologyView extends FrontendViewBase {
         }
 
         self::enqueueAssets();
+        self::enqueueMethodologyAssets();
         FrontendBreadcrumbs::fromDashboard( __( 'Methodology', 'talenttrack' ) );
         // #1064 — printable methodology reference card. Opens a
         // standalone document in a new tab; defaults include all
@@ -63,7 +64,7 @@ class MethodologyView extends FrontendViewBase {
         self::renderHeader( __( 'Methodology', 'talenttrack' ), self::pageActionsHtml( $print_actions ) );
         self::renderInlineStyles();
 
-        $tab = isset( $_GET['mtab'] ) ? sanitize_key( (string) $_GET['mtab'] ) : 'framework';
+        $tab = isset( $_GET['mtab'] ) ? sanitize_key( (string) $_GET['mtab'] ) : 'vision';
 
         $current = remove_query_arg( [ 'mtab', 'pid', 'sid', 'fid' ] );
         $tab_url = function ( string $key ) use ( $current ) {
@@ -71,24 +72,31 @@ class MethodologyView extends FrontendViewBase {
         };
 
         $tabs = [
-            'framework'  => __( 'Raamwerk',          'talenttrack' ),
-            'principles' => __( 'Spelprincipes',     'talenttrack' ),
-            'formations' => __( 'Formaties',          'talenttrack' ),
-            'set_pieces' => __( 'Spelhervattingen',  'talenttrack' ),
             'vision'     => __( 'Visie',             'talenttrack' ),
+            'framework'  => __( 'Raamwerk',          'talenttrack' ),
+            'formations' => __( 'Formaties',          'talenttrack' ),
+            'principles' => __( 'Spelprincipes',     'talenttrack' ),
             'actions'    => __( 'Voetbalhandelingen', 'talenttrack' ),
+            'set_pieces' => __( 'Spelhervattingen',  'talenttrack' ),
         ];
         ?>
-        <nav class="tt-mlogy-tabs">
+        <nav class="tt-mlogy-tabs" aria-label="<?php esc_attr_e( 'Methodology sections', 'talenttrack' ); ?>">
             <?php foreach ( $tabs as $k => $label ) :
-                $cls = $tab === $k ? 'tt-btn tt-btn-primary' : 'tt-btn tt-btn-secondary';
+                $active   = $tab === $k;
+                $is_first = $k === 'vision';
+                $cls      = 'tt-mlogy-tab';
+                if ( $active )   $cls .= ' is-active';
+                if ( $is_first ) $cls .= ' tt-mlogy-tab--lead';
                 ?>
-                <a class="<?php echo esc_attr( $cls ); ?>" href="<?php echo esc_url( $tab_url( $k ) ); ?>"><?php echo esc_html( $label ); ?></a>
+                <a class="<?php echo esc_attr( $cls ); ?>" href="<?php echo esc_url( $tab_url( $k ) ); ?>"<?php echo $active ? ' aria-current="page"' : ''; ?>><?php echo esc_html( $label ); ?></a>
             <?php endforeach; ?>
         </nav>
         <?php
 
         switch ( $tab ) {
+            case 'framework':
+                self::renderFramework();
+                break;
             case 'principles':
                 $pid = isset( $_GET['pid'] ) ? absint( $_GET['pid'] ) : 0;
                 if ( $pid > 0 ) self::renderPrincipleDetail( $pid );
@@ -102,48 +110,45 @@ class MethodologyView extends FrontendViewBase {
                 if ( $sid > 0 ) self::renderSetPieceDetail( $sid );
                 else            self::renderSetPieces();
                 break;
-            case 'vision':
-                self::renderVision();
-                break;
             case 'actions':
                 self::renderFootballActions();
                 break;
-            case 'framework':
+            case 'vision':
             default:
-                self::renderFramework();
+                self::renderVision();
         }
     }
 
+    /**
+     * Enqueue the methodology stylesheet (2026 chrome restyle, #1671)
+     * and the accordion-persistence script. The stylesheet depends on
+     * the shared app-chrome sheet so it inherits the brand tokens
+     * (--tt-primary / --tt-secondary / --tt-muted / --tt-shadow-md).
+     */
+    private static function enqueueMethodologyAssets(): void {
+        if ( ! function_exists( 'wp_enqueue_style' ) ) return;
+        wp_enqueue_style(
+            'tt-frontend-methodology',
+            TT_PLUGIN_URL . 'assets/css/frontend-methodology.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+        wp_enqueue_script(
+            'tt-methodology-accordion',
+            TT_PLUGIN_URL . 'assets/js/methodology-accordion.js',
+            [],
+            TT_VERSION,
+            true
+        );
+    }
+
+    /**
+     * No-op kept for call-site stability — the methodology styling now
+     * lives in `assets/css/frontend-methodology.css` (#1671). Retained
+     * as a hook for any genuinely dynamic, per-render inline styling.
+     */
     private static function renderInlineStyles(): void {
-        // Inline because methodology is the only consumer; bundling
-        // into a dedicated stylesheet would carry over for routes
-        // that don't render the methodology view.
-        ?>
-        <style>
-            .tt-mlogy-tabs { display:flex; gap:6px; flex-wrap:wrap; margin:8px 0 18px; }
-            .tt-mlogy-hero { display:block; max-width:100%; height:auto; border:1px solid #e0e2e7; border-radius:6px; margin-bottom:10px; background:#f6f7f9; }
-            .tt-mlogy-card { padding:14px; border:1px solid #e5e7ea; border-radius:8px; background:#fff; }
-            .tt-mlogy-card a { text-decoration:none; color:inherit; }
-            .tt-mlogy-section { margin-top:32px; }
-            .tt-mlogy-section h2 { margin-bottom:8px; }
-            .tt-mlogy-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:10px; list-style:none; padding:0; }
-            .tt-mlogy-detail-grid { display:grid; grid-template-columns:minmax(0,1fr) 360px; gap:24px; align-items:start; }
-            @media (max-width: 900px) { .tt-mlogy-detail-grid { grid-template-columns: 1fr; } }
-            .tt-mlogy-line { padding:10px 12px; background:#f6f7f9; border-left:3px solid #1a4a8a; margin:8px 0; border-radius:0 4px 4px 0; }
-            .tt-mlogy-line h4 { margin:0 0 4px; font-size:13px; text-transform:uppercase; letter-spacing:0.04em; color:#1a4a8a; }
-            .tt-mlogy-line p { margin:0; white-space:pre-wrap; }
-            .tt-mlogy-bullets { margin:6px 0 0 18px; padding:0; }
-            .tt-mlogy-pill { font-size:11px; padding:1px 6px; border-radius:3px; background:#f0f0f0; }
-            .tt-mlogy-phase-card { padding:12px; border:1px solid #e0e2e7; border-radius:6px; background:#fff; }
-            .tt-mlogy-phase-card .num { display:inline-block; width:28px; height:28px; line-height:28px; text-align:center; border-radius:50%; color:#fff; font-weight:600; }
-            .tt-mlogy-phase-card.attacking .num { background:#0a7c41; }
-            .tt-mlogy-phase-card.defending .num { background:#b32d2e; }
-            .tt-mlogy-factor { padding:14px; border:1px solid #e0e2e7; border-radius:6px; background:#fff; margin-bottom:10px; }
-            .tt-mlogy-factor-subs { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:8px; margin-top:10px; }
-            .tt-mlogy-factor-sub { padding:8px 10px; background:#f6f7f9; border-radius:4px; font-size:13px; }
-            .tt-mlogy-factor-sub strong { display:block; margin-bottom:2px; color:#1a4a8a; }
-        </style>
-        <?php
+        // Styling moved to the enqueued stylesheet. Nothing dynamic to emit.
     }
 
     // Framework primer
@@ -176,38 +181,69 @@ class MethodologyView extends FrontendViewBase {
         </div>
 
         <?php
-        self::renderFrameworkSection( $primer, 'voetbalmodel_intro_json',         __( 'Voetbalmodel',          'talenttrack' ) );
-        self::renderFrameworkSection( $primer, 'voetbalhandelingen_intro_json',   __( 'Voetbalhandelingen',    'talenttrack' ) );
-        self::renderPhasesGrid( (int) $primer->id, MultilingualField::string( $primer->phases_intro_json ) );
-        self::renderLearningGoalsGrid( (int) $primer->id, MultilingualField::string( $primer->learning_goals_intro_json ) );
-        self::renderInfluenceFactors( (int) $primer->id, MultilingualField::string( $primer->influence_factors_intro_json ) );
-        self::renderFrameworkSection( $primer, 'reflection_json',                 __( 'Reflectie',             'talenttrack' ) );
-        self::renderFrameworkSection( $primer, 'future_json',                     __( 'De toekomst',           'talenttrack' ) );
+        // #1671 — each framework section is a native <details> accordion.
+        // The first non-empty section opens by default; the rest are
+        // collapsed. methodology-accordion.js restores the persisted
+        // open/closed state per stable id (data-acc-id).
+        $sections = [
+            [ 'id' => 'voetbalmodel',       'label' => __( 'Voetbalmodel',          'talenttrack' ), 'body' => self::frameworkSectionBody( $primer, 'voetbalmodel_intro_json' ) ],
+            [ 'id' => 'voetbalhandelingen', 'label' => __( 'Voetbalhandelingen',    'talenttrack' ), 'body' => self::frameworkSectionBody( $primer, 'voetbalhandelingen_intro_json' ) ],
+            [ 'id' => 'phases',             'label' => __( 'Vier fasen',            'talenttrack' ), 'body' => self::phasesGridBody( (int) $primer->id, MultilingualField::string( $primer->phases_intro_json ) ) ],
+            [ 'id' => 'learning_goals',     'label' => __( 'Leerdoelen',            'talenttrack' ), 'body' => self::learningGoalsGridBody( (int) $primer->id, MultilingualField::string( $primer->learning_goals_intro_json ) ) ],
+            [ 'id' => 'influence_factors',  'label' => __( 'Factoren van invloed',  'talenttrack' ), 'body' => self::influenceFactorsBody( (int) $primer->id, MultilingualField::string( $primer->influence_factors_intro_json ) ) ],
+            [ 'id' => 'reflection',         'label' => __( 'Reflectie',             'talenttrack' ), 'body' => self::frameworkSectionBody( $primer, 'reflection_json' ) ],
+            [ 'id' => 'future',             'label' => __( 'De toekomst',           'talenttrack' ), 'body' => self::frameworkSectionBody( $primer, 'future_json' ) ],
+        ];
+        $sections = array_values( array_filter( $sections, static fn( $s ) => trim( (string) $s['body'] ) !== '' ) );
+
+        echo '<div class="tt-mlogy-acc-list">';
+        $index = 0;
+        foreach ( $sections as $s ) {
+            $index++;
+            self::renderAccordion( (string) $s['id'], $index, (string) $s['label'], (string) $s['body'], $index === 1 );
+        }
+        echo '</div>';
     }
 
-    private static function renderFrameworkSection( object $primer, string $field, string $label ): void {
-        $val = MultilingualField::string( $primer->{$field} ?? null );
-        if ( $val === '' ) return;
+    /**
+     * Render one framework section as a native <details> accordion card
+     * (#1671). The summary carries a numbered index chip, the section
+     * label, and a chevron that rotates on open. `data-acc-id` is a
+     * stable key the persistence script reads from localStorage.
+     */
+    private static function renderAccordion( string $id, int $index, string $label, string $body, bool $open ): void {
         ?>
-        <section class="tt-mlogy-section">
-            <h2><?php echo esc_html( $label ); ?></h2>
-            <p style="white-space:pre-wrap;"><?php echo esc_html( $val ); ?></p>
-        </section>
+        <details class="tt-mlogy-acc" data-acc-id="<?php echo esc_attr( 'methodology-framework-' . $id ); ?>"<?php echo $open ? ' open' : ''; ?>>
+            <summary class="tt-mlogy-acc__summary">
+                <span class="tt-mlogy-acc__chip" aria-hidden="true"><?php echo esc_html( (string) $index ); ?></span>
+                <span class="tt-mlogy-acc__title"><?php echo esc_html( $label ); ?></span>
+                <span class="tt-mlogy-acc__chevron" aria-hidden="true"></span>
+            </summary>
+            <div class="tt-mlogy-acc__body">
+                <?php echo $body; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — body is built by escaping *Body() helpers. ?>
+            </div>
+        </details>
         <?php
     }
 
-    private static function renderPhasesGrid( int $primer_id, string $intro ): void {
+    /** Inner HTML for a plain text framework section (returns '' when empty). */
+    private static function frameworkSectionBody( object $primer, string $field ): string {
+        $val = MultilingualField::string( $primer->{$field} ?? null );
+        if ( $val === '' ) return '';
+        return '<p class="tt-mlogy-prose">' . esc_html( $val ) . '</p>';
+    }
+
+    private static function phasesGridBody( int $primer_id, string $intro ): string {
         $rows = ( new PhasesRepository() )->listForPrimer( $primer_id );
-        if ( empty( $rows ) ) return;
+        if ( empty( $rows ) ) return '';
         $by_side = [];
         foreach ( $rows as $r ) $by_side[ (string) $r->side ][] = $r;
+        ob_start();
         ?>
-        <section class="tt-mlogy-section">
-            <h2><?php esc_html_e( 'Vier fasen', 'talenttrack' ); ?></h2>
-            <?php if ( $intro !== '' ) : ?><p style="white-space:pre-wrap; color:#5b6470;"><?php echo esc_html( $intro ); ?></p><?php endif; ?>
+            <?php if ( $intro !== '' ) : ?><p class="tt-mlogy-prose tt-mlogy-intro"><?php echo esc_html( $intro ); ?></p><?php endif; ?>
             <?php foreach ( MethodologyEnums::sides() as $key => $label ) :
                 if ( empty( $by_side[ $key ] ) ) continue; ?>
-                <h3 style="margin-top:18px;"><?php echo esc_html( $label ); ?></h3>
+                <h3 class="tt-mlogy-subhead"><?php echo esc_html( $label ); ?></h3>
                 <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:10px;">
                     <?php foreach ( $by_side[ $key ] as $r ) : ?>
                         <div class="tt-mlogy-phase-card <?php echo esc_attr( $key ); ?>">
@@ -218,22 +254,21 @@ class MethodologyView extends FrontendViewBase {
                     <?php endforeach; ?>
                 </div>
             <?php endforeach; ?>
-        </section>
         <?php
+        return (string) ob_get_clean();
     }
 
-    private static function renderLearningGoalsGrid( int $primer_id, string $intro ): void {
+    private static function learningGoalsGridBody( int $primer_id, string $intro ): string {
         $rows = ( new LearningGoalsRepository() )->listForPrimer( $primer_id );
-        if ( empty( $rows ) ) return;
+        if ( empty( $rows ) ) return '';
         $by_side = [];
         foreach ( $rows as $r ) $by_side[ (string) $r->side ][] = $r;
+        ob_start();
         ?>
-        <section class="tt-mlogy-section">
-            <h2><?php esc_html_e( 'Leerdoelen', 'talenttrack' ); ?></h2>
-            <?php if ( $intro !== '' ) : ?><p style="white-space:pre-wrap; color:#5b6470;"><?php echo esc_html( $intro ); ?></p><?php endif; ?>
+            <?php if ( $intro !== '' ) : ?><p class="tt-mlogy-prose tt-mlogy-intro"><?php echo esc_html( $intro ); ?></p><?php endif; ?>
             <?php foreach ( MethodologyEnums::sides() as $key => $label ) :
                 if ( empty( $by_side[ $key ] ) ) continue; ?>
-                <h3 style="margin-top:18px;"><?php echo esc_html( $label ); ?></h3>
+                <h3 class="tt-mlogy-subhead"><?php echo esc_html( $label ); ?></h3>
                 <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:10px;">
                     <?php foreach ( $by_side[ $key ] as $r ) :
                         $bullets = MultilingualField::stringList( $r->bullets_json );
@@ -249,17 +284,16 @@ class MethodologyView extends FrontendViewBase {
                     <?php endforeach; ?>
                 </div>
             <?php endforeach; ?>
-        </section>
         <?php
+        return (string) ob_get_clean();
     }
 
-    private static function renderInfluenceFactors( int $primer_id, string $intro ): void {
+    private static function influenceFactorsBody( int $primer_id, string $intro ): string {
         $rows = ( new InfluenceFactorsRepository() )->listForPrimer( $primer_id );
-        if ( empty( $rows ) ) return;
+        if ( empty( $rows ) ) return '';
+        ob_start();
         ?>
-        <section class="tt-mlogy-section">
-            <h2><?php esc_html_e( 'Factoren van invloed', 'talenttrack' ); ?></h2>
-            <?php if ( $intro !== '' ) : ?><p style="white-space:pre-wrap; color:#5b6470;"><?php echo esc_html( $intro ); ?></p><?php endif; ?>
+            <?php if ( $intro !== '' ) : ?><p class="tt-mlogy-prose tt-mlogy-intro"><?php echo esc_html( $intro ); ?></p><?php endif; ?>
             <?php foreach ( $rows as $r ) :
                 $title = MultilingualField::string( $r->title_json );
                 $desc  = MultilingualField::string( $r->description_json );
@@ -283,8 +317,8 @@ class MethodologyView extends FrontendViewBase {
                     <?php endif; ?>
                 </div>
             <?php endforeach; ?>
-        </section>
         <?php
+        return (string) ob_get_clean();
     }
 
     // Principles
