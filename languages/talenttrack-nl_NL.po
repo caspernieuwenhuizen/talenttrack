@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-23T19:52:54+00:00\n"
+"POT-Creation-Date: 2026-06-23T19:58:15+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -378,7 +378,7 @@ msgstr ""
 "nieuwe taakautomatisering stopt."
 
 #: src/Infrastructure/CustomFields/CustomFieldsSlot.php:96
-#: src/Shared/Frontend/FrontendOverviewView.php:163
+#: src/Shared/Frontend/FrontendOverviewView.php:237
 #: src/Shared/Frontend/FrontendPlayersManageView.php:519
 #: src/Shared/Frontend/FrontendPlayersManageView.php:624
 msgid "Additional information"
@@ -3321,6 +3321,7 @@ msgstr "Totaal minuten"
 #: src/Shared/Frontend/FrontendEvaluationsView.php:256
 #: src/Shared/Frontend/FrontendEvaluationsView.php:268
 #: src/Shared/Frontend/FrontendExportsView.php:360
+#: src/Shared/Frontend/FrontendOverviewView.php:215
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:156
 #: src/Shared/Frontend/FrontendReportDetailView.php:98
 #: src/Shared/Frontend/FrontendReportDetailView.php:188
@@ -5430,8 +5431,8 @@ msgstr "Ontwikkelideeën"
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:133
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:47
 #: src/Shared/CoreSurfaceRegistration.php:220
-#: src/Shared/Frontend/FrontendOverviewView.php:28
-#: src/Shared/Frontend/FrontendOverviewView.php:29
+#: src/Shared/Frontend/FrontendOverviewView.php:33
+#: src/Shared/Frontend/FrontendOverviewView.php:34
 msgid "My card"
 msgstr "Mijn kaart"
 
@@ -24520,7 +24521,8 @@ msgstr[1] "Gebaseerd op %d evaluaties"
 #: src/Modules/Stats/Admin/PlayerComparisonPage.php:301
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:351
 #: src/Shared/Frontend/FrontendComparisonView.php:375
-#: src/Shared/Frontend/FrontendOverviewView.php:139
+#: src/Shared/Frontend/FrontendOverviewView.php:122
+#: src/Shared/Frontend/FrontendOverviewView.php:211
 msgid "All-time"
 msgstr "Totaal"
 
@@ -31899,7 +31901,7 @@ msgid "No teams assigned."
 msgstr "Geen teams toegewezen."
 
 #: src/Shared/Frontend/CoachDashboardView.php:98
-#: src/Shared/Frontend/FrontendOverviewView.php:65
+#: src/Shared/Frontend/FrontendOverviewView.php:76
 #: src/Shared/Frontend/FrontendPlayersManageView.php:555
 #: src/Shared/Frontend/PlayerDashboardView.php:77
 msgid "Print report"
@@ -35762,19 +35764,28 @@ msgstr "Gelijk aan vorige maand"
 msgid "Improving most: %s"
 msgstr "Grootste vooruitgang: %s"
 
+#: src/Shared/Frontend/FrontendOverviewView.php:58
+msgid "Skills profile"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendOverviewView.php:122
+#: src/Shared/Frontend/FrontendOverviewView.php:205
+msgid "Last 5"
+msgstr "Laatste 5"
+
 #. translators: %s is preferred foot label (Left / Right / Both)
-#: src/Shared/Frontend/FrontendOverviewView.php:128
+#: src/Shared/Frontend/FrontendOverviewView.php:144
 #, php-format
 msgid "%s foot"
 msgstr "%s voet"
 
-#: src/Shared/Frontend/FrontendOverviewView.php:136
-msgid "Last 5"
-msgstr "Laatste 5"
-
-#: src/Shared/Frontend/FrontendOverviewView.php:142
+#: src/Shared/Frontend/FrontendOverviewView.php:157
 msgid "First evaluation coming soon"
 msgstr "Eerste evaluatie volgt binnenkort"
+
+#: src/Shared/Frontend/FrontendOverviewView.php:201
+msgid "Latest"
+msgstr ""
 
 #: src/Shared/Frontend/FrontendPeopleManageView.php:53
 #, php-format
