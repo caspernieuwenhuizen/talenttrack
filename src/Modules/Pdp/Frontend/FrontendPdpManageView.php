@@ -39,6 +39,17 @@ class FrontendPdpManageView extends FrontendViewBase {
     protected static function enqueueAssets(): void {
         parent::enqueueAssets();
 
+        // #1686 — POP / PDP body restyle to the 2026 chrome look. Depends
+        // on the global app-chrome stylesheet for the shared tokens +
+        // KPI tile; loaded here (not in FrontendViewBase) because only
+        // the PDP surfaces use it.
+        wp_enqueue_style(
+            'tt-frontend-pop',
+            TT_PLUGIN_URL . 'assets/css/frontend-pop.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+
         wp_enqueue_script(
             'tt-pdp-archive-button',
             TT_PLUGIN_URL . 'assets/js/pdp-archive-button.js',
@@ -857,22 +868,22 @@ class FrontendPdpManageView extends FrontendViewBase {
             if ( ! empty( $c->coach_signoff_at ) ) $signed_count++;
         }
 
-        // Summary card
-        echo '<div class="tt-card" style="background:#fff; border:1px solid #e5e7ea; border-radius:8px; padding:16px; margin-bottom:16px;">';
-        echo '<p style="margin:0 0 6px; display:flex; align-items:center; gap:8px;">';
+        // #1686 — summary panel restyled to the 2026 chrome card.
+        echo '<div class="tt-pop-summary">';
+        echo '<p class="tt-pop-summary__row">';
         // v3.110.110 — converge onto LookupPill so the status uses the
         // same rounded-pill chrome as the list view + every other
         // status in the app (pilot ask: "the status pill does not have
         // rounded edges like all other pills").
-        echo '<strong>' . esc_html__( 'Status:', 'talenttrack' ) . '</strong> '
+        echo '<span class="tt-pop-summary__label">' . esc_html__( 'Status', 'talenttrack' ) . '</span> '
             . \TT\Infrastructure\Query\LookupPill::render( 'pdp_status', (string) $file->status, self::statusLabel( (string) $file->status ) );
         // #0077 F1 — context-sensitive help drawer entry.
         \TT\Shared\Frontend\Components\HelpDrawer::button( 'pdp' );
         echo '</p>';
-        echo '<p style="margin:0 0 6px;"><strong>' . esc_html__( 'Cycle size:', 'talenttrack' ) . '</strong> '
+        echo '<p class="tt-pop-summary__row"><span class="tt-pop-summary__label">' . esc_html__( 'Cycle size', 'talenttrack' ) . '</span> '
             . (int) $cycle_size;
         if ( $cycle_size > 0 ) {
-            echo ' <span style="color:#5b6e75; font-size:13px; margin-left:8px;">'
+            echo ' <span style="color:var(--tt-muted,#5b6e75); font-size:0.82rem;">'
                 . sprintf(
                     /* translators: 1: signed-off count, 2: cycle size */
                     esc_html__( '(%1$d of %2$d signed off)', 'talenttrack' ),
@@ -883,7 +894,7 @@ class FrontendPdpManageView extends FrontendViewBase {
         }
         echo '</p>';
         if ( ! empty( $file->notes ) ) {
-            echo '<p style="margin:0;"><strong>' . esc_html__( 'Notes:', 'talenttrack' ) . '</strong> '
+            echo '<p class="tt-pop-summary__row"><span class="tt-pop-summary__label">' . esc_html__( 'Notes', 'talenttrack' ) . '</span> '
                 . esc_html( (string) $file->notes ) . '</p>';
         }
         echo '</div>';
@@ -1394,43 +1405,71 @@ class FrontendPdpManageView extends FrontendViewBase {
         $goal_ids = array_map( static fn( $g ) => (int) $g->id, $goals );
         $links_by_goal = self::loadGoalLinks( $goal_ids );
 
-        echo '<div class="tt-pdp-goals-list" style="display:flex; flex-direction:column; gap:10px;">';
+        // #1686 — learning-goal cards in the 2026 chrome look: a
+        // status-derived left accent (done / doing / planned), a number
+        // (or ✓) badge, the goal_status chip, link chips, and the
+        // "last mentioned" conversation snippet. Number badges count
+        // up over the listed goals so the column reads as an ordered
+        // development arc, mirroring the mockup.
+        echo '<div class="tt-pop-goals">';
+        $goal_index = 0;
         foreach ( $goals as $g ) {
-            $title = (string) $g->title;
-            $status = (string) $g->status;
+            $goal_index++;
+            $title    = (string) $g->title;
+            $status   = (string) $g->status;
             $priority = (string) ( $g->priority ?? '' );
-            $due = self::shortDate( $g->due_date );
-            $links = $links_by_goal[ (int) $g->id ] ?? [];
+            $due      = self::shortDate( $g->due_date );
+            $links    = $links_by_goal[ (int) $g->id ] ?? [];
 
             $latest_mention = self::findLatestMention( (string) $title, $convs );
 
-            echo '<div class="tt-card" style="background:#fff; border:1px solid #e5e7ea; border-radius:8px; padding:12px;">';
-            echo '<div style="display:flex; justify-content:space-between; gap:8px; align-items:flex-start;">';
+            // Map the goal status onto the chrome accent + badge variant.
+            $is_done = ( $status === 'completed' );
+            if ( $is_done ) {
+                $card_mod  = 'tt-pop-goal--done';
+                $num_glyph = '✓';
+            } elseif ( in_array( $status, [ 'planned', 'not_started' ], true ) ) {
+                $card_mod  = 'tt-pop-goal--planned';
+                $num_glyph = (string) $goal_index;
+            } else {
+                $card_mod  = 'tt-pop-goal--doing';
+                $num_glyph = (string) $goal_index;
+            }
+
+            echo '<div class="tt-pop-goal ' . esc_attr( $card_mod ) . '">';
+            echo '<div class="tt-pop-goal__head">';
+            echo '<div class="tt-pop-goal__titlerow">';
+            echo '<span class="tt-pop-goal__num" aria-hidden="true">' . esc_html( $num_glyph ) . '</span>';
             // #0070 — connected goal title links to goal detail page.
-            echo '<div style="flex:1; min-width:0;"><strong>'
+            echo '<span class="tt-pop-goal__title">'
                 . \TT\Shared\Frontend\Components\RecordLink::inline(
                     $title,
                     \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'goals', (int) $g->id )
                 )
-                . '</strong>';
-            if ( ! empty( $g->description ) ) {
-                echo '<div style="font-size:12px; color:#5b6e75; margin-top:2px;">' . esc_html( (string) $g->description ) . '</div>';
+                . '</span>';
+            echo '</div>';
+            if ( ! empty( $g->due_date ) ) {
+                echo '<span class="tt-pop-goal__when">' . esc_html( $due ) . '</span>';
             }
             echo '</div>';
-            echo '<div style="text-align:right; font-size:12px; color:#5b6e75; white-space:nowrap;">';
+
+            if ( ! empty( $g->description ) ) {
+                echo '<p class="tt-pop-goal__desc">' . esc_html( (string) $g->description ) . '</p>';
+            }
+
+            echo '<div class="tt-pop-goal__chips">';
             // #0063 — connected goals use goal_status pill same as everywhere else.
             echo \TT\Infrastructure\Query\LookupPill::render( 'goal_status', $status );
-            if ( $priority !== '' ) echo ' · ' . esc_html( $priority );
-            if ( ! empty( $g->due_date ) ) {
-                echo '<br>' . esc_html( sprintf( /* translators: %s = date */ __( 'Due %s', 'talenttrack' ), $due ) );
+            if ( $priority !== '' ) {
+                echo '<span class="tt-status-badge tt-status-future">' . esc_html( $priority ) . '</span>';
             }
-            echo '</div>';
             echo '</div>';
 
             if ( ! empty( $links ) ) {
-                echo '<div style="margin-top:8px; display:flex; flex-wrap:wrap; gap:4px;">';
+                echo '<p class="tt-pop-lbl">' . esc_html__( 'Linked to', 'talenttrack' ) . '</p>';
+                echo '<div class="tt-pop-evid">';
                 foreach ( $links as $l ) {
-                    echo '<span style="display:inline-block; padding:2px 8px; background:#f0f7f6; color:#1d7874; border-radius:10px; font-size:11px;">'
+                    echo '<span class="tt-pop-ev">'
                         . esc_html( self::linkLabel( (string) $l['type'] ) ) . ': ' . esc_html( (string) $l['name'] )
                         . '</span>';
                 }
@@ -1438,13 +1477,13 @@ class FrontendPdpManageView extends FrontendViewBase {
             }
 
             if ( $latest_mention !== null ) {
-                echo '<div style="margin-top:8px; padding:8px; background:#fafbfc; border-left:3px solid #1d7874; font-size:12px; color:#3a4047;">';
-                echo '<div style="font-weight:600; margin-bottom:2px;">' . esc_html( sprintf(
+                echo '<div class="tt-pop-mention">';
+                echo '<span class="tt-pop-mention__when">' . esc_html( sprintf(
                     /* translators: %s = date */
                     __( 'Last mentioned in conversation on %s', 'talenttrack' ),
                     self::shortDate( $latest_mention['when_at'] )
-                ) ) . '</div>';
-                echo '<div>' . esc_html( $latest_mention['snippet'] ) . '</div>';
+                ) ) . '</span>';
+                echo esc_html( $latest_mention['snippet'] );
                 echo '</div>';
             }
 

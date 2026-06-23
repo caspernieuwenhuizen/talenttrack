@@ -272,6 +272,9 @@ class FrontendMatchPrepView extends FrontendViewBase {
         self::enqueueViewAssets( $prep_id, $activity_id );
 
         $half_length = (int) ( $prep->half_length_minutes ?? 35 );
+
+        // #1695 — at-a-glance summary on real data for the 2026 KPI strip.
+        $summary = self::summaryCounts( $availability_by_pid, $lineup_by_half[1], count( $roster_list ) );
         ?>
         <h1 class="tt-fview-title tt-match-prep-title"><?php echo esc_html( $title ); ?></h1>
 
@@ -281,6 +284,31 @@ class FrontendMatchPrepView extends FrontendViewBase {
                  data-formation-shape="<?php echo esc_attr( $formation_shape ); ?>"
                  data-half-length="<?php echo (int) $half_length; ?>"
                  data-cancel-url="<?php echo esc_url( $back_to_activity ); ?>">
+
+            <!-- 2026 KPI strip — match-prep summary on real data (#1695) -->
+            <div class="tt-mp-kpis" role="group" aria-label="<?php esc_attr_e( 'Match prep summary', 'talenttrack' ); ?>">
+                <?php
+                echo \TT\Shared\Frontend\Components\FrontendAppChrome::kpiTile( [
+                    'label' => __( 'Available', 'talenttrack' ),
+                    'value' => (string) $summary['available'],
+                ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                echo \TT\Shared\Frontend\Components\FrontendAppChrome::kpiTile( [
+                    'label' => __( 'Unavailable', 'talenttrack' ),
+                    'value' => (string) $summary['unavailable'],
+                    'flag'  => $summary['unavailable'] > 0 ? 'red' : '',
+                ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                echo \TT\Shared\Frontend\Components\FrontendAppChrome::kpiTile( [
+                    /* translators: 1st-half starters assigned out of 11. */
+                    'label' => __( '1st-half starters', 'talenttrack' ),
+                    'value' => sprintf( '%d/11', $summary['starters'] ),
+                    'flag'  => $summary['starters'] >= 11 ? 'green' : '',
+                ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                echo \TT\Shared\Frontend\Components\FrontendAppChrome::kpiTile( [
+                    'label' => __( 'Formation', 'talenttrack' ),
+                    'value' => $formation_shape,
+                ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                ?>
+            </div>
 
             <!-- Toolbar: formation / half length / availability / print / save state -->
             <div class="tt-mp-toolbar" role="toolbar" aria-label="<?php esc_attr_e( 'Match prep toolbar', 'talenttrack' ); ?>">
@@ -713,6 +741,15 @@ class FrontendMatchPrepView extends FrontendViewBase {
             [],
             TT_VERSION
         );
+        // #1695 — 2026 "chrome" visual layer. Loads after the base sheet
+        // and after the shared app-chrome (which carries the KPI tile rules
+        // and the brand tokens this layer reads).
+        wp_enqueue_style(
+            'tt-match-prep-2026',
+            TT_PLUGIN_URL . 'assets/css/frontend-match-prep-2026.css',
+            [ 'tt-frontend-app-chrome', 'tt-match-prep' ],
+            TT_VERSION
+        );
         wp_enqueue_script(
             'tt-match-prep',
             TT_PLUGIN_URL . 'assets/js/frontend-match-prep.js',
@@ -853,6 +890,41 @@ class FrontendMatchPrepView extends FrontendViewBase {
         $lines = array_values( array_map( 'strval', $lines ) );
         while ( count( $lines ) < $count ) $lines[] = '';
         return array_slice( $lines, 0, $count );
+    }
+
+    /**
+     * Aggregate the already-loaded match-prep state into the handful of
+     * numbers the KPI strip surfaces. Pure aggregation — every value is
+     * derived from data the render method already fetched (no query, no
+     * eligibility decision), so this stays SaaS-portable (CLAUDE.md §4)
+     * and the strip is render-only polish.
+     *
+     * @param array<int,array{status:string,reason:string}> $availability_by_pid
+     * @param array<int,int>                                $lineup_half_1 slot => player id
+     * @return array{available:int,unavailable:int,starters:int,roster:int}
+     */
+    private static function summaryCounts( array $availability_by_pid, array $lineup_half_1, int $roster_total ): array {
+        $available   = 0;
+        $unavailable = 0;
+        foreach ( $availability_by_pid as $row ) {
+            if ( strcasecmp( (string) ( $row['status'] ?? '' ), 'Present' ) === 0 ) {
+                $available++;
+            } else {
+                $unavailable++;
+            }
+        }
+        $starters = 0;
+        foreach ( $lineup_half_1 as $pid ) {
+            if ( (int) $pid > 0 ) {
+                $starters++;
+            }
+        }
+        return [
+            'available'   => $available,
+            'unavailable' => $unavailable,
+            'starters'    => $starters,
+            'roster'      => $roster_total,
+        ];
     }
 
     /**

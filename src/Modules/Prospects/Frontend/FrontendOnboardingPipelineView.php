@@ -52,7 +52,7 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
         wp_enqueue_style(
             'tt-onboarding-pipeline',
             TT_PLUGIN_URL . 'assets/css/components/onboarding-pipeline.css',
-            [],
+            [ 'tt-frontend-app-chrome' ],
             TT_VERSION
         );
         FrontendBreadcrumbs::fromDashboard( __( 'Onboarding pipeline', 'talenttrack' ) );
@@ -109,25 +109,47 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
         $sub       = (string) ( $card['sub_label']    ?? '' );
         $context   = (string) ( $card['context_line'] ?? '' );
         $stale     = ! empty( $card['stale'] );
+        $joined    = ! empty( $card['joined'] );
+        $initials  = (string) ( $card['initials']     ?? '' );
         $url       = (string) ( $card['url']          ?? '' );
         $tag       = $url !== '' ? 'a' : 'div';
         $url_attr  = $url !== '' ? ' href="' . esc_url( $url ) . '"' : '';
-        $stale_cls = $stale ? ' tt-pipeline-card-stale' : '';
+
+        // Flag accent — amber for a stale (overdue) early-funnel card,
+        // green for a card that has reached the joined column. The accent
+        // is a left border (CSS) plus a matching footer chip.
+        $flag_cls = '';
+        if ( $joined ) {
+            $flag_cls = ' tt-pipeline-card--flag-g';
+        } elseif ( $stale ) {
+            $flag_cls = ' tt-pipeline-card--flag-a';
+        }
 
         ob_start();
         ?>
-        <<?php echo $tag; ?> class="tt-pipeline-card<?php echo esc_attr( $stale_cls ); ?>"<?php
+        <<?php echo $tag; ?> class="tt-pipeline-card<?php echo esc_attr( $flag_cls ); ?>"<?php
             echo $url_attr; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
         ?>>
-            <span class="tt-pipeline-card-name"><?php echo esc_html( $name ); ?></span>
-            <?php if ( $sub !== '' ) : ?>
-                <span class="tt-pipeline-card-sub"><?php echo esc_html( $sub ); ?></span>
-            <?php endif; ?>
+            <span class="tt-pipeline-card-who">
+                <span class="tt-pipeline-card-avatar" aria-hidden="true"><?php echo esc_html( $initials ); ?></span>
+                <span class="tt-pipeline-card-id">
+                    <span class="tt-pipeline-card-name"><?php echo esc_html( $name ); ?></span>
+                    <?php if ( $sub !== '' ) : ?>
+                        <span class="tt-pipeline-card-sub"><?php echo esc_html( $sub ); ?></span>
+                    <?php endif; ?>
+                </span>
+            </span>
             <?php if ( $context !== '' ) : ?>
                 <span class="tt-pipeline-card-ctx"><?php echo esc_html( $context ); ?></span>
             <?php endif; ?>
-            <?php if ( $stale ) : ?>
-                <span class="tt-pipeline-card-stale-badge"><?php esc_html_e( 'stale', 'talenttrack' ); ?></span>
+            <?php if ( $joined ) : ?>
+                <span class="tt-pipeline-card-foot">
+                    <span class="tt-chip tt-chip--green"><?php esc_html_e( 'Player', 'talenttrack' ); ?></span>
+                </span>
+            <?php elseif ( $stale ) : ?>
+                <span class="tt-pipeline-card-foot">
+                    <span class="tt-chip tt-chip--amber"><?php esc_html_e( 'Action needed', 'talenttrack' ); ?></span>
+                </span>
             <?php endif; ?>
         </<?php echo $tag; ?>>
         <?php
@@ -259,11 +281,28 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
 
         return [
             'name'         => trim( $first . ' ' . $last ),
+            'initials'     => self::initials( $first, $last ),
             'sub_label'    => implode( ' · ', $sub_parts ),
             'context_line' => $context_line,
             'stale'        => $stale,
+            'joined'       => $stage === 'joined',
             'url'          => self::cardUrl( $row, $stage ),
         ];
+    }
+
+    /**
+     * Two-letter initials for the card avatar. Falls back to the first
+     * two letters of whichever name part exists so a single-name
+     * prospect still renders a non-empty avatar.
+     */
+    private static function initials( string $first, string $last ): string {
+        $f = trim( $first );
+        $l = trim( $last );
+        if ( $f !== '' && $l !== '' ) {
+            return strtoupper( mb_substr( $f, 0, 1 ) . mb_substr( $l, 0, 1 ) );
+        }
+        $one = $f !== '' ? $f : $l;
+        return strtoupper( mb_substr( $one, 0, 2 ) );
     }
 
     private static function contextLine( object $row, string $stage ): string {
