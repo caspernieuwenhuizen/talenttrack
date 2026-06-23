@@ -1,0 +1,267 @@
+/*
+ * frontend-methodology.css — 2026 "chrome" restyle of the Methodology
+ * library view (?tt_view=methodology). Mobile-first (base 360px),
+ * scaling up via min-width queries. Brand tokens come from public.css
+ * / frontend-app-chrome.css: --tt-primary (#0b3d2e), --tt-secondary
+ * (#e8b624), --tt-muted, --tt-shadow-md. Enqueued with the app-chrome
+ * sheet as a dependency. (#1671)
+ *
+ * Selectors are prefixed `.tt-mlogy-` and assume a hostile theme.
+ */
+
+/* ---- Tab pills ----------------------------------------------------- */
+.tt-mlogy-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 8px 0 20px;
+}
+.tt-mlogy-tab {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: 0 16px;
+    border: 1px solid #e3e6e1;
+    border-radius: 999px;
+    background: #fff;
+    color: var(--tt-primary, #0b3d2e);
+    font-weight: 600;
+    font-size: 0.95rem;
+    line-height: 1.2;
+    text-decoration: none;
+    box-shadow: var(--tt-shadow-md, 0 8px 24px -8px rgba(0, 0, 0, 0.12));
+    touch-action: manipulation;
+    transition: background-color 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+.tt-mlogy-tab:hover,
+.tt-mlogy-tab:focus-visible {
+    border-color: var(--tt-primary, #0b3d2e);
+}
+.tt-mlogy-tab:focus-visible {
+    outline: 2px solid var(--tt-secondary, #e8b624);
+    outline-offset: 2px;
+}
+.tt-mlogy-tab.is-active {
+    background: var(--tt-primary, #0b3d2e);
+    border-color: var(--tt-primary, #0b3d2e);
+    color: #fff;
+}
+/* lead tab (Visie) keeps a subtle gold ring even when inactive */
+.tt-mlogy-tab--lead {
+    box-shadow: 0 0 0 2px var(--tt-secondary, #e8b624);
+}
+.tt-mlogy-tab--lead.is-active {
+    box-shadow: 0 0 0 2px var(--tt-secondary, #e8b624), var(--tt-shadow-md, 0 8px 24px -8px rgba(0, 0, 0, 0.12));
+}
+
+/* ---- Framework accordion (native <details>) ------------------------ */
+.tt-mlogy-acc-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 18px;
+}
+.tt-mlogy-acc {
+    border: 1px solid #e3e6e1;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: var(--tt-shadow-md, 0 8px 24px -8px rgba(0, 0, 0, 0.12));
+    overflow: hidden;
+}
+.tt-mlogy-acc__summary {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 48px;
+    padding: 12px 16px;
+    cursor: pointer;
+    list-style: none;
+    font-weight: 600;
+    color: var(--tt-primary, #0b3d2e);
+    touch-action: manipulation;
+}
+/* hide the native disclosure marker */
+.tt-mlogy-acc__summary::-webkit-details-marker { display: none; }
+.tt-mlogy-acc__summary::marker { content: ""; }
+.tt-mlogy-acc__summary:focus-visible {
+    outline: 2px solid var(--tt-secondary, #e8b624);
+    outline-offset: -2px;
+}
+.tt-mlogy-acc__chip {
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: var(--tt-secondary, #e8b624);
+    color: var(--tt-primary, #0b3d2e);
+    font-weight: 800;
+    font-size: 0.85rem;
+}
+.tt-mlogy-acc__title {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 1.05rem;
+    line-height: 1.25;
+}
+.tt-mlogy-acc__chevron {
+    flex: 0 0 auto;
+    width: 12px;
+    height: 12px;
+    border-right: 2px solid var(--tt-muted, #6a6d66);
+    border-bottom: 2px solid var(--tt-muted, #6a6d66);
+    transform: rotate(45deg);
+    transition: transform 150ms ease;
+}
+.tt-mlogy-acc[open] .tt-mlogy-acc__chevron {
+    transform: rotate(225deg);
+}
+.tt-mlogy-acc__body {
+    padding: 0 16px 16px;
+}
+.tt-mlogy-prose {
+    white-space: pre-wrap;
+    margin: 0;
+}
+.tt-mlogy-intro {
+    color: var(--tt-muted, #6a6d66);
+}
+.tt-mlogy-subhead {
+    margin-top: 18px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tt-mlogy-tab,
+    .tt-mlogy-acc__chevron {
+        transition: none;
+    }
+}
+
+/* ---- Shared content blocks (carried over from the inline styles) --- */
+.tt-mlogy-hero {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border: 1px solid #e3e6e1;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    background: #f6f7f9;
+}
+.tt-mlogy-card {
+    padding: 14px;
+    border: 1px solid #e3e6e1;
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: var(--tt-shadow-md, 0 8px 24px -8px rgba(0, 0, 0, 0.12));
+}
+.tt-mlogy-card a {
+    text-decoration: none;
+    color: inherit;
+}
+.tt-mlogy-section {
+    margin-top: 32px;
+}
+.tt-mlogy-section h2 {
+    margin-bottom: 8px;
+}
+.tt-mlogy-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    list-style: none;
+    padding: 0;
+}
+.tt-mlogy-detail-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 24px;
+    align-items: start;
+}
+.tt-mlogy-line {
+    padding: 10px 12px;
+    background: #f6f7f9;
+    border-left: 3px solid var(--tt-primary, #0b3d2e);
+    margin: 8px 0;
+    border-radius: 0 6px 6px 0;
+}
+.tt-mlogy-line h4 {
+    margin: 0 0 4px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--tt-primary, #0b3d2e);
+}
+.tt-mlogy-line p {
+    margin: 0;
+    white-space: pre-wrap;
+}
+.tt-mlogy-bullets {
+    margin: 6px 0 0 18px;
+    padding: 0;
+}
+.tt-mlogy-pill {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: #eef1ec;
+    color: var(--tt-primary, #0b3d2e);
+}
+.tt-mlogy-phase-card {
+    padding: 12px;
+    border: 1px solid #e3e6e1;
+    border-radius: 10px;
+    background: #fff;
+}
+.tt-mlogy-phase-card .num {
+    display: inline-block;
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
+    text-align: center;
+    border-radius: 50%;
+    color: #fff;
+    font-weight: 600;
+}
+.tt-mlogy-phase-card.attacking .num { background: #0a7c41; }
+.tt-mlogy-phase-card.defending .num { background: #b32d2e; }
+.tt-mlogy-factor {
+    padding: 14px;
+    border: 1px solid #e3e6e1;
+    border-radius: 10px;
+    background: #fff;
+    margin-bottom: 10px;
+}
+.tt-mlogy-factor-subs {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-top: 10px;
+}
+.tt-mlogy-factor-sub {
+    padding: 8px 10px;
+    background: #f6f7f9;
+    border-radius: 6px;
+    font-size: 13px;
+}
+.tt-mlogy-factor-sub strong {
+    display: block;
+    margin-bottom: 2px;
+    color: var(--tt-primary, #0b3d2e);
+}
+
+/* ---- Scale up ------------------------------------------------------ */
+@media (min-width: 480px) {
+    .tt-mlogy-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+    .tt-mlogy-factor-subs {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+}
+@media (min-width: 768px) {
+    .tt-mlogy-detail-grid {
+        grid-template-columns: minmax(0, 1fr) 360px;
+    }
+}

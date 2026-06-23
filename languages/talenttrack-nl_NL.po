@@ -18564,6 +18564,10 @@ msgid "Voetbalmodel"
 msgstr "Voetbalmodel"
 
 #: src/Modules/Methodology/Admin/MethodologyPage.php:544
+#: src/Modules/Methodology/Frontend/MethodologyView.php:91
+msgid "Methodology sections"
+msgstr "Methodiek-secties"
+
 #: src/Modules/Methodology/Admin/MethodologyPage.php:605
 #: src/Modules/Methodology/Frontend/MethodologyView.php:206
 msgid "Vier fasen"
