@@ -1,0 +1,227 @@
+/*
+ * frontend-match-prep-2026.css — 2026 "chrome" visual layer for the
+ * head-coach match-preparation view (#1695, part of the 2026 visual-
+ * parity epic #1680).
+ *
+ * This sheet sits ON TOP of frontend-match-prep.css (which still carries
+ * the spreadsheet grid geometry, the pitch SVGs, the picker/drawer
+ * overlays, and the entire @media print block). It only restyles the
+ * BODY surfaces — toolbar, panels, goal boxes, role list, KPI strip — to
+ * the 2026 design language: white cards (1px #e3e6e1, 12–14px radius,
+ * var(--tt-shadow-md)), chips, and the brand tokens from public.css
+ * (--tt-primary #0b3d2e, --tt-secondary #e8b624, --tt-ink, --tt-muted).
+ * No new palette is introduced.
+ *
+ * Mobile-first per CLAUDE.md §2: base styles target ~360px; the existing
+ * sheet's min-width queries (768px goals 2-col, 1100px 3-col grid) stay
+ * authoritative for layout. Everything is scoped under .tt-match-prep so
+ * the host theme stays untouched.
+ *
+ * Enqueued with dep ['tt-frontend-app-chrome'] so the KPI tile rules
+ * (.tt-kpi*) and the brand tokens are guaranteed present.
+ */
+
+/* -------------------------------------------------------------------
+ * Card + ink tokens — re-point the legacy --tt-mp-* vars at the 2026
+ * brand palette so every existing rule that already reads them picks up
+ * the new look without being rewritten. The pitch tints stay as-is (they
+ * encode 1e/2e half identity and must keep their meaning).
+ * ------------------------------------------------------------------- */
+.tt-match-prep {
+    --tt-mp-ink:       var(--tt-ink, #0e1a14);
+    --tt-mp-ink-soft:  var(--tt-muted, #6a6d66);
+    --tt-mp-line:      #e3e6e1;
+    --tt-mp-line-soft: #eef0ec;
+    --tt-mp-accent:    var(--tt-primary, #0b3d2e);
+    --tt-mp-success:   #2f9e5e;
+    --tt-mp-warn:      #c75c1f;
+    --tt-mp-danger:    #d8453b;
+    --tt-mp-mute:      #f4f6f3;
+    --tt-mp-radius:    12px;
+}
+
+.tt-match-prep-title {
+    color: var(--tt-primary, #0b3d2e);
+    font-weight: 800;
+    letter-spacing: 0.01em;
+}
+
+/* -------------------------------------------------------------------
+ * KPI strip — at-a-glance match-prep summary on real data.
+ * Mobile-first: 2-up auto-fit grid that scales to 4-up on wider screens.
+ * The tile chrome itself comes from frontend-app-chrome.css (.tt-kpi).
+ * ------------------------------------------------------------------- */
+.tt-mp-kpis {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.625rem;
+    margin: 0 0 0.875rem;
+}
+@media (min-width: 48em) {
+    .tt-mp-kpis {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+.tt-mp-kpis .tt-kpi__val {
+    font-size: 1.4rem;
+}
+
+/* -------------------------------------------------------------------
+ * Toolbar — promote to a white 2026 card.
+ * ------------------------------------------------------------------- */
+.tt-match-prep .tt-mp-toolbar {
+    border: 1px solid #e3e6e1;
+    border-radius: var(--tt-mp-radius);
+    box-shadow: var(--tt-shadow-md);
+    padding: 0.75rem 0.875rem;
+}
+.tt-match-prep .tt-mp-toolbar input,
+.tt-match-prep .tt-mp-toolbar select {
+    border-radius: 8px;
+}
+.tt-match-prep .tt-mp-toolbar input:focus-visible,
+.tt-match-prep .tt-mp-toolbar select:focus-visible {
+    outline: none;
+    border-color: var(--tt-primary, #0b3d2e);
+    box-shadow: 0 0 0 3px rgba(11, 61, 46, 0.12);
+}
+
+/* -------------------------------------------------------------------
+ * Panels (roster, player-focus, roles) — white cards with the 2026
+ * radius + shadow; soften the panel header into a tinted strip.
+ * ------------------------------------------------------------------- */
+.tt-match-prep .tt-mp-panel {
+    border: 1px solid #e3e6e1;
+    border-radius: var(--tt-mp-radius);
+    box-shadow: var(--tt-shadow-md);
+}
+.tt-match-prep .tt-mp-panel-head {
+    background: var(--tt-mp-mute);
+    border-bottom: 1px solid #e3e6e1;
+    color: var(--tt-primary, #0b3d2e);
+    font-weight: 800;
+    letter-spacing: 0.05em;
+}
+
+/* On-pitch minute cells pick up the brand green tint. */
+.tt-match-prep .tt-mp-roster tbody td.tt-mp-on {
+    background: rgba(47, 158, 94, 0.12);
+    color: var(--tt-mp-success);
+}
+
+/* Half pills — keep the half identity but round to the 2026 chip shape. */
+.tt-match-prep .tt-mp-pill {
+    border-radius: 999px;
+    font-weight: 700;
+}
+
+/* -------------------------------------------------------------------
+ * Pitches — round to the card radius, deepen the rim.
+ * ------------------------------------------------------------------- */
+.tt-match-prep .tt-mp-pitch {
+    border-radius: var(--tt-mp-radius);
+    box-shadow: var(--tt-shadow-md);
+}
+.tt-match-prep .tt-mp-slot .tt-mp-slot-name {
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+.tt-match-prep .tt-mp-copy-btn {
+    border: 1px solid #e3e6e1;
+    border-radius: 10px;
+    color: var(--tt-primary, #0b3d2e);
+}
+.tt-match-prep .tt-mp-copy-btn:hover,
+.tt-match-prep .tt-mp-copy-btn:focus-visible {
+    background: var(--tt-primary, #0b3d2e);
+    border-color: var(--tt-primary, #0b3d2e);
+    color: #fff;
+}
+
+/* -------------------------------------------------------------------
+ * Match goals — promote the whole panel + each goal box to cards.
+ * ------------------------------------------------------------------- */
+.tt-match-prep .tt-mp-goals {
+    border: 1px solid #e3e6e1;
+    border-radius: var(--tt-mp-radius);
+    box-shadow: var(--tt-shadow-md);
+    padding: 1rem;
+}
+.tt-match-prep .tt-mp-goals-title {
+    color: var(--tt-primary, #0b3d2e);
+    font-weight: 800;
+}
+.tt-match-prep .tt-mp-gbox {
+    border: 1px solid #e3e6e1;
+    border-radius: 10px;
+    overflow: hidden;
+}
+.tt-match-prep .tt-mp-gbox-title {
+    background: var(--tt-mp-mute);
+    border-bottom: 1px solid #e3e6e1;
+    color: var(--tt-primary, #0b3d2e);
+    font-weight: 800;
+}
+.tt-match-prep .tt-mp-gbox-lines input:focus-visible {
+    background: rgba(11, 61, 46, 0.04);
+    border-bottom-color: var(--tt-primary, #0b3d2e);
+}
+
+/* Player-focus attention input focus ring → brand. */
+.tt-match-prep .tt-mp-dps tbody td.tt-mp-col-text input:focus-visible {
+    background: rgba(11, 61, 46, 0.04);
+    border-bottom-color: var(--tt-primary, #0b3d2e);
+}
+
+/* -------------------------------------------------------------------
+ * Roles & set pieces — the "pick" affordance becomes a proper 2026 chip.
+ * ------------------------------------------------------------------- */
+.tt-match-prep .tt-mp-sp-pick {
+    border-radius: 999px;
+    padding: 0.3rem 0.7rem;
+}
+.tt-match-prep .tt-mp-sp-pick.tt-mp-filled {
+    border-color: var(--tt-primary, #0b3d2e);
+    background: rgba(11, 61, 46, 0.08);
+    color: var(--tt-primary, #0b3d2e);
+}
+.tt-match-prep .tt-mp-sp-row:hover,
+.tt-match-prep .tt-mp-sp-row:focus-visible {
+    background: var(--tt-mp-mute);
+}
+
+/* -------------------------------------------------------------------
+ * Picker + availability drawer — match the card radius + softer rims.
+ * ------------------------------------------------------------------- */
+.tt-match-prep .tt-mp-picker {
+    border: 1px solid #e3e6e1;
+    border-radius: 14px;
+    box-shadow: var(--tt-shadow-lg, 0 8px 24px rgba(0, 0, 0, 0.12));
+}
+.tt-mp-drawer {
+    border-left: 1px solid #e3e6e1;
+}
+.tt-mp-drawer .tt-mp-chip {
+    border-radius: 999px;
+}
+.tt-mp-drawer .tt-mp-chip.tt-mp-on {
+    background: var(--tt-primary, #0b3d2e);
+    border-color: var(--tt-primary, #0b3d2e);
+}
+
+/* -------------------------------------------------------------------
+ * The 2026 card chrome (shadows, brand tints) is on-screen polish only;
+ * the print stylesheet in frontend-match-prep.css already flattens the
+ * page for paper. Drop our shadows + heavy rims on print so nothing
+ * casts a grey halo on the sheet.
+ * ------------------------------------------------------------------- */
+@media print {
+    .tt-mp-kpis { display: none !important; }
+    .tt-match-prep .tt-mp-toolbar,
+    .tt-match-prep .tt-mp-panel,
+    .tt-match-prep .tt-mp-goals,
+    .tt-match-prep .tt-mp-pitch,
+    .tt-match-prep .tt-mp-gbox {
+        box-shadow: none !important;
+    }
+}
