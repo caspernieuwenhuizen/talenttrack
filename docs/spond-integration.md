@@ -23,7 +23,9 @@ That's it. Within an hour, every Spond event for each linked group appears as a 
 
 ## What gets synced
 
-- **Date / time / location / title** — Spond wins. If a coach changes one of those fields on a Spond-imported activity in TalentTrack, the next sync will overwrite it. The "Spond" source pill is the warning.
+- **Date / time / location / title** — Spond wins. If a coach changes one of those fields on a Spond-imported activity in TalentTrack, the next sync will overwrite it. The "Spond" source pill is the warning. Spond's times are converted from UTC to your site's timezone, so the imported start time matches the clock the event was scheduled at.
+- **Start / end time** — taken from the Spond event and stored on every imported activity (previously only the date was kept).
+- **Kickoff & presence time (matches)** — for **match** types (game, tournament), the Spond start time becomes the **kickoff time** and the Spond meet-up time (Spond's "meet X minutes before" setting) becomes the **presence time** ("Aanwezig"). Both print on the weekly planner PDF.
 - **Activity type** — TalentTrack's keyword classifier picks training, game, tournament, or meeting from the event title. If a coach changes the type later, the system preserves that change across future syncs.
 - **Attendance, evaluations, linked goals** — TalentTrack-only. Never overwritten.
 

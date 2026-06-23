@@ -17,6 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  *   heading         → summary
  *   startTimestamp  → dtstart   (ISO 8601 → MySQL UTC)
  *   endTimestamp    → dtend
+ *   meetupTimestamp | (startTimestamp − meetupPrior minutes) → meetup
  *   location.feature→ location  (with fallback to .address / .name)
  *   description     → description
  *   updated|lastModified → last_modified
@@ -28,7 +29,7 @@ final class SpondParser {
      * Parse the JSON event list returned by `SpondClient::fetchEvents`.
      *
      * @param list<array<string,mixed>> $events
-     * @return list<array{uid:string,summary:string,dtstart:string,dtend:string,location:string,description:string,last_modified:string}>
+     * @return list<array{uid:string,summary:string,dtstart:string,dtend:string,meetup:string,location:string,description:string,last_modified:string}>
      */
     public static function parse( array $events ): array {
         $out = [];
@@ -44,12 +45,41 @@ final class SpondParser {
                 'summary'       => trim( (string) ( $event['heading'] ?? '' ) ),
                 'dtstart'       => self::iso8601ToMysqlUtc( (string) ( $event['startTimestamp'] ?? '' ) ),
                 'dtend'         => self::iso8601ToMysqlUtc( (string) ( $event['endTimestamp']   ?? '' ) ),
+                'meetup'        => self::extractMeetup( $event ),
                 'location'      => self::extractLocation( $event['location'] ?? null ),
                 'description'   => trim( (string) ( $event['description'] ?? '' ) ),
                 'last_modified' => self::iso8601ToMysqlUtc( (string) ( $event['updated'] ?? $event['lastModified'] ?? '' ) ),
             ];
         }
         return $out;
+    }
+
+    /**
+     * Resolve the meet-up / "be present by" time as an absolute MySQL UTC
+     * datetime. Spond expresses this either as an explicit
+     * `meetupTimestamp` or — more commonly — as `meetupPrior`, the number
+     * of minutes before `startTimestamp` participants should arrive.
+     * Returns an empty string when neither is present or parseable.
+     *
+     * @param array<string,mixed> $event
+     */
+    private static function extractMeetup( array $event ): string {
+        $absolute = self::iso8601ToMysqlUtc( (string) ( $event['meetupTimestamp'] ?? '' ) );
+        if ( $absolute !== '' ) return $absolute;
+
+        $prior = $event['meetupPrior'] ?? null;
+        $start = (string) ( $event['startTimestamp'] ?? '' );
+        if ( ! is_numeric( $prior ) || (int) $prior <= 0 || trim( $start ) === '' ) {
+            return '';
+        }
+        try {
+            $dt = new \DateTimeImmutable( trim( $start ) );
+            $dt = $dt->setTimezone( new \DateTimeZone( 'UTC' ) )
+                     ->sub( new \DateInterval( 'PT' . (int) $prior . 'M' ) );
+            return $dt->format( 'Y-m-d H:i:s' );
+        } catch ( \Exception $e ) {
+            return '';
+        }
     }
 
     /**

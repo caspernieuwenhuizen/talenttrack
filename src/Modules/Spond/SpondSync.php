@@ -134,17 +134,26 @@ final class SpondSync {
             $location = (string) ( $event['location'] ?? '' );
             $notes    = trim( (string) ( $event['description'] ?? '' ) );
             $dtstart  = (string) ( $event['dtstart'] ?? '' );
-            $session_date = $dtstart !== '' ? substr( $dtstart, 0, 10 ) : '';
+
+            // Spond timestamps are UTC; the date + the TIME columns are
+            // local wall-clock. Convert through the site timezone (this
+            // also fixes a UTC-date off-by-one for late-evening events,
+            // which the old `substr( $dtstart, 0, 10 )` could mis-date).
+            [ $session_date, $start_time ] = self::localParts( $dtstart );
+            [ , $end_time ]                = self::localParts( (string) ( $event['dtend'] ?? '' ) );
+            [ , $meet_time ]               = self::localParts( (string) ( $event['meetup'] ?? '' ) );
 
             if ( $existing ) {
-                // Spond wins schedule fields; TalentTrack-set type
-                // wins (don't overwrite once a coach has changed it).
-                $update = [
+                // Spond wins schedule fields (incl. times); TalentTrack-set
+                // type wins (don't overwrite once a coach has changed it),
+                // so the time mapping keys off the existing row's type.
+                $type_key = (string) ( $existing->activity_type_key ?? '' );
+                $update   = [
                     'title'        => $title,
                     'session_date' => $session_date ?: '0000-00-00',
                     'location'     => $location,
                     'notes'        => $notes,
-                ];
+                ] + self::timeColumns( $type_key, $start_time, $end_time, $meet_time );
                 $wpdb->update(
                     "{$p}tt_activities",
                     $update + [ 'archived_at' => null ],
@@ -165,7 +174,7 @@ final class SpondSync {
                     'activity_source_key' => 'spond',
                     'external_id'         => $uid,
                     'coach_id'            => 0,
-                ] );
+                ] + self::timeColumns( $type_key, $start_time, $end_time, $meet_time ) );
                 if ( $wpdb->insert_id ) $created++;
             }
         }
@@ -195,6 +204,47 @@ final class SpondSync {
                 $created, $updated, $archived
             )
         ) );
+    }
+
+    /** Activity types that carry kickoff + presence times. */
+    private const MATCH_TYPES = [ 'game', 'match', 'friendly', 'tournament' ];
+
+    /**
+     * Split a UTC `Y-m-d H:i:s` into a local `[ date, time ]` pair using
+     * the site timezone. Returns `[ '', '' ]` for empty / unparseable
+     * input.
+     *
+     * @return array{0:string,1:string}
+     */
+    private static function localParts( string $utc ): array {
+        $utc = trim( $utc );
+        if ( $utc === '' ) return [ '', '' ];
+        try {
+            $dt = new \DateTimeImmutable( $utc, new \DateTimeZone( 'UTC' ) );
+            $dt = $dt->setTimezone( wp_timezone() );
+            return [ $dt->format( 'Y-m-d' ), $dt->format( 'H:i:s' ) ];
+        } catch ( \Exception $e ) {
+            return [ '', '' ];
+        }
+    }
+
+    /**
+     * Build the time columns for an activity row. Every event gets
+     * start/end times; match-type events additionally get the kickoff
+     * (= start) and presence (= meet-up) times. Empty values become null.
+     *
+     * @return array<string,string|null>
+     */
+    private static function timeColumns( string $type_key, string $start_time, string $end_time, string $meet_time ): array {
+        $cols = [
+            'start_time' => $start_time !== '' ? $start_time : null,
+            'end_time'   => $end_time   !== '' ? $end_time   : null,
+        ];
+        if ( in_array( $type_key, self::MATCH_TYPES, true ) ) {
+            $cols['kickoff_time']     = $start_time !== '' ? $start_time : null;
+            $cols['time_of_presence'] = $meet_time  !== '' ? $meet_time  : null;
+        }
+        return $cols;
     }
 
     /**
