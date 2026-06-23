@@ -39415,3 +39415,11 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+
+msgid "%d team selected"
+msgid_plural "%d teams selected"
+msgstr[0] "%d team geselecteerd"
+msgstr[1] "%d teams geselecteerd"
+
+msgid "%d teams selected"
+msgstr "%d teams geselecteerd"
