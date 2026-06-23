@@ -22720,6 +22720,13 @@ msgstr "Wedstrijd van vandaag"
 msgid "Kickoff %s"
 msgstr "Aftrap %s"
 
+#. translators: %s: arrival/presence time, e.g. "13:15"
+#: src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php:290
+#: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:585
+#, php-format
+msgid "Present %s"
+msgstr "Aanwezig %s"
+
 #: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:299
 msgid "Edit prep"
 msgstr "Voorbereiding bewerken"
@@ -29055,6 +29062,10 @@ msgstr "Voor welk team, op welke datum en welk tijdstip is deze VCT-training?"
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1698
 msgid "Start time (optional)"
 msgstr "Begintijd (optioneel)"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1710
+msgid "Presence time (optional)"
+msgstr "Aanwezigheidstijd (optioneel)"
 
 #: src/Modules/Vct/Wizard/WhenStep.php:71
 msgid ""

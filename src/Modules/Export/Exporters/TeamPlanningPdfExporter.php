@@ -186,7 +186,7 @@ final class TeamPlanningPdfExporter implements ExporterInterface {
 
             $rows = $wpdb->get_results( $wpdb->prepare(
                 "SELECT a.id, a.session_date, a.title, a.location, a.activity_type_key,
-                        a.start_time, a.end_time, a.opponent, a.home_away, a.kickoff_time, a.notes
+                        a.start_time, a.end_time, a.time_of_presence, a.opponent, a.home_away, a.kickoff_time, a.notes
                     FROM {$p}tt_activities a
                     WHERE a.club_id = %d AND a.team_id = %d
                       AND a.session_date BETWEEN %s AND %s
@@ -578,6 +578,15 @@ final class TeamPlanningPdfExporter implements ExporterInterface {
         $out .= '</div>';
 
         $meta = [];
+        // #1729 — arrival/presence time (match activities), shown ahead
+        // of the time window when set and the match block is enabled.
+        if ( ! empty( $fields['match'] ) ) {
+            $presence = self::clockTime( (string) ( $a->time_of_presence ?? '' ) );
+            if ( $presence !== '' ) {
+                /* translators: %s: arrival/presence time, e.g. "13:15" */
+                $meta[] = sprintf( __( 'Present %s', 'talenttrack' ), $presence );
+            }
+        }
         if ( ! empty( $fields['time'] ) ) {
             $t = self::timeRange( (string) ( $a->start_time ?? '' ), (string) ( $a->end_time ?? '' ), (string) ( $a->kickoff_time ?? '' ) );
             if ( $t !== '' ) $meta[] = $t;
@@ -653,6 +662,10 @@ final class TeamPlanningPdfExporter implements ExporterInterface {
     private static function formatDate( string $ymd ): string {
         $ts = strtotime( $ymd );
         return $ts ? (string) wp_date( 'j M Y', $ts ) : $ymd;
+    }
+
+    private static function clockTime( string $time ): string {
+        return ( $time !== '' && $time !== '00:00:00' ) ? substr( $time, 0, 5 ) : '';
     }
 
     private static function timeRange( string $start, string $end, string $kickoff ): string {

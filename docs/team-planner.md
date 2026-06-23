@@ -66,7 +66,7 @@ Three export buttons sit above the grid:
 
 - **Export PDF** — the landscape schedule table (one row per activity).
 - **Export XLSX** — the week-by-week styled spreadsheet.
-- **Weekly PDF** — a **branded, portrait** weekly layout: a vertical week with the weekday on the left and that day's activity card on the right (type tag, time/location/duration, match details, theme + principles, optional notes), in the academy's colours and crest. Ideal to hand to players/parents or pin to the noticeboard.
+- **Weekly PDF** — a **branded, portrait** weekly layout: a vertical week with the weekday on the left and that day's activity card on the right (type tag, time/location/duration, match details, theme + principles, optional notes), in the academy's colours and crest. Ideal to hand to players/parents or pin to the noticeboard. A match card shows `Present HH:MM` (the arrival time set on the activity) ahead of `Kickoff HH:MM`; the kickoff line falls back to the activity's start time when no separate kickoff time was entered.
 
 **Weekly PDF** opens a small **compose dialog** first, so you choose what goes in:
 

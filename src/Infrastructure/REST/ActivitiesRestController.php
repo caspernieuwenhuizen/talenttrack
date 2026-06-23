@@ -536,6 +536,8 @@ class ActivitiesRestController {
             // #1126 — surface optional time window on the read payload.
             'start_time'               => $row->start_time !== null ? (string) $row->start_time : null,
             'end_time'                 => $row->end_time   !== null ? (string) $row->end_time   : null,
+            // #1729 — optional arrival/presence time (match activities).
+            'time_of_presence'         => isset( $row->time_of_presence ) && $row->time_of_presence !== null ? (string) $row->time_of_presence : null,
             'location'                 => (string) ( $row->location ?? '' ),
             'team_id'                  => (int) ( $row->team_id ?? 0 ),
             'team_name'                => (string) ( $row->team_name ?? '' ),
@@ -831,6 +833,12 @@ class ActivitiesRestController {
             // still persists; UI validation should have caught this.
             $end_time = null;
         }
+        // #1729 — optional arrival/presence time (match types). Same
+        // HH:MM shape validation as start_time; empty → null.
+        $presence_raw  = trim( (string) ( $r['time_of_presence'] ?? '' ) );
+        $time_of_presence = ( $presence_raw !== '' && preg_match( '/^\d{2}:\d{2}(:\d{2})?$/', $presence_raw ) )
+            ? $presence_raw
+            : null;
         // #1324 — tournament_id only persists when the activity is
         // type=tournament; non-tournament types null it out so a type
         // change doesn't leave a stale FK behind.
@@ -841,6 +849,7 @@ class ActivitiesRestController {
             'session_date'        => sanitize_text_field( (string) ( $r['session_date'] ?? '' ) ),
             'start_time'          => $start_time,
             'end_time'            => $end_time,
+            'time_of_presence'    => $time_of_presence,
             'team_id'             => absint( $r['team_id'] ?? 0 ),
             'coach_id'            => get_current_user_id(),
             'location'            => sanitize_text_field( (string) ( $r['location'] ?? '' ) ),
