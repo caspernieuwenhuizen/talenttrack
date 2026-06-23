@@ -29,11 +29,15 @@ Bij week / 2 / 4 / 8 weken-vensters heeft de werkbalk **vorige / vandaag / volge
 
 ## Teams kiezen
 
-De **Teams**-kiezer toont elk standaardteam waartoe je toegang hebt als selectievakjes. Vink één team aan en klik op **Toepassen** om dat team in het volledige weekrooster te plannen. Alleen standaardteams (zonder `team_kind`) verschijnen — stafgroepen en andere team-soorten worden eruit gefilterd.
+De **Teams**-kiezer is een **meervoudige keuzelijst** met elk standaardteam waartoe je toegang hebt. Kies één team en klik op **Toepassen** om dat team in het volledige weekrooster te plannen. Houd Ctrl (Cmd op een Mac) ingedrukt — of tik meerdere opties aan op een touchscreen — om er meer dan één te kiezen. Alleen standaardteams (zonder `team_kind`) verschijnen — stafgroepen en andere team-soorten worden eruit gefilterd.
 
 ### Overzicht over teams heen (meerdere geselecteerd)
 
-Vink **twee of meer teams** aan en de planning schakelt over naar een **compact, alleen-lezen overzicht** — één rij per activiteit met **Datum · Team · Type · Wedstrijd (tegenstander + thuis/uit) · Status**. Dit is de blik van het Hoofd Opleiding over meerdere teams tegelijk; omdat een HoO geen teamspecifieke activiteiten plant, heeft het overzicht geen kopieer-/dupliceer-/planknoppen. Ga terug naar één team voor het bewerkbare weekrooster.
+Kies **twee of meer teams** en de planning schakelt over naar een **compacte, alleen-lezen kalender** die de weekroostervorm aanhoudt in plaats van een platte tabel. Weekblokken stapelen verticaal (één blok per week in het gekozen venster), en binnen elk blok krijgt elk geselecteerd team **één rij** over de zeven dagkolommen — dezelfde ma–zo-volgorde als het rooster voor één team, met respect voor de ingestelde eerste weekdag van de academie.
+
+Elke dagcel toont alleen het **activiteitstype-label** plus, bij wedstrijden, de **tegenstander** en een **thuis/uit**-aanduiding. Er zijn geen principe-labels, kopieerlabels of planknoppen — dit is de blik van het Hoofd Opleiding over meerdere teams tegelijk, en een HoO plant hier geen teamspecifieke activiteiten. Elk label is **aanklikbaar** en opent de alleen-lezen weergave van de activiteit, dezelfde bestemming als een klik op een kaart in het rooster voor één team.
+
+Op telefoons past het rooster met zeven kolommen niet, dus klapt elk team in tot een kaart met een gelabelde lijst van zijn dagen met activiteiten — zonder horizontaal scrollen. Ga terug naar één team voor het bewerkbare weekrooster.
 
 ## Een activiteit plannen
 
@@ -68,6 +72,8 @@ Boven het raster staan drie exportknoppen:
 
 - **Toon per dag** — Tijd · Locatie · Duur · Wedstrijddetails · Thema/titel · Principes · Notities · Rustdagen tonen (standaard alles aan behalve Notities).
 - **Kop** — Academienaam · Genereerdatum.
+
+Met **Pdf openen** opent het afdrukklare overzicht in een nieuw tabblad; gebruik **Opslaan als pdf** (of Afdrukken) van je browser om het te downloaden. Zet "Achtergrondafbeeldingen" aan in het afdrukvenster zodat de groene dagkaarten en gekleurde labels meekomen. De voorgestelde bestandsnaam volgt de titel — `Weekplan - {team} - Week {n} - {jaar}`.
 
 De PDF gebruikt het **huidige datumbereik** van de planner (stel dit eerst in met de vensterkiezer). De branding komt uit **Configuratie → branding** (primaire/secundaire kleur, academienaam, logo) — geen hardgecodeerde kleuren.
 

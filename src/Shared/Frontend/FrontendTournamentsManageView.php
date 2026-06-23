@@ -46,6 +46,14 @@ class FrontendTournamentsManageView extends FrontendViewBase {
      */
     private static function enqueuePlannerAssets(): void {
         if ( self::$planner_assets_enqueued ) return;
+        // #1685 — 2026 detail restyle. Depends on the shared app-chrome
+        // sheet (KPI tile + tokens) so the .tt-kpi strip is styled.
+        wp_enqueue_style(
+            'tt-frontend-tournaments',
+            TT_PLUGIN_URL . 'assets/css/frontend-tournaments.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
         wp_enqueue_style(
             'tt-tournament-planner',
             TT_PLUGIN_URL . 'assets/css/tournament-planner.css',
@@ -276,58 +284,85 @@ class FrontendTournamentsManageView extends FrontendViewBase {
             (int) $tournament->id, CurrentClub::id()
         ) ) ?: [];
 
-        // Tournament facts strip. Wrapping div lets the desktop
-        // sidebar ticker reserve right-edge padding via CSS.
+        // Tournament facts strip + KPI summary. Wrapping div lets the
+        // desktop sidebar ticker reserve right-edge padding via CSS.
+        // #1685 — 2026 restyle: facts card, KPI tiles from the real
+        // squad/match counts, card-wrapped programme + squad sections.
+        $kpi = '\\TT\\Shared\\Frontend\\Components\\FrontendAppChrome';
         ?>
         <div class="tt-tournament-detail">
-        <div class="tt-tournament-facts" style="display:flex;flex-wrap:wrap;gap:var(--tt-sp-3, 12px);margin-bottom:var(--tt-sp-4, 16px);">
-            <div class="tt-fact">
-                <strong><?php esc_html_e( 'Team', 'talenttrack' ); ?>:</strong>
-                <?php echo esc_html( $team_name !== '' ? $team_name : __( '—', 'talenttrack' ) ); ?>
-            </div>
-            <div class="tt-fact">
-                <strong><?php esc_html_e( 'Dates', 'talenttrack' ); ?>:</strong>
-                <?php
-                $start = (string) $tournament->start_date;
-                $end   = (string) ( $tournament->end_date ?? '' );
-                echo esc_html( $end !== '' ? $start . ' → ' . $end : $start );
-                ?>
-            </div>
-            <?php if ( $tournament->default_formation ) : ?>
-                <div class="tt-fact">
-                    <strong><?php esc_html_e( 'Formation', 'talenttrack' ); ?>:</strong>
-                    <?php echo esc_html( (string) $tournament->default_formation ); ?>
-                </div>
-            <?php endif; ?>
-            <div class="tt-fact">
-                <strong><?php esc_html_e( 'Squad', 'talenttrack' ); ?>:</strong>
-                <?php echo (int) count( $squad ); ?>
-            </div>
-            <div class="tt-fact">
-                <strong><?php esc_html_e( 'Matches', 'talenttrack' ); ?>:</strong>
-                <?php echo (int) count( $matches ); ?>
-            </div>
+
+        <div class="tt-tour-kpis">
+            <?php
+            echo $kpi::kpiTile( [
+                'label' => __( 'Squad', 'talenttrack' ),
+                'value' => (string) (int) count( $squad ),
+            ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            echo $kpi::kpiTile( [
+                'label' => __( 'Matches', 'talenttrack' ),
+                'value' => (string) (int) count( $matches ),
+            ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            echo $kpi::kpiTile( [
+                'label' => __( 'Team', 'talenttrack' ),
+                'value' => $team_name !== '' ? $team_name : __( '—', 'talenttrack' ),
+            ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            ?>
         </div>
 
-        <h3><?php esc_html_e( 'Matches', 'talenttrack' ); ?></h3>
+        <section class="tt-tour-card">
+            <h2 class="tt-tour-card__head"><?php esc_html_e( 'Details', 'talenttrack' ); ?></h2>
+            <div class="tt-tour-facts">
+                <div class="tt-tour-fact">
+                    <span class="tt-tour-fact__label"><?php esc_html_e( 'Team', 'talenttrack' ); ?></span>
+                    <span class="tt-tour-fact__value"><?php echo esc_html( $team_name !== '' ? $team_name : __( '—', 'talenttrack' ) ); ?></span>
+                </div>
+                <div class="tt-tour-fact">
+                    <span class="tt-tour-fact__label"><?php esc_html_e( 'Dates', 'talenttrack' ); ?></span>
+                    <span class="tt-tour-fact__value">
+                        <?php
+                        $start = (string) $tournament->start_date;
+                        $end   = (string) ( $tournament->end_date ?? '' );
+                        echo esc_html( $end !== '' ? $start . ' → ' . $end : $start );
+                        ?>
+                    </span>
+                </div>
+                <?php if ( $tournament->default_formation ) : ?>
+                    <div class="tt-tour-fact">
+                        <span class="tt-tour-fact__label"><?php esc_html_e( 'Formation', 'talenttrack' ); ?></span>
+                        <span class="tt-tour-fact__value"><?php echo esc_html( (string) $tournament->default_formation ); ?></span>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </section>
+
+        <section class="tt-tour-card">
+            <h2 class="tt-tour-card__head"><?php esc_html_e( 'Match programme', 'talenttrack' ); ?></h2>
         <?php if ( ! $matches ) : ?>
-            <p class="tt-muted"><?php esc_html_e( 'No matches yet.', 'talenttrack' ); ?></p>
+            <p class="tt-tour-empty"><?php esc_html_e( 'No matches yet.', 'talenttrack' ); ?></p>
         <?php else : ?>
-            <ol class="tt-tournament-matches" style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:var(--tt-sp-3, 12px);">
+            <ol class="tt-tour-matches">
                 <?php foreach ( $matches as $m ) : ?>
-                    <li class="tt-card" data-tt-tournament-planner="1" data-tournament-id="<?php echo (int) $tournament->id; ?>" data-match-id="<?php echo (int) $m->id; ?>" style="padding:var(--tt-sp-3, 12px);border:1px solid var(--tt-line, #e2e8f0);border-radius:var(--tt-r-md, 8px);">
-                        <strong>
+                    <li class="tt-tour-match" data-tt-tournament-planner="1" data-tournament-id="<?php echo (int) $tournament->id; ?>" data-match-id="<?php echo (int) $m->id; ?>">
+                        <div class="tt-tour-match__top">
+                            <span class="tt-tour-match__title">
+                                <?php
+                                $label = (string) ( $m->label ?? '' );
+                                $opp   = (string) ( $m->opponent_name ?? '' );
+                                $headline = $label !== '' ? $label : ( $opp !== '' ? sprintf( __( 'vs %s', 'talenttrack' ), $opp ) : sprintf( __( 'Match %d', 'talenttrack' ), (int) $m->sequence ) );
+                                echo esc_html( $headline );
+                                ?>
+                            </span>
                             <?php
-                            $label = (string) ( $m->label ?? '' );
-                            $opp   = (string) ( $m->opponent_name ?? '' );
-                            $headline = $label !== '' ? $label : ( $opp !== '' ? sprintf( __( 'vs %s', 'talenttrack' ), $opp ) : sprintf( __( 'Match %d', 'talenttrack' ), (int) $m->sequence ) );
-                            echo esc_html( $headline );
+                            if ( $m->completed_at ) {
+                                echo '<span class="tt-tour-chip tt-tour-chip--done">' . esc_html__( 'Completed', 'talenttrack' ) . '</span>';
+                            } elseif ( $m->kicked_off_at ) {
+                                echo '<span class="tt-tour-chip tt-tour-chip--live">' . esc_html__( 'In progress', 'talenttrack' ) . '</span>';
+                            } elseif ( $m->opponent_level ) {
+                                echo '<span class="tt-tour-chip tt-tour-chip--level">' . esc_html( (string) $m->opponent_level ) . '</span>';
+                            }
                             ?>
-                        </strong>
-                        <?php if ( $m->opponent_level ) : ?>
-                            <span class="tt-pill" style="margin-left:8px;font-size:11px;"><?php echo esc_html( (string) $m->opponent_level ); ?></span>
-                        <?php endif; ?>
-                        <div class="tt-muted" style="font-size:12px;margin-top:4px;">
+                        </div>
+                        <div class="tt-tour-match__meta">
                             <?php
                             $windows = json_decode( (string) $m->substitution_windows, true ) ?: [];
                             $win_label = $windows
@@ -338,13 +373,11 @@ class FrontendTournamentsManageView extends FrontendViewBase {
                                 $win_label,
                             ];
                             if ( $m->formation ) $bits[] = (string) $m->formation;
-                            if ( $m->completed_at ) $bits[] = __( 'completed', 'talenttrack' );
-                            elseif ( $m->kicked_off_at ) $bits[] = __( 'in progress', 'talenttrack' );
                             echo esc_html( implode( ' · ', $bits ) );
                             ?>
                         </div>
 
-                        <div class="tt-planner-actions" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+                        <div class="tt-planner-actions">
                             <button type="button" class="tt-planner-toggle" data-tt-planner-toggle="1" aria-expanded="false">
                                 <?php esc_html_e( 'Open planner grid', 'talenttrack' ); ?>
                             </button>
@@ -367,16 +400,18 @@ class FrontendTournamentsManageView extends FrontendViewBase {
                 <?php endforeach; ?>
             </ol>
         <?php endif; ?>
+        </section>
 
-        <h3 style="margin-top:var(--tt-sp-5, 24px);"><?php esc_html_e( 'Squad', 'talenttrack' ); ?></h3>
+        <section class="tt-tour-card">
+            <h2 class="tt-tour-card__head"><?php esc_html_e( 'Squad', 'talenttrack' ); ?></h2>
         <?php if ( ! $squad ) : ?>
-            <p class="tt-muted"><?php esc_html_e( 'No players in the squad yet.', 'talenttrack' ); ?></p>
+            <p class="tt-tour-empty"><?php esc_html_e( 'No players in the squad yet.', 'talenttrack' ); ?></p>
         <?php else : ?>
-            <ul class="tt-tournament-squad" style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:6px;">
+            <ul class="tt-tour-squad">
                 <?php foreach ( $squad as $sq ) : ?>
-                    <li style="padding:6px 10px;border:1px solid var(--tt-line, #e2e8f0);border-radius:var(--tt-r-sm, 4px);display:flex;justify-content:space-between;gap:var(--tt-sp-3, 12px);">
-                        <span><?php echo esc_html( trim( ( (string) $sq->first_name ) . ' ' . ( (string) $sq->last_name ) ) ); ?></span>
-                        <span class="tt-muted" style="font-size:12px;">
+                    <li class="tt-tour-squad__item">
+                        <span class="tt-tour-squad__name"><?php echo esc_html( trim( ( (string) $sq->first_name ) . ' ' . ( (string) $sq->last_name ) ) ); ?></span>
+                        <span class="tt-tour-squad__meta">
                             <?php
                             $pos = json_decode( (string) $sq->eligible_positions, true ) ?: [];
                             echo esc_html( $pos ? implode( ' · ', $pos ) : __( '(no positions set)', 'talenttrack' ) );
@@ -389,6 +424,7 @@ class FrontendTournamentsManageView extends FrontendViewBase {
                 <?php endforeach; ?>
             </ul>
         <?php endif; ?>
+        </section>
 
         </div><!-- /.tt-tournament-detail -->
 
