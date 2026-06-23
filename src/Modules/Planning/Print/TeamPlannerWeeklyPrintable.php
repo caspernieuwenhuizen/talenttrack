@@ -83,7 +83,7 @@ final class TeamPlannerWeeklyPrintable {
 
         $rows = $wpdb->get_results( $wpdb->prepare(
             "SELECT a.id, a.session_date, a.title, a.location, a.activity_type_key,
-                    a.start_time, a.end_time, a.opponent, a.home_away, a.kickoff_time, a.notes
+                    a.start_time, a.end_time, a.time_of_presence, a.opponent, a.home_away, a.kickoff_time, a.notes
                 FROM {$p}tt_activities a
                 WHERE a.club_id = %d AND a.team_id = %d
                   AND a.session_date BETWEEN %s AND %s
@@ -286,7 +286,18 @@ final class TeamPlannerWeeklyPrintable {
         $meta = [];
         if ( $is_match ) {
             if ( ! empty( $fields['match'] ) ) {
+                // #1729 — arrival/presence time, shown before kickoff.
+                $presence = self::clockTime( (string) ( $a->time_of_presence ?? '' ) );
+                if ( $presence !== '' ) {
+                    /* translators: %s: arrival/presence time, e.g. "13:15" */
+                    $meta[] = sprintf( __( 'Present %s', 'talenttrack' ), $presence );
+                }
+                // #1729 bug fix — the activity form only ever writes
+                // start_time (kickoff_time stays NULL), so a match used
+                // to print no time at all. Fall back to start_time when
+                // kickoff_time is empty.
                 $ko = self::clockTime( (string) ( $a->kickoff_time ?? '' ) );
+                if ( $ko === '' ) $ko = self::clockTime( (string) ( $a->start_time ?? '' ) );
                 if ( $ko !== '' ) {
                     /* translators: %s: kickoff time, e.g. "11:00" */
                     $meta[] = sprintf( __( 'Kickoff %s', 'talenttrack' ), $ko );

@@ -1693,6 +1693,10 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 // blank (no placeholder).
                 $current_start = (string) ( $session->start_time ?? '' );
                 $current_end   = (string) ( $session->end_time   ?? '' );
+                // #1729 — arrival/presence time, captured for match types
+                // only (the JS toggle below shows/hides this row).
+                $current_presence = (string) ( $session->time_of_presence ?? '' );
+                $is_match_type    = in_array( $current_type, [ 'game', 'match', 'friendly', 'tournament' ], true );
                 ?>
                 <div class="tt-field">
                     <label class="tt-field-label" for="tt-activity-start-time"><?php esc_html_e( 'Start time (optional)', 'talenttrack' ); ?></label>
@@ -1701,6 +1705,10 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 <div class="tt-field">
                     <label class="tt-field-label" for="tt-activity-end-time"><?php esc_html_e( 'End time (optional)', 'talenttrack' ); ?></label>
                     <input type="time" id="tt-activity-end-time" class="tt-input" name="end_time" value="<?php echo esc_attr( substr( $current_end, 0, 5 ) ); ?>" />
+                </div>
+                <div class="tt-field" id="tt-activity-presence-row" style="<?php echo $is_match_type ? '' : 'display:none;'; ?>">
+                    <label class="tt-field-label" for="tt-activity-presence-time"><?php esc_html_e( 'Presence time (optional)', 'talenttrack' ); ?></label>
+                    <input type="time" id="tt-activity-presence-time" class="tt-input" name="time_of_presence" value="<?php echo esc_attr( substr( $current_presence, 0, 5 ) ); ?>" />
                 </div>
                 <div class="tt-field">
                     <label class="tt-field-label" for="tt-activity-location"><?php esc_html_e( 'Location', 'talenttrack' ); ?></label>
@@ -1840,10 +1848,13 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 var subRow         = document.getElementById('tt-activity-subtype-row');
                 var otherRow       = document.getElementById('tt-activity-other-row');
                 var tournamentRow  = document.getElementById('tt-activity-tournament-row'); // #1324
+                var presenceRow    = document.getElementById('tt-activity-presence-row');   // #1729
+                var matchTypes     = ['game','match','friendly','tournament'];
                 sel.addEventListener('change', function(){
                     if ( subRow )        subRow.style.display        = ( sel.value === 'game' )       ? '' : 'none';
                     if ( otherRow )      otherRow.style.display      = ( sel.value === 'other' )      ? '' : 'none';
                     if ( tournamentRow ) tournamentRow.style.display = ( sel.value === 'tournament' ) ? '' : 'none';
+                    if ( presenceRow )   presenceRow.style.display   = ( matchTypes.indexOf( sel.value ) !== -1 ) ? '' : 'none';
                 });
             })();
             </script>
