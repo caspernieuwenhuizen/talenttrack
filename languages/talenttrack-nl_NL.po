@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-23T21:47:35+00:00\n"
+"POT-Creation-Date: 2026-06-23T22:03:16+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -25040,7 +25040,7 @@ msgid "Spond group contained no upcoming events."
 msgstr "Spond-groep bevatte geen aankomende events."
 
 #. translators: 1: created count, 2: updated count, 3: archived count
-#: src/Modules/Spond/SpondSync.php:194
+#: src/Modules/Spond/SpondSync.php:203
 #, php-format
 msgid "Synced: %1$d new · %2$d updated · %3$d archived."
 msgstr "Gesynchroniseerd: %1$d nieuw · %2$d bijgewerkt · %3$d gearchiveerd."
