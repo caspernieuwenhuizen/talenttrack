@@ -78,6 +78,36 @@ final class HybridDeepRateStep implements WizardStepInterface {
         // space is preserved.
         $eval_types = \TT\Infrastructure\Query\QueryHelpers::get_eval_types();
 
+        // #1643 — training-eval default. Resolve the training type id +
+        // mental category id and hand them to the shared JS enhancement
+        // so picking Training reorders + pre-expands the mental category.
+        $training_type_id = 0;
+        foreach ( $eval_types as $t ) {
+            if ( \TT\Infrastructure\Evaluations\TrainingEvalDefaults::isTrainingTypeName( (string) $t->name ) ) {
+                $training_type_id = (int) $t->id;
+                break;
+            }
+        }
+        $mental_cat = ( new \TT\Infrastructure\Evaluations\EvalCategoriesRepository() )
+            ->getByKey( \TT\Infrastructure\Evaluations\TrainingEvalDefaults::PRIORITY_CATEGORY_KEY );
+        $mental_cat_id = $mental_cat ? (int) $mental_cat->id : 0;
+
+        wp_enqueue_script(
+            'tt-training-eval-defaults',
+            TT_PLUGIN_URL . 'assets/js/components/training-eval-defaults.js',
+            [],
+            TT_VERSION,
+            true
+        );
+        wp_localize_script(
+            'tt-training-eval-defaults',
+            'TT_TRAINING_EVAL_DEFAULTS',
+            [
+                'trainingTypeId'   => $training_type_id,
+                'mentalCategoryId' => $mental_cat_id,
+            ]
+        );
+
         $date_val    = (string) ( $state['eval_date'] ?? gmdate( 'Y-m-d' ) );
         $type_val    = (int)    ( $state['eval_type_id'] ?? 0 );
         $reason_val  = (string) ( $state['eval_reason'] ?? '' );
@@ -93,7 +123,7 @@ final class HybridDeepRateStep implements WizardStepInterface {
                 </tr>
                 <tr><th style="text-align:left;font-weight:normal;"><?php esc_html_e( 'Type', 'talenttrack' ); ?></th>
                     <td>
-                        <select name="eval_type_id">
+                        <select name="eval_type_id" id="tt_hdr_eval_type">
                             <option value="0"><?php esc_html_e( '— pick a type —', 'talenttrack' ); ?></option>
                             <?php foreach ( $eval_types as $t ) :
                                 $tid   = (int) $t->id;
@@ -104,7 +134,7 @@ final class HybridDeepRateStep implements WizardStepInterface {
                         </select>
                     </td>
                 </tr>
-                <tr><th style="text-align:left;font-weight:normal;vertical-align:top;"><?php esc_html_e( 'Context', 'talenttrack' ); ?></th>
+                <tr data-tt-eval-cats-anchor><th style="text-align:left;font-weight:normal;vertical-align:top;"><?php esc_html_e( 'Context', 'talenttrack' ); ?></th>
                     <td><textarea rows="3" maxlength="500" name="eval_reason" style="width:100%;"><?php echo esc_textarea( $reason_val ); ?></textarea></td>
                 </tr>
 
@@ -138,7 +168,7 @@ final class HybridDeepRateStep implements WizardStepInterface {
                     }
                     $initial_state = $has_sub_values ? 'detailed' : 'basic';
                     ?>
-                    <tr>
+                    <tr data-tt-eval-cat-main data-tt-eval-cat="<?php echo (int) $cid; ?>">
                         <th style="text-align:left;font-weight:normal;"><?php echo esc_html( $cat_label ); ?></th>
                         <td>
                             <?php

@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Shared\Frontend\Components\BackLink;
+use TT\Shared\Frontend\Components\FrontendAppChrome;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
 use TT\Shared\Frontend\FrontendViewBase;
@@ -30,6 +31,8 @@ final class FrontendAttendanceTeamReportView extends FrontendViewBase {
 
     public static function render( int $user_id, bool $is_admin ): void {
         self::enqueueAssets();
+        // #1688 — chrome-aligned look: KPI summary strip + card table + bars.
+        wp_enqueue_style( 'tt-attendance-report', TT_PLUGIN_URL . 'assets/css/frontend-attendance-report.css', [ 'tt-frontend-app-chrome' ], TT_VERSION );
 
         if ( ! current_user_can( 'tt_view_analytics' ) ) {
             FrontendBreadcrumbs::fromDashboard(
@@ -71,7 +74,29 @@ final class FrontendAttendanceTeamReportView extends FrontendViewBase {
             return;
         }
 
-        echo '<div class="tt-table-wrap"><table class="tt-table tt-table-sortable" style="width:100%; margin-top:12px;">';
+        // #1688 — KPI summary strip computed from the already-fetched rows
+        // (presentation-level aggregation only; the query stays the source).
+        $team_count = count( $rows );
+        $sum_activities = 0; $sum_present = 0; $sum_total = 0; $below = 0;
+        foreach ( $rows as $r ) {
+            $sum_activities += (int) $r->activities;
+            $sum_present    += (int) $r->present;
+            $sum_total      += (int) $r->total;
+            $tp = (int) $r->total > 0 ? ( (int) $r->present / (int) $r->total ) * 100 : null;
+            if ( $tp !== null && $tp < 70 ) $below++;
+        }
+        $avg = $sum_total > 0 ? number_format_i18n( $sum_present / $sum_total * 100, 1 ) . '%' : '—';
+
+        echo '<div class="tt-report-kpis">';
+        // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped — kpiTile() escapes internally.
+        echo FrontendAppChrome::kpiTile( [ 'label' => __( 'Teams', 'talenttrack' ),          'value' => (string) $team_count ] );
+        echo FrontendAppChrome::kpiTile( [ 'label' => __( 'Activities', 'talenttrack' ),      'value' => (string) $sum_activities ] );
+        echo FrontendAppChrome::kpiTile( [ 'label' => __( 'Avg. attendance', 'talenttrack' ), 'value' => $avg ] );
+        echo FrontendAppChrome::kpiTile( [ 'label' => __( 'Teams below 70%', 'talenttrack' ), 'value' => (string) $below, 'flag' => $below > 0 ? 'red' : 'green' ] );
+        // phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
+        echo '</div>';
+
+        echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table tt-table-sortable" style="width:100%;">';
         echo '<thead><tr>';
         echo '<th>' . esc_html__( 'Team', 'talenttrack' ) . '</th>';
         echo '<th style="text-align:right;">' . esc_html__( 'Activities', 'talenttrack' ) . '</th>';
@@ -89,17 +114,35 @@ final class FrontendAttendanceTeamReportView extends FrontendViewBase {
             ) );
             $name = (string) ( $r->team_name ?? '' );
             if ( $name === '' ) $name = '#' . (int) $r->team_id;
+            $present_pct = (int) $r->total > 0 ? ( (int) $r->present / (int) $r->total ) * 100 : null;
             echo '<tr>';
             echo '<td><a class="tt-record-link" href="' . esc_url( $team_url ) . '">' . esc_html( $name ) . '</a></td>';
             echo '<td style="text-align:right;">' . (int) $r->activities . '</td>';
-            echo '<td style="text-align:right;">' . esc_html( self::pct( $r->present, $r->total ) ) . '</td>';
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — attendanceBar() escapes internally.
+            echo '<td>' . self::attendanceBar( $present_pct ) . '</td>';
             echo '<td style="text-align:right;">' . esc_html( self::pct( $r->late,    $r->total ) ) . '</td>';
             echo '<td style="text-align:right;">' . esc_html( self::pct( $r->absent,  $r->total ) ) . '</td>';
             echo '<td style="text-align:right;">' . esc_html( self::pct( $r->excused, $r->total ) ) . '</td>';
             echo '<td style="text-align:right;">' . esc_html( self::pct( $r->injured, $r->total ) ) . '</td>';
             echo '</tr>';
         }
-        echo '</tbody></table></div>';
+        echo '</tbody></table></div></div>';
+    }
+
+    /**
+     * Inline attendance bar for the Present % cell — value + a track that
+     * fills proportionally, red below 70%. Returns escaped HTML.
+     */
+    private static function attendanceBar( ?float $pct ): string {
+        if ( $pct === null ) {
+            return '<span class="tt-att-bar"><span class="v">—</span></span>';
+        }
+        $low = $pct < 70;
+        $w   = max( 0, min( 100, (int) round( $pct ) ) );
+        return '<span class="tt-att-bar' . ( $low ? ' is-low' : '' ) . '">'
+            . '<span class="v">' . esc_html( number_format_i18n( $pct, 1 ) . '%' ) . '</span>'
+            . '<span class="track"><i style="width:' . (int) $w . '%;"></i></span>'
+            . '</span>';
     }
 
     /**
