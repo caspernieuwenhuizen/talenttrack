@@ -13,11 +13,11 @@
  */
 
 .tt-profile {
-    --tt-profile-ink:        #1a1d21;
+    --tt-profile-ink:        var(--tt-ink, #0e1a14);
     --tt-profile-ink-soft:   #5b6470;
     --tt-profile-line:       var(--tt-line, #e5e7ea);
-    --tt-profile-bg:         #fff;
-    --tt-profile-accent:     #2271b1;
+    --tt-profile-bg:         var(--tt-paper, #ffffff);
+    --tt-profile-accent:     var(--tt-primary, #0b3d2e);
     --tt-profile-warn:       #b32d2e;
     --tt-profile-positive:   #2c8c4a;
     --tt-profile-flat:       #5b6470;
@@ -353,7 +353,7 @@
 
 /* Mobile — single-column cards, full-width FIFA */
 
-@media (max-width: 640px) {
+@media (max-width: 480px) {
     .tt-profile-hero {
         padding: 16px;
     }

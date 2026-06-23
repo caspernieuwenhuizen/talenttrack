@@ -14,19 +14,21 @@
  * those JS surfaces are still hit by tt-team-chemistry.js.
  */
 
-:root {
-    --tt-tc-bg:        #f6f7f7;
-    --tt-tc-panel:     #ffffff;
-    --tt-tc-line:      #e3e6ea;
-    --tt-tc-ink:       #1a1d21;
-    --tt-tc-muted:     #5b6e75;
+.tt-root {
+    /* Neutral aliases converge onto the canonical green/gold tokens
+       (tokens.css). Component-specific teal tier accents stay local. */
+    --tt-tc-bg:        var(--tt-bg-soft, #f4f6f3);
+    --tt-tc-panel:     var(--tt-paper, #ffffff);
+    --tt-tc-line:      var(--tt-line, #e3e6e1);
+    --tt-tc-ink:       var(--tt-ink, #0e1a14);
+    --tt-tc-muted:     var(--tt-muted, #6a6d66);
     --tt-tc-accent:    #1d7874;
     --tt-tc-accent-2:  #2a9d97;
-    --tt-tc-accent-15: rgba(34, 113, 177, 0.15);
-    --tt-tc-link:      #2271b1;
-    --tt-tc-success:   #2e7d4f;
-    --tt-tc-warn:      #c75c1f;
-    --tt-tc-danger:    #d63638;
+    --tt-tc-accent-15: rgba(29, 120, 116, 0.15);
+    --tt-tc-link:      var(--tt-primary, #0b3d2e);
+    --tt-tc-success:   var(--tt-success, #2f9e5e);
+    --tt-tc-warn:      var(--tt-warning, #e8902b);
+    --tt-tc-danger:    var(--tt-danger, #d8453b);
     --tt-tc-strong:    #cfe7da;
     --tt-tc-weak:      #fbe5e6;
 }
@@ -721,7 +723,7 @@ body.tt-chem-sandbox-on .tt-pitch-slot:active {
 
 body.tt-chem-picker-open { overflow: hidden; }
 
-@media (min-width: 720px) {
+@media (min-width: 768px) {
     .tt-chem-picker { align-items: center; }
     .tt-chem-picker-sheet {
         border-radius: 14px;

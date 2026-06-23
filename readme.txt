@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.45.24
+Stable tag: 4.45.25
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.45.25 — Design tokens: migrate the legacy slate/navy surfaces onto the green/gold tokens (#1379). Converges the older cool-slate / WP-blue generation onto the canonical neutrals from tokens.css: the player profile/detail, journey, legacy match-prep / match-execution, blueprint editor, tournament wizard and team-chemistry surfaces now inherit the green/gold ink, lines, backgrounds and status colours, and their WP-blue link/accent becomes the brand green. Both `:root` token blocks (team-chemistry, persona-dashboard) are re-scoped off `:root` so they no longer leak into the active theme — the persona-landing block stays on `.tt-root` so the design-system editor's overrides still win. Non-sanctioned breakpoints (720/640/560/820/767px) are normalised to 480/768/1024 across the stylesheets. Visual-only; no markup, query or behaviour change. Patch bump. (#1379) =
 
 = 4.45.24 — Design tokens: one source for the 2026 green/gold neutrals (#1379, foundation). New `assets/css/tokens.css` (scoped to `.tt-root`, enqueued first) is now the single source for the neutral design tokens — ink, lines, backgrounds, status colours, radius, shadow, type scale and the 4px spacing scale — so the ~70 remaining surfaces can restyle against consistent values instead of the 296 scattered hexes across 31 sheets. Values match the fallbacks the shipped 2026 surfaces already use, so this is visually a no-op for them; brand colours (`--tt-primary`/`--tt-secondary`) stay with the club-colour editor (BrandStyles) so theming is unaffected. Adds a developer pattern reference (`docs/frontend-2026-patterns.md`) for the long-tail restyle. Foundation for the Tier 3–7 batch (#1695); follow-ups migrate the legacy slate/navy surfaces and normalise breakpoints onto these tokens. Patch bump. (#1379) =
 

@@ -317,7 +317,7 @@
 .tt-dashboard .tt-grid { display: grid; gap: var(--tt-sp-4); }
 .tt-dashboard .tt-grid-2 { grid-template-columns: 1fr; }
 .tt-dashboard .tt-grid-3 { grid-template-columns: 1fr; }
-@media (min-width: 640px) {
+@media (min-width: 480px) {
     .tt-dashboard .tt-grid-2 { grid-template-columns: repeat(2, 1fr); }
 }
 @media (min-width: 960px) {
@@ -1009,7 +1009,7 @@ body:not(.tt-theme-inherit) .tt-dashboard .tt-field {
     font-weight: 600;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 480px) {
     .tt-dashboard .tt-mye-item {
         grid-template-columns: 1fr;
         gap: 12px;
@@ -1133,7 +1133,7 @@ body:not(.tt-theme-inherit) .tt-dashboard .tt-field {
     gap: 8px;
     margin: 16px 0 0;
 }
-@media (max-width: 820px) {
+@media (max-width: 768px) {
     .tt-dashboard .tt-mc-grid { grid-template-columns: 1fr; }
     .tt-dashboard .tt-mc-card { display: flex; justify-content: center; }
 }

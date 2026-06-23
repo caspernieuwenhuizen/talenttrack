@@ -74,7 +74,7 @@
     margin: 0 0 1rem;
 }
 
-@media ( min-width: 720px ) {
+@media ( min-width: 768px ) {
     .tt-planner-week {
         grid-template-columns: repeat( 7, 1fr );
     }

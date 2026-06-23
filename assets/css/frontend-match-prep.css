@@ -19,16 +19,16 @@
     --tt-mp-pitch-1e-d: #b9d2ea;
     --tt-mp-pitch-2e:   #fbe2d2;
     --tt-mp-pitch-2e-d: #e9c2a4;
-    --tt-mp-ink:        #1a1d21;
-    --tt-mp-ink-soft:   #5b6e75;
-    --tt-mp-line:       #c8ccd0;
-    --tt-mp-line-soft:  #e3e6ea;
-    --tt-mp-accent:     #2271b1;
-    --tt-mp-success:    #2e7d4f;
+    --tt-mp-ink:        var(--tt-ink, #0e1a14);
+    --tt-mp-ink-soft:   var(--tt-muted, #6a6d66);
+    --tt-mp-line:       var(--tt-line, #e3e6e1);
+    --tt-mp-line-soft:  var(--tt-line-soft, #eef0ec);
+    --tt-mp-accent:     var(--tt-primary, #0b3d2e);
+    --tt-mp-success:    var(--tt-success, #2f9e5e);
     --tt-mp-warn:       #c75c1f;
-    --tt-mp-danger:     #d63638;
+    --tt-mp-danger:     var(--tt-danger, #d8453b);
     --tt-mp-mute:       #f0f3f2;
-    --tt-mp-paper:      #ffffff;
+    --tt-mp-paper:      var(--tt-paper, #ffffff);
     --tt-mp-radius:     6px;
     --tt-mp-gap:        0.625rem;
 

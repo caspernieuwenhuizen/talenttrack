@@ -150,11 +150,11 @@
 .tt-dashboard .tt-ov-radar { margin-top: 1rem; }
 
 /* ---- Scale up ------------------------------------------------------ */
-@media (min-width: 560px) {
+@media (min-width: 480px) {
     .tt-dashboard .tt-ov-kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }
     .tt-dashboard .tt-ov-hero-name { font-size: 1.35rem; }
 }
-@media (min-width: 820px) {
+@media (min-width: 768px) {
     .tt-dashboard .tt-ov-grid {
         grid-template-columns: minmax(0, 1fr) auto;
         gap: 1.25rem;

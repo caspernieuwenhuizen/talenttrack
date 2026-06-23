@@ -15,17 +15,14 @@
 /* ---------- Frame + responsive grid ---------- */
 
 .tt-player-detail {
-    --tt-paper:       #ffffff;
-    --tt-bg-soft:     #f5f7f6;
-    --tt-line-soft:   #d6dadd;
+    /* Canonical neutrals (paper/bg-soft/line-soft/ink-soft/success/danger)
+       inherit from tokens.css — no local override. Slate ink + WP-blue
+       accent converge onto the green/gold canon. */
     --tt-mute-soft:   #f0f3f2;
-    --tt-ink-strong:  #1a1d21;
-    --tt-ink-soft:    #5b6e75;
-    --tt-accent:      #2271b1;
+    --tt-ink-strong:  var(--tt-ink, #0e1a14);
+    --tt-accent:      var(--tt-primary, #0b3d2e);
     --tt-accent-soft: #e1eef5;
-    --tt-success:     #2e7d4f;
     --tt-warn:        #c75c1f;
-    --tt-danger:      #d63638;
     --tt-gold:        #b8860b;
     --tt-gap:         12px;
     --tt-gap-lg:      16px;
@@ -174,7 +171,7 @@
 .tt-player-pill[data-status="inactive"] { background: var(--tt-mute-soft); color: var(--tt-ink-soft); }
 .tt-player-pill--pos { background: var(--tt-accent-soft); color: var(--tt-accent); }
 
-@media (min-width: 720px) {
+@media (min-width: 768px) {
     .tt-player-detail__hero {
         padding: 24px;
         border-radius: var(--tt-radius-lg);
@@ -205,7 +202,7 @@
     margin-top: -8px;
 }
 .tt-player-detail__actions::-webkit-scrollbar { display: none; }
-@media (min-width: 720px) {
+@media (min-width: 768px) {
     .tt-player-detail__actions { overflow-x: visible; padding: var(--tt-gap) 24px; }
 }
 @media (min-width: 1024px) {
@@ -418,7 +415,7 @@
     margin: var(--tt-gap) 0 0;
 }
 .tt-player-tabs::-webkit-scrollbar { display: none; }
-@media (min-width: 720px) {
+@media (min-width: 768px) {
     .tt-player-tabs {
         flex-wrap: wrap;
         overflow-x: visible;
@@ -517,7 +514,7 @@
 }
 
 /* Profile-tab grid: cards stack on mobile, 2-up on tablet/desktop. */
-@media (min-width: 720px) {
+@media (min-width: 768px) {
     .tt-player-profile-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;

@@ -5,12 +5,16 @@
  * scale up via min-width media queries. The grid renders the SAME
  * markup at every breakpoint; only CSS changes layout.
  *
- * #0074 introduces a `:root` token block at the top of the file. Most
- * colour values are unchanged in hue — they're moved here so future
- * polish passes have a single point of edit.
+ * #0074 introduces a token block scoped to the persona-landing wrapper.
+ * Most colour values are unchanged in hue — they're declared here so
+ * future polish passes have a single point of edit. Scoped to
+ * `.tt-root` (not `:root`) so the navy `--tt-pd-*` tokens stay inside the
+ * plugin and the design-system editor (which emits overrides on
+ * `.tt-root`) still wins. The tokens are `--tt-pd-*`-prefixed, so only
+ * the persona-landing rules read them — they don't recolour anything else.
  */
 
-:root {
+.tt-root {
     /* Surface */
     --tt-pd-surface:        #ffffff;
     --tt-pd-surface-subtle: #f8fafc;
@@ -122,7 +126,7 @@
 }
 
 /* Grid mobile order utilities (priority-based stack) */
-@media (max-width: 767.98px) {
+@media (max-width: 768px) {
     .tt-pd-grid {
         display: flex;
         flex-direction: column;
@@ -1064,7 +1068,7 @@
     grid-template-columns: 1fr;
     gap: 0.5rem;
 }
-@media (min-width: 720px) {
+@media (min-width: 768px) {
     .tt-pd-pipeline-cols {
         grid-template-columns: repeat(6, 1fr);
     }
@@ -1169,7 +1173,7 @@ a.tt-pd-pipeline-col--link:focus-visible {
     transition: transform 120ms ease;
 }
 .tt-pd-fold[open] > .tt-pd-fold-summary::after { transform: rotate(90deg); }
-@media (max-width: 767.98px) {
+@media (max-width: 768px) {
     .tt-pd-fold > .tt-pd-fold-summary { display: flex; }
     .tt-pd-fold[open] > .tt-pd-fold-summary { margin-bottom: 0.5rem; }
 }
@@ -1177,7 +1181,7 @@ a.tt-pd-pipeline-col--link:focus-visible {
 /* #1375 — tile wall compacts to 2-up on phones so 19 tiles take half
    the scroll. The grid stack is flex on mobile; tiles opt into a
    nested 2-col arrangement per cell pair via width. */
-@media (max-width: 767.98px) {
+@media (max-width: 768px) {
     .tt-pd-grid { flex-flow: row wrap; }
     .tt-pd-grid > .tt-pd-grid-cell { width: 100%; }
     .tt-pd-grid > .tt-pd-grid-cell:has(.tt-pd-widget-navigation_tile) {

@@ -54,6 +54,6 @@
 .tt-att-bar.is-low .v { color: #b23128; }
 
 /* on narrow screens drop the bar track, keep the number */
-@media (max-width: 560px) {
+@media (max-width: 480px) {
     .tt-att-bar .track { display: none; }
 }
