@@ -19,6 +19,22 @@ use TT\Shared\Frontend\FrontendViewBase;
  */
 class FrontendMyPdpView extends FrontendViewBase {
 
+    /**
+     * #1686 — enqueue the POP / PDP chrome stylesheet on top of the
+     * shared frontend assets. Loaded here (not in FrontendViewBase)
+     * because only the PDP surfaces use it; depends on the global
+     * app-chrome sheet for the shared tokens.
+     */
+    protected static function enqueueAssets(): void {
+        parent::enqueueAssets();
+        wp_enqueue_style(
+            'tt-frontend-pop',
+            TT_PLUGIN_URL . 'assets/css/frontend-pop.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+    }
+
     public static function render( object $player ): void {
         self::enqueueAssets();
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'My development plan', 'talenttrack' ) );
@@ -43,11 +59,15 @@ class FrontendMyPdpView extends FrontendViewBase {
         $convs   = ( new PdpConversationsRepository() )->listForFile( (int) $file->id );
         $verdict = ( new PdpVerdictsRepository() )->findForFile( (int) $file->id );
 
-        echo '<p style="color:#5b6e75; margin-bottom:12px;">' . esc_html( sprintf(
+        echo '<p style="color:var(--tt-muted,#5b6e75); margin-bottom:0.75rem;">' . esc_html( sprintf(
             /* translators: %s = season name */
             __( 'Season: %s', 'talenttrack' ),
             (string) $current->name
         ) ) . '</p>';
+
+        // #1686 — section anchor for the conversation cards, matching the
+        // mockup's "Gesprek" panel label.
+        echo '<h2 class="tt-pop-gesprek__title" style="margin:0 0 0.75rem;">' . esc_html__( 'Conversation', 'talenttrack' ) . '</h2>';
 
         foreach ( $convs as $c ) {
             self::renderConversationCard( $file, $c, $is_self, $is_parent );
@@ -67,9 +87,14 @@ class FrontendMyPdpView extends FrontendViewBase {
         );
         $signed = ! empty( $conv->coach_signoff_at );
 
-        echo '<div class="tt-card" style="background:#fff; border:1px solid #e5e7ea; border-radius:8px; padding:16px; margin-bottom:12px;">';
-        echo '<h3 style="margin:0 0 6px; font-size:16px;">' . esc_html( $title ) . '</h3>';
-        echo '<p style="margin:0 0 6px; color:#5b6e75; font-size:13px;">';
+        // #1686 — conversation cards restyled to the 2026 chrome:
+        // signed-off meetings carry the gold "Gesprek" accent, pending
+        // ones stay neutral. The bubble content + ack / reflection forms
+        // below are unchanged.
+        $card_mod = $signed ? ' tt-pop-goal--doing' : '';
+        echo '<div class="tt-pop-goal' . esc_attr( $card_mod ) . '" style="margin-bottom:0.75rem;">';
+        echo '<h3 style="margin:0 0 0.35rem; font-size:1rem; color:var(--tt-primary,#0b3d2e);">' . esc_html( $title ) . '</h3>';
+        echo '<p style="margin:0 0 0.4rem; color:var(--tt-muted,#5b6e75); font-size:0.8rem;">';
         if ( ! empty( $conv->scheduled_at ) ) {
             echo esc_html( sprintf(
                 /* translators: %s = date */
@@ -89,23 +114,23 @@ class FrontendMyPdpView extends FrontendViewBase {
         if ( $signed ) {
             // Show notes + agreed actions.
             if ( ! empty( $conv->notes ) ) {
-                echo '<div style="margin:8px 0;"><strong>' . esc_html__( 'Notes', 'talenttrack' ) . '</strong><div>'
+                echo '<div class="tt-pop-bubble" style="margin-top:0.5rem;"><strong>' . esc_html__( 'Notes', 'talenttrack' ) . '</strong><div>'
                     . wp_kses_post( (string) $conv->notes ) . '</div></div>';
             }
             if ( ! empty( $conv->agreed_actions ) ) {
-                echo '<div style="margin:8px 0;"><strong>' . esc_html__( 'Agreed actions', 'talenttrack' ) . '</strong><div>'
+                echo '<div class="tt-pop-bubble" style="margin-top:0.5rem;"><strong>' . esc_html__( 'Agreed actions', 'talenttrack' ) . '</strong><div>'
                     . wp_kses_post( (string) $conv->agreed_actions ) . '</div></div>';
             }
         } else {
             // Pre-meeting: agenda + (player only) editable self-reflection.
             if ( ! empty( $conv->agenda ) ) {
-                echo '<div style="margin:8px 0;"><strong>' . esc_html__( 'Agenda', 'talenttrack' ) . '</strong><div>'
+                echo '<div class="tt-pop-bubble" style="margin-top:0.5rem;"><strong>' . esc_html__( 'Agenda', 'talenttrack' ) . '</strong><div>'
                     . wp_kses_post( (string) $conv->agenda ) . '</div></div>';
             }
         }
 
         if ( ! empty( $conv->player_reflection ) ) {
-            echo '<div style="margin:8px 0; padding:8px; background:#fafbfc; border-radius:4px;">';
+            echo '<div class="tt-pop-bubble" style="margin-top:0.5rem;">';
             echo '<strong>' . esc_html__( 'Self-reflection', 'talenttrack' ) . '</strong>';
             echo '<div>' . wp_kses_post( (string) $conv->player_reflection ) . '</div>';
             echo '</div>';
@@ -177,8 +202,8 @@ class FrontendMyPdpView extends FrontendViewBase {
     }
 
     private static function renderVerdictCard( object $verdict ): void {
-        echo '<div class="tt-card" style="background:#fff; border:2px solid #1d7874; border-radius:8px; padding:16px; margin-top:24px;">';
-        echo '<h3 style="margin:0 0 8px; font-size:16px;">' . esc_html__( 'End-of-season verdict', 'talenttrack' ) . '</h3>';
+        echo '<div class="tt-pop-goal tt-pop-goal--done" style="margin-top:1.25rem;">';
+        echo '<h3 style="margin:0 0 0.5rem; font-size:1rem; color:var(--tt-primary,#0b3d2e);">' . esc_html__( 'End-of-season verdict', 'talenttrack' ) . '</h3>';
         // #1080 — repository pre-hydrates `decision_localised` via
         // PdpVerdictsRepository::label() (LookupTranslator + canonical
         // English fallback). The inline `decisionLabel()` switch
