@@ -4,7 +4,7 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.45.11
+Stable tag: 4.45.19
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,7 +12,11 @@ Frontend-first, modular youth football talent management system for a single clu
 
 == Changelog ==
 
-= 4.45.11 — POP / PDP restyled to the 2026 look (#1686). The coach POP file detail (`FrontendPdpManageView`) and the player "My development plan" surface (`FrontendMyPdpView`) adopt the 2026 chrome: white cards with the shared `--tt-shadow-md` shadow, learning-goal cards with a status-derived left accent (done / in-progress / planned) plus a number-or-✓ badge, the rounded `goal_status` chip, link chips, and the "last mentioned in conversation" snippet styled as a quoted callout. The player surface renders its conversation cards and end-of-season verdict in the same chrome, with notes / agenda / agreed-actions / self-reflection shown as conversation bubbles. New styling lives in mobile-first `assets/css/frontend-pop.css` (no new palette; reads the existing `--tt-primary` / `--tt-secondary` tokens). No query, REST, or data change — restyle only. One new string ("Linked to"), Dutch added. Patch bump. (#1686) =
+= 4.45.8 — Team attendance report restyled to the 2026 look (#1688). A KPI summary strip (teams, activities, average attendance, teams flagged red below 70%) above a card-wrapped table with an inline attendance bar (red under 70%). Visual only — same per-team data. Patch bump. (#1688) =
+
+= 4.45.7 — Team planner team dropdown gains Select all / Clear all (#1721). The multi-select team dropdown (#1715) now has **Select all** and **Clear all** shortcuts at the top of the panel, so picking every team — or starting over — is one tap instead of ticking each box. The dropdown stays open after a bulk toggle so the result is visible before Apply. New strings translated to Dutch. Patch bump. (#1721) =
+
+= 4.45.6 — Team planner team picker is a real collapsed multi-select dropdown (#1715). The #1703 picker used a native `<select multiple>`, which browsers render as an always-open list box rather than a dropdown. Replaced it with a `<details>` disclosure styled like a select: collapsed by default, click to open a checkbox list of teams, with the summary showing the current selection ("Alle teams" / a team name / "N teams geselecteerd"). It closes on outside-click or Escape, keeps every option at a 48px touch target, and is full-width on phones. The `team_ids[]` submission is unchanged, so single- and multi-team behaviour is identical. New strings translated to Dutch. Patch bump. (#1715) =
 
 = 4.45.5 — Activities-manage list query moved out of the view into ActivitiesRepository (#1320). Tech-debt: the activities management surface built its list SQL — including the demo-scope predicate and the coach-scope authorization guard — inline in `FrontendActivitiesManageView`. That query (and its permission logic) now lives in `ActivitiesRepository::listForManageSurface()`, so the surface and the REST list share one source of truth and the view holds no SQL or authorization logic (CLAUDE.md §4). Behaviour is unchanged: same filters, same coach-scope restriction, same ordering. No user-visible change. Patch bump. (#1320) =
 

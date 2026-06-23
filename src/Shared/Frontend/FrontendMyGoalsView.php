@@ -34,6 +34,7 @@ class FrontendMyGoalsView extends FrontendViewBase {
         }
 
         self::enqueueAssets();
+        self::enqueueGoalsStyle();
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'My goals', 'talenttrack' ) );
         self::renderHeader( __( 'My goals', 'talenttrack' ) );
 
@@ -51,48 +52,135 @@ class FrontendMyGoalsView extends FrontendViewBase {
 
         $base         = remove_query_arg( [ 'id' ] );
         $threads_repo = class_exists( ThreadMessagesRepository::class ) ? new ThreadMessagesRepository() : null;
+
+        // #1687 — 2026 restyle: group goals into the three mockup columns
+        // (Active / Achieved / Missed) keyed on the same status buckets
+        // GoalsRepository already uses (completed / cancelled / everything
+        // else is active). Pure presentation — no extra query.
+        $columns = [
+            'active' => [ 'label' => __( 'Active',   'talenttrack' ), 'goals' => [] ],
+            'done'   => [ 'label' => __( 'Achieved', 'talenttrack' ), 'goals' => [] ],
+            'missed' => [ 'label' => __( 'Missed',   'talenttrack' ), 'goals' => [] ],
+        ];
+        foreach ( $goals as $g ) {
+            $columns[ self::bucketFor( (string) ( $g->status ?? '' ) ) ]['goals'][] = $g;
+        }
         ?>
-        <div class="tt-goals-list">
-            <?php foreach ( $goals as $g ) :
-                $detail_url = add_query_arg( 'id', (int) $g->id, $base );
-                $msg_count  = 0;
-                if ( $threads_repo !== null ) {
-                    // Count public + player-readable messages so the
-                    // CTA reflects what the player can actually see.
-                    $msgs = $threads_repo->listForThread( 'goal', (int) $g->id, false );
-                    $msg_count = is_array( $msgs ) ? count( $msgs ) : 0;
-                }
-                ?>
-                <a class="tt-goal-item tt-status-<?php echo esc_attr( (string) $g->status ); ?> tt-record-link"
-                   href="<?php echo esc_url( $detail_url ); ?>">
-                    <h4><?php echo esc_html( \TT\Modules\Translations\TranslationLayer::render( (string) $g->title ) ); ?></h4>
-                    <?php if ( ! empty( $g->description ) ) : ?>
-                        <p><?php echo esc_html( \TT\Modules\Translations\TranslationLayer::render( (string) $g->description ) ); ?></p>
-                    <?php endif; ?>
-                    <span class="tt-status-badge"><?php echo esc_html( (string) $g->status_localised ); ?></span>
-                    <?php if ( ! empty( $g->due_date ) ) : ?>
-                        <small><?php esc_html_e( 'Due:', 'talenttrack' ); ?> <?php echo esc_html( \TT\Shared\Dates\TTDate::date( (string) $g->due_date ) ); ?></small>
-                    <?php endif; ?>
-                    <p class="tt-goal-conversation-cta">
-                        <span aria-hidden="true"><?php echo \TT\Shared\Icons\IconRenderer::render( 'comment', [ 'width' => 14, 'height' => 14, 'style' => 'vertical-align:-2px;' ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG. ?></span>
-                        <?php if ( $msg_count > 0 ) : ?>
-                            <?php
-                            /* translators: %d is the number of messages on this goal's conversation thread. */
-                            printf( esc_html( _n( 'Open conversation (%d message)', 'Open conversation (%d messages)', $msg_count, 'talenttrack' ) ), $msg_count );
-                            ?>
-                        <?php else : ?>
-                            <?php esc_html_e( 'Open goal &amp; start the conversation', 'talenttrack' ); ?>
+        <div class="tt-goal-board">
+            <?php foreach ( $columns as $bucket => $col ) : ?>
+                <section class="tt-goal-col tt-goal-col--<?php echo esc_attr( $bucket ); ?>">
+                    <h2 class="tt-goal-col__head">
+                        <span class="tt-goal-col__dot" aria-hidden="true"></span>
+                        <?php echo esc_html( $col['label'] ); ?>
+                        <span class="tt-goal-col__count"><?php echo (int) count( $col['goals'] ); ?></span>
+                    </h2>
+                    <div class="tt-goal-col__cards">
+                        <?php if ( empty( $col['goals'] ) ) : ?>
+                            <p class="tt-goal-col__empty"><?php esc_html_e( 'Nothing here yet.', 'talenttrack' ); ?></p>
                         <?php endif; ?>
-                        →
-                    </p>
-                </a>
+                        <?php foreach ( $col['goals'] as $g ) :
+                            $detail_url = add_query_arg( 'id', (int) $g->id, $base );
+                            $msg_count  = 0;
+                            if ( $threads_repo !== null ) {
+                                // Count public + player-readable messages so the
+                                // CTA reflects what the player can actually see.
+                                $msgs = $threads_repo->listForThread( 'goal', (int) $g->id, false );
+                                $msg_count = is_array( $msgs ) ? count( $msgs ) : 0;
+                            }
+                            $priority_chip = self::priorityChipClass( (string) ( $g->priority ?? '' ) );
+                            $status_chip   = self::statusChipClass( $bucket );
+                            ?>
+                            <a class="tt-goal-card tt-goal-card--<?php echo esc_attr( $bucket ); ?> tt-record-link"
+                               href="<?php echo esc_url( $detail_url ); ?>">
+                                <h3 class="tt-goal-card__title"><?php echo esc_html( \TT\Modules\Translations\TranslationLayer::render( (string) $g->title ) ); ?></h3>
+                                <div class="tt-goal-card__meta">
+                                    <span class="tt-goal-chip <?php echo esc_attr( $status_chip ); ?>"><?php echo esc_html( (string) $g->status_localised ); ?></span>
+                                    <?php if ( ! empty( $g->priority ) ) : ?>
+                                        <span class="tt-goal-chip <?php echo esc_attr( $priority_chip ); ?>"><?php echo esc_html( (string) $g->priority_localised ); ?></span>
+                                    <?php endif; ?>
+                                    <?php if ( ! empty( $g->due_date ) ) : ?>
+                                        <span class="tt-goal-due"><?php esc_html_e( 'Due:', 'talenttrack' ); ?> <?php echo esc_html( \TT\Shared\Dates\TTDate::date( (string) $g->due_date ) ); ?></span>
+                                    <?php endif; ?>
+                                </div>
+                                <?php if ( ! empty( $g->description ) ) : ?>
+                                    <p class="tt-goal-card__desc"><?php echo esc_html( \TT\Modules\Translations\TranslationLayer::render( (string) $g->description ) ); ?></p>
+                                <?php endif; ?>
+                                <p class="tt-goal-card__cta">
+                                    <span aria-hidden="true"><?php echo \TT\Shared\Icons\IconRenderer::render( 'comment', [ 'width' => 14, 'height' => 14, 'style' => 'vertical-align:-2px;' ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG. ?></span>
+                                    <?php if ( $msg_count > 0 ) : ?>
+                                        <?php
+                                        /* translators: %d is the number of messages on this goal's conversation thread. */
+                                        printf( esc_html( _n( 'Open conversation (%d message)', 'Open conversation (%d messages)', $msg_count, 'talenttrack' ) ), $msg_count );
+                                        ?>
+                                    <?php else : ?>
+                                        <?php esc_html_e( 'Open goal &amp; start the conversation', 'talenttrack' ); ?>
+                                    <?php endif; ?>
+                                    →
+                                </p>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
+                </section>
             <?php endforeach; ?>
         </div>
-        <style>
-            /* .tt-record-link styling now lives in assets/css/public.css (#0063). */
-            .tt-goal-conversation-cta { margin: 10px 0 0; font-size: 13px; color: var(--tt-primary, #0b3d2e); }
-        </style>
         <?php
+    }
+
+    /**
+     * #1687 — enqueue the shared 2026 goals restyle stylesheet. Depends on
+     * the global app-chrome sheet so the brand tokens + card chrome load
+     * first. Idempotent; registers an asset only.
+     */
+    private static function enqueueGoalsStyle(): void {
+        wp_enqueue_style(
+            'tt-goals',
+            TT_PLUGIN_URL . 'assets/css/frontend-goals.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+    }
+
+    /**
+     * #1687 — map a raw goal status to one of the three board buckets.
+     * Mirrors GoalsRepository's completed / cancelled split; everything
+     * else (pending, in_progress, null) is "active".
+     */
+    private static function bucketFor( string $status ): string {
+        $s = strtolower( str_replace( ' ', '_', trim( $status ) ) );
+        if ( $s === 'completed' || $s === 'achieved' || $s === 'signed_off' ) {
+            return 'done';
+        }
+        if ( $s === 'cancelled' || $s === 'canceled' || $s === 'missed' ) {
+            return 'missed';
+        }
+        return 'active';
+    }
+
+    /**
+     * #1687 — status-chip modifier class for a board bucket.
+     */
+    private static function statusChipClass( string $bucket ): string {
+        if ( $bucket === 'done' ) {
+            return 'tt-goal-chip--status tt-goal-chip--status-done';
+        }
+        if ( $bucket === 'missed' ) {
+            return 'tt-goal-chip--status tt-goal-chip--status-missed';
+        }
+        return 'tt-goal-chip--status';
+    }
+
+    /**
+     * #1687 — priority-chip modifier class from a raw priority value.
+     */
+    private static function priorityChipClass( string $priority ): string {
+        $p = strtolower( trim( $priority ) );
+        if ( $p === 'high' || $p === 'hoog' ) {
+            return 'tt-goal-chip--priority tt-goal-chip--priority-high';
+        }
+        if ( $p === 'low' || $p === 'laag' ) {
+            return 'tt-goal-chip--priority tt-goal-chip--priority-low';
+        }
+        return 'tt-goal-chip--priority';
     }
 
     /**
@@ -116,24 +204,27 @@ class FrontendMyGoalsView extends FrontendViewBase {
         }
 
         self::enqueueAssets();
+        self::enqueueGoalsStyle();
         self::renderHeader( (string) \TT\Modules\Translations\TranslationLayer::render( (string) $goal->title ) );
 
         $status   = (string) $goal->status;
         $priority = (string) ( $goal->priority ?? '' );
+        $bucket   = self::bucketFor( $status );
         ?>
-        <article class="tt-record-detail tt-goal-detail tt-status-<?php echo esc_attr( $status ); ?>">
-            <p class="tt-record-detail-meta tt-goal-detail-meta">
-                <span class="tt-status-badge"><?php echo esc_html( (string) $goal->status_localised ); ?></span>
+        <article class="tt-goal-card tt-goal-detail-card tt-goal-card--<?php echo esc_attr( $bucket ); ?>">
+            <div class="tt-goal-card__meta">
+                <span class="tt-goal-chip <?php echo esc_attr( self::statusChipClass( $bucket ) ); ?>"><?php echo esc_html( (string) $goal->status_localised ); ?></span>
                 <?php if ( $priority !== '' ) : ?>
-                    <span class="tt-priority-badge"><?php echo esc_html( (string) $goal->priority_localised ); ?></span>
+                    <span class="tt-goal-chip <?php echo esc_attr( self::priorityChipClass( $priority ) ); ?>"><?php echo esc_html( (string) $goal->priority_localised ); ?></span>
                 <?php endif; ?>
                 <?php if ( ! empty( $goal->due_date ) ) : ?>
-                    <span class="tt-due"><?php esc_html_e( 'Due:', 'talenttrack' ); ?> <?php echo esc_html( \TT\Shared\Dates\TTDate::date( (string) $goal->due_date ) ); ?></span>
+                    <span class="tt-goal-due"><?php esc_html_e( 'Due:', 'talenttrack' ); ?> <?php echo esc_html( \TT\Shared\Dates\TTDate::date( (string) $goal->due_date ) ); ?></span>
                 <?php endif; ?>
-            </p>
+            </div>
             <?php if ( ! empty( $goal->description ) ) : ?>
-                <div class="tt-record-detail-body tt-goal-detail-body">
-                    <?php echo wp_kses_post( wpautop( \TT\Modules\Translations\TranslationLayer::render( (string) $goal->description ) ) ); ?>
+                <div class="tt-goal-detail-field">
+                    <span class="tt-goal-detail-field__label"><?php esc_html_e( 'Description', 'talenttrack' ); ?></span>
+                    <div class="tt-goal-detail-field__value"><?php echo wp_kses_post( wpautop( \TT\Modules\Translations\TranslationLayer::render( (string) $goal->description ) ) ); ?></div>
                 </div>
             <?php endif; ?>
         </article>

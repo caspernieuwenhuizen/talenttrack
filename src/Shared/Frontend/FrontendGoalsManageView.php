@@ -35,6 +35,7 @@ class FrontendGoalsManageView extends FrontendViewBase {
 
     public static function render( int $user_id, bool $is_admin ): void {
         self::enqueueAssets();
+        self::enqueueGoalsStyle();
 
         $action = isset( $_GET['action'] ) ? sanitize_key( (string) $_GET['action'] ) : '';
         $id     = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
@@ -164,37 +165,57 @@ class FrontendGoalsManageView extends FrontendViewBase {
         $due_date  = (string) ( $goal->due_date ?? '' );
         $desc      = (string) ( $goal->description ?? '' );
 
-        echo '<div class="tt-record-detail" style="display:grid; gap:12px;">';
-        echo '<dl class="tt-record-detail-list" style="display:grid; grid-template-columns: minmax(120px, max-content) 1fr; gap:6px 16px; margin:0;">';
+        // #1687 — 2026 restyle: chrome card with status / priority / due
+        // chips, an owners row, then the remaining fields. Same data the
+        // dl carried — no new queries.
+        [ $status_chip_class, $card_accent ] = self::statusChipClasses( $status );
+        $priority_chip_class = self::priorityChipClass( $priority );
 
-        if ( $player ) {
-            echo '<dt>' . esc_html__( 'Player', 'talenttrack' ) . '</dt>';
-            echo '<dd>'
-                . \TT\Shared\Frontend\Components\RecordLink::inline( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-                    QueryHelpers::player_display_name( $player ),
-                    \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'players', $player_id )
-                )
-                . '</dd>';
-        }
+        echo '<div class="tt-record-detail" style="display:grid; gap:16px;">';
+        echo '<article class="tt-goal-card tt-goal-detail-card ' . esc_attr( $card_accent ) . '">';
 
+        // Chip row — status + priority + due.
+        echo '<div class="tt-goal-card__meta">';
         if ( $status !== '' ) {
-            echo '<dt>' . esc_html__( 'Status', 'talenttrack' ) . '</dt>';
-            echo '<dd>' . \TT\Infrastructure\Query\LookupPill::render( 'goal_status', $status ) . '</dd>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            echo '<span class="tt-goal-chip ' . esc_attr( $status_chip_class ) . '">'
+                . esc_html( LabelTranslator::goalStatus( strtolower( str_replace( ' ', '_', $status ) ) ) )
+                . '</span>';
         }
         if ( $priority !== '' ) {
-            echo '<dt>' . esc_html__( 'Priority', 'talenttrack' ) . '</dt>';
-            echo '<dd>' . esc_html( LabelTranslator::goalPriority( $priority ) ) . '</dd>';
+            echo '<span class="tt-goal-chip ' . esc_attr( $priority_chip_class ) . '">'
+                . esc_html( LabelTranslator::goalPriority( strtolower( $priority ) ) )
+                . '</span>';
         }
         if ( $due_date !== '' ) {
-            echo '<dt>' . esc_html__( 'Due', 'talenttrack' ) . '</dt>';
-            echo '<dd>' . esc_html( $due_date ) . '</dd>';
+            echo '<span class="tt-goal-due">' . esc_html__( 'Due:', 'talenttrack' ) . ' '
+                . esc_html( \TT\Shared\Dates\TTDate::date( $due_date ) ) . '</span>';
         }
-        if ( $desc !== '' ) {
-            echo '<dt>' . esc_html__( 'Description', 'talenttrack' ) . '</dt>';
-            echo '<dd style="white-space:pre-wrap;">' . esc_html( $desc ) . '</dd>';
+        echo '</div>';
+
+        // Player owner row — anchors the card to the player record.
+        if ( $player ) {
+            $player_name = QueryHelpers::player_display_name( $player );
+            echo '<div class="tt-goal-card__footer">';
+            echo '<span class="tt-goal-owners">';
+            echo '<span class="tt-goal-owner-av" aria-hidden="true">' . esc_html( self::initials( (string) $player_name ) ) . '</span>';
+            echo '</span>';
+            echo '<span class="tt-goal-owners-label">'
+                . \TT\Shared\Frontend\Components\RecordLink::inline( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                    (string) $player_name,
+                    \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'players', $player_id )
+                )
+                . '</span>';
+            echo '</div>';
         }
 
-        echo '</dl>';
+        if ( $desc !== '' ) {
+            echo '<div class="tt-goal-detail-field">';
+            echo '<span class="tt-goal-detail-field__label">' . esc_html__( 'Description', 'talenttrack' ) . '</span>';
+            echo '<div class="tt-goal-detail-field__value">' . esc_html( $desc ) . '</div>';
+            echo '</div>';
+        }
+
+        echo '</article>';
 
         // v3.110.53 — Edit + Archive moved to the page-header actions
         // slot rendered by render() before this method runs.
@@ -518,6 +539,67 @@ class FrontendGoalsManageView extends FrontendViewBase {
             \TT\Shared\Frontend\Components\FrontendThreadView::render( 'goal', (int) $goal->id, $user_id );
             echo '</section>';
         }
+    }
+
+    /**
+     * #1687 — enqueue the 2026 goals restyle stylesheet. Idempotent; the
+     * style depends on the global app-chrome sheet so the brand tokens +
+     * card chrome are already present. Business logic stays out of this
+     * helper — it only registers an asset.
+     */
+    private static function enqueueGoalsStyle(): void {
+        wp_enqueue_style(
+            'tt-goals',
+            TT_PLUGIN_URL . 'assets/css/frontend-goals.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+    }
+
+    /**
+     * #1687 — two-letter initials for an owner avatar. Pure formatting.
+     */
+    private static function initials( string $name ): string {
+        $name = trim( $name );
+        if ( $name === '' ) {
+            return '?';
+        }
+        $parts = preg_split( '/\s+/', $name ) ?: [];
+        $first = mb_substr( (string) ( $parts[0] ?? '' ), 0, 1 );
+        $last  = count( $parts ) > 1 ? mb_substr( (string) end( $parts ), 0, 1 ) : '';
+        $out   = mb_strtoupper( $first . $last );
+        return $out !== '' ? $out : '?';
+    }
+
+    /**
+     * #1687 — map a raw priority value to its chip modifier class.
+     */
+    private static function priorityChipClass( string $priority ): string {
+        $p = strtolower( trim( $priority ) );
+        if ( $p === 'high' || $p === 'hoog' ) {
+            return 'tt-goal-chip--priority tt-goal-chip--priority-high';
+        }
+        if ( $p === 'low' || $p === 'laag' ) {
+            return 'tt-goal-chip--priority tt-goal-chip--priority-low';
+        }
+        return 'tt-goal-chip--priority';
+    }
+
+    /**
+     * #1687 — map a raw status value to its chip modifier + card accent.
+     * Returns [ chip_class, card_accent_class ].
+     *
+     * @return array{0:string,1:string}
+     */
+    private static function statusChipClasses( string $status ): array {
+        $s = strtolower( str_replace( ' ', '_', trim( $status ) ) );
+        if ( $s === 'completed' || $s === 'achieved' || $s === 'signed_off' ) {
+            return [ 'tt-goal-chip--status tt-goal-chip--status-done', 'tt-goal-card--done' ];
+        }
+        if ( $s === 'cancelled' || $s === 'missed' || $s === 'canceled' ) {
+            return [ 'tt-goal-chip--status tt-goal-chip--status-missed', 'tt-goal-card--missed' ];
+        }
+        return [ 'tt-goal-chip--status', 'tt-goal-card--active' ];
     }
 
     private static function loadGoal( int $id ): ?object {

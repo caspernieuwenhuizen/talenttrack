@@ -211,6 +211,27 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                 <button type="button" class="tt-mexec-timer-btn" data-tt-mexec-timer-toggle<?php echo $start_locked ? ' disabled title="' . esc_attr( $start_lock_msg ) . '"' : ''; ?>><?php esc_html_e( 'Start', 'talenttrack' ); ?></button>
             </section>
 
+            <?php // #1684 — match-summary KPI strip (2026 chrome). Mirrors
+                  // the mockup's "Minuten gelogd" footer with the real
+                  // figures this view already has: how many players are
+                  // flagged for tracking, and how many are available to log
+                  // minutes for. Logic-free — both counts are computed above.
+                  $tracked_count   = count( $specific_goal_ids );
+                  $available_count = count( $available_ids );
+                  ?>
+            <section class="tt-mexec-kpis" aria-label="<?php esc_attr_e( 'Match summary', 'talenttrack' ); ?>">
+                <?php
+                echo \TT\Shared\Frontend\Components\FrontendAppChrome::kpiTile( [
+                    'label' => __( 'Tracked players', 'talenttrack' ),
+                    'value' => (string) $tracked_count,
+                ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                echo \TT\Shared\Frontend\Components\FrontendAppChrome::kpiTile( [
+                    'label' => __( 'Available squad', 'talenttrack' ),
+                    'value' => (string) $available_count,
+                ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                ?>
+            </section>
+
             <section class="tt-mexec-section tt-mexec-on-pitch" aria-label="<?php esc_attr_e( 'Tracked players', 'talenttrack' ); ?>">
                 <div class="tt-mexec-section-head">
                     <h2 class="tt-mexec-section-title"><?php esc_html_e( 'Tracked players', 'talenttrack' ); ?></h2>
@@ -726,6 +747,16 @@ class FrontendMatchExecutionView extends FrontendViewBase {
             'tt-match-execution',
             TT_PLUGIN_URL . 'assets/css/frontend-match-execution.css',
             [],
+            TT_VERSION
+        );
+        // #1684 — 2026 "chrome" restyle layers on top of the base sheet.
+        // Depends on the shared app-chrome sheet (#1690) so the KPI tile
+        // styles + brand tokens are present; loading after the base sheet
+        // means its additive rules win without !important.
+        wp_enqueue_style(
+            'tt-match-execution-2026',
+            TT_PLUGIN_URL . 'assets/css/frontend-match-execution-2026.css',
+            [ 'tt-match-execution', 'tt-frontend-app-chrome' ],
             TT_VERSION
         );
         wp_enqueue_script(
