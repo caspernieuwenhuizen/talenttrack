@@ -76,6 +76,20 @@ class FrontendTeamPlannerView extends FrontendViewBase {
             TT_VERSION,
             true
         );
+        // #1715 — team multi-select dropdown: live summary label +
+        // outside-click / Escape close.
+        wp_enqueue_script(
+            'tt-planner-team-dropdown',
+            TT_PLUGIN_URL . 'assets/js/components/planner-team-dropdown.js',
+            [],
+            TT_VERSION,
+            true
+        );
+        wp_localize_script( 'tt-planner-team-dropdown', 'TT_PLANNER_TEAM_DD', [
+            'all'  => __( 'All teams', 'talenttrack' ),
+            /* translators: %d: number of teams selected */
+            'many' => __( '%d teams selected', 'talenttrack' ),
+        ] );
         FrontendBreadcrumbs::fromDashboard( __( 'Team planner', 'talenttrack' ) );
         self::renderHeader( __( 'Team planner', 'talenttrack' ) );
 
@@ -310,17 +324,54 @@ class FrontendTeamPlannerView extends FrontendViewBase {
                 <input type="hidden" name="tt_view" value="team-planner" />
                 <input type="hidden" name="week_start" value="<?php echo esc_attr( $range_start ); ?>" />
 
+                <?php
+                // #1715 — a real collapsed dropdown that multi-selects.
+                // Native `<select multiple>` renders as an always-open
+                // list box, not a dropdown, so use a `<details>`
+                // disclosure whose summary is styled like a select and
+                // whose panel holds the `team_ids[]` checkboxes. JS keeps
+                // the summary label in sync and closes it on outside
+                // click / Escape; the GET contract is unchanged.
+                $sel_count = count( $selected_ids );
+                if ( $sel_count === 0 ) {
+                    $summary_label = __( 'All teams', 'talenttrack' );
+                } elseif ( $sel_count === 1 ) {
+                    $summary_label = __( 'All teams', 'talenttrack' );
+                    foreach ( $teams as $t ) {
+                        if ( (int) $t->id === (int) $selected_ids[0] ) { $summary_label = (string) $t->name; break; }
+                    }
+                } else {
+                    $summary_label = sprintf(
+                        /* translators: %d: number of teams selected */
+                        _n( '%d team selected', '%d teams selected', $sel_count, 'talenttrack' ),
+                        $sel_count
+                    );
+                }
+                ?>
                 <div class="tt-planner-team-picker">
-                    <label class="tt-planner-team-label" for="tt-planner-teams"><?php esc_html_e( 'Teams', 'talenttrack' ); ?></label>
-                    <select id="tt-planner-teams" class="tt-planner-team-select" name="team_ids[]" multiple size="<?php echo esc_attr( (string) max( 3, min( 6, count( $teams ) ) ) ); ?>">
-                        <?php foreach ( $teams as $t ) :
-                            $tid = (int) $t->id;
-                            ?>
-                            <option value="<?php echo esc_attr( (string) $tid ); ?>" <?php selected( in_array( $tid, $selected_ids, true ), true ); ?>>
-                                <?php echo esc_html( (string) $t->name ); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
+                    <span class="tt-planner-team-label" id="tt-planner-teams-label"><?php esc_html_e( 'Teams', 'talenttrack' ); ?></span>
+                    <details class="tt-planner-team-dd" data-tt-team-dd>
+                        <summary class="tt-planner-team-dd-toggle" role="button" aria-haspopup="listbox"
+                                 aria-labelledby="tt-planner-teams-label">
+                            <span class="tt-planner-team-dd-text" data-tt-team-dd-text><?php echo esc_html( $summary_label ); ?></span>
+                            <span class="tt-planner-team-dd-caret" aria-hidden="true">&#9662;</span>
+                        </summary>
+                        <div class="tt-planner-team-dd-panel" role="group" aria-labelledby="tt-planner-teams-label">
+                            <?php // #1721 — bulk select / clear shortcuts. ?>
+                            <div class="tt-planner-team-dd-actions">
+                                <button type="button" class="tt-planner-team-dd-action" data-tt-team-dd-all><?php esc_html_e( 'Select all', 'talenttrack' ); ?></button>
+                                <button type="button" class="tt-planner-team-dd-action" data-tt-team-dd-none><?php esc_html_e( 'Clear all', 'talenttrack' ); ?></button>
+                            </div>
+                            <?php foreach ( $teams as $t ) :
+                                $tid = (int) $t->id;
+                                ?>
+                                <label class="tt-planner-team-dd-opt">
+                                    <input type="checkbox" name="team_ids[]" value="<?php echo esc_attr( (string) $tid ); ?>" <?php checked( in_array( $tid, $selected_ids, true ) ); ?> />
+                                    <span><?php echo esc_html( (string) $t->name ); ?></span>
+                                </label>
+                            <?php endforeach; ?>
+                        </div>
+                    </details>
                     <p class="tt-planner-team-hint"><?php esc_html_e( 'Pick two or more teams for a read-only overview across teams.', 'talenttrack' ); ?></p>
                 </div>
 

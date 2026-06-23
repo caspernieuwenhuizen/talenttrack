@@ -4,7 +4,7 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.45.14
+Stable tag: 4.45.17
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,7 +12,11 @@ Frontend-first, modular youth football talent management system for a single clu
 
 == Changelog ==
 
-= 4.45.14 — Match-execution restyled to the 2026 look (#1684). The assistant-coach live-match surface (`FrontendMatchExecutionView`) adopts the 2026 "chrome" design on its real sections: the score becomes a dark-green/gold live band, the timer carries a gold-on-green clock chip with the live dot, the tracked-players / bench / sub-target sections render as white brand-token cards (1px #e3e6e1, radius 14px, var(--tt-shadow-md)), action buttons and goal chips pick up the brand palette, and a two-up KPI summary strip (tracked players · available squad) renders via the shared `FrontendAppChrome::kpiTile()`. Purely a presentation layer: a new mobile-first `assets/css/frontend-match-execution-2026.css` layers additively over the base sheet with a dependency on the shared app-chrome stylesheet; every live-JS hook (timer toggle, score steppers, goal counters, substitution flow, offline queue) keeps its existing classes, ids, and data-attributes untouched. No query, REST, or state-machine change. Two new strings, Dutch added. Patch bump. (#1684) =
+= 4.45.8 — Team attendance report restyled to the 2026 look (#1688). A KPI summary strip (teams, activities, average attendance, teams flagged red below 70%) above a card-wrapped table with an inline attendance bar (red under 70%). Visual only — same per-team data. Patch bump. (#1688) =
+
+= 4.45.7 — Team planner team dropdown gains Select all / Clear all (#1721). The multi-select team dropdown (#1715) now has **Select all** and **Clear all** shortcuts at the top of the panel, so picking every team — or starting over — is one tap instead of ticking each box. The dropdown stays open after a bulk toggle so the result is visible before Apply. New strings translated to Dutch. Patch bump. (#1721) =
+
+= 4.45.6 — Team planner team picker is a real collapsed multi-select dropdown (#1715). The #1703 picker used a native `<select multiple>`, which browsers render as an always-open list box rather than a dropdown. Replaced it with a `<details>` disclosure styled like a select: collapsed by default, click to open a checkbox list of teams, with the summary showing the current selection ("Alle teams" / a team name / "N teams geselecteerd"). It closes on outside-click or Escape, keeps every option at a 48px touch target, and is full-width on phones. The `team_ids[]` submission is unchanged, so single- and multi-team behaviour is identical. New strings translated to Dutch. Patch bump. (#1715) =
 
 = 4.45.5 — Activities-manage list query moved out of the view into ActivitiesRepository (#1320). Tech-debt: the activities management surface built its list SQL — including the demo-scope predicate and the coach-scope authorization guard — inline in `FrontendActivitiesManageView`. That query (and its permission logic) now lives in `ActivitiesRepository::listForManageSurface()`, so the surface and the REST list share one source of truth and the view holds no SQL or authorization logic (CLAUDE.md §4). Behaviour is unchanged: same filters, same coach-scope restriction, same ordering. No user-visible change. Patch bump. (#1320) =
 

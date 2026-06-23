@@ -1,0 +1,162 @@
+/*
+ * frontend-overview.css — 2026 restyle of the player "My card" overview
+ * (FrontendOverviewView, #1695).
+ *
+ * The player/parent landing body: a clean player-header card with an OVR
+ * rating badge, a row of KPI tiles (the headline numbers), and the
+ * side / FIFA-card sections as white cards. Mobile-first per CLAUDE.md §2:
+ * base styles target ~360px, min-width queries scale up. Everything is
+ * scoped under .tt-dashboard — no global resets (the active theme is
+ * treated as hostile). Tokens come from public.css: --tt-primary
+ * (#0b3d2e), --tt-secondary (#e8b624), --tt-ink, --tt-muted,
+ * --tt-shadow-md. No new palette.
+ */
+
+.tt-dashboard .tt-ov { display: block; }
+
+/* ---- Player header card -------------------------------------------- */
+.tt-dashboard .tt-ov-hero {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 1rem;
+    background: #fff;
+    border: 1px solid #e3e6e1;
+    border-radius: 14px;
+    box-shadow: var(--tt-shadow-md);
+    margin-bottom: 1rem;
+}
+.tt-dashboard .tt-ov-hero-photo {
+    flex: 0 0 auto;
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #f3f5f1;
+}
+.tt-dashboard .tt-ov-hero-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.tt-dashboard .tt-ov-hero-photo-ph {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    place-items: center;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--tt-primary);
+    background: #eef2ec;
+}
+.tt-dashboard .tt-ov-hero-body { flex: 1 1 auto; min-width: 0; }
+.tt-dashboard .tt-ov-hero-name {
+    margin: 0;
+    font-size: 1.2rem;
+    line-height: 1.2;
+    font-weight: 800;
+    color: var(--tt-ink);
+}
+.tt-dashboard .tt-ov-hero-meta {
+    margin: 0.25rem 0 0;
+    font-size: 0.85rem;
+    color: var(--tt-muted);
+}
+
+/* OVR badge — borrows the deck's .tag-ovr language (gold-on-green pill) */
+.tt-dashboard .tt-ov-ovr {
+    flex: 0 0 auto;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 56px;
+    padding: 0.35rem 0.55rem;
+    border-radius: 12px;
+    background: var(--tt-primary);
+    color: #fff;
+    box-shadow: var(--tt-shadow-md);
+}
+.tt-dashboard .tt-ov-ovr-label {
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--tt-secondary);
+}
+.tt-dashboard .tt-ov-ovr-val {
+    font-size: 1.5rem;
+    font-weight: 800;
+    line-height: 1.05;
+}
+.tt-dashboard .tt-ov-ovr--empty {
+    background: #f3f5f1;
+    color: var(--tt-muted);
+    box-shadow: none;
+    border: 1px solid #e3e6e1;
+}
+.tt-dashboard .tt-ov-ovr--empty .tt-ov-ovr-label { color: var(--tt-muted); }
+.tt-dashboard .tt-ov-ovr--empty .tt-ov-ovr-val {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* ---- KPI tile row -------------------------------------------------- */
+.tt-dashboard .tt-ov-kpis {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+}
+
+/* ---- Body cards ---------------------------------------------------- */
+.tt-dashboard .tt-ov-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    align-items: start;
+}
+.tt-dashboard .tt-ov-card {
+    position: relative;
+    background: #fff;
+    border: 1px solid #e3e6e1;
+    border-radius: 14px;
+    box-shadow: var(--tt-shadow-md);
+    padding: 1rem;
+}
+.tt-dashboard .tt-ov-card--fifa {
+    display: flex;
+    justify-content: center;
+}
+.tt-dashboard .tt-ov-cf-heading {
+    margin: 0 0 0.6rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--tt-muted);
+}
+.tt-dashboard .tt-ov-cf-list {
+    margin: 0;
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.35rem 0.9rem;
+    font-size: 0.9rem;
+}
+.tt-dashboard .tt-ov-cf-list dt { font-weight: 600; color: var(--tt-muted); }
+.tt-dashboard .tt-ov-cf-list dd { margin: 0; color: var(--tt-ink); }
+.tt-dashboard .tt-ov-radar { margin-top: 1rem; }
+
+/* ---- Scale up ------------------------------------------------------ */
+@media (min-width: 560px) {
+    .tt-dashboard .tt-ov-kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .tt-dashboard .tt-ov-hero-name { font-size: 1.35rem; }
+}
+@media (min-width: 820px) {
+    .tt-dashboard .tt-ov-grid {
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 1.25rem;
+    }
+}
