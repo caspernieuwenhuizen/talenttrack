@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.45.5
+Stable tag: 4.45.11
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.45.11 — POP / PDP restyled to the 2026 look (#1686). The coach POP file detail (`FrontendPdpManageView`) and the player "My development plan" surface (`FrontendMyPdpView`) adopt the 2026 chrome: white cards with the shared `--tt-shadow-md` shadow, learning-goal cards with a status-derived left accent (done / in-progress / planned) plus a number-or-✓ badge, the rounded `goal_status` chip, link chips, and the "last mentioned in conversation" snippet styled as a quoted callout. The player surface renders its conversation cards and end-of-season verdict in the same chrome, with notes / agenda / agreed-actions / self-reflection shown as conversation bubbles. New styling lives in mobile-first `assets/css/frontend-pop.css` (no new palette; reads the existing `--tt-primary` / `--tt-secondary` tokens). No query, REST, or data change — restyle only. One new string ("Linked to"), Dutch added. Patch bump. (#1686) =
 
 = 4.45.5 — Activities-manage list query moved out of the view into ActivitiesRepository (#1320). Tech-debt: the activities management surface built its list SQL — including the demo-scope predicate and the coach-scope authorization guard — inline in `FrontendActivitiesManageView`. That query (and its permission logic) now lives in `ActivitiesRepository::listForManageSurface()`, so the surface and the REST list share one source of truth and the view holds no SQL or authorization logic (CLAUDE.md §4). Behaviour is unchanged: same filters, same coach-scope restriction, same ordering. No user-visible change. Patch bump. (#1320) =
 

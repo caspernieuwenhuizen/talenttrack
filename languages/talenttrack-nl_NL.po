@@ -20642,6 +20642,10 @@ msgstr "Geen doelwijzigingen in dit venster."
 msgid "Linked goals"
 msgstr "Gekoppelde doelen"
 
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Linked to"
+msgstr "Gekoppeld aan"
+
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1377
 msgid "No goals match this filter."
 msgstr "Geen doelen die aan dit filter voldoen."

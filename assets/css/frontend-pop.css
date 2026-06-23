@@ -1,0 +1,301 @@
+/*
+ * frontend-pop.css — POP / PDP body restyle to the 2026 "chrome" look
+ * (#1686). Pairs with the global app chrome (#1690). Restyles the coach
+ * POP detail (FrontendPdpManageView) and the player my-pdp surface
+ * (FrontendMyPdpView): learning-goal cards with status chips and a
+ * progress bar, evidence chips, and a "Gesprek" conversation timeline.
+ *
+ * Mobile-first per CLAUDE.md §2: base styles target ~360px, min-width
+ * queries scale up. Everything is prefixed `.tt-pop-*` and scoped under
+ * `.tt-dashboard` so the active theme is treated as hostile. Tokens come
+ * from public.css (--tt-primary #0b3d2e, --tt-secondary #e8b624,
+ * --tt-ink, --tt-muted, --tt-line, --tt-shadow-md) — no new palette.
+ */
+
+/* ---- Summary panel ------------------------------------------------- */
+.tt-dashboard .tt-pop-summary {
+    background: #fff;
+    border: 1px solid #e3e6e1;
+    border-radius: 14px;
+    box-shadow: var(--tt-shadow-md);
+    padding: 1rem 1.1rem;
+    margin: 0 0 1rem;
+}
+.tt-dashboard .tt-pop-summary__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0 0 0.4rem;
+    font-size: 0.95rem;
+}
+.tt-dashboard .tt-pop-summary__row:last-child { margin-bottom: 0; }
+.tt-dashboard .tt-pop-summary__label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--tt-muted);
+}
+
+/* ---- OVR tag (gold-on-green) — only rendered when a real value
+ * exists; the language mirrors the mockup's `.tag-ovr`. ------------- */
+.tt-dashboard .tt-pop-ovr {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-weight: 800;
+    font-size: 0.9rem;
+    color: var(--tt-primary, #0b3d2e);
+    background: var(--tt-secondary, #e8b624);
+    border-radius: 7px;
+    padding: 0.2rem 0.55rem;
+    letter-spacing: 0.02em;
+}
+
+/* ---- Learning-goal cards ------------------------------------------ */
+.tt-dashboard .tt-pop-goals {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin: 0 0 0.5rem;
+}
+.tt-dashboard .tt-pop-goal {
+    position: relative;
+    background: #fff;
+    border: 1px solid #e3e6e1;
+    border-left: 4px solid #e3e6e1;
+    border-radius: 14px;
+    box-shadow: var(--tt-shadow-md);
+    padding: 0.85rem 1rem;
+}
+.tt-dashboard .tt-pop-goal--done   { border-left-color: #2f9e5e; }
+.tt-dashboard .tt-pop-goal--doing  { border-left-color: var(--tt-secondary, #e8b624); }
+.tt-dashboard .tt-pop-goal--planned { border-left-color: #e3e6e1; }
+
+.tt-dashboard .tt-pop-goal__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.6rem;
+}
+.tt-dashboard .tt-pop-goal__titlerow {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-width: 0;
+    flex: 1;
+}
+.tt-dashboard .tt-pop-goal__num {
+    flex: 0 0 auto;
+    width: 26px;
+    height: 26px;
+    border-radius: 7px;
+    display: grid;
+    place-items: center;
+    font-weight: 800;
+    font-size: 0.8rem;
+    background: var(--tt-paper-soft, #f4f6f3);
+    color: var(--tt-muted);
+    border: 1px solid #e3e6e1;
+}
+.tt-dashboard .tt-pop-goal--done   .tt-pop-goal__num { background: #2f9e5e; color: #fff; border-color: #2f9e5e; }
+.tt-dashboard .tt-pop-goal--doing  .tt-pop-goal__num { background: var(--tt-secondary, #e8b624); color: var(--tt-primary, #0b3d2e); border-color: var(--tt-secondary, #e8b624); }
+.tt-dashboard .tt-pop-goal__title {
+    font-weight: 700;
+    font-size: 0.98rem;
+    color: var(--tt-primary, #0b3d2e);
+    line-height: 1.25;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+.tt-dashboard .tt-pop-goal__title a { color: inherit; text-decoration: none; }
+.tt-dashboard .tt-pop-goal__title a:hover,
+.tt-dashboard .tt-pop-goal__title a:focus-visible { text-decoration: underline; }
+.tt-dashboard .tt-pop-goal__when {
+    flex: 0 0 auto;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--tt-muted);
+    white-space: nowrap;
+}
+.tt-dashboard .tt-pop-goal__desc {
+    margin: 0.35rem 0 0;
+    font-size: 0.82rem;
+    color: var(--tt-muted);
+    line-height: 1.4;
+}
+.tt-dashboard .tt-pop-goal__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0.55rem 0 0;
+}
+.tt-dashboard .tt-pop-goal__meta {
+    margin: 0.5rem 0 0;
+    font-size: 0.8rem;
+    color: var(--tt-muted);
+}
+
+/* ---- Progress bar (track + gold fill) ------------------------------ */
+.tt-dashboard .tt-pop-barwrap {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0.6rem 0 0;
+}
+.tt-dashboard .tt-pop-bar {
+    flex: 1;
+    height: 8px;
+    border-radius: 999px;
+    background: #eceeea;
+    overflow: hidden;
+}
+.tt-dashboard .tt-pop-bar > i {
+    display: block;
+    height: 100%;
+    background: var(--tt-secondary, #e8b624);
+    border-radius: 999px;
+}
+.tt-dashboard .tt-pop-pct {
+    flex: 0 0 auto;
+    font-weight: 800;
+    font-size: 0.82rem;
+    color: var(--tt-secondary, #c9962a);
+}
+
+/* ---- Section label ("Bewijslast" / "Linked goals") ----------------- */
+.tt-dashboard .tt-pop-lbl {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--tt-muted);
+    margin: 0.7rem 0 0.35rem;
+}
+
+/* ---- Evidence / link chips ----------------------------------------- */
+.tt-dashboard .tt-pop-evid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0.35rem 0 0;
+}
+.tt-dashboard .tt-pop-ev {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.74rem;
+    font-weight: 600;
+    color: var(--tt-primary, #0b3d2e);
+    background: var(--tt-paper-soft, #f4f6f3);
+    border: 1px solid #e3e6e1;
+    border-radius: 8px;
+    padding: 0.35rem 0.55rem;
+    line-height: 1.2;
+}
+
+/* ---- "Last mentioned" conversation snippet ------------------------- */
+.tt-dashboard .tt-pop-mention {
+    margin: 0.6rem 0 0;
+    padding: 0.55rem 0.65rem;
+    background: var(--tt-paper-soft, #f4f6f3);
+    border-left: 3px solid var(--tt-primary, #0b3d2e);
+    border-radius: 0 8px 8px 0;
+    font-size: 0.8rem;
+    color: var(--tt-ink);
+}
+.tt-dashboard .tt-pop-mention__when {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 0.2rem;
+    color: var(--tt-primary, #0b3d2e);
+}
+
+/* ---- Gesprek (conversation timeline) ------------------------------- */
+.tt-dashboard .tt-pop-gesprek {
+    background: #fff;
+    border: 1px solid #e3e6e1;
+    border-radius: 14px;
+    box-shadow: var(--tt-shadow-md);
+    padding: 1rem 1.1rem;
+    margin: 0 0 1rem;
+}
+.tt-dashboard .tt-pop-gesprek__title {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--tt-muted);
+    margin: 0 0 0.85rem;
+}
+.tt-dashboard .tt-pop-tl {
+    position: relative;
+    padding-left: 1.1rem;
+    margin: 0;
+}
+.tt-dashboard .tt-pop-tl::before {
+    content: "";
+    position: absolute;
+    left: 5px;
+    top: 4px;
+    bottom: 4px;
+    width: 2px;
+    background: #e3e6e1;
+}
+.tt-dashboard .tt-pop-ev-row {
+    position: relative;
+    margin: 0 0 0.85rem;
+}
+.tt-dashboard .tt-pop-ev-row:last-child { margin-bottom: 0; }
+.tt-dashboard .tt-pop-ev-row::before {
+    content: "";
+    position: absolute;
+    left: -1.1rem;
+    top: 3px;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: #fff;
+    border: 2.5px solid #145a44;
+}
+.tt-dashboard .tt-pop-ev-row--gold::before { border-color: var(--tt-secondary, #e8b624); }
+.tt-dashboard .tt-pop-ev-row__when {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--tt-muted);
+}
+.tt-dashboard .tt-pop-ev-row__who {
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: var(--tt-primary, #0b3d2e);
+}
+.tt-dashboard .tt-pop-bubble {
+    background: var(--tt-paper-soft, #f4f6f3);
+    border: 1px solid #e3e6e1;
+    border-radius: 10px;
+    padding: 0.55rem 0.7rem;
+    margin: 0.3rem 0 0;
+    font-size: 0.86rem;
+    line-height: 1.45;
+    color: var(--tt-ink);
+}
+.tt-dashboard .tt-pop-bubble strong {
+    display: block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--tt-muted);
+    margin: 0 0 0.2rem;
+    font-weight: 700;
+}
+
+/* ---- Two-column layout on wide viewports --------------------------- */
+@media (min-width: 1024px) {
+    .tt-dashboard .tt-pop-grid {
+        display: grid;
+        grid-template-columns: 1.4fr 1fr;
+        gap: 1.1rem;
+        align-items: start;
+    }
+}
