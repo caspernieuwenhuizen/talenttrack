@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-23T20:18:36+00:00\n"
+"POT-Creation-Date: 2026-06-23T20:23:20+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -1870,7 +1870,7 @@ msgstr ""
 #: src/Infrastructure/REST/PlayerJourneyRestController.php:164
 #: src/Infrastructure/REST/PlayerJourneyRestController.php:176
 #: src/Infrastructure/REST/PlayerJourneyRestController.php:302
-#: src/Modules/Journey/Frontend/FrontendJourneyView.php:46
+#: src/Modules/Journey/Frontend/FrontendJourneyView.php:47
 #: src/Modules/Reports/Frontend/FrontendScoutMyPlayersView.php:52
 msgid "You do not have access to this player."
 msgstr ""
@@ -2319,7 +2319,7 @@ msgstr ""
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:504
 #: src/Modules/Configuration/Admin/ErrorLogPage.php:84
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:134
-#: src/Modules/Journey/Frontend/FrontendJourneyView.php:220
+#: src/Modules/Journey/Frontend/FrontendJourneyView.php:221
 #: src/Modules/Methodology/Admin/MethodologyPage.php:161
 #: src/Modules/People/Admin/PeoplePage.php:160
 #: src/Shared/Frontend/FrontendAuditLogView.php:342
@@ -3539,7 +3539,7 @@ msgstr ""
 #: src/Modules/Development/Frontend/TracksView.php:26
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:30
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:34
-#: src/Modules/Journey/Frontend/FrontendJourneyView.php:45
+#: src/Modules/Journey/Frontend/FrontendJourneyView.php:46
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:40
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:40
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:148
@@ -3658,7 +3658,7 @@ msgstr ""
 #: src/Modules/Backup/MigrationExporter.php:34
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:469
 #: src/Modules/DemoData/Admin/DemoDataPage.php:699
-#: src/Modules/Journey/Frontend/FrontendJourneyView.php:63
+#: src/Modules/Journey/Frontend/FrontendJourneyView.php:64
 #: src/Modules/License/Admin/AccountPage.php:631
 #: src/Modules/License/Admin/AccountPage.php:754
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:246
@@ -7423,7 +7423,7 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:1193
-#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:1006
+#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:1007
 msgid "Insert"
 msgstr ""
 
@@ -9562,7 +9562,7 @@ msgstr ""
 
 #: src/Modules/Configuration/Admin/ErrorLogPage.php:122
 #: src/Modules/CustomCss/DesignSystem/TokenCatalogue.php:107
-#: src/Modules/Journey/Frontend/FrontendJourneyView.php:248
+#: src/Modules/Journey/Frontend/FrontendJourneyView.php:249
 msgid "Warning"
 msgstr "Advertencia"
 
@@ -10735,7 +10735,7 @@ msgid "Delete this snapshot?"
 msgstr ""
 
 #. translators: %d = number of classes discovered
-#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:982
+#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:983
 #, php-format
 msgid ""
 "%d TalentTrack class found in the bundled stylesheets. Search by typing — "
@@ -10754,24 +10754,24 @@ msgstr[1] ""
 "zoeken — de lijst filtert mee. Klik op Invoegen om de CSS-editor te "
 "prefillen met een startregel voor die klasse."
 
-#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:994
+#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:995
 msgid "Search classes"
 msgstr ""
 
-#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:995
+#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:996
 msgid "e.g. card, btn, table…"
 msgstr ""
 
-#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:1010
+#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:1011
 msgid "No matches."
 msgstr ""
 
-#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:1056
+#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:1057
 msgid "Stuck behind a broken save?"
 msgstr ""
 
 #. translators: %s = safe-mode URL
-#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:1059
+#: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:1060
 #, php-format
 msgid ""
 "Open the dashboard with the safe-mode URL: %s — it skips custom CSS so you "
@@ -15048,30 +15048,30 @@ msgid "Open journey"
 msgstr ""
 
 # #0053 — Player journey
-#: src/Modules/Journey/Frontend/FrontendJourneyView.php:57
+#: src/Modules/Journey/Frontend/FrontendJourneyView.php:58
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:46
 #: src/Shared/CoreSurfaceRegistration.php:318
 msgid "My journey"
 msgstr ""
 
 #. translators: %s: player display name
-#: src/Modules/Journey/Frontend/FrontendJourneyView.php:61
+#: src/Modules/Journey/Frontend/FrontendJourneyView.php:62
 #, php-format
 msgid "Journey of %s"
 msgstr ""
 
-#: src/Modules/Journey/Frontend/FrontendJourneyView.php:104
+#: src/Modules/Journey/Frontend/FrontendJourneyView.php:105
 #, php-format
 msgid "Journey — %s"
 msgstr ""
 
-#: src/Modules/Journey/Frontend/FrontendJourneyView.php:106
+#: src/Modules/Journey/Frontend/FrontendJourneyView.php:107
 msgid ""
 "Chronological story for this player. Filter by type or switch to milestones-"
 "only for the parent meeting."
 msgstr ""
 
-#: src/Modules/Journey/Frontend/FrontendJourneyView.php:114
+#: src/Modules/Journey/Frontend/FrontendJourneyView.php:115
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:140
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:354
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:141
@@ -15079,47 +15079,47 @@ msgstr ""
 msgid "Timeline"
 msgstr ""
 
-#: src/Modules/Journey/Frontend/FrontendJourneyView.php:120
+#: src/Modules/Journey/Frontend/FrontendJourneyView.php:121
 msgid "Transitions"
 msgstr ""
 
 #. translators: %d: count of events hidden because the viewer lacks the medical or safeguarding cap
-#: src/Modules/Journey/Frontend/FrontendJourneyView.php:134
+#: src/Modules/Journey/Frontend/FrontendJourneyView.php:135
 #, php-format
 msgid "%d entry hidden — visible to other roles only."
 msgid_plural "%d entries hidden — visible to other roles only."
 msgstr[0] "%d regel verborgen — alleen zichtbaar voor andere rollen."
 msgstr[1] "%d regels verborgen — alleen zichtbaar voor andere rollen."
 
-#: src/Modules/Journey/Frontend/FrontendJourneyView.php:142
+#: src/Modules/Journey/Frontend/FrontendJourneyView.php:143
 msgid "No journey entries yet."
 msgstr ""
 
-#: src/Modules/Journey/Frontend/FrontendJourneyView.php:154
+#: src/Modules/Journey/Frontend/FrontendJourneyView.php:155
 msgid "Show full history"
 msgstr ""
 
-#: src/Modules/Journey/Frontend/FrontendJourneyView.php:177
+#: src/Modules/Journey/Frontend/FrontendJourneyView.php:178
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1368
 msgid "Show:"
 msgstr ""
 
 #. translators: %d: number of additional filter types
-#: src/Modules/Journey/Frontend/FrontendJourneyView.php:200
+#: src/Modules/Journey/Frontend/FrontendJourneyView.php:201
 #, php-format
 msgid "More filters (%d)"
 msgstr ""
 
-#: src/Modules/Journey/Frontend/FrontendJourneyView.php:223
+#: src/Modules/Journey/Frontend/FrontendJourneyView.php:224
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:305
 msgid "Reset"
 msgstr "Restablecer"
 
-#: src/Modules/Journey/Frontend/FrontendJourneyView.php:246
+#: src/Modules/Journey/Frontend/FrontendJourneyView.php:247
 msgid "Milestone"
 msgstr ""
 
-#: src/Modules/Journey/Frontend/FrontendJourneyView.php:253
+#: src/Modules/Journey/Frontend/FrontendJourneyView.php:254
 msgid "Retracted — replaced by a corrected entry."
 msgstr ""
 
