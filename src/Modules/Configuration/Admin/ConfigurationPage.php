@@ -278,7 +278,7 @@ class ConfigurationPage {
                 'label' => __( 'Branding & display', 'talenttrack' ),
                 'tiles' => [
                     [ 'label' => $tab_label( 'branding', __( 'Branding', 'talenttrack' ) ),
-                      'description' => __( 'Academy name, logo, primary colours, fonts, theme inheritance.', 'talenttrack' ),
+                      'description' => __( 'Academy name, logo, primary colours, fonts.', 'talenttrack' ),
                       'icon' => '🎨', 'url' => $tab_url( 'branding' ) ],
                     [ 'label' => $tab_label( 'toggles', __( 'Feature Toggles', 'talenttrack' ) ),
                       'description' => __( 'Enable or disable individual features without code changes.', 'talenttrack' ),
@@ -930,8 +930,8 @@ class ConfigurationPage {
             </table>
 
             <?php
-            // #0023 Sprint 1 — Theme inheritance + curated styling
-            $theme_inherit = (string) QueryHelpers::get_config( 'theme_inherit', '0' );
+            // #0023 Sprint 1 — curated styling (theme inheritance removed
+            // in #1728; canvas mode now gives total visual isolation).
             $font_display  = (string) QueryHelpers::get_config( 'font_display',  BrandFonts::SYSTEM_DEFAULT );
             $font_body     = (string) QueryHelpers::get_config( 'font_body',     BrandFonts::SYSTEM_DEFAULT );
             $colors = [
@@ -943,22 +943,11 @@ class ConfigurationPage {
                 'color_focus'   => [ __( 'Focus ring color', 'talenttrack' ), '#1e88e5' ],
             ];
             ?>
-            <h3 style="margin-top:2.5rem;"><?php esc_html_e( 'Theme inheritance & curated styling', 'talenttrack' ); ?></h3>
+            <h3 style="margin-top:2.5rem;"><?php esc_html_e( 'Curated styling', 'talenttrack' ); ?></h3>
             <p class="description" style="max-width:680px;">
-                <?php esc_html_e( 'Inheritance applies to fonts, colors, and basic links/buttons. TalentTrack’s structural design (spacing, layout, player cards) is unchanged. Pick fonts and accent colors below — fields left as “(System default)” or empty fall back to TalentTrack’s defaults.', 'talenttrack' ); ?>
+                <?php esc_html_e( 'TalentTrack renders in full isolation from the active WordPress theme. Pick fonts and accent colors below — fields left as “(System default)” or empty fall back to TalentTrack’s defaults.', 'talenttrack' ); ?>
             </p>
             <table class="form-table">
-                <tr>
-                    <th><?php esc_html_e( 'Inherit WordPress theme styles', 'talenttrack' ); ?></th>
-                    <td>
-                        <?php // Hidden 0 first so unchecking persists. ?>
-                        <input type="hidden" name="cfg[theme_inherit]" value="0" />
-                        <label>
-                            <input type="checkbox" name="cfg[theme_inherit]" value="1" <?php checked( $theme_inherit, '1' ); ?> />
-                            <?php esc_html_e( 'Defer typography, link color, headings and plain buttons to the active WP theme.', 'talenttrack' ); ?>
-                        </label>
-                    </td>
-                </tr>
                 <tr>
                     <th><?php esc_html_e( 'Display font', 'talenttrack' ); ?></th>
                     <td>

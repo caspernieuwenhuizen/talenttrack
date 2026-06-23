@@ -11,16 +11,16 @@ use TT\Core\Container;
  * Always-on shared frontend concern, initialised by the Kernel.
  *
  * #0023 Sprint 1: extended to also emit semantic-color + font tokens
- * for the new Branding-tab fields, register a Google Fonts request
- * when the operator picked a curated family, and add a
- * `tt-theme-inherit` body class when the new toggle is ON.
+ * for the new Branding-tab fields and register a Google Fonts request
+ * when the operator picked a curated family. (Theme inheritance was
+ * removed in #1728 — canvas mode now gives total visual isolation, so
+ * deferring styling to the host theme no longer makes sense.)
  */
 class BrandStyles {
 
     public static function init( Container $container ): void {
         add_action( 'wp_head',           [ __CLASS__, 'injectVars' ], 5 );
         add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueueFonts' ] );
-        add_filter( 'body_class',         [ __CLASS__, 'addBodyClass' ] );
     }
 
     public static function injectVars(): void {
@@ -78,22 +78,6 @@ class BrandStyles {
         );
         if ( $url === '' ) return;
         wp_enqueue_style( 'tt-brand-fonts', $url, [], null );
-    }
-
-    /**
-     * Append `tt-theme-inherit` to the body class list when the
-     * Branding-tab toggle is ON. The class is what the
-     * theme-inheritance CSS section in frontend-admin.css keys off.
-     *
-     * @param array<int, string> $classes
-     * @return array<int, string>
-     */
-    public static function addBodyClass( array $classes ): array {
-        /** @var \TT\Infrastructure\Config\ConfigService $cfg */
-        $cfg = \TT\Core\Kernel::instance()->container()->get( 'config' );
-        $on = (string) $cfg->get( 'theme_inherit', '0' );
-        if ( $on === '1' ) $classes[] = 'tt-theme-inherit';
-        return $classes;
     }
 
     private static function hexToRgb( string $hex ): string {

@@ -17,7 +17,7 @@ On the frontend Configuration view, the former **Branding** and **Theme & fonts*
 - **Identity** — academy name, club short code, logo.
 - **Colours** — primary, secondary, and the full accent/status palette (accent, danger, warning, success, info, focus-ring), all together.
 - **Typography** — display font and body font.
-- **Theme** — the "defer to the active WP theme" inheritance toggle.
+- **Theme isolation** — an informational note that TalentTrack always renders in full isolation from the active WordPress theme (read-only; there is no toggle).
 - **Advanced** — a link into the Custom CSS editor.
 
 No configuration keys changed and there is no data migration — existing values render unchanged. Save + Cancel sit at the bottom of the page. Old `?config_sub=branding` / `?config_sub=theme` deep links still resolve to the Appearance surface.
@@ -49,13 +49,18 @@ Alongside the size dropdown (now labelled **Tile size**), the Appearance surface
 
 The layout applies everywhere a tile shows an icon: the dashboard tile grid always, and the Configuration / Reports / Modules tiles whenever a tile carries an icon. Tiles without an icon have no top line to share and render the same in either layout. Stored academy-wide under the `tile_layout` configuration key; default `row`.
 
-## Full-canvas app (v4.34.0+)
+## Full-canvas app & theme isolation (mandatory, v4.45.26+)
 
-The Appearance surface gains a **Full-canvas app** checkbox. When it is on — the default — TalentTrack renders full-width and the active WordPress theme's header, footer, sidebar, menus and widgets are hidden, so only the TalentTrack interface shows. The WordPress admin bar still appears for logged-in staff (it is a WordPress control, not theme chrome, and gives staff a one-click route back to wp-admin).
+TalentTrack always renders as a full-canvas app, fully isolated from the active WordPress theme. There is **no opt-out** — full isolation is the contract (#1728). On the page that hosts the `[talenttrack_dashboard]` shortcode:
 
-To opt out, open **Configuration → Appearance**, scroll to **Full-canvas app**, untick **Show TalentTrack as a full-canvas app**, and Save. TalentTrack then renders inside the theme's normal page layout again — useful if your theme provides navigation or branding you want to keep around the app.
+- the theme's header, footer, sidebar, menus and widgets are not rendered (canvas takeover, since v4.34.0); and
+- **every non-TalentTrack stylesheet is dequeued before the page paints**, so the theme's `style.css` (and any other plugin's CSS) cannot override TalentTrack's palette, typography or layout.
 
-The setting is stored academy-wide under the `frontend_canvas_mode` configuration key. The canvas only takes over the page that hosts the `[talenttrack_dashboard]` shortcode; every other page on the site renders through the theme as usual. Print and export pages (match prep, PDP, methodology) are unaffected — they already render as standalone documents with no chrome.
+The WordPress admin bar still appears for logged-in staff (it is a WordPress control, not theme chrome, and gives staff a one-click route back to wp-admin), and operator-chosen Google Fonts still load. Everything else from the theme is stripped.
+
+Earlier releases (v4.34.0–v4.45.25) exposed a **Full-canvas app** checkbox and a **Theme inheritance** toggle that let an academy defer styling to the WP theme. Both were removed in v4.45.26 because they contradicted total visual independence: a theme that won specificity battles could poison the palette. To re-brand TalentTrack, use the **Colours**, **Typography** and **Logo** sections of Appearance, or **Custom CSS** — not the theme.
+
+The canvas only takes over the page that hosts the `[talenttrack_dashboard]` shortcode; every other page on the site renders through the theme as usual. Print and export pages (match prep, PDP, methodology) are unaffected — they already render as standalone documents with no chrome.
 
 ## Frontend Configuration sections (v4.26.16+)
 
@@ -101,29 +106,9 @@ A read-only log of configuration changes for accountability.
 
 Lookup lists support drag-to-reorder (v2.19.0). Grab the ⋮⋮ handle on any row and drag. Order is saved automatically and immediately reflected in all dropdowns across the plugin.
 
-## Theme inheritance & curated styling
+## Curated styling
 
-*Added in v3.8.0.* The Branding tab has a second section that lets the dashboard match a club's existing WordPress theme without writing CSS or building a custom theme.
-
-### Inherit WordPress theme styles (toggle)
-
-When ON, the dashboard defers four things to the surrounding WP theme:
-
-- Body and heading **fonts**
-- **Link** color
-- **Heading** color
-- Plain submit / primary **button** styling
-
-When OFF, the dashboard uses TalentTrack's own defaults — same as before this version.
-
-What the toggle does **not** affect (intentionally):
-
-- Player card tier styling (gold / silver / bronze stays locked — it's part of the product identity)
-- Dashboard tile grid borders and accents
-- The `FrontendListTable` component
-- Spacing, layout, structural CSS
-
-If a property you want inherited isn't covered above, it likely doesn't cascade naturally (e.g. background colors, paddings, borders) — the plugin's structural CSS keeps it consistent on purpose.
+*Added in v3.8.0; theme inheritance removed in v4.45.26.* The Appearance surface lets a club brand the dashboard — fonts and a full semantic colour palette — without writing CSS. TalentTrack always renders in full isolation from the active WordPress theme (see *Full-canvas app & theme isolation* above), so branding is done entirely through these fields (or Custom CSS), never by deferring to the theme.
 
 ### Display font / Body font
 
@@ -132,12 +117,11 @@ Two dropdowns with curated [Google Fonts](https://fonts.google.com/) families.
 - **Display** candidates are condensed / sporty (Oswald, Bebas Neue, Anton, Barlow Condensed…) — used for headings, tile titles, and player card numbers.
 - **Body** candidates are clean sans-serifs plus a couple of serifs (Inter, Manrope, DM Sans, Source Serif 4…) — used for paragraphs, tables, and form labels.
 
-Each dropdown has two non-Google entries at the top:
+Each dropdown has a non-Google entry at the top:
 
 - **(System default)** — no Google Fonts request; falls through to TalentTrack's default font stack.
-- **(Inherit from theme)** — only meaningful when the inherit-toggle above is ON; otherwise behaves like System default.
 
-When at least one dropdown picks a curated family, the plugin enqueues a single combined Google Fonts request (display + body together, with the weights TalentTrack actually uses).
+When at least one dropdown picks a curated family, the plugin enqueues a single combined Google Fonts request (display + body together, with the weights TalentTrack actually uses). Google Fonts is the one external stylesheet that survives canvas isolation.
 
 ### Color pickers
 
@@ -152,19 +136,7 @@ Six semantic colors, each backed by a `--tt-*` CSS custom property used througho
 | Info color | `--tt-info` | Info banners |
 | Focus ring color | `--tt-focus-ring` | Keyboard focus outlines |
 
-Leaving a field empty restores the default token from the plugin's stylesheet.
-
-### Honest framing — what "inherit" actually does
-
-Some CSS properties cascade naturally (font-family, color, link color). Others don't (background, padding, border-radius). The toggle's effect:
-
-- **Typography**: full inheritance.
-- **Link color**: full inheritance.
-- **Heading color and family**: full inheritance.
-- **Buttons**: best-effort. The plugin's button-background and color rules are reverted, but the host theme's button styling only takes over if its CSS targets selectors that match the plugin's button DOM. Most themes style block-editor buttons (`.wp-block-button__link`) — they won't restyle the plugin's `.button-primary` automatically. Themes that style the `<button>` element directly get full inheritance.
-- **Spacing, borders, shadows**: not inherited — the plugin's structural CSS stays.
-
-If you have a custom theme that adds `body .tt-dashboard { ... }` overrides (the child-theme approach), those still win — the toggle is the easier path, but the override path keeps working.
+Leaving a field empty restores the default token from the plugin's stylesheet. The operator's chosen colours are injected as `:root` custom properties and, because canvas mode strips the active theme's CSS, nothing can override them.
 
 ### Backward compatibility
 

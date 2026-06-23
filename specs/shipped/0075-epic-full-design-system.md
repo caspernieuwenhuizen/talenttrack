@@ -1,5 +1,11 @@
 <!-- type: epic -->
 
+> **Superseded in part by #1728 (v4.45.26).** Every `theme_inherit` mutex
+> reference in this spec is obsolete: the `theme_inherit` toggle was removed
+> when canvas mode began stripping all non-TalentTrack CSS for total visual
+> isolation. There is no longer a theme-inheritance state to be mutually
+> exclusive with; ignore those mutex clauses below.
+
 # #0075 — full design system: tokens + per-component styling editor
 
 ## Problem

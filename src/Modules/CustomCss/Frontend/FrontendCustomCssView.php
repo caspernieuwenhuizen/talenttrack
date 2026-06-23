@@ -34,9 +34,7 @@ use TT\Shared\Frontend\FrontendViewBase;
  * routes between `?tt_view=custom-css&surface=frontend` and
  * `&surface=admin`.
  *
- * Capability: `tt_admin_styling`. Mutex with #0023 theme-inherit
- * (`theme_inherit` config key) is surfaced as a banner — picking
- * Custom CSS disables the inherit toggle in the Branding sub-tile.
+ * Capability: `tt_admin_styling`.
  */
 class FrontendCustomCssView extends FrontendViewBase {
 
@@ -110,7 +108,6 @@ class FrontendCustomCssView extends FrontendViewBase {
         $live = $repo->getLive( $surface );
 
         self::renderHeader( __( 'Custom CSS', 'talenttrack' ) );
-        self::renderMutexBanner();
         self::renderSurfaceSwitcher( $surface );
         self::renderEnabledToggle( $surface, $live['enabled'] );
         self::renderMessages( $messages );
@@ -180,12 +177,6 @@ class FrontendCustomCssView extends FrontendViewBase {
                 $out['success'] = $enabled
                     ? __( 'Custom CSS is now active for this surface.', 'talenttrack' )
                     : __( 'Custom CSS is now off; the plugin\'s default styling is back.', 'talenttrack' );
-                // Mutex with #0023 theme inheritance — turning custom CSS on
-                // for the frontend forces the theme-inherit toggle off so the
-                // two never compete on the same surface.
-                if ( $enabled && $surface === CustomCssRepository::SURFACE_FRONTEND ) {
-                    \TT\Infrastructure\Query\QueryHelpers::set_config( 'theme_inherit', '0' );
-                }
                 return $out;
             }
             case 'save_visual': {
@@ -320,15 +311,6 @@ class FrontendCustomCssView extends FrontendViewBase {
         foreach ( $messages['errors'] as $err ) {
             echo '<div class="tt-notice tt-notice-error">' . esc_html( $err ) . '</div>';
         }
-    }
-
-    private static function renderMutexBanner(): void {
-        $inherit_on = \TT\Infrastructure\Query\QueryHelpers::get_config( 'theme_inherit', '0' ) === '1';
-        if ( ! $inherit_on ) return;
-        echo '<div class="tt-notice tt-notice-warning">';
-        echo '<strong>' . esc_html__( 'Theme inheritance is on.', 'talenttrack' ) . '</strong> '
-            . esc_html__( 'Frontend currently defers fonts + colours to the active WP theme (#0023). Saving custom CSS for the Frontend surface will turn that off — the two surfaces are mutually exclusive.', 'talenttrack' );
-        echo '</div>';
     }
 
     private static function renderSurfaceSwitcher( string $surface ): void {

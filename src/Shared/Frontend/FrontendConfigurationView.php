@@ -1707,15 +1707,12 @@ class FrontendConfigurationView extends FrontendViewBase {
     private static function renderAppearanceForm(): void {
         $logo            = QueryHelpers::get_config( 'logo_url', '' );
         $club_short_code = QueryHelpers::get_config( 'club_short_code', '' );
-        $theme_inherit   = (string) QueryHelpers::get_config( 'theme_inherit', '0' );
         $font_display    = (string) QueryHelpers::get_config( 'font_display',  BrandFonts::SYSTEM_DEFAULT );
         $font_body       = (string) QueryHelpers::get_config( 'font_body',     BrandFonts::SYSTEM_DEFAULT );
         // #1587 — academy-wide Tile appearance preset.
         $tile_appearance = \TT\Shared\Frontend\Components\TileGridStandard::activePreset();
         // #1598 — academy-wide Tile layout (orthogonal to the size preset).
         $tile_layout     = \TT\Shared\Frontend\Components\TileGridStandard::activeLayout();
-        // #1590 — full-canvas app shell toggle (default on).
-        $canvas_mode     = (string) QueryHelpers::get_config( 'frontend_canvas_mode', '1' );
         $tile_labels     = [
             'compact'     => __( 'Compact', 'talenttrack' ),
             'comfortable' => __( 'Comfortable', 'talenttrack' ),
@@ -1835,30 +1832,11 @@ class FrontendConfigurationView extends FrontendViewBase {
                 </div>
             </div>
 
-            <h3 class="tt-cfg-section-head" style="margin:18px 0 8px;"><?php esc_html_e( 'Full-canvas app', 'talenttrack' ); ?></h3>
+            <h3 class="tt-cfg-section-head" style="margin:18px 0 8px;"><?php esc_html_e( 'Theme isolation', 'talenttrack' ); ?></h3>
             <div class="tt-panel">
-                <p style="margin:0 0 var(--tt-sp-3); color:var(--tt-muted);">
-                    <?php esc_html_e( 'Render TalentTrack full-width, hiding the active theme’s header, footer, sidebar and menus so only the app is shown. Turn this off to keep the theme’s page layout around TalentTrack.', 'talenttrack' ); ?>
+                <p style="margin:0; color:var(--tt-muted);">
+                    <?php esc_html_e( 'TalentTrack always renders as a full-canvas app, isolated from the active WordPress theme — the theme’s header, footer, sidebar, menus and CSS are stripped so only TalentTrack’s own design shows. This keeps your palette and layout consistent on every install.', 'talenttrack' ); ?>
                 </p>
-                <div class="tt-field">
-                    <label>
-                        <input type="checkbox" name="config[frontend_canvas_mode]" value="1" <?php checked( $canvas_mode, '1' ); ?> />
-                        <?php esc_html_e( 'Show TalentTrack as a full-canvas app (recommended).', 'talenttrack' ); ?>
-                    </label>
-                </div>
-            </div>
-
-            <h3 class="tt-cfg-section-head" style="margin:18px 0 8px;"><?php esc_html_e( 'Theme', 'talenttrack' ); ?></h3>
-            <div class="tt-panel">
-                <p style="margin:0 0 var(--tt-sp-3); color:var(--tt-muted);">
-                    <?php esc_html_e( 'Inheritance applies to fonts, colors, and basic links/buttons. TalentTrack’s structural design (spacing, layout, player cards) is unchanged. Fields left as “(System default)” or empty fall back to TalentTrack’s defaults.', 'talenttrack' ); ?>
-                </p>
-                <div class="tt-field">
-                    <label>
-                        <input type="checkbox" name="config[theme_inherit]" value="1" <?php checked( $theme_inherit, '1' ); ?> />
-                        <?php esc_html_e( 'Defer typography, link color, headings and plain buttons to the active WP theme.', 'talenttrack' ); ?>
-                    </label>
-                </div>
             </div>
 
             <h3 class="tt-cfg-section-head" style="margin:18px 0 8px;"><?php esc_html_e( 'Advanced', 'talenttrack' ); ?></h3>
@@ -2332,8 +2310,6 @@ class FrontendConfigurationView extends FrontendViewBase {
                     var m = /^config\[(.+)\]$/.exec(key);
                     if (m) config[m[1]] = value;
                 });
-                if ((form.dataset.ttConfigSub === 'theme' || form.dataset.ttConfigSub === 'appearance') && (config.theme_inherit === undefined || config.theme_inherit === '')) config.theme_inherit = '0';
-                if (form.dataset.ttConfigSub === 'appearance' && (config.frontend_canvas_mode === undefined || config.frontend_canvas_mode === '')) config.frontend_canvas_mode = '0';
                 if (form.dataset.ttConfigSub === 'menus' && (config.show_legacy_menus === undefined || config.show_legacy_menus === '')) config.show_legacy_menus = '0';
 
                 var url = (rest.rest_url || '/wp-json/talenttrack/v1/').replace(/\/+$/, '/') + 'config';

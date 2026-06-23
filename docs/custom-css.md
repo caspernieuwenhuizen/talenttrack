@@ -21,7 +21,6 @@ A surface switcher at the top toggles between **Frontend dashboard** (the `[tt_d
 - **Block-list sanitization on save** — the saver rejects JavaScript URLs (`url(javascript:…)`), `expression()`, `behavior:`, `-moz-binding`, remote `@import`, and external `@font-face` URLs. Every save runs through this filter before the CSS reaches the database; rejected payloads return an inline error pointing at the offending fragment.
 - **200 KB hard cap** — bigger than 200 KB and the save is rejected. That's about 10× the size of the entire bundled `frontend-admin.css`, so it's only a backstop against accidental paste of an entire site stylesheet.
 - **Mobile-first guarantee** — the plugin's base mobile-first stylesheet always loads first; custom CSS layers after. Path C deliberately doesn't expose layout-affecting controls (no breakpoints, no flex direction overrides). Paths A and B come with a documented warning that overriding layout properties is at the club's own risk.
-- **Mutex with #0023 theme inheritance** — turning custom CSS on for the Frontend surface automatically turns the **Theme inheritance** toggle off. The two surfaces are never both active on the same page; the UI nudges you to that boundary so the configuration space stays simple.
 
 ## Safe mode
 
