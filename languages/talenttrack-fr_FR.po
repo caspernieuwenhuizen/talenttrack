@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-23T20:06:51+00:00\n"
+"POT-Creation-Date: 2026-06-23T20:11:03+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -29781,7 +29781,7 @@ msgid "Player Detail"
 msgstr ""
 
 #: src/Shared/Frontend/CoachDashboardView.php:48
-#: src/Shared/Frontend/FrontendPodiumView.php:26
+#: src/Shared/Frontend/FrontendPodiumView.php:40
 msgid "No teams assigned."
 msgstr ""
 
@@ -34246,15 +34246,24 @@ msgstr ""
 msgid "Current: %1$s (recorded on %2$s)."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPodiumView.php:20
-#: src/Shared/Frontend/FrontendPodiumView.php:21
+#: src/Shared/Frontend/FrontendPodiumView.php:34
+#: src/Shared/Frontend/FrontendPodiumView.php:35
+#: src/Shared/Frontend/FrontendPodiumView.php:71
 msgid "Top performers"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendPodiumView.php:68
+#: src/Shared/Frontend/FrontendPodiumView.php:60
 msgid ""
 "Not enough evaluation data yet to compute podiums. Add at least a few "
 "evaluations per player to surface the top performers."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendPodiumView.php:67
+msgid "Teams ranked"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendPodiumView.php:97
+msgid "Leading"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendRateCardView.php:44

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-23T20:06:51+00:00\n"
+"POT-Creation-Date: 2026-06-23T20:11:03+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -31898,7 +31898,7 @@ msgid "Player Detail"
 msgstr "Spelerdetail"
 
 #: src/Shared/Frontend/CoachDashboardView.php:48
-#: src/Shared/Frontend/FrontendPodiumView.php:26
+#: src/Shared/Frontend/FrontendPodiumView.php:40
 msgid "No teams assigned."
 msgstr "Geen teams toegewezen."
 
@@ -36696,18 +36696,27 @@ msgstr "Sla potentieel op"
 msgid "Current: %1$s (recorded on %2$s)."
 msgstr "Huidig: %1$s (geregistreerd op %2$s)."
 
-#: src/Shared/Frontend/FrontendPodiumView.php:20
-#: src/Shared/Frontend/FrontendPodiumView.php:21
+#: src/Shared/Frontend/FrontendPodiumView.php:34
+#: src/Shared/Frontend/FrontendPodiumView.php:35
+#: src/Shared/Frontend/FrontendPodiumView.php:71
 msgid "Top performers"
 msgstr "Top-spelers"
 
-#: src/Shared/Frontend/FrontendPodiumView.php:68
+#: src/Shared/Frontend/FrontendPodiumView.php:60
 msgid ""
 "Not enough evaluation data yet to compute podiums. Add at least a few "
 "evaluations per player to surface the top performers."
 msgstr ""
 "Nog niet genoeg evaluatiegegevens voor een podium. Voer minstens een paar "
 "evaluaties per speler in om de top-spelers te tonen."
+
+#: src/Shared/Frontend/FrontendPodiumView.php:67
+msgid "Teams ranked"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendPodiumView.php:97
+msgid "Leading"
+msgstr ""
 
 #: src/Shared/Frontend/FrontendRateCardView.php:44
 msgid "Rate cards (full analytics)"
