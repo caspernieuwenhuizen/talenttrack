@@ -58,6 +58,39 @@ class CoachForms {
             $type_meta[ (int) $t->id ] = ! empty( $m['requires_match_details'] ) ? 1 : 0;
         }
 
+        // #1643 — training-eval default: surface the mental category
+        // first + pre-expanded when the Type dropdown is set to Training.
+        // The selected type is only known client-side, so resolve the
+        // training type id + mental category id here and hand them to the
+        // JS enhancement. Policy (which type, which category) stays in the
+        // TrainingEvalDefaults domain helper.
+        $training_type_id = 0;
+        foreach ( $types as $t ) {
+            if ( \TT\Infrastructure\Evaluations\TrainingEvalDefaults::isTrainingTypeName( (string) $t->name ) ) {
+                $training_type_id = (int) $t->id;
+                break;
+            }
+        }
+        $mental_cat = ( new \TT\Infrastructure\Evaluations\EvalCategoriesRepository() )
+            ->getByKey( \TT\Infrastructure\Evaluations\TrainingEvalDefaults::PRIORITY_CATEGORY_KEY );
+        $mental_cat_id = $mental_cat ? (int) $mental_cat->id : 0;
+
+        wp_enqueue_script(
+            'tt-training-eval-defaults',
+            TT_PLUGIN_URL . 'assets/js/components/training-eval-defaults.js',
+            [],
+            TT_VERSION,
+            true
+        );
+        wp_localize_script(
+            'tt-training-eval-defaults',
+            'TT_TRAINING_EVAL_DEFAULTS',
+            [
+                'trainingTypeId'  => $training_type_id,
+                'mentalCategoryId' => $mental_cat_id,
+            ]
+        );
+
         // F6 — low-rating comment policy. Threshold and mode come
         // from tt_config; the JS at the bottom of this form watches
         // every rating input and surfaces a warning (or a hard block
@@ -262,11 +295,15 @@ class CoachForms {
                 }
                 $initial_state = $has_sub_values ? 'detailed' : 'basic';
                 ?>
+                <div class="tt-eval-cat-block" data-tt-eval-cat="<?php echo (int) $cid; ?>">
                 <div class="tt-form-row tt-form-row--rating"><label><?php echo esc_html( $cat_label ); ?><?php echo $is_edit ? '' : ' *'; ?></label>
                     <input type="number" inputmode="decimal" class="tt-rating-num" name="ratings[<?php echo $cid; ?>]" min="<?php echo esc_attr( $rmin ); ?>" max="<?php echo esc_attr( $rmax ); ?>" step="<?php echo esc_attr( $rstep ); ?>" <?php echo $rating_required; ?> value="<?php echo esc_attr( $cur_rating ); ?>" />
                     <span class="tt-range-hint">(<?php echo esc_html( $rmin ); ?>–<?php echo esc_html( $rmax ); ?>)</span></div>
                 <?php
-                if ( $cat_repo === null || empty( $sub_cats ) ) continue;
+                if ( $cat_repo === null || empty( $sub_cats ) ) {
+                    echo '</div>'; // close .tt-eval-cat-block
+                    continue;
+                }
                 ?>
                 <div class="tt-form-row tt-form-row--toggle">
                     <div class="tt-rate-detail-toggle"
@@ -298,7 +335,8 @@ class CoachForms {
                 <?php
                 endforeach;
                 ?>
-                </div>
+                </div><!-- /.tt-rate-subs -->
+                </div><!-- /.tt-eval-cat-block -->
                 <?php
             endforeach; ?>
             <div class="tt-form-row"><label><?php esc_html_e( 'Notes', 'talenttrack' ); ?></label><textarea name="notes" rows="3" data-tt-low-rating-notes><?php echo esc_textarea( $cur_notes ); ?></textarea></div>

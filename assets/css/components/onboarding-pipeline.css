@@ -1,159 +1,223 @@
 /*
- * Onboarding pipeline kanban (#0081, v3.110.48 redesign).
+ * Onboarding pipeline funnel (#1689 — 2026 restyle).
  *
- * Six columns of prospect cards laid out left-to-right. Mobile-first
- * per CLAUDE.md §2: stacks vertically below 720px, side-by-side above.
- * Cards keep a ≥48px tap target and use `min-height` to stay grabable
- * even on mostly-empty days. Status pill colour comes from the
- * stage's data-stage attribute.
+ * Six-column scouting funnel — Prospects, Invited, Test training, Trial
+ * group, Team offer, Joined — each a column header with a count chip and
+ * a stack of compact white player mini-cards (initials avatar + name +
+ * meta line). Early-funnel cards that are overdue carry an amber
+ * "action needed" chip; cards in the Joined column carry a green
+ * "Player" chip.
+ *
+ * Mobile-first per CLAUDE.md §2: base is a single vertical scroll of
+ * full-width columns at 360px; min-width queries promote to the
+ * side-by-side six-column funnel on tablet/desktop. Brand tokens come
+ * from public.css (--tt-primary, --tt-secondary, --tt-ink, --tt-muted,
+ * --tt-line, --tt-shadow-md); no new palette. Depends on the shared app
+ * chrome stylesheet for those tokens.
  */
 
 .tt-pipeline-cta {
-    margin: 0 0 1rem;
+    margin: 0 0 1.25rem;
 }
 
 .tt-pipeline-kanban {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 0.75rem;
+    gap: 1rem;
     margin: 0 0 1.5rem;
 }
 
-@media ( min-width: 720px ) {
+@media ( min-width: 768px ) {
     .tt-pipeline-kanban {
-        grid-template-columns: repeat( 6, 1fr );
-        align-items: stretch;
+        grid-template-columns: repeat( 2, 1fr );
     }
 }
 
+@media ( min-width: 1024px ) {
+    .tt-pipeline-kanban {
+        grid-template-columns: repeat( 6, 1fr );
+        align-items: start;
+        gap: 0.75rem;
+    }
+}
+
+/* ---- Column ---- */
 .tt-pipeline-col {
-    background: #fafbfc;
-    border: 1px solid #e5e7ea;
-    border-radius: 8px;
     display: flex;
     flex-direction: column;
-    min-height: 14rem;
+    gap: 0.625rem;
+    min-width: 0;
 }
 
 .tt-pipeline-col-head {
-    padding: 0.5rem 0.75rem;
-    background: #f6f7f8;
-    border-bottom: 1px solid #e5e7ea;
-    border-radius: 8px 8px 0 0;
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    align-items: baseline;
+    gap: 0.5rem;
+    padding: 0 0.125rem 0.5rem;
+    border-bottom: 2px solid var(--tt-line, #e3e1d8);
 }
 
 .tt-pipeline-col-label {
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
     font-size: 0.75rem;
     letter-spacing: 0.04em;
-    color: #5b6e75;
+    color: var(--tt-primary, #0b3d2e);
+    line-height: 1.2;
 }
 
 .tt-pipeline-col-count {
-    font-size: 1rem;
-    font-weight: 700;
-    color: #1a1d21;
-    background: #fff;
-    border: 1px solid #e5e7ea;
+    flex: 0 0 auto;
+    font-size: 0.6875rem;
+    font-weight: 800;
+    color: var(--tt-muted, #6a6d66);
+    background: var(--tt-paper-soft, #f4f6f3);
+    border: 1px solid var(--tt-line, #e3e1d8);
     border-radius: 999px;
-    padding: 0 0.5rem;
-    min-width: 1.6rem;
+    padding: 0.125rem 0.5rem;
+    min-width: 1.5rem;
     text-align: center;
 }
 
-/*
- * Stage-specific column accents — same colour vocabulary as the
- * compact dashboard widget, applied to the column head's bottom
- * border so the kanban reads as a left-to-right funnel.
- */
-.tt-pipeline-col[data-stage="prospects"] .tt-pipeline-col-head { border-bottom-color: #5b6e75; }
-.tt-pipeline-col[data-stage="invited"]   .tt-pipeline-col-head { border-bottom-color: #2271b1; }
-.tt-pipeline-col[data-stage="test"]      .tt-pipeline-col-head { border-bottom-color: #c9962a; }
-.tt-pipeline-col[data-stage="trial"]     .tt-pipeline-col-head { border-bottom-color: #6a4ec9; }
-.tt-pipeline-col[data-stage="offer"]     .tt-pipeline-col-head { border-bottom-color: #b45309; }
-.tt-pipeline-col[data-stage="joined"]    .tt-pipeline-col-head { border-bottom-color: #137d1d; }
+/* The Joined column reads as the "done" lane — green accent. */
+.tt-pipeline-col[data-stage="joined"] .tt-pipeline-col-head {
+    border-bottom-color: #2f9e5e;
+}
 
-.tt-pipeline-col-body {
-    padding: 0.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    flex: 1;
+.tt-pipeline-col[data-stage="joined"] .tt-pipeline-col-count {
+    background: #e3f4ea;
+    color: #1f6e44;
+    border-color: #bfe4cf;
 }
 
 .tt-pipeline-empty {
     text-align: center;
-    color: #c4cbd0;
-    margin: 0.5rem 0;
+    color: var(--tt-muted, #6a6d66);
+    font-size: 0.8125rem;
+    margin: 0.25rem 0;
+    opacity: 0.7;
 }
 
+/* ---- Mini card ---- */
 .tt-pipeline-card {
     display: block;
-    padding: 0.6rem 0.7rem;
     background: #fff;
-    border: 1px solid #e5e7ea;
-    border-left: 3px solid #5b6e75;
-    border-radius: 4px;
+    border: 1px solid var(--tt-line, #e3e1d8);
+    border-radius: 12px;
+    box-shadow: var(--tt-shadow-md, 0 8px 24px -8px rgba(0,0,0,0.12));
+    padding: 0.625rem 0.6875rem;
     text-decoration: none;
-    color: #1a1d21;
-    font-size: 0.85rem;
+    color: var(--tt-ink, #0e1a14);
     min-height: 48px;
-    position: relative;
+    transition: box-shadow 150ms ease, transform 150ms ease;
 }
 
-.tt-pipeline-card:hover {
-    background: #f6f7f8;
+a.tt-pipeline-card:hover,
+a.tt-pipeline-card:focus-visible {
+    box-shadow: 0 12px 30px -10px rgba(11, 61, 46, 0.22);
+    transform: translateY(-1px);
 }
 
-a.tt-pipeline-card {
-    cursor: pointer;
+a.tt-pipeline-card:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 2px;
 }
 
-.tt-pipeline-col[data-stage="prospects"] .tt-pipeline-card { border-left-color: #5b6e75; }
-.tt-pipeline-col[data-stage="invited"]   .tt-pipeline-card { border-left-color: #2271b1; }
-.tt-pipeline-col[data-stage="test"]      .tt-pipeline-card { border-left-color: #c9962a; }
-.tt-pipeline-col[data-stage="trial"]     .tt-pipeline-card { border-left-color: #6a4ec9; }
-.tt-pipeline-col[data-stage="offer"]     .tt-pipeline-card { border-left-color: #b45309; }
-.tt-pipeline-col[data-stage="joined"]    .tt-pipeline-card { border-left-color: #137d1d; }
+/* Flag accents — amber for an overdue early-funnel card, green for a
+ * card that has reached the Joined column. */
+.tt-pipeline-card--flag-a { border-left: 3px solid #e8902b; }
+.tt-pipeline-card--flag-g { border-left: 3px solid #2f9e5e; }
+
+/* who-cell: initials avatar + name + meta line. */
+.tt-pipeline-card-who {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    min-width: 0;
+}
+
+.tt-pipeline-card-avatar {
+    flex: 0 0 auto;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--tt-primary, #0b3d2e);
+    color: #fff;
+    display: grid;
+    place-items: center;
+    font-weight: 700;
+    font-size: 0.6875rem;
+    line-height: 1;
+}
+
+.tt-pipeline-card-id {
+    min-width: 0;
+    line-height: 1.25;
+}
 
 .tt-pipeline-card-name {
     display: block;
     font-weight: 600;
-    line-height: 1.3;
-    margin-bottom: 0.2rem;
+    font-size: 0.8125rem;
+    color: var(--tt-ink, #0e1a14);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
-.tt-pipeline-card-sub,
+.tt-pipeline-card-sub {
+    display: block;
+    font-size: 0.6875rem;
+    color: var(--tt-muted, #6a6d66);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .tt-pipeline-card-ctx {
     display: block;
-    font-size: 0.75rem;
-    color: #5b6e75;
+    margin-top: 0.5rem;
+    font-size: 0.6875rem;
+    color: var(--tt-muted, #6a6d66);
     line-height: 1.3;
 }
 
-.tt-pipeline-card-ctx {
-    margin-top: 0.15rem;
-    font-style: italic;
+.tt-pipeline-card-foot {
+    display: flex;
+    margin-top: 0.5rem;
 }
 
-.tt-pipeline-card-stale {
-    background: #fff7ed;
-}
-
-.tt-pipeline-card-stale-badge {
-    position: absolute;
-    top: 0.4rem;
-    right: 0.5rem;
-    font-size: 0.65rem;
+/* ---- Chips (deck kit colour families) ---- */
+.tt-pipeline-card .tt-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.625rem;
     font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #b45309;
-    background: #fed7aa;
-    padding: 0.05rem 0.4rem;
+    padding: 0.1875rem 0.5rem;
     border-radius: 999px;
+    border: 1px solid transparent;
+    line-height: 1.2;
+}
+
+.tt-chip--amber {
+    background: #fcefdc;
+    color: #99601a;
+    border-color: #f3d9b3;
+}
+
+.tt-chip--green {
+    background: #e3f4ea;
+    color: #1f6e44;
+    border-color: #bfe4cf;
+}
+
+@media ( prefers-reduced-motion: reduce ) {
+    .tt-pipeline-card,
+    a.tt-pipeline-card:hover,
+    a.tt-pipeline-card:focus-visible {
+        transition: none;
+        transform: none;
+    }
 }
