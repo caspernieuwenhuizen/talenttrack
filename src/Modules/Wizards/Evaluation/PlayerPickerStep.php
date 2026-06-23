@@ -50,6 +50,10 @@ final class PlayerPickerStep implements WizardStepInterface {
             'is_admin'         => $can_cross_team,
             'selected'         => $current,
             'show_team_filter' => true,
+            // #1731 — team-scoped player dropdown (pre-selected when the
+            // coach manages a single team) instead of type-to-search, so
+            // the player list is visible without typing.
+            'style'            => 'dropdown',
         ] );
     }
 

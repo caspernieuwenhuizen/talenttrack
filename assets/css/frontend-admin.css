@@ -834,7 +834,20 @@ body:not(.tt-theme-inherit) .tt-dashboard .tt-field {
     font-size: var(--tt-fs-sm, 13px);
 }
 
-/* 
+/* Dropdown mode (#1731) — team-scoped native player <select>. Mobile-first:
+   full-width, ≥48px touch target on the player picker. */
+.tt-dashboard .tt-psp-dropdown .tt-psp-team-filter,
+.tt-dashboard .tt-psp-dropdown .tt-psp-select {
+    width: 100%;
+}
+.tt-dashboard .tt-psp-dropdown .tt-psp-team-filter {
+    margin-bottom: 8px;
+}
+.tt-dashboard .tt-psp-dropdown .tt-psp-select {
+    min-height: 48px;
+}
+
+/*
    RatingPillComponent — shared rating pill / badge / chip
    #0003 + #0004 (v3.18.0)
     */

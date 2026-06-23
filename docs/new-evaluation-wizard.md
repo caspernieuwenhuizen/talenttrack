@@ -47,7 +47,7 @@ Click **Submit**. The wizard writes one `tt_evaluations` row per rated player wi
 
 ### Step 1 · Player Picker
 
-Search-based picker (autocomplete on player name + team). Select the player you observed.
+Team-scoped player dropdown. Pick a team, then choose the player from the list — no typing required. When you coach exactly one team it's pre-selected, so the player list is populated the moment the step opens. Head of Development / Academy Admin can switch the team filter (or "All teams") to reach players across the academy.
 
 ### Step 2 · Hybrid deep-rate
 

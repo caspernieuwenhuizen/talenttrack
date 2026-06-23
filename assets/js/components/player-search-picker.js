@@ -29,6 +29,58 @@
             .replace( /'/g, '&#039;' );
     }
 
+    // Dispatch a bubbling `change` so form-level listeners (notably
+    // wizard-validation.js's required-field check, #1157) re-evaluate the
+    // Next-button state after a JS-driven value change.
+    function dispatchChange( el ) {
+        try {
+            el.dispatchEvent( new Event( 'change', { bubbles: true } ) );
+        } catch ( e ) {
+            var ev = document.createEvent( 'Event' );
+            ev.initEvent( 'change', true, false );
+            el.dispatchEvent( ev );
+        }
+    }
+
+    // Dropdown mode (#1731): repopulate the player <select> from the row
+    // payload, scoped to the team filter, and keep the leading empty
+    // option so `required` validation still fires.
+    function bindDropdown( root, selectEl, teamFilter, dataEl ) {
+        var allRows = [];
+        try {
+            allRows = JSON.parse( ( dataEl && dataEl.textContent ) || '[]' );
+        } catch ( _ ) {
+            allRows = [];
+        }
+
+        if ( ! teamFilter ) return; // server already rendered the right options
+
+        teamFilter.addEventListener( 'change', function () {
+            var tid = parseInt( teamFilter.value || '0', 10 );
+            var filtered = tid > 0
+                ? allRows.filter( function ( r ) { return r.team_id === tid; } )
+                : allRows.slice();
+
+            var current = selectEl.value;
+            // Preserve the leading empty option ("— Choose player —").
+            var lead = selectEl.querySelector( 'option[value=""]' );
+            selectEl.innerHTML = '';
+            if ( lead ) selectEl.appendChild( lead );
+
+            filtered.forEach( function ( r ) {
+                var opt = document.createElement( 'option' );
+                opt.value = String( r.id );
+                opt.textContent = r.label;
+                selectEl.appendChild( opt );
+            } );
+
+            // Keep the selection if it survived the filter, else reset.
+            var stillPresent = filtered.some( function ( r ) { return String( r.id ) === current; } );
+            selectEl.value = stillPresent ? current : '';
+            dispatchChange( selectEl );
+        } );
+    }
+
     function bind( root ) {
         if ( root.dataset.ttPspBound === '1' ) return;
         root.dataset.ttPspBound = '1';
@@ -41,6 +93,15 @@
         var clearEl    = root.querySelector( '[data-tt-psp-clear]' );
         var dataEl     = root.querySelector( '[data-tt-psp-data]' );
         var teamFilter = root.querySelector( '[data-tt-psp-team-filter]' );
+        var selectEl   = root.querySelector( '[data-tt-psp-select]' );
+
+        // Dropdown mode (#1731): a native player <select> scoped by the
+        // team filter, instead of the type-to-search input + result list.
+        // Handled here before the search-mode element guard below.
+        if ( selectEl ) {
+            bindDropdown( root, selectEl, teamFilter, dataEl );
+            return;
+        }
 
         if ( ! searchEl || ! resultsEl || ! valueEl || ! dataEl ) return;
 

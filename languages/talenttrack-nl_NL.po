@@ -3971,6 +3971,14 @@ msgstr "%d gemist"
 msgid "All teams"
 msgstr "Alle teams"
 
+#: src/Shared/Frontend/Components/PlayerSearchPickerComponent.php
+msgid "— Choose player —"
+msgstr "— Kies speler —"
+
+#: src/Shared/Frontend/Components/PlayerSearchPickerComponent.php
+msgid "Filter by team"
+msgstr "Filter op team"
+
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:189
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:213
 #: src/Modules/Analytics/Frontend/FrontendAttendanceTeamReportView.php:209

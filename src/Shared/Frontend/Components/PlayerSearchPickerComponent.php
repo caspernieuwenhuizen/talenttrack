@@ -55,8 +55,17 @@ class PlayerSearchPickerComponent {
      *   placeholder?:string,
      *   cross_team?:bool,
      *   exclude_team_id?:int,
-     *   show_team_filter?:bool
+     *   show_team_filter?:bool,
+     *   style?:string
      * } $args
+     *
+     * `style` selects the rendering mode:
+     *   - 'search' (default) — type-to-filter input + result list. The ~6
+     *     existing surfaces (comparison view, rate cards, guest attendance,
+     *     goal wizard, …) all rely on this; it is unchanged.
+     *   - 'dropdown' — a native player `<select>` scoped by the team filter.
+     *     When the user manages exactly one team it is pre-selected so the
+     *     player list is populated immediately, no typing required (#1731).
      */
     public static function render( array $args = [] ): string {
         $name        = (string) ( $args['name'] ?? 'player_id' );
@@ -68,6 +77,7 @@ class PlayerSearchPickerComponent {
         $cross_team  = ! empty( $args['cross_team'] );
         $exclude     = (int) ( $args['exclude_team_id'] ?? 0 );
         $show_team   = ! empty( $args['show_team_filter'] );
+        $is_dropdown = ( (string) ( $args['style'] ?? 'search' ) ) === 'dropdown';
 
         /** @var array<int, object> $players */
         $players = $args['players'] ?? self::resolvePlayers(
@@ -89,6 +99,13 @@ class PlayerSearchPickerComponent {
 
         $instance = 'tt-psp-' . wp_generate_uuid4();
         $teams_for_filter = $show_team ? self::teamsForFilter( $players ) : [];
+
+        if ( $is_dropdown ) {
+            return self::renderDropdown(
+                $instance, $name, $label, $required, $selected,
+                $rows, $teams_for_filter, $show_team
+            );
+        }
 
         ob_start();
         ?>
@@ -133,6 +150,86 @@ class PlayerSearchPickerComponent {
             />
 
             <ul class="tt-psp-results" data-tt-psp-results role="listbox" hidden></ul>
+
+            <script type="application/json" class="tt-psp-data" data-tt-psp-data>
+                <?php echo wp_json_encode( $rows ); ?>
+            </script>
+        </div>
+        <?php
+        return (string) ob_get_clean();
+    }
+
+    /**
+     * Dropdown mode (#1731): a team-scoped native player `<select>` rather
+     * than the type-to-search input. When the user manages exactly one team
+     * it is pre-selected and the player `<select>` is populated immediately,
+     * so a coach evaluating a single squad never has to type.
+     *
+     * The JSON rows payload is kept so the hydrator can repopulate the
+     * player options client-side when the team filter changes.
+     *
+     * @param array<int, array{id:int, label:string, team_id:int, search:string}> $rows
+     * @param array<int, string> $teams_for_filter
+     */
+    private static function renderDropdown(
+        string $instance, string $name, string $label, bool $required, int $selected,
+        array $rows, array $teams_for_filter, bool $show_team
+    ): string {
+        $single_team   = $show_team && count( $teams_for_filter ) === 1;
+        $preselect_team = $single_team ? (int) array_key_first( $teams_for_filter ) : 0;
+
+        // When a player is already selected, scope the initial team filter
+        // and option list to that player's team so the value round-trips.
+        if ( $selected > 0 ) {
+            foreach ( $rows as $r ) {
+                if ( (int) $r['id'] === $selected ) {
+                    $preselect_team = (int) $r['team_id'];
+                    break;
+                }
+            }
+        }
+
+        $player_options = $rows;
+        if ( $preselect_team > 0 ) {
+            $player_options = array_values( array_filter(
+                $rows,
+                static function ( $r ) use ( $preselect_team ) {
+                    return (int) $r['team_id'] === $preselect_team;
+                }
+            ) );
+        }
+
+        ob_start();
+        ?>
+        <div class="tt-field tt-psp tt-psp-dropdown" data-tt-psp data-instance="<?php echo esc_attr( $instance ); ?>">
+            <label class="tt-field-label<?php echo $required ? ' tt-field-required' : ''; ?>" for="<?php echo esc_attr( $instance . '-select' ); ?>">
+                <?php echo esc_html( $label ); ?>
+            </label>
+
+            <?php if ( $show_team && ! empty( $teams_for_filter ) ) : ?>
+                <select class="tt-input tt-psp-team-filter" data-tt-psp-team-filter
+                        aria-label="<?php esc_attr_e( 'Filter by team', 'talenttrack' ); ?>">
+                    <?php if ( ! $single_team ) : ?>
+                        <option value="0"><?php esc_html_e( 'All teams', 'talenttrack' ); ?></option>
+                    <?php endif; ?>
+                    <?php foreach ( $teams_for_filter as $tid => $tname ) : ?>
+                        <option value="<?php echo (int) $tid; ?>" <?php selected( $preselect_team, (int) $tid ); ?>>
+                            <?php echo esc_html( $tname ); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            <?php endif; ?>
+
+            <select class="tt-input tt-psp-select" id="<?php echo esc_attr( $instance . '-select' ); ?>"
+                    name="<?php echo esc_attr( $name ); ?>" data-tt-psp-select
+                    <?php echo $required ? 'required' : ''; ?>>
+                <option value=""><?php esc_html_e( '— Choose player —', 'talenttrack' ); ?></option>
+                <?php foreach ( $player_options as $r ) : ?>
+                    <option value="<?php echo (int) $r['id']; ?>" <?php selected( $selected, (int) $r['id'] ); ?>>
+                        <?php echo esc_html( $r['label'] ); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
 
             <script type="application/json" class="tt-psp-data" data-tt-psp-data>
                 <?php echo wp_json_encode( $rows ); ?>

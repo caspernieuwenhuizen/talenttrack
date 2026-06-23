@@ -47,7 +47,7 @@ Klik **Versturen**. De wizard schrijft één `tt_evaluations`-rij per beoordeeld
 
 ### Stap 1 · Speler kiezen
 
-Zoek-gebaseerde picker (autocomplete op spelernaam + ploeg). Selecteer de speler die je hebt geobserveerd.
+Ploeg-gerichte speler-dropdown. Kies een ploeg en selecteer vervolgens de speler uit de lijst — typen is niet nodig. Coach je precies één ploeg, dan is die al voorgeselecteerd, zodat de spelerslijst meteen gevuld is wanneer de stap opent. Head of Development / Academy Admin kan via de ploegfilter (of "Alle teams") spelers uit de hele academie bereiken.
 
 ### Stap 2 · Hybride deep-rate
 
