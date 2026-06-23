@@ -51,9 +51,11 @@ Search-based picker (autocomplete on player name + team). Select the player you 
 
 ### Step 2 · Hybrid deep-rate
 
-Date picker (defaults to today), setting dropdown (training / match / tournament / observation / other — driven by the `evaluation_setting` lookup), free-text context (max 500 chars), then the rating fields per category.
+Date picker (defaults to today), Type dropdown (driven by the `eval_type` lookup), free-text context (max 500 chars), then the rating fields.
 
-When you set the Type to **Training**, the **Mental** category jumps to the top of the rating fields and opens its detailed sub-categories automatically. Pick any other type and Mental returns to its normal position. It stays a default only — no Mental rating is required to save.
+Each main category is a **collapsible block, collapsed by default**. The summary line shows the category name, a read-only star mirror, and the average word, so you can scan what's already rated without expanding anything. Tap a category to expand it: rate the category directly, or rate its sub-skills — rating sub-skills sets the category to the rounded average of the non-zero subs, and the summary reflects it live. Collapsing keeps every value.
+
+When you set the Type to **Training**, the **Mental** category jumps to the top of the list and opens automatically. Pick any other type and it returns to its place. It stays a default only — no Mental rating is required to save.
 
 ### Step 3 · Review + Submit
 

@@ -14,11 +14,12 @@
  *   - Flat coach form (CoachForms): a `<form id="tt-eval-form">` whose
  *     categories are `.tt-eval-cat-block[data-tt-eval-cat]` siblings and
  *     whose type select is `#tt_fe_eval_type`.
- *   - Player-first wizard (HybridDeepRateStep): a `<table>` whose main
- *     category lives in `tr[data-tt-eval-cat-main][data-tt-eval-cat]`
- *     with sibling `tr[data-tt-rate-sub-row][data-parent]` sub rows, an
- *     insertion anchor `tr[data-tt-eval-cats-anchor]`, and a type select
- *     `#tt_hdr_eval_type`.
+ *   - Player-first wizard (HybridDeepRateStep, #1732): each main category
+ *     is a `<details class="tt-rate-cat">[data-tt-eval-cat-main]` carrying
+ *     its sub-skills inside, an insertion anchor
+ *     `[data-tt-eval-cats-anchor]`, and a type select `#tt_hdr_eval_type`.
+ *     Surfacing the priority category means moving its `<details>` to the
+ *     top and opening it.
  */
 ( function () {
 	'use strict';
@@ -91,55 +92,29 @@
 		apply();
 	}
 
-	// --- Player-first wizard table -------------------------------------
+	// --- Player-first wizard accordion (#1732) -------------------------
 
-	function wireHybridTable( select ) {
-		var mainRow = document.querySelector( 'tr[data-tt-eval-cat-main][data-tt-eval-cat="' + mentalId + '"]' );
-		var insertAnchor = document.querySelector( 'tr[data-tt-eval-cats-anchor]' );
-		if ( ! mainRow || ! insertAnchor ) return;
+	function wireHybridAccordion( select ) {
+		var mainCat = document.querySelector( 'details.tt-rate-cat[data-tt-eval-cat-main][data-tt-eval-cat="' + mentalId + '"]' );
+		var insertAnchor = document.querySelector( '[data-tt-eval-cats-anchor]' );
+		if ( ! mainCat || ! insertAnchor ) return;
 
-		var subRows = Array.prototype.slice.call(
-			document.querySelectorAll( 'tr[data-tt-rate-sub-row][data-parent="' + mentalId + '"]' )
-		);
-
-		// Home markers so we can restore original order.
+		// Home marker so a switch away from Training restores the order.
 		var homeMarker = document.createComment( 'tt-mental-home' );
-		if ( mainRow.parentNode ) mainRow.parentNode.insertBefore( homeMarker, mainRow );
+		if ( mainCat.parentNode ) mainCat.parentNode.insertBefore( homeMarker, mainCat );
 
 		function toTop() {
 			var parent = insertAnchor.parentNode;
 			if ( ! parent ) return;
-			var ref = insertAnchor.nextSibling;
-			parent.insertBefore( mainRow, ref );
-			var after = mainRow;
-			subRows.forEach( function ( r ) {
-				parent.insertBefore( r, after.nextSibling );
-				after = r;
-			} );
-			expand( true );
+			parent.insertBefore( mainCat, insertAnchor.nextSibling );
+			mainCat.open = true;
 		}
 
 		function restore() {
 			if ( homeMarker.parentNode ) {
-				var parent = homeMarker.parentNode;
-				parent.insertBefore( mainRow, homeMarker.nextSibling );
-				var after = mainRow;
-				subRows.forEach( function ( r ) {
-					parent.insertBefore( r, after.nextSibling );
-					after = r;
-				} );
+				homeMarker.parentNode.insertBefore( mainCat, homeMarker.nextSibling );
 			}
-			expand( false );
-		}
-
-		function expand( detailed ) {
-			var toggle = mainRow.querySelector( '.tt-rate-detail-toggle' );
-			if ( ! subRows.length ) return;
-			setToggleState( toggle, detailed );
-			subRows.forEach( function ( r ) {
-				if ( detailed ) r.removeAttribute( 'hidden' );
-				else r.setAttribute( 'hidden', '' );
-			} );
+			mainCat.open = false;
 		}
 
 		function apply() {
@@ -156,7 +131,7 @@
 		if ( flat ) wireFlatForm( flat );
 
 		var hybrid = document.getElementById( 'tt_hdr_eval_type' );
-		if ( hybrid ) wireHybridTable( hybrid );
+		if ( hybrid ) wireHybridAccordion( hybrid );
 	}
 
 	if ( document.readyState === 'loading' ) {

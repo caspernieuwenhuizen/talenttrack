@@ -1,0 +1,169 @@
+/* ---------------------------------------------------------------------------
+ * Deep-rate category accordion (#1732).
+ *
+ * The player-first new-evaluation rating step. Each main category is a
+ * collapsible `<details class="tt-rate-cat">` (collapsed by default; the
+ * #1643 training-priority category opens via training-eval-defaults.js).
+ * The summary shows the category name, a read-only star mirror, and the
+ * average word; expanding reveals the editable main-category row plus the
+ * sub-skill rows. Replaces the old inline-styled <table>.
+ *
+ * Mobile-first: base CSS targets 360px and scales up. Star inputs come
+ * from rating-input.css; this file only lays out the accordion + summary.
+ * --------------------------------------------------------------------------- */
+
+.tt-dashboard .tt-rate-intro {
+    color: var(--tt-muted, #5b6e75);
+    max-width: 60ch;
+    margin: 0 0 var(--tt-sp-3, 12px);
+}
+
+/* === Context fields (Date / Type / Context) =============================== */
+
+.tt-dashboard .tt-rate-context {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-3, 12px);
+    max-width: 640px;
+    margin-bottom: var(--tt-sp-4, 16px);
+}
+.tt-dashboard .tt-rate-context-row {
+    margin-bottom: 0;
+}
+.tt-dashboard .tt-rate-context-row .tt-input,
+.tt-dashboard .tt-rate-context-row textarea.tt-input {
+    width: 100%;
+}
+
+/* === Category list ======================================================== */
+
+.tt-dashboard .tt-rate-cats {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-2, 8px);
+    max-width: 640px;
+}
+
+.tt-dashboard .tt-rate-cat {
+    border: 1px solid var(--tt-line, #d6dadd);
+    border-radius: 8px;
+    background: var(--tt-surface, #fff);
+    overflow: hidden;
+}
+
+/* === Summary (collapsed head) ============================================= */
+
+.tt-dashboard .tt-rate-cat-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px 12px;
+    min-height: 48px;
+    padding: 8px 12px;
+    cursor: pointer;
+    list-style: none;
+    touch-action: manipulation;
+    font-weight: 600;
+}
+/* Native disclosure triangle replaced by our own chevron. */
+.tt-dashboard .tt-rate-cat-head::-webkit-details-marker { display: none; }
+.tt-dashboard .tt-rate-cat-head::marker { content: ''; }
+.tt-dashboard .tt-rate-cat-head:focus-visible {
+    outline: 2px solid var(--tt-accent, #2271b1);
+    outline-offset: -2px;
+    border-radius: 8px;
+}
+
+.tt-dashboard .tt-rate-cat-name {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--tt-ink, #1a1d21);
+    min-width: 0;
+}
+/* Chevron — rotates when the category is open. */
+.tt-dashboard .tt-rate-cat-name::before {
+    content: '';
+    flex: 0 0 auto;
+    width: 7px;
+    height: 7px;
+    border-right: 2px solid var(--tt-ink-soft, #5b6e75);
+    border-bottom: 2px solid var(--tt-ink-soft, #5b6e75);
+    transform: rotate(-45deg);
+    transition: transform 120ms ease;
+}
+.tt-dashboard .tt-rate-cat[open] > .tt-rate-cat-head .tt-rate-cat-name::before {
+    transform: rotate(45deg);
+}
+
+/* Right cluster: read-only stars + average word, right-aligned so the
+   column lines up with the body rows' editable stars + readout. */
+.tt-dashboard .tt-rate-cat-summary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+}
+.tt-dashboard .tt-rate-cat-stars {
+    display: inline-flex;
+    gap: 1px;
+    line-height: 1;
+}
+.tt-dashboard .tt-rate-cat-star {
+    font-size: 16px;
+    line-height: 1;
+    color: var(--tt-line, #d6dadd);
+}
+.tt-dashboard .tt-rate-cat-star.is-on { color: #f5a623; }
+.tt-dashboard .tt-rate-cat-avg {
+    font: 600 13px/1.2 inherit;
+    color: var(--tt-ink-soft, #5b6e75);
+    min-width: 72px;
+    text-align: right;
+}
+.tt-dashboard .tt-rate-cat-avg--unset {
+    color: var(--tt-line, #d6dadd);
+    font-weight: 400;
+}
+
+/* === Body (expanded) ====================================================== */
+
+.tt-dashboard .tt-rate-cat-body {
+    padding: 4px 12px 12px;
+    border-top: 1px solid var(--tt-line, #d6dadd);
+}
+.tt-dashboard .tt-rate-cat-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 4px 12px;
+}
+.tt-dashboard .tt-rate-cat-row + .tt-rate-cat-row {
+    border-top: 1px solid var(--tt-bg-soft, #eef0f2);
+}
+.tt-dashboard .tt-rate-cat-rowlabel {
+    font: 600 13px/1.3 inherit;
+    color: var(--tt-ink, #1a1d21);
+    min-width: 0;
+}
+.tt-dashboard .tt-rate-cat-rowlabel--sub {
+    font-weight: 400;
+    color: var(--tt-ink-soft, #5b6e75);
+    padding-left: 14px;
+}
+.tt-dashboard .tt-rate-cat-rowlabel--sub::before {
+    content: '\21B3'; /* ↳ */
+    margin-right: 4px;
+    color: var(--tt-line, #d6dadd);
+}
+/* The rating component row sits in the right grid cell, right-aligned so
+   stars + readout share a column with the summary mirror above. */
+.tt-dashboard .tt-rate-cat-row .tt-rating-row {
+    justify-self: end;
+    justify-content: flex-end;
+    padding: 4px 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tt-dashboard .tt-rate-cat-name::before { transition: none; }
+}
