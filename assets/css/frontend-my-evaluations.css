@@ -1,0 +1,189 @@
+/*
+ * frontend-my-evaluations.css — FrontendMyEvaluationsView 2026 restyle
+ * (#1695). Applies the shared "chrome" visual language (white cards,
+ * brand tokens, KPI tiles, chips) to the player/parent-facing "My
+ * evaluations" body. This is a restyle, not a redesign — the markup and
+ * data are unchanged; only the look is warmed up to match #1690.
+ *
+ * Mobile-first per CLAUDE.md §2: base styles target ~360px, min-width
+ * queries scale up. Everything is scoped under .tt-dashboard — no global
+ * resets, the active theme is treated as hostile. Loaded after
+ * frontend-admin.css with a dep on tt-frontend-app-chrome, so these rules
+ * win over the legacy .tt-mye- block there and inherit the brand tokens
+ * (--tt-primary, --tt-secondary, --tt-ink, --tt-muted, --tt-shadow-md).
+ */
+
+/* ---- Summary KPI row ---------------------------------------------- */
+.tt-dashboard .tt-mye-summary {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    margin: 0 0 1.1rem;
+}
+@media (min-width: 480px) {
+    .tt-dashboard .tt-mye-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* ---- Evaluation cards --------------------------------------------- */
+.tt-dashboard .tt-mye-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.tt-dashboard .tt-mye-item {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+    padding: 1rem 1.05rem;
+    background: #fff;
+    border: 1px solid #e3e6e1;
+    border-radius: 14px;
+    box-shadow: var(--tt-shadow-md);
+    align-items: start;
+}
+
+/* Badge + meta cluster reads as a warm header strip on the card. */
+.tt-dashboard .tt-mye-badge-wrap {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
+    text-align: left;
+    padding-bottom: 0.7rem;
+    border-bottom: 1px solid #eef1ec;
+}
+.tt-dashboard .tt-mye-meta {
+    font-size: 0.8rem;
+    color: var(--tt-muted, #6a6d66);
+    line-height: 1.4;
+    min-width: 0;
+}
+.tt-dashboard .tt-mye-date {
+    font-weight: 700;
+    color: var(--tt-ink, #0e1a14);
+    font-size: 0.9rem;
+}
+.tt-dashboard .tt-mye-type {
+    color: var(--tt-primary, #0b3d2e);
+    font-weight: 600;
+}
+.tt-dashboard .tt-mye-coach { font-style: italic; }
+
+.tt-dashboard .tt-mye-body { min-width: 0; }
+.tt-dashboard .tt-mye-match {
+    margin: 0 0 0.6rem;
+    color: var(--tt-muted, #6a6d66);
+    font-size: 0.85rem;
+}
+
+/* Pills row — already chip-shaped via RatingPillComponent; just space it. */
+.tt-dashboard .tt-mye-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0 0 0.5rem;
+}
+
+/* ---- Coach feedback callout --------------------------------------- */
+.tt-dashboard .tt-mye-feedback {
+    margin: 0.2rem 0 0.7rem;
+    padding: 0.7rem 0.9rem;
+    border: 1px solid #e3e6e1;
+    border-left: 4px solid var(--tt-secondary, #e8b624);
+    background: #fbf8ef;
+    border-radius: 0 12px 12px 0;
+}
+.tt-dashboard .tt-mye-feedback-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--tt-primary, #0b3d2e);
+    margin: 0 0 0.2rem;
+}
+.tt-dashboard .tt-mye-feedback-text {
+    margin: 0;
+    color: var(--tt-ink, #0e1a14);
+    line-height: 1.5;
+}
+
+/* ---- Detail disclosure -------------------------------------------- */
+.tt-dashboard .tt-mye-toggle {
+    background: none;
+    border: 1px solid #e3e6e1;
+    border-radius: 999px;
+    padding: 0.5rem 0.9rem;
+    min-height: 44px;
+    color: var(--tt-primary, #0b3d2e);
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-dashboard .tt-mye-toggle:hover,
+.tt-dashboard .tt-mye-toggle:focus-visible {
+    background: #f5f7f4;
+    border-color: var(--tt-primary, #0b3d2e);
+    text-decoration: none;
+}
+.tt-dashboard .tt-mye-toggle .tt-mye-toggle-hide { display: none; }
+.tt-dashboard .tt-mye-toggle[aria-expanded="true"] .tt-mye-toggle-show { display: none; }
+.tt-dashboard .tt-mye-toggle[aria-expanded="true"] .tt-mye-toggle-hide { display: inline; }
+
+.tt-dashboard .tt-mye-detail {
+    margin-top: 0.85rem;
+    padding-top: 0.85rem;
+    border-top: 1px dashed #e3e6e1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+}
+.tt-dashboard .tt-mye-detail[hidden] { display: none; }
+.tt-dashboard .tt-mye-detail-heading {
+    font-weight: 700;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--tt-muted, #6a6d66);
+    margin-bottom: 0.25rem;
+}
+.tt-dashboard .tt-mye-detail-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.2rem 1.1rem;
+    font-size: 0.85rem;
+}
+.tt-dashboard .tt-mye-detail-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.5rem;
+    border-bottom: 1px dotted #e3e6e1;
+    padding: 0.25rem 0;
+}
+.tt-dashboard .tt-mye-detail-label { color: var(--tt-ink, #0e1a14); }
+.tt-dashboard .tt-mye-detail-rating {
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    color: var(--tt-primary, #0b3d2e);
+}
+
+/* ---- Scale up ----------------------------------------------------- */
+@media (min-width: 640px) {
+    .tt-dashboard .tt-mye-item {
+        grid-template-columns: 1fr;
+        padding: 1.1rem 1.25rem;
+    }
+    .tt-dashboard .tt-mye-detail-list {
+        grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    }
+}
