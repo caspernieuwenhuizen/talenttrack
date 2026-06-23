@@ -36,9 +36,12 @@ class PlanningModule implements ModuleInterface {
     public function register( Container $container ): void {}
 
     public function boot( Container $container ): void {
-        // No live wiring — the view dispatcher and tile registration
-        // are handled centrally in CoreSurfaceRegistration so the
-        // module-disabled toggle hides the planner without touching
-        // unrelated activities-module surfaces.
+        // The view dispatcher and tile registration are handled centrally
+        // in CoreSurfaceRegistration so the module-disabled toggle hides
+        // the planner without touching unrelated activities-module
+        // surfaces. The one piece of live wiring the planner owns is the
+        // isolated weekly-PDF print route (#1631), which must hook the
+        // request lifecycle before the theme / admin shell renders.
+        Print\TeamPlannerWeeklyPrintRouter::init();
     }
 }

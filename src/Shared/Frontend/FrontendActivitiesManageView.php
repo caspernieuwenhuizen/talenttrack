@@ -9,7 +9,6 @@ use TT\Infrastructure\Query\LabelTranslator;
 use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
-use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Shared\Frontend\Components\DateInputComponent;
 use TT\Shared\Frontend\Components\FormSaveButton;
 use TT\Shared\Frontend\Components\GuestAddModal;
@@ -1497,65 +1496,11 @@ class FrontendActivitiesManageView extends FrontendViewBase {
     }
 
     private static function loadActivitiesForList( int $team_filter, string $type_filter, string $date_from = '', string $date_to = '' ): array {
-        global $wpdb;
-        $p = $wpdb->prefix;
-
-        $where  = [ 's.club_id = %d', 's.archived_at IS NULL' ];
-        $params = [ CurrentClub::id() ];
-
-        // #1648 — period quick-filter window (inclusive).
-        if ( $date_from !== '' ) {
-            $where[]  = 's.session_date >= %s';
-            $params[] = $date_from;
-        }
-        if ( $date_to !== '' ) {
-            $where[]  = 's.session_date <= %s';
-            $params[] = $date_to;
-        }
-
-        // Demo-mode scope predicate (e.g. demo-only activities).
-        $scope = QueryHelpers::apply_demo_scope( 's', 'activity' );
-
-        // Coach-scope guard — mirrors REST list_sessions. Personas with
-        // matrix `activities:r[global]` (scout, head_of_development,
-        // academy_admin) bypass; everyone else is restricted to teams
-        // they head-coach.
-        $uid = get_current_user_id();
-        if ( ! QueryHelpers::user_has_global_entity_read( $uid, 'activities' ) ) {
-            $coach_teams = QueryHelpers::get_teams_for_coach( $uid );
-            if ( ! $coach_teams ) {
-                // No accessible teams → empty list.
-                return [];
-            }
-            $team_ids = array_map( static function ( $t ) { return (int) $t->id; }, $coach_teams );
-            $placeholders = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
-            $where[] = "s.team_id IN ($placeholders)";
-            $params = array_merge( $params, $team_ids );
-        }
-
-        if ( $team_filter > 0 ) {
-            $where[]  = 's.team_id = %d';
-            $params[] = $team_filter;
-        }
-        if ( $type_filter !== '' ) {
-            $where[]  = 's.activity_type_key = %s';
-            $params[] = $type_filter;
-        }
-
-        $where_sql = implode( ' AND ', $where ) . ' ' . $scope;
-
-        // No LIMIT — the activities surface deliberately renders the
-        // full filtered set so the buckets reflect reality. Pilot
-        // volumes are tractable (low hundreds); the past-pagination
-        // follow-up sits in the issue's "Out of scope" list.
-        $sql = "SELECT s.*, t.name AS team_name
-                FROM {$p}tt_activities s
-                LEFT JOIN {$p}tt_teams t ON t.id = s.team_id AND t.club_id = s.club_id
-                WHERE {$where_sql}
-                ORDER BY s.session_date ASC, s.id ASC";
-
-        $rows = $wpdb->get_results( $wpdb->prepare( $sql, ...$params ) );
-        return is_array( $rows ) ? $rows : [];
+        // #1320 — the query (incl. demo + coach-scope authorization) lives
+        // in ActivitiesRepository so the REST list and this surface share
+        // one source of truth and the view holds no SQL or permission logic.
+        return ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )
+            ->listForManageSurface( $team_filter, $type_filter, get_current_user_id(), $date_from, $date_to );
     }
 
     /**
