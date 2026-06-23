@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.45.21
+Stable tag: 4.45.22
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.45.22 — 2026 visual-parity sprint + native-Dutch sweep (#1680, #1681). The frontend hero views and the player/parent surfaces are aligned to the 2026 pitch mockups, building on the global app chrome (#1690): tournaments (#1685), player overview, scouting & onboarding (#1689), goals board (#1687), podium, my-evaluations, my-team, my-journey, match-execution (#1684), match-prep, POP/PDP (#1686), methodology with Vision-first tabs + collapsible sections (#1671), and the team-planner restyle on top of the multi-team dropdown (#1683). Each shipped as its own patch (v4.45.9–v4.45.21). This release also recovers the Dutch translations for every new string those views introduced (#1681) — Behaald, Wedstrijdprogramma, Beschikbare selectie, Basisspelers 1e helft, and the rest. Per-view restyles are visual only; no query, REST, or navigation changes. (#1680, #1681) =
 
 = 4.45.8 — Team attendance report restyled to the 2026 look (#1688). A KPI summary strip (teams, activities, average attendance, teams flagged red below 70%) above a card-wrapped table with an inline attendance bar (red under 70%). Visual only — same per-team data. Patch bump. (#1688) =
 
