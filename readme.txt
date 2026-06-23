@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.45.5
+Stable tag: 4.45.14
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.45.14 — Match-execution restyled to the 2026 look (#1684). The assistant-coach live-match surface (`FrontendMatchExecutionView`) adopts the 2026 "chrome" design on its real sections: the score becomes a dark-green/gold live band, the timer carries a gold-on-green clock chip with the live dot, the tracked-players / bench / sub-target sections render as white brand-token cards (1px #e3e6e1, radius 14px, var(--tt-shadow-md)), action buttons and goal chips pick up the brand palette, and a two-up KPI summary strip (tracked players · available squad) renders via the shared `FrontendAppChrome::kpiTile()`. Purely a presentation layer: a new mobile-first `assets/css/frontend-match-execution-2026.css` layers additively over the base sheet with a dependency on the shared app-chrome stylesheet; every live-JS hook (timer toggle, score steppers, goal counters, substitution flow, offline queue) keeps its existing classes, ids, and data-attributes untouched. No query, REST, or state-machine change. Two new strings, Dutch added. Patch bump. (#1684) =
 
 = 4.45.5 — Activities-manage list query moved out of the view into ActivitiesRepository (#1320). Tech-debt: the activities management surface built its list SQL — including the demo-scope predicate and the coach-scope authorization guard — inline in `FrontendActivitiesManageView`. That query (and its permission logic) now lives in `ActivitiesRepository::listForManageSurface()`, so the surface and the REST list share one source of truth and the view holds no SQL or authorization logic (CLAUDE.md §4). Behaviour is unchanged: same filters, same coach-scope restriction, same ordering. No user-visible change. Patch bump. (#1320) =
 
