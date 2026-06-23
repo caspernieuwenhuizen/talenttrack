@@ -170,13 +170,17 @@ final class TeamPlannerWeeklyPrintable {
         }
 
         // Header.
-        $crest = $logo !== ''
-            ? '<img class="tt-wp-crest tt-wp-crest--img" src="' . esc_url( $logo ) . '" alt="" />'
-            : '<div class="tt-wp-crest">' . esc_html( self::initials( $academy !== '' ? $academy : $team_name ) ) . '</div>';
-
         $week_no   = (string) wp_date( 'W', strtotime( $date_from ) );
         $year      = (string) wp_date( 'Y', strtotime( $date_from ) );
         $range_str = self::formatDay( $date_from ) . ' – ' . self::formatDate( $date_to );
+
+        // #1730 — when no academy logo is configured the badge shows the
+        // ISO week number (digits only), not the academy initials: the
+        // week is the useful identifier and the year already sits beside
+        // it in the title.
+        $crest = $logo !== ''
+            ? '<img class="tt-wp-crest tt-wp-crest--img" src="' . esc_url( $logo ) . '" alt="" />'
+            : '<div class="tt-wp-crest tt-wp-crest--wk">' . esc_html( $week_no ) . '</div>';
 
         // Title (#1631 — user spec): "Week plan · {team} · Week {n} · {year}".
         $bits = [ __( 'Week plan', 'talenttrack' ) ];
@@ -385,6 +389,7 @@ final class TeamPlannerWeeklyPrintable {
             font-weight: 800; font-size: 16px; box-shadow: inset 0 0 0 2px rgba(232,182,36,.55);
         }
         .tt-wp-crest--img { object-fit: contain; background: #fff; box-shadow: none; }
+        .tt-wp-crest--wk { font-size: 20px; letter-spacing: .02em; }
         .tt-wp-id { min-width: 0; }
         .tt-wp-ac { font-weight: 800; font-size: 17px; color: var(--tt-green); }
         .tt-wp-sub { color: var(--tt-muted); font-size: 12.5px; margin-top: 1px; }
@@ -525,19 +530,6 @@ final class TeamPlannerWeeklyPrintable {
         $amount = max( 0.0, min( 1.0, $amount ) );
         $f   = static fn ( int $v ): int => (int) round( $v + ( $target - $v ) * $amount );
         return sprintf( '#%02x%02x%02x', $f( $r ), $f( $g ), $f( $b ) );
-    }
-
-    private static function initials( string $name ): string {
-        $name = trim( $name );
-        if ( $name === '' ) return '?';
-        $parts = preg_split( '/\s+/', $name ) ?: [];
-        $ini   = '';
-        foreach ( $parts as $w ) {
-            if ( $w === '' ) continue;
-            $ini .= strtoupper( mb_substr( $w, 0, 1 ) );
-            if ( strlen( $ini ) >= 2 ) break;
-        }
-        return $ini !== '' ? $ini : strtoupper( mb_substr( $name, 0, 2 ) );
     }
 
     private static function formatDate( string $ymd ): string {
