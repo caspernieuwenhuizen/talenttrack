@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-23T20:23:20+00:00\n"
+"POT-Creation-Date: 2026-06-23T20:27:16+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -102,7 +102,7 @@ msgstr ""
 #: src/Modules/Goals/Admin/GoalsPage.php:134
 #: src/Modules/Invitations/InvitationKind.php:52
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:114
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:359
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:380
 #: src/Modules/Mfa/Settings/MfaSettings.php:109
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:465
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:601
@@ -4361,12 +4361,12 @@ msgid "Next run"
 msgstr ""
 
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:173
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:744
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:775
 msgid "Pause"
 msgstr ""
 
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:175
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:745
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:776
 msgid "Resume"
 msgstr ""
 
@@ -5815,7 +5815,7 @@ msgstr ""
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:1228
 #: src/Modules/Development/Frontend/IdeasRefineView.php:130
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:891
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:291
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:312
 #: src/Modules/Pdp/Admin/SeasonsPage.php:164
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:346
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:780
@@ -13893,8 +13893,8 @@ msgid "Starting XI"
 msgstr ""
 
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:259
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:258
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:260
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:279
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:281
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:583
 msgid "Bench"
 msgstr ""
@@ -15996,9 +15996,9 @@ msgid "Plan match prep"
 msgstr ""
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:143
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:812
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:820
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:826
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:843
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:851
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:857
 msgid "OPP"
 msgstr ""
 
@@ -16040,7 +16040,7 @@ msgid "Match timer"
 msgstr ""
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:211
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:743
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:774
 #: src/Modules/Pdp/Admin/SeasonsPage.php:65
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:290
 #: src/Shared/Frontend/FrontendHolidaysView.php:56
@@ -16049,228 +16049,237 @@ msgstr ""
 msgid "Start"
 msgstr "Start"
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:214
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:216
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:222
+msgid "Match summary"
+msgstr ""
+
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:225
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:235
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:237
 msgid "Tracked players"
 msgstr ""
 
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:229
+msgid "Available squad"
+msgstr ""
+
 #. translators: %d: number of flagged players
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:219
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:240
 #, php-format
 msgid "%d flagged"
 msgid_plural "%d flagged"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:224
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:245
 msgid "No players flagged with a specific goal in the match prep."
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:239
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:260
 #, php-format
 msgid "flagged: %s"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:243
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:264
 msgid "Tap to add one (long-press to remove last)"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:243
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:264
 msgid "+ action"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:249
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:270
 msgid "actions"
 msgstr ""
 
 #. translators: %d: number of bench players
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:263
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:284
 #, php-format
 msgid "%d available"
 msgid_plural "%d available"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:268
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:289
 msgid "No bench players available."
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:280
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:301
 msgid "Bring on"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:280
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:301
 msgid "→ on"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:288
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:309
 msgid "Choose who comes off"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:290
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:311
 msgid "Tap a player to swap"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:304
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:325
 msgid "Post-match status"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:308
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:329
 msgid "Match ended · pending review"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:310
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:331
 msgid "Finalized — read-only"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:316
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:337
 msgid "Finalize match"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:319
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:340
 msgid "Locks the match. Goals, subs, and score cannot be edited after."
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:337
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:340
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:358
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:361
 msgid "Add late events"
 msgstr ""
 
 #. translators: %d = max minute accepted (half length + 10 stoppage)
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:346
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:367
 #, php-format
 msgid "Minute 0–%d"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:355
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:376
 msgid "+ Add late goal"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:361
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:396
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:407
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:382
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:417
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:428
 msgid "— pick player —"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:370
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:416
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:391
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:437
 msgid "Half"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:372
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:418
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:393
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:439
 msgid "1st half"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:373
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:419
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:394
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:440
 msgid "2nd half"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:377
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:423
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:398
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:444
 msgid "Minute"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:383
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:404
 msgid "Log goal"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:390
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:411
 msgid "+ Add late substitution"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:394
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:415
 msgid "Off (came off)"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:405
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:426
 msgid "On (came on)"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:429
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:450
 msgid "Log substitution"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:438
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:746
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:459
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:777
 #: src/Modules/PersonaDashboard/Widgets/MarkAttendanceHeroWidget.php:296
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:194
 msgid "Start match"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:441
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:462
 msgid "Synced"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:621
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:642
 msgid "Could not save:"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:626
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:647
 msgid "Finalize this match? Goals, subs, and score cannot be edited after."
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:627
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:648
 msgid "Could not finalize:"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:747
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:778
 msgid "End first half"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:748
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:779
 msgid "Start second half"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:749
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:780
 msgid "End match"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:750
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:781
 msgid "Return to dashboard"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:751
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:782
 #, php-format
 msgid "Tap a player to swap in %s"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:752
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:783
 #, php-format
 msgid "✓ %1$s on for %2$s · %3$s'"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:753
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:784
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:54
 msgid "Undo"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:754
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:785
 msgid "Offline — actions queued"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:755
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:786
 msgid "Back online — syncing…"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:756
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:787
 msgid "First half"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:757
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:788
 msgid "Second half"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:758
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:789
 msgid "Half time"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:759
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:790
 msgid "Kickoff pending"
 msgstr ""
 
-#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:760
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:791
 msgid "Final"
 msgstr ""
 
