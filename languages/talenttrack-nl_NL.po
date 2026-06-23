@@ -39453,6 +39453,30 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/Frontend/FrontendConfigurationView.php:1837
+msgid "Theme isolation"
+msgstr "Thema-isolatie"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:1838
+msgid "TalentTrack always renders as a full-canvas app, isolated from the active WordPress theme — the theme’s header, footer, sidebar, menus and CSS are stripped so only TalentTrack’s own design shows. This keeps your palette and layout consistent on every install."
+msgstr "TalentTrack wordt altijd weergegeven als volledig-canvas app, geïsoleerd van het actieve WordPress-thema — de kop, voettekst, zijbalk, menu’s en CSS van het thema worden verwijderd, zodat alleen het eigen ontwerp van TalentTrack zichtbaar is. Zo blijven je palet en indeling op elke installatie consistent."
+
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:946
+msgid "Curated styling"
+msgstr "Gecureerde stijlen"
+
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:948
+msgid "TalentTrack renders in full isolation from the active WordPress theme. Pick fonts and accent colors below — fields left as “(System default)” or empty fall back to TalentTrack’s defaults."
+msgstr "TalentTrack wordt volledig geïsoleerd van het actieve WordPress-thema weergegeven. Kies hieronder lettertypen en accentkleuren — velden die op “(Systeemstandaard)” of leeg blijven, vallen terug op de standaardwaarden van TalentTrack."
+
+#: src/Modules/Configuration/Admin/ConfigurationPage.php:281
+msgid "Academy name, logo, primary colours, fonts."
+msgstr "Academienaam, logo, primaire kleuren, lettertypen."
+
+#: src/Modules/Documentation/HelpTopics.php:235
+msgid "How TalentTrack isolates itself from the active WordPress theme in canvas mode."
+msgstr "Hoe TalentTrack zich in canvas-modus isoleert van het actieve WordPress-thema."
+
 #~ msgid "Notes:"
 #~ msgstr "Notities:"
 

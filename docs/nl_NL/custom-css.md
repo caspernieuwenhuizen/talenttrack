@@ -21,7 +21,6 @@ Een surface-schakelaar bovenaan wisselt tussen **Frontend dashboard** en **wp-ad
 - **Block-list-sanitatie bij opslaan** — de saver weigert JavaScript-URLs (`url(javascript:…)`), `expression()`, `behavior:`, `-moz-binding`, externe `@import` en externe `@font-face`-URLs. Geweigerde payloads geven een inline foutmelding met een verwijzing naar de overtredende regel.
 - **200 KB harde cap** — groter dan 200 KB en de save wordt geweigerd. Dat is ongeveer 10× het hele gebundelde `frontend-admin.css`-bestand, dus alleen een backstop tegen het per ongeluk plakken van een hele site-stylesheet.
 - **Mobile-first-garantie** — de mobile-first stylesheet van de plugin laadt altijd eerst; eigen CSS er bovenop. Pad C heeft bewust geen layout-overschrijvingen (geen breakpoints, geen flex-direction). Bij Pad A en Pad B krijg je een documentatie-waarschuwing dat layout-eigenschappen overschrijven op eigen risico is.
-- **Mutex met #0023 thema-overerving** — bij het aanzetten van Custom CSS op de Frontend-surface gaat de Theme-inheritance-knop automatisch uit. Op één pagina is altijd hooguit één van beide actief; de UI duwt je naar die grens.
 
 ## Veilige modus
 

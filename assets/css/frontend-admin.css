@@ -642,107 +642,48 @@
     .tt-dashboard .tt-btn-danger { width: 100%; }
 }
 
-/*  Theme inheritance 
-   #0023 Sprint 1. Active only when the Branding-tab toggle
-   is ON — `BrandStyles::addBodyClass` adds `tt-theme-inherit`
-   to <body>, which scopes the rules below.
-
-   Goal: typography, link color, and plain button styling
-   defer to the host WordPress theme. TalentTrack's
-   structural design (player cards, tile grid, list table,
-   spacing, layout) is intentionally NOT inherited — clubs
-   get a brand-matched dashboard without losing the product's
-   visual identity.
-
-   See specs/0023-feat-styling-options-and-theme-inheritance.md
-   for the locked decisions and the honest framing of what
-   "inherit" actually does (some properties cascade, others
-   don't — buttons are best-effort).
-    */
-body.tt-theme-inherit .tt-dashboard,
-body.tt-theme-inherit .tt-dashboard p,
-body.tt-theme-inherit .tt-dashboard li,
-body.tt-theme-inherit .tt-dashboard td,
-body.tt-theme-inherit .tt-dashboard label {
-    font-family: inherit;
-    color: inherit;
-}
-body.tt-theme-inherit .tt-dashboard h1,
-body.tt-theme-inherit .tt-dashboard h2,
-body.tt-theme-inherit .tt-dashboard h3,
-body.tt-theme-inherit .tt-dashboard h4,
-body.tt-theme-inherit .tt-dashboard h5,
-body.tt-theme-inherit .tt-dashboard h6 {
-    font-family: inherit;
-    color: inherit;
-}
-body.tt-theme-inherit .tt-dashboard a {
-    color: inherit;
-}
-
-/* Plain submit / primary buttons revert to the host theme's
-   button styling. TT-only surfaces (player card, tile grid,
-   list-table actions) are explicitly excluded so their tokens
-   keep working. `.tt-save-btn` is also excluded because it
-   has its own state machine that depends on the green/red
-   transition tokens. */
-body.tt-theme-inherit .tt-dashboard button.button-primary:not(.tt-save-btn),
-body.tt-theme-inherit .tt-dashboard button[type="submit"]:not(.tt-save-btn):not(.tt-pc *):not(.tt-tile *):not(.tt-list-table *) {
-    background: revert;
-    color: revert;
-    border-color: revert;
-    font-family: inherit;
-}
-
-/* ===== #0061 round 3 — Hostile-theme isolation =====
+/* TalentTrack typography normalize.
  *
- * Active themes vary wildly. The .tt-dashboard namespace shields most
- * TT styles, but a handful of properties cascade through the namespace
- * boundary because they're inherited (line-height, letter-spacing,
- * text-transform), or because hostile themes set them at body / global
- * scope with high specificity. Lock them down here so TT surfaces
- * render predictably even on opinionated themes (custom client
- * themes from pilots and other deployments). The `body:not(.tt-theme-inherit)`
- * gating means academies that explicitly opt into theme inheritance
- * still see their theme's typography. */
-body:not(.tt-theme-inherit) .tt-dashboard,
-body:not(.tt-theme-inherit) .tt-dashboard p,
-body:not(.tt-theme-inherit) .tt-dashboard h1,
-body:not(.tt-theme-inherit) .tt-dashboard h2,
-body:not(.tt-theme-inherit) .tt-dashboard h3,
-body:not(.tt-theme-inherit) .tt-dashboard h4,
-body:not(.tt-theme-inherit) .tt-dashboard h5,
-body:not(.tt-theme-inherit) .tt-dashboard h6,
-body:not(.tt-theme-inherit) .tt-dashboard li,
-body:not(.tt-theme-inherit) .tt-dashboard td,
-body:not(.tt-theme-inherit) .tt-dashboard label,
-body:not(.tt-theme-inherit) .tt-dashboard button,
-body:not(.tt-theme-inherit) .tt-dashboard input,
-body:not(.tt-theme-inherit) .tt-dashboard select,
-body:not(.tt-theme-inherit) .tt-dashboard textarea {
+ * Canvas mode (#1728) dequeues all non-TT stylesheets, so the theme can
+ * no longer poison these. These rules are kept as TalentTrack's own
+ * baseline so inherited properties (line-height, letter-spacing,
+ * text-transform) render consistently across surfaces. */
+.tt-dashboard,
+.tt-dashboard p,
+.tt-dashboard h1,
+.tt-dashboard h2,
+.tt-dashboard h3,
+.tt-dashboard h4,
+.tt-dashboard h5,
+.tt-dashboard h6,
+.tt-dashboard li,
+.tt-dashboard td,
+.tt-dashboard label,
+.tt-dashboard button,
+.tt-dashboard input,
+.tt-dashboard select,
+.tt-dashboard textarea {
     line-height: 1.5;
     letter-spacing: normal;
     text-transform: none;
 }
 
 /* Headings get a tighter line-height for visual rhythm. */
-body:not(.tt-theme-inherit) .tt-dashboard h1,
-body:not(.tt-theme-inherit) .tt-dashboard h2,
-body:not(.tt-theme-inherit) .tt-dashboard h3 {
+.tt-dashboard h1,
+.tt-dashboard h2,
+.tt-dashboard h3 {
     line-height: 1.25;
 }
 
-/* Placeholder visibility — hostile themes sometimes set placeholder
- * colour to white-on-white or to opacity:0.3 which hides it. */
+/* Placeholder visibility. */
 .tt-dashboard input::placeholder,
 .tt-dashboard textarea::placeholder {
     color: var(--tt-muted, #5b6e75);
     opacity: 1;
 }
 
-/* Ensure dropdowns + popovers float above hostile-theme modals.
- * Themes commonly use z-index up to ~1000 for sticky headers and
- * up to ~9000 for cookie banners; 99999 keeps TT chrome on top. */
+/* Ensure dropdowns + popovers float above any residual chrome (e.g. the
+ * WP admin bar). 99999 keeps TT chrome on top. */
 .tt-dashboard .tt-psp-results,
 .tt-dashboard .tt-user-menu-dropdown,
 .tt-dashboard .tt-modal,
@@ -751,11 +692,8 @@ body:not(.tt-theme-inherit) .tt-dashboard h3 {
     z-index: 99999;
 }
 
-/* Form-row collapse guard — themes with `* { margin: 0 }` or aggressive
- * `:where(form) > * { margin-bottom: 0 }` resets break .tt-field
- * spacing. Re-assert with the var so academies can still tune via
- * Configuration → Theme. */
-body:not(.tt-theme-inherit) .tt-dashboard .tt-field {
+/* Form-row spacing baseline. */
+.tt-dashboard .tt-field {
     margin-bottom: var(--tt-sp-4, 16px);
 }
 

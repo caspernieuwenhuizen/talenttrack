@@ -232,7 +232,7 @@ class HelpTopics {
             'theme-integration' => [
                 'title'   => __( 'Theme integration', 'talenttrack' ),
                 'group'   => 'developer',
-                'summary' => __( 'Override design tokens from a theme and the body.tt-theme-inherit contract.', 'talenttrack' ),
+                'summary' => __( 'How TalentTrack isolates itself from the active WordPress theme in canvas mode.', 'talenttrack' ),
             ],
             'development-management' => [
                 'title'   => __( 'Development management', 'talenttrack' ),

@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.45.25
+Stable tag: 4.46.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.46.0 — Total visual isolation: canvas mode strips all non-TalentTrack CSS (#1728). The active WordPress theme could leak its palette and typography into TalentTrack because canvas mode hid the theme's HTML chrome but still let `wp_head()` print its stylesheet — which could win specificity battles against TalentTrack tokens. Canvas mode now dequeues every enqueued stylesheet whose source is not TalentTrack's before the page paints, keeping only TalentTrack's own handles, the WP admin bar (`admin-bar`, `dashicons`), and operator-chosen Google Fonts. The theme contributes zero CSS, so nothing can override the palette. Isolation is now mandatory: the **Full-canvas app** opt-out and the **Theme inheritance** toggle (and its `body.tt-theme-inherit` CSS contract) are removed — both contradicted total visual independence. Operator branding (colours, logo, fonts) and Custom CSS are unaffected; that is how you re-brand TalentTrack now, not the theme. Minor bump. (#1728) =
 
 = 4.45.25 — Design tokens: migrate the legacy slate/navy surfaces onto the green/gold tokens (#1379). Converges the older cool-slate / WP-blue generation onto the canonical neutrals from tokens.css: the player profile/detail, journey, legacy match-prep / match-execution, blueprint editor, tournament wizard and team-chemistry surfaces now inherit the green/gold ink, lines, backgrounds and status colours, and their WP-blue link/accent becomes the brand green. Both `:root` token blocks (team-chemistry, persona-dashboard) are re-scoped off `:root` so they no longer leak into the active theme — the persona-landing block stays on `.tt-root` so the design-system editor's overrides still win. Non-sanctioned breakpoints (720/640/560/820/767px) are normalised to 480/768/1024 across the stylesheets. Visual-only; no markup, query or behaviour change. Patch bump. (#1379) =
 

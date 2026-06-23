@@ -2,7 +2,18 @@
 
 # Theme integration
 
-How a host theme overrides TalentTrack's frontend look without forking. Aimed at theme developers and site builders comfortable in CSS.
+How TalentTrack relates to the active WordPress theme. Aimed at theme developers and site builders comfortable in CSS.
+
+## Total visual isolation (canvas mode)
+
+As of v4.45.26 (#1728) the dashboard renders in **full canvas mode with no opt-out**. The plugin takes over the page template for any singular post that embeds the `[talenttrack_dashboard]` shortcode and, before `wp_head()` prints, **dequeues every stylesheet that isn't TalentTrack's own**. The active theme's `style.css` — and any other plugin's CSS — never reaches the document, so it cannot override TalentTrack's palette, typography, or layout.
+
+The only non-TalentTrack stylesheets that survive in canvas mode are:
+
+- the WP admin bar (`admin-bar`, `dashicons`) so staff keep their toolbar;
+- operator-chosen Google Fonts (`tt-brand-fonts` and any `fonts.googleapis.com` / `fonts.gstatic.com` request).
+
+There is no `tt-theme-inherit` switch any more, and a host theme cannot style TalentTrack's buttons, links, or headings — that is by design. To re-brand TalentTrack, use **Configuration → Appearance** (palette, logo, fonts) or **Custom CSS**, not the theme.
 
 ## Design tokens
 
@@ -31,25 +42,7 @@ TalentTrack's frontend stylesheets define a shared set of CSS custom properties 
 }
 ```
 
-Components (`tt-btn`, `tt-card`, `tt-input`, `tt-attendance`, …) reference these tokens. The list above is the v3.x stable contract — adding tokens is allowed in minor releases; renaming or removing requires a major release note.
-
-## The `body.tt-theme-inherit` switch (#0023)
-
-By default the plugin defines its own token values. When the body element carries the class `tt-theme-inherit`, TalentTrack treats the host theme as the source of truth and skips its own `:root` declarations — the theme's tokens win.
-
-To opt in from a theme:
-
-```php
-// functions.php
-add_filter( 'body_class', function ( $classes ) {
-    if ( has_shortcode( get_post()->post_content ?? '', 'talenttrack_dashboard' ) ) {
-        $classes[] = 'tt-theme-inherit';
-    }
-    return $classes;
-} );
-```
-
-Then declare the tokens you want to override on `:root` in your theme's stylesheet. Tokens you don't override fall back to TalentTrack's defaults.
+Components (`tt-btn`, `tt-card`, `tt-input`, `tt-attendance`, …) reference these tokens. The list above is the v3.x stable contract — adding tokens is allowed in minor releases; renaming or removing requires a major release note. Operators override the palette through **Configuration → Appearance**, which injects the chosen colours as `:root` custom properties; the theme has no say.
 
 ## Component classnames
 
@@ -69,17 +62,7 @@ The frontend uses these stable class roots — change at your own risk if you're
 
 ## When a deeper override is needed
 
-If token-level overrides aren't enough, your theme can dequeue the plugin's stylesheet and ship a replacement:
-
-```php
-add_action( 'wp_enqueue_scripts', function () {
-    wp_dequeue_style( 'tt-frontend' );
-    wp_dequeue_style( 'tt-frontend-mobile' );
-    wp_enqueue_style( 'mytheme-tt-replacement', get_stylesheet_directory_uri() . '/talenttrack-overrides.css' );
-}, 20 );
-```
-
-This is escape-hatch territory — you're now responsible for keeping up with component additions. Token overrides are the supported path.
+Because canvas mode strips non-TalentTrack stylesheets, a theme cannot ship overrides for the dashboard — anything the theme enqueues is dequeued before it paints. The supported path for per-club styling beyond the palette/font config is **Configuration → Custom CSS**, which is enqueued from within TalentTrack and therefore survives isolation. Token-level overrides via the Appearance palette remain the lightest-touch option.
 
 ## Print styles
 

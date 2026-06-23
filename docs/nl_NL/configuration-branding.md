@@ -17,7 +17,7 @@ Op de frontend-Configuratieweergave zijn de voormalige tegels **Branding** en **
 - **Identiteit** — academienaam, clubafkorting, logo.
 - **Kleuren** — primair, secundair en het volledige accent-/statuspalet (accent, gevaar, waarschuwing, succes, info, focusrand), allemaal bij elkaar.
 - **Typografie** — display- en bodylettertype.
-- **Thema** — de "overlaten aan het actieve WP-thema"-overervingsschakelaar.
+- **Thema-isolatie** — een informatieve melding dat TalentTrack altijd volledig geïsoleerd van het actieve WordPress-thema wordt weergegeven (alleen-lezen; er is geen schakelaar).
 - **Geavanceerd** — een link naar de Aangepaste CSS-editor.
 
 Er zijn geen configuratiesleutels gewijzigd en er is geen datamigratie — bestaande waarden worden ongewijzigd weergegeven. Opslaan + Annuleren staan onderaan de pagina. Oude `?config_sub=branding` / `?config_sub=theme`-deeplinks komen nog steeds uit bij het Vormgeving-scherm.
@@ -49,13 +49,18 @@ Naast de groottekeuze (nu **Tegelgrootte** genoemd) krijgt het Vormgeving-scherm
 
 De indeling geldt overal waar een tegel een icoon toont: het dashboardtegelraster altijd, en de tegels van Configuratie / Rapporten / Modules wanneer een tegel een icoon heeft. Tegels zonder icoon hebben geen eerste regel om te delen en zien er in beide indelingen hetzelfde uit. Wordt academy-breed opgeslagen onder de configuratiesleutel `tile_layout`; standaard `row`.
 
-## Volledig-canvas app (v4.34.0+)
+## Volledig-canvas app & thema-isolatie (verplicht, v4.45.26+)
 
-Het Vormgeving-scherm krijgt een selectievakje **Volledig-canvas app**. Als dit aan staat — de standaardinstelling — wordt TalentTrack op volledige breedte weergegeven en worden de kop, voettekst, zijbalk, menu's en widgets van het actieve WordPress-thema verborgen, zodat alleen de TalentTrack-interface zichtbaar is. De WordPress-beheerbalk blijft zichtbaar voor ingelogde medewerkers (het is een WordPress-element, geen thema-omlijsting, en geeft medewerkers met één klik toegang tot wp-admin).
+TalentTrack wordt altijd weergegeven als volledig-canvas app, volledig geïsoleerd van het actieve WordPress-thema. Er is **geen uitschakeloptie** — volledige isolatie is het uitgangspunt (#1728). Op de pagina waarop de shortcode `[talenttrack_dashboard]` staat:
 
-Om dit uit te zetten open je **Configuratie → Vormgeving**, scrol je naar **Volledig-canvas app**, vink je **Toon TalentTrack als volledig-canvas app** uit en sla je op. TalentTrack wordt dan weer binnen de normale pagina-indeling van het thema getoond — handig als je thema navigatie of branding biedt die je rond de app wilt behouden.
+- worden de kop, voettekst, zijbalk, menu's en widgets van het thema niet weergegeven (canvas-overname, sinds v4.34.0); en
+- wordt **elke niet-TalentTrack-stylesheet verwijderd voordat de pagina wordt getekend**, zodat de `style.css` van het thema (en de CSS van andere plugins) het palet, de typografie of de indeling van TalentTrack niet kan overschrijven.
 
-De instelling wordt academy-breed opgeslagen onder de configuratiesleutel `frontend_canvas_mode`. Het canvas neemt alleen de pagina over waarop de shortcode `[talenttrack_dashboard]` staat; elke andere pagina op de site wordt zoals gebruikelijk via het thema weergegeven. Afdruk- en exportpagina's (wedstrijdvoorbereiding, PDP, methodiek) blijven ongemoeid — die worden al als losstaande documenten zonder omlijsting weergegeven.
+De WordPress-beheerbalk blijft zichtbaar voor ingelogde medewerkers (het is een WordPress-element, geen thema-omlijsting, en geeft met één klik toegang tot wp-admin), en de door de operator gekozen Google Fonts blijven laden. Al het andere van het thema wordt weggelaten.
+
+Eerdere versies (v4.34.0–v4.45.25) boden een selectievakje **Volledig-canvas app** en een **Theme-overerving**-schakelaar waarmee een academy de styling aan het WP-thema kon overlaten. Beide zijn in v4.45.26 verwijderd omdat ze in strijd waren met volledige visuele onafhankelijkheid: een thema dat specificiteitsgevechten won, kon het palet vergiftigen. Pas TalentTrack aan via de secties **Kleuren**, **Typografie** en **Logo** van Vormgeving, of via **Aangepaste CSS** — niet via het thema.
+
+Het canvas neemt alleen de pagina over waarop de shortcode `[talenttrack_dashboard]` staat; elke andere pagina op de site wordt zoals gebruikelijk via het thema weergegeven. Afdruk- en exportpagina's (wedstrijdvoorbereiding, PDP, methodiek) blijven ongemoeid — die worden al als losstaande documenten zonder omlijsting weergegeven.
 
 ## Configuratiesecties in de frontend (v4.26.16+)
 
@@ -101,29 +106,9 @@ Een alleen-lezen logboek van configuratiewijzigingen voor verantwoording.
 
 Lookup-lijsten ondersteunen slepen-om-te-herordenen (v2.19.0). Pak de greep ⋮⋮ op een rij en sleep. De volgorde wordt automatisch opgeslagen en meteen overal in de plugin in de dropdowns verwerkt.
 
-## Theme-overerving & gecureerde stijlen
+## Gecureerde stijlen
 
-*Toegevoegd in v3.8.0.* Het tabblad Branding heeft een tweede sectie waarmee het dashboard kan aansluiten op het bestaande WordPress-thema van een club, zonder CSS te schrijven of een eigen thema te bouwen.
-
-### WP-themastijlen overerven (toggle)
-
-Wanneer AAN, laat het dashboard vier dingen over aan het omliggende WP-thema:
-
-- Lettertypen voor body en koppen
-- **Link**-kleur
-- Kleur van **koppen**
-- Standaard submit-/primaire **knopstijl**
-
-Wanneer UIT gebruikt het dashboard de eigen TalentTrack-standaarden — net als vóór deze versie.
-
-Wat de toggle **niet** raakt (bewust):
-
-- Tier-styling van speler­kaarten (goud / zilver / brons blijft vastgezet — onderdeel van de productidentiteit)
-- Randen en accenten van het tegelraster op het dashboard
-- De `FrontendListTable`-component
-- Witruimte, layout, structurele CSS
-
-Eigenschappen die hierboven niet staan, "cascaden" doorgaans niet vanzelf in CSS (achtergrondkleuren, padding, randen) — de structurele CSS van de plugin houdt die met opzet consistent.
+*Toegevoegd in v3.8.0; theme-overerving verwijderd in v4.45.26.* Het Vormgeving-scherm laat een club het dashboard branden — lettertypen en een volledig semantisch kleurpalet — zonder CSS te schrijven. TalentTrack wordt altijd volledig geïsoleerd van het actieve WordPress-thema weergegeven (zie *Volledig-canvas app & thema-isolatie* hierboven), dus branding gebeurt volledig via deze velden (of via Aangepaste CSS), nooit door styling aan het thema over te laten.
 
 ### Display-lettertype / Body-lettertype
 
@@ -132,12 +117,11 @@ Twee dropdowns met gecureerde [Google Fonts](https://fonts.google.com/) families
 - **Display**-kandidaten zijn condensed / sportief (Oswald, Bebas Neue, Anton, Barlow Condensed…) — gebruikt voor koppen, tegeltitels en de nummers op spelerkaarten.
 - **Body**-kandidaten zijn rustige sans-serifs plus enkele serifs (Inter, Manrope, DM Sans, Source Serif 4…) — gebruikt voor paragrafen, tabellen en formulierlabels.
 
-Bovenaan elke dropdown staan twee niet-Google-opties:
+Bovenaan elke dropdown staat één niet-Google-optie:
 
 - **(Systeemstandaard)** — geen Google Fonts-aanvraag; valt terug op de standaard fontstack van TalentTrack.
-- **(Overnemen van thema)** — alleen relevant wanneer de inherit-toggle hierboven AAN staat; anders gedraagt het zich als Systeemstandaard.
 
-Als minstens één dropdown een gecureerde familie kiest, laadt de plugin één gecombineerde Google Fonts-aanvraag (display + body samen, met de gewichten die TalentTrack daadwerkelijk gebruikt).
+Als minstens één dropdown een gecureerde familie kiest, laadt de plugin één gecombineerde Google Fonts-aanvraag (display + body samen, met de gewichten die TalentTrack daadwerkelijk gebruikt). Google Fonts is de enige externe stylesheet die de canvas-isolatie overleeft.
 
 ### Kleurkiezers
 
@@ -152,19 +136,7 @@ Zes semantische kleuren, elk gekoppeld aan een `--tt-*` CSS custom property die 
 | Info­kleur | `--tt-info` | Info-banners |
 | Focus-ring­kleur | `--tt-focus-ring` | Toetsenbord­focus-omtrek |
 
-Een veld leeg laten herstelt de standaard­token uit de stylesheet van de plugin.
-
-### Eerlijk kader — wat "overerven" eigenlijk doet
-
-Sommige CSS-eigenschappen erven van nature mee (font-family, color, link-kleur). Andere niet (background, padding, border-radius). Effect van de toggle:
-
-- **Typografie**: volledige overerving.
-- **Link-kleur**: volledige overerving.
-- **Kop-kleur en -familie**: volledige overerving.
-- **Knoppen**: best-effort. De knop-achtergrond en -kleur van de plugin worden teruggezet, maar de knopstijl van het host-thema neemt het pas over als zijn CSS dezelfde selectors raakt als de DOM van de plugin. De meeste thema's stijlen block-editor-knoppen (`.wp-block-button__link`) — die maken plugin-knoppen niet automatisch opnieuw op. Thema's die op het `<button>`-element zelf stijlen, krijgen volledige overerving.
-- **Witruimte, randen, schaduwen**: niet overgeërfd — de structurele CSS van de plugin blijft staan.
-
-Heb je een eigen thema dat `body .tt-dashboard { ... }`-overrides toevoegt (de child-thema-aanpak), dan blijven die het laatste woord houden — de toggle is de makkelijke route, maar de override-route blijft werken.
+Een veld leeg laten herstelt de standaard­token uit de stylesheet van de plugin. De door de operator gekozen kleuren worden als `:root` custom properties geïnjecteerd en kunnen — doordat canvas-modus de CSS van het actieve thema verwijdert — door niets worden overschreven.
 
 ### Achterwaartse compatibiliteit
 

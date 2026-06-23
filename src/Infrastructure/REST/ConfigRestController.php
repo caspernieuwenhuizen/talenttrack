@@ -39,8 +39,8 @@ class ConfigRestController {
         'logo_url',
         'primary_color',
         'secondary_color',
-        // Branding additions from #0023
-        'theme_inherit',
+        // Branding additions from #0023 (theme_inherit removed in #1728 —
+        // canvas mode now gives total isolation, no theme inheritance).
         'font_display',
         'font_body',
         // #1587 — academy-wide Tile appearance preset (compact /
@@ -56,10 +56,6 @@ class ConfigRestController {
         // inherit). Both flow through TileGridStandard::cssVars().
         'tile_min_width',
         'tile_icon_size',
-        // #1590 — full-canvas app shell toggle (boolean). When on
-        // (default), the dashboard page renders without the active
-        // theme's header / footer / sidebar chrome.
-        'frontend_canvas_mode',
         'color_accent',
         'color_danger',
         'color_warning',
@@ -111,12 +107,10 @@ class ConfigRestController {
         'logo_url'          => 'branding',
         'primary_color'     => 'branding',
         'secondary_color'   => 'branding',
-        'theme_inherit'     => 'branding',
         'font_display'      => 'branding',
         'font_body'         => 'branding',
         'tile_appearance'   => 'branding',
         'tile_layout'       => 'branding',
-        'frontend_canvas_mode' => 'branding',
         'color_accent'      => 'branding',
         'color_danger'      => 'branding',
         'color_warning'     => 'branding',

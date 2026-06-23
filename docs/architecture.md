@@ -103,7 +103,7 @@ The duotone SVGs live in `assets/icons/duotone/<key>.svg`, keyed identically to 
 
 Scope is **tile surfaces only.** Inline icons (buttons, wp-admin menu, 18–20px usages) keep the original line set via `IconRenderer::render()` from `assets/icons/` — tiny duotone reads muddy. The inline render path is unchanged.
 
-The sticky `body.tt-theme-inherit` toggle (#0023) lets a host theme override the design tokens TalentTrack defines. Token contract is documented in [theme integration](theme-integration.md).
+TalentTrack renders in full canvas isolation (#1728): in canvas mode every non-TalentTrack stylesheet is dequeued before `wp_head()` prints, so the host theme cannot override TalentTrack's design tokens. The token contract is documented in [theme integration](theme-integration.md).
 
 ## Settings + lookups
 

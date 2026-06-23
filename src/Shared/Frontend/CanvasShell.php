@@ -13,13 +13,20 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * one template chokepoint and substitutes a minimal plugin document.
  *
  * Mechanism: a single `template_include` filter. When the main-query
- * post contains the `[talenttrack_dashboard]` shortcode AND the academy
- * has the `frontend_canvas_mode` toggle on (default on), the filter
+ * post contains the `[talenttrack_dashboard]` shortcode, the filter
  * returns `templates/canvas.php` instead of the theme's page template.
  * The plugin template still runs the WP lifecycle — `language_attributes()`,
  * `wp_head()`, `body_class()`, `the_content()`, `wp_footer()` — so the WP
  * admin bar and all enqueued plugin assets render, but no theme chrome
  * leaks. The theme's `header.php` / `footer.php` / sidebars never run.
+ *
+ * Total visual isolation (#1728): `wp_head()` would otherwise print
+ * EVERY enqueued stylesheet — including the active theme's `style.css`
+ * and other plugins' CSS — and that theme CSS can win specificity
+ * battles against TalentTrack tokens. So in canvas mode we dequeue every
+ * non-TalentTrack stylesheet before the head prints, leaving only TT's
+ * own handles, the WP admin bar, and operator-chosen Google Fonts. There
+ * is no opt-out — full independence is the contract.
  *
  * Why `template_include` over `template_redirect`: the main query and the
  * full `wp_head` / `wp_footer` lifecycle stay intact, which the print
@@ -34,8 +41,12 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  */
 class CanvasShell {
 
-    /** @var string tt_config key — boolean, default true. */
-    public const CONFIG_KEY = 'frontend_canvas_mode';
+    /**
+     * Stylesheet handles that survive the canvas dequeue even though their
+     * src is not under TT_PLUGIN_URL. The WP admin bar must still render
+     * for logged-in staff; dashicons backs it.
+     */
+    private const STYLE_ALLOWLIST = [ 'admin-bar', 'dashicons', 'tt-brand-fonts' ];
 
     public static function init(): void {
         // Late priority so the theme (and other plugins) have already
@@ -46,6 +57,12 @@ class CanvasShell {
         // own CSS) runs later, inside the_content(), but the canvas shell
         // frame must exist before first paint to avoid layout shift.
         add_action( 'wp_enqueue_scripts', [ __CLASS__, 'enqueueShell' ] );
+        // Total visual isolation (#1728): strip non-TT stylesheets so the
+        // theme contributes zero CSS. Priority 9999 runs after every other
+        // enqueue; the wp_print_styles pass is belt-and-suspenders for any
+        // stylesheet enqueued even later.
+        add_action( 'wp_enqueue_scripts', [ __CLASS__, 'stripForeignStyles' ], 9999 );
+        add_action( 'wp_print_styles',    [ __CLASS__, 'stripForeignStyles' ], 9999 );
     }
 
     public static function enqueueShell(): void {
@@ -61,9 +78,64 @@ class CanvasShell {
     }
 
     /**
+     * Dequeue every enqueued stylesheet whose registered `src` is not
+     * under TT_PLUGIN_URL, except the allowlist (admin bar, dashicons,
+     * operator Google Fonts, and any `tt-` handle). Runs only in canvas
+     * mode. Once the theme contributes zero CSS, nothing in the document
+     * can override the TalentTrack palette.
+     */
+    public static function stripForeignStyles(): void {
+        if ( ! self::shouldTakeOver() ) {
+            return;
+        }
+        $styles = wp_styles();
+        if ( ! $styles instanceof \WP_Styles ) {
+            return;
+        }
+        $plugin_url = defined( 'TT_PLUGIN_URL' ) ? (string) TT_PLUGIN_URL : '';
+        // Iterate a copy — wp_dequeue_style() mutates the queue.
+        foreach ( (array) $styles->queue as $handle ) {
+            if ( self::isAllowedStyle( (string) $handle, $styles, $plugin_url ) ) {
+                continue;
+            }
+            wp_dequeue_style( $handle );
+        }
+    }
+
+    /**
+     * True when a stylesheet handle should survive the canvas dequeue:
+     * any TalentTrack-owned handle (src under TT_PLUGIN_URL, or a `tt-`
+     * prefixed handle), the admin bar / dashicons, or an operator Google
+     * Fonts request. Resolves src defensively — a missing or false src
+     * (handles with no stylesheet, e.g. dependency-only) is treated as
+     * non-foreign and kept.
+     */
+    private static function isAllowedStyle( string $handle, \WP_Styles $styles, string $plugin_url ): bool {
+        if ( in_array( $handle, self::STYLE_ALLOWLIST, true ) ) {
+            return true;
+        }
+        if ( strpos( $handle, 'tt-' ) === 0 ) {
+            return true;
+        }
+        $registered = $styles->registered[ $handle ] ?? null;
+        $src        = ( $registered && isset( $registered->src ) ) ? (string) $registered->src : '';
+        if ( $src === '' ) {
+            // No own stylesheet (alias / dependency handle) — nothing to strip.
+            return true;
+        }
+        if ( $plugin_url !== '' && strpos( $src, $plugin_url ) === 0 ) {
+            return true;
+        }
+        if ( strpos( $src, 'fonts.googleapis.com' ) !== false || strpos( $src, 'fonts.gstatic.com' ) !== false ) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Return the plugin canvas template when the current main-query page
-     * hosts the dashboard shortcode and the canvas toggle is on. Otherwise
-     * pass the resolved template through untouched.
+     * hosts the dashboard shortcode. Otherwise pass the resolved template
+     * through untouched.
      */
     public static function maybeCanvasTemplate( string $template ): string {
         if ( ! self::shouldTakeOver() ) {
@@ -75,7 +147,8 @@ class CanvasShell {
 
     /**
      * True when the singular main-query post embeds the dashboard
-     * shortcode and the academy has not opted out of canvas mode.
+     * shortcode. Canvas mode is mandatory (#1728) — there is no opt-out;
+     * the guards here are correctness, not preference.
      */
     private static function shouldTakeOver(): bool {
         if ( is_admin() || is_feed() || is_embed() ) {
@@ -84,25 +157,10 @@ class CanvasShell {
         if ( ! is_singular() ) {
             return false;
         }
-        if ( ! self::isCanvasEnabled() ) {
-            return false;
-        }
         $post = get_post();
         if ( ! $post instanceof \WP_Post ) {
             return false;
         }
         return has_shortcode( (string) $post->post_content, 'talenttrack_dashboard' );
-    }
-
-    /**
-     * Read the club-scoped toggle. Default ON (academy opt-out) — a fresh
-     * install with no seeded value still renders full-canvas.
-     */
-    public static function isCanvasEnabled(): bool {
-        if ( ! class_exists( '\\TT\\Infrastructure\\Config\\ConfigService' ) ) {
-            return true;
-        }
-        $cfg = \TT\Core\Kernel::instance()->container()->get( 'config' );
-        return $cfg->getBool( self::CONFIG_KEY, true );
     }
 }

@@ -1,5 +1,12 @@
 <!-- type: feat -->
 
+> **Partially superseded by #1728 (v4.45.26).** The WP-theme-inheritance
+> half of this spec — the `theme_inherit` toggle, the `body.tt-theme-inherit`
+> CSS contract, and `BrandStyles::addBodyClass()` — was removed. Canvas mode
+> now strips all non-TalentTrack CSS for total visual isolation, so deferring
+> styling to the host theme no longer makes sense. The curated-styling half
+> (fonts + semantic colour palette) is still in force.
+
 # #0023 — Styling options + WP-theme inheritance
 
 ## Problem
