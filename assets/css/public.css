@@ -339,7 +339,7 @@
    and the buttons frequently wrapped to a second row of their own,
    pushing the H1 down further. Three 48px circles fit beside the
    H1 on most phones at 360px width. */
-@media (max-width: 767px) {
+@media (max-width: 768px) {
     .tt-page-head { gap: 8px; }
     .tt-page-actions { gap: 6px; }
     .tt-page-actions .tt-btn.is-icon {

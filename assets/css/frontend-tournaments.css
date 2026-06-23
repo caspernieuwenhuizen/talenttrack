@@ -181,7 +181,7 @@
 }
 
 /* ---- Scale up ------------------------------------------------------ */
-@media (min-width: 560px) {
+@media (min-width: 480px) {
     .tt-dashboard .tt-tour-kpis {
         grid-template-columns: repeat(3, 1fr);
     }

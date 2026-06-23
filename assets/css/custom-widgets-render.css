@@ -89,7 +89,7 @@
     padding: 12px 14px;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 768px) {
     .tt-cw-render { padding: 10px 12px; }
     .tt-cw-render .tt-cw-kpi-value { font-size: 32px; }
 }

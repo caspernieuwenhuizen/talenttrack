@@ -15,17 +15,17 @@
  */
 
 .tt-tournament-wizard {
-    --ttw-ink:        var(--tt-ink, #1a1d21);
-    --ttw-ink-soft:   var(--tt-ink-soft, #5b6e75);
+    --ttw-ink:        var(--tt-ink, #0e1a14);
+    --ttw-ink-soft:   var(--tt-ink-soft, #6a6d66);
     --ttw-paper:      var(--tt-paper, #ffffff);
-    --ttw-bg:         var(--tt-bg, #f5f7f6);
-    --ttw-line:       var(--tt-line, #d6dadd);
-    --ttw-line-soft:  #e9ecef;
-    --ttw-accent:     var(--tt-accent, #2271b1);
-    --ttw-accent-15:  rgba(34, 113, 177, 0.15);
-    --ttw-success:    var(--tt-success, #2e7d4f);
+    --ttw-bg:         var(--tt-bg-soft, #f4f6f3);
+    --ttw-line:       var(--tt-line, #e3e6e1);
+    --ttw-line-soft:  var(--tt-line-soft, #eef0ec);
+    --ttw-accent:     var(--tt-primary, #0b3d2e);
+    --ttw-accent-15:  rgba(11, 61, 46, 0.15);
+    --ttw-success:    var(--tt-success, #2f9e5e);
     --ttw-warn:       var(--tt-warn, #c75c1f);
-    --ttw-danger:     var(--tt-danger, #d63638);
+    --ttw-danger:     var(--tt-danger, #d8453b);
     --ttw-mute:       #f0f3f2;
     --ttw-radius:     10px;
     --ttw-radius-sm:  6px;
@@ -531,7 +531,7 @@
     .tt-tournament-wizard .ttw-review-matches .ttw-meta { flex-basis: auto; }
 }
 
-@media (min-width: 640px) {
+@media (min-width: 480px) {
     .tt-tournament-wizard .ttw-field-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .tt-tournament-wizard .ttw-card { padding: 1.375rem; }
     .tt-tournament-wizard .ttw-formation-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }

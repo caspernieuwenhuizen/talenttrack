@@ -209,7 +209,7 @@
 
 /* Mobile (admin viewport ≤720px) — single-column step body, larger
    inputs. The stepper wraps naturally. */
-@media (max-width: 720px) {
+@media (max-width: 768px) {
     .tt-cw-step-body { padding: 16px; }
     .tt-cw-filter-row { grid-template-columns: 1fr; }
 }
