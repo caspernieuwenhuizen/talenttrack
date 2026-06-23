@@ -10,12 +10,14 @@ Open de tegel **Methodologie** in de groep **Naslag** van het dashboard.
 
 ## Zes tabbladen
 
-1. **Raamwerk** — de introductie van je academie: inleiding, het voetbalmodel, voetbalhandelingen, de vier fasen van aanvallen en verdedigen, leerdoelen, factoren van invloed en reflectie. Elke sectie kan illustraties dragen.
-2. **Spelprincipes** — gecodeerde principes zoals AO-01 (opbouw) of VS-02 (storen). Elk bevat toelichting, sturing op teamniveau, sturing per linie (aanvallers / middenvelders / verdedigers / keeper), een formatiediagram en een primaire illustratie.
+De tabbladen beginnen met **Visie** — de speelvisie van de club opent standaard, zodat je eerst ziet waar de academie naartoe wil voordat je het raamwerk als naslag opent.
+
+1. **Visie** — het overkoepelende record van de club: gekozen formatie, speelstijl, speelwijze en belangrijke spelerseigenschappen.
+2. **Raamwerk** — de introductie van je academie: inleiding, het voetbalmodel, voetbalhandelingen, de vier fasen van aanvallen en verdedigen, leerdoelen, factoren van invloed en reflectie. Elke sectie kan illustraties dragen. De secties zijn **inklapbaar** — de eerste opent automatisch en de rest staat ingeklapt; klap open wat je nodig hebt. Je open/dicht-keuzes worden onthouden voor je volgende bezoek.
 3. **Formaties & posities** — de formatievisual plus een rolkaart per rugnummer. Positiekaarten tonen aanvallende en verdedigende taken en een optioneel diagram.
-4. **Spelhervattingen** — corners, vrije trappen, penalty's en inworpen, met illustraties, in aanvallende en verdedigende varianten.
-5. **Visie** — het overkoepelende record van de club: gekozen formatie, speelstijl, speelwijze en belangrijke spelerseigenschappen.
-6. **Voetbalhandelingen** — de catalogus voetbalhandelingen (aannemen, passen, dribbelen, schieten, koppen, plus vrijlopen, knijpen, jagen, dekken en ondersteunende handelingen zoals spelinzicht en communicatie).
+4. **Spelprincipes** — gecodeerde principes zoals AO-01 (opbouw) of VS-02 (storen). Elk bevat toelichting, sturing op teamniveau, sturing per linie (aanvallers / middenvelders / verdedigers / keeper), een formatiediagram en een primaire illustratie.
+5. **Voetbalhandelingen** — de catalogus voetbalhandelingen (aannemen, passen, dribbelen, schieten, koppen, plus vrijlopen, knijpen, jagen, dekken en ondersteunende handelingen zoals spelinzicht en communicatie).
+6. **Spelhervattingen** — corners, vrije trappen, penalty's en inworpen, met illustraties, in aanvallende en verdedigende varianten.
 
 ## Twee soorten inhoud
 
