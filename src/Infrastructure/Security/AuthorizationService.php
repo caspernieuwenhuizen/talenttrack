@@ -559,6 +559,42 @@ class AuthorizationService {
             }
         }
 
+        // Source 4: derived `parent` role (#1724).
+        // A guardian is linked to their child(ren) via the
+        // `tt_player_parents` pivot (written at invitation acceptance).
+        // The link alone grants no authorization, and the parent role's
+        // `players.view_own_children` permission only resolves when it is
+        // SCOPED to the specific child. Mirror Source 3: derive the parent
+        // role scoped to each linked child at runtime so a guardian can
+        // read their own child's record — and ONLY their own. Filtered by
+        // `parent_user_id`, so a guardian never gains scope over a
+        // co-parent's view or any other child (#1725).
+        $children_player_ids = $wpdb->get_col( $wpdb->prepare(
+            "SELECT pp.player_id
+               FROM {$wpdb->prefix}tt_player_parents pp
+               INNER JOIN {$wpdb->prefix}tt_players p
+                       ON p.id = pp.player_id AND p.club_id = pp.club_id
+              WHERE pp.parent_user_id = %d
+                AND pp.club_id = %d
+                AND p.status = 'active'",
+            $user_id, CurrentClub::id()
+        ) );
+        if ( is_array( $children_player_ids ) && ! empty( $children_player_ids ) ) {
+            $perms_parent = self::getPermissionsForRoleKey( 'parent' );
+            foreach ( $children_player_ids as $pid ) {
+                $scopes[] = [
+                    'role_key'    => 'parent',
+                    'scope_type'  => 'player',
+                    'scope_id'    => (int) $pid,
+                    'permissions' => $perms_parent,
+                    'source'      => 'derived_parent_link',
+                    'scope_id_pk' => null,
+                    'start_date'  => null,
+                    'end_date'    => null,
+                ];
+            }
+        }
+
         /**
          * Filter the resolved scope list for a user. Third parties can add
          * or modify entries without writing to tt_user_role_scopes.

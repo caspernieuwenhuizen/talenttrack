@@ -61,6 +61,12 @@ class PlayerParentsRepository {
         ) );
 
         $this->reprojectPrimary( $playerId );
+
+        // #1724 — the parent's view scope on this child is derived at
+        // runtime in AuthorizationService from this pivot. Flush the
+        // resolved-permission cache so the grant takes effect within the
+        // same request (e.g. invitation accept → immediate dashboard).
+        do_action( 'tt_role_granted' );
         return true;
     }
 
@@ -99,6 +105,9 @@ class PlayerParentsRepository {
         }
 
         $this->reprojectPrimary( $playerId );
+
+        // #1724 — flush derived parent-scope cache (see link()).
+        do_action( 'tt_role_granted' );
         return true;
     }
 

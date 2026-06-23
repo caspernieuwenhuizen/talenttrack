@@ -53,6 +53,8 @@ This means custom code or plugins checking legacy cap names continue to work wit
 
 Assign roles via **Access Control → Roles & Permissions** or WordPress's standard Users admin.
 
+A **parent's** access to their child is derived automatically from the parent–child link (set when the parent accepts their invitation): the parent role is granted, scoped to each linked child, at the moment it's needed. A guardian can read only their own linked child(ren)'s records — never another family's child, and never the other guardians linked to the same child.
+
 ## Read-Only Observer
 
 v3.0.0 makes this role meaningful across the whole plugin. An observer can:
