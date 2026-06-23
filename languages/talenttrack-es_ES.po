@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-23T19:58:15+00:00\n"
+"POT-Creation-Date: 2026-06-23T20:06:51+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -114,6 +114,7 @@ msgstr ""
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:93
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:99
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:157
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:147
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:59
 #: src/Modules/Stats/Admin/PlayerCardView.php:262
 #: src/Modules/Stats/Admin/PlayerRateCardsPage.php:58
@@ -147,10 +148,9 @@ msgstr ""
 #: src/Shared/Frontend/FrontendEvaluationsView.php:153
 #: src/Shared/Frontend/FrontendEvaluationsView.php:167
 #: src/Shared/Frontend/FrontendEvaluationsView.php:351
-#: src/Shared/Frontend/FrontendGoalsManageView.php:171
-#: src/Shared/Frontend/FrontendGoalsManageView.php:262
-#: src/Shared/Frontend/FrontendGoalsManageView.php:287
-#: src/Shared/Frontend/FrontendGoalsManageView.php:379
+#: src/Shared/Frontend/FrontendGoalsManageView.php:283
+#: src/Shared/Frontend/FrontendGoalsManageView.php:308
+#: src/Shared/Frontend/FrontendGoalsManageView.php:400
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:83
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:291
 #: src/Shared/Frontend/FrontendPlayersCsvImportView.php:116
@@ -436,7 +436,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendEvalCategoriesView.php:132
 #: src/Shared/Frontend/FrontendEvaluationsView.php:288
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:199
-#: src/Shared/Frontend/FrontendGoalsManageView.php:92
+#: src/Shared/Frontend/FrontendGoalsManageView.php:93
 #: src/Shared/Frontend/FrontendHolidaysView.php:66
 #: src/Shared/Frontend/FrontendPersonDetailView.php:68
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:382
@@ -820,7 +820,8 @@ msgstr ""
 #: src/Shared/Admin/BulkActionsHelper.php:98
 #: src/Shared/Frontend/FrontendEvalCategoriesView.php:182
 #: src/Shared/Frontend/FrontendEvaluationsView.php:187
-#: src/Shared/Frontend/FrontendGoalsManageView.php:313
+#: src/Shared/Frontend/FrontendGoalsManageView.php:334
+#: src/Shared/Frontend/FrontendMyGoalsView.php:61
 #: src/Shared/Frontend/FrontendPeopleManageView.php:118
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1653
 #: src/Shared/Frontend/FrontendPlayersManageView.php:214
@@ -1005,7 +1006,7 @@ msgstr "Otro"
 #: src/Shared/Admin/BulkActionsHelper.php:99
 #: src/Shared/Frontend/FrontendEvaluationsView.php:188
 #: src/Shared/Frontend/FrontendExportsView.php:124
-#: src/Shared/Frontend/FrontendGoalsManageView.php:314
+#: src/Shared/Frontend/FrontendGoalsManageView.php:335
 #: src/Shared/Frontend/FrontendPeopleManageView.php:119
 #: src/Shared/Frontend/FrontendPlayersManageView.php:215
 #: src/Shared/Frontend/FrontendTeamDetailView.php:185
@@ -2415,7 +2416,7 @@ msgstr "Fecha"
 #: src/Shared/Frontend/CoachForms.php:523
 #: src/Shared/Frontend/CoachForms.php:589
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1633
-#: src/Shared/Frontend/FrontendGoalsManageView.php:395
+#: src/Shared/Frontend/FrontendGoalsManageView.php:416
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:58
 #: src/Shared/Frontend/FrontendTeamDetailView.php:687
 #: src/Shared/Frontend/FrontendTrialCaseView.php:427
@@ -2554,10 +2555,9 @@ msgstr "Tipo"
 #: src/Shared/Frontend/FrontendExportsView.php:92
 #: src/Shared/Frontend/FrontendExportsView.php:120
 #: src/Shared/Frontend/FrontendExportsView.php:236
-#: src/Shared/Frontend/FrontendGoalsManageView.php:181
-#: src/Shared/Frontend/FrontendGoalsManageView.php:266
-#: src/Shared/Frontend/FrontendGoalsManageView.php:292
-#: src/Shared/Frontend/FrontendGoalsManageView.php:414
+#: src/Shared/Frontend/FrontendGoalsManageView.php:287
+#: src/Shared/Frontend/FrontendGoalsManageView.php:313
+#: src/Shared/Frontend/FrontendGoalsManageView.php:435
 #: src/Shared/Frontend/FrontendMigrationsView.php:67
 #: src/Shared/Frontend/FrontendPeopleManageView.php:116
 #: src/Shared/Frontend/FrontendPersonDetailView.php:118
@@ -2687,7 +2687,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:287
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:295
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:324
-#: src/Shared/Frontend/FrontendGoalsManageView.php:282
+#: src/Shared/Frontend/FrontendGoalsManageView.php:303
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:60
 #: src/Shared/Frontend/FrontendMyProfileView.php:97
 #: src/Shared/Frontend/FrontendPeopleManageView.php:111
@@ -3263,11 +3263,11 @@ msgstr ""
 #: src/Shared/CoreSurfaceRegistration.php:1712
 #: src/Shared/Frontend/FrontendConfigurationView.php:234
 #: src/Shared/Frontend/FrontendExportsView.php:361
-#: src/Shared/Frontend/FrontendGoalsManageView.php:43
-#: src/Shared/Frontend/FrontendGoalsManageView.php:47
-#: src/Shared/Frontend/FrontendGoalsManageView.php:50
-#: src/Shared/Frontend/FrontendGoalsManageView.php:53
-#: src/Shared/Frontend/FrontendGoalsManageView.php:149
+#: src/Shared/Frontend/FrontendGoalsManageView.php:44
+#: src/Shared/Frontend/FrontendGoalsManageView.php:48
+#: src/Shared/Frontend/FrontendGoalsManageView.php:51
+#: src/Shared/Frontend/FrontendGoalsManageView.php:54
+#: src/Shared/Frontend/FrontendGoalsManageView.php:150
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:153
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:510
 #: src/Shared/Frontend/FrontendTrialCaseView.php:422
@@ -3290,10 +3290,9 @@ msgstr "Objetivos"
 #: src/Shared/Frontend/CoachDashboardView.php:313
 #: src/Shared/Frontend/CoachForms.php:591
 #: src/Shared/Frontend/CoachForms.php:606
-#: src/Shared/Frontend/FrontendGoalsManageView.php:185
-#: src/Shared/Frontend/FrontendGoalsManageView.php:264
-#: src/Shared/Frontend/FrontendGoalsManageView.php:297
-#: src/Shared/Frontend/FrontendGoalsManageView.php:399
+#: src/Shared/Frontend/FrontendGoalsManageView.php:285
+#: src/Shared/Frontend/FrontendGoalsManageView.php:318
+#: src/Shared/Frontend/FrontendGoalsManageView.php:420
 #: src/Shared/Frontend/FrontendTrialCaseView.php:427
 msgid "Priority"
 msgstr "Prioridad"
@@ -3329,7 +3328,7 @@ msgstr ""
 #: src/Modules/Analytics/AnalyticsModule.php:205
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:161
 #: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:228
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:209
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:231
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:36
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:41
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:42
@@ -4038,8 +4037,8 @@ msgstr ""
 #: src/Modules/People/Admin/PeoplePage.php:342
 #: src/Modules/Players/Admin/PlayersPage.php:410
 #: src/Modules/Translations/Admin/TranslationsConfigTab.php:68
-#: src/Shared/Frontend/FrontendGoalsManageView.php:443
-#: src/Shared/Frontend/FrontendGoalsManageView.php:465
+#: src/Shared/Frontend/FrontendGoalsManageView.php:464
+#: src/Shared/Frontend/FrontendGoalsManageView.php:486
 #: src/Shared/Frontend/FrontendPeopleManageView.php:185
 #: src/Shared/Frontend/FrontendPlayerStatusCaptureView.php:171
 msgid "— None —"
@@ -4382,8 +4381,8 @@ msgstr ""
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:230
 #: src/Shared/Frontend/FrontendEvaluationsView.php:185
 #: src/Shared/Frontend/FrontendEvaluationsView.php:294
-#: src/Shared/Frontend/FrontendGoalsManageView.php:116
-#: src/Shared/Frontend/FrontendGoalsManageView.php:311
+#: src/Shared/Frontend/FrontendGoalsManageView.php:117
+#: src/Shared/Frontend/FrontendGoalsManageView.php:332
 #: src/Shared/Frontend/FrontendPersonDetailView.php:74
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:407
 #: src/Shared/Frontend/FrontendTeamDetailView.php:282
@@ -4932,8 +4931,9 @@ msgstr "Clave"
 #: src/Shared/Frontend/FrontendConfigurationView.php:979
 #: src/Shared/Frontend/FrontendEvalCategoriesView.php:187
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:237
-#: src/Shared/Frontend/FrontendGoalsManageView.php:193
-#: src/Shared/Frontend/FrontendGoalsManageView.php:428
+#: src/Shared/Frontend/FrontendGoalsManageView.php:213
+#: src/Shared/Frontend/FrontendGoalsManageView.php:449
+#: src/Shared/Frontend/FrontendMyGoalsView.php:226
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:112
 msgid "Description"
 msgstr "Descripción"
@@ -9784,7 +9784,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:104
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:84
 #: src/Modules/Wizards/Goal/DetailsStep.php:25
-#: src/Shared/Frontend/FrontendGoalsManageView.php:390
+#: src/Shared/Frontend/FrontendGoalsManageView.php:411
 msgid "Due date"
 msgstr ""
 
@@ -14170,7 +14170,7 @@ msgstr ""
 #: src/Modules/Workflow/Forms/GoalSettingForm.php:47
 #: src/Shared/Frontend/CoachDashboardView.php:312
 #: src/Shared/Frontend/CoachForms.php:605
-#: src/Shared/Frontend/FrontendGoalsManageView.php:263
+#: src/Shared/Frontend/FrontendGoalsManageView.php:284
 msgid "Goal"
 msgstr "Objetivo"
 
@@ -14209,7 +14209,7 @@ msgid "Due Date"
 msgstr "Fecha de vencimiento"
 
 #: src/Modules/Goals/Admin/GoalsPage.php:157
-#: src/Shared/Frontend/FrontendGoalsManageView.php:441
+#: src/Shared/Frontend/FrontendGoalsManageView.php:462
 msgid "Linked principle"
 msgstr ""
 
@@ -14218,7 +14218,7 @@ msgid "Optional. Links this goal to a methodology principle."
 msgstr ""
 
 #: src/Modules/Goals/Admin/GoalsPage.php:181
-#: src/Shared/Frontend/FrontendGoalsManageView.php:463
+#: src/Shared/Frontend/FrontendGoalsManageView.php:484
 msgid "Linked football action"
 msgstr ""
 
@@ -14812,7 +14812,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendExportsView.php:196
 #: src/Shared/Frontend/FrontendExportsView.php:240
 #: src/Shared/Frontend/FrontendExportsView.php:642
-#: src/Shared/Frontend/FrontendGoalsManageView.php:315
+#: src/Shared/Frontend/FrontendGoalsManageView.php:336
 #: src/Shared/Frontend/FrontendPlayersManageView.php:216
 #: src/Shared/Frontend/FrontendTeamsManageView.php:185
 #: src/Shared/Frontend/FrontendTrialsManageView.php:187
@@ -19125,9 +19125,9 @@ msgstr ""
 # #0028 — Conversational goals (thread primitive + goal adapter)
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1048
 #: src/Shared/Frontend/Components/FrontendThreadView.php:52
-#: src/Shared/Frontend/FrontendGoalsManageView.php:204
-#: src/Shared/Frontend/FrontendGoalsManageView.php:506
-#: src/Shared/Frontend/FrontendMyGoalsView.php:152
+#: src/Shared/Frontend/FrontendGoalsManageView.php:225
+#: src/Shared/Frontend/FrontendGoalsManageView.php:527
+#: src/Shared/Frontend/FrontendMyGoalsView.php:243
 msgid "Conversation"
 msgstr "Conversación"
 
@@ -19451,8 +19451,7 @@ msgstr ""
 #: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:249
 #: src/Shared/Frontend/CoachDashboardView.php:314
 #: src/Shared/Frontend/CoachForms.php:607
-#: src/Shared/Frontend/FrontendGoalsManageView.php:189
-#: src/Shared/Frontend/FrontendGoalsManageView.php:277
+#: src/Shared/Frontend/FrontendGoalsManageView.php:298
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1521
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1525
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1532
@@ -20280,8 +20279,8 @@ msgstr ""
 #: src/Shared/CoreSurfaceRegistration.php:280
 #: src/Shared/CoreSurfaceRegistration.php:1074
 #: src/Shared/Frontend/FrontendMyGoalsView.php:30
-#: src/Shared/Frontend/FrontendMyGoalsView.php:37
 #: src/Shared/Frontend/FrontendMyGoalsView.php:38
+#: src/Shared/Frontend/FrontendMyGoalsView.php:39
 msgid "My goals"
 msgstr ""
 
@@ -20715,7 +20714,7 @@ msgstr ""
 
 #: src/Modules/PersonaDashboard/TableSources/MyRecentProspectsSource.php:90
 #: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:233
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:214
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:236
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:57
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:204
 #: src/Modules/Prospects/Rest/ProspectsRestController.php:179
@@ -21293,7 +21292,6 @@ msgstr[0] "%d vastgelopen"
 msgstr[1] "%d vastgelopen"
 
 #: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:95
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:130
 msgid "stale"
 msgstr ""
 
@@ -21306,24 +21304,24 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:229
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:210
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:232
 msgid "Invited"
 msgstr ""
 
 #: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:230
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:211
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:233
 msgid "Test training"
 msgstr ""
 
 #. translators: %s: age group label, e.g. "U13"
 #: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:231
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:212
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:234
 #: src/Modules/Trials/TrialGroupTeam.php:40
 msgid "Trial group"
 msgstr ""
 
 #: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:232
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:213
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:235
 msgid "Team offer"
 msgstr ""
 
@@ -22211,44 +22209,48 @@ msgstr ""
 msgid "+ New prospect"
 msgstr ""
 
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:151
+msgid "Action needed"
+msgstr ""
+
 #. translators: %s: 4-digit birth year.
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:248
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:270
 #, php-format
 msgid "born %s"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:279
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:318
 msgid "Awaiting HoD to send the invite"
 msgstr ""
 
 #. translators: %s: discovery event / match label.
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:282
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:321
 #, php-format
 msgid "Discovered: %s"
 msgstr ""
 
 #. translators: %s: discovery event / match label.
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:283
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:322
 msgid "Drafted, not yet handed to HoD"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:286
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:325
 msgid "Invitation sent, awaiting parent"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:288
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:327
 msgid "Awaiting outcome"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:290
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:329
 msgid "In trial group"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:292
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:331
 msgid "Team offer pending"
 msgstr ""
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:294
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:333
 msgid "Promoted to academy"
 msgstr ""
 
@@ -23497,7 +23499,7 @@ msgid "— none —"
 msgstr ""
 
 #: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:99
-#: src/Shared/Frontend/FrontendGoalsManageView.php:494
+#: src/Shared/Frontend/FrontendGoalsManageView.php:515
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:999
 msgid "Add goal"
 msgstr ""
@@ -24682,8 +24684,8 @@ msgid ""
 msgstr ""
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:243
-#: src/Shared/Frontend/FrontendGoalsManageView.php:516
-#: src/Shared/Frontend/FrontendMyGoalsView.php:155
+#: src/Shared/Frontend/FrontendGoalsManageView.php:537
+#: src/Shared/Frontend/FrontendMyGoalsView.php:246
 msgid "How does this work?"
 msgstr ""
 
@@ -27720,9 +27722,9 @@ msgid "Pick the entity to link"
 msgstr ""
 
 #: src/Modules/Wizards/Goal/NewGoalWizard.php:16
-#: src/Shared/Frontend/FrontendGoalsManageView.php:46
-#: src/Shared/Frontend/FrontendGoalsManageView.php:58
-#: src/Shared/Frontend/FrontendGoalsManageView.php:143
+#: src/Shared/Frontend/FrontendGoalsManageView.php:47
+#: src/Shared/Frontend/FrontendGoalsManageView.php:59
+#: src/Shared/Frontend/FrontendGoalsManageView.php:144
 msgid "New goal"
 msgstr "Nuevo objetivo"
 
@@ -32469,80 +32471,87 @@ msgstr ""
 msgid "Save assignment"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:49
+#: src/Shared/Frontend/FrontendGoalsManageView.php:50
 msgid "Edit goal"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:52
+#: src/Shared/Frontend/FrontendGoalsManageView.php:53
 #: src/Shared/Frontend/FrontendMyGoalsView.php:29
 msgid "Goal detail"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:69
+#: src/Shared/Frontend/FrontendGoalsManageView.php:70
 #, php-format
 msgid "Edit goal — %s"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:69
-#: src/Shared/Frontend/FrontendGoalsManageView.php:126
-#: src/Shared/Frontend/FrontendMyGoalsView.php:113
+#: src/Shared/Frontend/FrontendGoalsManageView.php:70
+#: src/Shared/Frontend/FrontendGoalsManageView.php:127
+#: src/Shared/Frontend/FrontendMyGoalsView.php:201
 msgid "Goal not found"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:71
-#: src/Shared/Frontend/FrontendGoalsManageView.php:130
+#: src/Shared/Frontend/FrontendGoalsManageView.php:72
+#: src/Shared/Frontend/FrontendGoalsManageView.php:131
 msgid "That goal no longer exists."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:109
+#: src/Shared/Frontend/FrontendGoalsManageView.php:110
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:997
 msgid "Print doelenintake"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:120
+#: src/Shared/Frontend/FrontendGoalsManageView.php:121
 msgid "Archive this goal? It will be hidden but the data is preserved."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:304
+#: src/Shared/Frontend/FrontendGoalsManageView.php:190
+#: src/Shared/Frontend/FrontendMyGoalsView.php:102
+#: src/Shared/Frontend/FrontendMyGoalsView.php:221
+#: src/Shared/Frontend/PlayerDashboardView.php:141
+msgid "Due:"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendGoalsManageView.php:325
 msgid "Due from"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:305
+#: src/Shared/Frontend/FrontendGoalsManageView.php:326
 msgid "Due to"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:320
+#: src/Shared/Frontend/FrontendGoalsManageView.php:341
 msgid "Search title, description, player…"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:322
+#: src/Shared/Frontend/FrontendGoalsManageView.php:343
 msgid "No goals match your filters."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:326
+#: src/Shared/Frontend/FrontendGoalsManageView.php:347
 msgid "No goals yet"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:327
+#: src/Shared/Frontend/FrontendGoalsManageView.php:348
 msgid ""
 "Goals capture what each player is working on this season. Set the first one "
 "to give training a direction."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:328
+#: src/Shared/Frontend/FrontendGoalsManageView.php:349
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:962
 msgid "Add first goal"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:452
+#: src/Shared/Frontend/FrontendGoalsManageView.php:473
 msgid "Optional. Anchor this goal to a methodology principle."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:482
+#: src/Shared/Frontend/FrontendGoalsManageView.php:503
 msgid "Optional. Anchor this goal to a single football action."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendGoalsManageView.php:494
+#: src/Shared/Frontend/FrontendGoalsManageView.php:515
 msgid "Update goal"
 msgstr ""
 
@@ -33057,31 +33066,37 @@ msgstr ""
 msgid "Hide detail"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyGoalsView.php:48
+#: src/Shared/Frontend/FrontendMyGoalsView.php:49
 msgid ""
 "No goals assigned yet. Your coaches will add development goals here as you "
 "progress."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyGoalsView.php:74
-#: src/Shared/Frontend/FrontendMyGoalsView.php:131
-#: src/Shared/Frontend/PlayerDashboardView.php:141
-msgid "Due:"
+#: src/Shared/Frontend/FrontendMyGoalsView.php:62
+msgid "Achieved"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendMyGoalsView.php:63
+msgid "Missed"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendMyGoalsView.php:79
+msgid "Nothing here yet."
 msgstr ""
 
 #. translators: %d is the number of messages on this goal's conversation thread.
-#: src/Shared/Frontend/FrontendMyGoalsView.php:81
+#: src/Shared/Frontend/FrontendMyGoalsView.php:113
 #, php-format
 msgid "Open conversation (%d message)"
 msgid_plural "Open conversation (%d messages)"
 msgstr[0] "Open gesprek (%d bericht)"
 msgstr[1] "Open gesprek (%d berichten)"
 
-#: src/Shared/Frontend/FrontendMyGoalsView.php:84
+#: src/Shared/Frontend/FrontendMyGoalsView.php:116
 msgid "Open goal &amp; start the conversation"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMyGoalsView.php:114
+#: src/Shared/Frontend/FrontendMyGoalsView.php:202
 msgid "That goal is no longer available, or it does not belong to your record."
 msgstr ""
 
