@@ -504,15 +504,19 @@ release-plumbing files:
   implementation agent for that issue: work it in its own worktree;
   change ONLY its feature/fix files, its docs (EN + `docs/nl_NL/`), and
   its new `languages/talenttrack-nl_NL.po` strings; drop a
-  `changelog.d/<issue>-<slug>.md` note; open a PR. Do **NOT** bump the
-  version or touch `CHANGES.md` / `readme.txt` / `SEQUENCE.md` / `.mo`.
+  `changelog.d/<issue>-<slug>.md` note (add a `Bump: minor` / `major` line
+  when the change warrants it per §9 — default patch); open a PR. Do
+  **NOT** bump the version or touch `CHANGES.md` / `readme.txt` /
+  `SEQUENCE.md` / `.mo`.
   Multiple issues after one trigger (`co #1731 #1732`) = one agent doing
   them in sequence; separate agents are launched per the user's parallel
   set.
-- **`release <version>`** → act as the release agent: run
-  `tools/release.ps1 <version>`, review the diff, commit, and push to
-  `main` (which triggers `auto-release.yml`). Equivalent to the batched
-  finish of a parallel drain.
+- **`release`** (optionally **`release <version>`** to override) → act as
+  the release agent: run `tools/release.ps1` — it auto-computes the next
+  version from the current `talenttrack.php` version + the highest `Bump:`
+  across the `changelog.d` snippets (default patch) — then review the
+  diff, commit, and push to `main` (which triggers `auto-release.yml`).
+  Equivalent to the batched finish of a parallel drain.
 
 ### The label
 

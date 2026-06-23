@@ -288,11 +288,13 @@ understands them — you don't type the full rule):
   agent. Means: work that issue, content + docs + its Dutch strings only,
   drop a `changelog.d` note, open a PR; don't touch version / changelog /
   `SEQUENCE.md` / `.mo`. Launch one such agent per file-disjoint issue.
-- **`release <version>`** — to the release agent. Means: run
-  `tools/release.ps1 <version>`, review, commit, push to main.
+- **`release`** (or `release <version>` to override) — to the release
+  agent. Means: run `tools/release.ps1` — it works out the next version
+  itself from the snippets' `Bump:` levels — then review, commit, push to
+  main.
 
 So a parallel drain is just, e.g., `co #1731` in one terminal, `co #1732`
-in another, then `release 4.46.0` once they're merged.
+in another, then `release` once they're merged.
 
 ---
 
