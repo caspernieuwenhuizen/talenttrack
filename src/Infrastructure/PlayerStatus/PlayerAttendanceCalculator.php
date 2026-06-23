@@ -33,6 +33,16 @@ final class PlayerAttendanceCalculator {
         // #996 — `tt_attendance.status` stores the canonical lowercase
         // values per the contract in AttendanceStatus. The pre-fix
         // TitleCase literals here silently missed every row.
+        //
+        // #1382 — PLAYER-level load includes guest appearances. A player
+        // guesting for another team has an attendance row on an activity
+        // owned by that other team, recorded either as `player_id =
+        // <id>` (is_guest = 1) or `guest_player_id = <id>` (player_id
+        // NULL). Match both forms and drop the `is_guest = 0` filter so a
+        // played-up player's load reflects everything they actually did.
+        // Team-level statistics keep their `is_guest = 0` filter elsewhere
+        // (TeamKpisRepository, AttendanceRankingQuery) — this inclusivity
+        // is player-scoped only.
         $row = $wpdb->get_row( $wpdb->prepare(
             "SELECT
                 COUNT(*) AS sessions,
@@ -42,9 +52,8 @@ final class PlayerAttendanceCalculator {
               FROM {$wpdb->prefix}tt_attendance att
               JOIN {$wpdb->prefix}tt_activities act
                 ON act.id = att.activity_id AND act.club_id = att.club_id
-             WHERE att.player_id = %d
+             WHERE ( att.player_id = %d OR att.guest_player_id = %d )
                AND att.club_id = %d
-               AND att.is_guest = 0
                AND att.record_type = 'actual'
                AND act.plan_state = 'completed'
                AND act.session_date >= %s
@@ -52,7 +61,7 @@ final class PlayerAttendanceCalculator {
             AttendanceStatus::PRESENT,
             AttendanceStatus::ABSENT,
             AttendanceStatus::EXCUSED,
-            $player_id, CurrentClub::id(), $from, $to
+            $player_id, $player_id, CurrentClub::id(), $from, $to
         ), ARRAY_A );
 
         $sessions = (int) ( $row['sessions'] ?? 0 );

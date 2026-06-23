@@ -8,7 +8,6 @@ use TT\Infrastructure\CustomFields\CustomValuesRepository;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Stats\PlayerStatsService;
 use TT\Shared\Frontend\CustomFieldRenderer;
-use TT\Shared\Frontend\Components\RatingPillComponent;
 
 /**
  * FrontendOverviewView — the player's "My card" tile destination.
@@ -25,6 +24,12 @@ class FrontendOverviewView extends FrontendViewBase {
 
     public static function render( object $player ): void {
         self::enqueueAssets();
+        wp_enqueue_style(
+            'tt-frontend-overview',
+            TT_PLUGIN_URL . 'assets/css/frontend-overview.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'My card', 'talenttrack' ) );
         self::renderHeader( __( 'My card', 'talenttrack' ) );
 
@@ -35,24 +40,30 @@ class FrontendOverviewView extends FrontendViewBase {
         $alltime = isset( $heads['alltime'] ) && $heads['alltime'] !== null ? (float) $heads['alltime'] : null;
 
         ?>
-        <section class="tt-mc">
-            <?php self::renderHeroStrip( $player, $rolling, $alltime, $max ); ?>
+        <section class="tt-ov">
+            <?php
+            self::renderHeroStrip( $player, $rolling, $alltime, $max );
+            self::renderKpiRow( $heads, $max );
+            ?>
 
-            <div class="tt-mc-grid">
-                <div class="tt-mc-side">
+            <div class="tt-ov-grid">
+                <div class="tt-ov-side">
                     <?php self::renderCustomFields( (int) $player->id ); ?>
 
                     <?php
                     $radar = QueryHelpers::player_radar_datasets( (int) $player->id, 3 );
                     if ( ! empty( $radar['datasets'] ) ) :
                         ?>
-                        <div class="tt-mc-radar tt-radar-wrap">
-                            <?php echo QueryHelpers::radar_chart_svg( $radar['labels'], $radar['datasets'], $max ); ?>
+                        <div class="tt-ov-card">
+                            <h3 class="tt-ov-cf-heading"><?php esc_html_e( 'Skills profile', 'talenttrack' ); ?></h3>
+                            <div class="tt-ov-radar tt-radar-wrap">
+                                <?php echo QueryHelpers::radar_chart_svg( $radar['labels'], $radar['datasets'], $max ); ?>
+                            </div>
                         </div>
                     <?php endif; ?>
                 </div>
 
-                <div class="tt-mc-card" style="position:relative;">
+                <div class="tt-ov-card tt-ov-card--fifa">
                     <?php
                     // v3.92.2 — was a full-width "Print report" button
                     // anchored at the bottom of the side column. Pilot
@@ -94,9 +105,11 @@ class FrontendOverviewView extends FrontendViewBase {
     }
 
     /**
-     * Compact hero strip — photo + name + team + position + rolling
-     * rating pill. Lives at the top of the My card tile and replaces
-     * the previous "tt-card" + scattered <p> blocks.
+     * Player header card — photo + name + team / position / foot meta +
+     * an OVR rating badge (gold-on-green, borrows the 2026 deck's
+     * `.tag-ovr` language). The badge shows the player's headline rating
+     * (rolling "Last 5", falling back to all-time), or a warm
+     * "coming soon" state before the first evaluation.
      */
     private static function renderHeroStrip( object $player, ?float $rolling, ?float $alltime, float $max ): void {
         $name = QueryHelpers::player_display_name( $player );
@@ -104,20 +117,23 @@ class FrontendOverviewView extends FrontendViewBase {
         $pos  = json_decode( (string) $player->preferred_positions, true );
         $pos_str = is_array( $pos ) ? implode( ', ', $pos ) : '';
         $jersey  = $player->jersey_number ? '#' . (int) $player->jersey_number : '';
+
+        $ovr      = $rolling !== null ? $rolling : $alltime;
+        $ovr_kind = $rolling !== null ? __( 'Last 5', 'talenttrack' ) : __( 'All-time', 'talenttrack' );
         ?>
-        <header class="tt-mc-hero">
-            <div class="tt-mc-hero-photo">
+        <header class="tt-ov-hero">
+            <div class="tt-ov-hero-photo">
                 <?php if ( ! empty( $player->photo_url ) ) : ?>
                     <img src="<?php echo esc_url( (string) $player->photo_url ); ?>" alt="" />
                 <?php else : ?>
-                    <div class="tt-mc-hero-photo-placeholder" aria-hidden="true">
+                    <div class="tt-ov-hero-photo-ph" aria-hidden="true">
                         <?php echo esc_html( strtoupper( substr( (string) $player->first_name, 0, 1 ) . substr( (string) $player->last_name, 0, 1 ) ) ); ?>
                     </div>
                 <?php endif; ?>
             </div>
-            <div class="tt-mc-hero-body">
-                <h2 class="tt-mc-hero-name"><?php echo esc_html( $name ); ?></h2>
-                <p class="tt-mc-hero-meta">
+            <div class="tt-ov-hero-body">
+                <h2 class="tt-ov-hero-name"><?php echo esc_html( $name ); ?></h2>
+                <p class="tt-ov-hero-meta">
                     <?php
                     $bits = [];
                     if ( $team )            $bits[] = esc_html( (string) $team->name );
@@ -131,18 +147,76 @@ class FrontendOverviewView extends FrontendViewBase {
                     ?>
                 </p>
             </div>
-            <div class="tt-mc-hero-rating">
-                <?php if ( $rolling !== null ) : ?>
-                    <span class="tt-mc-hero-rating-label"><?php esc_html_e( 'Last 5', 'talenttrack' ); ?></span>
-                    <?php echo RatingPillComponent::chip( $rolling, $max ); ?>
-                <?php elseif ( $alltime !== null ) : ?>
-                    <span class="tt-mc-hero-rating-label"><?php esc_html_e( 'All-time', 'talenttrack' ); ?></span>
-                    <?php echo RatingPillComponent::chip( $alltime, $max ); ?>
-                <?php else : ?>
-                    <span class="tt-mc-hero-rating-empty"><?php esc_html_e( 'First evaluation coming soon', 'talenttrack' ); ?></span>
-                <?php endif; ?>
-            </div>
+            <?php if ( $ovr !== null ) : ?>
+                <div class="tt-ov-ovr" title="<?php echo esc_attr( sprintf( '%s · %s / %s', $ovr_kind, number_format_i18n( $ovr, 1 ), number_format_i18n( $max, 0 ) ) ); ?>">
+                    <span class="tt-ov-ovr-label"><?php echo esc_html( $ovr_kind ); ?></span>
+                    <span class="tt-ov-ovr-val"><?php echo esc_html( number_format_i18n( $ovr, 1 ) ); ?></span>
+                </div>
+            <?php else : ?>
+                <div class="tt-ov-ovr tt-ov-ovr--empty">
+                    <span class="tt-ov-ovr-val"><?php esc_html_e( 'First evaluation coming soon', 'talenttrack' ); ?></span>
+                </div>
+            <?php endif; ?>
         </header>
+        <?php
+    }
+
+    /**
+     * Headline-stats KPI tile row. Renders the real evaluation headline
+     * numbers (latest, rolling Last 5, all-time, evaluation count) as
+     * 2026 KPI tiles via the shared FrontendAppChrome::kpiTile() helper.
+     * The Last-5 tile carries a delta vs. the all-time mean so a player
+     * or parent can see momentum at a glance. Renders nothing before the
+     * first rated evaluation — the hero's "coming soon" badge covers
+     * that state.
+     */
+    private static function renderKpiRow( array $heads, float $max ): void {
+        $latest  = isset( $heads['latest'] )  && $heads['latest']  !== null ? (float) $heads['latest']  : null;
+        $rolling = isset( $heads['rolling'] ) && $heads['rolling'] !== null ? (float) $heads['rolling'] : null;
+        $alltime = isset( $heads['alltime'] ) && $heads['alltime'] !== null ? (float) $heads['alltime'] : null;
+        $evals   = (int) ( $heads['eval_count'] ?? 0 );
+
+        if ( $latest === null && $rolling === null && $alltime === null ) {
+            return;
+        }
+
+        $max_str = number_format_i18n( $max, 0 );
+        $dash    = '—';
+
+        // Momentum: rolling Last-5 mean vs. the all-time mean.
+        $delta = '';
+        $trend = 'flat';
+        if ( $rolling !== null && $alltime !== null ) {
+            $diff = round( $rolling - $alltime, 1 );
+            if ( $diff > 0 )      { $trend = 'up';   $delta = '+' . number_format_i18n( $diff, 1 ); }
+            elseif ( $diff < 0 )  { $trend = 'down'; $delta = number_format_i18n( $diff, 1 ); }
+            else                  { $trend = 'flat'; $delta = '±0'; }
+        }
+
+        $chrome = '\\TT\\Shared\\Frontend\\Components\\FrontendAppChrome';
+        ?>
+        <div class="tt-ov-kpis">
+            <?php
+            echo $chrome::kpiTile( [
+                'label' => __( 'Latest', 'talenttrack' ),
+                'value' => $latest !== null ? number_format_i18n( $latest, 1 ) . ' / ' . $max_str : $dash,
+            ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            echo $chrome::kpiTile( [
+                'label' => __( 'Last 5', 'talenttrack' ),
+                'value' => $rolling !== null ? number_format_i18n( $rolling, 1 ) . ' / ' . $max_str : $dash,
+                'delta' => $delta,
+                'trend' => $trend,
+            ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            echo $chrome::kpiTile( [
+                'label' => __( 'All-time', 'talenttrack' ),
+                'value' => $alltime !== null ? number_format_i18n( $alltime, 1 ) . ' / ' . $max_str : $dash,
+            ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            echo $chrome::kpiTile( [
+                'label' => __( 'Evaluations', 'talenttrack' ),
+                'value' => number_format_i18n( $evals ),
+            ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+            ?>
+        </div>
         <?php
     }
 
@@ -159,9 +233,9 @@ class FrontendOverviewView extends FrontendViewBase {
         if ( ! $has_any ) return;
 
         ?>
-        <div class="tt-mc-cf">
-            <h3 class="tt-mc-cf-heading"><?php esc_html_e( 'Additional information', 'talenttrack' ); ?></h3>
-            <dl class="tt-mc-cf-list">
+        <div class="tt-ov-card">
+            <h3 class="tt-ov-cf-heading"><?php esc_html_e( 'Additional information', 'talenttrack' ); ?></h3>
+            <dl class="tt-ov-cf-list">
                 <?php foreach ( $fields as $f ) :
                     $v = $values[ (string) $f->field_key ] ?? null;
                     if ( $v === null || $v === '' ) continue;
