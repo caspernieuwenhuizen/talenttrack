@@ -39439,18 +39439,3 @@ msgstr "Alles selecteren"
 
 msgid "Clear all"
 msgstr "Selectie wissen"
-
-msgid "Exact tile column width in pixels (140–400). Overrides the size preset and the % scale for width. Leave blank to use the preset."
-msgstr "Exacte tegelkolombreedte in pixels (140–400). Overschrijft het grootte-preset en de %-schaal voor de breedte. Laat leeg om het preset te gebruiken."
-
-
-msgid "Exact tile icon glyph size in pixels (14–64). Leave blank to use the preset / % scale sizing."
-msgstr "Exacte grootte van het tegelpictogram in pixels (14–64). Laat leeg om de preset-/%-schaalgrootte te gebruiken."
-
-
-msgid "Uses the planner's current date range."
-msgstr "Gebruikt het huidige datumbereik van de planner."
-
-
-msgid "Match programme"
-msgstr "Wedstrijdprogramma"
