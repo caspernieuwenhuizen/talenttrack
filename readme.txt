@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.45.22
+Stable tag: 4.45.23
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.45.23 — Fix: parents can now see their linked child's record (#1724). Parent→child visibility relied on the parent role being scoped to the child, but the parent–child link (`tt_player_parents`) created no such scope and the authorization resolver had no rule to derive one — so guardians were effectively locked out of their own child's record. Added a derived parent-link scope (mirroring the existing derived player-link): at runtime a guardian is granted the parent role scoped to each of their linked, active children. A guardian sees only their own linked child(ren) — never another family's child, and never a co-parent's view (#1725). The resolved-permission cache is flushed on link/unlink so the change takes effect immediately. Patch bump. (#1724) =
 
 = 4.45.22 — 2026 visual-parity sprint + native-Dutch sweep (#1680, #1681). The frontend hero views and the player/parent surfaces are aligned to the 2026 pitch mockups, building on the global app chrome (#1690): tournaments (#1685), player overview, scouting & onboarding (#1689), goals board (#1687), podium, my-evaluations, my-team, my-journey, match-execution (#1684), match-prep, POP/PDP (#1686), methodology with Vision-first tabs + collapsible sections (#1671), and the team-planner restyle on top of the multi-team dropdown (#1683). Each shipped as its own patch (v4.45.9–v4.45.21). This release also recovers the Dutch translations for every new string those views introduced (#1681) — Behaald, Wedstrijdprogramma, Beschikbare selectie, Basisspelers 1e helft, and the rest. Per-view restyles are visual only; no query, REST, or navigation changes. (#1680, #1681) =
 

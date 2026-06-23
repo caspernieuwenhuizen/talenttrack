@@ -47,6 +47,8 @@ Daardoor blijft externe code of andere plug-ins die op legacy-rechtennamen contr
 
 Wijs rollen toe via **Toegangsbeheer → Rollen & Rechten** of de standaard Gebruikersadmin van WordPress.
 
+De toegang van een **ouder** tot zijn of haar kind wordt automatisch afgeleid van de ouder–kindkoppeling (gelegd wanneer de ouder de uitnodiging accepteert): de ouderrol wordt toegekend, afgebakend tot elk gekoppeld kind, op het moment dat het nodig is. Een ouder/verzorger ziet alleen de gegevens van zijn of haar eigen gekoppelde kind(eren) — nooit het kind van een ander gezin, en nooit de andere verzorgers die aan hetzelfde kind gekoppeld zijn.
+
 ## Alleen-lezen Waarnemer
 
 v3.0.0 maakt deze rol zinvol over de hele plug-in. Een waarnemer kan:
