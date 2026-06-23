@@ -293,19 +293,26 @@ final class ActivitiesRepository {
 
         global $wpdb;
         $p   = $wpdb->prefix;
+        // #1382 — PLAYER-level attendance includes guest appearances: a
+        // played-up player guesting for another team has an attendance
+        // row keyed by either `player_id` (is_guest = 1) or
+        // `guest_player_id` (player_id NULL). Match both and drop the
+        // `is_guest = 0` filter so the profile KPI reflects everything
+        // the player actually did. Team-level attendance (TeamKpisRepository,
+        // AttendanceRankingQuery) keeps its guest-exclusive filter.
         $row = $wpdb->get_row( $wpdb->prepare(
             "SELECT
                 SUM(CASE WHEN att.status = 'present' THEN 1 ELSE 0 END) AS present_n,
                 COUNT(*) AS total_n
                FROM {$p}tt_attendance att
                JOIN {$p}tt_activities a ON a.id = att.activity_id
-              WHERE att.player_id = %d
-                AND att.is_guest = 0
+              WHERE ( att.player_id = %d OR att.guest_player_id = %d )
+                AND att.club_id = %d
                 AND att.record_type = 'actual'
                 AND a.archived_at IS NULL
                 AND a.plan_state = 'completed'
                 AND a.session_date >= DATE_SUB(CURDATE(), INTERVAL %d DAY)",
-            $player_id, $days
+            $player_id, $player_id, CurrentClub::id(), $days
         ) );
         return $row ?: null;
     }
@@ -455,6 +462,70 @@ final class ActivitiesRepository {
               LIMIT %d",
             ...$params
         ) );
+        return is_array( $rows ) ? $rows : [];
+    }
+
+    /**
+     * #1320 — the activities-manage surface list, moved out of
+     * `FrontendActivitiesManageView::loadActivitiesForList()`. Club- and
+     * demo-scoped, applies the same coach-scope guard as the REST
+     * `list_sessions` endpoint: personas with global `activities` read
+     * (scout, head_of_development, academy_admin) see every team;
+     * everyone else is restricted to the teams they head-coach. Optional
+     * team / type / date-window filters. No LIMIT — the surface renders
+     * the full filtered set (pilot volumes are tractable).
+     *
+     * @return object[]
+     */
+    public function listForManageSurface( int $team_filter, string $type_filter, int $user_id, string $date_from = '', string $date_to = '' ): array {
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $where  = [ 's.club_id = %d', 's.archived_at IS NULL' ];
+        $params = [ CurrentClub::id() ];
+
+        if ( $date_from !== '' ) {
+            $where[]  = 's.session_date >= %s';
+            $params[] = $date_from;
+        }
+        if ( $date_to !== '' ) {
+            $where[]  = 's.session_date <= %s';
+            $params[] = $date_to;
+        }
+
+        $scope = QueryHelpers::apply_demo_scope( 's', 'activity' );
+
+        // Coach-scope guard — mirrors REST list_sessions. Global-read
+        // personas bypass; everyone else is restricted to their teams.
+        if ( ! QueryHelpers::user_has_global_entity_read( $user_id, 'activities' ) ) {
+            $coach_teams = QueryHelpers::get_teams_for_coach( $user_id );
+            if ( ! $coach_teams ) {
+                return [];
+            }
+            $team_ids     = array_map( static function ( $t ) { return (int) $t->id; }, $coach_teams );
+            $placeholders = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
+            $where[]      = "s.team_id IN ($placeholders)";
+            $params       = array_merge( $params, $team_ids );
+        }
+
+        if ( $team_filter > 0 ) {
+            $where[]  = 's.team_id = %d';
+            $params[] = $team_filter;
+        }
+        if ( $type_filter !== '' ) {
+            $where[]  = 's.activity_type_key = %s';
+            $params[] = $type_filter;
+        }
+
+        $where_sql = implode( ' AND ', $where ) . ' ' . $scope;
+
+        $sql = "SELECT s.*, t.name AS team_name
+                FROM {$p}tt_activities s
+                LEFT JOIN {$p}tt_teams t ON t.id = s.team_id AND t.club_id = s.club_id
+                WHERE {$where_sql}
+                ORDER BY s.session_date ASC, s.id ASC";
+
+        $rows = $wpdb->get_results( $wpdb->prepare( $sql, ...$params ) );
         return is_array( $rows ) ? $rows : [];
     }
 

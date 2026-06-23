@@ -1,4 +1,4 @@
-# TalentTrack v4.45.4 — Tournaments view restyled to the 2026 look (#1685)
+# TalentTrack v4.45.9 — Tournaments view restyled to the 2026 look (#1685)
 
 The tournament detail view adopts the 2026 pitch visual language on the real data it already renders. A three-tile KPI strip (Squad / Matches / Team) sits above the body, built from the squad and match counts the view loads, and the tournament facts, the **Match programme** list, and the squad are wrapped in white cards (1px border, 14px radius, the shared `--tt-shadow-md`). Each match carries a status chip — Completed, In progress, or its opponent level — and the squad rows become tappable 44px-tall cards. Styling lives in a new mobile-first `assets/css/frontend-tournaments.css` that reuses the shared `.tt-kpi` tile and reads only the existing `--tt-primary` / `--tt-secondary` tokens; there is no query, REST, or navigation change. One new string ("Match programme") with Dutch added.
 

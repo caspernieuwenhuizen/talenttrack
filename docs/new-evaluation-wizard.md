@@ -35,6 +35,8 @@ Each player has a **Skip** checkbox if you genuinely don't want to evaluate them
 
 Add per-player notes inline. The deep-rate panel for a single player is a follow-up — for v1, the quick-rate row + the notes textarea are the surface.
 
+**Training default:** when the activity is a training session, the **Mental** category is surfaced first and pre-expanded (its detailed sub-categories shown). This is a presentation default only — you can still rate every other category and you are never required to enter a Mental rating to submit.
+
 ### Step 4 · Review
 
 Lists how many evaluations will be created. If any present player is unrated and not skipped, you get a soft warn at the top: *"X players were present but not rated. Submit anyway, or go back?"* Both buttons available.
@@ -50,6 +52,8 @@ Search-based picker (autocomplete on player name + team). Select the player you 
 ### Step 2 · Hybrid deep-rate
 
 Date picker (defaults to today), setting dropdown (training / match / tournament / observation / other — driven by the `evaluation_setting` lookup), free-text context (max 500 chars), then the rating fields per category.
+
+When you set the Type to **Training**, the **Mental** category jumps to the top of the rating fields and opens its detailed sub-categories automatically. Pick any other type and Mental returns to its normal position. It stays a default only — no Mental rating is required to save.
 
 ### Step 3 · Review + Submit
 

@@ -1,0 +1,59 @@
+/*
+ * frontend-attendance-report.css (#1688) — applies the 2026 chrome visual
+ * language to the team-attendance report: a KPI summary strip (reusing the
+ * shared .tt-kpi tile) and a card-wrapped table with an inline attendance
+ * bar. Mobile-first per CLAUDE.md §2; scoped under .tt-dashboard.
+ */
+
+.tt-dashboard .tt-report-kpis {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+    margin: 14px 0 18px;
+}
+
+.tt-dashboard .tt-report-card {
+    background: #fff;
+    border: 1px solid #e3e6e1;
+    border-radius: 14px;
+    box-shadow: var(--tt-shadow-md);
+    overflow: hidden;
+}
+.tt-dashboard .tt-report-card .tt-table-wrap { margin: 0; }
+.tt-dashboard .tt-report-card .tt-table { margin: 0; width: 100%; }
+
+/* inline attendance bar in the Present % cell */
+.tt-att-bar {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: flex-end;
+    width: 100%;
+}
+.tt-att-bar .v {
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    min-width: 46px;
+    text-align: right;
+    color: var(--tt-ink);
+}
+.tt-att-bar .track {
+    width: 84px;
+    height: 7px;
+    border-radius: 999px;
+    background: #eceeea;
+    overflow: hidden;
+    flex: 0 0 auto;
+}
+.tt-att-bar .track > i {
+    display: block;
+    height: 100%;
+    background: #2f9e5e;
+}
+.tt-att-bar.is-low .track > i { background: #d8453b; }
+.tt-att-bar.is-low .v { color: #b23128; }
+
+/* on narrow screens drop the bar track, keep the number */
+@media (max-width: 560px) {
+    .tt-att-bar .track { display: none; }
+}

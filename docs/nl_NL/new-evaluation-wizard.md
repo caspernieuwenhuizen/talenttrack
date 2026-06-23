@@ -35,6 +35,8 @@ Elke speler heeft een **Overslaan**-checkbox als je echt niet wilt beoordelen di
 
 Voeg per-speler notities inline toe. Het deep-rate-panel voor een enkele speler is een follow-up — voor v1 zijn de snelbeoordeel-rij + het notities-tekstveld het oppervlak.
 
+**Standaard bij training:** wanneer de activiteit een trainingssessie is, wordt de categorie **Mentaal** als eerste getoond en alvast uitgeklapt (met de gedetailleerde subcategorieën zichtbaar). Dit is alleen een weergavestandaard — je kunt nog steeds elke andere categorie beoordelen en je bent nooit verplicht een Mentaal-score in te vullen om te kunnen opslaan.
+
 ### Stap 4 · Controleren
 
 Toont hoeveel evaluaties er gemaakt zullen worden. Is er een aanwezige speler ongerated en niet overgeslagen, dan krijg je bovenaan een zachte waarschuwing: *"X spelers waren aanwezig maar niet beoordeeld. Toch versturen, of terug?"* Beide knoppen beschikbaar.
@@ -50,6 +52,8 @@ Zoek-gebaseerde picker (autocomplete op spelernaam + ploeg). Selecteer de speler
 ### Stap 2 · Hybride deep-rate
 
 Datumkiezer (standaard vandaag), context-dropdown (training / match / toernooi / observatie / anders — gestuurd door de `evaluation_setting`-lookup), vrije-tekst-context (max 500 tekens), dan de rating-velden per categorie.
+
+Zet je het Type op **Training**, dan springt de categorie **Mentaal** naar boven in de rating-velden en klappen de gedetailleerde subcategorieën automatisch open. Kies je een ander type, dan keert Mentaal terug naar de normale positie. Het blijft een standaard — een Mentaal-score is niet verplicht om op te slaan.
 
 ### Stap 3 · Controleren + Versturen
 

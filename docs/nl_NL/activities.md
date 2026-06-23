@@ -109,6 +109,8 @@ Open de activiteit, scroll naar het kopje **Gasten**, klik **+ Gast toevoegen**,
 
 Gasten tellen niet mee in de teamstatistieken — aanwezigheidspercentages en het podium gebruiken alleen de selectie.
 
+Een gastoptreden telt **wel** mee voor de belasting van de gastspeler zelf. Op het profiel van een speler — de aanwezigheids-KPI en de belastingsinvoer van de statusmotor — wordt een sessie die hij als gast bij een ander team speelde, meegeteld naast zijn eigen teamsessies, zodat de belasting van een veel meespelende speler klopt. De scheiding is bewust: *spelersbelasting = alles wat de speler waar dan ook deed; teamstatistieken = alleen de eigen selectie.*
+
 ## Opruimen
 
 Je kunt een activiteit archiveren om oude seizoenen op te ruimen zonder de historie kwijt te raken.
