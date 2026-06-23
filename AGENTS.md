@@ -248,6 +248,56 @@ Copy-paste ready prompts for the most common situations. Adjust the `00XX` to th
 
 ---
 
+## Parallel drain with a release agent
+
+When you want to clear several `ready-for-dev` issues at once, the safe
+pattern is **2–3 implementation agents + 1 release agent**. The trick that
+stops them fighting each other: implementation agents change only the
+*content* of a fix; one release agent does all the version/changelog work
+at the end.
+
+In practice:
+
+- **Each implementation agent** works in its own worktree on a
+  file-disjoint issue and changes only the feature/fix files, its docs,
+  and its own new Dutch strings. It must **not** touch the version,
+  `CHANGES.md`, `readme.txt`, `SEQUENCE.md`, or `.mo` files. Instead it
+  drops a short note in `changelog.d/<issue>-<slug>.md` (see that folder's
+  README). Because that's a new file, two agents never collide there.
+- **Before launching them**, check the branches don't edit the same file:
+  `pwsh tools/check-overlap.ps1 <branchA> <branchB> …`. If it reports a
+  shared file, hand those two issues to one agent to do back-to-back
+  instead of in parallel. (From experience: two issues touching the same
+  view or the same PDF builder are *not* parallel-safe even if they sound
+  unrelated.)
+- **When the implementation branches are merged**, ask one agent to
+  release: `pwsh tools/release.ps1 <new-version>`. It folds all the
+  `changelog.d` notes into `CHANGES.md` + `readme.txt` and bumps the
+  version in one go. Pushing that to `main` makes CI build and publish the
+  release automatically — no manual ZIP, no `.mo` compile, no tag.
+- **Still one rule with no exceptions:** never run two database/migration
+  changes in parallel (see "Schema changes in parallel" above).
+
+Canonical details and the reasoning live in `CLAUDE.md` §7. This section
+is the plain-language version.
+
+**Shortcut phrases** (defined in `CLAUDE.md` §7 so every agent session
+understands them — you don't type the full rule):
+
+- **`content-only #<issue>`** (or **`co #<issue>`**) — to an implementation
+  agent. Means: work that issue, content + docs + its Dutch strings only,
+  drop a `changelog.d` note, open a PR; don't touch version / changelog /
+  `SEQUENCE.md` / `.mo`. Launch one such agent per file-disjoint issue.
+- **`release`** (or `release <version>` to override) — to the release
+  agent. Means: run `tools/release.ps1` — it works out the next version
+  itself from the snippets' `Bump:` levels — then review, commit, push to
+  main.
+
+So a parallel drain is just, e.g., `co #1731` in one terminal, `co #1732`
+in another, then `release` once they're merged.
+
+---
+
 ## When to update this document
 
 Update `SEQUENCE.md` when backlog priorities change. Update this work instruction (`AGENTS.md` or `CONTRIBUTING-claude.md`, call it what you prefer) when:
