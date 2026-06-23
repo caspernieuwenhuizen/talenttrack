@@ -56,12 +56,20 @@ final class RateActorsStep implements WizardStepInterface {
         $players = self::ratablePlayersForActivity( $aid );
 
         $quick_cats = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, label FROM {$p}tt_eval_categories
+            "SELECT id, label, category_key FROM {$p}tt_eval_categories
               WHERE parent_id IS NULL AND is_active = 1
                 AND meta IS NOT NULL AND meta LIKE %s
               ORDER BY display_order, label",
             '%"quick_rate":true%'
         ) );
+
+        // #1643 — for training activities the `mental` main category is
+        // surfaced first and pre-expanded by default. Policy lives in the
+        // domain layer (TrainingEvalDefaults), not in this view.
+        $is_training = self::isTrainingActivity( $aid );
+        if ( $is_training ) {
+            $quick_cats = \TT\Infrastructure\Evaluations\TrainingEvalDefaults::sortPriorityFirst( (array) $quick_cats );
+        }
 
         // v3.108.4 — A3: pull every active subcategory keyed by its
         // parent so each main row can render its detail children
@@ -172,6 +180,11 @@ final class RateActorsStep implements WizardStepInterface {
                         $iid    = 'tt-rate-' . $pid . '-' . $cid;
                         $label  = \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( (string) $cat->label, $cid );
                         $subs   = $sub_cats_by_parent[ $cid ] ?? [];
+                        // #1643 — pre-expand the priority category (mental)
+                        // for training activities only.
+                        $expand = $is_training
+                            && isset( $cat->category_key )
+                            && \TT\Infrastructure\Evaluations\TrainingEvalDefaults::shouldExpand( (string) $cat->category_key );
                     ?>
                         <?php
                         echo \TT\Shared\Frontend\Components\RatingInputComponent::renderListRow( [
@@ -198,20 +211,21 @@ final class RateActorsStep implements WizardStepInterface {
                             // stay in the DOM, just hidden).
                             $detail_btn_basic = __( 'Basic', 'talenttrack' );
                             $detail_btn_more  = __( 'Detailed', 'talenttrack' );
+                            $toggle_state     = $expand ? 'detailed' : 'basic';
                             ?>
                             <div class="tt-rate-detail-toggle"
                                  data-tt-rate-detail-toggle
-                                 data-state="basic"
+                                 data-state="<?php echo esc_attr( $toggle_state ); ?>"
                                  role="tablist"
                                  aria-label="<?php echo esc_attr( sprintf(
                                      /* translators: %s: main category label */
                                      __( '%s detail mode', 'talenttrack' ),
                                      $label
                                  ) ); ?>">
-                                <button type="button" data-mode="basic"    role="tab" aria-selected="true"><?php echo esc_html( $detail_btn_basic ); ?></button>
-                                <button type="button" data-mode="detailed" role="tab" aria-selected="false"><?php echo esc_html( $detail_btn_more ); ?></button>
+                                <button type="button" data-mode="basic"    role="tab" aria-selected="<?php echo $expand ? 'false' : 'true'; ?>"><?php echo esc_html( $detail_btn_basic ); ?></button>
+                                <button type="button" data-mode="detailed" role="tab" aria-selected="<?php echo $expand ? 'true' : 'false'; ?>"><?php echo esc_html( $detail_btn_more ); ?></button>
                             </div>
-                            <div class="tt-rate-subs" data-tt-rate-subs hidden>
+                            <div class="tt-rate-subs" data-tt-rate-subs <?php echo $expand ? '' : 'hidden'; ?>>
                                 <?php foreach ( $subs as $sub ) :
                                     $scid = (int) $sub->id;
                                     $sval = (float) ( $state['ratings'][ $pid ][ $scid ] ?? 0 );
@@ -601,6 +615,22 @@ final class RateActorsStep implements WizardStepInterface {
      *
      * @return list<object>
      */
+    /**
+     * #1643 — whether the picked activity is a training activity, used
+     * to drive the training-only mental-first / pre-expanded default.
+     * Club-scoped like every activity lookup in this class.
+     */
+    private static function isTrainingActivity( int $activity_id ): bool {
+        if ( $activity_id <= 0 ) return false;
+        global $wpdb;
+        $p = $wpdb->prefix;
+        $type_key = (string) $wpdb->get_var( $wpdb->prepare(
+            "SELECT activity_type_key FROM {$p}tt_activities WHERE id = %d AND club_id = %d",
+            $activity_id, CurrentClub::id()
+        ) );
+        return \TT\Infrastructure\Evaluations\TrainingEvalDefaults::isTrainingActivityType( $type_key );
+    }
+
     public static function ratablePlayersForActivity( int $activity_id ): array {
         global $wpdb;
         $p = $wpdb->prefix;

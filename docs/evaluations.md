@@ -8,7 +8,7 @@ An **evaluation** is your rating of a player on a specific date, across the cate
 
 1. Open the **Evaluations** tile.
 2. Pick the player.
-3. Pick an evaluation type (e.g. Training, Match).
+3. Pick an evaluation type (e.g. Training, Match). When you pick **Training**, the **Mental** category moves to the top of the rating list and opens its detailed subcategories automatically — a prompt to look at mindset first. It is only a default: you can still rate every category and you are never required to enter a Mental rating to save.
 4. Pick the date.
 5. Give each main category a **star rating** from one to five. The stars carry qualitative labels — ★ Insufficient, ★★ Poor, ★★★ Average, ★★★★ Good, ★★★★★ Excellent — and are stored on the academy's 5–9 scale.
 6. If you want to be more precise, drill into the subcategories — your main rating becomes the rounded average of the subcategory stars you set.
