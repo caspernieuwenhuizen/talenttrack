@@ -29,11 +29,15 @@ For week / 2 / 4 / 8-week ranges the toolbar has **prev / today / next** buttons
 
 ## Picking teams
 
-The **Teams** picker lists every standard team you can access as checkboxes. Tick one team and press **Apply** to plan that team in the full week grid. Only standard teams (no `team_kind`) appear — staff groups and other team-kinds are filtered out.
+The **Teams** picker is a **multi-select dropdown** listing every standard team you can access. Select one team and press **Apply** to plan that team in the full week grid. Hold Ctrl (Cmd on Mac) — or tap multiple options on touch — to select more than one. Only standard teams (no `team_kind`) appear — staff groups and other team-kinds are filtered out.
 
 ### Overview across teams (multiple selected)
 
-Tick **two or more teams** and the planner switches to a **condensed, read-only overview** — one row per activity with **Date · Team · Type · Match (opponent + home/away) · Status**. This is the Head-of-Department glance across several teams at once; because a HoD doesn't plan team-specific activities, the overview has no copy / duplicate / schedule chrome. Drop back to a single team to return to the editable week-grid planner.
+Select **two or more teams** and the planner switches to a **condensed, read-only calendar** that keeps the week-grid metaphor instead of a flat table. Week blocks stack vertically (one block per week in the chosen range), and inside each block every selected team gets **one row** across the seven day columns — the same Mon–Sun ordering as the single-team grid, honouring the academy's first-day-of-week.
+
+Each day-cell shows only the **activity-type pill** plus, for matches, the **opponent** and a **Home/Away** marker. There are no principle chips, copy chips, or schedule buttons — this is the Head-of-Department glance across several teams at once, and a HoD doesn't plan team-specific activities here. Each pill is **clickable** and opens the activity's read-only display view, the same destination as clicking a card in the single-team planner.
+
+On phones the seven-column grid would not fit, so each team collapses to a card with a labelled list of its days that have activities — no horizontal scrolling. Drop back to a single team to return to the editable week-grid planner.
 
 ## Scheduling an activity
 
@@ -68,6 +72,8 @@ Three export buttons sit above the grid:
 
 - **Show per day** — Time · Location · Duration · Match details · Theme/title · Principles · Notes · Show rest days (everything on except Notes by default).
 - **Header** — Academy name · Generated date.
+
+Clicking **Open PDF** opens the print-ready sheet in a new tab; use your browser's **Save as PDF** (or Print) to download it. Enable "Background graphics" in the print dialog so the green day cards and colour tags come through. The proposed filename mirrors the sheet title — `Week plan - {team} - Week {n} - {year}`.
 
 The PDF covers the planner's **current date range** (set it with the window picker first). Branding comes from **Configuration → branding** (primary/secondary colour, academy name, logo) — no hardcoded colours.
 
