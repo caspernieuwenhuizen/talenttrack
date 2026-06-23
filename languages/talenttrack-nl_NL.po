@@ -17270,7 +17270,7 @@ msgstr "Start"
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:222
 msgid "Match summary"
-msgstr ""
+msgstr "Wedstrijdsamenvatting"
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:225
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:235
@@ -17280,7 +17280,7 @@ msgstr "Gevolgde spelers"
 
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:229
 msgid "Available squad"
-msgstr ""
+msgstr "Beschikbare selectie"
 
 #. translators: %d: number of flagged players
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:240
@@ -17629,20 +17629,20 @@ msgstr "Wedstrijdvoorbereiding — %1$s · %2$s"
 
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:289
 msgid "Match prep summary"
-msgstr ""
+msgstr "Wedstrijdvoorbereiding samenvatting"
 
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:292
 msgid "Available"
-msgstr ""
+msgstr "Beschikbaar"
 
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:296
 msgid "Unavailable"
-msgstr ""
+msgstr "Niet beschikbaar"
 
 #. translators: 1st-half starters assigned out of 11.
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:302
 msgid "1st-half starters"
-msgstr ""
+msgstr "Basisspelers 1e helft"
 
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:314
 msgid "Match prep toolbar"
@@ -35464,15 +35464,15 @@ msgstr ""
 
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:153
 msgid "Evaluation summary"
-msgstr ""
+msgstr "Samenvatting evaluaties"
 
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:163
 msgid "Latest rating"
-msgstr ""
+msgstr "Laatste beoordeling"
 
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:170
 msgid "No change"
-msgstr ""
+msgstr "Geen verandering"
 
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:181
 msgid "Evaluations, newest first"
@@ -35510,15 +35510,15 @@ msgstr ""
 
 #: src/Shared/Frontend/FrontendMyGoalsView.php:62
 msgid "Achieved"
-msgstr ""
+msgstr "Behaald"
 
 #: src/Shared/Frontend/FrontendMyGoalsView.php:63
 msgid "Missed"
-msgstr ""
+msgstr "Gemist"
 
 #: src/Shared/Frontend/FrontendMyGoalsView.php:79
 msgid "Nothing here yet."
-msgstr ""
+msgstr "Nog niks hier."
 
 #. translators: %d is the number of messages on this goal's conversation thread.
 #: src/Shared/Frontend/FrontendMyGoalsView.php:113
@@ -35829,7 +35829,7 @@ msgstr "Grootste vooruitgang: %s"
 
 #: src/Shared/Frontend/FrontendOverviewView.php:58
 msgid "Skills profile"
-msgstr ""
+msgstr "Vaardigheidsprofiel"
 
 #: src/Shared/Frontend/FrontendOverviewView.php:122
 #: src/Shared/Frontend/FrontendOverviewView.php:205
@@ -35848,7 +35848,7 @@ msgstr "Eerste evaluatie volgt binnenkort"
 
 #: src/Shared/Frontend/FrontendOverviewView.php:201
 msgid "Latest"
-msgstr ""
+msgstr "Laatste"
 
 #: src/Shared/Frontend/FrontendPeopleManageView.php:53
 #, php-format
@@ -36760,11 +36760,11 @@ msgstr ""
 
 #: src/Shared/Frontend/FrontendPodiumView.php:67
 msgid "Teams ranked"
-msgstr ""
+msgstr "Teams gerangschikt"
 
 #: src/Shared/Frontend/FrontendPodiumView.php:97
 msgid "Leading"
-msgstr ""
+msgstr "Koploper"
 
 #: src/Shared/Frontend/FrontendRateCardView.php:44
 msgid "Rate cards (full analytics)"
@@ -38044,7 +38044,7 @@ msgstr "Nog geen toernooien."
 
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:339
 msgid "Match programme"
-msgstr ""
+msgstr "Wedstrijdprogramma"
 
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:341
 msgid "No matches yet."
@@ -39539,3 +39539,14 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+
+#: src/Shared/Frontend/FrontendTournamentsManageView.php:341
+msgid "completed"
+msgstr "voltooid"
+
+msgid "Uses the planner's current date range."
+msgstr "Gebruikt het huidige datumbereik van de planner."
+
+#: src/Modules/Planning/Print/TeamPlannerWeeklyPrintRouter.php
+msgid "Weekly planner"
+msgstr "Weekplanning"
