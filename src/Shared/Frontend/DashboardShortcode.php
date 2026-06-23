@@ -26,7 +26,11 @@ class DashboardShortcode {
      * @param array<string,mixed>|string $atts
      */
     public static function render( $atts = [] ): string {
-        wp_enqueue_style( 'tt-public', TT_PLUGIN_URL . 'assets/css/public.css', [], TT_VERSION );
+        // #1379 — design tokens (the single source for the 2026 green/gold
+        // palette, type/space scale, radius, shadow). Enqueued first, with
+        // no deps, so every other TalentTrack stylesheet inherits it.
+        wp_enqueue_style( 'tt-tokens', TT_PLUGIN_URL . 'assets/css/tokens.css', [], TT_VERSION );
+        wp_enqueue_style( 'tt-public', TT_PLUGIN_URL . 'assets/css/public.css', [ 'tt-tokens' ], TT_VERSION );
         // #0019 Sprint 1 session 3 — shared component + token stylesheet
         // loaded alongside the legacy one. Every new component reads from
         // tokens defined here; public.css keeps the legacy dashboard/login

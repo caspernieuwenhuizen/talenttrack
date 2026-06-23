@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.45.23
+Stable tag: 4.45.24
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.45.24 — Design tokens: one source for the 2026 green/gold neutrals (#1379, foundation). New `assets/css/tokens.css` (scoped to `.tt-root`, enqueued first) is now the single source for the neutral design tokens — ink, lines, backgrounds, status colours, radius, shadow, type scale and the 4px spacing scale — so the ~70 remaining surfaces can restyle against consistent values instead of the 296 scattered hexes across 31 sheets. Values match the fallbacks the shipped 2026 surfaces already use, so this is visually a no-op for them; brand colours (`--tt-primary`/`--tt-secondary`) stay with the club-colour editor (BrandStyles) so theming is unaffected. Adds a developer pattern reference (`docs/frontend-2026-patterns.md`) for the long-tail restyle. Foundation for the Tier 3–7 batch (#1695); follow-ups migrate the legacy slate/navy surfaces and normalise breakpoints onto these tokens. Patch bump. (#1379) =
 
 = 4.45.23 — Fix: parents can now see their linked child's record (#1724). Parent→child visibility relied on the parent role being scoped to the child, but the parent–child link (`tt_player_parents`) created no such scope and the authorization resolver had no rule to derive one — so guardians were effectively locked out of their own child's record. Added a derived parent-link scope (mirroring the existing derived player-link): at runtime a guardian is granted the parent role scoped to each of their linked, active children. A guardian sees only their own linked child(ren) — never another family's child, and never a co-parent's view (#1725). The resolved-permission cache is flushed on link/unlink so the change takes effect immediately. Patch bump. (#1724) =
 
