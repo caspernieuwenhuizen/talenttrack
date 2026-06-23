@@ -1,0 +1,298 @@
+/*
+ * frontend-my-journey.css — 2026 "chrome" restyle for the My journey /
+ * player journey body (#1695). Pairs with the global app chrome (#1690).
+ *
+ * Turns the journey surface into a clean left-rail timeline: brand-coloured
+ * nodes on a continuous rail, white chrome cards (1px #e3e6e1, radius 14px,
+ * --tt-shadow-md), and pill chips for event types. No palette beyond the
+ * public.css brand tokens (--tt-primary #0b3d2e, --tt-secondary #e8b624,
+ * --tt-ink, --tt-muted, --tt-shadow-md).
+ *
+ * Authoring rule: mobile-first per CLAUDE.md §2. Base = ~360px viewport;
+ * min-width queries scale up. Scoped under .tt-dashboard — no global
+ * resets (the active theme is treated as hostile). Per-event accent colour
+ * arrives via the inline --tt-journey-color custom property set by
+ * FrontendJourneyView::renderEventCard().
+ */
+
+/* ---- Header ------------------------------------------------------- */
+.tt-dashboard .tt-journey-head {
+    margin: 0 0 1rem;
+}
+.tt-dashboard .tt-journey-head h2 {
+    margin: 0 0 0.25rem;
+    color: var(--tt-primary, #0b3d2e);
+    font-size: 1.3rem;
+    font-weight: 800;
+    line-height: 1.2;
+}
+.tt-dashboard .tt-journey-head .tt-muted {
+    margin: 0;
+    color: var(--tt-muted, #6a6d66);
+    font-size: 0.9rem;
+    line-height: 1.45;
+}
+
+/* Mode toggle — segmented pill pair. */
+.tt-dashboard .tt-journey-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin: 0.85rem 0 0;
+    flex-wrap: wrap;
+}
+.tt-dashboard .tt-journey-tabs .tt-btn {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 0.5rem 1.1rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    touch-action: manipulation;
+}
+
+/* ---- Filter bar --------------------------------------------------- */
+.tt-dashboard .tt-journey-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+    margin: 0 0 1rem;
+    padding: 0.75rem 0.85rem;
+    background: #fff;
+    border: 1px solid #e3e6e1;
+    border-radius: 14px;
+    box-shadow: var(--tt-shadow-md);
+}
+.tt-dashboard .tt-journey-filters > .tt-muted {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--tt-muted, #6a6d66);
+}
+
+/* Event-type chip — the per-type accent comes from the inline border
+ * colour the PHP still sets; we layer a soft tint + checked state here. */
+.tt-dashboard .tt-journey-filters .tt-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 44px;
+    padding: 0.4rem 0.8rem;
+    border-radius: 999px;
+    background: #fff;
+    cursor: pointer;
+    font-size: 0.82rem;
+    color: var(--tt-ink, #0e1a14);
+    touch-action: manipulation;
+}
+.tt-dashboard .tt-journey-filters .tt-chip:focus-within {
+    outline: 2px solid var(--tt-secondary, #e8b624);
+    outline-offset: 1px;
+}
+.tt-dashboard .tt-journey-filters .tt-chip input {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    accent-color: var(--tt-primary, #0b3d2e);
+}
+
+.tt-dashboard .tt-journey-filters-more > summary {
+    list-style: none;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.4rem 0.85rem;
+    border: 1px dashed #c4c7c5;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    color: var(--tt-muted, #6a6d66);
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-dashboard .tt-journey-filters-more > summary::-webkit-details-marker {
+    display: none;
+}
+
+.tt-dashboard .tt-journey-filters-more {
+    display: inline-block;
+}
+.tt-dashboard .tt-journey-filters-more-list {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.tt-dashboard .tt-journey-filters .tt-btn {
+    min-height: 48px;
+    border-radius: 999px;
+}
+
+/* "Show full history" footer link. */
+.tt-dashboard .tt-journey-more {
+    margin: 1rem 0 0;
+}
+.tt-dashboard .tt-journey-more .tt-btn {
+    min-height: 48px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+}
+
+/* ---- Notices / empty ---------------------------------------------- */
+.tt-dashboard .tt-journey .tt-empty {
+    margin: 1rem 0;
+    padding: 1.5rem 1.25rem;
+    text-align: center;
+    background: #fff;
+    border: 1px solid #e3e6e1;
+    border-radius: 14px;
+    box-shadow: var(--tt-shadow-md);
+    color: var(--tt-muted, #6a6d66);
+    font-style: italic;
+}
+
+/* ---- Timeline ----------------------------------------------------- */
+.tt-dashboard .tt-journey-list {
+    list-style: none;
+    padding: 0;
+    margin: 0.25rem 0 0;
+    position: relative;
+}
+
+/* Continuous vertical rail down the left side. */
+.tt-dashboard .tt-journey-list::before {
+    content: '';
+    position: absolute;
+    left: 9px;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    background: #e3e6e1;
+    border-radius: 1px;
+}
+
+.tt-dashboard .tt-journey-card {
+    position: relative;
+    display: grid;
+    grid-template-columns: 20px 1fr;
+    gap: 0.85rem;
+    padding: 0 0 1rem;
+    margin: 0;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    align-items: start;
+}
+.tt-dashboard .tt-journey-card:last-child {
+    padding-bottom: 0;
+}
+.tt-dashboard .tt-journey-card.tt-journey-superseded {
+    opacity: 0.6;
+}
+
+/* Brand-coloured node sitting on the rail. White halo lifts it off the
+ * rail; the fill is the per-event accent (green/gold/etc.). */
+.tt-dashboard .tt-journey-node {
+    position: relative;
+    z-index: 1;
+    align-self: start;
+    width: 14px;
+    height: 14px;
+    margin-top: 0.95rem;
+    border-radius: 50%;
+    background: var(--tt-journey-color, var(--tt-primary, #0b3d2e));
+    box-shadow: 0 0 0 3px #fff, 0 0 0 4px var(--tt-journey-color, var(--tt-primary, #0b3d2e));
+}
+
+/* The chrome card. */
+.tt-dashboard .tt-journey-card-body {
+    background: #fff;
+    border: 1px solid #e3e6e1;
+    border-left: 4px solid var(--tt-journey-color, var(--tt-primary, #0b3d2e));
+    border-radius: 14px;
+    padding: 0.75rem 0.9rem;
+    box-shadow: var(--tt-shadow-md);
+}
+
+.tt-dashboard .tt-journey-card-meta {
+    margin: 0 0 0.3rem;
+    font-size: 0.78rem;
+    color: var(--tt-muted, #6a6d66);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.3rem;
+}
+.tt-dashboard .tt-journey-card-label {
+    color: var(--tt-journey-color, var(--tt-primary, #0b3d2e));
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.tt-dashboard .tt-journey-card-summary {
+    margin: 0;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: var(--tt-ink, #0e1a14);
+}
+
+.tt-dashboard .tt-journey-card-retracted {
+    margin: 0.4rem 0 0;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #8a1f1f;
+}
+
+/* Severity tags — pills tinted from the brand palette. */
+.tt-dashboard .tt-journey-tag {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 0.1rem 0.55rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+.tt-dashboard .tt-journey-tag-milestone {
+    background: var(--tt-secondary, #e8b624);
+    color: var(--tt-primary, #0b3d2e);
+}
+.tt-dashboard .tt-journey-tag-warning {
+    background: #fde2e2;
+    color: #8a1f1f;
+}
+
+/* ---- Tablet+ ------------------------------------------------------ */
+@media (min-width: 768px) {
+    .tt-dashboard .tt-journey-head h2 {
+        font-size: 1.5rem;
+    }
+    .tt-dashboard .tt-journey-card {
+        grid-template-columns: 24px 1fr;
+        gap: 1.1rem;
+        padding-bottom: 1.25rem;
+    }
+    .tt-dashboard .tt-journey-list::before {
+        left: 11px;
+    }
+    .tt-dashboard .tt-journey-card-body {
+        padding: 0.95rem 1.15rem;
+    }
+    .tt-dashboard .tt-journey-card-summary {
+        font-size: 1rem;
+    }
+}
+
+/* Respect reduced-motion — nothing animates here, but keep hover lifts
+ * off for users who opt out (future-proofing the chip/card surfaces). */
+@media (prefers-reduced-motion: reduce) {
+    .tt-dashboard .tt-journey-card-body,
+    .tt-dashboard .tt-journey-filters .tt-chip {
+        transition: none;
+    }
+}
