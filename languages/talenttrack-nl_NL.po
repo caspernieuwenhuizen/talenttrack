@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-23T20:14:54+00:00\n"
+"POT-Creation-Date: 2026-06-23T20:18:36+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -21697,8 +21697,8 @@ msgstr "Mijn check-ins"
 
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:48
 #: src/Shared/CoreSurfaceRegistration.php:233
-#: src/Shared/Frontend/FrontendMyTeamView.php:27
-#: src/Shared/Frontend/FrontendMyTeamView.php:28
+#: src/Shared/Frontend/FrontendMyTeamView.php:38
+#: src/Shared/Frontend/FrontendMyTeamView.php:39
 #: src/Shared/Frontend/PlayerDashboardView.php:46
 msgid "My team"
 msgstr "Mijn team"
@@ -21991,7 +21991,7 @@ msgstr "Mijn rating-trend"
 #. translators: %s is the signed rating change since last month, e.g. "+0.4".
 #. translators: %s is the (negative) rating change since last month, e.g. "-0.3".
 #: src/Modules/PersonaDashboard/Kpis/MyRatingTrend.php:33
-#: src/Shared/Frontend/FrontendMyTeamView.php:217
+#: src/Shared/Frontend/FrontendMyTeamView.php:203
 #, php-format
 msgid "%s since last month"
 msgstr "%s sinds vorige maand"
@@ -22011,7 +22011,7 @@ msgstr "Mijn podiumpositie"
 #. translators: %d is the number of rated players on the team.
 #. translators: %d is the count of rated players on the team.
 #: src/Modules/PersonaDashboard/Kpis/MyTeamPodiumPosition.php:32
-#: src/Shared/Frontend/FrontendMyTeamView.php:116
+#: src/Shared/Frontend/FrontendMyTeamView.php:100
 #, php-format
 msgid "of %d on the team"
 msgstr "van %d in het team"
@@ -35721,73 +35721,73 @@ msgstr "Het huidige wachtwoord klopt niet."
 msgid "Password changed. Other devices have been logged out."
 msgstr "Wachtwoord gewijzigd. Andere apparaten zijn uitgelogd."
 
-#: src/Shared/Frontend/FrontendMyTeamView.php:32
+#: src/Shared/Frontend/FrontendMyTeamView.php:43
 #: src/Shared/Frontend/PlayerDashboardView.php:222
 msgid "You are not on a team yet."
 msgstr "Je zit nog niet in een team."
 
-#: src/Shared/Frontend/FrontendMyTeamView.php:91
+#: src/Shared/Frontend/FrontendMyTeamView.php:75
 #: src/Shared/Frontend/PlayerDashboardView.php:237
 msgid "Top players on the team"
 msgstr "Topspelers in het team"
 
 # v3.27.0 — demo-readiness omnibus
 # 'New evaluation', 'Top players on the team', 'All teams' already translated earlier in this file.
-#: src/Shared/Frontend/FrontendMyTeamView.php:101
+#: src/Shared/Frontend/FrontendMyTeamView.php:85
 msgid "Not enough rated teammates yet for a podium."
 msgstr "Nog niet genoeg beoordeelde teamgenoten voor een podium."
 
 #. translators: %d is the player's rank within their team.
-#: src/Shared/Frontend/FrontendMyTeamView.php:112
+#: src/Shared/Frontend/FrontendMyTeamView.php:96
 #, php-format
 msgid "#%d"
 msgstr "#%d"
 
-#: src/Shared/Frontend/FrontendMyTeamView.php:121
+#: src/Shared/Frontend/FrontendMyTeamView.php:105
 msgid "Not yet rated"
 msgstr "Nog niet beoordeeld"
 
-#: src/Shared/Frontend/FrontendMyTeamView.php:122
+#: src/Shared/Frontend/FrontendMyTeamView.php:106
 msgid "rank shows after the first evaluation"
 msgstr "rang verschijnt na je eerste evaluatie"
 
 #. translators: %s is the team name.
-#: src/Shared/Frontend/FrontendMyTeamView.php:137
+#: src/Shared/Frontend/FrontendMyTeamView.php:122
 #: src/Shared/Frontend/PlayerDashboardView.php:248
 #, php-format
 msgid "Teammates on %s"
 msgstr "Teamgenoten in %s"
 
-#: src/Shared/Frontend/FrontendMyTeamView.php:186
+#: src/Shared/Frontend/FrontendMyTeamView.php:172
 msgid "Your progress"
 msgstr "Jouw voortgang"
 
-#: src/Shared/Frontend/FrontendMyTeamView.php:187
+#: src/Shared/Frontend/FrontendMyTeamView.php:173
 msgid "Your rating trend will appear after your first evaluation."
 msgstr "Je beoordelingstrend verschijnt na je eerste evaluatie."
 
 #. translators: %s is the player's average rating so far, e.g. "7.2".
-#: src/Shared/Frontend/FrontendMyTeamView.php:196
+#: src/Shared/Frontend/FrontendMyTeamView.php:182
 #, php-format
 msgid "%s average so far"
 msgstr "%s gemiddeld tot nu toe"
 
-#: src/Shared/Frontend/FrontendMyTeamView.php:199
+#: src/Shared/Frontend/FrontendMyTeamView.php:185
 msgid "Your trend appears after your next evaluation."
 msgstr "Je trend verschijnt na je volgende evaluatie."
 
 #. translators: %s is the rating increase since last month, e.g. "0.4".
-#: src/Shared/Frontend/FrontendMyTeamView.php:209
+#: src/Shared/Frontend/FrontendMyTeamView.php:195
 #, php-format
 msgid "+%s since last month"
 msgstr "+%s sinds vorige maand"
 
-#: src/Shared/Frontend/FrontendMyTeamView.php:223
+#: src/Shared/Frontend/FrontendMyTeamView.php:209
 msgid "Level with last month"
 msgstr "Gelijk aan vorige maand"
 
 #. translators: %s is a skill category label, e.g. "Technical".
-#: src/Shared/Frontend/FrontendMyTeamView.php:234
+#: src/Shared/Frontend/FrontendMyTeamView.php:220
 #, php-format
 msgid "Improving most: %s"
 msgstr "Grootste vooruitgang: %s"
