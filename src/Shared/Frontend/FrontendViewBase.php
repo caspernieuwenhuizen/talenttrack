@@ -84,6 +84,16 @@ abstract class FrontendViewBase {
             ]
         );
 
+        // FrontendMyEvaluationsView 2026 restyle (#1695). Depends on the
+        // app-chrome sheet for the brand tokens + .tt-kpi tile styling.
+        // Cheap no-op on views that don't render the .tt-mye- surface.
+        wp_enqueue_style(
+            'tt-frontend-my-evaluations',
+            TT_PLUGIN_URL . 'assets/css/frontend-my-evaluations.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+
         self::$assets_enqueued = true;
     }
 
