@@ -1,0 +1,59 @@
+<!-- audience: dev -->
+
+# 2026 frontend pattern reference
+
+The Tier 1/2 parity restyles (v4.45.8–v4.45.22) established a consistent
+green/gold visual language. The remaining surfaces (Tiers 3–7 in #1695) have
+**no dedicated mockups** — this doc is their design reference, distilled from
+the shipped surfaces + the design tokens. Follow it so the long tail stays
+consistent without per-surface mockups.
+
+Read alongside [`docs/architecture-mobile-first.md`](architecture-mobile-first.md)
+(mobile-first authoring) and `CLAUDE.md` §2.
+
+## Tokens — the single source
+
+All neutral design tokens live in [`assets/css/tokens.css`](../assets/css/tokens.css),
+scoped to `.tt-root`, enqueued first (handle `tt-tokens`). **Use the token,
+never a raw hex.** Brand colours (`--tt-primary` green, `--tt-secondary` gold)
+are emitted by `BrandStyles` on `:root` so the operator's club-colour editor
+can re-theme them — read them as `var(--tt-primary, #0b3d2e)`, don't redeclare.
+
+| Token | Value | Use |
+| --- | --- | --- |
+| `--tt-ink` / `--tt-ink-soft` | `#0e1a14` / `#6a6d66` | Primary / secondary text |
+| `--tt-paper` / `--tt-bg-soft` | `#ffffff` / `#f4f6f3` | Card / page background |
+| `--tt-line` / `--tt-line-soft` | `#e3e6e1` / `#eef0ec` | Borders / dividers |
+| `--tt-success` / `--tt-danger` / `--tt-warning` / `--tt-info` | `#2f9e5e` / `#d8453b` / `#e8902b` / `#2d6fb3` | Status |
+| `--tt-radius` / `--tt-radius-lg` | `8px` / `14px` | Card corners |
+| `--tt-shadow-md` / `--tt-shadow-lg` | (see tokens) | Card hover / modal |
+| `--tt-sp-1..6` | `4..24px` | Spacing (4px scale) |
+| `--tt-fs-sm..h1` | `0.85..1.75rem` | Type scale |
+
+## Components — the 2026 vocabulary
+
+- **Card** — white surface, `1px solid var(--tt-line)`, `border-radius: var(--tt-radius-lg)` (14px), `box-shadow: var(--tt-shadow-md)` on hover. Section title 13px uppercase, letter-spacing. Reference: `frontend-overview.css`, `frontend-tournaments.css`.
+- **KPI tile** — use the shared PHP helper `\TT\Shared\Frontend\Components\FrontendAppChrome::kpiTile()` (label + number + optional trend/flag). Do **not** hand-roll metric tiles. Reference: every Tier-1 view's KPI strip.
+- **Chip / pill** — small rounded label for status/type. Green = on-target/planned, gold = highlight/knockout, red = below-threshold/alert, ghost = live/neutral. Lookup-backed values render via `LookupPill::render()`. Reference: `onboarding-pipeline.css`, `team-planner.css`.
+- **Section / accordion** — collapsible `<details>`/`<summary>` (no JS) with a numbered badge + meta line. Reference: methodology (`frontend-methodology.css`).
+- **Avatar disc** — initials in a coloured circle, ≥28px; `FrontendAppChrome` has an initials helper. Reference: scouting cards, my-team.
+- **Progress bar** — `height: 8px; border-radius: 999px`, fill colour by bucket (green/gold/red). Reference: attendance report, goals.
+
+## Forms
+
+- Save + Cancel via `FormSaveButton::render()` with a `cancel_url` (CLAUDE.md §6).
+- Inputs: correct `type` + `inputmode`, ≥16px font (no iOS zoom), ≥48px targets.
+
+## Layout & responsive
+
+- Mobile-first: base CSS at 360px; scale up with `min-width` at **480 / 768 / 1024** only (no 720/640/560 — see #1379).
+- Card grids: `repeat(auto-fit, minmax(…, 1fr))`; stack to one column at base.
+- Two-affordance nav unchanged (breadcrumb + `tt_back` pill, CLAUDE.md §5).
+
+## Per-view restyle checklist
+
+1. New `assets/css/<view>.css`, mobile-first, `.tt-` prefixed, enqueued with `[ 'tt-frontend-app-chrome' ]` dep.
+2. Tokens only — no raw hex; no new breakpoints.
+3. Body to the card/tile/chip vocabulary above; KPI strip via `kpiTile()`.
+4. Logic stays out of the view (CLAUDE.md §4); native-Dutch strings in the same PR.
+5. Renders at 360px, ≥48px targets, keyboard-navigable.

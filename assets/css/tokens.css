@@ -1,0 +1,77 @@
+/**
+ * TalentTrack design tokens (#1379) — the single source of truth for the
+ * 2026 green/gold palette, type scale, spacing, radius, shadow and motion.
+ *
+ * Scoped to `.tt-root` (never `:root`) so the active WordPress theme is
+ * never touched. Enqueued before every other TalentTrack stylesheet, so
+ * every surface inherits these values unless a more specific rule overrides.
+ *
+ * Values match the fallbacks already used across the 2026 surfaces
+ * (var(--tt-primary, #0b3d2e) etc.), so adopting this file is visually a
+ * no-op for the shipped green/gold views — it just makes the values
+ * canonical and global instead of scattered. The operator's club-colour
+ * editor still overrides via its inline emission (higher cascade priority).
+ */
+.tt-root {
+    /*
+     * Brand colours (--tt-primary / --tt-secondary and their -rgb) are
+     * intentionally NOT declared here. They are the operator's club
+     * colours, emitted on :root by BrandStyles so the visual editor can
+     * re-theme them. Declaring them on .tt-root (a closer ancestor) would
+     * override that club theming — so brand stays with BrandStyles, and
+     * tokens.css owns only the neutral design tokens below. Surfaces keep
+     * using var(--tt-primary, #0b3d2e) for the brand shades.
+     */
+
+    /* Ink / text */
+    --tt-ink:        #0e1a14;
+    --tt-ink-soft:   #6a6d66;
+    --tt-muted:      #6a6d66;
+
+    /* Surfaces */
+    --tt-paper:      #ffffff;
+    --tt-bg-soft:    #f4f6f3;
+    --tt-line:       #e3e6e1;
+    --tt-line-soft:  #eef0ec;
+
+    /* Status */
+    --tt-success:    #2f9e5e;
+    --tt-danger:     #d8453b;
+    --tt-warning:    #e8902b;
+    --tt-info:       #2d6fb3;
+    /* Subtle status backgrounds for inline notices (moved from public.css). */
+    --tt-success-subtle: #dff5e1;
+    --tt-warning-subtle: #fdf3d8;
+    --tt-danger-subtle:  #fde2e2;
+    --tt-info-subtle:    #e6f0fa;
+
+    /* Radius */
+    --tt-radius:     8px;
+    --tt-radius-lg:  14px;
+
+    /* Shadow (defaults match v3.64's pre-token behaviour — no resting shadow). */
+    --tt-shadow-sm:  none;
+    --tt-shadow-md:  0 8px 24px -8px rgba(0,0,0,0.12);
+    --tt-shadow-lg:  0 8px 24px rgba(0,0,0,0.12);
+
+    /* Motion */
+    --tt-motion-duration: 150ms;
+    --tt-motion-easing:   ease;
+
+    /* Type scale */
+    --tt-fs-body: 1rem;
+    --tt-lh-body: 1.5;
+    --tt-fs-sm:   0.85rem;
+    --tt-fs-lg:   1.125rem;
+    --tt-fs-h3:   1.25rem;
+    --tt-fs-h2:   1.5rem;
+    --tt-fs-h1:   1.75rem;
+
+    /* Spacing scale (4px base) */
+    --tt-sp-1: 4px;
+    --tt-sp-2: 8px;
+    --tt-sp-3: 12px;
+    --tt-sp-4: 16px;
+    --tt-sp-5: 20px;
+    --tt-sp-6: 24px;
+}
