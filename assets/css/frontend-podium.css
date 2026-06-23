@@ -1,0 +1,129 @@
+/*
+ * frontend-podium.css — 2026 "chrome" look for the Podium / Top
+ * performers view body (#1695). The global app chrome (#1690) handles
+ * the top bar; this sheet restyles the view BODY: a summary KPI strip
+ * and the per-team podium sections into white chrome cards with a gold
+ * accent on the leading team.
+ *
+ * Mobile-first per CLAUDE.md §2: base styles target ~360px, min-width
+ * queries scale up. Scoped under .tt-dashboard — no global resets, the
+ * active theme is treated as hostile. Tokens come from public.css:
+ * --tt-primary (#0b3d2e), --tt-secondary (#e8b624), --tt-ink,
+ * --tt-muted, --tt-shadow-md.
+ */
+
+/* ---- Summary KPI strip --------------------------------------------- */
+.tt-dashboard .tt-podium-kpis {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+    margin: 0 0 1.25rem;
+}
+@media (min-width: 560px) {
+    .tt-dashboard .tt-podium-kpis {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+}
+
+/* ---- Team podium card ---------------------------------------------- */
+.tt-dashboard .tt-podium-team {
+    background: #fff;
+    border: 1px solid #e3e6e1;
+    border-radius: 14px;
+    box-shadow: var(--tt-shadow-md);
+    overflow: hidden;
+    margin-bottom: 1.1rem;
+}
+
+/* The leading team (first podium on the page) gets the gold accent so
+ * the eye lands on the top performers first. */
+.tt-dashboard .tt-podium-team--lead {
+    border-color: var(--tt-secondary);
+    box-shadow: 0 8px 24px -8px rgba(232, 182, 36, 0.35);
+}
+.tt-dashboard .tt-podium-team--lead .tt-podium-team-header {
+    border-top: 3px solid var(--tt-secondary);
+}
+
+/* ---- Team header --------------------------------------------------- */
+.tt-dashboard .tt-podium-team-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.4rem 0.6rem;
+    padding: 0.85rem 1rem;
+    background: linear-gradient(180deg, #fafbf9 0%, #fff 100%);
+    border-bottom: 1px solid #e3e6e1;
+}
+.tt-dashboard .tt-podium-team-header h2 {
+    margin: 0;
+    font-size: 1.05rem;
+    line-height: 1.2;
+    color: var(--tt-primary);
+    min-width: 0;
+}
+.tt-dashboard .tt-podium-team-header h2 a {
+    color: inherit;
+    text-decoration: none;
+}
+.tt-dashboard .tt-podium-team-header h2 a:hover,
+.tt-dashboard .tt-podium-team-header h2 a:focus-visible {
+    color: var(--tt-secondary);
+    text-decoration: underline;
+}
+
+/* Age-group chip */
+.tt-dashboard .tt-podium-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    background: rgba(11, 61, 46, 0.07);
+    color: var(--tt-primary);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    line-height: 1.4;
+    white-space: nowrap;
+}
+.tt-dashboard .tt-podium-team--lead .tt-podium-chip {
+    background: rgba(232, 182, 36, 0.16);
+}
+
+/* "Leading" pill on the gold team header */
+.tt-dashboard .tt-podium-lead-pill {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    background: var(--tt-secondary);
+    color: var(--tt-primary);
+    font-size: 0.68rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+}
+
+/* ---- Team body (hosts the shared PlayerCardView podium) ------------ */
+.tt-dashboard .tt-podium-team-body {
+    padding: 1rem;
+}
+
+/* ---- Empty state --------------------------------------------------- */
+.tt-dashboard .tt-podium-empty {
+    background: #fff;
+    border: 1px solid #e3e6e1;
+    border-radius: 14px;
+    box-shadow: var(--tt-shadow-md);
+    padding: 1.25rem;
+    color: var(--tt-muted);
+    margin: 0;
+}
+
+@media (min-width: 768px) {
+    .tt-dashboard .tt-podium-team-header { padding: 1rem 1.25rem; }
+    .tt-dashboard .tt-podium-team-header h2 { font-size: 1.15rem; }
+    .tt-dashboard .tt-podium-team-body { padding: 1.25rem; }
+}
