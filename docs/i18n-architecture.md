@@ -130,7 +130,7 @@ Ask: *is this string stored in a database column whose value an operator might e
 Edge cases:
 
 - **Status keys** (`'active'`, `'open'`, `'completed'`) — keys, not labels. Render-time translated via `LabelTranslator`. Stored as enum-style strings; the human label maps via gettext.
-- **Migration-seeded English values** — those go into `.po` historically (gettext-resolvable) AND now into `tt_translations` (Phase 6 backfill via gettext). Reads prefer `tt_translations` first.
+- **Migration-seeded English values** — those go into `.po` historically (gettext-resolvable) AND now into `tt_translations` (Phase 6 backfill via gettext). Reads prefer `tt_translations` first. Where the gettext backfill was incomplete (the eval-category vocabulary only had a few `.po` entries, so most labels leaked English on nl_NL), a follow-up migration seeds the authoritative Dutch labels straight into `tt_translations`, keyed by the stable `category_key` and skipping academy-renamed rows (migration `0169`, #1733).
 - **Computed strings** — `sprintf( __('Hello, %s'), $name )` — the format string belongs in `.po`, the variable is data and stays raw.
 
 ## See also

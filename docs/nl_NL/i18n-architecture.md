@@ -130,7 +130,7 @@ Vraag: *is deze string opgeslagen in een database-kolom waarvan een operator de 
 Randgevallen:
 
 - **Status-keys** (`'active'`, `'open'`, `'completed'`) — keys, geen labels. Render-time vertaald via `LabelTranslator`. Opgeslagen als enum-achtige strings; het menselijke label mapt via gettext.
-- **Migratie-geseede Engelse waardes** — die zaten historisch in `.po` (gettext-oplosbaar) EN nu in `tt_translations` (Phase 6 backfill via gettext). Reads kiezen `tt_translations` eerst.
+- **Migratie-geseede Engelse waardes** — die zaten historisch in `.po` (gettext-oplosbaar) EN nu in `tt_translations` (Phase 6 backfill via gettext). Reads kiezen `tt_translations` eerst. Waar de gettext-backfill onvolledig was (de eval-categorie-vocabulaire had maar een paar `.po`-entries, dus de meeste labels lekten Engels op nl_NL), seedt een vervolgmigratie de gezaghebbende Nederlandse labels rechtstreeks in `tt_translations`, gekoppeld via de stabiele `category_key` en met overslaan van door de academie hernoemde rijen (migratie `0169`, #1733).
 - **Computed strings** — `sprintf( __('Hello, %s'), $name )` — het format-string hoort in `.po`, de variabele is data en blijft raw.
 
 ## Zie ook
