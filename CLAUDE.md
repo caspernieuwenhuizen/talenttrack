@@ -455,6 +455,65 @@ to the filesystem. They never touch the same surface concurrently.
 - **Smallest scope first**: smaller PRs = fewer conflict points with
   other agents' parallel work.
 
+### Parallel drain — many implementation agents + one release agent
+
+The default drain above is **sequential** (oldest-first, one worktree at
+a time). When the user explicitly asks to run several agents at once
+(*"drain these in parallel"*, *"3 implementation agents + a release
+agent"*), switch to **content-only mode** so the agents never collide on
+release-plumbing files:
+
+- **Implementation agents touch content + docs + their own new-string
+  `nl_NL.po` translations ONLY.** They do **NOT** bump `TT_VERSION` or
+  the `talenttrack.php` `Version:` header, do **NOT** edit `CHANGES.md`
+  or `readme.txt`, do **NOT** commit `.mo`, do **NOT** edit
+  `SEQUENCE.md`. Each instead drops a one-paragraph
+  `changelog.d/<issue>-<slug>.md` snippet — a brand-new file, so it never
+  conflicts. Those five files are the *only* ones every PR would
+  otherwise touch, which is exactly why parallel merges collide on them.
+  (New-string Dutch translations stay per-PR because `i18n-pr-check.yml`
+  fails a PR that adds untranslated msgids.)
+- **The release agent owns all plumbing, once, for the whole batch.**
+  After the content branches merge, it runs `tools/release.ps1 <version>`
+  — consolidates the `changelog.d/` snippets into `CHANGES.md` +
+  `readme.txt`, bumps both version lines in `talenttrack.php`, bumps the
+  `readme.txt` Stable tag, and deletes the consumed snippets. Pushing that
+  single version bump to `main` triggers `auto-release.yml`, which
+  recompiles `.mo` from `.po` and publishes the release. The release agent
+  does **not** compile `.mo` or create tags — CI owns both.
+- **Pick a file-disjoint set.** "Independent" means the branches don't
+  edit the same *content* file, not merely that the issues are unrelated.
+  Run `tools/check-overlap.ps1 <branchA> <branchB> …` before launching; if
+  two issues share a file, give both to the SAME agent sequentially.
+- **Integrate + gate; don't trust the merge.** Merge content branches into
+  `main` one at a time, `git pull --ff-only` between them (the
+  `i18n-sync.yml` auto-commit moves `main` after each PHP-touching merge),
+  and let the E2E/lint gate run. git auto-merges non-overlapping hunks but
+  cannot catch a *semantic* conflict (two textually-clean hunks that are
+  jointly wrong) — the gate is the safety net. `.gitattributes` carries
+  `union` drivers for `CHANGES.md` / `readme.txt` / `SEQUENCE.md` / `*.po`
+  and marks `*.mo` binary; `git config rerere.enabled true` replays known
+  resolutions. Together these keep residual friction near zero.
+- **Never run two schema/migration changes in parallel** (the AGENTS.md
+  rule stands). A migration agent runs alone, or alongside non-migration
+  work only.
+
+**Trigger phrases** (so the user doesn't retype the rule each time):
+
+- **`content-only #<issue>`** (alias **`co #<issue>`**) → act as an
+  implementation agent for that issue: work it in its own worktree;
+  change ONLY its feature/fix files, its docs (EN + `docs/nl_NL/`), and
+  its new `languages/talenttrack-nl_NL.po` strings; drop a
+  `changelog.d/<issue>-<slug>.md` note; open a PR. Do **NOT** bump the
+  version or touch `CHANGES.md` / `readme.txt` / `SEQUENCE.md` / `.mo`.
+  Multiple issues after one trigger (`co #1731 #1732`) = one agent doing
+  them in sequence; separate agents are launched per the user's parallel
+  set.
+- **`release <version>`** → act as the release agent: run
+  `tools/release.ps1 <version>`, review the diff, commit, and push to
+  `main` (which triggers `auto-release.yml`). Equivalent to the batched
+  finish of a parallel drain.
+
 ### The label
 
 `ready-for-dev` is a pre-existing repo label (description: *"Shaped
@@ -514,6 +573,13 @@ A PR is not ready to merge until **all** of these hold:
       enhancements; **minor** for new feature epics (reset patch to 0);
       **major** only for operator-breaking changes. Don't reflex-bump
       patch on a minor feature.
+  - **Parallel-drain / batched-release mode (CLAUDE.md §7):** when the
+        user runs multiple implementation agents + one release agent,
+        content PRs do **not** bump the version or edit
+        `CHANGES.md` / `readme.txt` — they drop a
+        `changelog.d/<issue>-<slug>.md` snippet instead. The release agent
+        bumps once for the batch via `tools/release.ps1 <version>`; that
+        single version-bump push to `main` is what triggers the release.
 
 **Player-centricity:**
 - [ ] Which player question does this feature help answer? (State it in

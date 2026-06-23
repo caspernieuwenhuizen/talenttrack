@@ -1,0 +1,21 @@
+# Parallel-drain merge friction control (CLAUDE.md §7).
+#
+# These release-plumbing / generated files are the ones multiple
+# in-flight branches would otherwise collide on. `union` keeps both
+# sides' added lines for append-style files so independent branches
+# merge without a hard conflict; `.mo` is a CI-recompiled binary and
+# must never be text-merged.
+#
+# Pair this with: git config rerere.enabled true  (replays known
+# conflict resolutions, e.g. the version line).
+
+CHANGES.md        merge=union
+readme.txt        merge=union
+SEQUENCE.md       merge=union
+languages/*.po    merge=union
+languages/*.mo    binary
+
+# Note: never put CODE files under merge=union — it would keep both
+# versions of a conflicting line and silently break the code. union is
+# only safe for append-only text. The version constant lives in
+# talenttrack.php (NOT unioned) and is owned solely by the release step.
