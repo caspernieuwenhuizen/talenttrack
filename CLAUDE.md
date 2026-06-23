@@ -500,6 +500,30 @@ release-plumbing files:
 
 **Trigger phrases** (so the user doesn't retype the rule each time):
 
+- **`batch the queue <N>`** (alias **`plan batches for <N> agents`**) → act
+  as the **planner** (NOT the release agent; produces a plan, ships
+  nothing). `<N>` is the number of parallel implementation agents the user
+  is running — **you cannot auto-detect it** (separate Claude Code sessions
+  can't see each other), so it is always supplied; **default to 2** when
+  omitted. Steps:
+  1. List open `ready-for-dev` issues; from each spec, extract the files
+     it will touch.
+  2. Build an overlap graph — an edge between two issues sharing a
+     **code/content** file. Connected issues must go in the **same** batch
+     (one agent, run sequentially). Treat every migration-adding issue as
+     sharing one virtual `__migration__` resource (shared numbering), so
+     they coalesce into a single batch.
+  3. **Ignore `.po` / `.mo` and the release-plumbing files** as collision
+     sources (union-merged / release-only). The exception is a *broad*
+     i18n sweep that rewrites `nl_NL.po` wholesale — schedule it **solo,
+     last**, after the content batches merge.
+  4. Distribute the resulting components across `<N>` batches, balancing
+     count; never split a component, never put two schema/migration
+     changes in different parallel batches.
+  5. Output one column per agent (the sequential issue list), name the
+     shared file that couples each in-batch pair, and flag any solo/last
+     issue. File lists are forecasts from specs — tell the user to confirm
+     with `tools/check-overlap.ps1` once the branches exist.
 - **`content-only #<issue>`** (alias **`co #<issue>`**) → act as an
   implementation agent for that issue: work it in its own worktree;
   change ONLY its feature/fix files, its docs (EN + `docs/nl_NL/`), and
