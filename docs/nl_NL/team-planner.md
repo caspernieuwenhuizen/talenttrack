@@ -66,7 +66,7 @@ Boven het raster staan drie exportknoppen:
 
 - **Export PDF** — de liggende roostertabel (één rij per activiteit).
 - **Export XLSX** — het week-voor-week opgemaakte spreadsheet.
-- **Week-PDF** — een **gebrande, staande** weekindeling: een verticale week met de weekdag links en de activiteitkaart van die dag rechts (typelabel, tijd/locatie/duur, wedstrijddetails, thema + principes, optioneel notities), in de kleuren en het embleem van de academie. Ideaal om aan spelers/ouders te geven of op het prikbord te hangen. Een wedstrijdkaart toont `Aanwezig HH:MM` (de aanwezigheidstijd van de activiteit) vóór `Aftrap HH:MM`; de aftrapregel valt terug op de begintijd van de activiteit als er geen aparte aftraptijd is ingevoerd.
+- **Week-PDF** — een **gebrande, staande** weekindeling: een verticale week met de weekdag links en de activiteitkaart van die dag rechts (typelabel, tijd/locatie/duur, wedstrijddetails, thema + principes, optioneel notities), in de kleuren en het embleem van de academie. Ideaal om aan spelers/ouders te geven of op het prikbord te hangen. Een wedstrijdkaart toont `Aanwezig HH:MM` (de aanwezigheidstijd van de activiteit) vóór `Aftrap HH:MM`; de aftrapregel valt terug op de begintijd van de activiteit als er geen aparte aftraptijd is ingevoerd. De badge linksboven toont het embleem van de academie als dat is ingesteld, anders het ISO-weeknummer.
 
 **Week-PDF** opent eerst een klein **samenstel-venster** waarin je kiest wat erin komt:
 
