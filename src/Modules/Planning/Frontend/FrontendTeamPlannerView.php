@@ -76,6 +76,20 @@ class FrontendTeamPlannerView extends FrontendViewBase {
             TT_VERSION,
             true
         );
+        // #1715 — team multi-select dropdown: live summary label +
+        // outside-click / Escape close.
+        wp_enqueue_script(
+            'tt-planner-team-dropdown',
+            TT_PLUGIN_URL . 'assets/js/components/planner-team-dropdown.js',
+            [],
+            TT_VERSION,
+            true
+        );
+        wp_localize_script( 'tt-planner-team-dropdown', 'TT_PLANNER_TEAM_DD', [
+            'all'  => __( 'All teams', 'talenttrack' ),
+            /* translators: %d: number of teams selected */
+            'many' => __( '%d teams selected', 'talenttrack' ),
+        ] );
         FrontendBreadcrumbs::fromDashboard( __( 'Team planner', 'talenttrack' ) );
         self::renderHeader( __( 'Team planner', 'talenttrack' ) );
 
@@ -96,13 +110,18 @@ class FrontendTeamPlannerView extends FrontendViewBase {
         // window to whole weeks (Mon–Sun) so the grid lines up.
         [ $range_start, $range_end, $weeks_count, $season ] = self::resolveRangeWindow( $range, $week_start );
 
-        // #1639 — two or more teams selected → a condensed, read-only
-        // overview across teams. A HoD doesn't plan team-specific
-        // activities, so no copy / duplicate / schedule chrome.
+        // #1639 / #1703 — two or more teams selected → a condensed,
+        // read-only calendar across teams (one row per team per week
+        // block). A HoD doesn't plan team-specific activities, so no
+        // copy / duplicate / schedule chrome.
         if ( count( $selected_ids ) >= 2 ) {
             $activities = self::activitiesForRangeMulti( $selected_ids, $range_start, $range_end );
+            $team_names = [];
+            foreach ( $teams as $t ) {
+                $team_names[ (int) $t->id ] = (string) ( $t->name ?? '' );
+            }
             echo self::renderToolbar( $teams, $selected_ids, $range, $range_start, $weeks_count, $season, false, true );
-            echo self::renderMultiOverview( $activities );
+            echo self::renderMultiTeamGrid( $activities, $range_start, $weeks_count, $selected_ids, $team_names );
             return;
         }
 
@@ -305,18 +324,56 @@ class FrontendTeamPlannerView extends FrontendViewBase {
                 <input type="hidden" name="tt_view" value="team-planner" />
                 <input type="hidden" name="week_start" value="<?php echo esc_attr( $range_start ); ?>" />
 
-                <fieldset class="tt-planner-team-picker">
-                    <legend><?php esc_html_e( 'Teams', 'talenttrack' ); ?></legend>
-                    <?php foreach ( $teams as $t ) :
-                        $tid = (int) $t->id;
-                        ?>
-                        <label class="tt-planner-team-check">
-                            <input type="checkbox" name="team_ids[]" value="<?php echo esc_attr( (string) $tid ); ?>" <?php checked( in_array( $tid, $selected_ids, true ) ); ?> />
-                            <span><?php echo esc_html( (string) $t->name ); ?></span>
-                        </label>
-                    <?php endforeach; ?>
+                <?php
+                // #1715 — a real collapsed dropdown that multi-selects.
+                // Native `<select multiple>` renders as an always-open
+                // list box, not a dropdown, so use a `<details>`
+                // disclosure whose summary is styled like a select and
+                // whose panel holds the `team_ids[]` checkboxes. JS keeps
+                // the summary label in sync and closes it on outside
+                // click / Escape; the GET contract is unchanged.
+                $sel_count = count( $selected_ids );
+                if ( $sel_count === 0 ) {
+                    $summary_label = __( 'All teams', 'talenttrack' );
+                } elseif ( $sel_count === 1 ) {
+                    $summary_label = __( 'All teams', 'talenttrack' );
+                    foreach ( $teams as $t ) {
+                        if ( (int) $t->id === (int) $selected_ids[0] ) { $summary_label = (string) $t->name; break; }
+                    }
+                } else {
+                    $summary_label = sprintf(
+                        /* translators: %d: number of teams selected */
+                        _n( '%d team selected', '%d teams selected', $sel_count, 'talenttrack' ),
+                        $sel_count
+                    );
+                }
+                ?>
+                <div class="tt-planner-team-picker">
+                    <span class="tt-planner-team-label" id="tt-planner-teams-label"><?php esc_html_e( 'Teams', 'talenttrack' ); ?></span>
+                    <details class="tt-planner-team-dd" data-tt-team-dd>
+                        <summary class="tt-planner-team-dd-toggle" role="button" aria-haspopup="listbox"
+                                 aria-labelledby="tt-planner-teams-label">
+                            <span class="tt-planner-team-dd-text" data-tt-team-dd-text><?php echo esc_html( $summary_label ); ?></span>
+                            <span class="tt-planner-team-dd-caret" aria-hidden="true">&#9662;</span>
+                        </summary>
+                        <div class="tt-planner-team-dd-panel" role="group" aria-labelledby="tt-planner-teams-label">
+                            <?php // #1721 — bulk select / clear shortcuts. ?>
+                            <div class="tt-planner-team-dd-actions">
+                                <button type="button" class="tt-planner-team-dd-action" data-tt-team-dd-all><?php esc_html_e( 'Select all', 'talenttrack' ); ?></button>
+                                <button type="button" class="tt-planner-team-dd-action" data-tt-team-dd-none><?php esc_html_e( 'Clear all', 'talenttrack' ); ?></button>
+                            </div>
+                            <?php foreach ( $teams as $t ) :
+                                $tid = (int) $t->id;
+                                ?>
+                                <label class="tt-planner-team-dd-opt">
+                                    <input type="checkbox" name="team_ids[]" value="<?php echo esc_attr( (string) $tid ); ?>" <?php checked( in_array( $tid, $selected_ids, true ) ); ?> />
+                                    <span><?php echo esc_html( (string) $t->name ); ?></span>
+                                </label>
+                            <?php endforeach; ?>
+                        </div>
+                    </details>
                     <p class="tt-planner-team-hint"><?php esc_html_e( 'Pick two or more teams for a read-only overview across teams.', 'talenttrack' ); ?></p>
-                </fieldset>
+                </div>
 
                 <label class="tt-planner-range-label" for="tt-planner-range"><?php esc_html_e( 'Show', 'talenttrack' ); ?></label>
                 <select id="tt-planner-range" name="range">
@@ -827,66 +884,112 @@ class FrontendTeamPlannerView extends FrontendViewBase {
     }
 
     /**
-     * #1639 — condensed, read-only overview across the selected teams.
-     * One row per activity: date · team · type · match (opponent +
-     * home/away) · status. No planning chrome.
+     * #1703 — condensed, read-only calendar across the selected teams.
+     * Week blocks stack vertically; within each block the columns are
+     * the seven days (honouring the academy's first-day-of-week) and
+     * the rows are one per selected team. Each day-cell shows only the
+     * activity-type pill (+ opponent and a home/away marker for
+     * matches). Pills link to the activity's read-only display view.
+     * No principle chips, copy chips, or schedule chrome.
      *
-     * @param object[] $activities
+     * @param object[]            $activities
+     * @param int[]               $selected_ids  ordered team ids (one row each)
+     * @param array<int,string>   $team_names    team id → display name
      */
-    private static function renderMultiOverview( array $activities ): string {
+    private static function renderMultiTeamGrid( array $activities, string $range_start, int $weeks_count, array $selected_ids, array $team_names ): string {
+        // Bucket activities by team id → session_date.
+        $by_team_day = [];
+        foreach ( $activities as $a ) {
+            $tid = (int) ( $a->team_id ?? 0 );
+            $d   = (string) ( $a->session_date ?? '' );
+            if ( $tid <= 0 || $d === '' ) continue;
+            $by_team_day[ $tid ][ $d ][] = $a;
+        }
+
+        $today_str = gmdate( 'Y-m-d' );
+
         ob_start();
         if ( ! $activities ) {
             echo '<p class="tt-notice">' . esc_html__( 'No activities for the selected teams in this period.', 'talenttrack' ) . '</p>';
-            return (string) ob_get_clean();
         }
-        ?>
-        <div class="tt-planner-overview" data-tt-planner-overview>
-            <table class="tt-table tt-planner-overview-table">
-                <thead>
-                    <tr>
-                        <th><?php esc_html_e( 'Date', 'talenttrack' ); ?></th>
-                        <th><?php esc_html_e( 'Team', 'talenttrack' ); ?></th>
-                        <th><?php esc_html_e( 'Type', 'talenttrack' ); ?></th>
-                        <th><?php esc_html_e( 'Match', 'talenttrack' ); ?></th>
-                        <th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th>
-                    </tr>
-                </thead>
-                <tbody>
-                <?php foreach ( $activities as $a ) :
-                    $date       = (string) ( $a->session_date ?? '' );
-                    $time       = (string) ( $a->start_time ?? '' );
-                    $date_label = $date !== '' ? mysql2date( get_option( 'date_format' ), $date, true ) : '';
-                    if ( $time !== '' && $time !== '00:00:00' ) {
-                        $date_label .= ' · ' . substr( $time, 0, 5 );
-                    }
-                    $type_key   = (string) ( $a->activity_type_key ?? '' );
-                    $type_label = $type_key !== ''
-                        ? \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'activity_type', $type_key )
-                        : (string) ( $a->title ?? '' );
-                    $status_key = (string) ( $a->activity_status_key ?? 'planned' );
-
-                    $opponent    = (string) ( $a->opponent ?? '' );
-                    $home_away   = (string) ( $a->home_away ?? '' );
-                    $match_label = '';
-                    if ( $opponent !== '' ) {
-                        $ha = $home_away === 'home'
-                            ? __( 'Home', 'talenttrack' )
-                            : ( $home_away === 'away' ? __( 'Away', 'talenttrack' ) : '' );
-                        $match_label = $ha !== '' ? sprintf( '%s (%s)', $opponent, $ha ) : $opponent;
-                    }
+        for ( $w = 0; $w < $weeks_count; $w++ ) {
+            $week_start  = gmdate( 'Y-m-d', strtotime( $range_start . ' +' . ( $w * 7 ) . ' days' ) );
+            $end_of_week = gmdate( 'Y-m-d', strtotime( $week_start . ' +6 days' ) );
+            // Day columns honour the configured first-day-of-week:
+            // $range_start is already snapped to it by resolveWeekStart().
+            $days = [];
+            for ( $i = 0; $i < 7; $i++ ) {
+                $days[] = gmdate( 'Y-m-d', strtotime( $week_start . " +{$i} days" ) );
+            }
+            ?>
+            <?php if ( $weeks_count > 1 ) : ?>
+                <h3 class="tt-planner-week-label">
+                    <?php
+                    echo esc_html( sprintf(
+                        /* translators: 1: first day of the week, 2: last day. */
+                        __( 'Week of %1$s — %2$s', 'talenttrack' ),
+                        wp_date( 'M j', strtotime( $week_start ) ),
+                        wp_date( 'M j', strtotime( $end_of_week ) )
+                    ) );
                     ?>
-                    <tr>
-                        <td data-label="<?php esc_attr_e( 'Date', 'talenttrack' ); ?>"><?php echo esc_html( $date_label ); ?></td>
-                        <td data-label="<?php esc_attr_e( 'Team', 'talenttrack' ); ?>"><?php echo esc_html( (string) ( $a->team_name ?? '' ) ); ?></td>
-                        <td data-label="<?php esc_attr_e( 'Type', 'talenttrack' ); ?>"><?php echo esc_html( $type_label ); ?></td>
-                        <td data-label="<?php esc_attr_e( 'Match', 'talenttrack' ); ?>"><?php echo $match_label !== '' ? esc_html( $match_label ) : '—'; ?></td>
-                        <td data-label="<?php esc_attr_e( 'Status', 'talenttrack' ); ?>"><?php echo LookupPill::render( 'activity_status', $status_key ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></td>
-                    </tr>
+                </h3>
+            <?php endif; ?>
+            <div class="tt-planner-multi" role="table" aria-label="<?php esc_attr_e( 'Cross-team week overview', 'talenttrack' ); ?>">
+                <div class="tt-planner-multi-head" role="row">
+                    <span class="tt-planner-multi-corner" role="columnheader"><?php esc_html_e( 'Team', 'talenttrack' ); ?></span>
+                    <?php foreach ( $days as $day ) : ?>
+                        <span class="tt-planner-multi-dow<?php echo $day === $today_str ? ' tt-planner-multi-dow-today' : ''; ?>" role="columnheader">
+                            <span class="tt-planner-multi-dow-name"><?php echo esc_html( wp_date( 'D', strtotime( $day ) ) ); ?></span>
+                            <span class="tt-planner-multi-dow-date"><?php echo esc_html( wp_date( 'M j', strtotime( $day ) ) ); ?></span>
+                        </span>
+                    <?php endforeach; ?>
+                </div>
+                <?php foreach ( $selected_ids as $tid ) :
+                    $tid  = (int) $tid;
+                    $name = (string) ( $team_names[ $tid ] ?? '' );
+                    ?>
+                    <div class="tt-planner-multi-row" role="row">
+                        <span class="tt-planner-multi-team" role="rowheader"><?php echo esc_html( $name ); ?></span>
+                        <?php foreach ( $days as $day ) :
+                            $items = $by_team_day[ $tid ][ $day ] ?? [];
+                            ?>
+                            <span class="tt-planner-multi-cell" role="cell" data-tt-day-label="<?php echo esc_attr( wp_date( 'D M j', strtotime( $day ) ) ); ?>">
+                                <?php foreach ( $items as $a ) :
+                                    $type_key = (string) ( $a->activity_type_key ?? '' );
+                                    $url      = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [
+                                        'tt_view' => 'activities',
+                                        'id'      => (int) $a->id,
+                                    ], RecordLink::dashboardUrl() ) );
+
+                                    $opponent  = (string) ( $a->opponent ?? '' );
+                                    $home_away = (string) ( $a->home_away ?? '' );
+                                    $ha        = $home_away === 'home'
+                                        ? __( 'Home', 'talenttrack' )
+                                        : ( $home_away === 'away' ? __( 'Away', 'talenttrack' ) : '' );
+                                    $match_label = $opponent !== ''
+                                        ? ( $ha !== '' ? sprintf( '%s (%s)', $opponent, $ha ) : $opponent )
+                                        : '';
+                                    ?>
+                                    <a class="tt-planner-multi-item" href="<?php echo esc_url( $url ); ?>">
+                                        <?php
+                                        // activity_type pill — same lookup pill the rest of
+                                        // the planner uses; LookupPill escapes its own output.
+                                        echo $type_key !== ''
+                                            ? LookupPill::render( 'activity_type', $type_key ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                                            : esc_html( (string) ( $a->title ?? '' ) );
+                                        ?>
+                                        <?php if ( $match_label !== '' ) : ?>
+                                            <span class="tt-planner-multi-match"><?php echo esc_html( $match_label ); ?></span>
+                                        <?php endif; ?>
+                                    </a>
+                                <?php endforeach; ?>
+                            </span>
+                        <?php endforeach; ?>
+                    </div>
                 <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-        <?php
+            </div>
+            <?php
+        }
         return (string) ob_get_clean();
     }
 
