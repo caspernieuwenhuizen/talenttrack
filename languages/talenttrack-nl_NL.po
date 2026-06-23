@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-23T20:11:03+00:00\n"
+"POT-Creation-Date: 2026-06-23T20:14:54+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -3321,6 +3321,7 @@ msgstr "Totaal minuten"
 #: src/Shared/Frontend/FrontendEvaluationsView.php:256
 #: src/Shared/Frontend/FrontendEvaluationsView.php:268
 #: src/Shared/Frontend/FrontendExportsView.php:360
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:157
 #: src/Shared/Frontend/FrontendOverviewView.php:215
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:156
 #: src/Shared/Frontend/FrontendReportDetailView.php:98
@@ -14956,7 +14957,7 @@ msgstr ""
 #. translators: 1: opponent name, 2: home or away label
 #. translators: 1: opponent name, 2: match result
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:225
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:211
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:251
 #, php-format
 msgid "vs %1$s (%2$s)"
 msgstr "vs %1$s (%2$s)"
@@ -35426,29 +35427,41 @@ msgstr ""
 "Nog geen evaluaties. Je coaches noteren ze hier naarmate trainingen en "
 "wedstrijden vorderen."
 
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:141
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:153
+msgid "Evaluation summary"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:163
+msgid "Latest rating"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:170
+msgid "No change"
+msgstr ""
+
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:181
 msgid "Evaluations, newest first"
 msgstr "Evaluaties, nieuwste eerst"
 
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:188
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:228
 msgid "No overall rating yet"
 msgstr "Nog geen totaalbeoordeling"
 
 #. translators: %s is the coach's display name
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:197
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:237
 #, php-format
 msgid "by %s"
 msgstr "door %s"
 
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:235
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:275
 msgid "Feedback from your coach"
 msgstr "Feedback van je coach"
 
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:242
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:282
 msgid "Show detail"
 msgstr "Details tonen"
 
-#: src/Shared/Frontend/FrontendMyEvaluationsView.php:243
+#: src/Shared/Frontend/FrontendMyEvaluationsView.php:283
 msgid "Hide detail"
 msgstr "Details verbergen"
 
