@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.45.6
+Stable tag: 4.45.7
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.45.7 — Team planner team dropdown gains Select all / Clear all (#1721). The multi-select team dropdown (#1715) now has **Select all** and **Clear all** shortcuts at the top of the panel, so picking every team — or starting over — is one tap instead of ticking each box. The dropdown stays open after a bulk toggle so the result is visible before Apply. New strings translated to Dutch. Patch bump. (#1721) =
 
 = 4.45.6 — Team planner team picker is a real collapsed multi-select dropdown (#1715). The #1703 picker used a native `<select multiple>`, which browsers render as an always-open list box rather than a dropdown. Replaced it with a `<details>` disclosure styled like a select: collapsed by default, click to open a checkbox list of teams, with the summary showing the current selection ("Alle teams" / a team name / "N teams geselecteerd"). It closes on outside-click or Escape, keeps every option at a 48px touch target, and is full-width on phones. The `team_ids[]` submission is unchanged, so single- and multi-team behaviour is identical. New strings translated to Dutch. Patch bump. (#1715) =
 

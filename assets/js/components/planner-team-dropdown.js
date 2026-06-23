@@ -43,6 +43,17 @@
 		} );
 		update();
 
+		// #1721 — bulk select / clear. Toggles every box, then refreshes
+		// the summary. Stays open so the result is visible before Apply.
+		function setAll( checked ) {
+			Array.prototype.forEach.call( boxes, function ( b ) { b.checked = checked; } );
+			update();
+		}
+		var selectAllBtn = dd.querySelector( '[data-tt-team-dd-all]' );
+		var clearAllBtn = dd.querySelector( '[data-tt-team-dd-none]' );
+		if ( selectAllBtn ) selectAllBtn.addEventListener( 'click', function () { setAll( true ); } );
+		if ( clearAllBtn ) clearAllBtn.addEventListener( 'click', function () { setAll( false ); } );
+
 		// Close when clicking outside the open dropdown.
 		document.addEventListener( 'click', function ( e ) {
 			if ( ! dd.open ) return;

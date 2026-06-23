@@ -357,6 +357,11 @@ class FrontendTeamPlannerView extends FrontendViewBase {
                             <span class="tt-planner-team-dd-caret" aria-hidden="true">&#9662;</span>
                         </summary>
                         <div class="tt-planner-team-dd-panel" role="group" aria-labelledby="tt-planner-teams-label">
+                            <?php // #1721 — bulk select / clear shortcuts. ?>
+                            <div class="tt-planner-team-dd-actions">
+                                <button type="button" class="tt-planner-team-dd-action" data-tt-team-dd-all><?php esc_html_e( 'Select all', 'talenttrack' ); ?></button>
+                                <button type="button" class="tt-planner-team-dd-action" data-tt-team-dd-none><?php esc_html_e( 'Clear all', 'talenttrack' ); ?></button>
+                            </div>
                             <?php foreach ( $teams as $t ) :
                                 $tid = (int) $t->id;
                                 ?>
