@@ -39423,3 +39423,9 @@ msgstr[1] "%d teams geselecteerd"
 
 msgid "%d teams selected"
 msgstr "%d teams geselecteerd"
+
+msgid "Select all"
+msgstr "Alles selecteren"
+
+msgid "Clear all"
+msgstr "Selectie wissen"
