@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.45.5
+Stable tag: 4.45.6
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.45.6 — Team planner team picker is a real collapsed multi-select dropdown (#1715). The #1703 picker used a native `<select multiple>`, which browsers render as an always-open list box rather than a dropdown. Replaced it with a `<details>` disclosure styled like a select: collapsed by default, click to open a checkbox list of teams, with the summary showing the current selection ("Alle teams" / a team name / "N teams geselecteerd"). It closes on outside-click or Escape, keeps every option at a 48px touch target, and is full-width on phones. The `team_ids[]` submission is unchanged, so single- and multi-team behaviour is identical. New strings translated to Dutch. Patch bump. (#1715) =
 
 = 4.45.5 — Activities-manage list query moved out of the view into ActivitiesRepository (#1320). Tech-debt: the activities management surface built its list SQL — including the demo-scope predicate and the coach-scope authorization guard — inline in `FrontendActivitiesManageView`. That query (and its permission logic) now lives in `ActivitiesRepository::listForManageSurface()`, so the surface and the REST list share one source of truth and the view holds no SQL or authorization logic (CLAUDE.md §4). Behaviour is unchanged: same filters, same coach-scope restriction, same ordering. No user-visible change. Patch bump. (#1320) =
 

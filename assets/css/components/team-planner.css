@@ -355,19 +355,74 @@
     font-size: 0.78rem;
     color: var(--tt-ink, #1a1d21);
 }
-/* #1703 — multi-select team dropdown. 16px font-size stops iOS auto-
-   zoom on focus; each option row stays a comfortable touch target. */
-.tt-planner-team-select {
-    min-width: 12rem;
-    font-size: 16px;
-    padding: 6px 8px;
+/* #1715 — a real collapsed multi-select dropdown (a `<details>` styled
+   like a select). Mobile-first: full-width control below 480px, fixed
+   min-width above. 16px summary font stops iOS auto-zoom on focus. */
+.tt-planner-team-dd {
+    position: relative;
+    width: 100%;
+    max-width: 22rem;
+}
+.tt-planner-team-dd-toggle {
+    list-style: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    min-height: 48px;
+    padding: 0 0.75rem;
     border: 1px solid var(--tt-line, #d6dadd);
     border-radius: 8px;
     background: #fff;
+    font-size: 16px;
+    touch-action: manipulation;
 }
-.tt-planner-team-select option {
-    padding: 8px 6px;
-    min-height: 32px;
+.tt-planner-team-dd-toggle::-webkit-details-marker { display: none; }
+.tt-planner-team-dd-text {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.tt-planner-team-dd-caret {
+    flex: 0 0 auto;
+    transition: transform 0.15s ease;
+}
+.tt-planner-team-dd[open] .tt-planner-team-dd-caret { transform: rotate(180deg); }
+@media ( prefers-reduced-motion: reduce ) {
+    .tt-planner-team-dd-caret { transition: none; }
+}
+.tt-planner-team-dd-panel {
+    position: absolute;
+    z-index: 30;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    max-height: 16rem;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid var(--tt-line, #d6dadd);
+    border-radius: 8px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    padding: 0.25rem;
+}
+.tt-planner-team-dd-opt {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 48px;
+    padding: 0 0.5rem;
+    cursor: pointer;
+    border-radius: 6px;
+}
+.tt-planner-team-dd-opt:hover { background: var(--tt-bg-subtle, #f3f5f6); }
+.tt-planner-team-dd-opt input {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 auto;
+}
+@media ( min-width: 480px ) {
+    .tt-planner-team-dd { width: auto; min-width: 14rem; }
 }
 .tt-planner-team-hint {
     width: 100%;
