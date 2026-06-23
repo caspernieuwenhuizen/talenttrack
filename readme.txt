@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.45.5
+Stable tag: 4.45.13
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.45.13 — Match-prep restyled to the 2026 look (#1695). The head-coach match-preparation view body adopts the 2026 "chrome" visual language established by #1690: white cards (1px #e3e6e1 rims, 12–14px radius, soft shadow) for the toolbar, roster/player-focus/roles panels, the match-goals panel and its goal boxes, plus 2026-rounded chips for the role pickers and availability statuses — all reading the brand tokens (--tt-primary, --tt-secondary) with no new palette. A new at-a-glance KPI strip sits at the top on real data: available players, unavailable players, 1st-half starters assigned (n/11), and the chosen formation, rendered with the shared `FrontendAppChrome::kpiTile()`. No query, REST, or behaviour change — purely presentational; the print stylesheet and the spreadsheet grid geometry are untouched. Patch bump. (#1695) =
 
 = 4.45.5 — Activities-manage list query moved out of the view into ActivitiesRepository (#1320). Tech-debt: the activities management surface built its list SQL — including the demo-scope predicate and the coach-scope authorization guard — inline in `FrontendActivitiesManageView`. That query (and its permission logic) now lives in `ActivitiesRepository::listForManageSurface()`, so the surface and the REST list share one source of truth and the view holds no SQL or authorization logic (CLAUDE.md §4). Behaviour is unchanged: same filters, same coach-scope restriction, same ordering. No user-visible change. Patch bump. (#1320) =
 
