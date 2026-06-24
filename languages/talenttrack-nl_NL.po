@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-24T20:57:08+00:00\n"
+"POT-Creation-Date: 2026-06-24T21:12:58+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -60,7 +60,7 @@ msgstr ""
 #: src/Modules/Players/Admin/PlayersPage.php:127
 #: src/Modules/Players/Admin/PlayersPage.php:398
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:36
-#: src/Shared/Frontend/DashboardShortcode.php:1249
+#: src/Shared/Frontend/DashboardShortcode.php:1253
 #: src/Shared/Frontend/FrontendConfigurationView.php:2192
 #: src/Shared/Frontend/FrontendPeopleManageView.php:288
 #: src/Shared/Frontend/FrontendRolesView.php:91
@@ -70,7 +70,7 @@ msgstr "Ouder"
 #: database/migrations/0030_authorization_sprint_7_roles.php:54
 #: src/Modules/Authorization/Admin/MatrixPage.php:592
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:41
-#: src/Shared/Frontend/DashboardShortcode.php:1254
+#: src/Shared/Frontend/DashboardShortcode.php:1258
 msgid "Team Manager"
 msgstr "Team Manager"
 
@@ -116,6 +116,7 @@ msgstr "Team Manager"
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:93
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:99
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:157
+#: src/Modules/Players/Frontend/FrontendParentAccountsView.php:99
 #: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:208
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:83
 #: src/Modules/Stats/Admin/PlayerCardView.php:262
@@ -140,7 +141,7 @@ msgstr "Team Manager"
 #: src/Shared/Frontend/Components/PlayerPickerComponent.php:33
 #: src/Shared/Frontend/Components/PlayerSearchPickerComponent.php:72
 #: src/Shared/Frontend/DashboardShortcode.php:112
-#: src/Shared/Frontend/DashboardShortcode.php:1248
+#: src/Shared/Frontend/DashboardShortcode.php:1252
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1896
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1907
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2024
@@ -210,7 +211,7 @@ msgstr "Trainer"
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:118
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:39
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:152
-#: src/Shared/Frontend/DashboardShortcode.php:1252
+#: src/Shared/Frontend/DashboardShortcode.php:1256
 #: src/Shared/Frontend/FrontendConfigurationView.php:2186
 #: src/Shared/Frontend/FrontendPeopleManageView.php:284
 #: src/Shared/Frontend/FrontendRolesView.php:67
@@ -847,7 +848,7 @@ msgstr "Een speler en een WordPress-gebruiker zijn allebei vereist."
 #: src/Modules/Stats/Admin/PlayerCardView.php:74
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:35
 #: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:555
-#: src/Shared/Frontend/DashboardShortcode.php:693
+#: src/Shared/Frontend/DashboardShortcode.php:697
 msgid "Player not found."
 msgstr "Speler niet gevonden."
 
@@ -1193,7 +1194,7 @@ msgstr "Fysio"
 #: src/Modules/Reports/AudienceType.php:91
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:40
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:155
-#: src/Shared/Frontend/DashboardShortcode.php:1253
+#: src/Shared/Frontend/DashboardShortcode.php:1257
 #: src/Shared/Frontend/FrontendConfigurationView.php:2190
 #: src/Shared/Frontend/FrontendPeopleManageView.php:287
 #: src/Shared/Frontend/FrontendRolesView.php:79
@@ -1270,7 +1271,7 @@ msgstr "Clubbeheerder"
 #: src/Modules/Authorization/Admin/MatrixPage.php:589
 #: src/Modules/Authorization/Admin/RolesPage.php:433
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:38
-#: src/Shared/Frontend/DashboardShortcode.php:1251
+#: src/Shared/Frontend/DashboardShortcode.php:1255
 msgid "Head Coach"
 msgstr "Hoofdtrainer"
 
@@ -1281,7 +1282,7 @@ msgstr "Hoofdtrainer"
 #: src/Modules/Authorization/Admin/MatrixPage.php:588
 #: src/Modules/Authorization/Admin/RolesPage.php:434
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:37
-#: src/Shared/Frontend/DashboardShortcode.php:1250
+#: src/Shared/Frontend/DashboardShortcode.php:1254
 msgid "Assistant Coach"
 msgstr "Assistent-trainer"
 
@@ -3842,6 +3843,7 @@ msgstr "Voor deze entiteit zijn nog geen analyses beschikbaar."
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:40
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:148
 #: src/Modules/Methodology/Frontend/MethodologyView.php:42
+#: src/Modules/Players/Frontend/FrontendParentAccountsView.php:39
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:41
 #: src/Modules/Players/Frontend/FrontendPlayerStatusMethodologyView.php:34
 #: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:46
@@ -3863,11 +3865,11 @@ msgstr "Voor deze entiteit zijn nog geen analyses beschikbaar."
 #: src/Shared/Frontend/DashboardShortcode.php:299
 #: src/Shared/Frontend/DashboardShortcode.php:436
 #: src/Shared/Frontend/DashboardShortcode.php:492
-#: src/Shared/Frontend/DashboardShortcode.php:644
-#: src/Shared/Frontend/DashboardShortcode.php:652
-#: src/Shared/Frontend/DashboardShortcode.php:862
-#: src/Shared/Frontend/DashboardShortcode.php:870
-#: src/Shared/Frontend/DashboardShortcode.php:878
+#: src/Shared/Frontend/DashboardShortcode.php:648
+#: src/Shared/Frontend/DashboardShortcode.php:656
+#: src/Shared/Frontend/DashboardShortcode.php:866
+#: src/Shared/Frontend/DashboardShortcode.php:874
+#: src/Shared/Frontend/DashboardShortcode.php:882
 #: src/Shared/Frontend/FrontendAuditLogView.php:37
 #: src/Shared/Frontend/FrontendConfigurationView.php:29
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:22
@@ -3920,7 +3922,7 @@ msgstr "Je hebt geen toegang om de centrale analyses te bekijken."
 #: src/Shared/CoreSurfaceRegistration.php:751
 #: src/Shared/CoreSurfaceRegistration.php:1423
 #: src/Shared/CoreSurfaceRegistration.php:1727
-#: src/Shared/Frontend/DashboardShortcode.php:1012
+#: src/Shared/Frontend/DashboardShortcode.php:1016
 #: src/Shared/Modules/ModuleMetadata.php:311
 msgid "Analytics"
 msgstr "Analyses"
@@ -6115,7 +6117,7 @@ msgstr "Hoofd Opleidingen"
 
 #: src/Modules/Authorization/Admin/MatrixPage.php:593
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:42
-#: src/Shared/Frontend/DashboardShortcode.php:1255
+#: src/Shared/Frontend/DashboardShortcode.php:1259
 msgid "Academy Admin"
 msgstr "Academy Admin"
 
@@ -12056,7 +12058,7 @@ msgid "Next"
 msgstr "Volgende"
 
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:159
-#: src/Shared/Frontend/Components/BackLabelResolver.php:75
+#: src/Shared/Frontend/Components/BackLabelResolver.php:76
 #: src/Shared/Frontend/FrontendWizardView.php:300
 msgid "Back"
 msgstr "Terug"
@@ -14086,7 +14088,7 @@ msgstr "Geen passende onderwerpen."
 #: src/Shared/CoreSurfaceRegistration.php:1645
 #: src/Shared/CoreSurfaceRegistration.php:1832
 #: src/Shared/Frontend/CoachDashboardView.php:37
-#: src/Shared/Frontend/DashboardShortcode.php:1289
+#: src/Shared/Frontend/DashboardShortcode.php:1293
 #: src/Shared/Frontend/FrontendDocsView.php:103
 #: src/Shared/Frontend/PlayerDashboardView.php:51
 msgid "Help"
@@ -15662,7 +15664,7 @@ msgstr "Printen"
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:747
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:251
 #: src/Shared/Frontend/Components/GuestAddModal.php:48
-#: src/Shared/Frontend/DashboardShortcode.php:1294
+#: src/Shared/Frontend/DashboardShortcode.php:1298
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:114
 msgid "Close"
 msgstr "Sluiten"
@@ -22215,8 +22217,8 @@ msgstr "Mijn toegewezen spelers"
 
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:380
 #: src/Shared/Frontend/Components/HelpDrawer.php:22
-#: src/Shared/Frontend/DashboardShortcode.php:1204
-#: src/Shared/Frontend/DashboardShortcode.php:1205
+#: src/Shared/Frontend/DashboardShortcode.php:1208
+#: src/Shared/Frontend/DashboardShortcode.php:1209
 msgid "Help & docs"
 msgstr "Help & docs"
 
@@ -24004,28 +24006,99 @@ msgstr "Foto selecteren"
 msgid "Development Radar"
 msgstr "Ontwikkelingsradar"
 
-#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:43
-msgid "You do not have permission to manage player accounts."
-msgstr "Je hebt geen rechten om spelersaccounts te beheren."
+#: src/Modules/Players/Frontend/FrontendParentAccountsView.php:36
+msgid "Parent accounts"
+msgstr "Ouderaccounts"
 
+#: src/Modules/Players/Frontend/FrontendParentAccountsView.php:41
+msgid "You do not have permission to manage parent accounts."
+msgstr "Je hebt geen rechten om ouderaccounts te beheren."
+
+#: src/Modules/Players/Frontend/FrontendParentAccountsView.php:82
+msgid "Choose a player first."
+msgstr "Kies eerst een speler."
+
+#: src/Modules/Players/Frontend/FrontendParentAccountsView.php:83
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:81
 msgid "Choose an account to link first."
 msgstr "Kies eerst een account om te koppelen."
 
-#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:82
-msgid "Unlink this account from the player?"
-msgstr "Dit account loskoppelen van de speler?"
+#: src/Modules/Players/Frontend/FrontendParentAccountsView.php:84
+msgid "Unlink this parent from the player?"
+msgstr "Deze ouder ontkoppelen van de speler?"
 
+#: src/Modules/Players/Frontend/FrontendParentAccountsView.php:85
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:83
 #: src/Shared/Frontend/FrontendHolidaysView.php:198
 #: src/Shared/Frontend/FrontendSeasonsView.php:187
 msgid "Something went wrong. Please try again."
 msgstr "Er ging iets mis. Probeer het opnieuw."
 
+#: src/Modules/Players/Frontend/FrontendParentAccountsView.php:86
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:84
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:130
 msgid "Network error. Please try again."
 msgstr "Netwerkfout. Probeer het opnieuw."
+
+#: src/Modules/Players/Frontend/FrontendParentAccountsView.php:96
+msgid "Link a parent to a player"
+msgstr "Koppel een ouder aan een speler"
+
+#: src/Modules/Players/Frontend/FrontendParentAccountsView.php:101
+#: src/Shared/Frontend/Components/PlayerSearchPickerComponent.php:226
+msgid "— Choose player —"
+msgstr "— Kies speler —"
+
+#: src/Modules/Players/Frontend/FrontendParentAccountsView.php:108
+msgid "Parent account"
+msgstr "Ouderaccount"
+
+#: src/Modules/Players/Frontend/FrontendParentAccountsView.php:110
+#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:243
+msgid "— Choose account —"
+msgstr "— Kies account —"
+
+#: src/Modules/Players/Frontend/FrontendParentAccountsView.php:116
+msgid "Link parent"
+msgstr "Ouder koppelen"
+
+#: src/Modules/Players/Frontend/FrontendParentAccountsView.php:118
+msgid ""
+"The account becomes a guardian of the chosen player. A parent can guard "
+"several players."
+msgstr ""
+"Het account wordt verzorger van de gekozen speler. Een ouder kan meerdere "
+"spelers beheren."
+
+#: src/Modules/Players/Frontend/FrontendParentAccountsView.php:128
+msgid ""
+"No parent accounts yet. Link one above, or invite a parent from a player's "
+"Family tab."
+msgstr ""
+"Nog geen ouderaccounts. Koppel er hierboven een, of nodig een ouder uit via "
+"het tabblad Familie van een speler."
+
+#: src/Modules/Players/Frontend/FrontendParentAccountsView.php:145
+msgid "(no name)"
+msgstr "(geen naam)"
+
+#: src/Modules/Players/Frontend/FrontendParentAccountsView.php:145
+msgid "(deleted account)"
+msgstr "(verwijderd account)"
+
+#. translators: %s: player name
+#: src/Modules/Players/Frontend/FrontendParentAccountsView.php:170
+#, php-format
+msgid "Unlink from %s"
+msgstr "Ontkoppelen van %s"
+
+#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:43
+msgid "You do not have permission to manage player accounts."
+msgstr "Je hebt geen rechten om spelersaccounts te beheren."
+
+#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:82
+msgid "Unlink this account from the player?"
+msgstr "Dit account loskoppelen van de speler?"
 
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:92
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:287
@@ -24059,10 +24132,6 @@ msgstr "Ontkoppelen"
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:241
 msgid "WordPress user to link"
 msgstr "Te koppelen WordPress-gebruiker"
-
-#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:243
-msgid "— Choose account —"
-msgstr "— Kies account —"
 
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:250
 msgid "Link"
@@ -24873,8 +24942,8 @@ msgstr ""
 
 #: src/Modules/Reports/Frontend/FrontendScoutAccessView.php:30
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:35
-#: src/Shared/Frontend/DashboardShortcode.php:863
-#: src/Shared/Frontend/DashboardShortcode.php:871
+#: src/Shared/Frontend/DashboardShortcode.php:867
+#: src/Shared/Frontend/DashboardShortcode.php:875
 msgid "You need scout-management permission to view this page."
 msgstr "Je hebt scout-beheerrechten nodig om deze pagina te bekijken."
 
@@ -32712,114 +32781,118 @@ msgid "Back to Player accounts"
 msgstr "Terug naar Spelersaccounts"
 
 #: src/Shared/Frontend/Components/BackLabelResolver.php:49
+msgid "Back to Parent accounts"
+msgstr ""
+
+#: src/Shared/Frontend/Components/BackLabelResolver.php:50
 msgid "Back to Teams"
 msgstr "Terug naar Teams"
 
-#: src/Shared/Frontend/Components/BackLabelResolver.php:50
+#: src/Shared/Frontend/Components/BackLabelResolver.php:51
 msgid "Back to Onboarding pipeline"
 msgstr "Terug naar Onboarding-pijplijn"
 
-#: src/Shared/Frontend/Components/BackLabelResolver.php:51
+#: src/Shared/Frontend/Components/BackLabelResolver.php:52
 msgid "Back to Prospects"
 msgstr "Terug naar Prospects"
 
-#: src/Shared/Frontend/Components/BackLabelResolver.php:52
+#: src/Shared/Frontend/Components/BackLabelResolver.php:53
 msgid "Back to My tasks"
 msgstr "Terug naar Mijn taken"
 
-#: src/Shared/Frontend/Components/BackLabelResolver.php:53
+#: src/Shared/Frontend/Components/BackLabelResolver.php:54
 msgid "Back to Analytics"
 msgstr "Terug naar Analytics"
 
-#: src/Shared/Frontend/Components/BackLabelResolver.php:54
+#: src/Shared/Frontend/Components/BackLabelResolver.php:55
 msgid "Back to Team attendance"
 msgstr "Terug naar Team-aanwezigheid"
 
-#: src/Shared/Frontend/Components/BackLabelResolver.php:55
+#: src/Shared/Frontend/Components/BackLabelResolver.php:56
 msgid "Back to Player attendance"
 msgstr "Terug naar Speler-aanwezigheid"
 
-#: src/Shared/Frontend/Components/BackLabelResolver.php:56
+#: src/Shared/Frontend/Components/BackLabelResolver.php:57
 msgid "Back to Minutes played"
 msgstr "Terug naar Gespeelde minuten"
 
-#: src/Shared/Frontend/Components/BackLabelResolver.php:57
+#: src/Shared/Frontend/Components/BackLabelResolver.php:58
 msgid "Back to Match executions"
 msgstr "Terug naar Wedstrijduitvoeringen"
 
-#: src/Shared/Frontend/Components/BackLabelResolver.php:58
+#: src/Shared/Frontend/Components/BackLabelResolver.php:59
 msgid "Back to People"
 msgstr "Terug naar Personen"
 
-#: src/Shared/Frontend/Components/BackLabelResolver.php:59
+#: src/Shared/Frontend/Components/BackLabelResolver.php:60
 msgid "Back to Activities"
 msgstr "Terug naar Activiteiten"
 
-#: src/Shared/Frontend/Components/BackLabelResolver.php:60
+#: src/Shared/Frontend/Components/BackLabelResolver.php:61
 msgid "Back to Goals"
 msgstr "Terug naar Doelen"
 
-#: src/Shared/Frontend/Components/BackLabelResolver.php:61
+#: src/Shared/Frontend/Components/BackLabelResolver.php:62
 msgid "Back to PDPs"
 msgstr "Terug naar POP's"
 
-#: src/Shared/Frontend/Components/BackLabelResolver.php:62
+#: src/Shared/Frontend/Components/BackLabelResolver.php:63
 msgid "Back to Evaluations"
 msgstr "Terug naar Evaluaties"
 
-#: src/Shared/Frontend/Components/BackLabelResolver.php:63
+#: src/Shared/Frontend/Components/BackLabelResolver.php:64
 msgid "Back to Trial cases"
 msgstr "Terug naar Stagedossiers"
 
-#: src/Shared/Frontend/Components/BackLabelResolver.php:64
+#: src/Shared/Frontend/Components/BackLabelResolver.php:65
 msgid "Back to Reports"
 msgstr "Terug naar Rapportages"
 
-#: src/Shared/Frontend/Components/BackLabelResolver.php:65
+#: src/Shared/Frontend/Components/BackLabelResolver.php:66
 msgid "Back to Roles & rights"
 msgstr "Terug naar Rollen & rechten"
 
-#: src/Shared/Frontend/Components/BackLabelResolver.php:66
+#: src/Shared/Frontend/Components/BackLabelResolver.php:67
 msgid "Back to Configuration"
 msgstr "Terug naar Configuratie"
 
-#: src/Shared/Frontend/Components/BackLabelResolver.php:67
+#: src/Shared/Frontend/Components/BackLabelResolver.php:68
 msgid "Back to Audit log"
 msgstr "Terug naar Audit log"
 
-#: src/Shared/Frontend/Components/BackLabelResolver.php:68
+#: src/Shared/Frontend/Components/BackLabelResolver.php:69
 msgid "Back to My goals"
 msgstr "Terug naar Mijn doelen"
 
 # v3.62.0 — Me-group rework (#0061 round 3)
-#: src/Shared/Frontend/Components/BackLabelResolver.php:69
+#: src/Shared/Frontend/Components/BackLabelResolver.php:70
 msgid "Back to My activities"
 msgstr "Terug naar Mijn activiteiten"
 
-#: src/Shared/Frontend/Components/BackLabelResolver.php:70
+#: src/Shared/Frontend/Components/BackLabelResolver.php:71
 msgid "Back to My settings"
 msgstr "Terug naar Mijn instellingen"
 
-#: src/Shared/Frontend/Components/BackLabelResolver.php:71
+#: src/Shared/Frontend/Components/BackLabelResolver.php:72
 msgid "Back to Team blueprint"
 msgstr "Terug naar Teamblauwdruk"
 
-#: src/Shared/Frontend/Components/BackLabelResolver.php:72
+#: src/Shared/Frontend/Components/BackLabelResolver.php:73
 msgid "Back to PDP planning"
 msgstr "Terug naar POP-planning"
 
-#: src/Shared/Frontend/Components/BackLabelResolver.php:73
+#: src/Shared/Frontend/Components/BackLabelResolver.php:74
 msgid "Back to Team planner"
 msgstr "Terug naar Teamplanner"
 
 #. translators: %s = player display name
-#: src/Shared/Frontend/Components/BackLabelResolver.php:128
+#: src/Shared/Frontend/Components/BackLabelResolver.php:129
 #, php-format
 msgid "%s's PDP"
 msgstr "POP van %s"
 
 #. translators: 1: player name, 2: eval date
-#: src/Shared/Frontend/Components/BackLabelResolver.php:144
+#: src/Shared/Frontend/Components/BackLabelResolver.php:145
 #, php-format
 msgid "Evaluation: %1$s (%2$s)"
 msgstr "Evaluatie: %1$s (%2$s)"
@@ -32855,7 +32928,7 @@ msgstr "Geen resultaten."
 
 #: src/Shared/Frontend/Components/FrontendListTable.php:147
 #: src/Shared/Frontend/DashboardShortcode.php:73
-#: src/Shared/Frontend/DashboardShortcode.php:1299
+#: src/Shared/Frontend/DashboardShortcode.php:1303
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:455
 #: src/Shared/Frontend/FrontendWizardView.php:308
 msgid "Loading…"
@@ -32989,10 +33062,6 @@ msgstr "Maak een ouderaccount aan"
 #: src/Shared/Frontend/Components/PlayerSearchPickerComponent.php:211
 msgid "Filter by team"
 msgstr "Filter op team"
-
-#: src/Shared/Frontend/Components/PlayerSearchPickerComponent.php:226
-msgid "— Choose player —"
-msgstr "— Kies speler —"
 
 #: src/Shared/Frontend/Components/RatingInputComponent.php:45
 msgctxt "player rating"
@@ -33209,15 +33278,15 @@ msgstr "Je moet ingelogd zijn om je instellingen te beheren."
 msgid "Your role does not have access to tasks."
 msgstr "Jouw rol heeft geen toegang tot taken."
 
-#: src/Shared/Frontend/DashboardShortcode.php:645
+#: src/Shared/Frontend/DashboardShortcode.php:649
 msgid "Your role does not have access to team chemistry boards."
 msgstr "Jouw rol heeft geen toegang tot teamchemie-borden."
 
-#: src/Shared/Frontend/DashboardShortcode.php:653
+#: src/Shared/Frontend/DashboardShortcode.php:657
 msgid "Your role does not have access to team blueprints."
 msgstr "Je rol heeft geen toegang tot teamblauwdrukken."
 
-#: src/Shared/Frontend/DashboardShortcode.php:692
+#: src/Shared/Frontend/DashboardShortcode.php:696
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:203
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:206
 #: src/Shared/Frontend/FrontendPlayersManageView.php:86
@@ -33225,11 +33294,11 @@ msgstr "Je rol heeft geen toegang tot teamblauwdrukken."
 msgid "Player not found"
 msgstr "Speler niet gevonden"
 
-#: src/Shared/Frontend/DashboardShortcode.php:879
+#: src/Shared/Frontend/DashboardShortcode.php:883
 msgid "This area is for scout users."
 msgstr "Dit deel is voor scoutgebruikers."
 
-#: src/Shared/Frontend/DashboardShortcode.php:1014
+#: src/Shared/Frontend/DashboardShortcode.php:1018
 msgid ""
 "The Analytics explorer is turned off. Your reports still work — find them "
 "under Reports. An administrator can re-enable the explorer under Modules."
@@ -33237,15 +33306,15 @@ msgstr ""
 "De Analytics-verkenner staat uit. Je rapporten werken nog — die vind je "
 "onder Rapporten. Een beheerder kan de verkenner weer aanzetten onder Modules."
 
-#: src/Shared/Frontend/DashboardShortcode.php:1120
+#: src/Shared/Frontend/DashboardShortcode.php:1124
 msgid "Section unavailable"
 msgstr "Sectie niet beschikbaar"
 
-#: src/Shared/Frontend/DashboardShortcode.php:1123
+#: src/Shared/Frontend/DashboardShortcode.php:1127
 msgid "This section is currently unavailable."
 msgstr "Dit onderdeel is momenteel niet beschikbaar."
 
-#: src/Shared/Frontend/DashboardShortcode.php:1126
+#: src/Shared/Frontend/DashboardShortcode.php:1130
 msgid ""
 "The administrator has temporarily turned off this part of TalentTrack. "
 "Please check back later, or ask your administrator if you need access."
@@ -33254,7 +33323,7 @@ msgstr ""
 "Probeer het later opnieuw, of neem contact op met je beheerder als je "
 "toegang nodig hebt."
 
-#: src/Shared/Frontend/DashboardShortcode.php:1149
+#: src/Shared/Frontend/DashboardShortcode.php:1153
 msgid ""
 "TalentTrack is running in demo mode. Real club records are hidden until demo "
 "mode is turned off."
@@ -33263,48 +33332,48 @@ msgstr ""
 "demomodus wordt uitgeschakeld."
 
 # #0036 — dashboard polish (helper button + DEMO pill + logo toggle + tile scale)
-#: src/Shared/Frontend/DashboardShortcode.php:1183
+#: src/Shared/Frontend/DashboardShortcode.php:1187
 msgid "DEMO"
 msgstr "DEMO"
 
-#: src/Shared/Frontend/DashboardShortcode.php:1223
+#: src/Shared/Frontend/DashboardShortcode.php:1227
 #: src/Shared/Frontend/FrontendMySettingsView.php:52
 #: src/Shared/Frontend/FrontendMySettingsView.php:53
 msgid "My settings"
 msgstr "Mijn instellingen"
 
 # v3.110.1 — #0086 Workstream B Child 2: session management UI
-#: src/Shared/Frontend/DashboardShortcode.php:1230
+#: src/Shared/Frontend/DashboardShortcode.php:1234
 #: src/Shared/Frontend/FrontendMySessionsView.php:40
 #: src/Shared/Frontend/FrontendMySessionsView.php:41
 msgid "My sessions"
 msgstr "Mijn sessies"
 
-#: src/Shared/Frontend/DashboardShortcode.php:1242
+#: src/Shared/Frontend/DashboardShortcode.php:1246
 msgid "View as"
 msgstr "Bekijken als"
 
-#: src/Shared/Frontend/DashboardShortcode.php:1245
+#: src/Shared/Frontend/DashboardShortcode.php:1249
 msgid "All personas (default)"
 msgstr "Alle persona's (standaard)"
 
-#: src/Shared/Frontend/DashboardShortcode.php:1269
+#: src/Shared/Frontend/DashboardShortcode.php:1273
 msgid "Go to Admin"
 msgstr "Naar beheer"
 
-#: src/Shared/Frontend/DashboardShortcode.php:1273
+#: src/Shared/Frontend/DashboardShortcode.php:1277
 msgid "Log out"
 msgstr "Uitloggen"
 
-#: src/Shared/Frontend/DashboardShortcode.php:1291
+#: src/Shared/Frontend/DashboardShortcode.php:1295
 msgid "Open full Help & Docs"
 msgstr "Volledige Help & Docs openen"
 
-#: src/Shared/Frontend/DashboardShortcode.php:1363
+#: src/Shared/Frontend/DashboardShortcode.php:1367
 msgid "You are viewing as"
 msgstr "Je bekijkt als"
 
-#: src/Shared/Frontend/DashboardShortcode.php:1364
+#: src/Shared/Frontend/DashboardShortcode.php:1368
 msgid "Switch back to all personas"
 msgstr "Terug naar alle persona's"
 
@@ -40324,39 +40393,3 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
-
-msgid "(deleted account)"
-msgstr "(verwijderd account)"
-
-msgid "(no name)"
-msgstr "(geen naam)"
-
-msgid "Choose a player first."
-msgstr "Kies eerst een speler."
-
-msgid "Link a parent to a player"
-msgstr "Koppel een ouder aan een speler"
-
-msgid "Link parent"
-msgstr "Ouder koppelen"
-
-msgid "No parent accounts yet. Link one above, or invite a parent from a player's Family tab."
-msgstr "Nog geen ouderaccounts. Koppel er hierboven een, of nodig een ouder uit via het tabblad Familie van een speler."
-
-msgid "Parent account"
-msgstr "Ouderaccount"
-
-msgid "Parent accounts"
-msgstr "Ouderaccounts"
-
-msgid "The account becomes a guardian of the chosen player. A parent can guard several players."
-msgstr "Het account wordt verzorger van de gekozen speler. Een ouder kan meerdere spelers beheren."
-
-msgid "Unlink from %s"
-msgstr "Ontkoppelen van %s"
-
-msgid "Unlink this parent from the player?"
-msgstr "Deze ouder ontkoppelen van de speler?"
-
-msgid "You do not have permission to manage parent accounts."
-msgstr "Je hebt geen rechten om ouderaccounts te beheren."
