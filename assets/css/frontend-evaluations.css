@@ -18,11 +18,11 @@
     border-radius: var(--tt-radius-lg, 14px);
     box-shadow: var(--tt-shadow-md);
     padding: var(--tt-sp-5, 20px);
-    max-width: 360px;
-    margin: 0 auto var(--tt-sp-3, 12px);
-}
-@media (min-width: 768px) {
-    .tt-dashboard .tt-evd { max-width: 720px; }
+    /* #1806 — span the full content column on desktop like the other
+       pages (players list, activities after #1793); no narrow centred
+       card. Mobile (360px) is full-width regardless. */
+    max-width: none;
+    margin: 0 0 var(--tt-sp-3, 12px);
 }
 
 /* ---- Meta facts grid ---------------------------------------------- */
