@@ -33,6 +33,8 @@ definitieve verwijdering laat nooit stilzwijgend losgekoppelde rijen achter.
 | Speler, Persoon, POP-bestand | Volledige cascade (bestaande diensten). |
 | Beoordeling | Verwijdert de scores + bewijslast-koppelingen mee. |
 | Doel | Verwijdert koppelingen + gesprek mee; maakt doelkoppelingen leeg. |
+| Toernooi | Verwijdert wedstrijden, selectie en opstellingen mee; maakt de toernooikoppeling van een activiteit leeg. |
+| Proefdossier | Verwijdert stafkoppelingen, staf-input en verlengingen mee; maakt workflowtaak- / prospect-koppelingen leeg. |
 | Team, Activiteit | **Blokkeert** zolang er nog records naar verwijzen (volledige cascades zijn een vervolg, #1784). |
 
 Als een team of activiteit niet wil verwijderen, archiveer of verplaats dan

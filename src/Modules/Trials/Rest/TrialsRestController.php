@@ -67,6 +67,18 @@ class TrialsRestController {
             ],
         ] );
 
+        // #1784 — referential-integrity permanent delete (staff, inputs and
+        // extensions cascade; workflow-task / prospect links cleared).
+        register_rest_route( self::NS, '/trial-cases/(?P<id>\d+)/permanent', [
+            [
+                'methods'             => 'DELETE',
+                'callback'            => [ __CLASS__, 'delete_case_permanently' ],
+                'permission_callback' => function () {
+                    return current_user_can( 'tt_edit_settings' );
+                },
+            ],
+        ] );
+
         register_rest_route( self::NS, '/trial-cases/(?P<id>\d+)/extend', [
             'methods'             => 'POST',
             'callback'            => [ __CLASS__, 'extend_case' ],
@@ -179,6 +191,24 @@ class TrialsRestController {
             return RestResponse::error( 'forbidden', __( 'No access to this case.', 'talenttrack' ), 403 );
         }
         return RestResponse::success( [ 'case' => self::format( $case ) ] );
+    }
+
+    /**
+     * #1784 — permanently delete a trial case (irreversible). Cascades its
+     * staff assignments, staff inputs and extension audit trail; clears any
+     * workflow-task / prospect link. Fail-closed via the shared cascade
+     * framework; gated by tt_edit_settings.
+     */
+    public static function delete_case_permanently( \WP_REST_Request $r ): \WP_REST_Response {
+        $id = absint( $r['id'] );
+        if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid trial case id.', 'talenttrack' ), 400 );
+        try {
+            $n = ( new \TT\Infrastructure\Archive\ArchiveRepository() )->deletePermanently( 'trial_case', [ $id ] );
+        } catch ( \TT\Infrastructure\Archive\DeleteBlockedException $e ) {
+            return RestResponse::error( 'delete_blocked', $e->getMessage(), 409 );
+        }
+        if ( $n === 0 ) return RestResponse::error( 'not_found', __( 'Trial case not found.', 'talenttrack' ), 404 );
+        return RestResponse::success( [ 'deleted' => true, 'id' => $id ] );
     }
 
     public static function update_case( \WP_REST_Request $r ): \WP_REST_Response {
