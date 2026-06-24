@@ -1,0 +1,298 @@
+/*
+ * frontend-ideas.css — the development "ideas" surfaces (submit, board,
+ * refine, approval) restyled to the 2026 green/gold look (#1680 B4).
+ *
+ * Mobile-first per CLAUDE.md §2: base styles target ~360px, min-width
+ * queries scale up at 480 / 768 / 1024 only. Scoped under .tt-dashboard
+ * — no global resets (the active theme is treated as hostile). Neutral
+ * tokens come from tokens.css (--tt-line, --tt-ink, --tt-muted, etc.);
+ * brand greens via var(--tt-primary, #0b3d2e). The reusable .tt-kpi tile
+ * lives in frontend-app-chrome.css (enqueued as a dependency).
+ */
+
+/* ---- KPI strip ----------------------------------------------------- */
+.tt-dashboard .tt-ideas-kpis {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--tt-sp-3, 12px);
+    margin: 0 0 var(--tt-sp-4, 16px);
+}
+@media (min-width: 480px) {
+    .tt-dashboard .tt-ideas-kpis {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* ---- Intro lede ---------------------------------------------------- */
+.tt-dashboard .tt-ideas-lede {
+    color: var(--tt-muted, #6a6d66);
+    max-width: 40rem;
+    margin: 0 0 var(--tt-sp-4, 16px);
+    line-height: var(--tt-lh-body, 1.5);
+}
+
+/* ---- Card --------------------------------------------------------- */
+.tt-dashboard .tt-ideas-card {
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-md);
+    padding: var(--tt-sp-4, 16px);
+    margin: 0 0 var(--tt-sp-4, 16px);
+}
+.tt-dashboard .tt-ideas-card--form {
+    max-width: 48rem;
+}
+.tt-dashboard .tt-ideas-card__head {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--tt-muted, #6a6d66);
+    margin: 0 0 var(--tt-sp-3, 12px);
+}
+.tt-dashboard .tt-ideas-card--alert {
+    border-left: 4px solid var(--tt-danger, #d8453b);
+    background: var(--tt-danger-subtle, #fde2e2);
+}
+.tt-dashboard .tt-ideas-alert-detail {
+    margin: var(--tt-sp-2, 8px) 0 0;
+}
+
+/* ---- Form fields --------------------------------------------------- */
+.tt-dashboard .tt-ideas-field {
+    margin: 0 0 var(--tt-sp-3, 12px);
+}
+.tt-dashboard .tt-ideas-field > label {
+    display: block;
+    font-weight: 600;
+    color: var(--tt-ink, #0e1a14);
+    margin: 0 0 var(--tt-sp-1, 4px);
+}
+.tt-dashboard .tt-ideas-field input[type="text"],
+.tt-dashboard .tt-ideas-field input[type="number"],
+.tt-dashboard .tt-ideas-field select,
+.tt-dashboard .tt-ideas-field textarea {
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 14px;
+    font-size: 16px;
+    color: var(--tt-ink, #0e1a14);
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    box-sizing: border-box;
+}
+.tt-dashboard .tt-ideas-field textarea {
+    min-height: 96px;
+    line-height: var(--tt-lh-body, 1.5);
+}
+.tt-dashboard .tt-ideas-field input:focus-visible,
+.tt-dashboard .tt-ideas-field select:focus-visible,
+.tt-dashboard .tt-ideas-field textarea:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 1px;
+}
+.tt-dashboard .tt-ideas-field-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--tt-sp-3, 12px);
+}
+@media (min-width: 480px) {
+    .tt-dashboard .tt-ideas-field-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* ---- Chips --------------------------------------------------------- */
+.tt-dashboard .tt-ideas-chip {
+    display: inline-block;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 600;
+    line-height: 1.4;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: var(--tt-bg-soft, #f4f6f3);
+    color: var(--tt-ink, #0e1a14);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    white-space: nowrap;
+}
+.tt-dashboard .tt-ideas-chip--green {
+    background: var(--tt-success-subtle, #dff5e1);
+    color: #1d6b3f;
+    border-color: transparent;
+}
+.tt-dashboard .tt-ideas-chip--gold {
+    background: var(--tt-warning-subtle, #fdf3d8);
+    color: #8a5a00;
+    border-color: transparent;
+}
+.tt-dashboard .tt-ideas-chip--red {
+    background: var(--tt-danger-subtle, #fde2e2);
+    color: #9a2a23;
+    border-color: transparent;
+}
+.tt-dashboard .tt-ideas-chip--info {
+    background: var(--tt-info-subtle, #e6f0fa);
+    color: #1f5286;
+    border-color: transparent;
+}
+
+/* ---- Toolbar (board / approval action links) ---------------------- */
+.tt-dashboard .tt-ideas-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-2, 8px);
+    margin: 0 0 var(--tt-sp-4, 16px);
+}
+
+/* ---- My-submissions table ------------------------------------------ */
+.tt-dashboard .tt-ideas-section-head {
+    font-size: var(--tt-fs-h3, 1.25rem);
+    color: var(--tt-ink, #0e1a14);
+    margin: var(--tt-sp-6, 24px) 0 var(--tt-sp-3, 12px);
+}
+.tt-dashboard .tt-ideas-note--reject { color: var(--tt-danger, #d8453b); }
+.tt-dashboard .tt-ideas-note--ok { color: var(--tt-success, #2f9e5e); }
+
+/* ---- Kanban board -------------------------------------------------- */
+.tt-dashboard .tt-kanban {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(15rem, 1fr);
+    gap: var(--tt-sp-3, 12px);
+    overflow-x: auto;
+    padding-bottom: var(--tt-sp-2, 8px);
+    -webkit-overflow-scrolling: touch;
+}
+.tt-dashboard .tt-kanban-col {
+    background: var(--tt-bg-soft, #f4f6f3);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    padding: var(--tt-sp-3, 12px);
+    min-height: 10rem;
+}
+.tt-dashboard .tt-kanban-col__head {
+    margin: 0 0 var(--tt-sp-3, 12px);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--tt-muted, #6a6d66);
+}
+.tt-dashboard .tt-kanban-col__count {
+    color: var(--tt-primary, #0b3d2e);
+}
+.tt-dashboard .tt-kanban-card {
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    box-shadow: var(--tt-shadow-sm);
+    padding: var(--tt-sp-3, 12px);
+    margin: 0 0 var(--tt-sp-2, 8px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+}
+.tt-dashboard .tt-kanban-card__title {
+    display: block;
+    font-weight: 600;
+    color: var(--tt-ink, #0e1a14);
+    margin: 0 0 var(--tt-sp-1, 4px);
+}
+.tt-dashboard .tt-kanban-card__meta {
+    color: var(--tt-muted, #6a6d66);
+    font-size: 0.75rem;
+}
+.tt-dashboard .tt-kanban-card__refine {
+    display: inline-block;
+    margin: var(--tt-sp-2, 8px) 0 0;
+    min-height: 44px;
+    line-height: 44px;
+    font-weight: 600;
+    color: var(--tt-primary, #0b3d2e);
+}
+.tt-dashboard .tt-kanban-card__move {
+    display: flex;
+    gap: var(--tt-sp-2, 8px);
+    margin: var(--tt-sp-2, 8px) 0 0;
+}
+.tt-dashboard .tt-kanban-card__move select {
+    flex: 1;
+    min-width: 0;
+    min-height: 44px;
+    font-size: 16px;
+    padding: 6px 8px;
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-paper, #fff);
+    color: var(--tt-ink, #0e1a14);
+}
+.tt-dashboard .tt-kanban-card__move button {
+    min-height: 44px;
+}
+
+/* ---- Approval queue card ------------------------------------------- */
+.tt-dashboard .tt-approval-card {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--tt-sp-4, 16px);
+}
+@media (min-width: 768px) {
+    .tt-dashboard .tt-approval-card {
+        grid-template-columns: 1fr minmax(15rem, 18rem);
+        align-items: start;
+    }
+}
+.tt-dashboard .tt-approval-card--failed {
+    border-color: var(--tt-danger, #d8453b);
+}
+.tt-dashboard .tt-approval-card__title {
+    font-size: var(--tt-fs-lg, 1.125rem);
+    font-weight: 600;
+    color: var(--tt-ink, #0e1a14);
+}
+.tt-dashboard .tt-approval-card__meta {
+    color: var(--tt-muted, #6a6d66);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    margin: var(--tt-sp-1, 4px) 0 0;
+}
+.tt-dashboard .tt-approval-card__body {
+    margin: var(--tt-sp-3, 12px) 0 0;
+    white-space: pre-wrap;
+    color: var(--tt-ink, #0e1a14);
+    line-height: var(--tt-lh-body, 1.5);
+}
+.tt-dashboard .tt-approval-card__error {
+    margin: var(--tt-sp-3, 12px) 0 0;
+    color: var(--tt-danger, #d8453b);
+    font-size: var(--tt-fs-sm, 0.85rem);
+}
+.tt-dashboard .tt-approval-card__actions button { width: 100%; }
+.tt-dashboard .tt-approval-card__actions .tt-btn { margin: 0 0 var(--tt-sp-2, 8px); }
+.tt-dashboard .tt-approval-card__reject {
+    margin-top: var(--tt-sp-2, 8px);
+}
+.tt-dashboard .tt-approval-card__reject > summary {
+    cursor: pointer;
+    color: var(--tt-danger, #d8453b);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    min-height: 44px;
+    line-height: 44px;
+}
+.tt-dashboard .tt-approval-card__reject textarea {
+    width: 100%;
+    min-height: 72px;
+    padding: 10px 12px;
+    font-size: 16px;
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    box-sizing: border-box;
+    margin: 0 0 var(--tt-sp-2, 8px);
+}
+
+/* ---- Promotion outcome notes (refine view) ------------------------- */
+.tt-dashboard .tt-ideas-outcome {
+    margin: var(--tt-sp-4, 16px) 0 0;
+    max-width: 48rem;
+}
+.tt-dashboard .tt-ideas-outcome--ok { color: var(--tt-success, #2f9e5e); }
+.tt-dashboard .tt-ideas-outcome--failed { color: var(--tt-danger, #d8453b); }

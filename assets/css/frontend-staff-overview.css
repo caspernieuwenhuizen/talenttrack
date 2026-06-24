@@ -1,0 +1,93 @@
+/*
+ * frontend-staff-overview.css — FrontendStaffOverviewView 2026 restyle (B4).
+ * The HoD / academy-admin roll-up: open staff goals, overdue top-down
+ * reviews, certifications expiring within 90 days. Restyles the three
+ * roll-up panels into the shared green/gold "card" language with a KPI strip
+ * on top. This is a restyle — the queries + data are unchanged, only the look.
+ *
+ * Mobile-first per CLAUDE.md §2: base styles target ~360px; min-width queries
+ * at 480/768/1024 scale up. Scoped under .tt-dashboard — no global resets, the
+ * active theme is treated as hostile. Depends on tt-frontend-app-chrome for the
+ * brand tokens (--tt-primary, --tt-ink, --tt-muted, --tt-line, --tt-shadow-md)
+ * and the .tt-kpi tile styling.
+ */
+
+/* ---- KPI strip ---------------------------------------------------- */
+.tt-dashboard .tt-sov-kpis {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    margin: 0 0 1.1rem;
+}
+@media (min-width: 480px) {
+    .tt-dashboard .tt-sov-kpis {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+/* ---- Roll-up card grid ------------------------------------------- */
+.tt-dashboard .tt-sov-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+@media (min-width: 768px) {
+    .tt-dashboard .tt-sov-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+}
+
+.tt-dashboard .tt-sov-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 1rem 1.05rem 1.1rem;
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-md);
+}
+
+.tt-dashboard .tt-sov-card__title {
+    margin: 0;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--tt-primary, #0b3d2e);
+}
+.tt-dashboard .tt-sov-card__count {
+    color: var(--tt-muted, #6a6d66);
+    font-weight: 700;
+}
+
+.tt-dashboard .tt-sov-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+.tt-dashboard .tt-sov-list li {
+    padding: 0.55rem 0;
+    border-bottom: 1px solid var(--tt-line-soft, #eef0ec);
+    font-size: 0.9rem;
+    line-height: var(--tt-lh-body, 1.5);
+    color: var(--tt-ink, #0e1a14);
+}
+.tt-dashboard .tt-sov-list li:last-child {
+    border-bottom: 0;
+}
+.tt-dashboard .tt-sov-name {
+    font-weight: 600;
+    color: var(--tt-ink, #0e1a14);
+}
+.tt-dashboard .tt-sov-detail {
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-dashboard .tt-sov-empty {
+    margin: 0;
+    color: var(--tt-muted, #6a6d66);
+    font-size: 0.9rem;
+}

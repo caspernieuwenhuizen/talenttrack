@@ -4,6 +4,9 @@ namespace TT\Modules\StaffDevelopment\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\StaffDevelopment\Repositories\StaffPdpRepository;
+use TT\Shared\Frontend\Components\BackLink;
+use TT\Shared\Frontend\Components\FormSaveButton;
+use TT\Shared\Frontend\Components\RecordLink;
 use TT\Shared\Frontend\FrontendViewBase;
 
 /**
@@ -16,6 +19,22 @@ use TT\Shared\Frontend\FrontendViewBase;
  * available via REST (`PUT /staff/{person_id}/pdp`) per CLAUDE.md § 3.
  */
 class FrontendMyStaffPdpView extends FrontendViewBase {
+
+    /**
+     * B4 2026 restyle — enqueue the staff-PDP card stylesheet on top of
+     * the shared frontend assets. Loaded here (not in FrontendViewBase)
+     * because only this surface uses it; depends on the global app-chrome
+     * sheet for the shared brand tokens.
+     */
+    protected static function enqueueAssets(): void {
+        parent::enqueueAssets();
+        wp_enqueue_style(
+            'tt-frontend-staff-pdp',
+            TT_PLUGIN_URL . 'assets/css/frontend-staff-pdp.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+    }
 
     public static function render( int $user_id, bool $is_admin ): void {
         $title = __( 'My PDP', 'talenttrack' );
@@ -43,7 +62,7 @@ class FrontendMyStaffPdpView extends FrontendViewBase {
         $season  = StaffPersonHelper::currentSeasonId();
         $pdp     = $repo->findForPersonSeason( (int) $person->id, $season );
 
-        echo '<form method="post" class="tt-form tt-staff-pdp-form" style="max-width:760px;">';
+        echo '<form method="post" class="tt-form tt-staff-pdp-form">';
         wp_nonce_field( 'tt_staff_pdp_save', 'tt_staff_pdp_nonce' );
         echo '<input type="hidden" name="season_id" value="' . esc_attr( $season ? (string) $season : '' ) . '">';
 
@@ -59,11 +78,19 @@ class FrontendMyStaffPdpView extends FrontendViewBase {
         echo '<div class="tt-field"><label class="tt-field-label" for="tt-staff-pdp-narrative">' . esc_html__( 'Narrative (optional)', 'talenttrack' ) . '</label>';
         echo '<textarea id="tt-staff-pdp-narrative" name="narrative" class="tt-input" rows="4">' . esc_textarea( (string) ( $pdp->narrative ?? '' ) ) . '</textarea></div>';
 
-        echo '<div class="tt-form-actions" style="margin-top:16px;">';
-        echo '<button type="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Save PDP', 'talenttrack' ) . '</button>';
-        echo '</div>';
+        // CLAUDE.md §6 — Save + Cancel on a record-mutating form. The PDP
+        // is a single per-season record edited in place; Cancel returns to
+        // this same view, a tt_back hint on the entry URL overrides that.
+        $back       = BackLink::resolve();
+        $cancel_url = $back !== null
+            ? $back['url']
+            : add_query_arg( 'tt_view', 'my-staff-pdp', RecordLink::dashboardUrl() );
+        echo FormSaveButton::render( [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — helper escapes its own output.
+            'label'      => __( 'Save PDP', 'talenttrack' ),
+            'cancel_url' => $cancel_url,
+        ] );
         if ( $pdp && $pdp->last_reviewed_at ) {
-            echo '<p class="tt-field-hint" style="margin-top:8px;">' . esc_html__( 'Last reviewed:', 'talenttrack' ) . ' ' . esc_html( (string) $pdp->last_reviewed_at ) . '</p>';
+            echo '<p class="tt-field-hint">' . esc_html__( 'Last reviewed:', 'talenttrack' ) . ' ' . esc_html( (string) $pdp->last_reviewed_at ) . '</p>';
         }
         echo '</form>';
     }

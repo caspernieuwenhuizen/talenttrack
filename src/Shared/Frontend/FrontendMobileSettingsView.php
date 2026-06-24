@@ -24,6 +24,20 @@ use TT\Shared\Mobile\MobileSettings;
  */
 class FrontendMobileSettingsView extends FrontendViewBase {
 
+    /**
+     * Enqueue the 2026 mobile-settings stylesheet on top of the shared
+     * chrome. Depends on tt-frontend-app-chrome for the brand tokens.
+     */
+    protected static function enqueueAssets(): void {
+        parent::enqueueAssets();
+        wp_enqueue_style(
+            'tt-frontend-mobile-settings',
+            TT_PLUGIN_URL . 'assets/css/frontend-mobile-settings.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+    }
+
     public static function render( int $user_id, bool $is_admin ): void {
         $title = __( 'Mobile experience', 'talenttrack' );
 
@@ -33,6 +47,8 @@ class FrontendMobileSettingsView extends FrontendViewBase {
             echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to manage mobile settings.', 'talenttrack' ) . '</p>';
             return;
         }
+
+        self::enqueueAssets();
 
         $settings = new MobileSettings();
         $enabled  = $settings->isMobileGateEnabled();
@@ -47,27 +63,27 @@ class FrontendMobileSettingsView extends FrontendViewBase {
                 . '</div>';
         }
 
-        echo '<p style="max-width:760px;">'
+        echo '<p class="tt-mobset-intro">'
             . esc_html__( "TalentTrack classifies every page as mobile-first, viewable, or desktop-only. Phones visiting a desktop-only page see a polite prompt with an \"email me the link\" affordance. Tablets and laptops get the full experience regardless.", 'talenttrack' )
             . '</p>';
 
-        echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" style="margin-top:24px; max-width:760px; padding:16px; background:#fafafa; border:1px solid #ddd;">';
+        echo '<form method="post" action="' . esc_url( admin_url( 'admin-post.php' ) ) . '" class="tt-mobset-card">';
         wp_nonce_field( MobileActionHandlers::ACTION_SAVE_SETTING, 'tt_mobile_nonce' );
         echo '<input type="hidden" name="action" value="' . esc_attr( MobileActionHandlers::ACTION_SAVE_SETTING ) . '">';
 
         $current_url = self::currentUrl();
         echo '<input type="hidden" name="return_to" value="' . esc_attr( $current_url ) . '">';
 
-        echo '<label style="display:flex; gap:8px; align-items:flex-start; cursor:pointer;">';
-        echo '<input type="checkbox" name="enabled" value="1" ' . checked( $enabled, true, false ) . ' style="margin-top:4px;">';
+        echo '<label class="tt-mobset-toggle">';
+        echo '<input type="checkbox" name="enabled" value="1" ' . checked( $enabled, true, false ) . '>';
         echo '<span><strong>' . esc_html__( 'Show the desktop-prompt page on phones for desktop-only routes.', 'talenttrack' ) . '</strong><br>';
-        echo '<span style="color:#5b6e75; font-size:13px;">'
+        echo '<span class="tt-mobset-toggle-hint">'
             . esc_html__( "Default on. Untick to let phone visitors see the cramped desktop view on every page. Tablets and laptops are unaffected either way.", 'talenttrack' )
             . '</span></span>';
         echo '</label>';
 
-        echo '<p style="margin-top:16px;">';
-        echo '<button type="submit" class="tt-button tt-button-primary">' . esc_html__( 'Save', 'talenttrack' ) . '</button>';
+        echo '<p class="tt-mobset-actions">';
+        echo '<button type="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Save', 'talenttrack' ) . '</button>';
         echo '</p>';
         echo '</form>';
     }

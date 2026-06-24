@@ -1,0 +1,99 @@
+/*
+ * frontend-wizards-admin.css — the wizards admin surface (toggle grid +
+ * completion analytics) restyled to the 2026 green/gold look (#1680 B4).
+ *
+ * Mobile-first per CLAUDE.md §2: base styles target ~360px, min-width
+ * queries scale up at 480 / 768 / 1024 only. Scoped under .tt-dashboard
+ * — no global resets. Neutral tokens come from tokens.css; brand greens
+ * via var(--tt-primary, #0b3d2e).
+ */
+
+.tt-dashboard .tt-wzadmin-section {
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-md);
+    padding: var(--tt-sp-4, 16px);
+    margin: 0 0 var(--tt-sp-4, 16px);
+}
+.tt-dashboard .tt-wzadmin-section > h2 {
+    margin: 0 0 var(--tt-sp-2, 8px);
+    font-size: var(--tt-fs-h3, 1.25rem);
+    color: var(--tt-ink, #0e1a14);
+}
+.tt-dashboard .tt-wzadmin-lede {
+    color: var(--tt-muted, #6a6d66);
+    margin: 0 0 var(--tt-sp-4, 16px);
+    line-height: var(--tt-lh-body, 1.5);
+}
+
+/* ---- Master "enable all" toggle ------------------------------------ */
+.tt-dashboard .tt-wzadmin-master {
+    display: flex;
+    align-items: center;
+    gap: var(--tt-sp-3, 12px);
+    min-height: 48px;
+    padding: var(--tt-sp-3, 12px);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-bg-soft, #f4f6f3);
+    margin: 0 0 var(--tt-sp-3, 12px);
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--tt-ink, #0e1a14);
+}
+.tt-dashboard .tt-wzadmin-master input,
+.tt-dashboard .tt-wzadmin-tile input {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+/* ---- Wizard toggle grid -------------------------------------------- */
+.tt-dashboard .tt-wzadmin-grid {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--tt-sp-4, 16px);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--tt-sp-2, 8px);
+}
+@media (min-width: 480px) {
+    .tt-dashboard .tt-wzadmin-grid {
+        grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+    }
+}
+.tt-dashboard .tt-wzadmin-tile {
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    padding: var(--tt-sp-3, 12px);
+    background: var(--tt-paper, #fff);
+}
+.tt-dashboard .tt-wzadmin-tile > label {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--tt-sp-3, 12px);
+    min-height: 48px;
+    cursor: pointer;
+}
+.tt-dashboard .tt-wzadmin-tile__text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+.tt-dashboard .tt-wzadmin-tile__text strong {
+    color: var(--tt-ink, #0e1a14);
+}
+.tt-dashboard .tt-wzadmin-tile__slug {
+    font-size: 0.7rem;
+    color: var(--tt-muted, #6a6d66);
+    background: transparent;
+    padding: 0;
+}
+
+.tt-dashboard .tt-wzadmin-save { min-height: 48px; padding: 0 22px; }
+
+/* ---- Analytics table ----------------------------------------------- */
+.tt-dashboard .tt-wzadmin-table-wrap { overflow-x: auto; }
+.tt-dashboard .tt-wzadmin-slug { color: var(--tt-muted, #6a6d66); }

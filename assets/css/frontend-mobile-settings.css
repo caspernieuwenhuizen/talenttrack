@@ -1,0 +1,56 @@
+/*
+ * frontend-mobile-settings.css — 2026 restyle of the mobile-experience
+ * setting (FrontendMobileSettingsView, #1695 / B4). A single intro and
+ * one settings card with a checkbox toggle and Save. This is a settings
+ * panel (CLAUDE.md §6(a) exempt from Cancel) — Save-only is correct.
+ * Mobile-first per CLAUDE.md §2; tokens only; scoped under
+ * .tt-dashboard. App-chrome loads first.
+ */
+
+.tt-dashboard .tt-mobset-intro {
+    max-width: 760px;
+    color: var(--tt-ink, #0e1a14);
+    margin: 0 0 var(--tt-sp-5, 20px);
+}
+
+.tt-dashboard .tt-mobset-card {
+    max-width: 760px;
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-md);
+    padding: var(--tt-sp-5, 20px);
+}
+
+.tt-dashboard .tt-mobset-toggle {
+    display: flex;
+    gap: var(--tt-sp-2, 8px);
+    align-items: flex-start;
+    cursor: pointer;
+    min-height: 48px;
+}
+.tt-dashboard .tt-mobset-toggle input {
+    margin-top: var(--tt-sp-1, 4px);
+    width: 22px;
+    height: 22px;
+}
+.tt-dashboard .tt-mobset-toggle strong { color: var(--tt-ink, #0e1a14); }
+.tt-dashboard .tt-mobset-toggle-hint {
+    color: var(--tt-muted, #6a6d66);
+    font-size: var(--tt-fs-sm, 0.85rem);
+}
+
+.tt-dashboard .tt-mobset-actions { margin-top: var(--tt-sp-4, 16px); }
+.tt-dashboard .tt-mobset-actions .tt-btn {
+    min-height: 48px;
+    padding: var(--tt-sp-2, 8px) var(--tt-sp-5, 20px);
+    background: var(--tt-primary, #0b3d2e);
+    color: #fff;
+    border: 0;
+    border-radius: var(--tt-radius, 8px);
+    font-weight: 600;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-dashboard .tt-mobset-actions .tt-btn:hover,
+.tt-dashboard .tt-mobset-actions .tt-btn:focus-visible { filter: brightness(1.1); }

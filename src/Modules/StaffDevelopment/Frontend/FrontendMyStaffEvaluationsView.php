@@ -4,6 +4,10 @@ namespace TT\Modules\StaffDevelopment\Frontend;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Modules\StaffDevelopment\Repositories\StaffEvaluationsRepository;
+use TT\Shared\Frontend\Components\BackLink;
+use TT\Shared\Frontend\Components\FormSaveButton;
+use TT\Shared\Frontend\Components\FrontendAppChrome;
+use TT\Shared\Frontend\Components\RecordLink;
 use TT\Shared\Frontend\FrontendViewBase;
 
 /**
@@ -18,6 +22,22 @@ use TT\Shared\Frontend\FrontendViewBase;
  * `ratings` payload for that until the dedicated category form lands.
  */
 class FrontendMyStaffEvaluationsView extends FrontendViewBase {
+
+    /**
+     * B4 2026 restyle — enqueue the shared staff-development card
+     * stylesheet on top of the shared frontend assets. Loaded here (not in
+     * FrontendViewBase) because only the staff-development surfaces use it;
+     * depends on the global app-chrome sheet for the shared brand tokens.
+     */
+    protected static function enqueueAssets(): void {
+        parent::enqueueAssets();
+        wp_enqueue_style(
+            'tt-frontend-staff-development',
+            TT_PLUGIN_URL . 'assets/css/frontend-staff-development.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+    }
 
     public static function render( int $user_id, bool $is_admin ): void {
         $title = __( 'My staff evaluations', 'talenttrack' );
@@ -44,31 +64,46 @@ class FrontendMyStaffEvaluationsView extends FrontendViewBase {
         $repo  = new StaffEvaluationsRepository();
         $rows  = $repo->listForPerson( (int) $person->id );
 
+        // KPI strip — counts derived from the already-fetched list (no new
+        // query).
+        $total    = count( $rows );
+        $self_ct  = 0;
+        foreach ( $rows as $r ) {
+            if ( (string) $r->review_kind === 'self' ) $self_ct++;
+        }
+        echo '<div class="tt-sdev-kpis">';
+        echo FrontendAppChrome::kpiTile( [ 'label' => __( 'Evaluations', 'talenttrack' ), 'value' => (string) $total ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — helper escapes its own output.
+        echo FrontendAppChrome::kpiTile( [ 'label' => __( 'Self', 'talenttrack' ), 'value' => (string) $self_ct ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — helper escapes its own output.
+        echo FrontendAppChrome::kpiTile( [ 'label' => __( 'Top-down', 'talenttrack' ), 'value' => (string) ( $total - $self_ct ) ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — helper escapes its own output.
+        echo '</div>';
+
         if ( ! $rows ) {
-            echo '<p>' . esc_html__( 'No evaluations recorded yet.', 'talenttrack' ) . '</p>';
+            echo '<p class="tt-sdev-empty">' . esc_html__( 'No evaluations recorded yet.', 'talenttrack' ) . '</p>';
         } else {
-            echo '<table class="tt-table" style="width:100%;"><thead><tr>';
-            echo '<th>' . esc_html__( 'Date', 'talenttrack' ) . '</th>';
-            echo '<th>' . esc_html__( 'Kind', 'talenttrack' ) . '</th>';
-            echo '<th>' . esc_html__( 'Reviewer', 'talenttrack' ) . '</th>';
-            echo '<th>' . esc_html__( 'Notes', 'talenttrack' ) . '</th>';
-            echo '</tr></thead><tbody>';
+            echo '<ul class="tt-sdev-list">';
             foreach ( $rows as $r ) {
                 $u = get_userdata( (int) $r->reviewer_user_id );
                 $reviewer = $u ? (string) $u->display_name : '#' . (int) $r->reviewer_user_id;
-                echo '<tr>';
-                echo '<td>' . esc_html( \TT\Shared\Dates\TTDate::date( (string) $r->eval_date ) ) . '</td>';
-                echo '<td>' . esc_html( (string) $r->review_kind ) . '</td>';
-                echo '<td>' . esc_html( $reviewer ) . '</td>';
-                echo '<td>' . esc_html( (string) $r->notes ) . '</td>';
-                echo '</tr>';
+                $is_self  = (string) $r->review_kind === 'self';
+                $kind_lbl = $is_self ? __( 'Self', 'talenttrack' ) : __( 'Top-down', 'talenttrack' );
+                $kind_cls = $is_self ? 'tt-sdev-chip--ghost' : 'tt-sdev-chip--gold';
+                echo '<li class="tt-sdev-card">';
+                echo '<div class="tt-sdev-card__head">';
+                echo '<h4 class="tt-sdev-card__title">' . esc_html( \TT\Shared\Dates\TTDate::date( (string) $r->eval_date ) ) . '</h4>';
+                echo '<span class="tt-sdev-chip ' . esc_attr( $kind_cls ) . '">' . esc_html( $kind_lbl ) . '</span>';
+                echo '</div>';
+                echo '<div class="tt-sdev-card__meta"><span>' . esc_html__( 'Reviewer', 'talenttrack' ) . ': <b>' . esc_html( $reviewer ) . '</b></span></div>';
+                if ( (string) $r->notes !== '' ) {
+                    echo '<p class="tt-sdev-card__notes">' . esc_html( (string) $r->notes ) . '</p>';
+                }
+                echo '</li>';
             }
-            echo '</tbody></table>';
+            echo '</ul>';
         }
 
         $can_top_down = current_user_can( 'tt_manage_staff_development' );
-        echo '<h3 style="margin-top:24px;">' . esc_html__( 'Record a new evaluation', 'talenttrack' ) . '</h3>';
-        echo '<form method="post" class="tt-form" style="max-width:720px;">';
+        echo '<h3 class="tt-sdev-section-title">' . esc_html__( 'Record a new evaluation', 'talenttrack' ) . '</h3>';
+        echo '<form method="post" class="tt-form tt-sdev-form">';
         wp_nonce_field( 'tt_staff_eval_save', 'tt_staff_eval_nonce' );
 
         echo '<div class="tt-grid tt-grid-2">';
@@ -87,7 +122,17 @@ class FrontendMyStaffEvaluationsView extends FrontendViewBase {
         echo '<div class="tt-field"><label class="tt-field-label" for="tt-staff-eval-notes">' . esc_html__( 'Notes', 'talenttrack' ) . '</label>';
         echo '<textarea id="tt-staff-eval-notes" name="notes" class="tt-input" rows="3"></textarea></div>';
 
-        echo '<div class="tt-form-actions"><button type="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Save evaluation', 'talenttrack' ) . '</button></div>';
+        // CLAUDE.md §6 — Save + Cancel on a record-creating form. Cancel
+        // returns to this same list view; a tt_back hint on the entry URL
+        // overrides that destination.
+        $back       = BackLink::resolve();
+        $cancel_url = $back !== null
+            ? $back['url']
+            : add_query_arg( 'tt_view', 'my-staff-evaluations', RecordLink::dashboardUrl() );
+        echo FormSaveButton::render( [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — helper escapes its own output.
+            'label'      => __( 'Save evaluation', 'talenttrack' ),
+            'cancel_url' => $cancel_url,
+        ] );
         echo '</form>';
     }
 

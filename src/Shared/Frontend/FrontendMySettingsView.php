@@ -26,6 +26,20 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 class FrontendMySettingsView extends FrontendViewBase {
 
     /**
+     * Enqueue the 2026 settings stylesheet on top of the shared chrome.
+     * Depends on tt-frontend-app-chrome for the brand tokens.
+     */
+    protected static function enqueueAssets(): void {
+        parent::enqueueAssets();
+        wp_enqueue_style(
+            'tt-frontend-my-settings',
+            TT_PLUGIN_URL . 'assets/css/frontend-my-settings.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+    }
+
+    /**
      * v3.92.0 — accepts an optional player record. The render no longer
      * uses it (display name / password are WP-user concerns, not
      * player-record concerns), but the param stays nullable so the
@@ -59,12 +73,12 @@ class FrontendMySettingsView extends FrontendViewBase {
         }
 
         ?>
-        <div style="max-width:560px;">
-            <form method="post" class="tt-form" style="margin-bottom:24px;">
+        <div class="tt-msettings">
+            <form method="post" class="tt-form tt-msettings-card">
                 <?php wp_nonce_field( 'tt_my_settings_profile', 'tt_my_settings_profile_nonce' ); ?>
                 <input type="hidden" name="tt_my_settings_action" value="update_profile" />
 
-                <h3 style="margin:0 0 12px;"><?php esc_html_e( 'Profile', 'talenttrack' ); ?></h3>
+                <h3><?php esc_html_e( 'Profile', 'talenttrack' ); ?></h3>
 
                 <div class="tt-grid tt-grid-2">
                     <div class="tt-field">
@@ -93,11 +107,11 @@ class FrontendMySettingsView extends FrontendViewBase {
                 </div>
             </form>
 
-            <form method="post" class="tt-form">
+            <form method="post" class="tt-form tt-msettings-card">
                 <?php wp_nonce_field( 'tt_my_settings_password', 'tt_my_settings_password_nonce' ); ?>
                 <input type="hidden" name="tt_my_settings_action" value="change_password" />
 
-                <h3 style="margin:0 0 12px;"><?php esc_html_e( 'Change password', 'talenttrack' ); ?></h3>
+                <h3><?php esc_html_e( 'Change password', 'talenttrack' ); ?></h3>
 
                 <div class="tt-field">
                     <label class="tt-field-label tt-field-required" for="tt-ms-current"><?php esc_html_e( 'Current password', 'talenttrack' ); ?></label>

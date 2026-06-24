@@ -30,6 +30,21 @@ class FrontendMyTasksView extends FrontendViewBase {
     public const NONCE_FIELD  = '_tt_workflow_inbox_nonce';
 
     /**
+     * Enqueue the 2026 inbox stylesheet on top of the shared chrome.
+     * Depends on tt-frontend-app-chrome so the brand tokens + .tt-kpi
+     * tile styling load first.
+     */
+    protected static function enqueueAssets(): void {
+        parent::enqueueAssets();
+        wp_enqueue_style(
+            'tt-frontend-my-tasks',
+            TT_PLUGIN_URL . 'assets/css/frontend-my-tasks.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+    }
+
+    /**
      * Render the inbox for the current user.
      */
     public static function render( int $user_id ): void {
@@ -56,143 +71,11 @@ class FrontendMyTasksView extends FrontendViewBase {
         $recent_done = $is_completed_view ? [] : self::recentlyCompletedForUser( $user_id, 5 );
         $template_keys = $repo->templateKeysForUser( $user_id );
 
-        ?>
-        <style>
-            .tt-mtasks-list { list-style: none; padding: 0; margin: 0 0 24px; }
-            .tt-mtasks-row {
-                display: flex; align-items: center; gap: 12px;
-                background: #fff; border: 1px solid #e5e7ea; border-radius: 8px;
-                padding: 12px 14px; margin-bottom: 8px;
-            }
-            .tt-mtasks-row.tt-overdue { border-color: #b32d2e; background: #fff6f6; }
-            .tt-mtasks-row.tt-completed { background: #f4f6f4; opacity: 0.85; }
-            .tt-mtasks-checkbox { flex: 0 0 auto; }
-            .tt-mtasks-meta { flex: 1; min-width: 0; }
-            .tt-mtasks-title { font-weight: 600; font-size: 15px; color: #1a1d21; margin: 0 0 2px; }
-            .tt-mtasks-sub { font-size: 12px; color: #5b6e75; margin: 0; }
-            .tt-mtasks-due { font-size: 12px; color: #444; white-space: nowrap; }
-            .tt-mtasks-due.tt-overdue-text { color: #b32d2e; font-weight: 600; }
-            .tt-mtasks-action a,
-            .tt-mtasks-action a:link,
-            .tt-mtasks-action a:visited,
-            .tt-mtasks-snooze button {
-                display: inline-block; padding: 6px 10px;
-                background: #2271b1; color: #fff !important; border-radius: 5px;
-                text-decoration: none; font-size: 12px; font-weight: 600;
-                border: 0; cursor: pointer;
-            }
-            .tt-mtasks-snooze button { background: #5b6e75; color: #fff; margin-left: 4px; }
-            .tt-mtasks-snooze button:hover,
-            .tt-mtasks-snooze button:focus { background: #444; color: #fff; }
-            .tt-mtasks-action a:hover,
-            .tt-mtasks-action a:focus { background: #195a8e; color: #fff !important; text-decoration: none; }
-            /* Filter-bar Apply button — force readable hover; some themes
-               invert the contrast on `.tt-btn-secondary:hover` and the
-               white-on-light-grey result is unreadable. */
-            .tt-mtasks-filters button.tt-btn,
-            .tt-mtasks-filters button.tt-btn:link,
-            .tt-mtasks-filters button.tt-btn:visited {
-                background: #2271b1; color: #fff; border: 1px solid #2271b1;
-                padding: 6px 14px; border-radius: 5px; font-weight: 600; cursor: pointer;
-            }
-            .tt-mtasks-filters button.tt-btn:hover,
-            .tt-mtasks-filters button.tt-btn:focus {
-                background: #195a8e; color: #fff; border-color: #195a8e;
-            }
-            .tt-mtasks-section-label {
-                font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
-                text-transform: uppercase; color: #8a9099;
-                margin: 24px 0 10px;
-            }
-            .tt-mtasks-empty { color: #5b6e75; font-style: italic; padding: 12px 0; }
-            .tt-mtasks-filters {
-                background: #fff; border: 1px solid #e5e7ea; border-radius: 8px;
-                padding: 10px 14px; margin: 0 0 16px;
-                display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
-            }
-            .tt-mtasks-filters label { font-size: 12px; color: #5b6e75; }
-            .tt-mtasks-filters select { font-size: 13px; padding: 4px 6px; }
-            .tt-mtasks-bulkbar {
-                background: #fafbfc; border: 1px solid #e5e7ea; border-radius: 6px;
-                padding: 8px 12px; margin: 0 0 12px; display: none; align-items: center; gap: 12px;
-            }
-            .tt-mtasks-bulkbar.tt-active { display: flex; }
-            .tt-mtasks-flash {
-                background:#e9f5e9; border-left:4px solid #2c8a2c; padding:8px 12px;
-                margin: 0 0 12px; font-size: 13px;
-            }
-
-            /* v3.110.126 — mobile rewrite. Pre-fix the row was a
-               single flex strip (checkbox + title + sub + due +
-               action + snooze) that ran out of horizontal room on
-               360px viewports: the Open button + snooze buttons
-               wrapped messily, the title got truncated awkwardly,
-               and the filter dropdowns stacked at full width.
-               Pilot: "the mobile view of the task table is
-               completely off". Now: row flexes to a 2-row layout
-               on phones — meta (title + sub + due) takes row 1
-               full width; the action toolbar (Open + 1d + 7d)
-               sits beneath at row 2 aligned right. The filter
-               bar's selects also go single-column at full width
-               so they're tappable. */
-            @media (max-width: 767px) {
-                .tt-mtasks-row {
-                    flex-wrap: wrap;
-                    align-items: flex-start;
-                    padding: 12px 12px;
-                    gap: 10px;
-                }
-                .tt-mtasks-checkbox { order: 1; }
-                .tt-mtasks-meta { order: 2; flex: 1 1 auto; min-width: 0; }
-                .tt-mtasks-due { order: 3; flex: 0 0 auto; align-self: center; }
-                .tt-mtasks-action {
-                    order: 4;
-                    flex: 1 1 100%;
-                    display: flex;
-                    justify-content: flex-end;
-                }
-                .tt-mtasks-snooze {
-                    order: 5;
-                    flex: 0 0 auto;
-                    display: flex;
-                    align-items: center;
-                    gap: 4px;
-                }
-                .tt-mtasks-action a {
-                    min-height: 36px;
-                    padding: 8px 14px;
-                    display: inline-flex;
-                    align-items: center;
-                }
-                .tt-mtasks-snooze button {
-                    min-height: 36px;
-                    padding: 8px 12px;
-                }
-                .tt-mtasks-filters {
-                    flex-direction: column;
-                    align-items: stretch;
-                    gap: 8px;
-                }
-                .tt-mtasks-filters label {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 4px;
-                }
-                .tt-mtasks-filters select {
-                    width: 100%;
-                    min-height: 40px;
-                    font-size: 14px;
-                    padding: 8px 10px;
-                }
-                .tt-mtasks-filters button.tt-btn { min-height: 44px; }
-            }
-        </style>
-        <?php
-
         if ( $flash !== '' ) {
             echo '<div class="tt-mtasks-flash">' . esc_html( $flash ) . '</div>';
         }
 
+        self::renderKpis( $actionable, $is_completed_view );
         self::renderFilters( $template_keys, $filters );
 
         if ( ! $is_completed_view ) {
@@ -203,7 +86,7 @@ class FrontendMyTasksView extends FrontendViewBase {
                 printf( '<input type="hidden" name="%s" value="%s" />', esc_attr( $k ), esc_attr( $v ) );
             }
             echo '<div class="tt-mtasks-bulkbar" data-tt-mtasks-bulkbar="1">';
-            echo '<span data-tt-mtasks-count="0" style="font-size:13px; color:#5b6e75;">0 ' . esc_html__( 'selected', 'talenttrack' ) . '</span>';
+            echo '<span class="tt-mtasks-bulkbar-count" data-tt-mtasks-count="0">0 ' . esc_html__( 'selected', 'talenttrack' ) . '</span>';
             echo '<button type="submit" name="tt_inbox_action" value="bulk_skip" class="tt-btn tt-btn-secondary tt-btn-sm" onclick="return confirm(\'' . esc_js( __( 'Skip the selected tasks? They will be marked as no-longer-applicable.', 'talenttrack' ) ) . '\')">' . esc_html__( 'Skip selected', 'talenttrack' ) . '</button>';
             echo '<button type="submit" name="tt_inbox_action" value="bulk_snooze_1d" class="tt-btn tt-btn-secondary tt-btn-sm">' . esc_html__( 'Snooze 1 day', 'talenttrack' ) . '</button>';
             echo '<button type="submit" name="tt_inbox_action" value="bulk_snooze_7d" class="tt-btn tt-btn-secondary tt-btn-sm">' . esc_html__( 'Snooze 7 days', 'talenttrack' ) . '</button>';
@@ -258,6 +141,48 @@ class FrontendMyTasksView extends FrontendViewBase {
         })();
         </script>
         <?php
+    }
+
+    /**
+     * KPI strip above the inbox. Counts are derived from the already-
+     * fetched list (presentational tallies of data the view loaded, not
+     * a fresh query) — CLAUDE.md §4.
+     *
+     * @param array<int, array<string,mixed>> $actionable
+     */
+    private static function renderKpis( array $actionable, bool $is_completed_view ): void {
+        if ( $is_completed_view ) {
+            return;
+        }
+        $now = current_time( 'timestamp' );
+        $overdue = 0;
+        foreach ( $actionable as $task ) {
+            $due_at = (string) ( $task['due_at'] ?? '' );
+            $due_ts = $due_at !== '' ? strtotime( $due_at ) : false;
+            if ( $due_ts !== false && $due_ts < $now ) {
+                $overdue++;
+            }
+        }
+        $total = count( $actionable );
+        $on_track = max( 0, $total - $overdue );
+
+        $chrome = \TT\Shared\Frontend\Components\FrontendAppChrome::class;
+        echo '<div class="tt-mtasks-kpis">';
+        echo $chrome::kpiTile( [
+            'label' => __( 'Open tasks', 'talenttrack' ),
+            'value' => (string) $total,
+        ] );
+        echo $chrome::kpiTile( [
+            'label' => __( 'Overdue', 'talenttrack' ),
+            'value' => (string) $overdue,
+            'flag'  => $overdue > 0 ? 'red' : 'green',
+        ] );
+        echo $chrome::kpiTile( [
+            'label' => __( 'On track', 'talenttrack' ),
+            'value' => (string) $on_track,
+            'flag'  => 'green',
+        ] );
+        echo '</div>';
     }
 
     /** @param array<string,mixed> $task */

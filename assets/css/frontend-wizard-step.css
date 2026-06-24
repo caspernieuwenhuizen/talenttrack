@@ -1,0 +1,55 @@
+/*
+ * frontend-wizard-step.css — 2026 green/gold polish for the wizard host's
+ * STEP BODY only (#1680 B4).
+ *
+ * Conservative by design (CLAUDE.md §3 / §6): this sheet restyles the
+ * step's field + card presentation surface. It does NOT touch the
+ * Previous / Next / Cancel chrome, the progress rail, the resume banner,
+ * or any wizard flow — those keep their own styling from
+ * FrontendWizardView::enqueueWizardStyles(). The rules here wrap the step
+ * form in a token-based card and align the step title to the type scale.
+ *
+ * Mobile-first per CLAUDE.md §2: base targets ~360px. Scoped under
+ * .tt-dashboard — no global resets. Neutral tokens come from tokens.css;
+ * brand greens via var(--tt-primary, #0b3d2e). Enqueued AFTER the inline
+ * wizard styles so these card rules win without altering the chrome.
+ */
+
+/* Card frame around the step body (title + rendered fields + actions). */
+.tt-dashboard .tt-wizard-form {
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-md);
+    padding: var(--tt-sp-5, 20px);
+    box-sizing: border-box;
+}
+
+/* Step title to the 2026 type scale + ink token. */
+.tt-dashboard .tt-wizard-step-title {
+    font-size: var(--tt-fs-h2, 1.5rem);
+    color: var(--tt-ink, #0e1a14);
+    margin: 0 0 var(--tt-sp-4, 16px);
+    padding-bottom: var(--tt-sp-3, 12px);
+    border-bottom: 1px solid var(--tt-line-soft, #eef0ec);
+}
+
+/* Field-group fieldsets inside steps adopt the soft surface + radius. */
+.tt-dashboard .tt-wizard-form fieldset {
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-bg-soft, #f4f6f3);
+}
+
+/* Field focus ring uses the brand green (accessibility: never removed). */
+.tt-dashboard .tt-wizard-form input:focus-visible,
+.tt-dashboard .tt-wizard-form select:focus-visible,
+.tt-dashboard .tt-wizard-form textarea:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 1px;
+}
+
+/* The actions bar keeps its own chrome (background, grid, borders) from
+   the inline wizard styles — intentionally NOT restyled here per the
+   conservative §3/§6 rule. The card padding above gives it breathing
+   room without touching its internal layout. */

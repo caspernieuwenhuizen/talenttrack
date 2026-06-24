@@ -23,6 +23,16 @@ use TT\Shared\Frontend\FrontendViewBase;
  */
 class IdeasApprovalView extends FrontendViewBase {
 
+    protected static function enqueueAssets(): void {
+        parent::enqueueAssets();
+        wp_enqueue_style(
+            'tt-frontend-ideas',
+            TT_PLUGIN_URL . 'assets/css/frontend-ideas.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+    }
+
     public static function render(): void {
         if ( ! current_user_can( 'tt_promote_idea' ) ) {
             FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
@@ -40,15 +50,30 @@ class IdeasApprovalView extends FrontendViewBase {
 
         $token_ok = GitHubPromoter::tokenAvailable();
         $current_url = self::currentUrl();
+        $kpi = \TT\Shared\Frontend\Components\FrontendAppChrome::class;
         ?>
-        <p style="color:#666;">
+        <div class="tt-ideas-kpis">
+            <?php
+            echo $kpi::kpiTile( [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — helper escapes internally.
+                'label' => __( 'Ready for approval', 'talenttrack' ),
+                'value' => (string) count( $ready ),
+            ] );
+            echo $kpi::kpiTile( [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — helper escapes internally.
+                'label' => __( 'Promotion failed', 'talenttrack' ),
+                'value' => (string) count( $failed ),
+                'flag'  => count( $failed ) > 0 ? 'red' : '',
+            ] );
+            ?>
+        </div>
+
+        <p class="tt-ideas-lede">
             <?php esc_html_e( 'Approve to commit the idea straight to the talenttrack ideas/ folder on GitHub. The plugin assigns the next free #NNNN automatically.', 'talenttrack' ); ?>
         </p>
 
         <?php if ( ! $token_ok ) : ?>
-            <div class="tt-notice" style="border-left:4px solid #b32d2e; padding:12px; background:#fff4f4;">
+            <div class="tt-notice tt-ideas-card tt-ideas-card--alert">
                 <strong><?php esc_html_e( 'GitHub token not configured.', 'talenttrack' ); ?></strong>
-                <p style="margin:6px 0 0;">
+                <p class="tt-ideas-alert-detail">
                     <?php
                     printf(
                         /* translators: 1: constant name, 2: file path */
@@ -61,9 +86,9 @@ class IdeasApprovalView extends FrontendViewBase {
             </div>
         <?php endif; ?>
 
-        <h3 style="margin-top:24px;"><?php esc_html_e( 'Ready for approval', 'talenttrack' ); ?> (<?php echo (int) count( $ready ); ?>)</h3>
+        <h3 class="tt-ideas-section-head"><?php esc_html_e( 'Ready for approval', 'talenttrack' ); ?> (<?php echo (int) count( $ready ); ?>)</h3>
         <?php if ( empty( $ready ) ) : ?>
-            <p style="color:#888;"><em><?php esc_html_e( 'Queue is empty.', 'talenttrack' ); ?></em></p>
+            <p class="tt-track-empty"><em><?php esc_html_e( 'Queue is empty.', 'talenttrack' ); ?></em></p>
         <?php else : ?>
             <?php foreach ( $ready as $row ) : ?>
                 <?php self::renderCard( $row, $current_url, $token_ok, false ); ?>
@@ -71,8 +96,8 @@ class IdeasApprovalView extends FrontendViewBase {
         <?php endif; ?>
 
         <?php if ( ! empty( $failed ) ) : ?>
-            <h3 style="margin-top:32px;"><?php esc_html_e( 'Promotion failed', 'talenttrack' ); ?> (<?php echo (int) count( $failed ); ?>)</h3>
-            <p style="color:#666;"><?php esc_html_e( 'Retry promotion to re-attempt the GitHub commit. The error from the last attempt is shown on each card.', 'talenttrack' ); ?></p>
+            <h3 class="tt-ideas-section-head"><?php esc_html_e( 'Promotion failed', 'talenttrack' ); ?> (<?php echo (int) count( $failed ); ?>)</h3>
+            <p class="tt-ideas-lede"><?php esc_html_e( 'Retry promotion to re-attempt the GitHub commit. The error from the last attempt is shown on each card.', 'talenttrack' ); ?></p>
             <?php foreach ( $failed as $row ) : ?>
                 <?php self::renderCard( $row, $current_url, $token_ok, true ); ?>
             <?php endforeach; ?>
@@ -82,50 +107,50 @@ class IdeasApprovalView extends FrontendViewBase {
 
     private static function renderCard( object $row, string $redirect, bool $token_ok, bool $was_failed ): void {
         $author = self::authorName( (int) $row->author_user_id );
+        $card_class = 'tt-ideas-card tt-approval-card' . ( $was_failed ? ' tt-approval-card--failed' : '' );
         ?>
-        <div style="margin:12px 0; padding:14px; background:#fff; border:1px solid <?php echo $was_failed ? '#f1baba' : '#e5e7ea'; ?>; border-radius:8px;">
-            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:18px;">
-                <div style="flex:1; min-width:0;">
-                    <strong style="font-size:15px;"><?php echo esc_html( (string) $row->title ); ?></strong>
-                    <div style="color:#777; font-size:12px; margin-top:4px;">
-                        <?php echo esc_html( IdeaType::label( (string) $row->type ) ); ?>
-                        · <?php echo esc_html( $author ); ?>
-                        · <?php echo esc_html( (string) $row->created_at ); ?>
-                    </div>
-                    <?php if ( ! empty( $row->body ) ) : ?>
-                        <p style="margin:10px 0 0; white-space:pre-wrap;"><?php echo esc_html( (string) $row->body ); ?></p>
-                    <?php endif; ?>
-                    <?php if ( $was_failed && ! empty( $row->promotion_error ) ) : ?>
-                        <p style="margin:10px 0 0; color:#b32d2e; font-size:12px;">
-                            <strong><?php esc_html_e( 'Last error:', 'talenttrack' ); ?></strong>
-                            <code><?php echo esc_html( (string) $row->promotion_error ); ?></code>
-                        </p>
-                    <?php endif; ?>
+        <div class="<?php echo esc_attr( $card_class ); ?>">
+            <div class="tt-approval-card__main">
+                <strong class="tt-approval-card__title"><?php echo esc_html( (string) $row->title ); ?></strong>
+                <div class="tt-approval-card__meta">
+                    <?php echo esc_html( IdeaType::label( (string) $row->type ) ); ?>
+                    · <?php echo esc_html( $author ); ?>
+                    · <?php echo esc_html( (string) $row->created_at ); ?>
                 </div>
-                <div style="flex-shrink:0; min-width:240px;">
-                    <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin:0 0 8px;" onsubmit="return confirm('<?php echo esc_js( sprintf( /* translators: %s = repo slug */ __( 'You\'re about to commit this idea to %s. Continue?', 'talenttrack' ), \TT\Modules\Development\GitHubPromoter::repoSlug() ) ); ?>');">
-                        <?php wp_nonce_field( 'tt_dev_idea_promote' ); ?>
-                        <input type="hidden" name="action" value="tt_dev_idea_promote" />
+                <?php if ( ! empty( $row->body ) ) : ?>
+                    <p class="tt-approval-card__body"><?php echo esc_html( (string) $row->body ); ?></p>
+                <?php endif; ?>
+                <?php if ( $was_failed && ! empty( $row->promotion_error ) ) : ?>
+                    <p class="tt-approval-card__error">
+                        <strong><?php esc_html_e( 'Last error:', 'talenttrack' ); ?></strong>
+                        <code><?php echo esc_html( (string) $row->promotion_error ); ?></code>
+                    </p>
+                <?php endif; ?>
+            </div>
+            <div class="tt-approval-card__actions">
+                <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" onsubmit="return confirm('<?php echo esc_js( sprintf( /* translators: %s = repo slug */ __( 'You\'re about to commit this idea to %s. Continue?', 'talenttrack' ), \TT\Modules\Development\GitHubPromoter::repoSlug() ) ); ?>');">
+                    <?php wp_nonce_field( 'tt_dev_idea_promote' ); ?>
+                    <input type="hidden" name="action" value="tt_dev_idea_promote" />
+                    <input type="hidden" name="id" value="<?php echo (int) $row->id; ?>" />
+                    <input type="hidden" name="_redirect" value="<?php echo esc_attr( $redirect ); ?>" />
+                    <button type="submit" class="tt-btn tt-btn-primary" <?php disabled( ! $token_ok ); ?> title="<?php echo $token_ok ? '' : esc_attr__( 'TT_GITHUB_TOKEN constant must be set in wp-config.php.', 'talenttrack' ); ?>">
+                        <?php echo $was_failed ? esc_html__( 'Retry promotion', 'talenttrack' ) : esc_html__( 'Approve & promote', 'talenttrack' ); ?>
+                    </button>
+                </form>
+                <details class="tt-approval-card__reject">
+                    <summary><?php esc_html_e( 'Reject with note', 'talenttrack' ); ?></summary>
+                    <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+                        <?php wp_nonce_field( 'tt_dev_idea_reject' ); ?>
+                        <input type="hidden" name="action" value="tt_dev_idea_reject" />
                         <input type="hidden" name="id" value="<?php echo (int) $row->id; ?>" />
                         <input type="hidden" name="_redirect" value="<?php echo esc_attr( $redirect ); ?>" />
-                        <button type="submit" class="tt-btn tt-btn-primary" style="width:100%;" <?php disabled( ! $token_ok ); ?> title="<?php echo $token_ok ? '' : esc_attr__( 'TT_GITHUB_TOKEN constant must be set in wp-config.php.', 'talenttrack' ); ?>">
-                            <?php echo $was_failed ? esc_html__( 'Retry promotion', 'talenttrack' ) : esc_html__( 'Approve & promote', 'talenttrack' ); ?>
+                        <label class="screen-reader-text" for="tt-reject-note-<?php echo (int) $row->id; ?>"><?php esc_html_e( 'Rejection note', 'talenttrack' ); ?></label>
+                        <textarea id="tt-reject-note-<?php echo (int) $row->id; ?>" name="rejection_note" rows="3" placeholder="<?php esc_attr_e( 'Tell the author why', 'talenttrack' ); ?>"></textarea>
+                        <button type="submit" class="tt-btn tt-btn-secondary">
+                            <?php esc_html_e( 'Reject', 'talenttrack' ); ?>
                         </button>
                     </form>
-                    <details style="margin-top:6px;">
-                        <summary style="cursor:pointer; color:#b32d2e; font-size:12px;"><?php esc_html_e( 'Reject with note', 'talenttrack' ); ?></summary>
-                        <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin-top:6px;">
-                            <?php wp_nonce_field( 'tt_dev_idea_reject' ); ?>
-                            <input type="hidden" name="action" value="tt_dev_idea_reject" />
-                            <input type="hidden" name="id" value="<?php echo (int) $row->id; ?>" />
-                            <input type="hidden" name="_redirect" value="<?php echo esc_attr( $redirect ); ?>" />
-                            <textarea name="rejection_note" rows="3" style="width:100%; padding:6px; font-size:12px;" placeholder="<?php esc_attr_e( 'Tell the author why', 'talenttrack' ); ?>"></textarea>
-                            <button type="submit" class="tt-btn tt-btn-secondary" style="width:100%; margin-top:4px;">
-                                <?php esc_html_e( 'Reject', 'talenttrack' ); ?>
-                            </button>
-                        </form>
-                    </details>
-                </div>
+                </details>
             </div>
         </div>
         <?php

@@ -7,6 +7,7 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\StaffDevelopment\Repositories\StaffCertificationsRepository;
 use TT\Modules\StaffDevelopment\Repositories\StaffGoalsRepository;
+use TT\Shared\Frontend\Components\FrontendAppChrome;
 use TT\Shared\Frontend\FrontendViewBase;
 
 /**
@@ -18,6 +19,22 @@ use TT\Shared\Frontend\FrontendViewBase;
  * row). Each row links to the relevant detail surface.
  */
 class FrontendStaffOverviewView extends FrontendViewBase {
+
+    /**
+     * B4 2026 restyle — enqueue the staff-overview card stylesheet on top
+     * of the shared frontend assets. Loaded here (not in FrontendViewBase)
+     * because only this surface uses it; depends on the global app-chrome
+     * sheet for the shared brand tokens + .tt-kpi tile styling.
+     */
+    protected static function enqueueAssets(): void {
+        parent::enqueueAssets();
+        wp_enqueue_style(
+            'tt-frontend-staff-overview',
+            TT_PLUGIN_URL . 'assets/css/frontend-staff-overview.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+    }
 
     public static function render( int $user_id, bool $is_admin ): void {
         $title = __( 'Staff overview', 'talenttrack' );
@@ -76,42 +93,49 @@ class FrontendStaffOverviewView extends FrontendViewBase {
         $cert_by_id = [];
         foreach ( $cert_types as $t ) { $cert_by_id[ (int) $t->id ] = (string) $t->name; }
 
-        echo '<div class="tt-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 16px;">';
+        // KPI strip — the three roll-up counts, already computed above.
+        echo '<div class="tt-sov-kpis">';
+        echo FrontendAppChrome::kpiTile( [ 'label' => __( 'Open staff goals', 'talenttrack' ), 'value' => (string) count( $open_goals ) ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — helper escapes its own output.
+        echo FrontendAppChrome::kpiTile( [ 'label' => __( 'Reviews overdue', 'talenttrack' ), 'value' => (string) count( $pending_due ), 'flag' => count( $pending_due ) > 0 ? 'red' : 'green' ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — helper escapes its own output.
+        echo FrontendAppChrome::kpiTile( [ 'label' => __( 'Certs expiring (90d)', 'talenttrack' ), 'value' => (string) count( $expiring ), 'flag' => count( $expiring ) > 0 ? 'red' : 'green' ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — helper escapes its own output.
+        echo '</div>';
 
-        echo '<div class="tt-panel"><h3 class="tt-panel-title">' . esc_html__( 'Open staff goals', 'talenttrack' ) . ' (' . (int) count( $open_goals ) . ')</h3>';
+        echo '<div class="tt-sov-grid">';
+
+        echo '<div class="tt-sov-card"><h3 class="tt-sov-card__title">' . esc_html__( 'Open staff goals', 'talenttrack' ) . ' <span class="tt-sov-card__count">(' . (int) count( $open_goals ) . ')</span></h3>';
         if ( ! $open_goals ) {
-            echo '<p>' . esc_html__( 'No open goals.', 'talenttrack' ) . '</p>';
+            echo '<p class="tt-sov-empty">' . esc_html__( 'No open goals.', 'talenttrack' ) . '</p>';
         } else {
-            echo '<ul style="margin:0; padding-left:18px;">';
+            echo '<ul class="tt-sov-list">';
             foreach ( $open_goals as $g ) {
                 $name = trim( ( $g->first_name ?? '' ) . ' ' . ( $g->last_name ?? '' ) ) ?: '#' . (int) $g->person_id;
-                echo '<li>' . esc_html( $name ) . ' — ' . esc_html( (string) $g->title );
-                if ( $g->due_date ) echo ' <em>' . esc_html( \TT\Shared\Dates\TTDate::date( (string) $g->due_date ) ) . '</em>';
+                echo '<li><span class="tt-sov-name">' . esc_html( $name ) . '</span> — ' . esc_html( (string) $g->title );
+                if ( $g->due_date ) echo ' <span class="tt-sov-detail">' . esc_html( \TT\Shared\Dates\TTDate::date( (string) $g->due_date ) ) . '</span>';
                 echo '</li>';
             }
             echo '</ul>';
         }
         echo '</div>';
 
-        echo '<div class="tt-panel"><h3 class="tt-panel-title">' . esc_html__( 'Top-down review overdue', 'talenttrack' ) . ' (' . (int) count( $pending_due ) . ')</h3>';
+        echo '<div class="tt-sov-card"><h3 class="tt-sov-card__title">' . esc_html__( 'Top-down review overdue', 'talenttrack' ) . ' <span class="tt-sov-card__count">(' . (int) count( $pending_due ) . ')</span></h3>';
         if ( ! $pending_due ) {
-            echo '<p>' . esc_html__( 'Everyone reviewed within the last year.', 'talenttrack' ) . '</p>';
+            echo '<p class="tt-sov-empty">' . esc_html__( 'Everyone reviewed within the last year.', 'talenttrack' ) . '</p>';
         } else {
-            echo '<ul style="margin:0; padding-left:18px;">';
+            echo '<ul class="tt-sov-list">';
             foreach ( $pending_due as $row ) {
                 $name = trim( ( $row->first_name ?? '' ) . ' ' . ( $row->last_name ?? '' ) ) ?: '#' . (int) $row->person_id;
                 $last = $row->last_top_down ? esc_html( (string) $row->last_top_down ) : esc_html__( 'never', 'talenttrack' );
-                echo '<li>' . esc_html( $name ) . ' — ' . __( 'last reviewed:', 'talenttrack' ) . ' ' . $last . '</li>';
+                echo '<li><span class="tt-sov-name">' . esc_html( $name ) . '</span> — <span class="tt-sov-detail">' . esc_html__( 'last reviewed:', 'talenttrack' ) . ' ' . $last . '</span></li>';
             }
             echo '</ul>';
         }
         echo '</div>';
 
-        echo '<div class="tt-panel"><h3 class="tt-panel-title">' . esc_html__( 'Certifications expiring in 90 days', 'talenttrack' ) . ' (' . (int) count( $expiring ) . ')</h3>';
+        echo '<div class="tt-sov-card"><h3 class="tt-sov-card__title">' . esc_html__( 'Certifications expiring in 90 days', 'talenttrack' ) . ' <span class="tt-sov-card__count">(' . (int) count( $expiring ) . ')</span></h3>';
         if ( ! $expiring ) {
-            echo '<p>' . esc_html__( 'No certifications expiring soon.', 'talenttrack' ) . '</p>';
+            echo '<p class="tt-sov-empty">' . esc_html__( 'No certifications expiring soon.', 'talenttrack' ) . '</p>';
         } else {
-            echo '<ul style="margin:0; padding-left:18px;">';
+            echo '<ul class="tt-sov-list">';
             foreach ( $expiring as $c ) {
                 $type   = (string) ( $cert_by_id[ (int) $c->cert_type_lookup_id ] ?? '#' . (int) $c->cert_type_lookup_id );
                 $person = $wpdb->get_row( $wpdb->prepare(
@@ -119,7 +143,7 @@ class FrontendStaffOverviewView extends FrontendViewBase {
                     (int) $c->person_id
                 ) );
                 $name = $person ? trim( (string) $person->first_name . ' ' . (string) $person->last_name ) : '#' . (int) $c->person_id;
-                echo '<li>' . esc_html( $name ) . ' — ' . esc_html( $type ) . ' (' . esc_html( (string) $c->expires_on ) . ')</li>';
+                echo '<li><span class="tt-sov-name">' . esc_html( $name ) . '</span> — ' . esc_html( $type ) . ' <span class="tt-sov-detail">(' . esc_html( (string) $c->expires_on ) . ')</span></li>';
             }
             echo '</ul>';
         }

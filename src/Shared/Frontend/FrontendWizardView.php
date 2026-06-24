@@ -27,6 +27,23 @@ use TT\Shared\Wizards\WizardStepInterface;
  */
 class FrontendWizardView extends FrontendViewBase {
 
+    /**
+     * #1680 B4 — 2026 polish for the wizard STEP BODY only. Enqueued
+     * with the standard app-chrome dependency; the rules are scoped
+     * under `.tt-dashboard` so they layer over the inline wizard styles
+     * (`enqueueWizardStyles()`) without touching the progress rail or
+     * the Cancel / Back / Next chrome.
+     */
+    protected static function enqueueAssets(): void {
+        parent::enqueueAssets();
+        wp_enqueue_style(
+            'tt-frontend-wizard-step',
+            TT_PLUGIN_URL . 'assets/css/frontend-wizard-step.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+    }
+
     public static function render( int $user_id, bool $is_admin ): void {
         // #901 — primary query var is `tt_wizard`. Back-compat: also
         // accept legacy `slug=` URLs (bookmarks, shared links) for one

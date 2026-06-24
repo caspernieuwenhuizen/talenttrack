@@ -1,0 +1,66 @@
+/*
+ * frontend-staff-pdp.css — FrontendMyStaffPdpView 2026 restyle (B4).
+ * Wraps the staff personal-development-plan form in the shared green/gold
+ * "card" language: white surface, brand tokens, rounded corners. This is a
+ * restyle — the markup and data are unchanged, only the look is warmed up to
+ * match the rest of the 2026 surfaces.
+ *
+ * Mobile-first per CLAUDE.md §2: base styles target ~360px; min-width queries
+ * at 480/768/1024 scale up. Scoped under .tt-dashboard — no global resets, the
+ * active theme is treated as hostile. Depends on tt-frontend-app-chrome for the
+ * brand tokens (--tt-primary, --tt-ink, --tt-muted, --tt-line, --tt-shadow-md).
+ */
+
+.tt-dashboard .tt-staff-pdp-form {
+    max-width: 760px;
+    margin: 0;
+    padding: 1rem 1.05rem 1.15rem;
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-md);
+}
+
+.tt-dashboard .tt-staff-pdp-form .tt-field {
+    margin-bottom: var(--tt-sp-4, 16px);
+}
+
+.tt-dashboard .tt-staff-pdp-form .tt-field-label {
+    display: block;
+    margin-bottom: var(--tt-sp-1, 4px);
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--tt-primary, #0b3d2e);
+}
+
+.tt-dashboard .tt-staff-pdp-form textarea.tt-input {
+    width: 100%;
+    font-size: 1rem; /* ≥16px — no iOS focus zoom. */
+    line-height: var(--tt-lh-body, 1.5);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    padding: 0.6rem 0.7rem;
+    color: var(--tt-ink, #0e1a14);
+    background: var(--tt-paper, #fff);
+}
+
+.tt-dashboard .tt-staff-pdp-form textarea.tt-input:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 1px;
+    border-color: var(--tt-primary, #0b3d2e);
+}
+
+/* Last-reviewed footnote reads as a muted meta line under the actions. */
+.tt-dashboard .tt-staff-pdp-form .tt-field-hint {
+    margin-top: var(--tt-sp-2, 8px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-muted, #6a6d66);
+}
+
+@media (min-width: 768px) {
+    .tt-dashboard .tt-staff-pdp-form {
+        padding: 1.25rem 1.35rem 1.4rem;
+    }
+}
