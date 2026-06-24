@@ -59,6 +59,7 @@ Three rules, enforced by review + CI:
 1. **Every statement goes through `$this->exec( $sql )`** (on the `Migration` base class). The runner's fallback only reads the database's *last* error after `up()` returns — a failed statement followed by a successful one would be invisible and the migration would be marked applied half-done. `exec()` throws at the exact statement that broke, which is what the red admin notice then shows.
 2. **Column adds on existing tables use `MigrationHelpers::addColumnIfMissing()`**, never `dbDelta`. dbDelta silently no-ops ALTERs when the live table has drifted from the CREATE statement — the failure class behind the v4.20.85 blueprint-columns repair. CI (`migration-lint.yml`) fails any new migration that passes a pre-existing table to dbDelta.
 3. **`dbDelta` stays fine for genuinely new tables** — first creation is the case it handles well.
+4. **Adding an index / UNIQUE key on an existing table is made idempotent by checking `information_schema.STATISTICS` first**, then running a guarded `ALTER … ADD … KEY` through `Migration::exec`. There's no `addIndexIfMissing` helper yet — migration `0170` (`tt_players` one-account-one-player UNIQUE, #1772) is the reference. When the index enforces a constraint that existing rows might violate (a UNIQUE over data that could contain duplicates), dedupe **before** the `ADD`, in the same migration, so the `exec` can't fail on legacy data.
 
 ## What you never need to do
 

@@ -37,5 +37,10 @@ class AuthModule implements ModuleInterface {
         /** @var LogoutHandler $logout */
         $logout = $container->get( 'auth.logout_handler' );
         $logout->register();
+
+        // #1772 — clear player/person/parent account links when a WP user
+        // is deleted, so a re-issued user id can't silently inherit
+        // someone else's record.
+        WpUserUnlink::register();
     }
 }

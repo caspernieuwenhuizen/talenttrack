@@ -354,9 +354,14 @@ class QueryHelpers {
         global $wpdb;
         $scope = self::apply_demo_scope( 'p', 'player' );
         /** @var object|null $r */
+        // #1772 — ORDER BY id DESC makes the LIMIT 1 deterministic even
+        // before the dedupe migration runs (and matches the resolver
+        // tiebreak in AuthorizationService). The UNIQUE (club_id,
+        // wp_user_id) index makes >1 row impossible going forward.
         $r = $wpdb->get_row( $wpdb->prepare(
             "SELECT p.* FROM {$wpdb->prefix}tt_players p
              WHERE p.wp_user_id = %d AND p.status = 'active' AND p.club_id = %d {$scope}
+             ORDER BY p.id DESC
              LIMIT 1",
             $user_id, CurrentClub::id()
         ));

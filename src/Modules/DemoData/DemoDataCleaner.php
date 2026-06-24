@@ -14,8 +14,9 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  *                 persistent:true (the Rich set of 36). Walks the tag
  *                 table in dependency order so FKs / orphan checks stay
  *                 happy. Also re-binds the 5 player-slot WP users by
- *                 setting tt_players.wp_user_id = 0 before deleting
- *                 the player rows. Users themselves remain, as does
+ *                 setting tt_players.wp_user_id = NULL before deleting
+ *                 the player rows (#1772 — NULL is the canonical
+ *                 "no account" value). Users themselves remain, as does
  *                 the player<N> slot tag.
  *
  *   wipeUsers() — removes the persistent demo users too. Three safety
@@ -104,8 +105,10 @@ class DemoDataCleaner {
             $player_ids = DemoBatchRegistry::allEntityIds( 'player', $batch_id );
             if ( $player_ids ) {
                 $placeholders = implode( ',', array_fill( 0, count( $player_ids ), '%d' ) );
+                // #1772 — unlink via NULL, not 0 (UNIQUE on
+                // (club_id, wp_user_id) now rejects duplicate 0s).
                 $wpdb->query( $wpdb->prepare(
-                    "UPDATE {$wpdb->prefix}tt_players SET wp_user_id = 0 WHERE id IN ({$placeholders}) AND club_id = %d",
+                    "UPDATE {$wpdb->prefix}tt_players SET wp_user_id = NULL WHERE id IN ({$placeholders}) AND club_id = %d",
                     ...array_merge( $player_ids, [ CurrentClub::id() ] )
                 ) );
             }
