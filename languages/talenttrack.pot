@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-24T19:49:17+00:00\n"
+"POT-Creation-Date: 2026-06-24T20:03:44+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -263,7 +263,6 @@ msgstr ""
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:81
 #: src/Shared/Frontend/FrontendEvalCategoriesView.php:134
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:201
-#: src/Shared/Frontend/FrontendHolidaysView.php:71
 #: src/Shared/Frontend/FrontendSeasonsView.php:100
 msgid "Delete"
 msgstr ""
@@ -532,7 +531,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendEvaluationsView.php:297
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:199
 #: src/Shared/Frontend/FrontendGoalsManageView.php:93
-#: src/Shared/Frontend/FrontendHolidaysView.php:66
+#: src/Shared/Frontend/FrontendHolidaysView.php:79
 #: src/Shared/Frontend/FrontendPersonDetailView.php:77
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:394
 #: src/Shared/Frontend/FrontendSeasonsView.php:95
@@ -549,8 +548,8 @@ msgid "Widget"
 msgstr ""
 
 #: src/Infrastructure/Diagnostics/ModuleCompletenessPage.php:29
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:117
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:168
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:121
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:172
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:147
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:299
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:389
@@ -931,6 +930,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendEvalCategoriesView.php:182
 #: src/Shared/Frontend/FrontendEvaluationsView.php:196
 #: src/Shared/Frontend/FrontendGoalsManageView.php:334
+#: src/Shared/Frontend/FrontendHolidaysView.php:68
 #: src/Shared/Frontend/FrontendMyGoalsView.php:61
 #: src/Shared/Frontend/FrontendPeopleManageView.php:127
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1680
@@ -1118,6 +1118,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendEvaluationsView.php:197
 #: src/Shared/Frontend/FrontendExportsView.php:124
 #: src/Shared/Frontend/FrontendGoalsManageView.php:335
+#: src/Shared/Frontend/FrontendHolidaysView.php:69
 #: src/Shared/Frontend/FrontendPeopleManageView.php:128
 #: src/Shared/Frontend/FrontendPlayersManageView.php:243
 #: src/Shared/Frontend/FrontendTeamDetailView.php:185
@@ -1727,7 +1728,7 @@ msgid "Exercise not found."
 msgstr ""
 
 #: src/Infrastructure/REST/ExercisesRestController.php:102
-#: src/Modules/Holidays/Rest/HolidaysRestController.php:156
+#: src/Modules/Holidays/Rest/HolidaysRestController.php:180
 #: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:52
 msgid "A name is required."
 msgstr ""
@@ -2560,7 +2561,7 @@ msgstr ""
 #: src/Modules/Activities/Admin/ActivitiesPage.php:375
 #: src/Modules/Analytics/AnalyticsModule.php:131
 #: src/Modules/Analytics/AnalyticsModule.php:170
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:171
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:175
 #: src/Modules/Configuration/Admin/CustomFieldsPage.php:100
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:72
 #: src/Modules/Configuration/Admin/FormSlugContract.php:67
@@ -2643,6 +2644,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendGoalsManageView.php:287
 #: src/Shared/Frontend/FrontendGoalsManageView.php:313
 #: src/Shared/Frontend/FrontendGoalsManageView.php:435
+#: src/Shared/Frontend/FrontendHolidaysView.php:66
 #: src/Shared/Frontend/FrontendMigrationsView.php:67
 #: src/Shared/Frontend/FrontendPeopleManageView.php:125
 #: src/Shared/Frontend/FrontendPersonDetailView.php:142
@@ -2800,7 +2802,7 @@ msgid "Team"
 msgstr ""
 
 #: src/Modules/Activities/Admin/ActivitiesPage.php:97
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:172
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:176
 #: src/Modules/Authorization/Admin/RoleGrantPanel.php:58
 #: src/Modules/Authorization/Admin/RolesPage.php:194
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:299
@@ -3103,7 +3105,8 @@ msgstr ""
 
 #: src/Modules/Activities/Admin/ActivitiesPage.php:445
 #: src/Modules/Activities/Admin/ActivitiesPage.php:557
-#: src/Modules/Analytics/Admin/ScheduledReportsActionHandlers.php:94
+#: src/Modules/Analytics/Admin/ScheduledReportsActionHandlers.php:40
+#: src/Modules/Analytics/Admin/ScheduledReportsActionHandlers.php:116
 #: src/Modules/Authorization/Admin/DebugPage.php:23
 #: src/Modules/Authorization/Admin/FunctionalRolesPage.php:40
 #: src/Modules/Authorization/Admin/FunctionalRolesPage.php:277
@@ -3656,8 +3659,8 @@ msgstr ""
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:22
 #: src/Shared/Frontend/FrontendEvalCategoriesView.php:25
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:53
-#: src/Shared/Frontend/FrontendHolidaysView.php:24
-#: src/Shared/Frontend/FrontendHolidaysView.php:104
+#: src/Shared/Frontend/FrontendHolidaysView.php:25
+#: src/Shared/Frontend/FrontendHolidaysView.php:119
 #: src/Shared/Frontend/FrontendLookupNormalisationView.php:34
 #: src/Shared/Frontend/FrontendMailComposeView.php:33
 #: src/Shared/Frontend/FrontendMigrationsView.php:23
@@ -4328,16 +4331,24 @@ msgstr ""
 msgid "Schedule archived."
 msgstr ""
 
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:96
+msgid "Schedule permanently deleted."
+msgstr ""
+
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:98
+msgid "The schedule could not be deleted because other records still reference it."
+msgstr ""
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:102
 msgid "Recurring email reports. Pick a KPI, a frequency, and recipients; the daily cron runs the export and emails it on schedule."
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:106
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:110
 msgid "New schedule"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:112
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:167
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:116
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:171
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:559
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:609
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:769
@@ -4371,8 +4382,8 @@ msgstr ""
 #: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:30
 #: src/Shared/Frontend/Components/GuestAddModal.php:85
 #: src/Shared/Frontend/FrontendConfigurationView.php:970
-#: src/Shared/Frontend/FrontendHolidaysView.php:55
-#: src/Shared/Frontend/FrontendHolidaysView.php:141
+#: src/Shared/Frontend/FrontendHolidaysView.php:56
+#: src/Shared/Frontend/FrontendHolidaysView.php:156
 #: src/Shared/Frontend/FrontendMigrationsView.php:85
 #: src/Shared/Frontend/FrontendMigrationsView.php:109
 #: src/Shared/Frontend/FrontendPeopleManageView.php:107
@@ -4386,66 +4397,77 @@ msgstr ""
 msgid "Name"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:113
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:117
 msgid "e.g. Weekly attendance digest"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:119
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:123
 msgid "— pick a KPI —"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:127
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:169
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:131
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:173
 msgid "Frequency"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:129
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:133
 msgid "Weekly (Monday morning)"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:130
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:134
 msgid "Monthly (first day)"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:131
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:135
 msgid "Season end (1 July)"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:136
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:140
 msgid "Recipients"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:137
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:141
 msgid "One per line — email addresses or WordPress role keys (e.g. tt_head_dev)."
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:148
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:152
 msgid "Create schedule"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:158
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:162
 msgid "Active and paused schedules"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:160
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:164
 msgid "No schedules yet. Create one above."
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:170
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:174
 msgid "Next run"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:210
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:214
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:775
 msgid "Pause"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:212
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:216
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:776
 msgid "Resume"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:216
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:223
+#: src/Modules/Pdp/Rest/PdpFilesRestController.php:551
+#: src/Shared/Admin/BulkActionsHelper.php:172
+#: src/Shared/Frontend/Components/ArchiveRowActions.php:36
+msgid "Delete permanently"
+msgstr ""
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:225
+msgid "Permanently delete this schedule? This cannot be undone."
+msgstr ""
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:231
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:104
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:76
 #: src/Modules/Methodology/Admin/MethodologyPage.php:193
@@ -4459,6 +4481,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendEvaluationsView.php:303
 #: src/Shared/Frontend/FrontendGoalsManageView.php:117
 #: src/Shared/Frontend/FrontendGoalsManageView.php:332
+#: src/Shared/Frontend/FrontendHolidaysView.php:84
 #: src/Shared/Frontend/FrontendPersonDetailView.php:83
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:419
 #: src/Shared/Frontend/FrontendTeamDetailView.php:282
@@ -4467,7 +4490,7 @@ msgstr ""
 msgid "Archive"
 msgstr ""
 
-#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:218
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:233
 msgid "Archive this schedule? It will stop running."
 msgstr ""
 
@@ -5157,10 +5180,10 @@ msgstr ""
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:106
 #: src/Modules/Documentation/HelpTopics.php:62
 #: src/Shared/CoreSurfaceRegistration.php:955
-#: src/Shared/Frontend/FrontendHolidaysView.php:36
-#: src/Shared/Frontend/FrontendHolidaysView.php:105
-#: src/Shared/Frontend/FrontendHolidaysView.php:115
-#: src/Shared/Frontend/FrontendHolidaysView.php:123
+#: src/Shared/Frontend/FrontendHolidaysView.php:37
+#: src/Shared/Frontend/FrontendHolidaysView.php:120
+#: src/Shared/Frontend/FrontendHolidaysView.php:130
+#: src/Shared/Frontend/FrontendHolidaysView.php:138
 #: src/Shared/Modules/ModuleMetadata.php:253
 msgid "Holidays"
 msgstr ""
@@ -5621,7 +5644,7 @@ msgstr ""
 
 #: src/Modules/Authorization/Admin/MatrixPage.php:561
 #: src/Modules/Vct/Wizard/PreviewStep.php:116
-#: src/Shared/Frontend/FrontendHolidaysView.php:58
+#: src/Shared/Frontend/FrontendHolidaysView.php:59
 msgid "Note"
 msgstr ""
 
@@ -6244,7 +6267,7 @@ msgstr ""
 #: src/Modules/Tournaments/Wizard/BasicsStep.php:59
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:48
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:354
-#: src/Shared/Frontend/FrontendHolidaysView.php:146
+#: src/Shared/Frontend/FrontendHolidaysView.php:161
 #: src/Shared/Frontend/FrontendSeasonsView.php:144
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:496
 #: src/Shared/Frontend/FrontendTrialsManageView.php:331
@@ -6258,7 +6281,7 @@ msgstr ""
 #: src/Modules/People/Admin/TeamStaffPanel.php:162
 #: src/Modules/Tournaments/Wizard/BasicsStep.php:64
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:49
-#: src/Shared/Frontend/FrontendHolidaysView.php:150
+#: src/Shared/Frontend/FrontendHolidaysView.php:165
 #: src/Shared/Frontend/FrontendSeasonsView.php:148
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:502
 #: src/Shared/Frontend/FrontendTrialsManageView.php:332
@@ -10580,7 +10603,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendConfigurationView.php:860
 #: src/Shared/Frontend/FrontendConfigurationView.php:1048
 #: src/Shared/Frontend/FrontendConfigurationView.php:2154
-#: src/Shared/Frontend/FrontendHolidaysView.php:182
+#: src/Shared/Frontend/FrontendHolidaysView.php:197
 #: src/Shared/Frontend/FrontendSeasonsView.php:178
 #: src/Shared/Frontend/FrontendTeamDetailView.php:339
 #: src/Shared/Frontend/FrontendWizardView.php:844
@@ -13850,39 +13873,41 @@ msgstr ""
 msgid "Print alles"
 msgstr ""
 
-#: src/Modules/Holidays/Rest/HolidaysRestController.php:79
+#: src/Modules/Holidays/Rest/HolidaysRestController.php:84
+#: src/Modules/Holidays/Rest/HolidaysRestController.php:97
 msgid "Invalid holiday id."
 msgstr ""
 
-#: src/Modules/Holidays/Rest/HolidaysRestController.php:85
-#: src/Modules/Holidays/Rest/HolidaysRestController.php:107
-#: src/Modules/Holidays/Rest/HolidaysRestController.php:126
-#: src/Modules/Holidays/Rest/HolidaysRestController.php:142
+#: src/Modules/Holidays/Rest/HolidaysRestController.php:86
+#: src/Modules/Holidays/Rest/HolidaysRestController.php:103
+#: src/Modules/Holidays/Rest/HolidaysRestController.php:131
+#: src/Modules/Holidays/Rest/HolidaysRestController.php:150
+#: src/Modules/Holidays/Rest/HolidaysRestController.php:166
 msgid "Holiday not found."
 msgstr ""
 
-#: src/Modules/Holidays/Rest/HolidaysRestController.php:117
+#: src/Modules/Holidays/Rest/HolidaysRestController.php:141
 #: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:80
 msgid "Could not create the holiday."
 msgstr ""
 
-#: src/Modules/Holidays/Rest/HolidaysRestController.php:134
+#: src/Modules/Holidays/Rest/HolidaysRestController.php:158
 msgid "Could not update the holiday."
 msgstr ""
 
-#: src/Modules/Holidays/Rest/HolidaysRestController.php:143
+#: src/Modules/Holidays/Rest/HolidaysRestController.php:167
 msgid "Could not delete the holiday."
 msgstr ""
 
-#: src/Modules/Holidays/Rest/HolidaysRestController.php:162
+#: src/Modules/Holidays/Rest/HolidaysRestController.php:186
 msgid "A valid start date is required."
 msgstr ""
 
-#: src/Modules/Holidays/Rest/HolidaysRestController.php:165
+#: src/Modules/Holidays/Rest/HolidaysRestController.php:189
 msgid "A valid end date is required."
 msgstr ""
 
-#: src/Modules/Holidays/Rest/HolidaysRestController.php:168
+#: src/Modules/Holidays/Rest/HolidaysRestController.php:192
 #: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:59
 msgid "The start date must be on or before the end date."
 msgstr ""
@@ -13892,13 +13917,13 @@ msgid "Holiday details"
 msgstr ""
 
 #: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:27
-#: src/Shared/Frontend/FrontendHolidaysView.php:142
+#: src/Shared/Frontend/FrontendHolidaysView.php:157
 msgid "e.g. Christmas break"
 msgstr ""
 
 #: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:41
 #: src/Modules/Workflow/Forms/GoalApprovalForm.php:97
-#: src/Shared/Frontend/FrontendHolidaysView.php:155
+#: src/Shared/Frontend/FrontendHolidaysView.php:170
 msgid "Note (optional)"
 msgstr ""
 
@@ -15224,7 +15249,7 @@ msgstr ""
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:774
 #: src/Modules/Pdp/Admin/SeasonsPage.php:65
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:290
-#: src/Shared/Frontend/FrontendHolidaysView.php:56
+#: src/Shared/Frontend/FrontendHolidaysView.php:57
 #: src/Shared/Frontend/FrontendPeopleManageView.php:255
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:199
 msgid "Start"
@@ -17592,7 +17617,7 @@ msgid "Exactly one season can be marked current. PDP files are scoped to a seaso
 msgstr ""
 
 #: src/Modules/Pdp/Admin/SeasonsPage.php:66
-#: src/Shared/Frontend/FrontendHolidaysView.php:57
+#: src/Shared/Frontend/FrontendHolidaysView.php:58
 #: src/Shared/Frontend/FrontendPeopleManageView.php:256
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:200
 msgid "End"
@@ -18671,12 +18696,6 @@ msgstr ""
 
 #: src/Modules/Pdp/Rest/PdpFilesRestController.php:409
 msgid "Create PDP"
-msgstr ""
-
-#: src/Modules/Pdp/Rest/PdpFilesRestController.php:551
-#: src/Shared/Admin/BulkActionsHelper.php:172
-#: src/Shared/Frontend/Components/ArchiveRowActions.php:36
-msgid "Delete permanently"
 msgstr ""
 
 #. translators: %s = parent / player
@@ -20934,7 +20953,7 @@ msgid "Unlink this account from the player?"
 msgstr ""
 
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:83
-#: src/Shared/Frontend/FrontendHolidaysView.php:183
+#: src/Shared/Frontend/FrontendHolidaysView.php:198
 #: src/Shared/Frontend/FrontendSeasonsView.php:179
 msgid "Something went wrong. Please try again."
 msgstr ""
@@ -30984,64 +31003,64 @@ msgstr ""
 msgid "Update goal"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendHolidaysView.php:25
+#: src/Shared/Frontend/FrontendHolidaysView.php:26
 msgid "You do not have permission to view holidays."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendHolidaysView.php:37
+#: src/Shared/Frontend/FrontendHolidaysView.php:38
 msgid "Academy holidays"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendHolidaysView.php:40
+#: src/Shared/Frontend/FrontendHolidaysView.php:41
 msgid "Academy-wide holiday periods. They show as a banner across the affected days on every team planner."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendHolidaysView.php:74
-msgid "Delete this holiday?"
+#: src/Shared/Frontend/FrontendHolidaysView.php:87
+msgid "Archive this holiday?"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendHolidaysView.php:79
+#: src/Shared/Frontend/FrontendHolidaysView.php:94
 msgid "Search holidays…"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendHolidaysView.php:81
+#: src/Shared/Frontend/FrontendHolidaysView.php:96
 msgid "No holidays match your search."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendHolidaysView.php:84
+#: src/Shared/Frontend/FrontendHolidaysView.php:99
 msgid "No holidays yet"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendHolidaysView.php:85
+#: src/Shared/Frontend/FrontendHolidaysView.php:100
 msgid "Add the academy holiday periods so coaches see them on the planner and avoid scheduling on closed days."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendHolidaysView.php:86
+#: src/Shared/Frontend/FrontendHolidaysView.php:101
 msgid "Add first holiday"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendHolidaysView.php:107
+#: src/Shared/Frontend/FrontendHolidaysView.php:122
 msgid "You do not have permission to manage holidays."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendHolidaysView.php:114
+#: src/Shared/Frontend/FrontendHolidaysView.php:129
 msgid "Holiday not found"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendHolidaysView.php:117
+#: src/Shared/Frontend/FrontendHolidaysView.php:132
 msgid "That holiday no longer exists."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendHolidaysView.php:122
-#: src/Shared/Frontend/FrontendHolidaysView.php:125
+#: src/Shared/Frontend/FrontendHolidaysView.php:137
+#: src/Shared/Frontend/FrontendHolidaysView.php:140
 msgid "Edit holiday"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendHolidaysView.php:160
+#: src/Shared/Frontend/FrontendHolidaysView.php:175
 msgid "Update holiday"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendHolidaysView.php:184
+#: src/Shared/Frontend/FrontendHolidaysView.php:199
 #: src/Shared/Frontend/FrontendSeasonsView.php:180
 msgid "End date must be after the start date."
 msgstr ""
