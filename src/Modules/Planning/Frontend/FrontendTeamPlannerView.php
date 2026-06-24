@@ -91,10 +91,10 @@ class FrontendTeamPlannerView extends FrontendViewBase {
             'many' => __( '%d teams selected', 'talenttrack' ),
         ] );
         FrontendBreadcrumbs::fromDashboard( __( 'Team planner', 'talenttrack' ) );
-        self::renderHeader( __( 'Team planner', 'talenttrack' ) );
 
         $teams = self::teamsForUser( $user_id );
         if ( empty( $teams ) ) {
+            self::renderHeader( __( 'Team planner', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'No teams available — assign yourself to a team first to use the planner.', 'talenttrack' ) . '</p>';
             return;
         }
@@ -120,7 +120,8 @@ class FrontendTeamPlannerView extends FrontendViewBase {
             foreach ( $teams as $t ) {
                 $team_names[ (int) $t->id ] = (string) ( $t->name ?? '' );
             }
-            echo self::renderToolbar( $teams, $selected_ids, $range, $range_start, $weeks_count, $season, false, true );
+            self::renderHeader( __( 'Team planner', 'talenttrack' ) );
+            echo self::renderToolbar( $teams, $selected_ids, $range, $range_start, $weeks_count, $season );
             echo self::renderMultiTeamGrid( $activities, $range_start, $weeks_count, $selected_ids, $team_names );
             return;
         }
@@ -142,8 +143,27 @@ class FrontendTeamPlannerView extends FrontendViewBase {
         // "Copy last {weekday}" chips on empty day cells.
         $last_by_weekday = $can_manage ? self::lastActivityByWeekday( $team_id ) : [];
 
-        echo self::renderToolbar( $teams, $selected_ids, $range, $range_start, $weeks_count, $season, $can_manage, false );
-        echo self::renderExportActions( $team_id, $range_start, $range_end );
+        // #1804 — page-header action slot (like the players list): the
+        // export actions plus the primary "Schedule activity" CTA, pulled
+        // out of the filter toolbar so the toolbar holds filters only.
+        $actions_html = self::exportActionButtons( $team_id, $range_start, $range_end );
+        if ( $can_manage && $team_id > 0 ) {
+            $actions_html .= self::pageActionsHtml( [ [
+                'label'   => __( 'Schedule activity', 'talenttrack' ),
+                'href'    => \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [
+                    'tt_view'    => 'activities',
+                    'action'     => 'new',
+                    'team_id'    => $team_id,
+                    'plan_state' => 'scheduled',
+                ], RecordLink::dashboardUrl() ) ),
+                'primary' => true,
+                'icon'    => '+',
+            ] ] );
+        }
+        self::renderHeader( __( 'Team planner', 'talenttrack' ), $actions_html );
+
+        echo self::renderToolbar( $teams, $selected_ids, $range, $range_start, $weeks_count, $season );
+        echo self::renderComposeDialog( $team_id, $range_start, $range_end );
         echo self::renderRangeGrid( $range_start, $weeks_count, $activities, $principle_map, $team_id, $can_manage, $last_by_weekday );
         echo self::renderPrincipleCoverage( $team_id );
     }
@@ -188,14 +208,12 @@ class FrontendTeamPlannerView extends FrontendViewBase {
      * direct REST callers who want raw rows). The new exporter uses
      * the `styled_sheets` payload shape shipped in v4.20.58.
      */
-    private static function renderExportActions( int $team_id, string $date_from, string $date_to ): string {
+    private static function exportActionButtons( int $team_id, string $date_from, string $date_to ): string {
         if ( $team_id <= 0 ) return '';
-        $exports_url = add_query_arg( 'tt_view', 'exports', \TT\Shared\Wizards\WizardEntryPoint::dashboardBaseUrl() );
-        $self_url    = remove_query_arg( [ 'tt_export_error' ] );
+        $self_url = remove_query_arg( [ 'tt_export_error' ] );
 
         ob_start();
         ?>
-        <div class="tt-planner-actions" style="display:flex; gap:8px; flex-wrap:wrap; margin: 4px 0 12px;">
             <form method="POST" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="tt-export-form" style="margin:0;">
                 <?php wp_nonce_field( 'tt_export', '_tt_export_nonce' ); ?>
                 <input type="hidden" name="action"               value="tt_export">
@@ -226,8 +244,6 @@ class FrontendTeamPlannerView extends FrontendViewBase {
             <button type="button" class="tt-btn tt-btn-secondary" style="min-height:48px;" data-tt-open-compose>
                 <?php esc_html_e( 'Weekly PDF', 'talenttrack' ); ?>
             </button>
-        </div>
-        <?php echo self::renderComposeDialog( $team_id, $date_from, $date_to ); ?>
         <?php
         return (string) ob_get_clean();
     }
@@ -298,7 +314,7 @@ class FrontendTeamPlannerView extends FrontendViewBase {
      * @param object[] $teams
      * @param int[]    $selected_ids
      */
-    private static function renderToolbar( array $teams, array $selected_ids, string $range, string $range_start, int $weeks_count, ?object $season, bool $can_manage, bool $multi ): string {
+    private static function renderToolbar( array $teams, array $selected_ids, string $range, string $range_start, int $weeks_count, ?object $season ): string {
         // Step prev/next by the chosen range size; for `season` the
         // prev/next nav is hidden (the season picker is implicit —
         // currently always the `is_current` season).
@@ -306,7 +322,6 @@ class FrontendTeamPlannerView extends FrontendViewBase {
         $prev      = gmdate( 'Y-m-d', strtotime( $range_start . ' -' . $step_days . ' days' ) );
         $next      = gmdate( 'Y-m-d', strtotime( $range_start . ' +' . $step_days . ' days' ) );
         $today     = self::resolveWeekStart( '' );
-        $first_id  = (int) ( $selected_ids[0] ?? 0 );
 
         $range_options = [
             'week'    => __( 'One week', 'talenttrack' ),
@@ -403,17 +418,6 @@ class FrontendTeamPlannerView extends FrontendViewBase {
                     ) );
                     ?>
                 </div>
-            <?php endif; ?>
-
-            <?php if ( $can_manage && ! $multi && $first_id > 0 ) : ?>
-                <a class="tt-btn tt-btn-primary" href="<?php echo esc_url( \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg( [
-                    'tt_view'      => 'activities',
-                    'action'       => 'new',
-                    'team_id'      => $first_id,
-                    'plan_state'   => 'scheduled',
-                ], RecordLink::dashboardUrl() ) ) ); ?>">
-                    + <?php esc_html_e( 'Schedule activity', 'talenttrack' ); ?>
-                </a>
             <?php endif; ?>
         </div>
         <?php
