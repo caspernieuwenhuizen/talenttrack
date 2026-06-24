@@ -1,3 +1,7 @@
+# TalentTrack v4.46.2 — App-chrome user chip: wider name box + roomier avatar circle (#1751, #1752)
+
+Two small fixes to the signed-in user chip in the top-right app chrome. The display name no longer clips — its box widens from a 14-character cap to 20, with a touch more padding on the chip (#1751). And two-letter initials (e.g. "CN") now sit fully inside the avatar circle: it grows from 32px to 36px with a slightly smaller, properly centred glyph (#1752). CSS-only in `frontend-app-chrome.css`; selectors and the 48px touch target are unchanged.
+
 # TalentTrack v4.46.1 — New-evaluation player picker: team-scoped dropdown instead of blank search (#1731)
 
 The player-first new-evaluation wizard's Player step no longer hides every

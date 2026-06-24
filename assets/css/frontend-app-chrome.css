@@ -98,7 +98,7 @@
     align-items: center;
     gap: 0.5rem;
     min-height: 44px;
-    padding: 0.25rem 0.6rem 0.25rem 0.3rem;
+    padding: 0.25rem 0.8rem 0.25rem 0.3rem;
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.16);
     border-radius: 999px;
@@ -112,15 +112,17 @@
 }
 .tt-appchrome-av {
     flex: 0 0 auto;
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     background: var(--tt-secondary);
     color: var(--tt-primary);
-    display: grid;
-    place-items: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
     font-weight: 800;
-    font-size: 0.78rem;
+    font-size: 0.72rem;
 }
 .tt-appchrome-who {
     /* hidden on the smallest screens — avatar alone is the tap target */
@@ -137,7 +139,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 14ch;
+    max-width: 20ch;
 }
 .tt-appchrome-who span {
     display: block;
