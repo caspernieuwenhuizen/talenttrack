@@ -15,38 +15,14 @@
  * `min-width` queries (480 / 768 only) scale up. No hover-only state.
  */
 
-/* ---- List surface as a 2026 card ----------------------------------- */
-
-.tt-dashboard .tt-players-manage .tt-list-table {
-    background: var(--tt-paper, #fff);
-    border: 1px solid var(--tt-line, #e3e6e1);
-    border-radius: var(--tt-radius-lg, 14px);
-    padding: var(--tt-sp-3, 12px);
-    margin: var(--tt-sp-2, 8px) 0 var(--tt-sp-4, 16px);
-}
-
-@media (min-width: 768px) {
-    .tt-dashboard .tt-players-manage .tt-list-table {
-        padding: var(--tt-sp-4, 16px);
-    }
-}
-
-/* Filters / search row reads as a soft toolbar above the table. */
-.tt-dashboard .tt-players-manage .tt-list-table-filters {
-    background: var(--tt-bg-soft, #f4f6f3);
-    border: 1px solid var(--tt-line-soft, #eef0ec);
-    border-radius: var(--tt-radius, 8px);
-    padding: var(--tt-sp-3, 12px);
-    margin-bottom: var(--tt-sp-3, 12px);
-}
-
-.tt-dashboard .tt-players-manage .tt-list-table-search input,
-.tt-dashboard .tt-players-manage .tt-list-table-filter select {
-    /* iOS no-zoom + comfortable touch target. */
-    min-height: 48px;
-    font-size: 1rem;
-    border-radius: var(--tt-radius, 8px);
-}
+/* ---- List surface --------------------------------------------------
+ * #1791 — the players list defers to the shared #1753 "register"
+ * chrome: the filter bar renders as the standard white register card
+ * and the table as its own card (both from frontend-admin.css), so the
+ * two read as sibling cards exactly like the list-toolbar mockup
+ * (variant D). The earlier per-view treatment (an outer card wrapping a
+ * soft-grey filter strip) overrode that standard and is removed; only
+ * the genuinely players-specific polish below remains. */
 
 /* Table head reads as the 2026 small-caps section label. */
 .tt-dashboard .tt-players-manage .tt-list-table-table thead th {

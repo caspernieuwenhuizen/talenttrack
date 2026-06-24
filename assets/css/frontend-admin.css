@@ -491,6 +491,11 @@
     width: 100%;
     min-height: 48px;
     font-size: 16px; /* >=16px so iOS doesn't zoom on focus */
+    /* #1791 — the mockup's .tt-input/.tt-select carry a border + radius;
+       pin them here so controls aren't square (and don't depend on the
+       theme's input styling). */
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-r-md);
 }
 @media (min-width: 768px) {
     .tt-dashboard .tt-list-table-filters {
