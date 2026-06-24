@@ -546,11 +546,25 @@ release-plumbing files:
   them in sequence; separate agents are launched per the user's parallel
   set.
 - **`release`** (optionally **`release <version>`** to override) → act as
-  the release agent: run `tools/release.ps1` — it auto-computes the next
-  version from the current `talenttrack.php` version + the highest `Bump:`
-  across the `changelog.d` snippets (default patch) — then review the
-  diff, commit, and push to `main` (which triggers `auto-release.yml`).
-  Equivalent to the batched finish of a parallel drain.
+  the **integrate-and-release agent**. The release role OWNS merging the
+  batch — implementation agents only open PRs, so without this the PRs pile
+  up unmerged and nothing ships. Steps:
+  1. **Integrate every *ready* PR first.** For each open PR, merge it
+     (`gh pr merge <n> --squash --delete-branch`) when it is green (all
+     checks pass), not a draft, linked to a `ready-for-dev` / drain issue,
+     and NOT labelled `hold`. **Skip and report** any PR that is red,
+     draft, or `hold` — never merge unfinished or failing work. After each
+     merge, `git checkout main && git pull --ff-only` (the `i18n-sync`
+     auto-commit moves `main`).
+  2. **Then release.** Run `tools/release.ps1` — it auto-computes the next
+     version from the current `talenttrack.php` version + the highest
+     `Bump:` across the now-consolidated `changelog.d` snippets (default
+     patch) — review the diff, commit, and push to `main` (triggers
+     `auto-release.yml`).
+  Merging others' PRs needs the `Bash(gh pr merge:*)` allow rule in
+  `.claude/settings.json` (the auto-mode classifier blocks it otherwise);
+  if that rule is absent, stop after listing the ready PRs and ask the user
+  to merge them or add the rule.
 
 ### The label
 
