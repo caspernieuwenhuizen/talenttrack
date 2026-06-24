@@ -46,6 +46,7 @@ final class BackLabelResolver {
         switch ( $tt_view ) {
             case 'players':            return __( 'Back to Players', 'talenttrack' );
             case 'player-accounts':    return __( 'Back to Player accounts', 'talenttrack' );
+            case 'parent-accounts':    return __( 'Back to Parent accounts', 'talenttrack' );
             case 'teams':              return __( 'Back to Teams', 'talenttrack' );
             case 'onboarding-pipeline':       return __( 'Back to Onboarding pipeline', 'talenttrack' );
             case 'prospects-overview':        return __( 'Back to Prospects', 'talenttrack' );
