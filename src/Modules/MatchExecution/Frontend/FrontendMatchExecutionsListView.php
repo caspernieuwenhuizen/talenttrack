@@ -46,6 +46,8 @@ final class FrontendMatchExecutionsListView extends FrontendViewBase {
             __( 'Match executions', 'talenttrack' ),
             [ FrontendBreadcrumbs::viewCrumb( 'activities', __( 'Activities', 'talenttrack' ) ) ]
         );
+        self::enqueueAssets();
+        self::enqueueViewCss();
         self::renderHeader( __( 'Match executions', 'talenttrack' ) );
 
         $teams = self::listTeamsForUser( $user_id, $is_admin );
@@ -78,12 +80,12 @@ final class FrontendMatchExecutionsListView extends FrontendViewBase {
             return;
         }
 
-        echo '<div class="tt-table-wrap"><table class="tt-table tt-table-sortable" style="width:100%; margin-top:12px;">';
+        echo '<div class="tt-table-wrap tt-mex-table-wrap"><table class="tt-table tt-table-sortable tt-mex-table">';
         echo '<thead><tr>';
         echo '<th>' . esc_html__( 'Date', 'talenttrack' ) . '</th>';
         echo '<th>' . esc_html__( 'Team', 'talenttrack' ) . '</th>';
         echo '<th>' . esc_html__( 'Opponent', 'talenttrack' ) . '</th>';
-        echo '<th style="text-align:right;">' . esc_html__( 'Score', 'talenttrack' ) . '</th>';
+        echo '<th class="tt-mex-score">' . esc_html__( 'Score', 'talenttrack' ) . '</th>';
         echo '<th>' . esc_html__( 'State', 'talenttrack' ) . '</th>';
         echo '</tr></thead><tbody>';
 
@@ -106,7 +108,7 @@ final class FrontendMatchExecutionsListView extends FrontendViewBase {
             echo '<td><a class="tt-record-link" href="' . esc_url( $row_url ) . '">' . esc_html( \TT\Shared\Dates\TTDate::date( (string) $r->session_date ) ) . '</a></td>';
             echo '<td>' . esc_html( $team_name ) . '</td>';
             echo '<td>' . esc_html( $opp ) . '</td>';
-            echo '<td style="text-align:right;">' . esc_html( $score ) . '</td>';
+            echo '<td class="tt-mex-score">' . esc_html( $score ) . '</td>';
             echo '<td>' . self::statePill( $state ) . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
             echo '</tr>';
         }
@@ -228,10 +230,10 @@ final class FrontendMatchExecutionsListView extends FrontendViewBase {
      * @param list<object> $teams
      */
     private static function renderFilterForm( array $teams, int $team_id, string $from, string $to, string $state_filter ): void {
-        echo '<form method="get" class="tt-filter-row" style="display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end; margin-bottom:12px;">';
+        echo '<form method="get" class="tt-filter-row tt-mex-filter">';
         echo '<input type="hidden" name="tt_view" value="match-executions" />';
 
-        echo '<label style="display:flex; flex-direction:column; gap:4px;"><span>' . esc_html__( 'Team', 'talenttrack' ) . '</span>';
+        echo '<label><span>' . esc_html__( 'Team', 'talenttrack' ) . '</span>';
         echo '<select name="team_id">';
         $sel_all = ( $team_id === 0 ) ? ' selected' : '';
         echo '<option value="0"' . $sel_all . '>' . esc_html__( 'All teams', 'talenttrack' ) . '</option>';
@@ -241,9 +243,9 @@ final class FrontendMatchExecutionsListView extends FrontendViewBase {
         }
         echo '</select></label>';
 
-        echo '<label style="display:flex; flex-direction:column; gap:4px;"><span>' . esc_html__( 'From', 'talenttrack' ) . '</span>';
+        echo '<label><span>' . esc_html__( 'From', 'talenttrack' ) . '</span>';
         echo '<input type="date" name="from" value="' . esc_attr( $from ) . '" /></label>';
-        echo '<label style="display:flex; flex-direction:column; gap:4px;"><span>' . esc_html__( 'To', 'talenttrack' ) . '</span>';
+        echo '<label><span>' . esc_html__( 'To', 'talenttrack' ) . '</span>';
         echo '<input type="date" name="to" value="' . esc_attr( $to ) . '" /></label>';
 
         $states = [
@@ -252,7 +254,7 @@ final class FrontendMatchExecutionsListView extends FrontendViewBase {
             MatchExecutionState::PENDING_REVIEW => __( 'Pending review', 'talenttrack' ),
             MatchExecutionState::FINALIZED     => __( 'Finalized', 'talenttrack' ),
         ];
-        echo '<label style="display:flex; flex-direction:column; gap:4px;"><span>' . esc_html__( 'State', 'talenttrack' ) . '</span>';
+        echo '<label><span>' . esc_html__( 'State', 'talenttrack' ) . '</span>';
         echo '<select name="state">';
         foreach ( $states as $key => $label ) {
             $sel = ( $key === $state_filter ) ? ' selected' : '';
@@ -267,17 +269,26 @@ final class FrontendMatchExecutionsListView extends FrontendViewBase {
     private static function statePill( string $state ): string {
         if ( MatchExecutionState::isLive( $state ) ) {
             $label = __( 'Live', 'talenttrack' );
-            $bg = '#cfe7da'; $fg = '#137333';
+            $modifier = ' tt-mex-chip--live';
         } elseif ( $state === MatchExecutionState::PENDING_REVIEW ) {
             $label = __( 'Pending review', 'talenttrack' );
-            $bg = '#fff4d4'; $fg = '#92651b';
+            $modifier = ' tt-mex-chip--review';
         } elseif ( $state === MatchExecutionState::FINALIZED ) {
             $label = __( 'Finalized', 'talenttrack' );
-            $bg = '#e6e9ed'; $fg = '#5b6e75';
+            $modifier = ' tt-mex-chip--done';
         } else {
             $label = __( 'Not started', 'talenttrack' );
-            $bg = '#f1f3f4'; $fg = '#5f6368';
+            $modifier = '';
         }
-        return '<span style="display:inline-block; padding:2px 8px; border-radius:999px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; background:' . esc_attr( $bg ) . '; color:' . esc_attr( $fg ) . ';">' . esc_html( $label ) . '</span>';
+        return '<span class="tt-mex-chip' . $modifier . '">' . esc_html( $label ) . '</span>';
+    }
+
+    private static function enqueueViewCss(): void {
+        wp_enqueue_style(
+            'tt-frontend-match-executions',
+            TT_PLUGIN_URL . 'assets/css/frontend-match-executions.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
     }
 }

@@ -1,0 +1,127 @@
+/*
+ * frontend-match-executions.css — match executions list restyled to the
+ * 2026 pitch look (B1). Filter row sits in a soft toolbar card; the
+ * results table gets the 2026 header treatment and state chips per row.
+ *
+ * Mobile-first per CLAUDE.md §2: base styles target ~360px, min-width
+ * queries scale up (480 / 768 only). Scoped under .tt-dashboard. Tokens
+ * come from tokens.css / public.css.
+ */
+
+.tt-dashboard .tt-mex-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-3, 12px);
+    align-items: flex-end;
+    margin: 0 0 var(--tt-sp-4, 16px);
+    padding: var(--tt-sp-3, 12px);
+    background: var(--tt-bg-soft, #f4f6f3);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+}
+
+.tt-dashboard .tt-mex-filter label {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-1, 4px);
+    flex: 1 1 8rem;
+}
+
+.tt-dashboard .tt-mex-filter label > span {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-dashboard .tt-mex-filter select,
+.tt-dashboard .tt-mex-filter input {
+    width: 100%;
+    min-height: 48px;
+    box-sizing: border-box;
+    font-size: 1rem;
+}
+
+.tt-dashboard .tt-mex-filter .tt-btn {
+    min-height: 48px;
+    flex: 0 0 auto;
+    touch-action: manipulation;
+}
+
+/* ---- Results table --------------------------------------------------- */
+.tt-dashboard .tt-mex-table-wrap {
+    overflow-x: auto;
+}
+
+.tt-dashboard .tt-mex-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: var(--tt-sp-3, 12px);
+}
+
+.tt-dashboard .tt-mex-table th {
+    text-align: left;
+    padding: var(--tt-sp-2, 8px);
+    border-bottom: 1px solid var(--tt-line, #e3e6e1);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-dashboard .tt-mex-table td {
+    padding: var(--tt-sp-3, 12px) var(--tt-sp-2, 8px);
+    border-bottom: 1px solid var(--tt-line-soft, #eef0ec);
+}
+
+.tt-dashboard .tt-mex-table tr.is-row-link { cursor: pointer; }
+.tt-dashboard .tt-mex-table tr.is-row-link:hover { background: var(--tt-bg-soft, #f4f6f3); }
+
+.tt-dashboard .tt-mex-score { text-align: right; font-variant-numeric: tabular-nums; }
+.tt-dashboard .tt-mex-table th.tt-mex-score { text-align: right; }
+
+/* ---- State chips ----------------------------------------------------- */
+.tt-dashboard .tt-mex-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    line-height: 1.4;
+    white-space: nowrap;
+    border: 1px solid var(--tt-line, #e3e6e1);
+    background: var(--tt-bg-soft, #f4f6f3);
+    color: var(--tt-muted, #6a6d66);
+}
+.tt-dashboard .tt-mex-chip--live {
+    background: #eaf6ee;
+    border-color: #bfe3cc;
+    color: #1f7a45;
+}
+.tt-dashboard .tt-mex-chip--live::before {
+    content: "";
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
+    background: var(--tt-success, #2f9e5e);
+}
+.tt-dashboard .tt-mex-chip--review {
+    background: var(--tt-warning-subtle, #fdf3d8);
+    border-color: #f0dca0;
+    color: #8a6d18;
+}
+.tt-dashboard .tt-mex-chip--done {
+    background: var(--tt-primary, #0b3d2e);
+    border-color: var(--tt-primary, #0b3d2e);
+    color: #fff;
+}
+
+@media (min-width: 768px) {
+    .tt-dashboard .tt-mex-filter label { flex: 0 1 12rem; }
+}

@@ -1,0 +1,213 @@
+/*
+ * frontend-pdp-planning.css — HoD PDP planning matrix + block detail
+ * restyled to the 2026 pitch look (B1). The planning matrix sits in a
+ * white card; cells carry green/gold/red status chips. The block-detail
+ * Conducted / Planned / Missing buckets become status-tinted cards.
+ *
+ * Mobile-first per CLAUDE.md §2: base styles target ~360px, min-width
+ * queries scale up (480 / 768 only). Scoped under .tt-dashboard. Tokens
+ * come from tokens.css / public.css.
+ */
+
+.tt-dashboard .tt-pdp-planning,
+.tt-dashboard .tt-pdp-planning-block {
+    max-width: 1200px;
+}
+
+.tt-dashboard .tt-pdp-planning__title {
+    font-size: var(--tt-fs-h2, 1.5rem);
+    color: var(--tt-ink, #0e1a14);
+    margin: 0 0 var(--tt-sp-3, 12px);
+}
+
+.tt-dashboard .tt-pdp-planning__lede {
+    color: var(--tt-muted, #6a6d66);
+    margin: 0 0 var(--tt-sp-4, 16px);
+}
+
+.tt-dashboard .tt-pdp-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-2, 8px);
+    align-items: center;
+    margin: 0 0 var(--tt-sp-4, 16px);
+}
+
+.tt-dashboard .tt-pdp-toolbar .tt-btn,
+.tt-dashboard .tt-pdp-toolbar select {
+    min-height: 48px;
+    touch-action: manipulation;
+}
+
+/* ---- Matrix card ----------------------------------------------------- */
+.tt-dashboard .tt-pdp-matrix-card {
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-md);
+    padding: var(--tt-sp-3, 12px);
+    overflow-x: auto;
+}
+
+.tt-dashboard .tt-pdp-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tt-dashboard .tt-pdp-table th {
+    text-align: left;
+    padding: var(--tt-sp-2, 8px);
+    border-bottom: 1px solid var(--tt-line, #e3e6e1);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-dashboard .tt-pdp-table td {
+    padding: var(--tt-sp-2, 8px);
+    border-bottom: 1px solid var(--tt-line-soft, #eef0ec);
+    vertical-align: top;
+}
+
+.tt-dashboard .tt-pdp-team {
+    color: var(--tt-ink, #0e1a14);
+}
+
+.tt-dashboard .tt-pdp-team__roster {
+    color: var(--tt-muted, #6a6d66);
+    font-size: 0.8rem;
+}
+
+.tt-dashboard .tt-pdp-cell-empty {
+    color: var(--tt-muted, #6a6d66);
+}
+
+/* ---- Cell status chips ----------------------------------------------- */
+.tt-dashboard .tt-pdp-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    min-height: 32px;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    line-height: 1.3;
+    text-decoration: none;
+    border: 1px solid var(--tt-line, #e3e6e1);
+    background: var(--tt-bg-soft, #f4f6f3);
+    color: var(--tt-muted, #6a6d66);
+}
+.tt-dashboard a.tt-pdp-chip { touch-action: manipulation; }
+.tt-dashboard .tt-pdp-chip--ok {
+    background: #eaf6ee;
+    border-color: #bfe3cc;
+    color: #1f7a45;
+}
+.tt-dashboard .tt-pdp-chip--warn {
+    background: var(--tt-warning-subtle, #fdf3d8);
+    border-color: #f0dca0;
+    color: #8a6d18;
+}
+.tt-dashboard .tt-pdp-chip--alert {
+    background: var(--tt-danger-subtle, #fde2e2);
+    border-color: #f1c0bc;
+    color: #a3322a;
+}
+
+/* ---- Block-detail bucket cards --------------------------------------- */
+.tt-dashboard .tt-pdp-block__title {
+    font-size: var(--tt-fs-h2, 1.5rem);
+    color: var(--tt-ink, #0e1a14);
+    margin: 0 0 var(--tt-sp-1, 4px);
+}
+.tt-dashboard .tt-pdp-block__window {
+    color: var(--tt-muted, #6a6d66);
+    margin: 0 0 var(--tt-sp-4, 16px);
+}
+
+.tt-dashboard .tt-pdp-block-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--tt-sp-4, 16px);
+    margin-top: var(--tt-sp-2, 8px);
+}
+
+.tt-dashboard .tt-pdp-block-col {
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-md);
+    padding: var(--tt-sp-4, 16px);
+    border-top: 4px solid var(--tt-line, #e3e6e1);
+}
+.tt-dashboard .tt-pdp-block-col--ok    { border-top-color: var(--tt-success, #2f9e5e); }
+.tt-dashboard .tt-pdp-block-col--warn  { border-top-color: var(--tt-warning, #e8902b); }
+.tt-dashboard .tt-pdp-block-col--alert { border-top-color: var(--tt-danger, #d8453b); }
+
+.tt-dashboard .tt-pdp-block-col__head {
+    display: flex;
+    align-items: center;
+    gap: var(--tt-sp-2, 8px);
+    margin: 0 0 var(--tt-sp-1, 4px);
+    font-size: var(--tt-fs-h3, 1.25rem);
+    color: var(--tt-ink, #0e1a14);
+}
+.tt-dashboard .tt-pdp-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.5rem;
+    height: 1.5rem;
+    padding: 0 0.4rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    background: var(--tt-bg-soft, #f4f6f3);
+    color: var(--tt-muted, #6a6d66);
+}
+.tt-dashboard .tt-pdp-block-col--ok    .tt-pdp-count { background: #eaf6ee; color: #1f7a45; }
+.tt-dashboard .tt-pdp-block-col--warn  .tt-pdp-count { background: var(--tt-warning-subtle, #fdf3d8); color: #8a6d18; }
+.tt-dashboard .tt-pdp-block-col--alert .tt-pdp-count { background: var(--tt-danger-subtle, #fde2e2); color: #a3322a; }
+
+.tt-dashboard .tt-pdp-block-col__help {
+    color: var(--tt-muted, #6a6d66);
+    font-size: 0.8rem;
+    margin: 0 0 var(--tt-sp-2, 8px);
+}
+
+.tt-dashboard .tt-pdp-block-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.tt-dashboard .tt-pdp-block-list li {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0 var(--tt-sp-1, 4px);
+    padding: var(--tt-sp-2, 8px) 0;
+    border-bottom: 1px solid var(--tt-line-soft, #eef0ec);
+}
+.tt-dashboard .tt-pdp-block-list li:last-child { border-bottom: 0; }
+.tt-dashboard .tt-pdp-block-list .tt-muted {
+    color: var(--tt-muted, #6a6d66);
+    font-size: 0.8rem;
+}
+.tt-dashboard .tt-pdp-block-empty {
+    color: var(--tt-muted, #6a6d66);
+    font-style: italic;
+    margin: 0;
+}
+
+/* ---- Scale up -------------------------------------------------------- */
+@media (min-width: 768px) {
+    .tt-dashboard .tt-pdp-matrix-card { padding: var(--tt-sp-5, 20px); }
+    .tt-dashboard .tt-pdp-block-grid {
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: var(--tt-sp-5, 20px);
+    }
+}

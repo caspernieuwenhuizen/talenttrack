@@ -53,7 +53,9 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         wp_enqueue_style(
             'tt-frontend-activities-manage',
             TT_PLUGIN_URL . 'assets/css/frontend-activities-manage.css',
-            [ 'tt-frontend-mobile' ],
+            // 2026 alignment (#1695) — also depend on app-chrome so the
+            // green/gold brand tokens load before this sheet's alias block.
+            [ 'tt-frontend-mobile', 'tt-frontend-app-chrome' ],
             TT_VERSION
         );
         self::$activities_css_enqueued = true;

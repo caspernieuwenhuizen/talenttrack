@@ -1,0 +1,138 @@
+/*
+ * frontend-player-status-capture.css — behaviour + potential capture
+ * restyled to the 2026 pitch look (B1). Two side-by-side capture cards
+ * (behaviour / potential), a recent-ratings list of tappable chips and
+ * a KPI strip for the latest potential band.
+ *
+ * Mobile-first per CLAUDE.md §2: base styles target ~360px, min-width
+ * queries scale up (480 / 768 only). Scoped under .tt-dashboard — no
+ * global resets. Tokens come from tokens.css / public.css; the reusable
+ * .tt-kpi tile lives in frontend-app-chrome.css (enqueued dependency).
+ */
+
+.tt-dashboard .tt-psc-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--tt-sp-4, 16px);
+    margin: 0 0 var(--tt-sp-4, 16px);
+}
+
+.tt-dashboard .tt-psc-card {
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-md);
+    padding: var(--tt-sp-4, 16px);
+}
+
+.tt-dashboard .tt-psc-card__head {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--tt-muted, #6a6d66);
+    margin: 0 0 var(--tt-sp-3, 12px);
+}
+
+.tt-dashboard .tt-psc-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-1, 4px);
+    margin: 0 0 var(--tt-sp-3, 12px);
+}
+
+.tt-dashboard .tt-psc-field .tt-input {
+    width: 100%;
+    min-height: 48px;
+    box-sizing: border-box;
+    font-size: 1rem;
+}
+
+.tt-dashboard .tt-psc-field textarea.tt-input {
+    min-height: 5rem;
+}
+
+.tt-dashboard .tt-psc-actions {
+    margin-top: var(--tt-sp-4, 16px);
+}
+
+.tt-dashboard .tt-psc-actions .tt-btn {
+    min-height: 48px;
+    touch-action: manipulation;
+}
+
+/* ---- Recent ratings -------------------------------------------------- */
+.tt-dashboard .tt-psc-recent {
+    margin-top: var(--tt-sp-4, 16px);
+    border-top: 1px solid var(--tt-line-soft, #eef0ec);
+    padding-top: var(--tt-sp-3, 12px);
+}
+
+.tt-dashboard .tt-psc-recent__head {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--tt-muted, #6a6d66);
+    margin: 0 0 var(--tt-sp-2, 8px);
+}
+
+.tt-dashboard .tt-psc-recent__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-2, 8px);
+}
+
+.tt-dashboard .tt-psc-recent__item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--tt-sp-2, 8px);
+    padding: var(--tt-sp-2, 8px) var(--tt-sp-3, 12px);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: 10px;
+    background: var(--tt-bg-soft, #f4f6f3);
+}
+
+.tt-dashboard .tt-psc-score {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.25rem;
+    height: 2.25rem;
+    padding: 0 0.4rem;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    background: var(--tt-primary, #0b3d2e);
+    color: #fff;
+}
+
+.tt-dashboard .tt-psc-recent__meta {
+    font-size: 0.8rem;
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-dashboard .tt-psc-recent__notes {
+    flex-basis: 100%;
+    font-size: 0.8rem;
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-dashboard .tt-psc-current {
+    font-size: 0.85rem;
+    color: var(--tt-muted, #6a6d66);
+    margin: var(--tt-sp-3, 12px) 0 0;
+}
+
+/* ---- Scale up -------------------------------------------------------- */
+@media (min-width: 768px) {
+    .tt-dashboard .tt-psc-grid {
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: var(--tt-sp-6, 24px);
+    }
+    .tt-dashboard .tt-psc-card { padding: var(--tt-sp-5, 20px); }
+}

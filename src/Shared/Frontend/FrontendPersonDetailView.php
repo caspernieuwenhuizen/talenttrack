@@ -49,6 +49,15 @@ final class FrontendPersonDetailView extends FrontendViewBase {
             [ 'tt-frontend-mobile' ],
             TT_VERSION
         );
+        // 2026 restyle (#1695 long-tail) — green/gold card vocabulary for
+        // the person detail body. Depends on the app-chrome sheet for the
+        // brand tokens; cheap no-op on other surfaces.
+        wp_enqueue_style(
+            'tt-frontend-person-detail',
+            TT_PLUGIN_URL . 'assets/css/frontend-person-detail.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
         $name = trim( ( (string) ( $person->first_name ?? '' ) ) . ' ' . ( (string) ( $person->last_name ?? '' ) ) );
         if ( $name === '' ) $name = __( 'Person', 'talenttrack' );
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
@@ -86,14 +95,29 @@ final class FrontendPersonDetailView extends FrontendViewBase {
         $email = (string) ( $person->email ?? '' );
         $phone = (string) ( $person->phone ?? '' );
         $role  = (string) ( $person->role_type ?? '' );
+        $role_label   = $role !== '' ? LabelTranslator::roleType( $role ) : '';
+        $status_raw   = (string) ( $person->status ?? '' );
+        $status_label = $status_raw !== '' ? LabelTranslator::personStatus( $status_raw ) : '';
         ?>
-        <article class="tt-person-detail">
+        <article class="tt-person-detail tt-pdv">
+            <?php if ( $role_label !== '' || $status_label !== '' ) : ?>
+                <div class="tt-pdv__chips">
+                    <?php if ( $role_label !== '' ) : ?>
+                        <span class="tt-pdv-chip tt-pdv-chip--role"><?php echo esc_html( $role_label ); ?></span>
+                    <?php endif; ?>
+                    <?php if ( $status_label !== '' ) : ?>
+                        <span class="tt-pdv-chip tt-pdv-chip--status" data-status="<?php echo esc_attr( strtolower( $status_raw ) ); ?>"><?php echo esc_html( $status_label ); ?></span>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
+            <section class="tt-pdv-card">
+                <h3 class="tt-pdv-card__title"><?php esc_html_e( 'Contact', 'talenttrack' ); ?></h3>
             <table class="tt-profile-table">
                 <tbody>
                     <?php if ( $role !== '' ) : ?>
                         <tr>
                             <th scope="row"><?php esc_html_e( 'Role', 'talenttrack' ); ?></th>
-                            <td><?php echo esc_html( LabelTranslator::roleType( $role ) ); ?></td>
+                            <td><?php echo esc_html( $role_label ); ?></td>
                         </tr>
                     <?php endif; ?>
                     <?php if ( $email !== '' ) :
@@ -121,6 +145,7 @@ final class FrontendPersonDetailView extends FrontendViewBase {
                     <?php endif; ?>
                 </tbody>
             </table>
+            </section>
 
             <?php if ( ! empty( $teams ) ) :
                 $team_rows = [];
@@ -135,8 +160,8 @@ final class FrontendPersonDetailView extends FrontendViewBase {
                     ];
                 }
                 if ( ! empty( $team_rows ) ) : ?>
-                    <section class="tt-pde-section">
-                        <h3><?php esc_html_e( 'Teams', 'talenttrack' ); ?></h3>
+                    <section class="tt-pde-section tt-pdv-card">
+                        <h3 class="tt-pdv-card__title"><?php esc_html_e( 'Teams', 'talenttrack' ); ?></h3>
                         <table class="tt-profile-table">
                             <thead>
                                 <tr>

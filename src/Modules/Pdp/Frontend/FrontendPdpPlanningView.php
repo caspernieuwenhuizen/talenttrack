@@ -41,6 +41,7 @@ final class FrontendPdpPlanningView {
         }
 
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'PDP planning', 'talenttrack' ) );
+        self::enqueueViewCss();
 
         global $wpdb;
         $p = $wpdb->prefix;
@@ -50,23 +51,24 @@ final class FrontendPdpPlanningView {
 
         $base_url = remove_query_arg( [ 'season_id', 'action', 'team_id', 'block' ] );
 
-        echo '<section class="tt-pdp-planning" style="max-width:1200px;">';
-        echo '<h2 style="margin:0 0 12px;">' . esc_html__( 'PDP planning', 'talenttrack' ) . '</h2>';
-        echo '<p style="margin:0 0 16px;color:#5b6e75;">' . esc_html__( 'How many conversations are planned in their window, and how many have a recorded result. Click a cell to drill into per-player status for that team × block.', 'talenttrack' ) . '</p>';
+        echo '<section class="tt-pdp-planning">';
+        echo '<h2 class="tt-pdp-planning__title">' . esc_html__( 'PDP planning', 'talenttrack' ) . '</h2>';
+        echo '<p class="tt-pdp-planning__lede">' . esc_html__( 'How many conversations are planned in their window, and how many have a recorded result. Click a cell to drill into per-player status for that team × block.', 'talenttrack' ) . '</p>';
 
         // #1293 — cross-link into the manage view's "Show archived"
         // listing. Planning shows live aggregates; archived PDPs are
         // out-of-cycle and not surfaced here. Operators with the
         // unarchive cap get a one-click jump into the archived list
         // where rows can be restored individually.
+        echo '<div class="tt-pdp-toolbar">';
         if ( current_user_can( 'tt_unarchive_pdp' ) ) {
             $archived_url = add_query_arg(
                 [ 'tt_view' => 'pdp', 'include_archived' => '1' ],
                 remove_query_arg( [ 'season_id', 'action', 'team_id', 'block', 'tt_view' ] )
             );
-            echo '<p style="margin:0 0 16px;"><a class="tt-btn tt-btn-secondary" href="' . esc_url( $archived_url ) . '" style="min-height:48px;padding:8px 14px;touch-action:manipulation;">'
+            echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( $archived_url ) . '">'
                 . esc_html__( 'Show archived', 'talenttrack' )
-                . '</a></p>';
+                . '</a>';
         }
 
         // Season picker.
@@ -75,7 +77,7 @@ final class FrontendPdpPlanningView {
             CurrentClub::id()
         ) );
         if ( $seasons ) {
-            echo '<form method="get" style="margin:0 0 16px;display:flex;gap:8px;align-items:center;">';
+            echo '<form method="get" style="display:flex;gap:8px;align-items:center;margin:0;">';
             $hidden_args = wp_parse_args( $_GET, [] );
             unset( $hidden_args['season_id'] );
             foreach ( $hidden_args as $k => $v ) {
@@ -92,6 +94,7 @@ final class FrontendPdpPlanningView {
             echo '</select>';
             echo '</form>';
         }
+        echo '</div>';
 
         if ( empty( $matrix['teams'] ) ) {
             echo '<p>' . esc_html__( 'No PDP files for this season yet.', 'talenttrack' ) . '</p>';
@@ -100,12 +103,13 @@ final class FrontendPdpPlanningView {
         }
 
         $today = gmdate( 'Y-m-d' );
-        echo '<table class="tt-table" style="width:100%;border-collapse:collapse;">';
+        echo '<div class="tt-pdp-matrix-card">';
+        echo '<table class="tt-table tt-pdp-table">';
         echo '<thead><tr>';
-        echo '<th style="text-align:left;padding:8px;border-bottom:1px solid #d6dadd;">' . esc_html__( 'Team', 'talenttrack' ) . '</th>';
+        echo '<th>' . esc_html__( 'Team', 'talenttrack' ) . '</th>';
         $max_blocks = (int) $matrix['max_blocks'];
         for ( $b = 1; $b <= $max_blocks; $b++ ) {
-            echo '<th style="text-align:left;padding:8px;border-bottom:1px solid #d6dadd;">' . esc_html( sprintf( __( 'Block %d', 'talenttrack' ), $b ) ) . '</th>';
+            echo '<th>' . esc_html( sprintf( __( 'Block %d', 'talenttrack' ), $b ) ) . '</th>';
         }
         echo '</tr></thead><tbody>';
 
@@ -116,8 +120,8 @@ final class FrontendPdpPlanningView {
                 \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'teams', (int) $team_id )
             );
             echo '<tr>';
-            echo '<td style="padding:8px;border-bottom:1px solid #eef0f2;"><strong>' . $team_link . '</strong>'
-                . ' <small style="color:#5b6e75;">' . (int) $team['roster'] . ' ' . esc_html__( 'players', 'talenttrack' ) . '</small></td>';
+            echo '<td class="tt-pdp-team"><strong>' . $team_link . '</strong>'
+                . ' <small class="tt-pdp-team__roster">' . (int) $team['roster'] . ' ' . esc_html__( 'players', 'talenttrack' ) . '</small></td>';
             for ( $b = 1; $b <= $max_blocks; $b++ ) {
                 $cell = $team['blocks'][ $b ] ?? null;
                 // v3.94.1 — drill-down lands on the per-player block view
@@ -129,15 +133,15 @@ final class FrontendPdpPlanningView {
                     'block'     => $b,
                     'season_id' => $season_id,
                 ], $base_url );
-                echo '<td style="padding:8px;border-bottom:1px solid #eef0f2;">';
+                echo '<td>';
                 if ( ! $cell || $cell['expected'] === 0 ) {
-                    echo '<span style="color:#5b6e75;">—</span>';
+                    echo '<span class="tt-pdp-cell-empty">—</span>';
                 } else {
                     $window_open = ( $cell['window_start'] <= $today );
                     if ( ! $window_open ) {
-                        echo '<span style="color:#5b6e75;">' . esc_html__( 'window not yet open', 'talenttrack' ) . '</span>';
+                        echo '<span class="tt-pdp-cell-empty">' . esc_html__( 'window not yet open', 'talenttrack' ) . '</span>';
                     } else {
-                        $color = self::cellColor( $cell, $today );
+                        $chip = self::cellChipClass( $cell, $today );
                         $label = sprintf(
                             /* translators: 1: planned count, 2: roster size, 3: conducted count, 4: planned count */
                             __( '%1$d/%2$d planned · %3$d/%4$d conducted', 'talenttrack' ),
@@ -146,7 +150,7 @@ final class FrontendPdpPlanningView {
                             (int) $cell['conducted'],
                             (int) $cell['planned']
                         );
-                        echo '<a href="' . esc_url( $cell_url ) . '" style="color:' . esc_attr( $color ) . ';text-decoration:none;font-weight:600;">'
+                        echo '<a href="' . esc_url( $cell_url ) . '" class="tt-pdp-chip ' . esc_attr( $chip ) . '">'
                             . esc_html( $label ) . '</a>';
                     }
                 }
@@ -154,7 +158,7 @@ final class FrontendPdpPlanningView {
             }
             echo '</tr>';
         }
-        echo '</tbody></table></section>';
+        echo '</tbody></table></div></section>';
     }
 
     /**
@@ -243,22 +247,26 @@ final class FrontendPdpPlanningView {
     }
 
     /**
+     * Map a cell's planned/conducted status to a 2026 chip modifier
+     * class. Same bucketing as the pre-restyle colour helper — only the
+     * presentation token changed (hex → CSS class).
+     *
      * @param array{expected:int,planned:int,conducted:int,window_start:string,window_end:string} $cell
      */
-    private static function cellColor( array $cell, string $today ): string {
+    private static function cellChipClass( array $cell, string $today ): string {
         $expected = $cell['expected'];
         $planned  = $cell['planned'];
         $window_closed = $cell['window_end'] !== '' && $cell['window_end'] < $today;
 
-        if ( $expected === 0 ) return '#5b6e75';
+        if ( $expected === 0 ) return '';
         if ( ! $window_closed ) {
-            return $planned >= $expected ? '#16a34a' : '#d97706';
+            return $planned >= $expected ? 'tt-pdp-chip--ok' : 'tt-pdp-chip--warn';
         }
         // Window closed: emphasise conducted ratio.
         $conducted = $cell['conducted'];
-        if ( $conducted >= $expected ) return '#16a34a';
-        if ( $planned   >= $expected ) return '#d97706';
-        return '#b91c1c';
+        if ( $conducted >= $expected ) return 'tt-pdp-chip--ok';
+        if ( $planned   >= $expected ) return 'tt-pdp-chip--warn';
+        return 'tt-pdp-chip--alert';
     }
 
     /**
@@ -286,6 +294,7 @@ final class FrontendPdpPlanningView {
         }
 
         $detail = self::loadBlockDetail( $team_id, $block, $season_id );
+        self::enqueueViewCss();
 
         // Breadcrumb chain: Dashboard / PDP planning / Team — Block N.
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
@@ -304,8 +313,8 @@ final class FrontendPdpPlanningView {
             ]
         );
 
-        echo '<section class="tt-pdp-planning-block" style="max-width:1200px;">';
-        echo '<h2 style="margin:0 0 4px;">' . esc_html( sprintf(
+        echo '<section class="tt-pdp-planning-block">';
+        echo '<h2 class="tt-pdp-block__title">' . esc_html( sprintf(
             /* translators: 1: team name, 2: block number */
             __( '%1$s — PDP block %2$d', 'talenttrack' ),
             (string) $team->name,
@@ -313,7 +322,7 @@ final class FrontendPdpPlanningView {
         ) ) . '</h2>';
 
         if ( $detail['window_start'] !== '' || $detail['window_end'] !== '' ) {
-            echo '<p style="color:#5b6e75; margin:0 0 16px;">' . esc_html( sprintf(
+            echo '<p class="tt-pdp-block__window">' . esc_html( sprintf(
                 /* translators: 1: window start date, 2: window end date */
                 __( 'Window %1$s → %2$s.', 'talenttrack' ),
                 (string) ( $detail['window_start'] ?: '—' ),
@@ -323,40 +332,38 @@ final class FrontendPdpPlanningView {
 
         $columns = [
             [
-                'key'    => 'conducted',
-                'label'  => __( 'Conducted', 'talenttrack' ),
-                'colour' => '#16a34a',
-                'help'   => __( 'Conversation has a recorded conducted_at — the talk happened.', 'talenttrack' ),
+                'key'      => 'conducted',
+                'label'    => __( 'Conducted', 'talenttrack' ),
+                'modifier' => 'tt-pdp-block-col--ok',
+                'help'     => __( 'Conversation has a recorded conducted_at — the talk happened.', 'talenttrack' ),
             ],
             [
-                'key'    => 'planned',
-                'label'  => __( 'Planned', 'talenttrack' ),
-                'colour' => '#d97706',
-                'help'   => __( 'Conversation is on the calendar (scheduled_at set) but no conducted_at yet.', 'talenttrack' ),
+                'key'      => 'planned',
+                'label'    => __( 'Planned', 'talenttrack' ),
+                'modifier' => 'tt-pdp-block-col--warn',
+                'help'     => __( 'Conversation is on the calendar (scheduled_at set) but no conducted_at yet.', 'talenttrack' ),
             ],
             [
-                'key'    => 'missing',
-                'label'  => __( 'Missing', 'talenttrack' ),
-                'colour' => '#b91c1c',
-                'help'   => __( 'Active roster player with no conversation in this block. Open their PDP file to start one.', 'talenttrack' ),
+                'key'      => 'missing',
+                'label'    => __( 'Missing', 'talenttrack' ),
+                'modifier' => 'tt-pdp-block-col--alert',
+                'help'     => __( 'Active roster player with no conversation in this block. Open their PDP file to start one.', 'talenttrack' ),
             ],
         ];
 
-        echo '<div class="tt-pdp-block-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:16px; margin-top:8px;">';
+        echo '<div class="tt-pdp-block-grid">';
         foreach ( $columns as $col ) {
             $bucket = $detail[ $col['key'] ] ?? [];
-            echo '<div class="tt-pdp-block-col" style="background:#fff; border:1px solid #e5e7ea; border-radius:8px; padding:14px;">';
-            echo '<h3 style="margin:0 0 6px; font-size:14px; color:' . esc_attr( $col['colour'] ) . ';">' .
+            echo '<div class="tt-pdp-block-col ' . esc_attr( $col['modifier'] ) . '">';
+            echo '<h3 class="tt-pdp-block-col__head">' .
                  esc_html( $col['label'] ) .
-                 ' <span style="background:' . esc_attr( $col['colour'] ) . '; color:#fff; font-size:11px; padding:2px 6px; border-radius:10px; margin-left:4px;">' .
-                 (int) count( $bucket ) .
-                 '</span></h3>';
-            echo '<p style="color:#5b6e75; font-size:12px; margin:0 0 8px;">' . esc_html( (string) $col['help'] ) . '</p>';
+                 ' <span class="tt-pdp-count">' . (int) count( $bucket ) . '</span></h3>';
+            echo '<p class="tt-pdp-block-col__help">' . esc_html( (string) $col['help'] ) . '</p>';
 
             if ( empty( $bucket ) ) {
-                echo '<p style="color:#5b6e75; font-style:italic; margin:0;">' . esc_html__( 'None.', 'talenttrack' ) . '</p>';
+                echo '<p class="tt-pdp-block-empty">' . esc_html__( 'None.', 'talenttrack' ) . '</p>';
             } else {
-                echo '<ul class="tt-stack" style="list-style:none; padding:0; margin:0;">';
+                echo '<ul class="tt-pdp-block-list">';
                 foreach ( $bucket as $row ) {
                     $name = trim( ( (string) ( $row['first_name'] ?? '' ) ) . ' ' . ( (string) ( $row['last_name'] ?? '' ) ) );
                     if ( $name === '' ) continue;
@@ -379,9 +386,9 @@ final class FrontendPdpPlanningView {
                             esc_html( substr( (string) $row['scheduled_at'], 0, 10 ) )
                         );
                     }
-                    echo '<li style="padding:6px 0; border-bottom:1px solid #f1f3f5;">';
+                    echo '<li>';
                     echo '<a class="tt-record-link" href="' . esc_url( $url ) . '">' . $label . '</a>';
-                    if ( $meta !== '' ) echo '<span class="tt-muted" style="color:#5b6e75; font-size:12px;">' . $meta . '</span>';
+                    if ( $meta !== '' ) echo '<span class="tt-muted">' . $meta . '</span>';
                     echo '</li>';
                 }
                 echo '</ul>';
@@ -492,6 +499,15 @@ final class FrontendPdpPlanningView {
             'planned'      => $planned,
             'missing'      => $missing,
         ];
+    }
+
+    private static function enqueueViewCss(): void {
+        wp_enqueue_style(
+            'tt-frontend-pdp-planning',
+            TT_PLUGIN_URL . 'assets/css/frontend-pdp-planning.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
     }
 
     private static function resolveCurrentSeason(): int {

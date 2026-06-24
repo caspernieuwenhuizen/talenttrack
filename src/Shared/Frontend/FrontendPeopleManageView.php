@@ -34,6 +34,15 @@ class FrontendPeopleManageView extends FrontendViewBase {
 
     public static function render( int $user_id, bool $is_admin ): void {
         self::enqueueAssets();
+        // 2026 restyle (#1695 long-tail) — green/gold card vocabulary for
+        // the people form + assignments summary body. Depends on the
+        // app-chrome sheet for the brand tokens.
+        wp_enqueue_style(
+            'tt-frontend-people-manage',
+            TT_PLUGIN_URL . 'assets/css/frontend-people-manage.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
 
         $action = isset( $_GET['action'] ) ? sanitize_key( (string) $_GET['action'] ) : '';
         $id     = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
@@ -151,7 +160,8 @@ class FrontendPeopleManageView extends FrontendViewBase {
         ] );
 
         ?>
-        <form id="<?php echo esc_attr( $form_id ); ?>" class="tt-ajax-form" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="<?php echo esc_attr( $rest_meth ); ?>" data-redirect-after-save="list">
+        <form id="<?php echo esc_attr( $form_id ); ?>" class="tt-ajax-form tt-pmf" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="<?php echo esc_attr( $rest_meth ); ?>" data-redirect-after-save="list">
+            <div class="tt-pmf-card">
             <div class="tt-grid tt-grid-2">
                 <div class="tt-field">
                     <label class="tt-field-label tt-field-required" for="tt-person-first"><?php esc_html_e( 'First name', 'talenttrack' ); ?></label>
@@ -194,6 +204,7 @@ class FrontendPeopleManageView extends FrontendViewBase {
                     <span class="tt-field-hint"><?php esc_html_e( 'Optional. Links this person to a login on the site.', 'talenttrack' ); ?></span>
                 </div>
             </div>
+            </div>
 
             <?php
             // v3.110.58 — CLAUDE.md § 6.
@@ -228,10 +239,12 @@ class FrontendPeopleManageView extends FrontendViewBase {
             remove_query_arg( [ 'action', 'id', 'tab' ] )
         );
 
-        echo '<h3 style="margin:24px 0 12px;">' . esc_html__( 'Current team assignments', 'talenttrack' ) . '</h3>';
+        echo '<section class="tt-pmf-assign">';
+        echo '<h3 class="tt-pmf-assign__title">' . esc_html__( 'Current team assignments', 'talenttrack' ) . '</h3>';
 
         if ( empty( $assignments ) ) {
-            echo '<p><em>' . esc_html__( 'Not assigned to any team.', 'talenttrack' ) . '</em></p>';
+            echo '<p class="tt-pmf-assign__empty"><em>' . esc_html__( 'Not assigned to any team.', 'talenttrack' ) . '</em></p>';
+            echo '</section>';
             return;
         }
 
@@ -257,9 +270,10 @@ class FrontendPeopleManageView extends FrontendViewBase {
         echo '</tbody></table>';
         echo '</div>';
 
-        echo '<p style="margin-top:8px;"><a class="tt-btn tt-btn-secondary" href="' . esc_url( $manage_url ) . '">'
+        echo '<p class="tt-pmf-assign__actions"><a class="tt-btn tt-btn-secondary" href="' . esc_url( $manage_url ) . '">'
             . esc_html__( 'Manage assignments', 'talenttrack' )
             . '</a></p>';
+        echo '</section>';
     }
 
     private static function humanRoleTypeLabel( string $key ): string {

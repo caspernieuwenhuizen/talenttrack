@@ -56,7 +56,7 @@ class FrontendTeamsManageView extends FrontendViewBase {
         wp_enqueue_style(
             'tt-frontend-teams-list',
             TT_PLUGIN_URL . 'assets/css/frontend-teams-list.css',
-            [ 'tt-frontend-mobile' ],
+            [ 'tt-frontend-mobile', 'tt-frontend-app-chrome' ],
             TT_VERSION
         );
         self::$teams_css_enqueued = true;
@@ -482,11 +482,11 @@ class FrontendTeamsManageView extends FrontendViewBase {
             <div class="tt-tile-grid-std">
                 <a class="tt-tile-card-std" href="<?php echo esc_url( $chem_url ); ?>">
                     <div class="tt-cfg-tile-title" style="font-weight:600; font-size:14px; line-height:1.25; margin:0 0 4px;"><?php esc_html_e( 'Team chemistry', 'talenttrack' ); ?></div>
-                    <div class="tt-cfg-tile-desc" style="color:#6b7280; font-size:12px; line-height:1.35;"><?php esc_html_e( 'Formation board with auto-suggested XI, fit scores, depth chart, link chemistry, and pairings.', 'talenttrack' ); ?></div>
+                    <div class="tt-cfg-tile-desc" style="color:var(--tt-muted, #6a6d66); font-size:12px; line-height:1.35;"><?php esc_html_e( 'Formation board with auto-suggested XI, fit scores, depth chart, link chemistry, and pairings.', 'talenttrack' ); ?></div>
                 </a>
                 <a class="tt-tile-card-std" href="<?php echo esc_url( $bp_url ); ?>">
                     <div class="tt-cfg-tile-title" style="font-weight:600; font-size:14px; line-height:1.25; margin:0 0 4px;"><?php esc_html_e( 'Team blueprints', 'talenttrack' ); ?></div>
-                    <div class="tt-cfg-tile-desc" style="color:#6b7280; font-size:12px; line-height:1.35;"><?php esc_html_e( 'Saved match-day lineups and squad plans for this team.', 'talenttrack' ); ?></div>
+                    <div class="tt-cfg-tile-desc" style="color:var(--tt-muted, #6a6d66); font-size:12px; line-height:1.35;"><?php esc_html_e( 'Saved match-day lineups and squad plans for this team.', 'talenttrack' ); ?></div>
                 </a>
             </div>
         </div>

@@ -47,7 +47,7 @@ final class FrontendTeamDetailView extends FrontendViewBase {
         wp_enqueue_style(
             'tt-frontend-team-detail',
             TT_PLUGIN_URL . 'assets/css/frontend-team-detail.css',
-            [ 'tt-frontend-player-detail' ],
+            [ 'tt-frontend-player-detail', 'tt-frontend-app-chrome' ],
             TT_VERSION
         );
         self::$detail_css_enqueued = true;
