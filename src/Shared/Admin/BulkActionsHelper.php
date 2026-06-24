@@ -247,8 +247,16 @@ class BulkActionsHelper {
                 $msg_key = 'restored';
                 break;
             case 'delete_permanent':
-                $count = $repo->deletePermanently( $entity, $ids );
-                $msg_key = 'deleted';
+                // #1783 — a fail-closed cascade refuses the whole batch
+                // when any selected row still has referencing records,
+                // rather than silently orphaning them.
+                try {
+                    $count = $repo->deletePermanently( $entity, $ids );
+                    $msg_key = 'deleted';
+                } catch ( \TT\Infrastructure\Archive\DeleteBlockedException $e ) {
+                    $count = count( $ids );
+                    $msg_key = 'blocked';
+                }
                 break;
             default:
                 wp_safe_redirect( wp_get_referer() ?: admin_url( 'admin.php?page=talenttrack' ) );
@@ -297,6 +305,19 @@ class BulkActionsHelper {
                     $count
                 );
                 break;
+            case 'blocked':
+                // #1783 — referential-integrity block; warning, not success.
+                echo '<div class="notice notice-warning is-dismissible"><p>' . esc_html( sprintf(
+                    /* translators: %d is number of items that could not be deleted */
+                    _n(
+                        '%d item could not be deleted — other records still reference it. Archive or remove those first.',
+                        '%d items could not be deleted — other records still reference them. Archive or remove those first.',
+                        $count,
+                        'talenttrack'
+                    ),
+                    $count
+                ) ) . '</p></div>';
+                return;
         }
         if ( $text === '' ) return;
 

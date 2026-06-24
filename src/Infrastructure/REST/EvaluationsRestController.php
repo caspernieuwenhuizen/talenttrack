@@ -663,7 +663,11 @@ class EvaluationsRestController {
     public static function delete_eval_permanently( \WP_REST_Request $r ) {
         $id = (int) $r['id'];
         if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid evaluation id.', 'talenttrack' ), 400 );
-        $n = ( new \TT\Infrastructure\Archive\ArchiveRepository() )->deletePermanently( 'evaluation', [ $id ] );
+        try {
+            $n = ( new \TT\Infrastructure\Archive\ArchiveRepository() )->deletePermanently( 'evaluation', [ $id ] );
+        } catch ( \TT\Infrastructure\Archive\DeleteBlockedException $e ) {
+            return RestResponse::error( 'delete_blocked', $e->getMessage(), 409 );
+        }
         if ( $n === 0 ) return RestResponse::error( 'not_found', __( 'Evaluation not found.', 'talenttrack' ), 404 );
         return RestResponse::success( [ 'deleted' => true, 'id' => $id ] );
     }

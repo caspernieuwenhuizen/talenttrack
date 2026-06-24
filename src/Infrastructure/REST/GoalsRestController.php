@@ -589,7 +589,11 @@ class GoalsRestController {
         if ( $goal_id <= 0 ) {
             return RestResponse::error( 'bad_id', __( 'Invalid goal id.', 'talenttrack' ), 400 );
         }
-        $n = ( new \TT\Infrastructure\Archive\ArchiveRepository() )->deletePermanently( 'goal', [ $goal_id ] );
+        try {
+            $n = ( new \TT\Infrastructure\Archive\ArchiveRepository() )->deletePermanently( 'goal', [ $goal_id ] );
+        } catch ( \TT\Infrastructure\Archive\DeleteBlockedException $e ) {
+            return RestResponse::error( 'delete_blocked', $e->getMessage(), 409 );
+        }
         if ( $n === 0 ) {
             return RestResponse::error( 'not_found', __( 'Goal not found.', 'talenttrack' ), 404 );
         }
