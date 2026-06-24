@@ -40076,3 +40076,13 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+
+#: src/Infrastructure/Archive/DeleteBlockedException.php
+msgid "Cannot delete: still referenced by %s. Archive or remove these first."
+msgstr "Kan niet verwijderen: nog gekoppeld aan %s. Archiveer of verwijder die eerst."
+
+#: src/Shared/Admin/BulkActionsHelper.php
+msgid "%d item could not be deleted — other records still reference it. Archive or remove those first."
+msgid_plural "%d items could not be deleted — other records still reference them. Archive or remove those first."
+msgstr[0] "%d item kon niet worden verwijderd — andere gegevens verwijzen er nog naar. Archiveer of verwijder die eerst."
+msgstr[1] "%d items konden niet worden verwijderd — andere gegevens verwijzen er nog naar. Archiveer of verwijder die eerst."

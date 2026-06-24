@@ -151,6 +151,17 @@ class ArchiveRepository {
             return (int) $result['deleted'];
         }
 
+        // #1783 — referential-integrity-checked delete for entities with
+        // a declarative cascade plan (evaluation, goal, team, activity).
+        // Fail-closed: GenericCascadeDeleter throws DeleteBlockedException
+        // (no writes) when an undeclared reference would be orphaned, so a
+        // raw DELETE can no longer strand child rows. The exception
+        // propagates to the caller, which surfaces the dependency report.
+        if ( CascadeRegistry::has( $entity ) ) {
+            $result = ( new GenericCascadeDeleter() )->cascade( $entity, $ids );
+            return (int) $result['deleted'];
+        }
+
         global $wpdb;
         $ph = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
         $sql = "DELETE FROM {$table} WHERE id IN ({$ph}) AND club_id = %d";
@@ -249,9 +260,27 @@ class ArchiveRepository {
             if ( class_exists( PdpFilesRepository::class ) ) {
                 $out['pdp_files'] = ( new PdpFilesRepository() )->countActiveForPlayer( $id );
             }
+        } elseif ( CascadeRegistry::has( $entity ) ) {
+            // #1783 — derive dependent counts from the cascade plan so the
+            // archive-confirm modal surfaces what a later hard-delete would
+            // cascade or be blocked by.
+            $preview = ( new GenericCascadeDeleter() )->preview( $entity, [ $id ] );
+            foreach ( $preview['removals'] as $r ) {
+                $label = $this->dependentLabel( (string) $r['table'] );
+                $out[ $label ] = ( $out[ $label ] ?? 0 ) + (int) $r['count'];
+            }
+            foreach ( $preview['blockers'] as $table => $count ) {
+                $label = $this->dependentLabel( (string) $table );
+                $out[ $label ] = ( $out[ $label ] ?? 0 ) + (int) $count;
+            }
         }
 
         return $out;
+    }
+
+    /** tt_eval_ratings => "eval ratings" — friendly key for the modal. */
+    private function dependentLabel( string $bare_table ): string {
+        return str_replace( '_', ' ', (string) preg_replace( '/^tt_/', '', $bare_table ) );
     }
 
     // Helpers
