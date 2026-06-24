@@ -29,7 +29,7 @@ msgstr ""
 msgid ""
 "Frontend-first, modular youth football talent management system for a single "
 "club."
-msgstr ""
+msgstr "Frontend-first, modulair talentmanagementsysteem voor jeugdvoetbal, voor één club."
 
 #. Author of the plugin
 #: talenttrack.php
@@ -709,23 +709,23 @@ msgstr "Leeftijd: %1$s → %2$s"
 
 #: src/Infrastructure/People/PersonDeletionCascade.php:80
 msgid "staff"
-msgstr ""
+msgstr "staf"
 
 #: src/Infrastructure/People/PersonDeletionCascade.php:81
 msgid "(unknown team)"
-msgstr ""
+msgstr "(onbekend team)"
 
 #: src/Infrastructure/People/PersonDeletionCascade.php:103
 msgid "grants stay; \"granted by\" becomes unknown"
-msgstr ""
+msgstr "toekenning blijft; \"toegekend door\" wordt onbekend"
 
 #: src/Infrastructure/People/PersonDeletionCascade.php:152
 msgid "historical record stays; target reference cleared"
-msgstr ""
+msgstr "historische registratie blijft; doelverwijzing gewist"
 
 #: src/Infrastructure/People/PersonDeletionCascade.php:166
 msgid "(unnamed player)"
-msgstr ""
+msgstr "(naamloze speler)"
 
 #: src/Infrastructure/PlayerStatus/PlayerStatusCalculator.php:82
 msgid "No evaluations in the last 90 days."
@@ -1641,7 +1641,7 @@ msgstr "De categorie kon niet worden verwijderd."
 
 #: src/Infrastructure/REST/EvaluationsRestController.php:94
 msgid "You can only request your own evaluations."
-msgstr ""
+msgstr "Je kunt alleen je eigen evaluaties opvragen."
 
 #: src/Infrastructure/REST/EvaluationsRestController.php:461
 #: src/Infrastructure/REST/EvaluationsRestController.php:641
@@ -1791,11 +1791,11 @@ msgstr "Speler en titel zijn verplicht."
 #: src/Infrastructure/REST/GoalsRestController.php:377
 #: src/Shared/Frontend/FrontendTrialsManageView.php:126
 msgid "Player not found in your club."
-msgstr ""
+msgstr "Speler niet gevonden binnen je club."
 
 #: src/Infrastructure/REST/GoalsRestController.php:381
 msgid "You can only set goals for players in your team."
-msgstr ""
+msgstr "Je kunt alleen doelen instellen voor spelers in je team."
 
 #: src/Infrastructure/REST/GoalsRestController.php:391
 msgid "The goal could not be saved. The database rejected the operation."
@@ -2148,7 +2148,7 @@ msgstr "Ongeldig team- of speler-id."
 
 #: src/Infrastructure/REST/TeamsRestController.php:394
 msgid "Team not found in your club."
-msgstr ""
+msgstr "Team niet gevonden binnen je club."
 
 #: src/Infrastructure/REST/TeamsRestController.php:400
 msgid "The player could not be added to the team."
@@ -3626,7 +3626,7 @@ msgstr "Leeftijdsgroepwijziging"
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:181
 #, php-format
 msgid "#%s (missing)"
-msgstr ""
+msgstr "#%s (ontbreekt)"
 
 #. translators: %s ISO-8601 datetime
 #: src/Modules/Analytics/Export/CsvExporter.php:119
@@ -3925,7 +3925,7 @@ msgstr "Aanwezigheidsranglijst"
 msgid ""
 "You don't coach any teams yet, so there is no attendance to show. Ask an "
 "administrator to assign you to a team."
-msgstr ""
+msgstr "Je coacht nog geen teams, dus er is geen aanwezigheid om te tonen. Vraag een beheerder om je aan een team toe te wijzen."
 
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:88
 #: src/Modules/Analytics/Frontend/FrontendAttendanceLeaderboardView.php:96
@@ -4063,7 +4063,7 @@ msgstr "Gem. aanwezigheid"
 
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:129
 msgid "At-risk players"
-msgstr ""
+msgstr "Spelers met risico"
 
 #. translators: %d is the missed-activities threshold
 #: src/Modules/Analytics/Frontend/FrontendAttendancePlayerReportView.php:138
@@ -4150,7 +4150,7 @@ msgstr "CSV exporteren"
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:147
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:209
 msgid "Export PDF"
-msgstr ""
+msgstr "PDF exporteren"
 
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:166
 msgid "Group by:"
@@ -4178,18 +4178,18 @@ msgstr "— Geen —"
 msgid ""
 "Pick a dimension above to break the headline down by groups, or browse the "
 "underlying rows below."
-msgstr ""
+msgstr "Kies hierboven een dimensie om het hoofdgetal op te splitsen per groep, of bekijk de onderliggende rijen hieronder."
 
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:229
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:257
 msgid ""
 "No data points for the current filters. Adjust filters or pick another date "
 "range."
-msgstr ""
+msgstr "Geen gegevenspunten voor de huidige filters. Pas de filters aan of kies een ander datumbereik."
 
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:349
 msgid "Time series"
-msgstr ""
+msgstr "Tijdreeks"
 
 #. translators: %s = ISO date
 #. translators: %s = generation date
@@ -4209,25 +4209,25 @@ msgstr "Gegenereerd %s"
 
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:466
 msgid "Filters"
-msgstr ""
+msgstr "Filters"
 
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:493
 msgid "Underlying rows"
-msgstr ""
+msgstr "Onderliggende rijen"
 
 #. translators: 1: shown rows, 2: total rows
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:497
 #, php-format
 msgid "(first %1$d of %2$d)"
-msgstr ""
+msgstr "(eerste %1$d van %2$d)"
 
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:519
 msgid "Generated by TalentTrack — analytics explorer."
-msgstr ""
+msgstr "Gegenereerd door TalentTrack — analyse-verkenner."
 
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:536
 msgid "PDF rendering failed. Run `composer install` and try again."
-msgstr ""
+msgstr "PDF-weergave mislukt. Voer `composer install` uit en probeer het opnieuw."
 
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:610
 msgid "Date after"
@@ -4248,17 +4248,17 @@ msgstr "Geen data voor de huidige filters."
 
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:720
 msgid "No fact rows match the current filters."
-msgstr ""
+msgstr "Geen feitrijen die aan de huidige filters voldoen."
 
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:785
 msgid "← Prev"
-msgstr ""
+msgstr "← Vorige"
 
 #. translators: 1: current page, 2: total pages, 3: total rows
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:789
 #, php-format
 msgid "Page %1$d of %2$d (%3$d rows)"
-msgstr ""
+msgstr "Pagina %1$d van %2$d (%3$d rijen)"
 
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:793
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:201
@@ -4269,33 +4269,33 @@ msgstr "Volgende →"
 #: src/Modules/Analytics/Frontend/FrontendExploreView.php:800
 #, php-format
 msgid "Showing %d row(s)."
-msgstr ""
+msgstr "%d rij(en) weergegeven."
 
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:48
 msgid "Minutes played (team)"
-msgstr ""
+msgstr "Gespeelde minuten (team)"
 
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:51
 msgid "Minutes played per player"
-msgstr ""
+msgstr "Gespeelde minuten per speler"
 
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:64
 msgid ""
 "You don't coach any teams yet, so there is no minutes data to show. Ask an "
 "administrator to assign you to a team."
-msgstr ""
+msgstr "Je coacht nog geen teams, dus er zijn geen minutengegevens om te tonen. Vraag een beheerder om je aan een team toe te wijzen."
 
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:71
 msgid "No teams yet — add one to enable this report."
-msgstr ""
+msgstr "Nog geen teams — voeg er een toe om dit rapport in te schakelen."
 
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:77
 msgid "No data for the selected team in your scope."
-msgstr ""
+msgstr "Geen gegevens voor het geselecteerde team binnen jouw bereik."
 
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:97
 msgid "No minutes recorded for this team in the selected window."
-msgstr ""
+msgstr "Geen minuten geregistreerd voor dit team in het geselecteerde venster."
 
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:105
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:254
@@ -4315,7 +4315,7 @@ msgstr "Oefen"
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:123
 #: src/Modules/DemoData/Admin/DemoReviewPage.php:71
 msgid "Total"
-msgstr ""
+msgstr "Totaal"
 
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:124
 #: src/Modules/Tournaments/Wizard/MatchesStep.php:31
@@ -4328,27 +4328,27 @@ msgstr "Wedstrijden"
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:125
 #: src/Shared/Frontend/FrontendSeasonsView.php:71
 msgid "Starts"
-msgstr ""
+msgstr "Basisplaatsen"
 
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:126
 msgid "Subs in"
-msgstr ""
+msgstr "Ingevallen"
 
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:127
 msgid "Subs off"
-msgstr ""
+msgstr "Gewisseld"
 
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:128
 msgid "Avg / match"
-msgstr ""
+msgstr "Gem. / wedstrijd"
 
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:132
 msgid "% available"
-msgstr ""
+msgstr "% beschikbaar"
 
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:258
 msgid "Match type"
-msgstr ""
+msgstr "Wedstrijdtype"
 
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:58
 msgid "You do not have permission to manage scheduled reports."
@@ -4542,7 +4542,7 @@ msgstr "Seizoenseinde"
 
 #: src/Modules/Analytics/ScheduledReportsRepository.php:68
 msgid "Paused"
-msgstr ""
+msgstr "Gepauzeerd"
 
 #: src/Modules/Auth/LoginForm.php:32
 msgid "Sign in to continue"
@@ -4582,7 +4582,7 @@ msgstr "Je moet administrator zijn om deze pagina te bekijken."
 #: src/Shared/CoreSurfaceRegistration.php:1584
 #: src/Shared/Frontend/FrontendRolesView.php:112
 msgid "Permission Chain Debug"
-msgstr ""
+msgstr "Debug rechtenketen"
 
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:76
 msgid ""
@@ -4590,11 +4590,11 @@ msgid ""
 "this to diagnose \"Not authorized\" symptoms on installs where the legacy WP "
 "cap, the matrix bridge, and the user_has_cap filter return inconsistent "
 "results."
-msgstr ""
+msgstr "Per gebruiker, per recht een doorloop van elke laag van de autorisatieketen. Gebruik dit om \"Niet geautoriseerd\"-symptomen te diagnosticeren op installaties waar het oude WP-recht, de matrixbrug en het user_has_cap-filter inconsistente resultaten geven."
 
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:82
 msgid "User:"
-msgstr ""
+msgstr "Gebruiker:"
 
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:89
 #: src/Modules/Authorization/Admin/DebugPage.php:44
@@ -4642,7 +4642,7 @@ msgstr "Gebruiker niet gevonden."
 
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:134
 msgid "System state"
-msgstr ""
+msgstr "Systeemstatus"
 
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:138
 msgid "tt_authorization_active"
@@ -4650,32 +4650,32 @@ msgstr ""
 
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:142
 msgid "Matrix bridge enforces cap checks via user_has_cap filter."
-msgstr ""
+msgstr "Matrixbrug dwingt rechtcontroles af via het user_has_cap-filter."
 
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:145
 msgid ""
 "Matrix bridge is dormant. user_can() consults only baseline WP caps. "
 "AuthorizationService::userCanOrMatrix() falls back to LegacyCapMapper::"
 "evaluate(), but the user_has_cap surfacing layer is OFF."
-msgstr ""
+msgstr "Matrixbrug is inactief. user_can() raadpleegt alleen de WP-basisrechten. AuthorizationService::userCanOrMatrix() valt terug op LegacyCapMapper::evaluate(), maar de user_has_cap-laag is UIT."
 
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:150
 msgid "user_has_cap filter callbacks"
-msgstr ""
+msgstr "user_has_cap filter-callbacks"
 
 #. translators: 1: user display name, 2: user id
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:179
 #, php-format
 msgid "User: %1$s (#%2$d)"
-msgstr ""
+msgstr "Gebruiker: %1$s (#%2$d)"
 
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:188
 msgid "Login"
-msgstr ""
+msgstr "Inloggen"
 
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:192
 msgid "WP roles"
-msgstr ""
+msgstr "WP-rollen"
 
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:195
 #: src/Modules/Authorization/Admin/DebugPage.php:89
@@ -4687,25 +4687,25 @@ msgstr "(geen)"
 
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:202
 msgid "Resolved personas (PersonaResolver)"
-msgstr ""
+msgstr "Opgeloste persona's (PersonaResolver)"
 
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:206
 msgid "(empty)"
-msgstr ""
+msgstr "(leeg)"
 
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:209
 msgid ""
 "No persona resolved — MatrixGate::canAnyScope() will short-circuit to false "
 "on every check."
-msgstr ""
+msgstr "Geen persona opgelost — MatrixGate::canAnyScope() valt bij elke controle direct terug naar false."
 
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:216
 msgid "is administrator?"
-msgstr ""
+msgstr "is beheerder?"
 
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:230
 msgid "Per-cap resolution"
-msgstr ""
+msgstr "Rechtoplossing per recht"
 
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:232
 msgid ""
@@ -4715,27 +4715,27 @@ msgid ""
 "the user_can() pipeline; (c) AuthorizationService::userCanOrMatrix() — the "
 "helper that combines both. The \"Failing layer\" column points at which "
 "layer is the first to fall."
-msgstr ""
+msgstr "Voor elk recht drie controles: (a) user_can() — de WP-laag, die de basisrolrechten + het user_has_cap-filter raadpleegt (matrixbrug indien actief); (b) LegacyCapMapper::evaluate() — de directe matrixbrug-aanroep, die de user_can()-pijplijn omzeilt; (c) AuthorizationService::userCanOrMatrix() — de helper die beide combineert. De kolom \"Falende laag\" wijst aan welke laag als eerste valt."
 
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:237
 msgid "Cap"
-msgstr ""
+msgstr "Recht"
 
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:238
 msgid "Matrix tuple"
-msgstr ""
+msgstr "Matrix-tupel"
 
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:239
 msgid "user_can()"
-msgstr ""
+msgstr "user_can()"
 
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:240
 msgid "LegacyCapMapper::evaluate()"
-msgstr ""
+msgstr "LegacyCapMapper::evaluate()"
 
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:241
 msgid "userCanOrMatrix()"
-msgstr ""
+msgstr "userCanOrMatrix()"
 
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:242
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1192
@@ -4744,7 +4744,7 @@ msgstr "Eindoordeel"
 
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:304
 msgid "Matrix grants for resolved personas"
-msgstr ""
+msgstr "Matrixtoekenningen voor opgeloste persona's"
 
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:307
 msgid ""
@@ -4754,18 +4754,18 @@ msgid ""
 "present but per-cap evaluation still returns false, the chain is breaking "
 "elsewhere — most likely PersonaResolver returning empty or the user_has_cap "
 "filter not surfacing the bridge."
-msgstr ""
+msgstr "Elke rij in tt_authorization_matrix waarvan de persona overeenkomt met een van de opgeloste persona's van de gebruiker. Ontbreekt een rij die je verwacht, dan heeft de matrix-seed deze niet geplaatst op deze installatie (of heeft migratie 0104+ deze niet bijgewerkt). Zijn de rijen aanwezig maar geeft de evaluatie per recht toch false, dan breekt de keten elders — meestal omdat PersonaResolver leeg teruggeeft of het user_has_cap-filter de brug niet naar boven brengt."
 
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:312
 msgid "No matrix grants found for any of this user's resolved personas."
-msgstr ""
+msgstr "Geen matrixtoekenningen gevonden voor een van de opgeloste persona's van deze gebruiker."
 
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:313
 msgid ""
 "Likely the tt_authorization_matrix table is empty for these personas (seed "
 "missing) — or PersonaResolver is returning personas that the seed doesn't "
 "recognise."
-msgstr ""
+msgstr "Waarschijnlijk is de tabel tt_authorization_matrix leeg voor deze persona's (seed ontbreekt) — of geeft PersonaResolver persona's terug die de seed niet herkent."
 
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:320
 #: src/Modules/Authorization/Admin/MatrixPage.php:556
@@ -4803,11 +4803,11 @@ msgstr "Standaard"
 
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:385
 msgid "cap not mapped; native WP cap rules deny"
-msgstr ""
+msgstr "recht niet gekoppeld; standaard WP-rechtregels weigeren"
 
 #: src/Modules/Authorization/Admin/AuthChainDebugPage.php:390
 msgid "both layers returned false — check personas + matrix seed"
-msgstr ""
+msgstr "beide lagen gaven false terug — controleer persona's + matrix-seed"
 
 #: src/Modules/Authorization/Admin/DebugPage.php:29
 #: src/Modules/Authorization/Admin/RolesPage.php:72
@@ -4877,7 +4877,7 @@ msgstr ""
 
 #: src/Modules/Authorization/Admin/DebugPage.php:116
 msgid "Duplicate Person records"
-msgstr ""
+msgstr "Dubbele persoonsrecords"
 
 #. translators: 1: chosen Persoon id, 2: comma-separated Persoon id links
 #: src/Modules/Authorization/Admin/DebugPage.php:129
@@ -4887,7 +4887,7 @@ msgid ""
 "resolver is using #%1$d (most recently created — see #1104). Team "
 "assignments on the others are ignored. Investigate via the People admin; "
 "migration 0139 deduplicates on next upgrade."
-msgstr ""
+msgstr "Deze WP-gebruiker is gekoppeld aan meerdere actieve tt_people-records (%2$s). De auth-resolver gebruikt #%1$d (meest recent aangemaakt — zie #1104). Teamtoewijzingen op de andere worden genegeerd. Onderzoek dit via het Personen-beheer; migratie 0139 ontdubbelt bij de volgende upgrade."
 
 #: src/Modules/Authorization/Admin/DebugPage.php:139
 msgid "Resolved scopes"
@@ -4992,7 +4992,7 @@ msgstr "Legacy-brug: tt_team_people"
 
 #: src/Modules/Authorization/Admin/DebugPage.php:263
 msgid "Legacy bridge: head_coach_id (retired)"
-msgstr ""
+msgstr "Oude brug: head_coach_id (uitgefaseerd)"
 
 #: src/Modules/Authorization/Admin/FunctionalRolesPage.php:61
 #: src/Modules/Authorization/Admin/RolesPage.php:71
@@ -5606,7 +5606,7 @@ msgstr "Spelersnotities"
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:172
 msgid "VCT sessions"
-msgstr ""
+msgstr "VCT-sessies"
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:173
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:38
@@ -5617,11 +5617,11 @@ msgstr "VCT-oefeningenbibliotheek"
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:174
 msgid "VCT workload aggregates"
-msgstr ""
+msgstr "VCT-belastingaggregaten"
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:317
 msgid "Admin / configuration surface"
-msgstr ""
+msgstr "Beheer / configuratie-oppervlak"
 
 #: src/Modules/Authorization/Admin/MatrixPage.php:47
 msgctxt "matrix column abbreviation for Read"
@@ -5864,7 +5864,7 @@ msgstr "beheer-dashboardtegel"
 
 #: src/Modules/Authorization/Admin/MatrixPage.php:615
 msgid "admin / configuration surface"
-msgstr ""
+msgstr "beheer / configuratie-oppervlak"
 
 #: src/Modules/Authorization/Admin/MatrixPage.php:623
 #, php-format
@@ -6377,7 +6377,7 @@ msgid ""
 "effective permissions. \"Gained\" means the matrix grants something the old "
 "caps didn't. \"Revoked\" means the opposite — review carefully before "
 "applying."
-msgstr ""
+msgstr "Vergelijk de oude (op rechten gebaseerde) en nieuwe (op matrix gebaseerde) effectieve rechten van elke gebruiker. \"Verkregen\" betekent dat de matrix iets toekent wat de oude rechten niet deden. \"Ingetrokken\" betekent het omgekeerde — controleer dit zorgvuldig voordat je het toepast."
 
 #: src/Modules/Authorization/Admin/PreviewPage.php:52
 msgid ""
@@ -12825,7 +12825,7 @@ msgstr "Upload mislukt (foutcode %d)."
 
 #: src/Modules/DemoData/Admin/DemoReviewPage.php:46
 msgid "You do not have permission to review demo data."
-msgstr ""
+msgstr "Je hebt geen toestemming om demogegevens te beoordelen."
 
 #: src/Modules/DemoData/Admin/DemoReviewPage.php:53
 #: src/Shared/CoreSurfaceRegistration.php:1251
@@ -12837,23 +12837,23 @@ msgid ""
 "Per-entity inventory of demo-tagged rows split by their origin. User-created "
 "rows (you created them mid-demo) are recommended to keep; seeded rows are "
 "recommended to delete when you convert this install to production."
-msgstr ""
+msgstr "Inventaris per entiteit van als demo gemarkeerde rijen, opgesplitst naar hun herkomst. Door gebruikers aangemaakte rijen (die je tijdens de demo hebt aangemaakt) kun je het best behouden; geseede rijen kun je het best verwijderen wanneer je deze installatie omzet naar productie."
 
 #: src/Modules/DemoData/Admin/DemoReviewPage.php:63
 msgid "No demo-tagged rows on this install. Nothing to convert."
-msgstr ""
+msgstr "Geen als demo gemarkeerde rijen op deze installatie. Niets om om te zetten."
 
 #: src/Modules/DemoData/Admin/DemoReviewPage.php:72
 msgid "User-created"
-msgstr ""
+msgstr "Door gebruiker aangemaakt"
 
 #: src/Modules/DemoData/Admin/DemoReviewPage.php:73
 msgid "Seeded"
-msgstr ""
+msgstr "Geseed"
 
 #: src/Modules/DemoData/Admin/DemoReviewPage.php:74
 msgid "Seed batches"
-msgstr ""
+msgstr "Seed-batches"
 
 #: src/Modules/DemoData/Admin/DemoReviewPage.php:104
 msgid "Totals"
@@ -12865,74 +12865,74 @@ msgstr "Totalen"
 msgid ""
 "This install was converted to production on %s — demo mode is permanently "
 "disabled."
-msgstr ""
+msgstr "Deze installatie is op %s omgezet naar productie — de demomodus is permanent uitgeschakeld."
 
 #: src/Modules/DemoData/Admin/DemoReviewPage.php:145
 msgid "an earlier date"
-msgstr ""
+msgstr "een eerdere datum"
 
 #: src/Modules/DemoData/Admin/DemoReviewPage.php:154
 msgid "Conversion complete. The selected batches were processed."
-msgstr ""
+msgstr "Omzetting voltooid. De geselecteerde batches zijn verwerkt."
 
 #: src/Modules/DemoData/Admin/DemoReviewPage.php:179
 msgid "Convert to production"
-msgstr ""
+msgstr "Omzetten naar productie"
 
 #: src/Modules/DemoData/Admin/DemoReviewPage.php:181
 msgid ""
 "For each batch below, choose whether to DELETE the rows (along with their "
 "demo tags) or PROMOTE them to production (entity rows stay; only the demo "
 "tags are removed so they stop being scoped by demo mode)."
-msgstr ""
+msgstr "Kies voor elke batch hieronder of je de rijen wilt VERWIJDEREN (samen met hun demolabels) of PROMOVEREN naar productie (de entiteitsrijen blijven; alleen de demolabels worden verwijderd zodat ze niet langer door de demomodus worden afgebakend)."
 
 #: src/Modules/DemoData/Admin/DemoReviewPage.php:187
 msgid "Smart defaults:"
-msgstr ""
+msgstr "Slimme standaardwaarden:"
 
 #: src/Modules/DemoData/Admin/DemoReviewPage.php:188
 msgid ""
 "Seed batches are pre-selected to delete; user-created rows are pre-selected "
 "to promote."
-msgstr ""
+msgstr "Seed-batches staan vooraf ingesteld op verwijderen; door gebruikers aangemaakte rijen staan vooraf ingesteld op promoveren."
 
 #: src/Modules/DemoData/Admin/DemoReviewPage.php:193
 msgid "Run conversion now? Deletions cannot be undone."
-msgstr ""
+msgstr "Omzetting nu uitvoeren? Verwijderingen kunnen niet ongedaan worden gemaakt."
 
 #: src/Modules/DemoData/Admin/DemoReviewPage.php:197
 msgid "Seeded batches"
-msgstr ""
+msgstr "Geseede batches"
 
 #: src/Modules/DemoData/Admin/DemoReviewPage.php:199
 msgid "No seeded batches."
-msgstr ""
+msgstr "Geen geseede batches."
 
 #: src/Modules/DemoData/Admin/DemoReviewPage.php:209
 #: src/Modules/DemoData/Admin/DemoReviewPage.php:222
 msgid "Promote to production"
-msgstr ""
+msgstr "Promoveren naar productie"
 
 #: src/Modules/DemoData/Admin/DemoReviewPage.php:213
 #: src/Modules/DemoData/Admin/DemoReviewPage.php:230
 msgid "rows"
-msgstr ""
+msgstr "rijen"
 
 #: src/Modules/DemoData/Admin/DemoReviewPage.php:218
 msgid "User-created rows"
-msgstr ""
+msgstr "Door gebruikers aangemaakte rijen"
 
 #: src/Modules/DemoData/Admin/DemoReviewPage.php:222
 msgid "(recommended — these are real records)"
-msgstr ""
+msgstr "(aanbevolen — dit zijn echte records)"
 
 #: src/Modules/DemoData/Admin/DemoReviewPage.php:227
 msgid "(careful — these are NOT seeded data)"
-msgstr ""
+msgstr "(let op — dit zijn GEEN geseede gegevens)"
 
 #: src/Modules/DemoData/Admin/DemoReviewPage.php:235
 msgid "Run conversion"
-msgstr ""
+msgstr "Omzetting uitvoeren"
 
 # #1295 — per-record override expander on the demo→production form
 #: src/Modules/DemoData/Admin/DemoReviewPage.php:254
@@ -12966,11 +12966,11 @@ msgstr "Niet toegestaan."
 
 #: src/Modules/DemoData/Admin/DemoReviewPage.php:402
 msgid "This install is already converted — demo mode is permanently disabled."
-msgstr ""
+msgstr "Deze installatie is al omgezet — de demomodus is permanent uitgeschakeld."
 
 #: src/Modules/DemoData/Admin/DemoReviewPage.php:444
 msgid "No batches selected."
-msgstr ""
+msgstr "Geen batches geselecteerd."
 
 #: src/Modules/DemoData/DemoBanner.php:35
 msgid "TalentTrack is running in demo mode. Real data is hidden."
@@ -14470,18 +14470,18 @@ msgstr ""
 #: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:38
 #: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:60
 msgid "Eval Type Categories"
-msgstr ""
+msgstr "Categorieën evaluatietype"
 
 #: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:62
 msgid ""
 "Per evaluatietype: vink de categorieën die in het rating-formulier moeten "
 "verschijnen. Niets aanvinken voor een type = alle actieve categorieën tonen "
 "(terugval-gedrag, gelijk aan vóór #819)."
-msgstr ""
+msgstr "Per evaluatietype: vink de categorieën aan die in het ratingformulier moeten verschijnen. Niets aanvinken voor een type = alle actieve categorieën tonen (terugvalgedrag, gelijk aan vóór #819)."
 
 #: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:66
 msgid "Mapping opgeslagen."
-msgstr ""
+msgstr "Koppeling opgeslagen."
 
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:112
 #: src/Modules/Methodology/Admin/MethodologyPage.php:158
@@ -14758,7 +14758,7 @@ msgstr "Speler-ID"
 #: src/Modules/Export/Exporters/AuditLogCsvExporter.php:35
 #: src/Modules/Export/Exporters/AuditLogCsvExporter.php:106
 msgid "Audit ID"
-msgstr ""
+msgstr "Audit-ID"
 
 #: src/Modules/Export/Exporters/AuditLogCsvExporter.php:36
 #: src/Modules/Export/Exporters/AuditLogCsvExporter.php:107
@@ -14772,12 +14772,12 @@ msgstr "Tijdstempel"
 #: src/Modules/Export/Exporters/AuditLogCsvExporter.php:38
 #: src/Modules/Export/Exporters/AuditLogCsvExporter.php:109
 msgid "User name"
-msgstr ""
+msgstr "Gebruikersnaam"
 
 #: src/Modules/Export/Exporters/AuditLogCsvExporter.php:41
 #: src/Modules/Export/Exporters/AuditLogCsvExporter.php:112
 msgid "Entity ID"
-msgstr ""
+msgstr "Entiteit-ID"
 
 #: src/Modules/Export/Exporters/AuditLogCsvExporter.php:42
 #: src/Modules/Export/Exporters/AuditLogCsvExporter.php:113
@@ -14844,7 +14844,7 @@ msgstr "Bestanden in dit archief:"
 msgid ""
 "This export was produced under GDPR Article 15 (Right of access by the data "
 "subject)."
-msgstr ""
+msgstr "Deze export is opgesteld op grond van AVG-artikel 15 (Recht van inzage van de betrokkene)."
 
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:30
 #: src/Shared/Frontend/FrontendExportsView.php:114
@@ -14881,11 +14881,11 @@ msgstr "Waarde"
 
 #: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:139
 msgid "Snapshot range from"
-msgstr ""
+msgstr "Momentopname-bereik vanaf"
 
 #: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:140
 msgid "Snapshot range to"
-msgstr ""
+msgstr "Momentopname-bereik tot"
 
 #: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:141
 #: src/Shared/Frontend/FrontendTrialCaseView.php:615
@@ -14894,44 +14894,44 @@ msgstr "Gegenereerd op"
 
 #: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:143
 msgid "Total players"
-msgstr ""
+msgstr "Totaal aantal spelers"
 
 #: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:144
 #: src/Shared/Frontend/FrontendStandardReportsView.php:500
 msgid "Active teams"
-msgstr ""
+msgstr "Actieve teams"
 
 #: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:145
 msgid "Activities in period"
-msgstr ""
+msgstr "Activiteiten in periode"
 
 #: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:146
 msgid "Evaluations in period"
-msgstr ""
+msgstr "Evaluaties in periode"
 
 #: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:147
 msgid "Attendance rows in period"
-msgstr ""
+msgstr "Aanwezigheidsrijen in periode"
 
 #: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:148
 msgid "Attendance present"
-msgstr ""
+msgstr "Aanwezig"
 
 #: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:149
 msgid "Attendance present %"
-msgstr ""
+msgstr "% aanwezig"
 
 #: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:150
 msgid "Goals — total"
-msgstr ""
+msgstr "Doelen — totaal"
 
 #: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:151
 msgid "Goals — active"
-msgstr ""
+msgstr "Doelen — actief"
 
 #: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:152
 msgid "Goals — completed"
-msgstr ""
+msgstr "Doelen — afgerond"
 
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:41
 msgid "Match-day team sheet (PDF)"
@@ -14941,7 +14941,7 @@ msgstr "Wedstrijddag-opstelling (PDF)"
 msgid ""
 "This activity is not a match — the team-sheet export is only available for "
 "activities with type \"match\"."
-msgstr ""
+msgstr "Deze activiteit is geen wedstrijd — de wedstrijdblad-export is alleen beschikbaar voor activiteiten van het type \"wedstrijd\"."
 
 #. translators: 1: opponent name, 2: home or away label
 #. translators: 1: opponent name, 2: match result
@@ -15009,7 +15009,7 @@ msgstr "Handtekening scheidsrechter"
 
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:294
 msgid "No."
-msgstr ""
+msgstr "Nr."
 
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:326
 msgid "home"
@@ -15054,7 +15054,7 @@ msgstr "Spelerevaluaties (plat)"
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:46
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:148
 msgid "Evaluation ID"
-msgstr ""
+msgstr "Evaluatie-ID"
 
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:42
 msgid "Player one-pager (A5 PDF)"
@@ -15087,7 +15087,7 @@ msgstr "Trainers- en stafoverzicht"
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:38
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:82
 msgid "Person ID"
-msgstr ""
+msgstr "Persoon-ID"
 
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:30
 #: src/Shared/Frontend/FrontendExportsView.php:167
@@ -15097,14 +15097,14 @@ msgstr "Team-activiteitenhistorie"
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:38
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:112
 msgid "Activity ID"
-msgstr ""
+msgstr "Activiteit-ID"
 
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:44
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:118
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:49
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:136
 msgid "Average rating"
-msgstr ""
+msgstr "Gemiddelde beoordeling"
 
 #: src/Modules/Export/Exporters/TeamIcalExporter.php:36
 #: src/Shared/Frontend/FrontendExportsView.php:219
@@ -15124,21 +15124,21 @@ msgstr "TalentTrack-activiteiten"
 
 #: src/Modules/Export/Exporters/TeamPlannerXlsxExporter.php:50
 msgid "Team planner (week-by-week)"
-msgstr ""
+msgstr "Teamplanner (week voor week)"
 
 #: src/Modules/Export/Exporters/TeamPlannerXlsxExporter.php:58
 msgid "Planner grid"
-msgstr ""
+msgstr "Plannerraster"
 
 #: src/Modules/Export/Exporters/TeamPlannerXlsxExporter.php:59
 msgid "Principles trained (last 8 weeks)"
-msgstr ""
+msgstr "Getrainde principes (laatste 8 weken)"
 
 #. translators: 1: team name, 2: date_from, 3: date_to
 #: src/Modules/Export/Exporters/TeamPlannerXlsxExporter.php:128
 #, php-format
 msgid "Planner — %1$s — %2$s to %3$s"
-msgstr ""
+msgstr "Planner — %1$s — %2$s tot %3$s"
 
 #. translators: 1: start of week, 2: end of week
 #. translators: 1: first day of the week, 2: last day.
@@ -15152,39 +15152,39 @@ msgstr "Week van %1$s — %2$s"
 #: src/Modules/Export/Exporters/TeamPlannerXlsxExporter.php:219
 #: src/Shared/Frontend/FrontendTeamDetailView.php:232
 msgid "Planner"
-msgstr ""
+msgstr "Planner"
 
 #: src/Modules/Export/Exporters/TeamPlannerXlsxExporter.php:228
 msgid "Principles 8w"
-msgstr ""
+msgstr "Principes 8w"
 
 #: src/Modules/Export/Exporters/TeamPlannerXlsxExporter.php:293
 msgid "Principle code"
-msgstr ""
+msgstr "Principecode"
 
 #: src/Modules/Export/Exporters/TeamPlannerXlsxExporter.php:294
 msgid "Hit count"
-msgstr ""
+msgstr "Aantal keer"
 
 #: src/Modules/Export/Exporters/TeamPlannerXlsxExporter.php:300
 msgid "No principles trained in the last 8 weeks."
-msgstr ""
+msgstr "Geen principes getraind in de laatste 8 weken."
 
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:111
 msgid "Team planning (PDF)"
-msgstr ""
+msgstr "Teamplanning (PDF)"
 
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:341
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:501
 #: src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php:202
 msgid "Team planning"
-msgstr ""
+msgstr "Teamplanning"
 
 #. translators: 1: from-date, 2: to-date
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:344
 #, php-format
 msgid "Schedule: %1$s – %2$s"
-msgstr ""
+msgstr "Schema: %1$s – %2$s"
 
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:350
 #: src/Modules/Export/Exporters/TeamPlanningPdfExporter.php:540
@@ -15253,7 +15253,7 @@ msgstr "Teamselectie + seizoensstatistieken"
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:47
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:134
 msgid "Attendance count"
-msgstr ""
+msgstr "Aantal aanwezigheden"
 
 #: src/Modules/Export/Rest/ExportRestController.php:89
 msgid "No such export."
@@ -15630,7 +15630,7 @@ msgstr "Doel 2"
 
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:846
 msgid "Doel 3"
-msgstr ""
+msgstr "Doel 3"
 
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:847
 msgid "Afsluiting (reflectie 1 ding om mee te nemen)"
@@ -16145,7 +16145,7 @@ msgstr "Je hebt geen toegang tot cohort-overgangen."
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:81
 msgid ""
 "Find every player whose journey contains a particular event in a date range."
-msgstr ""
+msgstr "Vind elke speler in wiens traject een bepaalde gebeurtenis voorkomt binnen een datumbereik."
 
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:90
 msgid "— Select an event type —"
@@ -16716,7 +16716,7 @@ msgstr ""
 msgid ""
 "Freemius checkout isn't wired up on this install yet — the button drops you "
 "on the Account tab where the upgrade flow will surface once configured."
-msgstr ""
+msgstr "De Freemius-afrekening is op deze installatie nog niet aangesloten — de knop brengt je naar het tabblad Account, waar de upgradeflow verschijnt zodra deze is geconfigureerd."
 
 #: src/Modules/License/Admin/AccountPage.php:617
 msgid "Usage vs free-tier caps"
@@ -16758,7 +16758,7 @@ msgstr "Trialstatus resetten (alleen dev)"
 msgid ""
 "Everything that's locked or limited on your install, in one place. Caps come "
 "from the Free-tier policy; features come from the plan you're on."
-msgstr ""
+msgstr "Alles wat op je installatie vergrendeld of beperkt is, op één plek. Rechten komen voort uit het Free-beleid; functies komen voort uit het abonnement dat je hebt."
 
 #: src/Modules/License/Admin/AccountPage.php:706
 msgid "Current plan"
@@ -16769,16 +16769,16 @@ msgstr "Huidig plan"
 #, php-format
 msgid "%d day left in trial"
 msgid_plural "%d days left in trial"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Nog %d dag in proefperiode"
+msgstr[1] "Nog %d dagen in proefperiode"
 
 #. translators: %d grace days
 #: src/Modules/License/Admin/AccountPage.php:720
 #, php-format
 msgid "Grace period — %d day until features lock"
 msgid_plural "Grace period — %d days until features lock"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Respijtperiode — nog %d dag tot functies vergrendelen"
+msgstr[1] "Respijtperiode — nog %d dagen tot functies vergrendelen"
 
 #: src/Modules/License/Admin/AccountPage.php:729
 msgid "Upgrade or start a trial"
@@ -16824,14 +16824,14 @@ msgstr "Functies per plan"
 #: src/Modules/License/Admin/AccountPage.php:766
 msgid ""
 "Tick = available on that plan. Your current effective plan is highlighted."
-msgstr ""
+msgstr "Vinkje = beschikbaar in dat abonnement. Je huidige effectieve abonnement is gemarkeerd."
 
 #: src/Modules/License/Admin/AccountPage.php:790
 msgid ""
 "Caps and features update immediately when you start a trial or upgrade. The "
 "trial gives Standard for 30 days, then a 7-day grace period at Free with the "
 "full data still readable."
-msgstr ""
+msgstr "Rechten en functies worden direct bijgewerkt wanneer je een proefperiode start of upgradet. De proefperiode geeft 30 dagen Standaard, gevolgd door een respijtperiode van 7 dagen op Free waarbij alle gegevens leesbaar blijven."
 
 #: src/Modules/License/Admin/AccountPage.php:808
 msgid "Player cards"
@@ -16976,7 +16976,7 @@ msgstr "Volgende dagelijkse cron"
 msgid ""
 "NOT scheduled — wp-cron is not registered. This is the most likely cause "
 "when an install never phones home."
-msgstr ""
+msgstr "NIET ingepland — wp-cron is niet geregistreerd. Dit is de meest waarschijnlijke oorzaak wanneer een installatie nooit naar huis belt."
 
 #: src/Modules/License/Admin/AccountPage.php:914
 msgid "Phone-home succeeded."
@@ -18898,7 +18898,7 @@ msgstr "Je hebt geen rechten om de methodologiebibliotheek te bekijken."
 
 #: src/Modules/Methodology/Frontend/MethodologyView.php:59
 msgid "Print referentiekaart"
-msgstr ""
+msgstr "Referentiekaart printen"
 
 #: src/Modules/Methodology/Frontend/MethodologyView.php:77
 msgid "Formaties"
@@ -19031,49 +19031,49 @@ msgstr "Keeper"
 
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:35
 msgid "Log in to print the methodology reference."
-msgstr ""
+msgstr "Log in om de methodiekreferentie te printen."
 
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:38
 msgid "You do not have access to print the methodology reference."
-msgstr ""
+msgstr "Je hebt geen toegang om de methodiekreferentie te printen."
 
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:47
 msgid "Pick at least one section to print."
-msgstr ""
+msgstr "Kies ten minste één sectie om te printen."
 
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:76
 msgid "Methodiek-referentie"
-msgstr ""
+msgstr "Methodiek-referentie"
 
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:112
 msgid "Aanvallen · opbouwen"
-msgstr ""
+msgstr "Aanvallen · opbouwen"
 
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:113
 msgid "Aanvallen · scoren"
-msgstr ""
+msgstr "Aanvallen · scoren"
 
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:114
 msgid "Omschakelen · na balverlies"
-msgstr ""
+msgstr "Omschakelen · na balverlies"
 
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:115
 msgid "Verdedigen · storen"
-msgstr ""
+msgstr "Verdedigen · storen"
 
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:116
 msgid "Verdedigen · doelpunten voorkomen"
-msgstr ""
+msgstr "Verdedigen · doelpunten voorkomen"
 
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:117
 msgid "Omschakelen · na balwinst"
-msgstr ""
+msgstr "Omschakelen · na balwinst"
 
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:128
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:195
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:266
 msgid "TalentTrack · methodiek-referentie"
-msgstr ""
+msgstr "TalentTrack · methodiek-referentie"
 
 #. translators: 1: academy name, 2: number of principles
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:132
@@ -19081,38 +19081,38 @@ msgstr ""
 msgid ""
 "%1$s — speelmodel · %2$d principes · gebruik de codes bij het opstellen van "
 "doelen."
-msgstr ""
+msgstr "%1$s — speelmodel · %2$d principes · gebruik de codes bij het opstellen van doelen."
 
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:137
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:204
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:275
 msgid "Eenmaal printen · lamineren · bewaren in de doelenmap"
-msgstr ""
+msgstr "Eenmaal printen · lamineren · bewaren in de doelenmap"
 
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:141
 msgid "Hoe je deze kaart gebruikt tijdens een doelenintake (1:1):"
-msgstr ""
+msgstr "Hoe je deze kaart gebruikt tijdens een doelenintake (1:1):"
 
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:143
 msgid "Bespreek het ontwikkelpunt van de speler in gewone taal."
-msgstr ""
+msgstr "Bespreek het ontwikkelpunt van de speler in gewone taal."
 
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:144
 msgid ""
 "Kies samen 1–2 principes die hieraan raken (de code komt op het "
 "intakeformulier)."
-msgstr ""
+msgstr "Kies samen 1–2 principes die hieraan raken (de code komt op het intakeformulier)."
 
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:145
 msgid ""
 "Ga daarna naar de voetbalhandelingen en kies 1–2 handelingen die — als ze "
 "beter worden — het principe versterken."
-msgstr ""
+msgstr "Ga daarna naar de voetbalhandelingen en kies 1–2 handelingen die — als ze beter worden — het principe versterken."
 
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:165
 #, php-format
 msgid "%1$s · Spelprincipes (%2$d) · v %3$s"
-msgstr ""
+msgstr "%1$s · Spelprincipes (%2$d) · v %3$s"
 
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:187
 #: src/Modules/Methodology/Repositories/FootballActionsRepository.php:28
@@ -19133,36 +19133,36 @@ msgstr "Ondersteunend"
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:199
 #, php-format
 msgid "De %d voetbalhandelingen die elke speler oefent — kies er 1–2 per doel."
-msgstr ""
+msgstr "De %d voetbalhandelingen die elke speler oefent — kies er 1–2 per doel."
 
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:227
 #, php-format
 msgid "%1$s · Voetbalhandelingen (%2$d) · v %3$s"
-msgstr ""
+msgstr "%1$s · Voetbalhandelingen (%2$d) · v %3$s"
 
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:255
 msgid "opbouwen"
-msgstr ""
+msgstr "opbouwen"
 
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:256
 msgid "scoren"
-msgstr ""
+msgstr "scoren"
 
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:257
 msgid "storen"
-msgstr ""
+msgstr "storen"
 
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:258
 msgid "doelpunten voorkomen"
-msgstr ""
+msgstr "doelpunten voorkomen"
 
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:259
 msgid "na balwinst"
-msgstr ""
+msgstr "na balwinst"
 
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:260
 msgid "na balverlies"
-msgstr ""
+msgstr "na balverlies"
 
 #. translators: 1: academy name, 2: number of learning goals
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:270
@@ -19170,11 +19170,11 @@ msgstr ""
 msgid ""
 "%1$s — %2$d leerdoelen · onderbouwen de spelprincipes met concrete "
 "deelvaardigheden."
-msgstr ""
+msgstr "%1$s — %2$d leerdoelen · onderbouwen de spelprincipes met concrete deelvaardigheden."
 
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:279
 msgid "Hoe je deze kaart gebruikt:"
-msgstr ""
+msgstr "Hoe je deze kaart gebruikt:"
 
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:280
 msgid ""
@@ -19182,12 +19182,12 @@ msgid ""
 "doelenintake kies je samen met de speler één deelvaardigheid om aan te "
 "werken — die wordt het \"waarom dit belangrijk is\" of \"hoe we dit meten\" "
 "op het intakeformulier."
-msgstr ""
+msgstr " elk leerdoel bestaat uit een titel + 4–5 deelvaardigheden. Tijdens de doelenintake kies je samen met de speler één deelvaardigheid om aan te werken — die wordt het \"waarom dit belangrijk is\" of \"hoe we dit meten\" op het intakeformulier."
 
 #: src/Modules/Methodology/Print/MethodologyReferencePrintRouter.php:319
 #, php-format
 msgid "%1$s · Leerdoelen (%2$d) · v %3$s"
-msgstr ""
+msgstr "%1$s · Leerdoelen (%2$d) · v %3$s"
 
 #: src/Modules/Mfa/Auth/RememberDeviceCookie.php:160
 msgid "Unnamed device"
@@ -20143,7 +20143,7 @@ msgstr "PDP hersteld"
 
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:68
 msgid "Action failed."
-msgstr ""
+msgstr "Actie mislukt."
 
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:81
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:96
@@ -21106,25 +21106,25 @@ msgstr "Ongeldige status. Gebruik open, afgerond of gearchiveerd."
 
 #: src/Modules/Pdp/Rest/PdpFilesRestController.php:732
 msgid "PDP file not found or already archived."
-msgstr ""
+msgstr "PDP-bestand niet gevonden of al gearchiveerd."
 
 #: src/Modules/Pdp/Rest/PdpFilesRestController.php:736
 msgid "You do not have permission to archive this PDP file."
-msgstr ""
+msgstr "Je hebt geen toestemming om dit PDP-bestand te archiveren."
 
 #: src/Modules/Pdp/Rest/PdpFilesRestController.php:740
 msgid "Could not archive the PDP file."
-msgstr ""
+msgstr "Kon het PDP-bestand niet archiveren."
 
 #: src/Modules/Pdp/Rest/PdpFilesRestController.php:768
 msgid "Could not restore the PDP file."
-msgstr ""
+msgstr "Kon het PDP-bestand niet herstellen."
 
 #: src/Modules/Pdp/Rest/PdpFilesRestController.php:803
 msgid ""
 "Could not permanently delete the PDP file. The transaction was rolled back; "
 "nothing changed."
-msgstr ""
+msgstr "Kon het PDP-bestand niet permanent verwijderen. De transactie is teruggedraaid; er is niets gewijzigd."
 
 #: src/Modules/Pdp/Rest/PdpVerdictsRestController.php:59
 msgid "You do not have access to this evidence packet."
@@ -21643,20 +21643,20 @@ msgstr "Vereiste permissie"
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:386
 #, php-format
 msgid "Visible to %s users by default."
-msgstr ""
+msgstr "Standaard zichtbaar voor %s-gebruikers."
 
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:387
 #, php-format
 msgid ""
 "Hidden — %1$s users lack `%2$s` by default. Grant via Authorization → Matrix "
 "or remove from this layout."
-msgstr ""
+msgstr "Verborgen — %1$s-gebruikers hebben standaard geen `%2$s`. Ken toe via Autorisatie → Matrix of verwijder uit deze indeling."
 
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:388
 msgid ""
 "Based on the persona's default WordPress role only — per-user matrix scopes "
 "can override this."
-msgstr ""
+msgstr "Uitsluitend gebaseerd op de standaard WordPress-rol van de persona — matrixbereiken per gebruiker kunnen dit overschrijven."
 
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:390
 msgid "Use widget default"
@@ -22048,7 +22048,7 @@ msgstr "POP gepland vs gevoerd (dit blok)"
 
 #: src/Modules/PersonaDashboard/Kpis/PdpVerdictsPending.php:19
 msgid "PDP files awaiting sign-off"
-msgstr ""
+msgstr "PDP-bestanden die wachten op accordering"
 
 #: src/Modules/PersonaDashboard/Kpis/PlayersAtRisk.php:17
 msgid "Players at risk"
@@ -22179,8 +22179,8 @@ msgstr "nooit"
 #, php-format
 msgid "%d day"
 msgid_plural "%d days"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%d dag"
+msgstr[1] "%d dagen"
 
 #: src/Modules/PersonaDashboard/TableSources/MyRecentProspectsSource.php:89
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:63
@@ -23272,7 +23272,7 @@ msgstr ""
 
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:222
 msgid "Export XLSX"
-msgstr ""
+msgstr "XLSX exporteren"
 
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:227
 msgid "Weekly PDF"
@@ -23490,14 +23490,14 @@ msgstr "Toon alle spelers (omzeil demo-filter) →"
 msgid ""
 "Showing every row in the database. Some rows may not be visible in the "
 "standard list because they have no demo tag."
-msgstr ""
+msgstr "Toont elke rij in de database. Sommige rijen zijn mogelijk niet zichtbaar in de standaardlijst omdat ze geen demolabel hebben."
 
 #: src/Modules/Players/Admin/PlayersPage.php:112
 msgid ""
 "Demo mode is active — the list below is filtered. Click to show every row, "
 "including untagged ones (useful when cleaning up wizard-created players from "
 "before the v3.85.1 fix)."
-msgstr ""
+msgstr "Demomodus is actief — de onderstaande lijst is gefilterd. Klik om elke rij te tonen, inclusief rijen zonder label (handig bij het opschonen van via de wizard aangemaakte spelers van vóór de fix in v3.85.1)."
 
 #: src/Modules/Players/Admin/PlayersPage.php:128
 #: src/Modules/Players/Admin/PlayersPage.php:442
@@ -24321,37 +24321,37 @@ msgstr "Afwijzingsbrief stage (met aanmoediging)"
 msgid ""
 "The familiar A4 report — rate card, headline numbers, breakdown, charts. "
 "Same as before."
-msgstr ""
+msgstr "Het vertrouwde A4-rapport — beoordelingskaart, kerncijfers, uitsplitsing, grafieken. Hetzelfde als voorheen."
 
 #: src/Modules/Reports/AudienceType.php:113
 msgid ""
 "Warm, plain-language summary of the past month. Strengths and one or two "
 "focus areas. No coach free-text by default."
-msgstr ""
+msgstr "Warme samenvatting in gewone taal van de afgelopen maand. Sterke punten en een of twee aandachtspunten. Standaard geen vrije tekst van de coach."
 
 #: src/Modules/Reports/AudienceType.php:115
 msgid ""
 "Formal, data-rich report for coaches. Specific numbers, trends, all "
 "categories, all sections. Coach notes included."
-msgstr ""
+msgstr "Formeel, gegevensrijk rapport voor coaches. Concrete cijfers, trends, alle categorieën, alle secties. Inclusief coachnotities."
 
 #: src/Modules/Reports/AudienceType.php:117
 msgid ""
 "A friendly, visual keepsake for the player. Top attributes and progress, no "
 "weak-spot callouts."
-msgstr ""
+msgstr "Een vriendelijk, visueel aandenken voor de speler. Beste eigenschappen en voortgang, zonder de zwakke punten te benoemen."
 
 #: src/Modules/Reports/AudienceType.php:119
 msgid ""
 "A privacy-aware report for an external scout. Photo and ratings included; "
 "contact details, full date of birth, and coach notes off by default."
-msgstr ""
+msgstr "Een privacybewust rapport voor een externe scout. Foto en beoordelingen inbegrepen; contactgegevens, volledige geboortedatum en coachnotities standaard uit."
 
 #: src/Modules/Reports/AudienceType.php:121
 msgid ""
 "Warm welcome letter offering a place after a successful trial. Optional "
 "acceptance slip on page 2."
-msgstr ""
+msgstr "Warme welkomstbrief met een aanbod voor een plek na een geslaagde stage. Optionele acceptatiestrook op pagina 2."
 
 #: src/Modules/Reports/AudienceType.php:123
 msgid "Respectful, definitive letter declining a place after the trial."
@@ -24362,7 +24362,7 @@ msgstr ""
 msgid ""
 "Respectful denial letter that names strengths and growth areas, and invites "
 "a re-application next season."
-msgstr ""
+msgstr "Respectvolle afwijzingsbrief die sterke punten en groeipunten benoemt en uitnodigt tot een nieuwe aanmelding volgend seizoen."
 
 #: src/Modules/Reports/Frontend/FrontendScoutAccessView.php:30
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:35
@@ -24389,19 +24389,19 @@ msgstr ""
 
 #: src/Modules/Reports/Frontend/FrontendScoutAccessView.php:67
 msgid "Scout access summary"
-msgstr ""
+msgstr "Samenvatting scouttoegang"
 
 #: src/Modules/Reports/Frontend/FrontendScoutAccessView.php:70
 msgid "Scout users"
-msgstr ""
+msgstr "Scoutgebruikers"
 
 #: src/Modules/Reports/Frontend/FrontendScoutAccessView.php:72
 msgid "Players covered"
-msgstr ""
+msgstr "Gedekte spelers"
 
 #: src/Modules/Reports/Frontend/FrontendScoutAccessView.php:73
 msgid "Players total"
-msgstr ""
+msgstr "Spelers totaal"
 
 #: src/Modules/Reports/Frontend/FrontendScoutAccessView.php:79
 msgid ""
@@ -24417,7 +24417,7 @@ msgstr "Nog geen spelers toegewezen."
 
 #: src/Modules/Reports/Frontend/FrontendScoutAccessView.php:120
 msgid "Pick a player to assign"
-msgstr ""
+msgstr "Kies een speler om toe te wijzen"
 
 #: src/Modules/Reports/Frontend/FrontendScoutAccessView.php:122
 msgid "— Pick a player to assign —"
@@ -24442,7 +24442,7 @@ msgstr ""
 
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:64
 msgid "Scout report totals"
-msgstr ""
+msgstr "Totalen scoutrapporten"
 
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:77
 msgid "No scout reports yet."
@@ -24496,11 +24496,11 @@ msgstr "Kies een speler om het scoutrapport te bekijken."
 
 #: src/Modules/Reports/Frontend/FrontendScoutMyPlayersView.php:60
 msgid "Assigned players summary"
-msgstr ""
+msgstr "Samenvatting toegewezen spelers"
 
 #: src/Modules/Reports/Frontend/FrontendScoutMyPlayersView.php:63
 msgid "Players assigned"
-msgstr ""
+msgstr "Toegewezen spelers"
 
 #: src/Modules/Reports/Frontend/FrontendScoutMyPlayersView.php:134
 msgid "Back to my players"
@@ -24763,7 +24763,7 @@ msgid ""
 "category, and role label. Edit offline (translations, sort order, "
 "descriptions, colors), then upload the edited file here to apply the changes "
 "back to this install."
-msgstr ""
+msgstr "Download een controlesjabloon met elke geseede opzoekwaarde, evaluatiecategorie en rollabel. Bewerk offline (vertalingen, sorteervolgorde, beschrijvingen, kleuren) en upload het bewerkte bestand hier om de wijzigingen terug toe te passen op deze installatie."
 
 #: src/Modules/SeedReview/Admin/SeedReviewPage.php:36
 msgid ""
@@ -24771,7 +24771,7 @@ msgid ""
 "Operators who want a label change to ship to other installs as code should "
 "work the change back into config/authorization_seed.php or the relevant "
 "migration manually."
-msgstr ""
+msgstr "Alleen live-DB-updates — de meegeleverde seed-PHP-bestanden worden niet herschreven. Operators die willen dat een labelwijziging als code naar andere installaties gaat, moeten de wijziging handmatig verwerken in config/authorization_seed.php of de betreffende migratie."
 
 #: src/Modules/SeedReview/Admin/SeedReviewPage.php:41
 msgid "Last import:"
@@ -24804,7 +24804,7 @@ msgid ""
 "The importer matches rows by their `id` column and applies in-place updates. "
 "Rows missing from the upload are left unchanged. Edits are audit-logged as "
 "`seed_review.row_updated`."
-msgstr ""
+msgstr "De importer koppelt rijen op hun `id`-kolom en past wijzigingen ter plekke toe. Rijen die in de upload ontbreken, blijven ongewijzigd. Bewerkingen worden in het auditlog vastgelegd als `seed_review.row_updated`."
 
 #: src/Modules/SeedReview/Admin/SeedReviewPage.php:85
 msgid "PhpSpreadsheet is not installed; seed review export is unavailable."
@@ -25004,7 +25004,7 @@ msgstr "Spond API-eindpunt teruggezet naar standaard."
 msgid ""
 "That URL does not look like a valid http(s) endpoint. Endpoint left "
 "unchanged."
-msgstr ""
+msgstr "Die URL ziet er niet uit als een geldig http(s)-eindpunt. Eindpunt ongewijzigd gelaten."
 
 #: src/Modules/Spond/SpondClient.php:83 src/Modules/Spond/SpondClient.php:177
 #: src/Modules/Spond/SpondClient.php:211
@@ -27918,60 +27918,60 @@ msgstr "De club"
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:163
 #, php-format
 msgid "Acceptatie van het aanbod voor %s"
-msgstr ""
+msgstr "Acceptatie van het aanbod voor %s"
 
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:164
 #, php-format
 msgid "Acceptance of trial offer for %s"
-msgstr ""
+msgstr "Acceptatie van het aanbod voor %s"
 
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:166
 #, php-format
 msgid "Ik bevestig de acceptatie van het aanbod voor het seizoen %s."
-msgstr ""
+msgstr "Ik bevestig de acceptatie van het aanbod voor het seizoen %s."
 
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:167
 #, php-format
 msgid "I confirm acceptance of the trial offer for the %s season."
-msgstr ""
+msgstr "Ik bevestig de acceptatie van het aanbod voor het seizoen %s."
 
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:169
 #, php-format
 msgid "Lever deze pagina aan bij %s vóór %s."
-msgstr ""
+msgstr "Lever deze pagina aan bij %s vóór %s."
 
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:169
 msgid "het secretariaat"
-msgstr ""
+msgstr "het secretariaat"
 
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:170
 #, php-format
 msgid "Please return this page to %s by %s."
-msgstr ""
+msgstr "Lever deze pagina aan bij %s vóór %s."
 
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:170
 msgid "the club office"
-msgstr ""
+msgstr "het clubsecretariaat"
 
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:180
 msgid "Naam ouder/verzorger:"
-msgstr ""
+msgstr "Naam ouder/verzorger:"
 
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:180
 msgid "Parent/guardian name:"
-msgstr ""
+msgstr "Naam ouder/verzorger:"
 
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:181
 msgid "Handtekening:"
-msgstr ""
+msgstr "Handtekening:"
 
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:181
 msgid "Signature:"
-msgstr ""
+msgstr "Handtekening:"
 
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:182
 msgid "Datum:"
-msgstr ""
+msgstr "Datum:"
 
 #. translators: 1: player name, 2: days remaining (negative if past)
 #: src/Modules/Trials/Reminders/TrialReminderScheduler.php:89
@@ -28003,12 +28003,12 @@ msgstr ""
 
 #: src/Modules/Trials/Repositories/TrialCasesRepository.php:53
 msgid "Extended"
-msgstr ""
+msgstr "Verlengd"
 
 #: src/Modules/Trials/Repositories/TrialCasesRepository.php:54
 #: src/Shared/Frontend/FrontendStandardReportsView.php:591
 msgid "Decided"
-msgstr ""
+msgstr "Beslist"
 
 #: src/Modules/Trials/Repositories/TrialCasesRepository.php:71
 msgid "Admit (offer a place)"
@@ -28025,15 +28025,15 @@ msgstr "Afwijzen (met aanmoediging om opnieuw te solliciteren)"
 
 #: src/Modules/Trials/Repositories/TrialCasesRepository.php:74
 msgid "Offered team position"
-msgstr ""
+msgstr "Teamplek aangeboden"
 
 #: src/Modules/Trials/Repositories/TrialCasesRepository.php:75
 msgid "Declined offered position"
-msgstr ""
+msgstr "Aangeboden plek afgewezen"
 
 #: src/Modules/Trials/Repositories/TrialCasesRepository.php:76
 msgid "Continue in trial group"
-msgstr ""
+msgstr "Doorgaan in stagegroep"
 
 #: src/Modules/Trials/Rest/TrialsRestController.php:166
 msgid "Could not create trial case."
@@ -30465,7 +30465,7 @@ msgstr "Algemene beoordeling (%1$s–%2$s)"
 
 #: src/Modules/Workflow/Forms/PostGameEvaluationForm.php:57
 msgid "Overall rating"
-msgstr ""
+msgstr "Algemene beoordeling"
 
 #: src/Modules/Workflow/Forms/PostGameEvaluationForm.php:65
 msgid "What went well"
@@ -32143,11 +32143,11 @@ msgstr "Terug naar Speler-aanwezigheid"
 
 #: src/Shared/Frontend/Components/BackLabelResolver.php:55
 msgid "Back to Minutes played"
-msgstr ""
+msgstr "Terug naar Gespeelde minuten"
 
 #: src/Shared/Frontend/Components/BackLabelResolver.php:56
 msgid "Back to Match executions"
-msgstr ""
+msgstr "Terug naar Wedstrijduitvoeringen"
 
 #: src/Shared/Frontend/Components/BackLabelResolver.php:57
 msgid "Back to People"
@@ -32362,7 +32362,7 @@ msgstr ""
 msgid ""
 "No TalentTrack record needed. Fill in the basics; the guest is recorded "
 "against this activity only."
-msgstr ""
+msgstr "Geen TalentTrack-record nodig. Vul de basisgegevens in; de gast wordt alleen bij deze activiteit geregistreerd."
 
 #: src/Shared/Frontend/Components/MultiSelectTagComponent.php:33
 msgid "Select"
@@ -32794,8 +32794,8 @@ msgstr "%1$d / %2$d aanwezig (%3$d%%)"
 #, php-format
 msgid "%d player on the current roster has no attendance row yet."
 msgid_plural "%d players on the current roster have no attendance row yet."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%d speler in de huidige selectie heeft nog geen aanwezigheidsrij."
+msgstr[1] "%d spelers in de huidige selectie hebben nog geen aanwezigheidsrij."
 
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:838
 msgid "No attendance recorded yet."
@@ -32913,7 +32913,7 @@ msgstr "Aanwezigheidstijd (optioneel)"
 msgid ""
 "Group by team function + team task; tick whichever apply. Leave all unticked "
 "to save without links."
-msgstr ""
+msgstr "Groepeer op teamfunctie + teamtaak; vink aan wat van toepassing is. Laat alles uitgevinkt om op te slaan zonder koppelingen."
 
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1983
 msgid "Update activity"
@@ -32952,7 +32952,7 @@ msgstr "Deze gast verwijderen?"
 
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2110
 msgid "Remove guest"
-msgstr ""
+msgstr "Gast verwijderen"
 
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2113
 msgid "Pick a player."
@@ -34417,7 +34417,7 @@ msgstr "Kan niet worden gewijzigd na aanmaken."
 #: src/Shared/Frontend/FrontendEvalCategoriesView.php:163
 msgid ""
 "Optional. Auto-generated from the label if empty. Cannot be changed later."
-msgstr ""
+msgstr "Optioneel. Wordt automatisch gegenereerd uit het label indien leeg. Kan later niet meer worden gewijzigd."
 
 #: src/Shared/Frontend/FrontendEvalCategoriesView.php:167
 msgid "Parent category"
@@ -35180,7 +35180,7 @@ msgstr "E-mail verstuurd. Een kopie is in het auditlogboek opgenomen."
 msgid ""
 "wp_mail returned false. The audit log captured the attempt; check the site's "
 "SMTP / mailer configuration."
-msgstr ""
+msgstr "wp_mail gaf false terug. Het auditlog heeft de poging vastgelegd; controleer de SMTP-/mailerconfiguratie van de site."
 
 #: src/Shared/Frontend/FrontendMailComposeView.php:121
 msgid "Subject"
@@ -35202,14 +35202,14 @@ msgstr "E-mail versturen"
 #, php-format
 msgid "%d pending migration."
 msgid_plural "%d pending migrations."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%d openstaande migratie."
+msgstr[1] "%d openstaande migraties."
 
 #: src/Shared/Frontend/FrontendMigrationsView.php:44
 msgid ""
 "Migrations are run from wp-admin to add a deliberate friction point on "
 "irreversible operations."
-msgstr ""
+msgstr "Migraties worden vanuit wp-admin uitgevoerd om een bewuste drempel in te bouwen bij onomkeerbare bewerkingen."
 
 #: src/Shared/Frontend/FrontendMigrationsView.php:47
 msgid "Open wp-admin to run them"
@@ -35223,7 +35223,7 @@ msgstr "Ontbrekende migratiebestanden"
 msgid ""
 "These migrations were applied previously but their source files are no "
 "longer on disk."
-msgstr ""
+msgstr "Deze migraties zijn eerder toegepast, maar hun bronbestanden staan niet meer op schijf."
 
 #. translators: 1: applied count, 2: pending count
 #: src/Shared/Frontend/FrontendMigrationsView.php:73
@@ -35931,7 +35931,7 @@ msgstr "Deze persoon archiveren? Een sitebeheerder kan ze later herstellen."
 
 #: src/Shared/Frontend/FrontendPersonDetailView.php:114
 msgid "Contact"
-msgstr ""
+msgstr "Contact"
 
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:91
 msgid "First-team"
@@ -36499,7 +36499,7 @@ msgid ""
 "the columns. Errors in individual rows do not abort the import — every row "
 "that succeeds is committed; rows that fail are reported and downloadable as "
 "a corrected-input CSV for retry."
-msgstr ""
+msgstr "Upload een CSV met één speler per rij. De eerste rij moet een koprij zijn die de kolommen benoemt. Fouten in afzonderlijke rijen breken de import niet af — elke rij die slaagt wordt vastgelegd; rijen die mislukken worden gerapporteerd en zijn te downloaden als een gecorrigeerde invoer-CSV om opnieuw te proberen."
 
 #: src/Shared/Frontend/FrontendPlayersCsvImportView.php:67
 msgid "Accepted columns"
@@ -36821,14 +36821,14 @@ msgid ""
 "Average rating per team across main categories, computed from all "
 "evaluations of players currently assigned to each team. Archived rows are "
 "excluded."
-msgstr ""
+msgstr "Gemiddelde beoordeling per team over de hoofdcategorieën, berekend uit alle evaluaties van spelers die momenteel aan elk team zijn toegewezen. Gearchiveerde rijen zijn uitgesloten."
 
 #. translators: %d is number of days
 #: src/Shared/Frontend/FrontendReportDetailView.php:153
 #, php-format
 msgid ""
 "Evaluations saved per coach in the last %d days. Archived rows excluded."
-msgstr ""
+msgstr "Per coach opgeslagen evaluaties in de laatste %d dagen. Gearchiveerde rijen uitgesloten."
 
 # v3.91.5 — Reports launcher tile descriptions
 #: src/Shared/Frontend/FrontendReportsLauncherView.php:72
@@ -36892,13 +36892,13 @@ msgstr ""
 
 #: src/Shared/Frontend/FrontendReportsLauncherView.php:132
 msgid "Minutes played per team"
-msgstr ""
+msgstr "Gespeelde minuten per team"
 
 #: src/Shared/Frontend/FrontendReportsLauncherView.php:133
 msgid ""
 "Per-player minutes for a team's matches in a window, split by match type "
 "(League / Cup / Friendly) with starts / subs / % available."
-msgstr ""
+msgstr "Minuten per speler voor de wedstrijden van een team binnen een venster, opgesplitst naar wedstrijdtype (Competitie / Beker / Vriendschappelijk) met basisplaatsen / wissels / % beschikbaar."
 
 #: src/Shared/Frontend/FrontendReportsLauncherView.php:138
 #: src/Shared/Frontend/FrontendStandardReportsView.php:394
@@ -37167,7 +37167,7 @@ msgstr "Rollen & rechten"
 msgid ""
 "Reference for the eight TalentTrack roles. Editing individual capabilities "
 "is done in wp-admin where the existing grant/revoke UI lives."
-msgstr ""
+msgstr "Referentie voor de acht TalentTrack-rollen. Het bewerken van afzonderlijke rechten gebeurt in wp-admin, waar de bestaande toekennen/intrekken-interface staat."
 
 #: src/Shared/Frontend/FrontendRolesView.php:44
 msgid "Edit capabilities in wp-admin"
@@ -37218,14 +37218,14 @@ msgstr ""
 msgid ""
 "Read-only across players + teams + reports. Used for external scouts "
 "evaluating prospects without write access to the academy's own data."
-msgstr ""
+msgstr "Alleen-lezen over spelers + teams + rapporten. Gebruikt voor externe scouts die prospects beoordelen zonder schrijftoegang tot de eigen gegevens van de academie."
 
 #: src/Shared/Frontend/FrontendRolesView.php:78
 msgid ""
 "Generic non-coach staff (physio, manager, kit). Read-only on most surfaces. "
 "Specific functional roles on specific teams are assigned via Functional "
 "Roles, separate from this WP role."
-msgstr ""
+msgstr "Algemene niet-coachstaf (fysio, manager, materiaal). Op de meeste schermen alleen-lezen. Specifieke functionele rollen op specifieke teams worden toegekend via Functionele rollen, los van deze WP-rol."
 
 #: src/Shared/Frontend/FrontendRolesView.php:82
 msgid ""
@@ -37475,13 +37475,13 @@ msgstr "Gesorteerd op gemiddelde rating, hoog naar laag."
 
 #: src/Shared/Frontend/FrontendStandardReportsView.php:472
 msgid "Season summary"
-msgstr ""
+msgstr "Seizoenssamenvatting"
 
 #: src/Shared/Frontend/FrontendStandardReportsView.php:473
 msgid ""
 "This academy-wide summary is only available to Head of Development and "
 "academy admins."
-msgstr ""
+msgstr "Deze academiebrede samenvatting is alleen beschikbaar voor het Hoofd Opleiding en academiebeheerders."
 
 #: src/Shared/Frontend/FrontendStandardReportsView.php:495
 msgid "Academy-wide signals over the last 12 months"
@@ -37510,13 +37510,13 @@ msgstr "Per team"
 
 #: src/Shared/Frontend/FrontendStandardReportsView.php:546
 msgid "Season trial funnel"
-msgstr ""
+msgstr "Stagefunnel seizoen"
 
 #: src/Shared/Frontend/FrontendStandardReportsView.php:547
 msgid ""
 "This academy-wide funnel report is only available to Head of Development and "
 "academy admins."
-msgstr ""
+msgstr "Dit academiebrede funnelrapport is alleen beschikbaar voor het Hoofd Opleiding en academiebeheerders."
 
 #: src/Shared/Frontend/FrontendStandardReportsView.php:584
 msgid "Trial funnel — per scout, per period"
@@ -37560,11 +37560,11 @@ msgstr "Dossiers"
 
 #: src/Shared/Frontend/FrontendStandardReportsView.php:626
 msgid "Pick a scout from the Reports launcher."
-msgstr ""
+msgstr "Kies een scout in de Rapporten-launcher."
 
 #: src/Shared/Frontend/FrontendStandardReportsView.php:635
 msgid "Viewing another scout’s report card requires academy-wide access."
-msgstr ""
+msgstr "Het bekijken van de rapportkaart van een andere scout vereist academiebrede toegang."
 
 #: src/Shared/Frontend/FrontendStandardReportsView.php:640
 #, php-format
@@ -37739,62 +37739,62 @@ msgstr "Kies een team"
 #: src/Shared/Frontend/FrontendTeamBehaviourCaptureView.php:67
 #: src/Shared/Frontend/FrontendTeamDetailView.php:465
 msgid "Bulk-record behaviour"
-msgstr ""
+msgstr "Gedrag in bulk vastleggen"
 
 #: src/Shared/Frontend/FrontendTeamBehaviourCaptureView.php:51
 msgid "You do not have permission to record behaviour ratings."
-msgstr ""
+msgstr "Je hebt geen toestemming om gedragsbeoordelingen vast te leggen."
 
 #: src/Shared/Frontend/FrontendTeamBehaviourCaptureView.php:56
 msgid ""
 "A team is required. Click \"Bulk-record behaviour\" from a team detail page."
-msgstr ""
+msgstr "Een team is verplicht. Klik op \"Gedrag in bulk vastleggen\" op een teamdetailpagina."
 
 #: src/Shared/Frontend/FrontendTeamBehaviourCaptureView.php:68
 msgid "You do not have access to this team."
-msgstr ""
+msgstr "Je hebt geen toegang tot dit team."
 
 #. translators: %s = team name
 #: src/Shared/Frontend/FrontendTeamBehaviourCaptureView.php:103
 #, php-format
 msgid "Bulk-record behaviour — %s"
-msgstr ""
+msgstr "Gedrag in bulk vastleggen — %s"
 
 #: src/Shared/Frontend/FrontendTeamBehaviourCaptureView.php:112
 msgid "No active players on this team yet."
-msgstr ""
+msgstr "Nog geen actieve spelers in dit team."
 
 #: src/Shared/Frontend/FrontendTeamBehaviourCaptureView.php:122
 msgid ""
 "Tie behaviour ratings to a single activity. Leave a player blank to skip — "
 "only filled-in rows are saved."
-msgstr ""
+msgstr "Koppel gedragsbeoordelingen aan één activiteit. Laat een speler leeg om over te slaan — alleen ingevulde rijen worden opgeslagen."
 
 #: src/Shared/Frontend/FrontendTeamBehaviourCaptureView.php:128
 msgid "Related activity"
-msgstr ""
+msgstr "Gerelateerde activiteit"
 
 #: src/Shared/Frontend/FrontendTeamBehaviourCaptureView.php:187
 msgid "Save all ratings"
-msgstr ""
+msgstr "Alle beoordelingen opslaan"
 
 #. translators: 1: min, 2: max
 #: src/Shared/Frontend/FrontendTeamBehaviourCaptureView.php:221
 #, php-format
 msgid "Rating must be between %1$s and %2$s."
-msgstr ""
+msgstr "Beoordeling moet tussen %1$s en %2$s liggen."
 
 #: src/Shared/Frontend/FrontendTeamBehaviourCaptureView.php:239
 msgid "No ratings entered. Fill in at least one row before saving."
-msgstr ""
+msgstr "Geen beoordelingen ingevoerd. Vul ten minste één rij in voordat je opslaat."
 
 #. translators: %d: number of ratings recorded
 #: src/Shared/Frontend/FrontendTeamBehaviourCaptureView.php:244
 #, php-format
 msgid "%d behaviour rating recorded."
 msgid_plural "%d behaviour ratings recorded."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%d gedragsbeoordeling vastgelegd."
+msgstr[1] "%d gedragsbeoordelingen vastgelegd."
 
 #: src/Shared/Frontend/FrontendTeamDetailView.php:59
 msgid "You do not have permission to view team details."
@@ -37806,7 +37806,7 @@ msgstr "Dat team is niet meer beschikbaar."
 
 #: src/Shared/Frontend/FrontendTeamDetailView.php:255
 msgid "Print seizoens-intakes"
-msgstr ""
+msgstr "Seizoensintakes printen"
 
 #: src/Shared/Frontend/FrontendTeamDetailView.php:261
 msgid "Customize"
@@ -37987,21 +37987,21 @@ msgstr "Team-toewijzingen beheren"
 #: src/Shared/Frontend/FrontendTeamsManageView.php:480
 #: src/Shared/Modules/ModuleMetadata.php:215
 msgid "Team development"
-msgstr ""
+msgstr "Teamontwikkeling"
 
 #: src/Shared/Frontend/FrontendTeamsManageView.php:485
 msgid ""
 "Formation board with auto-suggested XI, fit scores, depth chart, link "
 "chemistry, and pairings."
-msgstr ""
+msgstr "Opstellingsbord met automatisch voorgestelde basiself, fitscores, dieptekaart, linkchemie en koppels."
 
 #: src/Shared/Frontend/FrontendTeamsManageView.php:488
 msgid "Team blueprints"
-msgstr ""
+msgstr "Teamblauwdrukken"
 
 #: src/Shared/Frontend/FrontendTeamsManageView.php:489
 msgid "Saved match-day lineups and squad plans for this team."
-msgstr ""
+msgstr "Opgeslagen wedstrijdopstellingen en selectieplannen voor dit team."
 
 #: src/Shared/Frontend/FrontendTestTrainingsView.php:35
 msgid "You do not have permission to create test trainings."
@@ -38487,7 +38487,7 @@ msgstr "Je hebt geen rechten voor het oudergesprek-scherm."
 #: src/Shared/Frontend/FrontendTrialParentMeetingView.php:52
 msgid ""
 "Parent-meeting mode is only available after a decision has been recorded."
-msgstr ""
+msgstr "De oudergespreksmodus is pas beschikbaar nadat er een beslissing is vastgelegd."
 
 #: src/Shared/Frontend/FrontendTrialParentMeetingView.php:84
 msgid "We are offering a place"
@@ -38596,8 +38596,8 @@ msgstr "Nog geen stagedossiers die aan deze filters voldoen."
 #, php-format
 msgid "%d staff"
 msgid_plural "%d staff"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "%d staflid"
+msgstr[1] "%d stafleden"
 
 #: src/Shared/Frontend/FrontendTrialsManageView.php:308
 msgid "Existing player"
@@ -38878,7 +38878,7 @@ msgstr "Wizard-stappen"
 #: src/Shared/Frontend/FrontendWizardView.php:744
 #, php-format
 msgid "Step %1$d of %2$d"
-msgstr ""
+msgstr "Stap %1$d van %2$d"
 
 #. translators: 1: step number, 2: step label, 3: state
 #: src/Shared/Frontend/FrontendWizardView.php:760
@@ -38889,7 +38889,7 @@ msgstr "Stap %1$d: %2$s (%3$s)"
 #: src/Shared/Frontend/FrontendWizardView.php:765
 #: src/Shared/Frontend/FrontendWizardView.php:774
 msgid "Not applicable"
-msgstr ""
+msgstr "Niet van toepassing"
 
 #: src/Shared/Frontend/FrontendWizardView.php:772
 msgid "You are here"
@@ -38910,11 +38910,11 @@ msgstr "Opslaan mislukt"
 
 #: src/Shared/Frontend/FrontendWizardView.php:851
 msgid "This field is required."
-msgstr ""
+msgstr "Dit veld is verplicht."
 
 #: src/Shared/Frontend/FrontendWizardView.php:852
 msgid "Fill in every required field to continue."
-msgstr ""
+msgstr "Vul elk verplicht veld in om door te gaan."
 
 #: src/Shared/Frontend/PlayerDashboardView.php:50
 msgid "Progress"
