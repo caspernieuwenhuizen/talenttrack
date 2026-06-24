@@ -29,6 +29,20 @@ class FrontendWorkflowConfigView extends FrontendViewBase {
     public const NONCE_ACTION = 'tt_workflow_config_save';
     public const NONCE_FIELD  = '_tt_workflow_config_nonce';
 
+    /**
+     * Enqueue the 2026 config stylesheet on top of the shared chrome.
+     * Depends on tt-frontend-app-chrome for the brand tokens.
+     */
+    protected static function enqueueAssets(): void {
+        parent::enqueueAssets();
+        wp_enqueue_style(
+            'tt-frontend-workflow-config',
+            TT_PLUGIN_URL . 'assets/css/frontend-workflow-config.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+    }
+
     public static function render( int $user_id ): void {
         $title = __( 'Workflow templates', 'talenttrack' );
 
@@ -78,30 +92,21 @@ class FrontendWorkflowConfigView extends FrontendViewBase {
         $current_policy = self::loadMinorsPolicy();
 
         ?>
-        <style>
-            .tt-wcfg-table { width: 100%; border-collapse: collapse; background:#fff; border:1px solid #e5e7ea; border-radius: 8px; overflow: hidden; margin-bottom: 24px; }
-            .tt-wcfg-table th, .tt-wcfg-table td { padding: 10px 12px; text-align: left; font-size: 13px; vertical-align: top; }
-            .tt-wcfg-table thead th { background: #f6f7f8; color: #5b6e75; font-weight: 600; border-bottom: 1px solid #e5e7ea; }
-            .tt-wcfg-table tbody tr + tr td { border-top: 1px solid #f1f3f4; }
-            .tt-wcfg-template-name { font-weight: 600; color: #1a1d21; }
-            .tt-wcfg-template-desc { font-size: 12px; color: #5b6e75; margin-top: 4px; }
-            .tt-wcfg-input { font-family: monospace; font-size: 12px; padding: 4px 6px; }
-            .tt-wcfg-policy { background:#fff; border:1px solid #e5e7ea; border-radius: 8px; padding: 16px; }
-        </style>
 
         <?php if ( $flash !== '' ) : ?>
-            <div class="tt-notice notice-success" style="background:#e9f5e9; border-left:4px solid #2c8a2c; padding:8px 12px; margin: 8px 0 16px;">
+            <div class="tt-wcfg-flash">
                 <?php echo esc_html( $flash ); ?>
             </div>
         <?php endif; ?>
 
-        <p style="color:#5b6e75; margin: 0 0 16px;">
+        <p class="tt-wcfg-intro">
             <?php esc_html_e( 'Turn templates on or off, and override how often they run + how long users have to act. Changes take effect on the next cron tick or trigger.', 'talenttrack' ); ?>
         </p>
 
         <form method="post" class="tt-workflow-config-form">
             <?php wp_nonce_field( self::NONCE_ACTION, self::NONCE_FIELD ); ?>
 
+            <div class="tt-wcfg-card">
             <table class="tt-wcfg-table">
                 <thead>
                     <tr>
@@ -146,7 +151,7 @@ class FrontendWorkflowConfigView extends FrontendViewBase {
                             <div class="tt-wcfg-template-desc"><?php echo esc_html( $template->description() ); ?></div>
                         </td>
                         <td>
-                            <label>
+                            <label class="tt-wcfg-toggle">
                                 <input type="checkbox"
                                        name="templates[<?php echo esc_attr( $key ); ?>][enabled]"
                                        value="1"
@@ -156,26 +161,23 @@ class FrontendWorkflowConfigView extends FrontendViewBase {
                         </td>
                         <td>
                             <?php if ( $cron_row !== null ) : ?>
-                                <input type="text" class="tt-wcfg-input"
+                                <input type="text" class="tt-wcfg-input tt-wcfg-input--cron"
                                        name="templates[<?php echo esc_attr( $key ); ?>][cadence]"
                                        value="<?php echo esc_attr( $current_cadence ); ?>"
-                                       placeholder="<?php echo esc_attr( (string) $cron_row['cron_expression'] ); ?>"
-                                       style="width: 140px;" />
+                                       placeholder="<?php echo esc_attr( (string) $cron_row['cron_expression'] ); ?>" />
                             <?php else : ?>
-                                <span style="color:#5b6e75; font-size: 12px;"><?php echo esc_html( $current_cadence ); ?></span>
+                                <span class="tt-wcfg-template-desc"><?php echo esc_html( $current_cadence ); ?></span>
                             <?php endif; ?>
                         </td>
                         <td>
-                            <input type="text" class="tt-wcfg-input"
+                            <input type="text" class="tt-wcfg-input tt-wcfg-input--deadline"
                                    name="templates[<?php echo esc_attr( $key ); ?>][deadline]"
                                    value="<?php echo esc_attr( $current_deadline ); ?>"
-                                   placeholder="<?php echo esc_attr( $template->defaultDeadlineOffset() ); ?>"
-                                   style="width: 120px;" />
+                                   placeholder="<?php echo esc_attr( $template->defaultDeadlineOffset() ); ?>" />
                         </td>
                         <td>
                             <select class="tt-wcfg-input"
-                                    name="templates[<?php echo esc_attr( $key ); ?>][dispatcher_chain]"
-                                    style="width: 240px;">
+                                    name="templates[<?php echo esc_attr( $key ); ?>][dispatcher_chain]">
                                 <?php foreach ( \TT\Modules\Push\DispatcherChain::presetLabels() as $value => $label ) : ?>
                                     <option value="<?php echo esc_attr( $value ); ?>" <?php selected( $current_chain, $value ); ?>>
                                         <?php echo esc_html( $label ); ?>
@@ -187,13 +189,14 @@ class FrontendWorkflowConfigView extends FrontendViewBase {
                 <?php endforeach; ?>
                 </tbody>
             </table>
+            </div>
 
             <div class="tt-wcfg-policy">
-                <h3 style="margin: 0 0 8px;"><?php esc_html_e( 'Minors assignment policy', 'talenttrack' ); ?></h3>
-                <p style="color:#5b6e75; margin: 0 0 12px; font-size: 13px;">
+                <h3><?php esc_html_e( 'Minors assignment policy', 'talenttrack' ); ?></h3>
+                <p class="tt-wcfg-policy-hint">
                     <?php esc_html_e( 'How tasks for under-18 players are routed. Affects new tasks only — existing open tasks keep their original assignee.', 'talenttrack' ); ?>
                 </p>
-                <select name="minors_policy" class="tt-wcfg-input" style="width: 320px;">
+                <select name="minors_policy" class="tt-wcfg-input">
                     <?php foreach ( self::policyOptions() as $value => $label ) : ?>
                         <option value="<?php echo esc_attr( $value ); ?>" <?php selected( $current_policy, $value ); ?>>
                             <?php echo esc_html( $label ); ?>
@@ -202,9 +205,9 @@ class FrontendWorkflowConfigView extends FrontendViewBase {
                 </select>
             </div>
 
-            <p style="margin-top: 18px;">
+            <p class="tt-wcfg-actions">
                 <button type="submit" name="tt_workflow_config_submit" value="1"
-                        class="button button-primary" style="padding:8px 18px;">
+                        class="tt-btn tt-btn-primary">
                     <?php esc_html_e( 'Save configuration', 'talenttrack' ); ?>
                 </button>
             </p>
@@ -237,11 +240,11 @@ class FrontendWorkflowConfigView extends FrontendViewBase {
         }
         if ( empty( $rows ) ) return;
 
-        echo '<h2 style="font-size:16px; margin: 28px 0 8px;">' . esc_html__( 'Chain steps', 'talenttrack' ) . '</h2>';
-        echo '<p style="color:#5b6e75; margin: 0 0 8px; font-size:13px;">'
+        echo '<h2 class="tt-wcfg-subhead">' . esc_html__( 'Chain steps', 'talenttrack' ) . '</h2>';
+        echo '<p class="tt-wcfg-subhint">'
             . esc_html__( 'When the parent task is completed, the engine spawns the listed follow-up template. Disabling the spawned template suppresses the chain step automatically.', 'talenttrack' )
             . '</p>';
-        echo '<table class="tt-wcfg-table"><thead><tr>';
+        echo '<div class="tt-wcfg-card"><table class="tt-wcfg-table"><thead><tr>';
         echo '<th>' . esc_html__( 'Parent template', 'talenttrack' ) . '</th>';
         echo '<th>' . esc_html__( 'Step id', 'talenttrack' ) . '</th>';
         echo '<th>' . esc_html__( 'Spawns', 'talenttrack' ) . '</th>';
@@ -255,7 +258,7 @@ class FrontendWorkflowConfigView extends FrontendViewBase {
             echo '<td>' . esc_html( (string) $r['description'] ) . '</td>';
             echo '</tr>';
         }
-        echo '</tbody></table>';
+        echo '</tbody></table></div>';
     }
 
     /**
@@ -266,8 +269,8 @@ class FrontendWorkflowConfigView extends FrontendViewBase {
         $counts = $log->counts();
         $recent = $log->listRecent( [], 25 );
 
-        echo '<h2 style="font-size:16px; margin: 28px 0 8px;">' . esc_html__( 'Event log', 'talenttrack' ) . '</h2>';
-        echo '<p style="color:#5b6e75; margin: 0 0 8px; font-size:13px;">'
+        echo '<h2 class="tt-wcfg-subhead">' . esc_html__( 'Event log', 'talenttrack' ) . '</h2>';
+        echo '<p class="tt-wcfg-subhint">'
             . esc_html( sprintf(
                 /* translators: 1: processed count 2: failed count */
                 __( 'Last 25 event firings. Processed: %1$d · Failed: %2$d. Use Retry on a failed row to re-run the dispatch.', 'talenttrack' ),
@@ -277,11 +280,11 @@ class FrontendWorkflowConfigView extends FrontendViewBase {
             . '</p>';
 
         if ( empty( $recent ) ) {
-            echo '<p style="color:#5b6e75;"><em>' . esc_html__( 'No events fired yet.', 'talenttrack' ) . '</em></p>';
+            echo '<p class="tt-wcfg-subhint"><em>' . esc_html__( 'No events fired yet.', 'talenttrack' ) . '</em></p>';
             return;
         }
 
-        echo '<table class="tt-wcfg-table"><thead><tr>';
+        echo '<div class="tt-wcfg-card"><table class="tt-wcfg-table"><thead><tr>';
         echo '<th>' . esc_html__( 'When', 'talenttrack' ) . '</th>';
         echo '<th>' . esc_html__( 'Event hook', 'talenttrack' ) . '</th>';
         echo '<th>' . esc_html__( 'Template', 'talenttrack' ) . '</th>';
@@ -293,24 +296,24 @@ class FrontendWorkflowConfigView extends FrontendViewBase {
 
         foreach ( $recent as $row ) {
             $status = (string) ( $row['status'] ?? '' );
-            $color = match ( $status ) {
-                EventLogRepository::STATUS_PROCESSED => '#2c8a2c',
-                EventLogRepository::STATUS_FAILED    => '#b32d2e',
-                default                              => '#5b6e75',
+            $status_class = match ( $status ) {
+                EventLogRepository::STATUS_PROCESSED => 'tt-wcfg-status--ok',
+                EventLogRepository::STATUS_FAILED    => 'tt-wcfg-status--fail',
+                default                              => '',
             };
             $created = (string) ( $row['created_at'] ?? '' );
             $tasks_created = json_decode( (string) ( $row['tasks_created'] ?? '[]' ), true );
             $task_count = is_array( $tasks_created ) ? count( $tasks_created ) : 0;
 
             echo '<tr>';
-            echo '<td style="font-family:monospace; font-size:12px;">' . esc_html( $created ) . '</td>';
+            echo '<td class="tt-wcfg-mono">' . esc_html( $created ) . '</td>';
             echo '<td><code>' . esc_html( (string) $row['event_hook'] ) . '</code></td>';
             echo '<td><code>' . esc_html( (string) $row['template_key'] ) . '</code></td>';
-            echo '<td style="color:' . esc_attr( $color ) . '; font-weight:600;">' . esc_html( $status ) . '</td>';
+            echo '<td class="' . esc_attr( $status_class ) . '">' . esc_html( $status ) . '</td>';
             echo '<td>' . (int) ( $row['retries'] ?? 0 ) . '</td>';
             echo '<td>';
             if ( $status === EventLogRepository::STATUS_FAILED ) {
-                echo '<span style="color:#b32d2e; font-size:12px;">' . esc_html( (string) ( $row['error_message'] ?? '' ) ) . '</span>';
+                echo '<span class="tt-wcfg-error">' . esc_html( (string) ( $row['error_message'] ?? '' ) ) . '</span>';
             } elseif ( $status === EventLogRepository::STATUS_PROCESSED ) {
                 echo esc_html( sprintf(
                     /* translators: %d task count */
@@ -325,7 +328,7 @@ class FrontendWorkflowConfigView extends FrontendViewBase {
                 <form method="post" style="display:inline;">
                     <?php wp_nonce_field( self::NONCE_ACTION, self::NONCE_FIELD ); ?>
                     <input type="hidden" name="tt_workflow_replay_log_id" value="<?php echo (int) $row['id']; ?>" />
-                    <button type="submit" class="button button-secondary" style="padding:2px 8px; font-size:12px;">
+                    <button type="submit" class="tt-wcfg-retry">
                         <?php esc_html_e( 'Retry', 'talenttrack' ); ?>
                     </button>
                 </form>
@@ -334,7 +337,7 @@ class FrontendWorkflowConfigView extends FrontendViewBase {
             echo '</td>';
             echo '</tr>';
         }
-        echo '</tbody></table>';
+        echo '</tbody></table></div>';
     }
 
     /** @param array<string,mixed> $post */

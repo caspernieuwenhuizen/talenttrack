@@ -5,6 +5,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\StaffDevelopment\Repositories\StaffCertificationsRepository;
+use TT\Shared\Frontend\Components\BackLink;
+use TT\Shared\Frontend\Components\FormSaveButton;
+use TT\Shared\Frontend\Components\FrontendAppChrome;
+use TT\Shared\Frontend\Components\RecordLink;
 use TT\Shared\Frontend\FrontendViewBase;
 
 /**
@@ -15,6 +19,22 @@ use TT\Shared\Frontend\FrontendViewBase;
  * drives the workflow template's threshold logic.
  */
 class FrontendMyStaffCertificationsView extends FrontendViewBase {
+
+    /**
+     * B4 2026 restyle — enqueue the shared staff-development card
+     * stylesheet on top of the shared frontend assets. Loaded here (not in
+     * FrontendViewBase) because only the staff-development surfaces use it;
+     * depends on the global app-chrome sheet for the shared brand tokens.
+     */
+    protected static function enqueueAssets(): void {
+        parent::enqueueAssets();
+        wp_enqueue_style(
+            'tt-frontend-staff-development',
+            TT_PLUGIN_URL . 'assets/css/frontend-staff-development.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+    }
 
     public static function render( int $user_id, bool $is_admin ): void {
         $title = __( 'My certifications', 'talenttrack' );
@@ -44,33 +64,47 @@ class FrontendMyStaffCertificationsView extends FrontendViewBase {
         $type_by_id = [];
         foreach ( $types as $t ) { $type_by_id[ (int) $t->id ] = (string) $t->name; }
 
+        // KPI strip — counts derived from the already-fetched list (no new
+        // query). "Expiring soon" = bucket within 90 days (gold or red).
+        $total    = count( $rows );
+        $expiring = 0;
+        foreach ( $rows as $r ) {
+            $bucket = self::expiryBucket( $r->expires_on )['key'];
+            if ( $bucket === 'red' || $bucket === 'gold' ) $expiring++;
+        }
+        echo '<div class="tt-sdev-kpis">';
+        echo FrontendAppChrome::kpiTile( [ 'label' => __( 'Certifications', 'talenttrack' ), 'value' => (string) $total ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — helper escapes its own output.
+        echo FrontendAppChrome::kpiTile( [ 'label' => __( 'Expiring soon', 'talenttrack' ), 'value' => (string) $expiring, 'flag' => $expiring > 0 ? 'red' : '' ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — helper escapes its own output.
+        echo '</div>';
+
         if ( ! $rows ) {
-            echo '<p>' . esc_html__( 'No certifications on file yet.', 'talenttrack' ) . '</p>';
+            echo '<p class="tt-sdev-empty">' . esc_html__( 'No certifications on file yet.', 'talenttrack' ) . '</p>';
         } else {
-            echo '<table class="tt-table" style="width:100%;"><thead><tr>';
-            echo '<th>' . esc_html__( 'Certification', 'talenttrack' ) . '</th>';
-            echo '<th>' . esc_html__( 'Issuer', 'talenttrack' ) . '</th>';
-            echo '<th>' . esc_html__( 'Issued', 'talenttrack' ) . '</th>';
-            echo '<th>' . esc_html__( 'Expires', 'talenttrack' ) . '</th>';
-            echo '<th>' . esc_html__( 'Document', 'talenttrack' ) . '</th>';
-            echo '</tr></thead><tbody>';
+            echo '<ul class="tt-sdev-list">';
             foreach ( $rows as $r ) {
                 $name   = (string) ( $type_by_id[ (int) $r->cert_type_lookup_id ] ?? '#' . (int) $r->cert_type_lookup_id );
-                $expires_label = $r->expires_on ? esc_html( (string) $r->expires_on ) : esc_html__( 'no expiry', 'talenttrack' );
-                $pill = self::expiryPill( $r->expires_on );
-                echo '<tr>';
-                echo '<td>' . esc_html( $name ) . '</td>';
-                echo '<td>' . esc_html( (string) ( $r->issuer ?? '—' ) ) . '</td>';
-                echo '<td>' . esc_html( (string) $r->issued_on ) . '</td>';
-                echo '<td>' . $pill . ' ' . $expires_label . '</td>';
-                echo '<td>' . ( $r->document_url ? '<a href="' . esc_url( (string) $r->document_url ) . '" target="_blank" rel="noopener">' . esc_html__( 'open', 'talenttrack' ) . '</a>' : '—' ) . '</td>';
-                echo '</tr>';
+                $expires_label = $r->expires_on ? (string) $r->expires_on : __( 'no expiry', 'talenttrack' );
+                $bucket = self::expiryBucket( $r->expires_on );
+                echo '<li class="tt-sdev-card">';
+                echo '<div class="tt-sdev-card__head">';
+                echo '<h4 class="tt-sdev-card__title">' . esc_html( $name ) . '</h4>';
+                echo '<span class="tt-sdev-chip tt-sdev-chip--' . esc_attr( $bucket['key'] ) . '">' . esc_html( $bucket['label'] ) . '</span>';
+                echo '</div>';
+                echo '<div class="tt-sdev-card__meta">';
+                echo '<span>' . esc_html__( 'Issuer', 'talenttrack' ) . ': <b>' . esc_html( (string) ( $r->issuer ?? '—' ) ) . '</b></span>';
+                echo '<span>' . esc_html__( 'Issued', 'talenttrack' ) . ': <b>' . esc_html( (string) $r->issued_on ) . '</b></span>';
+                echo '<span>' . esc_html__( 'Expires', 'talenttrack' ) . ': <b>' . esc_html( $expires_label ) . '</b></span>';
+                echo '</div>';
+                if ( $r->document_url ) {
+                    echo '<a class="tt-sdev-card__doc" href="' . esc_url( (string) $r->document_url ) . '" target="_blank" rel="noopener">' . esc_html__( 'Open document', 'talenttrack' ) . '</a>';
+                }
+                echo '</li>';
             }
-            echo '</tbody></table>';
+            echo '</ul>';
         }
 
-        echo '<h3 style="margin-top:24px;">' . esc_html__( 'Add a certification', 'talenttrack' ) . '</h3>';
-        echo '<form method="post" class="tt-form" style="max-width:720px;">';
+        echo '<h3 class="tt-sdev-section-title">' . esc_html__( 'Add a certification', 'talenttrack' ) . '</h3>';
+        echo '<form method="post" class="tt-form tt-sdev-form">';
         wp_nonce_field( 'tt_staff_cert_save', 'tt_staff_cert_nonce' );
         echo '<div class="tt-field"><label class="tt-field-label tt-field-required" for="tt-staff-cert-type">' . esc_html__( 'Certification', 'talenttrack' ) . '</label>';
         echo '<select id="tt-staff-cert-type" name="cert_type_lookup_id" class="tt-input" required>';
@@ -90,24 +124,40 @@ class FrontendMyStaffCertificationsView extends FrontendViewBase {
         echo '<input type="url" inputmode="url" id="tt-staff-cert-doc" name="document_url" class="tt-input" placeholder="https://…"></div>';
         echo '</div>';
 
-        echo '<div class="tt-form-actions"><button type="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Add certification', 'talenttrack' ) . '</button></div>';
+        // CLAUDE.md §6 — Save + Cancel on a record-creating form. Cancel
+        // returns to this same list view; a tt_back hint on the entry URL
+        // overrides that destination.
+        $back       = BackLink::resolve();
+        $cancel_url = $back !== null
+            ? $back['url']
+            : add_query_arg( 'tt_view', 'my-staff-certifications', RecordLink::dashboardUrl() );
+        echo FormSaveButton::render( [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — helper escapes its own output.
+            'label'      => __( 'Add certification', 'talenttrack' ),
+            'cancel_url' => $cancel_url,
+        ] );
         echo '</form>';
     }
 
-    private static function expiryPill( ?string $expires_on ): string {
+    /**
+     * Resolve an expiry date into a chip bucket: a CSS-class key
+     * (green/gold/red/ghost) + a translated label. The colour ladder
+     * matches the workflow template's threshold logic: OK > 90 days,
+     * gold within 90, red within 30, ghost for expired / no expiry.
+     *
+     * @return array{key:string,label:string}
+     */
+    private static function expiryBucket( ?string $expires_on ): array {
         if ( $expires_on === null || $expires_on === '' ) {
-            $bg = '#e5e7ea'; $fg = '#5b6470'; $label = __( 'no expiry', 'talenttrack' );
-        } else {
-            $today = strtotime( gmdate( 'Y-m-d' ) );
-            $exp   = strtotime( $expires_on );
-            if ( $exp === false ) $exp = $today;
-            $days = (int) round( ( $exp - $today ) / 86400 );
-            if ( $days < 0 )       { $bg = '#e5e7ea'; $fg = '#5b6470'; $label = __( 'expired', 'talenttrack' ); }
-            elseif ( $days <= 30 ) { $bg = '#fde2e2'; $fg = '#a02828'; $label = __( '< 30 days', 'talenttrack' ); }
-            elseif ( $days <= 90 ) { $bg = '#fdf3d8'; $fg = '#7a5a05'; $label = __( '< 90 days', 'talenttrack' ); }
-            else                   { $bg = '#dff5e1'; $fg = '#1a6b2c'; $label = __( 'OK', 'talenttrack' ); }
+            return [ 'key' => 'ghost', 'label' => __( 'no expiry', 'talenttrack' ) ];
         }
-        return '<span style="display:inline-block; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:700; background:' . esc_attr( $bg ) . '; color:' . esc_attr( $fg ) . ';">' . esc_html( $label ) . '</span>';
+        $today = strtotime( gmdate( 'Y-m-d' ) );
+        $exp   = strtotime( $expires_on );
+        if ( $exp === false ) $exp = $today;
+        $days = (int) round( ( $exp - $today ) / 86400 );
+        if ( $days < 0 )       return [ 'key' => 'ghost', 'label' => __( 'expired', 'talenttrack' ) ];
+        if ( $days <= 30 )     return [ 'key' => 'red',   'label' => __( '< 30 days', 'talenttrack' ) ];
+        if ( $days <= 90 )     return [ 'key' => 'gold',  'label' => __( '< 90 days', 'talenttrack' ) ];
+        return [ 'key' => 'green', 'label' => __( 'OK', 'talenttrack' ) ];
     }
 
     private static function handlePost( int $person_id ): void {

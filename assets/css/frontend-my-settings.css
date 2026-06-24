@@ -1,0 +1,25 @@
+/*
+ * frontend-my-settings.css — 2026 restyle of the account settings
+ * surface (FrontendMySettingsView, #1695 / B4). Two stacked form
+ * cards (Profile, Change password). This is a multi-form settings
+ * panel (CLAUDE.md §6(a) exempt from Cancel) — Save-only is correct;
+ * the restyle is visual only and leaves the form mechanics untouched.
+ * Mobile-first per CLAUDE.md §2; tokens only; scoped under
+ * .tt-dashboard. App-chrome loads first.
+ */
+
+.tt-dashboard .tt-msettings { max-width: 560px; }
+
+.tt-dashboard .tt-msettings-card {
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-md);
+    padding: var(--tt-sp-5, 20px);
+    margin-bottom: var(--tt-sp-4, 16px);
+}
+.tt-dashboard .tt-msettings-card h3 {
+    margin: 0 0 var(--tt-sp-3, 12px);
+    font-size: var(--tt-fs-h3, 1.25rem);
+    color: var(--tt-ink, #0e1a14);
+}

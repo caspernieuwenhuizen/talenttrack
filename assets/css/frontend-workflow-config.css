@@ -1,0 +1,169 @@
+/*
+ * frontend-workflow-config.css — 2026 restyle of the workflow template
+ * configuration surface (FrontendWorkflowConfigView, #1695 / B4).
+ * Card-wrapped tables, a policy card, and the chain-steps / event-log
+ * tables. This is a multi-form settings panel (CLAUDE.md §6(a) exempt
+ * from Cancel) — the restyle is visual only; the form mechanics are
+ * untouched. Mobile-first per CLAUDE.md §2; tables stay scrollable
+ * inside their card so the page never widens past the viewport.
+ * Tokens only; scoped under .tt-dashboard. App-chrome loads first.
+ */
+
+.tt-dashboard .tt-wcfg-intro {
+    color: var(--tt-muted, #6a6d66);
+    margin: 0 0 var(--tt-sp-4, 16px);
+}
+
+.tt-dashboard .tt-wcfg-flash {
+    background: var(--tt-success-subtle, #dff5e1);
+    border-left: 4px solid var(--tt-success, #2f9e5e);
+    border-radius: var(--tt-radius, 8px);
+    padding: var(--tt-sp-2, 8px) var(--tt-sp-3, 12px);
+    margin: 0 0 var(--tt-sp-4, 16px);
+    color: var(--tt-ink, #0e1a14);
+}
+
+/* ---- Card-wrapped table -------------------------------------------- */
+.tt-dashboard .tt-wcfg-card {
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-md);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: var(--tt-sp-6, 24px);
+}
+.tt-dashboard .tt-wcfg-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 640px;
+}
+.tt-dashboard .tt-wcfg-table th,
+.tt-dashboard .tt-wcfg-table td {
+    padding: var(--tt-sp-3, 12px) var(--tt-sp-4, 16px);
+    text-align: left;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    vertical-align: top;
+}
+.tt-dashboard .tt-wcfg-table thead th {
+    background: var(--tt-bg-soft, #f4f6f3);
+    color: var(--tt-muted, #6a6d66);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 0.72rem;
+    border-bottom: 1px solid var(--tt-line, #e3e6e1);
+}
+.tt-dashboard .tt-wcfg-table tbody tr + tr td {
+    border-top: 1px solid var(--tt-line-soft, #eef0ec);
+}
+.tt-dashboard .tt-wcfg-template-name {
+    font-weight: 700;
+    color: var(--tt-ink, #0e1a14);
+}
+.tt-dashboard .tt-wcfg-template-desc {
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-muted, #6a6d66);
+    margin-top: var(--tt-sp-1, 4px);
+}
+.tt-dashboard .tt-wcfg-input {
+    font-size: 16px;
+    min-height: 48px;
+    padding: var(--tt-sp-2, 8px) var(--tt-sp-3, 12px);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-paper, #fff);
+    color: var(--tt-ink, #0e1a14);
+    max-width: 100%;
+}
+.tt-dashboard .tt-wcfg-input--cron,
+.tt-dashboard .tt-wcfg-input--deadline {
+    font-family: monospace;
+}
+.tt-dashboard .tt-wcfg-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--tt-sp-2, 8px);
+    min-height: 48px;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-ink, #0e1a14);
+}
+.tt-dashboard .tt-wcfg-toggle input { width: 22px; height: 22px; }
+
+.tt-dashboard .tt-wcfg-help {
+    display: inline-grid;
+    place-items: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--tt-bg-soft, #f4f6f3);
+    color: var(--tt-muted, #6a6d66);
+    font-size: 0.7rem;
+    font-weight: 700;
+    cursor: help;
+}
+
+/* ---- Policy card --------------------------------------------------- */
+.tt-dashboard .tt-wcfg-policy {
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-md);
+    padding: var(--tt-sp-4, 16px);
+}
+.tt-dashboard .tt-wcfg-policy h3 {
+    margin: 0 0 var(--tt-sp-2, 8px);
+    color: var(--tt-ink, #0e1a14);
+}
+.tt-dashboard .tt-wcfg-policy-hint {
+    color: var(--tt-muted, #6a6d66);
+    margin: 0 0 var(--tt-sp-3, 12px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+}
+.tt-dashboard .tt-wcfg-policy select { width: 100%; max-width: 420px; }
+
+/* ---- Save action --------------------------------------------------- */
+.tt-dashboard .tt-wcfg-actions { margin-top: var(--tt-sp-5, 20px); }
+.tt-dashboard .tt-wcfg-actions .tt-btn {
+    min-height: 48px;
+    padding: var(--tt-sp-2, 8px) var(--tt-sp-5, 20px);
+    background: var(--tt-primary, #0b3d2e);
+    color: #fff;
+    border: 0;
+    border-radius: var(--tt-radius, 8px);
+    font-weight: 600;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-dashboard .tt-wcfg-actions .tt-btn:hover,
+.tt-dashboard .tt-wcfg-actions .tt-btn:focus-visible { filter: brightness(1.1); }
+
+/* ---- Sub-section headings + log ------------------------------------ */
+.tt-dashboard .tt-wcfg-subhead {
+    font-size: var(--tt-fs-h3, 1.25rem);
+    margin: var(--tt-sp-6, 24px) 0 var(--tt-sp-2, 8px);
+    color: var(--tt-ink, #0e1a14);
+}
+.tt-dashboard .tt-wcfg-subhint {
+    color: var(--tt-muted, #6a6d66);
+    margin: 0 0 var(--tt-sp-2, 8px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+}
+.tt-dashboard .tt-wcfg-mono { font-family: monospace; font-size: var(--tt-fs-sm, 0.85rem); }
+.tt-dashboard .tt-wcfg-status--ok   { color: var(--tt-success, #2f9e5e); font-weight: 600; }
+.tt-dashboard .tt-wcfg-status--fail { color: var(--tt-danger, #d8453b);  font-weight: 600; }
+.tt-dashboard .tt-wcfg-error { color: var(--tt-danger, #d8453b); font-size: var(--tt-fs-sm, 0.85rem); }
+.tt-dashboard .tt-wcfg-retry {
+    min-height: 40px;
+    padding: var(--tt-sp-1, 4px) var(--tt-sp-3, 12px);
+    background: var(--tt-paper, #fff);
+    color: var(--tt-primary, #0b3d2e);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 600;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-dashboard .tt-wcfg-retry:hover,
+.tt-dashboard .tt-wcfg-retry:focus-visible { border-color: var(--tt-primary, #0b3d2e); }

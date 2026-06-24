@@ -22,6 +22,21 @@ use TT\Shared\Frontend\FrontendViewBase;
  */
 class FrontendTasksDashboardView extends FrontendViewBase {
 
+    /**
+     * Enqueue the 2026 dashboard stylesheet on top of the shared chrome.
+     * Depends on tt-frontend-app-chrome for the brand tokens + .tt-kpi
+     * tile styling.
+     */
+    protected static function enqueueAssets(): void {
+        parent::enqueueAssets();
+        wp_enqueue_style(
+            'tt-frontend-tasks-dashboard',
+            TT_PLUGIN_URL . 'assets/css/frontend-tasks-dashboard.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+    }
+
     public static function render( int $user_id ): void {
         $title = __( 'Tasks dashboard', 'talenttrack' );
 
@@ -39,26 +54,15 @@ class FrontendTasksDashboardView extends FrontendViewBase {
         $per_coach    = self::perCoachStats();
         $overdue      = self::overdueTasks();
 
+        self::renderKpis( $per_template, $overdue );
         ?>
-        <style>
-            .tt-tdash-section { margin-bottom: 28px; }
-            .tt-tdash-section h2 { font-size: 16px; margin: 0 0 10px; color: #1a1d21; }
-            .tt-tdash-table { width: 100%; border-collapse: collapse; background:#fff; border:1px solid #e5e7ea; border-radius: 8px; overflow: hidden; }
-            .tt-tdash-table th, .tt-tdash-table td { padding: 10px 12px; text-align: left; font-size: 13px; }
-            .tt-tdash-table thead th { background: #f6f7f8; color: #5b6e75; font-weight: 600; border-bottom: 1px solid #e5e7ea; }
-            .tt-tdash-table tbody tr + tr td { border-top: 1px solid #f1f3f4; }
-            .tt-tdash-table .tt-num { text-align: right; font-variant-numeric: tabular-nums; }
-            .tt-tdash-pct-good { color: #2c8a2c; font-weight: 600; }
-            .tt-tdash-pct-mid { color: #c9962a; font-weight: 600; }
-            .tt-tdash-pct-bad { color: #b32d2e; font-weight: 600; }
-            .tt-tdash-empty { color: #5b6e75; font-style: italic; padding: 12px 0; }
-        </style>
 
         <div class="tt-tdash-section">
             <h2><?php esc_html_e( 'By template — last 90 days', 'talenttrack' ); ?></h2>
             <?php if ( empty( $per_template ) ) : ?>
                 <p class="tt-tdash-empty"><?php esc_html_e( 'No tasks created in the last 90 days.', 'talenttrack' ); ?></p>
             <?php else : ?>
+                <div class="tt-tdash-card">
                 <table class="tt-tdash-table">
                     <thead>
                         <tr>
@@ -81,6 +85,7 @@ class FrontendTasksDashboardView extends FrontendViewBase {
                         <?php endforeach; ?>
                     </tbody>
                 </table>
+                </div>
             <?php endif; ?>
         </div>
 
@@ -89,6 +94,7 @@ class FrontendTasksDashboardView extends FrontendViewBase {
             <?php if ( empty( $per_coach ) ) : ?>
                 <p class="tt-tdash-empty"><?php esc_html_e( 'No coach-assigned tasks in the last 90 days.', 'talenttrack' ); ?></p>
             <?php else : ?>
+                <div class="tt-tdash-card">
                 <table class="tt-tdash-table">
                     <thead>
                         <tr>
@@ -111,6 +117,7 @@ class FrontendTasksDashboardView extends FrontendViewBase {
                         <?php endforeach; ?>
                     </tbody>
                 </table>
+                </div>
             <?php endif; ?>
         </div>
 
@@ -119,6 +126,7 @@ class FrontendTasksDashboardView extends FrontendViewBase {
             <?php if ( empty( $overdue ) ) : ?>
                 <p class="tt-tdash-empty"><?php esc_html_e( 'No overdue tasks. Nicely done.', 'talenttrack' ); ?></p>
             <?php else : ?>
+                <div class="tt-tdash-card">
                 <table class="tt-tdash-table">
                     <thead>
                         <tr>
@@ -137,9 +145,48 @@ class FrontendTasksDashboardView extends FrontendViewBase {
                         <?php endforeach; ?>
                     </tbody>
                 </table>
+                </div>
             <?php endif; ?>
         </div>
         <?php
+    }
+
+    /**
+     * KPI strip above the dashboard. Tallies are derived from the
+     * already-fetched stat arrays (presentational aggregation of data
+     * the view loaded, not a fresh query) — CLAUDE.md §4.
+     *
+     * @param array<int, array{created:int, on_time:int, rate:?float}> $per_template
+     * @param array<int, array{days:int}>                              $overdue
+     */
+    private static function renderKpis( array $per_template, array $overdue ): void {
+        $created = 0;
+        $on_time = 0;
+        foreach ( $per_template as $row ) {
+            $created += (int) $row['created'];
+            $on_time += (int) $row['on_time'];
+        }
+        $rate = $created > 0 ? ( $on_time / $created ) : null;
+        $rate_pct = $rate === null ? '—' : ( (int) round( $rate * 100 ) ) . '%';
+        $overdue_count = count( $overdue );
+
+        $chrome = \TT\Shared\Frontend\Components\FrontendAppChrome::class;
+        echo '<div class="tt-tdash-kpis">';
+        echo $chrome::kpiTile( [
+            'label' => __( 'Created (90d)', 'talenttrack' ),
+            'value' => (string) $created,
+        ] );
+        echo $chrome::kpiTile( [
+            'label' => __( 'On-time rate', 'talenttrack' ),
+            'value' => $rate_pct,
+            'flag'  => ( $rate !== null && $rate >= 0.85 ) ? 'green' : ( ( $rate !== null && $rate < 0.6 ) ? 'red' : '' ),
+        ] );
+        echo $chrome::kpiTile( [
+            'label' => __( 'Currently overdue', 'talenttrack' ),
+            'value' => (string) $overdue_count,
+            'flag'  => $overdue_count > 0 ? 'red' : 'green',
+        ] );
+        echo '</div>';
     }
 
     /**

@@ -1,0 +1,185 @@
+/*
+ * frontend-staff-development.css — 2026 restyle (B4) for the staff
+ * "My goals" / "My evaluations" / "My certifications" body surfaces
+ * (FrontendMyStaffGoalsView, FrontendMyStaffEvaluationsView,
+ * FrontendMyStaffCertificationsView). Shared because the three views share
+ * a structure: a KPI strip, a list rendered as cards, and a create form
+ * rendered as a card. This is a restyle — data + markup semantics are
+ * unchanged, only the look is warmed up to match the 2026 green/gold surfaces.
+ *
+ * Mobile-first per CLAUDE.md §2: base styles target ~360px; min-width queries
+ * at 480/768/1024 scale up. Scoped under .tt-dashboard — no global resets, the
+ * active theme is treated as hostile. Depends on tt-frontend-app-chrome for the
+ * brand tokens (--tt-primary, --tt-secondary, --tt-ink, --tt-muted, --tt-line,
+ * --tt-shadow-md) and the .tt-kpi tile styling.
+ */
+
+/* ---- KPI strip ---------------------------------------------------- */
+.tt-dashboard .tt-sdev-kpis {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    margin: 0 0 1.1rem;
+}
+@media (min-width: 480px) {
+    .tt-dashboard .tt-sdev-kpis {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+@media (min-width: 768px) {
+    .tt-dashboard .tt-sdev-kpis {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+/* ---- Section heading --------------------------------------------- */
+.tt-dashboard .tt-sdev-section-title {
+    margin: 1.4rem 0 0.7rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--tt-primary, #0b3d2e);
+}
+
+/* ---- List as cards ------------------------------------------------ */
+.tt-dashboard .tt-sdev-list {
+    list-style: none;
+    margin: 0 0 0.5rem;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+}
+
+.tt-dashboard .tt-sdev-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.85rem 1rem;
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-md);
+}
+
+.tt-dashboard .tt-sdev-card__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem;
+    justify-content: space-between;
+}
+
+.tt-dashboard .tt-sdev-card__title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--tt-ink, #0e1a14);
+    min-width: 0;
+}
+
+.tt-dashboard .tt-sdev-card__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.9rem;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-muted, #6a6d66);
+}
+.tt-dashboard .tt-sdev-card__meta b {
+    color: var(--tt-ink, #0e1a14);
+    font-weight: 600;
+}
+
+.tt-dashboard .tt-sdev-card__notes {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: var(--tt-lh-body, 1.5);
+    color: var(--tt-ink, #0e1a14);
+}
+
+.tt-dashboard .tt-sdev-card__doc {
+    align-self: flex-start;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--tt-primary, #0b3d2e);
+    touch-action: manipulation;
+}
+
+/* ---- Chips -------------------------------------------------------- */
+.tt-dashboard .tt-sdev-chip {
+    display: inline-block;
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    line-height: 1.5;
+    background: var(--tt-line-soft, #eef0ec);
+    color: var(--tt-ink, #0e1a14);
+    white-space: nowrap;
+}
+.tt-dashboard .tt-sdev-chip--green  { background: var(--tt-success-subtle, #dff5e1); color: #1a6b2c; }
+.tt-dashboard .tt-sdev-chip--gold   { background: var(--tt-warning-subtle, #fdf3d8); color: #7a5a05; }
+.tt-dashboard .tt-sdev-chip--red    { background: var(--tt-danger-subtle, #fde2e2); color: #a02828; }
+.tt-dashboard .tt-sdev-chip--ghost  { background: var(--tt-bg-soft, #f4f6f3); color: var(--tt-muted, #6a6d66); }
+
+/* ---- Empty state -------------------------------------------------- */
+.tt-dashboard .tt-sdev-empty {
+    margin: 0 0 0.5rem;
+    padding: 0.9rem 1rem;
+    background: var(--tt-bg-soft, #f4f6f3);
+    border: 1px dashed var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    color: var(--tt-muted, #6a6d66);
+}
+
+/* ---- Create form as a card --------------------------------------- */
+.tt-dashboard .tt-sdev-form {
+    max-width: 720px;
+    margin: 0;
+    padding: 1rem 1.05rem 1.15rem;
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-md);
+}
+.tt-dashboard .tt-sdev-form .tt-field {
+    margin-bottom: var(--tt-sp-4, 16px);
+}
+.tt-dashboard .tt-sdev-form .tt-field-label {
+    display: block;
+    margin-bottom: var(--tt-sp-1, 4px);
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--tt-primary, #0b3d2e);
+}
+.tt-dashboard .tt-sdev-form .tt-input {
+    width: 100%;
+    font-size: 1rem; /* ≥16px — no iOS focus zoom. */
+    line-height: var(--tt-lh-body, 1.5);
+    min-height: 48px;
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    padding: 0.5rem 0.7rem;
+    color: var(--tt-ink, #0e1a14);
+    background: var(--tt-paper, #fff);
+}
+.tt-dashboard .tt-sdev-form textarea.tt-input {
+    min-height: auto;
+}
+.tt-dashboard .tt-sdev-form .tt-input:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 1px;
+    border-color: var(--tt-primary, #0b3d2e);
+}
+
+@media (min-width: 768px) {
+    .tt-dashboard .tt-sdev-form {
+        padding: 1.25rem 1.35rem 1.4rem;
+    }
+}

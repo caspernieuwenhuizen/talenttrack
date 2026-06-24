@@ -21,6 +21,20 @@ use TT\Shared\Admin\MySessionsActionHandlers;
  */
 class FrontendMySessionsView extends FrontendViewBase {
 
+    /**
+     * Enqueue the 2026 sessions stylesheet on top of the shared chrome.
+     * Depends on tt-frontend-app-chrome for the brand tokens.
+     */
+    protected static function enqueueAssets(): void {
+        parent::enqueueAssets();
+        wp_enqueue_style(
+            'tt-frontend-my-sessions',
+            TT_PLUGIN_URL . 'assets/css/frontend-my-sessions.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+    }
+
     public static function render( ?object $player = null ): void {
         self::enqueueAssets();
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'My sessions', 'talenttrack' ) );
@@ -50,21 +64,21 @@ class FrontendMySessionsView extends FrontendViewBase {
         $current_token = self::currentSessionTokenHash();
 
         ?>
-        <p style="color: var(--tt-muted, #6a6d66); font-size: 13px; margin: 0 0 var(--tt-sp-3, 12px);">
+        <p class="tt-sessions-intro">
             <?php esc_html_e( 'These are the devices and browsers currently signed in to your account. If you spot one you do not recognise, revoke it.', 'talenttrack' ); ?>
         </p>
 
         <?php if ( count( $sessions ) > 1 ) : ?>
-            <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin-bottom: var(--tt-sp-3, 12px);">
+            <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="tt-sessions-revoke-all">
                 <?php wp_nonce_field( MySessionsActionHandlers::ACTION_REVOKE_OTHERS, 'tt_my_sessions_nonce' ); ?>
                 <input type="hidden" name="action" value="<?php echo esc_attr( MySessionsActionHandlers::ACTION_REVOKE_OTHERS ); ?>" />
-                <button type="submit" class="tt-btn tt-btn-secondary" style="min-height: 48px;" onclick="return confirm('<?php echo esc_js( __( 'Revoke every other session? You will stay signed in here, but every other device will need to sign in again.', 'talenttrack' ) ); ?>');">
+                <button type="submit" class="tt-btn tt-btn-secondary" onclick="return confirm('<?php echo esc_js( __( 'Revoke every other session? You will stay signed in here, but every other device will need to sign in again.', 'talenttrack' ) ); ?>');">
                     <?php esc_html_e( 'Revoke all other sessions', 'talenttrack' ); ?>
                 </button>
             </form>
         <?php endif; ?>
 
-        <ul class="tt-sessions" style="list-style: none; margin: 0; padding: 0; display: grid; gap: var(--tt-sp-2, 8px);">
+        <ul class="tt-sessions">
             <?php foreach ( $sessions as $token => $session ) : ?>
                 <?php self::renderSession( (string) $token, $session, $current_token ); ?>
             <?php endforeach; ?>
@@ -92,25 +106,25 @@ class FrontendMySessionsView extends FrontendViewBase {
             : '';
 
         ?>
-        <li style="border: 1px solid var(--tt-line, #e0e0e0); border-radius: 4px; padding: var(--tt-sp-3, 12px); background: <?php echo $is_current ? 'var(--tt-bg-soft, #f6f7f8)' : '#fff'; ?>;">
-            <div style="display: flex; flex-wrap: wrap; gap: var(--tt-sp-3, 12px); align-items: flex-start;">
-                <div style="flex: 1 1 240px; min-width: 0;">
-                    <div style="font-weight: 600; margin-bottom: 4px; word-break: break-word;">
+        <li class="tt-session-card<?php echo $is_current ? ' tt-session-card--current' : ''; ?>">
+            <div class="tt-session-row">
+                <div class="tt-session-info">
+                    <div class="tt-session-device">
                         <?php echo esc_html( self::deviceLabel( $ua ) ); ?>
                         <?php if ( $is_current ) : ?>
-                            <span style="display: inline-block; margin-left: 6px; padding: 2px 8px; font-size: 11px; font-weight: 500; color: #fff; background: var(--tt-accent, #5b8def); border-radius: 999px; vertical-align: middle;">
+                            <span class="tt-session-chip">
                                 <?php esc_html_e( 'This session', 'talenttrack' ); ?>
                             </span>
                         <?php endif; ?>
                     </div>
-                    <div style="font-size: 13px; color: var(--tt-muted, #6a6d66); margin-bottom: 2px;">
+                    <div class="tt-session-meta">
                         <?php echo esc_html( $login_text ); ?>
                         <?php if ( $expire_text !== '' ) : ?>
                             · <?php echo esc_html( $expire_text ); ?>
                         <?php endif; ?>
                     </div>
                     <?php if ( $ip !== '' ) : ?>
-                        <div style="font-size: 12px; color: var(--tt-muted, #6a6d66); font-family: monospace;">
+                        <div class="tt-session-ip">
                             <?php
                             /* translators: %s: IP address */
                             printf( esc_html__( 'IP %s', 'talenttrack' ), esc_html( $ip ) );
@@ -119,11 +133,11 @@ class FrontendMySessionsView extends FrontendViewBase {
                     <?php endif; ?>
                 </div>
                 <?php if ( ! $is_current ) : ?>
-                    <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="flex: 0 0 auto;">
+                    <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="tt-session-revoke">
                         <?php wp_nonce_field( MySessionsActionHandlers::ACTION_REVOKE_ONE, 'tt_my_sessions_nonce' ); ?>
                         <input type="hidden" name="action" value="<?php echo esc_attr( MySessionsActionHandlers::ACTION_REVOKE_ONE ); ?>" />
                         <input type="hidden" name="token" value="<?php echo esc_attr( $token ); ?>" />
-                        <button type="submit" class="tt-btn tt-btn-secondary" style="min-height: 48px; min-width: 48px;">
+                        <button type="submit" class="tt-btn tt-btn-secondary">
                             <?php esc_html_e( 'Revoke', 'talenttrack' ); ?>
                         </button>
                     </form>

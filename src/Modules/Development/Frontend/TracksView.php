@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Modules\Development\IdeaRepository;
 use TT\Modules\Development\IdeaStatus;
 use TT\Modules\Development\TrackRepository;
+use TT\Shared\Frontend\Components\FormSaveButton;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\FrontendViewBase;
 
@@ -20,6 +21,22 @@ use TT\Shared\Frontend\FrontendViewBase;
  *    the page reads as a roadmap rather than internal plumbing).
  */
 class TracksView extends FrontendViewBase {
+
+    protected static function enqueueAssets(): void {
+        parent::enqueueAssets();
+        wp_enqueue_style(
+            'tt-frontend-ideas',
+            TT_PLUGIN_URL . 'assets/css/frontend-ideas.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+        wp_enqueue_style(
+            'tt-frontend-dev-tracks',
+            TT_PLUGIN_URL . 'assets/css/frontend-dev-tracks.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+    }
 
     public static function render(): void {
         if ( ! current_user_can( 'tt_view_dev_board' ) ) {
@@ -40,28 +57,31 @@ class TracksView extends FrontendViewBase {
 
         if ( $can_edit ) :
             ?>
-            <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="max-width:560px; padding:14px; background:#fff; border:1px solid #e5e7ea; border-radius:8px;">
+            <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="tt-ideas-card tt-ideas-card--form">
                 <?php wp_nonce_field( 'tt_dev_track_save' ); ?>
                 <input type="hidden" name="action" value="tt_dev_track_save" />
                 <input type="hidden" name="_redirect" value="<?php echo esc_attr( $current ); ?>" />
-                <h3 style="margin:0 0 10px;"><?php esc_html_e( 'Add a track', 'talenttrack' ); ?></h3>
-                <p>
-                    <label style="display:block; font-weight:600;"><?php esc_html_e( 'Name', 'talenttrack' ); ?></label>
-                    <input type="text" name="name" required maxlength="120" style="width:100%; padding:8px;" />
-                </p>
-                <p>
-                    <label style="display:block; font-weight:600;"><?php esc_html_e( 'Description (optional)', 'talenttrack' ); ?></label>
-                    <textarea name="description" rows="3" style="width:100%; padding:8px;"></textarea>
-                </p>
-                <p style="margin:0;">
-                    <button type="submit" class="tt-btn tt-btn-primary"><?php esc_html_e( 'Add track', 'talenttrack' ); ?></button>
-                </p>
+                <h3 class="tt-ideas-card__head"><?php esc_html_e( 'Add a track', 'talenttrack' ); ?></h3>
+                <div class="tt-ideas-field">
+                    <label><?php esc_html_e( 'Name', 'talenttrack' ); ?></label>
+                    <input type="text" name="name" required maxlength="120" />
+                </div>
+                <div class="tt-ideas-field">
+                    <label><?php esc_html_e( 'Description (optional)', 'talenttrack' ); ?></label>
+                    <textarea name="description" rows="3"></textarea>
+                </div>
+                <?php
+                echo FormSaveButton::render( [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — component escapes internally.
+                    'label'      => __( 'Add track', 'talenttrack' ),
+                    'cancel_url' => $current,
+                ] );
+                ?>
             </form>
             <?php
         endif;
 
         if ( empty( $tracks ) ) {
-            echo '<p style="margin-top:18px;"><em>' . esc_html__( 'No tracks yet. Add one above to start grouping ideas into a roadmap.', 'talenttrack' ) . '</em></p>';
+            echo '<p class="tt-track-empty"><em>' . esc_html__( 'No tracks yet. Add one above to start grouping ideas into a roadmap.', 'talenttrack' ) . '</em></p>';
             return;
         }
 
@@ -73,21 +93,21 @@ class TracksView extends FrontendViewBase {
     private static function renderTrackBlock( object $track, IdeaRepository $ideas, bool $can_edit, string $current ): void {
         $rows = $ideas->listByTrack( (int) $track->id );
         ?>
-        <div style="margin:24px 0; padding:16px; background:#fff; border:1px solid #e5e7ea; border-radius:8px;">
-            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:18px;">
-                <div style="flex:1; min-width:0;">
-                    <h3 style="margin:0;"><?php echo esc_html( (string) $track->name ); ?></h3>
+        <div class="tt-track-card">
+            <div class="tt-track-card__head">
+                <div>
+                    <h3 class="tt-track-card__title"><?php echo esc_html( (string) $track->name ); ?></h3>
                     <?php if ( ! empty( $track->description ) ) : ?>
-                        <p style="margin:6px 0 0; color:#666;"><?php echo esc_html( (string) $track->description ); ?></p>
+                        <p class="tt-track-card__desc"><?php echo esc_html( (string) $track->description ); ?></p>
                     <?php endif; ?>
                 </div>
                 <?php if ( $can_edit ) : ?>
-                    <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" onsubmit="return confirm('<?php echo esc_js( __( 'Delete this track? Tagged ideas will be detached but not deleted.', 'talenttrack' ) ); ?>');">
+                    <form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="tt-track-card__delete" onsubmit="return confirm('<?php echo esc_js( __( 'Delete this track? Tagged ideas will be detached but not deleted.', 'talenttrack' ) ); ?>');">
                         <?php wp_nonce_field( 'tt_dev_track_delete' ); ?>
                         <input type="hidden" name="action" value="tt_dev_track_delete" />
                         <input type="hidden" name="id" value="<?php echo (int) $track->id; ?>" />
                         <input type="hidden" name="_redirect" value="<?php echo esc_attr( $current ); ?>" />
-                        <button type="submit" class="tt-btn tt-btn-secondary" style="font-size:12px;">
+                        <button type="submit" class="tt-btn tt-btn-secondary">
                             <?php esc_html_e( 'Delete track', 'talenttrack' ); ?>
                         </button>
                     </form>
@@ -95,13 +115,13 @@ class TracksView extends FrontendViewBase {
             </div>
 
             <?php if ( empty( $rows ) ) : ?>
-                <p style="margin:12px 0 0; color:#888;"><em><?php esc_html_e( 'No ideas tagged to this track yet.', 'talenttrack' ); ?></em></p>
+                <p class="tt-track-empty"><em><?php esc_html_e( 'No ideas tagged to this track yet.', 'talenttrack' ); ?></em></p>
             <?php else : ?>
-                <ul style="margin:14px 0 0; padding:0; list-style:none;">
+                <ul class="tt-track-ideas">
                     <?php foreach ( $rows as $row ) : ?>
-                        <li style="display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid #f0f1f2;">
-                            <span style="flex:1; min-width:0;"><?php echo esc_html( (string) $row->title ); ?></span>
-                            <span style="font-size:12px; padding:3px 8px; border-radius:10px; background:<?php echo esc_attr( self::pillBg( (string) $row->status ) ); ?>; color:#fff;">
+                        <li class="tt-track-idea">
+                            <span class="tt-track-idea__title"><?php echo esc_html( (string) $row->title ); ?></span>
+                            <span class="tt-ideas-chip <?php echo esc_attr( self::statusChipClass( (string) $row->status ) ); ?>">
                                 <?php echo esc_html( IdeaStatus::authorFacingLabel( (string) $row->status ) ); ?>
                             </span>
                         </li>
@@ -112,13 +132,18 @@ class TracksView extends FrontendViewBase {
         <?php
     }
 
-    private static function pillBg( string $status ): string {
+    /**
+     * Map an idea status to a presentational chip-variant class.
+     * Pure CSS-class lookup — no business logic; mirrors the chip
+     * vocabulary in frontend-ideas.css.
+     */
+    private static function statusChipClass( string $status ): string {
         switch ( $status ) {
-            case IdeaStatus::REJECTED:        return '#b32d2e';
-            case IdeaStatus::PROMOTED:        return '#2271b1';
-            case IdeaStatus::IN_PROGRESS:     return '#c9962a';
-            case IdeaStatus::DONE:            return '#1d7874';
-            default:                          return '#888';
+            case IdeaStatus::REJECTED:        return 'tt-ideas-chip--red';
+            case IdeaStatus::PROMOTED:        return 'tt-ideas-chip--info';
+            case IdeaStatus::IN_PROGRESS:     return 'tt-ideas-chip--gold';
+            case IdeaStatus::DONE:            return 'tt-ideas-chip--green';
+            default:                          return '';
         }
     }
 

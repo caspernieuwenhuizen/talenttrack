@@ -6,6 +6,10 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Infrastructure\Query\LookupTranslator;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\StaffDevelopment\Repositories\StaffGoalsRepository;
+use TT\Shared\Frontend\Components\BackLink;
+use TT\Shared\Frontend\Components\FormSaveButton;
+use TT\Shared\Frontend\Components\FrontendAppChrome;
+use TT\Shared\Frontend\Components\RecordLink;
 use TT\Shared\Frontend\FrontendViewBase;
 
 /**
@@ -15,6 +19,22 @@ use TT\Shared\Frontend\FrontendViewBase;
  * surfaces on the goal row and on the certifications view.
  */
 class FrontendMyStaffGoalsView extends FrontendViewBase {
+
+    /**
+     * B4 2026 restyle — enqueue the shared staff-development card
+     * stylesheet on top of the shared frontend assets. Loaded here (not in
+     * FrontendViewBase) because only the staff-development surfaces use it;
+     * depends on the global app-chrome sheet for the shared brand tokens.
+     */
+    protected static function enqueueAssets(): void {
+        parent::enqueueAssets();
+        wp_enqueue_style(
+            'tt-frontend-staff-development',
+            TT_PLUGIN_URL . 'assets/css/frontend-staff-development.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+    }
 
     public static function render( int $user_id, bool $is_admin ): void {
         $title = __( 'My staff goals', 'talenttrack' );
@@ -44,30 +64,48 @@ class FrontendMyStaffGoalsView extends FrontendViewBase {
         $cert_by_id = [];
         foreach ( $cert_types as $c ) { $cert_by_id[ (int) $c->id ] = (string) $c->name; }
 
+        // KPI strip — counts derived from the already-fetched list (no new
+        // query). $open counts goals not in the completed status.
+        $total = count( $goals );
+        $open  = 0;
+        foreach ( $goals as $g ) {
+            if ( (string) ( $g->status ?? '' ) !== StaffGoalsRepository::STATUS_COMPLETED ) $open++;
+        }
+        echo '<div class="tt-sdev-kpis">';
+        echo FrontendAppChrome::kpiTile( [ 'label' => __( 'Total goals', 'talenttrack' ), 'value' => (string) $total ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — helper escapes its own output.
+        echo FrontendAppChrome::kpiTile( [ 'label' => __( 'Open', 'talenttrack' ), 'value' => (string) $open, 'flag' => $open > 0 ? 'green' : '' ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — helper escapes its own output.
+        echo FrontendAppChrome::kpiTile( [ 'label' => __( 'Completed', 'talenttrack' ), 'value' => (string) ( $total - $open ) ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — helper escapes its own output.
+        echo '</div>';
+
         if ( ! $goals ) {
-            echo '<p>' . esc_html__( 'No goals yet. Add one below.', 'talenttrack' ) . '</p>';
+            echo '<p class="tt-sdev-empty">' . esc_html__( 'No goals yet. Add one below.', 'talenttrack' ) . '</p>';
         } else {
-            echo '<table class="tt-table" style="width:100%;"><thead><tr>';
-            echo '<th>' . esc_html__( 'Title', 'talenttrack' ) . '</th>';
-            echo '<th>' . esc_html__( 'Priority', 'talenttrack' ) . '</th>';
-            echo '<th>' . esc_html__( 'Status', 'talenttrack' ) . '</th>';
-            echo '<th>' . esc_html__( 'Due', 'talenttrack' ) . '</th>';
-            echo '<th>' . esc_html__( 'Targets cert', 'talenttrack' ) . '</th>';
-            echo '</tr></thead><tbody>';
+            echo '<ul class="tt-sdev-list">';
             foreach ( $goals as $g ) {
-                echo '<tr>';
-                echo '<td>' . esc_html( (string) $g->title ) . '</td>';
-                echo '<td>' . esc_html( LookupTranslator::byTypeAndName( 'goal_priority', (string) ( $g->priority ?? '' ) ) ) . '</td>';
-                echo '<td>' . esc_html( LookupTranslator::byTypeAndName( 'goal_status', (string) ( $g->status ?? '' ) ) ) . '</td>';
-                echo '<td>' . esc_html( ( $g->due_date ?? '' ) !== '' ? \TT\Shared\Dates\TTDate::date( (string) $g->due_date ) : '—' ) . '</td>';
-                echo '<td>' . esc_html( (string) ( $cert_by_id[ (int) $g->cert_type_lookup_id ] ?? '—' ) ) . '</td>';
-                echo '</tr>';
+                $prio_key = (string) ( $g->priority ?? '' );
+                $prio_cls = $prio_key === 'high' ? 'tt-sdev-chip--red' : ( $prio_key === 'low' ? 'tt-sdev-chip--ghost' : 'tt-sdev-chip--gold' );
+                $status_key = (string) ( $g->status ?? '' );
+                $status_cls = $status_key === StaffGoalsRepository::STATUS_COMPLETED ? 'tt-sdev-chip--green' : 'tt-sdev-chip--ghost';
+                $cert_name  = (string) ( $cert_by_id[ (int) $g->cert_type_lookup_id ] ?? '' );
+                echo '<li class="tt-sdev-card">';
+                echo '<div class="tt-sdev-card__head">';
+                echo '<h4 class="tt-sdev-card__title">' . esc_html( (string) $g->title ) . '</h4>';
+                echo '<span class="tt-sdev-chip ' . esc_attr( $status_cls ) . '">' . esc_html( LookupTranslator::byTypeAndName( 'goal_status', $status_key ) ) . '</span>';
+                echo '</div>';
+                echo '<div class="tt-sdev-card__meta">';
+                echo '<span><span class="tt-sdev-chip ' . esc_attr( $prio_cls ) . '">' . esc_html( LookupTranslator::byTypeAndName( 'goal_priority', $prio_key ) ) . '</span></span>';
+                echo '<span>' . esc_html__( 'Due', 'talenttrack' ) . ': <b>' . esc_html( ( $g->due_date ?? '' ) !== '' ? \TT\Shared\Dates\TTDate::date( (string) $g->due_date ) : '—' ) . '</b></span>';
+                if ( $cert_name !== '' ) {
+                    echo '<span>' . esc_html__( 'Targets cert', 'talenttrack' ) . ': <b>' . esc_html( $cert_name ) . '</b></span>';
+                }
+                echo '</div>';
+                echo '</li>';
             }
-            echo '</tbody></table>';
+            echo '</ul>';
         }
 
-        echo '<h3 style="margin-top:24px;">' . esc_html__( 'Add a goal', 'talenttrack' ) . '</h3>';
-        echo '<form method="post" class="tt-form" style="max-width:720px;">';
+        echo '<h3 class="tt-sdev-section-title">' . esc_html__( 'Add a goal', 'talenttrack' ) . '</h3>';
+        echo '<form method="post" class="tt-form tt-sdev-form">';
         wp_nonce_field( 'tt_staff_goal_save', 'tt_staff_goal_nonce' );
 
         echo '<div class="tt-field"><label class="tt-field-label tt-field-required" for="tt-staff-goal-title">' . esc_html__( 'Title', 'talenttrack' ) . '</label>';
@@ -96,7 +134,17 @@ class FrontendMyStaffGoalsView extends FrontendViewBase {
         echo '<div class="tt-field"><label class="tt-field-label" for="tt-staff-goal-desc">' . esc_html__( 'Description', 'talenttrack' ) . '</label>';
         echo '<textarea id="tt-staff-goal-desc" name="description" class="tt-input" rows="3"></textarea></div>';
 
-        echo '<div class="tt-form-actions"><button type="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Add goal', 'talenttrack' ) . '</button></div>';
+        // CLAUDE.md §6 — Save + Cancel on a record-creating form. Cancel
+        // returns to this same list view; a tt_back hint on the entry URL
+        // overrides that destination.
+        $back       = BackLink::resolve();
+        $cancel_url = $back !== null
+            ? $back['url']
+            : add_query_arg( 'tt_view', 'my-staff-goals', RecordLink::dashboardUrl() );
+        echo FormSaveButton::render( [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — helper escapes its own output.
+            'label'      => __( 'Add goal', 'talenttrack' ),
+            'cancel_url' => $cancel_url,
+        ] );
         echo '</form>';
     }
 

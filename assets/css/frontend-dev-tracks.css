@@ -1,0 +1,62 @@
+/*
+ * frontend-dev-tracks.css — the development tracks roadmap view restyled
+ * to the 2026 green/gold look (#1680 B4).
+ *
+ * Mobile-first per CLAUDE.md §2: base styles target ~360px, min-width
+ * queries scale up at 480 / 768 / 1024 only. Scoped under .tt-dashboard
+ * — no global resets. Neutral tokens come from tokens.css; brand greens
+ * via var(--tt-primary, #0b3d2e). Shares the .tt-ideas-* chip / field /
+ * card vocabulary from frontend-ideas.css where it overlaps; the rules
+ * below are track-specific.
+ */
+
+.tt-dashboard .tt-track-card {
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-md);
+    padding: var(--tt-sp-4, 16px);
+    margin: var(--tt-sp-6, 24px) 0 0;
+}
+.tt-dashboard .tt-track-card__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--tt-sp-4, 16px);
+    flex-wrap: wrap;
+}
+.tt-dashboard .tt-track-card__title {
+    margin: 0;
+    font-size: var(--tt-fs-h3, 1.25rem);
+    color: var(--tt-ink, #0e1a14);
+}
+.tt-dashboard .tt-track-card__desc {
+    margin: var(--tt-sp-1, 4px) 0 0;
+    color: var(--tt-muted, #6a6d66);
+    line-height: var(--tt-lh-body, 1.5);
+}
+.tt-dashboard .tt-track-card__delete button { min-height: 44px; }
+
+.tt-dashboard .tt-track-ideas {
+    list-style: none;
+    margin: var(--tt-sp-3, 12px) 0 0;
+    padding: 0;
+}
+.tt-dashboard .tt-track-idea {
+    display: flex;
+    align-items: center;
+    gap: var(--tt-sp-3, 12px);
+    padding: var(--tt-sp-2, 8px) 0;
+    border-bottom: 1px solid var(--tt-line-soft, #eef0ec);
+}
+.tt-dashboard .tt-track-idea:last-child { border-bottom: 0; }
+.tt-dashboard .tt-track-idea__title {
+    flex: 1;
+    min-width: 0;
+    color: var(--tt-ink, #0e1a14);
+}
+
+.tt-dashboard .tt-track-empty {
+    margin: var(--tt-sp-3, 12px) 0 0;
+    color: var(--tt-muted, #6a6d66);
+}

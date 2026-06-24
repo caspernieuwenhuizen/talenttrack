@@ -1,0 +1,74 @@
+/*
+ * frontend-tasks-dashboard.css — 2026 restyle of the HoD tasks
+ * overview (FrontendTasksDashboardView, #1695 / B4). A KPI strip plus
+ * three card-wrapped tables (per-template, per-coach, currently
+ * overdue). Mobile-first per CLAUDE.md §2 — base styles target ~360px,
+ * tables stay horizontally scrollable inside their card so they never
+ * force the page wider than the viewport. Tokens only; scoped under
+ * .tt-dashboard. App-chrome (.tt-kpi) loads first.
+ */
+
+.tt-dashboard .tt-tdash-kpis {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--tt-sp-2, 8px);
+    margin: 0 0 var(--tt-sp-5, 20px);
+}
+
+.tt-dashboard .tt-tdash-section { margin-bottom: var(--tt-sp-6, 24px); }
+.tt-dashboard .tt-tdash-section h2 {
+    font-size: var(--tt-fs-h3, 1.25rem);
+    margin: 0 0 var(--tt-sp-3, 12px);
+    color: var(--tt-ink, #0e1a14);
+}
+
+/* ---- Card-wrapped table -------------------------------------------- */
+.tt-dashboard .tt-tdash-card {
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-md);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+.tt-dashboard .tt-tdash-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 480px;
+}
+.tt-dashboard .tt-tdash-table th,
+.tt-dashboard .tt-tdash-table td {
+    padding: var(--tt-sp-3, 12px) var(--tt-sp-4, 16px);
+    text-align: left;
+    font-size: var(--tt-fs-sm, 0.85rem);
+}
+.tt-dashboard .tt-tdash-table thead th {
+    background: var(--tt-bg-soft, #f4f6f3);
+    color: var(--tt-muted, #6a6d66);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 0.72rem;
+    border-bottom: 1px solid var(--tt-line, #e3e6e1);
+}
+.tt-dashboard .tt-tdash-table tbody tr + tr td {
+    border-top: 1px solid var(--tt-line-soft, #eef0ec);
+}
+.tt-dashboard .tt-tdash-table .tt-num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+.tt-dashboard .tt-tdash-pct-good { color: var(--tt-success, #2f9e5e); font-weight: 700; }
+.tt-dashboard .tt-tdash-pct-mid  { color: var(--tt-warning, #e8902b); font-weight: 700; }
+.tt-dashboard .tt-tdash-pct-bad  { color: var(--tt-danger, #d8453b);  font-weight: 700; }
+
+.tt-dashboard .tt-tdash-empty {
+    color: var(--tt-muted, #6a6d66);
+    font-style: italic;
+    padding: var(--tt-sp-3, 12px) 0;
+}
+
+/* ---- Scale up ------------------------------------------------------ */
+@media (min-width: 480px) {
+    .tt-dashboard .tt-tdash-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}

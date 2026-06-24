@@ -1,0 +1,251 @@
+/*
+ * frontend-my-tasks.css — 2026 restyle of the task inbox
+ * (FrontendMyTasksView, #1695 / B4). The inbox body: a KPI strip,
+ * a filter card, and a list of task cards. Mobile-first per
+ * CLAUDE.md §2 — base styles target ~360px, min-width queries scale up.
+ * Scoped under .tt-dashboard; tokens only (no raw hex), brand shades
+ * via var(--tt-primary, #0b3d2e). App-chrome (.tt-kpi) loads first.
+ */
+
+.tt-dashboard .tt-mtasks-kpis {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--tt-sp-2, 8px);
+    margin: 0 0 var(--tt-sp-4, 16px);
+}
+
+/* ---- Flash notice -------------------------------------------------- */
+.tt-dashboard .tt-mtasks-flash {
+    background: var(--tt-success-subtle, #dff5e1);
+    border-left: 4px solid var(--tt-success, #2f9e5e);
+    border-radius: var(--tt-radius, 8px);
+    padding: var(--tt-sp-2, 8px) var(--tt-sp-3, 12px);
+    margin: 0 0 var(--tt-sp-3, 12px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-ink, #0e1a14);
+}
+
+/* ---- Filter card --------------------------------------------------- */
+.tt-dashboard .tt-mtasks-filters {
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-md);
+    padding: var(--tt-sp-3, 12px) var(--tt-sp-4, 16px);
+    margin: 0 0 var(--tt-sp-4, 16px);
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-2, 8px);
+}
+.tt-dashboard .tt-mtasks-filters label {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-1, 4px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-muted, #6a6d66);
+}
+.tt-dashboard .tt-mtasks-filters select {
+    width: 100%;
+    min-height: 48px;
+    font-size: 16px;
+    padding: var(--tt-sp-2, 8px) var(--tt-sp-3, 12px);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-paper, #fff);
+    color: var(--tt-ink, #0e1a14);
+}
+.tt-dashboard .tt-mtasks-filters button.tt-btn,
+.tt-dashboard .tt-mtasks-filters button.tt-btn:link,
+.tt-dashboard .tt-mtasks-filters button.tt-btn:visited {
+    min-height: 48px;
+    padding: var(--tt-sp-2, 8px) var(--tt-sp-5, 20px);
+    background: var(--tt-primary, #0b3d2e);
+    color: #fff;
+    border: 1px solid var(--tt-primary, #0b3d2e);
+    border-radius: var(--tt-radius, 8px);
+    font-weight: 600;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-dashboard .tt-mtasks-filters button.tt-btn:hover,
+.tt-dashboard .tt-mtasks-filters button.tt-btn:focus-visible {
+    filter: brightness(1.1);
+}
+
+/* ---- Section label ------------------------------------------------- */
+.tt-dashboard .tt-mtasks-section-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--tt-muted, #6a6d66);
+    margin: var(--tt-sp-6, 24px) 0 var(--tt-sp-3, 12px);
+}
+
+/* ---- Bulk-action bar ----------------------------------------------- */
+.tt-dashboard .tt-mtasks-bulkbar {
+    background: var(--tt-bg-soft, #f4f6f3);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    padding: var(--tt-sp-2, 8px) var(--tt-sp-3, 12px);
+    margin: 0 0 var(--tt-sp-3, 12px);
+    display: none;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-2, 8px);
+}
+.tt-dashboard .tt-mtasks-bulkbar.tt-active { display: flex; }
+.tt-dashboard .tt-mtasks-bulkbar-count {
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-muted, #6a6d66);
+}
+
+/* ---- Task list ----------------------------------------------------- */
+.tt-dashboard .tt-mtasks-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--tt-sp-6, 24px);
+    display: grid;
+    gap: var(--tt-sp-2, 8px);
+}
+.tt-dashboard .tt-mtasks-row {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-3, 12px);
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-left: 4px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-md);
+    padding: var(--tt-sp-3, 12px) var(--tt-sp-4, 16px);
+}
+.tt-dashboard .tt-mtasks-row.tt-overdue {
+    border-left-color: var(--tt-danger, #d8453b);
+    background: var(--tt-danger-subtle, #fde2e2);
+}
+.tt-dashboard .tt-mtasks-row.tt-completed {
+    border-left-color: var(--tt-success, #2f9e5e);
+    background: var(--tt-bg-soft, #f4f6f3);
+}
+.tt-dashboard .tt-mtasks-checkbox {
+    order: 1;
+    flex: 0 0 auto;
+    align-self: center;
+}
+.tt-dashboard .tt-mtasks-checkbox input {
+    width: 22px;
+    height: 22px;
+}
+.tt-dashboard .tt-mtasks-meta {
+    order: 2;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+.tt-dashboard .tt-mtasks-title {
+    font-weight: 700;
+    font-size: var(--tt-fs-body, 1rem);
+    color: var(--tt-ink, #0e1a14);
+    margin: 0 0 var(--tt-sp-1, 4px);
+}
+.tt-dashboard .tt-mtasks-sub {
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-muted, #6a6d66);
+    margin: 0;
+}
+.tt-dashboard .tt-mtasks-due {
+    order: 3;
+    flex: 0 0 auto;
+    align-self: center;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-muted, #6a6d66);
+    white-space: nowrap;
+}
+.tt-dashboard .tt-mtasks-due.tt-overdue-text {
+    color: var(--tt-danger, #d8453b);
+    font-weight: 600;
+}
+.tt-dashboard .tt-mtasks-action {
+    order: 4;
+    flex: 1 1 100%;
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--tt-sp-2, 8px);
+}
+.tt-dashboard .tt-mtasks-snooze {
+    order: 5;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: var(--tt-sp-2, 8px);
+}
+.tt-dashboard .tt-mtasks-action a,
+.tt-dashboard .tt-mtasks-action a:link,
+.tt-dashboard .tt-mtasks-action a:visited {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: var(--tt-sp-2, 8px) var(--tt-sp-4, 16px);
+    background: var(--tt-primary, #0b3d2e);
+    color: #fff !important;
+    border-radius: var(--tt-radius, 8px);
+    text-decoration: none;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 600;
+    border: 0;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-dashboard .tt-mtasks-snooze button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    min-width: 48px;
+    padding: var(--tt-sp-2, 8px) var(--tt-sp-3, 12px);
+    background: var(--tt-bg-soft, #f4f6f3);
+    color: var(--tt-ink, #0e1a14);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 600;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-dashboard .tt-mtasks-action a:hover,
+.tt-dashboard .tt-mtasks-action a:focus-visible { filter: brightness(1.1); }
+.tt-dashboard .tt-mtasks-snooze button:hover,
+.tt-dashboard .tt-mtasks-snooze button:focus-visible {
+    border-color: var(--tt-primary, #0b3d2e);
+    color: var(--tt-primary, #0b3d2e);
+}
+
+.tt-dashboard .tt-mtasks-empty {
+    color: var(--tt-muted, #6a6d66);
+    font-style: italic;
+    padding: var(--tt-sp-3, 12px) 0;
+}
+
+/* ---- Scale up ------------------------------------------------------ */
+@media (min-width: 480px) {
+    .tt-dashboard .tt-mtasks-kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@media (min-width: 768px) {
+    .tt-dashboard .tt-mtasks-filters {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: flex-end;
+    }
+    .tt-dashboard .tt-mtasks-filters label { min-width: 160px; }
+    .tt-dashboard .tt-mtasks-filters select { min-width: 160px; }
+    .tt-dashboard .tt-mtasks-row {
+        flex-wrap: nowrap;
+        align-items: center;
+    }
+    .tt-dashboard .tt-mtasks-action {
+        order: 4;
+        flex: 0 0 auto;
+    }
+    .tt-dashboard .tt-mtasks-snooze { order: 5; }
+}
