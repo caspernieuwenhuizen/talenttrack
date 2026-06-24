@@ -50,6 +50,12 @@
     border-radius: var(--tt-radius, 8px);
 }
 
+/* #1803 — clear the shared search magnifier (this view's padding rule
+   above is more specific and would otherwise sit text under the icon). */
+.tt-dashboard .tt-prospects-overview .tt-list-table-search input[type="search"] {
+    padding-left: 38px;
+}
+
 .tt-dashboard .tt-prospects-overview .tt-list-table-search input:focus-visible,
 .tt-dashboard .tt-prospects-overview .tt-list-table-filter select:focus-visible {
     outline: 2px solid var(--tt-primary, #0b3d2e);
