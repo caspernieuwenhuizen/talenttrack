@@ -91,7 +91,9 @@ final class TileIconChip {
         return <<<'CSS'
 <style>
 .tt-tile-chip {
-    --tt-chip-accent: #5b6e75;
+    /* #1695 — default chip accent is the brand green (was slate #5b6e75);
+       per-section accents still override via the inline --tt-chip-accent. */
+    --tt-chip-accent: var(--tt-primary, #0b3d2e);
     flex-shrink: 0;
     /* #1663 — the chip box derives from the glyph size (3.25 / 2 ratio).
        When --tt-tile-icon-size is unset the fallback equals the previous
