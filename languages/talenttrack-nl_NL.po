@@ -40314,3 +40314,39 @@ msgstr "Die ouder was niet gekoppeld aan deze speler."
 
 msgid "Parent unlinked."
 msgstr "Ouder ontkoppeld."
+
+msgid "(deleted account)"
+msgstr "(verwijderd account)"
+
+msgid "(no name)"
+msgstr "(geen naam)"
+
+msgid "Choose a player first."
+msgstr "Kies eerst een speler."
+
+msgid "Link a parent to a player"
+msgstr "Koppel een ouder aan een speler"
+
+msgid "Link parent"
+msgstr "Ouder koppelen"
+
+msgid "No parent accounts yet. Link one above, or invite a parent from a player's Family tab."
+msgstr "Nog geen ouderaccounts. Koppel er hierboven een, of nodig een ouder uit via het tabblad Familie van een speler."
+
+msgid "Parent account"
+msgstr "Ouderaccount"
+
+msgid "Parent accounts"
+msgstr "Ouderaccounts"
+
+msgid "The account becomes a guardian of the chosen player. A parent can guard several players."
+msgstr "Het account wordt verzorger van de gekozen speler. Een ouder kan meerdere spelers beheren."
+
+msgid "Unlink from %s"
+msgstr "Ontkoppelen van %s"
+
+msgid "Unlink this parent from the player?"
+msgstr "Deze ouder ontkoppelen van de speler?"
+
+msgid "You do not have permission to manage parent accounts."
+msgstr "Je hebt geen rechten om ouderaccounts te beheren."
