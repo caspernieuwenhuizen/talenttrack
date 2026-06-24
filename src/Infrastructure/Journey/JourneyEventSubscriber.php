@@ -141,11 +141,16 @@ final class JourneyEventSubscriber {
             self::emitTeamChange( $player_id, $old_team, $new_team );
         }
 
-        // Position change — preferred_positions field.
-        $old_pos = (string) ( $old['preferred_positions'] ?? '' );
-        $new_pos = (string) ( $new['preferred_positions'] ?? '' );
-        if ( $old_pos !== $new_pos && $new_pos !== '' ) {
-            $synthetic_id = (int) ( ( $player_id * 1000 ) + ( crc32( $new_pos ) % 1000 ) );
+        // Position change — preferred_positions field. Stored as a JSON
+        // array (e.g. ["CB","LB"]); compare the raw values but render a
+        // readable comma-separated list in the summary + payload (#1818)
+        // instead of the raw JSON.
+        $old_raw = (string) ( $old['preferred_positions'] ?? '' );
+        $new_raw = (string) ( $new['preferred_positions'] ?? '' );
+        if ( $old_raw !== $new_raw && $new_raw !== '' ) {
+            $old_pos = self::formatPositions( $old_raw );
+            $new_pos = self::formatPositions( $new_raw );
+            $synthetic_id = (int) ( ( $player_id * 1000 ) + ( crc32( $new_raw ) % 1000 ) );
             EventEmitter::emit(
                 $player_id,
                 JourneyEventType::POSITION_CHANGED,
@@ -157,6 +162,25 @@ final class JourneyEventSubscriber {
                 $synthetic_id
             );
         }
+    }
+
+    /**
+     * #1818 — turn a stored `preferred_positions` value (a JSON array like
+     * `["CB","LB"]`, or a plain string) into a readable comma-separated
+     * list. Falls back to the raw string when it isn't JSON.
+     */
+    private static function formatPositions( string $raw ): string {
+        $raw = trim( $raw );
+        if ( $raw === '' ) return '';
+        $decoded = json_decode( $raw, true );
+        if ( is_array( $decoded ) ) {
+            $parts = array_values( array_filter(
+                array_map( static fn ( $v ): string => trim( (string) $v ), $decoded ),
+                static fn ( string $v ): bool => $v !== ''
+            ) );
+            return implode( ', ', $parts );
+        }
+        return $raw;
     }
 
     public static function on_trial_started( int $case_id, int $player_id ): void {
