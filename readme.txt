@@ -4,13 +4,19 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.46.0
+Stable tag: 4.46.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.46.1 — New-evaluation player picker: team-scoped dropdown instead of blank search (#1731) The player-first new-evaluation wizard's Player step no longer hides every player behind a type-to-search box. It now shows a team-scoped native dropdown: pick a team, then choose the player from the list. A coach who manages exactly one team lands with that team pre-selected and its players already listed, so no typing is needed. The team filter repopulates the player list on change, and Head of Development / Academy Admin keep an "All teams" option for cross-team reach. The change is opt-in via a new `style => 'dropdown'` arg on `PlayerSearchPickerComponent`; the ~6 other surfaces that use the picker keep the existing search behaviour unchanged. =
+
+= 4.46.1 — Deep-rate step: collapsible category accordion with aligned stars (#1732) The player-first new-evaluation Rating step is no longer a flat table of stars with a Basic/Detailed toggle. Each main category is now a collapsible block (collapsed by default) whose summary shows the category name, a read-only star mirror, and the average word — so a coach can scan what's rated without expanding anything. Expanding reveals the editable category-level stars and the sub-skill rows; rating sub-skills still sets the category to the rounded average of the non-zero subs, and the summary reflects it live. The #1643 training default still surfaces the Mental category first and opens it. All inline styles moved to a stylesheet; the star column lines up across categories and sub-rows. Ratings submit and restore exactly as before — no data-shape change. =
+
+= 4.46.1 — Dutch eval-category labels no longer leak English (#1733) The New-evaluation rating screen (and anywhere eval categories render) leaked English labels — "Tactical", "Physical", "Short pass", "Dribbling", "Offensive positioning" — alongside the few that already showed Dutch. The category vocabulary is seeded in `tt_eval_categories` and resolved through `tt_translations`, but only a handful of Dutch rows existed, so the rest fell back to the raw English label on nl_NL installs.  A new idempotent migration seeds the authoritative Dutch label for every default eval-category and sub-skill straight into `tt_translations`, keyed by the stable `category_key`. It only seeds a category whose label is still the seeded English default, so an academy that renamed a category keeps its own wording; re-running is a no-op. No `.po` or code change — `displayLabel()` already prefers `tt_translations`. =
 
 = 4.46.0 — Total visual isolation: canvas mode strips all non-TalentTrack CSS (#1728). The active WordPress theme could leak its palette and typography into TalentTrack because canvas mode hid the theme's HTML chrome but still let `wp_head()` print its stylesheet — which could win specificity battles against TalentTrack tokens. Canvas mode now dequeues every enqueued stylesheet whose source is not TalentTrack's before the page paints, keeping only TalentTrack's own handles, the WP admin bar (`admin-bar`, `dashicons`), and operator-chosen Google Fonts. The theme contributes zero CSS, so nothing can override the palette. Isolation is now mandatory: the **Full-canvas app** opt-out and the **Theme inheritance** toggle (and its `body.tt-theme-inherit` CSS contract) are removed — both contradicted total visual independence. Operator branding (colours, logo, fonts) and Custom CSS are unaffected; that is how you re-brand TalentTrack now, not the theme. Minor bump. (#1728) =
 
