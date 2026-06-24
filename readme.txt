@@ -4,13 +4,21 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.49.0
+Stable tag: 4.49.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.49.1 — Players complete their profile when accepting an invite (#1819) The player invitation-acceptance page now collects first name, last name, date of birth, and preferred foot (alongside the existing jersey number), written straight to the player record on accept. First and last name are pre-filled from the invite so the player just confirms or corrects them. =
+
+= 4.49.1 — Players can't change their account display name (#1820) Following the title-case "First Last" default, the display-name field on a player's My settings page is now read-only — a player's name is owned by the academy and set from their player record, so it can't be edited there (enforced server-side as well). =
+
+= 4.49.1 — Player accounts: click a linked player to see which WP account it's linked to (#1823) On the Player accounts page, a linked player's green chip is now a click-to-reveal disclosure: tapping it shows the actual WordPress account behind the link — email, username, and WP user id — so you can tell two accounts apart even when they share a display name. Read-only, inline, no wp-admin needed. =
+
+= 4.49.1 — Player accounts: compact rows for not-yet-connected players (#1824) Rows for players without an account were much taller than connected rows because the link controls wrapped onto several lines. On tablet/desktop the account dropdown + Link + Invite buttons now sit on a single line, so an unconnected row is no taller than a connected one. Also fixes the "WordPress user to link" screen-reader label leaking visible under canvas mode (it relied on the theme's screen-reader-text class, which canvas isolation strips) by giving the plugin its own SR-only utility. =
 
 = 4.49.0 — Safe permanent delete for VCT exercises, custom widgets + injuries (#1784) Extends the referential-integrity delete framework (#1783) to the last of the rollout entities, plus a framework enhancement: cascade plans can now **table-qualify** a reference column, so an ambiguous column name (e.g. `exercise_id`, which keys both `tt_exercises` and the VCT tables) is scanned on the right tables only.  - **VCT exercise** — cascades its coaching points; clears the exercise link   on any session block. New `/vct/exercises/{id}/permanent` route. - **Custom widget** — standalone; removed directly. New   `/custom-widgets/{id}/permanent` route (uuid- or id-keyed). - **Injury** — removes the injury and its journey-timeline events (a minor's   medical record), so a right-to-erasure delete actually erases. New   `/player-injuries/{id}/permanent` route.  All fail-closed, gated by `tt_edit_settings` (VCT: `can_admin`). No migration. The `archived_by`-column migration + list-view delete affordances for the full archive-lifecycle UI remain on #1784. =
 

@@ -1,3 +1,25 @@
+# TalentTrack v4.49.1 — Players complete their profile when accepting an invite (#1819)
+
+The player invitation-acceptance page now collects first name, last name,
+date of birth, and preferred foot (alongside the existing jersey number),
+written straight to the player record on accept. First and last name are
+pre-filled from the invite so the player just confirms or corrects them.
+
+# TalentTrack v4.49.1 — Players can't change their account display name (#1820)
+
+Following the title-case "First Last" default, the display-name field on a
+player's My settings page is now read-only — a player's name is owned by
+the academy and set from their player record, so it can't be edited there
+(enforced server-side as well).
+
+# TalentTrack v4.49.1 — Player accounts: click a linked player to see which WP account it's linked to (#1823)
+
+On the Player accounts page, a linked player's green chip is now a click-to-reveal disclosure: tapping it shows the actual WordPress account behind the link — email, username, and WP user id — so you can tell two accounts apart even when they share a display name. Read-only, inline, no wp-admin needed.
+
+# TalentTrack v4.49.1 — Player accounts: compact rows for not-yet-connected players (#1824)
+
+Rows for players without an account were much taller than connected rows because the link controls wrapped onto several lines. On tablet/desktop the account dropdown + Link + Invite buttons now sit on a single line, so an unconnected row is no taller than a connected one. Also fixes the "WordPress user to link" screen-reader label leaking visible under canvas mode (it relied on the theme's screen-reader-text class, which canvas isolation strips) by giving the plugin its own SR-only utility.
+
 # TalentTrack v4.49.0 — Safe permanent delete for VCT exercises, custom widgets + injuries (#1784)
 
 Extends the referential-integrity delete framework (#1783) to the last of
