@@ -370,6 +370,20 @@ msgstr ""
 msgid "Onboarding pipeline workflow"
 msgstr "Workflow onboardingpijplijn"
 
+#: src/Core/FeatureRegistry.php
+#. translators: %s = export tile name, e.g. "Players list".
+msgid "Export: %s"
+msgstr "Export: %s"
+
+#: src/Core/FeatureRegistry.php
+msgid ""
+"Show this export tile and allow it to run. When off, the tile is hidden from "
+"the Exports page and its export is rejected even via a direct link."
+msgstr ""
+"Toon deze export-tegel en sta toe dat hij wordt uitgevoerd. Staat hij uit, "
+"dan wordt de tegel verborgen op het Exports-scherm en wordt de export zelfs "
+"via een directe link geweigerd."
+
 #: src/Core/FeatureRegistry.php:130
 msgid ""
 "Automatic tasks that move prospects through the recruitment funnel (log, "

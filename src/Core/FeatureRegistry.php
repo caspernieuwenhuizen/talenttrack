@@ -55,7 +55,7 @@ class FeatureRegistry {
      * }>
      */
     private static function catalog(): array {
-        return [
+        $catalog = [
             'cohort_transitions' => [
                 'label'           => __( 'Cohort transitions', 'talenttrack' ),
                 'description'     => __( 'Find players academy-wide by journey event and date range. Player timeline, injuries and safeguarding stay available when this is off.', 'talenttrack' ),
@@ -134,6 +134,48 @@ class FeatureRegistry {
                 'entities'        => [],
             ],
         ];
+
+        // #1762 — one feature per bulk export tile, so an academy admin can
+        // switch individual export *contents* off (e.g. Audit log, Full
+        // club-data backup, Federation registration) without touching file
+        // formats. Default enabled — no behaviour change until toggled. The
+        // gate is consulted at two layers: tile visibility in
+        // FrontendExportsView::render() and execution in ExportService::run()
+        // (so a disabled tile can't be run via a direct link). Toggles
+        // auto-surface on the Modules management page under the Export
+        // module. Labels reuse the export tiles' own strings (already
+        // translated). Keys are `export_<tile-key>`, matching the exporter
+        // key the request carries.
+        $export_tiles = [
+            'players_list'        => __( 'Players list', 'talenttrack' ),
+            'team_roster_stats'   => __( 'Team roster + season stats', 'talenttrack' ),
+            'federation_json'     => __( 'Federation registration (JSON)', 'talenttrack' ),
+            'attendance_register' => __( 'Attendance register', 'talenttrack' ),
+            'team_activities'     => __( 'Team activity history', 'talenttrack' ),
+            'team_ical'           => __( 'Team activity calendar (iCal)', 'talenttrack' ),
+            'evaluations_xlsx'    => __( 'Evaluations export', 'talenttrack' ),
+            'player_evaluations'  => __( 'Player evaluations (flat)', 'talenttrack' ),
+            'goals_list'          => __( 'Goals list', 'talenttrack' ),
+            'kpi_snapshot'        => __( 'KPI snapshot', 'talenttrack' ),
+            'staff_directory'     => __( 'Coach / staff directory', 'talenttrack' ),
+            'audit_log'           => __( 'Audit log', 'talenttrack' ),
+            'backup_zip'          => __( 'Full club-data backup', 'talenttrack' ),
+            'demo_data_xlsx'      => __( 'Demo-data round-trip', 'talenttrack' ),
+        ];
+        $export_toggle_desc = __( 'Show this export tile and allow it to run. When off, the tile is hidden from the Exports page and its export is rejected even via a direct link.', 'talenttrack' );
+        foreach ( $export_tiles as $tile_key => $tile_label ) {
+            $catalog[ 'export_' . $tile_key ] = [
+                /* translators: %s = export tile name, e.g. "Players list". */
+                'label'           => sprintf( __( 'Export: %s', 'talenttrack' ), $tile_label ),
+                'description'     => $export_toggle_desc,
+                'module_class'    => 'TT\\Modules\\Export\\ExportModule',
+                'default_enabled' => true,
+                'view_slugs'      => [],
+                'entities'        => [],
+            ];
+        }
+
+        return $catalog;
     }
 
     /** @var array<string, bool>|null per-request state cache */

@@ -19,4 +19,15 @@ De ingeklapte kop van elk blok toont de exporttitel plus een format-badge per on
 
 Elk blok is afgeschermd op rechten: je ziet alleen de exporteurs die je rol toestaat, en een sectie zonder toegestane exporteur toont geen kop. Een export uitvoeren is ongewijzigd — hij post naar de export-handler met een nonce en streamt het bestand.
 
+## Losse export-tegels uitschakelen (beheer)
+
+Een academiebeheerder kan **losse export-tegels** uitschakelen — bijvoorbeeld om het Auditlog, de Volledige clubgegevens-back-up of de Bondsregistratie te verbergen — zonder bestandsformaten of het hele Exports-scherm uit te zetten. De schakelaars staan op de beheerpagina **Modules**, onder de module **Export**: één schakelaar per tegel (`Export: Spelerslijst`, `Export: Auditlog`, …), gegroepeerd bij de overige per-academie functieschakelaars.
+
+Alle tegels staan **standaard aan**, dus er verandert niets totdat je er één uitzet. Een tegel uitschakelen:
+
+- verbergt hem van het Exports-scherm voor iedereen in de academie (inclusief beheerders — zo kan een academie die haar eigen back-ups niet wil blootstellen die verbergen), en
+- weigert die export bij het eindpunt, zodat hij ook niet via een opgeslagen of zelfgemaakte link kan worden uitgevoerd.
+
+De schakelaar **beperkt** de toegang alleen — een gebruiker heeft nog steeds de onderliggende rechten nodig om een ingeschakelde tegel te zien. Schakelaars zijn per academie (club-scoped) en worden in het auditlog vastgelegd.
+
 De blokken zijn native `<details>`-elementen: toegankelijk met toetsenbord en schermlezer, en bruikbaar tot 360px breed waar ze in één kolom stapelen.
