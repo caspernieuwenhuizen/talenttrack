@@ -37,6 +37,11 @@ class InvitationAcceptHandler {
             'recovery_email'      => isset( $_POST['recovery_email'] ) ? sanitize_email( wp_unslash( (string) $_POST['recovery_email'] ) ) : '',
             'password'            => isset( $_POST['password'] ) ? (string) wp_unslash( $_POST['password'] ) : '',
             'jersey_number'       => isset( $_POST['jersey_number'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['jersey_number'] ) ) : '',
+            // #1819 — player self-completes core profile fields on accept.
+            'first_name'          => isset( $_POST['first_name'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['first_name'] ) ) : '',
+            'last_name'           => isset( $_POST['last_name'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['last_name'] ) ) : '',
+            'date_of_birth'       => isset( $_POST['date_of_birth'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['date_of_birth'] ) ) : '',
+            'preferred_foot'      => isset( $_POST['preferred_foot'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['preferred_foot'] ) ) : '',
             'relationship_label'  => isset( $_POST['relationship_label'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['relationship_label'] ) ) : '',
             'notify_on_progress'  => ! empty( $_POST['notify_on_progress'] ),
         ];

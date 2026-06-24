@@ -127,21 +127,42 @@ class AcceptanceView {
                         ?>
                     </legend>
 
-                    <?php if ( $kind === InvitationKind::PLAYER ) : ?>
-                        <p style="margin:0 0 12px;">
-                            <label style="display:block; font-weight:500;">
+                    <?php if ( $kind === InvitationKind::PLAYER ) :
+                        $foot_opts = \TT\Infrastructure\Query\QueryHelpers::get_lookup_label_pairs( 'foot_option' );
+                        ?>
+                        <div style="display:flex; gap:12px; margin:0 0 12px;"><!-- tt-inline-ok -->
+                            <p style="flex:1; margin:0;"><!-- tt-inline-ok -->
+                                <label style="display:block; font-weight:500;"><!-- tt-inline-ok --><?php esc_html_e( 'First name', 'talenttrack' ); ?></label>
+                                <input type="text" name="first_name" required value="<?php echo esc_attr( $first ); ?>" autocomplete="given-name" style="width:100%; padding:8px;" /><!-- tt-inline-ok -->
+                            </p>
+                            <p style="flex:1; margin:0;"><!-- tt-inline-ok -->
+                                <label style="display:block; font-weight:500;"><!-- tt-inline-ok --><?php esc_html_e( 'Last name', 'talenttrack' ); ?></label>
+                                <input type="text" name="last_name" required value="<?php echo esc_attr( $last ); ?>" autocomplete="family-name" style="width:100%; padding:8px;" /><!-- tt-inline-ok -->
+                            </p>
+                        </div>
+                        <div style="display:flex; gap:12px; margin:0 0 12px;"><!-- tt-inline-ok -->
+                            <p style="flex:1; margin:0;"><!-- tt-inline-ok -->
+                                <label style="display:block; font-weight:500;"><!-- tt-inline-ok --><?php esc_html_e( 'Date of birth', 'talenttrack' ); ?></label>
+                                <input type="date" name="date_of_birth" autocomplete="bday" style="width:100%; padding:8px;" /><!-- tt-inline-ok -->
+                            </p>
+                            <p style="flex:1; margin:0;"><!-- tt-inline-ok -->
+                                <label style="display:block; font-weight:500;"><!-- tt-inline-ok --><?php esc_html_e( 'Preferred foot', 'talenttrack' ); ?></label>
+                                <select name="preferred_foot" style="width:100%; padding:8px;"><!-- tt-inline-ok -->
+                                    <option value=""><?php esc_html_e( '— select —', 'talenttrack' ); ?></option>
+                                    <?php foreach ( $foot_opts as $stored => $label ) : ?>
+                                        <option value="<?php echo esc_attr( (string) $stored ); ?>"><?php echo esc_html( (string) $label ); ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </p>
+                        </div>
+                        <p style="margin:0 0 12px;"><!-- tt-inline-ok -->
+                            <label style="display:block; font-weight:500;"><!-- tt-inline-ok -->
                                 <?php esc_html_e( 'Jersey number (optional)', 'talenttrack' ); ?>
                             </label>
-                            <input type="number" name="jersey_number" min="0" max="999" inputmode="numeric" style="width:120px; padding:8px;" />
+                            <input type="number" name="jersey_number" min="0" max="999" inputmode="numeric" style="width:120px; padding:8px;" /><!-- tt-inline-ok -->
                         </p>
-                        <p style="color:#777; font-size:12px; margin:0;">
-                            <?php
-                            printf(
-                                /* translators: %s = player name */
-                                esc_html__( 'Your profile is already set up as %s. You can edit your photo + DOB after sign-in.', 'talenttrack' ),
-                                esc_html( trim( $first . ' ' . $last ) )
-                            );
-                            ?>
+                        <p style="color:#777; font-size:12px; margin:0;"><!-- tt-inline-ok -->
+                            <?php esc_html_e( 'Confirm or complete your details above. You can add a photo after sign-in.', 'talenttrack' ); ?>
                         </p>
                     <?php elseif ( $kind === InvitationKind::PARENT ) : ?>
                         <p style="margin:0 0 12px;">

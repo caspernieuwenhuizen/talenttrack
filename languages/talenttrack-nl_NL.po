@@ -40196,3 +40196,12 @@ msgstr "WP-gebruiker"
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+
+msgid "— select —"
+msgstr "— kies —"
+
+msgid "Confirm or complete your details above. You can add a photo after sign-in."
+msgstr "Bevestig of vul je gegevens hierboven aan. Je kunt na het inloggen een foto toevoegen."
+
+msgid "Set by your academy from your name — this can't be changed here."
+msgstr "Ingesteld door je academie op basis van je naam — dit kun je hier niet wijzigen."
