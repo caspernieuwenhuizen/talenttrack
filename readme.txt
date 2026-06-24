@@ -4,13 +4,23 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.48.2
+Stable tag: 4.49.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.49.0 — Safe permanent delete for VCT exercises, custom widgets + injuries (#1784) Extends the referential-integrity delete framework (#1783) to the last of the rollout entities, plus a framework enhancement: cascade plans can now **table-qualify** a reference column, so an ambiguous column name (e.g. `exercise_id`, which keys both `tt_exercises` and the VCT tables) is scanned on the right tables only.  - **VCT exercise** — cascades its coaching points; clears the exercise link   on any session block. New `/vct/exercises/{id}/permanent` route. - **Custom widget** — standalone; removed directly. New   `/custom-widgets/{id}/permanent` route (uuid- or id-keyed). - **Injury** — removes the injury and its journey-timeline events (a minor's   medical record), so a right-to-erasure delete actually erases. New   `/player-injuries/{id}/permanent` route.  All fail-closed, gated by `tt_edit_settings` (VCT: `can_admin`). No migration. The `archived_by`-column migration + list-view delete affordances for the full archive-lifecycle UI remain on #1784. =
+
+= 4.49.0 — Configurable dashboard tile colour scheme (#1809) A new academy-wide **Tile colour scheme** setting recolours the dashboard tiles without changing their size or layout. Six schemes are available — Default, Brand border, Gold-topped (the new default), Soft green fill, Solid green and Left accent — and they draw entirely from the academy's brand colours, so they track your Primary/Secondary colour choices automatically. The setting sits alongside Tile size and Tile layout on the Appearance configuration surface and is stored under the `tile_style` configuration key. =
+
+= 4.49.0 — Team planner export buttons are now compact icon buttons (#1812) The team planner's Export PDF / Export XLSX / Weekly PDF actions render as icon buttons matching the height of the "Schedule activity" button, instead of taller text buttons. On phones they collapse to icon-only circles like the other page-header actions; each keeps an accessible label. =
+
+= 4.49.0 — My Journey: position changes read as a list, not raw JSON (#1818) A "position changed" entry on a player's journey now reads e.g. "Positie: geen → CB, LB" instead of showing the raw stored array ("[\"CB\",\"LB\"]"). New position-change events store the formatted value. =
+
+= 4.49.0 — Player accounts get a proper "First Last" display name (#1820) When a player accepts their invitation, their account's display name now defaults to their first and last name in title case (e.g. "Luuk Nieuwenhuizen") taken from the player record, rather than an inconsistent or lower-cased value. =
 
 = 4.48.2 — Security: parents can no longer open another family's child profile (#1725) The player detail view only checked the coarse `tt_view_players` capability, never that the viewer was actually linked to *that* player — so a parent could open any child's profile by id and the "Parents · Guardians" card would expose every co-guardian's name, email, and phone (a safeguarding leak for minors). The view now enforces the canonical per-player scope (`AuthorizationService::canViewPlayer`: own record / global / player's team / parent-of-this-player), and the guardians card renders for staff only (admin/HoD or the team's coach) — never for a parent viewing their own child. Also fixes an adjacent bug where the activities REST endpoint queried `tt_player_parents` with a non-existent `wp_user_id` column (correct: `parent_user_id`), which had wrongly blocked parents from their own child's activities. =
 
