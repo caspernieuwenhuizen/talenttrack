@@ -533,7 +533,10 @@ class PlayersPage {
             'parent_person_id' => isset( $_POST['parent_person_id'] ) && (int) $_POST['parent_person_id'] > 0
                 ? (int) $_POST['parent_person_id']
                 : null,
-            'wp_user_id' => isset( $_POST['wp_user_id'] ) ? absint( $_POST['wp_user_id'] ) : 0,
+            // #1772 — "no account" is stored as NULL, not 0, so the
+            // UNIQUE (club_id, wp_user_id) index doesn't treat multiple
+            // unlinked players as colliding 0s.
+            'wp_user_id' => ( isset( $_POST['wp_user_id'] ) && absint( $_POST['wp_user_id'] ) > 0 ) ? absint( $_POST['wp_user_id'] ) : null,
             'status' => isset( $_POST['status'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['status'] ) ) : PlayerStatus::ACTIVE,
         ];
         $id = isset( $_POST['id'] ) ? absint( $_POST['id'] ) : 0;

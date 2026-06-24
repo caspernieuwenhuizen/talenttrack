@@ -99,8 +99,10 @@ class PlayerGenerator {
         if ( $prior_ids ) {
             $placeholders = implode( ',', array_fill( 0, count( $prior_ids ), '%d' ) );
             $params = array_merge( $prior_ids, [ CurrentClub::id() ] );
+            // #1772 — unlink via NULL, not 0; multiple 0s would now
+            // collide on the UNIQUE (club_id, wp_user_id) index.
             $wpdb->query( $wpdb->prepare(
-                "UPDATE {$wpdb->prefix}tt_players SET wp_user_id = 0 WHERE id IN ({$placeholders}) AND club_id = %d",
+                "UPDATE {$wpdb->prefix}tt_players SET wp_user_id = NULL WHERE id IN ({$placeholders}) AND club_id = %d",
                 ...$params
             ) );
         }
@@ -144,7 +146,9 @@ class PlayerGenerator {
                     'jersey_number'       => $jersey,
                     'team_id'             => (int) $team->id,
                     'date_joined'         => $date_joined,
-                    'wp_user_id'          => $wp_user_id,
+                    // #1772 — NULL (not 0) for an unbound demo player so
+                    // the UNIQUE (club_id, wp_user_id) index holds.
+                    'wp_user_id'          => $wp_user_id > 0 ? $wp_user_id : null,
                     'status'              => PlayerStatus::ACTIVE,
                 ] );
                 $player_id = (int) $wpdb->insert_id;

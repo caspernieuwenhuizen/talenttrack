@@ -539,8 +539,12 @@ class AuthorizationService {
         // role scoped to that player. Not stored in tt_user_role_scopes —
         // derived at runtime.
         global $wpdb;
+        // #1772 — ORDER BY id DESC hardens determinism (the
+        // UNIQUE (club_id, wp_user_id) index makes >1 linked player
+        // impossible going forward; the ordering keeps the derived scope
+        // stable even on an install that hasn't run the dedupe yet).
         $player_ids_i_am = $wpdb->get_col( $wpdb->prepare(
-            "SELECT id FROM {$wpdb->prefix}tt_players WHERE wp_user_id = %d AND status = 'active' AND club_id = %d",
+            "SELECT id FROM {$wpdb->prefix}tt_players WHERE wp_user_id = %d AND status = 'active' AND club_id = %d ORDER BY id DESC",
             $user_id, CurrentClub::id()
         ) );
         if ( is_array( $player_ids_i_am ) && ! empty( $player_ids_i_am ) ) {

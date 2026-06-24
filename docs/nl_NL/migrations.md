@@ -59,6 +59,7 @@ Drie regels, afgedwongen via review + CI:
 1. **Elke statement loopt via `$this->exec( $sql )`** (op de `Migration`-basisklasse). De fallback van de runner leest alleen de *laatste* databasefout nadat `up()` klaar is — een mislukte statement gevolgd door een geslaagde zou onzichtbaar zijn en de migratie half-af als toegepast markeren. `exec()` gooit een exception bij precies de statement die brak, en dat is wat de rode beheermelding vervolgens toont.
 2. **Kolommen toevoegen aan bestaande tabellen gaat via `MigrationHelpers::addColumnIfMissing()`**, nooit via `dbDelta`. dbDelta slaat ALTERs stilletjes over wanneer de live tabel afwijkt van het CREATE-statement — de foutklasse achter de v4.20.85-reparatie van de blueprint-kolommen. CI (`migration-lint.yml`) laat elke nieuwe migratie falen die een bestaande tabel aan dbDelta voert.
 3. **`dbDelta` blijft prima voor écht nieuwe tabellen** — eerste aanmaak is het geval dat het goed afhandelt.
+4. **Een index / UNIQUE-key toevoegen op een bestaande tabel wordt idempotent gemaakt door eerst `information_schema.STATISTICS` te controleren**, en daarna een afgeschermde `ALTER … ADD … KEY` via `Migration::exec` te draaien. Er is nog geen `addIndexIfMissing`-helper — migratie `0170` (`tt_players` één-account-één-speler UNIQUE, #1772) is de referentie. Wanneer de index een constraint afdwingt die bestaande rijen kunnen schenden (een UNIQUE over data met mogelijke duplicaten), dedupliceer dan **vóór** de `ADD`, in dezelfde migratie, zodat de `exec` niet op oude data kan falen.
 
 ## Wat je nooit hoeft te doen
 

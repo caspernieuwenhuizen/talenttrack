@@ -622,7 +622,10 @@ class PlayersRestController {
             'guardian_name'       => sanitize_text_field( (string) ( $r['guardian_name'] ?? '' ) ),
             'guardian_email'      => sanitize_email( (string) ( $r['guardian_email'] ?? '' ) ),
             'guardian_phone'      => sanitize_text_field( (string) ( $r['guardian_phone'] ?? '' ) ),
-            'wp_user_id'          => absint( $r['wp_user_id'] ?? 0 ),
+            // #1772 — store NULL (not 0) for "no account" so the
+            // UNIQUE (club_id, wp_user_id) index only constrains real
+            // accounts; multiple unlinked players stay valid.
+            'wp_user_id'          => absint( $r['wp_user_id'] ?? 0 ) > 0 ? absint( $r['wp_user_id'] ?? 0 ) : null,
             'status'              => sanitize_text_field( (string) ( $r['status'] ?? 'active' ) ),
         ];
     }
