@@ -84,7 +84,10 @@ final class CascadeRegistry {
         // delete path through this framework).
         'activity' => [
             'table'        => 'tt_activities',
-            'ref_columns'  => [ 'activity_id', 'session_id', 'related_activity_id', 'vct_session_id' ],
+            // The legacy session-keyed FK is intentionally not listed here;
+            // activity is block-only until #1784 builds its full cascade
+            // (which discovers legacy columns from information_schema).
+            'ref_columns'  => [ 'activity_id', 'related_activity_id', 'vct_session_id' ],
             'cascade'      => [],
             'cascade_poly' => [],
             'threads'      => null,
