@@ -98,6 +98,43 @@ final class CascadeRegistry {
             'block_only'   => false,
         ],
 
+        // Holiday (#1784) — standalone metadata; nothing references it,
+        // so a permanent delete just removes the row.
+        'holiday' => [
+            'table'        => 'tt_holidays',
+            'ref_columns'  => [],
+            'cascade'      => [],
+            'cascade_poly' => [],
+            'threads'      => null,
+            'set_null'     => [],
+            'block_only'   => false,
+        ],
+
+        // Test training (#1784) — a workflow task that invited a player to
+        // the session is a fact: keep it, clear the link.
+        'test_training' => [
+            'table'        => 'tt_test_trainings',
+            'ref_columns'  => [ 'test_training_id' ],
+            'cascade'      => [],
+            'cascade_poly' => [],
+            'threads'      => null,
+            'set_null'     => [ [ 'tt_workflow_tasks', 'test_training_id' ] ],
+            'block_only'   => false,
+        ],
+
+        // Trial track (#1784) — a template referenced by trial cases. A
+        // track must NOT cascade-delete the cases that use it, so it blocks
+        // while any trial case still references it (fail-closed).
+        'trial_track' => [
+            'table'        => 'tt_trial_tracks',
+            'ref_columns'  => [ 'track_id' ],
+            'cascade'      => [],
+            'cascade_poly' => [],
+            'threads'      => null,
+            'set_null'     => [],
+            'block_only'   => true,
+        ],
+
         // Team — deferred (#1784): block-only. A team carries player /
         // activity / match references (some denormalized); auto-cascading
         // those risks deleting player rows, so until the plan is verified

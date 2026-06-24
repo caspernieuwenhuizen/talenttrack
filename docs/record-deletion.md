@@ -33,6 +33,9 @@ leaves orphaned rows behind.
 | Goal | Cascades its links + conversation thread; clears spawned-goal links. |
 | Tournament | Cascades its matches, squad and per-match assignments; clears a linked activity's tournament link. |
 | Trial case | Cascades its staff assignments, staff inputs and extensions; clears workflow-task / prospect links. |
+| Holiday | Standalone — removed directly. |
+| Test training | Clears any workflow-task link, then removes the session. |
+| Trial track | Built-in tracks can't be deleted; a custom track **blocks** while any trial case still uses it. |
 | Team, Activity | **Blocks** while any record still references them (full cascades are a follow-up, #1784). |
 
 If a team or activity won't delete, archive or reassign its players /

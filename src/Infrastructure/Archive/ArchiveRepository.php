@@ -41,6 +41,9 @@ class ArchiveRepository {
         'person'     => 'tt_people',
         'tournament' => 'tt_tournaments',
         'trial_case' => 'tt_trial_cases',
+        'holiday'       => 'tt_holidays',
+        'test_training' => 'tt_test_trainings',
+        'trial_track'   => 'tt_trial_tracks',
     ];
 
     // Public API
