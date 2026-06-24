@@ -200,6 +200,30 @@ class EvaluationsRestController {
 
         $scope = QueryHelpers::apply_demo_scope( 'e', 'evaluation' );
 
+        $filter = is_array( $r['filter'] ?? null ) ? (array) $r['filter'] : [];
+
+        // Legacy top-level `?player_id=N` callers (pre-v3.110.106 contract).
+        if ( ! empty( $r['player_id'] ) && empty( $filter['player_id'] ) ) {
+            $filter['player_id'] = absint( $r['player_id'] );
+        }
+
+        // #1755 — when the list is filtered to a single player and the
+        // viewer can open that player's file, return ALL of that player's
+        // non-archived evaluations (club-scoped) so the list matches the
+        // player-file badge count (PlayerFileCounts) and the player-file
+        // Evaluations tab (EvaluationsRepository::listRecentForPlayer),
+        // both of which are club-scoped only. Without this, an eval
+        // authored by another coach for a player on a team the viewer
+        // doesn't coach is counted on the file but hidden from the list —
+        // a non-zero badge over an empty list. The `canViewPlayer` gate
+        // keeps this from widening access beyond players already visible.
+        $player_filter_id = ! empty( $filter['player_id'] ) ? absint( $filter['player_id'] ) : 0;
+        $player_file_access = $player_filter_id > 0
+            && \TT\Infrastructure\Security\AuthorizationService::canViewPlayer(
+                get_current_user_id(),
+                $player_filter_id
+            );
+
         // Coach-scoping: non-global-readers see evals for players on
         // teams they head-coach OR evaluations they personally wrote
         // (so an eval the coach authored for a player who has since
@@ -220,7 +244,7 @@ class EvaluationsRestController {
         //   3. No-teams short-circuit only fires when the coach has
         //      ALSO authored zero evaluations (caught by counting
         //      `e.coach_id = current_user` rows separately).
-        if ( ! self::hasGlobalEvaluationsAccess() ) {
+        if ( ! self::hasGlobalEvaluationsAccess() && ! $player_file_access ) {
             $uid         = get_current_user_id();
             $coach_teams = QueryHelpers::get_teams_for_coach( $uid );
             $team_ids    = array_map( static fn( $t ) => (int) $t->id, $coach_teams );
@@ -236,13 +260,6 @@ class EvaluationsRestController {
                 $where[]      = "( pl.team_id IN ($placeholders) OR e.coach_id = %d )";
                 $params       = array_merge( $params, $team_ids, [ $uid ] );
             }
-        }
-
-        $filter = is_array( $r['filter'] ?? null ) ? (array) $r['filter'] : [];
-
-        // Legacy top-level `?player_id=N` callers (pre-v3.110.106 contract).
-        if ( ! empty( $r['player_id'] ) && empty( $filter['player_id'] ) ) {
-            $filter['player_id'] = absint( $r['player_id'] );
         }
 
         if ( ! empty( $filter['team_id'] ) ) {
