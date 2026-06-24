@@ -40050,6 +40050,17 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Delete this holiday?"
 #~ msgstr "Deze vakantie verwijderen?"
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php
+msgid "(unnamed prospect)"
+msgstr "(naamloze prospect)"
+
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php
+msgid "Back to pipeline"
+msgstr "Terug naar pijplijn"
+
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php
+msgid "Open next action"
+msgstr "Open volgende actie"
 
 #, php-format
 #~ msgid ""
