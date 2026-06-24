@@ -223,8 +223,9 @@ class FrontendTeamPlannerView extends FrontendViewBase {
                 <input type="hidden" name="date_from"            value="<?php echo esc_attr( $date_from ); ?>">
                 <input type="hidden" name="date_to"              value="<?php echo esc_attr( $date_to ); ?>">
                 <input type="hidden" name="tt_export_return_url" value="<?php echo esc_attr( $self_url ); ?>">
-                <button type="submit" class="tt-btn tt-btn-secondary" style="min-height:48px;">
-                    <?php esc_html_e( 'Export PDF', 'talenttrack' ); ?>
+                <button type="submit" class="tt-btn tt-btn-secondary is-icon" aria-label="<?php esc_attr_e( 'Export PDF', 'talenttrack' ); ?>">
+                    <span class="tt-page-actions__icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span>
+                    <span class="tt-page-actions__label"><?php esc_html_e( 'Export PDF', 'talenttrack' ); ?></span>
                 </button>
             </form>
             <form method="POST" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="tt-export-form" style="margin:0;">
@@ -236,13 +237,15 @@ class FrontendTeamPlannerView extends FrontendViewBase {
                 <input type="hidden" name="date_from"            value="<?php echo esc_attr( $date_from ); ?>">
                 <input type="hidden" name="date_to"              value="<?php echo esc_attr( $date_to ); ?>">
                 <input type="hidden" name="tt_export_return_url" value="<?php echo esc_attr( $self_url ); ?>">
-                <button type="submit" class="tt-btn tt-btn-secondary" style="min-height:48px;">
-                    <?php esc_html_e( 'Export XLSX', 'talenttrack' ); ?>
+                <button type="submit" class="tt-btn tt-btn-secondary is-icon" aria-label="<?php esc_attr_e( 'Export XLSX', 'talenttrack' ); ?>">
+                    <span class="tt-page-actions__icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg></span>
+                    <span class="tt-page-actions__label"><?php esc_html_e( 'Export XLSX', 'talenttrack' ); ?></span>
                 </button>
             </form>
             <?php // #1631 — branded weekly portrait PDF via the compose dialog. ?>
-            <button type="button" class="tt-btn tt-btn-secondary" style="min-height:48px;" data-tt-open-compose>
-                <?php esc_html_e( 'Weekly PDF', 'talenttrack' ); ?>
+            <button type="button" class="tt-btn tt-btn-secondary is-icon" data-tt-open-compose aria-label="<?php esc_attr_e( 'Weekly PDF', 'talenttrack' ); ?>">
+                <span class="tt-page-actions__icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+                <span class="tt-page-actions__label"><?php esc_html_e( 'Weekly PDF', 'talenttrack' ); ?></span>
             </button>
         <?php
         return (string) ob_get_clean();
