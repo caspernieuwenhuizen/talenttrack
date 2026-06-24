@@ -305,8 +305,14 @@ class FrontendExportsView extends FrontendViewBase {
         FrontendBreadcrumbs::fromDashboard( __( 'Exports', 'talenttrack' ) );
 
         $all_cards = self::cards();
+        // #1762 — per-tile academy toggle (FeatureRegistry, club-scoped).
+        // The cap check narrows by user; the feature toggle narrows by
+        // academy and applies even to admins (an academy may hide its own
+        // backup / audit tiles). A disabled tile is also rejected at the
+        // export endpoint — see ExportService::run().
         $visible_cards = array_values( array_filter( $all_cards, static function ( $c ) use ( $is_admin ) {
-            return $is_admin || current_user_can( $c['cap'] );
+            return ( $is_admin || current_user_can( $c['cap'] ) )
+                && \TT\Core\FeatureRegistry::isEnabled( 'export_' . (string) $c['key'] );
         } ) );
 
         if ( empty( $visible_cards ) ) {

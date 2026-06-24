@@ -42,6 +42,19 @@ final class ExportService {
             ) );
         }
 
+        // #1762 — per-tile academy toggle. An academy admin can disable an
+        // individual export tile via FeatureRegistry; a disabled tile must
+        // be rejected at execution, not merely hidden from the grid, so a
+        // direct admin-post / REST link can't run it. Uncatalogued keys
+        // (per-record PDF exporters, etc.) are always enabled, so only the
+        // toggleable bulk tiles are gated here.
+        if ( ! \TT\Core\FeatureRegistry::isEnabled( 'export_' . $request->exporterKey ) ) {
+            throw new ExportException( 'forbidden', sprintf(
+                'Export %s is disabled for this academy.',
+                $request->exporterKey
+            ) );
+        }
+
         $cap = $exporter->requiredCap();
         if ( $cap !== '' && ! user_can( $request->requesterUserId, $cap ) ) {
             throw new ExportException( 'forbidden', sprintf(
