@@ -1,3 +1,43 @@
+# TalentTrack v4.51.0 — Restyle 14 remaining frontend surfaces to the 2026 look (#1695)
+
+Brings the last batch of frontend view bodies onto the 2026 design system:
+teammate, my-evaluations (coach view), VCT session, team chemistry,
+match-executions list, team blueprints, minutes report, the data explorer,
+cohort transitions, the report wizard, and the admin roles / seasons /
+migrations / VCT library screens. Inline styles moved into enqueued
+mobile-first stylesheets, legacy `widefat` tables replaced with the card +
+`.tt-table` pattern, and raw colours swapped for design tokens. No behaviour,
+data, or permission changes.
+
+# TalentTrack v4.51.0 — Foundation for parent-account management (#1815)
+
+Groundwork for the upcoming Parent accounts admin surface: a dedicated
+`tt_manage_parent_accounts` capability (granted to administrators, Club
+Admins and Heads of Development, tunable per-persona via the authorization
+matrix), a `ParentAccountService` for listing parents and linking/unlinking
+a parent WordPress account on a player, and REST endpoints
+(`POST`/`DELETE /players/{id}/parents`). No user-facing screen yet — that
+arrives with the Parent accounts view.
+
+# TalentTrack v4.51.0 — Player/parent dashboard no longer shows the "Features" tile or a Setup section (#1836)
+
+Follow-up to #1821. The read-only "Features" (NL "Functies") tile — which lists which parts of TalentTrack are switched on — was registered visible to every persona with no capability or matrix entity, so it appeared for players and parents as the lone tile in a "Setup & administration" section. It's now hidden from the player and parent personas, so that section no longer appears on their dashboard. (The functional-roles tile's gating from #1821 is reverted, as the active authorization matrix already gates it on its entity.)
+
+# TalentTrack v4.51.0 — Reachable "Delete permanently" on detail/editor pages (#1784 follow-up)
+
+The referential-integrity permanent delete now has a UI control on the
+bespoke (non-list) management surfaces, not just the list views. Adds a
+**Delete permanently** button to the trial-case detail page, the trial-track
+editor, and each archived row in the VCT exercise library. All three reuse
+the shared archive-button handler, so a blocked delete shows the same
+"still referenced by …" reason on screen. Admin-gated (`tt_edit_settings`;
+VCT: `tt_vct_admin_library`); built-in trial tracks stay non-deletable.
+
+Surfaces without a management page of their own — test trainings
+(create-only), custom widgets (no front-end view) and injuries (read-only
+on the player timeline) — keep their delete at the REST/admin layer; a
+dedicated UI for those is out of scope here.
+
 # TalentTrack v4.50.2 — Scouting pipeline: every card opens the prospect, even with no next action (#1763)
 
 In the onboarding pipeline, a prospect card with no pending task (and not yet promoted) used to render as a dead, unclickable tile. Now every card is clickable: when there's no "next action" it focuses the prospect on the board — `?tt_view=onboarding-pipeline&prospect_id=N` opens a panel showing who they are, their stage, and a link to their next action when one exists. This also fixes the previously no-op `prospect_id` links from the dashboards and scouting-visit detail, which now land on a real focus.
