@@ -84,3 +84,15 @@ v1 registreert alleen `goal` als thread-type. Toekomstige epics (#0017 trialcase
 - **Live websocket-updates.** 30-seconde polling.
 - **Bewerken na 5 minuten.** Soft-delete + opnieuw plaatsen is de workflow.
 - **Hard-delete per bericht.** GDPR-verwijdering loopt via het bestaande retentiepad.
+
+## Op de POP-pagina — een gesprek per doel (#1754)
+
+De **POP**-pagina van de speler (Dashboard › Spelers › *speler* › POP) toont
+de leerdoelen als **inklapbare kaarten**. De kop van elke kaart toont de
+doeltitel, de status, het venster en een 💬-telling van het aantal berichten
+in het gesprek van dat doel. Klik op een kop om die uit te klappen.
+
+Een uitgeklapt doel toont twee kolommen: links de details van het doel
+(omschrijving, gekoppelde methodiek, bewijslast) en rechts **het eigen
+gesprek van dat doel** — elk doel heeft een aparte thread. Doelen die in
+uitvoering zijn, staan standaard open.

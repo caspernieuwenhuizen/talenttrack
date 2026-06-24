@@ -1411,6 +1411,22 @@ class FrontendPdpManageView extends FrontendViewBase {
         // "last mentioned" conversation snippet. Number badges count
         // up over the listed goals so the column reads as an ordered
         // development arc, mirroring the mockup.
+        // #1754 — per-goal conversation message counts (one query) for the
+        // collapsed-card badge, plus the viewer id for the inline threads.
+        $goal_ids    = array_map( static fn( $g ) => (int) $g->id, $goals );
+        $conv_counts = [];
+        if ( $goal_ids ) {
+            $cph  = implode( ',', array_fill( 0, count( $goal_ids ), '%d' ) );
+            $crows = $wpdb->get_results( $wpdb->prepare(
+                "SELECT thread_id, COUNT(*) AS n FROM {$p}tt_thread_messages
+                  WHERE thread_type = 'goal' AND deleted_at IS NULL AND thread_id IN ({$cph})
+                  GROUP BY thread_id",
+                ...$goal_ids
+            ) );
+            foreach ( (array) $crows as $cr ) { $conv_counts[ (int) $cr->thread_id ] = (int) $cr->n; }
+        }
+        $viewer_id = get_current_user_id();
+
         echo '<div class="tt-pop-goals">';
         $goal_index = 0;
         foreach ( $goals as $g ) {
@@ -1436,35 +1452,36 @@ class FrontendPdpManageView extends FrontendViewBase {
                 $num_glyph = (string) $goal_index;
             }
 
-            echo '<div class="tt-pop-goal ' . esc_attr( $card_mod ) . '">';
-            echo '<div class="tt-pop-goal__head">';
-            echo '<div class="tt-pop-goal__titlerow">';
+            // #1754 — collapsible goal card with a conversation per goal.
+            // Native <details> (no JS, keyboard-accessible). In-progress
+            // goals open by default so their active conversations show.
+            $open_attr = ( ! $is_done && ! in_array( $status, [ 'planned', 'not_started' ], true ) ) ? ' open' : '';
+            $msg_n     = $conv_counts[ (int) $g->id ] ?? 0;
+
+            echo '<details class="tt-pop-goal ' . esc_attr( $card_mod ) . '"' . $open_attr . '>';
+            echo '<summary class="tt-pop-goal__head">';
             echo '<span class="tt-pop-goal__num" aria-hidden="true">' . esc_html( $num_glyph ) . '</span>';
-            // #0070 — connected goal title links to goal detail page.
-            echo '<span class="tt-pop-goal__title">'
-                . \TT\Shared\Frontend\Components\RecordLink::inline(
-                    $title,
-                    \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'goals', (int) $g->id )
-                )
-                . '</span>';
-            echo '</div>';
+            echo '<span class="tt-pop-goal__title">' . esc_html( $title ) . '</span>';
+            // #0063 — same goal_status pill as everywhere else.
+            echo \TT\Infrastructure\Query\LookupPill::render( 'goal_status', $status );
+            echo '<span class="tt-pop-goal__convn" title="' . esc_attr__( 'Messages in this goal’s conversation', 'talenttrack' ) . '">'
+                . '<span aria-hidden="true">&#128172;</span> ' . (int) $msg_n . '</span>';
             if ( ! empty( $g->due_date ) ) {
                 echo '<span class="tt-pop-goal__when">' . esc_html( $due ) . '</span>';
             }
-            echo '</div>';
+            echo '<svg class="tt-pop-goal__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
+            echo '</summary>';
 
+            echo '<div class="tt-pop-goal__body">';
+
+            // Left column — detail: description, methodology links, mention.
+            echo '<div class="tt-pop-goal__detail">';
             if ( ! empty( $g->description ) ) {
                 echo '<p class="tt-pop-goal__desc">' . esc_html( (string) $g->description ) . '</p>';
             }
-
-            echo '<div class="tt-pop-goal__chips">';
-            // #0063 — connected goals use goal_status pill same as everywhere else.
-            echo \TT\Infrastructure\Query\LookupPill::render( 'goal_status', $status );
             if ( $priority !== '' ) {
-                echo '<span class="tt-status-badge tt-status-future">' . esc_html( $priority ) . '</span>';
+                echo '<div class="tt-pop-goal__chips"><span class="tt-status-badge tt-status-future">' . esc_html( $priority ) . '</span></div>';
             }
-            echo '</div>';
-
             if ( ! empty( $links ) ) {
                 echo '<p class="tt-pop-lbl">' . esc_html__( 'Linked to', 'talenttrack' ) . '</p>';
                 echo '<div class="tt-pop-evid">';
@@ -1475,7 +1492,6 @@ class FrontendPdpManageView extends FrontendViewBase {
                 }
                 echo '</div>';
             }
-
             if ( $latest_mention !== null ) {
                 echo '<div class="tt-pop-mention">';
                 echo '<span class="tt-pop-mention__when">' . esc_html( sprintf(
@@ -1486,8 +1502,20 @@ class FrontendPdpManageView extends FrontendViewBase {
                 echo esc_html( $latest_mention['snippet'] );
                 echo '</div>';
             }
-
+            echo '<p class="tt-pop-goal__open"><a href="'
+                . esc_url( \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'goals', (int) $g->id ) )
+                . '">' . esc_html__( 'Open goal', 'talenttrack' ) . ' &rsaquo;</a></p>';
             echo '</div>';
+
+            // Right column — this goal's own conversation thread (#1754).
+            echo '<div class="tt-pop-goal__convo">';
+            echo '<div class="tt-pop-goal__convo-h"><b>' . esc_html__( 'Conversation', 'talenttrack' )
+                . '</b><span>' . esc_html__( 'player & coach', 'talenttrack' ) . '</span></div>';
+            \TT\Shared\Frontend\Components\FrontendThreadView::render( 'goal', (int) $g->id, $viewer_id );
+            echo '</div>';
+
+            echo '</div>'; // .tt-pop-goal__body
+            echo '</details>';
         }
         echo '</div>';
     }

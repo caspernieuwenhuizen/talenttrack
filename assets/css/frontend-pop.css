@@ -299,3 +299,76 @@
         align-items: start;
     }
 }
+
+/* #1754 — collapsible POP goal cards with a conversation per goal.
+   The card is now a <details>; the head is its <summary>. */
+.tt-dashboard details.tt-pop-goal { padding: 0; overflow: hidden; }
+.tt-dashboard .tt-pop-goal__head {
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    list-style: none;
+}
+.tt-dashboard .tt-pop-goal__head::-webkit-details-marker { display: none; }
+.tt-dashboard .tt-pop-goal__head:focus-visible {
+    outline: 2px solid var(--tt-secondary, #e8b624);
+    outline-offset: -2px;
+}
+.tt-dashboard .tt-pop-goal__head .tt-pop-goal__title { flex: 1; }
+.tt-dashboard .tt-pop-goal__convn {
+    flex: 0 0 auto;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #145a44;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+}
+.tt-dashboard .tt-pop-goal__chev {
+    flex: 0 0 auto;
+    width: 18px;
+    height: 18px;
+    color: var(--tt-muted);
+    transition: transform 0.15s ease;
+}
+.tt-dashboard details.tt-pop-goal[open] .tt-pop-goal__chev { transform: rotate(90deg); }
+
+.tt-dashboard .tt-pop-goal__body {
+    border-top: 1px solid #e3e6e1;
+    display: grid;
+    grid-template-columns: 1fr;
+}
+@media (min-width: 860px) {
+    .tt-dashboard .tt-pop-goal__body { grid-template-columns: 1.15fr 0.85fr; }
+}
+.tt-dashboard .tt-pop-goal__detail { padding: 0.85rem 1rem; }
+.tt-dashboard .tt-pop-goal__convo {
+    padding: 0.85rem 1rem;
+    background: #fbfcfb;
+    border-top: 1px solid #e3e6e1;
+}
+@media (min-width: 860px) {
+    .tt-dashboard .tt-pop-goal__convo { border-top: 0; border-left: 1px solid #e3e6e1; }
+}
+.tt-dashboard .tt-pop-goal__convo-h {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+.tt-dashboard .tt-pop-goal__convo-h b {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--tt-muted);
+}
+.tt-dashboard .tt-pop-goal__convo-h span { font-size: 0.7rem; color: var(--tt-muted); }
+.tt-dashboard .tt-pop-goal__open { margin: 0.6rem 0 0; }
+.tt-dashboard .tt-pop-goal__open a {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #145a44;
+    text-decoration: none;
+}
+.tt-dashboard .tt-pop-goal__open a:hover { text-decoration: underline; }
