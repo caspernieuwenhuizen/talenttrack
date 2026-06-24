@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TalentTrack — 2-koloms dashboard mockups</title>
+<style>
+  :root{
+    --line:#e5e7ea; --muted:#5b6e75; --ink:#1a1d21; --bg:#f4f5f7;
+    --radius:10px; --chip:14px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:1320px;margin:0 auto;padding:24px}
+  h1.page{font-size:22px;margin:0 0 4px}
+  .sub{color:var(--muted);margin:0 0 24px}
+  .variant{background:#fff;border:1px solid var(--line);border-radius:14px;padding:0;margin:0 0 40px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+  .variant > .vh{display:flex;align-items:baseline;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line);background:#fafbfc}
+  .variant > .vh b{font-size:15px}
+  .variant > .vh span{color:var(--muted);font-size:12.5px}
+  .canvas{padding:22px}
+
+  /* group heading */
+  .grp{font-size:11px;font-weight:700;letter-spacing:.06em;color:#8a949b;text-transform:uppercase;margin:0 0 10px;padding-bottom:7px;border-bottom:1px solid var(--line)}
+  .grp:not(:first-child){margin-top:26px}
+
+  /* tile card */
+  .card{display:flex;flex-direction:column;gap:8px;background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:13px 14px;min-height:74px;text-decoration:none;color:inherit;transition:transform .15s,box-shadow .15s}
+  .card:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,.07)}
+  .card .top{display:flex;align-items:center;gap:11px}
+  .chip{width:46px;height:46px;min-width:46px;border-radius:var(--chip);display:grid;place-items:center;font-size:22px;line-height:1}
+  .ttl{font-weight:650;font-size:14px}
+  .desc{color:var(--muted);font-size:12.5px;margin:0}
+
+  /* left column grouped grids */
+  .gridcards{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(232px,1fr))}
+  .gridcards.three{grid-template-columns:repeat(3,1fr)}
+
+  /* right rail — "Mijn" list, 1 per row */
+  .rail .grp{margin-top:0}
+  .railrow{display:flex;align-items:center;gap:11px;background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:9px 12px;margin-bottom:9px;text-decoration:none;color:inherit;min-height:52px;transition:background .12s,border-color .12s}
+  .railrow:hover{background:#fafbfc;border-color:#d3d8dc}
+  .railrow .chip{width:38px;height:38px;min-width:38px;border-radius:11px;font-size:18px}
+  .railrow .rt{display:flex;flex-direction:column;min-width:0}
+  .railrow .rt b{font-weight:600;font-size:13.5px}
+  .railrow .rt small{color:var(--muted);font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+  /* layouts */
+  .twocol{display:grid;gap:26px}
+  .v1 .twocol{grid-template-columns:minmax(0,1fr) 340px}
+  .v2 .twocol{grid-template-columns:minmax(0,1fr) 286px}
+  .v3 .twocol{grid-template-columns:minmax(0,1fr) 320px}
+  .rail-sticky{position:sticky;top:16px;align-self:start}
+
+  /* v3 panel treatment */
+  .panel{background:#fbfcfd;border:1px solid var(--line);border-radius:12px;padding:14px}
+  .panel h3{margin:0 0 12px;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#6b7780}
+  .panel .railrow{background:#fff}
+
+  .note{font-size:12px;color:var(--muted);margin:10px 2px 0}
+  @media(max-width:900px){
+    .v1 .twocol,.v2 .twocol,.v3 .twocol{grid-template-columns:1fr}
+    .rail-sticky{position:static}
+    .gridcards.three{grid-template-columns:repeat(auto-fill,minmax(232px,1fr))}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1 class="page">TalentTrack — 2-koloms desktop dashboard</h1>
+  <p class="sub">Links: werkgroepen in de volgorde Prestaties → Personen → Planning &amp; tactiek → Ontwikkeling → Naslag. Rechts: <b>Ik / Mijn</b> als verticale lijst (1 tegel per rij). Drie varianten ter vergelijking. Versmalt naar 1 kolom op mobiel.</p>
+  <div id="mounts"></div>
+</div>
+
+<script>
+const C = { purple:'#7c3a9e', gold:'#c9962a', blue:'#2271b1', red:'#b32d2e', teal:'#1d7874', teal2:'#0d9488', slate:'#5b6e75', green:'#0b3d2e' };
+function tint(hex){ // light accent chip background
+  const n=parseInt(hex.slice(1),16),r=n>>16,g=(n>>8)&255,b=n&255,m=.14;
+  return `rgb(${Math.round(r*m+255*(1-m))},${Math.round(g*m+255*(1-m))},${Math.round(b*m+255*(1-m))})`;
+}
+// LEFT — work groups (requested order)
+const LEFT = [
+  ['Prestaties', [
+    ['📋','Evaluaties','Registreer spelerbeoordelingen, voeg notities en scores toe.',C.purple],
+    ['⏰','Activiteiten','Registreer trainingen en aanwezigheid.',C.gold],
+    ['🏆','Toernooien','Plan toernooi-weekenden: selectie, opstelling per wedstrijd, speeltijd.',C.blue],
+    ['🎯','Doelen','Stel ontwikkelingsdoelen in en volg ze per speler.',C.red],
+  ]],
+  ['Personen', [
+    ['👥','Mijn teams','Teams die je coacht — selectie, podium, evaluaties.',C.blue],
+    ['🧑','Spelers','Spelers van de teams die jij coacht.',C.teal],
+    ['🪪','Personen','Staf, ouders, scouts en andere niet-spelers.',C.slate],
+    ['🧩','Functionele rollen','Stafleden per team: coach, assistent, manager, fysio.',C.slate],
+    ['📄','Stafoverzicht','Open doelen, achterstallige reviews, vervallende certs.',C.green],
+  ]],
+  ['Planning & tactiek', [
+    ['🗓️','Teamplanner','Plan trainingen week voor week met principes.',C.blue],
+    ['🧪','VCT-trainingsontwerper','Bouw trainingen uit de oefeningenbibliotheek.',C.gold],
+    ['👥','Teamblauwdruk','Sleep opstellingen samen met live chemie.',C.blue],
+  ]],
+  ['Ontwikkeling', [
+    ['🎯','POP','Bestanden per seizoen: gesprekken, doelen, oordeel.',C.teal],
+    ['🧭','POP-planning','Geplande vs. gehouden gesprekken, per team en blok.',C.slate],
+  ]],
+  ['Naslag', [
+    ['🧭','Methodologie','Principes, formaties, posities en spelhervattingen.',C.teal],
+  ]],
+  ['Stages', [
+    ['🪜','Instroompijplijn','Trechter van prospect tot aanbod in zes fasen.',C.purple],
+    ['📅','Scoutingbezoeken','Plan en registreer scoutingbezoeken voor prospects.',C.blue],
+    ['🗂️','Stagedossiers','Volg prospects: data, input en beslissingen.',C.gold],
+    ['📁','Stagetrajecten','Bewerk standaardtemplates voor nieuwe stagedossiers.',C.slate],
+    ['📖','Briefsjablonen','Pas tekst van toelaat-/afwijsbrief aan per taal.',C.slate],
+  ]],
+  ['Analyses', [
+    ['🔀','Spelervergelijking','Vergelijk maximaal 4 spelers naast elkaar.',C.purple],
+    ['📄','Rapporten','Spelervoortgang, teambeoordelingen, coachactiviteit.',C.green],
+    ['📦','Exports','Bulkexports: spelers, aanwezigheid, doelen, meer.',C.blue],
+    ['📊','Applicatie-KPIs','Gebruik: evaluaties, aanwezigheid, doelen, spelers.',C.slate],
+    ['🏆','Podium','Teamranglijsten en topspelers.',C.gold],
+  ]],
+];
+// RIGHT — "Ik / Mijn"
+const RIGHT = [
+  ['🧭','Mijn reis','Je academieverhaal: mijlpalen en voortgang.',C.teal2],
+  ['🪪','Mijn kaart','Je kaart, beoordelingen en kerncijfers.',C.teal],
+  ['👥','Mijn team','Jouw teamgenoten en het podium van het team.',C.blue],
+  ['📋','Mijn evaluaties','Beoordelingen en feedback van jouw coaches.',C.purple],
+  ['⏰','Mijn activiteiten','Trainingen en wedstrijden die je hebt bijgewoond.',C.gold],
+  ['🎯','Mijn doelen','Ontwikkelingsdoelen om naartoe te werken.',C.red],
+  ['🎯','Mijn POP','Je plan: gesprekken, reflecties, seizoensoordeel.',C.teal],
+  ['📄','Mijn certificeringen','Coachbadges en certificaten met vervaltracking.',C.gold],
+];
+
+function chip(icon,color){ return `<span class="chip" style="background:${tint(color)};color:${color}">${icon}</span>`; }
+function card([icon,ttl,desc,color]){ return `<a class="card" href="#"><div class="top">${chip(icon,color)}<span class="ttl">${ttl}</span></div><p class="desc">${desc}</p></a>`; }
+function leftCol(threeUp){ return LEFT.map(([g,tiles])=>`<div class="grp">${g}</div><div class="gridcards${threeUp?' three':''}">${tiles.map(card).join('')}</div>`).join(''); }
+function railRow([icon,ttl,desc,color],showDesc){ return `<a class="railrow" href="#">${chip(icon,color)}<span class="rt"><b>${ttl}</b>${showDesc?`<small>${desc}</small>`:''}</span></a>`; }
+
+function variant(cls,title,note,opts){
+  const rail = `<div class="grp">Ik</div>${RIGHT.map(r=>railRow(r,opts.desc)).join('')}`;
+  const railWrap = opts.panel
+    ? `<div class="panel${opts.sticky?' rail-sticky':''}"><h3>Mijn werk</h3>${RIGHT.map(r=>railRow(r,opts.desc)).join('')}</div>`
+    : `<div class="rail${opts.sticky?' rail-sticky':''}">${rail}</div>`;
+  return `<div class="variant ${cls}">
+    <div class="vh"><b>${title}</b><span>${note}</span></div>
+    <div class="canvas"><div class="twocol">
+      <div>${leftCol(opts.threeUp)}</div>
+      ${railWrap}
+    </div></div>
+  </div>`;
+}
+
+document.getElementById('mounts').innerHTML = [
+  variant('v3','Variant D — B + C (gecombineerd · jouw keuze)','Rechts als één omkaderd "Mijn werk"-paneel (sticky), met <b>compacte rijen: alleen icoon + titel</b> (geen omschrijving) — strak en veel tegels boven de vouw. Links de werkgroepen in jouw volgorde.', {sticky:true,desc:false,threeUp:false,panel:true}),
+  variant('v2','Variant B — Compacte rail (ter referentie)','Rechts 286px, sticky · "Mijn" rijen alleen icoon + titel · links vaste 3-koloms kaarten', {sticky:true,desc:false,threeUp:true,panel:false}),
+  variant('v3','Variant C — "Mijn werk" paneel (ter referentie)','Rechts als omkaderd paneel met kop "Mijn werk" · rijen met icoon + titel + omschrijving', {sticky:true,desc:true,threeUp:false,panel:true}),
+  variant('v1','Variant A — Lijst-rail met omschrijving (ter referentie)','Rechts 340px, sticky · "Mijn" rijen met icoon, titel én omschrijving', {sticky:true,desc:true,threeUp:false,panel:false}),
+].join('');
+</script>
+</body>
+</html>

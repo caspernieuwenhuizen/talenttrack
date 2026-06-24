@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Star rating preview — #1641 / #1642</title>
+<style>
+  /* ---- page chrome (preview only) ---- */
+  body { font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+         color:#1a1d21; background:#f1f4f6; margin:0; padding:24px; }
+  .wrap { max-width:680px; margin:0 auto; }
+  .card { background:#fff; border:1px solid #d6dadd; border-radius:12px; padding:20px 22px; margin-bottom:20px; }
+  h1 { font-size:20px; margin:0 0 4px; }
+  h2 { font-size:15px; margin:18px 0 6px; }
+  .muted { color:#5b6e75; font-size:13px; }
+  .cat { font-weight:600; min-width:90px; display:inline-block; }
+  .sub-label { color:#5b6e75; padding-left:18px; }
+  .toggle button { font-size:12px; padding:3px 10px; border:1px solid #0b3d2e; background:#fff; cursor:pointer; }
+  .toggle button[aria-selected="true"] { background:#0b3d2e; color:#fff; }
+  .toggle { display:inline-flex; border-radius:6px; overflow:hidden; margin-left:10px; }
+  .grid { display:grid; grid-template-columns: 90px 1fr; align-items:center; gap:4px 12px; }
+  hr { border:0; border-top:1px solid #eef1f3; margin:14px 0; }
+
+  /* ====== EXACT copy of assets/css/components/rating-input.css ====== */
+  .tt-rating-input, .tt-rating-row {
+    --tt-rating-accent: #2271b1; --tt-rating-ink:#1a1d21; --tt-rating-soft:#5b6e75;
+    --tt-rating-line:#d6dadd; --tt-rating-star:#f5a623;
+  }
+  .tt-rating-hidden { display:none; }
+  .tt-rating-stars { display:inline-flex; gap:2px; }
+  .tt-rating-star {
+    appearance:none; -webkit-appearance:none; background:none; border:0; padding:0; margin:0;
+    width:44px; height:44px; font-size:28px; line-height:1; color:var(--tt-rating-line);
+    cursor:pointer; touch-action:manipulation; transition:color 60ms ease, transform 60ms ease;
+  }
+  .tt-rating-star.is-on { color:var(--tt-rating-star); }
+  .tt-rating-star.is-hover { color:#f7b84b; }
+  .tt-rating-star:active { transform:scale(0.9); }
+  .tt-rating-star:focus-visible { outline:2px solid var(--tt-rating-accent); outline-offset:2px; border-radius:6px; }
+  .tt-rating-star[disabled] { opacity:0.5; cursor:not-allowed; }
+  .tt-rating-row__val { font:600 13px/1.2 inherit; color:var(--tt-rating-soft); min-width:72px; text-align:right; }
+  .tt-rating-row__val--unset { color:var(--tt-rating-line); font-weight:400; }
+  .tt-rating-row--stars { display:flex; align-items:center; gap:8px 10px; flex-wrap:wrap; padding:6px 0; }
+  .tt-rating-row--stars .tt-rating-row__label { flex:0 0 auto; min-width:78px; font:600 13px/1.2 inherit; color:var(--tt-rating-ink); }
+  .tt-rating-row--stars .tt-rating-row__val { margin-left:auto; }
+  .tt-rating-row--sub { padding-left:16px; }
+  .tt-rating-input--single { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  .tt-rating-input--single .tt-rating-star { width:48px; height:48px; font-size:34px; }
+  .tt-rating-input--single .tt-rating-row__val { min-width:88px; text-align:left; font-size:15px; }
+  @media (prefers-reduced-motion: reduce) { .tt-rating-star { transition:none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Star rating — preview (#1641 / #1642)</h1>
+  <p class="muted">This is a standalone preview of the new control — open it in any browser, no WordPress needed.
+  Click a star, use arrow keys, hover to preview. The readout shows the Dutch label. The subcategory rows demo the
+  <em>main = rounded average of subs</em> behaviour (the real wizard does the same).</p>
+
+  <div class="card">
+    <h2>Per-category rating (wizard style)</h2>
+    <div class="grid">
+
+      <span class="cat">Technisch</span>
+      <div class="tt-rating-row tt-rating-row--stars tt-rating-row--nolabel" data-tt-rating-row>
+        <input type="hidden" class="tt-rating-hidden tt-rate-input" name="ratings[1]" value="" data-tt-rating-value data-tt-rating-empty="1" data-tt-rate-main="1">
+        <div class="tt-rating-stars" role="radiogroup" aria-label="Technisch" data-labels='["Onvoldoende","Matig","Gemiddeld","Goed","Uitstekend"]'>
+          <button type="button" class="tt-rating-star" role="radio" aria-checked="false" data-value="5" aria-label="Onvoldoende" tabindex="0">&#9733;</button>
+          <button type="button" class="tt-rating-star" role="radio" aria-checked="false" data-value="6" aria-label="Matig" tabindex="-1">&#9733;</button>
+          <button type="button" class="tt-rating-star" role="radio" aria-checked="false" data-value="7" aria-label="Gemiddeld" tabindex="-1">&#9733;</button>
+          <button type="button" class="tt-rating-star" role="radio" aria-checked="false" data-value="8" aria-label="Goed" tabindex="-1">&#9733;</button>
+          <button type="button" class="tt-rating-star" role="radio" aria-checked="false" data-value="9" aria-label="Uitstekend" tabindex="-1">&#9733;</button>
+        </div>
+        <output class="tt-rating-row__val tt-rating-row__val--unset" data-tt-rating-readout>&mdash;</output>
+      </div>
+
+      <span class="sub-label">&#8627; Korte pass</span>
+      <div class="tt-rating-row tt-rating-row--stars tt-rating-row--nolabel" data-tt-rating-row>
+        <input type="hidden" class="tt-rating-hidden tt-rate-input" name="ratings[11]" value="" data-tt-rating-value data-tt-rating-empty="1" data-tt-rate-sub-parent="1">
+        <div class="tt-rating-stars" role="radiogroup" aria-label="Korte pass" data-labels='["Onvoldoende","Matig","Gemiddeld","Goed","Uitstekend"]'>
+          <button type="button" class="tt-rating-star" role="radio" aria-checked="false" data-value="5" aria-label="Onvoldoende" tabindex="0">&#9733;</button>
+          <button type="button" class="tt-rating-star" role="radio" aria-checked="false" data-value="6" aria-label="Matig" tabindex="-1">&#9733;</button>
+          <button type="button" class="tt-rating-star" role="radio" aria-checked="false" data-value="7" aria-label="Gemiddeld" tabindex="-1">&#9733;</button>
+          <button type="button" class="tt-rating-star" role="radio" aria-checked="false" data-value="8" aria-label="Goed" tabindex="-1">&#9733;</button>
+          <button type="button" class="tt-rating-star" role="radio" aria-checked="false" data-value="9" aria-label="Uitstekend" tabindex="-1">&#9733;</button>
+        </div>
+        <output class="tt-rating-row__val tt-rating-row__val--unset" data-tt-rating-readout>&mdash;</output>
+      </div>
+
+      <span class="sub-label">&#8627; Lange pass</span>
+      <div class="tt-rating-row tt-rating-row--stars tt-rating-row--nolabel" data-tt-rating-row>
+        <input type="hidden" class="tt-rating-hidden tt-rate-input" name="ratings[12]" value="" data-tt-rating-value data-tt-rating-empty="1" data-tt-rate-sub-parent="1">
+        <div class="tt-rating-stars" role="radiogroup" aria-label="Lange pass" data-labels='["Onvoldoende","Matig","Gemiddeld","Goed","Uitstekend"]'>
+          <button type="button" class="tt-rating-star" role="radio" aria-checked="false" data-value="5" aria-label="Onvoldoende" tabindex="0">&#9733;</button>
+          <button type="button" class="tt-rating-star" role="radio" aria-checked="false" data-value="6" aria-label="Matig" tabindex="-1">&#9733;</button>
+          <button type="button" class="tt-rating-star" role="radio" aria-checked="false" data-value="7" aria-label="Gemiddeld" tabindex="-1">&#9733;</button>
+          <button type="button" class="tt-rating-star" role="radio" aria-checked="false" data-value="8" aria-label="Goed" tabindex="-1">&#9733;</button>
+          <button type="button" class="tt-rating-star" role="radio" aria-checked="false" data-value="9" aria-label="Uitstekend" tabindex="-1">&#9733;</button>
+        </div>
+        <output class="tt-rating-row__val tt-rating-row__val--unset" data-tt-rating-readout>&mdash;</output>
+      </div>
+
+      <span class="cat">Mentaal</span>
+      <div class="tt-rating-row tt-rating-row--stars tt-rating-row--nolabel" data-tt-rating-row>
+        <input type="hidden" class="tt-rating-hidden tt-rate-input" name="ratings[4]" value="8" data-tt-rating-value data-tt-rate-main="4">
+        <div class="tt-rating-stars" role="radiogroup" aria-label="Mentaal" data-labels='["Onvoldoende","Matig","Gemiddeld","Goed","Uitstekend"]'>
+          <button type="button" class="tt-rating-star" role="radio" aria-checked="false" data-value="5" aria-label="Onvoldoende" tabindex="-1">&#9733;</button>
+          <button type="button" class="tt-rating-star" role="radio" aria-checked="false" data-value="6" aria-label="Matig" tabindex="-1">&#9733;</button>
+          <button type="button" class="tt-rating-star" role="radio" aria-checked="false" data-value="7" aria-label="Gemiddeld" tabindex="-1">&#9733;</button>
+          <button type="button" class="tt-rating-star" role="radio" aria-checked="true" data-value="8" aria-label="Goed" tabindex="0">&#9733;</button>
+          <button type="button" class="tt-rating-star" role="radio" aria-checked="false" data-value="9" aria-label="Uitstekend" tabindex="-1">&#9733;</button>
+        </div>
+        <output class="tt-rating-row__val" data-tt-rating-readout>Goed</output>
+      </div>
+
+    </div>
+    <p class="muted" style="margin-top:12px;">Set both subcategory rows above and watch <strong>Technisch</strong> auto-fill to the rounded average.</p>
+  </div>
+
+  <div class="card">
+    <h2>Single overall rating (self-eval / post-game)</h2>
+    <div class="tt-rating-input tt-rating-input--single">
+      <input type="hidden" class="tt-rating-hidden" name="overall_rating" value="" data-tt-rating-value data-tt-rating-empty="1">
+      <div class="tt-rating-stars" role="radiogroup" aria-label="Algemene beoordeling" data-labels='["Onvoldoende","Matig","Gemiddeld","Goed","Uitstekend"]'>
+        <button type="button" class="tt-rating-star" role="radio" aria-checked="false" data-value="5" aria-label="Onvoldoende" tabindex="0">&#9733;</button>
+        <button type="button" class="tt-rating-star" role="radio" aria-checked="false" data-value="6" aria-label="Matig" tabindex="-1">&#9733;</button>
+        <button type="button" class="tt-rating-star" role="radio" aria-checked="false" data-value="7" aria-label="Gemiddeld" tabindex="-1">&#9733;</button>
+        <button type="button" class="tt-rating-star" role="radio" aria-checked="false" data-value="8" aria-label="Goed" tabindex="-1">&#9733;</button>
+        <button type="button" class="tt-rating-star" role="radio" aria-checked="false" data-value="9" aria-label="Uitstekend" tabindex="-1">&#9733;</button>
+      </div>
+      <output class="tt-rating-row__val tt-rating-row__val--unset" data-tt-rating-readout>&mdash;</output>
+    </div>
+  </div>
+
+  <p class="muted">Resize the window to ~360px to see the mobile reflow. Star buttons are 44&times;44 (single rating 48&times;48).</p>
+</div>
+
+<!-- ====== EXACT copy of assets/js/components/rating-input.js ====== -->
+<script>
+(function () {
+    'use strict';
+    function parts(group) {
+        var parent = group.parentElement || document;
+        return { hidden: parent.querySelector('[data-tt-rating-value]'),
+                 readout: parent.querySelector('[data-tt-rating-readout]'),
+                 stars: group.querySelectorAll('.tt-rating-star'),
+                 labels: parseLabels(group) };
+    }
+    function parseLabels(group) { try { return JSON.parse(group.getAttribute('data-labels') || 'null'); } catch (e) { return null; } }
+    function syncDisplay(group) {
+        var p = parts(group); if (!p.hidden) return;
+        var empty = p.hidden.hasAttribute('data-tt-rating-empty') || p.hidden.value === '';
+        var val = parseFloat(p.hidden.value); var idx = -1;
+        p.stars.forEach(function (star, i) {
+            var sv = parseFloat(star.getAttribute('data-value'));
+            var on = !empty && !isNaN(val) && val >= sv - 0.001;
+            var sel = !empty && !isNaN(val) && Math.abs(val - sv) < 0.001;
+            star.classList.toggle('is-on', on);
+            star.setAttribute('aria-checked', sel ? 'true' : 'false');
+            star.setAttribute('tabindex', sel ? '0' : '-1');
+            if (sel) idx = i;
+        });
+        if (idx === -1 && p.stars.length) p.stars[0].setAttribute('tabindex', '0');
+        if (p.readout) {
+            if (empty) { p.readout.textContent = '—'; p.readout.classList.add('tt-rating-row__val--unset'); }
+            else { p.readout.textContent = (p.labels && p.labels[idx]) ? p.labels[idx] : (isNaN(val) ? '—' : String(val));
+                   p.readout.classList.remove('tt-rating-row__val--unset'); }
+        }
+    }
+    function setValue(group, value) {
+        var p = parts(group); if (!p.hidden || p.hidden.disabled) return;
+        p.hidden.value = String(value); p.hidden.removeAttribute('data-tt-rating-empty');
+        syncDisplay(group);
+        p.hidden.dispatchEvent(new Event('input', { bubbles: true }));
+        p.hidden.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    function hoverTo(group, idx) { group.querySelectorAll('.tt-rating-star').forEach(function (s, i) { s.classList.toggle('is-hover', i <= idx); }); }
+    function clearHover(group) { group.querySelectorAll('.tt-rating-star').forEach(function (s) { s.classList.remove('is-hover'); }); }
+    function moveFocus(group, idx, dir) {
+        var stars = group.querySelectorAll('.tt-rating-star'); if (!stars.length) return;
+        var next = Math.min(stars.length - 1, Math.max(0, idx + dir));
+        stars[next].focus(); setValue(group, stars[next].getAttribute('data-value'));
+    }
+    function wire(group) {
+        var stars = group.querySelectorAll('.tt-rating-star');
+        stars.forEach(function (star, idx) {
+            star.addEventListener('click', function () { if (star.disabled) return; setValue(group, star.getAttribute('data-value')); });
+            star.addEventListener('mouseenter', function () { hoverTo(group, idx); });
+            star.addEventListener('keydown', function (e) {
+                var k = e.key;
+                if (k === 'ArrowRight' || k === 'ArrowUp') { e.preventDefault(); moveFocus(group, idx, 1); }
+                else if (k === 'ArrowLeft' || k === 'ArrowDown') { e.preventDefault(); moveFocus(group, idx, -1); }
+                else if (k === ' ' || k === 'Enter') { e.preventDefault(); setValue(group, star.getAttribute('data-value')); }
+            });
+        });
+        group.addEventListener('mouseleave', function () { clearHover(group); });
+        var hidden = parts(group).hidden;
+        if (hidden && !hidden.dataset.ttStarSync) {
+            hidden.dataset.ttStarSync = '1';
+            hidden.addEventListener('input', function () { syncDisplay(group); });
+            hidden.addEventListener('change', function () { syncDisplay(group); });
+        }
+        syncDisplay(group);
+    }
+    function init(root) {
+        (root || document).querySelectorAll('.tt-rating-stars').forEach(function (g) { if (g.dataset.ttStarWired) return; g.dataset.ttStarWired = '1'; wire(g); });
+    }
+    init();
+}());
+</script>
+
+<!-- Mini recalc demo: main = rounded average of subs (mirrors RateActorsStep) -->
+<script>
+(function () {
+    document.addEventListener('input', function (e) {
+        var sub = e.target;
+        if (!sub.matches || !sub.matches('[data-tt-rate-sub-parent]')) return;
+        var parentId = sub.getAttribute('data-tt-rate-sub-parent');
+        var scope = document.querySelector('.grid');
+        var main = scope.querySelector('[data-tt-rate-main="' + parentId + '"]');
+        if (!main) return;
+        var subs = scope.querySelectorAll('[data-tt-rate-sub-parent="' + parentId + '"]');
+        var sum = 0, count = 0;
+        subs.forEach(function (s) { if (s.hasAttribute('data-tt-rating-empty')) return; var v = parseFloat(s.value); if (v > 0) { sum += v; count++; } });
+        if (count > 0) {
+            main.value = String(Math.round(sum / count));
+            main.removeAttribute('data-tt-rating-empty');
+            main.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+    });
+}());
+</script>
+</body>
+</html>

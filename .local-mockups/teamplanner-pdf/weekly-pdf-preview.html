@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Weekplan - BTB JO14 - Week 26 - 2026</title>
+<!--
+  Faithful static preview of TeamPlannerWeeklyPrintRouter's output.
+  Class names + CSS mirror src/Modules/Planning/Print/TeamPlannerWeeklyPrintable.php
+  one-to-one, with CRNN branding (primary #0b3d2e, secondary #e8b624) baked in.
+  Open in a browser → File ▸ Print ▸ Save as PDF (enable "Background graphics")
+  to see exactly what the coach gets. The live route renders this from real
+  tt_activities rows + tt_config branding.
+-->
+<style>
+  :root {
+    --tt-green: #0b3d2e; --tt-green-2: #376054; --tt-gold: #e8b624;
+    --tt-pill-bg: #fbf2d8; --tt-pill-bd: #f5de9c; --tt-pill-ink: #806414;
+    --tt-ink: #1a1d21; --tt-muted: #6b7780; --tt-line: #e3e6ea; --tt-rest: #9aa3aa;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; background: #eceef0; color: var(--tt-ink);
+    font: 14px/1.45 "Helvetica Neue", Arial, system-ui, sans-serif;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  .tt-wp-page {
+    width: 210mm; min-height: 297mm; background: #fff; margin: 0 auto;
+    padding: 15mm 14mm; position: relative;
+    box-shadow: 0 2px 14px rgba(0,0,0,.12);
+  }
+  .tt-wp-hd {
+    display: flex; align-items: center; gap: 14px;
+    border-bottom: 3px solid var(--tt-green); padding-bottom: 12px;
+  }
+  .tt-wp-crest {
+    width: 48px; height: 48px; border-radius: 12px; flex: none;
+    background: var(--tt-green); color: #fff; display: grid; place-items: center;
+    font-weight: 800; font-size: 16px; box-shadow: inset 0 0 0 2px rgba(232,182,36,.55);
+  }
+  .tt-wp-id { min-width: 0; }
+  .tt-wp-ac { font-weight: 800; font-size: 17px; color: var(--tt-green); }
+  .tt-wp-sub { color: var(--tt-muted); font-size: 12.5px; margin-top: 1px; }
+  .tt-wp-wk { margin-left: auto; text-align: right; flex: none; }
+  .tt-wp-wk b { display: block; font-size: 19px; }
+  .tt-wp-wk span { color: var(--tt-muted); font-size: 12px; }
+  .tt-wp-week { margin-top: 2px; }
+  .tt-wp-row {
+    display: grid; grid-template-columns: 34mm 1fr;
+    border-bottom: 1px solid var(--tt-line);
+  }
+  .tt-wp-row:last-child { border-bottom: 0; }
+  .tt-wp-day {
+    background: linear-gradient(180deg, var(--tt-green), var(--tt-green-2));
+    color: #fff; padding: 12px 13px; position: relative;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .tt-wp-day::after {
+    content: ""; position: absolute; right: 0; top: 8px; bottom: 8px;
+    width: 3px; background: var(--tt-gold); border-radius: 2px;
+  }
+  .tt-wp-dn { font-weight: 800; font-size: 14px; letter-spacing: .03em; }
+  .tt-wp-dd { font-size: 11.5px; opacity: .85; margin-top: 2px; }
+  .tt-wp-cell { padding: 12px 15px; min-height: 20mm; }
+  .tt-wp-act + .tt-wp-act {
+    margin-top: 9px; padding-top: 9px; border-top: 1px dashed var(--tt-line);
+  }
+  .tt-wp-ttl {
+    font-weight: 700; font-size: 14.5px; display: flex; align-items: center;
+    gap: 9px; flex-wrap: wrap;
+  }
+  .tt-wp-tp {
+    font-size: 10px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase;
+    color: #fff; border-radius: 5px; padding: 3px 9px;
+  }
+  .tt-wp-meta { color: var(--tt-muted); font-size: 12px; margin: 3px 0 0; }
+  .tt-wp-pills { margin-top: 2px; }
+  .tt-wp-pill {
+    display: inline-block; background: var(--tt-pill-bg); color: var(--tt-pill-ink);
+    border: 1px solid var(--tt-pill-bd); border-radius: 999px; font-size: 10.5px;
+    font-weight: 600; padding: 2px 10px; margin: 6px 5px 0 0;
+  }
+  .tt-wp-notes { color: var(--tt-muted); font-size: 12px; font-style: italic; margin-top: 5px; }
+  .tt-wp-rest {
+    color: var(--tt-rest); font-style: italic; font-size: 12.5px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .tt-wp-rest .tt-wp-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--tt-line); }
+  .tt-wp-ftr {
+    margin-top: 14px; border-top: 1px solid var(--tt-line); padding-top: 6px;
+    display: flex; justify-content: space-between; color: var(--tt-muted); font-size: 10.5px;
+  }
+  /* ---- toolbar (screen only — hidden on print) ---- */
+  .tt-wp-toolbar {
+    display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+    max-width: 210mm; margin: 12px auto; padding: 0 4px;
+  }
+  .tt-wp-toolbar button, .tt-wp-toolbar a {
+    min-height: 48px; padding: 8px 18px; border: 1px solid #c5c8cc; background: #fff; cursor: pointer;
+    border-radius: 6px; font-size: 14px; color: #1a1d21; text-decoration: none; font: inherit;
+    display: inline-flex; align-items: center; touch-action: manipulation;
+  }
+  .tt-wp-toolbar button.primary { background: #0b3d2e; border-color: #0b3d2e; color: #fff; font-weight: 700; }
+  .tt-wp-toolbar .tt-wp-hint { flex-basis: 100%; margin: 0; color: #5b6e75; font-size: 12px; }
+  @media print {
+    html, body { background: #fff; }
+    .tt-wp-page { box-shadow: none; margin: 0; width: auto; min-height: 0; padding: 0; }
+    .tt-wp-toolbar { display: none; }
+    @page { size: A4 portrait; margin: 14mm; }
+  }
+</style>
+</head>
+<body>
+
+<div class="tt-wp-toolbar">
+  <button type="button" class="primary" onclick="window.print();">Save as PDF / Print</button>
+  <a href="#">Close</a>
+  <p class="tt-wp-hint">Tip: in the print dialog, enable "Background graphics" and set margins to Default for an exact match.</p>
+</div>
+
+<div class="tt-wp-page">
+  <div class="tt-wp-hd">
+    <div class="tt-wp-crest">CR</div>
+    <div class="tt-wp-id">
+      <div class="tt-wp-ac">Weekplan · Hedel JO13-1 · Week 26 · 2026</div>
+      <div class="tt-wp-sub">CRNN Test Academy</div>
+    </div>
+    <div class="tt-wp-wk"><span>23 jun – 29 jun 2026</span></div>
+  </div>
+
+  <div class="tt-wp-week">
+    <div class="tt-wp-row">
+      <div class="tt-wp-day"><span class="tt-wp-dn">Maandag</span><span class="tt-wp-dd">23 jun</span></div>
+      <div class="tt-wp-cell">
+        <div class="tt-wp-act">
+          <div class="tt-wp-ttl"><span class="tt-wp-tp" style="background:#0b3d2e;">Training</span><span class="tt-wp-name">Positiespel</span></div>
+          <div class="tt-wp-meta">18:00–19:30 · Veld 2 · 1h30</div>
+          <div class="tt-wp-pills"><span class="tt-wp-pill">Opbouw</span><span class="tt-wp-pill">Druk zetten</span><span class="tt-wp-pill">Breedte</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tt-wp-row">
+      <div class="tt-wp-day"><span class="tt-wp-dn">Dinsdag</span><span class="tt-wp-dd">24 jun</span></div>
+      <div class="tt-wp-cell"><div class="tt-wp-rest"><span class="tt-wp-dot"></span>Rustdag — geen geplande activiteit.</div></div>
+    </div>
+
+    <div class="tt-wp-row">
+      <div class="tt-wp-day"><span class="tt-wp-dn">Woensdag</span><span class="tt-wp-dd">25 jun</span></div>
+      <div class="tt-wp-cell">
+        <div class="tt-wp-act">
+          <div class="tt-wp-ttl"><span class="tt-wp-tp" style="background:#0b3d2e;">Training</span><span class="tt-wp-name">Omschakeling</span></div>
+          <div class="tt-wp-meta">18:00–19:30 · Veld 1 · 1h30</div>
+          <div class="tt-wp-pills"><span class="tt-wp-pill">Omschakeling A-V</span><span class="tt-wp-pill">Compact verdedigen</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tt-wp-row">
+      <div class="tt-wp-day"><span class="tt-wp-dn">Donderdag</span><span class="tt-wp-dd">26 jun</span></div>
+      <div class="tt-wp-cell">
+        <div class="tt-wp-act">
+          <div class="tt-wp-ttl"><span class="tt-wp-tp" style="background:#1e88e5;">Keeper</span><span class="tt-wp-name">Keeperstraining</span></div>
+          <div class="tt-wp-meta">17:30–18:30 · Veld 3 · 1h</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tt-wp-row">
+      <div class="tt-wp-day"><span class="tt-wp-dn">Vrijdag</span><span class="tt-wp-dd">27 jun</span></div>
+      <div class="tt-wp-cell"><div class="tt-wp-rest"><span class="tt-wp-dot"></span>Rustdag — geen geplande activiteit.</div></div>
+    </div>
+
+    <div class="tt-wp-row">
+      <div class="tt-wp-day"><span class="tt-wp-dn">Zaterdag</span><span class="tt-wp-dd">28 jun</span></div>
+      <div class="tt-wp-cell">
+        <div class="tt-wp-act">
+          <div class="tt-wp-ttl"><span class="tt-wp-tp" style="background:#b3611f;">Wedstrijd</span><span class="tt-wp-name">Hedel JO13-1 — Ajax JO13-2</span></div>
+          <div class="tt-wp-meta">Aftrap 11:00 · Thuis · Sportpark De Hoef</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tt-wp-row">
+      <div class="tt-wp-day"><span class="tt-wp-dn">Zondag</span><span class="tt-wp-dd">29 jun</span></div>
+      <div class="tt-wp-cell"><div class="tt-wp-rest"><span class="tt-wp-dot"></span>Rustdag — geen geplande activiteit.</div></div>
+    </div>
+  </div>
+
+  <div class="tt-wp-ftr"><span>CRNN Test Academy · Hedel JO13-1</span><span>Gegenereerd 22 jun 2026</span></div>
+</div>
+
+</body>
+</html>

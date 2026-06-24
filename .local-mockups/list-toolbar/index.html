@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>List filter/search toolbar — restyle options (#1753)</title>
+<style>
+:root{
+  --tt-primary:#0b3d2e;      /* green */
+  --tt-primary-deep:#07261c;
+  --tt-primary-soft:#145a44;
+  --tt-secondary:#e8b624;    /* gold */
+  --tt-ink:#14181a;
+  --tt-muted:#5a636a;
+  --tt-line:#e3e6e1;
+  --tt-bg:#f4f6f3;
+  --tt-paper:#ffffff;
+  --tt-green-chip-bg:#e3f4ea; --tt-green-chip-fg:#1f6e44; --tt-green-chip-bd:#bfe4cf;
+  --tt-r:8px; --tt-r-lg:14px;
+  --tt-shadow:0 4px 16px rgba(11,61,46,.08);
+  --tt-sp:14px;
+  font-family:"Segoe UI",-apple-system,Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#cfd5cd;color:var(--tt-ink);padding:14px;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+
+/* ---- mockup harness (not part of the product) ---- */
+.mh-bar{max-width:980px;margin:0 auto 14px;background:var(--tt-primary-deep);color:#fff;border-radius:var(--tt-r-lg);
+  padding:12px 16px;display:flex;flex-wrap:wrap;align-items:center;gap:10px;}
+.mh-bar h1{font-size:14px;font-weight:700;letter-spacing:.02em;margin-right:auto;min-width:0;}
+.mh-bar button{font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;border:1.5px solid rgba(255,255,255,.22);
+  background:rgba(255,255,255,.08);color:#fff;border-radius:999px;padding:7px 13px;min-height:40px;}
+.mh-bar button.on{background:var(--tt-secondary);color:var(--tt-primary-deep);border-color:var(--tt-secondary);}
+.mh-note{max-width:980px;margin:0 auto 14px;font-size:13px;color:#2c3a33;background:#eef2ec;border:1px solid var(--tt-line);
+  border-radius:var(--tt-r);padding:10px 14px;}
+.mh-note b{color:var(--tt-primary-deep);}
+
+/* ---- product surface ---- */
+.tt-app{max-width:980px;margin:0 auto;background:var(--tt-bg);border-radius:var(--tt-r-lg);
+  box-shadow:0 14px 38px rgba(11,61,46,.16);overflow:hidden;}
+.tt-topbar{height:54px;background:var(--tt-primary-deep);border-bottom:3px solid var(--tt-secondary);
+  display:flex;align-items:center;gap:12px;padding:0 16px;color:#fff;}
+.tt-topbar .mark{width:30px;height:30px;border-radius:7px;background:var(--tt-secondary);color:var(--tt-primary-deep);
+  display:grid;place-items:center;font-weight:800;font-size:13px;}
+.tt-topbar .crumbs{font-size:12.5px;color:rgba(255,255,255,.6);font-weight:600;}
+.tt-topbar .crumbs .here{color:#f3cf6a;}
+.tt-main{padding:16px;}
+
+/* shared controls (mobile-first) */
+.tt-input,.tt-select{font:inherit;font-size:16px;color:var(--tt-ink);background:#fff;border:1.5px solid var(--tt-line);
+  border-radius:var(--tt-r);padding:11px 12px;min-height:48px;width:100%;}
+.tt-input::placeholder{color:var(--tt-muted);}
+.tt-search{position:relative;}
+.tt-search .mag{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--tt-primary-soft);font-size:15px;}
+.tt-search .tt-input{padding-left:36px;}
+.tt-mlabel{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--tt-muted);
+  font-weight:700;margin:0 0 5px 2px;}
+.tt-btn{font:inherit;font-weight:600;font-size:14px;border:1.5px solid transparent;border-radius:var(--tt-r);
+  padding:0 16px;min-height:48px;display:inline-flex;align-items:center;gap:7px;cursor:pointer;white-space:nowrap;}
+.tt-btn-primary{background:var(--tt-secondary);color:var(--tt-primary-deep);}
+.tt-btn-secondary{background:#fff;color:var(--tt-primary);border-color:var(--tt-line);}
+.tt-title{font-size:21px;font-weight:700;color:var(--tt-primary-deep);}
+.tt-sub{font-size:13px;color:var(--tt-muted);margin-top:2px;}
+
+/* table */
+.tt-table{width:100%;border-collapse:collapse;font-size:14px;margin-top:14px;background:#fff;
+  border:1px solid var(--tt-line);border-radius:var(--tt-r-lg);overflow:hidden;}
+.tt-table th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--tt-muted);
+  padding:10px 12px;border-bottom:1.5px solid var(--tt-line);}
+.tt-table td{padding:10px 12px;border-bottom:1px solid var(--tt-line);}
+.tt-table tr:last-child td{border-bottom:none;}
+.tt-who{display:flex;align-items:center;gap:10px;}
+.tt-av{width:34px;height:34px;border-radius:50%;background:var(--tt-primary-soft);color:#fff;display:grid;
+  place-items:center;font-weight:700;font-size:12px;flex:0 0 auto;}
+.tt-who small{display:block;color:var(--tt-muted);font-size:11.5px;}
+.tt-chip{display:inline-flex;align-items:center;font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:999px;
+  background:var(--tt-green-chip-bg);color:var(--tt-green-chip-fg);border:1px solid var(--tt-green-chip-bd);}
+.col-hide{display:none;}
+
+/* ============ TOOLBAR VARIANTS (mobile-first base = stacked) ============ */
+.tb{display:none;}
+[data-variant="legacy"] .tb.legacy,
+[data-variant="A"] .tb.A,
+[data-variant="B"] .tb.B,
+[data-variant="C"] .tb.C,
+[data-variant="D"] .tb.D{display:block;}
+
+.head-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:12px;}
+
+/* baseline / legacy — today's soft-grey box (desktop-first origin) */
+.tb.legacy .box{display:flex;flex-direction:column;gap:10px;background:var(--tt-bg);border:1px solid var(--tt-line);
+  border-radius:var(--tt-r);padding:14px;}
+
+/* A — clean card toolbar */
+.tb.A .card{background:#fff;border:1px solid var(--tt-line);border-radius:var(--tt-r-lg);box-shadow:var(--tt-shadow);overflow:hidden;}
+.tb.A .card-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px;}
+.tb.A .filters{display:flex;flex-direction:column;gap:10px;padding:14px;border-top:1px solid var(--tt-line);background:var(--tt-bg);}
+
+/* B — minimal / borderless */
+.tb.B .rule{height:1px;background:var(--tt-line);margin:12px 0;}
+.tb.B .filters{display:flex;flex-direction:column;gap:10px;}
+.tb.B .tt-input,.tb.B .tt-select{background:transparent;border:0;border-bottom:1.5px solid var(--tt-line);border-radius:0;padding-left:4px;}
+.tb.B .tt-search .tt-input{padding-left:30px;}
+.tb.B .tt-search .mag{left:4px;}
+
+/* C — compact pill bar */
+.tb.C .pill{display:flex;flex-direction:column;gap:8px;background:#fff;border:1px solid var(--tt-line);
+  border-radius:var(--tt-r-lg);box-shadow:var(--tt-shadow);padding:10px;}
+.tb.C .tt-input,.tb.C .tt-select{border-radius:999px;background:var(--tt-bg);}
+.tb.C .tt-search .tt-input{background:#fff;}
+
+/* D — register (deck-anchored) */
+.tb.D .card{background:#fff;border:1px solid var(--tt-line);border-radius:var(--tt-r-lg);box-shadow:var(--tt-shadow);padding:14px;}
+.tb.D .grid{display:flex;flex-direction:column;gap:12px;}
+
+/* ============ desktop ============ */
+@media (min-width:768px){
+  .tt-input,.tt-select{font-size:14px;}
+  .tb.legacy .box{flex-direction:row;align-items:flex-end;flex-wrap:wrap;}
+  .tb.legacy .f{flex:0 0 auto;}
+  .tb.legacy .tt-search{flex:1 1 240px;}
+  .tb.A .filters{flex-direction:row;align-items:flex-end;flex-wrap:wrap;}
+  .tb.A .filters .tt-search{flex:1 1 260px;}
+  .tb.B .filters{flex-direction:row;align-items:flex-end;flex-wrap:wrap;}
+  .tb.B .filters .tt-search{flex:1 1 260px;}
+  .tb.C .pill{flex-direction:row;align-items:center;border-radius:999px;flex-wrap:wrap;}
+  .tb.C .pill .tt-search{flex:1 1 240px;}
+  .tb.D .grid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;align-items:end;}
+  .col-hide{display:table-cell;}
+  .tt-main{padding:22px;}
+}
+.field{min-width:0;}
+.field .tt-mlabel{display:block;}
+.tb.legacy .field .tt-mlabel,.tb.A .field .tt-mlabel,.tb.B .field .tt-mlabel,.tb.C .field .tt-mlabel{display:none;}
+@media (min-width:768px){
+  /* keep micro-labels only on D (register look); others rely on placeholders */
+}
+</style>
+</head>
+<body data-variant="D">
+
+  <div class="mh-bar">
+    <h1>List toolbar — restyle (#1753)</h1>
+    <button data-v="D" class="on">D · Register ★</button>
+    <button data-v="A">A · Card</button>
+    <button data-v="B">B · Minimal</button>
+    <button data-v="C">C · Pill</button>
+    <button data-v="legacy">Baseline</button>
+  </div>
+  <div class="mh-note">
+    Same controls (search + Team + Status + Sort), four restyle directions + today's baseline.
+    Resize the window to see the mobile-first stacking (base) collapse to the inline desktop layout (≥768px).
+    <b>D (register)</b> is the chosen standard for all lists — it mirrors the <code>06-attendance-minutes</code> deck slide. A/B/C kept for diffing. Filter set stays per-list; D fixes the shell only.
+  </div>
+
+  <div class="tt-app">
+    <div class="tt-topbar">
+      <div class="mark">TT</div>
+      <div class="crumbs">Dashboard › <span class="here">Players</span></div>
+    </div>
+    <div class="tt-main">
+
+      <!-- ===================== D — REGISTER (recommended) ===================== -->
+      <div class="tb D">
+        <div class="head-row">
+          <div>
+            <div class="tt-title">Players</div>
+            <div class="tt-sub">24 players · O15-1 · season 2026/27</div>
+          </div>
+          <button class="tt-btn tt-btn-primary">+ New</button>
+        </div>
+        <div class="card">
+          <div class="grid">
+            <div class="field"><span class="tt-mlabel">Search</span>
+              <div class="tt-search"><span class="mag">&#128269;</span><input class="tt-input" type="search" placeholder="Search by name…"></div></div>
+            <div class="field"><span class="tt-mlabel">Team</span>
+              <select class="tt-select"><option>O15-1</option></select></div>
+            <div class="field"><span class="tt-mlabel">Status</span>
+              <select class="tt-select"><option>Active</option></select></div>
+            <div class="field"><span class="tt-mlabel">Sort</span>
+              <select class="tt-select"><option>Name (A–Z)</option></select></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================== A — CARD ===================== -->
+      <div class="tb A">
+        <div class="card">
+          <div class="card-top">
+            <div class="tt-title">Players</div>
+            <button class="tt-btn tt-btn-primary">+ New</button>
+          </div>
+          <div class="filters">
+            <div class="field tt-search"><span class="mag">&#128269;</span><input class="tt-input" type="search" placeholder="Search by name…"></div>
+            <div class="field"><select class="tt-select"><option>Team</option></select></div>
+            <div class="field"><select class="tt-select"><option>Status</option></select></div>
+            <div class="field"><select class="tt-select"><option>Sort</option></select></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================== B — MINIMAL ===================== -->
+      <div class="tb B">
+        <div class="head-row">
+          <div class="tt-title">Players</div>
+          <button class="tt-btn tt-btn-primary">+ New</button>
+        </div>
+        <div class="rule"></div>
+        <div class="filters">
+          <div class="field tt-search"><span class="mag">&#128269;</span><input class="tt-input" type="search" placeholder="Search by name…"></div>
+          <div class="field"><select class="tt-select"><option>Team</option></select></div>
+          <div class="field"><select class="tt-select"><option>Status</option></select></div>
+          <div class="field"><select class="tt-select"><option>Sort</option></select></div>
+        </div>
+      </div>
+
+      <!-- ===================== C — PILL ===================== -->
+      <div class="tb C">
+        <div class="head-row">
+          <div class="tt-title">Players</div>
+          <button class="tt-btn tt-btn-primary">+ New</button>
+        </div>
+        <div class="pill">
+          <div class="field tt-search"><span class="mag">&#128269;</span><input class="tt-input" type="search" placeholder="Search by name…"></div>
+          <div class="field"><select class="tt-select"><option>Team</option></select></div>
+          <div class="field"><select class="tt-select"><option>Status</option></select></div>
+          <div class="field"><select class="tt-select"><option>Sort</option></select></div>
+        </div>
+      </div>
+
+      <!-- ===================== BASELINE ===================== -->
+      <div class="tb legacy">
+        <div class="head-row">
+          <div class="tt-title">Players</div>
+          <button class="tt-btn tt-btn-primary">+ New</button>
+        </div>
+        <div class="box">
+          <div class="f tt-search"><span class="mag">&#128269;</span><input class="tt-input" type="search" placeholder="Search…"></div>
+          <div class="f"><select class="tt-select"><option>Team</option></select></div>
+          <div class="f"><select class="tt-select"><option>Status</option></select></div>
+          <div class="f"><select class="tt-select"><option>Sort</option></select></div>
+        </div>
+      </div>
+
+      <!-- shared sample list -->
+      <table class="tt-table">
+        <thead><tr><th>Player</th><th class="col-hide">Team</th><th class="col-hide">Position</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td><div class="tt-who"><span class="tt-av">LO</span><div><b>Liam Okafor</b><small>#9 · Striker</small></div></div></td><td class="col-hide">O15-1</td><td class="col-hide">Striker</td><td><span class="tt-chip">Active</span></td></tr>
+          <tr><td><div class="tt-who"><span class="tt-av">NV</span><div><b>Noa Visser</b><small>#7 · Winger</small></div></div></td><td class="col-hide">O15-1</td><td class="col-hide">Winger</td><td><span class="tt-chip">Active</span></td></tr>
+          <tr><td><div class="tt-who"><span class="tt-av">JS</span><div><b>Jens Smit</b><small>#3 · Defender</small></div></div></td><td class="col-hide">O15-1</td><td class="col-hide">Defender</td><td><span class="tt-chip">Active</span></td></tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+
+<script>
+  document.querySelectorAll('.mh-bar button').forEach(function(b){
+    b.addEventListener('click', function(){
+      document.body.setAttribute('data-variant', b.getAttribute('data-v'));
+      document.querySelectorAll('.mh-bar button').forEach(function(x){ x.classList.toggle('on', x===b); });
+    });
+  });
+</script>
+</body>
+</html>
