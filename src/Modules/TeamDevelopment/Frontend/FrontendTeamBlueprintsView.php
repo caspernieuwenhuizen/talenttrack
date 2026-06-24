@@ -80,14 +80,14 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
             return;
         }
 
-        echo '<p style="color:#5b6e75; margin-bottom:12px;">' . esc_html__( 'Pick a team to open its saved blueprints — match-day lineups you can build, share with staff, and lock once finalised.', 'talenttrack' ) . '</p>';
+        echo '<p class="tt-bp-picker-intro">' . esc_html__( 'Pick a team to open its saved blueprints — match-day lineups you can build, share with staff, and lock once finalised.', 'talenttrack' ) . '</p>';
         $base_url = remove_query_arg( [ 'team_id' ] );
-        echo '<div class="tt-card-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:12px;">';
+        echo '<div class="tt-bp-picker-grid">';
         foreach ( $teams as $t ) {
             $url = add_query_arg( [ 'tt_view' => 'team-blueprints', 'team_id' => (int) $t->id ], $base_url );
-            echo '<a class="tt-card" href="' . esc_url( $url ) . '" style="background:#fff; border:1px solid #e5e7ea; border-radius:8px; padding:14px 16px; text-decoration:none; color:#1a1d21;">';
-            echo '<strong style="display:block; margin-bottom:4px;">' . esc_html( (string) $t->name ) . '</strong>';
-            echo '<span style="color:#5b6e75; font-size:13px;">' . esc_html__( 'Open blueprints →', 'talenttrack' ) . '</span>';
+            echo '<a class="tt-bp-picker-card" href="' . esc_url( $url ) . '">';
+            echo '<strong class="tt-bp-picker-card__name">' . esc_html( (string) $t->name ) . '</strong>';
+            echo '<span class="tt-bp-picker-card__cta">' . esc_html__( 'Open blueprints →', 'talenttrack' ) . '</span>';
             echo '</a>';
         }
         echo '</div>';
@@ -111,7 +111,7 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
 
         if ( $can_manage ) {
             $new_url = WizardEntryPoint::buildUrl( 'new-team-blueprint', [ 'team_id' => (int) $team->id ] );
-            echo '<p style="margin:0 0 16px;">';
+            echo '<p class="tt-bp-list-actions">';
             echo '<a class="tt-btn tt-btn-primary" href="' . esc_url( $new_url ) . '">'
                 . esc_html__( '+ New blueprint', 'talenttrack' ) . '</a>';
             echo '</p>';
@@ -122,7 +122,9 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
             return;
         }
 
-        echo '<table class="tt-list-table-table"><thead><tr>';
+        echo '<div class="tt-report-card tt-bp-list-card">';
+        echo '<div class="tt-table-wrap">';
+        echo '<table class="tt-table tt-bp-list-table"><thead><tr>';
         echo '<th>' . esc_html__( 'Name', 'talenttrack' ) . '</th>';
         echo '<th>' . esc_html__( 'Formation', 'talenttrack' ) . '</th>';
         echo '<th>' . esc_html__( 'Status', 'talenttrack' ) . '</th>';
@@ -140,7 +142,7 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
             echo '<td>' . esc_html( (string) ( $row['template_name'] ?? '—' ) ) . '</td>';
             echo '<td>' . self::statusPill( (string) $row['status'] ) . '</td>';
             echo '<td>' . esc_html( (string) $row['updated_at'] ) . '</td>';
-            echo '<td style="display:flex; gap:6px; flex-wrap:wrap;">';
+            echo '<td class="tt-bp-list-rowactions">';
             echo '<a class="tt-btn tt-btn-secondary tt-btn-sm" href="' . esc_url( $open ) . '">'
                 . esc_html__( 'Open', 'talenttrack' ) . '</a>';
             // #1329 — Delete affordance, cap-gated; hidden on locked
@@ -163,12 +165,14 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
             echo '</tr>';
         }
         echo '</tbody></table>';
+        echo '</div>'; // .tt-table-wrap
+        echo '</div>'; // .tt-report-card
     }
 
     private static function renderEditor( int $blueprint_id, int $user_id, bool $is_admin ): void {
         // #953 — toast for the "Save" button on the editor toolbar.
         if ( isset( $_GET['tt_saved'] ) && $_GET['tt_saved'] === '1' ) {
-            echo '<div class="tt-notice tt-notice-success" role="status" style="margin-bottom:12px;">'
+            echo '<div class="tt-notice tt-notice-success tt-bp-notice-spaced" role="status">'
                 . esc_html__( 'Blueprint saved.', 'talenttrack' )
                 . '</div>';
         }
@@ -224,7 +228,7 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
         // Tab nav.
         $editor_url   = add_query_arg( [ 'tt_view' => 'team-blueprints', 'id' => (int) $bp['id'] ], $base_url );
         $comments_url = add_query_arg( [ 'tab' => 'comments' ], $editor_url );
-        echo '<nav class="tt-bp-tabs" role="tablist" style="display:flex; gap:4px; border-bottom:1px solid #e5e7ea; margin-bottom:16px;">';
+        echo '<nav class="tt-bp-tabs" role="tablist">';
         $lineup_cls   = 'tt-bp-tab' . ( $tab === 'lineup' ? ' is-active' : '' );
         $comments_cls = 'tt-bp-tab' . ( $tab === 'comments' ? ' is-active' : '' );
         echo '<a class="' . esc_attr( $lineup_cls ) . '" href="' . esc_url( $editor_url ) . '" role="tab" aria-selected="' . ( $tab === 'lineup' ? 'true' : 'false' ) . '">'
@@ -274,7 +278,7 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
         // strip so the coach sees the score drop.
         $missing_primary = $repo->slotsMissingPrimary( $blueprint_id );
         if ( ! empty( $missing_primary ) ) {
-            echo '<p class="tt-notice tt-notice-warning" style="margin:0 0 12px;">'
+            echo '<p class="tt-notice tt-notice-warning tt-bp-notice-warn">'
                 . esc_html( sprintf(
                     /* translators: %s = comma-separated slot labels e.g. "ST, CM" */
                     __( 'Tier-1 unassigned on: %s — chemistry score skips these slots.', 'talenttrack' ),
@@ -286,7 +290,7 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
         self::renderBlueprintEditor( $bp, $can_manage && ! $is_locked );
 
         if ( $is_locked ) {
-            echo '<p class="tt-notice" style="margin-top:16px;">'
+            echo '<p class="tt-notice tt-bp-notice-locked">'
                 . esc_html__( 'This blueprint is locked. Reopen it to make changes.', 'talenttrack' )
                 . '</p>';
         }
@@ -606,8 +610,8 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
     private static function renderStatusPills( array $bp ): void {
         $status  = (string) $bp['status'];
         $flavour = (string) ( $bp['flavour'] ?? '' );
-        echo '<div class="tt-bp-statusbar" style="display:flex; align-items:center; gap:12px; margin-bottom:12px; flex-wrap:wrap;">';
-        echo '<span style="color:#5b6e75; font-size:12px; text-transform:uppercase; letter-spacing:0.04em;">'
+        echo '<div class="tt-bp-statusbar">';
+        echo '<span class="tt-bp-statusbar__label">'
             . esc_html__( 'Status', 'talenttrack' ) . '</span>';
         echo self::statusPill( $status );
         echo self::flavourPill( $flavour );
@@ -745,15 +749,15 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
         self::enqueueAssets();
         self::enqueueBlueprintAssets();
 
-        echo '<div class="tt-bp-shared-wrap" style="max-width:960px; margin:0 auto; padding:16px;">';
-        echo '<header style="margin-bottom:16px;">';
-        echo '<h1 style="margin:0 0 6px;">' . esc_html( (string) $bp['name'] ) . '</h1>';
+        echo '<div class="tt-bp-shared-wrap">';
+        echo '<header class="tt-bp-shared-header">';
+        echo '<h1 class="tt-bp-shared-title">' . esc_html( (string) $bp['name'] ) . '</h1>';
         if ( $team ) {
-            echo '<p style="margin:0; color:#5b6e75;">' . esc_html( (string) $team->name ) . '</p>';
+            echo '<p class="tt-bp-shared-team">' . esc_html( (string) $team->name ) . '</p>';
         }
         echo '</header>';
 
-        echo '<div style="display:flex; gap:12px; align-items:center; margin-bottom:12px; flex-wrap:wrap;">';
+        echo '<div class="tt-bp-shared-pills">';
         echo self::statusPill( (string) $bp['status'] );
         echo self::flavourPill( (string) ( $bp['flavour'] ?? '' ) );
         echo '</div>';
@@ -770,7 +774,7 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
         );
         self::renderChemistryHeadline( $chemistry );
 
-        echo '<div class="tt-bp-shared-pitch" style="margin:16px 0;">';
+        echo '<div class="tt-bp-shared-pitch">';
         PitchSvg::render( (array) ( $bp['slots'] ?? [] ), self::lineupAsSuggested( $primary_lineup ), PitchSvg::MODE_FLAT, $chemistry['links'] );
         echo '</div>';
 
@@ -778,7 +782,7 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
         // screens where the SVG is hard to scan.
         self::renderSharedLineupTable( (array) ( $bp['slots'] ?? [] ), $primary_lineup );
 
-        echo '<p style="margin-top:24px; color:#5b6e75; font-size:13px;">'
+        echo '<p class="tt-bp-shared-note">'
             . esc_html__( 'This is a read-only share link. Comments and edits are coach-only inside TalentTrack.', 'talenttrack' )
             . '</p>';
         echo '</div>';
@@ -791,10 +795,12 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
      * @param array<string,int>         $primary_lineup
      */
     private static function renderSharedLineupTable( array $slots, array $primary_lineup ): void {
-        echo '<table class="tt-bp-shared-lineup" style="width:100%; max-width:560px; border-collapse:collapse; font-size:14px;">';
+        echo '<div class="tt-report-card tt-bp-shared-lineup-card">';
+        echo '<div class="tt-table-wrap">';
+        echo '<table class="tt-table tt-bp-shared-lineup">';
         echo '<thead><tr>';
-        echo '<th style="text-align:left; padding:6px 8px; border-bottom:1px solid #e5e7ea;">' . esc_html__( 'Slot', 'talenttrack' ) . '</th>';
-        echo '<th style="text-align:left; padding:6px 8px; border-bottom:1px solid #e5e7ea;">' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
+        echo '<th>' . esc_html__( 'Slot', 'talenttrack' ) . '</th>';
+        echo '<th>' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
         echo '</tr></thead><tbody>';
         foreach ( $slots as $slot ) {
             $label = (string) ( $slot['label'] ?? '' );
@@ -802,20 +808,22 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
             $pid   = isset( $primary_lineup[ $label ] ) ? (int) $primary_lineup[ $label ] : 0;
             $name  = $pid > 0 ? QueryHelpers::player_display_name( QueryHelpers::get_player( $pid ) ) : '';
             echo '<tr>';
-            echo '<td style="padding:6px 8px; border-bottom:1px solid #f1f3f5;">' . esc_html( $label ) . '</td>';
-            echo '<td style="padding:6px 8px; border-bottom:1px solid #f1f3f5;">'
-                . ( $name !== '' ? esc_html( $name ) : '<em style="color:#8a9099;">' . esc_html__( '— empty —', 'talenttrack' ) . '</em>' )
+            echo '<td>' . esc_html( $label ) . '</td>';
+            echo '<td>'
+                . ( $name !== '' ? esc_html( $name ) : '<em class="tt-bp-shared-empty">' . esc_html__( '— empty —', 'talenttrack' ) . '</em>' )
                 . '</td>';
             echo '</tr>';
         }
         echo '</tbody></table>';
+        echo '</div>'; // .tt-table-wrap
+        echo '</div>'; // .tt-report-card
     }
 
     private static function renderSharedNotFound(): void {
         status_header( 404 );
-        echo '<div style="max-width:560px; margin:48px auto; padding:24px; text-align:center;">';
+        echo '<div class="tt-bp-shared-404">';
         echo '<h1>' . esc_html__( 'Share link not valid', 'talenttrack' ) . '</h1>';
-        echo '<p style="color:#5b6e75;">'
+        echo '<p class="tt-bp-shared-404__note">'
             . esc_html__( 'This blueprint share link is no longer valid. Ask the coach for an updated link.', 'talenttrack' )
             . '</p>';
         echo '</div>';
@@ -858,7 +866,7 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
                 <div class="tt-bp-chem-value" id="tt-bp-chem-value">
                     <?php
                     if ( $score === null ) {
-                        echo '<span style="color:#8a9099;">— / 100</span>';
+                        echo '<span class="tt-bp-chem-empty">— / 100</span>';
                     } else {
                         echo esc_html( sprintf(
                             /* translators: %d: 0-100 chemistry score */
@@ -895,7 +903,7 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
         $names = self::playerNames( self::flatPlayerIds( $tiered ) );
         ?>
         <div class="tt-pitch-wrap tt-bp-heatmap-wrap">
-            <div class="tt-pitch" style="background: linear-gradient(180deg, var(--tt-pitch-grass-token, #4ea35f) 0%, var(--tt-pitch-grass-2-token, #3c8a4d) 100%);">
+            <div class="tt-pitch tt-bp-heatmap-pitch">
                 <?php
                 // Reuse the markings only — no chemistry lines on the heatmap.
                 ?>
@@ -1025,27 +1033,21 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
         $label = $is_squad
             ? __( 'Squad plan', 'talenttrack' )
             : __( 'Match-day', 'talenttrack' );
-        $bg = $is_squad ? '#e8f0e8' : '#eef0f2';
-        $fg = $is_squad ? '#2c8a2c' : '#5b6e75';
-        return '<span class="tt-bp-flavour-pill" style="background:' . esc_attr( $bg ) . '; color:' . esc_attr( $fg ) . '; padding:2px 10px; border-radius:10px; font-size:12px; font-weight:600;">'
+        $mod = $is_squad ? 'tt-bp-flavour-pill--squad' : 'tt-bp-flavour-pill--matchday';
+        return '<span class="tt-bp-flavour-pill ' . esc_attr( $mod ) . '">'
             . esc_html( $label ) . '</span>';
     }
 
     private static function statusPill( string $status ): string {
-        $map = [
-            TeamBlueprintsRepository::STATUS_DRAFT  => [ 'Draft',  '#5b6e75', '#eef0f2' ],
-            TeamBlueprintsRepository::STATUS_SHARED => [ 'Shared', '#1d6cb1', '#e2eefb' ],
-            TeamBlueprintsRepository::STATUS_LOCKED => [ 'Locked', '#7a4f1d', '#fbeed0' ],
-        ];
-        [ $label, $fg, $bg ] = $map[ $status ] ?? [ ucfirst( $status ), '#5b6e75', '#eef0f2' ];
         $translated = '';
+        $mod        = 'tt-status-badge--draft';
         switch ( $status ) {
-            case TeamBlueprintsRepository::STATUS_DRAFT:  $translated = __( 'Draft',  'talenttrack' ); break;
-            case TeamBlueprintsRepository::STATUS_SHARED: $translated = __( 'Shared', 'talenttrack' ); break;
-            case TeamBlueprintsRepository::STATUS_LOCKED: $translated = __( 'Locked', 'talenttrack' ); break;
-            default: $translated = $label;
+            case TeamBlueprintsRepository::STATUS_DRAFT:  $translated = __( 'Draft',  'talenttrack' ); $mod = 'tt-status-badge--draft';  break;
+            case TeamBlueprintsRepository::STATUS_SHARED: $translated = __( 'Shared', 'talenttrack' ); $mod = 'tt-status-badge--shared'; break;
+            case TeamBlueprintsRepository::STATUS_LOCKED: $translated = __( 'Locked', 'talenttrack' ); $mod = 'tt-status-badge--locked'; break;
+            default: $translated = ucfirst( $status );
         }
-        return '<span class="tt-status-badge" style="background:' . esc_attr( $bg ) . '; color:' . esc_attr( $fg ) . '; padding:2px 10px; border-radius:10px; font-size:12px; font-weight:600;">'
+        return '<span class="tt-status-badge ' . esc_attr( $mod ) . '">'
             . esc_html( $translated ) . '</span>';
     }
 
@@ -1064,7 +1066,7 @@ class FrontendTeamBlueprintsView extends FrontendViewBase {
         wp_enqueue_style(
             'tt-blueprint-editor',
             TT_PLUGIN_URL . 'assets/css/frontend-blueprint-editor.css',
-            [],
+            [ 'tt-frontend-app-chrome' ],
             TT_VERSION
         );
         wp_enqueue_script(

@@ -4,13 +4,19 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.50.0
+Stable tag: 4.50.2
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.50.2 — Scouting pipeline: every card opens the prospect, even with no next action (#1763) In the onboarding pipeline, a prospect card with no pending task (and not yet promoted) used to render as a dead, unclickable tile. Now every card is clickable: when there's no "next action" it focuses the prospect on the board — `?tt_view=onboarding-pipeline&prospect_id=N` opens a panel showing who they are, their stage, and a link to their next action when one exists. This also fixes the previously no-op `prospect_id` links from the dashboards and scouting-visit detail, which now land on a real focus. =
+
+= 4.50.1 — Blueprint editor: a bad assignment ref no longer breaks formation + slot picking (#1619) On an editable (draft) blueprint, the formation dropdown and slot player-picker could both be dead even though the user had the cap and the blueprint wasn't locked. Cause: an exception during the editor's setup (e.g. a malformed assignment ref) aborted the script before its wiring ran, leaving the server-rendered pitch visible but inert. The editor now runs each setup/wiring step in isolation, so one bad ref can't cascade and disable the rest — and any offender is logged to the console for diagnosis. (Defensive hardening; if a specific payload still triggers it, the console now points at the exact step.) =
+
+= 4.50.1 — Player dashboard: own work as tiles, no setup/functions tile (#1821) The Speler (player) dashboard now renders the player's work (My journey, My card, My team, My evaluations, My activities, My goals, My POP) as tiles under "Today's work" instead of a separate right-hand rail. The "Functional roles" setup tile is also gated correctly: it now requires the manage capability (`tt_manage_functional_roles`), so it no longer leaks into a player's "Setup" section via the loose view-people fallback. Other personas are unchanged, and the persona switcher is respected. =
 
 = 4.50.0 — Finalize the safe-delete rollout — archive columns, holiday lifecycle UI + scheduled reports (#1784, #1808) Completes the referential-integrity delete epic (#1782).  - **Migration 0172** gives every archivable entity the uniform   `archived_at` + `archived_by` columns: adds the missing `archived_by` to   trial tracks, test trainings, holidays, player injuries, custom widgets   and VCT exercises, and adds both columns to scheduled reports (backfilling   `archived_at` from the legacy `status='archived'`). - **Scheduled reports** join the framework: an Active/Paused schedule can be   archived, and an archived one can now be **permanently deleted** from the   management screen (fail-closed, `tt_edit_settings`). - **Holidays** gain the full archive lifecycle in their list — an   Active / Archived tab with Restore and Delete-permanently actions on   archived rows (matching the tournaments list).  With this, every record type that has an archive lifecycle has a fail-closed, referential-integrity-checked permanent delete. Team and activity remain block-only by design (their full player-touching cascades wait on the PHPUnit floor, #1388). =
 

@@ -1,0 +1,111 @@
+/*
+ * frontend-teammate.css — 2026 restyle of the read-only teammate card
+ * (FrontendTeammateView, #1680 frontend-parity epic).
+ *
+ * A player taps a teammate on My Team and lands on a privacy-preserving
+ * read-only card: name + photo header, then a "playing details" card.
+ * Mobile-first per CLAUDE.md §2 — base styles target ~360px, min-width
+ * queries scale up. Scoped under .tt-dashboard (the active theme is
+ * treated as hostile). Colours / spacing come from tokens.css only —
+ * no raw hex.
+ */
+
+.tt-dashboard .tt-mate {
+    max-width: 560px;
+    margin: 0 auto;
+}
+
+/* ---- Header card --------------------------------------------------- */
+.tt-dashboard .tt-mate-head {
+    display: flex;
+    gap: var(--tt-sp-4);
+    align-items: center;
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius-lg);
+    box-shadow: var(--tt-shadow-md);
+    padding: var(--tt-sp-5);
+}
+.tt-dashboard .tt-mate-photo {
+    flex: 0 0 auto;
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--tt-bg-soft);
+    display: grid;
+    place-items: center;
+}
+.tt-dashboard .tt-mate-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+.tt-dashboard .tt-mate-initials {
+    font-weight: 800;
+    font-size: 1.875rem;
+    color: var(--tt-primary);
+}
+.tt-dashboard .tt-mate-id {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+.tt-dashboard .tt-mate-name {
+    margin: 0 0 var(--tt-sp-1);
+    font-size: 1.375rem;
+    line-height: 1.2;
+    font-weight: 800;
+    color: var(--tt-ink);
+}
+.tt-dashboard .tt-mate-team {
+    color: var(--tt-muted);
+    font-size: 0.875rem;
+}
+
+/* ---- Playing-details card ------------------------------------------ */
+.tt-dashboard .tt-mate-details {
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius-lg);
+    box-shadow: var(--tt-shadow-md);
+    padding: var(--tt-sp-5);
+    margin-top: var(--tt-sp-4);
+}
+.tt-dashboard .tt-mate-details-heading {
+    margin: 0 0 var(--tt-sp-3);
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--tt-ink);
+}
+.tt-dashboard .tt-mate-dl {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--tt-sp-1) 0;
+    margin: 0;
+}
+.tt-dashboard .tt-mate-dt {
+    color: var(--tt-muted);
+    font-size: 0.8125rem;
+    margin-top: var(--tt-sp-2);
+}
+.tt-dashboard .tt-mate-dd {
+    margin: 0;
+    color: var(--tt-ink);
+    font-size: 1rem;
+}
+.tt-dashboard .tt-mate-note {
+    color: var(--tt-muted);
+    font-size: 0.75rem;
+    margin: var(--tt-sp-4) 0 0;
+    font-style: italic;
+}
+
+@media (min-width: 480px) {
+    .tt-dashboard .tt-mate-dl {
+        grid-template-columns: 140px 1fr;
+        gap: var(--tt-sp-2) var(--tt-sp-4);
+        align-items: baseline;
+    }
+    .tt-dashboard .tt-mate-dt { margin-top: 0; }
+}

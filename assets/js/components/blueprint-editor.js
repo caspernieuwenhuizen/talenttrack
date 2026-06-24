@@ -61,18 +61,31 @@
     // Surface the session-only refs from `refs` (guests/customs the
     // user placed previously) back into the roster list on first
     // render so they show with an x1+ badge.
-    seedSessionOnlyRosterFromRefs();
+    // #1619 — run each step in isolation so one failure can't cascade.
+    // A throw in the synchronous top-level setup (below) used to abort the
+    // whole module before the DOMContentLoaded listener even registered,
+    // leaving the server-rendered pitch visible but unwired (formation +
+    // slot picker both dead). A throw in one DOM step (e.g. renderPitch on
+    // a malformed ref) used to skip every later step, including the
+    // formation wiring. Wrapping each step keeps the rest working and logs
+    // the offender for diagnosis.
+    function safe(fn, label) {
+        try { fn(); }
+        catch (e) { if (window.console) console.error('TT blueprint editor: ' + label + ' failed', e); }
+    }
+
+    safe(seedSessionOnlyRosterFromRefs, 'seedSessionOnlyRosterFromRefs');
 
     // -------- DOM hooks -----------------------------------------------
     document.addEventListener('DOMContentLoaded', function () {
         var root = document.querySelector('.tt-bpe-editor');
         if (!root) return;
 
-        renderRoster();
-        renderPitch();
-        wireToolbar();
-        wireAddForm(root);
-        wireDocClicks();
+        safe(renderRoster, 'renderRoster');
+        safe(renderPitch, 'renderPitch');
+        safe(wireToolbar, 'wireToolbar');
+        safe(function () { wireAddForm(root); }, 'wireAddForm');
+        safe(wireDocClicks, 'wireDocClicks');
 
         // #1527 — the consolidated action bar (formation select, Save,
         // Clear all, Heatmap, Chemistry toggle) and its "⋯ More" overflow
@@ -80,10 +93,10 @@
         // `.tt-bpe-editor`, rendered by the view's `renderActionBar()`.
         // Wire from the document so the handlers find them; wire
         // unconditionally so they work even when locked / read-only.
-        wireHideChemistryToggle();
-        wireSaveToolbar();
-        wireStatusButtons();
-        wireOverflowMenu();
+        safe(wireHideChemistryToggle, 'wireHideChemistryToggle');
+        safe(wireSaveToolbar, 'wireSaveToolbar');
+        safe(wireStatusButtons, 'wireStatusButtons');
+        safe(wireOverflowMenu, 'wireOverflowMenu');
     });
 
     // ==================== rendering ====================================

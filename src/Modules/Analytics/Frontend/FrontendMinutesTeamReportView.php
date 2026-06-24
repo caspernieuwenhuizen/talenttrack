@@ -32,6 +32,22 @@ use TT\Shared\Frontend\FrontendViewBase;
  */
 final class FrontendMinutesTeamReportView extends FrontendViewBase {
 
+    /**
+     * Enqueue the 2026 surface stylesheet on top of the shared frontend
+     * assets. Depends on the app-chrome sheet so it inherits the brand +
+     * neutral tokens and the shared .tt-kpi tile styling. Mirrors the
+     * gold-standard FrontendStandardReportsView enqueue.
+     */
+    protected static function enqueueAssets(): void {
+        parent::enqueueAssets();
+        wp_enqueue_style(
+            'tt-frontend-minutes-report',
+            TT_PLUGIN_URL . 'assets/css/frontend-minutes-report.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+    }
+
     public static function render( int $user_id, bool $is_admin ): void {
         self::enqueueAssets();
 
@@ -117,23 +133,15 @@ final class FrontendMinutesTeamReportView extends FrontendViewBase {
         }
         $type_keys = array_values( array_unique( $type_keys ) );
 
-        echo '<div class="tt-table-wrap"><table class="tt-table tt-table-sortable" style="width:100%; margin-top:12px;">';
-        echo '<thead><tr>';
-        echo '<th>' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
-        echo '<th style="text-align:right;">' . esc_html__( 'Total', 'talenttrack' ) . '</th>';
-        echo '<th style="text-align:right;">' . esc_html__( 'Matches', 'talenttrack' ) . '</th>';
-        echo '<th style="text-align:right;">' . esc_html__( 'Starts', 'talenttrack' ) . '</th>';
-        echo '<th style="text-align:right;">' . esc_html__( 'Subs in', 'talenttrack' ) . '</th>';
-        echo '<th style="text-align:right;">' . esc_html__( 'Subs off', 'talenttrack' ) . '</th>';
-        echo '<th style="text-align:right;">' . esc_html__( 'Avg / match', 'talenttrack' ) . '</th>';
-        foreach ( $type_keys as $key ) {
-            echo '<th style="text-align:right;">' . esc_html( $type_labels[ $key ] ) . '</th>';
-        }
-        echo '<th style="text-align:right;">' . esc_html__( '% available', 'talenttrack' ) . '</th>';
-        echo '</tr></thead><tbody>';
-
         $type_match = ( $type_filter !== 'all' && isset( $type_labels[ $type_filter ] ) );
 
+        // Pre-compute the visible rows + headline totals for the KPI
+        // strip. Pure aggregation over the already-fetched rows (no query,
+        // no eligibility decision) so this stays SaaS-portable per
+        // CLAUDE.md §4 and the strip is render-only polish.
+        $visible_rows  = [];
+        $sum_minutes   = 0;
+        $sum_starts    = 0;
         foreach ( $rows as $r ) {
             // When the operator filters to one match type, the visible
             // Total + Avg only count that bucket. Other columns stay
@@ -150,6 +158,47 @@ final class FrontendMinutesTeamReportView extends FrontendViewBase {
                 ? min( 100, (int) round( ( $effective_total / $r['available_minutes'] ) * 100 ) )
                 : 0;
 
+            $sum_minutes += $effective_total;
+            $sum_starts  += (int) $r['starts'];
+
+            $r['__effective_total'] = $effective_total;
+            $r['__avg']             = $avg;
+            $r['__pct_avail']       = $pct_avail;
+            $visible_rows[] = $r;
+        }
+
+        // KPI strip — squad-wide headline totals for the window.
+        echo '<div class="tt-rep-kpi-row" role="group" aria-label="' . esc_attr__( 'Minutes summary', 'talenttrack' ) . '">';
+        echo \TT\Shared\Frontend\Components\FrontendAppChrome::kpiTile( [
+            'label' => __( 'Players', 'talenttrack' ),
+            'value' => (string) count( $visible_rows ),
+        ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — kpiTile escapes its own fields.
+        echo \TT\Shared\Frontend\Components\FrontendAppChrome::kpiTile( [
+            'label' => __( 'Total minutes', 'talenttrack' ),
+            'value' => number_format_i18n( $sum_minutes ),
+        ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — kpiTile escapes its own fields.
+        echo \TT\Shared\Frontend\Components\FrontendAppChrome::kpiTile( [
+            'label' => __( 'Total starts', 'talenttrack' ),
+            'value' => number_format_i18n( $sum_starts ),
+        ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — kpiTile escapes its own fields.
+        echo '</div>';
+
+        echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table tt-table-sortable">';
+        echo '<thead><tr>';
+        echo '<th>' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
+        echo '<th class="num">' . esc_html__( 'Total', 'talenttrack' ) . '</th>';
+        echo '<th class="num">' . esc_html__( 'Matches', 'talenttrack' ) . '</th>';
+        echo '<th class="num">' . esc_html__( 'Starts', 'talenttrack' ) . '</th>';
+        echo '<th class="num">' . esc_html__( 'Subs in', 'talenttrack' ) . '</th>';
+        echo '<th class="num">' . esc_html__( 'Subs off', 'talenttrack' ) . '</th>';
+        echo '<th class="num">' . esc_html__( 'Avg / match', 'talenttrack' ) . '</th>';
+        foreach ( $type_keys as $key ) {
+            echo '<th class="num">' . esc_html( $type_labels[ $key ] ) . '</th>';
+        }
+        echo '<th class="num">' . esc_html__( '% available', 'talenttrack' ) . '</th>';
+        echo '</tr></thead><tbody>';
+
+        foreach ( $visible_rows as $r ) {
             $name = trim( (string) $r['first_name'] . ' ' . (string) $r['last_name'] );
             if ( $name === '' ) $name = '#' . (int) $r['player_id'];
             $player_url = BackLink::appendTo( add_query_arg(
@@ -159,20 +208,20 @@ final class FrontendMinutesTeamReportView extends FrontendViewBase {
 
             echo '<tr>';
             echo '<td><a class="tt-record-link" href="' . esc_url( $player_url ) . '">' . esc_html( $name ) . '</a></td>';
-            echo '<td style="text-align:right;">' . esc_html( number_format_i18n( $effective_total ) ) . '</td>';
-            echo '<td style="text-align:right;">' . (int) $r['matches'] . '</td>';
-            echo '<td style="text-align:right;">' . (int) $r['starts'] . '</td>';
-            echo '<td style="text-align:right;">' . (int) $r['subs_in'] . '</td>';
-            echo '<td style="text-align:right;">' . (int) $r['subs_off'] . '</td>';
-            echo '<td style="text-align:right;">' . (int) $avg . '</td>';
+            echo '<td class="num">' . esc_html( number_format_i18n( $r['__effective_total'] ) ) . '</td>';
+            echo '<td class="num">' . (int) $r['matches'] . '</td>';
+            echo '<td class="num">' . (int) $r['starts'] . '</td>';
+            echo '<td class="num">' . (int) $r['subs_in'] . '</td>';
+            echo '<td class="num">' . (int) $r['subs_off'] . '</td>';
+            echo '<td class="num">' . (int) $r['__avg'] . '</td>';
             foreach ( $type_keys as $key ) {
                 $v = (int) ( $r['by_type'][ $key ] ?? 0 );
-                echo '<td style="text-align:right;">' . esc_html( number_format_i18n( $v ) ) . '</td>';
+                echo '<td class="num">' . esc_html( number_format_i18n( $v ) ) . '</td>';
             }
-            echo '<td style="text-align:right;">' . (int) $pct_avail . '%</td>';
+            echo '<td class="num">' . (int) $r['__pct_avail'] . '%</td>';
             echo '</tr>';
         }
-        echo '</tbody></table></div>';
+        echo '</tbody></table></div></div>';
     }
 
     /**
@@ -233,10 +282,10 @@ final class FrontendMinutesTeamReportView extends FrontendViewBase {
      */
     private static function renderFilterForm( array $teams, int $team_id, string $from, string $to, string $type_filter ): void {
         $action = remove_query_arg( [ 'team_id', 'from', 'to', 'type' ] );
-        echo '<form method="get" class="tt-filter-row" style="display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end; margin-bottom:12px;">';
+        echo '<form method="get" class="tt-rep-filter">';
         echo '<input type="hidden" name="tt_view" value="minutes-report-team" />';
 
-        echo '<label style="display:flex; flex-direction:column; gap:4px;"><span>' . esc_html__( 'Team', 'talenttrack' ) . '</span>';
+        echo '<label><span>' . esc_html__( 'Team', 'talenttrack' ) . '</span>';
         echo '<select name="team_id">';
         foreach ( $teams as $t ) {
             $sel = ( (int) $t->id === $team_id ) ? ' selected' : '';
@@ -244,9 +293,9 @@ final class FrontendMinutesTeamReportView extends FrontendViewBase {
         }
         echo '</select></label>';
 
-        echo '<label style="display:flex; flex-direction:column; gap:4px;"><span>' . esc_html__( 'From', 'talenttrack' ) . '</span>';
+        echo '<label><span>' . esc_html__( 'From', 'talenttrack' ) . '</span>';
         echo '<input type="date" name="from" value="' . esc_attr( $from ) . '" /></label>';
-        echo '<label style="display:flex; flex-direction:column; gap:4px;"><span>' . esc_html__( 'To', 'talenttrack' ) . '</span>';
+        echo '<label><span>' . esc_html__( 'To', 'talenttrack' ) . '</span>';
         echo '<input type="date" name="to" value="' . esc_attr( $to ) . '" /></label>';
 
         $types = [
@@ -255,7 +304,7 @@ final class FrontendMinutesTeamReportView extends FrontendViewBase {
             'Cup'      => __( 'Cup',       'talenttrack' ),
             'Friendly' => __( 'Friendly',  'talenttrack' ),
         ];
-        echo '<label style="display:flex; flex-direction:column; gap:4px;"><span>' . esc_html__( 'Match type', 'talenttrack' ) . '</span>';
+        echo '<label><span>' . esc_html__( 'Match type', 'talenttrack' ) . '</span>';
         echo '<select name="type">';
         foreach ( $types as $key => $label ) {
             $sel = ( $key === $type_filter ) ? ' selected' : '';

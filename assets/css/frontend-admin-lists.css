@@ -1,0 +1,203 @@
+/*
+ * frontend-admin-lists.css — 2026 restyle of the Tier-8 admin/config
+ * list surfaces: Roles & capabilities (FrontendRolesView), Seasons
+ * (FrontendSeasonsView), and Migrations (FrontendMigrationsView).
+ *
+ * These are desktop-first admin tables (acceptable for Tier 8), but the
+ * chrome is tokenised and the legacy inline styling moved here. Cards
+ * mirror the 2026 .tt-report-card pattern (white card wrapping a
+ * .tt-table). Everything scoped under .tt-dashboard — no global resets.
+ * Tokens only; never raw hex.
+ */
+
+/* ---- Section card (wraps tables / status blocks) ------------------- */
+.tt-dashboard .tt-admin-card {
+    background: var(--tt-paper, #ffffff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-md);
+    overflow: hidden;
+    margin: 0 0 var(--tt-sp-4, 16px);
+}
+.tt-dashboard .tt-admin-card .tt-table-wrap {
+    margin: 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+.tt-dashboard .tt-admin-card .tt-table {
+    margin: 0;
+    width: 100%;
+}
+.tt-dashboard .tt-admin-card-pad {
+    padding: var(--tt-sp-4, 16px);
+}
+
+/* ---- Lead / intro paragraph ---------------------------------------- */
+.tt-dashboard .tt-admin-lead {
+    max-width: 760px;
+    color: var(--tt-muted);
+    margin: 0 0 var(--tt-sp-3, 12px);
+}
+.tt-dashboard .tt-admin-actions {
+    margin: 0 0 var(--tt-sp-4, 16px);
+}
+
+/* ---- Section heading ----------------------------------------------- */
+.tt-dashboard .tt-admin-section-title {
+    margin: var(--tt-sp-5, 24px) 0 var(--tt-sp-3, 12px);
+    font-size: var(--tt-fs-h3, 1.25rem);
+    color: var(--tt-ink);
+}
+.tt-dashboard .tt-admin-section-title--flush {
+    margin-top: 0;
+}
+
+/* ---- Advanced-tools link row (roles) ------------------------------- */
+.tt-dashboard .tt-admin-tools {
+    margin: 0 0 var(--tt-sp-4, 16px);
+}
+.tt-dashboard .tt-admin-tools-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-2, 8px);
+}
+
+/* ---- Role reference cards ------------------------------------------ */
+.tt-dashboard .tt-role-card {
+    background: var(--tt-paper, #ffffff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-sm);
+    padding: var(--tt-sp-4, 16px);
+    margin: 0 0 var(--tt-sp-3, 12px);
+}
+.tt-dashboard .tt-role-card--highlight {
+    border: 2px solid var(--tt-secondary);
+}
+.tt-dashboard .tt-role-card-head {
+    display: flex;
+    gap: var(--tt-sp-3, 12px);
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+.tt-dashboard .tt-role-card-main {
+    flex: 1;
+    min-width: 220px;
+}
+.tt-dashboard .tt-role-card-title {
+    margin: 0 0 var(--tt-sp-2, 8px);
+    font-size: var(--tt-fs-lg, 1.125rem);
+    color: var(--tt-ink);
+}
+.tt-dashboard .tt-role-card-slug {
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-muted);
+    margin-left: 6px;
+}
+.tt-dashboard .tt-role-card-desc {
+    margin: 0;
+    color: var(--tt-ink);
+}
+.tt-dashboard .tt-role-badge {
+    margin-left: 6px;
+    padding: 2px 8px;
+    background: var(--tt-warning-subtle);
+    border: 1px solid var(--tt-warning);
+    border-radius: 999px;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-ink);
+}
+.tt-dashboard .tt-role-card-count {
+    text-align: right;
+    min-width: 160px;
+}
+.tt-dashboard .tt-role-card-count a {
+    text-decoration: none;
+}
+.tt-dashboard .tt-role-count-num {
+    font-size: var(--tt-fs-h2, 1.5rem);
+    font-weight: 700;
+    color: var(--tt-primary);
+}
+.tt-dashboard .tt-role-count-label {
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.tt-dashboard .tt-role-caps {
+    margin-top: var(--tt-sp-3, 12px);
+}
+.tt-dashboard .tt-role-caps summary {
+    cursor: pointer;
+    color: var(--tt-muted);
+    font-size: var(--tt-fs-sm, 0.85rem);
+}
+.tt-dashboard .tt-role-caps-list {
+    margin-top: var(--tt-sp-2, 8px);
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+.tt-dashboard .tt-role-cap {
+    padding: 2px 8px;
+    background: var(--tt-bg-soft);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius, 8px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+}
+.tt-dashboard .tt-role-caps-empty {
+    margin-top: var(--tt-sp-2, 8px);
+    color: var(--tt-muted);
+    font-style: italic;
+}
+.tt-dashboard .tt-role-assign {
+    margin: var(--tt-sp-3, 12px) 0 0;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-muted);
+}
+
+/* ---- Seasons table extras ------------------------------------------ */
+.tt-dashboard .tt-table .tt-col-actions {
+    text-align: right;
+    white-space: nowrap;
+}
+.tt-dashboard .tt-table tr.tt-row-current td {
+    background: var(--tt-success-subtle);
+}
+.tt-dashboard .tt-badge-current {
+    display: inline-block;
+    background: var(--tt-success-subtle);
+    color: var(--tt-success);
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: var(--tt-fs-sm, 0.85rem);
+}
+.tt-dashboard .tt-seasons-action {
+    min-height: 48px;
+}
+.tt-dashboard .tt-in-use-hint {
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-muted);
+}
+.tt-dashboard .tt-seasons-dates {
+    margin-top: var(--tt-sp-3, 12px);
+}
+.tt-dashboard .tt-seasons-form-msg {
+    margin-top: var(--tt-sp-2, 8px);
+}
+
+/* ---- Migrations status --------------------------------------------- */
+.tt-dashboard .tt-admin-flash {
+    margin-bottom: var(--tt-sp-4, 16px);
+}
+.tt-dashboard .tt-admin-flash-text {
+    flex: 1;
+}
+.tt-dashboard .tt-migrations-run {
+    margin-top: var(--tt-sp-3, 12px);
+}

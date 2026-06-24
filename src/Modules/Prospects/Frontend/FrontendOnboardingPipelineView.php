@@ -71,7 +71,68 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
         }
 
         $stages = self::computeStages( $user_id );
+
+        // #1763 — focus a single prospect on the board when
+        // ?prospect_id=N is present (the card fallback for a prospect with
+        // no "next action", and dashboard "open prospect" links). So a
+        // pipeline card is never a dead end.
+        $focus_pid = isset( $_GET['prospect_id'] ) ? absint( wp_unslash( $_GET['prospect_id'] ) ) : 0;
+        if ( $focus_pid > 0 ) {
+            echo self::renderProspectFocus( $stages, $focus_pid );
+        }
+
         echo self::renderKanban( $stages );
+    }
+
+    /**
+     * #1763 — focused prospect panel above the board. Reuses the card data
+     * already computed in `computeStages()`, so it shows the same identity,
+     * sub-label, context line and (smart) next-action link. Renders nothing
+     * when the prospect isn't visible to this user.
+     *
+     * @param array<int,array<string,mixed>> $stages
+     */
+    private static function renderProspectFocus( array $stages, int $focus_pid ): string {
+        $found = null; $stage_label = '';
+        foreach ( $stages as $stage ) {
+            foreach ( $stage['cards'] as $card ) {
+                if ( (int) ( $card['id'] ?? 0 ) === $focus_pid ) {
+                    $found = $card; $stage_label = (string) $stage['label']; break 2;
+                }
+            }
+        }
+        if ( $found === null ) return '';
+
+        $name = (string) ( $found['name'] ?? '' );
+        $sub  = (string) ( $found['sub_label'] ?? '' );
+        $ctx  = (string) ( $found['context_line'] ?? '' );
+        $url  = (string) ( $found['url'] ?? '' );
+        // A non-self URL means there's a real "next action" to deep-link to.
+        $has_action = $url !== '' && strpos( $url, 'prospect_id=' ) === false;
+        $close_url  = remove_query_arg( 'prospect_id' );
+
+        ob_start(); ?>
+        <section class="tt-pipeline-focus" aria-label="<?php echo esc_attr( sprintf( /* translators: %s: prospect name */ __( 'Prospect: %s', 'talenttrack' ), $name ) ); ?>">
+            <div class="tt-pipeline-focus-head">
+                <span class="tt-pipeline-focus-av" aria-hidden="true"><?php echo esc_html( (string) ( $found['initials'] ?? '' ) ); ?></span>
+                <div class="tt-pipeline-focus-id">
+                    <span class="tt-pipeline-focus-name"><?php echo esc_html( $name !== '' ? $name : __( '(unnamed prospect)', 'talenttrack' ) ); ?></span>
+                    <?php if ( $sub !== '' ) : ?><span class="tt-pipeline-focus-sub"><?php echo esc_html( $sub ); ?></span><?php endif; ?>
+                </div>
+                <span class="tt-pipeline-focus-stage"><?php echo esc_html( $stage_label ); ?></span>
+                <a class="tt-pipeline-focus-close" href="<?php echo esc_url( $close_url ); ?>" aria-label="<?php esc_attr_e( 'Back to pipeline', 'talenttrack' ); ?>">&times;</a>
+            </div>
+            <?php if ( $ctx !== '' ) : ?>
+                <p class="tt-pipeline-focus-ctx"><?php echo esc_html( $ctx ); ?></p>
+            <?php endif; ?>
+            <?php if ( $has_action ) : ?>
+                <p class="tt-pipeline-focus-actions">
+                    <a class="tt-btn tt-btn-primary" href="<?php echo esc_url( $url ); ?>"><?php esc_html_e( 'Open next action', 'talenttrack' ); ?></a>
+                </p>
+            <?php endif; ?>
+        </section>
+        <?php
+        return (string) ob_get_clean();
     }
 
     /**
@@ -280,6 +341,7 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
         }
 
         return [
+            'id'           => (int) ( $row->id ?? 0 ),
             'name'         => trim( $first . ' ' . $last ),
             'initials'     => self::initials( $first, $last ),
             'sub_label'    => implode( ' · ', $sub_parts ),
@@ -374,7 +436,7 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
                         RecordLink::dashboardUrl()
                     ) );
                 }
-                return '';
+                return self::prospectFocusUrl( (int) ( $row->id ?? 0 ) );
             case 'trial':
                 $case_id = (int) ( $row->promoted_to_trial_case_id ?? 0 );
                 if ( $case_id > 0 ) {
@@ -383,7 +445,7 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
                         RecordLink::dashboardUrl()
                     ) );
                 }
-                return '';
+                return self::prospectFocusUrl( (int) ( $row->id ?? 0 ) );
         }
         if ( $task_id > 0 ) {
             return BackLink::appendTo( add_query_arg(
@@ -391,7 +453,22 @@ class FrontendOnboardingPipelineView extends FrontendViewBase {
                 RecordLink::dashboardUrl()
             ) );
         }
-        return '';
+        // #1763 — no "next action": fall back to focusing the prospect on
+        // the board so a card is never a dead end.
+        return self::prospectFocusUrl( (int) ( $row->id ?? 0 ) );
+    }
+
+    /**
+     * #1763 — URL that focuses a prospect on the pipeline board
+     * (`?tt_view=onboarding-pipeline&prospect_id=N`). Used as the card
+     * fallback and by dashboard "open prospect" links.
+     */
+    private static function prospectFocusUrl( int $prospect_id ): string {
+        if ( $prospect_id <= 0 ) return '';
+        return BackLink::appendTo( add_query_arg(
+            [ 'tt_view' => 'onboarding-pipeline', 'prospect_id' => $prospect_id ],
+            RecordLink::dashboardUrl()
+        ) );
     }
 
     private static function birthYearFromDob( string $dob ): string {

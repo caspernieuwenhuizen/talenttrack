@@ -21,6 +21,16 @@ use TT\Infrastructure\Query\QueryHelpers;
  */
 class FrontendTeammateView extends FrontendViewBase {
 
+    protected static function enqueueAssets(): void {
+        parent::enqueueAssets();
+        wp_enqueue_style(
+            'tt-frontend-teammate',
+            TT_PLUGIN_URL . 'assets/css/frontend-teammate.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+    }
+
     public static function render( object $viewer, int $teammate_id ): void {
         self::enqueueAssets();
         self::renderHeader( __( 'Teammate', 'talenttrack' ) );
@@ -62,19 +72,19 @@ class FrontendTeammateView extends FrontendViewBase {
         $display_name = QueryHelpers::player_display_name( $mate );
 
         ?>
-        <div style="max-width:560px; margin:0 auto;">
-            <div style="display:flex; gap:20px; align-items:center; background:#fff; border:1px solid #e5e7ea; border-radius:10px; padding:20px;">
-                <div style="width:96px; height:96px; border-radius:50%; overflow:hidden; background:linear-gradient(135deg,#d0d3d8,#8a8d93); flex-shrink:0; display:flex; align-items:center; justify-content:center;">
+        <div class="tt-mate">
+            <div class="tt-mate-head">
+                <div class="tt-mate-photo">
                     <?php if ( $photo_url ) : ?>
-                        <img src="<?php echo esc_url( $photo_url ); ?>" alt="" style="width:100%; height:100%; object-fit:cover;" />
+                        <img src="<?php echo esc_url( $photo_url ); ?>" alt="" />
                     <?php else : ?>
-                        <span style="font-family:'Oswald',sans-serif; font-weight:700; font-size:30px; color:#fff;"><?php echo esc_html( $initials !== '' ? $initials : '?' ); ?></span>
+                        <span class="tt-mate-initials"><?php echo esc_html( $initials !== '' ? $initials : '?' ); ?></span>
                     <?php endif; ?>
                 </div>
-                <div style="flex:1;">
-                    <h2 style="margin:0 0 4px; font-size:22px;"><?php echo esc_html( $display_name ); ?></h2>
+                <div class="tt-mate-id">
+                    <h2 class="tt-mate-name"><?php echo esc_html( $display_name ); ?></h2>
                     <?php if ( $team ) : ?>
-                        <div style="color:#666; font-size:14px;">
+                        <div class="tt-mate-team">
                             <?php echo esc_html( (string) $team->name ); ?>
                             <?php if ( ! empty( $team->age_group ) ) : ?>
                                 — <?php echo esc_html( \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'age_group', (string) $team->age_group ) ); ?>
@@ -84,20 +94,20 @@ class FrontendTeammateView extends FrontendViewBase {
                 </div>
             </div>
 
-            <div style="background:#fff; border:1px solid #e5e7ea; border-radius:10px; padding:16px 20px; margin-top:14px;">
-                <h3 style="margin-top:0; font-size:16px;"><?php esc_html_e( 'Playing details', 'talenttrack' ); ?></h3>
-                <dl style="display:grid; grid-template-columns:140px 1fr; gap:8px 16px; margin:0;">
+            <div class="tt-mate-details">
+                <h3 class="tt-mate-details-heading"><?php esc_html_e( 'Playing details', 'talenttrack' ); ?></h3>
+                <dl class="tt-mate-dl">
                     <?php if ( $positions ) : ?>
-                        <dt style="color:#666; font-size:13px;"><?php esc_html_e( 'Positions', 'talenttrack' ); ?></dt>
-                        <dd style="margin:0;"><?php echo esc_html( implode( ', ', array_map( 'strval', $positions ) ) ); ?></dd>
+                        <dt class="tt-mate-dt"><?php esc_html_e( 'Positions', 'talenttrack' ); ?></dt>
+                        <dd class="tt-mate-dd"><?php echo esc_html( implode( ', ', array_map( 'strval', $positions ) ) ); ?></dd>
                     <?php endif; ?>
                     <?php if ( ! empty( $mate->jersey_number ) ) : ?>
-                        <dt style="color:#666; font-size:13px;"><?php esc_html_e( 'Jersey #', 'talenttrack' ); ?></dt>
-                        <dd style="margin:0;">#<?php echo esc_html( (string) $mate->jersey_number ); ?></dd>
+                        <dt class="tt-mate-dt"><?php esc_html_e( 'Jersey #', 'talenttrack' ); ?></dt>
+                        <dd class="tt-mate-dd">#<?php echo esc_html( (string) $mate->jersey_number ); ?></dd>
                     <?php endif; ?>
                     <?php if ( ! empty( $mate->preferred_foot ) ) : ?>
-                        <dt style="color:#666; font-size:13px;"><?php esc_html_e( 'Preferred foot', 'talenttrack' ); ?></dt>
-                        <dd style="margin:0;"><?php echo esc_html( __( (string) $mate->preferred_foot, 'talenttrack' ) ); ?></dd>
+                        <dt class="tt-mate-dt"><?php esc_html_e( 'Preferred foot', 'talenttrack' ); ?></dt>
+                        <dd class="tt-mate-dd"><?php echo esc_html( __( (string) $mate->preferred_foot, 'talenttrack' ) ); ?></dd>
                     <?php endif; ?>
                     <?php
                     // #1353 — height/weight removed from the teammate
@@ -107,7 +117,7 @@ class FrontendTeammateView extends FrontendViewBase {
                     // views keep both fields via their own cap gating.
                     ?>
                 </dl>
-                <p style="color:#888; font-size:12px; margin:16px 0 0; font-style:italic;">
+                <p class="tt-mate-note">
                     <?php esc_html_e( 'Teammate details are read-only. Individual ratings, evaluations, and goals stay private.', 'talenttrack' ); ?>
                 </p>
             </div>

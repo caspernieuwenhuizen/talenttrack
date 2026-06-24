@@ -57,7 +57,6 @@
 .tt-dashboard .tt-mex-table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: var(--tt-sp-3, 12px);
 }
 
 .tt-dashboard .tt-mex-table th {
@@ -100,9 +99,9 @@
     color: var(--tt-muted, #6a6d66);
 }
 .tt-dashboard .tt-mex-chip--live {
-    background: #eaf6ee;
-    border-color: #bfe3cc;
-    color: #1f7a45;
+    background: var(--tt-success-subtle, #dff5e1);
+    border-color: var(--tt-success, #2f9e5e);
+    color: var(--tt-success, #2f9e5e);
 }
 .tt-dashboard .tt-mex-chip--live::before {
     content: "";
@@ -113,13 +112,13 @@
 }
 .tt-dashboard .tt-mex-chip--review {
     background: var(--tt-warning-subtle, #fdf3d8);
-    border-color: #f0dca0;
-    color: #8a6d18;
+    border-color: var(--tt-warning, #e8902b);
+    color: var(--tt-warning, #e8902b);
 }
 .tt-dashboard .tt-mex-chip--done {
     background: var(--tt-primary, #0b3d2e);
     border-color: var(--tt-primary, #0b3d2e);
-    color: #fff;
+    color: var(--tt-paper, #fff);
 }
 
 @media (min-width: 768px) {

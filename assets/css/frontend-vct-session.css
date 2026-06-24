@@ -1,0 +1,125 @@
+/*
+ * frontend-vct-session.css — VCT coach session view restyled to the 2026
+ * look. Facts header renders through the shared KPI tiles (.tt-report-kpis
+ * + .tt-kpi from frontend-app-chrome.css); each training block is a
+ * .tt-card; the PHV sideline banner + publish CTA pick up the brand tokens.
+ *
+ * Mobile-first per CLAUDE.md §2: base styles target ~360px, min-width
+ * queries scale up (480 / 768 only). Scoped under .tt-dashboard. Tokens
+ * come from tokens.css; no raw hex.
+ */
+
+/* ---- Facts header (KPI tiles) --------------------------------------- */
+.tt-dashboard .tt-vct-facts {
+    margin: var(--tt-sp-2, 8px) 0 var(--tt-sp-4, 16px);
+}
+
+/* ---- PHV sideline banner -------------------------------------------- */
+.tt-dashboard .tt-vct-phv-banner {
+    display: flex;
+    gap: var(--tt-sp-3, 12px);
+    align-items: flex-start;
+    margin: 0 0 var(--tt-sp-4, 16px);
+    padding: var(--tt-sp-3, 12px) var(--tt-sp-4, 16px);
+    background: var(--tt-warning-subtle, #fdf3d8);
+    border-left: 4px solid var(--tt-warning, #e8902b);
+    border-radius: var(--tt-radius, 8px);
+}
+
+.tt-dashboard .tt-vct-phv-tag {
+    flex-shrink: 0;
+    background: var(--tt-warning, #e8902b);
+    color: var(--tt-paper, #fff);
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.tt-dashboard .tt-vct-phv-body {
+    font-size: 0.82rem;
+    line-height: 1.45;
+    color: var(--tt-ink, #0e1a14);
+}
+
+.tt-dashboard .tt-vct-phv-title {
+    display: block;
+    margin-bottom: 0.15rem;
+    color: var(--tt-ink, #0e1a14);
+}
+
+/* ---- Training blocks ------------------------------------------------ */
+.tt-dashboard .tt-vct-block {
+    margin: var(--tt-sp-3, 12px) 0;
+    padding: var(--tt-sp-4, 16px);
+}
+
+.tt-dashboard .tt-vct-block-head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--tt-sp-2, 8px);
+    margin-bottom: var(--tt-sp-2, 8px);
+}
+
+.tt-dashboard .tt-vct-block-title {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.tt-dashboard .tt-vct-meta {
+    font-size: 0.82rem;
+    color: var(--tt-muted, #6a6d66);
+    font-variant-numeric: tabular-nums;
+}
+
+.tt-dashboard .tt-vct-block-ex {
+    margin: 0 0 var(--tt-sp-2, 8px);
+    font-weight: 600;
+}
+
+.tt-dashboard .tt-vct-cues {
+    margin: 0;
+    padding-left: 1.25rem;
+    font-size: 0.88rem;
+    color: var(--tt-ink, #0e1a14);
+}
+
+.tt-dashboard .tt-vct-cues li { margin-bottom: 0.2rem; }
+
+/* ---- Publish CTA + status ------------------------------------------- */
+.tt-dashboard .tt-vct-publish {
+    margin-top: var(--tt-sp-6, 24px);
+    padding: var(--tt-sp-4, 16px);
+    background: var(--tt-bg-soft, #f4f6f3);
+}
+
+.tt-dashboard .tt-vct-publish-lede {
+    margin: 0 0 var(--tt-sp-3, 12px);
+}
+
+.tt-dashboard .tt-vct-publish .tt-btn {
+    min-height: 48px;
+    touch-action: manipulation;
+}
+
+.tt-dashboard .tt-vct-status {
+    margin-top: var(--tt-sp-4, 16px);
+}
+
+.tt-dashboard .tt-vct-bind-prompt {
+    margin: var(--tt-sp-4, 16px) 0;
+    padding: var(--tt-sp-4, 16px);
+}
+
+.tt-dashboard .tt-vct-bind-prompt .tt-btn {
+    min-height: 48px;
+    touch-action: manipulation;
+}
+
+@media (min-width: 480px) {
+    .tt-dashboard .tt-vct-block-title { font-size: 1.05rem; }
+}

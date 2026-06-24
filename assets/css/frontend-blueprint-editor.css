@@ -1196,3 +1196,156 @@ body.tt-bp-chem-hidden .tt-chem-link {
     font-variant-numeric: tabular-nums;
     opacity: 0.85;
 }
+
+/* =====================================================================
+ * #1695 long-tail body restyle — extracts the former inline styling on
+ * the team picker, blueprint list, status / flavour pills, tab nav,
+ * chemistry-empty state, heatmap pitch and the public share view into
+ * tokenised, mobile-first rules. Base styles target ~360px; the
+ * 480/768 min-width steps scale up. Tokens only — no raw hex.
+ * ===================================================================== */
+
+/* ---- Team picker -------------------------------------------------- */
+.tt-dashboard .tt-bp-picker-intro {
+    color: var(--tt-ink-soft, #6a6d66);
+    margin: 0 0 var(--tt-sp-3, 12px);
+}
+.tt-dashboard .tt-bp-picker-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--tt-sp-3, 12px);
+}
+@media (min-width: 480px) {
+    .tt-dashboard .tt-bp-picker-grid {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    }
+}
+.tt-dashboard .tt-bp-picker-card {
+    display: block;
+    min-height: 48px;
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    padding: var(--tt-sp-4, 16px);
+    text-decoration: none;
+    color: var(--tt-ink, #0e1a14);
+    transition: border-color var(--tt-motion-duration, 150ms) var(--tt-motion-easing, ease),
+                box-shadow var(--tt-motion-duration, 150ms) var(--tt-motion-easing, ease);
+}
+.tt-dashboard .tt-bp-picker-card:hover,
+.tt-dashboard .tt-bp-picker-card:focus-visible {
+    border-color: var(--tt-primary, #0b3d2e);
+    box-shadow: var(--tt-shadow-md);
+}
+.tt-dashboard .tt-bp-picker-card__name {
+    display: block;
+    margin-bottom: var(--tt-sp-1, 4px);
+}
+.tt-dashboard .tt-bp-picker-card__cta {
+    color: var(--tt-ink-soft, #6a6d66);
+    font-size: var(--tt-fs-sm, 0.85rem);
+}
+
+/* ---- Blueprint list ----------------------------------------------- */
+.tt-dashboard .tt-bp-list-actions {
+    margin: 0 0 var(--tt-sp-4, 16px);
+}
+.tt-dashboard .tt-bp-list-card {
+    margin: 0 0 var(--tt-sp-4, 16px);
+}
+.tt-dashboard .tt-bp-list-rowactions {
+    display: flex;
+    gap: var(--tt-sp-2, 8px);
+    flex-wrap: wrap;
+}
+
+/* ---- Notices ------------------------------------------------------ */
+.tt-dashboard .tt-bp-notice-spaced { margin-bottom: var(--tt-sp-3, 12px); }
+.tt-dashboard .tt-bp-notice-warn { margin: 0 0 var(--tt-sp-3, 12px); }
+.tt-dashboard .tt-bp-notice-locked { margin-top: var(--tt-sp-4, 16px); }
+
+/* ---- Status bar (above the editor) -------------------------------- */
+.tt-dashboard .tt-bp-statusbar {
+    display: flex;
+    align-items: center;
+    gap: var(--tt-sp-3, 12px);
+    margin-bottom: var(--tt-sp-3, 12px);
+    flex-wrap: wrap;
+}
+.tt-dashboard .tt-bp-statusbar__label {
+    color: var(--tt-ink-soft, #6a6d66);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+/* ---- Status + flavour pills (tokenised modifiers) ----------------- */
+.tt-status-badge,
+.tt-bp-flavour-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px var(--tt-sp-3, 10px);
+    border-radius: 10px;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 600;
+}
+.tt-status-badge--draft  { background: var(--tt-line-soft, #eef0ec); color: var(--tt-ink-soft, #6a6d66); }
+.tt-status-badge--shared { background: var(--tt-info-subtle, #e6f0fa); color: var(--tt-info, #2d6fb3); }
+.tt-status-badge--locked { background: var(--tt-warning-subtle, #fdf3d8); color: var(--tt-warning, #e8902b); }
+.tt-bp-flavour-pill--squad    { background: var(--tt-success-subtle, #dff5e1); color: var(--tt-success, #2f9e5e); }
+.tt-bp-flavour-pill--matchday { background: var(--tt-line-soft, #eef0ec); color: var(--tt-ink-soft, #6a6d66); }
+
+/* ---- Tab nav ------------------------------------------------------ */
+.tt-bp-tabs {
+    display: flex;
+    gap: var(--tt-sp-1, 4px);
+    border-bottom: 1px solid var(--tt-line, #e3e6e1);
+    margin-bottom: var(--tt-sp-4, 16px);
+}
+
+/* ---- Chemistry-empty state --------------------------------------- */
+.tt-bp-chem-empty { color: var(--tt-muted, #6a6d66); }
+
+/* ---- Heatmap pitch background ------------------------------------- */
+.tt-dashboard .tt-bp-heatmap-pitch {
+    background: linear-gradient(
+        180deg,
+        var(--tt-pitch-grass-token, #4ea35f) 0%,
+        var(--tt-pitch-grass-2-token, #3c8a4d) 100%
+    );
+}
+
+/* ---- Public share view -------------------------------------------- */
+.tt-bp-shared-wrap {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: var(--tt-sp-4, 16px);
+}
+.tt-bp-shared-header { margin-bottom: var(--tt-sp-4, 16px); }
+.tt-bp-shared-title { margin: 0 0 var(--tt-sp-1, 6px); }
+.tt-bp-shared-team { margin: 0; color: var(--tt-ink-soft, #6a6d66); }
+.tt-bp-shared-pills {
+    display: flex;
+    gap: var(--tt-sp-3, 12px);
+    align-items: center;
+    margin-bottom: var(--tt-sp-3, 12px);
+    flex-wrap: wrap;
+}
+.tt-bp-shared-pitch { margin: var(--tt-sp-4, 16px) 0; }
+.tt-bp-shared-note {
+    margin-top: var(--tt-sp-6, 24px);
+    color: var(--tt-ink-soft, #6a6d66);
+    font-size: var(--tt-fs-sm, 0.85rem);
+}
+.tt-bp-shared-lineup-card {
+    max-width: 560px;
+    margin: var(--tt-sp-4, 16px) 0;
+}
+.tt-bp-shared-empty { color: var(--tt-muted, #6a6d66); }
+.tt-bp-shared-404 {
+    max-width: 560px;
+    margin: 48px auto;
+    padding: var(--tt-sp-6, 24px);
+    text-align: center;
+}
+.tt-bp-shared-404__note { color: var(--tt-ink-soft, #6a6d66); }

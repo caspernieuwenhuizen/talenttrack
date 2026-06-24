@@ -221,3 +221,36 @@ a.tt-pipeline-card:focus-visible {
         transform: none;
     }
 }
+
+/* #1763 — focused prospect panel above the board (mobile-first). */
+.tt-dashboard .tt-pipeline-focus {
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-left: 3px solid var(--tt-primary, #0b3d2e);
+    border-radius: 12px;
+    background: var(--tt-paper, #fff);
+    padding: 0.75rem 0.9rem;
+    margin: 0 0 1rem;
+}
+.tt-dashboard .tt-pipeline-focus-head { display: flex; align-items: center; gap: 0.6rem; }
+.tt-dashboard .tt-pipeline-focus-av {
+    width: 40px; height: 40px; flex: 0 0 auto; border-radius: 50%;
+    background: var(--tt-bg-soft, #f0f3f2); color: var(--tt-ink, #1a1d21);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.85rem;
+}
+.tt-dashboard .tt-pipeline-focus-id { display: flex; flex-direction: column; min-width: 0; flex: 1 1 auto; }
+.tt-dashboard .tt-pipeline-focus-name { font-weight: 700; }
+.tt-dashboard .tt-pipeline-focus-sub { font-size: 0.8rem; color: var(--tt-muted, #6a6d66); }
+.tt-dashboard .tt-pipeline-focus-stage {
+    flex: 0 0 auto; font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.04em; color: var(--tt-primary-deep, #07261c);
+    background: var(--tt-bg-soft, #f0f3f2); border-radius: 999px; padding: 0.2rem 0.6rem;
+}
+.tt-dashboard .tt-pipeline-focus-close {
+    flex: 0 0 auto; min-width: 44px; min-height: 44px;
+    display: inline-flex; align-items: center; justify-content: center;
+    text-decoration: none; color: var(--tt-muted, #6a6d66); font-size: 1.4rem; line-height: 1;
+}
+.tt-dashboard .tt-pipeline-focus-ctx { margin: 0.5rem 0 0; color: var(--tt-muted, #6a6d66); font-size: 0.85rem; }
+.tt-dashboard .tt-pipeline-focus-actions { margin: 0.6rem 0 0; }
+@media (max-width: 480px) { .tt-dashboard .tt-pipeline-focus-stage { display: none; } }

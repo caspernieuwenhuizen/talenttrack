@@ -80,7 +80,7 @@ final class FrontendMatchExecutionsListView extends FrontendViewBase {
             return;
         }
 
-        echo '<div class="tt-table-wrap tt-mex-table-wrap"><table class="tt-table tt-table-sortable tt-mex-table">';
+        echo '<div class="tt-report-card"><div class="tt-table-wrap tt-mex-table-wrap"><table class="tt-table tt-table-sortable tt-mex-table">';
         echo '<thead><tr>';
         echo '<th>' . esc_html__( 'Date', 'talenttrack' ) . '</th>';
         echo '<th>' . esc_html__( 'Team', 'talenttrack' ) . '</th>';
@@ -112,7 +112,7 @@ final class FrontendMatchExecutionsListView extends FrontendViewBase {
             echo '<td>' . self::statePill( $state ) . '</td>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
             echo '</tr>';
         }
-        echo '</tbody></table></div>';
+        echo '</tbody></table></div></div>';
     }
 
     /**

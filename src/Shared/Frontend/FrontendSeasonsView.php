@@ -38,6 +38,12 @@ class FrontendSeasonsView extends FrontendViewBase {
         }
 
         self::enqueueAssets();
+        wp_enqueue_style(
+            'tt-frontend-admin-lists',
+            TT_PLUGIN_URL . 'assets/css/frontend-admin-lists.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
         self::enqueueSeasonsJs();
 
         if ( $action === 'new' || $action === 'edit' ) {
@@ -52,7 +58,7 @@ class FrontendSeasonsView extends FrontendViewBase {
             '<a class="tt-btn tt-btn-primary" href="' . esc_url( $new_url ) . '">' . esc_html__( '+ New season', 'talenttrack' ) . '</a>'
         );
 
-        echo '<p style="max-width:680px; color:#5b6e75;">'
+        echo '<p class="tt-admin-lead">'
             . esc_html__( 'Exactly one season is current. PDP files are scoped to a season, and the carryover job runs whenever you change the current season.', 'talenttrack' )
             . '</p>';
 
@@ -64,14 +70,15 @@ class FrontendSeasonsView extends FrontendViewBase {
             return;
         }
         ?>
-        <div class="tt-table-wrap">
+        <div class="tt-admin-card">
+            <div class="tt-table-wrap">
             <table class="tt-table">
                 <thead><tr>
                     <th><?php esc_html_e( 'Season', 'talenttrack' ); ?></th>
                     <th><?php esc_html_e( 'Starts', 'talenttrack' ); ?></th>
                     <th><?php esc_html_e( 'Ends', 'talenttrack' ); ?></th>
                     <th><?php esc_html_e( 'Current', 'talenttrack' ); ?></th>
-                    <th style="text-align:right;"><?php esc_html_e( 'Actions', 'talenttrack' ); ?></th>
+                    <th class="tt-col-actions"><?php esc_html_e( 'Actions', 'talenttrack' ); ?></th>
                 </tr></thead>
                 <tbody>
                 <?php foreach ( $seasons as $s ) :
@@ -80,32 +87,33 @@ class FrontendSeasonsView extends FrontendViewBase {
                     $referenced = self::isReferenced( $repo, $sid );
                     $edit_url   = add_query_arg( [ 'tt_view' => 'seasons', 'action' => 'edit', 'id' => $sid ], self::dashboardUrl() );
                     ?>
-                    <tr<?php echo $is_current ? ' style="background:#f0f7f6;"' : ''; ?>>
+                    <tr<?php echo $is_current ? ' class="tt-row-current"' : ''; ?>>
                         <td><strong><?php echo esc_html( (string) $s->name ); ?></strong></td>
                         <td><?php echo esc_html( TTDate::date( (string) $s->start_date ) ); ?></td>
                         <td><?php echo esc_html( TTDate::date( (string) $s->end_date ) ); ?></td>
                         <td>
                             <?php if ( $is_current ) : ?>
-                                <span class="tt-badge" style="background:#e7f0e9; color:#1e6b3a; font-weight:600; padding:3px 10px; border-radius:999px; font-size:12px;"><?php esc_html_e( 'Current', 'talenttrack' ); ?></span>
+                                <span class="tt-badge-current"><?php esc_html_e( 'Current', 'talenttrack' ); ?></span>
                             <?php else : ?>
                                 —
                             <?php endif; ?>
                         </td>
-                        <td style="text-align:right; white-space:nowrap;">
-                            <a class="tt-btn tt-btn-secondary tt-btn-sm" href="<?php echo esc_url( $edit_url ); ?>" style="min-height:48px;"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a>
+                        <td class="tt-col-actions">
+                            <a class="tt-btn tt-btn-secondary tt-btn-sm tt-seasons-action" href="<?php echo esc_url( $edit_url ); ?>"><?php esc_html_e( 'Edit', 'talenttrack' ); ?></a>
                             <?php if ( ! $is_current ) : ?>
-                                <button type="button" class="tt-btn tt-btn-secondary tt-btn-sm" style="min-height:48px;" data-tt-season-current="<?php echo esc_attr( (string) $sid ); ?>"><?php esc_html_e( 'Set current', 'talenttrack' ); ?></button>
+                                <button type="button" class="tt-btn tt-btn-secondary tt-btn-sm tt-seasons-action" data-tt-season-current="<?php echo esc_attr( (string) $sid ); ?>"><?php esc_html_e( 'Set current', 'talenttrack' ); ?></button>
                             <?php endif; ?>
                             <?php if ( ! $is_current && ! $referenced ) : ?>
-                                <button type="button" class="tt-btn tt-btn-danger tt-btn-sm" style="min-height:48px;" data-tt-season-delete="<?php echo esc_attr( (string) $sid ); ?>" data-tt-season-name="<?php echo esc_attr( (string) $s->name ); ?>"><?php esc_html_e( 'Delete', 'talenttrack' ); ?></button>
+                                <button type="button" class="tt-btn tt-btn-danger tt-btn-sm tt-seasons-action" data-tt-season-delete="<?php echo esc_attr( (string) $sid ); ?>" data-tt-season-name="<?php echo esc_attr( (string) $s->name ); ?>"><?php esc_html_e( 'Delete', 'talenttrack' ); ?></button>
                             <?php elseif ( ! $is_current && $referenced ) : ?>
-                                <span class="tt-field-hint" style="font-size:11px; color:var(--tt-muted);" title="<?php esc_attr_e( 'Has linked records — edit instead of deleting.', 'talenttrack' ); ?>"><?php esc_html_e( 'In use', 'talenttrack' ); ?></span>
+                                <span class="tt-in-use-hint" title="<?php esc_attr_e( 'Has linked records — edit instead of deleting.', 'talenttrack' ); ?>"><?php esc_html_e( 'In use', 'talenttrack' ); ?></span>
                             <?php endif; ?>
                         </td>
                     </tr>
                 <?php endforeach; ?>
                 </tbody>
             </table>
+            </div>
         </div>
         <?php
     }
@@ -139,7 +147,7 @@ class FrontendSeasonsView extends FrontendViewBase {
                 <label class="tt-field-label" for="tt-season-name"><?php esc_html_e( 'Season name', 'talenttrack' ); ?></label>
                 <input type="text" id="tt-season-name" class="tt-input" name="name" value="<?php echo esc_attr( $name ); ?>" required autocomplete="off" maxlength="100" />
             </div>
-            <div class="tt-grid tt-grid-2" style="margin-top:var(--tt-sp-3);">
+            <div class="tt-grid tt-grid-2 tt-seasons-dates">
                 <div class="tt-field">
                     <label class="tt-field-label" for="tt-season-start"><?php esc_html_e( 'Start date', 'talenttrack' ); ?></label>
                     <input type="date" id="tt-season-start" class="tt-input" name="start_date" value="<?php echo esc_attr( $start ); ?>" required />
@@ -155,7 +163,7 @@ class FrontendSeasonsView extends FrontendViewBase {
                 'cancel_url' => $list_url,
             ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- component returns escaped HTML.
             ?>
-            <div class="tt-form-msg" style="margin-top:10px;"></div>
+            <div class="tt-form-msg tt-seasons-form-msg"></div>
         </form>
         <?php
     }

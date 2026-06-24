@@ -40,14 +40,20 @@ class FrontendVctLibraryView extends FrontendViewBase {
             return;
         }
 
-        // #1784 — shared archive-button handler (DELETE …/permanent +
-        // surfaces any referential-integrity block reason).
-        self::enqueueAssets();
-
         // Handle inline POSTs (add / edit / archive).
         if ( $can_write && $_SERVER['REQUEST_METHOD'] === 'POST' ) {
             self::handlePost();
         }
+
+        // enqueueAssets() also wires the shared archive-button handler
+        // (#1784) — DELETE …/permanent + surfaces any block reason.
+        self::enqueueAssets();
+        wp_enqueue_style(
+            'tt-frontend-vct-library',
+            TT_PLUGIN_URL . 'assets/css/frontend-vct-library.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
 
         FrontendBreadcrumbs::fromDashboard( __( 'VCT exercise library', 'talenttrack' ) );
         self::renderHeader( __( 'VCT exercise library', 'talenttrack' ) );
@@ -56,7 +62,6 @@ class FrontendVctLibraryView extends FrontendViewBase {
         $include_archived = isset( $_GET['archived'] ) && $_GET['archived'] === '1';
         $edit_id = isset( $_GET['edit'] ) ? absint( $_GET['edit'] ) : 0;
 
-        self::renderStyles();
         self::renderFilterChips( $category, $include_archived );
 
         if ( $can_write ) {
@@ -76,34 +81,6 @@ class FrontendVctLibraryView extends FrontendViewBase {
 
         self::renderTable( $rows, $can_write, $edit_id );
         self::renderSearchScript();
-    }
-
-    /**
-     * #1086 VCT-11 — scoped CSS for the surface. Tokens copied from
-     * `.local-mockups/vct-library/` per the visual-fidelity rule.
-     */
-    private static function renderStyles(): void {
-        echo '<style>
-        .tt-vct-lib-edge { width: 4px; min-height: 28px; border-radius: 2px; display: inline-block; vertical-align: middle; margin-right: 8px; }
-        .tt-vct-lib-edge[data-band="1"] { background: #c8dcdb; }
-        .tt-vct-lib-edge[data-band="2"] { background: #9bc2bd; }
-        .tt-vct-lib-edge[data-band="3"] { background: #6ba39c; }
-        .tt-vct-lib-edge[data-band="4"] { background: #3b8580; }
-        .tt-vct-lib-edge[data-band="5"], .tt-vct-lib-edge[data-band="6"], .tt-vct-lib-edge[data-band="7"], .tt-vct-lib-edge[data-band="8"], .tt-vct-lib-edge[data-band="9"], .tt-vct-lib-edge[data-band="10"] { background: #c75c1f; }
-        .tt-vct-lib-search-row { background: #fff; padding: 12px 16px; border: 1px solid #d6dadd; border-radius: 8px; margin: 0 0 12px; }
-        .tt-vct-lib-search-row label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: #5b6e75; margin-bottom: 4px; }
-        .tt-vct-lib-search-row input { width: 100%; height: 48px; padding: 0 12px; border: 1px solid #d6dadd; border-radius: 8px; font: inherit; font-size: 16px; box-sizing: border-box; }
-        .tt-vct-lib-edit-row { background: #f0f3f2; }
-        .tt-vct-lib-edit-row td { padding: 16px; }
-        .tt-vct-lib-edit-form { display: grid; gap: 12px; grid-template-columns: 1fr; }
-        @media (min-width: 768px) { .tt-vct-lib-edit-form { grid-template-columns: 1fr 1fr; } }
-        .tt-vct-lib-edit-form label { display: flex; flex-direction: column; gap: 4px; }
-        .tt-vct-lib-edit-form label > span:first-child { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: #5b6e75; }
-        .tt-vct-lib-edit-form input, .tt-vct-lib-edit-form select { min-height: 48px; padding: 0 12px; border: 1px solid #d6dadd; border-radius: 8px; font: inherit; font-size: 16px; background: #fff; }
-        .tt-vct-lib-edit-actions { grid-column: 1 / -1; display: flex; gap: 8px; justify-content: flex-end; margin-top: 8px; }
-        .tt-vct-lib-row[hidden] { display: none; }
-        .tt-vct-lib-btn-sm { font-size: 12px; padding: 4px 10px; }
-        </style>';
     }
 
     /**
@@ -146,31 +123,25 @@ class FrontendVctLibraryView extends FrontendViewBase {
 
     private static function renderFilterChips( string $current, bool $include_archived ): void {
         $categories = QueryHelpers::get_lookup_names( 'vct_exercise_category' );
-        echo '<div class="tt-vct-library-filters" style="display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 16px;">';
+        echo '<div class="tt-vct-library-filters">';
         // All-categories chip.
         $base_url = remove_query_arg( 'category' );
         $all_active = $current === '';
-        echo '<a class="tt-pill" style="display:inline-block;padding:6px 12px;border-radius:999px;background:'
-            . ( $all_active ? '#0b3d2e;color:#fff' : '#eee;color:#333' )
-            . ';text-decoration:none;font-size:13px;" href="' . esc_url( $base_url ) . '">'
+        echo '<a class="tt-vct-chip' . ( $all_active ? ' is-active' : '' ) . '" href="' . esc_url( $base_url ) . '">'
             . esc_html__( 'All categories', 'talenttrack' )
             . '</a>';
         foreach ( $categories as $cat ) {
             $active = $current === $cat;
             $href = add_query_arg( [ 'category' => $cat ] );
             $label = LookupTranslator::byTypeAndName( 'vct_exercise_category', (string) $cat );
-            echo '<a class="tt-pill" style="display:inline-block;padding:6px 12px;border-radius:999px;background:'
-                . ( $active ? '#0b3d2e;color:#fff' : '#eee;color:#333' )
-                . ';text-decoration:none;font-size:13px;" href="' . esc_url( $href ) . '">'
+            echo '<a class="tt-vct-chip' . ( $active ? ' is-active' : '' ) . '" href="' . esc_url( $href ) . '">'
                 . esc_html( $label )
                 . '</a>';
         }
 
         // Archived toggle.
         $archived_href = add_query_arg( [ 'archived' => $include_archived ? '0' : '1' ] );
-        echo '<a class="tt-pill" style="display:inline-block;padding:6px 12px;border-radius:999px;background:'
-            . ( $include_archived ? '#dba617;color:#fff' : '#fff;color:#666;border:1px solid #ccc' )
-            . ';text-decoration:none;font-size:13px;margin-left:auto;" href="' . esc_url( $archived_href ) . '">'
+        echo '<a class="tt-vct-chip tt-vct-chip-archived' . ( $include_archived ? ' is-active' : '' ) . '" href="' . esc_url( $archived_href ) . '">'
             . esc_html( $include_archived ? __( 'Hiding archived', 'talenttrack' ) : __( 'Show archived', 'talenttrack' ) )
             . '</a>';
         echo '</div>';
@@ -180,13 +151,13 @@ class FrontendVctLibraryView extends FrontendViewBase {
         $categories = QueryHelpers::get_lookup_names( 'vct_exercise_category' );
         $themes     = QueryHelpers::get_lookup_names( 'vct_tactical_theme' );
 
-        echo '<details style="margin:0 0 16px;padding:12px;background:#f5f5f5;border-radius:8px;">';
-        echo '<summary style="cursor:pointer;font-weight:600;">' . esc_html__( '+ Add exercise', 'talenttrack' ) . '</summary>';
-        echo '<form method="POST" action="" style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px;">';
+        echo '<details class="tt-vct-lib-add">';
+        echo '<summary>' . esc_html__( '+ Add exercise', 'talenttrack' ) . '</summary>';
+        echo '<form method="POST" action="" class="tt-vct-lib-add-form">';
         wp_nonce_field( 'tt_vct_library_add', '_tt_vct_lib_add_nonce' );
         echo '<input type="hidden" name="_tt_action" value="add">';
-        echo '<label><span>' . esc_html__( 'Code (unique slug)', 'talenttrack' ) . '</span><input type="text" name="code" required pattern="[a-z0-9_]+" style="width:100%"></label>';
-        echo '<label><span>' . esc_html__( 'Name', 'talenttrack' ) . '</span><input type="text" name="name_canonical" required style="width:100%"></label>';
+        echo '<label><span>' . esc_html__( 'Code (unique slug)', 'talenttrack' ) . '</span><input type="text" name="code" required pattern="[a-z0-9_]+"></label>';
+        echo '<label><span>' . esc_html__( 'Name', 'talenttrack' ) . '</span><input type="text" name="name_canonical" required></label>';
         echo '<label><span>' . esc_html__( 'Category', 'talenttrack' ) . '</span><select name="category" required>';
         foreach ( $categories as $c ) echo '<option value="' . esc_attr( (string) $c ) . '">' . esc_html( LookupTranslator::byTypeAndName( 'vct_exercise_category', (string) $c ) ) . '</option>';
         echo '</select></label>';
@@ -201,7 +172,7 @@ class FrontendVctLibraryView extends FrontendViewBase {
         echo '<label><span>' . esc_html__( 'Players min', 'talenttrack' ) . '</span><input type="number" inputmode="numeric" name="players_min" min="1" max="30" value="4" required></label>';
         echo '<label><span>' . esc_html__( 'Players max', 'talenttrack' ) . '</span><input type="number" inputmode="numeric" name="players_max" min="1" max="30" value="20" required></label>';
 
-        echo '<fieldset style="grid-column:1 / -1;margin:8px 0 0;padding:8px;border:1px solid #ddd;">';
+        echo '<fieldset class="tt-vct-lib-md-fieldset">';
         echo '<legend>' . esc_html__( 'MD contexts (tick all that apply)', 'talenttrack' ) . '</legend>';
         // MD-4 … MD … MD+2 / NONE are intentional technical tokens used
         // industry-wide for match-day periodisation. They are NOT
@@ -219,11 +190,11 @@ class FrontendVctLibraryView extends FrontendViewBase {
         ];
         foreach ( $md_map as $col => $label ) {
             $checked = $col === 'md_none' ? 'checked' : '';
-            echo '<label style="display:inline-block;margin-right:12px;font-weight:normal;"><input type="checkbox" name="' . esc_attr( $col ) . '" value="1" ' . $checked . '> ' . esc_html( $label ) . '</label>';
+            echo '<label><input type="checkbox" name="' . esc_attr( $col ) . '" value="1" ' . $checked . '> ' . esc_html( $label ) . '</label>';
         }
         echo '</fieldset>';
 
-        echo '<button type="submit" class="tt-btn tt-btn-primary" style="grid-column:1 / -1;margin-top:8px;">' . esc_html__( 'Add exercise', 'talenttrack' ) . '</button>';
+        echo '<button type="submit" class="tt-btn tt-btn-primary tt-vct-lib-add-submit">' . esc_html__( 'Add exercise', 'talenttrack' ) . '</button>';
         echo '</form>';
         echo '</details>';
     }
@@ -260,7 +231,7 @@ class FrontendVctLibraryView extends FrontendViewBase {
             echo '<td>';
             echo '<span class="tt-vct-lib-edge" data-band="' . esc_attr( (string) $band ) . '" title="' . esc_attr( sprintf( /* translators: %d = intensity band 1-10 */ __( 'Intensity band %d', 'talenttrack' ), $band ) ) . '"></span>';
             echo esc_html( (string) $row['name_canonical'] );
-            echo '<br><code style="font-size:11px;color:#888;">' . esc_html( (string) $row['code'] ) . '</code></td>';
+            echo '<br><code class="tt-vct-lib-code">' . esc_html( (string) $row['code'] ) . '</code></td>';
             echo '<td>' . esc_html( $cat_label ) . '</td>';
             echo '<td>' . esc_html( $theme_label !== '' ? $theme_label : '—' ) . '</td>';
             echo '<td>' . esc_html( (string) $band ) . '</td>';
@@ -268,7 +239,7 @@ class FrontendVctLibraryView extends FrontendViewBase {
             echo '<td>' . esc_html( $is_archived ? __( 'Archived', 'talenttrack' ) : __( 'Active', 'talenttrack' ) ) . '</td>';
 
             if ( $can_write ) {
-                echo '<td style="white-space:nowrap;">';
+                echo '<td class="tt-vct-lib-rowactions">';
                 if ( ! $is_archived ) {
                     // #1086 VCT-11 — inline-edit affordance. Clicking
                     // toggles ?edit=N on the URL; the edit form for the
@@ -276,22 +247,22 @@ class FrontendVctLibraryView extends FrontendViewBase {
                     $edit_url = $edit_id === $row_id
                         ? remove_query_arg( 'edit' )
                         : add_query_arg( [ 'edit' => $row_id ], $base_url ) . '#tt-vct-lib-edit-' . $row_id;
-                    echo '<a class="tt-btn tt-btn-secondary" style="font-size:12px;padding:4px 10px;margin-right:6px;" href="' . esc_url( $edit_url ) . '">'
+                    echo '<a class="tt-btn tt-btn-secondary tt-vct-lib-edit-btn" href="' . esc_url( $edit_url ) . '">'
                         . ( $edit_id === $row_id ? esc_html__( 'Close', 'talenttrack' ) : esc_html__( 'Edit', 'talenttrack' ) )
                         . '</a>';
 
-                    echo '<form method="POST" action="" style="display:inline;">';
+                    echo '<form method="POST" action="" class="tt-vct-lib-archive-form">';
                     wp_nonce_field( 'tt_vct_library_archive_' . $row_id, '_tt_vct_lib_archive_nonce' );
                     echo '<input type="hidden" name="_tt_action" value="archive">';
                     echo '<input type="hidden" name="exercise_id" value="' . esc_attr( (string) $row_id ) . '">';
-                    echo '<button type="submit" class="tt-btn tt-btn-secondary" style="font-size:12px;padding:4px 10px;" onclick="return confirm(\'' . esc_attr__( 'Archive this exercise? It stays in history but drops out of new session candidates.', 'talenttrack' ) . '\');">'
+                    echo '<button type="submit" class="tt-btn tt-btn-secondary" onclick="return confirm(\'' . esc_attr__( 'Archive this exercise? It stays in history but drops out of new session candidates.', 'talenttrack' ) . '\');">'
                         . esc_html__( 'Archive', 'talenttrack' ) . '</button>';
                     echo '</form>';
                 } else {
                     // #1784 — archived rows get the irreversible delete
                     // ($can_write already gated on tt_vct_admin_library).
-                    // `tt-vct-lib-btn-sm` lives in renderStyles() — no inline
-                    // style attribute (#1389).
+                    // `tt-vct-lib-btn-sm` lives in frontend-vct-library.css —
+                    // no inline style attribute (#1389).
                     echo '<button type="button" class="tt-btn tt-btn-danger tt-vct-lib-btn-sm"'
                         . ' data-tt-archive-rest-path="' . esc_attr( 'vct/exercises/' . $row_id . '/permanent' ) . '"'
                         . ' data-tt-archive-confirm="' . esc_attr__( 'Permanently delete this exercise? This cannot be undone.', 'talenttrack' ) . '"'
@@ -370,23 +341,23 @@ class FrontendVctLibraryView extends FrontendViewBase {
                     </label>
                     <label>
                         <span><?php esc_html_e( 'Age range (min–max)', 'talenttrack' ); ?></span>
-                        <span style="display:flex;gap:6px;">
-                            <input type="number" inputmode="numeric" name="age_min" min="6" max="19" value="<?php echo (int) $row['age_min']; ?>" required style="flex:1;">
-                            <input type="number" inputmode="numeric" name="age_max" min="6" max="19" value="<?php echo (int) $row['age_max']; ?>" required style="flex:1;">
+                        <span class="tt-vct-lib-range">
+                            <input type="number" inputmode="numeric" name="age_min" min="6" max="19" value="<?php echo (int) $row['age_min']; ?>" required>
+                            <input type="number" inputmode="numeric" name="age_max" min="6" max="19" value="<?php echo (int) $row['age_max']; ?>" required>
                         </span>
                     </label>
                     <label>
                         <span><?php esc_html_e( 'Duration (min–max minutes)', 'talenttrack' ); ?></span>
-                        <span style="display:flex;gap:6px;">
-                            <input type="number" inputmode="numeric" name="duration_minutes_min" min="1" max="120" value="<?php echo (int) $row['duration_minutes_min']; ?>" required style="flex:1;">
-                            <input type="number" inputmode="numeric" name="duration_minutes_max" min="1" max="120" value="<?php echo (int) $row['duration_minutes_max']; ?>" required style="flex:1;">
+                        <span class="tt-vct-lib-range">
+                            <input type="number" inputmode="numeric" name="duration_minutes_min" min="1" max="120" value="<?php echo (int) $row['duration_minutes_min']; ?>" required>
+                            <input type="number" inputmode="numeric" name="duration_minutes_max" min="1" max="120" value="<?php echo (int) $row['duration_minutes_max']; ?>" required>
                         </span>
                     </label>
                     <label>
                         <span><?php esc_html_e( 'Group size (min–max players)', 'talenttrack' ); ?></span>
-                        <span style="display:flex;gap:6px;">
-                            <input type="number" inputmode="numeric" name="players_min" min="1" max="30" value="<?php echo (int) $row['players_min']; ?>" required style="flex:1;">
-                            <input type="number" inputmode="numeric" name="players_max" min="1" max="30" value="<?php echo (int) $row['players_max']; ?>" required style="flex:1;">
+                        <span class="tt-vct-lib-range">
+                            <input type="number" inputmode="numeric" name="players_min" min="1" max="30" value="<?php echo (int) $row['players_min']; ?>" required>
+                            <input type="number" inputmode="numeric" name="players_max" min="1" max="30" value="<?php echo (int) $row['players_max']; ?>" required>
                         </span>
                     </label>
 
@@ -498,9 +469,7 @@ class FrontendVctLibraryView extends FrontendViewBase {
     }
 
     private static function notice( string $variant, string $msg ): void {
-        $bg = $variant === 'error' ? '#fdecea' : ( $variant === 'success' ? '#e9f5e9' : '#fff8e1' );
-        $bar = $variant === 'error' ? '#b32d2e' : ( $variant === 'success' ? '#2c8a2c' : '#dba617' );
-        echo '<div class="tt-notice tt-notice--' . esc_attr( $variant ) . '" style="margin:8px 0 16px;padding:12px;background:' . esc_attr( $bg ) . ';border-left:4px solid ' . esc_attr( $bar ) . ';">'
+        echo '<div class="tt-vct-lib-notice tt-vct-lib-notice--' . esc_attr( $variant ) . '">'
             . esc_html( $msg ) . '</div>';
     }
 }
