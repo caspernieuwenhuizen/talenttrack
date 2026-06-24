@@ -67,6 +67,20 @@ final class TileGridStandard {
     private const LAYOUTS = [ 'row', 'stacked' ];
 
     /**
+     * Config key holding the academy-wide tile *colour scheme* (#1809). A
+     * third axis, independent of size preset and layout: it only recolours
+     * the dashboard tiles (`.tt-ftile`) — border, fill, accent — without
+     * touching their arrangement. Combines freely with size and layout.
+     */
+    public const STYLE_CONFIG_KEY = 'tile_style';
+
+    /** Default colour scheme — green border + gold top edge (#1809). */
+    public const DEFAULT_STYLE = 'gold-topped';
+
+    /** Valid colour-scheme keys, in settings-dropdown order. */
+    private const STYLES = [ 'default', 'border', 'gold-topped', 'soft-fill', 'solid', 'left-accent' ];
+
+    /**
      * Preset → custom-property values. `comfortable` reproduces the
      * pre-#1587 config-tile metrics exactly (min-width 220px, gap 10px,
      * padding 14px, min-height 76px, radius 8px) so the liked standard
@@ -147,6 +161,36 @@ final class TileGridStandard {
     public static function layoutAttr( ?string $layout = null ): string {
         $key = $layout !== null && in_array( $layout, self::LAYOUTS, true ) ? $layout : self::activeLayout();
         return 'data-tt-tile-layout="' . esc_attr( $key ) . '"';
+    }
+
+    /**
+     * The colour-scheme keys, in display order, for building the settings
+     * dropdown. Labels are translated at the call site.
+     *
+     * @return string[]
+     */
+    public static function styleKeys(): array {
+        return self::STYLES;
+    }
+
+    /**
+     * Resolve the active tile colour scheme from `tt_config`, falling back
+     * to the default (`gold-topped`) for an unknown / unset value.
+     */
+    public static function activeStyle(): string {
+        $raw = QueryHelpers::get_config( self::STYLE_CONFIG_KEY, self::DEFAULT_STYLE );
+        $key = strtolower( trim( (string) $raw ) );
+        return in_array( $key, self::STYLES, true ) ? $key : self::DEFAULT_STYLE;
+    }
+
+    /**
+     * The `data-tt-tile-scheme` attribute string to stamp on a tile-grid
+     * wrapper so the per-surface CSS can recolour the tiles. Defaults to the
+     * active colour scheme.
+     */
+    public static function styleAttr( ?string $style = null ): string {
+        $key = $style !== null && in_array( $style, self::STYLES, true ) ? $style : self::activeStyle();
+        return 'data-tt-tile-scheme="' . esc_attr( $key ) . '"';
     }
 
     /**

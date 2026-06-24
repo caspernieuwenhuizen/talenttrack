@@ -207,6 +207,85 @@ class FrontendTileGrid {
             line-clamp: 3;
         }
 
+        /* #1809 — academy-wide tile colour schemes. A third axis, independent
+           of size preset and layout: only the tile's colours (border, fill,
+           accent) change. Scoped to the active scheme via the wrapper's
+           data-tt-tile-scheme attribute. "default" emits no rules — the base
+           .tt-ftile above already renders it (white fill, hairline border,
+           3px green left-accent). Tokens only, no raw hex. */
+
+        /* A · Full brand border — white fill, full 1.5px green outline. The
+           1.5px border + left-accent override beat the base's 1px / 3px. */
+        [data-tt-tile-scheme="border"] .tt-ftile {
+            border: 1.5px solid var(--tt-primary, #0b3d2e);
+            border-left-width: 1.5px;
+        }
+        [data-tt-tile-scheme="border"] .tt-ftile:hover,
+        [data-tt-tile-scheme="border"] .tt-ftile:focus {
+            background: color-mix(in srgb, var(--tt-primary, #0b3d2e) 5%, #fff);
+        }
+
+        /* B · Gold-topped (default) — green border + 3px gold top edge,
+           echoing the dashboard bar's gold underline. */
+        [data-tt-tile-scheme="gold-topped"] .tt-ftile {
+            border: 1.5px solid var(--tt-primary, #0b3d2e);
+            border-top: 3px solid var(--tt-secondary, #e8b624);
+            border-left-width: 1.5px;
+        }
+        [data-tt-tile-scheme="gold-topped"] .tt-ftile:hover,
+        [data-tt-tile-scheme="gold-topped"] .tt-ftile:focus {
+            background: color-mix(in srgb, var(--tt-primary, #0b3d2e) 5%, #fff);
+        }
+
+        /* C · Soft green fill — light green tint, green border, white chip. */
+        [data-tt-tile-scheme="soft-fill"] .tt-ftile {
+            background: color-mix(in srgb, var(--tt-primary, #0b3d2e) 7%, #fff);
+            border: 1px solid color-mix(in srgb, var(--tt-primary, #0b3d2e) 25%, var(--tt-line, #e3e6e1));
+            border-left-width: 1px;
+        }
+        [data-tt-tile-scheme="soft-fill"] .tt-ftile .tt-tile-chip {
+            background: #fff;
+        }
+        [data-tt-tile-scheme="soft-fill"] .tt-ftile:hover,
+        [data-tt-tile-scheme="soft-fill"] .tt-ftile:focus {
+            background: color-mix(in srgb, var(--tt-primary, #0b3d2e) 12%, #fff);
+        }
+
+        /* D · Solid green — tiles match the top bar: dark green fill, gold
+           bottom accent, white text, translucent chip. */
+        [data-tt-tile-scheme="solid"] .tt-ftile {
+            background: var(--tt-primary, #0b3d2e);
+            border: 1px solid var(--tt-primary-deep, #07261c);
+            border-bottom: 3px solid var(--tt-secondary, #e8b624);
+            border-left-width: 1px;
+            color: #fff;
+        }
+        [data-tt-tile-scheme="solid"] .tt-ftile .tt-ftile-label {
+            color: #fff;
+        }
+        [data-tt-tile-scheme="solid"] .tt-ftile .tt-ftile-desc {
+            color: #cfe0d7;
+        }
+        [data-tt-tile-scheme="solid"] .tt-ftile .tt-tile-chip {
+            background: rgba(255, 255, 255, 0.16);
+            color: #fff;
+        }
+        [data-tt-tile-scheme="solid"] .tt-ftile:hover,
+        [data-tt-tile-scheme="solid"] .tt-ftile:focus {
+            background: var(--tt-primary-deep, #07261c);
+        }
+
+        /* E · Left accent — white fill, thick 4px green left edge that turns
+           gold on hover. Closest to today, still clearly branded. */
+        [data-tt-tile-scheme="left-accent"] .tt-ftile {
+            border-left: 4px solid var(--tt-primary, #0b3d2e);
+        }
+        [data-tt-tile-scheme="left-accent"] .tt-ftile:hover,
+        [data-tt-tile-scheme="left-accent"] .tt-ftile:focus {
+            border-left-color: var(--tt-secondary, #e8b624);
+            background: color-mix(in srgb, var(--tt-primary, #0b3d2e) 4%, #fff);
+        }
+
         /* #1603 — desktop 2-column daily-use layout. Mobile-first base is a
            single column: the left work groups stack, then the "My work"
            rail follows beneath them. The rail drops to the bottom because
@@ -302,7 +381,7 @@ class FrontendTileGrid {
         </style>
         <?php echo TileIconChip::styles(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — static trusted CSS. ?>
 
-        <div class="tt-ftile-grid-wrap" <?php echo TileGridStandard::layoutAttr(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — layoutAttr escapes its own value. ?>>
+        <div class="tt-ftile-grid-wrap" <?php echo TileGridStandard::layoutAttr(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — layoutAttr escapes its own value. ?> <?php echo TileGridStandard::styleAttr(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — styleAttr escapes its own value. ?>>
         <div class="tt-ftile-greeting"><?php echo esc_html( $greeting ); ?></div>
 
         <?php

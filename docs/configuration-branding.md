@@ -49,6 +49,21 @@ Alongside the size dropdown (now labelled **Tile size**), the Appearance surface
 
 The layout applies everywhere a tile shows an icon: the dashboard tile grid always, and the Configuration / Reports / Modules tiles whenever a tile carries an icon. Tiles without an icon have no top line to share and render the same in either layout. Stored academy-wide under the `tile_layout` configuration key; default `row`.
 
+### Tile colour scheme (v4.46.0+)
+
+Alongside **Tile size** and **Tile layout**, the Appearance surface gains a **Tile colour scheme** dropdown. Colour is a third independent axis — it recolours the dashboard tiles (border, fill and accent) without changing their size or layout, so any combination is valid. The scheme applies to the dashboard tile grid (`.tt-ftile`).
+
+| Scheme | Effect |
+| --- | --- |
+| **Default** | White fill, hairline grey border, a 3px brand-green left accent and a faint green tint on hover. |
+| **Brand border** | White fill with a full 1.5px brand-green border. |
+| **Gold-topped** (default) | A full brand-green border plus a 3px gold top edge, echoing the dashboard bar's gold underline. |
+| **Soft green fill** | A light brand-green tint fill with a green border; the icon chip flips to white. |
+| **Solid green** | Tiles match the top bar — dark green fill, gold bottom accent, white text and a translucent icon chip. |
+| **Left accent** | White fill with a thick 4px green left edge that turns gold on hover. |
+
+Stored academy-wide under the `tile_style` configuration key; default `gold-topped`. The colours come from the brand tokens (`--tt-primary`, `--tt-secondary`), so they follow the academy's Primary/Secondary colour choices automatically.
+
 ## Full-canvas app & theme isolation (mandatory, v4.45.26+)
 
 TalentTrack always renders as a full-canvas app, fully isolated from the active WordPress theme. There is **no opt-out** — full isolation is the contract (#1728). On the page that hosts the `[talenttrack_dashboard]` shortcode:

@@ -905,6 +905,28 @@ class ConfigurationPage {
                     <input type="number" inputmode="numeric" name="cfg[tile_icon_size]" value="<?php echo esc_attr( $tile_icon_size ); ?>" min="14" max="64" step="2" style="width:80px;" /> px
                     <p class="description"><?php esc_html_e( 'Exact tile icon glyph size in pixels (14–64). Leave blank to use the preset / % scale sizing.', 'talenttrack' ); ?></p>
                 </td></tr>
+                <?php
+                // #1809 — academy-wide tile colour scheme; recolours the
+                // dashboard tiles (border / fill / accent) without changing
+                // their size or layout. Default gold-topped.
+                $tile_style        = \TT\Shared\Frontend\Components\TileGridStandard::activeStyle();
+                $tile_style_labels = [
+                    'default'     => __( 'Default', 'talenttrack' ),
+                    'border'      => __( 'Brand border', 'talenttrack' ),
+                    'gold-topped' => __( 'Gold-topped', 'talenttrack' ),
+                    'soft-fill'   => __( 'Soft green fill', 'talenttrack' ),
+                    'solid'       => __( 'Solid green', 'talenttrack' ),
+                    'left-accent' => __( 'Left accent', 'talenttrack' ),
+                ];
+                ?>
+                <tr><th><?php esc_html_e( 'Tile colour scheme', 'talenttrack' ); ?></th><td>
+                    <select name="cfg[tile_style]">
+                        <?php foreach ( \TT\Shared\Frontend\Components\TileGridStandard::styleKeys() as $style_key ) : ?>
+                            <option value="<?php echo esc_attr( $style_key ); ?>" <?php selected( $tile_style, $style_key ); ?>><?php echo esc_html( (string) ( $tile_style_labels[ $style_key ] ?? $style_key ) ); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <p class="description"><?php esc_html_e( 'Recolours the dashboard tiles — border, fill and accent — without changing their size or layout. Default Gold-topped.', 'talenttrack' ); ?></p>
+                </td></tr>
             </table>
 
             <?php

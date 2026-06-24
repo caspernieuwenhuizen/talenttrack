@@ -40145,3 +40145,38 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #: src/Infrastructure/REST/PlayerJourneyRestController.php
 msgid "Invalid injury id."
 msgstr "Ongeldig blessure-id."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+#: src/Modules/Configuration/Admin/ConfigurationPage.php
+msgid "Tile colour scheme"
+msgstr "Tegelkleurschema"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+#: src/Modules/Configuration/Admin/ConfigurationPage.php
+msgid "Brand border"
+msgstr "Merkrand"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+#: src/Modules/Configuration/Admin/ConfigurationPage.php
+msgid "Gold-topped"
+msgstr "Gouden bovenrand"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+#: src/Modules/Configuration/Admin/ConfigurationPage.php
+msgid "Soft green fill"
+msgstr "Zachte groene vulling"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+#: src/Modules/Configuration/Admin/ConfigurationPage.php
+msgid "Solid green"
+msgstr "Effen groen"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+#: src/Modules/Configuration/Admin/ConfigurationPage.php
+msgid "Left accent"
+msgstr "Linker accent"
+
+#: src/Modules/Configuration/Admin/ConfigurationPage.php
+msgid "Recolours the dashboard tiles — border, fill and accent — without changing their size or layout. Default Gold-topped."
+msgstr "Verkleurt de dashboardtegels — rand, vulling en accent — zonder de grootte of indeling te wijzigen. Standaard Gouden bovenrand."
+
