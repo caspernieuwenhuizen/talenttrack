@@ -86,9 +86,10 @@ class FrontendTrialCaseView extends FrontendViewBase {
         // #0093 — lift "Close case" affordances to the header so operators
         // don't have to scroll to the bottom of Overview to find them.
         // "Record decision" is the normal close path; "Archive case" is
-        // the no-answer-needed close path. Both jump to the existing
-        // sections (form + nonce + confirm dialog live where they
-        // always have — only the entry point changes).
+        // the no-answer-needed close path. #1646 — Archive is now the
+        // ONLY archive affordance: it submits the hidden POST form
+        // (which still carries the nonce) in one click, so the
+        // redundant in-body archive button is gone.
         $header_actions = [];
         if ( TrialCaseAccessPolicy::isManager( $user_id ) && $case->archived_at === null ) {
             if ( empty( $case->decision ) ) {
@@ -98,11 +99,6 @@ class FrontendTrialCaseView extends FrontendViewBase {
                     'primary' => true,
                 ];
             }
-            $header_actions[] = [
-                'label'   => __( 'Archive case', 'talenttrack' ),
-                'href'    => '#tt-trial-archive-form',
-                'variant' => 'danger',
-            ];
         }
         // #1784 — irreversible delete (cascades staff / inputs / extensions),
         // surfaced via the shared archive-button handler which shows any
@@ -118,9 +114,39 @@ class FrontendTrialCaseView extends FrontendViewBase {
                 ],
             ];
         }
+
+        // #1646 — archive header action. No REST archive route exists
+        // (only /permanent for hard delete), so this submits the hidden
+        // `#tt-trial-archive-form` (nonce-bearing) in one click. Built
+        // outside pageActionsHtml because that helper only emits a plain
+        // confirm onclick — here we need confirm-then-requestSubmit.
+        $actions_html = $header_actions ? self::pageActionsHtml( $header_actions ) : '';
+        if ( TrialCaseAccessPolicy::isManager( $user_id ) && $case->archived_at === null ) {
+            $archive_onclick = 'if(confirm(' . wp_json_encode( __( 'Archive this case?', 'talenttrack' ) ) . ')){document.getElementById(' . wp_json_encode( 'tt-trial-archive-form' ) . ').requestSubmit();}return false;';
+            $archive_label   = __( 'Archive case', 'talenttrack' );
+            $archive_btn     = '<button type="button" class="tt-btn tt-btn-danger tt-page-actions__secondary"'
+                . ' onclick="' . esc_attr( $archive_onclick ) . '"'
+                . ' aria-label="' . esc_attr( $archive_label ) . '">'
+                . '<span class="tt-page-actions__label">' . esc_html( $archive_label ) . '</span>'
+                . '</button>';
+            // Record decision (primary) renders first; archive sits before
+            // Delete permanently. Splice it in just ahead of any delete
+            // button by appending after the primary slot — simplest: place
+            // it at the front of the danger group by prepending to the
+            // delete output. Since pageActionsHtml already ordered
+            // [Record decision][Delete permanently], insert archive before
+            // the delete button if present, else append.
+            $needle = '<button type="button" class="tt-btn tt-btn-danger tt-page-actions__secondary is-icon" data-tt-archive-rest-path';
+            $pos    = strpos( $actions_html, $needle );
+            if ( $pos !== false ) {
+                $actions_html = substr( $actions_html, 0, $pos ) . $archive_btn . substr( $actions_html, $pos );
+            } else {
+                $actions_html .= $archive_btn;
+            }
+        }
         self::renderHeader(
             sprintf( __( 'Trial: %s', 'talenttrack' ), $name ),
-            $header_actions ? self::pageActionsHtml( $header_actions ) : ''
+            $actions_html
         );
 
         self::renderHeaderStrip( $case, $name );
@@ -324,13 +350,14 @@ class FrontendTrialCaseView extends FrontendViewBase {
         echo '</section>';
 
         if ( TrialCaseAccessPolicy::isManager( $user_id ) && $case->archived_at === null ) {
-            $base = remove_query_arg( [ 'tab' ] );
-            // Anchor id `tt-trial-archive-form` is the jump target of the
-            // header-action "Archive case" link (#0093).
-            echo '<form method="post" id="tt-trial-archive-form" class="tt-trial-archive">';
+            // #1646 — this form is nonce-bearing only; it is submitted by
+            // the single top-right "Archive case" header action via
+            // requestSubmit(). The previously-visible in-body submit button
+            // was the duplicate archive affordance and has been removed.
+            // The form is `hidden` so no visible mid-body control remains.
+            echo '<form method="post" id="tt-trial-archive-form" class="tt-trial-archive" hidden>';
             wp_nonce_field( 'tt_trial_archive_' . (int) $case->id, 'tt_trial_archive_nonce' );
             echo '<input type="hidden" name="tt_trial_action" value="archive">';
-            echo '<button type="submit" class="tt-button tt-button-danger" onclick="return confirm(\'' . esc_js( __( 'Archive this case?', 'talenttrack' ) ) . '\');">' . esc_html__( 'Archive case', 'talenttrack' ) . '</button>';
             echo '</form>';
         }
     }
@@ -346,7 +373,7 @@ class FrontendTrialCaseView extends FrontendViewBase {
             'placeholder' => __( 'Type a name to search…', 'talenttrack' ),
         ] );
         echo ' <input type="text" name="role_label" class="tt-input" placeholder="' . esc_attr__( 'Role label (optional)', 'talenttrack' ) . '">';
-        echo ' <button type="submit" class="tt-button">' . esc_html__( 'Assign', 'talenttrack' ) . '</button>';
+        echo ' <button type="submit" class="tt-button tt-button-primary">' . esc_html__( 'Assign', 'talenttrack' ) . '</button>';
         echo '</form>';
     }
 
@@ -357,7 +384,7 @@ class FrontendTrialCaseView extends FrontendViewBase {
         echo '<input type="hidden" name="tt_trial_action" value="extend">';
         echo '<label>' . esc_html__( 'New end date', 'talenttrack' ) . ' <input type="date" name="new_end_date" value="' . esc_attr( $next ) . '" required></label>';
         echo '<label>' . esc_html__( 'Justification (required)', 'talenttrack' ) . ' <textarea name="justification" rows="2" required></textarea></label>';
-        echo '<button type="submit" class="tt-button">' . esc_html__( 'Extend trial', 'talenttrack' ) . '</button>';
+        echo '<button type="submit" class="tt-button tt-button-primary">' . esc_html__( 'Extend trial', 'talenttrack' ) . '</button>';
         echo '</form>';
     }
 
@@ -390,7 +417,7 @@ class FrontendTrialCaseView extends FrontendViewBase {
                  ON att.activity_id = a.id AND att.player_id = %d AND att.club_id = a.club_id
               WHERE a.activity_date BETWEEN %s AND %s
                 AND a.club_id = %d
-              ORDER BY a.activity_date DESC", $pid, $start, $end, CurrentClub::id()
+              ORDER BY a.activity_date DESC LIMIT 500", $pid, $start, $end, CurrentClub::id()
         ) );
         echo '<section class="tt-trial-section"><h2>' . esc_html__( 'Activities', 'talenttrack' ) . '</h2>';
         if ( ! $activities ) {
@@ -411,7 +438,7 @@ class FrontendTrialCaseView extends FrontendViewBase {
             "SELECT id, eval_date, evaluator_user_id
                FROM {$wpdb->prefix}tt_evaluations
               WHERE player_id = %d AND eval_date BETWEEN %s AND %s AND club_id = %d
-              ORDER BY eval_date DESC", $pid, $start, $end, CurrentClub::id()
+              ORDER BY eval_date DESC LIMIT 500", $pid, $start, $end, CurrentClub::id()
         ) );
         echo '<section class="tt-trial-section"><h2>' . esc_html__( 'Evaluations', 'talenttrack' ) . '</h2>';
         if ( ! $evals ) {
@@ -437,7 +464,7 @@ class FrontendTrialCaseView extends FrontendViewBase {
                    OR ( updated_at >= %s AND updated_at <= %s ) )
                 AND archived_at IS NULL
                 AND club_id = %d
-              ORDER BY updated_at DESC",
+              ORDER BY updated_at DESC LIMIT 500",
             $pid, $start . ' 00:00:00', $end . ' 23:59:59', $start . ' 00:00:00', $end . ' 23:59:59', CurrentClub::id()
         ) );
         echo '<section class="tt-trial-section"><h2>' . esc_html__( 'Goals', 'talenttrack' ) . '</h2>';
