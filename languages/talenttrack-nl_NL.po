@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-24T12:29:57+00:00\n"
+"POT-Creation-Date: 2026-06-24T12:51:08+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -180,7 +180,7 @@ msgstr "Speler"
 #: src/Modules/Reports/Admin/ReportsPage.php:271
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:271
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:501
-#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:95
+#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:101
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:154
 #: src/Shared/Frontend/FrontendEvaluationsView.php:164
 #: src/Shared/Frontend/FrontendEvaluationsView.php:373
@@ -758,6 +758,7 @@ msgstr "Gedrag %s onder bodem %s — gemaximeerd op oranje."
 # v3.50.0 — Player status (#0057)
 #: src/Infrastructure/PlayerStatus/StatusVerdict.php:68
 #: src/Modules/Players/Frontend/PlayerStatusRenderer.php:105
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:181
 msgid "On track"
 msgstr "Op koers"
 
@@ -781,7 +782,7 @@ msgstr "Eerste beeld opbouwen"
 #: src/Modules/Invitations/InvitationStatus.php:61
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:339
 #: src/Shared/Frontend/FrontendExportsView.php:121
-#: src/Shared/Frontend/FrontendWizardView.php:765
+#: src/Shared/Frontend/FrontendWizardView.php:782
 msgid "Pending"
 msgstr "In behandeling"
 
@@ -804,12 +805,13 @@ msgstr "In uitvoering"
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:286
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:371
 #: src/Modules/Prospects/Repositories/ScoutingVisitsRepository.php:36
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:214
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:77
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:97
 #: src/Modules/Workflow/TaskStatus.php:66
 #: src/Shared/Frontend/FrontendExportsView.php:123
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:357
-#: src/Shared/Frontend/FrontendWizardsAdminView.php:156
-#: src/Shared/Frontend/FrontendWizardView.php:763
+#: src/Shared/Frontend/FrontendWizardsAdminView.php:167
+#: src/Shared/Frontend/FrontendWizardView.php:780
 msgid "Completed"
 msgstr "Voltooid"
 
@@ -2399,7 +2401,7 @@ msgstr "Nieuw toevoegen"
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1268
 #: src/Modules/Teams/Admin/TeamsPage.php:40
 #: src/Shared/Frontend/DashboardShortcode.php:87
-#: src/Shared/Frontend/FrontendWizardsAdminView.php:40
+#: src/Shared/Frontend/FrontendWizardsAdminView.php:50
 msgid "Saved."
 msgstr "Opgeslagen."
 
@@ -2447,8 +2449,7 @@ msgstr "Filteren"
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:99
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:110
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:132
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:51
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:75
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:110
 #: src/Modules/Vct/Wizard/ReviewStep.php:51
 #: src/Modules/Vct/Wizard/WhenStep.php:62
 #: src/Modules/Wizards/Activity/DetailsStep.php:37
@@ -2482,9 +2483,9 @@ msgstr "Datum"
 #: src/Modules/Configuration/Admin/FormSlugContract.php:110
 #: src/Modules/CustomWidgets/DataSources/ActivitiesRecent.php:22
 #: src/Modules/CustomWidgets/DataSources/GoalsOpen.php:24
-#: src/Modules/Development/Frontend/IdeasRefineView.php:67
-#: src/Modules/Development/Frontend/IdeaSubmitView.php:51
-#: src/Modules/Development/Frontend/IdeaSubmitView.php:102
+#: src/Modules/Development/Frontend/IdeasRefineView.php:78
+#: src/Modules/Development/Frontend/IdeaSubmitView.php:62
+#: src/Modules/Development/Frontend/IdeaSubmitView.php:107
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:39
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:100
 #: src/Modules/Export/Exporters/TeamActivitiesCsvExporter.php:40
@@ -2499,8 +2500,7 @@ msgstr "Datum"
 #: src/Modules/Methodology/Admin/MethodologyPage.php:686
 #: src/Modules/Methodology/Admin/PrincipleEditPage.php:133
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:194
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:51
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:73
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:111
 #: src/Modules/Wizards/Activity/DetailsStep.php:42
 #: src/Modules/Wizards/Activity/ReviewStep.php:69
 #: src/Shared/Frontend/CoachDashboardView.php:251
@@ -2522,9 +2522,9 @@ msgstr "Titel"
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:70
 #: src/Modules/Configuration/Admin/CustomFieldsTab.php:192
 #: src/Modules/CustomWidgets/DataSources/ActivitiesRecent.php:23
-#: src/Modules/Development/Frontend/IdeasRefineView.php:82
-#: src/Modules/Development/Frontend/IdeaSubmitView.php:65
-#: src/Modules/Development/Frontend/IdeaSubmitView.php:103
+#: src/Modules/Development/Frontend/IdeasRefineView.php:93
+#: src/Modules/Development/Frontend/IdeaSubmitView.php:72
+#: src/Modules/Development/Frontend/IdeaSubmitView.php:108
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:116
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:148
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:376
@@ -2580,8 +2580,8 @@ msgstr "Type"
 #: src/Modules/CustomWidgets/DataSources/PdpFiles.php:23
 #: src/Modules/CustomWidgets/DataSources/PdpFiles.php:32
 #: src/Modules/CustomWidgets/DataSources/PlayersActive.php:38
-#: src/Modules/Development/Frontend/IdeasRefineView.php:106
-#: src/Modules/Development/Frontend/IdeaSubmitView.php:104
+#: src/Modules/Development/Frontend/IdeasRefineView.php:117
+#: src/Modules/Development/Frontend/IdeaSubmitView.php:109
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:87
 #: src/Modules/Evaluations/Admin/EvalCategoriesPage.php:295
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:141
@@ -2622,7 +2622,6 @@ msgstr "Type"
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:198
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:88
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:202
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:53
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:128
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:611
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:235
@@ -2630,9 +2629,9 @@ msgstr "Type"
 #: src/Modules/Wizards/Activity/ReviewStep.php:61
 #: src/Modules/Wizards/Activity/TypeStatusStep.php:41
 #: src/Modules/Wizards/Prospect/IdentityStep.php:100
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:351
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:276
 #: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:247
-#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:288
+#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:291
 #: src/Shared/Frontend/CoachDashboardView.php:259
 #: src/Shared/Frontend/CoachDashboardView.php:313
 #: src/Shared/Frontend/CoachForms.php:536
@@ -2990,8 +2989,7 @@ msgstr "— Alle —"
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:250
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:376
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:167
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:54
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:87
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:122
 #: src/Modules/Teams/Admin/TeamsPage.php:154
 #: src/Modules/Wizards/Activity/DetailsStep.php:63
 #: src/Modules/Wizards/Activity/ReviewStep.php:80
@@ -3116,7 +3114,7 @@ msgstr "Bijwerken"
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:862
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:981
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:355
-#: src/Modules/Development/Frontend/IdeasRefineView.php:129
+#: src/Modules/Development/Frontend/IdeasRefineView.php:141
 #: src/Modules/Evaluations/Admin/EvalTypeCategoriesPage.php:102
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:533
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:179
@@ -3127,7 +3125,7 @@ msgstr "Bijwerken"
 #: src/Shared/Frontend/Components/FormSaveButton.php:46
 #: src/Shared/Frontend/Components/FrontendThreadView.php:171
 #: src/Shared/Frontend/DashboardShortcode.php:94
-#: src/Shared/Frontend/FrontendMobileSettingsView.php:70
+#: src/Shared/Frontend/FrontendMobileSettingsView.php:86
 msgid "Save"
 msgstr "Opslaan"
 
@@ -3314,6 +3312,7 @@ msgstr "Totaal minuten"
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:250
 #: src/Modules/Reports/Admin/ReportsPage.php:177
 #: src/Modules/Reports/Admin/ReportsPage.php:272
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:75
 #: src/Modules/Stats/Admin/PlayerComparisonPage.php:302
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:526
 #: src/Modules/Stats/Admin/UsageStatsPage.php:351
@@ -3391,8 +3390,7 @@ msgstr "Doelen"
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:103
 #: src/Modules/Goals/Admin/GoalsPage.php:142
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:195
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:52
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:77
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:115
 #: src/Modules/Wizards/Goal/DetailsStep.php:18
 #: src/Shared/Frontend/CoachDashboardView.php:301
 #: src/Shared/Frontend/CoachDashboardView.php:313
@@ -3406,7 +3404,7 @@ msgid "Priority"
 msgstr "Prioriteit"
 
 #: src/Modules/Analytics/AnalyticsModule.php:177
-#: src/Shared/Frontend/FrontendWizardsAdminView.php:157
+#: src/Shared/Frontend/FrontendWizardsAdminView.php:168
 msgid "Completion rate"
 msgstr "Completion-percentage"
 
@@ -3576,10 +3574,11 @@ msgstr ""
 #: src/Modules/PersonaDashboard/TableSources/MyRecentProspectsSource.php:73
 #: src/Modules/PersonaDashboard/TableSources/RecentScoutReportsSource.php:66
 #: src/Modules/PersonaDashboard/TableSources/TrialsNeedingDecisionSource.php:63
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:76
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:145
 #: src/Modules/Trials/Repositories/TrialCasesRepository.php:52
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:320
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:354
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:245
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:279
 #: src/Modules/Workflow/TaskStatus.php:64
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:179
 #: src/Shared/Frontend/FrontendTrialsManageView.php:251
@@ -3590,7 +3589,7 @@ msgstr "Openen"
 #: src/Modules/Analytics/Domain/DimensionValueResolver.php:149
 #: src/Modules/Development/IdeaStatus.php:101
 #: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:269
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:355
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:280
 #: src/Modules/Workflow/TaskStatus.php:65
 #: src/Shared/Frontend/FrontendExportsView.php:122
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:359
@@ -3646,11 +3645,11 @@ msgstr "Voor deze entiteit zijn nog geen analyses beschikbaar."
 #: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php:40
 #: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php:57
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:90
-#: src/Modules/Development/Frontend/IdeasApprovalView.php:28
-#: src/Modules/Development/Frontend/IdeasBoardView.php:25
-#: src/Modules/Development/Frontend/IdeasRefineView.php:27
-#: src/Modules/Development/Frontend/IdeaSubmitView.php:25
-#: src/Modules/Development/Frontend/TracksView.php:26
+#: src/Modules/Development/Frontend/IdeasApprovalView.php:38
+#: src/Modules/Development/Frontend/IdeasBoardView.php:35
+#: src/Modules/Development/Frontend/IdeasRefineView.php:38
+#: src/Modules/Development/Frontend/IdeaSubmitView.php:36
+#: src/Modules/Development/Frontend/TracksView.php:43
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:30
 #: src/Modules/Journey/Frontend/FrontendCohortTransitionsView.php:50
 #: src/Modules/Journey/Frontend/FrontendJourneyView.php:46
@@ -3664,17 +3663,17 @@ msgstr "Voor deze entiteit zijn nog geen analyses beschikbaar."
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:84
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:33
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:58
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:23
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:26
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:23
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffPdpView.php:24
-#: src/Modules/StaffDevelopment/Frontend/FrontendStaffOverviewView.php:26
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:43
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:46
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:43
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffPdpView.php:43
+#: src/Modules/StaffDevelopment/Frontend/FrontendStaffOverviewView.php:43
 #: src/Modules/Tournaments/Frontend/FrontendTournamentMatchAddView.php:54
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:43
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:37
 #: src/Modules/Vct/Frontend/FrontendVctSessionView.php:62
-#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:29
-#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:36
+#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:44
+#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:50
 #: src/Shared/Frontend/DashboardShortcode.php:299
 #: src/Shared/Frontend/DashboardShortcode.php:436
 #: src/Shared/Frontend/DashboardShortcode.php:492
@@ -3693,7 +3692,7 @@ msgstr "Voor deze entiteit zijn nog geen analyses beschikbaar."
 #: src/Shared/Frontend/FrontendLookupNormalisationView.php:34
 #: src/Shared/Frontend/FrontendMailComposeView.php:33
 #: src/Shared/Frontend/FrontendMigrationsView.php:23
-#: src/Shared/Frontend/FrontendMobileSettingsView.php:31
+#: src/Shared/Frontend/FrontendMobileSettingsView.php:45
 #: src/Shared/Frontend/FrontendModulesView.php:148
 #: src/Shared/Frontend/FrontendPersonDetailView.php:23
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:175
@@ -3713,7 +3712,7 @@ msgstr "Voor deze entiteit zijn nog geen analyses beschikbaar."
 #: src/Shared/Frontend/FrontendTrialsManageView.php:31
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:47
 #: src/Shared/Frontend/FrontendUsageStatsView.php:47
-#: src/Shared/Frontend/FrontendWizardsAdminView.php:28
+#: src/Shared/Frontend/FrontendWizardsAdminView.php:38
 msgid "Not authorized"
 msgstr "Niet geautoriseerd"
 
@@ -4039,7 +4038,7 @@ msgstr "Aantal"
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:746
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionsListView.php:265
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:387
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:373
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:298
 #: src/Shared/Admin/BulkActionsHelper.php:175
 #: src/Shared/Frontend/Components/FrontendListTable.php:202
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:953
@@ -4402,7 +4401,7 @@ msgstr "Nieuw schema"
 #: src/Modules/Configuration/Admin/FormSlugContract.php:85
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:72
 #: src/Modules/CustomWidgets/DataSources/PlayersActive.php:34
-#: src/Modules/Development/Frontend/TracksView.php:49
+#: src/Modules/Development/Frontend/TracksView.php:66
 #: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:25
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:58
 #: src/Modules/Pdp/Admin/SeasonsPage.php:64
@@ -5074,9 +5073,9 @@ msgstr "Sleutel"
 #: src/Modules/Goals/Admin/GoalsPage.php:140
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:59
 #: src/Modules/Methodology/Admin/MethodologyPage.php:687
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:96
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:134
 #: src/Modules/Wizards/Goal/DetailsStep.php:16
-#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:248
+#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:251
 #: src/Shared/Frontend/CoachDashboardView.php:300
 #: src/Shared/Frontend/CoachForms.php:590
 #: src/Shared/Frontend/FrontendConfigurationView.php:842
@@ -5418,13 +5417,13 @@ msgstr "Workflow-taken"
 # Workflow engine — Sprint 5 (HoD dashboard + admin config UI)
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:128
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:245
-#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:26
+#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:41
 #: src/Shared/CoreSurfaceRegistration.php:365
 msgid "Tasks dashboard"
 msgstr "Takendashboard"
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:129
-#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:33
+#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:47
 #: src/Shared/CoreSurfaceRegistration.php:378
 msgid "Workflow templates"
 msgstr "Workflow-templates"
@@ -5485,7 +5484,7 @@ msgid "Staff development"
 msgstr "Stafontwikkeling"
 
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:139
-#: src/Modules/StaffDevelopment/Frontend/FrontendStaffOverviewView.php:23
+#: src/Modules/StaffDevelopment/Frontend/FrontendStaffOverviewView.php:40
 #: src/Shared/CoreSurfaceRegistration.php:1117
 msgid "Staff overview"
 msgstr "Stafoverzicht"
@@ -5820,7 +5819,7 @@ msgstr "Nog geen matrix-wijzigingen."
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:776
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:122
 #: src/Modules/Vct/Wizard/WhenStep.php:27
-#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:285
+#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:288
 #: src/Shared/Frontend/FrontendAuditLogView.php:378
 msgid "When"
 msgstr "Wanneer"
@@ -6018,7 +6017,6 @@ msgstr "Wijzigingen toepassen"
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:831
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:970
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:1228
-#: src/Modules/Development/Frontend/IdeasRefineView.php:130
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:891
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:312
 #: src/Modules/Pdp/Admin/SeasonsPage.php:164
@@ -6045,7 +6043,7 @@ msgstr "Wijzigingen toepassen"
 #: src/Shared/Frontend/FrontendTeamBehaviourCaptureView.php:184
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:119
 #: src/Shared/Frontend/FrontendViewBase.php:82
-#: src/Shared/Frontend/FrontendWizardView.php:274
+#: src/Shared/Frontend/FrontendWizardView.php:291
 msgid "Cancel"
 msgstr "Annuleren"
 
@@ -6140,7 +6138,7 @@ msgstr "Prestaties"
 #: src/Shared/Frontend/FrontendLookupNormalisationView.php:41
 #: src/Shared/Frontend/FrontendModulesView.php:369
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:595
-#: src/Shared/Frontend/FrontendWizardsAdminView.php:82
+#: src/Shared/Frontend/FrontendWizardsAdminView.php:92
 #: src/Shared/Modules/ModuleMetadata.php:73
 msgid "Configuration"
 msgstr "Configuratie"
@@ -6169,7 +6167,7 @@ msgstr "Core module — kan niet worden uitgeschakeld."
 #: src/Modules/Authorization/Admin/ModulesPage.php:137
 #: src/Modules/Authorization/Admin/ModulesPage.php:159
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:337
-#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:154
+#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:159
 #: src/Shared/Frontend/FrontendFeaturesView.php:118
 #: src/Shared/Frontend/FrontendModulesView.php:217
 msgid "On"
@@ -6518,7 +6516,7 @@ msgstr "Rol intrekken?"
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:126
 #: src/Modules/Invitations/Frontend/InviteButton.php:140
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:116
-#: src/Shared/Frontend/FrontendMySessionsView.php:127
+#: src/Shared/Frontend/FrontendMySessionsView.php:141
 msgid "Revoke"
 msgstr "Intrekken"
 
@@ -7090,9 +7088,9 @@ msgid "U12+ (email + push)"
 msgstr "O12+ (e-mail + push)"
 
 #: src/Modules/Authorization/AgeTier.php:101
-#: src/Modules/Development/Frontend/IdeasApprovalView.php:136
-#: src/Modules/Development/Frontend/IdeasBoardView.php:140
-#: src/Modules/Development/Frontend/IdeasRefineView.php:153
+#: src/Modules/Development/Frontend/IdeasApprovalView.php:161
+#: src/Modules/Development/Frontend/IdeasBoardView.php:118
+#: src/Modules/Development/Frontend/IdeasRefineView.php:166
 #: src/Shared/Frontend/Components/FrontendThreadView.php:119
 msgid "Unknown"
 msgstr "Onbekend"
@@ -7372,7 +7370,7 @@ msgstr "Bestandsnaam"
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:110
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:94
 #: src/Modules/Stats/Admin/UsageStatsDetailsPage.php:268
-#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:66
+#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:70
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:281
 msgid "Created"
 msgstr "Aangemaakt"
@@ -8003,7 +8001,7 @@ msgstr ""
 #: src/Modules/Wizards/Person/BasicsStep.php:34
 #: src/Modules/Wizards/Person/ReviewStep.php:38
 #: src/Shared/Frontend/FrontendMyProfileView.php:295
-#: src/Shared/Frontend/FrontendMySettingsView.php:87
+#: src/Shared/Frontend/FrontendMySettingsView.php:101
 #: src/Shared/Frontend/FrontendPeopleManageView.php:108
 #: src/Shared/Frontend/FrontendPeopleManageView.php:175
 #: src/Shared/Frontend/FrontendPersonDetailView.php:130
@@ -9362,7 +9360,7 @@ msgid "Feature"
 msgstr "Functie"
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:406
-#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:109
+#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:114
 msgid "Enabled"
 msgstr "Ingeschakeld"
 
@@ -9451,7 +9449,7 @@ msgid "Resume setup wizard"
 msgstr "Installatiewizard hervatten"
 
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:469
-#: src/Shared/Frontend/FrontendWizardView.php:565
+#: src/Shared/Frontend/FrontendWizardView.php:582
 msgid "Start over"
 msgstr "Opnieuw beginnen"
 
@@ -10341,7 +10339,7 @@ msgstr "Toon details"
 #: src/Modules/Wizards/Prospect/IdentityStep.php:30
 #: src/Modules/Wizards/Prospect/IdentityStep.php:97
 #: src/Modules/Workflow/Forms/LogProspectForm.php:48
-#: src/Shared/Frontend/FrontendMySettingsView.php:71
+#: src/Shared/Frontend/FrontendMySettingsView.php:85
 #: src/Shared/Frontend/FrontendPeopleManageView.php:167
 #: src/Shared/Frontend/FrontendPlayersManageView.php:329
 #: src/Shared/Frontend/FrontendTrialsManageView.php:315
@@ -10372,7 +10370,7 @@ msgstr "Voornaam"
 #: src/Modules/Wizards/Prospect/IdentityStep.php:34
 #: src/Modules/Wizards/Prospect/IdentityStep.php:98
 #: src/Modules/Workflow/Forms/LogProspectForm.php:57
-#: src/Shared/Frontend/FrontendMySettingsView.php:75
+#: src/Shared/Frontend/FrontendMySettingsView.php:89
 #: src/Shared/Frontend/FrontendPeopleManageView.php:171
 #: src/Shared/Frontend/FrontendPlayersManageView.php:333
 #: src/Shared/Frontend/FrontendTrialsManageView.php:317
@@ -10530,7 +10528,7 @@ msgstr "Activiteitdatum"
 #: src/Modules/CustomWidgets/DataSources/GoalsOpen.php:26
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:43
 #: src/Modules/Export/Exporters/GoalsCsvExporter.php:104
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:84
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:122
 #: src/Modules/Wizards/Goal/DetailsStep.php:25
 #: src/Shared/Frontend/FrontendGoalsManageView.php:411
 msgid "Due date"
@@ -11220,8 +11218,8 @@ msgid "You do not have permission to manage custom styling."
 msgstr "Je hebt geen rechten om de styling aan te passen."
 
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:165
-#: src/Shared/Frontend/FrontendMySettingsView.php:142
-#: src/Shared/Frontend/FrontendMySettingsView.php:167
+#: src/Shared/Frontend/FrontendMySettingsView.php:156
+#: src/Shared/Frontend/FrontendMySettingsView.php:181
 msgid "Security check failed. Reload and try again."
 msgstr "Beveiligingscontrole mislukt. Herlaad en probeer opnieuw."
 
@@ -11493,8 +11491,7 @@ msgstr ""
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:777
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:91
 #: src/Modules/Methodology/Admin/SetPieceEditPage.php:71
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:52
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:78
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:113
 msgid "Kind"
 msgstr "Soort"
 
@@ -11737,13 +11734,13 @@ msgid "Name and save"
 msgstr "Geef een naam en sla op"
 
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:158
-#: src/Shared/Frontend/FrontendWizardView.php:290
+#: src/Shared/Frontend/FrontendWizardView.php:307
 msgid "Next"
 msgstr "Volgende"
 
 #: src/Modules/CustomWidgets/Admin/CustomWidgetsAdminPage.php:159
 #: src/Shared/Frontend/Components/BackLabelResolver.php:74
-#: src/Shared/Frontend/FrontendWizardView.php:283
+#: src/Shared/Frontend/FrontendWizardView.php:300
 msgid "Back"
 msgstr "Terug"
 
@@ -11762,7 +11759,7 @@ msgstr "Widget opslaan"
 #: src/Shared/Frontend/FrontendHolidaysView.php:182
 #: src/Shared/Frontend/FrontendSeasonsView.php:178
 #: src/Shared/Frontend/FrontendTeamDetailView.php:339
-#: src/Shared/Frontend/FrontendWizardView.php:827
+#: src/Shared/Frontend/FrontendWizardView.php:844
 msgid "Saving…"
 msgstr "Opslaan…"
 
@@ -13247,17 +13244,29 @@ msgstr "Idee bijgewerkt."
 msgid "Idea rejected. Author has been notified."
 msgstr "Idee afgewezen. Auteur is op de hoogte gebracht."
 
-#: src/Modules/Development/Frontend/IdeasApprovalView.php:29
+#: src/Modules/Development/Frontend/IdeasApprovalView.php:39
 msgid "Only administrators can promote ideas."
 msgstr "Alleen administrators kunnen ideeën promoten."
 
-#: src/Modules/Development/Frontend/IdeasApprovalView.php:34
-#: src/Modules/Development/Frontend/IdeasApprovalView.php:35
+#: src/Modules/Development/Frontend/IdeasApprovalView.php:44
+#: src/Modules/Development/Frontend/IdeasApprovalView.php:45
 #: src/Shared/CoreSurfaceRegistration.php:905
 msgid "Approval queue"
 msgstr "Goedkeuringswachtrij"
 
-#: src/Modules/Development/Frontend/IdeasApprovalView.php:45
+#: src/Modules/Development/Frontend/IdeasApprovalView.php:58
+#: src/Modules/Development/Frontend/IdeasApprovalView.php:89
+#: src/Modules/Development/IdeaStatus.php:96
+msgid "Ready for approval"
+msgstr "Klaar voor goedkeuring"
+
+#: src/Modules/Development/Frontend/IdeasApprovalView.php:62
+#: src/Modules/Development/Frontend/IdeasApprovalView.php:99
+#: src/Modules/Development/IdeaStatus.php:100
+msgid "Promotion failed"
+msgstr "Promotie mislukt"
+
+#: src/Modules/Development/Frontend/IdeasApprovalView.php:70
 msgid ""
 "Approve to commit the idea straight to the talenttrack ideas/ folder on "
 "GitHub. The plugin assigns the next free #NNNN automatically."
@@ -13265,12 +13274,12 @@ msgstr ""
 "Goedkeuren commit het idee direct naar de talenttrack ideas/-map op GitHub. "
 "De plugin reserveert automatisch de volgende vrije #NNNN."
 
-#: src/Modules/Development/Frontend/IdeasApprovalView.php:50
+#: src/Modules/Development/Frontend/IdeasApprovalView.php:75
 msgid "GitHub token not configured."
 msgstr "GitHub-token niet geconfigureerd."
 
 #. translators: 1: constant name, 2: file path
-#: src/Modules/Development/Frontend/IdeasApprovalView.php:55
+#: src/Modules/Development/Frontend/IdeasApprovalView.php:80
 #, php-format
 msgid ""
 "Set %1$s in %2$s with a fine-grained PAT scoped to \"contents: write\" on "
@@ -13279,21 +13288,11 @@ msgstr ""
 "Stel %1$s in in %2$s met een fine-grained PAT met \"contents: write\" op de "
 "talenttrack-repo. Zolang dat niet is gedaan, is promotie uitgeschakeld."
 
-#: src/Modules/Development/Frontend/IdeasApprovalView.php:64
-#: src/Modules/Development/IdeaStatus.php:96
-msgid "Ready for approval"
-msgstr "Klaar voor goedkeuring"
-
-#: src/Modules/Development/Frontend/IdeasApprovalView.php:66
+#: src/Modules/Development/Frontend/IdeasApprovalView.php:91
 msgid "Queue is empty."
 msgstr "Wachtrij is leeg."
 
-#: src/Modules/Development/Frontend/IdeasApprovalView.php:74
-#: src/Modules/Development/IdeaStatus.php:100
-msgid "Promotion failed"
-msgstr "Promotie mislukt"
-
-#: src/Modules/Development/Frontend/IdeasApprovalView.php:75
+#: src/Modules/Development/Frontend/IdeasApprovalView.php:100
 msgid ""
 "Retry promotion to re-attempt the GitHub commit. The error from the last "
 "attempt is shown on each card."
@@ -13301,52 +13300,56 @@ msgstr ""
 "Probeer promotie opnieuw om de GitHub-commit nog eens uit te voeren. De fout "
 "van de laatste poging staat op elke kaart."
 
-#: src/Modules/Development/Frontend/IdeasApprovalView.php:100
+#: src/Modules/Development/Frontend/IdeasApprovalView.php:125
 msgid "Last error:"
 msgstr "Laatste fout:"
 
 #. translators: %s = repo slug
-#: src/Modules/Development/Frontend/IdeasApprovalView.php:106
+#: src/Modules/Development/Frontend/IdeasApprovalView.php:131
 #, php-format
 msgid "You're about to commit this idea to %s. Continue?"
 msgstr "Je staat op het punt dit idee naar %s te committen. Doorgaan?"
 
-#: src/Modules/Development/Frontend/IdeasApprovalView.php:111
+#: src/Modules/Development/Frontend/IdeasApprovalView.php:136
 msgid "TT_GITHUB_TOKEN constant must be set in wp-config.php."
 msgstr "TT_GITHUB_TOKEN-constante moet in wp-config.php staan."
 
-#: src/Modules/Development/Frontend/IdeasApprovalView.php:112
+#: src/Modules/Development/Frontend/IdeasApprovalView.php:137
 msgid "Retry promotion"
 msgstr "Promotie opnieuw proberen"
 
-#: src/Modules/Development/Frontend/IdeasApprovalView.php:112
+#: src/Modules/Development/Frontend/IdeasApprovalView.php:137
 msgid "Approve & promote"
 msgstr "Goedkeuren & promoten"
 
-#: src/Modules/Development/Frontend/IdeasApprovalView.php:116
+#: src/Modules/Development/Frontend/IdeasApprovalView.php:141
 msgid "Reject with note"
 msgstr "Afwijzen met notitie"
 
-#: src/Modules/Development/Frontend/IdeasApprovalView.php:122
+#: src/Modules/Development/Frontend/IdeasApprovalView.php:147
+msgid "Rejection note"
+msgstr ""
+
+#: src/Modules/Development/Frontend/IdeasApprovalView.php:148
 msgid "Tell the author why"
 msgstr "Vertel de auteur waarom"
 
-#: src/Modules/Development/Frontend/IdeasApprovalView.php:124
+#: src/Modules/Development/Frontend/IdeasApprovalView.php:150
 #: src/Modules/Workflow/Forms/GoalApprovalForm.php:45
 msgid "Reject"
 msgstr "Afwijzen"
 
-#: src/Modules/Development/Frontend/IdeasBoardView.php:26
+#: src/Modules/Development/Frontend/IdeasBoardView.php:36
 msgid "You do not have access to the development board."
 msgstr "Je hebt geen toegang tot het ontwikkelbord."
 
-#: src/Modules/Development/Frontend/IdeasBoardView.php:31
-#: src/Modules/Development/Frontend/IdeasBoardView.php:32
+#: src/Modules/Development/Frontend/IdeasBoardView.php:41
+#: src/Modules/Development/Frontend/IdeasBoardView.php:42
 #: src/Shared/CoreSurfaceRegistration.php:892
 msgid "Development board"
 msgstr "Ontwikkelbord"
 
-#: src/Modules/Development/Frontend/IdeasBoardView.php:45
+#: src/Modules/Development/Frontend/IdeasBoardView.php:55
 msgid ""
 "Submitted ideas flow left-to-right. Drop a card into Ready for approval to "
 "send it to the lead developer; rejections and promotions happen on the "
@@ -13356,57 +13359,61 @@ msgstr ""
 "Klaar voor goedkeuring om hem naar de hoofdontwikkelaar te sturen; "
 "afwijzingen en promoties gebeuren in de Goedkeuringswachtrij."
 
-#: src/Modules/Development/Frontend/IdeasBoardView.php:48
+#: src/Modules/Development/Frontend/IdeasBoardView.php:58
 msgid "Open approval queue"
 msgstr "Open goedkeuringswachtrij"
 
-#: src/Modules/Development/Frontend/IdeasBoardView.php:49
+#: src/Modules/Development/Frontend/IdeasBoardView.php:59
 msgid "Manage tracks"
 msgstr "Sporen beheren"
 
-#: src/Modules/Development/Frontend/IdeasBoardView.php:100
+#: src/Modules/Development/Frontend/IdeasBoardView.php:78
 msgid "Refine"
 msgstr "Verfijnen"
 
-#: src/Modules/Development/Frontend/IdeasBoardView.php:133
+#: src/Modules/Development/Frontend/IdeasBoardView.php:103
+msgid "Move to status"
+msgstr ""
+
+#: src/Modules/Development/Frontend/IdeasBoardView.php:111
 msgid "Move"
 msgstr "Verplaatsen"
 
-#: src/Modules/Development/Frontend/IdeasRefineView.php:23
+#: src/Modules/Development/Frontend/IdeasRefineView.php:34
 msgid "Ideas"
 msgstr "Ideeën"
 
-#: src/Modules/Development/Frontend/IdeasRefineView.php:28
+#: src/Modules/Development/Frontend/IdeasRefineView.php:39
 msgid "You do not have permission to refine ideas."
 msgstr "Je hebt geen rechten om ideeën te verfijnen."
 
-#: src/Modules/Development/Frontend/IdeasRefineView.php:34
-#: src/Modules/Development/Frontend/IdeasRefineView.php:48
-#: src/Modules/Development/Frontend/IdeasRefineView.php:49
+#: src/Modules/Development/Frontend/IdeasRefineView.php:45
+#: src/Modules/Development/Frontend/IdeasRefineView.php:59
+#: src/Modules/Development/Frontend/IdeasRefineView.php:60
 msgid "Refine idea"
 msgstr "Idee verfijnen"
 
-#: src/Modules/Development/Frontend/IdeasRefineView.php:35
+#: src/Modules/Development/Frontend/IdeasRefineView.php:46
 msgid "Idea id missing from URL."
 msgstr "Idee-id ontbreekt in de URL."
 
-#: src/Modules/Development/Frontend/IdeasRefineView.php:42
+#: src/Modules/Development/Frontend/IdeasRefineView.php:53
 msgid "Idea not found"
 msgstr "Idee niet gevonden"
 
-#: src/Modules/Development/Frontend/IdeasRefineView.php:43
+#: src/Modules/Development/Frontend/IdeasRefineView.php:54
 msgid "Idea not found."
 msgstr "Idee niet gevonden."
 
-#: src/Modules/Development/Frontend/IdeasRefineView.php:61
+#: src/Modules/Development/Frontend/IdeasRefineView.php:72
 msgid "Submitted by"
 msgstr "Ingediend door"
 
-#: src/Modules/Development/Frontend/IdeasRefineView.php:72
+#: src/Modules/Development/Frontend/IdeasRefineView.php:83
 msgid "Body"
 msgstr "Inhoud"
 
-#: src/Modules/Development/Frontend/IdeasRefineView.php:78
+#: src/Modules/Development/Frontend/IdeasRefineView.php:89
 #: src/Modules/Methodology/Admin/FootballActionEditPage.php:50
 #: src/Modules/Methodology/Admin/FootballActionsPage.php:57
 #: src/Modules/Methodology/Admin/InfluenceFactorEditPage.php:62
@@ -13417,36 +13424,36 @@ msgstr "Inhoud"
 msgid "Slug"
 msgstr "Slug"
 
-#: src/Modules/Development/Frontend/IdeasRefineView.php:79
+#: src/Modules/Development/Frontend/IdeasRefineView.php:90
 msgid "auto from title if empty"
 msgstr "auto uit titel als leeg"
 
-#: src/Modules/Development/Frontend/IdeasRefineView.php:95
+#: src/Modules/Development/Frontend/IdeasRefineView.php:106
 msgid "Track (optional)"
 msgstr "Spoor (optioneel)"
 
-#: src/Modules/Development/Frontend/IdeasRefineView.php:97
-#: src/Modules/Development/Frontend/IdeaSubmitView.php:82
+#: src/Modules/Development/Frontend/IdeasRefineView.php:108
+#: src/Modules/Development/Frontend/IdeaSubmitView.php:86
 msgid "No track"
 msgstr "Geen spoor"
 
-#: src/Modules/Development/Frontend/IdeasRefineView.php:119
+#: src/Modules/Development/Frontend/IdeasRefineView.php:130
 msgid "Player ID (optional)"
 msgstr "Speler-ID (optioneel)"
 
-#: src/Modules/Development/Frontend/IdeasRefineView.php:123
+#: src/Modules/Development/Frontend/IdeasRefineView.php:134
 msgid "Team ID (optional)"
 msgstr "Team-ID (optioneel)"
 
-#: src/Modules/Development/Frontend/IdeasRefineView.php:136
+#: src/Modules/Development/Frontend/IdeasRefineView.php:149
 msgid "Promoted as"
 msgstr "Gepromoot als"
 
-#: src/Modules/Development/Frontend/IdeasRefineView.php:139
+#: src/Modules/Development/Frontend/IdeasRefineView.php:152
 msgid "view commit"
 msgstr "commit bekijken"
 
-#: src/Modules/Development/Frontend/IdeasRefineView.php:144
+#: src/Modules/Development/Frontend/IdeasRefineView.php:157
 msgid "Last promotion attempt failed:"
 msgstr "Laatste promotiepoging mislukt:"
 
@@ -13459,17 +13466,17 @@ msgid ""
 "Idea submitted. Thanks — it will appear in the staging queue for review."
 msgstr "Idee ingediend. Bedankt — het verschijnt in de beoordelingswachtrij."
 
-#: src/Modules/Development/Frontend/IdeaSubmitView.php:26
+#: src/Modules/Development/Frontend/IdeaSubmitView.php:37
 msgid "Your role does not allow submitting ideas."
 msgstr "Je rol mag geen ideeën indienen."
 
-#: src/Modules/Development/Frontend/IdeaSubmitView.php:31
-#: src/Modules/Development/Frontend/IdeaSubmitView.php:32
+#: src/Modules/Development/Frontend/IdeaSubmitView.php:42
+#: src/Modules/Development/Frontend/IdeaSubmitView.php:43
 #: src/Shared/CoreSurfaceRegistration.php:879
 msgid "Submit an idea"
 msgstr "Idee indienen"
 
-#: src/Modules/Development/Frontend/IdeaSubmitView.php:41
+#: src/Modules/Development/Frontend/IdeaSubmitView.php:53
 msgid ""
 "Spotted something to fix or build? Drop a short title and as much detail as "
 "you have. The lead developer reviews submissions and either rejects with a "
@@ -13480,35 +13487,35 @@ msgstr ""
 "af met een notitie of promoot ze rechtstreeks in de ontwikkelwachtrij op "
 "GitHub."
 
-#: src/Modules/Development/Frontend/IdeaSubmitView.php:53
+#: src/Modules/Development/Frontend/IdeaSubmitView.php:63
 msgid "A short summary of the idea"
 msgstr "Een korte samenvatting van het idee"
 
-#: src/Modules/Development/Frontend/IdeaSubmitView.php:58
+#: src/Modules/Development/Frontend/IdeaSubmitView.php:67
 #: src/Modules/Wizards/Activity/DetailsStep.php:23
 #: src/Modules/Wizards/Goal/DetailsStep.php:12
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:313
 msgid "Details"
 msgstr "Details"
 
-#: src/Modules/Development/Frontend/IdeaSubmitView.php:60
+#: src/Modules/Development/Frontend/IdeaSubmitView.php:68
 msgid "What's the problem, who is affected, what do you want to happen?"
 msgstr "Wat is het probleem, wie heeft er last van, wat moet er gebeuren?"
 
-#: src/Modules/Development/Frontend/IdeaSubmitView.php:79
+#: src/Modules/Development/Frontend/IdeaSubmitView.php:84
 msgid "Development track (optional)"
 msgstr "Ontwikkelspoor (optioneel)"
 
-#: src/Modules/Development/Frontend/IdeaSubmitView.php:92
+#: src/Modules/Development/Frontend/IdeaSubmitView.php:96
 msgid "Submit idea"
 msgstr "Idee indienen"
 
-#: src/Modules/Development/Frontend/IdeaSubmitView.php:98
+#: src/Modules/Development/Frontend/IdeaSubmitView.php:103
 msgid "My recent submissions"
 msgstr "Mijn recente inzendingen"
 
 # === #0009 Development management ===
-#: src/Modules/Development/Frontend/IdeaSubmitView.php:105
+#: src/Modules/Development/Frontend/IdeaSubmitView.php:110
 #: src/Modules/Development/IdeaStatus.php:94
 msgid "Submitted"
 msgstr "Ingediend"
@@ -13529,45 +13536,45 @@ msgstr "Spoor bijgewerkt."
 msgid "Track created."
 msgstr "Spoor aangemaakt."
 
-#: src/Modules/Development/Frontend/TracksView.php:27
+#: src/Modules/Development/Frontend/TracksView.php:44
 msgid "You do not have access to development tracks."
 msgstr "Je hebt geen toegang tot ontwikkelsporen."
 
-#: src/Modules/Development/Frontend/TracksView.php:32
-#: src/Modules/Development/Frontend/TracksView.php:33
+#: src/Modules/Development/Frontend/TracksView.php:49
+#: src/Modules/Development/Frontend/TracksView.php:50
 #: src/Shared/CoreSurfaceRegistration.php:918
 msgid "Development tracks"
 msgstr "Ontwikkelsporen"
 
-#: src/Modules/Development/Frontend/TracksView.php:47
+#: src/Modules/Development/Frontend/TracksView.php:64
 msgid "Add a track"
 msgstr "Spoor toevoegen"
 
-#: src/Modules/Development/Frontend/TracksView.php:53
+#: src/Modules/Development/Frontend/TracksView.php:70
 msgid "Description (optional)"
 msgstr "Omschrijving (optioneel)"
 
-#: src/Modules/Development/Frontend/TracksView.php:57
+#: src/Modules/Development/Frontend/TracksView.php:75
 msgid "Add track"
 msgstr "Spoor toevoegen"
 
-#: src/Modules/Development/Frontend/TracksView.php:64
+#: src/Modules/Development/Frontend/TracksView.php:84
 msgid "No tracks yet. Add one above to start grouping ideas into a roadmap."
 msgstr ""
 "Nog geen sporen. Voeg er hierboven één toe om ideeën te groeperen tot een "
 "roadmap."
 
-#: src/Modules/Development/Frontend/TracksView.php:85
+#: src/Modules/Development/Frontend/TracksView.php:105
 msgid "Delete this track? Tagged ideas will be detached but not deleted."
 msgstr ""
 "Dit spoor verwijderen? Gekoppelde ideeën worden losgekoppeld, niet "
 "verwijderd."
 
-#: src/Modules/Development/Frontend/TracksView.php:91
+#: src/Modules/Development/Frontend/TracksView.php:111
 msgid "Delete track"
 msgstr "Spoor verwijderen"
 
-#: src/Modules/Development/Frontend/TracksView.php:98
+#: src/Modules/Development/Frontend/TracksView.php:118
 msgid "No ideas tagged to this track yet."
 msgstr "Nog geen ideeën gekoppeld aan dit spoor."
 
@@ -14493,7 +14500,7 @@ msgid "Player or notes"
 msgstr "Speler of notities"
 
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:118
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:363
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:288
 #: src/Shared/Frontend/FrontendTrialsManageView.php:203
 msgid "Any"
 msgstr "Alle"
@@ -14558,7 +14565,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/EvaluationsXlsxExporter.php:243
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:55
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:157
-#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:290
+#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:293
 #: src/Shared/Frontend/CoachDashboardView.php:215
 #: src/Shared/Frontend/CoachForms.php:235
 #: src/Shared/Frontend/FrontendEvaluationsView.php:390
@@ -15920,7 +15927,7 @@ msgstr "Filter:"
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1383
 #: src/Modules/PersonaDashboard/Frontend/PersonaLandingRenderer.php:231
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:61
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:341
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:266
 #: src/Shared/Admin/BulkActionsHelper.php:100
 #: src/Shared/Frontend/Components/FrontendListTable.php:326
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:960
@@ -15954,7 +15961,7 @@ msgstr "Uitnodiger"
 
 #: src/Modules/Invitations/Frontend/InvitationsConfigView.php:95
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:87
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:54
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:96
 msgid "Expires"
 msgstr "Vervalt"
 
@@ -16797,7 +16804,7 @@ msgstr ""
 #: src/Modules/License/Admin/AccountPage.php:740
 #: src/Shared/Frontend/FrontendSeasonsView.php:73
 #: src/Shared/Frontend/FrontendSeasonsView.php:89
-#: src/Shared/Frontend/FrontendWizardView.php:764
+#: src/Shared/Frontend/FrontendWizardView.php:781
 msgid "Current"
 msgstr "Huidig"
 
@@ -18081,7 +18088,7 @@ msgstr "Beschrijving (EN)"
 #: src/Shared/Frontend/FrontendConfigurationView.php:1045
 #: src/Shared/Frontend/FrontendConfigurationView.php:1191
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:518
-#: src/Shared/Frontend/FrontendWizardsAdminView.php:110
+#: src/Shared/Frontend/FrontendWizardsAdminView.php:120
 msgid "Save changes"
 msgstr "Wijzigingen opslaan"
 
@@ -19508,8 +19515,8 @@ msgid "Can't scan? Enter manually:"
 msgstr "Kun je niet scannen? Voer handmatig in:"
 
 #: src/Modules/Mfa/Wizards/SecretStep.php:112
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:52
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:83
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:94
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:117
 msgid "Issuer"
 msgstr "Uitgever"
 
@@ -19669,7 +19676,7 @@ msgstr "Datumnotatie"
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:200
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:248
 #: src/Shared/Frontend/FrontendDesktopPreferredBanner.php:37
-#: src/Shared/Frontend/FrontendWizardView.php:563
+#: src/Shared/Frontend/FrontendWizardView.php:580
 msgid "Continue"
 msgstr "Doorgaan"
 
@@ -20473,11 +20480,11 @@ msgstr "Gesprekken"
 
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:909
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:172
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:339
-#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:65
-#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:125
-#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:108
-#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:287
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:264
+#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:69
+#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:133
+#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:113
+#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:290
 #: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:83
 msgid "Template"
 msgstr "Template"
@@ -20863,7 +20870,7 @@ msgid "Current goals"
 msgstr "Huidige doelen"
 
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:197
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:54
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:97
 #: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:249
 #: src/Shared/Frontend/CoachDashboardView.php:314
 #: src/Shared/Frontend/CoachForms.php:607
@@ -21722,9 +21729,9 @@ msgid "My team"
 msgstr "Mijn team"
 
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:49
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:27
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:34
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:42
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:47
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:54
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:62
 #: src/Shared/CoreSurfaceRegistration.php:254
 #: src/Shared/CoreSurfaceRegistration.php:1087
 #: src/Shared/Frontend/FrontendMyEvaluationsView.php:37
@@ -21743,9 +21750,9 @@ msgid "My activities"
 msgstr "Mijn activiteiten"
 
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:51
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:24
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:31
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:39
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:44
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:51
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:59
 #: src/Shared/CoreSurfaceRegistration.php:280
 #: src/Shared/CoreSurfaceRegistration.php:1074
 #: src/Shared/Frontend/FrontendMyGoalsView.php:30
@@ -21755,7 +21762,7 @@ msgid "My goals"
 msgstr "Mijn doelen"
 
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:52
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffPdpView.php:21
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffPdpView.php:40
 #: src/Shared/CoreSurfaceRegistration.php:299
 #: src/Shared/CoreSurfaceRegistration.php:1059
 msgid "My PDP"
@@ -21791,8 +21798,8 @@ msgstr "Mijn teams"
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:152
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:352
 #: src/Modules/PersonaDashboard/Widgets/TaskListPanelWidget.php:54
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:42
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:43
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:57
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:58
 #: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:36
 #: src/Shared/CoreSurfaceRegistration.php:334
 #: src/Shared/CoreSurfaceRegistration.php:341
@@ -22169,7 +22176,7 @@ msgid "system"
 msgstr "systeem"
 
 #: src/Modules/PersonaDashboard/TableSources/BehaviourPendingSource.php:100
-#: src/Modules/StaffDevelopment/Frontend/FrontendStaffOverviewView.php:103
+#: src/Modules/StaffDevelopment/Frontend/FrontendStaffOverviewView.php:127
 #: src/Modules/Teams/Admin/TeamsPage.php:209
 msgid "never"
 msgstr "nooit"
@@ -23110,12 +23117,12 @@ msgid "Show all (%d open)"
 msgstr "Toon alle (%d open)"
 
 #: src/Modules/PersonaDashboard/Widgets/TaskListPanelWidget.php:160
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:540
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:465
 msgid "overdue"
 msgstr "te laat"
 
 #: src/Modules/PersonaDashboard/Widgets/TaskListPanelWidget.php:163
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:537
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:462
 #, php-format
 msgid "in %d hour"
 msgid_plural "in %d hours"
@@ -24283,7 +24290,7 @@ msgid "Custom range"
 msgstr "Aangepast bereik"
 
 #: src/Modules/Reports/AudienceDefaults.php:105
-#: src/Shared/Frontend/FrontendMySettingsView.php:67
+#: src/Shared/Frontend/FrontendMySettingsView.php:81
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:152
 msgid "Profile"
 msgstr "Profiel"
@@ -24931,12 +24938,12 @@ msgid "Not connected"
 msgstr "Niet verbonden"
 
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:240
-#: src/Shared/Frontend/FrontendMySessionsView.php:87
+#: src/Shared/Frontend/FrontendMySessionsView.php:101
 msgid "ago"
 msgstr "geleden"
 
 #: src/Modules/Spond/Admin/SpondOverviewPage.php:249
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:108
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:160
 #: src/Shared/Frontend/DashboardShortcode.php:109
 #: src/Shared/Frontend/DashboardShortcode.php:125
 msgid "OK"
@@ -25071,197 +25078,223 @@ msgstr "Spond-groep bevatte geen aankomende events."
 msgid "Synced: %1$d new · %2$d updated · %3$d archived."
 msgstr "Gesynchroniseerd: %1$d nieuw · %2$d bijgewerkt · %3$d gearchiveerd."
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:20
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:40
 #: src/Shared/CoreSurfaceRegistration.php:1100
 msgid "My certifications"
 msgstr "Mijn certificeringen"
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:25
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:28
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:25
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffPdpView.php:26
-#: src/Modules/StaffDevelopment/Frontend/FrontendStaffOverviewView.php:28
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:45
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:48
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:45
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffPdpView.php:45
+#: src/Modules/StaffDevelopment/Frontend/FrontendStaffOverviewView.php:45
 msgid "You do not have access to this section."
 msgstr "Je hebt geen toegang tot deze sectie."
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:32
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:35
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:32
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffPdpView.php:33
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:52
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:55
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:52
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffPdpView.php:52
 msgid ""
 "This section is only available for staff members linked to a People record."
 msgstr ""
 "Dit onderdeel is alleen beschikbaar voor stafleden met een gekoppelde Mensen-"
 "rij."
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:48
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:76
+msgid "Certifications"
+msgstr ""
+
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:77
+msgid "Expiring soon"
+msgstr ""
+
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:81
 msgid "No certifications on file yet."
 msgstr "Nog geen certificeringen geregistreerd."
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:51
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:75
-msgid "Certification"
-msgstr "Certificering"
-
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:53
-msgid "Issued"
-msgstr "Uitgegeven"
-
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:55
-msgid "Document"
-msgstr "Document"
-
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:59
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:99
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:86
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:151
 msgid "no expiry"
 msgstr "geen verloopdatum"
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:66
-msgid "open"
-msgstr "openen"
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:95
+msgid "Issued"
+msgstr "Uitgegeven"
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:72
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:99
+msgid "Open document"
+msgstr ""
+
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:106
 msgid "Add a certification"
 msgstr "Certificering toevoegen"
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:85
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:109
+msgid "Certification"
+msgstr "Certificering"
+
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:119
 msgid "Issued on"
 msgstr "Uitgegeven op"
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:87
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:121
 msgid "Expires on"
 msgstr "Verloopt op"
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:89
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:123
 msgid "Document URL (optional)"
 msgstr "Document-URL (optioneel)"
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:93
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:135
 msgid "Add certification"
 msgstr "Certificering opslaan"
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:105
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:157
 msgid "expired"
 msgstr "verlopen"
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:106
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:158
 msgid "< 30 days"
 msgstr "< 30 dagen"
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:107
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffCertificationsView.php:159
 msgid "< 90 days"
 msgstr "< 90 dagen"
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:23
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:43
 msgid "My staff evaluations"
 msgstr "Mijn stafevaluaties"
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:48
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:76
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:88
+msgid "Self"
+msgstr ""
+
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:77
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:88
+msgid "Top-down"
+msgstr ""
+
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:81
 msgid "No evaluations recorded yet."
 msgstr "Nog geen evaluaties vastgelegd."
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:53
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:95
 msgid "Reviewer"
 msgstr "Beoordelaar"
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:70
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:105
 msgid "Record a new evaluation"
 msgstr "Nieuwe evaluatie vastleggen"
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:80
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:115
 msgid "Self-evaluation"
 msgstr "Zelf-evaluatie"
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:82
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:117
 msgid "Top-down (head of development)"
 msgstr "Top-down (hoofd ontwikkeling)"
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:90
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffEvaluationsView.php:133
 msgid "Save evaluation"
 msgstr "Evaluatie opslaan"
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:20
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:40
 msgid "My staff goals"
 msgstr "Mijn stafdoelen"
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:48
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:75
+msgid "Total goals"
+msgstr ""
+
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:81
 msgid "No goals yet. Add one below."
 msgstr "Nog geen doelen. Voeg er hieronder een toe."
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:55
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:99
 msgid "Targets cert"
 msgstr "Gerichte cert"
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:69
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:107
 msgid "Add a goal"
 msgstr "Doel toevoegen"
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:88
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:126
 msgid "Targets a certification (optional)"
 msgstr "Gericht op een certificering (optioneel)"
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:90
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:128
 #: src/Modules/Vct/Wizard/ReviewStep.php:59
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:121
 #: src/Shared/Frontend/FrontendTeamBehaviourCaptureView.php:131
 msgid "— none —"
 msgstr "— geen —"
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:99
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffGoalsView.php:145
 #: src/Shared/Frontend/FrontendGoalsManageView.php:515
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:999
 msgid "Add goal"
 msgstr "Doel toevoegen"
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffPdpView.php:50
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffPdpView.php:69
 msgid "Strengths"
 msgstr "Sterke punten"
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffPdpView.php:53
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffPdpView.php:72
 msgid "Development areas"
 msgstr "Ontwikkelpunten"
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffPdpView.php:56
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffPdpView.php:75
 msgid "Actions next quarter"
 msgstr "Acties komend kwartaal"
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffPdpView.php:59
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffPdpView.php:78
 msgid "Narrative (optional)"
 msgstr "Narratief (optioneel)"
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffPdpView.php:63
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffPdpView.php:89
 msgid "Save PDP"
 msgstr "POP opslaan"
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffPdpView.php:66
+#: src/Modules/StaffDevelopment/Frontend/FrontendMyStaffPdpView.php:93
 msgid "Last reviewed:"
 msgstr "Laatst beoordeeld:"
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendStaffOverviewView.php:81
+#: src/Modules/StaffDevelopment/Frontend/FrontendStaffOverviewView.php:98
+#: src/Modules/StaffDevelopment/Frontend/FrontendStaffOverviewView.php:105
 msgid "Open staff goals"
 msgstr "Open stafdoelen"
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendStaffOverviewView.php:83
+#: src/Modules/StaffDevelopment/Frontend/FrontendStaffOverviewView.php:99
+msgid "Reviews overdue"
+msgstr ""
+
+#: src/Modules/StaffDevelopment/Frontend/FrontendStaffOverviewView.php:100
+msgid "Certs expiring (90d)"
+msgstr ""
+
+#: src/Modules/StaffDevelopment/Frontend/FrontendStaffOverviewView.php:107
 msgid "No open goals."
 msgstr "Geen open doelen."
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendStaffOverviewView.php:96
+#: src/Modules/StaffDevelopment/Frontend/FrontendStaffOverviewView.php:120
 msgid "Top-down review overdue"
 msgstr "Top-down review te oud"
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendStaffOverviewView.php:98
+#: src/Modules/StaffDevelopment/Frontend/FrontendStaffOverviewView.php:122
 msgid "Everyone reviewed within the last year."
 msgstr "Iedereen is in het afgelopen jaar beoordeeld."
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendStaffOverviewView.php:104
+#: src/Modules/StaffDevelopment/Frontend/FrontendStaffOverviewView.php:128
 msgid "last reviewed:"
 msgstr "laatst beoordeeld:"
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendStaffOverviewView.php:110
+#: src/Modules/StaffDevelopment/Frontend/FrontendStaffOverviewView.php:134
 msgid "Certifications expiring in 90 days"
 msgstr "Certificeringen verlopen binnen 90 dagen"
 
-#: src/Modules/StaffDevelopment/Frontend/FrontendStaffOverviewView.php:112
+#: src/Modules/StaffDevelopment/Frontend/FrontendStaffOverviewView.php:136
 msgid "No certifications expiring soon."
 msgstr "Geen certificeringen die binnenkort verlopen."
 
@@ -30564,126 +30597,131 @@ msgid "Pick one decision."
 msgstr "Kies één beslissing."
 
 # #0022 — workflow phase 2 + 3 (chain primitive, snooze, bulk, event log)
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:206
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:255
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:89
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:138
 msgid "selected"
 msgstr "geselecteerd"
 
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:207
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:90
 msgid "Skip the selected tasks? They will be marked as no-longer-applicable."
 msgstr ""
 "Geselecteerde taken overslaan? Ze worden gemarkeerd als niet meer van "
 "toepassing."
 
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:207
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:90
 msgid "Skip selected"
 msgstr "Geselecteerde overslaan"
 
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:208
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:91
 msgid "Snooze 1 day"
 msgstr "1 dag snoozen"
 
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:209
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:92
 msgid "Snooze 7 days"
 msgstr "7 dagen snoozen"
 
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:215
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:98
 msgid "Open and in progress"
 msgstr "Openstaand en in behandeling"
 
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:217
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:100
 msgid "No completed tasks in your history yet."
 msgstr "Nog geen voltooide taken in je geschiedenis."
 
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:218
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:101
 msgid "No open tasks. You're all caught up."
 msgstr "Geen openstaande taken. Helemaal bij."
 
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:235
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:118
 msgid "Recently completed"
 msgstr "Recent voltooid"
 
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:324
-msgid "Snooze for 1 day"
-msgstr "Snooze voor 1 dag"
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:172
+msgid "Open tasks"
+msgstr ""
 
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:324
-msgid "1d"
-msgstr "1d"
-
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:325
-msgid "Snooze for 7 days"
-msgstr "Snooze voor 7 dagen"
-
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:325
-msgid "7d"
-msgstr "7d"
-
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:353
-msgid "All actionable"
-msgstr "Alle actiebaar"
-
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:356
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:176
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:281
 #: src/Modules/Workflow/TaskStatus.php:67
 msgid "Overdue"
 msgstr "Te laat"
 
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:357
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:249
+msgid "Snooze for 1 day"
+msgstr "Snooze voor 1 dag"
+
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:249
+msgid "1d"
+msgstr "1d"
+
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:250
+msgid "Snooze for 7 days"
+msgstr "Snooze voor 7 dagen"
+
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:250
+msgid "7d"
+msgstr "7d"
+
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:278
+msgid "All actionable"
+msgstr "Alle actiebaar"
+
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:282
 msgid "Completed (read-only)"
 msgstr "Voltooid (alleen-lezen)"
 
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:361
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:286
 msgid "Due within"
 msgstr "Vervalt binnen"
 
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:364
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:289
 msgid "24 hours"
 msgstr "24 uur"
 
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:365
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:290
 msgid "3 days"
 msgstr "3 dagen"
 
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:366
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:291
 msgid "7 days"
 msgstr "7 dagen"
 
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:371
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:296
 msgid "Show snoozed"
 msgstr "Toon gesnoozede"
 
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:419
-#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:51
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:344
+#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:65
 msgid "Security check failed. Please refresh and try again."
 msgstr "Beveiligingscontrole mislukt. Vernieuw en probeer opnieuw."
 
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:435
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:360
 msgid "Task snoozed."
 msgstr "Taak gesnoozed."
 
 #. translators: %d task count
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:463
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:388
 #, php-format
 msgid "%d task skipped."
 msgid_plural "%d tasks skipped."
 msgstr[0] "%d taak overgeslagen."
 msgstr[1] "%d taken overgeslagen."
 
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:470
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:395
 #, php-format
 msgid "%d task snoozed for 1 day."
 msgid_plural "%d tasks snoozed for 1 day."
 msgstr[0] "%d taak voor 1 dag gesnoozed."
 msgstr[1] "%d taken voor 1 dag gesnoozed."
 
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:477
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:402
 #, php-format
 msgid "%d task snoozed for 7 days."
 msgid_plural "%d tasks snoozed for 7 days."
 msgstr[0] "%d taak voor 7 dagen gesnoozed."
 msgstr[1] "%d taken voor 7 dagen gesnoozed."
 
-#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:506
+#: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:431
 #, php-format
 msgid "activity #%d"
 msgstr "activiteit #%d"
@@ -30763,71 +30801,80 @@ msgstr ""
 "Je kunt deze taak bekijken, maar alleen de toegewezene kan deze bewerken of "
 "voltooien."
 
-#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:31
+#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:46
 msgid "Your role does not have access to the tasks dashboard."
 msgstr "Jouw rol heeft geen toegang tot het takendashboard."
 
-#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:58
+#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:61
 msgid "By template — last 90 days"
 msgstr "Per template — laatste 90 dagen"
 
-#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:60
+#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:63
 msgid "No tasks created in the last 90 days."
 msgstr "Geen taken aangemaakt in de laatste 90 dagen."
 
-#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:67
-#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:97
+#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:71
+#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:103
 msgid "Completed on time"
 msgstr "Op tijd afgerond"
 
-#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:68
-#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:98
+#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:72
+#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:104
 msgid "Rate"
 msgstr "Percentage"
 
-#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:88
+#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:93
 msgid "By coach — last 90 days"
 msgstr "Per coach — laatste 90 dagen"
 
-#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:90
+#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:95
 msgid "No coach-assigned tasks in the last 90 days."
 msgstr "Geen aan coaches toegewezen taken in de laatste 90 dagen."
 
-#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:96
+#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:102
 msgid "Assigned"
 msgstr "Toegewezen"
 
-#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:118
+#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:125
+#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:185
 msgid "Currently overdue"
 msgstr "Momenteel te laat"
 
-#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:120
+#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:127
 msgid "No overdue tasks. Nicely done."
 msgstr "Geen te late taken. Mooi werk."
 
-#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:126
+#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:134
 msgid "Assignee"
 msgstr "Toegewezen aan"
 
-#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:127
+#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:135
 msgid "Days overdue"
 msgstr "Dagen te laat"
 
-#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:213
-#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:248
+#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:176
+msgid "Created (90d)"
+msgstr ""
+
+#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:180
+msgid "On-time rate"
+msgstr ""
+
+#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:260
+#: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:295
 #, php-format
 msgid "User #%d"
 msgstr "Gebruiker #%d"
 
-#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:38
+#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:52
 msgid "Your role does not have access to workflow configuration."
 msgstr "Jouw rol heeft geen toegang tot workflow-configuratie."
 
-#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:49
+#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:63
 msgid "Configuration saved."
 msgstr "Configuratie opgeslagen."
 
-#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:62
+#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:76
 msgid ""
 "Replay attempted but produced no tasks. Check the log row's error message."
 msgstr ""
@@ -30835,7 +30882,7 @@ msgstr ""
 "logregel."
 
 #. translators: %d task count
-#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:65
+#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:79
 #, php-format
 msgid "Replayed: %d task created."
 msgid_plural "Replayed: %d tasks created."
@@ -30843,7 +30890,7 @@ msgstr[0] "Opnieuw uitgevoerd: %d taak aangemaakt."
 msgstr[1] "Opnieuw uitgevoerd: %d taken aangemaakt."
 
 # v3.48.0 — workflow cadence relabel + journey filter declutter
-#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:99
+#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:103
 msgid ""
 "Turn templates on or off, and override how often they run + how long users "
 "have to act. Changes take effect on the next cron tick or trigger."
@@ -30852,11 +30899,11 @@ msgstr ""
 "gebruikers krijgen om te reageren. Wijzigingen worden van kracht bij de "
 "volgende cron-tick of trigger."
 
-#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:111
+#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:116
 msgid "How often (cron)"
 msgstr "Hoe vaak (cron)"
 
-#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:112
+#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:117
 msgid ""
 "Cron expression, e.g. '0 9 * * 1' for every Monday at 09:00. Leave the "
 "placeholder unchanged to use the default schedule."
@@ -30864,11 +30911,11 @@ msgstr ""
 "Cron-expressie, bv. '0 9 * * 1' voor elke maandag om 09:00. Laat de "
 "placeholder ongewijzigd om het standaardschema te gebruiken."
 
-#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:115
+#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:120
 msgid "Deadline (days)"
 msgstr "Deadline (dagen)"
 
-#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:116
+#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:121
 msgid ""
 "How many days after the task fires before it counts as overdue. Whole "
 "number, e.g. 7."
@@ -30876,11 +30923,11 @@ msgstr ""
 "Aantal dagen na het afgaan van de taak voordat hij als verlopen telt. Geheel "
 "getal, bv. 7."
 
-#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:119
+#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:124
 msgid "Notification channel"
 msgstr "Notificatiekanaal"
 
-#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:120
+#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:125
 msgid ""
 "How task notifications reach the assignee. Email-only is the default. Push "
 "routes via the user's installed PWA when available."
@@ -30888,11 +30935,11 @@ msgstr ""
 "Hoe taaknotificaties bij de toegewezene aankomen. Standaard alleen e-mail. "
 "Push gaat via de geïnstalleerde PWA als die beschikbaar is."
 
-#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:192
+#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:195
 msgid "Minors assignment policy"
 msgstr "Toewijzingsbeleid minderjarigen"
 
-#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:194
+#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:197
 msgid ""
 "How tasks for under-18 players are routed. Affects new tasks only — existing "
 "open tasks keep their original assignee."
@@ -30901,15 +30948,15 @@ msgstr ""
 "nieuwe taken — bestaande open taken behouden hun oorspronkelijke toegewezen "
 "persoon."
 
-#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:208
+#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:211
 msgid "Save configuration"
 msgstr "Configuratie opslaan"
 
-#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:240
+#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:243
 msgid "Chain steps"
 msgstr "Chain steps"
 
-#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:242
+#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:245
 msgid ""
 "When the parent task is completed, the engine spawns the listed follow-up "
 "template. Disabling the spawned template suppresses the chain step "
@@ -30919,24 +30966,24 @@ msgstr ""
 "vervolg­template. Het uitschakelen van het gestarte template onderdrukt de "
 "chain step automatisch."
 
-#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:245
+#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:248
 msgid "Parent template"
 msgstr "Bovenliggend template"
 
-#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:246
+#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:249
 msgid "Step id"
 msgstr "Stap-id"
 
-#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:247
+#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:250
 msgid "Spawns"
 msgstr "Start"
 
-#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:269
+#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:272
 msgid "Event log"
 msgstr "Event-log"
 
 #. translators: 1: processed count 2: failed count
-#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:273
+#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:276
 #, php-format
 msgid ""
 "Last 25 event firings. Processed: %1$d · Failed: %2$d. Use Retry on a failed "
@@ -30945,33 +30992,33 @@ msgstr ""
 "Laatste 25 events. Verwerkt: %1$d · Mislukt: %2$d. Gebruik Retry op een "
 "gefaalde rij om de dispatch opnieuw uit te voeren."
 
-#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:280
+#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:283
 msgid "No events fired yet."
 msgstr "Nog geen events afgevuurd."
 
-#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:286
+#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:289
 msgid "Event hook"
 msgstr "Event-hook"
 
-#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:289
+#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:292
 msgid "Retries"
 msgstr "Retries"
 
 #. translators: %d task count
-#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:317
+#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:320
 #, php-format
 msgid "%d task created"
 msgid_plural "%d tasks created"
 msgstr[0] "%d taak aangemaakt"
 msgstr[1] "%d taken aangemaakt"
 
-#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:329
+#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:332
 #: src/Shared/Frontend/Components/FormSaveButton.php:49
 #: src/Shared/Frontend/Components/FrontendListTable.php:149
 msgid "Retry"
 msgstr "Opnieuw"
 
-#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:440
+#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:443
 msgid ""
 "Age-based (default) — under 13: parent. 13-15: player + parent visibility. "
 "16+: player only."
@@ -30979,15 +31026,15 @@ msgstr ""
 "Leeftijdsgebonden (standaard) — onder 13: ouder. 13-15: speler + ouder ziet "
 "mee. 16+: alleen speler."
 
-#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:441
+#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:444
 msgid "Direct only — task always goes to the player."
 msgstr "Alleen direct — taak gaat altijd naar de speler."
 
-#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:442
+#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:445
 msgid "Parent proxy — task always goes to the parent."
 msgstr "Ouder als proxy — taak gaat altijd naar de ouder."
 
-#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:443
+#: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:446
 msgid ""
 "Player with parent visibility — task to the player; parent has read-only "
 "view."
@@ -31746,7 +31793,7 @@ msgstr "Status van database-migraties (alleen-lezen)."
 
 # #0055 — Record creation wizards
 #: src/Shared/CoreSurfaceRegistration.php:983
-#: src/Shared/Frontend/FrontendWizardsAdminView.php:25
+#: src/Shared/Frontend/FrontendWizardsAdminView.php:35
 msgid "Wizards"
 msgstr "Wizards"
 
@@ -32259,7 +32306,7 @@ msgstr "Geen resultaten."
 #: src/Shared/Frontend/DashboardShortcode.php:73
 #: src/Shared/Frontend/DashboardShortcode.php:1295
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:451
-#: src/Shared/Frontend/FrontendWizardView.php:291
+#: src/Shared/Frontend/FrontendWizardView.php:308
 msgid "Loading…"
 msgstr "Bezig met laden…"
 
@@ -32601,7 +32648,7 @@ msgid "Sign in required"
 msgstr "Inloggen vereist"
 
 #: src/Shared/Frontend/DashboardShortcode.php:479
-#: src/Shared/Frontend/FrontendMySettingsView.php:43
+#: src/Shared/Frontend/FrontendMySettingsView.php:57
 msgid "You need to be logged in to manage your settings."
 msgstr "Je moet ingelogd zijn om je instellingen te beheren."
 
@@ -32668,15 +32715,15 @@ msgid "DEMO"
 msgstr "DEMO"
 
 #: src/Shared/Frontend/DashboardShortcode.php:1219
-#: src/Shared/Frontend/FrontendMySettingsView.php:38
-#: src/Shared/Frontend/FrontendMySettingsView.php:39
+#: src/Shared/Frontend/FrontendMySettingsView.php:52
+#: src/Shared/Frontend/FrontendMySettingsView.php:53
 msgid "My settings"
 msgstr "Mijn instellingen"
 
 # v3.110.1 — #0086 Workstream B Child 2: session management UI
 #: src/Shared/Frontend/DashboardShortcode.php:1226
-#: src/Shared/Frontend/FrontendMySessionsView.php:26
-#: src/Shared/Frontend/FrontendMySessionsView.php:27
+#: src/Shared/Frontend/FrontendMySessionsView.php:40
+#: src/Shared/Frontend/FrontendMySessionsView.php:41
 msgid "My sessions"
 msgstr "Mijn sessies"
 
@@ -35294,19 +35341,19 @@ msgstr "Toch op je telefoon nodig?"
 msgid "Show it anyway"
 msgstr "Laat hem alsnog zien"
 
-#: src/Shared/Frontend/FrontendMobileSettingsView.php:28
+#: src/Shared/Frontend/FrontendMobileSettingsView.php:42
 msgid "Mobile experience"
 msgstr "Mobiele ervaring"
 
-#: src/Shared/Frontend/FrontendMobileSettingsView.php:33
+#: src/Shared/Frontend/FrontendMobileSettingsView.php:47
 msgid "You do not have permission to manage mobile settings."
 msgstr "Je hebt geen toegang om de mobiele instellingen te beheren."
 
-#: src/Shared/Frontend/FrontendMobileSettingsView.php:46
+#: src/Shared/Frontend/FrontendMobileSettingsView.php:62
 msgid "Mobile settings saved."
 msgstr "Mobiele instellingen opgeslagen."
 
-#: src/Shared/Frontend/FrontendMobileSettingsView.php:51
+#: src/Shared/Frontend/FrontendMobileSettingsView.php:67
 msgid ""
 "TalentTrack classifies every page as mobile-first, viewable, or desktop-"
 "only. Phones visiting a desktop-only page see a polite prompt with an "
@@ -35318,13 +35365,13 @@ msgstr ""
 "melding met een \"mail me de link\"-knop. Tablets en laptops krijgen altijd "
 "de volledige ervaring."
 
-#: src/Shared/Frontend/FrontendMobileSettingsView.php:63
+#: src/Shared/Frontend/FrontendMobileSettingsView.php:79
 msgid "Show the desktop-prompt page on phones for desktop-only routes."
 msgstr ""
 "Toon de desktop-prompt op telefoons voor pagina's die alleen voor desktop "
 "zijn."
 
-#: src/Shared/Frontend/FrontendMobileSettingsView.php:65
+#: src/Shared/Frontend/FrontendMobileSettingsView.php:81
 msgid ""
 "Default on. Untick to let phone visitors see the cramped desktop view on "
 "every page. Tablets and laptops are unaffected either way."
@@ -35630,7 +35677,7 @@ msgid "See all activities"
 msgstr "Bekijk alle activiteiten"
 
 #: src/Shared/Frontend/FrontendMyProfileView.php:293
-#: src/Shared/Frontend/FrontendMySettingsView.php:81
+#: src/Shared/Frontend/FrontendMySettingsView.php:95
 msgid "Display name"
 msgstr "Weergavenaam"
 
@@ -35638,15 +35685,15 @@ msgstr "Weergavenaam"
 msgid "Edit account settings"
 msgstr "Accountinstellingen bewerken"
 
-#: src/Shared/Frontend/FrontendMySessionsView.php:31
+#: src/Shared/Frontend/FrontendMySessionsView.php:45
 msgid "You need to be logged in to manage your sessions."
 msgstr "Je moet ingelogd zijn om je sessies te beheren."
 
-#: src/Shared/Frontend/FrontendMySessionsView.php:42
+#: src/Shared/Frontend/FrontendMySessionsView.php:56
 msgid "No active sessions."
 msgstr "Geen actieve sessies."
 
-#: src/Shared/Frontend/FrontendMySessionsView.php:54
+#: src/Shared/Frontend/FrontendMySessionsView.php:68
 msgid ""
 "These are the devices and browsers currently signed in to your account. If "
 "you spot one you do not recognise, revoke it."
@@ -35654,7 +35701,7 @@ msgstr ""
 "Dit zijn de apparaten en browsers die momenteel zijn ingelogd op je account. "
 "Zie je er een die je niet herkent? Trek hem dan in."
 
-#: src/Shared/Frontend/FrontendMySessionsView.php:61
+#: src/Shared/Frontend/FrontendMySessionsView.php:75
 msgid ""
 "Revoke every other session? You will stay signed in here, but every other "
 "device will need to sign in again."
@@ -35662,52 +35709,52 @@ msgstr ""
 "Alle andere sessies intrekken? Je blijft hier ingelogd, maar elk ander "
 "apparaat zal opnieuw moeten inloggen."
 
-#: src/Shared/Frontend/FrontendMySessionsView.php:62
+#: src/Shared/Frontend/FrontendMySessionsView.php:76
 msgid "Revoke all other sessions"
 msgstr "Alle andere sessies intrekken"
 
-#: src/Shared/Frontend/FrontendMySessionsView.php:87
+#: src/Shared/Frontend/FrontendMySessionsView.php:101
 #, php-format
 msgid "Signed in %s"
 msgstr "Ingelogd %s"
 
-#: src/Shared/Frontend/FrontendMySessionsView.php:88
+#: src/Shared/Frontend/FrontendMySessionsView.php:102
 msgid "Sign-in time unknown"
 msgstr "Inlogtijd onbekend"
 
-#: src/Shared/Frontend/FrontendMySessionsView.php:91
+#: src/Shared/Frontend/FrontendMySessionsView.php:105
 #, php-format
 msgid "Expires in %s"
 msgstr "Verloopt over %s"
 
-#: src/Shared/Frontend/FrontendMySessionsView.php:102
+#: src/Shared/Frontend/FrontendMySessionsView.php:116
 msgid "This session"
 msgstr "Deze sessie"
 
 #. translators: %s: IP address
-#: src/Shared/Frontend/FrontendMySessionsView.php:116
+#: src/Shared/Frontend/FrontendMySessionsView.php:130
 #, php-format
 msgid "IP %s"
 msgstr "IP %s"
 
-#: src/Shared/Frontend/FrontendMySessionsView.php:143
-#: src/Shared/Frontend/FrontendMySessionsView.php:165
+#: src/Shared/Frontend/FrontendMySessionsView.php:157
+#: src/Shared/Frontend/FrontendMySessionsView.php:179
 msgid "Unknown device"
 msgstr "Onbekend apparaat"
 
-#: src/Shared/Frontend/FrontendMySessionsView.php:181
+#: src/Shared/Frontend/FrontendMySessionsView.php:195
 msgid "Session revoked."
 msgstr "Sessie ingetrokken."
 
-#: src/Shared/Frontend/FrontendMySessionsView.php:182
+#: src/Shared/Frontend/FrontendMySessionsView.php:196
 msgid "All other sessions revoked."
 msgstr "Alle andere sessies ingetrokken."
 
-#: src/Shared/Frontend/FrontendMySessionsView.php:183
+#: src/Shared/Frontend/FrontendMySessionsView.php:197
 msgid "Could not identify the session to revoke. Try again."
 msgstr "Kon de in te trekken sessie niet identificeren. Probeer opnieuw."
 
-#: src/Shared/Frontend/FrontendMySessionsView.php:184
+#: src/Shared/Frontend/FrontendMySessionsView.php:198
 msgid ""
 "That is your current session — use the browser sign-out, or use \"Revoke all "
 "other sessions\" first."
@@ -35715,64 +35762,64 @@ msgstr ""
 "Dat is je huidige sessie — gebruik uitloggen in de browser, of gebruik eerst "
 "\"Alle andere sessies intrekken\"."
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:50
+#: src/Shared/Frontend/FrontendMySettingsView.php:64
 msgid "Could not load your account."
 msgstr "Kon je account niet laden."
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:83
+#: src/Shared/Frontend/FrontendMySettingsView.php:97
 msgid "How your name appears to coaches and teammates."
 msgstr "Hoe je naam getoond wordt aan coaches en teamgenoten."
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:92
+#: src/Shared/Frontend/FrontendMySettingsView.php:106
 msgid "Save profile"
 msgstr "Profiel opslaan"
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:100
-#: src/Shared/Frontend/FrontendMySettingsView.php:119
+#: src/Shared/Frontend/FrontendMySettingsView.php:114
+#: src/Shared/Frontend/FrontendMySettingsView.php:133
 msgid "Change password"
 msgstr "Wachtwoord wijzigen"
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:103
+#: src/Shared/Frontend/FrontendMySettingsView.php:117
 msgid "Current password"
 msgstr "Huidig wachtwoord"
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:108
+#: src/Shared/Frontend/FrontendMySettingsView.php:122
 msgid "New password"
 msgstr "Nieuw wachtwoord"
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:112
+#: src/Shared/Frontend/FrontendMySettingsView.php:126
 msgid "Confirm new password"
 msgstr "Nieuw wachtwoord bevestigen"
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:116
+#: src/Shared/Frontend/FrontendMySettingsView.php:130
 msgid "At least 8 characters. Saving will end any other active sessions."
 msgstr "Minimaal 8 tekens. Opslaan beëindigt alle andere actieve sessies."
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:153
+#: src/Shared/Frontend/FrontendMySettingsView.php:167
 msgid "Please enter a valid email address."
 msgstr "Vul een geldig e-mailadres in."
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:161
+#: src/Shared/Frontend/FrontendMySettingsView.php:175
 msgid "Profile saved."
 msgstr "Profiel opgeslagen."
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:174
+#: src/Shared/Frontend/FrontendMySettingsView.php:188
 msgid "Please fill in both your current and new password."
 msgstr "Vul je huidige en je nieuwe wachtwoord beide in."
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:178
+#: src/Shared/Frontend/FrontendMySettingsView.php:192
 msgid "New password must be at least 8 characters."
 msgstr "Het nieuwe wachtwoord moet minimaal 8 tekens hebben."
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:182
+#: src/Shared/Frontend/FrontendMySettingsView.php:196
 msgid "New password and confirmation do not match."
 msgstr "Het nieuwe wachtwoord en de bevestiging komen niet overeen."
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:187
+#: src/Shared/Frontend/FrontendMySettingsView.php:201
 msgid "Current password is incorrect."
 msgstr "Het huidige wachtwoord klopt niet."
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:197
+#: src/Shared/Frontend/FrontendMySettingsView.php:211
 msgid "Password changed. Other devices have been logged out."
 msgstr "Wachtwoord gewijzigd. Andere apparaten zijn uitgelogd."
 
@@ -38785,15 +38832,15 @@ msgstr "%s u"
 msgid "Archive record"
 msgstr "Archiveer record"
 
-#: src/Shared/Frontend/FrontendWizardsAdminView.php:30
+#: src/Shared/Frontend/FrontendWizardsAdminView.php:40
 msgid "You do not have permission to configure wizards."
 msgstr "Je hebt geen rechten om wizards te configureren."
 
-#: src/Shared/Frontend/FrontendWizardsAdminView.php:74
+#: src/Shared/Frontend/FrontendWizardsAdminView.php:84
 msgid "No wizards registered yet."
 msgstr "Nog geen wizards geregistreerd."
 
-#: src/Shared/Frontend/FrontendWizardsAdminView.php:84
+#: src/Shared/Frontend/FrontendWizardsAdminView.php:94
 msgid ""
 "Tick the wizards you want surfaced as the entry-point on their respective "
 "list views. Unticked wizards fall back to the flat create form."
@@ -38802,46 +38849,46 @@ msgstr ""
 "overzichten. Niet-aangevinkte wizards vallen terug op het standaard "
 "aanmaakformulier."
 
-#: src/Shared/Frontend/FrontendWizardsAdminView.php:92
+#: src/Shared/Frontend/FrontendWizardsAdminView.php:102
 msgid "Enable all wizards"
 msgstr "Alle wizards inschakelen"
 
-#: src/Shared/Frontend/FrontendWizardsAdminView.php:152
+#: src/Shared/Frontend/FrontendWizardsAdminView.php:162
 msgid "Completion analytics"
 msgstr "Completion-statistieken"
 
-#: src/Shared/Frontend/FrontendWizardsAdminView.php:154
+#: src/Shared/Frontend/FrontendWizardsAdminView.php:165
 msgid "Wizard"
 msgstr "Wizard"
 
-#: src/Shared/Frontend/FrontendWizardsAdminView.php:155
+#: src/Shared/Frontend/FrontendWizardsAdminView.php:166
 msgid "Started"
 msgstr "Gestart"
 
-#: src/Shared/Frontend/FrontendWizardsAdminView.php:158
+#: src/Shared/Frontend/FrontendWizardsAdminView.php:169
 msgid "Most-skipped step"
 msgstr "Meest overgeslagen stap"
 
-#: src/Shared/Frontend/FrontendWizardView.php:42
-#: src/Shared/Frontend/FrontendWizardView.php:43
+#: src/Shared/Frontend/FrontendWizardView.php:59
+#: src/Shared/Frontend/FrontendWizardView.php:60
 msgid "Wizard not found"
 msgstr "Wizard niet gevonden"
 
-#: src/Shared/Frontend/FrontendWizardView.php:44
+#: src/Shared/Frontend/FrontendWizardView.php:61
 msgid "Unknown wizard."
 msgstr "Onbekende wizard."
 
-#: src/Shared/Frontend/FrontendWizardView.php:50
+#: src/Shared/Frontend/FrontendWizardView.php:67
 msgid ""
 "You do not have permission to use this wizard, or it is currently disabled."
 msgstr ""
 "Je hebt geen toegang tot deze wizard, of de wizard staat momenteel uit."
 
-#: src/Shared/Frontend/FrontendWizardView.php:122
+#: src/Shared/Frontend/FrontendWizardView.php:139
 msgid "Wizard misconfigured (no steps)."
 msgstr "Wizard onjuist geconfigureerd (geen stappen)."
 
-#: src/Shared/Frontend/FrontendWizardView.php:136
+#: src/Shared/Frontend/FrontendWizardView.php:153
 msgid ""
 "Your session expired while this step was open. Please reload the page and "
 "try again — your edits on this step will need to be re-entered."
@@ -38850,69 +38897,69 @@ msgstr ""
 "probeer opnieuw — wijzigingen op deze stap moeten opnieuw worden ingevuld."
 
 # v3.61.0 — #0061 round 2 (new-activity wizard + matrix grouping)
-#: src/Shared/Frontend/FrontendWizardView.php:277
+#: src/Shared/Frontend/FrontendWizardView.php:294
 msgid "Save as draft"
 msgstr "Opslaan als concept"
 
-#: src/Shared/Frontend/FrontendWizardView.php:290
+#: src/Shared/Frontend/FrontendWizardView.php:307
 msgid "Create"
 msgstr "Aanmaken"
 
-#: src/Shared/Frontend/FrontendWizardView.php:291
+#: src/Shared/Frontend/FrontendWizardView.php:308
 msgid "Creating…"
 msgstr "Aanmaken…"
 
 #. translators: %s: human-readable age e.g. "2 days".
-#: src/Shared/Frontend/FrontendWizardView.php:559
+#: src/Shared/Frontend/FrontendWizardView.php:576
 #, php-format
 msgid "You started this %s ago. Continue where you left off, or start over?"
 msgstr ""
 "Je bent %s geleden begonnen. Doorgaan waar je gebleven was, of opnieuw "
 "beginnen?"
 
-#: src/Shared/Frontend/FrontendWizardView.php:734
+#: src/Shared/Frontend/FrontendWizardView.php:751
 msgid "Wizard steps"
 msgstr "Wizard-stappen"
 
 #. translators: 1: current step number, 2: total step count
-#: src/Shared/Frontend/FrontendWizardView.php:744
+#: src/Shared/Frontend/FrontendWizardView.php:761
 #, php-format
 msgid "Step %1$d of %2$d"
 msgstr ""
 
 #. translators: 1: step number, 2: step label, 3: state
-#: src/Shared/Frontend/FrontendWizardView.php:760
+#: src/Shared/Frontend/FrontendWizardView.php:777
 #, php-format
 msgid "Step %1$d: %2$s (%3$s)"
 msgstr "Stap %1$d: %2$s (%3$s)"
 
-#: src/Shared/Frontend/FrontendWizardView.php:765
-#: src/Shared/Frontend/FrontendWizardView.php:774
+#: src/Shared/Frontend/FrontendWizardView.php:782
+#: src/Shared/Frontend/FrontendWizardView.php:791
 msgid "Not applicable"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendWizardView.php:772
+#: src/Shared/Frontend/FrontendWizardView.php:789
 msgid "You are here"
 msgstr "Je bent hier"
 
 # #0077 polish wave 1 — new strings
-#: src/Shared/Frontend/FrontendWizardView.php:787
+#: src/Shared/Frontend/FrontendWizardView.php:804
 msgid "Help for this step"
 msgstr "Hulp bij deze stap"
 
-#: src/Shared/Frontend/FrontendWizardView.php:828
+#: src/Shared/Frontend/FrontendWizardView.php:845
 msgid "Saved · "
 msgstr "Opgeslagen · "
 
-#: src/Shared/Frontend/FrontendWizardView.php:829
+#: src/Shared/Frontend/FrontendWizardView.php:846
 msgid "Save failed"
 msgstr "Opslaan mislukt"
 
-#: src/Shared/Frontend/FrontendWizardView.php:851
+#: src/Shared/Frontend/FrontendWizardView.php:868
 msgid "This field is required."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendWizardView.php:852
+#: src/Shared/Frontend/FrontendWizardView.php:869
 msgid "Fill in every required field to continue."
 msgstr ""
 
@@ -39472,6 +39519,12 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
+
+#~ msgid "Document"
+#~ msgstr "Document"
+
+#~ msgid "open"
+#~ msgstr "openen"
 
 #~ msgid "Track:"
 #~ msgstr "Traject:"
