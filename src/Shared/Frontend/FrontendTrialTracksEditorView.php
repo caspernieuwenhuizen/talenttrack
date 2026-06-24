@@ -130,6 +130,16 @@ class FrontendTrialTracksEditorView extends FrontendViewBase {
         if ( $track ) {
             echo '<div class="tt-form-actions tt-trial-track-danger">';
             echo '<button type="submit" formaction="' . esc_attr( add_query_arg( [ 'tt_view' => 'trial-tracks-editor', 'id' => (int) $track->id ] ) ) . '" name="tt_trial_track_action" value="archive" class="tt-btn tt-btn-danger" onclick="return confirm(\'' . esc_js( __( 'Archive this track?', 'talenttrack' ) ) . '\');">' . esc_html__( 'Archive', 'talenttrack' ) . '</button>';
+            // #1784 — irreversible delete via the shared archive-button
+            // handler (surfaces the block reason if a trial case still uses
+            // the track). Built-in tracks are never deletable; admin-gated.
+            if ( empty( $track->is_seeded ) && current_user_can( 'tt_edit_settings' ) ) {
+                echo '<button type="button" class="tt-btn tt-btn-danger"'
+                    . ' data-tt-archive-rest-path="' . esc_attr( 'trial-tracks/' . (int) $track->id . '/permanent' ) . '"'
+                    . ' data-tt-archive-confirm="' . esc_attr__( 'Permanently delete this track? This cannot be undone, and is blocked while any trial case still uses it.', 'talenttrack' ) . '"'
+                    . ' data-tt-archive-redirect="' . esc_attr( add_query_arg( [ 'tt_view' => 'trial-tracks-editor' ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() ) ) . '">'
+                    . esc_html__( 'Delete permanently', 'talenttrack' ) . '</button>';
+            }
             echo '</div>';
         }
         echo '</form>';

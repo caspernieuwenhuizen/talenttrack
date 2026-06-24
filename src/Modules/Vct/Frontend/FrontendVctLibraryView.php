@@ -45,6 +45,8 @@ class FrontendVctLibraryView extends FrontendViewBase {
             self::handlePost();
         }
 
+        // enqueueAssets() also wires the shared archive-button handler
+        // (#1784) — DELETE …/permanent + surfaces any block reason.
         self::enqueueAssets();
         wp_enqueue_style(
             'tt-frontend-vct-library',
@@ -256,6 +258,16 @@ class FrontendVctLibraryView extends FrontendViewBase {
                     echo '<button type="submit" class="tt-btn tt-btn-secondary" onclick="return confirm(\'' . esc_attr__( 'Archive this exercise? It stays in history but drops out of new session candidates.', 'talenttrack' ) . '\');">'
                         . esc_html__( 'Archive', 'talenttrack' ) . '</button>';
                     echo '</form>';
+                } else {
+                    // #1784 — archived rows get the irreversible delete
+                    // ($can_write already gated on tt_vct_admin_library).
+                    // `tt-vct-lib-btn-sm` lives in frontend-vct-library.css —
+                    // no inline style attribute (#1389).
+                    echo '<button type="button" class="tt-btn tt-btn-danger tt-vct-lib-btn-sm"'
+                        . ' data-tt-archive-rest-path="' . esc_attr( 'vct/exercises/' . $row_id . '/permanent' ) . '"'
+                        . ' data-tt-archive-confirm="' . esc_attr__( 'Permanently delete this exercise? This cannot be undone.', 'talenttrack' ) . '"'
+                        . ' data-tt-archive-redirect="' . esc_attr( add_query_arg( [ 'archived' => '1' ] ) ) . '">'
+                        . esc_html__( 'Delete permanently', 'talenttrack' ) . '</button>';
                 }
                 echo '</td>';
             }

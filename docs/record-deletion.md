@@ -3,8 +3,18 @@
 
 Most records in TalentTrack follow an **archive lifecycle**: you archive
 them (soft-delete) and can restore them. A separate, irreversible
-**permanent delete** is offered only on already-archived rows and is gated
-by `tt_edit_settings`.
+**permanent delete** is gated by `tt_edit_settings`.
+
+### Where to find it
+
+- **List views** (players, teams, evaluations, goals, tournaments,
+  holidays): the **Delete permanently** action appears on archived rows
+  (use the Archived tab/filter), alongside Restore.
+- **Detail / editor pages** (trial case, trial track, VCT exercise): a
+  **Delete permanently** button sits beside the page's Archive control.
+
+In every case, if the delete is blocked by a still-referencing record, the
+screen shows the reason (e.g. *"Cannot delete: still referenced by N …"*).
 
 ## Referential-integrity-checked delete (#1783)
 

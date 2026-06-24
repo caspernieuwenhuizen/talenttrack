@@ -3,8 +3,19 @@
 
 De meeste records in TalentTrack volgen een **archiveer-levenscyclus**: je
 archiveert ze (zacht verwijderen) en kunt ze herstellen. Een aparte,
-onomkeerbare **definitieve verwijdering** wordt alleen aangeboden op reeds
-gearchiveerde rijen en vereist `tt_edit_settings`.
+onomkeerbare **definitieve verwijdering** vereist `tt_edit_settings`.
+
+### Waar je het vindt
+
+- **Lijstweergaven** (spelers, teams, beoordelingen, doelen, toernooien,
+  vakanties): de actie **Definitief verwijderen** verschijnt op
+  gearchiveerde rijen (gebruik het tabblad/filter Gearchiveerd), naast
+  Herstellen.
+- **Detail- / bewerkpagina's** (proefdossier, proeftraject, VCT-oefening):
+  een knop **Definitief verwijderen** staat naast de archiveerknop.
+
+Als de verwijdering wordt geblokkeerd door een verwijzend record, toont het
+scherm de reden (bijv. *"Kan niet verwijderen: nog gekoppeld aan N …"*).
 
 ## Verwijderen met referentiële-integriteitscontrole (#1783)
 

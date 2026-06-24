@@ -236,3 +236,6 @@
     border-left-color: var(--tt-danger);
     background: var(--tt-danger-subtle);
 }
+
+/* #1784 — small danger button (Delete permanently) on archived rows. */
+.tt-vct-lib-btn-sm { font-size: 12px; padding: 4px 10px; }

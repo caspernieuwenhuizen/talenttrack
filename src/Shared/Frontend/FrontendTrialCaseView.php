@@ -104,6 +104,20 @@ class FrontendTrialCaseView extends FrontendViewBase {
                 'variant' => 'danger',
             ];
         }
+        // #1784 — irreversible delete (cascades staff / inputs / extensions),
+        // surfaced via the shared archive-button handler which shows any
+        // referential-integrity block reason. Admin-gated.
+        if ( TrialCaseAccessPolicy::isManager( $user_id ) && current_user_can( 'tt_edit_settings' ) ) {
+            $header_actions[] = [
+                'label'      => __( 'Delete permanently', 'talenttrack' ),
+                'variant'    => 'danger',
+                'data_attrs' => [
+                    'tt-archive-rest-path' => 'trial-cases/' . (int) $case->id . '/permanent',
+                    'tt-archive-confirm'   => __( 'Permanently delete this trial case? This removes its staff, inputs and extensions and cannot be undone.', 'talenttrack' ),
+                    'tt-archive-redirect'  => add_query_arg( [ 'tt_view' => 'trials' ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() ),
+                ],
+            ];
+        }
         self::renderHeader(
             sprintf( __( 'Trial: %s', 'talenttrack' ), $name ),
             $header_actions ? self::pageActionsHtml( $header_actions ) : ''
