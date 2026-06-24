@@ -136,6 +136,11 @@ class FrontendScoutingPlanView extends FrontendViewBase {
             ];
         }
         self::renderHeader( __( 'Scouting visits', 'talenttrack' ), self::pageActionsHtml( $page_actions ) );
+        // #1764 — success notice after archiving a visit from the detail
+        // view (it redirects here with `tt_archived=1`). Presentation only.
+        if ( ! empty( $_GET['tt_archived'] ) ) {
+            echo '<p class="tt-notice tt-success">' . esc_html__( 'Scouting visit archived.', 'talenttrack' ) . '</p>';
+        }
         self::renderList( $user_id, $is_admin );
     }
 

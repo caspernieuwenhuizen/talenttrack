@@ -95,6 +95,43 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
                 'icon'    => '+',
             ];
         }
+
+        // #1764 — surface the existing archive (soft-delete) endpoint in
+        // the UI. The DELETE /scouting-visits/{id} route already enforces
+        // its own capability + row-ownership check; this button is gated
+        // the same way the Edit action above is (owner or scope admin),
+        // and the JS layer fires the REST call with a nonce + confirm.
+        if ( $is_owner || $is_scope_admin ) {
+            $page_actions[] = [
+                'label'      => __( 'Archive visit', 'talenttrack' ),
+                'variant'    => 'danger',
+                'data_attrs' => [ 'tt-archive-visit' => (int) $visit->id ],
+            ];
+
+            wp_enqueue_script(
+                'tt-scouting-visit-archive',
+                TT_PLUGIN_URL . 'assets/js/components/scouting-visit-archive.js',
+                [],
+                TT_VERSION,
+                true
+            );
+            wp_localize_script( 'tt-scouting-visit-archive', 'TT_SCOUTING_VISIT_ARCHIVE', [
+                'rest_url'     => esc_url_raw( rest_url( 'talenttrack/v1/scouting-visits/' ) ),
+                'rest_nonce'   => wp_create_nonce( 'wp_rest' ),
+                // Soft-delete redirects back to the list, which excludes
+                // archived rows; `tt_archived=1` triggers the success notice.
+                'redirect_url' => esc_url_raw( add_query_arg(
+                    [ 'tt_view' => 'scouting-visits', 'tt_archived' => 1 ],
+                    $base_url
+                ) ),
+                'i18n' => [
+                    'confirm'       => __( 'Archive this scouting visit? It will be removed from the list.', 'talenttrack' ),
+                    'error_generic' => __( 'Could not archive the visit. Please try again.', 'talenttrack' ),
+                    'network_error' => __( 'Network error. Please try again.', 'talenttrack' ),
+                ],
+            ] );
+        }
+
         self::renderHeader( $title, self::pageActionsHtml( $page_actions ) );
 
         self::renderFacts( $visit );

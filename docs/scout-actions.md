@@ -370,6 +370,22 @@ Ordered by raw frequency (most-used first). Each action lists:
     item → lands on the visit detail page with breadcrumb +
     back-pill. (e) From the detail page click "Log scouting find"
     → new-prospect wizard opens with `from_visit=N` in the URL.
+  - **#1764** — the visit detail view now exposes an **Archive visit**
+    action (danger button, owner or scope-admin only). It calls the
+    existing `DELETE /scouting-visits/{id}` archive endpoint with a
+    nonce after a confirm, then returns the scout to the list with a
+    "Scouting visit archived." notice. No new business logic — the
+    REST route already enforced the capability + row-ownership check;
+    this only wires it into the UI. (Hard delete, if ever wanted, is a
+    separate follow-up.)
+    *How to test:* open a scouting visit you own at
+    `?tt_view=scouting-visit&id=N`. (a) The header shows an "Archive
+    visit" button next to "Edit visit". (b) Click it → confirm prompt.
+    Cancel → nothing happens. (c) Confirm → you land on
+    `?tt_view=scouting-visits` with a green "Scouting visit archived."
+    notice and the visit is gone from the list. (d) A scout who
+    doesn't own the visit (and isn't a scope admin) sees no Archive
+    button.
 
 ### 3. Add a follow-up scouting note to an existing prospect
 

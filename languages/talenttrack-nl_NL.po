@@ -39520,6 +39520,26 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
+msgid "Archive visit"
+msgstr "Bezoek archiveren"
+
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
+msgid "Archive this scouting visit? It will be removed from the list."
+msgstr "Dit scoutingbezoek archiveren? Het verdwijnt uit de lijst."
+
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
+msgid "Could not archive the visit. Please try again."
+msgstr "Kon het bezoek niet archiveren. Probeer het opnieuw."
+
+#: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php
+msgid "Network error. Please try again."
+msgstr "Netwerkfout. Probeer het opnieuw."
+
+#: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php
+msgid "Scouting visit archived."
+msgstr "Scoutingbezoek gearchiveerd."
+
 #~ msgid "Document"
 #~ msgstr "Document"
 
