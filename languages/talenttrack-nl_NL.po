@@ -39742,6 +39742,108 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php
+msgid "Player accounts"
+msgstr "Spelersaccounts"
+
+#: src/Shared/Frontend/Components/BackLabelResolver.php
+msgid "Back to Player accounts"
+msgstr "Terug naar Spelersaccounts"
+
+#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php
+msgid "You do not have permission to manage player accounts."
+msgstr "Je hebt geen rechten om spelersaccounts te beheren."
+
+#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php
+msgid "No account"
+msgstr "Geen account"
+
+#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php
+msgid "Linked"
+msgstr "Gekoppeld"
+
+#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php
+msgid "Search player name…"
+msgstr "Zoek spelersnaam…"
+
+#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php
+msgid "No players match these filters."
+msgstr "Geen spelers voldoen aan deze filters."
+
+#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php
+#, php-format
+msgid "Showing the first %d players — narrow the search to see the rest."
+msgstr "De eerste %d spelers worden getoond — verfijn de zoekopdracht om de rest te zien."
+
+#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php
+msgid "Unlink"
+msgstr "Ontkoppelen"
+
+#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php
+msgid "WordPress user to link"
+msgstr "Te koppelen WordPress-gebruiker"
+
+#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php
+msgid "— Choose account —"
+msgstr "— Kies account —"
+
+#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php
+msgid "Link"
+msgstr "Koppelen"
+
+#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php
+#, php-format
+msgid "Linked · %s"
+msgstr "Gekoppeld · %s"
+
+#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php
+msgid "Invited (pending)"
+msgstr "Uitgenodigd (in behandeling)"
+
+#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php
+msgid "(unknown user)"
+msgstr "(onbekende gebruiker)"
+
+#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php
+msgid "Choose an account to link first."
+msgstr "Kies eerst een account om te koppelen."
+
+#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php
+msgid "Unlink this account from the player?"
+msgstr "Dit account loskoppelen van de speler?"
+
+#: src/Infrastructure/Players/PlayerAccountService.php
+msgid "A player and a WordPress user are both required."
+msgstr "Een speler en een WordPress-gebruiker zijn allebei vereist."
+
+#: src/Infrastructure/Players/PlayerAccountService.php
+msgid "That WordPress user no longer exists."
+msgstr "Die WordPress-gebruiker bestaat niet meer."
+
+#: src/Infrastructure/Players/PlayerAccountService.php
+msgid "That account is already linked to another player."
+msgstr "Dat account is al gekoppeld aan een andere speler."
+
+#: src/Infrastructure/Players/PlayerAccountService.php
+msgid "That account is already linked to a staff/parent record."
+msgstr "Dat account is al gekoppeld aan een staf-/ouderrecord."
+
+#: src/Infrastructure/Players/PlayerAccountService.php
+msgid "Account linked."
+msgstr "Account gekoppeld."
+
+#: src/Infrastructure/Players/PlayerAccountService.php
+msgid "A player is required."
+msgstr "Een speler is vereist."
+
+#: src/Infrastructure/Players/PlayerAccountService.php
+msgid "That player has no account to unlink."
+msgstr "Die speler heeft geen account om te ontkoppelen."
+
+#: src/Infrastructure/Players/PlayerAccountService.php
+msgid "Account unlinked."
+msgstr "Account ontkoppeld."
+
 #~ msgid "Document"
 #~ msgstr "Document"
 

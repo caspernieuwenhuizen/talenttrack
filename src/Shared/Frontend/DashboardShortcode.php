@@ -582,6 +582,10 @@ class DashboardShortcode {
             case 'players-import':
                 FrontendPlayersCsvImportView::render( $user_id, $is_admin );
                 return true;
+            // #1771 — admin link/unlink of a WP account to a player.
+            case 'player-accounts':
+                \TT\Modules\Players\Frontend\FrontendPlayerAccountsView::render( $user_id, $is_admin );
+                return true;
             case 'people':
                 if ( $detail_id > 0 && $action !== 'edit' ) {
                     FrontendPersonDetailView::render( $detail_id, $user_id, $is_admin );
