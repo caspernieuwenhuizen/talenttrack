@@ -40111,14 +40111,6 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
 
-#: src/Infrastructure/REST/TournamentsRestController.php
-msgid "Invalid tournament id."
-msgstr "Ongeldig toernooi-id."
-
-#: src/Modules/Trials/Rest/TrialsRestController.php
-msgid "Invalid trial case id."
-msgstr "Ongeldig proefdossier-id."
-
 #: src/Modules/Holidays/Rest/HolidaysRestController.php
 msgid "Invalid holiday id."
 msgstr "Ongeldig vakantie-id."
