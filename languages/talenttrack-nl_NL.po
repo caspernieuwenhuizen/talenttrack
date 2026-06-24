@@ -40134,3 +40134,7 @@ msgstr "Proeftraject niet gevonden."
 #: src/Modules/Trials/Rest/TrialsRestController.php
 msgid "Built-in trial tracks cannot be deleted."
 msgstr "Ingebouwde proeftrajecten kunnen niet worden verwijderd."
+
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "You do not have permission to view this player."
+msgstr "Je hebt geen permissie om deze speler te bekijken."

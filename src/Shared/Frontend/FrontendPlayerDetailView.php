@@ -177,6 +177,18 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
             return;
         }
 
+        // #1725 — scope the gate to THIS player. The capability check above
+        // is coarse (true for any persona that can view some player); without
+        // a per-player scope check a parent could open any child's profile by
+        // id, leaking the guardians card (co-parents). canViewPlayer() is the
+        // canonical decision: own record / global / player's team /
+        // parent-of-this-player. Anyone else is denied.
+        if ( ! \TT\Infrastructure\Security\AuthorizationService::canViewPlayer( $user_id, $player_id ) ) {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
+            echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to view this player.', 'talenttrack' ) . '</p>';
+            return;
+        }
+
         // #1089 VCT-14 — handle PHV-panel POST before rendering so the
         // panel reflects the just-saved state. Cap-gated inside.
         $phv_panel_notice = '';
@@ -826,6 +838,21 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
      * meta when present).
      */
     private static function renderParentsCard( int $player_id ): void {
+        // #1725 — the guardians list (names, emails, phones of every
+        // co-parent) is STAFF-only. A parent viewing their own child must
+        // not see co-guardians. Show the card only to a staff viewer:
+        // global players.view (admin/HoD) or team-scoped players.view on
+        // this player's team (the coach). A viewer who reaches this player
+        // only via the parent branch is not staff — hide the card entirely.
+        $uid = get_current_user_id();
+        $is_staff_viewer = \TT\Infrastructure\Security\AuthorizationService::userHasPermission( $uid, 'players.view' );
+        if ( ! $is_staff_viewer ) {
+            $team_id = (int) ( QueryHelpers::get_player( $player_id )->team_id ?? 0 );
+            $is_staff_viewer = $team_id > 0
+                && \TT\Infrastructure\Security\AuthorizationService::userHasPermission( $uid, 'players.view', 'team', $team_id );
+        }
+        if ( ! $is_staff_viewer ) return;
+
         // #1358 — link rows come from PlayerParentsRepository (which
         // also owns the table-exists guard for pre-migration installs).
         $rows  = [];
