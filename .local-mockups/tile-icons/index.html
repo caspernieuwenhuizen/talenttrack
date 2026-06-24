@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TalentTrack tile-icon review</title>
+<style>
+  :root { --ink:#1a1d21; --muted:#5b6e75; --line:#e5e7ea; --green:#0b3d2e; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:15px/1.45 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; color:var(--ink); background:#f4f6f7; padding:32px; }
+  h1 { font-size:22px; margin:0 0 4px; }
+  p.lead { color:var(--muted); margin:0 0 28px; max-width:760px; }
+  h2 { font-size:13px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); margin:34px 0 12px; }
+  .legend { display:flex; gap:24px; flex-wrap:wrap; font-size:12px; color:var(--muted); margin-bottom:18px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:14px; }
+
+  /* tile shell, mimics .tt-cfg-tile */
+  .tile { background:#fff; border:1px solid var(--line); border-radius:10px; padding:16px; }
+  .tile .lbl { font-weight:600; font-size:13px; margin-top:10px; }
+  .tile .sub { color:var(--muted); font-size:11px; }
+
+  /* glyph sizing */
+  .ic { color:var(--green); display:inline-flex; }
+  .ic svg { display:block; }
+  .s24 svg{width:24px;height:24px} .s28 svg{width:28px;height:28px}
+  .s32 svg{width:32px;height:32px} .s36 svg{width:36px;height:36px}
+
+  /* "professional" duotone treatment: glyph in an accent-tinted rounded chip */
+  .chip { width:52px; height:52px; border-radius:13px; display:inline-flex; align-items:center; justify-content:center;
+          background:color-mix(in srgb, var(--c) 14%, #fff); color:var(--c); }
+  .chip.big { width:60px; height:60px; border-radius:15px; }
+  .chip svg { width:28px; height:28px; }
+  .chip.big svg { width:32px; height:32px; }
+
+  table.cmp { border-collapse:collapse; background:#fff; border:1px solid var(--line); border-radius:10px; overflow:hidden; }
+  table.cmp th, table.cmp td { padding:14px 18px; border-bottom:1px solid var(--line); text-align:center; vertical-align:middle; }
+  table.cmp th { font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); background:#fafbfb; }
+  table.cmp td.name { text-align:left; font-weight:600; font-size:13px; }
+  .note { background:#fff; border:1px solid var(--line); border-radius:10px; padding:16px 18px; max-width:820px; color:var(--muted); font-size:13px; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><defs>
+  <g id="i-players"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></g>
+  <g id="i-teams"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></g>
+  <g id="i-activities"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/><path d="M3.5 6.5l2 1.5"/><path d="M20.5 6.5l-2 1.5"/></g>
+  <g id="i-evaluations"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1"/><path d="M8.5 12.5l2 2 4-5"/></g>
+  <g id="i-goals"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/></g>
+  <g id="i-reports"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h6"/></g>
+  <g id="i-podium"><rect x="9" y="6" width="6" height="15"/><rect x="2.5" y="11" width="6" height="10"/><rect x="15.5" y="14" width="6" height="7"/><path d="M11 9h2"/></g>
+  <g id="i-calendar"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></g>
+  <g id="i-settings"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></g>
+  <g id="i-methodology"><path d="M12 2v3"/><path d="M12 19v3"/><path d="M2 12h3"/><path d="M19 12h3"/><circle cx="12" cy="12" r="3"/><path d="M5 5l2 2"/><path d="M17 17l2 2"/><path d="M5 19l2-2"/><path d="M17 7l2-2"/></g>
+</defs></svg>
+
+<h1>TalentTrack tile-icon review &mdash; size &amp; "professional" treatment</h1>
+<p class="lead">Uses your <strong>real</strong> current icons (48 hand-authored Feather-style SVGs). This compares the current render size against a slightly larger size, and shows a "duotone chip" treatment that reads more professional without redrawing the glyphs. Open in a browser. Direction + final icon set is your call (see the questions in chat).</p>
+
+<h2>A &middot; Current size vs slightly larger (same icon)</h2>
+<table class="cmp">
+  <tr><th class="name" style="text-align:left">Icon</th><th>24px (now, dash)</th><th>28px (now, config tile)</th><th>32px</th><th>36px</th></tr>
+  <tbody id="sizes"></tbody>
+</table>
+
+<h2>B &middot; "Professional" duotone chip (glyph in a tinted rounded chip, accent colour)</h2>
+<p class="lead" style="margin-bottom:14px">A common, polished pattern: the same line glyph sits in a soft accent-tinted rounded square. Heavier visual weight, brand-coloured, still scannable. Shown at two chip sizes.</p>
+<div class="grid" id="chips"></div>
+
+<h2>C &middot; Side by side on a real tile shell</h2>
+<div class="grid" id="tiles"></div>
+
+<h2>Direction options (for the full 48-icon redo)</h2>
+<div class="note">
+  <strong>1. Keep these icons, apply the treatment</strong> &mdash; bump size to ~32px and adopt the duotone chip (B). Lowest effort, no new art, immediate "more professional" lift.<br><br>
+  <strong>2. Swap to a vetted set</strong> (all MIT, ~same line style, higher consistency + more icons):
+  <em>Lucide</em> (the maintained Feather successor &mdash; safest drop-in),
+  <em>Phosphor</em> (design-forward, has a native <em>duotone</em> weight),
+  <em>Heroicons</em> (Tailwind's set, clean outline + solid).<br><br>
+  <strong>3. Hybrid</strong> &mdash; swap to Phosphor/Lucide <em>and</em> apply the chip treatment.
+</div>
+
+<script>
+  const items = [
+    ['players','Players','#1d7874'], ['teams','Teams','#1d6cb1'], ['activities','Activities','#c9962a'],
+    ['evaluations','Evaluations','#7c3a9e'], ['goals','Goals','#b32d2e'], ['reports','Reports','#2271b1'],
+    ['podium','Podium','#e8b624'], ['calendar','Planner','#2271b1'], ['settings','Configuration','#5b6e75'],
+    ['methodology','Methodology','#1d7874']
+  ];
+  const svg = (id,cls) => `<span class="ic ${cls}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-${id}"/></svg></span>`;
+  // A: size table
+  document.getElementById('sizes').innerHTML = items.map(([id,name]) =>
+    `<tr><td class="name">${name}</td><td>${svg(id,'s24')}</td><td>${svg(id,'s28')}</td><td>${svg(id,'s32')}</td><td>${svg(id,'s36')}</td></tr>`).join('');
+  // B: chips
+  document.getElementById('chips').innerHTML = items.map(([id,name,c]) =>
+    `<div class="tile" style="--c:${c}"><span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-${id}"/></svg></span>
+      <span class="chip big" style="margin-left:10px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-${id}"/></svg></span>
+      <div class="lbl">${name}</div></div>`).join('');
+  // C: tiles current vs chip
+  document.getElementById('tiles').innerHTML = items.map(([id,name,c]) =>
+    `<div class="tile"><div style="display:flex;align-items:center;gap:14px">
+       <span class="ic s28" style="color:${c}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-${id}"/></svg></span>
+       <span style="color:#bbb">&rarr;</span>
+       <span class="chip" style="--c:${c}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-${id}"/></svg></span>
+     </div><div class="lbl">${name}</div><div class="sub">current 28px &rarr; duotone chip</div></div>`).join('');
+</script>
+</body>
+</html>

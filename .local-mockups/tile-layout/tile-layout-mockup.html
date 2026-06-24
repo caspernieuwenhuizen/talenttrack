@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TalentTrack — Tile layout mockup (#1464 follow-up / appearance)</title>
+<style>
+  /* ---- Faithful to the real values in TileGridStandard / FrontendTileGrid ---- */
+  :root{
+    --tt-line:#e5e7ea;
+    --tt-tile-min-width:220px;   /* "comfortable" preset, the standard width */
+    --tt-tile-gap:10px;
+    --tt-tile-padding:14px;
+    --tt-tile-min-height:76px;
+    --tt-tile-radius:8px;
+    --tt-ink:#1a1d21;
+    --tt-muted:#6b7280;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; padding:32px 24px 64px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:#f4f6f7; color:var(--tt-ink);
+  }
+  h1{font-size:20px; margin:0 0 4px;}
+  h2{font-size:15px; margin:36px 0 6px; color:#374151;}
+  .sub{color:var(--tt-muted); font-size:13px; margin:0 0 20px; max-width:760px; line-height:1.5;}
+  .note{color:var(--tt-muted); font-size:12px; margin:6px 0 16px; max-width:760px; line-height:1.5;}
+  .stage{max-width:760px;}
+
+  /* The grid is identical for every layout — auto-fill at the standard 220px min width */
+  .tt-ftile-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(var(--tt-tile-min-width),1fr));
+    gap:var(--tt-tile-gap);
+  }
+  @media (max-width:640px){ .tt-ftile-grid{grid-template-columns:1fr;} }
+
+  /* Shared card chrome */
+  .tt-ftile{
+    background:#fff;
+    border:1px solid var(--tt-line);
+    border-radius:var(--tt-tile-radius);
+    padding:var(--tt-tile-padding);
+    text-decoration:none; color:var(--tt-ink);
+    min-height:var(--tt-tile-min-height);
+    box-shadow:0 1px 2px rgba(0,0,0,.04);
+    transition:transform 180ms cubic-bezier(.2,.8,.2,1), box-shadow 180ms ease, border-color 180ms ease;
+    display:block;
+  }
+  .tt-ftile:hover{ transform:translateY(-1px); box-shadow:0 4px 12px rgba(0,0,0,.08); border-color:#d0d4d8; }
+
+  .tt-ftile-label{ font-weight:600; font-size:14px; line-height:1.25; margin:0; color:var(--tt-ink); overflow-wrap:anywhere; }
+  .tt-ftile-desc{
+    color:var(--tt-muted); font-size:12px; line-height:1.35; margin:0;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+  }
+
+  /* Icon chip (color-mix accent background + duotone glyph) */
+  .tt-tile-chip{
+    --tt-chip-accent:#5b6e75;
+    flex-shrink:0;
+    display:inline-flex; align-items:center; justify-content:center;
+    border-radius:.75rem;
+    background:color-mix(in srgb, var(--tt-chip-accent) 14%, #fff);
+    color:var(--tt-chip-accent);
+  }
+  .tt-tile-chip svg{ width:60%; height:60%; }
+
+  /* ============ LAYOUT A — CURRENT (icon centred beside stacked text) ============ */
+  .layout-current .tt-ftile{ display:flex; align-items:center; gap:11px; }
+  .layout-current .tt-tile-chip{ width:52px; height:52px; }      /* 3.25rem */
+  .layout-current .tt-ftile-body{ min-width:0; flex:1; }
+  .layout-current .tt-ftile-label{ margin-bottom:2px; }
+
+  /* ============ LAYOUT B — NEW: icon + title on line 1, description beneath =======
+     The chip is sized to ~2 title rows (40px ≈ two 14px/1.25 lines) so a long
+     title wraps to a 2nd line *next to* the icon instead of widening the tile.
+     The description then spans the full tile width underneath both. ============ */
+  .layout-new .tt-ftile{ display:flex; flex-direction:column; gap:8px; }
+  .layout-new .tt-ftile-head{ display:flex; align-items:flex-start; gap:10px; }
+  .layout-new .tt-tile-chip{ width:40px; height:40px; }          /* spans two title rows */
+  .layout-new .tt-ftile-title-wrap{ min-width:0; flex:1; align-self:center; }
+  .layout-new .tt-ftile-label{
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+  }
+  .layout-new .tt-ftile-desc{ -webkit-line-clamp:3; }            /* full width → room for 3 lines */
+
+  .legend{display:flex;gap:16px;flex-wrap:wrap;margin:0 0 20px;font-size:12px;color:var(--tt-muted);}
+  .legend b{color:#374151;}
+  .pill{display:inline-block;background:#eef1f2;border-radius:999px;padding:2px 10px;font-size:11px;color:#374151;}
+</style>
+</head>
+<body>
+
+  <h1>Tile layout — “icon + title on top line, description beneath”</h1>
+  <p class="sub">
+    Proposed as a new <span class="pill">tile_appearance</span> layout option (alongside the current
+    compact / comfortable / spacious sizing). Every grid below uses the same standard
+    <b>220&nbsp;px</b> column width, 10&nbsp;px gap, 14&nbsp;px padding, 8&nbsp;px radius — only the
+    inside arrangement changes.
+  </p>
+
+  <div class="legend">
+    <span><b>Title</b> clamps to 2 lines</span>
+    <span><b>Icon</b> in the new layout = 40&nbsp;px (≈ two title rows)</span>
+    <span><b>Description</b> = muted, beneath, full width</span>
+  </div>
+
+  <h2>A · Current layout (for comparison)</h2>
+  <p class="note">Icon is vertically centred beside the text block; title and description stack to the
+    right of the icon. A long title competes with the icon for horizontal room.</p>
+  <div class="stage layout-current">
+    <div class="tt-ftile-grid" id="grid-current"></div>
+  </div>
+
+  <h2>B · New layout — icon + title share the top line, description spans beneath</h2>
+  <p class="note">The icon sits beside the title on the first line and is tall enough that the title can
+    wrap to a second row next to it — so the tile never has to grow wider than standard. The description
+    drops to the full tile width underneath, with room for up to three lines.</p>
+  <div class="stage layout-new">
+    <div class="tt-ftile-grid" id="grid-new"></div>
+  </div>
+
+  <h2>B · New layout — single column at ≤ 640&nbsp;px (mobile)</h2>
+  <p class="note">Same arrangement; the grid collapses to one column. Touch target stays ≥ 48&nbsp;px tall.</p>
+  <div class="stage layout-new" style="max-width:380px;">
+    <div class="tt-ftile-grid" id="grid-mobile"></div>
+  </div>
+
+<script>
+  // A few representative dashboard tiles with their accent colours.
+  const TILES = [
+    { label:'Players',            desc:'Squad list, profiles, development timelines and status.', accent:'#1e88e5', icon:'user' },
+    { label:'Evaluations & assessments', desc:'Periodic ratings across technical, tactical, physical and mental categories.', accent:'#8e24aa', icon:'star' },
+    { label:'Teams',              desc:'Age groups, rosters and staff assignments.', accent:'#00897b', icon:'shield' },
+    { label:'Activities & attendance', desc:'Training sessions, matches and who showed up.', accent:'#fb8c00', icon:'calendar' },
+    { label:'Goals',              desc:'Individual development goals and progress notes.', accent:'#e53935', icon:'target' },
+    { label:'Backups & data migration', desc:'Snapshots, restore, and export/import between installs.', accent:'#5b6e75', icon:'archive' },
+  ];
+
+  // Minimal duotone-style glyphs (placeholder stand-ins for the real assets/icons/duotone/*.svg).
+  const GLYPH = {
+    user:'<svg viewBox="0 0 256 256" fill="currentColor"><circle cx="128" cy="96" r="64" opacity=".2"/><path d="M128 144a48 48 0 1 0-48-48 48 48 0 0 0 48 48Zm0-80a32 32 0 1 1-32 32 32 32 0 0 1 32-32Zm0 96c-44 0-80 24-80 56a8 8 0 0 0 16 0c0-22 28-40 64-40s64 18 64 40a8 8 0 0 0 16 0c0-32-36-56-80-56Z"/></svg>',
+    star:'<svg viewBox="0 0 256 256" fill="currentColor"><path d="m128 32 28 64 70 6-53 46 16 68-61-36-61 36 16-68-53-46 70-6Z" opacity=".2"/><path d="M234 98a8 8 0 0 0-7-6l-62-5-24-58a8 8 0 0 0-14 0l-24 58-62 5a8 8 0 0 0-5 14l47 41-14 61a8 8 0 0 0 12 9l54-32 54 32a8 8 0 0 0 12-9l-14-61 47-41a8 8 0 0 0 2-8Z"/></svg>',
+    shield:'<svg viewBox="0 0 256 256" fill="currentColor"><path d="M216 56v56c0 86-80 120-86 122-6-2-86-36-86-122V56a8 8 0 0 1 8-8h156a8 8 0 0 1 8 8Z" opacity=".2"/><path d="M208 40H48a16 16 0 0 0-16 16v56c0 92 86 128 94 131a8 8 0 0 0 6 0c8-3 94-39 94-131V56a16 16 0 0 0-16-16Zm0 72c0 78-69 110-80 114-11-4-80-36-80-114V56h160Z"/></svg>',
+    calendar:'<svg viewBox="0 0 256 256" fill="currentColor"><rect x="40" y="56" width="176" height="160" rx="8" opacity=".2"/><path d="M208 32h-24v-8a8 8 0 0 0-16 0v8H88v-8a8 8 0 0 0-16 0v8H48a16 16 0 0 0-16 16v160a16 16 0 0 0 16 16h160a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16Zm0 176H48V96h160ZM48 80V48h24v8a8 8 0 0 0 16 0v-8h80v8a8 8 0 0 0 16 0v-8h24v32Z"/></svg>',
+    target:'<svg viewBox="0 0 256 256" fill="currentColor"><circle cx="128" cy="128" r="96" opacity=".2"/><path d="M128 24a104 104 0 1 0 104 104A104 104 0 0 0 128 24Zm0 192a88 88 0 1 1 88-88 88 88 0 0 1-88 88Zm0-152a64 64 0 1 0 64 64 64 64 0 0 0-64-64Zm0 112a48 48 0 1 1 48-48 48 48 0 0 1-48 48Zm0-72a24 24 0 1 0 24 24 24 24 0 0 0-24-24Z"/></svg>',
+    archive:'<svg viewBox="0 0 256 256" fill="currentColor"><rect x="32" y="64" width="192" height="40" opacity=".2"/><path d="M224 56H32a8 8 0 0 0-8 8v32a8 8 0 0 0 8 8h8v88a16 16 0 0 0 16 16h144a16 16 0 0 0 16-16v-88h8a8 8 0 0 0 8-8V64a8 8 0 0 0-8-8Zm-24 144H56v-88h144ZM216 96H40V72h176ZM104 136h48a8 8 0 0 1 0 16h-48a8 8 0 0 1 0-16Z"/></svg>',
+  };
+
+  function chip(t){
+    return `<span class="tt-tile-chip" style="--tt-chip-accent:${t.accent}">${GLYPH[t.icon]||''}</span>`;
+  }
+
+  function currentTile(t){
+    return `<a class="tt-ftile" href="#">
+      ${chip(t)}
+      <div class="tt-ftile-body">
+        <div class="tt-ftile-label">${t.label}</div>
+        <p class="tt-ftile-desc">${t.desc}</p>
+      </div>
+    </a>`;
+  }
+
+  function newTile(t){
+    return `<a class="tt-ftile" href="#">
+      <div class="tt-ftile-head">
+        ${chip(t)}
+        <div class="tt-ftile-title-wrap"><div class="tt-ftile-label">${t.label}</div></div>
+      </div>
+      <p class="tt-ftile-desc">${t.desc}</p>
+    </a>`;
+  }
+
+  document.getElementById('grid-current').innerHTML = TILES.map(currentTile).join('');
+  document.getElementById('grid-new').innerHTML     = TILES.map(newTile).join('');
+  document.getElementById('grid-mobile').innerHTML  = TILES.slice(0,3).map(newTile).join('');
+</script>
+</body>
+</html>

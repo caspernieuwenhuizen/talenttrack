@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Activity detail — visual overhaul mockups</title>
+<style>
+  :root{--ink:#1a1d21;--soft:#5b6e75;--accent:#2271b1;--line:#e2e8f0;--bg-soft:#f8fafc;--primary:#0b3d2e;--radius:16px;}
+  *{box-sizing:border-box;}
+  body{margin:0;padding:28px 18px 70px;background:#eef1f0;color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:900px;margin:0 auto;}
+  h2.section{font-size:15px;margin:34px 0 4px;}
+  .note{color:var(--soft);font-size:13px;margin:0 0 16px;line-height:1.5;}
+  .tag{display:inline-block;background:#e7edec;color:#33403c;border-radius:999px;padding:2px 10px;font-size:11px;}
+
+  /* hero */
+  .hero{background:#fff;border-radius:var(--radius);box-shadow:0 4px 16px rgba(0,0,0,.04);padding:20px;display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;}
+  .ico{width:60px;height:60px;border-radius:16px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:28px;color:#fff;}
+  .hero__main{flex:1;min-width:0;}
+  .hero__name{font-size:23px;font-weight:700;margin:0 0 4px;}
+  .hero__sub{margin:0 0 8px;color:var(--soft);font-size:14px;}
+  .hero__sub a{color:var(--accent);text-decoration:none;}
+  .pills{display:flex;gap:8px;flex-wrap:wrap;margin:0;}
+  .pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;}
+  .pill--train{background:#eef3fb;color:#1f5da8;}
+  .pill--match{background:#fdecea;color:#b3261e;}
+  .pill--sched{background:#fff4e5;color:#a8620a;}
+  .pill--done{background:#e3f3ea;color:#1f6b43;}
+  .actions{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 0;}
+  .btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 14px;font-size:13px;color:var(--ink);cursor:pointer;min-height:40px;}
+  .btn--p{background:var(--primary);color:#fff;border-color:var(--primary);}
+
+  /* facts strip */
+  .strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px;}
+  @media(max-width:620px){.strip{grid-template-columns:repeat(2,1fr);}}
+  .cell{background:var(--bg-soft);border:1px solid var(--line);border-radius:12px;padding:11px 13px;}
+  .cell .k{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--soft);margin-bottom:3px;}
+  .cell .v{font-size:16px;font-weight:700;}
+
+  /* cards */
+  .grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:16px;}
+  @media(min-width:720px){.grid{grid-template-columns:1fr 1fr;}.grid .span2{grid-column:1/-1;}}
+  .card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;}
+  .card__h{padding:12px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;}
+  .card__t{font-size:14px;font-weight:700;margin:0;}
+  .card__h a{font-size:12px;color:var(--accent);text-decoration:none;}
+  .card__b{padding:14px 16px;}
+
+  /* principle pills */
+  .pp{display:inline-block;padding:3px 9px;border-radius:8px;font-size:12px;font-weight:600;margin:0 4px 4px 0;border:1px solid;}
+  .pp.O{background:#fff3c4;border-color:#e3c75e;color:#7a5a08;}
+  .pp.A{background:#fde9d6;border-color:#f3c79b;color:#8a3b00;}
+  .pp.V{background:#dfeede;border-color:#a8d2a4;color:#1f5a1a;}
+
+  /* roster pills */
+  .rp{display:inline-block;padding:4px 10px;border-radius:999px;font-size:12px;background:#eef1f0;color:#33403c;margin:0 4px 4px 0;}
+  .rp .guest{font-size:10px;color:#8a6d3b;margin-left:4px;}
+
+  /* attendance breakdown bar */
+  .bar{display:flex;height:14px;border-radius:7px;overflow:hidden;margin:10px 0;}
+  .bar span{display:block;height:100%;}
+  .legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--soft);}
+  .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px;}
+  .att-head{font-size:18px;font-weight:700;}
+  .kv{display:grid;grid-template-columns:120px 1fr;gap:7px 14px;font-size:13px;}
+  .kv .k{color:var(--soft);}
+
+  /* mini pitch */
+  .pitch{position:relative;background:linear-gradient(#2e7d4f,#256b43);border-radius:12px;aspect-ratio:3/4;max-width:300px;margin:0 auto;border:2px solid #1f5a37;}
+  .pitch::before{content:"";position:absolute;left:8%;right:8%;top:50%;border-top:1px solid rgba(255,255,255,.4);}
+  .pitch::after{content:"";position:absolute;left:38%;right:38%;top:46%;height:8%;border:1px solid rgba(255,255,255,.4);border-radius:50%;}
+  .spot{position:absolute;transform:translate(-50%,-50%);width:30px;height:30px;border-radius:50%;background:#fff;color:#13351f;font-weight:700;font-size:11px;display:flex;align-items:center;justify-content:center;border:2px solid #13351f;}
+  .spot small{position:absolute;top:30px;white-space:nowrap;font-size:9px;color:#fff;font-weight:600;text-shadow:0 1px 2px rgba(0,0,0,.5);}
+  .audit{color:var(--soft);font-size:12px;margin-top:14px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="note"><span class="tag">mockups</span> &nbsp;Activity detail rebuilt to show <strong>every registered detail</strong> in a card layout (matches the player/team detail direction). Two shapes below: a <strong>training session</strong> and a <strong>match day</strong> (which surfaces the match-only fields: opponent, home/away, kick-off, formation, line-up). Built with the real principle-pill / attendance colours.</p>
+
+  <!-- ============ A · TRAINING ============ -->
+  <h2 class="section">A · Training session</h2>
+  <header class="hero">
+    <div class="ico" style="background:#1f5da8;">🎯</div>
+    <div class="hero__main">
+      <h1 class="hero__name">Transition &amp; pressing</h1>
+      <p class="hero__sub">Mon 23 Jun 2026 · 18:00–19:30 · <a href="#">Ajax U17</a> · Sportpark De Toekomst, pitch 3</p>
+      <p class="pills">
+        <span class="pill pill--train">Training</span>
+        <span class="pill pill--sched">Scheduled</span>
+      </p>
+      <div class="actions">
+        <button class="btn btn--p">Edit</button>
+        <button class="btn">Mark attendance</button>
+        <button class="btn">Continue rating</button>
+        <button class="btn">⋯</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="strip">
+    <div class="cell"><div class="k">Date</div><div class="v">23 Jun</div></div>
+    <div class="cell"><div class="k">Time</div><div class="v">18:00–19:30</div></div>
+    <div class="cell"><div class="k">Type</div><div class="v">Training</div></div>
+    <div class="cell"><div class="k">Status</div><div class="v">Scheduled</div></div>
+  </div>
+
+  <div class="grid">
+    <div class="card span2">
+      <div class="card__h"><h3 class="card__t">Linked principles</h3><a href="#">Methodology →</a></div>
+      <div class="card__b">
+        <span class="pp O">O3 · Build-up shape</span>
+        <span class="pp A">A2 · Counter-press</span>
+        <span class="pp V">V1 · Defensive transition</span>
+        <span class="pp A">A5 · Third-man runs</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card__h"><h3 class="card__t">Session notes</h3></div>
+      <div class="card__b" style="white-space:pre-wrap;color:#33403c;font-size:13px;">Focus on winning the ball back within 6 seconds. Two rondos → 7v7 with pressing triggers. Keep intensity high in the final block.</div>
+    </div>
+
+    <div class="card">
+      <div class="card__h"><h3 class="card__t">Expected attendance · 16</h3></div>
+      <div class="card__b">
+        <span class="rp">John Doe</span><span class="rp">Luuk Vermeer</span><span class="rp">Sem Bakker</span>
+        <span class="rp">Daan Smit</span><span class="rp">Finn de Boer</span><span class="rp">Guest player<span class="guest">Guest</span></span>
+        <span class="rp">+10 more</span>
+      </div>
+    </div>
+
+    <div class="card span2">
+      <div class="card__h"><h3 class="card__t">Attendance</h3><a href="#">Edit →</a></div>
+      <div class="card__b">
+        <div class="att-head">14 / 16 present <span style="color:var(--soft);font-weight:400;font-size:13px;">(88%)</span></div>
+        <div class="bar">
+          <span style="background:#2e7d4f;width:78%;"></span>
+          <span style="background:#d63638;width:6%;"></span>
+          <span style="background:#d9a006;width:8%;"></span>
+          <span style="background:#9aa3a8;width:4%;"></span>
+          <span style="background:#7b53b6;width:4%;"></span>
+        </div>
+        <div class="legend">
+          <span><i style="background:#2e7d4f;"></i>Present 14</span>
+          <span><i style="background:#d63638;"></i>Absent 1</span>
+          <span><i style="background:#d9a006;"></i>Late 1</span>
+          <span><i style="background:#9aa3a8;"></i>Excused 0</span>
+          <span><i style="background:#7b53b6;"></i>Injured 0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="audit">Created by M. Visser on 18 Jun 2026 · Last changed by M. Visser on 20 Jun 2026</p>
+
+  <!-- ============ B · MATCH DAY ============ -->
+  <h2 class="section">B · Match day</h2>
+  <header class="hero">
+    <div class="ico" style="background:#b3261e;">⚽</div>
+    <div class="hero__main">
+      <h1 class="hero__name">Ajax U17 <span style="color:var(--soft);font-weight:600;">vs</span> PSV U17</h1>
+      <p class="hero__sub">Sat 28 Jun 2026 · Kick-off 10:30 · <span style="color:#1f6b43;font-weight:600;">Home</span> · De Toekomst, main pitch</p>
+      <p class="pills">
+        <span class="pill pill--match">Match · League</span>
+        <span class="pill pill--sched">Scheduled</span>
+      </p>
+      <div class="actions">
+        <button class="btn btn--p">Edit</button>
+        <button class="btn">Print team sheet</button>
+        <button class="btn">Mark attendance</button>
+        <button class="btn">⋯</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="strip">
+    <div class="cell"><div class="k">Opponent</div><div class="v">PSV U17</div></div>
+    <div class="cell"><div class="k">Home / Away</div><div class="v">Home</div></div>
+    <div class="cell"><div class="k">Kick-off</div><div class="v">10:30</div></div>
+    <div class="cell"><div class="k">Formation</div><div class="v">4-2-3-1</div></div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="card__h"><h3 class="card__t">Formation · 4-2-3-1</h3></div>
+      <div class="card__b">
+        <div class="pitch">
+          <div class="spot" style="left:50%;top:92%;">GK<small>Mulder</small></div>
+          <div class="spot" style="left:18%;top:72%;">LB<small>Smit</small></div>
+          <div class="spot" style="left:39%;top:75%;">CB<small>Bakker</small></div>
+          <div class="spot" style="left:61%;top:75%;">CB<small>Jansen</small></div>
+          <div class="spot" style="left:82%;top:72%;">RB<small>Koster</small></div>
+          <div class="spot" style="left:38%;top:55%;">DM<small>de Boer</small></div>
+          <div class="spot" style="left:62%;top:55%;">DM<small>Visser</small></div>
+          <div class="spot" style="left:20%;top:35%;">LW<small>Vermeer</small></div>
+          <div class="spot" style="left:50%;top:38%;">AM<small>Doe</small></div>
+          <div class="spot" style="left:80%;top:35%;">RW<small>Aziz</small></div>
+          <div class="spot" style="left:50%;top:18%;">CF<small>Brandt</small></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card__h"><h3 class="card__t">Line-up</h3></div>
+      <div class="card__b" style="font-size:13px;">
+        <div style="font-weight:700;margin-bottom:6px;color:var(--soft);font-size:11px;text-transform:uppercase;letter-spacing:.07em;">Starting XI</div>
+        <span class="rp">#1 Mulder · GK</span><span class="rp">#3 Smit · LB</span><span class="rp">#10 Doe · AM</span><span class="rp">#9 Brandt · CF</span><span class="rp">+7</span>
+        <div style="font-weight:700;margin:12px 0 6px;color:var(--soft);font-size:11px;text-transform:uppercase;letter-spacing:.07em;">Bench</div>
+        <span class="rp">#12 Peters · GK</span><span class="rp">#15 Roos</span><span class="rp">#18 Tan</span>
+      </div>
+    </div>
+
+    <div class="card span2">
+      <div class="card__h"><h3 class="card__t">Linked principles</h3><a href="#">Methodology →</a></div>
+      <div class="card__b">
+        <span class="pp O">O1 · Match shape</span>
+        <span class="pp A">A4 · Wide overloads</span>
+        <span class="pp V">V2 · Mid-block</span>
+      </div>
+    </div>
+
+    <div class="card span2">
+      <div class="card__h"><h3 class="card__t">Squad availability</h3><a href="#">Edit →</a></div>
+      <div class="card__b">
+        <div class="att-head">16 available <span style="color:var(--soft);font-weight:400;font-size:13px;">· 11 start · 5 bench</span></div>
+        <div class="bar">
+          <span style="background:#2e7d4f;width:84%;"></span>
+          <span style="background:#7b53b6;width:10%;"></span>
+          <span style="background:#d63638;width:6%;"></span>
+        </div>
+        <div class="legend">
+          <span><i style="background:#2e7d4f;"></i>Available 16</span>
+          <span><i style="background:#7b53b6;"></i>Injured 2</span>
+          <span><i style="background:#d63638;"></i>Unavailable 1</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="audit">Created by R. Jansen on 14 Jun 2026 · Last changed by M. Visser on 21 Jun 2026 · Season 2025/26</p>
+
+  <!-- ============ C · HEADER VARIANT ============ -->
+  <h2 class="section">C · Alternate header (banner style)</h2>
+  <p class="note">Same body cards as A/B; this is just an alternate hero treatment — a coloured banner keyed to the activity type, with the facts inline.</p>
+  <header class="hero" style="background:linear-gradient(110deg,#0b3d2e,#1f5da8);color:#fff;">
+    <div class="ico" style="background:rgba(255,255,255,.18);">🎯</div>
+    <div class="hero__main">
+      <h1 class="hero__name" style="color:#fff;">Finishing patterns</h1>
+      <p class="hero__sub" style="color:rgba(255,255,255,.85);">Wed 25 Jun · 18:00–19:30 · Ajax U17 · De Toekomst</p>
+      <p class="pills">
+        <span class="pill" style="background:rgba(255,255,255,.2);color:#fff;">Training</span>
+        <span class="pill" style="background:rgba(255,255,255,.2);color:#fff;">Completed</span>
+      </p>
+    </div>
+  </header>
+</div>
+</body>
+</html>

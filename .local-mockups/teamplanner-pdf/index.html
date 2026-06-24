@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Teamplanner — weekoverzicht PDF (mockups)</title>
+<style>
+  :root{
+    --green:#0b3d2e; --green-2:#13573f; --gold:#c9962a; --gold-soft:#f6edd8;
+    --ink:#1a1d21; --muted:#6b7780; --line:#e3e6ea; --rest:#9aa3aa;
+    --train:#1d7874; --match:#b3611f; --keeper:#2271b1;
+    --paper:#ffffff; --bg:#eceef0;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+        font:14px/1.45 "Helvetica Neue",Arial,system-ui,sans-serif}
+  .lab{max-width:1000px;margin:0 auto;padding:26px 16px}
+  .lab h1{font-size:21px;margin:0 0 4px}
+  .lab p.sub{color:var(--muted);margin:0 0 22px}
+  .vtitle{font-weight:800;letter-spacing:.02em;margin:34px 2px 10px;font-size:13px;color:#454b52;text-transform:uppercase}
+  .vnote{color:var(--muted);font-size:12px;margin:0 2px 12px}
+
+  /* A4 portrait page */
+  .page{width:210mm;min-height:297mm;background:var(--paper);margin:0 auto;
+        box-shadow:0 2px 14px rgba(0,0,0,.12);padding:16mm 15mm;position:relative}
+  @media print{ body{background:#fff} .lab{max-width:none;padding:0} .vtitle,.vnote,h1,p.sub{display:none} .page{box-shadow:none;margin:0;page-break-after:always} }
+
+  /* ---------- shared header ---------- */
+  .hd{display:flex;align-items:center;gap:14px;border-bottom:3px solid var(--green);padding-bottom:12px;margin-bottom:6px}
+  .crest{width:46px;height:46px;border-radius:11px;background:var(--green);color:#fff;display:grid;place-items:center;font-weight:800;font-size:15px;letter-spacing:.02em;flex:none}
+  .hd .ac{font-weight:800;font-size:16px;color:var(--green);letter-spacing:.01em}
+  .hd .sub{color:var(--muted);font-size:12.5px}
+  .hd .wk{margin-left:auto;text-align:right}
+  .hd .wk b{display:block;font-size:18px;color:var(--ink)}
+  .hd .wk span{color:var(--muted);font-size:12px}
+
+  .ftr{position:absolute;left:15mm;right:15mm;bottom:10mm;border-top:1px solid var(--line);
+       padding-top:6px;display:flex;justify-content:space-between;color:var(--muted);font-size:10.5px}
+
+  .legend{display:flex;gap:14px;margin:10px 0 14px;font-size:11px;color:var(--muted)}
+  .legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+
+  /* ============ VARIANT A — branded timeline ============ */
+  .A .row{display:grid;grid-template-columns:36mm 1fr;border-bottom:1px solid var(--line)}
+  .A .row:last-child{border-bottom:0}
+  .A .day{background:linear-gradient(180deg,var(--green) 0%,var(--green-2) 100%);color:#fff;padding:11px 12px;display:flex;flex-direction:column;justify-content:center}
+  .A .day .dn{font-weight:800;font-size:14px;letter-spacing:.02em}
+  .A .day .dd{font-size:11.5px;opacity:.85;margin-top:2px}
+  .A .cell{padding:11px 14px;min-height:20mm}
+  .A .act{display:flex;gap:11px;align-items:flex-start}
+  .A .act + .act{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+  .A .ic{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font-size:17px;flex:none;color:#fff}
+  .A .ttl{font-weight:700;font-size:14px}
+  .A .meta{color:var(--muted);font-size:12px;margin:1px 0 4px}
+  .A .theme{font-size:12.5px}
+  .A .theme b{color:var(--green)}
+  .pill{display:inline-block;background:var(--gold-soft);color:#7a5a12;border:1px solid #ecd9a8;
+        border-radius:999px;font-size:10.5px;font-weight:600;padding:2px 9px;margin:4px 5px 0 0}
+  .rest{color:var(--rest);font-style:italic;font-size:12.5px;display:flex;align-items:center;gap:8px}
+  .rest .dot{width:8px;height:8px;border-radius:50%;background:var(--line)}
+
+  /* ============ VARIANT B — accent-bar cards ============ */
+  .B .stack{display:flex;flex-direction:column;gap:9px;margin-top:6px}
+  .B .card{display:grid;grid-template-columns:30mm 1fr;border:1px solid var(--line);border-radius:10px;overflow:hidden;border-left:5px solid var(--train)}
+  .B .card.match{border-left-color:var(--match)}
+  .B .card.keeper{border-left-color:var(--keeper)}
+  .B .card.rest{border-left-color:var(--line);background:#fafbfc}
+  .B .dcol{padding:11px 12px;border-right:1px solid var(--line);display:flex;flex-direction:column;justify-content:center}
+  .B .dcol .dn{font-weight:800;font-size:14.5px;color:var(--green)}
+  .B .dcol .dd{color:var(--muted);font-size:11.5px;margin-top:1px}
+  .B .body{padding:10px 13px}
+  .B .body .ttl{font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px}
+  .B .body .tag{font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#fff;background:var(--train);border-radius:5px;padding:2px 7px}
+  .B .body.match .tag{background:var(--match)} .B .body.keeper .tag{background:var(--keeper)}
+  .B .body .meta{color:var(--muted);font-size:12px;margin:3px 0 3px}
+  .B .body .theme b{color:var(--green)}
+  .B .restline{color:var(--rest);font-style:italic;font-size:12.5px;padding:9px 13px}
+
+  /* ============ VARIANT C — editorial agenda ============ */
+  .C .row{display:grid;grid-template-columns:24mm 1fr;gap:6mm;padding:13px 0;border-bottom:1px solid #eef0f2}
+  .C .row:last-child{border-bottom:0}
+  .C .chip{width:15mm;height:15mm;border-radius:50%;border:2px solid var(--green);color:var(--green);
+           display:flex;flex-direction:column;align-items:center;justify-content:center;flex:none}
+  .C .chip .dn{font-weight:800;font-size:12px;letter-spacing:.04em;text-transform:uppercase}
+  .C .chip .dd{font-size:13px;font-weight:700;margin-top:-1px}
+  .C .chip.rest{border-color:var(--line);color:var(--rest)}
+  .C .ci .ttl{font-weight:700;font-size:15px;letter-spacing:.01em}
+  .C .ci .meta{color:var(--muted);font-size:12.5px;margin:2px 0 5px}
+  .C .ci .theme{font-size:13px}
+  .C .ci .theme b{color:var(--green)}
+  .C .tag{font-size:10.5px;color:var(--gold);font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+  .C .restline{color:var(--rest);font-style:italic;font-size:13px}
+  .C .pill2{display:inline-block;border:1px solid var(--line);border-radius:6px;font-size:10.5px;
+            color:#5a6168;padding:2px 8px;margin:5px 5px 0 0}
+</style>
+</head>
+<body>
+<div class="lab">
+  <h1>Teamplanner — weekoverzicht (PDF, A4 staand)</h1>
+  <p class="sub">Verticale week: links de weekdag, rechts een lezersvriendelijke weergave van de activiteit. Academy-branded (CRNN-groen + goud-accent). Drie varianten ter vergelijking — print/Save-as-PDF geeft exact deze A4-pagina’s.</p>
+
+  <!-- ============================ VARIANT A ============================ -->
+  <div class="vtitle">Variant A — Branded timeline</div>
+  <div class="vnote">Groene dagstrip links · activiteitenkaart rechts met icoon-chip, tijd/locatie, thema en principe-pills (goud). Rustdagen subtiel.</div>
+  <div class="page A">
+    <div class="hd">
+      <div class="crest">CR</div>
+      <div><div class="ac">CRNN Test Academy</div><div class="sub">Hedel JO13-1 · Teamplanner</div></div>
+      <div class="wk"><b>Week 26</b><span>23 – 29 jun 2026</span></div>
+    </div>
+    <div class="legend"><span><i style="background:var(--train)"></i>Training</span><span><i style="background:var(--match)"></i>Wedstrijd</span><span><i style="background:var(--keeper)"></i>Keeperstraining</span><span><i style="background:var(--line)"></i>Rust</span></div>
+
+    <div class="row"><div class="day"><span class="dn">Maandag</span><span class="dd">23 jun</span></div>
+      <div class="cell"><div class="act"><div class="ic" style="background:var(--train)">⚽</div><div>
+        <div class="ttl">Training · Positiespel</div>
+        <div class="meta">18:00 – 19:30 · Veld 2 · 90 min</div>
+        <div class="theme">Thema: <b>Opbouw van achteruit</b> — ruimtes creëren en kort combineren.</div>
+        <span class="pill">Opbouw</span><span class="pill">Druk zetten</span><span class="pill">Breedte</span>
+      </div></div></div></div>
+
+    <div class="row"><div class="day"><span class="dn">Dinsdag</span><span class="dd">24 jun</span></div>
+      <div class="cell"><div class="rest"><span class="dot"></span>Rustdag — geen geplande activiteit.</div></div></div>
+
+    <div class="row"><div class="day"><span class="dn">Woensdag</span><span class="dd">25 jun</span></div>
+      <div class="cell"><div class="act"><div class="ic" style="background:var(--train)">⚽</div><div>
+        <div class="ttl">Training · Omschakeling</div>
+        <div class="meta">18:00 – 19:30 · Veld 1 · 90 min</div>
+        <div class="theme">Thema: <b>Omschakeling aanval → verdediging</b> — snel druk na balverlies.</div>
+        <span class="pill">Omschakeling A-V</span><span class="pill">Compact verdedigen</span>
+      </div></div></div></div>
+
+    <div class="row"><div class="day"><span class="dn">Donderdag</span><span class="dd">26 jun</span></div>
+      <div class="cell"><div class="act"><div class="ic" style="background:var(--keeper)">🧤</div><div>
+        <div class="ttl">Keeperstraining</div>
+        <div class="meta">17:30 – 18:30 · Veld 3 · 60 min</div>
+        <div class="theme">Reactiesnelheid en uitkomen bij voorzetten.</div>
+      </div></div></div></div>
+
+    <div class="row"><div class="day"><span class="dn">Vrijdag</span><span class="dd">27 jun</span></div>
+      <div class="cell"><div class="rest"><span class="dot"></span>Rustdag.</div></div></div>
+
+    <div class="row"><div class="day"><span class="dn">Zaterdag</span><span class="dd">28 jun</span></div>
+      <div class="cell"><div class="act"><div class="ic" style="background:var(--match)">🏆</div><div>
+        <div class="ttl">Wedstrijd · Hedel JO13-1 — Ajax JO13-2</div>
+        <div class="meta">Aftrap 11:00 · Thuis · Sportpark De Hoef · Verzamelen 10:15</div>
+        <div class="theme">Competitie — focus op de getrainde opbouw en omschakeling.</div>
+      </div></div></div></div>
+
+    <div class="row"><div class="day"><span class="dn">Zondag</span><span class="dd">29 jun</span></div>
+      <div class="cell"><div class="rest"><span class="dot"></span>Rustdag.</div></div></div>
+
+    <div class="ftr"><span>CRNN Test Academy · Hedel JO13-1</span><span>Gegenereerd 22 jun 2026 · pagina 1/1</span></div>
+  </div>
+
+  <!-- ============================ VARIANT B ============================ -->
+  <div class="vtitle">Variant B — Accent-bar kaarten</div>
+  <div class="vnote">Elke dag een kaart met gekleurde accentbalk per type (groen=training, oranje=wedstrijd, blauw=keeper, grijs=rust) + type-tag.</div>
+  <div class="page B">
+    <div class="hd">
+      <div class="crest">CR</div>
+      <div><div class="ac">CRNN Test Academy</div><div class="sub">Hedel JO13-1 · Teamplanner</div></div>
+      <div class="wk"><b>Week 26</b><span>23 – 29 jun 2026</span></div>
+    </div>
+    <div class="stack">
+      <div class="card"><div class="dcol"><span class="dn">Ma</span><span class="dd">23 jun</span></div>
+        <div class="body"><div class="ttl"><span class="tag">Training</span>Positiespel</div>
+          <div class="meta">18:00 – 19:30 · Veld 2 · 90 min</div>
+          <div class="theme">Thema: <b>Opbouw van achteruit</b> · principes: opbouw, druk zetten, breedte.</div></div></div>
+
+      <div class="card rest"><div class="dcol"><span class="dn">Di</span><span class="dd">24 jun</span></div>
+        <div class="restline">Rustdag — geen activiteit.</div></div>
+
+      <div class="card"><div class="dcol"><span class="dn">Wo</span><span class="dd">25 jun</span></div>
+        <div class="body"><div class="ttl"><span class="tag">Training</span>Omschakeling</div>
+          <div class="meta">18:00 – 19:30 · Veld 1 · 90 min</div>
+          <div class="theme">Thema: <b>Omschakeling A→V</b> · principes: snel druk, compact verdedigen.</div></div></div>
+
+      <div class="card keeper"><div class="dcol"><span class="dn">Do</span><span class="dd">26 jun</span></div>
+        <div class="body keeper"><div class="ttl"><span class="tag">Keeper</span>Keeperstraining</div>
+          <div class="meta">17:30 – 18:30 · Veld 3 · 60 min</div>
+          <div class="theme">Reactiesnelheid en uitkomen bij voorzetten.</div></div></div>
+
+      <div class="card rest"><div class="dcol"><span class="dn">Vr</span><span class="dd">27 jun</span></div>
+        <div class="restline">Rustdag.</div></div>
+
+      <div class="card match"><div class="dcol"><span class="dn">Za</span><span class="dd">28 jun</span></div>
+        <div class="body match"><div class="ttl"><span class="tag">Wedstrijd</span>Hedel JO13-1 — Ajax JO13-2</div>
+          <div class="meta">Aftrap 11:00 · Thuis · Sportpark De Hoef · verzamelen 10:15</div>
+          <div class="theme">Competitie — getrainde opbouw &amp; omschakeling toepassen.</div></div></div>
+
+      <div class="card rest"><div class="dcol"><span class="dn">Zo</span><span class="dd">29 jun</span></div>
+        <div class="restline">Rustdag.</div></div>
+    </div>
+    <div class="ftr"><span>CRNN Test Academy · Hedel JO13-1</span><span>Gegenereerd 22 jun 2026 · pagina 1/1</span></div>
+  </div>
+
+  <!-- ============================ VARIANT C ============================ -->
+  <div class="vtitle">Variant C — Editorial agenda</div>
+  <div class="vnote">Rustig en premium: dag in een ronde chip, ruime witruimte, principes als subtiele tags. Minder lijnen, meer ademruimte.</div>
+  <div class="page C">
+    <div class="hd">
+      <div class="crest">CR</div>
+      <div><div class="ac">CRNN Test Academy</div><div class="sub">Hedel JO13-1 · Teamplanner</div></div>
+      <div class="wk"><b>Week 26</b><span>23 – 29 jun 2026</span></div>
+    </div>
+
+    <div class="row"><div class="chip"><span class="dn">Ma</span><span class="dd">23</span></div>
+      <div class="ci"><div class="tag">Training</div><div class="ttl">Positiespel</div>
+        <div class="meta">18:00 – 19:30 · Veld 2 · 90 min</div>
+        <div class="theme">Thema: <b>Opbouw van achteruit</b> — ruimtes creëren en kort combineren.</div>
+        <span class="pill2">Opbouw</span><span class="pill2">Druk zetten</span><span class="pill2">Breedte</span></div></div>
+
+    <div class="row"><div class="chip rest"><span class="dn">Di</span><span class="dd">24</span></div>
+      <div class="ci"><div class="restline">Rustdag — geen geplande activiteit.</div></div></div>
+
+    <div class="row"><div class="chip"><span class="dn">Wo</span><span class="dd">25</span></div>
+      <div class="ci"><div class="tag">Training</div><div class="ttl">Omschakeling</div>
+        <div class="meta">18:00 – 19:30 · Veld 1 · 90 min</div>
+        <div class="theme">Thema: <b>Omschakeling A→V</b> — snel druk na balverlies.</div>
+        <span class="pill2">Omschakeling A-V</span><span class="pill2">Compact verdedigen</span></div></div>
+
+    <div class="row"><div class="chip"><span class="dn">Do</span><span class="dd">26</span></div>
+      <div class="ci"><div class="tag">Keeperstraining</div><div class="ttl">Keeperstraining</div>
+        <div class="meta">17:30 – 18:30 · Veld 3 · 60 min</div>
+        <div class="theme">Reactiesnelheid en uitkomen bij voorzetten.</div></div></div>
+
+    <div class="row"><div class="chip rest"><span class="dn">Vr</span><span class="dd">27</span></div>
+      <div class="ci"><div class="restline">Rustdag.</div></div></div>
+
+    <div class="row"><div class="chip"><span class="dn">Za</span><span class="dd">28</span></div>
+      <div class="ci"><div class="tag" style="color:var(--match)">Wedstrijd</div><div class="ttl">Hedel JO13-1 — Ajax JO13-2</div>
+        <div class="meta">Aftrap 11:00 · Thuis · Sportpark De Hoef · verzamelen 10:15</div>
+        <div class="theme">Competitie — getrainde opbouw &amp; omschakeling toepassen.</div></div></div>
+
+    <div class="row"><div class="chip rest"><span class="dn">Zo</span><span class="dd">29</span></div>
+      <div class="ci"><div class="restline">Rustdag.</div></div></div>
+
+    <div class="ftr"><span>CRNN Test Academy · Hedel JO13-1</span><span>Gegenereerd 22 jun 2026 · pagina 1/1</span></div>
+  </div>
+</div>
+</body>
+</html>

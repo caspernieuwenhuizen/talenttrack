@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Team detail — redesign mockup (modelled on the player profile)</title>
+<style>
+  :root{
+    --tt-ink:#1a1d21; --tt-soft:#5b6e75; --tt-accent:#2271b1;
+    --tt-line:#d6dadd; --tt-bg-soft:#f5f7f6; --tt-primary:#0b3d2e;
+    --paper-radius:16px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;padding:28px 20px 64px;background:#eef1f0;color:var(--tt-ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:920px;margin:0 auto;}
+  .note{color:var(--tt-soft);font-size:13px;margin:0 0 18px;line-height:1.5;}
+  .pill-tag{display:inline-block;background:#e7edec;color:#33403c;border-radius:999px;padding:2px 10px;font-size:11px;}
+
+  /* ---- HERO (mirrors .tt-player-detail__hero) ---- */
+  .hero{background:#fff;border-radius:var(--paper-radius);box-shadow:0 4px 16px rgba(0,0,0,.04);
+    padding:20px;display:flex;gap:18px;align-items:center;flex-wrap:wrap;}
+  .crest{width:84px;height:84px;border-radius:20px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+    font-weight:700;font-size:30px;color:#fff;border:4px solid #2e7d4f;}
+  .hero__main{flex:1;min-width:0;}
+  .hero__name{font-size:26px;font-weight:700;margin:0 0 4px;}
+  .hero__sub{margin:0 0 8px;color:var(--tt-soft);font-size:14px;}
+  .hero__sub a{color:var(--tt-accent);text-decoration:none;}
+  .hero__pills{display:flex;gap:8px;flex-wrap:wrap;margin:0;}
+  .pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;}
+  .pill--status{background:#e3f3ea;color:#1f6b43;}
+  .pill--age{background:#eef3fb;color:#1f5da8;}
+  .pill--season{background:#f3eefb;color:#6a3fb0;}
+
+  /* ---- ACTION ROW ---- */
+  .actions{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 0;}
+  .btn{border:1px solid var(--tt-line);background:#fff;border-radius:8px;padding:8px 14px;font-size:13px;
+    color:var(--tt-ink);cursor:pointer;min-height:40px;}
+  .btn--primary{background:var(--tt-primary);color:#fff;border-color:var(--tt-primary);}
+
+  /* ---- KEY FACTS + GLANCE (mirror .tt-player-facts / .tt-player-glance) ---- */
+  .strip{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px;}
+  .cell{background:var(--tt-bg-soft);border-radius:12px;padding:12px 14px;}
+  .cell__k{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--tt-soft);margin-bottom:4px;}
+  .cell__v{font-size:18px;font-weight:700;}
+  .cell__h{font-size:11px;color:var(--tt-soft);margin-top:2px;}
+  .glance-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--tt-soft);margin:18px 0 6px;}
+
+  /* ---- CARD GRID (mirror .tt-player-profile-grid / .tt-player-card) ---- */
+  .grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:18px;}
+  @media(min-width:720px){ .grid{grid-template-columns:1fr 1fr;} .grid .span2{grid-column:1 / -1;} }
+  .card{background:#fff;border:1px solid var(--tt-line);border-radius:var(--paper-radius);overflow:hidden;}
+  .card__head{padding:12px 16px;border-bottom:1px solid var(--tt-line);display:flex;justify-content:space-between;align-items:center;}
+  .card__title{font-size:14px;font-weight:700;margin:0;}
+  .card__head a{font-size:12px;color:var(--tt-accent);text-decoration:none;}
+  .card__body{padding:6px 0 4px;}
+
+  /* ---- NICER TABLE w/ clickable rows (mirror .tt-table + is-row-link) ---- */
+  table.tt{width:100%;border-collapse:collapse;font-size:13px;}
+  .tt thead th{background:transparent;color:var(--tt-soft);text-align:left;padding:8px 16px;font-size:10px;
+    text-transform:uppercase;letter-spacing:.08em;font-weight:700;border-bottom:1px solid var(--tt-line);}
+  .tt tbody td{padding:11px 16px;border-bottom:1px solid #eef1f0;}
+  .tt tbody tr:last-child td{border-bottom:0;}
+  .tt tbody tr.is-row-link{cursor:pointer;transition:background .12s;}
+  .tt tbody tr.is-row-link:hover{background:#f5f9f8;}
+  .tt tbody tr.is-row-link:hover .name{color:var(--tt-accent);}
+  .name{font-weight:600;}
+  .jersey{display:inline-flex;width:26px;height:26px;align-items:center;justify-content:center;background:#eef1f0;border-radius:7px;font-size:12px;font-weight:700;color:#33403c;}
+  .dot{display:inline-block;width:10px;height:10px;border-radius:50%;}
+  .ava{width:28px;height:28px;border-radius:50%;background:#33403c;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;margin-right:8px;vertical-align:middle;}
+  .typepill{font-size:11px;padding:2px 8px;border-radius:999px;background:#eef3fb;color:#1f5da8;}
+  .chev{color:#c0c8cc;font-size:16px;}
+  td.right{text-align:right;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="note"><span class="pill-tag">mockup</span> &nbsp;Team detail redesigned to match the <strong>player profile</strong>: hero header, key-facts strip, an at-a-glance KPI row, and content in cards. Every table row is now <strong>clickable</strong> (hover to see), including <strong>Upcoming activities</strong>. Built with the real <code>tt-player-detail</code> / <code>tt-table</code> vocabulary.</p>
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="crest" style="background:#1e7a52;">AU</div>
+    <div class="hero__main">
+      <h1 class="hero__name">Ajax U17</h1>
+      <p class="hero__sub"><a href="#">Teams</a> · Under-17 · 2025/26 season</p>
+      <p class="hero__pills">
+        <span class="pill pill--status">Active</span>
+        <span class="pill pill--age">U17</span>
+        <span class="pill pill--season">2025/26</span>
+      </p>
+      <div class="actions">
+        <button class="btn btn--primary">+ New activity</button>
+        <button class="btn">Edit team</button>
+        <button class="btn">Team planner</button>
+        <button class="btn">⋯</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- KEY FACTS -->
+  <div class="strip">
+    <div class="cell"><div class="cell__k">Age group</div><div class="cell__v">U17</div><div class="cell__h">Under-17</div></div>
+    <div class="cell"><div class="cell__k">Head coach</div><div class="cell__v" style="font-size:15px;">M. Visser</div><div class="cell__h">+1 assistant</div></div>
+    <div class="cell"><div class="cell__k">Players</div><div class="cell__v">18</div><div class="cell__h">2 on trial</div></div>
+  </div>
+
+  <!-- AT A GLANCE -->
+  <div class="glance-label">At a glance</div>
+  <div class="strip">
+    <div class="cell"><div class="cell__k">Upcoming</div><div class="cell__v">4</div><div class="cell__h">next 14 days</div></div>
+    <div class="cell"><div class="cell__k">Avg attendance</div><div class="cell__v">87%</div><div class="cell__h">last 30 days</div></div>
+    <div class="cell"><div class="cell__k">Avg rating</div><div class="cell__v">3.6</div><div class="cell__h">squad mean</div></div>
+  </div>
+
+  <!-- CARDS -->
+  <div class="grid">
+
+    <!-- Roster -->
+    <div class="card span2">
+      <div class="card__head"><h3 class="card__title">Roster</h3><a href="#">Manage roster →</a></div>
+      <div class="card__body">
+        <table class="tt">
+          <thead><tr><th style="width:60px;">#</th><th>Player</th><th>Position</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            <tr class="is-row-link"><td><span class="jersey">10</span></td><td><span class="ava">JD</span><span class="name">John Doe</span></td><td>CF</td><td><span class="dot" style="background:#2e7d4f;"></span></td><td class="right"><span class="chev">›</span></td></tr>
+            <tr class="is-row-link"><td><span class="jersey">7</span></td><td><span class="ava" style="background:#1f5da8;">LV</span><span class="name">Luuk Vermeer</span></td><td>RW</td><td><span class="dot" style="background:#b8860b;"></span></td><td class="right"><span class="chev">›</span></td></tr>
+            <tr class="is-row-link"><td><span class="jersey">4</span></td><td><span class="ava" style="background:#6a3fb0;">SB</span><span class="name">Sem Bakker</span></td><td>CB</td><td><span class="dot" style="background:#2e7d4f;"></span></td><td class="right"><span class="chev">›</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Staff -->
+    <div class="card">
+      <div class="card__head"><h3 class="card__title">Staff</h3></div>
+      <div class="card__body">
+        <table class="tt">
+          <thead><tr><th>Name</th><th>Role</th><th></th></tr></thead>
+          <tbody>
+            <tr class="is-row-link"><td><span class="ava" style="background:#1e7a52;">MV</span><span class="name">M. Visser</span></td><td>Head coach</td><td class="right"><span class="chev">›</span></td></tr>
+            <tr class="is-row-link"><td><span class="ava" style="background:#a8722a;">TK</span><span class="name">T. Koster</span></td><td>Assistant</td><td class="right"><span class="chev">›</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Team info -->
+    <div class="card">
+      <div class="card__head"><h3 class="card__title">Team info</h3><a href="#">Edit →</a></div>
+      <div class="card__body" style="padding:14px 16px;">
+        <div style="display:grid;grid-template-columns:110px 1fr;gap:8px 12px;font-size:13px;">
+          <div style="color:var(--tt-soft);">Age group</div><div>U17</div>
+          <div style="color:var(--tt-soft);">Season</div><div>2025/26</div>
+          <div style="color:var(--tt-soft);">Notes</div><div>Focus block on transition play this quarter.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Upcoming activities — THE key fix: clickable rows -->
+    <div class="card span2">
+      <div class="card__head"><h3 class="card__title">Upcoming activities</h3><a href="#">Open planner →</a></div>
+      <div class="card__body">
+        <table class="tt">
+          <thead><tr><th>Date</th><th>Title</th><th>Type</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            <tr class="is-row-link"><td>Mon 23 Jun · 18:00–19:30</td><td><span class="name">Transition &amp; pressing</span></td><td><span class="typepill">Training</span></td><td>Scheduled</td><td class="right"><span class="chev">›</span></td></tr>
+            <tr class="is-row-link"><td>Wed 25 Jun · 18:00–19:30</td><td><span class="name">Finishing patterns</span></td><td><span class="typepill">Training</span></td><td>Scheduled</td><td class="right"><span class="chev">›</span></td></tr>
+            <tr class="is-row-link"><td>Sat 28 Jun · 10:30</td><td><span class="name">vs PSV U17 (home)</span></td><td><span class="typepill" style="background:#fdecea;color:#b3261e;">Match</span></td><td>Scheduled</td><td class="right"><span class="chev">›</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>

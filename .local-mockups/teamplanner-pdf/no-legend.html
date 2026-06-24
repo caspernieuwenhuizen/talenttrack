@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<title>Teamplanner PDF — type op de regel (geen legenda)</title>
+<style>
+  :root{
+    --green:#0b3d2e; --green-2:#13573f; --gold:#e8b624; --gold-soft:#fbf3d8; --gold-ink:#7a5e0f;
+    --blue:#1e88e5; --match:#b3611f;
+    --ink:#1a1d21; --muted:#6b7780; --line:#e3e6ea; --rest:#9aa3aa; --bg:#eceef0;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 "Helvetica Neue",Arial,system-ui,sans-serif}
+  .lab{max-width:780px;margin:0 auto;padding:24px 16px}
+  .lab h1{font-size:20px;margin:0 0 3px}
+  .lab p.sub{color:var(--muted);margin:0 0 8px;font-size:13px}
+  .vt{font-weight:800;font-size:13px;color:#3a4046;text-transform:uppercase;letter-spacing:.03em;margin:30px 2px 4px}
+  .vn{color:var(--muted);font-size:12px;margin:0 2px 10px}
+
+  .sheet{width:190mm;max-width:100%;background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:0 1px 8px rgba(0,0,0,.06);overflow:hidden}
+  .hd{display:flex;align-items:center;gap:12px;border-bottom:3px solid var(--green);padding:12px 14px}
+  .crest{width:40px;height:40px;border-radius:10px;background:var(--green);color:#fff;display:grid;place-items:center;font-weight:800;font-size:14px;box-shadow:inset 0 0 0 2px rgba(232,182,36,.55)}
+  .hd .ac{font-weight:800;font-size:15px;color:var(--green)} .hd .sub{color:var(--muted);font-size:12px}
+  .hd .wk{margin-left:auto;text-align:right} .hd .wk b{display:block;font-size:15px} .hd .wk span{color:var(--muted);font-size:11px}
+
+  .row{display:grid;grid-template-columns:30mm 1fr;border-bottom:1px solid var(--line)}
+  .row:last-child{border-bottom:0}
+  .day{background:linear-gradient(180deg,var(--green),var(--green-2));color:#fff;padding:10px 12px;display:flex;flex-direction:column;justify-content:center;position:relative}
+  .day::after{content:"";position:absolute;right:0;top:7px;bottom:7px;width:3px;background:var(--gold);border-radius:2px}
+  .day .dn{font-weight:800;font-size:13px;letter-spacing:.03em} .day .dd{font-size:11px;opacity:.85}
+  .cell{padding:10px 14px}
+  .meta{color:var(--muted);font-size:12px;margin:2px 0 0}
+  .theme{font-size:12px;margin-top:3px} .theme b{color:var(--green)}
+  .rest{color:var(--rest);font-style:italic;font-size:12.5px}
+
+  /* type colours */
+  .c-train{--c:var(--green)} .c-match{--c:var(--match)} .c-keeper{--c:var(--blue)}
+
+  /* ---- A1: filled type pill ---- */
+  .a1 .ttl{font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px}
+  .a1 .tp{font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#fff;background:var(--c);border-radius:5px;padding:2px 8px}
+
+  /* ---- A2: icon chip + type word ---- */
+  .a2 .ttl{font-weight:700;font-size:14px;display:flex;align-items:center;gap:9px}
+  .a2 .ic{width:30px;height:30px;border-radius:8px;background:var(--c);color:#fff;display:grid;place-items:center;font-size:15px;flex:none}
+  .a2 .tw{color:var(--c);font-weight:800}
+
+  /* ---- A3: plain-text uppercase prefix, subtle colour ---- */
+  .a3 .ttl{font-weight:600;font-size:14px}
+  .a3 .pf{font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--c);font-size:12px;margin-right:8px}
+  .a3 .bar{display:inline-block;width:4px;height:13px;background:var(--c);border-radius:2px;margin-right:8px;vertical-align:-2px}
+
+  /* ---- A4: fully plain text / monochrome ---- */
+  .a4 .cell{font-family:"SFMono-Regular",ui-monospace,Menlo,Consolas,monospace;font-size:12px;line-height:1.5;color:#222}
+  .a4 .lbl{display:inline-block;min-width:78px;font-weight:700;letter-spacing:.04em}
+  .a4 .day{background:#f4f6f5;color:var(--green)}
+  .a4 .day::after{background:var(--gold)}
+  .a4 .row{border-bottom:1px dashed var(--line)}
+  .a4 .sub2{color:#555}
+</style>
+</head>
+<body>
+<div class="lab">
+  <h1>Teamplanner PDF — type zichtbaar op de regel (geen legenda)</h1>
+  <p class="sub">CRNN-branding (groen #0b3d2e · goud #e8b624 · blauw #1e88e5). Vier manieren om het activiteitstype direct op de regel te tonen. Print = A4.</p>
+
+  <!-- A1 -->
+  <div class="vt">A1 — Gekleurde type-tag</div>
+  <div class="vn">Een ingevulde type-tag (TRAINING / WEDSTRIJD / KEEPER) in de typekleur, vóór de titel. Direct duidelijk, compact.</div>
+  <div class="sheet a1">
+    <div class="hd"><div class="crest">CR</div><div><div class="ac">CRNN Test Academy</div><div class="sub">Hedel JO13-1 · Teamplanner</div></div><div class="wk"><b>Week 26</b><span>23–29 jun 2026</span></div></div>
+    <div class="row c-train"><div class="day"><span class="dn">Maandag</span><span class="dd">23 jun</span></div>
+      <div class="cell"><div class="ttl"><span class="tp">Training</span>Positiespel</div><div class="meta">18:00–19:30 · Veld 2 · 90 min</div><div class="theme">Thema: <b>Opbouw van achteruit</b> · Opbouw, Druk zetten</div></div></div>
+    <div class="row"><div class="day"><span class="dn">Dinsdag</span><span class="dd">24 jun</span></div><div class="cell"><div class="rest">Rustdag</div></div></div>
+    <div class="row c-keeper"><div class="day"><span class="dn">Donderdag</span><span class="dd">26 jun</span></div>
+      <div class="cell"><div class="ttl"><span class="tp">Keeper</span>Keeperstraining</div><div class="meta">17:30–18:30 · Veld 3 · 60 min</div></div></div>
+    <div class="row c-match"><div class="day"><span class="dn">Zaterdag</span><span class="dd">28 jun</span></div>
+      <div class="cell"><div class="ttl"><span class="tp">Wedstrijd</span>Hedel JO13-1 — Ajax JO13-2</div><div class="meta">Aftrap 11:00 · Thuis · Sportpark De Hoef · verzamelen 10:15</div></div></div>
+  </div>
+
+  <!-- A2 -->
+  <div class="vt">A2 — Icoon-chip + typewoord</div>
+  <div class="vn">Een gekleurd icoon plus het typewoord ("Training ·") in de titel. Visueel sterk, herkenbaar zonder legenda.</div>
+  <div class="sheet a2">
+    <div class="hd"><div class="crest">CR</div><div><div class="ac">CRNN Test Academy</div><div class="sub">Hedel JO13-1 · Teamplanner</div></div><div class="wk"><b>Week 26</b><span>23–29 jun 2026</span></div></div>
+    <div class="row c-train"><div class="day"><span class="dn">Maandag</span><span class="dd">23 jun</span></div>
+      <div class="cell"><div class="ttl"><span class="ic">⚽</span><span><span class="tw">Training</span> · Positiespel</span></div><div class="meta">18:00–19:30 · Veld 2 · 90 min</div><div class="theme">Thema: <b>Opbouw van achteruit</b> · Opbouw, Druk zetten</div></div></div>
+    <div class="row"><div class="day"><span class="dn">Dinsdag</span><span class="dd">24 jun</span></div><div class="cell"><div class="rest">Rustdag</div></div></div>
+    <div class="row c-keeper"><div class="day"><span class="dn">Donderdag</span><span class="dd">26 jun</span></div>
+      <div class="cell"><div class="ttl"><span class="ic">🧤</span><span><span class="tw">Keeperstraining</span></span></div><div class="meta">17:30–18:30 · Veld 3 · 60 min</div></div></div>
+    <div class="row c-match"><div class="day"><span class="dn">Zaterdag</span><span class="dd">28 jun</span></div>
+      <div class="cell"><div class="ttl"><span class="ic">🏆</span><span><span class="tw">Wedstrijd</span> · Hedel JO13-1 — Ajax JO13-2</span></div><div class="meta">Aftrap 11:00 · Thuis · Sportpark De Hoef</div></div></div>
+  </div>
+
+  <!-- A3 -->
+  <div class="vt">A3 — Plat-tekst typeprefix (kleuraccent)</div>
+  <div class="vn">Geen pill of icoon: het type als hoofdletter-prefix in de typekleur + een dun kleurstreepje. Rustig en lezersvriendelijk.</div>
+  <div class="sheet a3">
+    <div class="hd"><div class="crest">CR</div><div><div class="ac">CRNN Test Academy</div><div class="sub">Hedel JO13-1 · Teamplanner</div></div><div class="wk"><b>Week 26</b><span>23–29 jun 2026</span></div></div>
+    <div class="row c-train"><div class="day"><span class="dn">Maandag</span><span class="dd">23 jun</span></div>
+      <div class="cell"><div class="ttl"><span class="bar"></span><span class="pf">Training</span>Positiespel</div><div class="meta">18:00–19:30 · Veld 2 · 90 min</div><div class="theme">Thema: <b>Opbouw van achteruit</b> · Opbouw, Druk zetten</div></div></div>
+    <div class="row"><div class="day"><span class="dn">Dinsdag</span><span class="dd">24 jun</span></div><div class="cell"><div class="rest">Rustdag</div></div></div>
+    <div class="row c-keeper"><div class="day"><span class="dn">Donderdag</span><span class="dd">26 jun</span></div>
+      <div class="cell"><div class="ttl"><span class="bar"></span><span class="pf">Keeper</span>Keeperstraining</div><div class="meta">17:30–18:30 · Veld 3 · 60 min</div></div></div>
+    <div class="row c-match"><div class="day"><span class="dn">Zaterdag</span><span class="dd">28 jun</span></div>
+      <div class="cell"><div class="ttl"><span class="bar"></span><span class="pf">Wedstrijd</span>Hedel JO13-1 — Ajax JO13-2</div><div class="meta">Aftrap 11:00 · Thuis · Sportpark De Hoef</div></div></div>
+  </div>
+
+  <!-- A4 -->
+  <div class="vt">A4 — Volledig plat tekst (monochroom)</div>
+  <div class="vn">Maximaal "plain text": vaste-breedte lettertype, type als hoofdletter-label, geen kleur of iconen. Strak en printvriendelijk.</div>
+  <div class="sheet a4">
+    <div class="hd"><div class="crest">CR</div><div><div class="ac">CRNN Test Academy</div><div class="sub">Hedel JO13-1 · Teamplanner</div></div><div class="wk"><b>Week 26</b><span>23–29 jun 2026</span></div></div>
+    <div class="row"><div class="day"><span class="dn">Maandag</span><span class="dd">23 jun</span></div>
+      <div class="cell"><span class="lbl">TRAINING</span>Positiespel<br><span class="sub2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;18:00–19:30 · Veld 2 · 90 min · Opbouw, Druk zetten</span></div></div>
+    <div class="row"><div class="day"><span class="dn">Dinsdag</span><span class="dd">24 jun</span></div>
+      <div class="cell"><span class="lbl">RUST</span><span class="sub2">—</span></div></div>
+    <div class="row"><div class="day"><span class="dn">Donderdag</span><span class="dd">26 jun</span></div>
+      <div class="cell"><span class="lbl">KEEPER</span>Keeperstraining<br><span class="sub2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;17:30–18:30 · Veld 3 · 60 min</span></div></div>
+    <div class="row"><div class="day"><span class="dn">Zaterdag</span><span class="dd">28 jun</span></div>
+      <div class="cell"><span class="lbl">WEDSTRIJD</span>Hedel JO13-1 — Ajax JO13-2<br><span class="sub2">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Aftrap 11:00 · Thuis · Sportpark De Hoef · verzamelen 10:15</span></div></div>
+  </div>
+</div>
+</body>
+</html>
