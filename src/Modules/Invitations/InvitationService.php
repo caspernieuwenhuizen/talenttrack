@@ -269,6 +269,24 @@ class InvitationService {
                 $update['jersey_number'] = $jersey;
             }
             $wpdb->update( $wpdb->prefix . 'tt_players', $update, [ 'id' => $playerId, 'club_id' => CurrentClub::id() ] );
+
+            // #1820 — the player's display name is system-owned: default
+            // the WP display_name to "First Last" in title case from the
+            // player record (players can't edit it on their profile).
+            $names = $wpdb->get_row( $wpdb->prepare(
+                "SELECT first_name, last_name FROM {$wpdb->prefix}tt_players WHERE id = %d AND club_id = %d",
+                $playerId, CurrentClub::id()
+            ) );
+            if ( $names ) {
+                $display = trim(
+                    self::titleCaseName( (string) ( $names->first_name ?? '' ) )
+                    . ' '
+                    . self::titleCaseName( (string) ( $names->last_name ?? '' ) )
+                );
+                if ( $display !== '' ) {
+                    wp_update_user( [ 'ID' => $userId, 'display_name' => $display ] );
+                }
+            }
         } elseif ( $kind === InvitationKind::PARENT && $playerId > 0 ) {
             $existing = $this->parents->parentsForPlayer( $playerId );
             $isPrimary = empty( $existing );
@@ -284,6 +302,19 @@ class InvitationService {
     }
 
     // Helpers
+
+    /**
+     * #1820 — normalise a stored name part to title case ("luuk" ->
+     * "Luuk", "VAN DER BERG" -> "Van Der Berg"). Unicode-aware.
+     */
+    private static function titleCaseName( string $name ): string {
+        $name = trim( $name );
+        if ( $name === '' ) return '';
+        if ( function_exists( 'mb_convert_case' ) ) {
+            return mb_convert_case( $name, MB_CASE_TITLE, 'UTF-8' );
+        }
+        return ucwords( strtolower( $name ) );
+    }
 
     /**
      * Locale precedence: target row's `locale` → club default → inviter's WP locale.
