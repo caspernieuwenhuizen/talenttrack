@@ -102,6 +102,7 @@ class FrontendVctLibraryView extends FrontendViewBase {
         .tt-vct-lib-edit-form input, .tt-vct-lib-edit-form select { min-height: 48px; padding: 0 12px; border: 1px solid #d6dadd; border-radius: 8px; font: inherit; font-size: 16px; background: #fff; }
         .tt-vct-lib-edit-actions { grid-column: 1 / -1; display: flex; gap: 8px; justify-content: flex-end; margin-top: 8px; }
         .tt-vct-lib-row[hidden] { display: none; }
+        .tt-vct-lib-btn-sm { font-size: 12px; padding: 4px 10px; }
         </style>';
     }
 
@@ -289,7 +290,9 @@ class FrontendVctLibraryView extends FrontendViewBase {
                 } else {
                     // #1784 — archived rows get the irreversible delete
                     // ($can_write already gated on tt_vct_admin_library).
-                    echo '<button type="button" class="tt-btn tt-btn-danger" style="font-size:12px;padding:4px 10px;"'
+                    // `tt-vct-lib-btn-sm` lives in renderStyles() — no inline
+                    // style attribute (#1389).
+                    echo '<button type="button" class="tt-btn tt-btn-danger tt-vct-lib-btn-sm"'
                         . ' data-tt-archive-rest-path="' . esc_attr( 'vct/exercises/' . $row_id . '/permanent' ) . '"'
                         . ' data-tt-archive-confirm="' . esc_attr__( 'Permanently delete this exercise? This cannot be undone.', 'talenttrack' ) . '"'
                         . ' data-tt-archive-redirect="' . esc_attr( add_query_arg( [ 'archived' => '1' ] ) ) . '">'
