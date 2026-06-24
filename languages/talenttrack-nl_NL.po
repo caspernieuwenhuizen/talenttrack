@@ -40145,31 +40145,6 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #: src/Infrastructure/REST/PlayerJourneyRestController.php
 msgid "Invalid injury id."
 msgstr "Ongeldig blessure-id."
-#: src/Modules/Holidays/Rest/HolidaysRestController.php
-msgid "Invalid holiday id."
-msgstr "Ongeldig vakantie-id."
-
-#: src/Modules/Prospects/Rest/TestTrainingsRestController.php
-msgid "Invalid test training id."
-msgstr "Ongeldig testtraining-id."
-
-#: src/Modules/Prospects/Rest/TestTrainingsRestController.php
-msgid "Test training not found."
-msgstr "Testtraining niet gevonden."
-
-#: src/Modules/Trials/Rest/TrialsRestController.php
-msgid "Invalid trial track id."
-msgstr "Ongeldig proeftraject-id."
-
-#: src/Modules/Trials/Rest/TrialsRestController.php
-msgid "Trial track not found."
-msgstr "Proeftraject niet gevonden."
-
-#: src/Modules/Trials/Rest/TrialsRestController.php
-msgid "Built-in trial tracks cannot be deleted."
-msgstr "Ingebouwde proeftrajecten kunnen niet worden verwijderd."
-msgid "Invalid trial case id."
-msgstr "Ongeldig proefdossier-id."
 
 #: src/Shared/Frontend/FrontendConfigurationView.php
 #: src/Modules/Configuration/Admin/ConfigurationPage.php
@@ -40204,3 +40179,4 @@ msgstr "Linker accent"
 #: src/Modules/Configuration/Admin/ConfigurationPage.php
 msgid "Recolours the dashboard tiles — border, fill and accent — without changing their size or layout. Default Gold-topped."
 msgstr "Verkleurt de dashboardtegels — rand, vulling en accent — zonder de grootte of indeling te wijzigen. Standaard Gouden bovenrand."
+
