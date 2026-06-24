@@ -30,16 +30,22 @@ class FrontendRolesView extends FrontendViewBase {
         }
 
         self::enqueueAssets();
+        wp_enqueue_style(
+            'tt-frontend-admin-lists',
+            TT_PLUGIN_URL . 'assets/css/frontend-admin-lists.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Roles & rights', 'talenttrack' ) );
         self::renderHeader( __( 'Roles & capabilities', 'talenttrack' ) );
 
         $roles_admin_url = admin_url( 'admin.php?page=tt-roles' );
 
         ?>
-        <p style="color:var(--tt-muted); max-width:760px; margin:0 0 var(--tt-sp-3);">
+        <p class="tt-admin-lead">
             <?php esc_html_e( 'Reference for the eight TalentTrack roles. Editing individual capabilities is done in wp-admin where the existing grant/revoke UI lives.', 'talenttrack' ); ?>
         </p>
-        <p style="margin:0 0 var(--tt-sp-4);">
+        <p class="tt-admin-actions">
             <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( $roles_admin_url ); ?>">
                 <?php esc_html_e( 'Edit capabilities in wp-admin', 'talenttrack' ); ?>
             </a>
@@ -115,12 +121,12 @@ class FrontendRolesView extends FrontendViewBase {
         $visible = array_values( array_filter( $tools, static fn ( array $t ): bool => current_user_can( $t['cap'] ) ) );
         if ( empty( $visible ) ) return;
 
-        echo '<section style="margin:0 0 var(--tt-sp-4);">';
-        echo '<h3 style="margin:0 0 var(--tt-sp-2);">' . esc_html__( 'Advanced authorization tools', 'talenttrack' ) . '</h3>';
-        echo '<p style="color:var(--tt-muted); max-width:760px; margin:0 0 var(--tt-sp-3);">'
+        echo '<section class="tt-admin-tools">';
+        echo '<h3 class="tt-admin-section-title">' . esc_html__( 'Advanced authorization tools', 'talenttrack' ) . '</h3>';
+        echo '<p class="tt-admin-lead">'
             . esc_html__( 'Administrator-level tools for inspecting and migrating the authorization matrix. These open in wp-admin.', 'talenttrack' )
             . '</p>';
-        echo '<ul style="list-style:none; margin:0; padding:0; display:flex; flex-wrap:wrap; gap:var(--tt-sp-2, 8px);">';
+        echo '<ul class="tt-admin-tools-list">';
         foreach ( $visible as $t ) {
             $url = admin_url( 'admin.php?page=' . $t['slug'] );
             echo '<li><a class="tt-btn tt-btn-secondary" href="' . esc_url( $url ) . '">' . esc_html( $t['label'] ) . '</a></li>';
@@ -137,50 +143,49 @@ class FrontendRolesView extends FrontendViewBase {
             : [];
         sort( $caps );
         $users_url = admin_url( 'users.php?role=' . rawurlencode( $slug ) );
-        $border = $highlight ? '2px solid var(--tt-secondary)' : '1px solid var(--tt-line)';
 
         ?>
-        <div class="tt-panel" style="border:<?php echo esc_attr( $border ); ?>;">
-            <div style="display:flex; gap:var(--tt-sp-3); align-items:flex-start; flex-wrap:wrap;">
-                <div style="flex:1; min-width:220px;">
-                    <h3 class="tt-panel-title" style="margin:0 0 var(--tt-sp-2);">
+        <div class="tt-role-card<?php echo $highlight ? ' tt-role-card--highlight' : ''; ?>">
+            <div class="tt-role-card-head">
+                <div class="tt-role-card-main">
+                    <h3 class="tt-role-card-title">
                         <?php echo esc_html( $label ); ?>
-                        <code style="font-size:var(--tt-fs-xs); color:var(--tt-muted); margin-left:6px;"><?php echo esc_html( $slug ); ?></code>
+                        <code class="tt-role-card-slug"><?php echo esc_html( $slug ); ?></code>
                         <?php if ( $highlight ) : ?>
-                            <span class="tt-badge" style="margin-left:6px; padding:2px 8px; background:var(--tt-warning-soft); border:1px solid var(--tt-warning); border-radius:999px; font-size:var(--tt-fs-xs); color:#7c5a00;"><?php esc_html_e( 'often-missed', 'talenttrack' ); ?></span>
+                            <span class="tt-role-badge"><?php esc_html_e( 'often-missed', 'talenttrack' ); ?></span>
                         <?php endif; ?>
                     </h3>
-                    <p style="margin:0; color:var(--tt-ink);"><?php echo esc_html( $description ); ?></p>
+                    <p class="tt-role-card-desc"><?php echo esc_html( $description ); ?></p>
                 </div>
-                <div style="text-align:right; min-width:160px;">
-                    <a href="<?php echo esc_url( $users_url ); ?>" style="text-decoration:none;">
-                        <div style="font-size:var(--tt-fs-xl); font-weight:700; color:var(--tt-primary);"><?php echo (int) $count; ?></div>
-                        <div style="font-size:var(--tt-fs-xs); color:var(--tt-muted); text-transform:uppercase; letter-spacing:0.04em;"><?php esc_html_e( 'users', 'talenttrack' ); ?></div>
+                <div class="tt-role-card-count">
+                    <a href="<?php echo esc_url( $users_url ); ?>">
+                        <div class="tt-role-count-num"><?php echo (int) $count; ?></div>
+                        <div class="tt-role-count-label"><?php esc_html_e( 'users', 'talenttrack' ); ?></div>
                     </a>
                 </div>
             </div>
 
-            <details style="margin-top:var(--tt-sp-3);">
-                <summary style="cursor:pointer; color:var(--tt-muted); font-size:var(--tt-fs-sm);">
+            <details class="tt-role-caps">
+                <summary>
                     <?php
                     /* translators: %d: number of capabilities */
                     echo esc_html( sprintf( __( 'Capabilities (%d)', 'talenttrack' ), count( $caps ) ) );
                     ?>
                 </summary>
                 <?php if ( $caps ) : ?>
-                    <div style="margin-top:var(--tt-sp-2); display:flex; gap:6px; flex-wrap:wrap;">
+                    <div class="tt-role-caps-list">
                         <?php foreach ( $caps as $cap ) : ?>
-                            <code style="padding:2px 8px; background:var(--tt-bg-soft); border:1px solid var(--tt-line); border-radius:4px; font-size:var(--tt-fs-xs);"><?php echo esc_html( $cap ); ?></code>
+                            <code class="tt-role-cap"><?php echo esc_html( $cap ); ?></code>
                         <?php endforeach; ?>
                     </div>
                 <?php else : ?>
-                    <p style="margin-top:var(--tt-sp-2); color:var(--tt-muted); font-style:italic;">
+                    <p class="tt-role-caps-empty">
                         <?php esc_html_e( 'No explicit capabilities — uses WP defaults only.', 'talenttrack' ); ?>
                     </p>
                 <?php endif; ?>
             </details>
 
-            <p style="margin:var(--tt-sp-3) 0 0; font-size:var(--tt-fs-sm); color:var(--tt-muted);">
+            <p class="tt-role-assign">
                 <strong><?php esc_html_e( 'How to assign:', 'talenttrack' ); ?></strong>
                 <?php esc_html_e( 'WordPress → Users → Edit user → Role.', 'talenttrack' ); ?>
             </p>

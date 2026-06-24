@@ -26,6 +26,12 @@ class FrontendMigrationsView extends FrontendViewBase {
         }
 
         self::enqueueAssets();
+        wp_enqueue_style(
+            'tt-frontend-admin-lists',
+            TT_PLUGIN_URL . 'assets/css/frontend-admin-lists.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Migrations', 'talenttrack' ) );
         self::renderHeader( __( 'Migrations', 'talenttrack' ) );
 
@@ -38,8 +44,8 @@ class FrontendMigrationsView extends FrontendViewBase {
 
         if ( $pending ) :
             ?>
-            <div class="tt-flash tt-flash-warning" style="margin-bottom:var(--tt-sp-4);">
-                <span style="flex:1;">
+            <div class="tt-flash tt-flash-warning tt-admin-flash">
+                <span class="tt-admin-flash-text">
                     <strong><?php echo esc_html( sprintf( _n( '%d pending migration.', '%d pending migrations.', count( $pending ), 'talenttrack' ), count( $pending ) ) ); ?></strong>
                     <?php esc_html_e( 'Migrations are run from wp-admin to add a deliberate friction point on irreversible operations.', 'talenttrack' ); ?>
                 </span>
@@ -52,8 +58,8 @@ class FrontendMigrationsView extends FrontendViewBase {
 
         if ( $missing ) :
             ?>
-            <div class="tt-flash tt-flash-error" style="margin-bottom:var(--tt-sp-4);">
-                <span style="flex:1;">
+            <div class="tt-flash tt-flash-error tt-admin-flash">
+                <span class="tt-admin-flash-text">
                     <strong><?php esc_html_e( 'Missing migration files', 'talenttrack' ); ?>:</strong>
                     <?php echo esc_html( implode( ', ', $missing ) ); ?>.
                     <?php esc_html_e( 'These migrations were applied previously but their source files are no longer on disk.', 'talenttrack' ); ?>
@@ -63,8 +69,8 @@ class FrontendMigrationsView extends FrontendViewBase {
         endif;
 
         ?>
-        <div class="tt-panel">
-            <h3 class="tt-panel-title"><?php esc_html_e( 'Status', 'talenttrack' ); ?></h3>
+        <div class="tt-admin-card tt-admin-card-pad">
+            <h3 class="tt-admin-section-title tt-admin-section-title--flush"><?php esc_html_e( 'Status', 'talenttrack' ); ?></h3>
             <p>
                 <?php
                 $applied_count = count( $applied );
@@ -75,11 +81,11 @@ class FrontendMigrationsView extends FrontendViewBase {
             </p>
         </div>
 
-        <h3 style="margin:24px 0 12px;"><?php esc_html_e( 'Applied migrations', 'talenttrack' ); ?></h3>
+        <h3 class="tt-admin-section-title"><?php esc_html_e( 'Applied migrations', 'talenttrack' ); ?></h3>
         <?php if ( ! $applied ) : ?>
             <p><em><?php esc_html_e( 'None applied yet.', 'talenttrack' ); ?></em></p>
         <?php else : ?>
-            <div class="tt-table-wrap">
+            <div class="tt-admin-card"><div class="tt-table-wrap">
             <table class="tt-table">
                 <thead><tr>
                     <th><?php esc_html_e( 'Name', 'talenttrack' ); ?></th>
@@ -97,14 +103,14 @@ class FrontendMigrationsView extends FrontendViewBase {
                 <?php endforeach; ?>
                 </tbody>
             </table>
-            </div>
+            </div></div>
         <?php endif; ?>
 
-        <h3 style="margin:24px 0 12px;"><?php esc_html_e( 'Pending migrations', 'talenttrack' ); ?></h3>
+        <h3 class="tt-admin-section-title"><?php esc_html_e( 'Pending migrations', 'talenttrack' ); ?></h3>
         <?php if ( ! $pending ) : ?>
             <p><em><?php esc_html_e( 'None pending.', 'talenttrack' ); ?></em></p>
         <?php else : ?>
-            <div class="tt-table-wrap">
+            <div class="tt-admin-card"><div class="tt-table-wrap">
             <table class="tt-table">
                 <thead><tr><th><?php esc_html_e( 'Name', 'talenttrack' ); ?></th></tr></thead>
                 <tbody>
@@ -113,8 +119,8 @@ class FrontendMigrationsView extends FrontendViewBase {
                 <?php endforeach; ?>
                 </tbody>
             </table>
-            </div>
-            <p style="margin-top:12px;">
+            </div></div>
+            <p class="tt-migrations-run">
                 <a class="tt-btn tt-btn-primary" href="<?php echo esc_url( $admin_url ); ?>">
                     <?php esc_html_e( 'Open wp-admin to run pending migrations', 'talenttrack' ); ?>
                 </a>

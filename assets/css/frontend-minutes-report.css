@@ -1,0 +1,75 @@
+/*
+ * frontend-minutes-report.css — 2026 green/gold restyle for the
+ * Minutes-played (team) standard report (?tt_view=minutes-report-team).
+ * Replaces the inline style="" attributes the view used to emit on its
+ * table, cells and filter form; the markup is otherwise unchanged
+ * (restyle, not redesign).
+ *
+ * The report table now uses the shared .tt-report-card + .tt-table
+ * pattern (base look ships in frontend-app-chrome.css); this sheet adds
+ * the report-specific KPI strip, numeric column alignment and filter row.
+ *
+ * Mobile-first per CLAUDE.md §2: base styles target ~360px, min-width
+ * queries at 480 / 768 scale up. Scoped under .tt-dashboard (the active
+ * theme is hostile). Loaded with a dep on tt-frontend-app-chrome so it
+ * inherits the brand + neutral tokens and the shared .tt-kpi tile.
+ *
+ * Tokens only — no raw hex.
+ */
+
+/* KPI strip — wraps FrontendAppChrome::kpiTile() output. Two-up on
+ * phones, auto-fit on tablet+. */
+.tt-dashboard .tt-rep-kpi-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--tt-sp-3, 12px);
+    margin: 0 0 var(--tt-sp-4, 16px);
+}
+@media (min-width: 768px) {
+    .tt-dashboard .tt-rep-kpi-row {
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    }
+}
+
+/* Numeric columns right-align with tabular figures so the minute totals
+ * line up. The base .tt-table look ships in frontend-app-chrome.css. */
+.tt-dashboard .tt-report-card .tt-table { font-variant-numeric: tabular-nums; }
+.tt-dashboard .tt-report-card .tt-table td.num,
+.tt-dashboard .tt-report-card .tt-table th.num { text-align: right; }
+
+/* Filter bar — plain GET round-trip, laid out as a wrapping row of
+ * stacked label/control pairs. */
+.tt-dashboard .tt-rep-filter {
+    display: flex;
+    gap: var(--tt-sp-3, 12px);
+    align-items: flex-end;
+    flex-wrap: wrap;
+    margin: 0 0 var(--tt-sp-4, 16px);
+}
+.tt-dashboard .tt-rep-filter label {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-1, 4px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-ink, #0e1a14);
+    flex: 1 1 100%;
+}
+@media (min-width: 480px) {
+    .tt-dashboard .tt-rep-filter label { flex: 0 1 auto; }
+}
+.tt-dashboard .tt-rep-filter select,
+.tt-dashboard .tt-rep-filter input {
+    min-height: 48px;
+    padding: 0.5rem 0.7rem;
+    font-size: 1rem; /* ≥16px — no iOS auto-zoom on focus */
+    color: var(--tt-ink, #0e1a14);
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    box-sizing: border-box;
+}
+.tt-dashboard .tt-rep-filter select:focus-visible,
+.tt-dashboard .tt-rep-filter input:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 1px;
+}

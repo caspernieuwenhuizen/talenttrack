@@ -13,6 +13,13 @@
  * (--tt-primary, --tt-secondary, --tt-ink, --tt-muted, --tt-shadow-md).
  */
 
+/* ---- Coach-branch intro lead -------------------------------------- */
+.tt-dashboard .tt-mye-lead {
+    margin: 0 0 var(--tt-sp-3);
+    color: var(--tt-muted);
+    font-size: 0.9375rem;
+}
+
 /* ---- Summary KPI row ---------------------------------------------- */
 .tt-dashboard .tt-mye-summary {
     display: grid;

@@ -40259,3 +40259,11 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php
+msgid "Total starts"
+msgstr "Totaal basisplaatsen"
+
+#: src/Modules/Analytics/Frontend/FrontendMinutesTeamReportView.php
+msgid "Minutes summary"
+msgstr "Minutenoverzicht"

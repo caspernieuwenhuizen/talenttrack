@@ -26,6 +26,22 @@ use TT\Modules\Reports\ScoutReportsRepository;
  */
 class FrontendReportWizardView extends FrontendViewBase {
 
+    /**
+     * Enqueue the 2026 surface stylesheet (B3 restyle). Depends on the
+     * app-chrome sheet so it inherits the brand + neutral tokens. The
+     * sheet carries the wizard fieldset / radio / field styling and the
+     * scope custom-range toggle that previously lived inline.
+     */
+    protected static function enqueueAssets(): void {
+        parent::enqueueAssets();
+        wp_enqueue_style(
+            'tt-frontend-report-wizard',
+            TT_PLUGIN_URL . 'assets/css/frontend-report-wizard.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+    }
+
     public static function render( int $user_id, bool $is_admin ): void {
         self::enqueueAssets();
 
@@ -188,14 +204,14 @@ class FrontendReportWizardView extends FrontendViewBase {
                         </label>
                     <?php endforeach; ?>
                 </div>
-                <div class="tt-rwz-custom-range" style="<?php echo $scope === 'custom' ? '' : 'display:none;'; ?>">
-                    <label>
+                <div class="tt-rwz-custom-range<?php echo $scope === 'custom' ? ' is-open' : ''; ?>">
+                    <label class="tt-rwz-field">
                         <span><?php esc_html_e( 'From', 'talenttrack' ); ?></span>
-                        <input type="date" name="date_from" value="<?php echo esc_attr( $date_from ); ?>" />
+                        <input class="tt-input" type="date" name="date_from" value="<?php echo esc_attr( $date_from ); ?>" />
                     </label>
-                    <label>
+                    <label class="tt-rwz-field">
                         <span><?php esc_html_e( 'Until', 'talenttrack' ); ?></span>
-                        <input type="date" name="date_to" value="<?php echo esc_attr( $date_to ); ?>" />
+                        <input class="tt-input" type="date" name="date_to" value="<?php echo esc_attr( $date_to ); ?>" />
                     </label>
                 </div>
             </fieldset>
@@ -241,7 +257,7 @@ class FrontendReportWizardView extends FrontendViewBase {
                     ?>
                     <label class="tt-rwz-check tt-rwz-check--inline">
                         <span><?php esc_html_e( 'Hide ratings below', 'talenttrack' ); ?></span>
-                        <input type="number" step="0.1" min="0" max="<?php echo esc_attr( (string) $rwz_rmax ); ?>" inputmode="decimal" name="privacy[min_rating_threshold]" value="<?php echo esc_attr( (string) $config->privacy->min_rating_threshold ); ?>" />
+                        <input class="tt-input tt-rwz-threshold" type="number" step="0.1" min="0" max="<?php echo esc_attr( (string) $rwz_rmax ); ?>" inputmode="decimal" name="privacy[min_rating_threshold]" value="<?php echo esc_attr( (string) $config->privacy->min_rating_threshold ); ?>" />
                     </label>
                 </div>
             </fieldset>
@@ -252,11 +268,11 @@ class FrontendReportWizardView extends FrontendViewBase {
                     <p class="tt-rwz-help"><?php esc_html_e( 'After previewing, send the report as a one-time emailed link.', 'talenttrack' ); ?></p>
                     <label class="tt-rwz-field">
                         <span><?php esc_html_e( 'Recipient email', 'talenttrack' ); ?></span>
-                        <input type="email" name="scout_email" value="<?php echo esc_attr( (string) ( $_POST['scout_email'] ?? '' ) ); ?>" />
+                        <input class="tt-input" type="email" name="scout_email" inputmode="email" autocomplete="email" value="<?php echo esc_attr( (string) ( $_POST['scout_email'] ?? '' ) ); ?>" />
                     </label>
                     <label class="tt-rwz-field">
                         <span><?php esc_html_e( 'Link expires after', 'talenttrack' ); ?></span>
-                        <select name="scout_expiry_days">
+                        <select class="tt-input" name="scout_expiry_days">
                             <option value="7">7 <?php esc_html_e( 'days', 'talenttrack' ); ?></option>
                             <option value="14" selected>14 <?php esc_html_e( 'days', 'talenttrack' ); ?></option>
                             <option value="30">30 <?php esc_html_e( 'days', 'talenttrack' ); ?></option>
@@ -264,7 +280,7 @@ class FrontendReportWizardView extends FrontendViewBase {
                     </label>
                     <label class="tt-rwz-field">
                         <span><?php esc_html_e( 'Optional message to scout', 'talenttrack' ); ?></span>
-                        <textarea name="scout_message" rows="3"><?php echo esc_textarea( (string) ( $_POST['scout_message'] ?? '' ) ); ?></textarea>
+                        <textarea class="tt-input" name="scout_message" rows="3"><?php echo esc_textarea( (string) ( $_POST['scout_message'] ?? '' ) ); ?></textarea>
                     </label>
                     <p class="tt-rwz-help">
                         <?php esc_html_e( 'Tick the box below to send when you click Preview.', 'talenttrack' ); ?>
@@ -304,7 +320,7 @@ class FrontendReportWizardView extends FrontendViewBase {
             var customBlock = document.querySelector('.tt-rwz-custom-range');
             scopeRadios.forEach(function(r){
                 r.addEventListener('change', function(){
-                    if ( customBlock ) customBlock.style.display = (r.value === 'custom' && r.checked) ? '' : 'none';
+                    if ( customBlock ) customBlock.classList.toggle('is-open', r.value === 'custom' && r.checked);
                 });
             });
             var audienceRadios = document.querySelectorAll('.tt-rwz-radios input[type="radio"][name="audience"]');
@@ -362,7 +378,7 @@ class FrontendReportWizardView extends FrontendViewBase {
         $delivery = new ScoutDelivery();
         $result   = $delivery->emailLink( $player, $config, $email, $expiry, $message );
         if ( $result['ok'] ) {
-            echo '<p class="tt-notice notice-success" style="background:#e9f5e9; border-left:4px solid #2c8a2c; padding:8px 12px; margin: 8px 0 16px;">'
+            echo '<p class="tt-notice notice-success tt-rwz-sent">'
                 . esc_html( sprintf(
                     /* translators: 1: recipient email, 2: expiry days */
                     __( 'Link emailed to %1$s. Expires in %2$d days.', 'talenttrack' ),
