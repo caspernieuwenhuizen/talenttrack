@@ -147,17 +147,18 @@ class FrontendScoutingPlanView extends FrontendViewBase {
     }
 
     public static function statusPillHtml( string $key, string $label ): string {
-        // Mirrors LookupPill's inline-style approach so we don't need
-        // to seed a tt_lookups vocabulary just for a 3-value status.
-        $colors = [
-            ScoutingVisitStatus::PLANNED   => '#0284c7', // blue
-            ScoutingVisitStatus::COMPLETED => '#16a34a', // green
-            ScoutingVisitStatus::CANCELLED => '#dc2626', // red
+        // 2026 restyle (#1695): token-backed chip classes, styled in
+        // assets/css/components/scouting-visits.css — no inline hex.
+        $modifiers = [
+            ScoutingVisitStatus::PLANNED   => 'planned',
+            ScoutingVisitStatus::COMPLETED => 'completed',
+            ScoutingVisitStatus::CANCELLED => 'cancelled',
         ];
-        $color = $colors[ $key ] ?? '#5b6e75';
+        $modifier = $modifiers[ $key ] ?? '';
+        $class    = 'tt-svisit-chip' . ( $modifier !== '' ? ' tt-svisit-chip--' . $modifier : '' );
         return sprintf(
-            '<span class="tt-pill" style="display:inline-block;padding:2px 10px;border-radius:999px;background:%s;color:#fff;font-size:11px;font-weight:600;line-height:1.6;letter-spacing:0.02em;">%s</span>',
-            esc_attr( $color ),
+            '<span class="%s">%s</span>',
+            esc_attr( $class ),
             esc_html( $label )
         );
     }
@@ -190,6 +191,8 @@ class FrontendScoutingPlanView extends FrontendViewBase {
         $counts = ( new ScoutingVisitsRepository() )->prospectCountsForVisits(
             array_map( static fn( $r ) => (int) $r->id, $rows )
         );
+
+        self::renderKpiStrip( $rows );
         ?>
         <ul class="tt-svisit-list">
             <?php foreach ( $rows as $row ) :
@@ -247,12 +250,56 @@ class FrontendScoutingPlanView extends FrontendViewBase {
         <?php
     }
 
+    /**
+     * KPI strip for the visits list — total / planned / completed /
+     * cancelled. Counts are tallied from the already-loaded rows
+     * (presentation aggregation of data the list already fetched, no
+     * extra query or business rule), then rendered as 2026 KPI tiles
+     * via the shared FrontendAppChrome helper.
+     *
+     * @param array<int,object> $rows
+     */
+    private static function renderKpiStrip( array $rows ): void {
+        $total     = count( $rows );
+        $planned   = 0;
+        $completed = 0;
+        $cancelled = 0;
+        foreach ( $rows as $row ) {
+            switch ( (string) ( $row->status ?? ScoutingVisitStatus::PLANNED ) ) {
+                case ScoutingVisitStatus::COMPLETED: $completed++; break;
+                case ScoutingVisitStatus::CANCELLED: $cancelled++; break;
+                default:                             $planned++;   break;
+            }
+        }
+
+        $chrome = '\\TT\\Shared\\Frontend\\Components\\FrontendAppChrome';
+        echo '<div class="tt-svisit-kpis">';
+        echo $chrome::kpiTile( [
+            'label' => __( 'Visits', 'talenttrack' ),
+            'value' => number_format_i18n( $total ),
+        ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+        echo $chrome::kpiTile( [
+            'label' => __( 'Planned', 'talenttrack' ),
+            'value' => number_format_i18n( $planned ),
+        ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+        echo $chrome::kpiTile( [
+            'label' => __( 'Completed', 'talenttrack' ),
+            'value' => number_format_i18n( $completed ),
+            'flag'  => 'green',
+        ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+        echo $chrome::kpiTile( [
+            'label' => __( 'Cancelled', 'talenttrack' ),
+            'value' => number_format_i18n( $cancelled ),
+        ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+        echo '</div>';
+    }
+
     protected static function enqueueAssets(): void {
         parent::enqueueAssets();
         wp_enqueue_style(
             'tt-scouting-visits',
             TT_PLUGIN_URL . 'assets/css/components/scouting-visits.css',
-            [ 'tt-frontend-mobile' ],
+            [ 'tt-frontend-app-chrome' ],
             TT_VERSION
         );
     }

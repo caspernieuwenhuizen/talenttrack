@@ -162,13 +162,6 @@ class FrontendTrialCaseView extends FrontendViewBase {
                 echo '</section>';
             }
         }
-
-        echo '<style>'
-            . '.tt-trial-section { margin: 32px 0; padding-top: 12px; border-top: 1px solid var(--tt-line, #e5e7ea); scroll-margin-top: 60px; }'
-            . '.tt-trial-anchor-nav { position: sticky; top: 0; z-index: 10; background: #fff; border-bottom: 1px solid var(--tt-line, #e5e7ea); padding: 8px 0; margin-bottom: 16px; display: flex; flex-wrap: wrap; gap: 4px; overflow-x: auto; }'
-            . '.tt-trial-anchor { padding: 6px 12px; font-size: .875rem; color: #5b6e75; text-decoration: none; border-radius: 6px; }'
-            . '.tt-trial-anchor:hover, .tt-trial-anchor:focus { background: #f1f3f4; color: #0b3d2e; outline: none; }'
-            . '</style>';
     }
 
     /**
@@ -198,16 +191,30 @@ class FrontendTrialCaseView extends FrontendViewBase {
     private static function renderHeaderStrip( object $case, string $name ): void {
         $tracks = new TrialTracksRepository();
         $track  = $tracks->find( (int) $case->track_id );
-        echo '<div class="tt-trial-strip">';
-        echo '<div><strong>' . esc_html__( 'Track:', 'talenttrack' ) . '</strong> ' . esc_html( $track ? \TT\Infrastructure\Query\LabelTranslator::trialTrackName( (string) $track->name ) : '—' ) . '</div>';
-        echo '<div><strong>' . esc_html__( 'Window:', 'talenttrack' ) . '</strong> ' . esc_html( (string) $case->start_date . ' → ' . (string) $case->end_date ) . '</div>';
+        $appchrome = \TT\Shared\Frontend\Components\FrontendAppChrome::class;
+
         // v3.110.212 (#842) — status + decision render through
         // TrialCasesRepository::statusLabel() / ::decisionLabel(),
         // both of which delegate to LookupTranslator for the per-locale
         // operator override.
-        echo '<div><strong>' . esc_html__( 'Status:', 'talenttrack' ) . '</strong> ' . esc_html( TrialCasesRepository::statusLabel( (string) $case->status ) ) . '</div>';
+        echo '<div class="tt-trial-strip">';
+        echo $appchrome::kpiTile( [
+            'label' => __( 'Track', 'talenttrack' ),
+            'value' => $track ? \TT\Infrastructure\Query\LabelTranslator::trialTrackName( (string) $track->name ) : '—',
+        ] );
+        echo $appchrome::kpiTile( [
+            'label' => __( 'Window', 'talenttrack' ),
+            'value' => (string) $case->start_date . ' → ' . (string) $case->end_date,
+        ] );
+        echo $appchrome::kpiTile( [
+            'label' => __( 'Status', 'talenttrack' ),
+            'value' => TrialCasesRepository::statusLabel( (string) $case->status ),
+        ] );
         if ( $case->decision ) {
-            echo '<div><strong>' . esc_html__( 'Decision:', 'talenttrack' ) . '</strong> ' . esc_html( TrialCasesRepository::decisionLabel( (string) $case->decision ) ) . '</div>';
+            echo $appchrome::kpiTile( [
+                'label' => __( 'Decision', 'talenttrack' ),
+                'value' => TrialCasesRepository::decisionLabel( (string) $case->decision ),
+            ] );
         }
         echo '</div>';
     }

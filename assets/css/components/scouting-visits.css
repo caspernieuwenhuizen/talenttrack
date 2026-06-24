@@ -1,73 +1,108 @@
-/* Scouting visits — mobile-first card list (#1645).
-   Each card is a full-area link to the visit detail. */
+/*
+ * Scouting visits 2026 restyle (#1695, B2) — list + detail body.
+ *
+ * Mobile-first card list, KPI strip, status chips and the visit-detail
+ * facts card, in the green/gold language. Tokens via .tt-root; brand green
+ * read as var(--tt-primary, #0b3d2e). Breakpoints 480 / 768 / 1024 only.
+ * Depends on `tt-frontend-app-chrome` (.tt-kpi tiles + brand tokens).
+ */
 
+/* ---- KPI strip ----------------------------------------------------- */
+.tt-dashboard .tt-svisit-kpis {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--tt-sp-2, 8px);
+    margin-bottom: var(--tt-sp-4, 16px);
+}
+
+/* ---- Status chip --------------------------------------------------- */
+.tt-dashboard .tt-svisit-chip {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.6;
+    letter-spacing: 0.02em;
+    color: #fff;
+    background: var(--tt-muted, #6a6d66);
+}
+.tt-dashboard .tt-svisit-chip--planned   { background: var(--tt-info, #2d6fb3); }
+.tt-dashboard .tt-svisit-chip--completed { background: var(--tt-success, #2f9e5e); }
+.tt-dashboard .tt-svisit-chip--cancelled { background: var(--tt-danger, #d8453b); }
+
+/* ---- Card list ----------------------------------------------------- */
 .tt-dashboard .tt-svisit-list {
     list-style: none;
     margin: 0;
     padding: 0;
     display: grid;
     grid-template-columns: 1fr;
-    gap: 0.75rem;
+    gap: var(--tt-sp-3, 12px);
 }
 
 .tt-dashboard .tt-svisit-card {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: var(--tt-sp-2, 8px);
     min-height: 48px;
-    padding: 1rem;
-    border: 1px solid var(--tt-line, #d6dadd);
-    border-radius: 12px;
-    background: #fff;
-    color: var(--tt-ink, #1a1d21);
+    padding: var(--tt-sp-4, 16px);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-left: 4px solid var(--tt-primary, #0b3d2e);
+    border-radius: var(--tt-radius-lg, 14px);
+    background: var(--tt-paper, #ffffff);
+    color: var(--tt-ink, #0e1a14);
     text-decoration: none;
-    transition: border-color 0.12s ease, box-shadow 0.12s ease;
+    box-shadow: var(--tt-shadow-sm);
+    transition: border-color var(--tt-motion-duration, 150ms) var(--tt-motion-easing, ease),
+                box-shadow var(--tt-motion-duration, 150ms) var(--tt-motion-easing, ease);
     touch-action: manipulation;
 }
 
 .tt-dashboard .tt-svisit-card:active {
-    background: var(--tt-surface-2, #f1f4f6);
+    background: var(--tt-bg-soft, #f4f6f3);
 }
 
 .tt-dashboard .tt-svisit-card:focus-visible {
-    outline: 2px solid var(--tt-accent, #1f6feb);
+    outline: 2px solid var(--tt-primary, #0b3d2e);
     outline-offset: 2px;
 }
 
 .tt-dashboard .tt-svisit-card--past {
     opacity: 0.62;
+    border-left-color: var(--tt-line, #e3e6e1);
 }
 
 .tt-dashboard .tt-svisit-card__head {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 0.5rem;
+    gap: var(--tt-sp-2, 8px);
 }
 
 .tt-dashboard .tt-svisit-card__date {
     font-weight: 700;
-    font-size: 1rem;
+    font-size: var(--tt-fs-body, 1rem);
 }
 
 .tt-dashboard .tt-svisit-card__where {
     display: flex;
     flex-wrap: wrap;
     gap: 0.25rem 0.75rem;
-    color: var(--tt-ink, #1a1d21);
+    color: var(--tt-ink, #0e1a14);
     font-size: 0.9375rem;
 }
 
 .tt-dashboard .tt-svisit-card__event {
-    color: var(--tt-ink-soft, #5b6e75);
+    color: var(--tt-ink-soft, #6a6d66);
 }
 
 .tt-dashboard .tt-svisit-card__meta {
     display: flex;
     flex-wrap: wrap;
     gap: 0.25rem 0.75rem;
-    color: var(--tt-ink-soft, #5b6e75);
-    font-size: 0.8125rem;
+    color: var(--tt-ink-soft, #6a6d66);
+    font-size: var(--tt-fs-sm, 0.85rem);
 }
 
 .tt-dashboard .tt-svisit-card__scout::before {
@@ -77,16 +112,122 @@
 /* Hover only enhances on devices that have it (never gates anything). */
 @media (hover: hover) {
     .tt-dashboard .tt-svisit-card:hover {
-        border-color: var(--tt-accent, #1f6feb);
-        box-shadow: 0 1px 6px rgba(31, 111, 235, 0.12);
+        border-color: var(--tt-primary, #0b3d2e);
+        box-shadow: var(--tt-shadow-md);
     }
 }
 
-/* Denser two-column grid on tablet and up. */
+/* ---- Visit detail — facts card ------------------------------------- */
+.tt-dashboard .tt-svisit-detail-card {
+    background: var(--tt-paper, #ffffff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-md);
+    padding: var(--tt-sp-4, 16px);
+    margin-bottom: var(--tt-sp-5, 20px);
+}
+
+.tt-dashboard .tt-svisit-detail-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--tt-fs-body, 1rem);
+}
+
+.tt-dashboard .tt-svisit-detail-table th,
+.tt-dashboard .tt-svisit-detail-table td {
+    padding: var(--tt-sp-3, 12px) var(--tt-sp-2, 8px);
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--tt-line-soft, #eef0ec);
+}
+
+.tt-dashboard .tt-svisit-detail-table tr:last-child th,
+.tt-dashboard .tt-svisit-detail-table tr:last-child td {
+    border-bottom: 0;
+}
+
+.tt-dashboard .tt-svisit-detail-table th {
+    width: 40%;
+    color: var(--tt-muted, #6a6d66);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.tt-dashboard .tt-svisit-detail-table td {
+    color: var(--tt-ink, #0e1a14);
+}
+
+/* ---- Visit detail — prospects logged from this visit --------------- */
+.tt-dashboard .tt-svisit-prospects .tt-section-title {
+    margin: 0 0 var(--tt-sp-3, 12px);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-dashboard .tt-svisit-prospects .tt-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    background: var(--tt-paper, #ffffff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-md);
+}
+
+.tt-dashboard .tt-svisit-prospects .tt-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--tt-fs-sm, 0.85rem);
+}
+
+.tt-dashboard .tt-svisit-prospects .tt-table th,
+.tt-dashboard .tt-svisit-prospects .tt-table td {
+    padding: var(--tt-sp-3, 12px);
+    text-align: left;
+    border-bottom: 1px solid var(--tt-line-soft, #eef0ec);
+}
+
+.tt-dashboard .tt-svisit-prospects .tt-table thead th {
+    background: var(--tt-bg-soft, #f4f6f3);
+    color: var(--tt-muted, #6a6d66);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+}
+
+.tt-dashboard .tt-svisit-prospects .tt-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.tt-dashboard .tt-svisit-prospects .tt-table tbody tr:hover {
+    background: var(--tt-bg-soft, #f4f6f3);
+}
+
+.tt-dashboard .tt-svisit-prospects .tt-table a {
+    color: var(--tt-primary, #0b3d2e);
+    font-weight: 600;
+    text-decoration: none;
+}
+.tt-dashboard .tt-svisit-prospects .tt-table a:hover {
+    text-decoration: underline;
+}
+
+/* ---- Scale up ------------------------------------------------------ */
+@media (min-width: 480px) {
+    .tt-dashboard .tt-svisit-kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
 @media (min-width: 768px) {
     .tt-dashboard .tt-svisit-list {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+    .tt-dashboard .tt-svisit-detail-table th { width: 30%; }
 }
 
 @media (min-width: 1024px) {

@@ -107,7 +107,6 @@ class FrontendReportWizardView extends FrontendViewBase {
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $title, $reports_crumb );
         self::renderHeader( $title );
 
-        self::enqueueWizardStyles();
         self::renderForm( $player, $config, $scope, $date_from, $date_to );
 
         if ( $is_preview ) {
@@ -277,10 +276,25 @@ class FrontendReportWizardView extends FrontendViewBase {
                 </fieldset>
             <?php endif; ?>
 
+            <?php
+            // Save + Cancel pair (CLAUDE.md §6). "Preview report" is the
+            // commit action; Cancel honours tt_back when present, else
+            // returns to the Reports list (the breadcrumb parent).
+            $back     = \TT\Shared\Frontend\Components\BackLink::resolve();
+            $cancel_url = $back !== null
+                ? $back['url']
+                : add_query_arg( [ 'tt_view' => 'reports' ], remove_query_arg( [ 'preview', 'player_id' ] ) );
+            ?>
             <div class="tt-rwz-actions">
-                <button type="submit" class="tt-btn tt-btn-primary">
-                    <?php esc_html_e( 'Preview report', 'talenttrack' ); ?>
-                </button>
+                <?php
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — helper escapes.
+                echo \TT\Shared\Frontend\Components\FormSaveButton::render( [
+                    'label'        => __( 'Preview report', 'talenttrack' ),
+                    'label_saving' => __( 'Generating…', 'talenttrack' ),
+                    'label_saved'  => __( 'Preview report', 'talenttrack' ),
+                    'cancel_url'   => $cancel_url,
+                ] );
+                ?>
             </div>
         </form>
 
@@ -308,12 +322,14 @@ class FrontendReportWizardView extends FrontendViewBase {
     private static function renderPreview( ReportConfig $config ): void {
         ?>
         <div class="tt-rwz-preview">
-            <h3 class="tt-rwz-preview-title"><?php esc_html_e( 'Preview', 'talenttrack' ); ?></h3>
-            <p class="tt-rwz-help">
-                <?php esc_html_e( "Use your browser's print dialog (Save as PDF) to keep a copy.", 'talenttrack' ); ?>
-                <button type="button" class="tt-btn tt-btn-secondary" onclick="window.print();" style="margin-left:8px;">
+            <div class="tt-rwz-preview-head">
+                <h3 class="tt-rwz-preview-title"><?php esc_html_e( 'Preview', 'talenttrack' ); ?></h3>
+                <button type="button" class="tt-btn tt-btn-secondary" onclick="window.print();">
                     <?php esc_html_e( 'Print this report', 'talenttrack' ); ?>
                 </button>
+            </div>
+            <p class="tt-rwz-help">
+                <?php esc_html_e( "Use your browser's print dialog (Save as PDF) to keep a copy.", 'talenttrack' ); ?>
             </p>
             <div class="tt-rwz-report-host">
                 <?php
@@ -361,81 +377,4 @@ class FrontendReportWizardView extends FrontendViewBase {
         }
     }
 
-    private static function enqueueWizardStyles(): void {
-        ?>
-        <style>
-        .tt-report-wizard {
-            max-width: 760px;
-            margin: 0 0 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
-        }
-        .tt-rwz-step {
-            border: 1px solid #e5e7ea;
-            border-radius: 10px;
-            padding: 16px 20px;
-            background: #fff;
-            margin: 0;
-        }
-        .tt-rwz-step legend {
-            font-weight: 600;
-            font-size: 14px;
-            padding: 0 6px;
-            color: #1a1d21;
-        }
-        .tt-rwz-step--scout { border-color: #2271b1; background: #f6fafe; }
-        .tt-rwz-help {
-            margin: 4px 0 12px;
-            font-size: 12px;
-            color: #5b6470;
-        }
-        .tt-rwz-radios, .tt-rwz-checks, .tt-rwz-scope {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .tt-rwz-radio {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: baseline;
-            gap: 8px;
-            padding: 8px 10px;
-            border: 1px solid transparent;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-        .tt-rwz-radio:hover { background: #f6f7f7; }
-        .tt-rwz-radio input { margin-top: 2px; }
-        .tt-rwz-radio-label { font-weight: 600; }
-        .tt-rwz-radio-desc {
-            display: block;
-            width: 100%;
-            margin-left: 24px;
-            font-size: 12px;
-            color: #5b6470;
-        }
-        .tt-rwz-scope .tt-rwz-radio { padding: 4px 8px; }
-        .tt-rwz-custom-range { display: flex; gap: 12px; margin-top: 8px; }
-        .tt-rwz-custom-range label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; }
-        .tt-rwz-check { display: inline-flex; align-items: center; gap: 8px; }
-        .tt-rwz-check--inline { gap: 12px; }
-        .tt-rwz-check--inline input[type="number"] { width: 70px; }
-        .tt-rwz-field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
-        .tt-rwz-field input, .tt-rwz-field select, .tt-rwz-field textarea {
-            padding: 6px 8px; border: 1px solid #c3c4c7; border-radius: 4px; font-size: 14px;
-        }
-        .tt-rwz-actions { padding-top: 4px; }
-        .tt-rwz-preview { margin-top: 28px; }
-        .tt-rwz-preview-title {
-            font-size: 18px; margin: 0 0 6px; padding-bottom: 6px;
-            border-bottom: 2px solid #1a1d21;
-        }
-        @media print {
-            .tt-report-wizard, .tt-rwz-preview-title, .tt-rwz-help { display: none !important; }
-            .tt-fview-title, .tt-back-link { display: none !important; }
-        }
-        </style>
-        <?php
-    }
 }

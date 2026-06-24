@@ -1,0 +1,264 @@
+/*
+ * frontend-trials.css — FrontendTrialsManageView 2026 restyle (B2).
+ * Applies the shared green/gold "chrome" language (white cards, KPI
+ * tiles, chips, token-driven spacing) to the trial-cases list + the
+ * create-case form. Restyle only — markup/data unchanged.
+ *
+ * Mobile-first per CLAUDE.md §2: base styles target ~360px; min-width
+ * queries at 480/768/1024 scale up. Scoped under .tt-dashboard — no
+ * global resets, the active theme is treated as hostile. Loaded with a
+ * dep on tt-frontend-app-chrome so the brand tokens + .tt-kpi styles
+ * are present. Tokens only (tokens.css) — no raw hex.
+ */
+
+/* ---- Toolbar -------------------------------------------------------- */
+.tt-dashboard .tt-trials-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-2);
+    margin: 0 0 var(--tt-sp-4);
+}
+
+/* ---- Filter card ---------------------------------------------------- */
+.tt-dashboard .tt-trials-filters {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--tt-sp-3);
+    padding: var(--tt-sp-4);
+    margin: 0 0 var(--tt-sp-5);
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius-lg);
+    box-shadow: var(--tt-shadow-md);
+}
+.tt-dashboard .tt-trials-filters label {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-1);
+    font-size: var(--tt-fs-sm);
+    font-weight: 600;
+    color: var(--tt-ink);
+    min-width: 0;
+}
+.tt-dashboard .tt-trials-filters label.tt-trials-filter-check {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--tt-sp-2);
+    font-weight: 400;
+    min-height: 48px;
+}
+.tt-dashboard .tt-trials-filters select {
+    width: 100%;
+    min-height: 48px;
+    font-size: 1rem;
+    padding: var(--tt-sp-2) var(--tt-sp-3);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    background: var(--tt-paper);
+    color: var(--tt-ink);
+}
+.tt-dashboard .tt-trials-filters input[type="checkbox"] {
+    width: 22px;
+    height: 22px;
+}
+.tt-dashboard .tt-trials-filters .tt-trials-filter-submit {
+    min-height: 48px;
+    touch-action: manipulation;
+}
+
+@media (min-width: 768px) {
+    .tt-dashboard .tt-trials-filters {
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        align-items: end;
+    }
+}
+
+/* ---- Cases list — cards on mobile, table from 768px ----------------- */
+.tt-dashboard .tt-trials-cards {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-3);
+}
+.tt-dashboard .tt-trials-card {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+        "player open"
+        "meta   meta"
+        "chips  chips";
+    gap: var(--tt-sp-2) var(--tt-sp-3);
+    align-items: center;
+    padding: var(--tt-sp-4);
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius-lg);
+    box-shadow: var(--tt-shadow-md);
+}
+.tt-dashboard .tt-trials-card__player {
+    grid-area: player;
+    font-size: var(--tt-fs-lg);
+    font-weight: 700;
+    min-width: 0;
+}
+.tt-dashboard .tt-trials-card__player a {
+    color: var(--tt-primary, #0b3d2e);
+    text-decoration: none;
+}
+.tt-dashboard .tt-trials-card__player a:hover,
+.tt-dashboard .tt-trials-card__player a:focus-visible {
+    text-decoration: underline;
+}
+.tt-dashboard .tt-trials-card__meta {
+    grid-area: meta;
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-muted);
+    line-height: var(--tt-lh-body);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-1) var(--tt-sp-4);
+}
+.tt-dashboard .tt-trials-card__meta b {
+    color: var(--tt-ink);
+    font-weight: 600;
+}
+.tt-dashboard .tt-trials-card__chips {
+    grid-area: chips;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-2);
+}
+.tt-dashboard .tt-trials-card__open {
+    grid-area: open;
+    align-self: start;
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    touch-action: manipulation;
+}
+
+/* ---- Chips ---------------------------------------------------------- */
+.tt-dashboard .tt-trial-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--tt-sp-1);
+    padding: 2px var(--tt-sp-2);
+    border-radius: 999px;
+    font-size: var(--tt-fs-sm);
+    font-weight: 600;
+    line-height: 1.6;
+    border: 1px solid var(--tt-line);
+    background: var(--tt-bg-soft);
+    color: var(--tt-ink);
+    white-space: nowrap;
+}
+.tt-dashboard .tt-trial-chip--status-open,
+.tt-dashboard .tt-trial-chip--status-extended {
+    background: var(--tt-info-subtle);
+    border-color: var(--tt-info-subtle);
+    color: var(--tt-info);
+}
+.tt-dashboard .tt-trial-chip--status-decided {
+    background: var(--tt-success-subtle);
+    border-color: var(--tt-success-subtle);
+    color: var(--tt-success);
+}
+.tt-dashboard .tt-trial-chip--status-archived {
+    background: var(--tt-bg-soft);
+    color: var(--tt-muted);
+}
+.tt-dashboard .tt-trial-chip--decision {
+    background: var(--tt-warning-subtle);
+    border-color: var(--tt-warning-subtle);
+    color: var(--tt-warning);
+}
+.tt-dashboard .tt-trial-chip__count {
+    background: var(--tt-bg-soft);
+    color: var(--tt-ink-soft);
+}
+
+/* The mobile cards and the desktop table are mutually exclusive — one is
+ * always hidden so the same data isn't shown twice. */
+.tt-dashboard .tt-trials-table-wrap { display: none; }
+
+@media (min-width: 768px) {
+    .tt-dashboard .tt-trials-cards { display: none; }
+    .tt-dashboard .tt-trials-table-wrap { display: block; }
+}
+
+/* ---- Create form ---------------------------------------------------- */
+.tt-dashboard .tt-trial-create-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-4);
+    max-width: 640px;
+}
+.tt-dashboard .tt-trial-create-form > label {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-1);
+    font-weight: 600;
+    color: var(--tt-ink);
+}
+.tt-dashboard .tt-trial-create-form select,
+.tt-dashboard .tt-trial-create-form textarea,
+.tt-dashboard .tt-trial-create-form input[type="date"],
+.tt-dashboard .tt-trial-create-form input[type="text"] {
+    width: 100%;
+    min-height: 48px;
+    font-size: 1rem;
+    padding: var(--tt-sp-2) var(--tt-sp-3);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    background: var(--tt-paper);
+    color: var(--tt-ink);
+}
+.tt-dashboard .tt-trial-create-form textarea { min-height: 72px; }
+
+.tt-dashboard .tt-trial-create-form fieldset {
+    margin: 0;
+    padding: var(--tt-sp-4);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius-lg);
+    background: var(--tt-paper);
+    box-shadow: var(--tt-shadow-md);
+}
+.tt-dashboard .tt-trial-create-form legend {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--tt-primary, #0b3d2e);
+    padding: 0 var(--tt-sp-1);
+}
+.tt-dashboard .tt-trial-inline-create > summary {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    color: var(--tt-primary, #0b3d2e);
+    font-weight: 600;
+    touch-action: manipulation;
+}
+.tt-dashboard .tt-trial-staff-row {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-2);
+    padding-bottom: var(--tt-sp-3);
+    margin-bottom: var(--tt-sp-3);
+    border-bottom: 1px solid var(--tt-line-soft);
+}
+.tt-dashboard .tt-trial-staff-row:last-child {
+    border-bottom: 0;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+@media (min-width: 480px) {
+    .tt-dashboard .tt-trial-staff-row {
+        flex-direction: row;
+        align-items: flex-end;
+    }
+}

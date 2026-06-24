@@ -1,0 +1,150 @@
+/*
+ * FrontendProspectsOverviewView 2026 restyle (#1695, B2).
+ *
+ * The body is the shared FrontendListTable component. This sheet scopes
+ * a 2026 card surface around it (search / filters / table / footer) under
+ * the view wrapper `.tt-prospects-overview` so the shared `.tt-list-table-*`
+ * chrome inherits the green/gold look here without restyling it globally.
+ *
+ * Mobile-first; breakpoints 480 / 768 / 1024 only. Tokens via .tt-root;
+ * brand green read as var(--tt-primary, #0b3d2e). Depends on
+ * `tt-frontend-app-chrome`.
+ */
+
+.tt-dashboard .tt-prospects-overview {
+    background: var(--tt-paper, #ffffff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-md);
+    padding: var(--tt-sp-4, 16px);
+}
+
+/* ---- Filter / search bar ------------------------------------------- */
+.tt-dashboard .tt-prospects-overview .tt-list-table-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-3, 12px);
+    align-items: flex-end;
+    margin-bottom: var(--tt-sp-4, 16px);
+}
+
+.tt-dashboard .tt-prospects-overview .tt-list-table-search,
+.tt-dashboard .tt-prospects-overview .tt-list-table-filter {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-1, 4px);
+    flex: 1 1 100%;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-dashboard .tt-prospects-overview .tt-list-table-search input,
+.tt-dashboard .tt-prospects-overview .tt-list-table-filter select {
+    width: 100%;
+    min-height: 48px;
+    padding: 0 var(--tt-sp-3, 12px);
+    font-size: 1rem; /* ≥16px — no iOS auto-zoom on focus */
+    color: var(--tt-ink, #0e1a14);
+    background: var(--tt-paper, #ffffff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+}
+
+.tt-dashboard .tt-prospects-overview .tt-list-table-search input:focus-visible,
+.tt-dashboard .tt-prospects-overview .tt-list-table-filter select:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 1px;
+    border-color: var(--tt-primary, #0b3d2e);
+}
+
+/* ---- Table --------------------------------------------------------- */
+.tt-dashboard .tt-prospects-overview .tt-list-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--tt-line-soft, #eef0ec);
+    border-radius: var(--tt-radius, 8px);
+}
+
+.tt-dashboard .tt-prospects-overview .tt-list-table-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--tt-fs-sm, 0.85rem);
+}
+
+.tt-dashboard .tt-prospects-overview .tt-list-table-table th,
+.tt-dashboard .tt-prospects-overview .tt-list-table-table td {
+    padding: var(--tt-sp-3, 12px);
+    text-align: left;
+    border-bottom: 1px solid var(--tt-line-soft, #eef0ec);
+}
+
+.tt-dashboard .tt-prospects-overview .tt-list-table-table thead th {
+    background: var(--tt-bg-soft, #f4f6f3);
+    color: var(--tt-muted, #6a6d66);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+}
+
+.tt-dashboard .tt-prospects-overview .tt-list-table-table thead th a {
+    color: inherit;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--tt-sp-1, 4px);
+    min-height: 48px;
+}
+
+.tt-dashboard .tt-prospects-overview .tt-list-table-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.tt-dashboard .tt-prospects-overview .tt-list-table-table tbody tr:hover {
+    background: var(--tt-bg-soft, #f4f6f3);
+}
+
+.tt-dashboard .tt-prospects-overview .tt-list-table-empty {
+    padding: var(--tt-sp-6, 24px);
+    text-align: center;
+    color: var(--tt-muted, #6a6d66);
+}
+
+/* ---- Footer (summary / per-page / pager) --------------------------- */
+.tt-dashboard .tt-prospects-overview .tt-list-table-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--tt-sp-3, 12px);
+    margin-top: var(--tt-sp-4, 16px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-dashboard .tt-prospects-overview .tt-list-table-perpage select {
+    min-height: 48px;
+    padding: 0 var(--tt-sp-2, 8px);
+    font-size: 1rem;
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-paper, #ffffff);
+    color: var(--tt-ink, #0e1a14);
+}
+
+.tt-dashboard .tt-prospects-overview .tt-list-table-pager a,
+.tt-dashboard .tt-prospects-overview .tt-list-table-pager button {
+    min-width: 48px;
+    min-height: 48px;
+}
+
+/* ---- Scale up ------------------------------------------------------ */
+@media (min-width: 480px) {
+    .tt-dashboard .tt-prospects-overview .tt-list-table-search { flex: 1 1 16rem; }
+    .tt-dashboard .tt-prospects-overview .tt-list-table-filter { flex: 0 1 12rem; }
+}
+
+@media (min-width: 768px) {
+    .tt-dashboard .tt-prospects-overview { padding: var(--tt-sp-6, 24px); }
+}

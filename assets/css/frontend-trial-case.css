@@ -1,0 +1,276 @@
+/*
+ * frontend-trial-case.css — FrontendTrialCaseView 2026 restyle (B2).
+ * Applies the shared green/gold "chrome" language to the trial-case
+ * detail surface: header KPI strip, sticky anchor nav, section cards,
+ * staff-input cards, and the in-page forms. Restyle only — markup/data
+ * unchanged. The inline <style> blocks that previously lived in the PHP
+ * (anchor nav + section dividers) are folded in here.
+ *
+ * Mobile-first per CLAUDE.md §2: base ~360px; min-width queries at
+ * 480/768/1024. Scoped under .tt-dashboard. Loaded with a dep on
+ * tt-frontend-app-chrome for the brand tokens + .tt-kpi styling.
+ * Tokens only (tokens.css) — no raw hex.
+ */
+
+/* ---- Header KPI strip ----------------------------------------------- */
+.tt-dashboard .tt-trial-strip {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--tt-sp-3);
+    margin: 0 0 var(--tt-sp-5);
+}
+@media (min-width: 480px) {
+    .tt-dashboard .tt-trial-strip {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    }
+}
+
+/* ---- Sticky anchor nav (was inline <style>) ------------------------- */
+.tt-dashboard .tt-trial-anchor-nav {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    flex-wrap: nowrap;
+    gap: var(--tt-sp-1);
+    padding: var(--tt-sp-2) 0;
+    margin: 0 0 var(--tt-sp-4);
+    background: var(--tt-paper);
+    border-bottom: 1px solid var(--tt-line);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+.tt-dashboard .tt-trial-anchor {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: var(--tt-sp-2) var(--tt-sp-3);
+    font-size: var(--tt-fs-sm);
+    font-weight: 600;
+    color: var(--tt-muted);
+    text-decoration: none;
+    border-radius: var(--tt-radius);
+    white-space: nowrap;
+    touch-action: manipulation;
+}
+.tt-dashboard .tt-trial-anchor:hover,
+.tt-dashboard .tt-trial-anchor:focus-visible {
+    background: var(--tt-bg-soft);
+    color: var(--tt-primary, #0b3d2e);
+    outline: none;
+}
+
+/* ---- Section cards (was inline divider style) ----------------------- */
+.tt-dashboard .tt-trial-section {
+    margin: 0 0 var(--tt-sp-4);
+    padding: var(--tt-sp-4);
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius-lg);
+    box-shadow: var(--tt-shadow-md);
+    scroll-margin-top: 64px;
+}
+/* A top-level anchor section (#tt-trial-overview, …) groups nested
+ * sub-section cards. It gets a heading and scroll anchor but NOT the
+ * card frame — otherwise the inner cards would sit card-in-card. The
+ * id+class compound selector outranks the plain .tt-trial-section rule
+ * above. */
+.tt-dashboard section.tt-trial-section[id^="tt-trial-"] {
+    margin: var(--tt-sp-5) 0 var(--tt-sp-4);
+    padding: 0;
+    background: none;
+    border: 0;
+    box-shadow: none;
+    scroll-margin-top: 64px;
+}
+.tt-dashboard section.tt-trial-section[id^="tt-trial-"] > h2 {
+    font-size: var(--tt-fs-h3);
+    font-weight: 700;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--tt-ink);
+    margin: 0 0 var(--tt-sp-3);
+}
+.tt-dashboard .tt-trial-section > h2 {
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--tt-primary, #0b3d2e);
+    margin: 0 0 var(--tt-sp-3);
+}
+
+/* ---- Headline list (execution synthesis) ---------------------------- */
+.tt-dashboard .tt-trial-headline {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-3);
+}
+.tt-dashboard .tt-trial-headline li {
+    flex: 1 1 140px;
+    padding: var(--tt-sp-3);
+    background: var(--tt-bg-soft);
+    border-radius: var(--tt-radius);
+    color: var(--tt-muted);
+    font-size: var(--tt-fs-sm);
+}
+.tt-dashboard .tt-trial-headline strong {
+    display: block;
+    color: var(--tt-ink);
+    font-size: var(--tt-fs-h2);
+}
+
+/* ---- Assigned-staff list -------------------------------------------- */
+.tt-dashboard .tt-trial-staff-list {
+    list-style: none;
+    margin: 0 0 var(--tt-sp-3);
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-2);
+}
+.tt-dashboard .tt-trial-staff-list li {
+    padding: var(--tt-sp-1) var(--tt-sp-3);
+    background: var(--tt-bg-soft);
+    border-radius: 999px;
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-ink);
+}
+
+/* ---- Staff-input cards ---------------------------------------------- */
+.tt-dashboard .tt-trial-input-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--tt-sp-3);
+}
+@media (min-width: 480px) {
+    .tt-dashboard .tt-trial-input-grid {
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+}
+.tt-dashboard .tt-trial-input-card {
+    padding: var(--tt-sp-3) var(--tt-sp-4);
+    background: var(--tt-bg-soft);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+}
+.tt-dashboard .tt-trial-input-card header {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: var(--tt-sp-2);
+}
+.tt-dashboard .tt-trial-input-card .tt-meta {
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-muted);
+}
+.tt-dashboard .tt-trial-input-rating {
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-muted);
+}
+.tt-dashboard .tt-trial-input-rating strong {
+    color: var(--tt-primary, #0b3d2e);
+    font-variant-numeric: tabular-nums;
+}
+.tt-dashboard .tt-trial-input-count {
+    color: var(--tt-muted);
+    font-size: var(--tt-fs-sm);
+    margin: 0 0 var(--tt-sp-3);
+}
+
+/* ---- In-page forms -------------------------------------------------- */
+.tt-dashboard .tt-trial-assign-form,
+.tt-dashboard .tt-trial-extend-form,
+.tt-dashboard .tt-trial-input-form,
+.tt-dashboard .tt-trial-decision-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-3);
+    margin-top: var(--tt-sp-3);
+}
+.tt-dashboard .tt-trial-assign-form label,
+.tt-dashboard .tt-trial-extend-form label,
+.tt-dashboard .tt-trial-input-form label,
+.tt-dashboard .tt-trial-decision-form label {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-1);
+    font-weight: 600;
+    color: var(--tt-ink);
+}
+.tt-dashboard .tt-trial-assign-form input[type="text"],
+.tt-dashboard .tt-trial-extend-form input[type="date"],
+.tt-dashboard .tt-trial-extend-form textarea,
+.tt-dashboard .tt-trial-input-form input[type="number"],
+.tt-dashboard .tt-trial-input-form textarea,
+.tt-dashboard .tt-trial-decision-form textarea {
+    width: 100%;
+    min-height: 48px;
+    font-size: 1rem;
+    padding: var(--tt-sp-2) var(--tt-sp-3);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    background: var(--tt-paper);
+    color: var(--tt-ink);
+}
+.tt-dashboard .tt-trial-extend-form textarea,
+.tt-dashboard .tt-trial-input-form textarea,
+.tt-dashboard .tt-trial-decision-form textarea { min-height: 72px; }
+
+.tt-dashboard .tt-decision-radios {
+    margin: 0;
+    padding: var(--tt-sp-3);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-2);
+}
+.tt-dashboard .tt-decision-radios legend {
+    font-weight: 700;
+    color: var(--tt-ink);
+    padding: 0 var(--tt-sp-1);
+}
+.tt-dashboard .tt-decision-radios label {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--tt-sp-2);
+    min-height: 48px;
+    font-weight: 400;
+}
+
+/* ---- Decision summary ----------------------------------------------- */
+.tt-dashboard .tt-trial-decision-summary {
+    margin: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--tt-sp-2);
+}
+.tt-dashboard .tt-trial-decision-summary dt {
+    font-size: var(--tt-fs-sm);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--tt-muted);
+}
+.tt-dashboard .tt-trial-decision-summary dd {
+    margin: 0 0 var(--tt-sp-2);
+    color: var(--tt-ink);
+}
+
+/* ---- Letter preview ------------------------------------------------- */
+.tt-dashboard .tt-trial-letter-preview {
+    margin-top: var(--tt-sp-3);
+    padding: var(--tt-sp-4);
+    background: var(--tt-bg-soft);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    line-height: var(--tt-lh-body);
+}
+
+/* ---- Archive form --------------------------------------------------- */
+.tt-dashboard .tt-trial-archive { margin-top: var(--tt-sp-4); }
+.tt-dashboard .tt-trial-archive button { min-height: 48px; touch-action: manipulation; }
