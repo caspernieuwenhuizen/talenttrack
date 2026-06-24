@@ -299,13 +299,17 @@ understands them — you don't type the full rule):
   + docs + its Dutch strings only, drop a `changelog.d` note, open a PR;
   don't touch version / changelog / `SEQUENCE.md` / `.mo`. Launch one such
   agent per batch.
-- **`release`** (or `release <version>` to override) — to the release
-  agent. Means: run `tools/release.ps1` — it works out the next version
-  itself from the snippets' `Bump:` levels — then review, commit, push to
-  main.
+- **`release`** (or `release <version>` to override) — to the
+  integrate-and-release agent. Means: **first merge every *ready* PR**
+  (green checks, not draft, drain-linked, not `hold`) with
+  `gh pr merge --squash`, skipping anything red/draft/held; **then** run
+  `tools/release.ps1` to consolidate the changelog and bump. Implementation
+  agents only open PRs — the release agent owns merging them, so nothing
+  piles up unmerged. (Needs the `Bash(gh pr merge:*)` settings rule; without
+  it the agent lists the ready PRs and asks you to merge.)
 
 So a parallel drain is just, e.g., `co #1731` in one terminal, `co #1732`
-in another, then `release` once they're merged.
+in another, then `release` — which merges both green PRs and ships them.
 
 ---
 
