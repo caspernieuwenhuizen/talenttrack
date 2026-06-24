@@ -40,6 +40,29 @@ class TestTrainingsRestController {
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
             ],
         ] );
+
+        // #1784 — referential-integrity permanent delete; clears any
+        // workflow-task link, then removes the session.
+        register_rest_route( self::NS, '/test-trainings/(?P<id>\d+)/permanent', [
+            [
+                'methods'             => 'DELETE',
+                'callback'            => [ __CLASS__, 'delete_permanently' ],
+                'permission_callback' => static function () { return current_user_can( 'tt_edit_settings' ); },
+            ],
+        ] );
+    }
+
+    /** #1784 — permanently delete a test training (irreversible). Gated by tt_edit_settings. */
+    public static function delete_permanently( \WP_REST_Request $r ): \WP_REST_Response {
+        $id = (int) $r['id'];
+        if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid test training id.', 'talenttrack' ), 400 );
+        try {
+            $n = ( new \TT\Infrastructure\Archive\ArchiveRepository() )->deletePermanently( 'test_training', [ $id ] );
+        } catch ( \TT\Infrastructure\Archive\DeleteBlockedException $e ) {
+            return RestResponse::error( 'delete_blocked', $e->getMessage(), 409 );
+        }
+        if ( $n === 0 ) return RestResponse::error( 'not_found', __( 'Test training not found.', 'talenttrack' ), 404 );
+        return RestResponse::success( [ 'deleted' => true, 'id' => $id ] );
     }
 
     public static function can_edit(): bool {

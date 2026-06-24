@@ -56,10 +56,34 @@ final class HolidaysRestController {
                 'permission_callback' => self::can( 'tt_manage_holidays' ),
             ],
         ] );
+
+        // #1784 — referential-integrity permanent delete (the DELETE above
+        // only archives). Holidays are standalone, so this just removes the
+        // row; fail-closed if anything ever references it.
+        register_rest_route( self::NS, '/holidays/(?P<id>\d+)/permanent', [
+            [
+                'methods'             => 'DELETE',
+                'callback'            => [ self::class, 'delete_holiday_permanently' ],
+                'permission_callback' => self::can( 'tt_edit_settings' ),
+            ],
+        ] );
     }
 
     private static function can( string $cap ): \Closure {
         return static fn() => current_user_can( $cap );
+    }
+
+    /** #1784 — permanently delete a holiday (irreversible). Gated by tt_edit_settings. */
+    public static function delete_holiday_permanently( WP_REST_Request $req ): WP_REST_Response {
+        $id = (int) $req['id'];
+        if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid holiday id.', 'talenttrack' ), 400 );
+        try {
+            $n = ( new \TT\Infrastructure\Archive\ArchiveRepository() )->deletePermanently( 'holiday', [ $id ] );
+        } catch ( \TT\Infrastructure\Archive\DeleteBlockedException $e ) {
+            return RestResponse::error( 'delete_blocked', $e->getMessage(), 409 );
+        }
+        if ( $n === 0 ) return RestResponse::error( 'not_found', __( 'Holiday not found.', 'talenttrack' ), 404 );
+        return RestResponse::success( [ 'deleted' => true, 'id' => $id ] );
     }
 
     public static function list_holidays( WP_REST_Request $req ): WP_REST_Response {

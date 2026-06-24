@@ -122,6 +122,19 @@ class TrialsRestController {
             'permission_callback' => [ __CLASS__, 'can_view' ],
         ] );
 
+        // #1784 — permanently delete a custom trial track. Blocks (fail-
+        // closed) while any trial case still uses it; seeded tracks are
+        // never deletable.
+        register_rest_route( self::NS, '/trial-tracks/(?P<id>\d+)/permanent', [
+            [
+                'methods'             => 'DELETE',
+                'callback'            => [ __CLASS__, 'delete_track_permanently' ],
+                'permission_callback' => function () {
+                    return current_user_can( 'tt_edit_settings' );
+                },
+            ],
+        ] );
+
         register_rest_route( self::NS, '/trial-reminders/run', [
             'methods'             => 'POST',
             'callback'            => [ __CLASS__, 'run_reminders' ],
@@ -208,6 +221,28 @@ class TrialsRestController {
             return RestResponse::error( 'delete_blocked', $e->getMessage(), 409 );
         }
         if ( $n === 0 ) return RestResponse::error( 'not_found', __( 'Trial case not found.', 'talenttrack' ), 404 );
+        return RestResponse::success( [ 'deleted' => true, 'id' => $id ] );
+    }
+
+    /**
+     * #1784 — permanently delete a custom trial track. Built-in (seeded)
+     * tracks are refused; the delete is fail-closed and blocks while any
+     * trial case still references the track. Gated by tt_edit_settings.
+     */
+    public static function delete_track_permanently( \WP_REST_Request $r ): \WP_REST_Response {
+        $id = absint( $r['id'] );
+        if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid trial track id.', 'talenttrack' ), 400 );
+        $track = ( new TrialTracksRepository() )->find( $id );
+        if ( ! $track ) return RestResponse::error( 'not_found', __( 'Trial track not found.', 'talenttrack' ), 404 );
+        if ( (int) ( $track->is_seeded ?? 0 ) === 1 ) {
+            return RestResponse::error( 'seeded_track', __( 'Built-in trial tracks cannot be deleted.', 'talenttrack' ), 403 );
+        }
+        try {
+            $n = ( new \TT\Infrastructure\Archive\ArchiveRepository() )->deletePermanently( 'trial_track', [ $id ] );
+        } catch ( \TT\Infrastructure\Archive\DeleteBlockedException $e ) {
+            return RestResponse::error( 'delete_blocked', $e->getMessage(), 409 );
+        }
+        if ( $n === 0 ) return RestResponse::error( 'not_found', __( 'Trial track not found.', 'talenttrack' ), 404 );
         return RestResponse::success( [ 'deleted' => true, 'id' => $id ] );
     }
 
