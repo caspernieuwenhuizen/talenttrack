@@ -40006,6 +40006,10 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php
+msgid "WP user"
+msgstr "WP-gebruiker"
+
 #~ msgid "Document"
 #~ msgstr "Document"
 
@@ -40192,3 +40196,12 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+
+msgid "— select —"
+msgstr "— kies —"
+
+msgid "Confirm or complete your details above. You can add a photo after sign-in."
+msgstr "Bevestig of vul je gegevens hierboven aan. Je kunt na het inloggen een foto toevoegen."
+
+msgid "Set by your academy from your name — this can't be changed here."
+msgstr "Ingesteld door je academie op basis van je naam — dit kun je hier niet wijzigen."

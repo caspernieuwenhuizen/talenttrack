@@ -268,6 +268,18 @@ class InvitationService {
             if ( $jersey !== '' ) {
                 $update['jersey_number'] = $jersey;
             }
+            // #1819 — player self-completed profile fields on accept.
+            $first_in = isset( $payload['first_name'] ) ? sanitize_text_field( (string) $payload['first_name'] ) : '';
+            $last_in  = isset( $payload['last_name'] )  ? sanitize_text_field( (string) $payload['last_name'] )  : '';
+            if ( $first_in !== '' ) $update['first_name'] = $first_in;
+            if ( $last_in !== '' )  $update['last_name']  = $last_in;
+            $dob = isset( $payload['date_of_birth'] ) ? sanitize_text_field( (string) $payload['date_of_birth'] ) : '';
+            if ( $dob !== '' && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $dob ) ) {
+                $update['date_of_birth'] = $dob;
+            }
+            $foot = isset( $payload['preferred_foot'] ) ? sanitize_text_field( (string) $payload['preferred_foot'] ) : '';
+            if ( $foot !== '' ) $update['preferred_foot'] = $foot;
+
             $wpdb->update( $wpdb->prefix . 'tt_players', $update, [ 'id' => $playerId, 'club_id' => CurrentClub::id() ] );
 
             // #1820 — the player's display name is system-owned: default

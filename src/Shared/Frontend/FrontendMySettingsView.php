@@ -91,10 +91,23 @@ class FrontendMySettingsView extends FrontendViewBase {
                     </div>
                 </div>
 
+                <?php
+                // #1820 — a player's display name is system-owned (set
+                // from their player record as "First Last"); they can't
+                // edit it here. The server-side guard in handlePost()
+                // enforces this even if the readonly attribute is removed.
+                $display_locked = in_array( 'tt_player', (array) $user->roles, true );
+                ?>
                 <div class="tt-field">
                     <label class="tt-field-label" for="tt-ms-display"><?php esc_html_e( 'Display name', 'talenttrack' ); ?></label>
-                    <input type="text" id="tt-ms-display" name="display_name" class="tt-input" autocomplete="nickname" value="<?php echo esc_attr( (string) $user->display_name ); ?>" />
-                    <p class="tt-field-hint"><?php esc_html_e( 'How your name appears to coaches and teammates.', 'talenttrack' ); ?></p>
+                    <input type="text" id="tt-ms-display" name="display_name" class="tt-input" autocomplete="nickname" value="<?php echo esc_attr( (string) $user->display_name ); ?>"<?php echo $display_locked ? ' readonly' : ''; ?> />
+                    <p class="tt-field-hint">
+                        <?php
+                        echo $display_locked
+                            ? esc_html__( 'Set by your academy from your name — this can\'t be changed here.', 'talenttrack' )
+                            : esc_html__( 'How your name appears to coaches and teammates.', 'talenttrack' );
+                        ?>
+                    </p>
                 </div>
 
                 <div class="tt-field">
@@ -160,9 +173,16 @@ class FrontendMySettingsView extends FrontendViewBase {
                 'ID'           => $user_id,
                 'first_name'   => sanitize_text_field( wp_unslash( (string) ( $_POST['first_name']   ?? '' ) ) ),
                 'last_name'    => sanitize_text_field( wp_unslash( (string) ( $_POST['last_name']    ?? '' ) ) ),
-                'display_name' => sanitize_text_field( wp_unslash( (string) ( $_POST['display_name'] ?? '' ) ) ),
                 'user_email'   => sanitize_email( wp_unslash( (string) ( $_POST['user_email']   ?? '' ) ) ),
             ];
+            // #1820 — display name is system-owned for players; ignore any
+            // submitted value so they can't change it (the field is
+            // readonly in the form, this enforces it server-side).
+            $editor = get_userdata( $user_id );
+            $is_player = $editor && in_array( 'tt_player', (array) $editor->roles, true );
+            if ( ! $is_player ) {
+                $payload['display_name'] = sanitize_text_field( wp_unslash( (string) ( $_POST['display_name'] ?? '' ) ) );
+            }
             if ( $payload['user_email'] === '' || ! is_email( $payload['user_email'] ) ) {
                 $out['errors'][] = __( 'Please enter a valid email address.', 'talenttrack' );
                 return $out;

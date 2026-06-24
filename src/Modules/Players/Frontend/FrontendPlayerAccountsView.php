@@ -238,7 +238,7 @@ final class FrontendPlayerAccountsView extends FrontendViewBase {
     private static function renderLinkPicker( int $player_id, array $eligible ): void {
         $sel_id = 'tt-pa-user-' . $player_id;
         echo '<span class="tt-pa-link">';
-        echo '<label class="screen-reader-text" for="' . esc_attr( $sel_id ) . '">' . esc_html__( 'WordPress user to link', 'talenttrack' ) . '</label>';
+        echo '<label class="tt-sr-only" for="' . esc_attr( $sel_id ) . '">' . esc_html__( 'WordPress user to link', 'talenttrack' ) . '</label>';
         echo '<select id="' . esc_attr( $sel_id ) . '" class="tt-input tt-pa-user-select">';
         echo '<option value="0">' . esc_html__( '— Choose account —', 'talenttrack' ) . '</option>';
         foreach ( $eligible as $u ) {
@@ -254,14 +254,33 @@ final class FrontendPlayerAccountsView extends FrontendViewBase {
     private static function statusChip( string $status, object $r ): string {
         switch ( $status ) {
             case PlayerAccountService::STATUS_LINKED:
-                $u    = get_userdata( (int) $r->wp_user_id );
-                $who  = $u ? ( $u->display_name ?: $u->user_login ) : __( '(unknown user)', 'talenttrack' );
+                $u = get_userdata( (int) $r->wp_user_id );
+                if ( ! $u ) {
+                    return '<span class="tt-pa-chip tt-pa-chip--linked">'
+                        . esc_html( sprintf( /* translators: %s: linked WP account name */ __( 'Linked · %s', 'talenttrack' ), __( '(unknown user)', 'talenttrack' ) ) )
+                        . '</span>';
+                }
+                $who  = $u->display_name ?: $u->user_login;
                 $text = sprintf(
                     /* translators: %s: linked WP account name */
                     __( 'Linked · %s', 'talenttrack' ),
                     $who
                 );
-                return '<span class="tt-pa-chip tt-pa-chip--linked">' . esc_html( $text ) . '</span>';
+                // #1823 — click the chip to reveal WHICH account is linked
+                // (display name can be ambiguous): email, username, user id.
+                $detail = '';
+                if ( $u->user_email ) {
+                    $detail .= '<div class="tt-pa-acct-row"><span class="tt-pa-acct-k">' . esc_html__( 'Email', 'talenttrack' )
+                        . '</span><span class="tt-pa-acct-v">' . esc_html( $u->user_email ) . '</span></div>';
+                }
+                $detail .= '<div class="tt-pa-acct-row"><span class="tt-pa-acct-k">' . esc_html__( 'Username', 'talenttrack' )
+                    . '</span><span class="tt-pa-acct-v">' . esc_html( $u->user_login ) . '</span></div>';
+                $detail .= '<div class="tt-pa-acct-row"><span class="tt-pa-acct-k">' . esc_html__( 'WP user', 'talenttrack' )
+                    . '</span><span class="tt-pa-acct-v">#' . (int) $u->ID . '</span></div>';
+                return '<details class="tt-pa-linked">'
+                    . '<summary class="tt-pa-chip tt-pa-chip--linked tt-pa-linked-summary">' . esc_html( $text ) . '</summary>'
+                    . '<div class="tt-pa-linked-body">' . $detail . '</div>'
+                    . '</details>';
             case PlayerAccountService::STATUS_INVITED:
                 return '<span class="tt-pa-chip tt-pa-chip--invited">' . esc_html__( 'Invited (pending)', 'talenttrack' ) . '</span>';
             default:
