@@ -147,12 +147,16 @@ final class SpondSync {
                 // Spond wins schedule fields (incl. times); TalentTrack-set
                 // type wins (don't overwrite once a coach has changed it),
                 // so the time mapping keys off the existing row's type.
+                // #1774 — notes follow the same "TT wins after first import"
+                // model as the type: seeded from Spond's description on the
+                // initial insert (below), then left alone on re-sync so a
+                // coach's edits survive. So `notes` is deliberately absent
+                // from the update array.
                 $type_key = (string) ( $existing->activity_type_key ?? '' );
                 $update   = [
                     'title'        => $title,
                     'session_date' => $session_date ?: '0000-00-00',
                     'location'     => $location,
-                    'notes'        => $notes,
                 ] + self::timeColumns( $type_key, $start_time, $end_time, $meet_time );
                 $wpdb->update(
                     "{$p}tt_activities",

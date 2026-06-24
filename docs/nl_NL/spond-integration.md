@@ -27,6 +27,7 @@ Klaar. Binnen een uur verschijnt elk Spond-event voor elke gekoppelde groep als 
 - **Begin- / eindtijd** — overgenomen uit het Spond-event en opgeslagen bij elke geïmporteerde activiteit (voorheen werd alleen de datum bewaard).
 - **Aftrap- & aanwezigheidstijd (wedstrijden)** — bij **wedstrijd**-types (wedstrijd, toernooi) wordt de Spond-begintijd de **aftraptijd** en wordt de Spond-verzameltijd (de "X minuten van tevoren aanwezig"-instelling van Spond) de **aanwezigheidstijd** ("Aanwezig"). Beide verschijnen op de week-PDF van de teamplanner.
 - **Activiteitstype** — TalentTrack's keyword-classificator kiest training, wedstrijd, toernooi of vergadering op basis van de titel. Past een coach het type later aan, dan blijft die wijziging bewaard.
+- **Notities** — bij de **eerste import** overgenomen uit de beschrijving van het Spond-event, daarna in beheer van TalentTrack. Daarna worden de notities van een coach nooit meer overschreven door een sync — en een latere wijziging van de beschrijving **in Spond** stroomt niet meer mee. (Zelfde model van "eenmalig instellen, daarna wint TalentTrack" als het activiteitstype.)
 - **Aanwezigheid, evaluaties, gekoppelde doelen** — alleen TalentTrack. Nooit overschreven.
 
 Verdwijnt een event uit Spond (verwijderd, geannuleerd), dan wordt de bijbehorende TalentTrack-activiteit **soft-gearchiveerd** — nooit verwijderd — zodat eventuele evaluaties bewaard blijven. Komt het Spond-event later weer terug, dan wordt de activiteit gedearchiveerd.
