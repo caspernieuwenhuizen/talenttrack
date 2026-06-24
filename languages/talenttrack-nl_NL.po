@@ -40134,3 +40134,7 @@ msgstr "Proeftraject niet gevonden."
 #: src/Modules/Trials/Rest/TrialsRestController.php
 msgid "Built-in trial tracks cannot be deleted."
 msgstr "Ingebouwde proeftrajecten kunnen niet worden verwijderd."
+
+#: src/Infrastructure/REST/PlayerJourneyRestController.php
+msgid "Invalid injury id."
+msgstr "Ongeldig blessure-id."

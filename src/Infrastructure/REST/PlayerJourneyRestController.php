@@ -120,6 +120,31 @@ class PlayerJourneyRestController extends BaseController {
                 'permission_callback' => self::permCan( 'tt_view_player_medical' ),
             ],
         ] );
+
+        // #1784 — referential-integrity permanent delete of an injury (a
+        // minor's medical record). Removes its journey-timeline events too,
+        // so a right-to-erasure delete actually erases. Gated by
+        // tt_edit_settings (the destructive-op gate).
+        register_rest_route( self::NS, '/player-injuries/(?P<id>\d+)/permanent', [
+            [
+                'methods'             => 'DELETE',
+                'callback'            => [ __CLASS__, 'delete_injury_permanently' ],
+                'permission_callback' => function () { return current_user_can( 'tt_edit_settings' ); },
+            ],
+        ] );
+    }
+
+    /** #1784 — permanently delete an injury + its journey events (irreversible). */
+    public static function delete_injury_permanently( \WP_REST_Request $r ): \WP_REST_Response {
+        $id = (int) $r['id'];
+        if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid injury id.', 'talenttrack' ), 400 );
+        try {
+            $n = ( new \TT\Infrastructure\Archive\ArchiveRepository() )->deletePermanently( 'injury', [ $id ] );
+        } catch ( \TT\Infrastructure\Archive\DeleteBlockedException $e ) {
+            return RestResponse::error( 'delete_blocked', $e->getMessage(), 409 );
+        }
+        if ( $n === 0 ) return RestResponse::error( 'not_found', __( 'Injury not found.', 'talenttrack' ), 404 );
+        return RestResponse::success( [ 'deleted' => true, 'id' => $id ] );
     }
 
     public static function get_timeline( \WP_REST_Request $r ): \WP_REST_Response {

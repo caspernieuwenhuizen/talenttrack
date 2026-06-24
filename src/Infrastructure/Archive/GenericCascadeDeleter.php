@@ -206,23 +206,49 @@ final class GenericCascadeDeleter {
         $ref_columns = (array) ( $plan['ref_columns'] ?? [] );
         if ( empty( $ref_columns ) ) return [];
 
-        $pattern = str_replace( '_', '\\_', $p ) . 'tt\\_%';
-        $col_ph  = implode( ',', array_fill( 0, count( $ref_columns ), '%s' ) );
-        $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT TABLE_NAME AS t, COLUMN_NAME AS c
-               FROM information_schema.COLUMNS
-              WHERE TABLE_SCHEMA = DATABASE()
-                AND TABLE_NAME LIKE %s
-                AND COLUMN_NAME IN ({$col_ph})",
-            ...array_merge( [ $pattern ], $ref_columns )
-        ) );
+        // A ref_columns entry is either a bare column name (string) — the
+        // scan discovers every tt_* table carrying it — or a qualified
+        // [table, column] pair, scanned on that table only. Use qualified
+        // entries when the column name is ambiguous across entities (e.g.
+        // `exercise_id` exists on both tt_exercises' and tt_vct_*' children).
+        $bare_cols = [];
+        $pairs     = []; // list<array{table:string, column:string}>
+        foreach ( $ref_columns as $entry ) {
+            if ( is_array( $entry ) ) {
+                $pairs[] = [ 'table' => (string) $entry[0], 'column' => (string) $entry[1] ];
+            } else {
+                $bare_cols[] = (string) $entry;
+            }
+        }
 
-        $own  = (string) $plan['table'];
-        $ph   = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
-        $out  = [];
-        foreach ( (array) $rows as $row ) {
-            $bare = substr( (string) $row->t, strlen( $p ) );
-            $col  = (string) $row->c;
+        $found = []; // list<array{bare:string, col:string}>
+        if ( ! empty( $bare_cols ) ) {
+            $pattern = str_replace( '_', '\\_', $p ) . 'tt\\_%';
+            $col_ph  = implode( ',', array_fill( 0, count( $bare_cols ), '%s' ) );
+            $rows = $wpdb->get_results( $wpdb->prepare(
+                "SELECT TABLE_NAME AS t, COLUMN_NAME AS c
+                   FROM information_schema.COLUMNS
+                  WHERE TABLE_SCHEMA = DATABASE()
+                    AND TABLE_NAME LIKE %s
+                    AND COLUMN_NAME IN ({$col_ph})",
+                ...array_merge( [ $pattern ], $bare_cols )
+            ) );
+            foreach ( (array) $rows as $row ) {
+                $found[] = [ 'bare' => substr( (string) $row->t, strlen( $p ) ), 'col' => (string) $row->c ];
+            }
+        }
+        foreach ( $pairs as $pair ) {
+            if ( $this->tableExists( $pair['table'] ) ) {
+                $found[] = [ 'bare' => $pair['table'], 'col' => $pair['column'] ];
+            }
+        }
+
+        $own = (string) $plan['table'];
+        $ph  = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        $out = [];
+        foreach ( $found as $ref ) {
+            $bare = $ref['bare'];
+            $col  = $ref['col'];
             if ( $bare === $own && $col === 'id' ) continue; // never the PK
             $n = (int) $wpdb->get_var( $wpdb->prepare(
                 "SELECT COUNT(*) FROM {$p}{$bare} WHERE {$col} IN ({$ph})",
