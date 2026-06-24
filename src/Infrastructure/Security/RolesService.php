@@ -157,6 +157,11 @@ class RolesService {
         'tt_view_pdp_planning',
         'tt_view_player_status_methodology', 'tt_edit_player_status_methodology',
         'tt_view_functional_roles', 'tt_manage_functional_roles_admin',
+        // #1815 — manage parent / guardian account links (separate from
+        // tt_manage_players). Granted by default to the same admin roles
+        // that hold COVERAGE_CAPS (administrator, Club Admin, HoD); tunable
+        // per-persona via the matrix entity `parent_accounts`.
+        'tt_manage_parent_accounts',
     ];
 
     /**

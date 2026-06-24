@@ -98,6 +98,9 @@ final class LegacyCapMapper {
         'tt_manage_invite_messages'      => [ 'invitations_config', 'change' ],
         'tt_view_parent_dashboard'       => [ 'my_card',        'read' ],
 
+        // Parent accounts (#1815) — admin link/unlink of parent WP accounts.
+        'tt_manage_parent_accounts'      => [ 'parent_accounts', 'create_delete' ],
+
         // #0071 — Settings sub-cap split. Twelve cap pairs replacing
         // the over-coarse `tt_*_settings` umbrella. The umbrella caps
         // remain in the mapper above as a fall-back; new code should
