@@ -1,0 +1,72 @@
+/*
+ * accounts-hub.css (#1815) — the "Accounts & access" hub
+ * (?tt_view=accounts). A small responsive grid of navigation tiles to the
+ * account-management surfaces (Player accounts, Parent accounts,
+ * Invitations). Tokens only; mobile-first.
+ */
+
+.tt-dashboard .tt-acc-intro {
+    margin: 0 0 var(--tt-sp-4, 16px);
+    color: var(--tt-muted, #6a6d66);
+    font-size: var(--tt-fs-sm, 0.85rem);
+}
+
+.tt-dashboard .tt-acc-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--tt-sp-3, 12px);
+}
+
+@media (min-width: 600px) {
+    .tt-dashboard .tt-acc-grid {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    }
+}
+
+.tt-dashboard .tt-acc-tile-wrap {
+    margin: 0;
+}
+
+.tt-dashboard .tt-acc-tile {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-height: 80px;
+    padding: var(--tt-sp-4, 16px);
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: 0 2px 10px rgba(11, 61, 46, 0.06);
+    text-decoration: none;
+    color: var(--tt-ink, #0e1a14);
+    touch-action: manipulation;
+    transition: transform 150ms ease, box-shadow 150ms ease, border-color 150ms ease;
+}
+
+.tt-dashboard .tt-acc-tile:hover,
+.tt-dashboard .tt-acc-tile:focus-visible {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(11, 61, 46, 0.12);
+    border-color: var(--tt-primary, #0b3d2e);
+}
+
+.tt-dashboard .tt-acc-tile-title {
+    font-weight: 600;
+    font-size: var(--tt-fs-md, 1rem);
+    color: var(--tt-primary, #0b3d2e);
+}
+
+.tt-dashboard .tt-acc-tile-desc {
+    font-size: var(--tt-fs-xs, 0.75rem);
+    color: var(--tt-muted, #6a6d66);
+    line-height: 1.35;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tt-dashboard .tt-acc-tile { transition: none; }
+    .tt-dashboard .tt-acc-tile:hover,
+    .tt-dashboard .tt-acc-tile:focus-visible { transform: none; }
+}
