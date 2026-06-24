@@ -274,3 +274,11 @@
 /* ---- Archive form --------------------------------------------------- */
 .tt-dashboard .tt-trial-archive { margin-top: var(--tt-sp-4); }
 .tt-dashboard .tt-trial-archive button { min-height: 48px; touch-action: manipulation; }
+
+/* ---- Regenerate-letter form (was inline margin-top) ----------------- */
+.tt-dashboard .tt-trial-regenerate { margin-top: var(--tt-sp-3); }
+.tt-dashboard .tt-trial-regenerate button { min-height: 48px; touch-action: manipulation; }
+
+/* ---- Post-decision actions: keep inline forms breathing ------------- */
+.tt-dashboard .tt-trial-section form + form { margin-top: var(--tt-sp-3); }
+.tt-dashboard .tt-trial-section form button { min-height: 48px; touch-action: manipulation; }
