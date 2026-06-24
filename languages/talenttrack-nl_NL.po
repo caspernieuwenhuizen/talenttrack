@@ -40293,3 +40293,24 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+
+msgid "That account is a player account and can't also be a parent."
+msgstr "Dat account is een spelersaccount en kan niet ook een ouder zijn."
+
+msgid "That account is a staff account and can't also be a parent."
+msgstr "Dat account is een stafaccount en kan niet ook een ouder zijn."
+
+msgid "That parent is already linked to this player."
+msgstr "Die ouder is al gekoppeld aan deze speler."
+
+msgid "Parent linked."
+msgstr "Ouder gekoppeld."
+
+msgid "A player and a parent are both required."
+msgstr "Een speler en een ouder zijn allebei vereist."
+
+msgid "That parent was not linked to this player."
+msgstr "Die ouder was niet gekoppeld aan deze speler."
+
+msgid "Parent unlinked."
+msgstr "Ouder ontkoppeld."
