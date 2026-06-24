@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-24T15:26:27+00:00\n"
+"POT-Creation-Date: 2026-06-24T15:46:03+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -483,6 +483,13 @@ msgstr ""
 #, php-format
 msgid "Export: %s"
 msgstr "Export: %s"
+
+#. translators: %s is a comma-separated list like "3 evaluation ratings, 2 attendance".
+#: src/Infrastructure/Archive/DeleteBlockedException.php:41
+#, php-format
+msgid "Cannot delete: still referenced by %s. Archive or remove these first."
+msgstr ""
+"Kan niet verwijderen: nog gekoppeld aan %s. Archiveer of verwijder die eerst."
 
 #: src/Infrastructure/CustomFields/CustomFieldsSlot.php:96
 #: src/Shared/Frontend/FrontendOverviewView.php:237
@@ -1792,7 +1799,7 @@ msgstr "Je kunt alleen je eigen evaluaties opvragen."
 
 #: src/Infrastructure/REST/EvaluationsRestController.php:478
 #: src/Infrastructure/REST/EvaluationsRestController.php:658
-#: src/Infrastructure/REST/EvaluationsRestController.php:667
+#: src/Infrastructure/REST/EvaluationsRestController.php:671
 msgid "Evaluation not found."
 msgstr "Evaluatie niet gevonden."
 
@@ -1977,7 +1984,7 @@ msgstr "Status bijwerken mislukt."
 
 #: src/Infrastructure/REST/GoalsRestController.php:568
 #: src/Infrastructure/REST/GoalsRestController.php:581
-#: src/Infrastructure/REST/GoalsRestController.php:594
+#: src/Infrastructure/REST/GoalsRestController.php:598
 msgid "Goal not found."
 msgstr "Doel niet gevonden."
 
@@ -2229,7 +2236,7 @@ msgstr "Verwacht een object onder `sections`."
 # #0018 — team development sprint 1 (REST stubs)
 #: src/Infrastructure/REST/TeamsRestController.php:288
 #: src/Infrastructure/REST/TeamsRestController.php:363
-#: src/Infrastructure/REST/TeamsRestController.php:372
+#: src/Infrastructure/REST/TeamsRestController.php:376
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:148
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:797
 #: src/Modules/Spond/SpondSync.php:59
@@ -2272,20 +2279,20 @@ msgstr "Het team kon niet worden bijgewerkt."
 msgid "The team could not be archived."
 msgstr "Het team kon niet worden gearchiveerd."
 
-#: src/Infrastructure/REST/TeamsRestController.php:381
-#: src/Infrastructure/REST/TeamsRestController.php:410
+#: src/Infrastructure/REST/TeamsRestController.php:385
+#: src/Infrastructure/REST/TeamsRestController.php:414
 msgid "Invalid team or player id."
 msgstr "Ongeldig team- of speler-id."
 
-#: src/Infrastructure/REST/TeamsRestController.php:394
+#: src/Infrastructure/REST/TeamsRestController.php:398
 msgid "Team not found in your club."
 msgstr "Team niet gevonden binnen je club."
 
-#: src/Infrastructure/REST/TeamsRestController.php:400
+#: src/Infrastructure/REST/TeamsRestController.php:404
 msgid "The player could not be added to the team."
 msgstr "De speler kon niet aan het team worden toegevoegd."
 
-#: src/Infrastructure/REST/TeamsRestController.php:417
+#: src/Infrastructure/REST/TeamsRestController.php:421
 msgid "The player could not be removed from the team."
 msgstr "De speler kon niet uit het team worden verwijderd."
 
@@ -9556,7 +9563,7 @@ msgstr "Toggles opslaan"
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:431
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:368
 #: src/Shared/CoreSurfaceRegistration.php:1195
-#: src/Shared/Frontend/FrontendTileGrid.php:514
+#: src/Shared/Frontend/FrontendTileGrid.php:517
 msgid "Welcome"
 msgstr "Welkom"
 
@@ -31641,26 +31648,42 @@ msgid "Security check failed."
 msgstr "Veiligheidscontrole mislukt."
 
 #. translators: %d is number of items archived
-#: src/Shared/Admin/BulkActionsHelper.php:284
+#: src/Shared/Admin/BulkActionsHelper.php:292
 #, php-format
 msgid "%d item archived."
 msgid_plural "%d items archived."
 msgstr[0] "%d item gearchiveerd."
 msgstr[1] "%d items gearchiveerd."
 
-#: src/Shared/Admin/BulkActionsHelper.php:290
+#: src/Shared/Admin/BulkActionsHelper.php:298
 #, php-format
 msgid "%d item restored."
 msgid_plural "%d items restored."
 msgstr[0] "%d item hersteld."
 msgstr[1] "%d items hersteld."
 
-#: src/Shared/Admin/BulkActionsHelper.php:296
+#: src/Shared/Admin/BulkActionsHelper.php:304
 #, php-format
 msgid "%d item permanently deleted."
 msgid_plural "%d items permanently deleted."
 msgstr[0] "%d item permanent verwijderd."
 msgstr[1] "%d items permanent verwijderd."
+
+#. translators: %d is number of items that could not be deleted
+#: src/Shared/Admin/BulkActionsHelper.php:312
+#, php-format
+msgid ""
+"%d item could not be deleted — other records still reference it. Archive or "
+"remove those first."
+msgid_plural ""
+"%d items could not be deleted — other records still reference them. Archive "
+"or remove those first."
+msgstr[0] ""
+"%d item kon niet worden verwijderd — andere gegevens verwijzen er nog naar. "
+"Archiveer of verwijder die eerst."
+msgstr[1] ""
+"%d items konden niet worden verwijderd — andere gegevens verwijzen er nog "
+"naar. Archiveer of verwijder die eerst."
 
 #: src/Shared/Admin/DragReorder.php:144
 msgid "Order saved."
@@ -31890,7 +31913,7 @@ msgid "HOM"
 msgstr "THU"
 
 #: src/Shared/CoreSurfaceRegistration.php:212
-#: src/Shared/Frontend/FrontendTileGrid.php:404
+#: src/Shared/Frontend/FrontendTileGrid.php:407
 msgid "Me"
 msgstr "Ik"
 
@@ -38437,20 +38460,20 @@ msgstr "Logistiek, wat mee te nemen, contactinstructies…"
 msgid "Schedule test training"
 msgstr "Plan proeftraining"
 
-#: src/Shared/Frontend/FrontendTileGrid.php:322
+#: src/Shared/Frontend/FrontendTileGrid.php:325
 msgid "Today's work"
 msgstr "Werk van vandaag"
 
-#: src/Shared/Frontend/FrontendTileGrid.php:337
+#: src/Shared/Frontend/FrontendTileGrid.php:340
 msgid "Setup & administration"
 msgstr "Setup & beheer"
 
-#: src/Shared/Frontend/FrontendTileGrid.php:432
+#: src/Shared/Frontend/FrontendTileGrid.php:435
 msgid "My work"
 msgstr "Mijn werk"
 
 #. translators: %s is user display name
-#: src/Shared/Frontend/FrontendTileGrid.php:511
+#: src/Shared/Frontend/FrontendTileGrid.php:514
 #, php-format
 msgid "Welcome, %s"
 msgstr "Welkom, %s"
@@ -40076,13 +40099,3 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
-
-#: src/Infrastructure/Archive/DeleteBlockedException.php
-msgid "Cannot delete: still referenced by %s. Archive or remove these first."
-msgstr "Kan niet verwijderen: nog gekoppeld aan %s. Archiveer of verwijder die eerst."
-
-#: src/Shared/Admin/BulkActionsHelper.php
-msgid "%d item could not be deleted — other records still reference it. Archive or remove those first."
-msgid_plural "%d items could not be deleted — other records still reference them. Archive or remove those first."
-msgstr[0] "%d item kon niet worden verwijderd — andere gegevens verwijzen er nog naar. Archiveer of verwijder die eerst."
-msgstr[1] "%d items konden niet worden verwijderd — andere gegevens verwijzen er nog naar. Archiveer of verwijder die eerst."
