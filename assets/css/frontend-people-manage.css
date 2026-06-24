@@ -1,0 +1,91 @@
+/*
+ * frontend-people-manage.css — FrontendPeopleManageView 2026 restyle
+ * (#1695 long-tail). Wraps the create/edit form fields in a green/gold
+ * card and warms up the read-only "Current team assignments" summary on
+ * the edit form. The list itself renders through the shared
+ * FrontendListTable component and is styled there — this sheet only owns
+ * the view-specific form + assignments body.
+ *
+ * Mobile-first per CLAUDE.md §2: base targets ~360px; min-width queries
+ * (480/768 only) scale up. Scoped under .tt-dashboard. Loaded with a dep
+ * on tt-frontend-app-chrome for the brand tokens. Tokens only — no raw hex.
+ */
+
+.tt-dashboard .tt-pmf {
+    max-width: 360px;
+    margin: 0 auto;
+}
+@media (min-width: 768px) {
+    .tt-dashboard .tt-pmf { max-width: 720px; }
+}
+
+/* ---- Form card ---------------------------------------------------- */
+.tt-dashboard .tt-pmf-card {
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-md);
+    padding: var(--tt-sp-5, 20px) var(--tt-sp-4, 16px);
+    margin: 0 0 var(--tt-sp-4, 16px);
+}
+
+/* Single-column field grid on phones; two-up from the tablet step. */
+.tt-dashboard .tt-pmf-card .tt-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--tt-sp-4, 16px);
+}
+@media (min-width: 768px) {
+    .tt-dashboard .tt-pmf-card .tt-grid-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* ---- Assignments summary (edit mode) ------------------------------ */
+.tt-dashboard .tt-pmf-assign {
+    max-width: 360px;
+    margin: var(--tt-sp-6, 24px) auto 0;
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-md);
+    padding: var(--tt-sp-4, 16px);
+}
+@media (min-width: 768px) {
+    .tt-dashboard .tt-pmf-assign { max-width: 720px; }
+}
+.tt-dashboard .tt-pmf-assign__title {
+    margin: 0 0 var(--tt-sp-3, 12px);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--tt-ink-soft, #6a6d66);
+}
+.tt-dashboard .tt-pmf-assign__empty {
+    margin: 0;
+    color: var(--tt-ink-soft, #6a6d66);
+}
+.tt-dashboard .tt-pmf-assign .tt-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.tt-dashboard .tt-pmf-assign .tt-table th,
+.tt-dashboard .tt-pmf-assign .tt-table td {
+    text-align: left;
+    padding: var(--tt-sp-2, 8px) var(--tt-sp-3, 12px) var(--tt-sp-2, 8px) 0;
+    border-bottom: 1px solid var(--tt-line-soft, #eef0ec);
+    font-size: var(--tt-fs-body, 1rem);
+}
+.tt-dashboard .tt-pmf-assign .tt-table thead th {
+    font-size: var(--tt-fs-sm, 0.85rem);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--tt-ink-soft, #6a6d66);
+}
+.tt-dashboard .tt-pmf-assign .tt-table tbody tr:last-child td {
+    border-bottom: none;
+}
+.tt-dashboard .tt-pmf-assign__actions {
+    margin: var(--tt-sp-4, 16px) 0 0;
+}

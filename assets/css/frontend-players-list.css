@@ -1,0 +1,127 @@
+/*
+ * frontend-players-list.css — Players list + create/edit form, 2026
+ * green/gold restyle (B1, #1695).
+ *
+ * The players surface (?tt_view=players) renders a shared
+ * FrontendListTable for the list and a flat field form for create/edit.
+ * This sheet wraps both in the 2026 card vocabulary
+ * (docs/frontend-2026-patterns.md) without touching the shared
+ * components: it scopes everything under `.tt-players-manage` so other
+ * list-table / form consumers are untouched.
+ *
+ * Tokens only (CLAUDE.md § 4): colours, radius, shadow, spacing read
+ * from assets/css/tokens.css with the canonical literal as the var()
+ * fallback. Mobile-first (CLAUDE.md § 2): base styles target ~360px;
+ * `min-width` queries (480 / 768 only) scale up. No hover-only state.
+ */
+
+/* ---- List surface as a 2026 card ----------------------------------- */
+
+.tt-dashboard .tt-players-manage .tt-list-table {
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    padding: var(--tt-sp-3, 12px);
+    margin: var(--tt-sp-2, 8px) 0 var(--tt-sp-4, 16px);
+}
+
+@media (min-width: 768px) {
+    .tt-dashboard .tt-players-manage .tt-list-table {
+        padding: var(--tt-sp-4, 16px);
+    }
+}
+
+/* Filters / search row reads as a soft toolbar above the table. */
+.tt-dashboard .tt-players-manage .tt-list-table-filters {
+    background: var(--tt-bg-soft, #f4f6f3);
+    border: 1px solid var(--tt-line-soft, #eef0ec);
+    border-radius: var(--tt-radius, 8px);
+    padding: var(--tt-sp-3, 12px);
+    margin-bottom: var(--tt-sp-3, 12px);
+}
+
+.tt-dashboard .tt-players-manage .tt-list-table-search input,
+.tt-dashboard .tt-players-manage .tt-list-table-filter select {
+    /* iOS no-zoom + comfortable touch target. */
+    min-height: 48px;
+    font-size: 1rem;
+    border-radius: var(--tt-radius, 8px);
+}
+
+/* Table head reads as the 2026 small-caps section label. */
+.tt-dashboard .tt-players-manage .tt-list-table-table thead th {
+    font-size: var(--tt-fs-sm, 0.85rem);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--tt-muted, #6a6d66);
+    background: var(--tt-bg-soft, #f4f6f3);
+}
+
+.tt-dashboard .tt-players-manage .tt-list-table-table tbody tr:hover,
+.tt-dashboard .tt-players-manage .tt-list-table-table tbody tr.is-row-link:hover {
+    background: var(--tt-bg-soft, #f4f6f3);
+}
+
+.tt-dashboard .tt-players-manage .tt-list-table-table tbody tr.is-row-link:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: -2px;
+}
+
+/* ---- Create / edit form as a 2026 card ----------------------------- */
+
+.tt-dashboard .tt-players-form {
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    padding: var(--tt-sp-4, 16px);
+    margin: var(--tt-sp-2, 8px) 0 var(--tt-sp-4, 16px);
+}
+
+@media (min-width: 768px) {
+    .tt-dashboard .tt-players-form {
+        padding: var(--tt-sp-6, 24px);
+    }
+}
+
+/* Section sub-heads inside the form (Parent / guardian, Additional
+ * information) read as the 2026 small-caps section label. */
+.tt-dashboard .tt-players-form h3,
+.tt-dashboard .tt-players-form h4 {
+    font-size: var(--tt-fs-sm, 0.85rem);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--tt-muted, #6a6d66);
+    border-top: 1px solid var(--tt-line-soft, #eef0ec);
+    padding-top: var(--tt-sp-4, 16px);
+    margin-top: var(--tt-sp-5, 20px);
+}
+
+/* Inputs hit ≥16px (no iOS zoom) and ≥48px targets. */
+.tt-dashboard .tt-players-form .tt-input {
+    min-height: 48px;
+    font-size: 1rem;
+}
+
+.tt-dashboard .tt-players-form textarea.tt-input {
+    min-height: 4.5rem;
+}
+
+.tt-dashboard .tt-players-form .tt-input:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 1px;
+    border-color: var(--tt-primary, #0b3d2e);
+}
+
+/* Multi-tag position picker — selected pill reads green. */
+.tt-dashboard .tt-players-form .tt-multitag-option {
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    touch-action: manipulation;
+}
+
+.tt-dashboard .tt-players-form .tt-multitag-option.is-selected {
+    background: var(--tt-success-subtle, #dff5e1);
+    border-color: var(--tt-success, #2f9e5e);
+    color: var(--tt-ink, #0e1a14);
+}

@@ -35,6 +35,26 @@ use TT\Shared\Frontend\Components\TeamPickerComponent;
  */
 class FrontendPlayersManageView extends FrontendViewBase {
 
+    private static bool $players_css_enqueued = false;
+
+    /**
+     * B1 (#1695) — the players list + form wear a 2026 card/section
+     * treatment layered on the shared frontend-mobile + app-chrome
+     * tokens. Mobile-first sheet; cheap no-op on views that don't
+     * render the `.tt-players-manage` wrapper.
+     */
+    protected static function enqueueAssets(): void {
+        parent::enqueueAssets();
+        if ( self::$players_css_enqueued ) return;
+        wp_enqueue_style(
+            'tt-frontend-players-list',
+            TT_PLUGIN_URL . 'assets/css/frontend-players-list.css',
+            [ 'tt-frontend-mobile', 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+        self::$players_css_enqueued = true;
+    }
+
     public static function render( int $user_id, bool $is_admin ): void {
         self::enqueueAssets();
 
@@ -170,6 +190,7 @@ class FrontendPlayersManageView extends FrontendViewBase {
         // #1470 — Restore + gated permanent-delete on archived rows.
         $row_actions = \TT\Shared\Frontend\Components\ArchiveRowActions::build( 'players', 'tt_edit_players' );
 
+        echo '<div class="tt-players-manage">';
         echo FrontendListTable::render( [
             'rest_path' => 'players',
             'columns' => [
@@ -249,6 +270,7 @@ class FrontendPlayersManageView extends FrontendViewBase {
             // v3.110.170 — row-link standard.
             'row_url_key'  => 'detail_url',
         ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — render() returns escaped HTML.
+        echo '</div>';
     }
 
     /**
@@ -295,7 +317,7 @@ class FrontendPlayersManageView extends FrontendViewBase {
             : '';
 
         ?>
-        <form id="<?php echo esc_attr( $form_id ); ?>" class="tt-ajax-form" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="<?php echo esc_attr( $rest_meth ); ?>" data-redirect-after-save="list">
+        <form id="<?php echo esc_attr( $form_id ); ?>" class="tt-ajax-form tt-players-manage tt-players-form" data-rest-path="<?php echo esc_attr( $rest_path ); ?>" data-rest-method="<?php echo esc_attr( $rest_meth ); ?>" data-redirect-after-save="list">
             <?php if ( $is_edit ) : ?>
                 <p style="margin:0 0 var(--tt-sp-3, 12px);">
                     <a class="tt-btn tt-btn-secondary" href="<?php echo $rate_card_url; ?>"><?php esc_html_e( 'View rate card', 'talenttrack' ); ?></a>

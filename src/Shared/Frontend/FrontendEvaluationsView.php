@@ -26,6 +26,15 @@ class FrontendEvaluationsView extends FrontendViewBase {
 
     public static function render( int $user_id, bool $is_admin ): void {
         self::enqueueAssets();
+        // 2026 restyle (#1695 long-tail) — green/gold card vocabulary for
+        // the evaluation detail body. Depends on the app-chrome sheet for
+        // the brand tokens; cheap no-op on the list / form paths.
+        wp_enqueue_style(
+            'tt-frontend-evaluations',
+            TT_PLUGIN_URL . 'assets/css/frontend-evaluations.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
 
         $action = isset( $_GET['action'] ) ? sanitize_key( (string) $_GET['action'] ) : '';
         $id     = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
@@ -322,9 +331,9 @@ class FrontendEvaluationsView extends FrontendViewBase {
         $coach_pid  = (int) ( $eval->coach_person_id ?? 0 );
 
         ?>
-        <section class="tt-record-detail">
-            <div class="tt-record-detail-meta">
-                <dl class="tt-profile-dl" style="display:grid; grid-template-columns:auto 1fr; gap:6px 18px; margin:0 0 16px;">
+        <section class="tt-record-detail tt-evd">
+            <div class="tt-record-detail-meta tt-evd__meta">
+                <dl class="tt-profile-dl tt-evd__dl">
                     <dt><?php esc_html_e( 'Date', 'talenttrack' ); ?></dt>
                     <dd><?php echo esc_html( \TT\Shared\Dates\TTDate::date( (string) $eval->eval_date ) ); ?></dd>
                     <?php
@@ -392,16 +401,16 @@ class FrontendEvaluationsView extends FrontendViewBase {
                 </dl>
             </div>
 
-            <div class="tt-record-detail-body">
-                <h3><?php esc_html_e( 'Ratings', 'talenttrack' ); ?></h3>
+            <div class="tt-record-detail-body tt-evd__body">
+                <h3 class="tt-evd__h3"><?php esc_html_e( 'Ratings', 'talenttrack' ); ?></h3>
                 <?php if ( empty( $mains ) && empty( $by_parent ) ) : ?>
                     <p class="tt-muted"><?php esc_html_e( 'No ratings recorded for this evaluation.', 'talenttrack' ); ?></p>
                 <?php else : ?>
                     <div class="tt-table-wrap">
-                    <table class="tt-table" style="width:100%; max-width:520px;">
+                    <table class="tt-table tt-evd__ratings">
                         <thead><tr>
                             <th><?php esc_html_e( 'Category', 'talenttrack' ); ?></th>
-                            <th style="text-align:right;"><?php esc_html_e( 'Rating', 'talenttrack' ); ?></th>
+                            <th class="tt-evd__rating-col"><?php esc_html_e( 'Rating', 'talenttrack' ); ?></th>
                         </tr></thead>
                         <tbody>
                             <?php foreach ( $mains as $cat_id => $main ) :
@@ -409,15 +418,15 @@ class FrontendEvaluationsView extends FrontendViewBase {
                                 ?>
                                 <tr>
                                     <td><strong><?php echo esc_html( \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( $label, (int) $cat_id ) ); ?></strong></td>
-                                    <td style="text-align:right; font-variant-numeric:tabular-nums;"><?php echo esc_html( number_format_i18n( (float) $main->rating, 1 ) ); ?></td>
+                                    <td class="tt-evd__rating-col"><?php echo esc_html( number_format_i18n( (float) $main->rating, 1 ) ); ?></td>
                                 </tr>
                                 <?php if ( ! empty( $by_parent[ $cat_id ] ) ) : ?>
                                     <?php foreach ( $by_parent[ $cat_id ] as $sub ) :
                                         $sub_label = (string) ( $sub->category_label ?? $sub->category_key ?? '—' );
                                         ?>
-                                        <tr>
-                                            <td style="padding-left:20px; color:var(--tt-muted, #5b6e75);"><?php echo \TT\Shared\Icons\IconRenderer::render( 'corner-down-right', [ 'width' => 12, 'height' => 12, 'style' => 'vertical-align:-1px;margin-right:2px;' ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG. ?><?php echo esc_html( \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( $sub_label, (int) $sub->category_id ) ); ?></td>
-                                            <td style="text-align:right; font-variant-numeric:tabular-nums; color:var(--tt-muted, #5b6e75);"><?php echo esc_html( number_format_i18n( (float) $sub->rating, 1 ) ); ?></td>
+                                        <tr class="tt-evd__sub">
+                                            <td class="tt-evd__sub-label"><?php echo \TT\Shared\Icons\IconRenderer::render( 'corner-down-right', [ 'width' => 12, 'height' => 12, 'style' => 'vertical-align:-1px;margin-right:2px;' ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG. ?><?php echo esc_html( \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( $sub_label, (int) $sub->category_id ) ); ?></td>
+                                            <td class="tt-evd__rating-col tt-evd__sub-rating"><?php echo esc_html( number_format_i18n( (float) $sub->rating, 1 ) ); ?></td>
                                         </tr>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
@@ -430,7 +439,7 @@ class FrontendEvaluationsView extends FrontendViewBase {
                                     ?>
                                     <tr>
                                         <td><?php echo esc_html( \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( $sub_label, (int) $sub->category_id ) ); ?></td>
-                                        <td style="text-align:right; font-variant-numeric:tabular-nums;"><?php echo esc_html( number_format_i18n( (float) $sub->rating, 1 ) ); ?></td>
+                                        <td class="tt-evd__rating-col"><?php echo esc_html( number_format_i18n( (float) $sub->rating, 1 ) ); ?></td>
                                     </tr>
                                 <?php endforeach;
                             endforeach; ?>
@@ -440,8 +449,8 @@ class FrontendEvaluationsView extends FrontendViewBase {
                 <?php endif; ?>
 
                 <?php if ( ! empty( $eval->notes ) ) : ?>
-                    <h3 style="margin-top:18px;"><?php esc_html_e( 'Notes', 'talenttrack' ); ?></h3>
-                    <p style="white-space:pre-wrap;"><?php echo esc_html( (string) $eval->notes ); ?></p>
+                    <h3 class="tt-evd__h3 tt-evd__h3--notes"><?php esc_html_e( 'Notes', 'talenttrack' ); ?></h3>
+                    <p class="tt-evd__notes"><?php echo esc_html( (string) $eval->notes ); ?></p>
                 <?php endif; ?>
             </div>
         </section>

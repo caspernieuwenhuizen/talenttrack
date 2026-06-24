@@ -1,0 +1,56 @@
+/*
+ * frontend-mail-compose.css — in-product email composer restyled to the
+ * 2026 pitch look (B1). The compose form sits in a white card; the
+ * recipient is shown as a read-only field, the helper text muted.
+ *
+ * Mobile-first per CLAUDE.md §2: base styles target ~360px, min-width
+ * queries scale up (768 only). Scoped under .tt-dashboard. Tokens come
+ * from tokens.css / public.css.
+ */
+
+.tt-dashboard .tt-mail-compose {
+    max-width: 720px;
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-md);
+    padding: var(--tt-sp-4, 16px);
+}
+
+.tt-dashboard .tt-mail-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-1, 4px);
+    margin: 0 0 var(--tt-sp-4, 16px);
+}
+
+.tt-dashboard .tt-mail-field .tt-input {
+    width: 100%;
+    min-height: 48px;
+    box-sizing: border-box;
+    font-size: 1rem;
+}
+
+.tt-dashboard .tt-mail-field textarea.tt-input {
+    min-height: 12rem;
+    resize: vertical;
+}
+
+.tt-dashboard .tt-mail-field .tt-input:disabled {
+    background: var(--tt-bg-soft, #f4f6f3);
+    color: var(--tt-ink-soft, #6a6d66);
+}
+
+.tt-dashboard .tt-mail-hint {
+    color: var(--tt-muted, #6a6d66);
+    font-size: 0.8rem;
+}
+
+.tt-dashboard .tt-mail-compose .tt-form-actions .tt-btn {
+    min-height: 48px;
+    touch-action: manipulation;
+}
+
+@media (min-width: 768px) {
+    .tt-dashboard .tt-mail-compose { padding: var(--tt-sp-5, 20px); }
+}

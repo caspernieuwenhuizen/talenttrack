@@ -1,10 +1,16 @@
 /*
- * frontend-teams-list.css — Teams list "Variant B" card grid (#1614).
+ * frontend-teams-list.css — Teams list "Variant B" card grid (#1614),
+ * restyled to the 2026 green/gold look (B1).
  *
  * Owns the responsive card grid that replaces the old columnar teams
  * table at ?tt_view=teams. Authored mobile-first (CLAUDE.md § 2): base
  * styles target the ~360px viewport (one column), then scale UP via
  * `min-width` media queries. No max-width queries.
+ *
+ * Tokens only (CLAUDE.md § 4 / docs/frontend-2026-patterns.md): every
+ * colour, radius, shadow and gap reads from assets/css/tokens.css (the
+ * `.tt-root` scope) with the historical literal as the var() fallback so
+ * the file degrades gracefully if a surface ever renders outside .tt-root.
  *
  * Class contract — owned by TeamCard + the FrontendListTable card layout:
  *
@@ -32,8 +38,8 @@
 .tt-card-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 0.875rem;
-    margin: 0.5rem 0 1rem;
+    gap: var(--tt-sp-4, 16px);
+    margin: var(--tt-sp-2, 8px) 0 var(--tt-sp-4, 16px);
 }
 
 @media (min-width: 480px) {
@@ -45,34 +51,36 @@
 /* The empty-state wrapper spans the full grid width. */
 .tt-card-grid > .tt-list-table-empty {
     grid-column: 1 / -1;
-    color: #5b6e75;
-    padding: 1rem 0;
+    color: var(--tt-muted, #6a6d66);
+    padding: var(--tt-sp-4, 16px) 0;
 }
 
 /* ---- Card ----------------------------------------------------------- */
 
 .tt-team-card {
     display: block;
-    background: #fff;
-    border: 1px solid #d6dadd;
-    border-radius: 0.75rem;
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
     overflow: hidden;
     text-decoration: none;
     color: inherit;
     /* Whole card is the tap target; comfortably clears 48px. */
     min-height: 48px;
     touch-action: manipulation;
-    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    transition: transform var(--tt-motion-duration, 150ms) var(--tt-motion-easing, ease),
+                box-shadow var(--tt-motion-duration, 150ms) var(--tt-motion-easing, ease),
+                border-color var(--tt-motion-duration, 150ms) var(--tt-motion-easing, ease);
 }
 
 .tt-team-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-    border-color: #c0c8cc;
+    box-shadow: var(--tt-shadow-md, 0 8px 24px -8px rgba(0, 0, 0, 0.12));
+    border-color: var(--tt-primary, #0b3d2e);
 }
 
 .tt-team-card:focus-visible {
-    outline: 2px solid #2271b1;
+    outline: 2px solid var(--tt-primary, #0b3d2e);
     outline-offset: 2px;
 }
 
@@ -87,19 +95,19 @@
 
 .tt-team-card__accent {
     display: block;
-    height: 0.25rem;
+    height: var(--tt-sp-1, 4px);
     width: 100%;
 }
 
 .tt-team-card__inner {
     display: block;
-    padding: 1rem;
+    padding: var(--tt-sp-4, 16px);
 }
 
 .tt-team-card__top {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: var(--tt-sp-3, 12px);
 }
 
 .tt-team-card__crest {
@@ -109,10 +117,10 @@
     justify-content: center;
     width: 3.25rem;
     height: 3.25rem;
-    border-radius: 0.875rem;
-    color: #fff;
+    border-radius: var(--tt-radius-lg, 14px);
+    color: var(--tt-paper, #fff);
     font-weight: 700;
-    font-size: 1.1875rem;
+    font-size: var(--tt-fs-lg, 1.125rem);
     line-height: 1;
 }
 
@@ -124,17 +132,17 @@
 .tt-team-card__name {
     display: block;
     font-weight: 700;
-    font-size: 1rem;
+    font-size: var(--tt-fs-body, 1rem);
     line-height: 1.25;
-    color: #1a1d21;
+    color: var(--tt-ink, #0e1a14);
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
 .tt-team-card__coach {
     display: block;
-    font-size: 0.8125rem;
-    color: #5b6e75;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-muted, #6a6d66);
     margin-top: 0.125rem;
 }
 
@@ -147,15 +155,15 @@
 .tt-team-card__stats {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 0.5rem;
-    margin-top: 0.875rem;
+    gap: var(--tt-sp-2, 8px);
+    margin-top: var(--tt-sp-3, 12px);
 }
 
 .tt-team-card__stat {
     display: block;
-    background: #f5f7f6;
-    border-radius: 0.625rem;
-    padding: 0.5rem 0.625rem;
+    background: var(--tt-bg-soft, #f4f6f3);
+    border-radius: var(--tt-radius, 8px);
+    padding: var(--tt-sp-2, 8px) var(--tt-sp-3, 12px);
 }
 
 .tt-team-card__stat-k {
@@ -163,14 +171,14 @@
     font-size: 0.625rem;
     text-transform: uppercase;
     letter-spacing: 0.07em;
-    color: #5b6e75;
+    color: var(--tt-muted, #6a6d66);
 }
 
 .tt-team-card__stat-v {
     display: block;
-    font-size: 1.0625rem;
+    font-size: var(--tt-fs-lg, 1.125rem);
     font-weight: 700;
-    color: #1a1d21;
+    color: var(--tt-ink, #0e1a14);
 }
 
 /* ---- Sort dropdown (card mode) -------------------------------------- */

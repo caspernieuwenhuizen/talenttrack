@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use TT\Core\Kernel;
 use TT\Infrastructure\Audit\AuditService;
 use TT\Infrastructure\People\PeopleRepository;
+use TT\Shared\Frontend\Components\FormSaveButton;
 
 /**
  * FrontendMailComposeView — in-product email composer (#0063).
@@ -87,6 +88,7 @@ final class FrontendMailComposeView extends FrontendViewBase {
         $email = (string) $person->email;
 
         self::enqueueAssets();
+        self::enqueueViewCss();
         self::renderHeader( sprintf(
             /* translators: %s = recipient name */
             __( 'Compose email to %s', 'talenttrack' ),
@@ -94,44 +96,51 @@ final class FrontendMailComposeView extends FrontendViewBase {
         ) );
 
         if ( $sent_ok === true ) {
-            echo '<div class="tt-notice notice-success" style="background:#e9f5e9; border-left:4px solid #2c8a2c; padding:8px 12px; margin: 8px 0 16px;">'
+            echo '<div class="tt-notice tt-notice-success">'
                 . esc_html__( 'Email sent. A copy has been logged to the audit trail.', 'talenttrack' )
                 . '</div>';
         } elseif ( $sent_ok === false ) {
-            echo '<div class="tt-notice notice-error" style="background:#fde2e2; border-left:4px solid #b32d2e; padding:8px 12px; margin: 8px 0 16px;">'
+            echo '<div class="tt-notice tt-notice-error">'
                 . esc_html__( "wp_mail returned false. The audit log captured the attempt; check the site's SMTP / mailer configuration.", 'talenttrack' )
                 . '</div>';
         }
         if ( $error !== '' ) {
-            echo '<div class="tt-notice notice-error" style="background:#fde2e2; border-left:4px solid #b32d2e; padding:8px 12px; margin: 8px 0 16px;">'
-                . esc_html( $error )
-                . '</div>';
+            echo '<div class="tt-notice tt-notice-error">' . esc_html( $error ) . '</div>';
         }
 
         $persisted_subject = $sent_ok ? '' : (string) ( $_POST['subject'] ?? '' );
         $persisted_body    = $sent_ok ? '' : (string) ( $_POST['body']    ?? '' );
         ?>
-        <form method="post" class="tt-mail-compose" style="max-width: 720px;">
+        <form method="post" class="tt-mail-compose">
             <?php wp_nonce_field( self::NONCE_ACTION, self::NONCE_FIELD ); ?>
-            <p>
-                <label class="tt-field-label"><?php esc_html_e( 'To', 'talenttrack' ); ?></label>
-                <input type="text" class="tt-input" value="<?php echo esc_attr( $name !== '' ? $name . ' <' . $email . '>' : $email ); ?>" disabled />
+            <p class="tt-mail-field">
+                <label class="tt-field-label" for="tt-mail-to"><?php esc_html_e( 'To', 'talenttrack' ); ?></label>
+                <input type="text" id="tt-mail-to" class="tt-input" value="<?php echo esc_attr( $name !== '' ? $name . ' <' . $email . '>' : $email ); ?>" disabled />
             </p>
-            <p>
+            <p class="tt-mail-field">
                 <label class="tt-field-label tt-field-required" for="tt-mail-subject"><?php esc_html_e( 'Subject', 'talenttrack' ); ?></label>
                 <input type="text" id="tt-mail-subject" class="tt-input" name="subject" required value="<?php echo esc_attr( $persisted_subject ); ?>" />
             </p>
-            <p>
+            <p class="tt-mail-field">
                 <label class="tt-field-label tt-field-required" for="tt-mail-body"><?php esc_html_e( 'Message', 'talenttrack' ); ?></label>
                 <textarea id="tt-mail-body" class="tt-input" name="body" rows="10" required><?php echo esc_textarea( $persisted_body ); ?></textarea>
-                <small style="color:#5b6e75;"><?php esc_html_e( "Sends from the academy's configured email address. Every send is recorded in the audit log.", 'talenttrack' ); ?></small>
+                <small class="tt-mail-hint"><?php esc_html_e( "Sends from the academy's configured email address. Every send is recorded in the audit log.", 'talenttrack' ); ?></small>
             </p>
-            <p>
-                <button type="submit" class="tt-btn tt-btn-primary"><?php esc_html_e( 'Send email', 'talenttrack' ); ?></button>
-                <a class="tt-btn tt-btn-secondary" href="<?php echo esc_url( $back_url ); ?>"><?php esc_html_e( 'Cancel', 'talenttrack' ); ?></a>
-            </p>
+            <?php echo FormSaveButton::render( [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                'label'      => __( 'Send email', 'talenttrack' ),
+                'cancel_url' => $back_url,
+            ] ); ?>
         </form>
         <?php
+    }
+
+    private static function enqueueViewCss(): void {
+        wp_enqueue_style(
+            'tt-frontend-mail-compose',
+            TT_PLUGIN_URL . 'assets/css/frontend-mail-compose.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
     }
 
     private static function recordAudit( int $person_id, string $subject, string $body, bool $sent_ok ): void {

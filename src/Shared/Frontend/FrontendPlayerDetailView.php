@@ -38,7 +38,7 @@ final class FrontendPlayerDetailView extends FrontendViewBase {
         wp_enqueue_style(
             'tt-frontend-player-detail',
             TT_PLUGIN_URL . 'assets/css/frontend-player-detail.css',
-            [ 'tt-frontend-mobile' ],
+            [ 'tt-frontend-mobile', 'tt-frontend-app-chrome' ],
             TT_VERSION
         );
         self::$detail_css_enqueued = true;

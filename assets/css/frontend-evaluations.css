@@ -1,0 +1,119 @@
+/*
+ * frontend-evaluations.css — FrontendEvaluationsView 2026 restyle
+ * (#1695 long-tail). Applies the shared green/gold card vocabulary to the
+ * read-only evaluation detail body (`?tt_view=evaluations&id=N`): a card
+ * surface, a meta facts grid, and a warmed-up ratings table with indented
+ * sub-rows. The list + form paths render through shared components and are
+ * untouched here. Restyle only — markup and data are unchanged.
+ *
+ * Mobile-first per CLAUDE.md §2: base targets ~360px; min-width queries
+ * (480/768 only) scale up. Scoped under .tt-dashboard. Loaded with a dep
+ * on tt-frontend-app-chrome so the brand tokens + neutrals from tokens.css
+ * win over the legacy .tt-record-detail block in public.css. Tokens only.
+ */
+
+.tt-dashboard .tt-evd {
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-md);
+    padding: var(--tt-sp-5, 20px);
+    max-width: 360px;
+    margin: 0 auto var(--tt-sp-3, 12px);
+}
+@media (min-width: 768px) {
+    .tt-dashboard .tt-evd { max-width: 720px; }
+}
+
+/* ---- Meta facts grid ---------------------------------------------- */
+.tt-dashboard .tt-evd__meta {
+    margin: 0 0 var(--tt-sp-4, 16px);
+    padding: 0 0 var(--tt-sp-4, 16px);
+    border-bottom: 1px solid var(--tt-line-soft, #eef0ec);
+}
+.tt-dashboard .tt-evd__dl {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--tt-sp-2, 8px) var(--tt-sp-5, 20px);
+    margin: 0;
+}
+.tt-dashboard .tt-evd__dl dt {
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--tt-ink-soft, #6a6d66);
+    align-self: center;
+}
+.tt-dashboard .tt-evd__dl dd {
+    margin: 0;
+    color: var(--tt-ink, #0e1a14);
+    font-weight: 600;
+}
+.tt-dashboard .tt-evd__dl dd a,
+.tt-dashboard .tt-evd__dl dd .tt-record-link {
+    color: var(--tt-primary, #0b3d2e);
+    text-decoration: none;
+}
+.tt-dashboard .tt-evd__dl dd a:hover,
+.tt-dashboard .tt-evd__dl dd a:focus-visible { text-decoration: underline; }
+
+/* ---- Section headings --------------------------------------------- */
+.tt-dashboard .tt-evd__h3 {
+    margin: 0 0 var(--tt-sp-3, 12px);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--tt-ink-soft, #6a6d66);
+}
+.tt-dashboard .tt-evd__h3--notes { margin-top: var(--tt-sp-5, 20px); }
+
+/* ---- Ratings table ------------------------------------------------ */
+.tt-dashboard .tt-evd__ratings {
+    width: 100%;
+    max-width: 520px;
+    border-collapse: collapse;
+}
+.tt-dashboard .tt-evd__ratings th,
+.tt-dashboard .tt-evd__ratings td {
+    text-align: left;
+    padding: var(--tt-sp-2, 8px) var(--tt-sp-3, 12px);
+    border-bottom: 1px solid var(--tt-line-soft, #eef0ec);
+    font-size: var(--tt-fs-body, 1rem);
+}
+.tt-dashboard .tt-evd__ratings thead th {
+    font-size: var(--tt-fs-sm, 0.85rem);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--tt-ink-soft, #6a6d66);
+}
+.tt-dashboard .tt-evd__ratings tbody tr:last-child td { border-bottom: none; }
+.tt-dashboard .tt-evd__rating-col {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    color: var(--tt-primary, #0b3d2e);
+}
+.tt-dashboard .tt-evd__ratings thead .tt-evd__rating-col {
+    color: var(--tt-ink-soft, #6a6d66);
+    font-weight: 600;
+}
+
+/* Sub-ratings indent + mute, so the hierarchy reads at a glance. */
+.tt-dashboard .tt-evd__sub-label {
+    padding-left: var(--tt-sp-5, 20px);
+    color: var(--tt-ink-soft, #6a6d66);
+}
+.tt-dashboard .tt-evd__sub-rating {
+    color: var(--tt-ink-soft, #6a6d66);
+    font-weight: 600;
+}
+
+/* ---- Notes -------------------------------------------------------- */
+.tt-dashboard .tt-evd__notes {
+    white-space: pre-wrap;
+    margin: 0;
+    line-height: var(--tt-lh-body, 1.5);
+    color: var(--tt-ink, #0e1a14);
+}

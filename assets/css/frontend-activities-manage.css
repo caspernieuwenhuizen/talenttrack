@@ -803,3 +803,54 @@
     outline: 2px solid var(--tt-accent, #1f6feb);
     outline-offset: 2px;
 }
+
+/* =============================================================
+   2026 GREEN/GOLD ALIGNMENT (#1695 long-tail)
+   -------------------------------------------------------------
+   This sheet predates tokens.css and leans on WP-blue / slate
+   fallbacks (--tt-accent #2271b1, --tt-mute, --tt-warn, etc.).
+   Rather than rewrite every rule, alias those legacy custom
+   properties onto the canonical green/gold tokens on the three
+   activities-surface roots, so the existing rules above inherit
+   the brand palette. Markup is untouched; this is colour only.
+
+   Scoped to the activities wrappers — no global token override.
+   ============================================================= */
+.tt-dashboard .tt-act-surface,
+.tt-dashboard .tt-act-detail,
+.tt-dashboard .tt-activity-form {
+    /* Accent → brand green (today badge, period-active pill, focus,
+       card links, sub-line links). */
+    --tt-accent:     var(--tt-primary, #0b3d2e);
+    /* Neutrals → canonical tokens.css values. */
+    --tt-mute:       var(--tt-bg-soft, #f4f6f3);
+    --tt-surface-2:  var(--tt-bg-soft, #f4f6f3);
+    --tt-ink-soft:   var(--tt-ink-soft, #6a6d66);
+    --tt-line:       var(--tt-line, #e3e6e1);
+    /* Attention / overdue → warm gold-leaning amber from tokens. */
+    --tt-warn:       var(--tt-warning, #e8902b);
+    --tt-r-md:       var(--tt-radius, 8px);
+}
+
+/* Cards earn the canonical 14px radius + resting shadow so they read
+   as the same surface as the other 2026 views. */
+.tt-dashboard .tt-act-detail__hero,
+.tt-dashboard .tt-act-card-d {
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-md);
+}
+
+/* Type pills: keep the semantic hue but warm the green/gold cases to
+   the brand tokens (was WP-blue training / ad-hoc amber friendly). */
+.tt-dashboard .tt-act-pill[data-type="training"] {
+    background: rgba(var(--tt-primary-rgb, 11, 61, 46), 0.10);
+    color: var(--tt-primary, #0b3d2e);
+}
+.tt-dashboard .tt-act-pill[data-type="friendly"] {
+    background: var(--tt-warning-subtle, #fdf3d8);
+    color: var(--tt-warning, #e8902b);
+}
+.tt-dashboard .tt-act-pill[data-status="completed"] {
+    background: var(--tt-success-subtle, #dff5e1);
+    color: var(--tt-success, #2f9e5e);
+}

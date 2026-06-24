@@ -7,6 +7,8 @@ use TT\Domain\Vocabularies\Lookups\PotentialBand;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Modules\Players\Repositories\PlayerBehaviourRatingsRepository;
 use TT\Modules\Players\Repositories\PlayerPotentialRepository;
+use TT\Shared\Frontend\Components\BackLink;
+use TT\Shared\Frontend\Components\FormSaveButton;
 
 /**
  * FrontendPlayerStatusCaptureView — single consolidated entry point
@@ -109,6 +111,7 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
         }
 
         self::enqueueAssets();
+        self::enqueueViewCss();
         self::renderHeader( sprintf(
             /* translators: %s = player name */
             __( 'Behaviour & potential — %s', 'talenttrack' ),
@@ -116,14 +119,18 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
         ) );
 
         if ( $flash !== '' ) {
-            echo '<div class="tt-notice notice-success" style="background:#e9f5e9; border-left:4px solid #2c8a2c; padding:8px 12px; margin: 8px 0 16px;">'
-                . esc_html( $flash ) . '</div>';
+            echo '<div class="tt-notice tt-notice-success">' . esc_html( $flash ) . '</div>';
         }
 
         $recent_behaviour = ( new PlayerBehaviourRatingsRepository() )->listForPlayer( $player_id, 5 );
         $latest_potential = ( new PlayerPotentialRepository() )->latestFor( $player_id );
 
-        echo '<div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px;">';
+        // Cancel target: the player detail page (these capture forms are
+        // reached from a player). tt_back overrides when present (§6).
+        $resolved_back = BackLink::resolve();
+        $cancel_url    = $resolved_back !== null ? (string) $resolved_back['url'] : $back_url;
+
+        echo '<div class="tt-psc-grid">';
 
         // Behaviour column
         if ( current_user_can( 'tt_rate_player_behaviour' ) ) :
@@ -136,12 +143,12 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
             $rstep = $rstep > 0 ? $rstep : 1.0;
             $recent_activities = self::loadRecentActivitiesForPlayer( $player_id, 20 );
             ?>
-            <section>
-                <h3><?php esc_html_e( 'Record a behaviour rating', 'talenttrack' ); ?></h3>
+            <section class="tt-psc-card">
+                <h3 class="tt-psc-card__head"><?php esc_html_e( 'Record a behaviour rating', 'talenttrack' ); ?></h3>
                 <form method="post">
                     <?php wp_nonce_field( self::NONCE_ACTION, self::NONCE_FIELD ); ?>
                     <input type="hidden" name="kind" value="behaviour" />
-                    <p>
+                    <p class="tt-psc-field">
                         <label class="tt-field-label tt-field-required" for="tt-bh-rating">
                             <?php
                             printf(
@@ -165,7 +172,7 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
                         </select>
                     </p>
                     <?php if ( ! empty( $recent_activities ) ) : ?>
-                    <p>
+                    <p class="tt-psc-field">
                         <label class="tt-field-label" for="tt-bh-activity"><?php esc_html_e( 'Related activity (optional)', 'talenttrack' ); ?></label>
                         <select id="tt-bh-activity" name="related_activity_id" class="tt-input">
                             <option value="0"><?php esc_html_e( '— None —', 'talenttrack' ); ?></option>
@@ -177,16 +184,22 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
                         </select>
                     </p>
                     <?php endif; ?>
-                    <p>
+                    <p class="tt-psc-field">
                         <label class="tt-field-label" for="tt-bh-notes"><?php esc_html_e( 'Notes', 'talenttrack' ); ?></label>
                         <textarea id="tt-bh-notes" class="tt-input" name="notes" rows="3" placeholder="<?php esc_attr_e( 'Optional context — e.g. "responded well to substitution", "leadership in warm-up".', 'talenttrack' ); ?>"></textarea>
                     </p>
-                    <p><button type="submit" class="tt-btn tt-btn-primary"><?php esc_html_e( 'Save behaviour rating', 'talenttrack' ); ?></button></p>
+                    <div class="tt-psc-actions">
+                        <?php echo FormSaveButton::render( [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                            'label'      => __( 'Save behaviour rating', 'talenttrack' ),
+                            'cancel_url' => $cancel_url,
+                        ] ); ?>
+                    </div>
                 </form>
 
                 <?php if ( ! empty( $recent_behaviour ) ) : ?>
-                    <h4 style="margin-top:18px;"><?php esc_html_e( 'Recent ratings', 'talenttrack' ); ?></h4>
-                    <ul class="tt-stack">
+                    <div class="tt-psc-recent">
+                    <h4 class="tt-psc-recent__head"><?php esc_html_e( 'Recent ratings', 'talenttrack' ); ?></h4>
+                    <ul class="tt-psc-recent__list">
                         <?php foreach ( $recent_behaviour as $b ) :
                             // v3.74.2 — show rated_at (the meaningful "this
                             // happened on" date) instead of created_at;
@@ -196,11 +209,11 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
                             $when = (string) ( $b->rated_at ?? $b->created_at ?? '' );
                             $related_activity_id = (int) ( $b->related_activity_id ?? 0 );
                             ?>
-                            <li>
-                                <strong><?php echo esc_html( number_format_i18n( (float) $b->rating, 1 ) ); ?></strong>
-                                <span class="tt-muted"> &middot; <?php echo esc_html( $when ); ?></span>
+                            <li class="tt-psc-recent__item">
+                                <span class="tt-psc-score"><?php echo esc_html( number_format_i18n( (float) $b->rating, 1 ) ); ?></span>
+                                <span class="tt-psc-recent__meta"><?php echo esc_html( $when ); ?></span>
                                 <?php if ( $related_activity_id > 0 ) : ?>
-                                    <span class="tt-muted"> &middot;
+                                    <span class="tt-psc-recent__meta">
                                         <?php
                                         $act_url = \TT\Shared\Frontend\Components\RecordLink::detailUrlForWithBack( 'activities', $related_activity_id );
                                         echo \TT\Shared\Frontend\Components\RecordLink::inline( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -211,11 +224,12 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
                                     </span>
                                 <?php endif; ?>
                                 <?php if ( ! empty( $b->notes ) ) : ?>
-                                    <div class="tt-muted" style="font-size:12px;"><?php echo esc_html( (string) $b->notes ); ?></div>
+                                    <div class="tt-psc-recent__notes"><?php echo esc_html( (string) $b->notes ); ?></div>
                                 <?php endif; ?>
                             </li>
                         <?php endforeach; ?>
                     </ul>
+                    </div>
                 <?php endif; ?>
             </section>
             <?php
@@ -224,12 +238,12 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
         // Potential column
         if ( current_user_can( 'tt_set_player_potential' ) ) :
             ?>
-            <section>
-                <h3><?php esc_html_e( 'Set potential', 'talenttrack' ); ?></h3>
+            <section class="tt-psc-card">
+                <h3 class="tt-psc-card__head"><?php esc_html_e( 'Set potential', 'talenttrack' ); ?></h3>
                 <form method="post">
                     <?php wp_nonce_field( self::NONCE_ACTION, self::NONCE_FIELD ); ?>
                     <input type="hidden" name="kind" value="potential" />
-                    <p>
+                    <p class="tt-psc-field">
                         <label class="tt-field-label tt-field-required" for="tt-pot-band"><?php esc_html_e( 'Potential band', 'talenttrack' ); ?></label>
                         <select id="tt-pot-band" name="potential_band" required class="tt-input">
                             <?php
@@ -247,15 +261,20 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
                             <?php endforeach; ?>
                         </select>
                     </p>
-                    <p>
+                    <p class="tt-psc-field">
                         <label class="tt-field-label" for="tt-pot-notes"><?php esc_html_e( 'Notes', 'talenttrack' ); ?></label>
                         <textarea id="tt-pot-notes" class="tt-input" name="notes" rows="3" placeholder="<?php esc_attr_e( "Optional rationale — e.g. why you've revised the band up or down.", 'talenttrack' ); ?>"></textarea>
                     </p>
-                    <p><button type="submit" class="tt-btn tt-btn-primary"><?php esc_html_e( 'Save potential', 'talenttrack' ); ?></button></p>
+                    <div class="tt-psc-actions">
+                        <?php echo FormSaveButton::render( [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+                            'label'      => __( 'Save potential', 'talenttrack' ),
+                            'cancel_url' => $cancel_url,
+                        ] ); ?>
+                    </div>
                 </form>
 
                 <?php if ( $latest_potential ) : ?>
-                    <p class="tt-muted" style="margin-top:12px;">
+                    <p class="tt-psc-current">
                         <?php
                         // v3.74.2 — show set_at (the meaningful "this is
                         // when we judged it" date) instead of created_at.
@@ -286,5 +305,14 @@ final class FrontendPlayerStatusCaptureView extends FrontendViewBase {
     private static function loadRecentActivitiesForPlayer( int $player_id, int $limit = 20 ): array {
         return ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )
             ->listRecentCompletedForPlayer( $player_id, $limit );
+    }
+
+    private static function enqueueViewCss(): void {
+        wp_enqueue_style(
+            'tt-frontend-player-status-capture',
+            TT_PLUGIN_URL . 'assets/css/frontend-player-status-capture.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
     }
 }

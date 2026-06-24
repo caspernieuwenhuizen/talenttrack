@@ -4,7 +4,7 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.46.1
+Stable tag: 4.46.2
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,6 +12,7 @@ Frontend-first, modular youth football talent management system for a single clu
 
 == Changelog ==
 
+= 4.46.2 — 2026 restyle, batch 1: coach/HoD daily-driver surfaces (#1695). The most-used staff views adopt the 2026 card/tile/chip vocabulary on top of the new design tokens: the players + teams + people lists and detail views, evaluations, activities, player-status capture, team-behaviour capture, PDP planning, mail compose, the match-executions list and tournament-match add. Each gets a mobile-first, token-only per-view stylesheet (no raw hex, sanctioned breakpoints), status/type rendered as chips, and metric headers as KPI tiles. Visual only — no query, REST or navigation change; forms keep Save + Cancel (the player-status capture forms gained a Cancel they were missing). New Dutch strings are swept at the end of the restyle programme. Patch bump. (#1695) =
 = 4.46.1 — New-evaluation player picker: team-scoped dropdown instead of blank search (#1731) The player-first new-evaluation wizard's Player step no longer hides every player behind a type-to-search box. It now shows a team-scoped native dropdown: pick a team, then choose the player from the list. A coach who manages exactly one team lands with that team pre-selected and its players already listed, so no typing is needed. The team filter repopulates the player list on change, and Head of Development / Academy Admin keep an "All teams" option for cross-team reach. The change is opt-in via a new `style => 'dropdown'` arg on `PlayerSearchPickerComponent`; the ~6 other surfaces that use the picker keep the existing search behaviour unchanged. =
 
 = 4.46.1 — Deep-rate step: collapsible category accordion with aligned stars (#1732) The player-first new-evaluation Rating step is no longer a flat table of stars with a Basic/Detailed toggle. Each main category is now a collapsible block (collapsed by default) whose summary shows the category name, a read-only star mirror, and the average word — so a coach can scan what's rated without expanding anything. Expanding reveals the editable category-level stars and the sub-skill rows; rating sub-skills still sets the category to the rounded average of the non-zero subs, and the summary reflects it live. The #1643 training default still surfaces the Mental category first and opens it. All inline styles moved to a stylesheet; the star column lines up across categories and sub-rows. Ratings submit and restore exactly as before — no data-shape change. =

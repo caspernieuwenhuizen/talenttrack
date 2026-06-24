@@ -1,0 +1,123 @@
+/*
+ * frontend-person-detail.css — FrontendPersonDetailView 2026 restyle
+ * (#1695 long-tail). Applies the shared green/gold card vocabulary to the
+ * read-only person detail body: a chip row (role + status), a "Contact"
+ * card and a "Teams" card, both built from the existing .tt-profile-table
+ * markup. Restyle only — markup and data are unchanged.
+ *
+ * Mobile-first per CLAUDE.md §2: base targets ~360px; min-width queries
+ * (480/768 only) scale up. Scoped under .tt-dashboard — no global resets,
+ * the active theme is treated as hostile. Loaded with a dep on
+ * tt-frontend-app-chrome so the brand tokens + neutrals from tokens.css
+ * are available. Tokens only — no raw hex.
+ */
+
+.tt-dashboard .tt-pdv {
+    display: grid;
+    gap: var(--tt-sp-4, 16px);
+    max-width: 360px;
+    margin: 0 auto;
+}
+@media (min-width: 768px) {
+    .tt-dashboard .tt-pdv { max-width: 720px; }
+}
+
+/* ---- Chip row (role + status) ------------------------------------- */
+.tt-dashboard .tt-pdv__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-2, 8px);
+    margin: 0;
+}
+.tt-dashboard .tt-pdv-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--tt-sp-1, 4px) var(--tt-sp-3, 12px);
+    border-radius: 999px;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 600;
+    line-height: 1.3;
+    background: var(--tt-bg-soft, #f4f6f3);
+    color: var(--tt-ink, #0e1a14);
+    border: 1px solid var(--tt-line, #e3e6e1);
+}
+.tt-dashboard .tt-pdv-chip--role {
+    background: rgba(var(--tt-primary-rgb, 11, 61, 46), 0.08);
+    border-color: rgba(var(--tt-primary-rgb, 11, 61, 46), 0.18);
+    color: var(--tt-primary, #0b3d2e);
+}
+.tt-dashboard .tt-pdv-chip--status { color: var(--tt-ink-soft, #6a6d66); }
+.tt-dashboard .tt-pdv-chip--status[data-status="active"] {
+    background: var(--tt-success-subtle, #dff5e1);
+    border-color: var(--tt-success, #2f9e5e);
+    color: var(--tt-success, #2f9e5e);
+}
+.tt-dashboard .tt-pdv-chip--status[data-status="archived"],
+.tt-dashboard .tt-pdv-chip--status[data-status="inactive"] {
+    background: var(--tt-bg-soft, #f4f6f3);
+    border-color: var(--tt-line, #e3e6e1);
+    color: var(--tt-ink-soft, #6a6d66);
+}
+
+/* ---- Card surface ------------------------------------------------- */
+.tt-dashboard .tt-pdv-card {
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-md);
+    padding: var(--tt-sp-4, 16px);
+    margin: 0;
+}
+.tt-dashboard .tt-pdv-card__title {
+    margin: 0 0 var(--tt-sp-3, 12px);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--tt-ink-soft, #6a6d66);
+}
+
+/* The shared .tt-profile-table sits inside the card — strip its own
+ * frame so the card border owns the edge, and warm up the rows. */
+.tt-dashboard .tt-pdv-card .tt-profile-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+}
+.tt-dashboard .tt-pdv-card .tt-profile-table th,
+.tt-dashboard .tt-pdv-card .tt-profile-table td {
+    text-align: left;
+    padding: var(--tt-sp-2, 8px) 0;
+    border-bottom: 1px solid var(--tt-line-soft, #eef0ec);
+    font-size: var(--tt-fs-body, 1rem);
+    vertical-align: top;
+}
+.tt-dashboard .tt-pdv-card .tt-profile-table tr:last-child th,
+.tt-dashboard .tt-pdv-card .tt-profile-table tr:last-child td {
+    border-bottom: none;
+}
+.tt-dashboard .tt-pdv-card .tt-profile-table th {
+    width: 38%;
+    color: var(--tt-ink-soft, #6a6d66);
+    font-weight: 600;
+    padding-right: var(--tt-sp-3, 12px);
+}
+.tt-dashboard .tt-pdv-card .tt-profile-table thead th {
+    text-transform: uppercase;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    letter-spacing: 0.04em;
+    width: auto;
+}
+.tt-dashboard .tt-pdv-card .tt-profile-table td a,
+.tt-dashboard .tt-pdv-card .tt-profile-table .tt-record-link {
+    color: var(--tt-primary, #0b3d2e);
+    font-weight: 600;
+    text-decoration: none;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+}
+.tt-dashboard .tt-pdv-card .tt-profile-table td a:hover,
+.tt-dashboard .tt-pdv-card .tt-profile-table td a:focus-visible {
+    text-decoration: underline;
+}

@@ -105,8 +105,7 @@ final class FrontendTeamBehaviourCaptureView extends FrontendViewBase {
         ) );
 
         if ( $flash !== '' ) {
-            echo '<div class="tt-notice tt-notice-success" style="background:#e9f5e9; border-left:4px solid #2c8a2c; padding:8px 12px; margin: 8px 0 16px;">'
-                . esc_html( $flash ) . '</div>';
+            echo '<div class="tt-notice tt-notice-success">' . esc_html( $flash ) . '</div>';
         }
 
         if ( empty( $players ) ) {
@@ -119,7 +118,7 @@ final class FrontendTeamBehaviourCaptureView extends FrontendViewBase {
             \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
         );
         ?>
-        <p style="color:#5b6e75; max-width:60ch;">
+        <p class="tt-tbc-intro">
             <?php esc_html_e( 'Tie behaviour ratings to a single activity. Leave a player blank to skip — only filled-in rows are saved.', 'talenttrack' ); ?>
         </p>
         <form method="post" class="tt-tbc-form">
@@ -277,7 +276,7 @@ final class FrontendTeamBehaviourCaptureView extends FrontendViewBase {
         wp_enqueue_style(
             'tt-frontend-team-behaviour-capture',
             TT_PLUGIN_URL . 'assets/css/frontend-team-behaviour-capture.css',
-            [ 'tt-frontend-mobile' ],
+            [ 'tt-frontend-app-chrome' ],
             TT_VERSION
         );
     }
