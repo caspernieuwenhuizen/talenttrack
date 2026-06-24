@@ -80,8 +80,11 @@ final class FrontendThreadView {
         echo '<script type="application/json" data-tt-thread-bootstrap>' . wp_json_encode( $bootstrap ) . '</script>';
         echo '</section>';
 
-        // Hand the polling layer the last seen id.
-        echo '<script>(function(){var s=document.querySelector("[data-tt-thread]");if(s)s.dataset.lastId=' . (int) $last_id . ';})();</script>';
+        // Hand the polling layer the last seen id. Target the LAST
+        // [data-tt-thread] (the section just emitted above) so multiple
+        // thread instances on one page — e.g. a conversation per goal on the
+        // POP page (#1754) — each get their own lastId, not the first one's.
+        echo '<script>(function(){var a=document.querySelectorAll("[data-tt-thread]");var s=a[a.length-1];if(s)s.dataset.lastId=' . (int) $last_id . ';})();</script>';
     }
 
     private static function renderMessage( object $msg, int $viewer_id, ?string $last_read ): string {

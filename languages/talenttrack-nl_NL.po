@@ -40393,3 +40393,15 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Messages in this goal’s conversation"
+msgstr "Berichten in het gesprek van dit doel"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "player & coach"
+msgstr "speler & coach"
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Open goal"
+msgstr "Doel openen"

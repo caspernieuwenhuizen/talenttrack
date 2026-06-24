@@ -84,3 +84,15 @@ v1 only registers `goal` as a thread type. Future epics (#0017 trial cases, #001
 - **Live websocket updates.** 30-second polling.
 - **Editing past 5 minutes.** Soft-delete + repost is the workflow.
 - **Per-message hard delete.** GDPR erasure goes through the existing retention path.
+
+## On the POP page — a conversation per goal (#1754)
+
+The player's **POP** page (Dashboard › Players › *player* › POP) lists their
+learning goals as **collapsible cards**. Each card's header shows the goal
+title, its status, the due window, and a 💬 count of messages in that goal's
+conversation. Click a header to expand it.
+
+An expanded goal shows two columns: the goal's detail (description, linked
+methodology, evidence) on the left, and **that goal's own conversation** on
+the right — each goal has a separate thread, so a discussion about passing
+doesn't mix with one about positioning. In-progress goals open by default.
