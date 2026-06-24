@@ -451,23 +451,61 @@
     */
 .tt-dashboard .tt-list-table { margin: 0 0 var(--tt-sp-5); }
 
+/* #1753 — Option D "register" toolbar. A white filter card with
+   uppercase micro-labels above each control, matching the 2026 deck
+   (06-attendance-minutes). Mobile-first: controls stack full-width;
+   at >=768px they sit inline as one register row. The filter set stays
+   per-list — this styles only the shell. */
 .tt-dashboard .tt-list-table-filters {
-    display: flex; flex-wrap: wrap; gap: var(--tt-sp-3);
-    align-items: end;
-    padding: var(--tt-sp-3);
-    background: var(--tt-bg-soft);
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-3);
+    padding: var(--tt-sp-4);
+    background: #fff;
     border: 1px solid var(--tt-line);
-    border-radius: var(--tt-r-md);
-    margin-bottom: var(--tt-sp-3);
+    border-radius: var(--tt-r-lg);
+    box-shadow: 0 2px 10px rgba(11, 61, 46, 0.06);
+    margin-bottom: var(--tt-sp-4);
 }
-.tt-dashboard .tt-list-table-search { flex: 1 1 220px; min-width: 200px; }
-.tt-dashboard .tt-list-table-search input { width: 100%; }
+.tt-dashboard .tt-list-table-search,
 .tt-dashboard .tt-list-table-filter {
-    display: flex; flex-direction: column; gap: 2px;
-    font-size: var(--tt-fs-xs);
-    color: var(--tt-muted);
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-1);
+    min-width: 0;
 }
-.tt-dashboard .tt-list-table-filter span { font-weight: 600; }
+/* Micro-labels — mirror .tt-table th (11px, uppercase, tracked, muted). */
+.tt-dashboard .tt-list-table-search > span,
+.tt-dashboard .tt-list-table-filter > span {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--tt-muted);
+    margin: 0 0 2px 2px;
+}
+.tt-dashboard .tt-list-table-search input,
+.tt-dashboard .tt-list-table-filter input,
+.tt-dashboard .tt-list-table-filter select {
+    box-sizing: border-box; /* keep width:100% + padding inside the card (no h-scroll at 360px) */
+    width: 100%;
+    min-height: 48px;
+    font-size: 16px; /* >=16px so iOS doesn't zoom on focus */
+}
+@media (min-width: 768px) {
+    .tt-dashboard .tt-list-table-filters {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: flex-end;
+    }
+    .tt-dashboard .tt-list-table-search { flex: 1 1 240px; min-width: 200px; }
+    .tt-dashboard .tt-list-table-filter { flex: 0 1 auto; }
+    .tt-dashboard .tt-list-table-search input,
+    .tt-dashboard .tt-list-table-filter input,
+    .tt-dashboard .tt-list-table-filter select {
+        font-size: var(--tt-fs-sm);
+    }
+}
 
 .tt-dashboard .tt-list-table-status { min-height: 0; font-size: var(--tt-fs-xs); color: var(--tt-muted); margin-bottom: var(--tt-sp-2); }
 .tt-dashboard .tt-list-table-status.is-loading::before { content: ""; display: inline-block; width: 10px; height: 10px; margin-right: 6px; border: 2px solid var(--tt-muted); border-top-color: transparent; border-radius: 50%; animation: tt-spin 0.7s linear infinite; vertical-align: -1px; }

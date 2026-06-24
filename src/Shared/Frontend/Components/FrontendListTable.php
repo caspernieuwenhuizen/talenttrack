@@ -170,7 +170,7 @@ class FrontendListTable {
                     $placeholder = (string) ( $search_cfg['placeholder'] ?? __( 'Search…', 'talenttrack' ) );
                     ?>
                     <label class="tt-list-table-search">
-                        <span class="screen-reader-text"><?php echo esc_html( $placeholder ); ?></span>
+                        <span><?php esc_html_e( 'Search', 'talenttrack' ); ?></span>
                         <input type="search" name="search" value="<?php echo esc_attr( $state['search'] ); ?>" placeholder="<?php echo esc_attr( $placeholder ); ?>" />
                     </label>
                 <?php endif; ?>
