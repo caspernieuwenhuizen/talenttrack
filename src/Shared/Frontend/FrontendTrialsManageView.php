@@ -265,9 +265,9 @@ class FrontendTrialsManageView extends FrontendViewBase {
         }
         echo '</ul>';
 
-        // ---- Desktop: sortable table ----
+        // ---- Desktop: table ----
         echo '<div class="tt-table-wrap tt-trials-table-wrap">';
-        echo '<table class="tt-table tt-table-sortable"><thead><tr>';
+        echo '<table class="tt-table"><thead><tr>';
         echo '<th>' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
         echo '<th>' . esc_html__( 'Track', 'talenttrack' ) . '</th>';
         echo '<th>' . esc_html__( 'Window', 'talenttrack' ) . '</th>';

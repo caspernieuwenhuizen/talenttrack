@@ -271,7 +271,24 @@
     line-height: var(--tt-lh-body);
 }
 
-/* ---- Archive form --------------------------------------------------- */
+/* ---- Header action row (#1646) -------------------------------------- *
+ * The trial-case header carries up to three actions (Record decision /
+ * Archive case / Delete permanently). The shared .tt-page-actions slot
+ * is `flex: 0 0 auto`, which on this view let the row grow past the
+ * viewport and clip the rightmost button off the right edge. Allow the
+ * slot to shrink and wrap so every button stays on-screen, mobile-first
+ * (≥48px targets preserved by the shared button styles). */
+.tt-dashboard .tt-page-head .tt-page-actions {
+    flex: 1 1 auto;
+    flex-wrap: wrap;
+    max-width: 100%;
+    min-width: 0;
+}
+
+/* ---- Archive form (#1646: nonce-only, visually removed) ------------- *
+ * The in-body archive form is `hidden`; the single visible archive
+ * affordance lives in the top-right header action row. Margin retained
+ * only as a harmless no-op should the `hidden` attribute be absent. */
 .tt-dashboard .tt-trial-archive { margin-top: var(--tt-sp-4); }
 .tt-dashboard .tt-trial-archive button { min-height: 48px; touch-action: manipulation; }
 
