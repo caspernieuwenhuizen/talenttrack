@@ -51,9 +51,11 @@ Ploeg-gerichte speler-dropdown. Kies een ploeg en selecteer vervolgens de speler
 
 ### Stap 2 · Hybride deep-rate
 
-Datumkiezer (standaard vandaag), context-dropdown (training / match / toernooi / observatie / anders — gestuurd door de `evaluation_setting`-lookup), vrije-tekst-context (max 500 tekens), dan de rating-velden per categorie.
+Datumkiezer (standaard vandaag), Type-dropdown (gestuurd door de `eval_type`-lookup), vrije-tekst-context (max 500 tekens), dan de rating-velden.
 
-Zet je het Type op **Training**, dan springt de categorie **Mentaal** naar boven in de rating-velden en klappen de gedetailleerde subcategorieën automatisch open. Kies je een ander type, dan keert Mentaal terug naar de normale positie. Het blijft een standaard — een Mentaal-score is niet verplicht om op te slaan.
+Elke hoofdcategorie is een **inklapbaar blok, standaard ingeklapt**. De samenvattingsregel toont de categorienaam, een alleen-lezen sterren-spiegel en het gemiddelde-woord, zodat je in één oogopslag ziet wat al beoordeeld is zonder iets uit te klappen. Tik op een categorie om die uit te klappen: beoordeel de categorie rechtstreeks, of beoordeel de subvaardigheden — het beoordelen van subvaardigheden zet de categorie op het afgeronde gemiddelde van de niet-nul subs, en de samenvatting volgt live. Inklappen behoudt elke waarde.
+
+Zet je het Type op **Training**, dan springt de categorie **Mentaal** naar boven in de lijst en klapt automatisch open. Kies je een ander type, dan keert Mentaal terug naar de normale positie. Het blijft een standaard — een Mentaal-score is niet verplicht om op te slaan.
 
 ### Stap 3 · Controleren + Versturen
 
