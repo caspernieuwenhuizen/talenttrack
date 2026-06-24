@@ -51,6 +51,9 @@ class ConfigRestController {
         // the size preset; drives icon/title arrangement on every tile
         // surface via TileGridStandard.
         'tile_layout',
+        // #1809 — academy-wide tile colour scheme. Orthogonal to size +
+        // layout; recolours the dashboard tiles via TileGridStandard.
+        'tile_style',
         // #1663 — explicit pixel overrides for tile column width + icon
         // glyph size, layered on top of the preset + % scale (blank =
         // inherit). Both flow through TileGridStandard::cssVars().
@@ -111,6 +114,7 @@ class ConfigRestController {
         'font_body'         => 'branding',
         'tile_appearance'   => 'branding',
         'tile_layout'       => 'branding',
+        'tile_style'        => 'branding',
         'color_accent'      => 'branding',
         'color_danger'      => 'branding',
         'color_warning'     => 'branding',

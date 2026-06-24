@@ -49,6 +49,21 @@ Naast de groottekeuze (nu **Tegelgrootte** genoemd) krijgt het Vormgeving-scherm
 
 De indeling geldt overal waar een tegel een icoon toont: het dashboardtegelraster altijd, en de tegels van Configuratie / Rapporten / Modules wanneer een tegel een icoon heeft. Tegels zonder icoon hebben geen eerste regel om te delen en zien er in beide indelingen hetzelfde uit. Wordt academy-breed opgeslagen onder de configuratiesleutel `tile_layout`; standaard `row`.
 
+### Tegelkleurschema (v4.46.0+)
+
+Naast **Tegelgrootte** en **Tegelindeling** krijgt het Vormgeving-scherm een keuzelijst **Tegelkleurschema**. Kleur is een derde onafhankelijke as — het verkleurt de dashboardtegels (rand, vulling en accent) zonder de grootte of indeling te wijzigen, dus elke combinatie is geldig. Het schema geldt voor het dashboardtegelraster (`.tt-ftile`).
+
+| Schema | Effect |
+| --- | --- |
+| **Standaard** | Witte vulling, dunne grijze rand, een groen merkaccent van 3px aan de linkerkant en een vage groene tint bij hover. |
+| **Merkrand** | Witte vulling met een volledige merkgroene rand van 1,5px. |
+| **Gouden bovenrand** (standaard) | Een volledige merkgroene rand plus een gouden bovenrand van 3px, een echo van de gouden onderlijn van de dashboardbalk. |
+| **Zachte groene vulling** | Een lichte merkgroene tintvulling met een groene rand; de icoonchip wordt wit. |
+| **Effen groen** | Tegels komen overeen met de bovenbalk — donkergroene vulling, gouden onderaccent, witte tekst en een doorschijnende icoonchip. |
+| **Linker accent** | Witte vulling met een dikke groene linkerrand van 4px die bij hover goud wordt. |
+
+Wordt academy-breed opgeslagen onder de configuratiesleutel `tile_style`; standaard `gold-topped`. De kleuren komen uit de merktokens (`--tt-primary`, `--tt-secondary`), dus ze volgen automatisch de Primaire/Secundaire kleurkeuze van je academie.
+
 ## Volledig-canvas app & thema-isolatie (verplicht, v4.45.26+)
 
 TalentTrack wordt altijd weergegeven als volledig-canvas app, volledig geïsoleerd van het actieve WordPress-thema. Er is **geen uitschakeloptie** — volledige isolatie is het uitgangspunt (#1728). Op de pagina waarop de shortcode `[talenttrack_dashboard]` staat:
