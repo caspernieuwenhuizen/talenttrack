@@ -87,6 +87,44 @@
 .tt-dashboard .tt-pa-chip--invited { background: var(--tt-info, #2d6fb3); }
 .tt-dashboard .tt-pa-chip--none    { background: var(--tt-text-muted, #5b6e75); }
 
+/* #1824 — plugin-owned screen-reader-only utility. Don't rely on WP/theme
+ * `.screen-reader-text`; canvas/theme isolation (#1728) strips that CSS, so
+ * SR-only labels would otherwise render visible. */
+.tt-dashboard .tt-sr-only {
+    position: absolute !important;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0, 0, 0, 0);
+    white-space: nowrap; border: 0;
+}
+
+/* #1823 — linked chip is a click-to-reveal disclosure showing which WP
+ * account is actually linked (email / username / id). */
+.tt-dashboard .tt-pa-linked { display: inline-block; }
+.tt-dashboard .tt-pa-linked-summary {
+    cursor: pointer;
+    list-style: none;
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+.tt-dashboard .tt-pa-linked-summary::-webkit-details-marker { display: none; }
+.tt-dashboard .tt-pa-linked-summary::after { content: "\25B8"; font-size: 0.7em; opacity: 0.85; }
+.tt-dashboard .tt-pa-linked[open] .tt-pa-linked-summary::after { content: "\25BE"; }
+.tt-dashboard .tt-pa-linked-body {
+    margin-top: 0.4rem;
+    padding: 0.5rem 0.6rem;
+    border: 1px solid var(--tt-border, #e5e7ea);
+    border-radius: 8px;
+    background: var(--tt-bg-soft, #f0f3f2);
+    font-size: 0.8rem;
+}
+.tt-dashboard .tt-pa-acct-row { display: flex; gap: 0.5rem; justify-content: space-between; }
+.tt-dashboard .tt-pa-acct-row + .tt-pa-acct-row { margin-top: 0.2rem; }
+.tt-dashboard .tt-pa-acct-k { color: var(--tt-text-muted, #5b6e75); }
+.tt-dashboard .tt-pa-acct-v { font-weight: 600; word-break: break-all; text-align: right; }
+
 .tt-dashboard .tt-pa-actions {
     display: flex;
     flex-wrap: wrap;
@@ -119,4 +157,10 @@
     }
     .tt-dashboard .tt-pa-msg { grid-column: 1 / -1; }
     .tt-dashboard .tt-pa-actions { justify-content: flex-end; }
+    /* #1824 — keep the link controls on one line so an unconnected row is
+     * no taller than a connected one. The select flexes/shrinks; the Link +
+     * Invite buttons stay their natural width. */
+    .tt-dashboard .tt-pa-actions,
+    .tt-dashboard .tt-pa-link { flex-wrap: nowrap; }
+    .tt-dashboard .tt-pa-user-select { flex: 1 1 6rem; min-width: 0; }
 }

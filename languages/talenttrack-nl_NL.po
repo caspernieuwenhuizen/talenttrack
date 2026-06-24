@@ -40006,6 +40006,10 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php
+msgid "WP user"
+msgstr "WP-gebruiker"
+
 #~ msgid "Document"
 #~ msgstr "Document"
 
