@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.47.0
+Stable tag: 4.47.1
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.47.1 — Spond import no longer overwrites notes after the first import (#1774) A Spond-imported activity's notes are now seeded from the event's description on the first import only, then owned by TalentTrack — the same "set once, then TalentTrack wins" model already used for the activity type. Previously every hourly re-sync rewrote the notes from Spond's description, wiping any notes a coach had added or edited in TalentTrack. Title, date, location, and the time fields still follow Spond on every sync. Trade-off: a later edit to the description in Spond no longer flows into an already-imported activity. =
 
 = 4.47.0 — Evaluations list now matches the player-file count when filtered to a player (#1755) Opening the evaluations list filtered to a single player previously applied coach team/author scoping, so a coach could see a non-zero "N evaluations" badge on a player's file yet an empty or short list — evaluations authored by another coach for a player on a team they don't coach were hidden. When the list is filtered to one player and the viewer can open that player's file, it now returns all of that player's non-archived evaluations (club-scoped), matching the player-file badge count and the player-file Evaluations tab. The unfiltered evaluations list keeps its coach team/author scoping; access is gated on the same can-view-player check used to reach the file, so no players become visible that weren't already. =
 
