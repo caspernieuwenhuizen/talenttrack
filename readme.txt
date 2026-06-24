@@ -4,13 +4,17 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.49.1
+Stable tag: 4.50.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.50.0 — Finalize the safe-delete rollout — archive columns, holiday lifecycle UI + scheduled reports (#1784, #1808) Completes the referential-integrity delete epic (#1782).  - **Migration 0172** gives every archivable entity the uniform   `archived_at` + `archived_by` columns: adds the missing `archived_by` to   trial tracks, test trainings, holidays, player injuries, custom widgets   and VCT exercises, and adds both columns to scheduled reports (backfilling   `archived_at` from the legacy `status='archived'`). - **Scheduled reports** join the framework: an Active/Paused schedule can be   archived, and an archived one can now be **permanently deleted** from the   management screen (fail-closed, `tt_edit_settings`). - **Holidays** gain the full archive lifecycle in their list — an   Active / Archived tab with Restore and Delete-permanently actions on   archived rows (matching the tournaments list).  With this, every record type that has an archive lifecycle has a fail-closed, referential-integrity-checked permanent delete. Team and activity remain block-only by design (their full player-touching cascades wait on the PHPUnit floor, #1388). =
+
+= 4.50.0 — My Journey event labels no longer leak English (#1818) The player journey timeline now shows event-type labels (Position changed, Trial ended, Injury started, …) and the filter chips in the active language. On Dutch installs they render in Dutch instead of English: the view resolves each label through the lookup translator, and a migration seeds the Dutch journey labels into the translation store. =
 
 = 4.49.1 — Players complete their profile when accepting an invite (#1819) The player invitation-acceptance page now collects first name, last name, date of birth, and preferred foot (alongside the existing jersey number), written straight to the player record on accept. First and last name are pre-filled from the invite so the player just confirms or corrects them. =
 
