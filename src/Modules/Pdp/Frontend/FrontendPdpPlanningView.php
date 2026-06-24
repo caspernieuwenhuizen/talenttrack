@@ -208,6 +208,8 @@ final class FrontendPdpPlanningView {
             }
             $b = (int) $row->sequence;
             if ( $b > $max_blocks ) $max_blocks = $b;
+            // $max_blocks is the data-derived fallback; the configured
+            // block count (below) wins when blocks are configured.
             $teams[ $tid ]['blocks'][ $b ] = [
                 'expected'     => 0,
                 'planned'      => (int) $row->planned,
@@ -241,6 +243,24 @@ final class FrontendPdpPlanningView {
                     unset( $cell );
                 }
             }
+        }
+
+        // #1759 — the planning grid's column count follows the academy's
+        // configured PDP block count for the season (tt_pdp_blocks), not
+        // the MAX(sequence) seen across conversation rows. A legacy/seed
+        // conversation carrying a higher sequence than the current config
+        // no longer expands the grid — the render loop iterates
+        // 1..max_blocks, so blocks beyond the configured count are simply
+        // not drawn. When no blocks are configured for the season, fall
+        // back to the data-derived max so legacy even-divide installs keep
+        // their previous behaviour.
+        $configured = ( new \TT\Modules\Pdp\Repositories\PdpBlocksRepository() )->listForSeason( $season_id );
+        $config_max = 0;
+        foreach ( $configured as $cb ) {
+            $config_max = max( $config_max, (int) $cb['sequence'] );
+        }
+        if ( $config_max > 0 ) {
+            $max_blocks = $config_max;
         }
 
         return [ 'max_blocks' => $max_blocks, 'teams' => $teams ];
