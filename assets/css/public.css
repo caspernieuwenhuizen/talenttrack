@@ -901,20 +901,37 @@ input[type="checkbox"], input[type="radio"] {
  * v3.62 ad-hoc .tt-record-link inline styles in FrontendMyGoalsView /
  * FrontendMyActivitiesView with a single canonical rule.
  */
+/* #1792 — the active WordPress theme is assumed hostile (CLAUDE.md §2).
+ * A theme rule like `.entry-content a` / `#content a` / `a { …!important }`
+ * outranks a low-specificity element/class reset, re-decorating record
+ * links (underline + blue) on some installs. `!important` on the
+ * decoration + colour is the only guaranteed win against a theme's own
+ * `!important`; the layout/hover styles stay as normal declarations. */
+.tt-record-link,
+.tt-record-link:hover,
+.tt-record-link:focus,
+.tt-record-link:focus-visible {
+    text-decoration: none !important;
+    color: inherit !important;
+}
 .tt-record-link {
     display: inline-block;
-    text-decoration: none;
-    color: inherit;
     border-radius: 4px;
     transition: background 180ms ease, transform 180ms ease, box-shadow 180ms ease;
 }
 .tt-record-link:hover,
 .tt-record-link:focus-visible {
-    color: inherit;
-    background: rgba(11, 95, 255, 0.04);
+    background: rgba(11, 61, 46, 0.05);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    box-shadow: 0 4px 12px rgba(11, 61, 46, 0.08);
     outline: none;
+}
+/* #1792 — defensive: any raw <a> inside a TT list table (not a button)
+ * also inherits colour and loses the theme underline, covering links
+ * that don't use the .tt-record-link helper. */
+.tt-dashboard .tt-list-table-table a:not(.tt-btn) {
+    text-decoration: none;
+    color: inherit;
 }
 /* When the wrapper IS the row (block-level link), make it fill width
  * so hover / focus targets match the row geometry. */
