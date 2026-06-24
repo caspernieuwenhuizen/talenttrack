@@ -189,7 +189,7 @@ class FrontendJourneyView {
                 <label class="tt-chip" style="border:1px solid <?php echo esc_attr( $def->color ); ?>;">
                     <input type="checkbox" name="event_type[]" value="<?php echo esc_attr( $def->key ); ?>"
                            <?php checked( in_array( $def->key, $selected_types, true ) ); ?> />
-                    <?php echo esc_html( $def->label ); ?>
+                    <?php echo esc_html( self::journeyLabel( $def ) ); ?>
                 </label>
             <?php endforeach; ?>
             <?php if ( $secondary ) : ?>
@@ -208,7 +208,7 @@ class FrontendJourneyView {
                         <label class="tt-chip" style="border:1px solid <?php echo esc_attr( $def->color ); ?>;">
                             <input type="checkbox" name="event_type[]" value="<?php echo esc_attr( $def->key ); ?>"
                                    <?php checked( in_array( $def->key, $selected_types, true ) ); ?> />
-                            <?php echo esc_html( $def->label ); ?>
+                            <?php echo esc_html( self::journeyLabel( $def ) ); ?>
                         </label>
                     <?php endforeach; ?>
                     </span>
@@ -232,7 +232,7 @@ class FrontendJourneyView {
         $def        = EventTypeRegistry::find( (string) $event->event_type );
         $color      = $def ? $def->color : '#5b6e75';
         $severity   = $def ? $def->severity : EventTypeDefinition::SEVERITY_INFO;
-        $label      = $def ? $def->label : (string) $event->event_type;
+        $label      = $def ? self::journeyLabel( $def ) : (string) $event->event_type;
         $date_label = self::formatDate( (string) $event->event_date );
         $superseded = ! empty( $event->superseded_by_event_id );
         ?>
@@ -256,6 +256,17 @@ class FrontendJourneyView {
             </div>
         </li>
         <?php
+    }
+
+    /**
+     * #1818 — translate a journey event-type label. The displayed label is
+     * the lookup's `description`; route it through the lookup translator so
+     * nl_NL (and other locales) resolve via tt_translations, falling back
+     * to the English description when no translation exists.
+     */
+    private static function journeyLabel( object $def ): string {
+        $tx = \TT\Infrastructure\Query\LookupTranslator::descriptionByTypeAndName( 'journey_event_type', (string) ( $def->key ?? '' ) );
+        return $tx !== '' ? $tx : (string) ( $def->label ?? '' );
     }
 
     private static function formatDate( string $datetime ): string {
