@@ -173,7 +173,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
      */
     private static function renderKpiStrip( array $kpis ): void {
         if ( ! $kpis ) return;
-        echo '<div class="tt-rep-kpi-row">';
+        echo '<div class="tt-report-kpis">';
         foreach ( $kpis as $k ) {
             // 2026 restyle (B3) — render through the shared KPI tile helper
             // so the strip matches every other surface. The optional `sub`
@@ -267,9 +267,8 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             [ 'num' => (string) count( $rows ), 'label' => __( 'Matches in roster', 'talenttrack' ) ],
         ] );
         if ( ! $rows ) { self::renderEmpty(); return; }
-        echo '<section class="tt-rep-section">';
         echo '<div class="tt-rep-section__head"><h2 class="tt-rep-section__title">' . esc_html__( 'Per match', 'talenttrack' ) . '</h2></div>';
-        echo '<table class="tt-rep-table"><thead><tr><th>' . esc_html__( 'Date', 'talenttrack' ) . '</th><th>' . esc_html__( 'Match', 'talenttrack' ) . '</th><th>' . esc_html__( 'Type', 'talenttrack' ) . '</th><th class="num">' . esc_html__( 'Min', 'talenttrack' ) . '</th></tr></thead><tbody>';
+        echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table"><thead><tr><th>' . esc_html__( 'Date', 'talenttrack' ) . '</th><th>' . esc_html__( 'Match', 'talenttrack' ) . '</th><th>' . esc_html__( 'Type', 'talenttrack' ) . '</th><th class="num">' . esc_html__( 'Min', 'talenttrack' ) . '</th></tr></thead><tbody>';
         foreach ( $rows as $r ) {
             $url = RecordLink::detailUrlForWithBack( 'activities', (int) $r->activity_id );
             echo '<tr>';
@@ -280,7 +279,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             echo '<td class="num">' . ( $min > 0 ? esc_html( (string) $min ) : '—' ) . '</td>';
             echo '</tr>';
         }
-        echo '</tbody></table></section>';
+        echo '</tbody></table></div></div>';
     }
 
     // ── #1091 Team · Minutes distribution ────────────────────────────
@@ -445,9 +444,8 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             [ 'num' => $coverage . '%',          'label' => __( 'Coverage', 'talenttrack' ) ],
         ] );
         if ( ! $rows ) { self::renderEmpty(); return; }
-        echo '<section class="tt-rep-section">';
         echo '<div class="tt-rep-section__head"><h2 class="tt-rep-section__title">' . esc_html__( 'Per player', 'talenttrack' ) . '</h2><span class="tt-rep-section__hint">' . esc_html__( 'Sorted by average rating, high to low.', 'talenttrack' ) . '</span></div>';
-        echo '<table class="tt-rep-table"><thead><tr><th>' . esc_html__( 'Player', 'talenttrack' ) . '</th><th class="num">' . esc_html__( 'Avg rating', 'talenttrack' ) . '</th><th class="num">' . esc_html__( 'Evaluations', 'talenttrack' ) . '</th></tr></thead><tbody>';
+        echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table"><thead><tr><th>' . esc_html__( 'Player', 'talenttrack' ) . '</th><th class="num">' . esc_html__( 'Avg rating', 'talenttrack' ) . '</th><th class="num">' . esc_html__( 'Evaluations', 'talenttrack' ) . '</th></tr></thead><tbody>';
         foreach ( $rows as $r ) {
             $url = RecordLink::detailUrlForWithBack( 'players', (int) $r->player_id );
             $avg = $r->avg_rating !== null ? round( (float) $r->avg_rating, 1 ) : null;
@@ -457,7 +455,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             echo '<td class="num">' . esc_html( (string) (int) $r->eval_count ) . '</td>';
             echo '</tr>';
         }
-        echo '</tbody></table></section>';
+        echo '</tbody></table></div></div>';
     }
 
     // ── #1093 Season summary ────────────────────────────────────────
@@ -523,9 +521,8 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             $club_id
         ) );
         if ( ! is_array( $by_team ) || ! $by_team ) { return; }
-        echo '<section class="tt-rep-section">';
         echo '<div class="tt-rep-section__head"><h2 class="tt-rep-section__title">' . esc_html__( 'Per team', 'talenttrack' ) . '</h2></div>';
-        echo '<table class="tt-rep-table"><thead><tr><th>' . esc_html__( 'Team', 'talenttrack' ) . '</th><th class="num">' . esc_html__( 'Players', 'talenttrack' ) . '</th><th class="num">' . esc_html__( 'Matches (12 mo)', 'talenttrack' ) . '</th></tr></thead><tbody>';
+        echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table"><thead><tr><th>' . esc_html__( 'Team', 'talenttrack' ) . '</th><th class="num">' . esc_html__( 'Players', 'talenttrack' ) . '</th><th class="num">' . esc_html__( 'Matches (12 mo)', 'talenttrack' ) . '</th></tr></thead><tbody>';
         foreach ( $by_team as $r ) {
             $url = RecordLink::detailUrlForWithBack( 'teams', (int) $r->id );
             echo '<tr>';
@@ -534,7 +531,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             echo '<td class="num">' . esc_html( (string) (int) $r->match_count ) . '</td>';
             echo '</tr>';
         }
-        echo '</tbody></table></section>';
+        echo '</tbody></table></div></div>';
     }
 
     // ── #1094 Season · Trial funnel ─────────────────────────────────
@@ -595,22 +592,20 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             ],
         ] );
         if ( $by_scout ) {
-            echo '<section class="tt-rep-section">';
             echo '<div class="tt-rep-section__head"><h2 class="tt-rep-section__title">' . esc_html__( 'Per scout', 'talenttrack' ) . '</h2></div>';
-            echo '<table class="tt-rep-table"><thead><tr><th>' . esc_html__( 'Scout', 'talenttrack' ) . '</th><th class="num">' . esc_html__( 'Cases opened', 'talenttrack' ) . '</th></tr></thead><tbody>';
+            echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table"><thead><tr><th>' . esc_html__( 'Scout', 'talenttrack' ) . '</th><th class="num">' . esc_html__( 'Cases opened', 'talenttrack' ) . '</th></tr></thead><tbody>';
             foreach ( $by_scout as $r ) {
                 echo '<tr><td>' . esc_html( (string) ( $r->display_name ?? __( '—', 'talenttrack' ) ) ) . '</td><td class="num">' . esc_html( (string) (int) $r->opened ) . '</td></tr>';
             }
-            echo '</tbody></table></section>';
+            echo '</tbody></table></div></div>';
         }
         if ( $by_decision ) {
-            echo '<section class="tt-rep-section">';
             echo '<div class="tt-rep-section__head"><h2 class="tt-rep-section__title">' . esc_html__( 'Per decision', 'talenttrack' ) . '</h2></div>';
-            echo '<table class="tt-rep-table"><thead><tr><th>' . esc_html__( 'Decision', 'talenttrack' ) . '</th><th class="num">' . esc_html__( 'Cases', 'talenttrack' ) . '</th></tr></thead><tbody>';
+            echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table"><thead><tr><th>' . esc_html__( 'Decision', 'talenttrack' ) . '</th><th class="num">' . esc_html__( 'Cases', 'talenttrack' ) . '</th></tr></thead><tbody>';
             foreach ( $by_decision as $r ) {
                 echo '<tr><td>' . esc_html( (string) ( $r->decision ?? __( '—', 'talenttrack' ) ) ) . '</td><td class="num">' . esc_html( (string) (int) $r->n ) . '</td></tr>';
             }
-            echo '</tbody></table></section>';
+            echo '</tbody></table></div></div>';
         }
         if ( ! $by_scout && ! $by_decision ) {
             self::renderEmpty();
@@ -686,9 +681,8 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             [ 'num' => $hit_rate . '%',            'label' => __( 'Hit rate', 'talenttrack' ) ],
         ] );
         if ( ! $recent_prospects ) { self::renderEmpty(); return; }
-        echo '<section class="tt-rep-section">';
         echo '<div class="tt-rep-section__head"><h2 class="tt-rep-section__title">' . esc_html__( 'Recent prospects', 'talenttrack' ) . '</h2></div>';
-        echo '<table class="tt-rep-table"><thead><tr><th>' . esc_html__( 'Date', 'talenttrack' ) . '</th><th>' . esc_html__( 'Prospect', 'talenttrack' ) . '</th><th>' . esc_html__( 'Current club', 'talenttrack' ) . '</th></tr></thead><tbody>';
+        echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table"><thead><tr><th>' . esc_html__( 'Date', 'talenttrack' ) . '</th><th>' . esc_html__( 'Prospect', 'talenttrack' ) . '</th><th>' . esc_html__( 'Current club', 'talenttrack' ) . '</th></tr></thead><tbody>';
         foreach ( $recent_prospects as $r ) {
             $full = trim( ( (string) ( $r->first_name ?? '' ) ) . ' ' . ( (string) ( $r->last_name ?? '' ) ) );
             echo '<tr>';
@@ -697,7 +691,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             echo '<td>' . esc_html( (string) ( $r->current_club ?? '' ) ) . '</td>';
             echo '</tr>';
         }
-        echo '</tbody></table></section>';
+        echo '</tbody></table></div></div>';
     }
 
     // ── #1367 Coach · Evaluation quality ─────────────────────────────
@@ -786,9 +780,8 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         ] );
         if ( ! $rows ) { self::renderEmpty(); return; }
 
-        echo '<section class="tt-rep-section">';
         echo '<div class="tt-rep-section__head"><h2 class="tt-rep-section__title">' . esc_html__( 'Per coach', 'talenttrack' ) . '</h2><span class="tt-rep-section__hint">' . esc_html__( 'Sorted by evaluation count. Flagged rows: standard deviation under the threshold with a meaningful sample.', 'talenttrack' ) . '</span></div>';
-        echo '<table class="tt-rep-table"><thead><tr>'
+        echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table"><thead><tr>'
             . '<th>' . esc_html__( 'Coach', 'talenttrack' ) . '</th>'
             . '<th class="num">' . esc_html__( 'Evaluations', 'talenttrack' ) . '</th>'
             . '<th class="num">' . esc_html__( 'Ratings', 'talenttrack' ) . '</th>'
@@ -822,7 +815,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             echo '<td>' . esc_html( $r['last_eval_date'] ?? '—' ) . '</td>';
             echo '</tr>';
         }
-        echo '</tbody></table></section>';
+        echo '</tbody></table></div></div>';
     }
 
     /**

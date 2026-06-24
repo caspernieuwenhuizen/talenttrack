@@ -1,0 +1,90 @@
+/*
+ * frontend-report-detail.css (#1760) — 2026 card/table pattern for the
+ * print/PDF report detail surface (team_ratings + coach_activity, reached
+ * via ?tt_view=reports&type=...). Brings the on-screen chrome in line with
+ * the standard-reports surface: an unboxed page head, a card-wrapped
+ * .tt-table, and the @media print rules that used to live in an inline
+ * <style> block (#1389 inline-style gate).
+ *
+ * Mobile-first per CLAUDE.md §2: base styles target ~360px; min-width
+ * queries at 480 / 768 / 1024 scale up. Scoped under .tt-dashboard (the
+ * active theme is hostile). Depends on tt-frontend-app-chrome for the
+ * brand + neutral tokens and the shared .tt-report-card / .tt-table rules.
+ * Tokens only — no raw hex.
+ */
+
+.tt-dashboard .tt-rep-page-head {
+    margin: var(--tt-sp-2, 8px) 0 var(--tt-sp-4, 16px);
+}
+.tt-dashboard .tt-rep-page-head h1 {
+    margin: 0;
+    font-size: var(--tt-fs-h2, 1.5rem);
+    font-weight: 800;
+    color: var(--tt-ink, #0e1a14);
+    line-height: 1.2;
+}
+
+.tt-dashboard .tt-rep-detail-actions { margin: 0 0 var(--tt-sp-4, 16px); }
+
+.tt-dashboard .tt-rep-detail-intro {
+    max-width: 760px;
+    margin: 0 0 var(--tt-sp-4, 16px);
+    color: var(--tt-muted, #6a6d66);
+    line-height: var(--tt-lh-body, 1.5);
+}
+
+/* Window filter (coach activity). */
+.tt-dashboard .tt-rep-detail-filter {
+    margin: 0 0 var(--tt-sp-3, 12px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-ink, #0e1a14);
+}
+.tt-dashboard .tt-rep-detail-filter select {
+    min-height: 48px;
+    padding: 0.5rem 0.7rem;
+    font-size: 1rem; /* ≥16px — no iOS zoom */
+    color: var(--tt-ink, #0e1a14);
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+}
+.tt-dashboard .tt-rep-detail-filter select:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 1px;
+}
+
+/* Card-wrapped report tables. The base .tt-table look ships in
+ * public.css; these add column alignment + tabular figures + a narrow
+ * variant for the two-/three-column coach-activity table. */
+.tt-dashboard .tt-report-card .tt-table { font-variant-numeric: tabular-nums; }
+.tt-dashboard .tt-report-card .tt-table td.num,
+.tt-dashboard .tt-report-card .tt-table th.num { text-align: right; }
+.tt-dashboard .tt-report-card--narrow { max-width: 800px; }
+
+.tt-dashboard .tt-rep-detail-muted { color: var(--tt-muted, #6a6d66); }
+
+/* Print / Save-as-PDF — hide everything outside .tt-print-area. Moved
+ * out of the inline <style> block (#1389). */
+@media print {
+    body * { visibility: hidden; }
+    .tt-print-area, .tt-print-area * { visibility: visible; }
+    .tt-print-area {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        padding: var(--tt-sp-4, 16px);
+    }
+    .tt-print-button,
+    .tt-breadcrumbs,
+    .tt-back-link,
+    .tt-dash-header,
+    .tt-user-menu,
+    .tt-tile-grid { display: none !important; }
+    .tt-report-card {
+        border: 0;
+        box-shadow: none;
+    }
+    .tt-table th,
+    .tt-table td { padding: 6px 8px; font-size: 11pt; }
+}

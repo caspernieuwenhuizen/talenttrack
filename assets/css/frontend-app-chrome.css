@@ -192,6 +192,43 @@
 .tt-kpi__delta--down { color: #d8453b; }
 .tt-kpi__delta--flat { color: var(--tt-muted); }
 
+/* ---- Shared report primitives (#1760) -----------------------------
+ * The 2026 report pattern, factored out of the attendance report so
+ * every report surface (standard / detail / scheduled) shares one
+ * KPI strip + card-wrapped table look. Tokens only.
+ *
+ *   .tt-report-kpis — responsive grid hosting kpiTile() output.
+ *   .tt-report-card — white card wrapping a .tt-table (or a .tt-table-wrap).
+ */
+.tt-dashboard .tt-report-kpis {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--tt-sp-3, 12px);
+    margin: var(--tt-sp-3, 12px) 0 var(--tt-sp-4, 16px);
+}
+@media (min-width: 768px) {
+    .tt-dashboard .tt-report-kpis {
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    }
+}
+
+.tt-dashboard .tt-report-card {
+    background: var(--tt-paper, #ffffff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-md);
+    overflow: hidden;
+}
+.tt-dashboard .tt-report-card .tt-table-wrap {
+    margin: 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+.tt-dashboard .tt-report-card .tt-table {
+    margin: 0;
+    width: 100%;
+}
+
 /* ---- Scale up ------------------------------------------------------ */
 @media (min-width: 560px) {
     .tt-appchrome-who { display: block; }

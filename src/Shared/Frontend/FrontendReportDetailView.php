@@ -24,6 +24,22 @@ use TT\Infrastructure\Query\QueryHelpers;
  */
 final class FrontendReportDetailView extends FrontendViewBase {
 
+    /**
+     * Enqueue the 2026 report-detail stylesheet (#1760). Depends on the
+     * app-chrome sheet so it inherits the brand + neutral tokens and the
+     * shared .tt-report-card / .tt-table primitives, plus the print
+     * rules previously emitted inline.
+     */
+    protected static function enqueueAssets(): void {
+        parent::enqueueAssets();
+        wp_enqueue_style(
+            'tt-frontend-report-detail',
+            TT_PLUGIN_URL . 'assets/css/frontend-report-detail.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+    }
+
     public static function render( string $type ): void {
         if ( ! current_user_can( 'tt_view_reports' ) ) {
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
@@ -45,14 +61,16 @@ final class FrontendReportDetailView extends FrontendViewBase {
             [ 'label' => __( 'Reports', 'talenttrack' ),   'url' => $reports_url ],
             [ 'label' => $title ],
         ] );
-        echo '<h1 class="tt-fview-title" style="margin:6px 0 18px; font-size:22px; color:#1a1d21;">' . esc_html( $title ) . '</h1>';
+        echo '<header class="tt-rep-page-head"><h1>' . esc_html( $title ) . '</h1></header>';
 
-        echo '<p style="margin:0 0 16px;">';
+        echo '<p class="tt-rep-detail-actions">';
         echo '<button type="button" class="tt-btn tt-btn-secondary tt-print-button" onclick="window.print()">'
             . esc_html__( 'Print / Save as PDF', 'talenttrack' )
             . '</button>';
         echo '</p>';
 
+        // Print stylesheet ships in frontend-report-detail.css (#1760) —
+        // it hides everything outside .tt-print-area at @media print.
         echo '<div class="tt-print-area">';
         switch ( $type ) {
             case 'team_ratings':   self::renderTeamRatings();   break;
@@ -61,19 +79,6 @@ final class FrontendReportDetailView extends FrontendViewBase {
                 echo '<p><em>' . esc_html__( 'Unknown report.', 'talenttrack' ) . '</em></p>';
         }
         echo '</div>';
-
-        // Print stylesheet — hide everything outside .tt-print-area.
-        ?>
-        <style>
-            @media print {
-                body * { visibility: hidden; }
-                .tt-print-area, .tt-print-area * { visibility: visible; }
-                .tt-print-area { position: absolute; left: 0; top: 0; width: 100%; padding: 16px; }
-                .tt-print-button, .tt-breadcrumbs, .tt-back-link, .tt-dash-header, .tt-user-menu, .tt-tile-grid { display: none !important; }
-                .tt-table th, .tt-table td { padding: 6px 8px; font-size: 11pt; }
-            }
-        </style>
-        <?php
     }
 
     private static function renderTeamRatings(): void {
@@ -81,7 +86,7 @@ final class FrontendReportDetailView extends FrontendViewBase {
         $categories = QueryHelpers::get_categories();
         $teams      = QueryHelpers::get_teams();
 
-        echo '<p style="color:#5b6e75; max-width:760px;">'
+        echo '<p class="tt-rep-detail-intro">'
             . esc_html__( 'Average rating per team across main categories, computed from all evaluations of players currently assigned to each team. Archived rows are excluded.', 'talenttrack' )
             . '</p>';
 
@@ -90,7 +95,7 @@ final class FrontendReportDetailView extends FrontendViewBase {
             return;
         }
 
-        echo '<div class="tt-table-wrap"><table class="tt-table" style="width:100%; background:#fff; border:1px solid #e5e7ea;"><thead><tr>';
+        echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table"><thead><tr>';
         echo '<th>' . esc_html__( 'Team', 'talenttrack' ) . '</th>';
         foreach ( $categories as $cat ) {
             echo '<th>' . esc_html( \TT\Infrastructure\Evaluations\EvalCategoriesRepository::displayLabel( (string) $cat->name ) ) . '</th>';
@@ -127,18 +132,18 @@ final class FrontendReportDetailView extends FrontendViewBase {
             $eval_count = $eval_counts[ (int) $team->id ] ?? 0;
             echo '<tr><td><strong>' . esc_html( (string) $team->name ) . '</strong>';
             if ( ! empty( $team->age_group ) ) {
-                echo ' <span style="color:#888;">(' . esc_html( \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'age_group', (string) $team->age_group ) ) . ')</span>';
+                echo ' <span class="tt-rep-detail-muted">(' . esc_html( \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'age_group', (string) $team->age_group ) ) . ')</span>';
             }
             echo '</td>';
             foreach ( $categories as $cat ) {
                 $avg = $cat_avgs[ (int) $team->id ][ (int) $cat->id ] ?? null;
-                echo '<td style="font-variant-numeric:tabular-nums;">'
+                echo '<td class="num">'
                     . ( $avg === null ? '—' : esc_html( (string) round( (float) $avg, 2 ) ) )
                     . '</td>';
             }
-            echo '<td style="font-variant-numeric:tabular-nums; color:#666;">' . $eval_count . '</td></tr>';
+            echo '<td class="num tt-rep-detail-muted">' . $eval_count . '</td></tr>';
         }
-        echo '</tbody></table></div>';
+        echo '</tbody></table></div></div>';
     }
 
     private static function renderCoachActivity(): void {
@@ -147,7 +152,7 @@ final class FrontendReportDetailView extends FrontendViewBase {
         $days = isset( $_GET['days'] ) ? max( 1, min( 365, absint( $_GET['days'] ) ) ) : 30;
         $cutoff = gmdate( 'Y-m-d H:i:s', time() - $days * DAY_IN_SECONDS );
 
-        echo '<p style="color:#5b6e75; max-width:760px;">';
+        echo '<p class="tt-rep-detail-intro">';
         printf(
             /* translators: %d is number of days */
             esc_html__( 'Evaluations saved per coach in the last %d days. Archived rows excluded.', 'talenttrack' ),
@@ -155,10 +160,10 @@ final class FrontendReportDetailView extends FrontendViewBase {
         );
         echo '</p>';
 
-        echo '<form method="get" style="margin:12px 0;">';
+        echo '<form method="get" class="tt-rep-detail-filter">';
         echo '<input type="hidden" name="tt_view" value="reports" />';
         echo '<input type="hidden" name="type" value="coach_activity" />';
-        echo '<label style="font-size:13px;">' . esc_html__( 'Window', 'talenttrack' ) . ': ';
+        echo '<label>' . esc_html__( 'Window', 'talenttrack' ) . ': ';
         echo '<select name="days" onchange="this.form.submit()">';
         foreach ( [ 7, 30, 90, 180, 365 ] as $d ) {
             $sel = ( $days === $d ) ? ' selected' : '';
@@ -182,20 +187,20 @@ final class FrontendReportDetailView extends FrontendViewBase {
             return;
         }
 
-        echo '<div class="tt-table-wrap">';
-        echo '<table class="tt-table" style="max-width:800px; background:#fff; border:1px solid #e5e7ea;"><thead><tr>';
+        echo '<div class="tt-report-card tt-report-card--narrow"><div class="tt-table-wrap">';
+        echo '<table class="tt-table"><thead><tr>';
         echo '<th>' . esc_html__( 'Coach', 'talenttrack' ) . '</th>';
-        echo '<th>' . esc_html__( 'Evaluations', 'talenttrack' ) . '</th>';
+        echo '<th class="num">' . esc_html__( 'Evaluations', 'talenttrack' ) . '</th>';
         echo '<th>' . esc_html__( 'Last evaluation', 'talenttrack' ) . '</th>';
         echo '</tr></thead><tbody>';
         foreach ( $rows as $r ) {
             $user = get_userdata( (int) $r->coach_id );
             $name = $user ? (string) $user->display_name : sprintf( '(user %d)', (int) $r->coach_id );
             echo '<tr><td>' . esc_html( $name ) . '</td>';
-            echo '<td style="font-variant-numeric:tabular-nums;">' . (int) $r->total_in_window . '</td>';
+            echo '<td class="num">' . (int) $r->total_in_window . '</td>';
             echo '<td>' . esc_html( (string) $r->last_eval ) . '</td></tr>';
         }
         echo '</tbody></table>';
-        echo '</div>';
+        echo '</div></div>';
     }
 }
