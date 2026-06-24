@@ -590,6 +590,10 @@ class DashboardShortcode {
             case 'parent-accounts':
                 \TT\Modules\Players\Frontend\FrontendParentAccountsView::render( $user_id, $is_admin );
                 return true;
+            // #1815 — Accounts & access hub (Player / Parent accounts, Invitations).
+            case 'accounts':
+                \TT\Modules\Players\Frontend\FrontendAccountsHubView::render( $user_id, $is_admin );
+                return true;
             case 'people':
                 if ( $detail_id > 0 && $action !== 'edit' ) {
                     FrontendPersonDetailView::render( $detail_id, $user_id, $is_admin );

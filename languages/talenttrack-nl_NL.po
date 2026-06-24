@@ -40406,3 +40406,24 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+
+msgid "Accounts & access"
+msgstr "Accounts & toegang"
+
+msgid "You do not have permission to manage accounts."
+msgstr "Je hebt geen rechten om accounts te beheren."
+
+msgid "Manage who can sign in to TalentTrack and how their login maps to a player, parent or staff record."
+msgstr "Beheer wie kan inloggen bij TalentTrack en hoe hun login is gekoppeld aan een speler-, ouder- of stafdossier."
+
+msgid "Link or unlink a WordPress login to each player record."
+msgstr "Koppel of ontkoppel een WordPress-login aan elk spelersdossier."
+
+msgid "Link or unlink guardian logins to the players they follow."
+msgstr "Koppel of ontkoppel verzorgerslogins aan de spelers die zij volgen."
+
+msgid "Send and track player, parent and staff invitation links."
+msgstr "Verstuur en volg uitnodigingslinks voor spelers, ouders en staf."
+
+msgid "Back to Accounts & access"
+msgstr "Terug naar Accounts & toegang"

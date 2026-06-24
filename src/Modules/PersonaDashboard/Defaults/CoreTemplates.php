@@ -252,8 +252,10 @@ final class CoreTemplates {
             [ 'activities',          __( 'Activities',          'talenttrack' ), 27 ],
             // Master-data + planning
             [ 'people',              __( 'People',              'talenttrack' ), 28 ],
-            // #1771 — admin link/unlink of WP accounts to players.
-            [ 'player-accounts',     __( 'Player accounts',     'talenttrack' ), 28 ],
+            // #1815 — Accounts & access hub (Player accounts, Parent
+            // accounts, Invitations). Replaces the standalone Player
+            // accounts tile; the hub is the entry point.
+            [ 'accounts',            __( 'Accounts & access',   'talenttrack' ), 28 ],
             [ 'goals',               __( 'Goals',               'talenttrack' ), 29 ],
             [ 'methodology',         __( 'Methodology',         'talenttrack' ), 30 ],
             [ 'pdp-planning',        __( 'PDP planning',        'talenttrack' ), 31 ],
