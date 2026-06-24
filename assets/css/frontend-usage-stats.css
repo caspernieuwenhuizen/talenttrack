@@ -1,0 +1,95 @@
+/*
+ * frontend-usage-stats.css (#1695) — 2026 green/gold look for the Application
+ * KPIs dashboard: KPI summary strip (shared .tt-kpi tiles), card-wrapped
+ * panels, a period chip-row, and an inline share bar on the "top features"
+ * table. Mobile-first per CLAUDE.md §2; tokens only (assets/css/tokens.css).
+ * Scoped under .tt-dashboard.
+ */
+
+.tt-dashboard .tt-usage-intro {
+    color: var(--tt-ink-soft);
+    max-width: 760px;
+    margin: 0 0 var(--tt-sp-3);
+    font-size: var(--tt-fs-sm);
+}
+
+/* period selector — chip-row */
+.tt-dashboard .tt-usage-periods {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-2);
+    align-items: center;
+    margin: 0 0 var(--tt-sp-4);
+}
+.tt-dashboard .tt-usage-periods__label {
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-ink-soft);
+    margin-right: var(--tt-sp-1);
+}
+.tt-dashboard .tt-usage-periods .tt-usage-periods__admin {
+    margin-left: auto;
+}
+
+/* KPI summary strip */
+.tt-dashboard .tt-usage-kpis {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: var(--tt-sp-3);
+    margin: 0 0 var(--tt-sp-4);
+}
+
+/* panels become 2026 cards */
+.tt-dashboard .tt-usage-panel {
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius-lg);
+    box-shadow: var(--tt-shadow-md);
+    padding: var(--tt-sp-4);
+    margin: 0 0 var(--tt-sp-4);
+}
+.tt-dashboard .tt-usage-panel__title {
+    margin: 0 0 var(--tt-sp-3);
+    font-size: var(--tt-fs-sm);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--tt-ink-soft);
+}
+.tt-dashboard .tt-usage-panel .tt-table { margin: 0; width: 100%; }
+.tt-dashboard .tt-usage-chart {
+    position: relative;
+    height: 240px;
+}
+
+/* inline share bar on the top-features table */
+.tt-dashboard .tt-share-bar {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--tt-sp-2);
+    justify-content: flex-end;
+    width: 100%;
+}
+.tt-dashboard .tt-share-bar .v {
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    min-width: 38px;
+    text-align: right;
+    color: var(--tt-ink);
+}
+.tt-dashboard .tt-share-bar .track {
+    width: 72px;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--tt-line-soft);
+    overflow: hidden;
+    flex: 0 0 auto;
+}
+.tt-dashboard .tt-share-bar .track > i {
+    display: block;
+    height: 100%;
+    background: var(--tt-success);
+}
+
+@media (max-width: 480px) {
+    .tt-dashboard .tt-share-bar .track { display: none; }
+}

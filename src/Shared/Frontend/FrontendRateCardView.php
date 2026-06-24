@@ -25,6 +25,23 @@ use TT\Shared\Frontend\Components\TeamPickerComponent;
  */
 class FrontendRateCardView extends FrontendViewBase {
 
+    /**
+     * B3 — enqueue the per-view 2026 stylesheet on top of the shared
+     * frontend assets. Styles the team/player picker card and the
+     * wrapper around the delegated admin rate-card body; depends on the
+     * app-chrome sheet for the brand tokens. The inner card rendering
+     * (PlayerRateCardView) and its Chart.js canvases are untouched.
+     */
+    protected static function enqueueAssets(): void {
+        parent::enqueueAssets();
+        wp_enqueue_style(
+            'tt-frontend-rate-cards',
+            TT_PLUGIN_URL . 'assets/css/frontend-rate-cards.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+    }
+
     public static function render(): void {
         self::enqueueAssets();
         // Chart.js needed for the trend line and radar — the admin
@@ -87,7 +104,7 @@ class FrontendRateCardView extends FrontendViewBase {
         // [talenttrack_dashboard] shortcode lives) and swaps player_id.
         $current_url = remove_query_arg( [ 'player_id', 'team_id', 'date_from', 'date_to', 'eval_type_id' ] );
         ?>
-        <form method="get" action="" class="tt-grid tt-grid-2" style="margin:8px 0 20px; gap:12px; max-width:680px;">
+        <form method="get" action="" class="tt-rc-form">
             <?php
             // Preserve non-filter query args (page, tt_view) as hidden inputs
             foreach ( $_GET as $k => $v ) {
@@ -119,7 +136,7 @@ class FrontendRateCardView extends FrontendViewBase {
                 'selected' => $player_id,
             ] );
             ?>
-            <div class="tt-field" style="grid-column: 1 / -1;">
+            <div class="tt-field tt-field--submit">
                 <button type="submit" class="tt-btn tt-btn-primary"><?php esc_html_e( 'Show rate card', 'talenttrack' ); ?></button>
             </div>
         </form>
@@ -146,7 +163,7 @@ class FrontendRateCardView extends FrontendViewBase {
         <?php
 
         if ( $player_id <= 0 ) {
-            echo '<p><em>' . esc_html__( 'Pick a player above to see their rate card.', 'talenttrack' ) . '</em></p>';
+            echo '<p class="tt-rc-note-empty"><em>' . esc_html__( 'Pick a player above to see their rate card.', 'talenttrack' ) . '</em></p>';
             return;
         }
 
@@ -160,25 +177,8 @@ class FrontendRateCardView extends FrontendViewBase {
         // Delegate to the admin view class. It renders FIFA card +
         // headline numbers + radar + trend line. Chart.js must be
         // enqueued (done above).
-        echo '<div class="tt-fe-rate-card" style="max-width:100%;">';
+        echo '<div class="tt-fe-rate-card">';
         \TT\Modules\Stats\Admin\PlayerRateCardView::render( $player_id, $filters, $base_url );
         echo '</div>';
-
-        // Mobile-first CSS — card grids collapse to single column on
-        // narrow viewports, filters stack, numbers stay readable.
-        ?>
-        <style>
-            .tt-fe-rate-card { font-size:14px; }
-            @media (max-width: 820px) {
-                .tt-fe-rate-card .tt-stats-grid,
-                .tt-fe-rate-card .tt-rate-grid {
-                    grid-template-columns: minmax(0,1fr) !important;
-                }
-                .tt-fe-rate-card .tt-rate-card-layout {
-                    display: block !important;
-                }
-            }
-        </style>
-        <?php
     }
 }

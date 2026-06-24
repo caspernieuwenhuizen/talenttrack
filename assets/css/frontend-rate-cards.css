@@ -1,0 +1,54 @@
+/*
+ * frontend-rate-cards.css — 2026 restyle of the Rate cards surface
+ * (FrontendRateCardView, B3).
+ *
+ * Chrome only — the team/player picker card and the wrapper around the
+ * delegated admin rate-card body (FIFA card + headline numbers + radar
+ * + trend). The inner card rendering and its Chart.js canvases come from
+ * PlayerRateCardView and are left untouched; this sheet only frames the
+ * picker and collapses the admin grids to one column on narrow viewports.
+ * Mobile-first per CLAUDE.md §2 — base ~360px, min-width queries at 768.
+ * Scoped under .tt-dashboard. Tokens only — no raw hex.
+ */
+
+/* ---- Picker card --------------------------------------------------- */
+.tt-dashboard .tt-rc-form {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--tt-sp-3);
+    max-width: 680px;
+    margin: var(--tt-sp-2) 0 var(--tt-sp-5);
+    padding: var(--tt-sp-4) var(--tt-sp-5);
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius-lg);
+    box-shadow: var(--tt-shadow-md);
+}
+.tt-dashboard .tt-rc-form .tt-field--submit { grid-column: 1 / -1; }
+
+.tt-dashboard .tt-rc-note-empty { color: var(--tt-ink-soft); }
+
+/* ---- Delegated admin body wrapper ---------------------------------- */
+.tt-dashboard .tt-fe-rate-card {
+    font-size: var(--tt-fs-sm);
+    max-width: 100%;
+}
+
+/* Narrow viewports: collapse the admin stat / rate grids and the
+ * rate-card two-up layout to a single column so nothing overflows the
+ * 360px viewport. */
+.tt-dashboard .tt-fe-rate-card .tt-stats-grid,
+.tt-dashboard .tt-fe-rate-card .tt-rate-grid {
+    grid-template-columns: minmax(0, 1fr);
+}
+.tt-dashboard .tt-fe-rate-card .tt-rate-card-layout {
+    display: block;
+}
+
+/* ---- Scale up ------------------------------------------------------ */
+@media (min-width: 768px) {
+    .tt-dashboard .tt-rc-form {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .tt-dashboard .tt-fe-rate-card { font-size: var(--tt-fs-body); }
+}

@@ -8,6 +8,7 @@ use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Analytics\Domain\AttendanceFlagService;
 use TT\Modules\Analytics\Reports\AttendanceRankingQuery;
 use TT\Shared\Frontend\Components\BackLink;
+use TT\Shared\Frontend\Components\FrontendAppChrome;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\RecordLink;
 use TT\Shared\Frontend\FrontendViewBase;
@@ -28,6 +29,21 @@ use TT\Shared\Frontend\FrontendViewBase;
  * Scope: club-wide, narrowed by an optional `team_id` filter.
  */
 final class FrontendAttendancePlayerReportView extends FrontendViewBase {
+
+    /**
+     * #1695 — pull in the 2026 green/gold report stylesheet (KPI strip,
+     * card table, inline attendance bars). Depends on the app-chrome
+     * handle the base view registers.
+     */
+    protected static function enqueueAssets(): void {
+        parent::enqueueAssets();
+        wp_enqueue_style(
+            'tt-attendance-player-report',
+            TT_PLUGIN_URL . 'assets/css/frontend-attendance-player-report.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+    }
 
     public static function render( int $user_id, bool $is_admin ): void {
         self::enqueueAssets();
@@ -95,26 +111,45 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
         $threshold = AttendanceFlagService::threshold();
         $at_risk   = array_values( array_filter( $rows, static fn( array $r ): bool => ! empty( $r['flagged'] ) ) );
 
+        // #1695 — KPI summary strip computed from the already-fetched rows
+        // (presentation-level aggregation only; the query stays the source).
+        $player_count = count( $rows );
+        $sum_present = 0; $sum_total = 0;
+        foreach ( $rows as $r ) {
+            $sum_present += (int) $r['present'];
+            $sum_total   += (int) $r['total'];
+        }
+        $avg = $sum_total > 0 ? number_format_i18n( $sum_present / $sum_total * 100, 1 ) . '%' : '—';
+        $at_risk_count = count( $at_risk );
+
+        echo '<div class="tt-report-kpis">';
+        // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped — kpiTile() escapes internally.
+        echo FrontendAppChrome::kpiTile( [ 'label' => __( 'Players', 'talenttrack' ),         'value' => (string) $player_count ] );
+        echo FrontendAppChrome::kpiTile( [ 'label' => __( 'Avg. attendance', 'talenttrack' ), 'value' => $avg ] );
+        echo FrontendAppChrome::kpiTile( [ 'label' => __( 'At-risk players', 'talenttrack' ), 'value' => (string) $at_risk_count, 'flag' => $at_risk_count > 0 ? 'red' : 'green' ] );
+        // phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
+        echo '</div>';
+
         if ( $at_risk !== [] ) {
             usort( $at_risk, static fn( $a, $b ) => (int) $b['missed'] <=> (int) $a['missed'] );
-            echo '<div class="tt-panel" style="border-left:4px solid #d63638; margin-top:12px;">';
-            echo '<h3 class="tt-panel-title" style="margin-top:0;">' . esc_html( sprintf(
+            echo '<div class="tt-atrisk-card">';
+            echo '<h3 class="tt-atrisk-card__title">' . esc_html( sprintf(
                 /* translators: %d is the missed-activities threshold */
                 __( 'At-risk players (%d or more missed)', 'talenttrack' ),
                 $threshold
             ) ) . '</h3>';
-            echo '<ul style="margin:0; padding-left:18px; line-height:1.7;">';
+            echo '<ul class="tt-atrisk-list">';
             foreach ( $at_risk as $r ) {
                 $nm = trim( ( (string) $r['first_name'] ) . ' ' . ( (string) $r['last_name'] ) );
                 if ( $nm === '' ) $nm = '#' . (int) $r['player_id'];
-                echo '<li>' . esc_html( $nm ) . ' <span style="color:var(--tt-muted);">'
+                echo '<li>' . esc_html( $nm ) . ' <span class="missed">'
                     . esc_html( sprintf( /* translators: %d missed activities */ __( '%d missed', 'talenttrack' ), (int) $r['missed'] ) )
                     . '</span></li>';
             }
             echo '</ul></div>';
         }
 
-        echo '<div class="tt-table-wrap"><table class="tt-table tt-table-sortable" style="width:100%; margin-top:12px;">';
+        echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table tt-table-sortable" style="width:100%;">';
         echo '<thead><tr>';
         echo '<th>' . esc_html__( 'Player',    'talenttrack' ) . '</th>';
         echo '<th>' . esc_html__( 'Team',      'talenttrack' ) . '</th>';
@@ -134,26 +169,44 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
                 RecordLink::dashboardUrl()
             ) );
             $team_name = (string) $r['team_name'];
-            // #1488 — inline at-risk badge for flagged players.
+            // #1488 — inline at-risk badge for flagged players (#1695: chip styling).
             $badge = '';
             if ( ! empty( $r['flagged'] ) ) {
                 $badge = ' <span class="tt-flag-badge" title="'
                     . esc_attr( sprintf( /* translators: %d missed activities */ __( '%d missed', 'talenttrack' ), (int) $r['missed'] ) )
-                    . '" style="display:inline-block; background:#fcecec; color:#d63638; border-radius:10px; padding:1px 7px; font-size:11px; font-weight:600; white-space:nowrap;">⚠ '
-                    . (int) $r['missed'] . '</span>';
+                    . '">⚠ ' . (int) $r['missed'] . '</span>';
             }
-            echo '<tr' . ( ! empty( $r['flagged'] ) ? ' style="background:#fffafa;"' : '' ) . '>';
+            $present_pct = (int) $r['total'] > 0 ? ( (int) $r['present'] / (int) $r['total'] ) * 100 : null;
+            echo '<tr' . ( ! empty( $r['flagged'] ) ? ' class="is-flagged"' : '' ) . '>';
             echo '<td><a class="tt-record-link" href="' . esc_url( $player_url ) . '">' . esc_html( $player_name ) . '</a>' . $badge . '</td>';
             echo '<td>' . ( $team_name !== '' ? esc_html( $team_name ) : '<span class="tt-muted">&mdash;</span>' ) . '</td>';
             echo '<td style="text-align:right;">' . (int) $r['activities'] . '</td>';
-            echo '<td style="text-align:right;">' . esc_html( self::pct( $r['present'], $r['total'] ) ) . '</td>';
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — attendanceBar() escapes internally.
+            echo '<td>' . self::attendanceBar( $present_pct ) . '</td>';
             echo '<td style="text-align:right;">' . esc_html( self::pct( $r['late'],    $r['total'] ) ) . '</td>';
             echo '<td style="text-align:right;">' . esc_html( self::pct( $r['absent'],  $r['total'] ) ) . '</td>';
             echo '<td style="text-align:right;">' . esc_html( self::pct( $r['excused'], $r['total'] ) ) . '</td>';
             echo '<td style="text-align:right;">' . esc_html( self::pct( $r['injured'], $r['total'] ) ) . '</td>';
             echo '</tr>';
         }
-        echo '</tbody></table></div>';
+        echo '</tbody></table></div></div>';
+    }
+
+    /**
+     * Inline attendance bar for the Present % cell — value + a track that
+     * fills proportionally, red below 70%. Returns escaped HTML.
+     * Mirrors the team report's bar (#1688) for a consistent vocabulary.
+     */
+    private static function attendanceBar( ?float $pct ): string {
+        if ( $pct === null ) {
+            return '<span class="tt-att-bar"><span class="v">—</span></span>';
+        }
+        $low = $pct < 70;
+        $w   = max( 0, min( 100, (int) round( $pct ) ) );
+        return '<span class="tt-att-bar' . ( $low ? ' is-low' : '' ) . '">'
+            . '<span class="v">' . esc_html( number_format_i18n( $pct, 1 ) . '%' ) . '</span>'
+            . '<span class="track"><i style="width:' . (int) $w . '%;"></i></span>'
+            . '</span>';
     }
 
     private static function pct( $part, $total ): string {

@@ -1,0 +1,105 @@
+/*
+ * frontend-cohort-transitions.css — 2026 restyle of the cohort
+ * transitions query surface (FrontendCohortTransitionsView, B3).
+ *
+ * A filter card (event type / date range / team), a result-count line,
+ * and the matches table. Mobile-first per CLAUDE.md §2 — base ~360px,
+ * min-width queries at 480/768. Scoped under .tt-dashboard. Tokens only
+ * — no raw hex. Data queries are untouched.
+ */
+
+.tt-dashboard .tt-cohort { display: block; }
+.tt-dashboard .tt-cohort > header { margin-bottom: var(--tt-sp-4); }
+.tt-dashboard .tt-cohort > header h2 {
+    margin: 0 0 var(--tt-sp-1);
+    font-size: var(--tt-fs-h3);
+    color: var(--tt-ink);
+}
+.tt-dashboard .tt-cohort .tt-muted { color: var(--tt-muted); }
+
+/* ---- Filter card --------------------------------------------------- */
+.tt-dashboard .tt-cohort-filters {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--tt-sp-3);
+    align-items: end;
+    margin: var(--tt-sp-4) 0;
+    padding: var(--tt-sp-4) var(--tt-sp-5);
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius-lg);
+    box-shadow: var(--tt-shadow-md);
+}
+.tt-dashboard .tt-cohort-filters label {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-1);
+}
+.tt-dashboard .tt-cohort-filters label > span {
+    font-size: var(--tt-fs-sm);
+    font-weight: 600;
+    color: var(--tt-muted);
+}
+.tt-dashboard .tt-cohort-filters input,
+.tt-dashboard .tt-cohort-filters select {
+    padding: 0.6rem 0.7rem;
+    font-size: 1rem;
+    min-height: 48px;
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    background: var(--tt-paper);
+    color: var(--tt-ink);
+}
+.tt-dashboard .tt-cohort-filters .tt-btn { min-height: 48px; }
+
+/* ---- Empty / count states ------------------------------------------ */
+.tt-dashboard .tt-cohort .tt-empty {
+    margin: var(--tt-sp-2) 0;
+    padding: var(--tt-sp-4) var(--tt-sp-5);
+    background: var(--tt-paper);
+    border: 1px dashed var(--tt-line);
+    border-radius: var(--tt-radius-lg);
+    color: var(--tt-muted);
+    font-size: var(--tt-fs-sm);
+}
+.tt-dashboard .tt-cohort-count {
+    color: var(--tt-muted);
+    font-size: var(--tt-fs-sm);
+    margin: var(--tt-sp-2) 0;
+}
+
+/* ---- Results table ------------------------------------------------- */
+.tt-dashboard .tt-cohort-table-wrap { overflow-x: auto; }
+.tt-dashboard .tt-cohort-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius-lg);
+    overflow: hidden;
+}
+.tt-dashboard .tt-cohort-table th,
+.tt-dashboard .tt-cohort-table td {
+    text-align: left;
+    padding: var(--tt-sp-2) var(--tt-sp-3);
+    border-bottom: 1px solid var(--tt-line-soft);
+    font-size: var(--tt-fs-sm);
+}
+.tt-dashboard .tt-cohort-table th {
+    background: var(--tt-bg-soft);
+    color: var(--tt-muted);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 0.72rem;
+    border-bottom: 1px solid var(--tt-line);
+}
+.tt-dashboard .tt-cohort-table tbody tr:last-child td { border-bottom: none; }
+.tt-dashboard .tt-cohort-table .tt-btn { min-height: 48px; }
+
+/* ---- Scale up ------------------------------------------------------ */
+@media (min-width: 480px) {
+    .tt-dashboard .tt-cohort-filters {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
+}

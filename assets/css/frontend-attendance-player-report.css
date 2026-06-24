@@ -1,0 +1,116 @@
+/*
+ * frontend-attendance-player-report.css (#1695) — 2026 green/gold look for the
+ * player attendance report: a KPI summary strip, an at-risk callout card, and a
+ * card-wrapped sortable table with an inline present-% bar + at-risk chips.
+ * Mobile-first per CLAUDE.md §2; tokens only (assets/css/tokens.css).
+ * Scoped under .tt-dashboard.
+ */
+
+.tt-dashboard .tt-report-kpis {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: var(--tt-sp-3);
+    margin: var(--tt-sp-3) 0 var(--tt-sp-4);
+}
+
+.tt-dashboard .tt-report-card {
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius-lg);
+    box-shadow: var(--tt-shadow-md);
+    overflow: hidden;
+}
+.tt-dashboard .tt-report-card .tt-table-wrap { margin: 0; overflow-x: auto; }
+.tt-dashboard .tt-report-card .tt-table { margin: 0; width: 100%; }
+
+/* at-risk callout card */
+.tt-dashboard .tt-atrisk-card {
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-left: 4px solid var(--tt-danger);
+    border-radius: var(--tt-radius-lg);
+    box-shadow: var(--tt-shadow-md);
+    padding: var(--tt-sp-4);
+    margin: var(--tt-sp-3) 0 var(--tt-sp-4);
+}
+.tt-dashboard .tt-atrisk-card__title {
+    margin: 0 0 var(--tt-sp-3);
+    font-size: var(--tt-fs-sm);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--tt-danger);
+}
+.tt-dashboard .tt-atrisk-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-2);
+}
+.tt-dashboard .tt-atrisk-list li {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--tt-sp-2);
+    background: var(--tt-danger-subtle);
+    border-radius: 999px;
+    padding: var(--tt-sp-1) var(--tt-sp-3);
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-ink);
+}
+.tt-dashboard .tt-atrisk-list li .missed {
+    color: var(--tt-danger);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.tt-dashboard .tt-report-card tr.is-flagged {
+    background: var(--tt-danger-subtle);
+}
+
+.tt-dashboard .tt-flag-badge {
+    display: inline-block;
+    background: var(--tt-danger-subtle);
+    color: var(--tt-danger);
+    border-radius: 999px;
+    padding: 1px 8px;
+    font-size: var(--tt-fs-sm);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* inline present-% bar (shared vocabulary with the team/leaderboard report) */
+.tt-dashboard .tt-att-bar {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--tt-sp-2);
+    justify-content: flex-end;
+    width: 100%;
+}
+.tt-dashboard .tt-att-bar .v {
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    min-width: 46px;
+    text-align: right;
+    color: var(--tt-ink);
+}
+.tt-dashboard .tt-att-bar .track {
+    width: 84px;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--tt-line-soft);
+    overflow: hidden;
+    flex: 0 0 auto;
+}
+.tt-dashboard .tt-att-bar .track > i {
+    display: block;
+    height: 100%;
+    background: var(--tt-success);
+}
+.tt-dashboard .tt-att-bar.is-low .track > i { background: var(--tt-danger); }
+.tt-dashboard .tt-att-bar.is-low .v { color: var(--tt-danger); }
+
+@media (max-width: 480px) {
+    .tt-dashboard .tt-att-bar .track { display: none; }
+}

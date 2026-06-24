@@ -1,0 +1,20 @@
+/*
+ * frontend-reports-launcher.css — 2026 green/gold restyle (B3) for the
+ * Reports launcher (?tt_view=reports). The tile grid itself is rendered by
+ * the shared FrontendSectionedTileGrid presenter (also used by Config /
+ * Lookups / Exports), so its tiles are intentionally left to that shared
+ * surface; this sheet warms the launcher's own chrome — the lead-in line
+ * and the section headings — to the 2026 token palette.
+ *
+ * Mobile-first per CLAUDE.md §2: base styles target ~360px. Scoped under
+ * .tt-dashboard (the active theme is hostile). Loaded with a dep on
+ * tt-frontend-app-chrome so it inherits the brand + neutral tokens.
+ * Tokens only — no raw hex.
+ */
+
+.tt-dashboard .tt-rl-intro {
+    margin: 0 0 var(--tt-sp-4, 16px);
+    color: var(--tt-muted, #6a6d66);
+    font-size: var(--tt-fs-body, 1rem);
+    line-height: var(--tt-lh-body, 1.5);
+}

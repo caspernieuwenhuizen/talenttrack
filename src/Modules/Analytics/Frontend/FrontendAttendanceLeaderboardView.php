@@ -30,6 +30,21 @@ final class FrontendAttendanceLeaderboardView extends FrontendViewBase {
 
     private const DEFAULT_N = 10;
 
+    /**
+     * #1695 — pull in the 2026 green/gold leaderboard stylesheet (card
+     * tables, inline present-% bars, flag chips). Depends on the
+     * app-chrome handle the base view registers.
+     */
+    protected static function enqueueAssets(): void {
+        parent::enqueueAssets();
+        wp_enqueue_style(
+            'tt-attendance-leaderboard',
+            TT_PLUGIN_URL . 'assets/css/frontend-attendance-leaderboard.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+    }
+
     public static function render( int $user_id, bool $is_admin ): void {
         self::enqueueAssets();
 
@@ -94,8 +109,6 @@ final class FrontendAttendanceLeaderboardView extends FrontendViewBase {
             false
         );
         echo '</div>';
-
-        self::renderStyles();
     }
 
     /**
@@ -127,7 +140,7 @@ final class FrontendAttendanceLeaderboardView extends FrontendViewBase {
                 RecordLink::dashboardUrl()
             ) );
             $team   = (string) $r['team_name'];
-            $pct    = $r['present_pct'] !== null ? number_format_i18n( (float) $r['present_pct'], 1 ) . '%' : '—';
+            $present_pct = $r['present_pct'] !== null ? (float) $r['present_pct'] : null;
             $badge  = '';
             if ( $is_bottom && ! empty( $r['flagged'] ) ) {
                 $badge = ' <span class="tt-flag-badge" title="'
@@ -139,7 +152,8 @@ final class FrontendAttendanceLeaderboardView extends FrontendViewBase {
             echo '<td><a class="tt-record-link" href="' . esc_url( $player_url ) . '">' . esc_html( $name ) . '</a>' . $badge . '</td>';
             echo '<td>' . ( $team !== '' ? esc_html( $team ) : '<span class="tt-muted">&mdash;</span>' ) . '</td>';
             echo '<td style="text-align:right;">' . (int) $r['activities'] . '</td>';
-            echo '<td style="text-align:right;">' . esc_html( $pct ) . '</td>';
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — attendanceBar() escapes internally.
+            echo '<td>' . self::attendanceBar( $present_pct ) . '</td>';
             echo '</tr>';
             $rank++;
         }
@@ -205,21 +219,19 @@ final class FrontendAttendanceLeaderboardView extends FrontendViewBase {
     }
 
     /**
-     * Mobile-first leaderboard styles. Base layout is a single stacked
-     * column (the two tables sit one above the other on a phone, no
-     * horizontal scroll); the cards sit side-by-side from 768px up.
+     * Inline present-% bar — value + a proportional track, red below 70%.
+     * Returns escaped HTML. Shares the .tt-att-bar vocabulary with the
+     * team + player attendance reports (#1688 / #1695).
      */
-    private static function renderStyles(): void {
-        echo '<style>
-            .tt-leaderboard-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; margin-top: 0.75rem; }
-            .tt-leaderboard-card { min-width: 0; background: #fff; border: 1px solid var(--tt-line, #e2e8f0); border-radius: 6px; padding: 0.75rem 1rem 1rem; }
-            .tt-leaderboard-title { font-size: 1rem; margin: 0 0 0.5rem; }
-            .tt-leaderboard-card .tt-table-wrap { overflow-x: auto; }
-            .tt-leaderboard-card tr.is-flagged { background: #fffafa; }
-            .tt-flag-badge { display: inline-block; background: #fcecec; color: #d63638; border-radius: 10px; padding: 1px 7px; font-size: 0.7rem; font-weight: 600; white-space: nowrap; }
-            @media (min-width: 768px) {
-                .tt-leaderboard-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-            }
-        </style>';
+    private static function attendanceBar( ?float $pct ): string {
+        if ( $pct === null ) {
+            return '<span class="tt-att-bar"><span class="v">—</span></span>';
+        }
+        $low = $pct < 70;
+        $w   = max( 0, min( 100, (int) round( $pct ) ) );
+        return '<span class="tt-att-bar' . ( $low ? ' is-low' : '' ) . '">'
+            . '<span class="v">' . esc_html( number_format_i18n( $pct, 1 ) . '%' ) . '</span>'
+            . '<span class="track"><i style="width:' . (int) $w . '%;"></i></span>'
+            . '</span>';
     }
 }

@@ -20,6 +20,22 @@ use TT\Infrastructure\Journey\PlayerEventsRepository;
  */
 class FrontendCohortTransitionsView {
 
+    /**
+     * B3 — enqueue the per-view 2026 stylesheet. This view does not
+     * extend FrontendViewBase, so the sheet is enqueued directly with a
+     * dependency on the app-chrome sheet (always present on dashboard
+     * renders, where it carries the brand tokens). Data queries are
+     * untouched.
+     */
+    private static function enqueueAssets(): void {
+        wp_enqueue_style(
+            'tt-frontend-cohort-transitions',
+            TT_PLUGIN_URL . 'assets/css/frontend-cohort-transitions.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+    }
+
     public static function render( int $user_id, bool $is_admin ): void {
         // v3.94.1 — gate now consults the matrix instead of the umbrella
         // `tt_view_settings` cap. The seed grants `cohort_transitions:r:global`
@@ -35,6 +51,8 @@ class FrontendCohortTransitionsView {
             echo '<p class="tt-notice">' . esc_html__( 'You do not have access to cohort transitions.', 'talenttrack' ) . '</p>';
             return;
         }
+
+        self::enqueueAssets();
 
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Cohort transitions', 'talenttrack' ) );
 
@@ -63,7 +81,7 @@ class FrontendCohortTransitionsView {
                 <p class="tt-muted"><?php esc_html_e( 'Find every player whose journey contains a particular event in a date range.', 'talenttrack' ); ?></p>
             </header>
 
-            <form method="get" class="tt-cohort-filters" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:10px; margin: 16px 0; align-items:end;">
+            <form method="get" class="tt-cohort-filters">
                 <input type="hidden" name="tt_view" value="cohort-transitions" />
 
                 <label>
@@ -89,7 +107,7 @@ class FrontendCohortTransitionsView {
                     <span><?php esc_html_e( 'Team (optional)', 'talenttrack' ); ?></span>
                     <input type="number" name="team_id" value="<?php echo esc_attr( $team_id > 0 ? (string) $team_id : '' ); ?>" inputmode="numeric" min="0" />
                 </label>
-                <button type="submit" class="tt-btn tt-btn-primary" style="min-height:48px;">
+                <button type="submit" class="tt-btn tt-btn-primary">
                     <?php esc_html_e( 'Run query', 'talenttrack' ); ?>
                 </button>
             </form>
@@ -99,7 +117,7 @@ class FrontendCohortTransitionsView {
             <?php elseif ( empty( $rows ) ) : ?>
                 <p class="tt-empty"><?php esc_html_e( 'No matching events in the selected range.', 'talenttrack' ); ?></p>
             <?php else : ?>
-                <p class="tt-muted">
+                <p class="tt-cohort-count">
                     <?php
                     echo esc_html( sprintf(
                         /* translators: %d: number of cohort rows returned */
@@ -108,13 +126,14 @@ class FrontendCohortTransitionsView {
                     ) );
                     ?>
                 </p>
-                <table class="tt-table" style="width:100%; border-collapse: collapse;">
+                <div class="tt-cohort-table-wrap">
+                <table class="tt-table tt-cohort-table">
                     <thead>
                         <tr>
-                            <th style="text-align:left; padding:6px 8px; border-bottom:1px solid #d6dadd;"><?php esc_html_e( 'Player', 'talenttrack' ); ?></th>
-                            <th style="text-align:left; padding:6px 8px; border-bottom:1px solid #d6dadd;"><?php esc_html_e( 'Date', 'talenttrack' ); ?></th>
-                            <th style="text-align:left; padding:6px 8px; border-bottom:1px solid #d6dadd;"><?php esc_html_e( 'Detail', 'talenttrack' ); ?></th>
-                            <th style="text-align:left; padding:6px 8px; border-bottom:1px solid #d6dadd;"></th>
+                            <th><?php esc_html_e( 'Player', 'talenttrack' ); ?></th>
+                            <th><?php esc_html_e( 'Date', 'talenttrack' ); ?></th>
+                            <th><?php esc_html_e( 'Detail', 'talenttrack' ); ?></th>
+                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -126,11 +145,11 @@ class FrontendCohortTransitionsView {
                             ], remove_query_arg( [ 'event_type', 'from', 'to', 'team_id' ] ) );
                         ?>
                             <tr>
-                                <td style="padding:6px 8px; border-bottom:1px solid #eef0f2;"><?php echo esc_html( $name ); ?></td>
-                                <td style="padding:6px 8px; border-bottom:1px solid #eef0f2;"><?php echo esc_html( \TT\Shared\Dates\TTDate::date( (string) ( $row->event_date ?? '' ) ) ); ?></td>
-                                <td style="padding:6px 8px; border-bottom:1px solid #eef0f2;"><?php echo esc_html( (string) ( $row->summary ?? '' ) ); ?></td>
-                                <td style="padding:6px 8px; border-bottom:1px solid #eef0f2;">
-                                    <a href="<?php echo esc_url( $journey_url ); ?>" class="tt-btn tt-btn-secondary" style="min-height:32px;">
+                                <td><?php echo esc_html( $name ); ?></td>
+                                <td><?php echo esc_html( \TT\Shared\Dates\TTDate::date( (string) ( $row->event_date ?? '' ) ) ); ?></td>
+                                <td><?php echo esc_html( (string) ( $row->summary ?? '' ) ); ?></td>
+                                <td>
+                                    <a href="<?php echo esc_url( $journey_url ); ?>" class="tt-btn tt-btn-secondary">
                                         <?php esc_html_e( 'Open journey', 'talenttrack' ); ?>
                                     </a>
                                 </td>
@@ -138,6 +157,7 @@ class FrontendCohortTransitionsView {
                         <?php endforeach; ?>
                     </tbody>
                 </table>
+                </div>
             <?php endif; ?>
         </section>
         <?php

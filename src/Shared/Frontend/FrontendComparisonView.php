@@ -28,6 +28,23 @@ class FrontendComparisonView extends FrontendViewBase {
     /** Chart palette; matches admin PlayerComparisonPage. */
     private const COLORS = [ '#2271b1', '#00a32a', '#e8b624', '#b32d2e' ];
 
+    /**
+     * B3 — enqueue the per-view 2026 stylesheet on top of the shared
+     * frontend assets. Styles the picker/filter card, the side-by-side
+     * compare grid, and the radar / trend chart frames; depends on the
+     * app-chrome sheet for the brand tokens. Chart.js canvases and the
+     * stats queries are untouched.
+     */
+    protected static function enqueueAssets(): void {
+        parent::enqueueAssets();
+        wp_enqueue_style(
+            'tt-frontend-compare',
+            TT_PLUGIN_URL . 'assets/css/frontend-compare.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+    }
+
     public static function render(): void {
         self::enqueueAssets();
         \TT\Modules\Stats\Admin\PlayerCardView::enqueueStyles();
@@ -120,11 +137,11 @@ class FrontendComparisonView extends FrontendViewBase {
         if ( $visible_slots > 4 ) $visible_slots = 4;
 
         ?>
-        <p style="color:#666; max-width:760px; margin:0 0 16px;">
+        <p class="tt-fcompare-intro">
             <?php esc_html_e( 'Compare up to 4 players side-by-side. Cross-team is supported — pick any players from any team or age group.', 'talenttrack' ); ?>
         </p>
 
-        <form method="get" action="" style="background:#fff; border:1px solid #e5e7ea; border-radius:10px; padding:16px 20px; margin:16px 0;">
+        <form method="get" action="" class="tt-fcompare-form">
             <?php
             // Preserve tt_view + any other non-filter args
             foreach ( $_GET as $k => $v ) {
@@ -136,8 +153,8 @@ class FrontendComparisonView extends FrontendViewBase {
                 }
             }
             ?>
-            <h3 style="margin:0 0 10px; font-size:15px;"><?php esc_html_e( 'Select players', 'talenttrack' ); ?></h3>
-            <div id="tt-compare-slots" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:14px;">
+            <h3><?php esc_html_e( 'Select players', 'talenttrack' ); ?></h3>
+            <div id="tt-compare-slots" class="tt-fcompare-slots">
                 <?php for ( $i = 1; $i <= 4; $i++ ) :
                     $current = (int) ( $picked[ $i - 1 ] ?? 0 );
                     $hidden  = ( $i > $visible_slots && $current === 0 );
@@ -152,11 +169,11 @@ class FrontendComparisonView extends FrontendViewBase {
                     </div>
                 <?php endfor; ?>
             </div>
-            <p style="margin:10px 0 0;">
+            <p class="tt-fcompare-addrow">
                 <button type="button" class="tt-btn tt-btn-secondary" id="tt-compare-add-slot" <?php echo $visible_slots >= 4 ? 'disabled' : ''; ?>>
                     <?php esc_html_e( 'Add another player', 'talenttrack' ); ?>
                 </button>
-                <small id="tt-compare-slot-max" style="margin-left:8px; color:#5b6e75; <?php echo $visible_slots >= 4 ? '' : 'display:none;'; ?>">
+                <small id="tt-compare-slot-max" class="tt-fcompare-addnote" <?php echo $visible_slots >= 4 ? '' : 'hidden'; ?>>
                     <?php esc_html_e( 'Maximum of 4 players.', 'talenttrack' ); ?>
                 </small>
             </p>
@@ -172,29 +189,29 @@ class FrontendComparisonView extends FrontendViewBase {
                             slots[ i ].removeAttribute( 'hidden' );
                             if ( i + 1 >= slots.length ) {
                                 btn.disabled = true;
-                                if ( note ) note.style.display = '';
+                                if ( note ) note.hidden = false;
                             }
                             return;
                         }
                     }
                     btn.disabled = true;
-                    if ( note ) note.style.display = '';
+                    if ( note ) note.hidden = false;
                 } );
             })();
             </script>
 
-            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:10px; margin-top:12px;">
+            <div class="tt-fcompare-filters">
                 <div>
-                    <label style="font-size:12px; color:#555; display:block;"><?php esc_html_e( 'Date from', 'talenttrack' ); ?></label>
-                    <input type="date" name="date_from" value="<?php echo esc_attr( (string) ( $filters['date_from'] ?? '' ) ); ?>" style="width:100%; padding:6px;" />
+                    <label><?php esc_html_e( 'Date from', 'talenttrack' ); ?></label>
+                    <input type="date" name="date_from" value="<?php echo esc_attr( (string) ( $filters['date_from'] ?? '' ) ); ?>" />
                 </div>
                 <div>
-                    <label style="font-size:12px; color:#555; display:block;"><?php esc_html_e( 'Date to', 'talenttrack' ); ?></label>
-                    <input type="date" name="date_to" value="<?php echo esc_attr( (string) ( $filters['date_to'] ?? '' ) ); ?>" style="width:100%; padding:6px;" />
+                    <label><?php esc_html_e( 'Date to', 'talenttrack' ); ?></label>
+                    <input type="date" name="date_to" value="<?php echo esc_attr( (string) ( $filters['date_to'] ?? '' ) ); ?>" />
                 </div>
                 <div>
-                    <label style="font-size:12px; color:#555; display:block;"><?php esc_html_e( 'Evaluation Type', 'talenttrack' ); ?></label>
-                    <select name="eval_type_id" style="width:100%; padding:6px;">
+                    <label><?php esc_html_e( 'Evaluation Type', 'talenttrack' ); ?></label>
+                    <select name="eval_type_id">
                         <option value="0"><?php esc_html_e( 'All types', 'talenttrack' ); ?></option>
                         <?php foreach ( QueryHelpers::get_eval_types() as $t ) : ?>
                             <option value="<?php echo (int) $t->id; ?>" <?php selected( (int) ( $filters['eval_type_id'] ?? 0 ), (int) $t->id ); ?>>
@@ -205,14 +222,14 @@ class FrontendComparisonView extends FrontendViewBase {
                 </div>
             </div>
 
-            <p style="margin:14px 0 0;">
-                <button type="submit" class="tt-btn tt-btn-primary" style="padding:8px 16px;"><?php esc_html_e( 'Compare', 'talenttrack' ); ?></button>
+            <p class="tt-fcompare-submit">
+                <button type="submit" class="tt-btn tt-btn-primary"><?php esc_html_e( 'Compare', 'talenttrack' ); ?></button>
             </p>
         </form>
 
         <?php
         if ( empty( $players ) ) {
-            echo '<p style="color:#666;"><em>' . esc_html__( 'Pick at least one player above and click Compare.', 'talenttrack' ) . '</em></p>';
+            echo '<p class="tt-fcompare-note-empty"><em>' . esc_html__( 'Pick at least one player above and click Compare.', 'talenttrack' ) . '</em></p>';
             return;
         }
 
@@ -237,95 +254,23 @@ class FrontendComparisonView extends FrontendViewBase {
         ?>
 
         <?php if ( $mixed_ages ) : ?>
-            <div style="background:#e7f0f9; border-left:4px solid #2271b1; padding:10px 14px; margin:16px 0; font-size:13px;">
+            <div class="tt-fcompare-mixedages">
                 <?php esc_html_e( 'Mixed age groups in this comparison. Overall ratings use age-group-specific category weights, so the numbers below are not perfectly apples-to-apples — they reflect what each player\'s own coaching staff uses.', 'talenttrack' ); ?>
             </div>
         <?php endif; ?>
 
         <?php
-        // v3.94.1 — unified CSS Grid replaces three separate flex /
-        // table layouts so every player's column lines up vertically
-        // from the FIFA card down through Basic facts, Headline
-        // numbers, and Main category averages. Each row is one grid
-        // row; first column is the label cell, the next N columns are
-        // one per player at equal width.
+        // v3.94.1 — unified CSS Grid lines every player's column up
+        // vertically from the FIFA card down through Basic facts,
+        // Headline numbers, and Main category averages. The column
+        // count is data-driven (one per picked player), passed to the
+        // stylesheet via the `--tt-fcompare-cols` custom property; all
+        // static rules live in frontend-compare.css (B3).
         $n = count( $players );
-        $grid_cols = '180px repeat(' . $n . ', minmax(180px, 1fr))';
         ?>
-        <style>
-            .tt-fcompare-grid {
-                display: grid;
-                grid-template-columns: <?php echo esc_attr( $grid_cols ); ?>;
-                gap: 0;
-                background: #fff;
-                border: 1px solid #e5e7ea;
-                border-radius: 10px;
-                overflow: hidden;
-                margin: 16px 0 24px;
-            }
-            .tt-fcompare-section {
-                grid-column: 1 / -1;
-                background: #f6f7f7;
-                color: #5b6e75;
-                font-size: 12px;
-                font-weight: 700;
-                letter-spacing: 0.04em;
-                text-transform: uppercase;
-                padding: 10px 14px;
-                border-top: 1px solid #e5e7ea;
-            }
-            .tt-fcompare-section:first-child { border-top: 0; }
-            .tt-fcompare-cell {
-                padding: 10px 14px;
-                border-top: 1px solid #f1f3f5;
-                font-size: 14px;
-                line-height: 1.35;
-                /* v4.0.7 (#878) — anchor every cell vertically so the
-                 * FIFA-card column (which sets `align-items: flex-start`
-                 * on the card cell) doesn't visually pull the left/right
-                 * comparison rows out of alignment. */
-                display: flex;
-                align-items: center;
-            }
-            .tt-fcompare-cell.tt-fcompare-label {
-                font-weight: 600;
-                color: #1a1d21;
-                background: #fafbfc;
-            }
-            .tt-fcompare-cell.tt-fcompare-headerplayer {
-                font-weight: 700;
-                background: #fff;
-                color: #1a1d21;
-                border-top: 0;
-            }
-            .tt-fcompare-cell.tt-fcompare-card {
-                padding: 14px;
-                background: #fff;
-                display: flex;
-                justify-content: center;
-                align-items: flex-start;
-                border-top: 0;
-            }
-            .tt-fcompare-cell.tt-fcompare-card .tt-fcompare-card-inner {
-                width: 100%;
-                max-width: 220px;
-            }
-            .tt-fcompare-cell.tt-fcompare-num {
-                font-variant-numeric: tabular-nums;
-                font-weight: 600;
-            }
-            @media (max-width: 720px) {
-                .tt-fcompare-grid {
-                    grid-template-columns: 130px repeat(<?php echo (int) $n; ?>, minmax(120px, 1fr));
-                    overflow-x: auto;
-                }
-                .tt-fcompare-cell { padding: 8px 10px; font-size: 13px; }
-                .tt-fcompare-cell.tt-fcompare-card .tt-fcompare-card-inner { max-width: 140px; }
-            }
-        </style>
 
-        <h3 style="margin:24px 0 10px; font-size:15px;"><?php esc_html_e( 'Side-by-side', 'talenttrack' ); ?></h3>
-        <div class="tt-fcompare-grid">
+        <h3 class="tt-fcompare-h3"><?php esc_html_e( 'Side-by-side', 'talenttrack' ); ?></h3>
+        <div class="tt-fcompare-grid" style="--tt-fcompare-cols:<?php echo (int) $n; ?>;">
             <!-- Header row: blank label cell + N player names -->
             <!-- v4.0.7 (#878) — was `tt-fcompare-label tt-fcompare-headerplayer`;
                  the two classes conflict on `background` + `font-weight`
@@ -393,13 +338,13 @@ class FrontendComparisonView extends FrontendViewBase {
         </div>
 
         <!-- #0077 M6 — radar overlay + trend overlay (parity with admin) -->
-        <h3 style="margin:28px 0 10px; font-size:15px;"><?php esc_html_e( 'Radar profile', 'talenttrack' ); ?></h3>
-        <div style="background:#fff; border:1px solid #e5e7ea; border-radius:10px; padding:16px; height:340px;">
+        <h3 class="tt-fcompare-h3"><?php esc_html_e( 'Radar profile', 'talenttrack' ); ?></h3>
+        <div class="tt-fcompare-chart tt-fcompare-chart--radar">
             <canvas id="tt-fcompare-radar"></canvas>
         </div>
 
-        <h3 style="margin:28px 0 10px; font-size:15px;"><?php esc_html_e( 'Rating trend', 'talenttrack' ); ?></h3>
-        <div style="background:#fff; border:1px solid #e5e7ea; border-radius:10px; padding:16px; height:300px;">
+        <h3 class="tt-fcompare-h3"><?php esc_html_e( 'Rating trend', 'talenttrack' ); ?></h3>
+        <div class="tt-fcompare-chart tt-fcompare-chart--trend">
             <canvas id="tt-fcompare-trend"></canvas>
         </div>
 
@@ -584,7 +529,7 @@ class FrontendComparisonView extends FrontendViewBase {
             echo '<div class="tt-fcompare-cell tt-fcompare-label">&nbsp;</div>';
             $n = count( $players );
             for ( $i = 0; $i < $n; $i++ ) {
-                echo '<div class="tt-fcompare-cell"><em style="color:#5b6e75;">' . esc_html__( 'No category data yet for these filters.', 'talenttrack' ) . '</em></div>';
+                echo '<div class="tt-fcompare-cell"><em>' . esc_html__( 'No category data yet for these filters.', 'talenttrack' ) . '</em></div>';
             }
             return;
         }

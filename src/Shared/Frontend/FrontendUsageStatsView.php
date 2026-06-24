@@ -27,6 +27,21 @@ class FrontendUsageStatsView extends FrontendViewBase {
     /** Period choices in days. */
     private const PERIODS = [ 30, 60, 90 ];
 
+    /**
+     * #1695 — pull in the 2026 green/gold usage-stats stylesheet (KPI
+     * strip, card panels, period chip-row, share bars). Depends on the
+     * app-chrome handle the base view registers.
+     */
+    protected static function enqueueAssets(): void {
+        parent::enqueueAssets();
+        wp_enqueue_style(
+            'tt-usage-stats',
+            TT_PLUGIN_URL . 'assets/css/frontend-usage-stats.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+    }
+
     public static function render( int $user_id, bool $is_admin ): void {
         if ( ! current_user_can( 'tt_access_frontend_admin' ) ) {
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
@@ -67,12 +82,12 @@ class FrontendUsageStatsView extends FrontendViewBase {
         $base_url  = remove_query_arg( 'days' );
 
         ?>
-        <p style="color:var(--tt-muted); max-width:760px; margin:0 0 var(--tt-sp-3);">
+        <p class="tt-usage-intro">
             <?php esc_html_e( 'Application-level KPIs over the selected window. Events older than 90 days are deleted automatically. No IP addresses or user agents are recorded.', 'talenttrack' ); ?>
         </p>
 
-        <div class="tt-period-selector" style="display:flex; gap:6px; align-items:center; margin:0 0 var(--tt-sp-4);">
-            <span style="font-size:13px; color:var(--tt-muted); margin-right:6px;"><?php esc_html_e( 'Period:', 'talenttrack' ); ?></span>
+        <div class="tt-usage-periods">
+            <span class="tt-usage-periods__label"><?php esc_html_e( 'Period:', 'talenttrack' ); ?></span>
             <?php foreach ( self::PERIODS as $opt ) :
                 $active = $opt === $days;
                 $url    = add_query_arg( 'days', $opt, $base_url );
@@ -83,35 +98,37 @@ class FrontendUsageStatsView extends FrontendViewBase {
                     printf( esc_html__( 'Last %d days', 'talenttrack' ), (int) $opt );
                 ?></a>
             <?php endforeach; ?>
-            <a class="tt-btn tt-btn-secondary" style="margin-left:auto;" href="<?php echo esc_url( $admin_url ); ?>">
+            <a class="tt-btn tt-btn-secondary tt-usage-periods__admin" href="<?php echo esc_url( $admin_url ); ?>">
                 <?php esc_html_e( 'Open in wp-admin', 'talenttrack' ); ?>
             </a>
         </div>
 
-        <div class="tt-grid tt-grid-3" style="margin-bottom:var(--tt-sp-4);">
+        <div class="tt-usage-kpis">
             <?php
-            self::kpi( __( 'Active users',          'talenttrack' ), (string) $active_users, '' );
-            self::kpi( __( 'Logins / user',         'talenttrack' ), self::formatNumber( $logins_per_user, 1 ), '' );
-            self::kpi( __( 'Stickiness (DAU/MAU)',  'talenttrack' ), (string) $stickiness . '%', '' );
-            self::kpi( __( 'Avg session',           'talenttrack' ), self::formatMinutes( (float) $time_stats['avg_session_minutes'] ), '' );
-            self::kpi( __( 'Time online (observed)', 'talenttrack' ), self::formatHours( (int) $time_stats['total_minutes'] ), '' );
-            self::kpi( __( 'Actions / user',        'talenttrack' ), self::formatNumber( $actions_per_user, 1 ), '' );
+            // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped — kpiTile() escapes internally.
+            echo \TT\Shared\Frontend\Components\FrontendAppChrome::kpiTile( [ 'label' => __( 'Active users', 'talenttrack' ),           'value' => (string) $active_users ] );
+            echo \TT\Shared\Frontend\Components\FrontendAppChrome::kpiTile( [ 'label' => __( 'Logins / user', 'talenttrack' ),          'value' => self::formatNumber( $logins_per_user, 1 ) ] );
+            echo \TT\Shared\Frontend\Components\FrontendAppChrome::kpiTile( [ 'label' => __( 'Stickiness (DAU/MAU)', 'talenttrack' ),   'value' => (string) $stickiness . '%' ] );
+            echo \TT\Shared\Frontend\Components\FrontendAppChrome::kpiTile( [ 'label' => __( 'Avg session', 'talenttrack' ),            'value' => self::formatMinutes( (float) $time_stats['avg_session_minutes'] ) ] );
+            echo \TT\Shared\Frontend\Components\FrontendAppChrome::kpiTile( [ 'label' => __( 'Time online (observed)', 'talenttrack' ), 'value' => self::formatHours( (int) $time_stats['total_minutes'] ) ] );
+            echo \TT\Shared\Frontend\Components\FrontendAppChrome::kpiTile( [ 'label' => __( 'Actions / user', 'talenttrack' ),         'value' => self::formatNumber( $actions_per_user, 1 ) ] );
+            // phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
             ?>
         </div>
 
-        <div class="tt-panel">
-            <h3 class="tt-panel-title"><?php
+        <div class="tt-usage-panel">
+            <h3 class="tt-usage-panel__title"><?php
                 /* translators: %d is the number of days */
                 printf( esc_html__( 'Daily active users (%d days)', 'talenttrack' ), (int) $days );
             ?></h3>
-            <div style="position:relative; height:240px;">
+            <div class="tt-usage-chart">
                 <canvas id="tt-fe-dau-chart"></canvas>
             </div>
         </div>
 
         <?php if ( $roles ) : ?>
-            <div class="tt-panel">
-                <h3 class="tt-panel-title"><?php
+            <div class="tt-usage-panel">
+                <h3 class="tt-usage-panel__title"><?php
                     /* translators: %d is the number of days */
                     printf( esc_html__( 'Active users by role (%d days)', 'talenttrack' ), (int) $days );
                 ?></h3>
@@ -139,8 +156,8 @@ class FrontendUsageStatsView extends FrontendViewBase {
         $top_features = UsageTracker::topFeatures( $days, 10 );
         $total_views  = array_sum( array_map( static fn( $r ) => (int) $r['count'], $top_features ) );
         ?>
-        <div class="tt-panel">
-            <h3 class="tt-panel-title"><?php esc_html_e( 'Top features used', 'talenttrack' ); ?></h3>
+        <div class="tt-usage-panel">
+            <h3 class="tt-usage-panel__title"><?php esc_html_e( 'Top features used', 'talenttrack' ); ?></h3>
             <?php if ( empty( $top_features ) ) : ?>
                 <p><em><?php esc_html_e( 'No views recorded in this window yet.', 'talenttrack' ); ?></em></p>
             <?php else : ?>
@@ -158,7 +175,8 @@ class FrontendUsageStatsView extends FrontendViewBase {
                         <tr>
                             <td><?php echo esc_html( self::featureLabel( (string) $row['target'] ) ); ?></td>
                             <td style="text-align:right; font-variant-numeric: tabular-nums;"><?php echo (int) $count; ?></td>
-                            <td style="text-align:right; font-variant-numeric: tabular-nums;"><?php echo esc_html( number_format_i18n( $pct, 0 ) ); ?>%</td>
+                            <?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — shareBar() escapes internally. ?>
+                            <td><?php echo self::shareBar( (float) $pct ); ?></td>
                         </tr>
                     <?php endforeach; ?>
                     </tbody>
@@ -171,8 +189,8 @@ class FrontendUsageStatsView extends FrontendViewBase {
         // selected window. Who to nudge.
         $dormant = UsageTracker::inactiveUsers( $days, 15 );
         ?>
-        <div class="tt-panel">
-            <h3 class="tt-panel-title"><?php
+        <div class="tt-usage-panel">
+            <h3 class="tt-usage-panel__title"><?php
                 /* translators: %d is the number of days */
                 printf( esc_html__( 'Dormant users (no login in %d days)', 'talenttrack' ), (int) $days );
             ?></h3>
@@ -232,15 +250,17 @@ class FrontendUsageStatsView extends FrontendViewBase {
         return in_array( $raw, self::PERIODS, true ) ? $raw : 30;
     }
 
-    private static function kpi( string $label, string $value, string $href = '' ): void {
-        $tag_open  = $href !== ''
-            ? '<a class="tt-panel" style="text-align:center; display:block; text-decoration:none; color:inherit;" href="' . esc_url( $href ) . '">'
-            : '<div class="tt-panel" style="text-align:center;">';
-        $tag_close = $href !== '' ? '</a>' : '</div>';
-        echo $tag_open;
-        echo '<div style="font-size:var(--tt-fs-xl); font-weight:700; color:var(--tt-primary);">' . esc_html( $value ) . '</div>';
-        echo '<div style="font-size:var(--tt-fs-xs); color:var(--tt-muted); text-transform:uppercase; letter-spacing:0.04em;">' . esc_html( $label ) . '</div>';
-        echo $tag_close;
+    /**
+     * Inline share bar for the "Top features used" table — a proportional
+     * track + the percentage. Returns escaped HTML. Shares the bar
+     * vocabulary with the attendance reports (#1695).
+     */
+    private static function shareBar( float $pct ): string {
+        $w = max( 0, min( 100, (int) round( $pct ) ) );
+        return '<span class="tt-share-bar">'
+            . '<span class="v">' . esc_html( number_format_i18n( $pct, 0 ) . '%' ) . '</span>'
+            . '<span class="track"><i style="width:' . (int) $w . '%;"></i></span>'
+            . '</span>';
     }
 
     private static function formatNumber( float $val, int $decimals = 1 ): string {
