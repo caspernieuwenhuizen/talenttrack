@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-24T16:37:13+00:00\n"
+"POT-Creation-Date: 2026-06-24T16:49:59+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -162,7 +162,7 @@ msgstr "Team Manager"
 #: src/Shared/Frontend/FrontendTeamDetailView.php:479
 #: src/Shared/Frontend/FrontendTeamDetailView.php:635
 #: src/Shared/Frontend/FrontendTeamsManageView.php:323
-#: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:159
+#: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:175
 #: src/Shared/Frontend/FrontendTrialsManageView.php:271
 #: src/Shared/Frontend/FrontendTrialsManageView.php:305
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:282
@@ -1328,7 +1328,7 @@ msgstr "Toernooi"
 #: src/Modules/Backup/PresetRegistry.php:78
 #: src/Modules/License/FeatureMap.php:159
 #: src/Modules/Reports/AudienceType.php:87
-#: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:164
+#: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:180
 msgid "Standard"
 msgstr "Standard"
 
@@ -4668,7 +4668,7 @@ msgstr "Hervatten"
 #: src/Shared/Frontend/FrontendPersonDetailView.php:83
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:407
 #: src/Shared/Frontend/FrontendTeamDetailView.php:282
-#: src/Shared/Frontend/FrontendTrialTracksEditorView.php:122
+#: src/Shared/Frontend/FrontendTrialTracksEditorView.php:132
 #: src/Shared/Frontend/FrontendViewBase.php:83
 msgid "Archive"
 msgstr "Archiveren"
@@ -6224,7 +6224,6 @@ msgstr "Wijzigingen toepassen"
 #: src/Shared/Frontend/FrontendEvalCategoriesView.php:194
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:115
 #: src/Shared/Frontend/FrontendTeamBehaviourCaptureView.php:184
-#: src/Shared/Frontend/FrontendTrialTracksEditorView.php:119
 #: src/Shared/Frontend/FrontendViewBase.php:82
 #: src/Shared/Frontend/FrontendWizardView.php:291
 msgid "Cancel"
@@ -21679,7 +21678,7 @@ msgstr "Mobiele preview"
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:61
 #: src/Modules/PersonaDashboard/Admin/EditorPage.php:372
 #: src/Modules/Players/Frontend/FrontendPlayerStatusMethodologyView.php:288
-#: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:138
+#: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:154
 msgid "Reset to default"
 msgstr "Terug naar standaard"
 
@@ -38878,37 +38877,37 @@ msgstr "HTML-sjabloon"
 msgid "Variable legend"
 msgstr "Variabelen-legenda"
 
-#: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:137
+#: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:149
 msgid "Save template"
 msgstr "Sjabloon opslaan"
 
-#: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:138
+#: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:154
 msgid "Reset this template to the shipped default?"
 msgstr "Dit sjabloon terugzetten naar de meegeleverde versie?"
 
-#: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:148
+#: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:164
 msgid "Strong work rate, good first touch, listens carefully to coaching cues."
 msgstr ""
 "Sterk werktempo, goede eerste aanname, luistert goed naar coaching-"
 "aanwijzingen."
 
-#: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:149
+#: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:165
 msgid "Defensive positioning under pressure; communication on the pitch."
 msgstr "Verdedigende positionering onder druk; communicatie op het veld."
 
-#: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:158
+#: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:174
 msgid "Sample"
 msgstr "Test"
 
-#: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:160
+#: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:176
 msgid "Sample Player"
 msgstr "Voorbeeldspeler"
 
-#: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:163
+#: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:179
 msgid "A. Coach"
 msgstr "A. Coach"
 
-#: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:169
+#: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:185
 msgid "Preview (sample data)"
 msgstr "Voorbeeld (testgegevens)"
 
@@ -39110,11 +39109,11 @@ msgstr "Standaardtrajecten hebben een vaste slug."
 msgid "Default duration in days"
 msgstr "Standaardduur in dagen"
 
-#: src/Shared/Frontend/FrontendTrialTracksEditorView.php:120
+#: src/Shared/Frontend/FrontendTrialTracksEditorView.php:126
 msgid "Save track"
 msgstr "Traject opslaan"
 
-#: src/Shared/Frontend/FrontendTrialTracksEditorView.php:122
+#: src/Shared/Frontend/FrontendTrialTracksEditorView.php:132
 msgid "Archive this track?"
 msgstr "Dit traject archiveren?"
 
