@@ -40245,3 +40245,15 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+
+#: src/Shared/Frontend/FrontendTrialCaseView.php
+msgid "Permanently delete this trial case? This removes its staff, inputs and extensions and cannot be undone."
+msgstr "Dit proefdossier definitief verwijderen? Hiermee worden de staf, input en verlengingen verwijderd en dit kan niet ongedaan worden gemaakt."
+
+#: src/Shared/Frontend/FrontendTrialTracksEditorView.php
+msgid "Permanently delete this track? This cannot be undone, and is blocked while any trial case still uses it."
+msgstr "Dit traject definitief verwijderen? Dit kan niet ongedaan worden gemaakt en wordt geblokkeerd zolang een proefdossier het nog gebruikt."
+
+#: src/Modules/Vct/Frontend/FrontendVctLibraryView.php
+msgid "Permanently delete this exercise? This cannot be undone."
+msgstr "Deze oefening definitief verwijderen? Dit kan niet ongedaan worden gemaakt."
