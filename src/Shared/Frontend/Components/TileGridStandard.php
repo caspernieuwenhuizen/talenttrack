@@ -237,7 +237,7 @@ final class TileGridStandard {
     --tt-tile-gap: 10px;
     --tt-tile-padding: 14px;
     --tt-tile-min-height: 76px;
-    --tt-tile-radius: 8px;
+    --tt-tile-radius: 12px;
 }
 .tt-tile-grid-std {
     display: grid;
@@ -246,13 +246,14 @@ final class TileGridStandard {
 }
 .tt-tile-card-std {
     display: block;
-    background: #fff;
-    border: 1px solid var(--tt-line, #e5e7ea);
-    border-radius: var(--tt-tile-radius, 8px);
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-left: 3px solid var(--tt-primary, #0b3d2e);
+    border-radius: var(--tt-tile-radius, 12px);
     padding: var(--tt-tile-padding, 14px);
     min-height: var(--tt-tile-min-height, 76px);
     text-decoration: none;
-    color: #1a1d21;
+    color: var(--tt-ink, #0e1a14);
     box-shadow: var(--tt-shadow-sm, none);
     transition: transform var(--tt-motion-duration, 180ms) var(--tt-motion-easing, cubic-bezier(0.2, 0.8, 0.2, 1)),
                 box-shadow var(--tt-motion-duration, 180ms) var(--tt-motion-easing, ease),
@@ -262,9 +263,10 @@ final class TileGridStandard {
 .tt-tile-card-std:focus,
 .tt-tile-card-std:focus-visible {
     transform: translateY(-1px);
-    box-shadow: var(--tt-shadow-md, 0 4px 12px rgba(0,0,0,0.08));
-    border-color: #d0d4d8;
-    color: #1a1d21;
+    box-shadow: var(--tt-shadow-md, 0 4px 16px rgba(11, 61, 46, 0.10));
+    border-color: var(--tt-line, #e3e6e1);
+    border-left-color: var(--tt-primary, #0b3d2e);
+    color: var(--tt-ink, #0e1a14);
 }
 @media (max-width: 360px) {
     .tt-tile-grid-std { grid-template-columns: 1fr; }
