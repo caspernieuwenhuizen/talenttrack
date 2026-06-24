@@ -37,3 +37,19 @@ Doelen kunnen nu worden gekoppeld aan een methodologie-principe en/of één voet
 ## Door spelers gemaakte doelen met goedkeuring (v3.79.0)
 
 Als jouw installatie spelers de doelen-bewerken-rechten geeft, krijgt een door een speler aangemaakt doel de status **Wacht op goedkeuring**. De hoofdcoach van de speler kan goedkeuren (status wordt In afwachting) of afwijzen (Geannuleerd) via de bestaande statusdropdown. Andere coaches kunnen niet goedkeuren — alleen de hoofdcoach van de speler, hetzelfde vertrouwenspatroon als bij PDP-ondertekening.
+
+## Voortgang en bewijslast (#1717)
+
+Elk doel kan een **voortgangspercentage** en **bewijslast** dragen. Op het
+bewerkformulier van het doel:
+
+- **Voortgang (%)** — een waarde van 0–100 die de coach instelt; dit stuurt
+  de voortgangsbalk op de POP-kaart van de speler. Laat leeg om de balk te
+  verbergen.
+- **Bewijslast (beoordelingen)** — vink de beoordelingen van de speler aan die
+  het doel onderbouwen. Elke gekoppelde beoordeling verschijnt op de
+  POP-kaart als een scorechip (*Beoordeling 12 mrt · 6.5*), op basis van de
+  datum en de gemiddelde score van de beoordeling.
+
+Bewijslast wordt los van de methodiekkoppelingen van het doel opgeslagen, dus
+de twee zitten elkaar niet in de weg.

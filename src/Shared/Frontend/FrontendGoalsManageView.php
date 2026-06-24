@@ -450,6 +450,38 @@ class FrontendGoalsManageView extends FrontendViewBase {
                 <textarea id="tt-goal-description" class="tt-input" name="description" rows="3"><?php echo esc_textarea( (string) ( $goal->description ?? '' ) ); ?></textarea>
             </div>
 
+            <?php // #1717 — per-goal progress %. Drives the POP card bar. ?>
+            <div class="tt-field">
+                <label class="tt-field-label" for="tt-goal-progress"><?php esc_html_e( 'Progress (%)', 'talenttrack' ); ?></label>
+                <input id="tt-goal-progress" class="tt-input" type="number" name="progress_pct" min="0" max="100" inputmode="numeric" value="<?php echo esc_attr( ( $goal && ( $goal->progress_pct ?? null ) !== null ) ? (string) (int) $goal->progress_pct : '' ); ?>" placeholder="<?php esc_attr_e( 'e.g. 60', 'talenttrack' ); ?>" />
+            </div>
+
+            <?php
+            // #1717 — evidence: link the player's evaluations to this goal.
+            // They render as scored "Beoordeling <date> · <score>" chips on
+            // the POP card. Edit-only (the player must already be chosen).
+            if ( $is_edit && (int) ( $goal->player_id ?? 0 ) > 0 ) :
+                $player_evals = ( new \TT\Infrastructure\Evaluations\EvaluationsRepository() )->listRecentForPlayer( (int) $goal->player_id, 50 );
+                $linked_ev    = ( new \TT\Modules\Pdp\Repositories\GoalEvidenceRepository() )->evalIdsForGoal( (int) $goal->id );
+                if ( $player_evals ) : ?>
+                    <div class="tt-field">
+                        <label class="tt-field-label"><?php esc_html_e( 'Evidence (evaluations)', 'talenttrack' ); ?></label>
+                        <p class="tt-field-hint"><?php esc_html_e( 'Tick the evaluations that evidence this goal — they show as scored chips on the POP card.', 'talenttrack' ); ?></p>
+                        <div class="tt-goal-evidence-list">
+                            <?php foreach ( $player_evals as $ev ) :
+                                $score = ( $ev->avg_rating !== null ) ? number_format_i18n( (float) $ev->avg_rating, 1 ) : '—';
+                                $label = date_i18n( 'j M Y', (int) strtotime( (string) $ev->eval_date ) ) . ' · ' . $score;
+                                ?>
+                                <label class="tt-goal-evidence-opt">
+                                    <input type="checkbox" name="evidence[]" value="<?php echo esc_attr( (string) (int) $ev->id ); ?>" <?php checked( in_array( (int) $ev->id, $linked_ev, true ) ); ?> />
+                                    <span><?php echo esc_html( $label ); ?></span>
+                                </label>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                <?php endif;
+            endif; ?>
+
             <?php
             // #0077 M3 — methodology linkage. Mirrors GoalsPage admin
             // form lines ~149-202. Both selects are optional; defaults

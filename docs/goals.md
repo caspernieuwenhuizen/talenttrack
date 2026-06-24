@@ -37,3 +37,18 @@ Goals can now be linked to a methodology principle and/or a single football acti
 ## Player-created goals with approval (v3.79.0)
 
 If your installation grants players the goal-edit cap, a goal created by a player lands with status **Pending Approval**. The player's head coach can approve (status flips to Pending) or reject (Cancelled) via the existing status dropdown. Other coaches cannot approve — only the player's head coach, matching the PDP signoff trust pattern.
+
+## Progress and evidence (#1717)
+
+Each goal can carry a **progress percentage** and **evidence**. On the goal
+edit form:
+
+- **Progress (%)** — a 0–100 value the coach sets; it drives the progress bar
+  on the player's POP card. Leave it blank to hide the bar.
+- **Evidence (evaluations)** — tick the player's evaluations that evidence the
+  goal. Each linked evaluation shows on the POP card as a scored chip
+  (*Assessment 12 Mar · 6.5*), drawing on the evaluation's date and its
+  overall (average-rating) score.
+
+Evidence is stored independently of the goal's methodology links, so the two
+don't interfere.

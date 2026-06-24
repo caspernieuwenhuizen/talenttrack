@@ -40441,3 +40441,23 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+
+#: src/Shared/Frontend/FrontendGoalsManageView.php
+msgid "Progress (%)"
+msgstr "Voortgang (%)"
+
+#: src/Shared/Frontend/FrontendGoalsManageView.php
+msgid "e.g. 60"
+msgstr "bijv. 60"
+
+#: src/Shared/Frontend/FrontendGoalsManageView.php
+msgid "Evidence (evaluations)"
+msgstr "Bewijslast (beoordelingen)"
+
+#: src/Shared/Frontend/FrontendGoalsManageView.php
+msgid "Tick the evaluations that evidence this goal — they show as scored chips on the POP card."
+msgstr "Vink de beoordelingen aan die dit doel onderbouwen — ze verschijnen als scorechips op de POP-kaart."
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
+msgid "Assessment %1$s · %2$s"
+msgstr "Beoordeling %1$s · %2$s"
