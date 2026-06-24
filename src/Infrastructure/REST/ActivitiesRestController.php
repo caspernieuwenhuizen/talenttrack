@@ -142,7 +142,7 @@ class ActivitiesRestController {
         $parents_table = $wpdb->prefix . 'tt_player_parents';
         if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $parents_table ) ) === $parents_table ) {
             $parent_link = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT player_id FROM {$parents_table} WHERE wp_user_id = %d AND player_id = %d LIMIT 1",
+                "SELECT player_id FROM {$parents_table} WHERE parent_user_id = %d AND player_id = %d LIMIT 1",
                 $uid, $filter_pid
             ) );
             if ( $parent_link > 0 ) return true;
@@ -470,7 +470,7 @@ class ActivitiesRestController {
         $parents_table = $wpdb->prefix . 'tt_player_parents';
         if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $parents_table ) ) === $parents_table ) {
             $is_parent = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT player_id FROM {$parents_table} WHERE wp_user_id = %d AND player_id = %d LIMIT 1",
+                "SELECT player_id FROM {$parents_table} WHERE parent_user_id = %d AND player_id = %d LIMIT 1",
                 $uid, $player_id
             ) );
             if ( $is_parent > 0 ) return true;
