@@ -96,23 +96,6 @@ class FrontendTrialParentMeetingView extends FrontendViewBase {
                 break;
         }
 
-        echo '<style>
-            .tt-meeting-wrap { max-width: 960px; margin: 0 auto; padding: 2rem; text-align: center; font-size: 1.15rem; }
-            .tt-meeting-photo { width: 200px; height: 200px; border-radius: 50%; object-fit: cover; margin: 0 auto 1.5rem; display: block; box-shadow: 0 4px 12px rgba(0,0,0,.15); }
-            .tt-meeting-name { font-size: 2.4rem; font-weight: 600; margin: 0 0 .25rem; color: #1a1d21; }
-            .tt-meeting-meta { color: #555; margin-bottom: 2rem; }
-            .tt-meeting-decision { padding: 1.75rem; border-radius: 12px; margin: 0 auto 1.5rem; max-width: 720px; }
-            .tt-meeting-decision-admit { background: #e6f4ea; color: #137333; }
-            .tt-meeting-decision-encourage { background: #e7f1fb; color: #1c5392; }
-            .tt-meeting-decision-final { background: #f1f3f4; color: #444; }
-            .tt-meeting-headline { font-size: 1.6rem; font-weight: 600; margin: 0 0 .5rem; }
-            .tt-meeting-sub { font-size: 1.1rem; line-height: 1.5; margin: 0; }
-            .tt-meeting-strengths { background: #fdf6e3; border-radius: 12px; padding: 1.25rem; margin: 1rem auto; max-width: 720px; text-align: left; }
-            .tt-meeting-actions { margin-top: 2rem; }
-            .tt-meeting-actions .tt-button { font-size: 1.1rem; padding: .85rem 1.5rem; }
-            .tt-meeting-fullscreen-launcher { display: inline-block; margin-top: 1.5rem; }
-        </style>';
-
         echo '<div class="tt-meeting-wrap" id="tt-meeting-root">';
 
         $photo_url = $player && ! empty( $player->photo_url ) ? (string) $player->photo_url : '';

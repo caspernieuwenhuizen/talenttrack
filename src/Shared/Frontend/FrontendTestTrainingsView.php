@@ -37,6 +37,12 @@ class FrontendTestTrainingsView extends FrontendViewBase {
         }
 
         self::enqueueAssets();
+        wp_enqueue_style(
+            'tt-frontend-test-trainings',
+            TT_PLUGIN_URL . 'assets/css/frontend-test-trainings.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
         $action = isset( $_GET['action'] ) ? sanitize_key( (string) $_GET['action'] ) : 'new';
 
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
@@ -58,6 +64,7 @@ class FrontendTestTrainingsView extends FrontendViewBase {
             $age_groups[ (int) $ag->id ] = $label;
         }
         ?>
+        <div class="tt-test-trainings">
         <form class="tt-ajax-form" data-rest-path="test-trainings" data-rest-method="POST" data-redirect-after-save="list">
             <div class="tt-grid tt-grid-2">
                 <?php echo DateInputComponent::render( [
@@ -98,6 +105,7 @@ class FrontendTestTrainingsView extends FrontendViewBase {
             ?>
             <div class="tt-form-msg"></div>
         </form>
+        </div>
         <?php
     }
 }

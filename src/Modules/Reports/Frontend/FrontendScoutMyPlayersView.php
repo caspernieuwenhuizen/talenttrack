@@ -53,17 +53,29 @@ class FrontendScoutMyPlayersView extends FrontendViewBase {
         }
 
         // List view.
+        $chrome = \TT\Shared\Frontend\Components\FrontendAppChrome::class;
         ?>
-        <p class="tt-help-text"><?php esc_html_e( 'Select a player to view the scout report.', 'talenttrack' ); ?></p>
-        <ul class="tt-scout-player-list" style="list-style:none;padding:0;margin:0;">
+        <p class="tt-sr-intro"><?php esc_html_e( 'Select a player to view the scout report.', 'talenttrack' ); ?></p>
+
+        <div class="tt-sr-kpis" role="group" aria-label="<?php esc_attr_e( 'Assigned players summary', 'talenttrack' ); ?>">
+            <?php
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — kpiTile escapes.
+            echo $chrome::kpiTile( [ 'label' => __( 'Players assigned', 'talenttrack' ), 'value' => (string) count( $assigned_ids ) ] );
+            ?>
+        </div>
+
+        <ul class="tt-smp-list">
             <?php foreach ( $assigned_ids as $pid ) :
                 $player = QueryHelpers::get_player( $pid );
                 if ( ! $player ) continue;
-                $url = add_query_arg( [ 'tt_view' => 'scout-my-players', 'player_id' => $pid ], remove_query_arg( [ 'player_id' ] ) );
+                $url  = add_query_arg( [ 'tt_view' => 'scout-my-players', 'player_id' => $pid ], remove_query_arg( [ 'player_id' ] ) );
+                $name = QueryHelpers::player_display_name( $player );
                 ?>
-                <li style="padding:10px 12px;background:#fff;border:1px solid #e5e7ea;border-radius:8px;margin-bottom:8px;">
-                    <a href="<?php echo esc_url( $url ); ?>" style="font-weight:600;color:#1a1d21;text-decoration:none;display:flex;align-items:center;gap:10px;">
-                        <span><?php echo esc_html( QueryHelpers::player_display_name( $player ) ); ?></span>
+                <li class="tt-smp-item">
+                    <a class="tt-smp-link" href="<?php echo esc_url( $url ); ?>">
+                        <span class="tt-sr-avatar" aria-hidden="true"><?php echo esc_html( $chrome::initials( $name ) ); ?></span>
+                        <span><?php echo esc_html( $name ); ?></span>
+                        <span class="tt-smp-chevron" aria-hidden="true">&rarr;</span>
                     </a>
                 </li>
             <?php endforeach; ?>
@@ -119,10 +131,10 @@ class FrontendScoutMyPlayersView extends FrontendViewBase {
 
         $back_url = remove_query_arg( [ 'player_id' ] );
         ?>
-        <p style="margin:0 0 12px;">
-            <a href="<?php echo esc_url( $back_url ); ?>">&larr; <?php esc_html_e( 'Back to my players', 'talenttrack' ); ?></a>
-        </p>
-        <?php echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — pre-escaped + photos inlined. ?>
+        <a class="tt-smp-backlink" href="<?php echo esc_url( $back_url ); ?>"><span aria-hidden="true">&larr;</span> <?php esc_html_e( 'Back to my players', 'talenttrack' ); ?></a>
+        <div class="tt-rwz-report-host">
+            <?php echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — pre-escaped + photos inlined. ?>
+        </div>
         <?php
     }
 }

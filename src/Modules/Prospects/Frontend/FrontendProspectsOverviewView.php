@@ -30,6 +30,12 @@ final class FrontendProspectsOverviewView extends FrontendViewBase {
 
     public static function render( int $user_id ): void {
         self::enqueueAssets();
+        wp_enqueue_style(
+            'tt-frontend-prospects-overview',
+            TT_PLUGIN_URL . 'assets/css/frontend-prospects-overview.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
 
         if ( ! AuthorizationService::userCanOrMatrix( $user_id, 'tt_view_prospects' ) ) {
             FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
@@ -41,6 +47,7 @@ final class FrontendProspectsOverviewView extends FrontendViewBase {
         FrontendBreadcrumbs::fromDashboard( __( 'Prospects', 'talenttrack' ) );
         self::renderHeader( __( 'Prospects', 'talenttrack' ) );
 
+        echo '<div class="tt-prospects-overview">';
         echo FrontendListTable::render( [
             'rest_path' => 'prospects',
             'search'    => [
@@ -76,6 +83,7 @@ final class FrontendProspectsOverviewView extends FrontendViewBase {
             'default_sort' => [ 'orderby' => 'last_name', 'order' => 'asc' ],
             'empty_state'  => __( 'No prospects match those filters yet.', 'talenttrack' ),
         ] );
+        echo '</div>';
     }
 
     /**

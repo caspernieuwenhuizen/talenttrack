@@ -178,16 +178,16 @@ class FrontendTrialsManageView extends FrontendViewBase {
         $base_url = remove_query_arg( [ 'action', 'id', 'status', 'track_id', 'decision', 'include_archived' ] );
         $new_url  = add_query_arg( [ 'tt_view' => 'trials', 'action' => 'new' ], $base_url );
 
-        echo '<div class="tt-toolbar"><a class="tt-button tt-button-primary" href="' . esc_url( $new_url ) . '">' . esc_html__( 'New trial case', 'talenttrack' ) . '</a></div>';
+        echo '<div class="tt-toolbar tt-trials-toolbar"><a class="tt-button tt-button-primary" href="' . esc_url( $new_url ) . '">' . esc_html__( 'New trial case', 'talenttrack' ) . '</a></div>';
 
-        echo '<form method="get" class="tt-filter-row">';
+        echo '<form method="get" class="tt-filter-row tt-trials-filters">';
         echo '<input type="hidden" name="tt_view" value="trials"/>';
 
         echo '<label>' . esc_html__( 'Status', 'talenttrack' ) . ' <select name="status">';
         echo '<option value="">' . esc_html__( 'All', 'talenttrack' ) . '</option>';
         foreach ( [ 'open', 'extended', 'decided', 'archived' ] as $s ) {
             $sel = selected( $filters['status'], $s, false );
-            echo '<option value="' . esc_attr( $s ) . '" ' . $sel . '>' . esc_html( ucfirst( $s ) ) . '</option>';
+            echo '<option value="' . esc_attr( $s ) . '" ' . $sel . '>' . esc_html( TrialCasesRepository::statusLabel( $s ) ) . '</option>';
         }
         echo '</select></label>';
 
@@ -195,7 +195,7 @@ class FrontendTrialsManageView extends FrontendViewBase {
         echo '<option value="0">' . esc_html__( 'All', 'talenttrack' ) . '</option>';
         foreach ( $tracks as $t ) {
             $sel = selected( $filters['track_id'], (int) $t->id, false );
-            echo '<option value="' . esc_attr( (string) $t->id ) . '" ' . $sel . '>' . esc_html( (string) $t->name ) . '</option>';
+            echo '<option value="' . esc_attr( (string) $t->id ) . '" ' . $sel . '>' . esc_html( \TT\Infrastructure\Query\LabelTranslator::trialTrackName( (string) $t->name ) ) . '</option>';
         }
         echo '</select></label>';
 
@@ -203,12 +203,12 @@ class FrontendTrialsManageView extends FrontendViewBase {
         echo '<option value="">' . esc_html__( 'Any', 'talenttrack' ) . '</option>';
         foreach ( [ 'admit', 'deny_final', 'deny_encouragement' ] as $d ) {
             $sel = selected( $filters['decision'], $d, false );
-            echo '<option value="' . esc_attr( $d ) . '" ' . $sel . '>' . esc_html( $d ) . '</option>';
+            echo '<option value="' . esc_attr( $d ) . '" ' . $sel . '>' . esc_html( TrialCasesRepository::decisionLabel( $d ) ) . '</option>';
         }
         echo '</select></label>';
 
-        echo '<label><input type="checkbox" name="include_archived" value="1" ' . checked( $filters['include_archived'], true, false ) . '> ' . esc_html__( 'Include archived', 'talenttrack' ) . '</label>';
-        echo '<button type="submit" class="tt-button">' . esc_html__( 'Filter', 'talenttrack' ) . '</button>';
+        echo '<label class="tt-trials-filter-check"><input type="checkbox" name="include_archived" value="1" ' . checked( $filters['include_archived'], true, false ) . '> ' . esc_html__( 'Include archived', 'talenttrack' ) . '</label>';
+        echo '<button type="submit" class="tt-button tt-trials-filter-submit">' . esc_html__( 'Filter', 'talenttrack' ) . '</button>';
         echo '</form>';
 
         if ( ! $rows ) {
@@ -220,6 +220,53 @@ class FrontendTrialsManageView extends FrontendViewBase {
         foreach ( $tracks as $t ) { $tracks_by_id[ (int) $t->id ] = $t; }
         $staff_repo = new TrialCaseStaffRepository();
 
+        // Pre-compose the per-row display values once; both the mobile
+        // card list and the desktop table render from the same array so
+        // the data shown is identical (CSS shows exactly one at a time).
+        $view_rows = [];
+        foreach ( $rows as $r ) {
+            $player = QueryHelpers::get_player( (int) $r->player_id );
+            $name   = $player ? QueryHelpers::player_display_name( $player ) : '#' . (int) $r->player_id;
+            $track  = $tracks_by_id[ (int) $r->track_id ] ?? null;
+            $detail = \TT\Shared\Frontend\Components\BackLink::appendTo(
+                add_query_arg( [ 'tt_view' => 'trial-case', 'id' => (int) $r->id ], $base_url )
+            );
+            $view_rows[] = [
+                'name'        => $name,
+                'detail'      => $detail,
+                'track'       => $track ? \TT\Infrastructure\Query\LabelTranslator::trialTrackName( (string) $track->name ) : '—',
+                'window'      => (string) $r->start_date . ' → ' . (string) $r->end_date,
+                'status'      => (string) $r->status,
+                'status_label'=> TrialCasesRepository::statusLabel( (string) $r->status ),
+                'decision'    => $r->decision ? TrialCasesRepository::decisionLabel( (string) $r->decision ) : '',
+                'staff_count' => count( $staff_repo->listForCase( (int) $r->id ) ),
+            ];
+        }
+
+        // ---- Mobile: card list ----
+        echo '<ul class="tt-trials-cards">';
+        foreach ( $view_rows as $vr ) {
+            echo '<li class="tt-trials-card">';
+            echo '<div class="tt-trials-card__player"><a href="' . esc_url( $vr['detail'] ) . '">' . esc_html( $vr['name'] ) . '</a></div>';
+            echo '<a class="tt-button tt-button-small tt-trials-card__open" href="' . esc_url( $vr['detail'] ) . '">' . esc_html__( 'Open', 'talenttrack' ) . '</a>';
+            echo '<div class="tt-trials-card__meta">';
+            echo '<span><b>' . esc_html__( 'Track', 'talenttrack' ) . ':</b> ' . esc_html( $vr['track'] ) . '</span>';
+            echo '<span><b>' . esc_html__( 'Window', 'talenttrack' ) . ':</b> ' . esc_html( $vr['window'] ) . '</span>';
+            echo '</div>';
+            echo '<div class="tt-trials-card__chips">';
+            echo '<span class="tt-trial-chip tt-trial-chip--status-' . esc_attr( $vr['status'] ) . '">' . esc_html( $vr['status_label'] ) . '</span>';
+            if ( $vr['decision'] !== '' ) {
+                echo '<span class="tt-trial-chip tt-trial-chip--decision">' . esc_html( $vr['decision'] ) . '</span>';
+            }
+            /* translators: %d: number of assigned staff. */
+            echo '<span class="tt-trial-chip tt-trial-chip__count">' . esc_html( sprintf( _n( '%d staff', '%d staff', (int) $vr['staff_count'], 'talenttrack' ), (int) $vr['staff_count'] ) ) . '</span>';
+            echo '</div>';
+            echo '</li>';
+        }
+        echo '</ul>';
+
+        // ---- Desktop: sortable table ----
+        echo '<div class="tt-table-wrap tt-trials-table-wrap">';
         echo '<table class="tt-table tt-table-sortable"><thead><tr>';
         echo '<th>' . esc_html__( 'Player', 'talenttrack' ) . '</th>';
         echo '<th>' . esc_html__( 'Track', 'talenttrack' ) . '</th>';
@@ -229,26 +276,19 @@ class FrontendTrialsManageView extends FrontendViewBase {
         echo '<th>' . esc_html__( 'Staff', 'talenttrack' ) . '</th>';
         echo '<th>' . esc_html__( 'Actions', 'talenttrack' ) . '</th>';
         echo '</tr></thead><tbody>';
-        foreach ( $rows as $r ) {
-            $player = QueryHelpers::get_player( (int) $r->player_id );
-            $name   = $player ? QueryHelpers::player_display_name( $player ) : '#' . (int) $r->player_id;
-            $track  = $tracks_by_id[ (int) $r->track_id ] ?? null;
-            $detail = \TT\Shared\Frontend\Components\BackLink::appendTo(
-                add_query_arg( [ 'tt_view' => 'trial-case', 'id' => (int) $r->id ], $base_url )
-            );
-            $staff_count = count( $staff_repo->listForCase( (int) $r->id ) );
-
+        foreach ( $view_rows as $vr ) {
             echo '<tr>';
-            echo '<td><a href="' . esc_url( $detail ) . '">' . esc_html( $name ) . '</a></td>';
-            echo '<td>' . esc_html( $track ? \TT\Infrastructure\Query\LabelTranslator::trialTrackName( (string) $track->name ) : '—' ) . '</td>';
-            echo '<td>' . esc_html( (string) $r->start_date . ' → ' . (string) $r->end_date ) . '</td>';
-            echo '<td>' . esc_html( TrialCasesRepository::statusLabel( (string) $r->status ) ) . '</td>';
-            echo '<td>' . esc_html( $r->decision ? TrialCasesRepository::decisionLabel( (string) $r->decision ) : '—' ) . '</td>';
-            echo '<td>' . esc_html( (string) $staff_count ) . '</td>';
-            echo '<td><a class="tt-button tt-button-small" href="' . esc_url( $detail ) . '">' . esc_html__( 'Open', 'talenttrack' ) . '</a></td>';
+            echo '<td><a href="' . esc_url( $vr['detail'] ) . '">' . esc_html( $vr['name'] ) . '</a></td>';
+            echo '<td>' . esc_html( $vr['track'] ) . '</td>';
+            echo '<td>' . esc_html( $vr['window'] ) . '</td>';
+            echo '<td><span class="tt-trial-chip tt-trial-chip--status-' . esc_attr( $vr['status'] ) . '">' . esc_html( $vr['status_label'] ) . '</span></td>';
+            echo '<td>' . ( $vr['decision'] !== '' ? '<span class="tt-trial-chip tt-trial-chip--decision">' . esc_html( $vr['decision'] ) . '</span>' : '—' ) . '</td>';
+            echo '<td>' . esc_html( (string) $vr['staff_count'] ) . '</td>';
+            echo '<td><a class="tt-button tt-button-small" href="' . esc_url( $vr['detail'] ) . '">' . esc_html__( 'Open', 'talenttrack' ) . '</a></td>';
             echo '</tr>';
         }
         echo '</tbody></table>';
+        echo '</div>';
     }
 
     private static function renderCreateForm(): void {
@@ -307,7 +347,14 @@ class FrontendTrialsManageView extends FrontendViewBase {
 
         echo '<label>' . esc_html__( 'Notes', 'talenttrack' ) . ' <textarea name="notes" rows="3"></textarea></label>';
 
-        echo '<div class="tt-form-actions"><button type="submit" class="tt-button tt-button-primary">' . esc_html__( 'Create case', 'talenttrack' ) . '</button></div>';
+        // Save + Cancel (CLAUDE.md §6). Create-mode cancel target is the
+        // trials list; an inbound tt_back hint overrides it.
+        $back = \TT\Shared\Frontend\Components\BackLink::resolve();
+        $cancel_url = $back['url'] ?? add_query_arg( [ 'tt_view' => 'trials' ], home_url( '/' ) );
+        echo \TT\Shared\Frontend\Components\FormSaveButton::render( [
+            'label'      => __( 'Create case', 'talenttrack' ),
+            'cancel_url' => $cancel_url,
+        ] );
         echo '</form>';
     }
 }

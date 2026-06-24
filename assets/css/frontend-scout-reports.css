@@ -1,0 +1,448 @@
+/*
+ * frontend-scout-reports.css — 2026 green/gold restyle (#1695) for the
+ * Reports + Scout body surfaces:
+ *
+ *   - Report wizard       (?tt_view=report-wizard)   .tt-rwz-*
+ *   - Scout access         (?tt_view=scout-access)    .tt-sa-*
+ *   - Scout reports history(?tt_view=scout-history)   .tt-sh-*
+ *   - Scout my players     (?tt_view=scout-my-players).tt-smp-*
+ *
+ * Restyle, not redesign — markup + data unchanged; only the look is warmed
+ * to the shipped green/gold language. Mobile-first per CLAUDE.md §2: base
+ * styles target ~360px, min-width queries at 480 / 768 / 1024 scale up.
+ * Scoped under .tt-dashboard (the active theme is hostile). Loaded with a
+ * dep on tt-frontend-app-chrome so it inherits the brand + neutral tokens
+ * (--tt-primary green, --tt-secondary gold, --tt-ink, --tt-muted, lines,
+ * radius, shadow) and wins over legacy sheets.
+ *
+ * Tokens only — no raw hex.
+ */
+
+/* ====================================================================
+ * Shared bits across the scout/report surfaces
+ * ==================================================================== */
+.tt-dashboard .tt-sr-intro {
+    margin: 0 0 1rem;
+    color: var(--tt-muted, #6a6d66);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    line-height: var(--tt-lh-body, 1.5);
+}
+
+/* KPI strip — wraps FrontendAppChrome::kpiTile() output. */
+.tt-dashboard .tt-sr-kpis {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--tt-sp-3, 12px);
+    margin: 0 0 1.1rem;
+}
+@media (min-width: 768px) {
+    .tt-dashboard .tt-sr-kpis {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+/* Generic 2026 card surface used by the scout cards / report host. */
+.tt-dashboard .tt-sr-card {
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-md);
+    padding: var(--tt-sp-4, 16px);
+}
+
+/* Status chip — neutral/green/gold/red variants. */
+.tt-dashboard .tt-sr-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.18rem 0.6rem;
+    border-radius: 999px;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 600;
+    line-height: 1.3;
+    border: 1px solid var(--tt-line, #e3e6e1);
+    color: var(--tt-ink, #0e1a14);
+    background: var(--tt-bg-soft, #f4f6f3);
+    white-space: nowrap;
+}
+.tt-dashboard .tt-sr-chip--green {
+    color: var(--tt-success, #2f9e5e);
+    border-color: var(--tt-success, #2f9e5e);
+    background: var(--tt-success-subtle, #dff5e1);
+}
+.tt-dashboard .tt-sr-chip--gold {
+    color: var(--tt-warning, #e8902b);
+    border-color: var(--tt-warning, #e8902b);
+    background: var(--tt-warning-subtle, #fdf3d8);
+}
+.tt-dashboard .tt-sr-chip--red {
+    color: var(--tt-danger, #d8453b);
+    border-color: var(--tt-danger, #d8453b);
+    background: var(--tt-danger-subtle, #fde2e2);
+}
+
+/* Avatar disc — initials in a brand circle, ≥28px. */
+.tt-dashboard .tt-sr-avatar {
+    flex: 0 0 auto;
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: var(--tt-paper, #fff);
+    background: var(--tt-primary, #0b3d2e);
+    text-transform: uppercase;
+}
+
+/* ====================================================================
+ * Scout access  (.tt-sa-*)
+ * ==================================================================== */
+.tt-dashboard .tt-sa-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-3, 12px);
+    margin: 0;
+}
+
+.tt-dashboard .tt-sa-card {
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-md);
+    padding: var(--tt-sp-4, 16px);
+}
+
+.tt-dashboard .tt-sa-head {
+    display: flex;
+    align-items: center;
+    gap: var(--tt-sp-3, 12px);
+    margin: 0 0 var(--tt-sp-3, 12px);
+}
+.tt-dashboard .tt-sa-name {
+    margin: 0;
+    font-size: var(--tt-fs-lg, 1.125rem);
+    font-weight: 700;
+    color: var(--tt-ink, #0e1a14);
+    line-height: 1.2;
+}
+.tt-dashboard .tt-sa-email {
+    margin: 0;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-dashboard .tt-sa-empty {
+    margin: 0 0 var(--tt-sp-3, 12px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-muted, #6a6d66);
+    font-style: italic;
+}
+
+.tt-dashboard .tt-sa-assigned {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--tt-sp-3, 12px);
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-1, 4px);
+}
+.tt-dashboard .tt-sa-assigned li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--tt-sp-2, 8px);
+    min-height: 48px;
+    padding: var(--tt-sp-1, 4px) 0;
+    border-bottom: 1px solid var(--tt-line-soft, #eef0ec);
+}
+.tt-dashboard .tt-sa-assigned li:last-child { border-bottom: 0; }
+.tt-dashboard .tt-sa-player-name {
+    color: var(--tt-ink, #0e1a14);
+    font-weight: 600;
+}
+
+.tt-dashboard .tt-sa-add {
+    display: flex;
+    gap: var(--tt-sp-2, 8px);
+    flex-wrap: wrap;
+    margin: 0;
+}
+.tt-dashboard .tt-sa-select {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 48px;
+    padding: 0.5rem 0.7rem;
+    font-size: 1rem; /* ≥16px — no iOS zoom */
+    color: var(--tt-ink, #0e1a14);
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+}
+.tt-dashboard .tt-sa-select:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 1px;
+}
+
+/* Inline remove form sits flush so it doesn't blow out the row height. */
+.tt-dashboard .tt-sa-inline-form { margin: 0; }
+
+/* ====================================================================
+ * Scout reports history  (.tt-sh-*)
+ * ==================================================================== */
+.tt-dashboard .tt-sh-tablewrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    background: var(--tt-paper, #fff);
+    box-shadow: var(--tt-shadow-md);
+}
+.tt-dashboard .tt-sh-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--tt-fs-sm, 0.85rem);
+}
+.tt-dashboard .tt-sh-table th {
+    text-align: left;
+    padding: var(--tt-sp-3, 12px) var(--tt-sp-3, 12px);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--tt-muted, #6a6d66);
+    border-bottom: 1px solid var(--tt-line, #e3e6e1);
+    white-space: nowrap;
+    background: var(--tt-bg-soft, #f4f6f3);
+}
+.tt-dashboard .tt-sh-table td {
+    padding: var(--tt-sp-3, 12px) var(--tt-sp-3, 12px);
+    border-bottom: 1px solid var(--tt-line-soft, #eef0ec);
+    color: var(--tt-ink, #0e1a14);
+    vertical-align: middle;
+}
+.tt-dashboard .tt-sh-table tbody tr:last-child td { border-bottom: 0; }
+.tt-dashboard .tt-sh-num { font-variant-numeric: tabular-nums; }
+.tt-dashboard .tt-sh-actions { text-align: right; }
+.tt-dashboard .tt-sh-actions form { margin: 0; }
+
+/* ====================================================================
+ * Scout my players  (.tt-smp-*)
+ * ==================================================================== */
+.tt-dashboard .tt-smp-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-2, 8px);
+}
+.tt-dashboard .tt-smp-item {
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-md);
+}
+.tt-dashboard .tt-smp-link {
+    display: flex;
+    align-items: center;
+    gap: var(--tt-sp-3, 12px);
+    min-height: 48px;
+    padding: var(--tt-sp-3, 12px) var(--tt-sp-4, 16px);
+    font-weight: 600;
+    color: var(--tt-ink, #0e1a14);
+    text-decoration: none;
+    touch-action: manipulation;
+    border-radius: var(--tt-radius-lg, 14px);
+}
+.tt-dashboard .tt-smp-link:hover,
+.tt-dashboard .tt-smp-link:focus-visible {
+    background: var(--tt-bg-soft, #f4f6f3);
+    text-decoration: none;
+}
+.tt-dashboard .tt-smp-chevron {
+    margin-left: auto;
+    color: var(--tt-primary, #0b3d2e);
+    font-weight: 700;
+}
+.tt-dashboard .tt-smp-backlink {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    min-height: 44px;
+    margin: 0 0 var(--tt-sp-3, 12px);
+    color: var(--tt-primary, #0b3d2e);
+    font-weight: 600;
+    text-decoration: none;
+}
+.tt-dashboard .tt-smp-backlink:hover,
+.tt-dashboard .tt-smp-backlink:focus-visible { text-decoration: underline; }
+
+/* ====================================================================
+ * Report wizard  (.tt-rwz-*) — moved off the inline <style> block
+ * ==================================================================== */
+.tt-dashboard .tt-report-wizard {
+    max-width: 760px;
+    margin: 0 0 var(--tt-sp-6, 24px);
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-4, 16px);
+}
+.tt-dashboard .tt-rwz-step {
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-md);
+    padding: var(--tt-sp-4, 16px) var(--tt-sp-5, 20px);
+    background: var(--tt-paper, #fff);
+    margin: 0;
+}
+.tt-dashboard .tt-rwz-step legend {
+    font-weight: 700;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0 var(--tt-sp-1, 4px);
+    color: var(--tt-primary, #0b3d2e);
+}
+.tt-dashboard .tt-rwz-step--scout {
+    border-color: var(--tt-secondary, #e8b624);
+    border-left-width: 4px;
+}
+.tt-dashboard .tt-rwz-help {
+    margin: var(--tt-sp-1, 4px) 0 var(--tt-sp-3, 12px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-muted, #6a6d66);
+    line-height: var(--tt-lh-body, 1.5);
+}
+.tt-dashboard .tt-rwz-radios,
+.tt-dashboard .tt-rwz-checks,
+.tt-dashboard .tt-rwz-scope {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-2, 8px);
+}
+.tt-dashboard .tt-rwz-radio {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--tt-sp-2, 8px);
+    min-height: 48px;
+    padding: var(--tt-sp-2, 8px) var(--tt-sp-3, 12px);
+    border: 1px solid transparent;
+    border-radius: var(--tt-radius, 8px);
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-dashboard .tt-rwz-radio:hover,
+.tt-dashboard .tt-rwz-radio:focus-within {
+    background: var(--tt-bg-soft, #f4f6f3);
+    border-color: var(--tt-line, #e3e6e1);
+}
+.tt-dashboard .tt-rwz-radio input { margin-top: 2px; }
+.tt-dashboard .tt-rwz-radio-label {
+    font-weight: 600;
+    color: var(--tt-ink, #0e1a14);
+}
+.tt-dashboard .tt-rwz-radio-desc {
+    display: block;
+    width: 100%;
+    margin-left: 24px;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-muted, #6a6d66);
+}
+.tt-dashboard .tt-rwz-scope .tt-rwz-radio { min-height: 44px; padding: var(--tt-sp-1, 4px) var(--tt-sp-2, 8px); }
+.tt-dashboard .tt-rwz-custom-range {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-3, 12px);
+    margin-top: var(--tt-sp-2, 8px);
+}
+.tt-dashboard .tt-rwz-custom-range label {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-1, 4px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-ink, #0e1a14);
+}
+.tt-dashboard .tt-rwz-check {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--tt-sp-2, 8px);
+    min-height: 48px;
+    color: var(--tt-ink, #0e1a14);
+}
+.tt-dashboard .tt-rwz-check--inline { gap: var(--tt-sp-3, 12px); }
+.tt-dashboard .tt-rwz-check--inline input[type="number"] { width: 80px; }
+.tt-dashboard .tt-rwz-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-1, 4px);
+    margin-bottom: var(--tt-sp-3, 12px);
+    color: var(--tt-ink, #0e1a14);
+}
+.tt-dashboard .tt-rwz-field input,
+.tt-dashboard .tt-rwz-field select,
+.tt-dashboard .tt-rwz-field textarea,
+.tt-dashboard .tt-rwz-custom-range input,
+.tt-dashboard .tt-rwz-check--inline input[type="number"] {
+    padding: 0.5rem 0.7rem;
+    min-height: 48px;
+    font-size: 1rem; /* ≥16px — no iOS zoom */
+    color: var(--tt-ink, #0e1a14);
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+}
+.tt-dashboard .tt-rwz-field textarea { min-height: 72px; }
+.tt-dashboard .tt-rwz-field input:focus-visible,
+.tt-dashboard .tt-rwz-field select:focus-visible,
+.tt-dashboard .tt-rwz-field textarea:focus-visible,
+.tt-dashboard .tt-rwz-custom-range input:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 1px;
+}
+.tt-dashboard .tt-rwz-actions { padding-top: var(--tt-sp-1, 4px); }
+
+.tt-dashboard .tt-rwz-preview { margin-top: var(--tt-sp-6, 24px); }
+.tt-dashboard .tt-rwz-preview-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--tt-sp-3, 12px);
+    margin: 0 0 var(--tt-sp-3, 12px);
+    padding-bottom: var(--tt-sp-2, 8px);
+    border-bottom: 2px solid var(--tt-primary, #0b3d2e);
+}
+.tt-dashboard .tt-rwz-preview-title {
+    font-size: var(--tt-fs-h3, 1.25rem);
+    margin: 0;
+    color: var(--tt-ink, #0e1a14);
+}
+.tt-dashboard .tt-rwz-report-host {
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-md);
+    padding: var(--tt-sp-4, 16px);
+}
+
+@media print {
+    .tt-report-wizard,
+    .tt-rwz-preview-head,
+    .tt-rwz-help,
+    .tt-fview-title,
+    .tt-back-link { display: none !important; }
+    .tt-dashboard .tt-rwz-report-host {
+        border: 0;
+        box-shadow: none;
+        padding: 0;
+    }
+}
+
+/* ---- Scale up ------------------------------------------------------ */
+@media (min-width: 480px) {
+    .tt-dashboard .tt-sa-add { flex-wrap: nowrap; }
+    .tt-dashboard .tt-rwz-radio { flex-wrap: nowrap; }
+}

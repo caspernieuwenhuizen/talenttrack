@@ -101,6 +101,18 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
         self::renderProspects( $visit );
     }
 
+    protected static function enqueueAssets(): void {
+        parent::enqueueAssets();
+        // Shared with the list view (FrontendScoutingPlanView): the
+        // 2026 facts-card + status-chip styling lives in this sheet.
+        wp_enqueue_style(
+            'tt-scouting-visits',
+            TT_PLUGIN_URL . 'assets/css/components/scouting-visits.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+    }
+
     private static function renderFacts( object $visit ): void {
         $status_key   = (string) ( $visit->status ?? ScoutingVisitStatus::PLANNED );
         $status_label = FrontendScoutingPlanView::statusLabel( $status_key );
@@ -113,8 +125,8 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
         if ( $scout ) $scout_label = (string) $scout->display_name;
         $notes = (string) ( $visit->notes ?? '' );
         ?>
-        <div class="tt-card tt-detail-card">
-            <table class="tt-detail-table">
+        <div class="tt-svisit-detail-card">
+            <table class="tt-svisit-detail-table">
                 <tbody>
                     <tr>
                         <th scope="row"><?php esc_html_e( 'Date', 'talenttrack' ); ?></th>
@@ -166,7 +178,7 @@ class FrontendScoutingVisitDetailView extends FrontendViewBase {
         $repo = new ScoutingVisitsRepository();
         $rows = $repo->prospectsForVisit( (int) $visit->id );
 
-        echo '<section class="tt-section">';
+        echo '<section class="tt-section tt-svisit-prospects">';
         echo '<h2 class="tt-section-title">' . esc_html__( 'Prospects logged from this visit', 'talenttrack' ) . '</h2>';
         if ( empty( $rows ) ) {
             echo '<p class="tt-empty">' . esc_html__( 'No prospects logged from this visit yet.', 'talenttrack' ) . '</p>';

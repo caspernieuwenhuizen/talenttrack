@@ -1,0 +1,78 @@
+/*
+ * FrontendTestTrainingsView 2026 restyle (#1695, B2).
+ *
+ * Create-form-only surface. This sheet scopes a 2026 card around the
+ * shared form chrome (.tt-field / .tt-input / .tt-grid) under the view
+ * wrapper `.tt-test-trainings`, so the form picks up the green/gold look
+ * without restyling the shared form components globally.
+ *
+ * Mobile-first; breakpoints 480 / 768 / 1024 only. Tokens via .tt-root;
+ * brand green read as var(--tt-primary, #0b3d2e). Depends on
+ * `tt-frontend-app-chrome`.
+ */
+
+.tt-dashboard .tt-test-trainings {
+    background: var(--tt-paper, #ffffff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-md);
+    padding: var(--tt-sp-4, 16px);
+}
+
+.tt-dashboard .tt-test-trainings .tt-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--tt-sp-4, 16px);
+}
+
+.tt-dashboard .tt-test-trainings .tt-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-1, 4px);
+    margin-bottom: var(--tt-sp-4, 16px);
+}
+
+.tt-dashboard .tt-test-trainings .tt-grid .tt-field {
+    margin-bottom: 0;
+}
+
+.tt-dashboard .tt-test-trainings .tt-field-label {
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 600;
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-dashboard .tt-test-trainings .tt-input {
+    width: 100%;
+    min-height: 48px;
+    padding: 0 var(--tt-sp-3, 12px);
+    font-size: 1rem; /* ≥16px — no iOS auto-zoom on focus */
+    color: var(--tt-ink, #0e1a14);
+    background: var(--tt-paper, #ffffff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+}
+
+.tt-dashboard .tt-test-trainings textarea.tt-input {
+    min-height: 6rem;
+    padding: var(--tt-sp-3, 12px);
+    line-height: var(--tt-lh-body, 1.5);
+    resize: vertical;
+}
+
+.tt-dashboard .tt-test-trainings .tt-input:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 1px;
+    border-color: var(--tt-primary, #0b3d2e);
+}
+
+/* ---- Scale up ------------------------------------------------------ */
+@media (min-width: 480px) {
+    .tt-dashboard .tt-test-trainings .tt-grid-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 768px) {
+    .tt-dashboard .tt-test-trainings { padding: var(--tt-sp-6, 24px); }
+}

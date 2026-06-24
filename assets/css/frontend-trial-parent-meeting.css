@@ -1,0 +1,121 @@
+/*
+ * frontend-trial-parent-meeting.css — FrontendTrialParentMeetingView
+ * 2026 restyle (B2). The sanitized fullscreen surface shown to parents
+ * during the decision conversation: player photo, name + age, the
+ * decision callout, optional strengths/growth cards, and the action
+ * row. Restyle only — markup/data unchanged. The inline desktop-first
+ * <style> block previously in the PHP is folded in here, rebuilt
+ * mobile-first with design tokens.
+ *
+ * Mobile-first per CLAUDE.md §2: base ~360px; min-width queries at
+ * 480/768 scale the photo + type up for the room display. Scoped under
+ * .tt-dashboard. Loaded with a dep on tt-frontend-app-chrome. Tokens
+ * only (tokens.css) — no raw hex.
+ */
+
+.tt-dashboard .tt-meeting-wrap {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: var(--tt-sp-5) var(--tt-sp-4);
+    text-align: center;
+}
+
+.tt-dashboard .tt-meeting-photo {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 0 auto var(--tt-sp-5);
+    display: block;
+    box-shadow: var(--tt-shadow-lg);
+}
+
+.tt-dashboard .tt-meeting-name {
+    font-size: var(--tt-fs-h1);
+    font-weight: 700;
+    line-height: 1.2;
+    margin: 0 0 var(--tt-sp-1);
+    color: var(--tt-ink);
+}
+.tt-dashboard .tt-meeting-meta {
+    color: var(--tt-muted);
+    font-size: var(--tt-fs-lg);
+    margin: 0 0 var(--tt-sp-6);
+}
+
+.tt-dashboard .tt-meeting-decision {
+    padding: var(--tt-sp-5);
+    border-radius: var(--tt-radius-lg);
+    margin: 0 auto var(--tt-sp-5);
+    max-width: 720px;
+    border: 1px solid var(--tt-line);
+}
+.tt-dashboard .tt-meeting-decision-admit {
+    background: var(--tt-success-subtle);
+    border-color: var(--tt-success-subtle);
+    color: var(--tt-success);
+}
+.tt-dashboard .tt-meeting-decision-encourage {
+    background: var(--tt-info-subtle);
+    border-color: var(--tt-info-subtle);
+    color: var(--tt-info);
+}
+.tt-dashboard .tt-meeting-decision-final {
+    background: var(--tt-bg-soft);
+    border-color: var(--tt-line);
+    color: var(--tt-ink-soft);
+}
+.tt-dashboard .tt-meeting-headline {
+    font-size: var(--tt-fs-h2);
+    font-weight: 700;
+    line-height: 1.25;
+    margin: 0 0 var(--tt-sp-2);
+}
+.tt-dashboard .tt-meeting-sub {
+    font-size: var(--tt-fs-lg);
+    line-height: var(--tt-lh-body);
+    margin: 0;
+}
+
+.tt-dashboard .tt-meeting-strengths {
+    background: var(--tt-warning-subtle);
+    border: 1px solid var(--tt-warning-subtle);
+    border-left: 4px solid var(--tt-secondary, #e8b624);
+    border-radius: var(--tt-radius);
+    padding: var(--tt-sp-4);
+    margin: var(--tt-sp-3) auto;
+    max-width: 720px;
+    text-align: left;
+    color: var(--tt-ink);
+}
+.tt-dashboard .tt-meeting-strengths strong {
+    display: block;
+    margin-bottom: var(--tt-sp-1);
+    color: var(--tt-primary, #0b3d2e);
+}
+.tt-dashboard .tt-meeting-strengths p { margin: 0; line-height: var(--tt-lh-body); }
+
+.tt-dashboard .tt-meeting-actions {
+    margin-top: var(--tt-sp-6);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--tt-sp-3);
+}
+.tt-dashboard .tt-meeting-actions .tt-button {
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    font-size: var(--tt-fs-lg);
+    padding: var(--tt-sp-3) var(--tt-sp-5);
+    touch-action: manipulation;
+}
+.tt-dashboard .tt-meeting-fullscreen-launcher { margin: 0; }
+
+@media (min-width: 480px) {
+    .tt-dashboard .tt-meeting-photo { width: 180px; height: 180px; }
+}
+@media (min-width: 768px) {
+    .tt-dashboard .tt-meeting-wrap { padding: var(--tt-sp-6); }
+    .tt-dashboard .tt-meeting-photo { width: 200px; height: 200px; }
+}

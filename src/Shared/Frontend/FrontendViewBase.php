@@ -94,6 +94,39 @@ abstract class FrontendViewBase {
             TT_VERSION
         );
 
+        // Trials surfaces 2026 restyle (B2). Each is a cheap no-op on
+        // views that don't render the matching wrapper; they depend on
+        // the app-chrome sheet for the brand tokens + .tt-kpi tile.
+        wp_enqueue_style(
+            'tt-frontend-trials',
+            TT_PLUGIN_URL . 'assets/css/frontend-trials.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+        wp_enqueue_style(
+            'tt-frontend-trial-case',
+            TT_PLUGIN_URL . 'assets/css/frontend-trial-case.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+        wp_enqueue_style(
+            'tt-frontend-trial-parent-meeting',
+            TT_PLUGIN_URL . 'assets/css/frontend-trial-parent-meeting.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+        // Reports + Scout body surfaces 2026 restyle (#1695): report
+        // wizard, scout access, scout history, scout my-players. Depends
+        // on the app-chrome sheet for the brand tokens + .tt-kpi styling.
+        // Cheap no-op on views that don't render the .tt-rwz-/.tt-sa-/
+        // .tt-sh-/.tt-smp- surfaces.
+        wp_enqueue_style(
+            'tt-frontend-scout-reports',
+            TT_PLUGIN_URL . 'assets/css/frontend-scout-reports.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+
         self::$assets_enqueued = true;
     }
 

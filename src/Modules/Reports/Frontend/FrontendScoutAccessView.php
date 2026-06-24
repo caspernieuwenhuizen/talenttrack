@@ -41,55 +41,84 @@ class FrontendScoutAccessView extends FrontendViewBase {
                 $msg = $action === 'assign'
                     ? __( 'Player assigned.', 'talenttrack' )
                     : __( 'Assignment removed.', 'talenttrack' );
-                echo '<p class="tt-notice notice-success" style="background:#e9f5e9;border-left:4px solid #2c8a2c;padding:8px 12px;margin:8px 0 16px;">'
-                    . esc_html( $msg ) . '</p>';
+                echo '<p class="tt-notice notice-success">' . esc_html( $msg ) . '</p>';
             }
         }
 
         $scouts  = get_users( [ 'role__in' => [ 'tt_scout' ], 'orderby' => 'display_name', 'order' => 'ASC' ] );
         $players = QueryHelpers::get_players();
 
+        $chrome = \TT\Shared\Frontend\Components\FrontendAppChrome::class;
+
+        // KPI strip — scouts, players assigned across them, players free.
+        $total_assigned = 0;
+        $assigned_set   = [];
+        foreach ( $scouts as $scout ) {
+            foreach ( self::assignedPlayerIds( (int) $scout->ID ) as $pid ) {
+                $total_assigned++;
+                $assigned_set[ $pid ] = true;
+            }
+        }
+        $player_total = count( $players );
+
         ?>
-        <p class="tt-help-text"><?php esc_html_e( 'Assign specific players to a scout user. The scout sees only the players you assign here, on demand.', 'talenttrack' ); ?></p>
+        <p class="tt-sr-intro"><?php esc_html_e( 'Assign specific players to a scout user. The scout sees only the players you assign here, on demand.', 'talenttrack' ); ?></p>
+
+        <div class="tt-sr-kpis" role="group" aria-label="<?php esc_attr_e( 'Scout access summary', 'talenttrack' ); ?>">
+            <?php
+            // phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped — kpiTile escapes.
+            echo $chrome::kpiTile( [ 'label' => __( 'Scout users', 'talenttrack' ), 'value' => (string) count( $scouts ) ] );
+            echo $chrome::kpiTile( [ 'label' => __( 'Assignments', 'talenttrack' ), 'value' => (string) $total_assigned ] );
+            echo $chrome::kpiTile( [ 'label' => __( 'Players covered', 'talenttrack' ), 'value' => (string) count( $assigned_set ) ] );
+            echo $chrome::kpiTile( [ 'label' => __( 'Players total', 'talenttrack' ), 'value' => (string) $player_total ] );
+            // phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
+            ?>
+        </div>
+
         <?php if ( empty( $scouts ) ) : ?>
             <p class="tt-notice"><?php esc_html_e( 'No scout users yet. Create a WordPress user and assign them the Scout role to get started.', 'talenttrack' ); ?></p>
         <?php else : ?>
+            <div class="tt-sa-list">
             <?php foreach ( $scouts as $scout ) :
                 $assigned_ids = self::assignedPlayerIds( (int) $scout->ID );
                 ?>
-                <div class="tt-scout-card" style="border:1px solid #e5e7ea;border-radius:10px;padding:16px 20px;margin-bottom:14px;background:#fff;">
-                    <h3 style="margin:0 0 4px;font-size:15px;"><?php echo esc_html( (string) $scout->display_name ); ?></h3>
-                    <p style="margin:0 0 10px;font-size:12px;color:#5b6470;"><?php echo esc_html( (string) $scout->user_email ); ?></p>
+                <div class="tt-sa-card">
+                    <div class="tt-sa-head">
+                        <span class="tt-sr-avatar" aria-hidden="true"><?php echo esc_html( $chrome::initials( (string) $scout->display_name ) ); ?></span>
+                        <div>
+                            <h3 class="tt-sa-name"><?php echo esc_html( (string) $scout->display_name ); ?></h3>
+                            <p class="tt-sa-email"><?php echo esc_html( (string) $scout->user_email ); ?></p>
+                        </div>
+                    </div>
 
                     <?php if ( empty( $assigned_ids ) ) : ?>
-                        <p style="margin:0 0 10px;font-size:13px;color:#5b6470;font-style:italic;">
-                            <?php esc_html_e( 'No players assigned yet.', 'talenttrack' ); ?>
-                        </p>
+                        <p class="tt-sa-empty"><?php esc_html_e( 'No players assigned yet.', 'talenttrack' ); ?></p>
                     <?php else : ?>
-                        <ul style="list-style:none;padding:0;margin:0 0 10px;">
+                        <ul class="tt-sa-assigned">
                             <?php foreach ( $assigned_ids as $pid ) :
                                 $pl = QueryHelpers::get_player( $pid );
                                 if ( ! $pl ) continue;
                                 ?>
-                                <li style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #f0f0f0;">
-                                    <span><?php echo esc_html( QueryHelpers::player_display_name( $pl ) ); ?></span>
-                                    <form method="post" style="margin:0;">
+                                <li>
+                                    <span class="tt-sa-player-name"><?php echo esc_html( QueryHelpers::player_display_name( $pl ) ); ?></span>
+                                    <form method="post" class="tt-sa-inline-form">
                                         <?php wp_nonce_field( 'tt_scout_assign', 'tt_scout_nonce' ); ?>
                                         <input type="hidden" name="scout_user_id" value="<?php echo (int) $scout->ID; ?>" />
                                         <input type="hidden" name="player_id" value="<?php echo (int) $pl->id; ?>" />
                                         <input type="hidden" name="tt_scout_action" value="unassign" />
-                                        <button type="submit" class="tt-btn tt-btn-secondary" style="font-size:12px;color:#b32d2e;"><?php esc_html_e( 'Remove', 'talenttrack' ); ?></button>
+                                        <button type="submit" class="tt-btn tt-btn-danger"><?php esc_html_e( 'Remove', 'talenttrack' ); ?></button>
                                     </form>
                                 </li>
                             <?php endforeach; ?>
                         </ul>
                     <?php endif; ?>
 
-                    <form method="post" style="display:flex;gap:8px;margin-top:8px;">
+                    <form method="post" class="tt-sa-add">
                         <?php wp_nonce_field( 'tt_scout_assign', 'tt_scout_nonce' ); ?>
                         <input type="hidden" name="scout_user_id" value="<?php echo (int) $scout->ID; ?>" />
                         <input type="hidden" name="tt_scout_action" value="assign" />
-                        <select name="player_id" required style="flex:1;padding:6px 8px;border:1px solid #c3c4c7;border-radius:4px;">
+                        <label class="screen-reader-text" for="tt-sa-select-<?php echo (int) $scout->ID; ?>"><?php esc_html_e( 'Pick a player to assign', 'talenttrack' ); ?></label>
+                        <select id="tt-sa-select-<?php echo (int) $scout->ID; ?>" class="tt-sa-select" name="player_id" required>
                             <option value=""><?php esc_html_e( '— Pick a player to assign —', 'talenttrack' ); ?></option>
                             <?php foreach ( $players as $pl ) :
                                 if ( in_array( (int) $pl->id, $assigned_ids, true ) ) continue;
@@ -101,6 +130,7 @@ class FrontendScoutAccessView extends FrontendViewBase {
                     </form>
                 </div>
             <?php endforeach; ?>
+            </div>
         <?php endif; ?>
         <?php
     }
