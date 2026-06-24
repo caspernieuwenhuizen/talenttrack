@@ -4,13 +4,25 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.47.1
+Stable tag: 4.48.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.48.0 — Referential-integrity-checked permanent delete (#1783) Permanent delete is now fail-closed across the archive lifecycle. A new declarative cascade framework (`CascadeRegistry` + `GenericCascadeDeleter`) checks, before removing a record, what still references it — then cascades the record's own children, clears references on rows that outlive it, or refuses the delete with a message naming what still points at it. A permanent delete can no longer silently orphan child rows.  Deleting an **evaluation** now also removes its category ratings and evidence links; deleting a **goal** removes its links and conversation thread and clears any spawned-goal task link. **Team** and **activity** permanent-delete now **block** while anything still references them (previously they deleted the row and stranded its children) — full cascades for those two are tracked as a follow-up (#1784). Player / person / PDP deletes are unchanged. =
+
+= 4.48.0 — Players list toolbar now matches the standard register card (#1791) The players list filter/search bar now renders as the standard 2026 "register" card — white surface, soft shadow, comfortable padding, and rounded, bordered controls — instead of the earlier soft-grey strip with square-cornered inputs. The toolbar and the table read as two matching cards, the same chrome every other list uses. The rounded-control fix is in the shared list-table component, so any list that didn't already style its own controls now gets rounded search/filter inputs too. Restyle only; filtering, search, and sort behaviour are unchanged. =
+
+= 4.48.0 — Record-name links look the same regardless of the active theme (#1792) Links to a record (player name, team name, and similar) no longer pick up the surrounding theme's underline or link colour. The shared record-link styling is now pinned so an aggressive theme `a` rule can't override it, so the same install renders these links identically whatever theme is active. Visual only — link targets and behaviour are unchanged. =
+
+= 4.48.0 — Activities list adopts the standard toolbar and full desktop width (#1793) The activities list Team/Type filter bar now renders as the standard 2026 "register" card, matching the players list, and the list spans the full content width on desktop instead of a narrow centred column. The period quick-filter chips (All / This week / Next week / …) are unchanged and still sit below the filter bar. Restyle only; filtering and the activity buckets behave exactly as before. =
+
+= 4.48.0 — Permanently deleting an archived player no longer fails on PDP calendar links (#1794) Permanently deleting an archived player who had a PDP with a scheduled conversation failed with a server error and deleted nothing — the deletion cascade tried to match PDP calendar links on a column that doesn't exist. Calendar links are keyed by conversation, so the cascade now reaches them through the conversation and PDP file, and the delete completes cleanly, removing those links with the rest of the player's data. The cascade remains all-or-nothing, so no partial deletes occur. Right-to-erasure of a player with a full PDP history works again. =
+
+= 4.48.0 — Dashboard tile grid adopts the 2026 green/gold look (#1695) The frontend dashboard renders through `FrontendTileGrid` (the tile landing shown when no persona template takes over), which carried its own flat, grey tile styling — it was missed by the earlier persona-landing (#1769) and `TileGridStandard` (#1790) restyles. Its tiles now match the 2026 mockup: a green left-accent and 12px radius on each tile card, a gold left-accent on the "Mijn werk" rail rows, green-deep section labels, and ink/line/paper/muted design tokens throughout (with a green-tinted hover shadow and brand-green focus rings). Everything reads from the shared tokens, so the club-colour editor re-themes the dashboard too. Visual only — no markup, query, or navigation change. =
 
 = 4.47.1 — Spond import no longer overwrites notes after the first import (#1774) A Spond-imported activity's notes are now seeded from the event's description on the first import only, then owned by TalentTrack — the same "set once, then TalentTrack wins" model already used for the activity type. Previously every hourly re-sync rewrote the notes from Spond's description, wiping any notes a coach had added or edited in TalentTrack. Title, date, location, and the time fields still follow Spond on every sync. Trade-off: a later edit to the description in Spond no longer flows into an already-imported activity. =
 
