@@ -161,8 +161,8 @@ class FrontendScheduledReportsView extends FrontendViewBase {
             return;
         }
 
-        echo '<div class="tt-sched-tablewrap">';
-        echo '<table class="tt-sched-table">';
+        echo '<div class="tt-report-card tt-sched-tablewrap"><div class="tt-table-wrap">';
+        echo '<table class="tt-table tt-sched-table">';
         echo '<thead><tr>';
         echo '<th>' . esc_html__( 'Name', 'talenttrack' ) . '</th>';
         echo '<th>' . esc_html__( 'KPI', 'talenttrack' ) . '</th>';
@@ -190,7 +190,7 @@ class FrontendScheduledReportsView extends FrontendViewBase {
             echo '</tr>';
         }
         echo '</tbody></table>';
-        echo '</div>';
+        echo '</div></div>';
     }
 
     private static function renderRowActions( int $id, string $status ): void {

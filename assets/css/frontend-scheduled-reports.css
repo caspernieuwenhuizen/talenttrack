@@ -66,45 +66,18 @@
     outline-offset: 1px;
 }
 
-/* Schedule list as a card-wrapped table. */
+/* Schedule list — the shared .tt-report-card + .tt-table pattern (#1760)
+ * now supplies the card wrapper and the table chrome (header band, row
+ * borders, scroll wrap). These rules only cap the card width and keep
+ * the header cells from wrapping on narrow viewports. */
 .tt-dashboard .tt-sched-empty {
     color: var(--tt-muted, #6a6d66);
     margin: 0;
 }
 
-.tt-dashboard .tt-sched-tablewrap {
-    max-width: 960px;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    border: 1px solid var(--tt-line, #e3e6e1);
-    border-radius: var(--tt-radius-lg, 14px);
-    background: var(--tt-paper, #fff);
-    box-shadow: var(--tt-shadow-md);
-}
-.tt-dashboard .tt-sched-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: var(--tt-fs-sm, 0.85rem);
-}
-.tt-dashboard .tt-sched-table th {
-    text-align: left;
-    padding: var(--tt-sp-3, 12px);
-    font-size: 0.72rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--tt-muted, #6a6d66);
-    background: var(--tt-bg-soft, #f4f6f3);
-    border-bottom: 1px solid var(--tt-line, #e3e6e1);
-    white-space: nowrap;
-}
-.tt-dashboard .tt-sched-table td {
-    padding: var(--tt-sp-3, 12px);
-    border-bottom: 1px solid var(--tt-line-soft, #eef0ec);
-    color: var(--tt-ink, #0e1a14);
-    vertical-align: middle;
-}
-.tt-dashboard .tt-sched-table tbody tr:last-child td { border-bottom: 0; }
+.tt-dashboard .tt-sched-tablewrap { max-width: 960px; }
+.tt-dashboard .tt-sched-table th { white-space: nowrap; }
+.tt-dashboard .tt-sched-table td { vertical-align: middle; }
 
 /* Status chip — green = active, gold = paused, neutral fallback. */
 .tt-dashboard .tt-sched-chip {

@@ -112,35 +112,21 @@
     color: var(--tt-muted, #6a6d66);
 }
 
-/* Report table. */
-.tt-dashboard .tt-rep-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-variant-numeric: tabular-nums;
-}
-.tt-dashboard .tt-rep-table th,
-.tt-dashboard .tt-rep-table td {
-    padding: var(--tt-sp-2, 8px) var(--tt-sp-3, 12px);
-    text-align: left;
-    border-bottom: 1px solid var(--tt-line-soft, #eef0ec);
-}
-.tt-dashboard .tt-rep-table th {
-    font-size: 0.72rem;
-    color: var(--tt-muted, #6a6d66);
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-.tt-dashboard .tt-rep-table tbody tr:last-child td { border-bottom: 0; }
-.tt-dashboard .tt-rep-table td.num,
-.tt-dashboard .tt-rep-table th.num { text-align: right; }
-.tt-dashboard .tt-rep-table a {
-    color: var(--tt-primary, #0b3d2e);
-    font-weight: 600;
-    text-decoration: none;
-}
-.tt-dashboard .tt-rep-table a:hover,
-.tt-dashboard .tt-rep-table a:focus-visible { text-decoration: underline; }
+/* Report tables now use the shared .tt-report-card + .tt-table pattern
+ * (#1760). The base .tt-table look (header band, row borders) ships in
+ * public.css; these rules add the report-specific column alignment and
+ * the tabular-figure treatment on top of it. */
+.tt-dashboard .tt-report-card .tt-table { font-variant-numeric: tabular-nums; }
+.tt-dashboard .tt-report-card .tt-table td.num,
+.tt-dashboard .tt-report-card .tt-table th.num { text-align: right; }
+
+/* A section heading sitting above a report card is unboxed (the card is
+ * its own surface), so it needs its own top margin to separate it from
+ * the element above. When the heading is the first child of a boxed
+ * .tt-rep-section (bar rows, pickers) the card padding handles spacing,
+ * so the top margin is reset there. */
+.tt-dashboard .tt-rep-section__head { margin-top: var(--tt-sp-4, 16px); }
+.tt-dashboard .tt-rep-section > .tt-rep-section__head:first-child { margin-top: 0; }
 
 /* Bar row — per-player distribution with a 2026 progress bar. */
 .tt-dashboard .tt-rep-bar-row {
@@ -223,8 +209,10 @@
 }
 .tt-dashboard .tt-rep-picker .tt-rep-btn { display: flex; width: 100%; }
 
-/* Low-variance flagged row + inline tag (coach eval quality). */
-.tt-dashboard .tt-rep-row--flag { background: var(--tt-warning-subtle, #fdf3d8); }
+/* Low-variance flagged row + inline tag (coach eval quality). The base
+ * .tt-table paints cell backgrounds white, so the row flag is applied at
+ * the cell level to win over that. */
+.tt-dashboard .tt-report-card .tt-table tr.tt-rep-row--flag td { background: var(--tt-warning-subtle, #fdf3d8); }
 .tt-dashboard .tt-rep-flag-tag {
     color: var(--tt-warning, #e8902b);
     font-size: 0.72rem;
