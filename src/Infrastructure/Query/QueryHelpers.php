@@ -432,9 +432,12 @@ class QueryHelpers {
     }
 
     /**
-     * Does this user coach a team that the player is on? Same union-merge
-     * as `get_teams_for_coach()` so legacy and modern assignment paths
-     * converge.
+     * Does this user coach a team that the player is on? Reads through
+     * `get_teams_for_coach()`, whose single source of truth is the active
+     * `tt_user_role_scopes` team grant. Every assignment path writes that
+     * grant — the Staff section live (`PeopleRepository::assignToTeam` ->
+     * `syncTeamScopeRow`) and the legacy `head_coach_id` / `tt_team_people`
+     * links via the 0171 backfill — so legacy and modern converge there.
      */
     public static function coach_owns_player( int $coach_user_id, int $player_id ): bool {
         $player = self::get_player( $player_id );
