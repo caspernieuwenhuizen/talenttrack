@@ -230,6 +230,18 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
         // was folded into it). Output is visually unchanged: same heading +
         // .tt-cfg-tile-grid markup, same auto-hide-empty-section behaviour,
         // same trailing "Other reports" bucket for ungrouped tiles.
+        // #1761 — carry the launcher page as `tt_back` on every tile so
+        // the destination report renders the contextual "← Back to
+        // Reports" pill (FrontendBreadcrumbs auto-renders the pill from
+        // `tt_back`). appendTo() captures the current launcher URL, the
+        // same for each tile.
+        foreach ( $tiles as &$tile ) {
+            if ( ! empty( $tile['url'] ) ) {
+                $tile['url'] = \TT\Shared\Frontend\Components\BackLink::appendTo( (string) $tile['url'] );
+            }
+        }
+        unset( $tile );
+
         $sections = \TT\Shared\Frontend\Components\FrontendSectionedTileGrid::fromGroups(
             $tiles,
             $groups,
