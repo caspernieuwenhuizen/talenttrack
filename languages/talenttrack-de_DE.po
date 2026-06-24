@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-24T21:12:58+00:00\n"
+"POT-Creation-Date: 2026-06-24T21:20:39+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -249,7 +249,7 @@ msgstr "Mitarbeiter"
 #: src/Modules/Teams/Admin/TeamsPage.php:114
 #: src/Shared/Frontend/CoachDashboardView.php:324
 #: src/Shared/Frontend/CoachForms.php:620
-#: src/Shared/Frontend/Components/FrontendThreadView.php:169
+#: src/Shared/Frontend/Components/FrontendThreadView.php:172
 #: src/Shared/Frontend/DashboardShortcode.php:128
 #: src/Shared/Frontend/FrontendConfigurationView.php:608
 #: src/Shared/Frontend/FrontendConfigurationView.php:609
@@ -537,7 +537,7 @@ msgstr ""
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:62
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:73
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:251
-#: src/Shared/Frontend/Components/FrontendThreadView.php:168
+#: src/Shared/Frontend/Components/FrontendThreadView.php:171
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:148
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:760
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:77
@@ -924,7 +924,7 @@ msgstr "In Bearbeitung"
 #: src/Modules/CustomWidgets/DataSources/PdpFiles.php:35
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:583
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1382
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1634
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1662
 #: src/Modules/Pdp/Repositories/PdpFilesRepository.php:213
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:147
 #: src/Modules/Prospects/Frontend/FrontendScoutingPlanView.php:291
@@ -1175,7 +1175,7 @@ msgstr "Andere"
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:202
 #: src/Modules/Goals/Admin/GoalsPage.php:85
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:584
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1635
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1663
 #: src/Modules/Pdp/Repositories/PdpFilesRepository.php:214
 #: src/Modules/People/Admin/PeoplePage.php:201
 #: src/Modules/PersonaDashboard/TableSources/MyRecentProspectsSource.php:80
@@ -3201,7 +3201,7 @@ msgstr "Aktualisieren"
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:477
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:327
 #: src/Shared/Frontend/Components/FormSaveButton.php:46
-#: src/Shared/Frontend/Components/FrontendThreadView.php:171
+#: src/Shared/Frontend/Components/FrontendThreadView.php:174
 #: src/Shared/Frontend/DashboardShortcode.php:94
 #: src/Shared/Frontend/FrontendMobileSettingsView.php:86
 msgid "Save"
@@ -6068,7 +6068,7 @@ msgstr ""
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:761
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:365
 #: src/Shared/Frontend/Components/FormSaveButton.php:55
-#: src/Shared/Frontend/Components/FrontendThreadView.php:170
+#: src/Shared/Frontend/Components/FrontendThreadView.php:173
 #: src/Shared/Frontend/Components/GuestAddModal.php:112
 #: src/Shared/Frontend/DashboardShortcode.php:126
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2112
@@ -7010,7 +7010,7 @@ msgstr ""
 #: src/Modules/Development/Frontend/IdeasApprovalView.php:161
 #: src/Modules/Development/Frontend/IdeasBoardView.php:118
 #: src/Modules/Development/Frontend/IdeasRefineView.php:166
-#: src/Shared/Frontend/Components/FrontendThreadView.php:119
+#: src/Shared/Frontend/Components/FrontendThreadView.php:122
 msgid "Unknown"
 msgstr ""
 
@@ -8648,7 +8648,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:140
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:296
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:141
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1554
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1582
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:233
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:363
 #: src/Modules/Wizards/Goal/LinkStep.php:73
@@ -11410,7 +11410,7 @@ msgid "Open goals"
 msgstr ""
 
 #: src/Modules/CustomWidgets/DataSources/GoalsOpen.php:27
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1552
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1580
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:147
 #: src/Modules/Wizards/Goal/LinkStep.php:71
 #: src/Modules/Wizards/Goal/LinkStep.php:106
@@ -14040,7 +14040,7 @@ msgid "Metric"
 msgstr ""
 
 #: src/Modules/Export/Exporters/KpiSnapshotXlsxExporter.php:135
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1555
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1583
 #: src/Modules/Wizards/Goal/LinkStep.php:74
 #: src/Modules/Wizards/Goal/LinkStep.php:109
 #: src/Shared/Admin/OptionSetEditor.php:47
@@ -18887,6 +18887,7 @@ msgstr ""
 # #0028 — Conversational goals (thread primitive + goal adapter)
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:70
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1059
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1512
 #: src/Shared/Frontend/Components/FrontendThreadView.php:52
 #: src/Shared/Frontend/FrontendGoalsManageView.php:225
 #: src/Shared/Frontend/FrontendGoalsManageView.php:527
@@ -18979,27 +18980,27 @@ msgid "Signed off on %s"
 msgstr ""
 
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:261
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1642
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1670
 msgid "Start of season"
 msgstr ""
 
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:262
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1643
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1671
 msgid "Mid season"
 msgstr ""
 
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:263
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1644
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1672
 msgid "Mid-season A"
 msgstr ""
 
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:264
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1645
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1673
 msgid "Mid-season B"
 msgstr ""
 
 #: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:265
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1646
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1674
 msgid "End of season"
 msgstr ""
 
@@ -19533,23 +19534,35 @@ msgstr ""
 msgid "No goals match this filter."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1469
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1467
+msgid "Messages in this goal’s conversation"
+msgstr ""
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1486
 msgid "Linked to"
 msgstr ""
 
 #. translators: %s = date
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1483
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1499
 #, php-format
 msgid "Last mentioned in conversation on %s"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1553
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1507
+msgid "Open goal"
+msgstr ""
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1513
+msgid "player & coach"
+msgstr ""
+
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1581
 #: src/Modules/Wizards/Goal/LinkStep.php:72
 #: src/Modules/Wizards/Goal/LinkStep.php:107
 msgid "Football action"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1633
+#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1661
 msgctxt "PDP file status"
 msgid "Open"
 msgstr ""
@@ -21676,7 +21689,7 @@ msgid "Blueprint: %s"
 msgstr ""
 
 #: src/Modules/PersonaDashboard/Widgets/RecentCommentsWidget.php:228
-#: src/Shared/Frontend/Components/FrontendThreadView.php:163
+#: src/Shared/Frontend/Components/FrontendThreadView.php:166
 msgid "just now"
 msgstr ""
 
@@ -25862,8 +25875,8 @@ msgid "View:"
 msgstr ""
 
 #: src/Modules/Threads/ThreadMessagesRepository.php:125
-#: src/Shared/Frontend/Components/FrontendThreadView.php:112
-#: src/Shared/Frontend/Components/FrontendThreadView.php:164
+#: src/Shared/Frontend/Components/FrontendThreadView.php:115
+#: src/Shared/Frontend/Components/FrontendThreadView.php:167
 msgid "Message deleted."
 msgstr ""
 
@@ -30698,44 +30711,44 @@ msgid "Write a message…"
 msgstr ""
 
 #: src/Shared/Frontend/Components/FrontendThreadView.php:72
-#: src/Shared/Frontend/Components/FrontendThreadView.php:121
-#: src/Shared/Frontend/Components/FrontendThreadView.php:167
+#: src/Shared/Frontend/Components/FrontendThreadView.php:124
+#: src/Shared/Frontend/Components/FrontendThreadView.php:170
 msgid "Coaches only"
 msgstr ""
 
 #: src/Shared/Frontend/Components/FrontendThreadView.php:75
-#: src/Shared/Frontend/Components/FrontendThreadView.php:161
+#: src/Shared/Frontend/Components/FrontendThreadView.php:164
 msgid "Send"
 msgstr "Senden"
 
 #. translators: %s is human-readable relative time
-#: src/Shared/Frontend/Components/FrontendThreadView.php:107
+#: src/Shared/Frontend/Components/FrontendThreadView.php:110
 #, php-format
 msgid "%s ago"
 msgstr ""
 
-#: src/Shared/Frontend/Components/FrontendThreadView.php:126
-#: src/Shared/Frontend/Components/FrontendThreadView.php:166
+#: src/Shared/Frontend/Components/FrontendThreadView.php:129
+#: src/Shared/Frontend/Components/FrontendThreadView.php:169
 msgid "(edited)"
 msgstr ""
 
-#: src/Shared/Frontend/Components/FrontendThreadView.php:160
+#: src/Shared/Frontend/Components/FrontendThreadView.php:163
 msgid "Sending…"
 msgstr ""
 
-#: src/Shared/Frontend/Components/FrontendThreadView.php:162
+#: src/Shared/Frontend/Components/FrontendThreadView.php:165
 msgid "Could not send message."
 msgstr ""
 
-#: src/Shared/Frontend/Components/FrontendThreadView.php:165
+#: src/Shared/Frontend/Components/FrontendThreadView.php:168
 msgid "New messages"
 msgstr ""
 
-#: src/Shared/Frontend/Components/FrontendThreadView.php:172
+#: src/Shared/Frontend/Components/FrontendThreadView.php:175
 msgid "Delete this message?"
 msgstr ""
 
-#: src/Shared/Frontend/Components/FrontendThreadView.php:173
+#: src/Shared/Frontend/Components/FrontendThreadView.php:176
 msgid "Edit window has expired."
 msgstr ""
 
