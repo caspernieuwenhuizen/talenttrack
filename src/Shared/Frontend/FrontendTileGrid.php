@@ -393,11 +393,22 @@ class FrontendTileGrid {
         [ $work_groups, $setup_groups ] = self::splitByKind( $groups );
         $is_admin_persona = current_user_can( 'tt_edit_settings' );
 
-        // #1603 — peel the personal "Me" group out of the left column; it
-        // renders as the sticky "My work" rail on the right at >=1024px and
-        // drops to the bottom below that. The remaining work groups render
-        // in the left column in the explicit order from TileRegistry.
-        [ $left_groups, $me_group ] = self::peelMeGroup( $work_groups );
+        // #1821 — the player persona's dashboard is just their own journey
+        // surfaces: render their work as tiles under "Today's work", not a
+        // side rail. Keep the rail for every other persona.
+        $is_player = self::isPlayerPersona( $user_id );
+
+        if ( $is_player ) {
+            // Me-group tiles flow into the main "Today's work" grid; no rail.
+            $left_groups = $work_groups;
+            $me_group    = null;
+        } else {
+            // #1603 — peel the personal "Me" group out of the left column; it
+            // renders as the sticky "My work" rail on the right at >=1024px and
+            // drops to the bottom below that. The remaining work groups render
+            // in the left column in the explicit order from TileRegistry.
+            [ $left_groups, $me_group ] = self::peelMeGroup( $work_groups );
+        }
         ?>
 
         <details class="tt-ftile-section" open>
@@ -452,6 +463,24 @@ class FrontendTileGrid {
      * @param array<int, array{label:string, tiles:array}> $groups
      * @return array{0: array<int, array>, 1: array<int, array>}
      */
+    /**
+     * #1821 — true when the user's active (or only) persona is `player`.
+     * Mirrors PersonaLandingRenderer::resolvePersona so the legacy grid and
+     * the persona dashboard agree on who is a player. Respects the persona
+     * switcher: a player-also-coach who switches to coach is not a player here.
+     */
+    private static function isPlayerPersona( int $user_id ): bool {
+        if ( $user_id <= 0 || ! class_exists( '\\TT\\Modules\\Authorization\\PersonaResolver' ) ) {
+            return false;
+        }
+        $active = \TT\Modules\Authorization\PersonaResolver::activePersona( $user_id );
+        if ( $active !== null && $active !== '' ) {
+            return $active === 'player';
+        }
+        $available = \TT\Modules\Authorization\PersonaResolver::personasFor( $user_id );
+        return ( $available[0] ?? null ) === 'player';
+    }
+
     private static function splitByKind( array $groups ): array {
         $work = [];
         $setup = [];

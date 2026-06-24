@@ -444,7 +444,12 @@ final class CoreSurfaceRegistration {
             'icon'         => 'functional-roles',
             'color'        => '#5b6e75',
             'cap_callback' => static function ( int $uid ): bool {
-                return user_can( $uid, 'tt_manage_functional_roles' ) || user_can( $uid, 'tt_view_people' );
+                // #1821 — gate on the MANAGE cap only. The loose `tt_view_people`
+                // fallback leaked this setup tile to players (and view-only
+                // staff) on dormant-matrix installs; configuring functional
+                // roles is a manage operation. Matrix-active installs gate on
+                // the `functional_role_assignments` entity and are unaffected.
+                return user_can( $uid, 'tt_manage_functional_roles' );
             },
             // #0069 — HoD doesn't manage per-team staff slots day-to-day;
             // their lens is academy-wide development. Hide the tile.
