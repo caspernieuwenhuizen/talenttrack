@@ -54,7 +54,12 @@ final class GenericCascadeDeleter {
             }
         }
 
-        // Polymorphic + thread children (not visible to the ref-column scan).
+        // Parent-keyed, polymorphic + thread children (not visible to the
+        // ref-column scan).
+        foreach ( (array) ( $plan['children'] ?? [] ) as [ $child, $cfk, $parent, $ppk, $pref ] ) {
+            $n = $this->countChild( $child, $cfk, $parent, $ppk, $pref, $ids );
+            if ( $n > 0 ) $removals[] = [ 'table' => $child, 'count' => $n ];
+        }
         foreach ( (array) ( $plan['cascade_poly'] ?? [] ) as [ $table, $type_col, $id_col, $type_val ] ) {
             $n = $this->countPoly( $table, $type_col, $id_col, $type_val, $ids );
             if ( $n > 0 ) $removals[] = [ 'table' => $table, 'count' => $n ];
@@ -124,6 +129,21 @@ final class GenericCascadeDeleter {
                     $this->guard( $n, $tt );
                     if ( (int) $n > 0 ) $per_table[ $tt ] = (int) $n;
                 }
+            }
+
+            // 3b) Parent-keyed children — rows that hang off a child table
+            // (no direct ref column of their own), removed before that
+            // parent is deleted in step 4. e.g. tournament assignments live
+            // under matches: delete them where the match belongs to the
+            // tournament being removed.
+            foreach ( (array) ( $plan['children'] ?? [] ) as [ $child, $cfk, $parent, $ppk, $pref ] ) {
+                if ( ! $this->tableExists( $child ) || ! $this->tableExists( $parent ) ) continue;
+                $sql = "DELETE c FROM {$p}{$child} c
+                         INNER JOIN {$p}{$parent} pa ON pa.{$ppk} = c.{$cfk}
+                         WHERE pa.{$pref} IN ({$ph})";
+                $n   = $wpdb->query( $wpdb->prepare( $sql, ...$ids ) );
+                $this->guard( $n, $child );
+                if ( (int) $n > 0 ) $per_table[ $child ] = ( $per_table[ $child ] ?? 0 ) + (int) $n;
             }
 
             // 4) Declared direct owned children.
@@ -211,6 +231,19 @@ final class GenericCascadeDeleter {
             $out[] = [ 'table' => $bare, 'column' => $col, 'count' => $n ];
         }
         return $out;
+    }
+
+    private function countChild( string $child, string $cfk, string $parent, string $ppk, string $pref, array $ids ): int {
+        global $wpdb;
+        if ( ! $this->tableExists( $child ) || ! $this->tableExists( $parent ) ) return 0;
+        $p  = $wpdb->prefix;
+        $ph = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$p}{$child} c
+              INNER JOIN {$p}{$parent} pa ON pa.{$ppk} = c.{$cfk}
+              WHERE pa.{$pref} IN ({$ph})",
+            ...$ids
+        ) );
     }
 
     private function countPoly( string $table, string $type_col, string $id_col, string $type_val, array $ids ): int {

@@ -63,6 +63,41 @@ final class CascadeRegistry {
             'block_only'   => false,
         ],
 
+        // Tournament (#1784) — owns its matches, squad and per-match
+        // assignments. Assignments hang off matches (no tournament_id of
+        // their own), so they're a parent-keyed child removed first. A
+        // linked activity outlives the tournament with its link cleared.
+        'tournament' => [
+            'table'        => 'tt_tournaments',
+            'ref_columns'  => [ 'tournament_id' ],
+            'children'     => [ [ 'tt_tournament_assignments', 'match_id', 'tt_tournament_matches', 'id', 'tournament_id' ] ],
+            'cascade'      => [ [ 'tt_tournament_matches', 'tournament_id' ], [ 'tt_tournament_squad', 'tournament_id' ] ],
+            'cascade_poly' => [],
+            'threads'      => null,
+            'set_null'     => [ [ 'tt_activities', 'tournament_id' ] ],
+            'block_only'   => false,
+        ],
+
+        // Trial case (#1784) — owns its staff assignments, staff inputs
+        // and extension audit trail. A workflow task or prospect that
+        // points at the case is a fact: keep it, clear the link.
+        'trial_case' => [
+            'table'        => 'tt_trial_cases',
+            'ref_columns'  => [ 'case_id', 'trial_case_id', 'promoted_to_trial_case_id' ],
+            'cascade'      => [
+                [ 'tt_trial_case_staff', 'case_id' ],
+                [ 'tt_trial_case_staff_inputs', 'case_id' ],
+                [ 'tt_trial_extensions', 'case_id' ],
+            ],
+            'cascade_poly' => [],
+            'threads'      => null,
+            'set_null'     => [
+                [ 'tt_workflow_tasks', 'trial_case_id' ],
+                [ 'tt_prospects', 'promoted_to_trial_case_id' ],
+            ],
+            'block_only'   => false,
+        ],
+
         // Team — deferred (#1784): block-only. A team carries player /
         // activity / match references (some denormalized); auto-cascading
         // those risks deleting player rows, so until the plan is verified

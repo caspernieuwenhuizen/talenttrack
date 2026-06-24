@@ -90,6 +90,27 @@ class TournamentsRestController {
             ],
         ] );
 
+        // #1784 — restore an archived tournament + referential-integrity
+        // permanent delete (the DELETE above only archives).
+        register_rest_route( self::NS, '/tournaments/(?P<id>\d+)/restore', [
+            [
+                'methods'             => 'POST',
+                'callback'            => [ __CLASS__, 'restore_tournament' ],
+                'permission_callback' => function ( \WP_REST_Request $r ) {
+                    return AuthorizationService::canEditTournament( get_current_user_id(), (int) $r['id'] );
+                },
+            ],
+        ] );
+        register_rest_route( self::NS, '/tournaments/(?P<id>\d+)/permanent', [
+            [
+                'methods'             => 'DELETE',
+                'callback'            => [ __CLASS__, 'delete_tournament_permanently' ],
+                'permission_callback' => function () {
+                    return current_user_can( 'tt_edit_settings' );
+                },
+            ],
+        ] );
+
         // Per-player rollup totals (consumed by the minutes ticker).
         register_rest_route( self::NS, '/tournaments/(?P<id>\d+)/totals', [
             [
@@ -434,6 +455,34 @@ class TournamentsRestController {
         }
         do_action( 'tt_tournament_archived', $id );
         return RestResponse::success( [ 'archived' => true, 'id' => $id ] );
+    }
+
+    /** #1784 — restore an archived tournament. */
+    public static function restore_tournament( \WP_REST_Request $r ) {
+        $id = (int) $r['id'];
+        if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid tournament id.', 'talenttrack' ), 400 );
+        $n = ( new \TT\Infrastructure\Archive\ArchiveRepository() )->restore( 'tournament', [ $id ] );
+        if ( $n === 0 ) return RestResponse::notFound( 'tournament_not_found' );
+        return RestResponse::success( [ 'restored' => true, 'id' => $id ] );
+    }
+
+    /**
+     * #1784 — permanently delete a tournament (irreversible). Routes
+     * through the referential-integrity cascade (matches, squad, per-match
+     * assignments removed; a linked activity's tournament link cleared);
+     * fail-closed if anything undeclared still references it. Gated by
+     * tt_edit_settings.
+     */
+    public static function delete_tournament_permanently( \WP_REST_Request $r ) {
+        $id = (int) $r['id'];
+        if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid tournament id.', 'talenttrack' ), 400 );
+        try {
+            $n = ( new \TT\Infrastructure\Archive\ArchiveRepository() )->deletePermanently( 'tournament', [ $id ] );
+        } catch ( \TT\Infrastructure\Archive\DeleteBlockedException $e ) {
+            return RestResponse::error( 'delete_blocked', $e->getMessage(), 409 );
+        }
+        if ( $n === 0 ) return RestResponse::notFound( 'tournament_not_found' );
+        return RestResponse::success( [ 'deleted' => true, 'id' => $id ] );
     }
 
     /**

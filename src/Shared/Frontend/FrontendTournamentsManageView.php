@@ -9,6 +9,7 @@ use TT\Shared\Frontend\Components\DateInputComponent;
 use TT\Shared\Frontend\Components\FormSaveButton;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\FrontendListTable;
+use TT\Shared\Frontend\Components\ArchiveRowActions;
 
 /**
  * FrontendTournamentsManageView (#0093 chunk 3) — list + detail +
@@ -186,6 +187,9 @@ class FrontendTournamentsManageView extends FrontendViewBase {
                 'href'  => add_query_arg( [ 'tt_view' => 'tournaments', 'id' => '{id}', 'action' => 'edit' ], $base_url ),
             ];
         }
+        // #1784 — Restore + referential-integrity permanent delete on
+        // archived rows (each action carries its own cap + show_if).
+        $row_actions += ArchiveRowActions::build( 'tournaments', 'tt_edit_tournaments' );
 
         echo FrontendListTable::render( [
             'rest_path' => 'tournaments',
