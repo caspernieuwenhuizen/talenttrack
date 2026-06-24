@@ -59,6 +59,29 @@ class VctExercisesRestController {
                 'permission_callback' => [ __CLASS__, 'can_admin' ],
             ],
         ] );
+
+        // #1784 — referential-integrity permanent delete (the DELETE above
+        // only archives). Cascades coaching points; clears session-block links.
+        register_rest_route( self::NS, '/vct/exercises/(?P<id>\d+)/permanent', [
+            [
+                'methods'             => 'DELETE',
+                'callback'            => [ __CLASS__, 'delete_permanently' ],
+                'permission_callback' => [ __CLASS__, 'can_admin' ],
+            ],
+        ] );
+    }
+
+    /** #1784 — permanently delete a VCT exercise (irreversible, fail-closed). */
+    public static function delete_permanently( \WP_REST_Request $r ): \WP_REST_Response {
+        $id = (int) $r['id'];
+        if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid exercise id.', 'talenttrack' ), 400 );
+        try {
+            $n = ( new \TT\Infrastructure\Archive\ArchiveRepository() )->deletePermanently( 'vct_exercise', [ $id ] );
+        } catch ( \TT\Infrastructure\Archive\DeleteBlockedException $e ) {
+            return RestResponse::error( 'delete_blocked', $e->getMessage(), 409 );
+        }
+        if ( $n === 0 ) return RestResponse::error( 'not_found', __( 'Exercise not found.', 'talenttrack' ), 404 );
+        return RestResponse::success( [ 'deleted' => true, 'id' => $id ] );
     }
 
     public static function can_read(): bool {

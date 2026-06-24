@@ -44,6 +44,9 @@ class ArchiveRepository {
         'holiday'       => 'tt_holidays',
         'test_training' => 'tt_test_trainings',
         'trial_track'   => 'tt_trial_tracks',
+        'vct_exercise'  => 'tt_vct_exercises',
+        'custom_widget' => 'tt_custom_widgets',
+        'injury'        => 'tt_player_injuries',
     ];
 
     // Public API

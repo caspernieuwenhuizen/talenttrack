@@ -74,6 +74,17 @@ final class CustomWidgetsRestController {
             ],
         ] );
 
+        // #1784 — referential-integrity permanent delete (the DELETE above
+        // only archives). Widgets are standalone config, so this just
+        // removes the row; gated by tt_edit_settings.
+        register_rest_route( self::NS, '/custom-widgets/(?P<id>[A-Za-z0-9_-]+)/permanent', [
+            [
+                'methods'             => 'DELETE',
+                'callback'            => [ __CLASS__, 'delete_widget_permanently' ],
+                'permission_callback' => static function () { return current_user_can( 'tt_edit_settings' ); },
+            ],
+        ] );
+
         register_rest_route( self::NS, '/custom-data-sources', [
             [
                 'methods'             => 'GET',
@@ -175,6 +186,21 @@ final class CustomWidgetsRestController {
             return self::errorFromKind( $e );
         }
         return rest_ensure_response( [ 'archived' => true, 'id' => $widget->id, 'uuid' => $widget->uuid ] );
+    }
+
+    /** #1784 — permanently delete a custom widget (irreversible, fail-closed). Gated by tt_edit_settings. */
+    public static function delete_widget_permanently( WP_REST_Request $req ) {
+        $service = new CustomWidgetService();
+        $widget  = $service->findByIdOrUuid( (string) $req['id'] );
+        if ( $widget === null ) {
+            return new \WP_Error( 'not_found', __( 'Custom widget not found.', 'talenttrack' ), [ 'status' => 404 ] );
+        }
+        try {
+            ( new \TT\Infrastructure\Archive\ArchiveRepository() )->deletePermanently( 'custom_widget', [ (int) $widget->id ] );
+        } catch ( \TT\Infrastructure\Archive\DeleteBlockedException $e ) {
+            return new \WP_Error( 'delete_blocked', $e->getMessage(), [ 'status' => 409 ] );
+        }
+        return rest_ensure_response( [ 'deleted' => true, 'id' => $widget->id, 'uuid' => $widget->uuid ] );
     }
 
     public static function list_sources( WP_REST_Request $req ) {

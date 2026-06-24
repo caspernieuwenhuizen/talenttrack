@@ -38,6 +38,9 @@ definitieve verwijdering laat nooit stilzwijgend losgekoppelde rijen achter.
 | Vakantie | Losstaand — wordt direct verwijderd. |
 | Testtraining | Maakt een eventuele workflowtaak-koppeling leeg en verwijdert de sessie. |
 | Proeftraject | Ingebouwde trajecten kunnen niet worden verwijderd; een eigen traject **blokkeert** zolang een proefdossier het nog gebruikt. |
+| VCT-oefening | Verwijdert de coachpunten mee; maakt de oefeningkoppeling van een sessieblok leeg. |
+| Eigen widget | Losstaand — wordt direct verwijderd. |
+| Blessure | Verwijdert de blessure en de bijbehorende tijdlijn-gebeurtenissen (medisch gegeven van een minderjarige). |
 | Team, Activiteit | **Blokkeert** zolang er nog records naar verwijzen (volledige cascades zijn een vervolg, #1784). |
 
 Als een team of activiteit niet wil verwijderen, archiveer of verplaats dan

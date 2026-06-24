@@ -40141,3 +40141,7 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+
+#: src/Infrastructure/REST/PlayerJourneyRestController.php
+msgid "Invalid injury id."
+msgstr "Ongeldig blessure-id."

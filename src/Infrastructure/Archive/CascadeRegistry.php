@@ -135,6 +135,45 @@ final class CascadeRegistry {
             'block_only'   => true,
         ],
 
+        // VCT exercise (#1784) — owns its coaching points; a session block
+        // that referenced it keeps existing with the exercise link cleared.
+        // `exercise_id` is ambiguous (it also keys tt_exercises' children),
+        // so the ref_columns are TABLE-QUALIFIED to the VCT tables only.
+        'vct_exercise' => [
+            'table'        => 'tt_vct_exercises',
+            'ref_columns'  => [ [ 'tt_vct_coaching_points', 'exercise_id' ], [ 'tt_vct_session_blocks', 'exercise_id' ] ],
+            'cascade'      => [ [ 'tt_vct_coaching_points', 'exercise_id' ] ],
+            'cascade_poly' => [],
+            'threads'      => null,
+            'set_null'     => [ [ 'tt_vct_session_blocks', 'exercise_id' ] ],
+            'block_only'   => false,
+        ],
+
+        // Custom widget (#1784) — standalone dashboard config; nothing
+        // references it, so a permanent delete just removes the row.
+        'custom_widget' => [
+            'table'        => 'tt_custom_widgets',
+            'ref_columns'  => [],
+            'cascade'      => [],
+            'cascade_poly' => [],
+            'threads'      => null,
+            'set_null'     => [],
+            'block_only'   => false,
+        ],
+
+        // Injury (#1784) — a minor's medical record. Its journey-timeline
+        // events are owned (polymorphic source_entity_type='injury') and
+        // removed with it so a right-to-erasure delete actually erases.
+        'injury' => [
+            'table'        => 'tt_player_injuries',
+            'ref_columns'  => [],
+            'cascade'      => [],
+            'cascade_poly' => [ [ 'tt_player_events', 'source_entity_type', 'source_entity_id', 'injury' ] ],
+            'threads'      => null,
+            'set_null'     => [],
+            'block_only'   => false,
+        ],
+
         // Team — deferred (#1784): block-only. A team carries player /
         // activity / match references (some denormalized); auto-cascading
         // those risks deleting player rows, so until the plan is verified
