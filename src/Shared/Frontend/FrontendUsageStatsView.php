@@ -67,6 +67,8 @@ class FrontendUsageStatsView extends FrontendViewBase {
 
         $dau   = UsageTracker::dailyActiveUsers( $days );
         $roles = UsageTracker::activeByRole( $days );
+        // #1765 — the names behind the role buckets.
+        $active_user_rows = UsageTracker::activeUsers( $days );
 
         // Stickiness — average daily-active / monthly-active, the classic
         // "how habitual is the tool?" ratio. MAU is always the 30-day
@@ -140,12 +142,44 @@ class FrontendUsageStatsView extends FrontendViewBase {
                     <tbody>
                     <?php foreach ( $roles as $role => $count ) : ?>
                         <tr>
-                            <td><?php echo esc_html( (string) $role ); ?></td>
+                            <td><?php echo esc_html( self::roleLabel( (string) $role ) ); ?></td>
                             <td style="text-align:right;"><?php echo (int) $count; ?></td>
                         </tr>
                     <?php endforeach; ?>
                     </tbody>
                 </table>
+            </div>
+        <?php endif; ?>
+
+        <?php if ( $active_user_rows ) : ?>
+            <div class="tt-usage-panel">
+                <h3 class="tt-usage-panel__title"><?php
+                    /* translators: %d is the number of days */
+                    printf( esc_html__( 'Active users (%d days)', 'talenttrack' ), (int) $days );
+                ?></h3>
+                <div class="tt-table-wrap">
+                <table class="tt-table">
+                    <thead><tr>
+                        <th><?php esc_html_e( 'Name', 'talenttrack' ); ?></th>
+                        <th><?php esc_html_e( 'Role', 'talenttrack' ); ?></th>
+                        <th><?php esc_html_e( 'Last seen', 'talenttrack' ); ?></th>
+                    </tr></thead>
+                    <tbody>
+                    <?php foreach ( $active_user_rows as $u ) :
+                        $name_url = \TT\Shared\Frontend\FrontendUsageStatsDetailsView::detailsUrl( [
+                            'metric' => 'user_timeline',
+                            'uid'    => (int) $u['user_id'],
+                        ] );
+                        ?>
+                        <tr>
+                            <td data-label="<?php esc_attr_e( 'Name', 'talenttrack' ); ?>"><a href="<?php echo esc_url( $name_url ); ?>"><?php echo esc_html( (string) $u['display_name'] ); ?></a></td>
+                            <td data-label="<?php esc_attr_e( 'Role', 'talenttrack' ); ?>"><?php echo esc_html( self::roleLabel( (string) $u['role'] ) ); ?></td>
+                            <td data-label="<?php esc_attr_e( 'Last seen', 'talenttrack' ); ?>"><?php echo esc_html( (string) $u['last_active'] ); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table>
+                </div>
             </div>
         <?php endif; ?>
 
@@ -248,6 +282,19 @@ class FrontendUsageStatsView extends FrontendViewBase {
     private static function periodFromQuery(): int {
         $raw = isset( $_GET['days'] ) ? (int) $_GET['days'] : 30;
         return in_array( $raw, self::PERIODS, true ) ? $raw : 30;
+    }
+
+    /**
+     * Translated label for a coarse role key from
+     * {@see UsageTracker::activeUsers()} / `activeByRole()`.
+     */
+    private static function roleLabel( string $role ): string {
+        switch ( $role ) {
+            case 'admin':  return __( 'Admin', 'talenttrack' );
+            case 'coach':  return __( 'Coach', 'talenttrack' );
+            case 'player': return __( 'Player', 'talenttrack' );
+            default:       return __( 'Other', 'talenttrack' );
+        }
     }
 
     /**

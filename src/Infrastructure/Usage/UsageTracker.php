@@ -347,6 +347,55 @@ class UsageTracker {
     }
 
     /**
+     * Active users in the window, by name. Each row carries the user's
+     * display name, a coarse role key (admin / coach / player / other —
+     * same classification as {@see self::activeByRole()}), the linked
+     * player id (0 when none, for deep-linking) and the most recent
+     * activity timestamp. Ordered most-recently-active first.
+     *
+     * @return array<int, array{user_id:int, display_name:string, role:string, player_id:int, last_active:string}>
+     */
+    public static function activeUsers( int $days, int $limit = 200 ): array {
+        global $wpdb;
+        $cutoff = gmdate( 'Y-m-d H:i:s', time() - $days * DAY_IN_SECONDS );
+        $rows   = $wpdb->get_results( $wpdb->prepare(
+            "SELECT user_id, MAX(created_at) AS last_active
+             FROM {$wpdb->prefix}tt_usage_events
+             WHERE created_at >= %s AND club_id = %d
+             GROUP BY user_id
+             ORDER BY last_active DESC
+             LIMIT %d",
+            $cutoff, CurrentClub::id(), $limit
+        ) );
+        $out = [];
+        foreach ( (array) $rows as $r ) {
+            $uid  = (int) $r->user_id;
+            $user = get_userdata( $uid );
+            $pid  = (int) $wpdb->get_var( $wpdb->prepare(
+                "SELECT id FROM {$wpdb->prefix}tt_players WHERE wp_user_id = %d AND club_id = %d LIMIT 1",
+                $uid, CurrentClub::id()
+            ) );
+            if ( $user && user_can( $user, 'tt_edit_settings' ) ) {
+                $role = 'admin';
+            } elseif ( $user && user_can( $user, 'tt_edit_evaluations' ) ) {
+                $role = 'coach';
+            } elseif ( $pid > 0 ) {
+                $role = 'player';
+            } else {
+                $role = 'other';
+            }
+            $out[] = [
+                'user_id'      => $uid,
+                'display_name' => $user ? $user->display_name : sprintf( '(user %d)', $uid ),
+                'role'         => $role,
+                'player_id'    => $pid,
+                'last_active'  => (string) $r->last_active,
+            ];
+        }
+        return $out;
+    }
+
+    /**
      * Users who haven't logged in for at least $days days, but have
      * logged in at least once ever (in the retention window). Returns
      * rows with user_id, display_name, and last-login timestamp.
