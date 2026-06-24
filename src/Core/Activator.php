@@ -950,6 +950,9 @@ class Activator {
             // #1598 — academy-wide tile layout; row equals the pre-#1598
             // icon-left arrangement (no visual change on upgrade).
             'tile_layout' => 'row',
+            // #1809 — academy-wide tile colour scheme; gold-topped is the
+            // default (green border + gold top edge).
+            'tile_style' => 'gold-topped',
             'login_redirect_enabled' => '1',
             'dashboard_page_id' => '0',
             'pdp_cycle_default'           => '3',

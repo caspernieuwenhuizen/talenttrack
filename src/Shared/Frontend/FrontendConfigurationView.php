@@ -1713,6 +1713,8 @@ class FrontendConfigurationView extends FrontendViewBase {
         $tile_appearance = \TT\Shared\Frontend\Components\TileGridStandard::activePreset();
         // #1598 — academy-wide Tile layout (orthogonal to the size preset).
         $tile_layout     = \TT\Shared\Frontend\Components\TileGridStandard::activeLayout();
+        // #1809 — academy-wide Tile colour scheme (orthogonal to size + layout).
+        $tile_style      = \TT\Shared\Frontend\Components\TileGridStandard::activeStyle();
         $tile_labels     = [
             'compact'     => __( 'Compact', 'talenttrack' ),
             'comfortable' => __( 'Comfortable', 'talenttrack' ),
@@ -1721,6 +1723,14 @@ class FrontendConfigurationView extends FrontendViewBase {
         $tile_layout_labels = [
             'row'     => __( 'Row (icon left of title)', 'talenttrack' ),
             'stacked' => __( 'Stacked (icon + title, description below)', 'talenttrack' ),
+        ];
+        $tile_style_labels = [
+            'default'     => __( 'Default', 'talenttrack' ),
+            'border'      => __( 'Brand border', 'talenttrack' ),
+            'gold-topped' => __( 'Gold-topped', 'talenttrack' ),
+            'soft-fill'   => __( 'Soft green fill', 'talenttrack' ),
+            'solid'       => __( 'Solid green', 'talenttrack' ),
+            'left-accent' => __( 'Left accent', 'talenttrack' ),
         ];
         $cancel_url      = remove_query_arg( [ 'config_sub' ] );
         $css_url         = add_query_arg( [ 'tt_view' => 'custom-css' ], remove_query_arg( [ 'tt_view', 'config_sub' ] ) );
@@ -1829,6 +1839,14 @@ class FrontendConfigurationView extends FrontendViewBase {
                     <p class="tt-field-hint" style="margin:var(--tt-sp-2) 0 0; color:var(--tt-muted); font-size:.85em;">
                         <?php esc_html_e( 'Stacked puts the icon and title on the first line with the description beneath, so titles can run two lines without widening the tile.', 'talenttrack' ); ?>
                     </p>
+                </div>
+                <div class="tt-field">
+                    <label class="tt-field-label" for="tt-cfg-tile-style"><?php esc_html_e( 'Tile colour scheme', 'talenttrack' ); ?></label>
+                    <select id="tt-cfg-tile-style" class="tt-input" name="config[tile_style]">
+                        <?php foreach ( \TT\Shared\Frontend\Components\TileGridStandard::styleKeys() as $style_key ) : ?>
+                            <option value="<?php echo esc_attr( $style_key ); ?>" <?php selected( $tile_style, $style_key ); ?>><?php echo esc_html( (string) ( $tile_style_labels[ $style_key ] ?? $style_key ) ); ?></option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
             </div>
 
