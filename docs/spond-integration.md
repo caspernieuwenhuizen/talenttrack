@@ -27,6 +27,7 @@ That's it. Within an hour, every Spond event for each linked group appears as a 
 - **Start / end time** — taken from the Spond event and stored on every imported activity (previously only the date was kept).
 - **Kickoff & presence time (matches)** — for **match** types (game, tournament), the Spond start time becomes the **kickoff time** and the Spond meet-up time (Spond's "meet X minutes before" setting) becomes the **presence time** ("Aanwezig"). Both print on the weekly planner PDF.
 - **Activity type** — TalentTrack's keyword classifier picks training, game, tournament, or meeting from the event title. If a coach changes the type later, the system preserves that change across future syncs.
+- **Notes** — seeded from the Spond event's description on the **first import only**, then TalentTrack-owned. After that, a coach's notes are never overwritten by a re-sync — and a later edit to the description **in Spond** no longer flows into the activity. (Same "set once, then TalentTrack wins" model as activity type.)
 - **Attendance, evaluations, linked goals** — TalentTrack-only. Never overwritten.
 
 When an event disappears from Spond (deleted, cancelled), the matching TalentTrack activity is **soft-archived** — never deleted — so any evaluations attached to it survive. If the same Spond event reappears later, the activity is un-archived.
