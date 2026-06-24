@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-24T19:31:45+00:00\n"
+"POT-Creation-Date: 2026-06-24T19:49:17+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Español\n"
@@ -48,7 +48,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/MatrixPage.php:587
 #: src/Modules/Authorization/Admin/RolesPage.php:439
 #: src/Modules/Documentation/AudienceResolver.php:48
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:152
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:173
 #: src/Modules/Invitations/InvitationKind.php:53
 #: src/Modules/Mfa/Settings/MfaSettings.php:108
 #: src/Modules/People/Admin/PeoplePage.php:505
@@ -7771,10 +7771,11 @@ msgstr ""
 #: src/Modules/People/Admin/PeoplePage.php:173
 #: src/Modules/People/Admin/PeoplePage.php:312
 #: src/Modules/People/Admin/TeamStaffPanel.php:52
+#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:273
 #: src/Modules/Wizards/Person/BasicsStep.php:34
 #: src/Modules/Wizards/Person/ReviewStep.php:38
 #: src/Shared/Frontend/FrontendMyProfileView.php:295
-#: src/Shared/Frontend/FrontendMySettingsView.php:101
+#: src/Shared/Frontend/FrontendMySettingsView.php:114
 #: src/Shared/Frontend/FrontendPeopleManageView.php:108
 #: src/Shared/Frontend/FrontendPeopleManageView.php:175
 #: src/Shared/Frontend/FrontendPersonDetailView.php:130
@@ -9776,6 +9777,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:83
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:39
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:126
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:135
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:230
 #: src/Modules/People/Admin/PeoplePage.php:302
 #: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:122
@@ -9807,6 +9809,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:84
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:40
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:127
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:139
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:234
 #: src/Modules/People/Admin/PeoplePage.php:307
 #: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:123
@@ -9830,6 +9833,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/PlayersListCsvExporter.php:100
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:41
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:128
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:145
 #: src/Modules/Stats/Admin/PlayerComparisonPage.php:270
 #: src/Modules/Teams/Admin/TeamPlayersPanel.php:64
 #: src/Modules/Wizards/Player/ReviewStep.php:32
@@ -9870,6 +9874,7 @@ msgstr "Peso (kg)"
 #: src/Modules/Export/Exporters/PlayersListCsvExporter.php:102
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:43
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:130
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:149
 #: src/Modules/Wizards/Player/ReviewStep.php:37
 #: src/Modules/Wizards/Player/RosterDetailsStep.php:51
 #: src/Shared/Frontend/FrontendConfigurationView.php:150
@@ -10650,8 +10655,8 @@ msgid "You do not have permission to manage custom styling."
 msgstr ""
 
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:165
-#: src/Shared/Frontend/FrontendMySettingsView.php:156
-#: src/Shared/Frontend/FrontendMySettingsView.php:181
+#: src/Shared/Frontend/FrontendMySettingsView.php:169
+#: src/Shared/Frontend/FrontendMySettingsView.php:201
 msgid "Security check failed. Reload and try again."
 msgstr ""
 
@@ -14828,75 +14833,76 @@ msgstr ""
 msgid "Your role"
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:133
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:151
+msgid "— select —"
+msgstr ""
+
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:160
 msgid "Jersey number (optional)"
 msgstr ""
 
-#. translators: %s = player name
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:141
-#, php-format
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:165
 msgid ""
-"Your profile is already set up as %s. You can edit your photo + DOB after "
-"sign-in."
+"Confirm or complete your details above. You can add a photo after sign-in."
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:149
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:170
 msgid "Your relationship to the player"
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:153
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:174
 msgid "Mother"
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:154
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:175
 msgid "Father"
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:155
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:176
 msgid "Guardian"
 msgstr "Tutor"
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:161
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:182
 msgid "Email me when there are new evaluations or goals."
 msgstr ""
 
 #. translators: 1: role label, 2: team name
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:172
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:193
 #, php-format
 msgid ""
 "You are joining as %1$s%2$s. The role + team are confirmed by your inviter."
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:177
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:198
 msgid "Your role + team are confirmed by your inviter."
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:186
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:207
 msgid "Create account & sign in"
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:198
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:219
 msgid "Accept invitation"
 msgstr ""
 
 #. translators: %s = invitation kind label
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:204
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:225
 #, php-format
 msgid ""
 "You are signed in. Tap accept to link the %s invitation to your existing "
 "account."
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:215
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:236
 msgid "Accept and continue"
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:227
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:248
 msgid "Sign out to accept this invitation?"
 msgstr ""
 
 #. translators: 1: current logged-in email, 2: invited email
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:233
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:254
 #, php-format
 msgid ""
 "You are signed in as %1$s, but this invitation is addressed to %2$s. Sign "
@@ -14904,11 +14910,11 @@ msgid ""
 "browser."
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:235
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:256
 msgid "a different account"
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:241
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:262
 msgid "Sign out and accept"
 msgstr ""
 
@@ -14920,11 +14926,11 @@ msgstr ""
 msgid "Invitation not found or already consumed."
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/InvitationAcceptHandler.php:54
+#: src/Modules/Invitations/Frontend/InvitationAcceptHandler.php:59
 msgid "Invitation accepted. Welcome aboard."
 msgstr ""
 
-#: src/Modules/Invitations/Frontend/InvitationAcceptHandler.php:73
+#: src/Modules/Invitations/Frontend/InvitationAcceptHandler.php:78
 msgid "Welcome aboard. Your account is set up."
 msgstr ""
 
@@ -22249,7 +22255,7 @@ msgid "Network error. Please try again."
 msgstr ""
 
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:92
-#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:268
+#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:287
 msgid "No account"
 msgstr ""
 
@@ -22287,17 +22293,28 @@ msgstr ""
 msgid "Link"
 msgstr ""
 
-#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:258
-msgid "(unknown user)"
-msgstr ""
-
 #. translators: %s: linked WP account name
-#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:261
+#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:260
+#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:266
 #, php-format
 msgid "Linked · %s"
 msgstr ""
 
-#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:266
+#. translators: %s: linked WP account name
+#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:260
+msgid "(unknown user)"
+msgstr ""
+
+#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:276
+#: src/Shared/Frontend/FrontendAuditLogView.php:231
+msgid "Username"
+msgstr ""
+
+#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:278
+msgid "WP user"
+msgstr ""
+
+#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:285
 msgid "Invited (pending)"
 msgstr ""
 
@@ -31266,10 +31283,6 @@ msgstr ""
 msgid "Top attempted usernames"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendAuditLogView.php:231
-msgid "Username"
-msgstr ""
-
 #: src/Shared/Frontend/FrontendAuditLogView.php:249
 msgid "Top source IPs"
 msgstr ""
@@ -33575,7 +33588,7 @@ msgid "See all activities"
 msgstr ""
 
 #: src/Shared/Frontend/FrontendMyProfileView.php:293
-#: src/Shared/Frontend/FrontendMySettingsView.php:95
+#: src/Shared/Frontend/FrontendMySettingsView.php:102
 msgid "Display name"
 msgstr ""
 
@@ -33658,60 +33671,64 @@ msgstr ""
 msgid "Could not load your account."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:97
+#: src/Shared/Frontend/FrontendMySettingsView.php:107
+msgid "Set by your academy from your name — this can't be changed here."
+msgstr ""
+
+#: src/Shared/Frontend/FrontendMySettingsView.php:108
 msgid "How your name appears to coaches and teammates."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:106
+#: src/Shared/Frontend/FrontendMySettingsView.php:119
 msgid "Save profile"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:114
-#: src/Shared/Frontend/FrontendMySettingsView.php:133
+#: src/Shared/Frontend/FrontendMySettingsView.php:127
+#: src/Shared/Frontend/FrontendMySettingsView.php:146
 msgid "Change password"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:117
+#: src/Shared/Frontend/FrontendMySettingsView.php:130
 msgid "Current password"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:122
+#: src/Shared/Frontend/FrontendMySettingsView.php:135
 msgid "New password"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:126
+#: src/Shared/Frontend/FrontendMySettingsView.php:139
 msgid "Confirm new password"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:130
+#: src/Shared/Frontend/FrontendMySettingsView.php:143
 msgid "At least 8 characters. Saving will end any other active sessions."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:167
+#: src/Shared/Frontend/FrontendMySettingsView.php:187
 msgid "Please enter a valid email address."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:175
+#: src/Shared/Frontend/FrontendMySettingsView.php:195
 msgid "Profile saved."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:188
+#: src/Shared/Frontend/FrontendMySettingsView.php:208
 msgid "Please fill in both your current and new password."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:192
+#: src/Shared/Frontend/FrontendMySettingsView.php:212
 msgid "New password must be at least 8 characters."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:196
+#: src/Shared/Frontend/FrontendMySettingsView.php:216
 msgid "New password and confirmation do not match."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:201
+#: src/Shared/Frontend/FrontendMySettingsView.php:221
 msgid "Current password is incorrect."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:211
+#: src/Shared/Frontend/FrontendMySettingsView.php:231
 msgid "Password changed. Other devices have been logged out."
 msgstr ""
 

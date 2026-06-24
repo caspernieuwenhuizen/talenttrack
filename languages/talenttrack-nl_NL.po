@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-24T19:31:45+00:00\n"
+"POT-Creation-Date: 2026-06-24T19:49:17+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -50,7 +50,7 @@ msgstr ""
 #: src/Modules/Authorization/Admin/MatrixPage.php:587
 #: src/Modules/Authorization/Admin/RolesPage.php:439
 #: src/Modules/Documentation/AudienceResolver.php:48
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:152
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:173
 #: src/Modules/Invitations/InvitationKind.php:53
 #: src/Modules/Mfa/Settings/MfaSettings.php:108
 #: src/Modules/People/Admin/PeoplePage.php:505
@@ -8200,10 +8200,11 @@ msgstr ""
 #: src/Modules/People/Admin/PeoplePage.php:173
 #: src/Modules/People/Admin/PeoplePage.php:312
 #: src/Modules/People/Admin/TeamStaffPanel.php:52
+#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:273
 #: src/Modules/Wizards/Person/BasicsStep.php:34
 #: src/Modules/Wizards/Person/ReviewStep.php:38
 #: src/Shared/Frontend/FrontendMyProfileView.php:295
-#: src/Shared/Frontend/FrontendMySettingsView.php:101
+#: src/Shared/Frontend/FrontendMySettingsView.php:114
 #: src/Shared/Frontend/FrontendPeopleManageView.php:108
 #: src/Shared/Frontend/FrontendPeopleManageView.php:175
 #: src/Shared/Frontend/FrontendPersonDetailView.php:130
@@ -10569,6 +10570,7 @@ msgstr "Toon details"
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:83
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:39
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:126
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:135
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:230
 #: src/Modules/People/Admin/PeoplePage.php:302
 #: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:122
@@ -10600,6 +10602,7 @@ msgstr "Voornaam"
 #: src/Modules/Export/Exporters/StaffDirectoryCsvExporter.php:84
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:40
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:127
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:139
 #: src/Modules/Onboarding/Admin/OnboardingPage.php:234
 #: src/Modules/People/Admin/PeoplePage.php:307
 #: src/Modules/PersonaDashboard/Widgets/TeamRosterTableWidget.php:123
@@ -10623,6 +10626,7 @@ msgstr "Achternaam"
 #: src/Modules/Export/Exporters/PlayersListCsvExporter.php:100
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:41
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:128
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:145
 #: src/Modules/Stats/Admin/PlayerComparisonPage.php:270
 #: src/Modules/Teams/Admin/TeamPlayersPanel.php:64
 #: src/Modules/Wizards/Player/ReviewStep.php:32
@@ -10663,6 +10667,7 @@ msgstr "Gewicht (kg)"
 #: src/Modules/Export/Exporters/PlayersListCsvExporter.php:102
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:43
 #: src/Modules/Export/Exporters/TeamRosterStatsCsvExporter.php:130
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:149
 #: src/Modules/Wizards/Player/ReviewStep.php:37
 #: src/Modules/Wizards/Player/RosterDetailsStep.php:51
 #: src/Shared/Frontend/FrontendConfigurationView.php:150
@@ -11458,8 +11463,8 @@ msgid "You do not have permission to manage custom styling."
 msgstr "Je hebt geen rechten om de styling aan te passen."
 
 #: src/Modules/CustomCss/Frontend/FrontendCustomCssView.php:165
-#: src/Shared/Frontend/FrontendMySettingsView.php:156
-#: src/Shared/Frontend/FrontendMySettingsView.php:181
+#: src/Shared/Frontend/FrontendMySettingsView.php:169
+#: src/Shared/Frontend/FrontendMySettingsView.php:201
 msgid "Security check failed. Reload and try again."
 msgstr "Beveiligingscontrole mislukt. Herlaad en probeer opnieuw."
 
@@ -16005,42 +16010,43 @@ msgstr "Jouw relatie"
 msgid "Your role"
 msgstr "Jouw rol"
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:133
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:151
+msgid "— select —"
+msgstr "— kies —"
+
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:160
 msgid "Jersey number (optional)"
 msgstr "Rugnummer (optioneel)"
 
-#. translators: %s = player name
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:141
-#, php-format
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:165
 msgid ""
-"Your profile is already set up as %s. You can edit your photo + DOB after "
-"sign-in."
+"Confirm or complete your details above. You can add a photo after sign-in."
 msgstr ""
-"Je profiel staat al ingesteld als %s. Je kunt je foto + geboortedatum "
-"bewerken na het inloggen."
+"Bevestig of vul je gegevens hierboven aan. Je kunt na het inloggen een foto "
+"toevoegen."
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:149
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:170
 msgid "Your relationship to the player"
 msgstr "Je relatie tot de speler"
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:153
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:174
 msgid "Mother"
 msgstr "Moeder"
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:154
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:175
 msgid "Father"
 msgstr "Vader"
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:155
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:176
 msgid "Guardian"
 msgstr "Voogd"
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:161
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:182
 msgid "Email me when there are new evaluations or goals."
 msgstr "E-mail me bij nieuwe evaluaties of doelen."
 
 #. translators: 1: role label, 2: team name
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:172
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:193
 #, php-format
 msgid ""
 "You are joining as %1$s%2$s. The role + team are confirmed by your inviter."
@@ -16048,20 +16054,20 @@ msgstr ""
 "Je voegt je toe als %1$s%2$s. De rol + team zijn bevestigd door je "
 "uitnodiger."
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:177
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:198
 msgid "Your role + team are confirmed by your inviter."
 msgstr "Je rol + team zijn bevestigd door je uitnodiger."
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:186
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:207
 msgid "Create account & sign in"
 msgstr "Account aanmaken & inloggen"
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:198
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:219
 msgid "Accept invitation"
 msgstr "Uitnodiging accepteren"
 
 #. translators: %s = invitation kind label
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:204
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:225
 #, php-format
 msgid ""
 "You are signed in. Tap accept to link the %s invitation to your existing "
@@ -16070,16 +16076,16 @@ msgstr ""
 "Je bent ingelogd. Tik op accepteren om de %s-uitnodiging aan je bestaande "
 "account te koppelen."
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:215
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:236
 msgid "Accept and continue"
 msgstr "Accepteren en doorgaan"
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:227
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:248
 msgid "Sign out to accept this invitation?"
 msgstr "Uitloggen om deze uitnodiging te accepteren?"
 
 #. translators: 1: current logged-in email, 2: invited email
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:233
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:254
 #, php-format
 msgid ""
 "You are signed in as %1$s, but this invitation is addressed to %2$s. Sign "
@@ -16090,11 +16096,11 @@ msgstr ""
 "uit en accepteer als de uitgenodigde gebruiker, of open de link in een "
 "andere browser."
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:235
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:256
 msgid "a different account"
 msgstr "een ander account"
 
-#: src/Modules/Invitations/Frontend/AcceptanceView.php:241
+#: src/Modules/Invitations/Frontend/AcceptanceView.php:262
 msgid "Sign out and accept"
 msgstr "Uitloggen en accepteren"
 
@@ -16106,11 +16112,11 @@ msgstr "Ongeldig token."
 msgid "Invitation not found or already consumed."
 msgstr "Uitnodiging niet gevonden of al gebruikt."
 
-#: src/Modules/Invitations/Frontend/InvitationAcceptHandler.php:54
+#: src/Modules/Invitations/Frontend/InvitationAcceptHandler.php:59
 msgid "Invitation accepted. Welcome aboard."
 msgstr "Uitnodiging geaccepteerd. Welkom aan boord."
 
-#: src/Modules/Invitations/Frontend/InvitationAcceptHandler.php:73
+#: src/Modules/Invitations/Frontend/InvitationAcceptHandler.php:78
 msgid "Welcome aboard. Your account is set up."
 msgstr "Welkom aan boord. Je account is ingesteld."
 
@@ -23955,7 +23961,7 @@ msgid "Network error. Please try again."
 msgstr "Netwerkfout. Probeer het opnieuw."
 
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:92
-#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:268
+#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:287
 msgid "No account"
 msgstr "Geen account"
 
@@ -23995,17 +24001,28 @@ msgstr "— Kies account —"
 msgid "Link"
 msgstr "Koppelen"
 
-#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:258
-msgid "(unknown user)"
-msgstr "(onbekende gebruiker)"
-
 #. translators: %s: linked WP account name
-#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:261
+#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:260
+#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:266
 #, php-format
 msgid "Linked · %s"
 msgstr "Gekoppeld · %s"
 
-#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:266
+#. translators: %s: linked WP account name
+#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:260
+msgid "(unknown user)"
+msgstr "(onbekende gebruiker)"
+
+#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:276
+#: src/Shared/Frontend/FrontendAuditLogView.php:231
+msgid "Username"
+msgstr "Gebruikersnaam"
+
+#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:278
+msgid "WP user"
+msgstr "WP-gebruiker"
+
+#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:285
 msgid "Invited (pending)"
 msgstr "Uitgenodigd (in behandeling)"
 
@@ -33568,10 +33585,6 @@ msgstr "Pogingen"
 msgid "Top attempted usernames"
 msgstr "Top geprobeerde gebruikersnamen"
 
-#: src/Shared/Frontend/FrontendAuditLogView.php:231
-msgid "Username"
-msgstr "Gebruikersnaam"
-
 #: src/Shared/Frontend/FrontendAuditLogView.php:249
 msgid "Top source IPs"
 msgstr "Top bron-IPs"
@@ -36116,7 +36129,7 @@ msgid "See all activities"
 msgstr "Bekijk alle activiteiten"
 
 #: src/Shared/Frontend/FrontendMyProfileView.php:293
-#: src/Shared/Frontend/FrontendMySettingsView.php:95
+#: src/Shared/Frontend/FrontendMySettingsView.php:102
 msgid "Display name"
 msgstr "Weergavenaam"
 
@@ -36205,60 +36218,66 @@ msgstr ""
 msgid "Could not load your account."
 msgstr "Kon je account niet laden."
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:97
+#: src/Shared/Frontend/FrontendMySettingsView.php:107
+msgid "Set by your academy from your name — this can't be changed here."
+msgstr ""
+"Ingesteld door je academie op basis van je naam — dit kun je hier niet "
+"wijzigen."
+
+#: src/Shared/Frontend/FrontendMySettingsView.php:108
 msgid "How your name appears to coaches and teammates."
 msgstr "Hoe je naam getoond wordt aan coaches en teamgenoten."
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:106
+#: src/Shared/Frontend/FrontendMySettingsView.php:119
 msgid "Save profile"
 msgstr "Profiel opslaan"
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:114
-#: src/Shared/Frontend/FrontendMySettingsView.php:133
+#: src/Shared/Frontend/FrontendMySettingsView.php:127
+#: src/Shared/Frontend/FrontendMySettingsView.php:146
 msgid "Change password"
 msgstr "Wachtwoord wijzigen"
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:117
+#: src/Shared/Frontend/FrontendMySettingsView.php:130
 msgid "Current password"
 msgstr "Huidig wachtwoord"
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:122
+#: src/Shared/Frontend/FrontendMySettingsView.php:135
 msgid "New password"
 msgstr "Nieuw wachtwoord"
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:126
+#: src/Shared/Frontend/FrontendMySettingsView.php:139
 msgid "Confirm new password"
 msgstr "Nieuw wachtwoord bevestigen"
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:130
+#: src/Shared/Frontend/FrontendMySettingsView.php:143
 msgid "At least 8 characters. Saving will end any other active sessions."
 msgstr "Minimaal 8 tekens. Opslaan beëindigt alle andere actieve sessies."
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:167
+#: src/Shared/Frontend/FrontendMySettingsView.php:187
 msgid "Please enter a valid email address."
 msgstr "Vul een geldig e-mailadres in."
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:175
+#: src/Shared/Frontend/FrontendMySettingsView.php:195
 msgid "Profile saved."
 msgstr "Profiel opgeslagen."
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:188
+#: src/Shared/Frontend/FrontendMySettingsView.php:208
 msgid "Please fill in both your current and new password."
 msgstr "Vul je huidige en je nieuwe wachtwoord beide in."
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:192
+#: src/Shared/Frontend/FrontendMySettingsView.php:212
 msgid "New password must be at least 8 characters."
 msgstr "Het nieuwe wachtwoord moet minimaal 8 tekens hebben."
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:196
+#: src/Shared/Frontend/FrontendMySettingsView.php:216
 msgid "New password and confirmation do not match."
 msgstr "Het nieuwe wachtwoord en de bevestiging komen niet overeen."
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:201
+#: src/Shared/Frontend/FrontendMySettingsView.php:221
 msgid "Current password is incorrect."
 msgstr "Het huidige wachtwoord klopt niet."
 
-#: src/Shared/Frontend/FrontendMySettingsView.php:211
+#: src/Shared/Frontend/FrontendMySettingsView.php:231
 msgid "Password changed. Other devices have been logged out."
 msgstr "Wachtwoord gewijzigd. Andere apparaten zijn uitgelogd."
 
@@ -40006,9 +40025,13 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
-#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php
-msgid "WP user"
-msgstr "WP-gebruiker"
+#, php-format
+#~ msgid ""
+#~ "Your profile is already set up as %s. You can edit your photo + DOB after "
+#~ "sign-in."
+#~ msgstr ""
+#~ "Je profiel staat al ingesteld als %s. Je kunt je foto + geboortedatum "
+#~ "bewerken na het inloggen."
 
 #~ msgid "Document"
 #~ msgstr "Document"
@@ -40196,12 +40219,3 @@ msgstr "WP-gebruiker"
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
-
-msgid "— select —"
-msgstr "— kies —"
-
-msgid "Confirm or complete your details above. You can add a photo after sign-in."
-msgstr "Bevestig of vul je gegevens hierboven aan. Je kunt na het inloggen een foto toevoegen."
-
-msgid "Set by your academy from your name — this can't be changed here."
-msgstr "Ingesteld door je academie op basis van je naam — dit kun je hier niet wijzigen."
