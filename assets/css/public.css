@@ -903,14 +903,18 @@ input[type="checkbox"], input[type="radio"] {
  */
 .tt-record-link {
     display: inline-block;
-    text-decoration: none;
-    color: inherit;
+    /* #1792 — !important so a hostile theme's `a` rule (often more
+       specific, or itself !important) can't re-underline / recolour
+       record links. The reset must win regardless of the active theme. */
+    text-decoration: none !important;
+    color: inherit !important;
     border-radius: 4px;
     transition: background 180ms ease, transform 180ms ease, box-shadow 180ms ease;
 }
 .tt-record-link:hover,
 .tt-record-link:focus-visible {
-    color: inherit;
+    text-decoration: none !important;
+    color: inherit !important;
     background: rgba(11, 95, 255, 0.04);
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0,0,0,0.06);

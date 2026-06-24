@@ -57,27 +57,30 @@
 /* Frame — mobile-first single column. Wider on tablet+ so the cards
  * have breathing room on desktop without changing per-card content.
  * Matches the mockup's 360 / 720 / 880 frame steps. */
+/* #1793 — span the full content column like the players/teams lists
+ * (no narrow centred frame). The shared list surfaces have no width cap;
+ * activities now matches. */
 .tt-dashboard .tt-act-surface {
-    max-width: 360px;
-    margin: 0 auto;
+    max-width: none;
+    margin: 0;
     padding: 0;
-}
-@media (min-width: 768px) {
-    .tt-dashboard .tt-act-surface { max-width: 720px; }
-}
-@media (min-width: 1100px) {
-    .tt-dashboard .tt-act-surface { max-width: 880px; }
 }
 
 /* ---- Filter row -------------------------------------------- */
+/* #1793 — Team/Type bar adopts the shared #1753 "register" card
+ * (white surface, full border, large radius, soft shadow, sp-4 padding)
+ * so the activities toolbar matches the players list. The period
+ * quick-filter chips render below it, unchanged. */
 .tt-dashboard .tt-act-filters {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    padding: 12px 16px;
-    background: #fff;
-    border-bottom: 1px solid var(--tt-line, #d6dadd);
-    margin: 0;
+    gap: var(--tt-sp-3, 12px);
+    padding: var(--tt-sp-4, 16px);
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: 0 2px 10px rgba(11, 61, 46, 0.06);
+    margin: 0 0 var(--tt-sp-4, 16px);
 }
 .tt-dashboard .tt-act-filters__field {
     display: flex;
@@ -95,7 +98,7 @@
 .tt-dashboard .tt-act-filters__select {
     min-height: 48px;
     border: 1px solid var(--tt-line, #d6dadd);
-    border-radius: 10px;
+    border-radius: var(--tt-radius, 8px);
     background: #fff;
     font: inherit;
     font-size: 16px;          /* iOS auto-zoom floor per CLAUDE.md §2 */

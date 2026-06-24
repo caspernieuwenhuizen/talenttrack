@@ -67,12 +67,30 @@ class PlayerDeletionCascade {
         try {
             // Parent-keyed children first — these carry no player_id of
             // their own, so the dynamic sweep below can't see them.
+            // PDP calendar links are keyed by conversation_id (not
+            // player_id or pdp_file_id), so they sit two joins from the
+            // player: calendar_link -> conversation -> pdp_file. Delete
+            // them BEFORE tt_pdp_conversations is removed below, otherwise
+            // the join finds no parent rows and the links orphan.
+            if ( $this->tableExists( 'tt_pdp_calendar_links' )
+                && $this->tableExists( 'tt_pdp_conversations' )
+                && $this->tableExists( 'tt_pdp_files' ) ) {
+                $sql = "DELETE cl FROM {$p}tt_pdp_calendar_links cl
+                         INNER JOIN {$p}tt_pdp_conversations cv ON cv.id = cl.conversation_id
+                         INNER JOIN {$p}tt_pdp_files pf ON pf.id = cv.pdp_file_id
+                         WHERE pf.player_id IN ({$ph})";
+                $n = $wpdb->query( $wpdb->prepare( $sql, ...$ids ) );
+                if ( $n === false ) {
+                    throw new \RuntimeException( 'Cascade failed on tt_pdp_calendar_links: ' . $wpdb->last_error );
+                }
+                if ( (int) $n > 0 ) $per_table['tt_pdp_calendar_links'] = (int) $n;
+            }
+
             $children = [
                 [ 'tt_eval_ratings',          'evaluation_id', 'tt_evaluations',  'id' ],
                 [ 'tt_goal_links',            'goal_id',       'tt_goals',        'id' ],
                 [ 'tt_pdp_conversations',     'pdp_file_id',   'tt_pdp_files',    'id' ],
                 [ 'tt_pdp_verdicts',          'pdp_file_id',   'tt_pdp_files',    'id' ],
-                [ 'tt_pdp_calendar_links',    'pdp_file_id',   'tt_pdp_files',    'id' ],
                 [ 'tt_trial_case_staff',        'case_id',     'tt_trial_cases',  'id' ],
                 [ 'tt_trial_case_staff_inputs', 'case_id',     'tt_trial_cases',  'id' ],
                 [ 'tt_trial_extensions',        'case_id',     'tt_trial_cases',  'id' ],
