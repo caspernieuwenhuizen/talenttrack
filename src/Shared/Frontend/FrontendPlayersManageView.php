@@ -109,6 +109,13 @@ class FrontendPlayersManageView extends FrontendViewBase {
                 'href'  => add_query_arg( [ 'tt_view' => 'players-import' ], $base_url ),
             ];
         }
+        // #1771 — contextual entry to the account-mapping surface (admins).
+        if ( \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix( $user_id, 'tt_manage_players' ) ) {
+            $page_actions[] = [
+                'label' => __( 'Player accounts', 'talenttrack' ),
+                'href'  => add_query_arg( [ 'tt_view' => 'player-accounts' ], $base_url ),
+            ];
+        }
         if ( ! $at_player_cap ) {
             $flat_url = add_query_arg( [ 'tt_view' => 'players', 'action' => 'new' ], $base_url );
             $page_actions[] = [

@@ -1,0 +1,122 @@
+/*
+ * Player accounts view (#1771) — mobile-first.
+ * Base styles target ~360px; min-width queries scale up. Scoped to
+ * .tt-dashboard so the host theme can't bleed in.
+ */
+
+.tt-dashboard .tt-pa-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: flex-end;
+    margin: 0 0 1rem;
+}
+.tt-dashboard .tt-pa-filter {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 1 1 100%;
+}
+.tt-dashboard .tt-pa-filter-label {
+    font-size: 0.8rem;
+    color: var(--tt-text-muted, #5b6e75);
+}
+.tt-dashboard .tt-pa-filters .tt-input { min-height: 48px; }
+
+.tt-dashboard .tt-pa-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.tt-dashboard .tt-pa-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.5rem 0.75rem;
+    padding: 0.75rem;
+    border: 1px solid var(--tt-border, #e5e7ea);
+    border-radius: 10px;
+    background: var(--tt-surface, #fff);
+}
+
+.tt-dashboard .tt-pa-id {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-width: 0;
+}
+.tt-dashboard .tt-pa-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--tt-bg-soft, #f0f3f2);
+    color: var(--tt-text, #1a1d21);
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+.tt-dashboard .tt-pa-id-text { display: flex; flex-direction: column; min-width: 0; }
+.tt-dashboard .tt-pa-name {
+    font-weight: 600;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+}
+.tt-dashboard .tt-pa-meta {
+    font-size: 0.8rem;
+    color: var(--tt-text-muted, #5b6e75);
+}
+
+.tt-dashboard .tt-pa-chip {
+    display: inline-block;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #fff;
+    white-space: nowrap;
+}
+.tt-dashboard .tt-pa-chip--linked  { background: var(--tt-success, #2f9e5e); }
+.tt-dashboard .tt-pa-chip--invited { background: var(--tt-info, #2d6fb3); }
+.tt-dashboard .tt-pa-chip--none    { background: var(--tt-text-muted, #5b6e75); }
+
+.tt-dashboard .tt-pa-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+.tt-dashboard .tt-pa-link {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+.tt-dashboard .tt-pa-user-select { min-height: 48px; max-width: 100%; }
+.tt-dashboard .tt-pa-actions .tt-btn { min-height: 48px; }
+
+.tt-dashboard .tt-pa-msg { margin: 0; font-size: 0.82rem; }
+.tt-dashboard .tt-pa-msg:empty { display: none; }
+.tt-dashboard .tt-pa-msg--error { color: var(--tt-danger, #b3261e); }
+.tt-dashboard .tt-pa-msg--ok    { color: var(--tt-success, #2f9e5e); }
+
+.tt-dashboard .tt-pa-truncated { margin-top: 0.75rem; }
+
+/* Tablet+ : row becomes a single aligned line. */
+@media (min-width: 768px) {
+    .tt-dashboard .tt-pa-filter { flex: 0 0 auto; }
+    .tt-dashboard .tt-pa-filter--search { flex: 1 1 16rem; }
+    .tt-dashboard .tt-pa-row {
+        grid-template-columns: minmax(0, 1.4fr) auto minmax(0, 1.6fr);
+        align-items: center;
+    }
+    .tt-dashboard .tt-pa-msg { grid-column: 1 / -1; }
+    .tt-dashboard .tt-pa-actions { justify-content: flex-end; }
+}
