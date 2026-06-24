@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-24T20:09:25+00:00\n"
+"POT-Creation-Date: 2026-06-24T20:14:00+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -116,7 +116,7 @@ msgstr "Team Manager"
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:93
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:99
 #: src/Modules/PersonaDashboard/Widgets/DataTableWidget.php:157
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:147
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:208
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:83
 #: src/Modules/Stats/Admin/PlayerCardView.php:262
 #: src/Modules/Stats/Admin/PlayerRateCardsPage.php:58
@@ -3588,7 +3588,7 @@ msgstr "Besloten door"
 #: src/Modules/Analytics/AnalyticsModule.php:205
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:161
 #: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:228
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:231
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:292
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:42
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:47
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:48
@@ -22498,7 +22498,7 @@ msgstr "Op stage"
 
 #: src/Modules/PersonaDashboard/TableSources/MyRecentProspectsSource.php:90
 #: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:233
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:236
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:297
 #: src/Modules/Prospects/Frontend/FrontendProspectsOverviewView.php:64
 #: src/Modules/Prospects/Frontend/FrontendScoutingVisitDetailView.php:253
 #: src/Modules/Prospects/Rest/ProspectsRestController.php:179
@@ -23171,24 +23171,24 @@ msgstr[1] "Open %1$s in de kanbanweergave — %2$d prospects"
 
 #: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:229
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:93
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:232
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:293
 msgid "Invited"
 msgstr "Uitgenodigd"
 
 #: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:230
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:233
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:294
 msgid "Test training"
 msgstr "Proeftraining"
 
 #. translators: %s: age group label, e.g. "U13"
 #: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:231
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:234
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:295
 #: src/Modules/Trials/TrialGroupTeam.php:40
 msgid "Trial group"
 msgstr "Stagegroep"
 
 #: src/Modules/PersonaDashboard/Widgets/OnboardingPipelineWidget.php:232
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:235
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:296
 msgid "Team offer"
 msgstr "Teamaanbod"
 
@@ -24237,49 +24237,70 @@ msgstr "Je hebt geen toegang tot de instroompijplijn."
 msgid "+ New prospect"
 msgstr "+ Nieuwe prospect"
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:151
+#. translators: %s: prospect name
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:115
+#: src/Modules/Workflow/Forms/ConfirmTestTrainingForm.php:32
+#: src/Modules/Workflow/Forms/InviteToTestTrainingForm.php:43
+#: src/Modules/Workflow/Forms/RecordTestTrainingOutcomeForm.php:39
+#, php-format
+msgid "Prospect: %s"
+msgstr "Prospect: %s"
+
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:119
+msgid "(unnamed prospect)"
+msgstr "(naamloze prospect)"
+
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:123
+msgid "Back to pipeline"
+msgstr "Terug naar pijplijn"
+
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:130
+msgid "Open next action"
+msgstr "Open volgende actie"
+
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:212
 msgid "Action needed"
 msgstr "Actie nodig"
 
 #. translators: %s: 4-digit birth year.
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:270
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:331
 #, php-format
 msgid "born %s"
 msgstr "geboren %s"
 
 # v3.110.99 — kanban context lines added in v3.110.81 missed the NL run.
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:318
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:380
 msgid "Awaiting HoD to send the invite"
 msgstr "Wacht tot HoO de uitnodiging verstuurt"
 
 #. translators: %s: discovery event / match label.
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:321
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:383
 #, php-format
 msgid "Discovered: %s"
 msgstr "Ontdekt: %s"
 
 #. translators: %s: discovery event / match label.
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:322
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:384
 msgid "Drafted, not yet handed to HoD"
 msgstr "Geconcept, nog niet doorgegeven aan HoD"
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:325
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:387
 msgid "Invitation sent, awaiting parent"
 msgstr "Uitnodiging verstuurd, wacht op ouder"
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:327
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:389
 msgid "Awaiting outcome"
 msgstr "Wachten op uitkomst"
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:329
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:391
 msgid "In trial group"
 msgstr "In stagegroep"
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:331
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:393
 msgid "Team offer pending"
 msgstr "Teamaanbod in afwachting"
 
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:333
+#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php:395
 msgid "Promoted to academy"
 msgstr "Gepromoveerd naar academie"
 
@@ -30791,13 +30812,6 @@ msgstr "Geen reactie — sluit het dossier voorlopig"
 #: src/Modules/Workflow/Forms/ConfirmTestTrainingForm.php:83
 msgid "Pick one outcome."
 msgstr "Kies één uitkomst."
-
-#: src/Modules/Workflow/Forms/ConfirmTestTrainingForm.php:32
-#: src/Modules/Workflow/Forms/InviteToTestTrainingForm.php:43
-#: src/Modules/Workflow/Forms/RecordTestTrainingOutcomeForm.php:39
-#, php-format
-msgid "Prospect: %s"
-msgstr "Prospect: %s"
 
 # ConfirmTestTrainingForm
 #: src/Modules/Workflow/Forms/ConfirmTestTrainingForm.php:37
@@ -40050,17 +40064,6 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Delete this holiday?"
 #~ msgstr "Deze vakantie verwijderen?"
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php
-msgid "(unnamed prospect)"
-msgstr "(naamloze prospect)"
-
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php
-msgid "Back to pipeline"
-msgstr "Terug naar pijplijn"
-
-#: src/Modules/Prospects/Frontend/FrontendOnboardingPipelineView.php
-msgid "Open next action"
-msgstr "Open volgende actie"
 
 #, php-format
 #~ msgid ""
