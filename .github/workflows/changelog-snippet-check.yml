@@ -1,0 +1,87 @@
+name: Changelog snippet check
+
+# Fails a PR that changes code/assets without adding a changelog.d/ note.
+# Every user-facing change must drop a `changelog.d/<issue>-<slug>.md`
+# snippet so the release agent (tools/release.ps1) can consolidate it into
+# CHANGES.md + readme.txt — otherwise the change ships silently with no
+# release note (the failure mode that prompted this check: #1695 restyle
+# PRs merging undocumented).
+#
+# Escape hatch: label the PR `no-changelog` when there is genuinely no
+# user-facing change (pure internal refactor, test-only, tooling).
+#
+# Scope: only runs when code/asset paths change. Docs-only, i18n-only, and
+# .github-only PRs don't trigger it. Release and i18n-sync commits go
+# straight to main (no PR), so they're unaffected.
+
+on:
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'includes/**'
+      - 'assets/**'
+      - 'templates/**'
+      - 'talenttrack.php'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  snippet-present:
+    name: changelog.d snippet present
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Require a changelog.d snippet (or the no-changelog label)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -e
+
+          # Escape hatch — explicit opt-out for genuinely invisible changes.
+          if jq -e '[.pull_request.labels[]?.name] | index("no-changelog")' \
+               "$GITHUB_EVENT_PATH" >/dev/null; then
+            echo "Label 'no-changelog' present — skipping."
+            exit 0
+          fi
+
+          git fetch origin "${{ github.base_ref }}":refs/remotes/origin/base
+          base="origin/base"
+
+          # A new snippet file under changelog.d/ (excluding the README)
+          # satisfies the requirement.
+          added=$(git diff --name-only --diff-filter=A "$base...HEAD" -- 'changelog.d/' \
+                  | grep -vE 'changelog\.d/README\.md$' || true)
+
+          if [ -n "$added" ]; then
+            echo "Changelog snippet added:"
+            echo "$added"
+            exit 0
+          fi
+
+          {
+            echo "## Missing \`changelog.d\` snippet"
+            echo ""
+            echo "This PR changes code/assets but adds no \`changelog.d/<issue>-<slug>.md\` note, so the release agent can't document it and it would ship silently in the next release."
+            echo ""
+            echo "**Fix:** add a one-paragraph snippet — see \`changelog.d/README.md\`. Example:"
+            echo ""
+            echo '```'
+            echo "# Short title of the change (#<issue>)"
+            echo ""
+            echo "Bump: patch"
+            echo ""
+            echo "What changed and why, in the same voice as CHANGES.md entries."
+            echo '```'
+            echo ""
+            echo "Or, if there is genuinely no user-facing change (pure refactor / test-only / tooling), label this PR \`no-changelog\`."
+          } > comment.md
+
+          gh pr comment "${{ github.event.pull_request.number }}" --body-file comment.md || true
+          echo "::error::No changelog.d snippet found. Add one (see changelog.d/README.md) or label the PR 'no-changelog'."
+          exit 1

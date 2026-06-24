@@ -619,6 +619,15 @@ A PR is not ready to merge until **all** of these hold:
       `msgstr` filled in.
 - [ ] `docs/<slug>.md` AND `docs/nl_NL/<slug>.md` updated for any user-
       visible behaviour change.
+- [ ] **Every PR with a user-facing change adds a
+      `changelog.d/<issue>-<slug>.md` snippet** (see `changelog.d/README.md`)
+      so the release agent can document it. **Enforced by the
+      `changelog-snippet-check` CI gate** — a code/asset PR with no snippet
+      fails. This applies to ALL content PRs, not just `co`-triggered ones
+      (the #1695 restyle epic included). Label `no-changelog` ONLY for a
+      genuinely invisible change (pure refactor / test-only / tooling).
+      Don't hand-edit `CHANGES.md` / `readme.txt` in a feature PR — the
+      snippet is the entry; the release step consolidates it.
 - [ ] `SEQUENCE.md` updated if the work is referenced there.
 - [ ] **Version bump follows strict SemVer** (from v4.0.0 onward, see
       `DEVOPS.md` § "When to bump what"). **Patch** for fixes + small
