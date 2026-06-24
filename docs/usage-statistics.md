@@ -29,6 +29,7 @@ Panels:
 
 - **Daily active users** line chart
 - **Active users by role** — admin / coach / player / other
+- **Active users** — the names behind those buckets: each active user with their role and last-seen time; the name links to that user's activity timeline
 - **Top features used** — most-opened frontend views + admin pages
 - **Dormant users** — who hasn't logged in during the window (who to nudge)
 

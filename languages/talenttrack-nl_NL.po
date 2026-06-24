@@ -38790,6 +38790,12 @@ msgstr "Dagelijks actieve gebruikers (%d dagen)"
 msgid "Active users by role (%d days)"
 msgstr "Actieve gebruikers per rol (%d dagen)"
 
+#. translators: %d is the number of days
+#: src/Shared/Frontend/FrontendUsageStatsView.php:160
+#, php-format
+msgid "Active users (%d days)"
+msgstr "Actieve gebruikers (%d dagen)"
+
 #: src/Shared/Frontend/FrontendUsageStatsView.php:138
 msgid "Users"
 msgstr "Gebruikers"

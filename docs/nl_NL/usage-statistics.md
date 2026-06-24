@@ -29,6 +29,7 @@ Panelen:
 
 - **Dagelijks actieve gebruikers** lijngrafiek
 - **Actieve gebruikers per rol** — beheerder / coach / speler / overig
+- **Actieve gebruikers** — de namen achter die buckets: elke actieve gebruiker met rol en laatst-gezien-tijd; de naam linkt naar de activiteitentijdlijn van die gebruiker
 - **Meest gebruikte functies** — meest geopende frontend-weergaven + beheerpagina's
 - **Inactieve gebruikers** — wie er in de periode niet heeft ingelogd (wie je een seintje geeft)
 
