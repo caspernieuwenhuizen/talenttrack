@@ -11,6 +11,7 @@ use TT\Modules\Vct\Repositories\VctCoachingPointsRepository;
 use TT\Modules\Vct\Repositories\VctExercisesRepository;
 use TT\Modules\Vct\Repositories\VctSessionBlocksRepository;
 use TT\Modules\Vct\Repositories\VctSessionsRepository;
+use TT\Shared\Frontend\Components\FrontendAppChrome;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\FrontendViewBase;
 
@@ -43,6 +44,8 @@ class FrontendVctSessionView extends FrontendViewBase {
             FrontendVctSessionPrintView::render( (int) $id, $user_id, $is_admin );
             return;
         }
+
+        self::enqueueViewCss();
 
         $sessions_repo = new VctSessionsRepository();
         $session = $id > 0 ? $sessions_repo->find( $id ) : null;
@@ -147,10 +150,10 @@ class FrontendVctSessionView extends FrontendViewBase {
             }
         }
         if ( ! $names ) return;
-        echo '<aside class="tt-vct-phv-banner" role="status" aria-live="polite" style="background:#fef0e6;border-left:4px solid #c75c1f;padding:12px 16px;margin:0 0 16px;border-radius:8px;display:flex;gap:12px;align-items:flex-start;">';
-        echo '<span aria-hidden="true" style="background:#c75c1f;color:#fff;font-size:11px;font-weight:800;padding:2px 8px;border-radius:10px;text-transform:uppercase;letter-spacing:0.4px;flex-shrink:0;">' . esc_html__( 'PHV', 'talenttrack' ) . '</span>';
-        echo '<div style="font-size:13px;line-height:1.45;color:#5b3a1a;">';
-        echo '<strong style="display:block;margin-bottom:2px;color:#7c2f12;">'
+        echo '<aside class="tt-vct-phv-banner" role="status" aria-live="polite">';
+        echo '<span class="tt-vct-phv-tag" aria-hidden="true">' . esc_html__( 'PHV', 'talenttrack' ) . '</span>';
+        echo '<div class="tt-vct-phv-body">';
+        echo '<strong class="tt-vct-phv-title">'
             . esc_html(
                 sprintf(
                     /* translators: %d = number of active PHV-flagged players */
@@ -175,11 +178,12 @@ class FrontendVctSessionView extends FrontendViewBase {
             $chips[] = [ __( 'Theme', 'talenttrack' ), LookupTranslator::byTypeAndName( 'vct_tactical_theme', (string) $session['tactical_theme'] ) ];
         }
 
-        echo '<div class="tt-vct-chips" style="display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 16px;">';
+        echo '<div class="tt-report-kpis tt-vct-facts">';
         foreach ( $chips as [ $label, $value ] ) {
-            echo '<span class="tt-pill" style="display:inline-block;padding:6px 12px;border-radius:999px;background:#0b3d2e;color:#fff;font-size:13px;">'
-                . '<strong>' . esc_html( $label ) . ':</strong> ' . esc_html( $value )
-                . '</span>';
+            echo FrontendAppChrome::kpiTile( [ // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — kpiTile escapes its own fields.
+                'label' => (string) $label,
+                'value' => (string) $value,
+            ] );
         }
         echo '</div>';
     }
@@ -210,10 +214,10 @@ class FrontendVctSessionView extends FrontendViewBase {
                 $ex_name = (string) $b['custom_label'];
             }
 
-            echo '<div class="tt-card tt-vct-block" style="margin:12px 0;padding:16px;border:1px solid #ddd;border-radius:8px;">';
-            echo '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;">';
-            echo '<h3 style="margin:0;font-size:16px;">' . esc_html( sprintf( '%d. %s', (int) $b['sequence'], $slot_label ) ) . '</h3>';
-            echo '<span class="tt-vct-meta" style="font-size:13px;color:#555;">'
+            echo '<div class="tt-card tt-vct-block">';
+            echo '<div class="tt-vct-block-head">';
+            echo '<h3 class="tt-vct-block-title">' . esc_html( sprintf( '%d. %s', (int) $b['sequence'], $slot_label ) ) . '</h3>';
+            echo '<span class="tt-vct-meta">'
                 . esc_html( sprintf(
                     /* translators: 1: minutes, 2: intensity band */
                     __( '%1$d min · band %2$d', 'talenttrack' ),
@@ -221,10 +225,10 @@ class FrontendVctSessionView extends FrontendViewBase {
                 ) )
                 . '</span>';
             echo '</div>';
-            echo '<p style="margin:0 0 8px;font-weight:600;">' . esc_html( $ex_name ) . '</p>';
+            echo '<p class="tt-vct-block-ex">' . esc_html( $ex_name ) . '</p>';
 
             if ( $cues ) {
-                echo '<ul style="margin:0;padding-left:20px;font-size:14px;color:#333;">';
+                echo '<ul class="tt-vct-cues">';
                 foreach ( $cues as $cue ) {
                     echo '<li>' . esc_html( (string) $cue['text'] ) . '</li>';
                 }
@@ -235,9 +239,9 @@ class FrontendVctSessionView extends FrontendViewBase {
     }
 
     private static function renderPublishForm( array $session ): void {
-        echo '<form method="POST" action="" style="margin-top:24px;padding:16px;background:#f5f5f5;border-radius:8px;">';
+        echo '<form method="POST" action="" class="tt-card tt-vct-publish">';
         wp_nonce_field( 'tt_vct_publish_' . (int) $session['id'], '_tt_vct_publish_nonce' );
-        echo '<p style="margin:0 0 12px;">'
+        echo '<p class="tt-vct-publish-lede">'
             . esc_html__( 'Publishing links this training to a team activity. If an activity already exists at this date and time, you\'ll be asked whether to reuse it or create a new one.', 'talenttrack' )
             . '</p>';
         echo '<input type="hidden" name="bind_existing" value="0">';
@@ -248,7 +252,7 @@ class FrontendVctSessionView extends FrontendViewBase {
     private static function renderStatusNotice( array $session ): void {
         $status = (string) $session['status'];
         if ( $status === 'published' ) {
-            echo '<p class="tt-notice tt-notice--info" style="margin-top:16px;">'
+            echo '<p class="tt-notice tt-notice--info tt-vct-status">'
                 . esc_html__( 'This VCT training is published and bound to a team Activity.', 'talenttrack' )
                 . '</p>';
         }
@@ -271,7 +275,7 @@ class FrontendVctSessionView extends FrontendViewBase {
         $existing      = self::findActivityForSlot( $session );
 
         if ( $existing !== null && ! $bind_existing ) {
-            echo '<form method="POST" action="" class="tt-notice tt-notice--info" style="padding:16px;background:#fff8e1;border-left:4px solid #dba617;margin:16px 0;">';
+            echo '<form method="POST" action="" class="tt-notice tt-notice--info tt-vct-bind-prompt">';
             wp_nonce_field( 'tt_vct_publish_' . (int) $session['id'], '_tt_vct_publish_nonce' );
             echo '<p>' . esc_html(
                 sprintf(
@@ -294,7 +298,7 @@ class FrontendVctSessionView extends FrontendViewBase {
         }
 
         ( new VctSessionsRepository() )->updateStatus( (int) $session['id'], 'published', $activity_id );
-        echo '<p class="tt-notice tt-notice--success" style="padding:12px;background:#e9f5e9;border-left:4px solid #2c8a2c;margin:16px 0;">'
+        echo '<p class="tt-notice tt-notice--success tt-vct-status">'
             . esc_html__( 'Published. Bound Activity created.', 'talenttrack' )
             . '</p>';
     }
@@ -341,5 +345,19 @@ class FrontendVctSessionView extends FrontendViewBase {
             ),
         ] );
         return $ok !== false ? (int) $wpdb->insert_id : 0;
+    }
+
+    /**
+     * Enqueue the 2026 VCT session stylesheet. Depends on the app-chrome
+     * sheet so it inherits the brand + neutral tokens and the shared
+     * .tt-kpi tile / .tt-report-card styling.
+     */
+    private static function enqueueViewCss(): void {
+        wp_enqueue_style(
+            'tt-frontend-vct-session',
+            TT_PLUGIN_URL . 'assets/css/frontend-vct-session.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
     }
 }

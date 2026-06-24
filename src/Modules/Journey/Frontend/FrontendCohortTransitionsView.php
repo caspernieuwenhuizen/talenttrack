@@ -84,9 +84,9 @@ class FrontendCohortTransitionsView {
             <form method="get" class="tt-cohort-filters">
                 <input type="hidden" name="tt_view" value="cohort-transitions" />
 
-                <label>
-                    <span><?php esc_html_e( 'Event type', 'talenttrack' ); ?></span>
-                    <select name="event_type" required>
+                <label class="tt-field">
+                    <span class="tt-field-label"><?php esc_html_e( 'Event type', 'talenttrack' ); ?></span>
+                    <select class="tt-input" name="event_type" required>
                         <option value=""><?php esc_html_e( '— Select an event type —', 'talenttrack' ); ?></option>
                         <?php foreach ( EventTypeRegistry::all() as $def ) : ?>
                             <option value="<?php echo esc_attr( $def->key ); ?>" <?php selected( $event_type, $def->key ); ?>>
@@ -95,17 +95,17 @@ class FrontendCohortTransitionsView {
                         <?php endforeach; ?>
                     </select>
                 </label>
-                <label>
-                    <span><?php esc_html_e( 'From', 'talenttrack' ); ?></span>
-                    <input type="date" name="from" value="<?php echo esc_attr( $from ); ?>" />
+                <label class="tt-field">
+                    <span class="tt-field-label"><?php esc_html_e( 'From', 'talenttrack' ); ?></span>
+                    <input class="tt-input" type="date" name="from" value="<?php echo esc_attr( $from ); ?>" />
                 </label>
-                <label>
-                    <span><?php esc_html_e( 'To', 'talenttrack' ); ?></span>
-                    <input type="date" name="to" value="<?php echo esc_attr( $to ); ?>" />
+                <label class="tt-field">
+                    <span class="tt-field-label"><?php esc_html_e( 'To', 'talenttrack' ); ?></span>
+                    <input class="tt-input" type="date" name="to" value="<?php echo esc_attr( $to ); ?>" />
                 </label>
-                <label>
-                    <span><?php esc_html_e( 'Team (optional)', 'talenttrack' ); ?></span>
-                    <input type="number" name="team_id" value="<?php echo esc_attr( $team_id > 0 ? (string) $team_id : '' ); ?>" inputmode="numeric" min="0" />
+                <label class="tt-field">
+                    <span class="tt-field-label"><?php esc_html_e( 'Team (optional)', 'talenttrack' ); ?></span>
+                    <input class="tt-input" type="number" name="team_id" value="<?php echo esc_attr( $team_id > 0 ? (string) $team_id : '' ); ?>" inputmode="numeric" min="0" />
                 </label>
                 <button type="submit" class="tt-btn tt-btn-primary">
                     <?php esc_html_e( 'Run query', 'talenttrack' ); ?>
@@ -126,6 +126,7 @@ class FrontendCohortTransitionsView {
                     ) );
                     ?>
                 </p>
+                <div class="tt-report-card">
                 <div class="tt-cohort-table-wrap">
                 <table class="tt-table tt-cohort-table">
                     <thead>
@@ -157,6 +158,7 @@ class FrontendCohortTransitionsView {
                         <?php endforeach; ?>
                     </tbody>
                 </table>
+                </div>
                 </div>
             <?php endif; ?>
         </section>

@@ -30,25 +30,30 @@
     border-radius: var(--tt-radius-lg);
     box-shadow: var(--tt-shadow-md);
 }
-.tt-dashboard .tt-cohort-filters label {
+.tt-dashboard .tt-cohort-filters .tt-field {
     display: flex;
     flex-direction: column;
     gap: var(--tt-sp-1);
 }
-.tt-dashboard .tt-cohort-filters label > span {
+.tt-dashboard .tt-cohort-filters .tt-field-label {
     font-size: var(--tt-fs-sm);
     font-weight: 600;
     color: var(--tt-muted);
 }
-.tt-dashboard .tt-cohort-filters input,
-.tt-dashboard .tt-cohort-filters select {
+.tt-dashboard .tt-cohort-filters .tt-input {
+    width: 100%;
+    box-sizing: border-box;
     padding: 0.6rem 0.7rem;
-    font-size: 1rem;
+    font-size: 1rem; /* ≥16px — no iOS auto-zoom on focus */
     min-height: 48px;
     border: 1px solid var(--tt-line);
     border-radius: var(--tt-radius);
     background: var(--tt-paper);
     color: var(--tt-ink);
+}
+.tt-dashboard .tt-cohort-filters .tt-input:focus-visible {
+    outline: 2px solid var(--tt-primary);
+    outline-offset: 1px;
 }
 .tt-dashboard .tt-cohort-filters .tt-btn { min-height: 48px; }
 
@@ -68,15 +73,19 @@
     margin: var(--tt-sp-2) 0;
 }
 
-/* ---- Results table ------------------------------------------------- */
+/* ---- Results card + table ------------------------------------------ */
+.tt-dashboard .tt-cohort .tt-report-card {
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius-lg);
+    box-shadow: var(--tt-shadow-md);
+    overflow: hidden;
+}
 .tt-dashboard .tt-cohort-table-wrap { overflow-x: auto; }
 .tt-dashboard .tt-cohort-table {
     width: 100%;
     border-collapse: collapse;
     background: var(--tt-paper);
-    border: 1px solid var(--tt-line);
-    border-radius: var(--tt-radius-lg);
-    overflow: hidden;
 }
 .tt-dashboard .tt-cohort-table th,
 .tt-dashboard .tt-cohort-table td {

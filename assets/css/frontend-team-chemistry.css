@@ -115,7 +115,7 @@
     padding: 8px 12px;
     border: 1px solid var(--tt-tc-line);
     border-radius: 6px;
-    background: #fff;
+    background: var(--tt-paper, #fff);
     color: var(--tt-tc-ink);
     min-height: 40px;
 }
@@ -134,7 +134,7 @@
     border: 1px solid var(--tt-tc-line);
     border-radius: 6px;
     overflow: hidden;
-    background: #fff;
+    background: var(--tt-paper, #fff);
 }
 .tt-tc-seg-btn {
     border: 0;
@@ -150,7 +150,7 @@
 }
 .tt-tc-seg-btn.is-active {
     background: var(--tt-tc-accent);
-    color: #fff;
+    color: var(--tt-paper, #fff);
 }
 
 /* Override banner — visible only while sandbox mode is on. */
@@ -188,8 +188,8 @@
 
 /* Coverage banner */
 .tt-tc-empty-banner {
-    background: #fffbe6;
-    border: 1px solid #c9962a;
+    background: var(--tt-warning-subtle, #fdf3d8);
+    border: 1px solid var(--tt-warning, #e8902b);
     border-radius: 8px;
     padding: 12px 14px;
     margin: 0 0 14px;
@@ -287,7 +287,7 @@
     min-height: 48px;
 }
 .tt-tc-roster-row + .tt-tc-roster-row {
-    border-top: 1px solid #f1f3f5;
+    border-top: 1px solid var(--tt-line-soft, #eef0ec);
     border-radius: 0;
 }
 .tt-tc-roster-row.is-hidden { display: none; }
@@ -296,8 +296,8 @@
     flex-shrink: 0;
     width: 32px; height: 32px;
     border-radius: 50%;
-    background: #d3d7dc;
-    color: #fff;
+    background: var(--tt-muted, #6a6d66);
+    color: var(--tt-paper, #fff);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -374,7 +374,7 @@
     border-radius: 2px;
 }
 .tt-tc-swatch.is-strong   { background: var(--tt-tc-success); }
-.tt-tc-swatch.is-workable { background: #c9962a; }
+.tt-tc-swatch.is-workable { background: var(--tt-warning, #e8902b); }
 .tt-tc-swatch.is-poor     { background: var(--tt-tc-danger); }
 .tt-tc-pitch-hint {
     color: var(--tt-tc-muted);
@@ -446,14 +446,14 @@
  * primary number, mirroring the mockup. */
 .tt-tc-score-card.is-headline {
     background: linear-gradient(135deg, var(--tt-tc-accent), var(--tt-tc-accent-2));
-    color: #fff;
+    color: var(--tt-paper, #fff);
     border-color: var(--tt-tc-accent);
     min-height: 64px;
 }
 .tt-tc-score-card.is-headline .tt-tc-score-label,
 .tt-tc-score-card.is-headline .tt-tc-score-value,
 .tt-tc-score-card.is-headline .tt-tc-score-value sup,
-.tt-tc-score-card.is-headline .tt-tc-score-trend { color: #fff; }
+.tt-tc-score-card.is-headline .tt-tc-score-trend { color: var(--tt-paper, #fff); }
 .tt-tc-score-card.is-headline .tt-tc-score-value { font-size: 30px; }
 
 /* Pairings panel */
@@ -602,7 +602,7 @@
    --------------------------------------------------------------------- */
 .tt-tc-sandbox[data-mode="on"] .tt-tc-seg-btn.tt-tc-sandbox-toggle {
     background: var(--tt-tc-accent);
-    color: #fff;
+    color: var(--tt-paper, #fff);
 }
 .tt-tc-sandbox[data-mode="on"] .tt-tc-seg-btn.tt-tc-sandbox-mode-suggested {
     background: transparent;
@@ -645,7 +645,7 @@ body.tt-chem-sandbox-on .tt-pitch-slot:active {
     position: relative;
     width: 100%;
     max-width: 560px;
-    background: #fff;
+    background: var(--tt-paper, #fff);
     border-radius: 16px 16px 0 0;
     box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.2);
     padding: 16px 16px calc(16px + env(safe-area-inset-bottom, 0px));
@@ -686,11 +686,11 @@ body.tt-chem-sandbox-on .tt-pitch-slot:active {
     touch-action: manipulation;
 }
 .tt-chem-picker-row + .tt-chem-picker-row {
-    border-top: 1px solid #eef0f2;
+    border-top: 1px solid var(--tt-line-soft, #eef0ec);
 }
 .tt-chem-picker-row:hover,
 .tt-chem-picker-row:focus-visible {
-    background: #f3f7f7;
+    background: var(--tt-bg-soft, #f4f6f3);
     outline: none;
 }
 .tt-chem-picker-row:focus-visible {
@@ -707,7 +707,7 @@ body.tt-chem-sandbox-on .tt-pitch-slot:active {
     white-space: nowrap;
 }
 .tt-chem-picker-badge {
-    background: #e6efef;
+    background: var(--tt-tc-accent-15);
     color: var(--tt-tc-accent);
     border-radius: 10px;
     padding: 2px 8px;
@@ -718,7 +718,7 @@ body.tt-chem-sandbox-on .tt-pitch-slot:active {
     margin-top: 8px;
     color: var(--tt-tc-muted);
     font-style: italic;
-    border-top: 1px solid #eef0f2;
+    border-top: 1px solid var(--tt-line-soft, #eef0ec);
 }
 
 body.tt-chem-picker-open { overflow: hidden; }
@@ -771,7 +771,7 @@ body.tt-chem-saveas-open { overflow: hidden; }
 }
 .tt-chem-saveas-sheet {
     position: relative;
-    background: #fff;
+    background: var(--tt-paper, #fff);
     width: min(440px, 100%);
     max-height: 90vh;
     overflow-y: auto;

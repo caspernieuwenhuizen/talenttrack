@@ -1,0 +1,204 @@
+/*
+ * frontend-report-wizard.css — 2026 restyle (B3) for the report wizard
+ * surface (?tt_view=report-wizard). Replaces the inline form styling and
+ * the inline scope custom-range display toggle that the view used to emit
+ * (CI #1389 inline-style containment). Markup is otherwise unchanged —
+ * restyle, not redesign. Wizard steps keep their Previous/Next/Cancel
+ * chrome (CLAUDE.md §6-exempt).
+ *
+ * Mobile-first per CLAUDE.md §2: base styles target ~360px, min-width
+ * queries at 480 / 768 scale up. Scoped under .tt-dashboard (the active
+ * theme is hostile). Loaded with a dep on tt-frontend-app-chrome so it
+ * inherits the brand + neutral tokens.
+ *
+ * Tokens only — no raw hex.
+ */
+
+/* ---- Wizard shell + steps ------------------------------------------ */
+.tt-dashboard .tt-report-wizard {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-4);
+}
+.tt-dashboard .tt-rwz-step {
+    margin: 0;
+    padding: var(--tt-sp-4) var(--tt-sp-5);
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius-lg);
+    box-shadow: var(--tt-shadow-md);
+}
+.tt-dashboard .tt-rwz-step legend {
+    padding: 0;
+    font-size: var(--tt-fs-lg);
+    font-weight: 700;
+    color: var(--tt-ink);
+}
+.tt-dashboard .tt-rwz-help {
+    margin: var(--tt-sp-1) 0 var(--tt-sp-3);
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-muted);
+}
+
+/* ---- Audience / scope radios --------------------------------------- */
+.tt-dashboard .tt-rwz-radios,
+.tt-dashboard .tt-rwz-scope,
+.tt-dashboard .tt-rwz-checks {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--tt-sp-2);
+}
+.tt-dashboard .tt-rwz-radio,
+.tt-dashboard .tt-rwz-check {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: start;
+    column-gap: var(--tt-sp-3);
+    min-height: 48px;
+    padding: var(--tt-sp-3);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    background: var(--tt-paper);
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-dashboard .tt-rwz-radio input,
+.tt-dashboard .tt-rwz-check input {
+    width: 20px;
+    height: 20px;
+    margin: 2px 0 0;
+    align-self: start;
+}
+.tt-dashboard .tt-rwz-radio:focus-within,
+.tt-dashboard .tt-rwz-check:focus-within {
+    outline: 2px solid var(--tt-primary);
+    outline-offset: 1px;
+}
+.tt-dashboard .tt-rwz-radio-label {
+    font-weight: 600;
+    color: var(--tt-ink);
+}
+.tt-dashboard .tt-rwz-radio-desc {
+    grid-column: 2;
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-muted);
+}
+.tt-dashboard .tt-rwz-check {
+    align-items: center;
+    color: var(--tt-ink);
+}
+
+/* Inline threshold check — label + number input on one row. */
+.tt-dashboard .tt-rwz-check--inline {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    column-gap: var(--tt-sp-3);
+}
+.tt-dashboard .tt-rwz-check--inline > span {
+    font-weight: 600;
+    color: var(--tt-ink);
+}
+.tt-dashboard .tt-rwz-threshold { max-width: 7rem; }
+
+/* ---- Custom date range (scope=custom) toggle ----------------------- */
+/* Hidden by default; the .is-open modifier (server-rendered + toggled in
+ * JS on the scope radio) reveals it. Replaces the inline display style. */
+.tt-dashboard .tt-rwz-custom-range {
+    display: none;
+    grid-template-columns: 1fr;
+    gap: var(--tt-sp-3);
+    margin-top: var(--tt-sp-3);
+}
+.tt-dashboard .tt-rwz-custom-range.is-open { display: grid; }
+
+/* ---- Fields (custom range, scout delivery) ------------------------- */
+.tt-dashboard .tt-rwz-field,
+.tt-dashboard .tt-rwz-custom-range label {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-1);
+}
+.tt-dashboard .tt-rwz-field > span,
+.tt-dashboard .tt-rwz-custom-range label > span {
+    font-size: var(--tt-fs-sm);
+    font-weight: 600;
+    color: var(--tt-muted);
+}
+.tt-dashboard .tt-report-wizard .tt-input {
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 48px;
+    padding: 0 var(--tt-sp-3);
+    font-size: 1rem; /* ≥16px — no iOS auto-zoom on focus */
+    color: var(--tt-ink);
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+}
+.tt-dashboard .tt-report-wizard textarea.tt-input {
+    min-height: 6rem;
+    padding: var(--tt-sp-3);
+    line-height: var(--tt-lh-body);
+    resize: vertical;
+}
+.tt-dashboard .tt-report-wizard .tt-input:focus-visible {
+    outline: 2px solid var(--tt-primary);
+    outline-offset: 1px;
+}
+
+/* Scout delivery step — gold left rail to mark the privileged action. */
+.tt-dashboard .tt-rwz-step--scout {
+    border-left: 4px solid var(--tt-warning);
+}
+
+/* ---- Actions ------------------------------------------------------- */
+.tt-dashboard .tt-rwz-actions { margin: 0; }
+
+/* ---- Preview ------------------------------------------------------- */
+.tt-dashboard .tt-rwz-preview {
+    margin-top: var(--tt-sp-5);
+    padding: var(--tt-sp-4) var(--tt-sp-5);
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius-lg);
+    box-shadow: var(--tt-shadow-md);
+}
+.tt-dashboard .tt-rwz-preview-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--tt-sp-3);
+    flex-wrap: wrap;
+}
+.tt-dashboard .tt-rwz-preview-title {
+    margin: 0;
+    font-size: var(--tt-fs-h3);
+    color: var(--tt-ink);
+}
+.tt-dashboard .tt-rwz-preview .tt-btn { min-height: 48px; }
+.tt-dashboard .tt-rwz-report-host { margin-top: var(--tt-sp-4); }
+
+/* ---- Scout-send confirmation notice (was inline) ------------------- */
+.tt-dashboard .tt-rwz-sent {
+    margin: var(--tt-sp-2) 0 var(--tt-sp-4);
+    padding: var(--tt-sp-2) var(--tt-sp-3);
+    background: var(--tt-success-subtle);
+    border-left: 4px solid var(--tt-success);
+    border-radius: var(--tt-radius);
+}
+
+/* ---- Scale up ------------------------------------------------------ */
+@media (min-width: 480px) {
+    .tt-dashboard .tt-rwz-custom-range.is-open {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+@media (min-width: 768px) {
+    .tt-dashboard .tt-rwz-radios,
+    .tt-dashboard .tt-rwz-checks {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .tt-dashboard .tt-rwz-scope {
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    }
+}

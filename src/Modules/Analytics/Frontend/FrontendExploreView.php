@@ -644,8 +644,8 @@ class FrontendExploreView extends FrontendViewBase {
         $measure = $fact->measure( $kpi->measureKey );
         if ( $dim === null || $measure === null ) return;
 
-        echo '<div class="tt-explore-table-wrap">';
-        echo '<table class="widefat striped tt-explore-table">';
+        echo '<div class="tt-report-card"><div class="tt-explore-table-wrap">';
+        echo '<table class="tt-table tt-explore-table">';
         echo '<thead><tr>';
         echo '<th>' . esc_html( $dim->label ) . '</th>';
         echo '<th class="tt-explore-num">' . esc_html( $measure->label ) . '</th>';
@@ -666,7 +666,7 @@ class FrontendExploreView extends FrontendViewBase {
             }
         }
         echo '</tbody></table>';
-        echo '</div>';
+        echo '</div></div>';
     }
 
     /**
@@ -735,8 +735,8 @@ class FrontendExploreView extends FrontendViewBase {
         ];
         $link_target = $scope_map[ (string) $fact->entityScope ] ?? null;
 
-        echo '<div class="tt-explore-table-wrap">';
-        echo '<table class="widefat striped tt-explore-table tt-explore-table--wide">';
+        echo '<div class="tt-report-card"><div class="tt-explore-table-wrap">';
+        echo '<table class="tt-table tt-explore-table tt-explore-table--wide">';
         echo '<thead><tr>';
         foreach ( $dims as $d ) {
             echo '<th>' . esc_html( $d->label ) . '</th>';
@@ -769,7 +769,7 @@ class FrontendExploreView extends FrontendViewBase {
         }
 
         echo '</tbody></table>';
-        echo '</div>';
+        echo '</div></div>';
 
         // Pager — `&page=N`. Carries every other current query param so
         // filters + KPI + group_by round-trip.

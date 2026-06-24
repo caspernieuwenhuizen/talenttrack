@@ -69,7 +69,7 @@ class FrontendMyEvaluationsView extends FrontendViewBase {
             return;
         }
 
-        echo '<p style="margin:0 0 12px; color:#5b6e75;">'
+        echo '<p class="tt-mye-lead">'
             . sprintf(
                 /* translators: %d is the window size in days */
                 esc_html__( 'Evaluations you authored in the last %d days, newest first.', 'talenttrack' ),
@@ -77,7 +77,7 @@ class FrontendMyEvaluationsView extends FrontendViewBase {
             )
             . '</p>';
 
-        echo '<div class="tt-table-wrap"><table class="tt-table">';
+        echo '<div class="tt-report-card"><div class="tt-table-wrap"><table class="tt-table">';
         echo '<thead><tr>'
             . '<th>' . esc_html__( 'Date', 'talenttrack' ) . '</th>'
             . '<th>' . esc_html__( 'Player', 'talenttrack' ) . '</th>'
@@ -107,7 +107,7 @@ class FrontendMyEvaluationsView extends FrontendViewBase {
             echo '<td>' . esc_html( $match_text !== '' ? $match_text : '—' ) . '</td>';
             echo '</tr>';
         }
-        echo '</tbody></table></div>';
+        echo '</tbody></table></div></div>';
     }
 
     public static function render( object $player ): void {

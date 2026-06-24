@@ -1,0 +1,238 @@
+/*
+ * frontend-vct-library.css — 2026 restyle of the HoD VCT exercise
+ * library editor (FrontendVctLibraryView, ?tt_view=vct-library).
+ *
+ * Replaces the view's old renderStyles() inline <style> block and the
+ * inline style="…" attributes on the filter chips, add/edit forms and
+ * notices. Desktop-first admin surface (Tier 8) but usable at 768px+.
+ * Scoped under .tt-dashboard; tokens only, never raw hex.
+ */
+
+/* ---- Intensity band edge marker ------------------------------------ */
+.tt-dashboard .tt-vct-lib-edge {
+    width: 4px;
+    min-height: 28px;
+    border-radius: 2px;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 8px;
+    background: var(--tt-line);
+}
+.tt-dashboard .tt-vct-lib-edge[data-band="1"] { background: var(--tt-info-subtle); }
+.tt-dashboard .tt-vct-lib-edge[data-band="2"] { background: var(--tt-info); }
+.tt-dashboard .tt-vct-lib-edge[data-band="3"],
+.tt-dashboard .tt-vct-lib-edge[data-band="4"] { background: var(--tt-primary); }
+.tt-dashboard .tt-vct-lib-edge[data-band="5"],
+.tt-dashboard .tt-vct-lib-edge[data-band="6"],
+.tt-dashboard .tt-vct-lib-edge[data-band="7"],
+.tt-dashboard .tt-vct-lib-edge[data-band="8"],
+.tt-dashboard .tt-vct-lib-edge[data-band="9"],
+.tt-dashboard .tt-vct-lib-edge[data-band="10"] { background: var(--tt-warning); }
+
+/* ---- Search row ---------------------------------------------------- */
+.tt-dashboard .tt-vct-lib-search-row {
+    background: var(--tt-paper, #ffffff);
+    padding: var(--tt-sp-3, 12px) var(--tt-sp-4, 16px);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius, 8px);
+    margin: 0 0 var(--tt-sp-3, 12px);
+}
+.tt-dashboard .tt-vct-lib-search-row label {
+    display: block;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--tt-muted);
+    margin-bottom: 4px;
+}
+.tt-dashboard .tt-vct-lib-search-row input {
+    width: 100%;
+    height: 48px;
+    padding: 0 12px;
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius, 8px);
+    font: inherit;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+/* ---- Filter chip row ----------------------------------------------- */
+.tt-dashboard .tt-vct-library-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: var(--tt-sp-2, 8px) 0 var(--tt-sp-4, 16px);
+}
+.tt-dashboard .tt-vct-chip {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: var(--tt-bg-soft);
+    color: var(--tt-ink);
+    text-decoration: none;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    border: 1px solid var(--tt-line);
+}
+.tt-dashboard .tt-vct-chip.is-active {
+    background: var(--tt-primary);
+    color: var(--tt-paper, #ffffff);
+    border-color: var(--tt-primary);
+}
+.tt-dashboard .tt-vct-chip-archived {
+    margin-left: auto;
+}
+.tt-dashboard .tt-vct-chip-archived.is-active {
+    background: var(--tt-warning);
+    color: var(--tt-paper, #ffffff);
+    border-color: var(--tt-warning);
+}
+
+/* ---- Add-exercise disclosure form ---------------------------------- */
+.tt-dashboard .tt-vct-lib-add {
+    margin: 0 0 var(--tt-sp-4, 16px);
+    padding: var(--tt-sp-3, 12px);
+    background: var(--tt-bg-soft);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius, 8px);
+}
+.tt-dashboard .tt-vct-lib-add > summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--tt-ink);
+}
+.tt-dashboard .tt-vct-lib-add-form {
+    margin-top: var(--tt-sp-3, 12px);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--tt-sp-2, 8px);
+}
+@media (min-width: 768px) {
+    .tt-dashboard .tt-vct-lib-add-form { grid-template-columns: 1fr 1fr; }
+}
+.tt-dashboard .tt-vct-lib-add-form > label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.tt-dashboard .tt-vct-lib-add-form > label > span:first-child {
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--tt-muted);
+}
+.tt-dashboard .tt-vct-lib-add-form input,
+.tt-dashboard .tt-vct-lib-add-form select {
+    min-height: 48px;
+    padding: 0 12px;
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius, 8px);
+    font: inherit;
+    font-size: 16px;
+    background: var(--tt-paper, #ffffff);
+    width: 100%;
+    box-sizing: border-box;
+}
+.tt-dashboard .tt-vct-lib-md-fieldset {
+    grid-column: 1 / -1;
+    margin: var(--tt-sp-2, 8px) 0 0;
+    padding: var(--tt-sp-2, 8px);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius, 8px);
+}
+.tt-dashboard .tt-vct-lib-md-fieldset label {
+    display: inline-block;
+    margin-right: var(--tt-sp-3, 12px);
+    font-weight: normal;
+}
+.tt-dashboard .tt-vct-lib-add-submit {
+    grid-column: 1 / -1;
+    margin-top: var(--tt-sp-2, 8px);
+}
+
+/* ---- Table + inline edit row --------------------------------------- */
+.tt-dashboard .tt-vct-lib-code {
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-muted);
+}
+.tt-dashboard .tt-vct-lib-rowactions {
+    white-space: nowrap;
+}
+.tt-dashboard .tt-vct-lib-rowactions .tt-btn {
+    font-size: var(--tt-fs-sm, 0.85rem);
+    padding: 4px 10px;
+}
+.tt-dashboard .tt-vct-lib-edit-btn {
+    margin-right: 6px;
+}
+.tt-dashboard .tt-vct-lib-archive-form {
+    display: inline;
+}
+
+.tt-dashboard .tt-vct-lib-edit-row td {
+    padding: var(--tt-sp-4, 16px);
+    background: var(--tt-bg-soft);
+}
+.tt-dashboard .tt-vct-lib-edit-form {
+    display: grid;
+    gap: var(--tt-sp-3, 12px);
+    grid-template-columns: 1fr;
+}
+@media (min-width: 768px) {
+    .tt-dashboard .tt-vct-lib-edit-form { grid-template-columns: 1fr 1fr; }
+}
+.tt-dashboard .tt-vct-lib-edit-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.tt-dashboard .tt-vct-lib-edit-form label > span:first-child {
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--tt-muted);
+}
+.tt-dashboard .tt-vct-lib-edit-form input,
+.tt-dashboard .tt-vct-lib-edit-form select {
+    min-height: 48px;
+    padding: 0 12px;
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius, 8px);
+    font: inherit;
+    font-size: 16px;
+    background: var(--tt-paper, #ffffff);
+    box-sizing: border-box;
+}
+.tt-dashboard .tt-vct-lib-range {
+    display: flex;
+    gap: 6px;
+}
+.tt-dashboard .tt-vct-lib-range input {
+    flex: 1;
+}
+.tt-dashboard .tt-vct-lib-edit-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: var(--tt-sp-2, 8px);
+    justify-content: flex-end;
+    margin-top: var(--tt-sp-2, 8px);
+}
+.tt-dashboard .tt-vct-lib-row[hidden] { display: none; }
+
+/* ---- Inline notice ------------------------------------------------- */
+.tt-dashboard .tt-vct-lib-notice {
+    margin: var(--tt-sp-2, 8px) 0 var(--tt-sp-4, 16px);
+    padding: var(--tt-sp-3, 12px);
+    border-left: 4px solid var(--tt-info);
+    background: var(--tt-info-subtle);
+}
+.tt-dashboard .tt-vct-lib-notice--success {
+    border-left-color: var(--tt-success);
+    background: var(--tt-success-subtle);
+}
+.tt-dashboard .tt-vct-lib-notice--error {
+    border-left-color: var(--tt-danger);
+    background: var(--tt-danger-subtle);
+}

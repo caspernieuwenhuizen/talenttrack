@@ -699,7 +699,7 @@ class FrontendTeamChemistryView extends FrontendViewBase {
         wp_enqueue_style(
             'tt-team-chemistry',
             TT_PLUGIN_URL . 'assets/css/frontend-team-chemistry.css',
-            [],
+            [ 'tt-frontend-app-chrome' ],
             TT_VERSION
         );
         wp_enqueue_script(
