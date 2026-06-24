@@ -92,6 +92,10 @@ class FrontendScheduledReportsView extends FrontendViewBase {
             echo '<div class="tt-notice tt-notice-success">' . esc_html__( 'Schedule resumed.', 'talenttrack' ) . '</div>';
         } elseif ( $tt_msg === 'schedule_archived' ) {
             echo '<div class="tt-notice tt-notice-success">' . esc_html__( 'Schedule archived.', 'talenttrack' ) . '</div>';
+        } elseif ( $tt_msg === 'schedule_deleted' ) {
+            echo '<div class="tt-notice tt-notice-success">' . esc_html__( 'Schedule permanently deleted.', 'talenttrack' ) . '</div>';
+        } elseif ( $tt_msg === 'schedule_delete_blocked' ) {
+            echo '<div class="tt-notice tt-notice-error">' . esc_html__( 'The schedule could not be deleted because other records still reference it.', 'talenttrack' ) . '</div>';
         }
 
         echo '<p class="tt-sched-intro">'
@@ -211,13 +215,25 @@ class FrontendScheduledReportsView extends FrontendViewBase {
         } elseif ( $status === 'paused' ) {
             $form( 'tt_scheduled_reports_resume', __( 'Resume', 'talenttrack' ), $id );
         }
-        $form(
-            'tt_scheduled_reports_archive',
-            __( 'Archive', 'talenttrack' ),
-            $id,
-            __( 'Archive this schedule? It will stop running.', 'talenttrack' ),
-            true
-        );
+        if ( $status === 'archived' ) {
+            // #1808 — referential-integrity permanent delete, only on
+            // already-archived rows.
+            $form(
+                'tt_scheduled_reports_delete',
+                __( 'Delete permanently', 'talenttrack' ),
+                $id,
+                __( 'Permanently delete this schedule? This cannot be undone.', 'talenttrack' ),
+                true
+            );
+        } else {
+            $form(
+                'tt_scheduled_reports_archive',
+                __( 'Archive', 'talenttrack' ),
+                $id,
+                __( 'Archive this schedule? It will stop running.', 'talenttrack' ),
+                true
+            );
+        }
         echo '</div>';
     }
 

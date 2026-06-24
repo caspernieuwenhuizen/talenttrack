@@ -67,6 +67,24 @@ final class HolidaysRestController {
                 'permission_callback' => self::can( 'tt_edit_settings' ),
             ],
         ] );
+
+        // #1784 — restore an archived holiday (for the Archived tab).
+        register_rest_route( self::NS, '/holidays/(?P<id>\d+)/restore', [
+            [
+                'methods'             => 'POST',
+                'callback'            => [ self::class, 'restore_holiday' ],
+                'permission_callback' => self::can( 'tt_manage_holidays' ),
+            ],
+        ] );
+    }
+
+    /** #1784 — restore an archived holiday. */
+    public static function restore_holiday( WP_REST_Request $req ): WP_REST_Response {
+        $id = (int) $req['id'];
+        if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid holiday id.', 'talenttrack' ), 400 );
+        $n = ( new \TT\Infrastructure\Archive\ArchiveRepository() )->restore( 'holiday', [ $id ] );
+        if ( $n === 0 ) return RestResponse::error( 'not_found', __( 'Holiday not found.', 'talenttrack' ), 404 );
+        return RestResponse::success( [ 'restored' => true, 'id' => $id ] );
     }
 
     private static function can( string $cap ): \Closure {
@@ -87,9 +105,15 @@ final class HolidaysRestController {
     }
 
     public static function list_holidays( WP_REST_Request $req ): WP_REST_Response {
+        // #1784 — honour the FrontendListTable status filter (active/archived/all).
+        $filter = is_array( $req['filter'] ?? null ) ? $req['filter'] : [];
+        $status = isset( $filter['status'] )
+            ? \TT\Infrastructure\Archive\ArchiveRepository::sanitizeView( (string) $filter['status'] )
+            : 'active';
         $rows = ( new HolidaysRepository() )->list(
             (string) $req->get_param( 'from' ),
-            (string) $req->get_param( 'to' )
+            (string) $req->get_param( 'to' ),
+            $status
         );
         $serialized = array_map( [ self::class, 'serialize' ], $rows );
         // Paginated shape the FrontendListTable consumes (holidays are a

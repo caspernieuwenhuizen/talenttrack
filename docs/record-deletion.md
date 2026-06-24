@@ -39,6 +39,7 @@ leaves orphaned rows behind.
 | VCT exercise | Cascades its coaching points; clears the exercise link on any session block. |
 | Custom widget | Standalone — removed directly. |
 | Injury | Removes the injury and its journey-timeline events (a minor's medical record). |
+| Scheduled report | Standalone — removed directly (on an already-archived schedule). |
 | Team, Activity | **Blocks** while any record still references them (full cascades are a follow-up, #1784). |
 
 If a team or activity won't delete, archive or reassign its players /

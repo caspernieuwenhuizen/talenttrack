@@ -40145,3 +40145,19 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #: src/Infrastructure/REST/PlayerJourneyRestController.php
 msgid "Invalid injury id."
 msgstr "Ongeldig blessure-id."
+
+#: src/Shared/Frontend/FrontendHolidaysView.php
+msgid "Archive this holiday?"
+msgstr "Deze vakantie archiveren?"
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+msgid "Schedule permanently deleted."
+msgstr "Planning definitief verwijderd."
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+msgid "The schedule could not be deleted because other records still reference it."
+msgstr "De planning kon niet worden verwijderd omdat andere gegevens er nog naar verwijzen."
+
+#: src/Modules/Analytics/Frontend/FrontendScheduledReportsView.php
+msgid "Permanently delete this schedule? This cannot be undone."
+msgstr "Deze planning definitief verwijderen? Dit kan niet ongedaan worden gemaakt."

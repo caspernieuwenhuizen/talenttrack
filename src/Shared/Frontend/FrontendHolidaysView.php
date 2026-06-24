@@ -8,6 +8,7 @@ use TT\Shared\Frontend\Components\BackLink;
 use TT\Shared\Frontend\Components\FormSaveButton;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
 use TT\Shared\Frontend\Components\FrontendListTable;
+use TT\Shared\Frontend\Components\ArchiveRowActions;
 use TT\Shared\Frontend\Components\RecordLink;
 
 /**
@@ -57,7 +58,19 @@ final class FrontendHolidaysView extends FrontendViewBase {
                 'end_date'   => [ 'label' => __( 'End', 'talenttrack' ),   'sortable' => true, 'render' => 'date' ],
                 'note'       => [ 'label' => __( 'Note', 'talenttrack' ) ],
             ],
-            'row_actions' => [
+            // #1784 — Active / Archived tab so the Restore + Delete-
+            // permanently actions (below) have somewhere to surface.
+            'filters' => [
+                'status' => [
+                    'type'    => 'select',
+                    'label'   => __( 'Status', 'talenttrack' ),
+                    'options' => [
+                        'active'   => __( 'Active', 'talenttrack' ),
+                        'archived' => __( 'Archived', 'talenttrack' ),
+                    ],
+                ],
+            ],
+            'row_actions' => array_merge( [
                 'edit' => [
                     // Raw href template — the list-table JS substitutes
                     // `{id}` literally (no URL-encoding of the placeholder),
@@ -68,14 +81,16 @@ final class FrontendHolidaysView extends FrontendViewBase {
                     'cap'   => 'tt_manage_holidays',
                 ],
                 'delete' => [
-                    'label'       => __( 'Delete', 'talenttrack' ),
+                    'label'       => __( 'Archive', 'talenttrack' ),
                     'rest_method' => 'DELETE',
                     'rest_path'   => 'holidays/{id}',
-                    'confirm'     => __( 'Delete this holiday?', 'talenttrack' ),
+                    'confirm'     => __( 'Archive this holiday?', 'talenttrack' ),
                     'cap'         => 'tt_manage_holidays',
                     'variant'     => 'danger',
                 ],
-            ],
+                // #1784 — Restore + referential-integrity permanent delete,
+                // shown only on archived rows.
+            ], ArchiveRowActions::build( 'holidays', 'tt_manage_holidays' ) ),
             'search'       => [ 'placeholder' => __( 'Search holidays…', 'talenttrack' ) ],
             'default_sort' => [ 'orderby' => 'start_date', 'order' => 'asc' ],
             'empty_state'  => __( 'No holidays match your search.', 'talenttrack' ),

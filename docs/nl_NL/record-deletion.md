@@ -41,6 +41,7 @@ definitieve verwijdering laat nooit stilzwijgend losgekoppelde rijen achter.
 | VCT-oefening | Verwijdert de coachpunten mee; maakt de oefeningkoppeling van een sessieblok leeg. |
 | Eigen widget | Losstaand — wordt direct verwijderd. |
 | Blessure | Verwijdert de blessure en de bijbehorende tijdlijn-gebeurtenissen (medisch gegeven van een minderjarige). |
+| Geplande rapportage | Losstaand — wordt direct verwijderd (op een reeds gearchiveerde planning). |
 | Team, Activiteit | **Blokkeert** zolang er nog records naar verwijzen (volledige cascades zijn een vervolg, #1784). |
 
 Als een team of activiteit niet wil verwijderen, archiveer of verplaats dan

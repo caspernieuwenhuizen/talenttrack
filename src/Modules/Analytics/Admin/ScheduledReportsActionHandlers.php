@@ -20,12 +20,34 @@ final class ScheduledReportsActionHandlers {
     public const ACTION_PAUSE   = 'tt_scheduled_reports_pause';
     public const ACTION_RESUME  = 'tt_scheduled_reports_resume';
     public const ACTION_ARCHIVE = 'tt_scheduled_reports_archive';
+    public const ACTION_DELETE  = 'tt_scheduled_reports_delete';
 
     public static function init(): void {
         add_action( 'admin_post_' . self::ACTION_CREATE,  [ self::class, 'handleCreate' ] );
         add_action( 'admin_post_' . self::ACTION_PAUSE,   [ self::class, 'handlePause' ] );
         add_action( 'admin_post_' . self::ACTION_RESUME,  [ self::class, 'handleResume' ] );
         add_action( 'admin_post_' . self::ACTION_ARCHIVE, [ self::class, 'handleArchive' ] );
+        add_action( 'admin_post_' . self::ACTION_DELETE,  [ self::class, 'handleDeletePermanent' ] );
+    }
+
+    /**
+     * #1808 — permanently delete a scheduled report (irreversible). Routes
+     * through the referential-integrity framework (no children — just the
+     * row). Gated by tt_edit_settings, above the view's tt_view_analytics.
+     */
+    public static function handleDeletePermanent(): void {
+        if ( ! current_user_can( 'tt_edit_settings' ) ) {
+            wp_die( esc_html__( 'Unauthorized', 'talenttrack' ) );
+        }
+        check_admin_referer( self::ACTION_DELETE, 'tt_sched_nonce' );
+        $id = isset( $_POST['schedule_id'] ) ? (int) $_POST['schedule_id'] : 0;
+        if ( $id <= 0 ) self::redirectBack( 'schedule_invalid' );
+        try {
+            ( new \TT\Infrastructure\Archive\ArchiveRepository() )->deletePermanently( 'scheduled_report', [ $id ] );
+        } catch ( \TT\Infrastructure\Archive\DeleteBlockedException $e ) {
+            self::redirectBack( 'schedule_delete_blocked' );
+        }
+        self::redirectBack( 'schedule_deleted' );
     }
 
     public static function handleCreate(): void {

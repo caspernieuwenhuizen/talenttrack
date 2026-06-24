@@ -55,8 +55,10 @@ final class HolidaysRepository {
      *
      * @return object[]
      */
-    public function list( string $from = '', string $to = '' ): array {
-        $where = [ 'club_id = %d', 'archived_at IS NULL' ];
+    public function list( string $from = '', string $to = '', string $status = 'active' ): array {
+        // #1784 — `status` (active|archived|all) drives the archive filter
+        // so the list view can show an Archived tab + Restore action.
+        $where = [ 'club_id = %d', \TT\Infrastructure\Archive\ArchiveRepository::filterClause( $status ) ];
         $args  = [ CurrentClub::id() ];
         if ( $from !== '' && $to !== '' ) {
             // Overlap: the holiday's range intersects the window.

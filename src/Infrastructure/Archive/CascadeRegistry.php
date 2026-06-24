@@ -174,6 +174,20 @@ final class CascadeRegistry {
             'block_only'   => false,
         ],
 
+        // Scheduled report (#1808) — standalone recurring-export config;
+        // nothing references it, so a permanent delete just removes the row.
+        // (#1784 migration 0172 added archived_at/archived_by + backfilled
+        // from the legacy status='archived' enum.)
+        'scheduled_report' => [
+            'table'        => 'tt_scheduled_reports',
+            'ref_columns'  => [],
+            'cascade'      => [],
+            'cascade_poly' => [],
+            'threads'      => null,
+            'set_null'     => [],
+            'block_only'   => false,
+        ],
+
         // Team — deferred (#1784): block-only. A team carries player /
         // activity / match references (some denormalized); auto-cascading
         // those risks deleting player rows, so until the plan is verified
