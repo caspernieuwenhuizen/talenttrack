@@ -1,0 +1,76 @@
+name: Inline-style containment
+
+# #1389 — forward-only containment of inline styling. The repo has a
+# large grandfathered backlog of inline `style="…"` attributes and
+# `<style>` blocks in PHP render files (CLAUDE.md §2 says to enqueue CSS
+# instead). A full sweep isn't worth a release slot, but NEW inline
+# styling must stop or the spacing/colour drift keeps reappearing.
+#
+# This gate is DIFF-ONLY: it fails a PR that ADDS an inline `style="`
+# attribute or a `<style` block inside `src/**/*.php`. Existing lines are
+# grandfathered (only added lines are scanned). For the rare legitimate
+# dynamic case that can't live in a stylesheet (e.g. a computed
+# progress-bar width), add a trailing `/* tt-inline-ok */` on the same
+# line to grandfather it.
+
+on:
+  pull_request:
+    paths:
+      - 'src/**/*.php'
+      - '.github/workflows/inline-style-lint.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: No new inline styles
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Fail on added inline style= / <style in src PHP
+        shell: bash
+        run: |
+          set -e
+          BASE_REF="${{ github.base_ref }}"
+          git fetch origin "$BASE_REF" --quiet || true
+          BASE="origin/$BASE_REF"
+
+          # Changed PHP files under src/ in this PR.
+          FILES=$(git diff --name-only --diff-filter=d "$BASE"...HEAD -- 'src' | grep -E '\.php$' || true)
+          if [ -z "$FILES" ]; then
+            echo "OK — no changed src PHP files."
+            exit 0
+          fi
+
+          FAIL=0
+          for f in $FILES; do
+            # Added lines only (leading '+', excluding the '+++' file header).
+            ADDED=$(git diff "$BASE"...HEAD -- "$f" | grep -E '^\+' | grep -vE '^\+\+\+' || true)
+            # Inline style attribute or <style> block, minus the escape hatch.
+            HIT=$(echo "$ADDED" | grep -nE 'style="|style='"'"'|<style' | grep -vE 'tt-inline-ok' || true)
+            if [ -n "$HIT" ]; then
+              echo "::error file=$f::Adds an inline style attribute / <style> block (CLAUDE.md §2 — enqueue CSS instead)."
+              echo "--- $f ---"
+              echo "$HIT"
+              FAIL=1
+            fi
+          done
+
+          if [ "$FAIL" = "1" ]; then
+            echo ""
+            echo "This PR adds inline styling in src/**/*.php. Move the styles"
+            echo "into an enqueued stylesheet under assets/css/ (a per-view sheet"
+            echo "enqueued with a dependency on the relevant base handle), using"
+            echo "the design tokens from assets/css/tokens.css — never raw hex."
+            echo ""
+            echo "Escape hatch: for a genuinely dynamic value that cannot live in"
+            echo "CSS (e.g. a computed progress-bar width or grid column count),"
+            echo "add a trailing  /* tt-inline-ok */  on the same line."
+            echo "See #1389 for the background."
+            exit 1
+          fi
+          echo "OK — no new inline styles added."

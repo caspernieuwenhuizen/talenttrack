@@ -148,6 +148,14 @@ follow the rules below.
 ### WordPress-specific
 - Enqueue all CSS/JS via `wp_enqueue_style` / `wp_enqueue_script`. Never
   inline `<script>` or `<link>`.
+- **No new inline styling.** Don't add `style="…"` attributes or `<style>`
+  blocks in `src/**/*.php` — put styles in an enqueued sheet under
+  `assets/css/` and read the `tokens.css` design tokens (never raw hex).
+  The **Inline-style containment** CI gate (#1389) fails any PR that *adds*
+  inline styling in `src` PHP (the existing backlog is grandfathered;
+  the gate is diff-only). For a genuinely dynamic value that can't live in
+  CSS (e.g. a computed progress-bar width or grid column count), add a
+  trailing `/* tt-inline-ok */` on the same line to grandfather it.
 - Prefix every CSS class and JS global with `tt-` / `TT.` — assume the
   active theme is hostile.
 - Don't apply global resets — only inside scoped wrappers (`.tt-dashboard`).
