@@ -1,3 +1,71 @@
+# TalentTrack v4.48.1 — CI gate: contain new inline styles (#1389)
+
+A new **Inline-style containment** CI gate fails any pull request that
+*adds* an inline `style="…"` attribute or a `<style>` block inside
+`src/**/*.php`. The repo's large existing backlog is grandfathered — the
+gate is diff-only, so it never trips on untouched code — but new inline
+styling must now move into an enqueued stylesheet (reading the design
+tokens, never raw hex), which is what keeps the spacing/colour drift from
+reappearing (CLAUDE.md §2). For a genuinely dynamic value that can't live
+in CSS (e.g. a computed progress-bar width), a trailing
+`/* tt-inline-ok */` on the same line grandfathers it. The rule is now
+documented in CLAUDE.md §2. No runtime change.
+
+# TalentTrack v4.48.1 — Trial case page 2026 card layout + Save/Cancel on trial config forms (#1646)
+
+The trial-case detail page now wraps each section in a token-styled 2026
+card with cleaner headings, matching the teams and activity-detail surfaces;
+the regenerate-letter form's inline margin moved into the enqueued sheet. The
+trial-tracks editor and letter-template editor both gained a proper Cancel
+button alongside Save (via the shared `FormSaveButton` helper, honouring any
+`tt_back` hint), and the letter editor's monospace HTML textarea moved into a
+CSS class. Visual and markup only — no data, query, or permission changes.
+
+# TalentTrack v4.48.1 — Standardize report interfaces to the 2026 card/table/KPI pattern (#1760)
+
+The standard-reports, report-detail and scheduled-reports surfaces now share
+the same 2026 look as the attendance report: a KPI strip, card-wrapped tables
+(`.tt-report-card` + `.tt-table`), and a consistent page head. The shared
+primitives moved into the app-chrome sheet so every report surface inherits
+one definition. No data or permission behaviour changed.
+
+# TalentTrack v4.48.1 — Safe permanent delete for tournaments + trial cases (#1784)
+
+Extends the referential-integrity delete framework (#1783) to two more
+record types. Permanently deleting a **tournament** now cascades its
+matches, squad and per-match assignments and clears a linked activity's
+tournament reference; permanently deleting a **trial case** cascades its
+staff assignments, staff inputs and extension history and clears any
+workflow-task / prospect link. Both are fail-closed — they refuse and name
+the dependents if anything undeclared still references them.
+
+Adds the `/tournaments/{id}/permanent` (+ `/restore`) and
+`/trial-cases/{id}/permanent` REST routes, and the Restore + Delete-
+permanently row actions on the tournaments list. Gated by `tt_edit_settings`.
+The remaining archivable entities (which need an `archived_by` column
+migration) stay tracked on #1784.
+
+# TalentTrack v4.48.1 — List filter bar: roomier controls + a search icon (#1803)
+
+The search and filter controls on list views now have a comfortable left
+text inset instead of hugging the border, and the search box shows a
+magnifier icon. Both live in the shared list component, so every list
+inherits them.
+
+# TalentTrack v4.48.1 — Team planner: actions moved to the page header (#1804)
+
+The team planner's "Schedule activity" button and the PDF / XLSX / weekly
+export actions now sit in the page header, alongside the title, like the
+players list — instead of crowding the filter bar. The filter toolbar now
+holds only the team picker, the period selector, and the week navigation,
+and the period dropdown is sized to match the team dropdown.
+
+# TalentTrack v4.48.1 — Evaluation detail page uses the full width on desktop (#1806)
+
+The evaluation detail page now spans the full content width on desktop,
+matching the other pages, instead of rendering as a narrow centred card.
+Mobile is unchanged.
+
 # TalentTrack v4.48.0 — Referential-integrity-checked permanent delete (#1783)
 
 Permanent delete is now fail-closed across the archive lifecycle. A new
