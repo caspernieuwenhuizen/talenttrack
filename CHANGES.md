@@ -1,3 +1,22 @@
+# TalentTrack v4.48.2 — Security: parents can no longer open another family's child profile (#1725)
+
+The player detail view only checked the coarse `tt_view_players` capability, never that the viewer was actually linked to *that* player — so a parent could open any child's profile by id and the "Parents · Guardians" card would expose every co-guardian's name, email, and phone (a safeguarding leak for minors). The view now enforces the canonical per-player scope (`AuthorizationService::canViewPlayer`: own record / global / player's team / parent-of-this-player), and the guardians card renders for staff only (admin/HoD or the team's coach) — never for a parent viewing their own child. Also fixes an adjacent bug where the activities REST endpoint queried `tt_player_parents` with a non-existent `wp_user_id` column (correct: `parent_user_id`), which had wrongly blocked parents from their own child's activities.
+
+# TalentTrack v4.48.2 — PDP (and team-scoped surfaces) now visible to a player's head coach (#1758)
+
+A head coach assigned to a team the legacy way could not see their own players' PDP files — the files tab was empty even though the coverage tab counted the PDP, while HoD/admin saw it fine. Cause: the legacy `head_coach_id` backfill (migration 0006) created the `tt_team_people` link but never the `tt_user_role_scopes` team grant that `get_teams_for_coach()` reads, so `coach_owns_player()` returned false. A new idempotent backfill (migration 0171) creates the missing team-scope grant for every team-people link, so legacy and modern assignments converge on the single matrix source of truth. Head coaches now see their team's PDPs (and every other team-scoped surface); HoD/admin visibility is unchanged.
+
+# TalentTrack v4.48.2 — Safe permanent delete for holidays, test trainings + trial tracks (#1784)
+
+Extends the referential-integrity delete framework (#1783) to three more
+record types via new `/permanent` REST routes (gated by `tt_edit_settings`,
+fail-closed). **Holidays** are removed directly; **test trainings** clear
+any workflow-task link first; **custom trial tracks** block while a trial
+case still uses them and built-in (seeded) tracks are refused. No migration.
+
+The remaining archivable entities (custom widget, injury, VCT exercise) and
+the list-view affordances stay tracked on #1784.
+
 # TalentTrack v4.48.1 — CI gate: contain new inline styles (#1389)
 
 A new **Inline-style containment** CI gate fails any pull request that
