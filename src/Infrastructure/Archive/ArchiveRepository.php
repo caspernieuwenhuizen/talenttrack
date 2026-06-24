@@ -47,6 +47,7 @@ class ArchiveRepository {
         'vct_exercise'  => 'tt_vct_exercises',
         'custom_widget' => 'tt_custom_widgets',
         'injury'        => 'tt_player_injuries',
+        'scheduled_report' => 'tt_scheduled_reports',
     ];
 
     // Public API
