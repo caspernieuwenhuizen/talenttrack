@@ -4,13 +4,19 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.51.1
+Stable tag: 4.52.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.52.0 — POP page: collapsible goals with a conversation per goal (#1754) The player's POP page now renders its learning goals as **collapsible cards** (native `<details>`, keyboard-accessible). Each card header shows the goal title, status, due window, and a 💬 count of that goal's messages.  Expanding a goal reveals two columns: the goal's detail (description, linked methodology, evidence) on the left and **that goal's own conversation thread on the right** — every goal has a separate thread, so discussions don't mix. In-progress goals open by default. Reuses the existing per-goal threads (`thread_type='goal'`), and makes `FrontendThreadView` multi-instance-safe so several conversations can live on one page.  Per-goal **progress %** and scored **evidence (Bewijslast)** shown in the deck mockup are a follow-up — they need the evaluation-evidence schema in #1717. =
+
+= 4.52.0 — Accounts & access hub (#1815) A new "Accounts & access" tile on the dashboard opens a hub that groups the account-management surfaces in one place: Player accounts, Parent accounts, and Invitations. Each card is permission-gated and links straight to its screen. The standalone Player accounts tile is folded into the hub. =
+
+= 4.52.0 — Fix Unknown-column errors on the trials list and reports (#1840) Adds a forward migration that restores the `opened_by` and `overall_rating` columns on `tt_trial_cases`. Installs that ran the original trial-module migration before these columns existed were missing them, causing "Unknown column" database errors on the trials list and the trial reports (and a blank, unstyled trials page when the failed query halted rendering). The migration is idempotent and backfills `opened_by` from `created_by`. =
 
 = 4.51.1 — Parent accounts admin surface (#1815) A new Parent accounts screen (Dashboard → Parent accounts) lets academy admins manage guardian logins: link an existing WordPress account to a player as a parent, see one row per parent with the players they guard, and unlink a parent from a player in one click. Gated by the dedicated parent-account-management permission. Inviting a parent stays available from a player's Family tab. =
 

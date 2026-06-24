@@ -1,3 +1,35 @@
+# TalentTrack v4.52.0 — POP page: collapsible goals with a conversation per goal (#1754)
+
+The player's POP page now renders its learning goals as **collapsible
+cards** (native `<details>`, keyboard-accessible). Each card header shows the
+goal title, status, due window, and a 💬 count of that goal's messages.
+
+Expanding a goal reveals two columns: the goal's detail (description, linked
+methodology, evidence) on the left and **that goal's own conversation thread
+on the right** — every goal has a separate thread, so discussions don't mix.
+In-progress goals open by default. Reuses the existing per-goal threads
+(`thread_type='goal'`), and makes `FrontendThreadView` multi-instance-safe so
+several conversations can live on one page.
+
+Per-goal **progress %** and scored **evidence (Bewijslast)** shown in the deck
+mockup are a follow-up — they need the evaluation-evidence schema in #1717.
+
+# TalentTrack v4.52.0 — Accounts & access hub (#1815)
+
+A new "Accounts & access" tile on the dashboard opens a hub that groups the
+account-management surfaces in one place: Player accounts, Parent accounts,
+and Invitations. Each card is permission-gated and links straight to its
+screen. The standalone Player accounts tile is folded into the hub.
+
+# TalentTrack v4.52.0 — Fix Unknown-column errors on the trials list and reports (#1840)
+
+Adds a forward migration that restores the `opened_by` and `overall_rating`
+columns on `tt_trial_cases`. Installs that ran the original trial-module
+migration before these columns existed were missing them, causing
+"Unknown column" database errors on the trials list and the trial reports
+(and a blank, unstyled trials page when the failed query halted rendering).
+The migration is idempotent and backfills `opened_by` from `created_by`.
+
 # TalentTrack v4.51.1 — Parent accounts admin surface (#1815)
 
 A new Parent accounts screen (Dashboard → Parent accounts) lets academy
