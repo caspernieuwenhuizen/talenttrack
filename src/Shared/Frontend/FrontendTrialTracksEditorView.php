@@ -112,16 +112,26 @@ class FrontendTrialTracksEditorView extends FrontendViewBase {
         echo '<label>' . esc_html__( 'Description', 'talenttrack' ) . ' <textarea name="description" rows="3">' . esc_textarea( $track ? (string) $track->description : '' ) . '</textarea></label>';
         echo '<label>' . esc_html__( 'Default duration in days', 'talenttrack' ) . ' <input type="number" inputmode="numeric" min="1" max="365" name="default_duration_days" value="' . esc_attr( $track ? (string) $track->default_duration_days : '28' ) . '" required></label>';
 
-        echo '<div class="tt-form-actions">';
-        // #1646 / CLAUDE.md §6 — Cancel alongside Save, returning to the
-        // tracks list without discarding context.
+        // #1646 / CLAUDE.md §6 — Save + Cancel via the shared helper.
+        // Cancel returns to the tracks list (the editor list is the
+        // origin for both create and edit; there is no separate detail
+        // page for a track). A `tt_back` hint on the entry URL overrides
+        // the default target so the user lands back where they came from.
         $cancel_url = add_query_arg( [ 'tt_view' => 'trial-tracks-editor' ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() );
-        echo '<a class="tt-button tt-button-secondary" href="' . esc_url( $cancel_url ) . '">' . esc_html__( 'Cancel', 'talenttrack' ) . '</a> ';
-        echo '<button type="submit" class="tt-button tt-button-primary">' . esc_html__( 'Save track', 'talenttrack' ) . '</button>';
-        if ( $track ) {
-            echo ' <button type="submit" formaction="' . esc_attr( add_query_arg( [ 'tt_view' => 'trial-tracks-editor', 'id' => (int) $track->id ] ) ) . '" name="tt_trial_track_action" value="archive" class="tt-button tt-button-danger" onclick="return confirm(\'' . esc_js( __( 'Archive this track?', 'talenttrack' ) ) . '\');">' . esc_html__( 'Archive', 'talenttrack' ) . '</button>';
+        $back = \TT\Shared\Frontend\Components\BackLink::resolve();
+        if ( $back !== null ) {
+            $cancel_url = $back['url'];
         }
-        echo '</div>';
+        echo \TT\Shared\Frontend\Components\FormSaveButton::render( [
+            'label'      => __( 'Save track', 'talenttrack' ),
+            'variant'    => 'primary',
+            'cancel_url' => $cancel_url,
+        ] );
+        if ( $track ) {
+            echo '<div class="tt-form-actions tt-trial-track-danger">';
+            echo '<button type="submit" formaction="' . esc_attr( add_query_arg( [ 'tt_view' => 'trial-tracks-editor', 'id' => (int) $track->id ] ) ) . '" name="tt_trial_track_action" value="archive" class="tt-btn tt-btn-danger" onclick="return confirm(\'' . esc_js( __( 'Archive this track?', 'talenttrack' ) ) . '\');">' . esc_html__( 'Archive', 'talenttrack' ) . '</button>';
+            echo '</div>';
+        }
         echo '</form>';
     }
 

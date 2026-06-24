@@ -123,7 +123,7 @@ class FrontendTrialLetterTemplatesEditorView extends FrontendViewBase {
         echo '<div class="tt-letter-edit-grid">';
         echo '<div class="tt-letter-edit-source">';
         echo '<label>' . esc_html__( 'Template HTML', 'talenttrack' ) . '</label>';
-        echo '<textarea name="html_content" rows="20" style="width:100%;font-family:Menlo,Consolas,monospace;font-size:.92rem;">' . esc_textarea( $tpl ) . '</textarea>';
+        echo '<textarea name="html_content" rows="20" class="tt-letter-edit-code">' . esc_textarea( $tpl ) . '</textarea>';
         echo '</div>';
 
         echo '<aside class="tt-letter-edit-legend"><h3>' . esc_html__( 'Variable legend', 'talenttrack' ) . '</h3><dl>';
@@ -133,9 +133,25 @@ class FrontendTrialLetterTemplatesEditorView extends FrontendViewBase {
         echo '</dl></aside>';
         echo '</div>';
 
-        echo '<div class="tt-form-actions">';
-        echo '<button type="submit" class="tt-button tt-button-primary">' . esc_html__( 'Save template', 'talenttrack' ) . '</button> ';
-        echo '<button type="submit" formaction="' . esc_attr( add_query_arg( [ 'tt_view' => 'trial-letter-templates-editor', 'key' => $key, 'locale' => $locale ] ) ) . '" name="tt_trial_letter_action" value="reset_template" class="tt-button tt-button-danger" onclick="return confirm(\'' . esc_js( __( 'Reset this template to the shipped default?', 'talenttrack' ) ) . '\');">' . esc_html__( 'Reset to default', 'talenttrack' ) . '</button>';
+        // #1646 / CLAUDE.md §6 — Save + Cancel via the shared helper.
+        // Cancel returns to the templates list (the editor's origin); a
+        // `tt_back` hint on the entry URL overrides that target. The
+        // Reset-to-default action stays as a separate destructive button.
+        $cancel_url = add_query_arg(
+            [ 'tt_view' => 'trial-letter-templates-editor', 'locale' => $locale ],
+            \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
+        );
+        $back = \TT\Shared\Frontend\Components\BackLink::resolve();
+        if ( $back !== null ) {
+            $cancel_url = $back['url'];
+        }
+        echo \TT\Shared\Frontend\Components\FormSaveButton::render( [
+            'label'      => __( 'Save template', 'talenttrack' ),
+            'variant'    => 'primary',
+            'cancel_url' => $cancel_url,
+        ] );
+        echo '<div class="tt-form-actions tt-letter-edit-danger">';
+        echo '<button type="submit" formaction="' . esc_attr( add_query_arg( [ 'tt_view' => 'trial-letter-templates-editor', 'key' => $key, 'locale' => $locale ] ) ) . '" name="tt_trial_letter_action" value="reset_template" class="tt-btn tt-btn-danger" onclick="return confirm(\'' . esc_js( __( 'Reset this template to the shipped default?', 'talenttrack' ) ) . '\');">' . esc_html__( 'Reset to default', 'talenttrack' ) . '</button>';
         echo '</div>';
         echo '</form>';
 

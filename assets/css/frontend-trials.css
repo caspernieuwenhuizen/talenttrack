@@ -262,3 +262,131 @@
         align-items: flex-end;
     }
 }
+
+/* ---- Track + letter-template editors (#1646 Item 5) ----------------- */
+/* Friendlier, card-framed editor forms. Mobile-first; the source/legend
+ * grid stacks at base and splits to two columns from 768px. */
+.tt-dashboard .tt-trial-track-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-4);
+    max-width: 640px;
+    padding: var(--tt-sp-4);
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius-lg);
+    box-shadow: var(--tt-shadow-md);
+}
+.tt-dashboard .tt-trial-track-form > label {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-1);
+    font-weight: 600;
+    color: var(--tt-ink);
+}
+.tt-dashboard .tt-trial-track-form input[type="text"],
+.tt-dashboard .tt-trial-track-form input[type="number"],
+.tt-dashboard .tt-trial-track-form textarea {
+    width: 100%;
+    min-height: 48px;
+    font-size: 1rem;
+    padding: var(--tt-sp-2) var(--tt-sp-3);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    background: var(--tt-paper);
+    color: var(--tt-ink);
+}
+.tt-dashboard .tt-trial-track-form textarea { min-height: 72px; }
+.tt-dashboard .tt-trial-track-form .tt-meta {
+    margin: calc(-1 * var(--tt-sp-2)) 0 0;
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-muted);
+}
+
+/* Letter-template editor: source pane + variable-legend aside. */
+.tt-dashboard .tt-trial-letter-edit {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-4);
+}
+.tt-dashboard .tt-letter-edit-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--tt-sp-4);
+}
+@media (min-width: 768px) {
+    .tt-dashboard .tt-letter-edit-grid {
+        grid-template-columns: 2fr 1fr;
+        align-items: start;
+    }
+}
+.tt-dashboard .tt-letter-edit-source > label {
+    display: block;
+    margin-bottom: var(--tt-sp-1);
+    font-weight: 600;
+    color: var(--tt-ink);
+}
+.tt-dashboard .tt-letter-edit-code {
+    width: 100%;
+    min-height: 320px;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 1rem;
+    line-height: var(--tt-lh-body);
+    padding: var(--tt-sp-3);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    background: var(--tt-bg-soft);
+    color: var(--tt-ink);
+}
+.tt-dashboard .tt-letter-edit-legend {
+    padding: var(--tt-sp-4);
+    background: var(--tt-bg-soft);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius-lg);
+}
+.tt-dashboard .tt-letter-edit-legend h3 {
+    margin: 0 0 var(--tt-sp-2);
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--tt-primary, #0b3d2e);
+}
+.tt-dashboard .tt-letter-edit-legend dl {
+    margin: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--tt-sp-1) var(--tt-sp-3);
+}
+.tt-dashboard .tt-letter-edit-legend dt {
+    margin-top: var(--tt-sp-2);
+}
+.tt-dashboard .tt-letter-edit-legend dt code {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-ink);
+}
+.tt-dashboard .tt-letter-edit-legend dd {
+    margin: 0;
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-muted);
+}
+.tt-dashboard .tt-letter-preview {
+    padding: var(--tt-sp-4);
+    background: var(--tt-bg-soft);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    line-height: var(--tt-lh-body);
+}
+
+/* Destructive action rows (Archive / Reset) sit below the Save/Cancel
+ * pair so the commit affordances aren't crowded by the danger button. */
+.tt-dashboard .tt-trial-track-danger,
+.tt-dashboard .tt-letter-edit-danger {
+    margin-top: var(--tt-sp-2);
+}
+.tt-dashboard .tt-trial-track-danger button,
+.tt-dashboard .tt-letter-edit-danger button {
+    min-height: 48px;
+    touch-action: manipulation;
+}

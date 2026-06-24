@@ -582,7 +582,7 @@ class FrontendTrialCaseView extends FrontendViewBase {
             }
         }
 
-        echo '<form method="post" style="margin-top:1rem;"><input type="hidden" name="tt_trial_action" value="regenerate_letter">';
+        echo '<form method="post" class="tt-trial-regenerate"><input type="hidden" name="tt_trial_action" value="regenerate_letter">';
         wp_nonce_field( 'tt_trial_regenerate_' . (int) $case->id, 'tt_trial_regenerate_nonce' );
         echo '<button type="submit" class="tt-button">' . esc_html__( 'Regenerate letter', 'talenttrack' ) . '</button></form>';
 
