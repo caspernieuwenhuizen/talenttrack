@@ -586,6 +586,10 @@ class DashboardShortcode {
             case 'player-accounts':
                 \TT\Modules\Players\Frontend\FrontendPlayerAccountsView::render( $user_id, $is_admin );
                 return true;
+            // #1815 — admin link/unlink of parent WP accounts on players.
+            case 'parent-accounts':
+                \TT\Modules\Players\Frontend\FrontendParentAccountsView::render( $user_id, $is_admin );
+                return true;
             case 'people':
                 if ( $detail_id > 0 && $action !== 'edit' ) {
                     FrontendPersonDetailView::render( $detail_id, $user_id, $is_admin );
