@@ -273,3 +273,8 @@ a.tt-goal-card:focus-visible {
         align-items: start;
     }
 }
+
+/* #1717 — evidence (evaluations) picker on the goal form. */
+.tt-goal-evidence-list { display: flex; flex-direction: column; gap: 0.3rem; max-height: 220px; overflow-y: auto; border: 1px solid #e3e6e1; border-radius: 8px; padding: 0.5rem 0.6rem; }
+.tt-goal-evidence-opt { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; min-height: 32px; }
+.tt-goal-evidence-opt input { width: 18px; height: 18px; flex: 0 0 auto; }

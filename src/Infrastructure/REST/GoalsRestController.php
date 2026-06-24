@@ -461,6 +461,11 @@ class GoalsRestController {
         if ( isset( $r['due_date'] ) ) {
             $data['due_date'] = ! empty( $r['due_date'] ) ? sanitize_text_field( (string) $r['due_date'] ) : null;
         }
+        // #1717 — per-goal progress %. Empty clears it (bar hides).
+        if ( array_key_exists( 'progress_pct', (array) $r->get_params() ) ) {
+            $v = $r['progress_pct'];
+            $data['progress_pct'] = ( $v === '' || $v === null ) ? null : max( 0, min( 100, (int) $v ) );
+        }
         // #0077 M3 — frontend↔admin parity. Persist principle/action
         // linkage on update; absent keys leave existing values intact.
         if ( array_key_exists( 'linked_principle_id', (array) $r->get_params() ) ) {
@@ -499,6 +504,14 @@ class GoalsRestController {
         // `links` means "leave existing links alone."
         if ( isset( $r['links'] ) && is_array( $r['links'] ) ) {
             ( new GoalLinksRepository() )->sync( $goal_id, self::extractLinks( $r['links'] ) );
+        }
+
+        // #1717 — evaluation evidence ("Bewijslast"). Absent key leaves it alone.
+        if ( isset( $r['evidence'] ) && is_array( $r['evidence'] ) ) {
+            ( new \TT\Modules\Pdp\Repositories\GoalEvidenceRepository() )->syncForGoal(
+                $goal_id,
+                array_map( 'absint', $r['evidence'] )
+            );
         }
 
         return RestResponse::success( [ 'id' => $goal_id ] );

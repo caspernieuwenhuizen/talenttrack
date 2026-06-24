@@ -1356,7 +1356,7 @@ class FrontendPdpManageView extends FrontendViewBase {
         };
 
         $goals = $wpdb->get_results( $wpdb->prepare(
-            "SELECT g.id, g.title, g.description, g.status, g.priority, g.due_date, g.created_at
+            "SELECT g.id, g.title, g.description, g.status, g.priority, g.due_date, g.created_at, g.progress_pct
                FROM {$p}tt_goals g
               WHERE g.player_id = %d AND g.archived_at IS NULL
                 {$where_status}
@@ -1427,6 +1427,9 @@ class FrontendPdpManageView extends FrontendViewBase {
         }
         $viewer_id = get_current_user_id();
 
+        // #1717 — scored evidence (linked evaluations) per goal, one query.
+        $evidence_by_goal = ( new \TT\Modules\Pdp\Repositories\GoalEvidenceRepository() )->listForGoals( $goal_ids );
+
         echo '<div class="tt-pop-goals">';
         $goal_index = 0;
         foreach ( $goals as $g ) {
@@ -1481,6 +1484,33 @@ class FrontendPdpManageView extends FrontendViewBase {
             }
             if ( $priority !== '' ) {
                 echo '<div class="tt-pop-goal__chips"><span class="tt-status-badge tt-status-future">' . esc_html( $priority ) . '</span></div>';
+            }
+            // #1717 — per-goal progress bar (renders only when set).
+            if ( ( $g->progress_pct ?? null ) !== null ) {
+                $pct = max( 0, min( 100, (int) $g->progress_pct ) );
+                echo '<p class="tt-pop-lbl">' . esc_html__( 'Progress', 'talenttrack' ) . '</p>';
+                echo '<div class="tt-pop-barwrap">';
+                echo '<div class="tt-pop-bar"><i style="width:' . $pct . '%"></i></div>'; /* tt-inline-ok — computed progress width */
+                echo '<span class="tt-pop-pct">' . $pct . '%</span>';
+                echo '</div>';
+            }
+            // #1717 — Bewijslast: linked evaluations with their score + date.
+            $evidence = $evidence_by_goal[ (int) $g->id ] ?? [];
+            if ( $evidence ) {
+                echo '<p class="tt-pop-lbl">' . esc_html__( 'Evidence', 'talenttrack' ) . '</p>';
+                echo '<div class="tt-pop-evid">';
+                foreach ( $evidence as $ev ) {
+                    $score = ( $ev->avg_rating !== null ) ? number_format_i18n( (float) $ev->avg_rating, 1 ) : '—';
+                    echo '<span class="tt-pop-ev">'
+                        . esc_html( sprintf(
+                            /* translators: 1: date, 2: score */
+                            __( 'Assessment %1$s · %2$s', 'talenttrack' ),
+                            date_i18n( 'j M', (int) strtotime( (string) $ev->eval_date ) ),
+                            $score
+                        ) )
+                        . '</span>';
+                }
+                echo '</div>';
             }
             if ( ! empty( $links ) ) {
                 echo '<p class="tt-pop-lbl">' . esc_html__( 'Linked to', 'talenttrack' ) . '</p>';
