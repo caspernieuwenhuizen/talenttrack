@@ -268,11 +268,24 @@
     gap: 0.55rem;
 }
 
+/* #1756 — rebalance: more room for the principle label (flexes wider),
+   a narrower fixed-width bar, and the activity count sitting clearly
+   behind the bar with breathing space. */
 .tt-planner-coverage-list li {
     display: grid;
-    grid-template-columns: minmax( 120px, 200px ) 1fr auto;
+    grid-template-columns: minmax( 180px, 1fr ) 120px auto;
     align-items: center;
     gap: 0.75rem;
+}
+
+/* Long principle labels wrap inside the wider first column rather than
+   getting truncated; min-width:0 lets the grid cell shrink so wrapping
+   kicks in instead of overflowing. */
+.tt-planner-coverage-list .tt-planner-principle-chip {
+    min-width: 0;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
 }
 
 .tt-planner-coverage-track {
@@ -292,8 +305,12 @@
     font-weight: 700;
     color: var( --tt-muted, #5b6e75 );
     font-variant-numeric: tabular-nums;
-    min-width: 1.5rem;
-    text-align: right;
+    /* Sits to the right of the (now narrower) bar with breathing space;
+       wide enough for "NN activities" and kept on one line. */
+    min-width: 4.5rem;
+    padding-left: 0.25rem;
+    text-align: left;
+    white-space: nowrap;
 }
 
 @media ( max-width: 520px ) {
