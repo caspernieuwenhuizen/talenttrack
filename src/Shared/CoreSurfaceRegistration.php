@@ -444,12 +444,7 @@ final class CoreSurfaceRegistration {
             'icon'         => 'functional-roles',
             'color'        => '#5b6e75',
             'cap_callback' => static function ( int $uid ): bool {
-                // #1821 — gate on the MANAGE cap only. The loose `tt_view_people`
-                // fallback leaked this setup tile to players (and view-only
-                // staff) on dormant-matrix installs; configuring functional
-                // roles is a manage operation. Matrix-active installs gate on
-                // the `functional_role_assignments` entity and are unaffected.
-                return user_can( $uid, 'tt_manage_functional_roles' );
+                return user_can( $uid, 'tt_manage_functional_roles' ) || user_can( $uid, 'tt_view_people' );
             },
             // #0069 — HoD doesn't manage per-team staff slots day-to-day;
             // their lens is academy-wide development. Hide the tile.
@@ -1126,9 +1121,16 @@ final class CoreSurfaceRegistration {
             'cap'          => 'tt_view_staff_certifications_expiry',
         ]);
 
-        // #1486 — read-only "what's switched on" status. Visible to every
-        // persona (no cap), so anyone can see which parts of the product
-        // are live. The write surface stays the cap-gated Modules page.
+        // #1486 — read-only "what's switched on" status. Visible to staff
+        // personas (no cap) so anyone running the academy can see which
+        // parts of the product are live. The write surface stays the
+        // cap-gated Modules page.
+        // Follow-up to #1821 — hidden from the family personas: a player /
+        // parent has no use for the product feature-status page, and as the
+        // only `kind:setup` tile they can see it was making a bare
+        // "Setup & administration" section appear on their dashboard. It
+        // carries no `entity`, so the matrix never gates it — `hide_for_personas`
+        // is the right scoping lever here.
         $about_group = __( 'About', 'talenttrack' );
         TileRegistry::register([
             'view_slug'   => 'features',
@@ -1139,6 +1141,7 @@ final class CoreSurfaceRegistration {
             'description' => __( 'See which parts of TalentTrack are switched on.', 'talenttrack' ),
             'icon'        => 'settings',
             'color'       => '#5b6e75',
+            'hide_for_personas' => [ 'player', 'parent' ],
         ]);
     }
 
