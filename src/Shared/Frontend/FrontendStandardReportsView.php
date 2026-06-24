@@ -109,7 +109,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             echo '<p class="tt-notice">' . esc_html__( 'Unknown standard report. Pick one from the Reports launcher.', 'talenttrack' ) . '</p>';
             return;
         }
-        self::renderStyles();
+        self::enqueueAssets();
         FrontendBreadcrumbs::fromDashboard(
             self::REPORTS[ $slug ],
             [ FrontendBreadcrumbs::viewCrumb( 'reports', __( 'Reports', 'talenttrack' ) ) ]
@@ -126,38 +126,19 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         }
     }
 
-    /** Mockup tokens, kept inline for surface-scoped CSS. */
-    private static function renderStyles(): void {
-        echo '<style>
-        .tt-rep-page { font-size: 16px; }
-        .tt-rep-page-head { background: #fff; padding: 16px; border-radius: 12px; border: 1px solid #d6dadd; margin: 0 0 16px; }
-        .tt-rep-page-head h1 { margin: 0 0 4px; font-size: 22px; font-weight: 800; }
-        .tt-rep-page-head__sub { margin: 0; font-size: 13px; color: #5b6e75; }
-        .tt-rep-page-head__actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
-        .tt-rep-btn { display: inline-block; background: transparent; border: 1px solid #d6dadd; color: #5b6e75; text-decoration: none; padding: 8px 12px; border-radius: 6px; font-size: 13px; font-weight: 600; min-height: 36px; box-sizing: border-box; }
-        .tt-rep-btn:hover { color: #1d7874; border-color: #1d7874; }
-        .tt-rep-kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px; margin: 0 0 16px; }
-        .tt-rep-kpi { background: #fff; border: 1px solid #d6dadd; border-radius: 12px; padding: 14px 16px; }
-        .tt-rep-kpi__num { font-size: 28px; font-weight: 800; color: #1a1d21; line-height: 1.1; }
-        .tt-rep-kpi__label { font-size: 12px; color: #5b6e75; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; margin-top: 4px; }
-        .tt-rep-kpi__sub { font-size: 11px; color: #5b6e75; margin-top: 4px; }
-        .tt-rep-kpi__sub--warn { color: #c75c1f; }
-        .tt-rep-section { background: #fff; border: 1px solid #d6dadd; border-radius: 12px; padding: 14px 16px; margin: 0 0 16px; }
-        .tt-rep-section__head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
-        .tt-rep-section__title { margin: 0; font-size: 16px; font-weight: 700; }
-        .tt-rep-section__hint { font-size: 12px; color: #5b6e75; }
-        .tt-rep-table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
-        .tt-rep-table th, .tt-rep-table td { padding: 8px 10px; text-align: left; border-bottom: 1px solid #f0f3f2; }
-        .tt-rep-table th { font-size: 12px; color: #5b6e75; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; }
-        .tt-rep-table td.num, .tt-rep-table th.num { text-align: right; }
-        .tt-rep-bar-row { display: grid; grid-template-columns: minmax(120px, 1fr) 2fr 56px; gap: 12px; align-items: center; padding: 6px 0; border-bottom: 1px solid #f0f3f2; font-size: 14px; }
-        .tt-rep-bar-track { background: #f0f3f2; border-radius: 999px; height: 10px; overflow: hidden; }
-        .tt-rep-bar-fill { background: #1d7874; height: 100%; border-radius: 999px; }
-        .tt-rep-bar-fill[data-warn="1"] { background: #c75c1f; }
-        .tt-rep-bar-row .num { text-align: right; font-weight: 600; }
-        .tt-rep-empty { text-align: center; padding: 30px 16px; color: #5b6e75; }
-        .tt-rep-empty strong { display: block; color: #1a1d21; margin-bottom: 6px; }
-        </style>';
+    /**
+     * Enqueue the 2026 surface stylesheet (B3 restyle). Depends on the
+     * app-chrome sheet so it inherits the brand + neutral tokens and the
+     * shared .tt-kpi tile styling.
+     */
+    protected static function enqueueAssets(): void {
+        parent::enqueueAssets();
+        wp_enqueue_style(
+            'tt-frontend-standard-reports',
+            TT_PLUGIN_URL . 'assets/css/frontend-standard-reports.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
     }
 
     /**
@@ -194,14 +175,15 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         if ( ! $kpis ) return;
         echo '<div class="tt-rep-kpi-row">';
         foreach ( $kpis as $k ) {
-            echo '<div class="tt-rep-kpi">';
-            echo '<div class="tt-rep-kpi__num">' . esc_html( (string) ( $k['num'] ?? '0' ) ) . '</div>';
-            echo '<div class="tt-rep-kpi__label">' . esc_html( (string) ( $k['label'] ?? '' ) ) . '</div>';
-            if ( ! empty( $k['sub'] ) ) {
-                $cls = ! empty( $k['warn'] ) ? ' tt-rep-kpi__sub--warn' : '';
-                echo '<div class="tt-rep-kpi__sub' . $cls . '">' . esc_html( (string) $k['sub'] ) . '</div>';
-            }
-            echo '</div>';
+            // 2026 restyle (B3) — render through the shared KPI tile helper
+            // so the strip matches every other surface. The optional `sub`
+            // line maps to the tile's delta; a `warn` sub flags the tile gold.
+            echo \TT\Shared\Frontend\Components\FrontendAppChrome::kpiTile( [
+                'label' => (string) ( $k['label'] ?? '' ),
+                'value' => (string) ( $k['num'] ?? '0' ),
+                'delta' => (string) ( $k['sub'] ?? '' ),
+                'flag'  => ! empty( $k['warn'] ) ? 'red' : '',
+            ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — kpiTile escapes its own fields.
         }
         echo '</div>';
     }
@@ -392,8 +374,8 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         echo '</section>';
         if ( $spread_pct > 30 ) {
             echo '<section class="tt-rep-section">';
-            echo '<h2 class="tt-rep-section__title" style="margin:0 0 4px;">' . esc_html__( 'Imbalance signal', 'talenttrack' ) . '</h2>';
-            echo '<p style="margin:0; font-size:13px; color: #c75c1f;">';
+            echo '<h2 class="tt-rep-section__title">' . esc_html__( 'Imbalance signal', 'talenttrack' ) . '</h2>';
+            echo '<p class="tt-rep-note--warn">';
             printf(
                 /* translators: %d = spread percentage */
                 esc_html__( 'Spread of %d%% — bottom-half players have less than half of the leading minutes. Consider rotation in upcoming matches.', 'talenttrack' ),
@@ -767,18 +749,18 @@ final class FrontendStandardReportsView extends FrontendViewBase {
 
         // Filter bar: team + date range, plain GET round-trip.
         $teams = QueryHelpers::get_teams();
-        echo '<form method="get" class="tt-rep-section" style="display:flex; gap:12px; align-items:end; flex-wrap:wrap; padding:12px 16px;">';
+        echo '<form method="get" class="tt-rep-section tt-rep-filter">';
         echo '<input type="hidden" name="tt_view" value="standard-report" />';
         echo '<input type="hidden" name="slug" value="coach-evaluation-quality" />';
-        echo '<label style="display:flex; flex-direction:column; gap:2px; font-size:13px;"><span>' . esc_html__( 'Team', 'talenttrack' ) . '</span>';
+        echo '<label><span>' . esc_html__( 'Team', 'talenttrack' ) . '</span>';
         echo '<select name="team_id"><option value="0">' . esc_html__( 'All teams', 'talenttrack' ) . '</option>';
         foreach ( (array) $teams as $t ) {
             echo '<option value="' . (int) $t->id . '"' . selected( $filters['team_id'], (int) $t->id, false ) . '>' . esc_html( (string) $t->name ) . '</option>';
         }
         echo '</select></label>';
-        echo '<label style="display:flex; flex-direction:column; gap:2px; font-size:13px;"><span>' . esc_html__( 'From', 'talenttrack' ) . '</span>';
+        echo '<label><span>' . esc_html__( 'From', 'talenttrack' ) . '</span>';
         echo '<input type="date" name="date_from" value="' . esc_attr( $filters['date_from'] ) . '" /></label>';
-        echo '<label style="display:flex; flex-direction:column; gap:2px; font-size:13px;"><span>' . esc_html__( 'To', 'talenttrack' ) . '</span>';
+        echo '<label><span>' . esc_html__( 'To', 'talenttrack' ) . '</span>';
         echo '<input type="date" name="date_to" value="' . esc_attr( $filters['date_to'] ) . '" /></label>';
         echo '<button type="submit" class="tt-rep-btn">' . esc_html__( 'Apply', 'talenttrack' ) . '</button>';
         echo '</form>';
@@ -816,11 +798,11 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             . '<th>' . esc_html__( 'Last evaluation', 'talenttrack' ) . '</th>'
             . '</tr></thead><tbody>';
         foreach ( $rows as $r ) {
-            $style = $r['low_variance'] ? ' style="background:#fcf9e8;"' : '';
-            echo '<tr' . $style . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — static attribute.
+            $row_class = $r['low_variance'] ? ' class="tt-rep-row--flag"' : '';
+            echo '<tr' . $row_class . '>'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — static attribute.
             echo '<td>' . esc_html( $r['coach_name'] );
             if ( $r['low_variance'] ) {
-                echo ' <span style="color:#7c5a00; font-size:11px; font-weight:600;">' . esc_html__( 'low variance', 'talenttrack' ) . '</span>';
+                echo ' <span class="tt-rep-flag-tag">' . esc_html__( 'low variance', 'talenttrack' ) . '</span>';
             }
             echo '</td>';
             echo '<td class="num">' . (int) $r['eval_count'] . '</td>';
@@ -931,18 +913,18 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         );
 
         // Mode + player picker form (plain GET round-trip, no-JS safe).
-        echo '<form method="get" class="tt-rep-section" style="display:flex; gap:12px; align-items:end; flex-wrap:wrap; padding:12px 16px;">';
+        echo '<form method="get" class="tt-rep-section tt-rep-filter">';
         echo '<input type="hidden" name="tt_view" value="standard-report" />';
         echo '<input type="hidden" name="slug" value="player-progress-radar" />';
         echo '<input type="hidden" name="run" value="1" />';
-        echo '<label style="display:flex; flex-direction:column; gap:2px; font-size:13px;"><span>' . esc_html__( 'Report Type', 'talenttrack' ) . '</span>';
+        echo '<label><span>' . esc_html__( 'Report Type', 'talenttrack' ) . '</span>';
         echo '<select name="mode">';
         echo '<option value="progress"' . selected( $mode, 'progress', false ) . '>' . esc_html__( 'Player Progress', 'talenttrack' ) . '</option>';
         echo '<option value="comparison"' . selected( $mode, 'comparison', false ) . '>' . esc_html__( 'Player Comparison (radar)', 'talenttrack' ) . '</option>';
         echo '<option value="team_avg"' . selected( $mode, 'team_avg', false ) . '>' . esc_html__( 'Team Averages (radar)', 'talenttrack' ) . '</option>';
         echo '</select></label>';
-        echo '<label style="display:flex; flex-direction:column; gap:2px; font-size:13px; flex:1 1 220px;"><span>' . esc_html__( 'Player(s)', 'talenttrack' ) . '</span>';
-        echo '<select name="f_players[]" multiple size="6" style="min-width:200px;">';
+        echo '<label style="flex:1 1 220px;"><span>' . esc_html__( 'Player(s)', 'talenttrack' ) . '</span>';
+        echo '<select name="f_players[]" multiple size="6">';
         foreach ( (array) $players as $pl ) {
             $pid = (int) ( $pl->id ?? 0 );
             if ( $pid <= 0 ) continue;
@@ -958,7 +940,7 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         $query = new \TT\Modules\Analytics\Reports\PlayerRadarQuery();
         $max   = (float) QueryHelpers::get_config( 'rating_max', '10' );
 
-        echo '<section class="tt-rep-section" style="padding:16px;">';
+        echo '<section class="tt-rep-section">';
         if ( $mode === 'progress' ) {
             echo '<h2 class="tt-rep-section__title">' . esc_html__( 'Player Progress Over Time', 'talenttrack' ) . '</h2>';
             // Fallback mirrors the wp-admin original ("Top 10 active
@@ -970,9 +952,9 @@ final class FrontendStandardReportsView extends FrontendViewBase {
                 if ( ! $pl ) continue;
                 $rd  = $query->progressForPlayer( (int) $pid, 5 );
                 $any = true;
-                echo '<h3 style="margin:14px 0 6px; font-size:15px;">' . esc_html( QueryHelpers::player_display_name( $pl ) ) . '</h3>';
+                echo '<h3 class="tt-rep-section__title">' . esc_html( QueryHelpers::player_display_name( $pl ) ) . '</h3>';
                 echo ! empty( $rd['datasets'] )
-                    ? '<div style="max-width:350px;">' . QueryHelpers::radar_chart_svg( $rd['labels'], $rd['datasets'], $max ) . '</div>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG.
+                    ? '<div class="tt-rep-chart tt-rep-chart--sm">' . QueryHelpers::radar_chart_svg( $rd['labels'], $rd['datasets'], $max ) . '</div>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG.
                     : '<p class="tt-rep-section__hint">' . esc_html__( 'No data.', 'talenttrack' ) . '</p>';
             }
             if ( ! $any ) { self::renderEmpty(); }
@@ -983,14 +965,14 @@ final class FrontendStandardReportsView extends FrontendViewBase {
             } else {
                 $data = $query->comparison( $selected_ids );
                 echo ! empty( $data['datasets'] )
-                    ? '<div style="max-width:400px;">' . QueryHelpers::radar_chart_svg( $data['labels'], $data['datasets'], $max ) . '</div>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG.
+                    ? '<div class="tt-rep-chart">' . QueryHelpers::radar_chart_svg( $data['labels'], $data['datasets'], $max ) . '</div>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG.
                     : '<p class="tt-rep-section__hint">' . esc_html__( 'No data.', 'talenttrack' ) . '</p>';
             }
         } else { // team_avg
             echo '<h2 class="tt-rep-section__title">' . esc_html__( 'Team Averages', 'talenttrack' ) . '</h2>';
             $data = $query->teamAverages( $scope['allowed_team_ids'] );
             echo ! empty( $data['datasets'] )
-                ? '<div style="max-width:400px;">' . QueryHelpers::radar_chart_svg( $data['labels'], $data['datasets'], $max ) . '</div>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG.
+                ? '<div class="tt-rep-chart">' . QueryHelpers::radar_chart_svg( $data['labels'], $data['datasets'], $max ) . '</div>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — trusted SVG.
                 : '<p class="tt-rep-section__hint">' . esc_html__( 'No data.', 'talenttrack' ) . '</p>';
         }
         echo '</section>';
@@ -1022,13 +1004,13 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         }
         echo '<section class="tt-rep-section">';
         echo '<div class="tt-rep-section__head"><h2 class="tt-rep-section__title">' . esc_html__( 'Pick a player', 'talenttrack' ) . '</h2></div>';
-        echo '<ul style="margin:0; padding:0; list-style:none; display:grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap:6px;">';
+        echo '<ul class="tt-rep-picker">';
         foreach ( $players as $p ) {
             $pid = (int) ( $p->id ?? 0 );
             if ( $pid <= 0 ) continue;
             $name = QueryHelpers::player_display_name( $p );
             $url  = add_query_arg( [ 'slug' => $slug, 'player_id' => $pid ], $base_url );
-            echo '<li><a class="tt-rep-btn" style="display:block;" href="' . esc_url( $url ) . '">' . esc_html( $name ) . '</a></li>';
+            echo '<li><a class="tt-rep-btn" href="' . esc_url( $url ) . '">' . esc_html( $name ) . '</a></li>';
         }
         echo '</ul></section>';
     }
@@ -1052,14 +1034,14 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         }
         echo '<section class="tt-rep-section">';
         echo '<div class="tt-rep-section__head"><h2 class="tt-rep-section__title">' . esc_html__( 'Pick a team', 'talenttrack' ) . '</h2></div>';
-        echo '<ul style="margin:0; padding:0; list-style:none; display:grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap:6px;">';
+        echo '<ul class="tt-rep-picker">';
         foreach ( $teams as $t ) {
             $tid = (int) ( $t->id ?? 0 );
             if ( $tid <= 0 ) continue;
             $url = add_query_arg( [ 'slug' => $slug, 'team_id' => $tid ], $base_url );
             $label = (string) ( $t->name ?? '' );
             if ( ! empty( $t->age_group ) ) $label .= ' (' . \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'age_group', (string) $t->age_group ) . ')';
-            echo '<li><a class="tt-rep-btn" style="display:block;" href="' . esc_url( $url ) . '">' . esc_html( $label ) . '</a></li>';
+            echo '<li><a class="tt-rep-btn" href="' . esc_url( $url ) . '">' . esc_html( $label ) . '</a></li>';
         }
         echo '</ul></section>';
     }

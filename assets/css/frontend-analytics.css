@@ -1,0 +1,179 @@
+/*
+ * frontend-analytics.css — 2026 restyle of the central Analytics surface
+ * (FrontendAnalyticsView, B3).
+ *
+ * Two-column shell: a left entity rail (native <details> disclosures) and
+ * a main column carrying the academy-wide KPI grid (via the shared
+ * FrontendAppChrome::kpiTile() helper) or a selected entity's analytics.
+ * Mobile-first per CLAUDE.md §2 — base styles target ~360px, min-width
+ * queries scale up at 768/1024. Scoped under .tt-dashboard (the active
+ * theme is treated as hostile). Tokens only — no raw hex.
+ */
+
+.tt-dashboard .tt-analytics-shell {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--tt-sp-5);
+    margin-top: var(--tt-sp-4);
+}
+
+.tt-dashboard .tt-analytics-intro {
+    max-width: 760px;
+    margin: 0 0 var(--tt-sp-4);
+    color: var(--tt-ink-soft);
+    font-size: var(--tt-fs-sm);
+    line-height: var(--tt-lh-body);
+}
+
+/* ---- Left rail ----------------------------------------------------- */
+.tt-dashboard .tt-analytics-rail {
+    background: var(--tt-bg-soft);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius-lg);
+    padding: var(--tt-sp-3);
+}
+.tt-dashboard .tt-analytics-rail-title {
+    font-size: var(--tt-fs-sm);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--tt-muted);
+    margin: 0 0 var(--tt-sp-2);
+}
+.tt-dashboard .tt-analytics-entity {
+    border-bottom: 1px solid var(--tt-line);
+    padding: var(--tt-sp-1) 0;
+}
+.tt-dashboard .tt-analytics-entity:last-child {
+    border-bottom: none;
+}
+.tt-dashboard .tt-analytics-entity-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    padding: var(--tt-sp-1) 0;
+    font-weight: 600;
+    color: var(--tt-ink);
+    min-height: 48px;
+    touch-action: manipulation;
+}
+.tt-dashboard .tt-analytics-entity-summary::-webkit-details-marker { display: none; }
+.tt-dashboard .tt-analytics-entity-summary::marker { content: ""; }
+.tt-dashboard .tt-analytics-entity-summary::before {
+    content: "\25B8";
+    color: var(--tt-muted);
+    display: inline-block;
+    width: 14px;
+    margin-right: var(--tt-sp-1);
+}
+.tt-dashboard .tt-analytics-entity[open] .tt-analytics-entity-summary::before {
+    content: "\25BE";
+}
+.tt-dashboard .tt-analytics-entity-count {
+    display: inline-block;
+    padding: 1px 8px;
+    background: var(--tt-line);
+    color: var(--tt-ink);
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    min-width: 24px;
+    text-align: center;
+}
+.tt-dashboard .tt-analytics-entity-list {
+    list-style: none;
+    margin: var(--tt-sp-1) 0 var(--tt-sp-2);
+    padding: 0;
+}
+.tt-dashboard .tt-analytics-entity-list li { padding: 0; }
+.tt-dashboard .tt-analytics-entity-list a {
+    display: block;
+    padding: var(--tt-sp-2);
+    border-radius: var(--tt-radius);
+    color: var(--tt-ink);
+    text-decoration: none;
+    min-height: 48px;
+}
+.tt-dashboard .tt-analytics-entity-list a:hover,
+.tt-dashboard .tt-analytics-entity-list a:focus-visible {
+    background: var(--tt-paper);
+}
+.tt-dashboard .tt-analytics-entity-list li.is-current > a {
+    background: var(--tt-paper);
+    border-left: 3px solid var(--tt-primary, #0b3d2e);
+    padding-left: calc(var(--tt-sp-2) - 3px);
+}
+.tt-dashboard .tt-analytics-entity-label {
+    display: block;
+    font-size: var(--tt-fs-sm);
+}
+.tt-dashboard .tt-analytics-entity-meta {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--tt-muted);
+    margin-top: 2px;
+}
+.tt-dashboard .tt-analytics-entity-empty {
+    margin: var(--tt-sp-1) 0 var(--tt-sp-2);
+    padding: var(--tt-sp-2);
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-muted);
+    font-style: italic;
+}
+
+/* ---- Main column --------------------------------------------------- */
+.tt-dashboard .tt-analytics-main { min-width: 0; }
+
+.tt-dashboard .tt-analytics-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--tt-sp-3);
+    margin-top: var(--tt-sp-4);
+}
+
+/* ---- Selected-entity header card ----------------------------------- */
+.tt-dashboard .tt-analytics-entity-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--tt-sp-3);
+    padding: var(--tt-sp-3) var(--tt-sp-4);
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius-lg);
+    box-shadow: var(--tt-shadow-md);
+    margin-bottom: var(--tt-sp-3);
+    flex-wrap: wrap;
+}
+.tt-dashboard .tt-analytics-entity-header-type {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--tt-muted);
+}
+.tt-dashboard .tt-analytics-entity-header-name {
+    font-size: var(--tt-fs-lg);
+    font-weight: 600;
+    color: var(--tt-ink);
+    margin-top: 2px;
+}
+
+/* ---- Scale up ------------------------------------------------------ */
+@media (min-width: 480px) {
+    .tt-dashboard .tt-analytics-grid {
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+}
+@media (min-width: 1024px) {
+    .tt-dashboard .tt-analytics-shell {
+        grid-template-columns: 280px minmax(0, 1fr);
+    }
+    .tt-dashboard .tt-analytics-rail {
+        position: sticky;
+        top: 80px;
+        max-height: calc(100vh - 100px);
+        overflow-y: auto;
+    }
+}

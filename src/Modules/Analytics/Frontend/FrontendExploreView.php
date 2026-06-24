@@ -66,6 +66,8 @@ class FrontendExploreView extends FrontendViewBase {
             return;
         }
 
+        self::enqueueAssets();
+
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
             __( 'Explore', 'talenttrack' ),
             [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'analytics', __( 'Analytics', 'talenttrack' ) ) ]
@@ -89,8 +91,8 @@ class FrontendExploreView extends FrontendViewBase {
         echo '<div class="tt-explore">';
 
         // Header — KPI label + back link.
-        echo '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">';
-        echo '<h2 style="margin:0;">' . esc_html( $kpi->label ) . '</h2>';
+        echo '<div class="tt-explore-head">';
+        echo '<h2>' . esc_html( $kpi->label ) . '</h2>';
         $back_url = WizardEntryPoint::dashboardBaseUrl();
         echo '<a href="' . esc_url( $back_url ) . '">' . esc_html__( '← Back', 'talenttrack' ) . '</a>';
         echo '</div>';
@@ -109,14 +111,14 @@ class FrontendExploreView extends FrontendViewBase {
              && $fact->dimension( $kpi->primaryDimension ) !== null ) {
             self::renderTimeSeriesChart( $kpi, $fact, $filters, $group_by );
         }
-        echo '<div style="margin:24px 0; padding:16px 20px; background:#fafafa; border:1px solid #ddd; max-width:760px;">';
-        echo '<div style="font-size:13px; color:#5b6e75; margin-bottom:6px;">' . esc_html__( 'Headline', 'talenttrack' ) . '</div>';
-        echo '<div style="font-size:36px; font-weight:600; line-height:1;">' . esc_html( self::formatHeadline( $kpi, $headline ) ) . '</div>';
+        echo '<div class="tt-explore-headline">';
+        echo '<div class="tt-explore-headline-label">' . esc_html__( 'Headline', 'talenttrack' ) . '</div>';
+        echo '<div class="tt-explore-headline-val">' . esc_html( self::formatHeadline( $kpi, $headline ) ) . '</div>';
         if ( $kpi->threshold !== null && $headline !== null ) {
             $is_red = ( $kpi->goalDirection === Kpi::GOAL_HIGHER_BETTER && (float) $headline < $kpi->threshold )
                    || ( $kpi->goalDirection === Kpi::GOAL_LOWER_BETTER  && (float) $headline > $kpi->threshold );
             if ( $is_red ) {
-                echo '<div style="margin-top:8px; color:#b32d2e; font-size:13px;">'
+                echo '<div class="tt-explore-headline-flag">'
                     . esc_html__( 'Below threshold — review with the team.', 'talenttrack' )
                     . '</div>';
             }
@@ -137,17 +139,17 @@ class FrontendExploreView extends FrontendViewBase {
         $pdf_args = $export_args;
         $pdf_args['action'] = 'export_pdf';
         $pdf_url = add_query_arg( $pdf_args, WizardEntryPoint::dashboardBaseUrl() );
-        echo '<p style="margin:0 0 16px 0; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">';
-        echo '<a class="tt-button" href="' . esc_url( $export_url ) . '">'
+        echo '<p class="tt-explore-export">';
+        echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( $export_url ) . '">'
             . esc_html__( 'Export CSV', 'talenttrack' )
             . '</a>';
-        echo '<a class="tt-button" href="' . esc_url( $pdf_url ) . '">'
+        echo '<a class="tt-btn tt-btn-secondary" href="' . esc_url( $pdf_url ) . '">'
             . esc_html__( 'Export PDF', 'talenttrack' )
             . '</a>';
         echo '</p>';
 
         // Group-by selector.
-        echo '<form method="get" action="" style="display:flex; gap:12px; align-items:center; margin:16px 0;">';
+        echo '<form method="get" action="" class="tt-explore-groupby">';
         // Carry forward the kpi + every active filter as hidden inputs so the
         // group-by submit doesn't drop them.
         echo '<input type="hidden" name="tt_view" value="explore">';
@@ -161,7 +163,7 @@ class FrontendExploreView extends FrontendViewBase {
                 echo '<input type="hidden" name="filter_' . esc_attr( $fk ) . '" value="' . esc_attr( (string) $fv ) . '">';
             }
         }
-        echo '<label for="tt-explore-groupby" style="font-weight:600;">' . esc_html__( 'Group by:', 'talenttrack' ) . '</label>';
+        echo '<label for="tt-explore-groupby">' . esc_html__( 'Group by:', 'talenttrack' ) . '</label>';
         echo '<select id="tt-explore-groupby" name="group_by" onchange="this.form.submit()">';
         echo '<option value="">' . esc_html__( '— None —', 'talenttrack' ) . '</option>';
         foreach ( $kpi->exploreDimensions as $dim_key ) {
@@ -172,7 +174,7 @@ class FrontendExploreView extends FrontendViewBase {
                 . '</option>';
         }
         echo '</select>';
-        echo '<noscript><button type="submit" class="tt-button">' . esc_html__( 'Apply', 'talenttrack' ) . '</button></noscript>';
+        echo '<noscript><button type="submit" class="tt-btn tt-btn-secondary">' . esc_html__( 'Apply', 'talenttrack' ) . '</button></noscript>';
         echo '</form>';
 
         // Group-by table.
@@ -180,7 +182,7 @@ class FrontendExploreView extends FrontendViewBase {
             $grouped_rows = FactQuery::run( $kpi->factKey, [ $group_by ], [ $kpi->measureKey ], $filters );
             self::renderGroupByTable( $kpi, $fact, $group_by, $grouped_rows );
         } else {
-            echo '<p style="color:#5b6e75; font-size:13px;">'
+            echo '<p class="tt-explore-hint">'
                 . esc_html__( 'Pick a dimension above to break the headline down by groups, or browse the underlying rows below.', 'talenttrack' )
                 . '</p>';
             // #874 — drilldown to fact rows. Renders only when ungrouped.
@@ -188,6 +190,23 @@ class FrontendExploreView extends FrontendViewBase {
         }
 
         echo '</div>';
+    }
+
+    /**
+     * B3 — enqueue the per-view 2026 stylesheet on top of the shared
+     * frontend assets. Styles the filter card, headline card, export
+     * bar, group-by row, result tables and pager; depends on the
+     * app-chrome sheet for the brand tokens. The Chart.js canvas and
+     * data queries are untouched.
+     */
+    protected static function enqueueAssets(): void {
+        parent::enqueueAssets();
+        wp_enqueue_style(
+            'tt-frontend-explore',
+            TT_PLUGIN_URL . 'assets/css/frontend-explore.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
     }
 
     /**
@@ -206,7 +225,7 @@ class FrontendExploreView extends FrontendViewBase {
         $rows = FactQuery::run( $kpi->factKey, $dims, [ $kpi->measureKey ], $filters );
 
         if ( empty( $rows ) ) {
-            echo '<div class="tt-empty" style="margin:0 0 16px; padding:16px 20px; background:#fff; border:1px dashed #ddd; max-width:760px; color:#5b6e75; font-size:13px;">'
+            echo '<div class="tt-empty tt-explore-empty">'
                 . esc_html__( 'No data points for the current filters. Adjust filters or pick another date range.', 'talenttrack' )
                 . '</div>';
             return;
@@ -234,7 +253,7 @@ class FrontendExploreView extends FrontendViewBase {
         }
 
         if ( empty( $buckets ) || empty( $series ) ) {
-            echo '<div class="tt-empty" style="margin:0 0 16px; padding:16px 20px; background:#fff; border:1px dashed #ddd; max-width:760px; color:#5b6e75; font-size:13px;">'
+            echo '<div class="tt-empty tt-explore-empty">'
                 . esc_html__( 'No data points for the current filters. Adjust filters or pick another date range.', 'talenttrack' )
                 . '</div>';
             return;
@@ -325,11 +344,11 @@ class FrontendExploreView extends FrontendViewBase {
 
         $canvas_id = 'tt-explore-chart-' . wp_generate_uuid4();
         ?>
-        <div style="margin:0 0 16px; padding:12px 16px; background:#fff; border:1px solid #ddd; max-width:760px;">
-            <div style="font-size:12px; color:#5b6e75; margin-bottom:6px;">
+        <div class="tt-explore-chart">
+            <div class="tt-explore-chart-label">
                 <?php esc_html_e( 'Time series', 'talenttrack' ); ?>
             </div>
-            <div style="position:relative; height:260px;">
+            <div class="tt-explore-chart-canvas">
                 <canvas id="<?php echo esc_attr( $canvas_id ); ?>" data-tt-chart="explorer-timeseries"></canvas>
             </div>
         </div>
@@ -582,21 +601,21 @@ class FrontendExploreView extends FrontendViewBase {
      * pickers ship in a follow-up.
      */
     private static function renderFilterChips( Kpi $kpi, $fact, array $filters, string $group_by ): void {
-        echo '<form method="get" action="" class="tt-explore-filters" style="display:flex; gap:12px; flex-wrap:wrap; padding:12px 16px; background:#fafafa; border:1px solid #ddd; margin-bottom:16px;">';
+        echo '<form method="get" action="" class="tt-explore-filters">';
         echo '<input type="hidden" name="tt_view" value="explore">';
         echo '<input type="hidden" name="kpi" value="' . esc_attr( $kpi->key ) . '">';
         if ( $group_by !== '' ) echo '<input type="hidden" name="group_by" value="' . esc_attr( $group_by ) . '">';
 
-        echo '<label style="display:flex; flex-direction:column; gap:4px;">';
-        echo '<span style="font-size:12px; color:#5b6e75;">' . esc_html__( 'Date after', 'talenttrack' ) . '</span>';
+        echo '<label class="tt-explore-field">';
+        echo '<span>' . esc_html__( 'Date after', 'talenttrack' ) . '</span>';
         $df = (string) ( $filters['date_after'] ?? '' );
-        echo '<input type="text" name="filter_date_after" value="' . esc_attr( $df ) . '" placeholder="-30 days" style="padding:6px 8px; min-width:140px;">';
+        echo '<input type="text" name="filter_date_after" value="' . esc_attr( $df ) . '" placeholder="-30 days">';
         echo '</label>';
 
-        echo '<label style="display:flex; flex-direction:column; gap:4px;">';
-        echo '<span style="font-size:12px; color:#5b6e75;">' . esc_html__( 'Date before', 'talenttrack' ) . '</span>';
+        echo '<label class="tt-explore-field">';
+        echo '<span>' . esc_html__( 'Date before', 'talenttrack' ) . '</span>';
         $db = (string) ( $filters['date_before'] ?? '' );
-        echo '<input type="text" name="filter_date_before" value="' . esc_attr( $db ) . '" placeholder="today" style="padding:6px 8px; min-width:140px;">';
+        echo '<input type="text" name="filter_date_before" value="' . esc_attr( $db ) . '" placeholder="today">';
         echo '</label>';
 
         foreach ( $kpi->exploreDimensions as $dim_key ) {
@@ -604,13 +623,13 @@ class FrontendExploreView extends FrontendViewBase {
             if ( $dim === null ) continue;
             $eq_key = $dim_key . '_eq';
             $val    = (string) ( $filters[ $eq_key ] ?? '' );
-            echo '<label style="display:flex; flex-direction:column; gap:4px;">';
-            echo '<span style="font-size:12px; color:#5b6e75;">' . esc_html( $dim->label ) . '</span>';
-            echo '<input type="text" name="filter_' . esc_attr( $eq_key ) . '" value="' . esc_attr( $val ) . '" style="padding:6px 8px; min-width:140px;">';
+            echo '<label class="tt-explore-field">';
+            echo '<span>' . esc_html( $dim->label ) . '</span>';
+            echo '<input type="text" name="filter_' . esc_attr( $eq_key ) . '" value="' . esc_attr( $val ) . '">';
             echo '</label>';
         }
 
-        echo '<button type="submit" class="tt-button tt-button-primary" style="align-self:flex-end;">'
+        echo '<button type="submit" class="tt-btn tt-btn-primary">'
             . esc_html__( 'Apply filters', 'talenttrack' )
             . '</button>';
         echo '</form>';
@@ -625,13 +644,14 @@ class FrontendExploreView extends FrontendViewBase {
         $measure = $fact->measure( $kpi->measureKey );
         if ( $dim === null || $measure === null ) return;
 
-        echo '<table class="widefat striped" style="max-width:760px; margin-top:8px;">';
+        echo '<div class="tt-explore-table-wrap">';
+        echo '<table class="widefat striped tt-explore-table">';
         echo '<thead><tr>';
         echo '<th>' . esc_html( $dim->label ) . '</th>';
-        echo '<th style="text-align:right;">' . esc_html( $measure->label ) . '</th>';
+        echo '<th class="tt-explore-num">' . esc_html( $measure->label ) . '</th>';
         echo '</tr></thead><tbody>';
         if ( empty( $rows ) ) {
-            echo '<tr><td colspan="2" style="text-align:center; color:#5b6e75;">'
+            echo '<tr><td colspan="2" class="tt-explore-hint">'
                 . esc_html__( 'No data for the current filters.', 'talenttrack' )
                 . '</td></tr>';
         } else {
@@ -641,11 +661,12 @@ class FrontendExploreView extends FrontendViewBase {
                 $value = $row->{ $kpi->measureKey } ?? null;
                 echo '<tr>';
                 echo '<td>' . esc_html( $label ) . '</td>';
-                echo '<td style="text-align:right; font-variant-numeric:tabular-nums;">' . esc_html( self::formatHeadline( $kpi, $value ) ) . '</td>';
+                echo '<td class="tt-explore-num">' . esc_html( self::formatHeadline( $kpi, $value ) ) . '</td>';
                 echo '</tr>';
             }
         }
         echo '</tbody></table>';
+        echo '</div>';
     }
 
     /**
@@ -695,7 +716,7 @@ class FrontendExploreView extends FrontendViewBase {
         $rows  = FactQuery::rows( $kpi->factKey, $filters, $per_page, $offset );
 
         if ( $total === 0 ) {
-            echo '<div class="tt-empty" style="margin:8px 0 0; padding:16px 20px; background:#fff; border:1px dashed #ddd; max-width:760px; color:#5b6e75; font-size:13px;">'
+            echo '<div class="tt-empty tt-explore-empty">'
                 . esc_html__( 'No fact rows match the current filters.', 'talenttrack' )
                 . '</div>';
             return;
@@ -714,8 +735,8 @@ class FrontendExploreView extends FrontendViewBase {
         ];
         $link_target = $scope_map[ (string) $fact->entityScope ] ?? null;
 
-        echo '<div style="overflow-x:auto; margin-top:8px;">';
-        echo '<table class="widefat striped" style="min-width:760px;">';
+        echo '<div class="tt-explore-table-wrap">';
+        echo '<table class="widefat striped tt-explore-table tt-explore-table--wide">';
         echo '<thead><tr>';
         foreach ( $dims as $d ) {
             echo '<th>' . esc_html( $d->label ) . '</th>';
@@ -759,7 +780,7 @@ class FrontendExploreView extends FrontendViewBase {
             unset( $current['page'] );
             $prev_url = $page > 1 ? add_query_arg( array_merge( $current, [ 'page' => $page - 1 ] ) ) : '';
             $next_url = $page < $total_pages ? add_query_arg( array_merge( $current, [ 'page' => $page + 1 ] ) ) : '';
-            echo '<p style="margin:8px 0 0; font-size:13px; color:#5b6e75;">';
+            echo '<p class="tt-explore-pager">';
             if ( $prev_url !== '' ) {
                 echo '<a href="' . esc_url( $prev_url ) . '">' . esc_html__( '← Prev', 'talenttrack' ) . '</a> ';
             }
@@ -773,7 +794,7 @@ class FrontendExploreView extends FrontendViewBase {
             }
             echo '</p>';
         } else {
-            echo '<p style="margin:8px 0 0; font-size:13px; color:#5b6e75;">';
+            echo '<p class="tt-explore-pager">';
             printf(
                 /* translators: %d: total row count */
                 esc_html__( 'Showing %d row(s).', 'talenttrack' ),

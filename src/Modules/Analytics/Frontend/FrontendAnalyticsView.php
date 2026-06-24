@@ -50,7 +50,7 @@ class FrontendAnalyticsView extends FrontendViewBase {
             return;
         }
 
-        self::enqueueLayoutStyles();
+        self::enqueueAssets();
 
         // v3.110.152 — entity selection lives in the URL as
         // `?tt_view=analytics&entity_type=X&entity_id=N`. When set, the
@@ -112,11 +112,11 @@ class FrontendAnalyticsView extends FrontendViewBase {
                 . esc_html__( 'No academy-wide KPIs registered yet. Pick an entity from the left to see its analytics.', 'talenttrack' )
                 . '</p>';
         } else {
-            echo '<p style="max-width:760px; color:#5b6e75;">'
+            echo '<p class="tt-analytics-intro">'
                 . esc_html__( 'Academy-wide KPIs. Click any card to open the explorer with that KPI loaded; from there you can pivot, group, and filter. Pick an entity from the left rail to switch to its analytics in place.', 'talenttrack' )
                 . '</p>';
 
-            echo '<div class="tt-analytics-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; margin-top:16px;">';
+            echo '<div class="tt-analytics-grid">';
             foreach ( $academy_kpis as $key => $kpi ) {
                 $value = KpiResolver::value( $key );
                 $explore_url = add_query_arg(
@@ -405,66 +405,45 @@ class FrontendAnalyticsView extends FrontendViewBase {
     }
 
     /**
-     * v3.110.151 — inline-CSS for the two-column shell + entity rail.
-     * Inline because the persona-dashboard CSS file is shared across
-     * surfaces and bloating it for one view is overkill. ≥1024px:
-     * two-column grid (rail 280px / main 1fr). <1024px: rail collapses
-     * above the main content. The rail uses `<details>` for native
-     * progressive disclosure — no JS needed.
+     * B3 — enqueue the per-view 2026 stylesheet on top of the shared
+     * frontend assets. The sheet styles the two-column shell, the
+     * <details> entity rail, and the academy KPI grid; it depends on
+     * the app-chrome sheet for the brand tokens + .tt-kpi tile styling.
      */
-    private static function enqueueLayoutStyles(): void {
-        echo '<style>
-            .tt-analytics-shell { display: grid; grid-template-columns: 1fr; gap: 20px; margin-top: 16px; }
-            .tt-analytics-rail { background: var(--tt-bg-soft, #f8fafc); border: 1px solid var(--tt-line, #e2e8f0); border-radius: 6px; padding: 12px; }
-            .tt-analytics-rail-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--tt-muted, #475569); margin: 0 0 8px; }
-            .tt-analytics-entity { border-bottom: 1px solid var(--tt-line, #e2e8f0); padding: 6px 0; }
-            .tt-analytics-entity:last-child { border-bottom: none; }
-            .tt-analytics-entity-summary { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 4px 0; font-weight: 600; color: var(--tt-fg, #0f172a); min-height: 36px; }
-            .tt-analytics-entity-summary::-webkit-details-marker { display: none; }
-            .tt-analytics-entity-summary::marker { content: ""; }
-            .tt-analytics-entity-summary::before { content: "▸ "; color: var(--tt-muted, #94a3b8); display: inline-block; width: 14px; transition: transform 0.1s ease; }
-            .tt-analytics-entity[open] .tt-analytics-entity-summary::before { content: "▾ "; }
-            .tt-analytics-entity-count { display: inline-block; padding: 1px 8px; background: var(--tt-line, #e2e8f0); color: var(--tt-fg, #0f172a); border-radius: 999px; font-size: 11px; font-weight: 700; min-width: 24px; text-align: center; }
-            .tt-analytics-entity-list { list-style: none; margin: 4px 0 8px; padding: 0; }
-            .tt-analytics-entity-list li { padding: 0; }
-            .tt-analytics-entity-list a { display: block; padding: 6px 8px; border-radius: 4px; color: var(--tt-fg, #0f172a); text-decoration: none; min-height: 36px; }
-            .tt-analytics-entity-list a:hover { background: #fff; }
-            .tt-analytics-entity-list li.is-current > a { background: #fff; border-left: 3px solid var(--tt-primary, #0f172a); padding-left: 5px; }
-            .tt-analytics-entity-list li > span { display: block; padding: 6px 8px; }
-            .tt-analytics-entity-label { display: block; font-size: 13px; }
-            .tt-analytics-entity-meta { display: block; font-size: 11px; color: var(--tt-muted, #475569); margin-top: 2px; }
-            .tt-analytics-entity-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; background: var(--tt-bg-soft, #f8fafc); border: 1px solid var(--tt-line, #e2e8f0); border-radius: 6px; margin-bottom: 12px; flex-wrap: wrap; }
-            .tt-analytics-entity-header-type { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--tt-muted, #475569); }
-            .tt-analytics-entity-header-name { font-size: 18px; font-weight: 600; color: var(--tt-fg, #0f172a); margin-top: 2px; }
-            .tt-analytics-entity-empty { margin: 4px 0 8px; padding: 6px 8px; font-size: 12px; color: var(--tt-muted, #475569); font-style: italic; }
-            .tt-analytics-main { min-width: 0; }
-            @media (min-width: 1024px) {
-                .tt-analytics-shell { grid-template-columns: 280px minmax(0, 1fr); }
-                .tt-analytics-rail { position: sticky; top: 80px; max-height: calc(100vh - 100px); overflow-y: auto; }
-            }
-        </style>';
+    protected static function enqueueAssets(): void {
+        parent::enqueueAssets();
+        wp_enqueue_style(
+            'tt-frontend-analytics',
+            TT_PLUGIN_URL . 'assets/css/frontend-analytics.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
     }
 
+    /**
+     * B3 — render one academy KPI as a shared KPI tile. Below-threshold
+     * values flag red via the helper's `flag` argument so the 2026 tile
+     * carries the same alert signal the old inline card used.
+     */
     private static function renderCard( Kpi $kpi, ?float $value, string $explore_url ): void {
-        $formatted = self::formatValue( $kpi, $value );
-        $threshold_color = self::thresholdColor( $kpi, $value );
-
-        echo '<a class="tt-kpi-card" href="' . esc_url( $explore_url ) . '" '
-            . 'style="display:block; padding:14px 16px; background:#ffffff; border:1px solid #ddd; border-radius:6px; text-decoration:none; color:inherit;">';
-        echo '<div style="font-size:12px; color:#5b6e75; margin-bottom:6px;">'
-            . esc_html( $kpi->label )
-            . '</div>';
-        echo '<div style="font-size:24px; font-weight:600; line-height:1.1; ' . esc_attr( $threshold_color ) . '">'
-            . esc_html( $formatted )
-            . '</div>';
-        echo '</a>';
+        echo \TT\Shared\Frontend\Components\FrontendAppChrome::kpiTile( [
+            'label' => $kpi->label,
+            'value' => self::formatValue( $kpi, $value ),
+            'flag'  => self::thresholdFlag( $kpi, $value ),
+            'href'  => $explore_url,
+        ] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — kpiTile escapes its parts.
     }
 
-    private static function thresholdColor( Kpi $kpi, ?float $value ): string {
+    /**
+     * Return the KPI tile flag ('red' when the value breaches the
+     * goal-direction threshold, '' otherwise). Pure presentation hint
+     * derived from the domain Kpi — no business logic.
+     */
+    private static function thresholdFlag( Kpi $kpi, ?float $value ): string {
         if ( $kpi->threshold === null || $value === null ) return '';
         $is_red = ( $kpi->goalDirection === Kpi::GOAL_HIGHER_BETTER && $value < $kpi->threshold )
                || ( $kpi->goalDirection === Kpi::GOAL_LOWER_BETTER  && $value > $kpi->threshold );
-        return $is_red ? 'color:#b32d2e;' : '';
+        return $is_red ? 'red' : '';
     }
 
     private static function formatValue( Kpi $kpi, ?float $value ): string {

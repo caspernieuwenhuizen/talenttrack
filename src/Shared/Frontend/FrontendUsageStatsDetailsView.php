@@ -27,6 +27,21 @@ use TT\Infrastructure\Tenancy\CurrentClub;
  */
 class FrontendUsageStatsDetailsView extends FrontendViewBase {
 
+    /**
+     * #1695 — pull in the 2026 green/gold usage-detail stylesheet (card
+     * tables, card day-picker, role chips). Depends on the app-chrome
+     * handle the base view registers.
+     */
+    protected static function enqueueAssets(): void {
+        parent::enqueueAssets();
+        wp_enqueue_style(
+            'tt-usage-stats-details',
+            TT_PLUGIN_URL . 'assets/css/frontend-usage-stats-details.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+    }
+
     public static function render( int $user_id, bool $is_admin ): void {
         if ( ! current_user_can( 'tt_access_frontend_admin' ) ) {
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
@@ -79,13 +94,13 @@ class FrontendUsageStatsDetailsView extends FrontendViewBase {
                 $days
             );
         ?></h1>
-        <p style="color:var(--tt-muted);"><?php
+        <p class="tt-usage-count"><?php
             printf(
                 esc_html( _n( '%d login event.', '%d login events.', count( (array) $rows ), 'talenttrack' ) ),
                 count( (array) $rows )
             );
         ?></p>
-        <?php self::renderUserTimeTable( (array) $rows ); ?>
+        <div class="tt-usage-card"><div class="tt-table-wrap"><?php self::renderUserTimeTable( (array) $rows ); ?></div></div>
         <?php
     }
 
@@ -110,6 +125,7 @@ class FrontendUsageStatsDetailsView extends FrontendViewBase {
                 $days
             );
         ?></h1>
+        <div class="tt-usage-card"><div class="tt-table-wrap">
         <table class="tt-table">
             <thead>
                 <tr>
@@ -132,9 +148,9 @@ class FrontendUsageStatsDetailsView extends FrontendViewBase {
                 <tr>
                     <td>
                         <strong><?php echo esc_html( $name ); ?></strong>
-                        <?php if ( $login !== '' ) : ?><br><span style="color:#5b6e75;font-size:12px;">@<?php echo esc_html( $login ); ?></span><?php endif; ?>
+                        <?php if ( $login !== '' ) : ?><br><span class="tt-usage-handle">@<?php echo esc_html( $login ); ?></span><?php endif; ?>
                     </td>
-                    <td><?php echo esc_html( $role ); ?></td>
+                    <td><span class="tt-role-chip"><?php echo esc_html( $role ); ?></span></td>
                     <td style="font-variant-numeric:tabular-nums;"><?php echo (int) $r->login_count; ?></td>
                     <td style="font-variant-numeric:tabular-nums;"><?php echo (int) $r->event_count; ?></td>
                     <td><?php echo esc_html( (string) $r->last_seen ); ?></td>
@@ -143,6 +159,7 @@ class FrontendUsageStatsDetailsView extends FrontendViewBase {
             <?php endforeach; ?>
             </tbody>
         </table>
+        </div></div>
         <?php
     }
 
@@ -162,17 +179,17 @@ class FrontendUsageStatsDetailsView extends FrontendViewBase {
         $action   = self::pageBaseUrl();
         ?>
         <h1 class="tt-fview-title"><?php echo esc_html( $heading ); ?></h1>
-        <form method="get" action="<?php echo esc_url( $action ); ?>" class="tt-panel" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+        <form method="get" action="<?php echo esc_url( $action ); ?>" class="tt-usage-daypicker">
             <?php self::echoPreservedHiddenFields( [ 'tt_view', 'metric' ] ); ?>
             <input type="hidden" name="tt_view" value="usage-stats-details" />
             <input type="hidden" name="metric" value="<?php echo esc_attr( $metric ); ?>" />
-            <a href="<?php echo esc_url( $prev_url ); ?>" class="tt-btn tt-btn-secondary" title="<?php esc_attr_e( 'Previous day', 'talenttrack' ); ?>">←</a>
-            <label for="tt-fe-usage-date" style="font-size:13px;">
+            <a href="<?php echo esc_url( $prev_url ); ?>" class="tt-btn tt-btn-secondary" title="<?php esc_attr_e( 'Previous day', 'talenttrack' ); ?>" aria-label="<?php esc_attr_e( 'Previous day', 'talenttrack' ); ?>">←</a>
+            <label for="tt-fe-usage-date">
                 <?php esc_html_e( 'Pick a day:', 'talenttrack' ); ?>
             </label>
-            <input type="date" id="tt-fe-usage-date" name="date" value="<?php echo esc_attr( $date ); ?>" style="font-size:13px;" />
+            <input type="date" id="tt-fe-usage-date" name="date" value="<?php echo esc_attr( $date ); ?>" />
             <button type="submit" class="tt-btn tt-btn-primary"><?php esc_html_e( 'Go', 'talenttrack' ); ?></button>
-            <a href="<?php echo esc_url( $next_url ); ?>" class="tt-btn tt-btn-secondary" title="<?php esc_attr_e( 'Next day', 'talenttrack' ); ?>">→</a>
+            <a href="<?php echo esc_url( $next_url ); ?>" class="tt-btn tt-btn-secondary" title="<?php esc_attr_e( 'Next day', 'talenttrack' ); ?>" aria-label="<?php esc_attr_e( 'Next day', 'talenttrack' ); ?>">→</a>
         </form>
         <?php
     }
@@ -191,7 +208,7 @@ class FrontendUsageStatsDetailsView extends FrontendViewBase {
             $date, CurrentClub::id()
         ) );
         ?>
-        <h2 style="margin-top:16px;"><?php
+        <h2 class="tt-usage-subhead"><?php
             printf(
                 /* translators: %s is a date string */
                 esc_html__( 'Active users on %s', 'talenttrack' ),
@@ -201,6 +218,7 @@ class FrontendUsageStatsDetailsView extends FrontendViewBase {
         <?php if ( empty( $rows ) ) : ?>
             <p><em><?php esc_html_e( 'No activity on this day.', 'talenttrack' ); ?></em></p>
         <?php else : ?>
+            <div class="tt-usage-card"><div class="tt-table-wrap">
             <table class="tt-table">
                 <thead><tr>
                     <th><?php esc_html_e( 'User', 'talenttrack' ); ?></th>
@@ -222,6 +240,7 @@ class FrontendUsageStatsDetailsView extends FrontendViewBase {
                 <?php endforeach; ?>
                 </tbody>
             </table>
+            </div></div>
         <?php endif; ?>
         <?php
     }
@@ -246,7 +265,7 @@ class FrontendUsageStatsDetailsView extends FrontendViewBase {
             $date, CurrentClub::id()
         ) );
         ?>
-        <h2 style="margin-top:16px;"><?php
+        <h2 class="tt-usage-subhead"><?php
             printf(
                 /* translators: %s is a date */
                 esc_html__( 'Evaluations created on %s', 'talenttrack' ),
@@ -256,6 +275,7 @@ class FrontendUsageStatsDetailsView extends FrontendViewBase {
         <?php if ( empty( $rows ) ) : ?>
             <p><em><?php esc_html_e( 'None that day.', 'talenttrack' ); ?></em></p>
         <?php else : ?>
+            <div class="tt-usage-card"><div class="tt-table-wrap">
             <table class="tt-table">
                 <thead><tr>
                     <th><?php esc_html_e( 'Created', 'talenttrack' ); ?></th>
@@ -274,6 +294,7 @@ class FrontendUsageStatsDetailsView extends FrontendViewBase {
                 <?php endforeach; ?>
                 </tbody>
             </table>
+            </div></div>
         <?php endif; ?>
         <?php
     }
@@ -322,6 +343,7 @@ class FrontendUsageStatsDetailsView extends FrontendViewBase {
                 ...array_merge( $matching, [ $cutoff, CurrentClub::id() ] )
             ) );
             ?>
+            <div class="tt-usage-card"><div class="tt-table-wrap">
             <table class="tt-table">
                 <thead><tr>
                     <th><?php esc_html_e( 'User', 'talenttrack' ); ?></th>
@@ -339,7 +361,7 @@ class FrontendUsageStatsDetailsView extends FrontendViewBase {
                     <tr>
                         <td>
                             <strong><?php echo esc_html( $name ); ?></strong>
-                            <?php if ( $login !== '' ) : ?><br><span style="color:#5b6e75;font-size:12px;">@<?php echo esc_html( $login ); ?></span><?php endif; ?>
+                            <?php if ( $login !== '' ) : ?><br><span class="tt-usage-handle">@<?php echo esc_html( $login ); ?></span><?php endif; ?>
                         </td>
                         <td style="font-variant-numeric:tabular-nums;"><?php echo (int) $r->event_count; ?></td>
                         <td><?php echo esc_html( (string) $r->last_seen ); ?></td>
@@ -348,6 +370,7 @@ class FrontendUsageStatsDetailsView extends FrontendViewBase {
                 <?php endforeach; ?>
                 </tbody>
             </table>
+            </div></div>
         <?php endif; ?>
         <?php
     }
@@ -380,6 +403,7 @@ class FrontendUsageStatsDetailsView extends FrontendViewBase {
         <?php if ( empty( $rows ) ) : ?>
             <p><em><?php esc_html_e( 'No visits in this window.', 'talenttrack' ); ?></em></p>
         <?php else : ?>
+            <div class="tt-usage-card"><div class="tt-table-wrap">
             <table class="tt-table">
                 <thead><tr>
                     <th><?php esc_html_e( 'User', 'talenttrack' ); ?></th>
@@ -399,6 +423,7 @@ class FrontendUsageStatsDetailsView extends FrontendViewBase {
                 <?php endforeach; ?>
                 </tbody>
             </table>
+            </div></div>
         <?php endif; ?>
         <?php
     }
@@ -428,7 +453,7 @@ class FrontendUsageStatsDetailsView extends FrontendViewBase {
                 esc_html( $name )
             );
         ?></h1>
-        <p style="color:var(--tt-muted);"><?php
+        <p class="tt-usage-count"><?php
             printf(
                 esc_html( _n( '%d event in the retention window (last 90 days).', '%d events in the retention window (last 90 days).', count( (array) $rows ), 'talenttrack' ) ),
                 count( (array) $rows )
@@ -437,6 +462,7 @@ class FrontendUsageStatsDetailsView extends FrontendViewBase {
         <?php if ( empty( $rows ) ) : ?>
             <p><em><?php esc_html_e( 'No events recorded for this user in the retention window.', 'talenttrack' ); ?></em></p>
         <?php else : ?>
+            <div class="tt-usage-card"><div class="tt-table-wrap">
             <table class="tt-table">
                 <thead><tr>
                     <th><?php esc_html_e( 'Timestamp', 'talenttrack' ); ?></th>
@@ -448,11 +474,12 @@ class FrontendUsageStatsDetailsView extends FrontendViewBase {
                     <tr>
                         <td style="white-space:nowrap;"><?php echo esc_html( \TT\Shared\Dates\TTDate::dateTime( (string) $r->created_at ) ); ?></td>
                         <td><code><?php echo esc_html( (string) $r->event_type ); ?></code></td>
-                        <td><?php echo $r->event_target ? esc_html( self::pageLabel( (string) $r->event_target ) ) : '<span style="color:#888;">—</span>'; ?></td>
+                        <td><?php echo $r->event_target ? esc_html( self::pageLabel( (string) $r->event_target ) ) : '<span class="tt-muted">—</span>'; ?></td>
                     </tr>
                 <?php endforeach; ?>
                 </tbody>
             </table>
+            </div></div>
         <?php endif; ?>
         <?php
     }
@@ -476,7 +503,7 @@ class FrontendUsageStatsDetailsView extends FrontendViewBase {
                 ?>
                 <tr>
                     <td><strong><?php echo esc_html( $name ); ?></strong></td>
-                    <td><?php echo esc_html( self::userRole( (int) $r->user_id ) ); ?></td>
+                    <td><span class="tt-role-chip"><?php echo esc_html( self::userRole( (int) $r->user_id ) ); ?></span></td>
                     <td><?php echo esc_html( \TT\Shared\Dates\TTDate::dateTime( (string) $r->created_at ) ); ?></td>
                 </tr>
             <?php endforeach; endif; ?>

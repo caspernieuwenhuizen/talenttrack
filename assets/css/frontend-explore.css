@@ -1,0 +1,184 @@
+/*
+ * frontend-explore.css — 2026 restyle of the dimension explorer
+ * (FrontendExploreView, B3).
+ *
+ * Chrome only — the filter form, headline card, export bar, group-by
+ * selector, result tables, chart frame and pager. The Chart.js canvas
+ * and data queries are untouched. Mobile-first per CLAUDE.md §2: base
+ * styles target ~360px, min-width queries scale up at 480/768. Scoped
+ * under .tt-dashboard. Tokens only — no raw hex.
+ */
+
+.tt-dashboard .tt-explore { display: block; }
+
+/* ---- KPI title + back row ------------------------------------------ */
+.tt-dashboard .tt-explore-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--tt-sp-3);
+    flex-wrap: wrap;
+    margin-bottom: var(--tt-sp-4);
+}
+.tt-dashboard .tt-explore-head h2 {
+    margin: 0;
+    font-size: var(--tt-fs-h3);
+    color: var(--tt-ink);
+}
+
+/* ---- Filter card --------------------------------------------------- */
+.tt-dashboard .tt-explore-filters {
+    display: flex;
+    gap: var(--tt-sp-3);
+    flex-wrap: wrap;
+    padding: var(--tt-sp-3) var(--tt-sp-4);
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius-lg);
+    box-shadow: var(--tt-shadow-md);
+    margin-bottom: var(--tt-sp-4);
+    align-items: flex-end;
+}
+.tt-dashboard .tt-explore-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-1);
+    flex: 1 1 140px;
+}
+.tt-dashboard .tt-explore-field > span {
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-muted);
+    font-weight: 600;
+}
+.tt-dashboard .tt-explore-field input {
+    padding: 0.6rem 0.7rem;
+    min-width: 140px;
+    font-size: 1rem;
+    min-height: 48px;
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    background: var(--tt-paper);
+    color: var(--tt-ink);
+}
+
+/* ---- Headline card ------------------------------------------------- */
+.tt-dashboard .tt-explore-headline {
+    margin: var(--tt-sp-6) 0;
+    padding: var(--tt-sp-4) var(--tt-sp-5);
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius-lg);
+    box-shadow: var(--tt-shadow-md);
+    max-width: 760px;
+}
+.tt-dashboard .tt-explore-headline-label {
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-muted);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: var(--tt-sp-1);
+}
+.tt-dashboard .tt-explore-headline-val {
+    font-size: var(--tt-fs-h1);
+    font-weight: 800;
+    line-height: 1;
+    color: var(--tt-primary, #0b3d2e);
+}
+.tt-dashboard .tt-explore-headline-flag {
+    margin-top: var(--tt-sp-2);
+    color: var(--tt-danger);
+    font-size: var(--tt-fs-sm);
+    font-weight: 600;
+}
+
+/* ---- Chart frame --------------------------------------------------- */
+.tt-dashboard .tt-explore-chart {
+    margin: 0 0 var(--tt-sp-4);
+    padding: var(--tt-sp-3) var(--tt-sp-4);
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius-lg);
+    box-shadow: var(--tt-shadow-md);
+    max-width: 760px;
+}
+.tt-dashboard .tt-explore-chart-label {
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-muted);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: var(--tt-sp-2);
+}
+.tt-dashboard .tt-explore-chart-canvas {
+    position: relative;
+    height: 260px;
+}
+
+/* ---- Export bar ---------------------------------------------------- */
+.tt-dashboard .tt-explore-export {
+    margin: 0 0 var(--tt-sp-4);
+    display: flex;
+    gap: var(--tt-sp-2);
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* ---- Group-by row -------------------------------------------------- */
+.tt-dashboard .tt-explore-groupby {
+    display: flex;
+    gap: var(--tt-sp-3);
+    align-items: center;
+    flex-wrap: wrap;
+    margin: var(--tt-sp-4) 0;
+}
+.tt-dashboard .tt-explore-groupby label {
+    font-weight: 600;
+    color: var(--tt-ink);
+}
+.tt-dashboard .tt-explore-groupby select {
+    padding: 0.5rem 0.7rem;
+    min-height: 48px;
+    font-size: 1rem;
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    background: var(--tt-paper);
+    color: var(--tt-ink);
+}
+
+/* ---- Result tables + empty states ---------------------------------- */
+.tt-dashboard .tt-explore-table-wrap {
+    overflow-x: auto;
+    margin-top: var(--tt-sp-2);
+}
+.tt-dashboard .tt-explore-hint {
+    color: var(--tt-muted);
+    font-size: var(--tt-fs-sm);
+}
+.tt-dashboard .tt-explore-empty {
+    margin: var(--tt-sp-2) 0 0;
+    padding: var(--tt-sp-4) var(--tt-sp-5);
+    background: var(--tt-paper);
+    border: 1px dashed var(--tt-line);
+    border-radius: var(--tt-radius-lg);
+    max-width: 760px;
+    color: var(--tt-muted);
+    font-size: var(--tt-fs-sm);
+}
+.tt-dashboard .tt-explore-pager {
+    margin: var(--tt-sp-2) 0 0;
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-muted);
+}
+.tt-dashboard .tt-explore-table { max-width: 760px; margin-top: var(--tt-sp-2); }
+.tt-dashboard .tt-explore-table--wide { min-width: 760px; max-width: none; }
+.tt-dashboard th.tt-explore-num,
+.tt-dashboard td.tt-explore-num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ---- Scale up ------------------------------------------------------ */
+@media (min-width: 480px) {
+    .tt-dashboard .tt-explore-field { flex: 0 1 auto; }
+}

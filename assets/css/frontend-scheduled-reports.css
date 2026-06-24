@@ -1,0 +1,169 @@
+/*
+ * frontend-scheduled-reports.css — 2026 green/gold restyle (B3) for the
+ * Scheduled reports surface (?tt_view=scheduled-reports). Replaces the
+ * inline-styled create form + admin-table list with the card / table /
+ * chip vocabulary (restyle, not redesign — markup otherwise unchanged).
+ *
+ * Mobile-first per CLAUDE.md §2: base styles target ~360px, min-width
+ * queries at 480 / 768 / 1024 scale up. Scoped under .tt-dashboard (the
+ * active theme is hostile). Loaded with a dep on tt-frontend-app-chrome so
+ * it inherits the brand + neutral tokens. Tokens only — no raw hex.
+ */
+
+.tt-dashboard .tt-sched-intro {
+    max-width: 760px;
+    margin: 0 0 var(--tt-sp-4, 16px);
+    color: var(--tt-muted, #6a6d66);
+    line-height: var(--tt-lh-body, 1.5);
+}
+
+.tt-dashboard .tt-sched-heading {
+    margin: var(--tt-sp-6, 24px) 0 var(--tt-sp-3, 12px);
+    font-size: var(--tt-fs-h3, 1.25rem);
+    font-weight: 700;
+    color: var(--tt-ink, #0e1a14);
+}
+
+/* Create-schedule form as a 2026 card. */
+.tt-dashboard .tt-sched-form {
+    max-width: 760px;
+    margin: 0;
+    padding: var(--tt-sp-4, 16px);
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-md);
+}
+
+.tt-dashboard .tt-sched-field {
+    display: block;
+    margin-bottom: var(--tt-sp-3, 12px);
+}
+.tt-dashboard .tt-sched-field__label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: var(--tt-sp-1, 4px);
+    color: var(--tt-ink, #0e1a14);
+}
+.tt-dashboard .tt-sched-field input,
+.tt-dashboard .tt-sched-field select,
+.tt-dashboard .tt-sched-field textarea {
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 48px;
+    padding: 0.5rem 0.7rem;
+    font-size: 1rem; /* ≥16px — no iOS zoom */
+    color: var(--tt-ink, #0e1a14);
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+}
+.tt-dashboard .tt-sched-field textarea { min-height: 96px; resize: vertical; }
+.tt-dashboard .tt-sched-field input:focus-visible,
+.tt-dashboard .tt-sched-field select:focus-visible,
+.tt-dashboard .tt-sched-field textarea:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 1px;
+}
+
+/* Schedule list as a card-wrapped table. */
+.tt-dashboard .tt-sched-empty {
+    color: var(--tt-muted, #6a6d66);
+    margin: 0;
+}
+
+.tt-dashboard .tt-sched-tablewrap {
+    max-width: 960px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    background: var(--tt-paper, #fff);
+    box-shadow: var(--tt-shadow-md);
+}
+.tt-dashboard .tt-sched-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--tt-fs-sm, 0.85rem);
+}
+.tt-dashboard .tt-sched-table th {
+    text-align: left;
+    padding: var(--tt-sp-3, 12px);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--tt-muted, #6a6d66);
+    background: var(--tt-bg-soft, #f4f6f3);
+    border-bottom: 1px solid var(--tt-line, #e3e6e1);
+    white-space: nowrap;
+}
+.tt-dashboard .tt-sched-table td {
+    padding: var(--tt-sp-3, 12px);
+    border-bottom: 1px solid var(--tt-line-soft, #eef0ec);
+    color: var(--tt-ink, #0e1a14);
+    vertical-align: middle;
+}
+.tt-dashboard .tt-sched-table tbody tr:last-child td { border-bottom: 0; }
+
+/* Status chip — green = active, gold = paused, neutral fallback. */
+.tt-dashboard .tt-sched-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.18rem 0.6rem;
+    border-radius: 999px;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 600;
+    line-height: 1.3;
+    border: 1px solid var(--tt-line, #e3e6e1);
+    color: var(--tt-ink, #0e1a14);
+    background: var(--tt-bg-soft, #f4f6f3);
+    white-space: nowrap;
+}
+.tt-dashboard .tt-sched-chip--active {
+    color: var(--tt-success, #2f9e5e);
+    border-color: var(--tt-success, #2f9e5e);
+    background: var(--tt-success-subtle, #dff5e1);
+}
+.tt-dashboard .tt-sched-chip--paused {
+    color: var(--tt-warning, #e8902b);
+    border-color: var(--tt-warning, #e8902b);
+    background: var(--tt-warning-subtle, #fdf3d8);
+}
+
+/* Row actions — inline forms with secondary-styled buttons. */
+.tt-dashboard .tt-sched-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-2, 8px);
+}
+.tt-dashboard .tt-sched-actions form { margin: 0; }
+.tt-dashboard .tt-sched-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: var(--tt-sp-1, 4px) var(--tt-sp-3, 12px);
+    background: transparent;
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    color: var(--tt-primary, #0b3d2e);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 600;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-dashboard .tt-sched-action:hover,
+.tt-dashboard .tt-sched-action:focus-visible {
+    border-color: var(--tt-primary, #0b3d2e);
+    background: var(--tt-bg-soft, #f4f6f3);
+}
+.tt-dashboard .tt-sched-action:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 1px;
+}
+.tt-dashboard .tt-sched-action--danger { color: var(--tt-danger, #d8453b); }
+.tt-dashboard .tt-sched-action--danger:hover,
+.tt-dashboard .tt-sched-action--danger:focus-visible {
+    border-color: var(--tt-danger, #d8453b);
+}

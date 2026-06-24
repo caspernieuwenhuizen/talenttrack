@@ -1,0 +1,99 @@
+/*
+ * frontend-attendance-leaderboard.css (#1695) — 2026 green/gold look for the
+ * attendance leaderboard. Two league-table cards (needs-attention + most
+ * reliable), each wrapping a sortable table with an inline present-% bar.
+ * Mobile-first per CLAUDE.md §2; tokens only (see assets/css/tokens.css).
+ * Scoped under .tt-dashboard.
+ */
+
+.tt-dashboard .tt-leaderboard-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--tt-sp-4);
+    margin-top: var(--tt-sp-3);
+}
+
+.tt-dashboard .tt-leaderboard-card {
+    min-width: 0;
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius-lg);
+    box-shadow: var(--tt-shadow-md);
+    overflow: hidden;
+}
+
+.tt-dashboard .tt-leaderboard-title {
+    margin: 0;
+    padding: var(--tt-sp-3) var(--tt-sp-4);
+    font-size: var(--tt-fs-sm);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--tt-ink-soft);
+    border-bottom: 1px solid var(--tt-line-soft);
+}
+
+.tt-dashboard .tt-leaderboard-card .tt-table-wrap {
+    margin: 0;
+    overflow-x: auto;
+}
+.tt-dashboard .tt-leaderboard-card .tt-table {
+    margin: 0;
+    width: 100%;
+}
+
+.tt-dashboard .tt-leaderboard-card tr.is-flagged {
+    background: var(--tt-danger-subtle);
+}
+
+.tt-dashboard .tt-flag-badge {
+    display: inline-block;
+    background: var(--tt-danger-subtle);
+    color: var(--tt-danger);
+    border-radius: 999px;
+    padding: 1px 8px;
+    font-size: var(--tt-fs-sm);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* inline present-% bar (shared vocabulary with the team/player report) */
+.tt-dashboard .tt-att-bar {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--tt-sp-2);
+    justify-content: flex-end;
+    width: 100%;
+}
+.tt-dashboard .tt-att-bar .v {
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    min-width: 46px;
+    text-align: right;
+    color: var(--tt-ink);
+}
+.tt-dashboard .tt-att-bar .track {
+    width: 84px;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--tt-line-soft);
+    overflow: hidden;
+    flex: 0 0 auto;
+}
+.tt-dashboard .tt-att-bar .track > i {
+    display: block;
+    height: 100%;
+    background: var(--tt-success);
+}
+.tt-dashboard .tt-att-bar.is-low .track > i { background: var(--tt-danger); }
+.tt-dashboard .tt-att-bar.is-low .v { color: var(--tt-danger); }
+
+@media (max-width: 480px) {
+    .tt-dashboard .tt-att-bar .track { display: none; }
+}
+
+@media (min-width: 768px) {
+    .tt-dashboard .tt-leaderboard-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}

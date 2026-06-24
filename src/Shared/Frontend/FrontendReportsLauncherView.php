@@ -19,6 +19,20 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  */
 final class FrontendReportsLauncherView extends FrontendViewBase {
 
+    /**
+     * Enqueue the 2026 surface stylesheet (B3 restyle). Depends on the
+     * app-chrome sheet so it inherits the brand + neutral tokens.
+     */
+    protected static function enqueueAssets(): void {
+        parent::enqueueAssets();
+        wp_enqueue_style(
+            'tt-frontend-reports-launcher',
+            TT_PLUGIN_URL . 'assets/css/frontend-reports-launcher.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+    }
+
     public static function render( int $user_id, bool $is_admin ): void {
         if ( ! current_user_can( 'tt_view_reports' ) ) {
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'Not authorized', 'talenttrack' ) );
@@ -171,7 +185,7 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
             ],
         ];
 
-        echo '<p style="color:#5b6e75; margin-bottom:16px;">';
+        echo '<p class="tt-rl-intro">';
         esc_html_e( 'Pick a report.', 'talenttrack' );
         echo '</p>';
 

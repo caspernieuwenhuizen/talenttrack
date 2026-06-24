@@ -1,0 +1,73 @@
+/*
+ * frontend-usage-stats-details.css (#1695) — 2026 green/gold look for the
+ * usage drill-down views (logins, active users, DAU/day, evals/day, by-role,
+ * top page, user timeline). Card-wrapped tables + a card day-picker + a
+ * role chip. Mobile-first per CLAUDE.md §2; tokens only (tokens.css).
+ * Scoped under .tt-dashboard.
+ */
+
+.tt-dashboard .tt-usage-count {
+    color: var(--tt-ink-soft);
+    font-size: var(--tt-fs-sm);
+    margin: 0 0 var(--tt-sp-3);
+}
+
+.tt-dashboard .tt-usage-card {
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius-lg);
+    box-shadow: var(--tt-shadow-md);
+    overflow: hidden;
+    margin: 0 0 var(--tt-sp-4);
+}
+.tt-dashboard .tt-usage-card .tt-table-wrap { margin: 0; overflow-x: auto; }
+.tt-dashboard .tt-usage-card .tt-table { margin: 0; width: 100%; }
+
+/* day-picker — card row with ≥48px nav targets */
+.tt-dashboard .tt-usage-daypicker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-2);
+    align-items: center;
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius-lg);
+    box-shadow: var(--tt-shadow-md);
+    padding: var(--tt-sp-3) var(--tt-sp-4);
+    margin: 0 0 var(--tt-sp-4);
+}
+.tt-dashboard .tt-usage-daypicker label {
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-ink-soft);
+}
+.tt-dashboard .tt-usage-daypicker .tt-btn {
+    min-width: 48px;
+    min-height: 48px;
+}
+
+.tt-dashboard .tt-usage-subhead {
+    margin: var(--tt-sp-4) 0 var(--tt-sp-3);
+    font-size: var(--tt-fs-lg);
+}
+
+/* secondary login handle under a user name */
+.tt-dashboard .tt-usage-handle {
+    color: var(--tt-ink-soft);
+    font-size: var(--tt-fs-sm);
+}
+
+/* role chip */
+.tt-dashboard .tt-role-chip {
+    display: inline-block;
+    background: var(--tt-bg-soft);
+    border: 1px solid var(--tt-line);
+    border-radius: 999px;
+    padding: 1px 10px;
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-ink);
+    white-space: nowrap;
+}
+
+.tt-dashboard .tt-usage-card code {
+    font-size: var(--tt-fs-sm);
+}

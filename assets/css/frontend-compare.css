@@ -1,0 +1,180 @@
+/*
+ * frontend-compare.css — 2026 restyle of the player comparison surface
+ * (FrontendComparisonView, B3).
+ *
+ * Chrome only — the slot-picker card, filter row, side-by-side compare
+ * grid, and the radar / trend chart frames. The Chart.js canvases and
+ * stats queries are untouched. The grid column count is data-driven
+ * (one column per picked player) so the view sets it via the
+ * `--tt-fcompare-cols` custom property inline; everything else lives
+ * here. Mobile-first per CLAUDE.md §2 — base ~360px, min-width queries
+ * at 768. Scoped under .tt-dashboard. Tokens only — no raw hex.
+ */
+
+.tt-dashboard .tt-fcompare-intro {
+    color: var(--tt-ink-soft);
+    max-width: 760px;
+    margin: 0 0 var(--tt-sp-4);
+    font-size: var(--tt-fs-sm);
+    line-height: var(--tt-lh-body);
+}
+
+/* ---- Picker / filter card ------------------------------------------ */
+.tt-dashboard .tt-fcompare-form {
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius-lg);
+    box-shadow: var(--tt-shadow-md);
+    padding: var(--tt-sp-4) var(--tt-sp-5);
+    margin: var(--tt-sp-4) 0;
+}
+.tt-dashboard .tt-fcompare-form h3 {
+    margin: 0 0 var(--tt-sp-3);
+    font-size: var(--tt-fs-lg);
+    color: var(--tt-ink);
+}
+.tt-dashboard .tt-fcompare-slots {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--tt-sp-4);
+}
+.tt-dashboard .tt-fcompare-addrow { margin: var(--tt-sp-3) 0 0; }
+.tt-dashboard .tt-fcompare-addnote {
+    margin-left: var(--tt-sp-2);
+    color: var(--tt-ink-soft);
+}
+.tt-dashboard .tt-fcompare-filters {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--tt-sp-3);
+    margin-top: var(--tt-sp-3);
+}
+.tt-dashboard .tt-fcompare-filters label {
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-muted);
+    font-weight: 600;
+    display: block;
+    margin-bottom: var(--tt-sp-1);
+}
+.tt-dashboard .tt-fcompare-filters input,
+.tt-dashboard .tt-fcompare-filters select {
+    width: 100%;
+    padding: 0.6rem 0.7rem;
+    font-size: 1rem;
+    min-height: 48px;
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius);
+    background: var(--tt-paper);
+    color: var(--tt-ink);
+}
+.tt-dashboard .tt-fcompare-submit { margin: var(--tt-sp-4) 0 0; }
+
+/* ---- Notices ------------------------------------------------------- */
+.tt-dashboard .tt-fcompare-note-empty { color: var(--tt-ink-soft); }
+.tt-dashboard .tt-fcompare-mixedages {
+    background: var(--tt-info-subtle);
+    border-left: 4px solid var(--tt-info);
+    padding: var(--tt-sp-3) var(--tt-sp-4);
+    margin: var(--tt-sp-4) 0;
+    font-size: var(--tt-fs-sm);
+    border-radius: var(--tt-radius);
+}
+
+.tt-dashboard .tt-fcompare-h3 {
+    margin: var(--tt-sp-6) 0 var(--tt-sp-3);
+    font-size: var(--tt-fs-lg);
+    color: var(--tt-ink);
+}
+
+/* ---- Side-by-side grid --------------------------------------------- */
+.tt-dashboard .tt-fcompare-grid {
+    display: grid;
+    grid-template-columns: 130px repeat(var(--tt-fcompare-cols, 1), minmax(120px, 1fr));
+    gap: 0;
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius-lg);
+    box-shadow: var(--tt-shadow-md);
+    overflow: hidden;
+    overflow-x: auto;
+    margin: var(--tt-sp-4) 0 var(--tt-sp-6);
+}
+.tt-dashboard .tt-fcompare-section {
+    grid-column: 1 / -1;
+    background: var(--tt-bg-soft);
+    color: var(--tt-muted);
+    font-size: var(--tt-fs-sm);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: var(--tt-sp-2) var(--tt-sp-3);
+    border-top: 1px solid var(--tt-line);
+}
+.tt-dashboard .tt-fcompare-section:first-child { border-top: 0; }
+.tt-dashboard .tt-fcompare-cell {
+    padding: var(--tt-sp-2) var(--tt-sp-3);
+    border-top: 1px solid var(--tt-line-soft);
+    font-size: var(--tt-fs-sm);
+    line-height: 1.35;
+    display: flex;
+    align-items: center;
+}
+.tt-dashboard .tt-fcompare-cell.tt-fcompare-label {
+    font-weight: 600;
+    color: var(--tt-ink);
+    background: var(--tt-bg-soft);
+}
+.tt-dashboard .tt-fcompare-cell.tt-fcompare-headerplayer {
+    font-weight: 700;
+    background: var(--tt-paper);
+    color: var(--tt-ink);
+    border-top: 0;
+}
+.tt-dashboard .tt-fcompare-cell.tt-fcompare-card {
+    padding: var(--tt-sp-3);
+    background: var(--tt-paper);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    border-top: 0;
+}
+.tt-dashboard .tt-fcompare-cell.tt-fcompare-card .tt-fcompare-card-inner {
+    width: 100%;
+    max-width: 140px;
+}
+.tt-dashboard .tt-fcompare-cell.tt-fcompare-num {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+}
+.tt-dashboard .tt-fcompare-cell em { color: var(--tt-ink-soft); }
+
+/* ---- Chart frames -------------------------------------------------- */
+.tt-dashboard .tt-fcompare-chart {
+    background: var(--tt-paper);
+    border: 1px solid var(--tt-line);
+    border-radius: var(--tt-radius-lg);
+    box-shadow: var(--tt-shadow-md);
+    padding: var(--tt-sp-4);
+}
+.tt-dashboard .tt-fcompare-chart--radar { height: 340px; }
+.tt-dashboard .tt-fcompare-chart--trend { height: 300px; }
+
+/* ---- Scale up ------------------------------------------------------ */
+@media (min-width: 768px) {
+    .tt-dashboard .tt-fcompare-slots {
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    }
+    .tt-dashboard .tt-fcompare-filters {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+    .tt-dashboard .tt-fcompare-grid {
+        grid-template-columns: 180px repeat(var(--tt-fcompare-cols, 1), minmax(180px, 1fr));
+    }
+    .tt-dashboard .tt-fcompare-cell {
+        padding: var(--tt-sp-3) var(--tt-sp-3);
+        font-size: var(--tt-fs-body);
+    }
+    .tt-dashboard .tt-fcompare-cell.tt-fcompare-card .tt-fcompare-card-inner {
+        max-width: 220px;
+    }
+}

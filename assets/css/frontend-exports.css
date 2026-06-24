@@ -1,153 +1,177 @@
 /* Exports page — central bulk-export surface (#797).
  *
- * Mobile-first per CLAUDE.md §2 — base styles target 360px; min-width
- * media queries scale up. Replaces the inline-styled v1 from #797 that
- * pilot flagged as cramped / inconsistent (#863).
+ * 2026 green/gold restyle (B3): raw hex swapped for design tokens, card
+ * corners bumped to --tt-radius-lg, neutral lines / muted text from the
+ * token palette. Mobile-first per CLAUDE.md §2 — base styles target 360px;
+ * min-width media queries at 480 / 768 / 1024 scale up. Scoped under
+ * .tt-dashboard and loaded with a dep on tt-frontend-app-chrome so it
+ * inherits the brand + neutral tokens. Tokens only — no raw hex.
  */
 
-.tt-export-intro {
-    color: #5b6e75;
+.tt-dashboard .tt-export-intro {
+    color: var(--tt-muted, #6a6d66);
     max-width: 760px;
-    margin: 0 0 20px;
-    line-height: 1.5;
+    margin: 0 0 var(--tt-sp-5, 20px);
+    line-height: var(--tt-lh-body, 1.5);
 }
 
-.tt-export-grid {
+/* Export error notice — surfaced above the grid after a failed POST. */
+.tt-dashboard .tt-export-error {
+    background: var(--tt-danger-subtle, #fde2e2);
+    border-left: 4px solid var(--tt-danger, #d8453b);
+    color: var(--tt-ink, #0e1a14);
+    padding: var(--tt-sp-3, 12px) var(--tt-sp-4, 16px);
+    margin: var(--tt-sp-2, 8px) 0 var(--tt-sp-4, 16px);
+    border-radius: var(--tt-radius, 8px);
+}
+
+.tt-dashboard .tt-export-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 16px;
+    gap: var(--tt-sp-4, 16px);
 }
 
 @media (min-width: 768px) {
-    .tt-export-grid {
+    .tt-dashboard .tt-export-grid {
         grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
     }
 }
 
-.tt-export-card {
+.tt-dashboard .tt-export-card {
     position: relative;
     display: flex;
     flex-direction: column;
-    background: #fff;
-    border: 1px solid #e5e7ea;
-    border-radius: 8px;
-    padding: 16px 16px 14px;
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-md);
+    padding: var(--tt-sp-4, 16px) var(--tt-sp-4, 16px) var(--tt-sp-3, 12px);
     min-height: 260px;
 }
 
-.tt-export-card__header {
+.tt-dashboard .tt-export-card__header {
     padding-right: 64px;
-    margin-bottom: 6px;
+    margin-bottom: var(--tt-sp-1, 4px);
 }
 
-.tt-export-card__title {
+.tt-dashboard .tt-export-card__title {
     display: block;
-    font-size: 14px;
+    font-size: var(--tt-fs-body, 1rem);
     font-weight: 600;
     line-height: 1.3;
-    color: #1c1c1c;
+    color: var(--tt-ink, #0e1a14);
 }
 
-.tt-export-card__format {
+.tt-dashboard .tt-export-card__format {
     position: absolute;
     top: 12px;
     right: 12px;
     display: inline-block;
     padding: 2px 8px;
     border-radius: 999px;
-    background: #0b3d2e;
-    color: #fff;
-    font-size: 12px;
+    background: var(--tt-primary, #0b3d2e);
+    color: var(--tt-paper, #fff);
+    font-size: var(--tt-fs-sm, 0.85rem);
     font-weight: 600;
     letter-spacing: 0.04em;
     line-height: 1.4;
     white-space: nowrap;
 }
 
-.tt-export-card__desc {
-    color: #5b6e75;
-    font-size: 12px;
-    line-height: 1.5;
-    margin: 0 0 14px;
+.tt-dashboard .tt-export-card__desc {
+    color: var(--tt-muted, #6a6d66);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    line-height: var(--tt-lh-body, 1.5);
+    margin: 0 0 var(--tt-sp-3, 12px);
 }
 
-.tt-export-card__form {
+.tt-dashboard .tt-export-card__form {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: var(--tt-sp-2, 8px);
     flex-grow: 1;
 }
 
-.tt-export-card__field {
+.tt-dashboard .tt-export-card__field {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    font-size: 12px;
-    color: #5b6e75;
+    gap: var(--tt-sp-1, 4px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-muted, #6a6d66);
 }
 
-.tt-export-card__field-label {
+.tt-dashboard .tt-export-card__field-label {
     line-height: 1.3;
 }
 
-.tt-export-card__field-optional {
-    color: #7c7c7c;
+.tt-dashboard .tt-export-card__field-optional {
+    color: var(--tt-ink-soft, #6a6d66);
 }
 
-.tt-export-card__field .tt-input,
-.tt-export-card__field input,
-.tt-export-card__field select {
+.tt-dashboard .tt-export-card__field .tt-input,
+.tt-dashboard .tt-export-card__field input,
+.tt-dashboard .tt-export-card__field select {
     width: 100%;
-    min-height: 44px;
+    min-height: 48px;
     box-sizing: border-box;
-    font-size: 14px;
+    font-size: 1rem; /* ≥16px — no iOS zoom */
+    color: var(--tt-ink, #0e1a14);
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+}
+.tt-dashboard .tt-export-card__field .tt-input:focus-visible,
+.tt-dashboard .tt-export-card__field input:focus-visible,
+.tt-dashboard .tt-export-card__field select:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 1px;
 }
 
 /* Native date input — keep min-width small so dd-mm-jjjj fits even
  * inside a narrow card without clipping. */
-.tt-export-card__field input[type="date"] {
+.tt-dashboard .tt-export-card__field input[type="date"] {
     min-width: 0;
 }
 
-.tt-export-card__footer {
+.tt-dashboard .tt-export-card__footer {
     margin-top: auto;
-    padding-top: 12px;
+    padding-top: var(--tt-sp-3, 12px);
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: var(--tt-sp-2, 8px);
 }
 
-.tt-export-card__footer .tt-btn {
-    min-height: 44px;
+.tt-dashboard .tt-export-card__footer .tt-btn {
+    min-height: 48px;
 }
 
-.tt-export-card__msg {
-    font-size: 12px;
-    color: #5b6e75;
+.tt-dashboard .tt-export-card__msg {
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-muted, #6a6d66);
     line-height: 1.4;
 }
 
-.tt-export-card__msg--error {
-    color: #b32d2e;
+.tt-dashboard .tt-export-card__msg--error {
+    color: var(--tt-danger, #d8453b);
 }
 
 /* Multi-format chip toggle (#864). One pill per format slug; the selected
  * pill paints in the brand green so the choice is obvious before the user
  * hits Export. */
-.tt-export-card__formats {
+.tt-dashboard .tt-export-card__formats {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
+    gap: var(--tt-sp-2, 8px);
 }
 
-.tt-export-card__format-chip {
+.tt-dashboard .tt-export-card__format-chip {
     display: inline-flex;
     align-items: center;
     padding: 6px 12px;
     border-radius: 999px;
-    background: #f3f4f5;
-    color: #1c1c1c;
-    font-size: 12px;
+    background: var(--tt-bg-soft, #f4f6f3);
+    color: var(--tt-ink, #0e1a14);
+    font-size: var(--tt-fs-sm, 0.85rem);
     font-weight: 600;
     letter-spacing: 0.02em;
     line-height: 1.4;
@@ -156,7 +180,7 @@
     touch-action: manipulation;
 }
 
-.tt-export-card__format-chip input[type="radio"] {
+.tt-dashboard .tt-export-card__format-chip input[type="radio"] {
     /* Visually hidden, still focusable for keyboard users. */
     position: absolute;
     width: 1px;
@@ -168,13 +192,13 @@
     border: 0;
 }
 
-.tt-export-card__format-chip:has(input:checked) {
-    background: #0b3d2e;
-    color: #fff;
+.tt-dashboard .tt-export-card__format-chip:has(input:checked) {
+    background: var(--tt-primary, #0b3d2e);
+    color: var(--tt-paper, #fff);
 }
 
-.tt-export-card__format-chip:has(input:focus-visible) {
-    outline: 2px solid #0b3d2e;
+.tt-dashboard .tt-export-card__format-chip:has(input:focus-visible) {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
     outline-offset: 2px;
 }
 
@@ -184,21 +208,21 @@
  * itself is a vertical checkbox stack; on tablet+ the list wraps
  * into 2 columns so long pickers (eg. 13-column players list) don't
  * push the card to "scroll-only" height. */
-.tt-export-card__columns {
-    margin: 4px 0 4px;
-    border: 1px solid #e5e7ea;
-    border-radius: 6px;
-    background: #fafbfc;
+.tt-dashboard .tt-export-card__columns {
+    margin: var(--tt-sp-1, 4px) 0;
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-bg-soft, #f4f6f3);
 }
 
-.tt-export-card__columns-summary {
+.tt-dashboard .tt-export-card__columns-summary {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: var(--tt-sp-2, 8px);
     cursor: pointer;
-    padding: 12px 12px;
-    font-size: 12px;
-    color: #1c1c1c;
+    padding: var(--tt-sp-3, 12px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-ink, #0e1a14);
     line-height: 1.4;
     min-height: 48px;
     box-sizing: border-box;
@@ -206,69 +230,69 @@
     list-style: none;
 }
 
-.tt-export-card__columns-summary::-webkit-details-marker {
+.tt-dashboard .tt-export-card__columns-summary::-webkit-details-marker {
     display: none;
 }
 
-.tt-export-card__columns-summary::before {
+.tt-dashboard .tt-export-card__columns-summary::before {
     content: '▸';
     display: inline-block;
-    color: #5b6e75;
-    transition: transform 120ms ease;
+    color: var(--tt-muted, #6a6d66);
+    transition: transform var(--tt-motion-duration, 150ms) var(--tt-motion-easing, ease);
     width: 12px;
     text-align: center;
 }
 
-.tt-export-card__columns[open] > .tt-export-card__columns-summary::before {
+.tt-dashboard .tt-export-card__columns[open] > .tt-export-card__columns-summary::before {
     transform: rotate(90deg);
 }
 
-.tt-export-card__columns-label {
+.tt-dashboard .tt-export-card__columns-label {
     font-weight: 600;
 }
 
-.tt-export-card__columns-count {
-    color: #5b6e75;
+.tt-dashboard .tt-export-card__columns-count {
+    color: var(--tt-muted, #6a6d66);
 }
 
-.tt-export-card__columns-actions {
+.tt-dashboard .tt-export-card__columns-actions {
     display: flex;
-    gap: 6px;
-    padding: 0 12px 8px;
+    gap: var(--tt-sp-2, 8px);
+    padding: 0 var(--tt-sp-3, 12px) var(--tt-sp-2, 8px);
 }
 
-.tt-export-card__columns-action {
+.tt-dashboard .tt-export-card__columns-action {
     min-height: 32px;
-    font-size: 12px;
-    padding: 4px 10px;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    padding: var(--tt-sp-1, 4px) var(--tt-sp-3, 12px);
 }
 
-.tt-export-card__columns-list {
+.tt-dashboard .tt-export-card__columns-list {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 4px;
-    padding: 0 12px 12px;
+    gap: var(--tt-sp-1, 4px);
+    padding: 0 var(--tt-sp-3, 12px) var(--tt-sp-3, 12px);
 }
 
 @media (min-width: 480px) {
-    .tt-export-card__columns-list {
+    .tt-dashboard .tt-export-card__columns-list {
         grid-template-columns: 1fr 1fr;
-        column-gap: 12px;
+        column-gap: var(--tt-sp-3, 12px);
     }
 }
 
-.tt-export-card__columns-item {
+.tt-dashboard .tt-export-card__columns-item {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: var(--tt-sp-2, 8px);
     min-height: 32px;
-    font-size: 12px;
-    color: #1c1c1c;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-ink, #0e1a14);
     cursor: pointer;
     line-height: 1.4;
 }
 
-.tt-export-card__columns-item input[type="checkbox"] {
+.tt-dashboard .tt-export-card__columns-item input[type="checkbox"] {
     width: 18px;
     height: 18px;
     margin: 0;
@@ -278,48 +302,48 @@
 /* #1542 — exporters as collapsed accordion blocks grouped by domain.
    Each card is a native <details>; the summary is the collapsed header
    (title + format badges), the body holds the filters + Export button. */
-.tt-export-section {
-    margin: 22px 0 10px;
-    font-size: 11px;
+.tt-dashboard .tt-export-section {
+    margin: var(--tt-sp-6, 24px) 0 var(--tt-sp-2, 8px);
+    font-size: 0.72rem;
     font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: #6b7280;
+    color: var(--tt-muted, #6a6d66);
 }
-.tt-export-card {
+.tt-dashboard .tt-export-card {
     position: static;
     display: block;
     min-height: 0;
     padding: 0;
     overflow: hidden;
 }
-.tt-export-card__summary {
+.tt-dashboard .tt-export-card__summary {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
+    gap: var(--tt-sp-3, 12px);
     flex-wrap: wrap;
-    padding: 14px 16px;
+    padding: var(--tt-sp-3, 12px) var(--tt-sp-4, 16px);
     min-height: 48px;
     cursor: pointer;
     list-style: none;
 }
-.tt-export-card__summary::-webkit-details-marker { display: none; }
-.tt-export-card__summary:focus-visible {
-    outline: 2px solid #0b3d2e;
+.tt-dashboard .tt-export-card__summary::-webkit-details-marker { display: none; }
+.tt-dashboard .tt-export-card__summary:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
     outline-offset: -2px;
 }
-.tt-export-card__badges {
+.tt-dashboard .tt-export-card__badges {
     display: inline-flex;
-    gap: 6px;
+    gap: var(--tt-sp-2, 8px);
     flex-wrap: wrap;
 }
 /* Format chips ride inline in the summary, not absolutely positioned. */
-.tt-export-card__summary .tt-export-card__format {
+.tt-dashboard .tt-export-card__summary .tt-export-card__format {
     position: static;
     top: auto;
     right: auto;
-    font-size: 11px;
+    font-size: 0.72rem;
 }
-.tt-export-card__desc { padding: 0 16px; }
-.tt-export-card__form { padding: 0 16px 14px; }
+.tt-dashboard .tt-export-card__desc { padding: 0 var(--tt-sp-4, 16px); }
+.tt-dashboard .tt-export-card__form { padding: 0 var(--tt-sp-4, 16px) var(--tt-sp-3, 12px); }

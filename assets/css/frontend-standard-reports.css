@@ -1,0 +1,250 @@
+/*
+ * frontend-standard-reports.css — 2026 green/gold restyle (B3) for the
+ * Standard report surface (?tt_view=standard-report). Replaces the inline
+ * <style> block that FrontendStandardReportsView::renderStyles() used to
+ * emit; the markup is otherwise unchanged (restyle, not redesign).
+ *
+ * Mobile-first per CLAUDE.md §2: base styles target ~360px, min-width
+ * queries at 480 / 768 / 1024 scale up. Scoped under .tt-dashboard (the
+ * active theme is hostile). Loaded with a dep on tt-frontend-app-chrome so
+ * it inherits the brand + neutral tokens and the shared .tt-kpi tile.
+ *
+ * Tokens only — no raw hex.
+ */
+
+.tt-dashboard .tt-rep-page { font-size: var(--tt-fs-body, 1rem); }
+
+/* Page head — title + sub + action pills. */
+.tt-dashboard .tt-rep-page-head {
+    background: var(--tt-paper, #fff);
+    padding: var(--tt-sp-4, 16px);
+    border-radius: var(--tt-radius-lg, 14px);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    box-shadow: var(--tt-shadow-md);
+    margin: 0 0 var(--tt-sp-4, 16px);
+}
+.tt-dashboard .tt-rep-page-head h1 {
+    margin: 0 0 var(--tt-sp-1, 4px);
+    font-size: var(--tt-fs-h1, 1.75rem);
+    font-weight: 800;
+    color: var(--tt-ink, #0e1a14);
+    line-height: 1.2;
+}
+.tt-dashboard .tt-rep-page-head__sub {
+    margin: 0;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-muted, #6a6d66);
+}
+.tt-dashboard .tt-rep-page-head__actions {
+    display: flex;
+    gap: var(--tt-sp-2, 8px);
+    flex-wrap: wrap;
+    margin-top: var(--tt-sp-3, 12px);
+}
+
+/* Action / picker pill — secondary affordance, ≥48px touch target. */
+.tt-dashboard .tt-rep-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: var(--tt-sp-2, 8px) var(--tt-sp-4, 16px);
+    background: transparent;
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    color: var(--tt-ink, #0e1a14);
+    text-decoration: none;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    font-weight: 600;
+    box-sizing: border-box;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.tt-dashboard .tt-rep-btn:hover,
+.tt-dashboard .tt-rep-btn:focus-visible {
+    color: var(--tt-primary, #0b3d2e);
+    border-color: var(--tt-primary, #0b3d2e);
+    text-decoration: none;
+}
+.tt-dashboard .tt-rep-btn:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 1px;
+}
+
+/* KPI strip — wraps FrontendAppChrome::kpiTile() output. */
+.tt-dashboard .tt-rep-kpi-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--tt-sp-3, 12px);
+    margin: 0 0 var(--tt-sp-4, 16px);
+}
+@media (min-width: 768px) {
+    .tt-dashboard .tt-rep-kpi-row {
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    }
+}
+
+/* Card section — table / bar host. */
+.tt-dashboard .tt-rep-section {
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    box-shadow: var(--tt-shadow-md);
+    padding: var(--tt-sp-4, 16px);
+    margin: 0 0 var(--tt-sp-4, 16px);
+}
+.tt-dashboard .tt-rep-section__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--tt-sp-2, 8px);
+    flex-wrap: wrap;
+    margin-bottom: var(--tt-sp-3, 12px);
+}
+.tt-dashboard .tt-rep-section__title {
+    margin: 0;
+    font-size: var(--tt-fs-lg, 1.125rem);
+    font-weight: 700;
+    color: var(--tt-ink, #0e1a14);
+}
+.tt-dashboard .tt-rep-section__hint {
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-muted, #6a6d66);
+}
+
+/* Report table. */
+.tt-dashboard .tt-rep-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-variant-numeric: tabular-nums;
+}
+.tt-dashboard .tt-rep-table th,
+.tt-dashboard .tt-rep-table td {
+    padding: var(--tt-sp-2, 8px) var(--tt-sp-3, 12px);
+    text-align: left;
+    border-bottom: 1px solid var(--tt-line-soft, #eef0ec);
+}
+.tt-dashboard .tt-rep-table th {
+    font-size: 0.72rem;
+    color: var(--tt-muted, #6a6d66);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.tt-dashboard .tt-rep-table tbody tr:last-child td { border-bottom: 0; }
+.tt-dashboard .tt-rep-table td.num,
+.tt-dashboard .tt-rep-table th.num { text-align: right; }
+.tt-dashboard .tt-rep-table a {
+    color: var(--tt-primary, #0b3d2e);
+    font-weight: 600;
+    text-decoration: none;
+}
+.tt-dashboard .tt-rep-table a:hover,
+.tt-dashboard .tt-rep-table a:focus-visible { text-decoration: underline; }
+
+/* Bar row — per-player distribution with a 2026 progress bar. */
+.tt-dashboard .tt-rep-bar-row {
+    display: grid;
+    grid-template-columns: minmax(120px, 1fr) 2fr 56px;
+    gap: var(--tt-sp-3, 12px);
+    align-items: center;
+    padding: var(--tt-sp-1, 4px) 0;
+    border-bottom: 1px solid var(--tt-line-soft, #eef0ec);
+    font-size: var(--tt-fs-body, 1rem);
+    color: var(--tt-ink, #0e1a14);
+}
+.tt-dashboard .tt-rep-bar-row:last-child { border-bottom: 0; }
+.tt-dashboard .tt-rep-bar-track {
+    background: var(--tt-line-soft, #eef0ec);
+    border-radius: 999px;
+    height: 8px;
+    overflow: hidden;
+}
+.tt-dashboard .tt-rep-bar-fill {
+    background: var(--tt-success, #2f9e5e);
+    height: 100%;
+    border-radius: 999px;
+}
+.tt-dashboard .tt-rep-bar-fill[data-warn="1"] { background: var(--tt-warning, #e8902b); }
+.tt-dashboard .tt-rep-bar-row .num { text-align: right; font-weight: 600; }
+
+/* Imbalance / warning note text. */
+.tt-dashboard .tt-rep-note--warn {
+    margin: 0;
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-warning, #e8902b);
+}
+
+/* Filter bar — plain GET round-trip, laid out as a card. */
+.tt-dashboard .tt-rep-filter {
+    display: flex;
+    gap: var(--tt-sp-3, 12px);
+    align-items: end;
+    flex-wrap: wrap;
+}
+.tt-dashboard .tt-rep-filter label {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-1, 4px);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-ink, #0e1a14);
+}
+.tt-dashboard .tt-rep-filter select,
+.tt-dashboard .tt-rep-filter input {
+    min-height: 48px;
+    padding: 0.5rem 0.7rem;
+    font-size: 1rem; /* ≥16px — no iOS zoom */
+    color: var(--tt-ink, #0e1a14);
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    box-sizing: border-box;
+}
+.tt-dashboard .tt-rep-filter select[multiple] { min-height: 132px; }
+.tt-dashboard .tt-rep-filter select:focus-visible,
+.tt-dashboard .tt-rep-filter input:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 1px;
+}
+
+/* Picker grid — "pick a player / team" landing. */
+.tt-dashboard .tt-rep-picker {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--tt-sp-2, 8px);
+}
+@media (min-width: 480px) {
+    .tt-dashboard .tt-rep-picker {
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    }
+}
+.tt-dashboard .tt-rep-picker .tt-rep-btn { display: flex; width: 100%; }
+
+/* Low-variance flagged row + inline tag (coach eval quality). */
+.tt-dashboard .tt-rep-row--flag { background: var(--tt-warning-subtle, #fdf3d8); }
+.tt-dashboard .tt-rep-flag-tag {
+    color: var(--tt-warning, #e8902b);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+/* Radar chart host inside a section. */
+.tt-dashboard .tt-rep-chart { max-width: 400px; }
+.tt-dashboard .tt-rep-chart--sm { max-width: 350px; }
+
+/* Empty state. */
+.tt-dashboard .tt-rep-empty {
+    text-align: center;
+    padding: var(--tt-sp-6, 24px) var(--tt-sp-4, 16px);
+    color: var(--tt-muted, #6a6d66);
+}
+.tt-dashboard .tt-rep-empty strong {
+    display: block;
+    color: var(--tt-ink, #0e1a14);
+    margin-bottom: var(--tt-sp-1, 4px);
+}

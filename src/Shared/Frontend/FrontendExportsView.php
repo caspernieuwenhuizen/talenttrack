@@ -45,7 +45,7 @@ class FrontendExportsView extends FrontendViewBase {
         wp_enqueue_style(
             'tt-frontend-exports',
             TT_PLUGIN_URL . 'assets/css/frontend-exports.css',
-            [ 'tt-frontend-mobile' ],
+            [ 'tt-frontend-app-chrome' ],
             TT_VERSION
         );
         // #986 — column picker JS. Enqueued from a static asset rather
@@ -323,7 +323,7 @@ class FrontendExportsView extends FrontendViewBase {
         echo '</p>';
 
         if ( self::$post_error !== null ) {
-            echo '<div class="tt-notice tt-notice--error" style="background:#fdecea; border-left:4px solid #d63638; padding:12px 16px; margin:8px 0 16px;">';
+            echo '<div class="tt-notice tt-notice--error tt-export-error">';
             echo esc_html( self::$post_error );
             echo '</div>';
         }
