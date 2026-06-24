@@ -85,14 +85,14 @@ class FrontendTileGrid {
             font-size: calc(17px * var(--tt-tile-scale));
             font-weight: 600;
             margin: 16px 0 14px;
-            color: #1a1d21;
+            color: var(--tt-ink, #0e1a14);
         }
         .tt-ftile-section-label {
             font-size: calc(10px * var(--tt-tile-scale));
             font-weight: 700;
             letter-spacing: 0.08em;
             text-transform: uppercase;
-            color: #8a9099;
+            color: var(--tt-primary-deep, #07261c);
             margin: calc(18px * var(--tt-tile-scale)) 0 calc(8px * var(--tt-tile-scale));
             display: flex;
             align-items: center;
@@ -102,7 +102,7 @@ class FrontendTileGrid {
             content: '';
             flex: 1;
             height: 1px;
-            background: #dcdcde;
+            background: var(--tt-line, #e3e6e1);
         }
         .tt-ftile-grid {
             display: grid;
@@ -113,12 +113,13 @@ class FrontendTileGrid {
             display: flex;
             align-items: center;
             gap: calc(11px * var(--tt-tile-scale));
-            background: #fff;
-            border: 1px solid #e5e7ea;
-            border-radius: var(--tt-tile-radius, 8px);
+            background: var(--tt-paper, #fff);
+            border: 1px solid var(--tt-line, #e3e6e1);
+            border-left: 3px solid var(--tt-primary, #0b3d2e);
+            border-radius: var(--tt-tile-radius, 12px);
             padding: var(--tt-tile-padding, 14px);
             text-decoration: none;
-            color: #1a1d21;
+            color: var(--tt-ink, #0e1a14);
             min-height: var(--tt-tile-min-height, 76px);
             transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1),
                         box-shadow 180ms ease,
@@ -126,9 +127,9 @@ class FrontendTileGrid {
         }
         .tt-ftile:hover, .tt-ftile:focus {
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            border-color: #d0d4d8;
-            color: #1a1d21;
+            box-shadow: 0 4px 12px rgba(11, 61, 46, 0.10);
+            border-color: var(--tt-line, #e3e6e1);
+            color: var(--tt-ink, #0e1a14);
         }
         /* #1553 — tile icons render as Phosphor duotone glyphs inside an
            accent-tinted chip (`.tt-tile-chip`, shared via TileIconChip).
@@ -143,12 +144,12 @@ class FrontendTileGrid {
             font-size: calc(14px * var(--tt-tile-scale));
             line-height: 1.25;
             margin: 0 0 calc(2px * var(--tt-tile-scale));
-            color: #1a1d21;
+            color: var(--tt-ink, #0e1a14);
             word-break: break-word;
             overflow-wrap: anywhere;
         }
         .tt-ftile-desc {
-            color: #6b7280;
+            color: var(--tt-muted, #6a6d66);
             font-size: calc(12px * var(--tt-tile-scale));
             line-height: 1.35;
             margin: 0;
@@ -162,7 +163,7 @@ class FrontendTileGrid {
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
-        @media (max-width: 640px) {
+        @media (max-width: 480px) {
             .tt-ftile-grid { grid-template-columns: 1fr; }
         }
 
@@ -218,13 +219,13 @@ class FrontendTileGrid {
             margin-top: calc(18px * var(--tt-tile-scale));
         }
         .tt-ftile-mywork {
-            border: 1px solid #e5e7ea;
-            border-radius: var(--tt-tile-radius, 8px);
+            border: 1px solid var(--tt-line, #e3e6e1);
+            border-radius: var(--tt-tile-radius, 12px);
             /* #1612 — subtly tinted panel background (mockup's .panel) so the
                "My work" rail reads as a separate panel, distinct from the
                white work-group cards. Rows stay white on the hover/focus
                states above. */
-            background: #fbfcfd;
+            background: var(--tt-bg-soft, #f4f6f3);
             padding: calc(12px * var(--tt-tile-scale));
         }
         .tt-ftile-mywork-head {
@@ -232,7 +233,7 @@ class FrontendTileGrid {
             font-weight: 700;
             letter-spacing: 0.08em;
             text-transform: uppercase;
-            color: #8a9099;
+            color: var(--tt-primary-deep, #07261c);
             margin: 0 0 calc(8px * var(--tt-tile-scale));
         }
         .tt-ftile-mywork-rows {
@@ -246,20 +247,22 @@ class FrontendTileGrid {
             gap: calc(10px * var(--tt-tile-scale));
             min-height: 48px;
             padding: calc(6px * var(--tt-tile-scale)) calc(8px * var(--tt-tile-scale));
-            border-radius: var(--tt-tile-radius, 8px);
+            border-left: 3px solid var(--tt-secondary, #e8b624);
+            border-radius: var(--tt-tile-radius, 12px);
+            background: var(--tt-paper, #fff);
             text-decoration: none;
-            color: #1a1d21;
+            color: var(--tt-ink, #0e1a14);
             touch-action: manipulation;
             transition: background-color 180ms ease;
         }
         .tt-ftile-mywork-row:hover,
         .tt-ftile-mywork-row:focus,
         .tt-ftile-mywork-row:active {
-            background: #f3f4f6;
-            color: #1a1d21;
+            background: var(--tt-bg-soft, #f4f6f3);
+            color: var(--tt-ink, #0e1a14);
         }
         .tt-ftile-mywork-row:focus-visible {
-            outline: 2px solid #2563eb;
+            outline: 2px solid var(--tt-primary, #0b3d2e);
             outline-offset: 2px;
         }
         .tt-ftile-mywork-row .tt-tile-chip {
@@ -345,12 +348,12 @@ class FrontendTileGrid {
             font-size: calc(13px * var(--tt-tile-scale));
             font-weight: 700;
             letter-spacing: 0.04em;
-            color: #1a1d21;
+            color: var(--tt-ink, #0e1a14);
             margin: 0 0 calc(8px * var(--tt-tile-scale));
             cursor: pointer;
             user-select: none;
         }
-        .tt-ftile-section[open] > .tt-ftile-section-summary { color: #0a0d12; }
+        .tt-ftile-section[open] > .tt-ftile-section-summary { color: var(--tt-primary-deep, #07261c); }
         </style>
         <?php
     }
@@ -434,7 +437,7 @@ class FrontendTileGrid {
                 <?php foreach ( $tiles as $tile ) :
                     $chip  = TileIconChip::render(
                         (string) ( $tile['icon'] ?? '' ),
-                        (string) ( $tile['color'] ?? '#5b6e75' )
+                        (string) ( $tile['color'] ?? '#0b3d2e' )
                     );
                     $label = esc_html( (string) ( $tile['label'] ?? '' ) );
                     $url   = esc_url( (string) ( $tile['url'] ?? '' ) );
@@ -474,7 +477,7 @@ class FrontendTileGrid {
                     // #1553 — Phosphor duotone glyph in an accent chip.
                     $chip  = TileIconChip::render(
                         (string) ( $tile['icon'] ?? '' ),
-                        (string) ( $tile['color'] ?? '#5b6e75' )
+                        (string) ( $tile['color'] ?? '#0b3d2e' )
                     );
                     $label = esc_html( (string) ( $tile['label'] ?? '' ) );
                     $desc  = esc_html( (string) ( $tile['desc'] ?? '' ) );
