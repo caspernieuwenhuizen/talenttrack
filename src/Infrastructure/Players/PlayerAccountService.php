@@ -109,6 +109,99 @@ final class PlayerAccountService {
     }
 
     /**
+     * #1847 — directly create a brand-new WP player account and link it to a
+     * player. Default is a "set your password" email; pass a non-empty
+     * `$temp_password` for the no-usable-email case — the caller MUST gate
+     * that behind an explicit confirmation for a child account (CLAUDE.md §1).
+     * Audit-logged.
+     *
+     * @return array{ok:bool,code:string,message:string,user_id?:int}
+     */
+    public function directCreate( int $player_id, string $first, string $last, string $email, ?string $temp_password = null ): array {
+        global $wpdb;
+        $club  = CurrentClub::id();
+        $email = sanitize_email( $email );
+        $first = sanitize_text_field( $first );
+        $last  = sanitize_text_field( $last );
+
+        if ( $player_id <= 0 ) {
+            return $this->err( 'bad_request', __( 'A player is required.', 'talenttrack' ) );
+        }
+        if ( $email === '' || ! is_email( $email ) ) {
+            return $this->err( 'bad_email', __( 'A valid email address is required.', 'talenttrack' ) );
+        }
+        if ( email_exists( $email ) ) {
+            return $this->err( 'email_exists', __( 'An account with that email already exists. Link it instead of creating a new one.', 'talenttrack' ) );
+        }
+        $player = $wpdb->get_row( $wpdb->prepare(
+            "SELECT id, wp_user_id FROM {$wpdb->prefix}tt_players WHERE id = %d AND club_id = %d",
+            $player_id, $club
+        ) );
+        if ( ! $player ) {
+            return $this->err( 'not_found', __( 'Player not found.', 'talenttrack' ) );
+        }
+        if ( (int) ( $player->wp_user_id ?? 0 ) > 0 ) {
+            return $this->err( 'already_linked', __( 'This player already has an account.', 'talenttrack' ) );
+        }
+
+        $login    = $this->generateLogin( $first, $last, $email );
+        $use_temp = is_string( $temp_password ) && $temp_password !== '';
+        $password = $use_temp ? $temp_password : wp_generate_password( 24, true, true );
+
+        $uid = wp_insert_user( [
+            'user_login'   => $login,
+            'user_pass'    => $password,
+            'user_email'   => $email,
+            'first_name'   => $first,
+            'last_name'    => $last,
+            'display_name' => trim( $first . ' ' . $last ) !== '' ? trim( $first . ' ' . $last ) : $login,
+            'role'         => self::PLAYER_ROLE,
+        ] );
+        if ( is_wp_error( $uid ) ) {
+            return $this->err( 'insert_failed', (string) $uid->get_error_message() );
+        }
+        $uid = (int) $uid;
+
+        $link = $this->link( $player_id, $uid );
+        if ( empty( $link['ok'] ) ) {
+            wp_delete_user( $uid );
+            return $this->err( 'link_failed', (string) $link['message'] );
+        }
+
+        if ( ! $use_temp ) {
+            wp_new_user_notification( $uid, null, 'user' );
+        }
+
+        ( new \TT\Infrastructure\Audit\AuditService() )->record(
+            'player_account.direct_created', 'player', $player_id,
+            [ 'wp_user_id' => $uid, 'role' => self::PLAYER_ROLE, 'method' => $use_temp ? 'temp_password' : 'email_set_password' ]
+        );
+
+        return [
+            'ok'      => true,
+            'code'    => 'created',
+            'message' => $use_temp
+                ? __( 'Player account created and linked with a temporary password.', 'talenttrack' )
+                : __( 'Player account created and linked. A set-password email has been sent.', 'talenttrack' ),
+            'user_id' => $uid,
+        ];
+    }
+
+    /** Generate a unique WP login from a name / email. */
+    private function generateLogin( string $first, string $last, string $email ): string {
+        $base = sanitize_user( strtolower( $first . $last ), true );
+        if ( $base === '' ) $base = sanitize_user( strtolower( (string) ( strstr( $email, '@', true ) ?: 'player' ) ), true );
+        if ( $base === '' ) $base = 'player';
+        $candidate = $base;
+        $i = 1;
+        while ( username_exists( $candidate ) ) {
+            $candidate = $base . $i;
+            $i++;
+        }
+        return $candidate;
+    }
+
+    /**
      * Unlink whatever account is on a player.
      *
      * @return array{ok:bool,code:string,message:string}
