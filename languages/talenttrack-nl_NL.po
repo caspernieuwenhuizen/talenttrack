@@ -41599,6 +41599,12 @@ msgstr ""
 "\n"
 "Tot snel!"
 
+msgid "Everyone was here - continue"
+msgstr "Iedereen was er - doorgaan"
+
+msgid "Or mark any absences below first, then continue."
+msgstr "Of markeer eerst eventuele afwezigen hieronder en ga dan door."
+
 #: src/Modules/TeamDevelopment/Rest/PlayerAttributesRestController.php
 msgid "Expected a values map."
 msgstr "Verwachtte een waardenmap."
