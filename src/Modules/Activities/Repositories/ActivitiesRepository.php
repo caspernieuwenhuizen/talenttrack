@@ -684,12 +684,17 @@ final class ActivitiesRepository {
     /**
      * #1320 admin-CRUD slice — hard-delete an activity and ALL its
      * attendance rows (roster + guests). Club-scoped.
+     *
+     * #1712 — returns the activity-delete result so the REST controller
+     * can surface a DB failure (the wp-admin caller ignores the return).
+     *
+     * @return bool False only when the activity delete hit a DB error.
      */
-    public function deleteWithAttendance( int $activity_id ): void {
+    public function deleteWithAttendance( int $activity_id ): bool {
         global $wpdb;
         $p = $wpdb->prefix;
         $wpdb->delete( "{$p}tt_attendance", [ 'activity_id' => $activity_id, 'club_id' => CurrentClub::id() ] );
-        $wpdb->delete( "{$p}tt_activities", [ 'id' => $activity_id, 'club_id' => CurrentClub::id() ] );
+        return $wpdb->delete( "{$p}tt_activities", [ 'id' => $activity_id, 'club_id' => CurrentClub::id() ] ) !== false;
     }
 
     /**
@@ -919,5 +924,415 @@ final class ActivitiesRepository {
         ) );
 
         return is_array( $rows ) ? $rows : [];
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    // #1712 — REST query-shape methods. The activities REST controller
+    // previously inlined ~19 `$wpdb` sites against tt_activities /
+    // tt_attendance; they now route through the methods below so the
+    // controller and the (already-clean) views share one source of
+    // truth per query shape. Authorization decisions stay in the
+    // controller's permission_callback / handler; only the SQL moved.
+    // ──────────────────────────────────────────────────────────────
+
+    /**
+     * #1712 — the linked player id for a WP user (active, non-archived),
+     * or 0 when the user maps to no player. Used by the REST permission
+     * helpers to detect player-scoped my-activities calls.
+     */
+    public function linkedPlayerIdForUser( int $wp_user_id ): int {
+        if ( $wp_user_id <= 0 ) return 0;
+        global $wpdb;
+        $p = $wpdb->prefix;
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT id FROM {$p}tt_players WHERE wp_user_id = %d AND archived_at IS NULL LIMIT 1",
+            $wp_user_id
+        ) );
+    }
+
+    /**
+     * #1712 — true when the WP user is a registered parent/guardian of
+     * the given player. Defensive against installs that predate the
+     * `tt_player_parents` table (returns false when it is absent).
+     */
+    public function userIsParentOfPlayer( int $wp_user_id, int $player_id ): bool {
+        if ( $wp_user_id <= 0 || $player_id <= 0 ) return false;
+        global $wpdb;
+        $parents_table = $wpdb->prefix . 'tt_player_parents';
+        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $parents_table ) ) !== $parents_table ) {
+            return false;
+        }
+        $link = (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT player_id FROM {$parents_table} WHERE parent_user_id = %d AND player_id = %d LIMIT 1",
+            $wp_user_id, $player_id
+        ) );
+        return $link > 0;
+    }
+
+    /**
+     * #1712 — the REST activities list (GET /activities), with the
+     * on-the-fly attendance-completeness computed columns + HAVING
+     * filter the controller's `list_sessions` inlined before the sweep.
+     *
+     * Coach/player scoping decisions stay in the controller (authz); the
+     * resolved team restriction arrives via `restrict_team_ids`.
+     *
+     * `$args` keys:
+     *   - per_page (int), offset (int)
+     *   - orderby (string) — a column already resolved from the
+     *     controller's `ORDERBY_WHITELIST`; order ('asc'|'desc')
+     *   - include_archived (bool)
+     *   - restrict_team_ids (?list<int>) — null = no team restriction
+     *     (global-read persona or player-scoped request); a list = limit
+     *     to those team ids (coach scope)
+     *   - filter (array) — team_id (int|CSV), player_id, date_from,
+     *     date_to, plan_state (CSV), attendance ('complete'|'partial'|'none')
+     *   - search (string)
+     *   - your_status_pid (int) — when > 0, adds the per-row
+     *     `your_attendance_status` subquery
+     *
+     * @param array<string, mixed> $args
+     * @return array{rows: list<object>, total: int}
+     */
+    public function searchForRest( array $args ): array {
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $per_page = (int) ( $args['per_page'] ?? 25 );
+        $offset   = max( 0, (int) ( $args['offset'] ?? 0 ) );
+        $orderby  = (string) ( $args['orderby'] ?? 's.session_date' );
+        $order    = strtolower( (string) ( $args['order'] ?? 'desc' ) ) === 'asc' ? 'asc' : 'desc';
+        $filter   = is_array( $args['filter'] ?? null ) ? $args['filter'] : [];
+
+        $where  = [ '1=1', 's.club_id = %d' ];
+        $params = [ CurrentClub::id() ];
+
+        $scope = QueryHelpers::apply_demo_scope( 's', 'activity' );
+
+        if ( empty( $args['include_archived'] ) ) {
+            $where[] = 's.archived_at IS NULL';
+        }
+
+        // Coach scope — the controller resolved the accessible team set;
+        // null means unrestricted (global-read persona or player-scoped).
+        $restrict = $args['restrict_team_ids'] ?? null;
+        if ( is_array( $restrict ) && ! empty( $restrict ) ) {
+            $team_ids     = array_values( array_map( 'intval', $restrict ) );
+            $placeholders = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
+            $where[]      = "s.team_id IN ($placeholders)";
+            $params       = array_merge( $params, $team_ids );
+        }
+
+        if ( ! empty( $filter['team_id'] ) ) {
+            $raw_team = (string) $filter['team_id'];
+            $team_ids = array_values( array_filter( array_map( 'absint', explode( ',', $raw_team ) ) ) );
+            if ( count( $team_ids ) === 1 ) {
+                $where[]  = 's.team_id = %d';
+                $params[] = $team_ids[0];
+            } elseif ( count( $team_ids ) > 1 ) {
+                $placeholders = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
+                $where[]  = "s.team_id IN ($placeholders)";
+                $params   = array_merge( $params, $team_ids );
+            }
+        }
+
+        if ( ! empty( $filter['player_id'] ) ) {
+            $pid = absint( $filter['player_id'] );
+            $where[]  = "(
+                s.team_id IN ( SELECT pl.team_id FROM {$p}tt_players pl WHERE pl.id = %d AND pl.club_id = s.club_id )
+                OR EXISTS ( SELECT 1 FROM {$p}tt_attendance a WHERE a.activity_id = s.id AND a.club_id = s.club_id AND ( a.player_id = %d OR a.guest_player_id = %d ) )
+            )";
+            $params[] = $pid;
+            $params[] = $pid;
+            $params[] = $pid;
+        }
+        if ( ! empty( $filter['date_from'] ) ) {
+            $where[]  = 's.session_date >= %s';
+            $params[] = sanitize_text_field( (string) $filter['date_from'] );
+        }
+        if ( ! empty( $filter['date_to'] ) ) {
+            $where[]  = 's.session_date <= %s';
+            $params[] = sanitize_text_field( (string) $filter['date_to'] );
+        }
+        if ( ! empty( $filter['plan_state'] ) ) {
+            $states  = array_filter( array_map( 'trim', explode( ',', (string) $filter['plan_state'] ) ) );
+            $allowed = [ 'draft', 'scheduled', 'in_progress', 'completed', 'cancelled' ];
+            $states  = array_values( array_intersect( $states, $allowed ) );
+            if ( ! empty( $states ) ) {
+                $placeholders = implode( ',', array_fill( 0, count( $states ), '%s' ) );
+                $where[]  = "s.plan_state IN ($placeholders)";
+                foreach ( $states as $st ) $params[] = $st;
+            }
+        }
+
+        if ( ! empty( $args['search'] ) ) {
+            $like = '%' . $wpdb->esc_like( (string) $args['search'] ) . '%';
+            $where[]  = '(s.title LIKE %s OR s.location LIKE %s OR t.name LIKE %s)';
+            $params[] = $like; $params[] = $like; $params[] = $like;
+        }
+
+        $where_sql = implode( ' AND ', $where ) . ' ' . $scope;
+
+        // Attendance computed columns via correlated subqueries. The
+        // numerator + denominator share a player set (current active
+        // roster) so the list-view % equals the detail-page form's
+        // present/total ratio — see the v3.110.95 note in git history.
+        $select_cols = "s.*, t.name AS team_name,
+            (SELECT COUNT(*) FROM {$p}tt_attendance a
+               INNER JOIN {$p}tt_players pl_a ON pl_a.id = a.player_id AND pl_a.club_id = a.club_id
+              WHERE a.activity_id = s.id AND a.is_guest = 0 AND a.club_id = s.club_id
+                AND pl_a.team_id = s.team_id AND pl_a.status = 'active') AS attendance_count,
+            (SELECT COUNT(*) FROM {$p}tt_attendance a
+               INNER JOIN {$p}tt_players pl_b ON pl_b.id = a.player_id AND pl_b.club_id = a.club_id
+              WHERE a.activity_id = s.id AND a.is_guest = 0 AND a.club_id = s.club_id
+                AND pl_b.team_id = s.team_id AND pl_b.status = 'active'
+                AND a.status = 'Present') AS present_count,
+            (SELECT COUNT(*) FROM {$p}tt_players pl WHERE pl.team_id = s.team_id AND pl.club_id = s.club_id AND pl.status = 'active') AS roster_size";
+
+        $your_status_pid = (int) ( $args['your_status_pid'] ?? 0 );
+        if ( $your_status_pid > 0 ) {
+            $select_cols .= $wpdb->prepare(
+                ", (SELECT a.status FROM {$p}tt_attendance a
+                       WHERE a.activity_id = s.id AND a.club_id = s.club_id
+                         AND ( a.player_id = %d OR a.guest_player_id = %d )
+                       LIMIT 1) AS your_attendance_status",
+                $your_status_pid, $your_status_pid
+            );
+        }
+
+        $having     = '';
+        $att_filter = isset( $filter['attendance'] ) ? sanitize_key( (string) $filter['attendance'] ) : '';
+        if ( $att_filter === 'complete' ) {
+            $having = 'HAVING attendance_count >= roster_size AND roster_size > 0';
+        } elseif ( $att_filter === 'partial' ) {
+            $having = 'HAVING attendance_count > 0 AND attendance_count < roster_size';
+        } elseif ( $att_filter === 'none' ) {
+            $having = 'HAVING attendance_count = 0';
+        }
+
+        $list_sql = "SELECT {$select_cols}
+                     FROM {$p}tt_activities s
+                     LEFT JOIN {$p}tt_teams t ON t.id = s.team_id AND t.club_id = s.club_id
+                     WHERE {$where_sql}
+                     {$having}
+                     ORDER BY {$orderby} {$order}
+                     LIMIT %d OFFSET %d";
+
+        $list_params = array_merge( $params, [ $per_page, $offset ] );
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $rows = $wpdb->get_results( $wpdb->prepare( $list_sql, ...$list_params ) );
+
+        if ( $having !== '' ) {
+            $count_sql = "SELECT COUNT(*) FROM (
+                SELECT s.id,
+                    (SELECT COUNT(*) FROM {$p}tt_attendance a
+                       INNER JOIN {$p}tt_players pl_a ON pl_a.id = a.player_id AND pl_a.club_id = a.club_id
+                      WHERE a.activity_id = s.id AND a.is_guest = 0 AND a.club_id = s.club_id
+                        AND pl_a.team_id = s.team_id AND pl_a.status = 'active') AS attendance_count,
+                    (SELECT COUNT(*) FROM {$p}tt_players pl WHERE pl.team_id = s.team_id AND pl.club_id = s.club_id AND pl.status = 'active') AS roster_size
+                FROM {$p}tt_activities s
+                LEFT JOIN {$p}tt_teams t ON t.id = s.team_id AND t.club_id = s.club_id
+                WHERE {$where_sql}
+                {$having}
+            ) AS sub";
+        } else {
+            $count_sql = "SELECT COUNT(*) FROM {$p}tt_activities s
+                          LEFT JOIN {$p}tt_teams t ON t.id = s.team_id AND t.club_id = s.club_id
+                          WHERE {$where_sql}";
+        }
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $total = (int) $wpdb->get_var( $wpdb->prepare( $count_sql, ...$params ) );
+
+        return [ 'rows' => is_array( $rows ) ? $rows : [], 'total' => $total ];
+    }
+
+    /**
+     * #1712 — the activity's team id (club-scoped), or 0. Used by the
+     * REST roster-integrity guard (#1148) to drop off-roster attendance.
+     */
+    public function activityTeamId( int $activity_id ): int {
+        if ( $activity_id <= 0 ) return 0;
+        global $wpdb;
+        $p = $wpdb->prefix;
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT team_id FROM {$p}tt_activities WHERE id = %d AND club_id = %d LIMIT 1",
+            $activity_id, CurrentClub::id()
+        ) );
+    }
+
+    /**
+     * #1712 — the player's current team id (club-scoped), or 0.
+     */
+    public function playerTeamId( int $player_id ): int {
+        if ( $player_id <= 0 ) return 0;
+        global $wpdb;
+        $p = $wpdb->prefix;
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT team_id FROM {$p}tt_players WHERE id = %d AND club_id = %d LIMIT 1",
+            $player_id, CurrentClub::id()
+        ) );
+    }
+
+    /**
+     * #1712 — insert one attendance row (roster or guest). The caller
+     * supplies the fully-shaped, sanitized column map; club scoping is
+     * the caller's responsibility (it varies by write path). Returns the
+     * new row id, or null on a DB error (read `lastError()` for the message).
+     *
+     * @param array<string, mixed> $row
+     */
+    public function insertAttendance( array $row ): ?int {
+        global $wpdb;
+        $p = $wpdb->prefix;
+        $ok = $wpdb->insert( "{$p}tt_attendance", $row );
+        return $ok === false ? null : (int) $wpdb->insert_id;
+    }
+
+    /**
+     * #1712 — wipe the non-guest (roster) attendance rows for an
+     * activity. Guest rows survive (managed via the guest endpoints).
+     */
+    public function deleteRosterAttendance( int $activity_id ): void {
+        global $wpdb;
+        $p = $wpdb->prefix;
+        $wpdb->delete( "{$p}tt_attendance", [ 'activity_id' => $activity_id, 'is_guest' => 0, 'club_id' => CurrentClub::id() ] );
+    }
+
+    /**
+     * #1712 — count ALL attendance rows for an activity (roster + guest),
+     * club-scoped. Used to detect "already has attendance" before seeding.
+     */
+    public function countAttendance( int $activity_id ): int {
+        if ( $activity_id <= 0 ) return 0;
+        global $wpdb;
+        $p = $wpdb->prefix;
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$p}tt_attendance WHERE activity_id = %d AND club_id = %d",
+            $activity_id, CurrentClub::id()
+        ) );
+    }
+
+    /**
+     * #1712 — the activity's current plan_state (club-scoped), or ''.
+     */
+    public function planState( int $activity_id ): string {
+        if ( $activity_id <= 0 ) return '';
+        global $wpdb;
+        $p = $wpdb->prefix;
+        return (string) $wpdb->get_var( $wpdb->prepare(
+            "SELECT plan_state FROM {$p}tt_activities WHERE id = %d AND club_id = %d",
+            $activity_id, CurrentClub::id()
+        ) );
+    }
+
+    /**
+     * #1712 — set an activity's plan_state (club-scoped). No audit stamp:
+     * this is an internal lifecycle transition, not a user edit.
+     */
+    public function setPlanState( int $activity_id, string $plan_state ): bool {
+        global $wpdb;
+        $p = $wpdb->prefix;
+        return $wpdb->update(
+            "{$p}tt_activities",
+            [ 'plan_state' => $plan_state ],
+            [ 'id' => $activity_id, 'club_id' => CurrentClub::id() ]
+        ) !== false;
+    }
+
+    /**
+     * #1712 — toggle the per-activity `evaluation_skipped` flag
+     * (club-scoped). Dedicated method (not the audited `update()`) to
+     * preserve the pre-sweep behaviour of not stamping `updated_by`.
+     */
+    public function setEvaluationSkipped( int $activity_id, int $skipped ): bool {
+        global $wpdb;
+        $p = $wpdb->prefix;
+        return $wpdb->update(
+            "{$p}tt_activities",
+            [ 'evaluation_skipped' => $skipped ],
+            [ 'id' => $activity_id, 'club_id' => CurrentClub::id() ]
+        ) !== false;
+    }
+
+    /**
+     * #1712 — true when the activity exists within the current club.
+     */
+    public function activityExists( int $activity_id ): bool {
+        if ( $activity_id <= 0 ) return false;
+        global $wpdb;
+        $p = $wpdb->prefix;
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$p}tt_activities WHERE id = %d AND club_id = %d",
+            $activity_id, CurrentClub::id()
+        ) ) > 0;
+    }
+
+    /**
+     * #1712 — true when the player exists within the current club.
+     */
+    public function playerExists( int $player_id ): bool {
+        if ( $player_id <= 0 ) return false;
+        global $wpdb;
+        $p = $wpdb->prefix;
+        return (int) $wpdb->get_var( $wpdb->prepare(
+            "SELECT COUNT(*) FROM {$p}tt_players WHERE id = %d AND club_id = %d",
+            $player_id, CurrentClub::id()
+        ) ) > 0;
+    }
+
+    /**
+     * #1712 — one attendance row by id (club-scoped), or null.
+     */
+    public function findAttendanceRow( int $id ): ?object {
+        if ( $id <= 0 ) return null;
+        global $wpdb;
+        $p   = $wpdb->prefix;
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT * FROM {$p}tt_attendance WHERE id = %d AND club_id = %d LIMIT 1",
+            $id, CurrentClub::id()
+        ) );
+        return $row ?: null;
+    }
+
+    /**
+     * #1712 — partial update of one attendance row (club-scoped). Caller
+     * supplies the sanitized column map.
+     *
+     * @param array<string, mixed> $fields
+     */
+    public function updateAttendanceRow( int $id, array $fields ): bool {
+        global $wpdb;
+        $p = $wpdb->prefix;
+        return $wpdb->update( "{$p}tt_attendance", $fields, [ 'id' => $id, 'club_id' => CurrentClub::id() ] ) !== false;
+    }
+
+    /**
+     * #1712 — delete one attendance row by id (club-scoped).
+     */
+    public function deleteAttendanceRow( int $id ): bool {
+        global $wpdb;
+        $p = $wpdb->prefix;
+        return $wpdb->delete( "{$p}tt_attendance", [ 'id' => $id, 'club_id' => CurrentClub::id() ] ) !== false;
+    }
+
+    /**
+     * #1712 — a linked guest's display name + home-team name (club-scoped),
+     * for shaping a guest attendance row in the REST response. Null when
+     * the player is missing.
+     *
+     * @return object|null `{first_name, last_name, team_name}`
+     */
+    public function guestPlayerNameAndTeam( int $player_id ): ?object {
+        if ( $player_id <= 0 ) return null;
+        global $wpdb;
+        $p   = $wpdb->prefix;
+        $row = $wpdb->get_row( $wpdb->prepare(
+            "SELECT pl.first_name, pl.last_name, t.name AS team_name
+             FROM {$p}tt_players pl
+             LEFT JOIN {$p}tt_teams t ON t.id = pl.team_id AND t.club_id = pl.club_id
+             WHERE pl.id = %d AND pl.club_id = %d LIMIT 1",
+            $player_id, CurrentClub::id()
+        ) );
+        return $row ?: null;
     }
 }

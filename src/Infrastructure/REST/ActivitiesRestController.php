@@ -10,6 +10,7 @@ use TT\Infrastructure\Logging\Logger;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Security\AuthorizationService;
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\Activities\Repositories\ActivitiesRepository;
 
 /**
  * ActivitiesRestController — /wp-json/talenttrack/v1/activities
@@ -131,28 +132,23 @@ class ActivitiesRestController {
         $filter_pid = isset( $filter['player_id'] ) ? absint( $filter['player_id'] ) : 0;
         if ( $filter_pid <= 0 ) return false;
 
-        global $wpdb;
-        $linked_pid = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT id FROM {$wpdb->prefix}tt_players WHERE wp_user_id = %d AND archived_at IS NULL LIMIT 1",
-            $uid
-        ) );
-        if ( $linked_pid > 0 && $linked_pid === $filter_pid ) return true;
-
-        // Parent-of-player check uses tt_player_parents if it exists.
-        $parents_table = $wpdb->prefix . 'tt_player_parents';
-        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $parents_table ) ) === $parents_table ) {
-            $parent_link = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT player_id FROM {$parents_table} WHERE parent_user_id = %d AND player_id = %d LIMIT 1",
-                $uid, $filter_pid
-            ) );
-            if ( $parent_link > 0 ) return true;
-        }
+        // #1712 — identity lookups moved to ActivitiesRepository; the
+        // permission decision (is this caller the player or their parent?)
+        // stays here.
+        $repo = self::repo();
+        if ( $repo->linkedPlayerIdForUser( $uid ) === $filter_pid ) return true;
+        if ( $repo->userIsParentOfPlayer( $uid, $filter_pid ) ) return true;
 
         return false;
     }
 
     public static function can_edit(): bool {
         return AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_edit_activities' );
+    }
+
+    /** #1712 — shared activities repository instance for the request. */
+    private static function repo(): ActivitiesRepository {
+        return new ActivitiesRepository();
     }
 
     /** Whitelist of columns the `orderby` query param accepts. */
@@ -190,8 +186,6 @@ class ActivitiesRestController {
      * @return \WP_REST_Response
      */
     public static function list_sessions( \WP_REST_Request $r ) {
-        global $wpdb; $p = $wpdb->prefix;
-
         $page     = max( 1, absint( $r['page'] ?? 1 ) );
         $per_page = self::clamp_per_page( $r['per_page'] ?? 25 );
         $offset   = ( $page - 1 ) * $per_page;
@@ -209,16 +203,6 @@ class ActivitiesRestController {
         $order   = strtolower( (string) ( $r['order'] ?? ( $orderby_key === 'session_date' ? 'desc' : 'asc' ) ) );
         if ( ! in_array( $order, [ 'asc', 'desc' ], true ) ) $order = 'desc';
 
-        $where  = [ '1=1', 's.club_id = %d' ];
-        $params = [ CurrentClub::id() ];
-
-        $scope = QueryHelpers::apply_demo_scope( 's', 'activity' );
-
-        // Archived filter — default hides archived rows.
-        if ( empty( $r['include_archived'] ) ) {
-            $where[] = 's.archived_at IS NULL';
-        }
-
         // Filters — pulled early because the coach-scope guard below has
         // to know whether the request is a player-scoped my-activities
         // call before deciding to early-return on "no head-coach teams".
@@ -227,20 +211,20 @@ class ActivitiesRestController {
         // v3.110.51 — when the request is a player-scoped my-activities
         // call (`filter[player_id]` matches the caller's linked player,
         // already validated by `can_view`), the player → team-membership
-        // predicate further down is the correct scoping. Skip the
-        // coach-scope filter for these requests; otherwise a logged-in
-        // player calling `?tt_view=my-activities` got an empty list
-        // because they have zero head-coach teams and the early-return
-        // at "No accessible teams" fired before the player_id predicate
-        // was applied. Reported by a pilot player whose team had multiple
-        // active activities.
+        // predicate inside searchForRest is the correct scoping. Skip the
+        // coach-scope restriction for these requests; otherwise a
+        // logged-in player calling `?tt_view=my-activities` got an empty
+        // list because they have zero head-coach teams.
         $is_player_scoped = ! empty( $filter['player_id'] )
             && self::callerCanReadAsPlayerOrParent( (int) $filter['player_id'] );
 
-        // v3.91.2 — bypass coach-scope filter for personas with matrix
-        // `activities:r[global]` (scout, head_of_development, academy_admin).
-        // v3.110.51 — also bypass for player-scoped my-activities requests
-        // (see above).
+        // v3.91.2 — bypass the coach-scope restriction for personas with
+        // matrix `activities:r[global]` (scout, head_of_development,
+        // academy_admin). v3.110.51 — also for player-scoped requests.
+        // #1712 — the authorization decision (which teams may this caller
+        // see?) stays here; the resolved restriction is handed to the
+        // repository, where the SQL lives. null = unrestricted.
+        $restrict_team_ids = null;
         if ( ! $is_player_scoped
              && ! QueryHelpers::user_has_global_entity_read( get_current_user_id(), 'activities' ) ) {
             $coach_teams = QueryHelpers::get_teams_for_coach( get_current_user_id() );
@@ -250,189 +234,24 @@ class ActivitiesRestController {
                     'rows' => [], 'total' => 0, 'page' => $page, 'per_page' => $per_page,
                 ] );
             }
-            $team_ids = array_map( static function ( $t ) { return (int) $t->id; }, $coach_teams );
-            $placeholders = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
-            $where[] = "s.team_id IN ($placeholders)";
-            $params = array_merge( $params, $team_ids );
+            $restrict_team_ids = array_map( static function ( $t ) { return (int) $t->id; }, $coach_teams );
         }
 
-        if ( ! empty( $filter['team_id'] ) ) {
-            // v4.20.26 (#1212) — accept either a single id or a CSV of
-            // ids so AC dashboards' team-filtered KPIs can pass the full
-            // set of teams they coach. Falls back to single-value
-            // behaviour when only one id is supplied.
-            $raw_team = (string) $filter['team_id'];
-            $team_ids = array_values( array_filter( array_map( 'absint', explode( ',', $raw_team ) ) ) );
-            if ( count( $team_ids ) === 1 ) {
-                $where[]  = 's.team_id = %d';
-                $params[] = $team_ids[0];
-            } elseif ( count( $team_ids ) > 1 ) {
-                $placeholders = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
-                $where[]  = "s.team_id IN ($placeholders)";
-                $params   = array_merge( $params, $team_ids );
-            }
-        }
-        // v3.92.7 — `filter[player_id]=N` scopes the list to activities
-        // the player attended (real attendance row OR guest-attendance
-        // row). Used by `?tt_view=my-activities` so the surface can
-        // consume `FrontendListTable::render()`.
-        //
-        // v3.110.x — widened to also include activities scheduled for
-        // the player's CURRENT team that don't have an attendance row
-        // yet. The previous `EXISTS` clause only matched activities
-        // where attendance was already recorded, so the "My activities"
-        // surface rendered empty for any player whose team had only
-        // upcoming or in-progress (not-yet-completed) activities. The
-        // player's mental model is "what's on my schedule" — completed
-        // attendance is one slice of that, not the whole thing.
-        // Cross-references both `player_id` and `guest_player_id` on
-        // `tt_attendance` because the trial flow can leave a duplicate
-        // row keyed under guest_player_id.
-        if ( ! empty( $filter['player_id'] ) ) {
-            $pid = absint( $filter['player_id'] );
-            $where[]  = "(
-                s.team_id IN ( SELECT pl.team_id FROM {$p}tt_players pl WHERE pl.id = %d AND pl.club_id = s.club_id )
-                OR EXISTS ( SELECT 1 FROM {$p}tt_attendance a WHERE a.activity_id = s.id AND a.club_id = s.club_id AND ( a.player_id = %d OR a.guest_player_id = %d ) )
-            )";
-            $params[] = $pid;
-            $params[] = $pid;
-            $params[] = $pid;
-        }
-        if ( ! empty( $filter['date_from'] ) ) {
-            $where[]  = 's.session_date >= %s';
-            $params[] = sanitize_text_field( (string) $filter['date_from'] );
-        }
-        if ( ! empty( $filter['date_to'] ) ) {
-            $where[]  = 's.session_date <= %s';
-            $params[] = sanitize_text_field( (string) $filter['date_to'] );
-        }
-        // #0006 — team-planning module. Optional `plan_state` filter so
-        // the planner can request scheduled-only / completed-only / all.
-        // Accepts a single value or comma-separated list.
-        if ( ! empty( $filter['plan_state'] ) ) {
-            $states = array_filter( array_map( 'trim',
-                explode( ',', (string) $filter['plan_state'] )
-            ) );
-            $allowed = [ 'draft', 'scheduled', 'in_progress', 'completed', 'cancelled' ];
-            $states = array_values( array_intersect( $states, $allowed ) );
-            if ( ! empty( $states ) ) {
-                $placeholders = implode( ',', array_fill( 0, count( $states ), '%s' ) );
-                $where[]  = "s.plan_state IN ($placeholders)";
-                foreach ( $states as $st ) $params[] = $st;
-            }
-        }
-
-        // Search across title, location, team name.
-        if ( ! empty( $r['search'] ) ) {
-            $like = '%' . $wpdb->esc_like( (string) $r['search'] ) . '%';
-            $where[]  = '(s.title LIKE %s OR s.location LIKE %s OR t.name LIKE %s)';
-            $params[] = $like; $params[] = $like; $params[] = $like;
-        }
-
-        $where_sql = implode( ' AND ', $where ) . ' ' . $scope;
-
-        // Attendance computed columns via correlated subqueries. Sized
-        // OK for the 100-row max; if perf becomes a problem we revisit
-        // (Q2 in the Sprint 2 plan accepts that risk).
-        // #0061 — `attendance_count` is the recorded-rows count (used by
-        // the Complete/Partial/None filter as a form-completeness gate);
-        // `present_count` is the actually-present-only count, fed into
-        // attendance_pct so the column header "Att. %" reads as
-        // presence-rate instead of form-completeness.
-        // v3.110.95 — the attendance counts now match what the operator
-        // sees in the per-player attendance form. Previously
-        // `present_count` and `attendance_count` aggregated EVERY
-        // attendance row for the activity, including rows for players
-        // who have since moved teams or been archived. The denominator
-        // (`roster_size`) only counts the CURRENT active roster — so a
-        // player who attended this activity but later moved teams was
-        // still in `present_count` but no longer in `roster_size`,
-        // pushing the percentage above 100 (clamp at 100 hid it) and
-        // never matching what the coach counted in the form. Both
-        // counts now JOIN on `tt_players` and filter by the activity's
-        // current team + `status = 'active'`, so the numerator and
-        // denominator share a player set — the list-view % equals the
-        // detail-page form's actual present/total ratio.
-        $select_cols = "s.*, t.name AS team_name,
-            (SELECT COUNT(*) FROM {$p}tt_attendance a
-               INNER JOIN {$p}tt_players pl_a ON pl_a.id = a.player_id AND pl_a.club_id = a.club_id
-              WHERE a.activity_id = s.id AND a.is_guest = 0 AND a.club_id = s.club_id
-                AND pl_a.team_id = s.team_id AND pl_a.status = 'active') AS attendance_count,
-            (SELECT COUNT(*) FROM {$p}tt_attendance a
-               INNER JOIN {$p}tt_players pl_b ON pl_b.id = a.player_id AND pl_b.club_id = a.club_id
-              WHERE a.activity_id = s.id AND a.is_guest = 0 AND a.club_id = s.club_id
-                AND pl_b.team_id = s.team_id AND pl_b.status = 'active'
-                AND a.status = 'Present') AS present_count,
-            (SELECT COUNT(*) FROM {$p}tt_players pl WHERE pl.team_id = s.team_id AND pl.club_id = s.club_id AND pl.status = 'active') AS roster_size";
-
-        // v3.92.7 — when `filter[player_id]` is set (e.g. by
-        // `?tt_view=my-activities` going through `FrontendListTable`),
-        // surface the player's own attendance status on each row so the
-        // list can render a "Your status" column. The subquery returns
-        // NULL when no row matches; format_row picks that up.
-        $your_status_pid = ! empty( $filter['player_id'] ) ? absint( $filter['player_id'] ) : 0;
-        if ( $your_status_pid > 0 ) {
-            $select_cols .= $wpdb->prepare(
-                ", (SELECT a.status FROM {$p}tt_attendance a
-                       WHERE a.activity_id = s.id AND a.club_id = s.club_id
-                         AND ( a.player_id = %d OR a.guest_player_id = %d )
-                       LIMIT 1) AS your_attendance_status",
-                $your_status_pid, $your_status_pid
-            );
-        }
-
-        $having = '';
-        $att_filter = isset( $filter['attendance'] ) ? sanitize_key( (string) $filter['attendance'] ) : '';
-        if ( $att_filter === 'complete' ) {
-            $having = 'HAVING attendance_count >= roster_size AND roster_size > 0';
-        } elseif ( $att_filter === 'partial' ) {
-            $having = 'HAVING attendance_count > 0 AND attendance_count < roster_size';
-        } elseif ( $att_filter === 'none' ) {
-            $having = 'HAVING attendance_count = 0';
-        }
-
-        $list_sql = "SELECT {$select_cols}
-                     FROM {$p}tt_activities s
-                     LEFT JOIN {$p}tt_teams t ON t.id = s.team_id AND t.club_id = s.club_id
-                     WHERE {$where_sql}
-                     {$having}
-                     ORDER BY {$orderby} {$order}
-                     LIMIT %d OFFSET %d";
-
-        $list_params = array_merge( $params, [ $per_page, $offset ] );
-        $rows = $list_params
-            ? $wpdb->get_results( $wpdb->prepare( $list_sql, ...$list_params ) )
-            : $wpdb->get_results( $list_sql );
-
-        // Total count — same WHERE + HAVING, but COUNT(*) over the
-        // grouped result. With HAVING we wrap in a subquery so the
-        // total reflects the post-HAVING row count.
-        if ( $having !== '' ) {
-            // v3.110.95 — mirror the list_sql counts so the HAVING
-            // filter's row count agrees with what the user sees.
-            $count_sql = "SELECT COUNT(*) FROM (
-                SELECT s.id,
-                    (SELECT COUNT(*) FROM {$p}tt_attendance a
-                       INNER JOIN {$p}tt_players pl_a ON pl_a.id = a.player_id AND pl_a.club_id = a.club_id
-                      WHERE a.activity_id = s.id AND a.is_guest = 0 AND a.club_id = s.club_id
-                        AND pl_a.team_id = s.team_id AND pl_a.status = 'active') AS attendance_count,
-                    (SELECT COUNT(*) FROM {$p}tt_players pl WHERE pl.team_id = s.team_id AND pl.club_id = s.club_id AND pl.status = 'active') AS roster_size
-                FROM {$p}tt_activities s
-                LEFT JOIN {$p}tt_teams t ON t.id = s.team_id AND t.club_id = s.club_id
-                WHERE {$where_sql}
-                {$having}
-            ) AS sub";
-        } else {
-            $count_sql = "SELECT COUNT(*) FROM {$p}tt_activities s
-                          LEFT JOIN {$p}tt_teams t ON t.id = s.team_id AND t.club_id = s.club_id
-                          WHERE {$where_sql}";
-        }
-        $total = $params ? (int) $wpdb->get_var( $wpdb->prepare( $count_sql, ...$params ) )
-                         : (int) $wpdb->get_var( $count_sql );
+        $result = self::repo()->searchForRest( [
+            'per_page'          => $per_page,
+            'offset'            => $offset,
+            'orderby'           => $orderby,
+            'order'             => $order,
+            'include_archived'  => ! empty( $r['include_archived'] ),
+            'restrict_team_ids' => $restrict_team_ids,
+            'filter'            => $filter,
+            'search'            => (string) ( $r['search'] ?? '' ),
+            'your_status_pid'   => ! empty( $filter['player_id'] ) ? absint( $filter['player_id'] ) : 0,
+        ] );
 
         return RestResponse::success( [
-            'rows'     => array_map( [ __CLASS__, 'format_row' ], $rows ?: [] ),
-            'total'    => $total,
+            'rows'     => array_map( [ __CLASS__, 'format_row' ], $result['rows'] ),
+            'total'    => $result['total'],
             'page'     => $page,
             'per_page' => $per_page,
         ] );
@@ -461,21 +280,10 @@ class ActivitiesRestController {
         if ( $player_id <= 0 ) return false;
         $uid = get_current_user_id();
         if ( $uid <= 0 ) return false;
-        global $wpdb;
-        $linked = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT id FROM {$wpdb->prefix}tt_players WHERE wp_user_id = %d AND archived_at IS NULL LIMIT 1",
-            $uid
-        ) );
-        if ( $linked === $player_id ) return true;
-        $parents_table = $wpdb->prefix . 'tt_player_parents';
-        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $parents_table ) ) === $parents_table ) {
-            $is_parent = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT player_id FROM {$parents_table} WHERE parent_user_id = %d AND player_id = %d LIMIT 1",
-                $uid, $player_id
-            ) );
-            if ( $is_parent > 0 ) return true;
-        }
-        return false;
+        // #1712 — identity lookups moved to ActivitiesRepository.
+        $repo = self::repo();
+        if ( $repo->linkedPlayerIdForUser( $uid ) === $player_id ) return true;
+        return $repo->userIsParentOfPlayer( $uid, $player_id );
     }
 
     /** Shape one row for the JSON response. */
@@ -595,8 +403,6 @@ class ActivitiesRestController {
     }
 
     public static function create_session( \WP_REST_Request $r ) {
-        global $wpdb; $p = $wpdb->prefix;
-
         $type_error = self::validateActivityType( $r );
         if ( $type_error !== null ) return $type_error;
 
@@ -611,9 +417,12 @@ class ActivitiesRestController {
             return RestResponse::error( 'missing_fields', __( 'Title and date are required.', 'talenttrack' ), 400 );
         }
 
-        $ok = $wpdb->insert( "{$p}tt_activities", $data );
-        if ( $ok === false ) {
-            $err = (string) $wpdb->last_error;
+        // #1712 — shared write path with the wp-admin page (ActivitiesPage).
+        // create() re-stamps club_id and the created_by audit column.
+        $repo        = self::repo();
+        $activity_id = $repo->create( $data );
+        if ( $activity_id === null ) {
+            $err = $repo->lastError();
             Logger::error( 'session.save.failed', [ 'db_error' => $err, 'payload' => $data ] );
             return RestResponse::error(
                 'db_error',
@@ -622,7 +431,6 @@ class ActivitiesRestController {
                 [ 'db_error' => $err ]
             );
         }
-        $activity_id = (int) $wpdb->insert_id;
 
         // #0049 / v3.76.2 — auto-tag demo-on rows. Refactored from an
         // inline check to the central DemoMode::tagIfActive helper so
@@ -675,8 +483,6 @@ class ActivitiesRestController {
     }
 
     public static function update_session( \WP_REST_Request $r ) {
-        global $wpdb; $p = $wpdb->prefix;
-
         $activity_id = absint( $r['id'] );
         if ( $activity_id <= 0 ) {
             return RestResponse::error( 'bad_id', __( 'Invalid activity id.', 'talenttrack' ), 400 );
@@ -689,9 +495,11 @@ class ActivitiesRestController {
         // Preserve original coach on update.
         unset( $data['coach_id'] );
 
-        $ok = $wpdb->update( "{$p}tt_activities", $data, [ 'id' => $activity_id, 'club_id' => CurrentClub::id() ] );
-        if ( $ok === false ) {
-            $err = (string) $wpdb->last_error;
+        // #1712 — shared write path with the wp-admin page (ActivitiesPage).
+        // update() is club-scoped and stamps the updated_by audit column.
+        $repo = self::repo();
+        if ( ! $repo->update( $activity_id, $data ) ) {
+            $err = $repo->lastError();
             Logger::error( 'session.update.failed', [ 'db_error' => $err, 'activity_id' => $activity_id ] );
             return RestResponse::error(
                 'db_error',
@@ -711,7 +519,7 @@ class ActivitiesRestController {
             // #0026 — only wipe the roster rows; guest rows are
             // managed via the dedicated guest endpoints and must
             // survive a session update.
-            $wpdb->delete( "{$p}tt_attendance", [ 'activity_id' => $activity_id, 'is_guest' => 0, 'club_id' => CurrentClub::id() ] );
+            $repo->deleteRosterAttendance( $activity_id );
             $att_failures = self::write_attendance( $activity_id, self::attendance_from_request( $r ) );
             if ( $att_failures ) {
                 Logger::error( 'session.attendance.update.failed', [ 'activity_id' => $activity_id, 'failures' => $att_failures ] );
@@ -726,16 +534,9 @@ class ActivitiesRestController {
             // in_progress → completed once attendance is logged.
             // The planner depends on this transition to surface
             // "what happened this week" vs. "what's coming up".
-            $current_state = (string) $wpdb->get_var( $wpdb->prepare(
-                "SELECT plan_state FROM {$p}tt_activities WHERE id = %d AND club_id = %d",
-                $activity_id, CurrentClub::id()
-            ) );
+            $current_state = $repo->planState( $activity_id );
             if ( in_array( $current_state, [ 'scheduled', 'in_progress' ], true ) ) {
-                $wpdb->update(
-                    "{$p}tt_activities",
-                    [ 'plan_state' => 'completed' ],
-                    [ 'id' => $activity_id, 'club_id' => CurrentClub::id() ]
-                );
+                $repo->setPlanState( $activity_id, 'completed' );
             }
         }
 
@@ -775,17 +576,17 @@ class ActivitiesRestController {
     }
 
     public static function delete_session( \WP_REST_Request $r ) {
-        global $wpdb; $p = $wpdb->prefix;
-
         $activity_id = absint( $r['id'] );
         if ( $activity_id <= 0 ) {
             return RestResponse::error( 'bad_id', __( 'Invalid activity id.', 'talenttrack' ), 400 );
         }
 
-        $wpdb->delete( "{$p}tt_attendance", [ 'activity_id' => $activity_id, 'club_id' => CurrentClub::id() ] );
-        $ok = $wpdb->delete( "{$p}tt_activities", [ 'id' => $activity_id, 'club_id' => CurrentClub::id() ] );
-        if ( $ok === false ) {
-            $err = (string) $wpdb->last_error;
+        // #1712 — shared hard-delete (activity + all attendance) with the
+        // wp-admin page; the repo returns false only on the activity-delete
+        // DB error so the existing failure surface is preserved.
+        $repo = self::repo();
+        if ( ! $repo->deleteWithAttendance( $activity_id ) ) {
+            $err = $repo->lastError();
             Logger::error( 'session.delete.failed', [ 'db_error' => $err, 'activity_id' => $activity_id ] );
             return RestResponse::error(
                 'db_error',
@@ -981,13 +782,10 @@ class ActivitiesRestController {
      */
     private static function write_attendance( int $activity_id, array $rows ): array {
         if ( ! $rows ) return [];
-        global $wpdb; $p = $wpdb->prefix;
+        $repo = self::repo();
 
         // Look up the activity's team once; off-roster filter keys off it.
-        $activity_team_id = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT team_id FROM {$p}tt_activities WHERE id = %d AND club_id = %d LIMIT 1",
-            $activity_id, CurrentClub::id()
-        ) );
+        $activity_team_id = $repo->activityTeamId( $activity_id );
 
         $dropped = [];
         $failures = [];
@@ -997,10 +795,7 @@ class ActivitiesRestController {
             // activities (legacy / club-wide) carry team_id = 0; those
             // accept any player as squad attendance.
             if ( $activity_team_id > 0 ) {
-                $player_team_id = (int) $wpdb->get_var( $wpdb->prepare(
-                    "SELECT team_id FROM {$p}tt_players WHERE id = %d AND club_id = %d LIMIT 1",
-                    $pid, CurrentClub::id()
-                ) );
+                $player_team_id = $repo->playerTeamId( $pid );
                 if ( $player_team_id !== $activity_team_id ) {
                     $dropped[] = [ 'player_id' => $pid, 'player_team_id' => $player_team_id ];
                     continue;
@@ -1022,9 +817,8 @@ class ActivitiesRestController {
             if ( array_key_exists( 'minutes_played', $fields ) ) {
                 $insert['minutes_played'] = $fields['minutes_played'];
             }
-            $ok = $wpdb->insert( "{$p}tt_attendance", $insert );
-            if ( $ok === false ) {
-                $failures[] = [ 'player_id' => $pid, 'db_error' => (string) $wpdb->last_error ];
+            if ( $repo->insertAttendance( $insert ) === null ) {
+                $failures[] = [ 'player_id' => $pid, 'db_error' => $repo->lastError() ];
             }
         }
         if ( $dropped ) {
@@ -1045,13 +839,9 @@ class ActivitiesRestController {
      */
     private static function seedCompletedRosterPresent( int $activity_id, int $team_id ): void {
         if ( $activity_id <= 0 || $team_id <= 0 ) return;
-        global $wpdb; $p = $wpdb->prefix;
 
-        $existing = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$p}tt_attendance WHERE activity_id = %d AND club_id = %d",
-            $activity_id, CurrentClub::id()
-        ) );
-        if ( $existing > 0 ) return;
+        // No-op when the activity already has attendance rows.
+        if ( self::repo()->countAttendance( $activity_id ) > 0 ) return;
 
         $players = \TT\Infrastructure\Query\QueryHelpers::get_players( $team_id );
         if ( ! $players ) return;
@@ -1081,15 +871,12 @@ class ActivitiesRestController {
      * neither, → 400.
      */
     public static function add_guest( \WP_REST_Request $r ) {
-        global $wpdb; $p = $wpdb->prefix;
         $activity_id = absint( $r['id'] );
         if ( $activity_id <= 0 ) {
             return RestResponse::error( 'bad_id', __( 'Invalid activity id.', 'talenttrack' ), 400 );
         }
-        $exists = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT COUNT(*) FROM {$p}tt_activities WHERE id = %d AND club_id = %d", $activity_id, CurrentClub::id()
-        ) );
-        if ( $exists === 0 ) {
+        $repo = self::repo();
+        if ( ! $repo->activityExists( $activity_id ) ) {
             return RestResponse::error( 'not_found', __( 'Activity not found.', 'talenttrack' ), 404 );
         }
 
@@ -1117,13 +904,8 @@ class ActivitiesRestController {
             return RestResponse::error( 'invariant',
                 __( 'Pick a player or enter a guest name.', 'talenttrack' ), 400 );
         }
-        if ( $linked_id > 0 ) {
-            $player_exists = (int) $wpdb->get_var( $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$p}tt_players WHERE id = %d AND club_id = %d", $linked_id, CurrentClub::id()
-            ) );
-            if ( $player_exists === 0 ) {
-                return RestResponse::error( 'bad_player', __( 'Linked player does not exist.', 'talenttrack' ), 400 );
-            }
+        if ( $linked_id > 0 && ! $repo->playerExists( $linked_id ) ) {
+            return RestResponse::error( 'bad_player', __( 'Linked player does not exist.', 'talenttrack' ), 400 );
         }
 
         $row = [
@@ -1139,7 +921,7 @@ class ActivitiesRestController {
             'guest_position'  => $linked_id > 0 ? null : ( $position !== '' ? $position : null ),
             'guest_notes'     => $linked_id > 0 ? null : ( $g_notes !== '' ? $g_notes : null ),
         ];
-        $ok = $wpdb->insert( "{$p}tt_attendance", $row );
+        $new_id = $repo->insertAttendance( $row );
 
         // v3.110.158 — defensive fallback for installs where
         // `tt_attendance.player_id` is still NOT NULL despite
@@ -1155,13 +937,13 @@ class ActivitiesRestController {
         // players auto-increment from 1, no row ever has 0 as a
         // real `tt_players.id`. The 0 is unambiguous sentinel for
         // "no player on this guest row" on installs stuck NOT NULL.
-        if ( $ok === false ) {
-            $err = (string) $wpdb->last_error;
+        if ( $new_id === null ) {
+            $err = $repo->lastError();
             if ( stripos( $err, "Column 'player_id' cannot be null" ) !== false
-              || stripos( $err, 'player_id' ) !== false && stripos( $err, 'null' ) !== false ) {
+              || ( stripos( $err, 'player_id' ) !== false && stripos( $err, 'null' ) !== false ) ) {
                 $row['player_id'] = 0;
-                $ok = $wpdb->insert( "{$p}tt_attendance", $row );
-                if ( $ok !== false ) {
+                $new_id = $repo->insertAttendance( $row );
+                if ( $new_id !== null ) {
                     Logger::warning( 'attendance.guest.add.player_id_zero_fallback', [
                         'activity_id'      => $activity_id,
                         'original_db_error'=> $err,
@@ -1170,8 +952,8 @@ class ActivitiesRestController {
             }
         }
 
-        if ( $ok === false ) {
-            $err = (string) $wpdb->last_error;
+        if ( $new_id === null ) {
+            $err = $repo->lastError();
             Logger::error( 'attendance.guest.add.failed', [ 'db_error' => $err, 'activity_id' => $activity_id ] );
             // v3.110.143 — surface the actual db_error in the
             // user-visible message. Previously the message was
@@ -1187,8 +969,7 @@ class ActivitiesRestController {
                 : __( 'The guest could not be added.', 'talenttrack' );
             return RestResponse::error( 'db_error', $msg, 500, [ 'db_error' => $err ] );
         }
-        $id = (int) $wpdb->insert_id;
-        return RestResponse::success( [ 'id' => $id ] + self::format_guest_row( self::find_attendance( $id ) ) );
+        return RestResponse::success( [ 'id' => $new_id ] + self::format_guest_row( self::find_attendance( $new_id ) ) );
     }
 
     /**
@@ -1197,16 +978,10 @@ class ActivitiesRestController {
      * skip flow. Body: `{ skipped: 0|1 }`. Idempotent.
      */
     public static function patch_evaluation_skipped( \WP_REST_Request $r ) {
-        global $wpdb; $p = $wpdb->prefix;
         $id = absint( $r['id'] );
         if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid activity id.', 'talenttrack' ), 400 );
         $skipped = (int) (bool) $r['skipped'];
-        $ok = $wpdb->update(
-            "{$p}tt_activities",
-            [ 'evaluation_skipped' => $skipped ],
-            [ 'id' => $id, 'club_id' => CurrentClub::id() ]
-        );
-        if ( $ok === false ) {
+        if ( ! self::repo()->setEvaluationSkipped( $id, $skipped ) ) {
             return RestResponse::error( 'db_error', __( 'Could not update the activity.', 'talenttrack' ), 500 );
         }
         do_action( 'tt_activity_evaluation_skipped_changed', $id, $skipped );
@@ -1221,19 +996,14 @@ class ActivitiesRestController {
      * `roster` when no plan was captured.
      */
     public static function get_planned_attendance( \WP_REST_Request $r ) {
-        global $wpdb; $p = $wpdb->prefix;
         $id = absint( $r['id'] );
         if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid activity id.', 'talenttrack' ), 400 );
 
         // Club-scope the activity before exposing its roster.
-        $exists = (int) $wpdb->get_var( $wpdb->prepare(
-            "SELECT id FROM {$p}tt_activities WHERE id = %d AND club_id = %d",
-            $id, CurrentClub::id()
-        ) );
-        if ( $exists <= 0 ) return RestResponse::error( 'not_found', __( 'Activity not found.', 'talenttrack' ), 404 );
+        $repo = self::repo();
+        if ( ! $repo->activityExists( $id ) ) return RestResponse::error( 'not_found', __( 'Activity not found.', 'talenttrack' ), 404 );
 
-        $roster = ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )
-            ->plannedRosterForActivity( $id );
+        $roster = $repo->plannedRosterForActivity( $id );
         $out = array_map( static function ( $row ) {
             return [
                 'player_id' => (int) ( $row->player_id ?? 0 ),
@@ -1256,10 +1026,10 @@ class ActivitiesRestController {
      * frontend doesn't need a parallel "edit roster row" pathway.
      */
     public static function patch_attendance( \WP_REST_Request $r ) {
-        global $wpdb; $p = $wpdb->prefix;
         $id = absint( $r['id'] );
         if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid attendance id.', 'talenttrack' ), 400 );
-        $row = self::find_attendance( $id );
+        $repo = self::repo();
+        $row = $repo->findAttendanceRow( $id );
         if ( ! $row ) return RestResponse::error( 'not_found', __( 'Attendance row not found.', 'talenttrack' ), 404 );
 
         $update = [];
@@ -1275,14 +1045,13 @@ class ActivitiesRestController {
         if ( empty( $update ) ) {
             return RestResponse::success( [ 'id' => $id, 'unchanged' => true ] );
         }
-        $ok = $wpdb->update( "{$p}tt_attendance", $update, [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
-        if ( $ok === false ) {
-            $err = (string) $wpdb->last_error;
+        if ( ! $repo->updateAttendanceRow( $id, $update ) ) {
+            $err = $repo->lastError();
             Logger::error( 'attendance.patch.failed', [ 'db_error' => $err, 'id' => $id ] );
             return RestResponse::error( 'db_error',
                 __( 'The attendance row could not be updated.', 'talenttrack' ), 500, [ 'db_error' => $err ] );
         }
-        return RestResponse::success( self::format_guest_row( self::find_attendance( $id ) ) );
+        return RestResponse::success( self::format_guest_row( $repo->findAttendanceRow( $id ) ) );
     }
 
     /**
@@ -1292,11 +1061,9 @@ class ActivitiesRestController {
      * usual path).
      */
     public static function delete_attendance( \WP_REST_Request $r ) {
-        global $wpdb; $p = $wpdb->prefix;
         $id = absint( $r['id'] );
         if ( $id <= 0 ) return RestResponse::error( 'bad_id', __( 'Invalid attendance id.', 'talenttrack' ), 400 );
-        $ok = $wpdb->delete( "{$p}tt_attendance", [ 'id' => $id, 'club_id' => CurrentClub::id() ] );
-        if ( $ok === false ) {
+        if ( ! self::repo()->deleteAttendanceRow( $id ) ) {
             return RestResponse::error( 'db_error',
                 __( 'The attendance row could not be deleted.', 'talenttrack' ), 500 );
         }
@@ -1304,11 +1071,8 @@ class ActivitiesRestController {
     }
 
     private static function find_attendance( int $id ): ?object {
-        global $wpdb; $p = $wpdb->prefix;
-        $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT * FROM {$p}tt_attendance WHERE id = %d AND club_id = %d LIMIT 1", $id, CurrentClub::id()
-        ) );
-        return $row ?: null;
+        // #1712 — thin delegate so existing callers keep working.
+        return self::repo()->findAttendanceRow( $id );
     }
 
     /**
@@ -1320,17 +1084,10 @@ class ActivitiesRestController {
      */
     private static function format_guest_row( ?object $row ): array {
         if ( ! $row ) return [];
-        global $wpdb; $p = $wpdb->prefix;
         $player_name = '';
         $home_team   = '';
         if ( ! empty( $row->guest_player_id ) ) {
-            $hit = $wpdb->get_row( $wpdb->prepare(
-                "SELECT pl.first_name, pl.last_name, t.name AS team_name
-                 FROM {$p}tt_players pl
-                 LEFT JOIN {$p}tt_teams t ON t.id = pl.team_id AND t.club_id = pl.club_id
-                 WHERE pl.id = %d AND pl.club_id = %d LIMIT 1",
-                (int) $row->guest_player_id, CurrentClub::id()
-            ) );
+            $hit = self::repo()->guestPlayerNameAndTeam( (int) $row->guest_player_id );
             if ( $hit ) {
                 $player_name = trim( (string) $hit->first_name . ' ' . (string) $hit->last_name );
                 $home_team   = (string) ( $hit->team_name ?? '' );
