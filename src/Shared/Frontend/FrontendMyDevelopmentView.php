@@ -47,6 +47,10 @@ class FrontendMyDevelopmentView extends FrontendViewBase {
             TT_VERSION
         );
 
+        // #1903 — one-time welcome card; a dismiss POST sets the per-viewer
+        // preference before the card is rendered below.
+        self::maybeHandleWelcomeDismiss();
+
         $is_self = (int) ( $player->wp_user_id ?? 0 ) === get_current_user_id();
         $name    = QueryHelpers::player_display_name( $player );
         $title   = $is_self
@@ -61,6 +65,7 @@ class FrontendMyDevelopmentView extends FrontendViewBase {
         self::renderHeader( $title );
 
         echo '<div class="tt-devhome">';
+        self::renderWelcome( $is_self, $name );
         FrontendOverviewView::renderHero( $player );
         // #1867 — a parent only sees the sections the child hasn't hidden.
         // The PDP-driven Today band is simply skipped when hidden (it's an
@@ -85,6 +90,51 @@ class FrontendMyDevelopmentView extends FrontendViewBase {
             self::renderPrivateBlock( __( 'Your journey', 'talenttrack' ) );
         }
         echo '</div>';
+    }
+
+    /**
+     * #1903 — one-time, dismissible welcome card at the top of the home.
+     * Informational only (no CTA); persona-aware copy. Renders while the
+     * viewer hasn't dismissed it — that's the "new user" signal, no
+     * first-login timestamp needed. Dismissal is per viewer (user meta).
+     */
+    private static function renderWelcome( bool $is_self, string $name ): void {
+        $uid = get_current_user_id();
+        if ( $uid <= 0 ) return;
+        if ( get_user_meta( $uid, 'tt_dev_welcome_dismissed', true ) ) return;
+
+        $body = $is_self
+            ? __( 'Welcome to TalentTrack! This is your development home: your talks, goals, form and journey, all in one place.', 'talenttrack' )
+            : sprintf(
+                /* translators: %1$s and %2$s are both the child's name (parent viewing their child). */
+                __( "Welcome to TalentTrack! This is %1\$s's development home. You choose what %2\$s shares with you.", 'talenttrack' ),
+                $name, $name
+            );
+        ?>
+        <section class="tt-devhome-welcome" aria-label="<?php esc_attr_e( 'Welcome', 'talenttrack' ); ?>">
+            <div class="tt-devhome-welcome__body">
+                <h2 class="tt-devhome-welcome__title"><?php esc_html_e( 'Welcome to TalentTrack', 'talenttrack' ); ?></h2>
+                <p class="tt-devhome-welcome__text"><?php echo esc_html( $body ); ?></p>
+            </div>
+            <form method="post" class="tt-devhome-welcome__dismiss">
+                <?php wp_nonce_field( 'tt_devhome_welcome', 'tt_devhome_welcome_nonce' ); ?>
+                <input type="hidden" name="tt_devhome_action" value="dismiss_welcome" />
+                <button type="submit" class="tt-btn tt-btn-secondary tt-btn-sm"><?php esc_html_e( 'Got it', 'talenttrack' ); ?></button>
+            </form>
+        </section>
+        <?php
+    }
+
+    /** Handle the welcome-card dismiss POST (per-viewer user meta). */
+    private static function maybeHandleWelcomeDismiss(): void {
+        if ( ( $_SERVER['REQUEST_METHOD'] ?? '' ) !== 'POST' ) return;
+        if ( ( $_POST['tt_devhome_action'] ?? '' ) !== 'dismiss_welcome' ) return;
+        if ( ! isset( $_POST['tt_devhome_welcome_nonce'] )
+            || ! wp_verify_nonce( sanitize_text_field( wp_unslash( (string) $_POST['tt_devhome_welcome_nonce'] ) ), 'tt_devhome_welcome' ) ) {
+            return;
+        }
+        $uid = get_current_user_id();
+        if ( $uid > 0 ) update_user_meta( $uid, 'tt_dev_welcome_dismissed', '1' );
     }
 
     /** #1867 — section visible to this viewer? Self + staff always true. */

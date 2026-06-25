@@ -41501,6 +41501,15 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+msgid "Got it"
+msgstr "Begrepen"
+
+msgid "Welcome to TalentTrack! This is your development home: your talks, goals, form and journey, all in one place."
+msgstr "Welkom bij TalentTrack! Dit is je ontwikkelhome: je gesprekken, doelen, vorm en reis, allemaal op één plek."
+
+#, php-format
+msgid "Welcome to TalentTrack! This is %1$s's development home. You choose what %2$s shares with you."
+msgstr "Welkom bij TalentTrack! Dit is de ontwikkelhome van %1$s. Jij kiest wat %2$s met je deelt."
 #: src/Modules/PersonaDashboard/Widgets/NavigationTileWidget.php
 #, php-format
 msgid "%d pending"
