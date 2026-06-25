@@ -3,10 +3,12 @@ namespace TT\Modules\Pdp\Frontend;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Infrastructure\Goals\GoalsRepository;
 use TT\Modules\Pdp\Repositories\PdpConversationsRepository;
 use TT\Modules\Pdp\Repositories\PdpFilesRepository;
 use TT\Modules\Pdp\Repositories\PdpVerdictsRepository;
 use TT\Modules\Pdp\Repositories\SeasonsRepository;
+use TT\Modules\Pdp\Services\PdpCycleState;
 use TT\Shared\Frontend\FrontendViewBase;
 
 /**
@@ -77,17 +79,176 @@ class FrontendMyPdpView extends FrontendViewBase {
             (string) $current->name
         ) ) . '</p>';
 
-        // #1686 — section anchor for the conversation cards, matching the
-        // mockup's "Gesprek" panel label.
-        echo '<h2 class="tt-pop-gesprek__title" style="margin:0 0 0.75rem;">' . esc_html__( 'Conversation', 'talenttrack' ) . '</h2>';
+        // #1851 — surface where the player is in the development-talk
+        // cycle. The state is derived (PdpCycleState) and only *promotes*
+        // the existing surfaces by state — it never gates: every
+        // conversation card, the self-reflection editor and the ack
+        // flow stay exactly as they were below.
+        $viewer = $is_parent ? PdpCycleState::VIEWER_PARENT : PdpCycleState::VIEWER_PLAYER;
+        $cycle  = PdpCycleState::derive( $convs, $viewer );
+        self::renderCycleLead( $cycle, $player, $is_self );
 
-        foreach ( $convs as $c ) {
+        // #1686 — section anchor for the conversation cards, matching the
+        // mockup's "Gesprek" panel label. In a working period the talks
+        // recede behind the goals lead, so the heading is muted.
+        $secondary = $cycle->state === PdpCycleState::WORKING ? ' tt-pop-gesprek__title--secondary' : '';
+        echo '<h2 class="tt-pop-gesprek__title' . esc_attr( $secondary ) . '">' . esc_html__( 'Conversation', 'talenttrack' ) . '</h2>';
+
+        // Promote the focus conversation (the one the state is keyed to)
+        // to the top in the review-window / post moments, so "prepare for
+        // your talk" / "review your last talk" is the first card.
+        foreach ( self::orderConversations( $convs, $cycle ) as $c ) {
             self::renderConversationCard( $file, $c, $is_self, $is_parent );
         }
 
         if ( $verdict !== null ) {
             self::renderVerdictCard( $verdict );
         }
+    }
+
+    /**
+     * #1851 — order conversation cards so the focus conversation leads in
+     * the REVIEW_WINDOW / POST moments. Working / idle keep the natural
+     * sequence order. Pure reordering — no row is added or dropped.
+     *
+     * @param array<int, object> $convs
+     * @return array<int, object>
+     */
+    private static function orderConversations( array $convs, PdpCycleState $cycle ): array {
+        $focus = $cycle->conversation;
+        if ( $focus === null
+            || ( $cycle->state !== PdpCycleState::REVIEW_WINDOW && $cycle->state !== PdpCycleState::POST ) ) {
+            return $convs;
+        }
+        $focus_id = (int) ( $focus->id ?? 0 );
+        $lead     = [];
+        $rest     = [];
+        foreach ( $convs as $c ) {
+            if ( (int) ( $c->id ?? 0 ) === $focus_id ) {
+                $lead[] = $c;
+            } else {
+                $rest[] = $c;
+            }
+        }
+        return array_merge( $lead, $rest );
+    }
+
+    /**
+     * #1851 — the state-aware lead block. Orients the player at the top
+     * of My PDP:
+     *
+     *   WORKING       — "Your focus": top active goals + the next-talk
+     *                   date. The talks below recede.
+     *   REVIEW_WINDOW — "Prepare for your talk on <date>" — helpful, not
+     *                   required. The self-review editor + agenda live in
+     *                   the promoted conversation card just below.
+     *   POST          — "Your last development talk" — points at the
+     *                   notes / agreed actions / acknowledgement below,
+     *                   plus the goals to carry forward.
+     *
+     * Renders nothing for IDLE. Parents see the same surface, read-only.
+     */
+    private static function renderCycleLead( PdpCycleState $cycle, object $player, bool $is_self ): void {
+        if ( $cycle->state === PdpCycleState::IDLE ) return;
+
+        $date = self::formatTalkDate( $cycle->talk_date );
+
+        echo '<div class="tt-pop-lead tt-pop-lead--' . esc_attr( $cycle->state ) . '">';
+
+        if ( $cycle->state === PdpCycleState::WORKING ) {
+            echo '<p class="tt-pop-lead__eyebrow">' . esc_html__( 'Your focus', 'talenttrack' ) . '</p>';
+            if ( $date !== '' ) {
+                echo '<p class="tt-pop-lead__headline">' . esc_html( sprintf(
+                    /* translators: %s = date of the next development talk */
+                    __( 'Next development talk: %s', 'talenttrack' ),
+                    $date
+                ) ) . '</p>';
+            } else {
+                echo '<p class="tt-pop-lead__headline">' . esc_html__( 'Your next development talk will be planned soon.', 'talenttrack' ) . '</p>';
+            }
+            self::renderFocusGoals( $player, $is_self );
+        } elseif ( $cycle->state === PdpCycleState::REVIEW_WINDOW ) {
+            echo '<p class="tt-pop-lead__eyebrow">' . esc_html__( 'Coming up', 'talenttrack' ) . '</p>';
+            $headline = $date !== ''
+                ? sprintf(
+                    /* translators: %s = date of the upcoming development talk */
+                    __( 'Prepare for your talk on %s', 'talenttrack' ),
+                    $date
+                )
+                : __( 'Prepare for your upcoming development talk', 'talenttrack' );
+            echo '<p class="tt-pop-lead__headline">' . esc_html( $headline ) . '</p>';
+            $hint = $is_self
+                ? __( 'Adding a short self-reflection before your talk helps your coach. It is optional, never required. You can find it on the talk just below.', 'talenttrack' )
+                : __( 'A self-reflection can be added before the talk to help the coach. It is optional, never required.', 'talenttrack' );
+            echo '<p class="tt-pop-lead__hint">' . esc_html( $hint ) . '</p>';
+        } elseif ( $cycle->state === PdpCycleState::POST ) {
+            echo '<p class="tt-pop-lead__eyebrow">' . esc_html__( 'Your last development talk', 'talenttrack' ) . '</p>';
+            $headline = $date !== ''
+                ? sprintf(
+                    /* translators: %s = date of the most recent development talk */
+                    __( 'Your talk on %s is ready to review', 'talenttrack' ),
+                    $date
+                )
+                : __( 'Your last talk is ready to review', 'talenttrack' );
+            echo '<p class="tt-pop-lead__headline">' . esc_html( $headline ) . '</p>';
+            echo '<p class="tt-pop-lead__hint">' . esc_html__( 'See the notes and agreed actions below, and acknowledge the talk. These are the goals to carry forward.', 'talenttrack' ) . '</p>';
+            self::renderFocusGoals( $player, $is_self );
+        }
+
+        echo '</div>';
+    }
+
+    /**
+     * Top active goals as a compact "Your focus" list, linking through to
+     * My goals. Read from the goals repository (no logic in the view).
+     * The goal↔conversation data link is Phase 5 (#1853); for now this is
+     * the player's current active goals.
+     */
+    private static function renderFocusGoals( object $player, bool $is_self ): void {
+        $goals = ( new GoalsRepository() )->topActiveForPlayer( (int) $player->id, 3 );
+        if ( empty( $goals ) ) {
+            echo '<p class="tt-pop-lead__empty">' . esc_html__( 'No active goals yet. Your coach will set some during your next talk.', 'talenttrack' ) . '</p>';
+            return;
+        }
+        echo '<ul class="tt-pop-lead__goals">';
+        foreach ( $goals as $g ) {
+            $title = (string) ( $g->title ?? '' );
+            $due   = (string) ( $g->due_date ?? '' );
+            echo '<li class="tt-pop-lead__goal">';
+            echo '<span class="tt-pop-lead__goal-title">' . esc_html( $title ) . '</span>';
+            if ( $due !== '' ) {
+                echo '<span class="tt-pop-lead__goal-due">' . esc_html( sprintf(
+                    /* translators: %s = goal due date */
+                    __( 'Due %s', 'talenttrack' ),
+                    $due
+                ) ) . '</span>';
+            }
+            echo '</li>';
+        }
+        echo '</ul>';
+        echo '<p class="tt-pop-lead__link"><a href="' . esc_url( self::goalsUrl( $player, $is_self ) ) . '">'
+            . esc_html__( 'See all goals', 'talenttrack' ) . '</a></p>';
+    }
+
+    /**
+     * Build the My goals URL, carrying player_id when a parent is viewing
+     * their child so the scoped Me-view router resolves the right subject.
+     */
+    private static function goalsUrl( object $player, bool $is_self ): string {
+        $base = remove_query_arg( [ 'tt_view', 'player_id', 'id', 'tt_back' ] );
+        $url  = add_query_arg( 'tt_view', 'my-goals', $base ?: home_url( '/' ) );
+        if ( ! $is_self ) {
+            $url = add_query_arg( 'player_id', (int) $player->id, $url );
+        }
+        return $url;
+    }
+
+    /** Human-friendly talk date (locale-aware), or '' when unscheduled. */
+    private static function formatTalkDate( ?string $ymd ): string {
+        if ( $ymd === null || $ymd === '' ) return '';
+        $ts = strtotime( $ymd . ' UTC' );
+        if ( $ts === false ) return $ymd;
+        return date_i18n( (string) get_option( 'date_format', 'Y-m-d' ), $ts );
     }
 
     private static function renderConversationCard( object $file, object $conv, bool $is_self, bool $is_parent ): void {

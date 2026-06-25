@@ -372,3 +372,94 @@
     text-decoration: none;
 }
 .tt-dashboard .tt-pop-goal__open a:hover { text-decoration: underline; }
+
+/* #1851 — state-aware lead block at the top of My PDP. Orients the
+   player ("where am I in the cycle"): working → goals + next-talk date,
+   review window → prepare-for-talk, post → review-your-last-talk. Pure
+   surfacing; the conversation cards + self-reflection editor below are
+   unchanged. Mobile-first, tokens only. */
+.tt-dashboard .tt-pop-lead {
+    background: #fff;
+    border: 1px solid #e3e6e1;
+    border-left: 4px solid var(--tt-primary, #0b3d2e);
+    border-radius: 14px;
+    box-shadow: var(--tt-shadow-md);
+    padding: 0.9rem 1.05rem;
+    margin: 0 0 1rem;
+}
+.tt-dashboard .tt-pop-lead--review_window { border-left-color: var(--tt-secondary, #e8b624); }
+.tt-dashboard .tt-pop-lead--post          { border-left-color: #2f9e5e; }
+
+.tt-dashboard .tt-pop-lead__eyebrow {
+    margin: 0 0 0.3rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--tt-muted);
+}
+.tt-dashboard .tt-pop-lead__headline {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 800;
+    line-height: 1.25;
+    color: var(--tt-primary, #0b3d2e);
+}
+.tt-dashboard .tt-pop-lead__hint {
+    margin: 0.45rem 0 0;
+    font-size: 0.84rem;
+    line-height: 1.45;
+    color: var(--tt-muted);
+}
+.tt-dashboard .tt-pop-lead__empty {
+    margin: 0.55rem 0 0;
+    font-size: 0.84rem;
+    color: var(--tt-muted);
+}
+.tt-dashboard .tt-pop-lead__goals {
+    list-style: none;
+    margin: 0.6rem 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+.tt-dashboard .tt-pop-lead__goal {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.6rem;
+    padding: 0.45rem 0.6rem;
+    background: var(--tt-paper-soft, #f4f6f3);
+    border: 1px solid #e3e6e1;
+    border-radius: 9px;
+}
+.tt-dashboard .tt-pop-lead__goal-title {
+    font-weight: 600;
+    font-size: 0.88rem;
+    color: var(--tt-ink);
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+.tt-dashboard .tt-pop-lead__goal-due {
+    flex: 0 0 auto;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--tt-muted);
+    white-space: nowrap;
+}
+.tt-dashboard .tt-pop-lead__link { margin: 0.6rem 0 0; }
+.tt-dashboard .tt-pop-lead__link a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #145a44;
+    text-decoration: none;
+}
+.tt-dashboard .tt-pop-lead__link a:hover,
+.tt-dashboard .tt-pop-lead__link a:focus-visible { text-decoration: underline; }
+
+/* Working period: the conversation list recedes behind the goals lead. */
+.tt-dashboard .tt-pop-gesprek__title--secondary { opacity: 0.7; }

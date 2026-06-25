@@ -1568,7 +1568,11 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         }
 
         $statuses      = QueryHelpers::get_lookup_names( 'attendance_status' );
-        $game_subtypes = QueryHelpers::get_lookup_names( 'game_subtype' );
+        // #1861 — get_lookup_names() strips translations, so the seeded
+        // English game-subtype names ('Friendly'/'League'/'Cup') rendered
+        // raw on a Dutch install. Pull full rows and translate the label
+        // (value stays the canonical name), matching the admin form + wizard.
+        $game_subtype_rows = QueryHelpers::get_lookups( 'game_subtype' );
         // #0050 — Type lookup-driven; admins can rename or add types
         // via Configuration → Activity Types. Conditional Subtype /
         // Other-label rows stay anchored to the seeded keys.
@@ -1639,8 +1643,9 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                     <label class="tt-field-label" for="tt-activity-subtype"><?php esc_html_e( 'Game subtype', 'talenttrack' ); ?></label>
                     <select id="tt-activity-subtype" class="tt-input" name="game_subtype_key">
                         <option value=""><?php esc_html_e( '— Choose —', 'talenttrack' ); ?></option>
-                        <?php foreach ( $game_subtypes as $sub ) : ?>
-                            <option value="<?php echo esc_attr( (string) $sub ); ?>" <?php selected( $current_subtype, (string) $sub ); ?>><?php echo esc_html( (string) $sub ); ?></option>
+                        <?php foreach ( $game_subtype_rows as $sub_row ) :
+                            $sub_name = (string) $sub_row->name; ?>
+                            <option value="<?php echo esc_attr( $sub_name ); ?>" <?php selected( $current_subtype, $sub_name ); ?>><?php echo esc_html( \TT\Infrastructure\Query\LookupTranslator::name( $sub_row ) ); ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
