@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-25T23:34:30+00:00\n"
+"POT-Creation-Date: 2026-06-25T23:42:26+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: talenttrack\n"
@@ -25302,16 +25302,21 @@ msgstr ""
 msgid "Hover an entry to see the underlying rating breakdown. Computed against the team's active formation template."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/PlayerAttributesRestController.php:105
+#: src/Modules/TeamDevelopment/Rest/PlayerAttributesRestController.php:123
 msgid "Expected a values map."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/PlayerAttributesRestController.php:137
+#: src/Modules/TeamDevelopment/Rest/PlayerAttributesRestController.php:155
 msgid "Expected a matrix array."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/PlayerAttributesRestController.php:162
+#: src/Modules/TeamDevelopment/Rest/PlayerAttributesRestController.php:180
 msgid "Expected a weights map."
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Rest/PlayerAttributesRestController.php:192
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:528
+msgid "Pick two different players."
 msgstr ""
 
 #: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:250
@@ -25341,10 +25346,6 @@ msgstr ""
 
 #: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:457
 msgid "No formation template available."
-msgstr ""
-
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:528
-msgid "Pick two different players."
 msgstr ""
 
 #: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:534

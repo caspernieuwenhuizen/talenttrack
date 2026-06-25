@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-25T23:34:30+00:00\n"
+"POT-Creation-Date: 2026-06-25T23:42:26+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -26782,16 +26782,21 @@ msgid ""
 "team's active formation template."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/PlayerAttributesRestController.php:105
+#: src/Modules/TeamDevelopment/Rest/PlayerAttributesRestController.php:123
 msgid "Expected a values map."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/PlayerAttributesRestController.php:137
+#: src/Modules/TeamDevelopment/Rest/PlayerAttributesRestController.php:155
 msgid "Expected a matrix array."
 msgstr ""
 
-#: src/Modules/TeamDevelopment/Rest/PlayerAttributesRestController.php:162
+#: src/Modules/TeamDevelopment/Rest/PlayerAttributesRestController.php:180
 msgid "Expected a weights map."
+msgstr ""
+
+#: src/Modules/TeamDevelopment/Rest/PlayerAttributesRestController.php:192
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:528
+msgid "Pick two different players."
 msgstr ""
 
 #: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:250
@@ -26821,10 +26826,6 @@ msgstr ""
 
 #: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:457
 msgid "No formation template available."
-msgstr ""
-
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:528
-msgid "Pick two different players."
 msgstr ""
 
 #: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:534

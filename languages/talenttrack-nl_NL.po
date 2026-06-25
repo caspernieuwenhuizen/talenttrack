@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-25T23:34:30+00:00\n"
+"POT-Creation-Date: 2026-06-25T23:42:26+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -28726,17 +28726,22 @@ msgstr ""
 "Houd de muis op een regel om de onderliggende beoordelings­opbouw te zien. "
 "Berekend tegen het actieve formatie­sjabloon van het team."
 
-#: src/Modules/TeamDevelopment/Rest/PlayerAttributesRestController.php:105
+#: src/Modules/TeamDevelopment/Rest/PlayerAttributesRestController.php:123
 msgid "Expected a values map."
 msgstr "Verwachtte een waardenmap."
 
-#: src/Modules/TeamDevelopment/Rest/PlayerAttributesRestController.php:137
+#: src/Modules/TeamDevelopment/Rest/PlayerAttributesRestController.php:155
 msgid "Expected a matrix array."
 msgstr "Verwachtte een matrixarray."
 
-#: src/Modules/TeamDevelopment/Rest/PlayerAttributesRestController.php:162
+#: src/Modules/TeamDevelopment/Rest/PlayerAttributesRestController.php:180
 msgid "Expected a weights map."
 msgstr "Verwachtte een gewichtenmap."
+
+#: src/Modules/TeamDevelopment/Rest/PlayerAttributesRestController.php:192
+#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:528
+msgid "Pick two different players."
+msgstr "Kies twee verschillende spelers."
 
 #: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:250
 msgid "formation_template_id is required."
@@ -28768,10 +28773,6 @@ msgstr ""
 #: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:457
 msgid "No formation template available."
 msgstr "Geen opstellingssjabloon beschikbaar."
-
-#: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:528
-msgid "Pick two different players."
-msgstr "Kies twee verschillende spelers."
 
 #: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:534
 msgid "Could not save the pairing."
