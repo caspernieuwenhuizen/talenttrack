@@ -34131,6 +34131,10 @@ msgstr "— alle teams —"
 msgid "— all types —"
 msgstr "— alle types —"
 
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:960
+msgid "Show cancelled"
+msgstr "Geannuleerde tonen"
+
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:961
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1069
 msgid "This week"
