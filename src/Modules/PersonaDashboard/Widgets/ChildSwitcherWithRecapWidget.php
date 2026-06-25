@@ -54,18 +54,21 @@ class ChildSwitcherWithRecapWidget extends AbstractWidget {
         } else {
             // #915 — pills were `<button>` elements with no JS handler
             // bound, so multi-child parents couldn't navigate to a
-            // non-primary child. Per Option 2 in the issue body: render
-            // as `<a href>` to the player's detail page so the parent
-            // can drill into each child's record (evaluations, goals,
-            // PDP). No JS needed. Tap target 48×min via the existing
-            // `.tt-pd-child-pill` CSS.
+            // non-primary child. Render as `<a href>` so the parent can
+            // drill into each child's record. No JS needed. Tap target
+            // 48×min via the existing `.tt-pd-child-pill` CSS.
+            // #1849 — point at the child's *own* development overview
+            // (the `overview` / My-card slug + `player_id`), not the staff
+            // detail view, so the parent gets the rich `FrontendMy*` views
+            // (the routing resolves the child via canViewPlayer). `tt_back`
+            // lets the destination show the contextual back-pill (§5).
             foreach ( $children as $child ) {
                 $pid = (int) $child->id;
                 if ( $pid <= 0 ) continue;
-                $url = add_query_arg(
-                    [ 'tt_view' => 'players', 'id' => $pid ],
+                $url = \TT\Shared\Frontend\Components\BackLink::appendTo( add_query_arg(
+                    [ 'tt_view' => 'overview', 'player_id' => $pid ],
                     \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
-                );
+                ) );
                 $pills .= '<a class="tt-pd-child-pill" data-tt-pd-child="' . esc_attr( (string) $pid ) . '" href="' . esc_url( $url ) . '">'
                     . esc_html( trim( $child->first_name . ' ' . $child->last_name ) )
                     . '</a>';

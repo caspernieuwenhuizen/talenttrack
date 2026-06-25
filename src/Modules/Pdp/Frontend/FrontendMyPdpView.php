@@ -37,8 +37,20 @@ class FrontendMyPdpView extends FrontendViewBase {
 
     public static function render( object $player ): void {
         self::enqueueAssets();
-        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'My development plan', 'talenttrack' ) );
-        self::renderHeader( __( 'My development plan', 'talenttrack' ) );
+
+        // #1849 — a parent reaching this for their child sees the child's
+        // name framing, not "My …".
+        $is_self   = (int) ( $player->wp_user_id ?? 0 ) === get_current_user_id();
+        $is_parent = ! $is_self;
+        $title     = $is_self
+            ? __( 'My development plan', 'talenttrack' )
+            : sprintf(
+                /* translators: %s = the child's name (parent viewing their child) */
+                __( "%s's development plan", 'talenttrack' ),
+                \TT\Infrastructure\Query\QueryHelpers::player_display_name( $player )
+            );
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $title );
+        self::renderHeader( $title );
 
         $current = ( new SeasonsRepository() )->current();
         if ( ! $current ) {
@@ -49,12 +61,12 @@ class FrontendMyPdpView extends FrontendViewBase {
         $files = new PdpFilesRepository();
         $file  = $files->findByPlayerSeason( (int) $player->id, (int) $current->id );
         if ( ! $file ) {
-            echo '<p><em>' . esc_html__( 'No PDP file has been opened for you this season yet.', 'talenttrack' ) . '</em></p>';
+            $msg = $is_self
+                ? __( 'No PDP file has been opened for you this season yet.', 'talenttrack' )
+                : __( 'No PDP file has been opened for this player this season yet.', 'talenttrack' );
+            echo '<p><em>' . esc_html( $msg ) . '</em></p>';
             return;
         }
-
-        $is_self   = (int) ( $player->wp_user_id ?? 0 ) === get_current_user_id();
-        $is_parent = ! $is_self;
 
         $convs   = ( new PdpConversationsRepository() )->listForFile( (int) $file->id );
         $verdict = ( new PdpVerdictsRepository() )->findForFile( (int) $file->id );

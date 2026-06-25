@@ -40278,6 +40278,15 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php
+#, php-format
+msgid "%s's development plan"
+msgstr "Ontwikkelplan van %s"
+
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php
+msgid "No PDP file has been opened for this player this season yet."
+msgstr "Er is dit seizoen nog geen ontwikkelplan geopend voor deze speler."
+
 #~ msgid "Delete this holiday?"
 #~ msgstr "Deze vakantie verwijderen?"
 
