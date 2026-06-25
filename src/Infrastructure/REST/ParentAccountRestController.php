@@ -47,16 +47,30 @@ class ParentAccountRestController {
     }
 
     public static function link( \WP_REST_Request $r ): \WP_REST_Response {
-        $player_id      = absint( $r['id'] );
-        $parent_user_id = absint( $r['wp_user_id'] ?? 0 );
+        $player_id = absint( $r['id'] );
+        $svc       = new ParentAccountService();
 
-        $result = ( new ParentAccountService() )->linkToPlayer( $player_id, $parent_user_id );
+        // #1847 — direct-create branch: provision a brand-new parent WP
+        // account (set-password email by default) and link it, instead of
+        // linking an existing user. Same endpoint, gated by the same cap.
+        if ( ! empty( $r['create'] ) ) {
+            $result = $svc->directCreate(
+                $player_id,
+                sanitize_text_field( (string) ( $r['first_name'] ?? '' ) ),
+                sanitize_text_field( (string) ( $r['last_name'] ?? '' ) ),
+                sanitize_email( (string) ( $r['email'] ?? '' ) ),
+                ! empty( $r['temp_password'] ) ? (string) $r['temp_password'] : null
+            );
+        } else {
+            $result = $svc->linkToPlayer( $player_id, absint( $r['wp_user_id'] ?? 0 ) );
+        }
+
         if ( ! $result['ok'] ) {
             return RestResponse::error( $result['code'], $result['message'], 422 );
         }
         return RestResponse::success( [
             'player_id'  => $player_id,
-            'wp_user_id' => $parent_user_id,
+            'wp_user_id' => $result['user_id'] ?? absint( $r['wp_user_id'] ?? 0 ),
             'status'     => $result['code'],
         ] );
     }

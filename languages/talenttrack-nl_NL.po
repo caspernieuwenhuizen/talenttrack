@@ -41065,6 +41065,45 @@ msgstr "Ontwikkelplan"
 msgid "Section"
 msgstr "Onderdeel"
 
+msgid "A valid email address is required."
+msgstr "Een geldig e-mailadres is verplicht."
+
+msgid "An account with that email already exists. Link it instead of creating a new one."
+msgstr "Er bestaat al een account met dat e-mailadres. Koppel dat in plaats van een nieuw aan te maken."
+
+msgid "Parent account created and linked with a temporary password."
+msgstr "Ouderaccount aangemaakt en gekoppeld met een tijdelijk wachtwoord."
+
+msgid "Parent account created and linked. A set-password email has been sent."
+msgstr "Ouderaccount aangemaakt en gekoppeld. Er is een e-mail verstuurd om een wachtwoord in te stellen."
+
+msgid "This player already has an account."
+msgstr "Deze speler heeft al een account."
+
+msgid "Player account created and linked with a temporary password."
+msgstr "Spelersaccount aangemaakt en gekoppeld met een tijdelijk wachtwoord."
+
+msgid "Player account created and linked. A set-password email has been sent."
+msgstr "Spelersaccount aangemaakt en gekoppeld. Er is een e-mail verstuurd om een wachtwoord in te stellen."
+
+msgid "Create a new parent account"
+msgstr "Een nieuw ouderaccount aanmaken"
+
+msgid "Create account"
+msgstr "Account aanmaken"
+
+msgid "The parent receives a \"set your password\" email; you never see a password."
+msgstr "De ouder ontvangt een e-mail om een wachtwoord in te stellen; jij ziet nooit een wachtwoord."
+
+msgid "No usable email - set a temporary password instead (you must share it securely)."
+msgstr "Geen bruikbaar e-mailadres - stel in plaats daarvan een tijdelijk wachtwoord in (deel dit veilig)."
+
+msgid "Temporary password"
+msgstr "Tijdelijk wachtwoord"
+
+msgid "You do not have permission to create parent accounts."
+msgstr "Je hebt geen toestemming om ouderaccounts aan te maken."
+
 #~ msgid "Delete this holiday?"
 #~ msgstr "Deze vakantie verwijderen?"
 
