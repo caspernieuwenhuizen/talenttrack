@@ -24,12 +24,6 @@ class FrontendMeasurementsView extends FrontendViewBase {
 
     public static function render( object $player ): void {
         self::enqueueAssets();
-        wp_enqueue_style(
-            'tt-frontend-measurements',
-            TT_PLUGIN_URL . 'assets/css/frontend-measurements.css',
-            [ 'tt-frontend-mobile' ],
-            TT_VERSION
-        );
 
         $name = trim( (string) ( $player->first_name ?? '' ) . ' ' . (string) ( $player->last_name ?? '' ) );
 
@@ -40,7 +34,24 @@ class FrontendMeasurementsView extends FrontendViewBase {
                 : __( 'Measurements', 'talenttrack' )
         );
 
-        $profile = ( new PlayerMeasurementProfile() )->forPlayer( (int) $player->id );
+        self::renderBody( (int) $player->id );
+    }
+
+    /**
+     * The measurement profile body — categories → tests → latest value +
+     * flag + sparkline. Shared by the standalone view and the player-
+     * profile Measurements tab so both render identically. Enqueues its
+     * own stylesheet (idempotent).
+     */
+    public static function renderBody( int $player_id ): void {
+        wp_enqueue_style(
+            'tt-frontend-measurements',
+            TT_PLUGIN_URL . 'assets/css/frontend-measurements.css',
+            [ 'tt-frontend-mobile' ],
+            TT_VERSION
+        );
+
+        $profile = ( new PlayerMeasurementProfile() )->forPlayer( $player_id );
 
         if ( empty( $profile ) ) {
             echo '<p class="tt-notice">' . esc_html__( 'No tests have been set up yet.', 'talenttrack' ) . '</p>';

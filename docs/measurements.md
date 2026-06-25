@@ -60,8 +60,11 @@ admin. An academy admin or head of development can change any value.
 Players and parents get a **My measurements** tile that opens the
 *Metingen* view: every test grouped by category, each showing its latest
 value, a green/amber/red flag against the player's age-group target, a
-small trend line, and how often it runs. A parent sees their child's view;
-staff open a player's measurements from the player's profile.
+small trend line, and how often it runs. A parent sees their child's view.
+
+Staff see the same thing **in context** on the player's profile: open a
+player and switch to the **Measurements** tab (beside Evaluations). The
+tab badge counts how many tests the player has results for.
 
 ## Recording results
 

@@ -65,8 +65,11 @@ Spelers en ouders krijgen een tegel **Mijn metingen** die de
 *Metingen*-weergave opent: elke test gegroepeerd per categorie, met de
 laatste waarde, een groen/oranje/rood vlaggetje ten opzichte van de
 streefwaarde voor de leeftijdsgroep, een kleine trendlijn en de
-frequentie. Een ouder ziet de weergave van het kind; staf opent de
-metingen van een speler vanuit het spelersprofiel.
+frequentie. Een ouder ziet de weergave van het kind.
+
+Staf ziet hetzelfde **in context** op het spelersprofiel: open een speler
+en ga naar het tabblad **Metingen** (naast Beoordelingen). De badge op
+het tabblad toont voor hoeveel tests de speler resultaten heeft.
 
 ## Resultaten vastleggen
 

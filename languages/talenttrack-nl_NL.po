@@ -41241,6 +41241,10 @@ msgstr "Oranje tot"
 msgid "Could not create the test."
 msgstr "De test kon niet worden aangemaakt."
 
+#: src/Shared/Frontend/FrontendPlayerDetailView.php
+msgid "You do not have permission to view measurements for this player."
+msgstr "Je hebt geen toestemming om de metingen van deze speler te bekijken."
+
 #~ msgid "Delete this holiday?"
 #~ msgstr "Deze vakantie verwijderen?"
 
