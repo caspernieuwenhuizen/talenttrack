@@ -40365,51 +40365,6 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
-msgid "Your focus"
-msgstr "Jouw focus"
-
-#, php-format
-msgid "Next development talk: %s"
-msgstr "Volgend ontwikkelgesprek: %s"
-
-msgid "Your next development talk will be planned soon."
-msgstr "Je volgende ontwikkelgesprek wordt binnenkort ingepland."
-
-msgid "Coming up"
-msgstr "Binnenkort"
-
-#, php-format
-msgid "Prepare for your talk on %s"
-msgstr "Bereid je voor op je gesprek op %s"
-
-msgid "Prepare for your upcoming development talk"
-msgstr "Bereid je voor op je komende ontwikkelgesprek"
-
-msgid "Adding a short self-reflection before your talk helps your coach. It is optional, never required. You can find it on the talk just below."
-msgstr "Een korte zelfreflectie voor je gesprek helpt je coach. Het is optioneel, nooit verplicht. Je vindt het bij het gesprek hieronder."
-
-msgid "A self-reflection can be added before the talk to help the coach. It is optional, never required."
-msgstr "Een zelfreflectie kan voor het gesprek worden toegevoegd om de coach te helpen. Het is optioneel, nooit verplicht."
-
-msgid "Your last development talk"
-msgstr "Je laatste ontwikkelgesprek"
-
-#, php-format
-msgid "Your talk on %s is ready to review"
-msgstr "Je gesprek op %s staat klaar om te bekijken"
-
-msgid "Your last talk is ready to review"
-msgstr "Je laatste gesprek staat klaar om te bekijken"
-
-msgid "See the notes and agreed actions below, and acknowledge the talk. These are the goals to carry forward."
-msgstr "Bekijk hieronder de notities en afgesproken acties en bevestig het gesprek. Dit zijn de doelen om mee verder te gaan."
-
-msgid "No active goals yet. Your coach will set some during your next talk."
-msgstr "Nog geen actieve doelen. Je coach stelt er een paar op tijdens je volgende gesprek."
-
-msgid "See all goals"
-msgstr "Bekijk alle doelen"
-
 msgid "My development"
 msgstr "Mijn ontwikkeling"
 
