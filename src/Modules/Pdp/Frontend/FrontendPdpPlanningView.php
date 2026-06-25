@@ -36,7 +36,7 @@ final class FrontendPdpPlanningView {
         // `?tt_view=pdp` list and didn't actually scope by block.
         $action = isset( $_GET['action'] ) ? sanitize_key( (string) $_GET['action'] ) : '';
         if ( $action === 'block' ) {
-            self::renderBlockDetail( $user_id );
+            self::renderBlockDetail( $user_id, $is_admin );
             return;
         }
 
@@ -46,8 +46,12 @@ final class FrontendPdpPlanningView {
         global $wpdb;
         $p = $wpdb->prefix;
 
+        // #1865 — matrix-scope the planning grid. A HoD / admin (academy-wide
+        // PDP read) sees every team; a team-scoped coach sees only the teams
+        // they're assigned to. An empty accessible set yields an empty matrix.
+        $team_ids  = self::accessibleTeamIds( $user_id, $is_admin );
         $season_id = isset( $_GET['season_id'] ) ? absint( $_GET['season_id'] ) : self::resolveCurrentSeason();
-        $matrix    = self::buildMatrix( $season_id );
+        $matrix    = self::buildMatrix( $season_id, $team_ids );
 
         $base_url = remove_query_arg( [ 'season_id', 'action', 'team_id', 'block' ] );
 
@@ -162,13 +166,44 @@ final class FrontendPdpPlanningView {
     }
 
     /**
+     * #1865 — the teams a user may see in PDP planning. Returns null when
+     * the user has academy-wide PDP read (admin / HoD) — meaning "no team
+     * restriction"; otherwise the list of team ids they're assigned to as
+     * a coach (possibly empty, which scopes the matrix to nothing).
+     *
+     * @return list<int>|null
+     */
+    private static function accessibleTeamIds( int $user_id, bool $is_admin ): ?array {
+        if ( $is_admin || QueryHelpers::user_has_global_entity_read( $user_id, 'pdp_file' ) ) {
+            return null;
+        }
+        $ids = [];
+        foreach ( QueryHelpers::get_teams_for_coach( $user_id ) as $t ) {
+            $ids[] = (int) $t->id;
+        }
+        return array_values( array_unique( $ids ) );
+    }
+
+    /**
+     * @param list<int>|null $team_ids #1865 — null = no team restriction
+     *        (HoD/admin); a list scopes the matrix to those teams; an empty
+     *        list yields an empty matrix (coach with no teams).
      * @return array{max_blocks:int,teams:array<int,array{name:string,roster:int,blocks:array<int,array<string,mixed>>}>}
      */
-    public static function buildMatrix( int $season_id ): array {
+    public static function buildMatrix( int $season_id, ?array $team_ids = null ): array {
         global $wpdb;
         $p = $wpdb->prefix;
 
         if ( $season_id <= 0 ) return [ 'max_blocks' => 0, 'teams' => [] ];
+        if ( is_array( $team_ids ) && $team_ids === [] ) return [ 'max_blocks' => 0, 'teams' => [] ];
+
+        $team_clause  = '';
+        $team_params  = [];
+        if ( is_array( $team_ids ) ) {
+            $placeholders = implode( ',', array_fill( 0, count( $team_ids ), '%d' ) );
+            $team_clause  = " AND t.id IN ($placeholders)";
+            $team_params  = array_map( 'intval', $team_ids );
+        }
 
         // Aggregate per (team_id, sequence). For each block we need:
         //   expected   = roster (computed once below)
@@ -189,10 +224,10 @@ final class FrontendPdpPlanningView {
               JOIN {$p}tt_players  pl ON pl.id = f.player_id  AND pl.club_id = f.club_id
               JOIN {$p}tt_teams    t  ON t.id  = pl.team_id   AND t.club_id  = pl.club_id
              WHERE c.club_id = %d
-               AND f.season_id = %d
+               AND f.season_id = %d{$team_clause}
              GROUP BY t.id, c.sequence
              ORDER BY t.name ASC, c.sequence ASC",
-            CurrentClub::id(), $season_id
+            CurrentClub::id(), $season_id, ...$team_params
         ) );
 
         $teams = [];
@@ -295,7 +330,7 @@ final class FrontendPdpPlanningView {
      * v3.94.1 replacement for the v1 cell-click that routed to the
      * unfiltered PDP list.
      */
-    private static function renderBlockDetail( int $user_id ): void {
+    private static function renderBlockDetail( int $user_id, bool $is_admin ): void {
         $team_id   = isset( $_GET['team_id'] )   ? absint( $_GET['team_id'] )   : 0;
         $block     = isset( $_GET['block'] )     ? absint( $_GET['block'] )     : 0;
         $season_id = isset( $_GET['season_id'] ) ? absint( $_GET['season_id'] ) : self::resolveCurrentSeason();
@@ -303,6 +338,15 @@ final class FrontendPdpPlanningView {
         if ( $team_id <= 0 || $block <= 0 || $season_id <= 0 ) {
             \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'PDP planning', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'Block detail requires a team, a block number, and a season. Click a cell on the planning matrix to drill in.', 'talenttrack' ) . '</p>';
+            return;
+        }
+
+        // #1865 — a team-scoped coach can't drill into a team they don't own,
+        // even via a hand-edited URL. HoD / admin (null = no restriction) pass.
+        $allowed_teams = self::accessibleTeamIds( $user_id, $is_admin );
+        if ( is_array( $allowed_teams ) && ! in_array( $team_id, $allowed_teams, true ) ) {
+            \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( __( 'PDP planning', 'talenttrack' ) );
+            echo '<p class="tt-notice">' . esc_html__( 'You do not have permission to view PDP planning.', 'talenttrack' ) . '</p>';
             return;
         }
 

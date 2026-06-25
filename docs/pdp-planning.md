@@ -21,3 +21,7 @@ Click any cell to drill into the underlying PDP files filtered by team + block.
 
 - `tt_view_pdp` — see the dashboard. Granted to coaches and HoD.
 - The **PDP planning** tile shows for any role with `tt_view_pdp`; HoDs are the primary audience.
+
+### Who sees which teams
+
+The matrix is **team-scoped**. A head of development (academy-wide PDP read) or an administrator sees **every team**. A team-scoped coach sees **only the teams they're assigned to** — both in the matrix and when drilling into a block; opening another team's block by hand-editing the URL is refused.

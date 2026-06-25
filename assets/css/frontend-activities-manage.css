@@ -107,6 +107,25 @@
     touch-action: manipulation;
 }
 
+/* #1862 — "Show cancelled" checkbox filter: row layout, 48px target. */
+.tt-dashboard .tt-act-filters__field--check {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    min-height: 48px;
+    align-self: end;
+}
+.tt-dashboard .tt-act-filters__check {
+    width: 24px;
+    height: 24px;
+    touch-action: manipulation;
+    flex-shrink: 0;
+}
+.tt-dashboard .tt-act-filters__field--check .tt-act-filters__label {
+    text-transform: none;
+    letter-spacing: 0;
+}
+
 /* ---- Empty state ------------------------------------------- */
 .tt-dashboard .tt-act-empty {
     padding: 48px 16px;
@@ -193,6 +212,13 @@
     border-bottom: 1px solid var(--tt-mute, #f0f3f2);
     margin-bottom: -1px;       /* collapse adjacent borders */
     padding: 0;
+}
+/* #1862 — cancelled rows (only shown via the filter) read as muted. */
+.tt-dashboard .tt-act-card--cancelled .tt-act-card__title {
+    text-decoration: line-through;
+}
+.tt-dashboard .tt-act-card--cancelled {
+    opacity: 0.62;
 }
 .tt-dashboard .tt-act-card__link {
     display: grid;

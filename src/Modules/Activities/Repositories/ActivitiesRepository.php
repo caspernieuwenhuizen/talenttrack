@@ -3,6 +3,7 @@ namespace TT\Modules\Activities\Repositories;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use TT\Domain\Vocabularies\Lookups\ActivityStatusKey;
 use TT\Infrastructure\Archive\ArchiveRepository;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
@@ -477,12 +478,23 @@ final class ActivitiesRepository {
      *
      * @return object[]
      */
-    public function listForManageSurface( int $team_filter, string $type_filter, int $user_id, string $date_from = '', string $date_to = '' ): array {
+    public function listForManageSurface( int $team_filter, string $type_filter, int $user_id, string $date_from = '', string $date_to = '', bool $show_cancelled = false ): array {
         global $wpdb;
         $p = $wpdb->prefix;
 
         $where  = [ 's.club_id = %d', 's.archived_at IS NULL' ];
         $params = [ CurrentClub::id() ];
+
+        // #1862 — cancelled activities are noise on the schedule, so hide
+        // them by default. A cancelled row carries 'cancelled' in EITHER
+        // the newer plan_state taxonomy OR the older activity_status_key
+        // one (pilot installs mix both), so exclude on both. The manage
+        // list opts back in with the "show cancelled" filter.
+        if ( ! $show_cancelled ) {
+            $where[]  = "( LOWER(COALESCE(s.plan_state, '')) <> %s AND LOWER(COALESCE(s.activity_status_key, '')) <> %s )";
+            $params[] = ActivityStatusKey::CANCELLED;
+            $params[] = ActivityStatusKey::CANCELLED;
+        }
 
         if ( $date_from !== '' ) {
             $where[]  = 's.session_date >= %s';
