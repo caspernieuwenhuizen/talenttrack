@@ -41659,6 +41659,53 @@ msgstr "Verwachtte een matrixarray."
 msgid "Expected a weights map."
 msgstr "Verwachtte een gewichtenmap."
 
+#: #1727 — Match minutes per age category configuration sub-form.
+msgid "Match minutes"
+msgstr "Wedstrijdminuten"
+
+msgid "Save match minutes"
+msgstr "Wedstrijdminuten opslaan"
+
+msgid "Age category"
+msgstr "Leeftijdscategorie"
+
+msgid "Minutes per half (N)"
+msgstr "Minuten per helft (N)"
+
+msgid "Total (2 x N)"
+msgstr "Totaal (2 x N)"
+
+msgid "Default match minutes per age category"
+msgstr "Standaard wedstrijdminuten per leeftijdscategorie"
+
+msgid ""
+"No age categories configured yet. Add age groups first, then come back to "
+"set their default match minutes."
+msgstr ""
+"Er zijn nog geen leeftijdscategorieën ingesteld. Voeg eerst leeftijdsgroepen "
+"toe en stel daarna hun standaard wedstrijdminuten in."
+
+msgid "Manage age groups"
+msgstr "Leeftijdsgroepen beheren"
+
+#, php-format
+msgid ""
+"Set the default match length for each age category, in minutes per half. The "
+"full match is twice that (2 x N). Leave a row blank to use the global "
+"fallback of %d minutes per half."
+msgstr ""
+"Stel de standaard wedstrijdduur per leeftijdscategorie in, in minuten per "
+"helft. De volledige wedstrijd is het dubbele (2 x N). Laat een rij leeg om de "
+"globale terugval van %d minuten per helft te gebruiken."
+
+msgid ""
+"Default match length per age category (minutes per half, total 2 x N). "
+"Prefills match prep and the match-completion minutes entry."
+msgstr ""
+"Standaard wedstrijdduur per leeftijdscategorie (minuten per helft, totaal 2 x "
+"N). Vult de wedstrijdvoorbereiding en de minuten bij wedstrijdafronding "
+"alvast in."
+
 #~ msgid "Check your email for a password reset link."
 #~ msgstr ""
 #~ "Controleer uw e-mail voor een link om uw wachtwoord opnieuw in te stellen."

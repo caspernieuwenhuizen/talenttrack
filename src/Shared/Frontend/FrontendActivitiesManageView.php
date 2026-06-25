@@ -1896,15 +1896,17 @@ class FrontendActivitiesManageView extends FrontendViewBase {
 
             // #1726 — direct per-player minutes entry on match completion.
             // Resolve the full match length: stored value wins, else the
-            // match prep's two halves, else a 70' club default. The derived
-            // subs on/off counts come from the domain layer (§4).
+            // match prep's explicit half, else the per-age-category
+            // default (#1727), else the global 35'/half fallback. The
+            // resolution itself lives in the domain layer (§4).
             $match_length  = (int) ( $session->match_length_minutes ?? 0 );
             $participation = [ 'subs_on' => 0, 'subs_off' => 0 ];
             if ( $is_match_type ) {
                 if ( $match_length <= 0 ) {
                     $prep_row = ( new \TT\Modules\MatchPrep\Repositories\MatchPrepRepository() )->findByActivity( $id );
-                    $half     = $prep_row ? (int) ( $prep_row->half_length_minutes ?? 0 ) : 0;
-                    $match_length = $half > 0 ? $half * 2 : 70;
+                    $prep_half = $prep_row ? (int) ( $prep_row->half_length_minutes ?? 0 ) : 0;
+                    $match_length = ( new \TT\Modules\MatchPrep\Services\MatchLengthResolver() )
+                        ->matchMinutesForActivity( $id, $prep_half );
                 }
                 $participation = ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )
                     ->matchParticipationSummary( $id, $match_length );
