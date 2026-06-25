@@ -1,103 +1,39 @@
 /*
- * frontend-trial-case.css — FrontendTrialCaseView 2026 restyle (B2).
- * Applies the shared green/gold "chrome" language to the trial-case
- * detail surface: header KPI strip, sticky anchor nav, section cards,
- * staff-input cards, and the in-page forms. Restyle only — markup/data
- * unchanged. The inline <style> blocks that previously lived in the PHP
- * (anchor nav + section dividers) are folded in here.
+ * frontend-trial-case.css — FrontendTrialCaseView (#1646 overhaul).
  *
- * Mobile-first per CLAUDE.md §2: base ~360px; min-width queries at
- * 480/768/1024. Scoped under .tt-dashboard. Loaded with a dep on
- * tt-frontend-app-chrome for the brand tokens + .tt-kpi styling.
- * Tokens only (tokens.css) — no raw hex.
+ * The trial case page now follows the player-detail / team-detail house
+ * pattern (see frontend-player-detail.css): a paper hero anchored by the
+ * player's photo + name, an action row, a key-facts strip, and content
+ * laid out in `.tt-player-card` panels under tab navigation. This sheet
+ * only carries the trial-specific tweaks that sit on top of that shared
+ * system — the bulk of the layout (hero, rail, main, cards, tabs, pills)
+ * comes from frontend-player-detail.css, which this view also enqueues.
+ *
+ * Mobile-first per CLAUDE.md §2: base ~360px; min-width queries scale up.
+ * Scoped under .tt-dashboard. Tokens only (tokens.css) — no raw hex.
  */
 
-/* ---- Header KPI strip ----------------------------------------------- */
-.tt-dashboard .tt-trial-strip {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--tt-sp-3);
-    margin: 0 0 var(--tt-sp-5);
-}
-@media (min-width: 480px) {
-    .tt-dashboard .tt-trial-strip {
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    }
-}
+/* ---- Trial-status accents on the shared hero + pills ----------------- *
+ * The player-detail sheet keys avatar borders + pills on PLAYER status
+ * values; the trial case carries TRIAL status values instead. Map them
+ * to the brand palette so open/extended/decided/archived read at a
+ * glance. */
+.tt-dashboard .tt-trial-detail .tt-player-hero__avatar[data-status="open"]     { border-color: var(--tt-gold); }
+.tt-dashboard .tt-trial-detail .tt-player-hero__avatar[data-status="extended"] { border-color: var(--tt-accent); }
+.tt-dashboard .tt-trial-detail .tt-player-hero__avatar[data-status="decided"]  { border-color: var(--tt-success); }
+.tt-dashboard .tt-trial-detail .tt-player-hero__avatar[data-status="archived"] { border-color: var(--tt-line-soft); }
 
-/* ---- Sticky anchor nav (was inline <style>) ------------------------- */
-.tt-dashboard .tt-trial-anchor-nav {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    display: flex;
-    flex-wrap: nowrap;
-    gap: var(--tt-sp-1);
-    padding: var(--tt-sp-2) 0;
-    margin: 0 0 var(--tt-sp-4);
-    background: var(--tt-paper);
-    border-bottom: 1px solid var(--tt-line);
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-}
-.tt-dashboard .tt-trial-anchor {
-    display: inline-flex;
-    align-items: center;
-    min-height: 44px;
-    padding: var(--tt-sp-2) var(--tt-sp-3);
-    font-size: var(--tt-fs-sm);
-    font-weight: 600;
+.tt-dashboard .tt-trial-detail .tt-player-pill[data-status="open"]     { background: var(--tt-gold-soft, #fff3d9); color: var(--tt-gold); }
+.tt-dashboard .tt-trial-detail .tt-player-pill[data-status="extended"] { background: var(--tt-accent-soft); color: var(--tt-accent); }
+.tt-dashboard .tt-trial-detail .tt-player-pill[data-status="decided"]  { background: var(--tt-success-soft, #e0efe5); color: var(--tt-success); }
+.tt-dashboard .tt-trial-detail .tt-player-pill[data-status="archived"] { background: var(--tt-mute-soft); color: var(--tt-ink-soft); }
+
+/* ---- Card intro copy (decision tab guidance, etc.) ------------------- */
+.tt-dashboard .tt-trial-card__intro {
+    margin: 0 0 var(--tt-sp-3);
     color: var(--tt-muted);
-    text-decoration: none;
-    border-radius: var(--tt-radius);
-    white-space: nowrap;
-    touch-action: manipulation;
-}
-.tt-dashboard .tt-trial-anchor:hover,
-.tt-dashboard .tt-trial-anchor:focus-visible {
-    background: var(--tt-bg-soft);
-    color: var(--tt-primary, #0b3d2e);
-    outline: none;
-}
-
-/* ---- Section cards (was inline divider style) ----------------------- */
-.tt-dashboard .tt-trial-section {
-    margin: 0 0 var(--tt-sp-4);
-    padding: var(--tt-sp-4);
-    background: var(--tt-paper);
-    border: 1px solid var(--tt-line);
-    border-radius: var(--tt-radius-lg);
-    box-shadow: var(--tt-shadow-md);
-    scroll-margin-top: 64px;
-}
-/* A top-level anchor section (#tt-trial-overview, …) groups nested
- * sub-section cards. It gets a heading and scroll anchor but NOT the
- * card frame — otherwise the inner cards would sit card-in-card. The
- * id+class compound selector outranks the plain .tt-trial-section rule
- * above. */
-.tt-dashboard section.tt-trial-section[id^="tt-trial-"] {
-    margin: var(--tt-sp-5) 0 var(--tt-sp-4);
-    padding: 0;
-    background: none;
-    border: 0;
-    box-shadow: none;
-    scroll-margin-top: 64px;
-}
-.tt-dashboard section.tt-trial-section[id^="tt-trial-"] > h2 {
-    font-size: var(--tt-fs-h3);
-    font-weight: 700;
-    text-transform: none;
-    letter-spacing: 0;
-    color: var(--tt-ink);
-    margin: 0 0 var(--tt-sp-3);
-}
-.tt-dashboard .tt-trial-section > h2 {
-    font-size: 0.82rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--tt-primary, #0b3d2e);
-    margin: 0 0 var(--tt-sp-3);
+    font-size: var(--tt-fs-sm);
+    line-height: var(--tt-lh-body);
 }
 
 /* ---- Headline list (execution synthesis) ---------------------------- */
@@ -123,7 +59,7 @@
     font-size: var(--tt-fs-h2);
 }
 
-/* ---- Assigned-staff list -------------------------------------------- */
+/* ---- Assigned-staff list (chips) ------------------------------------ */
 .tt-dashboard .tt-trial-staff-list {
     list-style: none;
     margin: 0 0 var(--tt-sp-3);
@@ -220,6 +156,19 @@
 .tt-dashboard .tt-trial-input-form textarea,
 .tt-dashboard .tt-trial-decision-form textarea { min-height: 72px; }
 
+/* Standalone action forms (release / accept / regenerate) keep a
+ * comfortable gap from the content above and a tappable button. */
+.tt-dashboard .tt-trial-release-form,
+.tt-dashboard .tt-trial-accept-form,
+.tt-dashboard .tt-trial-regenerate { margin-top: var(--tt-sp-3); }
+.tt-dashboard .tt-trial-input-form button,
+.tt-dashboard .tt-trial-assign-form button,
+.tt-dashboard .tt-trial-extend-form button,
+.tt-dashboard .tt-trial-decision-form button,
+.tt-dashboard .tt-trial-release-form button,
+.tt-dashboard .tt-trial-accept-form button,
+.tt-dashboard .tt-trial-regenerate button { min-height: 48px; touch-action: manipulation; }
+
 .tt-dashboard .tt-decision-radios {
     margin: 0;
     padding: var(--tt-sp-3);
@@ -270,32 +219,3 @@
     border-radius: var(--tt-radius);
     line-height: var(--tt-lh-body);
 }
-
-/* ---- Header action row (#1646) -------------------------------------- *
- * The trial-case header carries up to three actions (Record decision /
- * Archive case / Delete permanently). The shared .tt-page-actions slot
- * is `flex: 0 0 auto`, which on this view let the row grow past the
- * viewport and clip the rightmost button off the right edge. Allow the
- * slot to shrink and wrap so every button stays on-screen, mobile-first
- * (≥48px targets preserved by the shared button styles). */
-.tt-dashboard .tt-page-head .tt-page-actions {
-    flex: 1 1 auto;
-    flex-wrap: wrap;
-    max-width: 100%;
-    min-width: 0;
-}
-
-/* ---- Archive form (#1646: nonce-only, visually removed) ------------- *
- * The in-body archive form is `hidden`; the single visible archive
- * affordance lives in the top-right header action row. Margin retained
- * only as a harmless no-op should the `hidden` attribute be absent. */
-.tt-dashboard .tt-trial-archive { margin-top: var(--tt-sp-4); }
-.tt-dashboard .tt-trial-archive button { min-height: 48px; touch-action: manipulation; }
-
-/* ---- Regenerate-letter form (was inline margin-top) ----------------- */
-.tt-dashboard .tt-trial-regenerate { margin-top: var(--tt-sp-3); }
-.tt-dashboard .tt-trial-regenerate button { min-height: 48px; touch-action: manipulation; }
-
-/* ---- Post-decision actions: keep inline forms breathing ------------- */
-.tt-dashboard .tt-trial-section form + form { margin-top: var(--tt-sp-3); }
-.tt-dashboard .tt-trial-section form button { min-height: 48px; touch-action: manipulation; }

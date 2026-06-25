@@ -18,7 +18,7 @@ Klik op de tegel **Stagedossiers** en kies *Nieuw stagedossier*. Selecteer de sp
 
 ### 2. De stage volgen
 
-Het tabblad **Uitvoering** bundelt alles wat tijdens de stageperiode plaatsvindt — sessies waar de speler bij was, geschreven evaluaties, doelen die zijn aangemaakt of bijgewerkt, plus een korte synthese (rolling rating, aantal evaluaties). Niets wordt gedupliceerd; de gegevens blijven op hun gebruikelijke plek staan, dit tabblad filtert alleen op het stagevenster.
+Het tabblad **Uitvoering** bundelt alles wat tijdens de stageperiode plaatsvindt — activiteiten waar de speler bij was, geschreven evaluaties, doelen die zijn aangemaakt of bijgewerkt, plus een korte synthese (rolling rating, aantal evaluaties). Niets wordt gedupliceerd; de gegevens blijven op hun gebruikelijke plek staan, dit tabblad filtert alleen op het stagevenster.
 
 Moet de periode verlengd worden, dan vraagt **Stage verlengen** op het Overzicht-tabblad om een nieuwe einddatum en een verplichte motivatie. Elke verlenging wordt vastgelegd met wie, wanneer en waarom.
 
@@ -46,7 +46,7 @@ Bij het vastleggen van een besluit wordt de brief automatisch gegenereerd. Het t
 - **Afwijzen (definitief)** — respectvol en duidelijk.
 - **Afwijzen (met aanmoediging)** — benoemt wat positief opviel en waar nog aan gewerkt mag worden, met een expliciete uitnodiging voor een nieuwe stage.
 
-Past de tekst niet helemaal? Met **Briefsjablonen** (onder de groep Stagedossiers) past de club elk sjabloon per taal aan. De editor toont een legenda met alle beschikbare variabelen (`{player_first_name}`, `{trial_end_date}`, `{strengths_summary}`, …). Onbekende variabelen blijven letterlijk `{foo}` staan zodat ontbrekende stukken zichtbaar zijn in de voorbeeldweergave.
+De meegeleverde Nederlandse brieven gebruiken een warme, informele clubtoon ("je/jullie"). Past de tekst niet helemaal bij jullie club? Met **Briefsjablonen** (onder de groep Stagedossiers) pas je elke brief per taal aan. De editor opent met een korte uitleg, toont elke brief onder een begrijpelijke naam ("Aanbod van een plek", "Geen plek — met aanmoediging", …) en biedt een zijpaneel met alle beschikbare variabelen (`{player_first_name}`, `{trial_end_date}`, `{strengths_summary}`, …) plus een live voorbeeld met voorbeeldgegevens. Onbekende variabelen blijven letterlijk `{foo}` staan zodat ontbrekende stukken zichtbaar zijn in de voorbeeldweergave.
 
 ### 6. Het gesprek met de ouders
 
@@ -84,8 +84,10 @@ Archiveer je een dossier waar wél een beslissing bij hoorde en blijkt het gezin
 
 Brieven worden bewaard met een vervaldatum van 2 jaar. Archiveren is de standaard — afwijzingsbrieven worden niet automatisch verwijderd omdat de club ze nodig kan hebben bij heroverwegingen of bezwaar. Een aparte AVG-verwijderfunctie regelt definitieve verwijdering op verzoek van de ouder.
 
-## Lineaire dossierpagina + stagespelers op teampagina (v3.79.0)
+## Indeling van de dossierpagina
 
-De stagedossierdetailpagina was eerst opgesplitst in zes tabbladen (Overzicht / Uitvoering / Coachinput / Beslissing / Brief / Oudergesprek). Nu wordt alles op één lineaire pagina getoond met een vaste ankerstrip bovenaan — elke sectie is zichtbaar zonder route-wissel, wat een snelle review veel sneller maakt. Links naar oude `?tab=`-URL's scrollen automatisch naar het bijbehorende anker.
+De stagedossierpagina volgt dezelfde indeling als de speler- en teamprofielen: een papieren kopgedeelte met de foto en naam van de speler als anker (een stage is een belangrijk moment in het traject van die speler, dus de speler blijft het onderwerp van de pagina), labels voor stagestatus / beslissing / traject, een feitenstrip (Traject · Stageperiode · Status · Beslissing) en daarna de inhoud in kaarten onder tabnavigatie — **Overzicht · Uitvoering · Staf-input** voor iedereen, plus **Beslissing · Brief · Oudergesprek** voor het hoofd opleiding. Het kopgedeelte linkt terug naar het volledige spelersprofiel, en de pagina toont de standaard kruimelpadketen (Dashboard → Stagedossiers → Stage: <speler>).
 
-Stagespelers verschijnen nu ook op de teamdetailpagina onder een eigen subsectie **Stagespelers**. Eerder vielen ze uit de roster door de actieve-status-filter.
+De afsluitacties staan in de actierij onder het kopgedeelte: **Beslissing vastleggen** (zolang het dossier nog niet beslist is), **Dossier archiveren** en een overloopmenu met **Definitief verwijderen** voor beheerders.
+
+Stagespelers verschijnen ook op de teamdetailpagina onder een eigen subsectie **Stagespelers**. Eerder vielen ze uit de roster door de actieve-status-filter.

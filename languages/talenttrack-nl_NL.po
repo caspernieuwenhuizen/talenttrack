@@ -41758,6 +41758,76 @@ msgstr ""
 "N). Vult de wedstrijdvoorbereiding en de minuten bij wedstrijdafronding "
 "alvast in."
 
+msgid "A short internal code (letters, numbers and dashes). Leave blank to generate one from the name."
+msgstr "Een korte interne code (letters, cijfers en streepjes). Laat leeg om er automatisch een te maken op basis van de naam."
+
+msgid "A trial track is a reusable template for a trial period — its name and how many days it runs by default. When you start a new trial for a player you pick a track, and these settings fill in the defaults."
+msgstr "Een stagetraject is een herbruikbaar sjabloon voor een stageperiode — met een naam en het standaard aantal dagen dat het loopt. Als je een nieuwe stage voor een speler start, kies je een traject en worden deze standaardwaarden ingevuld."
+
+msgid "Customised"
+msgstr "Aangepast"
+
+msgid "Customised?"
+msgstr "Aangepast?"
+
+msgid "Edit letter — %1$s (%2$s)"
+msgstr "Brief bewerken — %1$s (%2$s)"
+
+msgid "How long a trial on this track runs by default. Staff can still adjust the end date per player."
+msgstr "Hoe lang een stage op dit traject standaard duurt. De staf kan de einddatum per speler nog aanpassen."
+
+msgid "How this track appears when staff start a new trial, e.g. \"Two-week look\" or \"Goalkeeper trial\"."
+msgstr "Hoe dit traject heet wanneer de staf een nieuwe stage start, bijvoorbeeld \"Tweeweekse kijkstage\" of \"Keepersstage\"."
+
+msgid "Language"
+msgstr "Taal"
+
+msgid "Letter content"
+msgstr "Inhoud van de brief"
+
+msgid "No place — final"
+msgstr "Geen plek — definitief"
+
+msgid "No place — with encouragement"
+msgstr "Geen plek — met aanmoediging"
+
+msgid "No summary notes on this case yet."
+msgstr "Nog geen samenvattende notities bij dit dossier."
+
+msgid "No tracks exist yet. Create one to get started."
+msgstr "Er zijn nog geen trajecten. Maak er een aan om te beginnen."
+
+msgid "Offer of a place (admittance)"
+msgstr "Aanbod van een plek (toelating)"
+
+msgid "Optional. A note for your staff about when to use this track."
+msgstr "Optioneel. Een notitie voor je staf over wanneer je dit traject gebruikt."
+
+msgid "Player profile"
+msgstr "Spelersprofiel"
+
+msgid "Recording a decision sets the player status and generates the parent letter. Decisions are final for the season."
+msgstr "Een beslissing vastleggen zet de spelersstatus en maakt de oudersbrief aan. Beslissingen zijn definitief voor het seizoen."
+
+msgid "These are the letters that go to parents after a trial decision. The plugin ships warm, ready-to-use defaults — edit them only if you want your own club wording. Pick a language, then a letter, to preview and customise it."
+msgstr "Dit zijn de brieven die naar ouders gaan na een stagebeslissing. De plugin levert warme, kant-en-klare standaardbrieven — pas ze alleen aan als je je eigen clubwoorden wilt gebruiken. Kies eerst een taal en daarna een brief om te bekijken en aan te passen."
+
+msgid "This is a built-in track, so its slug is locked. You can still rename it and change the duration."
+msgstr "Dit is een ingebouwd traject, dus de slug is vergrendeld. Je kunt het wel hernoemen en de duur aanpassen."
+
+msgid "Trial window"
+msgstr "Stageperiode"
+
+msgid "Variables you can use"
+msgstr "Variabelen die je kunt gebruiken"
+
+msgid "Write the letter in plain text and simple HTML. Anything inside curly braces — like {player_first_name} — is filled in automatically for each player. The variables you can use are listed on the right, and a live preview with sample data appears below."
+msgstr "Schrijf de brief in gewone tekst en eenvoudige HTML. Alles tussen accolades — zoals {player_first_name} — wordt voor elke speler automatisch ingevuld. De variabelen die je kunt gebruiken staan rechts, en onderaan zie je een live voorbeeld met voorbeeldgegevens."
+
+msgid "e.g. Goalkeeping coach"
+msgstr "bijv. Keeperstrainer"
+
+
 #~ msgid "Check your email for a password reset link."
 #~ msgstr ""
 #~ "Controleer uw e-mail voor een link om uw wachtwoord opnieuw in te stellen."

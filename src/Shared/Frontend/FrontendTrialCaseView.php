@@ -8,8 +8,8 @@ use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Stats\PlayerStatsService;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\Reports\AudienceType;
+use TT\Shared\Frontend\Components\RecordLink;
 use TT\Shared\Frontend\Components\StaffPickerComponent;
-use TT\Modules\Trials\Letters\DefaultLetterTemplates;
 use TT\Modules\Trials\Letters\LetterTemplateEngine;
 use TT\Modules\Trials\Letters\TrialLetterService;
 use TT\Modules\Trials\Repositories\TrialCasesRepository;
@@ -20,21 +20,47 @@ use TT\Modules\Trials\Repositories\TrialTracksRepository;
 use TT\Modules\Trials\Security\TrialCaseAccessPolicy;
 
 /**
- * FrontendTrialCaseView — six-tab case detail surface.
+ * FrontendTrialCaseView — the trial case working surface at
+ * `?tt_view=trial-case&id=N` (#0017, redesigned in #1646).
  *
- *   ?tt_view=trial-case&id=N&tab=overview        (default)
- *   ?tt_view=trial-case&id=N&tab=execution
- *   ?tt_view=trial-case&id=N&tab=inputs
- *   ?tt_view=trial-case&id=N&tab=decision
- *   ?tt_view=trial-case&id=N&tab=letter
- *   ?tt_view=trial-case&id=N&tab=meeting
+ * The layout mirrors the player profile and team detail
+ * (FrontendPlayerDetailView / FrontendTeamDetailView): a paper hero
+ * carrying the player identity (photo + name anchor the page — a trial
+ * is a key transition in the player's journey), an action row, a
+ * key-facts strip, then the content in `tt-player-card`-style panels.
  *
- * Per-tab visibility is enforced inside `dispatchTab()` via
- * `TrialCaseAccessPolicy`. The Decision and Letter tabs are
+ * Navigation is tab-based (Overview · Execution · Inputs · Decision ·
+ * Letter · Parent meeting). Per-tab visibility is enforced via
+ * `TrialCaseAccessPolicy`: the Decision and Letter tabs are
  * manager-only; Inputs is visible to assigned staff (own input only)
  * and managers (everyone's, with release control).
+ *
+ * Composition only — all data comes from repositories / QueryHelpers,
+ * all visibility/decision logic lives in the domain layer (CLAUDE.md §4).
  */
 class FrontendTrialCaseView extends FrontendViewBase {
+
+    private const TAB_OVERVIEW  = 'overview';
+    private const TAB_EXECUTION = 'execution';
+    private const TAB_INPUTS    = 'inputs';
+    private const TAB_DECISION  = 'decision';
+    private const TAB_LETTER    = 'letter';
+    private const TAB_MEETING   = 'meeting';
+
+    private static bool $detail_css_enqueued = false;
+
+    private static function enqueueDetailAssets(): void {
+        if ( self::$detail_css_enqueued ) return;
+        // Reuse the player-detail card system + tokens (1:1 shapes), then
+        // layer the trial-specific tweaks on top.
+        wp_enqueue_style(
+            'tt-frontend-player-detail',
+            TT_PLUGIN_URL . 'assets/css/frontend-player-detail.css',
+            [ 'tt-frontend-mobile' ],
+            TT_VERSION
+        );
+        self::$detail_css_enqueued = true;
+    }
 
     public static function render( int $user_id, bool $is_admin ): void {
         $trials_label = __( 'Trials', 'talenttrack' );
@@ -66,6 +92,7 @@ class FrontendTrialCaseView extends FrontendViewBase {
         }
 
         self::enqueueAssets();
+        self::enqueueDetailAssets();
         self::handlePost( $user_id, $case_id );
 
         $cases  = new TrialCasesRepository();
@@ -78,245 +105,295 @@ class FrontendTrialCaseView extends FrontendViewBase {
 
         $player = QueryHelpers::get_player( (int) $case->player_id );
         $name   = $player ? QueryHelpers::player_display_name( $player ) : '#' . (int) $case->player_id;
-        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard(
-            sprintf( __( 'Trial: %s', 'talenttrack' ), $name ),
-            $parent_crumb
-        );
+        \TT\Shared\Frontend\Components\FrontendBreadcrumbs::render( [
+            [ 'label' => __( 'Dashboard', 'talenttrack' ), 'url' => RecordLink::dashboardUrl() ],
+            [ 'label' => $trials_label, 'url' => add_query_arg( [ 'tt_view' => 'trials' ], RecordLink::dashboardUrl() ) ],
+            [ 'label' => sprintf( __( 'Trial: %s', 'talenttrack' ), $name ) ],
+        ] );
 
-        // #0093 — lift "Close case" affordances to the header so operators
-        // don't have to scroll to the bottom of Overview to find them.
-        // "Record decision" is the normal close path; "Archive case" is
-        // the no-answer-needed close path. #1646 — Archive is now the
-        // ONLY archive affordance: it submits the hidden POST form
-        // (which still carries the nonce) in one click, so the
-        // redundant in-body archive button is gone.
-        $header_actions = [];
-        if ( TrialCaseAccessPolicy::isManager( $user_id ) && $case->archived_at === null ) {
-            if ( empty( $case->decision ) ) {
-                $header_actions[] = [
-                    'label'   => __( 'Record decision', 'talenttrack' ),
-                    'href'    => '#tt-trial-decision',
-                    'primary' => true,
-                ];
-            }
-        }
-        // #1784 — irreversible delete (cascades staff / inputs / extensions),
-        // surfaced via the shared archive-button handler which shows any
-        // referential-integrity block reason. Admin-gated.
-        if ( TrialCaseAccessPolicy::isManager( $user_id ) && current_user_can( 'tt_edit_settings' ) ) {
-            $header_actions[] = [
-                'label'      => __( 'Delete permanently', 'talenttrack' ),
-                'variant'    => 'danger',
-                'data_attrs' => [
-                    'tt-archive-rest-path' => 'trial-cases/' . (int) $case->id . '/permanent',
-                    'tt-archive-confirm'   => __( 'Permanently delete this trial case? This removes its staff, inputs and extensions and cannot be undone.', 'talenttrack' ),
-                    'tt-archive-redirect'  => add_query_arg( [ 'tt_view' => 'trials' ], \TT\Shared\Frontend\Components\RecordLink::dashboardUrl() ),
-                ],
-            ];
-        }
-
-        // #1646 — archive header action. No REST archive route exists
-        // (only /permanent for hard delete), so this submits the hidden
-        // `#tt-trial-archive-form` (nonce-bearing) in one click. Built
-        // outside pageActionsHtml because that helper only emits a plain
-        // confirm onclick — here we need confirm-then-requestSubmit.
-        $actions_html = $header_actions ? self::pageActionsHtml( $header_actions ) : '';
-        if ( TrialCaseAccessPolicy::isManager( $user_id ) && $case->archived_at === null ) {
-            $archive_onclick = 'if(confirm(' . wp_json_encode( __( 'Archive this case?', 'talenttrack' ) ) . ')){document.getElementById(' . wp_json_encode( 'tt-trial-archive-form' ) . ').requestSubmit();}return false;';
-            $archive_label   = __( 'Archive case', 'talenttrack' );
-            $archive_btn     = '<button type="button" class="tt-btn tt-btn-danger tt-page-actions__secondary"'
-                . ' onclick="' . esc_attr( $archive_onclick ) . '"'
-                . ' aria-label="' . esc_attr( $archive_label ) . '">'
-                . '<span class="tt-page-actions__label">' . esc_html( $archive_label ) . '</span>'
-                . '</button>';
-            // Record decision (primary) renders first; archive sits before
-            // Delete permanently. Splice it in just ahead of any delete
-            // button by appending after the primary slot — simplest: place
-            // it at the front of the danger group by prepending to the
-            // delete output. Since pageActionsHtml already ordered
-            // [Record decision][Delete permanently], insert archive before
-            // the delete button if present, else append.
-            $needle = '<button type="button" class="tt-btn tt-btn-danger tt-page-actions__secondary is-icon" data-tt-archive-rest-path';
-            $pos    = strpos( $actions_html, $needle );
-            if ( $pos !== false ) {
-                $actions_html = substr( $actions_html, 0, $pos ) . $archive_btn . substr( $actions_html, $pos );
-            } else {
-                $actions_html .= $archive_btn;
-            }
-        }
-        self::renderHeader(
-            sprintf( __( 'Trial: %s', 'talenttrack' ), $name ),
-            $actions_html
-        );
-
-        self::renderHeaderStrip( $case, $name );
-
-        // #0077 M4 — linear UX with anchor nav. The six tabs were
-        // hiding the downstream steps from coaches who needed a
-        // single-glance review. Each section now renders sequentially
-        // with a sticky anchor strip at the top for jump navigation.
-        // Legacy ?tab= still scrolls into place via window.location.hash
-        // mapping below so external links don't break.
-        $tab = isset( $_GET['tab'] ) ? sanitize_key( (string) $_GET['tab'] ) : '';
-        self::renderAnchorNav( $user_id, $case );
-
-        self::renderAllSections( $case, $user_id );
-
-        if ( $tab !== '' ) {
-            // Map legacy tab values to the new anchor ids and scroll.
-            echo '<script>(function(){var m={overview:"tt-trial-overview",execution:"tt-trial-execution",inputs:"tt-trial-inputs",decision:"tt-trial-decision",letter:"tt-trial-letter",meeting:"tt-trial-meeting"};var id=m[' . wp_json_encode( $tab ) . '];if(id){var el=document.getElementById(id);if(el)el.scrollIntoView({behavior:"smooth"});}})();</script>';
-        }
-    }
-
-    /**
-     * #0077 M4 — render every accessible section in order. Replaces
-     * dispatchTab(). Manager-only sections gated inside.
-     */
-    private static function renderAllSections( object $case, int $user_id ): void {
         $is_manager = TrialCaseAccessPolicy::isManager( $user_id );
 
-        echo '<section id="tt-trial-overview" class="tt-trial-section"><h2>' . esc_html__( 'Overview', 'talenttrack' ) . '</h2>';
-        self::renderOverviewTab( $case, $user_id );
-        echo '</section>';
-
-        echo '<section id="tt-trial-execution" class="tt-trial-section"><h2>' . esc_html__( 'Execution', 'talenttrack' ) . '</h2>';
-        self::renderExecutionTab( $case );
-        echo '</section>';
-
-        echo '<section id="tt-trial-inputs" class="tt-trial-section"><h2>' . esc_html__( 'Staff inputs', 'talenttrack' ) . '</h2>';
-        self::renderInputsTab( $case, $user_id );
-        echo '</section>';
-
-        if ( $is_manager ) {
-            echo '<section id="tt-trial-decision" class="tt-trial-section"><h2>' . esc_html__( 'Decision', 'talenttrack' ) . '</h2>';
-            self::renderDecisionTab( $case );
-            echo '</section>';
-
-            echo '<section id="tt-trial-letter" class="tt-trial-section"><h2>' . esc_html__( 'Letter', 'talenttrack' ) . '</h2>';
-            self::renderLetterTab( $case );
-            echo '</section>';
-
-            if ( $case->status === TrialCasesRepository::STATUS_DECIDED ) {
-                echo '<section id="tt-trial-meeting" class="tt-trial-section"><h2>' . esc_html__( 'Parent meeting', 'talenttrack' ) . '</h2>';
-                self::renderMeetingTab( $case );
-                echo '</section>';
-            }
+        $tabs       = self::tabSet( $case, $is_manager );
+        $active_tab = isset( $_GET['tab'] ) ? sanitize_key( (string) wp_unslash( $_GET['tab'] ) ) : self::TAB_OVERVIEW;
+        if ( ! array_key_exists( $active_tab, $tabs ) ) {
+            $active_tab = self::TAB_OVERVIEW;
         }
+        $base_url = add_query_arg(
+            [ 'tt_view' => 'trial-case', 'id' => (int) $case->id ],
+            RecordLink::dashboardUrl()
+        );
+        ?>
+        <article class="tt-player-detail tt-trial-detail" data-tab="<?php echo esc_attr( $active_tab ); ?>">
+            <?php
+            self::renderHero( $case, $player, $name );
+            self::renderActionRow( $case, $user_id, $is_manager );
+            ?>
+
+            <div class="tt-player-detail__rail">
+                <?php self::renderKeyFacts( $case ); ?>
+            </div>
+
+            <div class="tt-player-detail__main">
+                <nav class="tt-player-tabs" role="tablist" aria-label="<?php esc_attr_e( 'Trial sections', 'talenttrack' ); ?>">
+                    <?php foreach ( $tabs as $key => $label ) :
+                        $url       = add_query_arg( [ 'tab' => $key ], $base_url );
+                        $is_active = $key === $active_tab;
+                        $classes   = 'tt-player-tab';
+                        if ( $is_active ) $classes .= ' tt-player-tab--active';
+                        ?>
+                        <a href="<?php echo esc_url( $url ); ?>"
+                           class="<?php echo esc_attr( $classes ); ?>"
+                           role="tab"
+                           aria-current="<?php echo $is_active ? 'true' : 'false'; ?>"
+                           aria-selected="<?php echo $is_active ? 'true' : 'false'; ?>">
+                            <?php echo esc_html( $label ); ?>
+                        </a>
+                    <?php endforeach; ?>
+                </nav>
+
+                <section class="tt-player-tab-panel">
+                    <?php
+                    switch ( $active_tab ) {
+                        case self::TAB_EXECUTION: self::renderExecutionTab( $case ); break;
+                        case self::TAB_INPUTS:    self::renderInputsTab( $case, $user_id ); break;
+                        case self::TAB_DECISION:
+                            if ( $is_manager ) { self::renderDecisionTab( $case ); }
+                            break;
+                        case self::TAB_LETTER:
+                            if ( $is_manager ) { self::renderLetterTab( $case ); }
+                            break;
+                        case self::TAB_MEETING:
+                            if ( $is_manager ) { self::renderMeetingTab( $case ); }
+                            break;
+                        case self::TAB_OVERVIEW:
+                        default:                  self::renderOverviewTab( $case, $user_id ); break;
+                    }
+                    ?>
+                </section>
+            </div>
+
+            <?php
+            // #1646 — nonce-bearing archive form, submitted in one click by
+            // the "Archive case" action in the row above (requestSubmit).
+            // No visible mid-body control; the form is `hidden`.
+            if ( $is_manager && $case->archived_at === null ) {
+                echo '<form method="post" id="tt-trial-archive-form" class="tt-trial-archive" hidden>';
+                wp_nonce_field( 'tt_trial_archive_' . (int) $case->id, 'tt_trial_archive_nonce' );
+                echo '<input type="hidden" name="tt_trial_action" value="archive">';
+                echo '</form>';
+            }
+            ?>
+        </article>
+        <?php
     }
 
     /**
-     * #0077 M4 — anchor strip; same labels as the old tab bar but
-     * jumps to in-page sections instead of route-changing.
+     * Tab labels in display order. Manager-only tabs (Decision, Letter)
+     * and the post-decision Parent-meeting tab are folded in here.
+     *
+     * @return array<string,string>
      */
-    private static function renderAnchorNav( int $user_id, object $case ): void {
-        $items = [
-            [ 'id' => 'tt-trial-overview',  'label' => __( 'Overview', 'talenttrack' ) ],
-            [ 'id' => 'tt-trial-execution', 'label' => __( 'Execution', 'talenttrack' ) ],
-            [ 'id' => 'tt-trial-inputs',    'label' => __( 'Staff inputs', 'talenttrack' ) ],
-        ];
-        if ( TrialCaseAccessPolicy::isManager( $user_id ) ) {
-            $items[] = [ 'id' => 'tt-trial-decision', 'label' => __( 'Decision', 'talenttrack' ) ];
-            $items[] = [ 'id' => 'tt-trial-letter',   'label' => __( 'Letter', 'talenttrack' ) ];
-            if ( $case->status === TrialCasesRepository::STATUS_DECIDED ) {
-                $items[] = [ 'id' => 'tt-trial-meeting', 'label' => __( 'Parent meeting', 'talenttrack' ) ];
-            }
-        }
-        echo '<nav class="tt-trial-anchor-nav" aria-label="' . esc_attr__( 'Trial sections', 'talenttrack' ) . '">';
-        foreach ( $items as $item ) {
-            echo '<a class="tt-trial-anchor" href="#' . esc_attr( $item['id'] ) . '">' . esc_html( $item['label'] ) . '</a>';
-        }
-        echo '</nav>';
-    }
-
-    private static function renderHeaderStrip( object $case, string $name ): void {
-        $tracks = new TrialTracksRepository();
-        $track  = $tracks->find( (int) $case->track_id );
-        $appchrome = \TT\Shared\Frontend\Components\FrontendAppChrome::class;
-
-        // v3.110.212 (#842) — status + decision render through
-        // TrialCasesRepository::statusLabel() / ::decisionLabel(),
-        // both of which delegate to LookupTranslator for the per-locale
-        // operator override.
-        echo '<div class="tt-trial-strip">';
-        echo $appchrome::kpiTile( [
-            'label' => __( 'Track', 'talenttrack' ),
-            'value' => $track ? \TT\Infrastructure\Query\LabelTranslator::trialTrackName( (string) $track->name ) : '—',
-        ] );
-        echo $appchrome::kpiTile( [
-            'label' => __( 'Window', 'talenttrack' ),
-            'value' => (string) $case->start_date . ' → ' . (string) $case->end_date,
-        ] );
-        echo $appchrome::kpiTile( [
-            'label' => __( 'Status', 'talenttrack' ),
-            'value' => TrialCasesRepository::statusLabel( (string) $case->status ),
-        ] );
-        if ( $case->decision ) {
-            echo $appchrome::kpiTile( [
-                'label' => __( 'Decision', 'talenttrack' ),
-                'value' => TrialCasesRepository::decisionLabel( (string) $case->decision ),
-            ] );
-        }
-        echo '</div>';
-    }
-
-    private static function renderTabBar( int $case_id, string $current, int $user_id, object $case ): void {
-        $base = remove_query_arg( [ 'tab' ] );
+    private static function tabSet( object $case, bool $is_manager ): array {
         $tabs = [
-            'overview'  => __( 'Overview', 'talenttrack' ),
-            'execution' => __( 'Execution', 'talenttrack' ),
-            'inputs'    => __( 'Staff inputs', 'talenttrack' ),
+            self::TAB_OVERVIEW  => __( 'Overview', 'talenttrack' ),
+            self::TAB_EXECUTION => __( 'Execution', 'talenttrack' ),
+            self::TAB_INPUTS    => __( 'Staff inputs', 'talenttrack' ),
         ];
-        if ( TrialCaseAccessPolicy::isManager( $user_id ) ) {
-            $tabs['decision'] = __( 'Decision', 'talenttrack' );
-            $tabs['letter']   = __( 'Letter', 'talenttrack' );
+        if ( $is_manager ) {
+            $tabs[ self::TAB_DECISION ] = __( 'Decision', 'talenttrack' );
+            $tabs[ self::TAB_LETTER ]   = __( 'Letter', 'talenttrack' );
             if ( $case->status === TrialCasesRepository::STATUS_DECIDED ) {
-                $tabs['meeting'] = __( 'Parent meeting', 'talenttrack' );
+                $tabs[ self::TAB_MEETING ] = __( 'Parent meeting', 'talenttrack' );
             }
         }
-
-        echo '<nav class="tt-tabbar" role="tablist">';
-        foreach ( $tabs as $slug => $label ) {
-            $url = add_query_arg( [ 'tab' => $slug ], $base );
-            $cls = $slug === $current ? 'tt-tab tt-tab-active' : 'tt-tab';
-            echo '<a class="' . esc_attr( $cls ) . '" href="' . esc_url( $url ) . '">' . esc_html( $label ) . '</a>';
-        }
-        echo '</nav>';
+        return $tabs;
     }
 
-    private static function dispatchTab( string $tab, object $case, int $user_id ): void {
-        switch ( $tab ) {
-            case 'execution': self::renderExecutionTab( $case ); return;
-            case 'inputs':    self::renderInputsTab( $case, $user_id ); return;
-            case 'decision':
-                if ( ! TrialCaseAccessPolicy::isManager( $user_id ) ) { echo '<p class="tt-notice">' . esc_html__( 'Manager only.', 'talenttrack' ) . '</p>'; return; }
-                self::renderDecisionTab( $case ); return;
-            case 'letter':
-                if ( ! TrialCaseAccessPolicy::isManager( $user_id ) ) { echo '<p class="tt-notice">' . esc_html__( 'Manager only.', 'talenttrack' ) . '</p>'; return; }
-                self::renderLetterTab( $case ); return;
-            case 'meeting':
-                if ( ! TrialCaseAccessPolicy::isManager( $user_id ) ) { echo '<p class="tt-notice">' . esc_html__( 'Manager only.', 'talenttrack' ) . '</p>'; return; }
-                self::renderMeetingTab( $case ); return;
-            case 'overview':
-            default:
-                self::renderOverviewTab( $case, $user_id ); return;
-        }
+    /**
+     * Paper hero — the player's photo (or initials) and name anchor the
+     * trial case, with pills for trial status, decision and track. A
+     * trial is a key transition in the player's journey, so the player
+     * stays the subject of the page.
+     */
+    private static function renderHero( object $case, ?object $player, string $name ): void {
+        $photo  = $player ? (string) ( $player->photo_url ?? '' ) : '';
+        $status = (string) $case->status;
+        $player_url = $player
+            ? RecordLink::detailUrlForWithBack( 'players', (int) $case->player_id )
+            : '';
+        ?>
+        <header class="tt-player-detail__hero" aria-label="<?php esc_attr_e( 'Trial case', 'talenttrack' ); ?>">
+            <div class="tt-player-hero__row">
+                <div class="tt-player-hero__avatar" data-status="<?php echo esc_attr( $status ); ?>" aria-hidden="true">
+                    <?php if ( $photo !== '' ) : ?>
+                        <img class="tt-player-hero__photo" src="<?php echo esc_url( $photo ); ?>" alt="" />
+                    <?php else : ?>
+                        <?php echo esc_html( self::initialsFor( $name ) ); ?>
+                    <?php endif; ?>
+                </div>
+                <div class="tt-player-hero__main">
+                    <h1 class="tt-player-hero__name"><?php echo esc_html( $name ); ?></h1>
+                    <p class="tt-player-hero__sub">
+                        <?php if ( $player_url !== '' ) : ?>
+                            <a href="<?php echo esc_url( $player_url ); ?>"><?php esc_html_e( 'Player profile', 'talenttrack' ); ?></a>
+                            <span> · <?php esc_html_e( 'Trial case', 'talenttrack' ); ?></span>
+                        <?php else : ?>
+                            <?php esc_html_e( 'Trial case', 'talenttrack' ); ?>
+                        <?php endif; ?>
+                    </p>
+                    <p class="tt-player-hero__pills">
+                        <span class="tt-player-pill" data-status="<?php echo esc_attr( $status ); ?>">
+                            <?php echo esc_html( TrialCasesRepository::statusLabel( (string) $case->status ) ); ?>
+                        </span>
+                        <?php if ( $case->decision ) : ?>
+                            <span class="tt-player-pill tt-player-pill--pos">
+                                <?php echo esc_html( TrialCasesRepository::decisionLabel( (string) $case->decision ) ); ?>
+                            </span>
+                        <?php endif; ?>
+                        <?php
+                        $track = ( new TrialTracksRepository() )->find( (int) $case->track_id );
+                        if ( $track ) :
+                            ?>
+                            <span class="tt-player-pill">
+                                <?php echo esc_html( \TT\Infrastructure\Query\LabelTranslator::trialTrackName( (string) $track->name ) ); ?>
+                            </span>
+                        <?php endif; ?>
+                    </p>
+                </div>
+            </div>
+        </header>
+        <?php
     }
 
-    /* ===== Overview tab (Sprint 1) ===== */
+    /**
+     * Action row — Record decision (when undecided) · Archive case ·
+     * Delete permanently (admin). Mirrors the player/team detail action
+     * band. Cap-gated identically to the legacy header actions.
+     */
+    private static function renderActionRow( object $case, int $user_id, bool $is_manager ): void {
+        $trials_url = add_query_arg( [ 'tt_view' => 'trials' ], RecordLink::dashboardUrl() );
+        $can_delete = $is_manager && current_user_can( 'tt_edit_settings' );
+        $can_archive = $is_manager && $case->archived_at === null;
+        ?>
+        <div class="tt-player-detail__actions" aria-label="<?php esc_attr_e( 'Actions', 'talenttrack' ); ?>">
+            <?php if ( $is_manager && $case->archived_at === null && empty( $case->decision ) ) :
+                $decision_url = add_query_arg(
+                    [ 'tt_view' => 'trial-case', 'id' => (int) $case->id, 'tab' => self::TAB_DECISION ],
+                    RecordLink::dashboardUrl()
+                );
+                ?>
+                <a class="tt-player-action tt-player-action--primary" href="<?php echo esc_url( $decision_url ); ?>">
+                    <?php esc_html_e( 'Record decision', 'talenttrack' ); ?>
+                </a>
+            <?php endif; ?>
+
+            <?php if ( $can_archive ) :
+                $archive_label   = __( 'Archive case', 'talenttrack' );
+                $archive_confirm = __( 'Archive this case?', 'talenttrack' );
+                ?>
+                <button type="button"
+                        class="tt-player-action"
+                        onclick="if(confirm(<?php echo esc_attr( wp_json_encode( $archive_confirm ) ); ?>)){document.getElementById('tt-trial-archive-form').requestSubmit();}return false;">
+                    <?php echo esc_html( $archive_label ); ?>
+                </button>
+            <?php endif; ?>
+
+            <?php if ( $can_delete ) :
+                $delete_redirect = add_query_arg( [ 'tt_view' => 'trials' ], $trials_url );
+                ?>
+                <div class="tt-player-action tt-player-action--more"
+                     role="button"
+                     tabindex="0"
+                     aria-haspopup="true"
+                     aria-expanded="false"
+                     aria-label="<?php esc_attr_e( 'More actions', 'talenttrack' ); ?>"
+                     onclick="this.setAttribute('aria-expanded', this.getAttribute('aria-expanded') === 'true' ? 'false' : 'true');"
+                     onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.setAttribute('aria-expanded', this.getAttribute('aria-expanded') === 'true' ? 'false' : 'true');}">
+                    ⋯
+                    <div class="tt-player-action__menu" role="menu">
+                        <button type="button"
+                                class="tt-player-action tt-player-action--danger"
+                                role="menuitem"
+                                data-tt-archive-rest-path="<?php echo esc_attr( 'trial-cases/' . (int) $case->id . '/permanent' ); ?>"
+                                data-tt-archive-confirm="<?php echo esc_attr__( 'Permanently delete this trial case? This removes its staff, inputs and extensions and cannot be undone.', 'talenttrack' ); ?>"
+                                data-tt-archive-redirect="<?php echo esc_attr( $delete_redirect ); ?>">
+                            <?php esc_html_e( 'Delete permanently', 'talenttrack' ); ?>
+                        </button>
+                    </div>
+                </div>
+            <?php endif; ?>
+        </div>
+        <?php
+    }
+
+    /**
+     * Key-facts strip — Track · Window · Status · Decision. The same
+     * 3/4-up cells the player and team profiles use.
+     */
+    private static function renderKeyFacts( object $case ): void {
+        $track = ( new TrialTracksRepository() )->find( (int) $case->track_id );
+        $track_label = $track
+            ? \TT\Infrastructure\Query\LabelTranslator::trialTrackName( (string) $track->name )
+            : '—';
+        $window = trim( (string) $case->start_date . ' → ' . (string) $case->end_date );
+        ?>
+        <section class="tt-player-facts" aria-label="<?php esc_attr_e( 'Key facts', 'talenttrack' ); ?>">
+            <div class="tt-player-facts__cell">
+                <span class="tt-player-facts__label"><?php esc_html_e( 'Track', 'talenttrack' ); ?></span>
+                <p class="tt-player-facts__value"><?php echo esc_html( $track_label ); ?></p>
+            </div>
+            <div class="tt-player-facts__cell">
+                <span class="tt-player-facts__label"><?php esc_html_e( 'Trial window', 'talenttrack' ); ?></span>
+                <p class="tt-player-facts__value"><?php echo esc_html( $window !== '→' ? $window : '—' ); ?></p>
+            </div>
+            <div class="tt-player-facts__cell">
+                <span class="tt-player-facts__label"><?php esc_html_e( 'Status', 'talenttrack' ); ?></span>
+                <p class="tt-player-facts__value"><?php echo esc_html( TrialCasesRepository::statusLabel( (string) $case->status ) ); ?></p>
+            </div>
+            <?php if ( $case->decision ) : ?>
+                <div class="tt-player-facts__cell">
+                    <span class="tt-player-facts__label"><?php esc_html_e( 'Decision', 'talenttrack' ); ?></span>
+                    <p class="tt-player-facts__value"><?php echo esc_html( TrialCasesRepository::decisionLabel( (string) $case->decision ) ); ?></p>
+                </div>
+            <?php endif; ?>
+        </section>
+        <?php
+    }
+
+    /* ===== Panel helpers (player-card house pattern) ===== */
+
+    private static function cardOpen( string $title ): void {
+        echo '<div class="tt-player-card tt-trial-card">';
+        echo '<div class="tt-player-card__head">';
+        echo '<h2 class="tt-player-card__title">' . esc_html( $title ) . '</h2>';
+        echo '</div>';
+        echo '<div class="tt-player-card__body">';
+    }
+
+    private static function cardClose(): void {
+        echo '</div></div>';
+    }
+
+    /* ===== Overview tab ===== */
 
     private static function renderOverviewTab( object $case, int $user_id ): void {
+        $is_manager = TrialCaseAccessPolicy::isManager( $user_id );
         $staff_repo = new TrialCaseStaffRepository();
         $ext_repo   = new TrialExtensionsRepository();
         $staff      = $staff_repo->listForCase( (int) $case->id );
         $extensions = $ext_repo->listForCase( (int) $case->id );
 
-        echo '<section class="tt-trial-section"><h2>' . esc_html__( 'Summary', 'talenttrack' ) . '</h2>';
-        if ( $case->notes ) echo '<p>' . esc_html( (string) $case->notes ) . '</p>';
-        echo '</section>';
+        self::cardOpen( __( 'Summary', 'talenttrack' ) );
+        if ( $case->notes ) {
+            echo '<p>' . esc_html( (string) $case->notes ) . '</p>';
+        } else {
+            echo '<p class="tt-player-empty">' . esc_html__( 'No summary notes on this case yet.', 'talenttrack' ) . '</p>';
+        }
+        self::cardClose();
 
-        echo '<section class="tt-trial-section"><h2>' . esc_html__( 'Assigned staff', 'talenttrack' ) . '</h2>';
+        self::cardOpen( __( 'Assigned staff', 'talenttrack' ) );
         if ( ! $staff ) {
-            echo '<p>' . esc_html__( 'No staff assigned yet.', 'talenttrack' ) . '</p>';
+            echo '<p class="tt-player-empty">' . esc_html__( 'No staff assigned yet.', 'talenttrack' ) . '</p>';
         } else {
             echo '<ul class="tt-trial-staff-list">';
             foreach ( $staff as $s ) {
@@ -327,14 +404,14 @@ class FrontendTrialCaseView extends FrontendViewBase {
             }
             echo '</ul>';
         }
-        if ( TrialCaseAccessPolicy::isManager( $user_id ) ) {
+        if ( $is_manager ) {
             self::renderAssignStaffForm( (int) $case->id );
         }
-        echo '</section>';
+        self::cardClose();
 
-        echo '<section class="tt-trial-section"><h2>' . esc_html__( 'Extension history', 'talenttrack' ) . '</h2>';
+        self::cardOpen( __( 'Extension history', 'talenttrack' ) );
         if ( ! $extensions ) {
-            echo '<p>' . esc_html__( 'No extensions yet.', 'talenttrack' ) . '</p>';
+            echo '<p class="tt-player-empty">' . esc_html__( 'No extensions yet.', 'talenttrack' ) . '</p>';
         } else {
             echo '<div class="tt-table-wrap">';
             echo '<table class="tt-table"><thead><tr><th>' . esc_html__( 'Extended at', 'talenttrack' ) . '</th><th>' . esc_html__( 'Previous end', 'talenttrack' ) . '</th><th>' . esc_html__( 'New end', 'talenttrack' ) . '</th><th>' . esc_html__( 'Justification', 'talenttrack' ) . '</th></tr></thead><tbody>';
@@ -344,22 +421,10 @@ class FrontendTrialCaseView extends FrontendViewBase {
             echo '</tbody></table>';
             echo '</div>';
         }
-        if ( TrialCaseAccessPolicy::isManager( $user_id ) && in_array( $case->status, [ 'open', 'extended' ], true ) ) {
+        if ( $is_manager && in_array( $case->status, [ 'open', 'extended' ], true ) ) {
             self::renderExtensionForm( (int) $case->id, (string) $case->end_date );
         }
-        echo '</section>';
-
-        if ( TrialCaseAccessPolicy::isManager( $user_id ) && $case->archived_at === null ) {
-            // #1646 — this form is nonce-bearing only; it is submitted by
-            // the single top-right "Archive case" header action via
-            // requestSubmit(). The previously-visible in-body submit button
-            // was the duplicate archive affordance and has been removed.
-            // The form is `hidden` so no visible mid-body control remains.
-            echo '<form method="post" id="tt-trial-archive-form" class="tt-trial-archive" hidden>';
-            wp_nonce_field( 'tt_trial_archive_' . (int) $case->id, 'tt_trial_archive_nonce' );
-            echo '<input type="hidden" name="tt_trial_action" value="archive">';
-            echo '</form>';
-        }
+        self::cardClose();
     }
 
     private static function renderAssignStaffForm( int $case_id ): void {
@@ -372,8 +437,8 @@ class FrontendTrialCaseView extends FrontendViewBase {
             'required'    => true,
             'placeholder' => __( 'Type a name to search…', 'talenttrack' ),
         ] );
-        echo ' <input type="text" name="role_label" class="tt-input" placeholder="' . esc_attr__( 'Role label (optional)', 'talenttrack' ) . '">';
-        echo ' <button type="submit" class="tt-button tt-button-primary">' . esc_html__( 'Assign', 'talenttrack' ) . '</button>';
+        echo '<label>' . esc_html__( 'Role label (optional)', 'talenttrack' ) . ' <input type="text" name="role_label" class="tt-input" placeholder="' . esc_attr__( 'e.g. Goalkeeping coach', 'talenttrack' ) . '"></label>';
+        echo '<button type="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Assign', 'talenttrack' ) . '</button>';
         echo '</form>';
     }
 
@@ -384,11 +449,11 @@ class FrontendTrialCaseView extends FrontendViewBase {
         echo '<input type="hidden" name="tt_trial_action" value="extend">';
         echo '<label>' . esc_html__( 'New end date', 'talenttrack' ) . ' <input type="date" name="new_end_date" value="' . esc_attr( $next ) . '" required></label>';
         echo '<label>' . esc_html__( 'Justification (required)', 'talenttrack' ) . ' <textarea name="justification" rows="2" required></textarea></label>';
-        echo '<button type="submit" class="tt-button tt-button-primary">' . esc_html__( 'Extend trial', 'talenttrack' ) . '</button>';
+        echo '<button type="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Extend trial', 'talenttrack' ) . '</button>';
         echo '</form>';
     }
 
-    /* ===== Execution tab (Sprint 2) ===== */
+    /* ===== Execution tab ===== */
 
     private static function renderExecutionTab( object $case ): void {
         global $wpdb;
@@ -396,20 +461,21 @@ class FrontendTrialCaseView extends FrontendViewBase {
         $start  = (string) $case->start_date;
         $end    = (string) $case->end_date;
 
-        echo '<section class="tt-trial-section"><h2>' . esc_html__( 'Synthesis', 'talenttrack' ) . '</h2>';
+        self::cardOpen( __( 'Synthesis', 'talenttrack' ) );
         $svc      = new PlayerStatsService();
         $headline = $svc->getHeadlineNumbers( $pid, [ 'date_from' => $start, 'date_to' => $end ], 5 );
-        if ( $headline['eval_count'] === 0 ) {
-            echo '<p>' . esc_html__( 'No evaluations during the trial window yet.', 'talenttrack' ) . '</p>';
+        if ( (int) $headline['eval_count'] === 0 ) {
+            echo '<p class="tt-player-empty">' . esc_html__( 'No evaluations during the trial window yet.', 'talenttrack' ) . '</p>';
         } else {
             echo '<ul class="tt-trial-headline">';
-            echo '<li>' . esc_html__( 'Rolling rating', 'talenttrack' ) . ': <strong>' . esc_html( (string) $headline['rolling'] ) . '</strong></li>';
-            echo '<li>' . esc_html__( 'Evaluations in window', 'talenttrack' ) . ': <strong>' . (int) $headline['eval_count'] . '</strong></li>';
+            echo '<li>' . esc_html__( 'Rolling rating', 'talenttrack' ) . ' <strong>' . esc_html( (string) $headline['rolling'] ) . '</strong></li>';
+            echo '<li>' . esc_html__( 'Evaluations in window', 'talenttrack' ) . ' <strong>' . (int) $headline['eval_count'] . '</strong></li>';
             echo '</ul>';
         }
-        echo '</section>';
+        self::cardClose();
 
-        // Sessions / activities — schema names: tt_activities + tt_attendance.
+        // Activities — schema names: tt_activities + tt_attendance.
+        /** @var array<int,object> $activities */
         $activities = $wpdb->get_results( $wpdb->prepare(
             "SELECT a.id, a.activity_date, a.activity_type_key, a.notes, att.status AS attendance
                FROM {$wpdb->prefix}tt_activities a
@@ -419,9 +485,9 @@ class FrontendTrialCaseView extends FrontendViewBase {
                 AND a.club_id = %d
               ORDER BY a.activity_date DESC LIMIT 500", $pid, $start, $end, CurrentClub::id()
         ) );
-        echo '<section class="tt-trial-section"><h2>' . esc_html__( 'Activities', 'talenttrack' ) . '</h2>';
+        self::cardOpen( __( 'Activities', 'talenttrack' ) );
         if ( ! $activities ) {
-            echo '<p>' . esc_html__( 'No activities yet during this trial period.', 'talenttrack' ) . '</p>';
+            echo '<p class="tt-player-empty">' . esc_html__( 'No activities yet during this trial period.', 'talenttrack' ) . '</p>';
         } else {
             echo '<div class="tt-table-wrap">';
             echo '<table class="tt-table"><thead><tr><th>' . esc_html__( 'Date', 'talenttrack' ) . '</th><th>' . esc_html__( 'Type', 'talenttrack' ) . '</th><th>' . esc_html__( 'Attendance', 'talenttrack' ) . '</th></tr></thead><tbody>';
@@ -431,18 +497,19 @@ class FrontendTrialCaseView extends FrontendViewBase {
             echo '</tbody></table>';
             echo '</div>';
         }
-        echo '</section>';
+        self::cardClose();
 
         // Evaluations.
+        /** @var array<int,object> $evals */
         $evals = $wpdb->get_results( $wpdb->prepare(
             "SELECT id, eval_date, evaluator_user_id
                FROM {$wpdb->prefix}tt_evaluations
               WHERE player_id = %d AND eval_date BETWEEN %s AND %s AND club_id = %d
               ORDER BY eval_date DESC LIMIT 500", $pid, $start, $end, CurrentClub::id()
         ) );
-        echo '<section class="tt-trial-section"><h2>' . esc_html__( 'Evaluations', 'talenttrack' ) . '</h2>';
+        self::cardOpen( __( 'Evaluations', 'talenttrack' ) );
         if ( ! $evals ) {
-            echo '<p>' . esc_html__( 'No evaluations yet during this trial period.', 'talenttrack' ) . '</p>';
+            echo '<p class="tt-player-empty">' . esc_html__( 'No evaluations yet during this trial period.', 'talenttrack' ) . '</p>';
         } else {
             echo '<div class="tt-table-wrap">';
             echo '<table class="tt-table"><thead><tr><th>' . esc_html__( 'Date', 'talenttrack' ) . '</th><th>' . esc_html__( 'Evaluator', 'talenttrack' ) . '</th></tr></thead><tbody>';
@@ -453,9 +520,10 @@ class FrontendTrialCaseView extends FrontendViewBase {
             echo '</tbody></table>';
             echo '</div>';
         }
-        echo '</section>';
+        self::cardClose();
 
         // Goals.
+        /** @var array<int,object> $goals */
         $goals = $wpdb->get_results( $wpdb->prepare(
             "SELECT id, title, status, priority, target_date, updated_at
                FROM {$wpdb->prefix}tt_goals
@@ -467,9 +535,9 @@ class FrontendTrialCaseView extends FrontendViewBase {
               ORDER BY updated_at DESC LIMIT 500",
             $pid, $start . ' 00:00:00', $end . ' 23:59:59', $start . ' 00:00:00', $end . ' 23:59:59', CurrentClub::id()
         ) );
-        echo '<section class="tt-trial-section"><h2>' . esc_html__( 'Goals', 'talenttrack' ) . '</h2>';
+        self::cardOpen( __( 'Goals', 'talenttrack' ) );
         if ( ! $goals ) {
-            echo '<p>' . esc_html__( 'No goals yet during this trial period.', 'talenttrack' ) . '</p>';
+            echo '<p class="tt-player-empty">' . esc_html__( 'No goals yet during this trial period.', 'talenttrack' ) . '</p>';
         } else {
             echo '<div class="tt-table-wrap">';
             echo '<table class="tt-table"><thead><tr><th>' . esc_html__( 'Title', 'talenttrack' ) . '</th><th>' . esc_html__( 'Status', 'talenttrack' ) . '</th><th>' . esc_html__( 'Priority', 'talenttrack' ) . '</th><th>' . esc_html__( 'Updated', 'talenttrack' ) . '</th></tr></thead><tbody>';
@@ -479,10 +547,10 @@ class FrontendTrialCaseView extends FrontendViewBase {
             echo '</tbody></table>';
             echo '</div>';
         }
-        echo '</section>';
+        self::cardClose();
     }
 
-    /* ===== Inputs tab (Sprint 3) ===== */
+    /* ===== Inputs tab ===== */
 
     private static function renderInputsTab( object $case, int $user_id ): void {
         $is_manager = TrialCaseAccessPolicy::isManager( $user_id );
@@ -498,7 +566,7 @@ class FrontendTrialCaseView extends FrontendViewBase {
 
         // Aggregation for manager + assigned staff who can see released inputs.
         $visible = $inputs_repo->listVisibleForUser( (int) $case->id, $user_id, $is_manager );
-        echo '<section class="tt-trial-section"><h2>' . esc_html__( 'Submitted inputs', 'talenttrack' ) . '</h2>';
+        self::cardOpen( __( 'Submitted inputs', 'talenttrack' ) );
 
         if ( $is_manager ) {
             $assigned_count  = count( $staff_repo->listForCase( (int) $case->id ) );
@@ -506,16 +574,16 @@ class FrontendTrialCaseView extends FrontendViewBase {
             echo '<p class="tt-trial-input-count">' . sprintf( esc_html__( '%1$d of %2$d assigned staff have submitted.', 'talenttrack' ), $submitted_count, $assigned_count ) . '</p>';
 
             if ( $submitted_count > 0 && empty( $case->inputs_released_at ) ) {
-                echo '<form method="post"><input type="hidden" name="tt_trial_action" value="release_inputs">';
+                echo '<form method="post" class="tt-trial-release-form"><input type="hidden" name="tt_trial_action" value="release_inputs">';
                 wp_nonce_field( 'tt_trial_release_' . (int) $case->id, 'tt_trial_release_nonce' );
-                echo '<button type="submit" class="tt-button">' . esc_html__( 'Release submitted inputs to assigned staff', 'talenttrack' ) . '</button></form>';
+                echo '<button type="submit" class="tt-btn tt-btn-secondary">' . esc_html__( 'Release submitted inputs to assigned staff', 'talenttrack' ) . '</button></form>';
             } elseif ( ! empty( $case->inputs_released_at ) ) {
                 echo '<p>' . esc_html__( 'Inputs released on:', 'talenttrack' ) . ' ' . esc_html( (string) $case->inputs_released_at ) . '</p>';
             }
         }
 
         if ( ! $visible ) {
-            echo '<p>' . esc_html__( 'No submitted inputs visible to you yet.', 'talenttrack' ) . '</p>';
+            echo '<p class="tt-player-empty">' . esc_html__( 'No submitted inputs visible to you yet.', 'talenttrack' ) . '</p>';
         } else {
             echo '<div class="tt-trial-input-grid">';
             foreach ( $visible as $row ) {
@@ -525,7 +593,7 @@ class FrontendTrialCaseView extends FrontendViewBase {
                 echo '<header><strong>' . esc_html( $u ? (string) $u->display_name : '#' . (int) $row->user_id ) . '</strong>';
                 echo '<div class="tt-meta">' . esc_html( (string) $row->submitted_at ) . '</div></header>';
                 if ( $row->overall_rating !== null ) {
-                    echo '<div class="tt-trial-input-rating">' . esc_html__( 'Overall', 'talenttrack' ) . ': <strong>' . esc_html( (string) $row->overall_rating ) . '</strong></div>';
+                    echo '<div class="tt-trial-input-rating">' . esc_html__( 'Overall', 'talenttrack' ) . ' <strong>' . esc_html( (string) $row->overall_rating ) . '</strong></div>';
                 }
                 if ( $row->free_text_notes ) {
                     echo '<details><summary>' . esc_html__( 'Notes', 'talenttrack' ) . '</summary><p>' . esc_html( (string) $row->free_text_notes ) . '</p></details>';
@@ -535,15 +603,16 @@ class FrontendTrialCaseView extends FrontendViewBase {
             echo '</div>';
         }
 
-        echo '</section>';
+        self::cardClose();
     }
 
     private static function renderOwnInputForm( int $case_id, ?object $existing ): void {
         $is_submitted = $existing && $existing->submitted_at;
-        echo '<section class="tt-trial-section"><h2>' . esc_html__( 'Your input', 'talenttrack' ) . '</h2>';
+        self::cardOpen( __( 'Your input', 'talenttrack' ) );
         if ( $is_submitted ) {
             echo '<p>' . esc_html__( 'You submitted on:', 'talenttrack' ) . ' ' . esc_html( (string) $existing->submitted_at ) . '</p>';
             echo '<p><em>' . esc_html__( 'To edit after submit, ask the head of development.', 'talenttrack' ) . '</em></p>';
+            self::cardClose();
             return;
         }
 
@@ -565,13 +634,14 @@ class FrontendTrialCaseView extends FrontendViewBase {
         echo '<label>' . esc_html( $tt_label ) . ' <input type="number" step="0.1" min="' . esc_attr( (string) $tt_rmin ) . '" max="' . esc_attr( (string) $tt_rmax ) . '" inputmode="decimal" name="overall_rating" value="' . esc_attr( $existing && $existing->overall_rating !== null ? (string) $existing->overall_rating : '' ) . '"></label>';
         echo '<label>' . esc_html__( 'Notes', 'talenttrack' ) . ' <textarea name="free_text_notes" rows="4">' . esc_textarea( $existing ? (string) $existing->free_text_notes : '' ) . '</textarea></label>';
         echo '<div class="tt-form-actions">';
-        echo '<button type="submit" name="submit_action" value="draft" class="tt-button">' . esc_html__( 'Save draft', 'talenttrack' ) . '</button> ';
-        echo '<button type="submit" name="submit_action" value="submit" class="tt-button tt-button-primary">' . esc_html__( 'Submit input', 'talenttrack' ) . '</button>';
+        echo '<button type="submit" name="submit_action" value="draft" class="tt-btn tt-btn-secondary">' . esc_html__( 'Save draft', 'talenttrack' ) . '</button> ';
+        echo '<button type="submit" name="submit_action" value="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Submit input', 'talenttrack' ) . '</button>';
         echo '</div>';
-        echo '</form></section>';
+        echo '</form>';
+        self::cardClose();
     }
 
-    /* ===== Decision tab (Sprint 4) ===== */
+    /* ===== Decision tab ===== */
 
     private static function renderDecisionTab( object $case ): void {
         if ( $case->status === TrialCasesRepository::STATUS_DECIDED ) {
@@ -579,7 +649,8 @@ class FrontendTrialCaseView extends FrontendViewBase {
             return;
         }
 
-        echo '<section class="tt-trial-section"><h2>' . esc_html__( 'Record decision', 'talenttrack' ) . '</h2>';
+        self::cardOpen( __( 'Record decision', 'talenttrack' ) );
+        echo '<p class="tt-trial-card__intro">' . esc_html__( 'Recording a decision sets the player status and generates the parent letter. Decisions are final for the season.', 'talenttrack' ) . '</p>';
         echo '<form method="post" class="tt-trial-decision-form">';
         wp_nonce_field( 'tt_trial_decide_' . (int) $case->id, 'tt_trial_decide_nonce' );
         echo '<input type="hidden" name="tt_trial_action" value="decide">';
@@ -599,14 +670,15 @@ class FrontendTrialCaseView extends FrontendViewBase {
         echo '<label>' . esc_html__( 'Strengths (used in the encouragement letter)', 'talenttrack' ) . ' <textarea name="strengths_summary" rows="2"></textarea></label>';
         echo '<label>' . esc_html__( 'Growth areas (used in the encouragement letter)', 'talenttrack' ) . ' <textarea name="growth_areas" rows="2"></textarea></label>';
 
-        echo '<div class="tt-form-actions"><button type="submit" class="tt-button tt-button-primary">' . esc_html__( 'Record decision and generate letter', 'talenttrack' ) . '</button></div>';
-        echo '</form></section>';
+        echo '<div class="tt-form-actions"><button type="submit" class="tt-btn tt-btn-primary">' . esc_html__( 'Record decision and generate letter', 'talenttrack' ) . '</button></div>';
+        echo '</form>';
+        self::cardClose();
     }
 
     private static function renderPostDecision( object $case ): void {
-        echo '<section class="tt-trial-section"><h2>' . esc_html__( 'Decision recorded', 'talenttrack' ) . '</h2>';
+        self::cardOpen( __( 'Decision recorded', 'talenttrack' ) );
         echo '<dl class="tt-trial-decision-summary">';
-        echo '<dt>' . esc_html__( 'Outcome', 'talenttrack' ) . '</dt><dd>' . esc_html( (string) $case->decision ) . '</dd>';
+        echo '<dt>' . esc_html__( 'Outcome', 'talenttrack' ) . '</dt><dd>' . esc_html( TrialCasesRepository::decisionLabel( (string) $case->decision ) ) . '</dd>';
         echo '<dt>' . esc_html__( 'Recorded at', 'talenttrack' ) . '</dt><dd>' . esc_html( (string) $case->decision_made_at ) . '</dd>';
         if ( $case->decision_notes ) {
             echo '<dt>' . esc_html__( 'Justification', 'talenttrack' ) . '</dt><dd>' . esc_html( (string) $case->decision_notes ) . '</dd>';
@@ -617,41 +689,41 @@ class FrontendTrialCaseView extends FrontendViewBase {
             if ( $case->acceptance_slip_returned_at ) {
                 echo '<p>' . esc_html__( 'Acceptance slip received on:', 'talenttrack' ) . ' ' . esc_html( (string) $case->acceptance_slip_returned_at ) . '</p>';
             } else {
-                echo '<form method="post"><input type="hidden" name="tt_trial_action" value="accept_received">';
+                echo '<form method="post" class="tt-trial-accept-form"><input type="hidden" name="tt_trial_action" value="accept_received">';
                 wp_nonce_field( 'tt_trial_accept_' . (int) $case->id, 'tt_trial_accept_nonce' );
-                echo '<button type="submit" class="tt-button">' . esc_html__( 'Mark acceptance slip as received', 'talenttrack' ) . '</button></form>';
+                echo '<button type="submit" class="tt-btn tt-btn-secondary">' . esc_html__( 'Mark acceptance slip as received', 'talenttrack' ) . '</button></form>';
             }
         }
 
         echo '<form method="post" class="tt-trial-regenerate"><input type="hidden" name="tt_trial_action" value="regenerate_letter">';
         wp_nonce_field( 'tt_trial_regenerate_' . (int) $case->id, 'tt_trial_regenerate_nonce' );
-        echo '<button type="submit" class="tt-button">' . esc_html__( 'Regenerate letter', 'talenttrack' ) . '</button></form>';
+        echo '<button type="submit" class="tt-btn tt-btn-secondary">' . esc_html__( 'Regenerate letter', 'talenttrack' ) . '</button></form>';
 
-        echo '</section>';
+        self::cardClose();
     }
 
-    /* ===== Letter tab (Sprint 4) ===== */
+    /* ===== Letter tab ===== */
 
     private static function renderLetterTab( object $case ): void {
         $svc = new TrialLetterService();
         $letter = $svc->findActiveForCase( (int) $case->id );
 
-        echo '<section class="tt-trial-section"><h2>' . esc_html__( 'Letter', 'talenttrack' ) . '</h2>';
+        self::cardOpen( __( 'Letter', 'talenttrack' ) );
 
         if ( ! $letter ) {
-            echo '<p>' . esc_html__( 'No letter generated yet. Record a decision on the Decision tab to produce one.', 'talenttrack' ) . '</p>';
+            echo '<p class="tt-player-empty">' . esc_html__( 'No letter generated yet. Record a decision on the Decision tab to produce one.', 'talenttrack' ) . '</p>';
         } else {
             $print_url = add_query_arg( [ 'tt_view' => 'trial-case', 'id' => (int) $case->id, 'tab' => 'letter', 'print' => 1 ], home_url( '/' ) );
-            echo '<p><a class="tt-button" target="_blank" rel="noopener" href="' . esc_url( $print_url ) . '">' . esc_html__( 'Open print-ready view', 'talenttrack' ) . '</a></p>';
+            echo '<p><a class="tt-btn tt-btn-secondary" target="_blank" rel="noopener" href="' . esc_url( $print_url ) . '">' . esc_html__( 'Open print-ready view', 'talenttrack' ) . '</a></p>';
             echo '<div class="tt-trial-letter-preview">' . wp_kses_post( (string) $letter->rendered_html ) . '</div>';
         }
 
-        echo '</section>';
+        self::cardClose();
 
         // History
         $history = $svc->listForCase( (int) $case->id );
         if ( $history ) {
-            echo '<section class="tt-trial-section"><h2>' . esc_html__( 'Letter history', 'talenttrack' ) . '</h2>';
+            self::cardOpen( __( 'Letter history', 'talenttrack' ) );
             echo '<div class="tt-table-wrap">';
             echo '<table class="tt-table"><thead><tr><th>' . esc_html__( 'Generated at', 'talenttrack' ) . '</th><th>' . esc_html__( 'Audience', 'talenttrack' ) . '</th><th>' . esc_html__( 'Status', 'talenttrack' ) . '</th></tr></thead><tbody>';
             foreach ( $history as $row ) {
@@ -659,18 +731,19 @@ class FrontendTrialCaseView extends FrontendViewBase {
                 echo '<tr><td>' . esc_html( \TT\Shared\Dates\TTDate::dateTime( (string) $row->created_at ) ) . '</td><td>' . esc_html( (string) $row->audience ) . '</td><td>' . esc_html( $status ) . '</td></tr>';
             }
             echo '</tbody></table>';
-            echo '</div></section>';
+            echo '</div>';
+            self::cardClose();
         }
     }
 
-    /* ===== Meeting tab (Sprint 5) — preview link to fullscreen ===== */
+    /* ===== Parent meeting tab — preview link to fullscreen ===== */
 
     private static function renderMeetingTab( object $case ): void {
         $url = add_query_arg( [ 'tt_view' => 'trial-parent-meeting', 'id' => (int) $case->id ], home_url( '/' ) );
-        echo '<section class="tt-trial-section"><h2>' . esc_html__( 'Parent meeting mode', 'talenttrack' ) . '</h2>';
+        self::cardOpen( __( 'Parent meeting mode', 'talenttrack' ) );
         echo '<p>' . esc_html__( 'A sanitized fullscreen view for the conversation with the parents. No internal data is shown — only the decision, the player photo and basics, and the letter.', 'talenttrack' ) . '</p>';
-        echo '<p><a class="tt-button tt-button-primary" target="_blank" rel="noopener" href="' . esc_url( $url ) . '">' . esc_html__( 'Open meeting view', 'talenttrack' ) . '</a></p>';
-        echo '</section>';
+        echo '<p><a class="tt-btn tt-btn-primary" target="_blank" rel="noopener" href="' . esc_url( $url ) . '">' . esc_html__( 'Open meeting view', 'talenttrack' ) . '</a></p>';
+        self::cardClose();
     }
 
     /* ===== POST handlers ===== */
@@ -787,5 +860,15 @@ class FrontendTrialCaseView extends FrontendViewBase {
             case TrialCasesRepository::DECISION_DENY_ENCOURAGE:  return AudienceType::TRIAL_DENIAL_ENCOURAGE;
         }
         return AudienceType::TRIAL_DENIAL_FINAL;
+    }
+
+    /** Two-letter initials from a player name; '?' when empty. */
+    private static function initialsFor( string $name ): string {
+        $name = trim( $name );
+        if ( $name === '' ) return '?';
+        $parts = preg_split( '/\s+/', $name ) ?: [ $name ];
+        $first = mb_substr( (string) ( $parts[0] ?? '' ), 0, 1 );
+        $last  = count( $parts ) > 1 ? mb_substr( (string) end( $parts ), 0, 1 ) : '';
+        return mb_strtoupper( $first . $last );
     }
 }

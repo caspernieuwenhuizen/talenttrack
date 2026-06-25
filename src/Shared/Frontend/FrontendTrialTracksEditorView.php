@@ -77,12 +77,16 @@ class FrontendTrialTracksEditorView extends FrontendViewBase {
         $tracks = $repo->listAll( true );
         $base   = remove_query_arg( [ 'action', 'id' ] );
         $new    = add_query_arg( [ 'tt_view' => 'trial-tracks-editor', 'action' => 'new' ], $base );
+
+        echo '<p class="tt-trial-editor-intro">' . esc_html__( 'A trial track is a reusable template for a trial period — its name and how many days it runs by default. When you start a new trial for a player you pick a track, and these settings fill in the defaults.', 'talenttrack' ) . '</p>';
+
         echo '<div class="tt-toolbar"><a class="tt-button tt-button-primary" href="' . esc_url( $new ) . '">' . esc_html__( 'New track', 'talenttrack' ) . '</a></div>';
 
         if ( ! $tracks ) {
-            echo '<p>' . esc_html__( 'No tracks exist yet.', 'talenttrack' ) . '</p>';
+            echo '<p class="tt-player-empty">' . esc_html__( 'No tracks exist yet. Create one to get started.', 'talenttrack' ) . '</p>';
             return;
         }
+        echo '<div class="tt-table-wrap">';
         echo '<table class="tt-table"><thead><tr><th>' . esc_html__( 'Name', 'talenttrack' ) . '</th><th>' . esc_html__( 'Slug', 'talenttrack' ) . '</th><th>' . esc_html__( 'Default duration', 'talenttrack' ) . '</th><th>' . esc_html__( 'Seeded?', 'talenttrack' ) . '</th><th>' . esc_html__( 'Status', 'talenttrack' ) . '</th><th></th></tr></thead><tbody>';
         foreach ( $tracks as $t ) {
             $url = add_query_arg( [ 'tt_view' => 'trial-tracks-editor', 'id' => (int) $t->id ], $base );
@@ -98,6 +102,7 @@ class FrontendTrialTracksEditorView extends FrontendViewBase {
             echo '</tr>';
         }
         echo '</tbody></table>';
+        echo '</div>';
     }
 
     private static function renderForm( ?object $track ): void {
@@ -107,10 +112,17 @@ class FrontendTrialTracksEditorView extends FrontendViewBase {
         echo '<input type="hidden" name="tt_trial_track_action" value="save">';
         if ( $track ) echo '<input type="hidden" name="id" value="' . esc_attr( (string) $track->id ) . '">';
         echo '<label>' . esc_html__( 'Name', 'talenttrack' ) . ' <input type="text" name="name" value="' . esc_attr( $track ? (string) $track->name : '' ) . '" required></label>';
+        echo '<p class="tt-field-hint">' . esc_html__( 'How this track appears when staff start a new trial, e.g. "Two-week look" or "Goalkeeper trial".', 'talenttrack' ) . '</p>';
         echo '<label>' . esc_html__( 'Slug', 'talenttrack' ) . ' <input type="text" name="slug" value="' . esc_attr( $track ? (string) $track->slug : '' ) . '" ' . ( $is_seeded ? 'readonly' : '' ) . '></label>';
-        if ( $is_seeded ) echo '<p class="tt-meta">' . esc_html__( 'Seeded tracks have a locked slug.', 'talenttrack' ) . '</p>';
+        if ( $is_seeded ) {
+            echo '<p class="tt-field-hint">' . esc_html__( 'This is a built-in track, so its slug is locked. You can still rename it and change the duration.', 'talenttrack' ) . '</p>';
+        } else {
+            echo '<p class="tt-field-hint">' . esc_html__( 'A short internal code (letters, numbers and dashes). Leave blank to generate one from the name.', 'talenttrack' ) . '</p>';
+        }
         echo '<label>' . esc_html__( 'Description', 'talenttrack' ) . ' <textarea name="description" rows="3">' . esc_textarea( $track ? (string) $track->description : '' ) . '</textarea></label>';
+        echo '<p class="tt-field-hint">' . esc_html__( 'Optional. A note for your staff about when to use this track.', 'talenttrack' ) . '</p>';
         echo '<label>' . esc_html__( 'Default duration in days', 'talenttrack' ) . ' <input type="number" inputmode="numeric" min="1" max="365" name="default_duration_days" value="' . esc_attr( $track ? (string) $track->default_duration_days : '28' ) . '" required></label>';
+        echo '<p class="tt-field-hint">' . esc_html__( 'How long a trial on this track runs by default. Staff can still adjust the end date per player.', 'talenttrack' ) . '</p>';
 
         // #1646 / CLAUDE.md §6 — Save + Cancel via the shared helper.
         // Cancel returns to the tracks list (the editor list is the
