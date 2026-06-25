@@ -51,6 +51,16 @@ The player can fill in their self-reflection any time before the coach signs off
 
 After sign-off the conversation appears on the player's *My PDP* view (and the parent's, if they're linked). Both can click *Acknowledge* — a lightweight "I've seen this" timestamp.
 
+### What the player sees: a state-aware My PDP (#1851)
+
+*My PDP* now opens with a short lead block that tells the player **what to do now**, derived from where they are in the talk cycle. It only re-orders and highlights what is already there — every conversation card, the self-reflection editor and the acknowledgement buttons stay exactly where they were below.
+
+- **Working period** (before the next talk's planning window) — the page leads with **Your focus**: the player's top active goals and the **next development talk** date. The conversation list recedes underneath.
+- **Review window** (the planning window is open) — the page leads with **Prepare for your talk on &lt;date&gt;**, and the upcoming conversation is promoted to the top so its self-reflection editor and agenda are front-and-centre. The self-review is framed as helpful, never required — nothing is blocked if the player skips it.
+- **After the talk** (signed off, awaiting acknowledgement) — the page leads with **Your last development talk**, pointing at the notes, agreed actions and the acknowledgement button below, with the goals to carry forward.
+
+Parents see the same state surface for their child, read-only and possessive ("&lt;Child&gt;'s development plan"). The state is derived from the seeded conversations and their planning windows — no schedule or window data changes.
+
 ### 4. End-of-season verdict
 
 When the cycle's last conversation is signed off, the head of academy (or head coach in some configurations) records a verdict: **promote**, **retain**, **release**, or **transfer**. The verdict is its own row, signed off independently from the conversation rows.
