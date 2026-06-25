@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-25T15:57:19+00:00\n"
+"POT-Creation-Date: 2026-06-25T15:59:55+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -787,7 +787,7 @@ msgstr ""
 #: src/Modules/Export/Exporters/PlayerOnePagerPdfExporter.php:63
 #: src/Modules/Export/Exporters/ScoutingReportPdfExporter.php:94
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:264
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:760
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:763
 #: src/Modules/Reports/Frontend/FrontendScoutMyPlayersView.php:101
 #: src/Modules/Reports/PlayerReportRenderer.php:40
 #: src/Modules/Stats/Admin/PlayerCardView.php:74
@@ -2191,7 +2191,7 @@ msgstr ""
 #: src/Infrastructure/REST/TeamsRestController.php:363
 #: src/Infrastructure/REST/TeamsRestController.php:376
 #: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:148
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:797
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:800
 #: src/Modules/Spond/SpondSync.php:59
 #: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:216
 #: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:245
@@ -6056,7 +6056,7 @@ msgstr ""
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:831
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:970
 #: src/Modules/Backup/Admin/BackupSettingsPage.php:1228
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:891
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:894
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:312
 #: src/Modules/Pdp/Admin/SeasonsPage.php:164
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:357
@@ -14707,84 +14707,84 @@ msgstr ""
 msgid "Beide"
 msgstr ""
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:637
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:640
 msgid "in progress"
 msgstr ""
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:641
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:644
 msgid "Sterke punten vorig seizoen (mediaan eval)"
 msgstr ""
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:642
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:645
 msgid "Ontwikkelpunten"
 msgstr ""
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:643
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:646
 msgid "Goals from last season"
 msgstr ""
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:644
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:647
 msgid "Trainersnotities"
 msgstr ""
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:772
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:775
 #, php-format
 msgid "Goals intake — %1$s — choose blocks"
 msgstr ""
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:773
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:776
 #, php-format
 msgid "Speler: %1$s · Seizoen %2$s"
 msgstr ""
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:816
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:819
 #, php-format
 msgid "Seizoens-intakes — %1$s — kies blokken"
 msgstr ""
 
 #. translators: 1: team name, 2: season, 3: player count
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:819
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:822
 #, php-format
 msgid "Team: %1$s · Seizoen %2$s · %3$d spelers"
 msgstr ""
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:843
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:846
 msgid "Snapshot (foto, stats, terugblik, reflectie)"
 msgstr ""
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:844
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:847
 msgid "Doel 1"
 msgstr ""
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:845
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:848
 msgid "Doel 2"
 msgstr ""
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:846
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:849
 msgid "Doel 3"
 msgstr ""
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:847
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:850
 msgid "Afsluiting (reflectie 1 ding om mee te nemen)"
 msgstr ""
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:848
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:851
 msgid "Handtekeningen (speler / trainer / datum)"
 msgstr ""
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:849
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:852
 msgid "Trainer-reminder (CTA-note)"
 msgstr ""
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:875
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:878
 msgid "Selecteer de blokken om te printen"
 msgstr ""
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:889
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:892
 msgid "Print geselecteerde blokken"
 msgstr ""
 
-#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:890
+#: src/Modules/Goals/Print/PlayerGoalIntakePrintRouter.php:893
 msgid "Print alles"
 msgstr ""
 
