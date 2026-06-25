@@ -1005,6 +1005,22 @@ final class CoreSurfaceRegistration {
             'cap'          => 'tt_view_audit_log',
             'desktop_preferred' => true,
         ]);
+        // #1815 — Accounts & access hub (Player / Parent accounts +
+        // Invitations). Tile declares the `parent_accounts` matrix entity;
+        // the hub view + sub-views gate per-card.
+        TileRegistry::register([
+            'module_class' => self::M_PLAYERS,
+            'view_slug'    => 'accounts',
+            'entity'       => 'parent_accounts',
+            'group'        => $admin_group,
+            'kind'         => 'setup',
+            'order'        => 39,
+            'label'        => __( 'Accounts & access', 'talenttrack' ),
+            'description'  => __( 'Link logins to player, parent and staff records.', 'talenttrack' ),
+            'icon'         => 'profile',
+            'color'        => '#5b6e75',
+            'cap'          => 'tt_manage_parent_accounts',
+        ]);
         TileRegistry::register([
             'module_class' => self::M_INVITATIONS,
             'view_slug'    => 'invitations-config',

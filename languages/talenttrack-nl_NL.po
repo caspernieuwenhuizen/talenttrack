@@ -40461,3 +40461,6 @@ msgstr "Vink de beoordelingen aan die dit doel onderbouwen — ze verschijnen al
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php
 msgid "Assessment %1$s · %2$s"
 msgstr "Beoordeling %1$s · %2$s"
+
+msgid "Link logins to player, parent and staff records."
+msgstr "Koppel logins aan speler-, ouder- en stafdossiers."

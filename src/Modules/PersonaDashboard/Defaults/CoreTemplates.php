@@ -377,10 +377,13 @@ final class CoreTemplates {
             [ 'roles',             __( 'Authorization',      'talenttrack' ), 31 ],
             [ 'usage-stats',       __( 'Usage statistics',   'talenttrack' ), 32 ],
             [ 'audit-log',         __( 'Audit log',          'talenttrack' ), 33 ],
-            [ 'invitations-config',__( 'Invitations',        'talenttrack' ), 34 ],
-            [ 'migrations',        __( 'Migrations',         'talenttrack' ), 35 ],
-            [ 'docs',              __( 'Help & docs',        'talenttrack' ), 36 ],
-            [ 'methodology',       __( 'Methodology',        'talenttrack' ), 37 ],
+            // #1815 — account-management hub (Player / Parent accounts,
+            // Invitations). The academy admin is the primary operator.
+            [ 'accounts',          __( 'Accounts & access',  'talenttrack' ), 34 ],
+            [ 'invitations-config',__( 'Invitations',        'talenttrack' ), 35 ],
+            [ 'migrations',        __( 'Migrations',         'talenttrack' ), 36 ],
+            [ 'docs',              __( 'Help & docs',        'talenttrack' ), 37 ],
+            [ 'methodology',       __( 'Methodology',        'talenttrack' ), 38 ],
         ];
         foreach ( $tiles as $i => [ $slug, $label, $priority ] ) {
             $col = ( $i % 4 ) * 3;
