@@ -40287,6 +40287,26 @@ msgstr "Ontwikkelplan van %s"
 msgid "No PDP file has been opened for this player this season yet."
 msgstr "Er is dit seizoen nog geen ontwikkelplan geopend voor deze speler."
 
+#: src/Infrastructure/REST/MeasurementsRestController.php
+msgid "A test must be chosen."
+msgstr "Er moet een test gekozen worden."
+
+#: src/Infrastructure/REST/MeasurementsRestController.php
+msgid "Could not save the measurement."
+msgstr "De meting kon niet worden opgeslagen."
+
+#: src/Infrastructure/REST/MeasurementsRestController.php
+msgid "A test needs a name."
+msgstr "Een test heeft een naam nodig."
+
+#: src/Infrastructure/REST/MeasurementsRestController.php
+msgid "Could not save the test."
+msgstr "De test kon niet worden opgeslagen."
+
+#: src/Infrastructure/REST/MeasurementsRestController.php
+msgid "Could not schedule the test."
+msgstr "De test kon niet worden ingepland."
+
 #~ msgid "Delete this holiday?"
 #~ msgstr "Deze vakantie verwijderen?"
 
