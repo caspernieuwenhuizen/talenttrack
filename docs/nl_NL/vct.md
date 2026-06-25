@@ -63,7 +63,7 @@ De module is gelanceerd in Fase 1 (architectuur-eerst) en Fase 2 (UI):
 
 ## Wat (nog) niet is gelanceerd
 
-- **VCT-8 — Oefeningencatalogus seed**. De 80-oefeningen per-club startercatalogus met diagrammen + coaching points × 5 locales. Contentintensief; gated op pilot-trainer review. Gevolgd via een follow-up issue.
+- **VCT-8 — Oefeningencatalogus seed (volledige 80)**. Een starter-*scaffold* is gelanceerd (migratie 0177): een representatieve concept-set van 12 oefeningen — twee per categorie over warmup / technical / sided_game / conditioning / finishing / cool_down — elk met drie coaching points in alle vijf de gelanceerde locales (canoniek Engels + nl_NL / fr_FR / de_DE / es_ES). De migratie is idempotent en forward-only: ze controleert `(club_id, code)` vóór elke insert, dus opnieuw draaien op een al-geseede club is een no-op, en een latere catalogus-correctie kan `seed_revision` ophogen zonder operator-bewerkingen te overschrijven. Nog open: de volledige 80-oefeningen-catalogus, diagrammen per oefening, en de HoO / pilot-trainer methodologie-review van de oefening-keuzes, intensiteitsbanden en leeftijdsranges. Gevolgd op #1129.
 - **Wizard stap 2 MD-context chip-bar visualisatie** — `PreviewStep` toont de auto-geresolveerde context al als header-chip; het kleurband-palet komt in een follow-up.
 - **Bottom-sheet oefeningenpicker** op de wizard's blok-bouwer-stap — coach override per slot is een substantiële stap-3 UI-rebuild.
 - **A4/A6 print mockup-fidelity polish** op de coach-view — `FrontendVctSessionPrintView` bestaat en print de sessie; mockup-polish komt in een follow-up.
