@@ -830,6 +830,12 @@ class DashboardShortcode {
             case 'custom-css':
                 \TT\Modules\CustomCss\Frontend\FrontendCustomCssView::render( $user_id, $is_admin );
                 return true;
+            case 'data-browser':
+                // #1859 — read-only schema browser. The view reads its own
+                // table / page / search query params and gates on
+                // tt_view_data_browser internally.
+                \TT\Shared\Frontend\FrontendDataBrowserView::render( $user_id, $is_admin );
+                return true;
             default:
                 return false;
         }

@@ -124,4 +124,9 @@ return [
     // the "+ New test" wizard, and the frontend surfaces follow in the
     // next slices.
     TT\Modules\Measurements\MeasurementsModule::class            => true,
+    // #1859 — read-only Data Browser. Matrix/academy-admin-only browser
+    // over the live tt_* schema (friendly labels + raw paginated rows +
+    // lightweight relationship navigation). Owns its REST controller;
+    // the frontend view + tile live in Shared.
+    TT\Modules\DataBrowser\DataBrowserModule::class              => true,
 ];
