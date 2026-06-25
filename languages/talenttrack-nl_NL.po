@@ -21627,11 +21627,6 @@ msgstr "speler & coach"
 msgid "Football action"
 msgstr "Voetbalhandeling"
 
-#: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1710
-msgctxt "PDP file status"
-msgid "Open"
-msgstr "Open"
-
 #: src/Modules/Pdp/Frontend/FrontendPdpPlanningView.php:29
 #: src/Modules/Pdp/Frontend/FrontendPdpPlanningView.php:349
 msgid "You do not have permission to view PDP planning."
@@ -21855,10 +21850,6 @@ msgstr "Gesloten"
 #: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:18
 msgid "Review"
 msgstr "Controleren"
-
-#: src/Modules/Pdp/Repositories/PdpVerdictsRepository.php:33
-msgid "Promote"
-msgstr "Doorstroom"
 
 #: src/Modules/Pdp/Repositories/PdpVerdictsRepository.php:34
 msgid "Retain"
@@ -33731,11 +33722,6 @@ msgctxt "player rating"
 msgid "Insufficient"
 msgstr "Onvoldoende"
 
-#: src/Shared/Frontend/Components/RatingInputComponent.php:46
-msgctxt "player rating"
-msgid "Poor"
-msgstr "Matig"
-
 #: src/Shared/Frontend/Components/RatingInputComponent.php:47
 msgctxt "player rating"
 msgid "Average"
@@ -35880,13 +35866,6 @@ msgstr "Evaluatie niet gevonden"
 #: src/Shared/Frontend/FrontendEvaluationsView.php:268
 msgid "That evaluation no longer exists, or you do not have access."
 msgstr "Die evaluatie bestaat niet meer of je hebt geen toegang."
-
-# v3.110.11 — Evaluations list table headers + eval detail "Evaluation of %s"
-# (Note: "Actions" already translated earlier in this file — only the
-# new strings are added here.)
-#: src/Shared/Frontend/FrontendEvaluationsView.php:165
-msgid "Average"
-msgstr "Gemiddelde"
 
 #: src/Shared/Frontend/FrontendEvaluationsView.php:204
 msgid "Search player, notes…"
