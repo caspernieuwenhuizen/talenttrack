@@ -1711,7 +1711,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 </div>
                 <div class="tt-field">
                     <label class="tt-field-label" for="tt-activity-end-time"><?php esc_html_e( 'End time (optional)', 'talenttrack' ); ?></label>
-                    <input type="time" id="tt-activity-end-time" class="tt-input" name="end_time" value="<?php echo esc_attr( substr( $current_end, 0, 5 ) ); ?>" />
+                    <input type="time" id="tt-activity-end-time" class="tt-input" name="end_time" value="<?php echo esc_attr( substr( $current_end, 0, 5 ) ); ?>" data-tt-end-default-mins="105" data-tt-end-default-from="start_time" />
                 </div>
                 <div class="tt-field" id="tt-activity-presence-row" style="<?php echo $is_match_type ? '' : 'display:none;'; ?>">
                     <label class="tt-field-label" for="tt-activity-presence-time"><?php esc_html_e( 'Presence time (optional)', 'talenttrack' ); ?></label>
@@ -2003,6 +2003,19 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             'exclude_team_id' => $selected_team,
         ] );
         self::enqueueGuestAddAssets();
+        self::enqueueEndTimeDefaultAssets();
+    }
+
+    // #1863 — prefill a match's end time to kick-off + 105 min on the
+    // flat activity form. Match-only + prefill-once is enforced in the JS.
+    private static function enqueueEndTimeDefaultAssets(): void {
+        wp_enqueue_script(
+            'tt-activity-end-time-default',
+            plugins_url( 'assets/js/components/activity-end-time-default.js', TT_PLUGIN_FILE ),
+            [],
+            TT_VERSION,
+            true
+        );
     }
 
     /**

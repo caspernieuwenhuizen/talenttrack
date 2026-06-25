@@ -37,7 +37,23 @@ final class DetailsStep implements WizardStepInterface {
         echo '<label><span>' . esc_html__( 'Date', 'talenttrack' ) . ' *</span><input type="date" name="session_date" required value="' . esc_attr( $date ) . '" /></label>';
 
         echo '<label><span>' . esc_html__( 'Start time (optional)', 'talenttrack' ) . '</span><input type="time" name="start_time" value="' . esc_attr( $start_time ) . '" /></label>';
-        echo '<label><span>' . esc_html__( 'End time (optional)', 'talenttrack' ) . '</span><input type="time" name="end_time" value="' . esc_attr( $end_time ) . '" /></label>';
+        // #1863 — for a match, default the end time to kick-off + 105 min
+        // (90' play + 15' half-time). The type is fixed in this step, so a
+        // match is marked statically; the shared JS fills it once, only when
+        // the user hasn't typed an end time. Editable like any other field.
+        $end_match_attrs = $type === ActivityTypeKey::GAME
+            ? ' data-tt-end-default-mins="105" data-tt-end-default-from="start_time" data-tt-end-default-match="1"'
+            : '';
+        echo '<label><span>' . esc_html__( 'End time (optional)', 'talenttrack' ) . '</span><input type="time" name="end_time" value="' . esc_attr( $end_time ) . '"' . $end_match_attrs . ' /></label>';
+        if ( $type === ActivityTypeKey::GAME ) {
+            wp_enqueue_script(
+                'tt-activity-end-time-default',
+                plugins_url( 'assets/js/components/activity-end-time-default.js', TT_PLUGIN_FILE ),
+                [],
+                TT_VERSION,
+                true
+            );
+        }
 
         echo '<label><span>' . esc_html__( 'Title', 'talenttrack' ) . ' *</span><input type="text" name="title" required maxlength="200" value="' . esc_attr( $title ) . '" /></label>';
 

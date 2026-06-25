@@ -60,7 +60,7 @@ De pagina leest prettig op een telefoon: de kaarten stapelen in één kolom en v
 3. Kies de **status** — Gepland, Voltooid of Geannuleerd. Nieuwe activiteiten staan standaard op Gepland; zet hem op Voltooid zodra de activiteit is geweest, of op Geannuleerd als hij niet doorging.
 4. Bij een **wedstrijd**: kies optioneel het subtype (Oefen, Beker, Competitie).
 5. Bij **Overig**: geef het een korte omschrijving.
-6. Kies het team, stel de datum in en voeg eventueel een locatie, een begin-/eindtijd en notities toe.
+6. Kies het team, stel de datum in en voeg eventueel een locatie, een begin-/eindtijd en notities toe. Bij een wedstrijd vult het invoeren van de aftraptijd automatisch de eindtijd 105 minuten later in (90' spelen + 15' rust); je kunt die altijd aanpassen.
 7. Bij een **wedstrijd**-type (Wedstrijd, Toernooi of een eigen wedstrijd-/oefenwedstrijdtype) verschijnt een optioneel veld **Aanwezigheidstijd** — de tijd waarop families aanwezig moeten zijn. Dit verschijnt in de week-PDF van de teamplanner als `Aanwezig HH:MM`.
 8. Opslaan. De spelerslijst wordt automatisch gevuld vanuit het team.
 8. Markeer iedere speler als Aanwezig, Afwezig, Te laat of Afgemeld. Zet er een notitie bij waar handig.
