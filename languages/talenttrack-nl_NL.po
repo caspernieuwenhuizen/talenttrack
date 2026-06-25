@@ -40578,8 +40578,8 @@ msgid "Age groups and selections players are organised into."
 msgstr "Leeftijdsgroepen en selecties waarin spelers zijn ingedeeld."
 
 #: src/Modules/DataBrowser/DataBrowser.php
-msgid "Trainings and matches — the sessions players take part in."
-msgstr "Trainingen en wedstrijden — de sessies waaraan spelers deelnemen."
+msgid "Trainings and matches — the activities players take part in."
+msgstr "Trainingen en wedstrijden — de activiteiten waaraan spelers deelnemen."
 
 #: src/Modules/DataBrowser/DataBrowser.php
 msgid "Performance assessments per player, scored by category."
@@ -40698,8 +40698,8 @@ msgid "The player the goal belongs to."
 msgstr "De speler bij wie het doel hoort."
 
 #: src/Modules/DataBrowser/DataBrowser.php
-msgid "The session attendance was recorded for."
-msgstr "De sessie waarvoor de aanwezigheid is geregistreerd."
+msgid "The activity attendance was recorded for."
+msgstr "De activiteit waarvoor de aanwezigheid is geregistreerd."
 
 #: src/Modules/DataBrowser/DataBrowser.php
 msgid "The player present or absent."

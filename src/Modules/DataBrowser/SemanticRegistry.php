@@ -61,7 +61,7 @@ class SemanticRegistry {
             ],
             'tt_activities' => [
                 'label'       => __( 'Activities', 'talenttrack' ),
-                'description' => __( 'Trainings and matches — the sessions players take part in.', 'talenttrack' ),
+                'description' => __( 'Trainings and matches — the activities players take part in.', 'talenttrack' ),
                 'columns'     => [
                     'activity_type' => [ 'label' => __( 'Type', 'talenttrack' ),     'description' => __( 'Training or match. Value from the activity_type lookup.', 'talenttrack' ) ],
                     'title'         => [ 'label' => __( 'Title', 'talenttrack' ),    'description' => __( 'Free-text description of the activity.', 'talenttrack' ) ],
@@ -102,7 +102,7 @@ class SemanticRegistry {
                 'label'       => __( 'Attendance', 'talenttrack' ),
                 'description' => __( 'Player attendance per activity.', 'talenttrack' ),
                 'columns'     => [
-                    'activity_id' => [ 'label' => __( 'Activity', 'talenttrack' ), 'description' => __( 'The session attendance was recorded for.', 'talenttrack' ) ],
+                    'activity_id' => [ 'label' => __( 'Activity', 'talenttrack' ), 'description' => __( 'The activity attendance was recorded for.', 'talenttrack' ) ],
                     'player_id'   => [ 'label' => __( 'Player', 'talenttrack' ),   'description' => __( 'The player present or absent.', 'talenttrack' ) ],
                     'status'      => [ 'label' => __( 'Status', 'talenttrack' ),   'description' => __( 'Present, absent, injured… from the attendance lookup.', 'talenttrack' ) ],
                 ],
