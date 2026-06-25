@@ -364,14 +364,20 @@ class DashboardShortcode {
      * "needs player record" notice and claim the slug.
      */
     private static function dispatchMeView( string $view, ?object $player ): bool {
+        // #1849 — a parent (or any authorised viewer) opens a CHILD's My-X
+        // section via ?player_id=N, scoped by canViewPlayer (own children
+        // only). `$target` is that child when supplied + authorised, else the
+        // viewer's own player record. `teammate` keeps `$player` (the viewer's
+        // own) because it reads player_id as the teammate id, not the subject.
+        $target = self::resolveMePlayer( get_current_user_id(), $player );
         switch ( $view ) {
             case 'overview':
-                if ( ! self::requirePlayerOrDeny( $player ) ) return true;
-                FrontendOverviewView::render( $player );
+                if ( ! self::requirePlayerOrDeny( $target ) ) return true;
+                FrontendOverviewView::render( $target );
                 return true;
             case 'my-team':
-                if ( ! self::requirePlayerOrDeny( $player ) ) return true;
-                FrontendMyTeamView::render( $player );
+                if ( ! self::requirePlayerOrDeny( $target ) ) return true;
+                FrontendMyTeamView::render( $target );
                 return true;
             case 'teammate':
                 if ( ! self::requirePlayerOrDeny( $player ) ) return true;
@@ -382,36 +388,36 @@ class DashboardShortcode {
                 // v3.110.215 (#846) — branch by caller context. A coach
                 // (anyone with `tt_edit_evaluations` who has no linked
                 // player record) sees the evaluations THEY authored; a
-                // player sees evaluations OF them. The KPI tile lands
-                // correctly on either branch.
-                if ( $player === null && current_user_can( 'tt_edit_evaluations' ) ) {
+                // player (or a parent viewing their child) sees evaluations
+                // OF that player.
+                if ( $target === null && current_user_can( 'tt_edit_evaluations' ) ) {
                     FrontendMyEvaluationsView::renderForCoach( get_current_user_id() );
                     return true;
                 }
-                if ( ! self::requirePlayerOrDeny( $player ) ) return true;
-                FrontendMyEvaluationsView::render( $player );
+                if ( ! self::requirePlayerOrDeny( $target ) ) return true;
+                FrontendMyEvaluationsView::render( $target );
                 return true;
             case 'my-activities':
-                if ( ! self::requirePlayerOrDeny( $player ) ) return true;
-                FrontendMyActivitiesView::render( $player );
+                if ( ! self::requirePlayerOrDeny( $target ) ) return true;
+                FrontendMyActivitiesView::render( $target );
                 return true;
             case 'my-goals':
-                if ( ! self::requirePlayerOrDeny( $player ) ) return true;
-                FrontendMyGoalsView::render( $player );
+                if ( ! self::requirePlayerOrDeny( $target ) ) return true;
+                FrontendMyGoalsView::render( $target );
                 return true;
             case 'my-pdp':
-                if ( ! self::requirePlayerOrDeny( $player ) ) return true;
-                \TT\Modules\Pdp\Frontend\FrontendMyPdpView::render( $player );
+                if ( ! self::requirePlayerOrDeny( $target ) ) return true;
+                \TT\Modules\Pdp\Frontend\FrontendMyPdpView::render( $target );
                 return true;
             case 'profile':
-                if ( ! self::requirePlayerOrDeny( $player ) ) return true;
+                if ( ! self::requirePlayerOrDeny( $target ) ) return true;
                 // Legacy slug — folded into My card in v3.62.0. Redirect
                 // to keep bookmarks alive.
-                FrontendOverviewView::render( $player );
+                FrontendOverviewView::render( $target );
                 return true;
             case 'my-journey':
-                if ( ! self::requirePlayerOrDeny( $player ) ) return true;
-                \TT\Modules\Journey\Frontend\FrontendJourneyView::render( $player );
+                if ( ! self::requirePlayerOrDeny( $target ) ) return true;
+                \TT\Modules\Journey\Frontend\FrontendJourneyView::render( $target );
                 return true;
             // NOTE: `my-settings` intentionally NOT in this dispatcher —
             // dispatchAccountView claims it so coach / scout / admin
@@ -423,6 +429,25 @@ class DashboardShortcode {
             default:
                 return false;
         }
+    }
+
+    /**
+     * #1849 — resolve the Me-group subject. When `?player_id=N` is present
+     * and the viewer is authorised to view that player (a parent of their
+     * own child, via the canViewPlayer scope), return that child's record;
+     * otherwise the viewer's own player record. This is what lets a parent
+     * open `?tt_view=my-pdp&player_id=<child>` and reach the same rich
+     * `FrontendMy*` views the player sees (the views already detect
+     * is_self / is_parent). Scope is the #1725 gate — own children only.
+     */
+    private static function resolveMePlayer( int $user_id, ?object $own ): ?object {
+        $pid = isset( $_GET['player_id'] ) ? absint( $_GET['player_id'] ) : 0;
+        if ( $pid > 0
+            && \TT\Infrastructure\Security\AuthorizationService::canViewPlayer( $user_id, $pid ) ) {
+            $child = QueryHelpers::get_player( $pid );
+            if ( $child ) return $child;
+        }
+        return $own;
     }
 
     /**
