@@ -126,11 +126,14 @@ dan kun je de wijziging opnieuw doen; het netwerk kan kuren hebben.
 ## Afdrukken (of opslaan als PDF)
 
 De knop **Afdrukken / PDF exporteren** in de werkbalk opent een schone
-afdrukpagina in een nieuw tabblad. Die pagina toont alleen de
-opstelling + aandachtspunten + wedstrijddoelen — geen dashboard-frame
-(merkbanner, DEMO-strip, gebruikersmenu, breadcrumbs, terugknop,
-werkbalk). De positie-nummers, spelernamen, het `!`-icoon (rood) en
-het camera-icoon (groen) behouden hun kleuren.
+afdrukpagina in een nieuw tabblad. Die pagina spiegelt alles onder de
+werkbalk van het wedstrijdvoorbereidingsscherm — beide opstellingsvelden,
+de tabel **Selectie · minuten** (minuten per helft + totalen), de banken,
+de **Wedstrijddoelen**, **Doen per speler** en **Rollen &
+standaardsituaties** — zonder dashboard-frame (merkbanner, DEMO-strip,
+gebruikersmenu, breadcrumbs, terugknop, werkbalk) en zonder de
+samenvattingstegels. De positie-nummers, spelernamen, het `!`-icoon
+(rood) en het camera-icoon (groen) behouden hun kleuren.
 
 Op die pagina krijg je op twee manieren een bestand:
 
