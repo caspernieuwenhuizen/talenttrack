@@ -1,0 +1,59 @@
+/*
+ * frontend-my-activities.css (#1901) — 2026 chrome for the player/parent
+ * "My activities" surface: brings the activity detail and the list's
+ * mobile cards up to the same white-card look as the other Tier-2
+ * surfaces (My card / team / evaluations / journey / teammate). Scoped to
+ * this view only (the list rules sit under a `.tt-myact-list` wrapper, so
+ * the shared list component is untouched elsewhere). Mobile-first, tokens
+ * only, scoped under `.tt-dashboard`.
+ */
+
+/* ---- Activity detail card ----------------------------------------- */
+.tt-dashboard .tt-activity-detail {
+    background: #fff;
+    border: 1px solid #e3e6e1;
+    border-radius: 14px;
+    box-shadow: var(--tt-shadow-md);
+    padding: 1rem 1.1rem;
+    max-width: 720px;
+}
+.tt-dashboard .tt-activity-detail-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 0.75rem;
+    margin: 0;
+}
+.tt-dashboard .tt-activity-detail-meta .tt-due,
+.tt-dashboard .tt-activity-detail-meta .tt-meta-chip {
+    font-size: 0.84rem;
+    color: var(--tt-ink);
+}
+.tt-dashboard .tt-activity-detail-body {
+    margin-top: 0.85rem;
+    border-top: 1px solid #e3e6e1;
+    padding-top: 0.85rem;
+}
+.tt-dashboard .tt-activity-detail-body__h {
+    margin: 0 0 0.4rem;
+    font-size: 1rem;
+    color: var(--tt-primary, #0b3d2e);
+}
+.tt-dashboard .tt-activity-detail-body p {
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* ---- List: elevate the shared component's mobile cards ------------- */
+.tt-dashboard .tt-myact-list { max-width: 860px; }
+
+@media (max-width: 639px) {
+    .tt-dashboard .tt-myact-list .tt-list-table-table tbody tr {
+        background: #fff;
+        border: 1px solid #e3e6e1;
+        border-radius: 12px;
+        box-shadow: var(--tt-shadow-md);
+        margin-bottom: 0.6rem;
+        padding: 0.35rem 0.2rem;
+    }
+}
