@@ -370,6 +370,20 @@ class DashboardShortcode {
         // viewer's own player record. `teammate` keeps `$player` (the viewer's
         // own) because it reads player_id as the teammate id, not the subject.
         $target = self::resolveMePlayer( get_current_user_id(), $player );
+
+        // #1867 — a player can hide development sections from a linked
+        // parent. The gate only ever restricts a parent (self + staff
+        // pass through); when a section is hidden, show the dignified
+        // "kept private" state instead of the section.
+        if ( $target !== null ) {
+            $section = self::meViewSection( $view );
+            if ( $section !== ''
+                && ! \TT\Infrastructure\Security\AuthorizationService::parentCanViewSection( get_current_user_id(), (int) $target->id, $section ) ) {
+                \TT\Shared\Frontend\Components\FrontendPrivateSection::render( self::meViewSectionLabel( $view ) );
+                return true;
+            }
+        }
+
         switch ( $view ) {
             case 'my-development':
                 // #1850 — the player + parent development home. Same scoped
@@ -454,6 +468,34 @@ class DashboardShortcode {
      * `FrontendMy*` views the player sees (the views already detect
      * is_self / is_parent). Scope is the #1725 gate — own children only.
      */
+    /**
+     * #1867 — map a Me-view slug to the visibility section it belongs to
+     * (empty string = not a gateable section). Card / team / settings /
+     * the development home are always visible.
+     */
+    private static function meViewSection( string $view ): string {
+        switch ( $view ) {
+            case 'my-evaluations': return 'evaluations';
+            case 'my-goals':       return 'goals';
+            case 'my-journey':     return 'journey';
+            case 'my-pdp':         return 'pdp';
+            case 'measurements':   return 'measurements';
+            default:               return '';
+        }
+    }
+
+    /** Section label for the "kept private" breadcrumb. */
+    private static function meViewSectionLabel( string $view ): string {
+        switch ( $view ) {
+            case 'my-evaluations': return __( 'Evaluations', 'talenttrack' );
+            case 'my-goals':       return __( 'Goals', 'talenttrack' );
+            case 'my-journey':     return __( 'Journey', 'talenttrack' );
+            case 'my-pdp':         return __( 'Development plan', 'talenttrack' );
+            case 'measurements':   return __( 'Measurements', 'talenttrack' );
+            default:               return __( 'Section', 'talenttrack' );
+        }
+    }
+
     private static function resolveMePlayer( int $user_id, ?object $own ): ?object {
         $pid = isset( $_GET['player_id'] ) ? absint( $_GET['player_id'] ) : 0;
         if ( $pid > 0

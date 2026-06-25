@@ -178,8 +178,14 @@ class GoalsRestController {
             $params[] = absint( $filter['team_id'] );
         }
         if ( ! empty( $filter['player_id'] ) ) {
+            $pid = absint( $filter['player_id'] );
+            // #1867 — respect a child's choice to hide goals from a parent
+            // (a no-op for the player themselves and for staff).
+            if ( ! \TT\Infrastructure\Security\AuthorizationService::parentCanViewSection( get_current_user_id(), $pid, 'goals' ) ) {
+                return RestResponse::error( 'section_private', __( 'This section has been kept private.', 'talenttrack' ), 403 );
+            }
             $where[]  = 'g.player_id = %d';
-            $params[] = absint( $filter['player_id'] );
+            $params[] = $pid;
         }
         if ( ! empty( $filter['status'] ) ) {
             $where[]  = 'g.status = %s';

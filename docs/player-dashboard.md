@@ -67,6 +67,10 @@ Click your name in the top-right corner of the dashboard to open the user menu. 
 
 Application passwords, admin colour palettes and other WordPress-internal toggles stay in wp-admin where they belong; ignore them unless you're managing your own developer integrations.
 
+### What your parent can see
+
+If you have a parent or guardian linked to your account, **My settings** also shows a **"What your parent can see"** card. Everything is shared by default — but you can turn off individual sections (**Evaluations**, **Goals**, **Journey**, **Measurements**, **Development plan**) so your parent no longer sees them. The change applies everywhere your parent looks, including the development home previews. When you hide a section, your parent sees a calm "kept private" note instead of the section — never an error. Your coaches and the academy are not affected by these choices, and safeguarding/medical information stays governed by separate academy rules.
+
 ## Reports
 
 If you're a coach or administrator, the player detail page has a **Generate report…** button. It opens a four-step wizard:

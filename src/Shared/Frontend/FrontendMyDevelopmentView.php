@@ -62,12 +62,46 @@ class FrontendMyDevelopmentView extends FrontendViewBase {
 
         echo '<div class="tt-devhome">';
         FrontendOverviewView::renderHero( $player );
-        self::renderTodayBand( $player, $is_self, $name );
-        self::renderFocus( $player, $is_self );
-        self::renderForm( $player, $is_self );
+        // #1867 — a parent only sees the sections the child hasn't hidden.
+        // The PDP-driven Today band is simply skipped when hidden (it's an
+        // action prompt); the section previews show a "kept private" card.
+        if ( self::sectionVisible( $player, $is_self, 'pdp' ) ) {
+            self::renderTodayBand( $player, $is_self, $name );
+        }
+        if ( self::sectionVisible( $player, $is_self, 'goals' ) ) {
+            self::renderFocus( $player, $is_self );
+        } else {
+            self::renderPrivateBlock( __( 'Your focus', 'talenttrack' ) );
+        }
+        if ( self::sectionVisible( $player, $is_self, 'evaluations' ) ) {
+            self::renderForm( $player, $is_self );
+        } else {
+            self::renderPrivateBlock( __( "How you're doing", 'talenttrack' ) );
+        }
         self::renderComingUp( $player, $is_self );
-        self::renderJourney( $player, $is_self );
+        if ( self::sectionVisible( $player, $is_self, 'journey' ) ) {
+            self::renderJourney( $player, $is_self );
+        } else {
+            self::renderPrivateBlock( __( 'Your journey', 'talenttrack' ) );
+        }
         echo '</div>';
+    }
+
+    /** #1867 — section visible to this viewer? Self + staff always true. */
+    private static function sectionVisible( object $player, bool $is_self, string $section ): bool {
+        if ( $is_self ) return true;
+        return \TT\Infrastructure\Security\AuthorizationService::parentCanViewSection(
+            get_current_user_id(), (int) $player->id, $section
+        );
+    }
+
+    /** A compact "kept private" card for a hidden home block. */
+    private static function renderPrivateBlock( string $heading ): void {
+        \TT\Shared\Frontend\Components\FrontendPrivateSection::enqueue();
+        echo '<section class="tt-devhome-card">';
+        echo '<div class="tt-devhome-card__head"><h2 class="tt-devhome-card__title">' . esc_html( $heading ) . '</h2></div>';
+        echo \TT\Shared\Frontend\Components\FrontendPrivateSection::card(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped — escaped within card().
+        echo '</section>';
     }
 
     /**

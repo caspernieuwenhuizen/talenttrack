@@ -41035,6 +41035,36 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+msgid "Your child has chosen to keep this private."
+msgstr "Je kind heeft ervoor gekozen dit privé te houden."
+
+msgid "What your parent can see"
+msgstr "Wat je ouder kan zien"
+
+msgid "Choose which parts of your record your parent or guardian can see. Everything is shared by default. Your coaches and the academy are not affected by these choices."
+msgstr "Kies welke delen van je dossier je ouder of verzorger kan zien. Standaard wordt alles gedeeld. Je coaches en de academie worden niet beïnvloed door deze keuzes."
+
+msgid "Development plan (PDP)"
+msgstr "Ontwikkelplan (POP)"
+
+msgid "Save visibility"
+msgstr "Zichtbaarheid opslaan"
+
+msgid "Saved what your parent can see."
+msgstr "Opgeslagen wat je ouder kan zien."
+
+msgid "Only players can set parent visibility."
+msgstr "Alleen spelers kunnen ouderzichtbaarheid instellen."
+
+msgid "This section has been kept private."
+msgstr "Dit onderdeel is privé gehouden."
+
+msgid "Development plan"
+msgstr "Ontwikkelplan"
+
+msgid "Section"
+msgstr "Onderdeel"
+
 #~ msgid "Delete this holiday?"
 #~ msgstr "Deze vakantie verwijderen?"
 

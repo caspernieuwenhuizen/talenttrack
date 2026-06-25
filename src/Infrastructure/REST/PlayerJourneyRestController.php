@@ -153,6 +153,10 @@ class PlayerJourneyRestController extends BaseController {
         if ( ! AuthorizationService::canViewPlayer( $user_id, $player_id ) ) {
             return RestResponse::error( 'forbidden', __( 'You do not have access to this player.', 'talenttrack' ), 403 );
         }
+        // #1867 — a parent only reads the journey when the child shares it.
+        if ( ! AuthorizationService::parentCanViewSection( $user_id, $player_id, 'journey' ) ) {
+            return RestResponse::error( 'section_private', __( 'This section has been kept private.', 'talenttrack' ), 403 );
+        }
 
         $filters = self::extractTimelineFilters( $r );
         $allowed = PlayerEventsRepository::visibilitiesForUser( $user_id );
@@ -187,6 +191,10 @@ class PlayerJourneyRestController extends BaseController {
         $user_id   = get_current_user_id();
         if ( ! AuthorizationService::canViewPlayer( $user_id, $player_id ) ) {
             return RestResponse::error( 'forbidden', __( 'You do not have access to this player.', 'talenttrack' ), 403 );
+        }
+        // #1867 — a parent only reads the journey when the child shares it.
+        if ( ! AuthorizationService::parentCanViewSection( $user_id, $player_id, 'journey' ) ) {
+            return RestResponse::error( 'section_private', __( 'This section has been kept private.', 'talenttrack' ), 403 );
         }
 
         $allowed = PlayerEventsRepository::visibilitiesForUser( $user_id );

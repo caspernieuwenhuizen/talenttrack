@@ -67,6 +67,10 @@ Klik rechtsboven op je naam om het gebruikersmenu te openen. Het eerste item, **
 
 Application passwords, kleurschema's en andere WordPress-interne knoppen blijven in wp-admin staan; negeer die tenzij je je eigen developer-integratie beheert.
 
+### Wat je ouder kan zien
+
+Als er een ouder of verzorger aan je account is gekoppeld, toont **Mijn instellingen** ook een kaart **"Wat je ouder kan zien"**. Standaard wordt alles gedeeld - maar je kunt afzonderlijke onderdelen uitzetten (**Evaluaties**, **Doelen**, **Reis**, **Metingen**, **Ontwikkelplan**) zodat je ouder ze niet meer ziet. De wijziging geldt overal waar je ouder kijkt, ook in de voorbeschouwingen op de ontwikkelhome. Als je een onderdeel verbergt, ziet je ouder een rustige melding "privé gehouden" in plaats van het onderdeel - nooit een foutmelding. Je coaches en de academie worden niet beïnvloed door deze keuzes, en veiligheids-/medische informatie blijft onder aparte academieregels vallen.
+
 ## Rapporten
 
 Coaches en beheerders zien op de detailpagina van een speler een knop **Rapport genereren…**. Die opent een vierstapswizard:
