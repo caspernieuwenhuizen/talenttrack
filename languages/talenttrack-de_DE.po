@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-25T04:57:44+00:00\n"
+"POT-Creation-Date: 2026-06-25T15:07:34+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Deutsch\n"
@@ -58,7 +58,7 @@ msgstr ""
 #: src/Modules/Players/Admin/PlayersPage.php:127
 #: src/Modules/Players/Admin/PlayersPage.php:398
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:36
-#: src/Shared/Frontend/DashboardShortcode.php:1257
+#: src/Shared/Frontend/DashboardShortcode.php:1282
 #: src/Shared/Frontend/FrontendConfigurationView.php:2192
 #: src/Shared/Frontend/FrontendPeopleManageView.php:288
 #: src/Shared/Frontend/FrontendRolesView.php:91
@@ -68,7 +68,7 @@ msgstr "Elternteil"
 #: database/migrations/0030_authorization_sprint_7_roles.php:54
 #: src/Modules/Authorization/Admin/MatrixPage.php:592
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:41
-#: src/Shared/Frontend/DashboardShortcode.php:1262
+#: src/Shared/Frontend/DashboardShortcode.php:1287
 msgid "Team Manager"
 msgstr ""
 
@@ -139,7 +139,7 @@ msgstr ""
 #: src/Shared/Frontend/Components/PlayerPickerComponent.php:33
 #: src/Shared/Frontend/Components/PlayerSearchPickerComponent.php:72
 #: src/Shared/Frontend/DashboardShortcode.php:112
-#: src/Shared/Frontend/DashboardShortcode.php:1256
+#: src/Shared/Frontend/DashboardShortcode.php:1281
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1896
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:1907
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:2024
@@ -209,7 +209,7 @@ msgstr "Trainer"
 #: src/Modules/Trials/Letters/LetterTemplateEngine.php:118
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:39
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:152
-#: src/Shared/Frontend/DashboardShortcode.php:1260
+#: src/Shared/Frontend/DashboardShortcode.php:1285
 #: src/Shared/Frontend/FrontendConfigurationView.php:2186
 #: src/Shared/Frontend/FrontendPeopleManageView.php:284
 #: src/Shared/Frontend/FrontendRolesView.php:67
@@ -793,7 +793,7 @@ msgstr ""
 #: src/Modules/Stats/Admin/PlayerCardView.php:74
 #: src/Modules/Stats/Admin/PlayerRateCardView.php:35
 #: src/Modules/TeamDevelopment/Rest/TeamDevelopmentRestController.php:555
-#: src/Shared/Frontend/DashboardShortcode.php:701
+#: src/Shared/Frontend/DashboardShortcode.php:726
 msgid "Player not found."
 msgstr ""
 
@@ -1137,7 +1137,7 @@ msgstr "Physiotherapeut"
 #: src/Modules/Reports/AudienceType.php:91
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:40
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:155
-#: src/Shared/Frontend/DashboardShortcode.php:1261
+#: src/Shared/Frontend/DashboardShortcode.php:1286
 #: src/Shared/Frontend/FrontendConfigurationView.php:2190
 #: src/Shared/Frontend/FrontendPeopleManageView.php:287
 #: src/Shared/Frontend/FrontendRolesView.php:79
@@ -1214,7 +1214,7 @@ msgstr "Vereins-Admin"
 #: src/Modules/Authorization/Admin/MatrixPage.php:589
 #: src/Modules/Authorization/Admin/RolesPage.php:433
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:38
-#: src/Shared/Frontend/DashboardShortcode.php:1259
+#: src/Shared/Frontend/DashboardShortcode.php:1284
 msgid "Head Coach"
 msgstr "Cheftrainer"
 
@@ -1225,7 +1225,7 @@ msgstr "Cheftrainer"
 #: src/Modules/Authorization/Admin/MatrixPage.php:588
 #: src/Modules/Authorization/Admin/RolesPage.php:434
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:37
-#: src/Shared/Frontend/DashboardShortcode.php:1258
+#: src/Shared/Frontend/DashboardShortcode.php:1283
 msgid "Assistant Coach"
 msgstr "Co-Trainer"
 
@@ -3063,7 +3063,7 @@ msgstr "— Alle —"
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:163
 #: src/Modules/Methodology/Admin/MethodologyPage.php:497
 #: src/Modules/Methodology/Frontend/MethodologyView.php:581
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:117
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:129
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:786
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:897
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:275
@@ -3754,13 +3754,13 @@ msgstr ""
 #: src/Modules/Workflow/Frontend/FrontendTasksDashboardView.php:44
 #: src/Modules/Workflow/Frontend/FrontendWorkflowConfigView.php:50
 #: src/Shared/Frontend/DashboardShortcode.php:299
-#: src/Shared/Frontend/DashboardShortcode.php:436
-#: src/Shared/Frontend/DashboardShortcode.php:492
-#: src/Shared/Frontend/DashboardShortcode.php:652
-#: src/Shared/Frontend/DashboardShortcode.php:660
-#: src/Shared/Frontend/DashboardShortcode.php:870
-#: src/Shared/Frontend/DashboardShortcode.php:878
-#: src/Shared/Frontend/DashboardShortcode.php:886
+#: src/Shared/Frontend/DashboardShortcode.php:461
+#: src/Shared/Frontend/DashboardShortcode.php:517
+#: src/Shared/Frontend/DashboardShortcode.php:677
+#: src/Shared/Frontend/DashboardShortcode.php:685
+#: src/Shared/Frontend/DashboardShortcode.php:895
+#: src/Shared/Frontend/DashboardShortcode.php:903
+#: src/Shared/Frontend/DashboardShortcode.php:911
 #: src/Shared/Frontend/FrontendAuditLogView.php:37
 #: src/Shared/Frontend/FrontendConfigurationView.php:29
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:22
@@ -3813,7 +3813,7 @@ msgstr ""
 #: src/Shared/CoreSurfaceRegistration.php:751
 #: src/Shared/CoreSurfaceRegistration.php:1439
 #: src/Shared/CoreSurfaceRegistration.php:1743
-#: src/Shared/Frontend/DashboardShortcode.php:1020
+#: src/Shared/Frontend/DashboardShortcode.php:1045
 #: src/Shared/Modules/ModuleMetadata.php:311
 msgid "Analytics"
 msgstr ""
@@ -5892,7 +5892,7 @@ msgstr ""
 
 #: src/Modules/Authorization/Admin/MatrixPage.php:593
 #: src/Shared/Frontend/Components/FrontendAppChrome.php:42
-#: src/Shared/Frontend/DashboardShortcode.php:1263
+#: src/Shared/Frontend/DashboardShortcode.php:1288
 msgid "Academy Admin"
 msgstr ""
 
@@ -13026,7 +13026,7 @@ msgstr ""
 #: src/Shared/CoreSurfaceRegistration.php:1661
 #: src/Shared/CoreSurfaceRegistration.php:1848
 #: src/Shared/Frontend/CoachDashboardView.php:37
-#: src/Shared/Frontend/DashboardShortcode.php:1297
+#: src/Shared/Frontend/DashboardShortcode.php:1322
 #: src/Shared/Frontend/FrontendDocsView.php:103
 #: src/Shared/Frontend/PlayerDashboardView.php:51
 msgid "Help"
@@ -14496,7 +14496,7 @@ msgstr "Drucken"
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamChemistryView.php:747
 #: src/Modules/Vct/Frontend/FrontendVctLibraryView.php:251
 #: src/Shared/Frontend/Components/GuestAddModal.php:48
-#: src/Shared/Frontend/DashboardShortcode.php:1302
+#: src/Shared/Frontend/DashboardShortcode.php:1327
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:114
 msgid "Close"
 msgstr "Schließen"
@@ -18864,22 +18864,31 @@ msgstr ""
 msgid "Could not set current season."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:40
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:41
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:46
 msgid "My development plan"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:45
+#. translators: %s = the child's name (parent viewing their child)
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:49
+#, php-format
+msgid "%s's development plan"
+msgstr ""
+
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:57
 msgid "No current season is set."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:52
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:65
 msgid "No PDP file has been opened for you this season yet."
+msgstr ""
+
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:66
+msgid "No PDP file has been opened for this player this season yet."
 msgstr ""
 
 #. translators: %s = season name
 #. translators: %s: season name (e.g. "2025/2026").
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:64
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:76
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:266
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:419
 #, php-format
@@ -18887,7 +18896,7 @@ msgid "Season: %s"
 msgstr ""
 
 # #0028 — Conversational goals (thread primitive + goal adapter)
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:70
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:82
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1059
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1542
 #: src/Shared/Frontend/Components/FrontendThreadView.php:52
@@ -18898,76 +18907,76 @@ msgid "Conversation"
 msgstr "Unterhaltung"
 
 #. translators: %1$d sequence, %2$s template
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:84
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:96
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1025
 #, php-format
 msgid "Conversation %1$d (%2$s)"
 msgstr ""
 
 #. translators: %s = date
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:101
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:113
 #, php-format
 msgid "Scheduled %s"
 msgstr ""
 
 #. translators: %s = date
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:108
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:120
 #, php-format
 msgid "Conducted %s"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:121
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:133
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1151
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:214
 msgid "Agreed actions"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:127
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:139
 msgid "Agenda"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:134
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:146
 msgid "Self-reflection"
 msgstr "Selbstreflexion"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:156
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:168
 msgid "Add or update your self-reflection"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:159
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:171
 msgid "Save reflection"
 msgstr ""
 
 # v3.110.24 — My PDP self-reflection 2-week pre-meeting gate
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:166
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:178
 msgid ""
 "You can add your self-reflection up to 2 weeks before this meeting. Check "
 "back closer to the planned date."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:178
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:190
 msgid "I acknowledge this conversation"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:186
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:198
 msgid "You acknowledged this conversation."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:192
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:204
 msgid "Acknowledge as parent / guardian"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:197
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:209
 msgid "A parent acknowledged this conversation."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:206
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:218
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:994
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:235
 msgid "End-of-season verdict"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:211
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:223
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:996
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:236
 msgid "Decision:"
@@ -18975,33 +18984,33 @@ msgstr ""
 
 #. translators: %s = signoff timestamp
 #. translators: %s = signed-off timestamp
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:219
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:231
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1006
 #, php-format
 msgid "Signed off on %s"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:261
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:273
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1700
 msgid "Start of season"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:262
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:274
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1701
 msgid "Mid season"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:263
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:275
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1702
 msgid "Mid-season A"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:264
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:276
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1703
 msgid "Mid-season B"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:265
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:277
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1704
 msgid "End of season"
 msgstr ""
@@ -20688,8 +20697,8 @@ msgstr ""
 
 #: src/Modules/PersonaDashboard/Defaults/CoreTemplates.php:385
 #: src/Shared/Frontend/Components/HelpDrawer.php:22
-#: src/Shared/Frontend/DashboardShortcode.php:1212
-#: src/Shared/Frontend/DashboardShortcode.php:1213
+#: src/Shared/Frontend/DashboardShortcode.php:1237
+#: src/Shared/Frontend/DashboardShortcode.php:1238
 msgid "Help & docs"
 msgstr ""
 
@@ -21147,23 +21156,23 @@ msgstr ""
 msgid "No children linked to this account yet."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Widgets/ChildSwitcherWithRecapWidget.php:75
+#: src/Modules/PersonaDashboard/Widgets/ChildSwitcherWithRecapWidget.php:78
 msgid "Since you last visited"
 msgstr ""
 
 #. translators: %d is the count of new evaluations across the parent's children
-#: src/Modules/PersonaDashboard/Widgets/ChildSwitcherWithRecapWidget.php:79
+#: src/Modules/PersonaDashboard/Widgets/ChildSwitcherWithRecapWidget.php:82
 #, php-format
 msgid "%d new evaluation across your children."
 msgid_plural "%d new evaluations across your children."
 msgstr[0] "%d nieuwe evaluatie voor je kinderen."
 msgstr[1] "%d nieuwe evaluaties voor je kinderen."
 
-#: src/Modules/PersonaDashboard/Widgets/ChildSwitcherWithRecapWidget.php:87
+#: src/Modules/PersonaDashboard/Widgets/ChildSwitcherWithRecapWidget.php:90
 msgid "No new updates."
 msgstr ""
 
-#: src/Modules/PersonaDashboard/Widgets/ChildSwitcherWithRecapWidget.php:89
+#: src/Modules/PersonaDashboard/Widgets/ChildSwitcherWithRecapWidget.php:92
 msgid "My children"
 msgstr ""
 
@@ -23245,8 +23254,8 @@ msgstr ""
 
 #: src/Modules/Reports/Frontend/FrontendScoutAccessView.php:30
 #: src/Modules/Reports/Frontend/FrontendScoutHistoryView.php:35
-#: src/Shared/Frontend/DashboardShortcode.php:871
-#: src/Shared/Frontend/DashboardShortcode.php:879
+#: src/Shared/Frontend/DashboardShortcode.php:896
+#: src/Shared/Frontend/DashboardShortcode.php:904
 msgid "You need scout-management permission to view this page."
 msgstr ""
 
@@ -29223,7 +29232,7 @@ msgid "Security check failed. Please refresh the page and try again."
 msgstr ""
 
 #: src/Modules/Workflow/Frontend/FrontendTaskDetailView.php:126
-#: src/Shared/Frontend/DashboardShortcode.php:502
+#: src/Shared/Frontend/DashboardShortcode.php:527
 msgid "Task completed."
 msgstr ""
 
@@ -30719,7 +30728,7 @@ msgstr ""
 
 #: src/Shared/Frontend/Components/FrontendListTable.php:147
 #: src/Shared/Frontend/DashboardShortcode.php:73
-#: src/Shared/Frontend/DashboardShortcode.php:1307
+#: src/Shared/Frontend/DashboardShortcode.php:1332
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:455
 #: src/Shared/Frontend/FrontendWizardView.php:308
 msgid "Loading…"
@@ -31043,32 +31052,32 @@ msgstr ""
 msgid "Unknown section."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:437
+#: src/Shared/Frontend/DashboardShortcode.php:462
 msgid "This section is only available for users linked to a player record."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:478
+#: src/Shared/Frontend/DashboardShortcode.php:503
 msgid "Sign in required"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:479
+#: src/Shared/Frontend/DashboardShortcode.php:504
 #: src/Shared/Frontend/FrontendMySettingsView.php:57
 msgid "You need to be logged in to manage your settings."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:493
+#: src/Shared/Frontend/DashboardShortcode.php:518
 msgid "Your role does not have access to tasks."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:653
+#: src/Shared/Frontend/DashboardShortcode.php:678
 msgid "Your role does not have access to team chemistry boards."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:661
+#: src/Shared/Frontend/DashboardShortcode.php:686
 msgid "Your role does not have access to team blueprints."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:700
+#: src/Shared/Frontend/DashboardShortcode.php:725
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:203
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:206
 #: src/Shared/Frontend/FrontendPlayersManageView.php:86
@@ -31076,79 +31085,79 @@ msgstr ""
 msgid "Player not found"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:887
+#: src/Shared/Frontend/DashboardShortcode.php:912
 msgid "This area is for scout users."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1022
+#: src/Shared/Frontend/DashboardShortcode.php:1047
 msgid ""
 "The Analytics explorer is turned off. Your reports still work — find them "
 "under Reports. An administrator can re-enable the explorer under Modules."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1128
+#: src/Shared/Frontend/DashboardShortcode.php:1153
 msgid "Section unavailable"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1131
+#: src/Shared/Frontend/DashboardShortcode.php:1156
 msgid "This section is currently unavailable."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1134
+#: src/Shared/Frontend/DashboardShortcode.php:1159
 msgid ""
 "The administrator has temporarily turned off this part of TalentTrack. "
 "Please check back later, or ask your administrator if you need access."
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1157
+#: src/Shared/Frontend/DashboardShortcode.php:1182
 msgid ""
 "TalentTrack is running in demo mode. Real club records are hidden until demo "
 "mode is turned off."
 msgstr ""
 
 # #0036 — dashboard polish (helper button + DEMO pill + logo toggle + tile scale)
-#: src/Shared/Frontend/DashboardShortcode.php:1191
+#: src/Shared/Frontend/DashboardShortcode.php:1216
 msgid "DEMO"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1231
+#: src/Shared/Frontend/DashboardShortcode.php:1256
 #: src/Shared/Frontend/FrontendMySettingsView.php:52
 #: src/Shared/Frontend/FrontendMySettingsView.php:53
 msgid "My settings"
 msgstr ""
 
 # v3.110.1 — #0086 Workstream B Child 2: session management UI
-#: src/Shared/Frontend/DashboardShortcode.php:1238
+#: src/Shared/Frontend/DashboardShortcode.php:1263
 #: src/Shared/Frontend/FrontendMySessionsView.php:40
 #: src/Shared/Frontend/FrontendMySessionsView.php:41
 msgid "My sessions"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1250
+#: src/Shared/Frontend/DashboardShortcode.php:1275
 msgid "View as"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1253
+#: src/Shared/Frontend/DashboardShortcode.php:1278
 msgid "All personas (default)"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1277
+#: src/Shared/Frontend/DashboardShortcode.php:1302
 msgid "Go to Admin"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1281
+#: src/Shared/Frontend/DashboardShortcode.php:1306
 msgid "Log out"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1299
+#: src/Shared/Frontend/DashboardShortcode.php:1324
 msgid "Open full Help & Docs"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1371
+#: src/Shared/Frontend/DashboardShortcode.php:1396
 msgid "You are viewing as"
 msgstr ""
 
-#: src/Shared/Frontend/DashboardShortcode.php:1372
+#: src/Shared/Frontend/DashboardShortcode.php:1397
 msgid "Switch back to all personas"
 msgstr ""
 
