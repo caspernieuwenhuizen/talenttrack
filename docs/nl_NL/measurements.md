@@ -81,6 +81,19 @@ tests tonen een getalveld met de eenheid; geslaagd/niet-tests tonen een
 keuzelijst. Een trainer kan alleen voor de eigen teams vastleggen; het
 hoofd opleiding en de academiebeheerder kunnen voor elk team vastleggen.
 
+## Testdekking (wie is aan de beurt)
+
+Staf krijgt ook een tegel **Testdekking**. Kies een team en het scherm
+toont, voor elke test met een herhaling, hoeveel van de selectie
+**up-to-date** is versus het tekort - en noemt de spelers die **te laat**,
+**binnenkort aan de beurt** of **nooit** getest zijn. Het is spelergericht:
+het begint bij de selectie en laat precies zien wie deze cyclus nog een test
+nodig heeft, zodat je een sessie kunt plannen. Tests zonder herhaling
+(*ad hoc*) tellen niet mee voor de dekking. Een coach ziet de eigen teams;
+het hoofd opleiding en de academiebeheerder zien elk team. Dezelfde gegevens
+zijn beschikbaar via REST op
+`GET /wp-json/talenttrack/v1/teams/{team_id}/measurement-coverage`.
+
 ## Een test aanmaken
 
 Het hoofd opleiding (of een academiebeheerder) maakt tests aan met de

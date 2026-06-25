@@ -87,6 +87,24 @@ class MeasurementsModule implements ModuleInterface {
                     return current_user_can( 'tt_edit_evaluations' ) || current_user_can( 'tt_manage_players' );
                 },
             ] );
+
+            // #1882 — staff insights: due/overdue testing coverage per team.
+            TileRegistry::register( [
+                'module_class'      => self::class,
+                'view_slug'         => 'measurements-coverage',
+                'entity'            => 'measurements',
+                'group'             => __( 'Performance', 'talenttrack' ),
+                'kind'              => 'work',
+                'order'             => 47,
+                'label'             => __( 'Testing coverage', 'talenttrack' ),
+                'description'       => __( 'See who is due or overdue for each test.', 'talenttrack' ),
+                'icon'              => 'activity',
+                'color'             => '#0e7c66',
+                'hide_for_personas' => [ 'player', 'parent' ],
+                'cap_callback'      => static function ( int $uid ): bool {
+                    return current_user_can( 'tt_edit_evaluations' ) || current_user_can( 'tt_manage_players' );
+                },
+            ] );
         }
     }
 }

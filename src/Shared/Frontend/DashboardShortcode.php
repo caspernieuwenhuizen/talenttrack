@@ -732,6 +732,9 @@ class DashboardShortcode {
             case 'measurements-entry':
                 \TT\Modules\Measurements\Frontend\FrontendMeasurementEntryView::render( $user_id, $is_admin );
                 return true;
+            case 'measurements-coverage':
+                \TT\Modules\Measurements\Frontend\FrontendMeasurementCoverageView::render( $user_id, $is_admin );
+                return true;
             case 'activities':
                 FrontendActivitiesManageView::render( $user_id, $is_admin );
                 return true;

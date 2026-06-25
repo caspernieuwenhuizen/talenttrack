@@ -76,6 +76,18 @@ unit; pass/fail tests show a dropdown. A coach can only record for their
 own teams; the head of development and academy admin can record for any
 team.
 
+## Testing coverage (who's due)
+
+Staff also get a **Testing coverage** tile. Pick a team and the screen
+shows, for every test that has a recurrence, how many of the squad are
+**up to date** versus the gap — and names the players who are **overdue**,
+**due soon**, or have **never** been tested. It's player-centric: it starts
+from the roster and surfaces exactly who still needs a test this cycle, so
+you can plan a session. Tests with no recurrence (*ad hoc*) don't count
+toward coverage. A coach sees their own teams; the head of development and
+academy admin see every team. The same data is available over REST at
+`GET /wp-json/talenttrack/v1/teams/{team_id}/measurement-coverage`.
+
 ## Creating a test
 
 The head of development (or an academy admin) creates tests with the
