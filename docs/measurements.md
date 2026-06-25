@@ -72,3 +72,19 @@ testing session for that date. Numeric tests show a number field with the
 unit; pass/fail tests show a dropdown. A coach can only record for their
 own teams; the head of development and academy admin can record for any
 team.
+
+## Creating a test
+
+The head of development (or an academy admin) creates tests with the
+**+ New test** wizard — reachable from the *Record measurements* screen.
+It walks through three steps:
+
+1. **Details** — the category, a name, and the value type (a number, a
+   scale score, or pass/fail).
+2. **Unit & recurrence** — the unit (from the unit list or a custom one),
+   whether higher or lower is better, and how often the test runs.
+3. **Targets** — optional per-age-group green and amber bands; a recorded
+   value flags against the band for the player's age group. You can leave
+   these blank and add them later.
+
+Finishing creates the test and its targets in one go.
