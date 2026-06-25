@@ -1,3 +1,35 @@
+# TalentTrack v4.53.0 — Tidy the trials list and trial-case detail page (#1646)
+
+The trials list now uses the standard 2026 table header (dropped the legacy
+sortable widget that showed broken sort glyphs). On the trial-case detail
+page the in-card Assign / Extend buttons are styled as primary buttons, the
+header action row wraps instead of clipping its last button off the edge, and
+the duplicate in-body Archive button is gone — archiving now happens from the
+single top-right action. The case execution tab's activity/evaluation/goal
+queries are bounded to avoid a slow-query timeout.
+
+# TalentTrack v4.53.0 — POP goals: per-goal progress % + evaluation evidence (#1717)
+
+Fills in the two POP-card slots the restyle reserved but never rendered.
+
+- **Per-goal progress %** — `tt_goals` gains a `progress_pct` (0–100) field a
+  coach sets on the goal form; the POP card now shows the progress bar.
+- **Evidence (Bewijslast)** — a new `tt_goal_evidence` table links specific
+  evaluations to a goal. The goal form gets an evidence picker (tick the
+  player's evaluations); each linked evaluation renders on the POP card as a
+  scored chip — *Assessment 12 Mar · 6.5* — from its date + overall
+  (average-rating) score. Stored separately from the methodology links.
+
+Migration 0173 (additive). With #1754's collapsible cards + per-goal
+conversation, the POP page now matches the deck mockup.
+
+# TalentTrack v4.53.0 — The Accounts & access tile now shows on the admin dashboard (#1815)
+
+Fixes the Accounts & access hub being unreachable from the dashboard: the
+tile is now registered so it renders for the Academy Admin (and Head of
+Development) dashboards, alongside Configuration and Invitations. The hub
+groups Player accounts, Parent accounts, and Invitations.
+
 # TalentTrack v4.52.0 — POP page: collapsible goals with a conversation per goal (#1754)
 
 The player's POP page now renders its learning goals as **collapsible

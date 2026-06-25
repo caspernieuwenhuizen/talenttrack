@@ -4,13 +4,19 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.52.0
+Stable tag: 4.53.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.53.0 — Tidy the trials list and trial-case detail page (#1646) The trials list now uses the standard 2026 table header (dropped the legacy sortable widget that showed broken sort glyphs). On the trial-case detail page the in-card Assign / Extend buttons are styled as primary buttons, the header action row wraps instead of clipping its last button off the edge, and the duplicate in-body Archive button is gone — archiving now happens from the single top-right action. The case execution tab's activity/evaluation/goal queries are bounded to avoid a slow-query timeout. =
+
+= 4.53.0 — POP goals: per-goal progress % + evaluation evidence (#1717) Fills in the two POP-card slots the restyle reserved but never rendered.  - **Per-goal progress %** — `tt_goals` gains a `progress_pct` (0–100) field a   coach sets on the goal form; the POP card now shows the progress bar. - **Evidence (Bewijslast)** — a new `tt_goal_evidence` table links specific   evaluations to a goal. The goal form gets an evidence picker (tick the   player's evaluations); each linked evaluation renders on the POP card as a   scored chip — *Assessment 12 Mar · 6.5* — from its date + overall   (average-rating) score. Stored separately from the methodology links.  Migration 0173 (additive). With #1754's collapsible cards + per-goal conversation, the POP page now matches the deck mockup. =
+
+= 4.53.0 — The Accounts & access tile now shows on the admin dashboard (#1815) Fixes the Accounts & access hub being unreachable from the dashboard: the tile is now registered so it renders for the Academy Admin (and Head of Development) dashboards, alongside Configuration and Invitations. The hub groups Player accounts, Parent accounts, and Invitations. =
 
 = 4.52.0 — POP page: collapsible goals with a conversation per goal (#1754) The player's POP page now renders its learning goals as **collapsible cards** (native `<details>`, keyboard-accessible). Each card header shows the goal title, status, due window, and a 💬 count of that goal's messages.  Expanding a goal reveals two columns: the goal's detail (description, linked methodology, evidence) on the left and **that goal's own conversation thread on the right** — every goal has a separate thread, so discussions don't mix. In-progress goals open by default. Reuses the existing per-goal threads (`thread_type='goal'`), and makes `FrontendThreadView` multi-instance-safe so several conversations can live on one page.  Per-goal **progress %** and scored **evidence (Bewijslast)** shown in the deck mockup are a follow-up — they need the evaluation-evidence schema in #1717. =
 
