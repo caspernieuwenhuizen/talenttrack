@@ -129,6 +129,11 @@ class PdpConversationsRestController {
                 __( 'The conversation could not be updated.', 'talenttrack' ), 500 );
         }
 
+        // #1852 — keep the player's self-review nudge in step: complete it
+        // when the reflection is saved, auto-resolve it when the talk is
+        // conducted. Never blocks the response.
+        \TT\Modules\Pdp\Workflow\PdpSelfReviewTasks::syncAfterPatch( $conv, $file, $patch );
+
         return RestResponse::success( [ 'id' => $id ] );
     }
 

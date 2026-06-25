@@ -14,7 +14,10 @@ use TT\Modules\Pdp\Rest\PdpFilesRestController;
 use TT\Modules\Pdp\Rest\PdpVerdictsRestController;
 use TT\Modules\Pdp\Rest\SeasonsRestController;
 use TT\Modules\Pdp\Workflow\PdpConversationDueTemplate;
+use TT\Modules\Pdp\Workflow\PdpSelfReviewSweep;
+use TT\Modules\Pdp\Workflow\PdpSelfReviewTemplate;
 use TT\Modules\Pdp\Workflow\PdpVerdictDueTemplate;
+use TT\Modules\Workflow\Dispatchers\CronDispatcher;
 use TT\Modules\Workflow\WorkflowModule;
 
 /**
@@ -63,6 +66,12 @@ class PdpModule implements ModuleInterface {
         // Register workflow templates. Same priority as WorkflowModule's
         // registerShippedTemplates so dispatchers (priority 20) see them.
         add_action( 'init', [ self::class, 'registerWorkflowTemplates' ], 5 );
+
+        // #1852 — self-review nudge sweep. Runs on the workflow engine's
+        // own cron tick (reusing its scheduler, not an ad-hoc wp_cron):
+        // creates one self-review task per conversation whose planning
+        // window has opened. Idempotent, so firing each hourly tick is safe.
+        add_action( CronDispatcher::TICK_HOOK, [ PdpSelfReviewSweep::class, 'run' ] );
     }
 
     /**
@@ -105,5 +114,6 @@ class PdpModule implements ModuleInterface {
         $registry = WorkflowModule::registry();
         $registry->register( new PdpConversationDueTemplate() );
         $registry->register( new PdpVerdictDueTemplate() );
+        $registry->register( new PdpSelfReviewTemplate() );
     }
 }

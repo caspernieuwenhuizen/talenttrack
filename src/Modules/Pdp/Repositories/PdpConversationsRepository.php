@@ -55,6 +55,30 @@ class PdpConversationsRepository {
         return false;
     }
 
+    /**
+     * #1852 — every conversation whose planning window has opened on or
+     * before $today and that hasn't been conducted yet, with the file's
+     * player_id joined. Drives the self-review nudge sweep. Club-scoped.
+     *
+     * @return object[] rows: id, scheduled_at, planning_window_start, player_id
+     */
+    public function listEnteringPlanningWindow( string $today ): array {
+        $files = $this->wpdb->prefix . 'tt_pdp_files';
+        $rows = $this->wpdb->get_results( $this->wpdb->prepare(
+            "SELECT c.id, c.scheduled_at, c.planning_window_start, f.player_id
+               FROM {$this->table} c
+               JOIN {$files} f ON f.id = c.pdp_file_id
+              WHERE c.club_id = %d
+                AND c.conducted_at IS NULL
+                AND c.scheduled_at IS NOT NULL
+                AND c.planning_window_start IS NOT NULL
+                AND c.planning_window_start <= %s
+              ORDER BY c.scheduled_at ASC",
+            CurrentClub::id(), $today
+        ) );
+        return is_array( $rows ) ? $rows : [];
+    }
+
     /** @return object[] */
     public function listForFile( int $file_id ): array {
         if ( $file_id <= 0 ) return [];

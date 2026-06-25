@@ -61,6 +61,33 @@ class TasksRepository {
     }
 
     /**
+     * #1852 — find a single task by its natural key
+     * (template_key + assignee + player_id + due_at), club-scoped.
+     * Used for idempotent per-(player, conversation) creation and for
+     * resolving a task when its conversation moves on. Pass `$statuses`
+     * to restrict (e.g. only the still-actionable trio); omit for "any
+     * status" (the idempotency check, which must not re-create after a
+     * task was completed or skipped).
+     *
+     * @param list<string>|null $statuses
+     * @return array<string,mixed>|null
+     */
+    public function findByNaturalKey( string $template_key, int $assignee_user_id, int $player_id, string $due_at, ?array $statuses = null ): ?array {
+        global $wpdb;
+        $where  = [ 'template_key = %s', 'assignee_user_id = %d', 'player_id = %d', 'due_at = %s', 'club_id = %d' ];
+        $params = [ $template_key, $assignee_user_id, $player_id, $due_at, CurrentClub::id() ];
+        if ( $statuses ) {
+            $clean = array_values( array_map( 'strval', $statuses ) );
+            $placeholders = implode( ',', array_fill( 0, count( $clean ), '%s' ) );
+            $where[] = "status IN ($placeholders)";
+            $params = array_merge( $params, $clean );
+        }
+        $sql = "SELECT * FROM {$this->table()} WHERE " . implode( ' AND ', $where ) . " ORDER BY id ASC LIMIT 1";
+        $row = $wpdb->get_row( $wpdb->prepare( $sql, ...$params ), ARRAY_A );
+        return is_array( $row ) ? $row : null;
+    }
+
+    /**
      * Fetch a task by ID, or null when not found.
      *
      * @return array<string,mixed>|null

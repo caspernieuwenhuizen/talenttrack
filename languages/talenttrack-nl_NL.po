@@ -40365,6 +40365,23 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+msgid "Prepare for your development talk"
+msgstr "Bereid je voor op je ontwikkelgesprek"
+
+msgid "Add a short self-reflection before your talk. It helps your coach. It is optional, never required."
+msgstr "Voeg een korte zelfreflectie toe voor je gesprek. Het helpt je coach. Het is optioneel, nooit verplicht."
+
+msgid "Add a short self-reflection before your development talk. It helps your coach, and it is optional, never required."
+msgstr "Voeg een korte zelfreflectie toe voor je ontwikkelgesprek. Het helpt je coach en is optioneel, nooit verplicht."
+
+msgid "Open my development plan"
+msgstr "Open mijn ontwikkelplan"
+
+msgid "Self-review"
+msgstr "Zelfreflectie"
+
+msgid "Not yet"
+msgstr "Nog niet"
 #: src/Infrastructure/REST/MeasurementsRestController.php
 msgid "A test must be chosen."
 msgstr "Er moet een test gekozen worden."
