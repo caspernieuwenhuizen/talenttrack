@@ -569,6 +569,14 @@ class ActivitiesRestController {
             'present_count'            => $present,
             'roster_size'              => $roster,
             'attendance_pct'           => $attendance_pct,
+            // #1726 — per-match full length (minutes); null for non-match
+            // types. Per-player minutes/lineup_role are persisted on
+            // tt_attendance and read by the minutes report + match-execution
+            // surfaces (a dedicated per-player GET can expose them when a
+            // non-WP consumer needs the breakdown).
+            'match_length_minutes'     => isset( $row->match_length_minutes ) && $row->match_length_minutes !== null
+                ? (int) $row->match_length_minutes
+                : null,
             // v3.92.7 — surfaced only when filter[player_id] was set on
             // the request (the SELECT subquery emits NULL otherwise).
             // Picked up by `?tt_view=my-activities`'s "Your status" column.
@@ -844,6 +852,14 @@ class ActivitiesRestController {
         // change doesn't leave a stale FK behind.
         $tournament_id = absint( $r['tournament_id'] ?? 0 );
 
+        // #1726 — per-match full length (minutes), match types only. Used
+        // to derive subs-off (starters under the full length). Clamped to a
+        // sane ceiling; non-match types null it.
+        $match_length_raw = absint( $r['match_length_minutes'] ?? 0 );
+        $match_length     = ( $type === ActivityTypeKey::GAME && $match_length_raw > 0 )
+            ? min( 300, $match_length_raw )
+            : null;
+
         $payload = [
             'title'               => sanitize_text_field( (string) ( $r['title'] ?? '' ) ),
             'session_date'        => sanitize_text_field( (string) ( $r['session_date'] ?? '' ) ),
@@ -859,6 +875,7 @@ class ActivitiesRestController {
             'game_subtype_key'    => $type === ActivityTypeKey::GAME && $subtype !== '' ? $subtype : null,
             'other_label'         => $type === ActivityTypeKey::OTHER && $other !== ''   ? $other   : null,
             'tournament_id'       => $type === ActivityTypeKey::TOURNAMENT && $tournament_id > 0 ? $tournament_id : null,
+            'match_length_minutes' => $match_length,
         ];
         if ( in_array( $plan_state, $allowed_plan_states, true ) ) {
             $payload['plan_state'] = $plan_state;
@@ -911,10 +928,22 @@ class ActivitiesRestController {
             if ( ! is_array( $fields ) ) continue;
             $pid = absint( $player_id );
             if ( $pid <= 0 ) continue;
-            $out[ $pid ] = [
+            $row = [
                 'status' => sanitize_text_field( (string) ( $fields['status'] ?? 'Present' ) ),
                 'notes'  => sanitize_text_field( (string) ( $fields['notes'] ?? '' ) ),
             ];
+            // #1726 — match-completion direct entry: optional starter flag
+            // (→ lineup_role) and per-player minutes (→ minutes_played).
+            // Only present for match activities; absent keys leave the
+            // columns untouched.
+            if ( array_key_exists( 'starter', $fields ) ) {
+                $row['lineup_role'] = ! empty( $fields['starter'] ) ? 'start' : 'bench';
+            }
+            if ( array_key_exists( 'minutes', $fields ) ) {
+                $m = trim( (string) $fields['minutes'] );
+                $row['minutes_played'] = $m === '' ? null : max( 0, (int) $m );
+            }
+            $out[ $pid ] = $row;
         }
         return $out;
     }
@@ -977,14 +1006,23 @@ class ActivitiesRestController {
                     continue;
                 }
             }
-            $ok = $wpdb->insert( "{$p}tt_attendance", [
+            $insert = [
                 'club_id'     => CurrentClub::id(),
                 'activity_id' => $activity_id,
                 'player_id'  => $pid,
                 'status'     => $fields['status'],
                 'notes'      => $fields['notes'],
                 'is_guest'   => 0,
-            ] );
+            ];
+            // #1726 — match-completion direct entry. Present only for match
+            // activities; leave the columns at their default otherwise.
+            if ( array_key_exists( 'lineup_role', $fields ) ) {
+                $insert['lineup_role'] = $fields['lineup_role'];
+            }
+            if ( array_key_exists( 'minutes_played', $fields ) ) {
+                $insert['minutes_played'] = $fields['minutes_played'];
+            }
+            $ok = $wpdb->insert( "{$p}tt_attendance", $insert );
             if ( $ok === false ) {
                 $failures[] = [ 'player_id' => $pid, 'db_error' => (string) $wpdb->last_error ];
             }

@@ -66,6 +66,10 @@ The page reads cleanly on a phone: the cards stack in a single column and widen 
 8. Save. The player list fills in automatically from the team roster.
 8. Mark each player as Present, Absent, Late or Excused. Add a note next to a row when useful.
 
+### Match minutes (completed matches)
+
+When a **match**-type activity is marked **Completed**, the attendance table gains two extra columns — **Starter** and **Minutes** — so you can log how long each player actually played, even for a past match you never live-tracked. A **Match length (minutes)** field sits above the table; it prefills from the match prep's two halves (or 70 minutes when there's no prep) and you can adjust it. From the starter flags, the minutes and the match length, the form shows a **Subs: N on · N off** summary — substitutes who came on, and starters who were taken off — which refreshes when you save. The minutes you enter feed the minutes report and the player's load picture.
+
 The activity list shows the type as a colour-coded pill so trainings, games, tournaments, meetings and other activities are easy to scan at a glance.
 
 ## Expected attendance
