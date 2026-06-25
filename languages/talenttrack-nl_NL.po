@@ -41439,6 +41439,13 @@ msgstr "Alleen nog niet beoordeeld"
 msgid "No players match your search."
 msgstr "Geen spelers komen overeen met je zoekopdracht."
 
+#: src/Modules/PersonaDashboard/Widgets/NavigationTileWidget.php
+#, php-format
+msgid "%d pending"
+msgid_plural "%d pending"
+msgstr[0] "%d openstaand"
+msgstr[1] "%d openstaande"
+
 #~ msgid "Check your email for a password reset link."
 #~ msgstr ""
 #~ "Controleer uw e-mail voor een link om uw wachtwoord opnieuw in te stellen."
