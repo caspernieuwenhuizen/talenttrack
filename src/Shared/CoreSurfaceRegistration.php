@@ -549,6 +549,9 @@ final class CoreSurfaceRegistration {
             'icon'         => 'kanban',
             'color'        => '#2271b1',
             'cap'          => 'tt_view_plan',
+            // #1538 — gated by the planning_calendar_view feature (default on);
+            // the route itself is gated via the feature's view_slugs.
+            'feature'      => 'planning_calendar_view',
         ]);
         // #1373 — the VCT session designer was reachable only by typing
         // the URL. The coach entry point is the new-vct-session wizard
