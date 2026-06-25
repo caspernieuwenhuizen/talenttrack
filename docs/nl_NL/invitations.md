@@ -24,6 +24,10 @@ De plugin genereert een uitnodiging **automatisch** wanneer iemand bij een team 
 
 De popover toont de accept-URL, een live preview van het berichtstekst en drie deelknoppen: **WhatsApp** (standaard — opent `wa.me/?text=...`), **E-mail** (opt-in — opent de mailclient van de ontvanger), **Link kopiëren**.
 
+## Automatische e-mail (#1902)
+
+Wanneer een uitnodiging wordt aangemaakt **met een e-mailadres**, wordt de accept-link ook **automatisch naar de genodigde gemaild** — de beheerder hoeft niet langer elke link met de hand te versturen. De e-mail gaat via de Comms-module (en wordt dus gelogd zoals elk ander bericht) in de taal van de genodigde, met een "stel je wachtwoord in"-actie en de vervaldatum van de link. Hij is transactioneel: opt-out / stille uren / rate-limits worden overgeslagen, zodat een genodigde zijn uitnodiging nooit wordt onthouden. De WhatsApp- / link-kopiëren-knoppen blijven werken voor gevallen zonder e-mailadres of wanneer de beheerder liever handmatig deelt.
+
 ## Acceptatieflow
 
 De ontvanger tikt op de link → komt op de accept-invite-route van het dashboard → ziet een klein formulier met drie secties:
