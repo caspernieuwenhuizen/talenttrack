@@ -19,6 +19,7 @@ use TT\Modules\Comms\Templates\AttendanceFlagTemplate;
 use TT\Modules\Comms\Templates\GoalNudgeTemplate;
 use TT\Modules\Comms\Templates\GuestPlayerInviteTemplate;
 use TT\Modules\Comms\Templates\LetterDeliveryTemplate;
+use TT\Modules\Comms\Templates\InvitationEmailTemplate;
 use TT\Modules\Comms\Templates\MassAnnouncementTemplate;
 use TT\Modules\Comms\Templates\MethodologyDeliveredTemplate;
 use TT\Modules\Comms\Templates\OnboardingNudgeInactiveTemplate;
@@ -115,6 +116,7 @@ class CommsModule implements ModuleInterface {
         TemplateRegistry::register( new LetterDeliveryTemplate() );             // use case 13
         TemplateRegistry::register( new MassAnnouncementTemplate() );           // use case 14
         TemplateRegistry::register( new SafeguardingBroadcastTemplate() );      // use case 15
+        TemplateRegistry::register( new InvitationEmailTemplate() );            // #1902 invitation email
 
         // Generic event-driven dispatch hook. Owning modules fire
         //   do_action( 'tt_comms_dispatch', $template_key, $payload, $recipients, $options );

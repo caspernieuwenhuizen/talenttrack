@@ -36,6 +36,8 @@ class InvitationsModule implements ModuleInterface {
     public function boot( Container $container ): void {
         add_action( 'init', [ self::class, 'ensureCaps' ] );
         add_action( 'init', [ InvitationAuditLogger::class, 'register' ] );
+        // #1902 — email the accept link on invite creation (via Comms).
+        InvitationEmailNotifier::register();
 
         // #0052 PR-B — REST surface so the future SaaS frontend can drive
         // invitation create / accept / revoke without going through the
