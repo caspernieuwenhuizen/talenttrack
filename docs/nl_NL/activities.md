@@ -31,8 +31,9 @@ Boven de lijst staan twee filters:
 
 - **Team** — beperk tot één team. Standaard staan alle teams aan waar de coach toegang toe heeft.
 - **Type** — beperk tot één activiteittype (Training / Wedstrijd / Oefen / Overig / elk eigen type dat je academie heeft toegevoegd).
+- **Geannuleerde tonen** — standaard uit. Geannuleerde activiteiten worden uit de lijst verborgen zodat het schema overzichtelijk blijft; vink dit aan om ze terug te halen. Wanneer ze worden getoond, is een geannuleerde activiteit gedimd en doorgestreept met een Geannuleerd-label, in welk datumvak hij ook valt.
 
-Beide filters blijven bewaard in de URL (`?team_id=N&activity_type_key=match`), zodat deep-links vanaf het dashboard op dezelfde gefilterde weergave landen.
+De filters blijven bewaard in de URL (`?team_id=N&activity_type_key=match&show_cancelled=1`), zodat deep-links vanaf het dashboard op dezelfde gefilterde weergave landen.
 
 Onder de filters staat een rij **periodeknoppen**: **Alle · Deze week · Volgende week · Deze maand · Volgende maand · Dit seizoen**. Tik op één om de lijst tot dat datumvenster te beperken zonder datums te typen — weken lopen van maandag tot zondag, maanden zijn kalendermaanden, en **Dit seizoen** gebruikt je ingestelde huidige seizoen. De keuze blijft bewaard in de URL (`?period=this_week`) en combineert met de Team- en Type-filters.
 

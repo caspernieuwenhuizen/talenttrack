@@ -31,8 +31,9 @@ Two filters sit above the list:
 
 - **Team** — narrow to one team. Defaults to all teams the coach has access to.
 - **Type** — narrow to one activity type (Training / Game / Friendly / Other / any custom type your academy added).
+- **Show cancelled** — off by default. Cancelled activities are hidden from the list so the schedule stays clean; tick this to bring them back. When shown, a cancelled activity is dimmed and struck through with a Cancelled pill, in whichever date bucket it falls.
 
-Both filters survive in the URL (`?team_id=N&activity_type_key=match`), so deep-links from the dashboard land on the same scoped view.
+The filters survive in the URL (`?team_id=N&activity_type_key=match&show_cancelled=1`), so deep-links from the dashboard land on the same scoped view.
 
 A row of **period pills** sits below the filters: **All · This week · Next week · This month · Next month · This season**. Tapping one narrows the list to that date window without typing dates — weeks run Monday–Sunday, months are calendar months, and **This season** uses your configured current season. The choice survives in the URL (`?period=this_week`) and combines with the Team and Type filters.
 
