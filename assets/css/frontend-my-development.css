@@ -1,0 +1,155 @@
+/*
+ * frontend-my-development.css — the player + parent "development home"
+ * (#1850, Phase 2 of #1846). One overview-led, single-column anchor that
+ * composes the My-X surfaces: hero, a PDP-cycle "Today" band, and focus /
+ * form / coming-up / journey peeks that each link to their deep view.
+ *
+ * Mobile-first per CLAUDE.md §2: base styles target ~360px; everything is
+ * prefixed `.tt-devhome*` and scoped under `.tt-dashboard` (the active
+ * theme is treated as hostile). Tokens come from the app chrome
+ * (--tt-primary, --tt-secondary, --tt-ink, --tt-muted, --tt-shadow-md) —
+ * no new palette.
+ */
+
+.tt-dashboard .tt-devhome {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-width: 720px;
+}
+
+/* ---- Today / action band (PDP cycle state) ------------------------- */
+.tt-dashboard .tt-devhome-today {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    text-decoration: none;
+    background: var(--tt-primary, #0b3d2e);
+    color: #fff;
+    border-radius: 14px;
+    box-shadow: var(--tt-shadow-md);
+    padding: 1rem 1.1rem;
+    min-height: 48px;
+    touch-action: manipulation;
+}
+.tt-dashboard .tt-devhome-today--review_window { background: #145a44; }
+.tt-dashboard .tt-devhome-today--post { background: #1f7a52; }
+.tt-dashboard .tt-devhome-today:focus-visible {
+    outline: 3px solid var(--tt-secondary, #e8b624);
+    outline-offset: 2px;
+}
+.tt-dashboard .tt-devhome-today__eyebrow {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    opacity: 0.85;
+}
+.tt-dashboard .tt-devhome-today__headline {
+    font-size: 1.1rem;
+    font-weight: 800;
+    line-height: 1.25;
+}
+.tt-dashboard .tt-devhome-today__cta {
+    margin-top: 0.35rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--tt-secondary, #e8b624);
+}
+
+/* ---- Section cards ------------------------------------------------- */
+.tt-dashboard .tt-devhome-card {
+    background: #fff;
+    border: 1px solid #e3e6e1;
+    border-radius: 14px;
+    box-shadow: var(--tt-shadow-md);
+    padding: 0.9rem 1.05rem;
+}
+.tt-dashboard .tt-devhome-card__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.6rem;
+    margin: 0 0 0.6rem;
+}
+.tt-dashboard .tt-devhome-card__title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--tt-primary, #0b3d2e);
+}
+.tt-dashboard .tt-devhome-card__more {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #145a44;
+    text-decoration: none;
+    white-space: nowrap;
+}
+.tt-dashboard .tt-devhome-card__more:hover,
+.tt-dashboard .tt-devhome-card__more:focus-visible { text-decoration: underline; }
+
+/* ---- Lists + rows -------------------------------------------------- */
+.tt-dashboard .tt-devhome-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+.tt-dashboard .tt-devhome-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.6rem;
+    padding: 0.45rem 0.6rem;
+    background: var(--tt-paper-soft, #f4f6f3);
+    border: 1px solid #e3e6e1;
+    border-radius: 9px;
+}
+.tt-dashboard .tt-devhome-row__title {
+    font-weight: 600;
+    font-size: 0.88rem;
+    color: var(--tt-ink);
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+.tt-dashboard .tt-devhome-row__meta {
+    flex: 0 0 auto;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--tt-muted);
+    white-space: nowrap;
+}
+.tt-dashboard .tt-devhome-empty {
+    margin: 0;
+    font-size: 0.84rem;
+    color: var(--tt-muted);
+}
+
+/* ---- "How you're doing" rating ------------------------------------- */
+.tt-dashboard .tt-devhome-rating {
+    display: flex;
+    align-items: baseline;
+    gap: 0.35rem;
+}
+.tt-dashboard .tt-devhome-rating__val {
+    font-size: 2rem;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--tt-primary, #0b3d2e);
+}
+.tt-dashboard .tt-devhome-rating__max {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--tt-muted);
+}
+.tt-dashboard .tt-devhome-rating__meta {
+    margin: 0.4rem 0 0;
+    font-size: 0.82rem;
+    color: var(--tt-muted);
+}

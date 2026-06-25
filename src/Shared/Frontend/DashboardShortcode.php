@@ -371,6 +371,13 @@ class DashboardShortcode {
         // own) because it reads player_id as the teammate id, not the subject.
         $target = self::resolveMePlayer( get_current_user_id(), $player );
         switch ( $view ) {
+            case 'my-development':
+                // #1850 — the player + parent development home. Same scoped
+                // subject resolution as the other Me-views: a parent reaches
+                // their child's home via ?player_id=N (canViewPlayer gate).
+                if ( ! self::requirePlayerOrDeny( $target ) ) return true;
+                FrontendMyDevelopmentView::render( $target );
+                return true;
             case 'overview':
                 if ( ! self::requirePlayerOrDeny( $target ) ) return true;
                 FrontendOverviewView::render( $target );
