@@ -185,6 +185,14 @@
     color: var(--tt-mx-primary);
 }
 
+/* Logged-minutes chip — neutral pill so it reads as a stat, not a goal. */
+.tt-mexec .tt-mexec-minutes-chip {
+    background: var(--tt-mx-mute, #f1f3f4);
+    border-color: var(--tt-mx-line, #d6dadd);
+    color: var(--tt-mx-ink-soft, #5b6e75);
+    font-variant-numeric: tabular-nums;
+}
+
 /* ---- Sub-target reveal -------------------------------------------- */
 .tt-mexec .tt-mexec-sub-target {
     border: 1px solid var(--tt-mx-line);

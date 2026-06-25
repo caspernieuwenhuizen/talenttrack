@@ -115,6 +115,12 @@ class FrontendMatchExecutionView extends FrontendViewBase {
             $goal_counts[ $pid ] = ( $goal_counts[ $pid ] ?? 0 ) + 1;
         }
 
+        // #1864 — per-player logged minutes, read from the persisted
+        // tt_attendance.minutes_played the finish/finalize step writes
+        // (same source the minutes report reads). Empty until the match
+        // is ended; players without a value get no chip.
+        $minutes_by_id = $exec_repo->loggedMinutesByActivity( $activity_id );
+
         FrontendBreadcrumbs::fromDashboard( __( 'Match execution', 'talenttrack' ) );
         parent::enqueueAssets();
         self::enqueueViewAssets( $activity_id, $execution );
@@ -269,6 +275,10 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                                     <?php else : ?>
                                         <span class="tt-mexec-goal-chip"><?php esc_html_e( 'actions', 'talenttrack' ); ?> <strong data-tt-mexec-goal-count><?php echo (int) $count; ?></strong></span>
                                     <?php endif; ?>
+                                    <?php $mins = $minutes_by_id[ $pid ] ?? null; ?>
+                                    <?php if ( $mins !== null ) : ?>
+                                        <span class="tt-mexec-goal-chip tt-mexec-minutes-chip" aria-label="<?php esc_attr_e( 'Logged minutes', 'talenttrack' ); ?>"><?php echo esc_html( sprintf( "%d'", $mins ) ); ?></span>
+                                    <?php endif; ?>
                                 </div>
                             </li>
                         <?php endforeach; ?>
@@ -297,6 +307,12 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                             <li class="tt-mexec-player" data-tt-mexec-bench data-player-id="<?php echo (int) $pid; ?>">
                                 <span class="tt-mexec-player-number"><?php echo esc_html( $jersey ); ?></span>
                                 <span class="tt-mexec-player-name"><?php echo esc_html( QueryHelpers::player_display_name( $pl ) ); ?></span>
+                                <?php $mins = $minutes_by_id[ $pid ] ?? null; ?>
+                                <?php if ( $mins !== null ) : ?>
+                                    <div class="tt-mexec-player-goals">
+                                        <span class="tt-mexec-goal-chip tt-mexec-minutes-chip" aria-label="<?php esc_attr_e( 'Logged minutes', 'talenttrack' ); ?>"><?php echo esc_html( sprintf( "%d'", $mins ) ); ?></span>
+                                    </div>
+                                <?php endif; ?>
                                 <div class="tt-mexec-player-actions">
                                     <button type="button" class="tt-mexec-action-btn tt-mexec-action-btn--sub-on" data-tt-mexec-sub-on aria-label="<?php esc_attr_e( 'Bring on', 'talenttrack' ); ?>"><?php esc_html_e( '→ on', 'talenttrack' ); ?></button>
                                 </div>

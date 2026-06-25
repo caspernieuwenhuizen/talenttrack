@@ -17612,6 +17612,11 @@ msgstr "Gevolgde spelers"
 msgid "Available squad"
 msgstr "Beschikbare selectie"
 
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:272
+#: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:289
+msgid "Logged minutes"
+msgstr "Gelogde minuten"
+
 #. translators: %d: number of flagged players
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:240
 #, php-format
