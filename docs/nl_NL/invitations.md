@@ -35,7 +35,7 @@ De ontvanger tikt op de link → komt op de accept-invite-route van het dashboar
    - Staf → bevestiging van rol + team (door de inviter ingesteld; niet bewerkbaar hier).
 3. **Versturen** — de plugin maakt de WP-gebruiker aan, voert de koppelstap uit, logt ze in en stuurt ze door naar hun dashboard.
 
-Als de ontvanger **al ingelogd is en het e-mailadres overeenkomt** met de uitnodiging, draait het silent-link-pad: geen formulier, één klik op "Accepteren en doorgaan".
+Als de ontvanger **al ingelogd is en het e-mailadres overeenkomt** met de uitnodiging, draait het silent-link-pad: geen volledig formulier, één klik op "Accepteren en doorgaan". Bij een **ouder**-uitnodiging wordt nog steeds om de relatie gevraagd (ouder / moeder / vader / verzorger), zodat een verzorger nooit met een aangenomen rol wordt gekoppeld. Op het volledige acceptatieformulier is het herstel-e-mailadres vooraf ingevuld vanuit de uitnodiging, met een korte uitleg dat het alleen voor wachtwoordherstel wordt gebruikt (en aangepast kan worden).
 
 ## Rechten
 

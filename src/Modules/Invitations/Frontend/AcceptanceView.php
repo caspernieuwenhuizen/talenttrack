@@ -107,6 +107,11 @@ class AcceptanceView {
                         </label>
                         <input type="email" name="recovery_email" required value="<?php echo esc_attr( $email ); ?>" style="width:100%; padding:8px;" />
                     </p>
+                    <p style="color:#777; font-size:12px; margin:-6px 0 12px;"><!-- tt-inline-ok --><?php
+                        // #1904 — clarify the field's purpose so an invitee
+                        // doesn't enter a wrong/shared address by mistake.
+                        esc_html_e( 'We only use this if you forget your password. It is pre-filled from your invitation; change it if you prefer a different address.', 'talenttrack' );
+                    ?></p>
 
                     <p style="margin:0 0 12px;">
                         <label style="display:block; font-weight:500;">
@@ -232,6 +237,17 @@ class AcceptanceView {
                 <input type="hidden" name="action" value="tt_invitation_accept" />
                 <input type="hidden" name="token"  value="<?php echo esc_attr( $token ); ?>" />
                 <input type="hidden" name="_redirect" value="<?php echo esc_attr( self::baseUrl() ); ?>" />
+                <?php if ( $kind === InvitationKind::PARENT ) : ?>
+                    <p style="margin:0 0 12px;"><!-- tt-inline-ok -->
+                        <label style="display:block; font-weight:500;"><!-- tt-inline-ok --><?php esc_html_e( 'Your relationship to the player', 'talenttrack' ); ?></label>
+                        <select name="relationship_label" style="padding:8px;"><!-- tt-inline-ok -->
+                            <option value="parent"><?php esc_html_e( 'Parent', 'talenttrack' ); ?></option>
+                            <option value="mother"><?php esc_html_e( 'Mother', 'talenttrack' ); ?></option>
+                            <option value="father"><?php esc_html_e( 'Father', 'talenttrack' ); ?></option>
+                            <option value="guardian"><?php esc_html_e( 'Guardian', 'talenttrack' ); ?></option>
+                        </select>
+                    </p>
+                <?php endif; ?>
                 <button type="submit" class="tt-btn tt-btn-primary" style="width:100%; padding:10px;">
                     <?php esc_html_e( 'Accept and continue', 'talenttrack' ); ?>
                 </button>

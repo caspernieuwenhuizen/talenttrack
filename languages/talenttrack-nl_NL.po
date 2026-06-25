@@ -41533,6 +41533,9 @@ msgstr "%1$d nieuwe uitnodiging(en) gegenereerd; %2$d had al een openstaande uit
 msgid "Daily invite limit reached — invite the rest tomorrow, or raise the cap."
 msgstr "Dagelijkse uitnodigingslimiet bereikt — nodig de rest morgen uit of verhoog de limiet."
 
+msgid "We only use this if you forget your password. It is pre-filled from your invitation; change it if you prefer a different address."
+msgstr "We gebruiken dit alleen als je je wachtwoord vergeet. Het is vooraf ingevuld vanuit je uitnodiging; pas het aan als je liever een ander adres gebruikt."
+
 #~ msgid "Check your email for a password reset link."
 #~ msgstr ""
 #~ "Controleer uw e-mail voor een link om uw wachtwoord opnieuw in te stellen."

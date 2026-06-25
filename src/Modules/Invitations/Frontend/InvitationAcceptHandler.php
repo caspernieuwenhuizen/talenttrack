@@ -54,7 +54,10 @@ class InvitationAcceptHandler {
         if ( is_user_logged_in() ) {
             $current = wp_get_current_user();
             if ( $current && $row->prefill_email && strcasecmp( (string) $current->user_email, (string) $row->prefill_email ) === 0 ) {
-                $result = $service->silentLink( $row, (int) $current->ID );
+                // #1904 — pass the submitted payload so a parent's chosen
+                // relationship (mother / father / guardian) is captured on
+                // the silent-link path too, not silently assumed.
+                $result = $service->silentLink( $row, (int) $current->ID, $payload );
                 if ( $result['ok'] ) {
                     FlashMessages::add( 'success', __( 'Invitation accepted. Welcome aboard.', 'talenttrack' ) );
                     wp_safe_redirect( $base_redirect );
