@@ -41599,6 +41599,18 @@ msgstr ""
 "\n"
 "Tot snel!"
 
+#: src/Modules/TeamDevelopment/Rest/PlayerAttributesRestController.php
+msgid "Expected a values map."
+msgstr "Verwachtte een waardenmap."
+
+#: src/Modules/TeamDevelopment/Rest/PlayerAttributesRestController.php
+msgid "Expected a matrix array."
+msgstr "Verwachtte een matrixarray."
+
+#: src/Modules/TeamDevelopment/Rest/PlayerAttributesRestController.php
+msgid "Expected a weights map."
+msgstr "Verwachtte een gewichtenmap."
+
 #~ msgid "Check your email for a password reset link."
 #~ msgstr ""
 #~ "Controleer uw e-mail voor een link om uw wachtwoord opnieuw in te stellen."

@@ -1,0 +1,5 @@
+# Chemistry rework — schema foundation (#1912)
+
+Bump: minor
+
+Phase 1 of the chemistry-engine rework (epic #1017): the data layer the pilot-locked spec needs, **with no engine change** — `BlueprintChemistryEngine` keeps working while later phases build on top. Adds a normalised player-attribute model — a seedable, extensible catalogue (`tt_player_attribute_defs`, 23 attributes across physical/technical/tactical/mental/behaviour/development, with Dutch labels) plus per-player values (`tt_player_attribute_values`) — the configurable Position Relationship Matrix (`tt_chemistry_position_matrix`, seeded with sensible defaults), and a lineup-chemistry time-series table (`tt_team_chemistry_snapshots`). The five component weights live in `tt_config`. Repositories and a matrix-gated REST contract (`/players/{id}/attributes`, `/chemistry/position-matrix`, `/chemistry/config`) ship so Phase 2 (sub-engines) and Phase 7 (data entry) can build against it. Every new table carries the `club_id` + `uuid` tenancy scaffold; the attribute catalogue is archive/cascade-wired.
