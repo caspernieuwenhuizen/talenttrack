@@ -219,6 +219,54 @@ final class CascadeRegistry {
             'set_null'     => [],
             'block_only'   => true,
         ],
+
+        // Measurement definition (#1856) — the schema a test hangs off.
+        // Blocks while any session, result or target still references it;
+        // the operator archives/deletes those first. Fail-closed.
+        'measurement_definition' => [
+            'table'        => 'tt_measurement_definitions',
+            'ref_columns'  => [ 'definition_id' ],
+            'cascade'      => [],
+            'cascade_poly' => [],
+            'threads'      => null,
+            'set_null'     => [],
+            'block_only'   => true,
+        ],
+
+        // Measurement session (#1856) — owns the results recorded against
+        // it; deleting the session removes those values.
+        'measurement_session' => [
+            'table'        => 'tt_measurement_sessions',
+            'ref_columns'  => [ 'measurement_session_id' ],
+            'cascade'      => [ [ 'tt_measurement_results', 'measurement_session_id' ] ],
+            'cascade_poly' => [],
+            'threads'      => null,
+            'set_null'     => [],
+            'block_only'   => false,
+        ],
+
+        // Measurement target (#1856) — a per-age band; nothing references
+        // it, deletes cleanly.
+        'measurement_target' => [
+            'table'        => 'tt_measurement_targets',
+            'ref_columns'  => [ 'target_id' ],
+            'cascade'      => [],
+            'cascade_poly' => [],
+            'threads'      => null,
+            'set_null'     => [],
+            'block_only'   => false,
+        ],
+
+        // Measurement result (#1856) — a leaf value, owns nothing.
+        'measurement_result' => [
+            'table'        => 'tt_measurement_results',
+            'ref_columns'  => [ 'result_id' ],
+            'cascade'      => [],
+            'cascade_poly' => [],
+            'threads'      => null,
+            'set_null'     => [],
+            'block_only'   => false,
+        ],
     ];
 
     /** Whether this entity is driven by the generic deleter. */

@@ -48,6 +48,10 @@ class ArchiveRepository {
         'custom_widget' => 'tt_custom_widgets',
         'injury'        => 'tt_player_injuries',
         'scheduled_report' => 'tt_scheduled_reports',
+        'measurement_definition' => 'tt_measurement_definitions',
+        'measurement_session'    => 'tt_measurement_sessions',
+        'measurement_target'     => 'tt_measurement_targets',
+        'measurement_result'     => 'tt_measurement_results',
     ];
 
     // Public API
