@@ -463,3 +463,14 @@
 
 /* Working period: the conversation list recedes behind the goals lead. */
 .tt-dashboard .tt-pop-gesprek__title--secondary { opacity: 0.7; }
+
+/* #1852 — coach-side self-review visibility badge in the conversation
+   list. Visibility only, never a gate. */
+.tt-dashboard .tt-pdp-selfreview {
+    font-size: 0.8rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+.tt-dashboard .tt-pdp-selfreview--done { color: #2c8a2c; }
+.tt-dashboard .tt-pdp-selfreview--pending { color: #c9962a; }
+.tt-dashboard .tt-pdp-selfreview--none { color: var(--tt-muted, #5b6e75); }

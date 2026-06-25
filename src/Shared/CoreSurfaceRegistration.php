@@ -1024,6 +1024,23 @@ final class CoreSurfaceRegistration {
             'cap'          => 'tt_view_audit_log',
             'desktop_preferred' => true,
         ]);
+        // #1859 — Data Browser. Read-only browser over the live tt_* schema,
+        // matrix/academy-admin only. Pure cap-gated (no matrix entity) on the
+        // dedicated tt_view_data_browser cap so only administrator + Club Admin
+        // see the tile.
+        TileRegistry::register([
+            'module_class' => null,
+            'view_slug'    => 'data-browser',
+            'group'        => $admin_group,
+            'kind'         => 'setup',
+            'order'        => 35,
+            'label'        => __( 'Data Browser', 'talenttrack' ),
+            'description'  => __( 'Browse the raw data behind TalentTrack, read-only.', 'talenttrack' ),
+            'icon'         => 'audit-log',
+            'color'        => '#5b6e75',
+            'cap'          => 'tt_view_data_browser',
+            'desktop_preferred' => true,
+        ]);
         // #1815 — Accounts & access hub (Player / Parent accounts +
         // Invitations). Tile declares the `parent_accounts` matrix entity;
         // the hub view + sub-views gate per-card.

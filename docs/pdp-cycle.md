@@ -95,12 +95,25 @@ The detail view's **Print / PDF** button opens a clean A4 layout: photo, season 
 
 ## Workflow nudges
 
-Two task templates are registered:
+Three task templates are registered:
 
 - `pdp_conversation_due` — reminds the owning coach as a conversation's `scheduled_at` approaches.
 - `pdp_verdict_due` — reminds the head of academy at season-end.
+- `pdp_self_review` — nudges the **player** to prepare for an upcoming talk (#1852).
 
-Both go through the standard #0022 workflow & tasks engine — the same inbox, the same nudge cadence configurable from Configuration → Workflow.
+All go through the standard #0022 workflow & tasks engine — the same inbox, the same nudge cadence configurable from Configuration → Workflow.
+
+### Self-review nudge (#1852)
+
+When a conversation's planning window opens, the player gets a **"Prepare for your development talk"** task in *My tasks / Today's work*, due on the talk date. Tapping it opens *My PDP* at the self-reflection. The sweep that creates these runs on the workflow engine's own scheduler and is idempotent — exactly one task per conversation, no duplicates.
+
+It is a **nudge, not a gate**:
+
+- Saving the reflection **completes** the task.
+- Conducting the talk **auto-resolves** the task with no penalty, even if the reflection was never filled in.
+- Nothing is ever blocked if the player ignores it.
+
+On the coach side, the conversation list gains a **Self-review** column showing **Done / Not yet** per upcoming talk — visibility only, never a gate on conducting or signing off.
 
 ## Cycle progress + ack visibility (v3.79.0)
 

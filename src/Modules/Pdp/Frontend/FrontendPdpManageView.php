@@ -909,6 +909,9 @@ class FrontendPdpManageView extends FrontendViewBase {
         echo '<th>' . esc_html__( 'Template', 'talenttrack' ) . '</th>';
         echo '<th>' . esc_html__( 'Scheduled', 'talenttrack' ) . '</th>';
         echo '<th>' . esc_html__( 'Status', 'talenttrack' ) . '</th>';
+        // #1852 — visibility only (never a gate): has the player added a
+        // self-reflection ahead of the talk?
+        echo '<th>' . esc_html__( 'Self-review', 'talenttrack' ) . '</th>';
         echo '<th>' . esc_html__( 'Acks', 'talenttrack' ) . '</th>';
         echo '</tr></thead><tbody>';
         // v3.110.191 — pass today + full list into derivedConvStatus()
@@ -942,6 +945,22 @@ class FrontendPdpManageView extends FrontendViewBase {
             echo '<td><a href="' . esc_url( $url ) . '">' . esc_html( self::templateLabel( (string) $c->template_key ) ) . '</a></td>';
             echo '<td>' . esc_html( self::shortDate( $c->scheduled_at ) ) . '</td>';
             echo '<td><span class="tt-status-badge ' . esc_attr( $badge_class ) . '">' . esc_html( $badge_label ) . '</span></td>';
+            // #1852 — self-review visibility. Done once the player has a
+            // reflection; "Not yet" while the talk is still upcoming; a
+            // muted dash once the talk is conducted with none (no nagging
+            // about a past talk). Never a gate on conducting / sign-off.
+            $has_reflection = trim( wp_strip_all_tags( (string) ( $c->player_reflection ?? '' ) ) ) !== '';
+            if ( $has_reflection ) {
+                $sr_class = 'tt-pdp-selfreview--done';
+                $sr_label = __( 'Done', 'talenttrack' );
+            } elseif ( empty( $c->conducted_at ) ) {
+                $sr_class = 'tt-pdp-selfreview--pending';
+                $sr_label = __( 'Not yet', 'talenttrack' );
+            } else {
+                $sr_class = 'tt-pdp-selfreview--none';
+                $sr_label = __( '—', 'talenttrack' );
+            }
+            echo '<td><span class="tt-pdp-selfreview ' . esc_attr( $sr_class ) . '">' . esc_html( $sr_label ) . '</span></td>';
             // v3.110.197 (#809) — the "awaiting" state used to render as
             // a middle-dot character (`·`) which the pilot read as a
             // period — the conversation didn't visibly say "not done

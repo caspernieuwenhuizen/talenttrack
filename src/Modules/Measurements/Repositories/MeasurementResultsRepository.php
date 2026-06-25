@@ -145,4 +145,19 @@ class MeasurementResultsRepository {
             [ 'id' => $id, 'club_id' => CurrentClub::id() ]
         );
     }
+
+    /**
+     * Soft-archive a result (the reversible delete). Permanent delete +
+     * restore route through the #1782 archive framework (TABLE_MAP).
+     */
+    public function archive( int $id, int $by_user_id ): bool {
+        if ( $id <= 0 ) return false;
+        global $wpdb;
+        $p = $wpdb->prefix;
+        return false !== $wpdb->update(
+            "{$p}tt_measurement_results",
+            [ 'archived_at' => current_time( 'mysql', true ), 'archived_by' => $by_user_id ?: null ],
+            [ 'id' => $id, 'club_id' => CurrentClub::id() ]
+        );
+    }
 }
