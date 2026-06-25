@@ -41510,6 +41510,92 @@ msgstr "Welkom bij TalentTrack! Dit is je ontwikkelhome: je gesprekken, doelen, 
 #, php-format
 msgid "Welcome to TalentTrack! This is %1$s's development home. You choose what %2$s shares with you."
 msgstr "Welkom bij TalentTrack! Dit is de ontwikkelhome van %1$s. Jij kiest wat %2$s met je deelt."
+#: src/Modules/PersonaDashboard/Widgets/NavigationTileWidget.php
+#, php-format
+msgid "%d pending"
+msgid_plural "%d pending"
+msgstr[0] "%d openstaand"
+msgstr[1] "%d openstaande"
+
+#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php
+msgid "Bulk invite a team"
+msgstr "Een team in bulk uitnodigen"
+
+#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php
+msgid "Generate invites"
+msgstr "Uitnodigingen genereren"
+
+#: src/Modules/Invitations/Frontend/InvitationBulkCreateHandler.php
+msgid "Choose a team to invite."
+msgstr "Kies een team om uit te nodigen."
+
+#: src/Modules/Invitations/Frontend/InvitationBulkCreateHandler.php
+msgid "Every player on that team already has an account or a pending invite."
+msgstr "Elke speler in dat team heeft al een account of een openstaande uitnodiging."
+
+#: src/Modules/Invitations/Frontend/InvitationBulkCreateHandler.php
+#, php-format
+msgid "%1$d new invite(s) generated; %2$d already had a pending invite."
+msgstr "%1$d nieuwe uitnodiging(en) gegenereerd; %2$d had al een openstaande uitnodiging."
+
+#: src/Modules/Invitations/Frontend/InvitationBulkCreateHandler.php
+msgid "Daily invite limit reached — invite the rest tomorrow, or raise the cap."
+msgstr "Dagelijkse uitnodigingslimiet bereikt — nodig de rest morgen uit of verhoog de limiet."
+
+msgid "Invitation email"
+msgstr "Uitnodigingsmail"
+
+msgid "You're invited to join {academy_name}"
+msgstr "Je bent uitgenodigd voor {academy_name}"
+
+msgid "Je bent uitgenodigd voor {academy_name}"
+msgstr "Je bent uitgenodigd voor {academy_name}"
+
+msgid ""
+"Hi {first_name},\n"
+"\n"
+"{inviter_name} has invited you to join {academy_name} on TalentTrack.\n"
+"\n"
+"Accept your invitation and set your password here:\n"
+"{accept_url}\n"
+"\n"
+"This link expires in {ttl_days} days.\n"
+"\n"
+"See you there!"
+msgstr ""
+"Hoi {first_name},\n"
+"\n"
+"{inviter_name} heeft je uitgenodigd voor {academy_name} op TalentTrack.\n"
+"\n"
+"Accepteer je uitnodiging en stel hier je wachtwoord in:\n"
+"{accept_url}\n"
+"\n"
+"Deze link vervalt over {ttl_days} dagen.\n"
+"\n"
+"Tot snel!"
+
+msgid ""
+"Hoi {first_name},\n"
+"\n"
+"{inviter_name} heeft je uitgenodigd voor {academy_name} op TalentTrack.\n"
+"\n"
+"Accepteer je uitnodiging en stel hier je wachtwoord in:\n"
+"{accept_url}\n"
+"\n"
+"Deze link vervalt over {ttl_days} dagen.\n"
+"\n"
+"Tot snel!"
+msgstr ""
+"Hoi {first_name},\n"
+"\n"
+"{inviter_name} heeft je uitgenodigd voor {academy_name} op TalentTrack.\n"
+"\n"
+"Accepteer je uitnodiging en stel hier je wachtwoord in:\n"
+"{accept_url}\n"
+"\n"
+"Deze link vervalt over {ttl_days} dagen.\n"
+"\n"
+"Tot snel!"
 
 #~ msgid "Check your email for a password reset link."
 #~ msgstr ""

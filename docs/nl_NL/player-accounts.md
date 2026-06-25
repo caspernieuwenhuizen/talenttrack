@@ -60,6 +60,17 @@ gegevens van het verkeerde kind belandt. Als je een account probeert te
 koppelen dat al in gebruik is, meldt de weergave dit in plaats van de
 koppeling stilletjes te verplaatsen.
 
+## Een team in bulk uitnodigen
+
+Boven de lijst genereert **Een team in bulk uitnodigen** een
+speleruitnodiging voor elke speler in een gekozen team die nog geen account
+of openstaande uitnodiging heeft. Kies het team en klik op **Uitnodigingen
+genereren** — je krijgt een samenvatting van hoeveel nieuwe uitnodigingen
+zijn aangemaakt en hoeveel spelers er al een hadden. De dagelijkse
+uitnodigingslimiet geldt nog steeds; als een groot team die bereikt, vertelt
+de samenvatting hoeveel er verstuurd zijn zodat je de rest de volgende dag
+kunt uitnodigen (of de limiet verhoogt).
+
 ## Wie het kan gebruiken
 
 Academie- en clubbeheerders (de rechten die ook het aanmaken en verwijderen
