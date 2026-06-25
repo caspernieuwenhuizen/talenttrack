@@ -41023,6 +41023,139 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/Measurements/Wizards/NewMeasurementWizard.php
+msgid "New test"
+msgstr "Nieuwe test"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementEntryView.php
+msgid "+ New test"
+msgstr "+ Nieuwe test"
+
+#: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php
+msgid "Test details"
+msgstr "Testgegevens"
+
+#: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php
+msgid "e.g. Sprint 30m"
+msgstr "bijv. Sprint 30m"
+
+#: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php
+msgid "Value type"
+msgstr "Type waarde"
+
+#: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php
+msgid "A number (with a unit)"
+msgstr "Een getal (met een eenheid)"
+
+#: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php
+msgid "A scale score"
+msgstr "Een schaalscore"
+
+#: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php
+msgid "Pass / fail"
+msgstr "Geslaagd / niet geslaagd"
+
+#: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php
+msgid "Choose a category."
+msgstr "Kies een categorie."
+
+#: src/Modules/Measurements/Wizards/MeasurementDetailsStep.php
+msgid "A test name is required."
+msgstr "Een testnaam is verplicht."
+
+#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php
+msgid "Unit & recurrence"
+msgstr "Eenheid & frequentie"
+
+#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php
+msgid "Unit"
+msgstr "Eenheid"
+
+#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php
+msgid "Custom unit (overrides the list)"
+msgstr "Aangepaste eenheid (overschrijft de lijst)"
+
+#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php
+msgid "e.g. watt/kg"
+msgstr "bijv. watt/kg"
+
+#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php
+msgid "Higher is better"
+msgstr "Hoger is beter"
+
+#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php
+msgid "Lower is better"
+msgstr "Lager is beter"
+
+#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php
+msgid "Neither (just track it)"
+msgstr "Geen van beide (alleen bijhouden)"
+
+#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php
+msgid "Direction"
+msgstr "Richting"
+
+#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php
+msgid "Once a season"
+msgstr "Eén keer per seizoen"
+
+#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php
+msgid "Twice a season"
+msgstr "Twee keer per seizoen"
+
+#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php
+msgid "Four times a season"
+msgstr "Vier keer per seizoen"
+
+#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php
+msgid "Monthly"
+msgstr "Maandelijks"
+
+#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php
+msgid "No fixed cadence"
+msgstr "Geen vaste frequentie"
+
+#: src/Modules/Measurements/Wizards/MeasurementOptionsStep.php
+msgid "Recurrence"
+msgstr "Frequentie"
+
+#: src/Modules/Measurements/Wizards/MeasurementTargetsStep.php
+msgid "Targets"
+msgstr "Streefwaarden"
+
+#: src/Modules/Measurements/Wizards/MeasurementTargetsStep.php
+msgid "Pass/fail tests have no target bands. Click Finish to create the test."
+msgstr "Geslaagd/niet-tests hebben geen streefwaarden. Klik op Voltooien om de test aan te maken."
+
+#: src/Modules/Measurements/Wizards/MeasurementTargetsStep.php
+msgid ""
+"Optional. Per age group, the green band is on target and the amber band is a "
+"warning; anything outside flags red. Leave blank to add targets later."
+msgstr ""
+"Optioneel. Per leeftijdsgroep is de groene band op niveau en de oranje band "
+"een waarschuwing; alles daarbuiten kleurt rood. Laat leeg om later "
+"streefwaarden toe te voegen."
+
+#: src/Modules/Measurements/Wizards/MeasurementTargetsStep.php
+msgid "Green from"
+msgstr "Groen vanaf"
+
+#: src/Modules/Measurements/Wizards/MeasurementTargetsStep.php
+msgid "Green to"
+msgstr "Groen tot"
+
+#: src/Modules/Measurements/Wizards/MeasurementTargetsStep.php
+msgid "Amber from"
+msgstr "Oranje vanaf"
+
+#: src/Modules/Measurements/Wizards/MeasurementTargetsStep.php
+msgid "Amber to"
+msgstr "Oranje tot"
+
+#: src/Modules/Measurements/Wizards/MeasurementTargetsStep.php
+msgid "Could not create the test."
+msgstr "De test kon niet worden aangemaakt."
+
 #~ msgid "Delete this holiday?"
 #~ msgstr "Deze vakantie verwijderen?"
 
