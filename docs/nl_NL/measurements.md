@@ -67,3 +67,13 @@ laatste waarde, een groen/oranje/rood vlaggetje ten opzichte van de
 streefwaarde voor de leeftijdsgroep, een kleine trendlijn en de
 frequentie. Een ouder ziet de weergave van het kind; staf opent de
 metingen van een speler vanuit het spelersprofiel.
+
+## Resultaten vastleggen
+
+Staf krijgt een tegel **Metingen vastleggen**. Kies een team, een test en
+een datum, voer per speler één waarde in en klik op **Alles opslaan** — de
+hele selectie wordt in één keer opgeslagen (lege spelers worden
+overgeslagen) en gekoppeld aan een testsessie voor die datum. Numerieke
+tests tonen een getalveld met de eenheid; geslaagd/niet-tests tonen een
+keuzelijst. Een trainer kan alleen voor de eigen teams vastleggen; het
+hoofd opleiding en de academiebeheerder kunnen voor elk team vastleggen.

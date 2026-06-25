@@ -59,6 +59,26 @@ class MeasurementsModule implements ModuleInterface {
                     return user_can( $uid, 'tt_parent' ) && QueryHelpers::user_is_linked_parent( $uid );
                 },
             ] );
+
+            // The staff "Record measurements" entry tile — the bulk
+            // result-entry grid. Hidden for players/parents (read-only);
+            // shown to staff who can change measurements somewhere.
+            TileRegistry::register( [
+                'module_class'      => self::class,
+                'view_slug'         => 'measurements-entry',
+                'entity'            => 'measurements',
+                'group'             => __( 'Performance', 'talenttrack' ),
+                'kind'              => 'work',
+                'order'             => 46,
+                'label'             => __( 'Record measurements', 'talenttrack' ),
+                'description'       => __( 'Enter test results for a team.', 'talenttrack' ),
+                'icon'              => 'activity',
+                'color'             => '#0e7c66',
+                'hide_for_personas' => [ 'player', 'parent' ],
+                'cap_callback'      => static function ( int $uid ): bool {
+                    return current_user_can( 'tt_edit_evaluations' ) || current_user_can( 'tt_manage_players' );
+                },
+            ] );
         }
     }
 }
