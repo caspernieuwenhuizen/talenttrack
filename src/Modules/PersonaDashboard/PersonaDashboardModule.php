@@ -58,23 +58,29 @@ class PersonaDashboardModule implements ModuleInterface {
         // it via ModuleRegistry::isEnabled().
         // #1449 — modern menu: sits under the "Configuration" heading.
         // The `sort` weight only applies in the modern menu.
-        $modern = ! \TT\Shared\Admin\Menu::shouldShowLegacyMenus();
-        AdminMenuRegistry::register( [
-            'module_class' => self::class,
-            'parent'       => 'talenttrack',
-            'title'        => __( 'Dashboard layouts', 'talenttrack' ),
-            'label'        => __( 'Dashboard layouts', 'talenttrack' ),
-            'cap'          => 'tt_edit_persona_templates',
-            'slug'         => EditorPage::SLUG,
-            'callback'     => [ EditorPage::class, 'render' ],
-            'group'        => 'configuration',
-            'order'        => 30,
-            'sort'         => $modern ? 11 : 1000,
-        ] );
+        // #1538 — the editor is an optional sub-feature; when off, skip
+        // the menu entry + Configuration tile so it isn't discoverable.
+        // The rendered dashboards keep working from their saved layouts;
+        // EditorPage::render() re-checks the flag for direct-URL access.
+        if ( \TT\Core\FeatureRegistry::isEnabled( 'persona_dashboard_editor' ) ) {
+            $modern = ! \TT\Shared\Admin\Menu::shouldShowLegacyMenus();
+            AdminMenuRegistry::register( [
+                'module_class' => self::class,
+                'parent'       => 'talenttrack',
+                'title'        => __( 'Dashboard layouts', 'talenttrack' ),
+                'label'        => __( 'Dashboard layouts', 'talenttrack' ),
+                'cap'          => 'tt_edit_persona_templates',
+                'slug'         => EditorPage::SLUG,
+                'callback'     => [ EditorPage::class, 'render' ],
+                'group'        => 'configuration',
+                'order'        => 30,
+                'sort'         => $modern ? 11 : 1000,
+            ] );
 
-        // Surface the editor on the Configuration tile-landing so admins
-        // discover it the same way they reach Branding / Translations.
-        add_filter( 'tt_config_tile_groups', [ self::class, 'addEditorTile' ], 10, 1 );
+            // Surface the editor on the Configuration tile-landing so admins
+            // discover it the same way they reach Branding / Translations.
+            add_filter( 'tt_config_tile_groups', [ self::class, 'addEditorTile' ], 10, 1 );
+        }
     }
 
     /**

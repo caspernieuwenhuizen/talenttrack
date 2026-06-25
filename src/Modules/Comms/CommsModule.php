@@ -82,7 +82,11 @@ class CommsModule implements ModuleInterface {
         ChannelAdapterRegistry::register( new EmailChannelAdapter() );        // pluggable, wp_mail default (Q1)
         ChannelAdapterRegistry::register( new WhatsappLinkChannelAdapter() ); // deep-link only (Q3) — v3.109.0
         ChannelAdapterRegistry::register( new PushChannelAdapter() );         // wraps Push module (Q4) — v3.110.0
-        ChannelAdapterRegistry::register( new SmsChannelAdapter() );          // provider-pluggable filter (Q2) — v3.110.0
+        // #1538 — SMS is an optional sub-feature; skip the adapter when off
+        // so SMS isn't offered as a channel (provider cost/setup).
+        if ( \TT\Core\FeatureRegistry::isEnabled( 'comms_sms_channel' ) ) {
+            ChannelAdapterRegistry::register( new SmsChannelAdapter() );      // provider-pluggable filter (Q2) — v3.110.0
+        }
         ChannelAdapterRegistry::register( new InappChannelAdapter() );        // tt_comms_inbox-backed — v3.110.0
 
         // v3.109.0 — daily retention cron. Tombstones rows older than
@@ -133,6 +137,11 @@ class CommsModule implements ModuleInterface {
         //   - staff_development_reminder: reviews due in <= 7 days
         // The other 11 templates are event-driven and fire from their
         // owning module via the `tt_comms_dispatch` action.
-        CommsScheduledCron::init();
+        // #1538 — scheduled sends are an optional sub-feature; when off,
+        // the daily cron is never registered (operational overhead for
+        // small academies). Event-driven sends are unaffected.
+        if ( \TT\Core\FeatureRegistry::isEnabled( 'comms_scheduled_sends' ) ) {
+            CommsScheduledCron::init();
+        }
     }
 }

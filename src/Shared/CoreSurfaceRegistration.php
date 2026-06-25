@@ -549,6 +549,10 @@ final class CoreSurfaceRegistration {
             'icon'         => 'kanban',
             'color'        => '#2271b1',
             'cap'          => 'tt_view_plan',
+            // #1538 — optional sub-feature. Hides the tile and blocks the
+            // `team-planner` route (via viewSlugDisabled) when off, while
+            // activity CRUD stays available.
+            'feature'      => 'planning_calendar_view',
         ]);
         // #1373 — the VCT session designer was reachable only by typing
         // the URL. The coach entry point is the new-vct-session wizard

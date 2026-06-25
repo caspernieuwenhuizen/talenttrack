@@ -27,6 +27,11 @@ final class EditorPage {
         if ( ! current_user_can( 'tt_edit_persona_templates' ) ) {
             wp_die( esc_html__( 'You do not have permission to edit persona dashboard layouts.', 'talenttrack' ) );
         }
+        // #1538 — blocks direct-URL access when the editor sub-feature is
+        // off (the menu + tile are already hidden in the module boot).
+        if ( ! \TT\Core\FeatureRegistry::isEnabled( 'persona_dashboard_editor' ) ) {
+            wp_die( esc_html__( 'The dashboard layout editor is turned off for this academy.', 'talenttrack' ) );
+        }
 
         $personas    = PersonaTemplateRegistry::defaultPersonas();
         $club_id     = self::currentClubId();
