@@ -247,8 +247,8 @@ class PlayerGoalIntakePrintRouter {
         // #1267 — was `pl.attachment_id_avatar` (nonexistent column);
         // canonical column is `pl.photo_url` per migration 0001 /
         // every other player-photo callsite. The non-existent column
-        // made $wpdb->get_row return null → wp_die('Player not
-        // found.') on every valid id.
+        // made $wpdb->get_row return null → the player-not-found bail
+        // below fired on every valid id.
         $player = $wpdb->get_row( $wpdb->prepare(
             "SELECT pl.id, pl.first_name, pl.last_name, pl.date_of_birth,
                     pl.jersey_number, pl.preferred_foot, pl.team_id, pl.club_id,
