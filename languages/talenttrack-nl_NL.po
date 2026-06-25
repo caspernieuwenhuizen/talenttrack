@@ -40777,3 +40777,7 @@ msgstr "Bijgewerkt door"
 #: src/Modules/DataBrowser/SemanticRegistry.php
 msgid "Team the activity belongs to."
 msgstr "Het team waaraan de activiteit is gekoppeld."
+
+#: src/Infrastructure/REST/DataBrowserRestController.php
+msgid "Unknown table."
+msgstr "Onbekende tabel."
