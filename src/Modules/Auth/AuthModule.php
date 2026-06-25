@@ -27,6 +27,9 @@ class AuthModule implements ModuleInterface {
         $container->bind( 'auth.logout_handler', function () {
             return new LogoutHandler();
         });
+        $container->bind( 'auth.password_reset_handler', function () {
+            return new PasswordResetHandler();
+        });
     }
 
     public function boot( Container $container ): void {
@@ -37,6 +40,12 @@ class AuthModule implements ModuleInterface {
         /** @var LogoutHandler $logout */
         $logout = $container->get( 'auth.logout_handler' );
         $logout->register();
+
+        // #1866 — branded password reset flow (request + reset handlers,
+        // lostpassword_url filter).
+        /** @var PasswordResetHandler $reset */
+        $reset = $container->get( 'auth.password_reset_handler' );
+        $reset->register();
 
         // #1772 — clear player/person/parent account links when a WP user
         // is deleted, so a re-issued user id can't silently inherit

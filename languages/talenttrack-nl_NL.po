@@ -41395,3 +41395,75 @@ msgstr "De test kon niet worden aangemaakt."
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+
+#: src/Modules/Auth/PasswordResetView.php
+msgid "Reset your password"
+msgstr "Wachtwoord opnieuw instellen"
+
+#: src/Modules/Auth/PasswordResetView.php
+msgid "Enter your email and we'll send you a link to choose a new password."
+msgstr "Voer je e-mailadres in en we sturen je een link om een nieuw wachtwoord te kiezen."
+
+#: src/Modules/Auth/PasswordResetView.php
+msgid "Email or username"
+msgstr "E-mailadres of gebruikersnaam"
+
+#: src/Modules/Auth/PasswordResetView.php
+msgid "Send reset link"
+msgstr "Resetlink versturen"
+
+#: src/Modules/Auth/PasswordResetView.php
+msgid "Back to sign in"
+msgstr "Terug naar inloggen"
+
+#: src/Modules/Auth/PasswordResetView.php
+msgid "Reset link expired"
+msgstr "Resetlink verlopen"
+
+#: src/Modules/Auth/PasswordResetView.php
+msgid "This password reset link is invalid or has already been used. Request a new one to continue."
+msgstr "Deze resetlink is ongeldig of is al gebruikt. Vraag een nieuwe aan om door te gaan."
+
+#: src/Modules/Auth/PasswordResetView.php
+msgid "Request a new link"
+msgstr "Nieuwe link aanvragen"
+
+#: src/Modules/Auth/PasswordResetView.php
+msgid "Choose a new password"
+msgstr "Kies een nieuw wachtwoord"
+
+#: src/Modules/Auth/PasswordResetView.php
+msgid "Set new password"
+msgstr "Nieuw wachtwoord instellen"
+
+#: src/Modules/Auth/PasswordResetHandler.php
+msgid "[%s] Reset your password"
+msgstr "[%s] Stel je wachtwoord opnieuw in"
+
+#: src/Modules/Auth/PasswordResetHandler.php
+msgid "We received a request to reset your password. Choose a new one here:"
+msgstr "We hebben een verzoek ontvangen om je wachtwoord opnieuw in te stellen. Kies hier een nieuw wachtwoord:"
+
+#: src/Modules/Auth/PasswordResetHandler.php
+msgid "If you didn't request this, you can safely ignore this email — your password stays the same."
+msgstr "Heb je dit niet aangevraagd? Dan kun je deze e-mail negeren — je wachtwoord blijft hetzelfde."
+
+#: src/Shared/Frontend/DashboardShortcode.php
+msgid "If that account exists, we've sent a password reset link to its email."
+msgstr "Als dat account bestaat, hebben we een resetlink naar het bijbehorende e-mailadres gestuurd."
+
+#: src/Shared/Frontend/DashboardShortcode.php
+msgid "Your password has been updated. You can sign in now."
+msgstr "Je wachtwoord is bijgewerkt. Je kunt nu inloggen."
+
+#: src/Shared/Frontend/DashboardShortcode.php
+msgid "The two passwords did not match. Please try again."
+msgstr "De twee wachtwoorden komen niet overeen. Probeer het opnieuw."
+
+#: src/Shared/Frontend/DashboardShortcode.php
+msgid "Please choose a password of at least 8 characters."
+msgstr "Kies een wachtwoord van minimaal 8 tekens."
+
+#: src/Shared/Frontend/DashboardShortcode.php
+msgid "Please fill in both password fields."
+msgstr "Vul beide wachtwoordvelden in."
