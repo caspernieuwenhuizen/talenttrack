@@ -41644,6 +41644,18 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 #~ msgid "Per-module enable/disable toggles. Live in wp-admin."
 #~ msgstr "Aan/uit-schakelaars per module. Beheerd in wp-admin."
 
+#: src/Modules/TeamDevelopment/Rest/PlayerAttributesRestController.php
+msgid "Expected a values map."
+msgstr "Verwachtte een waardenmap."
+
+#: src/Modules/TeamDevelopment/Rest/PlayerAttributesRestController.php
+msgid "Expected a matrix array."
+msgstr "Verwachtte een matrixarray."
+
+#: src/Modules/TeamDevelopment/Rest/PlayerAttributesRestController.php
+msgid "Expected a weights map."
+msgstr "Verwachtte een gewichtenmap."
+
 #~ msgid "Check your email for a password reset link."
 #~ msgstr ""
 #~ "Controleer uw e-mail voor een link om uw wachtwoord opnieuw in te stellen."

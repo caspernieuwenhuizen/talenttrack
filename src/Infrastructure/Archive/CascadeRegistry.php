@@ -267,6 +267,19 @@ final class CascadeRegistry {
             'set_null'     => [],
             'block_only'   => false,
         ],
+
+        // Player attribute definition (#1912) — a chemistry attribute in
+        // the catalogue. Deleting one removes every player's recorded value
+        // for it.
+        'player_attribute_def' => [
+            'table'        => 'tt_player_attribute_defs',
+            'ref_columns'  => [ 'attribute_def_id' ],
+            'cascade'      => [ [ 'tt_player_attribute_values', 'attribute_def_id' ] ],
+            'cascade_poly' => [],
+            'threads'      => null,
+            'set_null'     => [],
+            'block_only'   => false,
+        ],
     ];
 
     /** Whether this entity is driven by the generic deleter. */

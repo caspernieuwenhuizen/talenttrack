@@ -8,6 +8,7 @@ use TT\Core\ModuleInterface;
 use TT\Modules\TeamDevelopment\CompatibilityEngine;
 use TT\Modules\TeamDevelopment\Frontend\FrontendTeamBlueprintsView;
 use TT\Modules\TeamDevelopment\Frontend\PlayerTeamFitPanel;
+use TT\Modules\TeamDevelopment\Rest\PlayerAttributesRestController;
 use TT\Modules\TeamDevelopment\Rest\TeamDevelopmentRestController;
 
 /**
@@ -36,6 +37,9 @@ class TeamDevelopmentModule implements ModuleInterface {
     public function boot( Container $container ): void {
         add_action( 'init', [ self::class, 'ensureCapabilities' ] );
         TeamDevelopmentRestController::init();
+        // #1912 — chemistry rework Phase 1: player-attribute model + the
+        // position-matrix / component-weights config contract.
+        PlayerAttributesRestController::init();
         PlayerTeamFitPanel::init();
 
         // Sprint 2 — invalidate per-player fit cache whenever an
