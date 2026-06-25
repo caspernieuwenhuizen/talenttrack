@@ -570,7 +570,8 @@ class PlayerGoalIntakePrintRouter {
                JOIN {$p}tt_evaluations e ON e.id = r.evaluation_id
               WHERE e.player_id = %d
                 AND e.club_id   = %d
-                AND e.eval_date >= %s",
+                AND e.eval_date >= %s
+                AND e.archived_at IS NULL",
             $player_id, $club_id, $cutoff
         ) );
 
@@ -601,6 +602,7 @@ class PlayerGoalIntakePrintRouter {
                JOIN {$p}tt_evaluations e ON e.id = r.evaluation_id
                JOIN {$p}tt_eval_categories c ON c.id = r.category_id
               WHERE e.player_id = %d AND e.club_id = %d AND e.eval_date >= %s
+                AND e.archived_at IS NULL
               GROUP BY c.id
               HAVING n >= 2
               ORDER BY avg_rating DESC LIMIT 3",
@@ -612,6 +614,7 @@ class PlayerGoalIntakePrintRouter {
                JOIN {$p}tt_evaluations e ON e.id = r.evaluation_id
                JOIN {$p}tt_eval_categories c ON c.id = r.category_id
               WHERE e.player_id = %d AND e.club_id = %d AND e.eval_date >= %s
+                AND e.archived_at IS NULL
               GROUP BY c.id
               HAVING n >= 2
               ORDER BY avg_rating ASC LIMIT 3",
