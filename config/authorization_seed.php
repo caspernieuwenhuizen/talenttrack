@@ -513,6 +513,10 @@ return array_merge(
         'people'                        => [ 'rcd', 'global', $mod_people ],
         'my_person'                     => [ 'rc',  'self',   $mod_people ],
         'evaluations'                   => [ 'rcd', 'global', $mod_evals ],
+        // #1815 — manage parent/guardian account links. The cap
+        // (tt_manage_parent_accounts) ships to HoD by default; the matrix
+        // entity was omitted on the #1815 merge, leaving a phantom. Seed it.
+        'parent_accounts'               => [ 'rcd', 'global', $mod_players ],
         // #1856 — HoD owns the test catalogue (definitions + targets) and
         // sees every team's results + sessions academy-wide.
         'measurements'                  => [ 'rc',  'global', $mod_measurements ],
@@ -646,6 +650,9 @@ return array_merge(
         'people'                        => [ 'rcd', 'global', $mod_people ],
         'my_person'                     => [ 'rc',  'self',   $mod_people ],
         'evaluations'                   => [ 'rcd', 'global', $mod_evals ],
+        // #1815 — manage parent/guardian account links (phantom entity on
+        // the #1815 merge; the cap ships to academy admin by default).
+        'parent_accounts'               => [ 'rcd', 'global', $mod_players ],
         // #1856 — academy admin has full control of the Measurements module.
         'measurements'                  => [ 'rcd', 'global', $mod_measurements ],
         'measurement_sessions'          => [ 'rcd', 'global', $mod_measurements ],
