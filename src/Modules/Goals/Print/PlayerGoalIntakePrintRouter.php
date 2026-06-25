@@ -247,8 +247,8 @@ class PlayerGoalIntakePrintRouter {
         // #1267 — was `pl.attachment_id_avatar` (nonexistent column);
         // canonical column is `pl.photo_url` per migration 0001 /
         // every other player-photo callsite. The non-existent column
-        // made $wpdb->get_row return null → wp_die('Player not
-        // found.') on every valid id.
+        // made $wpdb->get_row return null → the player-not-found bail
+        // below fired on every valid id.
         $player = $wpdb->get_row( $wpdb->prepare(
             "SELECT pl.id, pl.first_name, pl.last_name, pl.date_of_birth,
                     pl.jersey_number, pl.preferred_foot, pl.team_id, pl.club_id,
@@ -570,7 +570,8 @@ class PlayerGoalIntakePrintRouter {
                JOIN {$p}tt_evaluations e ON e.id = r.evaluation_id
               WHERE e.player_id = %d
                 AND e.club_id   = %d
-                AND e.eval_date >= %s",
+                AND e.eval_date >= %s
+                AND e.archived_at IS NULL",
             $player_id, $club_id, $cutoff
         ) );
 
@@ -601,6 +602,7 @@ class PlayerGoalIntakePrintRouter {
                JOIN {$p}tt_evaluations e ON e.id = r.evaluation_id
                JOIN {$p}tt_eval_categories c ON c.id = r.category_id
               WHERE e.player_id = %d AND e.club_id = %d AND e.eval_date >= %s
+                AND e.archived_at IS NULL
               GROUP BY c.id
               HAVING n >= 2
               ORDER BY avg_rating DESC LIMIT 3",
@@ -612,6 +614,7 @@ class PlayerGoalIntakePrintRouter {
                JOIN {$p}tt_evaluations e ON e.id = r.evaluation_id
                JOIN {$p}tt_eval_categories c ON c.id = r.category_id
               WHERE e.player_id = %d AND e.club_id = %d AND e.eval_date >= %s
+                AND e.archived_at IS NULL
               GROUP BY c.id
               HAVING n >= 2
               ORDER BY avg_rating ASC LIMIT 3",
