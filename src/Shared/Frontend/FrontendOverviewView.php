@@ -105,6 +105,26 @@ class FrontendOverviewView extends FrontendViewBase {
     }
 
     /**
+     * #1850 — public hero entry point so the development home can reuse
+     * the exact same player header without duplicating the markup. Loads
+     * the overview stylesheet (the hero's `.tt-ov-hero*` rules live
+     * there) and computes the headline numbers the badge needs.
+     */
+    public static function renderHero( object $player ): void {
+        wp_enqueue_style(
+            'tt-frontend-overview',
+            TT_PLUGIN_URL . 'assets/css/frontend-overview.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+        $max     = (float) QueryHelpers::get_config( 'rating_max', '10' );
+        $heads   = ( new PlayerStatsService() )->getHeadlineNumbers( (int) $player->id, [], 5 );
+        $rolling = isset( $heads['rolling'] ) && $heads['rolling'] !== null ? (float) $heads['rolling'] : null;
+        $alltime = isset( $heads['alltime'] ) && $heads['alltime'] !== null ? (float) $heads['alltime'] : null;
+        self::renderHeroStrip( $player, $rolling, $alltime, $max );
+    }
+
+    /**
      * Player header card — photo + name + team / position / foot meta +
      * an OVR rating badge (gold-on-green, borrows the 2026 deck's
      * `.tag-ovr` language). The badge shows the player's headline rating

@@ -22,6 +22,11 @@ De tegel **Mijn check-ins** is waar je wekelijkse zelfevaluatie en andere taken 
 
 ## Jouw tegels
 
+### Mijn ontwikkeling
+Je **ontwikkelhome** - één pagina die je hele ontwikkelbeeld samenbrengt zodat je in één oogopslag ziet *wat je nu te doen staat*. Het is de eerste tegel in de groep. De pagina opent met je spelershero, daarna een **Vandaag**-balk op basis van je POP-cyclus (voorbereiden op een komend gesprek, een net gevoerd gesprek bekijken, of simpelweg de datum van je volgende gesprek), gevolgd door korte voorbeschouwingen van **Jouw focus** (belangrijkste doelen), **Hoe je ervoor staat** (je beoordeling en momentum), **Binnenkort** (volgende activiteiten) en **Jouw reis** (je laatste mijlpaal). Elk blok heeft een **bekijk alles**-link naar de bijbehorende diepe weergave. De zeven diepe-weergavetegels hieronder (Mijn kaart, Mijn team, Mijn evaluaties, Mijn activiteiten, Mijn doelen, Mijn POP, Mijn reis) blijven precies zoals ze zijn - de home is een ankerpunt, geen vervanging.
+
+Ouders die het dashboard van hun kind openen, komen op **Ontwikkeling van &lt;kind&gt;** - dezelfde home, alleen-lezen en beperkt tot hun eigen kind.
+
 ### Mijn kaart
 Je FIFA-achtige spelerskaart plus een snapshot van wie je bent als speler. Bovenaan zie je je foto, naam, team en de FIFA-kaart zelf. Onder de kaart vind je vier secties uit de oude tegel "Mijn profiel":
 

@@ -210,6 +210,25 @@ final class CoreSurfaceRegistration {
 
         // ── Me group — visible only when user has a player record. ──
         $me_group = __( 'Me', 'talenttrack' );
+        // #1850 — the development home: one overview-led anchor composing
+        // the My-X surfaces (Phase 2 of #1846). First in the group for the
+        // player + parent personas; the deep-view tiles below remain as
+        // shortcuts. Reuses the `my_card` tile-visibility entity so a
+        // matrix-active install gates it exactly like the player's own
+        // card (player + parent hold it), without a new matrix seed.
+        TileRegistry::register([
+            'module_class' => self::M_PLAYERS,
+            'view_slug'    => 'my-development',
+            'entity'       => 'my_card',
+            'group'        => $me_group,
+            'kind'         => 'work',
+            'order'        => 1,
+            'label'        => __( 'My development', 'talenttrack' ),
+            'description'  => __( 'Your development at a glance: talks, goals, form and journey.', 'talenttrack' ),
+            'icon'         => 'goals',
+            'color'        => '#0b3d2e',
+            'cap_callback' => $is_player_or_parent_cb,
+        ]);
         TileRegistry::register([
             'module_class' => self::M_PLAYERS,
             'view_slug'    => 'overview',

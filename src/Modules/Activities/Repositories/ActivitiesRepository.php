@@ -846,4 +846,39 @@ final class ActivitiesRepository {
         }
         return $out;
     }
+
+    /**
+     * #1850 — the next few upcoming activities for a team, for the
+     * player/parent development home's "Coming up" peek. Future-dated,
+     * not completed/cancelled, soonest first. Club- + demo-scoped like
+     * the rest of this repository so the home sees the same activity
+     * universe as the activities list.
+     *
+     * @return array<int, object> rows with id, title, session_date, location
+     */
+    public function upcomingForTeam( int $team_id, int $limit = 3 ): array {
+        if ( $team_id <= 0 ) return [];
+        $limit = max( 1, min( 20, $limit ) );
+
+        global $wpdb;
+        $p     = $wpdb->prefix;
+        $scope = QueryHelpers::apply_demo_scope( 'a', 'activity' );
+
+        // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT a.id, a.title, a.session_date, a.location
+               FROM {$p}tt_activities a
+              WHERE a.team_id = %d
+                AND a.club_id = %d
+                AND a.archived_at IS NULL
+                AND a.session_date >= CURDATE()
+                AND ( a.activity_status_key IS NULL OR a.activity_status_key NOT IN ('completed','cancelled') )
+                {$scope}
+           ORDER BY a.session_date ASC, a.id ASC
+              LIMIT %d",
+            $team_id, CurrentClub::id(), $limit
+        ) );
+
+        return is_array( $rows ) ? $rows : [];
+    }
 }

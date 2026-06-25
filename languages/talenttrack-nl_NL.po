@@ -40332,6 +40332,54 @@ msgstr "Nog geen actieve doelen. Je coach stelt er een paar op tijdens je volgen
 msgid "See all goals"
 msgstr "Bekijk alle doelen"
 
+msgid "My development"
+msgstr "Mijn ontwikkeling"
+
+#, php-format
+msgid "%s's development"
+msgstr "Ontwikkeling van %s"
+
+msgid "Your development at a glance: talks, goals, form and journey."
+msgstr "Je ontwikkeling in een oogopslag: gesprekken, doelen, vorm en reis."
+
+msgid "Start your self-review"
+msgstr "Start je zelfreflectie"
+
+msgid "Open the development plan"
+msgstr "Open het ontwikkelplan"
+
+msgid "Review and acknowledge"
+msgstr "Bekijken en bevestigen"
+
+msgid "How you're doing"
+msgstr "Hoe je ervoor staat"
+
+msgid "See all evaluations"
+msgstr "Bekijk alle evaluaties"
+
+msgid "No evaluations yet. Your first rating will appear here once your coach completes one."
+msgstr "Nog geen evaluaties. Je eerste beoordeling verschijnt hier zodra je coach er een afrondt."
+
+#, php-format
+msgid "Up %s on your average"
+msgstr "%s boven je gemiddelde"
+
+#, php-format
+msgid "Down %s on your average"
+msgstr "%s onder je gemiddelde"
+
+msgid "Steady with your average"
+msgstr "Gelijk aan je gemiddelde"
+
+msgid "Your journey"
+msgstr "Jouw reis"
+
+msgid "See your journey"
+msgstr "Bekijk je reis"
+
+msgid "Your academy story starts here. Milestones will appear as your season unfolds."
+msgstr "Je academieverhaal begint hier. Mijlpalen verschijnen naarmate je seizoen vordert."
+
 #~ msgid "Delete this holiday?"
 #~ msgstr "Deze vakantie verwijderen?"
 

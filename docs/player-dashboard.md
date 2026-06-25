@@ -22,6 +22,11 @@ The **My check-ins** tile is where your weekly self-evaluation and any other tas
 
 ## Your tiles
 
+### My development
+Your **development home** — one page that pulls your whole development picture together so you can see *what to do now* at a glance. It's the first tile in the group. It opens with your player hero, then a **Today** band driven by your PDP cycle (prepare for an upcoming talk, review a talk you've just had, or simply your next-talk date), followed by short previews of **Your focus** (top goals), **How you're doing** (your rating and momentum), **Coming up** (next activities), and **Your journey** (your latest milestone). Each block has a **see all** link into the matching deep view. The seven deep-view tiles below (My card, My team, My evaluations, My activities, My goals, My PDP, My journey) stay exactly as they are — the home is an anchor, not a replacement.
+
+Parents who open their child's dashboard land on **&lt;Child&gt;'s development** — the same home, read-only and scoped to their own child.
+
 ### My card
 Your FIFA-style player card plus a snapshot of who you are as a player. The hero strip at the top shows your photo, name, team, and the FIFA card itself. Below the card you'll find four sections folded in from the old "My profile" tile:
 
