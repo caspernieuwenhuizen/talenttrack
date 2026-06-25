@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-25T15:07:34+00:00\n"
+"POT-Creation-Date: 2026-06-25T15:57:19+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -140,11 +140,11 @@ msgstr ""
 #: src/Shared/Frontend/Components/PlayerSearchPickerComponent.php:72
 #: src/Shared/Frontend/DashboardShortcode.php:112
 #: src/Shared/Frontend/DashboardShortcode.php:1281
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1896
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1907
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2024
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2047
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2102
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1901
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1912
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2029
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2052
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2107
 #: src/Shared/Frontend/FrontendConfigurationView.php:2191
 #: src/Shared/Frontend/FrontendEvaluationsView.php:162
 #: src/Shared/Frontend/FrontendEvaluationsView.php:176
@@ -1295,8 +1295,8 @@ msgid "League match"
 msgstr ""
 
 #: src/Infrastructure/Query/LabelTranslator.php:221
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2226
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2288
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2231
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2293
 msgid "Tournament"
 msgstr "Tournoi"
 
@@ -2548,7 +2548,7 @@ msgstr "Filtrer"
 #: src/Shared/Frontend/CoachForms.php:524
 #: src/Shared/Frontend/Components/DateInputComponent.php:30
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:487
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1670
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1675
 #: src/Shared/Frontend/FrontendEvaluationsView.php:161
 #: src/Shared/Frontend/FrontendEvaluationsView.php:337
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:57
@@ -2594,7 +2594,7 @@ msgstr "Date"
 #: src/Shared/Frontend/CoachDashboardView.php:299
 #: src/Shared/Frontend/CoachForms.php:523
 #: src/Shared/Frontend/CoachForms.php:589
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1635
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1639
 #: src/Shared/Frontend/FrontendGoalsManageView.php:416
 #: src/Shared/Frontend/FrontendMyActivitiesView.php:58
 #: src/Shared/Frontend/FrontendTeamDetailView.php:687
@@ -2631,7 +2631,7 @@ msgstr "Titre"
 #: src/Shared/Frontend/CoachForms.php:217
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:490
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:943
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1613
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1617
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:95
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:147
 #: src/Shared/Frontend/FrontendEvaluationsView.php:181
@@ -2726,12 +2726,12 @@ msgstr "Type"
 #: src/Shared/Frontend/CoachForms.php:606
 #: src/Shared/Frontend/DashboardShortcode.php:111
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:492
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1621
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1897
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1910
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2025
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2054
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2103
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1625
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1902
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1915
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2030
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2059
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2108
 #: src/Shared/Frontend/FrontendExportsView.php:92
 #: src/Shared/Frontend/FrontendExportsView.php:120
 #: src/Shared/Frontend/FrontendExportsView.php:236
@@ -2853,7 +2853,7 @@ msgstr ""
 #: src/Shared/Frontend/Components/TeamPickerComponent.php:36
 #: src/Shared/Frontend/DashboardShortcode.php:114
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:933
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1687
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1692
 #: src/Shared/Frontend/FrontendComparisonView.php:299
 #: src/Shared/Frontend/FrontendEvaluationsView.php:163
 #: src/Shared/Frontend/FrontendEvaluationsView.php:171
@@ -2996,13 +2996,13 @@ msgstr ""
 #: src/Modules/Activities/Admin/ActivitiesPage.php:295
 #: src/Modules/Wizards/Activity/DetailsStep.php:46
 #: src/Modules/Wizards/Activity/ReviewStep.php:64
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1639
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1643
 msgid "Game subtype"
 msgstr ""
 
 #: src/Modules/Activities/Admin/ActivitiesPage.php:298
 #: src/Modules/Wizards/Activity/DetailsStep.php:47
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1641
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1645
 msgid "— Choose —"
 msgstr ""
 
@@ -3013,7 +3013,7 @@ msgstr ""
 #: src/Modules/Activities/Admin/ActivitiesPage.php:309
 #: src/Modules/Wizards/Activity/DetailsStep.php:58
 #: src/Modules/Wizards/Activity/ReviewStep.php:67
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1648
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1653
 msgid "Other label"
 msgstr ""
 
@@ -3039,7 +3039,7 @@ msgstr ""
 #: src/Modules/Workflow/Forms/InviteToTestTrainingForm.php:78
 #: src/Shared/Frontend/CoachDashboardView.php:256
 #: src/Shared/Frontend/CoachForms.php:530
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1716
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1721
 #: src/Shared/Frontend/FrontendTestTrainingsView.php:77
 msgid "Location"
 msgstr "Lieu"
@@ -3063,7 +3063,7 @@ msgstr "— Tous —"
 #: src/Modules/Export/Exporters/PlayerEvaluationsCsvExporter.php:163
 #: src/Modules/Methodology/Admin/MethodologyPage.php:497
 #: src/Modules/Methodology/Frontend/MethodologyView.php:581
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:129
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:290
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:786
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:897
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:275
@@ -3088,12 +3088,12 @@ msgstr "— Tous —"
 #: src/Shared/Frontend/CoachForms.php:536
 #: src/Shared/Frontend/DashboardShortcode.php:115
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:326
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1722
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1898
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1917
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2026
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2057
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2104
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1727
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1903
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1922
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2031
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2062
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2109
 #: src/Shared/Frontend/FrontendEvaluationsView.php:166
 #: src/Shared/Frontend/FrontendEvaluationsView.php:452
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:122
@@ -3118,7 +3118,7 @@ msgstr "Notes"
 #: src/Modules/Activities/Admin/ActivitiesPage.php:334
 #: src/Modules/Wizards/Activity/PrinciplesStep.php:34
 #: src/Modules/Wizards/Activity/ReviewStep.php:100
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1761
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1766
 msgid "Connected principles"
 msgstr ""
 
@@ -3141,7 +3141,7 @@ msgstr ""
 #: src/Shared/Frontend/CoachDashboardView.php:258
 #: src/Shared/Frontend/CoachForms.php:532
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:757
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1872
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1877
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:510
 #: src/Shared/Frontend/FrontendReportsLauncherView.php:222
 #: src/Shared/Frontend/FrontendTeamDetailView.php:405
@@ -3151,7 +3151,7 @@ msgid "Attendance"
 msgstr ""
 
 #: src/Modules/Activities/Admin/ActivitiesPage.php:364
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1932
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1937
 msgid "Attendance is recorded once the activity is marked Completed."
 msgstr ""
 
@@ -3164,12 +3164,12 @@ msgstr ""
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:343
 #: src/Modules/Wizards/Evaluation/RateActorsStep.php:168
 #: src/Shared/Frontend/FrontendActivitiesManageView.php:716
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2039
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2042
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2049
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2100
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2119
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2120
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2044
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2047
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2054
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2105
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2124
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2125
 msgid "Guest"
 msgstr ""
 
@@ -6073,7 +6073,7 @@ msgstr ""
 #: src/Shared/Frontend/Components/FrontendThreadView.php:173
 #: src/Shared/Frontend/Components/GuestAddModal.php:112
 #: src/Shared/Frontend/DashboardShortcode.php:126
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2112
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2117
 #: src/Shared/Frontend/FrontendConfigurationView.php:863
 #: src/Shared/Frontend/FrontendConfigurationView.php:1051
 #: src/Shared/Frontend/FrontendCustomFieldsView.php:178
@@ -16790,7 +16790,7 @@ msgstr ""
 #: src/Modules/Tournaments/Wizard/SquadStep.php:97
 #: src/Modules/Wizards/Evaluation/AttendanceStep.php:109
 #: src/Modules/Wizards/Evaluation/AttendanceStep.php:308
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1889
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1894
 msgid "Mark all present"
 msgstr ""
 
@@ -18864,31 +18864,31 @@ msgstr ""
 msgid "Could not set current season."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:46
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:48
 msgid "My development plan"
 msgstr ""
 
 #. translators: %s = the child's name (parent viewing their child)
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:49
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:51
 #, php-format
 msgid "%s's development plan"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:57
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:59
 msgid "No current season is set."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:65
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:67
 msgid "No PDP file has been opened for you this season yet."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:66
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:68
 msgid "No PDP file has been opened for this player this season yet."
 msgstr ""
 
 #. translators: %s = season name
 #. translators: %s: season name (e.g. "2025/2026").
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:76
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:78
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:266
 #: src/Modules/Planning/Frontend/FrontendTeamPlannerView.php:419
 #, php-format
@@ -18896,7 +18896,7 @@ msgid "Season: %s"
 msgstr ""
 
 # #0028 — Conversational goals (thread primitive + goal adapter)
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:82
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:95
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1059
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1542
 #: src/Shared/Frontend/Components/FrontendThreadView.php:52
@@ -18906,77 +18906,153 @@ msgstr ""
 msgid "Conversation"
 msgstr "Conversation"
 
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:159
+msgid "Your focus"
+msgstr ""
+
+#. translators: %s = date of the next development talk
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:163
+#, php-format
+msgid "Next development talk: %s"
+msgstr ""
+
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:167
+msgid "Your next development talk will be planned soon."
+msgstr ""
+
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:171
+msgid "Coming up"
+msgstr ""
+
+#. translators: %s = date of the upcoming development talk
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:175
+#, php-format
+msgid "Prepare for your talk on %s"
+msgstr ""
+
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:178
+msgid "Prepare for your upcoming development talk"
+msgstr ""
+
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:181
+msgid ""
+"Adding a short self-reflection before your talk helps your coach. It is "
+"optional, never required. You can find it on the talk just below."
+msgstr ""
+
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:182
+msgid ""
+"A self-reflection can be added before the talk to help the coach. It is "
+"optional, never required."
+msgstr ""
+
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:185
+msgid "Your last development talk"
+msgstr ""
+
+#. translators: %s = date of the most recent development talk
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:189
+#, php-format
+msgid "Your talk on %s is ready to review"
+msgstr ""
+
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:192
+msgid "Your last talk is ready to review"
+msgstr ""
+
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:194
+msgid ""
+"See the notes and agreed actions below, and acknowledge the talk. These are "
+"the goals to carry forward."
+msgstr ""
+
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:210
+msgid "No active goals yet. Your coach will set some during your next talk."
+msgstr ""
+
+#. translators: %s = goal due date
+#. translators: %s: due date in YYYY-MM-DD
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:222
+#: src/Shared/Frontend/FrontendMyProfileView.php:210
+#, php-format
+msgid "Due %s"
+msgstr ""
+
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:230
+msgid "See all goals"
+msgstr ""
+
 #. translators: %1$d sequence, %2$s template
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:96
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:257
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1025
 #, php-format
 msgid "Conversation %1$d (%2$s)"
 msgstr ""
 
 #. translators: %s = date
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:113
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:274
 #, php-format
 msgid "Scheduled %s"
 msgstr ""
 
 #. translators: %s = date
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:120
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:281
 #, php-format
 msgid "Conducted %s"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:133
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:294
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1151
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:214
 msgid "Agreed actions"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:139
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:300
 msgid "Agenda"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:146
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:307
 msgid "Self-reflection"
 msgstr "Auto-réflexion"
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:168
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:329
 msgid "Add or update your self-reflection"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:171
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:332
 msgid "Save reflection"
 msgstr ""
 
 # v3.110.24 — My PDP self-reflection 2-week pre-meeting gate
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:178
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:339
 msgid ""
 "You can add your self-reflection up to 2 weeks before this meeting. Check "
 "back closer to the planned date."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:190
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:351
 msgid "I acknowledge this conversation"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:198
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:359
 msgid "You acknowledged this conversation."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:204
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:365
 msgid "Acknowledge as parent / guardian"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:209
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:370
 msgid "A parent acknowledged this conversation."
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:218
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:379
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:994
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:235
 msgid "End-of-season verdict"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:223
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:384
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:996
 #: src/Modules/Pdp/Print/PdpPrintRouter.php:236
 msgid "Decision:"
@@ -18984,33 +19060,33 @@ msgstr ""
 
 #. translators: %s = signoff timestamp
 #. translators: %s = signed-off timestamp
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:231
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:392
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1006
 #, php-format
 msgid "Signed off on %s"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:273
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:434
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1700
 msgid "Start of season"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:274
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:435
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1701
 msgid "Mid season"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:275
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:436
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1702
 msgid "Mid-season A"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:276
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:437
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1703
 msgid "Mid-season B"
 msgstr ""
 
-#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:277
+#: src/Modules/Pdp/Frontend/FrontendMyPdpView.php:438
 #: src/Modules/Pdp/Frontend/FrontendPdpManageView.php:1704
 msgid "End of season"
 msgstr ""
@@ -20375,9 +20451,9 @@ msgstr ""
 #: src/Modules/Vct/Frontend/FrontendVctConfigView.php:261
 #: src/Shared/Admin/OptionSetEditor.php:135
 #: src/Shared/Frontend/DashboardShortcode.php:120
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2071
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2105
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2111
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2076
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2110
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2116
 #: src/Shared/Frontend/FrontendConfigurationView.php:1761
 #: src/Shared/Frontend/FrontendPlayersManageView.php:415
 #: src/Shared/Frontend/FrontendTeamsManageView.php:356
@@ -21555,7 +21631,7 @@ msgstr ""
 #: src/Modules/PersonaDashboard/Widgets/MiniPlayerListWidget.php:81
 #: src/Modules/PersonaDashboard/Widgets/ScoutingPlanWidget.php:66
 #: src/Modules/PersonaDashboard/Widgets/TaskListPanelWidget.php:87
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1926
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1931
 msgid "Show all"
 msgstr "Tout afficher"
 
@@ -24928,7 +25004,7 @@ msgstr ""
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:366
 #: src/Shared/Frontend/Components/GuestAddModal.php:47
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2081
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2086
 msgid "Add guest"
 msgstr ""
 
@@ -25183,7 +25259,7 @@ msgid "That player is already on the roster."
 msgstr ""
 
 #: src/Modules/TeamDevelopment/Frontend/FrontendTeamBlueprintsView.php:1257
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2114
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2119
 msgid "Name is required."
 msgstr ""
 
@@ -27733,7 +27809,7 @@ msgstr ""
 
 #: src/Modules/Vct/Wizard/WhenStep.php:68
 #: src/Modules/Wizards/Activity/DetailsStep.php:39
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1704
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1709
 msgid "Start time (optional)"
 msgstr ""
 
@@ -27830,12 +27906,12 @@ msgid "Set attendance later — save the activity with no roster."
 msgstr ""
 
 #: src/Modules/Wizards/Activity/DetailsStep.php:40
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1708
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1713
 msgid "End time (optional)"
 msgstr ""
 
 #: src/Modules/Wizards/Activity/DetailsStep.php:58
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1649
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1654
 msgid "e.g. Team-building day"
 msgstr ""
 
@@ -27901,7 +27977,7 @@ msgid ""
 msgstr ""
 
 #: src/Modules/Wizards/Activity/PrinciplesStep.php:117
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1822
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1827
 msgid "Other principles"
 msgstr ""
 
@@ -29777,7 +29853,7 @@ msgstr ""
 
 #: src/Shared/Admin/DragReorder.php:149
 #: src/Shared/Frontend/DashboardShortcode.php:89
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2117
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2122
 #: src/Shared/Frontend/FrontendConfigurationView.php:478
 #: src/Shared/Frontend/FrontendConfigurationView.php:1072
 #: src/Shared/Frontend/FrontendConfigurationView.php:1163
@@ -30526,7 +30602,7 @@ msgid ""
 msgstr ""
 
 #: src/Shared/Frontend/CoachForms.php:534
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1875
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1880
 msgid "No players on your teams yet."
 msgstr ""
 
@@ -31347,91 +31423,91 @@ msgstr ""
 msgid "(untitled activity)"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1712
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1717
 msgid "Presence time (optional)"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1762
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1767
 msgid ""
 "Group by team function + team task; tick whichever apply. Leave all unticked "
 "to save without links."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1983
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1988
 msgid "Update activity"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:1983
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1988
 msgid "Save activity"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2011
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2016
 msgid "Guests"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2013
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2018
 msgid "Players from outside the squad. Guests do not count toward team stats."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2032
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2037
 msgid "No guests added yet."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2043
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2101
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2048
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2106
 msgid "(unaffiliated)"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2068
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2118
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2073
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2123
 msgid "Notes…"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2109
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2114
 msgid "Remove this guest?"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2110
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2115
 msgid "Remove guest"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2113
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2118
 msgid "Pick a player."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2115
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2120
 msgid "Could not add guest."
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2116
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2121
 msgid "Saving activity first…"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2230
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2235
 msgid "Not linked yet. Use the edit form to pick an existing tournament."
 msgstr ""
 
 #. translators: %d: tournament match count
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2247
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2252
 #, php-format
 msgid "%d match"
 msgid_plural "%d matches"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2262
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2267
 msgid "Open tournament planner →"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2292
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2297
 msgid "— Not linked —"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2319
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2324
 msgid "Create new tournament →"
 msgstr ""
 
-#: src/Shared/Frontend/FrontendActivitiesManageView.php:2324
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:2329
 msgid ""
 "No tournament yet? Ask an admin to create one in the Tournaments planner."
 msgstr ""
@@ -33801,12 +33877,6 @@ msgstr ""
 msgid ""
 "No active goals right now. Your coach will set new ones during the next "
 "review."
-msgstr ""
-
-#. translators: %s: due date in YYYY-MM-DD
-#: src/Shared/Frontend/FrontendMyProfileView.php:210
-#, php-format
-msgid "Due %s"
 msgstr ""
 
 #. translators: %d: total active-goal count
