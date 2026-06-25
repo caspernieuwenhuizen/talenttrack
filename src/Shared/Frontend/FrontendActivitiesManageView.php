@@ -873,6 +873,9 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         $team_filter = isset( $_GET['team_id'] ) ? absint( (string) $_GET['team_id'] ) : 0;
         $type_filter = isset( $_GET['activity_type_key'] ) ? sanitize_key( (string) $_GET['activity_type_key'] ) : '';
         $include_past = ! empty( $_GET['include_past'] );
+        // #1862 — cancelled activities are hidden by default; the filter
+        // checkbox opts back in.
+        $show_cancelled = ! empty( $_GET['show_cancelled'] );
 
         // #1648 — quick period filter (this/next week, this/next month,
         // this season). Empty = the full forward agenda (default).
@@ -903,7 +906,8 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             $team_filter,
             $type_filter,
             $window['from'] ?? '',
-            $window['to'] ?? ''
+            $window['to'] ?? '',
+            $show_cancelled
         );
 
         // Bucket the rows.
@@ -950,6 +954,11 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         }
         echo '</select>';
         echo '</label>';
+        // #1862 — opt back into cancelled rows (hidden by default).
+        echo '<label class="tt-act-filters__field tt-act-filters__field--check">';
+        echo '<input type="checkbox" class="tt-act-filters__check" name="show_cancelled" value="1"' . checked( $show_cancelled, true, false ) . ' onchange="this.form.submit()" />';
+        echo '<span class="tt-act-filters__label">' . esc_html__( 'Show cancelled', 'talenttrack' ) . '</span>';
+        echo '</label>';
         echo '<noscript><button type="submit" class="tt-btn tt-btn-secondary">' . esc_html__( 'Apply', 'talenttrack' ) . '</button></noscript>';
         echo '</form>';
 
@@ -968,6 +977,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         if ( $team_filter > 0 )      $pill_base['team_id']           = $team_filter;
         if ( $type_filter !== '' )   $pill_base['activity_type_key'] = $type_filter;
         if ( $include_past )         $pill_base['include_past']      = '1';
+        if ( $show_cancelled )       $pill_base['show_cancelled']    = '1';
         if ( ! empty( $_GET['tt_back'] ) ) $pill_base['tt_back']     = (string) $_GET['tt_back'];
         $dash_url = \TT\Shared\Frontend\Components\RecordLink::dashboardUrl();
 
@@ -1195,6 +1205,12 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         $location     = (string) ( $row->location ?? '' );
         $start_time   = (string) ( $row->start_time ?? '' );
 
+        // #1862 — cancelled in either taxonomy (only ever rendered when the
+        // "show cancelled" filter is on). Dim the card + always show the
+        // status pill so it reads as cancelled in any bucket, not just past.
+        $is_cancelled = strtolower( (string) ( $row->plan_state ?? '' ) ) === ActivityStatusKey::CANCELLED
+                     || strtolower( $status_key ) === ActivityStatusKey::CANCELLED;
+
         $detail_url = RecordLink::detailUrlForWithBack( 'activities', $id );
 
         // Date badge — "May / 28" stacked.
@@ -1225,8 +1241,12 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         $meta_bits = [];
         $meta_bits[] = '<span class="tt-act-pill" data-type="' . esc_attr( $type_pill_key ) . '">' . esc_html( $type_label !== '' ? $type_label : ucfirst( $type_key ) ) . '</span>';
 
-        if ( $mode === 'past' && in_array( $status_key, [ ActivityStatusKey::COMPLETED, ActivityStatusKey::CANCELLED ], true ) ) {
-            $meta_bits[] = '<span class="tt-act-pill" data-status="' . esc_attr( $status_key ) . '">' . esc_html( $status_label !== '' ? $status_label : ucfirst( $status_key ) ) . '</span>';
+        if ( $is_cancelled || ( $mode === 'past' && in_array( $status_key, [ ActivityStatusKey::COMPLETED, ActivityStatusKey::CANCELLED ], true ) ) ) {
+            $pill_status = $is_cancelled ? ActivityStatusKey::CANCELLED : $status_key;
+            $pill_label  = $is_cancelled
+                ? self::lookupLabelByName( 'activity_status', ActivityStatusKey::CANCELLED )
+                : $status_label;
+            $meta_bits[] = '<span class="tt-act-pill" data-status="' . esc_attr( $pill_status ) . '">' . esc_html( $pill_label !== '' ? $pill_label : ucfirst( $pill_status ) ) . '</span>';
         }
 
         // Team / time / "still planned" tail (plain text).
@@ -1243,7 +1263,8 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             $tail[] = esc_html( $location );
         }
 
-        $card  = '<li class="tt-act-card" data-type="' . esc_attr( $type_pill_key ) . '">';
+        $card_cls = 'tt-act-card' . ( $is_cancelled ? ' tt-act-card--cancelled' : '' );
+        $card  = '<li class="' . esc_attr( $card_cls ) . '" data-type="' . esc_attr( $type_pill_key ) . '">';
         $card .= '<a class="tt-act-card__link" href="' . esc_url( $detail_url ) . '">';
         $card .= '<div class="' . esc_attr( $date_cls ) . '">';
         $card .= '<span class="tt-act-date__m">' . esc_html( $month_short ) . '</span>';
@@ -1497,12 +1518,12 @@ class FrontendActivitiesManageView extends FrontendViewBase {
         return null;
     }
 
-    private static function loadActivitiesForList( int $team_filter, string $type_filter, string $date_from = '', string $date_to = '' ): array {
+    private static function loadActivitiesForList( int $team_filter, string $type_filter, string $date_from = '', string $date_to = '', bool $show_cancelled = false ): array {
         // #1320 — the query (incl. demo + coach-scope authorization) lives
         // in ActivitiesRepository so the REST list and this surface share
         // one source of truth and the view holds no SQL or permission logic.
         return ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )
-            ->listForManageSurface( $team_filter, $type_filter, get_current_user_id(), $date_from, $date_to );
+            ->listForManageSurface( $team_filter, $type_filter, get_current_user_id(), $date_from, $date_to, $show_cancelled );
     }
 
     /**
@@ -1711,7 +1732,7 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                 </div>
                 <div class="tt-field">
                     <label class="tt-field-label" for="tt-activity-end-time"><?php esc_html_e( 'End time (optional)', 'talenttrack' ); ?></label>
-                    <input type="time" id="tt-activity-end-time" class="tt-input" name="end_time" value="<?php echo esc_attr( substr( $current_end, 0, 5 ) ); ?>" />
+                    <input type="time" id="tt-activity-end-time" class="tt-input" name="end_time" value="<?php echo esc_attr( substr( $current_end, 0, 5 ) ); ?>" data-tt-end-default-mins="105" data-tt-end-default-from="start_time" />
                 </div>
                 <div class="tt-field" id="tt-activity-presence-row" style="<?php echo $is_match_type ? '' : 'display:none;'; ?>">
                     <label class="tt-field-label" for="tt-activity-presence-time"><?php esc_html_e( 'Presence time (optional)', 'talenttrack' ); ?></label>
@@ -2003,6 +2024,19 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             'exclude_team_id' => $selected_team,
         ] );
         self::enqueueGuestAddAssets();
+        self::enqueueEndTimeDefaultAssets();
+    }
+
+    // #1863 — prefill a match's end time to kick-off + 105 min on the
+    // flat activity form. Match-only + prefill-once is enforced in the JS.
+    private static function enqueueEndTimeDefaultAssets(): void {
+        wp_enqueue_script(
+            'tt-activity-end-time-default',
+            plugins_url( 'assets/js/components/activity-end-time-default.js', TT_PLUGIN_FILE ),
+            [],
+            TT_VERSION,
+            true
+        );
     }
 
     /**

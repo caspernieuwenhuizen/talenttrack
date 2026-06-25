@@ -31,8 +31,9 @@ Two filters sit above the list:
 
 - **Team** — narrow to one team. Defaults to all teams the coach has access to.
 - **Type** — narrow to one activity type (Training / Game / Friendly / Other / any custom type your academy added).
+- **Show cancelled** — off by default. Cancelled activities are hidden from the list so the schedule stays clean; tick this to bring them back. When shown, a cancelled activity is dimmed and struck through with a Cancelled pill, in whichever date bucket it falls.
 
-Both filters survive in the URL (`?team_id=N&activity_type_key=match`), so deep-links from the dashboard land on the same scoped view.
+The filters survive in the URL (`?team_id=N&activity_type_key=match&show_cancelled=1`), so deep-links from the dashboard land on the same scoped view.
 
 A row of **period pills** sits below the filters: **All · This week · Next week · This month · Next month · This season**. Tapping one narrows the list to that date window without typing dates — weeks run Monday–Sunday, months are calendar months, and **This season** uses your configured current season. The choice survives in the URL (`?period=this_week`) and combines with the Team and Type filters.
 
@@ -60,7 +61,7 @@ The page reads cleanly on a phone: the cards stack in a single column and widen 
 3. Pick the **status** — Planned, Completed or Cancelled. New activities default to Planned; flip to Completed once the activity has happened, or to Cancelled if it didn't go ahead.
 4. If you picked **Game**, optionally pick the subtype (Friendly, Cup, League).
 5. If you picked **Other**, give it a short label.
-6. Pick the team, set the date, and optionally add a location, a start/end time, and notes.
+6. Pick the team, set the date, and optionally add a location, a start/end time, and notes. For a match, entering the kick-off time prefills the end time to 105 minutes later (90' play + 15' half-time); you can still change it.
 7. For a **match** type (Game, Tournament, or a custom match/friendly type) an optional **Presence time** field appears — the arrival time families should be there by. It prints on the weekly planner PDF as `Present HH:MM`.
 8. Save. The player list fills in automatically from the team roster.
 8. Mark each player as Present, Absent, Late or Excused. Add a note next to a row when useful.

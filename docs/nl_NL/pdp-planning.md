@@ -21,3 +21,7 @@ Klik op een cel om door te klikken naar de onderliggende POP-dossiers, gefilterd
 
 - `tt_view_pdp` — zie het dashboard. Geldt voor coaches en HO.
 - De tegel **POP-planning** is zichtbaar voor elke rol met `tt_view_pdp`; HO's zijn de primaire doelgroep.
+
+### Wie ziet welke teams
+
+De matrix is **team-gebonden**. Een hoofd ontwikkeling (academie-brede POP-leesrechten) of een beheerder ziet **alle teams**. Een team-gebonden coach ziet **alleen de teams waaraan hij is toegewezen** — zowel in de matrix als bij het inzoomen op een blok; het openen van het blok van een ander team door de URL handmatig aan te passen wordt geweigerd.
