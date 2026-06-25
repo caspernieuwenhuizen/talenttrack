@@ -7,6 +7,8 @@ use TT\Domain\Vocabularies\Enums\MatchExecutionState;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\Tenancy\CurrentClub;
 use TT\Modules\MatchExecution\Repositories\MatchExecutionRepository;
+use TT\Modules\MatchExecution\Services\MatchEventFeedService;
+use TT\Modules\MatchExecution\Services\PitchLayoutService;
 use TT\Modules\MatchPrep\Repositories\MatchPrepRepository;
 use TT\Shared\Club\ClubIdentity;
 use TT\Shared\Frontend\Components\FrontendBreadcrumbs;
@@ -121,6 +123,32 @@ class FrontendMatchExecutionView extends FrontendViewBase {
         // is ended; players without a value get no chip.
         $minutes_by_id = $exec_repo->loggedMinutesByActivity( $activity_id );
 
+        // #1713 — vertical positional pitch (first-half starting XI) and
+        // the chronological "Live verloop" feed. Both come from domain
+        // services so the REST endpoints and this render agree.
+        $slot_to_player_h1 = [];
+        foreach ( $lineup as $l ) {
+            if ( (int) $l->half === 1 ) {
+                $slot = (int) $l->slot_number;
+                $pid  = (int) $l->player_id;
+                if ( $slot >= 1 && $slot <= 11 && $pid > 0 ) {
+                    $slot_to_player_h1[ $slot ] = $pid;
+                }
+            }
+        }
+        $pitch_meta = [];
+        foreach ( $players_by_id as $ppid => $ppl ) {
+            $pitch_meta[ (int) $ppid ] = [
+                'name'   => (string) QueryHelpers::player_display_name( $ppl ),
+                'jersey' => $ppl->jersey_number !== null ? (int) $ppl->jersey_number : null,
+            ];
+        }
+        $pitch_slots = ( new PitchLayoutService() )->positionedXi(
+            (int) ( $prep->formation_template_id ?? 0 ),
+            $slot_to_player_h1,
+            $pitch_meta
+        );
+        $event_feed = ( new MatchEventFeedService() )->feedForActivity( $activity_id );
         FrontendBreadcrumbs::fromDashboard( __( 'Match execution', 'talenttrack' ) );
         parent::enqueueAssets();
         self::enqueueViewAssets( $activity_id, $execution );
@@ -238,6 +266,96 @@ class FrontendMatchExecutionView extends FrontendViewBase {
                 ?>
             </section>
 
+            <?php // #1713 — vertical positional pitch: the first-half
+                  // starting XI laid out by position. Coordinates are the
+                  // shared slot layout (% of pitch), positioned via an
+                  // inline left/top that cannot live in static CSS. ?>
+            <section class="tt-mxp-pitch-section" aria-label="<?php esc_attr_e( 'Starting line-up on the pitch', 'talenttrack' ); ?>">
+                <div class="tt-mexec-section-head">
+                    <h2 class="tt-mexec-section-title"><?php esc_html_e( 'Line-up', 'talenttrack' ); ?></h2>
+                </div>
+                <div class="tt-mxp-pitch" role="img" aria-label="<?php esc_attr_e( 'Vertical football pitch with the starting eleven by position', 'talenttrack' ); ?>">
+                    <?php foreach ( $pitch_slots as $slot ) :
+                        $label  = (string) $slot['label'];
+                        $name   = (string) $slot['player_name'];
+                        $jersey = $slot['jersey'];
+                        $filled = (int) $slot['player_id'] > 0 && $name !== '';
+                        // Surname-first short label keeps the slot legible at 360px.
+                        $short  = $name !== '' ? self::pitchShortName( $name ) : '';
+                        ?>
+                        <div class="tt-mxp-slot<?php echo $filled ? '' : ' tt-mxp-slot-empty'; ?>"
+                             style="left:<?php echo esc_attr( (string) (float) $slot['x'] ); ?>%; top:<?php echo esc_attr( (string) (float) $slot['y'] ); ?>%;"<?php /* tt-inline-ok */ ?>>
+                            <span class="tt-mxp-slot-badge">
+                                <?php echo esc_html( $jersey !== null ? (string) (int) $jersey : $label ); ?>
+                            </span>
+                            <span class="tt-mxp-slot-name">
+                                <?php echo esc_html( $filled ? $short : $label ); ?>
+                            </span>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </section>
+
+            <?php // #1713 — chronological event log ("Live verloop"):
+                  // goals + substitutions merged, time-ordered, each row
+                  // carrying a minute, a type chip (icon + text, not colour
+                  // alone) and a running-score chip. Cards are not modelled. ?>
+            <section class="tt-mxp-log-section" aria-label="<?php esc_attr_e( 'Live progress', 'talenttrack' ); ?>">
+                <div class="tt-mexec-section-head">
+                    <h2 class="tt-mexec-section-title"><?php esc_html_e( 'Live progress', 'talenttrack' ); ?></h2>
+                    <span class="tt-mexec-section-count"><?php echo esc_html( sprintf(
+                        /* translators: %d: number of logged match events */
+                        _n( '%d event', '%d events', count( $event_feed ), 'talenttrack' ),
+                        count( $event_feed )
+                    ) ); ?></span>
+                </div>
+                <?php if ( empty( $event_feed ) ) : ?>
+                    <p class="tt-mexec-empty"><?php esc_html_e( 'No goals or substitutions logged yet.', 'talenttrack' ); ?></p>
+                <?php else : ?>
+                    <ol class="tt-mxp-log">
+                        <?php foreach ( $event_feed as $ev ) :
+                            $type    = (string) $ev['type'];
+                            $minute  = (int) $ev['minute'];
+                            $half    = (int) $ev['half'];
+                            $is_goal = ( $type === 'goal' );
+                            if ( $is_goal ) {
+                                $type_label = __( 'Goal scored', 'talenttrack' );
+                                $icon       = '⚽';
+                                $detail     = (string) $ev['player_name'];
+                            } else {
+                                $type_label = __( 'Substitution', 'talenttrack' );
+                                $icon       = '⇄';
+                                $detail     = sprintf(
+                                    /* translators: 1: player coming on, 2: player coming off */
+                                    __( '%1$s on for %2$s', 'talenttrack' ),
+                                    (string) $ev['player_on_name'],
+                                    (string) $ev['player_off_name']
+                                );
+                            }
+                            $minute_label = sprintf(
+                                /* translators: 1: half number, 2: minute within the half */
+                                __( 'H%1$d %2$d\'', 'talenttrack' ),
+                                $half,
+                                $minute
+                            );
+                            ?>
+                            <li class="tt-mxp-log-row tt-mxp-log-row--<?php echo esc_attr( $type ); ?>">
+                                <span class="tt-mxp-log-minute"><?php echo esc_html( $minute_label ); ?></span>
+                                <span class="tt-mxp-log-chip tt-mxp-log-chip--<?php echo esc_attr( $type ); ?>">
+                                    <span class="tt-mxp-log-icon" aria-hidden="true"><?php echo esc_html( $icon ); ?></span>
+                                    <span class="tt-mxp-log-type"><?php echo esc_html( $type_label ); ?></span>
+                                </span>
+                                <span class="tt-mxp-log-detail"><?php echo esc_html( $detail ); ?></span>
+                                <?php if ( $is_goal ) : ?>
+                                    <span class="tt-mxp-log-score" aria-label="<?php esc_attr_e( 'Running score', 'talenttrack' ); ?>">
+                                        <?php echo esc_html( sprintf( '%d–%d', (int) $ev['running_home'], (int) $ev['running_away'] ) ); ?>
+                                    </span>
+                                <?php endif; ?>
+                            </li>
+                        <?php endforeach; ?>
+                    </ol>
+                <?php endif; ?>
+            </section>
             <section class="tt-mexec-section tt-mexec-on-pitch" aria-label="<?php esc_attr_e( 'Tracked players', 'talenttrack' ); ?>">
                 <div class="tt-mexec-section-head">
                     <h2 class="tt-mexec-section-title"><?php esc_html_e( 'Tracked players', 'talenttrack' ); ?></h2>
@@ -775,6 +893,13 @@ class FrontendMatchExecutionView extends FrontendViewBase {
             [ 'tt-match-execution', 'tt-frontend-app-chrome' ],
             TT_VERSION
         );
+        // #1713 — vertical positional pitch + chronological event log.
+        wp_enqueue_style(
+            'tt-match-execution-pitch',
+            TT_PLUGIN_URL . 'assets/css/frontend-match-execution-pitch.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
         wp_enqueue_script(
             'tt-match-execution',
             TT_PLUGIN_URL . 'assets/js/frontend-match-execution.js',
@@ -889,5 +1014,22 @@ class FrontendMatchExecutionView extends FrontendViewBase {
             $abbr .= mb_substr( $last, 1, 3 - mb_strlen( $abbr ) );
         }
         return mb_strtoupper( $abbr );
+    }
+
+    /**
+     * #1713 — compact pitch label for a player. Prefers the surname so
+     * the slot stays legible at 360px; falls back to the first token
+     * when there's only one. Display-only formatting, no business logic.
+     */
+    private static function pitchShortName( string $name ): string {
+        $name = trim( $name );
+        if ( $name === '' ) {
+            return '';
+        }
+        $parts = preg_split( '/\s+/', $name, -1, PREG_SPLIT_NO_EMPTY );
+        if ( ! is_array( $parts ) || count( $parts ) === 0 ) {
+            return $name;
+        }
+        return (string) $parts[ count( $parts ) - 1 ];
     }
 }

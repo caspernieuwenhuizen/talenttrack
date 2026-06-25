@@ -41806,3 +41806,37 @@ msgstr "Of markeer eerst eventuele afwezigen hieronder en ga dan door."
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+
+# #1713 — match-execution vertical pitch + Live verloop event log
+msgid "Goal scored"
+msgstr "Doelpunt"
+
+msgid "Substitution"
+msgstr "Wissel"
+
+msgid "Live progress"
+msgstr "Live verloop"
+
+msgid "Starting line-up on the pitch"
+msgstr "Basisopstelling op het veld"
+
+msgid "Vertical football pitch with the starting eleven by position"
+msgstr "Verticaal voetbalveld met de basiself per positie"
+
+msgid "No goals or substitutions logged yet."
+msgstr "Nog geen doelpunten of wissels vastgelegd."
+
+msgid "Running score"
+msgstr "Tussenstand"
+
+msgid "%1$s on for %2$s"
+msgstr "%1$s in voor %2$s"
+
+msgid "H%1$d %2$d'"
+msgstr "H%1$d %2$d'"
+
+msgid "%d event"
+msgid_plural "%d events"
+msgstr[0] "%d gebeurtenis"
+msgstr[1] "%d gebeurtenissen"
+
