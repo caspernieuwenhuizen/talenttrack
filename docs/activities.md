@@ -60,7 +60,7 @@ The page reads cleanly on a phone: the cards stack in a single column and widen 
 3. Pick the **status** — Planned, Completed or Cancelled. New activities default to Planned; flip to Completed once the activity has happened, or to Cancelled if it didn't go ahead.
 4. If you picked **Game**, optionally pick the subtype (Friendly, Cup, League).
 5. If you picked **Other**, give it a short label.
-6. Pick the team, set the date, and optionally add a location, a start/end time, and notes.
+6. Pick the team, set the date, and optionally add a location, a start/end time, and notes. For a match, entering the kick-off time prefills the end time to 105 minutes later (90' play + 15' half-time); you can still change it.
 7. For a **match** type (Game, Tournament, or a custom match/friendly type) an optional **Presence time** field appears — the arrival time families should be there by. It prints on the weekly planner PDF as `Present HH:MM`.
 8. Save. The player list fills in automatically from the team roster.
 8. Mark each player as Present, Absent, Late or Excused. Add a note next to a row when useful.
