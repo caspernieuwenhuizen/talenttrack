@@ -95,12 +95,24 @@ De **Printen / PDF**-knop in het detailoverzicht opent een schone A4-layout: fot
 
 ## WerkflowÂ­herinneringen
 
-Er zijn twee taaktemplates geregistreerd:
+Er zijn drie taaktemplates geregistreerd:
 
 - `POP_conversation_due` â€” herinnert de verantwoordelijke coach wanneer `scheduled_at` van een gesprek nadert.
 - `POP_verdict_due` â€” herinnert het hoofd academie aan het einde van het seizoen.
 
 Beide gebruiken de standaard werkflow- en takenmotor van #0022 â€” dezelfde inbox, dezelfde herinneringsÂ­cadans die je instelt via Configuratie â†’ Werkflow.
+
+### Zelfreflectie-nudge (#1852)
+
+Wanneer het planvenster van een gesprek opent, krijgt de speler een taak **"Bereid je voor op je ontwikkelgesprek"** in *Mijn taken / Werk van vandaag*, met als deadline de gespreksdatum. Erop tikken opent *Mijn POP* bij de zelfreflectie. De sweep die deze taken aanmaakt draait op de planner van de werkflowmotor en is idempotent - precies een taak per gesprek, geen duplicaten. Het derde sjabloon `pdp_self_review` levert deze taak.
+
+Het is een **duwtje, geen poort**:
+
+- Het opslaan van de reflectie **voltooit** de taak.
+- Het voeren van het gesprek **lost de taak automatisch op** zonder gevolgen, ook als de reflectie nooit is ingevuld.
+- Er wordt nooit iets geblokkeerd als de speler het negeert.
+
+Aan de coachkant krijgt de gesprekslijst een kolom **Zelfreflectie** met **Klaar / Nog niet** per komend gesprek - alleen ter info, nooit een poort voor het voeren of ondertekenen.
 
 ## Cyclusvoortgang + bevestigingsoverzicht (v3.79.0)
 
