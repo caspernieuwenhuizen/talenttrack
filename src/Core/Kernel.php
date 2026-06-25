@@ -123,6 +123,9 @@ class Kernel {
         \TT\Shared\Frontend\FrontendModulesView::init();
         // #1486 — read-only Features status view (REST endpoint).
         \TT\Shared\Frontend\FrontendFeaturesView::init();
+        // #1381 — season rollover (bulk cohort promotion): execute handler
+        // + REST plan/execute endpoints.
+        \TT\Modules\Players\SeasonRollover\FrontendSeasonRolloverView::init();
         // #0084 Child 1 — admin-post handlers for the mobile-prompt
         // page's "email me the link" + the operator-only mobile-gate
         // toggle. Static init; mirrors how MfaActionHandlers wires.

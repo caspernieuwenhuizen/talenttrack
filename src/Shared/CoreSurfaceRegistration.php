@@ -449,6 +449,23 @@ final class CoreSurfaceRegistration {
             'icon'         => 'people',
             'color'        => '#5b6e75',
         ]);
+        // #1381 — Season rollover: bulk cohort promotion at season end.
+        // Pure cap-gated (no matrix entity) on tt_manage_players so the
+        // matrix-dispatch gate doesn't hide it on dormant-matrix installs;
+        // the view re-checks the cap. `setup` kind — it's an end-of-season
+        // administration action, not day-to-day work.
+        TileRegistry::register([
+            'module_class' => self::M_PLAYERS,
+            'view_slug'    => 'season-rollover',
+            'group'        => $people_group,
+            'kind'         => 'setup',
+            'order'        => 35,
+            'label'        => __( 'Season rollover', 'talenttrack' ),
+            'description'  => __( 'Move whole squads up an age group at season end.', 'talenttrack' ),
+            'icon'         => 'players',
+            'color'        => '#1d7874',
+            'cap'          => 'tt_manage_players',
+        ]);
         // Functional roles is owned by Authorization (always-on), so this
         // tile never disappears via the module-enabled gate.
         TileRegistry::register([

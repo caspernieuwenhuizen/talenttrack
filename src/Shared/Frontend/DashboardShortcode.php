@@ -663,6 +663,11 @@ class DashboardShortcode {
             case 'players-import':
                 FrontendPlayersCsvImportView::render( $user_id, $is_admin );
                 return true;
+            // #1381 — season rollover: bulk cohort promotion with dated
+            // journey transitions. Cap-gated on tt_manage_players inside.
+            case 'season-rollover':
+                \TT\Modules\Players\SeasonRollover\FrontendSeasonRolloverView::render( $user_id, $is_admin );
+                return true;
             // #1771 — admin link/unlink of a WP account to a player.
             case 'player-accounts':
                 \TT\Modules\Players\Frontend\FrontendPlayerAccountsView::render( $user_id, $is_admin );
