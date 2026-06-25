@@ -79,6 +79,10 @@ $mod_i18n             = class_exists( '\TT\Modules\I18n\I18nModule' )           
 // doesn't exist, so the seed falls back to $mod_authorization. Mirrors
 // the trials/journey/scout/persona-dashboard fallback pattern above.
 $mod_vct              = class_exists( '\TT\Modules\Vct\VctModule' )                       ? \TT\Modules\Vct\VctModule::class                       : $mod_authorization;
+// #1856 — Measurements & Testing. Module ships in the foundation slice;
+// until its class autoloads the seed falls back to $mod_authorization,
+// mirroring the trials/journey/vct fallback pattern above.
+$mod_measurements     = class_exists( '\TT\Modules\Measurements\MeasurementsModule' )     ? \TT\Modules\Measurements\MeasurementsModule::class     : $mod_authorization;
 
 /**
  * Helper: build a rows[] array from a compact spec.
@@ -123,6 +127,8 @@ return array_merge(
         'my_activities'           => [ 'r',   'self',   $mod_activities ],
         'my_goals'                => [ 'r',   'self',   $mod_goals ],
         'my_journey'              => [ 'r',   'self',   $mod_journey ],
+        // #1856 — a player sees only their own measurement results + trend.
+        'measurements'            => [ 'r',   'self',   $mod_measurements ],
         // v3.92.0 — tile-visibility entity for the Me-group "My PDP"
         // tile (matrix-only, no cap bridge). Distinct from `pdp_file`
         // which is the data entity coaches/HoD/scout legitimately read
@@ -162,6 +168,8 @@ return array_merge(
         'players'                 => [ 'r',   'player', $mod_players ],
         'team'                    => [ 'r',   'player', $mod_teams ],
         'evaluations'             => [ 'r',   'player', $mod_evals ],
+        // #1856 — a parent sees only their own child's measurement results.
+        'measurements'            => [ 'r',   'player', $mod_measurements ],
         'goals'                   => [ 'r',   'player', $mod_goals ],
         'activities'              => [ 'r',   'player', $mod_activities ],
         'attendance'              => [ 'r',   'player', $mod_activities ],
@@ -204,6 +212,11 @@ return array_merge(
         'activities'                 => [ 'rc',  'team',   $mod_activities ],
         'goals'                      => [ 'rc',  'team',   $mod_goals ],
         'attendance'                 => [ 'rc',  'team',   $mod_activities ],
+        // #1856 — physical testing is operational (AC runs the bleep test,
+        // measures height), unlike subjective evaluations: AC enters
+        // results + schedules sessions for their team. Test setup stays HoD.
+        'measurements'               => [ 'rc',  'team',   $mod_measurements ],
+        'measurement_sessions'       => [ 'rcd', 'team',   $mod_measurements ],
         'methodology'                => [ 'r',   'global', $mod_methodology ],
         'football_actions'           => [ 'r',   'global', $mod_methodology ],
         'reports'                    => [ 'r',   'team',   $mod_reports ],
@@ -279,6 +292,11 @@ return array_merge(
         'people'                     => [ 'r',   'team',   $mod_people ],
         'my_person'                  => [ 'rc',  'self',   $mod_people ],
         'evaluations'                => [ 'rcd', 'team',   $mod_evals ],
+        // #1856 — head coach owns their team's measurement results +
+        // sessions; reads (not edits) the global test catalogue.
+        'measurements'               => [ 'rcd', 'team',   $mod_measurements ],
+        'measurement_sessions'       => [ 'rcd', 'team',   $mod_measurements ],
+        'measurement_definitions'    => [ 'r',   'global', $mod_measurements ],
         'activities'                 => [ 'rcd', 'team',   $mod_activities ],
         'goals'                      => [ 'rcd', 'team',   $mod_goals ],
         'attendance'                 => [ 'rcd', 'team',   $mod_activities ],
@@ -365,6 +383,9 @@ return array_merge(
         'attendance'                 => [ 'rc',  'team',   $mod_activities ],
         'goals'                      => [ 'r',   'team',   $mod_goals ],
         'evaluations'                => [ 'r',   'team',   $mod_evals ],
+        // #1856 — team manager views the team's measurements + sessions.
+        'measurements'               => [ 'r',   'team',   $mod_measurements ],
+        'measurement_sessions'       => [ 'r',   'team',   $mod_measurements ],
         'invitations'                => [ 'c',   'team',   $mod_invitations ],
         'documentation'              => [ 'r',   'global', $mod_documentation ],
         'pdp_file'                   => [ 'r',   'team',   $mod_pdp ],
@@ -492,6 +513,15 @@ return array_merge(
         'people'                        => [ 'rcd', 'global', $mod_people ],
         'my_person'                     => [ 'rc',  'self',   $mod_people ],
         'evaluations'                   => [ 'rcd', 'global', $mod_evals ],
+        // #1815 — manage parent/guardian account links. The cap
+        // (tt_manage_parent_accounts) ships to HoD by default; the matrix
+        // entity was omitted on the #1815 merge, leaving a phantom. Seed it.
+        'parent_accounts'               => [ 'rcd', 'global', $mod_players ],
+        // #1856 — HoD owns the test catalogue (definitions + targets) and
+        // sees every team's results + sessions academy-wide.
+        'measurements'                  => [ 'rc',  'global', $mod_measurements ],
+        'measurement_sessions'          => [ 'r',   'global', $mod_measurements ],
+        'measurement_definitions'       => [ 'rcd', 'global', $mod_measurements ],
         'activities'                    => [ 'rcd', 'global', $mod_activities ],
         'goals'                         => [ 'rcd', 'global', $mod_goals ],
         'attendance'                    => [ 'rcd', 'global', $mod_activities ],
@@ -620,6 +650,13 @@ return array_merge(
         'people'                        => [ 'rcd', 'global', $mod_people ],
         'my_person'                     => [ 'rc',  'self',   $mod_people ],
         'evaluations'                   => [ 'rcd', 'global', $mod_evals ],
+        // #1815 — manage parent/guardian account links (phantom entity on
+        // the #1815 merge; the cap ships to academy admin by default).
+        'parent_accounts'               => [ 'rcd', 'global', $mod_players ],
+        // #1856 — academy admin has full control of the Measurements module.
+        'measurements'                  => [ 'rcd', 'global', $mod_measurements ],
+        'measurement_sessions'          => [ 'rcd', 'global', $mod_measurements ],
+        'measurement_definitions'       => [ 'rcd', 'global', $mod_measurements ],
         'activities'                    => [ 'rcd', 'global', $mod_activities ],
         'goals'                         => [ 'rcd', 'global', $mod_goals ],
         'attendance'                    => [ 'rcd', 'global', $mod_activities ],

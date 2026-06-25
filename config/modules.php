@@ -118,4 +118,10 @@ return [
     TT\Modules\Vct\VctModule::class                              => true,
     // #1480 — academy-wide holiday calendar (holidays entity + planner banners).
     TT\Modules\Holidays\HolidaysModule::class                    => true,
+    // #1856 / epic #1854 — Measurements & Testing. Foundation slice
+    // (migration 0175) ships schema + category/unit lookups +
+    // repositories + authorization + archive wiring. REST controller,
+    // the "+ New test" wizard, and the frontend surfaces follow in the
+    // next slices.
+    TT\Modules\Measurements\MeasurementsModule::class            => true,
 ];
