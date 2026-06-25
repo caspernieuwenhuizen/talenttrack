@@ -143,6 +143,28 @@ class DashboardShortcode {
             return (string) ob_get_clean();
         }
 
+        // #1866 — branded password reset flow renders before the login
+        // guard: a logged-out visitor resetting their password must reach
+        // these screens. The secure key mechanics live in
+        // PasswordResetHandler; these views own the chrome only.
+        if ( $tt_view_param === 'lost-password' ) {
+            return \TT\Modules\Auth\PasswordResetView::renderRequest();
+        }
+        if ( $tt_view_param === 'reset-password' ) {
+            $rp_key   = isset( $_GET['key'] )   ? trim( (string) wp_unslash( $_GET['key'] ) )   : '';
+            $rp_login = isset( $_GET['login'] ) ? trim( (string) wp_unslash( $_GET['login'] ) ) : '';
+            $rp_error = isset( $_GET['rp_error'] ) ? sanitize_key( (string) $_GET['rp_error'] ) : '';
+            $rp_msg   = '';
+            if ( $rp_error === 'mismatch' ) {
+                $rp_msg = __( 'The two passwords did not match. Please try again.', 'talenttrack' );
+            } elseif ( $rp_error === 'weak' ) {
+                $rp_msg = __( 'Please choose a password of at least 8 characters.', 'talenttrack' );
+            } elseif ( $rp_error === 'empty' ) {
+                $rp_msg = __( 'Please fill in both password fields.', 'talenttrack' );
+            }
+            return \TT\Modules\Auth\PasswordResetView::renderReset( $rp_key, $rp_login, $rp_msg );
+        }
+
         // Route guard — no partial render for logged-out users.
         if ( ! is_user_logged_in() ) {
             /** @var LoginForm $form */
@@ -152,7 +174,12 @@ class DashboardShortcode {
             $reset_notice = '';
             if ( isset( $_GET['checkemail'] ) && $_GET['checkemail'] === 'confirm' ) {
                 $reset_notice = '<div class="tt-notice-inline">'
-                    . esc_html__( 'Check your email for a password reset link.', 'talenttrack' )
+                    . esc_html__( 'If that account exists, we\'ve sent a password reset link to its email.', 'talenttrack' )
+                    . '</div>';
+            } elseif ( isset( $_GET['password'] ) && $_GET['password'] === 'reset' ) {
+                // #1866 — landed back here after setting a new password.
+                $reset_notice = '<div class="tt-notice-inline">'
+                    . esc_html__( 'Your password has been updated. You can sign in now.', 'talenttrack' )
                     . '</div>';
             }
             return $reset_notice . $form->render( $error );
