@@ -18425,6 +18425,18 @@ msgstr "Rol leegmaken"
 msgid "Mark all present"
 msgstr "Iedereen aanwezig"
 
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1920
+msgid "Match length (minutes)"
+msgstr "Wedstrijdduur (minuten)"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1928
+msgid "Subs: %1$d on · %2$d off"
+msgstr "Wissels: %1$d in · %2$d uit"
+
+#: src/Shared/Frontend/FrontendActivitiesManageView.php:1955
+msgid "Starter"
+msgstr "Basisspeler"
+
 #: src/Modules/MatchPrep/Frontend/FrontendMatchPrepView.php:768
 msgid "Unsaved changes…"
 msgstr "Niet-opgeslagen wijzigingen…"

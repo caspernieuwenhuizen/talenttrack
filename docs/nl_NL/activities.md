@@ -66,6 +66,10 @@ De pagina leest prettig op een telefoon: de kaarten stapelen in één kolom en v
 8. Opslaan. De spelerslijst wordt automatisch gevuld vanuit het team.
 8. Markeer iedere speler als Aanwezig, Afwezig, Te laat of Afgemeld. Zet er een notitie bij waar handig.
 
+### Speelminuten (afgeronde wedstrijden)
+
+Wanneer een activiteit van het type **wedstrijd** op **Voltooid** staat, krijgt de opkomsttabel twee extra kolommen — **Basisspeler** en **Minuten** — zodat je kunt vastleggen hoe lang iedere speler echt heeft gespeeld, ook voor een voorbije wedstrijd die je niet live hebt gevolgd. Boven de tabel staat een veld **Wedstrijdduur (minuten)**; dat wordt voorgevuld vanuit de twee helften van de wedstrijdvoorbereiding (of 70 minuten als er geen voorbereiding is) en je kunt het aanpassen. Op basis van de basisspeler-vinkjes, de minuten en de wedstrijdduur toont het formulier een samenvatting **Wissels: N in · N uit** — invallers die erin kwamen en basisspelers die eruit gingen — die ververst bij het opslaan. De ingevoerde minuten voeden het minutenrapport en het belastingsbeeld van de speler.
+
 In het overzicht zie je het type als een gekleurde pill, zodat trainingen, wedstrijden, toernooien, besprekingen en overige activiteiten in één oogopslag te onderscheiden zijn.
 
 ## Verwachte opkomst

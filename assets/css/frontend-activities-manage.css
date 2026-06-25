@@ -883,3 +883,27 @@
     background: var(--tt-success-subtle, #dff5e1);
     color: var(--tt-success, #2f9e5e);
 }
+
+/* ---- #1726 — match-completion direct minutes entry ---------- */
+.tt-dashboard .tt-match-minutes-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 0 0 16px;
+}
+.tt-dashboard .tt-match-minutes-length {
+    max-width: 8rem;
+}
+.tt-dashboard .tt-match-minutes-summary {
+    margin: 4px 0 0;
+    font-weight: 600;
+    color: var(--tt-ink-soft, #5b6e75);
+}
+.tt-dashboard .tt-attendance-minutes {
+    max-width: 6rem;
+}
+.tt-dashboard .tt-attendance-starter {
+    width: 24px;
+    height: 24px;
+    touch-action: manipulation;
+}
