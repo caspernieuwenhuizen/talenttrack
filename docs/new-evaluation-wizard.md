@@ -25,6 +25,8 @@ Click an activity to select it, then **Continue**. Or click **→ Rate a player 
 
 Skipped silently when attendance is already recorded for the activity. If shown: tick each player's status (present / late / absent / excused). Default is **present**. The step writes real attendance rows, so the activity itself reflects them afterwards.
 
+For the common "everyone was here" case there's a one-tap shortcut at the top — **Everyone was here - continue** marks the whole roster present and moves straight on to rating in a single tap. Mark any absences on the cards below first if you need to, then use it (or the normal **Next**).
+
 Only **present** + **late** players flow into the rating step. Absent and excused players are recorded for reports but skipped from rating.
 
 ### Step 3 · Rate players
