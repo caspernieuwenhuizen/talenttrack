@@ -241,7 +241,12 @@ jobs:
           # bare slug literal. FrontendConfigurationView is already excluded
           # from the token grep above for `competition_type`; allow the icon
           # slug here too.
-          allow_phrases="earlier session|active sessions|browser session|session expired|possession|Possession|migrated from sessions|Activities \(Sessions\)|Sessions referencing|FrontendListTable\.php|sprintf|^\s*\*|impersonation session|My sessions\" tile destination|tt-report-sessions|sessions\.(view|manage)|session\.[a-z_]+|'sessions'\s+=>|'session'\s+=>|, +'sessions' \],?\$|'my-sessions'|My sessions|VCT session|VCT sessions|'vct-session'|vct-sessions|Avg session|per session|'icon' *=> *'sessions'"
+          # #1856 — `measurements/sessions` + `measurement-sessions` are the
+          # REST route slugs for the Measurements module's testing-session
+          # entity (a planned team test moment, distinct from the renamed-away
+          # training-session entity — same domain-term rationale as VCT
+          # sessions above). Slugs, not user-visible copy.
+          allow_phrases="earlier session|active sessions|browser session|session expired|possession|Possession|migrated from sessions|Activities \(Sessions\)|Sessions referencing|FrontendListTable\.php|sprintf|^\s*\*|impersonation session|My sessions\" tile destination|tt-report-sessions|sessions\.(view|manage)|session\.[a-z_]+|'sessions'\s+=>|'session'\s+=>|, +'sessions' \],?\$|'my-sessions'|My sessions|VCT session|VCT sessions|'vct-session'|vct-sessions|Avg session|per session|'icon' *=> *'sessions'|measurements/sessions|measurement-sessions"
           i18n_hits=$(grep -rnE "$i18n_pattern" --include='*.php' src/ 2>/dev/null \
             | grep -vE "$allow_files" \
             | grep -vE "$allow_phrases" \
