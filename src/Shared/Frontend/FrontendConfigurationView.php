@@ -1520,7 +1520,11 @@ class FrontendConfigurationView extends FrontendViewBase {
 
         // System
         $sections['system']['tiles'][] = [ 'title' => __( 'General', 'talenttrack' ), 'desc' => __( 'Date notation, first day of the week, timezone and locale for the whole academy.', 'talenttrack' ), 'url' => $sub( 'general' ), 'icon' => 'settings' ];
-        $sections['system']['tiles'][] = [ 'title' => __( 'Feature toggles', 'talenttrack' ), 'desc' => __( 'Per-module enable/disable toggles. Live in wp-admin.', 'talenttrack' ), 'url' => add_query_arg( [ 'tab' => 'toggles' ], $admin_url ), 'icon' => 'gear' ];
+        // #1533 — the wp-admin "Feature toggles" tile (tab=toggles) is
+        // retired: the frontend Modules view (?tt_view=modules, contributed
+        // via FrontendModulesView::addConfigTile) is the canonical
+        // per-module enable/disable surface, so Configuration no longer
+        // bounces here into wp-admin.
         $sections['system']['tiles'][] = [ 'title' => __( 'Backups', 'talenttrack' ), 'desc' => __( 'Manual + scheduled database backups. Lives in wp-admin.', 'talenttrack' ), 'url' => add_query_arg( [ 'tab' => 'backups' ], $admin_url ), 'icon' => 'migrations' ];
         $sections['system']['tiles'][] = [ 'title' => __( 'Translations', 'talenttrack' ), 'desc' => __( 'Per-locale string overrides and the .po/.mo refresh job.', 'talenttrack' ), 'url' => add_query_arg( [ 'tab' => 'translations' ], $admin_url ), 'icon' => 'docs' ];
         $sections['system']['tiles'][] = [ 'title' => __( 'Audit log', 'talenttrack' ), 'desc' => __( 'Settings + sensitive data change history.', 'talenttrack' ), 'url' => add_query_arg( [ 'tab' => 'audit' ], $admin_url ), 'icon' => 'audit-log' ];
