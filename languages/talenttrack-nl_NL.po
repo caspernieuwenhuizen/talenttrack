@@ -41637,6 +41637,58 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/TeamDevelopment/Chemistry/Scorers/CompatibilityScorer.php
+msgid "No attributes recorded yet"
+msgstr "Nog geen attributen vastgelegd"
+
+#: src/Modules/TeamDevelopment/Chemistry/Scorers/CompatibilityScorer.php
+msgid "Complementary footedness"
+msgstr "Complementaire voetvoorkeur"
+
+#: src/Modules/TeamDevelopment/Chemistry/Scorers/CompatibilityScorer.php
+msgid "Both strong in core attributes"
+msgstr "Beiden sterk in kernattributen"
+
+#: src/Modules/TeamDevelopment/Chemistry/Scorers/FamiliarityScorer.php
+msgid "No shared history yet"
+msgstr "Nog geen gedeelde historie"
+
+#: src/Modules/TeamDevelopment/Chemistry/Scorers/FamiliarityScorer.php
+msgid "Trained together often"
+msgstr "Vaak samen getraind"
+
+#: src/Modules/TeamDevelopment/Chemistry/Scorers/FamiliarityScorer.php
+msgid "Long shared tenure"
+msgstr "Lang samen in het team"
+
+#: src/Modules/TeamDevelopment/Chemistry/Scorers/DevelopmentScorer.php
+msgid "Close in age"
+msgstr "Klein leeftijdsverschil"
+
+#: src/Modules/TeamDevelopment/Chemistry/Scorers/DevelopmentScorer.php
+msgid "Aligned development"
+msgstr "Vergelijkbare ontwikkeling"
+
+#: src/Modules/TeamDevelopment/Chemistry/Scorers/DevelopmentScorer.php
+msgid "No age or development data"
+msgstr "Geen leeftijd- of ontwikkelingsgegevens"
+
+#: src/Modules/TeamDevelopment/Chemistry/Scorers/BehaviourScorer.php
+msgid "No behaviour recorded yet"
+msgstr "Nog geen gedrag vastgelegd"
+
+#: src/Modules/TeamDevelopment/Chemistry/Scorers/BehaviourScorer.php
+msgid "Strong shared behaviour"
+msgstr "Sterk gedeeld gedrag"
+
+#: src/Modules/TeamDevelopment/Chemistry/Scorers/PerformanceScorer.php
+msgid "No shared games yet"
+msgstr "Nog geen gedeelde wedstrijden"
+
+#: src/Modules/TeamDevelopment/Chemistry/Scorers/PerformanceScorer.php
+msgid "Played many games together"
+msgstr "Veel wedstrijden samen gespeeld"
+
 msgid "The week-by-week team-planning calendar. The Activities log stays available when this is off."
 msgstr "De week-voor-week teamplanningskalender. Het Activiteiten-logboek blijft beschikbaar als dit uit staat."
 
