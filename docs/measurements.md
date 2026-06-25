@@ -54,3 +54,11 @@ admin. An academy admin or head of development can change any value.
 | `quarterly` | Four times a season |
 | `monthly` | Monthly |
 | `adhoc` | No fixed cadence |
+
+## Viewing a player's measurements
+
+Players and parents get a **My measurements** tile that opens the
+*Metingen* view: every test grouped by category, each showing its latest
+value, a green/amber/red flag against the player's age-group target, a
+small trend line, and how often it runs. A parent sees their child's view;
+staff open a player's measurements from the player's profile.

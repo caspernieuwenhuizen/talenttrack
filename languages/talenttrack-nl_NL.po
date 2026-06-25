@@ -40385,6 +40385,43 @@ msgstr "De test kon niet worden opgeslagen."
 msgid "Could not schedule the test."
 msgstr "De test kon niet worden ingepland."
 
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php
+msgid "Measurements"
+msgstr "Metingen"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php
+#, php-format
+msgid "Measurements — %s"
+msgstr "Metingen — %s"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php
+msgid "No tests have been set up yet."
+msgstr "Er zijn nog geen tests ingesteld."
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php
+msgid "annually"
+msgstr "jaarlijks"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php
+msgid "twice a year"
+msgstr "twee keer per jaar"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php
+msgid "quarterly"
+msgstr "per kwartaal"
+
+#: src/Modules/Measurements/Frontend/FrontendMeasurementsView.php
+msgid "monthly"
+msgstr "maandelijks"
+
+#: src/Modules/Measurements/MeasurementsModule.php
+msgid "My measurements"
+msgstr "Mijn metingen"
+
+#: src/Modules/Measurements/MeasurementsModule.php
+msgid "Your test results and how they trend."
+msgstr "Je testresultaten en hun verloop."
+
 #~ msgid "Delete this holiday?"
 #~ msgstr "Deze vakantie verwijderen?"
 

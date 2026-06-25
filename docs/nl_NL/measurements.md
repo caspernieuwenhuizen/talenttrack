@@ -58,3 +58,12 @@ kan elke waarde wijzigen.
 | `quarterly` | Vier keer per seizoen |
 | `monthly` | Maandelijks |
 | `adhoc` | Geen vaste frequentie |
+
+## De metingen van een speler bekijken
+
+Spelers en ouders krijgen een tegel **Mijn metingen** die de
+*Metingen*-weergave opent: elke test gegroepeerd per categorie, met de
+laatste waarde, een groen/oranje/rood vlaggetje ten opzichte van de
+streefwaarde voor de leeftijdsgroep, een kleine trendlijn en de
+frequentie. Een ouder ziet de weergave van het kind; staf opent de
+metingen van een speler vanuit het spelersprofiel.
