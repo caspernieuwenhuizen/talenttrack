@@ -40484,3 +40484,296 @@ msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Data Browser"
+msgstr "Databrowser"
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Browse the raw data behind TalentTrack, read-only."
+msgstr "Blader alleen-lezen door de ruwe gegevens achter TalentTrack."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Browse the raw data behind TalentTrack — read-only. Each table shows friendly column names with explanations, and how tables connect."
+msgstr "Blader alleen-lezen door de ruwe gegevens achter TalentTrack. Elke tabel toont begrijpelijke kolomnamen met uitleg, en hoe tabellen met elkaar verbonden zijn."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Read-only. You cannot change any data or definitions here. Opening a sensitive table (medical, safeguarding, family) is recorded in the audit log."
+msgstr "Alleen-lezen. Je kunt hier geen gegevens of definities wijzigen. Het openen van een gevoelige tabel (medisch, veiligheid, gezin) wordt vastgelegd in het audit-log."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Filter tables by name or description…"
+msgstr "Filter tabellen op naam of omschrijving…"
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Filter tables"
+msgstr "Tabellen filteren"
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "No tables match your search."
+msgstr "Geen tabellen komen overeen met je zoekopdracht."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Core tables"
+msgstr "Kern-tabellen"
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Other tables"
+msgstr "Overige tabellen"
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Sensitive"
+msgstr "Gevoelig"
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "%s rows"
+msgstr "%s rijen"
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Sensitive data about minors. Opening this table has been recorded in the audit log."
+msgstr "Gevoelige gegevens over minderjarigen. Het openen van deze tabel is vastgelegd in het audit-log."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Showing the single linked row #%d."
+msgstr "Eén gekoppelde rij wordt getoond: #%d."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Clear filter"
+msgstr "Filter wissen"
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Search rows…"
+msgstr "Rijen zoeken…"
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Search rows"
+msgstr "Rijen zoeken"
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Connected to"
+msgstr "Verbonden met"
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "This table has no columns."
+msgstr "Deze tabel heeft geen kolommen."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "No rows found."
+msgstr "Geen rijen gevonden."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Raw values as stored. Foreign keys are clickable to the referenced row. Available via the REST API at /talenttrack/v1/data-browser."
+msgstr "Ruwe waarden zoals opgeslagen. Verwijssleutels zijn klikbaar naar de bijbehorende rij. Beschikbaar via de REST-API op /talenttrack/v1/data-browser."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "%1$s–%2$s of %3$s · page %4$s of %5$s"
+msgstr "%1$s–%2$s van %3$s · pagina %4$s van %5$s"
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "The player record — the spine of the system. One row per player."
+msgstr "Het spelersdossier — de ruggengraat van het systeem. Eén rij per speler."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Age groups and selections players are organised into."
+msgstr "Leeftijdsgroepen en selecties waarin spelers zijn ingedeeld."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Trainings and matches — the sessions players take part in."
+msgstr "Trainingen en wedstrijden — de sessies waaraan spelers deelnemen."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Performance assessments per player, scored by category."
+msgstr "Prestatiebeoordelingen per speler, gescoord per categorie."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "The rating dimensions (Technical, Tactical, Physical…)."
+msgstr "De beoordelingsdimensies (technisch, tactisch, fysiek…)."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Individual category scores within an evaluation."
+msgstr "Individuele categoriescores binnen een beoordeling."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Development goals (PDP) per player, with progress."
+msgstr "Ontwikkeldoelen (POP) per speler, met voortgang."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Player attendance per activity."
+msgstr "Aanwezigheid van spelers per activiteit."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Player events"
+msgstr "Spelergebeurtenissen"
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "The player's journey timeline: trial, signing, promotion, injury, return, release."
+msgstr "De tijdlijn van de speler: proefperiode, tekenen, promotie, blessure, terugkeer, vertrek."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Injuries"
+msgstr "Blessures"
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Medical record of injuries and recovery per player."
+msgstr "Medische registratie van blessures en herstel per speler."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Editable reference lists (positions, statuses, activity types…)."
+msgstr "Bewerkbare referentielijsten (posities, statussen, activiteitstypes…)."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Academy-wide settings (name, rating scale, branding…)."
+msgstr "Academiebrede instellingen (naam, beoordelingsschaal, branding…)."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Player's given name."
+msgstr "De voornaam van de speler."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Player's family name."
+msgstr "De achternaam van de speler."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Used to derive age group."
+msgstr "Gebruikt om de leeftijdsgroep te bepalen."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Current team the player is assigned to."
+msgstr "Het huidige team waaraan de speler is toegewezen."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Lifecycle status (active, trial, released…)."
+msgstr "Levenscyclusstatus (actief, proef, vertrokken…)."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Login account"
+msgstr "Inlogaccount"
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Linked WordPress login, if the player has one."
+msgstr "Gekoppelde WordPress-login, als de speler die heeft."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Team name, e.g. \"U17-1\"."
+msgstr "Teamnaam, bijv. \"O17-1\"."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Birth-year band the team plays in."
+msgstr "De geboortejaarcategorie waarin het team speelt."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Training or match. Value from the activity_type lookup."
+msgstr "Training of wedstrijd. Waarde uit de opzoeklijst activity_type."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Free-text description of the activity."
+msgstr "Vrije omschrijving van de activiteit."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Planned date and time."
+msgstr "Geplande datum en tijd."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "The player being assessed."
+msgstr "De speler die wordt beoordeeld."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Kind of evaluation. Value from the eval_type lookup."
+msgstr "Soort beoordeling. Waarde uit de opzoeklijst eval_type."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Parent evaluation this score belongs to."
+msgstr "De bovenliggende beoordeling waartoe deze score behoort."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "The rated dimension."
+msgstr "De beoordeelde dimensie."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "The score on the academy's rating scale."
+msgstr "De score op de beoordelingsschaal van de academie."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "The player the goal belongs to."
+msgstr "De speler bij wie het doel hoort."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "The session attendance was recorded for."
+msgstr "De sessie waarvoor de aanwezigheid is geregistreerd."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "The player present or absent."
+msgstr "De aan- of afwezige speler."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Present, absent, injured… from the attendance lookup."
+msgstr "Aanwezig, afwezig, geblesseerd… uit de opzoeklijst aanwezigheid."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "The player this event belongs to."
+msgstr "De speler bij wie deze gebeurtenis hoort."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "The kind of transition."
+msgstr "Het soort overgang."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "The injured player."
+msgstr "De geblesseerde speler."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Injury type"
+msgstr "Blessuretype"
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Nature of the injury."
+msgstr "Aard van de blessure."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Which vocabulary this value belongs to."
+msgstr "Tot welke woordenlijst deze waarde behoort."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Stored value"
+msgstr "Opgeslagen waarde"
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "The canonical code stored on records."
+msgstr "De canonieke code die op records wordt opgeslagen."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Human-readable explanation of the value."
+msgstr "Begrijpelijke uitleg van de waarde."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Setting"
+msgstr "Instelling"
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "The setting name."
+msgstr "De naam van de instelling."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "The stored value."
+msgstr "De opgeslagen waarde."
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "WordPress account"
+msgstr "WordPress-account"
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "WordPress accounts"
+msgstr "WordPress-accounts"
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Created by"
+msgstr "Aangemaakt door"
+
+#: src/Modules/DataBrowser/DataBrowser.php
+msgid "Updated by"
+msgstr "Bijgewerkt door"
+
+
+#: src/Modules/DataBrowser/SemanticRegistry.php
+msgid "Team the activity belongs to."
+msgstr "Het team waaraan de activiteit is gekoppeld."

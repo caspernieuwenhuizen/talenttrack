@@ -140,6 +140,20 @@ class RolesService {
     ];
 
     /**
+     * #1859 — read-only Data Browser. Kept as a dedicated cap rather than
+     * folded into SETTINGS_SUBCAPS so it does not perturb the
+     * `tt_view_settings` umbrella roll-up (CapabilityAliases), and stays
+     * portable for the SaaS migration. Granted to administrator (matrix
+     * admin) and tt_club_admin (academy admin) only — see roleDefinitions
+     * + ensureCapabilities.
+     *
+     * @var list<string>
+     */
+    public const DATA_BROWSER_CAPS = [
+        'tt_view_data_browser',
+    ];
+
+    /**
      * #0071 — additional caps surfaced by the round-2 audit. Bridges
      * threads / spond / journey / player-status to dedicated caps so
      * they no longer piggy-back on `tt_edit_evaluations` / `tt_view_settings` /
@@ -290,6 +304,7 @@ class RolesService {
                         'tt_manage_players'  => true,
                         'tt_manage_settings' => true,
                         'tt_access_frontend_admin' => true,
+                        'tt_view_data_browser'     => true, // #1859 — academy admin
                     ],
                     array_fill_keys( self::PLAYER_NOTES_CAPS, true ) // #0085 — full RCD on player notes
                 ),
@@ -436,6 +451,7 @@ class RolesService {
             self::PLAYER_NOTES_CAPS,
             self::TOURNAMENTS_CAPS,
             self::VCT_CAPS,
+            self::DATA_BROWSER_CAPS,
             [ 'tt_view_reports', 'tt_access_frontend_admin' ]
         );
 
