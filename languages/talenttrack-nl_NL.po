@@ -41508,6 +41508,31 @@ msgid_plural "%d pending"
 msgstr[0] "%d openstaand"
 msgstr[1] "%d openstaande"
 
+#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php
+msgid "Bulk invite a team"
+msgstr "Een team in bulk uitnodigen"
+
+#: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php
+msgid "Generate invites"
+msgstr "Uitnodigingen genereren"
+
+#: src/Modules/Invitations/Frontend/InvitationBulkCreateHandler.php
+msgid "Choose a team to invite."
+msgstr "Kies een team om uit te nodigen."
+
+#: src/Modules/Invitations/Frontend/InvitationBulkCreateHandler.php
+msgid "Every player on that team already has an account or a pending invite."
+msgstr "Elke speler in dat team heeft al een account of een openstaande uitnodiging."
+
+#: src/Modules/Invitations/Frontend/InvitationBulkCreateHandler.php
+#, php-format
+msgid "%1$d new invite(s) generated; %2$d already had a pending invite."
+msgstr "%1$d nieuwe uitnodiging(en) gegenereerd; %2$d had al een openstaande uitnodiging."
+
+#: src/Modules/Invitations/Frontend/InvitationBulkCreateHandler.php
+msgid "Daily invite limit reached — invite the rest tomorrow, or raise the cap."
+msgstr "Dagelijkse uitnodigingslimiet bereikt — nodig de rest morgen uit of verhoog de limiet."
+
 #~ msgid "Check your email for a password reset link."
 #~ msgstr ""
 #~ "Controleer uw e-mail voor een link om uw wachtwoord opnieuw in te stellen."
