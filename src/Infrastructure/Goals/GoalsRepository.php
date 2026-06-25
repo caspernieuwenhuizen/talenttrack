@@ -65,6 +65,41 @@ class GoalsRepository {
     }
 
     /**
+     * #1851 — the player's top active goals for a "Your focus" preview:
+     * non-archived, not completed/cancelled, nearest due date first,
+     * undated last. Used by the state-aware PDP surface and the
+     * development home (#1850) so both show the same short focus list
+     * without re-deriving the query in a view.
+     *
+     * @return array<int, object>
+     */
+    public function topActiveForPlayer( int $player_id, int $limit = 3 ): array {
+        if ( $player_id <= 0 ) return [];
+        $limit = max( 1, min( 20, $limit ) );
+
+        global $wpdb;
+        $p = $wpdb->prefix;
+
+        $rows = $wpdb->get_results( $wpdb->prepare(
+            "SELECT g.*
+               FROM {$p}tt_goals g
+              WHERE g.player_id = %d
+                AND g.archived_at IS NULL
+                AND ( g.club_id = %d OR g.club_id IS NULL )
+                AND ( g.status IS NULL OR g.status NOT IN ( 'completed', 'cancelled' ) )
+              ORDER BY ( g.due_date IS NULL ), g.due_date ASC, g.id DESC
+              LIMIT %d",
+            $player_id, CurrentClub::id(), $limit
+        ) );
+
+        if ( ! is_array( $rows ) ) return [];
+        foreach ( $rows as $row ) {
+            self::hydrate( $row );
+        }
+        return $rows;
+    }
+
+    /**
      * Single goal scoped to a player. Returns null if the goal
      * doesn't exist, doesn't belong to the player, or is archived.
      *

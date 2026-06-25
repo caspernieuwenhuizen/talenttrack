@@ -1,0 +1,5 @@
+# State-aware My PDP: lead with goals, flip to self-review in the window (#1851)
+
+Bump: minor
+
+*My PDP* now opens with a short lead block that orients the player on **what to do now**, derived from where they are in the development-talk cycle. In a **working period** it leads with the player's focus goals and the next-talk date; in the **review window** it surfaces "prepare for your talk" and promotes the upcoming conversation so the self-reflection editor and agenda are front-and-centre; **after a talk** it points at the notes, agreed actions and acknowledgement to complete. The self-review stays optional and is never a gate — every conversation card, the reflection editor and the ack flow are unchanged, only re-ordered and highlighted by state. Parents see the same state surface for their child, read-only. State is derived by a small reusable `PdpCycleState` service from the already-seeded conversations and planning windows (migration 0043); no schedule or window data changes. Phase 3 of the development-hub epic (#1846).

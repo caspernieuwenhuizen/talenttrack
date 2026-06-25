@@ -51,6 +51,16 @@ De speler kan op elk moment vÃ³Ã³r ondertekening zijn zelfreflectie invullen
 
 Na ondertekening verschijnt het gesprek op het *Mijn POP*-overzicht van de speler (en de ouder, indien gekoppeld). Beiden kunnen op *Bevestigen* klikken â€” een lichte "ik heb het gezien"-timestamp.
 
+### Wat de speler ziet: een statusbewust Mijn POP (#1851)
+
+*Mijn POP* opent nu met een kort leidend blok dat de speler vertelt **wat nu te doen**, afgeleid van waar de speler in de gesprekscyclus zit. Het herschikt en accentueert alleen wat er al is - elke gesprekskaart, de zelfreflectie-editor en de bevestigingsknoppen blijven hieronder precies waar ze stonden.
+
+- **Werkperiode** (voor het planvenster van het volgende gesprek) - de pagina begint met **Jouw focus**: de belangrijkste actieve doelen van de speler en de datum van het **volgende ontwikkelgesprek**. De gesprekslijst schuift naar de achtergrond.
+- **Reviewvenster** (het planvenster is open) - de pagina begint met **Bereid je voor op je gesprek op &lt;datum&gt;**, en het komende gesprek wordt naar boven gehaald zodat de zelfreflectie-editor en de agenda vooraan staan. De zelfreflectie is bedoeld als hulp, nooit verplicht - er wordt niets geblokkeerd als de speler het overslaat.
+- **Na het gesprek** (ondertekend, wacht op bevestiging) - de pagina begint met **Je laatste ontwikkelgesprek**, en wijst naar de notities, afgesproken acties en de bevestigingsknop hieronder, met de doelen om mee verder te gaan.
+
+Ouders zien hetzelfde statusoverzicht voor hun kind, alleen-lezen en bezittelijk ("ontwikkelplan van &lt;kind&gt;"). De status wordt afgeleid uit de ingeplande gesprekken en hun planvensters - er verandert niets aan de planning of de vensterdata.
+
 ### 4. EindeseizoensÂ­oordeel
 
 Wanneer het laatste gesprek van de cyclus is ondertekend, legt het hoofd academie (of de hoofdcoach in sommige configuraties) een eindoordeel vast: **doorstromen**, **behouden**, **uitsluiten**, of **transfer**. Het eindoordeel is een aparte rij, los ondertekend van de gesprekken.
