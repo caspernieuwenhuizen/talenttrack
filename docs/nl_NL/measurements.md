@@ -77,3 +77,20 @@ overgeslagen) en gekoppeld aan een testsessie voor die datum. Numerieke
 tests tonen een getalveld met de eenheid; geslaagd/niet-tests tonen een
 keuzelijst. Een trainer kan alleen voor de eigen teams vastleggen; het
 hoofd opleiding en de academiebeheerder kunnen voor elk team vastleggen.
+
+## Een test aanmaken
+
+Het hoofd opleiding (of een academiebeheerder) maakt tests aan met de
+wizard **Nieuwe test** — bereikbaar vanaf het scherm *Metingen
+vastleggen*. De wizard kent drie stappen:
+
+1. **Gegevens** — de categorie, een naam en het type waarde (een getal,
+   een schaalscore of geslaagd/niet).
+2. **Eenheid & frequentie** — de eenheid (uit de lijst of een eigen
+   eenheid), of hoger of lager beter is, en hoe vaak de test plaatsvindt.
+3. **Streefwaarden** — optionele groene en oranje banden per
+   leeftijdsgroep; een geregistreerde waarde krijgt een vlaggetje ten
+   opzichte van de band voor de leeftijdsgroep van de speler. Je kunt deze
+   leeg laten en later toevoegen.
+
+Bij voltooien worden de test en de streefwaarden in één keer aangemaakt.
