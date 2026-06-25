@@ -1,0 +1,49 @@
+/*
+ * frontend-parent-visibility.css (#1867) — the player's per-section
+ * "what my parent can see" toggles, and the dignified "kept private"
+ * state a parent sees for a hidden section. Mobile-first, scoped under
+ * .tt-dashboard, tokens only.
+ */
+
+/* ---- Player toggles (in My settings) ------------------------------ */
+.tt-dashboard .tt-visibility-row {
+    margin: 0 0 0.4rem;
+}
+.tt-dashboard .tt-visibility-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-height: 48px;
+    padding: 0.4rem 0.6rem;
+    border: 1px solid #e3e6e1;
+    border-radius: 10px;
+    background: var(--tt-paper-soft, #f4f6f3);
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: var(--tt-ink);
+}
+.tt-dashboard .tt-visibility-toggle input[type="checkbox"] {
+    width: 22px;
+    height: 22px;
+    flex: 0 0 auto;
+    accent-color: var(--tt-primary, #0b3d2e);
+}
+.tt-dashboard .tt-visibility-toggle:focus-within {
+    outline: 2px solid var(--tt-secondary, #e8b624);
+    outline-offset: 2px;
+}
+
+/* ---- Parent "kept private" state ---------------------------------- */
+.tt-dashboard .tt-private-section {
+    background: #fff;
+    border: 1px dashed #cdd3cf;
+    border-radius: 14px;
+    padding: 1.25rem 1.1rem;
+    text-align: center;
+    margin: 0 0 1rem;
+}
+.tt-dashboard .tt-private-section__msg {
+    margin: 0;
+    font-size: 0.95rem;
+    color: var(--tt-muted, #5b6e75);
+}

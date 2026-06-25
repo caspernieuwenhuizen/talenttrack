@@ -1893,9 +1893,42 @@ class FrontendActivitiesManageView extends FrontendViewBase {
             // attendance rows. The wrapper carries data-tt-attendance-section
             // so the status `<select>` JS below can toggle it without a reload.
             $attendance_visible = ( $current_status === ActivityStatusKey::COMPLETED );
+
+            // #1726 — direct per-player minutes entry on match completion.
+            // Resolve the full match length: stored value wins, else the
+            // match prep's two halves, else a 70' club default. The derived
+            // subs on/off counts come from the domain layer (§4).
+            $match_length  = (int) ( $session->match_length_minutes ?? 0 );
+            $participation = [ 'subs_on' => 0, 'subs_off' => 0 ];
+            if ( $is_match_type ) {
+                if ( $match_length <= 0 ) {
+                    $prep_row = ( new \TT\Modules\MatchPrep\Repositories\MatchPrepRepository() )->findByActivity( $id );
+                    $half     = $prep_row ? (int) ( $prep_row->half_length_minutes ?? 0 ) : 0;
+                    $match_length = $half > 0 ? $half * 2 : 70;
+                }
+                $participation = ( new \TT\Modules\Activities\Repositories\ActivitiesRepository() )
+                    ->matchParticipationSummary( $id, $match_length );
+            }
             ?>
             <div data-tt-attendance-section data-tt-attendance-allowed-status="completed"<?php echo $attendance_visible ? '' : ' hidden'; ?>>
             <h3 style="margin:24px 0 12px;"><?php esc_html_e( 'Attendance', 'talenttrack' ); ?></h3>
+
+            <?php if ( $is_match_type ) : ?>
+                <div class="tt-match-minutes-meta" data-tt-match-minutes data-tt-match-length-default="<?php echo (int) $match_length; ?>">
+                    <label class="tt-field-label" for="tt-match-length"><?php esc_html_e( 'Match length (minutes)', 'talenttrack' ); ?></label>
+                    <input type="number" inputmode="numeric" min="0" max="300" id="tt-match-length" class="tt-input tt-match-minutes-length" name="match_length_minutes" value="<?php echo esc_attr( (string) $match_length ); ?>" data-tt-match-length />
+                    <p class="tt-match-minutes-summary" data-tt-subs-summary
+                       data-tt-subs-on="<?php echo (int) $participation['subs_on']; ?>"
+                       data-tt-subs-off="<?php echo (int) $participation['subs_off']; ?>">
+                        <?php echo esc_html( sprintf(
+                            /* translators: 1: number of substitutes brought on, 2: starters subbed off */
+                            __( 'Subs: %1$d on · %2$d off', 'talenttrack' ),
+                            (int) $participation['subs_on'],
+                            (int) $participation['subs_off']
+                        ) ); ?>
+                    </p>
+                </div>
+            <?php endif; ?>
 
             <?php if ( ! $all_players ) : ?>
                 <p><em><?php esc_html_e( 'No players on your teams yet.', 'talenttrack' ); ?></em></p>
@@ -1917,10 +1950,14 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                         <span class="tt-attendance-summary" data-tt-attendance-summary="1"></span>
                     </div>
 
-                    <table class="tt-table tt-attendance-table">
+                    <table class="tt-table tt-attendance-table<?php echo $is_match_type ? ' tt-attendance-table--match' : ''; ?>">
                         <thead><tr>
                             <th><?php esc_html_e( 'Player', 'talenttrack' ); ?></th>
                             <th><?php esc_html_e( 'Status', 'talenttrack' ); ?></th>
+                            <?php if ( $is_match_type ) : ?>
+                                <th><?php esc_html_e( 'Starter', 'talenttrack' ); ?></th>
+                                <th><?php esc_html_e( 'Minutes', 'talenttrack' ); ?></th>
+                            <?php endif; ?>
                             <th><?php esc_html_e( 'Notes', 'talenttrack' ); ?></th>
                         </tr></thead>
                         <tbody>
@@ -1928,6 +1965,8 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                             $row_team_id = (int) $pl->team_id;
                             $row_status  = (string) ( $attendance[ $pid ]->status ?? 'Present' );
                             $row_notes   = (string) ( $attendance[ $pid ]->notes  ?? '' );
+                            $row_starter = strtolower( (string) ( $attendance[ $pid ]->lineup_role ?? '' ) ) === 'start';
+                            $row_minutes = $attendance[ $pid ]->minutes_played ?? null;
                             ?>
                             <tr class="tt-attendance-row" data-team-id="<?php echo $row_team_id; ?>">
                                 <td data-label="<?php esc_attr_e( 'Player', 'talenttrack' ); ?>">
@@ -1940,6 +1979,14 @@ class FrontendActivitiesManageView extends FrontendViewBase {
                                         <?php endforeach; ?>
                                     </select>
                                 </td>
+                                <?php if ( $is_match_type ) : ?>
+                                    <td data-label="<?php esc_attr_e( 'Starter', 'talenttrack' ); ?>">
+                                        <input type="checkbox" class="tt-attendance-starter" name="att[<?php echo (int) $pid; ?>][starter]" value="1" <?php checked( $row_starter ); ?> data-tt-attendance-starter />
+                                    </td>
+                                    <td data-label="<?php esc_attr_e( 'Minutes', 'talenttrack' ); ?>">
+                                        <input type="number" inputmode="numeric" min="0" max="300" class="tt-input tt-attendance-minutes" name="att[<?php echo (int) $pid; ?>][minutes]" value="<?php echo esc_attr( $row_minutes === null ? '' : (string) (int) $row_minutes ); ?>" data-tt-attendance-minutes />
+                                    </td>
+                                <?php endif; ?>
                                 <td data-label="<?php esc_attr_e( 'Notes', 'talenttrack' ); ?>">
                                     <input type="text" class="tt-input" name="att[<?php echo (int) $pid; ?>][notes]" value="<?php echo esc_attr( $row_notes ); ?>" />
                                 </td>

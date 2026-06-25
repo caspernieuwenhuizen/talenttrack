@@ -343,6 +343,33 @@ final class ActivitiesRepository {
     }
 
     /**
+     * #1726 — derived substitution counts for a completed match, from the
+     * directly-entered per-player minutes + starter flags:
+     *   - subs_off = starters who played less than the full match length
+     *   - subs_on  = non-starters (bench) who played > 0 minutes
+     * Single source of truth so the REST payload and the rendered form
+     * agree. Rows without a minutes value don't count either way.
+     *
+     * @return array{subs_on:int, subs_off:int}
+     */
+    public function matchParticipationSummary( int $activity_id, int $match_length ): array {
+        $subs_on  = 0;
+        $subs_off = 0;
+        foreach ( $this->attendanceMapByPlayer( $activity_id ) as $row ) {
+            $minutes = $row->minutes_played ?? null;
+            if ( $minutes === null || $minutes === '' ) continue;
+            $minutes = (int) $minutes;
+            $is_start = strtolower( (string) ( $row->lineup_role ?? '' ) ) === 'start';
+            if ( $is_start ) {
+                if ( $match_length > 0 && $minutes < $match_length ) $subs_off++;
+            } elseif ( $minutes > 0 ) {
+                $subs_on++;
+            }
+        }
+        return [ 'subs_on' => $subs_on, 'subs_off' => $subs_off ];
+    }
+
+    /**
      * #1453 — the planned (expected) attendance roster for an activity:
      * the `record_type='expected'` rows seeded by the activity wizard's
      * AttendanceRosterStep (#1297) and the match-prep flow. One entry
