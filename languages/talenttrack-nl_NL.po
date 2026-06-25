@@ -41241,6 +41241,37 @@ msgstr "Oranje tot"
 msgid "Could not create the test."
 msgstr "De test kon niet worden aangemaakt."
 
+msgid "Testing coverage"
+msgstr "Testdekking"
+
+msgid "You do not have permission to view testing coverage."
+msgstr "Je hebt geen toestemming om testdekking te bekijken."
+
+msgid "Choose a team to see who is due or overdue for each test."
+msgstr "Kies een team om te zien wie voor elke test aan de beurt of te laat is."
+
+msgid "— Choose team —"
+msgstr "— Kies team —"
+
+msgid "No scheduled tests, or no players on this team yet. Coverage only counts tests that have a recurrence."
+msgstr "Nog geen geplande tests of geen spelers in dit team. Dekking telt alleen tests met een herhaling."
+
+#, php-format
+msgid "%1$d of %2$d up to date"
+msgstr "%1$d van %2$d up-to-date"
+
+msgid "Everyone is up to date."
+msgstr "Iedereen is up-to-date."
+
+msgid "Due soon"
+msgstr "Binnenkort aan de beurt"
+
+msgid "Never tested"
+msgstr "Nooit getest"
+
+msgid "See who is due or overdue for each test."
+msgstr "Bekijk wie voor elke test aan de beurt of te laat is."
+
 #~ msgid "Delete this holiday?"
 #~ msgstr "Deze vakantie verwijderen?"
 

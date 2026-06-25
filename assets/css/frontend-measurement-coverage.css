@@ -1,0 +1,103 @@
+/*
+ * frontend-measurement-coverage.css (#1882) — staff "testing coverage"
+ * insights: per-test, who's due/overdue on a team. Mobile-first, scoped
+ * under .tt-dashboard, tokens only.
+ */
+
+.tt-dashboard .tt-mc-picker {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.6rem;
+    margin: 0 0 1rem;
+    flex-wrap: wrap;
+}
+.tt-dashboard .tt-mc-picker__field { display: flex; flex-direction: column; gap: 0.25rem; min-width: 220px; }
+.tt-dashboard .tt-mc-picker__label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--tt-muted, #5b6e75);
+}
+.tt-dashboard .tt-mc-hint,
+.tt-dashboard .tt-mc-card__clear { color: var(--tt-muted, #5b6e75); font-size: 0.88rem; }
+
+.tt-dashboard .tt-mc-card {
+    background: #fff;
+    border: 1px solid #e3e6e1;
+    border-radius: 14px;
+    box-shadow: var(--tt-shadow-md);
+    padding: 0.9rem 1.05rem;
+    margin: 0 0 0.85rem;
+    max-width: 720px;
+}
+.tt-dashboard .tt-mc-card__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.6rem;
+}
+.tt-dashboard .tt-mc-card__title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--tt-primary, #0b3d2e);
+}
+.tt-dashboard .tt-mc-card__freq {
+    flex: 0 0 auto;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--tt-muted, #5b6e75);
+    white-space: nowrap;
+}
+.tt-dashboard .tt-mc-card__summary {
+    margin: 0.4rem 0 0.35rem;
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: var(--tt-ink);
+}
+.tt-dashboard .tt-mc-bar {
+    height: 8px;
+    border-radius: 999px;
+    background: #eceeea;
+    overflow: hidden;
+}
+.tt-dashboard .tt-mc-bar > i {
+    display: block;
+    height: 100%;
+    background: #2f9e5e;
+    border-radius: 999px;
+}
+
+.tt-dashboard .tt-mc-needs {
+    list-style: none;
+    margin: 0.6rem 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+.tt-dashboard .tt-mc-need {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    padding: 0.4rem 0.55rem;
+    background: var(--tt-paper-soft, #f4f6f3);
+    border: 1px solid #e3e6e1;
+    border-radius: 9px;
+}
+.tt-dashboard .tt-mc-need__name { font-size: 0.88rem; color: var(--tt-ink); min-width: 0; overflow-wrap: anywhere; }
+.tt-dashboard .tt-mc-chip {
+    flex: 0 0 auto;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 0.15rem 0.45rem;
+    border-radius: 7px;
+    white-space: nowrap;
+}
+.tt-dashboard .tt-mc-chip--overdue { background: #fbebeb; color: #b32d2e; }
+.tt-dashboard .tt-mc-chip--never { background: #f1f1f1; color: #5b6e75; }
+.tt-dashboard .tt-mc-chip--due_soon { background: #fff5db; color: #c9962a; }

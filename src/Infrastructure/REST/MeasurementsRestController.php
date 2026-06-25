@@ -107,6 +107,14 @@ class MeasurementsRestController {
                 'permission_callback' => [ __CLASS__, 'can_read_team_sessions' ],
             ],
         ]);
+        // #1882 — due/overdue coverage for a team (insights).
+        register_rest_route( self::NS, '/teams/(?P<team_id>\d+)/measurement-coverage', [
+            [
+                'methods'             => 'GET',
+                'callback'            => [ __CLASS__, 'get_team_coverage' ],
+                'permission_callback' => [ __CLASS__, 'can_read_team_sessions' ],
+            ],
+        ]);
         register_rest_route( self::NS, '/measurements/sessions', [
             [
                 'methods'             => 'POST',
@@ -156,6 +164,13 @@ class MeasurementsRestController {
         $player_id = absint( $r['player_id'] );
         $profile   = ( new PlayerMeasurementProfile() )->forPlayer( $player_id );
         return new \WP_REST_Response( [ 'player_id' => $player_id, 'categories' => $profile ], 200 );
+    }
+
+    /** #1882 — per-team due/overdue coverage across scheduled tests. */
+    public static function get_team_coverage( \WP_REST_Request $r ) {
+        $team_id  = absint( $r['team_id'] );
+        $coverage = ( new \TT\Modules\Measurements\Services\MeasurementCoverageService() )->forTeam( $team_id );
+        return new \WP_REST_Response( array_merge( [ 'team_id' => $team_id ], $coverage ), 200 );
     }
 
     public static function get_series( \WP_REST_Request $r ) {
