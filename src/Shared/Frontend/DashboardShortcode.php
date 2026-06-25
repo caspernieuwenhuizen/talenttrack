@@ -658,6 +658,11 @@ class DashboardShortcode {
             case 'evaluations':
                 FrontendEvaluationsView::render( $user_id, $is_admin );
                 return true;
+            // #1856 — bulk measurement result entry for a team. Matrix-
+            // gated on `measurements` change inside the view.
+            case 'measurements-entry':
+                \TT\Modules\Measurements\Frontend\FrontendMeasurementEntryView::render( $user_id, $is_admin );
+                return true;
             case 'activities':
                 FrontendActivitiesManageView::render( $user_id, $is_admin );
                 return true;

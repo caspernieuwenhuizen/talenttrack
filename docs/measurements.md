@@ -62,3 +62,13 @@ Players and parents get a **My measurements** tile that opens the
 value, a green/amber/red flag against the player's age-group target, a
 small trend line, and how often it runs. A parent sees their child's view;
 staff open a player's measurements from the player's profile.
+
+## Recording results
+
+Staff get a **Record measurements** tile. Pick a team, a test, and a date,
+then enter one value per player and **Save all** — it saves the whole
+roster in one go (blank players are skipped) and ties the values to a
+testing session for that date. Numeric tests show a number field with the
+unit; pass/fail tests show a dropdown. A coach can only record for their
+own teams; the head of development and academy admin can record for any
+team.
