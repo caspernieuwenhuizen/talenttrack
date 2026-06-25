@@ -41637,6 +41637,9 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+msgid "The week-by-week team-planning calendar. The Activities log stays available when this is off."
+msgstr "De week-voor-week teamplanningskalender. Het Activiteiten-logboek blijft beschikbaar als dit uit staat."
+
 #, php-format
 #~ msgid "My tasks (%d)"
 #~ msgstr "Mijn taken (%d)"
