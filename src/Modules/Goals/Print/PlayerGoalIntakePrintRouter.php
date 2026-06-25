@@ -675,8 +675,14 @@ body { font-family: var(--font); color: var(--ink); font-size: 11pt; line-height
 @media print {
     body { background: #fff; }
     .toolbar { display: none !important; }
-    .paper { margin: 0; box-shadow: none; width: 210mm; min-height: 297mm; page-break-after: always; }
-    .paper:last-child { page-break-after: auto; }
+    /* Pin each sheet to an exact A4 box and clip sub-pixel spill. A
+       min-height of 297mm inside a 0-margin A4 page rounds up past the
+       printable height on some renderers, bleeding every sheet onto a
+       trailing blank page so the batch's content cascades down across
+       pages. Fixed height + overflow:hidden keeps one logical page per
+       sheet; break-after:page forces the next player to start fresh. */
+    .paper { margin: 0; box-shadow: none; width: 210mm; height: 297mm; min-height: 0; overflow: hidden; page-break-after: always; break-after: page; }
+    .paper:last-child { page-break-after: auto; break-after: auto; }
 }
 
 .brand { font-size: 9pt; text-transform: uppercase; letter-spacing: 0.5px; color: var(--accent); font-weight: 700; margin: 0 0 4px; }
