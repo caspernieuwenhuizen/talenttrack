@@ -25,6 +25,8 @@ Klik een activiteit aan en **Doorgaan**. Of klik **→ Beoordeel direct een spel
 
 Stilletjes overgeslagen als de aanwezigheid al is geregistreerd. Anders: vink de status aan voor elke speler (aanwezig / te laat / afwezig / verontschuldigd). Standaard is **aanwezig**. Deze stap schrijft echte aanwezigheidsrijen, dus de activiteit zelf weerspiegelt ze daarna.
 
+Voor het veelvoorkomende "iedereen was er"-geval is er bovenaan een sneltoets — **Iedereen was er - doorgaan** zet de hele selectie op aanwezig en gaat in één tik direct door naar beoordelen. Markeer eerst eventuele afwezigen op de kaarten hieronder als dat nodig is, en gebruik hem dan (of de gewone **Volgende**).
+
 Alleen **aanwezig** + **te laat** spelers stromen door naar de beoordeelstap. Afwezig en verontschuldigd worden vastgelegd voor rapporten maar overgeslagen bij beoordelen.
 
 ### Stap 3 · Spelers beoordelen

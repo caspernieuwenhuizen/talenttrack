@@ -41599,6 +41599,12 @@ msgstr ""
 "\n"
 "Tot snel!"
 
+msgid "Everyone was here - continue"
+msgstr "Iedereen was er - doorgaan"
+
+msgid "Or mark any absences below first, then continue."
+msgstr "Of markeer eerst eventuele afwezigen hieronder en ga dan door."
+
 #~ msgid "Check your email for a password reset link."
 #~ msgstr ""
 #~ "Controleer uw e-mail voor een link om uw wachtwoord opnieuw in te stellen."
