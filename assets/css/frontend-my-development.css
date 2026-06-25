@@ -153,3 +153,29 @@
     font-size: 0.82rem;
     color: var(--tt-muted);
 }
+
+/* ---- #1903 — one-time welcome card -------------------------------- */
+.tt-dashboard .tt-devhome-welcome {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+    background: var(--tt-primary, #0b3d2e);
+    color: #fff;
+    border-radius: 14px;
+    box-shadow: var(--tt-shadow-md);
+    padding: 0.95rem 1.05rem;
+}
+.tt-dashboard .tt-devhome-welcome__title {
+    margin: 0 0 0.3rem;
+    font-size: 1.05rem;
+    font-weight: 800;
+}
+.tt-dashboard .tt-devhome-welcome__text {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.45;
+    opacity: 0.95;
+}
+.tt-dashboard .tt-devhome-welcome__dismiss { flex: 0 0 auto; margin: 0; }
+
