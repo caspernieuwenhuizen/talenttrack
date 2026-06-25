@@ -82,6 +82,10 @@ A goal can now link to one or more methodology entities:
 
 The links are surfaced on the player profile and in the print template; they let you query "all goals tied to *resilience* across the academy" or "every player working on *playing out from the back*".
 
+### Goals ↔ development talks (the "combine", #1853)
+
+A goal can also link to a **development talk**. On the conversation form, the coach ticks **Goals discussed in this talk** from the player's active goals; those links are saved alongside the talk. On *My PDP*, each conversation card then shows a **Goals discussed** list, so the player's self-review reflects on the goals that were actually covered — PDP and goals become genuinely combined rather than sitting side by side. (Turning an agreed action into a brand-new goal is a planned follow-up; this step is the read/link connective tissue.)
+
 ## Print
 
 The detail view's **Print / PDF** button opens a clean A4 layout: photo, season label, current goals + status, agreed actions per conversation, and signature lines for coach / player / parent. Toggle *Re-render with evidence page* to add a second A4 with recent evaluations and activities.

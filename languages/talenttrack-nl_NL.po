@@ -41065,6 +41065,11 @@ msgstr "Ontwikkelplan"
 msgid "Section"
 msgstr "Onderdeel"
 
+msgid "Goals discussed in this talk"
+msgstr "Doelen besproken in dit gesprek"
+
+msgid "Goals discussed"
+msgstr "Besproken doelen"
 msgid "A valid email address is required."
 msgstr "Een geldig e-mailadres is verplicht."
 

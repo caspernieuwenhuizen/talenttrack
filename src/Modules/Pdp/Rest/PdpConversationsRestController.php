@@ -62,13 +62,26 @@ class PdpConversationsRestController {
                 __( 'You do not have permission to update this conversation.', 'talenttrack' ), 403 );
         }
 
+        // #1853 — the coach links the goals discussed in this talk. It's a
+        // separate table (tt_goal_links), handled independently of the
+        // column patch and only for callers who can edit conversation
+        // content (the coach/admin whitelist includes `notes`). The hidden
+        // `linked_goal_ids_present` flag lets an empty selection clear them.
+        $goal_links_touched = false;
+        if ( in_array( 'notes', $allowed, true ) && ! empty( $r->get_param( 'linked_goal_ids_present' ) ) ) {
+            $raw = $r->get_param( 'linked_goal_ids' );
+            $ids = self::filterPlayerGoalIds( (int) $file->player_id, is_array( $raw ) ? $raw : [] );
+            ( new \TT\Modules\Pdp\Repositories\GoalLinksRepository() )->setGoalsForConversation( $id, $ids );
+            $goal_links_touched = true;
+        }
+
         $patch = [];
         foreach ( $allowed as $field ) {
             if ( ! array_key_exists( $field, (array) $r->get_params() ) ) continue;
             $patch[ $field ] = self::sanitizeField( $field, $r[ $field ] );
         }
         if ( ! $patch ) {
-            return RestResponse::success( [ 'id' => $id, 'unchanged' => true ] );
+            return RestResponse::success( [ 'id' => $id, 'unchanged' => ! $goal_links_touched ] );
         }
 
         // v3.110.197 (#809) — once ANY signature lands on the
@@ -135,6 +148,27 @@ class PdpConversationsRestController {
         \TT\Modules\Pdp\Workflow\PdpSelfReviewTasks::syncAfterPatch( $conv, $file, $patch );
 
         return RestResponse::success( [ 'id' => $id ] );
+    }
+
+    /**
+     * #1853 — keep only the goal IDs that actually belong to this player
+     * (non-archived), so a coach can't link arbitrary goals to a talk.
+     *
+     * @param array<int|string> $ids
+     * @return list<int>
+     */
+    private static function filterPlayerGoalIds( int $player_id, array $ids ): array {
+        $ids = array_values( array_unique( array_filter( array_map( 'absint', $ids ) ) ) );
+        if ( $player_id <= 0 || empty( $ids ) ) return [];
+
+        global $wpdb;
+        $ph     = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+        $params = array_merge( $ids, [ $player_id ] );
+        $rows   = $wpdb->get_col( $wpdb->prepare(
+            "SELECT id FROM {$wpdb->prefix}tt_goals WHERE id IN ($ph) AND player_id = %d AND archived_at IS NULL", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            ...$params
+        ) );
+        return array_map( 'intval', (array) $rows );
     }
 
     /**
