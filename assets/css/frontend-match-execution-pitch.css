@@ -1,0 +1,195 @@
+/*
+ * frontend-match-execution-pitch.css (#1713)
+ *
+ * Vertical positional pitch + chronological "Live verloop" event log
+ * for the live match-execution surface. Mobile-first: the pitch renders
+ * at 360px via aspect-ratio + percentage-positioned slots (no fixed px
+ * widths). Depends on the shared app-chrome sheet for tokens.
+ */
+
+.tt-mxp-pitch-section,
+.tt-mxp-log-section {
+    margin: var( --tt-sp-3, 12px ) 0;
+}
+
+/* ---- Vertical pitch -------------------------------------------------- */
+
+.tt-mxp-pitch {
+    position: relative;
+    width: 100%;
+    /* Portrait half-and-half pitch: taller than wide so the XI reads
+     * top (attack) to bottom (goalkeeper) on a phone. */
+    aspect-ratio: 68 / 100;
+    max-width: 26rem;
+    margin: 0 auto;
+    border-radius: var( --tt-radius-lg, 14px );
+    overflow: hidden;
+    background:
+        linear-gradient( 180deg, #4ea35f 0%, #3c8a4d 100% );
+    box-shadow: var( --tt-shadow-md, 0 6px 18px rgba( 0, 0, 0, 0.14 ) );
+    /* Pitch markings drawn with layered gradients so the sheet stays
+     * asset-free: centre line + a faint stripe pattern. */
+    background-image:
+        linear-gradient( 180deg, rgba( 255, 255, 255, 0.85 ) 0, rgba( 255, 255, 255, 0.85 ) 2px, transparent 2px ),
+        repeating-linear-gradient( 180deg, transparent 0, transparent 9%, rgba( 255, 255, 255, 0.05 ) 9%, rgba( 255, 255, 255, 0.05 ) 18% ),
+        linear-gradient( 180deg, #4ea35f 0%, #3c8a4d 100% );
+    background-position: center center, 0 0, 0 0;
+    background-size: 100% 100%, 100% 100%, 100% 100%;
+    background-repeat: no-repeat;
+}
+
+.tt-mxp-slot {
+    position: absolute;
+    transform: translate( -50%, -50% );
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    min-width: 3rem;
+    text-align: center;
+}
+
+.tt-mxp-slot-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    background: var( --tt-paper, #fff );
+    border: 2px solid var( --tt-ink, #1a1d21 );
+    color: var( --tt-ink, #1a1d21 );
+    font-size: 0.8125rem;
+    font-weight: 700;
+    line-height: 1;
+    box-shadow: var( --tt-shadow-sm, 0 2px 6px rgba( 0, 0, 0, 0.18 ) );
+}
+
+.tt-mxp-slot-name {
+    max-width: 5.5rem;
+    padding: 1px 4px;
+    border-radius: 6px;
+    background: rgba( 0, 0, 0, 0.45 );
+    color: #fff;
+    font-size: 0.625rem;
+    font-weight: 600;
+    line-height: 1.2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tt-mxp-slot-empty .tt-mxp-slot-badge {
+    background: rgba( 255, 255, 255, 0.55 );
+    border-style: dashed;
+    color: var( --tt-ink-soft, #5b6e75 );
+}
+
+.tt-mxp-slot-empty .tt-mxp-slot-name {
+    background: rgba( 0, 0, 0, 0.3 );
+}
+
+/* ---- Event log ("Live verloop") ------------------------------------- */
+
+.tt-mxp-log {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var( --tt-sp-2, 8px );
+}
+
+.tt-mxp-log-row {
+    display: grid;
+    grid-template-columns: auto auto 1fr auto;
+    align-items: center;
+    gap: var( --tt-sp-2, 8px );
+    min-height: 3rem; /* 48px tap/scan target */
+    padding: var( --tt-sp-2, 8px ) var( --tt-sp-3, 12px );
+    border: 1px solid var( --tt-line, #e3e6ea );
+    border-radius: var( --tt-radius, 8px );
+    background: var( --tt-paper, #fff );
+}
+
+.tt-mxp-log-minute {
+    font-variant-numeric: tabular-nums;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var( --tt-ink-soft, #5b6e75 );
+    white-space: nowrap;
+}
+
+.tt-mxp-log-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+/* Colour + icon + text, never colour alone. */
+.tt-mxp-log-chip--goal {
+    background: var( --tt-success-subtle, #e3f4e6 );
+    color: var( --tt-success, #1f7a3a );
+}
+
+.tt-mxp-log-chip--substitution {
+    background: var( --tt-info-subtle, #e4eefb );
+    color: var( --tt-info, #235ea8 );
+}
+
+.tt-mxp-log-icon {
+    font-size: 0.8125rem;
+    line-height: 1;
+}
+
+.tt-mxp-log-detail {
+    font-size: 0.8125rem;
+    color: var( --tt-ink, #1a1d21 );
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tt-mxp-log-score {
+    font-variant-numeric: tabular-nums;
+    font-size: 0.8125rem;
+    font-weight: 800;
+    color: var( --tt-ink, #1a1d21 );
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: var( --tt-bg-soft, #f3f5f7 );
+    white-space: nowrap;
+}
+
+/* ---- Scale up on larger phones / tablets ---------------------------- */
+
+@media ( min-width: 480px ) {
+    .tt-mxp-slot-badge {
+        width: 2.5rem;
+        height: 2.5rem;
+        font-size: 0.875rem;
+    }
+
+    .tt-mxp-slot-name {
+        font-size: 0.6875rem;
+        max-width: 6.5rem;
+    }
+}
+
+@media ( min-width: 768px ) {
+    .tt-mxp-pitch {
+        max-width: 30rem;
+    }
+}
+
+@media ( prefers-reduced-motion: reduce ) {
+    .tt-mxp-log-row {
+        transition: none;
+    }
+}
