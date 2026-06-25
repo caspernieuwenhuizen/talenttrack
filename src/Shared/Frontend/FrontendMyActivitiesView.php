@@ -16,6 +16,20 @@ use TT\Infrastructure\Activities\ActivitiesRepository;
  */
 class FrontendMyActivitiesView extends FrontendViewBase {
 
+    /**
+     * #1901 — 2026 chrome for the activity detail + the list's mobile
+     * cards, on top of the shared frontend assets. Scoped to this view.
+     */
+    protected static function enqueueAssets(): void {
+        parent::enqueueAssets();
+        wp_enqueue_style(
+            'tt-frontend-my-activities',
+            TT_PLUGIN_URL . 'assets/css/frontend-my-activities.css',
+            [ 'tt-frontend-app-chrome' ],
+            TT_VERSION
+        );
+    }
+
     public static function render( object $player ): void {
         $id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
         if ( $id > 0 ) {
@@ -48,6 +62,7 @@ class FrontendMyActivitiesView extends FrontendViewBase {
         // accepts `filter[player_id]` (added in this release) and the
         // `can_view` permission gate allows the player or their parent
         // to read their own attendance via this filter.
+        echo '<div class="tt-myact-list">';
         echo \TT\Shared\Frontend\Components\FrontendListTable::render( [
             'rest_path' => 'activities',
             'static_filters' => [
@@ -85,6 +100,7 @@ class FrontendMyActivitiesView extends FrontendViewBase {
             // selection note in ActivitiesRestController::format_row).
             'row_url_key'  => 'detail_url',
         ] );
+        echo '</div>';
     }
 
     /**
@@ -181,7 +197,7 @@ class FrontendMyActivitiesView extends FrontendViewBase {
 
             <?php if ( $att_notes !== '' ) : ?>
                 <section class="tt-activity-detail-body">
-                    <h3 style="margin:0 0 var(--tt-sp-2); font-size:1rem;"><?php esc_html_e( 'Notes from your coach', 'talenttrack' ); ?></h3>
+                    <h3 class="tt-activity-detail-body__h"><?php esc_html_e( 'Notes from your coach', 'talenttrack' ); ?></h3>
                     <p><?php echo esc_html( \TT\Modules\Translations\TranslationLayer::render( $att_notes ) ); ?></p>
                 </section>
             <?php endif; ?>
