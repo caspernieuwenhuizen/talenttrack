@@ -1,0 +1,313 @@
+/*
+ * frontend-eval-coverage.css (#1380)
+ * Evaluation-window coverage report (HoD). Mobile-first: base styles
+ * target ~360px; the matrices scroll horizontally inside their card so
+ * the page itself never overflows. Cell state is conveyed by icon + text
+ * (not colour alone) for accessibility.
+ *
+ * Depends on tt-frontend-app-chrome for the brand tokens + .tt-kpi tiles.
+ */
+
+.tt-ec-card {
+    background: var(--tt-paper, #fff);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius-lg, 14px);
+    padding: var(--tt-sp-4, 16px);
+    margin: 0 0 var(--tt-sp-4, 16px);
+}
+
+.tt-ec-card__title {
+    font-size: var(--tt-fs-h3, 1.25rem);
+    color: var(--tt-ink, #0e1a14);
+    margin: 0 0 var(--tt-sp-3, 12px);
+}
+
+.tt-ec-help {
+    color: var(--tt-muted, #6a6d66);
+    font-size: var(--tt-fs-sm, 0.85rem);
+    margin: 0 0 var(--tt-sp-3, 12px);
+}
+
+/* Screen-reader-only utility (scoped, prefixed). */
+.tt-ec-card .tt-screen-reader-text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* ===== Windows editor ===== */
+
+.tt-ec-window-rows {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-3, 12px);
+}
+
+.tt-ec-window-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--tt-sp-2, 8px);
+    padding: var(--tt-sp-3, 12px);
+    border: 1px solid var(--tt-line-soft, #eef0ec);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-bg-soft, #f4f6f3);
+}
+
+.tt-ec-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-1, 4px);
+}
+
+.tt-ec-field__label {
+    font-size: var(--tt-fs-sm, 0.85rem);
+    color: var(--tt-muted, #6a6d66);
+}
+
+.tt-ec-field input {
+    min-height: 48px;
+    font-size: 16px; /* prevent iOS auto-zoom on focus */
+    padding: 0 var(--tt-sp-3, 12px);
+    border: 1px solid var(--tt-line, #e3e6e1);
+    border-radius: var(--tt-radius, 8px);
+    background: var(--tt-paper, #fff);
+    color: var(--tt-ink, #0e1a14);
+}
+
+.tt-ec-field input:focus-visible {
+    outline: 2px solid var(--tt-primary, #0b3d2e);
+    outline-offset: 1px;
+}
+
+.tt-ec-window-actions {
+    margin-top: var(--tt-sp-4, 16px);
+}
+
+.tt-ec-window-actions .tt-btn {
+    min-height: 48px;
+}
+
+/* ===== KPI strip ===== */
+
+.tt-ec-kpis {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--tt-sp-3, 12px);
+    margin: 0 0 var(--tt-sp-4, 16px);
+}
+
+/* ===== Gaps by coach ===== */
+
+.tt-ec-coach-gaps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-2, 8px);
+}
+
+.tt-ec-coach-gap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--tt-sp-3, 12px);
+    min-height: 48px;
+    padding: 0 var(--tt-sp-3, 12px);
+    border: 1px solid var(--tt-line-soft, #eef0ec);
+    border-radius: var(--tt-radius, 8px);
+}
+
+.tt-ec-coach-gap__name {
+    color: var(--tt-ink, #0e1a14);
+    font-weight: 600;
+}
+
+.tt-ec-coach-gap__count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2rem;
+    min-height: 1.75rem;
+    padding: 0 var(--tt-sp-2, 8px);
+    border-radius: 999px;
+    background: var(--tt-danger-subtle, #fde2e2);
+    color: var(--tt-danger, #d8453b);
+    font-weight: 700;
+}
+
+/* ===== Coach filter chips ===== */
+
+.tt-ec-coach-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-2, 8px);
+}
+
+.tt-ec-coach-chip {
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+}
+
+/* ===== Scrollable matrices ===== */
+
+.tt-ec-matrix-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+}
+
+.tt-ec-matrix,
+.tt-ec-att {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 32rem;
+    font-size: var(--tt-fs-sm, 0.85rem);
+}
+
+.tt-ec-matrix th,
+.tt-ec-matrix td,
+.tt-ec-att th,
+.tt-ec-att td {
+    padding: var(--tt-sp-2, 8px) var(--tt-sp-3, 12px);
+    border-bottom: 1px solid var(--tt-line-soft, #eef0ec);
+    text-align: left;
+    vertical-align: middle;
+}
+
+.tt-ec-matrix thead th,
+.tt-ec-att thead th {
+    color: var(--tt-muted, #6a6d66);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.tt-ec-matrix__player {
+    position: sticky;
+    left: 0;
+    background: var(--tt-paper, #fff);
+    z-index: 1;
+    min-width: 9rem;
+}
+
+.tt-ec-matrix__win {
+    text-align: center;
+}
+
+.tt-ec-win-name {
+    display: block;
+    color: var(--tt-ink, #0e1a14);
+    font-weight: 600;
+}
+
+.tt-ec-win-range {
+    display: block;
+    color: var(--tt-muted, #6a6d66);
+    font-size: 0.75rem;
+}
+
+.tt-ec-matrix__team-row .tt-ec-matrix__team {
+    background: var(--tt-bg-soft, #f4f6f3);
+    color: var(--tt-ink, #0e1a14);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    font-size: 0.75rem;
+}
+
+.tt-ec-cell {
+    text-align: center;
+}
+
+.tt-ec-cell__icon {
+    display: inline-block;
+    min-width: 1.5rem;
+    font-size: 1.1rem;
+    line-height: 1;
+}
+
+.tt-ec-cell--ok .tt-ec-cell__icon {
+    color: var(--tt-success, #2f9e5e);
+}
+
+.tt-ec-cell--gap {
+    background: var(--tt-danger-subtle, #fde2e2);
+}
+
+.tt-ec-cell--gap .tt-ec-cell__icon {
+    color: var(--tt-danger, #d8453b);
+}
+
+/* ===== Attendance compliance ===== */
+
+.tt-ec-att__empty {
+    color: var(--tt-muted, #6a6d66);
+    text-align: center;
+}
+
+.tt-ec-att-val--none {
+    color: var(--tt-muted, #6a6d66);
+    font-style: italic;
+}
+
+.tt-ec-att-bar {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 4rem;
+}
+
+.tt-ec-att-bar__v {
+    color: var(--tt-ink, #0e1a14);
+    font-weight: 600;
+}
+
+.tt-ec-att-bar.is-low .tt-ec-att-bar__v {
+    color: var(--tt-danger, #d8453b);
+}
+
+.tt-ec-att-bar__track {
+    display: block;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--tt-line, #e3e6e1);
+    overflow: hidden;
+}
+
+.tt-ec-att-bar__track > i {
+    display: block;
+    height: 100%;
+    background: var(--tt-success, #2f9e5e);
+}
+
+.tt-ec-att-bar.is-low .tt-ec-att-bar__track > i {
+    background: var(--tt-danger, #d8453b);
+}
+
+/* ===== Larger viewports ===== */
+
+@media (min-width: 480px) {
+    .tt-ec-window-row {
+        grid-template-columns: 2fr 1fr 1fr;
+        align-items: end;
+    }
+}
+
+@media (min-width: 768px) {
+    .tt-ec-kpis {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tt-ec-att-bar__track > i {
+        transition: none;
+    }
+}

@@ -41035,6 +41035,114 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/CoreSurfaceRegistration.php
+msgid "Evaluation-window coverage"
+msgstr "Evaluatieperiode-dekking"
+
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php
+msgid "Coverage matrix"
+msgstr "Dekkingsmatrix"
+
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php
+msgid "Attendance-recording compliance"
+msgstr "Naleving aanwezigheidsregistratie"
+
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php
+msgid "Evaluation windows"
+msgstr "Evaluatieperiodes"
+
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php
+msgid "Evaluation windows saved."
+msgstr "Evaluatieperiodes opgeslagen."
+
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php
+msgid "Windows"
+msgstr "Periodes"
+
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php
+msgid "Gaps"
+msgstr "Gaten"
+
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php
+msgid "Gaps by coach"
+msgstr "Gaten per coach"
+
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php
+msgid "No activity"
+msgstr "Geen activiteit"
+
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php
+msgid "Not evaluated"
+msgstr "Niet geëvalueerd"
+
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php
+msgid "Save windows"
+msgstr "Periodes opslaan"
+
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php
+msgid "Open evaluations by coach"
+msgstr "Evaluaties openen per coach"
+
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php
+msgid "Every player is covered in every window."
+msgstr "Elke speler is gedekt in elke periode."
+
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php
+msgid "No teams to report."
+msgstr "Geen teams om te tonen."
+
+#: src/Infrastructure/REST/EvalCoverageRestController.php
+msgid "Expected a list of windows."
+msgstr "Een lijst met periodes verwacht."
+
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php
+msgid "Add at least one evaluation window above to see coverage."
+msgstr "Voeg hierboven minstens één evaluatieperiode toe om dekking te zien."
+
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php
+msgid "No evaluation in this window"
+msgstr "Geen evaluatie in deze periode"
+
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php
+msgid "e.g. Autumn review"
+msgstr "bijv. Najaarsbeoordeling"
+
+#. translators: %s is the evaluating coach's name.
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php
+#, php-format
+msgid "Evaluated by %s"
+msgstr "Geëvalueerd door %s"
+
+#. translators: 1: activities with attendance, 2: completed activities.
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php
+#, php-format
+msgid "%1$d of %2$d activities"
+msgstr "%1$d van %2$d activiteiten"
+
+#. translators: %d is the number of evaluation gaps.
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php
+#, php-format
+msgid "%d gap"
+msgid_plural "%d gaps"
+msgstr[0] "%d gat"
+msgstr[1] "%d gaten"
+
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php
+msgid "Define the periods each player should be evaluated in this season. Leave a row blank to remove it."
+msgstr "Bepaal de periodes waarin elke speler dit seizoen geëvalueerd hoort te worden. Maak een rij leeg om die te verwijderen."
+
+#: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php
+msgid "Share of completed activities in each window that have any attendance recorded."
+msgstr "Aandeel afgeronde activiteiten per periode waarvoor enige aanwezigheid is geregistreerd."
+
+#: src/Shared/CoreSurfaceRegistration.php
+msgid "Which players are unevaluated this window, and which coach owns the gap."
+msgstr "Welke spelers deze periode niet geëvalueerd zijn, en welke coach verantwoordelijk is voor het gat."
+
+#: src/Modules/Documentation/HelpTopics.php
+msgid "Which players are unevaluated this window, which coach owns the gap, and per-team attendance-recording compliance."
+msgstr "Welke spelers deze periode niet geëvalueerd zijn, welke coach verantwoordelijk is voor het gat, en de naleving van aanwezigheidsregistratie per team."
+
 #~ msgid "Delete this holiday?"
 #~ msgstr "Deze vakantie verwijderen?"
 
