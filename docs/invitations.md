@@ -39,7 +39,7 @@ The recipient taps the link → lands on the dashboard's accept-invite route →
    - Staff → confirmation of role + team (set by the inviter; not editable here).
 3. **Submit** — the plugin creates the WP user, runs the linking step, signs them in, redirects to their dashboard.
 
-If the recipient is **already signed in and their email matches** the invitation, the silent-link path runs: no form, just a one-click "Accept and continue" button.
+If the recipient is **already signed in and their email matches** the invitation, the silent-link path runs: no full form, just a one-click "Accept and continue" button. For a **parent** invitation it still asks for the relationship (parent / mother / father / guardian) so a carer is never linked with an assumed role. On the full accept form, the recovery email is pre-filled from the invitation with a short note explaining it's only used for password recovery (and can be changed).
 
 ## Capabilities
 
