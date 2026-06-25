@@ -680,11 +680,59 @@ class TeamDevelopmentRestController {
         // share-link view).
         $bp['assignment_refs'] = self::hydrateAssignmentRefs( $repo->loadAssignmentRefs( $id ) );
 
+        // #1017 Phase 4 — reworked engine, behind the `chemistry_engine_v2`
+        // toggle (default off). Additive: the old blueprint_chemistry stays
+        // the live signal until an academy opts in once attributes are
+        // populated. Records a snapshot so Team chemistry can window over it.
+        $chemistry_v2 = self::computeChemistryV2(
+            (int) ( $bp['team_id'] ?? 0 ),
+            (array) ( $bp['slots'] ?? [] ),
+            $primary_lineup
+        );
+
         return RestResponse::success( [
             'blueprint'           => $bp,
             'blueprint_chemistry' => $blueprint_chemistry,
+            'chemistry_v2'        => $chemistry_v2,
             'chemistry_error'     => $chemistry_error,
         ] );
+    }
+
+    /**
+     * #1017 Phase 4 — compute the reworked lineup chemistry when the
+     * `chemistry_engine_v2` toggle is on, record a snapshot, and return the
+     * payload (lineup + unit scores + windowed team score + pairs). Null
+     * when the toggle is off or computation throws — the response degrades
+     * to the legacy chemistry exactly as before.
+     *
+     * @param list<array<string,mixed>> $slots
+     * @param array<string, ?int>       $lineup
+     * @return array<string,mixed>|null
+     */
+    private static function computeChemistryV2( int $team_id, array $slots, array $lineup ): ?array {
+        if ( $team_id <= 0 ) return null;
+        if ( ! class_exists( '\\TT\\Infrastructure\\Config\\ConfigService' ) ) return null;
+        $cfg = new \TT\Infrastructure\Config\ConfigService();
+        if ( ! $cfg->getBool( 'chemistry_engine_v2', false ) ) return null;
+
+        try {
+            $lineupResult = ( new \TT\Modules\TeamDevelopment\Chemistry\LineupChemistryAggregator() )
+                ->aggregate( $team_id, $slots, $lineup );
+
+            $team = new \TT\Modules\TeamDevelopment\Chemistry\TeamChemistryAggregator();
+            $team->recordSnapshot( $team_id, $lineupResult['lineup_score'] ?? null, 'blueprint_save' );
+
+            $lineupResult['team_score'] = $team->teamChemistry( $team_id );
+            return $lineupResult;
+        } catch ( \Throwable $e ) {
+            if ( class_exists( '\\TT\\Infrastructure\\Logging\\Logger' ) ) {
+                \TT\Infrastructure\Logging\Logger::error( 'chemistry.v2.failed', [
+                    'team_id' => $team_id,
+                    'error'   => $e->getMessage(),
+                ] );
+            }
+            return null;
+        }
     }
 
     /**
