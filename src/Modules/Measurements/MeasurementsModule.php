@@ -7,7 +7,9 @@ use TT\Core\Container;
 use TT\Core\ModuleInterface;
 use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\REST\MeasurementsRestController;
+use TT\Modules\Measurements\Wizards\NewMeasurementWizard;
 use TT\Shared\Tiles\TileRegistry;
+use TT\Shared\Wizards\WizardRegistry;
 
 /**
  * MeasurementsModule (#1856, epic #1854).
@@ -31,6 +33,12 @@ class MeasurementsModule implements ModuleInterface {
 
     public function boot( Container $container ): void {
         MeasurementsRestController::init();
+
+        if ( class_exists( WizardRegistry::class ) ) {
+            // §3 wizard-first: creating a test definition runs through the
+            // "+ New test" wizard.
+            WizardRegistry::register( new NewMeasurementWizard() );
+        }
 
         if ( class_exists( TileRegistry::class ) ) {
             // The player/parent "Mijn metingen" tile. Gated on the
