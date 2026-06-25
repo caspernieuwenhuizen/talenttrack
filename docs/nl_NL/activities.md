@@ -37,6 +37,8 @@ De filters blijven bewaard in de URL (`?team_id=N&activity_type_key=match&show_c
 
 Onder de filters staat een rij **periodeknoppen**: **Alle · Deze week · Volgende week · Deze maand · Volgende maand · Dit seizoen**. Tik op één om de lijst tot dat datumvenster te beperken zonder datums te typen — weken lopen van maandag tot zondag, maanden zijn kalendermaanden, en **Dit seizoen** gebruikt je ingestelde huidige seizoen. De keuze blijft bewaard in de URL (`?period=this_week`) en combineert met de Team- en Type-filters.
 
+Onder de periodeknoppen staat een statuskeuze **Actief · Gearchiveerd · Alle**. **Actief** is de standaard — de tijdlijn die je normaal ziet. **Gearchiveerd** vervangt de tijdlijn door een platte lijst van de activiteiten die je hebt gearchiveerd, elk met een knop **Herstellen** en (voor beheerders) een knop **Definitief verwijderen**. **Alle** toont de actieve tijdlijn met de gearchiveerde lijst eronder. De keuze blijft bewaard in de URL (`?archived=archived`).
+
 ## De activiteitdetailpagina
 
 Door op een kaart te tikken open je de detailpagina van de activiteit, opgebouwd uit kaarten zodat elk geregistreerd detail in één oogopslag zichtbaar is. De pagina past zich aan tussen een **training** en een **wedstrijddag**:
@@ -119,7 +121,12 @@ Een gastoptreden telt **wel** mee voor de belasting van de gastspeler zelf. Op h
 
 ## Opruimen
 
-Je kunt een activiteit archiveren om oude seizoenen op te ruimen zonder de historie kwijt te raken.
+Je kunt een activiteit **archiveren** om oude seizoenen op te ruimen zonder de historie kwijt te raken. De knop **Archiveren** op de detailpagina van de activiteit verbergt de activiteit uit de actieve tijdlijn, maar bewaart de rij — en de opkomst — volledig.
+
+Gearchiveerde activiteiten staan onder het statustabblad **Gearchiveerd** in het activiteitenoverzicht (zie [Filters](#filters)). Daar kun je:
+
+- Een activiteit **herstellen** — ze keert precies zoals ze was terug naar de actieve tijdlijn.
+- **Definitief verwijderen** — een actie alleen voor beheerders (vereist de rechten *instellingen bewerken*) die de activiteit voorgoed verwijdert. Dit kan niet ongedaan worden gemaakt. Als de activiteit nog gekoppelde gegevens heeft (opkomst, oefeningen, wedstrijdgegevens), wordt het verwijderen geblokkeerd en blijft de activiteit gearchiveerd — herstel haar of verwijder die gegevens eerst. Archiveren is de veilige standaard; definitief verwijderen is de zeldzame uitzondering.
 
 ## Geoefende principes (v3.79.0)
 

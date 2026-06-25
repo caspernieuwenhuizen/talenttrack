@@ -505,11 +505,20 @@ final class ActivitiesRepository {
      *
      * @return object[]
      */
-    public function listForManageSurface( int $team_filter, string $type_filter, int $user_id, string $date_from = '', string $date_to = '', bool $show_cancelled = false ): array {
+    public function listForManageSurface( int $team_filter, string $type_filter, int $user_id, string $date_from = '', string $date_to = '', bool $show_cancelled = false, string $archived_view = 'active' ): array {
         global $wpdb;
         $p = $wpdb->prefix;
 
-        $where  = [ 's.club_id = %d', 's.archived_at IS NULL' ];
+        // #1555 — Active / Archived / All status filter, mirroring the
+        // goals/players/teams archive lifecycle. 'active' (default) keeps
+        // the historical behaviour of hiding archived rows.
+        $archived_view = \TT\Infrastructure\Archive\ArchiveRepository::sanitizeView( $archived_view );
+        $where  = [ 's.club_id = %d' ];
+        if ( $archived_view === 'active' ) {
+            $where[] = 's.archived_at IS NULL';
+        } elseif ( $archived_view === 'archived' ) {
+            $where[] = 's.archived_at IS NOT NULL';
+        }
         $params = [ CurrentClub::id() ];
 
         // #1862 — cancelled activities are noise on the schedule, so hide

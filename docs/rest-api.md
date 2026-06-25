@@ -36,7 +36,7 @@ PR-set 8 (the PHPStan rule that gates all literal -> constant migration enforcem
 
 | Resource         | Routes                                                                                        | Source                                                  |
 | ---              | ---                                                                                           | ---                                                     |
-| Sessions         | `GET/POST /sessions`, `PUT/DELETE /sessions/{id}`                                             | `src/Infrastructure/REST/ActivitiesRestController.php`    |
+| Sessions         | `GET/POST /sessions`, `PUT/DELETE /sessions/{id}` (DELETE soft-archives, #1555), `POST /sessions/{id}/restore`, `DELETE /sessions/{id}/permanent` (gated on `tt_edit_settings`) | `src/Infrastructure/REST/ActivitiesRestController.php`    |
 | Attendance (#0026) | `POST /sessions/{id}/guests`, `PATCH /attendance/{id}`, `DELETE /attendance/{id}`            | same controller                                         |
 | Players          | `GET/POST /players`, `PUT/DELETE /players/{id}`, `POST /players/import`                       | `PlayersRestController.php`                             |
 | Teams            | `GET/POST /teams`, `PUT/DELETE /teams/{id}`, roster ops at `/teams/{id}/players/{player_id}` | `TeamsRestController.php`                               |

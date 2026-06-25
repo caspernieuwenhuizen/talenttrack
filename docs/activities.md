@@ -37,6 +37,8 @@ The filters survive in the URL (`?team_id=N&activity_type_key=match&show_cancell
 
 A row of **period pills** sits below the filters: **All · This week · Next week · This month · Next month · This season**. Tapping one narrows the list to that date window without typing dates — weeks run Monday–Sunday, months are calendar months, and **This season** uses your configured current season. The choice survives in the URL (`?period=this_week`) and combines with the Team and Type filters.
 
+Below the period pills is an **Active · Archived · All** status control. **Active** is the default — the timeline you normally see. **Archived** replaces the timeline with a flat list of the activities you've archived, each with a **Restore** button and (for admins) a **Delete permanently** button. **All** shows the active timeline with the archived list appended below it. The choice survives in the URL (`?archived=archived`).
+
 ## The activity detail page
 
 Tapping a card opens the activity's detail page, laid out as a set of cards so every registered detail is visible at a glance. It adapts between a **training** and a **match day**:
@@ -119,7 +121,12 @@ A guest appearance **does** count toward the guesting player's own load. On a pl
 
 ## Cleaning up
 
-You can archive an activity to clean up old seasons without losing its history.
+You can **archive** an activity to clean up old seasons without losing its history. The **Archive** button on the activity detail page hides the activity from the active timeline but keeps the row — and its attendance — intact.
+
+Archived activities live under the **Archived** status tab on the activities list (see [Filters](#filters)). From there you can:
+
+- **Restore** an activity — it returns to the active timeline exactly as it was.
+- **Delete permanently** — an admin-only action (requires the *edit settings* capability) that removes the activity for good. This cannot be undone. If the activity still has attached records (attendance, exercises, match data), the delete is blocked and the activity stays archived — restore it or clear those records first. Archiving is the safe default; permanent deletion is the rare exception.
 
 ## Principles practiced (v3.79.0)
 

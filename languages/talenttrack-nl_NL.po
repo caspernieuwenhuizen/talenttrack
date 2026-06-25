@@ -41605,6 +41605,29 @@ msgstr "Iedereen was er - doorgaan"
 msgid "Or mark any absences below first, then continue."
 msgstr "Of markeer eerst eventuele afwezigen hieronder en ga dan door."
 
+# #1555 — Activities archive lifecycle
+msgid "Restore this activity? It will reappear in the active list."
+msgstr "Deze activiteit herstellen? Ze verschijnt weer in de actieve lijst."
+
+msgid "Permanently delete this activity? This cannot be undone."
+msgstr "Deze activiteit definitief verwijderen? Dit kan niet ongedaan worden gemaakt."
+
+msgid "No archived activities"
+msgstr "Geen gearchiveerde activiteiten"
+
+msgid ""
+"Activities you archive will appear here, where you can restore them or "
+"delete them permanently."
+msgstr ""
+"Activiteiten die je archiveert verschijnen hier, waar je ze kunt herstellen "
+"of definitief kunt verwijderen."
+
+msgid "Archived activities"
+msgstr "Gearchiveerde activiteiten"
+
+msgid "Filter by archive status"
+msgstr "Filteren op archiefstatus"
+
 #~ msgid "Check your email for a password reset link."
 #~ msgstr ""
 #~ "Controleer uw e-mail voor een link om uw wachtwoord opnieuw in te stellen."

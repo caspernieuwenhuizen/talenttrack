@@ -25,6 +25,17 @@
  * with X-WP-Nonce → on success, redirect to the list URL. Nonce +
  * REST root come from window.TT (set by public.js on every
  * dashboard page).
+ *
+ * #1555 — generalised beyond archive-only. Optional attributes let the
+ * same button reuse this modal/nonce/redirect plumbing for the rest of
+ * the archive lifecycle:
+ *   data-tt-archive-method="POST"          — HTTP verb (default DELETE)
+ *   data-tt-archive-confirm-label="Restore"— confirm-button label
+ *   data-tt-archive-variant="primary"      — confirm-button style
+ *                                            ('danger' default)
+ * Restore (POST .../restore) and permanent-delete (DELETE .../permanent)
+ * on the activities archived list ride on these; existing archive
+ * buttons keep the DELETE / danger defaults and are untouched.
  */
 (function () {
     'use strict';
@@ -71,7 +82,8 @@
      * Promise-like prompt. Resolves true when the coach confirms,
      * false when they cancel or dismiss (Escape, backdrop click).
      */
-    function promptArchive( msg, i18n, onResult ) {
+    function promptArchive( msg, i18n, onResult, opts ) {
+        opts = opts || {};
         var dialog = ensureDialog( i18n );
         if ( ! dialog ) {
             // Fallback for very old browsers (shouldn't happen on the
@@ -80,6 +92,14 @@
             return;
         }
         dialog.querySelector( '[data-tt-archive-modal-msg]' ).textContent = msg;
+        // #1555 — retarget the confirm button label + variant per action
+        // (Archive / Restore / Delete) so the modal reads correctly for
+        // each step of the lifecycle.
+        var confirmBtn = dialog.querySelector( '[data-tt-archive-modal-confirm]' );
+        if ( confirmBtn ) {
+            confirmBtn.textContent = opts.confirmLabel || i18n.confirm;
+            confirmBtn.className = 'tt-btn ' + ( opts.variant === 'primary' ? 'tt-btn-primary' : 'tt-btn-danger' );
+        }
         var closeHandler = function () {
             dialog.removeEventListener( 'close', closeHandler );
             onResult( dialog.returnValue === 'confirm' );
@@ -110,6 +130,11 @@
                 if (btn.disabled) return;
 
                 var confirm_text = btn.getAttribute('data-tt-archive-confirm') || modal_i18n.title;
+                var method   = ( btn.getAttribute('data-tt-archive-method') || 'DELETE' ).toUpperCase();
+                var opts = {
+                    confirmLabel: btn.getAttribute('data-tt-archive-confirm-label') || '',
+                    variant:      btn.getAttribute('data-tt-archive-variant') || 'danger'
+                };
                 promptArchive( confirm_text, modal_i18n, function ( ok ) {
                     if ( ! ok ) return;
 
@@ -122,7 +147,7 @@
 
                     btn.disabled = true;
                     fetch(rest_root + path, {
-                        method: 'DELETE',
+                        method: method,
                         credentials: 'same-origin',
                         headers: {
                             'Accept': 'application/json',
@@ -145,7 +170,7 @@
                             return;
                         }
                         btn.disabled = false;
-                        var msg = 'Archive failed.';
+                        var msg = 'Action failed.';
                         if (r.body && r.body.errors && r.body.errors[0] && r.body.errors[0].message) {
                             msg = r.body.errors[0].message;
                         }

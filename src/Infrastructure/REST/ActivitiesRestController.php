@@ -59,6 +59,22 @@ class ActivitiesRestController {
                 'permission_callback' => [ __CLASS__, 'can_edit' ],
             ],
         ] );
+        // #1555 — archive lifecycle: restore + gated permanent delete,
+        // mirroring the goals/players/teams route pairs from #1470.
+        register_rest_route( self::NS, '/activities/(?P<id>\d+)/restore', [
+            [
+                'methods'             => 'POST',
+                'callback'            => [ __CLASS__, 'restore_session' ],
+                'permission_callback' => [ __CLASS__, 'can_edit' ],
+            ],
+        ] );
+        register_rest_route( self::NS, '/activities/(?P<id>\d+)/permanent', [
+            [
+                'methods'             => 'DELETE',
+                'callback'            => [ __CLASS__, 'delete_session_permanently' ],
+                'permission_callback' => [ __CLASS__, 'can_hard_delete' ],
+            ],
+        ] );
         // #0026 — guest attendance endpoints. Guests live alongside
         // roster rows in `tt_attendance` but are managed independently
         // of the activity PUT cycle so the historical fact of a guest
@@ -214,10 +230,21 @@ class ActivitiesRestController {
 
         $scope = QueryHelpers::apply_demo_scope( 's', 'activity' );
 
-        // Archived filter — default hides archived rows.
-        if ( empty( $r['include_archived'] ) ) {
-            $where[] = 's.archived_at IS NULL';
+        // #1555 — Active / Archived / All status filter, mirroring the
+        // goals/players/teams archive lifecycle. Back-compat: the legacy
+        // `include_archived=1` still maps to "all".
+        $archived_view = \TT\Infrastructure\Archive\ArchiveRepository::sanitizeView(
+            is_array( $r['filter'] ?? null ) ? ( $r['filter']['archived'] ?? '' ) : ''
+        );
+        if ( ! empty( $r['include_archived'] ) ) {
+            $archived_view = 'all';
         }
+        if ( $archived_view === 'active' ) {
+            $where[] = 's.archived_at IS NULL';
+        } elseif ( $archived_view === 'archived' ) {
+            $where[] = 's.archived_at IS NOT NULL';
+        }
+        // 'all' → no archived clause.
 
         // Filters — pulled early because the coach-scope guard below has
         // to know whether the request is a player-scoped my-activities
@@ -774,28 +801,78 @@ class ActivitiesRestController {
         ( new \TT\Modules\Methodology\Repositories\PrincipleLinksRepository() )->setActivityPrinciples( $activity_id, $ids );
     }
 
+    /**
+     * DELETE /activities/{id} — soft-archive (#1555).
+     *
+     * Mirrors the goals/players/teams archive lifecycle: the row is
+     * stamped archived_at + archived_by rather than hard-deleted, so it
+     * disappears from the default (active) timeline but survives for
+     * restore. Attendance rows are left intact — they're part of the
+     * historical record and come back on restore. Permanent removal is
+     * the separate, capability-gated `/permanent` route below.
+     */
     public static function delete_session( \WP_REST_Request $r ) {
-        global $wpdb; $p = $wpdb->prefix;
-
         $activity_id = absint( $r['id'] );
         if ( $activity_id <= 0 ) {
             return RestResponse::error( 'bad_id', __( 'Invalid activity id.', 'talenttrack' ), 400 );
         }
 
-        $wpdb->delete( "{$p}tt_attendance", [ 'activity_id' => $activity_id, 'club_id' => CurrentClub::id() ] );
-        $ok = $wpdb->delete( "{$p}tt_activities", [ 'id' => $activity_id, 'club_id' => CurrentClub::id() ] );
-        if ( $ok === false ) {
-            $err = (string) $wpdb->last_error;
-            Logger::error( 'session.delete.failed', [ 'db_error' => $err, 'activity_id' => $activity_id ] );
-            return RestResponse::error(
-                'db_error',
-                __( 'The activity could not be deleted.', 'talenttrack' ),
-                500,
-                [ 'db_error' => $err ]
-            );
+        $n = ( new \TT\Infrastructure\Archive\ArchiveRepository() )
+            ->archive( 'activity', [ $activity_id ], (int) get_current_user_id() );
+        if ( $n === 0 ) {
+            return RestResponse::error( 'not_found', __( 'Activity not found.', 'talenttrack' ), 404 );
+        }
+
+        return RestResponse::success( [ 'archived' => true, 'id' => $activity_id ] );
+    }
+
+    /**
+     * POST /activities/{id}/restore — clear the archive stamp (#1555).
+     */
+    public static function restore_session( \WP_REST_Request $r ) {
+        $activity_id = absint( $r['id'] );
+        if ( $activity_id <= 0 ) {
+            return RestResponse::error( 'bad_id', __( 'Invalid activity id.', 'talenttrack' ), 400 );
+        }
+
+        $n = ( new \TT\Infrastructure\Archive\ArchiveRepository() )->restore( 'activity', [ $activity_id ] );
+        if ( $n === 0 ) {
+            return RestResponse::error( 'not_found', __( 'Activity not found.', 'talenttrack' ), 404 );
+        }
+
+        return RestResponse::success( [ 'restored' => true, 'id' => $activity_id ] );
+    }
+
+    /**
+     * DELETE /activities/{id}/permanent — gated hard-delete (#1555).
+     *
+     * Capability-gated behind `tt_edit_settings` and routed through
+     * ArchiveRepository, which fail-closes via the CascadeRegistry. The
+     * activity entity is block-only (full cascade deferred to #1784), so
+     * an activity that still owns attendance / exercise / match rows
+     * surfaces as a 409 dependency report rather than stranding orphans.
+     */
+    public static function delete_session_permanently( \WP_REST_Request $r ) {
+        $activity_id = absint( $r['id'] );
+        if ( $activity_id <= 0 ) {
+            return RestResponse::error( 'bad_id', __( 'Invalid activity id.', 'talenttrack' ), 400 );
+        }
+
+        try {
+            $n = ( new \TT\Infrastructure\Archive\ArchiveRepository() )
+                ->deletePermanently( 'activity', [ $activity_id ] );
+        } catch ( \TT\Infrastructure\Archive\DeleteBlockedException $e ) {
+            return RestResponse::error( 'delete_blocked', $e->getMessage(), 409 );
+        }
+        if ( $n === 0 ) {
+            return RestResponse::error( 'not_found', __( 'Activity not found.', 'talenttrack' ), 404 );
         }
 
         return RestResponse::success( [ 'deleted' => true, 'id' => $activity_id ] );
+    }
+
+    public static function can_hard_delete(): bool {
+        return current_user_can( 'tt_edit_settings' );
     }
 
     /**
