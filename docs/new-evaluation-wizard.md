@@ -35,6 +35,8 @@ Each player has a **Skip** checkbox if you genuinely don't want to evaluate them
 
 Add per-player notes inline. The deep-rate panel for a single player is a follow-up — for v1, the quick-rate row + the notes textarea are the surface.
 
+**Finding a player on a big roster:** above the list, a **search box** filters the players by name as you type, and an **Only not-yet-rated** toggle hides everyone you've already rated or skipped so you can see who's left at a glance. The toggle works off the same live per-player status as the *"N of M players rated"* progress line, so a player drops out of the not-yet-rated view the moment you rate them. Both are instant, on-device filters — they never change what gets submitted.
+
 **Training default:** when the activity is a training session, the **Mental** category is surfaced first and pre-expanded (its detailed sub-categories shown). This is a presentation default only — you can still rate every other category and you are never required to enter a Mental rating to submit.
 
 ### Step 4 · Review

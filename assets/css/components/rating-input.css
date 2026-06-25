@@ -120,3 +120,36 @@
 @media (prefers-reduced-motion: reduce) {
     .tt-rating-star { transition: none; }
 }
+
+/* #1642 — rate-roster findability toolbar: name search + "only not-yet
+   rated" filter. Mobile-first; sits above the player cards. */
+.tt-rate-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 0.9rem;
+    margin: 0 0 0.6rem;
+}
+.tt-rate-search {
+    flex: 1 1 200px;
+    min-height: 44px;
+}
+.tt-rate-unrated {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 44px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.tt-rate-unrated input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    flex: 0 0 auto;
+}
+.tt-rate-noresults {
+    margin: 0 0 0.6rem;
+    color: var(--tt-muted, #5b6e75);
+    font-size: 0.9rem;
+}

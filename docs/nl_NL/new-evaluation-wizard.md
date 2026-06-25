@@ -35,6 +35,8 @@ Elke speler heeft een **Overslaan**-checkbox als je echt niet wilt beoordelen di
 
 Voeg per-speler notities inline toe. Het deep-rate-panel voor een enkele speler is een follow-up — voor v1 zijn de snelbeoordeel-rij + het notities-tekstveld het oppervlak.
 
+**Een speler vinden in een grote selectie:** boven de lijst filtert een **zoekvak** de spelers op naam terwijl je typt, en een schakelaar **Alleen nog niet beoordeeld** verbergt iedereen die je al beoordeeld of overgeslagen hebt, zodat je in één oogopslag ziet wie er nog over is. De schakelaar werkt op dezelfde live per-speler-status als de regel *"X van N spelers beoordeeld"*, dus een speler verdwijnt uit de nog-niet-beoordeeld-weergave zodra je hem beoordeelt. Beide zijn directe filters op je apparaat — ze veranderen nooit wat er wordt verstuurd.
+
 **Standaard bij training:** wanneer de activiteit een trainingssessie is, wordt de categorie **Mentaal** als eerste getoond en alvast uitgeklapt (met de gedetailleerde subcategorieën zichtbaar). Dit is alleen een weergavestandaard — je kunt nog steeds elke andere categorie beoordelen en je bent nooit verplicht een Mentaal-score in te vullen om te kunnen opslaan.
 
 ### Stap 4 · Controleren

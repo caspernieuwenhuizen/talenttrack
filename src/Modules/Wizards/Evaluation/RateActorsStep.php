@@ -148,6 +148,29 @@ final class RateActorsStep implements WizardStepInterface {
             <?php esc_html_e( 'Restored your in-progress ratings from this device.', 'talenttrack' ); ?>
         </p>
 
+        <?php
+        // #1642 — findability: search by name + "only not-yet-rated" filter,
+        // so a coach can jump to a player or focus on who is still left to
+        // rate on a big roster. Pure client-side filter over the cards below
+        // (the per-player status the existing script already stamps as
+        // data-tt-rate-state drives the "only unrated" toggle).
+        if ( count( $players ) > 1 ) :
+            ?>
+            <div class="tt-rate-toolbar" data-tt-rate-toolbar>
+                <input type="search" class="tt-input tt-rate-search" data-tt-rate-search
+                       inputmode="search" autocomplete="off"
+                       placeholder="<?php esc_attr_e( 'Search players…', 'talenttrack' ); ?>"
+                       aria-label="<?php esc_attr_e( 'Search players', 'talenttrack' ); ?>" />
+                <label class="tt-rate-unrated">
+                    <input type="checkbox" data-tt-rate-unrated-only />
+                    <span><?php esc_html_e( 'Only not-yet-rated', 'talenttrack' ); ?></span>
+                </label>
+            </div>
+            <p class="tt-rate-noresults" data-tt-rate-noresults hidden>
+                <?php esc_html_e( 'No players match your search.', 'talenttrack' ); ?>
+            </p>
+        <?php endif; ?>
+
         <div class="tt-rate-roster" data-tt-rate-roster data-main-cat-count="<?php echo (int) $main_cat_count; ?>"
              data-tt-rate-buffer-key="<?php echo esc_attr( 'tt-rate-buffer-' . $aid ); ?>"
              data-i18n-not-rated="<?php esc_attr_e( 'Not rated', 'talenttrack' ); ?>"
@@ -396,6 +419,33 @@ final class RateActorsStep implements WizardStepInterface {
             allDetails.forEach( updatePlayer );
             updateOverall();
 
+            // #1642 — findability: filter the roster by name search and an
+            // "only not-yet-rated" toggle. State comes from the same
+            // data-tt-rate-state the status pill already stamps, so a player
+            // drops out of the unrated list the moment they're rated/skipped.
+            var search      = document.querySelector( '[data-tt-rate-search]' );
+            var unratedOnly = document.querySelector( '[data-tt-rate-unrated-only]' );
+            var noResults   = document.querySelector( '[data-tt-rate-noresults]' );
+            function applyFilter() {
+                var q = ( search && search.value ? search.value : '' ).trim().toLowerCase();
+                var onlyUnrated = !! ( unratedOnly && unratedOnly.checked );
+                var anyVisible = false;
+                roster.querySelectorAll( '[data-tt-rate-player]' ).forEach( function ( d ) {
+                    var nameEl = d.querySelector( '.tt-rate-player-name' );
+                    var nm = nameEl ? nameEl.textContent.toLowerCase() : '';
+                    var st = d.getAttribute( 'data-tt-rate-state' ) || 'empty';
+                    var matchesSearch = q === '' || nm.indexOf( q ) !== -1;
+                    var matchesState  = ! onlyUnrated || st === 'empty' || st === 'partial';
+                    var show = matchesSearch && matchesState;
+                    d.hidden = ! show;
+                    if ( show ) anyVisible = true;
+                } );
+                if ( noResults ) noResults.hidden = anyVisible;
+            }
+            if ( search )      search.addEventListener( 'input', applyFilter );
+            if ( unratedOnly ) unratedOnly.addEventListener( 'change', applyFilter );
+            applyFilter();
+
             // Delegate input + change events on the roster.
             roster.addEventListener( 'input', function ( e ) {
                 if ( ! e.target ) return;
@@ -403,7 +453,7 @@ final class RateActorsStep implements WizardStepInterface {
                     recalcMainFromSubs( e.target );
                 }
                 var details = e.target.closest( '[data-tt-rate-player]' );
-                if ( details ) { updatePlayer( details ); updateOverall(); }
+                if ( details ) { updatePlayer( details ); updateOverall(); applyFilter(); }
                 persistBuffer();
             } );
             roster.addEventListener( 'change', function ( e ) {
@@ -412,7 +462,7 @@ final class RateActorsStep implements WizardStepInterface {
                     recalcMainFromSubs( e.target );
                 }
                 var details = e.target.closest( '[data-tt-rate-player]' );
-                if ( details ) { updatePlayer( details ); updateOverall(); }
+                if ( details ) { updatePlayer( details ); updateOverall(); applyFilter(); }
                 persistBuffer();
             } );
 
