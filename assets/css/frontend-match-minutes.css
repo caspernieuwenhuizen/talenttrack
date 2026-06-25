@@ -1,0 +1,84 @@
+/*
+ * frontend-match-minutes.css (#1727)
+ *
+ * Configuration -> Match minutes sub-form: one row per age category with
+ * a "minutes per half" input and a live "2 x N" total readout.
+ *
+ * Mobile-first (CLAUDE.md §2): the row stacks on the smallest viewport
+ * and switches to a three-column grid from 480px up. All interactive
+ * targets clear 48px. Reads the shared design tokens (tokens.css); no
+ * raw hex.
+ */
+
+.tt-mm-intro {
+    margin: 0 0 var(--tt-sp-3, 16px);
+    color: var(--tt-muted, #5b6e75);
+}
+
+.tt-mm-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--tt-sp-2, 12px);
+}
+
+/* Column headings hidden on the smallest viewport — each input carries
+   its own label/placeholder there. Shown once the grid layout kicks in. */
+.tt-mm-head {
+    display: none;
+}
+
+.tt-mm-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--tt-sp-1, 8px);
+    align-items: center;
+    padding: var(--tt-sp-2, 12px);
+    border: 1px solid var(--tt-line, #dde3e6);
+    border-radius: var(--tt-radius, 8px);
+}
+
+.tt-mm-group {
+    font-weight: 600;
+    color: var(--tt-ink, #1a2b32);
+}
+
+.tt-mm-input {
+    width: 100%;
+    min-height: 48px;
+    font-size: 1rem;
+}
+
+.tt-mm-total {
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    font-variant-numeric: tabular-nums;
+    color: var(--tt-muted, #5b6e75);
+}
+
+.tt-mm-actions {
+    margin-top: var(--tt-sp-3, 16px);
+}
+
+@media (min-width: 480px) {
+    .tt-mm-head,
+    .tt-mm-row {
+        display: grid;
+        grid-template-columns: 1.2fr 1fr auto;
+        gap: var(--tt-sp-3, 16px);
+        align-items: center;
+    }
+
+    .tt-mm-head {
+        padding: 0 var(--tt-sp-2, 12px);
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--tt-muted, #5b6e75);
+    }
+
+    .tt-mm-head-total,
+    .tt-mm-total {
+        justify-self: end;
+        text-align: right;
+    }
+}

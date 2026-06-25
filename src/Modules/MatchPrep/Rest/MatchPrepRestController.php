@@ -89,7 +89,12 @@ class MatchPrepRestController {
         }
         if ( array_key_exists( 'half_length_minutes', $body ) ) {
             $hl = (int) $body['half_length_minutes'];
-            $patch['half_length_minutes'] = $hl > 0 ? min( 120, $hl ) : 35;
+            // #1727 — blank / non-positive falls back to the
+            // per-age-category default (global fallback 35) instead of a
+            // hardcoded 35.
+            $patch['half_length_minutes'] = $hl > 0
+                ? min( 120, $hl )
+                : ( new \TT\Modules\MatchPrep\Services\MatchLengthResolver() )->halfMinutesForActivity( $activity_id );
         }
         foreach ( [ 'goals_general', 'goals_attack', 'goals_defend', 'goals_attack_setpiece', 'goals_defend_setpiece' ] as $col ) {
             if ( array_key_exists( $col, $body ) ) {

@@ -98,6 +98,14 @@ class ConfigRestController {
         // notification. Un-mapped in KEY_AREA_MAP → resolves to the
         // tt_edit_settings umbrella (admins / club admins).
         'attendance_flag_threshold',
+        // #1727 — central per-age-category default match minutes. JSON
+        // map `{ "<age_group>": <half_minutes_N> }`; the single source of
+        // truth for match length across match prep + the direct
+        // completion-form minutes entry (#1726). Un-mapped in
+        // KEY_AREA_MAP → resolves to the tt_edit_settings umbrella
+        // (admins / club admins), consistent with the other academy-wide
+        // settings above.
+        'match_minutes_by_age_group',
     ];
 
     /**

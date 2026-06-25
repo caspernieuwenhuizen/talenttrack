@@ -41689,6 +41689,9 @@ msgstr "Nog geen gedeelde wedstrijden"
 msgid "Played many games together"
 msgstr "Veel wedstrijden samen gespeeld"
 
+msgid "The week-by-week team-planning calendar. The Activities log stays available when this is off."
+msgstr "De week-voor-week teamplanningskalender. Het Activiteiten-logboek blijft beschikbaar als dit uit staat."
+
 #, php-format
 #~ msgid "My tasks (%d)"
 #~ msgstr "Mijn taken (%d)"
@@ -41707,6 +41710,53 @@ msgstr "Verwachtte een matrixarray."
 #: src/Modules/TeamDevelopment/Rest/PlayerAttributesRestController.php
 msgid "Expected a weights map."
 msgstr "Verwachtte een gewichtenmap."
+
+#: #1727 — Match minutes per age category configuration sub-form.
+msgid "Match minutes"
+msgstr "Wedstrijdminuten"
+
+msgid "Save match minutes"
+msgstr "Wedstrijdminuten opslaan"
+
+msgid "Age category"
+msgstr "Leeftijdscategorie"
+
+msgid "Minutes per half (N)"
+msgstr "Minuten per helft (N)"
+
+msgid "Total (2 x N)"
+msgstr "Totaal (2 x N)"
+
+msgid "Default match minutes per age category"
+msgstr "Standaard wedstrijdminuten per leeftijdscategorie"
+
+msgid ""
+"No age categories configured yet. Add age groups first, then come back to "
+"set their default match minutes."
+msgstr ""
+"Er zijn nog geen leeftijdscategorieën ingesteld. Voeg eerst leeftijdsgroepen "
+"toe en stel daarna hun standaard wedstrijdminuten in."
+
+msgid "Manage age groups"
+msgstr "Leeftijdsgroepen beheren"
+
+#, php-format
+msgid ""
+"Set the default match length for each age category, in minutes per half. The "
+"full match is twice that (2 x N). Leave a row blank to use the global "
+"fallback of %d minutes per half."
+msgstr ""
+"Stel de standaard wedstrijdduur per leeftijdscategorie in, in minuten per "
+"helft. De volledige wedstrijd is het dubbele (2 x N). Laat een rij leeg om de "
+"globale terugval van %d minuten per helft te gebruiken."
+
+msgid ""
+"Default match length per age category (minutes per half, total 2 x N). "
+"Prefills match prep and the match-completion minutes entry."
+msgstr ""
+"Standaard wedstrijdduur per leeftijdscategorie (minuten per helft, totaal 2 x "
+"N). Vult de wedstrijdvoorbereiding en de minuten bij wedstrijdafronding "
+"alvast in."
 
 #~ msgid "Check your email for a password reset link."
 #~ msgstr ""
@@ -41909,3 +41959,37 @@ msgstr "Verwachtte een gewichtenmap."
 
 #~ msgid "Weekly planner"
 #~ msgstr "Weekplanning"
+
+# #1713 — match-execution vertical pitch + Live verloop event log
+msgid "Goal scored"
+msgstr "Doelpunt"
+
+msgid "Substitution"
+msgstr "Wissel"
+
+msgid "Live progress"
+msgstr "Live verloop"
+
+msgid "Starting line-up on the pitch"
+msgstr "Basisopstelling op het veld"
+
+msgid "Vertical football pitch with the starting eleven by position"
+msgstr "Verticaal voetbalveld met de basiself per positie"
+
+msgid "No goals or substitutions logged yet."
+msgstr "Nog geen doelpunten of wissels vastgelegd."
+
+msgid "Running score"
+msgstr "Tussenstand"
+
+msgid "%1$s on for %2$s"
+msgstr "%1$s in voor %2$s"
+
+msgid "H%1$d %2$d'"
+msgstr "H%1$d %2$d'"
+
+msgid "%d event"
+msgid_plural "%d events"
+msgstr[0] "%d gebeurtenis"
+msgstr[1] "%d gebeurtenissen"
+

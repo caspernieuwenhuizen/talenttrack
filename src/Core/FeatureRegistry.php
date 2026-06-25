@@ -133,6 +133,18 @@ class FeatureRegistry {
                 'view_slugs'      => [],
                 'entities'        => [],
             ],
+            // #1538 — the week-by-week Team planner calendar. Default on (no
+            // behaviour change on upgrade); an academy that works activity by
+            // activity can switch it off. The Activities log — the backward-
+            // looking surface — stays available when this is off.
+            'planning_calendar_view' => [
+                'label'           => __( 'Team planner', 'talenttrack' ),
+                'description'     => __( 'The week-by-week team-planning calendar. The Activities log stays available when this is off.', 'talenttrack' ),
+                'module_class'    => 'TT\\Modules\\Planning\\PlanningModule',
+                'default_enabled' => true,
+                'view_slugs'      => [ 'team-planner' ],
+                'entities'        => [],
+            ],
         ];
 
         // #1762 — one feature per bulk export tile, so an academy admin can

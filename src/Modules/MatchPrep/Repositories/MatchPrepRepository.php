@@ -4,6 +4,7 @@ namespace TT\Modules\MatchPrep\Repositories;
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Infrastructure\Tenancy\CurrentClub;
+use TT\Modules\MatchPrep\Services\MatchLengthResolver;
 
 /**
  * MatchPrepRepository — CRUD across the four match-prep tables
@@ -50,10 +51,19 @@ class MatchPrepRepository {
 
     /**
      * Find-or-create the prep row for an activity. Returns the row's id.
+     *
+     * #1727 — when the caller doesn't pass an explicit half length
+     * (`$half_length <= 0`), the default is resolved from the
+     * per-age-category setting (`MatchLengthResolver`), falling back to
+     * 35 minutes per half. Pass a positive value to override.
      */
-    public function ensureForActivity( int $activity_id, int $half_length = 35 ): int {
+    public function ensureForActivity( int $activity_id, int $half_length = 0 ): int {
         $existing = $this->findByActivity( $activity_id );
         if ( $existing ) return (int) $existing->id;
+
+        if ( $half_length <= 0 ) {
+            $half_length = ( new MatchLengthResolver() )->halfMinutesForActivity( $activity_id );
+        }
 
         $this->wpdb->insert( $this->t_prep, [
             'uuid'                => wp_generate_uuid4(),
