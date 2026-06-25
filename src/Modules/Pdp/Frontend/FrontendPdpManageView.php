@@ -1171,6 +1171,34 @@ class FrontendPdpManageView extends FrontendViewBase {
                 <textarea id="tt-conv-actions" name="agreed_actions" class="tt-input" rows="3"<?php echo $lock_attr; ?>><?php echo esc_textarea( (string) ( $conv->agreed_actions ?? '' ) ); ?></textarea>
             </div>
 
+            <?php
+            // #1853 — link the goals discussed in this talk (the "combine").
+            // Tick the player's active goals covered here; saved to
+            // tt_goal_links so My PDP can show them in context.
+            $player_goals    = ( new \TT\Infrastructure\Goals\GoalsRepository() )->topActiveForPlayer( (int) $file->player_id, 20 );
+            $linked_goal_ids = ( new \TT\Modules\Pdp\Repositories\GoalLinksRepository() )->goalsForConversation( (int) $conv->id );
+            if ( ! empty( $player_goals ) ) :
+                ?>
+                <div class="tt-field tt-pdp-goal-links">
+                    <span class="tt-field-label"><?php esc_html_e( 'Goals discussed in this talk', 'talenttrack' ); ?></span>
+                    <input type="hidden" name="linked_goal_ids_present" value="1" />
+                    <ul class="tt-pdp-goal-links__list">
+                        <?php foreach ( $player_goals as $g ) :
+                            $gid = (int) ( $g->id ?? 0 );
+                            if ( $gid <= 0 ) continue;
+                            $checked = in_array( $gid, $linked_goal_ids, true ) ? ' checked' : '';
+                            ?>
+                            <li>
+                                <label class="tt-checkbox">
+                                    <input type="checkbox" name="linked_goal_ids[]" value="<?php echo (int) $gid; ?>"<?php echo $checked . $lock_attr; ?> />
+                                    <span><?php echo esc_html( (string) ( $g->title ?? '' ) ); ?></span>
+                                </label>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            <?php endif; ?>
+
             <?php if ( ! empty( $conv->player_reflection ) ) : ?>
                 <div class="tt-card" style="background:#fafbfc; border:1px solid #e5e7ea; border-radius:6px; padding:12px; margin:12px 0;">
                     <p style="margin:0 0 4px; font-weight:600;"><?php esc_html_e( 'Player self-reflection', 'talenttrack' ); ?></p>

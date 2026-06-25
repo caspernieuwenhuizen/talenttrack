@@ -302,6 +302,25 @@ class FrontendMyPdpView extends FrontendViewBase {
             }
         }
 
+        // #1853 — goals discussed in this talk (the read side of the
+        // "combine"): the self-review reflects on these goals.
+        $gl_ids = ( new \TT\Modules\Pdp\Repositories\GoalLinksRepository() )->goalsForConversation( (int) $conv->id );
+        if ( ! empty( $gl_ids ) ) {
+            $goals_repo = new \TT\Infrastructure\Goals\GoalsRepository();
+            $titles = [];
+            foreach ( $gl_ids as $gid ) {
+                $g = $goals_repo->findForPlayer( (int) $gid, (int) $file->player_id );
+                if ( $g ) $titles[] = (string) ( $g->title ?? '' );
+            }
+            if ( ! empty( $titles ) ) {
+                echo '<div class="tt-pop-bubble"><strong>' . esc_html__( 'Goals discussed', 'talenttrack' ) . '</strong><ul class="tt-pop-goal-discussed">';
+                foreach ( $titles as $t ) {
+                    echo '<li>' . esc_html( $t ) . '</li>';
+                }
+                echo '</ul></div>';
+            }
+        }
+
         if ( ! empty( $conv->player_reflection ) ) {
             echo '<div class="tt-pop-bubble" style="margin-top:0.5rem;">';
             echo '<strong>' . esc_html__( 'Self-reflection', 'talenttrack' ) . '</strong>';
