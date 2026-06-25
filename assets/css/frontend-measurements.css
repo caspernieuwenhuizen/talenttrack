@@ -1,0 +1,135 @@
+/*
+ * frontend-measurements.css (#1856) — the player "Metingen" surface.
+ * Mobile-first (base styles target ~360px; scales up via min-width).
+ * All selectors prefixed .tt-meas to stay clear of a hostile theme.
+ */
+
+.tt-meas {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin-top: 0.5rem;
+}
+
+.tt-meas-cat {
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 0.75rem;
+    overflow: hidden;
+    background: #fff;
+}
+
+.tt-meas-cat-title {
+    margin: 0;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    background: #f4f6f5;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.tt-meas-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.tt-meas-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+        "head data"
+        "meta data";
+    align-items: center;
+    gap: 0.15rem 0.75rem;
+    min-height: 48px;
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.tt-meas-row:last-child {
+    border-bottom: 0;
+}
+
+.tt-meas-row-head {
+    grid-area: head;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem;
+}
+
+.tt-meas-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.tt-meas-freq {
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+.tt-meas-row-meta {
+    grid-area: meta;
+    font-size: 0.75rem;
+    color: #9ca3af;
+}
+
+.tt-meas-row-data {
+    grid-area: data;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    justify-self: end;
+}
+
+.tt-meas-spark {
+    color: #9aa5a1;
+    flex: 0 0 auto;
+}
+
+.tt-meas-value {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    font-size: 1rem;
+    white-space: nowrap;
+    padding: 0.1rem 0.5rem;
+    border-radius: 0.4rem;
+}
+
+.tt-meas-flag-ok {
+    color: #166534;
+    background: rgba(22, 101, 52, 0.1);
+}
+
+.tt-meas-flag-warn {
+    color: #92400e;
+    background: rgba(146, 64, 14, 0.12);
+}
+
+.tt-meas-flag-bad {
+    color: #991b1b;
+    background: rgba(153, 27, 27, 0.12);
+}
+
+@media (min-width: 480px) {
+    .tt-meas-name {
+        font-size: 1rem;
+    }
+    .tt-meas-spark {
+        width: 96px;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .tt-meas-cat {
+        background: #1b211f;
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+    .tt-meas-cat-title {
+        background: #232a27;
+        border-bottom-color: rgba(255, 255, 255, 0.08);
+    }
+    .tt-meas-row {
+        border-bottom-color: rgba(255, 255, 255, 0.06);
+    }
+}

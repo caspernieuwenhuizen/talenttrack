@@ -426,6 +426,13 @@ class DashboardShortcode {
                 if ( ! self::requirePlayerOrDeny( $target ) ) return true;
                 \TT\Modules\Journey\Frontend\FrontendJourneyView::render( $target );
                 return true;
+            case 'measurements':
+                // #1856 — a player's tests & measurements. `$target` is the
+                // viewer's own player, or a child / team player supplied via
+                // ?player_id=N and gated by canViewPlayer in resolveMePlayer.
+                if ( ! self::requirePlayerOrDeny( $target ) ) return true;
+                \TT\Modules\Measurements\Frontend\FrontendMeasurementsView::render( $target );
+                return true;
             // NOTE: `my-settings` intentionally NOT in this dispatcher —
             // dispatchAccountView claims it so coach / scout / admin
             // personas without a linked player can still manage their
