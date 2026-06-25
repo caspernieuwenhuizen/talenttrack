@@ -104,3 +104,20 @@
 .tt-dashboard .tt-pp-chip-unlink:focus-visible {
     background: var(--tt-danger-soft, #fbebeb);
 }
+
+/* #1847 — direct-create panel: the temp-password opt-in row sits below
+   the main create row, de-emphasised (the default is the email path). */
+.tt-dashboard .tt-pp-create { margin-top: 0.75rem; }
+.tt-dashboard .tt-pp-temp {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0.5rem 0 0.4rem;
+    font-size: 0.85rem;
+    color: var(--tt-muted, #5b6e75);
+}
+.tt-dashboard .tt-pp-temp input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    flex: 0 0 auto;
+}

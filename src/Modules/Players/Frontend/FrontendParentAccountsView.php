@@ -48,9 +48,88 @@ final class FrontendParentAccountsView extends FrontendViewBase {
         FrontendBreadcrumbs::fromDashboard( $title );
         self::renderHeader( $title );
 
+        [ $msg_kind, $msg_text ] = self::handleCreatePost();
+        if ( $msg_text !== '' ) {
+            echo '<div class="tt-notice tt-notice-' . esc_attr( $msg_kind ) . '">' . esc_html( $msg_text ) . '</div>';
+        }
+
         $svc = new ParentAccountService();
         self::renderAddPanel( $svc );
+        self::renderCreatePanel();
         self::renderList( $svc );
+    }
+
+    /**
+     * #1847 — "Create a new parent account". Provisions a fresh WP account
+     * (set-password email by default; a temp-password path behind an explicit
+     * confirmation for the no-usable-email case) and links it to a player.
+     * Posts to this page; the service owns the logic + audit-log (§4).
+     */
+    private static function renderCreatePanel(): void {
+        $players = self::activePlayers();
+        ?>
+        <form method="post" class="tt-pp-add tt-pp-create">
+            <?php wp_nonce_field( 'tt_pa_create', 'tt_pa_create_nonce' ); ?>
+            <input type="hidden" name="tt_pa_action" value="create_parent" />
+            <h3 class="tt-pp-add-title"><?php esc_html_e( 'Create a new parent account', 'talenttrack' ); ?></h3>
+            <div class="tt-pp-add-row">
+                <label class="tt-pp-field">
+                    <span class="tt-pp-field-label"><?php esc_html_e( 'Player', 'talenttrack' ); ?></span>
+                    <select name="player_id" class="tt-input" required>
+                        <option value="0"><?php esc_html_e( '— Choose player —', 'talenttrack' ); ?></option>
+                        <?php foreach ( $players as $p ) : ?>
+                            <option value="<?php echo (int) $p->id; ?>"><?php echo esc_html( trim( (string) $p->first_name . ' ' . (string) $p->last_name ) ); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </label>
+                <label class="tt-pp-field">
+                    <span class="tt-pp-field-label"><?php esc_html_e( 'First name', 'talenttrack' ); ?></span>
+                    <input type="text" name="first_name" class="tt-input" autocomplete="given-name" />
+                </label>
+                <label class="tt-pp-field">
+                    <span class="tt-pp-field-label"><?php esc_html_e( 'Last name', 'talenttrack' ); ?></span>
+                    <input type="text" name="last_name" class="tt-input" autocomplete="family-name" />
+                </label>
+                <label class="tt-pp-field">
+                    <span class="tt-pp-field-label"><?php esc_html_e( 'Email', 'talenttrack' ); ?></span>
+                    <input type="email" inputmode="email" name="email" class="tt-input" autocomplete="email" required />
+                </label>
+                <button type="submit" class="tt-btn tt-btn-primary"><?php esc_html_e( 'Create account', 'talenttrack' ); ?></button>
+            </div>
+            <p class="tt-pp-add-hint"><?php esc_html_e( 'The parent receives a "set your password" email; you never see a password.', 'talenttrack' ); ?></p>
+            <label class="tt-pp-field tt-pp-temp">
+                <input type="checkbox" name="use_temp" value="1" />
+                <span><?php esc_html_e( 'No usable email - set a temporary password instead (you must share it securely).', 'talenttrack' ); ?></span>
+            </label>
+            <input type="password" name="temp_password" class="tt-input" autocomplete="new-password" minlength="8" placeholder="<?php esc_attr_e( 'Temporary password', 'talenttrack' ); ?>" />
+        </form>
+        <?php
+    }
+
+    /**
+     * Handle the create-parent POST. Returns [kind, message] for the next
+     * render; empty message means nothing to show.
+     *
+     * @return array{0:string,1:string}
+     */
+    private static function handleCreatePost(): array {
+        if ( ( $_SERVER['REQUEST_METHOD'] ?? '' ) !== 'POST' ) return [ '', '' ];
+        if ( ( $_POST['tt_pa_action'] ?? '' ) !== 'create_parent' ) return [ '', '' ];
+        if ( ! isset( $_POST['tt_pa_create_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( (string) $_POST['tt_pa_create_nonce'] ) ), 'tt_pa_create' ) ) {
+            return [ 'error', __( 'Security check failed. Reload and try again.', 'talenttrack' ) ];
+        }
+        if ( ! AuthorizationService::userCanOrMatrix( get_current_user_id(), 'tt_manage_parent_accounts' ) ) {
+            return [ 'error', __( 'You do not have permission to create parent accounts.', 'talenttrack' ) ];
+        }
+        $use_temp = ! empty( $_POST['use_temp'] );
+        $result = ( new ParentAccountService() )->directCreate(
+            absint( $_POST['player_id'] ?? 0 ),
+            sanitize_text_field( wp_unslash( (string) ( $_POST['first_name'] ?? '' ) ) ),
+            sanitize_text_field( wp_unslash( (string) ( $_POST['last_name'] ?? '' ) ) ),
+            sanitize_email( wp_unslash( (string) ( $_POST['email'] ?? '' ) ) ),
+            $use_temp ? (string) ( $_POST['temp_password'] ?? '' ) : null
+        );
+        return $result['ok'] ? [ 'success', (string) $result['message'] ] : [ 'error', (string) $result['message'] ];
     }
 
     private static function enqueuePageAssets(): void {

@@ -52,6 +52,7 @@ final class FrontendMeasurementEntryView extends FrontendViewBase {
         if ( empty( $definitions ) ) {
             self::renderHeader( __( 'Record measurements', 'talenttrack' ) );
             echo '<p class="tt-notice">' . esc_html__( 'No tests have been set up yet. Create a test first.', 'talenttrack' ) . '</p>';
+            self::renderNewTestButton();
             return;
         }
 
@@ -82,6 +83,7 @@ final class FrontendMeasurementEntryView extends FrontendViewBase {
         }
 
         self::renderPicker( $teams, $definitions, $team_id, $definition_id, $date );
+        self::renderNewTestButton();
 
         if ( $team_id <= 0 || $definition_id <= 0 ) {
             return;
@@ -297,6 +299,22 @@ final class FrontendMeasurementEntryView extends FrontendViewBase {
         $ts = strtotime( $date );
         if ( ! $ts ) return $date;
         return date_i18n( (string) get_option( 'date_format', 'Y-m-d' ), $ts );
+    }
+
+    /**
+     * The "+ New test" entry point — launches the wizard. Only rendered
+     * when the current user may run it (HoD / admin); WizardEntryPoint
+     * returns the fallback otherwise, which we suppress.
+     */
+    private static function renderNewTestButton(): void {
+        if ( ! class_exists( '\TT\Shared\Wizards\WizardRegistry' )
+             || ! \TT\Shared\Wizards\WizardRegistry::isAvailable( 'measurement' ) ) {
+            return;
+        }
+        $url = \TT\Shared\Wizards\WizardEntryPoint::urlFor( 'measurement', '' );
+        if ( $url === '' ) return;
+        echo '<p class="tt-me-newtest"><a class="tt-btn tt-btn-secondary" href="' . esc_url( $url ) . '">'
+            . esc_html__( '+ New test', 'talenttrack' ) . '</a></p>';
     }
 
     private static function enqueueViewCss(): void {
