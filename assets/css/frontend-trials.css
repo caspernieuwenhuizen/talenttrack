@@ -390,3 +390,19 @@
     min-height: 48px;
     touch-action: manipulation;
 }
+
+/* Intro / guidance copy at the top of the editor surfaces, and the
+ * per-field hint lines under each input. Mobile-first, tokens only. */
+.tt-dashboard .tt-trial-editor-intro {
+    max-width: 640px;
+    margin: 0 0 var(--tt-sp-4);
+    color: var(--tt-muted);
+    font-size: var(--tt-fs-sm);
+    line-height: var(--tt-lh-body);
+}
+.tt-dashboard .tt-trial-track-form .tt-field-hint {
+    margin: calc(-1 * var(--tt-sp-3)) 0 0;
+    font-size: var(--tt-fs-sm);
+    color: var(--tt-muted);
+    line-height: var(--tt-lh-body);
+}

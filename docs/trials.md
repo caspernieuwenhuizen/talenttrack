@@ -18,7 +18,7 @@ From the **Trial cases** tile, pick *New trial case*. Choose the player (or crea
 
 ### 2. Watch the case run
 
-The **Execution** tab on the case page aggregates everything that happens during the trial window — sessions the player attended, evaluations written, goals created or updated, plus a small synthesis (rolling rating, evaluation count). Nothing is duplicated; the data sits in the normal places, the Execution tab just filters to the trial window.
+The **Execution** tab on the case page aggregates everything that happens during the trial window — activities the player attended, evaluations written, goals created or updated, plus a small synthesis (rolling rating, evaluation count). Nothing is duplicated; the data sits in the normal places, the Execution tab just filters to the trial window.
 
 If the period needs to be extended, the **Extend trial** button on Overview asks for a new end date and a mandatory justification note. Each extension is logged with who, when, and why.
 
@@ -46,7 +46,7 @@ Recording a decision generates the letter automatically. The **Letter** tab show
 - **Decline (final)** — respectful and definitive.
 - **Decline (with encouragement)** — names what stood out and where to keep working, with an explicit invitation to re-apply.
 
-If the wording isn't quite right, **Letter templates** (under the Trials tile group) lets the club customize each template per locale. The HTML editor has a side panel listing every variable that can be substituted (`{player_first_name}`, `{trial_end_date}`, `{strengths_summary}`, …). Unknown variables are left as literal `{foo}` so missing pieces are visible in the preview.
+The shipped Dutch letters use a warm, informal "je/jullie" club voice. If the wording isn't quite right for your club, **Letter templates** (under the Trials tile group) lets you customise each letter per language. The editor opens with a short guidance note, lists each letter under a plain-language name ("Offer of a place", "No place — with encouragement", …), and shows a side panel of every variable you can substitute (`{player_first_name}`, `{trial_end_date}`, `{strengths_summary}`, …) plus a live preview with sample data. Unknown variables are left as literal `{foo}` so missing pieces are visible in the preview.
 
 ### 6. Have the conversation with the parents
 
@@ -84,8 +84,10 @@ If you archive a case that should have had a decision and then realise the famil
 
 Letters are persisted with a 2-year expiry. Archive is the default — denial letters are not deleted automatically because the club may need them as evidence for reconsiderations or appeals. A separate GDPR deletion flow handles permanent erasure on parent request.
 
-## Linear case page + trial roster on team page (v3.79.0)
+## Case page layout
 
-The trial case detail page used to split into six tabs (Overview / Execution / Staff inputs / Decision / Letter / Parent meeting). It now renders as a single linear page with a sticky anchor strip at the top — every section is visible without route changes, which makes a coach's at-a-glance review faster. Links to legacy `?tab=` URLs scroll into the matching anchor automatically.
+The trial case page follows the same layout as the player and team profiles: a paper hero anchored by the player's photo and name (a trial is a key moment in that player's journey, so the player stays the subject of the page), pills for trial status / decision / track, a key-facts strip (Track · Trial window · Status · Decision), then the content in cards under tab navigation — **Overview · Execution · Staff inputs** for everyone, plus **Decision · Letter · Parent meeting** for the head of development. The hero links back to the full player profile, and the page emits the standard breadcrumb chain (Dashboard → Trials → Trial: <player>).
+
+Close affordances live in the action row under the hero: **Record decision** (while the case is undecided), **Archive case**, and an overflow menu with **Delete permanently** for admins.
 
 Trial players also surface on the team detail page now, under their own **Trial players** subsection. Previously they were hidden behind the active-status filter on the team roster.

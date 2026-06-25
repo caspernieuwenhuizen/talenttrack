@@ -59,7 +59,7 @@ class FrontendTrialLetterTemplatesEditorView extends FrontendViewBase {
             $parent_crumb,
             [ \TT\Shared\Frontend\Components\FrontendBreadcrumbs::viewCrumb( 'trial-letter-templates-editor', $letters_label ) ]
         );
-        $title = sprintf( __( 'Edit letter — %s (%s)', 'talenttrack' ), $key, $locale );
+        $title = sprintf( __( 'Edit letter — %1$s (%2$s)', 'talenttrack' ), self::friendlyKeyLabel( $key ), $locale );
         \TT\Shared\Frontend\Components\FrontendBreadcrumbs::fromDashboard( $title, $editor_chain );
         self::renderHeader( $title );
         self::renderEditor( $key, $locale );
@@ -69,8 +69,10 @@ class FrontendTrialLetterTemplatesEditorView extends FrontendViewBase {
         $base    = remove_query_arg( [ 'key' ] );
         $locales = self::availableLocales();
 
+        echo '<p class="tt-trial-editor-intro">' . esc_html__( 'These are the letters that go to parents after a trial decision. The plugin ships warm, ready-to-use defaults — edit them only if you want your own club wording. Pick a language, then a letter, to preview and customise it.', 'talenttrack' ) . '</p>';
+
         echo '<form method="get" class="tt-filter-row"><input type="hidden" name="tt_view" value="trial-letter-templates-editor"/>';
-        echo '<label>' . esc_html__( 'Locale', 'talenttrack' ) . ' <select name="locale">';
+        echo '<label>' . esc_html__( 'Language', 'talenttrack' ) . ' <select name="locale">';
         foreach ( $locales as $loc ) {
             $sel = selected( $locale, $loc, false );
             echo '<option value="' . esc_attr( $loc ) . '" ' . $sel . '>' . esc_html( $loc ) . '</option>';
@@ -80,17 +82,36 @@ class FrontendTrialLetterTemplatesEditorView extends FrontendViewBase {
         echo '</form>';
 
         $repo = new TrialLetterTemplatesRepository();
-        echo '<table class="tt-table"><thead><tr><th>' . esc_html__( 'Template', 'talenttrack' ) . '</th><th>' . esc_html__( 'Customized?', 'talenttrack' ) . '</th><th></th></tr></thead><tbody>';
+        echo '<div class="tt-table-wrap">';
+        echo '<table class="tt-table"><thead><tr><th>' . esc_html__( 'Letter', 'talenttrack' ) . '</th><th>' . esc_html__( 'Customised?', 'talenttrack' ) . '</th><th></th></tr></thead><tbody>';
         foreach ( DefaultLetterTemplates::listKeys() as $k ) {
             $custom = $repo->findCustom( $k, $locale );
             $url = add_query_arg( [ 'tt_view' => 'trial-letter-templates-editor', 'key' => $k, 'locale' => $locale ], $base );
             echo '<tr>';
-            echo '<td><a href="' . esc_url( $url ) . '">' . esc_html( (string) $k ) . '</a></td>';
-            echo '<td>' . esc_html( $custom ? __( 'Customized', 'talenttrack' ) : __( 'Default (shipped)', 'talenttrack' ) ) . '</td>';
+            echo '<td><a href="' . esc_url( $url ) . '">' . esc_html( self::friendlyKeyLabel( (string) $k ) ) . '</a></td>';
+            echo '<td>' . esc_html( $custom ? __( 'Customised', 'talenttrack' ) : __( 'Club default', 'talenttrack' ) ) . '</td>';
             echo '<td><a class="tt-button tt-button-small" href="' . esc_url( $url ) . '">' . esc_html__( 'Edit', 'talenttrack' ) . '</a></td>';
             echo '</tr>';
         }
         echo '</tbody></table>';
+        echo '</div>';
+    }
+
+    /**
+     * Human-friendly label for a template key. The raw keys
+     * (admittance / deny_final / deny_encouragement) are internal; staff
+     * should see what the letter is for.
+     */
+    private static function friendlyKeyLabel( string $key ): string {
+        switch ( $key ) {
+            case TrialLetterTemplatesRepository::KEY_ADMITTANCE:
+                return __( 'Offer of a place (admittance)', 'talenttrack' );
+            case TrialLetterTemplatesRepository::KEY_DENY_FINAL:
+                return __( 'No place — final', 'talenttrack' );
+            case TrialLetterTemplatesRepository::KEY_DENY_ENC:
+                return __( 'No place — with encouragement', 'talenttrack' );
+        }
+        return $key;
     }
 
     private static function renderSettings(): void {
@@ -120,13 +141,15 @@ class FrontendTrialLetterTemplatesEditorView extends FrontendViewBase {
         echo '<input type="hidden" name="key"    value="' . esc_attr( $key )    . '">';
         echo '<input type="hidden" name="locale" value="' . esc_attr( $locale ) . '">';
 
+        echo '<p class="tt-trial-editor-intro">' . esc_html__( 'Write the letter in plain text and simple HTML. Anything inside curly braces — like {player_first_name} — is filled in automatically for each player. The variables you can use are listed on the right, and a live preview with sample data appears below.', 'talenttrack' ) . '</p>';
+
         echo '<div class="tt-letter-edit-grid">';
         echo '<div class="tt-letter-edit-source">';
-        echo '<label>' . esc_html__( 'Template HTML', 'talenttrack' ) . '</label>';
-        echo '<textarea name="html_content" rows="20" class="tt-letter-edit-code">' . esc_textarea( $tpl ) . '</textarea>';
+        echo '<label for="tt-letter-html">' . esc_html__( 'Letter content', 'talenttrack' ) . '</label>';
+        echo '<textarea id="tt-letter-html" name="html_content" rows="20" class="tt-letter-edit-code">' . esc_textarea( $tpl ) . '</textarea>';
         echo '</div>';
 
-        echo '<aside class="tt-letter-edit-legend"><h3>' . esc_html__( 'Variable legend', 'talenttrack' ) . '</h3><dl>';
+        echo '<aside class="tt-letter-edit-legend"><h3>' . esc_html__( 'Variables you can use', 'talenttrack' ) . '</h3><dl>';
         foreach ( DefaultLetterTemplates::variableLegend() as $var => $desc ) {
             echo '<dt><code>{' . esc_html( $var ) . '}</code></dt><dd>' . esc_html( $desc ) . '</dd>';
         }
