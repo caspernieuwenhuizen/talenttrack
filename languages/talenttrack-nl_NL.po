@@ -41035,6 +41035,103 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php
+msgid "Cohort decision board"
+msgstr "Cohortbeslissingsbord"
+
+#: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php
+msgid "You do not have permission to view the cohort decision board."
+msgstr "Je hebt geen toestemming om het cohortbeslissingsbord te bekijken."
+
+#: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php
+msgid ""
+"No current season is set. Configure a season under Configuration → Seasons "
+"before using the decision board."
+msgstr ""
+"Er is geen huidig seizoen ingesteld. Stel een seizoen in onder Configuratie → "
+"Seizoenen voordat je het beslissingsbord gebruikt."
+
+#: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php
+#, php-format
+msgid ""
+"End-of-season decisions for the current season (%s). Verdicts are set in each "
+"PDP file; this board is read-only."
+msgstr ""
+"Eindeseizoensbeslissingen voor het huidige seizoen (%s). Eindoordelen worden "
+"per POP-dossier ingesteld; dit bord is alleen-lezen."
+
+#: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php
+msgid "Team / age group"
+msgstr "Team / leeftijdsgroep"
+
+#: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php
+msgid "— Select a team —"
+msgstr "— Selecteer een team —"
+
+#: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php
+msgid "Pick a team or age group to see its players."
+msgstr "Kies een team of leeftijdsgroep om de spelers te zien."
+
+#: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php
+msgid "No active players on this team."
+msgstr "Geen actieve spelers in dit team."
+
+#: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php
+msgid "PDP talks"
+msgstr "POP-gesprekken"
+
+#: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php
+msgid "Start PDP"
+msgstr "POP starten"
+
+#: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php
+msgid "Trending up"
+msgstr "Stijgende lijn"
+
+#: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php
+msgid "Trending down"
+msgstr "Dalende lijn"
+
+#: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php
+msgid "Based on few activities"
+msgstr "Gebaseerd op weinig activiteiten"
+
+#: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php
+msgid "(low)"
+msgstr "(laag)"
+
+#: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php
+msgid "Up"
+msgstr "Omhoog"
+
+#: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php
+msgid "Down"
+msgstr "Omlaag"
+
+#: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php
+msgid "You do not have access to this export."
+msgstr "Je hebt geen toegang tot deze export."
+
+#: src/Modules/Analytics/Frontend/FrontendCohortBoardView.php
+msgid "This export link has expired. Reload the board and try again."
+msgstr "Deze exportlink is verlopen. Herlaad het bord en probeer het opnieuw."
+
+#: src/Infrastructure/REST/CohortBoardRestController.php
+msgid "A team is required."
+msgstr "Een team is vereist."
+
+#: src/Shared/CoreSurfaceRegistration.php
+msgid "End-of-season decisions: rating, trend, attendance, verdict per player."
+msgstr "Eindeseizoensbeslissingen: beoordeling, trend, aanwezigheid, eindoordeel per speler."
+
+#: src/Modules/Documentation/HelpTopics.php
+msgid ""
+"One read-only screen for end-of-season decisions: rating, trend, attendance, "
+"PDP talks and verdict per player."
+msgstr ""
+"Eén alleen-lezen scherm voor eindeseizoensbeslissingen: beoordeling, trend, "
+"aanwezigheid, POP-gesprekken en eindoordeel per speler."
+
 #~ msgid "Delete this holiday?"
 #~ msgstr "Deze vakantie verwijderen?"
 

@@ -77,6 +77,9 @@ class AnalyticsModule implements ModuleInterface {
         // #1367 — REST surface for the coach-evaluation-quality report
         // (the PHP renderer + this endpoint share CoachEvalQualityQuery).
         \TT\Infrastructure\REST\ReportsRestController::init();
+        // #1383 — REST surface for the end-of-season cohort decision board
+        // (the PHP renderer + this endpoint share CohortBoardService).
+        \TT\Infrastructure\REST\CohortBoardRestController::init();
     }
 
     /**

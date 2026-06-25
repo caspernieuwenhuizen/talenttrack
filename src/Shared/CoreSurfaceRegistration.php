@@ -809,6 +809,25 @@ final class CoreSurfaceRegistration {
             'color'        => '#00a32a',
             'cap'          => 'tt_view_reports',
         ]);
+        // #1383 — cohort decision board. One screen for end-of-season
+        // retain / promote / release calls: per active player, status,
+        // rolling rating + trend, attendance %, PDP talks, current verdict
+        // + a deep-link into the PDP file. Read-only. Cap-gated on
+        // tt_view_analytics (HoD / academy-wide roles); coaches see only
+        // their own teams via the view + REST scope check.
+        TileRegistry::register([
+            'module_class' => 'TT\\Modules\\Analytics\\AnalyticsModule',
+            'view_slug'    => 'cohort-board',
+            'entity'       => 'analytics',
+            'group'        => $analytics_group,
+            'kind'         => 'work',
+            'order'        => 28,
+            'label'        => __( 'Cohort decision board', 'talenttrack' ),
+            'description'  => __( 'End-of-season decisions: rating, trend, attendance, verdict per player.', 'talenttrack' ),
+            'icon'         => 'reports',
+            'color'        => '#0b3d2e',
+            'cap'          => 'tt_view_analytics',
+        ]);
         // #1548 — Podium moved here from Performance: it's team rankings /
         // top performers, an analytics surface. Cap/entity/module unchanged.
         TileRegistry::register([

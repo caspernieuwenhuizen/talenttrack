@@ -88,6 +88,11 @@ class HelpTopics {
                 'group'   => 'analytics',
                 'summary' => __( 'The tile launcher — progress charts, team ratings, coach activity.', 'talenttrack' ),
             ],
+            'cohort-board' => [
+                'title'   => __( 'Cohort decision board', 'talenttrack' ),
+                'group'   => 'analytics',
+                'summary' => __( 'One read-only screen for end-of-season decisions: rating, trend, attendance, PDP talks and verdict per player.', 'talenttrack' ),
+            ],
             'trials' => [
                 'title'   => __( 'Trial cases', 'talenttrack' ),
                 'group'   => 'people',
