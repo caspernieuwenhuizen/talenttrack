@@ -41501,6 +41501,13 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/PersonaDashboard/Widgets/NavigationTileWidget.php
+#, php-format
+msgid "%d pending"
+msgid_plural "%d pending"
+msgstr[0] "%d openstaand"
+msgstr[1] "%d openstaande"
+
 #~ msgid "Check your email for a password reset link."
 #~ msgstr ""
 #~ "Controleer uw e-mail voor een link om uw wachtwoord opnieuw in te stellen."
