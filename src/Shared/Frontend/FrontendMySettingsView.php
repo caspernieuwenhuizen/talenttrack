@@ -146,8 +146,67 @@ class FrontendMySettingsView extends FrontendViewBase {
                     <button type="submit" class="tt-btn tt-btn-primary"><?php esc_html_e( 'Change password', 'talenttrack' ); ?></button>
                 </div>
             </form>
+
+            <?php self::renderParentVisibilityCard( $user_id ); ?>
         </div>
         <?php
+    }
+
+    /**
+     * #1867 — "What your parent can see". Shown only to a player who has
+     * a linked parent. Per-section toggles, default ON; turning one off
+     * hides that section from the parent (rendered views + REST). The
+     * player always sees their own record; safeguarding/medical stay
+     * cap-gated and are not listed here.
+     */
+    private static function renderParentVisibilityCard( int $user_id ): void {
+        $player = \TT\Infrastructure\Query\QueryHelpers::get_player_for_user( $user_id );
+        if ( ! $player ) return;
+        $player_id = (int) $player->id;
+
+        $parents = ( new \TT\Modules\Invitations\PlayerParentsRepository() )->parentsForPlayer( $player_id );
+        if ( empty( $parents ) ) return; // No linked parent — nothing to control.
+
+        $prefs  = ( new \TT\Infrastructure\Players\PlayerParentVisibilityRepository() )->preferencesForPlayer( $player_id );
+        $labels = self::visibilitySectionLabels();
+        \TT\Shared\Frontend\Components\FrontendPrivateSection::enqueue();
+        ?>
+        <form method="post" class="tt-form tt-msettings-card">
+            <?php wp_nonce_field( 'tt_my_settings_visibility', 'tt_my_settings_visibility_nonce' ); ?>
+            <input type="hidden" name="tt_my_settings_action" value="update_parent_visibility" />
+
+            <h3><?php esc_html_e( 'What your parent can see', 'talenttrack' ); ?></h3>
+            <p class="tt-field-hint">
+                <?php esc_html_e( 'Choose which parts of your record your parent or guardian can see. Everything is shared by default. Your coaches and the academy are not affected by these choices.', 'talenttrack' ); ?>
+            </p>
+
+            <?php foreach ( $labels as $key => $label ) :
+                $checked = ! empty( $prefs[ $key ] );
+                ?>
+                <div class="tt-field tt-visibility-row">
+                    <label class="tt-visibility-toggle" for="tt-vis-<?php echo esc_attr( $key ); ?>">
+                        <input type="checkbox" id="tt-vis-<?php echo esc_attr( $key ); ?>" name="visible_sections[]" value="<?php echo esc_attr( $key ); ?>"<?php echo $checked ? ' checked' : ''; ?> />
+                        <span><?php echo esc_html( $label ); ?></span>
+                    </label>
+                </div>
+            <?php endforeach; ?>
+
+            <div class="tt-form-actions">
+                <button type="submit" class="tt-btn tt-btn-primary"><?php esc_html_e( 'Save visibility', 'talenttrack' ); ?></button>
+            </div>
+        </form>
+        <?php
+    }
+
+    /** @return array<string,string> section_key => user-facing label, in display order. */
+    private static function visibilitySectionLabels(): array {
+        return [
+            'evaluations'  => __( 'Evaluations', 'talenttrack' ),
+            'goals'        => __( 'Goals', 'talenttrack' ),
+            'journey'      => __( 'Journey', 'talenttrack' ),
+            'measurements' => __( 'Measurements', 'talenttrack' ),
+            'pdp'          => __( 'Development plan (PDP)', 'talenttrack' ),
+        ];
     }
 
     /**
@@ -229,6 +288,27 @@ class FrontendMySettingsView extends FrontendViewBase {
             wp_set_auth_cookie( $user_id, true );
             wp_set_current_user( $user_id );
             $out['success'] = __( 'Password changed. Other devices have been logged out.', 'talenttrack' );
+            return $out;
+        }
+
+        if ( $action === 'update_parent_visibility' ) {
+            if ( ! isset( $_POST['tt_my_settings_visibility_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( (string) $_POST['tt_my_settings_visibility_nonce'] ) ), 'tt_my_settings_visibility' ) ) {
+                $out['errors'][] = __( 'Security check failed. Reload and try again.', 'talenttrack' );
+                return $out;
+            }
+            $player = \TT\Infrastructure\Query\QueryHelpers::get_player_for_user( $user_id );
+            if ( ! $player ) {
+                $out['errors'][] = __( 'Only players can set parent visibility.', 'talenttrack' );
+                return $out;
+            }
+            $checked = isset( $_POST['visible_sections'] ) && is_array( $_POST['visible_sections'] )
+                ? array_map( 'sanitize_key', wp_unslash( $_POST['visible_sections'] ) )
+                : [];
+            $repo = new \TT\Infrastructure\Players\PlayerParentVisibilityRepository();
+            foreach ( \TT\Infrastructure\Players\PlayerParentVisibilityRepository::SECTIONS as $section ) {
+                $repo->setVisibility( (int) $player->id, $section, in_array( $section, $checked, true ) );
+            }
+            $out['success'] = __( 'Saved what your parent can see.', 'talenttrack' );
             return $out;
         }
 

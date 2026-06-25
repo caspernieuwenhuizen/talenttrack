@@ -158,6 +158,28 @@ class AuthorizationService {
         } );
     }
 
+    /**
+     * #1867 — a player can hide individual development sections from a
+     * linked parent. This gate layers on top of canViewPlayer: it only
+     * ever restricts a **linked parent**. The player themselves and staff
+     * (team/global access) are unaffected, and any non-gateable section
+     * is always visible. Default-visible — absence of a preference = shown.
+     *
+     * Callers should treat a true canViewPlayer() AND parentCanViewSection()
+     * as the combined read gate for a given section.
+     */
+    public static function parentCanViewSection( int $user_id, int $player_id, string $section ): bool {
+        if ( $user_id <= 0 || $player_id <= 0 ) return true;
+        // The player themselves always sees their own record.
+        if ( self::isPlayerOwnRecord( $user_id, $player_id ) ) return true;
+
+        // Only a linked parent is governed by the child's preferences.
+        $parents = ( new \TT\Modules\Invitations\PlayerParentsRepository() )->parentsForPlayer( $player_id );
+        if ( ! in_array( $user_id, $parents, true ) ) return true; // staff / other — governed elsewhere.
+
+        return ( new \TT\Infrastructure\Players\PlayerParentVisibilityRepository() )->isVisible( $player_id, $section );
+    }
+
     public static function canEditPlayer( int $user_id, int $player_id ): bool {
         return self::decide( 'edit_player', $user_id, 'player', $player_id, function () use ( $user_id, $player_id ) {
             if ( self::userHasPermission( $user_id, 'players.edit' ) ) return true;
