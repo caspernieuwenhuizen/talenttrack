@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.55.0
+Stable tag: 4.56.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.56.0 — Six new per-academy feature toggles (#1538) The Modules page gains six more sub-feature switches, so academies can turn off heavy, cost- or privacy-sensitive behaviour without disabling a whole module. All default on, so nothing changes until you toggle one:  - **SMS channel** (Comms) — offer SMS as a messaging channel. - **Scheduled messaging** (Comms) — the daily reminder cron. - **Medical events on timeline** (Journey) — show medical events to permitted staff; an academy-wide privacy brake when off. - **PDP calendar integration** (PDP) — write scheduled conversations to the calendar feed. - **Dashboard layout editor** (Persona Dashboard) — the drag-and-drop layout builder. - **Match prep PDF export** (Match Prep) — the A4 print / export-to-PDF actions.  (The seventh candidate, the Team planner calendar toggle, already shipped separately.) =
 
 = 4.55.0 — Archive lifecycle for activities (#1555) Activities now follow the same archive lifecycle as players, teams, evaluations and goals. Deleting an activity soft-archives it instead of removing the row, so its attendance and history are preserved. The activities list gains an **Active · Archived · All** status control: the **Archived** view lists archived activities with a **Restore** button and, for admins, a **Delete permanently** button. Permanent deletion is gated behind the *edit settings* capability and is blocked while the activity still has attached records, so nothing is erased by accident. New REST routes back the flow: `POST /activities/{id}/restore` and `DELETE /activities/{id}/permanent`. =
 
