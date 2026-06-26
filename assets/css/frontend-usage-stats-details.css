@@ -71,3 +71,33 @@
 .tt-dashboard .tt-usage-card code {
     font-size: var(--tt-fs-sm);
 }
+
+/* #1963 — prev/next pager for the windowed login + timeline event lists.
+   Mobile-first: stacks edge-to-edge on a phone, ≥48px nav targets, the
+   page-status label centred between the two pills. */
+.tt-dashboard .tt-usage-pager {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--tt-sp-2);
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 0 var(--tt-sp-4);
+}
+.tt-dashboard .tt-usage-pager .tt-btn {
+    min-width: 48px;
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.tt-dashboard .tt-usage-pager .tt-is-disabled {
+    opacity: 0.5;
+    cursor: default;
+    pointer-events: none;
+}
+.tt-dashboard .tt-usage-pager__status {
+    color: var(--tt-ink-soft);
+    font-size: var(--tt-fs-sm);
+    text-align: center;
+    flex: 1 1 auto;
+}

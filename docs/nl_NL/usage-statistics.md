@@ -37,6 +37,8 @@ Panelen:
 
 Elke tegel, elk grafiekpunt en elke rij is klikbaar. Klik op "Logins (7 dagen)" om elk login-event te zien. Klik op een punt in de DAU-grafiek om te zien welke gebruikers die specifieke dag actief waren. Klik op een rolbalk voor alleen die gebruikers. Elke detailweergave heeft een broodkruimel met een Terug-knop naar het dashboard.
 
+De lijsten **Logins** en de **Tijdlijn** per gebruiker tonen 50 events per pagina, met knoppen **← Vorige** / **Volgende →** en een aanduiding "Pagina X van Y" onder de tabel. Het totale aantal boven de tabel is altijd het volledige totaal, niet alleen de pagina die je bekijkt.
+
 **Een specifieke dag kiezen:** naast elke grafiek (DAU en Evaluaties per dag) staat een knop **"Kies een dag…"**. Die opent de detailweergave met een datumkeuze die je kunt invullen of met ← / → knoppen dag voor dag kunt verschuiven — handig als de dag die je zoekt lastig te raken is op een grafiek met 90 staafjes.
 
 ## Rechten
