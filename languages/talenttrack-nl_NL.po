@@ -41915,6 +41915,46 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Modules/TeamDevelopment/Frontend/FrontendPlayerAttributesView.php
+msgid "Chemistry attributes"
+msgstr "Chemie-attributen"
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendPlayerAttributesView.php
+#, php-format
+msgid "Chemistry attributes — %s"
+msgstr "Chemie-attributen — %s"
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendPlayerAttributesView.php
+msgid "A player is required. Open this from a player's profile."
+msgstr "Een speler is verplicht. Open dit vanuit een spelersprofiel."
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendPlayerAttributesView.php
+msgid "You do not have permission to edit this player's attributes."
+msgstr "Je hebt geen toestemming om de attributen van deze speler te bewerken."
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendPlayerAttributesView.php
+msgid "No attribute catalogue is set up yet."
+msgstr "Er is nog geen attributencatalogus ingesteld."
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendPlayerAttributesView.php
+msgid "Rate each attribute 0–100. Leave blank to clear. These feed the team-chemistry engine."
+msgstr "Beoordeel elk attribuut 0–100. Laat leeg om te wissen. Deze voeden de teamchemie-engine."
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendPlayerAttributesView.php
+msgid "Save attributes"
+msgstr "Attributen opslaan"
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendPlayerAttributesView.php
+msgid "Behaviour"
+msgstr "Gedrag"
+
+#: src/Modules/TeamDevelopment/Frontend/FrontendPlayerAttributesView.php
+#, php-format
+msgid "%d attribute saved."
+msgid_plural "%d attributes saved."
+msgstr[0] "%d attribuut opgeslagen."
+msgstr[1] "%d attributen opgeslagen."
+
 #~ msgid "Manager only."
 #~ msgstr "Alleen voor beheerders."
 

@@ -721,6 +721,11 @@ class DashboardShortcode {
             case 'team-behaviour-capture':
                 FrontendTeamBehaviourCaptureView::render( $user_id, $is_admin );
                 return true;
+            // #1017 Phase 7 — populate a player's chemistry attributes.
+            // Gated (canEvaluatePlayer) inside the view.
+            case 'player-attributes':
+                \TT\Modules\TeamDevelopment\Frontend\FrontendPlayerAttributesView::render( $user_id, $is_admin );
+                return true;
             case 'functional-roles':
                 FrontendFunctionalRolesView::render( $user_id, $is_admin );
                 return true;

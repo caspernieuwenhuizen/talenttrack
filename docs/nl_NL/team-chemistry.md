@@ -120,3 +120,15 @@ Fit-scores per speler worden 24 uur gecachet. Het opslaan van een evaluatie voor
 ## Vertrouw de onderbouwing
 
 Als een score niet matcht met je gevoel, houd de muis erboven. Elke bijdrage staat er meteen: beoordeling × weging per categorie, plus de zij-modifier. De getallen zijn een gereedschap; de coach beslist.
+
+## Chemie-attributen (vernieuwde engine)
+
+De vernieuwde chemie-engine leest een gestructureerde set attributen per
+speler (fysiek, technisch, tactisch, mentaal, gedrag, ontwikkeling — elk
+0–100). Om ze in te voeren open je het spelersprofiel, kies je **Chemie-
+attributen** in het ⋯-menu, beoordeel je elk attribuut en klik je op
+**Opslaan**. Staf die beoordelingen mag vastleggen kan ze bewerken. Hoe meer
+attributen je invult, hoe meer de engine heeft om mee te werken; niet-
+beoordeelde attributen tellen simpelweg niet mee in plaats van nul te
+scoren. De vernieuwde scores blijven achter een academie-schakelaar tot je
+overstapt.

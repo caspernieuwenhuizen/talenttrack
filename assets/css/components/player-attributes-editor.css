@@ -1,0 +1,71 @@
+/*
+ * player-attributes-editor.css (#1017 Phase 7) — the chemistry-attribute
+ * entry form. Mobile-first; grouped fieldsets with a 0–100 input per row.
+ */
+
+.tt-pa-attr-intro {
+    margin: 0.25rem 0 1rem;
+    color: #4b5563;
+    font-size: 0.9rem;
+}
+
+.tt-pa-attr-group {
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 0.75rem;
+    padding: 0.5rem 1rem 0.75rem;
+    margin: 0 0 1rem;
+    background: #fff;
+}
+
+.tt-pa-attr-group > legend {
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 0 0.4rem;
+    color: #111827;
+}
+
+.tt-pa-attr-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    min-height: 44px;
+    padding: 0.3rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.tt-pa-attr-group .tt-pa-attr-row:last-child {
+    border-bottom: 0;
+}
+
+.tt-pa-attr-label {
+    font-size: 0.95rem;
+}
+
+.tt-pa-attr-input {
+    width: 5rem;
+    min-height: 44px;
+    flex: 0 0 auto;
+    text-align: right;
+}
+
+.tt-pa-attr-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.tt-pa-attr-footer .tt-btn {
+    min-height: 48px;
+}
+
+@media (prefers-color-scheme: dark) {
+    .tt-pa-attr-group {
+        background: #1b211f;
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+    .tt-pa-attr-row {
+        border-bottom-color: rgba(255, 255, 255, 0.06);
+    }
+}
