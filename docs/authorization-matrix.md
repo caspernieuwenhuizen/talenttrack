@@ -102,6 +102,25 @@ When the persona-expansion ship lands:
 2. Build `AuthorizationService::canViewTournament` / `canEditTournament` with creator / team-coach / global-staff logic (currently they defer to the cap check).
 3. Swap REST `permission_callback`s from cap-only to per-entity checks.
 
+## PDP visibility — one shared decision, frontend and REST (#1923)
+
+PDP-file visibility is decided in a single place: `TT\Modules\Pdp\PdpAccess`. Both the rendered files tab (`FrontendPdpManageView`) and every REST surface (`PdpFilesRestController`, `PdpVerdictsRestController`) call `PdpAccess::canSeeFile( $user_id, $player_id )`, so the two sides can no longer answer differently — the cause of the head-coach-vs-HoD divergence in #1758.
+
+The read ladder (matrix-aware, in order):
+
+1. **Global PDP read** — a matrix `pdp_file/read/global` grant (Head of Development, Academy Admin), the WordPress site admin, the legacy `tt_edit_settings` umbrella, or the HoD / academy-admin persona fallback for installs whose matrix is still dormant.
+2. **PDP editor of the player's team** — holds `tt_edit_pdp` and coaches the player's team (`coach_owns_player`).
+3. **PDP viewer of the player's team** — holds `tt_view_pdp` and coaches the player's team.
+
+`PdpAccess::canEditFile()` mirrors the ladder with the edit cap, and `PdpAccess::isGlobalVerdictAuthority()` answers "is this signer the head of academy?" via the matrix (`pdp_verdict/change/global`) instead of the old `tt_head_dev` role-name string compare (#0052 PR-B debt).
+
+The previously login-only PDP REST callbacks were tightened to capability checks (`#0052`: capabilities are the contract, never `is_user_logged_in()` as authorization):
+
+- `GET /pdp-blocks` and `GET /seasons` — admin-config reads, now gated on `tt_access_frontend_admin` via the matrix bridge (`AuthorizationService::userCanOrMatrix`). The write paths are unchanged (`tt_edit_settings`).
+- `PATCH /pdp-conversations/{id}` — gated on `tt_view_pdp` presence; the authoritative per-row gate (coach-owns / linked player / linked parent) still lives in `allowedFieldsFor()`.
+
+Effective access is unchanged — every actor who could read or edit a PDP before lands on the same answer; the work removed the frontend/REST drift and the role-name compare, it did not widen or narrow any persona.
+
 ## See also
 
 - [Access control](access-control.md) — the broader role + capability model.

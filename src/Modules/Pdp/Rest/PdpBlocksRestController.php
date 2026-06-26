@@ -45,7 +45,14 @@ class PdpBlocksRestController {
     }
 
     public static function can_view(): bool {
-        return is_user_logged_in();
+        // #1923 - PDP cycle blocks are an admin-config read (the only
+        // consumer is the frontend Configuration view, gated on
+        // tt_access_frontend_admin). Replace the authz-by-login check
+        // with the matrix-bridged cap so a future SaaS auth backend
+        // gets the same answer. Write stays tt_edit_settings (can_admin).
+        return \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix(
+            get_current_user_id(), 'tt_access_frontend_admin'
+        );
     }
 
     public static function can_admin(): bool {

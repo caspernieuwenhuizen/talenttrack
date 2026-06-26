@@ -90,6 +90,25 @@ Acht persona's worden meegeleverd in de seed:
 
 Een gebruiker kan meerdere persona's tegelijk vasthouden (een ouder die ook hoofdcoach is). De matrix gebruikt de **unie** standaard — elke persona die toestemming verleent wint. De persona-switcher in het gebruikersmenu laat multi-persona-gebruikers het dashboard tijdelijk filteren naar de visie van één persona; dat is een UI-lens, geen autorisatiebeperking.
 
+## POP-zichtbaarheid — één gedeelde beslissing, frontend en REST (#1923)
+
+De zichtbaarheid van een POP-dossier wordt op één plek bepaald: `TT\Modules\Pdp\PdpAccess`. Zowel het gerenderde dossiers-tabblad (`FrontendPdpManageView`) als elke REST-ingang (`PdpFilesRestController`, `PdpVerdictsRestController`) roepen `PdpAccess::canSeeFile( $user_id, $player_id )` aan, zodat beide kanten niet langer verschillend kunnen antwoorden — de oorzaak van het verschil tussen hoofdcoach en HoD in #1758.
+
+De lees-ladder (matrix-bewust, in volgorde):
+
+1. **Globale POP-leestoegang** — een matrixrecht `pdp_file/read/global` (Hoofd Ontwikkeling, Academie-beheerder), de WordPress-sitebeheerder, de oude `tt_edit_settings`-umbrella, of de HoD-/academie-beheerder-persona-terugval voor installaties met een nog slapende matrix.
+2. **POP-bewerker van het team van de speler** — heeft `tt_edit_pdp` en coacht het team van de speler (`coach_owns_player`).
+3. **POP-lezer van het team van de speler** — heeft `tt_view_pdp` en coacht het team van de speler.
+
+`PdpAccess::canEditFile()` volgt dezelfde ladder met de bewerk-capability, en `PdpAccess::isGlobalVerdictAuthority()` beantwoordt "is deze ondertekenaar het hoofd van de academie?" via de matrix (`pdp_verdict/change/global`) in plaats van de oude rolnaam-stringvergelijking met `tt_head_dev` (#0052 PR-B-schuld).
+
+De voorheen alleen-ingelogd POP-REST-callbacks zijn aangescherpt naar capability-checks (#0052: capabilities zijn het contract, nooit `is_user_logged_in()` als autorisatie):
+
+- `GET /pdp-blocks` en `GET /seasons` — beheer-configuratie-reads, nu afgeschermd op `tt_access_frontend_admin` via de matrixbrug (`AuthorizationService::userCanOrMatrix`). De schrijfpaden blijven ongewijzigd (`tt_edit_settings`).
+- `PATCH /pdp-conversations/{id}` — afgeschermd op aanwezigheid van `tt_view_pdp`; de gezaghebbende per-rij-controle (coach-eigenaar / gekoppelde speler / gekoppelde ouder) blijft in `allowedFieldsFor()`.
+
+De effectieve toegang blijft ongewijzigd — iedereen die een POP eerder kon lezen of bewerken krijgt hetzelfde antwoord; het werk verwijderde de frontend/REST-afwijking en de rolnaamvergelijking, het verbreedde of versmalde geen enkele persona.
+
 ## Zie ook
 
 - [Toegangsbeheer](access-control.md) — het bredere rol- + capability-model.

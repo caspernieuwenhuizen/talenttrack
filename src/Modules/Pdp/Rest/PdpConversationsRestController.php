@@ -38,7 +38,16 @@ class PdpConversationsRestController {
     }
 
     public static function can_view(): bool {
-        return is_user_logged_in();
+        // #1923 - the authoritative per-row gate is allowedFieldsFor()
+        // below (coach-owns / linked player / linked parent + caps). This
+        // callback replaces the authz-by-login pre-gate with a PDP-cap
+        // presence check via the matrix bridge: every legitimate actor
+        // (coach, admin, HoD, the linked player, a linked parent) holds
+        // tt_view_pdp, while a logged-in user with no PDP cap is rejected
+        // here instead of falling through to a guaranteed 403.
+        return \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix(
+            get_current_user_id(), 'tt_view_pdp'
+        );
     }
 
     public static function patch( \WP_REST_Request $r ): \WP_REST_Response {
