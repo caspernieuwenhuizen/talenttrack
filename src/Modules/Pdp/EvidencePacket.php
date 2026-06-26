@@ -21,7 +21,7 @@ use TT\Modules\Players\Repositories\PlayerPotentialRepository;
  *   $packet['status']          // current StatusVerdict
  *   $packet['behaviour']       // recent ratings in window
  *   $packet['potential']       // history in window
- *   $packet['evaluations']     // finalised evals in window
+ *   $packet['evaluations']     // non-archived evals in window
  *   $packet['attendance']      // sessions/present/absent/excused
  */
 final class EvidencePacket {
@@ -71,11 +71,11 @@ final class EvidencePacket {
         } ) );
 
         $evaluations = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, eval_date, overall_rating
+            "SELECT id, eval_date, rating
                FROM {$p}tt_evaluations
               WHERE player_id = %d
                 AND club_id = %d
-                AND status_finalized = 1
+                AND archived_at IS NULL
                 AND eval_date >= %s
                 AND eval_date <= %s
               ORDER BY eval_date DESC",
