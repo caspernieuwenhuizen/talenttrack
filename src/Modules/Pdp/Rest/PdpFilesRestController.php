@@ -830,18 +830,19 @@ class PdpFilesRestController {
     }
 
     private static function canSeeFile( object $file ): bool {
-        if ( self::hasGlobalPdpAccess( 'read' ) ) return true;
-        if ( current_user_can( 'tt_edit_pdp' ) ) {
-            return QueryHelpers::coach_owns_player( get_current_user_id(), (int) $file->player_id );
-        }
-        return current_user_can( 'tt_view_pdp' )
-            && QueryHelpers::coach_owns_player( get_current_user_id(), (int) $file->player_id );
+        // #1923 - the canonical ladder now lives in PdpAccess so the
+        // frontend + verdicts surfaces share one decision. Behaviour is
+        // identical to the inlined #0080 Wave C3 ladder this replaces.
+        return \TT\Modules\Pdp\PdpAccess::canSeeFile(
+            get_current_user_id(), (int) $file->player_id
+        );
     }
 
     private static function canEditFile( object $file ): bool {
-        if ( self::hasGlobalPdpAccess( 'change' ) ) return true;
-        if ( ! current_user_can( 'tt_edit_pdp' ) ) return false;
-        return QueryHelpers::coach_owns_player( get_current_user_id(), (int) $file->player_id );
+        // #1923 - shared PdpAccess decision; identical to the inlined ladder.
+        return \TT\Modules\Pdp\PdpAccess::canEditFile(
+            get_current_user_id(), (int) $file->player_id
+        );
     }
 
     /**

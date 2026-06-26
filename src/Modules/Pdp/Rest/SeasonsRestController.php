@@ -64,7 +64,13 @@ class SeasonsRestController {
     }
 
     public static function can_view(): bool {
-        return is_user_logged_in();
+        // #1923 - the seasons list is an admin-config read (consumed by
+        // the Seasons admin view and the PDP-blocks form, both behind
+        // frontend-admin / settings caps). Replace authz-by-login with
+        // the matrix-bridged cap. Write stays tt_edit_settings (can_admin).
+        return \TT\Infrastructure\Security\AuthorizationService::userCanOrMatrix(
+            get_current_user_id(), 'tt_access_frontend_admin'
+        );
     }
 
     public static function can_admin(): bool {

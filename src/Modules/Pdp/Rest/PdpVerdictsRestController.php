@@ -5,7 +5,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use TT\Domain\Vocabularies\Lookups\PdpVerdictDecision;
 use TT\Infrastructure\Logging\Logger;
-use TT\Infrastructure\Query\QueryHelpers;
 use TT\Infrastructure\REST\RestResponse;
 use TT\Modules\Pdp\Repositories\PdpFilesRepository;
 use TT\Modules\Pdp\Repositories\PdpVerdictsRepository;
@@ -114,10 +113,15 @@ class PdpVerdictsRestController {
             'summary'  => isset( $r['summary'] ) ? wp_kses_post( (string) $r['summary'] ) : null,
         ];
 
-        // Sign-off captures whichever cap-holder is acting. Head of
-        // academy is identified by the `tt_head_dev` role.
+        // Sign-off captures whichever cap-holder is acting.
+        // #1923 - attribute the sign-off via the matrix, not a role-name
+        // string compare (#0052 PR-B debt). A global pdp_verdict-change
+        // authority is the head of academy (HoD / academy admin); a head
+        // coach holds the verdict cap only at team scope and signs as the
+        // coach. Capabilities survive a SaaS auth backend that drops role
+        // slugs.
         $uid = get_current_user_id();
-        if ( current_user_can( 'tt_head_dev' ) || in_array( 'tt_head_dev', (array) wp_get_current_user()->roles, true ) ) {
+        if ( \TT\Modules\Pdp\PdpAccess::isGlobalVerdictAuthority( $uid ) ) {
             $payload['head_of_academy_id'] = $uid;
         } else {
             $payload['coach_id'] = $uid;
@@ -160,10 +164,14 @@ class PdpVerdictsRestController {
     }
 
     private static function canSeeFile( object $file ): bool {
-        if ( current_user_can( 'tt_edit_settings' ) ) return true;
+        // #1923 - unify with the frontend + files controller behind the
+        // shared PdpAccess ladder. The extra tt_edit_pdp_verdict branch is
+        // kept on top so the verdict surface stays visible to every
+        // verdict-cap holder exactly as before (no access change).
         if ( current_user_can( 'tt_edit_pdp_verdict' ) ) return true;
-        return current_user_can( 'tt_view_pdp' )
-            && QueryHelpers::coach_owns_player( get_current_user_id(), (int) $file->player_id );
+        return \TT\Modules\Pdp\PdpAccess::canSeeFile(
+            get_current_user_id(), (int) $file->player_id
+        );
     }
 
     /** @return array<string,mixed> */

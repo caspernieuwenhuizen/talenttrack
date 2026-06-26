@@ -1716,8 +1716,16 @@ class FrontendPdpManageView extends FrontendViewBase {
     }
 
     private static function canSeeFile( object $file, int $user_id, bool $is_admin ): bool {
-        if ( $is_admin ) return true;
-        return QueryHelpers::coach_owns_player( $user_id, (int) $file->player_id );
+        // #1923 / #1758 - one shared decision for frontend + REST. The
+        // previous is_admin || coach_owns_player gate skipped the
+        // global-reader branch, so a Head of Development who does not
+        // personally coach the player was denied the files tab while
+        // every REST surface let them through. PdpAccess::canSeeFile() is
+        // the matrix-aware ladder both sides now share; $is_admin
+        // (tt_edit_settings) is already covered by its
+        // hasGlobalPdpAccess() branch.
+        unset( $is_admin );
+        return \TT\Modules\Pdp\PdpAccess::canSeeFile( $user_id, (int) $file->player_id );
     }
 
     private static function previousConversationDate( object $conv ): ?string {
