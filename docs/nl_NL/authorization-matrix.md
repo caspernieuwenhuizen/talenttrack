@@ -171,6 +171,28 @@ Effectieve toegang voor / na:
 | Head of Development | **nee → ja** (krijgt het) | ja → ja |
 | Academy Admin | ja → ja | ja → ja |
 
+## De alle-teams-lens komt uit de matrix (#1942)
+
+Diverse rapportage- en analyse-schermen tonen een **academiebrede ("alle teams") lens** aan senior staf en een **team-gescopete lens** aan coaches — een Head of Development ziet de aanwezigheid van elk team, een hoofdcoach ziet alleen de teams die hij coacht. De verbreder die bepaalt "mag deze gebruiker hier verder kijken dan zijn eigen teams?" was vroeger het capability-idioom `current_user_can( 'tt_view_all_teams' ) || current_user_can( 'tt_edit_settings' )`. Maar `tt_view_all_teams` werd nooit aan een rol toegekend, dus de echte poort was de te grove instellingen-capability plus de WordPress-admin-bypass — een instellingen-capability die "clubbrede leestoegang" moest voorstellen.
+
+#1942 vervangt dat idioom overal door één gedeelde beslissing: **`TT\Modules\Authorization\AllTeamsScope`**, die de matrix vraagt om **globale-scope leestoegang op de eigen entiteit van het scherm**. Elk scherm wijst naar de entiteit waarvan het de gegevens toont:
+
+| Scherm | Gecontroleerde matrix-entiteit |
+| - | - |
+| Standaardrapporten, rapporten-launcher, speler-radar-rapport, coach-evaluatiekwaliteit (REST) | `reports` (read / global) |
+| Aanwezigheid (team / speler / klassement) + minuten-rapporten, aanwezigheids-ranglijst (REST), cohortbord, teamplanner, lijst wedstrijduitvoeringen, widget "wedstrijden die beoordeling nodig hebben", de deep-link van de Activiteiten-tegel | `activities` (read / global) |
+| Evaluaties "audit een andere coach"-override (`GET /evaluations/recent`) | `evaluations` (read / global) |
+
+Doordat de gerenderde views én de REST-permission-callbacks nu uit dezelfde helper beslissen, kunnen de frontend en de API de alle-teams-vraag niet meer verschillend beantwoorden.
+
+Effect op persona's (uit de geleverde seed):
+
+- **Head of Development en Academy Admin behouden de clubbrede weergave** op elk scherm — zij hebben globale leestoegang op `reports`, `activities` en `evaluations`.
+- **Scouts krijgen de clubbrede rapporten- en analyse-lens.** De seed geeft scouts al globale leestoegang op `reports` en `activities` (een scout leest per ontwerp team-overstijgend), maar de fantoom-capability ontzegde hen de brede lens; de matrixcontrole laat hen nu wel door. Scouts krijgen **niet** de evaluatie-audit-override — zij hebben alleen speler-gescopete leestoegang op `evaluations`.
+- **Team-gescopete coaches (hoofd / assistent) blijven beperkt tot hun eigen teams**, precies zoals voorheen — zij hebben `reports` / `activities` alleen op teamscope.
+
+Het WordPress-instellingenbeheerder-/administrator-pad blijft behouden als terugval op de gerenderde schermen, zodat een operator die de WP-installatie beheert nooit toegang verliest terwijl de matrix van een club nog sluimert. Er is geen matrix-entiteit, seed of migratie gewijzigd — dit is een call-site-refactor op de bestaande toekenningen.
+
 ## Zie ook
 
 - [Toegangsbeheer](access-control.md) — het bredere rol- + capability-model.

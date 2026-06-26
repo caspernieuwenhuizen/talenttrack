@@ -533,16 +533,17 @@ final class CoreSurfaceRegistration {
             // pre-filtered to their team. The page reads top-level
             // `?team_id=N` (`FrontendActivitiesManageView::renderList`),
             // not `filter[team_id]`, so the URL carries the bare param.
-            // Skipped for global team readers (admin / HoD), who want the
-            // unscoped list, and for multi-team coaches (the list filter
-            // is single-team `absint`, so there's no correct single value
-            // — they pick from the in-page team filter).
+            // Skipped for global team readers (admin / HoD / scout), who
+            // want the unscoped list, and for multi-team coaches (the list
+            // filter is single-team `absint`, so there's no correct single
+            // value — they pick from the in-page team filter). #1942 —
+            // "global team reader" = global-scope read on `activities`.
             'url_callback' => static function ( int $user_id ): string {
                 $base = add_query_arg(
                     [ 'tt_view' => 'activities' ],
                     \TT\Shared\Frontend\Components\RecordLink::dashboardUrl()
                 );
-                if ( current_user_can( 'tt_view_all_teams' ) ) return $base;
+                if ( \TT\Modules\Authorization\AllTeamsScope::canSeeAllTeamsActivities( $user_id ) ) return $base;
                 $teams = QueryHelpers::get_teams_for_coach( $user_id );
                 if ( count( $teams ) !== 1 ) return $base;
                 $team_id = (int) ( $teams[0]->id ?? 0 );

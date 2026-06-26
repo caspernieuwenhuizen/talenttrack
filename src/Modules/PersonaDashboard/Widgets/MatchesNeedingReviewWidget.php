@@ -26,8 +26,8 @@ use TT\Shared\Frontend\Components\RecordLink;
  * Persona scoping (per #1050 locked decisions):
  *   - Coach (head / assistant): own teams only, via
  *     `tt_user_team_link`.
- *   - HoD / Admin: club-wide, gated by `tt_view_all_teams` /
- *     `tt_edit_settings`.
+ *   - HoD / Admin: club-wide, gated by global-scope read on
+ *     `activities` (`AllTeamsScope` — #1942).
  *
  * Cap-required: `tt_view_activities` (matches the listing view).
  */
@@ -191,8 +191,8 @@ class MatchesNeedingReviewWidget extends AbstractWidget {
         $club_id = (int) $ctx->club_id;
         $user_id = (int) $ctx->user_id;
 
-        $club_wide = user_can( $user_id, 'tt_view_all_teams' )
-            || user_can( $user_id, 'tt_edit_settings' );
+        // #1942 — club-wide review = global-scope read on `activities`.
+        $club_wide = \TT\Modules\Authorization\AllTeamsScope::canSeeAllTeamsActivities( $user_id );
 
         if ( $club_wide ) {
             $sql = "SELECT

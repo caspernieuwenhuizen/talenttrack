@@ -24,8 +24,9 @@ use TT\Modules\Analytics\Domain\AttendanceFlagService;
  *     non-guest attendance on non-archived activities / players —
  *     the same filters the report has always applied.
  *   - `allowed_team_ids` mirrors the analytics team-scope: `null` =
- *     unrestricted (admin / `tt_view_all_teams`); a non-empty list
- *     narrows to those teams; an empty list returns nothing.
+ *     unrestricted (global-scope read on `activities` — #1942); a
+ *     non-empty list narrows to those teams; an empty list returns
+ *     nothing.
  *   - Tenant-scoped on `tt_players.club_id` (no-op single-tenant
  *     today; structural for SaaS).
  *

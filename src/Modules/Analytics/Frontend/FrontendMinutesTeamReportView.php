@@ -67,11 +67,14 @@ final class FrontendMinutesTeamReportView extends FrontendViewBase {
         self::renderHeader( __( 'Minutes played per player', 'talenttrack' ) );
 
         // v4.20.34 (#1193) — same scope pattern as the two attendance
-        // views (v4.20.4 / #1147). Admins + `tt_view_all_teams` holders
+        // views (v4.20.4 / #1147). Global-read-on-`activities` holders
         // keep the club-wide list; everyone else only sees teams they
         // coach. Both the dropdown AND the downstream `MinutesQuery`
-        // call guard against URL tampering.
-        $is_scope_admin = $is_admin || current_user_can( 'tt_view_all_teams' );
+        // call guard against URL tampering. #1942 — the academy-wide lens
+        // is global-scope read on `activities`; the settings-admin flag
+        // stays as the WP-admin fallback.
+        $is_scope_admin = $is_admin
+            || \TT\Modules\Authorization\AllTeamsScope::canSeeAllTeamsActivities( $user_id );
         $allowed_team_ids = $is_scope_admin
             ? null
             : array_values( array_map( 'intval', array_column( QueryHelpers::get_teams_for_coach( $user_id ), 'id' ) ) );

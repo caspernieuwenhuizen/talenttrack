@@ -23,8 +23,8 @@ use TT\Shared\Frontend\FrontendViewBase;
  * only composes (CLAUDE.md §4).
  *
  * Cap-gated on `tt_view_analytics`; scope follows the analytics
- * team-scope rule (admins / `tt_view_all_teams` see the club, coaches
- * see their own teams).
+ * team-scope rule (global-scope read on `activities` sees the club,
+ * coaches see their own teams — #1942).
  */
 final class FrontendAttendanceLeaderboardView extends FrontendViewBase {
 
@@ -72,7 +72,10 @@ final class FrontendAttendanceLeaderboardView extends FrontendViewBase {
         if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $from ) ) $from = $defaults['from'];
         if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $to ) )   $to   = $defaults['to'];
 
-        $is_scope_admin = $is_admin || current_user_can( 'tt_view_all_teams' );
+        // #1942 — academy-wide = global-scope read on `activities`; the
+        // settings-admin flag stays as the WP-admin fallback.
+        $is_scope_admin = $is_admin
+            || \TT\Modules\Authorization\AllTeamsScope::canSeeAllTeamsActivities( $user_id );
         $allowed_team_ids = $is_scope_admin
             ? null
             : array_values( array_map( 'intval', array_column( QueryHelpers::get_teams_for_coach( $user_id ), 'id' ) ) );

@@ -71,13 +71,16 @@ final class FrontendAttendancePlayerReportView extends FrontendViewBase {
         if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $to ) )   $to   = $defaults['to'];
 
         // v4.20.4 (#1147) — analytics scope honours the user's team
-        // assignment. Admins + holders of `tt_view_all_teams` keep the
+        // assignment. Global-read-on-`activities` holders keep the
         // club-wide view; everyone else (notably AC, scoped to
         // `team` per the #1060 trim) only ever sees teams they coach.
         // Routed through `QueryHelpers::get_teams_for_coach()` — the
         // same resolver the players list + teamplanner use, so analytics
-        // can't drift from the rest of the app.
-        $is_scope_admin = $is_admin || current_user_can( 'tt_view_all_teams' );
+        // can't drift from the rest of the app. #1942 — academy-wide =
+        // global-scope read on `activities`; the settings-admin flag
+        // stays as the WP-admin fallback.
+        $is_scope_admin = $is_admin
+            || \TT\Modules\Authorization\AllTeamsScope::canSeeAllTeamsActivities( $user_id );
         $allowed_team_ids = $is_scope_admin
             ? null
             : array_values( array_map( 'intval', array_column( QueryHelpers::get_teams_for_coach( $user_id ), 'id' ) ) );

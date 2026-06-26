@@ -56,7 +56,10 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
         // non-scope-admin users (AC etc.). The destination renderers
         // gate too, but suppressing the launcher tile prevents the
         // operator from clicking into an empty-state notice.
-        $is_scope_admin = $is_admin || current_user_can( 'tt_view_all_teams' );
+        // #1942 — academy-wide = global-scope read on `reports`; the
+        // settings-admin flag stays as the WP-admin fallback.
+        $is_scope_admin = $is_admin
+            || \TT\Modules\Authorization\AllTeamsScope::canSeeAllTeamsReports( $user_id );
 
         $base_url = \TT\Shared\Frontend\Components\RecordLink::dashboardUrl();
         $tiles = [

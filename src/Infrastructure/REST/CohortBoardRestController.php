@@ -65,12 +65,13 @@ final class CohortBoardRestController extends BaseController {
     }
 
     /**
-     * Academy-wide roles (`tt_view_all_teams` / settings admin) read any
-     * team; everyone else is narrowed to the teams they coach. Mirrors
-     * the scope rule the analytics report controllers + views apply.
+     * Academy-wide roles (global-scope read on `activities`, via
+     * `AllTeamsScope` — #1942) read any team; everyone else is narrowed
+     * to the teams they coach. Mirrors the scope rule the analytics
+     * report controllers + views apply.
      */
     public static function callerCanReadTeam( int $team_id ): bool {
-        if ( current_user_can( 'tt_view_all_teams' ) || current_user_can( 'tt_edit_settings' ) ) {
+        if ( \TT\Modules\Authorization\AllTeamsScope::canSeeAllTeamsActivities( get_current_user_id() ) ) {
             return true;
         }
         $team_ids = array_values( array_map(

@@ -52,9 +52,9 @@ class EvaluationsRestController {
         // #920 — "My evaluations" feed. Mirrors what
         // FrontendMyEvaluationsView::renderForCoach renders. Defaults
         // coach_id to the current user; an explicit coach_id query
-        // param is allowed only when the requester also holds
-        // tt_view_all_teams (so an HoD can audit their staff). Days
-        // capped to 90 to keep the query bounded. Gates on the
+        // param is allowed only when the requester holds global-scope
+        // read on `evaluations` (so an HoD can audit their staff —
+        // #1942). Days capped to 90 to keep the query bounded. Gates on the
         // `my_evaluations` matrix entity at self scope per #1060 — AC
         // keeps this entity even though they lost the broader
         // `evaluations` entity, so the self-scoped "what did I author?"
@@ -80,15 +80,15 @@ class EvaluationsRestController {
     /**
      * GET /evaluations/recent — coach's own-authored evaluations in a
      * trailing window. Defaults: coach_id = current user, days = 30.
-     * Override coach_id only when the requester has tt_view_all_teams
-     * (HoD / academy admin audit path).
+     * Override coach_id only when the requester holds global-scope read on
+     * `evaluations` (HoD / academy admin audit path) — #1942.
      */
     public static function recent_for_coach( \WP_REST_Request $r ): \WP_REST_Response {
         $current_uid = get_current_user_id();
         $requested   = isset( $r['coach_id'] ) ? absint( $r['coach_id'] ) : 0;
         $coach_uid   = $current_uid;
         if ( $requested > 0 && $requested !== $current_uid ) {
-            if ( ! current_user_can( 'tt_view_all_teams' ) ) {
+            if ( ! \TT\Modules\Authorization\AllTeamsScope::canSeeAllTeamsEvaluations( $current_uid ) ) {
                 return new \WP_REST_Response( [
                     'code'    => 'forbidden_coach_override',
                     'message' => __( 'You can only request your own evaluations.', 'talenttrack' ),
