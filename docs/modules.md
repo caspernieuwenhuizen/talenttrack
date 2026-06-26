@@ -98,6 +98,7 @@ The features that ship **on by default** (they run today; turning them off is an
 - **PDP calendar integration** (PDP module, default **on**) — writes scheduled PDP conversations to the calendar feed when a development plan is created or carried over. Turning it off skips the calendar write; PDP plans, conversations and verdicts are unaffected.
 - **Dashboard layout editor** (Persona Dashboard module, default **on**) — the drag-and-drop builder for persona dashboard layouts. Turning it off hides the editor menu entry, its Configuration tile and the editor page itself; the rendered dashboards keep working from their saved layouts.
 - **Match prep PDF export** (Match Prep module, default **on**) — the A4 match-preparation sheet's print / export-to-PDF actions. Turning it off hides the Print / export buttons and refuses both the client print route and the server-side DomPDF export; the on-screen match-prep editor is unaffected.
+- **Tournament auto-balance** (Tournaments module, default **on**) — the greedy fair-share auto-planner that fills a match grid by eligibility, equal-share minutes and starts distribution. Turning it off hides the Auto-balance button on every match card and makes the `auto-plan` REST route return 403 so it can't be triggered directly; the per-match planner grid and manual click-to-swap planning are unaffected, so a Head of Development who plans minutes by hand can remove the shortcut without losing the planner.
 
 What an off feature does, on the next page load:
 

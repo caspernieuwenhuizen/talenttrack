@@ -66,6 +66,15 @@ De knop **Auto-balanceren** op elke wedstrijdkaart voert een greedy-toewijzing u
 
 Auto-balanceren is een **startpunt**, geen optimizer. Verslepen en tweaken kan altijd.
 
+### Auto-balanceren uitzetten
+
+Auto-balanceren is een per-academie-schakelaar (**Toernooi-auto-balanceren**)
+op de Modules-beheerpagina, standaard aan. Zet je hem uit, dan verdwijnt de
+knop Auto-balanceren van elke wedstrijdkaart; de per-wedstrijd planner en het
+handmatig wisselen blijven precies werken zoals voorheen. Sommige Hoofden
+Opleiding plannen speelminuten liever volledig met de hand — zo halen ze de
+snelkoppeling weg zonder de planner te verliezen.
+
 ## Niveau tegenstander
 
 Elke wedstrijd heeft een niveau — standaard **zwakker / gelijkwaardig / sterker / veel sterker**. De pill op de wedstrijdkaart is kleur-gecodeerd groen → grijs → oranje → rood, zodat je in één oogopslag ziet waar je sterkste opstelling nodig is.

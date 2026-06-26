@@ -502,6 +502,20 @@ msgstr ""
 "afgedrukt. Het wedstrijdvoorbereidingsscherm blijft beschikbaar als dit uit "
 "staat."
 
+#: src/Core/FeatureRegistry.php:212
+msgid "Tournament auto-balance"
+msgstr "Toernooi-auto-balanceren"
+
+#: src/Core/FeatureRegistry.php:213
+msgid ""
+"The greedy fair-share auto-planner that fills a match grid by eligibility, "
+"equal-share minutes and starts distribution. Manual click-to-swap planning "
+"stays available when this is off."
+msgstr ""
+"De greedy eerlijk-verdelen-autoplanner die een wedstrijdgrid invult op basis "
+"van inzetbaarheid, gelijke speelminuten en spreiding van basisplaatsen. "
+"Handmatig wisselen via klikken blijft beschikbaar als dit uit staat."
+
 #: src/Core/FeatureRegistry.php:220
 #: src/Modules/Export/Exporters/PlayersListCsvExporter.php:30
 #: src/Shared/Frontend/FrontendExportsView.php:86

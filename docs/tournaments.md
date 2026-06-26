@@ -66,6 +66,15 @@ The **Auto-balance** button on each match card runs a greedy assignment that fil
 
 Auto-balance is a **starting point**, not a constraint solver. Drag, swap, and tweak after.
 
+### Turning Auto-balance off
+
+Auto-balance is a per-academy toggle (**Tournament auto-balance**) on the
+Modules management page, on by default. Switch it off and the Auto-balance
+button disappears from every match card; the per-match planner grid and
+manual click-to-swap planning keep working exactly as before. Some Heads of
+Development prefer to plan minutes entirely by hand — this lets them remove
+the shortcut without losing the planner.
+
 ## Opponent level
 
 Each match has an opponent level — by default **weaker / equal / stronger / much stronger**. The pill on the match card is colour-coded green → grey → amber → red so you see at a glance which matches need your strongest lineup.
