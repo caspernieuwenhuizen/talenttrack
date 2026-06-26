@@ -8,6 +8,10 @@ Compare up to four players side by side. Cross-team comparisons are fine — com
 
 Open the **Player comparison** tile. You'll see four slots: pick the players you want to compare. Leave a slot empty if you only want to compare two or three.
 
+## Who you can compare
+
+The team and player selectors show only the players in your context. A team-scoped coach sees their own teams and the players on them — not the whole academy. Staff with academy-wide reporting access (such as a head of development, academy admin, or scout) see every team and player. This scoping also applies to players addressed directly by link, so a coach can't pull an out-of-context player into a comparison.
+
 ## Filters
 
 The filters apply to all picked players at once:

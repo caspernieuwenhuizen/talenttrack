@@ -8,6 +8,10 @@ Vergelijk tot vier spelers naast elkaar. Vergelijken over teams heen mag zonder 
 
 Open de tegel **Spelervergelijking**. Je ziet vier slots: kies de spelers die je wilt vergelijken. Laat een slot leeg als je er minder dan vier wilt.
 
+## Wie je kunt vergelijken
+
+De team- en spelerselectors tonen alleen de spelers binnen jouw context. Een team-gebonden coach ziet zijn eigen teams en de spelers daarvan — niet de hele academie. Staf met academie-brede rapportagetoegang (zoals een hoofd opleiding, academy-beheerder of scout) ziet elk team en elke speler. Deze begrenzing geldt ook voor spelers die rechtstreeks via een link worden opgeroepen, zodat een coach geen speler buiten zijn context in een vergelijking kan trekken.
+
 ## Filters
 
 De filters werken op alle gekozen spelers tegelijk:
