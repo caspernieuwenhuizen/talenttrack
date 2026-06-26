@@ -102,6 +102,18 @@ final class FrontendStandardReportsView extends FrontendViewBase {
         // #1367 — CSV export streams + exits before any page chrome,
         // same shape as FrontendExploreView's export_csv action.
         $action = isset( $_GET['action'] ) ? sanitize_key( (string) $_GET['action'] ) : '';
+        // #1995 — a report switched off for the academy is rejected here,
+        // before the CSV stream or any render, even via a direct link.
+        if ( array_key_exists( $slug, self::REPORTS )
+             && ! \TT\Core\FeatureRegistry::isEnabled( 'report_' . str_replace( '-', '_', $slug ) ) ) {
+            FrontendBreadcrumbs::fromDashboard(
+                __( 'Standard report', 'talenttrack' ),
+                [ FrontendBreadcrumbs::viewCrumb( 'reports', __( 'Reports', 'talenttrack' ) ) ]
+            );
+            self::renderHeader( __( 'Standard report', 'talenttrack' ) );
+            echo '<p class="tt-notice">' . esc_html__( 'This report has been switched off for your academy.', 'talenttrack' ) . '</p>';
+            return;
+        }
         if ( $slug === 'coach-evaluation-quality' && $action === 'export_csv' ) {
             self::streamCoachEvalQualityCsv();
         }
