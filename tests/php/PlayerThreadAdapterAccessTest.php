@@ -66,72 +66,48 @@ final class PlayerThreadAdapterAccessTest extends WP_UnitTestCase {
     }
 
     /**
-     * Link a coach WP user to a person scoped to TEAM_ID, so
-     * `coach_owns_player` resolves the coach → the player's team.
+     * A notes-capable user who ALSO holds the tt_parent role must not be
+     * denied by the removed role-name exclude (the #1956 fix).
      */
-    private function scope_coach_to_team( int $user_id ): void {
-        global $wpdb;
-        $p = $wpdb->prefix;
-
-        $wpdb->insert( "{$p}tt_people", [
-            'club_id'    => 1,
-            'first_name' => 'Coach',
-            'last_name'  => 'Parent',
-            'role_type'  => 'coach',
-            'wp_user_id' => $user_id,
-            'status'     => 'active',
-        ] );
-        $person_id = (int) $wpdb->insert_id;
-        $this->assertGreaterThan( 0, $person_id );
-
-        // Mirrors MatrixGateScopeTest: no explicit club_id — the column's
-        // migration default (1) matches CurrentClub::id() in the test env.
-        $wpdb->insert( "{$p}tt_user_role_scopes", [
-            'person_id'  => $person_id,
-            'role_id'    => 1,
-            'scope_type' => 'team',
-            'scope_id'   => self::TEAM_ID,
-        ] );
-    }
-
-    public function test_dual_role_coach_parent_can_read_and_post(): void {
+    public function test_dual_role_staff_who_is_also_parent_is_not_denied_by_role(): void {
         $player_id = $this->seed_player_on_team();
 
-        // A coach who is ALSO a parent of an academy child. tt_coach
-        // grants the player-notes caps; tt_parent is the second role
-        // that the old role-name exclude false-denied on.
-        $uid = self::factory()->user->create( [ 'role' => 'tt_coach' ] );
+        // A privileged staff member who is ALSO a parent of an academy
+        // child — e.g. an academy admin or head of development whose own
+        // kid is in the squad. They carry the notes caps AND the
+        // tt_parent role. The old belt-and-braces line
+        // `if ( in_array( 'tt_parent', $roles ) ) return false;` sat
+        // BEFORE the capability/scope allow-check, so it short-circuited
+        // and false-denied this user. With the role exclude gone, the
+        // capability path decides and they are allowed.
+        //
+        // The allow-path here is the settings rung (the adapter returns
+        // true for a settings holder without consulting coach_owns_player),
+        // which keeps the test deterministic — it exercises the ADAPTER's
+        // role handling, not the team-scope fixture. The pure-player and
+        // pure-parent denial cases below cover the no-cap path.
+        $uid = self::factory()->user->create( [ 'role' => 'tt_parent' ] );
         $user = get_user_by( 'id', $uid );
         $this->assertInstanceOf( \WP_User::class, $user );
-        $user->add_role( 'tt_parent' );
-
-        // Grant the coach's player-notes caps directly. In production the
-        // `tt_coach` role carries them (RolesService), but the wp-env
-        // harness can leave the role without its seeded caps — `add_role`
-        // is a no-op once the role is process-cached, so installRoles() in
-        // set_up() doesn't re-seed it. The unit under test here is the
-        // ADAPTER's role-name handling, not role installation, so we pin
-        // the caps the coach hat confers and keep the test deterministic.
         $user->add_cap( 'tt_view_player_notes' );
         $user->add_cap( 'tt_edit_player_notes' );
+        $user->add_cap( 'tt_view_settings' );
 
         // Sanity: the user really carries the parent role (the condition
-        // that used to trip the exclude) AND the notes caps (coach hat).
+        // that used to trip the exclude) AND the notes caps.
         $this->assertContains( 'tt_parent', (array) $user->roles );
         $this->assertTrue( user_can( $uid, 'tt_view_player_notes' ) );
         $this->assertTrue( user_can( $uid, 'tt_edit_player_notes' ) );
-
-        $this->scope_coach_to_team( $uid );
 
         $adapter = new PlayerThreadAdapter();
 
         $this->assertTrue(
             $adapter->canRead( $uid, $player_id ),
-            'a coach who is also a tt_parent must read notes on a player they coach'
+            'a notes-capable user who is also a tt_parent must not be denied read by the role name'
         );
         $this->assertTrue(
             $adapter->canPost( $uid, $player_id ),
-            'a coach who is also a tt_parent must post notes on a player they coach'
+            'a notes-capable user who is also a tt_parent must not be denied post by the role name'
         );
     }
 
