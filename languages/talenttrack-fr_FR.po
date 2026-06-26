@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-26T07:53:54+00:00\n"
+"POT-Creation-Date: 2026-06-26T07:57:19+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: \n"
 "Language-Team: Français\n"
@@ -1601,7 +1601,7 @@ msgstr ""
 msgid "Radar charts"
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:203
+#: src/Infrastructure/REST/ActivitiesRestController.php:197
 #: src/Infrastructure/REST/FunctionalRolesRestController.php:265
 #: src/Infrastructure/REST/GoalsRestController.php:130
 #: src/Infrastructure/REST/PeopleRestController.php:97
@@ -1610,23 +1610,23 @@ msgstr ""
 msgid "Unknown orderby column."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:611
+#: src/Infrastructure/REST/ActivitiesRestController.php:417
 msgid "Title and date are required."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:620
+#: src/Infrastructure/REST/ActivitiesRestController.php:429
 msgid "The activity could not be saved. The database rejected the operation."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:649
+#: src/Infrastructure/REST/ActivitiesRestController.php:457
 msgid "The activity was saved, but some attendance rows could not be stored."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:682
-#: src/Infrastructure/REST/ActivitiesRestController.php:782
-#: src/Infrastructure/REST/ActivitiesRestController.php:1087
-#: src/Infrastructure/REST/ActivitiesRestController.php:1202
-#: src/Infrastructure/REST/ActivitiesRestController.php:1226
+#: src/Infrastructure/REST/ActivitiesRestController.php:488
+#: src/Infrastructure/REST/ActivitiesRestController.php:581
+#: src/Infrastructure/REST/ActivitiesRestController.php:876
+#: src/Infrastructure/REST/ActivitiesRestController.php:982
+#: src/Infrastructure/REST/ActivitiesRestController.php:1000
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:103
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:120
 #: src/Modules/MatchExecution/Rest/MatchExecutionRestController.php:564
@@ -1634,24 +1634,24 @@ msgstr ""
 msgid "Invalid activity id."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:698
+#: src/Infrastructure/REST/ActivitiesRestController.php:506
 msgid "The activity could not be updated. The database rejected the operation."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:720
+#: src/Infrastructure/REST/ActivitiesRestController.php:528
 msgid "The activity was updated, but some attendance rows could not be stored."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:792
+#: src/Infrastructure/REST/ActivitiesRestController.php:593
 msgid "The activity could not be deleted."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:911
+#: src/Infrastructure/REST/ActivitiesRestController.php:712
 msgid "Unknown activity type. Pick one from the configured list."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1093
-#: src/Infrastructure/REST/ActivitiesRestController.php:1233
+#: src/Infrastructure/REST/ActivitiesRestController.php:880
+#: src/Infrastructure/REST/ActivitiesRestController.php:1004
 #: src/Modules/Export/Exporters/ActivityBriefPdfExporter.php:70
 #: src/Modules/Export/Exporters/MatchDayTeamSheetPdfExporter.php:76
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:57
@@ -1660,45 +1660,45 @@ msgid "Activity not found."
 msgstr ""
 
 # v3.22.0 — Guest-player attendance (#0026)
-#: src/Infrastructure/REST/ActivitiesRestController.php:1114
+#: src/Infrastructure/REST/ActivitiesRestController.php:901
 msgid "A guest is either linked OR anonymous, not both."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1118
+#: src/Infrastructure/REST/ActivitiesRestController.php:905
 msgid "Pick a player or enter a guest name."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1125
+#: src/Infrastructure/REST/ActivitiesRestController.php:908
 msgid "Linked player does not exist."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1186
+#: src/Infrastructure/REST/ActivitiesRestController.php:968
 #, php-format
 msgid "The guest could not be added (database error: %s)."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1187
+#: src/Infrastructure/REST/ActivitiesRestController.php:969
 msgid "The guest could not be added."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1210
+#: src/Infrastructure/REST/ActivitiesRestController.php:985
 msgid "Could not update the activity."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1261
-#: src/Infrastructure/REST/ActivitiesRestController.php:1297
+#: src/Infrastructure/REST/ActivitiesRestController.php:1030
+#: src/Infrastructure/REST/ActivitiesRestController.php:1065
 msgid "Invalid attendance id."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1263
+#: src/Infrastructure/REST/ActivitiesRestController.php:1033
 msgid "Attendance row not found."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1283
+#: src/Infrastructure/REST/ActivitiesRestController.php:1052
 msgid "The attendance row could not be updated."
 msgstr ""
 
-#: src/Infrastructure/REST/ActivitiesRestController.php:1301
+#: src/Infrastructure/REST/ActivitiesRestController.php:1068
 msgid "The attendance row could not be deleted."
 msgstr ""
 
