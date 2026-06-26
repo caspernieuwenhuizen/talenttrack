@@ -74,7 +74,7 @@ final class JourneyBackfillService {
     private static function backfillEvaluations( int $club_id ): int {
         global $wpdb;
         $rows = $wpdb->get_results( $wpdb->prepare(
-            "SELECT id, player_id, eval_date, overall_rating
+            "SELECT id, player_id, eval_date, rating
                FROM {$wpdb->prefix}tt_evaluations
               WHERE archived_at IS NULL AND club_id = %d
               ORDER BY id ASC",
@@ -90,7 +90,7 @@ final class JourneyBackfillService {
                 sprintf( __( 'Evaluation on %s', 'talenttrack' ), substr( $eval_date, 0, 10 ) ),
                 [
                     'evaluation_id' => (int) $r->id,
-                    'overall'       => isset( $r->overall_rating ) ? (float) $r->overall_rating : 0.0,
+                    'overall'       => isset( $r->rating ) ? (float) $r->rating : 0.0,
                 ],
                 'Evaluations',
                 'evaluation',

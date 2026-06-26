@@ -33,7 +33,7 @@ final class JourneyEventSubscriber {
     public static function on_evaluation_saved( int $player_id, int $evaluation_id ): void {
         global $wpdb;
         $row = $wpdb->get_row( $wpdb->prepare(
-            "SELECT id, eval_date, overall_rating FROM {$wpdb->prefix}tt_evaluations WHERE id = %d AND club_id = %d",
+            "SELECT id, eval_date, rating FROM {$wpdb->prefix}tt_evaluations WHERE id = %d AND club_id = %d",
             $evaluation_id, CurrentClub::id()
         ) );
         if ( ! $row ) return;
@@ -47,7 +47,7 @@ final class JourneyEventSubscriber {
             sprintf( __( 'Evaluation on %s', 'talenttrack' ), substr( $eval_date, 0, 10 ) ),
             [
                 'evaluation_id' => (int) $row->id,
-                'overall'       => isset( $row->overall_rating ) ? (float) $row->overall_rating : 0.0,
+                'overall'       => isset( $row->rating ) ? (float) $row->rating : 0.0,
             ],
             'Evaluations',
             'evaluation',
