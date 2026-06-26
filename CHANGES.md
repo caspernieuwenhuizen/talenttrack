@@ -1,3 +1,92 @@
+# TalentTrack v4.57.0 — MFA QR encoder — independent round-trip verification + CI gate (#1393)
+
+Closes out the MFA-enrollment-QR bug. The payload + render fixes shipped earlier
+(smaller otpauth URI, no silent truncation, larger render); the remaining risk was
+that the hand-rolled QR encoder's v6–v10 paths — the only ones a real otpauth URI
+ever exercises — were unverified. A new standalone check
+(`scripts/qr-roundtrip-verify.php`, run in CI) encodes a representative corpus with
+the production encoder, decodes each result with an independent from-spec ISO/IEC
+18004 decoder, and asserts the decoded string equals the input. All versions v6–v10
+round-trip cleanly, proving the encoder is correct, and the gate prevents
+regressions. No user-facing change.
+
+# TalentTrack v4.57.0 — Translations config moved to the frontend (#1935)
+
+The auto-translation engine configuration is now a frontend view at
+`?tt_view=translations` instead of bouncing to wp-admin. The Configuration
+"Translations" tile opens it directly. The view covers everything the old
+wp-admin tab did — enable toggle, primary/fallback engine, DeepL key and
+Google service-account JSON (both kept masked with a "(set)" indicator),
+site default language, monthly character cap, notify threshold, the GDPR
+sub-processor confirmation, the read-only usage table, and the Clear cache
+action. Settings save through a new REST surface
+(`POST /translations/settings`, `POST /translations/clear-cache`) gated on
+`tt_view_translations` / `tt_edit_translations`; the validation,
+keep-on-blank credential handling, and GDPR opt-out cache purge all run in
+the domain layer, shared with the wp-admin tab. The wp-admin tab stays as a
+power-user fallback.
+
+# TalentTrack v4.57.0 — Authorization: route remaining blueprint + player-potential caps through the matrix (#1939)
+
+The Team-blueprint creation wizard and the blueprint comment thread now
+resolve access through the `team_chemistry` matrix entity (via
+`TeamChemistryAccess`) instead of the raw `tt_*_team_chemistry`
+capabilities, completing the #1922 consolidation so the whole blueprint
+feature answers from one source. The PlayerStatus "set potential band"
+act-cap (`tt_set_player_potential`) is now bridged to the
+`player_potential:change` matrix entity, closing a frontend/REST
+divergence where its data-cap sibling was already matrix-aware. All three
+re-points are access-preserving — the personas who could act before still
+can. The behaviour-rating act-cap (`tt_rate_player_behaviour`) was left on
+native capability evaluation and flagged on the issue: bridging it would
+have revoked assistant-coach access, an effective-access change that needs
+a product decision rather than a mechanical bridge.
+
+# TalentTrack v4.57.0 — Authorization: bridge six act-caps to the matrix + two approved access changes (#1941)
+
+Six legacy `tt_*` act-capabilities now resolve through the authorization
+matrix instead of native WordPress capabilities, so the frontend renders
+and REST endpoints that gate on each cap can no longer answer differently:
+`tt_manage_teams`, `tt_manage_staff_development`, `tt_manage_modules`,
+`tt_view_scout_assignments`, `tt_manage_invitations`, and
+`tt_rate_player_behaviour`. Four bridges are access-preserving. Two carry
+an approved effective-access change: the Head of Development now sees the
+all-teams exports picker (`tt_manage_teams` → `team:create_delete`, the
+HoD oversees the whole academy), and assistant coaches can no longer author
+behaviour ratings (`tt_rate_player_behaviour` → `player_behaviour_ratings:change`;
+the matrix treats behaviour-rating as a development judgment, not an
+operational one). The stale behaviour-rating grant on the assistant-coach
+role is revoked on upgrade so installs whose matrix is still dormant
+converge on the same answer. Invitation management stays admin-only
+(`tt_manage_invitations` bridges to the admin-level `settings` entity, not
+the broad `invitations` entity that coaches and parents hold to send invites).
+
+# TalentTrack v4.57.0 — All-teams lens now resolves from the authorization matrix (#1942)
+
+Replaced the phantom `tt_view_all_teams` / `tt_edit_settings` capability
+idiom — which gated the academy-wide ("all teams") lens across reports,
+analytics, attendance, the cohort board, the team planner, match-execution
+surfaces and the matches-needing-review widget — with a single
+`AllTeamsScope` helper that asks the authorization matrix for global-scope
+read on each surface's own entity (reports surfaces check `reports`,
+analytics / attendance check `activities`, the evaluations audit override
+checks `evaluations`). Frontend renders and REST permission callbacks now
+resolve the all-teams question from one place, so they can no longer drift.
+Head of Development and Academy Admin keep the club-wide view; scouts gain
+the club-wide reports and analytics lens where the matrix already grants
+them global read.
+
+# TalentTrack v4.57.0 — Authorization: give the Tournaments planner a matrix entity (#1943)
+
+The admin-only Tournament planner now has a `tournaments` authorization-matrix
+entity. The legacy `tt_view_tournaments` / `tt_edit_tournaments` capabilities are
+bridged through `LegacyCapMapper`, so the planner's frontend, REST, and add-match
+surfaces resolve access from the matrix once it is active instead of from raw
+WordPress capabilities. The seed grants only the Academy Admin persona full access
+(read + edit + create + delete), exactly reproducing today's admin-only v1 design —
+no persona gains or loses access, and WP administrators keep their override. A
+backfill migration adds the entity to existing installs.
+
 # TalentTrack v4.56.0 — Six new per-academy feature toggles (#1538)
 
 The Modules page gains six more sub-feature switches, so academies can turn off
