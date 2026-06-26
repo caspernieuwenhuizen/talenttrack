@@ -16,11 +16,11 @@ use WP_REST_Request;
  *   GET /reports/coach-evaluation-quality
  *       filters: team_id, date_from, date_to (Y-m-d)
  *
- * Permission: `tt_view_reports` PLUS academy-wide scope
- * (`tt_view_all_teams` or the settings-admin roll-up) — this is the
- * HoD's coach-quality lens; coaches must not read each other's
- * stats. Mirrors the scope gate `FrontendStandardReportsView` applies
- * to the same renderer.
+ * Permission: `tt_view_reports` PLUS academy-wide scope (global-scope
+ * read on `reports`, via `AllTeamsScope` — #1942) — this is the HoD's
+ * coach-quality lens; coaches must not read each other's stats. Mirrors
+ * the scope gate `FrontendStandardReportsView` applies to the same
+ * renderer.
  */
 final class ReportsRestController extends BaseController {
 
@@ -35,7 +35,7 @@ final class ReportsRestController extends BaseController {
                 'callback'            => [ self::class, 'coachEvalQuality' ],
                 'permission_callback' => static function (): bool {
                     return current_user_can( 'tt_view_reports' )
-                        && ( current_user_can( 'tt_view_all_teams' ) || current_user_can( 'tt_edit_settings' ) );
+                        && \TT\Modules\Authorization\AllTeamsScope::canSeeAllTeamsReports( get_current_user_id() );
                 },
                 'args'                => [
                     'team_id'   => [ 'sanitize_callback' => 'absint',              'required' => false ],
@@ -126,14 +126,15 @@ final class ReportsRestController extends BaseController {
 
     /**
      * Mirror the analytics views' team-scope rule: academy-wide roles
-     * (`tt_view_all_teams` / settings admin) read the whole club;
-     * everyone else is narrowed to the teams they coach. A coach who
-     * passes a team they don't coach — or coaches nothing — is blocked.
+     * (global-scope read on `activities`, via `AllTeamsScope` — #1942)
+     * read the whole club; everyone else is narrowed to the teams they
+     * coach. A coach who passes a team they don't coach — or coaches
+     * nothing — is blocked.
      *
      * @return array{team_ids:list<int>|null, blocked:bool}
      */
     private static function attendanceScope( int $team_id ): array {
-        $is_scope_admin = current_user_can( 'tt_view_all_teams' ) || current_user_can( 'tt_edit_settings' );
+        $is_scope_admin = \TT\Modules\Authorization\AllTeamsScope::canSeeAllTeamsActivities( get_current_user_id() );
         if ( $is_scope_admin ) {
             return [ 'team_ids' => null, 'blocked' => false ];
         }
@@ -156,8 +157,9 @@ final class ReportsRestController extends BaseController {
         $ids = array_values( array_filter( array_map( 'absint', explode( ',', (string) $req->get_param( 'player_ids' ) ) ) ) );
 
         // Scope: mirror FrontendStandardReportsView — non-scope-admins
-        // are narrowed to their own teams' players / teams.
-        $is_scope_admin = current_user_can( 'tt_view_all_teams' ) || current_user_can( 'tt_edit_settings' );
+        // are narrowed to their own teams' players / teams. #1942 — the
+        // all-teams lens is global-scope read on `reports`.
+        $is_scope_admin = \TT\Modules\Authorization\AllTeamsScope::canSeeAllTeamsReports( get_current_user_id() );
         $allowed_team_ids = null;
         if ( ! $is_scope_admin ) {
             $allowed_team_ids = array_values( array_map(

@@ -56,7 +56,10 @@ final class FrontendAttendanceTeamReportView extends FrontendViewBase {
         if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $to ) )   $to   = $defaults['to'];
 
         // v4.20.4 (#1147) — same team-scope pattern as the player report.
-        $is_scope_admin = $is_admin || current_user_can( 'tt_view_all_teams' );
+        // #1942 — academy-wide = global-scope read on `activities`; the
+        // settings-admin flag stays as the WP-admin fallback.
+        $is_scope_admin = $is_admin
+            || \TT\Modules\Authorization\AllTeamsScope::canSeeAllTeamsActivities( $user_id );
         $allowed_team_ids = $is_scope_admin
             ? null
             : array_values( array_map( 'intval', array_column( QueryHelpers::get_teams_for_coach( $user_id ), 'id' ) ) );

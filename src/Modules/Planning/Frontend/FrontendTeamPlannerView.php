@@ -705,11 +705,13 @@ class FrontendTeamPlannerView extends FrontendViewBase {
      */
     private static function teamsForUser( int $user_id ): array {
         // #1124 — apply the same scope filter the teams page applies.
-        // Admins + tt_edit_settings holders see every team; everyone
+        // Global-read-on-`activities` holders see every team; everyone
         // else is filtered through QueryHelpers::get_teams_for_coach()
         // which resolves both modern AuthorizationService scopes and
-        // legacy tt_user_team_link rows.
-        $is_admin = current_user_can( 'tt_edit_settings' ) || current_user_can( 'tt_view_all_teams' );
+        // legacy tt_user_team_link rows. #1942 — the planner is a calendar
+        // onto `activities`, so the academy-wide lens is global-scope read
+        // on `activities`.
+        $is_admin = \TT\Modules\Authorization\AllTeamsScope::canSeeAllTeamsActivities( $user_id );
         if ( $is_admin ) {
             global $wpdb;
             $rows = $wpdb->get_results( $wpdb->prepare(

@@ -156,6 +156,28 @@ One sibling act-cap is **deliberately not bridged** because doing so would chang
 
 - **`tt_rate_player_behaviour`** stays on native WP capability evaluation. Its raw grant includes `tt_assistant_coach`, but the `player_behaviour_ratings` matrix seed has no `assistant_coach` row (removed by #1060). Bridging it would revoke assistant-coach access — an effective-access change, not an enforcement-only re-point — so it is flagged on #1939 for a product decision (the #1922 lesson: never silently move access while "just" bridging a cap).
 
+## The all-teams lens resolves from the matrix (#1942)
+
+Several reporting and analytics surfaces show an **academy-wide ("all teams") lens** to senior staff and a **team-scoped lens** to coaches — a Head of Development sees every team's attendance, a head coach sees only the teams they coach. The widener that decides "may this user see beyond their own teams here?" used to be the cap idiom `current_user_can( 'tt_view_all_teams' ) || current_user_can( 'tt_edit_settings' )`. But `tt_view_all_teams` was never granted to any role, so the real gate was the over-coarse settings capability plus the WordPress-admin bypass — a settings cap standing in for "club-wide read".
+
+#1942 replaces that idiom everywhere with one shared decision: **`TT\Modules\Authorization\AllTeamsScope`**, which asks the matrix for **global-scope read on the surface's own entity**. Each surface maps to the entity whose data it shows:
+
+| Surface | Matrix entity checked |
+| - | - |
+| Standard reports, reports launcher, player-radar report, coach-evaluation-quality REST | `reports` (read / global) |
+| Attendance (team / player / leaderboard) + minutes reports, attendance-ranking REST, cohort board, team planner, match executions list, matches-needing-review widget, the Activities tile's deep-link | `activities` (read / global) |
+| Evaluations "audit another coach" override (`GET /evaluations/recent`) | `evaluations` (read / global) |
+
+Because the rendered views and the REST permission callbacks now resolve from the same helper, the frontend and the API can no longer answer the all-teams question differently.
+
+Effect on personas (from the shipped seed):
+
+- **Head of Development and Academy Admin keep the club-wide view** on every surface — they hold global read on `reports`, `activities` and `evaluations`.
+- **Scouts gain the club-wide reports and analytics lens.** The seed already grants scouts global read on `reports` and `activities` (a scout reads cross-team by design), but the phantom cap denied them the wide lens; the matrix check now lets them through. Scouts do **not** gain the evaluations audit override — they have only player-scoped read on `evaluations`.
+- **Team-scoped coaches (head / assistant) stay narrowed to their own teams**, exactly as before — they hold `reports` / `activities` only at team scope.
+
+The WordPress settings-admin / administrator path is preserved as a fallback on the rendered surfaces, so an operator running the WP install never loses access while a club's matrix is still dormant. No matrix entity, seed, or migration changed — this is a call-site refactor onto the existing grants.
+
 ## See also
 
 - [Access control](access-control.md) — the broader role + capability model.

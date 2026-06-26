@@ -54,8 +54,9 @@ final class FrontendStandardReportsView extends FrontendViewBase {
      * handler doesn't re-resolve `get_teams_for_coach`.
      *
      * Returns:
-     *  - `is_scope_admin` (bool): true when the user holds `tt_view_all_teams`
-     *    or is the admin in WP terms. Skips all scope guards.
+     *  - `is_scope_admin` (bool): true when the user holds global-scope
+     *    read on `reports` (#1942) or is the WP settings admin. Skips all
+     *    scope guards.
      *  - `allowed_team_ids` (list<int>|null): team ids the user may see.
      *    `null` means "no restriction" (scope admin). An empty list
      *    means "scope-limited but no teams" — handlers should render
@@ -66,7 +67,11 @@ final class FrontendStandardReportsView extends FrontendViewBase {
     private static function scope( int $user_id, bool $is_admin ): array {
         static $cache = null;
         if ( $cache !== null ) return $cache;
-        $is_scope_admin = $is_admin || current_user_can( 'tt_view_all_teams' );
+        // #1942 — the academy-wide lens is global-scope read on `reports`
+        // (HoD, academy_admin, and now scout, who hold it in the seed);
+        // the legacy settings-admin flag stays as the WP-admin fallback.
+        $is_scope_admin = $is_admin
+            || \TT\Modules\Authorization\AllTeamsScope::canSeeAllTeamsReports( $user_id );
         $allowed_team_ids = $is_scope_admin
             ? null
             : array_values( array_map( 'intval', array_column( QueryHelpers::get_teams_for_coach( $user_id ), 'id' ) ) );

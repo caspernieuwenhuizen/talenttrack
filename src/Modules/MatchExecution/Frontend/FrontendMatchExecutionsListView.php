@@ -127,7 +127,10 @@ final class FrontendMatchExecutionsListView extends FrontendViewBase {
         $p = $wpdb->prefix;
         $club_id = (int) CurrentClub::id();
 
-        if ( $is_admin || current_user_can( 'tt_edit_settings' ) || current_user_can( 'tt_view_all_teams' ) ) {
+        // #1942 — match executions are `activities`; the academy-wide lens
+        // is global-scope read on `activities`. The dispatcher-supplied
+        // settings flag stays as the WP-admin fallback.
+        if ( $is_admin || \TT\Modules\Authorization\AllTeamsScope::canSeeAllTeamsActivities( $user_id ) ) {
             $rows = $wpdb->get_results( $wpdb->prepare(
                 "SELECT id, name FROM {$p}tt_teams
                   WHERE club_id = %d AND archived_at IS NULL
