@@ -203,6 +203,19 @@ class FeatureRegistry {
                 'view_slugs'      => [],
                 'entities'        => [],
             ],
+            // #1979 — the greedy fair-share auto-planner. Gated at two
+            // layers: the Auto-balance button in FrontendTournamentsManageView
+            // and the `auto-plan` REST route's permission_callback (so a
+            // direct POST can't bypass the toggle). Manual click-to-swap
+            // planning stays available when this is off.
+            'tournaments_auto_balance' => [
+                'label'           => __( 'Tournament auto-balance', 'talenttrack' ),
+                'description'     => __( 'The greedy fair-share auto-planner that fills a match grid by eligibility, equal-share minutes and starts distribution. Manual click-to-swap planning stays available when this is off.', 'talenttrack' ),
+                'module_class'    => 'TT\\Modules\\Tournaments\\TournamentsModule',
+                'default_enabled' => true,
+                'view_slugs'      => [],
+                'entities'        => [],
+            ],
         ];
 
         // #1762 — one feature per bulk export tile, so an academy admin can

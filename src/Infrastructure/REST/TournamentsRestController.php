@@ -212,15 +212,21 @@ class TournamentsRestController {
         // Greedy auto-balance — wipes the match's assignments and
         // fills the grid based on eligibility + equal-share + starts
         // distribution + no-back-to-back-bench heuristic.
+        //
+        // #1979 — gated by the `tournaments_auto_balance` feature flag
+        // AND the edit-tournament capability. When the feature is off the
+        // route returns 403; manual click-to-swap planning (the
+        // assignments PATCH below) is untouched.
         register_rest_route( self::NS, '/tournaments/(?P<id>\d+)/matches/(?P<match_id>\d+)/auto-plan', [
             [
                 'methods'             => 'POST',
                 'callback'            => [ __CLASS__, 'auto_plan' ],
                 'permission_callback' => function ( \WP_REST_Request $r ) {
-                    return AuthorizationService::canEditTournament(
-                        get_current_user_id(),
-                        (int) $r['id']
-                    );
+                    return \TT\Core\FeatureRegistry::isEnabled( 'tournaments_auto_balance' )
+                        && AuthorizationService::canEditTournament(
+                            get_current_user_id(),
+                            (int) $r['id']
+                        );
                 },
             ],
         ] );

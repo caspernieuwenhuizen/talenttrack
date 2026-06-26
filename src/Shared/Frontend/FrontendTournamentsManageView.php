@@ -385,7 +385,8 @@ class FrontendTournamentsManageView extends FrontendViewBase {
                             <button type="button" class="tt-planner-toggle" data-tt-planner-toggle="1" aria-expanded="false">
                                 <?php esc_html_e( 'Open planner grid', 'talenttrack' ); ?>
                             </button>
-                            <?php if ( current_user_can( 'tt_edit_tournaments' ) && empty( $m->completed_at ) ) : ?>
+                            <?php // #1979 — hide Auto-balance when the feature is off; manual planning stays. ?>
+                            <?php if ( current_user_can( 'tt_edit_tournaments' ) && empty( $m->completed_at ) && \TT\Core\FeatureRegistry::isEnabled( 'tournaments_auto_balance' ) ) : ?>
                                 <button type="button" class="tt-btn tt-btn-secondary tt-planner-auto" data-tt-planner-auto="1">
                                     <?php esc_html_e( 'Auto-balance', 'talenttrack' ); ?>
                                 </button>
