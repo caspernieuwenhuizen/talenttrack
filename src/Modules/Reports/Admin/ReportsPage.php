@@ -32,6 +32,13 @@ class ReportsPage {
     public static function render_page(): void {
         $report = isset( $_GET['report'] ) ? sanitize_key( (string) $_GET['report'] ) : '';
         if ( $report !== '' ) {
+            // #1995 — reject a report switched off for the academy, even via a
+            // direct ?report= link. Unknown keys stay enabled.
+            if ( ! \TT\Core\FeatureRegistry::isEnabled( 'report_' . $report ) ) {
+                echo '<div class="wrap"><h1>' . esc_html__( 'Reports', 'talenttrack' ) . '</h1>';
+                echo '<p>' . esc_html__( 'This report has been switched off for your academy.', 'talenttrack' ) . '</p></div>';
+                return;
+            }
             self::renderReportView( $report );
             return;
         }
@@ -64,6 +71,12 @@ class ReportsPage {
                 'color' => '#7c3a9e',
             ],
         ];
+        // #1995 — hide a report tile whose feature is switched off (unknown
+        // keys like 'legacy' stay enabled).
+        $tiles = array_values( array_filter(
+            $tiles,
+            static fn( array $t ): bool => \TT\Core\FeatureRegistry::isEnabled( 'report_' . (string) $t['slug'] )
+        ) );
         ?>
         <div class="wrap">
             <h1>

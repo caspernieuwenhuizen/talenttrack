@@ -667,6 +667,31 @@ msgstr ""
 msgid "Export: %s"
 msgstr "Export: %s"
 
+#: src/Core/FeatureRegistry.php
+#, php-format
+msgid "Report: %s"
+msgstr "Rapport: %s"
+
+#: src/Core/FeatureRegistry.php
+msgid "Show this report and allow it to open. When off, the report tile is hidden and the report is rejected even via a direct link."
+msgstr "Toon dit rapport en sta toe dat het wordt geopend. Wanneer uit, is de rapporttegel verborgen en wordt het rapport geweigerd, zelfs via een directe link."
+
+#: src/Core/FeatureRegistry.php
+msgid "Season · Summary"
+msgstr "Seizoen · Samenvatting"
+
+#: src/Core/FeatureRegistry.php
+msgid "Season · Trial funnel"
+msgstr "Seizoen · Stagetrechter"
+
+#: src/Core/FeatureRegistry.php
+msgid "Scout · Report card"
+msgstr "Scout · Rapportkaart"
+
+#: src/Shared/Frontend/FrontendStandardReportsView.php
+msgid "This report has been switched off for your academy."
+msgstr "Dit rapport is uitgeschakeld voor je academie."
+
 #. translators: %s is a comma-separated list like "3 evaluation ratings, 2 attendance".
 #: src/Infrastructure/Archive/DeleteBlockedException.php:41
 #, php-format

@@ -312,6 +312,35 @@ class FeatureRegistry {
             ];
         }
 
+        // #1995 — per-report toggles, mirroring the export tiles above. Keys
+        // are `report_<key>` (the 8 frontend standard-report slugs with `-`
+        // → `_`, plus the 2 wp-admin reports). Default on, so a fresh upgrade
+        // shows every report; the report views/dispatch guard on these keys.
+        $report_tiles = [
+            'player_minutes_played'         => __( 'Player · Minutes played', 'talenttrack' ),
+            'team_minutes_distribution'     => __( 'Team · Minutes distribution', 'talenttrack' ),
+            'team_squad_evaluation_summary' => __( 'Team · Squad evaluation summary', 'talenttrack' ),
+            'season_summary'                => __( 'Season · Summary', 'talenttrack' ),
+            'season_trial_funnel'           => __( 'Season · Trial funnel', 'talenttrack' ),
+            'scout_report_card'             => __( 'Scout · Report card', 'talenttrack' ),
+            'coach_evaluation_quality'      => __( 'Coach · Evaluation quality', 'talenttrack' ),
+            'player_progress_radar'         => __( 'Player · Progress & radar', 'talenttrack' ),
+            'team_ratings'                  => __( 'Team rating averages', 'talenttrack' ),
+            'coach_activity'                => __( 'Coach activity', 'talenttrack' ),
+        ];
+        $report_toggle_desc = __( 'Show this report and allow it to open. When off, the report tile is hidden and the report is rejected even via a direct link.', 'talenttrack' );
+        foreach ( $report_tiles as $tile_key => $tile_label ) {
+            $catalog[ 'report_' . $tile_key ] = [
+                /* translators: %s = report name, e.g. "Player · Minutes played". */
+                'label'           => sprintf( __( 'Report: %s', 'talenttrack' ), $tile_label ),
+                'description'     => $report_toggle_desc,
+                'module_class'    => 'TT\\Modules\\Reports\\ReportsModule',
+                'default_enabled' => true,
+                'view_slugs'      => [],
+                'entities'        => [],
+            ];
+        }
+
         return $catalog;
     }
 

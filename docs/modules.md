@@ -25,6 +25,7 @@ Where a module owns sub-features, the card carries a feature count (e.g. "2 feat
 - **Per-club product surface.** A youth club doesn't run a Methodology, so the Methodology tab clutters their setup.
 - **Feature debug.** A new admin needs the Workflow tab disabled while they figure out the rest of the product.
 - **Trim the player dashboard.** The Players module owns a feature per player tile — My journey, My team, My evaluations, My activities, My goals, My PDP. Switch any of them off (they ship on) to hide that tile *and* block its `?tt_view` URL for players in this academy. The player profile is the always-on anchor and has no toggle.
+- **Curate the reports.** The Reports module owns a feature per report (10 in all — the eight standard reports plus the two wp-admin reports). Switch any off (they ship on) to hide that report's launcher tile *and* reject a direct link to it, exactly like the Export module's per-tile toggles.
 
 ## What the toggle actually does
 

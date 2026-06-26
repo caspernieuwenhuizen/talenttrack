@@ -212,6 +212,17 @@ final class FrontendReportsLauncherView extends FrontendViewBase {
             ) );
         }
 
+        // #1995 — per-report feature toggles: drop a tile whose report has
+        // been switched off for this academy. Slugs that aren't a registered
+        // report feature are unaffected (FeatureRegistry treats unknown keys
+        // as enabled).
+        $tiles = array_values( array_filter(
+            $tiles,
+            static fn( array $t ): bool => \TT\Core\FeatureRegistry::isEnabled(
+                'report_' . str_replace( '-', '_', (string) ( $t['slug'] ?? '' ) )
+            )
+        ) );
+
         // #1503 — group the tiles by purpose/theme instead of one flat
         // grid. Each group declares its tiles by slug in display order;
         // the scope filter above may have removed some, so a group with
