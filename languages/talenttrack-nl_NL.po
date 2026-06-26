@@ -42754,6 +42754,62 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
 
+#: src/Shared/Frontend/FrontendTranslationsView.php:101
+msgid "Required when enabling. See the disclosure below for current DPA links."
+msgstr "Vereist bij het inschakelen. Zie de toelichting hieronder voor de actuele DPA-links."
+
+#: src/Shared/Frontend/FrontendTranslationsView.php:130
+msgid "(set)"
+msgstr "(ingesteld)"
+
+#: src/Shared/Frontend/FrontendTranslationsView.php:139
+msgid "Leave blank to keep current key"
+msgstr "Laat leeg om de huidige sleutel te behouden"
+
+#: src/Shared/Frontend/FrontendTranslationsView.php:158
+msgid "Leave blank to keep current credentials"
+msgstr "Laat leeg om de huidige inloggegevens te behouden"
+
+#: src/Shared/Frontend/FrontendTranslationsView.php:171
+msgid ""
+"Source-language fallback when auto-detection confidence is below the floor. "
+"ISO 639-1 short code (nl, en, fr, de, es, …)."
+msgstr ""
+"Bron-taal-terugval wanneer het vertrouwen in de automatische detectie onder "
+"de drempel ligt. ISO 639-1-code (nl, en, fr, de, es, …)."
+
+#: src/Shared/Frontend/FrontendTranslationsView.php:191
+msgid "Notify admin at (%)"
+msgstr "Beheerder waarschuwen bij (%)"
+
+#. translators: %d is the default cap.
+#: src/Shared/Frontend/FrontendTranslationsView.php:184
+#, php-format
+msgid ""
+"Soft cap. At 100%% of this number the layer stops calling the engine and "
+"renders source text. Default %d covers most single-club deployments under "
+"DeepL's free tier."
+msgstr ""
+"Zachte limiet. Bij 100%% van dit aantal stopt de laag met de engine "
+"aanroepen en toont de bron-tekst. Standaard %d dekt de meeste single-club-"
+"installaties binnen het gratis DeepL-niveau."
+
+#: assets/js/frontend-translations.js:0
+msgid "Settings saved."
+msgstr "Instellingen opgeslagen."
+
+#: assets/js/frontend-translations.js:0
+msgid "Cache cleared."
+msgstr "Cache gewist."
+
+#: assets/js/frontend-translations.js:0
+msgid "Could not save. Please try again."
+msgstr "Opslaan mislukt. Probeer het opnieuw."
+
+#: src/Shared/Frontend/FrontendConfigurationView.php:1545
+msgid "Auto-translation engine (DeepL / Google), monthly usage, and cache."
+msgstr "Automatische vertaalengine (DeepL / Google), maandelijks gebruik en cache."
+
 #~ msgid "The activity could not be deleted."
 #~ msgstr "De activiteit kon niet worden verwijderd."
 

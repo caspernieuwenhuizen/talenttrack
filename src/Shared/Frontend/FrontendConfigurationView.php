@@ -1536,7 +1536,14 @@ class FrontendConfigurationView extends FrontendViewBase {
         // per-module enable/disable surface, so Configuration no longer
         // bounces here into wp-admin.
         $sections['system']['tiles'][] = [ 'title' => __( 'Backups', 'talenttrack' ), 'desc' => __( 'Manual + scheduled database backups. Lives in wp-admin.', 'talenttrack' ), 'url' => add_query_arg( [ 'tab' => 'backups' ], $admin_url ), 'icon' => 'migrations' ];
-        $sections['system']['tiles'][] = [ 'title' => __( 'Translations', 'talenttrack' ), 'desc' => __( 'Per-locale string overrides and the .po/.mo refresh job.', 'talenttrack' ), 'url' => add_query_arg( [ 'tab' => 'translations' ], $admin_url ), 'icon' => 'docs' ];
+        // #1935 — the wp-admin "Translations" tile (tab=translations) is
+        // retired in favour of the frontend view (?tt_view=translations,
+        // FrontendTranslationsView), mirroring the #1533 Feature-toggles +
+        // Audit-log retirements above. The wp-admin tab stays as the
+        // power-user fallback. Cap-gated to tt_view_translations.
+        if ( current_user_can( 'tt_view_translations' ) ) {
+            $sections['system']['tiles'][] = [ 'title' => __( 'Translations', 'talenttrack' ), 'desc' => __( 'Auto-translation engine (DeepL / Google), monthly usage, and cache.', 'talenttrack' ), 'url' => $view( 'translations' ), 'icon' => 'docs' ];
+        }
         // #1918 — the wp-admin "Audit log" tile (tab=audit) is retired in
         // favour of the frontend read-only view (?tt_view=audit-log,
         // FrontendAuditLogView), mirroring the #1533 Feature-toggles

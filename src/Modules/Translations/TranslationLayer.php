@@ -211,6 +211,84 @@ final class TranslationLayer {
         ( new SourceMetaRepository() )->truncate();
     }
 
+    /**
+     * Persist the engine-configuration settings from a normalised input
+     * array. Single source of truth shared by the wp-admin tab
+     * (`TranslationsConfigTab::handleSave`) and the frontend REST
+     * controller (`TranslationsRestController`) so both surfaces apply
+     * the same validation, keep-on-blank credential handling and the
+     * GDPR opt-out cache purge.
+     *
+     * Accepted keys (all optional except where noted):
+     *   - enabled                (bool)
+     *   - subprocessor_confirmed (bool)
+     *   - primary_engine         (string: deepl|google)
+     *   - fallback_engine        (string: ''|deepl|google)
+     *   - deepl_key              (string; '' = keep existing)
+     *   - google_service_account (string; '' = keep existing)
+     *   - site_default_lang      (string; ISO 639-1)
+     *   - monthly_cap            (int)
+     *   - threshold_pct          (int 1–100)
+     *
+     * Validation: enabling requires the sub-processor confirmation AND
+     * credentials for the chosen primary engine. On a recoverable
+     * failure the settings are still persisted (so the operator's edits
+     * aren't lost) except the `enabled` flip, and an error code is
+     * returned.
+     *
+     * @param array<string,mixed> $input
+     * @return array{ok:bool, error_code:?string}
+     */
+    public static function saveSettings( array $input ): array {
+        $keys = self::configKeys();
+
+        $enabled   = ! empty( $input['enabled'] );
+        $confirmed = ! empty( $input['subprocessor_confirmed'] );
+
+        $primary = sanitize_key( (string) ( $input['primary_engine'] ?? 'deepl' ) );
+        if ( ! in_array( $primary, [ 'deepl', 'google' ], true ) ) $primary = 'deepl';
+        $fallback = sanitize_key( (string) ( $input['fallback_engine'] ?? '' ) );
+        if ( ! in_array( $fallback, [ '', 'deepl', 'google' ], true ) ) $fallback = '';
+
+        $deepl_key = trim( (string) ( $input['deepl_key'] ?? '' ) );
+        $google_sa = trim( (string) ( $input['google_service_account'] ?? '' ) );
+        $site_lang = self::shortCode( (string) ( $input['site_default_lang'] ?? '' ) );
+        $cap       = max( 1000, (int) ( $input['monthly_cap'] ?? self::DEFAULT_MONTHLY_CAP ) );
+        $threshold = max( 1, min( 100, (int) ( $input['threshold_pct'] ?? self::DEFAULT_THRESHOLD_PCT ) ) );
+
+        // Persist credentials only when supplied. Empty = keep existing.
+        if ( $deepl_key !== '' ) QueryHelpers::set_config( $keys['deepl_key'], $deepl_key );
+        if ( $google_sa !== '' ) QueryHelpers::set_config( $keys['google_service_account'], $google_sa );
+        QueryHelpers::set_config( $keys['primary_engine'],         $primary );
+        QueryHelpers::set_config( $keys['fallback_engine'],        $fallback );
+        QueryHelpers::set_config( $keys['site_default_lang'],      $site_lang );
+        QueryHelpers::set_config( $keys['monthly_cap'],            (string) $cap );
+        QueryHelpers::set_config( $keys['threshold_pct'],          (string) $threshold );
+        QueryHelpers::set_config( $keys['subprocessor_confirmed'], $confirmed ? '1' : '0' );
+
+        // Validate before flipping enabled to ON.
+        if ( $enabled ) {
+            if ( ! $confirmed ) {
+                return [ 'ok' => false, 'error_code' => 'subprocessor_required' ];
+            }
+            $has_creds = ( $primary === 'deepl'  && QueryHelpers::get_config( $keys['deepl_key'], '' ) !== '' )
+                       || ( $primary === 'google' && QueryHelpers::get_config( $keys['google_service_account'], '' ) !== '' );
+            if ( ! $has_creds ) {
+                return [ 'ok' => false, 'error_code' => 'credentials_required' ];
+            }
+        }
+
+        $was_enabled = self::isEnabled();
+        QueryHelpers::set_config( $keys['enabled'], $enabled ? '1' : '0' );
+
+        // Opt-out → erase cache + source meta (GDPR posture).
+        if ( $was_enabled && ! $enabled ) {
+            self::purgeAllCaches();
+        }
+
+        return [ 'ok' => true, 'error_code' => null ];
+    }
+
     public static function usageThisMonth( ?string $engine = null ): int {
         $engine = $engine ?: self::primaryEngineName();
         return ( new TranslationsUsageRepository() )->charsThisMonth( $engine );

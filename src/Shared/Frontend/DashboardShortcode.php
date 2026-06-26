@@ -926,6 +926,12 @@ class DashboardShortcode {
             case 'audit-log':
                 FrontendAuditLogView::render( $user_id, $is_admin );
                 return true;
+            case 'translations':
+                // #1935 — frontend port of the wp-admin Configuration →
+                // Translations tab (auto-translation engine config + usage
+                // + clear-cache). Gates on tt_view_translations internally.
+                FrontendTranslationsView::render( $user_id, $is_admin );
+                return true;
             case 'lookup-normalisation':
                 // #987 v4.12.0 — canonical-language drift review tool.
                 FrontendLookupNormalisationView::render( $user_id, $is_admin );

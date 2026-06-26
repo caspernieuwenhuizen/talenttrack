@@ -19,7 +19,22 @@ If either is missing the form refuses to flip Enable to ON and shows an inline e
 
 ## Where to find it
 
-`wp-admin → TalentTrack → Configuration → Translations`.
+Open the dashboard, go to **Configuration**, and click the **Translations**
+tile (`?tt_view=translations`). The whole surface — enable toggle, engine
+choice, credentials, monthly cap, usage table, and the **Clear cache**
+button — lives on the frontend; there's no bounce into wp-admin. The
+settings save through the REST API (`POST /translations/settings`) and the
+cache is cleared through `POST /translations/clear-cache`, so the same
+behaviour is available to any future non-WordPress front end.
+
+Credentials are never shown back to you: once a DeepL key or Google
+service-account JSON is stored, the field shows a **(set)** indicator and
+stays blank. Leave it blank to keep the stored value; type a new value to
+replace it.
+
+The legacy wp-admin tab (`wp-admin → TalentTrack → Configuration →
+Translations`) remains as a power-user fallback but is no longer linked
+from the Configuration tiles.
 
 ## Engines
 
