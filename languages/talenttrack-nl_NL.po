@@ -11114,6 +11114,14 @@ msgstr ""
 msgid "Show legacy wp-admin menus"
 msgstr "Oude wp-admin menu's tonen"
 
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "Show the install-on-mobile prompt"
+msgstr "Toon de prompt om de app op mobiel te installeren"
+
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid "When on, players and parents see a banner inviting them to install TalentTrack on their phone. Switch it off to hide that prompt for everyone in your academy."
+msgstr "Wanneer aan, zien spelers en ouders een banner die hen uitnodigt om TalentTrack op hun telefoon te installeren. Zet het uit om die prompt voor iedereen in je academie te verbergen."
+
 #: src/Modules/Configuration/Admin/ConfigurationPage.php:947
 msgid "Re-expose the legacy menu entries."
 msgstr "Maak de oude menu-items opnieuw zichtbaar."

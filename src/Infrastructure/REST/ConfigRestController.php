@@ -106,6 +106,11 @@ class ConfigRestController {
         // (admins / club admins), consistent with the other academy-wide
         // settings above.
         'match_minutes_by_age_group',
+        // #1994 — academy-wide on/off for the "install the app on mobile"
+        // banner shown to players/parents. Default on; un-mapped in
+        // KEY_AREA_MAP → resolves to the tt_edit_settings umbrella, like the
+        // other General settings it sits beside.
+        'install_banner.enabled',
     ];
 
     /**

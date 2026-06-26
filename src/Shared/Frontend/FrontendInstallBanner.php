@@ -32,6 +32,9 @@ final class FrontendInstallBanner {
     public static function render(): void {
         $user_id = get_current_user_id();
         if ( $user_id <= 0 ) return;
+        // #1994 — academy-wide opt-out (default on). When an admin switches
+        // the install banner off, it is hidden for everyone in the academy.
+        if ( \TT\Infrastructure\Query\QueryHelpers::get_config( 'install_banner.enabled', '1' ) !== '1' ) return;
         if ( ! self::eligibleViewer( $user_id ) ) return;
         if ( ! self::hasPhoneOnFile( $user_id ) && ! self::isParent( $user_id ) ) {
             // Players without a phone can still install + receive pushes
