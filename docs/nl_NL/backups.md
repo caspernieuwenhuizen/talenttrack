@@ -6,7 +6,15 @@ TalentTrack heeft een eigen back-upmodule (los van een eventuele algemene WordPr
 
 ## Waar je hem vindt
 
-`Configuratie → Back-ups`. Zichtbaar voor beheerders en de rol **Head of Development**; de onderliggende capability is `tt_manage_backups`.
+`Configuratie → Back-ups` (de frontendweergave op `?tt_view=backups`). Zichtbaar voor beheerders en de rol **Head of Development**; de onderliggende capability is `tt_manage_backups`.
+
+## Frontendweergave (#1937)
+
+Vanaf deze release is de Back-ups-omgeving een frontendweergave op `?tt_view=backups` — zonder omweg via wp-admin. Hij dekt de instellingen, de lijst met opgeslagen back-ups (downloaden / terugzetten / verwijderen), Nu uitvoeren en de volledige `.ttmig`-gegevensmigratie voor export + import. Elke actie loopt via een REST-endpoint met capability-controle en nonce-beveiliging (`tt_manage_backups`); de twee destructieve acties — volledig terugzetten en migratie-import — houden de typ-bevestiging ("RESTORE" / "IMPORT"), weigeren te draaien terwijl je een andere gebruiker impersoneert, en worden in het auditlog vastgelegd (`backup.restored` / `migration.imported`).
+
+Back-updownloads komen terug als URL (klaar voor objectopslag), zodat de lijst ongewijzigd blijft werken als de opslag in een toekomstige SaaS-deployment van het lokale bestandssysteem af gaat.
+
+Het wp-admin-tabblad Back-ups (`?page=tt-config&tab=backups`) blijft als terugvaloptie voor gevorderden en bevat nog steeds de **gedeeltelijke terugzetten**-scopekiezer (een tweetraps diff-flow voor Standard+); de frontendlijst linkt ernaartoe.
 
 ## Instellingen
 

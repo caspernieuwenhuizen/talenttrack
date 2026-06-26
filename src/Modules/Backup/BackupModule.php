@@ -39,6 +39,12 @@ class BackupModule implements ModuleInterface {
         // before an admin loads the settings page.
         add_action( 'init', [ self::class, 'ensureCapability' ] );
 
+        // #1937 — REST surface for the frontend Backups view
+        // (?tt_view=backups, FrontendBackupsView). Registered outside the
+        // is_admin() block: REST requests run in their own context, not
+        // wp-admin. Gated on tt_manage_backups at every route.
+        \TT\Infrastructure\REST\BackupRestController::init();
+
         if ( is_admin() ) {
             Admin\BackupSettingsPage::init();
             Admin\BackupHealthNotice::init();
