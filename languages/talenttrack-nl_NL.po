@@ -43098,6 +43098,30 @@ msgstr "Typ RESTORE om te bevestigen voordat er gegevens worden vervangen."
 msgid "The restore could not be completed."
 msgstr "Het terugzetten kon niet worden voltooid."
 
+#: src/Shared/Frontend/FrontendConfigurationView.php
+msgid ""
+"Scheduled and on-demand database backups: download, restore, and the .ttmig "
+"data migration export and import flow."
+msgstr ""
+"Geplande en handmatige databaseback-ups: downloaden, herstellen en de "
+".ttmig-flow voor data-export en -import."
+
+#: src/Infrastructure/REST/BackupRestController.php
+msgid "The backup could not be read."
+msgstr "De back-up kon niet worden gelezen."
+
+#: src/Shared/Frontend/FrontendBackupsView.php
+msgid ""
+"This writes the data above into this install. It cannot be undone "
+"automatically — take a backup first if unsure."
+msgstr ""
+"Dit schrijft de bovenstaande gegevens naar deze installatie. Dit kan niet "
+"automatisch ongedaan worden gemaakt — maak eerst een back-up als je twijfelt."
+
+#: src/Shared/Frontend/FrontendBackupsView.php
+msgid "Settings"
+msgstr "Instellingen"
+
 #~ msgid ""
 #~ "Per-team iCal sync status and \"Refresh now\" buttons. Lives in wp-admin."
 #~ msgstr ""
