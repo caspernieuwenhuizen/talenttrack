@@ -50,14 +50,18 @@ class CoachDashboardView {
             $team_svc = new \TT\Infrastructure\Stats\TeamStatsService();
             // #1649 — one batched player query for all teams, grouped in
             // PHP, instead of get_players() per team inside the loop.
+            $team_ids = array_map( static fn( $t ) => (int) $t->id, $teams );
             $by_team = [];
-            foreach ( QueryHelpers::get_players_for_teams( array_map( static fn( $t ) => (int) $t->id, $teams ) ) as $pl ) {
+            foreach ( QueryHelpers::get_players_for_teams( $team_ids ) as $pl ) {
                 $by_team[ (int) $pl->team_id ][] = $pl;
             }
+            // #1959 — one batched podium query for all teams instead of
+            // getTopPlayersForTeam() per team inside the loop (3N -> 3 queries).
+            $top_by_team = $team_svc->getTopPlayersForTeams( $team_ids, 3, 5 );
             foreach ( $teams as $team ) {
                 echo '<h3>' . esc_html( (string) $team->name ) . ' <small>(' . esc_html( \TT\Infrastructure\Query\LookupTranslator::byTypeAndName( 'age_group', (string) $team->age_group ) ) . ')</small></h3>';
                 // v2.15.0: top-3 podium before the roster grid.
-                $top = $team_svc->getTopPlayersForTeam( (int) $team->id, 3, 5 );
+                $top = $top_by_team[ (int) $team->id ] ?? [];
                 if ( ! empty( $top ) ) {
                     \TT\Modules\Stats\Admin\PlayerCardView::renderPodium( $top );
                 }
