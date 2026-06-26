@@ -141,10 +141,12 @@ class FrontendEvaluationsView extends FrontendViewBase {
                 $player_options[ (int) $pl->id ] = QueryHelpers::player_display_name( $pl );
             }
         } else {
-            foreach ( QueryHelpers::get_teams_for_coach( $user_id ) as $t ) {
-                foreach ( QueryHelpers::get_players( (int) $t->id ) as $pl ) {
-                    $player_options[ (int) $pl->id ] = QueryHelpers::player_display_name( $pl );
-                }
+            $team_ids = array_map(
+                static fn( $t ) => (int) $t->id,
+                QueryHelpers::get_teams_for_coach( $user_id )
+            );
+            foreach ( QueryHelpers::get_players_for_teams( $team_ids ) as $pl ) {
+                $player_options[ (int) $pl->id ] = QueryHelpers::player_display_name( $pl );
             }
         }
 
