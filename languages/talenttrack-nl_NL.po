@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TalentTrack 3.19.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/talenttrack\n"
-"POT-Creation-Date: 2026-06-26T22:20:28+00:00\n"
+"POT-Creation-Date: 2026-06-26T22:24:09+00:00\n"
 "PO-Revision-Date: 2026-06-10 00:00+0000\n"
 "Last-Translator: \n"
 "Language-Team: Nederlands\n"
@@ -178,8 +178,8 @@ msgstr "Team Manager"
 #: src/Shared/Frontend/FrontendTeamDetailView.php:635
 #: src/Shared/Frontend/FrontendTeamsManageView.php:323
 #: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:198
-#: src/Shared/Frontend/FrontendTrialsManageView.php:271
-#: src/Shared/Frontend/FrontendTrialsManageView.php:305
+#: src/Shared/Frontend/FrontendTrialsManageView.php:347
+#: src/Shared/Frontend/FrontendTrialsManageView.php:381
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:295
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:646
 #: src/Shared/Frontend/FrontendUsageStatsView.php:295
@@ -245,7 +245,7 @@ msgstr "Hoofd opleiding"
 #: src/Shared/Frontend/FrontendRolesView.php:83
 #: src/Shared/Frontend/FrontendTeamDetailView.php:538
 #: src/Shared/Frontend/FrontendTeamsManageView.php:425
-#: src/Shared/Frontend/FrontendTrialsManageView.php:276
+#: src/Shared/Frontend/FrontendTrialsManageView.php:352
 msgid "Staff"
 msgstr "Staf"
 
@@ -859,7 +859,8 @@ msgstr "Detail"
 #: src/Shared/Frontend/FrontendEvaluationsView.php:321
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:199
 #: src/Shared/Frontend/FrontendGoalsManageView.php:93
-#: src/Shared/Frontend/FrontendHolidaysView.php:79
+#: src/Shared/Frontend/FrontendHolidaysView.php:88
+#: src/Shared/Frontend/FrontendHolidaysView.php:239
 #: src/Shared/Frontend/FrontendPersonDetailView.php:77
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:399
 #: src/Shared/Frontend/FrontendSeasonsView.php:102
@@ -1378,7 +1379,7 @@ msgstr "Hoog"
 #: src/Shared/Frontend/FrontendEvalCategoriesView.php:182
 #: src/Shared/Frontend/FrontendEvaluationsView.php:220
 #: src/Shared/Frontend/FrontendGoalsManageView.php:334
-#: src/Shared/Frontend/FrontendHolidaysView.php:68
+#: src/Shared/Frontend/FrontendHolidaysView.php:77
 #: src/Shared/Frontend/FrontendMyGoalsView.php:61
 #: src/Shared/Frontend/FrontendPeopleManageView.php:127
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:1714
@@ -1568,7 +1569,7 @@ msgstr "Overig"
 #: src/Shared/Frontend/FrontendEvaluationsView.php:221
 #: src/Shared/Frontend/FrontendExportsView.php:124
 #: src/Shared/Frontend/FrontendGoalsManageView.php:335
-#: src/Shared/Frontend/FrontendHolidaysView.php:69
+#: src/Shared/Frontend/FrontendHolidaysView.php:78
 #: src/Shared/Frontend/FrontendPeopleManageView.php:128
 #: src/Shared/Frontend/FrontendPlayersManageView.php:243
 #: src/Shared/Frontend/FrontendTeamDetailView.php:185
@@ -2420,7 +2421,7 @@ msgid "Player and title are required."
 msgstr "Speler en titel zijn verplicht."
 
 #: src/Infrastructure/REST/GoalsRestController.php:383
-#: src/Shared/Frontend/FrontendTrialsManageView.php:126
+#: src/Shared/Frontend/FrontendTrialsManageView.php:178
 msgid "Player not found in your club."
 msgstr "Speler niet gevonden binnen je club."
 
@@ -3116,7 +3117,7 @@ msgstr "Type:"
 #: src/Modules/People/Admin/PeoplePage.php:160
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:154
 #: src/Shared/Frontend/FrontendAuditLogView.php:342
-#: src/Shared/Frontend/FrontendTrialsManageView.php:211
+#: src/Shared/Frontend/FrontendTrialsManageView.php:287
 msgid "Filter"
 msgstr "Filteren"
 
@@ -3361,7 +3362,7 @@ msgstr "Type"
 #: src/Shared/Frontend/FrontendGoalsManageView.php:287
 #: src/Shared/Frontend/FrontendGoalsManageView.php:313
 #: src/Shared/Frontend/FrontendGoalsManageView.php:435
-#: src/Shared/Frontend/FrontendHolidaysView.php:66
+#: src/Shared/Frontend/FrontendHolidaysView.php:75
 #: src/Shared/Frontend/FrontendMigrationsView.php:73
 #: src/Shared/Frontend/FrontendPeopleManageView.php:125
 #: src/Shared/Frontend/FrontendPersonDetailView.php:142
@@ -3378,8 +3379,8 @@ msgstr "Type"
 #: src/Shared/Frontend/FrontendTrialCaseView.php:350
 #: src/Shared/Frontend/FrontendTrialCaseView.php:543
 #: src/Shared/Frontend/FrontendTrialCaseView.php:728
-#: src/Shared/Frontend/FrontendTrialsManageView.php:186
-#: src/Shared/Frontend/FrontendTrialsManageView.php:274
+#: src/Shared/Frontend/FrontendTrialsManageView.php:262
+#: src/Shared/Frontend/FrontendTrialsManageView.php:350
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:90
 #: src/Shared/Frontend/PlayerDashboardView.php:178
 msgid "Status"
@@ -3566,7 +3567,7 @@ msgstr "Team"
 #: src/Shared/Frontend/FrontendSeasonsView.php:81
 #: src/Shared/Frontend/FrontendTeamDetailView.php:213
 #: src/Shared/Frontend/FrontendTrialCaseView.php:278
-#: src/Shared/Frontend/FrontendTrialsManageView.php:277
+#: src/Shared/Frontend/FrontendTrialsManageView.php:353
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:150
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:365
 msgid "Actions"
@@ -3749,7 +3750,7 @@ msgstr "— Alle —"
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:516
 #: src/Shared/Frontend/FrontendTrialCaseView.php:599
 #: src/Shared/Frontend/FrontendTrialCaseView.php:635
-#: src/Shared/Frontend/FrontendTrialsManageView.php:348
+#: src/Shared/Frontend/FrontendTrialsManageView.php:424
 #: src/Shared/Frontend/PlayerDashboardView.php:179
 msgid "Notes"
 msgstr "Notities"
@@ -4153,8 +4154,8 @@ msgstr "Stagebesluiten"
 #: src/Shared/Frontend/FrontendStandardReportsView.php:621
 #: src/Shared/Frontend/FrontendTrialCaseView.php:203
 #: src/Shared/Frontend/FrontendTrialCaseView.php:355
-#: src/Shared/Frontend/FrontendTrialsManageView.php:202
-#: src/Shared/Frontend/FrontendTrialsManageView.php:275
+#: src/Shared/Frontend/FrontendTrialsManageView.php:278
+#: src/Shared/Frontend/FrontendTrialsManageView.php:351
 msgid "Decision"
 msgstr "Beslissing"
 
@@ -4326,8 +4327,8 @@ msgstr ""
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:279
 #: src/Modules/Workflow/TaskStatus.php:64
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:180
-#: src/Shared/Frontend/FrontendTrialsManageView.php:251
-#: src/Shared/Frontend/FrontendTrialsManageView.php:287
+#: src/Shared/Frontend/FrontendTrialsManageView.php:327
+#: src/Shared/Frontend/FrontendTrialsManageView.php:363
 msgid "Open"
 msgstr "Openen"
 
@@ -4449,7 +4450,7 @@ msgstr "Voor deze entiteit zijn nog geen analyses beschikbaar."
 #: src/Shared/Frontend/FrontendEvalCategoriesView.php:25
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:53
 #: src/Shared/Frontend/FrontendHolidaysView.php:25
-#: src/Shared/Frontend/FrontendHolidaysView.php:119
+#: src/Shared/Frontend/FrontendHolidaysView.php:128
 #: src/Shared/Frontend/FrontendLookupNormalisationView.php:34
 #: src/Shared/Frontend/FrontendMailComposeView.php:33
 #: src/Shared/Frontend/FrontendMigrationsView.php:23
@@ -4471,7 +4472,8 @@ msgstr "Voor deze entiteit zijn nog geen analyses beschikbaar."
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:104
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:116
 #: src/Shared/Frontend/FrontendTrialCaseView.php:88
-#: src/Shared/Frontend/FrontendTrialsManageView.php:31
+#: src/Shared/Frontend/FrontendTrialsManageView.php:39
+#: src/Shared/Frontend/FrontendTrialsManageView.php:72
 #: src/Shared/Frontend/FrontendUsageStatsDetailsView.php:47
 #: src/Shared/Frontend/FrontendUsageStatsView.php:47
 #: src/Shared/Frontend/FrontendWizardsAdminView.php:38
@@ -5087,8 +5089,8 @@ msgstr ""
 #: src/Modules/Wizards/TeamBlueprint/ReviewStep.php:31
 #: src/Shared/Frontend/Components/GuestAddModal.php:85
 #: src/Shared/Frontend/FrontendConfigurationView.php:978
-#: src/Shared/Frontend/FrontendHolidaysView.php:56
-#: src/Shared/Frontend/FrontendHolidaysView.php:156
+#: src/Shared/Frontend/FrontendHolidaysView.php:65
+#: src/Shared/Frontend/FrontendHolidaysView.php:165
 #: src/Shared/Frontend/FrontendMigrationsView.php:91
 #: src/Shared/Frontend/FrontendMigrationsView.php:115
 #: src/Shared/Frontend/FrontendPeopleManageView.php:107
@@ -5111,7 +5113,7 @@ msgstr "bijv. Najaarsbeoordeling"
 #: src/Modules/MatchExecution/Frontend/FrontendMatchExecutionView.php:915
 #: src/Modules/Pdp/Admin/SeasonsPage.php:65
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:290
-#: src/Shared/Frontend/FrontendHolidaysView.php:57
+#: src/Shared/Frontend/FrontendHolidaysView.php:66
 #: src/Shared/Frontend/FrontendPeopleManageView.php:255
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:199
 msgid "Start"
@@ -5119,7 +5121,7 @@ msgstr "Start"
 
 #: src/Modules/Analytics/Frontend/FrontendEvalCoverageView.php:145
 #: src/Modules/Pdp/Admin/SeasonsPage.php:66
-#: src/Shared/Frontend/FrontendHolidaysView.php:58
+#: src/Shared/Frontend/FrontendHolidaysView.php:67
 #: src/Shared/Frontend/FrontendPeopleManageView.php:256
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:200
 msgid "End"
@@ -5625,7 +5627,7 @@ msgstr ""
 #: src/Shared/Frontend/FrontendEvaluationsView.php:327
 #: src/Shared/Frontend/FrontendGoalsManageView.php:117
 #: src/Shared/Frontend/FrontendGoalsManageView.php:332
-#: src/Shared/Frontend/FrontendHolidaysView.php:84
+#: src/Shared/Frontend/FrontendHolidaysView.php:93
 #: src/Shared/Frontend/FrontendPersonDetailView.php:83
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:437
 #: src/Shared/Frontend/FrontendTeamDetailView.php:282
@@ -6541,10 +6543,11 @@ msgstr "Beoordelingsschaal"
 #: src/Modules/Authorization/Admin/MatrixEntityCatalog.php:106
 #: src/Modules/Documentation/HelpTopics.php:62
 #: src/Shared/CoreSurfaceRegistration.php:1036
-#: src/Shared/Frontend/FrontendHolidaysView.php:37
-#: src/Shared/Frontend/FrontendHolidaysView.php:120
-#: src/Shared/Frontend/FrontendHolidaysView.php:130
-#: src/Shared/Frontend/FrontendHolidaysView.php:138
+#: src/Shared/Frontend/FrontendHolidaysView.php:46
+#: src/Shared/Frontend/FrontendHolidaysView.php:129
+#: src/Shared/Frontend/FrontendHolidaysView.php:139
+#: src/Shared/Frontend/FrontendHolidaysView.php:147
+#: src/Shared/Frontend/FrontendHolidaysView.php:205
 #: src/Shared/Modules/ModuleMetadata.php:253
 msgid "Holidays"
 msgstr "Vakanties"
@@ -6695,8 +6698,8 @@ msgstr "Mijn kaart"
 #: src/Shared/Frontend/FrontendTrialCaseView.php:76
 #: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:33
 #: src/Shared/Frontend/FrontendTrialParentMeetingView.php:35
-#: src/Shared/Frontend/FrontendTrialsManageView.php:47
-#: src/Shared/Frontend/FrontendTrialsManageView.php:66
+#: src/Shared/Frontend/FrontendTrialsManageView.php:55
+#: src/Shared/Frontend/FrontendTrialsManageView.php:89
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:28
 msgid "Trial cases"
 msgstr "Stagedossiers"
@@ -7064,7 +7067,8 @@ msgstr "Wijziging"
 
 #: src/Modules/Authorization/Admin/MatrixPage.php:561
 #: src/Modules/Vct/Wizard/PreviewStep.php:116
-#: src/Shared/Frontend/FrontendHolidaysView.php:59
+#: src/Shared/Frontend/FrontendHolidaysView.php:68
+#: src/Shared/Frontend/FrontendHolidaysView.php:285
 msgid "Note"
 msgstr "Notitie"
 
@@ -7812,10 +7816,10 @@ msgstr "Selecteer persoon"
 #: src/Modules/Tournaments/Wizard/BasicsStep.php:59
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:48
 #: src/Shared/Frontend/FrontendFunctionalRolesView.php:354
-#: src/Shared/Frontend/FrontendHolidaysView.php:161
+#: src/Shared/Frontend/FrontendHolidaysView.php:170
 #: src/Shared/Frontend/FrontendSeasonsView.php:152
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:497
-#: src/Shared/Frontend/FrontendTrialsManageView.php:331
+#: src/Shared/Frontend/FrontendTrialsManageView.php:407
 msgid "Start date"
 msgstr "Startdatum"
 
@@ -7826,10 +7830,10 @@ msgstr "Startdatum"
 #: src/Modules/People/Admin/TeamStaffPanel.php:162
 #: src/Modules/Tournaments/Wizard/BasicsStep.php:64
 #: src/Modules/Tournaments/Wizard/ReviewStep.php:49
-#: src/Shared/Frontend/FrontendHolidaysView.php:165
+#: src/Shared/Frontend/FrontendHolidaysView.php:174
 #: src/Shared/Frontend/FrontendSeasonsView.php:156
 #: src/Shared/Frontend/FrontendTournamentsManageView.php:503
-#: src/Shared/Frontend/FrontendTrialsManageView.php:332
+#: src/Shared/Frontend/FrontendTrialsManageView.php:408
 msgid "End date"
 msgstr "Einddatum"
 
@@ -11761,7 +11765,7 @@ msgstr "Toon details"
 #: src/Shared/Frontend/FrontendPeopleManageView.php:167
 #: src/Shared/Frontend/FrontendPlayersManageView.php:336
 #: src/Shared/Frontend/FrontendSetupView.php:236
-#: src/Shared/Frontend/FrontendTrialsManageView.php:315
+#: src/Shared/Frontend/FrontendTrialsManageView.php:391
 msgid "First name"
 msgstr "Voornaam"
 
@@ -11796,7 +11800,7 @@ msgstr "Voornaam"
 #: src/Shared/Frontend/FrontendPeopleManageView.php:171
 #: src/Shared/Frontend/FrontendPlayersManageView.php:340
 #: src/Shared/Frontend/FrontendSetupView.php:242
-#: src/Shared/Frontend/FrontendTrialsManageView.php:317
+#: src/Shared/Frontend/FrontendTrialsManageView.php:393
 msgid "Last name"
 msgstr "Achternaam"
 
@@ -11820,7 +11824,7 @@ msgstr "Achternaam"
 #: src/Shared/Frontend/FrontendPlayerDetailView.php:762
 #: src/Shared/Frontend/FrontendPlayersCsvImportView.php:117
 #: src/Shared/Frontend/FrontendPlayersManageView.php:345
-#: src/Shared/Frontend/FrontendTrialsManageView.php:319
+#: src/Shared/Frontend/FrontendTrialsManageView.php:395
 msgid "Date of birth"
 msgstr "Geboortedatum"
 
@@ -13191,7 +13195,7 @@ msgstr "Widget opslaan"
 #: src/Shared/Frontend/FrontendConfigurationView.php:868
 #: src/Shared/Frontend/FrontendConfigurationView.php:1056
 #: src/Shared/Frontend/FrontendConfigurationView.php:2357
-#: src/Shared/Frontend/FrontendHolidaysView.php:197
+#: src/Shared/Frontend/FrontendHolidaysView.php:323
 #: src/Shared/Frontend/FrontendSeasonsView.php:186
 #: src/Shared/Frontend/FrontendSetupView.php:161
 #: src/Shared/Frontend/FrontendSetupView.php:201
@@ -16248,7 +16252,7 @@ msgstr "Speler of notities"
 
 #: src/Modules/Evaluations/Admin/EvaluationsPage.php:118
 #: src/Modules/Workflow/Frontend/FrontendMyTasksView.php:288
-#: src/Shared/Frontend/FrontendTrialsManageView.php:203
+#: src/Shared/Frontend/FrontendTrialsManageView.php:279
 msgid "Any"
 msgstr "Alle"
 
@@ -17382,13 +17386,13 @@ msgid "Holiday details"
 msgstr "Vakantiegegevens"
 
 #: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:27
-#: src/Shared/Frontend/FrontendHolidaysView.php:157
+#: src/Shared/Frontend/FrontendHolidaysView.php:166
 msgid "e.g. Christmas break"
 msgstr "bijv. kerstvakantie"
 
 #: src/Modules/Holidays/Wizards/HolidayDetailsStep.php:41
 #: src/Modules/Workflow/Forms/GoalApprovalForm.php:97
-#: src/Shared/Frontend/FrontendHolidaysView.php:170
+#: src/Shared/Frontend/FrontendHolidaysView.php:179
 msgid "Note (optional)"
 msgstr "Notitie (optioneel)"
 
@@ -17661,8 +17665,8 @@ msgstr "Filter:"
 #: src/Shared/Frontend/FrontendGoalsManageView.php:336
 #: src/Shared/Frontend/FrontendPlayersManageView.php:244
 #: src/Shared/Frontend/FrontendTeamsManageView.php:185
-#: src/Shared/Frontend/FrontendTrialsManageView.php:187
-#: src/Shared/Frontend/FrontendTrialsManageView.php:195
+#: src/Shared/Frontend/FrontendTrialsManageView.php:263
+#: src/Shared/Frontend/FrontendTrialsManageView.php:271
 msgid "All"
 msgstr "Alle"
 
@@ -18737,6 +18741,7 @@ msgstr "Phone-home mislukt."
 #: src/Modules/Vct/Frontend/FrontendVctSessionView.php:173
 #: src/Modules/Vct/Wizard/DurationStep.php:19
 #: src/Modules/Vct/Wizard/ReviewStep.php:60
+#: src/Shared/Frontend/FrontendHolidaysView.php:280
 msgid "Duration"
 msgstr "Duur"
 
@@ -24168,7 +24173,7 @@ msgstr "Instroompijplijn"
 #: src/Shared/Frontend/FrontendTrialCaseView.php:66
 #: src/Shared/Frontend/FrontendTrialLetterTemplatesEditorView.php:25
 #: src/Shared/Frontend/FrontendTrialParentMeetingView.php:26
-#: src/Shared/Frontend/FrontendTrialsManageView.php:28
+#: src/Shared/Frontend/FrontendTrialsManageView.php:29
 #: src/Shared/Frontend/FrontendTrialTracksEditorView.php:20
 #: src/Shared/Modules/ModuleMetadata.php:171
 msgid "Trials"
@@ -24520,7 +24525,9 @@ msgid "never"
 msgstr "nooit"
 
 #. translators: %d: days since last rating
+#. translators: %d: number of days
 #: src/Modules/PersonaDashboard/TableSources/BehaviourPendingSource.php:103
+#: src/Shared/Frontend/FrontendHolidaysView.php:265
 #, php-format
 msgid "%d day"
 msgid_plural "%d days"
@@ -26096,7 +26103,7 @@ msgstr "Deze ouder ontkoppelen van de speler?"
 #: src/Modules/Players/Frontend/FrontendParentAccountsView.php:164
 #: src/Modules/Players/Frontend/FrontendPlayerAccountsView.php:124
 #: src/Shared/Frontend/FrontendBackupsView.php:453
-#: src/Shared/Frontend/FrontendHolidaysView.php:198
+#: src/Shared/Frontend/FrontendHolidaysView.php:324
 #: src/Shared/Frontend/FrontendSeasonsView.php:187
 msgid "Something went wrong. Please try again."
 msgstr "Er ging iets mis. Probeer het opnieuw."
@@ -27043,8 +27050,8 @@ msgstr ""
 
 #: src/Modules/Reports/Admin/ReportsPage.php:262
 #: src/Shared/Frontend/FrontendReportDetailView.php:166
-#: src/Shared/Frontend/FrontendTrialsManageView.php:254
-#: src/Shared/Frontend/FrontendTrialsManageView.php:273
+#: src/Shared/Frontend/FrontendTrialsManageView.php:330
+#: src/Shared/Frontend/FrontendTrialsManageView.php:349
 msgid "Window"
 msgstr "Venster"
 
@@ -32386,7 +32393,7 @@ msgstr "Zoek een gastspeler"
 #: src/Shared/Frontend/Components/PlayerSearchPickerComponent.php:74
 #: src/Shared/Frontend/Components/StaffPickerComponent.php:53
 #: src/Shared/Frontend/FrontendTrialCaseView.php:438
-#: src/Shared/Frontend/FrontendTrialsManageView.php:341
+#: src/Shared/Frontend/FrontendTrialsManageView.php:417
 msgid "Type a name to search…"
 msgstr "Typ een naam om te zoeken…"
 
@@ -38570,11 +38577,11 @@ msgstr "Doel bijwerken"
 msgid "You do not have permission to view holidays."
 msgstr "Je hebt geen toestemming om vakanties te bekijken."
 
-#: src/Shared/Frontend/FrontendHolidaysView.php:38
+#: src/Shared/Frontend/FrontendHolidaysView.php:47
 msgid "Academy holidays"
 msgstr "Academievakanties"
 
-#: src/Shared/Frontend/FrontendHolidaysView.php:41
+#: src/Shared/Frontend/FrontendHolidaysView.php:50
 msgid ""
 "Academy-wide holiday periods. They show as a banner across the affected days "
 "on every team planner."
@@ -38582,23 +38589,23 @@ msgstr ""
 "Academiebrede vakantieperiodes. Ze verschijnen als banner over de "
 "betreffende dagen op elke teamplanner."
 
-#: src/Shared/Frontend/FrontendHolidaysView.php:87
+#: src/Shared/Frontend/FrontendHolidaysView.php:96
 msgid "Archive this holiday?"
 msgstr "Deze vakantie archiveren?"
 
-#: src/Shared/Frontend/FrontendHolidaysView.php:94
+#: src/Shared/Frontend/FrontendHolidaysView.php:103
 msgid "Search holidays…"
 msgstr "Vakanties zoeken…"
 
-#: src/Shared/Frontend/FrontendHolidaysView.php:96
+#: src/Shared/Frontend/FrontendHolidaysView.php:105
 msgid "No holidays match your search."
 msgstr "Geen vakanties gevonden."
 
-#: src/Shared/Frontend/FrontendHolidaysView.php:99
+#: src/Shared/Frontend/FrontendHolidaysView.php:108
 msgid "No holidays yet"
 msgstr "Nog geen vakanties"
 
-#: src/Shared/Frontend/FrontendHolidaysView.php:100
+#: src/Shared/Frontend/FrontendHolidaysView.php:109
 msgid ""
 "Add the academy holiday periods so coaches see them on the planner and avoid "
 "scheduling on closed days."
@@ -38606,32 +38613,57 @@ msgstr ""
 "Voeg de vakantieperiodes toe zodat coaches ze op de planner zien en niet op "
 "gesloten dagen plannen."
 
-#: src/Shared/Frontend/FrontendHolidaysView.php:101
+#: src/Shared/Frontend/FrontendHolidaysView.php:110
 msgid "Add first holiday"
 msgstr "Eerste vakantie toevoegen"
 
-#: src/Shared/Frontend/FrontendHolidaysView.php:122
+#: src/Shared/Frontend/FrontendHolidaysView.php:131
 msgid "You do not have permission to manage holidays."
 msgstr "Je hebt geen toestemming om vakanties te beheren."
 
-#: src/Shared/Frontend/FrontendHolidaysView.php:129
+#: src/Shared/Frontend/FrontendHolidaysView.php:138
+#: src/Shared/Frontend/FrontendHolidaysView.php:209
 msgid "Holiday not found"
 msgstr "Vakantie niet gevonden"
 
-#: src/Shared/Frontend/FrontendHolidaysView.php:132
+#: src/Shared/Frontend/FrontendHolidaysView.php:141
+#: src/Shared/Frontend/FrontendHolidaysView.php:210
 msgid "That holiday no longer exists."
 msgstr "Die vakantie bestaat niet meer."
 
-#: src/Shared/Frontend/FrontendHolidaysView.php:137
-#: src/Shared/Frontend/FrontendHolidaysView.php:140
+#: src/Shared/Frontend/FrontendHolidaysView.php:146
+#: src/Shared/Frontend/FrontendHolidaysView.php:149
 msgid "Edit holiday"
 msgstr "Vakantie bewerken"
 
-#: src/Shared/Frontend/FrontendHolidaysView.php:175
+#: src/Shared/Frontend/FrontendHolidaysView.php:184
 msgid "Update holiday"
 msgstr "Vakantie bijwerken"
 
-#: src/Shared/Frontend/FrontendHolidaysView.php:199
+#. translators: 1: start date, 2: end date
+#: src/Shared/Frontend/FrontendHolidaysView.php:255
+#, php-format
+msgctxt "holiday period range"
+msgid "%1$s – %2$s"
+msgstr "%1$s – %2$s"
+
+#: src/Shared/Frontend/FrontendHolidaysView.php:275
+msgid "Period"
+msgstr "Periode"
+
+#: src/Shared/Frontend/FrontendHolidaysView.php:291
+msgid "Colour"
+msgstr "Kleur"
+
+#: src/Shared/Frontend/FrontendHolidaysView.php:304
+msgid ""
+"This holiday shows as a banner across these days on every team planner, so "
+"coaches plan around the closed days."
+msgstr ""
+"Deze vakantie verschijnt als banner over deze dagen op elke teamplanner, "
+"zodat coaches rondom de gesloten dagen plannen."
+
+#: src/Shared/Frontend/FrontendHolidaysView.php:325
 #: src/Shared/Frontend/FrontendSeasonsView.php:188
 msgid "End date must be after the start date."
 msgstr "De einddatum moet na de startdatum liggen."
@@ -42094,10 +42126,10 @@ msgstr ""
 "verlengingen verwijderd en dit kan niet ongedaan worden gemaakt."
 
 #: src/Shared/Frontend/FrontendTrialCaseView.php:342
-#: src/Shared/Frontend/FrontendTrialsManageView.php:194
-#: src/Shared/Frontend/FrontendTrialsManageView.php:253
-#: src/Shared/Frontend/FrontendTrialsManageView.php:272
-#: src/Shared/Frontend/FrontendTrialsManageView.php:324
+#: src/Shared/Frontend/FrontendTrialsManageView.php:270
+#: src/Shared/Frontend/FrontendTrialsManageView.php:329
+#: src/Shared/Frontend/FrontendTrialsManageView.php:348
+#: src/Shared/Frontend/FrontendTrialsManageView.php:400
 msgid "Track"
 msgstr "Traject"
 
@@ -42143,7 +42175,7 @@ msgid "Justification"
 msgstr "Motivatie"
 
 #: src/Shared/Frontend/FrontendTrialCaseView.php:440
-#: src/Shared/Frontend/FrontendTrialsManageView.php:343
+#: src/Shared/Frontend/FrontendTrialsManageView.php:419
 msgid "Role label (optional)"
 msgstr "Rolomschrijving (optioneel)"
 
@@ -42516,17 +42548,18 @@ msgstr "Volledig scherm"
 msgid "You do not have permission to view trial cases."
 msgstr "Je hebt geen rechten om stagedossiers te bekijken."
 
+#: src/Shared/Frontend/FrontendTrialsManageView.php:75
+#: src/Shared/Frontend/FrontendTrialsManageView.php:80
+#: src/Shared/Frontend/FrontendTrialsManageView.php:83
+#: src/Shared/Frontend/FrontendTrialsManageView.php:256
+msgid "New trial case"
+msgstr "Nieuw stagedossier"
+
 #: src/Shared/Frontend/FrontendTrialsManageView.php:76
 msgid "You do not have permission to create trial cases."
 msgstr "Je hebt geen rechten om stagedossiers aan te maken."
 
-#: src/Shared/Frontend/FrontendTrialsManageView.php:57
-#: src/Shared/Frontend/FrontendTrialsManageView.php:60
-#: src/Shared/Frontend/FrontendTrialsManageView.php:181
-msgid "New trial case"
-msgstr "Nieuw stagedossier"
-
-#: src/Shared/Frontend/FrontendTrialsManageView.php:109
+#: src/Shared/Frontend/FrontendTrialsManageView.php:161
 msgid ""
 "Please pick a player (or fill in first name, last name and date of birth to "
 "create one), a track, and start/end dates."
@@ -42534,35 +42567,35 @@ msgstr ""
 "Kies een speler (of vul voornaam, achternaam en geboortedatum in om er een "
 "aan te maken), een traject en start-/einddata."
 
-#: src/Shared/Frontend/FrontendTrialsManageView.php:141
+#: src/Shared/Frontend/FrontendTrialsManageView.php:193
 msgid "Could not create the case. Please try again."
 msgstr "Het dossier kon niet worden aangemaakt. Probeer het opnieuw."
 
-#: src/Shared/Frontend/FrontendTrialsManageView.php:210
+#: src/Shared/Frontend/FrontendTrialsManageView.php:286
 msgid "Include archived"
 msgstr "Inclusief gearchiveerd"
 
-#: src/Shared/Frontend/FrontendTrialsManageView.php:215
+#: src/Shared/Frontend/FrontendTrialsManageView.php:291
 msgid "No trial cases match those filters yet."
 msgstr "Nog geen stagedossiers die aan deze filters voldoen."
 
 #. translators: %d: number of assigned staff.
-#: src/Shared/Frontend/FrontendTrialsManageView.php:262
+#: src/Shared/Frontend/FrontendTrialsManageView.php:338
 #, php-format
 msgid "%d staff"
 msgid_plural "%d staff"
 msgstr[0] "%d staflid"
 msgstr[1] "%d stafleden"
 
-#: src/Shared/Frontend/FrontendTrialsManageView.php:308
+#: src/Shared/Frontend/FrontendTrialsManageView.php:384
 msgid "Existing player"
 msgstr "Bestaande speler"
 
-#: src/Shared/Frontend/FrontendTrialsManageView.php:313
+#: src/Shared/Frontend/FrontendTrialsManageView.php:389
 msgid "Or create a new player here"
 msgstr "Of maak hier een nieuwe speler aan"
 
-#: src/Shared/Frontend/FrontendTrialsManageView.php:314
+#: src/Shared/Frontend/FrontendTrialsManageView.php:390
 msgid ""
 "Fill in at least first name, last name and date of birth. The new player "
 "record will be created with status \"trial\" before the case is opened."
@@ -42571,16 +42604,16 @@ msgstr ""
 "spelerrecord wordt aangemaakt met status \"trial\" voordat de case wordt "
 "geopend."
 
-#: src/Shared/Frontend/FrontendTrialsManageView.php:334
+#: src/Shared/Frontend/FrontendTrialsManageView.php:410
 msgid "Initial staff (optional)"
 msgstr "Aanvankelijke staf (optioneel)"
 
-#: src/Shared/Frontend/FrontendTrialsManageView.php:339
+#: src/Shared/Frontend/FrontendTrialsManageView.php:415
 #, php-format
 msgid "Staff slot %d"
 msgstr "Stafplek %d"
 
-#: src/Shared/Frontend/FrontendTrialsManageView.php:355
+#: src/Shared/Frontend/FrontendTrialsManageView.php:431
 msgid "Create case"
 msgstr "Dossier aanmaken"
 
@@ -43486,29 +43519,6 @@ msgstr "Het veld \"%s\" moet een geldig e-mailadres zijn."
 #, php-format
 msgid "The field \"%s\" must be a valid phone number."
 msgstr "Het veld \"%s\" moet een geldig telefoonnummer zijn."
-
-#: src/Shared/Frontend/FrontendHolidaysView.php
-msgid "Period"
-msgstr "Periode"
-
-#: src/Shared/Frontend/FrontendHolidaysView.php
-msgid "Colour"
-msgstr "Kleur"
-
-#. translators: 1: start date, 2: end date
-#: src/Shared/Frontend/FrontendHolidaysView.php
-#, php-format
-msgctxt "holiday period range"
-msgid "%1$s – %2$s"
-msgstr "%1$s – %2$s"
-
-#: src/Shared/Frontend/FrontendHolidaysView.php
-msgid ""
-"This holiday shows as a banner across these days on every team planner, so "
-"coaches plan around the closed days."
-msgstr ""
-"Deze vakantie verschijnt als banner over deze dagen op elke teamplanner, "
-"zodat coaches rondom de gesloten dagen plannen."
 
 #~ msgid "In Progress"
 #~ msgstr "In uitvoering"
