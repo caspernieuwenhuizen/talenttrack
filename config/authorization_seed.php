@@ -87,6 +87,11 @@ $mod_measurements     = class_exists( '\TT\Modules\Measurements\MeasurementsModu
 // back to $mod_authorization if the module class hasn't autoloaded yet,
 // mirroring the trials/journey/vct/measurements fallback pattern above.
 $mod_tournaments      = class_exists( '\TT\Modules\Tournaments\TournamentsModule' )       ? \TT\Modules\Tournaments\TournamentsModule::class       : $mod_authorization;
+// #1944 — Exercises (the club-global drill/exercise library). Distinct
+// from `activities` (the session calendar). Falls back to
+// $mod_authorization if the module class hasn't autoloaded yet, mirroring
+// the trials/journey/vct/measurements/tournaments fallback pattern above.
+$mod_exercises        = class_exists( '\TT\Modules\Exercises\ExercisesModule' )           ? \TT\Modules\Exercises\ExercisesModule::class           : $mod_authorization;
 
 /**
  * Helper: build a rows[] array from a compact spec.
@@ -286,6 +291,13 @@ return array_merge(
         // VCT sessions on their team scope (same as head coach — both
         // share the team scope). Matrix-only cap.
         'vct'                        => [ 'rcd', 'team',   $mod_vct ],
+        // #1944 — Exercises (club-global drill library). The raw
+        // `tt_manage_exercises` cap is held by the tt_coach WP role, which
+        // backs BOTH the assistant_coach AND head_coach personas — so AC
+        // must hold the entity too or it silently loses library write
+        // (#1060-style narrowing). The library is club-wide (a drill an AC
+        // authors is reusable by everyone), so scope is `global`, not `team`.
+        'exercises'                  => [ 'rcd', 'global', $mod_exercises ],
     ] ),
 
     // ─── HEAD COACH ─────────────────────────────────────────────────
@@ -374,6 +386,12 @@ return array_merge(
         // for publish + create_delete for c+d). Matrix-only cap;
         // bridged via LegacyCapMapper as tt_vct_plan → (vct, read).
         'vct'                        => [ 'rcd', 'team',   $mod_vct ],
+        // #1944 — Exercises (club-global drill library). Raw
+        // `tt_manage_exercises` is held by the tt_coach role behind this
+        // persona; seed `rcd` at `global` (the library is club-wide, no
+        // team scoping today). See the assistant_coach note above — BOTH
+        // coach personas are seeded so neither loses library write.
+        'exercises'                  => [ 'rcd', 'global', $mod_exercises ],
     ] ),
 
     // ─── TEAM MANAGER ───────────────────────────────────────────────
@@ -532,6 +550,9 @@ return array_merge(
         'methodology'                   => [ 'rcd', 'global', $mod_methodology ],
         'football_actions'              => [ 'rcd', 'global', $mod_methodology ],
         'player_status_methodology'     => [ 'rc',  'global', $mod_methodology ],
+        // #1944 — Exercises (club-global drill library). HoD curates the
+        // academy's methodology, so owns the drill library `rcd` globally.
+        'exercises'                     => [ 'rcd', 'global', $mod_exercises ],
         // ── narrowed to R ──
         'reports'                       => [ 'r',   'global', $mod_reports ],
         'rate_cards'                    => [ 'r',   'global', $mod_stats ],
@@ -667,6 +688,9 @@ return array_merge(
         'methodology'                   => [ 'rcd', 'global', $mod_methodology ],
         'football_actions'              => [ 'rcd', 'global', $mod_methodology ],
         'player_status_methodology'     => [ 'rcd', 'global', $mod_methodology ],
+        // #1944 — Exercises (club-global drill library). Admin has full
+        // control of the drill library `rcd` globally.
+        'exercises'                     => [ 'rcd', 'global', $mod_exercises ],
         'reports'                       => [ 'rcd', 'global', $mod_reports ],
         'rate_cards'                    => [ 'r',   'global', $mod_stats ],
         'compare'                       => [ 'r',   'global', $mod_stats ],

@@ -113,6 +113,22 @@ When the persona-expansion ship lands:
 2. Build `AuthorizationService::canViewTournament` / `canEditTournament` with creator / team-coach / global-staff logic (currently they defer to the cap check).
 3. Swap REST `permission_callback`s from cap-only to per-entity checks.
 
+## Matrix entity `exercises` — the drill library (#1944)
+
+The exercise / drill library (`tt_exercises`, served by `ExercisesRestController` at `/wp-json/talenttrack/v1/exercises`) is club-global: a drill any coach authors is reusable across the whole academy. It is **distinct from `activities`**, which is the per-team session calendar — so the library gets its own matrix entity, `exercises`, rather than borrowing the activities scope.
+
+Before #1944 the write cap `tt_manage_exercises` was unmapped, so once the matrix is active the REST write paths would resolve to false for everyone. #1944 adds the entity + seed and the `LegacyCapMapper` bridge:
+
+| Raw cap | Matrix tuple |
+| - | - |
+| `tt_manage_exercises` | `exercises` / `create_delete` |
+
+The read paths keep gating on `tt_view_activities` (coaches see the library when planning sessions), which is already mapped. The write cap is seeded `rcd[global]` to **head_coach + assistant_coach + head_of_development + academy_admin**.
+
+Both coach personas are seeded deliberately. The raw `tt_manage_exercises` cap is held by `administrator` (matrix bypass) + `tt_club_admin` + `tt_head_dev` + **`tt_coach`** — and `tt_coach` is the WordPress role that backs **both** the head_coach **and** the assistant_coach personas. Seeding only head_coach would silently revoke library write from assistant coaches (the #1060-style narrowing). Both are seeded, so routing through the matrix is **access-preserving** — every raw cap holder, including assistant coaches, keeps library write. Scope is `global` because the library is club-wide with no team scoping today.
+
+Migration `0180_authorization_seed_topup_exercises` backfills the entity into `tt_authorization_matrix` on existing installs (idempotent `INSERT IGNORE`, walking only the new `exercises` rows).
+
 ## PDP visibility — one shared decision, frontend and REST (#1923)
 
 PDP-file visibility is decided in a single place: `TT\Modules\Pdp\PdpAccess`. Both the rendered files tab (`FrontendPdpManageView`) and every REST surface (`PdpFilesRestController`, `PdpVerdictsRestController`) call `PdpAccess::canSeeFile( $user_id, $player_id )`, so the two sides can no longer answer differently — the cause of the head-coach-vs-HoD divergence in #1758.
