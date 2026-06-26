@@ -1537,7 +1537,16 @@ class FrontendConfigurationView extends FrontendViewBase {
         // bounces here into wp-admin.
         $sections['system']['tiles'][] = [ 'title' => __( 'Backups', 'talenttrack' ), 'desc' => __( 'Manual + scheduled database backups. Lives in wp-admin.', 'talenttrack' ), 'url' => add_query_arg( [ 'tab' => 'backups' ], $admin_url ), 'icon' => 'migrations' ];
         $sections['system']['tiles'][] = [ 'title' => __( 'Translations', 'talenttrack' ), 'desc' => __( 'Per-locale string overrides and the .po/.mo refresh job.', 'talenttrack' ), 'url' => add_query_arg( [ 'tab' => 'translations' ], $admin_url ), 'icon' => 'docs' ];
-        $sections['system']['tiles'][] = [ 'title' => __( 'Audit log', 'talenttrack' ), 'desc' => __( 'Settings + sensitive data change history.', 'talenttrack' ), 'url' => add_query_arg( [ 'tab' => 'audit' ], $admin_url ), 'icon' => 'audit-log' ];
+        // #1918 — the wp-admin "Audit log" tile (tab=audit) is retired in
+        // favour of the frontend read-only view (?tt_view=audit-log,
+        // FrontendAuditLogView), mirroring the #1533 Feature-toggles
+        // retirement above. Configuration no longer bounces here into
+        // wp-admin; the wp-admin tab stays as the power-user fallback.
+        // Cap-gated to tt_view_audit_log so the tile only appears for
+        // holders who can actually read the log.
+        if ( current_user_can( 'tt_view_audit_log' ) ) {
+            $sections['system']['tiles'][] = [ 'title' => __( 'Audit log', 'talenttrack' ), 'desc' => __( 'Who changed what, when. Filterable, paginated.', 'talenttrack' ), 'url' => $view( 'audit-log' ), 'icon' => 'audit-log' ];
+        }
         $sections['system']['tiles'][] = [ 'title' => __( 'Setup wizard', 'talenttrack' ), 'desc' => __( 'Re-run the first-run onboarding wizard.', 'talenttrack' ), 'url' => add_query_arg( [ 'tab' => 'wizard' ], $admin_url ), 'icon' => 'lightbulb' ];
         $sections['system']['tiles'][] = [ 'title' => __( 'wp-admin menus', 'talenttrack' ), 'desc' => __( 'Show or hide the legacy wp-admin menu entries.', 'talenttrack' ), 'url' => $sub( 'menus' ), 'icon' => 'gear' ];
 
