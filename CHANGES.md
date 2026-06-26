@@ -1,3 +1,15 @@
+# TalentTrack v4.55.0 — Archive lifecycle for activities (#1555)
+
+Activities now follow the same archive lifecycle as players, teams, evaluations
+and goals. Deleting an activity soft-archives it instead of removing the row, so
+its attendance and history are preserved. The activities list gains an
+**Active · Archived · All** status control: the **Archived** view lists archived
+activities with a **Restore** button and, for admins, a **Delete permanently**
+button. Permanent deletion is gated behind the *edit settings* capability and is
+blocked while the activity still has attached records, so nothing is erased by
+accident. New REST routes back the flow: `POST /activities/{id}/restore` and
+`DELETE /activities/{id}/permanent`.
+
 # TalentTrack v4.54.2 — Team chemistry access now follows the authorization matrix (#1922)
 
 Team chemistry and Team blueprint access is now decided by the

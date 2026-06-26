@@ -4,13 +4,15 @@ Tags: soccer, academy, player development, evaluations, coaching, football
 Requires at least: 6.0
 Tested up to: 6.7
 Requires PHP: 7.4
-Stable tag: 4.54.2
+Stable tag: 4.55.0
 License: GPL-2.0+
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
 Frontend-first, modular youth football talent management system for a single club.
 
 == Changelog ==
+
+= 4.55.0 — Archive lifecycle for activities (#1555) Activities now follow the same archive lifecycle as players, teams, evaluations and goals. Deleting an activity soft-archives it instead of removing the row, so its attendance and history are preserved. The activities list gains an **Active · Archived · All** status control: the **Archived** view lists archived activities with a **Restore** button and, for admins, a **Delete permanently** button. Permanent deletion is gated behind the *edit settings* capability and is blocked while the activity still has attached records, so nothing is erased by accident. New REST routes back the flow: `POST /activities/{id}/restore` and `DELETE /activities/{id}/permanent`. =
 
 = 4.54.2 — Team chemistry access now follows the authorization matrix (#1922) Team chemistry and Team blueprint access is now decided by the authorization matrix instead of hardcoded role capabilities, with a single shared decision (`TeamChemistryAccess`) behind both the rendered screens and the REST API so the two can no longer disagree.  As a result, two roles that previously had access no longer do: **assistant coaches and read-only observers no longer have access to team chemistry** (the chemistry board and the team blueprint screens). This matches the academy roles the matrix already grants the feature to — head coaches, team managers, scouts, head of development, and academy admins keep their access unchanged. The stale read capability is removed from the read-only-observer role automatically on upgrade. =
 
