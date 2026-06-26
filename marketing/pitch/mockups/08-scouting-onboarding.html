@@ -1,0 +1,118 @@
+<!doctype html><html lang="nl"><head><meta charset="utf-8">
+<link rel="stylesheet" href="_deck.css">
+<style>
+.funnel { display:grid; grid-template-columns:repeat(6,1fr); gap:12px; height:100%; align-items:start; }
+.col { display:flex; flex-direction:column; gap:10px; min-width:0; }
+.col-h { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:0 2px 8px; border-bottom:2px solid var(--tt-line); }
+.col-h .ct { font-family:var(--disp); font-size:12.5px; font-weight:700; color:var(--tt-green-deep); text-transform:uppercase; letter-spacing:.04em; }
+.col.done .col-h { border-bottom-color:var(--tt-greenflag); }
+.cnt { font-size:11px; font-weight:800; padding:2px 8px; border-radius:999px; background:var(--tt-paper-soft); color:var(--tt-ink-soft); border:1px solid var(--tt-line); flex:0 0 auto; }
+.col.done .cnt { background:#e3f4ea; color:#1f6e44; border-color:#bfe4cf; }
+.mini { background:#fff; border:1px solid var(--tt-line); border-radius:10px; box-shadow:var(--tt-shadow); padding:10px 11px; }
+.mini.flag-a { border-left:3px solid var(--tt-amber); }
+.mini.flag-r { border-left:3px solid var(--tt-red); }
+.mini.flag-g { border-left:3px solid var(--tt-greenflag); }
+.mini .who-cell .a { width:28px; height:28px; font-size:11px; }
+.mini .who-cell b { font-size:12.5px; }
+.mini .who-cell small { font-size:10.5px; }
+.mini .ft { margin-top:8px; display:flex; }
+.mini .chip { font-size:10px; padding:3px 8px; }
+.lane-foot { font-size:10.5px; color:var(--tt-ink-soft); font-weight:600; text-align:center; padding-top:2px; }
+</style></head>
+<body><div class="frame">
+  <div class="topbar">
+    <div class="brand"><div class="mark">TT</div><div class="word">TalentTrack</div></div>
+    <div class="crumbs"><span>Dashboard</span><span class="sep">›</span><span class="here">Scouting &amp; instroom</span></div>
+    <div class="spacer"></div>
+    <div class="persona"><div class="av">TB</div><div class="who"><b>Tom Bakvis</b><span>Scout</span></div></div>
+  </div>
+  <div class="body">
+    <div class="pagehead">
+      <div><h1>Scouting &amp; instroom</h1><div class="sub">Van prospect tot speler — seizoen 2026/27</div></div>
+      <div class="actions"><span class="btn primary">+ Prospect</span></div>
+    </div>
+    <div class="funnel">
+
+      <!-- 1. Prospects -->
+      <div class="col">
+        <div class="col-h"><span class="ct">Prospects</span><span class="cnt">4</span></div>
+        <div class="mini flag-r">
+          <div class="who-cell"><div class="a">LV</div><div><b>Luca Vermeer</b><small>O13 · middenvelder</small></div></div>
+          <div class="ft"><span class="chip red">actie nodig</span></div>
+        </div>
+        <div class="mini flag-a">
+          <div class="who-cell"><div class="a">SD</div><div><b>Sven de Boer</b><small>O11 · spits</small></div></div>
+          <div class="ft"><span class="chip amber">7d open</span></div>
+        </div>
+        <div class="mini">
+          <div class="who-cell"><div class="a">NK</div><div><b>Noah Kuyt</b><small>geb. 2015 · verdediger</small></div></div>
+        </div>
+        <div class="lane-foot">+1 op shortlist</div>
+      </div>
+
+      <!-- 2. Uitgenodigd -->
+      <div class="col">
+        <div class="col-h"><span class="ct">Uitgenodigd</span><span class="cnt">3</span></div>
+        <div class="mini flag-a">
+          <div class="who-cell"><div class="a">FJ</div><div><b>Finn Jansen</b><small>O13 · vleugel</small></div></div>
+          <div class="ft"><span class="chip amber">5d open</span></div>
+        </div>
+        <div class="mini">
+          <div class="who-cell"><div class="a">MB</div><div><b>Mees Bakker</b><small>O12 · middenvelder</small></div></div>
+        </div>
+        <div class="mini">
+          <div class="who-cell"><div class="a">TV</div><div><b>Tijn Visser</b><small>geb. 2014 · keeper</small></div></div>
+        </div>
+      </div>
+
+      <!-- 3. Proeftraining -->
+      <div class="col">
+        <div class="col-h"><span class="ct">Proeftraining</span><span class="cnt">2</span></div>
+        <div class="mini flag-a">
+          <div class="who-cell"><div class="a">DM</div><div><b>Daan Mulder</b><small>O13 · spits</small></div></div>
+          <div class="ft"><span class="chip amber">beoordeling open</span></div>
+        </div>
+        <div class="mini">
+          <div class="who-cell"><div class="a">JS</div><div><b>Jesse Smit</b><small>O12 · verdediger</small></div></div>
+        </div>
+      </div>
+
+      <!-- 4. Trial-groep -->
+      <div class="col">
+        <div class="col-h"><span class="ct">Trial-groep</span><span class="cnt">3</span></div>
+        <div class="mini">
+          <div class="who-cell"><div class="a">RP</div><div><b>Ruben Postma</b><small>O14 · middenvelder</small></div></div>
+        </div>
+        <div class="mini">
+          <div class="who-cell"><div class="a">LH</div><div><b>Lars Hendriks</b><small>O13 · vleugel</small></div></div>
+        </div>
+        <div class="mini">
+          <div class="who-cell"><div class="a">SB</div><div><b>Stijn Bos</b><small>geb. 2013 · spits</small></div></div>
+        </div>
+      </div>
+
+      <!-- 5. Teamaanbod -->
+      <div class="col">
+        <div class="col-h"><span class="ct">Teamaanbod</span><span class="cnt">1</span></div>
+        <div class="mini flag-g">
+          <div class="who-cell"><div class="a">TW</div><div><b>Thijs de Wit</b><small>O14 · middenvelder</small></div></div>
+          <div class="ft"><span class="chip gold">contract klaar</span></div>
+        </div>
+      </div>
+
+      <!-- 6. Ingestroomd -->
+      <div class="col done">
+        <div class="col-h"><span class="ct">Ingestroomd</span><span class="cnt">2</span></div>
+        <div class="mini flag-g">
+          <div class="who-cell"><div class="a">YK</div><div><b>Youssef Karimi</b><small>O15-1 · vleugel</small></div></div>
+          <div class="ft"><span class="chip green"><span class="dot g"></span>Speler</span></div>
+        </div>
+        <div class="mini flag-g">
+          <div class="who-cell"><div class="a">FV</div><div><b>Floris van Dijk</b><small>O14-2 · verdediger</small></div></div>
+          <div class="ft"><span class="chip green"><span class="dot g"></span>Speler</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div></body></html>

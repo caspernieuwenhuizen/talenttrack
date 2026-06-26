@@ -1,0 +1,135 @@
+<!doctype html><html lang="nl"><head><meta charset="utf-8">
+<link rel="stylesheet" href="_deck.css">
+<style>
+.kpi-row { margin-bottom: 12px; }
+.att-cell { display:flex; flex-direction:column; gap:5px; min-width:118px; }
+.att-cell .top { display:flex; align-items:center; gap:7px; }
+.att-cell .pct { font-family:var(--disp); font-weight:700; font-size:15px; color:var(--tt-green-deep); font-variant-numeric:tabular-nums; }
+.att-cell .pct.low { color:var(--tt-red); }
+.att-cell .frac { font-size:11px; color:var(--tt-ink-soft); font-variant-numeric:tabular-nums; }
+.att-cell .bar { height:6px; }
+table.tt td { padding:7px 12px; }
+table.tt th { padding:8px 12px; }
+.trend { font-family:var(--disp); font-weight:800; font-size:16px; line-height:1; }
+.trend.up { color:var(--tt-greenflag); }
+.trend.flat { color:var(--tt-ink-soft); }
+.trend.down { color:var(--tt-red); }
+.mins { font-variant-numeric:tabular-nums; font-weight:600; font-family:var(--disp); color:var(--tt-green-deep); }
+.who-cell .a.warn { background:var(--tt-red); }
+tr.attn td { background:#fdf1f0; }
+.legend { display:flex; align-items:center; gap:14px; font-size:11.5px; color:var(--tt-ink-soft); }
+.legend span { display:inline-flex; align-items:center; gap:6px; }
+.team-chip { font-size:13px; font-weight:700; padding:8px 14px; border-radius:8px; background:#fff; color:var(--tt-green); border:1.5px solid var(--tt-line); display:inline-flex; align-items:center; gap:8px; }
+</style></head>
+<body><div class="frame">
+  <div class="topbar">
+    <div class="brand"><div class="mark">TT</div><div class="word">TalentTrack</div></div>
+    <div class="crumbs"><span>Dashboard</span><span class="sep">›</span><span>Rapporten</span><span class="sep">›</span><span class="here">Aanwezigheid &amp; minuten</span></div>
+    <div class="spacer"></div>
+    <div class="persona"><div class="av">SD</div><div class="who"><b>Sanne Dekker</b><span>Hoofd Opleidingen</span></div></div>
+  </div>
+  <div class="body">
+    <div class="pagehead">
+      <div><h1>Aanwezigheid &amp; speelminuten</h1><div class="sub">O15-1 · seizoen 2026/27 · t/m week 12</div></div>
+      <div class="actions">
+        <span class="team-chip">O15-1 <span class="muted">▾</span></span>
+        <span class="btn ghost">Exporteer CSV</span>
+        <span class="btn ghost">Exporteer PDF</span>
+      </div>
+    </div>
+
+    <div class="grid cols-4 kpi-row">
+      <div class="kpi">
+        <div class="label">Gem. opkomst</div>
+        <div class="val">88%</div>
+        <div class="delta up">↑ +3% vs vorige maand</div>
+      </div>
+      <div class="kpi">
+        <div class="label">Trainingen</div>
+        <div class="val">24</div>
+        <div class="delta flat">t/m week 12</div>
+      </div>
+      <div class="kpi">
+        <div class="label">Gem. wedstrijdminuten</div>
+        <div class="val">64’</div>
+        <div class="delta flat">per speler · per wedstrijd</div>
+      </div>
+      <div class="kpi flag-red">
+        <div class="label">Spelers &lt; 70% opkomst</div>
+        <div class="val">3</div>
+        <div class="delta down">↓ aandacht nodig</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Per speler
+        <span class="legend" style="text-transform:none;letter-spacing:0;font-weight:600;">
+          <span><span class="dot g"></span>opkomst op peil</span>
+          <span><span class="dot r"></span>onder 70%</span>
+        </span>
+      </h3>
+      <table class="tt">
+        <thead>
+          <tr>
+            <th style="width:30%;">Speler</th>
+            <th style="width:24%;">Opkomst</th>
+            <th>Trainingen</th>
+            <th>Wedstrijdmin.</th>
+            <th style="text-align:center;">Trend</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="who-cell"><span class="a">LO</span><div><b>Liam Okafor</b><small>Spits · #9</small></div></div></td>
+            <td><div class="att-cell"><div class="top"><span class="pct">96%</span><span class="frac">24/24</span></div><div class="bar"><i style="width:96%;"></i></div></div></td>
+            <td class="num">24</td>
+            <td><span class="mins">612’</span></td>
+            <td style="text-align:center;"><span class="trend up">↑</span></td>
+          </tr>
+          <tr>
+            <td><div class="who-cell"><span class="a">SW</span><div><b>Sven de Wit</b><small>Keeper · #1</small></div></div></td>
+            <td><div class="att-cell"><div class="top"><span class="pct">92%</span><span class="frac">22/24</span></div><div class="bar"><i style="width:92%;"></i></div></div></td>
+            <td class="num">22</td>
+            <td><span class="mins">540’</span></td>
+            <td style="text-align:center;"><span class="trend flat">→</span></td>
+          </tr>
+          <tr>
+            <td><div class="who-cell"><span class="a">NV</span><div><b>Noa Visser</b><small>Vleugel · #7</small></div></div></td>
+            <td><div class="att-cell"><div class="top"><span class="pct">92%</span><span class="frac">22/24</span></div><div class="bar"><i style="width:92%;"></i></div></div></td>
+            <td class="num">22</td>
+            <td><span class="mins">498’</span></td>
+            <td style="text-align:center;"><span class="trend up">↑</span></td>
+          </tr>
+          <tr>
+            <td><div class="who-cell"><span class="a">JS</span><div><b>Jens Smit</b><small>Verdediger · #3</small></div></div></td>
+            <td><div class="att-cell"><div class="top"><span class="pct">88%</span><span class="frac">21/24</span></div><div class="bar"><i style="width:88%;"></i></div></div></td>
+            <td class="num">21</td>
+            <td><span class="mins">486’</span></td>
+            <td style="text-align:center;"><span class="trend flat">→</span></td>
+          </tr>
+          <tr>
+            <td><div class="who-cell"><span class="a">RB</span><div><b>Ruben Berg</b><small>Vleugel · #11</small></div></div></td>
+            <td><div class="att-cell"><div class="top"><span class="pct">79%</span><span class="frac">19/24</span></div><div class="bar"><i style="width:79%;"></i></div></div></td>
+            <td class="num">19</td>
+            <td><span class="mins">402’</span></td>
+            <td style="text-align:center;"><span class="trend down">↓</span></td>
+          </tr>
+          <tr class="attn">
+            <td><div class="who-cell"><span class="a warn">DB</span><div><b>Daan Bakker</b><small>Verdediger · #5</small></div></div></td>
+            <td><div class="att-cell"><div class="top"><span class="pct low">67%</span><span class="frac">16/24</span><span class="dot r"></span></div><div class="bar"><i class="red" style="width:67%;"></i></div></div></td>
+            <td class="num">16</td>
+            <td><span class="mins">380’</span></td>
+            <td style="text-align:center;"><span class="trend down">↓</span></td>
+          </tr>
+          <tr class="attn">
+            <td><div class="who-cell"><span class="a warn">MA</span><div><b>Mo Aydin</b><small>Middenveld · #10</small></div></div></td>
+            <td><div class="att-cell"><div class="top"><span class="pct low">58%</span><span class="frac">14/24</span><span class="dot r"></span></div><div class="bar"><i class="red" style="width:58%;"></i></div></div></td>
+            <td class="num">14</td>
+            <td><span class="mins">210’</span></td>
+            <td style="text-align:center;"><span class="trend down">↓</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div></body></html>

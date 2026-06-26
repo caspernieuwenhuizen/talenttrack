@@ -1,0 +1,70 @@
+<!doctype html><html lang="nl"><head><meta charset="utf-8">
+<link rel="stylesheet" href="_deck.css"><link rel="stylesheet" href="_narrative.css">
+<style>
+.nslide.dark{overflow:hidden;}
+.pc-head{position:absolute;top:42px;left:84px;right:84px;z-index:3;}
+.pc-head .neyebrow{margin-bottom:10px;}
+.pc-head h1{font-family:var(--disp);font-weight:800;font-size:40px;color:#fff;line-height:1.05;margin:0;}
+.pc-head p{color:rgba(255,255,255,.78);font-size:16px;margin:10px 0 0;max-width:62ch;}
+.stage{position:absolute;inset:0;z-index:2;}
+.spokes{position:absolute;inset:0;width:1280px;height:720px;}
+.center{position:absolute;left:640px;top:432px;transform:translate(-50%,-50%);z-index:4;
+  width:196px;height:196px;border-radius:50%;background:linear-gradient(160deg,#fff,#eef5f0);
+  border:4px solid var(--tt-gold);box-shadow:0 0 0 10px rgba(232,182,36,.14),0 20px 50px rgba(0,0,0,.45);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+.center .av{width:64px;height:64px;border-radius:50%;background:var(--tt-green-soft);color:#fff;display:grid;place-items:center;font-family:var(--disp);font-weight:800;font-size:24px;margin-bottom:8px;border:3px solid var(--tt-gold);}
+.center b{font-family:var(--disp);font-size:17px;color:var(--tt-green-deep);line-height:1.1;}
+.center small{font-size:11.5px;color:var(--tt-ink-soft);margin-top:2px;}
+.center .tag{margin-top:6px;font-size:10.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#8a6a12;background:var(--tt-gold);border-radius:999px;padding:2px 10px;}
+.node{position:absolute;transform:translate(-50%,-50%);z-index:4;width:188px;
+  background:rgba(255,255,255,.97);border:1px solid rgba(255,255,255,.6);border-radius:14px;
+  box-shadow:0 10px 28px rgba(0,0,0,.28);padding:11px 13px;display:flex;gap:11px;align-items:center;}
+.node .ic{width:40px;height:40px;border-radius:10px;flex:0 0 auto;display:grid;place-items:center;font-size:19px;background:var(--tt-green-deep);color:var(--tt-gold);}
+.node b{font-family:var(--disp);font-weight:700;font-size:13.5px;color:var(--tt-green-deep);display:block;line-height:1.15;}
+.node small{font-size:10.5px;color:var(--tt-ink-soft);line-height:1.3;display:block;margin-top:2px;}
+.pc-foot{position:absolute;bottom:0;left:0;right:0;}
+</style></head>
+<body><div class="nslide dark">
+  <div class="pc-head">
+    <div class="neyebrow">Spelersontwikkeling als rode draad</div>
+    <h1>De speler staat centraal</h1>
+    <p>Elke beoordeling, elk doel, elke training en elk gesprek hoort bij één speler — en brengt díe speler verder. Coaches, ouders en gegevens draaien allemaal om de ontwikkeling van het kind.</p>
+  </div>
+
+  <div class="stage">
+    <svg class="spokes" viewBox="0 0 1280 720" fill="none" aria-hidden="true">
+      <defs><linearGradient id="sp" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#e8b624" stop-opacity=".9"/>
+        <stop offset="1" stop-color="#9fb9ac" stop-opacity=".5"/>
+      </linearGradient></defs>
+      <g stroke="url(#sp)" stroke-width="2.5">
+        <line x1="640" y1="432" x2="1040" y2="432"/>
+        <line x1="640" y1="432" x2="840"  y2="255"/>
+        <line x1="640" y1="432" x2="440"  y2="255"/>
+        <line x1="640" y1="432" x2="240"  y2="432"/>
+        <line x1="640" y1="432" x2="440"  y2="609"/>
+        <line x1="640" y1="432" x2="840"  y2="609"/>
+      </g>
+      <g fill="#e8b624">
+        <circle cx="1040" cy="432" r="4"/><circle cx="840" cy="255" r="4"/><circle cx="440" cy="255" r="4"/>
+        <circle cx="240" cy="432" r="4"/><circle cx="440" cy="609" r="4"/><circle cx="840" cy="609" r="4"/>
+      </g>
+    </svg>
+
+    <div class="center">
+      <div class="av">LO</div>
+      <b>Liam · 14 jaar</b>
+      <small>O15 · aanvaller</small>
+      <span class="tag">in ontwikkeling</span>
+    </div>
+
+    <div class="node" style="left:1040px;top:432px;"><span class="ic">★</span><div><b>Beoordelingen</b><small>Technisch · tactisch · fysiek · mentaal</small></div></div>
+    <div class="node" style="left:840px;top:255px;"><span class="ic">🎯</span><div><b>Doelen &amp; POP</b><small>Wat hij leert, met bewijs</small></div></div>
+    <div class="node" style="left:440px;top:255px;"><span class="ic">🏃</span><div><b>Training &amp; methodiek</b><small>Met een duidelijke bedoeling</small></div></div>
+    <div class="node" style="left:240px;top:432px;"><span class="ic">🏟️</span><div><b>Wedstrijd &amp; minuten</b><small>Momenten die meetellen</small></div></div>
+    <div class="node" style="left:440px;top:609px;"><span class="ic">🔎</span><div><b>Scouting &amp; instroom</b><small>Waar de reis begint</small></div></div>
+    <div class="node" style="left:840px;top:609px;"><span class="ic">👪</span><div><b>Coach, ouder &amp; staf</b><small>Iedereen ziet hetzelfde kind</small></div></div>
+  </div>
+
+  <div class="pc-foot"><div class="nfoot"><span class="mk">TT</span><span>Spelersontwikkeling · JG4IT</span><span class="pg">2</span></div></div>
+</div></body></html>

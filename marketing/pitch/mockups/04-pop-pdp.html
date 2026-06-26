@@ -1,0 +1,121 @@
+<!doctype html><html lang="nl"><head><meta charset="utf-8">
+<link rel="stylesheet" href="_deck.css">
+<style>
+.pop-grid { display:grid; grid-template-columns:1.4fr 1fr; gap:18px; height:100%; }
+.goal { background:#fff; border:1px solid var(--tt-line); border-radius:var(--tt-radius-lg); box-shadow:var(--tt-shadow); padding:14px 16px; position:relative; }
+.goal.done { border-left:4px solid var(--tt-greenflag); }
+.goal.doing { border-left:4px solid var(--tt-amber); box-shadow:0 8px 22px rgba(232,144,43,.18); border-color:#f3d9b3; }
+.goal.planned { border-left:4px solid var(--tt-line); opacity:.92; }
+.goal .gh { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.goal .gt { font-family:var(--disp); font-weight:700; font-size:15px; color:var(--tt-green-deep); }
+.goal .meta { font-size:12px; color:var(--tt-ink-soft); margin-top:7px; }
+.goal .when { font-size:11.5px; font-weight:700; color:var(--tt-ink-soft); }
+.evid { display:flex; gap:7px; flex-wrap:wrap; margin-top:10px; }
+.ev-item { display:inline-flex; align-items:center; gap:7px; font-size:11.5px; font-weight:600; color:var(--tt-green-deep); background:var(--tt-paper-soft); border:1px solid var(--tt-line); border-radius:8px; padding:6px 9px; }
+.ev-item .ic { width:18px;height:18px;border-radius:5px;display:grid;place-items:center;font-size:11px;flex:0 0 auto; }
+.ev-item .ic.ev { background:#e3f4ea; color:#1f6e44; }
+.ev-item .ic.note { background:#e4eefa; color:#245a93; }
+.ev-item .sc { font-family:var(--disp); font-weight:800; color:var(--tt-green-soft); }
+.barwrap { display:flex; align-items:center; gap:10px; margin-top:10px; }
+.barwrap .bar { flex:1; }
+.barwrap .pct { font-family:var(--disp); font-weight:800; font-size:13px; color:var(--tt-amber); }
+.lbl { font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--tt-ink-soft); margin-top:11px; }
+.thread .ev .d b { color:var(--tt-green-deep); }
+.bubble { background:var(--tt-paper-soft); border:1px solid var(--tt-line); border-radius:10px; padding:9px 11px; margin-top:5px; font-size:13px; line-height:1.4; }
+.thread .ev.me .d .who { color:var(--tt-blue); }
+.who { font-weight:700; font-size:12px; }
+.nudge.thin { padding:9px 14px; margin-bottom:14px; }
+.nudge.thin .ic { width:28px; height:28px; font-size:15px; }
+.nudge.thin .tx { font-size:12.5px; font-weight:600; color:#7a5d10; }
+.gnum { width:26px;height:26px;border-radius:7px;display:grid;place-items:center;font-family:var(--disp);font-weight:800;font-size:13px;flex:0 0 auto; }
+.gnum.d { background:var(--tt-greenflag); color:#fff; }
+.gnum.a { background:var(--tt-amber); color:#fff; }
+.gnum.p { background:var(--tt-paper-soft); color:var(--tt-ink-soft); border:1px solid var(--tt-line); }
+.titlerow { display:flex; align-items:center; gap:11px; }
+</style></head>
+<body><div class="frame">
+  <div class="topbar">
+    <div class="brand"><div class="mark">TT</div><div class="word">TalentTrack</div></div>
+    <div class="crumbs"><span>Dashboard</span><span class="sep">›</span><span>Spelers</span><span class="sep">›</span><span>Liam Okafor</span><span class="sep">›</span><span class="here">POP</span></div>
+    <div class="spacer"></div>
+    <div class="persona"><div class="av">MV</div><div class="who"><b>Mark Visser</b><span>Hoofdtrainer · O15-1</span></div></div>
+  </div>
+  <div class="body">
+    <div class="pagehead">
+      <div><h1>POP — Liam Okafor</h1><div class="sub">O15-1 · Aanvaller · seizoen 2026/27</div></div>
+      <div class="actions"><span class="tag-ovr" style="align-self:center;font-size:14px;padding:5px 10px;">OVR 74</span><span class="btn primary">+ Leerdoel</span></div>
+    </div>
+    <div class="pop-grid">
+      <!-- LEFT: learning goals -->
+      <div style="display:flex;flex-direction:column;min-height:0;">
+        <div class="nudge thin">
+          <div class="ic">🔒</div>
+          <div class="tx">Dit blijft bij de academie als de coach vertrekt — de rode draad door het seizoen.</div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <!-- 1. Behaald -->
+          <div class="goal done">
+            <div class="gh">
+              <div class="titlerow"><span class="gnum d">✓</span><span class="gt">Eerste balcontact onder druk</span></div>
+              <span class="when">okt–dec</span>
+            </div>
+            <div style="margin-top:8px;"><span class="chip green"><span class="dot g"></span>Behaald</span></div>
+            <div class="meta">Bewijslast: 4 beoordelingen, 2 opmerkingen</div>
+          </div>
+
+          <!-- 2. In uitvoering (key card) -->
+          <div class="goal doing">
+            <div class="gh">
+              <div class="titlerow"><span class="gnum a">2</span><span class="gt">Passing met links onder weerstand</span></div>
+              <span class="when">jan–mrt</span>
+            </div>
+            <div style="margin-top:8px;"><span class="chip amber"><span class="dot a"></span>In uitvoering</span></div>
+            <div class="barwrap">
+              <div class="bar"><i class="gold" style="width:60%;"></i></div>
+              <span class="pct">60%</span>
+            </div>
+            <div class="lbl">Bewijslast</div>
+            <div class="evid">
+              <span class="ev-item"><span class="ic ev">📊</span>Beoordeling 12 mrt · <span class="sc">6.5</span></span>
+              <span class="ev-item"><span class="ic ev">📊</span>Beoordeling 5 mrt · <span class="sc">6.0</span></span>
+              <span class="ev-item"><span class="ic note">💬</span>Opmerking 1 mrt</span>
+            </div>
+          </div>
+
+          <!-- 3. Gepland -->
+          <div class="goal planned">
+            <div class="gh">
+              <div class="titlerow"><span class="gnum p">3</span><span class="gt">Positiespel als schaduwspits</span></div>
+              <span class="when">apr–jun</span>
+            </div>
+            <div style="margin-top:8px;"><span class="chip ghost">Gepland</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Gesprek -->
+      <div class="card" style="display:flex;flex-direction:column;">
+        <h3>Gesprek <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:600;">speler &amp; coach</span></h3>
+        <div class="tl thread" style="flex:1;">
+          <div class="ev gold">
+            <div class="t">12 mrt · 2026</div>
+            <div class="d"><span class="who">Coach Mark</span>
+              <div class="bubble">Goede progressie links. Komende weken focus op tempo in de passing.</div>
+            </div>
+          </div>
+          <div class="ev me">
+            <div class="t">13 mrt · 2026</div>
+            <div class="d"><span class="who" style="color:var(--tt-blue);">Liam</span>
+              <div class="bubble">Eens — wil ook meer dieptepasses proberen.</div>
+            </div>
+          </div>
+        </div>
+        <div style="padding-top:12px;border-top:1px dashed var(--tt-line);display:flex;align-items:center;justify-content:space-between;gap:10px;">
+          <span class="chip green"><span class="dot g"></span>Volgend gesprek: 9 apr</span>
+          <span class="muted" style="font-size:11.5px;">2 deelnemers</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div></body></html>

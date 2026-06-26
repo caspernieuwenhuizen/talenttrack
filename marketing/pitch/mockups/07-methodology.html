@@ -1,0 +1,83 @@
+<!doctype html><html lang="nl"><head><meta charset="utf-8">
+<link rel="stylesheet" href="_deck.css">
+<style>
+.mtabs { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:16px; }
+.mtab { font-size:13px; font-weight:600; padding:8px 14px; border-radius:8px; border:1.5px solid var(--tt-line); background:#fff; color:var(--tt-green); }
+.mtab.active { background:var(--tt-green); color:#fff; border-color:var(--tt-green); }
+.mtab.first { box-shadow:0 0 0 2px var(--tt-gold); }
+.acc { background:#fff; border:1px solid var(--tt-line); border-radius:10px; margin-bottom:10px; overflow:hidden; box-shadow:var(--tt-shadow); }
+.acc-h { display:flex; align-items:center; gap:12px; padding:14px 18px; cursor:pointer; }
+.acc-h .chev { margin-left:auto; color:var(--tt-ink-soft); font-size:13px; transition:transform .15s; }
+.acc.open .acc-h { border-bottom:1px solid var(--tt-line); background:#fbfcfb; }
+.acc.open .chev { transform:rotate(90deg); color:var(--tt-green); }
+.acc-h .ix { width:28px;height:28px;border-radius:7px;background:var(--tt-paper-soft);border:1px solid var(--tt-line);display:grid;place-items:center;font-weight:800;color:var(--tt-green-soft);font-size:13px; }
+.acc.open .acc-h .ix { background:var(--tt-green); color:#fff; border-color:var(--tt-green); }
+.acc-h h3 { font-family:var(--disp); font-size:15px; font-weight:700; color:var(--tt-green-deep); text-transform:none; letter-spacing:0; margin:0; }
+.acc-h .meta { font-size:11.5px; color:var(--tt-ink-soft); }
+.acc-b { padding:14px 18px 16px; font-size:13.5px; color:var(--tt-ink); }
+.acc-b p { margin:0 0 8px; }
+.phase-row { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:6px; }
+.phase { border:1px solid var(--tt-line); border-radius:8px; padding:10px 12px; }
+.phase .n { width:24px;height:24px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700;font-size:12px; }
+.phase.att .n { background:var(--tt-greenflag); } .phase.def .n { background:var(--tt-red); }
+.phase b { font-size:13px; display:block; margin:6px 0 2px; }
+.phase small { color:var(--tt-ink-soft); font-size:11.5px; }
+.callout { font-size:11.5px; color:#8a6a12; background:#fdf3d6; border:1px solid #f0dca0; border-radius:8px; padding:7px 11px; display:inline-flex; gap:7px; align-items:center; }
+</style></head>
+<body><div class="frame">
+  <div class="topbar">
+    <div class="brand"><div class="mark">TT</div><div class="word">TalentTrack</div></div>
+    <div class="crumbs"><span>Dashboard</span><span class="sep">›</span><span class="here">Methodiek</span></div>
+    <div class="spacer"></div>
+    <div class="persona"><div class="av">SD</div><div class="who"><b>Sanne Dekker</b><span>Hoofd Opleidingen</span></div></div>
+  </div>
+  <div class="body">
+    <div class="pagehead">
+      <div><h1>Methodiek</h1><div class="sub">De voetbalvisie van de academie — van waarom naar hoe naar detail</div></div>
+      <div class="actions"><span class="btn ghost">Print referentiekaart</span></div>
+    </div>
+    <div class="mtabs">
+      <span class="mtab first">Visie</span>
+      <span class="mtab active">Raamwerk</span>
+      <span class="mtab">Formaties</span>
+      <span class="mtab">Spelprincipes</span>
+      <span class="mtab">Voetbalhandelingen</span>
+      <span class="mtab">Spelhervattingen</span>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+      <span class="callout">★ Nieuw — secties klappen open/dicht voor overzicht</span>
+      <span class="chip blue">Voorgestelde volgorde: Visie staat nu eerst</span>
+    </div>
+
+    <div class="acc open">
+      <div class="acc-h"><span class="ix">1</span><div><h3>Voetbalmodel</h3><div class="meta">Hoe wij willen spelen, vertaald naar het veld</div></div><span class="chev">▸</span></div>
+      <div class="acc-b">
+        <p>Dominant, verzorgd opbouwen van achteruit. Balbezit als middel om de tegenstander te ontwrichten, niet als doel. In balverlies direct druk in een compacte 4-3-3, kantelend naar een 4-4-2 bij terugzakken.</p>
+        <p class="muted" style="margin:0;">Geldt als kapstok voor elk leerdoel en elke beoordeling lager in deze pagina.</p>
+      </div>
+    </div>
+
+    <div class="acc open">
+      <div class="acc-h"><span class="ix">2</span><div><h3>Vier fasen</h3><div class="meta">Balbezit · Balverlies · Omschakeling × 2</div></div><span class="chev">▸</span></div>
+      <div class="acc-b">
+        <div class="phase-row">
+          <div class="phase att"><span class="n">1</span><b>Balbezit</b><small>Opbouwen, ruimte creëren, kansen forceren</small></div>
+          <div class="phase def"><span class="n">2</span><b>Balverlies</b><small>Direct storen, compact, terugveroveren</small></div>
+          <div class="phase att"><span class="n">3</span><b>Om — aanval</b><small>Snel schakelen na verovering</small></div>
+          <div class="phase def"><span class="n">4</span><b>Om — verdediging</b><small>Restverdediging, vertragen</small></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="acc">
+      <div class="acc-h"><span class="ix">3</span><div><h3>Leerdoelen</h3><div class="meta">Per fase · gekoppeld aan spelprincipes en POP</div></div><span class="chev">▸</span></div>
+    </div>
+    <div class="acc">
+      <div class="acc-h"><span class="ix">4</span><div><h3>Factoren van invloed</h3><div class="meta">TIC — Techniek, Inzicht, Communicatie</div></div><span class="chev">▸</span></div>
+    </div>
+    <div class="acc">
+      <div class="acc-h"><span class="ix">5</span><div><h3>Reflectie &amp; de toekomst</h3><div class="meta">Hoe het model meegroeit met de academie</div></div><span class="chev">▸</span></div>
+    </div>
+  </div>
+</div></body></html>

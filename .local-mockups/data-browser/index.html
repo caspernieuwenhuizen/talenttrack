@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Databrowser — read-only table browser (#1859)</title>
+<style>
+:root{
+  --green:#0b3d2e; --green-deep:#07261c; --green-soft:#145a44; --gold:#e8b624;
+  --ink:#14181a; --muted:#5a636a; --line:#e3e6e1; --bg:#f4f6f3; --paper:#fff;
+  --done:#2f9e5e; --doing:#e8902b; --planned:#9aa6a0; --danger:#c2453b;
+  --r:10px; --r-lg:14px; --shadow:0 4px 16px rgba(11,61,46,.08);
+  --mono:"SFMono-Regular",ui-monospace,"Cascadia Code",Consolas,monospace;
+  font-family:"Segoe UI",-apple-system,Roboto,Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#cfd5cd;color:var(--ink);padding:14px;-webkit-font-smoothing:antialiased;}
+.note{max-width:1100px;margin:0 auto 12px;font-size:13px;background:#eef2ec;border:1px solid var(--line);border-radius:var(--r);padding:10px 14px;color:#2c3a33;line-height:1.5;}
+.note b{color:var(--green-deep);}
+.note code{font-family:var(--mono);font-size:12px;background:#dfe6dd;padding:1px 5px;border-radius:4px;}
+
+.app{max-width:1100px;margin:0 auto 22px;background:var(--bg);border-radius:var(--r-lg);overflow:hidden;box-shadow:0 14px 38px rgba(11,61,46,.16);}
+
+/* ---- chrome ---- */
+.top{height:56px;background:var(--green-deep);border-bottom:3px solid var(--gold);display:flex;align-items:center;gap:14px;padding:0 18px;color:#fff;}
+.top .mark{width:30px;height:30px;border-radius:7px;background:var(--gold);color:var(--green-deep);display:grid;place-items:center;font-weight:800;font-size:13px;}
+.top .word{font-weight:700;letter-spacing:.06em;font-size:15px;}
+.top .crumbs{font-size:13px;color:rgba(255,255,255,.6);font-weight:600;display:none;}
+.top .crumbs .here{color:#f3cf6a;}
+.top .sp{flex:1;}
+.top .persona{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);padding:4px 12px 4px 4px;border-radius:999px;}
+.top .persona .av{width:30px;height:30px;border-radius:50%;background:var(--gold);color:var(--green-deep);display:grid;place-items:center;font-weight:800;font-size:12px;}
+.top .persona b{font-size:13px;display:block;line-height:1.1;}
+.top .persona span{font-size:11px;color:rgba(255,255,255,.6);}
+@media(min-width:560px){ .top .crumbs{display:block;} }
+
+.body{padding:18px 16px 26px;}
+@media(min-width:560px){ .body{padding:22px 26px 30px;} }
+
+/* breadcrumb chain + back pill (mobile, §5 contract) */
+.backpill{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:700;color:var(--green-deep);background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 13px;margin-bottom:10px;text-decoration:none;min-height:38px;}
+.crumbline{font-size:12px;color:var(--muted);font-weight:600;margin-bottom:14px;}
+.crumbline .here{color:var(--green-deep);}
+
+.head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:6px;flex-wrap:wrap;}
+.head h1{font-size:23px;color:var(--green-deep);font-weight:700;letter-spacing:-.01em;}
+.head h1 .mono{font-family:var(--mono);font-size:14px;font-weight:600;color:var(--muted);margin-left:8px;}
+.sub{font-size:13.5px;color:var(--muted);margin:2px 0 16px;line-height:1.5;max-width:62ch;}
+
+.callout{display:flex;gap:11px;align-items:flex-start;background:linear-gradient(120deg,#fdf3d6,#fcefdc);border:1px solid #f0dca0;border-left:4px solid var(--gold);border-radius:10px;padding:11px 14px;margin-bottom:18px;font-size:13px;line-height:1.45;color:#5a4a18;}
+.callout .ic{width:26px;height:26px;border-radius:7px;background:var(--gold);color:var(--green-deep);display:grid;place-items:center;flex:0 0 auto;font-size:14px;}
+.callout.danger{background:linear-gradient(120deg,#fbe6e4,#fbeae8);border-color:#e6b5b0;border-left-color:var(--danger);color:#7d2a23;}
+.callout.danger .ic{background:var(--danger);color:#fff;}
+
+/* ---- search ---- */
+.search{position:relative;margin-bottom:18px;}
+.search input{width:100%;font:inherit;font-size:16px;border:1.5px solid var(--line);border-radius:10px;padding:11px 12px 11px 38px;background:#fff;min-height:48px;}
+.search input:focus-visible{outline:2px solid var(--green-soft);outline-offset:1px;}
+.search .gl{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:15px;}
+
+/* ---- group + table rows ---- */
+.grp{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:20px 0 9px;display:flex;align-items:center;gap:8px;}
+.grp .cnt{background:#e3e8e1;color:var(--green-deep);border-radius:999px;padding:1px 8px;font-size:10.5px;}
+
+.tbl-row{display:flex;align-items:center;gap:13px;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:13px 14px;margin-bottom:9px;text-decoration:none;color:inherit;min-height:48px;transition:border-color .12s,transform .12s;}
+.tbl-row:hover{border-color:var(--green-soft);}
+.tbl-row:active{transform:scale(.995);}
+.tbl-row .ic{width:38px;height:38px;border-radius:9px;background:#eef3ee;color:var(--green-soft);display:grid;place-items:center;flex:0 0 auto;font-size:17px;}
+.tbl-row .meta{flex:1;min-width:0;}
+.tbl-row .ttl{font-weight:700;font-size:14.5px;color:var(--green-deep);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.tbl-row .mono{font-family:var(--mono);font-size:11.5px;color:var(--muted);font-weight:500;}
+.tbl-row .desc{font-size:12.5px;color:var(--muted);margin-top:2px;line-height:1.4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.tbl-row .rt{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex:0 0 auto;}
+.tbl-row .rows{font-size:12px;font-weight:700;color:var(--green-deep);font-variant-numeric:tabular-nums;}
+.tbl-row .rows small{color:var(--muted);font-weight:600;}
+.tbl-row .chev{color:var(--planned);font-size:16px;}
+
+.badge{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;padding:2px 7px;border-radius:6px;display:inline-flex;align-items:center;gap:4px;}
+.badge.sens{background:#fbe6e4;color:#a8362d;}
+.badge.curated{background:#e3f4ea;color:#1f6e44;}
+
+/* condensed rows for "other" group */
+.tbl-row.mini{padding:10px 13px;}
+.tbl-row.mini .ic{width:30px;height:30px;font-size:14px;border-radius:7px;}
+.tbl-row.mini .ttl{font-size:13.5px;}
+.tbl-row.mini .desc{display:none;}
+
+/* ================= TABLE PAGE ================= */
+.related{display:flex;flex-wrap:wrap;gap:7px;margin:2px 0 18px;}
+.related .lbl{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);align-self:center;margin-right:2px;}
+.relchip{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:var(--green-deep);background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px;text-decoration:none;min-height:34px;}
+.relchip:hover{border-color:var(--green-soft);}
+.relchip .dir{color:var(--planned);font-size:11px;}
+.relchip .mono{font-family:var(--mono);font-size:10.5px;color:var(--muted);font-weight:500;}
+
+.tablewrap{background:var(--paper);border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);}
+.scroll{overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;}
+table.data{border-collapse:collapse;width:100%;font-size:13px;min-width:760px;}
+table.data thead th{text-align:left;background:#f0f4ef;border-bottom:2px solid var(--line);padding:9px 12px;vertical-align:top;white-space:nowrap;position:sticky;top:0;}
+table.data thead .col-lbl{font-weight:700;color:var(--green-deep);font-size:12.5px;display:flex;align-items:center;gap:6px;}
+table.data thead .col-mono{font-family:var(--mono);font-size:10.5px;color:var(--muted);font-weight:500;margin-top:2px;}
+table.data thead .info{width:15px;height:15px;border-radius:50%;background:#d9e2d8;color:var(--green-soft);font-size:10px;font-weight:800;display:grid;place-items:center;cursor:help;flex:0 0 auto;}
+table.data tbody td{padding:9px 12px;border-bottom:1px solid var(--line);white-space:nowrap;color:var(--ink);vertical-align:top;}
+table.data tbody tr:hover td{background:#f8faf7;}
+table.data tbody td.num{font-variant-numeric:tabular-nums;text-align:right;}
+table.data tbody td.muted{color:var(--planned);font-style:italic;}
+.pk{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--green-deep);}
+.fk{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--green-soft);text-decoration:none;background:#eef3ee;border:1px solid #d7e3d6;border-radius:6px;padding:2px 7px;}
+.fk:hover{border-color:var(--green-soft);}
+.fk .lk{font-size:9px;opacity:.7;}
+.enum{font-size:11.5px;font-weight:700;background:#eef0ec;color:#5b6e75;border-radius:6px;padding:2px 8px;}
+
+.pager{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 14px;border-top:1px solid var(--line);background:#fafbf9;flex-wrap:wrap;}
+.pager .info{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;}
+.pager .ctrls{display:flex;gap:6px;}
+.pgbtn{min-width:48px;min-height:40px;border:1px solid var(--line);background:#fff;border-radius:8px;font:inherit;font-size:13px;font-weight:700;color:var(--green-deep);cursor:pointer;display:grid;place-items:center;}
+.pgbtn[disabled]{color:var(--planned);cursor:default;}
+.pgbtn.cur{background:var(--green-deep);color:#fff;border-color:var(--green-deep);}
+
+.foothint{font-size:12px;color:var(--muted);margin-top:12px;line-height:1.5;}
+.foothint code{font-family:var(--mono);font-size:11.5px;background:#e7ece6;padding:1px 5px;border-radius:4px;}
+</style>
+</head>
+<body>
+
+<!-- =================================================================== -->
+<!-- SCREEN 1 — INDEX -->
+<!-- =================================================================== -->
+<div class="note">
+  <b>Mockup A — Databrowser index</b> · <code>?tt_view=data-browser</code> · #1859.
+  Read-only browser over the <code>tt_*</code> tables, matrix/academy-admin only
+  (<code>tt_view_data_browser</code>). Curated <b>kern</b>-tabellen have friendly Dutch labels
+  + descriptions; <b>overige</b> tables fall back to humanised names. Sensitive tables carry a
+  <b>Gevoelig</b> badge (viewing one writes a <code>tt_audit_log</code> entry). Production build maps
+  these bespoke classes onto <code>.tt-*</code> + <code>tokens.css</code>.
+</div>
+
+<div class="app">
+  <div class="top">
+    <div class="mark">TT</div><div class="word">TALENTTRACK</div>
+    <div class="crumbs">Dashboard › Instellingen › <span class="here">Databrowser</span></div>
+    <div class="sp"></div>
+    <div class="persona"><div class="av">CN</div><div><b>Casper N.</b><span>Academie-admin</span></div></div>
+  </div>
+
+  <div class="body">
+    <div class="crumbline">Dashboard › Instellingen › <span class="here">Databrowser</span></div>
+
+    <div class="head"><h1>Databrowser</h1></div>
+    <p class="sub">Bekijk de ruwe gegevens achter TalentTrack — alleen-lezen. Elke tabel toont
+      gebruiksvriendelijke kolomnamen met uitleg, en hoe tabellen onderling verbonden zijn.</p>
+
+    <div class="callout"><span class="ic">&#128274;</span>
+      <div>Alleen-lezen. Je kunt hier geen gegevens of definities wijzigen. Het openen van een
+        <b>gevoelige</b> tabel (medisch, veiligheid, gezin) wordt vastgelegd in het audit-log.</div>
+    </div>
+
+    <div class="search">
+      <span class="gl">&#128269;</span>
+      <input type="search" inputmode="search" placeholder="Zoek een tabel… (naam of beschrijving)" aria-label="Zoek tabel">
+    </div>
+
+    <div class="grp">Kern-tabellen <span class="cnt">12</span></div>
+
+    <a class="tbl-row" href="#table">
+      <span class="ic">&#9917;</span>
+      <span class="meta">
+        <span class="ttl">Spelers <span class="mono">tt_players</span> <span class="badge curated">Beschreven</span></span>
+        <span class="desc">Het spelersdossier — de spil van het systeem. Eén rij per speler.</span>
+      </span>
+      <span class="rt"><span class="rows">248 <small>rijen</small></span><span class="chev">&#8250;</span></span>
+    </a>
+
+    <a class="tbl-row" href="#table">
+      <span class="ic">&#128101;</span>
+      <span class="meta">
+        <span class="ttl">Teams <span class="mono">tt_teams</span> <span class="badge curated">Beschreven</span></span>
+        <span class="desc">Leeftijdsgroepen en selecties waarin spelers zijn ingedeeld.</span>
+      </span>
+      <span class="rt"><span class="rows">18 <small>rijen</small></span><span class="chev">&#8250;</span></span>
+    </a>
+
+    <a class="tbl-row" href="#table">
+      <span class="ic">&#128197;</span>
+      <span class="meta">
+        <span class="ttl">Activiteiten <span class="mono">tt_activities</span> <span class="badge curated">Beschreven</span></span>
+        <span class="desc">Trainingen en wedstrijden — sessies waaraan spelers deelnemen.</span>
+      </span>
+      <span class="rt"><span class="rows">1.412 <small>rijen</small></span><span class="chev">&#8250;</span></span>
+    </a>
+
+    <a class="tbl-row" href="#table">
+      <span class="ic">&#11088;</span>
+      <span class="meta">
+        <span class="ttl">Beoordelingen <span class="mono">tt_evaluations</span> <span class="badge curated">Beschreven</span></span>
+        <span class="desc">Prestatiebeoordelingen per speler, met scores per categorie.</span>
+      </span>
+      <span class="rt"><span class="rows">3.087 <small>rijen</small></span><span class="chev">&#8250;</span></span>
+    </a>
+
+    <a class="tbl-row" href="#table">
+      <span class="ic">&#127919;</span>
+      <span class="meta">
+        <span class="ttl">Leerdoelen <span class="mono">tt_goals</span> <span class="badge curated">Beschreven</span></span>
+        <span class="desc">Ontwikkeldoelen (POP) per speler met voortgang.</span>
+      </span>
+      <span class="rt"><span class="rows">624 <small>rijen</small></span><span class="chev">&#8250;</span></span>
+    </a>
+
+    <a class="tbl-row" href="#table">
+      <span class="ic">&#9989;</span>
+      <span class="meta">
+        <span class="ttl">Aanwezigheid <span class="mono">tt_attendance</span> <span class="badge curated">Beschreven</span></span>
+        <span class="desc">Aanwezigheid van spelers per activiteit.</span>
+      </span>
+      <span class="rt"><span class="rows">18.940 <small>rijen</small></span><span class="chev">&#8250;</span></span>
+    </a>
+
+    <a class="tbl-row" href="#table">
+      <span class="ic">&#129657;</span>
+      <span class="meta">
+        <span class="ttl">Blessures <span class="mono">tt_player_injuries</span>
+          <span class="badge sens">&#9888; Gevoelig</span></span>
+        <span class="desc">Medische registratie van blessures en herstel per speler.</span>
+      </span>
+      <span class="rt"><span class="rows">96 <small>rijen</small></span><span class="chev">&#8250;</span></span>
+    </a>
+
+    <a class="tbl-row" href="#table">
+      <span class="ic">&#128106;</span>
+      <span class="meta">
+        <span class="ttl">Ouders &amp; verzorgers <span class="mono">tt_player_parents</span>
+          <span class="badge sens">&#9888; Gevoelig</span></span>
+        <span class="desc">Koppeling van spelers aan ouder-/verzorgeraccounts.</span>
+      </span>
+      <span class="rt"><span class="rows">301 <small>rijen</small></span><span class="chev">&#8250;</span></span>
+    </a>
+
+    <a class="tbl-row" href="#table">
+      <span class="ic">&#128220;</span>
+      <span class="meta">
+        <span class="ttl">Speler-gebeurtenissen <span class="mono">tt_player_events</span> <span class="badge curated">Beschreven</span></span>
+        <span class="desc">Tijdlijn: proefperiode, tekenen, promotie, blessure, terugkeer, vertrek.</span>
+      </span>
+      <span class="rt"><span class="rows">2.150 <small>rijen</small></span><span class="chev">&#8250;</span></span>
+    </a>
+
+    <div class="grp">Overige tabellen <span class="cnt">58</span></div>
+
+    <a class="tbl-row mini" href="#table">
+      <span class="ic">&#128203;</span>
+      <span class="meta"><span class="ttl">Eval ratings <span class="mono">tt_eval_ratings</span></span></span>
+      <span class="rt"><span class="rows">14.7k</span><span class="chev">&#8250;</span></span>
+    </a>
+    <a class="tbl-row mini" href="#table">
+      <span class="ic">&#128203;</span>
+      <span class="meta"><span class="ttl">Eval categories <span class="mono">tt_eval_categories</span></span></span>
+      <span class="rt"><span class="rows">9</span><span class="chev">&#8250;</span></span>
+    </a>
+    <a class="tbl-row mini" href="#table">
+      <span class="ic">&#128203;</span>
+      <span class="meta"><span class="ttl">Lookups <span class="mono">tt_lookups</span></span></span>
+      <span class="rt"><span class="rows">142</span><span class="chev">&#8250;</span></span>
+    </a>
+    <a class="tbl-row mini" href="#table">
+      <span class="ic">&#128203;</span>
+      <span class="meta"><span class="ttl">Audit log <span class="mono">tt_audit_log</span></span></span>
+      <span class="rt"><span class="rows">52.1k</span><span class="chev">&#8250;</span></span>
+    </a>
+    <a class="tbl-row mini" href="#table">
+      <span class="ic">&#128203;</span>
+      <span class="meta"><span class="ttl">Workflow tasks <span class="mono">tt_workflow_tasks</span></span></span>
+      <span class="rt"><span class="rows">410</span><span class="chev">&#8250;</span></span>
+    </a>
+  </div>
+</div>
+
+
+<!-- =================================================================== -->
+<!-- SCREEN 2 — TABLE PAGE -->
+<!-- =================================================================== -->
+<div class="note" id="table">
+  <b>Mockup B — Tabelweergave</b> · <code>?tt_view=data-browser&amp;table=tt_activities</code> · #1859.
+  Semantic column headers (friendly label + real <code>mono</code> name + <b>?</b> for the description),
+  raw paginated rows, a <b>Gerelateerde tabellen</b> chip row, and clickable foreign-key cells
+  (<code>team_id</code> jumps to that row in <code>tt_teams</code>). Wide tables scroll horizontally inside
+  the card only — no body overflow at 360px.
+</div>
+
+<div class="app">
+  <div class="top">
+    <div class="mark">TT</div><div class="word">TALENTTRACK</div>
+    <div class="crumbs">Dashboard › Instellingen › Databrowser › <span class="here">Activiteiten</span></div>
+    <div class="sp"></div>
+    <div class="persona"><div class="av">CN</div><div><b>Casper N.</b><span>Academie-admin</span></div></div>
+  </div>
+
+  <div class="body">
+    <a class="backpill" href="#">&#8592; Terug naar Databrowser</a>
+    <div class="crumbline">Dashboard › Instellingen › Databrowser › <span class="here">Activiteiten</span></div>
+
+    <div class="head">
+      <h1>Activiteiten <span class="mono">tt_activities</span></h1>
+      <span class="rt" style="text-align:right;"><span class="rows" style="font-size:13px;color:var(--green-deep);font-weight:700;">1.412 rijen</span></span>
+    </div>
+    <p class="sub">Trainingen en wedstrijden — de sessies waaraan spelers deelnemen. Elke rij is één
+      activiteit, gekoppeld aan een team.</p>
+
+    <div class="related">
+      <span class="lbl">Verbonden met</span>
+      <a class="relchip" href="#">Teams <span class="mono">team_id</span> <span class="dir">&#8594;</span></a>
+      <a class="relchip" href="#">Aanwezigheid <span class="dir">&#8592;</span> <span class="mono">activity_id</span></a>
+      <a class="relchip" href="#">Beoordelingen <span class="dir">&#8592;</span> <span class="mono">activity_id</span></a>
+    </div>
+
+    <div class="tablewrap">
+      <div class="scroll">
+        <table class="data">
+          <thead>
+            <tr>
+              <th><div class="col-lbl">ID <span class="info" title="Unieke sleutel van de activiteit (primaire sleutel).">?</span></div><div class="col-mono">id · bigint</div></th>
+              <th><div class="col-lbl">Type <span class="info" title="Soort activiteit — training of wedstrijd. Waarde uit tt_lookups (activity_type).">?</span></div><div class="col-mono">activity_type · varchar</div></th>
+              <th><div class="col-lbl">Titel <span class="info" title="Vrije omschrijving van de activiteit.">?</span></div><div class="col-mono">title · varchar</div></th>
+              <th><div class="col-lbl">Team <span class="info" title="Team waaraan de activiteit gekoppeld is. Verwijst naar tt_teams.id.">?</span></div><div class="col-mono">team_id &#8594; tt_teams</div></th>
+              <th><div class="col-lbl">Datum <span class="info" title="Geplande datum en tijd van de activiteit.">?</span></div><div class="col-mono">scheduled_at · datetime</div></th>
+              <th><div class="col-lbl">Duur (min) <span class="info" title="Geplande duur in minuten.">?</span></div><div class="col-mono">duration_min · int</div></th>
+              <th><div class="col-lbl">Locatie <span class="info" title="Vrije tekst locatie.">?</span></div><div class="col-mono">location · varchar</div></th>
+              <th><div class="col-lbl">Club <span class="info" title="Tenant-scope. Altijd 1 in deze installatie.">?</span></div><div class="col-mono">club_id · int</div></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="pk">1407</span></td>
+              <td><span class="enum">Training</span></td>
+              <td>Pass &amp; bewegen O15</td>
+              <td><a class="fk" href="#">3 <span class="lk">&#128279;</span></a></td>
+              <td>2026-06-24 18:30</td>
+              <td class="num">90</td>
+              <td>Veld 2</td>
+              <td class="num">1</td>
+            </tr>
+            <tr>
+              <td><span class="pk">1408</span></td>
+              <td><span class="enum">Wedstrijd</span></td>
+              <td>Ajax O15 — Feyenoord O15</td>
+              <td><a class="fk" href="#">3 <span class="lk">&#128279;</span></a></td>
+              <td>2026-06-27 11:00</td>
+              <td class="num">70</td>
+              <td>De Toekomst</td>
+              <td class="num">1</td>
+            </tr>
+            <tr>
+              <td><span class="pk">1409</span></td>
+              <td><span class="enum">Training</span></td>
+              <td>Afwerken &amp; finishing</td>
+              <td><a class="fk" href="#">7 <span class="lk">&#128279;</span></a></td>
+              <td>2026-06-25 17:00</td>
+              <td class="num">75</td>
+              <td class="muted">— leeg —</td>
+              <td class="num">1</td>
+            </tr>
+            <tr>
+              <td><span class="pk">1410</span></td>
+              <td><span class="enum">Training</span></td>
+              <td>Keeperstraining</td>
+              <td><a class="fk" href="#">7 <span class="lk">&#128279;</span></a></td>
+              <td>2026-06-26 16:00</td>
+              <td class="num">60</td>
+              <td>Veld 1</td>
+              <td class="num">1</td>
+            </tr>
+            <tr>
+              <td><span class="pk">1411</span></td>
+              <td><span class="enum">Wedstrijd</span></td>
+              <td>PSV O17 — Ajax O17</td>
+              <td><a class="fk" href="#">11 <span class="lk">&#128279;</span></a></td>
+              <td>2026-06-28 14:30</td>
+              <td class="num">80</td>
+              <td>De Herdgang</td>
+              <td class="num">1</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pager">
+        <span class="info">1–25 van 1.412 · pagina 1 van 57</span>
+        <span class="ctrls">
+          <button class="pgbtn" disabled>&#8249;</button>
+          <button class="pgbtn cur">1</button>
+          <button class="pgbtn">2</button>
+          <button class="pgbtn">3</button>
+          <button class="pgbtn">&#8250;</button>
+        </span>
+      </div>
+    </div>
+
+    <p class="foothint">Ruwe waarden zoals opgeslagen. Enum-velden (zoals <code>activity_type</code>)
+      tonen het label uit <code>tt_lookups</code>; verwijssleutels zoals <code>team_id</code> zijn klikbaar
+      naar de bijbehorende rij. Data komt via <code>GET /talenttrack/v1/data-browser/tables/tt_activities/rows</code>.</p>
+  </div>
+</div>
+
+
+<!-- =================================================================== -->
+<!-- SCREEN 3 — SENSITIVE TABLE -->
+<!-- =================================================================== -->
+<div class="note">
+  <b>Mockup C — Gevoelige tabel</b> · <code>?tt_view=data-browser&amp;table=tt_player_injuries</code>.
+  Same surface, but a <b>danger callout</b> states the view is logged, and the header carries the
+  <b>Gevoelig</b> badge. The audit entry is written server-side on the rows request.
+</div>
+
+<div class="app">
+  <div class="top">
+    <div class="mark">TT</div><div class="word">TALENTTRACK</div>
+    <div class="crumbs">Dashboard › Instellingen › Databrowser › <span class="here">Blessures</span></div>
+    <div class="sp"></div>
+    <div class="persona"><div class="av">CN</div><div><b>Casper N.</b><span>Academie-admin</span></div></div>
+  </div>
+
+  <div class="body">
+    <a class="backpill" href="#">&#8592; Terug naar Databrowser</a>
+    <div class="crumbline">Dashboard › Instellingen › Databrowser › <span class="here">Blessures</span></div>
+
+    <div class="head">
+      <h1>Blessures <span class="mono">tt_player_injuries</span> <span class="badge sens" style="vertical-align:middle;">&#9888; Gevoelig</span></h1>
+    </div>
+    <p class="sub">Medische registratie van blessures en herstel per speler.</p>
+
+    <div class="callout danger"><span class="ic">&#9888;</span>
+      <div><b>Gevoelige gegevens.</b> Dit betreft medische informatie over minderjarigen. Het openen
+        van deze tabel is zojuist vastgelegd in het audit-log (<code style="background:#f3d5d1;padding:1px 5px;border-radius:4px;font-family:var(--mono);font-size:11.5px;">data_browser.view · tt_player_injuries</code>).</div>
+    </div>
+
+    <div class="tablewrap">
+      <div class="scroll">
+        <table class="data">
+          <thead>
+            <tr>
+              <th><div class="col-lbl">ID</div><div class="col-mono">id · bigint</div></th>
+              <th><div class="col-lbl">Speler</div><div class="col-mono">player_id &#8594; tt_players</div></th>
+              <th><div class="col-lbl">Soort blessure</div><div class="col-mono">injury_type · varchar</div></th>
+              <th><div class="col-lbl">Lichaamsdeel</div><div class="col-mono">body_area · varchar</div></th>
+              <th><div class="col-lbl">Begonnen</div><div class="col-mono">started_on · date</div></th>
+              <th><div class="col-lbl">Hersteld</div><div class="col-mono">resolved_on · date</div></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="pk">88</span></td>
+              <td><a class="fk" href="#">142 <span class="lk">&#128279;</span></a></td>
+              <td>Verrekking</td>
+              <td>Hamstring</td>
+              <td>2026-05-12</td>
+              <td>2026-06-09</td>
+            </tr>
+            <tr>
+              <td><span class="pk">89</span></td>
+              <td><a class="fk" href="#">207 <span class="lk">&#128279;</span></a></td>
+              <td>Verstuiking</td>
+              <td>Enkel</td>
+              <td>2026-06-18</td>
+              <td class="muted">— in herstel —</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pager">
+        <span class="info">1–25 van 96 · pagina 1 van 4</span>
+        <span class="ctrls">
+          <button class="pgbtn" disabled>&#8249;</button>
+          <button class="pgbtn cur">1</button>
+          <button class="pgbtn">2</button>
+          <button class="pgbtn">&#8250;</button>
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

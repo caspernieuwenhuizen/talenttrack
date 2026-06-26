@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="nl"><head><meta charset="utf-8">
+<title>TalentTrack — pilot deck JG4IT</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  html,body { margin:0; height:100%; background:#0a0a0a; font-family:"Segoe UI",Arial,sans-serif; overflow:hidden; }
+  #stage { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; }
+  #scaler { width:1280px; height:720px; position:relative; box-shadow:0 24px 80px rgba(0,0,0,.6); }
+  iframe { width:1280px; height:720px; border:0; display:none; background:#fff; }
+  iframe.on { display:block; }
+  /* chrome */
+  #bar { position:fixed; left:0; right:0; bottom:0; height:44px; background:rgba(7,38,28,.92);
+         color:#cfe3d8; display:flex; align-items:center; gap:16px; padding:0 18px; font-size:13px; z-index:10; }
+  #bar .mk { width:24px;height:24px;border-radius:6px;background:#e8b624;color:#07261c;display:grid;place-items:center;font-weight:800;font-size:11px; }
+  #bar .title { font-weight:600; color:#fff; }
+  #bar .spacer { flex:1; }
+  #bar .count { font-variant-numeric:tabular-nums; color:#e8b624; font-weight:700; }
+  #bar button { background:rgba(255,255,255,.1); color:#fff; border:1px solid rgba(255,255,255,.2);
+                border-radius:6px; width:30px; height:28px; font-size:15px; cursor:pointer; }
+  #bar button:hover { background:rgba(232,182,36,.25); }
+  #hint { position:fixed; top:14px; right:16px; color:rgba(255,255,255,.45); font-size:12px; z-index:10; }
+  #dots { display:flex; gap:5px; }
+  #dots i { width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.25); display:block; cursor:pointer; }
+  #dots i.on { background:#e8b624; }
+</style></head>
+<body>
+  <div id="stage"><div id="scaler"></div></div>
+  <div id="hint">← → of spatie · F voor volledig scherm</div>
+  <div id="bar">
+    <span class="mk">TT</span>
+    <span class="title" id="ttl">—</span>
+    <span class="spacer"></span>
+    <span id="dots"></span>
+    <button onclick="go(-1)">‹</button>
+    <span class="count"><span id="cur">1</span> / <span id="tot">16</span></span>
+    <button onclick="go(1)">›</button>
+  </div>
+<script>
+  const slides = [
+    ["10-cover.html",               "Cover"],
+    ["22-player-central.html",      "De speler staat centraal (A — initialen)"],
+    ["22b-player-central-card.html","De speler staat centraal (B — spelerskaart)"],
+    ["20-player-story.html",        "Eén speler, één verhaal"],
+    ["12-problem.html",             "Waarom structuur telt"],
+    ["13-oneliner.html",            "Wat TalentTrack is"],
+    ["14-roles.html",               "Iedereen rond de speler"],
+    ["07-methodology.html",         "Zo ontwikkelen we — methodiek"],
+    ["08-scouting-onboarding.html", "De reis begint — instroom"],
+    ["04-pop-pdp.html",             "Het ontwikkelplan — POP & doelen"],
+    ["02-team-planner.html",        "De week"],
+    ["01-match-day.html",           "De wedstrijd & speelminuten"],
+    ["06-attendance-minutes.html",  "Voortgang zichtbaar"],
+    ["21-benefit.html",             "Wat betekent dit voor jou & je kind"],
+  ];
+  const scaler = document.getElementById('scaler');
+  const dots = document.getElementById('dots');
+  const frames = slides.map(([f], i) => {
+    const ifr = document.createElement('iframe');
+    ifr.src = f; if (i===0) ifr.className='on';
+    scaler.appendChild(ifr);
+    const d = document.createElement('i'); d.onclick = () => set(i); dots.appendChild(d);
+    return ifr;
+  });
+  let idx = 0;
+  document.getElementById('tot').textContent = slides.length;
+  function set(n){
+    idx = (n + slides.length) % slides.length;
+    frames.forEach((f,i)=> f.className = i===idx ? 'on':'');
+    dots.querySelectorAll('i').forEach((d,i)=> d.className = i===idx ? 'on':'');
+    document.getElementById('cur').textContent = idx+1;
+    document.getElementById('ttl').textContent = slides[idx][1];
+  }
+  function go(step){ set(idx+step); }
+  function fit(){
+    const s = Math.min(window.innerWidth/1280, (window.innerHeight-44)/720) * 0.98;
+    scaler.style.transform = 'scale('+s+')';
+  }
+  window.addEventListener('resize', fit); fit(); set(0);
+  document.addEventListener('keydown', e=>{
+    if (e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){ go(1); e.preventDefault(); }
+    else if (e.key==='ArrowLeft'||e.key==='PageUp'){ go(-1); e.preventDefault(); }
+    else if (e.key==='Home'){ set(0); }
+    else if (e.key==='End'){ set(slides.length-1); }
+    else if (e.key.toLowerCase()==='f'){ if(!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
+  });
+  document.getElementById('stage').addEventListener('click', e=>{
+    const x = e.clientX / window.innerWidth; go(x < 0.35 ? -1 : 1);
+  });
+</script>
+</body></html>

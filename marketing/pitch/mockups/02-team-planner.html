@@ -1,0 +1,142 @@
+<!doctype html><html lang="nl"><head><meta charset="utf-8">
+<link rel="stylesheet" href="_deck.css">
+<style>
+.tp-week { display:grid; grid-template-columns:repeat(7,1fr); gap:10px; margin-bottom:16px; }
+.tp-day { background:#fff; border:1px solid var(--tt-line); border-radius:12px; box-shadow:var(--tt-shadow); min-height:236px; display:flex; flex-direction:column; overflow:hidden; }
+.tp-dh { padding:9px 11px; border-bottom:1px solid var(--tt-line); display:flex; align-items:baseline; justify-content:space-between; background:#fbfcfb; }
+.tp-dh .wd { font-family:var(--disp); font-weight:700; font-size:12px; color:var(--tt-green-deep); text-transform:uppercase; letter-spacing:.04em; }
+.tp-dh .dn { font-family:var(--disp); font-weight:800; font-size:15px; color:var(--tt-ink-soft); }
+.tp-day.today { border-color:var(--tt-gold); box-shadow:0 0 0 2px rgba(232,182,36,.4), var(--tt-shadow); }
+.tp-day.today .tp-dh { background:#fdf8e9; }
+.tp-day.today .dn { color:var(--tt-green-deep); }
+.tp-body { padding:9px; flex:1; display:flex; flex-direction:column; gap:8px; }
+
+.act { border:1px solid var(--tt-line); border-radius:9px; padding:9px 10px; background:#fff; }
+.act .time { font-family:var(--disp); font-weight:800; font-size:12px; color:var(--tt-green-soft); }
+.act .ttl { font-size:12.5px; font-weight:700; color:var(--tt-ink); line-height:1.25; margin:3px 0 7px; }
+.act .st { margin-bottom:6px; }
+.act .pr { display:flex; flex-wrap:wrap; gap:4px; }
+.act.training { border-left:3px solid var(--tt-green-soft); }
+
+.act.match { background:linear-gradient(150deg,var(--tt-green),var(--tt-green-deep)); border:1px solid var(--tt-green-deep); border-left:3px solid var(--tt-gold); color:#fff; }
+.act.match .time { color:var(--tt-gold-soft); }
+.act.match .ttl { color:#fff; }
+.act.match .opp { font-size:11px; color:rgba(255,255,255,.7); margin-bottom:7px; }
+.chip.tiny { font-size:10px; padding:3px 7px; }
+
+.tp-add { flex:1; border:1.5px dashed var(--tt-line); border-radius:9px; display:grid; place-items:center; color:var(--tt-ink-soft); font-size:12px; font-weight:600; min-height:54px; }
+.tp-add::before { content:"+ Toevoegen"; opacity:.55; }
+
+.pkr { background:#fff; border:1.5px solid var(--tt-line); color:var(--tt-green); font-weight:700; }
+
+.prin-card { padding:13px 18px 15px; }
+.prin-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:18px; }
+.prin .top { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:6px; }
+.prin .lab { font-size:12px; font-weight:600; color:var(--tt-ink); }
+.prin .pct { font-family:var(--disp); font-weight:800; font-size:13px; color:var(--tt-green-deep); }
+</style></head>
+<body><div class="frame">
+  <div class="topbar">
+    <div class="brand"><div class="mark">TT</div><div class="word">TalentTrack</div></div>
+    <div class="crumbs"><span>Dashboard</span><span class="sep">›</span><span class="here">Teamplanner</span></div>
+    <div class="spacer"></div>
+    <div class="persona"><div class="av">MV</div><div class="who"><b>Mark Visser</b><span>Hoofdtrainer · O15-1</span></div></div>
+  </div>
+  <div class="body">
+    <div class="pagehead">
+      <div><h1>Teamplanner — O15-1</h1><div class="sub">Week 12 · 16–22 maart 2027</div></div>
+      <div class="actions">
+        <span class="btn pkr">O15-1 ▾</span>
+        <span class="btn ghost">‹ Vorige</span>
+        <span class="btn ghost">Vandaag</span>
+        <span class="btn ghost">Volgende ›</span>
+        <span class="btn primary">+ Activiteit</span>
+      </div>
+    </div>
+
+    <div class="tp-week">
+      <!-- Ma 16 -->
+      <div class="tp-day">
+        <div class="tp-dh"><span class="wd">Ma</span><span class="dn">16</span></div>
+        <div class="tp-body"><div class="tp-add"></div></div>
+      </div>
+      <!-- Di 17 -->
+      <div class="tp-day">
+        <div class="tp-dh"><span class="wd">Di</span><span class="dn">17</span></div>
+        <div class="tp-body">
+          <div class="act training">
+            <div class="time">18:30 · Training</div>
+            <div class="ttl">Opbouw van achteruit</div>
+            <div class="st"><span class="chip green tiny"><span class="dot g"></span>Gepland</span></div>
+            <div class="pr"><span class="chip gold tiny">Opbouwen</span><span class="chip gold tiny">Druk vooruit</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- Wo 18 -->
+      <div class="tp-day">
+        <div class="tp-dh"><span class="wd">Wo</span><span class="dn">18</span></div>
+        <div class="tp-body"><div class="tp-add"></div></div>
+      </div>
+      <!-- Do 19 -->
+      <div class="tp-day">
+        <div class="tp-dh"><span class="wd">Do</span><span class="dn">19</span></div>
+        <div class="tp-body">
+          <div class="act training">
+            <div class="time">18:30 · Training</div>
+            <div class="ttl">Omschakeling na balverlies</div>
+            <div class="st"><span class="chip green tiny"><span class="dot g"></span>Gepland</span></div>
+            <div class="pr"><span class="chip gold tiny">Restverdediging</span><span class="chip gold tiny">Counter</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- Vr 20 -->
+      <div class="tp-day">
+        <div class="tp-dh"><span class="wd">Vr</span><span class="dn">20</span></div>
+        <div class="tp-body"><div class="tp-add"></div></div>
+      </div>
+      <!-- Za 21 -->
+      <div class="tp-day today">
+        <div class="tp-dh"><span class="wd">Za</span><span class="dn">21</span></div>
+        <div class="tp-body">
+          <div class="act match">
+            <div class="time">14:30 · Wedstrijd</div>
+            <div class="ttl">vs SC Buitenveldert</div>
+            <div class="opp">Thuis · competitie</div>
+            <div class="pr"><span class="chip gold tiny">Wedstrijd</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- Zo 22 -->
+      <div class="tp-day">
+        <div class="tp-dh"><span class="wd">Zo</span><span class="dn">22</span></div>
+        <div class="tp-body"><div class="tp-add"></div></div>
+      </div>
+    </div>
+
+    <div class="card prin-card">
+      <h3>Top principes — laatste 8 weken <span class="muted" style="text-transform:none;letter-spacing:0;font-weight:600;">aandeel trainingstijd per spelprincipe</span></h3>
+      <div class="prin-grid">
+        <div class="prin">
+          <div class="top"><span class="lab">Opbouwen</span><span class="pct">82%</span></div>
+          <div class="bar"><i style="width:82%"></i></div>
+        </div>
+        <div class="prin">
+          <div class="top"><span class="lab">Druk zetten</span><span class="pct">67%</span></div>
+          <div class="bar"><i style="width:67%"></i></div>
+        </div>
+        <div class="prin">
+          <div class="top"><span class="lab">Omschakeling</span><span class="pct">54%</span></div>
+          <div class="bar"><i class="gold" style="width:54%"></i></div>
+        </div>
+        <div class="prin">
+          <div class="top"><span class="lab">Counter</span><span class="pct">41%</span></div>
+          <div class="bar"><i class="gold" style="width:41%"></i></div>
+        </div>
+        <div class="prin">
+          <div class="top"><span class="lab">Restverdediging</span><span class="pct">33%</span></div>
+          <div class="bar"><i class="red" style="width:33%"></i></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div></body></html>

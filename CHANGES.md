@@ -1,3 +1,142 @@
+# TalentTrack v4.59.0 — Backups move to a frontend view, incl. restore + data migration (#1937)
+
+The Backups surface now lives on the frontend at **Configuration → Backups**
+(`?tt_view=backups`) instead of bouncing to wp-admin. The full surface ported
+across: schedule / retention / destination settings (with Cancel + Save),
+the stored-backups list (download, restore, delete), Run now, the destructive
+database **restore** behind a typed-confirm "RESTORE" gate, and the complete
+`.ttmig` data-migration flow — export, then upload → preview → dry-run →
+typed-confirm "IMPORT" commit.
+
+Every mutating action runs through a capability-gated, nonce-protected REST
+endpoint (`tt_manage_backups`) on the new `BackupRestController`; the
+serialization, restore engine and migration engine stay in the Backup module
+services, so the frontend and the wp-admin page give identical answers. The
+two destructive writes (restore + import commit) preserve the typed
+confirmation, refuse to run while impersonating another user, and are written
+to the audit log (`backup.restored` / `migration.imported`). Backup downloads
+are returned as a URL rather than a server-relative path, so the list keeps
+working unchanged if storage moves off the local filesystem.
+
+The wp-admin Backups tab stays as the power-user fallback and still owns the
+Partial restore scope-picker; the frontend list links to it.
+
+# TalentTrack v4.59.0 — First-run Setup moves to a frontend flow (#1938)
+
+The first-run onboarding wizard now lives on the frontend at
+**Configuration → Setup** (`?tt_view=setup`) instead of bouncing to
+wp-admin. The full flow ported across: a stepper through academy basics →
+first team → first admin → dashboard page → done, with skip on the optional
+steps, Cancel on every step, and a "Run again" / "Start over" affordance
+that re-enters the flow without deleting the teams, staff, or pages you
+already created. Progress is saved automatically, so you can stop and resume
+from the step you left off on.
+
+New REST endpoints back every step — `POST /onboarding/advance`,
+`/onboarding/academy`, `/onboarding/first-team`, `/onboarding/first-admin`,
+`/onboarding/dashboard-page`, and `/onboarding/reset` — all gated on
+`tt_edit_settings`. The controller is thin: every side effect (team / staff
+creation, the Club Admin grant, dashboard-page creation, state advance)
+reuses the same `OnboardingHandlers` / `OnboardingState` domain layer the
+wp-admin wizard uses, so the two surfaces never drift. The wp-admin Setup
+wizard stays as the power-user fallback.
+
+# TalentTrack v4.59.0 — Player-notes access no longer gated by WP role name (#1956)
+
+The player-notes thread adapter no longer denies access based on the
+player or parent WP role name. Its decision now rests solely on the
+player-notes capability plus the existing team-ownership scope check —
+pure players and parents, who hold no player-notes capability, stay
+denied exactly as before. (A follow-up, #1982, tracks how dual-role
+staff-and-parent accounts resolve that capability.)
+
+Also removed an unused duplicate role-lookup helper from the
+authorization service — pure cleanup, no behaviour change; the canonical
+role-lookup chokepoint is untouched.
+
+# TalentTrack v4.59.0 — Coach dashboard: batch the per-team podium query (#1959)
+
+The coach "My teams" roster tab now computes every team's top-3 podium in a
+single batched pass instead of running three queries per team. For a coach
+with N teams this collapses the podium workload from roughly 3N queries to a
+constant 3 regardless of team count. Podium output is byte-identical — same
+players, same order, same rolling values — as the ranking logic is now shared
+between the single-team and batched code paths. Performance only; no
+behaviour change.
+
+# TalentTrack v4.59.0 — Player dashboard: the Evaluations tab now hydrates every evaluation's ratings in a single batched query instead of one detail query per row, collapsing a 1+N database pattern into a constant two queries. Pure performance — the rendered table is byte-identical.
+
+Player dashboard: the Evaluations tab now hydrates every evaluation's ratings in a single batched query instead of one detail query per row, collapsing a 1+N database pattern into a constant two queries. Pure performance — the rendered table is byte-identical.
+
+# TalentTrack v4.59.0 — Blueprint editor: faster load via batched roster query (#1962)
+
+The team-blueprint editor's "+ Add → Other team" picker built its
+cross-team roster with one player query per sibling team (an N+1). It now
+fetches all sibling-team players in a single batched query and groups them
+in PHP. The editor also read the formation-template table twice per page
+(once for the toolbar dropdown, once for the JS payload); it now fetches
+those rows once and reuses them. Output is unchanged — purely fewer
+queries on load.
+
+# TalentTrack v4.59.0 — Usage detail: paginate the login and user-timeline event lists (#1963)
+
+The usage-statistics drill-downs for **Logins** and a user's **Timeline** no
+longer pull up to 500 rows into memory on every page view. Each list now
+fetches a bounded 50-row window with a `COUNT(*)` for the total, and a
+prev / next pager (with a "Page X of Y" indicator) lets you walk through the
+full history a page at a time. The total event count shown above the table is
+still the real total, not just the rows on the current page. Performance only;
+no change to which events are recorded or who can see them.
+
+# TalentTrack v4.59.0 — Faster player evaluation and attendance reads (#1964)
+
+Added two database indexes for the hottest player-scoped read paths.
+Evaluation lookups now seek on a `(player_id, club_id)` composite instead of
+filtering one column as a residual, and a player's attendance history — which
+matches both roster rows and linked-guest appearances — can index-merge the
+two lookups rather than scanning the attendance table. Pure performance: no
+behaviour, query output, or data changes. Final slice of the performance
+umbrella (#1649).
+
+# TalentTrack v4.59.0 — Evaluations view: one batched query for the coach player filter (#1971)
+
+The evaluations list page built its player-filter dropdown by running one
+player query per coached team — an N+1 that scaled with a coach's team
+count. It now loads every active player across the coach's teams in a single
+batched query. The rendered options are identical; this is a pure
+performance change with no behaviour or output difference. Closes the last
+N+1 on the perf umbrella's suspect list (#1649).
+
+# TalentTrack v4.59.0 — Player journey now records the actual evaluation rating (#1974)
+
+The player-journey evaluation event (`evaluation_completed`) read a
+non-existent `overall_rating` column from `tt_evaluations`, so the query
+errored and every evaluation was recorded on the timeline with an overall
+of `0.0`. It now reads the real `rating` column, both for live saves
+(`JourneyEventSubscriber`) and for the historical backfill
+(`JourneyBackfillService`). Existing zeroed events are corrected the next
+time the journey is rebuilt; no schema change.
+
+# TalentTrack v4.59.0 — PDP evidence packet now includes the player's evaluations (#1976)
+
+The PDP evidence packet's evaluations query referenced two columns that
+don't exist on `tt_evaluations` — `overall_rating` (the real column is
+`rating`) and `status_finalized` (no such column anywhere) — so the query
+always errored and `evaluations` came back empty for every player. The
+query now reads the real `rating` column and treats any non-archived
+evaluation in the window as evidence (`archived_at IS NULL`), matching how
+the player journey selects evaluations. No schema change.
+
+# TalentTrack v4.59.0 — Tournament auto-balance is now a per-academy toggle (#1979)
+
+The greedy fair-share auto-planner for tournament matches is now a toggle
+on the Modules management page (**Tournament auto-balance**), on by default
+so nothing changes on upgrade. Switch it off and the Auto-balance button is
+removed from every match card and the `auto-plan` REST route returns 403, so
+the toggle can't be bypassed by a direct call; the per-match planner grid and
+manual click-to-swap planning are untouched. Closes out the last actionable
+item from the #1538 FeatureRegistry tracker.
+
 # TalentTrack v4.58.0 — VCT exercise catalogue — full 80 (#1129)
 
 The VCT exercise catalogue now ships its full 80-exercise spread.
