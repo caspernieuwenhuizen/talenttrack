@@ -42382,3 +42382,108 @@ msgstr "Welke spelers deze periode niet geëvalueerd zijn, welke coach verantwoo
 msgid "Which players are unevaluated this window, and which coach owns the gap."
 msgstr "Welke spelers deze periode niet geëvalueerd zijn, en welke coach verantwoordelijk is voor het gat."
 
+msgid "The rollover could not be completed."
+msgstr "De overgang kon niet worden voltooid."
+
+msgid "You do not have permission to run a season rollover."
+msgstr "Je hebt geen rechten om een seizoensovergang uit te voeren."
+
+msgid "Season rollover"
+msgstr "Seizoensovergang"
+
+msgid "There are no teams to roll over yet. Create teams first."
+msgstr "Er zijn nog geen teams om over te zetten. Maak eerst teams aan."
+
+msgid "Rollover steps"
+msgstr "Stappen seizoensovergang"
+
+msgid "When does this rollover take effect?"
+msgstr "Wanneer gaat deze overgang in?"
+
+msgid "Effective date"
+msgstr "Ingangsdatum"
+
+msgid "Reason (optional)"
+msgstr "Reden (optioneel)"
+
+msgid "e.g. End of 2025/26 season"
+msgstr "bijv. Einde seizoen 2025/26"
+
+msgid "Source team"
+msgstr "Vanaf-team"
+
+msgid "Promote to"
+msgstr "Promoveren naar"
+
+msgid "No promotion / stays"
+msgstr "Geen promotie / blijft"
+
+msgid "Next: choose players"
+msgstr "Volgende: spelers kiezen"
+
+msgid "No source teams were selected. Go back and choose at least one."
+msgstr "Er zijn geen bronteams geselecteerd. Ga terug en kies er minstens één."
+
+msgid "No active players on this team."
+msgstr "Geen actieve spelers in dit team."
+
+msgid "Include"
+msgstr "Opnemen"
+
+msgid "Next: review changes"
+msgstr "Volgende: wijzigingen controleren"
+
+msgid "No players were selected to change. Go back and pick at least one."
+msgstr "Er zijn geen spelers geselecteerd om te wijzigen. Ga terug en kies er minstens één."
+
+msgid "This rollover will promote %1$d, release %2$d and graduate %3$d players, effective %4$s. Released players stay active."
+msgstr "Deze overgang promoveert %1$d, geeft %2$d vrij en laat %3$d spelers afstuderen, ingaand op %4$s. Vrijgegeven spelers blijven actief."
+
+msgid "A full backup runs automatically before any change is made. If the backup fails, the rollover is aborted and nothing is changed."
+msgstr "Voordat er iets wordt gewijzigd, wordt automatisch een volledige back-up gemaakt. Mislukt de back-up, dan wordt de overgang afgebroken en wordt er niets gewijzigd."
+
+msgid "From team"
+msgstr "Vanaf-team"
+
+msgid "To team"
+msgstr "Naar-team"
+
+msgid "Journey event"
+msgstr "Tijdlijngebeurtenis"
+
+msgid "Confirm rollover"
+msgstr "Overgang bevestigen"
+
+msgid "Rollover complete: %1$d promoted, %2$d released, %3$d graduated, %4$d skipped. Released players remain active."
+msgstr "Overgang voltooid: %1$d gepromoveerd, %2$d vrijgegeven, %3$d afgestudeerd, %4$d overgeslagen. Vrijgegeven spelers blijven actief."
+
+msgid "Move whole squads up an age group at season end. Each player gets a dated journey event for the change. Released players are recorded but stay active — nothing is deleted or archived."
+msgstr "Verplaats hele teams aan het einde van het seizoen een leeftijdsgroep omhoog. Elke speler krijgt een gedateerde tijdlijngebeurtenis voor de wijziging. Vrijgegeven spelers worden vastgelegd maar blijven actief — er wordt niets verwijderd of gearchiveerd."
+
+msgid "Map teams"
+msgstr "Teams koppelen"
+
+msgid "Choose players"
+msgstr "Spelers kiezen"
+
+msgid "Review & confirm"
+msgstr "Controleren en bevestigen"
+
+msgid "Age group promoted"
+msgstr "Leeftijdsgroep gepromoveerd"
+
+msgid "Backup failed — the rollover was aborted and no records were changed."
+msgstr "Back-up mislukt — de overgang is afgebroken en er zijn geen gegevens gewijzigd."
+
+msgid "Released — %s"
+msgstr "Vrijgegeven — %s"
+
+msgid "Graduated — %s"
+msgstr "Afgestudeerd — %s"
+
+msgid "Graduate"
+msgstr "Afstuderen"
+
+msgid "Move whole squads up an age group at season end."
+msgstr "Verplaats hele teams aan het einde van het seizoen een leeftijdsgroep omhoog."
+
