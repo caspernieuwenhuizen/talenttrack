@@ -1,0 +1,75 @@
+name: PHP tests (#1388)
+
+# PHP test floor — the first PHPUnit suite for the plugin. Runs inside
+# wp-env's `tests-cli` container (the same WordPress + MySQL environment
+# the Playwright E2E job uses), so tests exercise real WP + DB behaviour.
+#
+# Tier 1: MigrationRunner failure surfacing + AuthorizationService /
+# authorization-matrix decisions (the authz regression class that bit the
+# board six times — #1143/#1105/#1106/#1147/#1159/#1189). Tier 2 (REST
+# smoke suite) is added under the same suite. See docs/contributing.md.
+#
+# This is a REQUIRED, blocking gate (the suite must be green to merge) and
+# it self-validated on its own introducing PR. New REST endpoints must add
+# a smoke test (contributing.md policy).
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'tests/php/**'
+      - 'phpunit.xml.dist'
+      - 'composer.json'
+      - 'composer.lock'
+      - 'package.json'
+      - '.wp-env.json'
+      - '.github/workflows/php-tests.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'tests/php/**'
+      - 'phpunit.xml.dist'
+      - 'composer.json'
+      - 'composer.lock'
+      - 'package.json'
+      - '.wp-env.json'
+      - '.github/workflows/php-tests.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  phpunit:
+    name: PHPUnit (wp-env)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer:v2
+
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+
+      - name: Install JS dependencies
+        run: npm ci || npm install
+
+      - name: Start wp-env
+        run: npm run wp-env:start
+
+      - name: Run PHPUnit (Tier 1)
+        # wp-env mounts the plugin (incl. the host-installed vendor/) into
+        # the tests container and provides the WordPress PHPUnit library;
+        # bootstrap.php picks it up via WP_PHPUNIT__DIR.
+        run: npx wp-env run tests-cli --env-cwd=wp-content/plugins/talenttrack vendor/bin/phpunit

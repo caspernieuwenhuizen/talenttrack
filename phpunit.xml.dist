@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  PHP test floor (#1388). Runs inside wp-env's `tests-cli` container, which
+  provides a real WordPress + MySQL test environment and the WordPress
+  PHPUnit test library (at $WP_PHPUNIT__DIR). Tier 1 = MigrationRunner +
+  AuthorizationService (the historically buggy authz path). Tier 2 (REST
+  smoke) is added under the same suite. See docs/contributing.md.
+-->
+<phpunit
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.6/phpunit.xsd"
+    bootstrap="tests/php/bootstrap.php"
+    colors="true"
+    failOnWarning="true"
+    failOnRisky="true"
+    beStrictAboutOutputDuringTests="true"
+    convertDeprecationsToExceptions="false"
+>
+    <testsuites>
+        <testsuite name="talenttrack-php">
+            <directory suffix="Test.php">tests/php</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>
