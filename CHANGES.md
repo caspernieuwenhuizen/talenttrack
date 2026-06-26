@@ -1,3 +1,79 @@
+# TalentTrack v4.60.0 — My journey: position-change events show friendly position names (#1983)
+
+A position-change entry on a player's journey timeline now reads the
+human-friendly position names ("Centrale verdediger, Linksback") instead of
+the raw codes — or, for older entries, the raw JSON array `["CB","LB"]`. The
+event formatter resolves each code through the shared position-label
+translator, and a one-time backfill rewrites existing position-change events
+so historical entries read the same. Unknown / custom positions pass through
+unchanged.
+
+# TalentTrack v4.60.0 — Evaluations: the staff-only note field is now clearly labelled (#1984)
+
+When writing an evaluation (both the rate-players wizard step and the flat
+coach form), the free-text note field was labelled simply "Notes" — with no
+sign that it is staff-internal and never shown to the player. Coaches typed
+player-directed feedback there, expecting the player to read it, while the
+separate "Feedback for the player" field stayed empty. The field is now
+labelled "Internal notes (staff only)" with a "Not shown to the player"
+placeholder, so the two audiences are unmistakable. The player-facing
+feedback continues to appear on the player's My evaluations detail; the
+internal note stays staff-only.
+
+# TalentTrack v4.60.0 — Goals: the "pending" status reads "In ontwikkeling" in Dutch (#1985)
+
+A player goal that is still pending now reads the more development-minded
+Dutch label **"In ontwikkeling"** instead of "In behandeling". Goal statuses
+now carry their own gettext context, so this wording is specific to goals —
+the generic "Pending" label used elsewhere in the app is unchanged.
+
+# TalentTrack v4.60.0 — My activities: full-width on desktop, all info inline (#1986)
+
+The player's **My activities** list now uses the full dashboard width on
+desktop instead of a narrow 860px column. Rows are no longer clickable — the
+old row link pointed at the staff activity-detail view, which a player isn't
+authorised for (it returned "niet geautoriseerd"). Everything a player may
+see is now shown inline in the table, including a new **Location** column
+alongside date, title, type, team and their own attendance status.
+
+# TalentTrack v4.60.0 — Academy admin can switch off individual player dashboard tiles (#1987)
+
+The player dashboard tiles — My journey, My team, My evaluations, My
+activities, My goals and My PDP — are now per-academy features under the
+Players module on the Modules &amp; features screen (`?tt_view=modules`). They
+ship on; switching one off hides that tile from players *and* blocks its
+`?tt_view` URL for this academy, reusing the existing feature-toggle plumbing
+(per-club state, REST-managed). The player profile remains the always-on
+anchor and is intentionally not toggleable.
+
+# TalentTrack v4.60.0 — My team: next match and recent results for players (#1989)
+
+A player's **My team** view now shows two pieces of non-sensitive team
+information beyond the podium: the team's **next match** (date, opponent,
+home/away, location) and a **recent results** form line — the last few match
+outcomes framed from the team's perspective (win / draw / loss with the
+score). No individual teammate ratings or rankings are exposed. The match
+result fields are also surfaced on the activities REST payload.
+
+# TalentTrack v4.60.0 — Academy toggle to switch off the install-on-mobile prompt (#1994)
+
+Configuration → General gains a **Show the install-on-mobile prompt** toggle.
+Players and parents get a post-login banner inviting them to install the app
+on their phone; an academy admin can now switch that banner off for everyone in
+the academy. It ships on, so existing installs are unchanged. The setting is
+per-academy (`club_id`-scoped via `tt_config`), capability-gated, and saved
+through the config REST endpoint.
+
+# TalentTrack v4.60.0 — Per-report feature toggles for the Reports module (#1995)
+
+The Reports module now exposes a feature toggle per report on the Modules &
+features screen — the eight standard reports plus the two wp-admin reports
+(10 in all) — mirroring the Export module's per-tile toggles. They ship on, so
+a fresh upgrade shows every report. Switching one off hides its launcher tile
+(frontend launcher + wp-admin Reports page) and rejects a direct link to that
+report. The whole-module Reports toggle still works; when off, the ten
+sub-toggles disappear. State is per-academy (`tt_feature_state`, `club_id`).
+
 # TalentTrack v4.59.0 — Backups move to a frontend view, incl. restore + data migration (#1937)
 
 The Backups surface now lives on the frontend at **Configuration → Backups**
