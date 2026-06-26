@@ -339,7 +339,7 @@ class CoachForms {
                 </div><!-- /.tt-eval-cat-block -->
                 <?php
             endforeach; ?>
-            <div class="tt-form-row"><label><?php esc_html_e( 'Notes', 'talenttrack' ); ?></label><textarea name="notes" rows="3" data-tt-low-rating-notes><?php echo esc_textarea( $cur_notes ); ?></textarea></div>
+            <div class="tt-form-row"><label><?php esc_html_e( 'Internal notes (staff only)', 'talenttrack' ); ?></label><textarea name="notes" rows="3" placeholder="<?php esc_attr_e( 'Not shown to the player — staff-only.', 'talenttrack' ); ?>" data-tt-low-rating-notes><?php echo esc_textarea( $cur_notes ); ?></textarea></div>
             <?php // #1386 — optional feedback shown to the player + parents (Notes above stay staff-only). ?>
             <div class="tt-form-row"><label><?php esc_html_e( 'Feedback for the player', 'talenttrack' ); ?></label><textarea name="player_feedback" rows="3" placeholder="<?php esc_attr_e( 'Optional — what they did well and what to work on next. Shown to the player and their parents.', 'talenttrack' ); ?>"><?php echo esc_textarea( $cur_feedback ); ?></textarea></div>
             <div class="tt-form-row tt-low-rating-warning" data-tt-low-rating-warning hidden>

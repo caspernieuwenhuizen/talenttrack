@@ -32668,6 +32668,16 @@ msgstr "%s detail-modus"
 msgid "Feedback for the player"
 msgstr "Feedback voor de speler"
 
+#: src/Modules/Wizards/Evaluation/RateActorsStep.php:275
+#: src/Shared/Frontend/CoachForms.php:342
+msgid "Internal notes (staff only)"
+msgstr "Interne notities (alleen staf)"
+
+#: src/Modules/Wizards/Evaluation/RateActorsStep.php:280
+#: src/Shared/Frontend/CoachForms.php:342
+msgid "Not shown to the player — staff-only."
+msgstr "Niet zichtbaar voor de speler — alleen staf."
+
 #: src/Modules/Wizards/Evaluation/RateActorsStep.php:295
 #: src/Shared/Frontend/CoachForms.php:344
 msgid ""
