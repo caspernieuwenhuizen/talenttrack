@@ -272,12 +272,13 @@ final class RateActorsStep implements WizardStepInterface {
                         <?php endif; ?>
                     <?php endforeach; ?>
                     <div class="tt-rate-row">
-                        <label class="tt-rate-label" for="tt-rate-notes-<?php echo $pid; ?>"><?php esc_html_e( 'Notes', 'talenttrack' ); ?></label>
+                        <label class="tt-rate-label" for="tt-rate-notes-<?php echo $pid; ?>"><?php esc_html_e( 'Internal notes (staff only)', 'talenttrack' ); ?></label>
                         <div class="tt-rate-control">
                             <textarea rows="2"
                                       id="tt-rate-notes-<?php echo $pid; ?>"
                                       class="tt-rate-notes"
-                                      name="notes[<?php echo $pid; ?>]"><?php
+                                      name="notes[<?php echo $pid; ?>]"
+                                      placeholder="<?php esc_attr_e( 'Not shown to the player — staff-only.', 'talenttrack' ); ?>"><?php
                                 echo esc_textarea( (string) ( $state['notes'][ $pid ] ?? '' ) );
                             ?></textarea>
                         </div>
