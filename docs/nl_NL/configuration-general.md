@@ -25,6 +25,16 @@ Datumnotatie loopt via één helper, `TT\Shared\Dates\TTDate`, zodat de keuze va
 
 De datumnotatie wordt in de hele frontend toegepast overal waar een **volledige datum** wordt getoond — spelersprofielen, evaluaties, activiteiten, doelen, PDP-ondertekeningen, rapporten, scoutingbezoeken en de audit-stempels "aangemaakt / bijgewerkt". **Compacte kalenderlabels** (de `ma 31` / `31 dec`-dagcellen van de teamplanner en de afgekorte `31 dec '26`-kerngegevensdatums) houden bewust hun compacte notatie — de preset bepaalt volledige datums, niet ruimtebeperkte labels. De **teamplanner** respecteert ook de eerste dag van de week.
 
+## De prompt om de app op mobiel te installeren
+
+Spelers en ouders zien na het inloggen een banner die hen uitnodigt om
+TalentTrack op hun telefoon te installeren (en pushmeldingen aan te zetten). De
+toggle **Toon de prompt om de app op mobiel te installeren** in de Algemene
+instellingen regelt dit academie-breed. Hij staat standaard **aan**. Zet hem uit
+om de banner voor iedereen in je academie te verbergen — handig zodra je
+gezinnen zijn ingericht en de aansporing niet meer nodig is. De per-apparaat
+"sluiten" die een gebruiker kan aantikken blijft onafhankelijk werken.
+
 ## Zie ook
 
 - [Configuratie en branding](configuration-branding.md)

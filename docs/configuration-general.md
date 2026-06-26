@@ -25,6 +25,15 @@ Date notation resolves through a single helper, `TT\Shared\Dates\TTDate`, so the
 
 The date notation applies across the frontend wherever a **full date** is shown — player profiles, evaluations, activities, goals, PDP sign-offs, reports, scouting visits, and the audit "created / updated" stamps. **Compact calendar labels** (the team planner's `Mon 31` / `Dec 31` day cells, and the abbreviated `31 Dec '26` key-facts dates) deliberately keep their compact format — the preset governs full dates, not space-constrained labels. The **team planner** also honours the first-day-of-week.
 
+## The install-on-mobile prompt
+
+Players and parents see a banner after logging in that invites them to install
+TalentTrack on their phone (and turn on push notifications). The **Show the
+install-on-mobile prompt** toggle in General settings controls it academy-wide.
+It ships **on**. Switch it off to hide the banner for everyone in your academy —
+useful once your families are set up and the nudge is no longer needed. The
+per-device "dismiss" a user can tap still works independently.
+
 ## See also
 
 - [Configuration and branding](configuration-branding.md)

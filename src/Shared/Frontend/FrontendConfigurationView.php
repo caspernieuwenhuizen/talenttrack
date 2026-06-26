@@ -2010,6 +2010,18 @@ class FrontendConfigurationView extends FrontendViewBase {
                         <?php esc_html_e( 'How many missed activities (absent, excused or injured) flag a player as at risk. Used by the player attendance report, the attendance leaderboard, and the daily attendance-flag notification — they all read this one number. Default 3.', 'talenttrack' ); ?>
                     </p>
                 </div>
+
+                <?php // #1994 — academy-wide opt-out for the install-on-mobile banner. ?>
+                <div class="tt-field">
+                    <input type="hidden" name="config[install_banner.enabled]" value="0" />
+                    <label>
+                        <input type="checkbox" name="config[install_banner.enabled]" value="1" <?php checked( QueryHelpers::get_config( 'install_banner.enabled', '1' ), '1' ); ?> />
+                        <?php esc_html_e( 'Show the install-on-mobile prompt', 'talenttrack' ); ?>
+                    </label>
+                    <p class="tt-field-hint">
+                        <?php esc_html_e( 'When on, players and parents see a banner inviting them to install TalentTrack on their phone. Switch it off to hide that prompt for everyone in your academy.', 'talenttrack' ); ?>
+                    </p>
+                </div>
             </div>
             <div class="tt-form-actions" style="margin-top:16px;">
                 <?php echo FormSaveButton::render( [ 'label' => __( 'Save general settings', 'talenttrack' ) ] ); ?>
