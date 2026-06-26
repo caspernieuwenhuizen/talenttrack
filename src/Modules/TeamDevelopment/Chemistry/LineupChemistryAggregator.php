@@ -109,14 +109,15 @@ final class LineupChemistryAggregator {
                 }
 
                 $pairs[] = [
-                    'a_slot'      => $la,
-                    'b_slot'      => $lb,
-                    'a_player_id' => $pa,
-                    'b_player_id' => $pb,
-                    'score'       => $result->score,
-                    'category'    => $result->category,
-                    'has_data'    => $result->has_data,
-                    'reasons'     => $result->reasons,
+                    'a_slot'            => $la,
+                    'b_slot'            => $lb,
+                    'a_player_id'       => $pa,
+                    'b_player_id'       => $pb,
+                    'score'             => $result->score,
+                    'category'          => $result->category,
+                    'has_data'          => $result->has_data,
+                    'reasons'           => $result->reasons,
+                    'weakest_component' => self::weakestComponent( $result->components ),
                 ];
             }
         }
@@ -136,6 +137,26 @@ final class LineupChemistryAggregator {
             'scored_pair_count' => $scored,
             'pairs'             => $pairs,
         ];
+    }
+
+    /**
+     * The component dragging a pair down most (lowest value among those with
+     * real data), for the explainability recommendations. '' when no
+     * component had data.
+     *
+     * @param array<string, ComponentScore> $components
+     */
+    private static function weakestComponent( array $components ): string {
+        $worst_key = '';
+        $worst_val = 101.0;
+        foreach ( $components as $key => $cs ) {
+            if ( ! $cs->has_data ) continue;
+            if ( $cs->value < $worst_val ) {
+                $worst_val = $cs->value;
+                $worst_key = (string) $key;
+            }
+        }
+        return $worst_key;
     }
 
     /** Slot.y → line group, mirroring the seeded-formation bands. */
