@@ -1,0 +1,48 @@
+name: MFA QR round-trip
+
+# #1393 / #1506 — the real safety net for the from-scratch QR encoder.
+#
+# QrCodeRenderer is a hand-rolled ISO/IEC 18004 byte-mode encoder. A real
+# otpauth:// URI is always >120 bytes, so production only ever exercises
+# the complex v6–v10 paths (alignment patterns v6+, version info v7+,
+# two-group interleaving v10) — the ones never hit by a short smoke-test
+# string. #1393 was an unscannable-QR bug; this gate proves the encoder's
+# output actually decodes back to the input.
+#
+# scripts/qr-roundtrip-verify.php encodes a representative corpus
+# (realistic otpauth URIs + v6..v10 boundary payloads) with the production
+# encoder, decodes each with an INDEPENDENT from-spec decoder, and asserts
+# equality. Standalone PHP — the repo has no PHPUnit harness (#1388), same
+# rationale as scripts/audit-1-coverage.php.
+
+on:
+  pull_request:
+    paths:
+      - 'src/Modules/Mfa/Domain/QrCodeRenderer.php'
+      - 'scripts/qr-roundtrip-verify.php'
+      - '.github/workflows/qr-roundtrip.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'src/Modules/Mfa/Domain/QrCodeRenderer.php'
+      - 'scripts/qr-roundtrip-verify.php'
+      - '.github/workflows/qr-roundtrip.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  roundtrip:
+    name: Encoder round-trip (v6–v10)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none
+
+      - name: Round-trip the QR encoder through an independent decoder
+        run: php scripts/qr-roundtrip-verify.php
