@@ -103,6 +103,22 @@ Sinds #1943 heeft de functie een matrix-entiteit: `tournaments`. De seed verleen
 
 `tt_edit_tournaments` dekte historisch bewerken **én** aanmaken **én** verwijderen (er is geen aparte beheer-capability), dus de seed-toekenning is volledig `rcd` — het overbruggen van bewerken naar `change` behoudt de aanmaak/verwijder-dekking omdat de enige begunstigde alle drie de handelingen heeft. De ruwe capability-houders (administrator + `tt_club_admin`) komen netjes overeen met de seed-begunstigde, dus routering via de matrix is **toegangsbehoudend** — geen enkele persona wint of verliest toegang. Migratie `0179_authorization_seed_topup_tournaments` vult de entiteit op bestaande installaties bij in `tt_authorization_matrix` (idempotente `INSERT IGNORE`).
 
+## Matrix-entiteit `exercises` — de oefeningenbibliotheek (#1944)
+
+De oefeningen-/drilbibliotheek (`tt_exercises`, bediend door `ExercisesRestController` op `/wp-json/talenttrack/v1/exercises`) is clubbreed: een drill die een coach schrijft, is herbruikbaar voor de hele academie. De bibliotheek staat **los van `activities`**, de teamgebonden sessiekalender — daarom krijgt zij een eigen matrix-entiteit, `exercises`, in plaats van de activiteiten-scope te lenen.
+
+Vóór #1944 was de schrijf-capability `tt_manage_exercises` niet gekoppeld, zodat de REST-schrijfpaden zodra de matrix actief is voor iedereen op `false` zouden uitkomen. #1944 voegt de entiteit + seed en de `LegacyCapMapper`-brug toe:
+
+| Ruwe capability | Matrix-tupel |
+| - | - |
+| `tt_manage_exercises` | `exercises` / `create_delete` |
+
+De leespaden blijven gegate op `tt_view_activities` (coaches zien de bibliotheek bij het plannen van sessies), wat al gekoppeld is. De schrijf-capability wordt als `rcd[global]` geseed aan **head_coach + assistant_coach + head_of_development + academy_admin**.
+
+Beide coach-persona's worden bewust geseed. De ruwe `tt_manage_exercises`-capability is in handen van `administrator` (matrix-uitzondering) + `tt_club_admin` + `tt_head_dev` + **`tt_coach`** — en `tt_coach` is de WordPress-rol achter **zowel** de head_coach- **als** de assistant_coach-persona. Alleen head_coach seeden zou stilzwijgend de schrijftoegang van assistent-coaches intrekken (de versmalling in de stijl van #1060). Beide worden geseed, dus routering via de matrix is **toegangsbehoudend** — elke ruwe capability-houder, inclusief assistent-coaches, behoudt schrijftoegang tot de bibliotheek. De scope is `global` omdat de bibliotheek clubbreed is en vandaag geen teamafbakening kent.
+
+Migratie `0180_authorization_seed_topup_exercises` vult de entiteit op bestaande installaties bij in `tt_authorization_matrix` (idempotente `INSERT IGNORE`, die alleen over de nieuwe `exercises`-rijen loopt).
+
 ## POP-zichtbaarheid — één gedeelde beslissing, frontend en REST (#1923)
 
 De zichtbaarheid van een POP-dossier wordt op één plek bepaald: `TT\Modules\Pdp\PdpAccess`. Zowel het gerenderde dossiers-tabblad (`FrontendPdpManageView`) als elke REST-ingang (`PdpFilesRestController`, `PdpVerdictsRestController`) roepen `PdpAccess::canSeeFile( $user_id, $player_id )` aan, zodat beide kanten niet langer verschillend kunnen antwoorden — de oorzaak van het verschil tussen hoofdcoach en HoD in #1758.

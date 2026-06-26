@@ -68,6 +68,16 @@ final class LegacyCapMapper {
         'tt_edit_activities'             => [ 'activities',     'change' ],
         'tt_view_methodology'            => [ 'methodology',    'read' ],
         'tt_edit_methodology'            => [ 'methodology',    'change' ],
+        // #1944 — Exercises (club-global drill library). Distinct from
+        // `activities` (the session calendar). The single legacy
+        // `tt_manage_exercises` cap gates create/edit/archive on the
+        // library, so it bridges to `exercises:create_delete`. Seeded
+        // global `rcd` to head_coach + assistant_coach +
+        // head_of_development + academy_admin — matching the raw cap
+        // holders (administrator [bypass] + tt_club_admin + tt_head_dev +
+        // tt_coach, where tt_coach backs BOTH coach personas). Access-
+        // preserving: every raw holder keeps library write.
+        'tt_manage_exercises'            => [ 'exercises',      'create_delete' ],
         'tt_view_reports'                => [ 'reports',        'read' ],
 
         // #1480 — academy-wide holidays.
